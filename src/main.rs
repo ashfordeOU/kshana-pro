@@ -56,7 +56,11 @@ fn run_file(path: &str) -> ExitCode {
         }
     };
     let routed = match kshana_pro::registry::peek_kind(&src) {
-        Some(k) if kshana_pro::registry::is_pro_kind(&k) => format!("Pro overlay ({k})"),
+        // Label on the prefix so it matches the dispatcher: every `pro-` kind is
+        // owned by the overlay (it runs or fails closed there), never the engine.
+        Some(k) if k.starts_with(kshana_pro::registry::PRO_KIND_PREFIX) => {
+            format!("Pro overlay ({k})")
+        }
         Some(k) => format!("open engine ({k})"),
         None => "open engine (default)".to_string(),
     };

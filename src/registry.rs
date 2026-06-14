@@ -56,15 +56,20 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
 /// Pro caller (CLI, future binding) uses.
 pub fn run(src: &str) -> Result<RunOutput, KshanaError> {
     match peek_kind(src) {
-        Some(kind) if is_pro_kind(&kind) => match build_pro_pack(&kind, src) {
+        // Any `pro-` prefixed kind is OWNED by the overlay: build + run it, or fail
+        // closed with an honest error. It must NEVER silently fall through to the
+        // open engine (whose classifier maps an unknown kind to its clock default)
+        // — that would let a mistyped or not-yet-registered Pro kind (e.g. a future
+        // `pro-twin` in a scenario file before the registry is updated) appear to
+        // succeed as a clock run.
+        Some(kind) if kind.starts_with(PRO_KIND_PREFIX) => match build_pro_pack(&kind, src) {
             Some(Ok(pack)) => pack.run(),
             Some(Err(e)) => Err(e),
-            // is_pro_kind said yes but no constructor matched — registry desync.
             None => Err(KshanaError::Unsupported(format!(
-                "Pro kind '{kind}' is registered but has no constructor"
+                "'{kind}' carries the {PRO_KIND_PREFIX} prefix but is not a registered Pro pack"
             ))),
         },
-        // Open scenario (or no/unknown kind) → the open engine, unchanged.
+        // Open scenario (or no/unknown non-Pro kind) → the open engine, unchanged.
         _ => run_scenario(src),
     }
 }

@@ -1,9 +1,24 @@
 # Trademark Filing Brief — "Kshana"
 
 **Owner:** Ashforde OÜ · **Status:** filing brief (PR3) · **Date:** 2026-06-14
+(prior-use scan added 2026-06-15)
 **Action owner:** **Founder (you) — I cannot file a trademark; this preps you to
 file (or to instruct an attorney).** ⚠️ Confirm classes, availability, and strategy
 with a trademark attorney before filing.
+
+> **⚠️ KEY RISK — a same-name software company exists.** A preliminary web scan
+> (2026-06-15) found **Kshana Inc. / kshana.ai** — an AI-powered asset-management /
+> investment-research fintech (founded 2023; Bengaluru, India + Texas, US; founder
+> Krishna Chaitanya R; angel-funded Jan 2024). Its **field is different** (fintech /
+> investment research, vs our PNT/navigation/space simulation), but it is **also
+> software**, so there is potential overlap in **Class 9 (software)** and **Class 42
+> (SaaS)**. No "Kshana" mark surfaced in the PNT/navigation/space domain, and no
+> registered "Kshana" trademark surfaced in EUIPO/USPTO results — but this is a
+> **preliminary scan, not a clearance search.** **Implication:** a formal clearance
+> search is now *required*, and a coexistence analysis / attorney opinion is likely
+> needed before filing in Class 9/42. The **EU route may be cleaner** than the US if
+> Kshana Inc. has no EU filing/use; distinguishing goods-and-services wording (tying
+> the mark tightly to PNT/navigation) reduces confusion risk.
 
 ---
 
@@ -52,10 +67,15 @@ with a trademark attorney before filing.
   screenshots of kshana.dev and the package registries.
 
 ## 6. Pre-filing checks (do these first)
-- [ ] **Clearance search** — EUIPO eSearch plus (and TMview) for identical/similar
-      marks in Classes 9/42; check for "Kshana"/phonetic equivalents. (Kshana =
-      Sanskrit "moment/instant" — check for prior uses.)
-- [ ] Confirm no conflicting EU/UK/US marks or common-law uses in the field.
+- [~] **Preliminary web scan done (2026-06-15):** no "Kshana" in PNT/navigation;
+      no registered "Kshana" mark surfaced in EUIPO/USPTO results; **but found
+      Kshana Inc./kshana.ai (fintech software, IN/US)** — see the KEY RISK box above.
+- [ ] **Formal clearance search (now required)** — EUIPO eSearch plus + TMview +
+      WIPO Global Brand DB + USPTO TESS for identical/similar marks in Classes 9/42;
+      check "Kshana"/phonetic equivalents. (Kshana = Sanskrit "moment/instant".)
+- [ ] **Assess Kshana Inc. specifically** — does it hold/seek a registered mark? in
+      which jurisdictions/classes? EU presence? Get an attorney coexistence opinion
+      for Class 9/42 before filing; consider PNT-tight goods wording to differentiate.
 - [ ] Confirm `kshana.dev` domain + the GitHub org reinforce the brand (they do).
 - [ ] Decide budget for attorney vs self-file (EUIPO self-file is feasible; attorney
       reduces refusal risk).

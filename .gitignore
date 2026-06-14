@@ -11,3 +11,12 @@ Cargo.lock.orig
 *.confidential
 *-customer-*
 *-device-data*
+
+# Credentials / keys / secrets — never commit (hardening ahead of L2 work).
+*.key
+*.pem
+*.p12
+*.pfx
+*.env
+.env*
+*.secret

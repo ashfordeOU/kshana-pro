@@ -13,4 +13,15 @@ on it as an unmodified dependency (it does not fork it) and adds proprietary cod
 on top. The Apache-2.0 terms apply to the embedded engine; the proprietary terms
 in LICENSE apply to the Kshana Pro overlay code in this repository.
 
+THIRD-PARTY COMPONENTS
+----------------------
+Beyond the embedded Kshana engine, this overlay depends on the following direct
+crates, all under permissive (non-copyleft) licences — no GPL/AGPL components:
+
+  serde, serde_json   — MIT OR Apache-2.0
+  toml                — MIT OR Apache-2.0
+
+For a formal deliverable (e.g. an ESA milestone), generate the full transitive
+attribution with `cargo license` (or `cargo about`) and attach it.
+
 "Kshana" is a trademark of Ashforde OÜ.

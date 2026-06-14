@@ -47,19 +47,33 @@ fn delegates_open_scenario_unchanged() {
     );
 }
 
-/// An unknown / no kind falls through to the open engine (its historical default),
-/// never to the Pro overlay.
+/// A non-Pro unknown kind is delegated to the open engine (which maps it to its
+/// historical clock default) — it is NOT a Pro-routing concern.
 #[test]
-fn unknown_kind_falls_through_to_open_engine() {
-    // No `kind` field → open engine's default (clock) path; we only assert it does
-    // not error out of the dispatcher with a Pro-routing failure.
+fn non_pro_unknown_kind_delegates_to_open_engine() {
     let src = "kind = \"definitely-not-a-pro-kind\"\n";
-    // The open engine treats unknown as its default pack; result may be Ok or a
-    // structured open-engine error, but it must NOT be the Pro registry-desync error.
+    // No `pro-` prefix → open engine. It must not produce a Pro-routing error.
     if let Err(e) = registry::run(src) {
+        let msg = format!("{e}");
         assert!(
-            !format!("{e}").contains("registered but has no constructor"),
-            "unknown kind must not be routed to the Pro registry"
+            !msg.contains("not a registered Pro pack") && !msg.contains("has no constructor"),
+            "non-pro kind must not be routed to the Pro registry: {msg}"
         );
     }
+}
+
+/// THE SAFETY PROPERTY (regression test for the silent-mis-route bug): a `pro-`
+/// prefixed kind that is NOT a registered Pro pack must fail closed with an honest
+/// error — it must NEVER silently fall through and run as an open clock scenario.
+/// This is the case that goes live the moment a future L1/L2/L3 kind appears in a
+/// scenario file before its pack is registered.
+#[test]
+fn pro_prefixed_but_unregistered_kind_fails_closed() {
+    let src = "kind = \"pro-not-registered\"\n";
+    let err =
+        registry::run(src).expect_err("unregistered pro- kind must error, not run as a clock");
+    assert!(
+        format!("{err}").contains("not a registered Pro pack"),
+        "must get an explicit routing error, got: {err}"
+    );
 }

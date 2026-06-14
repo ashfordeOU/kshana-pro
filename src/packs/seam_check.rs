@@ -53,8 +53,11 @@ impl Scenario for SeamCheckPack {
             .map(|m| m.name)
             .collect();
         if open_kinds.is_empty() {
-            return Err(KshanaError::NonConvergence(
-                "embedded open engine reported zero scenario kinds".into(),
+            // A build/linkage integrity failure (the embedded engine is broken),
+            // not a solver convergence failure — surface it as Unsupported so a
+            // binding caller does not mistake it for a retryable numeric issue.
+            return Err(KshanaError::Unsupported(
+                "embedded open engine is unavailable (zero scenario kinds; overlay build may be broken)".into(),
             ));
         }
         let pro_kinds: Vec<&'static str> = crate::registry::pro_kinds()
