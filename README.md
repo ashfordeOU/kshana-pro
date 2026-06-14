@@ -66,19 +66,32 @@ The dev build uses a **path dependency** to the local open-core checkout
 
 ```bash
 cargo test                       # unit + integration tests (proves the overlay)
-cargo run -- kinds               # list open kinds (inherited) + Pro kinds (added)
-cargo run -- run scenario.toml   # auto-routes: pro-* → overlay, else → open engine
+cargo run -- kinds               # list open kinds (inherited) + Pro kinds + their tier
 cargo run -- version
 ```
 
-The superset in one command — the same binary runs an **open** scenario
-(delegated unchanged) and a **Pro** scenario:
+**Licensing (PR7).** `run` is **fail-closed**: with no `--license` it enforces the
+**Evaluation** tier (open scenarios + the free `pro-seam-check` only). A value pack
+needs a license token (or `--dev` for local runs). Open scenarios are always free.
 
 ```bash
-cargo run -- run ../kshana/scenarios/ephemeris.toml   # [routed to: open engine (ephemeris)]
-cargo run -- run scenarios/twin-csac.toml             # L1 twin calibration + validation (PASS)
-cargo run -- run scenarios/trade-clock.toml           # L3 quantum-vs-classical trade + evidence pack
+# Open scenario — always free, no license needed:
+cargo run -- run ../kshana/scenarios/ephemeris.toml         # [routed to: open engine]
+
+# Local exploration of Pro packs without a license:
+cargo run -- run scenarios/twin-csac.toml --dev            # L1 twin (PASS)
+cargo run -- run scenarios/trade-clock.toml --dev          # L3 trade + evidence pack
+
+# The real licensed flow — issue, then run under that tier:
+TOK=$(cargo run -q -- license issue --tier pro --licensee "ACME Space" --days 90)
+cargo run -- license verify "$TOK"                          # shows entitled Pro kinds
+cargo run -- run scenarios/twin-csac.toml --license "$TOK"  # allowed (Pro tier)
+cargo run -- run scenarios/batch-clock-mc.toml --license "$TOK"  # DENIED (Enterprise-only)
 ```
+
+Tiers: **Evaluation** (free seam-check) → **Pro** (L1 twin + L3 trade) →
+**Enterprise** (+ scale/batch). Tokens are HMAC-SHA256 signed; the vendor secret is
+`$KSHANA_PRO_LICENSE_SECRET` (a demo secret is used otherwise — never for production).
 
 The L1/L3 demonstrators (runnable examples in [`scenarios/`](scenarios)):
 - `scenarios/twin-csac.toml` — calibrates a clock twin to a representative CSAC ADEV

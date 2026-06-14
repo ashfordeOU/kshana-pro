@@ -41,3 +41,8 @@ toml = "0.8"
 # the L1 twin framework synthesises a series for Allan-deviation validation.
 rand = "0.8"
 rand_chacha = "0.3"
+# Licensing: tamper-evident HMAC-SHA256 license tokens (PR7). sha2/hex match the
+# open core's versions; hmac shares digest 0.10 with sha2 0.10.
+sha2 = "0.10"
+hmac = "0.12"
+hex = "0.4"

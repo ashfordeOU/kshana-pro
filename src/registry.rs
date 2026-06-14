@@ -90,6 +90,32 @@ pub fn run(src: &str) -> Result<RunOutput, KshanaError> {
     }
 }
 
+/// Licensed dispatch: enforce a Pro [`Entitlement`] before running a `pro-*` kind.
+/// Open scenarios are always free (Pro embeds the Apache-2.0 engine). A denied Pro
+/// kind fails closed with an honest, actionable error naming the required tier.
+pub fn run_gated(
+    src: &str,
+    entitlement: &crate::license::Entitlement,
+    now_unix: i64,
+) -> Result<RunOutput, KshanaError> {
+    if let Some(kind) = peek_kind(src) {
+        if kind.starts_with(PRO_KIND_PREFIX) && !entitlement.allows(&kind, now_unix) {
+            return Err(KshanaError::Unsupported(format!(
+                "'{kind}' requires the '{}' tier; your license is '{}' (licensee: {}){}",
+                crate::license::feature_min_tier(&kind).as_str(),
+                entitlement.tier.as_str(),
+                entitlement.licensee,
+                if entitlement.is_expired(now_unix) {
+                    " — and it has expired"
+                } else {
+                    ""
+                },
+            )));
+        }
+    }
+    run(src)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -123,5 +149,41 @@ mod tests {
                 m.name
             );
         }
+    }
+
+    #[test]
+    fn run_gated_denies_above_tier_feature_without_running_it() {
+        use crate::license::{Entitlement, Tier};
+        let pro = Entitlement {
+            licensee: "ACME".into(),
+            tier: Tier::Pro,
+            expires_unix: 0,
+            features: vec![],
+        };
+        // pro-batch is Enterprise-only → denied for a Pro license, fails closed
+        // BEFORE any (expensive) run.
+        let err = run_gated("kind = \"pro-batch\"\n", &pro, 0).unwrap_err();
+        let msg = format!("{err}");
+        assert!(msg.contains("requires the 'enterprise' tier"), "got: {msg}");
+        assert!(msg.contains("license is 'pro'"), "got: {msg}");
+    }
+
+    #[test]
+    fn run_gated_allows_entitled_feature_and_open_scenarios() {
+        use crate::license::Entitlement;
+        // Eval tier: the free seam-check is allowed and runs.
+        let eval = Entitlement::evaluation();
+        assert!(run_gated("kind = \"pro-seam-check\"\n", &eval, 0).is_ok());
+        // Open scenarios are always free, even on Eval.
+        let ephem = "kind = \"ephemeris\"\n\
+            tle = \"\"\"\n\
+            1 25544U 98067A   20045.18587073  .00000950  00000-0  25302-4 0  9990\n\
+            2 25544  51.6443 242.0161 0004885 264.6060 207.3845 15.49165514212791\n\
+            \"\"\"\n\
+            step_s = 60.0\n\
+            duration_s = 120.0\n";
+        assert!(run_gated(ephem, &eval, 0).is_ok());
+        // But a value pack is denied on Eval.
+        assert!(run_gated("kind = \"pro-twin\"\n", &eval, 0).is_err());
     }
 }

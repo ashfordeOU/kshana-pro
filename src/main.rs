@@ -1,28 +1,37 @@
 // PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
 //
-//! `kshana-pro` — the Pro CLI. A thin front end over [`kshana_pro::registry::run`]
-//! that demonstrates the superset: it runs **every open scenario** (delegated to
-//! the open engine unchanged) **and** every Pro pack, from one binary.
+//! `kshana-pro` — the Pro CLI. A thin front end over [`kshana_pro::registry`] that
+//! demonstrates the superset (runs every open scenario AND every Pro pack from one
+//! binary) and the licensing mechanics (issue / verify tokens; `--license` enforces
+//! tier entitlements on Pro packs).
 
 use std::process::ExitCode;
+use std::time::{SystemTime, UNIX_EPOCH};
+
+use kshana_pro::license::{self, Entitlement, LicenseClaims, Tier};
 
 fn usage() -> &'static str {
     "kshana-pro — proprietary overlay on the open Kshana engine\n\
      \n\
      USAGE:\n\
-       kshana-pro run <scenario.toml>   Run an open OR Pro scenario (auto-routed)\n\
-       kshana-pro kinds                 List all runnable kinds (open + Pro)\n\
-       kshana-pro version               Print overlay + embedded-engine info\n\
+       kshana-pro run <scenario.toml> [--license <token>] [--dev]   Run open OR Pro scenario\n\
+       kshana-pro kinds                                              List kinds + their tier\n\
+       kshana-pro version                                            Overlay + engine info\n\
+       kshana-pro license issue --tier <t> --licensee <name> [--days <n>]\n\
+       kshana-pro license verify <token>\n\
      \n\
-     Pro kinds carry the 'pro-' prefix and run through the Pro overlay; every other\n\
-     kind is delegated to the embedded open engine unchanged."
+     Tiers: evaluation | pro | enterprise. `run` is FAIL-CLOSED: with no --license it\n\
+     enforces Evaluation tier (open scenarios + the free seam-check only). --license\n\
+     <token> enforces that token's tier; --dev disables enforcement (local use only).\n\
+     Open (non-pro) scenarios are always free. Signing secret: $KSHANA_PRO_LICENSE_SECRET\n\
+     (a built-in DEMO secret is used otherwise)."
 }
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     match args.first().map(String::as_str) {
         Some("run") => match args.get(1) {
-            Some(path) => run_file(path),
+            Some(path) => run_file(path, flag(&args, "--license"), has_flag(&args, "--dev")),
             None => {
                 eprintln!("error: `run` needs a scenario file\n\n{}", usage());
                 ExitCode::FAILURE
@@ -40,6 +49,7 @@ fn main() -> ExitCode {
             );
             ExitCode::SUCCESS
         }
+        Some("license") => license_cmd(&args[1..]),
         _ => {
             println!("{}", usage());
             ExitCode::SUCCESS
@@ -47,7 +57,38 @@ fn main() -> ExitCode {
     }
 }
 
-fn run_file(path: &str) -> ExitCode {
+/// Read `--flag value` from args.
+fn flag(args: &[String], name: &str) -> Option<String> {
+    args.iter()
+        .position(|a| a == name)
+        .and_then(|i| args.get(i + 1))
+        .cloned()
+}
+
+/// Presence of a boolean `--flag`.
+fn has_flag(args: &[String], name: &str) -> bool {
+    args.iter().any(|a| a == name)
+}
+
+fn now_unix() -> i64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0)
+}
+
+/// The vendor signing secret: from the environment, or a clearly-labelled demo key.
+fn signing_secret() -> Vec<u8> {
+    match std::env::var("KSHANA_PRO_LICENSE_SECRET") {
+        Ok(s) if !s.is_empty() => s.into_bytes(),
+        _ => {
+            eprintln!("[warning] using the built-in DEMO signing secret — set KSHANA_PRO_LICENSE_SECRET for real licenses");
+            b"kshana-pro-demo-secret-do-not-use-in-production".to_vec()
+        }
+    }
+}
+
+fn run_file(path: &str, license_token: Option<String>, dev_mode: bool) -> ExitCode {
     let src = match std::fs::read_to_string(path) {
         Ok(s) => s,
         Err(e) => {
@@ -56,15 +97,44 @@ fn run_file(path: &str) -> ExitCode {
         }
     };
     let routed = match kshana_pro::registry::peek_kind(&src) {
-        // Label on the prefix so it matches the dispatcher: every `pro-` kind is
-        // owned by the overlay (it runs or fails closed there), never the engine.
         Some(k) if k.starts_with(kshana_pro::registry::PRO_KIND_PREFIX) => {
             format!("Pro overlay ({k})")
         }
         Some(k) => format!("open engine ({k})"),
         None => "open engine (default)".to_string(),
     };
-    match kshana_pro::registry::run(&src) {
+
+    // One `now` for the whole request — no drift between verify and the gate check.
+    let now = now_unix();
+    // Default is FAIL-CLOSED: no license → Evaluation tier (only the free packs).
+    // A real license enforces its tier; `--dev` is an explicit, loud escape hatch.
+    let result = if dev_mode {
+        eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
+        kshana_pro::registry::run(&src)
+    } else {
+        match license_token {
+            Some(tok) => match license::verify(&signing_secret(), &tok, now) {
+                Ok(ent) => {
+                    eprintln!(
+                        "[license: {} tier, licensee: {}]",
+                        ent.tier.as_str(),
+                        ent.licensee
+                    );
+                    kshana_pro::registry::run_gated(&src, &ent, now)
+                }
+                Err(e) => {
+                    eprintln!("error: license invalid: {e}");
+                    return ExitCode::FAILURE;
+                }
+            },
+            None => {
+                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
+                kshana_pro::registry::run_gated(&src, &Entitlement::evaluation(), now)
+            }
+        }
+    };
+
+    match result {
         Ok(out) => {
             eprintln!("[routed to: {routed}]");
             println!("{}", out.json);
@@ -78,12 +148,117 @@ fn run_file(path: &str) -> ExitCode {
 }
 
 fn list_kinds() {
-    println!("Open engine kinds (inherited by Pro):");
+    println!("Open engine kinds (inherited by Pro · free):");
     for m in kshana::api::list_scenario_kinds() {
         println!("  {:<18} {}", m.name, m.description);
     }
-    println!("\nPro overlay kinds (added on top):");
+    println!("\nPro overlay kinds (added on top · min tier in brackets):");
     for m in kshana_pro::registry::pro_kinds() {
-        println!("  {:<18} {}", m.name, m.description);
+        println!(
+            "  {:<18} [{}] {}",
+            m.name,
+            license::feature_min_tier(m.name).as_str(),
+            m.description
+        );
+    }
+}
+
+fn license_cmd(args: &[String]) -> ExitCode {
+    match args.first().map(String::as_str) {
+        Some("issue") => {
+            let tier = match flag(args, "--tier").map(|t| Tier::parse(&t)) {
+                Some(Ok(t)) => t,
+                Some(Err(e)) => {
+                    eprintln!("error: {e}");
+                    return ExitCode::FAILURE;
+                }
+                None => {
+                    eprintln!("error: license issue needs --tier <evaluation|pro|enterprise>");
+                    return ExitCode::FAILURE;
+                }
+            };
+            let licensee = flag(args, "--licensee").unwrap_or_else(|| "unnamed".to_string());
+            let days: i64 = flag(args, "--days")
+                .and_then(|d| d.parse().ok())
+                .unwrap_or(0);
+            let expires_unix = if days > 0 {
+                match days
+                    .checked_mul(86_400)
+                    .and_then(|s| now_unix().checked_add(s))
+                {
+                    Some(e) => e,
+                    None => {
+                        eprintln!("error: --days too large (expiry timestamp overflows)");
+                        return ExitCode::FAILURE;
+                    }
+                }
+            } else {
+                0
+            };
+            let claims = LicenseClaims {
+                licensee,
+                tier: tier.as_str().to_string(),
+                expires_unix,
+                features: Vec::new(),
+            };
+            match license::issue(&signing_secret(), &claims) {
+                Ok(tok) => {
+                    eprintln!(
+                        "[issued {} license for '{}'{}]",
+                        tier.as_str(),
+                        claims.licensee,
+                        if expires_unix > 0 {
+                            format!(" (expires in {days}d)")
+                        } else {
+                            " (perpetual)".into()
+                        },
+                    );
+                    println!("{tok}");
+                    ExitCode::SUCCESS
+                }
+                Err(e) => {
+                    eprintln!("error: {e}");
+                    ExitCode::FAILURE
+                }
+            }
+        }
+        Some("verify") => match args.get(1) {
+            Some(tok) => match license::verify(&signing_secret(), tok, now_unix()) {
+                Ok(ent) => {
+                    print_entitlement(&ent);
+                    ExitCode::SUCCESS
+                }
+                Err(e) => {
+                    eprintln!("error: {e}");
+                    ExitCode::FAILURE
+                }
+            },
+            None => {
+                eprintln!("error: license verify needs a <token>");
+                ExitCode::FAILURE
+            }
+        },
+        _ => {
+            eprintln!("usage: kshana-pro license <issue|verify> ...");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+fn print_entitlement(ent: &Entitlement) {
+    println!("licensee:  {}", ent.licensee);
+    println!("tier:      {}", ent.tier.as_str());
+    println!(
+        "expires:   {}",
+        if ent.expires_unix == 0 {
+            "never (perpetual)".to_string()
+        } else {
+            format!("unix {}", ent.expires_unix)
+        }
+    );
+    println!("entitled Pro kinds:");
+    for m in kshana_pro::registry::pro_kinds() {
+        let ok = ent.allows(m.name, now_unix());
+        println!("  [{}] {}", if ok { "✓" } else { "✗" }, m.name);
     }
 }
