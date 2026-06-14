@@ -1,0 +1,23 @@
+# Kshana Pro L1 demonstrator — digital-twin calibration.
+#
+# Calibrate a clock twin to a device's PUBLISHED Allan-deviation budget and validate
+# (with the open-core Allan estimator) that the twin reproduces it. The framework is
+# the moat; a twin of a real *customer* device just swaps these published points for
+# the customer's NDA characterisation data (gated).
+#
+# Run:  kshana-pro run scenarios/twin-csac.toml
+kind = "pro-twin"
+device = "CSAC (representative)"
+provenance = "representative CSAC-class published ADEV (white FM + flicker floor) — substitute a target device datasheet"
+
+# Published [tau_s, sigma_y(tau)] points. White-FM-dominated, rolling toward a floor.
+adev_points = [
+  [1.0,   3.0e-10],
+  [10.0,  1.0e-10],
+  [100.0, 3.2e-11],
+]
+
+tolerance = 0.25     # max acceptable relative ADEV error for a PASS
+tau0_s = 1.0         # synthesis step
+n_samples = 200000   # series length for the Allan-deviation validation
+seed = 7

@@ -92,19 +92,28 @@ in scenario files and logs.
 
 ## 4. Where each value layer attaches
 
-All three are **gated** — present as seam guards, not built on spec.
+The distinction that matters: the gated **capability** (a real customer instance / a
+sold SKU / controlled data) vs the **framework** that capability plugs into. The
+frameworks for L1 and L3 are **built as demonstrators** (runnable on public data, no
+gate crossed); only the gated instances and all of L2 wait on triggers.
 
-- **L1 — Quantum-payload digital twin** (`twin`): a calibrated device is an
-  `ErrorModel` whose coefficients are fitted to a partner's NDA characterisation
-  data, dropped into the existing clock/inertial run paths. Trigger: NDA partner +
-  contract (first instance = AO/1-13503 Foreground IP).
-- **L2 — Export-sensitive resilience** (`resilience`): real-parameter `ErrorModel`
-  degradation + access-controlled `ExternalPack` scenario packs, the closed twins
-  of the open `jamming`/`spoof` packs. Trigger: export-control assessment (PR5) +
-  cleared customer.
-- **L3 — Trade-study & assurance suite** (`suite`): an `ExternalPack` meta-pack
-  that orchestrates open `sweep` runs into ECSS/MBSE artifacts and audit-grade
-  evidence packs. Trigger: second paying customer.
+- **L1 — Quantum-payload digital twin** (`twin`, `packs::twin_pack`) — ✅ **framework
+  built.** `twin::calibrate` fits a published Allan-deviation budget to an open-core
+  `ClockModel` (an `ErrorModel`); `twin::validate` confirms the twin reproduces the
+  curve via `kshana::allan`. Demonstrated on a representative CSAC spec (`pro-twin`).
+  *Gated instance:* a twin of a specific customer's device needs NDA (and likely
+  export-controlled) data — `twin::customer_instance_gated`. First instance =
+  AO/1-13503 Foreground IP.
+- **L2 — Export-sensitive resilience** (`resilience`) — 🔒 **gated stub (legal wall).**
+  Real-parameter degradation + access-controlled packs, the closed twins of the open
+  `jamming`/`spoof` packs. Trigger: export-control assessment (PR5) + cleared
+  customer. Nothing built on spec — `resilience::gated`.
+- **L3 — Trade-study & assurance suite** (`suite`, `packs::trade_study_pack`) — ✅
+  **framework built.** `suite::run_trade_study` runs architecture variants through
+  `kshana::api::run_scenario`, ranks them, and `evidence_pack_markdown` emits an
+  audit-grade record with reproducible scenario hashes (`pro-trade-study`). *Gated:*
+  packaging as a licensed SKU with full ECSS/MBSE generation — `suite::product_gated`.
+  Trigger: second paying customer.
 
 ---
 

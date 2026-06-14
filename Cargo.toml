@@ -37,3 +37,7 @@ kshana = { path = "../kshana", version = "0.17" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "0.8"
+# Needed to drive the open ErrorModel/ClockModel (its `step` takes an RngCore) when
+# the L1 twin framework synthesises a series for Allan-deviation validation.
+rand = "0.8"
+rand_chacha = "0.3"

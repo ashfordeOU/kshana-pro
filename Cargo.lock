@@ -170,6 +170,8 @@ name = "kshana-pro"
 version = "0.1.0"
 dependencies = [
  "kshana",
+ "rand",
+ "rand_chacha",
  "serde",
  "serde_json",
  "toml",
