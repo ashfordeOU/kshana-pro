@@ -1,0 +1,16 @@
+Kshana Pro
+Copyright (c) 2026 Ashforde OÜ. All rights reserved. (Proprietary — see LICENSE.)
+
+This product embeds the open-source Kshana engine:
+
+  kshana — Open, reproducible PNT-resilience simulator
+  Copyright (c) Chakshu Baweja / Ashforde OÜ
+  Licensed under the Apache License, Version 2.0
+  https://github.com/AshfordeOU/kshana
+
+The embedded Kshana engine is and remains Apache-2.0 licensed. Kshana Pro depends
+on it as an unmodified dependency (it does not fork it) and adds proprietary code
+on top. The Apache-2.0 terms apply to the embedded engine; the proprietary terms
+in LICENSE apply to the Kshana Pro overlay code in this repository.
+
+"Kshana" is a trademark of Ashforde OÜ.

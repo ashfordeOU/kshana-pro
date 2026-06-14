@@ -1,0 +1,39 @@
+[package]
+name = "kshana-pro"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Kshana Pro — proprietary overlay on the open Kshana PNT-resilience engine"
+authors = ["Chakshu Baweja <contact@ashforde.org>"]
+license-file = "LICENSE"
+# CLOSED OVERLAY — must never be published to a public registry. `publish = false`
+# is a hard guard: `cargo publish` will refuse, so the proprietary code cannot be
+# pushed to crates.io even by mistake.
+publish = false
+
+[lib]
+
+[[bin]]
+name = "kshana-pro"
+path = "src/main.rs"
+
+[dependencies]
+# The open Apache-2.0 engine, consumed as a dependency — NEVER forked. Pro is a
+# strict superset of open Kshana by construction: it embeds the whole engine and
+# every open feature, then extends it through the public `ExternalPack` / model
+# trait seams (see docs/OVERLAY-ARCHITECTURE.md).
+#
+# Dev: a path dependency to the local open-core checkout so seams can co-evolve.
+# Release: pin to the published crate or a git tag instead, e.g.
+#     kshana = "0.17"
+#   or
+#     kshana = { git = "https://github.com/AshfordeOU/kshana", tag = "v0.17.0" }
+# The `version` field below keeps the semver contract recorded even while the
+# path is used locally.
+kshana = { path = "../kshana", version = "0.17" }
+
+# Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
+# graphs share one resolved copy of each crate.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"

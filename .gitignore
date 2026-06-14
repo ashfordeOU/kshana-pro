@@ -1,0 +1,13 @@
+/target
+**/*.rs.bk
+Cargo.lock.orig
+
+# Closed-overlay safety: NDA / customer / export-controlled material must NEVER be
+# committed. Keep such inputs out of the tree entirely; these patterns are a
+# backstop, not a licence to place secrets in the repo.
+/data/
+/private/
+*.nda
+*.confidential
+*-customer-*
+*-device-data*

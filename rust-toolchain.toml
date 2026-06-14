@@ -1,0 +1,5 @@
+[toolchain]
+# Pinned to the same exact stable release as the open core (kshana) so the overlay
+# and the engine it embeds compile with one reproducible compiler version.
+channel = "1.93.0"
+components = ["rustfmt", "clippy"]
