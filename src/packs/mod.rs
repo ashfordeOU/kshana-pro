@@ -8,6 +8,7 @@
 //! engine. Real value packs (L1/L2/L3) live behind their gated modules until a
 //! trigger exists.
 
+pub mod batch_pack;
 pub mod seam_check;
 pub mod trade_study_pack;
 pub mod twin_pack;

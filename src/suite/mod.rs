@@ -18,6 +18,8 @@
 
 use kshana::api::{run_scenario, KshanaError};
 
+use crate::util::dot_path_number;
+
 /// One architecture option in the trade space: a label + a full scenario (the open
 /// engine runs it unchanged, so any open scenario kind is a valid variant).
 #[derive(Debug, Clone)]
@@ -56,15 +58,6 @@ pub struct TradeReport {
     pub outcomes: Vec<VariantOutcome>,
     pub winner: Option<String>,
     pub recommendation: String,
-}
-
-/// Walk a dot-path (`a.b.c`) into a JSON value, returning a finite number if present.
-fn dot_path_number(root: &serde_json::Value, path: &str) -> Option<f64> {
-    let mut cur = root;
-    for key in path.split('.') {
-        cur = cur.get(key)?;
-    }
-    cur.as_f64().filter(|v| v.is_finite())
 }
 
 /// **Run the trade study**: execute each variant on the open engine, extract the

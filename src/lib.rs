@@ -30,8 +30,10 @@
 // is unambiguous that Pro *embeds* (does not reimplement) the open core.
 pub use kshana;
 
+pub mod batch;
 pub mod packs;
 pub mod registry;
+mod util;
 
 // Value layers — gated stubs (seam guards only; no proprietary capability is built
 // on spec, per the open-core discipline in docs/OVERLAY-ARCHITECTURE.md).
