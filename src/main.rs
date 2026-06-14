@@ -8,6 +8,7 @@
 use std::process::ExitCode;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use kshana_pro::connectors::{self, GateOp};
 use kshana_pro::license::{self, Entitlement, LicenseClaims, Tier};
 
 fn usage() -> &'static str {
@@ -17,6 +18,8 @@ fn usage() -> &'static str {
        kshana-pro run <scenario.toml> [--license <token>] [--dev]   Run open OR Pro scenario\n\
        kshana-pro kinds                                              List kinds + their tier\n\
        kshana-pro version                                            Overlay + engine info\n\
+       kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
+       kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
        kshana-pro license issue --tier <t> --licensee <name> [--days <n>]\n\
        kshana-pro license verify <token>\n\
      \n\
@@ -49,12 +52,138 @@ fn main() -> ExitCode {
             );
             ExitCode::SUCCESS
         }
+        Some("export") => match args.get(1) {
+            Some(path) => export_cmd(path, flag(&args, "--format")),
+            None => {
+                eprintln!("error: `export` needs a scenario file\n\n{}", usage());
+                ExitCode::FAILURE
+            }
+        },
+        Some("gate") => match args.get(1) {
+            Some(path) => gate_cmd(path, &args),
+            None => {
+                eprintln!("error: `gate` needs a scenario file\n\n{}", usage());
+                ExitCode::FAILURE
+            }
+        },
         Some("license") => license_cmd(&args[1..]),
         _ => {
             println!("{}", usage());
             ExitCode::SUCCESS
         }
     }
+}
+
+/// Run a scenario through the open engine and return its result JSON (exports and
+/// the gate operate on raw open-engine results, so they bypass Pro entitlements —
+/// they consume open outputs, not Pro packs).
+fn run_to_json(path: &str) -> Result<String, String> {
+    let src = std::fs::read_to_string(path).map_err(|e| format!("could not read {path}: {e}"))?;
+    kshana::api::run_scenario(&src)
+        .map(|o| o.json)
+        .map_err(|e| format!("{e}"))
+}
+
+fn export_cmd(path: &str, format: Option<String>) -> ExitCode {
+    let json = match run_to_json(path) {
+        Ok(j) => j,
+        Err(e) => {
+            eprintln!("error: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+    let samples = match connectors::parse_ephem_samples(&json) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("error: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+    let out = match format.as_deref() {
+        Some("stk") => connectors::to_stk_ephemeris(&samples),
+        Some("csv") => connectors::to_csv(&samples),
+        other => {
+            eprintln!("error: --format must be 'stk' or 'csv' (got {other:?})");
+            return ExitCode::FAILURE;
+        }
+    };
+    match out {
+        Ok(text) => {
+            print!("{text}");
+            ExitCode::SUCCESS
+        }
+        Err(e) => {
+            eprintln!("error: {e}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+fn gate_cmd(path: &str, args: &[String]) -> ExitCode {
+    let metric = match flag(args, "--metric") {
+        Some(m) => m,
+        None => {
+            eprintln!("error: gate needs --metric <dot.path>");
+            return ExitCode::FAILURE;
+        }
+    };
+    let op = match flag(args, "--op").map(|o| GateOp::parse(&o)) {
+        Some(Ok(o)) => o,
+        Some(Err(e)) => {
+            eprintln!("error: {e}");
+            return ExitCode::FAILURE;
+        }
+        None => {
+            eprintln!("error: gate needs --op <lt|le|gt|ge>");
+            return ExitCode::FAILURE;
+        }
+    };
+    let threshold: f64 = match flag(args, "--threshold").and_then(|t| t.parse().ok()) {
+        Some(t) => t,
+        None => {
+            eprintln!("error: gate needs --threshold <number>");
+            return ExitCode::FAILURE;
+        }
+    };
+    let json = match run_to_json(path) {
+        Ok(j) => j,
+        Err(e) => {
+            eprintln!("error: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+    let value = match dot_path_number(&json, &metric) {
+        Some(v) => v,
+        None => {
+            eprintln!("error: metric '{metric}' not found or non-numeric in result");
+            return ExitCode::FAILURE;
+        }
+    };
+    let pass = op.passes(value, threshold);
+    eprintln!(
+        "[gate] {metric} = {value} {} {threshold} → {}",
+        op.as_str(),
+        if pass { "PASS" } else { "FAIL" }
+    );
+    if pass {
+        ExitCode::SUCCESS
+    } else {
+        ExitCode::FAILURE // nonzero → fails the CI pipeline
+    }
+}
+
+/// Local dot-path metric extraction (mirrors the internal util used by the packs).
+/// A numeric path segment indexes into a JSON array (e.g. `samples.0.alt_km`).
+fn dot_path_number(result_json: &str, path: &str) -> Option<f64> {
+    let v: serde_json::Value = serde_json::from_str(result_json).ok()?;
+    let mut cur = &v;
+    for key in path.split('.') {
+        cur = match key.parse::<usize>() {
+            Ok(idx) => cur.get(idx)?,
+            Err(_) => cur.get(key)?,
+        };
+    }
+    cur.as_f64().filter(|x| x.is_finite())
 }
 
 /// Read `--flag value` from args.

@@ -31,6 +31,7 @@
 pub use kshana;
 
 pub mod batch;
+pub mod connectors;
 pub mod license;
 pub mod packs;
 pub mod premium;

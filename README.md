@@ -93,6 +93,17 @@ Tiers: **Evaluation** (free seam-check) → **Pro** (L1 twin + L3 trade) →
 **Enterprise** (+ scale/batch). Tokens are HMAC-SHA256 signed; the vendor secret is
 `$KSHANA_PRO_LICENSE_SECRET` (a demo secret is used otherwise — never for production).
 
+**Connectors & CI (PR21).** Export an ephemeris to enterprise tools, or gate a
+metric in CI. The open core already emits CCSDS OEM/SP3 (GMAT/Orekit); Pro adds STK
+`.e` (km, J2000/GCRS) + universal CSV, and a metric gate with a CI exit code.
+
+```bash
+cargo run -- export ../kshana/scenarios/ephemeris.toml --format stk > orbit.e
+cargo run -- export ../kshana/scenarios/ephemeris.toml --format csv > orbit.csv
+# CI gate: nonzero exit fails the pipeline (dot-path supports array indices):
+cargo run -- gate ../kshana/scenarios/ephemeris.toml --metric samples.0.alt_km --op gt --threshold 400
+```
+
 The L1/L3 demonstrators (runnable examples in [`scenarios/`](scenarios)):
 - `scenarios/twin-csac.toml` — calibrates a clock twin to a representative CSAC ADEV
   budget; validates it reproduces the curve within tolerance.
