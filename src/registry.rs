@@ -10,6 +10,7 @@
 use kshana::api::{run_scenario, ExternalPack, KshanaError, RunOutput, ScenarioMeta};
 
 use crate::packs::batch_pack::BatchScenario;
+use crate::packs::quantum_systematics_pack::QuantumSystematicsScenario;
 use crate::packs::seam_check::SeamCheckPack;
 use crate::packs::trade_study_pack::TradeStudyScenario;
 use crate::packs::twin_pack::TwinScenario;
@@ -51,6 +52,7 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         TwinScenario::KIND => Some(parse::<TwinScenario>(kind, src)),
         TradeStudyScenario::KIND => Some(parse::<TradeStudyScenario>(kind, src)),
         BatchScenario::KIND => Some(parse::<BatchScenario>(kind, src)),
+        QuantumSystematicsScenario::KIND => Some(parse::<QuantumSystematicsScenario>(kind, src)),
         _ => None,
     }
 }
@@ -64,6 +66,7 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
         TwinScenario::meta_static(),
         TradeStudyScenario::meta_static(),
         BatchScenario::meta_static(),
+        QuantumSystematicsScenario::meta_static(),
     ]
 }
 

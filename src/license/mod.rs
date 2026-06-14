@@ -69,6 +69,7 @@ pub fn feature_min_tier(kind: &str) -> Tier {
         "pro-seam-check" => Tier::Evaluation,
         "pro-twin" => Tier::Pro,
         "pro-trade-study" => Tier::Pro,
+        "pro-quantum-systematics" => Tier::Pro,
         "pro-batch" => Tier::Enterprise,
         _ => Tier::Enterprise,
     }

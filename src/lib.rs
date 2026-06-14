@@ -33,6 +33,7 @@ pub use kshana;
 pub mod batch;
 pub mod license;
 pub mod packs;
+pub mod premium;
 pub mod registry;
 mod util;
 
