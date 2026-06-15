@@ -20,6 +20,7 @@ fn usage() -> &'static str {
        kshana-pro version                                            Overlay + engine info\n\
        kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
+       kshana-pro serve [--addr <host:port>] [--license <token>] [--dev]   Host the HTTP service\n\
        kshana-pro license issue --tier <t> --licensee <name> [--days <n>]\n\
        kshana-pro license verify <token>\n\
      \n\
@@ -66,10 +67,57 @@ fn main() -> ExitCode {
                 ExitCode::FAILURE
             }
         },
+        Some("serve") => serve_cmd(&args),
+        Some("healthcheck") => {
+            let addr = flag(&args, "--addr").unwrap_or_else(|| "127.0.0.1:8088".to_string());
+            if kshana_pro::serve::healthcheck(&addr) {
+                ExitCode::SUCCESS
+            } else {
+                ExitCode::FAILURE
+            }
+        }
         Some("license") => license_cmd(&args[1..]),
         _ => {
             println!("{}", usage());
             ExitCode::SUCCESS
+        }
+    }
+}
+
+fn serve_cmd(args: &[String]) -> ExitCode {
+    let addr = flag(args, "--addr").unwrap_or_else(|| "127.0.0.1:8088".to_string());
+    // The service runs at a fixed entitlement: a token sets the tier; --dev =
+    // Enterprise (everything) for local use; otherwise Evaluation (open + free only).
+    let ent = if has_flag(args, "--dev") {
+        eprintln!("[DEV MODE — serving at Enterprise tier, no enforcement; not for distribution]");
+        Entitlement {
+            licensee: "(dev)".into(),
+            tier: Tier::Enterprise,
+            expires_unix: 0,
+            features: vec![],
+        }
+    } else {
+        match flag(args, "--license") {
+            Some(tok) => match license::verify(&signing_secret(), &tok, now_unix()) {
+                Ok(e) => e,
+                Err(e) => {
+                    eprintln!("error: license invalid: {e}");
+                    return ExitCode::FAILURE;
+                }
+            },
+            None => {
+                eprintln!(
+                    "[no license — serving at Evaluation tier; use --license <token> or --dev]"
+                );
+                Entitlement::evaluation()
+            }
+        }
+    };
+    match kshana_pro::serve::serve(&addr, ent) {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => {
+            eprintln!("error: could not serve on {addr}: {e}");
+            ExitCode::FAILURE
         }
     }
 }

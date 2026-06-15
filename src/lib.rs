@@ -36,6 +36,7 @@ pub mod license;
 pub mod packs;
 pub mod premium;
 pub mod registry;
+pub mod serve;
 mod util;
 
 // Value layers — gated stubs (seam guards only; no proprietary capability is built

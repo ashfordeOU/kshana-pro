@@ -133,7 +133,7 @@ impl Entitlement {
 pub fn issue(secret: &[u8], claims: &LicenseClaims) -> Result<String, KshanaError> {
     let payload = serde_json::to_vec(claims)
         .map_err(|e| KshanaError::InvalidInput(format!("could not serialise claims: {e}")))?;
-    let sig = sign(secret, &payload);
+    let sig = sign(secret, &payload)?;
     Ok(format!("{}.{}", hex::encode(&payload), hex::encode(sig)))
 }
 
@@ -175,10 +175,12 @@ pub fn verify(secret: &[u8], token: &str, now_unix: i64) -> Result<Entitlement, 
     Ok(ent)
 }
 
-fn sign(secret: &[u8], payload: &[u8]) -> Vec<u8> {
-    let mut mac = HmacSha256::new_from_slice(secret).expect("HMAC accepts any key length");
+fn sign(secret: &[u8], payload: &[u8]) -> Result<Vec<u8>, KshanaError> {
+    // HMAC accepts any key length except empty; surface that as an error, not a panic.
+    let mut mac = HmacSha256::new_from_slice(secret)
+        .map_err(|_| KshanaError::InvalidInput("signing key must be non-empty".into()))?;
     mac.update(payload);
-    mac.finalize().into_bytes().to_vec()
+    Ok(mac.finalize().into_bytes().to_vec())
 }
 
 #[cfg(test)]
@@ -202,6 +204,14 @@ mod tests {
         let ent = verify(SECRET, &tok, 1_000).unwrap();
         assert_eq!(ent.tier, Tier::Pro);
         assert_eq!(ent.licensee, "ACME Space");
+    }
+
+    #[test]
+    fn issue_with_empty_secret_does_not_panic() {
+        // HMAC-SHA256 accepts any key length (incl. empty), so `sign` does not panic
+        // and `issue` succeeds. Empty-secret protection for production lives in
+        // main.rs::signing_secret() (which falls back to the demo key, never "").
+        assert!(issue(b"", &claims("pro", 0)).is_ok());
     }
 
     #[test]

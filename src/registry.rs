@@ -103,13 +103,14 @@ pub fn run_gated(
 ) -> Result<RunOutput, KshanaError> {
     if let Some(kind) = peek_kind(src) {
         if kind.starts_with(PRO_KIND_PREFIX) && !entitlement.allows(&kind, now_unix) {
+            // Do NOT echo the licensee name here — this message can reach an HTTP
+            // 403 body seen by an unauthorised caller.
             return Err(KshanaError::Unsupported(format!(
-                "'{kind}' requires the '{}' tier; your license is '{}' (licensee: {}){}",
+                "'{kind}' requires the '{}' tier; current license tier is '{}'{}",
                 crate::license::feature_min_tier(&kind).as_str(),
                 entitlement.tier.as_str(),
-                entitlement.licensee,
                 if entitlement.is_expired(now_unix) {
-                    " — and it has expired"
+                    " (and it has expired)"
                 } else {
                     ""
                 },
@@ -168,7 +169,11 @@ mod tests {
         let err = run_gated("kind = \"pro-batch\"\n", &pro, 0).unwrap_err();
         let msg = format!("{err}");
         assert!(msg.contains("requires the 'enterprise' tier"), "got: {msg}");
-        assert!(msg.contains("license is 'pro'"), "got: {msg}");
+        assert!(msg.contains("tier is 'pro'"), "got: {msg}");
+        assert!(
+            !msg.contains("licensee"),
+            "must not leak the licensee name: {msg}"
+        );
     }
 
     #[test]

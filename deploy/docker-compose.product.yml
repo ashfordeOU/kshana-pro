@@ -1,0 +1,28 @@
+# Kshana Pro — standard hosted/on-prem deployment.
+#
+# Build context is the parent dir (contains both kshana/ and kshana-pro/).
+#   docker compose -f kshana-pro/deploy/docker-compose.product.yml up --build
+#
+# Provide the licence signing secret and (optionally) a licence token to unlock Pro
+# features; without a token the service runs fail-closed at Evaluation tier.
+services:
+  kshana-pro:
+    build:
+      context: ../..
+      dockerfile: kshana-pro/Dockerfile
+    image: kshana-pro:latest
+    container_name: kshana-pro
+    restart: unless-stopped
+    ports:
+      - "8088:8088"
+    environment:
+      # Vendor signing secret for licence verification (set in your env/secret store).
+      KSHANA_PRO_LICENSE_SECRET: "${KSHANA_PRO_LICENSE_SECRET:-}"
+    # To unlock Pro features, supply a licence token:
+    # command: ["serve","--addr","0.0.0.0:8088","--license","${KSHANA_PRO_LICENSE_TOKEN}"]
+    # Hardening.
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
