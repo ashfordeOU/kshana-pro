@@ -1,0 +1,21 @@
+{
+  "format": "spacestream-navex-navdt",
+  "schema_version": "1.0.0",
+  "pass_id": "PASS-0004",
+  "pass_timestamp_utc": "2026-06-15T04:30:00.000Z",
+  "ranging_timing": {
+    "timing_rms_ns": 18.0,
+    "timing_p95_ns": 40.0
+  },
+  "availability": 0.6,
+  "integrity": {
+    "araim_available": false,
+    "self_consistency": 0.82,
+    "alert": true
+  },
+  "rf_impairment_alert": null,
+  "link": {
+    "cn0_dbhz": 40.0,
+    "margin_db": 3.0
+  }
+}

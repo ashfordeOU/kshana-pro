@@ -31,12 +31,15 @@
 pub use kshana;
 
 pub mod batch;
+pub mod benefits;
 pub mod connectors;
 pub mod license;
 pub mod mbse;
+pub mod mrd;
 pub mod packs;
 pub mod premium;
 pub mod registry;
+pub mod report;
 pub mod serve;
 mod util;
 

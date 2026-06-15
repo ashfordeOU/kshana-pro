@@ -1,0 +1,28 @@
+{
+  "format": "spacestream-navex-navdt",
+  "schema_version": "1.0.0",
+  "pass_id": "PASS-0002",
+  "pass_timestamp_utc": "2026-06-15T01:30:00.000Z",
+  "ranging_timing": {
+    "timing_rms_ns": 30.0,
+    "timing_p95_ns": 62.0
+  },
+  "availability": 0.82,
+  "integrity": {
+    "araim_available": true,
+    "self_consistency": 0.71,
+    "alert": true
+  },
+  "rf_impairment_alert": {
+    "label": "jamming",
+    "confidence": 0.93,
+    "params": {
+      "cn0_drop_db": 12.0,
+      "js_db": 35.0
+    }
+  },
+  "link": {
+    "cn0_dbhz": 33.0,
+    "margin_db": -2.0
+  }
+}

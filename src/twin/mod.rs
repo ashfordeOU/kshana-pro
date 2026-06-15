@@ -29,6 +29,9 @@
 //! Random-walk FM / aging (long-τ) is a straightforward extension, intentionally out
 //! of this demonstrator's scope.
 
+/// NAV-DT performance/resilience twin pipeline (A10) — the canonical bundle output.
+pub mod navdt;
+
 use kshana::api::KshanaError;
 use kshana::models::{ClockModel, ErrorModel};
 use rand::SeedableRng;

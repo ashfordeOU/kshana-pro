@@ -15,6 +15,9 @@
 
 use kshana::api::KshanaError;
 
+/// SpaceStream — the versioned, aggregated-metrics-only NAVEX→NAV-DT interface (A09).
+pub mod spacestream;
+
 /// The subset of an open `ephemeris` result sample the connectors need. Unknown
 /// fields in the result JSON are ignored by serde, so this tracks only what we emit.
 #[derive(Debug, Clone, serde::Deserialize)]
