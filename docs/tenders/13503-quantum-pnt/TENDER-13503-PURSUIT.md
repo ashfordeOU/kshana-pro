@@ -12,7 +12,7 @@ Never publish in the open kshana repo. Master tracker for the ESA AO/1-13503
 **Decision (founder):** pursue **as a consortium SME** (nav-performance / trade-study WP) — **not** as prime.
 **The one hard gate:** **T7 — secure a consortium seat.** No prime → no bid this cycle.
 
-> Companion artifacts in this folder: [`gap-audit.html`](gap-audit.html) (the full capability/eligibility audit), [`kshana-capability-brief.md`](kshana-capability-brief.md) (T9), [`technical-contribution.md`](technical-contribution.md) (T12 + SoW compliance matrix), [`ESA-QA-draft.md`](ESA-QA-draft.md) (T3), [`BIPR-declaration.md`](BIPR-declaration.md) (T13), [`consortium-target-map.md`](consortium-target-map.md) (T5 — template, search gated), [`osip-positioning-note.md`](osip-positioning-note.md) (T18).
+> Companion artifacts in this folder: [`gap-audit.html`](gap-audit.html) (the full capability/eligibility audit), [`kshana-capability-brief.md`](kshana-capability-brief.md) (T9), [`technical-contribution.md`](technical-contribution.md) (T12 + SoW compliance matrix), [`ESA-QA-draft.md`](ESA-QA-draft.md) (T3), [`BIPR-declaration.md`](BIPR-declaration.md) (T13), [`consortium-target-map.md`](consortium-target-map.md) (T5 — template, search gated), [`osip-positioning-note.md`](osip-positioning-note.md) (T18), [`software-PA-evidence.md`](software-PA-evidence.md) (T21), [`SE-verification-plan.md`](SE-verification-plan.md) (T22), [`TRL-maturation-dossier.md`](TRL-maturation-dossier.md) (T23).
 
 ---
 
@@ -63,6 +63,9 @@ Never publish in the open kshana repo. Master tracker for the ESA AO/1-13503
 | T13 | **BIPR declaration**: Kshana (Apache-2.0) as Background IPR + ESA open-source-use authorization; no GPL | F · drafted | 2026-07-07 | ✅ draft ready → [`BIPR-declaration.md`](BIPR-declaration.md) |
 | T14 | **Financial input**: Ashforde WP cost via ECOS/PBF (through prime); SME 35% advance | F + P | 2026-07-08 | 🔒 gated (T7); founder/prime inputs |
 | T15 | Obtain + cross-check the **real SoW (FPD-10029)** for Phase 0/A task detail; confirm WP alignment | F · analyze | 2026-06-27 | ▢ to do — **founder to obtain the SoW**; compliance matrix is a template pending it ([`technical-contribution.md`](technical-contribution.md) §5) |
+| T21 | **Software-PA (ECSS-Q-ST-80) evidence pack** — maps Kshana's SW-quality infra (tests/SBOM/repro/CI gates/verification matrix) to the software-PA process areas (the one PA slice Kshana owns) | F · drafted | 2026-07-07 | ✅ draft ready → [`software-PA-evidence.md`](software-PA-evidence.md) — flight-hardware PA stays a partner's |
+| T22 | **SE verification plan + RTM skeleton (ECSS-E-ST-10-02)** — backed by the machine-checked `verification` matrix in open kshana | F · drafted | 2026-07-07 | ✅ draft ready → [`SE-verification-plan.md`](SE-verification-plan.md) — named SE lead stays the prime's |
+| T23 | **TRL3→7 maturation dossier** — Kshana's performance-evidence / trade-closure support to the hardware maturation case | F · drafted | 2026-07-07 | ✅ draft ready → [`TRL-maturation-dossier.md`](TRL-maturation-dossier.md) — TRL advancement stays the hardware's |
 
 ## Phase 3 · Submission — 2026-07-07 → 2026-07-09
 
@@ -84,6 +87,11 @@ Never publish in the open kshana repo. Master tracker for the ESA AO/1-13503
 - T13 BIPR declaration
 - T18 OSIP positioning note
 - T5 consortium target-map **template + selection criteria** (no names — search gated)
+- T21 software-PA (ECSS-Q-ST-80) evidence pack — *added 2026-06-15*
+- T22 SE verification plan + RTM skeleton (ECSS-E-ST-10-02) — *added 2026-06-15*
+- T23 TRL3→7 maturation dossier — *added 2026-06-15*
+
+**Open-`kshana` capability built 2026-06-15** (strengthens the §C analysis layer and narrows the §D/§E residuals — see [`gap-audit.html`](gap-audit.html) build banner): GNSS-denied clock-holdover calculator (`src/holdover.rs`), composed quantum-inertial dead-reckoning budget (`QuantumNavBudget`), ranging-code design-trade (`navsignal::CodeFamily`, GPS C/A −23.9 dB anchor), and a machine-checked verification matrix (`src/verification.rs`). Each TDD'd against closed-form/published anchors, then hardened by an adversarial review that caught and fixed real overclaims (notably: the clock-holdover headline is floor-governed for very stable clocks — now stated honestly; the verification matrix now permits a *validated* label only with an external oracle). **The four hardware/track-record badges (§D bus, §D RF-payload, §D quantum-hardware, §E flight-PA) deliberately did NOT flip to "strength"** — genuinely a partner's, and faking them would forfeit the honesty that is the differentiator.
 
 **Founder-gated (cannot be drafted from code/audit alone):**
 - T2 / T4 — German seat decision + ESA-STAR full registration (legal/financial)
