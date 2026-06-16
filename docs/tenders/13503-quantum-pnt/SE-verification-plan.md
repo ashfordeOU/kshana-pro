@@ -103,9 +103,13 @@ primary method**, since Kshana *is* a performance-analysis tool.
   Stable32 on NBS14, 1e-4), integrity (RAIM/ARAIM/SBAS vs DO-229E/DO-316 with real IGS SP3),
   and ranging-code cross-correlation (vs published GPS C/A Gold −23.9 dB).
 - **Modelled analyses** (first-principles or published formulae, internally / cross-checked
-  only): GNSS-denied clock holdover, the quantum-inertial dead-reckoning budget, nav-signal
-  modulation & code-tracking, jamming link budget, spoof detection (TEXBAT *parameter*
-  characterisation), CR3BP cislunar analysis, and alternative-PNT (gravity/terrain/magnetic).
+  only): GNSS-denied clock holdover, the quantum-inertial dead-reckoning budget (incl. the
+  Coriolis & AC-Stark systematics), the **quantum-vs-classical trade engine** (the trade table,
+  measured-ADEV ingestion via NNLS, and the resilience-vs-time envelope — §3.3, the D1.1
+  evidence pipeline), the **hybrid 17-state tightly-coupled UKF scenario** (scored by a
+  NEES/innovation-whiteness self-consistency oracle), nav-signal modulation & code-tracking,
+  jamming link budget, spoof detection (TEXBAT *parameter* characterisation), CR3BP cislunar
+  analysis, and alternative-PNT (gravity/terrain/magnetic).
 - *Honesty note:* "validated" is reserved strictly for external-oracle checks; everything else
   is "modelled" and labelled as such in the RTM (§3). No analysis claims flight heritage.
 
@@ -193,8 +197,14 @@ Markdown/CSV; this is a curated subset for the SE lead, not a hand-maintained co
 | NAV-PERF-050 | Ranging-code design trade | `navsignal` (CodeFamily) | `navsignal::code_tests` (Gold ≈ −23.9 dB) | Published GPS C/A Gold (−23.9 dB) | ExternalDataset | **VALIDATED** |
 | NAV-PERF-110 | GNSS-denied clock holdover | `holdover` | `holdover::tests` (vs Kalman covariance recursion; round-trip) | Same-codebase covariance recursion | ReferenceImpl | **MODELLED** |
 | NAV-PERF-120 | Quantum inertial dead-reckoning resilience | `inertial::quantum_imu` (QuantumNavBudget) | `budget_tests` (bias vs integrator; VRW vs analytic integral) | AccelModel integrator + analytic closed forms | ReferenceImpl | **MODELLED** |
+| NAV-PERF-121 | Quantum inertial systematics (Coriolis / AC-Stark light-shift) | `inertial::quantum_imu` (`coriolis_phase`, `ac_stark_phase`) | `quantum_imu::tests` (Φ_cor = 2·k·v·Ω·T² → 2Ω×v bias; AC-Stark symmetric cancellation) | Classical Coriolis 2Ω×v + π/2–π–π/2 symmetry (internal algebraic identity) | InternalConsistency | **MODELLED** |
+| NAV-PERF-122 | Quantum-vs-classical PNT trade (timing/inertial holdover + benefit) | `quantum_trade` (`quantum_vs_classical_trade`) | `quantum_trade::tests` (benefit > 1; floor-caveat present when assumed, absent when measured) | Composed `holdover` + `QuantumNavBudget` on a neutral path; floor caveat carried on the artifact | ReferenceImpl | **MODELLED** |
+| NAV-PERF-123 | Measured-ADEV ingestion (NNLS clock floor) | `quantum_trade` (`qparams_from_adev_curve`) | `quantum_trade::tests` (ADEV→q round-trip vs `q_from_allan`; NNLS non-negativity on pure white-FM) | `q_from_allan` round-trip (same-codebase converter, would fail on wrong basis power) | ReferenceImpl | **MODELLED** |
+| NAV-PERF-124 | GNSS-denied resilience-vs-time envelope (clock + CAI + alt-PNT bound) | `quantum_trade` (`resilience_envelope`) | `quantum_trade::tests` (monotone; finite coast time; alt-PNT bound binding; horizon = lower bound, never ∞) | Closed-form monotone envelope + finite-horizon search (internal consistency) | InternalConsistency | **MODELLED** |
+| NAV-PERF-125 | Hybrid 17-state tightly-coupled GNSS/INS UKF scenario | `fusion::hybrid_ukf` (`run_hybrid_ukf`), `fusion::tightly_coupled17` | `hybrid_ukf::tests` (matched filter self-consistent; mistuned filter flagged; CAI-floor-bounded coast; bit-reproducible) | **NEES + innovation-whiteness (NIS) vs 95% χ² bands** — pooled Monte-Carlo self-consistency oracle (Bar-Shalom §5.4); a self-consistency statement, NOT a real-world accuracy guarantee | InternalConsistency | **MODELLED** |
 | NAV-PERF-130 | Spoofing detection | `spoof`, `spoof_detect`, `spoof_monitors` | `tests/spoof_texbat_validation.rs` (parameter characterisation) | TEXBAT scenario parameters (characterisation, not pinned vectors) | ExternalDataset | **MODELLED** |
 | NAV-PERF-140 | GNSS-denied jamming resilience | `jamming` | `jamming::tests` (PSD-derived Q cross-check) | Anti-jam C/N₀ eq.; navsignal PSD-derived Q | InternalConsistency | **MODELLED** |
+| NAV-PERF-145 | Alternative / complementary PNT bound (the resilience-envelope alt-PNT cap) | `gravimeter`, `altpnt::terrain`, `altpnt::sequential`, `mapmatch`, `igrf` | `tests/*` (gravity-map matcher ≈145 m / 60-min outage vs ≈70 km free-INS; map-matching CRLB; IGRF-14 field) | IGRF-14 coefficients; first-principles matched-filter CRLB (synthetic / low-degree maps) | InternalConsistency | **MODELLED** |
 | NAV-PERF-150 | Reproducibility & software assurance | `report`, `scenario`; CI gates | `tests/golden.rs`, `tests/determinism.rs`, `tests/cross_platform_golden.rs` | Pinned golden FoM (1e-6) + SHA-256 determinism | InternalConsistency | **MODELLED** |
 | NAV-PERF-900 | Spacecraft-bus engineering (AOCS/thermal/structures/propulsion/power) | — | — | — | None | **PARTNER** |
 | NAV-PERF-910 | Navigation RF payload & antenna hardware design | — | — | — | None | **PARTNER** |
@@ -207,12 +217,44 @@ Markdown/CSV; this is a curated subset for the SE lead, not a hand-maintained co
 > though its oracle is external. The honesty invariant permits this (external oracle present)
 > but the status reflects the looseness honestly.
 
-### 3.3 How the prime's SE lead consumes this
+### 3.3 The now-runnable quantum-PNT verification pipeline (D1.1 evidence inputs)
+
+Rows NAV-PERF-110/120/121/122/123/124/125/145 are no longer prose claims — they are a
+**runnable pipeline** whose outputs are the verification-input artifacts that fold into the
+prime's VCD. Each is a verification input with a stated oracle and an honest validated-or-
+modelled label; together they are the evidence behind Deliverable **D1.1** (the GNSS-denied
+resilience-benefits note, this folder).
+
+| Verification input (artifact) | Runnable module / function | Oracle (the verification method) | Folds into VCD as | Label |
+|-------------------------------|----------------------------|----------------------------------|-------------------|-------|
+| **Resilience-vs-time envelope** — composed clock holdover + quantum-CAI coast + alt-PNT bound, with the finite coast-time-to-threshold FoM | `quantum_trade::resilience_envelope` | Monotone closed-form envelope + finite-horizon search; coast time always finite, horizon reported as a **lower bound** (never ∞) | NAV-PERF-124 resilience metric | **MODELLED** (InternalConsistency) |
+| **Quantum-vs-classical trade table** — timing/inertial holdover + candidate ÷ baseline benefit, on one neutral code path | `quantum_trade::quantum_vs_classical_trade` | Composed `holdover` + `QuantumNavBudget`; the **floor-assumption caveat is carried on the artifact** when any clock floor is assumed, dropped when measured | NAV-PERF-122 trade metric | **MODELLED** (ReferenceImpl) |
+| **Measured-ADEV ingestion** (the defensibility hinge) — NNLS fit of a partner clock's measured overlapping-ADEV curve to the holdover noise model, driving the floor from **data, not assumption** | `quantum_trade::qparams_from_adev_curve` (the twin calibration / measured-data framework) | Round-trip vs the independent `clock_state::q_from_allan` converter; NNLS non-negativity; would fail on a wrong basis power | NAV-PERF-123 timing-floor provenance | **MODELLED** (ReferenceImpl) |
+| **Hybrid 17-state UKF scenario** — classical-IMU short-term + quantum-CAI/clock long-term, run over a GNSS outage | `fusion::hybrid_ukf::run_hybrid_ukf` (`kind = "hybrid-ukf"`), `fusion::tightly_coupled17` | **NEES + innovation-whiteness (NIS) consistency oracle vs 95% χ² bands** (Bar-Shalom §5.4): matched filter lands inside the bands, a *mistuned* filter is **flagged** — the discriminating self-consistency gate **is the verification method** | NAV-PERF-125 estimator-consistency metric | **MODELLED** (InternalConsistency; self-consistency, NOT accuracy) |
+| **Quantum inertial systematics** — Coriolis/rotation + AC-Stark light-shift bias modes | `inertial::quantum_imu::{coriolis_phase, ac_stark_phase}` | Classical Coriolis `2Ω×v` recovery + π/2–π–π/2 symmetric cancellation (algebraic identities) | NAV-PERF-121 systematic-error allocation | **MODELLED** (InternalConsistency) |
+| **Alt-PNT bound** — the gravity/terrain/magnetic map-matching fix that caps the unaided coast (the envelope's `alt_pnt_bound_m`) | `gravimeter`, `altpnt::terrain`, `altpnt::sequential` | Gravity-map matcher ≈ 145 m over a 60-min outage (vs ≈ 70 km free-INS); IGRF-14 field; matched-filter CRLB | NAV-PERF-145 alt-PNT availability bound | **MODELLED** (InternalConsistency; synthetic / low-degree maps) |
+
+**The quantum-systematics mode is folded where relevant** (NAV-PERF-121): the Coriolis and
+AC-Stark biases are the two leading deterministic CAI systematics a moving-vehicle quantum
+inertial WP must allocate in its error budget; the engine carries them as algebraic-identity-
+checked models, so the SE lead can trace them into the system error-budget rather than treating
+the CAI floor as bias-free.
+
+Each row is **honestly labelled MODELLED with its oracle** — none borrows the engine's
+external-oracle validation islands (SGP4 / Allan-vs-Stable32 / IGS). The two estimator/
+envelope rows are explicit that **self-consistency is not accuracy**: the UKF oracle certifies
+the filter's reported covariance matches the spread of its own errors *under the modelled
+noise*, and says nothing about field or flight accuracy.
+
+### 3.4 How the prime's SE lead consumes this
 
 The CSV/Markdown render of `verification_matrix()` is intended to drop into the prime's VCD as
 the navigation-performance section. The prime re-keys the placeholder `NAV-PERF-*` IDs to the
 real SRD requirement IDs (§4), assigns the project verification method/event per requirement,
 and the matrix's own CI invariants keep Ashforde's status labels honest over the study lifetime.
+The runnable pipeline of §3.3 is the verification evidence the prime cites in the VCD's
+navigation-performance rows; because the artifacts are deterministic and scenario-hashed, the
+prime (and ESA) can re-run any cited number.
 
 ---
 
@@ -278,8 +320,13 @@ the Req-IDs are placeholders and the method/status are illustrative. One row per
 | NAV-PERF-010 | Frequency stability | A + I | `allan` vs NIST SP 1065 / Stable32 (1e-4); §3 row | OPEN (template) |
 | NAV-PERF-020 | Integrity ARAIM | A + I | `raim`/`sbas` vs DO-229E + real IGS SP3; §3 row | OPEN (template) |
 | NAV-PERF-030 | Orbit propagation | A + I | SGP4 vs 666 AIAA vectors (4.12 mm); §3 row | OPEN (template) |
-| NAV-PERF-110 | Clock holdover (GNSS-denied) | A | `holdover` model vs Kalman recursion (modelled) | OPEN (template) |
-| NAV-PERF-120 | Quantum dead-reckoning | A | `quantum_imu` budget (modelled; Freier-2016 bracket) | OPEN (template) |
+| NAV-PERF-110 | Clock holdover (GNSS-denied) | A | `holdover` model vs Kalman recursion (modelled); floor-caveat carried | OPEN (template) |
+| NAV-PERF-120 | Quantum dead-reckoning | A | `quantum_imu` `QuantumNavBudget` (modelled; Freier-2016 bracket) | OPEN (template) |
+| NAV-PERF-122 | Quantum-vs-classical trade | A | `quantum_trade::quantum_vs_classical_trade` neutral-path benefit table (modelled) | OPEN (template) |
+| NAV-PERF-123 | Measured-ADEV ingestion (defensible floor) | A | `quantum_trade::qparams_from_adev_curve` NNLS, round-trip vs `q_from_allan` (modelled) | OPEN (template) |
+| NAV-PERF-124 | Resilience-vs-time envelope | A | `quantum_trade::resilience_envelope` finite coast-time FoM + alt-PNT bound (modelled) | OPEN (template) |
+| NAV-PERF-125 | Hybrid 17-state UKF self-consistency | A + T | `fusion::hybrid_ukf` NEES/NIS vs χ² bands; mistuned filter flagged (modelled self-consistency, not accuracy) | OPEN (template) |
+| NAV-PERF-145 | Alt-PNT availability bound | A | `gravimeter`/`altpnt` ≈145 m / 60-min outage vs ≈70 km free-INS (modelled; synthetic maps) | OPEN (template) |
 | NAV-PERF-150 | Reproducibility / SW PA | I | golden/determinism/cross-platform gates; SBOM; provenance | OPEN (template) |
 | NAV-PERF-900 | Spacecraft-bus engineering | (partner) | partner deliverable — not Ashforde | PARTNER |
 | NAV-PERF-910 | RF payload/antenna HW | (partner) | partner deliverable — not Ashforde | PARTNER |
