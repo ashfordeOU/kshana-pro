@@ -40,7 +40,8 @@ pub struct SystematicEffect {
 #[derive(Debug, Clone)]
 pub struct QuantumSystematicsSpec {
     pub species: String,
-    /// Published BBR fractional shift at 300 K (typically negative, e.g. Sr ≈ -2.35e-14).
+    /// Published BBR fractional shift at 300 K (typically negative; e.g. an Sr
+    /// optical-lattice clock ≈ -5.5e-15, Middelmann et al. PRL 2012) — a cited user input.
     pub bbr_coeff_300k: f64,
     /// Operating temperature (K).
     pub temperature_k: f64,
@@ -169,10 +170,11 @@ mod tests {
 
     fn sr_spec() -> QuantumSystematicsSpec {
         // Representative Sr optical-lattice values (cited inputs, not Pro claims):
-        // BBR ~ -2.35e-14 at 300 K; 2nd-order Zeeman coeff ~ -2.3e-2 /T² (small).
+        // BBR ~ -5.5e-15 at 300 K (Middelmann et al. PRL 2012); 2nd-order Zeeman
+        // coeff ~ -2.3e-2 /T² (small).
         QuantumSystematicsSpec {
             species: "Sr optical lattice (representative)".into(),
-            bbr_coeff_300k: -2.35e-14,
+            bbr_coeff_300k: -5.5e-15,
             temperature_k: 300.0,
             zeeman_coeff_per_t2: -2.3e-2,
             magnetic_field_t: 1.0e-4, // 1 Gauss
@@ -191,7 +193,7 @@ mod tests {
             .find(|e| e.name == "blackbody-radiation")
             .unwrap();
         assert!(
-            (bbr.fractional_shift - (-2.35e-14)).abs() < 1e-28,
+            (bbr.fractional_shift - (-5.5e-15)).abs() < 1e-28,
             "BBR at 300K = the coeff"
         );
     }
@@ -206,7 +208,7 @@ mod tests {
             .iter()
             .find(|e| e.name == "blackbody-radiation")
             .unwrap();
-        assert!((bbr.fractional_shift / (-2.35e-14) - 16.0).abs() < 1e-6);
+        assert!((bbr.fractional_shift / (-5.5e-15) - 16.0).abs() < 1e-6);
     }
 
     #[test]

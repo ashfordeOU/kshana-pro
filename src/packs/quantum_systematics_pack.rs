@@ -204,7 +204,7 @@ mod tests {
     fn pack_runs_and_reports_budget() {
         let pack = QuantumSystematicsScenario {
             species: "Sr (representative)".into(),
-            bbr_coeff_300k: -2.35e-14,
+            bbr_coeff_300k: -5.5e-15,
             temperature_k: 300.0,
             zeeman_coeff_per_t2: -2.3e-2,
             magnetic_field_t: 1.0e-4,
