@@ -15,6 +15,31 @@ fn dispatches_pro_pack() {
     assert!(out.summary.contains("integration"));
 }
 
+/// Enumerated strict-superset guard. The dispatcher routes only `pro-*` kinds to Pro
+/// packs and delegates everything else to the embedded open engine, so the superset
+/// property reduces to: *no open kind name carries the Pro prefix*. This asserts that
+/// over the **entire** open catalog (not a sampled subset), so a future open kind that
+/// accidentally started with `pro-` — the one way an open scenario could be shadowed
+/// or gated by the overlay — would fail the build.
+#[test]
+fn every_open_kind_is_free_of_the_pro_prefix_so_none_can_be_shadowed() {
+    use kshana_pro::registry::PRO_KIND_PREFIX;
+    let kinds = kshana::api::list_scenario_kinds();
+    assert!(
+        kinds.len() >= 34,
+        "expected the open catalog to expose at least 34 kinds, found {}",
+        kinds.len()
+    );
+    for meta in &kinds {
+        assert!(
+            !meta.name.starts_with(PRO_KIND_PREFIX),
+            "open kind '{}' collides with the Pro prefix '{PRO_KIND_PREFIX}' — it could be \
+             shadowed by a Pro pack, breaking the strict-superset guarantee",
+            meta.name
+        );
+    }
+}
+
 /// A real open scenario is delegated **unchanged** to the embedded open engine and
 /// produces the open engine's own result — proving Pro is a superset, not a fork.
 #[test]
