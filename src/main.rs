@@ -18,6 +18,10 @@ fn usage() -> &'static str {
        kshana-pro run <scenario.toml> [--license <token>] [--dev]   Run open OR Pro scenario\n\
        kshana-pro kinds                                              List kinds + their tier\n\
        kshana-pro mrd                                                Emit the machine-checked D1.4 MRD FoM-mapping (Markdown)\n\
+       kshana-pro benefits [--json|--svg]                            Benefit-vs-baseline reference table (A02, D1.1)\n\
+       kshana-pro report <scenario.toml> [--subject <s>] [--format md|json|html|svg]   Consolidated report (A11)\n\
+       kshana-pro navdt <scenario.toml> [--subject <s>]              NAV-DT deterministic twin bundle, JSON (A10)\n\
+       kshana-pro spacestream [--schema]                             SpaceStream codec goldens / ICD schema (A09)\n\
        kshana-pro version                                            Overlay + engine info\n\
        kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
@@ -53,6 +57,53 @@ fn main() -> ExitCode {
         // asserts the two never drift apart.
         Some("mrd") => {
             print!("{}", kshana_pro::mrd::to_markdown());
+            ExitCode::SUCCESS
+        }
+        // Benefit-vs-baseline reference deliverable (A02). Default = the float-free
+        // provenance skeleton (the committed D1.1 deliverable); --json / --svg emit
+        // the numeric artifact (reproducible in process).
+        Some("benefits") => match kshana_pro::benefits::reference_case() {
+            Ok(c) => {
+                if has_flag(&args, "--json") {
+                    println!("{}", c.to_json());
+                } else if has_flag(&args, "--svg") {
+                    println!("{}", c.to_svg());
+                } else {
+                    print!("{}", c.to_provenance_markdown());
+                }
+                ExitCode::SUCCESS
+            }
+            Err(e) => {
+                eprintln!("error: {e}");
+                ExitCode::FAILURE
+            }
+        },
+        // Consolidated performance/resilience report over a scenario (A11).
+        Some("report") => report_cmd(&args),
+        // NAV-DT deterministic twin bundle over a scenario (A10).
+        Some("navdt") => navdt_cmd(&args),
+        // SpaceStream NAVEX→NAV-DT codec: golden messages (the codec, demonstrated +
+        // reproducible) or the ICD JSON schema (A09).
+        Some("spacestream") => {
+            use kshana_pro::connectors::spacestream;
+            if has_flag(&args, "--schema") {
+                println!("{}", spacestream::json_schema());
+            } else {
+                let msgs: Vec<serde_json::Value> = spacestream::golden_messages()
+                    .into_iter()
+                    .map(|(name, m)| {
+                        serde_json::json!({
+                            "name": name,
+                            "message": serde_json::from_str::<serde_json::Value>(&m.to_json())
+                                .unwrap_or(serde_json::Value::Null),
+                        })
+                    })
+                    .collect();
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&msgs).unwrap_or_default()
+                );
+            }
             ExitCode::SUCCESS
         }
         Some("version") => {
@@ -168,6 +219,69 @@ fn export_cmd(path: &str, format: Option<String>) -> ExitCode {
     match out {
         Ok(text) => {
             print!("{text}");
+            ExitCode::SUCCESS
+        }
+        Err(e) => {
+            eprintln!("error: {e}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+/// Consolidated performance/resilience report over a scenario (A11).
+fn report_cmd(args: &[String]) -> ExitCode {
+    let path = match args.get(1) {
+        Some(p) if !p.starts_with("--") => p,
+        _ => {
+            eprintln!("error: `report` needs a scenario file\n\n{}", usage());
+            return ExitCode::FAILURE;
+        }
+    };
+    let src = match std::fs::read_to_string(path) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("error: could not read {path}: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+    let subject = flag(args, "--subject").unwrap_or_else(|| "quantum".to_string());
+    match kshana_pro::report::build_report("kshana-pro report", &src, &subject) {
+        Ok(r) => {
+            match flag(args, "--format").as_deref() {
+                Some("json") => println!("{}", r.to_evidence_json()),
+                Some("html") => println!("{}", r.to_html()),
+                Some("svg") => println!("{}", r.to_svg()),
+                _ => print!("{}", r.to_markdown()),
+            }
+            ExitCode::SUCCESS
+        }
+        Err(e) => {
+            eprintln!("error: {e}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+/// NAV-DT deterministic twin bundle over a scenario (A10).
+fn navdt_cmd(args: &[String]) -> ExitCode {
+    let path = match args.get(1) {
+        Some(p) if !p.starts_with("--") => p,
+        _ => {
+            eprintln!("error: `navdt` needs a scenario file\n\n{}", usage());
+            return ExitCode::FAILURE;
+        }
+    };
+    let src = match std::fs::read_to_string(path) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("error: could not read {path}: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+    let subject = flag(args, "--subject").unwrap_or_else(|| "quantum".to_string());
+    match kshana_pro::twin::navdt::run_navdt_bundle(&src, &subject) {
+        Ok(b) => {
+            println!("{}", b.to_json());
             ExitCode::SUCCESS
         }
         Err(e) => {

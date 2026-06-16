@@ -318,6 +318,127 @@ impl BenefitsCase {
         s.push_str("</svg>");
         s
     }
+
+    /// Float-free provenance/structure table for the committed D1.1 deliverable.
+    ///
+    /// Renders ONLY platform-stable content — FoM names, the better-when direction,
+    /// both evidence-tier labels + oracles, the mixed-tier flag, and the input
+    /// scenario hashes — deliberately NOT the numeric ratios. The open core's
+    /// reproducibility doctrine anchors cross-platform stability on the scenario
+    /// hash, not on result floats (those are only guaranteed reproducible
+    /// in-process), so the *committed* deliverable carries the provenance skeleton
+    /// and the numeric table is emitted on demand by `kshana-pro benefits --json`.
+    /// `tests/benefits_deliverable_in_sync.rs` holds the committed deliverable
+    /// byte-identical to this output.
+    pub fn to_provenance_markdown(&self) -> String {
+        let mut md = String::new();
+        md.push_str("# Benefit-vs-baseline — provenance skeleton (A02, D1.1)\n\n");
+        md.push_str(&format!(
+            "**Comparison:** {} (candidate) vs {} (baseline)\n\n",
+            self.candidate_label, self.baseline_label
+        ));
+        md.push_str(&format!("**Case:** {}\n\n", self.title));
+        md.push_str(&format!(
+            "**Input scenario hashes (cross-platform reproducibility anchors):** \
+             candidate `{}` · baseline `{}`\n\n",
+            self.candidate_hash.as_deref().unwrap_or("—"),
+            self.baseline_hash.as_deref().unwrap_or("—"),
+        ));
+        md.push_str(
+            "| FoM | Better when | Candidate evidence | Baseline evidence | Mixed tier? |\n",
+        );
+        md.push_str(
+            "|-----|-------------|--------------------|-------------------|-------------|\n",
+        );
+        for r in &self.rows {
+            md.push_str(&format!(
+                "| {} | {} | {} ({}) | {} ({}) | {} |\n",
+                r.name,
+                if r.lower_better { "lower" } else { "higher" },
+                r.candidate_label,
+                r.candidate_oracle,
+                r.baseline_label,
+                r.baseline_oracle,
+                if r.crosses_label { "YES (mixed)" } else { "no" },
+            ));
+        }
+        md.push_str(&format!(
+            "\n_{}_\n",
+            if self.any_crosses_label {
+                "MODELLED comparison — one or more rows mix evidence tiers (flagged). \
+                 Numeric ratios: run `kshana-pro benefits --json`. Not flight-validated."
+            } else {
+                "MODELLED comparison — numeric ratios emitted by `kshana-pro benefits --json` \
+                 (reproducible in process). Not flight-validated."
+            }
+        ));
+        md
+    }
+}
+
+/// The canonical reference benefit case: an optical-lattice (quantum) clock candidate
+/// vs a CSAC (classical) baseline, both run through the identical dual-clock,
+/// GNSS-denied scenario on the open engine (the same neutral code path, so neither
+/// side is scored differently). This is the reproducible D1.1 benefit-table
+/// deliverable emitted by `kshana-pro benefits` and drift-guarded by
+/// `tests/benefits_deliverable_in_sync.rs`.
+pub fn reference_case() -> Result<BenefitsCase, KshanaError> {
+    const SCENARIO: &str = "seed = 42\n\
+        threshold_ns = 20.0\n\
+        [time]\n\
+        step_s = 10.0\n\
+        duration_s = 7200.0\n\
+        [gnss]\n\
+        windows = [\n\
+          { t0 = 0.0,   t1 = 600.0,  state = \"nominal\" },\n\
+          { t0 = 600.0, t1 = 7200.0, state = \"denied\" },\n\
+        ]\n\
+        [clock_quantum]\n\
+        id = \"optical-sr-lattice\"\n\
+        provenance = \"demo; q_wf=sigma_y(1s)^2\"\n\
+        y0   = 5.0e-17\n\
+        q_wf = 1.0e-30\n\
+        q_rw = 0.0\n\
+        [clock_classical]\n\
+        id = \"csac-sa45s\"\n\
+        provenance = \"demo; q_wf=sigma_y(1s)^2\"\n\
+        y0   = 5.0e-10\n\
+        q_wf = 9.0e-20\n\
+        q_rw = 0.0\n";
+    let candidate = Variant {
+        label: "optical-sr-lattice (quantum)".into(),
+        scenario_toml: SCENARIO.into(),
+    };
+    let baseline = Variant {
+        label: "csac-sa45s (classical)".into(),
+        scenario_toml: SCENARIO.into(),
+    };
+    let foms = vec![
+        FomSpec {
+            name: "holdover (s)".into(),
+            candidate_key: "quantum.fom.holdover_s".into(),
+            baseline_key: "classical.fom.holdover_s".into(),
+            lower_better: false,
+        },
+        FomSpec {
+            name: "timing RMS (ns)".into(),
+            candidate_key: "quantum.fom.timing_rms_ns".into(),
+            baseline_key: "classical.fom.timing_rms_ns".into(),
+            lower_better: true,
+        },
+        FomSpec {
+            name: "availability".into(),
+            candidate_key: "quantum.fom.availability".into(),
+            baseline_key: "classical.fom.availability".into(),
+            lower_better: false,
+        },
+    ];
+    benefits_case(
+        "Quantum vs classical clock — GNSS-denied benefit (reference)",
+        &candidate,
+        &baseline,
+        &foms,
+    )
 }
 
 /// One-char glyph + tag for a label, for the compact SVG cell.

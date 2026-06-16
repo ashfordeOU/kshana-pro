@@ -78,6 +78,135 @@ it alongside the ICD for a NAV-DT consumer to validate against. The four golden 
 messages in `scenarios/spacestream-*.json` are checked against the canonical schema by a
 unit test, so the examples cannot drift from the contract.
 
+Emit it from the binary with `kshana-pro spacestream --schema`, or the four golden
+messages with `kshana-pro spacestream`. The canonical schema is embedded below and held
+byte-identical to the codec by `tests/spacestream_schema_in_sync.rs` — so this ICD
+cannot drift from the code:
+
+<!-- BEGIN GENERATED: `kshana-pro spacestream --schema` -->
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "availability": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "type": "number"
+    },
+    "format": {
+      "const": "spacestream-navex-navdt"
+    },
+    "integrity": {
+      "additionalProperties": false,
+      "properties": {
+        "alert": {
+          "type": "boolean"
+        },
+        "araim_available": {
+          "type": "boolean"
+        },
+        "self_consistency": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "araim_available",
+        "alert"
+      ],
+      "type": "object"
+    },
+    "link": {
+      "additionalProperties": false,
+      "properties": {
+        "cn0_dbhz": {
+          "type": "number"
+        },
+        "margin_db": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "cn0_dbhz",
+        "margin_db"
+      ],
+      "type": "object"
+    },
+    "pass_id": {
+      "type": "string"
+    },
+    "pass_timestamp_utc": {
+      "description": "ISO-8601 UTC; deterministic, never wall-clock",
+      "type": "string"
+    },
+    "ranging_timing": {
+      "additionalProperties": false,
+      "properties": {
+        "timing_p95_ns": {
+          "type": "number"
+        },
+        "timing_rms_ns": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "timing_rms_ns",
+        "timing_p95_ns"
+      ],
+      "type": "object"
+    },
+    "rf_impairment_alert": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        "label": {
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "label",
+        "confidence",
+        "params"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "schema_version": {
+      "description": "semver; compatibility by major",
+      "type": "string"
+    }
+  },
+  "required": [
+    "format",
+    "schema_version",
+    "pass_id",
+    "pass_timestamp_utc",
+    "ranging_timing",
+    "availability",
+    "integrity",
+    "link"
+  ],
+  "title": "SpaceStream NAVEX→NAV-DT message",
+  "type": "object"
+}
+```
+<!-- END GENERATED -->
+
 ## 6. What this is NOT (honest boundary)
 
 - Not an agreed/flight interface — a design proposal pending FPD-10030.
