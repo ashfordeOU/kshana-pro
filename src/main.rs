@@ -17,6 +17,7 @@ fn usage() -> &'static str {
      USAGE:\n\
        kshana-pro run <scenario.toml> [--license <token>] [--dev]   Run open OR Pro scenario\n\
        kshana-pro kinds                                              List kinds + their tier\n\
+       kshana-pro mrd                                                Emit the machine-checked D1.4 MRD FoM-mapping (Markdown)\n\
        kshana-pro version                                            Overlay + engine info\n\
        kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
@@ -43,6 +44,15 @@ fn main() -> ExitCode {
         },
         Some("kinds") => {
             list_kinds();
+            ExitCode::SUCCESS
+        }
+        // The D1.4 Mission Requirements Document FoM-mapping skeleton, rendered from
+        // the machine-checked `mrd` table (A03). Deterministic, ungated (a capability
+        // demonstrator like `kinds`/`version`, not a Pro analysis pack). The committed
+        // deliverable doc is this exact output; `tests/mrd_deliverable_in_sync.rs`
+        // asserts the two never drift apart.
+        Some("mrd") => {
+            print!("{}", kshana_pro::mrd::to_markdown());
             ExitCode::SUCCESS
         }
         Some("version") => {
