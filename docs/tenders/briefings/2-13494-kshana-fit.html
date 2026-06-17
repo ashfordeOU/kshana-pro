@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<!--
+PRIVATE — Ashforde OÜ internal briefing. kshana-pro repo only; never publish in the open repo.
+How Kshana / Ashforde fits ESA AO/1-13494 (AI & Digital Payload Technologies PNT Demonstrator).
+Grounded in: docs/tenders/13494-ai-payload-pnt/technical-contribution.md + TENDER-13494-PURSUIT.md,
+open kshana modules (impairment_eval.rs, fom.rs, raim.rs, verification.rs), kshana-pro overlay.
+Honesty discipline: every claim labelled validated (external oracle) or modelled. TRL ~3, no flight
+heritage, no certification, no ESA endorsement. Role = consortium-SME WP, never prime / never Key Person.
+Contact: contact@ashforde.org
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AO/1-13494 — How Kshana fits · Ashforde briefing</title>
+<style>
+  :root{
+    --ink:#16202b; --muted:#5b6b7b; --line:#dfe6ee; --bg:#f6f8fb; --card:#ffffff;
+    --accent:#1f4e9b; --accent-soft:#eaf1fc; --ai:#7a3ea8; --ai-soft:#f3eafa;
+    --ok:#1f7a44; --ok-soft:#e7f5ec; --warn:#9a6700; --warn-soft:#fbf3e0;
+    --gap:#7c8896; --gap-soft:#eef1f4; --risk:#b4232a; --risk-soft:#fcebec;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+  .wrap{max-width:940px;margin:0 auto;padding:0 22px 80px}
+  nav.top{position:sticky;top:0;z-index:10;background:rgba(246,248,251,.92);backdrop-filter:saturate(150%) blur(8px);border-bottom:1px solid var(--line)}
+  nav.top .inner{max-width:940px;margin:0 auto;padding:9px 22px;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+  nav.top .brand{font-weight:700;font-size:13px;letter-spacing:.02em;margin-right:6px;color:var(--muted)}
+  nav.top a{font-size:12.5px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:#fff;white-space:nowrap}
+  nav.top a.cur{background:var(--ai);border-color:var(--ai);color:#fff;font-weight:600}
+  nav.top a:hover{text-decoration:none;border-color:var(--ai)}
+  header.hero{padding:34px 0 10px}
+  .kicker{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ai);background:var(--ai-soft);padding:4px 11px;border-radius:999px}
+  h1{font-size:30px;line-height:1.18;margin:14px 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:17px;margin:0}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;box-shadow:0 1px 2px rgba(20,40,70,.04)}
+  h2{font-size:20px;margin:2px 0 14px;letter-spacing:-.01em}
+  h2 .n{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;border-radius:8px;background:var(--ai-soft);color:var(--ai);font-size:14px;font-weight:700;margin-right:9px;vertical-align:2px}
+  h3{font-size:15.5px;margin:18px 0 7px}
+  p{margin:9px 0}.lede{font-size:17px}
+  /* honest position banner */
+  .position{border:1px solid var(--ai);background:linear-gradient(180deg,var(--ai-soft),#fff);border-radius:14px;padding:18px 22px;margin:18px 0}
+  .position .t{font-weight:750;font-size:16px;color:var(--ai);margin-bottom:6px}
+  .position p{font-size:14.6px;margin:6px 0}
+  /* gauges */
+  .gauges{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:6px 0}
+  .gauge{border:1px solid var(--line);border-radius:11px;padding:14px 16px;background:#fcfdff}
+  .gauge .lab{font-size:13px;color:var(--muted);font-weight:600}
+  .gauge .num{font-size:30px;font-weight:760;letter-spacing:-.02em;margin:2px 0 6px}
+  .gauge .bar{height:8px;border-radius:99px;background:var(--gap-soft);overflow:hidden}
+  .gauge .bar i{display:block;height:100%;border-radius:99px}
+  .g-hi .num{color:var(--ok)} .g-hi .bar i{background:var(--ok)}
+  .g-mid .num{color:var(--warn)} .g-mid .bar i{background:var(--warn)}
+  .g-lo .num{color:var(--risk)} .g-lo .bar i{background:var(--risk)}
+  .gauge .cap{font-size:12px;color:var(--muted);margin-top:7px}
+  /* badges */
+  .b{display:inline-block;font-size:10.5px;font-weight:750;letter-spacing:.03em;text-transform:uppercase;padding:2px 8px;border-radius:999px;vertical-align:1px}
+  .b.val{color:var(--ok);background:var(--ok-soft)} .b.mod{color:var(--warn);background:var(--warn-soft)}
+  .b.part{color:var(--accent);background:var(--accent-soft)} .b.gap{color:#fff;background:var(--gap)}
+  .b.ci{color:#0a6b63;background:#d7efe9}
+  .r{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;vertical-align:1px;margin-left:2px}
+  .r.open{color:#3a4a8a;background:#eef0fb;border:1px solid #d2d8f3}
+  .r.pro{color:#fff;background:#2f3a4a}
+  .r.both{color:#2f3a4a;background:#e8ebf1;border:1px solid #d0d8e2}
+  .legend{font-size:13px;color:var(--muted);margin:2px 0 10px}
+  /* WP cards */
+  .wp{border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0;background:#fcfdff}
+  .wp .h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .wp .h b{font-size:16px}
+  .wp .role{font-size:12px;color:var(--muted)}
+  .wp ul{margin:9px 0 2px;padding-left:19px}.wp li{margin:5px 0;font-size:14.3px}
+  code{font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#eef2f7;padding:1px 6px;border-radius:5px;color:#33415a}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:14px}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:#fafcff}
+  .tools{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  .tool{border:1px solid var(--line);border-radius:11px;padding:14px 16px;background:#fff}
+  .tool .t{font-weight:680;font-size:14.6px;margin-bottom:3px}
+  .tool .s{font-size:11.5px;color:var(--ai);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .tool .d{font-size:13.4px;color:var(--muted);margin-top:4px}
+  .gaps{columns:2;column-gap:22px;font-size:14px;margin:6px 0}
+  .gaps div{break-inside:avoid;padding:5px 0;border-bottom:1px solid var(--line)}
+  .risk-row{display:flex;gap:12px;padding:11px 0;border-top:1px dashed var(--line)}
+  .risk-row:first-of-type{border-top:0}
+  .risk-row .ic{flex:0 0 auto;width:30px;height:30px;border-radius:8px;background:var(--risk-soft);color:var(--risk);font-weight:800;text-align:center;line-height:30px}
+  .risk-row .bd b{font-size:14.5px}.risk-row .bd{font-size:13.8px}
+  .note{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+  .crosslink{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+  .crosslink a{flex:1;min-width:240px;border:1px solid var(--line);border-radius:11px;padding:13px 16px;background:#fcfdff;color:var(--ink)}
+  .crosslink a:hover{border-color:var(--ai);text-decoration:none}.crosslink .ar{color:var(--ai);font-weight:700}
+  @media(max-width:680px){.gauges{grid-template-columns:1fr}.tools,.gaps{grid-template-columns:1fr;columns:1}h1{font-size:25px}}
+  @media print{nav.top{display:none}body{background:#fff}section{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<nav class="top"><div class="inner">
+  <span class="brand">FutureNAV briefings</span>
+  <a href="1-13494-what-it-asks.html">13494 · what it asks</a>
+  <a class="cur" href="2-13494-kshana-fit.html">13494 · our fit</a>
+  <a href="3-13503-what-it-asks.html">13503 · what it asks</a>
+  <a href="4-13503-kshana-fit.html">13503 · our fit</a>
+</div></nav>
+
+<div class="wrap">
+<header class="hero">
+  <span class="kicker">How Kshana / Ashforde fits · honest assessment</span>
+  <h1>AO/1-13494 — where Kshana stands &amp; what we can deliver</h1>
+  <p class="sub">Strong thematic fit on the ground-software half; a clear, bounded consortium-SME work-package seat; everything else honestly handed to partners.</p>
+</header>
+
+<div class="position">
+  <div class="t">Our honest position — read this first</div>
+  <p><b>What Kshana is:</b> an open <b>Apache-2.0 Rust PNT performance-and-resilience simulator</b>, ~TRL 3, with <b>no flight heritage, no agency contracts and no certification</b>. It is <b>one component</b> of a Navigation Digital Twin — the achievable-performance and RF-impairment-evaluation engine — that a prime can audit line-by-line.</p>
+  <p><b>What our role is:</b> a single <b>consortium-SME work-package seat</b> — <b>never the prime, never a mandated Key Person</b>. We bring two adjacent ground-software work packages, an auditable open core, and a mechanical scored-criteria lift (SME + German nationality in ESA-STAR → helps the ≥3-SME quota and geo-return). We do <b>not</b> claim the spacecraft, the payload hardware, the on-board AI engine, or the full twin.</p>
+</div>
+
+<section>
+  <h2><span class="n">1</span>Where we stand — fit, honestly gauged</h2>
+  <div class="gauges">
+    <div class="gauge g-hi"><div class="lab">Thematic fit</div><div class="num">High</div><div class="bar"><i style="width:88%"></i></div><div class="cap">The NAV-DT performance model + ML-evaluation referee are close to Kshana's exact identity.</div></div>
+    <div class="gauge g-mid"><div class="lab">Realistic role: consortium SME</div><div class="num">Viable</div><div class="bar"><i style="width:64%"></i></div><div class="cap">Two fundable WPs inside a prime-led team — contingent on securing a seat + the office fix.</div></div>
+    <div class="gauge g-lo"><div class="lab">Solo / prime bid</div><div class="num">Not&nbsp;viable</div><div class="bar"><i style="width:12%"></i></div><div class="cap">Mandatory ≥5-operator consortium + named Key Person + space-hardware heritage rule it out.</div></div>
+  </div>
+  <p class="note">The same engine that backs these claims enforces the honesty: a unit-tested <b>verification matrix</b> (<code>kshana/src/verification.rs</code>) that refuses to label a result <span class="b val">validated</span> unless it is checked against an external oracle. Anything not externally checked is labelled <span class="b mod">modelled</span> (published / first-principles physics, tested and self- or cross-checked).</p>
+</section>
+
+<section>
+  <h2><span class="n">2</span>What we fulfil — the two work packages we own</h2>
+  <p class="legend">Capability labels: <span class="b val">validated</span> external oracle · <span class="b ci">ci-enforced</span> reproducibility/determinism gate · <span class="b mod">modelled</span> physics, tested · <span class="b part">partner input</span> needs consortium data · <span class="b gap">not ours</span> partner-owned<br>Where it lives: <span class="r open">Kshana</span> open Apache-2.0 core (auditable line-by-line) · <span class="r pro">Kshana&nbsp;Pro</span> private overlay · <span class="r both">Kshana&nbsp;+&nbsp;Pro</span> open core, packaged in the Pro overlay</p>
+
+  <div class="wp">
+    <div class="h"><b>WP-A · PNT performance &amp; resilience component of the NAV-DT</b><span class="role">WP manager: Ashforde (SME) · the RF/performance layer — <i>not</i> the whole twin</span></div>
+    <ul>
+      <li><b>Figure-of-Merit engine</b> — predicts ranging/timing accuracy &amp; availability per scenario <span class="b mod">modelled</span><span class="r open">Kshana</span>; the underlying <b>DOP / geometry</b> engine is <span class="b val">validated</span><span class="r open">Kshana</span> against gnss_lib_py 1.0.4 (Stanford NAV Lab) to 1e-6. <code>src/fom.rs</code>, <code>src/orbit.rs</code></li>
+      <li><b>Integrity protection levels</b> — least-squares snapshot/sequential RAIM with χ² fault detection and slope-based HPL/VPL. <span class="b val">validated</span><span class="r open">Kshana</span> (DO-229E K-factors + real IGS SP3 / Celestrak geometry) <code>src/raim.rs</code></li>
+      <li><b>GNSS-denied resilience</b> — % availability under jamming and position-error growth under outage. <span class="b mod">modelled</span><span class="r open">Kshana</span> — its DOP/geometry foundation is now validated; the jamming link-budget stays honestly modelled (no external numeric oracle exists to validate it against).</li>
+      <li><b>Reproducible &amp; auditable</b> — every result carries a <code>scenario_hash</code>; cross-platform input+shape goldens and byte-identical reruns are gated in CI (open core); ranked, audit-grade trade study in the Pro overlay. <span class="b ci">ci-enforced</span><span class="r both">Kshana&nbsp;+&nbsp;Pro</span></li>
+      <li><b>Verification cross-reference</b> for the system-engineering verification control document. <span class="b val">validated</span><span class="r open">Kshana</span> (the invariant is test-enforced) <code>src/verification.rs</code></li>
+    </ul>
+    <p style="font-size:13px;color:var(--muted);margin:8px 0 0">Feeds <b>D1.1</b> (benefits), <b>D1.3/D1.4</b> (sizing/MRD), <b>D2.6</b> (feasibility), <b>D2.16</b> (NAV-DT achievable-performance sub-component), <b>D2.2/D2.3</b> (PA-QA / SE verification spine).</p>
+  </div>
+
+  <div class="wp">
+    <div class="h"><b>WP-B · AI-algorithm evaluation testbed + labelled RF-impairment corpus</b><span class="role">WP manager: Ashforde (SME) · the "Characterisation &amp; Evaluation of ML Techniques" layer</span></div>
+    <ul>
+      <li><b>Detector-agnostic evaluation testbed</b> — scores <i>any</i> candidate detector via a trait interface: ROC, AUC, confusion at operating point, Pd/Pmd, per-impairment-class breakdown. The testbed is the <b>referee, not a classifier</b>. <span class="b val">validated</span><span class="r open">Kshana</span> (every metric — AUC/ROC/confusion/Pd-Pmd/precision/F1 — matched to scikit-learn 1.9.0) <code>src/impairment_eval.rs</code></li>
+      <li><b>Methodology guards</b> — stratified train/test split with disjoint keys, an exact-duplication leakage guard, and an explicit <b>distribution-shift optimism report</b> (the honesty check a reviewer looks for). <span class="b mod">modelled</span><span class="r open">Kshana</span> — the AUC it reports is validated vs scikit-learn; the guards themselves are tested protocol, not an external numeric.</li>
+      <li><b>Labelled RF-impairment corpus generator</b> — seeded, reproducible, parameter-grounded (TEXBAT-style parameters, <b>not</b> raw IQ or field captures — and reported as exactly that). <span class="b mod">modelled</span><span class="r open">Kshana</span> — synthetic by design (validating it would need real field/IQ it deliberately doesn't claim); seeding/reproducibility is <span class="b ci">ci-enforced</span>.</li>
+    </ul>
+    <p style="font-size:13px;color:var(--muted);margin:8px 0 0">Feeds <b>D2.6</b> (ML-characterisation feasibility), Phase-B1 algorithm-verification evidence, and <b>D2.3</b> (the AI-element verification protocol).</p>
+  </div>
+  <p class="note"><b>Quality bar behind both WPs (all in the open <span class="r open">Kshana</span> core):</b> 950+ library unit tests, <code>fmt</code> + <code>clippy</code> clean, adversarially reviewed, fully reproducible. Seven capability "islands" are externally <span class="b val">validated</span><span class="r open">Kshana</span> (SGP4 to 4.12&nbsp;mm vs 666 AIAA vectors; Allan deviation vs NIST&nbsp;SP&nbsp;1065; reference frames bit-exact vs SOFA/ERFA; integrity on real IGS geometry vs DO-229E; DOP geometry vs gnss_lib_py 1.0.4 (Stanford); ML evaluation metrics vs scikit-learn 1.9.0; Mars ephemeris vs DE440). Everything else performance-side is honestly <span class="b mod">modelled</span><span class="r open">Kshana</span>.</p>
+</section>
+
+<section>
+  <h2><span class="n">3</span>What we'd build &amp; offer as subcontractor — the complementary tools</h2>
+  <p class="lede">Beyond the two WPs, here is what Ashforde would <b>productise and deliver as a subcontractor</b> — each grounded in code that already exists, hardened to the consortium's interface during the study.</p>
+  <div class="tools">
+    <div class="tool"><div class="s">Deliverable component <span class="r both">Kshana&nbsp;+&nbsp;Pro</span></div><div class="t">NAV-DT performance &amp; resilience module</div><div class="d">The achievable-performance / integrity / resilience predictor (open core: <code>fom.rs</code>/<code>raim.rs</code>), packaged behind the prime's NAV-DT interface as an auditable, reproducible component (Pro overlay).</div></div>
+    <div class="tool"><div class="s">Deliverable tool <span class="r open">Kshana</span></div><div class="t">ML-evaluation "referee" testbed</div><div class="d">A standalone, detector-agnostic evaluation harness the consortium runs <i>their</i> AI algorithms through — ROC/AUC/Pfa-Pmd with leakage &amp; distribution-shift guards. Differentiates on rigour, not on owning the algorithm.</div></div>
+    <div class="tool"><div class="s">Build during study <span class="r pro">Kshana&nbsp;Pro</span></div><div class="t">SpaceStream interface codec</div><div class="d">A versioned, <b>aggregated-metrics-only</b> NAVEX→NAV-DT adapter (raw-IQ explicitly forbidden by schema) with golden test messages and an ICD — already prototyped in the Pro overlay (<code>connectors/spacestream.rs</code>).</div></div>
+    <div class="tool"><div class="s">Build during study <span class="r pro">Kshana&nbsp;Pro</span></div><div class="t">Assurance / MBSE artifact generator</div><div class="d">Requirements→margins (PASS/FAIL) + traceability CSV + ReqIF-lite export for DOORS/Polarion, driven by the machine-checked verification matrix — the PA/QA &amp; SE verification spine (<code>kshana-pro</code> MBSE pack).</div></div>
+  </div>
+  <p class="note">All four are <b>ground-software / method</b> deliverables — squarely inside what an SME subcontractor can own and an ESA reviewer can audit. None of them require us to overstate maturity: they are tools and components, delivered with their honesty labels intact.</p>
+</section>
+
+<section>
+  <h2><span class="n">€</span>What we'd charge as the SME WP — indicative envelope</h2>
+  <p class="lede"><b>Two work packages</b> (performance component + ML-evaluation testbed) over 30 months, founder in a supporting role. The binding number is a firm-fixed price set <b>with the prime via its ECOS/PBF cost model</b> — the figures below are an <b>internal planning envelope, not a quote</b>.</p>
+  <h3>The fixed frame (from the tender)</h3>
+  <table>
+    <tr><th>Rule</th><th>Value</th></tr>
+    <tr><td>Overall contract cap</td><td><b>€3.5M</b> per contract (FFP)</td></tr>
+    <tr><td>Phase 1 (project Phases 0 + A) cap</td><td>≤ <b>€1.0M</b> FFP — whole consortium</td></tr>
+    <tr><td>Phase 2 (project Phase B1) cap</td><td>≤ <b>€2.5M</b> FFP — whole consortium</td></tr>
+    <tr><td>Budget to non-LSI operators</td><td>≥ <b>30%</b> (≥ €1.05M) — Ashforde sits inside this pool</td></tr>
+    <tr><td>Let via open competition</td><td>≥ <b>€500k</b> (RFP to ≥5, ≥4 non-affiliated)</td></tr>
+    <tr><td>Fee / profit</td><td>≤ the <b>KAF cap on Total Company Cost</b> (≤8%)</td></tr>
+  </table>
+  <h3>Indicative Ashforde WP price (to validate with the prime)</h3>
+  <table>
+    <tr><th>Element</th><th>Phase 1 (0+A, ~12 mo)</th><th>Phase 2 (B1, ~18 mo)</th><th>Full 30 mo</th></tr>
+    <tr><td>Effort (founder, supporting role)</td><td>~3–5 person-months</td><td>~7–12 person-months</td><td><b>~10–17 PM</b></td></tr>
+    <tr><td>Labour @ ~€12–18k/PM loaded *</td><td>~€45–90k</td><td>~€105–215k</td><td>~€150–305k</td></tr>
+    <tr><td>+ ODC (review travel, compute) + fee ≤8%</td><td colspan="2">small, on top</td><td>~€10–30k</td></tr>
+    <tr><td><b>Indicative WP price</b></td><td><b>~€55–110k</b></td><td><b>~€115–250k</b></td><td><b>≈ €170–330k</b></td></tr>
+    <tr><td>Share of the €3.5M contract</td><td colspan="3"><b>≈ 5–9%</b> — one SME slice inside the ≥30% non-LSI pool</td></tr>
+  </table>
+  <p class="note">* The loaded per-PM rate is the founder's <b>ECOS-registered rate</b> to confirm (not an ESA-published figure); the range above is a defensible European software-SME ballpark for planning. The price is <b>back-loaded</b> (Phase 2 is the build), and once quoted it is <b>firm-fixed</b> — carry contingency. Don't over-bid (scope must match the agreed WP) or under-bid (erodes the SME quota's value to the prime). This is the <b>C04 cost-volume</b> item — <span class="b part">founder-gated</span>, furnished via the prime's ECOS/PBF.</p>
+</section>
+
+<section>
+  <h2><span class="n">4</span>What is <em>not</em> ours — partner-owned, by design</h2>
+  <p>Stating the boundary plainly is part of the credibility. Ashforde does <b>not</b> bid any of these; they belong to consortium partners:</p>
+  <div class="gaps">
+    <div>On-board / edge AI inference engine</div>
+    <div>The detection/classification algorithms themselves</div>
+    <div>Secure in-orbit update &amp; reconfiguration</div>
+    <div>Steerable phased-array antennas / radiation patterns</div>
+    <div>Payload hardware · SDR · FPGA</div>
+    <div>Receiver acquisition/tracking/correlator · raw-IQ</div>
+    <div>High-fidelity payload digital twin (HW behaviour)</div>
+    <div>DestinE-style iono/tropo/multipath environment twins</div>
+    <div>Core ground infrastructure · PNT data lakehouse</div>
+    <div>Spacecraft bus &amp; system engineering breadth</div>
+    <div>Flight product assurance / MAIT / qualification</div>
+    <div>LCA · debris · eco-design</div>
+  </div>
+  <p class="note"><b>One line to remember:</b> Kshana is <b>one component</b> of the NAV-DT — the achievable-performance &amp; ML-evaluation engine — never the whole twin, the payload, or the spacecraft.</p>
+</section>
+
+<section>
+  <h2><span class="n">5</span>Open risks &amp; what has to be true to bid</h2>
+  <div class="risk-row"><div class="ic">1</div><div class="bd"><b>Registered office (the #1 risk).</b> Ashforde OÜ is German-nationality in ESA-STAR (eligible, top geo-return) <b>but registered in Estonia</b>, which is not a Participating State. Award needs a participating-state registered office → <b>stand up a German branch/subsidiary</b> + submit an ESA Q&amp;A clarification by ~29 Jun. <span class="b part">founder-gated</span></div></div>
+  <div class="risk-row"><div class="ic">2</div><div class="bd"><b>A consortium seat is the hard gate.</b> No prime, no bid this cycle — there is no solo fallback (mandatory ≥5-operator consortium + named Key Person). Partner outreach is currently parked pending an explicit go. <span class="b part">founder-gated</span></div></div>
+  <div class="risk-row"><div class="ic">3</div><div class="bd"><b>Open-source authorisation + BIPR.</b> Under the contract's IPR terms, OSS may not be used without ESA prior authorisation; Kshana (Apache-2.0) must be declared as Background IPR. We flag this and request authorisation — no GPL/copyleft anywhere.</div></div>
+  <div class="risk-row"><div class="ic">4</div><div class="bd"><b>The Key Person is a partner's.</b> The mandatory space-segment Key Person comes from a partner, never Ashforde; the founder owns the performance/evaluation WP in a supporting role.</div></div>
+  <p class="note">Everything that can be built from code and public specs <b>is</b> built (the two WPs, the four tools, the compliance-matrix template). What remains is genuinely founder-/partner-gated: the office, the seat, the Key Person and the costing — none of which can be honestly faked.</p>
+</section>
+
+<p class="note" style="border:0;text-align:center">Grounded in the open Kshana core (v0.18.x; <code>impairment_eval.rs</code>, <code>fom.rs</code>, <code>raim.rs</code>, <code>verification.rs</code>) and the kshana-pro overlay; full mapping in the private <code>technical-contribution.md</code> / <code>TENDER-13494-PURSUIT.md</code>. Every quantitative claim is labelled validated (external oracle) or modelled. No TRL&gt;3, flight heritage, certification or ESA endorsement implied. Internal Ashforde briefing — <b>contact@ashforde.org</b>.</p>
+
+<div class="crosslink">
+  <a href="1-13494-what-it-asks.html"><span class="ar">←</span> <b>What 13494 asks</b><br><small>the tender in plain language</small></a>
+  <a href="4-13503-kshana-fit.html"><span class="ar">→</span> <b>How Kshana fits 13503</b><br><small>the quantum tender — our trade-engine WP</small></a>
+</div>
+
+</div>
+</body>
+</html>
