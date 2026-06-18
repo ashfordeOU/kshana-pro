@@ -2,6 +2,10 @@
 **/*.rs.bk
 Cargo.lock.orig
 
+# macOS Finder cruft
+.DS_Store
+**/.DS_Store
+
 # Closed-overlay safety: NDA / customer / export-controlled material must NEVER be
 # committed. Keep such inputs out of the tree entirely; these patterns are a
 # backstop, not a licence to place secrets in the repo.
