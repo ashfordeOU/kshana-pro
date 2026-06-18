@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ashforde — ECOS/FFP Cost Volume (C04) · FutureNAV 13494 + 13503</title>
+<style>
+  :root{--ink:#1a2230;--mut:#5a6678;--dim:#8a93a3;--line:#e3e7ee;--bg:#f7f8fb;--card:#fff;
+        --ok:#0a7d4d;--ok-soft:#e2f5ec;--warn:#9a6a00;--warn-soft:#fbf1d8;--bad:#b42318;--bad-soft:#fdecea;
+        --accent:#3a4a8a;--accent-soft:#eef0fb}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 20px 70px}
+  h1{font-size:23px;margin:0 0 3px}
+  .sub{color:var(--mut);margin:0 0 16px;font-size:14px}
+  h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:7px;margin:30px 0 14px}
+  .banner{background:var(--warn-soft);border:1px solid #efd9a0;border-left:3px solid var(--warn);border-radius:10px;padding:12px 15px;margin:14px 0;font-size:13px;color:#6b4e00}
+  .banner b{color:#4a3600}
+  .guard{background:var(--bad-soft);border:1px solid #f4c4bf;border-left:3px solid var(--bad);border-radius:10px;padding:12px 15px;margin:14px 0;font-size:13px;color:#7a1d15}
+  .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin:8px 0}
+  .rule{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:10px 13px;font-size:13px}
+  .rule b{display:block;color:var(--accent);font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{background:#eef1f6;color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  tbody tr:last-child td{border-bottom:0}
+  tfoot td{font-weight:700;background:#f2f5fa}
+  input[type=number],input[type=text]{width:100%;border:1px solid var(--line);border-radius:6px;padding:5px 7px;font:inherit;text-align:right;background:#fff}
+  input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+  .ctrls{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;margin:6px 0 4px}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+  .field input{width:160px;text-align:right}
+  .field small{color:var(--dim);font-size:11px}
+  .btn{background:var(--accent-soft);border:1px solid #d2d8f3;color:var(--accent);border-radius:7px;padding:6px 12px;font-size:12.5px;cursor:pointer}
+  .checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:8px 0}
+  .chk{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+  .chk .lab{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+  .chk .val{font-size:18px;font-weight:700;margin:2px 0}
+  .chk .lim{font-size:12px;color:var(--mut)}
+  .pill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;margin-top:5px}
+  .pill.ok{color:var(--ok);background:var(--ok-soft)} .pill.bad{color:#fff;background:var(--bad)}
+  .note{font-size:12.5px;color:var(--mut);margin:10px 0}
+  code{background:#eef1f6;padding:1px 5px;border-radius:4px;font-size:12px}
+  .ex{color:var(--dim);font-size:11px;font-style:italic}
+  .foot{margin-top:30px;border-top:1px solid var(--line);padding-top:12px;font-size:12px;color:var(--dim);text-align:center}
+</style></head>
+<body><div class="wrap">
+
+<h1>Ashforde — ECOS / FFP Cost Volume <span style="color:var(--accent)">(C04)</span></h1>
+<p class="sub">FutureNAV demonstrator studies · AO/1‑13494 (AI &amp; Digital Payload) &amp; AO/1‑13503 (Quantum‑Enabled PNT) · firm‑fixed‑price, ECOS/PSS‑A‑style build‑up. The caps are identical across both AOs, so this template serves either bid.</p>
+
+<div class="banner"><b>Template — illustrative numbers.</b> The day‑rate and man‑days below are <b>EXAMPLE values to demonstrate the calculator</b>. Replace the day‑rate with Ashforde's <b>ECOS‑registered rate</b> (furnished via the prime's ECOS/PBF cost model) and the man‑days with the real solo‑founder + named‑subcontractor plan. Nothing here is a quote.</div>
+
+<div class="guard"><b>Honesty guard (do not violate).</b> Rates and hours must reflect a <b>real solo‑founder + named‑subcontractor capacity</b>. Do not pad hours or inflate scope to absorb budget. The <b>≤8% fee is a ceiling to respect, not a target to maximise</b>. A lean, defensible price that de‑risks the prime's costing score beats a fat one.</div>
+
+<h2>Hard rules (built in)</h2>
+<div class="rules">
+  <div class="rule"><b>Per‑contract caps</b>Phase 1 [0+A] ≤ €1.0M · Phase 2 [B1] ≤ €2.5M · Total ≤ €3.5M FFP (contract‑level; Ashforde's WP is a slice within).</div>
+  <div class="rule"><b>Fee ceiling</b>Profit/fee ≤ 8% of cost — a ceiling, auto‑flagged below.</div>
+  <div class="rule"><b>No reserve / no options</b>No management reserve, no mandatory options (cover‑letter §6.3).</div>
+  <div class="rule"><b>SME advance</b>35% advance‑payment line available to the SME (shown per phase).</div>
+  <div class="rule"><b>Prime quotas to satisfy</b>≥5‑operator consortium · ≥3 SMEs · ≥30% to non‑LSI · ≥€500k via open competition · ≥1 mandated Key Person.</div>
+  <div class="rule"><b>Sequencing gate</b>Open‑competition subcontractor selection must be <b>completed before submission</b> (13503 clarification answer 2) — the seat is locked pre‑submission, not deferred.</div>
+</div>
+
+<h2>1 · Ashforde WP cost build‑up (man‑days × day‑rate)</h2>
+<div class="ctrls">
+  <div class="field"><label>Day‑rate (€/day)</label><input type="number" id="rate" value="750" min="0" step="10"><small class="ex">EXAMPLE — replace with ECOS rate</small></div>
+  <div class="field"><label>Fee / profit (%)</label><input type="number" id="fee" value="7" min="0" max="20" step="0.5"><small class="ex">ceiling 8%</small></div>
+  <button class="btn" id="addrow">+ add cost line</button>
+</div>
+<table id="tbl">
+  <thead><tr><th>Cost line (WP task)</th><th>Phase 1 — days</th><th>Phase 2 — days</th><th>Labour P1 (€)</th><th>Labour P2 (€)</th></tr></thead>
+  <tbody id="rows"></tbody>
+  <tfoot>
+    <tr><td>Labour subtotal</td><td id="d1"></td><td id="d2"></td><td id="l1"></td><td id="l2"></td></tr>
+  </tfoot>
+</table>
+<div class="ctrls" style="margin-top:14px">
+  <div class="field"><label>ODC — Phase 1 (€)</label><input type="number" id="odc1" value="6000" min="0" step="500"><small class="ex">travel, compute, etc.</small></div>
+  <div class="field"><label>ODC — Phase 2 (€)</label><input type="number" id="odc2" value="14000" min="0" step="500"></div>
+  <div class="field"><label>Named subs — Phase 1 (€)</label><input type="number" id="sub1" value="0" min="0" step="1000"></div>
+  <div class="field"><label>Named subs — Phase 2 (€)</label><input type="number" id="sub2" value="0" min="0" step="1000"></div>
+</div>
+
+<h2>2 · Phase totals, fee &amp; compliance</h2>
+<table>
+  <thead><tr><th>Line</th><th>Phase 1 [0+A]</th><th>Phase 2 [B1]</th><th>Total</th></tr></thead>
+  <tbody>
+    <tr><td>Direct cost (labour + ODC + subs)</td><td id="dir1"></td><td id="dir2"></td><td id="dirT"></td></tr>
+    <tr><td>Fee (<span id="feep">7</span>%)</td><td id="fee1"></td><td id="fee2"></td><td id="feeT"></td></tr>
+    <tr><td><b>Ashforde WP price (FFP)</b></td><td id="tot1"></td><td id="tot2"></td><td id="totT"></td></tr>
+    <tr><td>SME advance (35% of phase price)</td><td id="adv1"></td><td id="adv2"></td><td id="advT"></td></tr>
+  </tbody>
+</table>
+<div class="checks">
+  <div class="chk"><div class="lab">Phase 1 vs cap</div><div class="val" id="c1v"></div><div class="lim">cap €1.0M (contract)</div><span class="pill" id="c1p"></span></div>
+  <div class="chk"><div class="lab">Phase 2 vs cap</div><div class="val" id="c2v"></div><div class="lim">cap €2.5M (contract)</div><span class="pill" id="c2p"></span></div>
+  <div class="chk"><div class="lab">Total vs cap</div><div class="val" id="ctv"></div><div class="lim">cap €3.5M (contract)</div><span class="pill" id="ctp"></span></div>
+  <div class="chk"><div class="lab">Fee vs ceiling</div><div class="val" id="cfv"></div><div class="lim">ceiling 8%</div><span class="pill" id="cfp"></span></div>
+</div>
+<p class="note">The per‑contract caps are <b>contract‑level</b> (prime + all partners). Ashforde's SME WP is a slice well inside them — the cap rows above flag only the defensive case where a slice somehow exceeds a cap. The point of the discipline is that the prime can drop Ashforde's numbers straight into their roll‑up without re‑costing.</p>
+
+<h2>3 · Quota‑fit (how the slice helps the prime)</h2>
+<div class="ctrls">
+  <div class="field"><label>Prime total bid (€)</label><input type="number" id="prime" value="3500000" min="0" step="50000"></div>
+  <div class="field" style="justify-content:flex-end"><label>Ashforde as % of bid</label><div class="val" id="qpct" style="font-size:18px;font-weight:700"></div></div>
+</div>
+<p class="note" id="qnote"></p>
+
+<div class="foot">Internal Ashforde bid artifact · C04 cost volume · <b>founder‑gated</b> (rate/hours via the prime's ECOS/PBF) · contact@ashforde.org · no TRL&gt;3, flight heritage, certification or ESA endorsement implied.</div>
+
+<script>
+const EUR = n => "€" + (Math.round(n)).toLocaleString("en-IE");
+const M = 1e6;
+// Example WP lines (illustrative, lean solo-founder shape — REPLACE).
+const SEED = [
+  ["System scenario / benefits / SOTA (D1.1-class)", 14, 0],
+  ["Performance & resilience modelling (the engine)", 22, 70],
+  ["Validation / verification cross-reference rows", 8, 34],
+  ["Trade study / evidence pack + reviews", 6, 30],
+  ["Reporting, meetings, PA/QA support", 8, 26],
+];
+const rowsEl = document.getElementById("rows");
+function numInput(cls, val){
+  const i = document.createElement("input");
+  i.type = "number"; i.className = cls; i.value = val; i.min = "0"; i.step = "1";
+  i.addEventListener("input", recompute);
+  return i;
+}
+function cellWith(node){ const td = document.createElement("td"); td.appendChild(node); return td; }
+function addRow(name = "New cost line", p1 = 0, p2 = 0){
+  const tr = document.createElement("tr");
+  const nameI = document.createElement("input");
+  nameI.type = "text"; nameI.value = name; nameI.style.textAlign = "left";
+  nameI.addEventListener("input", recompute);
+  const lp1 = document.createElement("td"); lp1.className = "lp1";
+  const lp2 = document.createElement("td"); lp2.className = "lp2";
+  tr.append(cellWith(nameI), cellWith(numInput("p1", p1)), cellWith(numInput("p2", p2)), lp1, lp2);
+  rowsEl.appendChild(tr);
+}
+SEED.forEach(r => addRow(r[0], r[1], r[2]));
+document.getElementById("addrow").onclick = () => { addRow(); recompute(); };
+["rate","fee","odc1","odc2","sub1","sub2","prime"].forEach(id =>
+  document.getElementById(id).addEventListener("input", recompute));
+
+function flag(pillEl, val, limit){
+  const ok = val <= limit + 1e-6;
+  pillEl.textContent = ok ? "within" : "OVER";
+  pillEl.className = "pill " + (ok ? "ok" : "bad");
+}
+const set = (id, v) => { document.getElementById(id).textContent = v; };
+function recompute(){
+  const rate = +document.getElementById("rate").value || 0;
+  const feePct = +document.getElementById("fee").value || 0;
+  let d1 = 0, d2 = 0, l1 = 0, l2 = 0;
+  rowsEl.querySelectorAll("tr").forEach(tr => {
+    const p1 = +tr.querySelector(".p1").value || 0, p2 = +tr.querySelector(".p2").value || 0;
+    d1 += p1; d2 += p2; const a = p1 * rate, b = p2 * rate; l1 += a; l2 += b;
+    tr.querySelector(".lp1").textContent = EUR(a);
+    tr.querySelector(".lp2").textContent = EUR(b);
+  });
+  set("d1", d1); set("d2", d2); set("l1", EUR(l1)); set("l2", EUR(l2));
+  const odc1 = +document.getElementById("odc1").value || 0, odc2 = +document.getElementById("odc2").value || 0;
+  const sub1 = +document.getElementById("sub1").value || 0, sub2 = +document.getElementById("sub2").value || 0;
+  const dir1 = l1 + odc1 + sub1, dir2 = l2 + odc2 + sub2, dirT = dir1 + dir2;
+  const f1 = dir1 * feePct / 100, f2 = dir2 * feePct / 100, fT = f1 + f2;
+  const t1 = dir1 + f1, t2 = dir2 + f2, tT = t1 + t2;
+  set("dir1", EUR(dir1)); set("dir2", EUR(dir2)); set("dirT", EUR(dirT));
+  set("feep", feePct);
+  set("fee1", EUR(f1)); set("fee2", EUR(f2)); set("feeT", EUR(fT));
+  set("tot1", EUR(t1)); set("tot2", EUR(t2)); set("totT", EUR(tT));
+  set("adv1", EUR(0.35 * t1)); set("adv2", EUR(0.35 * t2)); set("advT", EUR(0.35 * tT));
+  set("c1v", EUR(t1)); set("c2v", EUR(t2)); set("ctv", EUR(tT)); set("cfv", feePct + "%");
+  flag(document.getElementById("c1p"), t1, 1.0 * M);
+  flag(document.getElementById("c2p"), t2, 2.5 * M);
+  flag(document.getElementById("ctp"), tT, 3.5 * M);
+  flag(document.getElementById("cfp"), feePct, 8);
+  const prime = +document.getElementById("prime").value || 0;
+  const pct = prime > 0 ? tT / prime * 100 : 0;
+  set("qpct", pct.toFixed(1) + "%");
+  set("qnote",
+    `Ashforde's ${EUR(tT)} WP is ${pct.toFixed(1)}% of a ${EUR(prime)} prime bid. As a non-LSI SME won via open `
+    + `competition, the full ${EUR(tT)} counts toward the prime's >=30% non-LSI quota and, if >=EUR500k or pooled `
+    + `with other open-competition subs, the >=EUR500k open-competition quota. Keep the slice lean enough that the `
+    + `prime stays comfortably above both thresholds without over-allocating to one sub.`);
+}
+recompute();
+</script>
+</body></html>
