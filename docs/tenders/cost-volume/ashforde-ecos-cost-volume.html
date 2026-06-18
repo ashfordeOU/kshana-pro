@@ -48,7 +48,7 @@
 <h1>Ashforde — ECOS / FFP Cost Volume <span style="color:var(--accent)">(C04)</span></h1>
 <p class="sub">FutureNAV demonstrator studies · AO/1‑13494 (AI &amp; Digital Payload) &amp; AO/1‑13503 (Quantum‑Enabled PNT) · firm‑fixed‑price, ECOS/PSS‑A‑style build‑up. The caps are identical across both AOs, so this template serves either bid.</p>
 
-<div class="banner"><b>Template — illustrative numbers.</b> The day‑rate and man‑days below are <b>EXAMPLE values to demonstrate the calculator</b>. Replace the day‑rate with Ashforde's <b>ECOS‑registered rate</b> (furnished via the prime's ECOS/PBF cost model) and the man‑days with the real solo‑founder + named‑subcontractor plan. Nothing here is a quote.</div>
+<div class="banner"><b>Market‑researched recommendation — confirm before registering.</b> The day‑rate (€750/day loaded) is a <b>market‑researched figure</b> for a senior solo‑founder space‑software / PNT specialist (basis + sources in §1), and the man‑days are a <b>lean, defensible plan</b> (~10–11 person‑months for the single‑WP 13503 case; ~14–17 PM for the two‑WP 13494 case). Confirm the rate against Ashforde's <b>ECOS rate file</b> (regulated by the ESA industrial auditor) before it becomes the bid figure — it is a recommendation, <b>not yet a registered rate</b>.</div>
 
 <div class="guard"><b>Honesty guard (do not violate).</b> Rates and hours must reflect a <b>real solo‑founder + named‑subcontractor capacity</b>. Do not pad hours or inflate scope to absorb budget. The <b>≤8% fee is a ceiling to respect, not a target to maximise</b>. A lean, defensible price that de‑risks the prime's costing score beats a fat one.</div>
 
@@ -64,9 +64,18 @@
 
 <h2>1 · Ashforde WP cost build‑up (man‑days × day‑rate)</h2>
 <div class="ctrls">
-  <div class="field"><label>Day‑rate (€/day)</label><input type="number" id="rate" value="750" min="0" step="10"><small class="ex">EXAMPLE — replace with ECOS rate</small></div>
+  <div class="field"><label>Day‑rate (€/day)</label><input type="number" id="rate" value="750" min="0" step="10"><small class="ex">market‑researched €650–850/day · confirm at ECOS</small></div>
   <div class="field"><label>Fee / profit (%)</label><input type="number" id="fee" value="7" min="0" max="20" step="0.5"><small class="ex">ceiling 8%</small></div>
   <button class="btn" id="addrow">+ add cost line</button>
+</div>
+<div class="banner" style="background:var(--accent-soft);border-color:#d2d8f3;border-left-color:var(--accent);color:#2a3566">
+  <b>Rate basis (market‑researched, 2025–26).</b> €750/day loaded cost is the recommended point in a defensible <b>€650–850/day</b> band for a senior solo‑founder space‑software / PNT R&amp;D specialist:
+  <ul style="margin:6px 0 0;padding-left:18px">
+    <li>German <b>aerospace</b> sector ≈ €111/hr ⇒ ~€890/day billing (freelancermap DE freelance study, 2025).</li>
+    <li>Senior <b>Western‑European software</b> €80–100/hr ⇒ €640–800/day; specialised ML/PNT €90–130/hr ⇒ €720–1040/day (index.dev EU developer rates, 2026).</li>
+    <li>ESA structure: this day‑rate is the <b>loaded labour cost</b> in the company <b>rate file</b> (labour + overhead); profit is added separately as the ≤8% fee — regulated by the ESA industrial auditor per <b>ESA/REG/002 Annex I</b> ("Determination of Industrial Rates and Cost Control").</li>
+  </ul>
+  €750 sits <b>below</b> the German‑aerospace billing average and inside the senior‑software band: defensible under auditor scrutiny, not padded. <b>Confirm/register before bid.</b>
 </div>
 <table id="tbl">
   <thead><tr><th>Cost line (WP task)</th><th>Phase 1 — days</th><th>Phase 2 — days</th><th>Labour P1 (€)</th><th>Labour P2 (€)</th></tr></thead>
