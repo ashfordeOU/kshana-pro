@@ -1,0 +1,530 @@
+[
+ {
+  "class": "clean",
+  "start": "2023-12-21 12:00:00",
+  "end": "2023-12-21 12:32:30",
+  "severity": 0,
+  "target": null,
+  "note": "Pre-first-attack nominal period on Dec 21 (first spoofing attack begins 12:32:30). Earlier morning hours also clean per article ('spoofing starts at 12:00')."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 12:32:30",
+  "end": "2023-12-21 12:37:00",
+  "severity": "attack_1 (S, P1, TX1; no per-attack power published)",
+  "target": "Cuihu Park",
+  "note": "Table 13 spoofing attack #1. Type code 'S, P1, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 12:37:00",
+  "end": "2023-12-21 12:38:41",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 12:38:41",
+  "end": "2023-12-21 12:41:20",
+  "severity": "attack_2 (S, P1, TX1; no per-attack power published)",
+  "target": "Cuihu Park",
+  "note": "Table 13 spoofing attack #2. Type code 'S, P1, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 12:41:20",
+  "end": "2023-12-21 12:44:05",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 12:44:05",
+  "end": "2023-12-21 12:55:50",
+  "severity": "attack_3 (S, P2, TX1; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #3. Type code 'S, P2, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 12:55:50",
+  "end": "2023-12-21 12:57:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 12:57:00",
+  "end": "2023-12-21 13:02:00",
+  "severity": "attack_4 (S, P2, TX1; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #4. Type code 'S, P2, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 13:02:00",
+  "end": "2023-12-21 13:18:30",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 13:18:30",
+  "end": "2023-12-21 13:23:40",
+  "severity": "attack_5 (S, P2, TX1; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #5. Type code 'S, P2, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 13:23:40",
+  "end": "2023-12-21 13:27:50",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 13:27:50",
+  "end": "2023-12-21 13:37:50",
+  "severity": "attack_6 (S, P2, TX1; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #6. Type code 'S, P2, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 13:37:00",
+  "end": "2023-12-21 13:46:00",
+  "severity": "attack_7 (S, P2, TX1; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #7. Type code 'S, P2, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 13:46:00",
+  "end": "2023-12-21 13:47:10",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 13:47:10",
+  "end": "2023-12-21 13:56:00",
+  "severity": "attack_8 (S, P1, TX1; no per-attack power published)",
+  "target": "Cuihu Park",
+  "note": "Table 13 spoofing attack #8. Type code 'S, P1, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 13:56:00",
+  "end": "2023-12-21 13:56:05",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 13:56:05",
+  "end": "2023-12-21 13:59:59",
+  "severity": "attack_9 (S, P1, TX1; no per-attack power published)",
+  "target": "Cuihu Park",
+  "note": "Table 13 spoofing attack #9. Type code 'S, P1, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 13:59:59",
+  "end": "2023-12-21 14:05:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 14:05:00",
+  "end": "2023-12-21 14:10:18",
+  "severity": "attack_10 (S, P1, TX1; no per-attack power published)",
+  "target": "Cuihu Park",
+  "note": "Table 13 spoofing attack #10. Type code 'S, P1, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 14:10:18",
+  "end": "2023-12-21 14:12:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 14:12:00",
+  "end": "2023-12-21 14:15:00",
+  "severity": "attack_11 (S, P1, TX1; no per-attack power published)",
+  "target": "Cuihu Park",
+  "note": "Table 13 spoofing attack #11. Type code 'S, P1, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 14:15:00",
+  "end": "2023-12-21 14:18:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 14:18:00",
+  "end": "2023-12-21 14:30:00",
+  "severity": "attack_12 (S, P3, TX1; no per-attack power published)",
+  "target": "YNU Library",
+  "note": "Table 13 spoofing attack #12. Type code 'S, P3, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 14:30:00",
+  "end": "2023-12-21 14:35:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 14:35:00",
+  "end": "2023-12-21 14:40:15",
+  "severity": "attack_13 (S, P1, TX1; no per-attack power published)",
+  "target": "Cuihu Park",
+  "note": "Table 13 spoofing attack #13. Type code 'S, P1, TX1': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 14:40:15",
+  "end": "2023-12-21 14:45:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 14:45:00",
+  "end": "2023-12-21 14:50:30",
+  "severity": "attack_14 (S, P1, TX2; no per-attack power published)",
+  "target": "Cuihu Park",
+  "note": "Table 13 spoofing attack #14. Type code 'S, P1, TX2': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 14:50:30",
+  "end": "2023-12-21 14:52:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 14:52:00",
+  "end": "2023-12-21 14:58:00",
+  "severity": "attack_15 (S, P1, TX2; no per-attack power published)",
+  "target": "Cuihu Park",
+  "note": "Table 13 spoofing attack #15. Type code 'S, P1, TX2': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 14:58:00",
+  "end": "2023-12-21 15:11:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 15:11:00",
+  "end": "2023-12-21 15:15:00",
+  "severity": "attack_16 (S, P2, TX2; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #16. Type code 'S, P2, TX2': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 15:15:00",
+  "end": "2023-12-21 15:17:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 15:17:00",
+  "end": "2023-12-21 15:30:00",
+  "severity": "attack_17 (S, P2, TX2; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #17. Type code 'S, P2, TX2': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 15:30:00",
+  "end": "2023-12-21 15:43:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 15:43:00",
+  "end": "2023-12-21 15:48:00",
+  "severity": "attack_18 (S, P2, TX3; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #18. Type code 'S, P2, TX3': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 15:48:00",
+  "end": "2023-12-21 15:55:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 15:55:00",
+  "end": "2023-12-21 16:00:00",
+  "severity": "attack_19 (S, P2, TX3; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #19. Type code 'S, P2, TX3': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 16:00:00",
+  "end": "2023-12-21 16:10:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 16:10:00",
+  "end": "2023-12-21 16:15:30",
+  "severity": "attack_20 (S, P2, TX4; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #20. Type code 'S, P2, TX4': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 16:15:30",
+  "end": "2023-12-21 16:20:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 16:20:00",
+  "end": "2023-12-21 16:23:00",
+  "severity": "attack_21 (S, P2, TX5; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #21. Type code 'S, P2, TX5': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 16:23:00",
+  "end": "2023-12-21 16:30:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 16:30:00",
+  "end": "2023-12-21 16:36:00",
+  "severity": "attack_22 (S, P2, TX5; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #22. Type code 'S, P2, TX5': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 16:36:00",
+  "end": "2023-12-21 16:40:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "spoofing",
+  "start": "2023-12-21 16:40:00",
+  "end": "2023-12-21 16:44:00",
+  "severity": "attack_23 (S, P2, TX6; no per-attack power published)",
+  "target": "Lhasa Hospital",
+  "note": "Table 13 spoofing attack #23. Type code 'S, P2, TX6': S=spoofing, P=spoofed target position, TX=transmitter code (TX meaning undefined in article). HackRF One @1575.42MHz, VGA/IF gain 40dB, max TX power 15 dBm."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 16:44:00",
+  "end": "2023-12-21 16:56:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "jamming",
+  "start": "2023-12-21 16:56:00",
+  "end": "2023-12-21 16:57:00",
+  "severity": "burst_1 (<=37 dBm, band 1180-1600 MHz; no per-burst power published)",
+  "target": null,
+  "note": "Table 13 jamming burst #1 (J,TX0). Commercial broadband jammer, band 1180-1600 MHz, transmit power <=37 dBm, antenna gain 2 dB."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 16:57:00",
+  "end": "2023-12-21 16:58:03",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "jamming",
+  "start": "2023-12-21 16:58:03",
+  "end": "2023-12-21 16:59:03",
+  "severity": "burst_2 (<=37 dBm, band 1180-1600 MHz; no per-burst power published)",
+  "target": null,
+  "note": "Table 13 jamming burst #2 (J,TX0). Commercial broadband jammer, band 1180-1600 MHz, transmit power <=37 dBm, antenna gain 2 dB."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 16:59:03",
+  "end": "2023-12-21 17:00:20",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "jamming",
+  "start": "2023-12-21 17:00:20",
+  "end": "2023-12-21 17:01:26",
+  "severity": "burst_3 (<=37 dBm, band 1180-1600 MHz; no per-burst power published)",
+  "target": null,
+  "note": "Table 13 jamming burst #3 (J,TX0). Commercial broadband jammer, band 1180-1600 MHz, transmit power <=37 dBm, antenna gain 2 dB."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 17:01:26",
+  "end": "2023-12-21 17:03:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "jamming",
+  "start": "2023-12-21 17:03:00",
+  "end": "2023-12-21 17:04:00",
+  "severity": "burst_4 (<=37 dBm, band 1180-1600 MHz; no per-burst power published)",
+  "target": null,
+  "note": "Table 13 jamming burst #4 (J,TX0). Commercial broadband jammer, band 1180-1600 MHz, transmit power <=37 dBm, antenna gain 2 dB."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 17:04:00",
+  "end": "2023-12-21 17:06:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "jamming",
+  "start": "2023-12-21 17:06:00",
+  "end": "2023-12-21 17:07:00",
+  "severity": "burst_5 (<=37 dBm, band 1180-1600 MHz; no per-burst power published)",
+  "target": null,
+  "note": "Table 13 jamming burst #5 (J,TX0). Commercial broadband jammer, band 1180-1600 MHz, transmit power <=37 dBm, antenna gain 2 dB."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 17:07:00",
+  "end": "2023-12-21 17:09:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "jamming",
+  "start": "2023-12-21 17:09:00",
+  "end": "2023-12-21 17:10:00",
+  "severity": "burst_6 (<=37 dBm, band 1180-1600 MHz; no per-burst power published)",
+  "target": null,
+  "note": "Table 13 jamming burst #6 (J,TX0). Commercial broadband jammer, band 1180-1600 MHz, transmit power <=37 dBm, antenna gain 2 dB."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 17:10:00",
+  "end": "2023-12-21 17:12:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "jamming",
+  "start": "2023-12-21 17:12:00",
+  "end": "2023-12-21 17:13:00",
+  "severity": "burst_7 (<=37 dBm, band 1180-1600 MHz; no per-burst power published)",
+  "target": null,
+  "note": "Table 13 jamming burst #7 (J,TX0). Commercial broadband jammer, band 1180-1600 MHz, transmit power <=37 dBm, antenna gain 2 dB."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 17:13:00",
+  "end": "2023-12-21 17:15:00",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "jamming",
+  "start": "2023-12-21 17:15:00",
+  "end": "2023-12-21 17:16:00",
+  "severity": "burst_8 (<=37 dBm, band 1180-1600 MHz; no per-burst power published)",
+  "target": null,
+  "note": "Table 13 jamming burst #8 (J,TX0). Commercial broadband jammer, band 1180-1600 MHz, transmit power <=37 dBm, antenna gain 2 dB."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 17:16:00",
+  "end": "2023-12-21 17:17:30",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "jamming",
+  "start": "2023-12-21 17:17:30",
+  "end": "2023-12-21 17:18:30",
+  "severity": "burst_9 (<=37 dBm, band 1180-1600 MHz; no per-burst power published)",
+  "target": null,
+  "note": "Table 13 jamming burst #9 (J,TX0). Commercial broadband jammer, band 1180-1600 MHz, transmit power <=37 dBm, antenna gain 2 dB."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 17:18:30",
+  "end": "2023-12-21 17:19:30",
+  "severity": 0,
+  "target": null,
+  "note": "Nominal gap between documented attacks (inter-attack clean period inferred from Table 13 boundaries)."
+ },
+ {
+  "class": "jamming",
+  "start": "2023-12-21 17:19:30",
+  "end": "2023-12-21 17:20:30",
+  "severity": "burst_10 (<=37 dBm, band 1180-1600 MHz; no per-burst power published)",
+  "target": null,
+  "note": "Table 13 jamming burst #10 (J,TX0). Commercial broadband jammer, band 1180-1600 MHz, transmit power <=37 dBm, antenna gain 2 dB."
+ },
+ {
+  "class": "clean",
+  "start": "2023-12-21 17:20:30",
+  "end": "2023-12-21 17:30:00",
+  "severity": 0,
+  "target": null,
+  "note": "Post-jamming nominal period (jamming ends 17:20:30; clean thereafter)."
+ }
+]
