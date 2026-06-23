@@ -343,6 +343,28 @@ impl ConsolidatedReport {
         }
     }
 
+    /// The inline validation-tier tag (`VALIDATED` / `MODELLED` / `PARTIAL`) for a
+    /// bundle FoM by key, sourced from the open core's single source of truth
+    /// ([`kshana::fom_label::tier_for`] via [`fom_tier_tag`]). Returns `None` when
+    /// the core does not recognise the FoM name. Re-exported so the PDF face
+    /// ([`crate::report_pdf`]) renders the exact same tier as the HTML face — never
+    /// a second, independently-computed tier.
+    pub(crate) fn fom_tier_label(&self, key: &str) -> Option<&'static str> {
+        fom_tier_tag(key)
+    }
+
+    /// The resolved executive-summary paragraph (caller-supplied or the honest
+    /// default). Exposed for the PDF face so it renders identical copy to the HTML.
+    pub(crate) fn executive_summary_text(&self) -> String {
+        self.executive_summary()
+    }
+
+    /// The resolved engine-version string (caller-supplied or the live Pro + open
+    /// versions). Exposed for the PDF face.
+    pub(crate) fn engine_version_text(&self) -> String {
+        self.engine_version()
+    }
+
     /// Machine-readable evidence pack (the struct serialised).
     pub fn to_evidence_json(&self) -> String {
         serde_json::to_string_pretty(self).expect("report serializes")

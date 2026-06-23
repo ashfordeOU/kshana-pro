@@ -19,7 +19,7 @@ fn usage() -> &'static str {
        kshana-pro kinds                                              List kinds + their tier\n\
        kshana-pro mrd                                                Emit the machine-checked D1.4 MRD FoM-mapping (Markdown)\n\
        kshana-pro benefits [--json|--svg]                            Benefit-vs-baseline reference table (A02, D1.1)\n\
-       kshana-pro report <scenario.toml> [--subject <s>] [--format md|json|html|svg]   Consolidated report (A11)\n\
+       kshana-pro report <scenario.toml> [--subject <s>] [--format md|json|html|svg] [--pdf <out.pdf>]   Consolidated report (A11)\n\
        kshana-pro navdt <scenario.toml> [--subject <s>]              NAV-DT deterministic twin bundle, JSON (A10)\n\
        kshana-pro spacestream [--schema]                             SpaceStream codec goldens / ICD schema (A09)\n\
        kshana-pro version                                            Overlay + engine info\n\
@@ -247,6 +247,26 @@ fn report_cmd(args: &[String]) -> ExitCode {
     let subject = flag(args, "--subject").unwrap_or_else(|| "quantum".to_string());
     match kshana_pro::report::build_report("kshana-pro report", &src, &subject) {
         Ok(r) => {
+            // `--pdf <out.pdf>` renders the same structured report to a pure-Rust
+            // PDF (no external tool, no bundled font) and writes it to the path.
+            if let Some(out) = flag(args, "--pdf") {
+                match kshana_pro::report_pdf::to_pdf(&r) {
+                    Ok(bytes) => match std::fs::write(&out, &bytes) {
+                        Ok(()) => {
+                            eprintln!("[wrote {} bytes to {out}]", bytes.len());
+                            return ExitCode::SUCCESS;
+                        }
+                        Err(e) => {
+                            eprintln!("error: could not write {out}: {e}");
+                            return ExitCode::FAILURE;
+                        }
+                    },
+                    Err(e) => {
+                        eprintln!("error: PDF render failed: {e}");
+                        return ExitCode::FAILURE;
+                    }
+                }
+            }
             match flag(args, "--format").as_deref() {
                 Some("json") => println!("{}", r.to_evidence_json()),
                 Some("html") => println!("{}", r.to_html()),

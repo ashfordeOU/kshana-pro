@@ -46,3 +46,9 @@ rand_chacha = "0.3"
 sha2 = "0.10"
 hmac = "0.12"
 hex = "0.4"
+# Pure-Rust PDF export of the branded study report (src/report_pdf.rs). Default
+# features off: we render from primitives (built-in standard-14 fonts, lines,
+# rectangles, text) and need NONE of the heavy optional layers (html/svg/images/
+# fontconfig/azul). No external TTF files are bundled. CreationDate/ModDate/doc-ID
+# are pinned to a fixed value for byte-identical, reproducible output.
+printpdf = { version = "0.9.1", default-features = false }
