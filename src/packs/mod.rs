@@ -9,7 +9,9 @@
 //! trigger exists.
 
 pub mod batch_pack;
+pub mod detector_intake;
 pub mod mbse_pack;
+pub mod optimism_gap_audit;
 pub mod quantum_systematics_pack;
 pub mod seam_check;
 pub mod trade_study_pack;

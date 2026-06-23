@@ -70,6 +70,7 @@ pub fn feature_min_tier(kind: &str) -> Tier {
         "pro-twin" => Tier::Pro,
         "pro-trade-study" => Tier::Pro,
         "pro-quantum-systematics" => Tier::Pro,
+        "pro-optimism-gap-audit" => Tier::Pro,
         "pro-mbse" => Tier::Enterprise,
         "pro-batch" => Tier::Enterprise,
         _ => Tier::Enterprise,

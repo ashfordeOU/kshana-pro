@@ -1,0 +1,31 @@
+# Kshana Pro Pack A — Optimism-Gap Audit (PUBLISHED BASELINE).
+#
+# Runs the OPEN kshana optimism-gap evaluation on the published baseline corpus and
+# reports the predicted field-vs-bench (ID-vs-OOD) degradation: per-class ID AUC,
+# OOD AUC, the optimism gap, the pooled mean gap, and whether in-distribution-only
+# diagnostics predict the gap for a held-out detector / class (leave-one-out R² +
+# permutation p).
+#
+# With NO fields below it reproduces the arXiv:2606.22054 baseline exactly:
+#   13 detectors × 4 classes × {0.2,0.4,0.6,0.8} severities × 5 seeds,
+#   400 cases/class, 0.7 train fraction → 260 predictor rows.
+# (The fields below are the published defaults, written out explicitly.)
+#
+# HONEST SCOPE: MODELLED operating characteristics over a SYNTHETIC,
+# parameter-grounded corpus (never field captures or raw IQ). The optimism gap is a
+# controlled synthetic→synthetic severity shift, NOT a sim-to-field claim. This is an
+# engineering study — NOT a certification, not ESA acceptance, not a TRL claim. The
+# proof is arXiv:2606.22054, an arXiv PREPRINT (not peer-reviewed).
+#
+# Run (Pro tier):  kshana-pro run scenarios/optimism-gap-baseline.toml --dev
+kind = "pro-optimism-gap-audit"
+
+n_per_class = 400              # cases per class in each class-balanced corpus
+frac_train = 0.7               # ID train fraction for the learned detectors
+severities = [0.2, 0.4, 0.6, 0.8]  # OOD severity scales (< 1.0 = subtler than bench)
+seeds = [1, 2, 3, 4, 5]        # replication seeds (independent corpus draws + fits)
+target_pfa = 0.05              # operating-point P_fa (provenance; the gap uses AUC)
+
+ridge_lambda = 0.1             # ridge penalty for the ID-only gap predictor
+n_perms = 1000                 # label-permutation resamples for the null p-value
+perm_seed = 7                  # seed for the permutation null (reproducible)
