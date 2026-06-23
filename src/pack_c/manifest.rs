@@ -136,10 +136,34 @@ path = "araim.toml"
     }
 
     #[test]
+    fn rejects_empty_version() {
+        let src = r#"
+id = "resilience-baseline"
+version = ""
+
+[[entries]]
+path = "araim.toml"
+"#;
+        assert!(parse_pack(src).is_err());
+    }
+
+    #[test]
     fn rejects_no_entries() {
         let src = r#"
 id = "resilience-baseline"
 version = "1.0.0"
+"#;
+        assert!(parse_pack(src).is_err());
+    }
+
+    #[test]
+    fn rejects_explicit_empty_entries_array() {
+        // An explicit `entries = []` exercises the `entries.is_empty()` guard
+        // (not just the missing-field path covered by `rejects_no_entries`).
+        let src = r#"
+id = "resilience-baseline"
+version = "1.0.0"
+entries = []
 "#;
         assert!(parse_pack(src).is_err());
     }

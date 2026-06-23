@@ -107,6 +107,13 @@ fn walk(label: &str, path: &str, value: &serde_json::Value, out: &mut MetricSet)
             }
         }
         serde_json::Value::Array(items) => {
+            // Raw-data arrays (e.g. per-epoch GNSS measurement tables) are not figures of
+            // merit; flattening them bloats the report and the gate's informational list.
+            // Cap recursion to short arrays, which is all that legitimate FoM vectors need.
+            const MAX_ARRAY: usize = 8;
+            if items.len() > MAX_ARRAY {
+                return;
+            }
             for (idx, child) in items.iter().enumerate() {
                 let child_path = if path.is_empty() {
                     idx.to_string()
@@ -160,6 +167,27 @@ mod tests {
         assert_eq!(m.len(), 2);
         assert_eq!(m.get("arr::vals.0"), Some(1.0));
         assert_eq!(m.get("arr::vals.1"), Some(2.0));
+    }
+
+    #[test]
+    fn short_arrays_index_but_long_arrays_are_skipped() {
+        // A SHORT array (<= 8 numbers) is still flattened to indexed keys: these
+        // are legitimate FoM vectors.
+        let short = r#"{"v":[1.0,2.0,3.0]}"#;
+        let ms = extract("label", short).expect("valid JSON must extract");
+        assert_eq!(ms.get("label::v.0"), Some(1.0));
+        assert_eq!(ms.get("label::v.1"), Some(2.0));
+        assert_eq!(ms.get("label::v.2"), Some(3.0));
+        assert_eq!(ms.len(), 3);
+
+        // A LONG array (> 8 numbers, e.g. a per-epoch raw-measurement table) is
+        // NOT a figure of merit: its leaves are skipped entirely.
+        let long = r#"{"v":[1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0]}"#;
+        let ml = extract("label", long).expect("valid JSON must extract");
+        for idx in 0..12 {
+            assert_eq!(ml.get(&format!("label::v.{idx}")), None);
+        }
+        assert_eq!(ml.len(), 0);
     }
 
     #[test]
