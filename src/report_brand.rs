@@ -50,3 +50,60 @@ pub fn seal_img_html(px: u32) -> String {
         )
     }
 }
+
+/// Minimal XML/HTML escaping for text interpolated into brand furniture.
+fn xml(s: &str) -> String {
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+}
+
+/// The shared branded cover block (seal + Ashforde identity + study title +
+/// sub-title). Both the consolidated report and every pack section reuse the same
+/// markup so a study looks identical in hand; callers pass already-escaped or
+/// plain `title` / `subtitle` text (escaping is applied here).
+pub fn cover_html(title: &str, subtitle: &str) -> String {
+    format!(
+        "<header style=\"text-align:center;border-bottom:2px solid {brass};\
+         padding:36px 0 28px;margin-bottom:8px\">\
+         <div style=\"display:flex;justify-content:center;margin-bottom:14px\">{seal}</div>\
+         <div style=\"font-family:{head};font-size:15px;letter-spacing:.42em;\
+         text-transform:uppercase;color:{brass};font-weight:700\">Ashforde</div>\
+         <div style=\"font-family:{body};font-size:11px;letter-spacing:.22em;\
+         text-transform:uppercase;color:{brass_muted};margin-top:2px\">\
+         Ashforde O&Uuml; &middot; Quantitative PNT Resilience</div>\
+         <h1 style=\"font-family:{head};font-size:34px;font-weight:700;color:{ivory_light};\
+         margin:22px 0 6px;line-height:1.15\">{title}</h1>\
+         <div style=\"font-family:{body};font-size:16px;color:{ivory};font-style:italic\">{subtitle}</div>\
+         </header>",
+        brass = BRASS,
+        brass_muted = BRASS_MUTED,
+        head = FONT_HEAD,
+        body = FONT_BODY,
+        ivory = IVORY,
+        ivory_light = IVORY_LIGHT,
+        seal = seal_img_html(96),
+        title = xml(title),
+        subtitle = xml(subtitle),
+    )
+}
+
+/// The shared, NON-OPTIONAL MODELLED banner with the literal "not a certification"
+/// disclaimer. `detail` is the (already-plain) middle clause describing the
+/// modelling scope; it is appended after the standing "MODELLED RESULTS" lead and
+/// before the standing "not a certification / not ESA acceptance" tail, so the
+/// honesty furniture is identical no matter which surface renders it.
+pub fn modelled_banner_html(detail: &str) -> String {
+    format!(
+        "<div style=\"background:{brass};color:{ink};font-family:{body};font-weight:700;\
+         text-align:center;padding:11px 16px;border-radius:4px;margin:18px 0;\
+         letter-spacing:.04em\">\
+         MODELLED RESULTS &mdash; {detail} This is an engineering study, \
+         <strong>not a certification</strong> and not ESA acceptance or TRL maturation.</div>",
+        brass = BRASS,
+        ink = INK,
+        body = FONT_BODY,
+        detail = xml(detail),
+    )
+}
