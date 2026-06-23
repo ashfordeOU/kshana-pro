@@ -8,8 +8,10 @@
 //! Metric extraction, the regression gate, the run orchestrator, the branded
 //! report, and the CLI are added by later tasks.
 
+pub mod gate;
 pub mod manifest;
 pub mod metrics;
 
+pub use gate::{compare, direction_for, Direction, GateVerdict, Regression, Thresholds};
 pub use manifest::{parse_pack, PackEntry, ScenarioPack};
 pub use metrics::MetricSet;
