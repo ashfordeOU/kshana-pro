@@ -388,6 +388,25 @@ impl PackAReport {
         )
     }
 
+    /// The Pack-A *section* fragment — the executive summary, the field-vs-bench
+    /// headline section (the optimism-gap number + ID/OOD AUCs + optional per-class
+    /// table/predictor/counts), the provenance block, and the preprint citation —
+    /// WITHOUT the document wrapper, the cover, or the MODELLED banner.
+    ///
+    /// This is what a multi-pack composer ([`crate::pro_study::ProStudy`]) embeds so
+    /// the cover and the MODELLED/"not a certification" banner render exactly ONCE
+    /// for the whole study, never once per pack. The standalone [`Self::to_html`]
+    /// face is unchanged and still carries its own cover + banner.
+    pub fn section_fragment_html(&self) -> String {
+        format!(
+            "{summary}{section}{provenance}{citation}",
+            summary = self.exec_summary_html(),
+            section = self.section_html(),
+            provenance = self.provenance_html(),
+            citation = self.citation_html(),
+        )
+    }
+
     /// The self-contained, branded Pack-A HTML study. No external fetches. The
     /// MODELLED banner, the "not a certification" disclaimer, and the preprint
     /// citation are always present.

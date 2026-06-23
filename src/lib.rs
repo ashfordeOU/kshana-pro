@@ -38,6 +38,7 @@ pub mod mbse;
 pub mod mrd;
 pub mod packs;
 pub mod premium;
+pub mod pro_study;
 pub mod registry;
 pub mod report;
 pub mod report_brand;
