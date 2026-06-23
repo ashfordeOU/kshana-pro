@@ -25,12 +25,12 @@ path = "src/main.rs"
 #
 # Dev: a path dependency to the local open-core checkout so seams can co-evolve.
 # Release: pin to the published crate or a git tag instead, e.g.
-#     kshana = "0.17"
+#     kshana = "0.20"
 #   or
-#     kshana = { git = "https://github.com/AshfordeOU/kshana", tag = "v0.17.0" }
+#     kshana = { git = "https://github.com/AshfordeOU/kshana", tag = "v0.20.0" }
 # The `version` field below keeps the semver contract recorded even while the
-# path is used locally.
-kshana = { path = "../kshana", version = "0.17" }
+# path is used locally; kept in lock-step with the open core's version.
+kshana = { path = "../kshana", version = "0.20" }
 
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.
