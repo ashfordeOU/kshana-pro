@@ -1,0 +1,156 @@
+// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+//
+//! Regenerate the committed **SAMPLE** Pack-C scenario-subscription CI study report
+//! (`docs/packs/sample-scenario-ci-report.html`) that the Pack-C one-pager
+//! (`docs/packs/PACK-C.md`) links to.
+//!
+//! Run it from the crate root:
+//!
+//! ```text
+//! cargo run -p kshana-pro --example gen_sample_ci_study
+//! ```
+//!
+//! It is fully reproducible and uses **no customer data**:
+//!
+//!  * the figures of merit are computed by the open Kshana engine over the
+//!    versioned sample pack (`scenarios/packs/resilience-baseline/`) — a
+//!    measurement-domain ARAIM run plus an RF-impairment evaluation, both
+//!    deterministic given their seed and fast (well under a second each);
+//!  * an *illustrative* baseline is derived from the current run by editing a
+//!    FEW figures of merit so the gate shows one REGRESSION and one IMPROVEMENT,
+//!    while everything else stays within tolerance — there is no stored customer
+//!    baseline involved;
+//!  * the cover / provenance is a clearly **SAMPLE** block (the word SAMPLE is in
+//!    the title, the cover, and the provenance), and the timestamp is a FIXED
+//!    string (never the system clock), so two runs produce the same artifact;
+//!  * the always-on MODELLED banner and the literal "not a certification"
+//!    disclaimer ride on the report face: the CI verdict is decision-support for
+//!    the customer's own V&V, never a certification of fitness.
+//!
+//! The HTML face comes from [`kshana_pro::report_pack_c::PackCReport::to_html`].
+
+use std::path::Path;
+
+use kshana_pro::pack_c::{parse_pack, run_ci, CiContext, Thresholds};
+use kshana_pro::report::{StudyCover, StudyProvenance, DEFAULT_CLASSIFICATION};
+use kshana_pro::report_pack_c::PackCReport;
+
+/// A FIXED preparation timestamp — NOT read from the system clock — so the sample
+/// is byte-stable across runs.
+const SAMPLE_GENERATED_UTC: &str = "2026-06-24T00:00:00Z";
+
+/// The versioned sample pack directory (the pack manifest + its scenario configs).
+const PACK_DIR: &str = "scenarios/packs/resilience-baseline";
+
+/// Known higher-is-better availability FoM: made HIGHER in the illustrative
+/// baseline so the current run reads as a REGRESSION (beyond the 5% tolerance).
+const AVAIL_KEY: &str = "araim::fom.raim_availability";
+/// Known lower-is-better protection-level FoM: made HIGHER (worse) in the
+/// illustrative baseline so the current run reads as an IMPROVEMENT.
+const HPL_KEY: &str = "araim::fom.mean_hpl_m";
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // ── 1. Parse the versioned sample pack manifest ──────────────────────────
+    let base_dir = Path::new(PACK_DIR);
+    let manifest = std::fs::read_to_string(base_dir.join("pack.toml"))?;
+    let pack = parse_pack(&manifest)?;
+
+    // A FIXED context: a sample customer and a fixed timestamp (no clock), with a
+    // 5% default regression tolerance.
+    let ctx = CiContext {
+        generated_utc: Some(SAMPLE_GENERATED_UTC.to_string()),
+        customer: Some("SAMPLE".to_string()),
+        thresholds: Thresholds::new(0.05),
+    };
+
+    // ── 2. Current run (informational; no baseline) ──────────────────────────
+    // Runs both scenarios through the open engine and collects the flattened FoMs.
+    let current = run_ci(&pack, base_dir, None, &ctx)?;
+
+    let avail = current
+        .metrics
+        .get(AVAIL_KEY)
+        .ok_or("sample pack must emit the ARAIM availability FoM")?;
+    let hpl = current
+        .metrics
+        .get(HPL_KEY)
+        .ok_or("sample pack must emit the ARAIM mean HPL FoM")?;
+
+    // ── 3. Derive an ILLUSTRATIVE baseline from the current run ───────────────
+    // Clone the current run and edit a FEW figures of merit so the comparison is
+    // instructive. Everything not touched stays within tolerance (so it neither
+    // regresses nor improves).
+    let mut baseline = current.clone();
+    // Availability (higher-is-better): baseline is well ABOVE current → the
+    // current run is a REGRESSION (a >5% drop).
+    baseline
+        .metrics
+        .0
+        .insert(AVAIL_KEY.to_string(), (avail + 0.13).min(1.0));
+    // Mean HPL (lower-is-better): baseline is ABOVE (worse than) current → the
+    // current run is an IMPROVEMENT.
+    baseline.metrics.0.insert(HPL_KEY.to_string(), hpl + 8.0);
+
+    // ── 4. Final, gated run (re-runs deterministically against the baseline) ──
+    // Same engine FoMs as step 2; now carrying a verdict with a regression and an
+    // improvement.
+    let final_report = run_ci(&pack, base_dir, Some(&baseline), &ctx)?;
+
+    // ── 5. Build the branded Pack-C study report with a SAMPLE cover + provenance
+    let title = "Pack C — Scenario-Subscription CI · SAMPLE";
+    let verdict = final_report
+        .verdict
+        .as_ref()
+        .ok_or("final report must carry a verdict (baseline was supplied)")?;
+    let summary = format!(
+        "SAMPLE report — illustrative, generated by running the open Kshana engine over the \
+         versioned resilience-baseline scenario pack (a measurement-domain ARAIM availability run \
+         plus an RF-impairment detection evaluation), with NO customer data. The current run is \
+         gated against an illustrative baseline derived from the same run: the regression gate \
+         flags {n_reg} regression(s) and {n_imp} improvement(s) across the gated figures of \
+         merit, with the remaining metrics within the {tol:.0}% tolerance. Figures are MODELLED \
+         over synthetic, parameter-grounded scenarios; the CI verdict is decision-support for \
+         your own verification & validation, NOT a certification, a guarantee of field \
+         performance, or ESA acceptance. Only figures of merit with a known better/worse \
+         direction are gated.",
+        n_reg = verdict.regressions.len(),
+        n_imp = verdict.improvements.len(),
+        tol = ctx.thresholds.default_rel * 100.0,
+    );
+
+    let report = PackCReport::from_ci(title, &final_report)
+        .with_cover(StudyCover {
+            subtitle: Some("SAMPLE — Scenario-Subscription CI · PNT-Resilience Study".into()),
+            executive_summary: Some(summary),
+        })
+        .with_provenance(StudyProvenance {
+            study_id: Some("SAMPLE-CI-0001".into()),
+            customer: Some("SAMPLE".into()),
+            prepared_for: Some("SAMPLE — illustrative, not a customer deliverable".into()),
+            prepared_utc: Some(SAMPLE_GENERATED_UTC.into()),
+            engine_version: final_report.engine_version.clone(),
+            scenario_hashes: final_report.scenario_hashes.clone(),
+            classification: Some(DEFAULT_CLASSIFICATION.to_string()),
+        });
+
+    // ── 6. Render HTML → docs/packs/sample-scenario-ci-report.html ───────────
+    let out_dir = Path::new("docs/packs");
+    let html_path = out_dir.join("sample-scenario-ci-report.html");
+    let html = report.to_html();
+    std::fs::write(&html_path, html.as_bytes())?;
+
+    // A single, deterministic confirmation line (no clock anywhere).
+    println!(
+        "[gen_sample_ci_study] pack {} v{} | {} metric(s) | verdict passed={} \
+         ({} regression(s), {} improvement(s)) | wrote {} ({} bytes)",
+        final_report.pack_id,
+        final_report.pack_version,
+        final_report.metrics.len(),
+        verdict.passed,
+        verdict.regressions.len(),
+        verdict.improvements.len(),
+        html_path.display(),
+        html.len(),
+    );
+    Ok(())
+}
