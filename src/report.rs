@@ -17,10 +17,12 @@
 //! - The verification-matrix counts come live from [`kshana::verification`].
 
 use kshana::api::{run_scenario, KshanaError};
+use kshana::fom_label::tier_for;
 use kshana::verification::{summarize, verification_matrix};
 use serde::Serialize;
 
 use crate::connectors::GateOp;
+use crate::report_brand as brand;
 use crate::twin::navdt::{bundle_from_json, NavDtBundle};
 
 /// Verification-matrix status counts (live from the open core).
@@ -133,6 +135,50 @@ pub struct GateOutcome {
     pub note: String,
 }
 
+/// The default classification stamped on the report face when a caller supplies
+/// none. Conservative by design — a report is never silently "public".
+pub const DEFAULT_CLASSIFICATION: &str = "Unclassified";
+
+/// Optional branded-cover copy for the customer-facing study report. All fields are
+/// optional; the renderer falls back to honest defaults derived from the report
+/// (e.g. the study title) when a field is absent, so attaching a cover is purely
+/// additive and existing callers need not change.
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct StudyCover {
+    /// Optional sub-title / study reference shown under the title.
+    pub subtitle: Option<String>,
+    /// Optional one-paragraph executive summary. When absent, a neutral,
+    /// honesty-preserving default summary is rendered.
+    pub executive_summary: Option<String>,
+}
+
+/// Audit-grade provenance for the study report face. Every field is optional (or
+/// defaulted) so the block is fully additive: when nothing is attached the renderer
+/// emits sensible defaults (and the default classification), and existing
+/// callers/tests are unaffected.
+///
+/// **Determinism:** the library never reads a clock. Any timestamp
+/// (`prepared_utc`) is supplied by the caller, so the rendered report and its
+/// fingerprint stay reproducible.
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct StudyProvenance {
+    /// Internal study identifier (e.g. `KP-2026-0007`).
+    pub study_id: Option<String>,
+    /// Customer / counterparty the study was produced for.
+    pub customer: Option<String>,
+    /// Named recipient or board the study is prepared for.
+    pub prepared_for: Option<String>,
+    /// Caller-supplied preparation timestamp (UTC, ISO-8601). Never read from a
+    /// clock inside the library, to preserve determinism.
+    pub prepared_utc: Option<String>,
+    /// Engine / overlay version string (defaults to the live Pro + open versions).
+    pub engine_version: Option<String>,
+    /// One or more reproducible scenario hashes covered by the study.
+    pub scenario_hashes: Vec<String>,
+    /// Handling classification (defaults to [`DEFAULT_CLASSIFICATION`]).
+    pub classification: Option<String>,
+}
+
 /// The consolidated report. `Serialize` so the struct *is* the machine-readable
 /// evidence pack ([`ConsolidatedReport::to_evidence_json`]).
 #[derive(Debug, Clone, Serialize)]
@@ -149,6 +195,23 @@ pub struct ConsolidatedReport {
     pub rtm_rows: Vec<RtmRow>,
     /// Modelled-assumption caveats rendered on the artifact face.
     pub caveats: Vec<String>,
+    /// Optional branded-cover copy (cover sub-title + executive summary).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cover: Option<StudyCover>,
+    /// Optional audit-grade provenance block.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub provenance: Option<StudyProvenance>,
+}
+
+/// The validation-tier tag (`VALIDATED` / `MODELLED` / `PARTIAL`) for a bundle FoM,
+/// sourced from the open core's single source of truth
+/// [`kshana::fom_label::tier_for`]. The bundle keys are `"{subject}.fom.{leaf}"`;
+/// the leaf is the FoM field name `tier_for` expects. Returns `None` when the core
+/// does not recognise the name — the renderer then omits the tag rather than
+/// inventing a tier.
+fn fom_tier_tag(key: &str) -> Option<&'static str> {
+    let leaf = key.rsplit('.').next().unwrap_or(key);
+    tier_for(leaf).map(|t| t.tag())
 }
 
 /// The standard caveat set every consolidated artifact must carry.
@@ -209,6 +272,8 @@ pub fn build_report(
         impairment: None,
         rtm_rows: Vec::new(),
         caveats: default_caveats(),
+        cover: None,
+        provenance: None,
     })
 }
 
@@ -226,6 +291,16 @@ impl ConsolidatedReport {
     /// Attach RTM compliance/margin rows.
     pub fn with_rtm(mut self, rows: Vec<RtmRow>) -> Self {
         self.rtm_rows = rows;
+        self
+    }
+    /// Attach branded-cover copy (sub-title + executive summary).
+    pub fn with_cover(mut self, cover: StudyCover) -> Self {
+        self.cover = Some(cover);
+        self
+    }
+    /// Attach an audit-grade [`StudyProvenance`] block.
+    pub fn with_provenance(mut self, prov: StudyProvenance) -> Self {
+        self.provenance = Some(prov);
         self
     }
 
@@ -297,14 +372,17 @@ impl ConsolidatedReport {
         ));
 
         md.push_str("## Executive FoM summary\n\n");
-        md.push_str("| FoM | Value | Label | Oracle |\n|-----|-------|-------|--------|\n");
+        md.push_str(
+            "| FoM | Value | Tier | Label | Oracle |\n|-----|-------|------|-------|--------|\n",
+        );
         for f in self.bundle.all_foms() {
             md.push_str(&format!(
-                "| {} | {} | {} | {} |\n",
+                "| {} | {} | {} | {} | {} |\n",
                 f.name,
                 f.value
                     .map(|v| format!("{v:.4}"))
                     .unwrap_or_else(|| "—".into()),
+                fom_tier_tag(&f.key).unwrap_or("—"),
                 f.label,
                 f.oracle
             ));
@@ -363,19 +441,275 @@ impl ConsolidatedReport {
         md
     }
 
-    /// Self-contained HTML wrapping the Markdown body + the resilience SVG.
-    pub fn to_html(&self) -> String {
-        let body = xml(&self.to_markdown());
+    /// The resolved handling classification (caller-supplied or the conservative
+    /// [`DEFAULT_CLASSIFICATION`]).
+    fn classification(&self) -> String {
+        self.provenance
+            .as_ref()
+            .and_then(|p| p.classification.clone())
+            .unwrap_or_else(|| DEFAULT_CLASSIFICATION.to_string())
+    }
+
+    /// The resolved engine-version string for the provenance block (caller-supplied
+    /// or the live Pro + open-engine versions — both deterministic, no clock).
+    fn engine_version(&self) -> String {
+        self.provenance
+            .as_ref()
+            .and_then(|p| p.engine_version.clone())
+            .unwrap_or_else(|| {
+                format!(
+                    "Kshana Pro v{} · open engine v{}",
+                    crate::version(),
+                    self.bundle.engine_version
+                )
+            })
+    }
+
+    /// The executive-summary paragraph (caller-supplied or an honest default that
+    /// keeps the MODELLED framing and the one-component scope).
+    fn executive_summary(&self) -> String {
+        self.cover
+            .as_ref()
+            .and_then(|c| c.executive_summary.clone())
+            .unwrap_or_else(|| {
+                format!(
+                    "This study reports the modelled performance and resilience of the \
+                     Kshana performance/resilience spine over the supplied scenario. \
+                     Kshana provides ONE work-package component of a partner-led NAV-DT, \
+                     not the whole twin. {} of the {} verification rows are externally \
+                     validated; the remainder are MODELLED (simulation) figures. The \
+                     results are an engineering study, not a certification.",
+                    self.matrix.validated,
+                    self.matrix.validated + self.matrix.modelled + self.matrix.partner
+                )
+            })
+    }
+
+    /// The branded cover block: seal, Ashforde identity, study title, sub-title.
+    fn cover_html(&self) -> String {
+        let subtitle = self
+            .cover
+            .as_ref()
+            .and_then(|c| c.subtitle.clone())
+            .unwrap_or_else(|| "Performance & Resilience Study".to_string());
         format!(
-            "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>{}</title></head>\
-             <body style=\"background:#0b0e14;color:#e6edf3;font-family:system-ui;max-width:1000px;margin:auto;padding:24px\">\
-             {}\
-             <pre style=\"white-space:pre-wrap;font:13px/1.5 ui-monospace,monospace\">{}</pre>\
-             </body></html>",
-            xml(&self.title),
-            self.to_svg(),
-            body
+            "<header style=\"text-align:center;border-bottom:2px solid {brass};\
+             padding:36px 0 28px;margin-bottom:8px\">\
+             <div style=\"display:flex;justify-content:center;margin-bottom:14px\">{seal}</div>\
+             <div style=\"font-family:{head};font-size:15px;letter-spacing:.42em;\
+             text-transform:uppercase;color:{brass};font-weight:700\">Ashforde</div>\
+             <div style=\"font-family:{body};font-size:11px;letter-spacing:.22em;\
+             text-transform:uppercase;color:{brass_muted};margin-top:2px\">\
+             Ashforde O&Uuml; &middot; Quantitative PNT Resilience</div>\
+             <h1 style=\"font-family:{head};font-size:34px;font-weight:700;color:{ivory_light};\
+             margin:22px 0 6px;line-height:1.15\">{title}</h1>\
+             <div style=\"font-family:{body};font-size:16px;color:{ivory};font-style:italic\">{subtitle}</div>\
+             </header>",
+            brass = brand::BRASS,
+            brass_muted = brand::BRASS_MUTED,
+            head = brand::FONT_HEAD,
+            body = brand::FONT_BODY,
+            ivory = brand::IVORY,
+            ivory_light = brand::IVORY_LIGHT,
+            seal = brand::seal_img_html(96),
+            title = xml(&self.title),
+            subtitle = xml(&subtitle),
         )
+    }
+
+    /// The NON-OPTIONAL MODELLED banner with the "not a certification" disclaimer —
+    /// always rendered on the commercial face.
+    fn modelled_banner_html(&self) -> String {
+        format!(
+            "<div style=\"background:{brass};color:{ink};font-family:{body};font-weight:700;\
+             text-align:center;padding:11px 16px;border-radius:4px;margin:18px 0;\
+             letter-spacing:.04em\">\
+             MODELLED RESULTS &mdash; simulation figures, not flight/in-orbit validated. \
+             This is an engineering study, <strong>not a certification</strong> and not \
+             ESA acceptance or TRL maturation.</div>",
+            brass = brand::BRASS,
+            ink = brand::INK,
+            body = brand::FONT_BODY,
+        )
+    }
+
+    /// The executive-summary block (heading + one paragraph).
+    fn exec_summary_html(&self) -> String {
+        format!(
+            "<section style=\"margin:22px 0\">\
+             <h2 style=\"font-family:{head};color:{brass};font-size:22px;font-weight:700;\
+             border-bottom:1px solid {brass_muted};padding-bottom:6px\">Executive Summary</h2>\
+             <p style=\"font-family:{body};font-size:16px;line-height:1.6;color:{ivory}\">{summary}</p>\
+             </section>",
+            head = brand::FONT_HEAD,
+            body = brand::FONT_BODY,
+            brass = brand::BRASS,
+            brass_muted = brand::BRASS_MUTED,
+            ivory = brand::IVORY,
+            summary = xml(&self.executive_summary()),
+        )
+    }
+
+    /// The audit-grade provenance block. Always rendered (with sensible defaults
+    /// when no [`StudyProvenance`] is attached) so the report face is always
+    /// traceable; caller-supplied fields override the defaults.
+    fn provenance_html(&self) -> String {
+        let p = self.provenance.clone().unwrap_or_default();
+        let dash = "&mdash;".to_string();
+        let hashes = if p.scenario_hashes.is_empty() {
+            self.bundle.scenario_hash.clone().unwrap_or_default()
+        } else {
+            p.scenario_hashes.join(", ")
+        };
+        let hashes = if hashes.is_empty() {
+            dash.clone()
+        } else {
+            xml(&hashes)
+        };
+        let row = |label: &str, value: String| -> String {
+            format!(
+                "<tr><th style=\"text-align:left;font-family:{body};font-weight:700;color:{brass};\
+                 padding:4px 14px 4px 0;white-space:nowrap;vertical-align:top\">{label}</th>\
+                 <td style=\"font-family:{body};color:{ivory};padding:4px 0\">{value}</td></tr>",
+                body = brand::FONT_BODY,
+                brass = brand::BRASS,
+                ivory = brand::IVORY,
+            )
+        };
+        let cell = |v: Option<String>| {
+            v.filter(|s| !s.is_empty())
+                .map(|s| xml(&s))
+                .unwrap_or_else(|| dash.clone())
+        };
+        format!(
+            "<section style=\"margin:22px 0;background:{panel};border:1px solid {brass_muted};\
+             border-radius:4px;padding:16px 20px\">\
+             <h2 style=\"font-family:{head};color:{brass};font-size:20px;font-weight:700;margin-top:0\">\
+             Provenance &amp; Traceability</h2>\
+             <table style=\"border-collapse:collapse;font-size:14px\">{rows}</table>\
+             </section>",
+            panel = brand::NAVY_PANEL,
+            head = brand::FONT_HEAD,
+            brass = brand::BRASS,
+            brass_muted = brand::BRASS_MUTED,
+            rows = [
+                row("Study ID", cell(p.study_id)),
+                row("Customer", cell(p.customer)),
+                row("Prepared for", cell(p.prepared_for)),
+                row("Prepared (UTC)", cell(p.prepared_utc)),
+                row("Engine version", xml(&self.engine_version())),
+                row("Scenario hash(es)", hashes),
+                row("Report fingerprint", xml(&self.fingerprint())),
+                row("Classification", xml(&self.classification())),
+            ]
+            .concat(),
+        )
+    }
+
+    /// The figure-of-merit table with each FoM's validation tier rendered inline
+    /// next to its value (sourced from [`kshana::fom_label::tier_for`]).
+    fn fom_table_html(&self) -> String {
+        let mut rows = String::new();
+        for f in self.bundle.all_foms() {
+            let val = f
+                .value
+                .map(|v| format!("{v:.4}"))
+                .unwrap_or_else(|| "—".into());
+            // Inline tier tag next to the value — omitted (not guessed) if the open
+            // core does not recognise the FoM name.
+            let tier = match fom_tier_tag(&f.key) {
+                Some(tag) => format!(
+                    "&nbsp;<span style=\"font-family:{body};font-size:11px;font-weight:700;\
+                     letter-spacing:.05em;color:{ink};background:{brass};padding:1px 6px;\
+                     border-radius:3px\">{tag}</span>",
+                    body = brand::FONT_BODY,
+                    ink = brand::INK,
+                    brass = brand::BRASS,
+                ),
+                None => String::new(),
+            };
+            rows.push_str(&format!(
+                "<tr style=\"border-top:1px solid {brass_muted}\">\
+                 <td style=\"padding:7px 12px 7px 0;color:{ivory}\">{name}</td>\
+                 <td style=\"padding:7px 12px;color:{ivory_light};font-weight:700;white-space:nowrap\">{val}{tier}</td>\
+                 <td style=\"padding:7px 0;color:{ivory};opacity:.8\">{oracle}</td></tr>",
+                brass_muted = brand::BRASS_MUTED,
+                ivory = brand::IVORY,
+                ivory_light = brand::IVORY_LIGHT,
+                name = xml(&f.name),
+                oracle = xml(&f.oracle),
+            ));
+        }
+        format!(
+            "<section style=\"margin:22px 0\">\
+             <h2 style=\"font-family:{head};color:{brass};font-size:22px;font-weight:700;\
+             border-bottom:1px solid {brass_muted};padding-bottom:6px\">Figures of Merit</h2>\
+             <table style=\"border-collapse:collapse;width:100%;font-family:{body};font-size:15px\">\
+             <thead><tr style=\"text-align:left;color:{brass}\">\
+             <th style=\"padding:0 12px 6px 0\">Figure of merit</th>\
+             <th style=\"padding:0 12px 6px\">Value &amp; tier</th>\
+             <th style=\"padding:0 0 6px\">Oracle</th></tr></thead>\
+             <tbody>{rows}</tbody></table></section>",
+            head = brand::FONT_HEAD,
+            body = brand::FONT_BODY,
+            brass = brand::BRASS,
+            brass_muted = brand::BRASS_MUTED,
+        )
+    }
+
+    /// Self-contained, branded customer-facing HTML study report. No external
+    /// fetches (offline/PDF-safe): brand tokens and the seal are inlined. The
+    /// MODELLED banner and the "not a certification" disclaimer are always present.
+    pub fn to_html(&self) -> String {
+        // Detail sections (verification posture, resilience, RTM, trade, caveats)
+        // are kept from the Markdown body, rendered as a readable monospace block
+        // below the branded face so no detail is lost.
+        let detail = xml(&self.detail_markdown());
+        format!(
+            "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">\
+             <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\
+             <title>{title}</title></head>\
+             <body style=\"background:{navy};color:{ivory};font-family:{body};\
+             max-width:1000px;margin:auto;padding:24px 32px 48px\">\
+             {cover}{banner}{summary}{provenance}{fom}\
+             <figure style=\"margin:22px 0\">{svg}</figure>\
+             <section style=\"margin:22px 0\">\
+             <h2 style=\"font-family:{head};color:{brass};font-size:22px;font-weight:700;\
+             border-bottom:1px solid {brass_muted};padding-bottom:6px\">Detail &amp; Caveats</h2>\
+             <pre style=\"white-space:pre-wrap;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;\
+             color:{ivory}\">{detail}</pre></section>\
+             <footer style=\"text-align:center;font-family:{body};font-size:12px;color:{brass_muted};\
+             border-top:1px solid {brass_muted};margin-top:24px;padding-top:14px\">\
+             Ashforde O&Uuml; &middot; {classification} &middot; MODELLED engineering study &mdash; \
+             not a certification.</footer>\
+             </body></html>",
+            title = xml(&self.title),
+            navy = brand::NAVY,
+            ivory = brand::IVORY,
+            body = brand::FONT_BODY,
+            head = brand::FONT_HEAD,
+            brass = brand::BRASS,
+            brass_muted = brand::BRASS_MUTED,
+            cover = self.cover_html(),
+            banner = self.modelled_banner_html(),
+            summary = self.exec_summary_html(),
+            provenance = self.provenance_html(),
+            fom = self.fom_table_html(),
+            svg = self.to_svg(),
+            classification = xml(&self.classification()),
+        )
+    }
+
+    /// The Markdown body **without** the title/preamble and FoM summary — the
+    /// detail sections (verification posture, resilience, RF-impairment, RTM,
+    /// trade-study, caveats) that the branded HTML renders below its own face.
+    fn detail_markdown(&self) -> String {
+        let full = self.to_markdown();
+        // Everything from the verification-posture heading onward is "detail".
+        match full.find("## Verification posture") {
+            Some(i) => full[i..].to_string(),
+            None => full,
+        }
     }
 
     /// SVG resilience-vs-time curve (|error| vs t) with the spec threshold line and a
@@ -554,6 +888,77 @@ mod tests {
         let html = r.to_html();
         assert!(html.starts_with("<!DOCTYPE html>"));
         assert!(html.contains("<svg"));
+    }
+
+    // The inline tier comes from the open core's single source of truth, never an
+    // independent table: a known FoM leaf resolves; an unknown name returns None.
+    #[test]
+    fn fom_tier_tag_is_sourced_from_open_core() {
+        assert_eq!(fom_tier_tag("quantum.fom.holdover_s"), Some("MODELLED"));
+        assert_eq!(
+            fom_tier_tag("classical.fom.timing_rms_ns"),
+            Some("MODELLED")
+        );
+        // Matches the open core directly (no leaf prefix).
+        assert_eq!(fom_tier_tag("availability"), Some("MODELLED"));
+        // Unknown name → no tag (renderer omits rather than guessing).
+        assert_eq!(fom_tier_tag("some.unmapped.metric"), None);
+    }
+
+    #[test]
+    fn html_face_carries_brand_banner_and_inline_tier() {
+        let html = report().to_html();
+        assert!(html.contains("Ashforde"));
+        assert!(html.contains("not a certification"));
+        assert!(html.contains("Executive Summary"));
+        assert!(html.contains("Figures of Merit"));
+        // Inline tier tag is present on the FoM table for this all-MODELLED spine.
+        assert!(html.contains("MODELLED"));
+        // Provenance block always renders, with the default classification.
+        assert!(html.contains("Provenance"));
+        assert!(html.contains("Unclassified"));
+        // Seal is inlined (no external fetch) — data URI present.
+        assert!(html.contains("data:image/svg+xml;base64,"));
+    }
+
+    #[test]
+    fn cover_and_provenance_override_defaults() {
+        let r = report()
+            .with_cover(StudyCover {
+                subtitle: Some("Pilot Engagement".into()),
+                executive_summary: Some("A bespoke executive summary line.".into()),
+            })
+            .with_provenance(StudyProvenance {
+                study_id: Some("KP-XYZ".into()),
+                classification: Some("Restricted".into()),
+                ..Default::default()
+            });
+        let html = r.to_html();
+        assert!(html.contains("Pilot Engagement"));
+        assert!(html.contains("A bespoke executive summary line."));
+        assert!(html.contains("KP-XYZ"));
+        assert!(html.contains("Restricted"));
+        // Honesty furniture survives custom copy.
+        assert!(html.contains("not a certification"));
+        assert!(html.contains("MODELLED"));
+    }
+
+    #[test]
+    fn markdown_fom_table_has_tier_column() {
+        let md = report().to_markdown();
+        assert!(md.contains("| FoM | Value | Tier |"));
+        // Each FoM row carries an inline tier for this all-MODELLED spine.
+        assert!(md.contains("| MODELLED |"));
+    }
+
+    #[test]
+    fn back_compat_no_cover_no_provenance_serializes_without_new_keys() {
+        // With nothing attached, the evidence JSON omits the optional cover /
+        // provenance keys (Option::is_none skip) — keeping the fingerprint stable
+        // for existing reproducibility tests.
+        let json = report().to_evidence_json();
+        assert!(!json.contains("\"cover\""));
+        assert!(!json.contains("\"provenance\""));
     }
 
     #[test]
