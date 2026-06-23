@@ -12,9 +12,14 @@
 //!  * `GET  /version` → overlay + embedded-engine info
 //!  * `GET  /kinds`   → open + Pro scenario kinds (with min tier)
 //!  * `POST /run` → body is a scenario TOML; runs it (entitlement-gated), returns JSON
+//!  * `POST /study` → body is a JSON study request; validates + acknowledges it
+//!    (entitlement-gated; a study requires at least the Pro tier). Does NOT run the
+//!    pack — intake only (see [`study_intake`]).
 //!
 //! The pure request handler ([`handle`]) and reader ([`read_request`]) are unit
 //! tested without sockets; [`serve`] is the thin socket loop.
+
+pub mod study_intake;
 
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
@@ -24,7 +29,8 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use kshana::api::KshanaError;
 
-use crate::license::Entitlement;
+use crate::license::{Entitlement, Tier};
+use study_intake::{study_id, validate, StudyRequest};
 
 /// Caps to bound resource use (a basic DoS guard for an exposed service).
 pub const MAX_HEADER_BYTES: usize = 16 * 1024;
@@ -216,6 +222,7 @@ pub fn handle(req: &HttpRequest, entitlement: &Entitlement, now: i64) -> HttpRes
             )
         }
         ("POST", "/run") => run_route(&req.body, entitlement, now),
+        ("POST", "/study") => study_route(&req.body, entitlement, now),
         ("GET", _) | ("POST", _) => HttpResponse::error(404, "not found"),
         _ => HttpResponse::error(404, "not found"),
     }
@@ -239,6 +246,74 @@ fn run_route(body: &str, entitlement: &Entitlement, now: i64) -> HttpResponse {
     }
 }
 
+/// The minimum tier a study request requires. A study is a paid, packaged
+/// deliverable, so intake is gated at Pro (Evaluation cannot request one).
+const STUDY_MIN_TIER: Tier = Tier::Pro;
+
+/// `POST /study`: parse a JSON study request, validate it, gate it by license tier
+/// (reusing the same [`Entitlement`] machinery as `/run`), and acknowledge it. Does
+/// NOT execute the pack — intake only. On success returns a small JSON ack with a
+/// deterministic `study_id`.
+fn study_route(body: &str, entitlement: &Entitlement, now: i64) -> HttpResponse {
+    if body.trim().is_empty() {
+        return HttpResponse::error(422, "empty request body (expected a JSON study request)");
+    }
+    let req: StudyRequest = match serde_json::from_str(body) {
+        Ok(r) => r,
+        Err(e) => return HttpResponse::error(400, &format!("invalid study request JSON: {e}")),
+    };
+
+    // Validate the request shape + that the pack is a known runnable kind.
+    let violations = validate(&req);
+    if !violations.is_empty() {
+        return HttpResponse::json(
+            400,
+            serde_json::json!({
+                "error": "invalid study request",
+                "violations": violations,
+            })
+            .to_string(),
+        );
+    }
+
+    // Tier gate, reusing the same Entitlement (expiry + rank) logic `/run` relies on.
+    // An expired license, or a tier below Pro, may not request a study. Do NOT echo
+    // the licensee name — this 403 body can reach an unauthorised caller.
+    if entitlement.is_expired(now) || entitlement.tier.rank() < STUDY_MIN_TIER.rank() {
+        return HttpResponse::error(
+            403,
+            &format!(
+                "a study request requires at least the '{}' tier; current license tier is '{}'{}",
+                STUDY_MIN_TIER.as_str(),
+                entitlement.tier.as_str(),
+                if entitlement.is_expired(now) {
+                    " (and it has expired)"
+                } else {
+                    ""
+                },
+            ),
+        );
+    }
+
+    // Accepted. The pack is packaged in a later task; for now we acknowledge with a
+    // deterministic id. Note whether the kind routes to a Pro pack or the open engine.
+    let routes_to = if crate::registry::is_pro_kind(&req.pack) {
+        "pro-pack"
+    } else {
+        "open-engine"
+    };
+    HttpResponse::json(
+        200,
+        serde_json::json!({
+            "study_id": study_id(&req),
+            "pack": req.pack,
+            "routes_to": routes_to,
+            "status": "accepted",
+        })
+        .to_string(),
+    )
+}
+
 /// Run the blocking HTTP server, one thread per connection. Each connection serves
 /// exactly one request (Connection: close).
 pub fn serve(addr: &str, entitlement: Entitlement) -> std::io::Result<()> {
@@ -248,7 +323,7 @@ pub fn serve(addr: &str, entitlement: Entitlement) -> std::io::Result<()> {
         entitlement.tier.as_str(),
         entitlement.licensee
     );
-    eprintln!("routes: GET /health  GET /version  GET /kinds  POST /run");
+    eprintln!("routes: GET /health  GET /version  GET /kinds  POST /run  POST /study");
     let active = Arc::new(AtomicUsize::new(0));
     for stream in listener.incoming() {
         match stream {
