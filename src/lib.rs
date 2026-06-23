@@ -36,6 +36,7 @@ pub mod connectors;
 pub mod license;
 pub mod mbse;
 pub mod mrd;
+pub mod pack_c;
 pub mod packs;
 pub mod premium;
 pub mod pro_study;
