@@ -43,6 +43,7 @@ pub mod report;
 pub mod report_brand;
 pub mod report_pdf;
 pub mod serve;
+pub mod study_ledger;
 mod util;
 
 // Value layers — gated stubs (seam guards only; no proprietary capability is built
