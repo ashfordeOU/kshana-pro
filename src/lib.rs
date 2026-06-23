@@ -40,6 +40,7 @@ pub mod packs;
 pub mod premium;
 pub mod registry;
 pub mod report;
+pub mod report_brand;
 pub mod serve;
 mod util;
 
