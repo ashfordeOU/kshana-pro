@@ -419,6 +419,9 @@ impl PackCReport {
 /// Format a metric value compactly but deterministically: integers without a
 /// fractional part render whole; everything else uses a fixed 4 decimals so the
 /// HTML is byte-stable for equal inputs.
+///
+/// Non-finite inputs render as Rust's default (`"NaN"` / `"inf"`); callers are
+/// expected to pass finite values (metrics come from valid JSON, so this holds).
 fn fmt_num(v: f64) -> String {
     if v.is_finite() && v.fract() == 0.0 && v.abs() < 1e15 {
         format!("{}", v as i64)
