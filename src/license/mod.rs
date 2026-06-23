@@ -71,9 +71,26 @@ pub fn feature_min_tier(kind: &str) -> Tier {
         "pro-trade-study" => Tier::Pro,
         "pro-quantum-systematics" => Tier::Pro,
         "pro-optimism-gap-audit" => Tier::Pro,
+        "pro-scenario-ci" => Tier::Pro,
         "pro-mbse" => Tier::Enterprise,
         "pro-batch" => Tier::Enterprise,
         _ => Tier::Enterprise,
+    }
+}
+
+/// Gate the Pack C (scenario-subscription CI) feature: succeed when `ent` permits
+/// the `pro-scenario-ci` feature at `now_unix`, else return an [`Unsupported`]
+/// error naming the tier the feature requires.
+///
+/// [`Unsupported`]: KshanaError::Unsupported
+pub fn ensure_ci_entitled(ent: &Entitlement, now_unix: i64) -> Result<(), KshanaError> {
+    if ent.allows("pro-scenario-ci", now_unix) {
+        Ok(())
+    } else {
+        Err(KshanaError::Unsupported(format!(
+            "Pack C (scenario-subscription CI) requires the '{}' tier",
+            feature_min_tier("pro-scenario-ci").as_str()
+        )))
     }
 }
 
@@ -303,5 +320,39 @@ mod tests {
             features: vec![],
         };
         assert!(!pro.allows("pro-mystery", 0));
+    }
+
+    #[test]
+    fn pack_c_feature_is_pro_tier() {
+        assert_eq!(feature_min_tier("pro-scenario-ci"), Tier::Pro);
+    }
+
+    #[test]
+    fn ensure_ci_entitled_denies_evaluation_and_allows_pro() {
+        // Evaluation (no license) is not entitled to the Pack C CI feature.
+        assert!(ensure_ci_entitled(&Entitlement::evaluation(), 0).is_err());
+
+        // An unexpired Pro entitlement is entitled.
+        let pro = Entitlement {
+            licensee: "ACME Space".into(),
+            tier: Tier::Pro,
+            expires_unix: 0,
+            features: vec![],
+        };
+        assert!(ensure_ci_entitled(&pro, 0).is_ok());
+
+        // An unexpired Pro license also entitles (constructed via the token path).
+        let tok = issue(SECRET, &claims("pro", 5_000)).unwrap();
+        let ent = verify(SECRET, &tok, 4_999).unwrap();
+        assert!(ensure_ci_entitled(&ent, 4_999).is_ok());
+
+        // An expired entitlement is denied.
+        let expired = Entitlement {
+            licensee: "ACME Space".into(),
+            tier: Tier::Pro,
+            expires_unix: 100,
+            features: vec![],
+        };
+        assert!(ensure_ci_entitled(&expired, 200).is_err());
     }
 }
