@@ -33,8 +33,10 @@ use printpdf::{
     PdfSaveOptions, Point, Pt, Rect, Rgb, TextItem, WindingOrder,
 };
 
+use crate::packs::optimism_gap_audit::ARXIV_PREPRINT_ID;
 use crate::report::{ConsolidatedReport, DEFAULT_CLASSIFICATION};
 use crate::report_brand as brand;
+use crate::report_pack_a::PackAReport;
 
 // --- A4 page geometry (mm) ---------------------------------------------------
 const PAGE_W_MM: f32 = 210.0;
@@ -524,6 +526,290 @@ pub fn to_pdf(report: &ConsolidatedReport) -> Result<Vec<u8>, String> {
     Ok(bytes)
 }
 
+/// Render a Pack-A optimism-gap study ([`PackAReport`]) to a self-contained PDF
+/// (`%PDF-…`) using the same pure-Rust [`Layout`] machinery as [`to_pdf`].
+///
+/// Reads the report's structured data directly (cover title/sub-title, executive
+/// summary, the MODELLED + "not a certification" banner, the field-vs-bench headline
+/// numbers, the per-class table, the ID-only predictor result, the provenance block,
+/// and the arXiv-**preprint** citation) — it never parses the HTML face. The honesty
+/// furniture (MODELLED banner, "not a certification", and the preprint cited as a
+/// preprint, not peer-reviewed) is non-optional, exactly as on the HTML face.
+///
+/// Determinism: as with [`to_pdf`], no clock is read; printpdf pins all document
+/// dates to the Unix epoch and the only nondeterministic bytes are the trailer
+/// `/ID` array.
+pub fn to_pdf_pack_a(report: &PackAReport) -> Result<Vec<u8>, String> {
+    let s = &report.section;
+    let mut l = Layout::new();
+
+    // --- Branded cover -------------------------------------------------------
+    l.advance(6.0);
+    l.text_at(MARGIN_MM, "ASHFORDE", sans_bold(), 13.0, rgb(brand::BRASS));
+    l.advance(6.0);
+    l.text_at(
+        MARGIN_MM,
+        "Ashforde OU  |  Quantitative PNT Resilience",
+        sans(),
+        9.0,
+        rgb(brand::BRASS_MUTED),
+    );
+    l.advance(10.0);
+    for line in wrap(&report.title, CONTENT_W_MM, 24.0) {
+        l.ensure(11.0);
+        l.text_at(MARGIN_MM, &line, serif_bold(), 24.0, rgb(brand::INK));
+        l.advance(11.0);
+    }
+    let subtitle = report
+        .cover
+        .as_ref()
+        .and_then(|c| c.subtitle.clone())
+        .unwrap_or_else(|| "Optimism-Gap Audit - Field-vs-Bench Study".to_string());
+    l.advance(2.0);
+    l.text_at(MARGIN_MM, &subtitle, serif(), 13.0, rgb(brand::INK));
+    l.advance(8.0);
+    l.rule(rgb(brand::BRASS), 1.2);
+    l.advance(10.0);
+
+    // --- MODELLED banner (non-optional honesty furniture) --------------------
+    let banner_lines = [
+        "MODELLED RESULTS - simulation figures over a synthetic, parameter-grounded",
+        "corpus (never field/IQ). This is an engineering study, not a certification,",
+        "and not ESA acceptance or TRL maturation.",
+    ];
+    let banner_h = 4.0 + banner_lines.len() as f32 * 5.0 + 3.0;
+    l.ensure(banner_h);
+    l.fill_rect(
+        MARGIN_MM,
+        l.y_mm - banner_h + 4.0,
+        CONTENT_W_MM,
+        banner_h,
+        rgb(brand::BRASS),
+    );
+    l.advance(2.0);
+    for line in banner_lines {
+        l.advance(5.0);
+        l.text_at(MARGIN_MM + 3.0, line, sans_bold(), 9.5, rgb(brand::INK));
+    }
+    l.advance(8.0);
+
+    // --- Executive summary ---------------------------------------------------
+    l.heading("Executive Summary");
+    let summary = report
+        .cover
+        .as_ref()
+        .and_then(|c| c.executive_summary.clone())
+        .unwrap_or_else(|| {
+            format!(
+                "This Pack-A study reports the predicted field-vs-bench degradation (the \
+                 optimism gap) for {src}: the in-distribution (bench) AUC over-states the \
+                 out-of-distribution (field) AUC by {gap:.3} of the AUC range. Numbers are \
+                 MODELLED over a synthetic, parameter-grounded corpus and are an engineering \
+                 study, not a certification. The phenomenon and the in-distribution-only \
+                 predictor are established in {arxiv}, an arXiv preprint (not peer-reviewed).",
+                src = s.source_label,
+                gap = s.optimism_gap,
+                arxiv = ARXIV_PREPRINT_ID,
+            )
+        });
+    l.paragraph(&summary, serif(), 11.0, 5.4, rgb(brand::INK));
+    l.advance(4.0);
+
+    // --- Field-vs-bench headline --------------------------------------------
+    l.heading(&format!("Field-vs-Bench Degradation - {}", s.source_label));
+    let headline = format!(
+        "Predicted field-vs-bench degradation (optimism gap): {gap:.3} = AUC_id {idn:.3} \
+         (bench) - AUC_ood {oodn:.3} (field).",
+        gap = s.optimism_gap,
+        idn = s.auc_id,
+        oodn = s.auc_ood,
+    );
+    l.paragraph(&headline, sans_bold(), 11.0, 5.2, rgb(brand::INK));
+    l.advance(2.0);
+
+    // Per-class table (baseline pack only).
+    if !s.per_class.is_empty() {
+        l.advance(2.0);
+        l.ensure(6.0);
+        l.text_at(
+            MARGIN_MM,
+            "Impairment class",
+            sans_bold(),
+            9.5,
+            rgb(brand::BRASS),
+        );
+        l.text_at(
+            MARGIN_MM + 70.0,
+            "AUC (bench)",
+            sans_bold(),
+            9.5,
+            rgb(brand::BRASS),
+        );
+        l.text_at(
+            MARGIN_MM + 110.0,
+            "AUC (field)",
+            sans_bold(),
+            9.5,
+            rgb(brand::BRASS),
+        );
+        l.text_at(
+            MARGIN_MM + 150.0,
+            "Gap",
+            sans_bold(),
+            9.5,
+            rgb(brand::BRASS),
+        );
+        l.advance(5.0);
+        l.rule(rgb(brand::BRASS_MUTED), 0.4);
+        l.advance(4.0);
+        for p in &s.per_class {
+            l.ensure(5.5);
+            l.text_at(MARGIN_MM, &p.class, sans(), 9.0, rgb(brand::INK));
+            l.text_at(
+                MARGIN_MM + 70.0,
+                &format!("{:.3}", p.auc_id),
+                sans_bold(),
+                9.0,
+                rgb(brand::INK),
+            );
+            l.text_at(
+                MARGIN_MM + 110.0,
+                &format!("{:.3}", p.auc_ood),
+                sans_bold(),
+                9.0,
+                rgb(brand::INK),
+            );
+            l.text_at(
+                MARGIN_MM + 150.0,
+                &format!("{:.3}", p.optimism_gap),
+                sans(),
+                9.0,
+                rgb(brand::INK),
+            );
+            l.advance(5.5);
+        }
+        l.advance(2.0);
+    }
+
+    // ID-only predictor headline (baseline pack only).
+    if let Some((det, cls)) = s.predictor_r2 {
+        let pred = format!(
+            "ID-only gap predictor: in-distribution diagnostics predict the optimism gap for a \
+             detector held entirely out of training (leave-one-detector-out R2 = {det:.3}) and \
+             for an impairment class held out (leave-one-class-out R2 = {cls:.3}); an R2 above \
+             zero beats predict-the-mean."
+        );
+        l.paragraph(&pred, sans(), 9.5, 4.8, rgb(brand::INK));
+    }
+    // Sample counts (customer intake only).
+    if let Some((n_id, n_ood)) = s.sample_counts {
+        let counts = format!(
+            "Computed over the submission: {n_id} in-distribution and {n_ood} \
+             out-of-distribution scored samples."
+        );
+        l.paragraph(&counts, sans(), 9.5, 4.8, rgb(brand::INK));
+    }
+    l.advance(4.0);
+
+    // --- Provenance & traceability ------------------------------------------
+    l.heading("Provenance & Traceability");
+    let prov = report.provenance.clone().unwrap_or_default();
+    let hashes = prov.scenario_hashes.join(", ");
+    let dash = "-".to_string();
+    let cell = |v: Option<String>| v.filter(|s| !s.is_empty()).unwrap_or_else(|| dash.clone());
+    let engine = prov
+        .engine_version
+        .clone()
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| {
+            format!(
+                "kshana-pro {} (embeds the open kshana optimism-gap engine)",
+                crate::version()
+            )
+        });
+    let classification = prov
+        .classification
+        .clone()
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| DEFAULT_CLASSIFICATION.to_string());
+    let rows: Vec<(&str, String)> = vec![
+        ("Study ID", cell(prov.study_id)),
+        ("Customer", cell(prov.customer)),
+        ("Prepared for", cell(prov.prepared_for)),
+        ("Prepared (UTC)", cell(prov.prepared_utc)),
+        ("Engine version", engine),
+        (
+            "Scenario hash(es)",
+            if hashes.is_empty() {
+                dash.clone()
+            } else {
+                hashes
+            },
+        ),
+        (
+            "Proof",
+            format!("{ARXIV_PREPRINT_ID} - an arXiv preprint, not peer-reviewed"),
+        ),
+        ("Classification", classification.clone()),
+    ];
+    let label_w = 42.0_f32;
+    for (label, value) in rows {
+        let value_lines = wrap(&value, CONTENT_W_MM - label_w, 10.0);
+        for (j, vline) in value_lines.iter().enumerate() {
+            l.ensure(5.0);
+            if j == 0 {
+                l.text_at(MARGIN_MM, label, sans_bold(), 10.0, rgb(brand::BRASS));
+            }
+            l.text_at(MARGIN_MM + label_w, vline, sans(), 10.0, rgb(brand::INK));
+            l.advance(5.0);
+        }
+    }
+    l.advance(4.0);
+
+    // --- Reference (the preprint, cited as a preprint) -----------------------
+    //
+    // Two lines, each rendered as a single un-wrapped text op, so the load-bearing
+    // honesty literals ("arXiv preprint", "not peer-reviewed", "not a certification")
+    // survive intact in the content stream (greedy wrapping could otherwise split a
+    // phrase across two text ops). No parentheses: printpdf hex-encodes a literal
+    // that contains `(`/`)`, which would also hide the plain text.
+    l.heading("Reference");
+    let ref_line_1 =
+        "The optimism-gap phenomenon and the in-distribution-only gap predictor used here are";
+    let ref_line_2 = format!(
+        "established in {ARXIV_PREPRINT_ID}, an arXiv preprint - not peer-reviewed and not a certification."
+    );
+    l.ensure(5.0);
+    l.text_at(MARGIN_MM, ref_line_1, sans(), 9.5, rgb(brand::INK));
+    l.advance(4.8);
+    l.ensure(5.0);
+    l.text_at(MARGIN_MM, &ref_line_2, sans(), 9.5, rgb(brand::INK));
+    l.advance(4.8);
+
+    // --- Assemble & serialize ------------------------------------------------
+    // No parentheses in the footer: a parenthesised literal is hex-encoded by
+    // printpdf, which would hide "not a certification" from the content stream.
+    let footer = format!(
+        "Ashforde OU  |  {classification}  |  MODELLED engineering study - not a certification. \
+         Proof: {ARXIV_PREPRINT_ID}, an arXiv preprint."
+    );
+    let pages = l.finish(&footer);
+
+    let mut doc = PdfDocument::new(&report.title);
+    let opts = PdfSaveOptions::default();
+    let mut warnings = Vec::new();
+    let bytes = doc.with_pages(pages).save(&opts, &mut warnings);
+
+    if bytes.is_empty() || !bytes.starts_with(b"%PDF-") {
+        return Err(format!(
+            "printpdf produced no valid PDF (len {}, warnings: {})",
+            bytes.len(),
+            warnings.len()
+        ));
+    }
+    Ok(bytes)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -607,5 +893,38 @@ mod tests {
         let text = String::from_utf8_lossy(&bytes);
         assert!(text.contains("MODELLED"));
         assert!(text.contains("not a certification"));
+    }
+
+    /// The Pack-A PDF face renders a real PDF and carries the same non-negotiable
+    /// honesty furniture as the HTML face: the MODELLED banner, the literal "not a
+    /// certification" disclaimer, and the arXiv id cited as a preprint.
+    #[test]
+    fn pack_a_pdf_renders_with_honesty_furniture() {
+        use crate::packs::optimism_gap_audit::OptimismGapAuditScenario;
+        use crate::report_pack_a::PackAReport;
+        let a = OptimismGapAuditScenario {
+            n_per_class: 80,
+            frac_train: 0.7,
+            severities: vec![0.3, 0.6, 0.9],
+            seeds: vec![1, 2],
+            target_pfa: 0.05,
+            ridge_lambda: 0.1,
+            n_perms: 20,
+            perm_seed: 7,
+        }
+        .compute()
+        .expect("audit computes");
+        let report = PackAReport::from_audit("Pack A - Optimism-Gap Audit (SAMPLE)", &a)
+            .with_provenance(StudyProvenance {
+                study_id: Some("KP-SAMPLE".into()),
+                ..Default::default()
+            });
+        let bytes = to_pdf_pack_a(&report).expect("pack-a render");
+        assert!(bytes.starts_with(b"%PDF-"));
+        assert!(bytes.len() > 1000);
+        let text = String::from_utf8_lossy(&bytes);
+        assert!(text.contains("MODELLED"));
+        assert!(text.contains("not a certification"));
+        assert!(text.contains("preprint"));
     }
 }
