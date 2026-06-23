@@ -41,6 +41,7 @@ pub mod premium;
 pub mod registry;
 pub mod report;
 pub mod report_brand;
+pub mod report_pack_a;
 pub mod report_pdf;
 pub mod serve;
 pub mod study_ledger;

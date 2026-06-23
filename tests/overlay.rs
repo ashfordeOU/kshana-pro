@@ -15,6 +15,31 @@ fn dispatches_pro_pack() {
     assert!(out.summary.contains("integration"));
 }
 
+/// The Pack-A `pro-optimism-gap-audit` kind is registered and routes through the
+/// dispatcher to the open optimism-gap engine. A tiny grid keeps this fast; it only
+/// proves routing + the honest envelope, not the published headline (asserted in the
+/// pack's own ignored reproduction test).
+#[test]
+fn dispatches_optimism_gap_audit_pack() {
+    use kshana_pro::registry::{is_pro_kind, pro_kinds};
+    assert!(is_pro_kind("pro-optimism-gap-audit"));
+    assert!(pro_kinds()
+        .iter()
+        .any(|m| m.name == "pro-optimism-gap-audit"));
+    let src = "kind = \"pro-optimism-gap-audit\"\n\
+        n_per_class = 100\n\
+        severities = [0.3, 0.6]\n\
+        seeds = [1, 2]\n\
+        n_perms = 50\n";
+    let out = registry::run(src).expect("optimism-gap-audit pack must run via dispatcher");
+    assert!(out.summary.contains("optimism-gap audit"));
+    assert!(out.summary.contains("not a certification"));
+    assert!(out.json.contains("arXiv:2606.22054"));
+    let v: serde_json::Value = serde_json::from_str(&out.json).unwrap();
+    let gap = v["field_vs_bench"]["optimism_gap_mean"].as_f64().unwrap();
+    assert!(gap > 0.0, "optimism gap {gap} should be positive");
+}
+
 /// Enumerated strict-superset guard. The dispatcher routes only `pro-*` kinds to Pro
 /// packs and delegates everything else to the embedded open engine, so the superset
 /// property reduces to: *no open kind name carries the Pro prefix*. This asserts that
