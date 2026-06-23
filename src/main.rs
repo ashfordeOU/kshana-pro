@@ -26,6 +26,7 @@ fn usage() -> &'static str {
        kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
        kshana-pro serve [--addr <host:port>] [--license <token>] [--dev]   Host the HTTP service\n\
+       kshana-pro ci --pack <manifest.toml> [--baseline <ci.json>] [--thresholds <spec>] [--utc <iso>] [--customer <name>] [--out <report.html>] [--json <ci.json>] [--license <token>] [--dev]   Run a Pack C scenario-subscription CI (Pro)\n\
        kshana-pro license issue --tier <t> --licensee <name> [--days <n>]\n\
        kshana-pro license verify <token>\n\
      \n\
@@ -129,6 +130,10 @@ fn main() -> ExitCode {
             }
         },
         Some("serve") => serve_cmd(&args),
+        // Pack C scenario-subscription CI: run a versioned scenario pack, score it,
+        // optionally gate it against a stored baseline, and emit a branded report
+        // (Pro-tier entitlement; --dev bypasses enforcement for local use).
+        Some("ci") => ci_cmd(&args),
         Some("healthcheck") => {
             let addr = flag(&args, "--addr").unwrap_or_else(|| "127.0.0.1:8088".to_string());
             if kshana_pro::serve::healthcheck(&addr) {
@@ -181,6 +186,197 @@ fn serve_cmd(args: &[String]) -> ExitCode {
             ExitCode::FAILURE
         }
     }
+}
+
+/// `ci` — Pack C scenario-subscription CI. Parse a versioned scenario pack, enforce
+/// the Pro-tier entitlement (or bypass with `--dev`), run every scenario through the
+/// open engine, optionally gate the result against a stored baseline, and emit a
+/// branded report. The exit code mirrors the gate verdict (0 pass / 1 regressions).
+fn ci_cmd(args: &[String]) -> ExitCode {
+    use std::fs;
+
+    let pack_path = match flag(args, "--pack") {
+        Some(p) => p,
+        None => {
+            eprintln!("error: ci needs --pack <manifest.toml>\n\n{}", usage());
+            return ExitCode::from(2);
+        }
+    };
+
+    // The pack manifest's parent directory is the base for resolving scenario paths.
+    let base_dir = std::path::Path::new(&pack_path)
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .unwrap_or_else(|| std::path::Path::new("."));
+
+    let manifest_src = match fs::read_to_string(&pack_path) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("error: could not read {pack_path}: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+    let pack = match kshana_pro::pack_c::parse_pack(&manifest_src) {
+        Ok(p) => p,
+        Err(e) => {
+            eprintln!("error: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+
+    // Resolve the entitlement EXACTLY as run/serve do: --dev = full (Enterprise, no
+    // enforcement); else a token enforces its tier; else Evaluation (fail-closed).
+    let now = now_unix();
+    let ent = if has_flag(args, "--dev") {
+        eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
+        Entitlement {
+            licensee: "(dev)".into(),
+            tier: Tier::Enterprise,
+            expires_unix: 0,
+            features: vec![],
+        }
+    } else {
+        match flag(args, "--license") {
+            Some(tok) => match license::verify(&signing_secret(), &tok, now) {
+                Ok(e) => e,
+                Err(e) => {
+                    eprintln!("error: license invalid: {e}");
+                    return ExitCode::FAILURE;
+                }
+            },
+            None => {
+                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
+                Entitlement::evaluation()
+            }
+        }
+    };
+    if let Err(e) = kshana_pro::license::ensure_ci_entitled(&ent, now) {
+        eprintln!("{e}");
+        return ExitCode::FAILURE;
+    }
+
+    // Optional baseline to gate against.
+    let baseline = match flag(args, "--baseline") {
+        Some(path) => match fs::read_to_string(&path) {
+            Ok(s) => match kshana_pro::pack_c::CiReport::from_json(&s) {
+                Ok(r) => Some(r),
+                Err(e) => {
+                    eprintln!("error: baseline {path}: {e}");
+                    return ExitCode::FAILURE;
+                }
+            },
+            Err(e) => {
+                eprintln!("error: could not read baseline {path}: {e}");
+                return ExitCode::FAILURE;
+            }
+        },
+        None => None,
+    };
+
+    let thresholds = parse_thresholds(flag(args, "--thresholds").as_deref());
+    let generated_utc = Some(flag(args, "--utc").unwrap_or_else(utc_iso8601_now));
+    let customer = flag(args, "--customer");
+
+    let ctx = kshana_pro::pack_c::CiContext {
+        generated_utc,
+        customer,
+        thresholds,
+    };
+
+    let report = match kshana_pro::pack_c::run_ci(&pack, base_dir, baseline.as_ref(), &ctx) {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("error: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+
+    let branded = kshana_pro::report_pack_c::PackCReport::from_ci(
+        format!("Pack C — {} {}", pack.id, pack.version),
+        &report,
+    );
+
+    let out_html = flag(args, "--out");
+    let out_json = flag(args, "--json");
+    if let Some(out) = &out_html {
+        if let Err(e) = fs::write(out, branded.to_html()) {
+            eprintln!("error: could not write {out}: {e}");
+            return ExitCode::FAILURE;
+        }
+        eprintln!("[wrote HTML report to {out}]");
+    }
+    if let Some(out) = &out_json {
+        // The JSON also doubles as the next run's baseline.
+        if let Err(e) = fs::write(out, report.to_json()) {
+            eprintln!("error: could not write {out}: {e}");
+            return ExitCode::FAILURE;
+        }
+        eprintln!("[wrote CI report JSON to {out}]");
+    }
+    if out_html.is_none() && out_json.is_none() {
+        println!("{}", report.to_json());
+    }
+
+    // One-line human summary + the verdict-driven exit code.
+    match &report.verdict {
+        None => {
+            eprintln!("[ci] informational (no baseline)");
+            ExitCode::SUCCESS
+        }
+        Some(v) if v.passed => {
+            eprintln!("[ci] PASS");
+            ExitCode::from(v.exit_code() as u8)
+        }
+        Some(v) => {
+            eprintln!("[ci] REGRESSIONS: {}", v.regressions.len());
+            ExitCode::from(v.exit_code() as u8)
+        }
+    }
+}
+
+/// Parse a `--thresholds` spec into [`Thresholds`](kshana_pro::pack_c::Thresholds).
+///
+/// Accepts a bare number (the default relative tolerance, e.g. `0.1`), or
+/// comma-separated `key=val` pairs (each a per-key override), or a leading bare
+/// default followed by per-key pairs (e.g. `0.1,araim::fom.mean_hpl_m=0.02`). An
+/// absent or empty spec yields the default (5%). Unparseable pairs are skipped with
+/// a warning to stderr rather than failing the run.
+fn parse_thresholds(spec: Option<&str>) -> kshana_pro::pack_c::Thresholds {
+    use kshana_pro::pack_c::Thresholds;
+    let Some(spec) = spec.map(str::trim).filter(|s| !s.is_empty()) else {
+        return Thresholds::default();
+    };
+
+    let mut thr = Thresholds::default();
+    for (idx, raw) in spec.split(',').enumerate() {
+        let part = raw.trim();
+        if part.is_empty() {
+            continue;
+        }
+        match part.split_once('=') {
+            Some((key, val)) => {
+                let key = key.trim();
+                match val.trim().parse::<f64>() {
+                    Ok(_) if key.is_empty() => {
+                        eprintln!("[warning] ignoring threshold pair with empty key: '{part}'")
+                    }
+                    Ok(v) => {
+                        thr = thr.with(key, v);
+                    }
+                    Err(_) => {
+                        eprintln!("[warning] ignoring unparseable threshold pair: '{part}'")
+                    }
+                }
+            }
+            // A bare number is only the default when it leads the spec.
+            None if idx == 0 => match part.parse::<f64>() {
+                Ok(v) => thr.default_rel = v,
+                Err(_) => eprintln!("[warning] ignoring unparseable threshold default: '{part}'"),
+            },
+            None => eprintln!("[warning] ignoring unparseable threshold entry: '{part}'"),
+        }
+    }
+    thr
 }
 
 /// Run a scenario through the open engine and return its result JSON (exports and
@@ -396,6 +592,37 @@ fn now_unix() -> i64 {
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_secs() as i64)
         .unwrap_or(0)
+}
+
+/// Format the current system time as a UTC ISO-8601 second-precision stamp
+/// (e.g. `2026-06-23T14:05:09Z`). The library reads no clock; the timestamp is
+/// supplied to it as data, so it lives here in the binary. Implemented with `std`
+/// only (no chrono) via a civil-date conversion of the Unix epoch seconds.
+fn utc_iso8601_now() -> String {
+    let secs = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let days = (secs / 86_400) as i64;
+    let tod = secs % 86_400;
+    let (hour, min, sec) = (tod / 3600, (tod % 3600) / 60, tod % 60);
+    let (year, month, day) = civil_from_days(days);
+    format!("{year:04}-{month:02}-{day:02}T{hour:02}:{min:02}:{sec:02}Z")
+}
+
+/// Convert days since the Unix epoch (1970-01-01) to a proleptic-Gregorian
+/// (year, month, day). Howard Hinnant's well-known `civil_from_days` algorithm.
+fn civil_from_days(z: i64) -> (i64, u32, u32) {
+    let z = z + 719_468;
+    let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
+    let doe = (z - era * 146_097) as u64; // [0, 146096]
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365; // [0, 399]
+    let y = yoe as i64 + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100); // [0, 365]
+    let mp = (5 * doy + 2) / 153; // [0, 11]
+    let d = (doy - (153 * mp + 2) / 5 + 1) as u32; // [1, 31]
+    let m = if mp < 10 { mp + 3 } else { mp - 9 } as u32; // [1, 12]
+    (if m <= 2 { y + 1 } else { y }, m, d)
 }
 
 /// The vendor signing secret: from the environment, or a clearly-labelled demo key.
