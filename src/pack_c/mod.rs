@@ -9,5 +9,7 @@
 //! report, and the CLI are added by later tasks.
 
 pub mod manifest;
+pub mod metrics;
 
 pub use manifest::{parse_pack, PackEntry, ScenarioPack};
+pub use metrics::MetricSet;
