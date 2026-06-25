@@ -1,135 +1,158 @@
 <!doctype html>
 <!--
-  PRIVATE — Ashforde OÜ internal architecture overview.
-  Lives in the kshana-pro repo only; it depicts the PRIVATE overlay structure and
-  must never be published in the open kshana repo. Self-contained (no network).
-  Contact: contact@ashforde.org
+  PRIVATE — Ashforde OÜ internal field guide. kshana-pro repo only; depicts the
+  PRIVATE overlay and must never be published in the open kshana repo.
+  Self-contained (no network calls). A from-zero explainer of PNT, Kshana, the
+  open-core model, and the ESA tenders. Contact: contact@ashforde.org
 -->
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex,nofollow" />
-<title>Kshana — Open-Core Architecture (kshana ⟷ kshana-pro)</title>
+<title>Kshana — Field Guide: PNT, the Engine, and How We Win Tenders</title>
 <style>
   :root{
     --navy:#101f3a; --navy2:#16294a; --ink:#1c2530; --ivory:#f6f4f0; --paper:#fbfaf7;
     --brass:#b08d57; --brass-d:#8c6d3f; --line:#d9d3c7;
     --pub:#1d6fb8; --pub-bg:#eaf2fb; --priv:#5b3fa3; --priv-bg:#efeafb;
-    --val:#2e7d4f; --val-bg:#e8f4ec; --mod:#b8791b; --mod-bg:#fbf1df; --part:#6b7280; --part-bg:#eef0f2;
+    --val:#2e7d4f; --val-bg:#e8f4ec; --mod:#b8791b; --mod-bg:#fbf1df; --part:#6b7280;
+    --plain:#0d5c63; --plain-bg:#e6f4f5; --ana:#8a5a16; --ana-bg:#fbf2e2;
     --shadow:0 1px 3px rgba(16,31,58,.10),0 6px 22px rgba(16,31,58,.06);
   }
   *{box-sizing:border-box}
-  html{-webkit-text-size-adjust:100%}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
   body{margin:0;background:var(--ivory);color:var(--ink);
-    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
-  h1,h2,h3,.serif{font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif;}
-  .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+    font:15.5px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  h1,h2,h3,h4,.serif{font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif;}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 22px}
+  p{margin:.5em 0 .85em}
   /* header */
-  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--ivory);
-    border-bottom:3px solid var(--brass)}
-  .hbar{display:flex;align-items:center;gap:16px;padding:22px 22px 18px}
-  .chakra{flex:0 0 auto}
-  .brand{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;letter-spacing:.14em;
-    font-size:30px;line-height:1}
-  .brand small{display:block;letter-spacing:.32em;font-size:11px;color:var(--brass);
-    font-family:-apple-system,Segoe UI,sans-serif;margin-top:6px;font-weight:600}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--ivory);border-bottom:3px solid var(--brass)}
+  .hbar{display:flex;align-items:center;gap:16px;max-width:1060px;margin:0 auto;padding:22px 22px 14px}
+  .brand{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;letter-spacing:.14em;font-size:28px;line-height:1}
+  .brand small{display:block;letter-spacing:.30em;font-size:10.5px;color:var(--brass);font-family:-apple-system,Segoe UI,sans-serif;margin-top:6px;font-weight:600}
   .htitle{flex:1 1 auto}
-  .htitle .sub{font-size:13.5px;color:#cdd6e6;margin-top:3px;max-width:62ch}
-  .badge{flex:0 0 auto;border:1px solid var(--brass);color:var(--brass);border-radius:4px;
-    padding:6px 11px;font-size:11px;letter-spacing:.18em;font-weight:700;text-transform:uppercase}
-  /* stat chips */
-  .chips{display:flex;flex-wrap:wrap;gap:10px;padding:0 22px 20px}
-  .chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:8px;
-    padding:9px 13px;color:var(--ivory);min-width:120px}
-  .chip b{font-family:"Cormorant Garamond",Georgia,serif;font-size:23px;display:block;line-height:1}
-  .chip span{font-size:11px;color:#b9c4d8;letter-spacing:.04em}
+  .htitle .big{font-family:"Cormorant Garamond",Georgia,serif;font-size:23px;font-weight:700}
+  .htitle .sub{font-size:13px;color:#cdd6e6;margin-top:3px;max-width:70ch}
+  .badge{flex:0 0 auto;border:1px solid var(--brass);color:var(--brass);border-radius:4px;padding:6px 11px;font-size:10.5px;letter-spacing:.16em;font-weight:700;text-transform:uppercase}
+  .audience{max-width:1060px;margin:0 auto;padding:0 22px 18px;color:#b9c4d8;font-size:12.5px}
+  .audience b{color:var(--ivory)}
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;background:rgba(16,31,58,.97);backdrop-filter:blur(6px);border-bottom:1px solid rgba(176,141,87,.4)}
+  .navin{max-width:1060px;margin:0 auto;padding:9px 22px;display:flex;flex-wrap:wrap;gap:5px}
+  nav a{color:#cdd6e6;text-decoration:none;font-size:12px;padding:5px 10px;border-radius:6px;font-weight:600;letter-spacing:.02em}
+  nav a:hover{background:rgba(176,141,87,.22);color:#fff}
   /* sections */
-  section{padding:30px 0 6px}
-  .seclabel{display:flex;align-items:baseline;gap:12px;margin:0 0 16px}
-  .seclabel h2{margin:0;font-size:27px;font-weight:700;color:var(--navy)}
+  section{padding:34px 0 8px;border-bottom:1px solid var(--line)}
+  .seclabel{display:flex;align-items:baseline;gap:12px;margin:0 0 12px}
+  .seclabel h2{margin:0;font-size:29px;font-weight:700;color:var(--navy)}
   .seclabel .n{font-size:12px;font-weight:700;color:var(--brass);letter-spacing:.2em}
-  .seclabel .hint{margin-left:auto;font-size:12.5px;color:#6b7280;max-width:46ch;text-align:right}
+  h3{color:var(--navy);font-size:21px;margin:22px 0 6px}
+  h4{color:var(--navy);font-size:16.5px;margin:16px 0 4px;font-family:-apple-system,Segoe UI,sans-serif;font-weight:700}
+  .lead{font-size:17px;color:#33404f}
+  /* callouts */
+  .plain{background:var(--plain-bg);border-left:4px solid var(--plain);border-radius:8px;padding:11px 15px;margin:12px 0;font-size:14.5px}
+  .plain .lbl{font-weight:700;color:var(--plain);font-size:11px;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:2px}
+  .ana{background:var(--ana-bg);border-left:4px solid var(--ana);border-radius:8px;padding:11px 15px;margin:12px 0;font-size:14.5px}
+  .ana .lbl{font-weight:700;color:var(--ana);font-size:11px;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:2px}
+  .note{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--brass);border-radius:8px;padding:13px 16px;margin:14px 0;font-size:14px;color:#3d4654}
+  .note b{color:var(--ink)}
+  .key{background:#fff5e6;border-bottom:1px dashed var(--brass-d);padding:0 2px;font-weight:600}
+  /* grids & cards */
+  .cards{display:grid;gap:13px}.c3{grid-template-columns:repeat(3,1fr)}.c2{grid-template-columns:repeat(2,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 15px;box-shadow:var(--shadow)}
+  .card h4{margin-top:0}
+  .card .ic{font-size:22px;line-height:1;margin-bottom:6px}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;max-width:1060px;margin:0 auto;padding:2px 22px 18px}
+  .chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:8px 12px;color:var(--ivory);min-width:112px}
+  .chip b{font-family:"Cormorant Garamond",Georgia,serif;font-size:21px;display:block;line-height:1}
+  .chip span{font-size:10.5px;color:#b9c4d8;letter-spacing:.03em}
   /* open-core panels */
-  .grid2{display:grid;grid-template-columns:1fr 56px 1fr;gap:0;align-items:stretch}
+  .grid2{display:grid;grid-template-columns:1fr 50px 1fr;gap:0;align-items:stretch;margin:8px 0}
   .panel{border-radius:12px;box-shadow:var(--shadow);overflow:hidden;background:#fff}
-  .panel.pub{border:1.5px solid var(--pub)}
-  .panel.priv{border:1.5px solid var(--priv)}
-  .panel .ph{padding:13px 16px;color:#fff;display:flex;align-items:center;gap:10px}
+  .panel.pub{border:1.5px solid var(--pub)} .panel.priv{border:1.5px solid var(--priv)}
+  .panel .ph{padding:12px 15px;color:#fff;display:flex;align-items:center;gap:10px}
   .panel.pub .ph{background:var(--pub)} .panel.priv .ph{background:var(--priv)}
-  .panel .ph .t{font-weight:700;font-size:16px} .panel .ph .meta{margin-left:auto;font-size:11px;opacity:.9}
-  .panel .pb{padding:14px 16px}
-  .repo{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:#475569;
-    background:#f4f6f9;border:1px solid #e6e9ef;border-radius:5px;padding:3px 7px;display:inline-block;margin-bottom:10px}
-  .panel.pub .repo{background:var(--pub-bg)} .panel.priv .repo{background:var(--priv-bg)}
-  .li{display:flex;gap:8px;font-size:13px;margin:6px 0;align-items:flex-start}
+  .panel .ph .t{font-weight:700;font-size:15px} .panel .ph .meta{margin-left:auto;font-size:10.5px;opacity:.9}
+  .panel .pb{padding:13px 15px}
+  .repo{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;color:#475569;background:#f4f6f9;border:1px solid #e6e9ef;border-radius:5px;padding:3px 7px;display:inline-block;margin-bottom:9px}
+  .li{display:flex;gap:8px;font-size:13.5px;margin:6px 0;align-items:flex-start}
   .li .k{color:var(--brass-d);font-weight:700;flex:0 0 auto}
   .bridge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--brass-d)}
-  .bridge .ar{font-size:24px;line-height:1}
-  .bridge .lbl{font-size:9.5px;writing-mode:vertical-rl;letter-spacing:.12em;color:#8a8170;text-transform:uppercase}
+  .bridge .ar{font-size:22px;line-height:1}
+  .bridge .lbl{font-size:9px;writing-mode:vertical-rl;letter-spacing:.1em;color:#8a8170;text-transform:uppercase}
   /* module stack */
-  .stack{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
-  .mg{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 14px;box-shadow:var(--shadow)}
-  .mg h3{margin:0 0 8px;font-size:18px;color:var(--navy);display:flex;align-items:center;gap:8px}
+  .stack{display:grid;grid-template-columns:repeat(12,1fr);gap:11px}
+  .mg{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 13px;box-shadow:var(--shadow)}
+  .mg h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center;gap:8px}
   .mg .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .mg .ex{font-size:12px;color:#5b6573;margin:0 0 8px}
   .mods{display:flex;flex-wrap:wrap;gap:5px}
-  .mod{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;background:#f3f5f8;border:1px solid #e6e9ef;
-    border-radius:4px;padding:2px 6px;color:#384150}
+  .mod{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;background:#f3f5f8;border:1px solid #e6e9ef;border-radius:4px;padding:2px 6px;color:#384150}
   .span6{grid-column:span 6}.span4{grid-column:span 4}.span12{grid-column:span 12}.span8{grid-column:span 8}
   /* islands */
-  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 14px;font-size:12.5px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 14px;font-size:13px}
   .lg{display:inline-flex;align-items:center;gap:7px}
   .sw{width:13px;height:13px;border-radius:3px;display:inline-block}
-  .isl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .isl{border-radius:9px;padding:11px 13px;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow)}
+  .isl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+  .isl{border-radius:9px;padding:10px 13px;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow)}
   .isl.val{border-left:4px solid var(--val)} .isl.new{border-left:4px solid var(--val);background:var(--val-bg)}
-  .isl .cap{font-weight:700;font-size:13.5px;color:var(--ink)}
-  .isl .or{font-size:11.5px;color:#5b6573;margin-top:3px}
-  .isl .tag{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--val);font-weight:700;margin-top:6px;display:inline-block}
+  .isl .cap{font-weight:700;font-size:13px;color:var(--ink)} .isl .or{font-size:11px;color:#5b6573;margin-top:3px}
+  .isl .tag{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--val);font-weight:700;margin-top:6px;display:inline-block}
   .isl .tag.fresh{background:var(--val);color:#fff;border-radius:3px;padding:1px 6px}
   /* quantum flow */
-  .qflow{display:grid;grid-template-columns:1fr;gap:12px}
-  .qrow{display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:stretch}
-  .qside{background:var(--navy);color:var(--ivory);border-radius:10px;padding:13px 14px;display:flex;flex-direction:column;justify-content:center}
-  .qside .t{font-weight:700;font-size:15px}.qside .s{font-size:11.5px;color:#b9c4d8;margin-top:4px}
-  .qcards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .qc{background:#fff;border:1px solid var(--line);border-radius:9px;padding:11px 12px;box-shadow:var(--shadow)}
-  .qc .vt{font-size:10px;letter-spacing:.14em;color:var(--brass-d);font-weight:700;text-transform:uppercase}
-  .qc .h{font-weight:700;font-size:14px;color:var(--navy);margin:3px 0}
-  .qc code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;background:#f3f5f8;border-radius:3px;padding:1px 5px;color:#2a3340}
-  .qc .r{font-size:11.5px;color:#566;margin-top:5px}
+  .qrow{display:grid;grid-template-columns:180px 1fr;gap:11px;align-items:stretch;margin-bottom:11px}
+  .qside{background:var(--navy);color:var(--ivory);border-radius:10px;padding:12px 13px;display:flex;flex-direction:column;justify-content:center}
+  .qside .t{font-weight:700;font-size:14px}.qside .s{font-size:11px;color:#b9c4d8;margin-top:4px}
+  .qcards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .qc{background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px 12px;box-shadow:var(--shadow)}
+  .qc .vt{font-size:9.5px;letter-spacing:.14em;color:var(--brass-d);font-weight:700;text-transform:uppercase}
+  .qc .h{font-weight:700;font-size:13.5px;color:var(--navy);margin:3px 0}
+  .qc code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;background:#f3f5f8;border-radius:3px;padding:1px 5px;color:#2a3340}
+  .qc .r{font-size:11px;color:#566;margin-top:5px}
+  /* tables */
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:var(--shadow)}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--navy);color:var(--ivory);font-weight:700;font-size:12px;letter-spacing:.03em}
+  tr:last-child td{border-bottom:none}
+  td .ok{color:var(--val);font-weight:700}
   /* pro cards */
   .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
   .pcard{background:#fff;border:1px solid var(--line);border-top:3px solid var(--priv);border-radius:9px;padding:12px 14px;box-shadow:var(--shadow)}
-  .pcard h3{margin:0 0 6px;font-size:17px;color:var(--priv)}
-  .pcard ul{margin:0;padding-left:16px;font-size:12.5px;color:#3d4654}.pcard li{margin:3px 0}
-  /* callout */
-  .note{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--brass);
-    border-radius:8px;padding:14px 16px;font-size:13px;color:#3d4654}
-  .note b{color:var(--ink)}
+  .pcard h4{margin:0 0 6px;color:var(--priv)} .pcard ul{margin:0;padding-left:16px;font-size:12.5px;color:#3d4654}.pcard li{margin:3px 0}
+  /* steps */
+  .steps{counter-reset:s;display:grid;gap:9px}
+  .step{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:11px 14px;box-shadow:var(--shadow)}
+  .step:before{counter-increment:s;content:counter(s);flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--brass);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .step .sh{font-weight:700;color:var(--navy)}
+  /* glossary */
+  .gloss{columns:2;column-gap:26px}
+  .gloss dt{font-weight:700;color:var(--navy);margin-top:9px;break-after:avoid}
+  .gloss dd{margin:0 0 2px;font-size:13.5px;color:#3d4654}
+  .gloss .term{break-inside:avoid}
   /* footer */
-  footer{margin-top:34px;background:var(--navy);color:#cdd6e6;border-top:3px solid var(--brass)}
-  .fwrap{max-width:1180px;margin:0 auto;padding:22px;display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+  footer{margin-top:0;background:var(--navy);color:#cdd6e6;border-top:3px solid var(--brass)}
+  .fwrap{max-width:1060px;margin:0 auto;padding:22px;display:flex;gap:24px;flex-wrap:wrap;align-items:center}
   .motto{font-family:"Cormorant Garamond",Georgia,serif;color:var(--brass);font-size:18px}
   .motto .dev{font-size:20px;color:var(--ivory)}
   .fdis{font-size:11.5px;flex:1 1 320px;min-width:280px;line-height:1.5}
-  a{color:var(--brass)}
-  @media (max-width:880px){
+  a{color:var(--brass-d)}
+  @media (max-width:860px){
+    .c3,.c4,.c2,.isl-grid,.qcards,.pgrid,.stack{grid-template-columns:1fr}
     .grid2{grid-template-columns:1fr}.bridge{flex-direction:row;padding:8px 0}.bridge .lbl{writing-mode:horizontal-tb}
-    .isl-grid,.qcards,.pgrid{grid-template-columns:1fr 1fr}.qrow{grid-template-columns:1fr}
-    .span6,.span4,.span8{grid-column:span 12}
+    .qrow{grid-template-columns:1fr}.gloss{columns:1}.span6,.span4,.span8{grid-column:span 12}
   }
-  @media print{body{background:#fff}.panel,.mg,.isl,.qc,.pcard{box-shadow:none}header{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  @media print{body{background:#fff}nav{display:none}.panel,.mg,.isl,.qc,.pcard,.card,.step,table{box-shadow:none}header,th{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
 </head>
-<body>
+<body id="top">
 <header>
   <div class="hbar">
-    <svg class="chakra" width="48" height="48" viewBox="0 0 100 100" aria-hidden="true">
+    <svg width="46" height="46" viewBox="0 0 100 100" aria-hidden="true">
       <circle cx="50" cy="50" r="46" fill="none" stroke="#b08d57" stroke-width="2.5"/>
       <circle cx="50" cy="50" r="12" fill="none" stroke="#b08d57" stroke-width="2.5"/>
       <g stroke="#b08d57" stroke-width="2">
-        <!-- 12 spokes -->
         <g id="spk"><line x1="50" y1="14" x2="50" y2="38"/></g>
         <use href="#spk" transform="rotate(30 50 50)"/><use href="#spk" transform="rotate(60 50 50)"/>
         <use href="#spk" transform="rotate(90 50 50)"/><use href="#spk" transform="rotate(120 50 50)"/>
@@ -141,218 +164,337 @@
     </svg>
     <div class="brand">ASHFORDE<small>OÜ · KSHANA PLATFORM</small></div>
     <div class="htitle">
-      <div class="serif" style="font-size:22px;font-weight:700">Open-core architecture — <i>kshana</i> ⟷ <i>kshana-pro</i></div>
-      <div class="sub">One public engine, one private overlay. Capability code is open and reproducible; bid evidence, papers and commercial assets stay private. Honesty is the load-bearing wall.</div>
+      <div class="big">Field Guide — PNT, the Kshana engine, and how we win tenders</div>
+      <div class="sub">A from-zero explainer. By the end you will understand what PNT is, what Kshana does, why <i>kshana-pro</i> stays dominant even though <i>kshana</i> is fully open, and exactly what an ESA tender is and which clauses we satisfy.</div>
     </div>
     <div class="badge">Private · Internal</div>
   </div>
+  <div class="audience">📖 <b>Audience:</b> someone completely new to PNT, software, or space tenders. No prior knowledge assumed. Read top to bottom, or jump via the menu. <b>Plain-words</b> and <b>analogy</b> boxes translate every technical idea.</div>
   <div class="chips">
-    <div class="chip"><b>124</b><span>Rust source modules</span></div>
-    <div class="chip"><b>40+</b><span>runnable scenario kinds</span></div>
-    <div class="chip"><b>10</b><span>externally-validated islands</span></div>
-    <div class="chip"><b>3</b><span>quantum-PNT verticals</span></div>
-    <div class="chip"><b>AGPL-3.0</b><span>+ commercial licence</span></div>
-    <div class="chip"><b>TRL ~3</b><span>modelled · no flight heritage</span></div>
+    <div class="chip"><b>P · N · T</b><span>Position · Navigation · Timing</span></div>
+    <div class="chip"><b>124</b><span>engine modules</span></div>
+    <div class="chip"><b>10</b><span>results checked vs real data</span></div>
+    <div class="chip"><b>3</b><span>quantum-PNT areas</span></div>
+    <div class="chip"><b>1</b><span>open engine + 1 private edge</span></div>
+    <div class="chip"><b>TRL ~3</b><span>modelled · honest by design</span></div>
   </div>
 </header>
 
+<nav><div class="navin">
+  <a href="#pnt">1 · PNT from zero</a>
+  <a href="#kshana">2 · What Kshana is</a>
+  <a href="#honesty">3 · The honesty engine</a>
+  <a href="#opencore">4 · kshana vs kshana-pro</a>
+  <a href="#flow">5 · Where information flows</a>
+  <a href="#quantum">6 · The 3 quantum areas</a>
+  <a href="#tenders">7 · ESA tenders explained</a>
+  <a href="#fulfil">8 · What we fulfil</a>
+  <a href="#glossary">9 · Glossary</a>
+</div></nav>
+
 <div class="wrap">
 
-<!-- 1. OPEN-CORE MODEL -->
-<section>
-  <div class="seclabel"><span class="n">01</span><h2>The open-core split</h2>
-    <span class="hint">What is open vs. private, and the boundary between them.</span></div>
+<!-- 1. PNT FROM ZERO -->
+<section id="pnt">
+  <div class="seclabel"><span class="n">01</span><h2>PNT, starting from nothing</h2></div>
+  <p class="lead"><b>PNT</b> stands for three questions every machine that moves or coordinates needs answered: <b>Where am I? (Positioning)</b>, <b>How do I get there? (Navigation)</b>, and <b>What time is it, exactly? (Timing)</b>.</p>
+  <div class="plain"><span class="lbl">In plain words</span>Your phone's map showing a blue dot, your car's sat-nav, a plane staying on course, and a power grid keeping its electricity in sync — all of them are PNT. Get PNT wrong and ships run aground, drones get lost, banks mis-stamp trades, and 5G towers fall out of step.</div>
+
+  <h3>The three letters, one at a time</h3>
+  <div class="cards c3">
+    <div class="card"><div class="ic">📍</div><h4>Positioning</h4><p>Knowing <i>where</i> something is — latitude, longitude, altitude. Usually from <span class="key">GNSS</span> (satellite signals: GPS, Galileo, GLONASS, BeiDou). Your receiver listens to several satellites and triangulates.</p></div>
+    <div class="card"><div class="ic">🧭</div><h4>Navigation</h4><p>Knowing <i>which way</i> and keeping a path over time — velocity, heading, route. When satellites disappear, you "dead-reckon" with onboard <span class="key">inertial</span> sensors that feel motion.</p></div>
+    <div class="card"><div class="ic">⏱️</div><h4>Timing</h4><p>Knowing <i>what time it is</i> to the <b>nanosecond</b> (a billionth of a second). GPS itself is really a clock in the sky; timing also synchronises grids, finance and telecoms.</p></div>
+  </div>
+
+  <h3>Why timing is secretly the hardest part</h3>
+  <p>Position from satellites is really a timing trick: a receiver measures how long a signal took to arrive, multiplies by the speed of light, and gets distance. Light travels ~30&nbsp;cm per nanosecond — so a clock error of a few nanoseconds becomes a position error of metres. That is why everything hinges on <span class="key">atomic clocks</span> and on measuring how steady a clock is.</p>
+  <div class="ana"><span class="lbl">Analogy</span>A clock's quality isn't "is it right now?" — it's "if I unplug its reference, how fast does it drift?" Think of a wristwatch left in a drawer: a cheap one is minutes off by next week; an atomic clock would be off by less than a second in millions of years. The standard ruler for that steadiness is the <span class="key">Allan deviation</span> — a curve showing the clock's error at 1 second, 10 seconds, an hour, a day. Kshana computes exactly this curve, and we've checked it against real measured clocks.</p></div>
+
+  <h3>Why PNT gets hard — and where the money/risk is</h3>
+  <div class="cards c2">
+    <div class="card"><h4>🛰️ Beyond Earth (Moon, deep space)</h4><p>GPS only works near Earth. On the Moon there is no GPS, so spacecraft need their own clocks, their own way to figure out their orbit (<span class="key">orbit determination</span>), and a new lunar time scale. ESA's "Moonlight" programme is building exactly this.</p></div>
+    <div class="card"><h4>🚫 GNSS-denied (jamming &amp; attacks)</h4><p>Satellite signals are faint and easily attacked: <span class="key">jamming</span> (drowning them in noise), <span class="key">spoofing</span> (broadcasting fake signals to send you to the wrong place), <span class="key">meaconing</span> (rebroadcasting real signals with a delay). Defence, aviation and shipping need PNT that survives this.</p></div>
+  </div>
+
+  <h3>Where "quantum" enters</h3>
+  <p>New <b>quantum</b> devices promise better PNT: <b>optical/quantum clocks</b> far steadier than today's caesium clocks, and <b>cold-atom interferometers</b> — sensors that measure acceleration and gravity by the wave-like behaviour of ultra-cold atoms, so a vehicle can navigate accurately for much longer without GPS. They are early-stage and expensive. The big question agencies ask is: <b>do they actually help, by how much, and when are they ready?</b> That question is what the main ESA tender (and Kshana) is built to answer.</p>
+  <div class="note"><b>You now know the field.</b> PNT = position/navigation/timing; it runs on satellites and atomic clocks; it breaks in space and under attack; and quantum devices might fix that. Everything below is about a tool that lets you <i>test all of this in software, honestly</i>.</div>
+</section>
+
+<!-- 2. WHAT KSHANA IS -->
+<section id="kshana">
+  <div class="seclabel"><span class="n">02</span><h2>What Kshana is and what it delivers</h2></div>
+  <p class="lead"><b>Kshana is a software simulation engine for PNT.</b> You describe a scenario — a clock, a spacecraft, an attack, a quantum sensor — and Kshana computes how well it would perform, and crucially, <b>how much to trust that answer</b>.</p>
+  <div class="ana"><span class="lbl">Analogy</span>It is a <b>flight simulator for PNT systems</b>. A pilot trains in a simulator before flying a real jet; we test a quantum clock or a cold-atom navigator in Kshana before anyone spends years and millions building hardware. The difference from a toy simulator: Kshana labels every number with how it was checked.</p></div>
+
+  <h3>What it delivers (the outputs)</h3>
+  <div class="cards c3">
+    <div class="card"><div class="ic">▶️</div><h4>Runnable scenarios</h4><p>40+ ready scenario "kinds" — run one and get a result as data (JSON), a chart (SVG) and a human summary. Anyone can reproduce it from the same inputs.</p></div>
+    <div class="card"><div class="ic">⚖️</div><h4>Trade studies</h4><p>Quantum-vs-classical head-to-heads: "the quantum clock holds time to 1.2 ps where the classical one drifts to 5.3 ns" — each comparison carries an honesty label.</p></div>
+    <div class="card"><div class="ic">📦</div><h4>Evidence packs</h4><p>Bundled, reproducible studies + reports that become the backbone of a research paper or a tender bid.</p></div>
+  </div>
+
+  <h3>How it works, end to end</h3>
+  <div class="steps">
+    <div class="step"><div><span class="sh">You pick a scenario.</span> e.g. <code>quantum-time-transfer</code>, plus inputs (link loss, integration time) and a random seed.</div></div>
+    <div class="step"><div><span class="sh">The engine routes it.</span> A single typed "dispatcher" sends it to the right physics modules (clocks, orbits, detectors…).</div></div>
+    <div class="step"><div><span class="sh">The modules compute.</span> Reusing checked building blocks (the clock-stability maths, the detector statistics, the orbit solver).</div></div>
+    <div class="step"><div><span class="sh">It returns a result + an honesty record.</span> Numbers, a chart, and a "representativeness" note saying what's real, what's assumed, and what's missing before flight.</div></div>
+  </div>
+  <div class="plain"><span class="lbl">In plain words</span>Same inputs + same seed + same version → <b>exactly the same answer, every time, on anyone's machine</b>. That reproducibility is what makes the results trustworthy rather than just plausible.</div>
+</section>
+
+<!-- 3. HONESTY ENGINE -->
+<section id="honesty">
+  <div class="seclabel"><span class="n">03</span><h2>The honesty engine — why this is the whole game</h2></div>
+  <p class="lead">Most simulators can claim anything. Kshana <b>cannot</b>: it labels every capability, and an automated gate fails the build if a claim isn't backed. This discipline is not paperwork — <b>it is the product's main advantage.</b></p>
+
+  <h3>Three honesty labels</h3>
+  <div class="legend">
+    <span class="lg"><span class="sw" style="background:var(--val)"></span><b>Validated</b> — checked against real, independent data or a trusted reference tool</span>
+    <span class="lg"><span class="sw" style="background:var(--mod)"></span><b>Modelled</b> — built from textbook physics, but not yet checked against real data</span>
+    <span class="lg"><span class="sw" style="background:var(--part)"></span><b>Partner-owned</b> — we don't build it; honestly declared as a gap</span>
+  </div>
+  <div class="plain"><span class="lbl">In plain words</span><b>Validated</b> = "we compared our answer to reality and it matched." <b>Modelled</b> = "this is correct textbook physics, but we haven't held it next to a real measurement yet." We <i>never</i> call something Validated to look good. Being openly Modelled where we are Modelled is what makes the Validated claims believable.</div>
+
+  <h3>"Validated islands" — results checked against the real world</h3>
+  <p>A <b>validated island</b> is a result we've pinned to an external source of truth — a real atomic clock, real ESA telemetry, real agency orbits, or a respected reference tool. The three highlighted below are brand-new real-data checks added in this round.</p>
+  <div class="isl-grid">
+    <div class="isl new"><div class="cap">Allan on a real caesium clock</div><div class="or">A measured 5071A clock vs hydrogen maser (556,990 points) → matches the Stable32 reference across 16 time-scales to ≤0.003%</div><span class="tag fresh">New · real hardware</span></div>
+    <div class="isl new"><div class="cap">Allan on the canonical PHASE.DAT</div><div class="or">The reference series everyone tests against → our OADEV/MDEV/TDEV match to ≤0.005% over 139 averaging factors</div><span class="tag fresh">New · reference tool</span></div>
+    <div class="isl new"><div class="cap">Anomaly detection on ESA telemetry</div><div class="or">Real ESA OPS-SAT satellite data (open licence) → our scoring matches scikit-learn exactly; detector finds the labelled anomalies (AUC 0.85)</div><span class="tag fresh">New · real ESA data</span></div>
+    <div class="isl val"><div class="cap">Clock-stability maths</div><div class="or">vs NIST SP 1065 / Stable32 reference numbers</div><span class="tag">Validated</span></div>
+    <div class="isl val"><div class="cap">Detector metrics (ROC/AUC)</div><div class="or">vs scikit-learn — exact match</div><span class="tag">Validated</span></div>
+    <div class="isl val"><div class="cap">Satellite-geometry quality (DOP)</div><div class="or">vs Stanford's gnss_lib_py</div><span class="tag">Validated</span></div>
+    <div class="isl val"><div class="cap">Inertial-sensor noise</div><div class="or">vs a real IMU datasheet + literature</div><span class="tag">Validated</span></div>
+    <div class="isl val"><div class="cap">Spacecraft orbit determination</div><div class="or">vs real NASA &amp; ESA orbit data (LRO, Galileo)</div><span class="tag">Validated</span></div>
+    <div class="isl val"><div class="cap">Numerical trade kernels</div><div class="or">vs SciPy — exact match</div><span class="tag">Validated</span></div>
+  </div>
+
+  <h3>The "representativeness + gaps-to-flight" ledger</h3>
+  <p>Every quantum demonstration carries a machine-checked note with four parts: <b>what's anchored to reality</b>, <b>what we assumed</b>, <b>what's still missing before real flight</b>, and <b>a realistic readiness band</b>. Nothing claims to be flight-ready when it isn't.</p>
+  <div class="note"><b>Why honesty is the moat.</b> A buyer or a space agency can <i>audit</i> every Kshana claim themselves — the code is open. Competitors who overclaim cannot survive that audit. So our restraint ("Modelled unless proven; no flight heritage; no certification") is precisely what makes us the <i>trustworthy</i> option. <b>Open by design, fast by intent, proven before trusted.</b></div>
+</section>
+
+<!-- 4. OPEN CORE -->
+<section id="opencore">
+  <div class="seclabel"><span class="n">04</span><h2>kshana vs kshana-pro — the open-core model</h2></div>
+  <p class="lead">There are two repositories. <b><i>kshana</i> is public and free</b> (open-source). <b><i>kshana-pro</i> is private</b>. This is deliberate, and it is how an open product still wins.</p>
+  <div class="ana"><span class="lbl">Analogy</span>Think of a <b>world-class published recipe</b> (anyone can cook it — that builds the chef's reputation) versus the <b>restaurant</b> that knows the supplier relationships, the plating, the Michelin-inspection strategy, and the brand. The recipe being public is what makes the restaurant credible; the restaurant is still where the value is captured. <i>kshana</i> is the recipe; <i>kshana-pro</i> is the restaurant.</p></div>
+
   <div class="grid2">
     <div class="panel pub">
-      <div class="ph"><span class="t">kshana — public engine</span><span class="meta">open · reproducible</span></div>
+      <div class="ph"><span class="t">kshana — public engine</span><span class="meta">open · free · auditable</span></div>
       <div class="pb">
-        <span class="repo">github.com/ashfordeOU/kshana · AGPL-3.0-only (+commercial)</span>
-        <div class="li"><span class="k">▸</span><div>The simulation <b>engine &amp; capability code</b>: PNT physics, estimators, detectors, the quantum-PNT verticals.</div></div>
-        <div class="li"><span class="k">▸</span><div><b>verification.rs</b> honesty matrix + the externally-validated test islands.</div></div>
-        <div class="li"><span class="k">▸</span><div>CLI, Python bindings (PyO3) &amp; WASM; every result reproducible from <code>(inputs, seed, engine version)</code>.</div></div>
-        <div class="li"><span class="k">▸</span><div>Ships nothing tender-specific — it models the <i>class</i> of system on public-source parameters.</div></div>
+        <span class="repo">AGPL-3.0-only (+ commercial licence)</span>
+        <div class="li"><span class="k">▸</span><div>The <b>engine and all capability</b>: the PNT physics, the estimators, the detectors, the three quantum-PNT areas.</div></div>
+        <div class="li"><span class="k">▸</span><div>The <b>honesty framework</b> and every validated island — so anyone can reproduce and check our claims.</div></div>
+        <div class="li"><span class="k">▸</span><div>Ships <b>nothing tender-specific</b>: it models the <i>class</i> of system using public-source numbers.</div></div>
+        <div class="li"><span class="k">▸</span><div><b>Why open?</b> Trust, adoption, citations, and credibility you cannot buy. The proof is checkable.</div></div>
       </div>
     </div>
-    <div class="bridge">
-      <span class="ar">⟶</span><span class="lbl">overlays · cites</span><span class="ar">⟵</span>
-    </div>
+    <div class="bridge"><span class="ar">⟶</span><span class="lbl">cites · never forks</span><span class="ar">⟵</span></div>
     <div class="panel priv">
-      <div class="ph"><span class="t">kshana-pro — private overlay</span><span class="meta">bid · commercial</span></div>
+      <div class="ph"><span class="t">kshana-pro — private edge</span><span class="meta">strategy · evidence · money</span></div>
       <div class="pb">
-        <span class="repo">github.com/ashfordeOU/kshana-pro · PRIVATE</span>
-        <div class="li"><span class="k">▸</span><div><b>Bid evidence</b> for ESA tenders (lunar-PNT, 13503 quantum-PNT) — citing the public islands, never duplicating engine code.</div></div>
-        <div class="li"><span class="k">▸</span><div><b>Research papers</b> (arXiv drafts), the verified validation-dataset catalog, roadmaps.</div></div>
-        <div class="li"><span class="k">▸</span><div><b>Commercial</b>: legal (EULA/DPA/SOW), pricing, GTM kits, scenario-subscription packs.</div></div>
-        <div class="li"><span class="k">▸</span><div>Private-only framing &amp; numbers; the public repo stays clean of bid-specific claims.</div></div>
+        <span class="repo">PRIVATE</span>
+        <div class="li"><span class="k">▸</span><div>The <b>winning know-how</b>: which tender clauses to exploit, how to map our engine to each requirement, the consortium positioning.</div></div>
+        <div class="li"><span class="k">▸</span><div>The <b>bid evidence</b>, the verified dataset catalog, the research papers, the readiness dossiers.</div></div>
+        <div class="li"><span class="k">▸</span><div>The <b>commercial layer</b>: pricing, legal (licences, data agreements), go-to-market, subscription packs.</div></div>
+        <div class="li"><span class="k">▸</span><div><b>Why private?</b> This is the assembled judgement and relationships a competitor cannot copy from the open code.</div></div>
       </div>
     </div>
   </div>
-  <div class="note" style="margin-top:14px"><b>The boundary rule.</b> Capability → public (so it is open, auditable, reproducible). Evidence, papers, money → private. A result is labelled <b>Validated</b> only when an external-dataset oracle backs it; everything else is <b>Modelled</b>. That discipline, enforced in the open repo, <i>is</i> what the private bid evidence stands on.</div>
+
+  <h3>So how is kshana-pro still dominant if kshana is open?</h3>
+  <div class="cards c4">
+    <div class="card"><div class="ic">🔓→🤝</div><h4>Openness buys trust</h4><p>An open, auditable engine is the credibility no closed competitor has. It pulls in users, reviewers and agency confidence.</p></div>
+    <div class="card"><div class="ic">🧠</div><h4>Strategy isn't in the code</h4><p>Anyone can read the engine. <b>Almost no one</b> can turn it into a compliant, winning ESA bid. That judgement lives only in kshana-pro.</p></div>
+    <div class="card"><div class="ic">🔬</div><h4>Evidence + data</h4><p>The verified real-datasets, the validated-against-reality results assembled as proof, and the papers — curated privately.</p></div>
+    <div class="card"><div class="ic">💼</div><h4>Commercial control</h4><p>The dual licence (free open / paid commercial), pricing, contracts and packs capture the value the open engine creates.</p></div>
+  </div>
+  <div class="note"><b>The one-line version:</b> open code wins <i>trust</i>; private know-how wins <i>tenders and revenue</i>. Giving away the engine is what makes the private edge credible — not what weakens it.</div>
 </section>
 
-<!-- 2. PUBLIC ENGINE INTERNALS -->
-<section>
-  <div class="seclabel"><span class="n">02</span><h2><i>kshana</i> — engine internals</h2>
-    <span class="hint">124 modules, grouped by capability. A single typed scenario dispatcher runs them all.</span></div>
-  <div class="stack">
-    <div class="mg span6"><h3><span class="dot" style="background:#1d6fb8"></span>Timing &amp; frequency</h3>
-      <div class="mods"><span class="mod">allan</span><span class="mod">clock_state</span><span class="mod">holdover</span><span class="mod">ensemble</span><span class="mod">timetransfer</span><span class="mod">timetransfer_adv</span><span class="mod">tpl</span><span class="mod">timescales</span><span class="mod">timegeo</span><span class="mod">filter_health</span></div></div>
-    <div class="mg span6"><h3><span class="dot" style="background:#2e7d4f"></span>Navigation &amp; orbit determination</h3>
-      <div class="mods"><span class="mod">estimator</span><span class="mod">kalman</span><span class="mod">batch_ls</span><span class="mod">particle_filter</span><span class="mod">precise_od</span><span class="mod">deepspace_od</span><span class="mod">inertial</span><span class="mod">gravimeter</span><span class="mod">gravity_sh</span><span class="mod">forces</span><span class="mod">propagator</span><span class="mod">frames</span><span class="mod">fusion</span></div></div>
-    <div class="mg span4"><h3><span class="dot" style="background:#b8791b"></span>GNSS &amp; integrity</h3>
-      <div class="mods"><span class="mod">gnss_sim</span><span class="mod">navsignal</span><span class="mod">pvt</span><span class="mod">raim</span><span class="mod">sbas</span><span class="mod">rinex_obs</span><span class="mod">sp3</span><span class="mod">ionex</span><span class="mod">integrity_impact</span></div></div>
-    <div class="mg span4"><h3><span class="dot" style="background:#a8324a"></span>Anomaly, security &amp; resilience</h3>
-      <div class="mods"><span class="mod">detection</span><span class="mod">resilience</span><span class="mod">spoof_detect</span><span class="mod">spoof_monitors</span><span class="mod">jamming</span><span class="mod">sdr</span><span class="mod">eval_stats</span><span class="mod">impairment_eval</span><span class="mod">impairment_ml</span></div></div>
-    <div class="mg span4"><h3><span class="dot" style="background:#6b7280"></span>Lunar PNT suite</h3>
-      <div class="mods"><span class="mod">lunar_time</span><span class="mod">lunar_vlbi</span><span class="mod">lunar_od</span><span class="mod">lunar_frame</span><span class="mod">lunar_frame_realise</span><span class="mod">lunar_dpnt</span><span class="mod">lunar_interop</span><span class="mod">lunar_service</span></div></div>
-    <div class="mg span8"><h3><span class="dot" style="background:#5b3fa3"></span>Quantum-PNT demonstrator (ESA AO/1-13503)</h3>
-      <div class="mods"><span class="mod">representativeness</span><span class="mod">qtrade</span><span class="mod">quantum_devices</span><span class="mod">quantum_trade</span><span class="mod">timetransfer_chain</span><span class="mod">quantum_nav_od</span><span class="mod">quantum_faults</span></div></div>
-    <div class="mg span4"><h3><span class="dot" style="background:#101f3a"></span>Engine spine</h3>
-      <div class="mods"><span class="mod">api</span><span class="mod">scenario</span><span class="mod">run</span><span class="mod">study</span><span class="mod">suite</span><span class="mod">sweep</span><span class="mod">report</span><span class="mod">python</span><span class="mod">wasm</span></div></div>
-  </div>
-</section>
-
-<!-- 3. HONESTY FRAMEWORK -->
-<section>
-  <div class="seclabel"><span class="n">03</span><h2>The honesty framework</h2>
-    <span class="hint">verification.rs classifies every capability; tests/no_overclaims.rs enforces it.</span></div>
-  <div class="legend">
-    <span class="lg"><span class="sw" style="background:var(--val)"></span><b>Validated</b> — checked against an external dataset / reference implementation</span>
-    <span class="lg"><span class="sw" style="background:var(--mod)"></span><b>Modelled</b> — implemented from published physics; no external oracle</span>
-    <span class="lg"><span class="sw" style="background:var(--part)"></span><b>Partner-owned</b> — no code, declared gap</span>
-  </div>
-  <div class="isl-grid">
-    <div class="isl new"><div class="cap">Allan on a real caesium clock</div><div class="or">5071A vs H-maser, 556,990 pts → Stable32 (ADEV+HDEV, 16 decades, ≤3e-5)</div><span class="tag fresh">New · real hardware</span></div>
-    <div class="isl new"><div class="cap">Allan on canonical PHASE.DAT</div><div class="or">Stable32 reference series → OADEV/MDEV/TDEV, 139 AFs, ≤5e-5</div><span class="tag fresh">New · Stable32</span></div>
-    <div class="isl new"><div class="cap">Anomaly AUC on real ESA telemetry</div><div class="or">OPSSAT-AD (CC BY) → ROC AUC reproduces scikit-learn ≤1e-9; detector AUC 0.85</div><span class="tag fresh">New · ESA OPS-SAT</span></div>
-    <div class="isl val"><div class="cap">Allan estimator parity</div><div class="or">NBS14 → NIST SP 1065 / Stable32 to 1e-4</div><span class="tag">Validated</span></div>
-    <div class="isl val"><div class="cap">Detector metrics (ROC/AUC/confusion)</div><div class="or">vs scikit-learn — exact match</div><span class="tag">Validated</span></div>
-    <div class="isl val"><div class="cap">Dilution of precision (DOP)</div><div class="or">vs gnss_lib_py (Stanford NAV Lab) to 1e-6</div><span class="tag">Validated</span></div>
-    <div class="isl val"><div class="cap">IMU Allan noise (ARW/VRW/BI)</div><div class="or">vs ADIS16465 datasheet + IEEE literature</div><span class="tag">Validated</span></div>
-    <div class="isl val"><div class="cap">Precise OD — real agency orbits</div><div class="or">LRO (Horizons+GRGM) &amp; Galileo (ESA SP3 + IERS EOP)</div><span class="tag">Validated</span></div>
-    <div class="isl val"><div class="cap">Trade kernels (NNLS / χ² / van-Loan Q)</div><div class="or">vs SciPy — exact match</div><span class="tag">Validated</span></div>
-  </div>
-  <div class="note" style="margin-top:14px"><b>Honest boundaries (kept everywhere).</b> No TRL&nbsp;&gt;&nbsp;3, no flight heritage, no certification, no ESA endorsement. The quantum-PNT verticals are <b>Modelled</b> demonstrations (validated-by-reuse where they ride a validated kernel); space-native quantum-PNT data and quantum-sensor-fault labels do not exist publicly, so those stay Modelled by design.</div>
-</section>
-
-<!-- 4. QUANTUM-PNT DEMONSTRATOR -->
-<section>
-  <div class="seclabel"><span class="n">04</span><h2>Quantum-PNT demonstrator</h2>
-    <span class="hint">ESA AO/1-13503. Foundation → three application areas → one unified study.</span></div>
-  <div class="qflow">
-    <div class="qrow">
-      <div class="qside"><div class="t">Foundation</div><div class="s">Compliance &amp; trade machinery (Clar 1/A3)</div></div>
-      <div class="qcards">
-        <div class="qc"><div class="vt">F1</div><div class="h">Representativeness ledger</div><code>representativeness</code><div class="r">Machine-checked anchors · assumptions · gaps-to-flight · TRL band — the A3 compliance proof.</div></div>
-        <div class="qc"><div class="vt">F2</div><div class="h">Trade harness</div><code>qtrade</code><div class="r">Uniform quantum-vs-classical <code>TradeEvidence</code> with per-FoM validated/modelled labels.</div></div>
-        <div class="qc"><div class="vt">F3</div><div class="h">Quantum device library</div><code>quantum_devices</code><div class="r">Clock &amp; entanglement-link error models on public-source parameters.</div></div>
-      </div>
-    </div>
-    <div class="qrow">
-      <div class="qside"><div class="t">Three application areas</div><div class="s">SoW §1.5.2 — each a runnable scenario</div></div>
-      <div class="qcards">
-        <div class="qc"><div class="vt">A · Timing</div><div class="h">Trusted quantum time transfer</div><code>quantum-time-transfer</code><div class="r">Optical-clock + entanglement link vs CSAC/RF; security FoM; TPL + CUSUM.</div></div>
-        <div class="qc"><div class="vt">B · Navigation</div><div class="h">GNSS-free quantum nav</div><code>quantum-gnss-free-nav</code><div class="r">Cold-atom interferometer vs nav-grade INS over a GNSS outage; holdover &amp; observability.</div></div>
-        <div class="qc"><div class="vt">C · Anomaly</div><div class="h">Fault / anomaly detection</div><code>quantum-anomaly-detect</code><div class="r">Labelled fault catalog; ROC AUC + minimum-detectable fault; quantum-aided vs classical.</div></div>
-      </div>
-    </div>
-    <div class="qrow">
-      <div class="qside" style="background:var(--brass);color:#23180a"><div class="t">D1 · Unified study</div><div class="s">One reproducible evidence pack</div></div>
-      <div class="qcards" style="grid-template-columns:1fr">
-        <div class="qc"><div class="h">quantum-pnt-demonstrator.suite</div><div class="r">Bundles A + B + C into a single <code>kshana --study</code> run; each scenario emits its own representativeness + gaps-to-flight record. Bid evidence in kshana-pro maps every area to the clarifications (A1/A3/Clar&nbsp;3).</div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 5. PRIVATE OVERLAY -->
-<section>
-  <div class="seclabel"><span class="n">05</span><h2><i>kshana-pro</i> — private overlay</h2>
-    <span class="hint">Everything tender-, paper- and revenue-specific. Cites the public engine; never forks it.</span></div>
-  <div class="pgrid">
-    <div class="pcard"><h3>Tender evidence</h3><ul>
-      <li>13503 quantum-PNT: clarifications audit, demonstrator capability, SE &amp; software-PA evidence, TRL dossier</li>
-      <li>Lunar-PNT: capability statement, fit-map</li>
-      <li>13494 AI-payload PNT; cross-tender + cost-volume</li></ul></div>
-    <div class="pcard"><h3>Research &amp; data</h3><ul>
-      <li>arXiv paper drafts (lunar-PNT) + reproducible artifacts</li>
-      <li>Verified validation-dataset catalog (42 found → 37 verified)</li>
-      <li>Build roadmaps &amp; plans</li></ul></div>
-    <div class="pcard"><h3>Commercial</h3><ul>
-      <li>Legal: EULA, DPA, SOW, pricing</li>
-      <li>GTM kits &amp; one-pagers</li>
-      <li>Scenario-subscription packs; study report templates</li></ul></div>
-  </div>
-</section>
-
-<!-- 6. INTERCONNECT -->
-<section>
-  <div class="seclabel"><span class="n">06</span><h2>How they interconnect</h2>
-    <span class="hint">Capability flows out (open); evidence flows in (private); the honesty layer underwrites both.</span></div>
-  <svg viewBox="0 0 1140 250" width="100%" role="img" aria-label="Flow from public engine and validated islands into private bid evidence and ESA tenders">
+<!-- 5. INFORMATION FLOW -->
+<section id="flow">
+  <div class="seclabel"><span class="n">05</span><h2>Where information flows (and what stays private)</h2></div>
+  <p>Two simple rules govern everything: <b>capability flows OUT to the open repo; evidence, strategy and money flow IN to the private one.</b> Public results are <i>cited</i> by private bids — the private side never copies the engine code.</p>
+  <svg viewBox="0 0 1020 250" width="100%" role="img" aria-label="Information flow from the public engine and validated results into the private bid evidence and on to ESA, underwritten by the honesty framework">
     <defs>
-      <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
-        <path d="M0,0 L9,4.5 L0,9 z" fill="#8c6d3f"/></marker>
+      <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#8c6d3f"/></marker>
       <style>
-        .bx{rx:10;ry:10} .tt{font:600 13px -apple-system,Segoe UI,sans-serif;fill:#1c2530}
+        .bx{rx:10;ry:10}.tt{font:600 13px -apple-system,Segoe UI,sans-serif;fill:#1c2530}
         .ss{font:11px -apple-system,Segoe UI,sans-serif;fill:#5b6573}
         .fl{stroke:#8c6d3f;stroke-width:2;fill:none;marker-end:url(#arr)}
-        .cap{font:700 10px -apple-system,Segoe UI,sans-serif;fill:#8a8170;letter-spacing:.08em}
+        .cap{font:700 10px -apple-system,Segoe UI,sans-serif;fill:#8a8170;letter-spacing:.06em}
       </style>
     </defs>
-    <!-- public box -->
-    <rect x="14" y="30" width="250" height="92" class="bx" fill="#eaf2fb" stroke="#1d6fb8" stroke-width="1.5"/>
-    <text x="30" y="58" class="tt">kshana — capability code</text>
-    <text x="30" y="78" class="ss">PNT physics · estimators · detectors</text>
-    <text x="30" y="96" class="ss">quantum-PNT verticals (A/B/C)</text>
-    <text x="30" y="114" class="ss">AGPL-3.0 · reproducible</text>
-    <!-- islands box -->
-    <rect x="14" y="138" width="250" height="86" class="bx" fill="#e8f4ec" stroke="#2e7d4f" stroke-width="1.5"/>
-    <text x="30" y="164" class="tt">Validated islands</text>
-    <text x="30" y="183" class="ss">caesium clock · PHASE.DAT · OPS-SAT</text>
-    <text x="30" y="201" class="ss">DOP · IMU · precise OD · metrics</text>
-    <text x="30" y="218" class="ss">external-oracle backed</text>
-    <!-- honesty layer (spanning) -->
-    <rect x="300" y="30" width="220" height="194" class="bx" fill="#fbf1df" stroke="#b8791b" stroke-width="1.5"/>
-    <text x="410" y="58" class="tt" text-anchor="middle">Honesty framework</text>
-    <text x="410" y="80" class="ss" text-anchor="middle">verification.rs matrix</text>
-    <text x="410" y="100" class="ss" text-anchor="middle">no_overclaims gate</text>
-    <text x="410" y="120" class="ss" text-anchor="middle">representativeness +</text>
-    <text x="410" y="138" class="ss" text-anchor="middle">gaps-to-flight ledger</text>
-    <text x="410" y="166" class="cap" text-anchor="middle">= the A3 compliance</text>
-    <text x="410" y="182" class="cap" text-anchor="middle">proof &amp; the moat</text>
-    <!-- private box -->
-    <rect x="556" y="60" width="250" height="130" class="bx" fill="#efeafb" stroke="#5b3fa3" stroke-width="1.5"/>
-    <text x="572" y="88" class="tt">kshana-pro — bid evidence</text>
-    <text x="572" y="108" class="ss">capability + demonstrator docs</text>
-    <text x="572" y="126" class="ss">dataset catalog · papers</text>
-    <text x="572" y="144" class="ss">SE / PA / TRL dossiers</text>
-    <text x="572" y="166" class="ss">cites islands · never forks engine</text>
-    <!-- ESA box -->
-    <rect x="868" y="78" width="250" height="94" class="bx" fill="#101f3a"/>
-    <text x="884" y="108" class="tt" fill="#f6f4f0">ESA tenders</text>
-    <text x="884" y="130" class="ss" fill="#b9c4d8">AO/1-13503 quantum-PNT</text>
-    <text x="884" y="148" class="ss" fill="#b9c4d8">lunar-PNT · 13494</text>
-    <text x="884" y="166" class="ss" fill="#b9c4d8">as named consortium WP</text>
-    <!-- flows -->
-    <path class="fl" d="M264,76 L300,90"/>
-    <path class="fl" d="M264,176 L300,150"/>
-    <path class="fl" d="M520,120 L556,123"/>
-    <path class="fl" d="M806,125 L868,125"/>
-    <text x="278" y="64" class="cap">feeds</text>
-    <text x="528" y="112" class="cap">underwrites</text>
-    <text x="822" y="116" class="cap">submits</text>
+    <rect x="10" y="26" width="230" height="86" class="bx" fill="#eaf2fb" stroke="#1d6fb8" stroke-width="1.5"/>
+    <text x="26" y="52" class="tt">PUBLIC: kshana engine</text>
+    <text x="26" y="72" class="ss">physics · estimators · detectors</text>
+    <text x="26" y="90" class="ss">3 quantum-PNT areas · reproducible</text>
+    <text x="26" y="106" class="ss">free to read, run, audit</text>
+    <rect x="10" y="130" width="230" height="80" class="bx" fill="#e8f4ec" stroke="#2e7d4f" stroke-width="1.5"/>
+    <text x="26" y="156" class="tt">PUBLIC: validated results</text>
+    <text x="26" y="176" class="ss">real clock · ESA telemetry · orbits</text>
+    <text x="26" y="194" class="ss">checked against the real world</text>
+    <rect x="280" y="30" width="200" height="180" class="bx" fill="#fbf1df" stroke="#b8791b" stroke-width="1.5"/>
+    <text x="380" y="56" class="tt" text-anchor="middle">HONESTY LAYER</text>
+    <text x="380" y="80" class="ss" text-anchor="middle">Validated / Modelled</text>
+    <text x="380" y="98" class="ss" text-anchor="middle">labels + automated gate</text>
+    <text x="380" y="120" class="ss" text-anchor="middle">representativeness +</text>
+    <text x="380" y="138" class="ss" text-anchor="middle">gaps-to-flight ledger</text>
+    <text x="380" y="166" class="cap" text-anchor="middle">underwrites every</text>
+    <text x="380" y="182" class="cap" text-anchor="middle">claim, both sides</text>
+    <rect x="520" y="58" width="220" height="124" class="bx" fill="#efeafb" stroke="#5b3fa3" stroke-width="1.5"/>
+    <text x="536" y="84" class="tt">PRIVATE: kshana-pro</text>
+    <text x="536" y="104" class="ss">bid evidence (cites results)</text>
+    <text x="536" y="122" class="ss">strategy · dataset catalog</text>
+    <text x="536" y="140" class="ss">papers · readiness dossiers</text>
+    <text x="536" y="162" class="ss">pricing · legal · GTM</text>
+    <rect x="788" y="76" width="222" height="88" class="bx" fill="#101f3a"/>
+    <text x="804" y="104" class="tt" fill="#f6f4f0">ESA &amp; customers</text>
+    <text x="804" y="126" class="ss" fill="#b9c4d8">tenders: quantum-PNT, lunar</text>
+    <text x="804" y="144" class="ss" fill="#b9c4d8">paid studies &amp; licences</text>
+    <path class="fl" d="M240,70 L280,86"/>
+    <path class="fl" d="M240,168 L280,150"/>
+    <path class="fl" d="M480,120 L520,120"/>
+    <path class="fl" d="M740,120 L788,120"/>
+    <text x="250" y="60" class="cap">feeds</text>
+    <text x="486" y="112" class="cap">labels</text>
+    <text x="748" y="112" class="cap">submits</text>
   </svg>
+  <div class="cards c2">
+    <div class="card"><h4>What leaves the building (public)</h4><p>The engine, the methods, the validated results. Anyone — including a competitor or an ESA reviewer — can run and verify them. That is the point.</p></div>
+    <div class="card"><h4>What never leaves (private)</h4><p>Tender-specific framing and numbers, the winning strategy, the curated evidence packs, pricing and contracts. None of this is needed to <i>use</i> the engine — only to <i>win with it</i>.</p></div>
+  </div>
+</section>
+
+<!-- 6. QUANTUM AREAS -->
+<section id="quantum">
+  <div class="seclabel"><span class="n">06</span><h2>The three quantum-PNT areas (the heart of the bid)</h2></div>
+  <p>The flagship ESA tender (AO/1-13503) asks whether quantum technology helps PNT in three areas. We built a foundation, then all three areas as runnable scenarios, then one combined study.</p>
+  <div class="qrow">
+    <div class="qside"><div class="t">Foundation</div><div class="s">The shared machinery</div></div>
+    <div class="qcards">
+      <div class="qc"><div class="vt">F1</div><div class="h">Representativeness ledger</div><div class="r">The honesty note every demo carries — what's real, assumed, missing. This is what makes a <i>simulation</i> count as compliant evidence.</div></div>
+      <div class="qc"><div class="vt">F2</div><div class="h">Trade harness</div><div class="r">A uniform "quantum vs classical" scorecard with a Validated/Modelled label on each number.</div></div>
+      <div class="qc"><div class="vt">F3</div><div class="h">Device library</div><div class="r">Error models for quantum clocks and entanglement links, built on public-source parameters.</div></div>
+    </div>
+  </div>
+  <div class="qrow">
+    <div class="qside"><div class="t">Three application areas</div><div class="s">each a runnable scenario</div></div>
+    <div class="qcards">
+      <div class="qc"><div class="vt">A · Timing</div><div class="h">Trusted quantum time transfer</div><code>quantum-time-transfer</code><div class="r">Can a quantum clock + entanglement link keep better, attack-resistant time than a classical clock + radio link? Shows ps-vs-ns timing and detects a delay attack.</div></div>
+      <div class="qc"><div class="vt">B · Navigation</div><div class="h">GNSS-free quantum nav</div><code>quantum-gnss-free-nav</code><div class="r">When GPS is gone, how much longer can a cold-atom navigator hold position vs a normal inertial unit? Shows the holdover advantage.</div></div>
+      <div class="qc"><div class="vt">C · Anomaly</div><div class="h">Fault / anomaly detection</div><code>quantum-anomaly-detect</code><div class="r">Can we spot a failing clock or sensor early? Builds a labelled fault catalogue and scores detection quality (ROC/AUC).</div></div>
+    </div>
+  </div>
+  <div class="qrow">
+    <div class="qside" style="background:var(--brass);color:#23180a"><div class="t">D1 · Unified study</div><div class="s">one evidence pack</div></div>
+    <div class="qcards" style="grid-template-columns:1fr">
+      <div class="qc"><div class="h">quantum-pnt-demonstrator suite</div><div class="r">Bundles areas A + B + C into a single reproducible run; each carries its own honesty ledger. This <i>is</i> the demonstrator we offer ESA.</div></div>
+    </div>
+  </div>
+  <div class="plain"><span class="lbl">In plain words</span>We didn't just claim quantum is better — we built three honest, runnable comparisons that show <i>where</i> it wins, <i>by how much</i>, and <i>what's still unproven</i> before flight. That balanced answer is exactly what the agency is paying to learn.</div>
+</section>
+
+<!-- 7. TENDERS EXPLAINED -->
+<section id="tenders">
+  <div class="seclabel"><span class="n">07</span><h2>ESA tenders, explained from zero</h2></div>
+  <p class="lead">A <b>tender</b> is how a big customer buys work. The <b>European Space Agency (ESA)</b> writes down a need, invites companies to propose how they'd do it, and picks. Winning one funds the work and builds a flight-grade track record.</p>
+
+  <h3>The vocabulary (you'll see these everywhere)</h3>
+  <div class="cards c3">
+    <div class="card"><h4>ITT / AO</h4><p><b>Invitation To Tender</b> / <b>Announcement of Opportunity</b> — the published call. Ours is <code>AO/1-13503</code>.</p></div>
+    <div class="card"><h4>SoW</h4><p><b>Statement of Work</b> — what ESA wants done, broken into requirements (e.g. "§1.5.2: three application areas").</p></div>
+    <div class="card"><h4>Clarifications</h4><p>Official Q&amp;A during the bid window. ESA's answers can <i>change the rules</i> — and ours did, in our favour.</p></div>
+    <div class="card"><h4>Consortium &amp; WP</h4><p>Tenders are usually won by a team (<b>consortium</b>); each partner owns a <b>Work Package</b> (WP). We enter as the software/simulation WP.</p></div>
+    <div class="card"><h4>TRL 1–9</h4><p><b>Technology Readiness Level</b>: 1 = idea, 9 = flown in space. We are honestly around <b>TRL 3</b> (proof-of-concept). Overstating TRL is fatal.</p></div>
+    <div class="card"><h4>ESA-STAR</h4><p>ESA's bidder portal. Our entity (Ashforde OÜ) is registered there, which is required to bid.</p></div>
+  </div>
+
+  <h3>Our flagship: AO/1-13503 "Quantum-Enabled PNT"</h3>
+  <p>ESA wants an independent, credible assessment of whether quantum tech improves PNT across timing, navigation and anomaly detection — feasibility, performance, and operational benefit. Bid deadline: <b>17 Aug 2026</b>.</p>
+
+  <h3>The clarifications — why they hand us the win</h3>
+  <p>During the Q&amp;A, ESA's answers reshaped what counts as a winning bid. Each one plays to a strength we already have:</p>
+  <table>
+    <tr><th style="width:140px">Clarification</th><th>What ESA said (plain)</th><th>Why it helps us</th></tr>
+    <tr><td><b>Clar 1 / A3</b><br><span style="color:#8a8170">the big one</span></td><td>A <b>software simulation</b> is a fully acceptable way to demonstrate feasibility — <i>provided</i> you justify how representative it is and clearly list what's still missing before flight.</td><td>Our <b>representativeness + gaps-to-flight ledger</b> is exactly that, made automatic and machine-checked. Our honesty discipline <i>is</i> the compliance proof.</td></tr>
+    <tr><td><b>Clar 1 / A1</b></td><td>You may focus on a <b>single</b> application area; depth is rewarded.</td><td>We built <b>all three</b> areas deeply — we can lead with any one, or offer the full set.</td></tr>
+    <tr><td><b>Clar 1 / A2</b></td><td>Open competition for <i>critical hardware pre-developments</i> happens before submission.</td><td>We enter as a <b>software/simulation</b> WP, so that hardware gate doesn't block us.</td></tr>
+    <tr><td><b>Clar 3</b></td><td>The product-assurance standard is a <i>reference</i>; an internal PA process is expected.</td><td>Our automated CI gate + the honesty matrix + software bill-of-materials <i>is</i> that internal process.</td></tr>
+    <tr><td><b>Clar 2</b></td><td>The deadline was extended (to 17 Aug 2026).</td><td>More time to deepen the demonstrator and the validated evidence.</td></tr>
+  </table>
+  <div class="ana"><span class="lbl">Analogy</span>Imagine a contest where the judges quietly announce "you're allowed to enter with a detailed scale model instead of a full prototype, as long as you're honest about the model's limits." We are the team that <i>already</i> builds brutally-honest scale models — so the rule change is tailor-made for us.</p></div>
+</section>
+
+<!-- 8. WHAT WE FULFIL -->
+<section id="fulfil">
+  <div class="seclabel"><span class="n">08</span><h2>Exactly what we fulfil</h2></div>
+  <p>Here is the requirement-by-requirement map: what ESA asked for, what Kshana delivers, and the honest status of each.</p>
+  <table>
+    <tr><th>ESA requirement (SoW §1.5.2)</th><th>What Kshana delivers</th><th>Honest status</th></tr>
+    <tr><td>Optical timing / quantum time transfer / secure time dissemination</td><td><code>quantum-time-transfer</code>: quantum clock + entanglement link vs classical, with an attack-detection figure of merit</td><td><span class="ok">Modelled</span> — rides validated clock-stability maths</td></tr>
+    <tr><td>Quantum sensors for spacecraft navigation (GNSS-free)</td><td><code>quantum-gnss-free-nav</code>: cold-atom navigator vs inertial unit over a GPS outage; holdover &amp; observability</td><td><span class="ok">Modelled</span> — rides validated inertial-noise model</td></tr>
+    <tr><td>Fault / anomaly detection for quantum systems</td><td><code>quantum-anomaly-detect</code>: labelled fault catalogue + detection scoring; <b>plus a real-ESA-telemetry validated island</b></td><td><span class="ok">Validated</span> metric on real ESA data; demo Modelled</td></tr>
+    <tr><td>Demonstrate feasibility by simulation (Clar 1/A3)</td><td>The representativeness + gaps-to-flight ledger on every demo</td><td><span class="ok">Built &amp; enforced</span></td></tr>
+    <tr><td>Internal product-assurance process (Clar 3)</td><td>CI gate + honesty matrix + SBOM/supply-chain evidence</td><td><span class="ok">Built &amp; enforced</span></td></tr>
+  </table>
+  <div class="note"><b>How we position it (honestly).</b> We offer a named consortium Work Package delivering the <i>simulation-based feasibility, performance and operational-benefit demonstration</i> — with representativeness justified and gaps-to-flight listed — paired with a hardware partner's lab work. We claim <b>no</b> TRL&nbsp;&gt;&nbsp;3, no flight heritage, no certification, no ESA endorsement. The strength is credibility, openness and reproducibility — not bravado.</div>
+  <h3>The honest gaps (we state them, we don't hide them)</h3>
+  <div class="cards c3">
+    <div class="card"><h4>No space-flown quantum-PNT data exists publicly</h4><p>So flight-level realism is a declared gap, not a claim. Anything space-native stays Modelled.</p></div>
+    <div class="card"><h4>No public quantum-sensor fault labels</h4><p>We validate the detection <i>machinery</i> on real spacecraft telemetry; the quantum-specific fault demo stays Modelled.</p></div>
+    <div class="card"><h4>Hardware is a partner's job</h4><p>We're the simulation &amp; assurance WP. Device maturation belongs to a hardware partner — stated plainly.</p></div>
+  </div>
+</section>
+
+<!-- 9. GLOSSARY -->
+<section id="glossary">
+  <div class="seclabel"><span class="n">09</span><h2>Glossary — every term, in one place</h2></div>
+  <dl class="gloss">
+    <div class="term"><dt>PNT</dt><dd>Positioning, Navigation, Timing — where you are, which way you're going, and the exact time.</dd></div>
+    <div class="term"><dt>GNSS</dt><dd>Global Navigation Satellite System — the satellites behind sat-nav: GPS (US), Galileo (EU), GLONASS (RU), BeiDou (CN).</dd></div>
+    <div class="term"><dt>Atomic clock</dt><dd>A clock that keeps time using atoms; extraordinarily stable. Caesium is today's workhorse; optical/quantum clocks are the next step.</dd></div>
+    <div class="term"><dt>Allan deviation (ADEV)</dt><dd>The standard ruler for clock stability — how much a clock drifts over 1s, 10s, an hour, a day. Lower is better.</dd></div>
+    <div class="term"><dt>Holdover</dt><dd>How long a clock stays accurate after it loses its reference signal. Quantum clocks promise much longer holdover.</dd></div>
+    <div class="term"><dt>Inertial / IMU / INS</dt><dd>Sensors that feel motion (acceleration, rotation) so you can navigate without GPS by "dead-reckoning" — but error grows over time.</dd></div>
+    <div class="term"><dt>Cold-atom interferometer</dt><dd>A quantum sensor measuring acceleration/gravity via the wave behaviour of ultra-cold atoms; can extend GNSS-free navigation.</dd></div>
+    <div class="term"><dt>DOP</dt><dd>Dilution of Precision — how good the satellite geometry is. Spread-out satellites = sharp fix; clustered = fuzzy fix.</dd></div>
+    <div class="term"><dt>RAIM / integrity</dt><dd>The receiver checking itself for bad measurements, and quantifying how much to trust the answer — vital for aviation.</dd></div>
+    <div class="term"><dt>Jamming</dt><dd>Drowning satellite signals in noise so receivers lose lock.</dd></div>
+    <div class="term"><dt>Spoofing</dt><dd>Broadcasting fake satellite signals to trick a receiver into a wrong position or time.</dd></div>
+    <div class="term"><dt>Meaconing</dt><dd>Capturing real signals and rebroadcasting them with a delay to mislead a receiver.</dd></div>
+    <div class="term"><dt>Orbit determination (OD)</dt><dd>Working out a spacecraft's orbit from measurements — essential where there's no GPS (e.g. the Moon).</dd></div>
+    <div class="term"><dt>Ephemeris</dt><dd>The published table of where a satellite is over time.</dd></div>
+    <div class="term"><dt>ROC / AUC</dt><dd>A score (0.5 = coin-flip, 1.0 = perfect) for how well a detector separates "fault" from "normal".</dd></div>
+    <div class="term"><dt>Validated / Modelled</dt><dd>Kshana's honesty labels: checked against real data vs. correct-but-unchecked-against-reality.</dd></div>
+    <div class="term"><dt>Representativeness ledger</dt><dd>The note on each demo stating what's real, what's assumed, and what's missing before flight.</dd></div>
+    <div class="term"><dt>Open-core</dt><dd>A business model: the core engine is open-source; the strategy, evidence and commercial layer are private.</dd></div>
+    <div class="term"><dt>AGPL-3.0</dt><dd>A strong open-source licence; we also sell a separate commercial licence for those who can't use AGPL.</dd></div>
+    <div class="term"><dt>ESA</dt><dd>European Space Agency — Europe's space agency and our target customer.</dd></div>
+    <div class="term"><dt>Tender / ITT / AO</dt><dd>The formal "here's our need, bid for it" process and its published call.</dd></div>
+    <div class="term"><dt>SoW</dt><dd>Statement of Work — the list of what the tender requires.</dd></div>
+    <div class="term"><dt>Consortium / Work Package</dt><dd>A team of companies bidding together; each owns a slice of the work (a WP).</dd></div>
+    <div class="term"><dt>TRL</dt><dd>Technology Readiness Level 1–9 (idea → flown). We are honestly ~3.</dd></div>
+    <div class="term"><dt>Product Assurance (PA)</dt><dd>The quality/safety process a space project must follow; ours is automated in the build.</dd></div>
+    <div class="term"><dt>SBOM</dt><dd>Software Bill of Materials — a complete list of what's inside the software, for supply-chain trust.</dd></div>
+  </dl>
+  <div class="note" style="margin-top:8px"><b>You've now got the whole picture:</b> what PNT is → what Kshana does → why honesty is the advantage → how open kshana and private kshana-pro divide the world → where information flows → the three quantum areas → what an ESA tender is → and exactly which clauses we satisfy. That is genuine expert ground-floor knowledge of both the field and our position in it.</div>
 </section>
 
 </div>
 
 <footer>
   <div class="fwrap">
-    <div class="motto"><span class="dev" translate="no" lang="sa">यतो धर्मस्ततो जयः</span><br><span translate="no">Yato dharmas tato jayaḥ</span></div>
+    <div class="motto"><span class="dev" translate="no" lang="sa">यतो धर्मस्ततो जयः</span><br><span translate="no">Yato dharmas tato jayaḥ</span><br><span style="font-size:12px;color:#9fb0c9">“Where there is righteousness, there is victory.”</span></div>
     <div class="fdis">
       <b style="color:#f6f4f0">Ashforde OÜ</b> · Tallinn · Frankfurt — <a href="mailto:contact@ashforde.org">contact@ashforde.org</a><br>
-      Kshana is an open simulation platform (AGPL-3.0-only; commercial licence available). It models the <i>class</i> of system on illustrative public-source parameters and is <b>not affiliated with ESA</b>. TRL&nbsp;~3 · no flight heritage · no certification · no ESA endorsement. Results are <b>Modelled</b> unless an external-dataset oracle is named (then <b>Validated</b>). PRIVATE internal document — do not publish in the open repo.
+      Kshana is an open simulation platform (AGPL-3.0-only; commercial licence available). It models the <i>class</i> of system on illustrative public-source parameters and is <b>not affiliated with ESA</b>. TRL ~3 · no flight heritage · no certification · no ESA endorsement. Results are <b>Modelled</b> unless an external-dataset oracle is named (then <b>Validated</b>). PRIVATE internal field guide — do not publish in the open repo.
     </div>
   </div>
 </footer>
