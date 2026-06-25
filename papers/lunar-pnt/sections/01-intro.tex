@@ -1,0 +1,34 @@
+% SPDX-License-Identifier: CC-BY-4.0
+\section{Introduction}
+
+Lunar PNT is moving from concept to procurement. ESA's Moonlight initiative will
+field a lunar communications and navigation service (LCNS) from a small
+constellation; a NovaMoon-class lunar geodetic-timing-differential station
+concept brings multi-technique geodesy (VLBI, ranging), joint orbit-and-clock
+determination, lunar reference-frame realisation, lunar timekeeping, and
+differential corrections to the surface; LunaNet and the IOAG are defining
+cross-agency interoperability; and a Coordinated Lunar Time has been called for,
+with its relativistic rate (${\sim}57$~$\mu$s/day faster than
+terrestrial time) now a standards question \citep{petit2010iers}. Every one of
+these rests on the same engineering core: \textbf{determining the orbits and
+clocks of a lunar PNT infrastructure and tying it into a terrestrial or inertial
+reference frame.}
+
+A first-order design question for that core is \emph{observability}: given a set
+of measurement types, which states (positions, clocks, frame parameters) are
+well determined, and which are not? The answer drives architecture --- whether a
+lunar nav service needs Earth-baseline geodetic ties, how many, and how precise.
+Today this question is answered in private, one-off studies whose assumptions are
+neither shared nor reproducible. There is no open, citable tool in which a lunar
+PNT network's observability can be regenerated from a committed scenario, with
+every figure of merit labelled as externally validated or modelled --- the gap
+the kshana program has documented for terrestrial and deep-space PNT
+\citep{baweja2026kshana}, here for the lunar case
+\citep{iiyama2023lupnt,fernandezprades2018reproducibility}.
+
+We contribute (i) an open lunar PNT toolkit (seven modules in the \code{kshana}
+engine) and (ii) one clean, falsifiable observability result obtained with it:
+\textbf{Earth-baseline VLBI restores the observability of a lunar surface
+station's absolute 3-D position in joint orbit-and-clock determination, and does
+so through information rather than observation count, selectively, and only above
+a minimum baseline count.}

@@ -1,0 +1,14 @@
+% SPDX-License-Identifier: CC-BY-4.0
+\section{The open lunar PNT toolkit}
+
+The result above is one finding from a seven-module open lunar suite in
+\code{kshana} \citep{baweja2026kshana}, each a runnable scenario with a
+verification-matrix row: lunar coordinate time (\code{lunar\_time}),
+Earth-baseline lunar geodetic VLBI (\code{lunar\_vlbi}), joint multi-technique
+OD+clock (\code{lunar\_combination}), reference-frame realisation
+(\code{lunar\_frame\_realise}), Moonlight/LCNS-class navigation service-volume
+integrity (\code{lunar\_service}), differential PNT (\code{lunar\_dpnt}), and
+LunaNet/IOAG-aligned CCSDS export (\code{lunar\_interop}). The suite reuses the
+engine's externally-validated terrestrial core (reference frames vs SOFA/ERFA
+\citep{iausofa}; DOP vs \code{gnss\_lib\_py} \citep{knowles2024gnsslibpy}; SGP4
+vs the AIAA/Vallado set \citep{vallado2006}) rather than re-deriving it.
