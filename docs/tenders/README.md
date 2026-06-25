@@ -17,6 +17,12 @@ Internal bid-pursuit material for ESA (and other) tenders involving Kshana / Ash
 | **AO/1-13494/26/NL/RR** | AI &amp; Digital Payload Technologies PNT Demonstrator (FutureNAV, Phases 0/A/B1), €3.5M study, deadline **9 Jul 2026** | Pursue **as consortium SME** — two fundable WPs (NAV-DT performance layer + AI-evaluation testbed); hard gate is securing a seat | [`13494-ai-payload-pnt/`](13494-ai-payload-pnt/) |
 | **AO/1-13503/26/NL/RR** | Quantum-Enabled PNT Demonstrator (FutureNAV C3, Phases 0/A/B1), €3.5M study, deadline **9 Jul 2026** | Pursue **as consortium SME** — hard gate is securing a seat (T7) | [`13503-quantum-pnt/`](13503-quantum-pnt/) |
 
+**Adjacent program-area positioning (not a current AO):**
+
+| Area | What | Status | Folder |
+|--------|------|--------|--------|
+| **Lunar PNT** | Anticipatory fit assets for ESA's lunar PNT programme (Moonlight/LCNS, NovaMoon-class geodetic-timing-differential station, LunaNet/IOAG interop): capability statement + module→need fit map | **Shelf assets, outreach PARKED** pending founder go | [`lunar-pnt/`](lunar-pnt/) |
+
 ## Top-level deliverables (this folder)
 
 - [`INDEX.html`](INDEX.html) — master clickable index of the whole dossier.
