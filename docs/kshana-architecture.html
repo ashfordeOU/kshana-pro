@@ -173,7 +173,7 @@
   <div class="chips">
     <div class="chip"><b>P · N · T</b><span>Position · Navigation · Timing</span></div>
     <div class="chip"><b>124</b><span>engine modules</span></div>
-    <div class="chip"><b>9</b><span>results checked vs real data / trusted tools</span></div>
+    <div class="chip"><b>10</b><span>results checked vs real data / trusted tools</span></div>
     <div class="chip"><b>3</b><span>quantum-PNT areas</span></div>
     <div class="chip"><b>1</b><span>open engine + 1 private edge</span></div>
     <div class="chip"><b>TRL ~3</b><span>modelled · honest by design</span></div>
@@ -259,11 +259,12 @@
   <div class="plain"><span class="lbl">In plain words</span><b>Validated</b> = "we compared our answer to reality and it matched." <b>Modelled</b> = "this is correct textbook physics, but we haven't held it next to a real measurement yet." We <i>never</i> call something Validated to look good. Being openly Modelled where we are Modelled is what makes the Validated claims believable.</div>
 
   <h3>"Validated islands" — results checked against the real world</h3>
-  <p>A <b>validated island</b> is a result we've pinned to an external source of truth. Some islands check against <b>real hardware or real ESA data</b>; others against a <b>trusted independent tool</b> the field already agrees is correct (NIST/Stable32, scikit-learn, SciPy, Stanford's gnss_lib_py) — if our numbers match theirs to a tiny fraction of a percent, our maths is right. The three highlighted below are brand-new real-data checks added in this round.</p>
+  <p>A <b>validated island</b> is a result we've pinned to an external source of truth. Some islands check against <b>real hardware or real ESA data</b>; others against a <b>trusted independent tool</b> the field already agrees is correct (NIST/Stable32, scikit-learn, SciPy, Stanford's gnss_lib_py) — if our numbers match theirs to a tiny fraction of a percent, our maths is right. The four highlighted below are brand-new real-data checks added in this round.</p>
   <div class="isl-grid">
     <div class="isl new"><div class="cap">Allan on a real caesium clock</div><div class="or">A measured 5071A clock vs hydrogen maser (556,990 points) → matches the Stable32 reference across 16 time-scales to ≤0.003%</div><span class="tag fresh">New · real hardware</span></div>
     <div class="isl new"><div class="cap">Allan on the canonical PHASE.DAT</div><div class="or">The reference series everyone tests against → our OADEV/MDEV/TDEV match to ≤0.005% over 139 averaging factors</div><span class="tag fresh">New · reference tool</span></div>
     <div class="isl new"><div class="cap">Anomaly detection on ESA telemetry</div><div class="or">Real ESA OPS-SAT satellite data (open licence) → our scoring matches scikit-learn exactly; a transparent detector finds the labelled anomalies (AUC 0.85). <i>Reproduces the labels — not the OPS-SAT paper's own published score.</i></div><span class="tag fresh">New · real ESA data</span></div>
+    <div class="isl new"><div class="cap">Gravity-map synthesis for GNSS-free nav</div><div class="or">The "map reader" a gravity-aided navigator matches against → reproduces the GRS80 normal-gravity standard (Somigliana) to 3.5e-12; real ICGEM EGM2008 map physical (RMS ≈ 26 mGal). <i>Map-reader code validated; nav fix accuracy stays MODELLED.</i></div><span class="tag fresh">New · ICGEM/GRS80</span></div>
     <div class="isl val"><div class="cap">Clock-stability maths</div><div class="or">vs NIST SP 1065 / Stable32 reference numbers</div><span class="tag">Validated</span></div>
     <div class="isl val"><div class="cap">Detector metrics (ROC/AUC)</div><div class="or">vs scikit-learn — exact match</div><span class="tag">Validated</span></div>
     <div class="isl val"><div class="cap">Satellite-geometry quality (DOP)</div><div class="or">vs Stanford's gnss_lib_py</div><span class="tag">Validated</span></div>
@@ -389,7 +390,7 @@
     <div class="qside"><div class="t">Three application areas</div><div class="s">each a runnable scenario</div></div>
     <div class="qcards">
       <div class="qc"><div class="vt">A · Timing</div><div class="h">Trusted quantum time transfer</div><code>quantum-time-transfer</code><div class="r">Can a quantum clock + entanglement link keep better, attack-resistant time than a classical clock + radio link? Shows ps-vs-ns timing and detects a delay attack.</div></div>
-      <div class="qc"><div class="vt">B · Navigation</div><div class="h">GNSS-free quantum nav</div><code>quantum-gnss-free-nav</code><div class="r">When GPS is gone, how much longer can a cold-atom navigator hold position vs a normal inertial unit? Shows the holdover advantage.</div></div>
+      <div class="qc"><div class="vt">B · Navigation</div><div class="h">GNSS-free quantum nav</div><code>quantum-gnss-free-nav</code><div class="r">When GPS is gone, how much longer can a cold-atom navigator hold position vs a normal inertial unit? Shows the holdover advantage. The gravity-map "map reader" it can match against is now validated against the GRS80 standard (ICGEM island).</div></div>
       <div class="qc"><div class="vt">C · Anomaly</div><div class="h">Fault / anomaly detection</div><code>quantum-anomaly-detect</code><div class="r">Can we spot a failing clock or sensor early? Builds a labelled fault catalogue and scores detection quality (ROC/AUC).</div></div>
     </div>
   </div>

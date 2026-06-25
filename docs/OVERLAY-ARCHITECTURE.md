@@ -16,7 +16,7 @@ seams**. It never copies, vendors, or forks the open engine.
 
 ```
 kshana-pro (private, proprietary)
-  └── depends on ─▶ kshana (public, Apache-2.0)   ← the whole validated engine
+  └── depends on ─▶ kshana (public, AGPL-3.0-only / commercial)  ← the whole validated engine
 ```
 
 Consequence — **superset by construction**:
