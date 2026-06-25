@@ -173,7 +173,7 @@
   <div class="chips">
     <div class="chip"><b>P · N · T</b><span>Position · Navigation · Timing</span></div>
     <div class="chip"><b>124</b><span>engine modules</span></div>
-    <div class="chip"><b>10</b><span>results checked vs real data</span></div>
+    <div class="chip"><b>9</b><span>results checked vs real data / trusted tools</span></div>
     <div class="chip"><b>3</b><span>quantum-PNT areas</span></div>
     <div class="chip"><b>1</b><span>open engine + 1 private edge</span></div>
     <div class="chip"><b>TRL ~3</b><span>modelled · honest by design</span></div>
@@ -204,7 +204,7 @@
   <div class="cards c3">
     <div class="card"><div class="ic">📍</div><h4>Positioning</h4><p>Knowing <i>where</i> something is — latitude, longitude, altitude. Usually from <span class="key">GNSS</span> (satellite signals: GPS, Galileo, GLONASS, BeiDou). Your receiver listens to several satellites and triangulates.</p></div>
     <div class="card"><div class="ic">🧭</div><h4>Navigation</h4><p>Knowing <i>which way</i> and keeping a path over time — velocity, heading, route. When satellites disappear, you "dead-reckon" with onboard <span class="key">inertial</span> sensors that feel motion.</p></div>
-    <div class="card"><div class="ic">⏱️</div><h4>Timing</h4><p>Knowing <i>what time it is</i> to the <b>nanosecond</b> (a billionth of a second). GPS itself is really a clock in the sky; timing also synchronises grids, finance and telecoms.</p></div>
+    <div class="card"><div class="ic">⏱️</div><h4>Timing</h4><p>Knowing <i>what time it is</i> to the <b>nanosecond</b> (a billionth of a second) — and for the best clocks the <b>picosecond</b> (a thousandth of that again, a trillionth of a second). GPS itself is really a clock in the sky; timing also synchronises grids, finance and telecoms.</p></div>
   </div>
 
   <h3>Why timing is secretly the hardest part</h3>
@@ -230,16 +230,16 @@
 
   <h3>What it delivers (the outputs)</h3>
   <div class="cards c3">
-    <div class="card"><div class="ic">▶️</div><h4>Runnable scenarios</h4><p>40+ ready scenario "kinds" — run one and get a result as data (JSON), a chart (SVG) and a human summary. Anyone can reproduce it from the same inputs.</p></div>
+    <div class="card"><div class="ic">▶️</div><h4>Runnable scenarios</h4><p>40+ ready scenario "kinds" — run one and get a result as a data file (JSON), a chart image (SVG) and a plain-English summary. Anyone can reproduce it from the same inputs.</p></div>
     <div class="card"><div class="ic">⚖️</div><h4>Trade studies</h4><p>Quantum-vs-classical head-to-heads: "the quantum clock holds time to 1.2 ps where the classical one drifts to 5.3 ns" — each comparison carries an honesty label.</p></div>
     <div class="card"><div class="ic">📦</div><h4>Evidence packs</h4><p>Bundled, reproducible studies + reports that become the backbone of a research paper or a tender bid.</p></div>
   </div>
 
   <h3>How it works, end to end</h3>
   <div class="steps">
-    <div class="step"><div><span class="sh">You pick a scenario.</span> e.g. <code>quantum-time-transfer</code>, plus inputs (link loss, integration time) and a random seed.</div></div>
-    <div class="step"><div><span class="sh">The engine routes it.</span> A single typed "dispatcher" sends it to the right physics modules (clocks, orbits, detectors…).</div></div>
-    <div class="step"><div><span class="sh">The modules compute.</span> Reusing checked building blocks (the clock-stability maths, the detector statistics, the orbit solver).</div></div>
+    <div class="step"><div><span class="sh">You pick a scenario.</span> e.g. <code>quantum-time-transfer</code>, plus inputs (link loss, integration time) and a <b>random seed</b> — a number that makes a random run repeatable.</div></div>
+    <div class="step"><div><span class="sh">The engine routes it.</span> One tidy switchboard hands your request to the right physics calculators — clocks, orbits, detectors — so every scenario runs the same trusted way.</div></div>
+    <div class="step"><div><span class="sh">The modules compute.</span> The engine's ~124 focused building blocks do the maths, reusing already-checked pieces (clock-stability, detector statistics, the orbit solver).</div></div>
     <div class="step"><div><span class="sh">It returns a result + an honesty record.</span> Numbers, a chart, and a "representativeness" note saying what's real, what's assumed, and what's missing before flight.</div></div>
   </div>
   <div class="plain"><span class="lbl">In plain words</span>Same inputs + same seed + same version → <b>exactly the same answer, every time, on anyone's machine</b>. That reproducibility is what makes the results trustworthy rather than just plausible.</div>
@@ -248,7 +248,7 @@
 <!-- 3. HONESTY ENGINE -->
 <section id="honesty">
   <div class="seclabel"><span class="n">03</span><h2>The honesty engine — why this is the whole game</h2></div>
-  <p class="lead">Most simulators can claim anything. Kshana <b>cannot</b>: it labels every capability, and an automated gate fails the build if a claim isn't backed. This discipline is not paperwork — <b>it is the product's main advantage.</b></p>
+  <p class="lead">Most simulators can claim anything. Kshana <b>cannot</b>: it labels every capability, and an automated check — the <b>CI gate</b>, which runs every time the code changes — fails the build if a claim isn't backed. This discipline is not paperwork — <b>it is the product's main advantage.</b></p>
 
   <h3>Three honesty labels</h3>
   <div class="legend">
@@ -259,17 +259,17 @@
   <div class="plain"><span class="lbl">In plain words</span><b>Validated</b> = "we compared our answer to reality and it matched." <b>Modelled</b> = "this is correct textbook physics, but we haven't held it next to a real measurement yet." We <i>never</i> call something Validated to look good. Being openly Modelled where we are Modelled is what makes the Validated claims believable.</div>
 
   <h3>"Validated islands" — results checked against the real world</h3>
-  <p>A <b>validated island</b> is a result we've pinned to an external source of truth — a real atomic clock, real ESA telemetry, real agency orbits, or a respected reference tool. The three highlighted below are brand-new real-data checks added in this round.</p>
+  <p>A <b>validated island</b> is a result we've pinned to an external source of truth. Some islands check against <b>real hardware or real ESA data</b>; others against a <b>trusted independent tool</b> the field already agrees is correct (NIST/Stable32, scikit-learn, SciPy, Stanford's gnss_lib_py) — if our numbers match theirs to a tiny fraction of a percent, our maths is right. The three highlighted below are brand-new real-data checks added in this round.</p>
   <div class="isl-grid">
     <div class="isl new"><div class="cap">Allan on a real caesium clock</div><div class="or">A measured 5071A clock vs hydrogen maser (556,990 points) → matches the Stable32 reference across 16 time-scales to ≤0.003%</div><span class="tag fresh">New · real hardware</span></div>
     <div class="isl new"><div class="cap">Allan on the canonical PHASE.DAT</div><div class="or">The reference series everyone tests against → our OADEV/MDEV/TDEV match to ≤0.005% over 139 averaging factors</div><span class="tag fresh">New · reference tool</span></div>
-    <div class="isl new"><div class="cap">Anomaly detection on ESA telemetry</div><div class="or">Real ESA OPS-SAT satellite data (open licence) → our scoring matches scikit-learn exactly; detector finds the labelled anomalies (AUC 0.85)</div><span class="tag fresh">New · real ESA data</span></div>
+    <div class="isl new"><div class="cap">Anomaly detection on ESA telemetry</div><div class="or">Real ESA OPS-SAT satellite data (open licence) → our scoring matches scikit-learn exactly; a transparent detector finds the labelled anomalies (AUC 0.85). <i>Reproduces the labels — not the OPS-SAT paper's own published score.</i></div><span class="tag fresh">New · real ESA data</span></div>
     <div class="isl val"><div class="cap">Clock-stability maths</div><div class="or">vs NIST SP 1065 / Stable32 reference numbers</div><span class="tag">Validated</span></div>
     <div class="isl val"><div class="cap">Detector metrics (ROC/AUC)</div><div class="or">vs scikit-learn — exact match</div><span class="tag">Validated</span></div>
     <div class="isl val"><div class="cap">Satellite-geometry quality (DOP)</div><div class="or">vs Stanford's gnss_lib_py</div><span class="tag">Validated</span></div>
     <div class="isl val"><div class="cap">Inertial-sensor noise</div><div class="or">vs a real IMU datasheet + literature</div><span class="tag">Validated</span></div>
     <div class="isl val"><div class="cap">Spacecraft orbit determination</div><div class="or">vs real NASA &amp; ESA orbit data (LRO, Galileo)</div><span class="tag">Validated</span></div>
-    <div class="isl val"><div class="cap">Numerical trade kernels</div><div class="or">vs SciPy — exact match</div><span class="tag">Validated</span></div>
+    <div class="isl val"><div class="cap">Numerical trade kernels</div><div class="or">vs SciPy (NNLS &amp; van-Loan exact; χ² band to &lt;5e-4)</div><span class="tag">Validated</span></div>
   </div>
 
   <h3>The "representativeness + gaps-to-flight" ledger</h3>
@@ -375,7 +375,8 @@
 <!-- 6. QUANTUM AREAS -->
 <section id="quantum">
   <div class="seclabel"><span class="n">06</span><h2>The three quantum-PNT areas (the heart of the bid)</h2></div>
-  <p>The flagship ESA tender (AO/1-13503) asks whether quantum technology helps PNT in three areas. We built a foundation, then all three areas as runnable scenarios, then one combined study.</p>
+  <p><i>New to "tenders"? An ESA <b>tender</b> is simply how the agency buys work; <b>compliant</b> means a bid meets the tender's formal rules. Both are explained from scratch in §7 — read that first if these are new.</i></p>
+  <p>The flagship ESA tender (<b>AO/1-13503</b> — that code is decoded in §7) asks whether quantum technology helps PNT in three areas. We built a foundation, then all three areas as runnable scenarios, then one combined study.</p>
   <div class="qrow">
     <div class="qside"><div class="t">Foundation</div><div class="s">The shared machinery</div></div>
     <div class="qcards">
@@ -436,6 +437,7 @@
 <section id="fulfil">
   <div class="seclabel"><span class="n">08</span><h2>Exactly what we fulfil</h2></div>
   <p>Here is the requirement-by-requirement map: what ESA asked for, what Kshana delivers, and the honest status of each.</p>
+  <div class="plain"><span class="lbl">How to read the status column</span>“<b>Modelled — rides validated X</b>” means the demonstration <i>as a whole</i> is Modelled (textbook physics, not yet checked against real data), but it is built on top of a building block we have already <b>Validated</b> — so its foundation is proven even where the full demo isn't yet. “<b>Figure of merit</b>” = a single headline score; “<b>observability</b>” = whether the available measurements are even enough to pin down the answer.</div>
   <table>
     <tr><th>ESA requirement (SoW §1.5.2)</th><th>What Kshana delivers</th><th>Honest status</th></tr>
     <tr><td>Optical timing / quantum time transfer / secure time dissemination</td><td><code>quantum-time-transfer</code>: quantum clock + entanglement link vs classical, with an attack-detection figure of merit</td><td><span class="ok">Modelled</span> — rides validated clock-stability maths</td></tr>
@@ -483,6 +485,19 @@
     <div class="term"><dt>TRL</dt><dd>Technology Readiness Level 1–9 (idea → flown). We are honestly ~3.</dd></div>
     <div class="term"><dt>Product Assurance (PA)</dt><dd>The quality/safety process a space project must follow; ours is automated in the build.</dd></div>
     <div class="term"><dt>SBOM</dt><dd>Software Bill of Materials — a complete list of what's inside the software, for supply-chain trust.</dd></div>
+    <div class="term"><dt>Nanosecond / picosecond</dt><dd>A billionth (ns) and a trillionth (ps) of a second. A clock error of nanoseconds becomes metres of position error; the best quantum clocks reach picoseconds.</dd></div>
+    <div class="term"><dt>Flight heritage / "before flight"</dt><dd>Proven in actual space operation, not just in the lab or in software. Until something has flown, we keep it Modelled — we never claim flight heritage we don't have.</dd></div>
+    <div class="term"><dt>CI gate</dt><dd>Continuous-Integration gate — an automatic check that runs on every code change and blocks the build if any claim isn't backed by a test.</dd></div>
+    <div class="term"><dt>Compliant / compliance</dt><dd>A bid that satisfies the tender's formal rules and requirements. ESA's clarifications can change what "compliant" means.</dd></div>
+    <div class="term"><dt>Reference tool / oracle</dt><dd>A trusted, independent piece of software the field already agrees is correct (e.g. NIST/Stable32, scikit-learn, SciPy, gnss_lib_py). Matching it to a tiny fraction of a percent proves our maths.</dd></div>
+    <div class="term"><dt>OADEV / MDEV / TDEV</dt><dd>Variants of the Allan-deviation clock-stability ruler (overlapping, modified, and time deviation) — different ways to read the same stability story.</dd></div>
+    <div class="term"><dt>Estimator</dt><dd>An algorithm that infers a best guess (and its uncertainty) from noisy measurements — e.g. a Kalman filter estimating a spacecraft's position.</dd></div>
+    <div class="term"><dt>Figure of merit (FoM)</dt><dd>A single headline number summarising how well something performs.</dd></div>
+    <div class="term"><dt>Observability</dt><dd>Whether the measurements you have are even enough, in principle, to pin down the quantity you want (e.g. position) — independent of how good your algorithm is.</dd></div>
+    <div class="term"><dt>Holdover</dt><dd>How long a clock stays accurate after it loses its reference signal; quantum clocks promise much longer holdover.</dd></div>
+    <div class="term"><dt>Entanglement link</dt><dd>A way to compare two distant clocks using paired quantum particles, in a manner that is very hard for an attacker to fake.</dd></div>
+    <div class="term"><dt>Maser (hydrogen maser)</dt><dd>An extremely stable reference oscillator used as the "gold standard" to measure other clocks against.</dd></div>
+    <div class="term"><dt>JSON / SVG</dt><dd>Common file formats: JSON is structured data (numbers/labels a program can read); SVG is a scalable chart image.</dd></div>
   </dl>
   <div class="note" style="margin-top:8px"><b>You've now got the whole picture:</b> what PNT is → what Kshana does → why honesty is the advantage → how open kshana and private kshana-pro divide the world → where information flows → the three quantum areas → what an ESA tender is → and exactly which clauses we satisfy. That is genuine expert ground-floor knowledge of both the field and our position in it.</div>
 </section>
