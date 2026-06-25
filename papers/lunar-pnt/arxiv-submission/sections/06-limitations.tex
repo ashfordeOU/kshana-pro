@@ -1,0 +1,22 @@
+% SPDX-License-Identifier: CC-BY-4.0
+\section{Limitations}
+
+\begin{itemize}
+  \item \textbf{Simulated closed-loop.} Truth is generated from and recovered
+    through the same observation model. This is an observability study,
+    \textbf{not} a validation against real VLBI or ranging data. It bounds what
+    geometry \emph{can} determine under stated noise, not what a real campaign
+    \emph{will} achieve.
+  \item \textbf{Snapshot, geometric.} No force-model propagation in the solver;
+    no dynamic arc, no unmodelled forces, no real ephemeris or station-coordinate
+    errors, no troposphere/ionosphere/relativistic delay modelling beyond what
+    the observable carries; Earth-orientation polar motion set to zero.
+  \item \textbf{Modelled.} The joint-OD result is modelled with an
+    internal-consistency oracle; only the reused DOP and Earth-orientation
+    kernels are externally validated.
+  \item \textbf{Illustrative parameters.} Constellation and station parameters
+    are illustrative and public-source; the engine \textbf{models the class} of
+    system. It is \textbf{not} Moonlight, LCNS, NovaMoon, or LunaNet, and is
+    \textbf{not affiliated with or endorsed by ESA.} No TRL $>$ 3, no flight
+    heritage, no certification.
+\end{itemize}

@@ -1,0 +1,30 @@
+% SPDX-License-Identifier: CC-BY-4.0
+Lunar positioning, navigation, and timing (PNT) --- ESA's Moonlight/LCNS
+navigation service, a NovaMoon-class lunar geodetic-timing-differential
+reference station, the LunaNet/IOAG interoperability framework, and a defined
+Coordinated Lunar Time --- all rest on determining the orbits and clocks of a
+lunar PNT infrastructure and tying it into a terrestrial/inertial frame. A
+recurring design question is \emph{which measurement types make which states
+observable}. We study one instance of it in an open, reproducible simulator
+\citep{iiyama2023lupnt,baweja2026kshana}: in a snapshot batch fit of a small
+lunar PNT network, lunar-local observables (station-to-satellite ranging,
+inter-satellite ranging, station clock-sync) determine the network's internal
+geometry but leave a lunar surface station's \textbf{absolute} 3-D position
+weakly observable. Adding a single Earth-baseline geodetic Very Long Baseline
+Interferometry (VLBI) observable to the lunar beacon restores it: across a
+200-seed truth/noise ensemble the median recovered station 3-D error falls from
+${\sim}793$~m (range-only) to ${\sim}13$~m, a median improvement factor of
+\textbf{91$\times$} (inter-quartile range 38--208$\times$). We show with a
+controlled sweep that the gain is VLBI \emph{information}, not observation count
+--- degrading the VLBI delay precision at fixed observation count drives the
+median station error overall back toward the range-only level --- and that
+the benefit is \emph{selective}: VLBI sharpens absolute positions and satellite
+clocks but leaves the station clock, already pinned by clock-sync, unchanged. A
+minimum of three Earth stations is required for a full-rank solution. All
+results are deterministic, reproduce from a committed scenario, seed list, and
+engine version, and every figure of merit is labelled validated or modelled.
+This is a simulated closed-loop observability study, not a validation against
+real VLBI or ranging data; we state that as the first-class limitation. The
+toolkit that produces it --- lunar time, VLBI, joint OD+clock, frame
+realisation, navigation service-volume integrity, differential PNT, and
+CCSDS/LunaNet interoperability --- is released open-core.
