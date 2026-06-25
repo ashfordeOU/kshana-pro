@@ -243,7 +243,7 @@ definition of done.
 6. Gate: `cargo fmt --check`, `cargo clippy -D warnings`, full `cargo test` green.
 7. Commit locally, authored `Chakshu Baweja <contact@ashforde.org>`, **no AI/tool attribution, no
    co-author footer, no machine paths**. **Push only when the founder says.**
-8. Banned-text scan before any commit (no `claude`/`anthropic`/`claudecode`/personal email).
+8. Banned-text scan before any commit (no AI-tool/vendor fingerprints — the four forbidden substrings — and no personal email).
 
 ## 7. Public / private split
 

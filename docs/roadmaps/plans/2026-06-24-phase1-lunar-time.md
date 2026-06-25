@@ -175,7 +175,7 @@ d(LTC − TT)/dt ≈ (1/c²) [ (W0_earth − U_moon_self) − <v_rel²>/2 ]
 - [ ] `cargo fmt --all` ; `cargo fmt --all --check`.
 - [ ] `cargo clippy --all-targets -- -D warnings`.
 - [ ] `cargo test -p kshana` (full) → green.
-- [ ] Banned-text scan on staged diff: no `claude`/`anthropic`/`claudecode`/`enterprisehq`.
+- [ ] Banned-text scan on staged diff: no AI-tool/vendor fingerprints (the four forbidden substrings) or personal email.
 - [ ] Stage explicit paths only; commit authored `Chakshu Baweja <contact@ashforde.org>`, no footer.
       **Do not push** until the founder says.
 
