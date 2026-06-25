@@ -13,26 +13,70 @@ core's public, semver-stable trait seams. Every open feature is present *by
 construction*; Pro adds the value that must stay closed.
 
 ```
-        ┌─────────────────────────────────────────────┐
-        │              kshana-pro (private)            │
-        │   L1 twin · L2 resilience · L3 suite (gated) │
-        │   + Pro packs  ── via ExternalPack/ErrorModel│
-        └───────────────────┬─────────────────────────┘
-                            │ depends on (never forks)
-        ┌───────────────────▼─────────────────────────┐
-        │            kshana (open, Apache-2.0)         │
-        │   the whole validated engine + every surface │
-        └─────────────────────────────────────────────┘
+        ┌──────────────────────────────────────────────────────────────┐
+        │                     kshana-pro  (PRIVATE)                      │
+        │                                                                │
+        │  OVERLAY (code)            KNOWLEDGE LAYER (never leaves)       │
+        │  ┌──────────────────┐      ┌──────────────────────────────┐    │
+        │  │ L1 twin          │      │ docs/tenders/  13503·13494·   │    │
+        │  │ L2 resilience 🔒 │      │   lunar  (bid evidence, decks)│    │
+        │  │ L3 suite (gated) │      │ papers/        (arXiv-track)  │    │
+        │  │ + 6 Pro packs    │      │ docs/gtm · docs/strategy      │    │
+        │  │   via ExternalPack│     │ legal/  (licence·NDA·export·  │    │
+        │  │   / ErrorModel   │      │   BIPR·trademark)             │    │
+        │  └────────┬─────────┘      │ docs/kshana-architecture.html │    │
+        │           │                └───────────────┬──────────────┘    │
+        └───────────┼────────────────────────────────┼───────────────────┘
+                    │ depends on (never forks)        │ cites (never copies code)
+        ┌───────────▼─────────────────────────────────▼───────────────────┐
+        │                  kshana  (OPEN, AGPL-3.0-only)                   │
+        │   the whole validated engine + every surface                    │
+        │   · 3 quantum-PNT verticals     · 7 lunar-PNT modules           │
+        │   · representativeness + gaps-to-flight ledger                  │
+        │   · validated-island matrix (verification.rs, honesty gate)     │
+        └──────────────────────────────────────────────────────────────────┘
+
+   Capability flows OUT → open repo.   Evidence · strategy · money stay IN.
+   Every claim, both sides, is underwritten by the VALIDATED / MODELLED
+   honesty labels + the representativeness ledger.
 ```
 
 See [`docs/OVERLAY-ARCHITECTURE.md`](docs/OVERLAY-ARCHITECTURE.md) for the seam map
 and [`legal/`](legal) for IP/NDA/export-control/BIPR/trademark material.
 
 **Tender / bid material** lives under [`docs/tenders/`](docs/tenders/) — the FutureNAV
-pursuit dossier (per-tender briefings, the ECOS/FFP cost volume, the dominance deck,
-and the per-tender / cross-tender deliverables). Start at
-[`docs/tenders/INDEX.html`](docs/tenders/INDEX.html) (or [`docs/tenders/README.md`](docs/tenders/README.md)).
+pursuit dossier covering the flagship **AO/1-13503 Quantum-Enabled PNT** (deadline
+17 Aug 2026), **AO/1-13494 AI & Digital Payload PNT** (9 Jul 2026) and the anticipatory
+**lunar-PNT** assets, plus per-tender briefings, the ECOS/FFP cost volume, the dominance
+deck, and cross-tender deliverables. Start at [`docs/tenders/INDEX.html`](docs/tenders/INDEX.html)
+(or [`docs/tenders/README.md`](docs/tenders/README.md)), and read
+[`docs/kshana-architecture.html`](docs/kshana-architecture.html) first if you're new.
 PRIVATE — never publish any of it to the open kshana repo.
+
+## Repository contents — where to find what
+
+Kshana Pro is two things in one private repo: **(a)** the proprietary Rust **overlay**
+(the `src/` packs, documented below), and **(b)** the **private knowledge layer** — bid
+evidence, research, commercial and strategy material — that turns the open engine into
+won tenders and revenue. The map:
+
+| Area | Path | What's there |
+|------|------|--------------|
+| **Field guide** | [`docs/kshana-architecture.html`](docs/kshana-architecture.html) | From-zero explainer: PNT, the engine, the honesty/validated-island model, the open ⟷ private split, the three quantum-PNT areas, and how we win ESA tenders. Start here if you're new. |
+| **Tender pursuits** | [`docs/tenders/`](docs/tenders/) | All ESA bid material — open [`INDEX.html`](docs/tenders/INDEX.html) / [`README.md`](docs/tenders/README.md). |
+| → Quantum-PNT (flagship) | [`docs/tenders/13503-quantum-pnt/`](docs/tenders/13503-quantum-pnt/) | AO/1-13503 (deadline 17 Aug 2026): pursuit tracker, demonstrator capability across all 3 SoW areas, clarifications audit, SE-verification & software-PA evidence, TRL dossier, the validation-dataset catalog, and the honest security-validation negative. |
+| → AI / digital-payload PNT | [`docs/tenders/13494-ai-payload-pnt/`](docs/tenders/13494-ai-payload-pnt/) | AO/1-13494 (deadline 9 Jul 2026): NAV-DT + AI-eval-testbed work packages. |
+| → Lunar PNT | [`docs/tenders/lunar-pnt/`](docs/tenders/lunar-pnt/) | Anticipatory shelf assets vs Moonlight/LCNS (capability statement + fit map). Outreach PARKED pending founder go. |
+| → Cross-tender + cost | [`docs/tenders/cross-tender/`](docs/tenders/cross-tender/), [`cost-volume/`](docs/tenders/cost-volume/), [`briefings/`](docs/tenders/briefings/) | BIPR/IP posture, D1.1 benefits & D1.4 MRD, the ECOS/FFP cost volume, per-tender briefings, the dominance deck. |
+| **Research papers** | [`papers/`](papers/) | arXiv-track papers (LaTeX + figures + reproducible data) + the open-engine technical report. **arXiv-first** — nothing public until the founder announces. |
+| **Commercial / GTM** | [`docs/gtm/`](docs/gtm/) | ICP & target list, outreach sequence, sales one-pager, qualification/objections. |
+| **Strategy & roadmaps** | [`docs/strategy/`](docs/strategy/), [`docs/roadmaps/`](docs/roadmaps/) | Pricing proposal, productization roadmap, phase plans, the quantum-PNT-13503 and lunar-PNT build roadmaps. |
+| **Legal** | [`legal/`](legal/) | Commercial licence, NDA/SOW/DPA templates, IP policy, export-control determination, BIPR & trademark briefs, counsel-review package. |
+| **The overlay (code)** | [`src/`](src/), [`scenarios/`](scenarios/), [`tests/`](tests/) | The Pro packs + deliverable/deployment modules ([Status](#status--what-is-built-vs-gated)); seam map in [`docs/OVERLAY-ARCHITECTURE.md`](docs/OVERLAY-ARCHITECTURE.md). |
+
+**Visibility rule (non-negotiable):** everything in this repo is **PRIVATE**. Capability
+*code* is mirrored to the open [`kshana`](https://github.com/AshfordeOU/kshana) repo;
+**bid evidence, papers, strategy, commercial and legal material never leave this repo.**
 
 ## Status — what is built vs gated
 
@@ -102,11 +146,37 @@ study/bid needs:
 No gated *capability* is built on spec — only the *frameworks* (runnable on public
 data) and the L2 guard.
 
+### What the embedded open engine now carries (depended-on, not duplicated)
+
+Because Pro is a superset *by construction*, every advance in the open core is present
+here too. Recent open-core capability the bid evidence relies on:
+
+- **The three quantum-PNT demonstrator verticals** (AO/1-13503) — trusted quantum
+  **timing** (optical-clock + entanglement time-transfer), **GNSS-free quantum
+  navigation** (cold-atom interferometer vs nav-grade INS), and **fault/anomaly
+  detection** — each a runnable scenario, bundled into one reproducible study. Capability
+  is open; the bid framing is private (`docs/tenders/13503-quantum-pnt/QUANTUM-DEMONSTRATOR-CAPABILITY.md`).
+- **The representativeness + gaps-to-flight ledger** (`representativeness.rs`) — a
+  machine-checked record on every demonstration (external anchors · modelled assumptions ·
+  gaps-to-flight · representative TRL band). This *is* the Clar 1/A3 compliance mechanism.
+- **The validated-island matrix** (`verification.rs`, honesty-gated), expanded under D2
+  with four new real-data islands: a **real caesium clock** and **Stable32 PHASE.DAT**
+  (Allan estimators), **real ESA OPS-SAT telemetry** (anomaly ROC AUC vs scikit-learn),
+  and **ICGEM/GRS80 gravity-functional synthesis** (gravity-aided nav map). Everything
+  else stays honestly **MODELLED**.
+- **The seven lunar-PNT modules** (lunar time, VLBI, joint OD+clock, frame realisation,
+  nav service, differential PNT, interop export) backing the lunar shelf assets.
+
+No TRL > 3, no flight heritage, no certification, no ESA endorsement — the same honesty
+posture the open core enforces.
+
 ## Build & run
 
 The dev build uses a **path dependency** to the local open-core checkout
-(`../kshana`). For a release build, pin the published crate or a git tag instead
-(see the comment in [`Cargo.toml`](Cargo.toml)).
+(`../kshana`), pinned in **lock-step** with the open core (currently `kshana = "0.20"`).
+For a release build, pin the published crate or a git tag instead (see the comments in
+[`Cargo.toml`](Cargo.toml)). Pro never forks the engine — it embeds it, so the two
+versions move together.
 
 ```bash
 cargo test                       # unit + integration tests (proves the overlay)
@@ -190,10 +260,19 @@ The Pro packs (runnable examples in [`scenarios/`](scenarios)):
 - **Don't build gated *capability* on spec** — the L1/L3 *frameworks* are built and
   run on public data (a BD/bid calling card), but the gated *instances* (a customer
   device twin, a sold SKU) and **all of L2** (legal wall) wait on their triggers.
-- **No GPL/copyleft deps** (breaks the licence model + ESA terms).
+- **No GPL/copyleft third-party deps** (the open core is AGPL-3.0-only / commercial
+  dual-licensed by design; a copyleft *dependency* would break the dual-licence model + ESA terms).
 - **Never commit** NDA / customer / export-controlled material (see `.gitignore`).
+- **Push discipline:** capability *code* mirrors to the open `kshana` repo; **bid evidence,
+  papers, strategy, commercial & legal material stay in this private repo**. Nothing —
+  public or private — is pushed without explicit founder go.
 
-## Trademark
+## Trademark & contact
 
 "Kshana" is a trademark of Ashforde OÜ. A fork of the open engine may use the
-Apache-2.0 code; it may not use the name or the canonical distribution.
+AGPL-3.0-only code; it may not use the name or the canonical distribution.
+
+---
+
+*Ashforde OÜ · all external/business contact: **contact@ashforde.org** · Kshana —
+open AGPL-3.0-only, commercial licence available · PRIVATE overlay: do not distribute.*

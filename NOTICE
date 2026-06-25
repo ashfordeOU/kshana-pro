@@ -1,17 +1,18 @@
 Kshana Pro
 Copyright (c) 2026 Ashforde OÜ. All rights reserved. (Proprietary — see LICENSE.)
 
-This product embeds the open-source Kshana engine:
+This product embeds the Kshana engine, authored and owned by Ashforde OÜ:
 
   kshana — Open, reproducible PNT-resilience simulator
   Copyright (c) Chakshu Baweja / Ashforde OÜ
-  Licensed under the Apache License, Version 2.0
+  Dual-licensed: AGPL-3.0-only (open distribution) OR a commercial licence
   https://github.com/AshfordeOU/kshana
 
-The embedded Kshana engine is and remains Apache-2.0 licensed. Kshana Pro depends
-on it as an unmodified dependency (it does not fork it) and adds proprietary code
-on top. The Apache-2.0 terms apply to the embedded engine; the proprietary terms
-in LICENSE apply to the Kshana Pro overlay code in this repository.
+The open distribution of Kshana is AGPL-3.0-only. Kshana Pro depends on Kshana as an
+unmodified dependency (it does not fork it) and embeds it under Kshana's **commercial
+licence** — Ashforde OÜ owns both the engine and this overlay, so the proprietary
+overlay is not subject to AGPL copyleft. The proprietary terms in LICENSE apply to the
+Kshana Pro overlay code in this repository.
 
 THIRD-PARTY COMPONENTS
 ----------------------
