@@ -17,9 +17,12 @@ contact: **contact@ashforde.org**.
 | **AO/1-13494/26/NL/RR** | AI & Digital Payload Technologies PNT Demonstrator (FutureNAV C3, Phases 0/A/B1) | [`../13494-ai-payload-pnt/`](../13494-ai-payload-pnt/) |
 | **AO/1-13503/26/NL/RR** | Quantum-Enabled PNT Demonstrator (FutureNAV C3, Phases 0/A/B1) | [`../13503-quantum-pnt/`](../13503-quantum-pnt/) |
 
-**Shared facts (both):** close **9 Jul 2026** (esa-star only, no late); same **20/30/30/10/10**
-evaluation; same consortium rule (**≥5 operators incl. prime · ≥3 SMEs · ≥30 % budget to non-LSI ·
-≥€500k via open competition**); same **registered-office-in-a-Participating-State** KAF (by award).
+**Deadlines (NO LONGER shared — diverged 2026-06-25):** **13503 = 17 Aug 2026** (extended from 9 Jul per
+Clarification 2); **13494 = 9 Jul 2026** *(unchanged as far as known — founder to re-confirm on esa-star)*.
+Both esa-star only, no late. **Shared facts (both):** same **20/30/30/10/10** evaluation; same consortium
+rule (**≥5 operators incl. prime · ≥3 SMEs · ≥30 % budget to non-LSI · ≥€500k via open competition**, which
+per 13503 Clar 1/A2 must be **completed before submission** for critical-pre-development subcontractors);
+same **registered-office-in-a-Participating-State** KAF (by award).
 **Bid SEPARATELY — combined proposals are forbidden; keep the two firewalled.**
 
 ## Standing rules (apply to every file in this folder)

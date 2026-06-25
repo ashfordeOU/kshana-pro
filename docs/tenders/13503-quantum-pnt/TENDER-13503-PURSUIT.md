@@ -8,23 +8,28 @@ Never publish in the open kshana repo. Master tracker for the ESA AO/1-13503
 
 **ESA reference:** AO/1-13503/26/NL/RR · FutureNAV, Component 3 · Phases 0 / A / B1
 **Type:** Study contract (FFP), €3.5M, 30 months, up to 2 parallel awards
-**Deadline:** **9 Jul 2026, 13:00 CEST** (esa-star only) · **Q&A by 29 Jun 2026**
+**Deadline:** **17 Aug 2026, 13:00 Amsterdam** (esa-star only) — *extended from 9 Jul per Clarification 2, 19 Jun 2026.*
 **Decision (founder):** pursue **as a consortium SME** (nav-performance / trade-study WP) — **not** as prime.
 **The one hard gate:** **T7 — secure a consortium seat.** No prime → no bid this cycle.
+
+> **📋 Clarifications 1–3 audited 2026-06-25 → [`CLARIFICATIONS-AUDIT.md`](CLARIFICATIONS-AUDIT.md). Net-positive on every count.** Key effects: (Clar 2) **deadline +39 days → 17 Aug** — the old 6-day-short compression is GONE, T7 has a realistic runway; (Clar 1/A1) a **single focused application area is compliant** — anchor on our strongest software-heavy area (secure time dissemination / quantum time transfer, or anomaly detection for quantum systems); (Clar 1/A3) **simulation environments are an explicitly compliant way to demonstrate feasibility/performance/operational benefits** with "representativeness justified + gaps-to-flight identified" = our validated/modelled discipline — **upgrades Kshana from heritage to a requirement-compliant demonstration vehicle**; (Clar 1/A2) open competition for *critical pre-developments* must complete pre-submission (≥€500k/contract) — we enter as a **named consortium WP (Route A)**, not a hardware pre-dev; (Clar 3) **FPD-10031 PA&S is Reference, no SoC required** — our CI/SBOM/SLSA/verification-matrix = the "internal PA process" expected. ⚠ 13494 may still be **9 Jul** — founder to confirm.
 
 > Companion artifacts in this folder: [`gap-audit.html`](gap-audit.html) (the full capability/eligibility audit), [`kshana-capability-brief.md`](kshana-capability-brief.md) (T9), [`technical-contribution.md`](technical-contribution.md) (T12 + SoW compliance matrix), [`ESA-QA-draft.md`](ESA-QA-draft.md) (T3), [`BIPR-declaration.md`](BIPR-declaration.md) (T13), [`consortium-target-map.md`](consortium-target-map.md) (T5 — template, search gated), [`osip-positioning-note.md`](osip-positioning-note.md) (T18), [`software-PA-evidence.md`](software-PA-evidence.md) (T21), [`SE-verification-plan.md`](SE-verification-plan.md) (T22), [`TRL-maturation-dossier.md`](TRL-maturation-dossier.md) (T23).
 
 ---
 
-## Timeline reality (anchored to today, 2026-06-15)
+## Timeline reality (re-baselined 2026-06-25 to the extended deadline)
 
-| Milestone | Date | Days left |
+| Milestone | Date | Days left (from 2026-06-25) |
 |-----------|------|-----------|
-| **Today** | 2026-06-15 | — |
-| Q&A questions close | **2026-06-29** | 14 |
-| **Submission deadline** | **2026-07-09 13:00 CEST** | **24** |
+| **Today** | 2026-06-25 | — |
+| **Submission deadline** | **2026-08-17 13:00 Amsterdam** | **~53** |
 
-⚠ The audit's 30-day plan is ~6 days longer than the real window. Treat the dates below as the **compressed** schedule: the consortium seat (T7) must close by **~29 Jun** or pivot to OSIP (T18). The final compliance review (T16) lands ~6–7 Jul, not "day 28".
+✅ The deadline extension (Clar 2) removes the previous ~6-day-short compression. There is now a
+realistic ~7.5-week runway: the consortium seat (T7) should still close as early as possible (it remains
+the hard gate), but the "seat by ~29 Jun or pivot to OSIP" cliff no longer applies. If a seat is secured,
+the bid-contribution and compliance-review phases (T10–T16) fit comfortably before 17 Aug. The
+decision rule still holds: **no seat → do not force a weak solo bid → pivot to OSIP / future phases.**
 
 ---
 
