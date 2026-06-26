@@ -18,7 +18,8 @@ brief into its proposal's self-assessment / criterion-by-criterion rationale.
 > tenders** — bid **SEPARATELY**, combined proposals are forbidden. The two briefs below are kept
 > firewalled: do not let one tender's content leak into the other's proposal.
 >
-> Ashforde = one SME WP seat, never prime, never a mandated Key Person. Kshana is open **Apache-2.0**,
+> Ashforde = one SME WP seat, never prime, never a mandated Key Person. Kshana is **dual-licensed** —
+> GNU **AGPL-3.0-only** (open track) or a **commercial licence** from Ashforde OÜ —
 > **TRL ~3**, no flight heritage, no certification, no ESA endorsement; claims labelled **validated**
 > (external oracle) or **modelled**. Outreach is **PARKED**.
 
@@ -31,11 +32,11 @@ Programmatic/Engineering quality · 10 % Management & Cost · 10 % Admin & compe
 
 | Weight | Criterion | What Ashforde adds | Direction |
 |---|---|---|---|
-| **20 %** | **Background & experience** | A **validated open core** (Kshana, Apache-2.0) with **five externally-validated islands** — SGP4/SDP4 (AIAA 2006-6753, 4.12 mm) · reference frames & timescales (SOFA/ERFA + Vallado, 0.1–4 mm) · Allan/ADEV (NIST SP 1065 / Stable32 on NBS14, 1e-4) · integrity RAIM/ARAIM (DO-229E/DO-316 + real IGS SP3 / Celestrak TLE) · ranging-code Gold trade (published GPS C/A −23.9 dB) — auditable line-by-line, plus a **DE-nationality SME** record. | ↑ |
+| **20 %** | **Background & experience** | A **validated open core** (Kshana, AGPL-3.0-only + commercial licence) with **five externally-validated islands** — SGP4/SDP4 (AIAA 2006-6753, 4.12 mm) · reference frames & timescales (SOFA/ERFA + Vallado, 0.1–4 mm) · Allan/ADEV (NIST SP 1065 / Stable32 on NBS14, 1e-4) · integrity RAIM/ARAIM (DO-229E/DO-316 + real IGS SP3 / Celestrak TLE) · ranging-code Gold trade (published GPS C/A −23.9 dB) — auditable line-by-line, plus a **DE-nationality SME** record. | ↑ |
 | **30 %** | **Understanding of requirements** | Demonstrated grasp of the NAV-DT achievable-performance question and the RF-impairment problem: a **NAV-DT performance component** (ranging/timing accuracy, availability, integrity, GNSS-denied resilience) and a **detector-agnostic AI/ML RF-impairment evaluation testbed** (ROC/AUC/confusion/Pfa-Pmd, leakage guard, stratified split, distribution-shift optimism report — `impairment_eval`). The corpus is **synthetic/parameter-grounded (not IQ)** — stated honestly. | ↑ |
 | **30 %** | **Programmatic / engineering quality** | The **SE spine**: a machine-checked **verification matrix** (`verification.rs`) that refuses "validated" without an external oracle, an **RTM/MRD** contribution, and an **ECSS-E-ST-10-02 verification cross-reference**; deterministic, scenario-hashed, SBOM-backed reproducibility; software-PA evidence (915+ lib tests, fmt+clippy clean, adversarially reviewed). | ↑ |
 | **10 %** | **Management & cost** | A **fixed-scope, cap-compliant** SME WP that does not need re-costing under budget trims; fee ≤ the KAF cap via the prime's ECOS/PBF route; supporting-role man-hours (founder-gated cost detail — see C04 stub). | ↑ |
-| **10 %** | **Admin & competition compliance** | A **DE-nationality SME** improving the scored consortium composition (≥3 SMEs, ≥30 % non-LSI, DE geo-return — see `sme-quota-geo-return-value.md`); a clean **BIPR** (Apache-2.0 background, no copyleft, SBOM, prior-auth route ready — see `bipr-ip-posture-pack.md`). Registered-office fix in flight, disclosed (founder-gated). | ↑ |
+| **10 %** | **Admin & competition compliance** | A **DE-nationality SME** improving the scored consortium composition (≥3 SMEs, ≥30 % non-LSI, DE geo-return — see `sme-quota-geo-return-value.md`); a clean **BIPR** (Kshana Background IPR, dual-licensed AGPL-3.0-only + commercial; brought in under the **commercial licence** so no copyleft attaches to ESA's/the prime's use, *(commercial-licence grant terms to be confirmed by counsel)*; permissive-only dependency tree, SBOM, prior-auth route ready — see `bipr-ip-posture-pack.md`). Registered-office fix in flight, disclosed (founder-gated). | ↑ |
 
 **Lead line for Brief A:** *auditability of the achievable-performance number* + *a referee-grade
 AI/ML evaluation testbed* — the evidence assets a NAV-DT study must defend at GATEKEEPER and ISRR.
@@ -50,7 +51,7 @@ AI/ML evaluation testbed* — the evidence assets a NAV-DT study must defend at 
 | **30 %** | **Understanding of requirements** | Demonstrated grasp of the **quantum-vs-classical** trade: a trade engine (`quantum_trade`) that ingests a partner's **measured ADEV** (NNLS fit, round-trip-checked), produces a **timing/inertial-holdover benefit table** carrying the floor-assumption caveat, and a **GNSS-denied resilience-vs-time envelope** — it **quantifies** a partner's quantum benefit, it **never validates the device** (stated honestly). Underpinned by a first-principles CAI accelerometer model bracketed (not parity-matched) against Freier 2016. | ↑ |
 | **30 %** | **Programmatic / engineering quality** | The **SE spine**: machine-checked **verification matrix**, **RTM/MRD**, **ECSS-E-ST-10-02 verification cross-reference**; deterministic/scenario-hashed/SBOM reproducibility; software-PA evidence. Same auditable spine as Brief A, applied to the quantum-trade WP. | ↑ |
 | **10 %** | **Management & cost** | A **fixed-scope, cap-compliant** SME WP; fee ≤ KAF cap via the prime's ECOS/PBF route; supporting-role man-hours (founder-gated cost detail — C04 stub). | ↑ |
-| **10 %** | **Admin & competition compliance** | **DE-nationality SME** lifting the scored composition (≥3 SMEs, ≥30 % non-LSI, DE geo-return); clean **BIPR** (Apache-2.0, no copyleft, SBOM, prior-auth route). Mandatory quantum-nav Key Person is **partner-owned** (never Ashforde). Registered-office fix in flight, disclosed (founder-gated). | ↑ |
+| **10 %** | **Admin & competition compliance** | **DE-nationality SME** lifting the scored composition (≥3 SMEs, ≥30 % non-LSI, DE geo-return); clean **BIPR** (Kshana Background IPR, dual-licensed AGPL-3.0-only + commercial; brought in under the **commercial licence** so no copyleft attaches *(grant terms to be confirmed by counsel)*; permissive-only dependency tree, SBOM, prior-auth route). Mandatory quantum-nav Key Person is **partner-owned** (never Ashforde). Registered-office fix in flight, disclosed (founder-gated). | ↑ |
 
 **Lead line for Brief B:** *quantify the quantum benefit without overclaiming the device* — a
 defensible, auditable trade study that survives review precisely because it labels its own
@@ -71,6 +72,6 @@ floor-assumptions and never claims device validation.
 
 ---
 
-*Ashforde OÜ · contact@ashforde.org · Kshana — open Apache-2.0 PNT performance & resilience simulator ·
+*Ashforde OÜ · contact@ashforde.org · Kshana — open-core PNT performance & resilience simulator (AGPL-3.0-only + commercial licence) ·
 TRL ~3, no flight heritage, no certification, no ESA endorsement · claims labelled validated (external oracle)
 or modelled · sister tenders kept firewalled. Prime/partner outreach is PARKED pending explicit founder go.*

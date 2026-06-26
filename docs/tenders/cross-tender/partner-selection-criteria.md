@@ -17,7 +17,8 @@ a team. A **shelf asset**: it defines *what good looks like*, it does not name o
 > actual prime/partner **search and any outreach are FOUNDER-GATED** and parked until the founder
 > says go. Producing this asset does not authorise contacting anyone.
 >
-> Ashforde = one SME WP seat, never prime, never a mandated Key Person. Kshana is open **Apache-2.0**,
+> Ashforde = one SME WP seat, never prime, never a mandated Key Person. Kshana is **dual-licensed**
+> (GNU **AGPL-3.0-only** + a **commercial licence** from Ashforde OÜ),
 > **TRL ~3**, no flight heritage, no certification, no ESA endorsement.
 
 ---
@@ -69,11 +70,14 @@ Applied when the search goes live (founder-gated). In priority order:
 > *Adding Ashforde is a low-friction, score-positive move on metrics you must hit anyway.* Ashforde is
 > a **DE-nationality SME** that fills the SME / non-LSI / DE-geo-return slots at once
 > (`sme-quota-geo-return-value.md`), with a **fixed-scope, cap-compliant** navigation-performance &
-> benefits-case WP that does not need re-costing. Its core, **Kshana**, is **open Apache-2.0** — your
+> benefits-case WP that does not need re-costing. Its core, **Kshana**, is an **open, auditable
+> AGPL-3.0 core** (dual-licensed; commercial licence available) — your
 > chief engineer can audit the achievable-performance claim line-by-line, and its **verification
 > matrix refuses to mark anything "validated" without an external oracle**. For a study that must
 > defend a number to GATEKEEPER and ISRR, that is an evidence asset, not just a quota body. **Clean
-> BIPR** (Apache-2.0 background, no copyleft, SBOM, ESA prior-auth route ready). Ashforde stays in its
+> BIPR** (Kshana Background IPR dual-licensed AGPL-3.0-only + commercial; brought in under the
+> commercial licence so no copyleft attaches *(grant terms to be confirmed by counsel)*;
+> permissive-only dependency tree, SBOM, ESA prior-auth route ready). Ashforde stays in its
 > lane: one WP, never prime, never a Key Person, never your hardware.
 
 **Three points a prime cares about, in order:**
@@ -94,6 +98,6 @@ Applied when the search goes live (founder-gated). In priority order:
 
 ---
 
-*Ashforde OÜ · contact@ashforde.org · Kshana — open Apache-2.0 PNT performance & resilience simulator ·
+*Ashforde OÜ · contact@ashforde.org · Kshana — open-core PNT performance & resilience simulator (AGPL-3.0-only + commercial licence) ·
 one SME WP seat, never prime/never a Key Person · TRL ~3, no flight heritage, no certification, no ESA
 endorsement. NAMES PARKED — archetypes/criteria only; prime/partner outreach is FOUNDER-GATED and PARKED.*

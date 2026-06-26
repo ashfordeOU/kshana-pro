@@ -9,7 +9,7 @@ Contact: contact@ashforde.org
 # The AI-algorithm evaluation testbed — a neutral referee for RF-impairment detectors
 
 **AO/1-13494 · WP-B "Characterisation & Evaluation of ML Techniques" · Ashforde OÜ (consortium SME)**
-**Contact:** contact@ashforde.org · **Engine:** open Apache-2.0 Kshana v0.18.0, `src/impairment_eval.rs`
+**Contact:** contact@ashforde.org · **Engine:** open-core Kshana v0.20.0 (dual-licensed: GNU AGPL-3.0-only + commercial licence), `src/impairment_eval.rs`
 
 ---
 
@@ -49,8 +49,9 @@ do you know you didn't fool yourself?"*
   evidence the SoW asks for — handed over ready, not promised.
 - It is a **neutral referee**: Ashforde scores the consortium's algorithms without competing
   to own them, which removes the conflict a classifier-owning partner would carry.
-- It is **auditable line-by-line**: open Apache-2.0 core, every metric unit-tested and
-  externally validated, every run reproducible from `scenario + seed + engine version`.
+- It is **auditable line-by-line**: open, auditable AGPL-3.0 core (dual-licensed; a commercial licence
+  is available), every metric unit-tested and externally validated, every run reproducible from
+  `scenario + seed + engine version`.
 
 ## Honest boundaries
 

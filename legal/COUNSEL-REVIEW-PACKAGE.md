@@ -152,15 +152,20 @@ relevant draft.
   the proprietary Pro overlay carved out. Confirm the **commercial licence cleanly carves the
   proprietary overlay** from the open-core terms and that the dual-license model is internally
   consistent. (`COMMERCIAL-LICENSE.md` §1, §5; `IP-POLICY.md` §1–§3.)
-- **DISCREPANCY FOR COUNSEL TO RESOLVE — the open-core licence is described inconsistently
-  across the drafts.** `COMMERCIAL-LICENSE.md` (§1, §9) names the open core **AGPL-3.0**, while
-  `IP-POLICY.md` (§1–§3, including an explicit "never merge GPL/AGPL" rule), `SUPPORT-SLA.md`
-  (§4), `BIPR-DECLARATION-TEMPLATE.md` (§B, §D), the repo `NOTICE`, and `README.md` all name the
-  open core **Apache-2.0**. The task framing here describes the open core as **AGPL-3.0-only or
-  commercial**. These cannot all be correct. Counsel must establish the **actual, single open-core
-  licence** and ensure every draft (and the public repo's licensing notice) states it
-  consistently, because the choice drives the dual-license carve-out, the "no copyleft
-  contamination" rule, the ESA Background-IPR declaration, and the customer warranty interaction.
+- **RESOLVED — the open core is AGPL-3.0-only, dual-licensed with a commercial licence.** The
+  earlier inconsistency (some drafts said Apache-2.0, others AGPL-3.0) has been resolved against the
+  live source of truth: the open `kshana` engine was relicensed **Apache-2.0 → AGPL-3.0-only +
+  commercial dual-licence at v0.19.0** (current v0.20.0); the repo `LICENSE` is the GNU AGPL-3.0,
+  `Cargo.toml` carries `license = "AGPL-3.0-only"`, and `LICENSING.md` states the dual-licence terms.
+  The Apache-2.0 references across the bid + legal drafts (`IP-POLICY.md`, `SUPPORT-SLA.md`,
+  `BIPR-DECLARATION-TEMPLATE.md`, the BIPR pack/declaration/route, the tender briefs) have been
+  updated to the **AGPL-3.0-only + commercial** framing, with ESA/the prime routed to the
+  **commercial licence** so no copyleft attaches. **Remaining for counsel:** confirm the
+  **commercial-licence grant terms** (the basis on which the engine enters ESA contracts copyleft-free
+  and the basis of the §2A "primary route" in the BIPR prior-auth doc), that the commercial licence
+  cleanly carves the proprietary overlay from the open-core terms, and the inbound CLA/DCO dual-licence
+  grant for external contributions (`IP-POLICY.md` §3, §7). NB: AGPL-3.0 is network copyleft — the
+  "no copyleft for ESA/the prime" position now rests on the commercial licence, not on the open licence.
 
 ## 5. Prioritized checklists
 
@@ -172,8 +177,10 @@ relevant draft.
       retains engine/overlay/methods/templates (§4.3).
 - [ ] Confirm **DPA adequacy**, residency, sub-processors, retention, and the personal-data
       classification (§4.4).
-- [ ] **Resolve the open-core licence discrepancy** (AGPL-3.0 vs Apache-2.0) and confirm the
-      commercial licence cleanly carves the proprietary overlay (§4.8).
+- [ ] **Confirm the commercial-licence grant terms** for the AGPL-3.0-only open core — the
+      open-core licence discrepancy is resolved (open core = AGPL-3.0-only + commercial); confirm the
+      commercial licence cleanly carves the proprietary overlay and underwrites the copyleft-free
+      "primary route" for ESA/the prime (§4.8).
 - [ ] **Produce / confirm the MSA** as the master contract the SOW attaches to (§4.7).
 - [ ] Review the **EULA, PRICING, DPA, SOW, SUPPORT-SLA, IP-POLICY, and the applicable NDA**
       for internal consistency and cross-references.

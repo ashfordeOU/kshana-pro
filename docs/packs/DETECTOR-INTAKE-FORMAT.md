@@ -1,6 +1,6 @@
 # Kshana Pro — Pack A Detector-Intake Format
 
-> PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+> PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 
 The format a customer uses to submit **their own detector's** scored outputs so we
 compute their *field-vs-bench* (ID-vs-OOD) **optimism gap** with the same engine the

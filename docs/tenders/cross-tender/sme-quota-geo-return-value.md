@@ -34,7 +34,8 @@ Both FutureNAV C3 tenders carry the **same** consortium-composition rule and the
 | Registered-office (KAF, by award) | every operator (incl. each subcontractor) has a **registered office in a Participating State** by award |
 
 **What Ashforde is, honestly:** a **German-nationality SME** in ESA-STAR (held entity record;
-nationality DE), bringing **Kshana** — an open Apache-2.0 PNT-performance-and-resilience
+nationality DE), bringing **Kshana** — a dual-licensed (GNU AGPL-3.0-only + commercial licence)
+open-core PNT-performance-and-resilience
 simulator, **TRL ~3**, **no flight heritage, no certification, no ESA endorsement**, capability
 claims labelled **validated** (external oracle) or **modelled** throughout. Ashforde bids strictly
 as **one SME work-package seat — never prime, never a mandated Key Person.**
@@ -138,15 +139,18 @@ the lowest-friction way to add top-bucket return.
 
 - **Fixed scope, cap-compliant.** Ashforde's WP is bounded and does not need to be re-costed when
   the prime trims the budget — it sits cleanly under the phase caps.
-- **Auditable, not black-box.** Kshana is open Apache-2.0; a prime's chief engineer can verify the
+- **Auditable, not black-box.** Kshana's open AGPL-3.0 core (dual-licensed; commercial licence
+  available) is fully public; a prime's chief engineer can verify the
   performance claim line-by-line (see `audit-the-open-core/`), and the verification matrix refuses
   to label anything "validated" without an external oracle. That is an evidence asset under the
   30 % Understanding/Quality criteria, not just a quota body.
-- **Clean BIPR.** Apache-2.0 background, permissive-only dependency tree, no copyleft — declarable
-  with an SBOM (see `bipr-ip-posture-pack.md` / `bipr-apache2-prior-auth-route.md`).
+- **Clean BIPR.** Kshana Background IPR is dual-licensed (AGPL-3.0-only + commercial); brought in
+  under the **commercial licence**, no copyleft attaches to ESA's/the prime's use *(grant terms to
+  be confirmed by counsel)*. The dependency tree remains permissive-only — declarable
+  with an SBOM (see `bipr-ip-posture-pack.md` / `bipr-prior-auth-route.md`).
 
 ---
 
-*Ashforde OÜ · contact@ashforde.org · Kshana — open Apache-2.0 PNT performance & resilience simulator ·
+*Ashforde OÜ · contact@ashforde.org · Kshana — open-core PNT performance & resilience simulator (AGPL-3.0-only + commercial licence) ·
 TRL ~3, no flight heritage, no certification, no ESA endorsement · capability claims labelled validated
 (external oracle) or modelled. Prime/partner outreach is PARKED pending explicit founder go.*

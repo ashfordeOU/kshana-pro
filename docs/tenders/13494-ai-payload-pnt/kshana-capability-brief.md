@@ -14,7 +14,7 @@ Kshana is **one component of the NAV-DT, not the whole twin.** Ashforde OÜ (sol
 2. **A detector-agnostic AI-algorithm evaluation testbed** — the harness that owns the SoW's *"Characterisation & Evaluation of Machine-Learning Techniques"* line: ROC/AUC, confusion, Pfa/Pmd, leakage guard, stratified split, distribution-shift optimism report — paired with a labelled synthetic RF-impairment scenario generator.
 3. **A machine-checked verification matrix** — the engineering artefact that refuses to mark a requirement "validated" without an external oracle.
 
-Kshana is an open Apache-2.0 Rust core (911+ library tests, fmt + clippy clean, adversarially reviewed) a prime can audit line-by-line. **TRL ~3.** No flight heritage, no agency contracts, no certification — stated plainly.
+Kshana is an open, auditable AGPL-3.0 Rust core — **dual-licensed** (GNU AGPL-3.0-only for the open track, or a commercial licence from Ashforde OÜ), public and auditable line-by-line either way (911+ library tests, fmt + clippy clean, adversarially reviewed) a prime can audit line-by-line. **TRL ~3.** No flight heritage, no agency contracts, no certification — stated plainly.
 
 ---
 
@@ -58,13 +58,13 @@ How a Kshana WP seat raises a prime's scored proposal:
 - **30% — Understanding of requirements & objectives:** Kshana directly instruments the SoW's harder-to-fake lines — *"Characterisation & Evaluation of ML Techniques"*, NAV-DT *achievable-performance assessment + algorithm verification*, and the verification cross-reference — demonstrating depth on the AI-evaluation and performance-prediction objectives.
 - **30% — Quality & suitability of proposed programme:** The verification matrix (refuses "validated" without an external oracle), leakage guard, stratified split, and distribution-shift optimism report are direct, auditable quality/engineering evidence for the PA/QA, SEP, and ECSS-E-ST-10-02 verification approach.
 - **10% — Management, costing, planning:** A single, narrow, fixed-scope SME WP is low-risk to integrate and cost; clear interfaces, no scope creep into partner-owned hardware.
-- **10% — Compliance with administrative tender conditions:** DE nationality in ESA-STAR + SME status mechanically lift consortium-composition scoring (≥3 SMEs, ≥30% non-LSI budget). *Open-source note:* Kshana's Apache-2.0 core requires **ESA prior authorisation** before use under GCC Part II Option A — to be requested by the prime via the BIPR/BIPR-table route; Kshana background IP is declarable.
+- **10% — Compliance with administrative tender conditions:** DE nationality in ESA-STAR + SME status mechanically lift consortium-composition scoring (≥3 SMEs, ≥30% non-LSI budget). *Open-source note:* Kshana is **dual-licensed** (GNU AGPL-3.0-only + a commercial licence). If brought under the open AGPL-3.0 track, OSS prior-authorisation (GCC Part II Option A) applies and AGPL copyleft attaches; Kshana is therefore brought under the **commercial licence** as proprietary Background IPR, which avoids both *(counsel to confirm the treatment)* — declarable by the prime via the BIPR/BIPR-table route.
 
 ---
 
 ## 5. The moat
 
-A **unit-tested verification matrix that refuses to mark anything "validated" without an external oracle**, sitting on an **open Apache-2.0 core a prime can audit line-by-line** — versus the black-box simulators of GMV (magicGNSS / Service Volume Simulator), Qascom (SimSAFE / QA707), M3 Systems (StellaNGC), IFEN (NavX-NCS), Spirent, Safran-Skydel, ANavS. For a Phase 0/A/B1 study whose credibility rests on *defensible* achievable-performance numbers and on proving ML detectors actually generalise, an auditable evaluation testbed that reports its own optimism is a structural differentiator, not a feature.
+A **unit-tested verification matrix that refuses to mark anything "validated" without an external oracle**, sitting on an **open, auditable AGPL-3.0 core a prime can audit line-by-line** (dual-licensed; a commercial licence is available) — versus the black-box simulators of GMV (magicGNSS / Service Volume Simulator), Qascom (SimSAFE / QA707), M3 Systems (StellaNGC), IFEN (NavX-NCS), Spirent, Safran-Skydel, ANavS. For a Phase 0/A/B1 study whose credibility rests on *defensible* achievable-performance numbers and on proving ML detectors actually generalise, an auditable evaluation testbed that reports its own optimism is a structural differentiator, not a feature.
 
 ---
 
@@ -85,4 +85,4 @@ A **unit-tested verification matrix that refuses to mark anything "validated" wi
 *Prime/partner outreach is parked pending explicit founder go. This document defines the asset and the partnering criteria only.*
 
 ---
-*Ashforde OÜ · contact@ashforde.org · Kshana — open Apache-2.0 PNT performance & resilience simulator · capability claims labelled validated (external oracle) or modelled throughout.*
+*Ashforde OÜ · contact@ashforde.org · Kshana — open-core PNT performance & resilience simulator (AGPL-3.0-only + commercial licence) · capability claims labelled validated (external oracle) or modelled throughout.*

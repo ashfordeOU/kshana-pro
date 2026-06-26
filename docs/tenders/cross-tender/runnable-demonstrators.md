@@ -63,9 +63,9 @@ the holdover budget derive honestly. Covers dominance items *measured-ADEV inges
 - **Verification discipline on display.** Both kinds carry MODELLED labels, the optimism
   gap / floor caveat, and live verification-matrix rows; a no-overclaim regression test
   (`tests/dominance_demonstrators.rs`) fails if any of these honesty invariants slips.
-- **Open funnel intact.** Capability lives in the open Apache-2.0 core (the calling
-  card); the Pro overlay adds the bid framing, packaging, and licensed SKUs — never
-  starving the open core.
+- **Open funnel intact.** Capability lives in the open AGPL-3.0 core (dual-licensed;
+  commercial licence available — the calling card); the Pro overlay adds the bid framing,
+  packaging, and licensed SKUs — never starving the open core.
 
 ## 4. What this is NOT
 

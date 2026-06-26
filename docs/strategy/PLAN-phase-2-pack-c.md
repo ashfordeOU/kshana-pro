@@ -62,7 +62,7 @@ scenario hashes are surfaced for full reproducibility.
 TDD: parse valid pack; reject empty id / no entries; `pack_hash` stable across calls;
 hash changes when version or an entry changes; `label()` falls back to path stem.
 
-Header on every new file: `// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.`
+Header on every new file: `// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.`
 
 ## Task C2 — FoM extraction → MetricSet
 

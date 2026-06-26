@@ -9,7 +9,7 @@ For a prime's technical volume / Phase 0/A trade pack. Contact: contact@ashforde
 **Tender:** ESA AO/1-13503/26/NL/RR — *Quantum-Enabled PNT Demonstrator* (FutureNAV C3), Phases 0/A/B1
 **Step:** B03 — cited CAI accelerometer/gyro parameter sheet → bracketed error model
 **Author / owner:** Ashforde OÜ — navigation-performance & quantum-vs-classical trade-study SME (consortium WP contributor)
-**Engine of record:** Kshana PNT-performance simulator, v0.17.0 — module `inertial::cai_params` (open core, Apache-2.0)
+**Engine of record:** Kshana PNT-performance simulator, v0.20.0 — module `inertial::cai_params` (open core, dual-licensed: GNU AGPL-3.0-only + commercial licence)
 **Contact:** contact@ashforde.org
 
 > **HONESTY BANNER (load-bearing — keep it on every face of this artifact).**

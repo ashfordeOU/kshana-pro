@@ -10,7 +10,7 @@ Contact: contact@ashforde.org
 
 **Tender:** ESA AO/1-13494/26/NL/RR — *AI & Digital Payload Technologies PNT Demonstrator* (FutureNAV C3), Phases 0/A/B1, study toward a LEO IOD.
 **Author / owner:** Ashforde OÜ (Chakshu Baweja) — PNT performance & resilience SME (WP-A) + AI-algorithm-evaluation SME (WP-B).
-**Subject system element:** Kshana PNT-performance-and-resilience simulator (open Apache-2.0 core, v0.17.x) — the **NAV-DT achievable-performance component + the AI-algorithm evaluation testbed**, *one component of a partner-led NAV-DT, not the whole twin*.
+**Subject system element:** Kshana PNT-performance-and-resilience simulator (open core, v0.20.x; dual-licensed GNU AGPL-3.0-only + commercial licence) — the **NAV-DT achievable-performance component + the AI-algorithm evaluation testbed**, *one component of a partner-led NAV-DT, not the whole twin*.
 **Reference standards:** ECSS-E-ST-10C (System Engineering general), ECSS-E-ST-10-02 (Verification), ECSS-M-ST-10C (Project planning & lifecycle) — *applied in style, not as contractual deliverables Ashforde has produced before; see §7 residuals.* Tailored ECSS set per FPD-10028 (-10 / -10-02 / -10-03 / -40).
 **Contact:** contact@ashforde.org
 
@@ -326,8 +326,11 @@ Appendix B  Acronyms
    strictly for external-oracle checks; everything else is "modelled". The AI-evaluation corpus is
    **synthetic / parameter-grounded (not IQ)** and bundled detectors are **published-method baselines,
    not SOTA**.
-6. **Open-source authorisation.** Kshana is Apache-2.0 background IP; under GCC Part II Option A, OSS use
-   **needs ESA prior authorisation** — flag for the prime; the BIPR table is mandatory.
+6. **Open-source authorisation.** Kshana is dual-licensed background IP (GNU AGPL-3.0-only + a commercial
+   licence). The OSS prior-auth route + copyleft only bite on the **open (AGPL) track**: if brought under
+   the open AGPL-3.0 track, OSS prior-authorisation (GCC Part II Option A) applies and AGPL copyleft
+   attaches; Kshana is therefore brought under the **commercial licence** as proprietary Background IPR,
+   which avoids both *(counsel to confirm the treatment)* — flag for the prime; the BIPR table is mandatory.
 7. **Consortium-/founder-gated items** (the seat itself, the prime, the real SoW SRD, Key-Personnel CVs,
    costing, and the German registered office) are founder-gated and not pre-drafted here. This plan
    becomes contractually meaningful only inside a secured consortium seat.
