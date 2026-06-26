@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! The `pro-batch` pack — exposes the PR20 parallel Monte-Carlo runner
 //! ([`crate::batch`]) as an out-of-tree [`ExternalPack`]. It fans one base scenario

@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! End-to-end integration for the Pack C CI orchestrator: parse a pack manifest,
 //! run its scenarios through the **real** open engine, and assert the reproducible

@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! Customer-detector **intake** for Pack A — the documented format a customer uses
 //! to submit THEIR detector's scored outputs so we compute their field-vs-bench

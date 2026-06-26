@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! # Licensing & build mechanics (PR7)
 //!
@@ -133,7 +133,7 @@ impl Entitlement {
 
     /// Whether this entitlement permits running `kind` at `now_unix`. Expired
     /// licenses permit nothing. Open (non-`pro-`) kinds are always free and are not
-    /// gated here (Pro embeds the Apache-2.0 engine).
+    /// gated here (Pro embeds the open AGPL-3.0 engine).
     pub fn allows(&self, kind: &str, now_unix: i64) -> bool {
         if !kind.starts_with("pro-") {
             return true; // open features are free

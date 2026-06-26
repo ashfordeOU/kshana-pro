@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! Regenerate the committed **SAMPLE** Pack-A study report (HTML + PDF) that the
 //! Pack-A one-pager (`docs/packs/PACK-A.md`) links to.

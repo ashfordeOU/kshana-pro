@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! Integration tests for the superset dispatcher: a single entry point runs both
 //! Pro packs and (delegated, unchanged) open scenarios. This is the end-to-end

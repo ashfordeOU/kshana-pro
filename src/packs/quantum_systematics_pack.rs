@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! The `pro-quantum-systematics` pack — exposes the PR19 premium-fidelity
 //! quantum-clock systematics budget ([`crate::premium`]) as an [`ExternalPack`].

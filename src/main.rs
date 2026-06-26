@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! `kshana-pro` — the Pro CLI. A thin front end over [`kshana_pro::registry`] that
 //! demonstrates the superset (runs every open scenario AND every Pro pack from one

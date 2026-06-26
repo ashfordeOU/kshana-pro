@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! Tests for the tamper-evident study ledger (P7): a stable per-record hash, a
 //! chain that `verify()`s true untampered, and detection of any mutation to an

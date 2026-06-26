@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! Regenerate the committed **SAMPLE** Pack-C scenario-subscription CI study report
 //! (`docs/packs/sample-scenario-ci-report.html`) that the Pack-C one-pager
