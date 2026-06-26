@@ -14,7 +14,8 @@ into either FutureNAV C3 proposal (AO/1-13494, AO/1-13503) as the SME WP-lead ca
 **Date: 2026-06-16 · Contact: contact@ashforde.org**
 
 > Ashforde bids as **one SME work-package seat — never prime, never a mandated Key Person.** Kshana
-> is an open **Apache-2.0** PNT-performance-and-resilience simulator, **TRL ~3**, no flight heritage,
+> is a **dual-licensed** (GNU **AGPL-3.0-only** + **commercial licence**) open-core
+> PNT-performance-and-resilience simulator, **TRL ~3**, no flight heritage,
 > no certification, no ESA endorsement; capability claims are labelled **validated** (external oracle)
 > or **modelled** throughout. Outreach is **PARKED** — this defines the asset, not a contact.
 
@@ -88,7 +89,8 @@ ground/AI infrastructure — those stay behind the interface on the partner side
 ## 4. Why this WP is a clean fit
 
 - **Bounded & cap-compliant** — fixed scope that does not need re-costing under budget trims.
-- **Auditable** — open Apache-2.0 core a prime's chief engineer can verify line-by-line; the
+- **Auditable** — an open, auditable AGPL-3.0 core (dual-licensed; commercial licence available)
+  a prime's chief engineer can verify line-by-line; the
   verification matrix refuses "validated" without an external oracle.
 - **Reproducible** — deterministic, scenario-hashed, SBOM-backed results an SE/PA reviewer can re-run.
 - **Composition-positive** — a DE-nationality SME filling the SME / non-LSI / DE-geo-return slots
@@ -96,6 +98,6 @@ ground/AI infrastructure — those stay behind the interface on the partner side
 
 ---
 
-*Ashforde OÜ · contact@ashforde.org · Kshana — open Apache-2.0 PNT performance & resilience simulator ·
+*Ashforde OÜ · contact@ashforde.org · Kshana — open-core PNT performance & resilience simulator (AGPL-3.0-only + commercial licence) ·
 mission-analysis & benefits-case WP only · TRL ~3, no flight heritage, no certification, no ESA endorsement ·
 claims labelled validated (external oracle) or modelled. Prime/partner outreach is PARKED pending explicit founder go.*

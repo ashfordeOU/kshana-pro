@@ -25,7 +25,7 @@ Contact: contact@ashforde.org
 
 > **TEMPLATE NOTE.** WP/WBS numbers (`WP-x.y`), man-hours, price and exact phasing are filled by
 > the prime against the issued FPD-10030 SRD and the consortium WBS. Every capability cited is a
-> built, tested module in the open Apache-2.0 Kshana core (v0.17.x; ~915 library `#[test]`
+> built, tested module in the open, auditable AGPL-3.0 Kshana core (dual-licensed; commercial licence available) (v0.20.x; ~915 library `#[test]`
 > functions, fmt + clippy clean) and the `kshana-pro` overlay. **TRL ~3, no flight heritage, no
 > certification, no ESA endorsement.**
 
@@ -94,8 +94,11 @@ answer different SoW questions and can be **costed and scheduled independently**
 > clarification by ~29 Jun 2026); ESA-STAR full registration (Light suffices at submission, full before
 > award); the consortium seat + the partner-owned mandated Key Person; the founder CV / man-hours
 > (supporting role, **not** Key-Personnel); the price; the real SoW FPD-10030 SRD cross-check; and the
-> **BIPR table** (Kshana Apache-2.0 is background IP — OSS use needs **ESA prior authorisation** under
-> GCC Part II Option A; flag to the prime). **Prime/partner outreach is PARKED** until explicit founder go.
+> **BIPR table** (Kshana is dual-licensed GNU AGPL-3.0-only + commercial background IP — if brought under
+> the open AGPL track, OSS prior-authorisation under GCC Part II Option A applies and AGPL copyleft
+> attaches, so Kshana is brought under the **commercial licence** as proprietary Background IPR, which
+> avoids both; *commercial-licence grant terms / treatment to be confirmed by counsel*; flag to the
+> prime). **Prime/partner outreach is PARKED** until explicit founder go.
 
 ---
 

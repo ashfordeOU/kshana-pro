@@ -26,7 +26,8 @@ product being bid. Keep that framing intact.
 > fixed seed, and a pinned engine version, and every figure-of-merit labelled
 > *validated-or-modelled*. The same engine runs natively, from Python, and zero-install in
 > the browser via WebAssembly, and is documented in a Zenodo-archived, citable preprint.
-> It is released open-core under Apache-2.0 with a private, contract-extensible overlay
+> It is released open-core under the GNU AGPL-3.0 (dual-licensed; a commercial licence is
+> available) with a private, contract-extensible overlay
 > (**Kshana Pro**) — evidence both of our engineering depth and of a sustainable model for
 > delivering and maintaining proprietary, export-sensitive work under contract.
 
@@ -66,7 +67,8 @@ assurance discipline carried through to the output format itself.
   established pipelines (RTKLIB, GMAT, Orekit).
 - **Engineering hygiene.** High line-coverage with a CI gate, a CycloneDX SBOM, and SLSA
   build provenance on every release.
-- **Citable and open.** Apache-2.0, archived on Zenodo with a DOI
+- **Citable and open.** Dual-licensed under the GNU AGPL-3.0-only with a commercial licence
+  available, archived on Zenodo with a DOI
   (10.5281/zenodo.20528627) and documented in an arXiv preprint.
 - **Sustainable commercial model.** Open core plus a private overlay (**Kshana Pro**) for
   proprietary and export-sensitive work delivered under NDA and the appropriate clearance —

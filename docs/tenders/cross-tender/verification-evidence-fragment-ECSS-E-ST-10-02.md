@@ -10,7 +10,7 @@ SE-verification-plan.md. Contact: contact@ashforde.org
 
 **Owner:** Ashforde OÜ (Chakshu Baweja) — PNT-performance / resilience + AI-algorithm-evaluation SME.
 **Applies to:** AO/1-13494 (NAV-DT performance / AI-eval WP) **and** AO/1-13503 (quantum-vs-classical trade WP) — the engine evidence is shared; the two bids stay separate.
-**Subject element:** open Apache-2.0 **Kshana v0.18.0** — *one component of a partner-led NAV-DT, not the whole twin*.
+**Subject element:** **Kshana** — dual-licensed (GNU AGPL-3.0-only + commercial licence), open and auditable line-by-line; evidence below generated at **v0.18.0** (re-run against the current validated release line before submission) — *one component of a partner-led NAV-DT, not the whole twin*.
 **Standards:** ECSS-E-ST-10-02 (Verification), applied in style; ECSS-E-ST-10C / ECSS-M-ST-10C lifecycle map in the per-tender [`SE-verification-plan.md`](../13494-ai-payload-pnt/SE-verification-plan.md).
 **Contact:** contact@ashforde.org
 
@@ -96,7 +96,7 @@ Beyond the 8 machine-checked islands, additional analyses are anchored to extern
 2. **The prime owns the VCD.** Ashforde supplies these *inputs*; it does not author or sign the system VCD/RTM and holds no system review (MDR/PRR/ISRR/FR).
 3. **No ECSS formal-deliverable track record yet** — the discipline is applied in style, not as a previously-contracted ESA deliverable.
 4. **TRL & heritage.** Kshana is a simulation/evaluation tool at **TRL ≈ 3** — no flight heritage, no ESA endorsement, no certification. "Validated" is reserved strictly for external-oracle checks.
-5. **Open-source authorisation.** Kshana is Apache-2.0 background IP; OSS use needs ESA prior authorisation (GCC Part II Option A) — flag for the prime; BIPR table mandatory.
+5. **Open-source authorisation.** Kshana is Background IPR, dual-licensed (GNU AGPL-3.0-only + commercial). If brought under the open AGPL-3.0 track, OSS prior-authorisation (GCC Part II Option A) applies and AGPL copyleft attaches; Kshana is therefore brought under the **commercial licence** as proprietary Background IPR, which avoids both. *(Counsel to confirm the treatment.)* Flag for the prime; BIPR table mandatory.
 6. **Founder/consortium-gated:** the seat, the prime, the real SRD, Key-Personnel CVs, and costing are not pre-drafted here.
 
 ---

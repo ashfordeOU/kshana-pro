@@ -18,7 +18,8 @@ founder unparks the search.
 > empty; populate it **only** when the founder says go. Producing this rubric does not authorise
 > contacting anyone. Companion: [`partner-selection-criteria.md`](partner-selection-criteria.md) (C07).
 >
-> Ashforde = one SME WP seat, never prime, never a mandated Key Person. Kshana is open **Apache-2.0**,
+> Ashforde = one SME WP seat, never prime, never a mandated Key Person. Kshana is **dual-licensed**
+> (GNU **AGPL-3.0-only** + a **commercial licence** from Ashforde OÜ),
 > **TRL ~3**, no flight heritage, no certification, no ESA endorsement.
 
 ---
@@ -90,6 +91,6 @@ on a number.
 
 ---
 
-*Ashforde OÜ · contact@ashforde.org · Kshana — open Apache-2.0 PNT performance & resilience simulator ·
+*Ashforde OÜ · contact@ashforde.org · Kshana — open-core PNT performance & resilience simulator (AGPL-3.0-only + commercial licence) ·
 one SME WP seat, never prime/never a Key Person · TRL ~3, no flight heritage, no certification, no ESA
 endorsement. NAMES PARKED — blank candidate table by design; prime/partner outreach is FOUNDER-GATED and PARKED.*

@@ -89,8 +89,8 @@ with a trademark attorney before filing.
 ## 8. After registration
 - Use the mark consistently; mark ™ pre-registration and ® after registration in
   the relevant territory.
-- Record the mark in the open repo's branding/trademark note (code is Apache-2.0;
-  the **name** is reserved) and in `IP-POLICY.md` §5.
+- Record the mark in the open repo's branding/trademark note (code is open-source
+  under the AGPL-3.0; the **name** is reserved) and in `IP-POLICY.md` §5.
 - Watch for infringing forks using the "Kshana" name and enforce as needed.
 
 ## 9. Filing checklist (hand to attorney or use to self-file)

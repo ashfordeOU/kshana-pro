@@ -1,7 +1,7 @@
 <!--
 PRIVATE — Ashforde OÜ internal bid material. kshana-pro repo only; NOT for the open kshana repo.
 Prime-facing trust leave-behind (dominance-plan step A12). Contact: contact@ashforde.org
-Every claim below traces to the PUBLIC Apache-2.0 repo github.com/ashfordeOU/kshana (v0.17.0).
+Every claim below traces to the PUBLIC repo github.com/ashfordeOU/kshana (current: v0.20.x, dual-licensed AGPL-3.0-only + commercial).
 Honest framing only: software-model validation, TRL ~3, no flight heritage, no certification, no agency endorsement.
 -->
 
@@ -9,7 +9,7 @@ Honest framing only: software-model validation, TRL ~3, no flight heritage, no c
 
 **A standing invitation to a prime's chief engineer: take an afternoon and check every claim in our core against the source.**
 
-Every other navigation simulator you will weigh in this competition is a black box — you take its accuracy on faith, and you find out what it cannot do after the contract is signed. Ours is the opposite: the entire navigation-performance engine is public under **Apache-2.0** at **`github.com/ashfordeOU/kshana`** (release **v0.17.0**), and a **machine-checked honesty invariant runs in CI** that makes it *structurally impossible* for us to label a model as a validation. This page is the map that lets you verify that in one sitting.
+Every other navigation simulator you will weigh in this competition is a black box — you take its accuracy on faith, and you find out what it cannot do after the contract is signed. Ours is the opposite: the entire navigation-performance engine is public under the **GNU AGPL-3.0** (dual-licensed; a commercial licence is available) at **`github.com/ashfordeOU/kshana`** (current release **v0.20.x**), and a **machine-checked honesty invariant runs in CI** that makes it *structurally impossible* for us to label a model as a validation. This page is the map that lets you verify that in one sitting. The engine is **Background IPR dual-licensed — GNU AGPL-3.0-only for open use, or a commercial licence from Ashforde OÜ — and is public and auditable line-by-line either way**; under the commercial licence no copyleft attaches to ESA's or the prime's use, while the AGPL governs only the separate open-source track. *(Commercial-licence grant terms to be confirmed by counsel.)*
 
 > **What this document is — and is not.** This is the audit map for the **open core**. It deliberately contains **no** export-sensitive content, **no** proprietary threat libraries, and **no** customer-calibration data — those live behind the legal wall in the private overlay and are not part of what we ask you to audit here. Everything referenced below is in the public repo and runs offline with `cargo test`.
 
@@ -171,4 +171,4 @@ We would rather lose a row than fake one. For the record, in plain language:
 
 ---
 
-*Private — Ashforde OÜ internal bid material. Not for the open repo. All external contact: **contact@ashforde.org**. Public open-core repo: `github.com/ashfordeOU/kshana` (Apache-2.0, v0.17.0).*
+*Private — Ashforde OÜ internal bid material. Not for the open repo. All external contact: **contact@ashforde.org**. Public open-core repo: `github.com/ashfordeOU/kshana` (dual-licensed AGPL-3.0-only + commercial, current v0.20.x).*

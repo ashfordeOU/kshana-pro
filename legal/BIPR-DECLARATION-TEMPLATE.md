@@ -19,7 +19,7 @@ pre-existing engine while granting ESA the usage rights the contract requires.
 
 | # | Background item | Form | Owner | Licence basis | Made available to ESA as |
 |---|-----------------|------|-------|---------------|--------------------------|
-| 1 | **Kshana** — open PNT-resilience simulation engine | Software (Rust/Python/WASM), Apache-2.0 | Ashforde OÜ | Apache-2.0 (public) | Background; used under its open licence |
+| 1 | **Kshana** — open-core PNT-resilience simulation engine | Software (Rust/Python/WASM), dual-licensed | Ashforde OÜ | AGPL-3.0-only or commercial; brought into the contract under the **commercial licence** (counsel to confirm grant terms) | Background; licensed for use in the work |
 | 2 | **Kshana Pro framework** — proprietary overlay framework (extension seams, dispatcher, twin/assurance scaffolding) | Software (proprietary) | Ashforde OÜ | Proprietary; licensed for the contract | Background; licensed for use in the work |
 | 3 | Validation corpus & methodology (public anchors, honesty ledger, reproducibility tooling) | Data + methods | Ashforde OÜ | Mixed (public anchors / proprietary methods) | Background |
 | 4 | [Add any device-twin pipeline IP if pre-existing at contract start] | Software/method | Ashforde OÜ | Proprietary | Background |
@@ -38,9 +38,11 @@ pre-existing engine while granting ESA the usage rights the contract requires.
   ownership. Confirm against the specific contract's IPR Annex.
 
 ## D. Third-party / open-source components
-- The Kshana engine depends only on permissively licensed (non-copyleft)
-  components; a dependency/licence manifest (`deny.toml`-gated in the open repo) is
-  available on request. **No GPL/AGPL/copyleft** components are included.
+- The Kshana engine's **third-party dependencies** are restricted to permissively
+  licensed (non-copyleft) components; a dependency/licence manifest (`deny.toml`-gated
+  in the open repo) is available on request. **No GPL/AGPL/copyleft third-party
+  dependencies** are included. (The engine's own open-track licence is AGPL-3.0; into
+  the contract it is brought under Ashforde's commercial licence — see §B.)
 
 ## E. Declarations
 - The Bidder owns or controls the Background IPR listed in §B and is entitled to

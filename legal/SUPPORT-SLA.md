@@ -61,7 +61,7 @@ For an Enterprise SLA addendum (placeholders — set per contract):
   substantially per its documentation; the sole remedy for a breach is repair,
   replacement, or a pro-rata refund of fees for the affected period.
 - **Disclaimer:** except for the limited warranty, the software is provided **"as
-  is"** (consistent with `LICENSE` and the Apache-2.0 terms of the embedded open
+  is"** (consistent with `LICENSE` and the AGPL-3.0 terms of the embedded open
   engine). **No fitness-for-a-particular-purpose** warranty — Kshana Pro is a
   simulation/analysis tool; the customer is responsible for validating results for
   their use, mission, or certification.
@@ -92,6 +92,6 @@ For an Enterprise SLA addendum (placeholders — set per contract):
 ## 7. Open issues for counsel
 - [ ] Align caps/credits with the standard MSA and the ESA contract terms where Pro
       is delivered as Foreground.
-- [ ] Confirm warranty/indemnity interaction with the embedded Apache-2.0 engine's
+- [ ] Confirm warranty/indemnity interaction with the embedded AGPL-3.0 (dual-licensed) engine's
       "as is" terms.
 - [ ] Jurisdiction/governing law (Estonia vs the DE operative nationality).

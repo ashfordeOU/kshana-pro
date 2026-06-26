@@ -22,7 +22,7 @@ Contact: contact@ashforde.org
 
 Kshana is **{{ONE_LINE_HONEST_IDENTITY}}**. Ashforde OÜ (sole founder, Chakshu Baweja) offers your consortium a single, tightly-scoped SME work-package seat — **{{WP_WE_OWN_SHORT}}** — and nothing more.
 
-We bid strictly as a **consortium-SME work-package contributor — never prime, never a mandated Key Person.** Kshana is an open Apache-2.0 Rust core ({{TEST_COUNT}} library tests, fmt + clippy clean, adversarially reviewed) that {{PRIME_NAME}} can audit line-by-line. **TRL ~3** software-model substrate. **No flight heritage, no agency contracts, no certification, no ESA endorsement** — stated plainly.
+We bid strictly as a **consortium-SME work-package contributor — never prime, never a mandated Key Person.** Kshana is an open, auditable AGPL-3.0 Rust core (dual-licensed; commercial licence available) ({{TEST_COUNT}} library tests, fmt + clippy clean, adversarially reviewed) that {{PRIME_NAME}} can audit line-by-line. **TRL ~3** software-model substrate. **No flight heritage, no agency contracts, no certification, no ESA endorsement** — stated plainly.
 
 ---
 
@@ -62,7 +62,7 @@ Mapped to the FutureNAV evaluation weights **20 / 30 / 30 / 10 / 10** (Backgroun
 
 {{AUDIT_THE_CORE_HOOK}}
 
-The structural differentiator: a **unit-tested verification matrix that refuses to mark any capability "validated" without an independent external oracle** (`src/verification.rs`), sitting on an **open Apache-2.0 core {{PRIME_NAME}} can read line-by-line** — versus the closed simulators in this space ({{INCUMBENT_LIST}}). For a study whose credibility rests on *defensible* numbers, a tool that publishes its own validated-vs-modelled boundary and its own optimism is an evidence asset, not a feature.
+The structural differentiator: a **unit-tested verification matrix that refuses to mark any capability "validated" without an independent external oracle** (`src/verification.rs`), sitting on an **open, auditable AGPL-3.0 core {{PRIME_NAME}} can read line-by-line** — versus the closed simulators in this space ({{INCUMBENT_LIST}}). For a study whose credibility rests on *defensible* numbers, a tool that publishes its own validated-vs-modelled boundary and its own optimism is an evidence asset, not a feature.
 
 ---
 
@@ -87,10 +87,10 @@ Every claim is tagged **validated** (checked against an independent external ora
 
 ## 6. BIPR / IP line (clean, declarable)
 
-- **Background IPR:** Kshana — open **Apache-2.0** PNT-performance-and-resilience engine ({{ENGINE_VERSION}}), owned by Ashforde OÜ. Used as the analysis tool; the **results** (trade reports, FoM tables, scenario bundles) are the deliverables and follow the contract's Foreground-IPR terms.
-- **No copyleft anywhere in the dependency tree** — permissive allow-list (Apache-2.0/MIT/BSD/ISC/Unicode/Zlib/CC0), enforced in CI by `cargo-deny` (`deny.toml`); avoids the open-source contamination risk ESA contracts guard against.
-- **Apache-2.0 prior-authorisation note:** open-source use as a tool may require **ESA prior authorisation** under GCC Part II (Option A); declarable via the prime's BIPR/BIPR-table route. Ashforde supplies the open-source-use declaration (component + repo + release tag + permissive SBOM + no-GPL confirmation).
-- **Foreground / Pro overlay:** a customer/device-specific digital twin would be the first **Kshana Pro** Foreground-IP instance, delivered under the agreed NDA/IPR and any export-control terms — distinct from the Apache-2.0 background engine.
+- **Background IPR:** Kshana — PNT-performance-and-resilience engine ({{ENGINE_VERSION}}), **Background IPR owned by Ashforde OÜ, dual-licensed**: GNU **AGPL-3.0-only** (open track) or a **commercial licence** from Ashforde OÜ. It is brought into the consortium under the **commercial licence**, under which **no copyleft obligation attaches** to ESA's or the prime's use, integration or redistribution — the AGPL governs only the separate open-source track. Used as the analysis tool; the **results** (trade reports, FoM tables, scenario bundles) are the deliverables and follow the contract's Foreground-IPR terms. *(Commercial-licence grant terms to be confirmed by counsel.)*
+- **No copyleft anywhere in the dependency tree** — permissive allow-list (Apache-2.0/MIT/BSD/ISC/Unicode/Zlib/CC0), enforced in CI by `cargo-deny` (`deny.toml`); no third-party copyleft, avoiding the open-source contamination risk ESA contracts guard against.
+- **OSS prior-authorisation note:** if brought under the open AGPL-3.0 track, open-source use as a tool may require **ESA prior authorisation** under GCC Part II (Option A) and AGPL copyleft attaches; Kshana is therefore brought under the **commercial licence** as proprietary Background IPR, which avoids both. Ashforde can still supply the open-source-track declaration (component + repo + release tag + permissive SBOM) where relevant. *(Counsel to confirm the treatment.)*
+- **Foreground / Pro overlay:** a customer/device-specific digital twin would be the first **Kshana Pro** Foreground-IP instance, delivered under the agreed NDA/IPR and any export-control terms — distinct from the dual-licensed (AGPL-3.0 + commercial) background engine.
 
 ---
 
@@ -103,7 +103,7 @@ Every claim is tagged **validated** (checked against an independent external ora
 *Prime/partner outreach is **PARKED** pending explicit founder go. This brief defines the asset only; producing it does not authorise contacting anyone.*
 
 ---
-*Ashforde OÜ · contact@ashforde.org · Kshana — open Apache-2.0 PNT performance & resilience simulator · capability claims labelled validated (external oracle) or modelled throughout · TRL ~3, no flight heritage, no certification, no ESA endorsement.*
+*Ashforde OÜ · contact@ashforde.org · Kshana — open-core PNT performance & resilience simulator (AGPL-3.0-only + commercial licence) · capability claims labelled validated (external oracle) or modelled throughout · TRL ~3, no flight heritage, no certification, no ESA endorsement.*
 
 <!--
 ========================================================================================
@@ -131,7 +131,7 @@ PLACEHOLDER SCHEMA (fill every one; leave none in a rendered brief)
 {{AUDIT_THE_CORE_HOOK}}      Paragraph on the auditable-open-core hook for this tender.
 {{INCUMBENT_LIST}}           The closed-simulator incumbents this WP competes with (honest, code-backed claim only).
 {{CAPABILITY_TABLE_ROWS}}    The validated-or-modelled rows for this tender's WP (pull from CAPABILITY.md / verification.rs).
-{{ENGINE_VERSION}}           Kshana engine version (e.g. v0.17.0).
+{{ENGINE_VERSION}}           Kshana engine version (current bid: v0.20.x — AGPL-3.0-only + commercial dual-licence).
 {{TEST_COUNT}}               Library test count at render time (e.g. 913+).
 ========================================================================================
 -->

@@ -54,8 +54,8 @@ declarations:
 |---|---|---|
 | Compliance with the administrative tender conditions | Ashforde admin-compliance declaration | ▢ to furnish |
 | Compliance with the SoW / technical conditions for its WP | Ashforde technical-compliance declaration (WP scope) | ✅ ready (scope defined) |
-| BIPR / IPR declaration | Apache-2.0 Background-IP declaration + no-copyleft + SBOM + prior-auth route (see `bipr-ip-posture-pack.md`, `bipr-apache2-prior-auth-route.md`, `13503-quantum-pnt/BIPR-declaration.md`) | ✅ ready (asset exists) |
-| Export-control / dual-use statement | Ashforde statement re: the open Apache-2.0 engine (tool, not a controlled article); any device-specific Foreground twin handled under contract export terms | ▢ to furnish (founder confirms) |
+| BIPR / IPR declaration | Background-IP declaration: Kshana dual-licensed AGPL-3.0-only + commercial, brought in under the commercial licence so no copyleft attaches *(grant terms to be confirmed by counsel)* + permissive-only dependency tree + SBOM + prior-auth route (see `bipr-ip-posture-pack.md`, `bipr-prior-auth-route.md`, `13503-quantum-pnt/BIPR-declaration.md`) | ✅ ready (asset exists) |
+| Export-control / dual-use statement | Ashforde statement re: the open, auditable AGPL-3.0 engine (dual-licensed; commercial licence available) (tool, not a controlled article); any device-specific Foreground twin handled under contract export terms | ▢ to furnish (founder confirms) |
 | Conflict-of-interest declaration | No conflict / no undue advantage (mirrors KAF4) | ▢ to furnish |
 | Free-competition / non-affiliation declaration | Mirrors KAF2 where applicable | 🔒 gated on seat |
 | Binding-offer / FFP declaration | Mirrors KAF5/KAF7 | ⏳ founder-gated (price) |
@@ -99,6 +99,6 @@ DE registered-office fix.
 
 ---
 
-*Ashforde OÜ · contact@ashforde.org · Kshana — open Apache-2.0 PNT performance & resilience simulator ·
+*Ashforde OÜ · contact@ashforde.org · Kshana — open-core PNT performance & resilience simulator (AGPL-3.0-only + commercial licence) ·
 TRL ~3, no flight heritage, no certification, no ESA endorsement. No prices fabricated; founder-gated items
 flagged. Prime/partner outreach is PARKED pending explicit founder go.*

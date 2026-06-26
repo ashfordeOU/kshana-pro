@@ -9,7 +9,7 @@ Drop-in for a prime's proposal annex or a teaming pitch. Contact: contact@ashfor
 **Ashforde OÜ** offers a consortium the **navigation-performance and trade-study work
 package** for Phase 0/A: the quantum-vs-classical PNT feasibility core, GNSS-denied
 resilience, mission analysis, and timing architecture — delivered through **Kshana**, our
-open, reproducible PNT-performance-and-resilience simulator (v0.17.0, Apache-2.0). Kshana
+open-core, reproducible PNT-performance-and-resilience simulator (v0.20.0, dual-licensed: GNU AGPL-3.0-only + commercial licence). Kshana
 is a *performance-simulation substrate*, not a spacecraft-systems house or a flight
 product: it answers "how well does this PNT architecture perform, and how does it degrade"
 with validated, reproducible numbers — exactly the evidence Phase 0/A trade studies need.
@@ -97,6 +97,6 @@ interoperating with RTKLIB / GMAT / Orekit pipelines. Documented in an arXiv pre
 - A runnable, citable, openly validated tool a prime can show ESA as a credibility asset.
 
 ---
-*Apache-2.0 open core; a private contract-extensible overlay (Kshana Pro) is available for
-proprietary / export-sensitive work under NDA and the appropriate clearance. All external
-contact via **contact@ashforde.org**.*
+*Open AGPL-3.0 core (dual-licensed; a commercial licence is available from Ashforde OÜ); a private
+contract-extensible overlay (Kshana Pro) is available for proprietary / export-sensitive work under NDA
+and the appropriate clearance. All external contact via **contact@ashforde.org**.*

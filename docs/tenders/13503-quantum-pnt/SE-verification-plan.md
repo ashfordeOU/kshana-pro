@@ -8,7 +8,7 @@ contribution to AO/1-13503. For a prime's SE lead. Contact: contact@ashforde.org
 
 **Tender:** ESA AO/1-13503/26/NL/RR — *Quantum-Enabled PNT Demonstrator* (FutureNAV C3), Phases 0/A/B1, study toward IOD 2030–31
 **Author / owner:** Ashforde OÜ (Chakshu Baweja) — navigation-performance & quantum-vs-classical trade-study SME
-**Subject system element:** Kshana PNT-performance-and-resilience simulator, v0.17.0 (open engine, Apache-2.0)
+**Subject system element:** Kshana PNT-performance-and-resilience simulator, v0.20.0 (open-core engine, dual-licensed: GNU AGPL-3.0-only + commercial licence)
 **Reference standard:** ECSS-E-ST-10-02 (Verification) — *applied in style, not as a contractual deliverable Ashforde has produced before; see §6 residuals*
 **Contact:** contact@ashforde.org
 

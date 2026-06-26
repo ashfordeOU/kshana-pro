@@ -5,7 +5,8 @@
 
 This policy governs how IP is created, owned, and licensed across the open Kshana
 engine and the proprietary Kshana Pro overlay. It exists so that (a) the open core
-stays cleanly Apache-2.0, (b) the proprietary moat stays owned and closed, and
+stays cleanly under the open AGPL-3.0 track (dual-licensed, with a commercial option),
+(b) the proprietary moat stays owned and closed, and
 (c) contract/grant work banks Foreground IP for Ashforde.
 
 ---
@@ -14,7 +15,7 @@ stays cleanly Apache-2.0, (b) the proprietary moat stays owned and closed, and
 
 | | Open Kshana | Kshana Pro |
 |---|---|---|
-| Licence | Apache-2.0 | Proprietary (All rights reserved) |
+| Licence | AGPL-3.0-only + commercial (dual-licensed) | Proprietary (All rights reserved) |
 | Repo | public `AshfordeOU/kshana` | private `kshana-pro` (depends on open) |
 | Contains | validated engine, public anchors, honesty ledger, interchange format, distribution | L1 device twins · L2 export-controlled resilience · L3 trade-study/assurance · enterprise enhancements |
 | Role | Background IPR; the funnel | Foreground/proprietary; the moat |
@@ -38,13 +39,18 @@ is false, it belongs in the open core.
 
 ## 3. Inbound contributions (open core)
 
-- External contributions to the open repo are accepted under the **Apache-2.0
-  inbound=outbound** convention (a contribution is licensed under the project
-  licence). No CLA is required for that model; if a CLA/DCO is later adopted it is
-  a deliberate, documented change.
-- **Never** merge GPL/AGPL/other copyleft code or dependencies into the open core
-  — it would relicense-contaminate the engine and break ESA/Pro terms. The
-  `deny.toml` licence gate in the open repo enforces this in CI.
+- External contributions to the open repo are accepted under the **AGPL-3.0
+  inbound=outbound** convention (a contribution is licensed under the project's open
+  licence), **with contributors also granting Ashforde OÜ the right to include the
+  contribution in the commercially-licensed track** so the dual-licence stays
+  coherent. A lightweight CLA/DCO capturing that dual-licence grant should be adopted
+  before the first sizeable external PR (see §7) — counsel to confirm the form.
+- **Never** merge third-party GPL/AGPL/other copyleft code or dependencies into the
+  open core. Ashforde must hold or be able to grant commercial rights to *all* code in
+  the dual-licensed engine; copyleft third-party code cannot be sublicensed
+  commercially, so it would break the commercial track and the ESA/Pro terms. (This is
+  about *third-party* code — the engine's own open-track licence is AGPL-3.0 by design.)
+  The `deny.toml` licence gate in the open repo enforces this in CI.
 
 ## 4. Customer / partner data
 
@@ -58,7 +64,7 @@ is false, it belongs in the open core.
 ## 5. Trademark
 
 "Kshana" is an Ashforde OÜ trademark (filing in progress — see
-`TRADEMARK-FILING-BRIEF.md`). The Apache-2.0 licence covers the *code*, not the
+`TRADEMARK-FILING-BRIEF.md`). The open-source (AGPL-3.0) licence covers the *code*, not the
 *name*: a fork may use the code, not the Kshana name or the canonical
 distribution. Keep Ashforde the cited author/maintainer in all releases.
 

@@ -39,9 +39,9 @@ Every brief — template and archetypes — carries the same five load-bearing e
 
 1. **The WP we own** (and only that) — fixed-scope SME seat, explicit in/out scope.
 2. **The score-delta sheet** — the 20/30/30/10/10 criteria each marked ↑, plus the consortium-composition arithmetic (DE-SME → ≥3-SME quota + ≥30%-non-LSI + DE geo-return) and the registered-office item disclosed honestly.
-3. **The audit-the-core hook** — the open Apache-2.0 core a prime can read line-by-line + the verification matrix that refuses "validated" without an external oracle, versus the closed-simulator incumbents.
+3. **The audit-the-core hook** — the open, auditable AGPL-3.0 core (dual-licensed; commercial licence available) a prime can read line-by-line + the verification matrix that refuses "validated" without an external oracle, versus the closed-simulator incumbents.
 4. **The validated-or-modelled capability table** — every row tagged **validated** (external oracle) or **modelled**, with the four partner-owned hardware/PA gaps carrying no claim.
-5. **A clean BIPR / IP line** — Apache-2.0 background, no copyleft in the tree, ESA prior-authorisation route, Foreground/Pro split.
+5. **A clean BIPR / IP line** — dual-licensed (AGPL-3.0-only + commercial) background brought in under the commercial licence so no copyleft attaches to ESA/the prime, no copyleft in the dependency tree, OSS prior-authorisation route (open track only), Foreground/Pro split. *(Commercial-licence grant terms to be confirmed by counsel.)*
 
 ## How to use (on founder go)
 

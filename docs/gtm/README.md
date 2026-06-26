@@ -1,4 +1,4 @@
-<!-- PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE. -->
+<!-- PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE. -->
 
 # Pack A — Go-to-Market Kit
 

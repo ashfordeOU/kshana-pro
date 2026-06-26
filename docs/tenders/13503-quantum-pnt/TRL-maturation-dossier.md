@@ -43,7 +43,7 @@ A simulator does not "reach TRL 7". The demonstrator does. Kshana **supports** t
 
 | | Assessment |
 |---|---|
-| **Object** | Kshana — open PNT-performance-and-resilience simulator (v0.17.0, Apache-2.0), plus a private contract-extensible overlay (Kshana Pro) |
+| **Object** | Kshana — open-core PNT-performance-and-resilience simulator (v0.20.0, dual-licensed: GNU AGPL-3.0-only + commercial licence), plus a private contract-extensible overlay (Kshana Pro) |
 | **TRL (the software analysis tool itself)** | **~3–4.** Analytical and experimental proof-of-concept of the modelling, with externally-validated core components; **not** integrated into a relevant operational environment and carrying **no flight heritage** |
 | **What it is** | A neutral, reproducible performance simulator that scores candidate PNT architectures on common figures of merit and labels every result *validated* or *modelled* |
 | **What it is NOT** | A spacecraft-systems house, a hardware-maturation vehicle, an RF/quantum-payload designer, or a flight product. It does not itself climb to TRL 7. |
@@ -207,6 +207,7 @@ These cannot be completed from code and audit alone. They are flagged so this do
 
 ---
 
-*Apache-2.0 open core; a private contract-extensible overlay (Kshana Pro) is available for proprietary /
-export-sensitive work under NDA and the appropriate clearance. Owner: Ashforde OÜ / Chakshu Baweja. All
-external contact via **contact@ashforde.org**.*
+*Open AGPL-3.0 core (dual-licensed; a commercial licence is available from Ashforde OÜ); a private
+contract-extensible overlay (Kshana Pro) is available for proprietary / export-sensitive work under NDA
+and the appropriate clearance. Owner: Ashforde OÜ / Chakshu Baweja. All external contact via
+**contact@ashforde.org**.*

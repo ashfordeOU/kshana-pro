@@ -22,7 +22,7 @@ Contact: contact@ashforde.org
 
 Kshana is **the ground-side performance-and-trade engine that quantifies — never validates — your quantum device's benefit for PNT.** Ashforde OÜ (sole founder, Chakshu Baweja) offers one tightly-scoped SME seat — **the navigation-performance & quantum-vs-classical trade-study WP** — that sits *downstream* of your hardware and turns its measured numbers into scored mission benefit. We do not touch your device, your lab, or your Key-Person role.
 
-We bid strictly as a **consortium-SME work-package contributor — never prime, never a mandated Key Person.** Kshana is an open Apache-2.0 Rust core (913+ library tests, fmt + clippy clean, adversarially reviewed) you and the prime can audit line-by-line. **TRL ~3** software-model substrate. **No flight heritage, no agency contracts, no certification, no ESA endorsement** — stated plainly.
+We bid strictly as a **consortium-SME work-package contributor — never prime, never a mandated Key Person.** Kshana is an open, auditable AGPL-3.0 Rust core (dual-licensed; commercial licence available) (913+ library tests, fmt + clippy clean, adversarially reviewed) you and the prime can audit line-by-line. **TRL ~3** software-model substrate. **No flight heritage, no agency contracts, no certification, no ESA endorsement** — stated plainly.
 
 ---
 
@@ -57,7 +57,7 @@ Mapped to the FutureNAV evaluation weights **20 / 30 / 30 / 10 / 10**.
 
 ## 4. The audit-the-core hook (why us over the black-box incumbents)
 
-A quantum demonstrator's benefit case is only as credible as the engine that computes it. If that engine is a black box, the panel must take the "quantum wins" verdict on trust. Ashforde's engine is **open Apache-2.0, readable line-by-line, reproducible from a committed scenario + fixed seed + pinned version**, and ships a public honest maturity ledger.
+A quantum demonstrator's benefit case is only as credible as the engine that computes it. If that engine is a black box, the panel must take the "quantum wins" verdict on trust. Ashforde's engine is **open AGPL-3.0 (dual-licensed; commercial licence available), readable line-by-line, reproducible from a committed scenario + fixed seed + pinned version**, and ships a public honest maturity ledger.
 
 The structural differentiator: a **unit-tested verification matrix that refuses to mark any capability "validated" without an independent external oracle** (`src/verification.rs`), on an open core — versus the closed simulators in this space (GMV, Qascom, IFEN, ANavS, M3 Systems, Spirent, Safran-Skydel). Critically, the trade engine is built to **quantify, never validate** your device: the numbers are MODELLED with no validation halo, and the trade artifact carries the floor-assumption caveat — exactly the honesty an ESA Phase-0/A trade study rewards, and exactly what keeps your hardware claims yours, cleanly separated from our scoring.
 
@@ -90,10 +90,10 @@ Every claim is tagged **validated** (independent external oracle) or **modelled*
 
 ## 6. BIPR / IP line (clean, declarable)
 
-- **Background IPR:** Kshana — open **Apache-2.0** PNT-performance-and-resilience engine (v0.17.0), owned by Ashforde OÜ. Used as the analysis tool; the **results** are the deliverables under the contract's Foreground-IPR terms.
-- **No copyleft anywhere in the dependency tree** — permissive allow-list (Apache-2.0/MIT/BSD/ISC/Unicode/Zlib/CC0), CI-enforced by `cargo-deny` (`deny.toml`).
-- **Apache-2.0 prior-authorisation note:** open-source use as a tool may require **ESA prior authorisation** under GCC Part II (Option A); declarable via the prime's BIPR/BIPR-table route. Ashforde supplies the open-source-use declaration (component + repo + release tag + permissive SBOM + no-GPL confirmation).
-- **Foreground / Pro overlay:** a **customer/device-specific quantum-payload digital twin** would be the first **Kshana Pro** Foreground-IP instance, delivered under the agreed NDA/IPR and any export-control terms — distinct from the Apache-2.0 background engine, and from your device IP, which stays yours.
+- **Background IPR:** Kshana — PNT-performance-and-resilience engine (current bid: v0.20.x), **Background IPR owned by Ashforde OÜ, dual-licensed**: GNU **AGPL-3.0-only** (open track) or a **commercial licence** from Ashforde OÜ. It is brought into the consortium under the **commercial licence**, under which **no copyleft obligation attaches** to ESA's or the prime's use, integration or redistribution — the AGPL governs only the separate open-source track. Used as the analysis tool; the **results** are the deliverables under the contract's Foreground-IPR terms. *(Commercial-licence grant terms to be confirmed by counsel.)*
+- **No copyleft anywhere in the dependency tree** — permissive allow-list (Apache-2.0/MIT/BSD/ISC/Unicode/Zlib/CC0), CI-enforced by `cargo-deny` (`deny.toml`); no third-party copyleft.
+- **OSS prior-authorisation note:** if brought under the open AGPL-3.0 track, open-source use as a tool may require **ESA prior authorisation** under GCC Part II (Option A) and AGPL copyleft attaches; Kshana is therefore brought under the **commercial licence** as proprietary Background IPR, which avoids both. Ashforde can still supply the open-source-track declaration (component + repo + release tag + permissive SBOM) where relevant. *(Counsel to confirm the treatment.)*
+- **Foreground / Pro overlay:** a **customer/device-specific quantum-payload digital twin** would be the first **Kshana Pro** Foreground-IP instance, delivered under the agreed NDA/IPR and any export-control terms — distinct from the dual-licensed (AGPL-3.0 + commercial) background engine, and from your device IP, which stays yours.
 
 ---
 
@@ -106,4 +106,4 @@ Every claim is tagged **validated** (independent external oracle) or **modelled*
 *Prime/partner outreach is **PARKED** pending explicit founder go. This archetype brief defines the asset only; producing it does not authorise contacting anyone.*
 
 ---
-*Ashforde OÜ · contact@ashforde.org · Kshana — open Apache-2.0 PNT performance & resilience simulator · capability claims labelled validated (external oracle) or modelled throughout · TRL ~3, no flight heritage, no certification, no ESA endorsement.*
+*Ashforde OÜ · contact@ashforde.org · Kshana — open-core PNT performance & resilience simulator (AGPL-3.0-only + commercial licence) · capability claims labelled validated (external oracle) or modelled throughout · TRL ~3, no flight heritage, no certification, no ESA endorsement.*
