@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! **Regression gate** — compare a current [`MetricSet`] against a baseline and
 //! decide pass/fail under per-key relative thresholds.

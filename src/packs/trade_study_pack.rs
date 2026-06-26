@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! The `pro-trade-study` pack — exposes the L3 trade-study & assurance framework
 //! ([`crate::suite`]) as an out-of-tree [`ExternalPack`]. It runs each architecture

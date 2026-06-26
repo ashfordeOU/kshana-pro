@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! No-overclaim regression guard for the mission-analysis deliverables (A15).
 //!

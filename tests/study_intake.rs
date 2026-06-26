@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! Tests for the study-request intake schema + validation + deterministic study id
 //! (P6). The pure `validate` and `study_id` helpers are exercised directly; a small

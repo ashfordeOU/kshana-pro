@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! INVARIANT (A09): the JSON Schema embedded in the SpaceStream ICD is byte-identical
 //! to `spacestream::json_schema()` (emitted by `kshana-pro spacestream --schema`).

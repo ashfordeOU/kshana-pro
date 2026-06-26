@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! INVARIANT (A03 / D1.4): the committed Mission Requirements Document deliverable
 //! is byte-identical to the output of the machine-checked [`kshana_pro::mrd`] table.

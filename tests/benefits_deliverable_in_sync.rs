@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! INVARIANT (A02 / D1.1): the committed benefit-vs-baseline deliverable is
 //! byte-identical to the output of `kshana-pro benefits` (the float-free provenance

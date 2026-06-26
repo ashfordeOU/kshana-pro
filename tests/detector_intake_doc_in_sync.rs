@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! INVARIANT: the worked example in `docs/packs/DETECTOR-INTAKE-FORMAT.md` is the
 //! exact output of [`kshana_pro::packs::detector_intake`]. The doc shows a customer

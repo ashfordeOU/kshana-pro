@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! The `pro-twin` pack — exposes the L1 twin-calibration framework
 //! ([`crate::twin`]) as an out-of-tree [`ExternalPack`]. It calibrates a clock twin

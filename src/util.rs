@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! Small shared helpers used across Pro packs: JSON metric extraction, scenario
 //! seed injection, and percentiles. Kept dependency-light and pure.

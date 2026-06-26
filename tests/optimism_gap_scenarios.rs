@@ -1,4 +1,4 @@
-// PROPRIETARY — Kshana Pro overlay. NOT Apache-2.0. See LICENSE.
+// PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! INVARIANT: the committed Pack-A scenario templates parse and run through the
 //! superset dispatcher / open optimism-gap engine without error, and they carry the
