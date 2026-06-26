@@ -21,7 +21,7 @@ construction*; Pro adds the value that must stay closed.
         │  │ L1 twin          │      │ docs/tenders/  13503·13494·   │    │
         │  │ L2 resilience 🔒 │      │   lunar  (bid evidence, decks)│    │
         │  │ L3 suite (gated) │      │ papers/        (arXiv-track)  │    │
-        │  │ + 6 Pro packs    │      │ docs/gtm · docs/strategy      │    │
+        │  │ + 7 Pro packs    │      │ docs/gtm · docs/strategy      │    │
         │  │   via ExternalPack│     │ legal/  (licence·NDA·export·  │    │
         │  │   / ErrorModel   │      │   BIPR·trademark)             │    │
         │  └────────┬─────────┘      │ docs/kshana-architecture.html │    │
@@ -80,9 +80,9 @@ won tenders and revenue. The map:
 
 ## Status — what is built vs gated
 
-The overlay is well past its P0 seam: **six Pro packs** are built and tested on
-public data across the L1 and L3 value layers, plus the deliverable and deployment
-modules listed below. What stays **gated** is never a *framework* — it is the
+The overlay is well past its P0 seam: **seven Pro packs** (plus the **Pack C**
+scenario-CI subscription product) are built and tested on public data across the
+P0 / L1 / L3 value layers, plus the deliverable and deployment modules listed below. What stays **gated** is never a *framework* — it is the
 *instance* that needs private data, export clearance, or a signed customer: a real
 customer-device twin, the export-controlled L2 threat models, and the productised
 ECSS/MBSE SKU. The honest line is **framework (built) vs gated instance (not built
@@ -99,8 +99,10 @@ Each runs on public data; the tier shown is the licence required to *run* it (se
 | `pro-twin` | L1 | Calibrates a clock twin to a device's *published* Allan budget; validates reproduction with the open-core Allan estimator | Pro | ✅ framework demonstrator (customer-device instance gated) |
 | `pro-quantum-systematics` | L1 | Optical-clock systematic frequency-shift budget (BBR, gravitational redshift, Zeeman, extras) + uncertainty floor — formulas built, species coefficients are *cited inputs*, never baked in | Pro | ✅ framework demonstrator |
 | `pro-trade-study` | L3 | Runs architecture variants through the embedded open engine, ranks them on a figure of merit, emits an audit-grade evidence pack with reproducible scenario hashes | Pro | ✅ framework demonstrator (licensed SKU gated) |
+| `pro-optimism-gap-audit` | Pack A | The in- vs out-of-distribution **optimism-gap audit** packaged as a sold study: ingests a customer detector through the open-core eval testbed, scores the ID→OOD degradation, and emits the branded Pack A report (`report_pack_a` + `packs::detector_intake`) | Pro | ✅ built + tested |
 | `pro-mbse` | L3 | ECSS/MBSE artifact generator: requirements → margins table + traceability CSV + ReqIF-lite XML (DOORS/Polarion-importable) | Enterprise | ✅ framework demonstrator (product SKU gated) |
 | `pro-batch` | scale | Parallel Monte-Carlo runner: fans one base scenario across many seeds concurrently, aggregates a figure of merit (mean/std/min/max/p05/p95) | Enterprise | ✅ built + tested |
+| `pro-scenario-ci` | Pack C | The **scenario-subscription CI** product (run via `kshana-pro ci`): a manifest of scenarios + metric thresholds gated against a rolling baseline (the JSON output doubles as the next run's baseline), emitting the branded Pack C regression report (`pack_c::{manifest,metrics,gate,run}` + `report_pack_c`) | Pro | ✅ built + tested |
 
 ### Layer attach points & gates
 
@@ -121,6 +123,12 @@ study/bid needs:
 - **`report`** (A11) — one renderer (Markdown / HTML / SVG / JSON) over the NAV-DT
   bundle + trade-study evidence + RF-impairment evaluation, MODELLED/VALIDATED labels
   carried through.
+- **`pro_study` · `study_ledger` · `report_pdf` / `report_brand` / `report_pack_a` /
+  `report_pack_c`** — the study → delivery pipeline. `pro_study` composes one branded
+  cover + a single MODELLED banner + N pack sections (with the `report_brand` furniture);
+  `report_pdf` renders a pure-Rust PDF; `study_ledger` appends a hash-chained,
+  tamper-evident delivery record (request → run → delivered; `verify()` catches any
+  alteration); `report_pack_a` / `report_pack_c` render the Pack A / Pack C study faces.
 - **`mrd`** (A03 / D1.4) — machine-checked Mission-Requirements skeleton mapping each
   PNT requirement to the tender's figure-of-merit vocabulary; guards position-domain
   FoMs as `PartnerFollowOn`.
@@ -129,8 +137,9 @@ study/bid needs:
 - **`connectors`** (PR21) — STK `.e` (km, J2000/GCRS) + universal CSV exporters, the
   SpaceStream NAV-DT metrics codec, and a CI metric gate (dot-path metric, non-zero exit).
 - **`serve`** (PR22) — a dependency-light, std-only blocking HTTP/1.1 service
-  (`/health`, `/version`, `/kinds`, `POST /run`) for on-prem / air-gapped / sovereign /
-  hosted deployment, entitlement-gated.
+  (`GET /health` · `/version` · `/kinds`; `POST /run` · `POST /study`) for on-prem /
+  air-gapped / sovereign / hosted deployment, entitlement-gated and **fail-closed**
+  (open engine + free seam-check at Evaluation until a license token is supplied).
 - **`license`** (PR7) — the tier mechanics: HMAC-SHA256 tokens, fail-closed Evaluation
   default, per-`kind` tier mapping.
 
@@ -210,8 +219,9 @@ cargo run -- run scenarios/batch-clock-mc.toml --license "$TOK"  # DENIED (Enter
 ```
 
 Tiers: **Evaluation** (free `pro-seam-check`) → **Pro** (`pro-twin`,
-`pro-trade-study`, `pro-quantum-systematics`) → **Enterprise** (+ `pro-mbse`,
-`pro-batch`). Tokens are HMAC-SHA256 signed; the vendor secret is
+`pro-trade-study`, `pro-quantum-systematics`, `pro-optimism-gap-audit`,
+`pro-scenario-ci`) → **Enterprise** (+ `pro-mbse`, `pro-batch`). Tokens are
+HMAC-SHA256 signed; the vendor secret is
 `$KSHANA_PRO_LICENSE_SECRET` (a demo secret is used otherwise — never for production).
 
 **Connectors & CI (PR21).** Export an ephemeris to enterprise tools, or gate a
@@ -232,10 +242,12 @@ with no args, or see [`src/main.rs`](src/main.rs) `usage()`):
 ```bash
 cargo run -- navdt scenarios/twin-csac.toml                 # A10 NAV-DT twin bundle (JSON)
 cargo run -- report scenarios/trade-clock.toml --format html # A11 consolidated report (md|json|html|svg)
+cargo run -- report scenarios/trade-clock.toml --pdf out.pdf # A11 pure-Rust PDF export (report_pdf)
+cargo run -- ci --pack <manifest.toml> --baseline ci.json --out report.html --json ci.json  # Pack C scenario-CI regression gate (Pro)
 cargo run -- mrd                                            # A03/D1.4 machine-checked MRD FoM-mapping (Markdown)
 cargo run -- benefits --json                                # A02/D1.1 benefit-vs-baseline table (dual provenance labels)
 cargo run -- spacestream --schema                           # A09 SpaceStream codec goldens / ICD schema
-cargo run -- serve --addr 127.0.0.1:8080                    # PR22 HTTP service (/health /version /kinds /run), entitlement-gated
+cargo run -- serve --addr 127.0.0.1:8088                    # PR22 HTTP service — GET /health /version /kinds · POST /run /study, entitlement-gated
 ```
 
 The Pro packs (runnable examples in [`scenarios/`](scenarios)):
@@ -251,6 +263,30 @@ The Pro packs (runnable examples in [`scenarios/`](scenarios)):
   across many seeds (Enterprise tier).
 - `scenarios/spacestream-*.json` — SpaceStream NAV-DT metrics fixtures (nominal / jamming /
   spoof-time / degraded) for the connector / `spacestream` path.
+
+## Deployment
+
+The overlay ships a container and two compose topologies for on-prem / air-gapped /
+sovereign delivery — full notes in [`deploy/DEPLOY.md`](deploy/DEPLOY.md).
+
+```bash
+# Build the image — the context MUST be the PARENT dir so the `../kshana` path
+# dependency resolves (the Dockerfile COPYs BOTH the open core and the overlay):
+docker build -f kshana-pro/Dockerfile -t kshana-pro ..
+
+# Run it — fail-closed by default (open engine + free seam-check at Evaluation):
+docker run -p 8088:8088 kshana-pro
+# Unlock Pro/Enterprise with a license token:
+docker run -p 8088:8088 kshana-pro serve --addr 0.0.0.0:8088 --license <token>
+```
+
+The runtime image is a non-root `debian-slim` that `EXPOSE`s **8088** and carries a
+`HEALTHCHECK` calling `kshana-pro healthcheck` against `/health`, so a hung server is
+reported unhealthy. Two compose files cover the modes —
+[`deploy/docker-compose.product.yml`](deploy/docker-compose.product.yml) (hosted
+product) and [`deploy/docker-compose.sovereign.yml`](deploy/docker-compose.sovereign.yml)
+(air-gapped / sovereign). Because `serve` is fail-closed, an image started with no
+license still answers for the open engine and `pro-seam-check` only — never a paid pack.
 
 ## Discipline (from the open-core strategy)
 

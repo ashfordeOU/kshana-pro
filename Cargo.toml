@@ -18,7 +18,7 @@ name = "kshana-pro"
 path = "src/main.rs"
 
 [dependencies]
-# The open Apache-2.0 engine, consumed as a dependency — NEVER forked. Pro is a
+# The open AGPL-3.0-only engine, consumed as a dependency — NEVER forked. Pro is a
 # strict superset of open Kshana by construction: it embeds the whole engine and
 # every open feature, then extends it through the public `ExternalPack` / model
 # trait seams (see docs/OVERLAY-ARCHITECTURE.md).

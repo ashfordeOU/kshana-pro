@@ -100,7 +100,7 @@ pub fn run(src: &str) -> Result<RunOutput, KshanaError> {
 }
 
 /// Licensed dispatch: enforce a Pro [`Entitlement`] before running a `pro-*` kind.
-/// Open scenarios are always free (Pro embeds the Apache-2.0 engine). A denied Pro
+/// Open scenarios are always free (Pro embeds the open AGPL-3.0 engine). A denied Pro
 /// kind fails closed with an honest, actionable error naming the required tier.
 pub fn run_gated(
     src: &str,
