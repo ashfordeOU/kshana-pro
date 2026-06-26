@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<!--
+PRIVATE — Ashforde OÜ internal bid material. kshana-pro repo only; NEVER publish in the open kshana repo.
+Capability & eligibility gap audit for ESA AO/1-13494 (AI & Digital Payload Technologies PNT Demonstrator).
+Mirror of docs/tenders/13503-quantum-pnt/gap-audit.html, adapted to 13494's AI/digital-payload scope.
+Sources: SoW FPD-10030 iss 1.0 (20/05/2026); esa-star Activity 1000046439; shared PARD FPD-10031 +
+tailored ECSS (FPD-10028); the 13494 pursuit dossier (TENDER-13494-PURSUIT.md, technical-contribution.md,
+kshana-capability-brief.md, briefings 1/2-13494); Kshana v0.20.0 codebase audit + Ashforde ESA-STAR record.
+Honesty discipline: every claim is validated (external oracle) or modelled; Kshana is ONE COMPONENT of the
+NAV-DT, never the whole twin; role = consortium-SME WP, never prime, never the mandated Key Person.
+Contact: contact@ashforde.org
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kshana / Ashforde OÜ vs ESA AO/1-13494 — AI &amp; Digital Payload PNT Demonstrator · Gap Audit</title>
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#121724; --panel2:#0f1420; --border:#1e2636; --ink:#e6edf3; --muted:#8b97ad;
+    --teal:#5eead4; --indigo:#818cf8; --violet:#c084fc; --amber:#eab308; --orange:#f59e0b; --red:#f87171;
+    --green:#2dd4bf; --blue:#60a5fa;
+    --blocker:#f87171; --major:#fb923c; --moderate:#eab308; --minor:#60a5fa; --strength:#2dd4bf;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
+  a{color:var(--indigo);text-decoration:none}
+  h1{font-size:30px;font-weight:780;margin:0 0 4px;letter-spacing:-.4px}
+  h2{font-size:20px;font-weight:720;margin:42px 0 14px;letter-spacing:-.2px;display:flex;align-items:center;gap:10px}
+  h2 .n{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:#161d2c;border:1px solid var(--border);font-size:13px;color:var(--indigo)}
+  h3{font-size:15px;font-weight:700;margin:22px 0 8px;color:#cdd6e3}
+  p{margin:8px 0}
+  .sub{color:var(--muted);font-size:14.5px;margin:0 0 18px}
+  .priv{display:inline-block;background:#7a0c0c;color:#fff;font-weight:700;font-size:11.5px;letter-spacing:.04em;padding:3px 10px;border-radius:6px;margin-bottom:14px}
+  .hero{background:linear-gradient(160deg,#121826,#0d1320);border:1px solid var(--border);border-radius:18px;padding:26px 28px;margin-bottom:8px}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--border);background:#0e1422;color:var(--muted);margin:0 6px 6px 0}
+  .gauges{display:flex;gap:18px;flex-wrap:wrap;margin:22px 0 6px}
+  .gauge{flex:1;min-width:210px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px 18px;text-align:center}
+  .gauge .lbl{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:8px}
+  .gauge .cap{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
+  .verdict{background:#10182a;border:1px solid #243049;border-left:4px solid var(--indigo);border-radius:10px;padding:16px 18px;margin:18px 0}
+  .verdict b{color:#fff}
+  .grid{display:grid;gap:14px}
+  .cards4{grid-template-columns:repeat(4,1fr)}
+  .cards3{grid-template-columns:repeat(3,1fr)}
+  .cards2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:900px){.cards4,.cards3,.cards2{grid-template-columns:1fr 1fr}}
+  @media(max-width:620px){.cards4,.cards3,.cards2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+  .card .k{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .card .v{font-size:17px;font-weight:740;margin-top:3px}
+  .card .s{font-size:12.5px;color:var(--muted);margin-top:4px}
+  table{width:100%;border-collapse:collapse;margin:8px 0 6px;font-size:13.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;background:#0e1422}
+  td.sev{white-space:nowrap;font-weight:700}
+  tr:last-child td{border-bottom:none}
+  .sec-table{background:var(--panel2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .badge{display:inline-block;padding:2px 9px;border-radius:6px;font-size:11.5px;font-weight:700;color:#0b0e14}
+  .b-blocker{background:var(--blocker)} .b-major{background:var(--major)} .b-moderate{background:var(--moderate)}
+  .b-minor{background:var(--minor)} .b-strength{background:var(--strength)}
+  .legend{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 2px}
+  .legend span{font-size:12px;color:var(--muted)}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
+  .mut{color:var(--muted)}
+  .strong{color:var(--strength)} .warn{color:var(--orange)} .bad{color:var(--red)}
+  .opt{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+  .opt.rec{border-color:#2c6e63;background:linear-gradient(160deg,#0f1a1c,#101626)}
+  .opt h3{margin-top:0;display:flex;align-items:center;gap:8px}
+  .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px}
+  .tag-rec{background:var(--strength);color:#06231f}
+  .tag-no{background:#2a1620;color:var(--red);border:1px solid #4a2230}
+  .tag-maybe{background:#21283a;color:var(--blue);border:1px solid #2c3a55}
+  ul{margin:6px 0 6px 2px;padding-left:18px} li{margin:4px 0}
+  .foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--border);color:var(--muted);font-size:12.5px}
+  .src{font-size:12px;color:var(--muted)}
+  code{background:#0e1422;border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:12.5px}
+  .kfit td:first-child{width:30%} .kfit td:nth-child(2){width:34%}
+  .callout{background:#1a1410;border:1px solid #3a2a18;border-left:4px solid var(--orange);border-radius:10px;padding:14px 16px;margin:14px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="priv">⛔ PRIVATE · ASHFORDE OÜ INTERNAL · NEVER attach to or submit with an ESA tender</span>
+    <div>
+      <span class="pill">ESA · FutureNAV · Component 3</span>
+      <span class="pill">AO/1-13494/26/NL/RR</span>
+      <span class="pill">Phases 0 / A / B1</span>
+      <span class="pill">Study contract</span>
+      <span class="pill">Deadline 9 Jul 2026, 13:00 CEST</span>
+    </div>
+    <h1>Kshana / Ashforde OÜ &nbsp;vs&nbsp; ESA AI &amp; Digital Payload PNT Demonstrator</h1>
+    <p class="sub">Capability &amp; eligibility gap audit — Kshana (open PNT performance-and-resilience simulator, v0.20.0) and Ashforde OÜ against the <b>AI &amp; Digital Payload Technologies PNT Demonstrator, Phases 0/A/B1</b> invitation to tender. Generated 2026-06-26 from the tender package + the 13494 pursuit dossier. Sister audit: <a href="../13503-quantum-pnt/gap-audit.html">13503 — Quantum-Enabled PNT</a> (bid separately).</p>
+
+    <div class="gauges">
+      <div class="gauge">
+        <div class="lbl">THEMATIC / TECHNICAL-DOMAIN FIT</div>
+        <svg width="150" height="150" viewBox="0 0 150 150"><circle cx="75" cy="75" r="60" fill="none" stroke="#1b2230" stroke-width="12"/><circle cx="75" cy="75" r="60" fill="none" stroke="#2dd4bf" stroke-width="12" stroke-linecap="round" stroke-dasharray="376.99" stroke-dashoffset="52.8" transform="rotate(-90 75 75)"/><text x="75" y="72" text-anchor="middle" font-size="34" font-weight="780" fill="#e6edf3">86</text><text x="75" y="94" text-anchor="middle" font-size="12" fill="#8b97ad">/ 100</text></svg>
+        <div class="cap">The tender's load-bearing concept — the <b>Navigation Digital Twin</b> (predict PNT performance/resilience, verify algorithms) plus the explicit <b>ML-technique characterisation &amp; evaluation</b> task — is almost a one-line description of Kshana. The on-board-AI and reconfigurable-payload <i>hardware</i> half is squarely a partner's.</div>
+      </div>
+      <div class="gauge">
+        <div class="lbl">FIT AS A CONSORTIUM SME</div>
+        <svg width="150" height="150" viewBox="0 0 150 150"><circle cx="75" cy="75" r="60" fill="none" stroke="#1b2230" stroke-width="12"/><circle cx="75" cy="75" r="60" fill="none" stroke="#60a5fa" stroke-width="12" stroke-linecap="round" stroke-dasharray="376.99" stroke-dashoffset="135.7" transform="rotate(-90 75 75)"/><text x="75" y="72" text-anchor="middle" font-size="34" font-weight="780" fill="#e6edf3">64</text><text x="75" y="94" text-anchor="middle" font-size="12" fill="#8b97ad">/ 100</text></svg>
+        <div class="cap">Two fundable ground-software WPs (NAV-DT performance component + ML-evaluation testbed) inside a prime-led team — strong, and helps meet the ≥3-SME quota + DE geo-return. Needs a DE seat; the mandatory Key Person is a partner's.</div>
+      </div>
+      <div class="gauge">
+        <div class="lbl">READINESS TO BID AS PRIME</div>
+        <svg width="150" height="150" viewBox="0 0 150 150"><circle cx="75" cy="75" r="60" fill="none" stroke="#1b2230" stroke-width="12"/><circle cx="75" cy="75" r="60" fill="none" stroke="#f87171" stroke-width="12" stroke-linecap="round" stroke-dasharray="376.99" stroke-dashoffset="331.7" transform="rotate(-90 75 75)"/><text x="75" y="72" text-anchor="middle" font-size="34" font-weight="780" fill="#e6edf3">12</text><text x="75" y="94" text-anchor="middle" font-size="12" fill="#8b97ad">/ 100</text></svg>
+        <div class="cap">A solo founder cannot prime a €3.5M, 5-operator/3-SME, multidisciplinary AI + digital-payload + space-system study by 9 Jul 2026. Structurally non-viable as prime.</div>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <b>Bottom line.</b> This is the <b>ground-software-richest</b> of the two FutureNAV C3 tenders for Kshana. Its load-bearing concept — the <b>Navigation Digital Twin</b> (a ground model that predicts achievable PNT performance/resilience and verifies on-board algorithms) plus the explicit <b>"Characterisation &amp; Evaluation of Machine-Learning Techniques"</b> task — is almost exactly what Kshana already is and does, validated and reproducibly. <b>But the tender's centre of mass is flight: on-board AI inference, a reconfigurable digital payload (SDR/FPGA, secure in-orbit update), antennas and the spacecraft itself — hardware engineering a solo founder cannot field; and the procurement is a €3.5M study requiring a 5-party / 3-SME consortium, full tailored-ECSS coverage, a space-segment "spacecraft-as-a-service" Key Person, and space heritage.</b> The realistic, high-value play is a <b>consortium-SME seat owning two ground-software work packages</b> — the NAV-DT performance/resilience <i>component</i> and the ML-algorithm evaluation testbed — never prime, never the Key Person, never the whole twin.
+    </div>
+  </div>
+
+  <h2><span class="n">1</span> Tender snapshot</h2>
+  <div class="grid cards4">
+    <div class="card"><div class="k">Programme</div><div class="v">FutureNAV — Comp. 3</div><div class="s">Future PNT Demonstrators; approved CM25, Nov 2025.</div></div>
+    <div class="card"><div class="k">This ITT</div><div class="v">AI &amp; Digital Payload PNT</div><div class="s">AO/1-13494/26/NL/RR · SoW FPD-10030. Sister ITT 1-13503 = Quantum-Enabled PNT (bid separately).</div></div>
+    <div class="card"><div class="k">Scope</div><div class="v">Phases 0 / A / B1</div><div class="s">Mission analysis · feasibility · preliminary definition. A <b>study</b>, not a build.</div></div>
+    <div class="card"><div class="k">Toward</div><div class="v">IOD later this decade</div><div class="s">Follow-on phases → a much larger in-orbit demonstrator. This study paves the way.</div></div>
+    <div class="card"><div class="k">Budget / contract</div><div class="v">€3.5M (FFP)</div><div class="s">Phase 1 (0+A) ≤ €1.0M · Phase 2 (B1) ≤ €2.5M. Fee ≤ 8% TCC.</div></div>
+    <div class="card"><div class="k">Awards</div><div class="v">Up to 2 parallel</div><div class="s">Dual-source open competition; both must score &gt; 60 overall. ESA may award one.</div></div>
+    <div class="card"><div class="k">Duration</div><div class="v">30 months</div><div class="s">Tech 0/A ≤ 12 mo → Gatekeeper (PRR) → tech B1 ≤ 18 mo. Kick-off ~Q4 2026.</div></div>
+    <div class="card"><div class="k">Deadline</div><div class="v">9 Jul 2026 · 13:00</div><div class="s">Amsterdam time, esa-star only. Q&amp;A by ~29 Jun 2026. ~2 weeks out.</div></div>
+  </div>
+
+  <h2><span class="n">2</span> The two-track reality</h2>
+  <div class="grid cards2">
+    <div class="card" style="border-color:#2c6e63">
+      <h3 class="strong">✓ Where Kshana is a genuine asset</h3>
+      <p class="mut" style="margin-top:2px">The ground-software half: the NAV-DT performance model + the ML-evaluation referee.</p>
+      <ul>
+        <li><b>NAV-DT achievable-performance component</b> — the FoM engine predicts ranging/timing accuracy, availability and integrity per scenario; the DOP/geometry foundation is <i>validated</i> vs gnss_lib_py 1.0.4 (Stanford). One component of the twin, not the twin.</li>
+        <li><b>ML-technique characterisation &amp; evaluation</b> — a detector-agnostic ROC/AUC/Pfa-Pmd referee with leakage &amp; distribution-shift guards; metrics <i>validated</i> vs scikit-learn 1.9.0. Owns the SoW's ML-evaluation task.</li>
+        <li><b>GNSS-denied resilience &amp; integrity</b> — jamming availability, RAIM/ARAIM (<i>validated</i> vs DO-229E on real IGS geometry), spoof/multipath scenarios.</li>
+        <li><b>Labelled RF-impairment corpus</b> — seeded, reproducible, TEXBAT-<i>parameter</i>-grounded (<i>not</i> raw IQ — and reported as exactly that).</li>
+        <li><b>V&amp;V discipline</b> — machine-checked verification matrix (a row is <i>validated</i> only with an external oracle); seven externally-validated islands; byte-identical reruns CI-gated.</li>
+        <li><b>Runnable &amp; open</b> — Rust/Python/WASM/MCP + browser playground a reviewer can run, auditable line-by-line.</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:#5a2530">
+      <h3 class="bad">✗ Why a solo prime bid fails</h3>
+      <p class="mut" style="margin-top:2px">The tender's flight-hardware breadth &amp; structural demands.</p>
+      <ul>
+        <li><b>Mandatory consortium</b> — ≥5 economic operators incl. prime, ≥3 SMEs, ≥30% to non-LSIs, ≥€500K via open competition. A solo founder = 1 of 5.</li>
+        <li><b>On-board AI + reconfigurable digital payload</b> — edge-compute inference, secure in-orbit update/reconfiguration, SDR/FPGA. Flight/payload engineering Kshana does not do.</li>
+        <li><b>Antenna / RF payload hardware + spacecraft bus</b> — steerable phased arrays, radiation patterns, the full tailored-ECSS bus discipline set. None are Kshana's.</li>
+        <li><b>Key Person mandate</b> — ≥1 with extensive space-segment <i>"spacecraft-as-a-service"</i> experience; every WP manager a named Key Person. Founder is supporting-role, never the Key Person.</li>
+        <li><b>Heritage &amp; PA</b> — space-hardware heritage, Class-Gamma product assurance, flight track record. Ashforde: TRL~3, no ESA contracts, no flight heritage.</li>
+        <li><b>Timeline</b> — building a compliant consortium <i>as prime</i> from scratch by 9 Jul is not realistic.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2><span class="n">3</span> Detailed gap matrix</h2>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--strength)"></span>Strength — Kshana already covers it</span>
+    <span><span class="dot" style="background:var(--minor)"></span>Minor</span>
+    <span><span class="dot" style="background:var(--moderate)"></span>Moderate</span>
+    <span><span class="dot" style="background:var(--major)"></span>Major</span>
+    <span><span class="dot" style="background:var(--blocker)"></span>Blocker (as solo prime)</span>
+  </div>
+
+  <div style="border:1px solid #2a3550;border-left:3px solid var(--strength);border-radius:8px;padding:12px 16px;margin:14px 0;background:#0f1626;font-size:14px;line-height:1.5">
+    <b>Build status — 2026-06-26.</b> Every <i>software-addressable</i> slice for this tender is genuinely built, not relabelled. Open <code>kshana</code> (v0.20.0) carries the <b>detector-agnostic ML-evaluation testbed</b> (<code>src/impairment_eval.rs</code>; ROC/AUC/Pfa-Pmd, leakage guard, distribution-shift optimism report — metrics validated vs scikit-learn), the <b>RF-impairment scenario corpus</b>, the <b>Figure-of-Merit / integrity engine</b> (<code>src/fom.rs</code>, <code>src/raim.rs</code> — DOP validated vs gnss_lib_py, RAIM vs DO-229E) and the <b>machine-checked verification matrix</b> (<code>src/verification.rs</code>). Private <code>kshana-pro</code> carries the drafted <b>Kshana capability brief</b>, <b>technical contribution</b>, <b>WP definition</b> (NAV-DT performance + AI-eval), <b>SE verification plan + RTM</b>, <b>SpaceStream ICD</b> and <b>reproducibility note</b>. <b>The four hardware/heritage badges below (§D on-board-AI engine, §D digital payload, §D antenna/bus, §E flight-PA) deliberately stay where they are</b> — they are genuinely a consortium partner's, and flipping them to "strength" would be the exact overclaim our credibility depends on avoiding.
+  </div>
+
+  <h3>A · Eligibility &amp; entity</h3>
+  <div class="sec-table"><table class="kfit">
+    <tr><th>Tender requirement</th><th>Ashforde / Kshana today</th><th>Gap</th><th>Severity</th><th>How to close</th></tr>
+    <tr><td>Registered office in a Participating State (BE, CA, CH, CZ, <b>DE</b>, ES, GB, IT, LV, NL, NO, PL, SE) by contract award; every economic operator too.</td><td>Ashforde <b>OÜ</b> — registered in <b>Estonia</b> (not a Participating State). ESA-STAR validated with <b>German (DE) nationality</b> (entity 83208).</td><td>Legal seat is Estonia; DE nationality is validated but the OÜ registered office is in a non-participating state — a contract-award risk.</td><td class="sev"><span class="badge b-major">MAJOR</span></td><td>Establish a <b>German registered office / branch</b> (GmbH/UG or DE branch of the OÜ). Removes all doubt and aligns with the dominant DE geo-return. Confirm in the ESA Q&amp;A (by ~29 Jun).</td></tr>
+    <tr><td>Geographical return — Germany is the largest share; a credible DE-seated operator is sought by primes balancing return.</td><td>DE-validated nationality; work, decisions &amp; costs in Germany.</td><td>Must keep cost-share in DE to be attractive to a prime.</td><td class="sev"><span class="badge b-strength">STRENGTH</span></td><td>Lean into the DE angle — DE is the single most-favoured nationality.</td></tr>
+    <tr><td>SME status (EC 2003/361/EC) — SMEs explicitly supported; 35% advance payment.</td><td>Micro-enterprise / solo founder — clearly an SME.</td><td>None.</td><td class="sev"><span class="badge b-strength">STRENGTH</span></td><td>Use it — counts toward the ≥3-SME consortium quota and unlocks the 35% advance.</td></tr>
+  </table></div>
+
+  <h3>B · Team, consortium &amp; key personnel</h3>
+  <div class="sec-table"><table class="kfit">
+    <tr><th>Tender requirement</th><th>Ashforde / Kshana today</th><th>Gap</th><th>Severity</th><th>How to close</th></tr>
+    <tr><td><b>≥5 different economic operators</b> incl. the Prime, of which <b>≥3 are SMEs</b>.</td><td>1 entity (solo founder).</td><td>Need ≥4 partners with the right discipline coverage.</td><td class="sev"><span class="badge b-blocker">BLOCKER<br>(as prime)</span></td><td><b>Join a prime-led consortium</b> as the NAV-DT performance + ML-evaluation SME — don't try to assemble 5 parties as prime.</td></tr>
+    <tr><td>≥30% of budget to non-LSIs; ≥€500K of tasks via open competition (RFPs to ≥5, ≥4 non-affiliated).</td><td>N/A as a solo entity.</td><td>Structural — only meaningful inside a real consortium.</td><td class="sev"><span class="badge b-major">MAJOR</span></td><td>As an SME sub you <i>help</i> the prime satisfy this; as prime it's unattainable solo.</td></tr>
+    <tr><td><b>≥1 mandatory Key Person with extensive space-segment "spacecraft-as-a-service" experience</b>. Every WP manager is a named Key Person; CV per person.</td><td>Founder: deep PNT-performance-simulation &amp; ML-evaluation-methodology expertise; published preprint. No space-segment <i>spacecraft</i> track record; no team CVs.</td><td>A recognised space-segment Key Person (a partner's), plus WP-manager CVs.</td><td class="sev"><span class="badge b-major">MAJOR</span></td><td>The Key Person comes <b>from a partner, never Ashforde</b>; founder owns the performance/evaluation WPs in a supporting role.</td></tr>
+    <tr><td>Company background, facilities &amp; relevant experience (evaluation criterion 3, <b>20%</b>).</td><td>Open-source engine, arXiv preprint, MCP/JetBrains distribution; no ESA contracts; no labs.</td><td>Demonstrable ESA/agency heritage and facilities.</td><td class="sev"><span class="badge b-major">MAJOR</span></td><td>Ride the consortium's heritage; cite Kshana's seven validated islands (AIAA/SOFA/NIST/DO-229E/Stanford/scikit-learn/DE440) and the open, citable tooling as a credibility asset.</td></tr>
+  </table></div>
+
+  <h3>C · NAV-DT / ground-software technical scope — Phases 0/A/B1 (Kshana's home turf)</h3>
+  <div class="sec-table"><table class="kfit">
+    <tr><th>Demonstrator need</th><th>Kshana capability</th><th>Gap</th><th>Severity</th><th>Note</th></tr>
+    <tr><td>NAV-DT — a ground model that <b>predicts achievable PNT performance &amp; resilience</b> (the tender's load-bearing concept).</td><td><b>Figure-of-Merit engine</b> (<code>src/fom.rs</code>): ranging/timing accuracy, availability, integrity per scenario; DOP/geometry foundation <b>validated</b> vs gnss_lib_py 1.0.4 (Stanford) to 1e-6; orbit/constellation geometry (<code>src/orbit.rs</code>). The achievable-performance <b>component</b> of the twin.</td><td>It is one <i>component</i> — not the high-fidelity payload-behaviour twin, the ground infrastructure, or the data lakehouse.</td><td class="sev"><span class="badge b-strength">STRENGTH</span></td><td>Directly answers the NAV-DT performance-prediction need; feeds D1.1 benefits, D2.6 feasibility, D2.16 NAV-DT performance.</td></tr>
+    <tr><td><b>Characterisation &amp; Evaluation of Machine-Learning Techniques</b> for PNT (an explicit SoW task).</td><td><b>Detector-agnostic evaluation testbed</b> (<code>src/impairment_eval.rs</code>): ROC, AUC, confusion, Pd/Pmd, per-impairment-class breakdown via a trait interface — the <b>referee, not a classifier</b>; every metric <b>validated</b> vs scikit-learn 1.9.0. Stratified split with disjoint keys, exact-duplication leakage guard, explicit distribution-shift optimism report.</td><td>The detection/classification <i>algorithms themselves</i> are a partner's; the testbed scores them.</td><td class="sev"><span class="badge b-strength">STRENGTH</span></td><td>This is the rigour an ESA reviewer looks for — "how good is a detector, really, without fooling yourself." Differentiates on method, not on owning the algorithm.</td></tr>
+    <tr><td>GNSS-denied / resilient PNT use-cases &amp; integrity.</td><td>Jamming link-budget &amp; availability, multi-layer spoof scenarios, alt-PNT, ARAIM/SBAS integrity; <b>RAIM validated</b> (DO-229E K-factors on real IGS SP3 / Celestrak geometry, <code>src/raim.rs</code>).</td><td>Jamming link-budget stays honestly <b>modelled</b> (no external numeric oracle exists to validate against).</td><td class="sev"><span class="badge b-strength">STRENGTH</span></td><td>Reproducible resilience FoM per scenario; integrity is externally validated.</td></tr>
+    <tr><td>Representative RF-environment / impairment scenarios to test against.</td><td><b>Labelled RF-impairment corpus generator</b> (<code>src/impairment_eval.rs</code>): seeded, reproducible, <b>parameter</b>-grounded (TEXBAT-style parameters, <b>not</b> raw IQ or field captures — reported as exactly that).</td><td>Not DestinE-style high-fidelity iono/tropo/multipath environment twins; not raw-IQ field captures.</td><td class="sev"><span class="badge b-strength">STRENGTH</span></td><td>Synthetic by design; seeding/reproducibility is CI-enforced. Honest about what it is and isn't.</td></tr>
+    <tr><td>Verification, traceability &amp; reproducibility for the SE/PA spine (D2.2/D2.3).</td><td><b>Machine-checked verification matrix</b> (<code>src/verification.rs</code>: requirement→module→test→oracle→status) with CI-enforced honesty invariants — a row is <i>validated</i> only with an independent external oracle; deterministic, scenario-hashed, byte-identical reruns.</td><td>No ECSS formal-deliverable track record (a named SE lead's, the prime's).</td><td class="sev"><span class="badge b-strength">STRENGTH</span></td><td>Strong, machine-checked evidence base for an ECSS-E-ST-10-02 verification cross-reference; drafted SE verification plan + RTM in <code>kshana-pro</code>.</td></tr>
+    <tr><td>Integrate with the wider data infrastructure ("SpaceStream"/NAVEX-style aggregated metrics).</td><td><b>SpaceStream interface codec</b> (prototyped, <code>kshana-pro</code> <code>connectors/spacestream.rs</code> + ICD): a versioned, <b>aggregated-metrics-only</b> NAVEX→NAV-DT adapter — <b>raw-IQ forbidden by schema</b> — with golden test messages.</td><td>The core ground infrastructure / PNT data lakehouse itself is a partner's.</td><td class="sev"><span class="badge b-strength">STRENGTH</span></td><td>A clean, auditable interface contract — exactly the SME-ownable seam between NAVEX and the NAV-DT.</td></tr>
+  </table></div>
+
+  <h3>D · On-board AI, digital payload &amp; space-system breadth (ECSS-E) — outside Kshana</h3>
+  <div class="sec-table"><table class="kfit">
+    <tr><th>Tender requirement</th><th>Ashforde / Kshana today</th><th>Gap</th><th>Severity</th><th>How to close</th></tr>
+    <tr><td><b>On-board / edge AI inference engine</b> — AI/ML running on the payload under real edge-compute constraints (the demonstrator's purpose); the detection/classification algorithms themselves.</td><td>Kshana <b>evaluates</b> detectors on the ground; it does not run on-board inference or own the classifiers.</td><td>The on-board AI engine and the algorithms.</td><td class="sev"><span class="badge b-major">MAJOR</span></td><td>An on-board-AI / edge-compute partner owns this; Kshana is the <b>ground referee</b> that scores their algorithms. <i>Evaluation testbed built; badge holds — the on-board engine is not software Kshana ships.</i></td></tr>
+    <tr><td><b>Digital / reconfigurable payload</b> — software-defined, in-orbit-reconfigurable PNT payload (SDR/FPGA, secure in-orbit update of signals &amp; algorithms).</td><td>None — Kshana models the measurement/signal-performance domain, not flight payload firmware or secure update.</td><td>Reconfigurable-payload &amp; secure-in-orbit-update engineering.</td><td class="sev"><span class="badge b-major">MAJOR</span></td><td>A reconfigurable-digital-payload / SDR partner owns this; Kshana feeds achievable-performance requirements.</td></tr>
+    <tr><td>Antenna / RF-payload <b>hardware</b> (phased arrays, radiation patterns) &amp; spacecraft bus engineering (AOCS, thermal, structures, power/EMC — tailored ECSS-E).</td><td>Friis/jamming link budget &amp; the signal-performance layer (<code>src/navsignal.rs</code>); <b>not</b> antenna/payload hardware design or bus engineering.</td><td>Antenna/RF-payload hardware + the entire bus-engineering discipline set.</td><td class="sev"><span class="badge b-major">MAJOR</span></td><td>Antenna/bus partners own these WPs; not Kshana's role or gap to fill.</td></tr>
+    <tr><td>System engineering &amp; V&amp;V (E-ST-10/-10-02/-10-03/-40) — SRD, System Design Report, DDVP, Operations Manual, DRL, SEP.</td><td>Strong repro discipline + a <b>machine-checked verification matrix</b> and a drafted <b>ECSS-E-ST-10-02 verification plan + RTM skeleton</b>. No ECSS formal-deliverable track record.</td><td>A named SE lead &amp; an ECSS formal-deliverable track record.</td><td class="sev"><span class="badge b-moderate">MODERATE</span></td><td>Kshana provides the nav-performance &amp; AI-evaluation verification inputs to the prime's SE lead. <i>Verification matrix + SE plan drafted; residual narrowed to the named lead + track record.</i></td></tr>
+    <tr><td>Core ground infrastructure / PNT data lakehouse; DestinE-style environment twins; LCA / debris / eco-design.</td><td>The SpaceStream <i>interface</i> (aggregated-metrics codec) only.</td><td>The infrastructure, the environment twins and the sustainability analysis.</td><td class="sev"><span class="badge b-major">MAJOR</span></td><td>Ground-segment / data-platform &amp; sustainability partners own these; Kshana connects to them via the ICD.</td></tr>
+  </table></div>
+
+  <h3>E · Product assurance, safety &amp; flight-hardware (ECSS-Q / the PARD)</h3>
+  <div class="sec-table"><table class="kfit">
+    <tr><th>Tender requirement</th><th>Ashforde / Kshana today</th><th>Gap</th><th>Severity</th><th>Note</th></tr>
+    <tr><td>Class-Gamma PA &amp; safety spine (PARD FPD-10031) — PA plan, NCR, critical-items, radiation, EEE/COTS, MAIT, qualification, software PA cat B/C/D.</td><td>Software project hygiene (1,200+ tests, fmt+clippy clean, SBOM, reproducibility) mappable to a drafted <b>ECSS-Q-ST-80 software-PA evidence pack</b> (reusable from the 13503 pursuit). No flight PA, radiation testing, or MAIT.</td><td>Flight-hardware product assurance (radiation, EEE/COTS, MAIT) — a partner's.</td><td class="sev"><span class="badge b-moderate">MODERATE</span></td><td>PA mostly bites in B2–E; light in 0/A/B1. Software-PA is the one slice Kshana can speak to. <i>Software-PA pack drafted; badge holds — flight-hardware PA is the partner's.</i></td></tr>
+    <tr><td>TRL maturation toward IOD (later this decade).</td><td>TRL ~3 simulation/evaluation substrate; performance-evidence &amp; ML-evaluation support the maturation case.</td><td>It's a study/evaluation tool, not a hardware-maturation vehicle.</td><td class="sev"><span class="badge b-moderate">MODERATE</span></td><td>Kshana <i>supports</i> the maturation case (performance evidence, algorithm verification); it isn't itself the thing being matured.</td></tr>
+  </table></div>
+
+  <h2><span class="n">4</span> Strategic options</h2>
+  <div class="grid cards3">
+    <div class="opt rec">
+      <h3>Join a consortium as the NAV-DT-performance + ML-evaluation SME <span class="tag tag-rec">RECOMMENDED</span></h3>
+      <ul>
+        <li>Kshana owns <b>two ground-software WPs</b>: the NAV-DT achievable-performance/resilience <i>component</i> and the ML-algorithm evaluation testbed — real, on-thesis slices of Phases 0/A/B1.</li>
+        <li>Ashforde-as-SME <b>helps satisfy the ≥3-SME quota</b>; DE nationality helps the prime's geo-return.</li>
+        <li><b>Now → ~29 Jun:</b> approach likely primes (DE/CH nav-systems houses) + on-board-AI/SDR + antenna + ground-segment partners. <b>Fix the DE registered office.</b> Confirm a partner holds the space-segment Key Person.</li>
+      </ul>
+      <p class="src">Lowest-risk, highest-credibility route — owns exactly the ground-software core the tender needs.</p>
+    </div>
+    <div class="opt">
+      <h3>Supply the evaluation referee + NAV-DT component as auditable tools <span class="tag tag-maybe">PRODUCT / POSITIONING</span></h3>
+      <ul>
+        <li>License/deliver the <b>ML-evaluation "referee" testbed</b> and the <b>NAV-DT performance module</b> (+ the SpaceStream codec, the MBSE artifact generator) to whichever consortium(s) win.</li>
+        <li>A product play <b>independent of bidding</b> — differentiates on rigour and an auditable open core, not on owning the algorithm or the hardware.</li>
+        <li>Each is a <b>ground-software / method</b> deliverable an SME can own and a reviewer can audit, with honesty labels intact.</li>
+      </ul>
+      <p class="src">Complementary to (or a fallback from) a consortium seat.</p>
+    </div>
+    <div class="opt">
+      <h3>Bid solo as prime <span class="tag tag-no">NOT VIABLE</span></h3>
+      <ul>
+        <li>Blocked by the 5-operator/3-SME mandate, the on-board-AI + digital-payload + bus breadth, the space-segment Key-Person rule, heritage expectations, and the ~2-week window.</li>
+        <li>Even if submitted, it would score poorly on criteria 3 (20%) and 5 (10%) and lack the engineering-programme depth for criteria 1+2 (60%).</li>
+      </ul>
+      <p class="src">Do not pursue.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>Eligibility nuance to resolve early.</b> ESA-STAR has validated Ashforde with <b>German nationality</b> (entity 83208), which makes the most-favoured DE geo-return available. However, the legal entity is an Estonian <b>OÜ</b> and Estonia is <b>not</b> a Participating State; the tender requires every operator to have a registered office in a Participating State by contract award. <b>Establishing a German registered office/branch removes this risk entirely</b> and should be done before committing to any bid — confirm the exact requirement (and that <b>Light</b> registration suffices at submission, full before award) with ESA in the Q&amp;A window (by ~29 Jun 2026).
+  </div>
+
+  <h2><span class="n">5</span> Bid execution plan — assigned, sequenced steps</h2>
+  <p class="src" style="margin-top:0">Owner: <b>F</b>=Founder · <b>P</b>=Prime/partner (once teamed) · <b>C</b>=draft/research support. Status:
+    <span style="background:#0f2420;color:#2dd4bf;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">✅ done</span>
+    <span style="background:#1a1206;color:#f59e0b;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔧 wip</span>
+    <span style="background:#11203a;color:#60a5fa;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">▢ to do</span>
+    <span style="background:#241a2e;color:#c084fc;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔒 gated</span>
+    <span style="background:#2a1014;color:#f87171;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">⛔ parked</span>.
+    Editable tracker: <code>TENDER-13494-PURSUIT.md</code>. <b>The one hard gate is N7 — secure a consortium seat;</b> no prime → no bid this cycle (no solo fallback).</p>
+  <div class="callout" style="border-left-color:#2dd4bf;background:#0f1a1c"><b>Build status — 2026-06-26.</b> All draft-ready deliverables are built in the <b>private <code>kshana-pro</code></b> repo under <code>docs/tenders/13494-ai-payload-pnt/</code>: the master tracker, the Kshana capability brief (N9), the WP definition (N10), the technical contribution + SoW compliance-matrix <i>template</i> (N12), the SE verification plan + RTM (N22), the SpaceStream ICD, the reproducibility note, the evaluation-testbed one-pager and the D1.1–D1.3 sizing/benefits note. The BIPR (N13) is covered by the cross-tender posture pack (commercial-licence route, no copyleft; grant terms to be confirmed by counsel). The open <code>kshana</code> capability (ML-eval testbed, FoM/integrity engine, verification matrix) is in place at v0.20.0. Founder-gated items (office, seat, Key Person, CV, costing, the real SoW) remain open.</div>
+
+  <h3>Phase 0 · Go/No-Go &amp; eligibility</h3>
+  <div class="sec-table"><table>
+    <tr><th>ID</th><th>Step</th><th>Owner</th><th>Status</th></tr>
+    <tr><td>N1</td><td>Confirm decision: pursue <b>as consortium SME</b> (NAV-DT performance + ML-eval WPs) — not prime, not a Key Person</td><td>F</td><td><span style="background:#0f2420;color:#2dd4bf;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">✅ done</span></td></tr>
+    <tr><td>N2</td><td>🔑 Eligibility fix: decide <b>German branch / subsidiary</b> (EE seat is an award risk)</td><td>F +legal</td><td><span style="background:#11203a;color:#60a5fa;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">▢ to do</span></td></tr>
+    <tr><td>N3</td><td>Draft + submit <b>ESA Q&amp;A</b>: does a DE branch (vs the EE office) satisfy the registered-office rule for entity 83208? Confirm Light-reg suffices at submission</td><td>F · C-draft</td><td><span style="background:#1a1206;color:#f59e0b;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔧 wip</span> <span class="mut" style="font-size:11px">entity-level Q&amp;A shared w/ 13503; founder submits</span></td></tr>
+    <tr><td>N4</td><td>Confirm <b>ESA-STAR registration</b>: Light at submission, full (bank+financials) before award</td><td>F</td><td><span style="background:#11203a;color:#60a5fa;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">▢ to do</span></td></tr>
+    <tr><td>N5</td><td>Go/No-Go rule: <b>if no seat (N7) by ~29 Jun → do NOT bid</b> (no solo fallback). Resolve eligibility (N2/N3) first</td><td>F</td><td><span style="background:#241a2e;color:#c084fc;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔒 gated (N7/N3)</span></td></tr>
+  </table></div>
+
+  <h3>Phase 1 · Partnering <span class="bad" style="font-size:12px">(critical path)</span></h3>
+  <div class="sec-table"><table>
+    <tr><th>ID</th><th>Step</th><th>Owner</th><th>Status</th></tr>
+    <tr><td>N6</td><td>Build the <b>consortium target map</b>: nav-systems primes + on-board-AI/edge-compute + reconfigurable-payload/SDR + phased-array antenna + bus/SE + ground-segment/digital-twin houses</td><td>F · C-research</td><td><span style="background:#2a1014;color:#f87171;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">⛔ parked</span> <span class="mut" style="font-size:11px">template + criteria only; prime search gated until founder go</span></td></tr>
+    <tr><td>N7</td><td>🔑 <b>Secure a consortium seat</b> — LoI / teaming agreement <b>(HARD GATE)</b> — pitch the NAV-DT performance + ML-eval WPs + an SME slot</td><td>F + P</td><td><span style="background:#241a2e;color:#c084fc;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔒 gated (N6)</span></td></tr>
+    <tr><td>N8</td><td>Confirm the <b>mandatory space-segment Key Person</b> is held <b>by a partner</b> — never Ashforde; confirm digital-twin + on-board-AI depth too</td><td>P + F</td><td><span style="background:#241a2e;color:#c084fc;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔒 gated (N7)</span></td></tr>
+  </table></div>
+
+  <h3>Phase 2 · Bid contribution (parallel once teamed)</h3>
+  <div class="sec-table"><table>
+    <tr><th>ID</th><th>Step</th><th>Owner</th><th>Status</th></tr>
+    <tr><td>N9</td><td><b>Kshana capability brief</b> (1–2 pp) → the NAV-DT performance component + the ML-evaluation testbed + live playground/MCP demo</td><td>F · C-draft</td><td><span style="background:#0f2420;color:#2dd4bf;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">✅ done</span></td></tr>
+    <tr><td>N10</td><td>Define <b>Kshana's WP</b> (objectives/inputs/tasks/outputs/exclusions) for the WBS — NAV-DT performance + ML-eval; explicitly exclude partner-owned gaps</td><td>F + P</td><td><span style="background:#1a1206;color:#f59e0b;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔧 wip</span> <span class="mut" style="font-size:11px">draft built (WP-definition-navdt-aieval.md); finalise w/ prime</span></td></tr>
+    <tr><td>N11</td><td>Founder <b>CV</b> + man-hour allocation table (<b>supporting-role</b> format, not Key-Personnel)</td><td>F</td><td><span style="background:#241a2e;color:#c084fc;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔒 gated (N7)</span></td></tr>
+    <tr><td>N12</td><td><b>Technical-proposal contribution</b>: NAV-DT achievable-performance method + ML-technique characterisation/evaluation + verification-matrix contribution + SoW compliance-matrix rows</td><td>F · C-draft</td><td><span style="background:#1a1206;color:#f59e0b;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔧 wip</span> <span class="mut" style="font-size:11px">draft; finalise w/ real SoW + prime</span></td></tr>
+    <tr><td>N13</td><td><b>BIPR declaration</b>: Kshana (dual-licensed GNU AGPL-3.0-only + commercial) as Background IPR, brought under the <b>commercial licence</b> (no copyleft attaches; AGPL governs only the open track; grant terms to be confirmed by counsel); third-party dependency tree permissive-only, no GPL</td><td>F · C-draft</td><td><span style="background:#0f2420;color:#2dd4bf;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">✅ done</span> <span class="mut" style="font-size:11px">shared cross-tender posture pack</span></td></tr>
+    <tr><td>N14</td><td><b>Financial input</b>: Ashforde WP cost via ECOS/PBF (through prime); fee ≤ 8% TCC; respect Phase-1 ≤ €1.0M / Phase-2 ≤ €2.5M caps</td><td>F + P</td><td><span style="background:#1a1206;color:#f59e0b;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔧 wip</span> <span class="mut" style="font-size:11px">envelope drafted (cost-volume); firm price gated on prime/ECOS</span></td></tr>
+    <tr><td>N15</td><td>🔑 Obtain + cross-check the <b>real SoW (FPD-10030)</b> for Phase 0/A/B1 task + deliverable detail (D1.x/D2.x/Task-3); confirm WP alignment + the validated/modelled labelling holds</td><td>F · C-analyze</td><td><span style="background:#11203a;color:#60a5fa;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">▢ to do</span> <span class="mut" style="font-size:11px">founder to obtain; matrix stays a template until then</span></td></tr>
+    <tr><td>N21</td><td><b>Software-PA evidence pack</b> (ECSS-Q-ST-80, tailored Cat B/C/D via PARD FPD-10031) — map Kshana's SW-quality infra to the software-PA process areas</td><td>F · C-draft</td><td><span style="background:#1a1206;color:#f59e0b;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔧 wip</span> <span class="mut" style="font-size:11px">reusable from 13503; flight-hardware PA stays a partner's</span></td></tr>
+    <tr><td>N22</td><td><b>SE verification plan + RTM skeleton</b> (ECSS-E-ST-10-02; tailored set FPD-10028) — backed by the machine-checked <code>verification</code> matrix</td><td>F · C-draft</td><td><span style="background:#0f2420;color:#2dd4bf;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">✅ done</span> <span class="mut" style="font-size:11px">draft built (SE-verification-plan.md); named SE lead stays the prime's</span></td></tr>
+  </table></div>
+
+  <h3>Phase 3 · Submission</h3>
+  <div class="sec-table"><table>
+    <tr><th>ID</th><th>Step</th><th>Owner</th><th>Status</th></tr>
+    <tr><td>N16</td><td>Final <b>compliance review</b> of Ashforde's contribution: 8 KAFs, 13 Declarations of Compliance, ≤100-pp budget, CV folder, every operator has a Participating-State registered office by award</td><td>P + F</td><td><span style="background:#241a2e;color:#c084fc;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔒 gated (N7)</span></td></tr>
+    <tr><td>N17</td><td><b>Prime submits</b> via esa-star (no late submissions)</td><td>P</td><td><span style="background:#241a2e;color:#c084fc;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔒 gated (N7)</span> <span class="mut" style="font-size:11px">9 Jul 13:00 Amsterdam</span></td></tr>
+    <tr><td>N18</td><td><b>Sister-tender hygiene:</b> keep 13494 and <b>13503</b> proposals <b>separate</b> (combined forbidden); confirm the 005/006/007 reuse is admin-only</td><td>F + P</td><td><span style="background:#11203a;color:#60a5fa;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">▢ to do</span></td></tr>
+    <tr><td>N19/20</td><td><b>Post-award (future):</b> award → NAV-DT performance-component engagement (Foreground IP → Pro); watch <b>GATEKEEPER</b> (KO+12) + Phase B2+</td><td>F + P</td><td><span style="background:#241a2e;color:#c084fc;font-weight:700;font-size:11px;padding:1px 7px;border-radius:5px">🔒 gated</span></td></tr>
+  </table></div>
+
+  <div class="callout"><b>Reality check.</b> The window is now ~2 weeks and the binding constraint is <b>N7</b> (a prime willing to add you this cycle), not the writing — the draft-ready assets are built. If no seat by ~late June, don't force a weak solo bid (there is none): pivot to the <b>product/positioning</b> play (supply the evaluation testbed + NAV-DT component to whichever consortium wins) and target the next phases. Resolve eligibility (<b>N2/N3</b>) <i>before</i> committing. Keep the 13494 and 13503 proposals strictly separate.</div>
+
+  <div class="foot">
+    <b>Sources.</b> SoW <b>FPD-10030</b> iss 1.0 (20/05/2026), esa-star Activity 1000046439; shared <b>PARD FPD-10031</b> + tailored ECSS set <b>FPD-10028</b> (005/006/007 byte-identical to the 13503 package — reuse is admin-only, proposals stay separate). The 13494 pursuit dossier in this folder (<code>TENDER-13494-PURSUIT.md</code>, <code>technical-contribution.md</code>, <code>kshana-capability-brief.md</code>, <code>WP-definition-navdt-aieval.md</code>, <code>SE-verification-plan.md</code>, <code>SpaceStream-ICD.md</code>) and briefings <code>1/2-13494</code>. Kshana side from the v0.20.0 codebase audit (<code>impairment_eval.rs</code>, <code>fom.rs</code>, <code>raim.rs</code>, <code>orbit.rs</code>, <code>verification.rs</code>; 1,200+ library tests) and the Ashforde ESA-STAR record (entity 83208, DE nationality, EE registered office).
+    <br><br>
+    <b>Honest caveats.</b> (1) Scores are judgement calls to frame the decision, not ESA marks. (2) Detailed SRD requirement IDs and exact Phase-0/A/B1 task wording are confirmed against the <b>full issued SoW (FPD-10030)</b> — until obtained, the compliance matrix is a template. (3) Eligibility for an Estonian OÜ vs the DE-nationality validation is the one item to confirm directly with ESA in the Q&amp;A. (4) Every quantitative Kshana claim is labelled <i>validated</i> (external oracle) or <i>modelled</i>; <b>Kshana is ONE COMPONENT of the NAV-DT — the achievable-performance &amp; ML-evaluation engine — never the whole twin, the payload, or the spacecraft.</b> (5) TRL ~3; no flight heritage, certification, or ESA endorsement. Internal strategy document — <b>not for the public Kshana repo, and never to be attached to or submitted with an ESA tender.</b>
+    <br><br>
+    <span class="src">Generated 2026-06-26 · Kshana / Ashforde OÜ vs ESA AO/1-13494/26/NL/RR — AI &amp; Digital Payload Technologies PNT Demonstrator, Phases 0/A/B1 · contact@ashforde.org.</span>
+  </div>
+
+</div>
+</body>
+</html>
