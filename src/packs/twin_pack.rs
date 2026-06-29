@@ -7,7 +7,7 @@
 
 use kshana::api::{ExternalPack, KshanaError, RunOutput, Scenario, ScenarioMeta};
 
-use crate::twin::{calibrate, validate, DeviceSpec};
+use crate::twin::{calibrate, calibrate3, validate, DeviceSpec};
 
 fn default_tolerance() -> f64 {
     0.25
@@ -70,7 +70,14 @@ impl TwinScenario {
 impl Scenario for TwinScenario {
     fn run(&self) -> Result<RunOutput, KshanaError> {
         let spec = self.device_spec();
-        let twin = calibrate(&spec)?;
+        // Use the 3-parameter fit (white-FM + flicker + long-τ random-walk-FM) when
+        // there are enough points to resolve the third basis function; fall back to
+        // the 2-parameter fit for a 2-point budget. Both are open-core ClockModels.
+        let twin = if spec.adev_points.len() >= 3 {
+            calibrate3(&spec)?
+        } else {
+            calibrate(&spec)?
+        };
         let report = validate(
             &twin,
             &spec,
@@ -89,7 +96,9 @@ impl Scenario for TwinScenario {
             "calibration": {
                 "q_wf": twin.q_wf,
                 "flicker_floor": twin.flicker_floor,
+                "q_rw": twin.q_rw,
                 "drift_per_s": twin.drift_per_s,
+                "params": if twin.q_rw > 0.0 { 3 } else { 2 },
                 "model": "kshana::models::ClockModel (open-core ErrorModel)",
             },
             "validation": {
@@ -108,10 +117,11 @@ impl Scenario for TwinScenario {
         .to_string();
 
         let summary = format!(
-            "Kshana Pro L1 twin | device: {} | calibrated q_wf={:.3e} flicker_floor={:.3e} | validation vs open-core Allan: max rel err {:.1}% (tol {:.0}%) => {}",
+            "Kshana Pro L1 twin | device: {} | calibrated q_wf={:.3e} flicker_floor={:.3e} q_rw={:.3e} | validation vs open-core Allan: max rel err {:.1}% (tol {:.0}%) => {}",
             self.device,
             twin.q_wf,
             twin.flicker_floor,
+            twin.q_rw,
             report.max_rel_err * 100.0,
             report.tolerance * 100.0,
             if report.passed { "PASS" } else { "FAIL" },
