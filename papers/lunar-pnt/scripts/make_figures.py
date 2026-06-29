@@ -116,24 +116,27 @@ def fig3_n_earth():
 
     fig, ax = plt.subplots(figsize=(6.2, 4))
     # Rank-deficient region: the Fisher information is singular (datum defect > 0).
+    # Annotations use the x-axis transform (x in data units, y in axes fraction) so
+    # the labels always sit inside the shaded band regardless of the y-axis range.
     bad = ne[defect > 0]
     if len(bad):
         ax.axvspan(ne.min() - 0.5, bad.max() + 0.5, color="#c44", alpha=0.12)
-        top = np.nanmax(crlb[obs]) if obs.any() else 1.0
-        ax.text((ne.min() - 0.5 + bad.max() + 0.5) / 2, top,
+        xtrans = ax.get_xaxis_transform()
+        ax.text((ne.min() - 0.5 + bad.max() + 0.5) / 2, 0.94,
                 "rank-deficient\n(datum defect $>0$)", ha="center", va="top",
-                color="#a22", fontsize=8)
+                color="#a22", fontsize=8, transform=xtrans)
         for x, dfc in zip(ne[defect > 0], defect[defect > 0]):
-            ax.text(x, top * 0.55, f"defect\n{int(dfc)}", ha="center", va="center",
-                    color="#a22", fontsize=7)
+            ax.text(x, 0.42, f"defect\n{int(dfc)}", ha="center", va="center",
+                    color="#a22", fontsize=7, transform=xtrans)
     ax.plot(ne[obs], crlb[obs], "-", color="#36c", lw=2,
             label="Cramer-Rao bound (analytic)")
     ax.plot(ne[obs], rms[obs], "o", color="#3a6", ms=7,
             label="estimator RMS (Monte-Carlo)")
-    # Efficiency at the default 6-station network (200-seed Monte-Carlo).
-    eff = DATA["seed_mc"].get("efficiency_rms_over_crlb")
+    # Efficiency at the six-station network, computed from this sweep (RMS / CRLB).
+    i6 = np.where(ne == 6)[0]
+    eff = (rms[i6[0]] / crlb[i6[0]]) if (len(i6) and np.isfinite(crlb[i6[0]])) else None
     if eff is not None:
-        ax.annotate(f"default network:\nRMS/CRLB $=$ {eff:.2f}", xy=(6, crlb[ne == 6][0]),
+        ax.annotate(f"six-satellite network:\nRMS/CRLB $=$ {eff:.2f}", xy=(6, crlb[ne == 6][0]),
                     xytext=(6.4, crlb[obs].max() * 0.72), fontsize=8, color="#333",
                     arrowprops=dict(arrowstyle="->", color="#888", lw=0.8))
     ax.set_xlabel("number of Earth stations / baselines")

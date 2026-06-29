@@ -1,65 +1,89 @@
 % SPDX-License-Identifier: CC-BY-4.0
 \section{Results}
+\label{sec:results}
 
-\subsection{VLBI restores absolute station observability}
+The theory of \S\ref{sec:theory} makes a falsifiable prediction: an
+Earth-baseline VLBI tie should \emph{restore} the station's absolute position to
+the observable subspace when the constellation is too sparse to carry the datum
+on its own, and merely \emph{sharpen} the bound when the constellation already
+carries it (\ref{tab:restore}). The results below test that prediction across
+both regimes and then read the actionable design law off the Fisher information.
+Throughout, the FIM/CRLB engine is Validated against independent libraries
+(\S\ref{sec:toolkit}); the lunar network it is applied to is a representative
+simulation, so every observability and accuracy number for that network is
+Modelled.
 
-Take the default scenario first: 3 satellites, 6 Earth stations, seed 42. Adding
-Earth-baseline VLBI pulls the recovered surface-station 3-D position error from
-2183~m (range-only) down to 3.55~m, a factor of 615, and the satellite position
-RMS from 717~m to 2.20~m. The fit converges in two iterations at a weighted RMS
-residual of 0.05 over 40 observations and 16 parameters
-(Figure~\ref{fig:headline}).
+\subsection{Sparse constellation: VLBI restores absolute observability}
+
+Start in the regime where the prediction bites. With three satellites and no
+direct tie, the station's absolute position sits in the null space of the Fisher
+information: the indirect Earth$\to$satellite anchor cannot propagate through so
+few look directions, and \eqref{eq:defect} leaves a residual datum defect. There
+is no finite Cram\'er--Rao bound, and a least-squares solve returns its start
+point rather than an estimate. Switching on the Earth-baseline VLBI delay closes
+that defect and pulls the station back to the metre level.
+
+The size of the recovery depends on the truth/noise draw. In the default
+scenario (3 satellites, 6 Earth stations, seed 42) VLBI pulls the recovered
+surface-station 3-D position error from \SI{2183}{\meter} (range-only) to
+\SI{3.55}{\meter}, a factor of $615$, with the satellite position RMS falling
+from \SI{717}{\meter} to \SI{2.20}{\meter}; the fit converges in two iterations
+at a weighted RMS residual of $0.05$ over 40 observations and 16 parameters
+(Figure~\ref{fig:headline}). That seed is favourable. Over a 200-seed
+truth/noise ensemble the median improvement is $\mathbf{91\times}$ (IQR
+$38$--$208\times$), the with-VLBI station error a median \SI{13.4}{\meter} (IQR
+$5.9$--$23.0$~m) against a range-only median near \SI{793}{\meter}
+(Figure~\ref{fig:seed_mc}). We quote the median; the default seed sits well into
+the upper tail. On a few draws the factor is close to one (minimum $0.91$ over
+200), so VLBI is not guaranteed to help on every single realisation, and we
+report that rather than hide it (Modelled).
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{fig1_headline}
-  \caption{With and without Earth-baseline VLBI in the default scenario
-    (3 satellites, 6 Earth stations, seed 42). Left, position: VLBI sharpens the
-    surface station's absolute 3-D error from 2183~m to 3.55~m ($615\times$) and
-    the satellite position RMS from 717~m to 2.20~m. Right, clocks: the satellite
-    clock RMS improves by about $569\times$, while the station clock, already
-    pinned by the clock-sync pseudo-observable, barely moves (ratio 1.005).
-    Modelled, internal-consistency oracle.}
+  \caption{The sparse-constellation headline, with and without Earth-baseline
+    VLBI (3 satellites, 6 Earth stations, seed 42). Left, position: VLBI restores
+    and sharpens the surface station's absolute 3-D error from \SI{2183}{\meter}
+    to \SI{3.55}{\meter} ($615\times$ on this seed) and the satellite position RMS
+    from \SI{717}{\meter} to \SI{2.20}{\meter}. Right, clocks: the satellite clock
+    RMS improves by about $569\times$, while the station clock, already pinned by
+    the clock-sync pseudo-observable, barely moves (ratio $1.005$). The
+    ensemble-median factor is $91\times$, not the favourable $615\times$ shown
+    here. Modelled, internal-consistency oracle.}
   \label{fig:headline}
 \end{figure}
 
-That seed happens to be a favourable one. Over a 200-seed truth/noise ensemble
-the median station error with VLBI is 13.4~m (IQR 5.9--23.0~m) against a
-range-only median near 793~m, a median improvement of \textbf{91$\times$} (IQR
-38--208$\times$; Figure~\ref{fig:seed_mc}). We quote the median, not the default
-seed, which sits well into the upper tail. On a handful of seeds the factor is
-close to one (the minimum over 200 is 0.91), so VLBI does not help on every
-single draw, and we would rather say that than hide it.
-
-The range-only regime is not a strawman. The first GNSS fix on the lunar surface
-(LuGRE, 2025) worked at the tens-to-hundreds-of-metres level
-\citep{lugre2026}, which is exactly where our range-only median of ~793~m lands.
-Nor is the remedy hypothetical: the NovaMoon station ESA adopted at CM25 carries
-an Earth-baseline VLBI transmitter of its own \citep{molli2026novamoon}, which
-corroborates the design rationale this study isolates (it does not validate the
-numbers).
+The range-only baseline is not a strawman. The first GNSS fix on the lunar
+surface, LuGRE in 2025, worked at the tens-to-hundreds-of-metres level
+\citep{lugre2026}, where our range-only median of \SI{793}{\meter} lands. Nor is
+the remedy hypothetical: the NovaMoon station ESA adopted at CM25 carries an
+Earth-baseline VLBI transmitter of its own \citep{molli2026novamoon}, which
+corroborates the design rationale this study isolates without validating its
+numbers.
 
 \subsection{Information, not observation count}
 
-If the observation set is held fixed and the VLBI delay $\sigma$ is degraded from
-$10^{-12}$~s to $10^{-7}$~s, the median station error rises from 1.6~m to about
-391~m and heads back toward the range-only median near 793~m
-(Figure~\ref{fig:sigma_vlbi}). The extra observations are there the whole time;
-only their information content changes. So the improvement is the VLBI
-information, not the fifteen extra observations it brought with it. The default
-$\sigma$, about 3~mm of delay precision and typical of geodetic VLBI, sits near
-the informative end of the curve.
+The restoration is the VLBI \emph{information}, not the extra observations that
+carry it. Holding the observation set fixed and degrading the VLBI delay $\sigma$
+from $10^{-12}$ to $10^{-7}$~s drives the median station error from
+\SI{1.6}{\meter} back up to about \SI{391}{\meter}, toward the range-only median
+near \SI{793}{\meter} (Figure~\ref{fig:sigma_vlbi}). The fifteen extra
+observations are present throughout; only their weight changes. The default
+$\sigma$, about \SI{3}{\milli\meter} of delay precision and typical of geodetic
+VLBI, sits near the informative end of the curve. This is the experimental
+control behind the theory's claim that the gain is a missing information
+direction, not a count of measurements (Modelled).
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\linewidth]{fig2_sigma_vlbi}
   \caption{Information, not count. Median station 3-D error over a 32-seed
     ensemble as the VLBI delay $\sigma$ is degraded at fixed observation count.
-    The error climbs from 1.6~m to about 391~m (with one minor non-monotonic step
-    near $\sigma{=}10^{-10}$~s) and approaches the range-only median near 793~m:
-    the observations stay, but their weight vanishes, so the gain was the VLBI
-    information all along. The default $\sigma$ (~3~mm) sits near the informative
-    end. Modelled.}
+    The error climbs from \SI{1.6}{\meter} to about \SI{391}{\meter} (with one
+    minor non-monotonic step near $\sigma{=}10^{-10}$~s) and approaches the
+    range-only median near \SI{793}{\meter}: the observations stay, but their
+    weight vanishes, so the gain was the VLBI information all along. The default
+    $\sigma$ ($\sim$\SI{3}{\milli\meter}) sits near the informative end. Modelled.}
   \label{fig:sigma_vlbi}
 \end{figure}
 
@@ -69,91 +93,162 @@ VLBI helps the absolute states and only those. In the default scenario the
 satellite clock RMS improves by about $569\times$
 ($4.1\times10^{-6}$~s to $7.3\times10^{-9}$~s) alongside the position gains, but
 the station clock error is essentially unchanged
-($2.882\times10^{-10}$~s to $2.868\times10^{-10}$~s, ratio 1.005) because the
+($2.882\times10^{-10}$~s to $2.868\times10^{-10}$~s, ratio $1.005$), because the
 clock-sync pseudo-observable already pins it (Figure~\ref{fig:headline}, right).
-VLBI is not a blanket improver. It supplies the absolute-geometry information the
-lunar-local set is missing, and nothing it already has.
+VLBI supplies the absolute-geometry information the lunar-local set is missing
+and nothing it already holds (Modelled).
 
-\subsection{The rank-restoration threshold, and the bound the estimator attains}
+\subsection{Rich constellation and the necessity law}
 
-The minimum-baseline behaviour is not a soft conditioning effect; it is the
-datum-defect closure of \S\ref{sec:theory} read straight off the Fisher
-information. With one Earth station the joint network carries a six-dimensional
-datum defect---the whole lunar frame floats---with two it is down to two, and at
-three it is zero: full rank, absolute station position observable
-(Figure~\ref{fig:n_earth}). Below three there is no finite Cram\'er--Rao bound and
-the recovered error reflects the start point rather than an estimate, so we shade
-that region.
+Make the constellation rich and the picture changes in exactly the way
+\ref{thm:rigid} and \ref{tab:restore} predict. With six satellites the indirect
+tie alone propagates through enough look directions to make the station's
+absolute position observable: even without VLBI the datum defect is zero and the
+Cram\'er--Rao bound is \SI{23.2}{\meter}. Adding VLBI no longer restores
+anything; it sharpens, taking the bound to \SI{9.7}{\meter}, a factor of about
+$2.4$ (\ref{tab:restore}). The ensemble tells the same story: a median
+improvement near $3\times$ (IQR $[1,7]$, min $0.34$, max $371$), modest because
+the geometry has already done most of the work.
 
-Once the position is observable the bound sets the achievable accuracy. The
-analytic Cram\'er--Rao bound on the station's absolute position falls from
-\SI{50.1}{\meter} at three Earth stations to \SI{20.1}{\meter} at six and
-\SI{13.7}{\meter} at ten---the diminishing-returns design curve of
-Figure~\ref{fig:n_earth}---and the Gauss--Newton estimator's Monte-Carlo RMS
-tracks it. At the default six-station network the two coincide: RMS
-\SI{20.1}{\meter} against a bound of \SI{20.1}{\meter}, an efficiency of $1.00$
-over 200 seeds. The estimator is statistically efficient---it extracts
-essentially all the information the geometry holds---so the gains here are the
-information-theoretic optimum, and a geodetic VLBI tie has a hard
-minimum-infrastructure threshold that is not a margin you can trade away. (Right
-at the threshold the 32-seed RMS sits a little under the bound; that is the
-start-point regularisation biasing a marginally-conditioned solve, and it relaxes
-by four stations.)
+That contrast is the design law. Whether a mission \emph{needs} an Earth-baseline
+VLBI tie or merely benefits from one is set by the constellation, not by taste.
+For a sparse, early, or geometry-poor constellation VLBI is necessary: without it
+the surface station is unobservable. For a rich constellation it is a refinement
+worth roughly a factor of two to three in the bound. \ref{tab:restore} is the
+quantitative form of the rule, and it is what a designer needs to decide where to
+spend infrastructure.
+
+\subsection{The rank-restoration threshold and the design curve}
+
+The threshold behaviour is the datum-defect closure of \S\ref{sec:theory} read
+straight off the Fisher information, not a soft conditioning effect. On a network
+with enough satellites that observation count is not the binding constraint, the
+true positional datum defect falls $3 \to 1 \to 0$ as the number of non-collinear
+Earth stations goes $1 \to 2 \to 3$ (\eqref{eq:defect}): the absolute station
+position becomes observable at three non-collinear stations and not before. The
+three-satellite default reads a steeper $6 \to 2 \to 0$, but that observed ladder
+decomposes exactly into the true datum defect ($3 \to 1 \to 0$) plus an
+observation-count deficit of equal size ($3 \to 1 \to 0$); we report the true
+datum defect, which is robust across three, six, and eight satellites
+(Figure~\ref{fig:n_earth}).
+
+Once the position is observable the bound sets the accuracy. For the
+six-satellite network the Cram\'er--Rao bound on the station's absolute 3-D
+position (1$\sigma$ RSS) falls from \SI{12.1}{\meter} at three Earth stations to
+\SI{9.7}{\meter} at six and \SI{8.5}{\meter} at ten, the diminishing-returns
+design curve of \ref{fig:n_earth}. The estimator attains it: against the
+\SI{9.7}{\meter} bound at six stations the Gauss--Newton Monte-Carlo RMS over 200
+seeds is \SI{9.9}{\meter}, an efficiency of $1.02$, with an empirical bias of
+\SI{0.36}{\meter}, $3.6\%$ of the RMS. The estimator is effectively unbiased and
+the bound is attained, so the accuracies reported here are the
+information-theoretic optimum for each geometry rather than an artefact of the
+solver (Modelled; engine Validated).
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\linewidth]{fig3_n_earth}
-  \caption{The rank-restoration threshold and the Cram\'er--Rao bound. With fewer
-    than three Earth stations the Fisher information is rank-deficient (datum
-    defect 6, then 2; shaded) and the absolute station position is unobservable;
-    at three it becomes full rank. The analytic Cram\'er--Rao bound (line) then
-    falls with baselines---\SI{50.1}{\meter} at three to \SI{13.7}{\meter} at
-    ten---and the estimator's Monte-Carlo RMS (markers) tracks it, coinciding at
-    the default six-station network (efficiency $1.00$). The FIM/CRLB engine is
-    Validated against NumPy; the lunar network it is applied to is Modelled.}
+  \caption{The rank-restoration threshold and the design curve. With fewer than
+    three non-collinear Earth stations the Fisher information is rank-deficient
+    (true positional datum defect $3$, then $1$; shaded) and the absolute station
+    position is unobservable; at three it becomes full rank. For the
+    six-satellite network the Cram\'er--Rao bound (line) then falls with
+    baselines, \SI{12.1}{\meter} at three to \SI{8.5}{\meter} at ten, and the
+    Gauss--Newton Monte-Carlo RMS (markers) attains it (\SI{9.9}{\meter} vs
+    \SI{9.7}{\meter} at six stations, efficiency $1.02$, bias $3.6\%$ of RMS). The
+    FIM/CRLB engine is Validated against NumPy; the lunar network it is applied to
+    is Modelled.}
   \label{fig:n_earth}
 \end{figure}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\linewidth]{fig4_seed_mc}
-  \caption{Improvement factor over the 200-seed truth/noise ensemble (range-only
-    over with-VLBI station 3-D error). The median is $91\times$ (IQR
-    38--208$\times$); the with-VLBI median station error is 13.4~m (IQR
-    5.9--23.0~m) against a range-only median near 793~m. The default seed
-    ($615\times$) sits in the upper tail, and the minimum over 200 seeds is 0.91,
-    so VLBI is not guaranteed to help on every draw. Modelled.}
+  \caption{Improvement factor over the 200-seed truth/noise ensemble in the
+    sparse regime (range-only over with-VLBI station 3-D error). The median is
+    $91\times$ (IQR $38$--$208\times$); the with-VLBI median station error is
+    \SI{13.4}{\meter} (IQR $5.9$--$23.0$~m) against a range-only median near
+    \SI{793}{\meter}. The default seed ($615\times$) sits in the upper tail, and
+    the minimum over 200 seeds is $0.91$, so VLBI is not guaranteed to help on
+    every draw. Modelled.}
   \label{fig:seed_mc}
 \end{figure}
+
+\subsection{A representative frozen-orbit constellation}
+
+The structure above is not an artefact of the illustrative circular placement. Re-running
+on a representative elliptical lunar frozen orbit (ELFO) of the Moonlight/LCNS design
+family---semi-major axis \SI{9750.7}{\kilo\meter}, eccentricity $0.638$, frozen
+inclination \SI{57.7}{\degree}, apoapsis over the south pole---reproduces the same
+datum-defect ladder exactly: the positional defect closes $3 \to 1 \to 0$ at one, two and
+three non-collinear Earth stations. The theorem of \S\ref{sec:theory} is a property of the
+estimation geometry, not of any one orbit shape, and the three-station threshold is
+unchanged.
+
+The design law survives and sharpens (Table~\ref{tab:elfo}). A sparse single-plane ELFO of
+three satellites is \emph{still} unobservable without VLBI---the apoapsis dwell concentrates
+the look directions, so the indirect tie cannot reach the station's absolute datum---and VLBI
+restores it, to a \SI{1.8}{\meter} bound. A multi-plane constellation is observable from
+ranging alone (six satellites over three planes give a \SI{2.8}{\meter} bound without VLBI),
+but the direct tie still tightens the bound by one to two orders of magnitude. With three or
+more Earth VLBI baselines the absolute station position is observable at a \emph{sub-metre}
+Cram\'er--Rao bound---\SI{0.48}{\meter} at three stations, falling to \SI{0.39}{\meter} at
+ten---and the Gauss--Newton estimator attains it (efficiency $0.97$ over the ensemble). The
+orbit parameters are representative of the public design family \citep{esa_moonlight}, not a
+flown ephemeris, so these results remain Modelled; the point is that the observability
+geometry, the threshold, and the necessity law all carry over to the realistic orbit shape.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}llcc@{}}
+\toprule
+Constellation & Planes & Without VLBI & With VLBI \\
+\midrule
+3 satellites & 1 & \textbf{unobservable} & \SI{1.8}{\meter} \\
+3 satellites & 3 & \textbf{unobservable} & \SI{16.1}{\meter} \\
+6 satellites & 1 & \SI{32.7}{\meter} & \SI{0.4}{\meter} \\
+6 satellites & 3 & \SI{2.8}{\meter}  & \SI{0.4}{\meter} \\
+\bottomrule
+\end{tabular}
+\caption{Restore-versus-sharpen on the representative ELFO (Cram\'er--Rao bound on the
+station's absolute 3-D position, six Earth stations). A sparse single-plane constellation is
+unobservable without VLBI and the direct tie restores it; a richer constellation is
+observable from ranging alone, and VLBI sharpens the bound by one to two orders of
+magnitude. Modelled.}
+\label{tab:elfo}
+\end{table}
 
 \subsection{Cross-suite sanity}
 
 The same engine gives sensible numbers along the rest of the lunar chain
 (Figure~\ref{fig:cross_suite}). Coordinated Lunar Time comes out at
-57.04~$\mu$s/day \citep{ashby2024lunartime,iau2024lcrs}, split into a
-$+57.50$~$\mu$s/day self-potential term and a $-0.46$~$\mu$s/day kinetic term.
-That rate is Validated against Ashby \& Patla over DE440. It sits about
-1~$\mu$s/day above their canonical surface-to-surface value of 56.02~$\mu$s/day,
-and the difference is the choice of reference surface (Earth geoid versus lunar
-selenoid potential), which is why the honest comparison is a band rather than a
-point. The lunar-distance VLBI near-field correction is 58.9~$\mu$s on a
-10\,727~km baseline, and its far-field limit reproduces the engine's own
-far-field $\Delta$-DOR delay to machine precision (Modelled, against a
-reference-implementation oracle in the same codebase). Differential PNT brings a
-24.5~m standalone user error down to 0.008~m at a 50~km baseline ($3186\times$),
-and the residual grows with baseline as you would expect (Modelled).
+\SI{57.04}{\micro\second\per\day} \citep{ashby2024lunartime,iau2024lcrs}, split
+into a $+57.50$~$\mu$s/day self-potential term and a $-0.46$~$\mu$s/day kinetic
+term. That rate is Validated against Ashby \& Patla over DE440. It sits about
+\SI{1}{\micro\second\per\day} above their canonical surface-to-surface value of
+\SI{56.02}{\micro\second\per\day}, and the difference is the choice of reference
+surface (Earth geoid versus lunar selenoid potential), which is why the honest
+comparison is a band rather than a point. The lunar-distance VLBI near-field
+correction is \SI{58.9}{\micro\second} on a \SI{10727}{\kilo\meter} baseline, and
+its far-field limit reproduces the engine's own far-field $\Delta$-DOR delay to
+machine precision (Modelled, against a reference-implementation oracle in the
+same codebase). Differential PNT brings a \SI{24.5}{\meter} standalone user error
+down to \SI{0.008}{\meter} at a \SI{50}{\kilo\meter} baseline ($3186\times$), and
+the residual grows with baseline as expected (Modelled).
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{fig5_cross_suite}
   \caption{The same engine across the lunar chain. Left: Coordinated Lunar Time
-    at 57.04~$\mu$s/day, split into a $+57.50$~$\mu$s/day self-potential term and
-    a $-0.46$~$\mu$s/day kinetic term, Validated against Ashby \& Patla over DE440
-    (the ~1~$\mu$s/day offset from their canonical 56.02~$\mu$s/day is the
-    reference-surface choice). Centre: the lunar VLBI near-field correction,
-    58.9~$\mu$s on a 10\,727~km baseline, whose far-field limit reproduces the
+    at \SI{57.04}{\micro\second\per\day}, split into a $+57.50$~$\mu$s/day
+    self-potential term and a $-0.46$~$\mu$s/day kinetic term, Validated against
+    Ashby \& Patla over DE440 (the $\sim$\SI{1}{\micro\second\per\day} offset from
+    their canonical \SI{56.02}{\micro\second\per\day} is the reference-surface
+    choice). Centre: the lunar VLBI near-field correction, \SI{58.9}{\micro\second}
+    on a \SI{10727}{\kilo\meter} baseline, whose far-field limit reproduces the
     engine's own far-field $\Delta$-DOR delay to machine precision (Modelled).
-    Right: differential PNT taking a 24.5~m user error to 0.008~m at a 50~km
-    baseline ($3186\times$), growing with baseline (Modelled).}
+    Right: differential PNT taking a \SI{24.5}{\meter} user error to
+    \SI{0.008}{\meter} at a \SI{50}{\kilo\meter} baseline ($3186\times$), growing
+    with baseline (Modelled).}
   \label{fig:cross_suite}
 \end{figure}

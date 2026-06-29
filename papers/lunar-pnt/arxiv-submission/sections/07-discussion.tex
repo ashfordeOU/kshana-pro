@@ -2,39 +2,73 @@
 \section{Discussion}
 \label{sec:discussion}
 
-For anyone designing a NovaMoon-class reference station or a Moonlight/LCNS
-architecture, the finding is a concrete and reproducible reason the Earth-baseline
-geodetic tie matters. Lunar-local measurements fix the cluster's internal
-geometry on their own, but they leave its absolute placement weakly observable,
-and a few precise Earth VLBI baselines close that gap, above a three-station
-threshold and through information rather than count.
+For anyone sizing a NovaMoon-class reference station or a Moonlight/LCNS
+constellation, the result reframes the geodetic tie as a conditional requirement
+rather than an enhancement. The question is not whether an Earth-baseline VLBI
+tie is nice to have. It is whether the constellation is rich enough to fix the
+station's absolute datum without one. Theorem~\ref{thm:rigid} settles the first
+half: lunar-local ranging fixes the cluster's internal geometry and leaves the
+absolute placement in a six-dimensional rigid-body null space, so an Earth-frame
+tie is mandatory in some form. Which form depends on the geometry. A rich
+constellation propagates the indirect Earth$\to$satellite anchor to the station
+well enough that the absolute position is already observable and VLBI only
+sharpens the bound; a sparse, early, or polar constellation does not, and the
+direct VLBI tie is the only thing that pulls the station out of $\ker M$.
+Table~\ref{tab:restore} is the decision in one line, and it is the design law we
+want a mission team to carry away.
 
-That gives a sizing rule straight from the information matrix, not a rule of thumb.
-The floor is non-negotiable: at least three non-collinear Earth stations, because
-below three the joint network is rank-deficient and the absolute-position bound is
-infinite---verify it on the datum defect ($\dim\ker M = 0$), not on a merely finite
-residual. Above the floor the Cram\'er--Rao bound is the design curve: the default
-six-station tie reaches \SI{20.1}{\meter} on the station's absolute position and
-ten stations reach \SI{13.7}{\meter}, with diminishing returns set by the
-plane-of-sky baseline geometry. For a safety-of-life absolute datum the criterion
-to optimise is E-optimality---lift the worst-observed axis, the very one the
-Earth baseline exists to fix---rather than the average-variance or
-ellipsoid-volume criteria that a well-conditioned network would let you use
-interchangeably; \code{fim}'s \code{best\_design} selects among candidate
-geometries on whichever criterion the mission sets. Because the estimator is
-efficient (\S\ref{sec:theory}), the bound is what you will actually get, so the
-curve can be used for sizing directly.
+The law has a hard floor and a soft slope. The floor is the three-station
+threshold of \eqref{eq:defect}: a single snapshot baseline is rank-one and lies
+in the plane of the sky, so one Earth station informs at most two of the
+station's three absolute axes, and observability is reached at three non-collinear
+stations and not before. Below it the absolute-position bound is infinite, and a
+design review should verify that on the datum defect ($\dim\ker M = 0$) rather
+than on a merely finite residual, since an observation-starved network can show a
+small residual while still being rank-deficient. Above the floor the
+Cram\'er--Rao bound is the slope: for a six-satellite network the absolute 3-D
+position bound falls from \SI{12.1}{\meter} at three Earth stations to
+\SI{9.7}{\meter} at six and \SI{8.5}{\meter} at ten, the diminishing-returns
+design curve of Figure~\ref{fig:n_earth}. In the sparse regime where VLBI is
+carrying the datum outright the curve sits higher and steeper (\SI{20.1}{\meter}
+at six stations; see Table~\ref{tab:restore}), which is the honest cost of leaning
+on the direct tie when the constellation cannot help.
 
-The real programme has already reached the same conclusion. ESA's NovaMoon
-station, adopted at CM25, carries an Earth-baseline VLBI transmitter as a core
-element \citep{molli2026novamoon}, which is the design choice this study points
-to. The point generalises beyond ESA: because LCNS, NASA's LCRNS and JAXA's LNSS
-share the Augmented Forward Signal under LNIS~v5
-\citep{nasa2025lnis,nasa2025afs}, the weak-absolute-observability gap belongs to
-the common architecture, not to any one provider. LNIS~v5 also still leaves the
-binding lunar frame and time realisation to a later document, so an open,
-honestly Modelled, LNIS-vocabulary-aligned candidate that a mission team can run
-today is useful right now rather than eventually. The toolkit lets that team
-reproduce the trade-off and vary it before any hardware exists, with the honesty
-labels intact. To be clear, we are claiming that the architectural rationale is
-corroborated, not that kshana's numbers are validated (see Limitations).
+What to optimise along that curve is not the textbook choice. For a
+safety-of-life absolute datum the criterion is E-optimality: maximise the
+smallest eigenvalue of the information, which lifts the worst-observed axis, the
+very direction the Earth baseline exists to fix. Average-variance (A-optimality)
+or ellipsoid-volume (D-optimality) would do for a well-conditioned network where
+the axes are interchangeable, but here the whole point is that one axis is starved,
+so the min-eigenvalue criterion is the one that matches the physics.
+\code{fim}'s \code{best\_design} ranks candidate station geometries on whichever
+criterion the mission sets, so a team can pose the trade directly: fewest Earth
+stations that clear the three-station floor and hit a worst-axis target. Because
+the Gauss--Newton estimator is statistically efficient at this geometry
+(\S\ref{sec:theory}, $\text{RMS}/\text{CRLB} = 1.02$), the bound is what a
+real solve will actually deliver, so the curve can be used for sizing without a
+hedge factor.
+
+The flight programme has already made this call. ESA's NovaMoon station, adopted
+at CM25, carries an Earth-baseline VLBI transmitter as a core element
+\citep{molli2026novamoon}, which is precisely the direct tie this analysis says a
+conservative or early architecture needs. The point is not ESA-specific. Because
+LCNS, NASA's LCRNS, and JAXA's LNSS interoperate through the Augmented Forward
+Signal under LNIS~v5 \citep{nasa2025lnis,nasa2025afs}, the weak-absolute-%
+observability gap is a property of the shared LNIS architecture, not of any one
+provider's hardware. LNIS~v5 still defers the binding lunar reference frame and
+time realisation to a later document, so an open candidate that is honestly
+Modelled, aligned to the LNIS vocabulary, and runnable today gives a mission team
+something to size against before the frame is frozen. They can reproduce the
+trade and vary the constellation, the station count, and the criterion themselves,
+with the honesty labels intact.
+
+A boundary on the claim. What the analysis corroborates is the architectural
+rationale: that an Earth-baseline tie is required to make the absolute datum
+observable, that three non-collinear stations is the threshold, and that VLBI's
+role flips from necessary to merely helpful as the constellation grows. It does
+not validate kshana's lunar numbers against real tracking. The FIM/CRLB engine is
+Validated against independent libraries, but the lunar network it runs on is a
+representative, single-epoch, closed-loop simulation over an illustrative orbit,
+so every observability figure here stays Modelled (see Limitations). The design
+law is a statement about the geometry of the problem, and that is what we are
+putting forward.

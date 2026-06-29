@@ -68,7 +68,9 @@ def run_joint(workdir: Path, **fields) -> dict:
     """Run one lunar-joint-od-clock scenario and return its result JSON."""
     toml = ['kind = "lunar-joint-od-clock"']
     for k, v in fields.items():
-        if isinstance(v, float):
+        if isinstance(v, bool):  # must precede int: TOML booleans are lowercase
+            toml.append(f"{k} = {str(v).lower()}")
+        elif isinstance(v, float):
             toml.append(f"{k} = {v:.16g}")
         else:
             toml.append(f"{k} = {v}")
@@ -123,14 +125,18 @@ def main():
                             "range_only": quartiles(range_errs)})
         out["sigma_vlbi_sweep"] = sv_rows
 
-        # 3. n_earth sweep (number of Earth baselines).
+        # 3. n_earth sweep (number of Earth baselines) on a NON-STARVED 6-satellite
+        #    network, so the datum-defect ladder (3 -> 1 -> 0) and the CRLB design
+        #    curve are the true datum defect, not an observation-count artefact.
         print("n_earth sweep ...", flush=True)
         ne_rows = []
         for ne in N_EARTH_GRID:
             errs, factors = [], []
             crlb_m, defect = None, None
-            for s in SWEEP_SEEDS:
-                r = run_joint(wd, seed=s, n_earth=ne)
+            # 200 seeds so the estimator-RMS markers are stable enough to read the
+            # efficiency (RMS/CRLB) off the figure; CRLB/defect are geometry-only.
+            for s in MC_SEEDS:
+                r = run_joint(wd, seed=s, n_earth=ne, n_sat=6)
                 errs.append(r["with_vlbi"]["station_pos_err_m"])
                 factors.append(r["station_observability_improvement_factor"])
                 # Fisher-information observability is geometry-only (seed-independent).
@@ -161,6 +167,39 @@ def main():
                           "efficiency_rms_over_crlb":
                               (rms_default / crlb_default) if crlb_default else None,
                           "factors": factors}
+
+        # 4b. Representative ELFO (Moonlight/LCNS design family) — geometry-generality check:
+        #     the datum-defect structure is not an artefact of the illustrative circular placement.
+        print("ELFO geometry ...", flush=True)
+        ELFO = dict(orbit_radius_km=9750.7, orbit_ecc=0.6383,
+                    orbit_inc_deg=57.7, orbit_argp_deg=90.0)
+        # Datum-defect ladder + CRLB curve on a non-starved 6-satellite, 3-plane ELFO
+        # (defect/CRLB are geometry-only, so one seed suffices).
+        elfo_curve = []
+        for ne in N_EARTH_GRID:
+            r = run_joint(wd, seed=1, n_sat=6, orbit_planes=3, n_earth=ne, **ELFO)
+            elfo_curve.append({"n_earth": ne,
+                               "defect": r["observability"]["defect"],
+                               "crlb_m": r["observability"]["station_pos_crlb_m"]})
+        # Estimator efficiency at the 6-station ELFO (MC_SEEDS).
+        errs = []
+        for s in MC_SEEDS:
+            r = run_joint(wd, seed=s, n_sat=6, orbit_planes=3, n_earth=6, **ELFO)
+            errs.append(r["with_vlbi"]["station_pos_err_m"])
+        rms6 = (sum(e * e for e in errs) / len(errs)) ** 0.5
+        crlb6 = next(c["crlb_m"] for c in elfo_curve if c["n_earth"] == 6)
+        # Restore-vs-sharpen across constellation richness (n_earth = 6, geometry-only CRLB).
+        elfo_rs = []
+        for ns, pl in [(3, 1), (3, 3), (6, 1), (6, 3)]:
+            r = run_joint(wd, seed=1, n_sat=ns, orbit_planes=pl, n_earth=6, **ELFO)
+            elfo_rs.append({"n_sat": ns, "planes": pl,
+                            "with_crlb_m": r["observability"]["station_pos_crlb_m"],
+                            "with_defect": r["observability"]["defect"],
+                            "without_crlb_m": r["observability_without_vlbi"]["station_pos_crlb_m"],
+                            "without_defect": r["observability_without_vlbi"]["defect"]})
+        out["elfo"] = {"params": ELFO, "curve": elfo_curve, "restore_sharpen": elfo_rs,
+                       "rms6_m": rms6, "crlb6_m": crlb6,
+                       "efficiency_rms_over_crlb": (rms6 / crlb6) if crlb6 else None}
 
         # 5. Cross-suite sanity (default artifacts).
         print("cross-suite ...", flush=True)
