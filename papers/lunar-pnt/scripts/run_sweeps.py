@@ -128,12 +128,20 @@ def main():
         ne_rows = []
         for ne in N_EARTH_GRID:
             errs, factors = [], []
+            crlb_m, defect = None, None
             for s in SWEEP_SEEDS:
                 r = run_joint(wd, seed=s, n_earth=ne)
                 errs.append(r["with_vlbi"]["station_pos_err_m"])
                 factors.append(r["station_observability_improvement_factor"])
+                # Fisher-information observability is geometry-only (seed-independent).
+                crlb_m = r["observability"]["station_pos_crlb_m"]
+                defect = r["observability"]["defect"]
+            rms = (sum(e * e for e in errs) / len(errs)) ** 0.5
             ne_rows.append({"n_earth": ne,
                             "with_vlbi": quartiles(errs),
+                            "with_vlbi_rms_m": rms,
+                            "crlb_m": crlb_m,
+                            "defect": defect,
                             "improvement_factor": quartiles(factors)})
         out["n_earth_sweep"] = ne_rows
 
@@ -144,8 +152,14 @@ def main():
             r = run_joint(wd, seed=s)
             factors.append(r["station_observability_improvement_factor"])
             with_errs.append(r["with_vlbi"]["station_pos_err_m"])
+        crlb_default = out["headline"]["observability"]["station_pos_crlb_m"]
+        rms_default = (sum(e * e for e in with_errs) / len(with_errs)) ** 0.5
         out["seed_mc"] = {"improvement_factor": quartiles(factors),
                           "with_vlbi_station_err_m": quartiles(with_errs),
+                          "with_vlbi_station_rms_m": rms_default,
+                          "crlb_m": crlb_default,
+                          "efficiency_rms_over_crlb":
+                              (rms_default / crlb_default) if crlb_default else None,
                           "factors": factors}
 
         # 5. Cross-suite sanity (default artifacts).

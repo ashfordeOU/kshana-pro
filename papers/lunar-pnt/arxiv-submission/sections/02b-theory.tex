@@ -1,0 +1,114 @@
+% SPDX-License-Identifier: CC-BY-4.0
+\section{Theory: Fisher information, the datum defect, and rank restoration}
+\label{sec:theory}
+
+The empirical contrast in the next section---absolute station error collapsing
+by about two orders of magnitude once Earth-baseline VLBI is switched on---asks
+for a reason. It is not that VLBI brings more numbers to the fit. It is that
+without it the fit is missing a particular piece of information, and the
+information geometry says exactly which piece. This section makes that precise,
+and the statements here are exact algebra of the estimation problem rather than
+claims about flight data: they explain \emph{why} the simulated result comes out
+the way it does.
+
+\subsection{The Fisher information of the joint solve}
+
+Write the estimated state as the stacked correction vector
+$x = [\,\delta r_S,\ \{\delta r_k\},\ c\tau_S,\ \{c\tau_k\}\,]$ (station position,
+satellite positions, station and satellite clocks carried as range-equivalent
+metres), and the observations as $y = h(x) + n$ with $n \sim \mathcal{N}(0,R)$ and
+$R = \operatorname{diag}(\sigma_i^2)$. For this Gaussian model the Fisher
+information matrix is
+\begin{equation}
+  M = H^{\top} W H, \qquad W = R^{-1}, \qquad H = \frac{\partial h}{\partial x},
+  \label{eq:fim}
+\end{equation}
+and the Cram\'er--Rao lower bound states that any unbiased estimator has
+covariance $\operatorname{Cov}(\hat x) \succeq M^{-1}$: no estimator can do better
+than $M^{-1}$, and a maximum-likelihood estimator attains it asymptotically. When
+$M$ is rank-deficient the bound on the observable subspace is the Moore--Penrose
+pseudo-inverse $M^{+}$, and the unobservable directions---the null space of
+$M$---have no finite bound at all. Kshana computes $M$, its spectrum, $M^{+}$ and
+the null space directly (\code{src/fim.rs}); the engine is Validated against
+NumPy's \code{eigh}/\code{inv} and published closed-form bounds (\S\ref{sec:toolkit}).
+
+The information is additive across techniques, $M = \sum_i w_i\, h_i' h_i'^{\top}$,
+so each observable contributes a rank-one outer product of its state gradient. The
+station-position block is the part that matters here:
+\begin{equation}
+  M_{SS} = \sigma_R^{-2} \sum_k \hat u_k \hat u_k^{\top}
+         + \sigma_V^{-2} \sum_{i<j} a_{ij} a_{ij}^{\top},
+  \qquad
+  a_{ij} = \tfrac{1}{c}\,Q^{\top}\!\left(\hat w_j - \hat w_i\right),
+  \label{eq:mss}
+\end{equation}
+where $\hat u_k$ is the station$\to$satellite line of sight (the ranging terms)
+and $a_{ij}$ is the gradient of the Earth-baseline VLBI delay---the
+\emph{difference} of the two near-parallel look directions $\hat w_i,\hat w_j$ from
+the lunar beacon to Earth stations $i$ and $j$, mapped through the beacon Jacobian
+$Q$.
+
+\subsection{The datum defect}
+
+Lunar-local ranging is blind to where the lunar frame sits as a whole. Slide the
+station and every satellite together, or rotate them rigidly about the Moon's
+centre, and not one station$\leftrightarrow$satellite or inter-satellite range
+changes. Those rigid motions (three translations and three rotations) are a
+six-dimensional \emph{datum defect}: they live in the null space of $M$ and are
+unobservable from internal ranging alone. This is the lunar instance of the
+free-network (rank-deficiency) problem of geodetic adjustment.
+
+The other observables chip away at that defect. Earth-to-satellite ranging ties
+the satellites to the Earth frame, and a clock-sync pseudo-observable pins the
+common clock; with enough Earth stations these close most of the six dimensions.
+What they cannot close on their own is the station's own absolute tie, and that is
+the gap VLBI fills. Running the analysis over the number of Earth stations $n_E$
+makes the closure explicit---the datum defect $\dim\ker M$ falls
+\begin{equation}
+  n_E = 1:\ \text{defect } 6 \;\longrightarrow\;
+  n_E = 2:\ \text{defect } 2 \;\longrightarrow\;
+  n_E = 3:\ \text{defect } 0,
+  \label{eq:defect}
+\end{equation}
+so the joint network becomes fully observable at three Earth stations and not
+before (computed by the \code{lunar\_observability} routine).
+
+\subsection{What one baseline buys, and the three-station threshold}
+
+Each VLBI delay in \eqref{eq:mss} adds a single rank-one term $a_{ij}a_{ij}^{\top}$
+to the station block, so a snapshot baseline contributes \emph{rank one}, not more.
+(Rank two per baseline would need a delay \emph{rate} as well---an Earth-rotation
+arc, not the single epoch modelled here.) The baselines are also not independent:
+for three Earth stations the three pairwise delays satisfy the closure
+$a_{02} = a_{01} + a_{12}$, so $n_E$ stations give only $n_E - 1$ independent
+ties. And because the Earth stations subtend a tiny angle from the Moon, each
+$a_{ij}$ lies in the plane of the sky---the transverse directions---with no usable
+depth component; a single epoch of VLBI therefore informs at most two of the
+station's three position axes, and ranging must supply the third.
+
+So the rank-restoration statement the empirical ``three-station threshold'' was
+reporting all along is just this: $M$ is full rank, and the absolute station
+position observable with a finite Cram\'er--Rao bound, precisely when the
+independent baselines span the residual station datum, which first happens at
+three Earth stations. Below that, \eqref{eq:defect} holds and the
+station-position bound is infinite; the recovered error in a finite solve is then
+whatever the start point happens to pin, not an estimate.
+
+\subsection{The bound is attained}
+
+The bound is not just a floor the estimator stays comfortably above. For the
+default six-station network the Cram\'er--Rao bound on the station's absolute 3-D
+position is \SI{20.1}{\meter} ($1\sigma$ RSS), and the Gauss--Newton estimator's
+Monte-Carlo RMS over 200 seeds is \SI{20.1}{\meter}: an efficiency
+$\text{RMS}/\text{CRLB} = 1.00$. The estimator is statistically efficient, so the
+$91\times$ improvement of the next section is the information-theoretic optimum
+for this geometry, not an artefact of a lucky solver. The same bound, read off as
+$n_E$ grows, is the design curve of Figure~\ref{fig:n_earth}, and the basis of
+the sizing rule in \S\ref{sec:discussion}.
+
+One honesty note carries through the rest of the paper. Everything above is exact
+algebra of the estimation model; it explains the simulated result, it does not
+validate it against real lunar tracking. The FIM/CRLB engine that computes these
+quantities is Validated against independent libraries, but the lunar network it is
+applied to is a representative simulation, so the observability result itself stays
+Modelled. We keep that line bright in \S\ref{sec:toolkit}.

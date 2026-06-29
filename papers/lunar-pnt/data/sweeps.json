@@ -260,6 +260,15 @@
       "n_params": 16
     },
     "station_observability_improvement_factor": 615.5179685859817,
+    "observability": {
+      "n_params": 16,
+      "rank": 16,
+      "defect": 0,
+      "station_pos_crlb_m": 20.07769432856372,
+      "station_pos_unobservable_axes": 0.0,
+      "e_opt": 1340402842.3405383,
+      "condition": 1236400.6966074079
+    },
     "n_sat": 3,
     "n_earth": 6
   },
@@ -485,6 +494,9 @@
         "max": 1000000000.0,
         "n": 32
       },
+      "with_vlbi_rms_m": 1000000000.0,
+      "crlb_m": null,
+      "defect": 6,
       "improvement_factor": {
         "median": 1.0,
         "q1": 1.0,
@@ -504,6 +516,9 @@
         "max": 1000000000.0,
         "n": 32
       },
+      "with_vlbi_rms_m": 1000000000.0,
+      "crlb_m": null,
+      "defect": 2,
       "improvement_factor": {
         "median": 1.0,
         "q1": 1.0,
@@ -523,6 +538,9 @@
         "max": 89.87734168865369,
         "n": 32
       },
+      "with_vlbi_rms_m": 39.91811585193104,
+      "crlb_m": 50.12378989026809,
+      "defect": 0,
       "improvement_factor": {
         "median": 765.2612885386434,
         "q1": 256.98822618869315,
@@ -542,6 +560,9 @@
         "max": 82.97175545194406,
         "n": 32
       },
+      "with_vlbi_rms_m": 37.43178833800017,
+      "crlb_m": 36.804014633010034,
+      "defect": 0,
       "improvement_factor": {
         "median": 113.83756885352938,
         "q1": 37.24347834820522,
@@ -561,6 +582,9 @@
         "max": 62.97839950750796,
         "n": 32
       },
+      "with_vlbi_rms_m": 20.313490177734504,
+      "crlb_m": 20.07769432856372,
+      "defect": 0,
       "improvement_factor": {
         "median": 82.61716500818156,
         "q1": 24.007505102606867,
@@ -580,6 +604,9 @@
         "max": 34.444724761602146,
         "n": 32
       },
+      "with_vlbi_rms_m": 17.630376607748378,
+      "crlb_m": 16.364901378379844,
+      "defect": 0,
       "improvement_factor": {
         "median": 67.67619643048786,
         "q1": 31.536657383253406,
@@ -599,6 +626,9 @@
         "max": 25.610436493611044,
         "n": 32
       },
+      "with_vlbi_rms_m": 12.855707828673298,
+      "crlb_m": 13.738474423022026,
+      "defect": 0,
       "improvement_factor": {
         "median": 91.53505756042412,
         "q1": 51.1191770797422,
@@ -626,6 +656,9 @@
       "max": 62.97839950750796,
       "n": 200
     },
+    "with_vlbi_station_rms_m": 20.141697494830115,
+    "crlb_m": 20.07769432856372,
+    "efficiency_rms_over_crlb": 1.0031877747125246,
     "factors": [
       0.9148379080601726,
       13.423217065515932,

@@ -3,74 +3,76 @@
 
 \subsection{The estimation problem}
 
-We model a lunar PNT network as: one lunar \textbf{surface station} at a fixed
-selenographic location; a small \textbf{constellation} of lunar satellites on
-circular orbits; and a set of \textbf{Earth ground stations}. The unknown state
-stacks the station 3-D position correction, each satellite's 3-D position
-correction, and every asset's clock offset (station and satellites) --- 16
-parameters in the default configuration (3 sats: $3 + 3\times3 + 1 + 3 = 16$).
-The observation model comprises:
+The network has three parts: one lunar surface station at a fixed selenographic
+location, a small constellation of lunar satellites on circular orbits, and a
+set of Earth ground stations. The unknown state stacks the station's 3-D position
+correction, each satellite's 3-D position correction, and every clock offset,
+station and satellites alike. In the default configuration that is 16 parameters
+(for three satellites, $3 + 3\times3 + 1 + 3 = 16$). Three kinds of observable
+feed it:
 
 \begin{itemize}
-  \item \textbf{Earth-baseline geodetic VLBI} delay to the lunar beacon (the
-    surface station), differenced across pairs of Earth stations --- an
-    \emph{angular, inter-continental} observable;
-  \item \textbf{lunar-local ranging}, station$\leftrightarrow$satellite and
-    inter-satellite (ISL);
-  \item \textbf{Earth$\rightarrow$satellite ranging} and a \textbf{station
-    clock-sync} pseudo-observable, included so that the range-only configuration
-    is itself full-rank (otherwise the clock/position degeneracy is trivial and
-    the contrast uninteresting).
+  \item Earth-baseline geodetic VLBI delay to the lunar beacon (the surface
+    station), differenced across pairs of Earth stations. This is the angular,
+    inter-continental measurement.
+  \item Lunar-local ranging, both station-to-satellite and inter-satellite
+    (ISL).
+  \item Earth-to-satellite ranging and a station clock-sync pseudo-observable.
+    These are included only so that the range-only configuration is itself
+    full-rank; without them the clock/position degeneracy is trivial and the
+    comparison says nothing.
 \end{itemize}
 
-Truth states are drawn from a seeded generator; clean observables are computed
-from truth and corrupted by per-observable Gaussian noise at each technique's
-stated $\sigma$ (default VLBI delay $\sigma = 10^{-11}$~s $\approx$ 3~mm; lunar
-range $\sigma$ and ISL $\sigma$ at metre level). The estimator is a
+Truth states come from a seeded generator. Clean observables are computed from
+truth and then corrupted with per-observable Gaussian noise at each technique's
+$\sigma$ (default VLBI delay $\sigma = 10^{-11}$~s, about 3~mm; lunar range and
+ISL $\sigma$ at the decimetre level, 0.1~m by default). The estimator is a
 Gauss--Newton snapshot batch least-squares fit with a numerically-differentiated
-Jacobian \citep{montenbruck2000}; parameters are carried in a scaled internal
-unit to keep the normal matrix well-conditioned across the ${\sim}c^2$ dynamic
-range between clock and position partials.
+Jacobian \citep{montenbruck2000}, and parameters are carried in a scaled
+internal unit so the normal matrix stays well-conditioned across the ${\sim}c^2$
+dynamic range between the clock and position partials. The batch least-squares
+primitive is cross-checked against Orekit's Levenberg--Marquardt estimator on
+identical observations and agrees to about $10^{-8}$~m \citep{orekit}; the joint
+multi-technique lunar solve as a whole is still Modelled.
 
-This is a \textbf{static geometric} observability study: there is no force-model
-propagation inside the solver. The conclusion is about measurement geometry and
-is framed only as such. (Force-model orbit determination heritage exists
-separately in the engine and is cited, not conflated
-\citep{lemoine2013grail,bertone2021grail,li2023leopod}.)
+One caveat up front: this is a static, geometric observability study, with no
+force-model propagation inside the solver. The conclusion is about measurement
+geometry and we keep it framed that way. Force-model orbit determination does
+exist elsewhere in the engine, and we cite it rather than fold it in here
+\citep{lemoine2013grail,bertone2021grail,li2023leopod}.
 
 \subsection{The observability claim and its controls}
 
-The central claim is that VLBI \emph{restores observability}, not merely
-\emph{adds data}. We test it three ways:
+The claim is that VLBI restores observability, not that it simply adds more
+data. Three checks separate those two readings.
 
 \begin{enumerate}
-  \item \textbf{With vs without VLBI.} Run both configurations on the same seed
-    and truth; report the station 3-D error contrast and the per-state breakdown
-    (station/satellite position, station/satellite clock).
-  \item \textbf{Information-not-count control (the key control).} Hold the
-    observation set fixed and sweep the VLBI delay $\sigma$ over four decades. If
-    the improvement were merely from the extra observations, the station error
-    would be flat in $\sigma$. If it is from VLBI \emph{information}, the error
-    must rise toward the range-only level as $\sigma$ grows (the observations
-    remain but carry vanishing weight).
-  \item \textbf{Robustness.} Repeat with vs without across a 200-seed ensemble
-    (improvement-factor distribution), and sweep the number of Earth
-    stations/baselines.
+  \item With versus without VLBI. Run both configurations on the same seed and
+    truth, then report the station 3-D error and the per-state breakdown
+    (station and satellite position, station and satellite clock).
+  \item Information, not count. Hold the observation set fixed and sweep the VLBI
+    delay $\sigma$ over four decades. If the improvement were just the extra
+    observations, the station error would be flat in $\sigma$. If it is the VLBI
+    information, the error has to climb back toward the range-only level as
+    $\sigma$ grows and the observations, though still present, carry vanishing
+    weight.
+  \item Robustness. Repeat with versus without over a 200-seed ensemble, and
+    separately sweep the number of Earth stations.
 \end{enumerate}
 
 \subsection{Reproducibility and honesty labelling}
 
-Every number is produced by the public \code{kshana <scenario.toml>} binary;
-\code{scripts/run\_sweeps.py} generates the configurations, runs them, and
-aggregates; \code{scripts/make\_figures.py} renders the figures. The seed lists
-are fixed, so the study is deterministic given a pinned engine
+Every number comes out of the public \code{kshana <scenario.toml>} binary;
+\code{scripts/run\_sweeps.py} builds the configurations, runs them and
+aggregates, and \code{scripts/make\_figures.py} draws the figures. The seed lists
+are fixed, so with a pinned engine the study is deterministic
 \citep{fernandezprades2018reproducibility}. Each figure of merit carries the
-same label the engine enforces in \code{src/verification.rs} and
-\code{tests/no\_overclaims.rs}: \textbf{Validated} requires an external oracle;
-everything else is \textbf{Modelled}. The lunar joint-OD result is
-\textbf{Modelled} (internal-consistency oracle: recovery of an injected truth
-plus formal-covariance/NEES realism). The dilution-of-precision geometry the
-service-volume module reuses, and the Earth-orientation transforms the Earth
-stations use, are externally \textbf{Validated} (against \code{gnss\_lib\_py}
-\citep{knowles2024gnsslibpy} and SOFA/ERFA \citep{iausofa} respectively) ---
-``validated by reuse'', not claimed for this result.
+label the engine enforces in \code{src/verification.rs} and
+\code{tests/no\_overclaims.rs}: Validated means an external oracle exists,
+everything else is Modelled. The lunar joint-OD result is Modelled, with an
+internal-consistency oracle (it recovers an injected truth, and the formal
+covariance and NEES are realistic). The dilution-of-precision geometry the
+service-volume module reuses, and the Earth-orientation transforms the ground
+stations apply, are Validated against \code{gnss\_lib\_py}
+\citep{knowles2024gnsslibpy} and SOFA/ERFA \citep{iausofa}; that is validation by
+reuse, and we do not claim it for the joint-OD result itself.

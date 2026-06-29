@@ -1,22 +1,20 @@
 % SPDX-License-Identifier: CC-BY-4.0
 \section{Limitations}
 
-\begin{itemize}
-  \item \textbf{Simulated closed-loop.} Truth is generated from and recovered
-    through the same observation model. This is an observability study,
-    \textbf{not} a validation against real VLBI or ranging data. It bounds what
-    geometry \emph{can} determine under stated noise, not what a real campaign
-    \emph{will} achieve.
-  \item \textbf{Snapshot, geometric.} No force-model propagation in the solver;
-    no dynamic arc, no unmodelled forces, no real ephemeris or station-coordinate
-    errors, no troposphere/ionosphere/relativistic delay modelling beyond what
-    the observable carries; Earth-orientation polar motion set to zero.
-  \item \textbf{Modelled.} The joint-OD result is modelled with an
-    internal-consistency oracle; only the reused DOP and Earth-orientation
-    kernels are externally validated.
-  \item \textbf{Illustrative parameters.} Constellation and station parameters
-    are illustrative and public-source; the engine \textbf{models the class} of
-    system. It is \textbf{not} Moonlight, LCNS, NovaMoon, or LunaNet, and is
-    \textbf{not affiliated with or endorsed by ESA.} No TRL $>$ 3, no flight
-    heritage, no certification.
-\end{itemize}
+A few things this study is not. It is closed-loop: truth is generated from the
+same observation model it is then recovered through. That makes it an
+observability study, not a validation against real VLBI or ranging data; it
+bounds what the geometry can determine under the stated noise, not what a real
+campaign will get. It is also a snapshot, geometric fit. There is no force-model
+propagation in the solver, no dynamic arc or unmodelled forces, no real ephemeris
+or station-coordinate errors, and no troposphere, ionosphere or relativistic
+delay modelling beyond what the observable already carries; Earth-orientation
+polar motion is set to zero. The joint-OD result is Modelled, against an
+internal-consistency oracle, and only the reused DOP and Earth-orientation
+kernels are externally validated.
+
+The constellation and station parameters are illustrative and drawn from public
+sources, so the engine models the class of system rather than any specific one.
+It is not Moonlight, LCNS, NovaMoon, or LunaNet, and it is not affiliated with or
+endorsed by ESA. There is no TRL above 3, no flight heritage, and no
+certification.

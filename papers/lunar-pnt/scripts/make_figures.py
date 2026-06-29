@@ -71,10 +71,11 @@ def fig1_headline():
     axc.set_xticks(xc, cl)
     axc.set_ylabel("error, range-equivalent (m)")
     axc.set_title("Clock")
-    axc.legend()
+    axc.legend(loc="upper left")
     fig.suptitle(f"Joint lunar OD+clock, default scenario (seed 42): "
-                 f"{hl['station_observability_improvement_factor']:.0f}x station sharpening",
+                 f"{int(hl['station_observability_improvement_factor'])}x station sharpening",
                  fontsize=10)
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
     save(fig, "fig1_headline.pdf")
 
 
@@ -102,23 +103,43 @@ def fig2_sigma_vlbi():
 
 
 def fig3_n_earth():
+    # Rigorous observability figure: the analytic Cramer-Rao bound on the station's
+    # absolute position vs the number of Earth baselines, overlaid with the
+    # estimator's Monte-Carlo RMS (efficiency ~ 1), and the rank-deficient region
+    # shaded by the Fisher-information datum defect (data-driven, not assumed).
     rows = DATA["n_earth_sweep"]
-    ne = np.array([r["n_earth"] for r in rows])
-    med = np.array([r["with_vlbi"]["median"] for r in rows])
-    ok = med < BIG
-    fig, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(ne[ok], med[ok], "o-", color="#3a6", label="with VLBI (median)")
-    # Rank-deficient region (n_earth < 3): no finite solution.
-    bad = ne[~ok]
+    ne = np.array([r["n_earth"] for r in rows], float)
+    defect = np.array([r.get("defect", 0) for r in rows])
+    crlb = np.array([r["crlb_m"] if r.get("crlb_m") is not None else np.nan for r in rows])
+    rms = np.array([r.get("with_vlbi_rms_m", np.nan) for r in rows])
+    obs = defect == 0  # full rank (absolute position observable)
+
+    fig, ax = plt.subplots(figsize=(6.2, 4))
+    # Rank-deficient region: the Fisher information is singular (datum defect > 0).
+    bad = ne[defect > 0]
     if len(bad):
-        ax.axvspan(0.5, bad.max() + 0.5, color="#c44", alpha=0.12)
-        ax.text((0.5 + bad.max() + 0.5) / 2, med[ok].max(),
-                "rank-deficient\n(no finite solution)", ha="center", va="top",
+        ax.axvspan(ne.min() - 0.5, bad.max() + 0.5, color="#c44", alpha=0.12)
+        top = np.nanmax(crlb[obs]) if obs.any() else 1.0
+        ax.text((ne.min() - 0.5 + bad.max() + 0.5) / 2, top,
+                "rank-deficient\n(datum defect $>0$)", ha="center", va="top",
                 color="#a22", fontsize=8)
+        for x, dfc in zip(ne[defect > 0], defect[defect > 0]):
+            ax.text(x, top * 0.55, f"defect\n{int(dfc)}", ha="center", va="center",
+                    color="#a22", fontsize=7)
+    ax.plot(ne[obs], crlb[obs], "-", color="#36c", lw=2,
+            label="Cramer-Rao bound (analytic)")
+    ax.plot(ne[obs], rms[obs], "o", color="#3a6", ms=7,
+            label="estimator RMS (Monte-Carlo)")
+    # Efficiency at the default 6-station network (200-seed Monte-Carlo).
+    eff = DATA["seed_mc"].get("efficiency_rms_over_crlb")
+    if eff is not None:
+        ax.annotate(f"default network:\nRMS/CRLB $=$ {eff:.2f}", xy=(6, crlb[ne == 6][0]),
+                    xytext=(6.4, crlb[obs].max() * 0.72), fontsize=8, color="#333",
+                    arrowprops=dict(arrowstyle="->", color="#888", lw=0.8))
     ax.set_xlabel("number of Earth stations / baselines")
-    ax.set_ylabel("station 3-D error (m), median of 32 seeds")
-    ax.set_title("A minimum baseline count is required;\n"
-                 "beyond it, more baselines help with diminishing returns")
+    ax.set_ylabel("station 3-D absolute-position error (m, 1$\\sigma$ RSS)")
+    ax.set_title("Three baselines restore observability;\n"
+                 "the estimator attains the Cramer-Rao bound")
     ax.legend(fontsize=8)
     save(fig, "fig3_n_earth.pdf")
 
@@ -144,18 +165,18 @@ def fig4_seed_mc():
 def fig5_cross_suite():
     cs = DATA["cross_suite"]
     lt, lv, dp = cs["lunar_time"], cs["lunar_vlbi"], cs["lunar_dpnt"]
-    fig, (a, b, c) = plt.subplots(1, 3, figsize=(11, 3.3))
+    CANONICAL = 56.02  # Ashby & Patla (2024) surface-to-surface canonical rate, us/day
+    fig, (a, b, c) = plt.subplots(1, 3, figsize=(11.5, 3.5))
 
-    # (a) lunar time rate vs published band.
-    a.axhspan(lt["band_low"], lt["band_high"], color="#3a6", alpha=0.18,
-              label="published band 56-59")
+    # (a) lunar time rate decomposition, against the canonical Ashby & Patla value.
     a.bar(["self-pot", "kinetic", "total"],
           [lt["self_potential_us_per_day"], lt["kinetic_us_per_day"],
            lt["secular_rate_us_per_day"]], color=["#69c", "#c96", "#3a6"])
-    a.axhline(lt["secular_rate_us_per_day"], ls=":", color="#222")
+    a.axhline(CANONICAL, ls="--", color="#c44", lw=1.2,
+              label=f"Ashby & Patla {CANONICAL:.2f}")
     a.set_ylabel("LTC$-$TT rate ($\\mu$s/day)")
-    a.set_title(f"Coordinated Lunar Time\n{lt['secular_rate_us_per_day']:.2f} $\\mu$s/day (in band)")
-    a.legend(fontsize=7)
+    a.set_title(f"Coordinated Lunar Time\n{lt['secular_rate_us_per_day']:.2f} $\\mu$s/day (Validated)")
+    a.legend(fontsize=7, loc="lower right")
 
     # (b) VLBI near-field correction over the pass.
     s = lv["series"]
@@ -174,6 +195,7 @@ def fig5_cross_suite():
     c.set_ylabel("corrected user error (m)")
     c.set_title(f"Differential PNT\n{dp['user_error_uncorrected_m']:.1f} m $\\to$ "
                 f"{dp['user_error_corrected_m']:.3f} m at 50 km")
+    fig.tight_layout()
     save(fig, "fig5_cross_suite.pdf")
 
 

@@ -1,11 +1,40 @@
 % SPDX-License-Identifier: CC-BY-4.0
 \section{Discussion}
+\label{sec:discussion}
 
-For a NovaMoon-class geodetic-timing-differential station or a Moonlight/LCNS
-architecture, the finding is a concrete, reproducible statement of why an
-Earth-baseline geodetic tie matters: lunar-local measurements alone determine
-the cluster's internal geometry but leave its absolute placement weakly
-observable, and a small number of precise Earth VLBI baselines close that gap ---
-selectively, above a three-station threshold, through information rather than
-count. The open toolkit lets a mission-analysis team reproduce and vary this
-trade openly, before hardware exists, with the honesty labelling intact.
+For anyone designing a NovaMoon-class reference station or a Moonlight/LCNS
+architecture, the finding is a concrete and reproducible reason the Earth-baseline
+geodetic tie matters. Lunar-local measurements fix the cluster's internal
+geometry on their own, but they leave its absolute placement weakly observable,
+and a few precise Earth VLBI baselines close that gap, above a three-station
+threshold and through information rather than count.
+
+That gives a sizing rule straight from the information matrix, not a rule of thumb.
+The floor is non-negotiable: at least three non-collinear Earth stations, because
+below three the joint network is rank-deficient and the absolute-position bound is
+infinite---verify it on the datum defect ($\dim\ker M = 0$), not on a merely finite
+residual. Above the floor the Cram\'er--Rao bound is the design curve: the default
+six-station tie reaches \SI{20.1}{\meter} on the station's absolute position and
+ten stations reach \SI{13.7}{\meter}, with diminishing returns set by the
+plane-of-sky baseline geometry. For a safety-of-life absolute datum the criterion
+to optimise is E-optimality---lift the worst-observed axis, the very one the
+Earth baseline exists to fix---rather than the average-variance or
+ellipsoid-volume criteria that a well-conditioned network would let you use
+interchangeably; \code{fim}'s \code{best\_design} selects among candidate
+geometries on whichever criterion the mission sets. Because the estimator is
+efficient (\S\ref{sec:theory}), the bound is what you will actually get, so the
+curve can be used for sizing directly.
+
+The real programme has already reached the same conclusion. ESA's NovaMoon
+station, adopted at CM25, carries an Earth-baseline VLBI transmitter as a core
+element \citep{molli2026novamoon}, which is the design choice this study points
+to. The point generalises beyond ESA: because LCNS, NASA's LCRNS and JAXA's LNSS
+share the Augmented Forward Signal under LNIS~v5
+\citep{nasa2025lnis,nasa2025afs}, the weak-absolute-observability gap belongs to
+the common architecture, not to any one provider. LNIS~v5 also still leaves the
+binding lunar frame and time realisation to a later document, so an open,
+honestly Modelled, LNIS-vocabulary-aligned candidate that a mission team can run
+today is useful right now rather than eventually. The toolkit lets that team
+reproduce the trade-off and vary it before any hardware exists, with the honesty
+labels intact. To be clear, we are claiming that the architectural rationale is
+corroborated, not that kshana's numbers are validated (see Limitations).

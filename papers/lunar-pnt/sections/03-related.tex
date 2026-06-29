@@ -1,12 +1,42 @@
 % SPDX-License-Identifier: CC-BY-4.0
 \section{Related work}
 
-Lunar navigation architecture and LCNS signal/service studies; deep-space
-radiometric tracking and $\Delta$-DOR \citep{giorgini1996horizons}; lunar
-reference-frame and Coordinated-Lunar-Time definition \citep{petit2010iers}; and
-open PNT/OD tooling (GMAT \citep{nasa_gmat}, Orekit \citep{orekit}, RTKLIB
-\citep{takasu2009}; the LuPNT lunar simulator \citep{iiyama2023lupnt}; the
-kshana engine itself \citep{baweja2026kshana}). Our contribution is not a new
-estimator but an \textbf{open, reproducible observability finding} for the lunar
-joint-OD problem, with the information-not-count control that distinguishes a
-geometric observability claim from a data-volume effect.
+\paragraph{Systems and standards.}
+The setting is no longer notional. ESA's Moonlight/LCNS has a signed prime
+contract and a space segment in build \citep{esa_moonlight,telespazio2024moonlight}.
+NASA, ESA and JAXA share the Augmented Forward Signal under version 5 of the
+LunaNet Interoperability Specification \citep{nasa2025lnis,nasa2025afs}. ESA has
+adopted NovaMoon, a south-pole reference station that combines VLBI, ranging,
+retroreflectors and a GNSS receiver \citep{molli2026novamoon}. And GNSS has
+actually been received on the surface: LuGRE took the first lunar-surface fix on
+Blue Ghost Mission~1 \citep{lugre2026}, with SSTL's Lunar Pathfinder and its
+NaviMoon receiver to follow (launch not earlier than 2026).
+
+\paragraph{Frames, time and tracking.}
+The IAU's 2024 General Assembly defined a lunar coordinate time scale (TCL) and a
+lunar reference system \citep{iau2024lcrs}; the relativistic Earth--Moon rate is
+fixed by a published framework \citep{ashby2024lunartime}, and a realisation has
+been worked out in the Moonlight context
+\citep{fienga2024moonlight,bourgoin2026lunartime}. Body-fixed orientation follows
+the IAU/WGCCRE conventions \citep{archinal2018wgccre} over the JPL DE440
+ephemeris \citep{park2021de440}. The Earth-baseline geodetic tie to a lunar
+beacon is the descendant of deep-space $\Delta$-DOR, the one-nanoradian
+measurement system of the DSN \citep{curkendall2013deltador}.
+
+\paragraph{Estimation and tooling.}
+Lunar orbit-and-clock estimation and constellation design are active areas
+\citep{iiyama2026odclock,bhamidipati2023constellation}, and recent lower-bound
+work finds that a surface reference station buys sub-metre accuracy even under
+sparse satellite visibility \citep{pohlmann2025hybrid}, which lines up with the
+differential and observability results we report below. There is no shortage of
+open orbit-determination software either: GMAT \citep{nasa_gmat}, Orekit
+\citep{orekit}, RTKLIB \citep{takasu2009}, the Rust toolkit Nyx/ANISE
+\citep{nyxspace2025}, and, for the lunar case specifically, the LuPNT simulator
+\citep{iiyama2023lupnt}; kshana is the broader engine these results sit in
+\citep{baweja2026kshana}. What we add is not a new estimator. It is an open,
+reproducible observability finding for the lunar joint-OD problem that anyone can
+regenerate from a committed scenario, with every figure labelled validated or
+modelled by the engine itself, and with the information-not-count control that
+keeps a geometric claim from being mistaken for a data-volume effect. We have not
+found that combination in either the open lunar simulators or the closed
+mission-analysis studies.
