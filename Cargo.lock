@@ -398,7 +398,7 @@ dependencies = [
 [[package]]
 name = "kshana"
 version = "0.23.0"
-source = "git+https://github.com/ashfordeOU/kshana?branch=feat/overlay-registry-assurance#cd0a35973bb783d2e9663d6a737d2cd0f28e59fa"
+source = "git+https://github.com/ashfordeOU/kshana?branch=main#f8c5f6fa06d110e8545a9075b4d9644125698d90"
 dependencies = [
  "getrandom 0.2.17",
  "hex",
