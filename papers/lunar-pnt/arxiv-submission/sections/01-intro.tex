@@ -1,34 +1,48 @@
 % SPDX-License-Identifier: CC-BY-4.0
 \section{Introduction}
 
-Lunar PNT is moving from concept to procurement. ESA's Moonlight initiative will
-field a lunar communications and navigation service (LCNS) from a small
-constellation; a NovaMoon-class lunar geodetic-timing-differential station
-concept brings multi-technique geodesy (VLBI, ranging), joint orbit-and-clock
-determination, lunar reference-frame realisation, lunar timekeeping, and
-differential corrections to the surface; LunaNet and the IOAG are defining
-cross-agency interoperability; and a Coordinated Lunar Time has been called for,
-with its relativistic rate (${\sim}57$~$\mu$s/day faster than
-terrestrial time) now a standards question \citep{petit2010iers}. Every one of
-these rests on the same engineering core: \textbf{determining the orbits and
-clocks of a lunar PNT infrastructure and tying it into a terrestrial or inertial
-reference frame.}
+Lunar PNT has stopped being a slide and started being a procurement. ESA's
+Moonlight initiative is now building a lunar communications and navigation
+service (LCNS) from a small constellation, one communications and four
+navigation satellites in elliptical lunar frozen orbits; the
+EUR~123~million Phase-1 prime contract was signed in October 2024 and the space
+segment is in industrial build \citep{esa_moonlight,telespazio2024moonlight}. At
+its CM25 Ministerial in November 2025 ESA also adopted NovaMoon, a
+geodetic-timing-differential reference station that puts multi-technique geodesy
+(VLBI and ranging), joint orbit-and-clock determination, reference-frame
+realisation, timekeeping, and differential corrections on the lunar surface
+\citep{molli2026novamoon}. NASA, ESA and JAXA have agreed a common
+interoperability framework, the LunaNet Interoperability Specification (LNIS~v5,
+January 2025), and all three broadcast its Augmented Forward Signal
+\citep{nasa2025lnis,nasa2025afs}. A Coordinated Lunar Time exists on paper too:
+the IAU's 2024 General Assembly defined a lunar coordinate time scale (TCL)
+\citep{iau2024lcrs}, a NASA-led realisation is due by the end of 2026
+\citep{ostp2024lunartime}, and the relativistic rate (roughly
+56--57~$\mu$s/day faster than terrestrial time) is set by a published framework
+\citep{ashby2024lunartime}. And in March 2025 LuGRE took the first GNSS fix on
+the lunar surface \citep{lugre2026}. Underneath all of it sits one problem:
+working out the orbits and clocks of the lunar infrastructure and tying them to a
+terrestrial or inertial frame.
 
-A first-order design question for that core is \emph{observability}: given a set
-of measurement types, which states (positions, clocks, frame parameters) are
-well determined, and which are not? The answer drives architecture --- whether a
-lunar nav service needs Earth-baseline geodetic ties, how many, and how precise.
-Today this question is answered in private, one-off studies whose assumptions are
-neither shared nor reproducible. There is no open, citable tool in which a lunar
-PNT network's observability can be regenerated from a committed scenario, with
-every figure of merit labelled as externally validated or modelled --- the gap
-the kshana program has documented for terrestrial and deep-space PNT
-\citep{baweja2026kshana}, here for the lunar case
+The first thing you ask about that problem is observability. Given a set of
+measurement types, which states (positions, clocks, frame parameters) come out
+well determined, and which do not? The answer is an architecture decision: does
+a lunar nav service need Earth-baseline geodetic ties, how many, and how good do
+they have to be? It is not even an ESA-specific decision. Because ESA's LCNS,
+NASA's LCRNS and JAXA's LNSS all share the Augmented Forward Signal under
+LNIS~v5, the same observability question applies to the whole stack
+\citep{nasa2025lnis}. Yet it is usually answered in private, one-off studies
+whose assumptions never leave the building. We are not aware of an open, citable
+tool that regenerates a lunar PNT network's observability from a committed
+scenario and labels each figure of merit as externally validated or modelled,
+the discipline the kshana program has applied to terrestrial and deep-space PNT
+\citep{baweja2026kshana} and that we extend here to the lunar case
 \citep{iiyama2023lupnt,fernandezprades2018reproducibility}.
 
-We contribute (i) an open lunar PNT toolkit (seven modules in the \code{kshana}
-engine) and (ii) one clean, falsifiable observability result obtained with it:
-\textbf{Earth-baseline VLBI restores the observability of a lunar surface
-station's absolute 3-D position in joint orbit-and-clock determination, and does
-so through information rather than observation count, selectively, and only above
-a minimum baseline count.}
+This paper offers two things: an open lunar PNT toolkit, seven capability areas
+in the \code{kshana} engine, and one falsifiable result obtained with it.
+Earth-baseline VLBI restores the observability of a lunar surface station's
+absolute 3-D position in joint orbit-and-clock determination. It does so through
+information rather than sheer observation count, it helps only the states the
+lunar-local measurements leave weak, and it needs a minimum number of baselines
+to work at all.

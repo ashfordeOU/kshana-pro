@@ -3,10 +3,10 @@
   title     = {{Kshana: a PNT-resilience simulator with quantum-sensor performance models}},
   year      = {2026},
   publisher = {Ashforde O\"{U}},
-  version   = {0.17.0},
+  version   = {0.23.0},
   howpublished = {Zenodo},
-  doi       = {10.5281/zenodo.20692259},
-  note      = {Version 0.17.0. \url{https://doi.org/10.5281/zenodo.20692259}},
+  doi       = {10.5281/zenodo.20528627},
+  note      = {Version 0.23.0 (the release carrying the Fisher-information/CRLB observability layer); concept DOI \url{https://doi.org/10.5281/zenodo.20528627} resolves to the latest release},
   url       = {https://github.com/ashfordeOU/kshana}
 }
 
@@ -45,6 +45,15 @@
   title        = {{IAU SOFA Software Collection}},
   howpublished = {\url{http://www.iausofa.org}},
   year         = {2023}
+}
+
+@book{kay1993,
+  author    = {Kay, Steven M.},
+  title     = {Fundamentals of Statistical Signal Processing: Estimation Theory},
+  publisher = {Prentice Hall},
+  address   = {Upper Saddle River, NJ},
+  year      = {1993},
+  isbn      = {978-0133457117}
 }
 
 @book{montenbruck2000,
@@ -142,4 +151,202 @@
   pages   = {20451--20463},
   year    = {2018},
   doi     = {10.1109/ACCESS.2018.2822835}
+}
+
+% ---- Lunar PNT programmes, standards and real-world milestones (added 2026-06-29) ----
+
+@misc{esa_moonlight,
+  author       = {{European Space Agency}},
+  title        = {{Moonlight: connecting Earth with the Moon}},
+  howpublished = {\url{https://www.esa.int/Applications/Connectivity_and_Secure_Communications/Moonlight}},
+  year         = {2024},
+  note         = {Lunar Communications and Navigation Service (LCNS): five lunar
+                  satellites (one communications, four navigation) in elliptical
+                  lunar frozen orbits, south-pole priority}
+}
+
+@misc{telespazio2024moonlight,
+  author       = {{Telespazio}},
+  title        = {{Telespazio signs a contract worth 123 million euro with ESA for the Moonlight programme}},
+  howpublished = {Press release, 15 October 2024 (IAC Milan)},
+  year         = {2024},
+  url          = {https://www.telespazio.com}
+}
+
+@misc{molli2026novamoon,
+  author       = {Molli, Serena and Fienga, Agn{\`e}s and Defraigne, Pascale and
+                  So{\'s}nica, Krzysztof and Cacciapuoti, Luigi and
+                  Ventura-Traveset, Javier and others},
+  title        = {{NovaMoon: A Strategic Lunar Reference Station for Positioning,
+                  Timing, and Largely Enhanced Science in the Earth--Moon System}},
+  year         = {2026},
+  eprint       = {2602.08432},
+  archivePrefix= {arXiv},
+  primaryClass = {astro-ph.IM},
+  note         = {ESA-adopted Argonaut PNT payload (CM25, Nov.~2025); design
+                  combines an Earth-baseline VLBI transmitter, ranging, laser
+                  retroreflectors and a LunaNet/GNSS receiver},
+  url          = {https://arxiv.org/abs/2602.08432}
+}
+
+@misc{nasa2025lnis,
+  author       = {{NASA Space Communications and Navigation (SCaN) Program}},
+  title        = {{LunaNet Interoperability Specification (LNIS), Version 5}},
+  year         = {2025},
+  howpublished = {Baseline effective 29 January 2025},
+  note         = {Cross-agency (NASA/ESA/JAXA) lunar communications and navigation
+                  interoperability framework},
+  url          = {https://www.nasa.gov/general/lunanet-interoperability-specification/}
+}
+
+@misc{nasa2025afs,
+  author       = {{NASA Space Communications and Navigation (SCaN) Program}},
+  title        = {{LunaNet Signal-in-Space Recommended Standard --- Augmented Forward Signal (AFS), Volume A}},
+  year         = {2025},
+  howpublished = {LNIS Applicable Document, 29 January 2025},
+  note         = {S-band one-way ranging navigation signal; Lunar Augmented
+                  Navigation Service (LANS); target signal-in-space error $<10$~m (95\%)},
+  url          = {https://www.nasa.gov/general/lunanet-interoperability-specification/}
+}
+
+@misc{ostp2024lunartime,
+  author       = {{Executive Office of the President, Office of Science and Technology Policy}},
+  title        = {{Celestial Time Standardization in Cislunar Space}},
+  year         = {2024},
+  howpublished = {Policy memorandum, 2 April 2024},
+  note         = {Directs NASA to deliver a Coordinated Lunar Time (LTC) standard by end of 2026}
+}
+
+@misc{iau2024lcrs,
+  author       = {{International Astronomical Union}},
+  title        = {{Resolutions of the XXXII General Assembly: Lunar Celestial Reference System (LCRS) and Lunar Coordinate Time (TCL)}},
+  year         = {2024},
+  howpublished = {XXXII IAU General Assembly, Cape Town, August 2024},
+  note         = {Establishes a lunar celestial reference system and a lunar coordinate
+                  time scale (TCL) consistent with the IAU relativistic framework}
+}
+
+@article{ashby2024lunartime,
+  author  = {Ashby, Neil and Patla, Bijunath R.},
+  title   = {A Relativistic Framework to Establish Coordinate Time on the Moon and Beyond},
+  journal = {The Astronomical Journal},
+  volume  = {168},
+  number  = {3},
+  pages   = {112},
+  year    = {2024},
+  doi     = {10.3847/1538-3881/ad643a},
+  note    = {Canonical surface-to-surface secular Earth--Moon rate $\approx 56.02$~$\mu$s/day; arXiv:2402.11150}
+}
+
+@article{bourgoin2026lunartime,
+  author  = {Bourgoin, Adrien and Defraigne, Pascale and Meynadier, Fr{\'e}d{\'e}ric},
+  title   = {Lunar reference timescale},
+  journal = {Metrologia},
+  volume  = {63},
+  number  = {1},
+  pages   = {015003},
+  year    = {2026},
+  doi     = {10.1088/1681-7575/ae2c03},
+  note    = {BIPM Time Department and Royal Observatory of Belgium; arXiv:2511.02709}
+}
+
+@article{lugre2026,
+  author  = {Parker, Joel J. K. and Dovis, Fabio and Konitzer, Lauren and
+             Esantsi, Nathan and Ashman, Benjamin and Minetto, Alex and
+             Nardin, Andrea and Vouch, Oliviero and Zocca, Simone and
+             Bernardi, Fabio and Boschiero, Matilde and Fantinato, Samuele and
+             Miotti, Efer and Facchinetti, Claudia and Musmeci, Mario and
+             Varacalli, Giancarlo},
+  title   = {{GNSS} Reception at the Moon: First Results of the Lunar {GNSS} Receiver Experiment ({LuGRE})},
+  journal = {NAVIGATION: Journal of the Institute of Navigation},
+  volume  = {73},
+  number  = {1},
+  pages   = {navi.756},
+  year    = {2026},
+  doi     = {10.33012/navi.756},
+  note    = {First GNSS acquisition, tracking and on-surface position fix on the
+             Moon; Firefly Blue Ghost Mission~1, Mare Crisium, March 2025}
+}
+
+@misc{fienga2024moonlight,
+  author       = {Fienga, Agn{\`e}s and Rambaux, Nicolas and So{\'s}nica, Krzysztof},
+  title        = {{Lunar Reference Systems, Frames and Time-scales in the context of the ESA Programme Moonlight}},
+  year         = {2024},
+  eprint       = {2409.10043},
+  archivePrefix= {arXiv},
+  primaryClass = {astro-ph.EP},
+  url          = {https://arxiv.org/abs/2409.10043}
+}
+
+@misc{iiyama2026odclock,
+  author       = {Iiyama, Keidai and Gao, Grace},
+  title        = {{GNSS-based Lunar Orbit and Clock Estimation With a Stochastic Cloning UD Filter}},
+  year         = {2026},
+  eprint       = {2601.16393},
+  archivePrefix= {arXiv},
+  primaryClass = {eess.SP},
+  note         = {Submitted to AIAA J.~Guidance, Control, and Dynamics},
+  url          = {https://arxiv.org/abs/2601.16393}
+}
+
+@misc{pohlmann2025hybrid,
+  author       = {P{\"o}hlmann, Robert and Staudinger, Emanuel and Seco-Granados, Gonzalo},
+  title        = {{Towards Hybrid Lunar PNT: Error Models, Lower Bounds and Algorithms}},
+  year         = {2025},
+  eprint       = {2508.10699},
+  archivePrefix= {arXiv},
+  primaryClass = {eess.SP},
+  note         = {Cram{\'e}r--Rao lower bounds for lunar PNT; sub-metre accuracy
+                  with minimal satellite visibility when a reference station is available},
+  url          = {https://arxiv.org/abs/2508.10699}
+}
+
+@article{bhamidipati2023constellation,
+  author  = {Bhamidipati, Sriramya and Mina, Tara and Sanchez, Adrian and Gao, Grace},
+  title   = {Satellite Constellation Design for a Lunar Navigation and Communication System},
+  journal = {NAVIGATION: Journal of the Institute of Navigation},
+  volume  = {70},
+  number  = {4},
+  pages   = {navi.613},
+  year    = {2023},
+  doi     = {10.33012/navi.613}
+}
+
+@article{park2021de440,
+  author  = {Park, Ryan S. and Folkner, William M. and Williams, James G. and Boggs, Dale H.},
+  title   = {The {JPL} Planetary and Lunar Ephemerides {DE440} and {DE441}},
+  journal = {The Astronomical Journal},
+  volume  = {161},
+  number  = {3},
+  pages   = {105},
+  year    = {2021},
+  doi     = {10.3847/1538-3881/abd414}
+}
+
+@article{archinal2018wgccre,
+  author  = {Archinal, Brent A. and Acton, Charles H. and A'Hearn, Michael F. and others},
+  title   = {Report of the {IAU} Working Group on Cartographic Coordinates and Rotational Elements: 2015},
+  journal = {Celestial Mechanics and Dynamical Astronomy},
+  volume  = {130},
+  number  = {3},
+  pages   = {22},
+  year    = {2018},
+  doi     = {10.1007/s10569-017-9805-5}
+}
+
+@techreport{curkendall2013deltador,
+  author      = {Curkendall, David W. and Border, James S.},
+  title       = {{Delta-DOR: The One-Nanoradian Navigation Measurement System of the Deep Space Network --- History, Architecture, and Componentry}},
+  institution = {Jet Propulsion Laboratory},
+  type        = {Interplanetary Network Progress Report},
+  number      = {42-193},
+  year        = {2013}
+}
+
+@misc{nyxspace2025,
+  author       = {Rabotin, Christopher and {Nyx Space contributors}},
+  title        = {{Nyx: a high-fidelity astrodynamics and orbit-determination toolkit (with ANISE and Hifitime)}},
+  year         = {2025},
+  howpublished = {\url{https://nyxspace.com}},
+  note         = {Open-source Rust astrodynamics/OD; flown on Firefly Blue Ghost~1 and used for CAPSTONE}
 }

@@ -1,30 +1,42 @@
 % SPDX-License-Identifier: CC-BY-4.0
-Lunar positioning, navigation, and timing (PNT) --- ESA's Moonlight/LCNS
-navigation service, a NovaMoon-class lunar geodetic-timing-differential
-reference station, the LunaNet/IOAG interoperability framework, and a defined
-Coordinated Lunar Time --- all rest on determining the orbits and clocks of a
-lunar PNT infrastructure and tying it into a terrestrial/inertial frame. A
-recurring design question is \emph{which measurement types make which states
-observable}. We study one instance of it in an open, reproducible simulator
-\citep{iiyama2023lupnt,baweja2026kshana}: in a snapshot batch fit of a small
-lunar PNT network, lunar-local observables (station-to-satellite ranging,
-inter-satellite ranging, station clock-sync) determine the network's internal
-geometry but leave a lunar surface station's \textbf{absolute} 3-D position
-weakly observable. Adding a single Earth-baseline geodetic Very Long Baseline
-Interferometry (VLBI) observable to the lunar beacon restores it: across a
-200-seed truth/noise ensemble the median recovered station 3-D error falls from
-${\sim}793$~m (range-only) to ${\sim}13$~m, a median improvement factor of
-\textbf{91$\times$} (inter-quartile range 38--208$\times$). We show with a
-controlled sweep that the gain is VLBI \emph{information}, not observation count
---- degrading the VLBI delay precision at fixed observation count drives the
-median station error overall back toward the range-only level --- and that
-the benefit is \emph{selective}: VLBI sharpens absolute positions and satellite
-clocks but leaves the station clock, already pinned by clock-sync, unchanged. A
-minimum of three Earth stations is required for a full-rank solution. All
-results are deterministic, reproduce from a committed scenario, seed list, and
-engine version, and every figure of merit is labelled validated or modelled.
-This is a simulated closed-loop observability study, not a validation against
-real VLBI or ranging data; we state that as the first-class limitation. The
-toolkit that produces it --- lunar time, VLBI, joint OD+clock, frame
-realisation, navigation service-volume integrity, differential PNT, and
-CCSDS/LunaNet interoperability --- is released open-core.
+Lunar positioning, navigation, and timing (PNT) is being built. ESA's
+Moonlight/LCNS service \citep{esa_moonlight,telespazio2024moonlight}, a
+NovaMoon-class geodetic-timing-differential reference station
+\citep{molli2026novamoon}, the LunaNet/IOAG interoperability framework
+\citep{nasa2025lnis}, and a now-defined Coordinated Lunar Time
+\citep{iau2024lcrs,ashby2024lunartime} all reduce to the same engineering core:
+determine the orbits and clocks of the lunar infrastructure, and tie them to a
+terrestrial or inertial frame. That puts an old estimation question in a new
+place. Which measurements make which states observable? We work through one case
+of it in an open, reproducible simulator
+\citep{iiyama2023lupnt,baweja2026kshana}. In a snapshot batch fit of a small
+lunar PNT network, the lunar-local observables (station-to-satellite ranging,
+inter-satellite ranging, and a station clock-sync) pin down the network's
+internal geometry but barely constrain the surface station's absolute 3-D
+position. A single Earth-baseline geodetic Very Long Baseline Interferometry
+(VLBI) delay to the lunar beacon fixes that. Over a 200-seed truth/noise
+ensemble the median station 3-D error drops from about 793~m without VLBI to
+about 13~m with it, a median factor of \textbf{91} (interquartile range 38 to
+208). The gain comes from information, not from extra observations: hold the
+observation set fixed and coarsen the VLBI delay precision, and the median error
+climbs back toward the range-only floor. It is also specific. VLBI sharpens the
+absolute positions and the satellite clocks, but the station clock, already
+pinned by clock-sync, hardly moves. A Fisher-information analysis turns the
+empirical contrast into an observability statement: without an Earth baseline the
+lunar frame's absolute datum lies in the null space of the information matrix---a
+six-dimensional defect that closes to zero only at three Earth stations---and the
+resulting Cram\'er--Rao bound on the station's absolute position
+(\SI{20.1}{\meter} for the default network) is attained by the estimator to an
+efficiency of $1.00$, so the $91\times$ gain is the information-theoretic optimum
+rather than a solver artefact. The same bound, read off against baseline count,
+is a closed-form sizing rule. None of this is hypothetical: ESA's CM25-adopted NovaMoon
+station carries an Earth-baseline VLBI transmitter of its own
+\citep{molli2026novamoon}, and the first GNSS fix on the lunar surface (LuGRE,
+2025) put real range-only absolute positioning at the tens-to-hundreds-of-metres
+level \citep{lugre2026}. Every figure here is deterministic and rebuilds from a
+committed scenario, seed list, and engine version, and each is labelled validated
+or modelled. It is a closed-loop observability study rather than a comparison
+against real VLBI or ranging data, and we treat that as the headline caveat, not
+a footnote. The toolkit behind it (lunar time, VLBI, joint OD and clock, frame
+realisation, service-volume integrity, differential PNT, and CCSDS/LunaNet
+export) is released open-core.
