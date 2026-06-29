@@ -7,7 +7,10 @@
 //! open engine via [`kshana::api::run_scenario`]. So a single `kshana-pro` binary
 //! runs every open scenario *and* every Pro pack — open ∪ proprietary.
 
+use std::marker::PhantomData;
+
 use kshana::api::{run_scenario, ExternalPack, KshanaError, RunOutput, ScenarioMeta};
+use serde::de::DeserializeOwned;
 
 use crate::packs::batch_pack::BatchScenario;
 use crate::packs::mbse_pack::MbseScenario;
@@ -126,6 +129,86 @@ pub fn run_gated(
     run(src)
 }
 
+// ─── Registry attachment: the open ∪ Pro superset as a `PackRegistry` ────────────
+//
+// The `run`/`run_gated` dispatchers above route on a `peek_kind` match table. This
+// section exposes the SAME superset as the open core's object-safe
+// [`kshana::registry::PackRegistry`], so a Pro build can be driven by id through the
+// open registry seam (build-by-id) rather than only by the string dispatcher. It
+// reuses the open core's `with_builtins()` for the open half and drives each Pro
+// pack through the public [`ExternalPack::register_into`] seam for the Pro half — no
+// private back-doors, no duplicated open table.
+
+/// A registry adapter that builds the Pro [`ExternalPack`] `P` from its scenario
+/// TOML. It owns no `P` — only the knowledge of how to *parse* one — so
+/// `PhantomData<fn() -> P>` keeps `ProFactory<P>` unconditionally `Send + Sync`
+/// (required by the object-safe [`kshana::registry::ScenarioFactory`] trait)
+/// regardless of whether `P` itself is.
+struct ProFactory<P> {
+    id: kshana::registry::ScenarioId,
+    _marker: PhantomData<fn() -> P>,
+}
+
+impl<P> kshana::registry::ScenarioFactory for ProFactory<P>
+where
+    P: ExternalPack + DeserializeOwned + 'static,
+{
+    fn id(&self) -> &kshana::registry::ScenarioId {
+        &self.id
+    }
+
+    fn build(&self, src: &str) -> Result<Box<dyn kshana::api::Scenario>, String> {
+        toml::from_str::<P>(src)
+            .map(|p| Box::new(p) as Box<dyn kshana::api::Scenario>)
+            .map_err(|e| format!("invalid {} scenario: {e}", self.id))
+    }
+
+    // metadata(): inherit the trait default (an empty placeholder). A Pro pack's
+    // richer `ScenarioMeta` lives on its inherent `meta_static()` and is surfaced
+    // via [`pro_kinds()`]; it is not reachable generically from `P: ExternalPack`
+    // without an instance (the trait's `meta` takes `&self`), so we do NOT fabricate
+    // one here rather than overclaim.
+}
+
+/// Build the boxed [`kshana::registry::ScenarioFactory`] that constructs Pro pack
+/// `P` for `kind`. Each Pro pack's [`ExternalPack::register_into`] override calls
+/// this with its own `Self` / `Self::KIND`.
+pub fn pro_factory<P>(kind: &'static str) -> Box<dyn kshana::registry::ScenarioFactory>
+where
+    P: ExternalPack + DeserializeOwned + 'static,
+{
+    Box::new(ProFactory::<P> {
+        id: kshana::registry::ScenarioId::from_static(kind),
+        _marker: PhantomData,
+    })
+}
+
+/// The single dispatch table for the full **open ∪ Pro** superset, as a
+/// [`kshana::registry::PackRegistry`].
+///
+/// It starts from every open built-in
+/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 7
+/// Pro packs through the public [`ExternalPack::register_into`] seam. The union is
+/// therefore assembled entirely through stable public API: the open half is the open
+/// core's own table (never re-listed here, so it cannot drift), and the Pro half is
+/// each pack registering its own factory. The result builds — and, via the returned
+/// [`kshana::api::Scenario`], runs — every open scenario *and* every Pro pack by id.
+///
+/// Disjointness (Pro `KIND`s carry the [`PRO_KIND_PREFIX`] and never collide with an
+/// open id) means the union is exactly additive; the registry's own duplicate-id
+/// `debug_assert` is the runtime guard.
+pub fn pro_registry() -> kshana::registry::PackRegistry {
+    let mut reg = kshana::registry::PackRegistry::with_builtins();
+    SeamCheckPack::register_into(&mut reg);
+    TwinScenario::register_into(&mut reg);
+    TradeStudyScenario::register_into(&mut reg);
+    BatchScenario::register_into(&mut reg);
+    QuantumSystematicsScenario::register_into(&mut reg);
+    MbseScenario::register_into(&mut reg);
+    OptimismGapAuditScenario::register_into(&mut reg);
+    reg
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -199,5 +282,277 @@ mod tests {
         assert!(run_gated(ephem, &eval, 0).is_ok());
         // But a value pack is denied on Eval.
         assert!(run_gated("kind = \"pro-twin\"\n", &eval, 0).is_err());
+    }
+
+    // ─── Superset-additivity: pro_registry() = open ⊎ pro (disjoint union) ───────
+
+    /// Minimal, valid TOML for each Pro kind — deliberately small/fast configs (NOT
+    /// the published baselines) so `build` + `run` exercise the real pack code
+    /// end-to-end without heavy compute. Each carries its `kind` line for realism;
+    /// the pack structs have no `deny_unknown_fields`, so the extra `kind` key is
+    /// ignored on parse (exactly as the string dispatcher's `peek_kind` + full parse
+    /// already relies on).
+    fn pro_src(kind: &str) -> &'static str {
+        match kind {
+            SeamCheckPack::KIND => "kind = \"pro-seam-check\"\nlabel = \"additivity-test\"\n",
+            TwinScenario::KIND => {
+                "kind = \"pro-twin\"\n\
+                 device = \"CSAC (test)\"\n\
+                 adev_points = [[1.0, 3.0e-10], [10.0, 1.0e-10], [100.0, 3.2e-11]]\n\
+                 tolerance = 0.25\n\
+                 tau0_s = 1.0\n\
+                 n_samples = 4096\n\
+                 seed = 7\n"
+            }
+            TradeStudyScenario::KIND => {
+                r#"kind = "pro-trade-study"
+title = "test trade"
+metric = "quantum.fom.holdover_s"
+lower_better = false
+
+[[variant]]
+label = "optical"
+scenario = """
+kind = "clock"
+seed = 42
+threshold_ns = 20.0
+[time]
+step_s = 10.0
+duration_s = 1200.0
+[gnss]
+windows = [
+  { t0 = 0.0,   t1 = 600.0,  state = "nominal" },
+  { t0 = 600.0, t1 = 1200.0, state = "denied" },
+]
+[clock_quantum]
+id = "optical-sr-lattice"
+provenance = "test"
+y0 = 0.0
+q_wf = 1.0e-30
+q_rw = 0.0
+[clock_classical]
+id = "csac-sa45s"
+provenance = "test"
+y0 = 0.0
+q_wf = 9.0e-20
+q_rw = 0.0
+"""
+
+[[variant]]
+label = "csac"
+scenario = """
+kind = "clock"
+seed = 42
+threshold_ns = 20.0
+[time]
+step_s = 10.0
+duration_s = 1200.0
+[gnss]
+windows = [
+  { t0 = 0.0,   t1 = 600.0,  state = "nominal" },
+  { t0 = 600.0, t1 = 1200.0, state = "denied" },
+]
+[clock_quantum]
+id = "csac-sa45s"
+provenance = "test"
+y0 = 0.0
+q_wf = 9.0e-20
+q_rw = 0.0
+[clock_classical]
+id = "csac-sa45s"
+provenance = "test"
+y0 = 0.0
+q_wf = 9.0e-20
+q_rw = 0.0
+"""
+"#
+            }
+            BatchScenario::KIND => {
+                r#"kind = "pro-batch"
+title = "test batch"
+metric = "quantum.fom.timing_p95_ns"
+seed_count = 4
+seed_start = 1
+
+base_scenario = """
+kind = "clock"
+seed = 1
+threshold_ns = 20.0
+[time]
+step_s = 10.0
+duration_s = 1200.0
+[gnss]
+windows = [
+  { t0 = 0.0,   t1 = 600.0,  state = "nominal" },
+  { t0 = 600.0, t1 = 1200.0, state = "denied" },
+]
+[clock_quantum]
+id = "csac-sa45s"
+provenance = "test"
+y0 = 0.0
+q_wf = 9.0e-20
+q_rw = 0.0
+[clock_classical]
+id = "csac-sa45s"
+provenance = "test"
+y0 = 0.0
+q_wf = 9.0e-20
+q_rw = 0.0
+"""
+"#
+            }
+            QuantumSystematicsScenario::KIND => {
+                "kind = \"pro-quantum-systematics\"\n\
+                 species = \"Sr (test)\"\n\
+                 bbr_coeff_300k = -2.35e-14\n\
+                 temperature_k = 295.0\n"
+            }
+            MbseScenario::KIND => {
+                r#"kind = "pro-mbse"
+title = "test srd"
+
+[[requirement]]
+id = "SYS-001"
+text = "mass <= 12 kg"
+target = 12.0
+achieved = 10.5
+lower_is_better = true
+"#
+            }
+            OptimismGapAuditScenario::KIND => {
+                // A tiny, fast config (the published baseline is 400/class × 5 seeds
+                // × 1000 perms — far too heavy for a unit test). Still exercises the
+                // real open optimism-gap engine through the pack.
+                "kind = \"pro-optimism-gap-audit\"\n\
+                 n_per_class = 20\n\
+                 frac_train = 0.7\n\
+                 severities = [0.4, 0.8]\n\
+                 seeds = [1, 2]\n\
+                 target_pfa = 0.05\n\
+                 ridge_lambda = 0.1\n\
+                 n_perms = 20\n\
+                 perm_seed = 7\n"
+            }
+            other => panic!("no test source defined for Pro kind '{other}'"),
+        }
+    }
+
+    #[test]
+    fn pro_registry_is_an_additive_disjoint_union_of_open_and_pro() {
+        // Additivity = disjoint union with no collisions and no loss. Compute the
+        // open count DYNAMICALLY (never hardcoded) so this can't drift as the open
+        // core adds built-ins.
+        let open = kshana::registry::PackRegistry::with_builtins().ids().count();
+        let pro = pro_kinds().len();
+        let union = pro_registry().ids().count();
+        assert_eq!(
+            union,
+            open + pro,
+            "superset must be exactly additive: open {open} + pro {pro} = {} but registry had {union}",
+            open + pro
+        );
+    }
+
+    #[test]
+    fn pro_registry_contains_every_open_builtin() {
+        // Faithful superset: nothing the open engine offers is lost in the Pro build.
+        let builtins = kshana::registry::PackRegistry::with_builtins();
+        let reg = pro_registry();
+        for id in builtins.ids() {
+            assert!(
+                reg.contains(id),
+                "open built-in id '{id}' missing from pro_registry()"
+            );
+        }
+    }
+
+    #[test]
+    fn pro_registry_contains_every_pro_kind() {
+        let reg = pro_registry();
+        for m in pro_kinds() {
+            let id = kshana::registry::ScenarioId::from_static(m.name);
+            assert!(
+                reg.contains(&id),
+                "Pro kind '{}' missing from pro_registry()",
+                m.name
+            );
+        }
+    }
+
+    #[test]
+    fn pro_kinds_are_disjoint_from_open_ids() {
+        // The union is exactly additive ONLY because no Pro KIND equals any open id.
+        let builtins = kshana::registry::PackRegistry::with_builtins();
+        let open_ids: Vec<String> = builtins.ids().map(|i| i.as_str().to_string()).collect();
+        for m in pro_kinds() {
+            assert!(
+                !open_ids.iter().any(|o| o == m.name),
+                "Pro kind '{}' collides with an open built-in id — union would not be additive",
+                m.name
+            );
+        }
+    }
+
+    #[test]
+    fn every_pro_kind_builds_and_runs_through_the_registry() {
+        // Build + run EVERY Pro kind by id through pro_registry(). No silent skips:
+        // each of the 7 has a minimal valid source in `pro_src` and must succeed.
+        let reg = pro_registry();
+        for m in pro_kinds() {
+            let id = kshana::registry::ScenarioId::from_static(m.name);
+            let scenario = reg.build(&id, pro_src(m.name)).unwrap_or_else(|e| {
+                panic!("Pro kind '{}' must build through the registry: {e}", m.name)
+            });
+            let out = scenario.run().unwrap_or_else(|e| {
+                panic!("Pro kind '{}' must run through the registry: {e}", m.name)
+            });
+            assert!(
+                !out.summary.is_empty(),
+                "Pro kind '{}' produced an empty summary",
+                m.name
+            );
+        }
+    }
+
+    #[test]
+    fn registry_drives_both_halves_open_and_pro() {
+        // Faithfulness: the SAME registry builds + runs an OPEN kind AND a PRO kind
+        // to a valid RunOutput — proving pro_registry() drives the open engine half
+        // (via the inherited BuiltinFactory) and the Pro overlay half (via the
+        // ProFactory we attached), not just that ids are present.
+        let reg = pro_registry();
+
+        // OPEN: ephemeris (TLE source identical to the run_gated open-scenario test).
+        let ephem = "kind = \"ephemeris\"\n\
+            tle = \"\"\"\n\
+            1 25544U 98067A   20045.18587073  .00000950  00000-0  25302-4 0  9990\n\
+            2 25544  51.6443 242.0161 0004885 264.6060 207.3845 15.49165514212791\n\
+            \"\"\"\n\
+            step_s = 60.0\n\
+            duration_s = 120.0\n";
+        let open_out = reg
+            .build(&kshana::registry::ScenarioId::from_static("ephemeris"), ephem)
+            .expect("open ephemeris must build through the registry")
+            .run()
+            .expect("open ephemeris must run through the registry");
+        assert!(
+            !open_out.json.is_empty(),
+            "open ephemeris run yielded empty JSON"
+        );
+
+        // PRO: seam-check via the attached overlay factory.
+        let pro_out = reg
+            .build(
+                &kshana::registry::ScenarioId::from_static(SeamCheckPack::KIND),
+                pro_src(SeamCheckPack::KIND),
+            )
+            .expect("pro seam-check must build through the registry")
+            .run()
+            .expect("pro seam-check must run through the registry");
+        assert!(
+            pro_out.summary.contains("seam check OK"),
+            "pro seam-check run did not confirm the seam: {}",
+            pro_out.summary
+        );
     }
 }

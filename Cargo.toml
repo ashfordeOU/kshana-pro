@@ -23,14 +23,18 @@ path = "src/main.rs"
 # every open feature, then extends it through the public `ExternalPack` / model
 # trait seams (see docs/OVERLAY-ARCHITECTURE.md).
 #
-# Dev: a path dependency to the local open-core checkout so seams can co-evolve.
-# Release: pin to the published crate or a git tag instead, e.g.
-#     kshana = "0.20"
+# TRANSITIONAL pin: the overlay attaches through the open core's PackRegistry /
+# ExternalPack::register_into seam, which currently lives on the `feat/overlay-
+# registry-assurance` branch (not yet merged to kshana main / released to crates.io).
+# Pinned to that branch so this builds reproducibly. Flip back to a version/tag pin
+# once the seam lands on main, e.g.
+#     kshana = "0.23"
 #   or
-#     kshana = { git = "https://github.com/AshfordeOU/kshana", tag = "v0.20.0" }
-# The `version` field below keeps the semver contract recorded even while the
-# path is used locally; kept in lock-step with the open core's version.
-kshana = { path = "../kshana", version = "0.20" }
+#     kshana = { git = "https://github.com/ashfordeOU/kshana", tag = "v0.24.0" }
+# For local co-development, override with a path dep to a sibling checkout.
+# The `version` field keeps the semver contract recorded; kept in lock-step with the
+# open core's version.
+kshana = { git = "https://github.com/ashfordeOU/kshana", branch = "feat/overlay-registry-assurance", version = "0.23" }
 
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.

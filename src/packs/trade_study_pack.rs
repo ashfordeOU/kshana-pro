@@ -107,6 +107,11 @@ impl ExternalPack for TradeStudyScenario {
     fn meta(&self) -> ScenarioMeta {
         Self::meta_static()
     }
+    fn register_into(reg: &mut kshana::registry::PackRegistry) {
+        // Drive the open registry seam: add THIS pack's id→factory binding so the
+        // superset `pro_registry()` can build it by id. Mirrors `kind_name`/`meta`.
+        reg.register(crate::registry::pro_factory::<Self>(Self::KIND));
+    }
 }
 
 /// A small ranked bar chart of the metric across variants.
