@@ -7,58 +7,98 @@ The network has three parts: one lunar surface station at a fixed selenographic
 location, a small constellation of lunar satellites on circular orbits, and a
 set of Earth ground stations. The unknown state stacks the station's 3-D position
 correction, each satellite's 3-D position correction, and every clock offset,
-station and satellites alike. In the default configuration that is 16 parameters
-(for three satellites, $3 + 3\times3 + 1 + 3 = 16$). Three kinds of observable
-feed it:
+station and satellites alike. With three satellites that is 16 parameters
+($3 + 3\times3 + 1 + 3 = 16$). Four kinds of observable feed it:
 
 \begin{itemize}
   \item Earth-baseline geodetic VLBI delay to the lunar beacon (the surface
     station), differenced across pairs of Earth stations. This is the angular,
-    inter-continental measurement.
+    inter-continental measurement, and it is the only observable that ties the
+    station's absolute position directly to the Earth/inertial frame.
   \item Lunar-local ranging, both station-to-satellite and inter-satellite
-    (ISL).
-  \item Earth-to-satellite ranging and a station clock-sync pseudo-observable.
-    These are included only so that the range-only configuration is itself
-    full-rank; without them the clock/position degeneracy is trivial and the
-    comparison says nothing.
+    (ISL). These fix the internal geometry of the lunar cluster but, on their
+    own, leave its absolute datum free (Theorem~\ref{thm:rigid}).
+  \item Earth-to-satellite ranging, the \emph{indirect} tie that anchors the
+    satellites in the geocentric frame so that lunar-local ranging can propagate
+    that anchor down to the station.
+  \item A station clock-sync pseudo-observable, included so the clock/position
+    degeneracy is broken and the residual datum defect is purely positional;
+    without it the range-only configuration would be trivially rank-deficient and
+    the comparison would say nothing.
 \end{itemize}
 
 Truth states come from a seeded generator. Clean observables are computed from
 truth and then corrupted with per-observable Gaussian noise at each technique's
-$\sigma$ (default VLBI delay $\sigma = 10^{-11}$~s, about 3~mm; lunar range and
-ISL $\sigma$ at the decimetre level, 0.1~m by default). The estimator is a
-Gauss--Newton snapshot batch least-squares fit with a numerically-differentiated
-Jacobian \citep{montenbruck2000}, and parameters are carried in a scaled
-internal unit so the normal matrix stays well-conditioned across the ${\sim}c^2$
-dynamic range between the clock and position partials. The batch least-squares
-primitive is cross-checked against Orekit's Levenberg--Marquardt estimator on
-identical observations and agrees to about $10^{-8}$~m \citep{orekit}; the joint
-multi-technique lunar solve as a whole is still Modelled.
+$\sigma$ (default VLBI delay $\sigma = \SI{e-11}{\second}$, about \SI{3}{\milli\meter};
+lunar range and ISL $\sigma$ at the decimetre level, \SI{0.1}{\meter} by default).
+The estimator is a Gauss--Newton snapshot batch least-squares fit with a
+numerically-differentiated Jacobian \citep{montenbruck2000}, and parameters are
+carried in a scaled internal unit so the normal matrix stays well-conditioned
+across the ${\sim}c^2$ dynamic range between the clock and position partials. The
+batch least-squares primitive is cross-checked against Orekit's
+Levenberg--Marquardt estimator on identical observations and agrees to about
+\SI{e-8}{\meter} \citep{orekit}; the joint multi-technique lunar solve as a whole
+is still Modelled.
 
-One caveat up front: this is a static, geometric observability study, with no
-force-model propagation inside the solver. The conclusion is about measurement
-geometry and we keep it framed that way. Force-model orbit determination does
-exist elsewhere in the engine, and we cite it rather than fold it in here
-\citep{lemoine2013grail,bertone2021grail,li2023leopod}.
+\subsection{Two constellation regimes}
+
+A single constellation cannot separate the two reasons a fit can fail to pin the
+station. We therefore run the study at two satellite counts.
+
+The \emph{sparse} regime, $n_{\mathrm{sat}} = 3$, is the default and the harder
+case: an early or minimal lunar constellation whose look-direction spread is too
+narrow for the indirect tie to reach the station's absolute position. It is also
+observation-starved at low Earth-station count---fewer measurements than
+parameters---so its bare datum defect runs $6 \to 2 \to 0$ as Earth stations are
+added. That observed ladder is the true positional datum defect ($3 \to 1 \to 0$
+of \eqref{eq:defect}) plus an equal observation-count deficit that has nothing to
+do with the datum.
+
+The \emph{rich} regime, $n_{\mathrm{sat}} = 6$, is a non-starved network: enough
+satellites that the measurement count comfortably exceeds the parameter count, so
+observation under-determination is removed and what remains is the genuine
+absolute-frame datum. We measure the reported datum-defect ladder and the
+Cram\'er--Rao design curve on this network precisely so that the two effects
+separate, and we verify the same three-station threshold holds across three, six
+and eight satellites. The sparse regime is what carries the headline necessity
+result---the constellation where VLBI is not optional---while the rich regime
+isolates the underlying observability geometry from the artefact of counting.
 
 \subsection{The observability claim and its controls}
 
-The claim is that VLBI restores observability, not that it simply adds more
-data. Three checks separate those two readings.
+The claim is sharper than ``VLBI helps'': for a sparse constellation it
+\emph{restores} an observability the constellation cannot supply, and for a rich
+one it only \emph{sharpens} a bound the indirect tie already secures
+(Table~\ref{tab:restore}). Three checks separate restoration from the trivial
+reading that VLBI merely adds data.
 
 \begin{enumerate}
-  \item With versus without VLBI. Run both configurations on the same seed and
-    truth, then report the station 3-D error and the per-state breakdown
-    (station and satellite position, station and satellite clock).
+  \item With versus without VLBI, run on the same seed and truth in both
+    regimes. We report the station 3-D error and the per-state breakdown (station
+    and satellite position, station and satellite clock), and, where the position
+    is unobservable without VLBI, the null-space dimension of the information
+    matrix rather than a meaningless finite error.
   \item Information, not count. Hold the observation set fixed and sweep the VLBI
-    delay $\sigma$ over four decades. If the improvement were just the extra
+    delay $\sigma$ over four decades. If the improvement were just extra
     observations, the station error would be flat in $\sigma$. If it is the VLBI
-    information, the error has to climb back toward the range-only level as
-    $\sigma$ grows and the observations, though still present, carry vanishing
-    weight.
+    information, the error climbs back toward the range-only level as $\sigma$
+    grows and the delays, though still present, carry vanishing weight.
   \item Robustness. Repeat with versus without over a 200-seed ensemble, and
-    separately sweep the number of Earth stations.
+    separately sweep the number of Earth stations, in each regime. The
+    sparse-constellation improvement is reported as an ensemble distribution, not
+    a single favourable draw, since VLBI does not help on every seed.
 \end{enumerate}
+
+One caveat up front. This is a static, geometric observability study, with no
+force-model propagation inside the solver. The constellation is illustrative---a
+south-polar station near $-88^\circ$ selenographic latitude, satellites on
+circular orbits, not the elliptical frozen orbits of an actual Moonlight/LCNS
+design---and the solve is closed-loop and single-epoch: truth is generated from
+the same measurement model through which it is recovered, at one snapshot, with no
+dynamic arc. The conclusion is about measurement geometry and we keep it framed
+that way. Force-model orbit determination exists elsewhere in the engine, and we
+cite it rather than fold it in here
+\citep{lemoine2013grail,bertone2021grail,li2023leopod}.
 
 \subsection{Reproducibility and honesty labelling}
 
@@ -69,10 +109,17 @@ are fixed, so with a pinned engine the study is deterministic
 \citep{fernandezprades2018reproducibility}. Each figure of merit carries the
 label the engine enforces in \code{src/verification.rs} and
 \code{tests/no\_overclaims.rs}: Validated means an external oracle exists,
-everything else is Modelled. The lunar joint-OD result is Modelled, with an
-internal-consistency oracle (it recovers an injected truth, and the formal
-covariance and NEES are realistic). The dilution-of-precision geometry the
-service-volume module reuses, and the Earth-orientation transforms the ground
-stations apply, are Validated against \code{gnss\_lib\_py}
-\citep{knowles2024gnsslibpy} and SOFA/ERFA \citep{iausofa}; that is validation by
-reuse, and we do not claim it for the joint-OD result itself.
+everything else is Modelled.
+
+The line between the two matters here. The Fisher-information and Cram\'er--Rao
+engine that computes every observability statement in this paper
+(\code{src/fim.rs}) is Validated against NumPy's \code{eigh}/\code{inv} and the
+closed-form bounds of \citet{kay1993} (\S\ref{sec:toolkit}). The dilution-of-precision
+geometry the service-volume module reuses, and the Earth-orientation transforms
+the ground stations apply, are Validated against \code{gnss\_lib\_py}
+\citep{knowles2024gnsslibpy} and SOFA/ERFA \citep{iausofa}. The lunar joint-OD
+observability result is \emph{Modelled}: the engine is exact and externally
+checked, but the representative lunar network it is applied to is a simulation, so
+the restoration-and-sharpening conclusion inherits the Modelled label and claims
+no validation against real lunar tracking. There is no flight heritage, no TRL
+above 3, and no ESA affiliation or endorsement implied anywhere in this study.

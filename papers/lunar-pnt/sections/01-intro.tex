@@ -39,10 +39,29 @@ the discipline the kshana program has applied to terrestrial and deep-space PNT
 \citep{baweja2026kshana} and that we extend here to the lunar case
 \citep{iiyama2023lupnt,fernandezprades2018reproducibility}.
 
-This paper offers two things: an open lunar PNT toolkit, seven capability areas
-in the \code{kshana} engine, and one falsifiable result obtained with it.
-Earth-baseline VLBI restores the observability of a lunar surface station's
-absolute 3-D position in joint orbit-and-clock determination. It does so through
-information rather than sheer observation count, it helps only the states the
-lunar-local measurements leave weak, and it needs a minimum number of baselines
-to work at all.
+The contribution of this paper is an observability result and a design law that
+follows from it. We prove that the absolute position of a lunar surface station
+in joint orbit-and-clock determination can be fixed only through a tie to the
+Earth/inertial frame, and that two such ties exist: an indirect one in which
+Earth$\to$satellite ranging anchors the constellation and lunar-local ranging
+propagates that anchor to the station, and a direct one in which Earth-baseline
+VLBI ties the station beacon itself. The indirect tie reaches the station only
+when the constellation geometry is rich enough; for a sparse or early
+constellation the station's absolute position falls in the null space of the
+Fisher information and has no finite error bound at all, until a direct VLBI tie
+restores it. This yields a clean conditional design rule (Theorem~\ref{thm:rigid}
+and Table~\ref{tab:restore}): an Earth-baseline VLBI tie, of the kind NovaMoon's
+transmitter would provide, is \emph{necessary} when the constellation cannot
+carry the absolute datum on its own and merely \emph{sharpens} the bound when it
+can. The direct tie has its own threshold, derived from the geometry: because
+Earth stations subtend a tiny angle from the Moon, a single VLBI epoch informs at
+most two of the station's three absolute axes, so the absolute position becomes
+observable at three non-collinear Earth stations and not before
+(\eqref{eq:defect}, Figure~\ref{fig:n_earth}). The familiar large
+improvement-factor headline---a $91\times$ ensemble-median reduction in absolute
+station error---survives as one honest illustration of the sparse regime, where
+the indirect tie has nothing to give and VLBI is the difference between an
+unobservable datum and a metre-class one; it is the consequence of the
+observability result, not its substance. Everything ships as an open,
+reproducible toolkit, seven capability areas in the \code{kshana} engine, with
+each figure of merit labelled validated or modelled.

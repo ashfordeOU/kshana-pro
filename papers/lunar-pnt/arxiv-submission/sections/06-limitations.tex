@@ -1,20 +1,46 @@
 % SPDX-License-Identifier: CC-BY-4.0
 \section{Limitations}
 
-A few things this study is not. It is closed-loop: truth is generated from the
-same observation model it is then recovered through. That makes it an
-observability study, not a validation against real VLBI or ranging data; it
-bounds what the geometry can determine under the stated noise, not what a real
-campaign will get. It is also a snapshot, geometric fit. There is no force-model
-propagation in the solver, no dynamic arc or unmodelled forces, no real ephemeris
-or station-coordinate errors, and no troposphere, ionosphere or relativistic
-delay modelling beyond what the observable already carries; Earth-orientation
-polar motion is set to zero. The joint-OD result is Modelled, against an
-internal-consistency oracle, and only the reused DOP and Earth-orientation
-kernels are externally validated.
+The observability theorem and the three-station design law of \S\ref{sec:theory}
+are exact algebra of the estimation model, and they are checked against the
+engine that computes the figures. What they are not is a validation against real
+lunar tracking, and several modelling choices set the boundary of what the result
+can claim.
 
-The constellation and station parameters are illustrative and drawn from public
-sources, so the engine models the class of system rather than any specific one.
-It is not Moonlight, LCNS, NovaMoon, or LunaNet, and it is not affiliated with or
-endorsed by ESA. There is no TRL above 3, no flight heritage, and no
-certification.
+The study is closed-loop: truth is generated from the same observation model it is
+then recovered through. That is the right setup for an observability question---it
+isolates what the geometry can and cannot determine under the stated noise---but it
+bounds the achievable accuracy, not what a real campaign will get. The joint-OD
+observability result is therefore Modelled, scored against an internal-consistency
+oracle. Only three ingredients are externally Validated: the reused DOP and
+Earth-orientation kernels, and the FIM/CRLB engine itself, which is checked against
+NumPy and the closed-form bounds of \citet{kay1993} (\S\ref{sec:toolkit}). The
+honesty firewall between the Validated engine and the Modelled lunar geometry it is
+applied to holds throughout.
+
+It is also a single-epoch snapshot. The solver carries no force-model dynamic arc,
+no unmodelled forces, no real ephemeris or station-coordinate error, and no
+troposphere, ionosphere or relativistic delay beyond what the observable already
+encodes; Earth-orientation polar motion is set to zero. The snapshot assumption
+bears directly on the headline threshold. As noted under Theorem~\ref{thm:rigid},
+each VLBI baseline is rank-one at one epoch because the Earth stations subtend a
+tiny angle from the Moon, which is what forces the count of three non-collinear
+stations in \eqref{eq:defect}. A delay-rate observable over an Earth-rotation arc
+would add a second rank-one term per baseline and could soften that threshold; we
+do not model it. The three-station law of \S\ref{sec:theory} is thus the snapshot
+bound, and a dynamic arc is the most consequential extension.
+
+The constellation and station geometry are illustrative, drawn from public sources,
+so the engine models the class of system rather than any specific one. The headline
+scenario uses circular orbits with a south-polar station at $-88^\circ$ latitude; to
+check that nothing rests on the circular placement we re-run on a representative
+elliptical lunar frozen orbit of the Moonlight/LCNS design family (\S\ref{sec:results},
+Table~\ref{tab:elfo}), and the datum-defect ladder, the three-station threshold and the
+necessity law all carry over unchanged---but the exact flown Moonlight/LCNS ephemeris is
+still not modelled, and the design is not Moonlight, LCNS, NovaMoon or LunaNet. The
+\SI{91}{\times} sparse-constellation improvement of \S\ref{sec:results} is the honest
+signature of one such illustrative three-satellite geometry (and Table~\ref{tab:restore}
+shows it is the regime where VLBI is genuinely necessary rather than merely helpful); it
+is an illustration of the design law, not a performance figure for any flown system.
+There is no TRL above 3, no flight heritage, no certification, and no affiliation with or
+endorsement by ESA.
