@@ -8,6 +8,49 @@ keeps the two in lock-step forever.
 
 ---
 
+## 0. Build status — overlay deepened to agency-grade (2026-06-30)
+
+The overlay is no longer just seam-proof stubs; the substrates and the L1/L3
+verticals are built to ESA/NASA-credible depth, **coordinated across the open
+core and the private overlay**, behind one honesty firewall. What landed:
+
+- **Two open substrates (public `kshana` main).**
+  - `kshana::registry` — a `PackRegistry` dispatch seam (`ScenarioId` → factory)
+    with `ExternalPack::register_into`, replacing closed enum-match dispatch.
+  - `kshana::assurance` — `provenance` (W3C-PROV + Merkle root), `uncertainty`
+    (Greenhall EDF + χ² CIs), `oracle` (the honesty-gate harness).
+- **Superset attachment (Phase 0b).** `pro_registry()` = `PackRegistry::with_builtins()`
+  ∪ the 7 Pro packs via each pack's `register_into` — open ∪ Pro is one table,
+  proven additive (open + 7, no collision).
+- **L1 clock twin (deepened).** Public `kshana::allan` gained **ThéoH/TOTVAR**
+  (Theo1 + total deviation **Validated** vs allantools on NIST SP 1065, <1e-9);
+  pro `twin` gained 3-parameter calibration (white-FM + flicker + RWFM/aging),
+  a device-preset library (CSAC SA.45s datasheet-cited; OCXO/Rb/Galileo/optical
+  representative-class), holdover UQ vs ITU-T G.8272.1 masks, and an optical-lattice
+  systematics budget.
+- **L3 trade & assurance (deepened).** Public `kshana::mcda` (WSM, **AHP +
+  Consistency-Ratio Validated** vs Saaty-RI + SciPy/LAPACK, Pareto+knee,
+  sensitivity tornado/SMAA, MAUT). Pro `suite` rewired single-FoM → multi-criteria
+  on `kshana::mcda`, plus W3C-PROV evidence packs, GSN + ECSS-E-ST-10-02C VCD,
+  ECSS-E-ST-10C Annex L / NASA SP-2016-6105 §6.8 reports, ISO 16290 TRL knock-out,
+  and a fail-closed multi-criteria assurance gate.
+- **Agency V&V dossier (Phase 3).** `suite::vv_dossier` — NASA-STD-7009B
+  Credibility Assessment Scale (8 factors) + ASME V&V 40 Context-of-Use,
+  composing the L1+L3 evidence into one honest credibility statement.
+
+**Honesty firewall (the load-bearing invariant).** Only open-core *kernels* with a
+genuine independent external oracle are **Validated** (ADEV/ThéoH/TOTVAR vs
+allantools; AHP/WSM vs Saaty/LAPACK/pymcdm — each with a committed generator,
+each reproduced by an adversarial verifier in a clean venv). Every **composed**
+overlay capability (device twins, trade decisions, evidence packs) is honestly
+**Modelled** — no flight or measured-device data. The V&V dossier scores the
+overall model credibility at **NASA-STD-7009B level 1** by construction
+(Validation capped because composition ≠ validation; Use History low because the
+system is new), and states the credibility *gap* to an agency rather than hiding
+it. Nothing is sold or labelled beyond its oracle.
+
+---
+
 ## 1. The rule: depend, never fork
 
 Kshana Pro is a separate **private** crate that lists the open `kshana` crate as a
@@ -27,11 +70,14 @@ Consequence — **superset by construction**:
 - Closed code physically cannot leak into the open tree (different repos).
 
 ### Dependency pinning
-- **Dev:** path dependency `kshana = { path = "../kshana", version = "0.20" }` so
-  seams can co-evolve with the overlay during development.
-- **Release:** pin the published crate (`kshana = "0.20"`) or a git tag
-  (`kshana = { git = "…/kshana", tag = "v0.20.0" }`) so a Pro build is
-  reproducible and tied to an exact, released open engine.
+- **Now (transitional):** the overlay tracks the open core's `main`
+  (`kshana = { git = "…/kshana", branch = "main", version = "0.23" }`) because the
+  registry/assurance/mcda seams it depends on are merged to main but not yet in a
+  crates.io release; `Cargo.lock` pins the exact rev for reproducibility and
+  `cargo update -p kshana` advances it as each open-core phase lands.
+- **Release:** pin the published crate (`kshana = "0.24"`) or a git tag once the
+  open core cuts a release carrying the seams, so a Pro build is tied to an exact,
+  released open engine.
 
 ---
 
@@ -86,11 +132,26 @@ impl ExternalPack for MyProPack {
 }
 ```
 
-Register it in `registry::build_pro_pack` (match `MyProPack::KIND`) and
-`registry::pro_kinds` (push `MyProPack::meta_static()`). The
-`registry::run` **superset dispatcher** then routes `pro-*` kinds to the Pro pack
-and delegates everything else to `kshana::api::run_scenario` unchanged — one
-binary, open ∪ Pro.
+Then add `register_into` to the pack's `impl ExternalPack` (one line —
+`reg.register(crate::registry::pro_factory::<Self>(Self::KIND))`), and `pro_registry()`
+seeds it alongside the open built-ins:
+
+```rust
+impl ExternalPack for MyProPack {
+    fn kind_name(&self) -> &'static str { Self::KIND }
+    fn meta(&self) -> ScenarioMeta { Self::meta_static() }
+    fn register_into(reg: &mut kshana::registry::PackRegistry) {
+        reg.register(crate::registry::pro_factory::<Self>(Self::KIND));
+    }
+}
+```
+
+`registry::pro_registry()` returns a `kshana::registry::PackRegistry` =
+`PackRegistry::with_builtins()` (every open kind) driven through each Pro pack's
+`register_into` — one table, open ∪ Pro, additive by construction (the
+`registry::tests` prove union == open + Pro, no collision). The legacy
+`registry::run`/`run_gated` string dispatcher (route `pro-*` to the pack, delegate
+the rest to `kshana::api::run_scenario`) is retained and unchanged.
 
 **Convention:** every Pro-only kind carries the `pro-` prefix
 (`registry::PRO_KIND_PREFIX`). It makes routing unambiguous and Pro kinds obvious
@@ -105,10 +166,15 @@ sold SKU / controlled data) vs the **framework** that capability plugs into. The
 frameworks for L1 and L3 are **built as demonstrators** (runnable on public data, no
 gate crossed); only the gated instances and all of L2 wait on triggers.
 
-- **L1 — Quantum-payload digital twin** (`twin`, `packs::twin_pack`) — ✅ **framework
-  built.** `twin::calibrate` fits a published Allan-deviation budget to an open-core
-  `ClockModel` (an `ErrorModel`); `twin::validate` confirms the twin reproduces the
-  curve via `kshana::allan`. Demonstrated on a representative CSAC spec (`pro-twin`).
+- **L1 — Quantum-payload digital twin** (`twin`, `packs::twin_pack`) — ✅ **deepened.**
+  `twin::calibrate`/`calibrate3` fit a published Allan-deviation budget (white-FM +
+  flicker floor + long-τ random-walk/aging) to an open-core `ClockModel` (an
+  `ErrorModel`); `twin::validate` confirms reproduction via `kshana::allan` (now incl.
+  ThéoH/TOTVAR). `twin::presets` carries CSAC SA.45s (datasheet-cited) + OCXO/Rb
+  PRS10/Galileo PHM·RAFS/optical-lattice (representative-class, honestly flagged);
+  `twin::holdover_uq` bands the open holdover against ITU-T G.8272.1 masks;
+  `twin::optical_systematics` is a per-effect lattice shift budget. All **Modelled**
+  (calibration/composition); the open ThéoH/TOTVAR + ADEV kernels are Validated.
   *Gated instance:* a twin of a specific customer's device needs NDA (and likely
   export-controlled) data — `twin::customer_instance_gated`. First instance =
   AO/1-13503 Foreground IP.
@@ -117,11 +183,17 @@ gate crossed); only the gated instances and all of L2 wait on triggers.
   `jamming`/`spoof` packs. Trigger: export-control assessment (PR5) + cleared
   customer. Nothing built on spec — `resilience::gated`.
 - **L3 — Trade-study & assurance suite** (`suite`, `packs::trade_study_pack`) — ✅
-  **framework built.** `suite::run_trade_study` runs architecture variants through
-  `kshana::api::run_scenario`, ranks them, and `evidence_pack_markdown` emits an
-  audit-grade record with reproducible scenario hashes (`pro-trade-study`). *Gated:*
-  packaging as a licensed SKU with full ECSS/MBSE generation — `suite::product_gated`.
-  Trigger: second paying customer.
+  **deepened.** `suite::run_trade_study` is now **multi-criteria** on `kshana::mcda`
+  (`suite::decision`: WSM scoring, AHP-derived weights with the CR<0.10 gate surfaced,
+  Pareto front + knee, sensitivity tornado/SMAA/min-weight-to-flip); a single-criterion
+  study reproduces the old single-FoM ranking exactly. `suite::provenance` emits a
+  W3C-PROV evidence pack with a Merkle root; `suite::gsn`/`suite::vcd` give a GSN
+  argument + ECSS-E-ST-10-02C verification-control matrix; `suite::reports` renders
+  ECSS-E-ST-10C Annex L + NASA SP-2016-6105 §6.8 + ISO 16290 TRL; `suite::gate` is a
+  fail-closed multi-criteria assurance gate; `suite::vv_dossier` is the NASA-STD-7009B
+  + ASME V&V 40 credibility dossier (§0). The open AHP/WSM kernels are Validated; the
+  composed decision layer is **Modelled**. *Gated:* packaging as a licensed SKU with
+  full ECSS/MBSE generation — `suite::product_gated`. Trigger: second paying customer.
 - **P0 — Seam proof** (`packs::seam_check`, `pro-seam-check`) — ✅ the smallest real
   `ExternalPack`; free at Evaluation, it exercises the whole overlay contract end-to-end.
 - **L1 — Optical-clock systematics** (`premium`, `packs::quantum_systematics_pack`,

@@ -45,6 +45,7 @@ pub mod gsn;
 pub mod provenance;
 pub mod reports;
 pub mod vcd;
+pub mod vv_dossier;
 
 use std::collections::BTreeMap;
 
@@ -59,6 +60,7 @@ pub use decision::{
 pub use gate::{GateThresholds, GateVerdict};
 pub use provenance::DecisionProvenance;
 pub use reports::TrlLevel;
+pub use vv_dossier::{build_dossier, CredibilityDossier, TwinValidationEvidence};
 
 /// One architecture option in the trade space: a label + a full scenario (the open
 /// engine runs it unchanged, so any open scenario kind is a valid variant).
