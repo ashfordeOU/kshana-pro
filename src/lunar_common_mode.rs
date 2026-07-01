@@ -23,13 +23,14 @@
 //! bias on every pseudorange leaves its statistic unchanged). Here we expose the
 //! general split so a caller can quantify *how much* of a given error is blind.
 //!
-//! Everything in this module is **Modelled / analytic**: it is the linear
-//! algebra of the projector, with no external-oracle or Validated claim. The
-//! general n-dimensional characterisation of the blind subspace, the
-//! frame/ephemeris application, the common-mode protection-level (CMPL) bound,
-//! and the real-data Validated anchor are built in later tasks.
+//! Everything in this module is **Modelled / analytic**. The projector split is
+//! exact linear algebra with no stochastic content. The common-mode
+//! protection-level (CMPL) bound built below *additionally* consumes a **Modelled**
+//! common-mode measurement-error covariance and a **Modelled** k-factor supplied by
+//! the caller; there is no external-oracle or Validated claim anywhere in this
+//! module. The real-data Validated anchor for that covariance is a later task.
 
-use crate::orbit::{invert4, los_unit};
+use crate::orbit::{enu_basis, invert4, los_unit};
 
 /// Build the RAIM geometry matrix `G` (rows `[-eₓ, -e_y, -e_z, 1]`) for a `user`
 /// observing a set of satellite positions `sats`, using
@@ -71,26 +72,20 @@ pub struct CommonModeSplit {
     pub blind_fraction: f64,
 }
 
-/// Split a measurement error `delta_y` into its RAIM-invisible (`range(G)`) and
-/// RAIM-detectable (parity) parts for the geometry `geometry` (rows
-/// `[-eₓ, -e_y, -e_z, 1]`).
+/// The least-squares **state map** `S = (GᵀG)⁻¹Gᵀ` (the `4 × n` matrix taking a
+/// measurement-error vector `δy` to the state estimate error `S·δy`), returned as
+/// `n` columns each `[f64; 4]` (column `c` is `s[c]`, so `s[c][i] = S[i][c]`).
 ///
-/// Uses `S = (GᵀG)⁻¹Gᵀ` (unit measurement weighting) built with
-/// [`crate::orbit::invert4`], then `blind_dx = S·δy`, `pred = G·blind_dx`, and
-/// `detectable_residual = δy − pred`. Norms are Euclidean.
+/// Builds `GᵀG`, inverts it with [`crate::orbit::invert4`], then
+/// `s[c][i] = Σ_k (GᵀG)⁻¹[i][k]·G[c][k]`. Returns `None` when there are fewer
+/// than 5 rows (`dof = n − 4 ≥ 1` is required) or when `GᵀG` is singular
+/// (rank-deficient geometry).
 ///
-/// Returns `None` when `geometry.len() != delta_y.len()`, when there are fewer
-/// than 5 rows (no redundancy), when `GᵀG` is singular (rank-deficient
-/// geometry), or when `δy` is exactly zero (the blind fraction is then
-/// undefined — a zero perturbation has no direction to classify).
-pub fn common_mode_split(geometry: &[[f64; 4]], delta_y: &[f64]) -> Option<CommonModeSplit> {
+/// This is the single source of `S` for the module: [`common_mode_split`],
+/// [`blind_position_covariance`], and [`cmpl_horizontal`] all route through it.
+pub fn state_map(geometry: &[[f64; 4]]) -> Option<Vec<[f64; 4]>> {
     let n = geometry.len();
-    if n != delta_y.len() || n < 5 {
-        return None;
-    }
-    let dy_norm = norm(delta_y);
-    // A zero perturbation has no direction, so its blind fraction is undefined.
-    if dy_norm == 0.0 {
+    if n < 5 {
         return None;
     }
 
@@ -115,6 +110,34 @@ pub fn common_mode_split(geometry: &[[f64; 4]], delta_y: &[f64]) -> Option<Commo
             col
         })
         .collect();
+    Some(s)
+}
+
+/// Split a measurement error `delta_y` into its RAIM-invisible (`range(G)`) and
+/// RAIM-detectable (parity) parts for the geometry `geometry` (rows
+/// `[-eₓ, -e_y, -e_z, 1]`).
+///
+/// Uses `S = (GᵀG)⁻¹Gᵀ` (unit measurement weighting) built with
+/// [`crate::orbit::invert4`], then `blind_dx = S·δy`, `pred = G·blind_dx`, and
+/// `detectable_residual = δy − pred`. Norms are Euclidean.
+///
+/// Returns `None` when `geometry.len() != delta_y.len()`, when there are fewer
+/// than 5 rows (no redundancy), when `GᵀG` is singular (rank-deficient
+/// geometry), or when `δy` is exactly zero (the blind fraction is then
+/// undefined — a zero perturbation has no direction to classify).
+pub fn common_mode_split(geometry: &[[f64; 4]], delta_y: &[f64]) -> Option<CommonModeSplit> {
+    let n = geometry.len();
+    if n != delta_y.len() || n < 5 {
+        return None;
+    }
+    let dy_norm = norm(delta_y);
+    // A zero perturbation has no direction, so its blind fraction is undefined.
+    if dy_norm == 0.0 {
+        return None;
+    }
+
+    // S = (GtG)^-1 G^T (4 x n) via the shared state map; None if singular.
+    let s = state_map(geometry)?;
 
     // blind_dx = S * delta_y.
     let mut blind_dx = [0.0_f64; 4];
@@ -143,6 +166,154 @@ pub fn common_mode_split(geometry: &[[f64; 4]], delta_y: &[f64]) -> Option<Commo
         detectable_norm,
         blind_fraction,
     })
+}
+
+/// The **blind** user *position* covariance induced by a common-mode
+/// measurement-error covariance `cm_cov`.
+///
+/// A common-mode error absorbed as a state error is `δx = S·δy`, so a
+/// measurement-error covariance `Σ = cm_cov` maps to the blind state covariance
+/// `C = S·Σ·Sᵀ` (`4 × 4`). This returns the position block `C[0..3][0..3]`
+/// (`3 × 3`, in the inertial frame the geometry is expressed in). Because this
+/// error lives in `range(G)` it carries **zero** parity residual — ARAIM cannot
+/// see it — yet its position part is a genuine error the user suffers.
+///
+/// `cm_cov` is the `n × n` common-mode measurement-error covariance (symmetric
+/// PSD, caller-supplied and **Modelled**). Returns `None` on a dimension mismatch
+/// (`cm_cov` is not `n × n`) or singular / under-determined geometry.
+pub fn blind_position_covariance(
+    geometry: &[[f64; 4]],
+    cm_cov: &[Vec<f64>],
+) -> Option<[[f64; 3]; 3]> {
+    let n = geometry.len();
+    if cm_cov.len() != n || cm_cov.iter().any(|row| row.len() != n) {
+        return None;
+    }
+    // S as n columns (s[c][i] = S[i][c]); None if <5 rows or singular geometry.
+    let s = state_map(geometry)?;
+
+    // M = cm_cov · Sᵀ restricted to the 3 position columns:
+    // m[a][i] = Σ_b cm_cov[a][b] · S[i][b] = Σ_b cm_cov[a][b] · s[b][i].
+    let mut m = vec![[0.0_f64; 3]; n];
+    for a in 0..n {
+        for i in 0..3 {
+            let mut acc = 0.0_f64;
+            for b in 0..n {
+                acc += cm_cov[a][b] * s[b][i];
+            }
+            m[a][i] = acc;
+        }
+    }
+
+    // C_pos = (S · M) position block:
+    // c[i][j] = Σ_a S[i][a] · m[a][j] = Σ_a s[a][i] · m[a][j].
+    let mut c = [[0.0_f64; 3]; 3];
+    for i in 0..3 {
+        for j in 0..3 {
+            let mut acc = 0.0_f64;
+            for a in 0..n {
+                acc += s[a][i] * m[a][j];
+            }
+            c[i][j] = acc;
+        }
+    }
+    Some(c)
+}
+
+/// The **Common-mode Protection Level (CMPL)**: the `k`-σ horizontal position
+/// error from the blind (common-mode) class, in metres.
+///
+/// Takes the blind position covariance from [`blind_position_covariance`],
+/// rotates it into the user's local East-North-Up frame using
+/// [`crate::orbit::enu_basis`] (`C_enu = Rᵀ·C·R`, with `R`'s columns the E, N, U
+/// unit vectors), extracts the horizontal `2 × 2` (E, N) block, and returns
+/// `k · √λ_max` where `λ_max` is that block's larger eigenvalue — i.e. `k` times
+/// the semi-major axis of the 1-σ horizontal error ellipse, the standard
+/// protection-level form. The `2 × 2` eigenvalue is solved in closed form.
+///
+/// `cm_cov` and `k` are **Modelled** inputs. Returns `None` on invalid inputs:
+/// dimension mismatch, singular geometry, a degenerate user position (no ENU
+/// basis at the geocentre), or a non-finite / negative horizontal eigenvalue
+/// (e.g. a caller-supplied `cm_cov` that is not PSD, or a non-finite `k`).
+pub fn cmpl_horizontal(
+    geometry: &[[f64; 4]],
+    user: [f64; 3],
+    cm_cov: &[Vec<f64>],
+    k: f64,
+) -> Option<f64> {
+    if !k.is_finite() {
+        return None;
+    }
+    // Position covariance in the inertial frame the geometry is expressed in.
+    let c = blind_position_covariance(geometry, cm_cov)?;
+    // Local ENU basis at the user; R = [east | north | up] (columns).
+    let (east, north, _up) = enu_basis(user)?;
+
+    // Horizontal 2x2 block of C_enu = Rᵀ C R, i.e. h[a][b] = ê_aᵀ · C · ê_b for
+    // ê ∈ {east, north}. Symmetric because C is.
+    let basis = [east, north];
+    let mut h = [[0.0_f64; 2]; 2];
+    for a in 0..2 {
+        for b in 0..2 {
+            let mut acc = 0.0_f64;
+            for i in 0..3 {
+                for j in 0..3 {
+                    acc += basis[a][i] * c[i][j] * basis[b][j];
+                }
+            }
+            h[a][b] = acc;
+        }
+    }
+
+    // Larger eigenvalue of the symmetric 2x2 [[h00, h01], [h10, h11]]:
+    // λ = tr/2 ± √((tr/2)² − det), take the +.
+    let half_tr = 0.5 * (h[0][0] + h[1][1]);
+    let det = h[0][0] * h[1][1] - h[0][1] * h[1][0];
+    let disc = half_tr * half_tr - det;
+    if disc < 0.0 {
+        // Non-PSD 2x2 (invalid covariance): the eigenvalues are complex.
+        return None;
+    }
+    let lambda_max = half_tr + disc.sqrt();
+    if !lambda_max.is_finite() || lambda_max < 0.0 {
+        return None;
+    }
+    let cmpl = k * lambda_max.sqrt();
+    cmpl.is_finite().then_some(cmpl)
+}
+
+/// A user's total horizontal integrity envelope, decomposed into the ARAIM
+/// (parity-detectable) protection level and the common-mode (blind) protection
+/// level. Metres. **Modelled.**
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct IntegrityEnvelope {
+    /// The ARAIM horizontal protection level. It bounds **only** the
+    /// parity-detectable fault class — the errors RAIM/ARAIM can test against.
+    pub hpl_araim: f64,
+    /// The Common-mode Protection Level: the k-σ horizontal error from the blind
+    /// (`range(G)`) class, which produces **zero** parity residual and which the
+    /// ARAIM HPL therefore provably does **not** cover.
+    pub cmpl: f64,
+    /// `hpl_araim + cmpl` — a conservative additive bound on the user's true
+    /// horizontal integrity, since the two terms bound disjoint error classes.
+    pub hpl_total: f64,
+}
+
+/// Combine the ARAIM horizontal protection level with the common-mode protection
+/// level into a total integrity envelope.
+///
+/// The ARAIM HPL bounds only the *parity-detectable* fault class; a common-mode
+/// (frame/ephemeris) error lies in `range(G)`, carries **zero** parity residual,
+/// and is therefore provably **not** covered by that HPL. The CMPL is a separate,
+/// additive term for exactly that blind class, so a user's true horizontal
+/// integrity envelope is at least the sum `hpl_total = hpl_araim + cmpl`. This
+/// sum is **Modelled** (the CMPL rests on a Modelled common-mode covariance).
+pub fn integrity_envelope(hpl_araim: f64, cmpl: f64) -> IntegrityEnvelope {
+    IntegrityEnvelope {
+        hpl_araim,
+        cmpl,
+        hpl_total: hpl_araim + cmpl,
+    }
 }
 
 /// Euclidean (L2) norm of a vector.
@@ -292,5 +463,92 @@ mod tests {
         // Zero perturbation -> None (blind fraction undefined).
         let zero = vec![0.0; g.len()];
         assert!(common_mode_split(&g, &zero).is_none());
+    }
+
+    /// The user position matching `test_geometry` (needed for the ENU rotation).
+    fn test_user() -> [f64; 3] {
+        [7.0e6, 0.0, 0.0]
+    }
+
+    /// Rank-1 common-mode covariance `σ²·(u·uᵀ)` from a measurement-space vector.
+    fn rank1_cov(u: &[f64], sigma: f64) -> Vec<Vec<f64>> {
+        let s2 = sigma * sigma;
+        u.iter()
+            .map(|&ui| u.iter().map(|&uj| s2 * ui * uj).collect())
+            .collect()
+    }
+
+    #[test]
+    fn common_mode_covariance_gives_positive_cmpl() {
+        let g = test_geometry();
+        let user = test_user();
+        // A genuine range(G) / blind direction: u = G·d for a state direction d.
+        let d = [1.0, -2.0, 0.5, 3.0];
+        let u = g_times(&g, d);
+        let sigma = 5.0;
+        let cm_cov = rank1_cov(&u, sigma);
+
+        let cmpl = cmpl_horizontal(&g, user, &cm_cov, 5.33).expect("valid CMPL");
+        assert!(cmpl.is_finite() && cmpl > 0.0, "cmpl = {cmpl}");
+
+        let cpos = blind_position_covariance(&g, &cm_cov).expect("valid position covariance");
+        for i in 0..3 {
+            assert!(
+                cpos[i][i] > 0.0,
+                "cpos[{i}][{i}] = {} not positive",
+                cpos[i][i]
+            );
+        }
+    }
+
+    #[test]
+    fn parity_only_covariance_gives_near_zero_cmpl() {
+        let g = test_geometry();
+        let user = test_user();
+        // A parity-space direction w = P⊥·v (orthogonal to range(G)); a covariance
+        // built from it is fully detectable, so it is NOT blind and yields ~0 CMPL.
+        let v = [0.3, 1.7, -0.4, 2.1, -1.1, 0.9];
+        let w = parity_vector(&g, &v);
+        let sigma = 5.0;
+        let cm_cov = rank1_cov(&w, sigma);
+
+        let cmpl = cmpl_horizontal(&g, user, &cm_cov, 5.33).expect("valid CMPL");
+        assert!(
+            cmpl.abs() < 1e-6 * sigma,
+            "parity-space error must contribute ~no CMPL, got {cmpl}"
+        );
+    }
+
+    #[test]
+    fn envelope_sums_the_two_classes() {
+        let env = integrity_envelope(12.0, 5.0);
+        assert_eq!(env.hpl_araim, 12.0);
+        assert_eq!(env.cmpl, 5.0);
+        assert_eq!(env.hpl_total, 17.0);
+    }
+
+    #[test]
+    fn state_map_matches_split() {
+        let g = test_geometry();
+        let s = state_map(&g).expect("valid state map");
+        let delta_y = [0.3, 1.7, -0.4, 2.1, -1.1, 0.9];
+
+        // blind_dx = S · δy composed directly from the exposed state map.
+        let mut dx = [0.0_f64; 4];
+        for (c, &dy) in delta_y.iter().enumerate() {
+            for i in 0..4 {
+                dx[i] += s[c][i] * dy;
+            }
+        }
+
+        let split = common_mode_split(&g, &delta_y).expect("valid split");
+        for k in 0..4 {
+            assert!(
+                (dx[k] - split.blind_dx[k]).abs() < 1e-12,
+                "state_map dx[{k}] = {} vs split.blind_dx = {}",
+                dx[k],
+                split.blind_dx[k]
+            );
+        }
     }
 }
