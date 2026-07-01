@@ -299,7 +299,8 @@ impl DecisionReport {
         }
     }
 
-    /// Run the full open-core MCDA panel (WSM · WPM · TOPSIS · VIKOR · PROMETHEE II)
+    /// Run the full open-core MCDA panel (WSM · WPM · WASPAS · MOORA · TOPSIS · VIKOR ·
+    /// PROMETHEE II, plus COPRAS when a cost criterion is present)
     /// over this decision's **surviving** variants and measure how much the methods
     /// agree — a Modelled robustness cross-check derived from the report's own fields
     /// (no re-simulation). A recommendation that survives every method is defensible in

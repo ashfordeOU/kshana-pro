@@ -22,6 +22,17 @@
 //! mask (ITU-T G.8272.1 ePRTC, G.8272 PRTC-A, or the classic 1.5 µs / 24 h backhaul
 //! budget) and whether the clock holds over a chosen **GNSS-reacquisition interval**.
 //!
+//! It also evaluates the coast against an **MTIE mask** ([`MtieMask`]) — the
+//! observation-interval-dependent maximum-time-interval-error limit that ITU-T sync
+//! specifications are actually written in. The MTIE(τ) of the coast trajectory is
+//! computed with the open core's **validated** [`kshana::allan::mtie`] estimator over a
+//! uniformly-sampled phase record (deterministic mean, plus a conservative ±k·σ-band
+//! peak-to-peak bound), then checked point-by-point against the mask limit. The
+//! estimator is validated; the *mask limits* are the cited published thresholds and the
+//! *composition* is Modelled — the τ-dependent standard breakpoints must be supplied by
+//! the caller (with provenance) rather than baked in, so no unverified datasheet numbers
+//! are asserted.
+//!
 //! ## Honesty
 //!
 //! This is a **composition of the open holdover physics** (`Modelled`): the stochastic
@@ -35,6 +46,7 @@
 //! has none), so a twin's `flicker_floor` is *not* represented here — a deliberate,
 //! stated limitation. No flight/in-orbit-validated holdover is claimed.
 
+use kshana::allan::mtie;
 use kshana::api::KshanaError;
 use kshana::holdover::{coast_phase_sigma, phase_to_range_m};
 
@@ -95,6 +107,109 @@ impl HoldoverMask {
             window_s,
             provenance: provenance.into(),
         }
+    }
+}
+
+/// An **MTIE mask**: the maximum permissible MTIE(τ) as a function of observation
+/// interval τ, the form telecom/PNT synchronisation wander limits (ITU-T G.811 / G.813 /
+/// G.823 / G.8272.1 …) are specified in.
+///
+/// The limit is a piecewise-linear function of τ through the given `(tau_s, limit_s)`
+/// breakpoints (sorted, strictly increasing in τ), held flat below the first and above
+/// the last breakpoint. A single breakpoint gives a constant ceiling.
+///
+/// **No standard breakpoints are baked in.** A τ-dependent ITU-T mask must be supplied by
+/// the caller via [`from_segments`](Self::from_segments) with its published breakpoints
+/// and a provenance string, so this type never asserts unverified datasheet numbers. The
+/// two convenience constructors reuse only values already cited elsewhere: a caller
+/// constant, and the published constant |TE| budget of a [`HoldoverMask`].
+#[derive(Debug, Clone)]
+pub struct MtieMask {
+    pub name: String,
+    /// Breakpoints `(tau_s, limit_s)`, sorted and strictly increasing in `tau_s`.
+    pub segments: Vec<(f64, f64)>,
+    pub provenance: String,
+}
+
+impl MtieMask {
+    /// A **constant** MTIE ceiling of `limit_s` seconds for all τ.
+    pub fn constant(name: &str, limit_s: f64, provenance: &str) -> Self {
+        Self {
+            name: name.into(),
+            segments: vec![(0.0, limit_s)],
+            provenance: provenance.into(),
+        }
+    }
+
+    /// Build a piecewise MTIE mask from published `(tau_s, limit_s)` breakpoints. The
+    /// caller owns the numbers and their provenance (this crate bakes none in). Errors if
+    /// the list is empty, any value is non-finite or non-positive, or τ is not strictly
+    /// increasing.
+    pub fn from_segments(
+        name: &str,
+        segments: Vec<(f64, f64)>,
+        provenance: &str,
+    ) -> Result<Self, KshanaError> {
+        if segments.is_empty() {
+            return Err(KshanaError::InvalidInput(
+                "MTIE mask needs at least one (tau, limit) breakpoint".into(),
+            ));
+        }
+        for (i, &(tau, lim)) in segments.iter().enumerate() {
+            if !tau.is_finite() || tau < 0.0 {
+                return Err(KshanaError::InvalidInput(
+                    "MTIE mask tau must be finite and >= 0".into(),
+                ));
+            }
+            if !lim.is_finite() || lim <= 0.0 {
+                return Err(KshanaError::InvalidInput(
+                    "MTIE mask limit must be finite and > 0".into(),
+                ));
+            }
+            if i > 0 && tau <= segments[i - 1].0 {
+                return Err(KshanaError::InvalidInput(
+                    "MTIE mask tau breakpoints must be strictly increasing".into(),
+                ));
+            }
+        }
+        Ok(Self {
+            name: name.into(),
+            segments,
+            provenance: provenance.into(),
+        })
+    }
+
+    /// Reuse a [`HoldoverMask`]'s published constant |TE| budget as a constant MTIE
+    /// ceiling — a valid ceiling because a maximum time error is an upper bound on the
+    /// peak-to-peak time-interval error. No new numbers are introduced.
+    pub fn from_holdover_mask(mask: &HoldoverMask) -> Self {
+        Self {
+            name: format!("{} (as MTIE ceiling)", mask.name),
+            segments: vec![(0.0, mask.threshold_s)],
+            provenance: format!("{} — reused as a constant MTIE ceiling", mask.provenance),
+        }
+    }
+
+    /// The mask limit at observation interval `tau_s`: piecewise-linear between
+    /// breakpoints, flat below the first and above the last.
+    pub fn limit_at(&self, tau_s: f64) -> f64 {
+        let seg = &self.segments;
+        if tau_s <= seg[0].0 {
+            return seg[0].1;
+        }
+        let last = seg.len() - 1;
+        if tau_s >= seg[last].0 {
+            return seg[last].1;
+        }
+        for i in 0..last {
+            let (t0, l0) = seg[i];
+            let (t1, l1) = seg[i + 1];
+            if tau_s >= t0 && tau_s <= t1 {
+                let frac = (tau_s - t0) / (t1 - t0);
+                return l0 + frac * (l1 - l0);
+            }
+        }
+        seg[last].1 // unreachable given the bracketing above
     }
 }
 
@@ -267,6 +382,148 @@ impl HoldoverInputs {
             holds: env <= mask.threshold_s,
         })
     }
+
+    /// **MTIE(τ) of the coast trajectory**, octave-spaced from `tau0` up to `horizon_s`.
+    ///
+    /// Samples the coast phase record on a uniform `tau0` grid and, at each octave
+    /// observation interval τ = m·`tau0`, returns two figures:
+    ///
+    /// * `mtie_mean_s` — MTIE of the **deterministic** trajectory `x(t) = x0 + y0·t +
+    ///   ½·D·t²`, computed with the open core's *validated* [`kshana::allan::mtie`]
+    ///   estimator (peak-to-peak over every length-τ window). This captures the
+    ///   systematic drift/offset wander; a pure-noise clock with no residual ramp has
+    ///   `mtie_mean_s ≈ 0` here (the stochastic wander lives in the band term below).
+    /// * `mtie_bound_s` — a **conservative** peak-to-peak bound over the `±k·σ` band:
+    ///   `maxₜ(mean+band) − minₜ(mean−band)` in each window. Because every coast
+    ///   realisation the band covers lies between `mean−band` and `mean+band`, this is an
+    ///   upper bound on that realisation's MTIE, and `mtie_bound_s ≥ mtie_mean_s` always.
+    ///
+    /// Errors if `tau0` is not finite/positive or `horizon_s < tau0` (need ≥ 2 samples).
+    pub fn mtie_curve_banded(
+        &self,
+        tau0: f64,
+        horizon_s: f64,
+    ) -> Result<Vec<MtieBandPoint>, KshanaError> {
+        if !tau0.is_finite() || tau0 <= 0.0 {
+            return Err(KshanaError::InvalidInput(
+                "MTIE tau0 must be finite and > 0".into(),
+            ));
+        }
+        if !horizon_s.is_finite() || horizon_s < tau0 {
+            return Err(KshanaError::InvalidInput(
+                "MTIE horizon must be finite and >= tau0 (need at least two samples)".into(),
+            ));
+        }
+        let k_max = (horizon_s / tau0).floor() as usize; // number of tau0 steps
+        let n = k_max + 1; // sample count
+        let mut mean = vec![0.0f64; n];
+        let mut upper = vec![0.0f64; n];
+        let mut lower = vec![0.0f64; n];
+        for k in 0..n {
+            let t = k as f64 * tau0;
+            let m = self.mean_s(t);
+            let half = self.band_half_s(t);
+            mean[k] = m;
+            upper[k] = m + half;
+            lower[k] = m - half;
+        }
+
+        let mut out = Vec::new();
+        let mut m = 1usize;
+        while m <= k_max {
+            // Deterministic-mean MTIE via the open validated estimator.
+            let mtie_mean_s = mtie(&mean, m);
+            // Conservative peak-to-peak bound over the ±k·σ band in each length-τ window.
+            let win = m + 1;
+            let mut bound = 0.0f64;
+            for start in 0..=(n - win) {
+                let mut hi = f64::NEG_INFINITY;
+                let mut lo = f64::INFINITY;
+                for i in start..start + win {
+                    hi = hi.max(upper[i]);
+                    lo = lo.min(lower[i]);
+                }
+                bound = bound.max(hi - lo);
+            }
+            out.push(MtieBandPoint {
+                tau_s: m as f64 * tau0,
+                mtie_mean_s,
+                mtie_bound_s: bound,
+                n_windows: n - m,
+            });
+            m *= 2;
+        }
+        Ok(out)
+    }
+
+    /// Check the coast's MTIE(τ) against an [`MtieMask`], point by point.
+    ///
+    /// `use_bound = true` tests the conservative ±k·σ band bound (the operationally
+    /// safe choice); `false` tests the deterministic-mean MTIE (the reproducible
+    /// systematic-wander component computed by the validated estimator). Reports each
+    /// τ's MTIE, the mask limit there and the margin, the first violating τ (if any), the
+    /// worst margin, and whether the whole curve is compliant.
+    pub fn check_mtie_mask(
+        &self,
+        tau0: f64,
+        horizon_s: f64,
+        mask: &MtieMask,
+        use_bound: bool,
+    ) -> Result<MtieMaskCompliance, KshanaError> {
+        let curve = self.mtie_curve_banded(tau0, horizon_s)?;
+        let mut points = Vec::with_capacity(curve.len());
+        let mut compliant = true;
+        let mut first_violation_tau_s = None;
+        let mut min_margin_s = f64::INFINITY;
+        for p in &curve {
+            let mtie_s = if use_bound {
+                p.mtie_bound_s
+            } else {
+                p.mtie_mean_s
+            };
+            let limit_s = mask.limit_at(p.tau_s);
+            let margin_s = limit_s - mtie_s;
+            let pass = margin_s >= 0.0;
+            if !pass {
+                compliant = false;
+                if first_violation_tau_s.is_none() {
+                    first_violation_tau_s = Some(p.tau_s);
+                }
+            }
+            if margin_s < min_margin_s {
+                min_margin_s = margin_s;
+            }
+            points.push(MtieMaskPoint {
+                tau_s: p.tau_s,
+                mtie_s,
+                limit_s,
+                margin_s,
+                pass,
+            });
+        }
+        let note = format!(
+            "Modelled MTIE-mask compliance of the {} holdover trajectory vs the '{}' mask \
+             ({}). MTIE(τ) is the open core's validated kshana::allan::mtie; the mask \
+             limits are the cited published thresholds. Neither the criteria nor the \
+             assumed long-τ red-noise floor is validated here.",
+            if use_bound {
+                "conservative ±k·σ band"
+            } else {
+                "deterministic-mean"
+            },
+            mask.name,
+            mask.provenance,
+        );
+        Ok(MtieMaskCompliance {
+            mask_name: mask.name.clone(),
+            points,
+            compliant,
+            first_violation_tau_s,
+            min_margin_s,
+            used_bound: use_bound,
+            note,
+        })
+    }
 }
 
 /// One banded holdover prediction sample.
@@ -296,6 +553,50 @@ pub struct ReacquisitionVerdict {
     /// Slack against the mask (s); negative means the budget is exceeded.
     pub margin_s: f64,
     pub holds: bool,
+}
+
+/// One octave point of the coast MTIE curve (see [`HoldoverInputs::mtie_curve_banded`]).
+#[derive(Debug, Clone)]
+pub struct MtieBandPoint {
+    /// Observation interval τ = m·tau0 (s).
+    pub tau_s: f64,
+    /// MTIE of the deterministic mean trajectory (open validated estimator).
+    pub mtie_mean_s: f64,
+    /// Conservative peak-to-peak MTIE bound over the ±k·σ band (`≥ mtie_mean_s`).
+    pub mtie_bound_s: f64,
+    /// Number of length-τ windows the estimate averaged over.
+    pub n_windows: usize,
+}
+
+/// One τ point of an MTIE-mask compliance check.
+#[derive(Debug, Clone)]
+pub struct MtieMaskPoint {
+    pub tau_s: f64,
+    /// The tested MTIE at τ (mean or conservative bound, per `used_bound`).
+    pub mtie_s: f64,
+    /// The mask limit at τ.
+    pub limit_s: f64,
+    /// Slack `limit − mtie` (s); negative means the mask is exceeded.
+    pub margin_s: f64,
+    pub pass: bool,
+}
+
+/// The outcome of checking a coast MTIE curve against an [`MtieMask`].
+#[derive(Debug, Clone)]
+pub struct MtieMaskCompliance {
+    pub mask_name: String,
+    /// Per-τ results, octave-spaced.
+    pub points: Vec<MtieMaskPoint>,
+    /// `true` iff every τ point stays within the mask.
+    pub compliant: bool,
+    /// The smallest τ (s) whose MTIE exceeds the mask, if any.
+    pub first_violation_tau_s: Option<f64>,
+    /// The worst (smallest) margin across all τ (s).
+    pub min_margin_s: f64,
+    /// `true` if the conservative band bound was tested; `false` for the mean MTIE.
+    pub used_bound: bool,
+    /// Honest scope note.
+    pub note: String,
 }
 
 #[cfg(test)]
@@ -447,5 +748,135 @@ mod tests {
         ] {
             assert!(!m.provenance.is_empty(), "{} needs provenance", m.name);
         }
+    }
+
+    // ---- MTIE masks --------------------------------------------------------------
+
+    #[test]
+    fn mtie_mask_constant_is_flat_everywhere() {
+        let m = MtieMask::constant("flat", 30e-9, "unit");
+        for &tau in &[1e-3, 1.0, 100.0, 1e6] {
+            assert_eq!(m.limit_at(tau), 30e-9);
+        }
+    }
+
+    #[test]
+    fn mtie_mask_from_holdover_reuses_published_threshold() {
+        let m = MtieMask::from_holdover_mask(&HoldoverMask::eprtc());
+        assert_eq!(m.limit_at(0.1), 30e-9);
+        assert_eq!(m.limit_at(1e5), 30e-9);
+        assert!(m.provenance.contains("G.8272.1"));
+    }
+
+    #[test]
+    fn mtie_mask_interpolates_and_extrapolates_flat() {
+        // A two-segment mask: 10 ns at τ=1 s rising to 110 ns at τ=101 s (slope 1 ns/s).
+        let m = MtieMask::from_segments("ramp", vec![(1.0, 10e-9), (101.0, 110e-9)], "unit").unwrap();
+        assert_eq!(m.limit_at(0.5), 10e-9); // flat below first breakpoint
+        assert_eq!(m.limit_at(1000.0), 110e-9); // flat above last breakpoint
+        // Midpoint τ=51 s → halfway → 60 ns.
+        assert!((m.limit_at(51.0) - 60e-9).abs() < 1e-18);
+    }
+
+    #[test]
+    fn mtie_mask_from_segments_rejects_bad_input() {
+        assert!(MtieMask::from_segments("empty", vec![], "u").is_err());
+        assert!(MtieMask::from_segments("neg", vec![(1.0, -1.0)], "u").is_err());
+        assert!(
+            MtieMask::from_segments("unsorted", vec![(2.0, 1e-9), (1.0, 2e-9)], "u").is_err(),
+            "tau must be strictly increasing"
+        );
+    }
+
+    #[test]
+    fn mtie_of_a_pure_ramp_equals_slope_times_tau() {
+        // Deterministic linear phase x(t) = y0·t (no band, no drift, no x0): MTIE over a
+        // window of length τ is exactly the peak-to-peak = y0·τ. This ties the open
+        // validated mtie estimator to a hand value through the wrapper.
+        let y0 = 3e-12;
+        let h = HoldoverInputs {
+            y0,
+            k: 0.0, // no band → mean MTIE == bound
+            ..white_only(0.0)
+        };
+        let curve = h.mtie_curve_banded(1.0, 64.0).unwrap();
+        assert!(!curve.is_empty());
+        for p in &curve {
+            let want = y0 * p.tau_s;
+            assert!(
+                (p.mtie_mean_s - want).abs() < 1e-24,
+                "τ={}: mtie {} vs y0·τ {}",
+                p.tau_s,
+                p.mtie_mean_s,
+                want
+            );
+            // With k = 0 the band collapses, so the bound equals the mean MTIE.
+            assert!((p.mtie_bound_s - p.mtie_mean_s).abs() < 1e-24);
+        }
+    }
+
+    #[test]
+    fn mtie_curve_is_monotone_and_bound_dominates_mean() {
+        // A drift + offset + white-noise band: MTIE(τ) is non-decreasing in τ (larger
+        // windows can only widen the peak-to-peak), and the ±k·σ bound is ≥ the
+        // deterministic-mean MTIE at every τ.
+        let h = HoldoverInputs {
+            y0: 1e-12,
+            drift: 1e-16,
+            k: 2.0,
+            ..white_only(1e-22)
+        };
+        let curve = h.mtie_curve_banded(1.0, 4096.0).unwrap();
+        assert!(curve.len() >= 3);
+        for w in curve.windows(2) {
+            assert!(
+                w[1].mtie_mean_s >= w[0].mtie_mean_s - 1e-24,
+                "mean MTIE must be non-decreasing in tau"
+            );
+            assert!(
+                w[1].mtie_bound_s >= w[0].mtie_bound_s - 1e-24,
+                "bound MTIE must be non-decreasing in tau"
+            );
+        }
+        for p in &curve {
+            assert!(
+                p.mtie_bound_s >= p.mtie_mean_s - 1e-24,
+                "the ±kσ bound cannot be below the deterministic-mean MTIE"
+            );
+        }
+    }
+
+    #[test]
+    fn mtie_mask_flags_a_drifting_clock() {
+        // A clock with a steady frequency offset accumulates MTIE = y0·τ. Against a tight
+        // constant ceiling it must eventually violate; the first violation is at a finite
+        // τ and the min margin goes negative. A benign clock stays compliant.
+        let mask = MtieMask::constant("30 ns ceiling", 30e-9, "test ceiling");
+        let drifting = HoldoverInputs {
+            y0: 1e-11, // 10 ppt: MTIE hits 30 ns at τ = 3000 s
+            k: 0.0,
+            ..white_only(0.0)
+        };
+        let c = drifting.check_mtie_mask(1.0, 8192.0, &mask, false).unwrap();
+        assert!(!c.compliant, "a drifting clock must eventually blow a tight mask");
+        assert!(c.first_violation_tau_s.is_some());
+        assert!(c.min_margin_s < 0.0);
+        assert!(c.points.iter().any(|p| p.pass), "small-τ points still pass");
+        assert!(c.note.contains("validated kshana::allan::mtie"));
+
+        // A perfect clock (no offset, no drift, no band) never moves → always compliant.
+        let flat = HoldoverInputs {
+            k: 0.0,
+            ..white_only(0.0)
+        };
+        let cf = flat.check_mtie_mask(1.0, 8192.0, &mask, false).unwrap();
+        assert!(cf.compliant && cf.first_violation_tau_s.is_none());
+    }
+
+    #[test]
+    fn mtie_curve_rejects_bad_sampling() {
+        let h = white_only(1e-22);
+        assert!(h.mtie_curve_banded(0.0, 10.0).is_err());
+        assert!(h.mtie_curve_banded(1.0, 0.5).is_err(), "horizon < tau0");
     }
 }
