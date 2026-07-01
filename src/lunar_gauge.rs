@@ -179,6 +179,168 @@ pub fn rate_tie_row(t_tt_jc: f64) -> [f64; 9] {
     row
 }
 
+/// Assemble a combined 9×9 coupled Fisher information matrix from multiple observation blocks.
+///
+/// Mirrors [`crate::lunar_identifiability::assemble_multi_info`] for the 9-vector
+/// coupled datum.  For each `(rows, sigma)` block: skip if empty; weight `1/σ²`;
+/// precondition by dividing columns 3..7 (scale + rotations, indices 3,4,5,6) by
+/// [`crate::lunar_time::RE_MOON_M`]; accumulate `weight · rowᵀrow` via
+/// [`crate::fim::information_matrix`].
+///
+/// Preconditioning brings all 9 partial-derivative columns to O(1), reducing the
+/// condition number of the Fisher matrix.  The null-space structure (defect, subspace
+/// classification, Schur coupling) is invariant under positive per-column scaling.
+///
+/// Returns a 9×9 zero matrix if all blocks are empty.
+pub fn assemble_coupled_info(blocks: &[(Vec<[f64; 9]>, f64)]) -> Vec<Vec<f64>> {
+    let mut combined = vec![vec![0.0_f64; N_GAUGE]; N_GAUGE];
+    for (rows, sigma) in blocks {
+        if rows.is_empty() {
+            continue;
+        }
+        let weight = 1.0 / (sigma * sigma);
+        let r_moon = crate::lunar_time::RE_MOON_M;
+        let pre_rows: Vec<Vec<f64>> = rows
+            .iter()
+            .map(|r| {
+                let mut row = r.to_vec();
+                row[3..7].iter_mut().for_each(|v| *v /= r_moon);
+                row
+            })
+            .collect();
+        let block_weights = vec![weight; pre_rows.len()];
+        let block_info = crate::fim::information_matrix(&pre_rows, &block_weights);
+        for (ci, bi) in combined.iter_mut().zip(block_info.iter()) {
+            for (cv, bv) in ci.iter_mut().zip(bi.iter()) {
+                *cv += bv;
+            }
+        }
+    }
+    combined
+}
+
+/// Classification of the null space of the coupled frame⊕timescale Fisher information matrix.
+///
+/// Decomposes the `d`-dimensional null space into:
+/// - **purely-spatial** directions (null vectors invisible in the temporal rows 7..9)
+/// - **purely-temporal** directions (null vectors invisible in the spatial rows 0..7)
+/// - **coupled** directions (null vectors projecting onto both subspaces)
+///
+/// The Frobenius norm of the off-diagonal projector block `P[0..7][7..9]` (where
+/// `P = U·Uᵀ` is the rank-`d` null-space projector) quantifies the spatial–temporal
+/// coupling strength.
+///
+/// All classifiers are **basis-invariant**: they depend only on the subspaces spanned
+/// by the null eigenvectors, not on the specific orthonormal basis returned by the
+/// Jacobi eigensolver.
+#[derive(Clone, Copy, Debug)]
+pub struct CoupledGaugeClass {
+    /// Total null-space dimension (datum defect).
+    pub defect: usize,
+    /// Number of purely spatial null directions (invisible in temporal rows 7..9).
+    ///
+    /// `= defect − rank(U_T)` where `U_T` = rows 7..9 of the null-space basis.
+    pub dim_spatial: usize,
+    /// Number of purely temporal null directions (invisible in spatial rows 0..7).
+    ///
+    /// `= defect − rank(U_S)` where `U_S` = rows 0..7 of the null-space basis.
+    pub dim_temporal: usize,
+    /// Number of coupled null directions projecting onto both subspaces.
+    ///
+    /// `= rank(U_S) + rank(U_T) − defect`.
+    pub coupled_dim: usize,
+    /// Frobenius norm of the off-diagonal block `(U·Uᵀ)[0..7][7..9]`.
+    ///
+    /// Zero when the null space is a direct sum of spatial and temporal subspaces
+    /// (no spatial–temporal coupling).  Positive when coupled null vectors exist.
+    pub p_st_norm: f64,
+}
+
+/// Classify the null space of a 9×9 coupled Fisher information matrix.
+///
+/// ## Algorithm (basis-invariant)
+///
+/// 1. Compute [`crate::fim::crlb`] with `rel_tol`.  Retrieve `null_space` U (layout:
+///    `null_space[row][col]` = component `row` of null vector `col`) and defect `d`.
+///    Return the all-zero class if `d == 0`.
+/// 2. Let `U_S` = rows 0..7 and `U_T` = rows 7..9 of U (7×d and 2×d sub-matrices).
+/// 3. Compute `rank(A)` as the number of eigenvalues of the Gram matrix `A·Aᵀ`
+///    that exceed `1e-9`.  (Columns of U are orthonormal, so Gram eigenvalues ∈ [0,1];
+///    `1e-9` cleanly separates zero from O(1).)
+/// 4. Derive: `dim_spatial = d − rank(U_T)`, `dim_temporal = d − rank(U_S)`,
+///    `coupled_dim = rank(U_S) + rank(U_T) − d`.
+/// 5. Form the off-diagonal block of the null projector `P = U·Uᵀ` (9×9) restricted
+///    to rows 0..7 and columns 7..9 (7×2), and return its Frobenius norm as `p_st_norm`.
+pub fn classify_null_space(info: &[Vec<f64>], rel_tol: f64) -> CoupledGaugeClass {
+    let cr = crate::fim::crlb(info, rel_tol);
+    let d = cr.defect;
+
+    if d == 0 {
+        return CoupledGaugeClass {
+            defect: 0,
+            dim_spatial: 0,
+            dim_temporal: 0,
+            coupled_dim: 0,
+            p_st_norm: 0.0,
+        };
+    }
+
+    let null_space = &cr.null_space; // null_space[r][c] = component r of null vector c
+
+    // Compute the rank of the submatrix formed by rows row_start..row_end of null_space
+    // (a p×d matrix A), defined as the number of eigenvalues of A·Aᵀ exceeding 1e-9.
+    let subspace_rank = |row_start: usize, row_end: usize| -> usize {
+        let p = row_end - row_start;
+        // Gram[i][j] = Σ_{c=0}^{d-1} A[i][c] · A[j][c]
+        let mut gram = vec![vec![0.0_f64; p]; p];
+        for i in 0..p {
+            for j in i..p {
+                let s: f64 = null_space[row_start + i]
+                    .iter()
+                    .zip(null_space[row_start + j].iter())
+                    .map(|(&a, &b)| a * b)
+                    .sum();
+                gram[i][j] = s;
+                gram[j][i] = s;
+            }
+        }
+        crate::fim::sym_eig(&gram)
+            .values
+            .iter()
+            .filter(|&&v| v > 1e-9)
+            .count()
+    };
+
+    let rs = subspace_rank(0, 7); // rank of U_S (spatial rows 0..7)
+    let rt = subspace_rank(7, 9); // rank of U_T (temporal rows 7..9)
+
+    let dim_spatial = d - rt;
+    let dim_temporal = d - rs;
+    let coupled_dim = rs + rt - d;
+
+    // p_st_norm = ‖P[0..7][7..9]‖_F where P = U·Uᵀ (the null-space projector).
+    // P[i][j] = Σ_{c=0}^{d-1} null_space[i][c] · null_space[j][c]
+    let mut p_st_sq = 0.0_f64;
+    for i in 0..7 {
+        for j in 7..9 {
+            let p_ij: f64 = null_space[i]
+                .iter()
+                .zip(null_space[j].iter())
+                .map(|(&a, &b)| a * b)
+                .sum();
+            p_st_sq += p_ij * p_ij;
+        }
+    }
+
+    CoupledGaugeClass {
+        defect: d,
+        dim_spatial,
+        dim_temporal,
+        coupled_dim,
+        p_st_norm: p_st_sq.sqrt(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -369,5 +531,80 @@ mod tests {
                 oneway[i], d7[i]
             );
         }
+    }
+
+    // ── Task 3 tests ────────────────────────────────────────────────────────────────
+
+    /// Build a 9×9 diagonal matrix with the given diagonal entries.
+    fn make_diag_info(diag: [f64; 9]) -> Vec<Vec<f64>> {
+        let mut m = vec![vec![0.0_f64; 9]; 9];
+        for (i, row) in m.iter_mut().enumerate() {
+            row[i] = diag[i];
+        }
+        m
+    }
+
+    /// (a) Direct-sum null: info_A = I₉ with diagonal[3]=0 and diagonal[7]=0.
+    /// Null = span{e₃, e₇} (direct sum: one spatial, one temporal, no coupling).
+    #[test]
+    fn classify_direct_sum_null() {
+        let info = make_diag_info([1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0]);
+        let cls = classify_null_space(&info, 1e-9);
+        assert_eq!(cls.defect, 2, "defect");
+        assert_eq!(cls.dim_spatial, 1, "dim_spatial (e₃ is scale ∈ 0..7)");
+        assert_eq!(cls.dim_temporal, 1, "dim_temporal (e₇ is offset ∈ 7..9)");
+        assert_eq!(cls.coupled_dim, 0, "coupled_dim");
+        assert!(
+            cls.p_st_norm < 1e-9,
+            "p_st_norm should be ≈0 for direct-sum null, got {}",
+            cls.p_st_norm
+        );
+    }
+
+    /// (b) Coupled null: info_B = I₉ − ŵŵᵀ with ŵ = (e₃+e₇)/√2.
+    /// Null = span{ŵ} — the unique direction couples scale (spatial) and offset (temporal).
+    #[test]
+    fn classify_coupled_null() {
+        let sqrt2 = 2.0_f64.sqrt();
+        let w3 = 1.0 / sqrt2;
+        let w7 = 1.0 / sqrt2;
+        let mut info = vec![vec![0.0_f64; 9]; 9];
+        // Start from I₉.
+        for (i, row) in info.iter_mut().enumerate() {
+            row[i] = 1.0;
+        }
+        // Subtract ŵŵᵀ (entries at rows/cols {3, 7}).
+        info[3][3] -= w3 * w3;
+        info[7][7] -= w7 * w7;
+        info[3][7] -= w3 * w7;
+        info[7][3] -= w7 * w3;
+
+        let cls = classify_null_space(&info, 1e-9);
+        assert_eq!(cls.defect, 1, "defect");
+        assert_eq!(cls.coupled_dim, 1, "coupled_dim");
+        assert!(
+            (cls.p_st_norm - 0.5_f64).abs() < 1e-9,
+            "p_st_norm should be ≈0.5, got {}",
+            cls.p_st_norm
+        );
+        assert_eq!(cls.dim_spatial, 0, "dim_spatial");
+        assert_eq!(cls.dim_temporal, 0, "dim_temporal");
+    }
+
+    /// (c) Basis-invariance: info_C has null = span{e₃, e₇} but non-unit observable eigenvalues.
+    /// Result must be identical to test (a) regardless of the eigensolver's basis choice.
+    #[test]
+    fn classify_basis_invariant() {
+        let info = make_diag_info([2.0, 3.0, 4.0, 0.0, 5.0, 6.0, 7.0, 0.0, 8.0]);
+        let cls = classify_null_space(&info, 1e-9);
+        assert_eq!(cls.defect, 2, "defect (basis-invariant)");
+        assert_eq!(cls.dim_spatial, 1, "dim_spatial (basis-invariant)");
+        assert_eq!(cls.dim_temporal, 1, "dim_temporal (basis-invariant)");
+        assert_eq!(cls.coupled_dim, 0, "coupled_dim (basis-invariant)");
+        assert!(
+            cls.p_st_norm < 1e-9,
+            "p_st_norm should be ≈0 (basis-invariant), got {}",
+            cls.p_st_norm
+        );
     }
 }
