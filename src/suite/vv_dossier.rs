@@ -105,7 +105,9 @@ impl CasFactor {
             CasFactor::ResultsUncertainty => "Is the uncertainty in the results quantified?",
             CasFactor::ResultsRobustness => "How sensitive are the results to assumptions?",
             CasFactor::UseHistory => "Has the M&S been used successfully before?",
-            CasFactor::MsManagement => "Is the M&S under configuration control and process discipline?",
+            CasFactor::MsManagement => {
+                "Is the M&S under configuration control and process discipline?"
+            }
             CasFactor::PeopleQualification => "Are the people who produced the M&S qualified?",
         }
     }
@@ -117,9 +119,9 @@ impl CasFactor {
             CasFactor::InputPedigree
             | CasFactor::ResultsUncertainty
             | CasFactor::ResultsRobustness => CasCategory::Operations,
-            CasFactor::UseHistory
-            | CasFactor::MsManagement
-            | CasFactor::PeopleQualification => CasCategory::SupportingEvidence,
+            CasFactor::UseHistory | CasFactor::MsManagement | CasFactor::PeopleQualification => {
+                CasCategory::SupportingEvidence
+            }
         }
     }
 }
@@ -395,12 +397,11 @@ pub fn build_dossier(
             &evidence.merkle_root[..evidence.merkle_root.len().min(16)],
             merkle_stable
         ),
-        rationale:
-            "Achieved: the underlying equations are implemented and cross-checked, and the \
+        rationale: "Achieved: the underlying equations are implemented and cross-checked, and the \
              composed pipeline is deterministically reproducible. Capped at 3 (not 4): the \
              composed L1/L3 layers carry no independent formal SQA audit or certified \
              numerical-error bounds."
-                .to_string(),
+            .to_string(),
         firewall_capped: false,
     });
 
@@ -473,11 +474,10 @@ pub fn build_dossier(
         category: CasFactor::ResultsUncertainty.category(),
         level: Some(uncertainty_level),
         cap: 3,
-        evidence:
-            "SMAA rank-1 acceptability under Dirichlet weight sampling, single-criterion \
+        evidence: "SMAA rank-1 acceptability under Dirichlet weight sampling, single-criterion \
              weight-flip distance, and a tornado sensitivity ranking quantify the decision's \
              uncertainty; the L1 holdover pack adds banded (UQ) coast predictions."
-                .to_string(),
+            .to_string(),
         rationale:
             "Achieved when the multi-criteria decision carries SMAA + sensitivity. Capped at 3: \
              input uncertainties are characterised over weights/assumptions, not propagated \
@@ -514,11 +514,10 @@ pub fn build_dossier(
                 GateOutcome::Fail => "FAIL",
             }
         ),
-        rationale:
-            "Achieved when the decision is present and the gate's robustness checks pass. \
+        rationale: "Achieved when the decision is present and the gate's robustness checks pass. \
              Capped at 3: robustness is assessed against weight/assumption perturbations only, \
              not against a measured operating envelope."
-                .to_string(),
+            .to_string(),
         firewall_capped: false,
     });
 
@@ -528,10 +527,9 @@ pub fn build_dossier(
         category: CasFactor::UseHistory.category(),
         level: Some(USE_HISTORY_CAP),
         cap: USE_HISTORY_CAP,
-        evidence:
-            "Developmental/CI use only: the framework runs reproducibly in the overlay test \
+        evidence: "Developmental/CI use only: the framework runs reproducibly in the overlay test \
              suite. No operational deployment, mission use, or flight history."
-                .to_string(),
+            .to_string(),
         rationale: format!(
             "HONEST CAP: a new system has no operational or flight use history, so this factor \
              cannot exceed level {USE_HISTORY_CAP}. Use history accrues only with operational \
@@ -573,9 +571,8 @@ pub fn build_dossier(
         category: CasFactor::PeopleQualification.category(),
         level: None,
         cap: 0,
-        evidence:
-            "No personnel-competency or qualification records are claimed by this artifact."
-                .to_string(),
+        evidence: "No personnel-competency or qualification records are claimed by this artifact."
+            .to_string(),
         rationale:
             "NOT ASSESSED: assessing this factor requires an organisational competency record \
              outside the software's scope. It is recorded as not-assessed (never invented); its \
@@ -596,11 +593,8 @@ pub fn build_dossier(
         .map(|(f, _)| *f)
         .collect();
 
-    let evidence_complete = has_decision
-        && gate_passed
-        && merkle_stable
-        && vcd_all_closed
-        && twin_passed;
+    let evidence_complete =
+        has_decision && gate_passed && merkle_stable && vcd_all_closed && twin_passed;
 
     // ── ASME V&V 40 context of use ─────────────────────────────────────────────
     let qoi = if has_decision {
@@ -799,7 +793,11 @@ impl CredibilityDossier {
                     t.device,
                     t.max_rel_err,
                     t.tolerance,
-                    if t.passed { "reproduced" } else { "NOT reproduced" },
+                    if t.passed {
+                        "reproduced"
+                    } else {
+                        "NOT reproduced"
+                    },
                     if t.datasheet_cited {
                         "datasheet-cited"
                     } else {
@@ -867,8 +865,14 @@ mod tests {
         TradeSpace::multi_criteria(
             "clock architecture trade",
             vec![
-                Variant { label: "optical".into(), scenario_toml: clock_variant("optical", 1.0e-30) },
-                Variant { label: "csac".into(), scenario_toml: clock_variant("csac", 9.0e-20) },
+                Variant {
+                    label: "optical".into(),
+                    scenario_toml: clock_variant("optical", 1.0e-30),
+                },
+                Variant {
+                    label: "csac".into(),
+                    scenario_toml: clock_variant("csac", 9.0e-20),
+                },
             ],
             vec![
                 TradeCriterion::benefit("holdover", "quantum.fom.holdover_s", 0.7),
@@ -931,7 +935,10 @@ mod tests {
         let report = run_trade_study(&good_space()).unwrap();
         let d = build_dossier(&report, &[good_twin()]);
         let v = factor(&d, CasFactor::Validation);
-        assert!(v.firewall_capped, "Validation must be flagged firewall-capped");
+        assert!(
+            v.firewall_capped,
+            "Validation must be flagged firewall-capped"
+        );
         assert_eq!(v.cap, FIREWALL_VALIDATION_CAP);
         assert_eq!(FIREWALL_VALIDATION_CAP, 1);
         assert!(
@@ -953,7 +960,10 @@ mod tests {
             Some(0),
             "missing referent evidence must fail closed to level 0, not be assumed"
         );
-        assert!(!d.evidence_complete, "missing twin evidence ⇒ evidence incomplete");
+        assert!(
+            !d.evidence_complete,
+            "missing twin evidence ⇒ evidence incomplete"
+        );
     }
 
     /// Use History is honestly low for a new system.
@@ -975,7 +985,10 @@ mod tests {
         let report = run_trade_study(&good_space()).unwrap();
         let d = build_dossier(&report, &[good_twin()]);
         let p = factor(&d, CasFactor::PeopleQualification);
-        assert!(p.level.is_none(), "People Qualification must be not-assessed (None)");
+        assert!(
+            p.level.is_none(),
+            "People Qualification must be not-assessed (None)"
+        );
         assert!(p.rationale.contains("NOT ASSESSED"));
     }
 
@@ -997,12 +1010,7 @@ mod tests {
         let report = run_trade_study(&good_space()).unwrap();
         let d = build_dossier(&report, &[good_twin()]);
         assert!(d.overall_within_factors());
-        let min_assessed = d
-            .cas_factors
-            .iter()
-            .filter_map(|f| f.level)
-            .min()
-            .unwrap();
+        let min_assessed = d.cas_factors.iter().filter_map(|f| f.level).min().unwrap();
         assert_eq!(d.overall_level, min_assessed);
         // Validation (1) and Use History (1) bind it; overall must be 1 here.
         assert_eq!(d.overall_level, 1);
@@ -1019,13 +1027,23 @@ mod tests {
             "quantum.fom.holdover_s",
             false,
             vec![
-                Variant { label: "optical".into(), scenario_toml: clock_variant("optical", 1.0e-30) },
-                Variant { label: "csac".into(), scenario_toml: clock_variant("csac", 9.0e-20) },
+                Variant {
+                    label: "optical".into(),
+                    scenario_toml: clock_variant("optical", 1.0e-30),
+                },
+                Variant {
+                    label: "csac".into(),
+                    scenario_toml: clock_variant("csac", 9.0e-20),
+                },
             ],
         );
         let report = run_trade_study(&space).unwrap();
         let d = build_dossier(&report, &[good_twin()]);
-        assert_eq!(d.evidence.gate.outcome, GateOutcome::Fail, "no decision ⇒ gate fails closed");
+        assert_eq!(
+            d.evidence.gate.outcome,
+            GateOutcome::Fail,
+            "no decision ⇒ gate fails closed"
+        );
         assert!(!d.evidence_complete);
         // Decision-dependent factors fail closed to their floor (level 1).
         assert_eq!(factor(&d, CasFactor::ResultsUncertainty).level, Some(1));

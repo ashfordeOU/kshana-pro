@@ -158,7 +158,11 @@ pub fn ecss_annex_l_markdown(report: &TradeReport) -> String {
                 .map(|c| format!("{c:.4}"))
                 .unwrap_or_else(|| "n/a".into()),
             ahp.threshold,
-            if ahp.acceptable { "consistent" } else { "INCONSISTENT — weights not defensible" }
+            if ahp.acceptable {
+                "consistent"
+            } else {
+                "INCONSISTENT — weights not defensible"
+            }
         ));
     }
     md.push('\n');
@@ -197,7 +201,10 @@ pub fn nasa_se_68_markdown(report: &TradeReport) -> String {
     };
     let mut md = String::new();
     md.push_str("# Decision analysis report (NASA SE Handbook §6.8, structure)\n\n");
-    md.push_str(&format!("**Decision to be made.** Select the architecture for: {}\n\n", report.title));
+    md.push_str(&format!(
+        "**Decision to be made.** Select the architecture for: {}\n\n",
+        report.title
+    ));
     md.push_str(
         "_Process (NASA/SP-2016-6105 Rev 2, §6.8): (1) define criteria & weights, \
          (2) identify alternatives, (3) evaluate against criteria, (4) select & document, \
@@ -279,7 +286,10 @@ fn multi_method_block(dr: &DecisionReport) -> String {
         .mean_kendall_tau
         .map(|t| format!("{t:.3}"))
         .unwrap_or_else(|| "n/a".into());
-    let consensus = mm.consensus_winner.map(name_of).unwrap_or_else(|| "—".into());
+    let consensus = mm
+        .consensus_winner
+        .map(name_of)
+        .unwrap_or_else(|| "—".into());
     md.push_str(&format!(
         "- **Consensus winner:** {} ({:.0}% of the {} method(s); {}).\n",
         consensus,
@@ -362,7 +372,11 @@ fn sensitivity_block(dr: &DecisionReport) -> String {
         .iter()
         .map(|b| format!("{} ({:.3})", b.criterion, b.swing))
         .collect();
-    md.push_str(&if bars.is_empty() { "—".to_string() } else { bars.join(", ") });
+    md.push_str(&if bars.is_empty() {
+        "—".to_string()
+    } else {
+        bars.join(", ")
+    });
     md.push('\n');
     md
 }
@@ -471,7 +485,10 @@ mod tests {
         assert!(md.contains("Multi-method concordance"));
         assert!(md.contains("TOPSIS"));
         assert!(md.contains("WASPAS"));
-        assert!(md.contains("COPRAS"), "a cost criterion is present → COPRAS runs");
+        assert!(
+            md.contains("COPRAS"),
+            "a cost criterion is present → COPRAS runs"
+        );
         assert!(md.contains("Consensus winner"));
         assert!(md.contains("Kendall τ"));
         assert!(md.contains("Verdict"));
@@ -484,8 +501,14 @@ mod tests {
             "quantum.fom.holdover_s",
             false,
             vec![
-                Variant { label: "optical".into(), scenario_toml: clock_variant("optical", 1.0e-30) },
-                Variant { label: "csac".into(), scenario_toml: clock_variant("csac", 9.0e-20) },
+                Variant {
+                    label: "optical".into(),
+                    scenario_toml: clock_variant("optical", 1.0e-30),
+                },
+                Variant {
+                    label: "csac".into(),
+                    scenario_toml: clock_variant("csac", 9.0e-20),
+                },
             ],
         );
         let report = run_trade_study(&space).unwrap();
@@ -499,8 +522,14 @@ mod tests {
             "quantum.fom.holdover_s",
             false,
             vec![
-                Variant { label: "optical".into(), scenario_toml: clock_variant("optical", 1.0e-30) },
-                Variant { label: "csac".into(), scenario_toml: clock_variant("csac", 9.0e-20) },
+                Variant {
+                    label: "optical".into(),
+                    scenario_toml: clock_variant("optical", 1.0e-30),
+                },
+                Variant {
+                    label: "csac".into(),
+                    scenario_toml: clock_variant("csac", 9.0e-20),
+                },
             ],
         );
         let report = run_trade_study(&space).unwrap();
