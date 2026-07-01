@@ -845,7 +845,10 @@ mod tests {
         // Honesty-ledger shape, robust as the open core's matrix grows (it has long
         // since passed the original handful of validated rows): every tier is
         // represented, and the three tiers partition the whole ledger exactly.
-        assert!(c.validated > 0, "some capabilities are externally validated");
+        assert!(
+            c.validated > 0,
+            "some capabilities are externally validated"
+        );
         assert!(c.modelled > 0, "most capabilities are honestly modelled");
         assert!(c.partner > 0, "some capabilities are partner-owned");
         assert_eq!(

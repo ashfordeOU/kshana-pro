@@ -462,14 +462,37 @@ mod tests {
         let pack = TradeStudyScenario {
             title: "ahp trade".into(),
             variants: vec![
-                VariantSpec { label: "optical".into(), scenario: clock_variant("optical", 1.0e-30) },
-                VariantSpec { label: "csac".into(), scenario: clock_variant("csac", 9.0e-20) },
+                VariantSpec {
+                    label: "optical".into(),
+                    scenario: clock_variant("optical", 1.0e-30),
+                },
+                VariantSpec {
+                    label: "csac".into(),
+                    scenario: clock_variant("csac", 9.0e-20),
+                },
             ],
             criteria: vec![
-                CriterionSpec { name: "holdover".into(), metric: "quantum.fom.holdover_s".into(), weight: 1.0, lower_better: false, min: None, max: None },
-                CriterionSpec { name: "rms_ns".into(), metric: "quantum.fom.timing_rms_ns".into(), weight: 1.0, lower_better: true, min: None, max: None },
+                CriterionSpec {
+                    name: "holdover".into(),
+                    metric: "quantum.fom.holdover_s".into(),
+                    weight: 1.0,
+                    lower_better: false,
+                    min: None,
+                    max: None,
+                },
+                CriterionSpec {
+                    name: "rms_ns".into(),
+                    metric: "quantum.fom.timing_rms_ns".into(),
+                    weight: 1.0,
+                    lower_better: true,
+                    min: None,
+                    max: None,
+                },
             ],
-            ahp: Some(AhpSpec { pairwise: vec![vec![1.0, 3.0], vec![1.0 / 3.0, 1.0]], cr_threshold: 0.10 }),
+            ahp: Some(AhpSpec {
+                pairwise: vec![vec![1.0, 3.0], vec![1.0 / 3.0, 1.0]],
+                cr_threshold: 0.10,
+            }),
             ..Default::default()
         };
         let out = pack.run().expect("ahp trade runs");

@@ -74,7 +74,9 @@ impl HoldoverMask {
             name: "ePRTC (G.8272.1)".into(),
             threshold_s: 30.0e-9,
             window_s: None,
-            provenance: "ITU-T G.8272.1 ePRTC class |time error| budget (30 ns); published class limit".into(),
+            provenance:
+                "ITU-T G.8272.1 ePRTC class |time error| budget (30 ns); published class limit"
+                    .into(),
         }
     }
 
@@ -84,7 +86,9 @@ impl HoldoverMask {
             name: "PRTC-A (G.8272)".into(),
             threshold_s: 100.0e-9,
             window_s: None,
-            provenance: "ITU-T G.8272 PRTC-A class |time error| budget (100 ns); published class limit".into(),
+            provenance:
+                "ITU-T G.8272 PRTC-A class |time error| budget (100 ns); published class limit"
+                    .into(),
         }
     }
 
@@ -95,7 +99,8 @@ impl HoldoverMask {
             name: "1.5 µs / 24 h".into(),
             threshold_s: 1.5e-6,
             window_s: Some(24.0 * 3600.0),
-            provenance: "classic telecom/PNT holdover budget: 1.5 µs maximum time error over 24 h".into(),
+            provenance: "classic telecom/PNT holdover budget: 1.5 µs maximum time error over 24 h"
+                .into(),
         }
     }
 
@@ -634,7 +639,10 @@ mod tests {
         let ours = h.in_spec_coast_s(&mask).unwrap();
         let theirs = holdover_seconds(h.q_wf, h.q_rw, h.q_drift, mask.threshold_s);
         let rel = (ours - theirs).abs() / theirs;
-        assert!(rel < 1e-6, "ours {ours:.6e} vs open {theirs:.6e} (rel {rel})");
+        assert!(
+            rel < 1e-6,
+            "ours {ours:.6e} vs open {theirs:.6e} (rel {rel})"
+        );
     }
 
     #[test]
@@ -771,10 +779,11 @@ mod tests {
     #[test]
     fn mtie_mask_interpolates_and_extrapolates_flat() {
         // A two-segment mask: 10 ns at τ=1 s rising to 110 ns at τ=101 s (slope 1 ns/s).
-        let m = MtieMask::from_segments("ramp", vec![(1.0, 10e-9), (101.0, 110e-9)], "unit").unwrap();
+        let m =
+            MtieMask::from_segments("ramp", vec![(1.0, 10e-9), (101.0, 110e-9)], "unit").unwrap();
         assert_eq!(m.limit_at(0.5), 10e-9); // flat below first breakpoint
         assert_eq!(m.limit_at(1000.0), 110e-9); // flat above last breakpoint
-        // Midpoint τ=51 s → halfway → 60 ns.
+                                                // Midpoint τ=51 s → halfway → 60 ns.
         assert!((m.limit_at(51.0) - 60e-9).abs() < 1e-18);
     }
 
@@ -858,7 +867,10 @@ mod tests {
             ..white_only(0.0)
         };
         let c = drifting.check_mtie_mask(1.0, 8192.0, &mask, false).unwrap();
-        assert!(!c.compliant, "a drifting clock must eventually blow a tight mask");
+        assert!(
+            !c.compliant,
+            "a drifting clock must eventually blow a tight mask"
+        );
         assert!(c.first_violation_tau_s.is_some());
         assert!(c.min_margin_s < 0.0);
         assert!(c.points.iter().any(|p| p.pass), "small-τ points still pass");

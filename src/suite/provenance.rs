@@ -87,7 +87,13 @@ fn decision_digest(dr: &DecisionReport) -> String {
         if i > 0 {
             s.push(',');
         }
-        s.push_str(&format!("{}:{}:{}:{}", c.name, c.direction, c.value_fn, fnum(c.weight)));
+        s.push_str(&format!(
+            "{}:{}:{}:{}",
+            c.name,
+            c.direction,
+            c.value_fn,
+            fnum(c.weight)
+        ));
     }
     s.push_str("];ranking=[");
     for (i, r) in dr.ranking.iter().enumerate() {
@@ -97,7 +103,11 @@ fn decision_digest(dr: &DecisionReport) -> String {
         s.push_str(&r.to_string());
     }
     s.push_str("];winner=");
-    s.push_str(&dr.winner.map(|w| w.to_string()).unwrap_or_else(|| "∅".into()));
+    s.push_str(
+        &dr.winner
+            .map(|w| w.to_string())
+            .unwrap_or_else(|| "∅".into()),
+    );
     s.push_str(";pareto=[");
     for (i, p) in dr.pareto_front.iter().enumerate() {
         if i > 0 {
@@ -121,7 +131,11 @@ fn decision_digest(dr: &DecisionReport) -> String {
     }
     s.push(']');
     if let Some(f) = &dr.min_flip {
-        s.push_str(&format!(";flip(l1={},to={})", fnum(f.l1_change), f.new_winner_index));
+        s.push_str(&format!(
+            ";flip(l1={},to={})",
+            fnum(f.l1_change),
+            f.new_winner_index
+        ));
     } else {
         s.push_str(";flip=none");
     }
@@ -166,7 +180,10 @@ pub fn build_provenance(report: &TradeReport) -> DecisionProvenance {
         tolerance: Some("scores hashed at f64 shortest-round-trip precision".to_string()),
     };
     let merkle_root = record.merkle_root();
-    DecisionProvenance { record, merkle_root }
+    DecisionProvenance {
+        record,
+        merkle_root,
+    }
 }
 
 impl DecisionProvenance {

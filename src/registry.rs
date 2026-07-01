@@ -442,7 +442,9 @@ lower_is_better = true
         // Additivity = disjoint union with no collisions and no loss. Compute the
         // open count DYNAMICALLY (never hardcoded) so this can't drift as the open
         // core adds built-ins.
-        let open = kshana::registry::PackRegistry::with_builtins().ids().count();
+        let open = kshana::registry::PackRegistry::with_builtins()
+            .ids()
+            .count();
         let pro = pro_kinds().len();
         let union = pro_registry().ids().count();
         assert_eq!(
@@ -531,7 +533,10 @@ lower_is_better = true
             step_s = 60.0\n\
             duration_s = 120.0\n";
         let open_out = reg
-            .build(&kshana::registry::ScenarioId::from_static("ephemeris"), ephem)
+            .build(
+                &kshana::registry::ScenarioId::from_static("ephemeris"),
+                ephem,
+            )
             .expect("open ephemeris must build through the registry")
             .run()
             .expect("open ephemeris must run through the registry");

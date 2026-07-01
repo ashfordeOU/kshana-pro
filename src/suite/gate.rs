@@ -180,7 +180,11 @@ pub fn assurance_gate(report: &TradeReport) -> GateVerdict {
                         .map(|c| format!("{c:.4}"))
                         .unwrap_or_else(|| "n/a".into()),
                     ahp.threshold,
-                    if ahp.acceptable { "consistent" } else { "INCONSISTENT" }
+                    if ahp.acceptable {
+                        "consistent"
+                    } else {
+                        "INCONSISTENT"
+                    }
                 ),
             )
         }
@@ -200,7 +204,11 @@ pub fn assurance_gate(report: &TradeReport) -> GateVerdict {
     results.push(check(
         "provenance / Merkle integrity",
         root_ok,
-        format!("root {}… (stable: {})", &p1.merkle_root[..p1.merkle_root.len().min(16)], p1.merkle_root == p2.merkle_root),
+        format!(
+            "root {}… (stable: {})",
+            &p1.merkle_root[..p1.merkle_root.len().min(16)],
+            p1.merkle_root == p2.merkle_root
+        ),
     ));
 
     // 6. SMAA rank-1 acceptability of the winner ≥ floor.
@@ -224,7 +232,10 @@ pub fn assurance_gate(report: &TradeReport) -> GateVerdict {
         trl_ok,
         match winner_trl {
             Some(l) => format!("winner TRL-{l} (require ≥ {})", th.min_trl),
-            None => format!("winner TRL not declared — cannot clear floor {}", th.min_trl),
+            None => format!(
+                "winner TRL not declared — cannot clear floor {}",
+                th.min_trl
+            ),
         },
     ));
 
@@ -296,8 +307,14 @@ mod tests {
         TradeSpace::multi_criteria(
             "clock trade",
             vec![
-                Variant { label: "optical".into(), scenario_toml: clock_variant("optical", 1.0e-30) },
-                Variant { label: "csac".into(), scenario_toml: clock_variant("csac", 9.0e-20) },
+                Variant {
+                    label: "optical".into(),
+                    scenario_toml: clock_variant("optical", 1.0e-30),
+                },
+                Variant {
+                    label: "csac".into(),
+                    scenario_toml: clock_variant("csac", 9.0e-20),
+                },
             ],
             vec![
                 TradeCriterion::benefit("holdover", "quantum.fom.holdover_s", 0.7),
@@ -336,13 +353,22 @@ mod tests {
             "quantum.fom.holdover_s",
             false,
             vec![
-                Variant { label: "optical".into(), scenario_toml: clock_variant("optical", 1.0e-30) },
-                Variant { label: "csac".into(), scenario_toml: clock_variant("csac", 9.0e-20) },
+                Variant {
+                    label: "optical".into(),
+                    scenario_toml: clock_variant("optical", 1.0e-30),
+                },
+                Variant {
+                    label: "csac".into(),
+                    scenario_toml: clock_variant("csac", 9.0e-20),
+                },
             ],
         );
         let report = run_trade_study(&space).unwrap();
         let v = assurance_gate(&report);
-        assert!(!v.passed(), "a single-FoM study cannot clear the multi-criteria gate");
+        assert!(
+            !v.passed(),
+            "a single-FoM study cannot clear the multi-criteria gate"
+        );
     }
 
     #[test]

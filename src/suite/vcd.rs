@@ -224,7 +224,11 @@ pub fn build_vcd(report: &TradeReport) -> Vcd {
         method: VerificationMethod::Analysis,
         evidence: format!(
             "winner Pareto membership: {}",
-            if dr.winner_on_pareto() { "on front" } else { "dominated" }
+            if dr.winner_on_pareto() {
+                "on front"
+            } else {
+                "dominated"
+            }
         ),
         status: if dr.winner_on_pareto() {
             VcdStatus::Pass
@@ -271,7 +275,11 @@ pub fn build_vcd(report: &TradeReport) -> Vcd {
             None => "no single-criterion flip possible (dominant)".to_string(),
             Some(f) => format!("min flip L1 = {:.4} via '{}'", f.l1_change, f.criterion),
         },
-        status: if flip_ok { VcdStatus::Pass } else { VcdStatus::Fail },
+        status: if flip_ok {
+            VcdStatus::Pass
+        } else {
+            VcdStatus::Fail
+        },
         note: "weight-perturbation sweep".into(),
     });
 
@@ -301,13 +309,21 @@ pub fn build_vcd(report: &TradeReport) -> Vcd {
 
     // REQ-TS-060 — reproducibility / integrity.
     let prov = super::provenance::build_provenance(report);
-    let root_ok = prov.merkle_root.len() == 64 && prov.merkle_root.chars().all(|c| c.is_ascii_hexdigit());
+    let root_ok =
+        prov.merkle_root.len() == 64 && prov.merkle_root.chars().all(|c| c.is_ascii_hexdigit());
     items.push(VcdItem {
         req_id: "REQ-TS-060".into(),
         requirement: "The trade shall be reproducible and tamper-evident.".into(),
         method: VerificationMethod::Inspection,
-        evidence: format!("W3C-PROV Merkle root {}…", &prov.merkle_root[..prov.merkle_root.len().min(16)]),
-        status: if root_ok { VcdStatus::Pass } else { VcdStatus::Fail },
+        evidence: format!(
+            "W3C-PROV Merkle root {}…",
+            &prov.merkle_root[..prov.merkle_root.len().min(16)]
+        ),
+        status: if root_ok {
+            VcdStatus::Pass
+        } else {
+            VcdStatus::Fail
+        },
         note: "SHA-256 over inputs/outcomes/weights/decision".into(),
     });
 
@@ -352,8 +368,14 @@ mod tests {
         TradeSpace::multi_criteria(
             "clock trade",
             vec![
-                Variant { label: "optical".into(), scenario_toml: clock_variant("optical", 1.0e-30) },
-                Variant { label: "csac".into(), scenario_toml: clock_variant("csac", 9.0e-20) },
+                Variant {
+                    label: "optical".into(),
+                    scenario_toml: clock_variant("optical", 1.0e-30),
+                },
+                Variant {
+                    label: "csac".into(),
+                    scenario_toml: clock_variant("csac", 9.0e-20),
+                },
             ],
             vec![
                 TradeCriterion::benefit("holdover", "quantum.fom.holdover_s", 0.7),
@@ -371,7 +393,14 @@ mod tests {
         let report = run_trade_study(&space()).unwrap();
         let vcd = build_vcd(&report);
         let ids: Vec<&str> = vcd.items.iter().map(|i| i.req_id.as_str()).collect();
-        for want in ["REQ-TS-010", "REQ-TS-020", "REQ-TS-030", "REQ-TS-040", "REQ-TS-050", "REQ-TS-060"] {
+        for want in [
+            "REQ-TS-010",
+            "REQ-TS-020",
+            "REQ-TS-030",
+            "REQ-TS-040",
+            "REQ-TS-050",
+            "REQ-TS-060",
+        ] {
             assert!(ids.contains(&want), "VCD must trace {want}");
         }
         let md = vcd.markdown();

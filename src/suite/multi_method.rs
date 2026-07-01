@@ -453,7 +453,10 @@ mod tests {
         );
         assert!(r.methods.iter().any(|mm| mm.method == "COPRAS"));
         assert_eq!(r.consensus_winner, Some(2));
-        assert!(r.unanimous_winner, "the dominant variant wins under all eight");
+        assert!(
+            r.unanimous_winner,
+            "the dominant variant wins under all eight"
+        );
     }
 
     #[test]

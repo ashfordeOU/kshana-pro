@@ -156,7 +156,10 @@ pub fn build_argument(report: &TradeReport, min_trl: u8) -> GsnArgument {
     g.node(
         "G1",
         GsnNodeKind::Goal,
-        format!("Variant '{winner}' is the justified architecture selection for: {}", report.title),
+        format!(
+            "Variant '{winner}' is the justified architecture selection for: {}",
+            report.title
+        ),
     );
     g.node(
         "C1",
@@ -192,7 +195,8 @@ pub fn build_argument(report: &TradeReport, min_trl: u8) -> GsnArgument {
             g.node(
                 "Sn1",
                 GsnNodeKind::Solution,
-                "Ranked outcome table with reproducible scenario hashes (evidence pack).".to_string(),
+                "Ranked outcome table with reproducible scenario hashes (evidence pack)."
+                    .to_string(),
             );
             g.supported_by("G2", "Sn1");
             return g;
@@ -256,7 +260,11 @@ pub fn build_argument(report: &TradeReport, min_trl: u8) -> GsnArgument {
                         .map(|c| format!("{c:.4}"))
                         .unwrap_or_else(|| "n/a".into()),
                     ahp.threshold,
-                    if ahp.acceptable { "ACCEPTED" } else { "REJECTED" }
+                    if ahp.acceptable {
+                        "ACCEPTED"
+                    } else {
+                        "REJECTED"
+                    }
                 ),
             );
             g.supported_by("G3", "Sn2");
@@ -284,7 +292,11 @@ pub fn build_argument(report: &TradeReport, min_trl: u8) -> GsnArgument {
         GsnNodeKind::Solution,
         format!(
             "Pareto-front membership of the winner: {}.",
-            if dr.winner_on_pareto() { "confirmed" } else { "NOT on front" }
+            if dr.winner_on_pareto() {
+                "confirmed"
+            } else {
+                "NOT on front"
+            }
         ),
     );
     g.supported_by("G4", "Sn3");
@@ -300,11 +312,15 @@ pub fn build_argument(report: &TradeReport, min_trl: u8) -> GsnArgument {
         Some(f) => format!(
             "Min weight change to flip winner: L1 = {:.4}; SMAA rank-1 acceptability {}.",
             f.l1_change,
-            dr.winner_smaa().map(|p| format!("{p:.3}")).unwrap_or_else(|| "n/a".into())
+            dr.winner_smaa()
+                .map(|p| format!("{p:.3}"))
+                .unwrap_or_else(|| "n/a".into())
         ),
         None => format!(
             "Winner dominates — no single-criterion weight change can flip it; SMAA rank-1 {}.",
-            dr.winner_smaa().map(|p| format!("{p:.3}")).unwrap_or_else(|| "n/a".into())
+            dr.winner_smaa()
+                .map(|p| format!("{p:.3}"))
+                .unwrap_or_else(|| "n/a".into())
         ),
     };
     g.node("Sn4", GsnNodeKind::Solution, robustness);
@@ -323,7 +339,9 @@ pub fn build_argument(report: &TradeReport, min_trl: u8) -> GsnArgument {
         GsnNodeKind::Solution,
         match trl {
             Some(l) => format!("ISO 16290 TRL declaration: TRL-{l} (floor {min_trl})."),
-            None => format!("No TRL declared for the winner — TRL-{min_trl} floor NOT demonstrated."),
+            None => {
+                format!("No TRL declared for the winner — TRL-{min_trl} floor NOT demonstrated.")
+            }
         },
     );
     g.supported_by("G6", "Sn5");
@@ -386,8 +404,14 @@ mod tests {
         TradeSpace::multi_criteria(
             "clock trade",
             vec![
-                Variant { label: "optical".into(), scenario_toml: clock_variant("optical", 1.0e-30) },
-                Variant { label: "csac".into(), scenario_toml: clock_variant("csac", 9.0e-20) },
+                Variant {
+                    label: "optical".into(),
+                    scenario_toml: clock_variant("optical", 1.0e-30),
+                },
+                Variant {
+                    label: "csac".into(),
+                    scenario_toml: clock_variant("csac", 9.0e-20),
+                },
             ],
             vec![
                 TradeCriterion::benefit("holdover", "quantum.fom.holdover_s", 0.7),
@@ -430,8 +454,14 @@ mod tests {
             "quantum.fom.holdover_s",
             false,
             vec![
-                Variant { label: "optical".into(), scenario_toml: clock_variant("optical", 1.0e-30) },
-                Variant { label: "csac".into(), scenario_toml: clock_variant("csac", 9.0e-20) },
+                Variant {
+                    label: "optical".into(),
+                    scenario_toml: clock_variant("optical", 1.0e-30),
+                },
+                Variant {
+                    label: "csac".into(),
+                    scenario_toml: clock_variant("csac", 9.0e-20),
+                },
             ],
         );
         let report = run_trade_study(&space).unwrap();

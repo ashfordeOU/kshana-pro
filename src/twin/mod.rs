@@ -104,8 +104,8 @@ impl CalibratedTwin {
     /// ADEV with [`kshana::allan`]. Reproduction of a published curve this way is a
     /// **calibration fit (Modelled)**, not an externally-validated quantity.
     pub fn model_adev(&self, tau_s: f64) -> f64 {
-        let avar = self.q_wf / tau_s + self.flicker_floor * self.flicker_floor
-            + (self.q_rw / 3.0) * tau_s;
+        let avar =
+            self.q_wf / tau_s + self.flicker_floor * self.flicker_floor + (self.q_rw / 3.0) * tau_s;
         avar.max(0.0).sqrt()
     }
 }
