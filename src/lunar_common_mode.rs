@@ -371,13 +371,10 @@ mod tests {
             "detectable_norm = {}",
             split.detectable_norm
         );
-        for k in 0..4 {
+        for (k, (&got, &want)) in split.blind_dx.iter().zip(&delta).enumerate() {
             assert!(
-                (split.blind_dx[k] - delta[k]).abs() < 1e-9,
-                "blind_dx[{}] = {} vs delta {}",
-                k,
-                split.blind_dx[k],
-                delta[k]
+                (got - want).abs() < 1e-9,
+                "blind_dx[{k}] = {got} vs delta {want}"
             );
         }
     }
@@ -423,13 +420,11 @@ mod tests {
             .collect();
 
         let split = common_mode_split(&g, &combined).expect("valid split");
-        for k in 0..4 {
+        for (k, (&got, &d)) in split.blind_dx.iter().zip(&delta).enumerate() {
+            let want = a * d;
             assert!(
-                (split.blind_dx[k] - a * delta[k]).abs() < 1e-9,
-                "blind_dx[{}] = {} vs a·delta {}",
-                k,
-                split.blind_dx[k],
-                a * delta[k]
+                (got - want).abs() < 1e-9,
+                "blind_dx[{k}] = {got} vs a·delta {want}"
             );
         }
         assert!(
@@ -492,12 +487,8 @@ mod tests {
         assert!(cmpl.is_finite() && cmpl > 0.0, "cmpl = {cmpl}");
 
         let cpos = blind_position_covariance(&g, &cm_cov).expect("valid position covariance");
-        for i in 0..3 {
-            assert!(
-                cpos[i][i] > 0.0,
-                "cpos[{i}][{i}] = {} not positive",
-                cpos[i][i]
-            );
+        for (i, row) in cpos.iter().enumerate() {
+            assert!(row[i] > 0.0, "cpos[{i}][{i}] = {} not positive", row[i]);
         }
     }
 
@@ -542,12 +533,10 @@ mod tests {
         }
 
         let split = common_mode_split(&g, &delta_y).expect("valid split");
-        for k in 0..4 {
+        for (k, (&got, &want)) in dx.iter().zip(&split.blind_dx).enumerate() {
             assert!(
-                (dx[k] - split.blind_dx[k]).abs() < 1e-12,
-                "state_map dx[{k}] = {} vs split.blind_dx = {}",
-                dx[k],
-                split.blind_dx[k]
+                (got - want).abs() < 1e-12,
+                "state_map dx[{k}] = {got} vs split.blind_dx = {want}"
             );
         }
     }
