@@ -1,0 +1,133 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Positioning against the RAIM/ARAIM and ISM literature}
+\label{sec:positioning}
+
+We place the result precisely against prior art, in five statements that also fix, once
+more, exactly what is and is not new.
+
+First, \emph{parity-space blindness is classical} \citep{sturza1988,brown1992,%
+parkinson1988} and is even noted in our own detector---no novelty is claimed for it. The
+snapshot residual test sees a fault only through the parity subspace, and an error in
+$\rng(\Gmat)$ has no parity signature; this is the starting point, not the contribution.
+
+Second, \emph{a rigid frame transform common to the satellites (and user-independent) is
+the geodetic datum-defect / gauge freedom, wholly in $\rng(\Gmat)$}
+\citep{baarda1973,teunissen2000}; we make explicit that the P1 single-provider
+datum-defect subspace \citep{baweja2026datum} is a subset of the RAIM blind subspace
+(Corollary~\ref{cor:datum}). This is a synthesis of two known facts---the rigid-body
+gauge of free-network geodesy and the range-space blindness of RAIM---not a new
+phenomenon; its value is that it identifies \emph{which} physically meaningful error
+(the full three-rotation frame freedom, not just translation) is blind, and ties the
+integrity blindness to the identifiability classification of the companion paper.
+
+Third, \emph{ARAIM does not ignore undetectable errors}: the MHSS protection level
+\citep{blanch2015,wgc2016araim} bounds the fault-free ($H_0$) hypothesis via the
+$\sigma_{\mathrm{URA}}$ overbound and the nominal bias $b_{\mathrm{nom}}$, so
+residual-invisible errors are still budgeted up to what the ISM declares
+\citep{decleene2000,montenbruck2018sisre}. This is why the naive claim---``ARAIM is
+blind to common-mode''---is wrong at the protection-level layer, and we are careful to
+reject it.
+
+Fourth, \emph{the uncovered term is specific to the lunar multi-provider case}: an
+inter-provider frame/ephemeris common-mode of $\approx\!2\,$m (measured on the real
+DE440/INPOP21a/EPM2021 differences, Section~\ref{sec:anchor}) is not contained in any
+single provider's per-provider URA, because each URA overbounds one provider's error
+against its own realization, not the offset between two independent realizations. This is
+the genuine gap, and it exists only once more than one independent provider is fused.
+
+Fifth, \emph{the CMPL adds to the ARAIM HPL only to the extent the common-mode exceeds
+the $\sigma_{\mathrm{URA}}$ overbound}: where $\sigma_{\mathrm{URA}}$ is inflated to cover
+it, the CMPL is already inside the ARAIM fault-free term and adding it double-counts, so
+$\mathrm{HPL}_{\mathrm{total}}=\mathrm{HPL}_{\mathrm{ARAIM}}+\mathrm{CMPL}$ is a
+conservative bound for the un-inflated-URA case (Section~\ref{sec:conditionality}). The
+CMPL is not a blanket surcharge; it is the term that closes a specifically
+cross-provider, specifically un-budgeted gap.
+
+\paragraph{Honest-novelty statement, restated.}
+The blindness of snapshot RAIM/ARAIM to errors in $\rng(\Gmat)$ is a classical property
+of the parity-space formulation and is not claimed as new. Our contribution is (i) the
+real-data quantification that the actual median $2.0$--$2.4\,$m inter-ephemeris
+disagreement between independent authoritative lunar ephemerides (DE440 vs.\ INPOP21a
+and EPM2021), projected through a lunar constellation, is absorbed almost entirely as
+user position error (blind fraction $\approx1$, parity residual $\sim\!10^{-15}\,$m) and
+is therefore structurally invisible to the RAIM/ARAIM residual test; (ii) the
+observation that in a multi-provider lunar PNT architecture this inter-provider
+common-mode lies outside any single provider's per-provider URA/ISM budget; and (iii)
+the CMPL, an additive position-domain term that restores a valid bound for exactly that
+uncovered cross-provider case. We do not claim novelty for the subspace blindness, for
+the datum-defect$\,\subset\,$blind relation, or for bounding an undetectable error by a
+protection level---the last being the mechanism of ARAIM's own fault-free/nominal-bias
+term.
+
+\subsection{What a LunaNet or Moonlight specification should require}
+\label{sec:spec}
+
+The design consequence is one requirement, stated as \Modelled{} guidance rather than a
+certified budget. A multi-provider lunar PNT architecture---LunaNet and its
+interoperability specification, ESA Moonlight/LCNS, or their national counterparts
+\citep{israel2020lunanet,fienga2024moonlight}---must place the inter-provider
+frame/ephemeris common-mode into \emph{some} explicit budget, because
+Lemma~\ref{lem:rigid} shows the residual test never will and Section~\ref{sec:conditionality}
+shows a per-provider URA need not either. Two admissible mechanisms follow, and the
+specification should mandate one of them: \emph{(a) upstream}, require each provider's
+ISM overbound $\sigma_{\mathrm{URA}}$ to explicitly include the permissible
+inter-provider common-mode (so the CMPL is folded into the declared budget and the
+single-provider HPL already bounds it); or \emph{(b) downstream}, define a
+cross-provider integrity layer that carries a CMPL term at the fusion/hand-off point,
+combined with the per-provider HPL by the conservative triangle sum \eqref{eq:hpltotal}.
+What the specification must forbid is the default of \emph{neither}, which leaves a
+residual-invisible, un-budgeted $\approx\!2\,$m position error in a safety-of-life
+architecture. This dovetails with the companion interoperability design law
+\citep{baweja2026interop}---standardize the ephemeris, not just the format---from the
+integrity side: bounding the ephemeris divergence is what makes the CMPL small, and a
+common designated ephemeris is what drives it to zero.
+
+\subsection{Limitations}
+\label{sec:limitations}
+
+The firewall of Section~\ref{sec:validation} is also a statement of limitations; we make
+them explicit.
+
+\begin{itemize}
+  \item \textbf{The providers are ephemerides.} The single most important caveat: no two
+  lunar-PNT providers have flown, so the three ephemerides are a \emph{representative
+  analog} for a real multi-provider constellation, and the constellation geometry through
+  which we project is modelled. Only the parity/least-squares split at real magnitudes
+  (Table~\ref{tab:anchor}) is \Validated{}; the covariance, the CMPL, the representative
+  HPL, and the envelope (Table~\ref{tab:envelope}) are \Modelled{}. A real provider
+  constellation would disagree for additional reasons---broadcast-ephemeris fit error,
+  clock and signal-in-space errors, regional frame ties---absent from the ephemeris
+  comparison.
+
+  \item \textbf{Blindness is an identity, not a measurement.} The blind fraction of $1$
+  and the $\sim\!10^{-15}\,$m detectable norm are analytic consequences of the
+  common-shift construction (Proposition~\ref{prop:blind}), not empirical findings. The
+  empirical content is only the $\approx\!2\,$m magnitude. We have stated this at every
+  occurrence and repeat it here.
+
+  \item \textbf{The CMPL is an input-echo illustration.} The CMPL value $\SI{9.80}{m}$ is
+  a fixed Rayleigh multiplier applied to a modelled $2\,$m one-sigma; it demonstrates the
+  mechanism and sign of the cross-provider term, not a certified lunar CMPL. The
+  representative $\mathrm{HPL}_{\mathrm{ARAIM}}=\SI{15}{m}$ is likewise a placeholder, not
+  a computed lunar protection level.
+
+  \item \textbf{Snapshot, first-order, single-epoch.} The analysis is the standard
+  snapshot linearization; it does not address time-filtered or carrier-smoothed
+  monitors, multi-epoch fault growth, or the second-order non-rigid residual beyond the
+  $\mathcal{O}(|\bm\theta|^2)$ estimate of Lemma~\ref{lem:rigid}. A common-mode that
+  \emph{drifts} would eventually leave a detectable signature in a filtered monitor; the
+  snapshot blindness is exact only for a static common shift within the epoch.
+
+  \item \textbf{No flight data, no TRL claim.} Nothing here is a certified integrity
+  monitor, a reproduction of any agency's ARAIM configuration, or a statement at
+  technology readiness level above analysis. The deliverable is a cited classical
+  property, a proven lemma, one validated real-magnitude split, and a modelled integrity
+  envelope built on them.
+\end{itemize}
+
+None of these caveats touches the proven content---the rigid-body lemma and the
+datum-defect$\,\subset\,$blind relation---or the validated content---the real-magnitude
+split. Each marks where a real multi-provider deployment must supply flight data before
+any absolute CMPL number is trusted.

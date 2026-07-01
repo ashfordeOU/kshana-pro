@@ -1,0 +1,107 @@
+% SPDX-License-Identifier: CC-BY-4.0
+% P3 common-mode integrity manuscript. Target: NAVIGATION (ION) / IEEE Trans. AES.
+% Build: tectonic main.tex   (or pdflatex + bibtex + pdflatex x2)
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{3em}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{orcidlink}
+
+\graphicspath{{./}{figures/}}
+\setlength{\abovecaptionskip}{9pt}
+\setlength{\belowcaptionskip}{6pt}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+% Notation macros
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Gmat}{\bm{G}}                      % geometry (design) matrix
+\newcommand{\yv}{\bm{y}}                        % measurement-residual vector
+\newcommand{\xv}{\bm{x}}                        % state (position + clock)
+\newcommand{\Smat}{\bm{S}}                      % parity matrix
+\newcommand{\Pperp}{\bm{P}^{\!\perp}}          % parity (residual) projector
+\newcommand{\Ppar}{\bm{P}_{\mathcal{R}}}       % range projector
+\newcommand{\los}{\bm{e}}                       % line-of-sight unit vector
+\newcommand{\sv}{\bm{s}}                        % satellite position
+\newcommand{\uv}{\bm{u}}                        % user position
+\newcommand{\ds}{\Delta\bm{s}}                  % common frame/ephemeris shift
+\newcommand{\rng}{\operatorname{range}}
+\newcommand{\Sig}{\bm{\Sigma}}                  % covariance
+\DeclareMathOperator{\rank}{rank}
+
+% Honesty tags for proven / validated / representative-modelled quantities
+\newcommand{\Proven}{\textsc{Proven}}
+\newcommand{\Modelled}{\textsc{Modelled}}
+\newcommand{\Validated}{\textsc{Validated}}
+\newcommand{\modtag}{{\footnotesize\textsf{[M]}}}
+
+\title{\textbf{Common-mode integrity for multi-provider lunar PNT: the
+reference-frame and ephemeris error class RAIM/ARAIM cannot see, and a
+cross-provider protection level}}
+
+\author{Chakshu Baweja\,\orcidlink{0009-0008-2098-0751}\\
+\small Ashforde O\"U, Tallinn, Estonia \\
+\small \texttt{contact@ashforde.org}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{sections/00-abstract}
+\end{abstract}
+
+\noindent\textbf{Keywords:} lunar PNT; integrity; RAIM; ARAIM; protection level;
+common-mode error; parity space; reference frame; planetary ephemerides; DE440;
+INPOP; EPM; LunaNet; Moonlight
+
+\vspace{0.5em}
+\input{sections/01-introduction}
+\input{sections/02-model}
+\input{sections/03-theorem}
+\input{sections/04-real-anchor}
+\input{sections/05-cmpl-envelope}
+\input{sections/06-validation}
+\input{sections/07-discussion}
+\input{sections/08-conclusion}
+
+\section*{Data and code availability}
+\input{sections/09-availability}
+
+\section*{Acknowledgements}
+The numerical substrate underlying this work is part of the open-source
+\code{kshana} engine. The lunar ephemerides differenced here are the property of
+their respective institutions (JPL, IMCCE, IAA~RAS), gratefully acknowledged. This
+research received no specific grant from any funding agency in the public,
+commercial, or not-for-profit sectors.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\input{sections/A-methods}
+
+\end{document}

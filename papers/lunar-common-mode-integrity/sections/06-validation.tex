@@ -1,0 +1,99 @@
+\section{Validation and the structure/magnitude firewall}
+\label{sec:validation}
+
+A paper that converts a blind constellation error into an integrity design rule must be
+scrupulous about which numbers are earned on real data and which are representative. We
+enforce this with an explicit firewall, implemented as a rule in the engine's
+verification suite and stated plainly here: a quantity is \Validated{} only when it is
+checked against an \emph{independent} oracle---a separate library, dataset, or published
+vector---to a stated tolerance; a result is \Proven{} when it is an algebraic theorem;
+a fact taken from the literature is \emph{cited}; and everything else is \Modelled{}.
+
+\subsection{The independent oracle for the split}
+\label{sec:oracle}
+
+The one load-bearing empirical object of this paper is the parity/least-squares split of
+the real inter-ephemeris common-mode at real magnitudes (Table~\ref{tab:anchor}). We
+validate it against an independent NumPy reference. A generator script
+(Section~\ref{sec:availability}) reads the DE440/INPOP21a/EPM2021 kernels through the
+IMCCE \code{calceph} library, samples the geocentric Moon on the same grid used by the
+engine, forms the per-epoch common shift $\ds$, builds the same modelled constellation
+geometry $\Gmat$, and computes the projectors \eqref{eq:projectors} and the three split
+quantities \eqref{eq:blinddx}--\eqref{eq:detnorm} by an independent NumPy linear-algebra
+path (an explicit QR/normal-equations solve rather than the engine's routine), emitting
+the expected \code{blind\_dx}, \code{blind\_fraction}, and \code{detectable\_norm} to a
+vendored fixture (\code{reference.json}). The engine's split reproduces every value to a
+relative error below $10^{-3}$ and an absolute error below $\SI{e-3}{m}$ on the
+metre-scale position magnitudes. This is the paper's single \Validated{} row: the
+\emph{linear algebra} of the split, on the \emph{real} ephemeris magnitudes, is
+externally confirmed.
+
+We restate the boundary made precise in Section~\ref{sec:honestyboundary}. What is
+validated is that two independent implementations agree on the metre-scale blind
+position error. What is \emph{not} an empirical claim---and is not presented as one---is
+the blindness itself: $\code{blind\_fraction}=1$ and $\code{detectable\_norm}\approx0$
+are analytic identities of the construction $\delta\yv=\Gmat[-\ds;0]$
+(Proposition~\ref{prop:blind}), true to machine precision for any $\ds$ whatsoever. The
+$\sim\!10^{-15}\,$m detectable norm is floating-point zero and is never quoted as a
+measurement.
+
+\subsection{What is cited, proven, validated, and modelled}
+\label{sec:matrix}
+
+Table~\ref{tab:honesty} draws the line explicitly.
+
+\begin{table}[t]
+\centering
+\caption{The structure/magnitude firewall. Only the parity/least-squares split at real
+magnitudes is \Validated{} (independent NumPy oracle on real DE440/INPOP21a/EPM2021
+data). The parity-space blindness is classical prior art (\emph{cited}); the rigid-body
+lemma and the datum-defect$\,\subset\,$blind relation are \Proven{}; the analytic
+identity is an internal check; every system-level magnitude is \Modelled{}.}
+\label{tab:honesty}
+\small
+\begin{tabular}{@{}p{5.2cm}p{3.6cm}p{2.6cm}c@{}}
+\toprule
+\textbf{Result} & \textbf{Basis} & \textbf{Oracle} & \textbf{Status} \\
+\midrule
+Parity-space blindness of $\rng(\Gmat)$ (Prop.~\ref{prop:blind}) &
+Sturza 1988; Brown 1992; Parkinson \& Axelrad 1988 &
+--- (prior art) & \emph{cited} \\[3pt]
+Rigid-body error $\in\rng(\Gmat)$; datum defect $\subset$ blind subspace
+(Lem.~\ref{lem:rigid}, Cor.~\ref{cor:datum}) &
+algebraic proof &
+--- & \Proven{} \\[3pt]
+Split of the real inter-ephemeris common-mode at $\approx\!2\,$m
+(Table~\ref{tab:anchor}, Part~B) &
+real DE440/INPOP/EPM vs NumPy, $<\!10^{-3}$ &
+ext.\ library + real data & \Validated{} \\[3pt]
+Analytic-identity check (Part~A, Eq.~\ref{eq:partA}) &
+common-shift construction $\delta\yv=\Gmat[-\ds;0]$ &
+internal (f.p.\ zero) & identity \\[3pt]
+Common-mode covariance $\Sig_{\mathrm{cm}}$; CMPL; total envelope
+(Table~\ref{tab:envelope}) &
+Rayleigh inflation of modelled 1-$\sigma$ &
+internal & \Modelled{} \\[3pt]
+Representative $\mathrm{HPL}_{\mathrm{ARAIM}}=\SI{15}{m}$ &
+illustrative placeholder &
+--- & \Modelled{} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two internal checks are honest but not independent, and are labelled so: Part~A is an
+analytic identity (a synthetic common shift is injected and its blind fraction confirmed
+at $1$), and the envelope assembly is an internal combination of the modelled
+common-mode one-sigma with a representative HPL. Neither is claimed as externally
+validated.
+
+\subsection{Reproducibility}
+\label{sec:reproducibility}
+
+Every quantitative result---Part~A's identity check, Part~B's real split
+(Table~\ref{tab:anchor}), and the envelope of Table~\ref{tab:envelope})---is
+regenerated from the committed engine and the vendored fixtures by a single command
+(Section~\ref{sec:availability}). The \Validated{} row is asserted in the
+continuous-integration test suite, which enforces the external-oracle gate: the engine's
+split must match \code{reference.json} to the stated tolerance or the build fails. There
+are no hand-entered numbers in the tables; the manuscript values and the engine outputs
+are the same numbers, traceable to one run.
