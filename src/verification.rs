@@ -834,6 +834,24 @@ pub fn verification_matrix() -> Vec<VerificationItem> {
             oracle_kind: InternalConsistency,
             status: Modelled,
         },
+        VerificationItem {
+            requirement: "Common-mode (frame/ephemeris) integrity: the fault class RAIM/ARAIM is provably blind to",
+            capability: "common_mode_split decomposes a measurement error into the RAIM-invisible part in range(G) (absorbed as a user position+clock error, zero parity residual) and the RAIM-detectable parity residual; on the real DE440/INPOP21a/EPM2021 geocentric-Moon disagreement mapped through a modelled constellation, the ~2.0-2.4 m inter-ephemeris floor is absorbed as user position error with a structurally-zero parity residual — undetectable by any snapshot RAIM/ARAIM monitor",
+            module: "lunar_common_mode",
+            tests: "tests/lunar_common_mode_integrity_reference.rs (blind_dx / blind_fraction / detectable_norm / blind_norm for 732 records = 2 provider pairs x 366 real epochs, reproduced against an independent numpy parity-projection / least-squares computation to rel<1e-3 abs<1e-3; inputs byte-consistent via scripts/gen_common_mode_ref.py reusing the real inter-ephemeris fixtures)",
+            oracle: "Independent numpy least-squares / parity-projection computation cross-checking the engine's split, on the REAL DE440 (JPL) / INPOP21a (IMCCE) / EPM2021 (IAA RAS) inter-ephemeris disagreement (tests/fixtures/inter_ephemeris). Note: the constellation geometry is Modelled; only the linear-algebra reproduction on real-data inputs is externally checked",
+            oracle_kind: ExternalDataset,
+            status: Validated,
+        },
+        VerificationItem {
+            requirement: "Common-mode protection level (CMPL) and total integrity envelope",
+            capability: "cmpl_horizontal bounds the k-sigma horizontal position error from the blind common-mode class (blind_position_covariance = S*Cov*S^T projected into ENU); integrity_envelope reports hpl_total = hpl_araim + cmpl, making explicit that the ARAIM protection level bounds only the parity-detectable fault class and provably does not cover the common-mode class",
+            module: "lunar_common_mode",
+            tests: "lunar_common_mode::tests (a pure range(G) covariance gives a positive CMPL; a parity-space covariance gives ~zero CMPL; envelope sums the two disjoint classes; state_map consistency)",
+            oracle: "Analytic projector algebra; the common-mode covariance, constellation geometry, and k are representative Modelled inputs, not a certified budget",
+            oracle_kind: InternalConsistency,
+            status: Modelled,
+        },
         // ── Resilience scoring & instability study ────────────────────────────
         VerificationItem {
             requirement: "PNT-resilience framework-aligned scoring",
