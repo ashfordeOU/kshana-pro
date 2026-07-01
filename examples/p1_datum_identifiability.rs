@@ -9,7 +9,6 @@
 //!     radial/depth-diverse far-side orbiter range (the Part-B finding);
 //!   - the per-parameter fractional-CRLB improvement showing VLBI helps the
 //!     transverse translation more than the radial one (the mechanism);
-//!   - the cost/degeneracy Pareto frontier (Part C).
 //!
 //! All magnitudes are MODELLED (representative beacon/schedule/noise/cost — see
 //! `tests/fixtures/llr_geometry/NOTICE.md`); only the STRUCTURE (ordering, sign,
@@ -19,7 +18,7 @@
 
 use kshana::fim::{crlb, information_matrix};
 use kshana::lunar_identifiability::decompose;
-use kshana::lunar_oed::{combine, pareto_frontier, representative_lunar_menu, MeasurementBlock};
+use kshana::lunar_techniques::{combine, representative_lunar_menu, MeasurementBlock};
 
 const REL_TOL: f64 = 1e-12;
 
@@ -91,20 +90,10 @@ fn main() {
         frac(1) / frac(0)
     );
 
-    // --- Part C: cost/degeneracy Pareto frontier ---
-    let budgets = [1.0, 4.0, 8.0, 13.0];
-    let frontier = pareto_frontier(&menu, &budgets, REL_TOL);
-    println!("## Part C — cost/degeneracy Pareto frontier");
-    println!("budget  cost   metric        chosen");
-    for p in &frontier {
-        println!(
-            "{:5.1}  {:5.1}  {:.6e}  {:?}",
-            p.budget, p.total_cost, p.degeneracy_metric, p.chosen
-        );
-    }
-
-    // Consistency check: additive combine matches the frontier's full-menu metric.
+    // Consistency check: the additive Fisher combiner over the full public menu
+    // reproduces the direct decomposition of the summed information.
     let all: Vec<usize> = (0..menu.len()).collect();
     let full = decompose(&combine(&menu, &all), REL_TOL).degeneracy_metric;
-    println!("\nfull-menu metric (all blocks) = {full:.6e}");
+    println!("## Full-menu additive-combine check");
+    println!("full-menu metric (all blocks) = {full:.6e}");
 }

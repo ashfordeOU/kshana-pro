@@ -808,15 +808,6 @@ pub fn verification_matrix() -> Vec<VerificationItem> {
             status: VerificationStatus::Modelled,
         },
         VerificationItem {
-            requirement: "Cost-aware gauge-constrained datum experiment design (OED + Pareto frontier)",
-            capability: "Budget-constrained selection of measurement campaigns maximising the degeneracy metric: a greedy heuristic validated against an exact brute-force oracle, and a cost/accuracy Pareto frontier over a representative LLR+VLBI+orbiter menu",
-            module: "lunar_oed",
-            tests: "lunar_oed::tests (greedy==exhaustive on a constructed menu; exhaustive ≥ greedy invariant; frontier monotone; radial diversity beats transverse)",
-            oracle: "greedy validated against the exact exhaustive (brute-force) optimizer (internal). The optimizer is a Modelled decision tool; costs/precisions are representative, the frontier is a parameterized trade curve, not a mission recommendation (see NOTICE.md).",
-            oracle_kind: OracleKind::InternalConsistency,
-            status: VerificationStatus::Modelled,
-        },
-        VerificationItem {
             requirement: "Cross-provider lunar frame/dynamics consistency (real inter-ephemeris)",
             capability: "rotation-only (6-parameter translation+rotation) decomposition of the DE440/INPOP21a/EPM2021 geocentric-Moon disagreement into a reducible common ICRF frame-tie and an irreducible lunar-orbit-orientation excess (the full 7-parameter Helmert fit is a separate public function covered only by an internal analytic-recovery unit test, not by this external check)",
             module: "lunar_interop_budget",

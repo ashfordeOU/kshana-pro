@@ -4,9 +4,9 @@
   "repo_blob_base": "https://github.com/AshfordeOU/kshana/blob/main/",
   "summary": {
     "validated": 43,
-    "modelled": 52,
+    "modelled": 51,
     "partner_owned": 4,
-    "total": 99
+    "total": 98
   },
   "rows": [
     {
@@ -1868,23 +1868,6 @@
         {
           "path": "src/lunar_identifiability.rs",
           "url": "https://github.com/AshfordeOU/kshana/blob/main/src/lunar_identifiability.rs"
-        }
-      ],
-      "test_links": [],
-      "fixture": null
-    },
-    {
-      "requirement": "Cost-aware gauge-constrained datum experiment design (OED + Pareto frontier)",
-      "capability": "Budget-constrained selection of measurement campaigns maximising the degeneracy metric: a greedy heuristic validated against an exact brute-force oracle, and a cost/accuracy Pareto frontier over a representative LLR+VLBI+orbiter menu",
-      "status": "MODELLED",
-      "oracle_kind": "InternalConsistency",
-      "oracle": "greedy validated against the exact exhaustive (brute-force) optimizer (internal). The optimizer is a Modelled decision tool; costs/precisions are representative, the frontier is a parameterized trade curve, not a mission recommendation (see NOTICE.md).",
-      "module": "lunar_oed",
-      "tests": "lunar_oed::tests (greedy==exhaustive on a constructed menu; exhaustive ≥ greedy invariant; frontier monotone; radial diversity beats transverse)",
-      "module_links": [
-        {
-          "path": "src/lunar_oed.rs",
-          "url": "https://github.com/AshfordeOU/kshana/blob/main/src/lunar_oed.rs"
         }
       ],
       "test_links": [],

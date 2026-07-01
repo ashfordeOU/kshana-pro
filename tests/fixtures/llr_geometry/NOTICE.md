@@ -98,10 +98,15 @@ not copyrightable. Cited per good scholarly practice.
 | stations.csv        | 945cdc3c5c2c5f1721df2f59bf4549005f152a98a9cf86936d2abe880295f416 |
 | de440_moon_pa.csv   | 3076f81ef95d83f5efa240ed4c7ccb422f109407dde841fcf28d42dc63586eb7 |
 
-## Multi-technique OED — Modelled assumptions (P1 Part C)
+## Representative multi-technique measurement menu — Modelled assumptions (P1)
 
-This section records the Modelled inputs to the cost/degeneracy Pareto frontier
-computed by `src/lunar_oed.rs::representative_lunar_menu` and `pareto_frontier`.
+This section records the Modelled inputs to the representative measurement menu
+built by `src/lunar_techniques.rs::representative_lunar_menu` (the public menu +
+additive Fisher combiner). The budget-constrained design *optimizer* that consumes
+this menu — the greedy/exact subset selection and the cost/degeneracy Pareto
+frontier (`greedy_design`, `pareto_frontier`) — is a commercial (kshana-pro)
+capability and is **not** part of this open crate; the Modelled inputs below apply
+to the menu itself, which stays public so the P1 finding remains reproducible.
 
 ### Beacon selenographic locations (body-frame PA coordinates; R = 1 737 400 m)
 
@@ -156,12 +161,14 @@ the surface (norm = R). Paper figures use surface-normalized beacon coordinates.
 
 All inputs above are **representative, not mission values**. They were chosen to be
 physically plausible (lunar-scale geometry, realistic noise floors, sensible relative
-economics) and to exercise the mathematical structure of the datum problem. The
-deliverable is the **shape and ordering of the cost/accuracy trade frontier** and the
+economics) and to exercise the mathematical structure of the datum problem. The public
+deliverable is the **representative menu + additive Fisher combiner** and the
 finding that **radial/depth diversity (orbiter far-side ranging) breaks the
 lunocenter-X ↔ scale degeneracy more effectively than transverse VLBI** — ≈8× more
-raw degeneracy-metric gain for comparable measurement exposure, and ≈4.8× more *per
-unit cost* once the orbiter's higher relative cost (5 vs 3) is accounted for — not a
-single recommended budget or a claim about any real mission.
+raw degeneracy-metric gain for comparable measurement exposure — not a claim about any
+real mission. The budget-constrained optimizer that turns this menu into a chosen
+design or a cost/degeneracy Pareto frontier (`greedy_design`, `pareto_frontier`) is a
+commercial (kshana-pro) capability, not part of this open crate; the ≈4.8× *per-unit-
+cost* advantage and any single recommended budget are properties of that separate tool.
 The CRLB figures, degeneracy-metric magnitudes, and relative cost ratios all carry
 **Modelled** status (see `src/lunar_identifiability.rs` honesty note).
