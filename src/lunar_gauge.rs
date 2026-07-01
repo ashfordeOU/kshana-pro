@@ -256,26 +256,14 @@ pub struct CoupledGaugeClass {
     pub p_st_norm: f64,
 }
 
-/// Classify the null space of a 9×9 coupled Fisher information matrix.
+/// Classify the null space given an orthonormal null-space basis U directly.
 ///
-/// ## Algorithm (basis-invariant)
-///
-/// 1. Compute [`crate::fim::crlb`] with `rel_tol`.  Retrieve `null_space` U (layout:
-///    `null_space[row][col]` = component `row` of null vector `col`) and defect `d`.
-///    Return the all-zero class if `d == 0`.
-/// 2. Let `U_S` = rows 0..7 and `U_T` = rows 7..9 of U (7×d and 2×d sub-matrices).
-/// 3. Compute `rank(A)` as the number of eigenvalues of the Gram matrix `A·Aᵀ`
-///    that exceed `1e-9`.  (Columns of U are orthonormal, so Gram eigenvalues ∈ [0,1];
-///    `1e-9` cleanly separates zero from O(1).)
-/// 4. Derive: `dim_spatial = d − rank(U_T)`, `dim_temporal = d − rank(U_S)`,
-///    `coupled_dim = rank(U_S) + rank(U_T) − d`.
-/// 5. Form the off-diagonal block of the null projector `P = U·Uᵀ` (9×9) restricted
-///    to rows 0..7 and columns 7..9 (7×2), and return its Frobenius norm as `p_st_norm`.
-pub fn classify_null_space(info: &[Vec<f64>], rel_tol: f64) -> CoupledGaugeClass {
-    let cr = crate::fim::crlb(info, rel_tol);
-    let d = cr.defect;
-
-    if d == 0 {
+/// `null_space[r][c]` = component `r` of null vector `c`; columns must be orthonormal.
+/// The Gram-rank uses an absolute 1e-9 threshold, sound because the null columns are
+/// orthonormal so Gram eigenvalues lie in [0,1]; a real near-defect with a sub-threshold
+/// temporal projection may sit on the spatial/coupled boundary.
+fn classify_from_null_space(null_space: &[Vec<f64>], defect: usize) -> CoupledGaugeClass {
+    if defect == 0 {
         return CoupledGaugeClass {
             defect: 0,
             dim_spatial: 0,
@@ -284,8 +272,6 @@ pub fn classify_null_space(info: &[Vec<f64>], rel_tol: f64) -> CoupledGaugeClass
             p_st_norm: 0.0,
         };
     }
-
-    let null_space = &cr.null_space; // null_space[r][c] = component r of null vector c
 
     // Compute the rank of the submatrix formed by rows row_start..row_end of null_space
     // (a p×d matrix A), defined as the number of eigenvalues of A·Aᵀ exceeding 1e-9.
@@ -314,9 +300,13 @@ pub fn classify_null_space(info: &[Vec<f64>], rel_tol: f64) -> CoupledGaugeClass
     let rs = subspace_rank(0, 7); // rank of U_S (spatial rows 0..7)
     let rt = subspace_rank(7, 9); // rank of U_T (temporal rows 7..9)
 
-    let dim_spatial = d - rt;
-    let dim_temporal = d - rs;
-    let coupled_dim = rs + rt - d;
+    let dim_spatial = defect - rt;
+    let dim_temporal = defect - rs;
+    debug_assert!(
+        rs + rt >= defect,
+        "rs={rs} + rt={rt} < defect={defect}: coupled_dim would underflow"
+    );
+    let coupled_dim = (rs + rt).saturating_sub(defect);
 
     // p_st_norm = ‖P[0..7][7..9]‖_F where P = U·Uᵀ (the null-space projector).
     // P[i][j] = Σ_{c=0}^{d-1} null_space[i][c] · null_space[j][c]
@@ -333,12 +323,32 @@ pub fn classify_null_space(info: &[Vec<f64>], rel_tol: f64) -> CoupledGaugeClass
     }
 
     CoupledGaugeClass {
-        defect: d,
+        defect,
         dim_spatial,
         dim_temporal,
         coupled_dim,
         p_st_norm: p_st_sq.sqrt(),
     }
+}
+
+/// Classify the null space of a 9×9 coupled Fisher information matrix.
+///
+/// ## Algorithm (basis-invariant)
+///
+/// 1. Compute [`crate::fim::crlb`] with `rel_tol`.  Retrieve `null_space` U (layout:
+///    `null_space[row][col]` = component `row` of null vector `col`) and defect `d`.
+///    Return the all-zero class if `d == 0`.
+/// 2. Let `U_S` = rows 0..7 and `U_T` = rows 7..9 of U (7×d and 2×d sub-matrices).
+/// 3. Compute `rank(A)` as the number of eigenvalues of the Gram matrix `A·Aᵀ`
+///    that exceed `1e-9`.  (Columns of U are orthonormal, so Gram eigenvalues ∈ [0,1];
+///    `1e-9` cleanly separates zero from O(1).)
+/// 4. Derive: `dim_spatial = d − rank(U_T)`, `dim_temporal = d − rank(U_S)`,
+///    `coupled_dim = rank(U_S) + rank(U_T) − d`.
+/// 5. Form the off-diagonal block of the null projector `P = U·Uᵀ` (9×9) restricted
+///    to rows 0..7 and columns 7..9 (7×2), and return its Frobenius norm as `p_st_norm`.
+pub fn classify_null_space(info: &[Vec<f64>], rel_tol: f64) -> CoupledGaugeClass {
+    let cr = crate::fim::crlb(info, rel_tol);
+    classify_from_null_space(&cr.null_space, cr.defect)
 }
 
 #[cfg(test)]
@@ -593,6 +603,8 @@ mod tests {
 
     /// (c) Basis-invariance: info_C has null = span{e₃, e₇} but non-unit observable eigenvalues.
     /// Result must be identical to test (a) regardless of the eigensolver's basis choice.
+    /// Note: axis-aligned matrices yield the identity null basis from sym_eig; the genuine
+    /// rotated-basis invariance test is `classify_is_invariant_under_null_basis_rotation`.
     #[test]
     fn classify_basis_invariant() {
         let info = make_diag_info([2.0, 3.0, 4.0, 0.0, 5.0, 6.0, 7.0, 0.0, 8.0]);
@@ -605,6 +617,64 @@ mod tests {
             cls.p_st_norm < 1e-9,
             "p_st_norm should be ≈0 (basis-invariant), got {}",
             cls.p_st_norm
+        );
+    }
+
+    /// Genuine rotated-basis invariance test: builds U_axis (9×2, columns e₃ and (e₄+e₇)/√2),
+    /// verifies `classify_from_null_space` gives the correct class on the axis-aligned basis,
+    /// then rotates the null basis by θ=0.6 rad and asserts the classification is unchanged.
+    ///
+    /// This subspace has rs=2 (both columns project onto spatial rows) and rt=1 (only the
+    /// coupled column projects onto temporal rows), so the test also guards against a U_S/U_T
+    /// transposition bug.
+    #[test]
+    fn classify_is_invariant_under_null_basis_rotation() {
+        let inv_sqrt2 = 1.0_f64 / 2.0_f64.sqrt();
+
+        // Build U_axis: 9 rows × 2 columns (null_space[r][c] = component r of null vector c).
+        // Column 0 = e₃ (pure spatial: scale at index 3).
+        // Column 1 = (e₄ + e₇)/√2 (coupled: θ_x at row 4 ∈ spatial, δτ at row 7 ∈ temporal).
+        let mut u_axis = vec![vec![0.0_f64; 2]; 9];
+        u_axis[3][0] = 1.0; // e₃: scale component
+        u_axis[4][1] = inv_sqrt2; // (e₄+e₇)/√2: θ_x (spatial) component
+        u_axis[7][1] = inv_sqrt2; // (e₄+e₇)/√2: δτ (temporal) component
+
+        // Axis-aligned basis: check expected counts and p_st_norm = 0.5.
+        let cls_axis = classify_from_null_space(&u_axis, 2);
+        assert_eq!(cls_axis.defect, 2, "axis: defect");
+        assert_eq!(
+            cls_axis.dim_spatial, 1,
+            "axis: dim_spatial (e₃ is pure spatial)"
+        );
+        assert_eq!(cls_axis.dim_temporal, 0, "axis: dim_temporal");
+        assert_eq!(cls_axis.coupled_dim, 1, "axis: coupled_dim");
+        assert!(
+            (cls_axis.p_st_norm - 0.5_f64).abs() < 1e-9,
+            "axis: p_st_norm should be 0.5, got {}",
+            cls_axis.p_st_norm
+        );
+
+        // Rotate the null basis by θ=0.6 rad: U_rot = U_axis · Q where
+        // Q = [[cosθ, -sinθ], [sinθ, cosθ]].  U_rot spans the same subspace but neither
+        // column is pure spatial or temporal — the real invariance check.
+        let theta: f64 = 0.6;
+        let (cos_t, sin_t) = (theta.cos(), theta.sin());
+        let mut u_rot = vec![vec![0.0_f64; 2]; 9];
+        for r in 0..9 {
+            u_rot[r][0] = u_axis[r][0] * cos_t + u_axis[r][1] * sin_t;
+            u_rot[r][1] = u_axis[r][0] * (-sin_t) + u_axis[r][1] * cos_t;
+        }
+
+        // Rotated basis must yield identical classification (P = U_rot·U_rot^T = U_axis·U_axis^T).
+        let cls_rot = classify_from_null_space(&u_rot, 2);
+        assert_eq!(cls_rot.defect, 2, "rotated: defect");
+        assert_eq!(cls_rot.dim_spatial, 1, "rotated: dim_spatial");
+        assert_eq!(cls_rot.dim_temporal, 0, "rotated: dim_temporal");
+        assert_eq!(cls_rot.coupled_dim, 1, "rotated: coupled_dim");
+        assert!(
+            (cls_rot.p_st_norm - 0.5_f64).abs() < 1e-9,
+            "rotated: p_st_norm should be 0.5, got {}",
+            cls_rot.p_st_norm
         );
     }
 }
