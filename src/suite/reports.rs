@@ -171,6 +171,10 @@ pub fn ecss_annex_l_markdown(report: &TradeReport) -> String {
     md.push_str("\n## Sensitivity analysis\n\n");
     md.push_str(&sensitivity_block(dr));
 
+    // L.3b Multi-method concordance — robustness of the ranking to method choice.
+    md.push('\n');
+    md.push_str(&multi_method_block(dr));
+
     // L.4 Recommendation.
     md.push_str("\n## Recommendation\n\n");
     md.push_str(&format!("{}\n", report.recommendation));
@@ -214,6 +218,87 @@ pub fn nasa_se_68_markdown(report: &TradeReport) -> String {
     md.push_str(&format!("{}\n\n", report.recommendation));
     md.push_str("## Decision sensitivity\n\n");
     md.push_str(&sensitivity_block(dr));
+
+    // Multi-method concordance — does the recommendation survive the full MCDA panel?
+    md.push('\n');
+    md.push_str(&multi_method_block(dr));
+    md
+}
+
+/// Render the **multi-method concordance** cross-check (markdown): runs the full
+/// open-core MCDA panel (WSM · WPM · WASPAS · MOORA · TOPSIS · VIKOR · PROMETHEE II,
+/// plus COPRAS when a cost criterion is present) over the decision's surviving variants
+/// and reports how much the methods agree — a Modelled robustness check on the
+/// recommendation. A recommendation that survives every method is defensible in a way a
+/// single ranking is not; a split panel warns the decision is method-sensitive. Returns
+/// a short note for a single-figure-of-merit study (no panel to run).
+pub fn multi_method_markdown(report: &TradeReport) -> String {
+    match &report.decision {
+        Some(dr) => multi_method_block(dr),
+        None => format!(
+            "## Multi-method concordance (MCDA panel)\n\n\
+             _Single-figure-of-merit study '{}' on `{}` — no multi-criteria panel to \
+             cross-check. Supply `criteria` to run the WSM/WPM/WASPAS/MOORA/TOPSIS/VIKOR/\
+             PROMETHEE II (+COPRAS) concordance._\n",
+            report.title, report.metric
+        ),
+    }
+}
+
+/// The concordance section body, shared by [`multi_method_markdown`] and the two
+/// standards-shaped reports. Runs [`DecisionReport::multi_method`] and tabulates it.
+fn multi_method_block(dr: &DecisionReport) -> String {
+    let mm = dr.multi_method();
+    let name_of = |idx: usize| -> String {
+        dr.scores
+            .iter()
+            .find(|s| s.variant_index == idx)
+            .map(|s| s.name.clone())
+            .unwrap_or_else(|| format!("v{idx}"))
+    };
+
+    let mut md = String::new();
+    md.push_str("## Multi-method concordance (MCDA panel)\n\n");
+    md.push_str(&format!("_{}_\n\n", mm.note));
+
+    md.push_str("| Method | Winner | Ranking (best → worst) |\n");
+    md.push_str("|--------|--------|------------------------|\n");
+    for m in &mm.methods {
+        let winner = m.winner.map(name_of).unwrap_or_else(|| "—".into());
+        let order = m
+            .ranking
+            .iter()
+            .map(|&i| name_of(i))
+            .collect::<Vec<_>>()
+            .join(" › ");
+        md.push_str(&format!("| {} | {} | {} |\n", m.method, winner, order));
+    }
+    md.push('\n');
+
+    let tau = mm
+        .mean_kendall_tau
+        .map(|t| format!("{t:.3}"))
+        .unwrap_or_else(|| "n/a".into());
+    let consensus = mm.consensus_winner.map(name_of).unwrap_or_else(|| "—".into());
+    md.push_str(&format!(
+        "- **Consensus winner:** {} ({:.0}% of the {} method(s); {}).\n",
+        consensus,
+        mm.winner_agreement * 100.0,
+        mm.methods.len(),
+        if mm.unanimous_winner {
+            "unanimous"
+        } else {
+            "split — inspect the tie"
+        }
+    ));
+    md.push_str(&format!(
+        "- **Panel concordance (mean pairwise Kendall τ):** {tau}.\n"
+    ));
+    md.push_str(&format!(
+        "- **Rank-reversal variant pairs across the panel:** {}.\n",
+        mm.rank_reversal_pairs
+    ));
+    md.push_str(&format!("- **Verdict:** {}.\n", mm.verdict()));
     md
 }
 
@@ -362,6 +447,7 @@ mod tests {
         assert!(md.contains("weighting factors") || md.contains("weighting factor"));
         assert!(md.contains("Weighted decision matrix"));
         assert!(md.contains("Sensitivity analysis"));
+        assert!(md.contains("Multi-method concordance"));
         assert!(md.contains("Recommendation"));
     }
 
@@ -372,6 +458,38 @@ mod tests {
         assert!(md.contains("§6.8"));
         assert!(md.contains("Table 6.8-1"));
         assert!(md.contains("Selection & rationale"));
+        assert!(md.contains("Multi-method concordance"));
+    }
+
+    #[test]
+    fn multi_method_block_lists_panel_and_consensus() {
+        // The concordance section names the panel methods and reports the consensus,
+        // the Kendall-τ concordance and a verdict. multi_space() has a cost criterion
+        // (rms_ns) and positive data, so COPRAS runs too.
+        let report = run_trade_study(&multi_space()).unwrap();
+        let md = multi_method_markdown(&report);
+        assert!(md.contains("Multi-method concordance"));
+        assert!(md.contains("TOPSIS"));
+        assert!(md.contains("WASPAS"));
+        assert!(md.contains("COPRAS"), "a cost criterion is present → COPRAS runs");
+        assert!(md.contains("Consensus winner"));
+        assert!(md.contains("Kendall τ"));
+        assert!(md.contains("Verdict"));
+    }
+
+    #[test]
+    fn multi_method_markdown_notes_single_fom() {
+        let space = TradeSpace::single_fom(
+            "single",
+            "quantum.fom.holdover_s",
+            false,
+            vec![
+                Variant { label: "optical".into(), scenario_toml: clock_variant("optical", 1.0e-30) },
+                Variant { label: "csac".into(), scenario_toml: clock_variant("csac", 9.0e-20) },
+            ],
+        );
+        let report = run_trade_study(&space).unwrap();
+        assert!(multi_method_markdown(&report).contains("Single-figure-of-merit"));
     }
 
     #[test]

@@ -9,8 +9,8 @@
 //! that flips between them is a warning the decision is method-sensitive, not robust.
 //!
 //! This module runs the same eligible decision through the full open-core MCDA panel
-//! ([`kshana::mcda`]) — **WSM, WPM, TOPSIS, VIKOR, PROMETHEE II** — and quantifies how
-//! much they agree:
+//! ([`kshana::mcda`]) — **WSM, WPM, WASPAS, MOORA, TOPSIS, VIKOR, PROMETHEE II** and
+//! (when a cost criterion is present) **COPRAS** — and quantifies how much they agree:
 //!
 //! * per-method rankings and winners;
 //! * pairwise **Kendall τ** rank correlation between every pair of methods (the
@@ -24,15 +24,19 @@
 //! ## Honesty scope (load-bearing)
 //!
 //! Every method in the panel is *Validated in the open core* against an independent
-//! third-party library (pymcdm; pyDecision for ELECTRE). The **concordance analysis
+//! third-party library (pymcdm for WSM/WPM/WASPAS/MOORA/TOPSIS/VIKOR/PROMETHEE II;
+//! pyDecision for COPRAS). The **concordance analysis
 //! here is a Modelled composition** of those validated kernels: it measures agreement
 //! among methods on the *given* criteria and weights — it does **not** validate that
 //! the criteria, weights or value judgements are correct. High concordance means the
 //! recommendation is robust to *method choice*, nothing more. Nothing here is Validated.
 
+use kshana::mcda::copras::copras;
+use kshana::mcda::moora::moora;
 use kshana::mcda::promethee::{promethee_ii, PreferenceFunction};
 use kshana::mcda::topsis::topsis;
 use kshana::mcda::vikor::vikor;
+use kshana::mcda::waspas::waspas;
 use kshana::mcda::wpm::wpm;
 use kshana::mcda::wsm::{Alternative, Criterion, DecisionMatrix, Direction};
 use kshana::mcda::Objective;
@@ -41,7 +45,8 @@ use kshana::resilience::stats::kendall_tau;
 /// One method's outcome in the panel.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct PanelRanking {
-    /// Method name: `"WSM"`, `"WPM"`, `"TOPSIS"`, `"VIKOR"`, `"PROMETHEE II"`.
+    /// Method name: `"WSM"`, `"WPM"`, `"WASPAS"`, `"MOORA"`, `"TOPSIS"`, `"VIKOR"`,
+    /// `"PROMETHEE II"`, `"COPRAS"`.
     pub method: String,
     /// Survivor variant indices, best-first (mapped to the caller's variant indices).
     pub ranking: Vec<usize>,
@@ -151,6 +156,12 @@ pub fn run_multi_method(
         ranking.into_iter().map(|p| survivor_ids[p]).collect()
     };
 
+    // Strictly-positive data is required by the ratio/product/proportional methods
+    // (they normalise by division / take powers); COPRAS additionally needs a cost
+    // criterion for its S⁻ term to be meaningful. Computed once, reused by the gates.
+    let positive = matrix.iter().all(|row| row.iter().all(|&x| x > 0.0));
+    let has_cost = directions.iter().any(|&d| matches!(d, Direction::Cost));
+
     if n >= 1 && ncrit >= 1 {
         // WSM (min–max value functions), via the open-core DecisionMatrix.
         let wsm_crit: Vec<Criterion> = (0..ncrit)
@@ -177,7 +188,7 @@ pub fn run_multi_method(
         }
 
         // WPM — requires strictly positive data.
-        if matrix.iter().all(|row| row.iter().all(|&x| x > 0.0)) {
+        if positive {
             if let Ok(r) = wpm(matrix, weights, &objectives) {
                 let ranking = to_ids(r.ranking);
                 let winner = ranking.first().copied();
@@ -189,6 +200,22 @@ pub fn run_multi_method(
             }
         } else {
             skipped.push("WPM (non-positive values)");
+        }
+
+        // WASPAS — the λ=0.5 convex blend of WSM and WPM; strictly positive data
+        // (linear normalisation divides).
+        if positive {
+            if let Ok(r) = waspas(matrix, weights, &objectives, 0.5) {
+                let ranking = to_ids(r.ranking);
+                let winner = ranking.first().copied();
+                methods.push(PanelRanking {
+                    method: "WASPAS".into(),
+                    ranking,
+                    winner,
+                });
+            }
+        } else {
+            skipped.push("WASPAS (non-positive values)");
         }
 
         // TOPSIS.
@@ -223,6 +250,39 @@ pub fn run_multi_method(
                 ranking,
                 winner,
             });
+        }
+
+        // MOORA (ratio system) — vector normalisation, benefit total minus cost total.
+        // Skipped only if a column is degenerate (zero L2 norm), which the open kernel
+        // reports as an error.
+        if let Ok(r) = moora(matrix, weights, &objectives) {
+            let ranking = to_ids(r.ranking);
+            let winner = ranking.first().copied();
+            methods.push(PanelRanking {
+                method: "MOORA".into(),
+                ranking,
+                winner,
+            });
+        } else {
+            skipped.push("MOORA (degenerate column)");
+        }
+
+        // COPRAS (proportional) — needs strictly positive data and at least one cost
+        // criterion for its inverse-cost significance term to be defined.
+        if positive && has_cost {
+            if let Ok(r) = copras(matrix, weights, &objectives) {
+                let ranking = to_ids(r.ranking);
+                let winner = ranking.first().copied();
+                methods.push(PanelRanking {
+                    method: "COPRAS".into(),
+                    ranking,
+                    winner,
+                });
+            }
+        } else if !positive {
+            skipped.push("COPRAS (non-positive values)");
+        } else {
+            skipped.push("COPRAS (no cost criterion)");
         }
     }
 
@@ -347,10 +407,18 @@ mod tests {
     fn dominant_alternative_is_unanimous() {
         let (ids, m, w, d) = dominant_matrix();
         let r = run_multi_method(&ids, &m, &w, &d);
+        // All-benefit positive data runs every method except COPRAS (needs a cost).
         assert!(
-            r.methods.len() >= 4,
-            "panel should run WSM/WPM/TOPSIS/VIKOR/PROMETHEE"
+            r.methods.len() >= 7,
+            "panel should run WSM/WPM/WASPAS/MOORA/TOPSIS/VIKOR/PROMETHEE"
         );
+        assert!(r.methods.iter().any(|mm| mm.method == "WASPAS"));
+        assert!(r.methods.iter().any(|mm| mm.method == "MOORA"));
+        assert!(
+            r.methods.iter().all(|mm| mm.method != "COPRAS"),
+            "COPRAS is skipped without a cost criterion"
+        );
+        assert!(r.note.contains("COPRAS"), "note records the COPRAS skip");
         assert_eq!(r.consensus_winner, Some(12));
         assert!(
             r.unanimous_winner,
@@ -362,6 +430,30 @@ mod tests {
             "no reversals when one alt dominates"
         );
         assert!(r.mean_kendall_tau.unwrap() > 0.99);
+    }
+
+    #[test]
+    fn full_panel_of_eight_runs_with_a_cost_criterion() {
+        // Positive data with a genuine cost criterion → every method runs, COPRAS
+        // included. Variant 2 has the best benefits and the lowest cost, so it
+        // dominates and the whole eight-method panel agrees.
+        let ids = vec![0, 1, 2];
+        let matrix = vec![
+            vec![0.5, 0.5, 3.0], // criterion 2 is a cost
+            vec![0.6, 0.6, 2.0],
+            vec![0.9, 0.9, 1.0], // best benefits, lowest cost → dominates
+        ];
+        let weights = vec![0.4, 0.35, 0.25];
+        let dirs = vec![Direction::Benefit, Direction::Benefit, Direction::Cost];
+        let r = run_multi_method(&ids, &matrix, &weights, &dirs);
+        assert_eq!(
+            r.methods.len(),
+            8,
+            "WSM/WPM/WASPAS/MOORA/TOPSIS/VIKOR/PROMETHEE/COPRAS all run"
+        );
+        assert!(r.methods.iter().any(|mm| mm.method == "COPRAS"));
+        assert_eq!(r.consensus_winner, Some(2));
+        assert!(r.unanimous_winner, "the dominant variant wins under all eight");
     }
 
     #[test]
