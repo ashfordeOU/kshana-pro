@@ -215,13 +215,94 @@ pub fn optical_lattice_class() -> DevicePreset {
     }
 }
 
-/// Every preset in the library, in a stable order (for sweeps and coverage checks).
+/// **TCXO class** — a temperature-compensated crystal oscillator, the low end of the
+/// hierarchy. Representative bathtub: white FM from `~1e-9 @ 1 s` to a `~2e-10` short-τ
+/// floor, then an aging/RWFM upturn back up by `1e4 s`. Order-of-magnitude — an octave-
+/// plus worse and more aging-dominated than the OCXO — exercising the 3-parameter
+/// long-τ term. Not a specific part.
+pub fn tcxo_class() -> DevicePreset {
+    DevicePreset {
+        key: "tcxo-class",
+        tier: ProvenanceTier::RepresentativeClass,
+        spec: DeviceSpec {
+            device: "TCXO (representative class)".into(),
+            provenance: "representative TCXO-class published-behaviour ADEV (white FM ~1e-9 @ 1 s + short-tau floor + aging/RWFM upturn); order-of-magnitude, not a specific part".into(),
+            adev_points: vec![
+                (1.0, 1.0e-9),
+                (10.0, 3.5e-10),
+                (100.0, 2.0e-10),
+                (1_000.0, 5.0e-10),
+                (10_000.0, 2.0e-9),
+            ],
+            drift_per_s: 1.0e-10, // representative crystal aging (worse than OCXO)
+        },
+        fit_tolerance: 0.20,
+    }
+}
+
+/// **Cs beam — 5071A high-performance class** caesium primary frequency standard.
+/// Representative published-curve ADEV: a clean white-FM `~5e-12·τ^-1/2` branch running
+/// out (no early flicker floor), into the low `1e-14` decade by `~1e5 s` — the
+/// canonical primary-standard shape the open core also validates against
+/// (`tests/fixtures/cs5071a`). Representative class, not a certified per-unit curve.
+pub fn cs_beam_5071a_class() -> DevicePreset {
+    DevicePreset {
+        key: "cs-beam-5071a",
+        tier: ProvenanceTier::RepresentativeClass,
+        spec: DeviceSpec {
+            device: "Cs beam (5071A high-performance class)".into(),
+            provenance: "Cs-beam 5071A-class primary standard, representative published-curve white-FM ADEV (~5e-12·tau^-1/2; NIST SP 1065 / Stable32 5071A class); order-of-magnitude".into(),
+            adev_points: vec![
+                (1.0, 5.0e-12),
+                (10.0, 1.58e-12),
+                (100.0, 5.0e-13),
+                (1_000.0, 1.58e-13),
+                (10_000.0, 5.0e-14),
+                (100_000.0, 1.58e-14),
+            ],
+            drift_per_s: 0.0, // primary standard — no defined aging
+        },
+        fit_tolerance: 0.12,
+    }
+}
+
+/// **Active hydrogen maser (AHM) class** — the terrestrial timing / VLBI maser.
+/// Representative published-curve ADEV: `~1e-13 @ 1 s` averaging as `τ^-1/2` to a
+/// `~2e-15` flicker floor by `~1e4 s` — materially better short-τ than the passive
+/// Galileo PHM. Representative class.
+pub fn active_h_maser_class() -> DevicePreset {
+    DevicePreset {
+        key: "active-h-maser",
+        tier: ProvenanceTier::RepresentativeClass,
+        spec: DeviceSpec {
+            device: "Active hydrogen maser (representative class)".into(),
+            provenance: "Active H-maser class, representative published-curve ADEV (~1e-13 @ 1 s averaging to a ~2e-15 flicker floor; VLBI/timing-maser class); order-of-magnitude".into(),
+            adev_points: vec![
+                (1.0, 1.0e-13),
+                (10.0, 3.2e-14),
+                (100.0, 1.0e-14),
+                (1_000.0, 3.7e-15),
+                (10_000.0, 2.2e-15),
+                (100_000.0, 2.0e-15),
+            ],
+            drift_per_s: 0.0,
+        },
+        fit_tolerance: 0.15,
+    }
+}
+
+/// Every preset in the library, in a stable order (for sweeps and coverage checks):
+/// crystal (TCXO, OCXO) → chip-scale (CSAC) → Rb (PRS10) → Cs beam → masers
+/// (Galileo PHM, active H-maser) → Galileo RAFS → optical lattice.
 pub fn all_presets() -> Vec<DevicePreset> {
     vec![
-        csac_sa45s(),
+        tcxo_class(),
         ocxo_class(),
+        csac_sa45s(),
         rb_prs10(),
+        cs_beam_5071a_class(),
         galileo_phm(),
+        active_h_maser_class(),
         galileo_rafs(),
         optical_lattice_class(),
     ]
@@ -326,5 +407,69 @@ mod tests {
             assert_eq!(preset_by_key(p.key).unwrap().key, p.key);
         }
         assert!(preset_by_key("no-such-device").is_none());
+    }
+
+    #[test]
+    fn library_spans_the_clock_hierarchy() {
+        // The expanded library covers crystal → chip-scale → Rb → Cs → maser → optical.
+        for key in [
+            "tcxo-class",
+            "ocxo-class",
+            "csac-sa45s",
+            "rb-prs10",
+            "cs-beam-5071a",
+            "galileo-phm",
+            "active-h-maser",
+            "galileo-rafs",
+            "optical-lattice",
+        ] {
+            assert!(preset_by_key(key).is_some(), "missing preset {key}");
+        }
+        // Short-τ (1 s) ADEV spans many decades across the library. NB: the 1 s value
+        // is NOT the "quality" ordering — a good OCXO (1e-12 @ 1 s) beats a CSAC
+        // (3e-10 @ 1 s) at short τ and loses at long τ. So we only assert the honest
+        // extremes: the TCXO is the coarsest short-τ device and the optical lattice the
+        // finest, separated by ~7 decades.
+        let short_tau = |k: &str| preset_by_key(k).unwrap().spec.adev_points[0].1;
+        let optical = short_tau("optical-lattice");
+        let tcxo = short_tau("tcxo-class");
+        for p in all_presets() {
+            let s = p.spec.adev_points[0].1;
+            assert!(
+                optical <= s,
+                "optical lattice must be the finest short-τ device; {} is finer",
+                p.key
+            );
+            assert!(
+                tcxo >= s,
+                "TCXO must be the coarsest short-τ device; {} is coarser",
+                p.key
+            );
+        }
+        assert!(
+            tcxo / optical > 1e6,
+            "hierarchy should span >6 decades at 1 s"
+        );
+    }
+
+    #[test]
+    fn only_csac_is_datasheet_cited_after_expansion() {
+        // The three new classes are representative-class; the honesty firewall holds.
+        for key in ["tcxo-class", "cs-beam-5071a", "active-h-maser"] {
+            assert_eq!(
+                preset_by_key(key).unwrap().tier,
+                ProvenanceTier::RepresentativeClass
+            );
+        }
+        let datasheet: Vec<&str> = all_presets()
+            .iter()
+            .filter(|p| p.tier == ProvenanceTier::DatasheetCited)
+            .map(|p| p.key)
+            .collect();
+        assert_eq!(
+            datasheet,
+            vec!["csac-sa45s"],
+            "only the SA.45s is datasheet-cited"
+        );
     }
 }

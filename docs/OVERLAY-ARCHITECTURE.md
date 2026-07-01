@@ -23,27 +23,37 @@ core and the private overlay**, behind one honesty firewall. What landed:
   ∪ the 7 Pro packs via each pack's `register_into` — open ∪ Pro is one table,
   proven additive (open + 7, no collision).
 - **L1 clock twin (deepened).** Public `kshana::allan` gained **ThéoH/TOTVAR**
-  (Theo1 + total deviation **Validated** vs allantools on NIST SP 1065, <1e-9);
-  pro `twin` gained 3-parameter calibration (white-FM + flicker + RWFM/aging),
-  a device-preset library (CSAC SA.45s datasheet-cited; OCXO/Rb/Galileo/optical
+  (Theo1 + total deviation **Validated** vs allantools on NIST SP 1065, <1e-9) and
+  **MTIE** (the ITU-T G.810/G.823/G.8261 telecom wander metric, **Validated** vs
+  allantools, bit-exact); pro `twin` gained 3-parameter calibration (white-FM +
+  flicker + RWFM/aging), a **9-preset device library spanning the clock hierarchy**
+  (TCXO → OCXO → CSAC → Rb → Cs-beam → Galileo PHM → active H-maser → Galileo RAFS →
+  optical lattice; only the CSAC SA.45s is datasheet-cited, the rest
   representative-class), holdover UQ vs ITU-T G.8272.1 masks, and an optical-lattice
   systematics budget.
-- **L3 trade & assurance (deepened).** Public `kshana::mcda` (WSM, **AHP +
-  Consistency-Ratio Validated** vs Saaty-RI + SciPy/LAPACK, Pareto+knee,
-  sensitivity tornado/SMAA, MAUT). Pro `suite` rewired single-FoM → multi-criteria
-  on `kshana::mcda`, plus W3C-PROV evidence packs, GSN + ECSS-E-ST-10-02C VCD,
-  ECSS-E-ST-10C Annex L / NASA SP-2016-6105 §6.8 reports, ISO 16290 TRL knock-out,
-  and a fail-closed multi-criteria assurance gate.
+- **L3 trade & assurance (deepened).** Public `kshana::mcda` is now the full
+  four-family MCDA suite — **WSM, WPM, TOPSIS, VIKOR, PROMETHEE II** all **Validated**
+  vs pymcdm and **ELECTRE I** **Validated** vs pyDecision (each <1e-9), plus **AHP +
+  Consistency-Ratio** (vs Saaty-RI + SciPy/LAPACK), Pareto+knee, sensitivity
+  tornado/SMAA, MAUT. Pro `suite` rewired single-FoM → multi-criteria on
+  `kshana::mcda`, and adds a **multi-method concordance panel** (`suite::multi_method`)
+  — the same trade run through the whole MCDA panel with pairwise **Kendall-τ**
+  agreement (validated kernel), a consensus/unanimity winner and a rank-reversal
+  count, so a recommendation can be shown robust to *method choice*. Plus W3C-PROV
+  evidence packs, GSN + ECSS-E-ST-10-02C VCD, ECSS-E-ST-10C Annex L /
+  NASA SP-2016-6105 §6.8 reports, ISO 16290 TRL knock-out, and a fail-closed
+  multi-criteria assurance gate.
 - **Agency V&V dossier (Phase 3).** `suite::vv_dossier` — NASA-STD-7009B
   Credibility Assessment Scale (8 factors) + ASME V&V 40 Context-of-Use,
   composing the L1+L3 evidence into one honest credibility statement.
 
 **Honesty firewall (the load-bearing invariant).** Only open-core *kernels* with a
-genuine independent external oracle are **Validated** (ADEV/ThéoH/TOTVAR vs
-allantools; AHP/WSM vs Saaty/LAPACK/pymcdm — each with a committed generator,
-each reproduced by an adversarial verifier in a clean venv). Every **composed**
-overlay capability (device twins, trade decisions, evidence packs) is honestly
-**Modelled** — no flight or measured-device data. The V&V dossier scores the
+genuine independent external oracle are **Validated** (ADEV/ThéoH/TOTVAR/**MTIE** vs
+allantools; WSM/WPM/TOPSIS/VIKOR/PROMETHEE II vs **pymcdm** and ELECTRE I vs
+**pyDecision**; AHP vs Saaty-RI/SciPy-LAPACK — each with a committed generator, each
+reproduced by an adversarial verifier in a clean venv). Every **composed** overlay
+capability (device twins, the multi-method concordance panel, trade decisions,
+evidence packs) is honestly **Modelled** — no flight or measured-device data. The V&V dossier scores the
 overall model credibility at **NASA-STD-7009B level 1** by construction
 (Validation capped because composition ≠ validation; Use History low because the
 system is new), and states the credibility *gap* to an agency rather than hiding
@@ -170,8 +180,10 @@ gate crossed); only the gated instances and all of L2 wait on triggers.
   `twin::calibrate`/`calibrate3` fit a published Allan-deviation budget (white-FM +
   flicker floor + long-τ random-walk/aging) to an open-core `ClockModel` (an
   `ErrorModel`); `twin::validate` confirms reproduction via `kshana::allan` (now incl.
-  ThéoH/TOTVAR). `twin::presets` carries CSAC SA.45s (datasheet-cited) + OCXO/Rb
-  PRS10/Galileo PHM·RAFS/optical-lattice (representative-class, honestly flagged);
+  ThéoH/TOTVAR + MTIE). `twin::presets` is a **9-device library** spanning the clock
+  hierarchy — TCXO / OCXO / CSAC SA.45s / Rb PRS10 / Cs-beam 5071A / Galileo PHM /
+  active H-maser / Galileo RAFS / optical-lattice — of which only the CSAC SA.45s is
+  datasheet-cited, the rest representative-class (honestly flagged);
   `twin::holdover_uq` bands the open holdover against ITU-T G.8272.1 masks;
   `twin::optical_systematics` is a per-effect lattice shift budget. All **Modelled**
   (calibration/composition); the open ThéoH/TOTVAR + ADEV kernels are Validated.
@@ -186,13 +198,18 @@ gate crossed); only the gated instances and all of L2 wait on triggers.
   **deepened.** `suite::run_trade_study` is now **multi-criteria** on `kshana::mcda`
   (`suite::decision`: WSM scoring, AHP-derived weights with the CR<0.10 gate surfaced,
   Pareto front + knee, sensitivity tornado/SMAA/min-weight-to-flip); a single-criterion
-  study reproduces the old single-FoM ranking exactly. `suite::provenance` emits a
+  study reproduces the old single-FoM ranking exactly. `suite::multi_method` re-runs
+  the decision through the whole open-core MCDA panel (WSM/WPM/TOPSIS/VIKOR/PROMETHEE
+  II) and scores their **concordance** — pairwise Kendall-τ (validated kernel),
+  consensus/unanimous winner, rank-reversal count — so a recommendation can be shown
+  robust to method choice, not just to weights. `suite::provenance` emits a
   W3C-PROV evidence pack with a Merkle root; `suite::gsn`/`suite::vcd` give a GSN
   argument + ECSS-E-ST-10-02C verification-control matrix; `suite::reports` renders
   ECSS-E-ST-10C Annex L + NASA SP-2016-6105 §6.8 + ISO 16290 TRL; `suite::gate` is a
   fail-closed multi-criteria assurance gate; `suite::vv_dossier` is the NASA-STD-7009B
-  + ASME V&V 40 credibility dossier (§0). The open AHP/WSM kernels are Validated; the
-  composed decision layer is **Modelled**. *Gated:* packaging as a licensed SKU with
+  + ASME V&V 40 credibility dossier (§0). The open MCDA kernels (WSM/WPM/TOPSIS/VIKOR/
+  PROMETHEE II/ELECTRE I/AHP) are Validated; the composed decision layer and the
+  multi-method concordance panel are **Modelled**. *Gated:* packaging as a licensed SKU with
   full ECSS/MBSE generation — `suite::product_gated`. Trigger: second paying customer.
 - **P0 — Seam proof** (`packs::seam_check`, `pro-seam-check`) — ✅ the smallest real
   `ExternalPack`; free at Evaluation, it exercises the whole overlay contract end-to-end.

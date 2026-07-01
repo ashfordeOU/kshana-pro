@@ -298,6 +298,31 @@ impl DecisionReport {
             None => false,
         }
     }
+
+    /// Run the full open-core MCDA panel (WSM · WPM · TOPSIS · VIKOR · PROMETHEE II)
+    /// over this decision's **surviving** variants and measure how much the methods
+    /// agree — a Modelled robustness cross-check derived from the report's own fields
+    /// (no re-simulation). A recommendation that survives every method is defensible in
+    /// a way a single ranking is not; a split panel is a warning the decision is
+    /// method-sensitive. See [`crate::suite::multi_method`].
+    pub fn multi_method(&self) -> super::multi_method::MultiMethodReport {
+        let survivors: Vec<&VariantScore> = self.scores.iter().filter(|s| !s.eliminated).collect();
+        let survivor_ids: Vec<usize> = survivors.iter().map(|s| s.variant_index).collect();
+        let matrix: Vec<Vec<f64>> = survivors.iter().map(|s| s.raw.clone()).collect();
+        let weights: Vec<f64> = self.criteria.iter().map(|c| c.weight).collect();
+        let directions: Vec<Direction> = self
+            .criteria
+            .iter()
+            .map(|c| {
+                if c.direction == "cost" {
+                    Direction::Cost
+                } else {
+                    Direction::Benefit
+                }
+            })
+            .collect();
+        super::multi_method::run_multi_method(&survivor_ids, &matrix, &weights, &directions)
+    }
 }
 
 fn direction_str(d: Direction) -> &'static str {
@@ -311,7 +336,10 @@ fn value_fn_str(vf: ValueFn) -> String {
     match vf {
         ValueFn::MinMax => "min-max".to_string(),
         ValueFn::Target { target, spread } => format!("target({target}, ±{spread})"),
-        ValueFn::Sigmoid { midpoint, steepness } => format!("sigmoid(mid={midpoint}, k={steepness})"),
+        ValueFn::Sigmoid {
+            midpoint,
+            steepness,
+        } => format!("sigmoid(mid={midpoint}, k={steepness})"),
     }
 }
 
@@ -341,13 +369,18 @@ pub fn run_decision(
     let mut eligible: Vec<usize> = Vec::new();
     let mut excluded: Vec<ExcludedVariant> = Vec::new();
     for (i, row) in raw.iter().enumerate() {
-        let missing = row.iter().position(|v| !v.map(f64::is_finite).unwrap_or(false));
+        let missing = row
+            .iter()
+            .position(|v| !v.map(f64::is_finite).unwrap_or(false));
         match missing {
             None => eligible.push(i),
             Some(j) => excluded.push(ExcludedVariant {
                 variant_index: i,
                 name: labels[i].clone(),
-                reason: format!("missing/non-numeric value for criterion '{}'", criteria[j].name),
+                reason: format!(
+                    "missing/non-numeric value for criterion '{}'",
+                    criteria[j].name
+                ),
             }),
         }
     }
@@ -369,7 +402,10 @@ pub fn run_decision(
             let w: Vec<f64> = criteria.iter().map(|c| c.weight).collect();
             (w, "direct".to_string(), None)
         }
-        Weighting::Ahp { pairwise, cr_threshold } => {
+        Weighting::Ahp {
+            pairwise,
+            cr_threshold,
+        } => {
             if pairwise.len() != ncrit {
                 return Err(KshanaError::InvalidInput(format!(
                     "AHP pairwise matrix is {}×{} but there are {ncrit} criteria",
@@ -411,7 +447,10 @@ pub fn run_decision(
     let prefs = dm.preference_matrix();
 
     // Pareto front + knee over the raw objectives (positions into `eligible`).
-    let objectives: Vec<Objective> = criteria.iter().map(|c| Objective::from(c.direction)).collect();
+    let objectives: Vec<Objective> = criteria
+        .iter()
+        .map(|c| Objective::from(c.direction))
+        .collect();
     let front_pos = pareto::pareto_front(&eligible_raw, &objectives);
     let knee = pareto::knee_of_front(&eligible_raw, &objectives, &front_pos).map(|k| KneeInfo {
         variant_index: eligible[k.index],
@@ -419,7 +458,9 @@ pub fn run_decision(
         distance: k.distance,
         anchors: (eligible[k.anchors.0], eligible[k.anchors.1]),
     });
-    let on_front: Vec<bool> = (0..eligible.len()).map(|p| front_pos.contains(&p)).collect();
+    let on_front: Vec<bool> = (0..eligible.len())
+        .map(|p| front_pos.contains(&p))
+        .collect();
 
     // WSM rank map: eligible-position -> rank (1-based).
     let mut rank_of: Vec<Option<usize>> = vec![None; eligible.len()];
@@ -467,10 +508,7 @@ pub fn run_decision(
         .collect();
     let vm_surv: Vec<Vec<f64>> = survivor_pos.iter().map(|&p| prefs[p].clone()).collect();
 
-    let alpha = sens
-        .smaa_alpha
-        .clone()
-        .unwrap_or_else(|| vec![1.0; ncrit]);
+    let alpha = sens.smaa_alpha.clone().unwrap_or_else(|| vec![1.0; ncrit]);
     let smaa_p = sensitivity::smaa_rank1(&alpha, &vm_surv, sens.smaa_samples, sens.smaa_seed);
     let smaa: Vec<SmaaEntry> = survivor_pos
         .iter()
@@ -599,7 +637,10 @@ mod tests {
         let r = run_decision(
             "t",
             &criteria_direct(),
-            &Weighting::Ahp { pairwise, cr_threshold: 0.10 },
+            &Weighting::Ahp {
+                pairwise,
+                cr_threshold: 0.10,
+            },
             &SensitivityCfg::default(),
             &labels(),
             &raw_full(),
@@ -625,7 +666,10 @@ mod tests {
         let r = run_decision(
             "t",
             &criteria_direct(),
-            &Weighting::Ahp { pairwise, cr_threshold: 0.10 },
+            &Weighting::Ahp {
+                pairwise,
+                cr_threshold: 0.10,
+            },
             &SensitivityCfg::default(),
             &labels(),
             &raw_full(),
@@ -656,7 +700,10 @@ mod tests {
         let c = r.scores.iter().find(|s| s.name == "C").unwrap();
         assert!(c.eliminated);
         assert_eq!(c.eliminated_by.as_deref(), Some("cost"));
-        assert!(!r.ranking.contains(&2), "eliminated variant must not be ranked");
+        assert!(
+            !r.ranking.contains(&2),
+            "eliminated variant must not be ranked"
+        );
         assert_ne!(r.winner, Some(2));
     }
 
@@ -696,6 +743,61 @@ mod tests {
             ),
             Err(KshanaError::InvalidInput(_))
         ));
+    }
+
+    #[test]
+    fn multi_method_panel_runs_over_a_decision() {
+        // A decision report exposes a multi-method concordance panel derived from its
+        // own survivor rows — no re-simulation.
+        let r = run_decision(
+            "t",
+            &criteria_direct(),
+            &Weighting::Direct,
+            &SensitivityCfg::default(),
+            &labels(),
+            &raw_full(),
+        )
+        .unwrap();
+        let mm = r.multi_method();
+        // The full panel ran (WSM/WPM/TOPSIS/VIKOR/PROMETHEE — all raw values > 0).
+        assert!(mm.methods.len() >= 4, "panel should run several methods");
+        // Every method's winner is one of the eligible survivors.
+        for m in &mm.methods {
+            if let Some(w) = m.winner {
+                assert!(r.eligible.contains(&w));
+            }
+        }
+        assert!(mm.mean_kendall_tau.is_some());
+        assert!(!mm.verdict().is_empty());
+        // Concordance is bounded and agreement is a fraction.
+        let tau = mm.mean_kendall_tau.unwrap();
+        assert!((-1.0..=1.0).contains(&tau));
+        assert!((0.0..=1.0).contains(&mm.winner_agreement));
+    }
+
+    #[test]
+    fn multi_method_excludes_knocked_out_variants() {
+        // With a knock-out on C, the panel sees only the two survivors.
+        let mut crit = criteria_direct();
+        crit[1] = crit[1].clone().with_constraint(Constraint {
+            min: None,
+            max: Some(150.0),
+        });
+        let r = run_decision(
+            "t",
+            &crit,
+            &Weighting::Direct,
+            &SensitivityCfg::default(),
+            &labels(),
+            &raw_full(),
+        )
+        .unwrap();
+        let mm = r.multi_method();
+        // Variant C (index 2) was eliminated, so no method may crown it.
+        for m in &mm.methods {
+            assert_ne!(m.winner, Some(2), "eliminated variant cannot win the panel");
+            assert!(!m.ranking.contains(&2));
+        }
     }
 
     #[test]
