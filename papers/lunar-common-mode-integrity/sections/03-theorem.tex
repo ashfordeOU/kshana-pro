@@ -1,0 +1,148 @@
+\section{The rigid-body constellation error is blind}
+\label{sec:theorem}
+
+This section states and proves the paper's proven contribution: that the full
+rigid-body transformation of the constellation lies in $\rng(\Gmat)$, and hence
+(Proposition~\ref{prop:blind}) is invisible to the snapshot residual test. We then make
+the connection---a synthesis, not a discovery---to the geodetic datum defect of the
+companion paper \citep{baweja2026datum}. The algebra is \Proven{}; the physical
+interpretation and every later magnitude are labelled where they appear.
+
+\subsection{The rigid-body lemma}
+\label{sec:rigidlemma}
+
+Let the constellation undergo a common rigid-body transformation: a translation
+$\bm\tau\in\R^3$ and an infinitesimal rotation $\bm\theta\in\R^3$ about a pivot $O$,
+applied identically to every satellite,
+\begin{equation}
+  \ds_i \;=\; \bm\tau \;+\; \bm\theta\times(\sv_i-O),
+  \qquad i=1,\dots,n .
+  \label{eq:rigid}
+\end{equation}
+Such a common shift is exactly what a change of the broadcast reference frame, or a
+frame/ephemeris offset shared by every satellite of one provider, imposes on the
+satellite positions. To first order a satellite-position error $\ds_i$ enters the
+measurement residual through its LOS projection,
+\begin{equation}
+  \delta y_i \;=\; \los_i\cdot\ds_i,
+  \label{eq:losproj}
+\end{equation}
+because the modelled range to satellite $i$ depends on the satellite position only
+through $\|\sv_i-\uv\|$, whose gradient is $\los_i$.
+
+\begin{lemma}[The rigid-body constellation error is blind]
+\label{lem:rigid}
+For any user position $\uv$ and pivot $O$, the first-order measurement error
+\eqref{eq:losproj} induced by the rigid-body transformation \eqref{eq:rigid} lies in
+$\rng(\Gmat)$:
+\begin{equation}
+  \delta\yv \;=\; \Gmat\begin{bmatrix}-(\bm\tau+\bm\theta\times(\uv-O))\\[2pt] 0\end{bmatrix}
+  \;\in\;\rng(\Gmat).
+  \label{eq:rigidinrange}
+\end{equation}
+It therefore produces a zero parity vector and is undetectable by the snapshot residual
+test; it is absorbed, without residual, into a user position error
+$-\bigl(\bm\tau+\bm\theta\times(\uv-O)\bigr)$ and zero clock error. Both the translation
+($3$ degrees of freedom) and the rotation ($3$ degrees of freedom) are fully blind. The
+smallest detectable residual of a \emph{genuine} rigid rotation is second order in the
+angle, of magnitude $\mathcal{O}(|\bm\theta|^2\,L)$ for a lever arm $L$; only non-rigid
+deformation of the constellation is detectable at first order.
+\end{lemma}
+
+\begin{proof}
+Substitute \eqref{eq:rigid} into \eqref{eq:losproj} and split the rotation lever arm
+$\sv_i-O=(\sv_i-\uv)+(\uv-O)$:
+\begin{equation}
+  \delta y_i
+  \;=\; \underbrace{\los_i\cdot\bm\tau}_{\text{translation}}
+     \;+\; \underbrace{\los_i\cdot\bigl(\bm\theta\times(\sv_i-\uv)\bigr)}_{\text{(A)}}
+     \;+\; \underbrace{\los_i\cdot\bigl(\bm\theta\times(\uv-O)\bigr)}_{\text{(B)}} .
+  \label{eq:threeterms}
+\end{equation}
+\emph{Term (A) vanishes.} By the cyclic invariance of the scalar triple product,
+$\los_i\cdot(\bm\theta\times(\sv_i-\uv))=\bm\theta\cdot((\sv_i-\uv)\times\los_i)$, and
+$\los_i$ is parallel to $\sv_i-\uv$ (it is the corresponding unit vector), so the cross
+product $(\sv_i-\uv)\times\los_i=\bm 0$. This is the crux: the rotation moves each
+satellite \emph{perpendicular} to nothing the receiver can sense along its own
+sightline; the LOS projection of the along-arc motion is a scalar triple product with a
+repeated vector and is identically zero.
+
+\emph{Term (B) is a common constant.} Set $\bm a:=\bm\theta\times(\uv-O)$, which does
+\emph{not} depend on the satellite index $i$. Then term (B) is $\los_i\cdot\bm a$, and
+the translation term is $\los_i\cdot\bm\tau$; combining, $\delta y_i=\los_i\cdot(\bm\tau
++\bm a)=-\los_i\cdot\bigl(-(\bm\tau+\bm a)\bigr)$. But the $i$-th row of $\Gmat$ acting on
+a state $(\bm b,0)$ gives exactly $-\los_i\cdot\bm b$, so with $\bm b=-(\bm\tau+\bm a)$
+we obtain \eqref{eq:rigidinrange}: $\delta\yv=\Gmat[-(\bm\tau+\bm\theta\times(\uv-O));0]$.
+By Proposition~\ref{prop:blind}, $\Pperp\delta\yv=\bm 0$ and the state absorbs
+$-(\bm\tau+\bm a)$.
+
+\emph{User-independence and the second-order remark.} The membership
+$\delta\yv\in\rng(\Gmat)$ holds for every $\uv$ and every pivot $O$; only the value of
+the absorbed state $\bm a=\bm\theta\times(\uv-O)$ depends on where the user is. That the
+error is \emph{undetectable} is thus a property of the transformation, not of the user
+geometry. Finally, \eqref{eq:losproj} is the first-order (linearized) map; for a genuine
+finite rotation $\bm R(\bm\theta)$ the exact along-arc displacement of a satellite is
+$\bm R(\bm\theta)(\sv_i-O)-(\sv_i-O)$, whose component not captured by the first-order
+term (A) is $\mathcal{O}(|\bm\theta|^2)$. Projected on the LOS and scaled by the lever
+arm $L\sim\|\sv_i-\uv\|$, the leftover parity signal is $\mathcal{O}(|\bm\theta|^2 L)$;
+for nanoradian-scale frame errors ($|\bm\theta|\sim\SI{5}{\nano\radian}$) and a lever
+arm $L\sim\SI{3.84e8}{m}$ this is on the order of $10^{-9}\,$m---negligible. Only genuine
+\emph{non-rigid} deformation of the constellation (relative motion between satellites)
+carries a first-order parity signal and is detectable.
+\end{proof}
+
+\begin{remark}[The clock degree of freedom is likewise blind]
+\label{rem:clock}
+The same argument shows a common receiver-clock offset absorbs the all-ones column: a
+constant $\delta y_i=c\,\delta t$ for all $i$ is $\Gmat[\bm 0;c\,\delta t]\in\rng(\Gmat)$.
+The four state directions---three position, one clock---are the blind subspace by
+construction; Lemma~\ref{lem:rigid} adds that three \emph{rotational} constellation
+degrees of freedom map into these same four state directions and are blind for the same
+reason.
+\end{remark}
+
+\subsection{The datum defect is a subset of the blind subspace}
+\label{sec:datumtie}
+
+Lemma~\ref{lem:rigid} has a clean geodetic reading. The rigid-body group---three
+translations and three rotations of a point set---is precisely the \emph{datum defect}
+(gauge freedom) of a free-network adjustment: the family of transformations that a
+network's own internal geometry cannot fix, and that must be pinned by an external
+datum \citep{baarda1973,teunissen2000}. Baarda's $S$-transformation parameterizes
+exactly this freedom, and the companion paper \citep{baweja2026datum} classifies its
+lunar realization---which components of the single-provider datum are unobservable, and
+what observation geometry (libration, an absolute tie) resolves them.
+
+\begin{corollary}[Datum defect $\subset$ RAIM blind subspace]
+\label{cor:datum}
+Let $\mathcal{D}$ be the rigid-body (translation$+$rotation) datum-defect subspace of a
+provider's constellation---the gauge directions of \citep{baweja2026datum} that no
+internal observation fixes. Then the first-order measurement image of every
+$\bm d\in\mathcal{D}$ lies in $\rng(\Gmat)$, so
+$\mathcal{D}\subseteq$ the RAIM blind subspace. An error a provider's own network
+cannot fix is, a fortiori, an error that provider's snapshot integrity monitor cannot
+see.
+\end{corollary}
+
+\begin{proof}
+Immediate from Lemma~\ref{lem:rigid}: every generator of the rigid-body group
+(translation $\bm\tau$, rotation $\bm\theta$) maps under \eqref{eq:losproj} into
+$\rng(\Gmat)$, and the image of a subspace under a linear map is the span of the images
+of its generators.
+\end{proof}
+
+\begin{remark}[This is a synthesis, not a discovery]
+\label{rem:synthesis}
+We claim novelty for none of Section~\ref{sec:theorem}'s statements as isolated facts.
+That a common translation of all satellites is indistinguishable from a user shift is
+folklore in the GNSS integrity literature; that the datum defect is the rigid-body
+gauge is standard geodesy \citep{baarda1973,teunissen2000}; and that RAIM is blind to
+$\rng(\Gmat)$ is Proposition~\ref{prop:blind}. The contribution is the explicit
+\emph{connection}---that the full rotational datum freedom, not only translation, is in
+the blind subspace, and that the lunar datum-defect classification of P1
+\citep{baweja2026datum} therefore lands entirely inside the P3 integrity blind subspace.
+The subset relation of Corollary~\ref{cor:datum} is what carries into the multi-provider
+budget of Section~\ref{sec:cmpl}: the very frame freedom that a single provider cannot
+observe becomes, \emph{differenced across independent providers}, a real position error
+that no provider's residual test detects.
+\end{remark}
