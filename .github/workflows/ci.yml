@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      # Pinned to the exact version in rust-toolchain.toml (== the open core's) for a
+      # reproducible build of the overlay and the kshana engine it embeds.
+      - uses: dtolnay/rust-toolchain@1.93.0
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      # The formatter is a hard gate: the crate must stay `cargo fmt --all` clean.
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+      # Cargo.lock pins the exact kshana (public open-core) rev, so the git
+      # dependency resolves reproducibly. --locked fails the build if the lockfile
+      # is out of date rather than silently updating it.
+      - name: Test
+        run: cargo test --all --locked
