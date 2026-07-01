@@ -2,15 +2,15 @@
 //! Coupled frame⊕timescale gauge / datum-defect theorem for lunar PNT.
 //!
 //! ## 9-vector layout
-//! The coupled datum vector is `θ = [t_x, t_y, t_z, ε_x, ε_y, ε_z, s, δτ, δα]`, indexed as:
+//! The coupled datum vector is `θ = [t_x, t_y, t_z, s, θ_x, θ_y, θ_z, δτ, δα]`, indexed as:
 //! * `0..3`  — three-component translation `t` (metres)
-//! * `3..6`  — three-component infinitesimal rotation `ε` (radians)
-//! * `6`     — fractional scale `s` (dimensionless)
+//! * `3`     — fractional scale `s` (dimensionless)
+//! * `4..7`  — three-component infinitesimal rotation `θ` (radians)
 //! * `7`     — clock-offset `δτ` (seconds; preconditioned as `c·δτ` metres)
 //! * `8`     — clock-rate `δα` (fractional; preconditioned in equivalent-range metres
 //!   via `T_BASE_S · c`)
 //!
-//! Index constants: [`IDX_SCALE`] = 6, [`IDX_OFFSET`] = 7, [`IDX_RATE`] = 8.
+//! Index constants: [`IDX_SCALE`] = 3, [`IDX_OFFSET`] = 7, [`IDX_RATE`] = 8.
 //! Gauge size: [`N_GAUGE`] = 9.
 //!
 //! ## Validation status
@@ -32,7 +32,7 @@ use crate::lunar_llr::Vec3;
 pub const N_GAUGE: usize = 9;
 
 /// Index of the fractional-scale parameter in `θ` (the `s` entry).
-pub const IDX_SCALE: usize = 6;
+pub const IDX_SCALE: usize = 3;
 
 /// Index of the clock-offset parameter in `θ` (the `δτ` entry, in equivalent-range metres).
 pub const IDX_OFFSET: usize = 7;
@@ -275,7 +275,7 @@ mod tests {
     #[test]
     fn index_consts_are_correct() {
         assert_eq!(N_GAUGE, 9);
-        assert_eq!(IDX_SCALE, 6);
+        assert_eq!(IDX_SCALE, 3);
         assert_eq!(IDX_OFFSET, 7);
         assert_eq!(IDX_RATE, 8);
     }
