@@ -198,11 +198,13 @@ fn common_mode_split_matches_numpy_on_real_inter_ephemeris() {
         "expected the full two-pair record set (~732); got {n_checked}"
     );
 
-    // ── Physical-sanity anchors (the real inter-ephemeris floor) ───────────────────────
+    // ── Sanity anchors ─────────────────────────────────────────────────────────────────
     //
-    // These pin the PHYSICS, not just internal consistency: a common-mode translation is
-    // almost perfectly blind, the absorbed position error is the ~metre inter-ephemeris
-    // floor, and the parity residual RAIM can see is negligible.
+    // The load-bearing real-data fact is the ABSORBED-ERROR MAGNITUDE: it equals the ~metre
+    // inter-ephemeris floor (|blind_dx_pos| ≈ ‖Δs‖, checked below to lie in 0.1–5 m). The
+    // blind_fraction ≈ 1 and the ~0 parity residual are the analytic identity, guaranteed by
+    // the common-shift construction (δy = G·[−Δs; 0] ∈ range(G)) — not an empirical finding;
+    // they are asserted here only to confirm they hold at real magnitudes.
     let med_bf = median(&blind_fracs);
     let med_pos = median(&pos_errs);
     let med_det = median(&det_norms);

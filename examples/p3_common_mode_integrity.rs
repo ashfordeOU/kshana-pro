@@ -19,7 +19,8 @@
 //!     structurally-zero parity residual: ARAIM passes while the position is wrong.
 //!   - Part C (MODELLED): the integrity envelope. A Modelled rank-1 common-mode
 //!     measurement covariance sized to the ≈2 m floor yields a Common-mode
-//!     Protection Level (CMPL) via `cmpl_horizontal(k = 5.33)`; combined with a
+//!     Protection Level (CMPL) via `cmpl_horizontal` with `k = K_H = 6.0` (the 2-D
+//!     horizontal Rayleigh factor); combined with a
 //!     clearly-labelled *representative* ARAIM HPL it shows the user's true
 //!     horizontal integrity envelope `hpl_total = hpl_araim + cmpl` exceeds the
 //!     ARAIM HPL by a real additive term ARAIM omits.
@@ -47,9 +48,12 @@ use kshana::lunar_common_mode::{
 // Vendored fixture — baked at compile time; no runtime I/O.
 const REFERENCE_JSON: &str = include_str!("../tests/fixtures/common_mode/reference.json");
 
-/// The ARAIM-style K-factor for the Horizontal Alert Limit (HAL); the standard
-/// protection-level multiplier on the 1-σ horizontal error ellipse semi-major axis.
-const K_HAL: f64 = 5.33;
+/// The horizontal protection-level multiplier `K_H`: the 2-D Rayleigh factor
+/// (~6.0 in the SBAS/ARAIM convention) applied to the semi-major axis of the 1-σ
+/// horizontal error ellipse. (The *vertical* PL uses the 1-D Gaussian `K_V ≈ 5.33`;
+/// a horizontal PL uses the larger 2-D factor — using `K_V` for a horizontal bound
+/// would under-scale it.)
+const K_H: f64 = 6.0;
 
 /// A **representative, illustrative** lunar ARAIM horizontal protection level, in
 /// metres. This is NOT a Validated number: it is a stand-in in the typical
@@ -260,7 +264,7 @@ fn main() {
     let cpos = blind_position_covariance(&g, &cm_cov).expect("valid blind position covariance");
     let sigma_pos_1sigma = (cpos[0][0] + cpos[1][1] + cpos[2][2]).sqrt();
 
-    let cmpl = cmpl_horizontal(&g, user, &cm_cov, K_HAL)
+    let cmpl = cmpl_horizontal(&g, user, &cm_cov, K_H)
         .expect("Modelled common-mode covariance must give a finite CMPL");
     let env = integrity_envelope(HPL_ARAIM_REPRESENTATIVE_M, cmpl);
 
@@ -271,10 +275,10 @@ fn main() {
         dir[0], dir[1], dir[2]
     );
     println!("    ‖blind position 1-σ‖ (S cm_cov Sᵀ) = {sigma_pos_1sigma:.4} m  (≈ ‖Δs‖, as constructed)\n");
-    println!("    hpl_araim (representative, K=5.33 ARAIM HPL) = {:.4} m   [ILLUSTRATIVE, not Validated]",
+    println!("    hpl_araim (representative, K_H=6.0 ARAIM HPL) = {:.4} m   [ILLUSTRATIVE, not Validated]",
         env.hpl_araim);
     println!(
-        "    cmpl      (K=5.33 blind horizontal PL)       = {:.4} m",
+        "    cmpl      (K_H=6.0 blind horizontal PL)       = {:.4} m",
         env.cmpl
     );
     println!(

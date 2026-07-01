@@ -1953,12 +1953,12 @@
     },
     {
       "requirement": "Common-mode protection level (CMPL) and total integrity envelope",
-      "capability": "cmpl_horizontal bounds the k-sigma horizontal position error from the blind common-mode class (blind_position_covariance = S*Cov*S^T projected into ENU); integrity_envelope reports hpl_total = hpl_araim + cmpl, making explicit that the ARAIM protection level bounds only the parity-detectable fault class and provably does not cover the common-mode class",
+      "capability": "cmpl_horizontal bounds the k-sigma horizontal position error from the blind common-mode class (blind_position_covariance = S*Cov*S^T projected into ENU); integrity_envelope reports hpl_total = hpl_araim + cmpl. The RAIM/ARAIM residual test is provably blind to range(G) errors; the ARAIM protection level is not — its fault-free term bounds them up to a provider's URA + nominal bias. The CMPL is the cross-provider excess a single provider's per-provider URA/ISM does not overbound; the sum is a conservative triangle-inequality bound (not RSS) valid where that excess is not already inside URA",
       "status": "MODELLED",
       "oracle_kind": "InternalConsistency",
       "oracle": "Analytic projector algebra; the common-mode covariance, constellation geometry, and k are representative Modelled inputs, not a certified budget",
       "module": "lunar_common_mode",
-      "tests": "lunar_common_mode::tests (a pure range(G) covariance gives a positive CMPL; a parity-space covariance gives ~zero CMPL; envelope sums the two disjoint classes; state_map consistency)",
+      "tests": "lunar_common_mode::tests (a pure range(G) covariance gives a positive CMPL; a parity-space covariance gives ~zero CMPL; envelope sums the two measurement-space-orthogonal contributions; state_map consistency)",
       "module_links": [
         {
           "path": "src/lunar_common_mode.rs",

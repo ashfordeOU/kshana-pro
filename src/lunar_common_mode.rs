@@ -283,31 +283,48 @@ pub fn cmpl_horizontal(
 }
 
 /// A user's total horizontal integrity envelope, decomposed into the ARAIM
-/// (parity-detectable) protection level and the common-mode (blind) protection
-/// level. Metres. **Modelled.**
+/// protection level and the common-mode protection level. Metres. **Modelled.**
+///
+/// Scope note (important): the ARAIM/RAIM *residual (fault-detection) test* is
+/// provably blind to a `range(G)` error, but the ARAIM *protection level* is a
+/// different object — its fault-free (nominal) hypothesis already bounds
+/// undetectable error up to the URA/SISA overbound plus the nominal-bias term
+/// `b_nom`. So the ARAIM HPL is not "blind" to the common-mode class; it bounds it
+/// up to a single provider's declared `σ_URA + b_nom`. The gap the CMPL fills is
+/// therefore specific to the *multi-provider* case: a cross-provider frame/ephemeris
+/// common-mode that lies OUTSIDE any single provider's per-provider URA/ISM budget.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct IntegrityEnvelope {
-    /// The ARAIM horizontal protection level. It bounds **only** the
-    /// parity-detectable fault class — the errors RAIM/ARAIM can test against.
+    /// The ARAIM horizontal protection level (a per-provider bound). Its fault-free
+    /// term already bounds undetectable error up to `σ_URA + b_nom`; what it is not
+    /// sized for is an inter-provider common-mode inconsistency.
     pub hpl_araim: f64,
     /// The Common-mode Protection Level: the k-σ horizontal error from the blind
-    /// (`range(G)`) class, which produces **zero** parity residual and which the
-    /// ARAIM HPL therefore provably does **not** cover.
+    /// (`range(G)`) class that a single provider's URA does not overbound — the
+    /// cross-provider inter-ephemeris excess. Invisible to the residual test.
     pub cmpl: f64,
-    /// `hpl_araim + cmpl` — a conservative additive bound on the user's true
-    /// horizontal integrity, since the two terms bound disjoint error classes.
+    /// `hpl_araim + cmpl` — a conservative (triangle-inequality) bound: in the
+    /// horizontal-position domain the detectable and blind contributions can align,
+    /// so the linear sum, not an RSS, is the guaranteed envelope. Valid only where
+    /// the common-mode magnitude is NOT already absorbed into `σ_URA` (otherwise the
+    /// two terms overlap and the sum double-counts).
     pub hpl_total: f64,
 }
 
 /// Combine the ARAIM horizontal protection level with the common-mode protection
 /// level into a total integrity envelope.
 ///
-/// The ARAIM HPL bounds only the *parity-detectable* fault class; a common-mode
-/// (frame/ephemeris) error lies in `range(G)`, carries **zero** parity residual,
-/// and is therefore provably **not** covered by that HPL. The CMPL is a separate,
-/// additive term for exactly that blind class, so a user's true horizontal
-/// integrity envelope is at least the sum `hpl_total = hpl_araim + cmpl`. This
-/// sum is **Modelled** (the CMPL rests on a Modelled common-mode covariance).
+/// The ARAIM/RAIM *residual test* is provably blind to a `range(G)` common-mode
+/// error; the ARAIM *protection level*, however, already bounds undetectable error
+/// through its fault-free hypothesis (the `σ_URA` overbound plus the nominal bias
+/// `b_nom`). The uncovered term — and what the CMPL supplies — is the multi-provider
+/// case: an inter-provider frame/ephemeris common-mode that a single provider's
+/// per-provider URA/ISM was never sized to overbound. The envelope is the
+/// conservative triangle-inequality sum `hpl_total = hpl_araim + cmpl` (an RSS would
+/// under-bound and overclaim integrity, since the two contributions can align in the
+/// position domain); it is valid only where the common-mode is not already inside
+/// `σ_URA`, otherwise it double-counts. **Modelled** (the CMPL rests on a Modelled
+/// common-mode covariance and a representative HPL).
 pub fn integrity_envelope(hpl_araim: f64, cmpl: f64) -> IntegrityEnvelope {
     IntegrityEnvelope {
         hpl_araim,
