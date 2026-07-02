@@ -1,0 +1,211 @@
+\section{Byzantine integrity: a geometric secure-identification bound}
+\label{sec:byzantine}
+
+An autonomous constellation cannot assume its peers are honest. A compromised or
+malfunctioning node may inject \emph{arbitrary}, possibly colluding, biases on all the
+measurements it participates in. This section asks how many such Byzantine peers the network
+can detect and identify from its internal geometry alone. The answer is a
+\emph{secure-identification} bound: a block-structured instance of the sparse-observability /
+error-correcting-code bound of secure state estimation \citep{fawzi2014,shoukry2016,%
+candes2005,donoho2003}. The bound is \Cited{}; its instantiation on the coupled-datum lunar
+$\Gmat$ is \Proven{}; the tolerance \emph{counts} are \Validated{} pipeline outputs, and any
+reading of them as an operational flight guarantee is \Modelled{}.
+
+\subsection{Peer signatures and the effective (parity-projected) block}
+\label{sec:peersig}
+
+A peer fault at node $j$ has signature $\Bmat_j\in\R^{84\times m_j}$, the column-block
+selecting node $j$'s $m_j$ incident measurement rows (Section~\ref{sec:taxonomy}); the
+injected bias is $\bvec=\Bmat_j\bm v$ for an arbitrary $\bm v\in\R^{m_j}$. A coalition
+$T\subseteq\{1,\dots,M\}$ of Byzantine peers injects $\bvec=\Bmat_T\bm v_T$, where
+$\Bmat_T=[\Bmat_j]_{j\in T}$ stacks the coalition's column-blocks. What the parity test sees
+is the \emph{effective signature}
+\begin{equation}
+  \Gbar_j \;:=\; \Pperp\Bmat_j,
+  \qquad
+  \Gbar_T \;=\; \Pperp\Bmat_T ,
+  \label{eq:effsig}
+\end{equation}
+the peer block after the parity projector \eqref{eq:pperp}. A coalition is invisible exactly
+when its injected bias can be hidden in $\rng(\Gmat)$, i.e.\ when $\Gbar_T$ is column-rank
+deficient.
+
+\begin{definition}[Block-spark]
+\label{def:blockspark}
+The \emph{block-spark} of the family $\{\Gbar_j\}_{j=1}^{M}$ is the smallest number of
+peer-blocks whose union is column-rank deficient:
+\begin{equation}
+  \spark_{\mathrm b}\bigl(\{\Gbar_j\}\bigr)
+  \;=\;\min\Bigl\{\,|T|\;:\;\Gbar_T=\Pperp\Bmat_T\ \text{is column-rank deficient}\,\Bigr\}.
+  \label{eq:blockspark}
+\end{equation}
+It is the block analogue of the spark of a dictionary \citep{donoho2003} (the smallest number
+of columns that are linearly dependent), lifted from single columns to peer column-blocks.
+\end{definition}
+
+\subsection{The detect / identify bound}
+\label{sec:bound}
+
+\begin{theorem}[Geometric secure detect / identify bound]
+\label{thm:byzantine}
+Let $\{\Gbar_j\}$ be the effective peer signatures \eqref{eq:effsig} on the free-network
+$\Gmat$. Then:
+\begin{enumerate}
+  \item[(i)] \textbf{Detection.} All coalitions of size $\le f$ are detectable if and only if
+  $\Gbar_T$ is full column rank for every $|T|\le f$, equivalently
+  $\spark_{\mathrm b}(\{\Gbar_j\})>f$, equivalently $\operatorname{span}(\Bmat_T)\cap
+  \rng(\Gmat)=\{\bm0\}$ for every $|T|\le f$.
+  \item[(ii)] \textbf{Identification.} All coalitions of size $\le f$ are uniquely
+  identifiable if and only if $\Gbar_U$ is full column rank for every $|U|\le 2f$,
+  equivalently $\spark_{\mathrm b}(\{\Gbar_j\})>2f$ (a coalition minimum distance $\ge2f+1$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\emph{(i).} A size-$\le f$ coalition $T$ is undetectable iff there is a nonzero injection
+$\Bmat_T\bm v$ with $\Pperp\Bmat_T\bm v=\bm0$, i.e.\ iff $\Gbar_T=\Pperp\Bmat_T$ has a
+nontrivial kernel, i.e.\ iff $\Gbar_T$ is column-rank deficient. So \emph{all}
+$|T|\le f$ are detectable iff every such $\Gbar_T$ is full column rank, which by
+Definition~\ref{def:blockspark} is $\spark_{\mathrm b}>f$. By
+Proposition~\ref{prop:projector}, $\Pperp\Bmat_T\bm v=\bm0\iff\Bmat_T\bm v\in\ker\Pperp=
+\rng(\Gmat)$, giving the intersection form. \emph{(ii).} Two coalitions $T_1,T_2$ with
+$|T_i|\le f$ produce the same residual iff $\Pperp(\Bmat_{T_1}\bm v_1-\Bmat_{T_2}\bm v_2)=
+\bm0$, i.e.\ iff some injection on $T_1\cup T_2$ ($|T_1\cup T_2|\le2f$) is undetectable.
+Unique identification of every $|T|\le f$ therefore requires every $|U|\le2f$ union to be
+detectable, i.e.\ $\Gbar_U$ full column rank for all $|U|\le2f$, i.e.\ $\spark_{\mathrm
+b}>2f$. This is the block form of the classical $2f$-sparse-observability / minimum-distance
+$\ge2f+1$ condition of \citep{fawzi2014,shoukry2016,candes2005}.
+\end{proof}
+
+\paragraph{The detect condition is full column rank, not ``$\Pperp\Bmat_T\neq\bm0$.''}
+It is tempting to declare a coalition detectable as soon as its projected block is nonzero.
+This is \emph{wrong}. A block $\Gbar_T=\Pperp\Bmat_T$ can be nonzero yet column-rank
+deficient, and the adversary then hides a fault in the null combination---an injection
+$\Bmat_T\bm v\in\rng(\Gmat)$ that produces \emph{zero} residual even though $\Gbar_T\neq
+\bm0$ on other injections. The correct detect condition is that every $\le f$-block union be
+\emph{full column rank} (span disjoint from $\rng(\Gmat)$); the identify condition raises
+this to $2f$.
+
+\subsection{The Lamport distinction: this is not a \texorpdfstring{$3f+1$}{3f+1} consensus bound}
+\label{sec:lamport}
+
+We adopt the Byzantine fault \emph{model}---arbitrary, colluding, worst-case node
+behaviour---from Lamport--Shostak--Pease \citep{lamport1982}, and \emph{only} the model. The
+bound of Theorem~\ref{thm:byzantine} is a \emph{measurement-redundancy / coding} bound: it
+counts how many arbitrarily corrupted \emph{measurement blocks} a geometric estimator can
+detect ($\spark_{\mathrm b}>f$, i.e.\ $f+1$ block-redundancy, for detection) and correct
+($\spark_{\mathrm b}>2f$ for identification), exactly as in secure state estimation and
+error-correcting codes
+\citep{fawzi2014,shoukry2016,candes2005,donoho2003}. It is \emph{not}, and must not be read
+as, the $3f+1$ threshold for Byzantine agreement in a message-passing consensus network
+\citep{lamport1982}. Those are different problem classes: consensus concerns how many
+faulty \emph{processes} exchanging \emph{messages} still permit agreement; ours concerns how
+many faulty \emph{measurement blocks} in a \emph{static estimation} geometry still permit
+fault correction. The two thresholds ($3f+1$ versus $\spark_{\mathrm b}>2f$) are not
+comparable, and we draw no analogy between them.
+
+\subsection{Redundancy raises tolerance; broad coverage destroys it}
+\label{sec:counts}
+
+The bound of Theorem~\ref{thm:byzantine} is governed by the network's block-spark, and the
+pipeline computes it by exact enumeration for the representative geometry (the counts are
+\Validated{}; their reading as an operational guarantee is \Modelled{}).
+
+\paragraph{Redundant network.}
+A network of six independent single-measurement peers---each owning one linearly independent
+row---has $\spark_{\mathrm b}=7$, giving $f_{\mathrm{detect}}=6$ and $f_{\mathrm{identify}}=3$
+(the largest $f$ with $\spark_{\mathrm b}>2f$). Redundancy buys tolerance: adding independent
+cross-links or providers raises the block-spark and hence $f$.
+
+\paragraph{Coverage fragility and the deficiency-of-five self-blindness.}
+The opposite regime is instructive and is the paper's cautionary result. A \emph{broad}-%
+coverage peer that owns \emph{all} of node~2's incident rows (all $21$ of them) has
+$\spark_{\mathrm b}=1$ and $f_{\mathrm{detect}}=0$: a \emph{single} such peer is already
+\textbf{undetectable}. A \emph{narrow} peer owning one measurement has $\spark_{\mathrm b}=2$
+and $f_{\mathrm{detect}}=1$, and is detectable. The mechanism is precise: a peer owning all
+of a node's measurements can inject a \emph{uniform self-bias} equal to a shift of that
+node's own five local degrees of freedom---its three position components, its clock offset,
+and its clock rate. That injection is of the form $\Gmat(\text{shift of node's local
+block})\in\rng(\Gmat)$, hence undetectable by Theorem~\ref{thm:undetectable}: \emph{a node is
+blind to a fault in its own five local DOF}. Broad measurement coverage by a single peer is
+therefore the fragility, not the strength. This is why the detect condition is full column
+rank of the union and not mere nonzeroness: the broad-coverage block is nonzero after
+projection on most injections, yet column-rank deficient on the self-bias direction.
+
+\begin{table}[t]
+\centering
+\caption{Byzantine block-spark on the representative network (real DE440 orientation).
+Counts are \Validated{} (matched exactly by the independent oracle, Section~\ref{sec:anchor});
+their reading as an operational flight tolerance is \Modelled{}. $f_{\mathrm{detect}}=
+\spark_{\mathrm b}-1$; $f_{\mathrm{identify}}=\lfloor(\spark_{\mathrm b}-1)/2\rfloor$.}
+\label{tab:byzantine}
+\small
+\setlength{\tabcolsep}{7pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Peer structure} & $\spark_{\mathrm b}$ & $f_{\mathrm{detect}}$ & $f_{\mathrm{identify}}$ \\
+\midrule
+Six independent single-measurement peers & $7$ & $6$ & $3$ \\
+Narrow peer (one incident measurement)   & $2$ & $1$ & $0$ \\
+Broad peer (all $21$ rows of node 2)     & $1$ & $0$ & $0$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Provider faults: the common / differential split}
+\label{sec:providersplit}
+
+The most structured Byzantine fault is a \emph{provider}-wide bias---a coordinated error
+across all nodes of one provider (Section~\ref{sec:taxonomy}). Such a fault splits into a
+part all providers share and a part that distinguishes them.
+
+\begin{proposition}[Provider common / differential detectability]
+\label{prop:provider}
+A provider-wide bias decomposes as $\bvec=\bvec_{\mathrm{common}}+\bvec_{\mathrm{diff}}$,
+where the common part---shared identically by every provider---lies in $\rng(\Gmat)$ and is
+therefore \emph{internally undetectable} (it is the common-mode class of
+Remark~\ref{rem:commonmode}, requiring an external tie, and is the common component of the
+inter-ephemeris floor of \citep{baweja2026interop}); and the differential part---provider $A$
+disagreeing with provider $B$---has nonzero parity, $\Pperp\bvec_{\mathrm{diff}}\neq\bm0$,
+and is \emph{internally detectable}. Consequently: with two providers the network
+\emph{detects} disagreement but cannot \emph{identify} the culprit (the two-clock problem);
+with three or more providers it identifies the culprit via block-spark $>2f$
+(Theorem~\ref{thm:byzantine}).
+\end{proposition}
+
+\begin{proof}
+The common part shifts every provider's realization by the same amount---a whole-network
+datum move---so it is $\Gmat(\cdot)\in\rng(\Gmat)$ and $\Pperp\bvec_{\mathrm{common}}=\bm0$
+by Theorem~\ref{thm:undetectable}. The differential part is supported on a proper subset of
+provider blocks and is not a whole-network datum move, so it does not lie in $\rng(\Gmat)$
+and has nonzero residual. Detection versus identification then follows from
+Theorem~\ref{thm:byzantine}: two providers give two blocks whose disagreement is one
+detectable direction but with no third block to break the tie ($\spark_{\mathrm b}=2$,
+$f_{\mathrm{identify}}=0$); three or more give $\spark_{\mathrm b}>2$, enough to identify a
+single faulty provider.
+\end{proof}
+
+The pipeline reports the number of internally detectable cross-provider rows as a function
+of provider count (\Modelled{}): $1\to0$, $2\to48$, $4\to72$ (Table~\ref{tab:provider}). One
+provider offers nothing to cross-check; two expose disagreement; four expose more. The count
+grows sublinearly because the common part---the shared datum move---is never detectable no
+matter how many providers share it.
+
+\begin{table}[t]
+\centering
+\caption{Internally detectable cross-provider rows versus provider count (\Modelled{}). One
+provider has no differential to expose; the shared common part stays in $\rng(\Gmat)$ and is
+undetectable at any provider count (needs an external tie).}
+\label{tab:provider}
+\small
+\setlength{\tabcolsep}{10pt}
+\begin{tabular}{@{}ccl@{}}
+\toprule
+\textbf{Providers} & \textbf{Detectable cross-provider rows} & \textbf{Capability} \\
+\midrule
+$1$ & $0$  & no internal cross-check \\
+$2$ & $48$ & detect disagreement, cannot identify culprit \\
+$4$ & $72$ & detect and identify culprit (block-spark $>2f$) \\
+\bottomrule
+\end{tabular}
+\end{table}

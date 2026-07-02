@@ -1,0 +1,119 @@
+\section{Methods}
+\label{app:methods}
+
+This appendix records the numerical methods behind the results: the parity-projector
+construction through the pseudo-inverse, the $\Wmat$-self-adjointness note and the precise
+minimum-detectable-bias form (the single- versus double-projector distinction), the
+block-spark enumeration and its coalition cap, the gauge-generator construction, the
+independence of the numpy/scipy oracle, and the rank tolerance. All are consistent with the
+vendored provenance notice (Section~\ref{sec:availability}).
+
+\subsection{The parity projector through the pseudo-inverse}
+\label{app:projector}
+
+The weighted parity projector \eqref{eq:pperp} is assembled as $\Pperp=\bm{I}-\Gmat
+(\Gmat^\top\Wmat\Gmat)^{+}\Gmat^\top\Wmat$, where $(\Gmat^\top\Wmat\Gmat)^{+}$ is the
+Moore--Penrose pseudo-inverse taken from the engine's information-matrix / spectral-sum
+pseudo-inverse (\code{fim::crlb}), which remains finite even when $\Gmat^\top\Wmat\Gmat$ is
+rank-deficient---as it is here, with the eight-dimensional gauge \eqref{eq:gauge}. Writing
+$\bm M=\Wmat^{1/2}\Gmat$, the identity $\Wmat^{1/2}\Gmat(\Gmat^\top\Wmat\Gmat)^{+}\Gmat^\top
+\Wmat^{1/2}=\bm M(\bm M^\top\bm M)^{+}\bm M^\top=\Pi_{\bm M}$ (the ordinary orthogonal
+projector onto $\rng\bm M$) is what makes $\Pperp$ idempotent and $\Wmat$-self-adjoint through
+the rank deficiency (Proposition~\ref{prop:projector}). The engine never forms $\Wmat^{1/2}$
+explicitly; the oracle does, via the SVD of $\bm M$, which is the independence lever of
+Section~\ref{app:oracle}.
+
+\subsection{\texorpdfstring{$\Wmat$}{W}-self-adjointness and the minimum-detectable-bias form}
+\label{app:mdb}
+
+The projector $\Pperp$ is $\Wmat$-self-adjoint, $\Wmat\Pperp=\Pperp{}^\top\Wmat$, and
+idempotent, $\Pperp{}^2=\Pperp$. These two facts fix the correct non-centrality of the Baarda
+minimum detectable bias \eqref{eq:mdb} and dispose of a common error. The correct
+non-centrality is the single-projector, weighted parity energy $\bm c^\top\Wmat\Pperp\bm c$.
+It is \emph{equal} to the weighted energy of the projected column, for \emph{every} $\Wmat$:
+\begin{equation}
+  (\Pperp\bm c)^\top\Wmat(\Pperp\bm c)
+  \;=\;\bm c^\top\Pperp{}^\top\Wmat\Pperp\bm c
+  \;=\;\bm c^\top\Wmat\Pperp\Pperp\bm c
+  \;=\;\bm c^\top\Wmat\Pperp\bm c,
+  \label{eq:mdbid}
+\end{equation}
+using $\Pperp{}^\top\Wmat=\Wmat\Pperp$ (self-adjointness) then $\Pperp{}^2=\Pperp$
+(idempotence). So $(\Pperp\bm c)^\top\Wmat(\Pperp\bm c)$ is \emph{not} a counterexample---it
+is the same quantity. The genuinely \emph{wrong} form is the double-projector expression
+\begin{equation}
+  \bm c^\top\Pperp\Wmat\Pperp\bm c
+  \;=\;\bm c^\top\Pperp\,(\Wmat\Pperp)\,\bm c
+  \;=\;\bm c^\top\Pperp\Pperp{}^\top\Wmat\bm c
+  \;=\;\bm c^\top(\Pperp\Pperp{}^\top)\Wmat\bm c,
+  \label{eq:mdbwrong}
+\end{equation}
+which involves $\Pperp\Pperp{}^\top$ rather than $\Pperp$ and differs from $\bm c^\top\Wmat
+\Pperp\bm c$ whenever $\Wmat\neq\bm{I}$ (because $\Pperp$ is $\Wmat$-self-adjoint, not
+ordinary-symmetric, so $\Pperp\neq\Pperp{}^\top$ and $\Pperp\Pperp{}^\top\neq\Pperp$). Using
+\eqref{eq:mdbwrong} in place of $\bm c^\top\Wmat\Pperp\bm c$ mis-scales the minimum detectable
+bias under non-uniform weighting---the very regime of this paper, where $\sigma\in\{0.5,1,2\}$
+gives $\Wmat\neq\bm{I}$. The engine's \code{mdb} uses the single-projector form
+$\bm c^\top\Wmat\Pperp\bm c$; the oracle recomputes it independently, and the two agree, which
+is part of what the \Validated{} row checks. The non-centrality $\lambda_0=17.075$ is the
+standard one-degree-of-freedom value for $P_{\mathrm{fa}}=10^{-3}$, $P_{\mathrm{md}}=0.20$
+\citep{baarda1968,teunissen2006}.
+
+\subsection{Block-spark enumeration and the coalition cap}
+\label{app:blockspark}
+
+The block-spark \eqref{eq:blockspark} is computed by \code{byzantine\_bound} through exact
+enumeration of peer-block unions: for increasing coalition size $k=1,2,\dots$, it forms every
+union $\Bmat_T$ with $|T|=k$, projects it to $\Gbar_T=\Pperp\Bmat_T$, tests full column rank,
+and returns the smallest $k$ at which a rank-deficient union appears. Enumeration is bounded
+by a coalition cap \code{MAX\_COALITION} (the search stops once $\spark_{\mathrm b}$ is found
+or the cap is reached), which is adequate because the network is small ($M=8$) and the
+block-spark values of interest are small ($1$, $2$, $7$). The detect and identify tolerances
+are read off as $f_{\mathrm{detect}}=\spark_{\mathrm b}-1$ and $f_{\mathrm{identify}}=
+\lfloor(\spark_{\mathrm b}-1)/2\rfloor$ (Theorem~\ref{thm:byzantine}). Column-rank tests use
+the same matched cutoff as the null-space rank (Section~\ref{app:rank}).
+
+\subsection{The gauge-generator construction}
+\label{app:gauge}
+
+The eight analytic gauge generators of \eqref{eq:gauge} are built directly: three unit
+translations (a common $\delta\bm p$ across all nodes), three infinitesimal rotations (the
+skew-symmetric generators applied to the nodes' nominal positions), a common clock offset
+(unit $\dtau$ across all nodes), and a common clock rate (unit $\dalpha$ across all nodes).
+Applying $\Gmat$ to each generator yields a worst relative residual of $2.702\times10^{-17}$,
+confirming that $\Nsp(\Gmat)$ contains the eight-dimensional datum$\oplus$timescale span
+exactly (Section~\ref{sec:unification}); scale is deliberately \emph{not} a generator, because
+under SI a differential range is length-bearing and scale is observable
+\citep{baweja2026gauge}.
+
+\subsection{Independence of the numpy/scipy oracle}
+\label{app:oracle}
+
+The oracle \code{scripts/gen\_faultobs\_ref.py} reproduces the pipeline through a
+\emph{different} numerical stack: the parity projector from the SVD of $\bm M=\Wmat^{1/2}
+\Gmat$ (\code{numpy.linalg.svd}) against the engine's cyclic-Jacobi eigensolver and
+spectral-sum pseudo-inverse; the detectability norm from a textbook Baarda parity residual;
+the minimum detectable bias from an independent evaluation of $\bm c^\top\Wmat\Pperp\bm c$;
+the rank and parity dimension from the numpy SVD singular spectrum; and the block-spark from
+independent rank tests of the projected peer blocks. The two backends are independent
+implementations, so agreement to relative and absolute error below $10^{-3}$ (integer counts
+exact) is a genuine cross-check, not a tautology. Non-circularity is structural: the oracle
+reads the observation \emph{rows} from \code{network.json} and derives \code{reference.json}
+from them, never from a Rust output; six-decimal rounding of the rows before both writing and
+reading guarantees byte-identical inputs.
+
+\subsection{The rank tolerance}
+\label{app:rank}
+
+Ranks (of $\Gmat$, of the projected peer blocks, and of the normal matrix) are taken with a
+\emph{relative} tolerance $\text{rel\_tol}=10^{-9}$: a singular value or eigenvalue below
+$\text{rel\_tol}\cdot\lambda_{\max}$ is treated as zero. This threshold is dimensionless and
+invariant under positive column rescaling, so it is unaffected by the choice of measurement
+units or preconditioning. For the free-network normal matrix the null directions sit at
+$\lambda_{\text{null}}^{\max}=4.367\times10^{-15}$ while the weakest observable direction is
+$\lambda_{\text{obs}}^{\min}=5.455\times10^{-4}$, a spectral gap of $1.249\times10^{11}$
+against a largest eigenvalue $\lambda^{\max}=8.597\times10^{1}$; the matched cutoff separates
+null from observable by eleven orders of magnitude, so the defect count of eight, the rank of
+$32$, and the parity dimension of $52$ are unambiguous. The oracle applies the identical
+matched cutoff to its SVD spectrum, so the integer counts agree exactly and the linear-algebra
+comparison isolates the two algorithms, not two threshold choices.
