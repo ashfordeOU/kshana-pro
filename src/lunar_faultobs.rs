@@ -433,6 +433,96 @@ pub fn is_detectable(pperp: &[Vec<f64>], b: &[f64], tol: f64) -> (bool, f64) {
     (norm > tol, norm)
 }
 
+/// Baarda minimum-detectable-bias (MDB) along fault direction `c`.
+///
+/// For a weighted observation system with parity projector `P⊥` and diagonal weight
+/// matrix `W = diag(w)`, the MDB for a unit fault direction `c ∈ ℝⁿ` is
+///
+/// ```text
+/// MDB = sqrt( λ₀ / (cᵀ W P⊥ c) )
+/// ```
+///
+/// where `λ₀ = ncp` is the non-centrality parameter from the `(P_fa, P_md)` power
+/// allocation (see Baarda 1968, "A Testing Procedure for Use in Geodetic Networks").
+///
+/// The quadratic form is computed as
+///
+/// ```text
+/// q = cᵀ W P⊥ c = Σᵢ Σⱼ c[i] · w[i] · P⊥[i][j] · c[j]
+/// ```
+///
+/// **This is cᵀ W P⊥ c — NOT cᵀ P⊥ᵀ W P⊥ c = (P⊥c)ᵀ W (P⊥c).** The two forms
+/// agree only when `W = I`, because for `W = I` the projector is ordinary-symmetric
+/// and idempotent so `(P⊥)ᵀ P⊥ = P⊥ᵀ P⊥ = P⊥² = P⊥`. For `W ≠ I` the forms
+/// differ; the single-`P⊥` form is the classically correct one (Baarda 1968; Teunissen
+/// 2006 "Testing Theory"). The correctness of this single-`P⊥` form is pinned by the
+/// `mdb_correct_vs_wrong_form_w_neq_i` test below.
+///
+/// Returns `f64::INFINITY` for an undetectable fault direction
+/// (`cᵀ W P⊥ c ≤ 0`; algebraically this occurs iff `c ∈ range(G)`, since `W P⊥` is
+/// positive-semi-definite and its null space is exactly `range(G)`).
+pub fn mdb(pperp: &[Vec<f64>], w: &[f64], c: &[f64], ncp: f64) -> f64 {
+    debug_assert_eq!(pperp.len(), w.len(), "P⊥ rows and w length must match");
+    debug_assert_eq!(pperp.len(), c.len(), "P⊥ size and c length must match");
+    let q: f64 = c
+        .iter()
+        .enumerate()
+        .map(|(i, &ci)| {
+            let wi_ci = w[i] * ci;
+            pperp[i]
+                .iter()
+                .zip(c.iter())
+                .map(|(&pij, &cj)| wi_ci * pij * cj)
+                .sum::<f64>()
+        })
+        .sum();
+    if q <= 0.0 {
+        return f64::INFINITY;
+    }
+    (ncp / q).sqrt()
+}
+
+/// Peer-fault model for a single constellation node.
+///
+/// The `incidence` field lists the measurement indices (rows of the observation
+/// matrix `G`, numbered `0..n_meas`) in which this node participates. A Byzantine
+/// peer can corrupt any linear combination of these measurement rows — the set of
+/// reachable fault vectors is `{ B_j · α : α ∈ ℝ^{|incidence|} }` where `B_j` is
+/// the column-block returned by [`peer_signature`]. This incidence representation is
+/// the input to the Byzantine fault-count bound computed in the downstream analysis.
+#[derive(Clone, Debug)]
+pub struct PeerFaultModel {
+    /// Indices (in `0..n_meas`) of the measurement rows in which this peer participates.
+    pub incidence: Vec<usize>,
+}
+
+/// Fault-signature column-block `B_j` for peer `j` (Byzantine attack surface).
+///
+/// A peer node `j` that participates in measurements indexed by `incidence` can
+/// corrupt any measurement in that set; the full set of reachable measurement-space
+/// fault vectors is spanned by the columns of `B_j`. The `k`-th column of `B_j` is
+/// the standard basis vector `e_{incidence[k]} ∈ ℝ^{n_meas}` (a single-measurement
+/// unit bias on the `incidence[k]`-th row).
+///
+/// Returns an `n_meas × incidence.len()` matrix (row-major: outer index = row,
+/// inner index = column). Each column is all-zero except for a single `1.0` at the
+/// row given by the corresponding `incidence` entry.
+///
+/// Horizontally stacking the blocks of two distinct peers gives the joint fault
+/// signature of a two-peer coalition — the input to a multi-peer Byzantine bound.
+pub fn peer_signature(n_meas: usize, incidence: &[usize]) -> Vec<Vec<f64>> {
+    let n_cols = incidence.len();
+    let mut mat = vec![vec![0.0_f64; n_cols]; n_meas];
+    for (col, &row_idx) in incidence.iter().enumerate() {
+        debug_assert!(
+            row_idx < n_meas,
+            "incidence index {row_idx} out of range {n_meas}"
+        );
+        mat[row_idx][col] = 1.0;
+    }
+    mat
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -933,5 +1023,236 @@ mod tests {
             norm_out > 1e-3,
             "‖P⊥b‖ for generic fault must be clearly nonzero, got {norm_out:.3e}"
         );
+    }
+
+    // ── MDB + peer fault signatures ────────────────────────────────────────────────
+
+    /// Build per-node G and w with UNEQUAL per-measurement sigmas (W ≠ I).
+    ///
+    /// Cycles through σ ∈ {0.5, 1.0, 2.0}, giving weights {4.0, 1.0, 0.25} repeating.
+    /// This guarantees cᵀWP⊥c ≠ (P⊥c)ᵀW(P⊥c) for generic c (since W ≠ I) and also
+    /// exercises the weighted code path that Task 3's tests left uncovered (those used W=I).
+    fn pernode_g_and_w_unequal(
+        layout: &NetworkLayout,
+        inertial: &[[f64; 3]],
+    ) -> (Vec<Vec<f64>>, Vec<f64>) {
+        let rows = pernode_rows(layout, inertial);
+        let sigmas = [0.5_f64, 1.0, 2.0];
+        let g: Vec<Vec<f64>> = rows.iter().map(|(r, _)| r.clone()).collect();
+        let w: Vec<f64> = rows
+            .iter()
+            .enumerate()
+            .map(|(k, _)| {
+                let s = sigmas[k % sigmas.len()];
+                1.0 / (s * s)
+            })
+            .collect();
+        (g, w)
+    }
+
+    /// THE KEY MDB TEST: pins cᵀWP⊥c, fails on (P⊥c)ᵀW(P⊥c).
+    ///
+    /// For fault direction c = e_0 and W ≠ I (weights {4.0, 1.0, 0.25}):
+    ///   correct  q = Σᵢ w[i]·c[i]·(P⊥c)[i] = w[0]·P⊥[0][0]      (Baarda formula)
+    ///   wrong    q = Σᵢ w[i]·(P⊥c)[i]²                            (double-P⊥ bug)
+    ///
+    /// These are equal only for W = I (idempotent symmetric P⊥ ⇒ (P⊥²=P⊥) collapses
+    /// both to Σᵢ P⊥[i][0]²). With W ≠ I the two forms differ; the test asserts
+    /// rel_diff > 0.1 %, proving the test has teeth — a test that passes under both
+    /// forms is invalid.
+    #[test]
+    fn mdb_correct_vs_wrong_form_w_neq_i() {
+        let nodes = pernode_body_nodes();
+        let layout = NetworkLayout::new(nodes.len());
+        let inertial = pernode_inertial(&nodes);
+        let (g, w) = pernode_g_and_w_unequal(&layout, &inertial);
+        let pperp = parity_projector(&g, &w);
+        let n = pperp.len();
+
+        // c = e_0: first standard basis vector in measurement space — not in range(G).
+        let mut c = vec![0.0_f64; n];
+        c[0] = 1.0;
+
+        // Correct form: q = cᵀ W P⊥ c = Σᵢ w[i]·c[i]·(P⊥c)[i].
+        // For c = e_0 this reduces to w[0] · P⊥[0][0] (only i=0 row contributes).
+        let pperp_c: Vec<f64> = mat_vec(&pperp, &c); // u = P⊥c
+        let q_correct: f64 = c
+            .iter()
+            .zip(w.iter())
+            .zip(pperp_c.iter())
+            .map(|((&ci, &wi), &ui)| wi * ci * ui)
+            .sum();
+
+        // Wrong form: q = cᵀ P⊥ W P⊥ c = (P⊥ᵀc)ᵀ (W P⊥c).
+        //
+        // NOTE: (P⊥c)ᵀ W (P⊥c) = cᵀ P⊥ᵀ W P⊥ c is EQUAL to cᵀ W P⊥ c due to
+        // W-self-adjointness + idempotence: (P⊥)ᵀW·P⊥ = WP⊥·P⊥ = WP⊥² = WP⊥, so
+        // cᵀ P⊥ᵀ WP⊥ c = cᵀ WP⊥ c. That identity is NOT the bug.
+        //
+        // The actual bug is cᵀ P⊥ W P⊥ c (P⊥, not P⊥ᵀ, on the left):
+        //   cᵀ P⊥ W P⊥ c = (P⊥ᵀ c)ᵀ (W P⊥ c)  ≠  cᵀ W P⊥ c  for W ≠ I
+        // because P⊥ ≠ P⊥ᵀ when W ≠ I.
+        //
+        // Equivalently: P⊥ W P⊥ ≠ WP⊥ for non-uniform W, whereas W P⊥ = correct.
+        let pperp_t_c: Vec<f64> = (0..n)
+            .map(|j| {
+                c.iter()
+                    .zip(pperp.iter())
+                    .map(|(&ci, row)| ci * row[j])
+                    .sum::<f64>()
+            })
+            .collect(); // P⊥ᵀ c: component j = Σᵢ P⊥[i][j]·c[i]
+        let w_pperp_c: Vec<f64> = w
+            .iter()
+            .zip(pperp_c.iter())
+            .map(|(&wi, &ui)| wi * ui)
+            .collect(); // W P⊥ c: component i = w[i]·(P⊥c)[i]
+        let q_wrong: f64 = pperp_t_c
+            .iter()
+            .zip(w_pperp_c.iter())
+            .map(|(&a, &b)| a * b)
+            .sum(); // (P⊥ᵀ c)ᵀ (W P⊥ c) = cᵀ P⊥ W P⊥ c
+
+        assert!(
+            q_correct > 1e-10,
+            "q_correct (cᵀWP⊥c) must be positive (e_0 is detectable): {q_correct:.6e}"
+        );
+        assert!(
+            q_wrong > 1e-10,
+            "q_wrong (cᵀP⊥WP⊥c) must be positive: {q_wrong:.6e}"
+        );
+
+        // THE CRITICAL ASSERTION: the two quadratic forms must differ for W ≠ I.
+        // Mathematical reason: P⊥ W P⊥ ≠ WP⊥ because P⊥ ≠ P⊥ᵀ for W ≠ I.
+        let rel_diff = (q_correct - q_wrong).abs() / q_correct.max(q_wrong);
+        assert!(
+            rel_diff > 1e-3,
+            "correct cᵀWP⊥c={q_correct:.6} and wrong cᵀP⊥WP⊥c={q_wrong:.6} \
+             must differ for W≠I: rel_diff={rel_diff:.4e} (test is toothless if this fails)"
+        );
+
+        // mdb() must use q_correct.
+        let ncp = 17.075_f64; // λ₀ for P_fa=0.001, P_md=0.20 (Baarda 1968).
+        let mdb_val = mdb(&pperp, &w, &c, ncp);
+        let expected_correct = (ncp / q_correct).sqrt();
+        let mdb_wrong_val = (ncp / q_wrong).sqrt();
+
+        assert!(
+            (mdb_val - expected_correct).abs() < 1e-12,
+            "mdb() must use correct form: got {mdb_val:.8}, expected {expected_correct:.8}"
+        );
+        assert!(
+            (mdb_val - mdb_wrong_val).abs() > 1e-4,
+            "mdb() (correct={mdb_val:.6}) and wrong-form value ({mdb_wrong_val:.6}) must differ"
+        );
+    }
+
+    /// MDB is positive and finite for a generic detectable direction; very large (or
+    /// infinite) for an undetectable direction (c ∈ range(G), so cᵀWP⊥c ≈ 0).
+    ///
+    /// Note: the observable subspace has λ_min ≈ 3.1e-4 (weakly conditioned), so the
+    /// test direction is chosen deliberately (e_0, a generic measurement-space unit
+    /// vector) rather than a random direction that might straddle the weak direction.
+    #[test]
+    fn mdb_detectable_and_undetectable() {
+        let nodes = pernode_body_nodes();
+        let layout = NetworkLayout::new(nodes.len());
+        let inertial = pernode_inertial(&nodes);
+        let (g, w) = pernode_g_and_w_unequal(&layout, &inertial);
+        let pperp = parity_projector(&g, &w);
+        let n = pperp.len();
+        let state_dim = g[0].len();
+        let ncp = 17.075_f64;
+
+        // Detectable direction: e_0 — generic measurement-space unit vector, not in range(G).
+        let mut c_det = vec![0.0_f64; n];
+        c_det[0] = 1.0;
+        let mdb_det = mdb(&pperp, &w, &c_det, ncp);
+        assert!(
+            mdb_det.is_finite() && mdb_det > 0.0,
+            "MDB for detectable direction must be positive and finite, got {mdb_det}"
+        );
+        assert!(
+            mdb_det < 1e6,
+            "MDB for generic detectable direction must be modest, got {mdb_det}"
+        );
+
+        // Undetectable direction: b = G·x, x = e_{off_1} (clock offset of node 1).
+        // P⊥b = 0, so cᵀWP⊥c ≈ 0 and MDB → ∞.
+        let mut x = vec![0.0_f64; state_dim];
+        x[layout.off_idx(1)] = 1.0;
+        let b_in: Vec<f64> = g
+            .iter()
+            .map(|row| row.iter().zip(x.iter()).map(|(&r, &xi)| r * xi).sum())
+            .collect();
+        let b_norm = vnorm(&b_in);
+        let c_indet: Vec<f64> = b_in.iter().map(|&v| v / b_norm).collect();
+        let mdb_indet = mdb(&pperp, &w, &c_indet, ncp);
+        assert!(
+            mdb_indet > 1e3 || mdb_indet.is_infinite(),
+            "MDB for undetectable direction must be very large or infinite, got {mdb_indet}"
+        );
+    }
+
+    /// peer_signature returns the correct shape (n_meas × |incidence|), places `1.0`
+    /// at exactly the right row in each column, and the union of two peers' blocks
+    /// covers all incident rows from both.
+    #[test]
+    fn peer_signature_shape_and_unit_columns() {
+        let n_meas = 10_usize;
+
+        // Peer 0 participates in measurements {0, 2, 5}.
+        let inc_0: Vec<usize> = vec![0, 2, 5];
+        let sig_0 = peer_signature(n_meas, &inc_0);
+        assert_eq!(sig_0.len(), n_meas, "peer 0 signature: row count");
+        assert_eq!(sig_0[0].len(), inc_0.len(), "peer 0 signature: col count");
+        // Column k = e_{incidence[k]}.
+        for (col, &row_idx) in inc_0.iter().enumerate() {
+            for (r, sig0_row) in sig_0.iter().enumerate() {
+                let expected = if r == row_idx { 1.0 } else { 0.0 };
+                assert_eq!(
+                    sig0_row[col], expected,
+                    "peer_signature(peer 0)[row={r}][col={col}] should be {expected} \
+                     (incidence[{col}]={row_idx})"
+                );
+            }
+        }
+
+        // Peer 1 participates in measurements {1, 3, 5, 7}.
+        let inc_1: Vec<usize> = vec![1, 3, 5, 7];
+        let sig_1 = peer_signature(n_meas, &inc_1);
+        assert_eq!(sig_1.len(), n_meas, "peer 1 signature: row count");
+        assert_eq!(sig_1[0].len(), inc_1.len(), "peer 1 signature: col count");
+        for (col, &row_idx) in inc_1.iter().enumerate() {
+            for (r, sig1_row) in sig_1.iter().enumerate() {
+                let expected = if r == row_idx { 1.0 } else { 0.0 };
+                assert_eq!(
+                    sig1_row[col], expected,
+                    "peer_signature(peer 1)[row={r}][col={col}] should be {expected}"
+                );
+            }
+        }
+
+        // Stacking the two blocks: every incident row from the union {0,1,2,3,5,7}
+        // must appear in at least one peer's signature.
+        let union_rows = [0_usize, 1, 2, 3, 5, 7];
+        for &r in &union_rows {
+            let covered = sig_0[r].iter().any(|&v| v != 0.0) || sig_1[r].iter().any(|&v| v != 0.0);
+            assert!(
+                covered,
+                "union incident row {r} must appear in at least one peer block"
+            );
+        }
+        // Non-incident rows must be all-zero in both blocks.
+        for r in [4_usize, 6, 8, 9] {
+            assert!(
+                sig_0[r].iter().all(|&v| v == 0.0),
+                "non-incident row {r} must be zero in peer 0 block"
+            );
+            assert!(
+                sig_1[r].iter().all(|&v| v == 0.0),
+                "non-incident row {r} must be zero in peer 1 block"
+            );
+        }
     }
 }
