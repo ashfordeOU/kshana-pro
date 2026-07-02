@@ -58,7 +58,9 @@ inter-node line of sight (see below).
   window) — `C(8,2) = 28` pairs × 3 windows `{21600, 43200, 86400}` s.
 - **Weights:** per-measurement `σ ∈ {0.5, 1.0, 2.0}` cycled by row index, so `W ≠ I`.
   This is deliberate: it is what distinguishes the **correct** `cᵀWP⊥c` from the wrong
-  double-`P⊥` form `(P⊥c)ᵀW(P⊥c)` (equal only when `W = I`).
+  double-`P⊥` form `cᵀP⊥WP⊥c` (which differs from `cᵀWP⊥c` only when `W ≠ I`, since
+  `P⊥ ≠ P⊥ᵀ` there). Note `(P⊥c)ᵀW(P⊥c)` is **not** the counterexample — it equals
+  `cᵀWP⊥c` for any `W` by W-self-adjointness.
 - **Real DE440 ingredient:** each line of sight `û_ab` is formed from
   `lunar_orientation::de440_moon_pa_body_to_inertial` at epoch
   `T0 = (JD 2460310.5 − J2000)/36525` JC (2024-01-01 TT), so the physical libration is

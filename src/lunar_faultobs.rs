@@ -132,7 +132,7 @@ pub fn assemble_faultobs_info(blocks: &[(Vec<[f64; N_GAUGE]>, f64)]) -> Vec<Vec<
 // fault-observability or untrusted-peer analysis. The estimated state of an autonomous
 // constellation is instead PER NODE: every node carries a position, a clock offset and a
 // clock rate. The eight-dimensional datum⊕timescale gauge of [`differential_range_row`]
-// (the P4 free-network gauge — three translations, three rotations, a common clock offset
+// (the free-network gauge — three translations, three rotations, a common clock offset
 // and a common clock rate) reappears here as a genuine SUBSPACE of the per-node null space,
 // while the remaining `state_dim − 8` directions are observable. `range(G)` and the parity
 // space are therefore both non-trivial — the standard secure-state-estimation substrate.
@@ -140,7 +140,7 @@ pub fn assemble_faultobs_info(blocks: &[(Vec<[f64; N_GAUGE]>, f64)]) -> Vec<Vec<
 /// Number of datum⊕timescale gauge generators returned by [`datum_gauge_generators`].
 ///
 /// The eight are three translations, three rotations, a common clock offset and a common
-/// clock rate — the P4 free-network gauge embedded in per-node coordinates.
+/// clock rate — the free-network gauge embedded in per-node coordinates.
 pub const N_DATUM_GAUGE: usize = 8;
 
 /// Cross product `a × b`.
@@ -261,7 +261,7 @@ pub fn assemble_pernode_info(rows: &[(Vec<f64>, f64)], state_dim: usize) -> Vec<
 
 /// The eight analytic datum⊕timescale gauge generators in per-node coordinates.
 ///
-/// These are the P4 free-network gauge directions embedded in the per-node state: a rigid
+/// These are the free-network gauge directions embedded in the per-node state: a rigid
 /// transform of the whole lunar frame plus a common timescale re-choice leaves every
 /// differential observable unchanged, so each generator lies in the null space of the
 /// per-node information matrix built from [`pernode_range_row`]. The eight are
@@ -451,11 +451,15 @@ pub fn is_detectable(pperp: &[Vec<f64>], b: &[f64], tol: f64) -> (bool, f64) {
 /// q = cᵀ W P⊥ c = Σᵢ Σⱼ c[i] · w[i] · P⊥[i][j] · c[j]
 /// ```
 ///
-/// **This is cᵀ W P⊥ c — NOT cᵀ P⊥ᵀ W P⊥ c = (P⊥c)ᵀ W (P⊥c).** The two forms
-/// agree only when `W = I`, because for `W = I` the projector is ordinary-symmetric
-/// and idempotent so `(P⊥)ᵀ P⊥ = P⊥ᵀ P⊥ = P⊥² = P⊥`. For `W ≠ I` the forms
-/// differ; the single-`P⊥` form is the classically correct one (Baarda 1968; Teunissen
-/// 2006 "Testing Theory"). The correctness of this single-`P⊥` form is pinned by the
+/// **This is the single-`P⊥` form cᵀ W P⊥ c.** Note that
+/// `(P⊥c)ᵀ W (P⊥c) = cᵀ P⊥ᵀ W P⊥ c` is **equal** to it for *every* `W` — because `P⊥`
+/// is `W`-self-adjoint (`P⊥ᵀ W = W P⊥`) and idempotent (`P⊥² = P⊥`), so
+/// `cᵀ P⊥ᵀ W P⊥ c = cᵀ W P⊥ P⊥ c = cᵀ W P⊥ c`; it is therefore **not** a counterexample.
+/// The form that genuinely *differs* for `W ≠ I` is the double-`P⊥` form
+/// `cᵀ P⊥ W P⊥ c` (with `P⊥`, not `P⊥ᵀ`, on the left; `P⊥ ≠ P⊥ᵀ` when `W ≠ I`), which
+/// coincides with the correct form only when `W = I`. The single-`P⊥` form is the
+/// classically correct Baarda non-centrality (Baarda 1968; Teunissen 2006 "Testing
+/// Theory"); the distinction from the double-`P⊥` form is pinned by the
 /// `mdb_correct_vs_wrong_form_w_neq_i` test below.
 ///
 /// Returns `f64::INFINITY` for an undetectable fault direction
@@ -1231,7 +1235,7 @@ mod tests {
 
     /// Each of the eight `datum_gauge_generators` lies in the null space of the per-node
     /// information matrix: the 8-dim datum⊕timescale gauge is genuine in per-node
-    /// coordinates (the P4 free-network gauge embedded per node).
+    /// coordinates (the free-network gauge embedded per node).
     #[test]
     fn pernode_gauge_generators_are_null() {
         let nodes = pernode_body_nodes();
@@ -1489,8 +1493,9 @@ mod tests {
     /// Build per-node G and w with UNEQUAL per-measurement sigmas (W ≠ I).
     ///
     /// Cycles through σ ∈ {0.5, 1.0, 2.0}, giving weights {4.0, 1.0, 0.25} repeating.
-    /// This guarantees cᵀWP⊥c ≠ (P⊥c)ᵀW(P⊥c) for generic c (since W ≠ I) and also
-    /// exercises the weighted code path that the earlier W=I tests left uncovered.
+    /// This guarantees cᵀWP⊥c ≠ cᵀP⊥WP⊥c (the double-`P⊥` form) for generic c since
+    /// W ≠ I, and also exercises the weighted code path that the earlier W=I tests left
+    /// uncovered.
     fn pernode_g_and_w_unequal(
         layout: &NetworkLayout,
         inertial: &[[f64; 3]],
@@ -1509,16 +1514,17 @@ mod tests {
         (g, w)
     }
 
-    /// THE KEY MDB TEST: pins cᵀWP⊥c, fails on (P⊥c)ᵀW(P⊥c).
+    /// THE KEY MDB TEST: pins cᵀWP⊥c, fails on the double-`P⊥` form cᵀP⊥WP⊥c.
     ///
     /// For fault direction c = e_0 and W ≠ I (weights {4.0, 1.0, 0.25}):
-    ///   correct  q = Σᵢ w[i]·c[i]·(P⊥c)[i] = w[0]·P⊥[0][0]      (Baarda formula)
-    ///   wrong    q = Σᵢ w[i]·(P⊥c)[i]²                            (double-P⊥ bug)
+    ///   correct  q = cᵀ W P⊥ c   = Σᵢ w[i]·c[i]·(P⊥c)[i] = w[0]·P⊥[0][0]  (Baarda)
+    ///   wrong    q = cᵀ P⊥ W P⊥ c = (P⊥ᵀc)ᵀ (W P⊥c)                       (double-P⊥ bug)
     ///
-    /// These are equal only for W = I (idempotent symmetric P⊥ ⇒ (P⊥²=P⊥) collapses
-    /// both to Σᵢ P⊥[i][0]²). With W ≠ I the two forms differ; the test asserts
-    /// rel_diff > 0.1 %, proving the test has teeth — a test that passes under both
-    /// forms is invalid.
+    /// The double-`P⊥` form cᵀP⊥WP⊥c coincides with the correct form only for W = I
+    /// (where P⊥ = P⊥ᵀ); for W ≠ I it differs, and the test asserts rel_diff > 0.1 %,
+    /// proving teeth. (Note the harmless identity `(P⊥c)ᵀW(P⊥c) = cᵀWP⊥c` for *every* W
+    /// by W-self-adjointness + idempotence — that form is NOT the bug, so it is not used
+    /// as the counterexample; see the in-body NOTE.)
     #[test]
     fn mdb_correct_vs_wrong_form_w_neq_i() {
         let nodes = pernode_body_nodes();
