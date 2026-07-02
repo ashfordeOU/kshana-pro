@@ -852,6 +852,43 @@ pub fn verification_matrix() -> Vec<VerificationItem> {
             oracle_kind: InternalConsistency,
             status: Modelled,
         },
+        // ── Coupled lunar frame + timescale gauge ─────────────────────────────
+        VerificationItem {
+            requirement: "Coupled lunar frame + timescale gauge: the joint spatial-datum ⊕ clock-offset ⊕ clock-rate null space",
+            capability: "assemble_coupled_info builds the 9-parameter coupled Fisher over [t_x,t_y,t_z,s,θ_x,θ_y,θ_z,δτ,δα]; classify_null_space returns a basis-invariant null-space classification (spatial-only / temporal-only / coupled dimensions plus the spatial↔temporal projector coupling norm); coupled_marginal_eigs gives the {scale, offset} Schur-complement marginal. On real-DE440-orientation observation networks the engine detects a full-rank datum (defect 0) and an exact single rate-direction defect (elapsed=0 → defect 1, dim_temporal 1), and computes the {s,δτ} marginal — matching an independent numpy/LAPACK computation",
+            module: "lunar_gauge",
+            tests: "tests/lunar_coupled_gauge_reference.rs (9 eigenvalues, defect/dim_spatial/dim_temporal/coupled_dim/p_st_norm, and the {scale,offset} Schur-complement marginal for the well_posed (120-row, defect 0) and single_epoch (30-row, exact rate defect 1) networks, reproduced vs independent numpy/LAPACK to rel<1e-3 abs<1e-3; inputs byte-consistent via examples/gen_coupled_gauge_rows.rs + scripts/gen_coupled_gauge_ref.py)",
+            oracle: "Independent numpy/LAPACK (np.linalg.eigvalsh/eigh/pinv) re-implementation of the assemble → eigendecomposition → null-space-classification → Schur-marginal pipeline, cross-checking the engine on observation rows whose spatial partials carry the REAL DE440 Moon PA-frame orientation (via lunar_datum::orbiter_range_row_datum7 → lunar_orientation::de440_moon_pa_body_to_inertial). Note: the beacon/orbiter geometry is Modelled; the externally-checked claim is the linear-algebra reproduction on real-DE440-orientation inputs for the defect-0 and exact-rate-defect cases (the nonzero-coupling classification branch is covered by module unit tests, not this external row)",
+            oracle_kind: ExternalDataset,
+            status: Validated,
+        },
+        VerificationItem {
+            requirement: "Range ↔ clock-offset degeneracy in one-way lunar ranging, and the geometric-diversity design law (coupling 1)",
+            capability: "The per-node/single-user radial-range ↔ receiver-clock-offset degeneracy is exact at 1 m ↔ 3.336 ns (= 1/c); the {scale, offset} Schur-complement marginal (coupled_marginal_fisher) shows that in a geometrically diverse network two-way ranging lifts the marginal by the SAME factor (×~1.00) as an equal count of additional one-way data. Design law: geometric diversity — not two-way ranging per se — separates the lunar frame scale from the timescale offset in one-way ranging; a two-way tie or external time tie is required only in the low-diversity/single-user regime",
+            module: "lunar_gauge",
+            tests: "lunar_gauge::tests — coupled_marginal_well_posed_network_is_psd (well-posed diverse multi-beacon network has a PSD {scale,offset} marginal: both eigenvalues > 0); coupled_marginal_twoway_equals_more_oneway_in_diverse_network (two-way lift ≈ more-one-way lift in a diverse network, ratio within [0.7, 1.4]); coupled_marginal_twoway_lift_three_orders (idealized single-node regime: two-way tie raises λ_min by ≥3 orders vs the near-rank-1 one-way block)",
+            oracle: "Schur-complement marginal Fisher of the coupled information matrix (closed-form linear algebra); the observation networks are representative Modelled geometry",
+            oracle_kind: InternalConsistency,
+            status: Modelled,
+        },
+        VerificationItem {
+            requirement: "Relativistic clock-rate ↔ frame coupling for the lunar timescale (coupling 2)",
+            capability: "rate_frame_jacobian gives the sensitivity of the lunar timescale rate to the frame realization: ∂α/∂scale = +U_moon/c² ≈ +3.140e-11, ∂α/∂velocity ≈ −1.11e-14, ∂α/∂r_radial = +g_moon/c² ≈ +1.807e-17 m⁻¹ (radial entry == scale entry / R_MOON). Propagated through a frame-estimation datum these bound the rate perturbation at ≤ ~2e-17 — far below the ±1.736e-11 ([56,59] µs/day) reference-surface DEFINITION band. The lunar timescale rate is gauge-ROBUST to the frame estimation datum but gauge-SENSITIVE to the reference-surface definition (tidal ~2.4e-16 and J₂ ~6e-15 sit inside that definitional band)",
+            module: "lunar_gauge, lunar_time",
+            tests: "lunar_gauge::tests — d_alpha_d_scale_approx_3_140e_minus_11 (d_α/d_scale sign + magnitude ≈ +3.140e-11), d_alpha_d_velocity_approx_neg_1_11e_minus_14 (d_α/d_velocity sign + magnitude ≈ −1.11e-14), d_alpha_d_radial_approx_1_807e_minus_17 (d_α/d_radial sign + magnitude ≈ +1.807e-17), d_alpha_d_radial_equals_scale_over_r_moon (d_α/dr = d_α/ds / RE_MOON_M to 1e-12); frame-datum→rate perturbation ≤ ~2e-17 follows by closed-form propagation through the Jacobian (not a separate named test)",
+            oracle: "First-order relativistic rate model (self-potential + kinetic + redshift gradient) differentiated w.r.t. the frame parameters (closed form); the ±1.736e-11 band and the tidal/J₂ contributions are Modelled reference-surface figures",
+            oracle_kind: InternalConsistency,
+            status: Modelled,
+        },
+        VerificationItem {
+            requirement: "Basis-invariant classification of the coupled frame+timescale null space (theorem)",
+            capability: "classify_null_space decomposes the datum null space into spatial-only (dim = d − rank U_T), temporal-only (dim = d − rank U_S) and genuinely coupled (coupled_dim = rank U_S + rank U_T − d) dimensions, plus the spatial↔temporal projector coupling norm p_st_norm = ||(U Uᵀ)[0:7, 7:9]||_F — all functions of the null-space PROJECTOR, hence invariant under any orthonormal choice of null basis (an axis-aligned direct-sum basis and its rotation classify identically)",
+            module: "lunar_gauge",
+            tests: "lunar_gauge::tests — classify_is_invariant_under_null_basis_rotation (axis-aligned null basis and its θ=0.6 rad Q-rotation yield identical defect/dim_spatial/dim_temporal/coupled_dim and p_st_norm); classify_direct_sum_null and classify_coupled_null (direct-sum and genuinely coupled constructed cases confirm the dim-decomposition invariants)",
+            oracle: "Projector-based invariants of the coupled Fisher null space (closed-form linear algebra, proven by construction and checked with a rotated-basis invariance test)",
+            oracle_kind: InternalConsistency,
+            status: Modelled,
+        },
         // ── Resilience scoring & instability study ────────────────────────────
         VerificationItem {
             requirement: "PNT-resilience framework-aligned scoring",
