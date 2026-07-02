@@ -72,6 +72,7 @@ pub mod lunar_combination;
 pub mod lunar_common_mode;
 pub mod lunar_datum;
 pub mod lunar_dpnt;
+pub mod lunar_faultobs;
 pub mod lunar_frame;
 pub mod lunar_frame_realise;
 pub mod lunar_gauge;
