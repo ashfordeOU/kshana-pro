@@ -724,149 +724,130 @@ mod tests {
 
     // ── Task 4 tests ────────────────────────────────────────────────────────────────
 
-    /// Build a perpendicular unit-vector pair {e1, e2} orthogonal to unit vector `u`.
-    fn perp_pair(u: [f64; 3]) -> ([f64; 3], [f64; 3]) {
-        // Choose an auxiliary vector not parallel to u.
-        let aux = if u[0].abs() <= u[1].abs().min(u[2].abs()) {
-            [1.0_f64, 0.0, 0.0]
-        } else if u[1].abs() <= u[2].abs() {
-            [0.0, 1.0, 0.0]
-        } else {
-            [0.0, 0.0, 1.0]
-        };
-        // e1 = u × aux  (then normalize)
-        let e1r = [
-            u[1] * aux[2] - u[2] * aux[1],
-            u[2] * aux[0] - u[0] * aux[2],
-            u[0] * aux[1] - u[1] * aux[0],
-        ];
-        let m1 = (e1r[0] * e1r[0] + e1r[1] * e1r[1] + e1r[2] * e1r[2]).sqrt();
-        let e1 = [e1r[0] / m1, e1r[1] / m1, e1r[2] / m1];
-        // e2 = u × e1  (already unit because u and e1 are orthonormal)
-        let e2 = [
-            u[1] * e1[2] - u[2] * e1[1],
-            u[2] * e1[0] - u[0] * e1[2],
-            u[0] * e1[1] - u[1] * e1[0],
-        ];
-        (e1, e2)
-    }
-
-    /// Epoch inside the DE440 fixture window (2024-01-01 TT).
+    /// Base epoch for Task 4 tests: 2024-01-01 TT, inside the DE440 fixture window.
     const T_TASK4: f64 = (2_460_310.5 - 2_451_545.0) / 36_525.0;
 
-    /// Beacon on the moon's equator (PA body, X-axis direction).
-    const BEACON_TASK4: [f64; 3] = [crate::lunar_time::RE_MOON_M, 0.0, 0.0];
+    /// Five near-side beacon PA-body positions for the well-posed network tests.
+    /// From the plan's validated recipe (examples/p4_probe).
+    const BEACONS_TASK4: [[f64; 3]; 5] = [
+        [1.5e6, 0.3e6, 0.2e6],
+        [1.4e6, -0.4e6, 0.3e6],
+        [1.55e6, 0.2e6, -0.35e6],
+        [1.35e6, -0.25e6, -0.3e6],
+        [1.6e6, 0.05e6, 0.1e6],
+    ];
 
-    /// Build one-way (or two-way) range rows for a same-elevation ring network above the beacon.
+    /// Build a well-posed multi-beacon multi-epoch one-way network.
     ///
-    /// Places 36 satellites in a ring at 45° elevation above the beacon's local horizon,
-    /// uniformly spaced in azimuth (0° to 350° step 10°) with elapsed times 1 h – 36 h.
+    /// Recipe: 5 beacons × 6 orbiters × 4 epochs = 120 one-way rows.
+    /// Epochs: T_TASK4 + k·2/36525 JC for k = 0..3 (2-day steps, inside DE440 window).
+    /// Orbiters: `orbiter_position(2000.0, 20+10j, 60j, 40j + u0_offset, epochs[0], t)`
+    /// for j = 0..5.
     ///
-    /// ## Why 45° elevation
-    ///
-    /// At 45° elevation: sin(45°) = cos(45°) ≈ 0.707. Radial and transverse sensitivity
-    /// components are EQUAL in magnitude, giving I_MM (7×7, the M={t_x,t_y,t_z,θ_x,θ_y,θ_z,δα}
-    /// sub-block) a condition number near 1 — numerically stable Schur complement.
-    ///
-    /// ## Scale–offset coupling (coupling-1 near-defect)
-    ///
-    /// All sats are at the SAME elevation → identical scale sensitivity (∂range/∂s ≈ −sin(45°)·R_MOON
-    /// before preconditioning, ≈ −0.707 after). The clock-offset sensitivity is always 1.0 for
-    /// one-way. These two columns are parallel across all 36 rows → I_KK is rank-1 → the {scale,
-    /// offset} Schur complement has one eigenvalue ≈ 0 (coupling-1 near-defect).
-    ///
-    /// ## Two-way lift
-    ///
-    /// Two-way rows have the same spatial content but zero in IDX_OFFSET and IDX_RATE: scale
-    /// is observed WITHOUT coupling to the clock offset. Adding two-way rows to the combined
-    /// Fisher breaks the rank-1 structure of I_KK, raising λ_min(S) to a clearly positive value.
-    fn narrow_cone_rows(two_way: bool) -> Vec<[f64; 9]> {
-        let r_moon = crate::ephem::moon_position(T_TASK4);
-        let r_beacon = crate::lunar_llr::reflector_inertial(BEACON_TASK4, T_TASK4);
-
-        // Moon-relative beacon direction (local vertical at beacon).
-        let rb_rel = [
-            r_beacon[0] - r_moon[0],
-            r_beacon[1] - r_moon[1],
-            r_beacon[2] - r_moon[2],
-        ];
-        let rb_mag = (rb_rel[0] * rb_rel[0] + rb_rel[1] * rb_rel[1] + rb_rel[2] * rb_rel[2]).sqrt();
-        let u = [rb_rel[0] / rb_mag, rb_rel[1] / rb_mag, rb_rel[2] / rb_mag];
-
-        // Two orthogonal transverse directions.
-        let (e1, e2) = perp_pair(u);
-
-        // Elevation 45°: h_vert = alt, h_horiz = alt * cot(45°) = alt * 1.
-        // Satellites at 200 km altitude along vertical, 200 km offset in horizontal.
-        // Range from beacon = 200km / sin(45°) = 200√2 km ≈ 283 km.
-        let alt = 200_000.0_f64; // 200 km altitude along beacon's local vertical
-        let horiz = alt; // cot(45°) = 1 → horizontal offset = altitude
-
-        // 36 satellites at 10° azimuth steps (full ring at same elevation).
-        let n_az = 36_usize;
-        (0..n_az)
-            .map(|i| {
-                let az = (i as f64) * std::f64::consts::TAU / (n_az as f64);
-                // Satellite position: vertical component `alt` along u, horizontal along e1/e2.
-                let r_sat = [
-                    r_beacon[0] + alt * u[0] + horiz * (az.cos() * e1[0] + az.sin() * e2[0]),
-                    r_beacon[1] + alt * u[1] + horiz * (az.cos() * e1[1] + az.sin() * e2[1]),
-                    r_beacon[2] + alt * u[2] + horiz * (az.cos() * e1[2] + az.sin() * e2[2]),
-                ];
-                if two_way {
-                    twoway_range_row(r_sat, BEACON_TASK4, T_TASK4)
-                } else {
-                    // Elapsed times 1 h to 36 h (diverse rate coverage).
-                    let elapsed = 3_600.0 * (i as f64 + 1.0);
-                    oneway_range_row(r_sat, BEACON_TASK4, T_TASK4, elapsed)
+    /// `u0_offset` shifts the argument of latitude to produce a jittered network for
+    /// the honest datum-level comparison (test (c) uses u0_offset = 7.0°).
+    fn well_posed_oneway_rows(u0_offset: f64) -> Vec<[f64; 9]> {
+        let epochs: [f64; 4] = std::array::from_fn(|k| T_TASK4 + (k as f64) * 2.0 / 36_525.0);
+        let mut rows = Vec::with_capacity(120);
+        for &beacon in &BEACONS_TASK4 {
+            for (ki, &t) in epochs.iter().enumerate() {
+                for j in 0..6_usize {
+                    let r_sat = crate::lunar_datum::orbiter_position(
+                        2000.0,
+                        20.0 + 10.0 * j as f64,
+                        60.0 * j as f64,
+                        40.0 * j as f64 + u0_offset,
+                        epochs[0],
+                        t,
+                    );
+                    let elapsed = 3_600.0 * (ki as f64 + 1.0) * (j as f64 + 1.0);
+                    rows.push(oneway_range_row(r_sat, beacon, t, elapsed));
                 }
-            })
-            .collect()
+            }
+        }
+        rows
     }
 
-    /// (a) One-way, poor-VDOP → coupled marginal is ill-conditioned.
+    /// Build two-way range rows matching `well_posed_oneway_rows(0.0)` geometry
+    /// (same orbiters/beacons/epochs, temporal columns zeroed by round-trip cancellation).
+    fn well_posed_twoway_rows() -> Vec<[f64; 9]> {
+        let epochs: [f64; 4] = std::array::from_fn(|k| T_TASK4 + (k as f64) * 2.0 / 36_525.0);
+        let mut rows = Vec::with_capacity(120);
+        for &beacon in &BEACONS_TASK4 {
+            for &t in &epochs {
+                for j in 0..6_usize {
+                    let r_sat = crate::lunar_datum::orbiter_position(
+                        2000.0,
+                        20.0 + 10.0 * j as f64,
+                        60.0 * j as f64,
+                        40.0 * j as f64,
+                        epochs[0],
+                        t,
+                    );
+                    rows.push(twoway_range_row(r_sat, beacon, t));
+                }
+            }
+        }
+        rows
+    }
+
+    /// (a) Well-posed physical network → PSD marginal.
     ///
-    /// Six sats in a 5° half-angle cone all see the beacon at nearly identical range
-    /// and azimuth, making the scale and clock-offset signatures nearly collinear.
-    /// The {scale, offset} Schur complement's smaller eigenvalue is much less than its
-    /// larger eigenvalue (ratio < 1e-2, signalling a coupling-1 near-defect).
+    /// A geometrically diverse multi-beacon multi-epoch one-way network
+    /// (5 beacons × 6 orbiters × 4 epochs = 120 rows) makes the full 9×9
+    /// Fisher full-rank (defect = 0) and the {scale, clock-offset} Schur
+    /// complement PSD (both eigenvalues strictly positive).
+    ///
+    /// This replaces a false-passing test that used a single-beacon rank-deficient
+    /// network where the pseudo-inverse Schur produced a NEGATIVE eigenvalue — a
+    /// non-PSD artifact of the rank deficiency, not a physical finding. In a
+    /// geometrically diverse, well-posed network the marginal IS PSD.
     #[test]
-    fn coupled_marginal_ill_conditioned_one_way_poor_vdop() {
-        let oneway_rows = narrow_cone_rows(false);
+    fn coupled_marginal_well_posed_network_is_psd() {
+        let oneway_rows = well_posed_oneway_rows(0.0);
         let info = assemble_coupled_info(&[(oneway_rows, 1.0)]);
+        let cls = classify_null_space(&info, 1e-9);
+        assert_eq!(
+            cls.defect, 0,
+            "well-posed multi-beacon network must have defect 0, got {}",
+            cls.defect
+        );
         let e = coupled_marginal_eigs(&info);
         assert!(
-            e[0] < e[1],
-            "smaller eigenvalue must precede larger: e[0]={:.4e}, e[1]={:.4e}",
+            e[0] <= e[1],
+            "eigenvalues must be ascending: e[0]={:.4e}, e[1]={:.4e}",
             e[0],
             e[1]
         );
-        let ratio = e[0] / e[1];
         assert!(
-            ratio < 1e-2,
-            "ratio e[0]/e[1]={:.4e} must be < 1e-2 (coupling-1 near-defect)",
-            ratio
+            e[0] > 0.0,
+            "λ_min(S) must be strictly positive for well-posed network: {:.4e}",
+            e[0]
+        );
+        assert!(
+            e[1] > 0.0,
+            "λ_max(S) must be strictly positive for well-posed network: {:.4e}",
+            e[1]
         );
     }
 
-    /// (b) Two-way lift: adding round-trip observations raises λ_min(S) by ≥3 orders.
+    /// (b) Idealized single-node lift — SYNTHETIC / EXACTLY-DEGENERATE REGIME ONLY.
     ///
-    /// Uses a SYNTHETIC 9×9 Fisher matrix representing the ideal symmetric geometry
-    /// where I_KM = 0 (scale and offset partials are uncorrelated with the M-params
-    /// by construction).  In this regime the Schur complement equals I_KK exactly,
-    /// avoiding the catastrophic cancellation that occurs in physical ranging networks
-    /// where scale and translation are correlated through line-of-sight geometry.
+    /// **This is the IDEALIZED single-node / exactly-degenerate regime, NOT a claim
+    /// about geometrically diverse networks.** In a diverse multi-beacon network the
+    /// marginal is already PSD (test (a)) and two-way gives no selective datum-level
+    /// advantage over an equal count of well-placed one-way observations (test (c)).
     ///
-    /// One-way block: I_KK ≈ N·[[c², c], [c, 1]] (near-rank-1, modelling the
-    /// coupling-1 near-defect — scale ↔ offset nearly indistinguishable).
-    /// A small ε on the diagonal keeps λ_min(S_ow) = ε ≈ 1e-3 (small but positive).
+    /// Uses a SYNTHETIC 9×9 Fisher where I_KM = 0 by construction (scale/offset
+    /// partials are uncorrelated with M-params). The Schur complement equals I_KK
+    /// exactly in this regime. The one-way block is intentionally near-rank-1 (the
+    /// coupling-1 near-defect); two-way raises λ_min by ≥3 orders.
     ///
-    /// Two-way block adds N·[[c², 0], [0, 0]] (observes scale WITHOUT the offset):
+    /// One-way block: I_KK ≈ N·[[c², c], [c, 1]] (near-rank-1).
+    /// ε on diagonal keeps λ_min(S_ow) ≈ ε = 1e-3 (small but positive).
+    ///
+    /// Two-way block adds N·[[c², 0], [0, 0]] (scale WITHOUT offset coupling):
     /// det(S_tw) = N²·c² >> det(S_ow) = ε·trace → λ_min(S_tw) ≈ 29 >> ε.
-    ///
-    /// This is the canonical mathematical demonstration of the coupling-1 lift:
-    /// a pure one-way network leaves scale and offset nearly indistinguishable
-    /// (λ_min ≈ ε), while two-way ranging breaks the trade (λ_min rises ×3 orders).
     #[test]
     fn coupled_marginal_twoway_lift_three_orders() {
         // Parameters: N well-observed M-params, scale partial c ≈ sin(45°) = 0.7,
@@ -914,9 +895,65 @@ mod tests {
         );
     }
 
-    /// (c) Symmetry and PSD: the 2×2 Schur complement is symmetric (S[0][1]==S[1][0]
-    /// within 1e-12) and positive semi-definite (both eigenvalues ≥ −1e-9) for a
-    /// well-posed diagonal info.
+    /// (c) Honest datum-level comparison: two-way ≈ more-one-way in a diverse network.
+    ///
+    /// On the well-posed multi-beacon network from test (a), compare adding an equal
+    /// count of two-way rows (same geometry) versus adding an equal count of additional
+    /// one-way rows at a jittered geometry (u0 shifted by 7°).
+    ///
+    /// Both lifts must exceed 1.0 (each batch adds information).  The ratio
+    /// `lift_tw / lift_2ow` must fall within [0.7, 1.4]: two-way ranging gives NO
+    /// selective datum-level scale↔offset decoupling beyond data volume in a
+    /// geometrically diverse multi-beacon network.
+    ///
+    /// This is the corrected finding from the real-code-path probe: the "two-way
+    /// selectively lifts the datum near-defect" claim is FALSE for diverse networks;
+    /// the datum-level effect is data volume, not observation type.
+    #[test]
+    fn coupled_marginal_twoway_equals_more_oneway_in_diverse_network() {
+        let oneway_base = well_posed_oneway_rows(0.0);
+        let twoway_rows = well_posed_twoway_rows();
+        let oneway_jitter = well_posed_oneway_rows(7.0);
+
+        let info_base = assemble_coupled_info(&[(oneway_base.clone(), 1.0)]);
+        let info_tw = assemble_coupled_info(&[(oneway_base.clone(), 1.0), (twoway_rows, 1.0)]);
+        let info_2ow = assemble_coupled_info(&[(oneway_base, 1.0), (oneway_jitter, 1.0)]);
+
+        let e_base = coupled_marginal_eigs(&info_base);
+        let e_tw = coupled_marginal_eigs(&info_tw);
+        let e_2ow = coupled_marginal_eigs(&info_2ow);
+
+        let lift_tw = e_tw[0] / e_base[0];
+        let lift_2ow = e_2ow[0] / e_base[0];
+
+        assert!(
+            lift_tw > 1.0,
+            "two-way lift must be > 1.0: lift_tw={:.4e}, e_base[0]={:.4e}, e_tw[0]={:.4e}",
+            lift_tw,
+            e_base[0],
+            e_tw[0]
+        );
+        assert!(
+            lift_2ow > 1.0,
+            "more-one-way lift must be > 1.0: lift_2ow={:.4e}, e_base[0]={:.4e}, e_2ow[0]={:.4e}",
+            lift_2ow,
+            e_base[0],
+            e_2ow[0]
+        );
+
+        let ratio = lift_tw / lift_2ow;
+        assert!(
+            (0.7..=1.4).contains(&ratio),
+            "lift ratio must be within [0.7, 1.4] (two-way ≈ more-one-way, the finding): \
+             lift_tw={:.4e}, lift_2ow={:.4e}, ratio={:.4e}",
+            lift_tw,
+            lift_2ow,
+            ratio
+        );
+    }
+
+    /// (d) 2×2 sanity: symmetric (S[0][1]==S[1][0] within 1e-12) and PSD
+    /// (both eigenvalues ≥ −1e-9) on a clean positive-diagonal 9×9 matrix.
     #[test]
     fn coupled_marginal_fisher_is_symmetric_and_psd() {
         // Well-posed diagonal 9×9 info (full rank).
