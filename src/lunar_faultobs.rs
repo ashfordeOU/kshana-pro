@@ -1490,7 +1490,7 @@ mod tests {
     ///
     /// Cycles through σ ∈ {0.5, 1.0, 2.0}, giving weights {4.0, 1.0, 0.25} repeating.
     /// This guarantees cᵀWP⊥c ≠ (P⊥c)ᵀW(P⊥c) for generic c (since W ≠ I) and also
-    /// exercises the weighted code path that Task 3's tests left uncovered (those used W=I).
+    /// exercises the weighted code path that the earlier W=I tests left uncovered.
     fn pernode_g_and_w_unequal(
         layout: &NetworkLayout,
         inertial: &[[f64; 3]],
@@ -2045,7 +2045,7 @@ mod tests {
         }
     }
 
-    // ── Task 6: holdover floor, protection-gap slope, provider split ────────────────
+    // ── Holdover floor, protection-gap slope, provider split ────────────────────────
 
     /// Build the observable-subspace projector `Π_obs = I − N Nᵀ` from the null-space
     /// basis `N` returned by [`crate::fim::crlb`] (`n × defect`, orthonormal columns).
@@ -2110,10 +2110,10 @@ mod tests {
             !floor_anchored.rate_in_gauge,
             "C2/T4: external rate tie must break holdover floor (rate NOT in gauge after tie)"
         );
-        assert!(
-            floor_anchored.temporal_gauge_dim < 2,
-            "C2/T4: temporal_gauge_dim must be < 2 after rate tie, got {}",
-            floor_anchored.temporal_gauge_dim
+        assert_eq!(
+            floor_anchored.temporal_gauge_dim, 1,
+            "C2/T4: after tying one node's absolute rate, the common rate leaves the gauge \
+             but the common offset survives, so temporal_gauge_dim = 1 (offset only)"
         );
     }
 
