@@ -8,7 +8,7 @@
 //!   coupled-gauge matrices — a DIRECT-SUM case (defect 2, coupled_dim 0, p_st_norm 0) and a
 //!   COUPLED case (defect 1, coupled_dim 1, p_st_norm ≈ 0.5) — plus an invariance
 //!   demonstration showing the classification depends only on the null subspace.
-//! - Part B \[VALIDATED anchor\]: the two real DE440-orientation networks from the Task-5
+//! - Part B \[VALIDATED anchor\]: the two real DE440-orientation networks from the coupled-gauge
 //!   fixture: `well_posed` (120 rows, defect 0, both Schur marginal eigenvalues > 0) and
 //!   `single_epoch` (30 rows, elapsed_s = 0, defect 1, dim_temporal 1); and the
 //!   two-way-vs-more-one-way lift ratio ≈ 1.0 in the diverse network.

@@ -49,7 +49,7 @@ fn main() {
     let epochs: [f64; 4] = std::array::from_fn(|k| T_TASK4 + (k as f64) * 2.0 / 36_525.0);
 
     // ── well_posed: 5 beacons × 6 orbiters × 4 epochs = 120 one-way rows ───────
-    // Recipe as Task 4(a) / `well_posed_oneway_rows(0.0)` in lunar_gauge tests.
+    // Recipe matches `well_posed_oneway_rows(0.0)` in the lunar_gauge tests.
     // elapsed_s = 3600 × (ki+1) × (j+1) gives IDX_RATE = elapsed/T_BASE ∈ [0.042, 1.0].
     let mut well_posed: Vec<serde_json::Value> = Vec::with_capacity(120);
     for &beacon in &BEACONS {

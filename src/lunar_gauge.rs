@@ -15,7 +15,8 @@
 //!
 //! ## Validation status
 //! * **Validated (ExternalDataset):** the numpy reproduction of the coupled-Fisher null-space
-//!   on real DE440 + real `lunar_time` coefficients — established in Task 5 (future).
+//!   on real DE440 + real `lunar_time` coefficients, cross-checked against an independent
+//!   numpy/LAPACK oracle (`tests/lunar_coupled_gauge_reference.rs`).
 //! * **Modelled (InternalConsistency):** the three frame→rate coupling Jacobian entries
 //!   [`rate_frame_jacobian`] are derived from first principles (general relativistic clock
 //!   rate at post-Newtonian order), cross-checked to the published [56, 59] µs/day band.
@@ -23,7 +24,7 @@
 //!
 //! ## SI-second convention
 //! All internal computations use SI seconds and c-defined metres.  Temporal columns in
-//! the observation-row builders (Tasks 2–4) are carried as **equivalent-range metres**
+//! the observation-row builders are carried as **equivalent-range metres**
 //! to make all 9 partials O(1) for the Fisher preconditioner.
 
 use crate::lunar_llr::Vec3;
@@ -90,7 +91,7 @@ pub fn rate_frame_jacobian(t_tt_jc: f64) -> RateFrameJacobian {
 ///
 /// The `[IDX_RATE]` column of `oneway_range_row` is `elapsed_s / T_BASE_S`, placing it
 /// O(1) for observation arcs near one day.  This is a conditioning choice: the null-space
-/// structure (Task 3) is invariant under positive column scaling.
+/// structure is invariant under positive column scaling.
 pub const T_BASE_S: f64 = 86_400.0;
 
 /// One-way orbiter→surface-beacon range row over the 9-vector coupled datum.
@@ -130,7 +131,7 @@ pub fn oneway_range_row(
 /// - `[IDX_RATE]   = 0.0` — round-trip cancels the common node clock rate.
 ///
 /// Adding two-way rows to a design matrix lifts the offset–rate near-defect without
-/// introducing new spatial information (two-way lift, Task 4).
+/// introducing new spatial information (the two-way lift).
 pub fn twoway_range_row(
     r_orbiter_inertial: Vec3,
     beacon_pa_body_m: Vec3,
@@ -166,7 +167,7 @@ pub fn time_tie_row() -> [f64; 9] {
 ///
 /// **Note:** `∂α/∂v` and `∂α/∂r_radial` are real relativistic couplings but do NOT map
 /// onto the 9-vector datum (no velocity gauge; uniform translation cancels on a symmetric
-/// shell).  They appear in the example envelope (Task 7) as part of the physical
+/// shell).  They appear in the reproducibility example's envelope as part of the physical
 /// rate-uncertainty budget, not as datum-level tie rows.
 ///
 /// The coupling coefficient `d_alpha_d_scale` is **Modelled** (first-principles,
@@ -554,7 +555,7 @@ mod tests {
         assert_eq!(IDX_RATE, 8);
     }
 
-    // ── Task 2 tests ────────────────────────────────────────────────────────────────
+    // ── Observation-row-builder tests ───────────────────────────────────────────────
 
     /// 2024-01-01 TT (JD 2460310.5), inside the DE440 fixture window.
     const T0_FIXTURE: f64 = (2_460_310.5 - 2_451_545.0) / 36_525.0;
@@ -645,7 +646,7 @@ mod tests {
         }
     }
 
-    // ── Task 3 tests ────────────────────────────────────────────────────────────────
+    // ── Null-space classification tests ─────────────────────────────────────────────
 
     /// Build a 9×9 diagonal matrix with the given diagonal entries.
     fn make_diag_info(diag: [f64; 9]) -> Vec<Vec<f64>> {
@@ -722,9 +723,9 @@ mod tests {
         );
     }
 
-    // ── Task 4 tests ────────────────────────────────────────────────────────────────
+    // ── {scale, offset} Schur-marginal (coupling-1) tests ───────────────────────────
 
-    /// Base epoch for Task 4 tests: 2024-01-01 TT, inside the DE440 fixture window.
+    /// Base test epoch: 2024-01-01 TT, inside the DE440 fixture window.
     const T_TASK4: f64 = (2_460_310.5 - 2_451_545.0) / 36_525.0;
 
     /// Five near-side beacon PA-body positions for the well-posed network tests.
