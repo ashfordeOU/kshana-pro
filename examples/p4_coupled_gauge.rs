@@ -4,7 +4,7 @@
 //! Regenerates every headline number for the P4 coupled frame⊕timescale gauge paper
 //! directly from the committed engine and DE440-orientation fixtures:
 //!
-//! - Part A \[VALIDATED structural theorem\]: basis-invariant classification of two constructed
+//! - Part A \[MODELLED — InternalConsistency\]: basis-invariant classification of two constructed
 //!   coupled-gauge matrices — a DIRECT-SUM case (defect 2, coupled_dim 0, p_st_norm 0) and a
 //!   COUPLED case (defect 1, coupled_dim 1, p_st_norm ≈ 0.5) — plus an invariance
 //!   demonstration showing the classification depends only on the null subspace.
@@ -125,7 +125,7 @@ fn main() {
     // ── Part A — Theorem: invariant classification ────────────────────────────
 
     println!("═══════════════════════════════════════════════════════════════════════");
-    println!("## Part A — Basis-invariant classification theorem [VALIDATED structural]");
+    println!("## Part A — Basis-invariant classification theorem [MODELLED — InternalConsistency]");
     println!("═══════════════════════════════════════════════════════════════════════\n");
 
     // A1: DIRECT-SUM case
@@ -196,8 +196,16 @@ fn main() {
     }
     let cls_inv = classify_null_space(&info_inv, 1e-9);
 
+    // NOTE: this diagonal-vs-diagonal comparison demonstrates eigenvalue-MAGNITUDE independence
+    // (same null positions, different positive eigenvalues → same classification).  Full
+    // null-BASIS-ROTATION invariance — rotating the null-space basis vectors while preserving
+    // the null subspace — is proven by the `classify_is_invariant_under_null_basis_rotation`
+    // unit test in src/lunar_gauge.rs.  The Case 2 COUPLED case above already exercises an
+    // off-axis null vector v = (e₃+e₇)/√2 that is not axis-aligned.
     println!("Invariance check: null space span{{e₃, e₇}} under varied observable eigenvalues");
-    println!("  Info matrix = diag([2,3,4,0,5,6,7,0,8])  (same zeros at 3 and 7)");
+    println!(
+        "  Info matrix = diag([2,3,4,0,5,6,7,0,8])  (same null positions; different magnitudes)"
+    );
     println!(
         "  defect       = {}  (Case 1: {})",
         cls_inv.defect, cls_ds.defect
@@ -224,8 +232,10 @@ fn main() {
         && cls_inv.coupled_dim == cls_ds.coupled_dim
         && (cls_inv.p_st_norm - cls_ds.p_st_norm).abs() < 1e-9;
     println!("  Classification identical to Case 1: {invariant}");
-    println!("  → The classifier depends only on the NULL SUBSPACE, not on the observable");
-    println!("    eigenvalues or the eigensolver's internal choice of null-basis vectors.\n");
+    println!("  → Eigenvalue-magnitude independence confirmed here.  Null-basis-rotation");
+    println!("    invariance is proven by `classify_is_invariant_under_null_basis_rotation`");
+    println!("    (src/lunar_gauge.rs unit tests); the off-axis v=(e₃+e₇)/√2 COUPLED case");
+    println!("    above further exercises a non-axis-aligned null direction.\n");
 
     // ── Part B — Real DE440-orientation anchor networks ───────────────────────
 
@@ -359,8 +369,10 @@ fn main() {
         band_half_dim, band_half_us_day
     );
     println!("  Named sub-band corrections (approximate physics reference values):");
-    println!("    tidal deformation  ≈ 2.4e-16  (inside the definitional band)");
-    println!("    J₂ oblateness      ≈ 6.0e-15  (inside the definitional band)");
+    // 2.4e-16 (tidal) and 6.0e-15 (J₂) are physics-literature approximate reference values —
+    // NOT engine-computed and NOT certified; included for order-of-magnitude orientation only.
+    println!("    tidal deformation  ≈ 2.4e-16  (physics-literature ref.; not engine-computed; inside the definitional band)");
+    println!("    J₂ oblateness      ≈ 6.0e-15  (physics-literature ref.; not engine-computed; inside the definitional band)");
     println!();
     println!(
         "  Frame-estimation envelope {:.0e}  <<  definitional band {:.0e}:",
@@ -391,8 +403,12 @@ fn main() {
     println!();
     println!("─────────────────────────────────────────────────────────────────────────────");
     println!("HONESTY:");
-    println!("  Part A: classification theorem is Validated (structural) — all three cases");
-    println!("    confirmed against the test suite in tests/lunar_coupled_gauge_reference.rs.");
+    println!(
+        "  Part A: classification theorem is Modelled (InternalConsistency) — a proven structural"
+    );
+    println!("    result verified by unit tests in src/lunar_gauge.rs:");
+    println!("      classify_direct_sum_null, classify_coupled_null, classify_basis_invariant,");
+    println!("      classify_is_invariant_under_null_basis_rotation.");
     println!("  Part B: DE440-orientation rows are Validated (ExternalDataset); the network");
     println!("    geometry (beacons, orbital elements) is Modelled.");
     println!("  Part C: all Jacobian entries and the rate envelope are Modelled");
