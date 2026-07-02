@@ -42,9 +42,9 @@ MATCHED, UNAMBIGUOUS RANK CUTOFF
 The crate uses rel_tol = 1e-9 on the eigenvalues of N (= the squared singular values
 of G̃).  This oracle applies the identical relative threshold on σ².  The network is
 spectrally well separated: the weakest *observable* direction sits at σ²/σ²_max ≈
-5.7e-6 (safely retained above 1e-9) while the genuine gauge nulls sit at ≈ 1e-16
-(safely discarded), so rank(G) = 32 and parity_dim = 52 are unambiguous under both
-solvers.
+6.3e-6 (safely retained above 1e-9) while the gauge nulls sit at ≲ 1.6e-14 (the 6-dp
+row rounding lifts them from machine precision; still safely discarded), so rank(G) = 32
+and parity_dim = 52 are unambiguous under both solvers.
 
 BYTE-CONSISTENCY
 ----------------

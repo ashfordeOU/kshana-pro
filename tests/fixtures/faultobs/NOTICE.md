@@ -95,12 +95,14 @@ weakly-conditioned direction is far above the cutoff and never straddles it.)
 
 ## Byte-consistency
 
-Row/vector floats are written by `examples/gen_faultobs_rows.rs` at their exact IEEE-754
-values; serde_json's shortest-round-trip formatting and Python's `json.load` parse to the
-**same doubles**, so the crate and the oracle operate on identical inputs. (The line of
-sight is intentionally **not** decimally truncated: truncating `û_ab` would perturb the
-rotation-gauge cancellation `û·(ê_k×Δp)=0` and blur the rank-32 spectral gap; exact
-round-trip preserves it.)
+Row/vector floats are written by `examples/gen_faultobs_rows.rs` rounded to 6 decimal
+places (`round_decimals: 6`, matching the P3/P4 anchors); serde_json's formatting and
+Python's `json.load` parse the written text to the **same doubles**, so the crate and the
+oracle operate on identical inputs. The 6-dp rounding lifts the exact gauge-null
+directions only to `σ²/σ²_max ≲ 1.6e-14` (from machine precision `~1e-16`), still `~5`
+orders below the `1e-9` rank cutoff and `~8` orders below the weakest observable direction
+(`≈ 6.3e-6`), so the `rank(G) = 32` / `parity_dim = 52` decomposition is preserved and
+unambiguous under both solvers.
 
 ## Regenerate
 
