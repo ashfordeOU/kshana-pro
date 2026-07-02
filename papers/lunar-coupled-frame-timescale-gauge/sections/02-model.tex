@@ -1,0 +1,228 @@
+\section{The coupled datum, the observation model, and the coupled Fisher information}
+\label{sec:model}
+
+We work with a linearized model in which a lunar PNT network of orbiters and surface
+beacons estimates, jointly, a spatial reference frame and a timescale. This section fixes
+the unit convention, defines the nine-parameter coupled datum, gives the four
+observation-row builders, and assembles the coupled Fisher information whose null space
+Section~\ref{sec:theorem} classifies. All quantities named \code{like\_this} are the
+corresponding items in the open engine module \code{lunar\_gauge}
+(Section~\ref{sec:availability}).
+
+\subsection{The SI-second convention}
+\label{sec:si}
+
+Throughout we adopt the SI second (realized by the caesium hyperfine transition) and the
+metre defined by the fixed speed of light $c$. A pseudorange is the product $c\,\Delta t$
+of this fixed $c$ and a measured time interval. The consequence is decisive for the datum
+analysis: because $c$ is fixed, a pseudorange \emph{carries} scale, and a fractional scale
+change $\delta s$ of the lunar body produces an observable change in every range. Scale is
+therefore \textbf{observable} and is \emph{not} a datum defect.
+
+Had we instead left the unit of time free, a drift $\delta\alpha$ of that unit would
+rescale every measured interval and hence every range, entering the observations
+identically to a fractional scale $\delta s$ at coefficient $\approx1$; the two would be
+indistinguishable. That degeneracy is a matter of \emph{units}, not of estimation
+geometry, and adopting the SI second removes it once and for all. We therefore keep two
+distinct temporal parameters below---a clock \emph{offset} $\dtau$ and a clock
+\emph{rate} $\dalpha$---with $\dalpha$ understood as the estimation-deviation freedom
+about the physically-determined secular rate of lunar coordinate time relative to
+Terrestrial Time (TT), \emph{not} the physical rate itself. We treat scale as an
+observable throughout, never as a free datum direction.
+
+\subsection{The nine-parameter coupled datum}
+\label{sec:datum}
+
+The coupled datum vector is the nine-component
+\begin{equation}
+  \thetav
+  \;=\;
+  \bigl[\,\underbrace{t_x,\;t_y,\;t_z}_{\text{translation }\bm t},\;
+         \underbrace{s}_{\text{scale}},\;
+         \underbrace{\theta_x,\;\theta_y,\;\theta_z}_{\text{rotation }\bm\theta},\;
+         \underbrace{\dtau}_{\text{offset}},\;
+         \underbrace{\dalpha}_{\text{rate}}\,\bigr]^\top
+  \;\in\;\R^{9},
+  \label{eq:datum9}
+\end{equation}
+indexed $0,\dots,8$. Indices $0$--$2$ are a translation $\bm t$ of the lunar frame origin
+(metres); index $3$ is the fractional scale $s$; indices $4$--$6$ are an infinitesimal
+rotation $\bm\theta$ of the frame (radians); index $7$ is the timescale offset $\dtau$;
+and index $8$ is the timescale rate $\dalpha$. In the engine these positions are the
+constants $\code{IDX\_SCALE}=3$, $\code{IDX\_OFFSET}=7$, $\code{IDX\_RATE}=8$, with
+$\code{N\_GAUGE}=9$. The first seven components---translation, scale, and rotation---form
+the \emph{spatial} block; concretely the spatial subspace and the temporal subspace are
+\begin{equation}
+  \Ssp \;=\; \operatorname{span}\{\bm e_0,\dots,\bm e_6\},
+  \qquad
+  \Tsp \;=\; \operatorname{span}\{\bm e_7,\bm e_8\},
+  \label{eq:subspaces}
+\end{equation}
+with $\bm e_k$ the $k$-th standard basis vector of $\R^{9}$; $\Ssp$ carries the Helmert
+seven-parameter spatial datum of \citep{baweja2026datum} (three translations, three
+rotations, and the now-observable scale), and $\Tsp$ carries the two temporal parameters.
+The clock offset $\dtau$ sits at the boundary index $7$: it is a temporal parameter, but
+because a common node clock offset enters a one-way range exactly as a common range bias
+it is the natural coupling handle between $\Ssp$ and $\Tsp$, as Section~\ref{sec:couplings}
+makes precise.
+
+\subsection{Two network models: the free internal gauge and the anchored realization}
+\label{sec:models}
+
+The datum \eqref{eq:datum9} is classified in two operationally distinct settings, and the
+distinction is decisive for the defect count; we fix it here once.
+
+\paragraph{(A) The free (internal) network---the datum gauge.}
+In the \emph{free} setting the network's own nodes carry mutual, \emph{common-mode} clocks
+and no node position or time is known externally. A one-way pseudorange then carries the
+clock term as a \emph{difference} (receiver minus transmitter), so a common network
+timescale offset $\dtau$ and a common rate $\dalpha$ cancel identically in every internal
+observation: the two datum columns vanish in the differential design,
+\begin{equation}
+  g^{\mathrm{free}}_{\dtau}\;=\;0,\qquad g^{\mathrm{free}}_{\dalpha}\;=\;0
+  \qquad\text{(common mode)},
+  \label{eq:free}
+\end{equation}
+so $\bm e_{\dtau}=\bm e_7$ and $\bm e_{\dalpha}=\bm e_8$ lie in $\ker\Imat$ exactly. This
+free-network design---the temporal analogue of the P1 spatial free-network datum defect
+\citep{baweja2026datum}, extended to time---defines the coupled datum \emph{gauge} that
+Theorem~\ref{thm:classify} classifies. It is not the design used for the validated anchor.
+
+\paragraph{(B) The anchored network---the realized tie.}
+In the \emph{anchored} setting the orbiters sit at \emph{known} inertial ephemeris
+positions with a \emph{known} time reference; this is the model of the one-way row
+\eqref{eq:oneway} used for the validated anchor of Section~\ref{sec:anchor}. Here the
+offset column is $+1$---an \emph{absolute} offset measured against that known reference,
+not a differenced quantity---and the rate column is the absolute accumulation
+$t_{\mathrm e}/T_{\mathrm B}$. The known orbiter frame and time reference constitute an
+implicit external frame/time tie, so the timescale offset and (with a nonzero time
+baseline) the rate become \emph{observable}: a geometrically diverse anchored network
+observes the whole datum, with defect $0$ (Section~\ref{sec:anchor}). The free-network
+gauge of eight (Theorem~\ref{thm:classify}) and the tied realization of defect $0$ are
+connected by the lift results of Theorem~\ref{thm:lift}.
+
+\subsection{The four observation-row builders}
+\label{sec:rows}
+
+Each scalar observation contributes one row $\bm g\in\R^{9}$, the gradient of the modelled
+observable with respect to $\thetav$. There are four row types.
+
+\paragraph{One-way range (\code{oneway\_range\_row}).}
+For a one-way orbiter$\to$beacon range accumulated over an elapsed time $t_{\mathrm e}$,
+\begin{equation}
+  \bm g^{\mathrm{ow}}
+  \;=\;
+  \bigl[\,\underbrace{d_0,\dots,d_6}_{\text{spatial datum-7 partials}},\;
+          \underbrace{1}_{\dtau},\;
+          \underbrace{t_{\mathrm e}/T_{\mathrm B}}_{\dalpha}\,\bigr],
+  \label{eq:oneway}
+\end{equation}
+where the spatial columns $0$--$6$ are the line-of-sight-projected Helmert
+datum-7 partials of \citep{baweja2026datum}, computed through the \emph{real} DE440
+lunar physical-axis (PA) orientation path (the engine routine
+\code{orbiter\_range\_row\_datum7}); the offset column is unity because, in this
+\emph{anchored} form (model (B) of Section~\ref{sec:models}), the clock offset $c\,\dtau$
+is measured \emph{absolutely} against the known orbiter time reference and enters the range
+directly---in contrast to the free/differential form \eqref{eq:free}, where a common offset
+cancels; and the rate column is
+$t_{\mathrm e}/T_{\mathrm B}$, since a rate offset accumulates linearly with elapsed time,
+divided by a baseline $T_{\mathrm B}=\SI{86400}{s}$ (one Julian day) purely to bring the
+column to $\mathcal{O}(1)$ (Section~\ref{sec:fisher}).
+
+\paragraph{Two-way range (\code{twoway\_range\_row}).}
+A two-way (round-trip) range shares the spatial columns of \eqref{eq:oneway} at the same
+geometry, but its temporal columns are \emph{both} zero,
+\begin{equation}
+  \bm g^{\mathrm{tw}}
+  \;=\;
+  \bigl[\,d_0,\dots,d_6,\;0,\;0\,\bigr],
+  \label{eq:twoway}
+\end{equation}
+because the round trip cancels both the common node clock offset and its rate. Two-way
+ranging thus contributes spatial information without touching $\dtau$ or $\dalpha$; whether
+this selectively lifts the offset$\leftrightarrow$rate freedom is the subject of the
+corrected finding in Section~\ref{sec:coupling1}.
+
+\paragraph{External time tie (\code{time\_tie\_row}).}
+An external common-view Earth--Moon time comparison observes the offset directly,
+\begin{equation}
+  \bm g^{\mathrm{tt}}
+  \;=\;
+  \bigl[\,0,0,0,0,0,0,0,\;1,\;0\,\bigr]
+  \;=\; \bm e_7 ,
+  \label{eq:timetie}
+\end{equation}
+lifting the pure temporal-offset defect.
+
+\paragraph{Relativistic rate tie (\code{rate\_tie\_row}).}
+The physical statement ``the realized clock rate is a function of the frame scale'' is the
+rank-one tie
+\begin{equation}
+  \bm g^{\mathrm{rt}}
+  \;=\;
+  \bigl[\,0,0,0,\;-\tfrac{\partial\alpha}{\partial s},\;0,0,0,\;0,\;1\,\bigr],
+  \label{eq:ratetie}
+\end{equation}
+with a unit rate column and a scale column $-\partial\alpha/\partial s$ set by the
+relativistic Jacobian of Section~\ref{sec:coupling2}. It converts the rate defect into a
+coupled scale$\leftrightarrow$rate defect \emph{unless} scale is independently tied
+(Theorem~\ref{thm:lift}). The velocity and radial couplings of Section~\ref{sec:coupling2}
+are real relativistic effects but do not map onto the nine-vector datum---there is no
+velocity gauge, and a uniform frame translation cancels on a symmetric shell---so they
+enter the physical rate budget, not a datum-level tie row.
+
+\subsection{The coupled Fisher information and its preconditioning}
+\label{sec:fisher}
+
+With independent Gaussian observations of variance $\sigma^2$, the coupled Fisher
+information over $\thetav$ is the $9\times9$ Gram sum
+\begin{equation}
+  \Imat(\thetav)
+  \;=\;
+  \sum_i \frac{1}{\sigma_i^2}\,\bm g_i\,\bm g_i^\top
+  \;\in\;\R^{9\times9},
+  \label{eq:fisher}
+\end{equation}
+assembled block-by-block by \code{assemble\_coupled\_info}. Because the raw partials span
+many orders of magnitude---translation columns are $\mathcal{O}(1)$ line-of-sight
+components, while scale and rotation columns carry a lever arm of order the lunar radius---%
+the assembler \emph{preconditions} by dividing the scale and three rotation columns
+(indices $3$--$6$) by $\rmoon=\SI{1737400}{m}$, bringing all nine partials to
+$\mathcal{O}(1)$ and reducing the condition number. Preconditioning is a positive diagonal
+column scaling $\Imat\mapsto\bm D\Imat\bm D$ with $\bm D\succ0$; it changes eigenvalues but
+\emph{not} the null-space structure, which is the object we classify. We record this
+invariance and use it below.
+
+\begin{lemma}[Preconditioning preserves the datum-defect counts]
+\label{lem:precond}
+Let $\bm D=\operatorname{diag}(d_0,\dots,d_8)$ with every $d_k>0$ act within $\Ssp$ and
+within $\Tsp$ separately (as the preconditioner does: it scales only indices $3$--$6$, all
+in $\Ssp$). Then $\dim\ker(\bm D\Imat\bm D)=\dim\ker\Imat$, and $\bm v\mapsto\bm D^{-1}\bm v$
+is a bijection $\ker(\bm D\Imat\bm D)\!\leftrightarrow\!\ker\Imat$. Consequently the four
+\emph{integer} counts of the classification of Section~\ref{sec:theorem}---the defect $d$,
+the two subspace dimensions, and $\operatorname{coupled\,dim}$---are unchanged, as is the
+binary \emph{zeroness} certificate $\Pst=\bm0$ (block-diagonality of the null projector).
+The projector-block \emph{norm value} $\lVert\Pst\rVert_{\mathrm F}$ is \emph{not} preserved:
+$\bm D$ is a non-orthogonal change of basis, so that value is invariant only under the
+orthogonal basis changes of Proposition~\ref{prop:invariance}, not under the preconditioner.
+\end{lemma}
+
+\begin{proof}
+$\bm D\Imat\bm D\,\bm w=\bm 0 \iff \Imat(\bm D\bm w)=\bm 0$ since $\bm D\succ0$ is
+invertible, so $\bm w\in\ker(\bm D\Imat\bm D)\iff\bm D\bm w\in\ker\Imat$; the map is a
+linear bijection, giving equal dimensions. The preconditioner scales indices $3$--$6$,
+all in $\Ssp$, so it preserves the split \eqref{eq:subspaces} and commutes with the
+spatial/temporal projections used by the classifier; the rank formulas of
+Section~\ref{sec:theorem}, being functions of the images of $\ker$ under the fixed
+projections onto $\Ssp$ and $\Tsp$, are therefore unchanged. The same split preservation
+carries a direct-sum null space $\Nsp=(\Nsp\cap\Ssp)\oplus(\Nsp\cap\Tsp)$ to a direct-sum
+null space, so the binary certificate $\Pst=\bm0$ is preserved. But $\bm D^{-1}$ does not
+preserve inner products, so the magnitude $\lVert\Pst\rVert_{\mathrm F}$ itself may change.
+\end{proof}
+
+\noindent Lemma~\ref{lem:precond} lets us report the four integer counts and the
+block-diagonality certificate $\Pst=\bm0$ computed on the preconditioned Fisher, secure that
+they equal those of the physical, unscaled information. The reported norm
+$\lVert\Pst\rVert_{\mathrm F}$ is instead a basis/preconditioner-dependent magnitude
+(invariant only under orthogonal basis change, Proposition~\ref{prop:invariance}); for the
+anchored networks it is exactly $0$, so no reported number is affected.
