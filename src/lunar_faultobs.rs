@@ -523,6 +523,219 @@ pub fn peer_signature(n_meas: usize, incidence: &[usize]) -> Vec<Vec<f64>> {
     mat
 }
 
+/// Largest peer coalition enumerated by [`byzantine_bound`].
+///
+/// Exact block-spark enumeration is exponential in the number of peers `M`; the search
+/// is limited to coalitions of at most this many peers. Because it stops at the first
+/// dependent coalition, the realised cost is `C(M, block_spark)` — small whenever the
+/// block spark is small (the common case), and bounded above by `C(M, MAX_COALITION)`.
+pub const MAX_COALITION: usize = 12;
+
+/// Byzantine fault classification of a peer network: the detect/identify bounds and the
+/// governing block spark.
+///
+/// Semantics of the three counts are pinned by the block spark (see [`byzantine_bound`]):
+/// the network can DETECT any coalition of up to `f_detect` arbitrarily-faulty peers and
+/// can uniquely IDENTIFY any coalition of up to `f_identify`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ByzantineClass {
+    /// Largest fault coalition guaranteed detectable: `block_spark − 1`.
+    pub f_detect: usize,
+    /// Largest fault coalition guaranteed uniquely identifiable: `⌊(block_spark − 1)/2⌋`.
+    pub f_identify: usize,
+    /// Smallest number of peer-blocks whose stacked effective signatures are dependent.
+    pub block_spark: usize,
+}
+
+/// Effective signature `Ḡ_j = P⊥ · B_j` of one peer block (parity-space attack surface).
+///
+/// `pperp` is the `n × n` parity projector, `block` the `n × cols` fault block `B_j`
+/// (row-major). Returns the `n × cols` product `P⊥·B_j`.
+fn project_block(pperp: &[Vec<f64>], block: &[Vec<f64>]) -> Vec<Vec<f64>> {
+    if block.is_empty() {
+        return vec![];
+    }
+    let ncols = block[0].len();
+    pperp
+        .iter()
+        .map(|prow| {
+            (0..ncols)
+                .map(|c| {
+                    prow.iter()
+                        .zip(block.iter())
+                        .map(|(&p, brow)| p * brow[c])
+                        .sum()
+                })
+                .collect()
+        })
+        .collect()
+}
+
+/// Stack the columns of the effective blocks indexed by `subset` into a flat column list.
+fn stack_columns(eff: &[Vec<Vec<f64>>], subset: &[usize]) -> Vec<Vec<f64>> {
+    let mut cols = Vec::new();
+    for &j in subset {
+        let block = &eff[j];
+        if block.is_empty() {
+            continue;
+        }
+        let ncols = block[0].len();
+        for c in 0..ncols {
+            cols.push(block.iter().map(|row| row[c]).collect());
+        }
+    }
+    cols
+}
+
+/// Numerical column rank of a stacked column list via the eigenvalues of its Gram matrix.
+///
+/// Forms `Γ = ColsᵀCols` (each entry an inner product of two effective columns), takes its
+/// spectrum with [`crate::fim::sym_eig`], and counts eigenvalues exceeding `rel_tol · λ_max`.
+/// Because `Γ` is a Gram (singular-value-squared) matrix, this `rel_tol` matches the
+/// pseudo-inverse threshold that builds `P⊥`; see [`byzantine_bound`] for the tolerance
+/// rationale and the spectral-gap guarantee.
+fn effective_column_rank(cols: &[Vec<f64>], rel_tol: f64) -> usize {
+    let t = cols.len();
+    if t == 0 {
+        return 0;
+    }
+    let mut gram = vec![vec![0.0_f64; t]; t];
+    for (i, ci) in cols.iter().enumerate() {
+        for (j, cj) in cols.iter().enumerate().skip(i) {
+            let dot: f64 = ci.iter().zip(cj.iter()).map(|(&a, &b)| a * b).sum();
+            gram[i][j] = dot;
+            gram[j][i] = dot;
+        }
+    }
+    let eig = crate::fim::sym_eig(&gram);
+    let lam_max = eig.values.last().copied().unwrap_or(0.0);
+    if lam_max <= 0.0 {
+        return 0;
+    }
+    let thr = rel_tol * lam_max;
+    eig.values.iter().filter(|&&v| v > thr).count()
+}
+
+/// All size-`k` index subsets of `{0..n}` (lexicographic), for exact coalition enumeration.
+fn combinations(n: usize, k: usize) -> Vec<Vec<usize>> {
+    let mut result = Vec::new();
+    if k == 0 || k > n {
+        return result;
+    }
+    let mut c: Vec<usize> = (0..k).collect();
+    loop {
+        result.push(c.clone());
+        // Advance to the next combination in lexicographic order.
+        let mut i = k;
+        loop {
+            if i == 0 {
+                return result;
+            }
+            i -= 1;
+            if c[i] < n - k + i {
+                c[i] += 1;
+                for j in (i + 1)..k {
+                    c[j] = c[j - 1] + 1;
+                }
+                break;
+            }
+        }
+    }
+}
+
+/// Byzantine block-spark bound: how many arbitrarily-faulty (colluding) peers the parity
+/// monitor can DETECT and uniquely IDENTIFY, as a function of network geometry.
+///
+/// This is the geometric instantiation of the error-correcting-code / sparse-observability
+/// bound for secure state estimation. A Byzantine peer injects an *arbitrary* linear
+/// combination of the measurements it participates in; the network detects a coalition of
+/// `≤ f` such peers iff every union of `≤ f` peer attack-blocks — projected into the parity
+/// space — has **full column rank**, and uniquely identifies the faulty coalition iff every
+/// union of `≤ 2f` blocks does. The controlling invariant is the *block spark*: the smallest
+/// number of peer-blocks whose stacked effective signatures are linearly dependent — the
+/// block-wise analog of the matrix spark of Donoho & Elad (2003) and the sparse-recovery
+/// threshold of Candès & Tao (2005), and the observability-under-attack condition of
+/// Fawzi, Tabuada & Diggavi (2014, "Secure estimation and control for cyber-physical systems
+/// under adversarial attacks"; Shoukry & Tabuada 2016). "Byzantine" denotes the
+/// arbitrary/colluding fault MODEL only (Lamport, Shostak & Pease 1982); the result is a
+/// coding/observability bound (detect `> f`, identify `> 2f`) and is unrelated — in both
+/// quantity and threshold — to the message-passing consensus bound.
+///
+/// # Effective signatures and detectability
+/// For peer `j` with attack block `B_j` (columns = the measurements it can corrupt, from
+/// [`peer_signature`]), the *effective signature* is `Ḡ_j = P⊥·B_j`: the attack surface as
+/// it appears in the parity residual. An injected fault is undetectable iff it lies in
+/// `range(G)`, i.e. iff `P⊥` annihilates it. Crucially, a single peer is undetectable not
+/// only when `Ḡ_j = 0`, but whenever `Ḡ_j` is **column-rank-deficient**: the adversary then
+/// solves for the null combination of its own measurements — a *nonzero* attack whose
+/// projection lands in `range(G)` and leaves no residual — even though other combinations
+/// (for instance individual columns) are perfectly detectable. Detectability of a peer is
+/// therefore FULL COLUMN RANK of `Ḡ_j`, **not** merely `Ḡ_j ≠ 0`.
+///
+/// # Definitions (as implemented)
+/// `block_spark` is the smallest `k` for which some size-`k` union `{Ḡ_j : j ∈ T}` is
+/// column-rank-deficient (`rank([Ḡ_j]_{j∈T}) < Σ_{j∈T} cols(Ḡ_j)`), found by exact
+/// enumeration over coalitions of increasing size. If no coalition up to the search bound is
+/// dependent, `block_spark` is one more than that bound. Then
+/// * `f_detect  = block_spark − 1`  (detect `≤ f`  ⟺ block_spark `> f`),
+/// * `f_identify = ⌊(block_spark − 1) / 2⌋`  (identify `≤ f` ⟺ block_spark `> 2f`).
+///
+/// # Rank tolerance
+/// Column rank is the number of Gram eigenvalues of the stacked effective columns exceeding
+/// `rel_tol · λ_max`. `rel_tol` should match the pseudo-inverse threshold that builds `P⊥`
+/// (`1e-9`): both act on Gram-type (singular-value-squared) spectra, so the choice is
+/// consistent. A genuine attack dependency (a combination in `range(G)`) projects to
+/// `~1e-16` relative Gram mass, whereas the network's weakly-conditioned observable direction
+/// (relative eigenvalue `≈ 5.7e-6`, safely above `1e-9`) is correctly retained inside
+/// `range(G)` and annihilated by `P⊥`; the resulting spectral gap makes the rank decision
+/// robust despite that weak direction (verified in the module tests).
+///
+/// # Enumeration cap
+/// Coalitions are enumerated up to [`MAX_COALITION`] peers; the search stops at the first
+/// dependent coalition, so the realised cost is `C(M, block_spark)`. If the number of peers
+/// exceeds the cap and NO dependent coalition of size `≤ MAX_COALITION` exists, `block_spark`
+/// is returned as the conservative lower bound `MAX_COALITION + 1` (hence `f_detect` and
+/// `f_identify` are lower bounds). This truncation is explicit, never silent; representative
+/// constellations have few peers, so the result is exact.
+pub fn byzantine_bound(
+    peer_blocks: &[Vec<Vec<f64>>],
+    pperp: &[Vec<f64>],
+    rel_tol: f64,
+) -> ByzantineClass {
+    let m = peer_blocks.len();
+
+    // Effective signatures Ḡ_j = P⊥·B_j (the parity-space attack surface of each peer).
+    let eff: Vec<Vec<Vec<f64>>> = peer_blocks
+        .iter()
+        .map(|b| project_block(pperp, b))
+        .collect();
+
+    // block_spark = smallest coalition size whose stacked effective columns are dependent.
+    let cap = m.min(MAX_COALITION);
+    let mut block_spark = None;
+    'search: for k in 1..=cap {
+        for subset in combinations(m, k) {
+            let cols = stack_columns(&eff, &subset);
+            let total = cols.len();
+            if total == 0 {
+                continue;
+            }
+            if effective_column_rank(&cols, rel_tol) < total {
+                block_spark = Some(k);
+                break 'search;
+            }
+        }
+    }
+    // No dependent coalition within the search bound ⇒ block_spark exceeds it (exact when the
+    // cap was not binding, i.e. `cap == m`; a conservative lower bound otherwise).
+    let bs = block_spark.unwrap_or(cap + 1);
+    ByzantineClass {
+        f_detect: bs - 1,
+        f_identify: (bs - 1) / 2,
+        block_spark: bs,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1252,6 +1465,336 @@ mod tests {
             assert!(
                 sig_1[r].iter().all(|&v| v == 0.0),
                 "non-incident row {r} must be zero in peer 1 block"
+            );
+        }
+    }
+
+    // ── Byzantine block-spark bound ─────────────────────────────────────────────────
+
+    /// Column-norm of column `c` of a row-major matrix.
+    fn col_norm(mat: &[Vec<f64>], c: usize) -> f64 {
+        mat.iter().map(|row| row[c] * row[c]).sum::<f64>().sqrt()
+    }
+
+    /// THE C3 TEST (the whole point of the task). A single peer whose effective block
+    /// `Ḡ_j = P⊥·B_j` has NONZERO columns yet is COLUMN-RANK-DEFICIENT must be classified
+    /// UNDETECTABLE (block_spark = 1, f_detect = 0). A predicate that only checked
+    /// `P⊥·B_j ≠ 0` would wrongly call it detectable — this test distinguishes the two.
+    ///
+    /// Construction (exact arithmetic): take `range(G) = span{(1,1,0)}` in ℝ³ and the
+    /// orthogonal parity projector `P⊥ = I − vvᵀ/‖v‖²`. A peer incident to measurements
+    /// {0, 1} has effective columns
+    ///   `P⊥·e_0 = (½, −½, 0)`,  `P⊥·e_1 = (−½, ½, 0)`  —  each NONZERO,
+    /// but `P⊥·e_0 = −P⊥·e_1`, so the block has rank 1 < 2 columns. The adversary injects
+    /// `e_0 + e_1 = (1,1,0) ∈ range(G)`: a nonzero fault that leaves no parity residual.
+    /// Changing the incidence to {0, 2} (`P⊥·e_2 = (0,0,1)`, independent of `P⊥·e_0`)
+    /// flips the block to full column rank → block_spark = 2, f_detect = 1. Same projector,
+    /// opposite verdict, decided entirely by column rank.
+    #[test]
+    fn byzantine_c3_rank_deficient_but_nonzero_is_undetectable() {
+        // Orthogonal projector onto the complement of span{(1,1,0)} in ℝ³.
+        let pperp = vec![
+            vec![0.5, -0.5, 0.0],
+            vec![-0.5, 0.5, 0.0],
+            vec![0.0, 0.0, 1.0],
+        ];
+
+        // Rank-deficient-yet-nonzero peer: incidence {0, 1}.
+        let block_dep = peer_signature(3, &[0, 1]);
+        let eff_dep = project_block(&pperp, &block_dep);
+        // Both effective columns are NONZERO — a naive "P⊥B_j ≠ 0" test would call this
+        // peer DETECTABLE.
+        assert!(
+            col_norm(&eff_dep, 0) > 0.1 && col_norm(&eff_dep, 1) > 0.1,
+            "C3: both effective columns must be nonzero (naive test would say detectable): \
+             ‖col0‖={:.3}, ‖col1‖={:.3}",
+            col_norm(&eff_dep, 0),
+            col_norm(&eff_dep, 1)
+        );
+        // But the block is column-rank-deficient (rank 1 < 2): the correct verdict is
+        // UNDETECTABLE.
+        let cols_dep = stack_columns(&[eff_dep], &[0]);
+        assert_eq!(
+            effective_column_rank(&cols_dep, 1e-9),
+            1,
+            "C3: rank of the two effective columns must be 1 (they are anti-parallel)"
+        );
+        let cls_dep = byzantine_bound(&[block_dep], &pperp, 1e-9);
+        assert_eq!(
+            cls_dep,
+            ByzantineClass {
+                f_detect: 0,
+                f_identify: 0,
+                block_spark: 1
+            },
+            "C3: nonzero-but-rank-deficient single peer must be undetectable (block_spark=1)"
+        );
+
+        // Full-column-rank contrast: same projector, incidence {0, 2}.
+        let block_full = peer_signature(3, &[0, 2]);
+        let eff_full = project_block(&pperp, &block_full);
+        let cols_full = stack_columns(&[eff_full], &[0]);
+        assert_eq!(
+            effective_column_rank(&cols_full, 1e-9),
+            2,
+            "contrast: independent effective columns must have full rank 2"
+        );
+        let cls_full = byzantine_bound(&[block_full], &pperp, 1e-9);
+        assert_eq!(
+            cls_full,
+            ByzantineClass {
+                f_detect: 1,
+                f_identify: 0,
+                block_spark: 2
+            },
+            "contrast: full-column-rank single peer is detectable (block_spark = M+1 = 2)"
+        );
+    }
+
+    /// Measurement indices (rows of `pernode_rows`) incident to node `k`.
+    ///
+    /// `pernode_rows` iterates pairs `(a, b)` with `a < b`, each over the elapsed windows;
+    /// node `k` is incident to a measurement iff it is one of the endpoints.
+    fn node_incidence(layout: &NetworkLayout, k: usize) -> Vec<usize> {
+        let m = layout.n_nodes;
+        let mut inc = Vec::new();
+        let mut idx = 0_usize;
+        for a in 0..m {
+            for b in (a + 1)..m {
+                for _w in 0..PERNODE_ELAPSED_S.len() {
+                    if a == k || b == k {
+                        inc.push(idx);
+                    }
+                    idx += 1;
+                }
+            }
+        }
+        inc
+    }
+
+    /// REAL-NETWORK C3. A peer incident to ALL of node `k`'s measurements can inject a
+    /// uniform bias across them — which is exactly a clock-offset error of node `k`
+    /// (`G·e_{off(k)}`) and therefore lies in `range(G)`, undetectable. Every INDIVIDUAL
+    /// measurement bias `P⊥·e_i` is nonzero (detectable), so the block is nonzero yet
+    /// column-rank-deficient: the C3 correction in the real DE440 geometry. The Gram
+    /// spectrum shows a clear gap (genuine null ≪ tol·λ_max ≪ observable), justifying the
+    /// matched `1e-9` rank tolerance despite the network's weakly-conditioned direction.
+    #[test]
+    fn byzantine_real_network_uniform_bias_is_clock_offset() {
+        let nodes = pernode_body_nodes();
+        let layout = NetworkLayout::new(nodes.len());
+        let inertial = pernode_inertial(&nodes);
+        let (g, w) = pernode_g_and_w(&layout, &inertial);
+        let pperp = parity_projector(&g, &w);
+        let n_meas = g.len();
+
+        // Peer = every measurement touching node 2.
+        let inc = node_incidence(&layout, 2);
+        assert_eq!(
+            inc.len(),
+            (layout.n_nodes - 1) * PERNODE_ELAPSED_S.len(),
+            "node incidence must be (M−1)·windows measurements"
+        );
+        let block = peer_signature(n_meas, &inc);
+        let eff = project_block(&pperp, &block);
+
+        // Every single-measurement bias is detectable: each effective column is nonzero.
+        for c in 0..inc.len() {
+            assert!(
+                col_norm(&eff, c) > 1e-3,
+                "each individual measurement bias must be detectable: ‖col {c}‖ = {:.3e}",
+                col_norm(&eff, c)
+            );
+        }
+
+        // Yet the block is column-rank-deficient — a nonzero combination (uniform bias =
+        // clock offset) lands in range(G). Verify the Gram spectral gap directly.
+        let cols = stack_columns(&[eff], &[0]);
+        let total = cols.len();
+        let mut gram = vec![vec![0.0_f64; total]; total];
+        for (i, ci) in cols.iter().enumerate() {
+            for (j, cj) in cols.iter().enumerate() {
+                gram[i][j] = ci.iter().zip(cj.iter()).map(|(&a, &b)| a * b).sum();
+            }
+        }
+        let eig = crate::fim::sym_eig(&gram);
+        let lam_max = *eig.values.last().unwrap();
+        let rank = effective_column_rank(&cols, 1e-9);
+        assert!(
+            rank < total,
+            "block must be column-rank-deficient: rank {rank} vs {total} columns"
+        );
+        // Clear spectral gap: at least one eigenvalue is a genuine numerical null (the
+        // in-range combination), far below the 1e-9 threshold, while the retained rank
+        // sits far above it — the tolerance is unambiguous.
+        let null_ev = eig.values[total - rank - 1]; // largest of the null block
+        let obs_ev = eig.values[total - rank]; // smallest retained
+        assert!(
+            null_ev < 1e-12 * lam_max,
+            "genuine null eigenvalue must be ≪ tol·λ_max: {null_ev:.3e} vs λ_max {lam_max:.3e}"
+        );
+        assert!(
+            obs_ev > 1e-6 * lam_max,
+            "smallest retained eigenvalue must be ≫ tol·λ_max: {obs_ev:.3e} vs λ_max {lam_max:.3e}"
+        );
+
+        // Integration: the peer is undetectable (block_spark = 1, f_detect = 0).
+        let cls = byzantine_bound(&[block], &pperp, 1e-9);
+        assert_eq!(
+            cls.block_spark, 1,
+            "real-network uniform-bias peer: block_spark = 1"
+        );
+        assert_eq!(
+            cls.f_detect, 0,
+            "real-network uniform-bias peer: undetectable"
+        );
+
+        // Contrast: a single-measurement peer projects to one nonzero column (full rank),
+        // so it is detectable (block_spark = M+1 = 2).
+        let single = peer_signature(n_meas, &[0]);
+        let cls_single = byzantine_bound(&[single], &pperp, 1e-9);
+        assert_eq!(
+            cls_single.block_spark, 2,
+            "single-measurement peer is full column rank ⇒ block_spark = 2"
+        );
+        assert_eq!(
+            cls_single.f_detect, 1,
+            "single-measurement peer is detectable"
+        );
+    }
+
+    /// A well-connected, redundant net of independent single-measurement peers has a HIGH
+    /// block spark — no small coalition can collude into an undetectable fault — so the
+    /// identify bound is `≥ 1`. Six peers on six distinct, geometrically independent
+    /// measurements of the real DE440 network are mutually full-rank (a `≤6`-sparse fault
+    /// cannot be a pure state error, `6 + 32 < 84`), so block_spark = M+1 = 7 and
+    /// f_identify = ⌊6/2⌋ = 3.
+    #[test]
+    fn byzantine_redundant_net_identifies_at_least_one() {
+        let nodes = pernode_body_nodes();
+        let layout = NetworkLayout::new(nodes.len());
+        let inertial = pernode_inertial(&nodes);
+        let (g, w) = pernode_g_and_w(&layout, &inertial);
+        let pperp = parity_projector(&g, &w);
+        let n_meas = g.len();
+
+        // Six peers, each owning one distinct measurement spread across the network.
+        let meas = [0_usize, 12, 24, 37, 49, 61];
+        let peers: Vec<Vec<Vec<f64>>> =
+            meas.iter().map(|&i| peer_signature(n_meas, &[i])).collect();
+        let cls = byzantine_bound(&peers, &pperp, 1e-9);
+
+        assert_eq!(
+            cls.block_spark,
+            peers.len() + 1,
+            "independent single-measurement peers admit no dependent coalition: block_spark = M+1"
+        );
+        assert_eq!(cls.f_detect, peers.len(), "all six peers detectable");
+        assert!(
+            cls.f_identify >= 1,
+            "redundant net must identify ≥ 1 faulty peer, got {}",
+            cls.f_identify
+        );
+        assert_eq!(
+            cls.f_identify, 3,
+            "identify bound = ⌊(block_spark−1)/2⌋ = ⌊6/2⌋ = 3, got {}",
+            cls.f_identify
+        );
+    }
+
+    /// Hand-constructed analytic sanity case (`P⊥ = I`, so `range(G) = {0}` and effective
+    /// columns are the raw incidence columns). The block spark is then the ordinary spark of
+    /// the incidence structure, known by inspection.
+    ///
+    /// * Peers {0}, {1}, {0}: peers 0 and 2 share measurement 0, so their two-block union
+    ///   has a repeated column ⇒ dependent at size 2 ⇒ block_spark = 2, f_detect = 1,
+    ///   f_identify = 0.
+    /// * Peers {0}, {1}, {2}, {3}: four orthonormal single columns, no dependent union ⇒
+    ///   block_spark = M+1 = 5, f_detect = 4, f_identify = 2.
+    #[test]
+    fn byzantine_analytic_spark_identity_projector() {
+        let ident = vec![
+            vec![1.0, 0.0, 0.0, 0.0],
+            vec![0.0, 1.0, 0.0, 0.0],
+            vec![0.0, 0.0, 1.0, 0.0],
+            vec![0.0, 0.0, 0.0, 1.0],
+        ];
+
+        // Shared-measurement coalition: peers 0 and 2 both own measurement 0.
+        let shared = vec![
+            peer_signature(4, &[0]),
+            peer_signature(4, &[1]),
+            peer_signature(4, &[0]),
+        ];
+        let cls_shared = byzantine_bound(&shared, &ident, 1e-9);
+        assert_eq!(
+            cls_shared,
+            ByzantineClass {
+                f_detect: 1,
+                f_identify: 0,
+                block_spark: 2
+            },
+            "two peers sharing a measurement collude at size 2 ⇒ block_spark = 2"
+        );
+
+        // Fully independent single-measurement peers: no dependent union exists.
+        let indep = vec![
+            peer_signature(4, &[0]),
+            peer_signature(4, &[1]),
+            peer_signature(4, &[2]),
+            peer_signature(4, &[3]),
+        ];
+        let cls_indep = byzantine_bound(&indep, &ident, 1e-9);
+        assert_eq!(
+            cls_indep,
+            ByzantineClass {
+                f_detect: 4,
+                f_identify: 2,
+                block_spark: 5
+            },
+            "four orthonormal peers admit no dependent coalition ⇒ block_spark = M+1 = 5"
+        );
+    }
+
+    /// The detect/identify counts obey the block-spark relations exactly across a sweep of
+    /// synthetic block-spark values, and `combinations` enumerates the right subsets.
+    #[test]
+    fn byzantine_detect_identify_relations() {
+        // combinations(n, k) yields exactly C(n, k) strictly-increasing subsets.
+        assert_eq!(combinations(4, 2).len(), 6);
+        assert_eq!(combinations(5, 3).len(), 10);
+        assert_eq!(combinations(3, 0).len(), 0);
+        assert_eq!(combinations(2, 3).len(), 0);
+        for subset in combinations(5, 3) {
+            assert!(
+                subset.windows(2).all(|w| w[0] < w[1]),
+                "subsets strictly increasing"
+            );
+        }
+
+        // For P⊥ = I, k identical single-measurement peers first collude at size 2, and a
+        // chain of distinct measurements never colludes: check the two count formulas hold.
+        let ident: Vec<Vec<f64>> = (0..6)
+            .map(|i| (0..6).map(|j| if i == j { 1.0 } else { 0.0 }).collect())
+            .collect();
+        // Distinct measurements 0..M ⇒ block_spark = M+1 ⇒ f_detect = M, f_identify = ⌊M/2⌋.
+        for m in 1..=6_usize {
+            let peers: Vec<Vec<Vec<f64>>> = (0..m).map(|i| peer_signature(6, &[i])).collect();
+            let cls = byzantine_bound(&peers, &ident, 1e-9);
+            assert_eq!(
+                cls.block_spark,
+                m + 1,
+                "distinct peers ⇒ block_spark = M+1 (M={m})"
+            );
+            assert_eq!(
+                cls.f_detect,
+                cls.block_spark - 1,
+                "f_detect = block_spark − 1"
+            );
+            assert_eq!(
+                cls.f_identify,
+                (cls.block_spark - 1) / 2,
+                "f_identify = ⌊(block_spark − 1)/2⌋"
             );
         }
     }
