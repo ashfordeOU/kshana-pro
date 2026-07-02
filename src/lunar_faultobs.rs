@@ -736,6 +736,252 @@ pub fn byzantine_bound(
     }
 }
 
+// ── Holdover temporal-gauge floor ────────────────────────────────────────────────────
+
+/// Result of the autonomous-holdover temporal-gauge analysis.
+///
+/// In an ensemble of autonomous lunar nodes connected only by inter-node measurements,
+/// the network shares no external time anchor. The common clock rate — a uniform
+/// increment `δα_j += 1 ∀j` — is a classical *ensemble-time free parameter* (Percival
+/// 1978; Lewandowski & Thomas 1991): any rescaling of the shared timescale leaves every
+/// differential observable unchanged. This is the temporal analog of the rigid-frame
+/// gauge in position estimation, and it is the genuine holdover floor of the
+/// constellation: no amount of additional inter-node ranging can break it. An external
+/// time tie — a direct link to an off-network reference — is the only remedy. In the
+/// lunar setting this free parameter acquires fresh content: the network's best estimate
+/// of its own epoch rate drifts freely, anchored only by the ephemeris when a VLBI or
+/// laser-ranging tie is available. The test that `rate_in_gauge` flips from `true` to
+/// `false` when such a tie is added distinguishes the genuine gauge from an artefact
+/// of the oscillator model.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct HoldoverFloor {
+    /// `true` iff the common clock-rate generator lies in `N(GᵀWG)` — the holdover
+    /// floor is a genuine gauge direction unobservable from inter-node data alone.
+    pub rate_in_gauge: bool,
+    /// Number of temporal gauge generators (common offset and common rate) that are
+    /// currently in `N(GᵀWG)`. Equal to 2 for a fully self-referential network, 1 if
+    /// an external rate tie is present but not an offset tie, and 0 when both are anchored.
+    pub temporal_gauge_dim: usize,
+}
+
+/// Autonomous-holdover temporal-gauge floor for an inter-node measurement network.
+///
+/// The two temporal gauge generators from [`datum_gauge_generators`] — common offset
+/// (`gauge_generators[n−2]`) and common rate (`gauge_generators[n−1]`) — are tested
+/// against the null space of the per-node Fisher information matrix `info`. A generator
+/// `g` is in `N(info)` when
+///
+/// ```text
+/// ‖info · g‖ / (‖info‖_F · ‖g‖) < rel_tol
+/// ```
+///
+/// i.e. `info` annihilates it up to the relative tolerance `rel_tol`. This formulation
+/// is numerically invariant under scaling of `info` or `g`, matching the relative
+/// thresholds used throughout the spectral rank analysis.
+///
+/// `rate_in_gauge` reports whether the common rate is unobservable from the supplied
+/// data. `temporal_gauge_dim` counts how many of the two temporal generators are
+/// currently gauged. An external time tie (e.g. a row from
+/// [`crate::lunar_gauge::rate_tie_row`]) that constrains the absolute rate of one node
+/// suffices to break the common-rate gauge: the resulting flattened information matrix
+/// has `rate_in_gauge = false` and `temporal_gauge_dim < 2`. This is the key C2 result:
+/// the holdover floor is a *genuine* ensemble-time free parameter, not a consequence of
+/// the oscillator model, and an external tie is both necessary and sufficient to remove it.
+pub fn holdover_floor(
+    info: &[Vec<f64>],
+    gauge_generators: &[Vec<f64>],
+    rel_tol: f64,
+) -> HoldoverFloor {
+    // ‖info · g‖ / (‖info‖_F · ‖g‖) < rel_tol ⟺ g ∈ N(info) up to rel_tol.
+    let in_null = |g: &[f64]| -> bool {
+        let info_g: Vec<f64> = info
+            .iter()
+            .map(|row| row.iter().zip(g.iter()).map(|(&a, &b)| a * b).sum())
+            .collect();
+        let norm_ig: f64 = info_g.iter().map(|&x| x * x).sum::<f64>().sqrt();
+        let norm_info: f64 = info
+            .iter()
+            .flat_map(|r| r.iter())
+            .map(|&x| x * x)
+            .sum::<f64>()
+            .sqrt();
+        let norm_g: f64 = g.iter().map(|&x| x * x).sum::<f64>().sqrt();
+        norm_info > 0.0 && norm_g > 0.0 && norm_ig / (norm_info * norm_g) < rel_tol
+    };
+
+    let n = gauge_generators.len();
+    // Common clock-rate generator: the last of the N_DATUM_GAUGE generators (index 7 for
+    // the standard 8-generator ordering: 3 translations, 3 rotations, offset, rate).
+    let rate_in_gauge = n > 0 && in_null(&gauge_generators[n - 1]);
+
+    // Temporal gauge dimension: count offset (n−2) and rate (n−1) generators in N(info).
+    let temporal_gauge_dim = if n >= 2 {
+        let offset_in_gauge = in_null(&gauge_generators[n - 2]);
+        usize::from(offset_in_gauge) + usize::from(rate_in_gauge)
+    } else {
+        usize::from(rate_in_gauge)
+    };
+
+    HoldoverFloor {
+        rate_in_gauge,
+        temporal_gauge_dim,
+    }
+}
+
+// ── Protection-gap slope (Brown slope, g7) ───────────────────────────────────────────
+
+/// Brown protection-gap slope: the ratio of induced observable-state error to
+/// detectable parity.
+///
+/// For a measurement fault vector `b ∈ ℝⁿ`, the least-squares estimator shifts by
+///
+/// ```text
+/// Δx̂ = (GᵀWG)⁺ Gᵀ W b
+/// ```
+///
+/// (pseudo-inverse estimator response; `(GᵀWG)⁺` computed spectrally via
+/// [`crate::fim::crlb`]). The observable part of this shift is `Π_obs Δx̂` where
+/// `Π_obs` = `obs_proj` (the projection onto the observable subspace of the state,
+/// supplied by the caller as `I − N Nᵀ` with `N` the null-space basis of `GᵀWG`).
+/// The Brown protection-gap slope (Brown 1992, "A baseline GPS RAIM scheme and a note
+/// on the equivalence of three RAIM methods") is
+///
+/// ```text
+/// slope(b) = ‖Π_obs Δx̂‖ / ‖P⊥b‖_W
+/// ```
+///
+/// where `‖v‖_W = (vᵀ W v)^{1/2}` is the weighted norm. For a fault `b ∈ range(G)`:
+/// the parity `P⊥b = 0` (no residual, by range annihilation), so the denominator
+/// vanishes while the numerator is finite — the estimator is corrupted with no
+/// detectable signature. This is the protection gap (g7): such faults are undetectable
+/// regardless of the detection threshold. When `‖P⊥b‖_W` is below `1e-12` the
+/// function returns [`f64::INFINITY`] to signal this singularity. For a fault
+/// `b ∉ range(G)` (detectable), the parity is nonzero and the slope is finite.
+///
+/// `pperp` is the `n × n` parity projector, `w` the `n`-vector of weights, `g` the
+/// `n × state_dim` Jacobian, `b` the `n`-vector fault, and `obs_proj` the
+/// `state_dim × state_dim` observable-subspace projector.
+pub fn slope(
+    pperp: &[Vec<f64>],
+    w: &[f64],
+    g: &[Vec<f64>],
+    b: &[f64],
+    obs_proj: &[Vec<f64>],
+) -> f64 {
+    let n_meas = g.len();
+    if n_meas == 0 {
+        return 0.0;
+    }
+    let state_dim = g[0].len();
+
+    // Build GᵀWG (state_dim × state_dim).
+    let mut ntm = vec![vec![0.0_f64; state_dim]; state_dim];
+    for (i, row) in g.iter().enumerate() {
+        let wi = w[i];
+        for p in 0..state_dim {
+            let jwi = row[p] * wi;
+            if jwi == 0.0 {
+                continue;
+            }
+            for q in 0..state_dim {
+                ntm[p][q] += jwi * row[q];
+            }
+        }
+    }
+
+    // (GᵀWG)⁺ via spectral pseudo-inverse.
+    let nplus = crate::fim::crlb(&ntm, 1e-9).pseudo_covariance;
+
+    // GᵀWb = Σ_i w[i] · g[i] · b[i].
+    let mut gtw_b = vec![0.0_f64; state_dim];
+    for (i, row) in g.iter().enumerate() {
+        let wb = w[i] * b[i];
+        if wb == 0.0 {
+            continue;
+        }
+        for p in 0..state_dim {
+            gtw_b[p] += row[p] * wb;
+        }
+    }
+
+    // Δx̂ = nplus · GᵀWb.
+    let dx: Vec<f64> = nplus
+        .iter()
+        .map(|row| row.iter().zip(gtw_b.iter()).map(|(&nv, &gv)| nv * gv).sum())
+        .collect();
+
+    // Observable part: obs_proj · Δx̂ (state_dim-vector); numerator = ‖·‖.
+    let obs_dx: Vec<f64> = obs_proj
+        .iter()
+        .map(|row| row.iter().zip(dx.iter()).map(|(&ov, &dv)| ov * dv).sum())
+        .collect();
+    let numerator: f64 = obs_dx.iter().map(|&x| x * x).sum::<f64>().sqrt();
+
+    // Parity P⊥b.
+    let pb: Vec<f64> = pperp
+        .iter()
+        .map(|row| row.iter().zip(b.iter()).map(|(&pv, &bv)| pv * bv).sum())
+        .collect();
+
+    // Weighted parity norm ‖P⊥b‖_W = sqrt(Σ_i w[i] · (P⊥b)_i²).
+    let denom_sq: f64 = pb.iter().zip(w.iter()).map(|(&v, &wi)| wi * v * v).sum();
+    let denom = denom_sq.sqrt();
+
+    if denom < 1e-12 {
+        f64::INFINITY
+    } else {
+        numerator / denom
+    }
+}
+
+// ── Provider-mismatch common/differential split (T5) ─────────────────────────────────
+
+/// Detectability classification of the common and differential components of a
+/// multi-provider ranging bias.
+///
+/// When ranging measurements from two providers share a common systematic offset (e.g.
+/// a tropospheric model error or a shared clock reference), the resulting common
+/// measurement bias lies in `range(G)` and is undetectable by any parity-based monitor:
+/// the network cannot distinguish it from a change in the estimated state. A differential
+/// mismatch — a bias that affects only the measurements of one provider and not the other
+/// — projects to a nonzero parity residual and is therefore internally detectable whenever
+/// cross-provider links exist. This is the multi-provider interop floor (T5): common-mode
+/// biases require an external reference to resolve, while differential biases are
+/// self-detectable from the network's own parity monitor.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ProviderSplit {
+    /// `true` iff the common provider bias is detectable (parity norm > tolerance).
+    /// Expected `false` for a bias shared across all providers (lies in `range(G)`).
+    pub common_detectable: bool,
+    /// `true` iff the differential provider bias is detectable (parity norm > tolerance).
+    /// Expected `true` when the bias is supported on a proper measurement subset not
+    /// absorbed into a state error by the estimator.
+    pub differential_detectable: bool,
+}
+
+/// Classify a provider-mismatch bias into its common (undetectable) and differential
+/// (detectable) components.
+///
+/// Each component is tested via [`is_detectable`]: `‖P⊥·block‖ > tol`. The common
+/// component is expected to satisfy `block ∈ range(G)` (absorbed entirely into a state
+/// shift, leaving no parity residual), while the differential component has `P⊥·block ≠ 0`
+/// (the inter-provider inconsistency is visible in the residual space). Together the two
+/// results quantify the T5 interop floor: common calibration errors need external tie;
+/// differential errors are self-monitored.
+pub fn provider_mismatch_split(
+    common_block: &[f64],
+    differential_block: &[f64],
+    pperp: &[Vec<f64>],
+    tol: f64,
+) -> ProviderSplit {
+    let (common_detectable, _) = is_detectable(pperp, common_block, tol);
+    let (differential_detectable, _) = is_detectable(pperp, differential_block, tol);
+    ProviderSplit {
+        common_detectable,
+        differential_detectable,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1797,5 +2043,167 @@ mod tests {
                 "f_identify = ⌊(block_spark − 1)/2⌋"
             );
         }
+    }
+
+    // ── Task 6: holdover floor, protection-gap slope, provider split ────────────────
+
+    /// Build the observable-subspace projector `Π_obs = I − N Nᵀ` from the null-space
+    /// basis `N` returned by [`crate::fim::crlb`] (`n × defect`, orthonormal columns).
+    #[allow(clippy::needless_range_loop)]
+    fn obs_projector(null_space: &[Vec<f64>]) -> Vec<Vec<f64>> {
+        let n = null_space.len();
+        if n == 0 {
+            return vec![];
+        }
+        let n_null = null_space[0].len();
+        let mut proj = vec![vec![0.0_f64; n]; n];
+        for i in 0..n {
+            proj[i][i] = 1.0;
+        }
+        for k in 0..n_null {
+            for i in 0..n {
+                for j in 0..n {
+                    proj[i][j] -= null_space[i][k] * null_space[j][k];
+                }
+            }
+        }
+        proj
+    }
+
+    /// C2/T4 HOLDOVER FLOOR: the common clock-rate generator lies in `N(GᵀWG)` for the
+    /// self-referential per-node network (rate is genuinely unobservable — the ensemble-
+    /// time free parameter), and is EXPELLED from the null space once an external rate
+    /// tie is added. Both halves are asserted with high numerical margin, proving the
+    /// floor is a real gauge broken only by an off-network anchor.
+    #[test]
+    fn holdover_floor_self_ref_and_anchored() {
+        let nodes = pernode_body_nodes();
+        let layout = NetworkLayout::new(nodes.len());
+        let inertial = pernode_inertial(&nodes);
+        let rows = pernode_rows(&layout, &inertial);
+        let info = assemble_pernode_info(&rows, layout.state_dim);
+        let gens = datum_gauge_generators(&layout, &inertial);
+        assert_eq!(gens.len(), N_DATUM_GAUGE, "eight gauge generators expected");
+
+        // Self-referential: the common rate generator (gens[7]) is in N(GᵀWG).
+        let floor_self = holdover_floor(&info, &gens, 1e-7);
+        assert!(
+            floor_self.rate_in_gauge,
+            "C2/T4: common rate must be in N(GᵀWG) for self-ref net — this IS the holdover floor"
+        );
+        assert_eq!(
+            floor_self.temporal_gauge_dim, 2,
+            "C2/T4: self-ref net has temporal_gauge_dim=2 (common offset + common rate both gauged)"
+        );
+
+        // Anchored: add one external rate-tie row that fixes node 0's absolute rate.
+        // This row has sensitivity +1 at rate_idx(0) and is zero elsewhere — it connects
+        // the common rate direction to an observable, breaking the ensemble-time gauge.
+        let mut anchored_rows = rows.clone();
+        let mut rate_tie = vec![0.0_f64; layout.state_dim];
+        rate_tie[layout.rate_idx(0)] = 1.0;
+        anchored_rows.push((rate_tie, 1.0));
+        let info_anchored = assemble_pernode_info(&anchored_rows, layout.state_dim);
+
+        let floor_anchored = holdover_floor(&info_anchored, &gens, 1e-7);
+        assert!(
+            !floor_anchored.rate_in_gauge,
+            "C2/T4: external rate tie must break holdover floor (rate NOT in gauge after tie)"
+        );
+        assert!(
+            floor_anchored.temporal_gauge_dim < 2,
+            "C2/T4: temporal_gauge_dim must be < 2 after rate tie, got {}",
+            floor_anchored.temporal_gauge_dim
+        );
+    }
+
+    /// g7 PROTECTION-GAP SLOPE: `slope → ∞` for a fault `b ∈ range(G)` (the estimator
+    /// is corrupted with zero parity — the protection gap), and finite for a generic
+    /// detectable fault `b ∉ range(G)`.
+    #[test]
+    fn slope_infinity_in_range_finite_detectable() {
+        let nodes = pernode_body_nodes();
+        let layout = NetworkLayout::new(nodes.len());
+        let inertial = pernode_inertial(&nodes);
+        let (g, w) = pernode_g_and_w(&layout, &inertial);
+        let pperp = parity_projector(&g, &w);
+        let state_dim = g[0].len();
+        let n_meas = g.len();
+
+        // Build GᵀWG for the observable-subspace projector.
+        let mut ntm = vec![vec![0.0_f64; state_dim]; state_dim];
+        for (i, row) in g.iter().enumerate() {
+            let wi = w[i];
+            for p in 0..state_dim {
+                let jwi = row[p] * wi;
+                if jwi == 0.0 {
+                    continue;
+                }
+                for q in 0..state_dim {
+                    ntm[p][q] += jwi * row[q];
+                }
+            }
+        }
+        let crlb_r = crate::fim::crlb(&ntm, 1e-9);
+        let obs_proj = obs_projector(&crlb_r.null_space);
+
+        // In-range fault: b = G · e_{off(1)}, which lies in range(G).
+        let mut x_in = vec![0.0_f64; state_dim];
+        x_in[layout.off_idx(1)] = 1.0;
+        let b_in: Vec<f64> = g
+            .iter()
+            .map(|row| row.iter().zip(x_in.iter()).map(|(&r, &xi)| r * xi).sum())
+            .collect();
+        let s_in = slope(&pperp, &w, &g, &b_in, &obs_proj);
+        assert!(
+            s_in > 1e6 || s_in.is_infinite(),
+            "g7: slope must be ∞ (or >1e6) for b ∈ range(G) — protection gap: got {s_in}"
+        );
+
+        // Detectable fault: e_0 (first measurement basis vector, not in range(G)).
+        let mut b_out = vec![0.0_f64; n_meas];
+        b_out[0] = 1.0;
+        let s_out = slope(&pperp, &w, &g, &b_out, &obs_proj);
+        assert!(
+            s_out.is_finite() && s_out > 0.0,
+            "g7: slope must be finite and positive for detectable fault b ∉ range(G): got {s_out}"
+        );
+    }
+
+    /// T5 PROVIDER MISMATCH SPLIT: a common provider bias (∈ range(G)) is undetectable;
+    /// a differential provider bias (∉ range(G)) is detectable. This is the multi-provider
+    /// interop floor: common-mode calibration errors need an external reference, while
+    /// differential biases are self-monitored by the parity residual.
+    #[test]
+    fn provider_mismatch_split_common_undetectable_differential_detectable() {
+        let nodes = pernode_body_nodes();
+        let layout = NetworkLayout::new(nodes.len());
+        let inertial = pernode_inertial(&nodes);
+        let (g, w) = pernode_g_and_w(&layout, &inertial);
+        let pperp = parity_projector(&g, &w);
+        let state_dim = g[0].len();
+        let n_meas = g.len();
+
+        // Common bias: b = G · e_{off(2)} — in range(G), undetectable by any parity monitor.
+        let mut x = vec![0.0_f64; state_dim];
+        x[layout.off_idx(2)] = 1.0;
+        let common_bias: Vec<f64> = g
+            .iter()
+            .map(|row| row.iter().zip(x.iter()).map(|(&r, &xi)| r * xi).sum())
+            .collect();
+
+        // Differential bias: e_0 in measurement space — not in range(G), detectable.
+        let mut diff_bias = vec![0.0_f64; n_meas];
+        diff_bias[0] = 1.0;
+
+        let split = provider_mismatch_split(&common_bias, &diff_bias, &pperp, 1e-8);
+        assert!(
+            !split.common_detectable,
+            "T5: common provider bias (∈ range(G)) must be UNDETECTABLE — needs external tie"
+        );
+        assert!(
+            split.differential_detectable,
+            "T5: differential provider bias (∉ range(G)) must be DETECTABLE — self-monitored"
+        );
     }
 }
