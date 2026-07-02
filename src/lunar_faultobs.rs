@@ -328,6 +328,111 @@ pub fn datum_gauge_generators(
     gens
 }
 
+/// Weighted parity projector P⊥ = I − G(GᵀWG)⁺GᵀW for a rank-deficient measurement system.
+///
+/// Classical parity-space RAIM (Sturza 1988; Brown 1992) defines the residual projector
+/// `P⊥ = I − G(GᵀWG)⁻¹GᵀW` for a full-rank measurement Jacobian `G`. In a gauged
+/// problem — here the eight-dimensional lunar datum⊕timescale null space of an autonomous
+/// free constellation — `GᵀWG` is rank-deficient and the ordinary inverse does not exist.
+/// Replacing it with the Moore–Penrose pseudo-inverse `(GᵀWG)⁺` (computed spectrally via
+/// [`crate::fim::crlb`]) yields a well-defined projector that retains the RAIM property:
+/// faults in `range(G)` are annihilated (undetectable), and every other fault projects to a
+/// nonzero parity residual (detectable). Survival of the datum gauge is the extension beyond
+/// the classical result required by an autonomous lunar constellation.
+///
+/// `g` is the `n × state_dim` measurement Jacobian (each row is one measurement sensitivity
+/// vector over the per-node state); `w` is the `n`-vector of per-measurement weights `1/σ²`
+/// (the diagonal of `W`). Returns the `n × n` matrix P⊥.
+///
+/// **Properties** (verified in the module tests):
+/// * **Idempotent:** P⊥² = P⊥ (a genuine projector onto the parity space).
+/// * **W-self-adjoint:** W·P⊥ is symmetric (the correct symmetry in the weighted metric;
+///   P⊥ itself is not symmetric when W ≠ I).
+/// * **Range annihilation:** P⊥·G = 0 (any column combination of G is annihilated).
+pub fn parity_projector(g: &[Vec<f64>], w: &[f64]) -> Vec<Vec<f64>> {
+    let n = g.len();
+    if n == 0 {
+        return vec![];
+    }
+    let state_dim = g[0].len();
+
+    // Form N = GᵀWG (state_dim × state_dim).
+    let mut ntm = vec![vec![0.0_f64; state_dim]; state_dim];
+    for (i, row) in g.iter().enumerate() {
+        let wi = w[i];
+        for p in 0..state_dim {
+            let jwi = row[p] * wi;
+            if jwi == 0.0 {
+                continue;
+            }
+            for q in 0..state_dim {
+                ntm[p][q] += jwi * row[q];
+            }
+        }
+    }
+
+    // Pseudo-inverse Nplus = (GᵀWG)⁺ via the spectral construction in fim::crlb.
+    let nplus = crate::fim::crlb(&ntm, 1e-9).pseudo_covariance;
+
+    // C = Nplus · Gᵀ  (state_dim × n): C[k][i] = Σ_l Nplus[k][l] · G[i][l].
+    let c: Vec<Vec<f64>> = nplus
+        .iter()
+        .map(|nrow| {
+            g.iter()
+                .map(|grow| nrow.iter().zip(grow.iter()).map(|(&nl, &gl)| nl * gl).sum())
+                .collect()
+        })
+        .collect();
+
+    // D = C · W  (state_dim × n): D[k][i] = C[k][i] · w[i].
+    let d: Vec<Vec<f64>> = c
+        .iter()
+        .map(|crow| {
+            crow.iter()
+                .zip(w.iter())
+                .map(|(&cv, &wv)| cv * wv)
+                .collect()
+        })
+        .collect();
+
+    // H = G · D  (n × n): H[j][i] = Σ_k G[j][k] · D[k][i].
+    let h: Vec<Vec<f64>> = g
+        .iter()
+        .map(|grow| {
+            (0..n)
+                .map(|i| grow.iter().zip(d.iter()).map(|(&gk, dk)| gk * dk[i]).sum())
+                .collect()
+        })
+        .collect();
+
+    // P⊥ = I − H.
+    h.into_iter()
+        .enumerate()
+        .map(|(i, row)| {
+            row.into_iter()
+                .enumerate()
+                .map(|(j, v)| if i == j { 1.0 - v } else { -v })
+                .collect()
+        })
+        .collect()
+}
+
+/// Detectability test: does fault vector `b` have a nonzero parity residual?
+///
+/// Returns `(‖P⊥ b‖ > tol, ‖P⊥ b‖)`. The classical T1 RAIM condition (Sturza 1988;
+/// Brown 1992): a measurement fault `b` is detectable iff `b ∉ range(G)`, which is
+/// equivalent to `P⊥ b ≠ 0` (the parity residual is nonzero). Faults in `range(G)`
+/// can be absorbed into a state error and leave no residual; they are undetectable by
+/// any parity-based monitor.
+pub fn is_detectable(pperp: &[Vec<f64>], b: &[f64], tol: f64) -> (bool, f64) {
+    let pb: Vec<f64> = pperp
+        .iter()
+        .map(|row| row.iter().zip(b.iter()).map(|(&p, &bi)| p * bi).sum())
+        .collect();
+    let norm = pb.iter().map(|&x| x * x).sum::<f64>().sqrt();
+    (norm > tol, norm)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -673,6 +778,160 @@ mod tests {
         assert!(
             rel > 1e-3,
             "scale must be observable (not gauged): relative residual {rel:.3e} must be bounded away from 0"
+        );
+    }
+
+    // ── Parity projector ────────────────────────────────────────────────────────────
+
+    /// Extract the n×state_dim Jacobian matrix G and per-measurement weights w = 1/σ²
+    /// from [`pernode_rows`] output, ready for [`parity_projector`].
+    fn pernode_g_and_w(layout: &NetworkLayout, inertial: &[[f64; 3]]) -> (Vec<Vec<f64>>, Vec<f64>) {
+        let rows = pernode_rows(layout, inertial);
+        let g = rows.iter().map(|(r, _)| r.clone()).collect();
+        let w = rows
+            .iter()
+            .map(|(_, sigma)| 1.0 / (sigma * sigma))
+            .collect();
+        (g, w)
+    }
+
+    /// Dense matrix product A · B.
+    fn mat_mul(a: &[Vec<f64>], b: &[Vec<f64>]) -> Vec<Vec<f64>> {
+        let ncols = b.first().map_or(0, |r| r.len());
+        a.iter()
+            .map(|a_row| {
+                (0..ncols)
+                    .map(|j| a_row.iter().zip(b.iter()).map(|(&ai, bi)| ai * bi[j]).sum())
+                    .collect()
+            })
+            .collect()
+    }
+
+    /// Element-wise max |A[i][j] − B[i][j]|.
+    fn max_abs_diff(a: &[Vec<f64>], b: &[Vec<f64>]) -> f64 {
+        a.iter()
+            .zip(b.iter())
+            .flat_map(|(ra, rb)| ra.iter().zip(rb.iter()).map(|(&ai, &bi)| (ai - bi).abs()))
+            .fold(0.0_f64, f64::max)
+    }
+
+    /// P⊥ is idempotent: ‖P⊥² − P⊥‖_max < 1e-9.
+    ///
+    /// Idempotence follows from the Moore–Penrose condition Nplus·N·Nplus = Nplus:
+    /// P_G² = G·Nplus·GᵀW·G·Nplus·GᵀW = G·Nplus·N·Nplus·GᵀW = G·Nplus·GᵀW = P_G,
+    /// so P⊥ = I − P_G satisfies P⊥² = P⊥.
+    #[test]
+    fn parity_projector_idempotent() {
+        let nodes = pernode_body_nodes();
+        let layout = NetworkLayout::new(nodes.len());
+        let inertial = pernode_inertial(&nodes);
+        let (g, w) = pernode_g_and_w(&layout, &inertial);
+        let pperp = parity_projector(&g, &w);
+        let pp2 = mat_mul(&pperp, &pperp);
+        let err = max_abs_diff(&pp2, &pperp);
+        assert!(
+            err < 1e-9,
+            "P⊥ must be idempotent: ‖P⊥² − P⊥‖_max = {err:.3e}"
+        );
+    }
+
+    /// W·P⊥ is symmetric: ‖W·P⊥ − (W·P⊥)ᵀ‖_max < 1e-9.
+    ///
+    /// P⊥ is W-self-adjoint (symmetric under the weighted inner product ‹u,v›_W = uᵀWv).
+    /// P⊥ itself is NOT ordinary-symmetric when W ≠ I — this is the correct test.
+    #[test]
+    fn parity_projector_w_self_adjoint() {
+        let nodes = pernode_body_nodes();
+        let layout = NetworkLayout::new(nodes.len());
+        let inertial = pernode_inertial(&nodes);
+        let (g, w) = pernode_g_and_w(&layout, &inertial);
+        let pperp = parity_projector(&g, &w);
+        let n = pperp.len();
+        // (WP⊥)[i][j] = w[i] · P⊥[i][j]; symmetry: (WP⊥)[i][j] == (WP⊥)[j][i].
+        let mut max_err = 0.0_f64;
+        for i in 0..n {
+            for j in 0..n {
+                let wp_ij = w[i] * pperp[i][j];
+                let wp_ji = w[j] * pperp[j][i];
+                max_err = max_err.max((wp_ij - wp_ji).abs());
+            }
+        }
+        assert!(
+            max_err < 1e-9,
+            "WP⊥ must be symmetric: ‖WP⊥ − (WP⊥)ᵀ‖_max = {max_err:.3e}"
+        );
+    }
+
+    /// P⊥ annihilates every column of G: ‖P⊥G‖_max < 1e-8.
+    ///
+    /// Any measurement fault explainable by a state error lies in range(G) and is
+    /// annihilated by P⊥ — it leaves no parity residual and is undetectable.
+    #[test]
+    fn parity_projector_annihilates_range_g() {
+        let nodes = pernode_body_nodes();
+        let layout = NetworkLayout::new(nodes.len());
+        let inertial = pernode_inertial(&nodes);
+        let (g, w) = pernode_g_and_w(&layout, &inertial);
+        let pperp = parity_projector(&g, &w);
+        let state_dim = g[0].len();
+        // Iterate over columns of G via closure indexing (avoids needless_range_loop).
+        let max_err = (0..state_dim)
+            .map(|c| {
+                let g_col: Vec<f64> = g.iter().map(|row| row[c]).collect();
+                let ppg = mat_vec(&pperp, &g_col);
+                ppg.iter().map(|&v| v.abs()).fold(0.0_f64, f64::max)
+            })
+            .fold(0.0_f64, f64::max);
+        assert!(
+            max_err < 1e-8,
+            "P⊥ must annihilate range(G): ‖P⊥G‖_max = {max_err:.3e}"
+        );
+    }
+
+    /// T1 RAIM detectability condition: b ∈ range(G) ⇒ undetectable (‖P⊥b‖ ≈ 0);
+    /// generic b ∉ range(G) ⇒ detectable (‖P⊥b‖ > 0).
+    ///
+    /// In-range fault: b = G·x for x = e_{clock-offset of node 1} (a non-gauge direction),
+    /// so P⊥·b = P⊥·G·x = 0 by range annihilation. Generic fault: e_0 in measurement
+    /// space (a single-measurement bias not in the 32-dim range(G) ⊂ ℝ^84).
+    #[test]
+    fn detectability_t1_in_range_vs_generic() {
+        let nodes = pernode_body_nodes();
+        let layout = NetworkLayout::new(nodes.len());
+        let inertial = pernode_inertial(&nodes);
+        let (g, w) = pernode_g_and_w(&layout, &inertial);
+        let pperp = parity_projector(&g, &w);
+        let state_dim = g[0].len();
+        let n_meas = g.len();
+
+        // In-range fault: b = G·x, x = e_{clock-offset of node 1} — not a gauge direction.
+        let mut x = vec![0.0_f64; state_dim];
+        x[layout.off_idx(1)] = 1.0;
+        let b_in: Vec<f64> = g
+            .iter()
+            .map(|row| row.iter().zip(x.iter()).map(|(&r, &xi)| r * xi).sum())
+            .collect();
+        let (det_in, norm_in) = is_detectable(&pperp, &b_in, 1e-8);
+        assert!(
+            !det_in,
+            "fault in range(G) must be undetectable; ‖P⊥b‖ = {norm_in:.3e}"
+        );
+        assert!(
+            norm_in < 1e-7,
+            "‖P⊥b‖ for in-range fault must be near zero, got {norm_in:.3e}"
+        );
+
+        // Generic fault: unit vector e_0 in measurement space (not in range(G)).
+        let mut b_out = vec![0.0_f64; n_meas];
+        b_out[0] = 1.0;
+        let (det_out, norm_out) = is_detectable(&pperp, &b_out, 1e-8);
+        assert!(
+            det_out,
+            "generic fault must be detectable; ‖P⊥b‖ = {norm_out:.3e}"
+        );
+        assert!(
+            norm_out > 1e-3,
+            "‖P⊥b‖ for generic fault must be clearly nonzero, got {norm_out:.3e}"
         );
     }
 }
