@@ -1,0 +1,157 @@
+\section{The composed ride-through protection level}
+\label{sec:composition}
+
+This is the object the paper is named for. It is a single protection level over
+the whole degradation---multi-source cross-check, then handover, then coast---and
+its one structural property is that it does not fall at the seam. The construction
+and the property are \Proven{}; the specific ride-through magnitudes are
+\Modelled{}.
+
+\subsection{Definition}
+\label{sec:compdef}
+
+Let $\TPL_{\mathrm{handover}}$ be the scalar timing protection level of
+Section~\ref{sec:scalar} evaluated with the source set present at the instant of
+handover, and let $\HPL(\tau)$ be the $\Pzero$-seeded holdover envelope of
+Section~\ref{sec:holdover}, with $\Pzero$ taken from the disciplining filter's
+handover covariance. The composed ride-through protection level is
+\begin{equation}
+  \boxed{\;\PL(\tau)\;=\;\max\big(\TPL_{\mathrm{handover}},\,\HPL(\tau)\big),\quad \tau\ge0.\;}
+  \label{eq:composed}
+\end{equation}
+For $\tau<0$ (before handover) the reported PL is the live $\TPL$ of the
+cross-checked regime, whose value at the handover instant is
+$\TPL_{\mathrm{handover}}=\PL(0^{-})$.
+
+\subsection{Lower-semicontinuity across handover}
+\label{sec:lsc}
+
+The naive expectation is that a correctly seeded holdover PL should be
+\emph{continuous} at the seam---that $\HPL(0)=\TPL_{\mathrm{handover}}$. That
+expectation is false, and acting on it is unsafe. The handover $\TPL$ carries the
+fault-mode overbounds of the integrity monitor: it protects against the
+possibility that one of the several sources was faulty up to its minimum detectable
+bias. A pure coast has no such fault hypotheses---there are no sources left to be
+faulty---so a freshly re-derived $\HPL(0)$ built only from the clock's phase
+variance is generically \emph{smaller} than $\TPL_{\mathrm{handover}}$. Demanding
+continuity would then pull the PL \emph{down} at $\tau=0$, understating the
+integrity risk exactly when the last independent check is lost.
+
+\begin{theorem}[Lower-semicontinuity and non-decrease at handover]
+\label{thm:lsc}
+For every handover $\TPL_{\mathrm{handover}}\ge0$ and every holdover envelope
+$\HPL(\cdot)\ge0$, the composed PL \eqref{eq:composed} satisfies
+\begin{equation}
+  \PL(0^{+}) \;=\; \max\big(\TPL_{\mathrm{handover}},\,\HPL(0)\big)
+  \;\ge\; \TPL_{\mathrm{handover}} \;=\; \PL(0^{-}),
+  \label{eq:lsc}
+\end{equation}
+so the composed PL is lower-semicontinuous and non-decreasing across handover: it
+never jumps downward at the seam. Moreover, on any interval where $\HPL$ is
+non-decreasing (Section~\ref{sec:holdover}), $\PL(\tau)$ is non-decreasing on
+$\tau\ge0$.
+\end{theorem}
+
+\begin{proof}
+Immediate from $\max(a,b)\ge a$: the first equality is the definition and the
+inequality is the max property, giving \eqref{eq:lsc}. Non-decrease on
+$\tau\ge0$ follows because the pointwise maximum of the constant
+$\TPL_{\mathrm{handover}}$ and a non-decreasing $\HPL(\tau)$ is non-decreasing.
+\end{proof}
+
+The mathematical content of Theorem~\ref{thm:lsc} is deliberately elementary---it is
+the one-line observation $\max(a,b)\ge a$. The contribution is not that algebra but
+the \emph{modelling insight} it formalizes: that demanding continuity at the
+cross-check--to--holdover seam is unsafe (because $\TPL_{\mathrm{handover}}$ carries
+fault-mode overbounds a coast lacks), and that the $\max(\cdot)$ is the remedy that
+guarantees no downward jump. ``Lower-semicontinuity'' is the \emph{name} of the
+resulting property, not the achievement. We are precise about what this theorem is
+and is not. It is \emph{not} a continuity claim and \emph{not}
+$\HPL(0)=\TPL_{\mathrm{handover}}$; it is the weaker, correct statement that the PL
+does not drop. The engine's test
+\code{pl\_is\_lower\_semicontinuous\_across\_handover} asserts
+$\PL(0^{+})\ge\TPL_{\mathrm{handover}}$ for a range of handover TPLs, and
+\code{composed\_pl\_is\_non\_decreasing\_over\_coast} asserts monotonicity along
+the coast. Theorem~\ref{thm:lsc} is the fix for a genuine defect: an earlier,
+naive ``continuous and monotone at handover'' formulation is \emph{wrong} because
+it forces the downward jump; the $\max(\cdot)$ construction is what makes the seam
+safe.
+
+\subsection{The $\Pzero$ seed is a safety requirement}
+\label{sec:p0safety}
+
+Theorem~\ref{thm:lsc} holds structurally through the $\max(\cdot)$, but the seed
+$\Pzero$ still matters, for a distinct reason. Consider the raw holdover branch
+\emph{without} the composition---the PL a receiver would report if it simply
+switched to $\HPL(\tau)$ at handover. With $\Pzero=0$ (coasting as though the clock
+were perfectly known) and no aging, $\HPL(0)=0$: the raw holdover PL starts at
+zero and lies below any positive $\TPL_{\mathrm{handover}}$, an actively unsafe
+drop. The engine's test
+\code{unseeded\_raw\_hpl\_would\_drop\_but\_composed\_pl\_does\_not} exhibits both
+halves: the raw $\HPL(0)$ with $\Pzero=0$ falls below a
+\SI{30}{\nano\second} handover TPL, while the composed PL \eqref{eq:composed} holds
+at the TPL. Seeding $\Pzero$ from the handover covariance is therefore a safety
+requirement in its own right---it makes the holdover branch itself start above
+zero---and the $\max(\cdot)$ is the belt-and-braces guarantee that even a
+mis-seeded branch cannot pull the reported PL below the handover value.
+
+\subsection{A representative ride-through}
+\label{sec:ridethrough}
+
+Table~\ref{tab:ridethrough} shows the composed PL for a representative
+three-source handover (a GNSS-PPP source $\{\sigma=\SI{2}{\nano\second},
+b=\SI{1}{\nano\second}\}$, a PTP/White-Rabbit source $\{\SI{5}{\nano\second},
+\SI{2}{\nano\second}\}$, and a LEO-STL source $\{\SI{8}{\nano\second},
+\SI{3}{\nano\second}\}$, each $p_{\mathrm{fault}}=\num{e-4}$) at integrity-risk
+budget $\IR=\num{e-6}$ and per-mode false-alert budget $p_{\mathrm{fa}}=\num{e-3}$,
+coasting on a disciplined oscillator. The handover TPL is
+$\TPL_{\mathrm{handover}}=\SI{26.961}{\nano\second}$, driven (Theorem
+\ref{thm:biasdriven}) by the exclusion of source~0. The composed PL stays flat at
+this value while $\HPL(\tau)<\TPL_{\mathrm{handover}}$---through the first hour of
+coast---then rises as the holdover envelope overtakes it, reaching
+\SI{264.768}{\nano\second} at one day and \SI{32185.028}{\nano\second} at one week,
+where the $\tau^{5}$ drift term dominates. Every number is regenerated by the
+committed example (Section~\ref{sec:availability}); these are \Modelled{}
+magnitudes for a representative clock, carrying no certification implication.
+
+\begin{table}[t]
+  \centering
+  \caption{Composed ride-through PL $\PL(\tau)=\max(\TPL_{\mathrm{handover}},
+  \HPL(\tau))$ for the representative three-source handover
+  ($\IR=\num{e-6}$, $p_{\mathrm{fa}}=\num{e-3}$). The PL is flat at the handover
+  TPL through the first hour, then holdover-dominated. \Modelled{}.}
+  \label{tab:ridethrough}
+  \begin{tabular}{r r l}
+    \toprule
+    coast $\tau$ & $\PL(\tau)$ (ns) & regime \\
+    \midrule
+    \SI{0}{\second}        & 26.961      & handover TPL \\
+    \SI{60}{\second}       & 26.961      & TPL-limited \\
+    \SI{600}{\second}      & 26.961      & TPL-limited \\
+    \SI{3600}{\second}     & 26.961      & TPL-limited \\
+    \SI{86400}{\second} (1\,d)  & 264.768     & holdover-dominated \\
+    \SI{604800}{\second} (1\,wk) & 32185.028   & holdover-dominated ($\tau^{5}$) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Relation to the single-source conditional TPL}
+\label{sec:baweja}
+
+Baweja's conditional timing protection level \citep{baweja2026tpl} composes a
+detector floor with a coast-over-latency term for a \emph{single}
+GNSS-disciplined source across \emph{one} transition. It is the $N=1$, one-seam
+special case of \eqref{eq:composed}: its detector floor is the integrity-risk-budgeted
+counterpart (analogue) of the $N=1$ scalar TPL \eqref{eq:n1}---Baweja's floor is a
+fixed-$k$ cross-satellite monitor floor, not the exclusion-free $N=1$ MHSS quantile,
+so allocating the integrity-risk budget is itself part of the generalization---and
+its coast term is the $\HPL(\tau)$ leg. The present construction generalizes it in
+two ways. First, to $N\ge1$ multi-source operation through the rank-one MHSS budget,
+taking the per-source overbounds $(\sigma_i,b_i)$ as \emph{given inputs}:
+``heterogeneous'' here means multi-source with given overbounds, \emph{not} the full
+$\utck{}$-traceability treatment---the UTC$(k)$-bias library and the correlated
+cross-covariance are deferred to the companion paper of
+Section~\ref{sec:sourcemodel}, and independence across sources is assumed here
+(Section~\ref{sec:sourcemodel}). Second, to a lower-semicontinuous composition whose
+safety at the seam is a proved property rather than a single-source construction. We
+claim the generalization, and we cite the special case; we do not restate it as new.

@@ -1,0 +1,106 @@
+\section{The holdover protection level}
+\label{sec:holdover}
+
+When the cross-check sources are gone, the receiver coasts on its disciplined
+oscillator and the protection level must grow with the coast time $\tau$. We build
+that holdover PL as a $\Pzero$-seeded, integrity-risk-allocated envelope on the
+phase error, keeping the deterministic bias and the stochastic sup structurally
+separate. The construction is \Proven{}; its multi-year overbound coverage is the
+one \Validated{} claim (Section~\ref{sec:validation}).
+
+\subsection{The envelope}
+\label{sec:hplenvelope}
+
+The holdover protection level at integrity risk $\IR$ and coast time $\tau$ is
+\begin{equation}
+  \HPL(\tau) \;=\; \underbrace{\tfrac12 D\tau^{2}}_{\text{aging bias}}
+  \;+\;
+  \Kf(\IR/2)\,
+  \sqrt{\,\Pzero
+        + q_{\mathrm{wf}}\,\tau
+        + q_{\mathrm{rw}}\,\tfrac{\tau^{3}}{3}
+        + q_{\mathrm{drift}}\,\tfrac{\tau^{5}}{20}
+        + (\varphi\tau)^{2}\,},
+  \label{eq:hpl}
+\end{equation}
+with five ingredients, each carrying a specific modelling commitment.
+
+\paragraph{Phase-error variance exponents $\tau,\tau^{3},\tau^{5}$.}
+The three stochastic terms under the root are the white-FM, random-walk-FM, and
+random-run (drift) contributions to the \emph{phase}-error variance, which grow as
+$\tau$, $\tau^{3}$, and $\tau^{5}$ respectively: the $\tau$ and $\tau^{3}$
+(white-FM, random-walk-FM) terms are the phase variances of the Zucca--Tavella
+model \citep{zucca2005}, and the $\tau^{5}$ (random-run/drift) term is the standard
+random-run extension of that model \citep{riley2008}. These are the phase exponents;
+relative to the corresponding \emph{frequency}-error exponents the offset is $+1$
+for the white-FM leg (frequency $\tau^{0}\!\to$ phase $\tau$) and $+2$ for the
+random-walk-FM (frequency $\tau^{1}\!\to$ phase $\tau^{3}$) and drift (frequency
+$\tau^{3}\!\to$ phase $\tau^{5}$, integrated-BM) legs; the engine's exponent-lint
+test
+\code{phase\_variance\_exponents\_are\_tau\_tau3\_tau5} asserts the growth ratios
+$\{2,8,32\}$ under lag doubling, machine-checking that the implementation uses the
+phase and not the frequency laws.
+
+\paragraph{The aging bias is carried separately.}
+The deterministic drift produces a $\tfrac12 D\tau^{2}$ phase bias. It is a
+monotone deterministic term, so its running maximum over a coast interval is its
+endpoint value; we therefore add it \emph{outside} the stochastic root rather than
+folding it into a variance, using the elementary bound
+$\sup(a+b)\le\sup a+\sup b$ and applying the running-max integrity multiplier only
+to the stochastic part. Folding a deterministic $\tau^{2}$ bias into a Gaussian
+variance would both mis-model it and double-count the multiplier; the test
+\code{aging\_bias\_carried\_separately\_from\_stochastic\_sup} confirms that with
+zero stochastic noise $\HPL$ equals exactly $\tfrac12 D\tau^{2}$.
+
+\paragraph{The running-max multiplier is $\Kf(\IR/2)$, not $\Kf(\IR)$.}
+A pointwise protection level uses the two-sided multiplier
+$\Kf(\IR)=\Phi^{-1}(1-\IR/2)$. But a holdover PL must bound the \emph{supremum} of
+the phase-error process over the whole coast interval, not its value at a single
+$\tau$; reflecting the process about a level and applying the reflection principle
+trades the pointwise multiplier for
+\begin{equation}
+  \Kf(\IR/2)\;=\;\Phi^{-1}\!\big(1-\IR/4\big)\;>\;\Kf(\IR).
+  \label{eq:kir}
+\end{equation}
+Using the pointwise $\Kf(\IR)$ for an interval understates the running-max PL and
+is optimistic (unsafe). We are explicit about the reach of \eqref{eq:kir}: the
+reflection is \emph{exact only for the white-FM (Brownian) leg}, which is a
+martingale; the random-walk-FM ($\tau^{3}$) and drift ($\tau^{5}$) legs are
+\emph{integrated} Brownian motion, for which the reflection principle does not
+apply, so there $\Kf(\IR/2)$ is a \emph{conservative overbound, not an exact
+quantile}. We claim conservatism, not tightness. The test
+\code{running\_max\_multiplier\_is\_used\_not\_pointwise} asserts
+$\HPL$ uses \eqref{eq:kir} and exceeds the pointwise construction.
+
+\paragraph{The flicker floor is a bounded inflation, not a state.}
+Flicker-FM ($1/f$) noise has no finite-dimensional stochastic-differential-equation
+state and is excluded from the Zucca--Tavella clock model \citep{zucca2005}. Rather
+than drop it silently, we absorb it as a bounded, conservative inflation
+$(\varphi\tau)^{2}$ inside the variance, with $\varphi$ a fractional flicker floor.
+This is an over-model chosen for safety in the regime where the SDE model is
+otherwise faithful; it is not a claim that flicker is a white or random-walk
+process.
+
+\paragraph{The $\Pzero$ seed.}
+The variance under the root starts at $\Pzero$, the handover-state phase-error
+variance of Section~\ref{sec:handover}. Seeding the coast from the disciplining
+clock-Kalman filter's handover-state covariance is the standard clock-Kalman
+handover practice \citep{galleani2010}; what we build on it is the seam-safety
+consequence of Section~\ref{sec:composition}. This term is what keeps $\HPL(0)>0$;
+its role at the seam is the subject of Section~\ref{sec:composition}. The test
+\code{p0\_seed\_floors\_hpl\_at\_tau\_zero} checks that with $\Pzero=0$ and $D=0$
+the raw $\HPL(0)$ collapses to zero, and \code{hpl\_is\_monotone\_increasing\_in\_tau}
+checks the whole envelope is non-decreasing in $\tau$.
+
+\subsection{What the envelope is and is not}
+\label{sec:hplscope}
+
+Equation~\eqref{eq:hpl} is a \emph{single-clock} holdover envelope: it protects the
+coast of one disciplined oscillator seeded by its own handover covariance. It is
+not a heterogeneous multi-source budget (Section~\ref{sec:scalar} handles the
+multi-source regime \emph{before} handover; the composition of the two is
+Section~\ref{sec:composition}), and it makes no adversary or common-mode claim.
+Its stochastic parameters are the clock's; its shape is fixed by the exponents
+$\tau,\tau^{3},\tau^{5}$; and its safety rests on the two conservative choices made
+above---the running-max multiplier and the flicker inflation---both of which
+overbound rather than tighten.
