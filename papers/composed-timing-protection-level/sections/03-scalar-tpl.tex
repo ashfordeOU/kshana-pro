@@ -1,0 +1,135 @@
+\section{The scalar timing protection level as a rank-one ARAIM specialization}
+\label{sec:scalar}
+
+This section recasts the multi-source timing PL as the degenerate-geometry limit
+of MHSS-ARAIM solution separation. The algebra is \Cited{} from
+Blanch \citep{blanch2015} and Joerger \citep{joerger2014}; what is \Proven{} is
+the specialization and its structural consequence.
+
+\subsection{The rank-one degeneracy}
+\label{sec:ranktone}
+
+In position ARAIM the measurements $y=Hx+\text{noise}$ observe a multidimensional
+state $x$ through a geometry matrix $H$ whose conditioning---the
+geometric dilution of precision---shapes the protection level. Here every source
+observes the same scalar \eqref{eq:estimand}, so the geometry matrix is the
+all-ones column,
+\begin{equation}
+  H \;=\; \bm 1_N \;=\; (1,\dots,1)^{\!\top}\in\R^{N},
+  \qquad \operatorname{rank}H = 1.
+  \label{eq:h1n}
+\end{equation}
+The geometry carries no dilution structure to exploit or to lose: all
+observability is in the noise weighting and the fault model.
+
+\begin{proposition}[Rank-one fusion and the separation identity]
+\label{prop:fusion}
+Under \eqref{eq:h1n} with source variances $\sigma_i^2$, the fault-free
+inverse-variance fused estimate has variance
+\begin{equation}
+  \sigff^{2} \;=\; \Big(\textstyle\sum_{i=1}^{N}\sigma_i^{-2}\Big)^{-1},
+  \label{eq:fused}
+\end{equation}
+and the separation statistic between the full solution and the subset solution
+that excludes source $j$ (a nested estimator) has variance
+\begin{equation}
+  \sigss^{2} \;=\; \sigsub^{2}-\sigff^{2},
+  \qquad
+  \sigsub^{2}=\Big(\textstyle\sum_{i\neq j}\sigma_i^{-2}\Big)^{-1}.
+  \label{eq:sepvar}
+\end{equation}
+\end{proposition}
+
+Equation~\eqref{eq:sepvar} is the nested-estimator identity of solution
+separation \citep{joerger2014}: the variance of the difference between a full and
+a sub-solution equals the difference of their variances, because the sub-solution
+is a projection of the full solution. It is the scalar instance of the general SS
+result, given here for completeness; the derivation is in
+Appendix~\ref{app:algebra}.
+
+\subsection{The MHSS budget and the bias-driven PL}
+\label{sec:mhssbudget}
+
+The timing protection level is the smallest $\PL$ whose one-sided integrity risk,
+summed over the fault-free hypothesis and the $N$ single-source-exclusion
+hypotheses under the MHSS budget, does not exceed half the two-sided integrity-risk
+budget:
+\begin{equation}
+  \sum_{m\in\{\mathrm{ff}\}\cup\{1,\dots,N\}}
+  P(H_m)\,\Qfun\!\left(\frac{\PL-b_m-T_m}{\sigma_m}\right)\;\le\;\frac{\IR}{2},
+  \label{eq:mhss}
+\end{equation}
+where $\Qfun(\cdot)$ is the standard-normal upper tail, $T_m=\Kf_{\mathrm{fa}}\,
+\sigss^{(m)}$ is the mode's detection threshold (with $\Kf_{\mathrm{fa}}$ the
+Bonferroni-split false-alert multiplier of Appendix~\ref{app:algebra}), $b_m$ the
+subset bias overbound, and $\sigma_m$ the subset noise sigma. At the budget-level
+description this is, schematically, the familiar worst-subset form
+$\TPL\approx\max_m\big[\Kf_m\,\sigma_m+b_m\big]$: the PL is set by the hypothesis
+that is hardest to protect against. This schematic scales each mode's PL
+\emph{contribution} by its integrity multiplier $\Kf_m$; it is distinct from the
+driver-\emph{ranking} metric $b_m+T_m+\sigma_m$ of Theorem~\ref{thm:biasdriven} and
+the engine (threshold $T_m$ included, unit coefficient on $\sigma_m$), which is a
+heuristic \emph{label} for which subset drives and not a scaling of the contribution
+(see the note after Theorem~\ref{thm:biasdriven}).
+
+\begin{theorem}[The bias model, not geometry, drives the scalar PL]
+\label{thm:biasdriven}
+Under the rank-one geometry \eqref{eq:h1n}, the timing protection level
+\eqref{eq:mhss} has no geometric-dilution dependence, and its driving hypothesis is
+\emph{generically}, for $N\ge2$, the single-source-\emph{exclusion} subset with the
+largest $\big[b_{\mathrm{sub}}+T_{\mathrm{sub}}+\sigsub\big]$---the survivability of
+the system \emph{without} its most informative source. This ranking labels the
+driving hypothesis only; it never affects the PL \emph{value}, which is always the
+full bisection of \eqref{eq:mhss} over all modes, the fault-free mode included. For
+$N=1$ there is no exclusion subset and the driver is the fault-free mode. We do not
+claim that an exclusion subset always dominates the fault-free mode; hence the
+hedge. Consequently, holding the noise model fixed, the PL grows monotonically with
+the excluded-subset traceability bias $b_{\mathrm{sub}}$: the bias overbound, not
+the geometry, is the driver.
+\end{theorem}
+
+The proof (Appendix~\ref{app:algebra}) is elementary once \eqref{eq:h1n} removes
+the geometry term; the engine's test \code{bias\_dominates\_the\_pl\_not\_geometry}
+machine-checks the monotone growth by inflating one source's bias and confirming
+the PL rises. We stress the honesty tag: Theorem~\ref{thm:biasdriven} is
+\emph{ARAIM specialized to a degenerate geometry}, not a new integrity theorem;
+the value it adds is the explicit statement of \emph{where} the scalar-time case
+departs from position ARAIM (it loses dilution and becomes bias-limited) and the
+identification of the driving hypothesis as the worst exclusion subset. A minor
+but real precision: the driver is survivability without the best source, not ``the
+best single source's noise''---the distinction matters when the sources are
+unequal. Note that the driving-subset ranking metric
+$b_{\mathrm{sub}}+T_{\mathrm{sub}}+\sigsub$ (used identically in the paper and the
+engine) is a heuristic \emph{label} for which subset drives; it carries a unit
+coefficient on $\sigsub$ and does not scale that mode's PL contribution, which
+enters \eqref{eq:mhss} through $\Kf\,\sigma$, and it never changes the PL value
+(always the full bisection).
+
+\subsection{The \texorpdfstring{$N=1$}{N=1} closed form and an independent confirm}
+\label{sec:n1}
+
+For a single source there is no exclusion subset; only the fault-free hypothesis
+remains, with prior $1-p_{\mathrm{fault}}$ and threshold zero, so \eqref{eq:mhss}
+inverts in closed form,
+\begin{equation}
+  \PL \;=\; b \;+\; \sigma\,\Phi^{-1}\!\left(1-\frac{\IR/2}{1-p_{\mathrm{fault}}}\right).
+  \label{eq:n1}
+\end{equation}
+For a representative source
+$\{\sigma=\SI{2}{\nano\second},\,b=\SI{1}{\nano\second},\,
+p_{\mathrm{fault}}=\num{e-4}\}$ at integrity-risk budget $\IR=\num{e-5}$,
+Equation~\eqref{eq:n1} gives $\PL=\SI{9.83}{\nano\second}$. The engine computes the
+same PL by the general MHSS bisection of \eqref{eq:mhss}, with no use of the
+closed form, and the two agree to below \num{e-11} seconds---an independent
+numerical confirmation that the general solver reduces correctly to the scalar
+single-source case. Equation~\eqref{eq:n1} is the integrity-risk-budgeted counterpart (analogue) of
+the passive, single-source detector-floor term of Baweja \citep{baweja2026tpl}:
+Baweja's floor is a fixed-$k$ cross-satellite \emph{monitor} floor with no
+integrity-risk budget and no bias term, whereas \eqref{eq:n1} allocates the
+integrity-risk budget $\IR$, corrects for the fault prior $1-p_{\mathrm{fault}}$,
+and carries the traceability bias $b$; at $N=1$ it moreover has no exclusion
+subset. It is thus the integrity-risk-budgeted, exclusion-free $N=1$ MHSS quantile,
+not the fixed-$k$ monitor floor, so introducing the IR budget is itself part of the
+generalization and not a hidden equivalence. Recovering \eqref{eq:n1} as the $N=1$
+limit is the first of the two senses in which this construction generalizes that
+work, the second being the composition of Section~\ref{sec:composition}.
