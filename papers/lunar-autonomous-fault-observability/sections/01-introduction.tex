@@ -1,0 +1,136 @@
+\section{Introduction}
+\label{sec:intro}
+
+The next decade will place several independent positioning, navigation, and timing (PNT)
+services around the Moon---NASA's LunaNet and its Lunar Communications Relay and Navigation
+Systems, ESA's Moonlight programme and its Lunar Communications and Navigation Service, and
+their national counterparts \citep{israel2020lunanet,fienga2024moonlight,lnis2023}. Concretely,
+NASA's Lunar Augmented Navigation Service (LANS) is disseminated by LunaNet Service Providers
+(LNSPs) over an Augmented Forward Signal (AFS), with ESA's Moonlight providing the analogous
+European capability. These
+services are nominally \emph{Earth-referenced}: their frames and timescales are tied, at
+some cadence, to terrestrial reference systems and to Terrestrial Time through Earth--Moon
+links. The design driver of the present paper is the \emph{contingency} mode. When the
+Earth link is lost or degraded---the case in which integrity and timekeeping matter
+most---such a constellation must run \emph{autonomously}: it must certify its own integrity,
+detect and exclude faulty members, and hold its timescale, using only the measurements its
+nodes make of \emph{each other}. We therefore ask a sharp question about a self-referential
+lunar network: \emph{what can it see about its own faults, and how many untrusted peers can
+it tolerate, as a function of geometry?}
+
+This paper answers that question and, in doing so, closes a companion arc. P1 classifies the
+\emph{spatial} datum defect of a lunar network \citep{baweja2026datum}; P2 quantifies the
+irreducible cross-provider interoperability floor \citep{baweja2026interop}; P3 identifies
+the common-mode error class an integrity monitor cannot see \citep{baweja2026commonmode};
+and P4 adds \emph{time} and the coupled frame$\oplus$timescale gauge \citep{baweja2026gauge}.
+The present paper (P5) turns that gauge machinery on \emph{fault observability} and shows
+that these gauges and the fault-hiding directions of an autonomous integrity monitor are two
+faces of a single rank deficiency of the network Jacobian~$\Gmat$: the spatial datum (P1) and
+coupled timescale (P4) gauges are the parameter-space null space $\Nsp(\Gmat)$, whereas the
+P3 common-mode class is a subset of the measurement-space range $\rng(\Gmat)$---linked by that
+one deficiency, not equal to one another. We are deliberate throughout about the status of every
+statement---cited, proven, validated, or modelled---because the honest content of the paper
+is a small number of proven structural results and exactly one externally validated pipeline,
+set against a large body of correctly attributed prior art.
+
+\paragraph{The prior art, and where our contribution begins.}
+Autonomous integrity monitoring is not a new subject, and we bound our novelty up front. The
+parity-space characterization of undetectable faults, the minimum detectable bias (MDB), and
+the protection level (PL) are classical RAIM/ARAIM \citep{sturza1988,brown1992,parkinson1988,%
+baarda1968,teunissen2006,blanch2015,joerger2014}; we cite them and claim none. Cooperative and
+collaborative integrity monitoring---solution-separation fault detection and exclusion
+\citep{joerger2014} carried across a network of receivers or vehicles \citep{bhamidipati2019coop}---is
+equally prior art, but it is empirical and Earth-anchored and does not characterize the
+frame$\oplus$timescale gauge as a fault-hiding subspace, which is what we add. The
+sparse-observability / error-correcting-code bound that governs how many arbitrary sensor
+faults an estimator can survive is the secure-state-estimation and compressed-sensing
+literature \citep{fawzi2014,shoukry2016,candes2005,donoho2003}; the bound is theirs. The
+Byzantine (arbitrary, colluding) fault \emph{model} is Lamport--Shostak--Pease
+\citep{lamport1982}, cited for the model only---emphatically \emph{not} for its $3f+1$
+message-passing consensus threshold, which is a different problem class we distinguish
+carefully in Section~\ref{sec:byzantine}. Closest of all is the recent, excellent work on
+\emph{autonomous constellation fault monitoring via inter-satellite links using rigidity}
+\citep{iiyama2024} and its clock-fault follow-on using Euclidean distance matrices
+\citep{iiyama2025edm}, built on the rigidity theory of network localization
+\citep{aspnes2006}; and the LiAISON result that absolute state is recoverable from crosslinks
+given a dynamically-unique orbit \citep{hillborn2007}. This prior art occupies most of the
+territory of ``autonomous lunar ISL fault detection.'' Our contribution is the complement of
+it, and we state the boundary plainly:
+\begin{itemize}
+  \item \textbf{Versus rigidity-based monitoring \citep{iiyama2024,iiyama2025edm}.} The
+  rigidity approach and its Euclidean-distance-matrix clock-fault follow-on are a
+  simulation-validated \emph{algorithm}---a singular-value / GCEDM test on the inter-node
+  geometry that detects faults and identifies a \emph{single} faulty satellite, clock jumps
+  included. Our contribution is the complement, in three respects. First, we give an
+  \emph{algebraic characterization}---undetectable $\iff\rng(\Gmat)$, with provable
+  minimum-detectable-bias and block-spark bounds---of \emph{which} faults are provably
+  invisible, rather than a validated detector. Second, we bound worst-case
+  \emph{colluding-coalition (Byzantine)} identification (block-spark $>2f$,
+  Section~\ref{sec:byzantine}), a stronger adversary than a single culprit. Third, we
+  characterize the common clock offset and rate as an \emph{unobservable gauge with a holdover
+  floor} (Section~\ref{sec:holdover}), together with the coupled datum$\oplus$timescale
+  unification and the provider common/differential split---none of which the rigidity papers
+  address, even where they treat clock jumps. We concede the deep connection: EDM/rigidity is
+  intrinsically invariant to rigid transforms, so \citep{iiyama2024,iiyama2025edm}
+  \emph{exploit} the spatial datum gauge as a tool---that is why they need no precise
+  ephemeris---whereas we \emph{characterize} that same invariance as the fault-hiding subspace
+  and extend it to the timescale.
+  \item \textbf{Versus secure state estimation \citep{fawzi2014,shoukry2016}.} The
+  sparse-observability / $2f$-bound is theirs. Our Theorem~\ref{thm:byzantine} is its
+  \emph{geometric instantiation} on the coupled-datum lunar Jacobian $\Gmat$, with the
+  peer-column-block structure of a physical constellation; it is not a new bound.
+  \item \textbf{Versus LiAISON \citep{hillborn2007}.} LiAISON recovers absolute state from
+  crosslinks by exploiting \emph{orbital dynamics} over an arc---a dynamically-unique orbit
+  breaks the frame symmetry. Our analysis is the \emph{kinematic / snapshot} regime: the
+  instantaneous geometry Jacobian, whose gauge is eight. The dynamical regime is
+  complementary and can partially collapse that gauge; we state this scope explicitly
+  (Section~\ref{sec:model}) rather than overclaim a dynamics-free absolute frame.
+\end{itemize}
+What is genuinely ours is therefore narrow and, we hope, useful: (i)~the coupled
+frame$\oplus$timescale gauge instantiated in fault observability---the undetectable-fault
+subspace is the measurement-space \emph{face} of the same rank deficiency that produces the
+datum$\oplus$timescale gauge in parameter space; (ii)~the
+geometric secure-\emph{identification} bound for colluding peers on that geometry; (iii)~the
+unification tying P1/P3/P4 to fault-hiding; and (iv)~the provider-fault taxonomy and its
+common/differential detectability split.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item \textbf{The one-rank-deficiency unification} (\Proven{}, Section~\ref{sec:obs}). The
+  same rank deficiency of $\Gmat$ produces the parameter-space gauge
+  $\Nsp(\Gmat)\subset\R^{40}$ and the measurement-space blind fault subspace
+  $\rng(\Gmat)\subset\R^{84}$; an undetectable fault is one absorbed into a state error
+  defined only modulo $\Nsp(\Gmat)$. This is a statement about \emph{two subspaces linked by
+  one map}, not an identity of subspaces.
+  \item \textbf{Undetectable $\iff\rng(\Gmat)$, surviving the gauge} (\Cited{} core,
+  \Proven{} survival, Theorem~\ref{thm:undetectable}). The classical parity characterization
+  holds for the rank-deficient, gauge-carrying $\Gmat$ through the pseudo-inverse projector,
+  which is gauge-independent.
+  \item \textbf{A geometric secure-identification bound} (\Cited{} bound, \Proven{}
+  instantiation, Theorem~\ref{thm:byzantine}). Detect $\le f$ colluding peers iff the
+  parity-projected peer blocks are full column rank (block-spark $>f$); identify iff
+  block-spark $>2f$. The condition is a measurement-redundancy coding bound, distinct from
+  the $3f+1$ consensus threshold.
+  \item \textbf{An autonomous-holdover floor and a provider taxonomy} (\Proven{} structure,
+  \Modelled{} magnitude, Section~\ref{sec:holdover}). The common clock rate is an irreducible
+  temporal-gauge free parameter; a provider-wide bias splits into an undetectable common part
+  (needs an external tie) and a detectable differential part (three or more providers
+  identify the culprit).
+  \item \textbf{The exactly-one validated pipeline} (\Validated{}, Section~\ref{sec:anchor})
+  and \textbf{four design laws} (Section~\ref{sec:designlaws}), with a stated firewall and no
+  flight, certification, or technology-readiness claim.
+\end{enumerate}
+
+\paragraph{Honesty scope.}
+We separate four kinds of statement and label them at every occurrence. The parity/MDB/PL
+machinery, the sparse-observability bound, the Byzantine model, and the rigidity and LiAISON
+prior art are \emph{cited}. The gauge-survival of the parity characterization, the
+one-rank-deficiency unification, the geometric block-spark instantiation, the holdover
+temporal-gauge floor, the provider common/differential split, and the protection-gap
+statement are \Proven{} algebra. Exactly one row is externally \Validated{}: the
+linear-algebra pipeline reproduces an independent numpy/scipy oracle on real
+DE440-orientation rows. Everything else---the representative geometry, every magnitude and
+count read as an \emph{operational} tolerance, PL, provider-count, or holdover drift---is
+\Modelled{}. There is no flight data, no certified alert limit, no endorsement by any agency,
+and no technology-readiness claim above analysis; every number is regenerated from the open
+engine by one command (Section~\ref{sec:availability}).

@@ -1,0 +1,113 @@
+% SPDX-License-Identifier: CC-BY-4.0
+% P4 coupled frame+timescale gauge manuscript. Target: NAVIGATION (ION) / Journal of Geodesy / Metrologia.
+% Build: tectonic main.tex   (or pdflatex + bibtex + pdflatex x2)
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{3em}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{orcidlink}
+
+\graphicspath{{./}{figures/}}
+\setlength{\abovecaptionskip}{9pt}
+\setlength{\belowcaptionskip}{6pt}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+% Notation macros
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Imat}{\bm{I}}                       % Fisher information matrix
+\newcommand{\Gmat}{\bm{G}}                       % geometry (design) matrix
+\newcommand{\thetav}{\bm{\theta}}                % coupled datum vector
+\newcommand{\Umat}{\bm{U}}                       % null-space basis (9 x d)
+\newcommand{\Nsp}{\mathcal{N}}                   % null space
+\newcommand{\Ssp}{\mathcal{S}}                   % spatial subspace
+\newcommand{\Tsp}{\mathcal{T}}                   % temporal subspace
+\newcommand{\Pnull}{\bm{P}_{\!\Nsp}}            % null-space projector U U^T
+\newcommand{\Pst}{\bm{P}_{\!\Ssp\Tsp}}          % spatial-temporal off-diagonal block
+\newcommand{\dtau}{\delta\tau}                   % timescale offset gauge
+\newcommand{\dalpha}{\delta\alpha}               % timescale rate gauge
+\newcommand{\rmoon}{R_{\leftmoon}}               % lunar reference radius
+\newcommand{\Umoon}{U_{\leftmoon}}               % lunar surface potential
+\newcommand{\gmoon}{g_{\leftmoon}}               % lunar surface gravity
+\newcommand{\rng}{\operatorname{range}}
+\newcommand{\Sig}{\bm{\Sigma}}                   % covariance
+\DeclareMathOperator{\rank}{rank}
+
+% Honesty tags for proven / validated / representative-modelled quantities
+\newcommand{\Proven}{\textsc{Proven}}
+\newcommand{\Modelled}{\textsc{Modelled}}
+\newcommand{\Validated}{\textsc{Validated}}
+\newcommand{\modtag}{{\footnotesize\textsf{[M]}}}
+
+\title{\textbf{The coupled frame--timescale gauge of lunar PNT: a
+basis-invariant datum-defect classification, the two frame--time couplings,
+and why a lunar reference \emph{system} must fix both a spatial datum and a
+temporal convention}}
+
+\author{Chakshu Baweja\,\orcidlink{0009-0008-2098-0751}\\
+\small Ashforde O\"U, Tallinn, Estonia \\
+\small \texttt{contact@ashforde.org}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{sections/00-abstract}
+\end{abstract}
+
+\noindent\textbf{Keywords:} lunar PNT; geodetic datum; gauge freedom; null space;
+Fisher information; reference frame; timescale; relativistic clock rate; LunaNet;
+Moonlight; LCNS; DE440; identifiability
+
+\vspace{0.5em}
+\input{sections/01-introduction}
+\input{sections/02-model}
+\input{sections/03-theorem}
+\input{sections/04-couplings}
+\input{sections/05-real-anchor}
+\input{sections/06-design-laws}
+\input{sections/07-discussion}
+\input{sections/08-conclusion}
+
+\section*{Data and code availability}
+\input{sections/09-availability}
+
+\section*{Acknowledgements}
+The numerical substrate underlying this work is part of the open-source
+\code{kshana} engine. The lunar orientation and ephemeris data used here are the
+JPL DE440 development ephemeris; the relativistic clock-rate coefficients are
+derived from first principles and cross-checked against the published lunar
+timescale band. This research received no specific grant from any funding agency
+in the public, commercial, or not-for-profit sectors.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\input{sections/A-methods}
+
+\end{document}

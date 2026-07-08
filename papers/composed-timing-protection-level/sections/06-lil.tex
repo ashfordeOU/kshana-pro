@@ -1,0 +1,91 @@
+\section{A law-of-the-iterated-logarithm envelope for the holdover leg}
+\label{sec:lil}
+
+The holdover leg raises a foundational question: is there a finite deterministic
+number that bounds the coast error for all time? Baweja's impossibility result
+\citep{baweja2026tpl} says no, for the single-source case. The boundary-crossing
+behaviour of clock-error processes is itself a subject of metrology---the
+first-passage / boundary-crossing treatment of Galleani, Tavella, and Peskir
+\citep{galleani2016}---which the present LIL application sharpens into an
+integrity-risk statement about the holdover envelope's growth order. Here we sharpen
+Baweja's result into a two-part statement---an impossibility and a matching
+consistency---using the law of the iterated logarithm (LIL). Both parts are \Proven{}, and both are
+\emph{asymptotic}: this is stated at the outset because it bounds what the section
+may be read to certify.
+
+\subsection{Impossibility of a finite worst-case holdover}
+\label{sec:impossible}
+
+The white-FM phase error is, in the limit, a Brownian motion with diffusion $D$.
+The Hartman--Wintner law of the iterated logarithm \citep{hartman1941} gives its
+almost-sure envelope,
+\begin{equation}
+  \limsup_{t\to\infty}\frac{|W(t)|}{\sqrt{2Dt\,\ln\ln t}} \;=\; 1
+  \quad\text{a.s.},
+  \label{eq:hw}
+\end{equation}
+so $\sqrt{2Dt\,\ln\ln t}\to\infty$: the sample path exceeds any fixed level
+infinitely often.
+
+\begin{proposition}[No finite deterministic worst-case holdover bound]
+\label{prop:impossible}
+For a white-FM (Brownian) holdover leg with $D>0$, there is no finite constant $B$
+with $\Prob\big(\sup_{t\ge0}|W(t)|\le B\big)=1$. Equivalently, the almost-sure
+envelope \eqref{eq:hw} diverges, so any deterministic ``worst-case holdover''
+number is exceeded almost surely.
+\end{proposition}
+
+This is why the holdover PL must be \emph{probabilistic}---an integrity-risk-allocated
+envelope---and never a worst-case bound. The engine's test
+\code{envelope\_diverges\_no\_finite\_worst\_case} checks that the numerical LIL
+envelope grows without bound over increasing horizons. The result is
+component-specific: Hartman--Wintner \eqref{eq:hw} governs the white-FM/Brownian
+leg. The random-walk-FM and drift legs are \emph{integrated} Brownian motions, whose
+suprema also diverge almost surely; the relevant statement is the \emph{upper-class}
+law-of-the-iterated-logarithm growth (the Hartman--Wintner \citep{hartman1941}
+flavour), not the \emph{lower-class} liminf law of Chung \citep{chung1948}---so the
+divergence conclusion holds for each leg.
+
+\subsection{Consistency of the integrity-risk-allocated envelope}
+\label{sec:consistency}
+
+Impossibility of a worst-case bound does not condemn the probabilistic envelope; it
+constrains it. The complementary result is that the IR-allocated $\HPL$ leg grows
+\emph{at least as fast} as the a.s.\ envelope once the integrity risk is made
+tight.
+
+\begin{proposition}[Consistency as $\IR\to0$]
+\label{prop:consistency}
+For the white-FM leg, the IR-allocated holdover term
+$\Kf(\IR/2)\sqrt{Dt}$ dominates the Hartman--Wintner envelope
+$\sqrt{2Dt\ln\ln t}$ precisely when
+$\Kf(\IR/2)\ge\sqrt{2\ln\ln t}$. Since $\Kf(\IR/2)=\Phi^{-1}(1-\IR/4)\to\infty$ as
+$\IR\to0$, for any fixed horizon $t$ there is an $\IR(t)>0$ below which the
+allocated envelope dominates the a.s.\ path envelope; a coupled schedule
+$\IR(t)\to0$ keeps the $\HPL$ leg at or above the a.s.\ envelope as $t\to\infty$.
+\end{proposition}
+
+The engine's test \code{tightening\_ir\_makes\_hpl\_dominate\_the\_as\_envelope}
+exhibits both regimes at a fixed horizon: a loose $\IR=10^{-1}$ leaves the $\HPL$
+leg below the a.s.\ envelope, while a tight $\IR=\num{e-9}$ lifts it above.
+Proposition~\ref{prop:consistency} is thus the positive counterpart to
+Proposition~\ref{prop:impossible}: no finite bound exists, but the allocated
+envelope has the \emph{right growth order} to overbound the almost-sure path once
+the risk allocation is tight enough.
+
+\subsection{What the LIL certifies, and what it does not}
+\label{sec:lilscope}
+
+We state the reach of this section sharply, because the LIL is easy to over-read.
+It is an \emph{asymptotic} ($t\to\infty$, $\limsup$) statement about a
+\emph{single} sample path. It says nothing about the finite-$t$ distribution and,
+in particular, it does \emph{not} certify the finite-$t$ \num{e-7} integrity
+quantile: that quantile remains \Modelled{}. The LIL is used here only to
+establish two qualitative facts---that no finite worst-case number exists, and
+that the allocated envelope's growth order is not sub-envelope---and the
+``consistency'' of Proposition~\ref{prop:consistency} is with respect to the
+stated coupled $\IR(t)\to0$ schedule, not a claim about any fixed operating point.
+Taken together with Section~\ref{sec:impossible}, this turns the known
+impossibility into a positive, cited theorem about growth order, while leaving the
+finite-horizon coverage question to be answered empirically---which is the subject
+of Section~\ref{sec:validation}.

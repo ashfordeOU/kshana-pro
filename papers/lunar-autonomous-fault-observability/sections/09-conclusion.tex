@@ -1,0 +1,40 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+An autonomous lunar constellation, cut off from Earth, must certify its own integrity from
+internal measurements alone, and this paper characterizes exactly what it can and cannot do.
+The organizing result is a unification: the single rank deficiency of the self-referential
+network Jacobian $\Gmat$ ($\rank\Gmat=32<40$) produces both the parameter-space
+datum$\oplus$timescale gauge $\Nsp(\Gmat)$ of dimension eight (P1$\,\oplus\,$P4) and the
+measurement-space blind fault subspace $\rng(\Gmat)$ of dimension $32$ (with the P3
+common-mode class a subset), and an undetectable fault is precisely one absorbed into a state
+error defined only modulo the gauge. We proved that a fault is undetectable if and only if it
+lies in $\rng(\Gmat)$, with the classical parity characterization surviving the
+rank-deficient, gauge-carrying $\Gmat$ through the pseudo-inverse projector.
+
+On this footing we gave a geometric secure-identification bound: a coalition of $\le f$
+colluding Byzantine peers is detectable when the parity-projected peer blocks are full column
+rank (block-spark $>f$) and identifiable when block-spark $>2f$. This is the
+sparse-observability / coding bound instantiated on the coupled-datum lunar geometry, not a
+new bound, and it is explicitly distinct from---and not comparable to---the message-passing
+consensus threshold; we cite the Byzantine model only. Its lunar consequences are ours: a
+broad-coverage peer that owns all of a node's measurements is undetectable because it can
+inject the node's own five-degree-of-freedom self-bias into $\rng(\Gmat)$, so broad coverage
+is a fragility; and a provider-wide bias splits into an undetectable common part (needing an
+external tie) and a detectable differential part that three or more providers can trace to a
+culprit. We showed that the common clock rate is an irreducible temporal-gauge free
+parameter---the autonomous-holdover floor, removed only by an external rate tie---and that no
+finite alert limit protects the $\rng(\Gmat)$ class, whose Brown slope is infinite.
+
+Exactly one claim is externally \Validated{}: the fault-observability linear-algebra
+pipeline---parity projector, detectability norm, minimum detectable bias, rank and
+parity-dimension counts, and Byzantine block-spark---reproduces an independent numpy/scipy
+oracle to relative and absolute error below $10^{-3}$ on real DE440-orientation rows (defect
+$8$, $\rank\Gmat=32$, parity dimension $52$, block-spark $7/1/2$; projector error
+$1.447\times10^{-12}$). The geometry, every count read as an operational tolerance, and the
+holdover magnitude are \Modelled{}; the rigidity, secure-estimation, and LiAISON prior art is
+\Cited{} and bounded. Four design laws follow---engineer redundancy for tolerance, spread each
+node's measurements, tie the common classes externally, and accept the protection gap---as
+analysis-level guidance, with no flight datum, no certified alert limit, and no
+technology-readiness claim. The proven and cited content carries over unchanged to any real
+deployment; every number here is reproducible from the open engine by a single command.

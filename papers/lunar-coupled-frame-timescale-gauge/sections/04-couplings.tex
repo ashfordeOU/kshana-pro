@@ -1,0 +1,231 @@
+\section{The two frame--time couplings}
+\label{sec:couplings}
+
+Theorem~\ref{thm:classify} tells us \emph{which} directions are undetermined; this section
+quantifies \emph{how strongly} the frame and the timescale couple along two physically
+distinct channels. The classical roots of both channels are \emph{cited}, not claimed; the
+theorem structure around them is \Proven{}; and the magnitudes are \Modelled{}
+(first-principles, cross-checked, not certified) and tagged \modtag{}. One of the two
+subsections corrects a claim whose naive form is false, and we present the correction
+openly as the honest result.
+
+\subsection{Coupling 1: range \texorpdfstring{$\leftrightarrow$}{<->} clock offset}
+\label{sec:coupling1}
+
+\paragraph{The unit tie and the classical root.}
+For one-way ranging, a radial position shift $\delta d$ and a clock offset $c\,\dtau$ enter
+every measurement with the same sign: a range is lengthened equally by moving the target
+away or by advancing the clock. The exact exchange rate is $c$,
+\begin{equation}
+  1\,\text{m}\;\longleftrightarrow\;\frac{1}{c}\;=\;3.336\,\text{ns},
+  \label{eq:unittie}
+\end{equation}
+computed from the engine's $c$ (\code{lunar\_time::C2\_M2\_S2}). This is precisely the
+GNSS radial-position/receiver-clock degeneracy, classical in the integrity and positioning
+literature \citep{sturza1988,brown1992,parkinson1988}; we cite it and claim no novelty. Its
+importance here is that it is the strongest frame--time coupling, and the natural place to
+look for a \emph{coupled datum defect}.
+
+\paragraph{It is a near-defect, not an exact one.}
+Crucially, \eqref{eq:unittie} is a \emph{near}-defect: for a single user with poor local
+vertical geometry the scale/radial and offset signatures are nearly parallel, giving a
+small---but strictly positive---eigenvalue, not a member of $\ker\Imat$. It becomes an
+exact null direction only in the degenerate limit of perfectly co-directional geometry.
+Accordingly it does \emph{not} contribute to the defect $d$ of Theorem~\ref{thm:classify};
+we quantify it instead by the $2\times2$ Schur-complement (marginal) Fisher onto
+$\{s=\text{idx }3,\ \dtau=\text{idx }7\}$, eliminating the other seven parameters
+(\code{coupled\_marginal\_fisher} / \code{coupled\_marginal\_eigs}; the algebra is in
+Appendix~\ref{app:methods}). The smallest eigenvalue $\lambda_{\min}$ of this marginal is
+the coupling-1 near-defect strength: the degree to which the lunar body's scale
+(radial breathing) is observable \emph{independently} of the common clock offset in a given
+one-way network.
+
+\paragraph{The corrected, defensible finding.}
+The tempting design claim is: ``two-way ranging (which cancels the node clock, cf.\
+\eqref{eq:twoway}) selectively breaks the scale$\leftrightarrow$offset trade and lifts the
+near-defect, so a lunar system needs two-way ranging to separate frame scale from
+timescale offset.'' On a real-code-path probe this claim proves \emph{false at the datum
+level}, and we report the correction. On a geometrically diverse multi-beacon
+multi-epoch one-way network (five beacons $\times$ six orbiters $\times$ four epochs,
+$120$ one-way rows, real DE440 orientation), the coupled Fisher is \emph{full-rank}
+($d=0$) and the $\{s,\dtau\}$ marginal is positive-definite: its eigenvalues are
+$[\,1.872,\ 36.00\,]$ (ascending), both strictly positive. Scale is already observable
+independently of the offset. We then compare, at equal observation count, two ways of
+adding $120$ rows to this base (Table~\ref{tab:coupling1}): (a) $120$ two-way rows at the
+same geometry, and (b) $120$ \emph{more} one-way rows at a jittered geometry (argument of
+latitude shifted by $7^\circ$). Both raise $\lambda_{\min}$ of the marginal; the ratio of
+the two lifts is
+\begin{equation}
+  \frac{\text{lift}_{\text{two-way}}}{\text{lift}_{\text{more one-way}}}\;\approx\;1.00,
+  \label{eq:liftratio}
+\end{equation}
+altitude-independent within the tested networks. In words: \textbf{in a geometrically
+diverse network, two-way ranging provides no selective scale$\leftrightarrow$offset
+decoupling beyond data volume.} The strong $1\,\text{m}\leftrightarrow3.336\,\text{ns}$
+degeneracy is a \emph{per-node}, single-user, poor-local-geometry effect (the classical
+GNSS radial/clock degeneracy) that does \emph{not} aggregate into a datum-level near-defect
+once the beacon and orbiter directions are geometrically diverse.
+
+\begin{table}[t]
+\centering
+\caption{Coupling~1 at the datum level (\Modelled{} geometry, real DE440 orientation;
+\modtag{}). On a geometrically diverse $120$-row one-way network the coupled Fisher is
+full-rank and the $\{s,\dtau\}$ Schur marginal is positive-definite. Adding $120$ two-way
+rows raises the marginal $\lambda_{\min}$ by the \emph{same} factor as adding $120$ more
+one-way rows: two-way ranging gives no selective decoupling beyond data volume. The
+marginal eigenvalue pair $[1.872,\,36.00]$ is reproduced by the independent numpy/LAPACK
+oracle (Section~\ref{sec:anchor}).}
+\label{tab:coupling1}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Network} & $\{s,\dtau\}$ marginal $\lambda_{\min}$ & \textbf{status} \\
+\midrule
+Base: $120$ one-way rows (diverse, defect $0$) & $1.872$ & \Validated{} (Table~\ref{tab:anchor}) \\
+$+\,120$ two-way rows (same geometry)          & lift $>1$ & \Modelled{} \\
+$+\,120$ more one-way rows (jittered $7^\circ$) & lift $>1$ & \Modelled{} \\
+lift ratio (two-way / more one-way)             & $\approx1.00$ & \Modelled{} \emph{(the finding)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[The idealized single-node regime, for contrast]
+\label{rem:singlenode}
+The naive claim is not \emph{empty}: in an idealized single-node, near-rank-one regime
+(one beacon, poor vertical geometry) a two-way tie \emph{does} raise $\lambda_{\min}$ by
+orders of magnitude, because there the scale and offset signatures really are nearly
+parallel. That regime is a unit-test fixture, not a lunar constellation. The design-relevant
+statement is the diverse-network one \eqref{eq:liftratio}; we keep the two regimes strictly
+separate, and neither is a coupled \emph{defect} (Remark~\ref{rem:distinct}).
+\end{remark}
+
+This yields the first design law, developed in Section~\ref{sec:designlaws}:
+\emph{geometric diversity separates the lunar frame scale from the timescale offset in
+one-way ranging; a two-way tie or an external time tie is required only in the
+low-diversity / single-user regime.}
+
+\subsection{Coupling 2: relativistic rate \texorpdfstring{$\leftrightarrow$}{<->} frame}
+\label{sec:coupling2}
+
+The second channel is the dependence of a lunar-surface clock's \emph{rate} on the
+frame it is realized in. A clock runs at a rate set by the gravitational potential and the
+squared speed of its location (relativistic geodesy and the IAU relativistic timescale
+framework \citep{soffel2003iau,mueller2018clocks}); perturbing the frame datum---its scale,
+a radial position, or an inferred velocity---perturbs that rate. This is a real coupling,
+and we ask only how \emph{strong} it is.
+
+\paragraph{The frame\,$\to$\,rate Jacobian (\Modelled{}, \modtag{}).}
+Writing $\Umoon=GM_{\mathrm{M}}/\rmoon$ for the lunar surface potential and
+$\gmoon=GM_{\mathrm{M}}/\rmoon^2$ for the surface gravity, the engine's
+\code{rate\_frame\_jacobian} returns the three first-principles coefficients
+\begin{align}
+  \frac{\partial\alpha}{\partial s}
+    &\;=\; +\frac{\Umoon}{c^2}
+    \;=\; +3.140\times10^{-11}\ \text{per unit fractional scale},
+    \label{eq:dads}\\
+  \frac{\partial\alpha}{\partial v}
+    &\;=\; -\frac{|v|}{c^2}
+    \;\approx\; -1.11\times10^{-14}\ \text{per (m/s)},
+    \label{eq:dadv}\\
+  \frac{\partial\alpha}{\partial r_{\mathrm{radial}}}
+    &\;=\; +\frac{\gmoon}{c^2}
+    \;=\; +1.807\times10^{-17}\ \text{per metre}.
+    \label{eq:dadr}
+\end{align}
+The radial and scale coefficients satisfy the exact identity
+$\partial\alpha/\partial r=(\partial\alpha/\partial s)/\rmoon$ (unit-tested to
+$10^{-12}$), since $\gmoon/c^2=(\Umoon/\rmoon)/c^2$. The velocity coefficient is
+epoch-dependent because the geocentric Moon speed varies by several percent over the lunar
+month (the $969$ and $997$~m/s values below already differ by nearly $3\%$); the engine
+prints $-1.078\times10^{-14}$ at the fixture epoch 2024-01-01
+($|v|\approx969$~m/s) versus $\approx-1.11\times10^{-14}$ near J2000
+($|v|\approx997$~m/s). We quote both as honest epoch variation, not an error. The signs
+combine as
+\begin{equation}
+  \dalpha
+  \;=\; \frac{\partial\alpha}{\partial s}\,\delta s
+  \;+\; \frac{\partial\alpha}{\partial r}\,\delta r
+  \;-\; \Bigl|\frac{\partial\alpha}{\partial v}\Bigr|\,|\delta v|,
+  \label{eq:dalphacombine}
+\end{equation}
+the velocity term subtracting (a faster clock runs slower). The velocity and radial
+couplings are physical but, as noted in Section~\ref{sec:rows}, do not map onto the
+nine-vector datum; only the scale coupling appears as the datum-level rate tie
+\eqref{eq:ratetie}.
+
+\paragraph{Propagating an ILRF-class frame datum to the rate (\Modelled{}, \modtag{}).}
+Take frame-tie uncertainties at the level a lunar analogue of the terrestrial reference
+frame realization would achieve: a scale tie $\delta s\approx6.9\times10^{-8}$
+(i.e.\ $0.12$~m of radial equivalent, $0.12/\rmoon$), a velocity of
+$\delta v\lesssim1$~mm/s, and a radial position of $\delta r\lesssim0.1$~m. Through
+\eqref{eq:dads}--\eqref{eq:dadr} these propagate to
+\begin{equation}
+  \dalpha(\text{scale})\approx2.17\times10^{-18},\quad
+  \dalpha(v,\,1\,\text{mm/s})\approx1.11\times10^{-17},\quad
+  \dalpha(\text{radial},\,0.1\,\text{m})\approx1.81\times10^{-18},
+  \label{eq:propagate}
+\end{equation}
+so the frame \emph{realization} perturbs the lunar timescale rate by at most a
+frame-realization envelope
+\begin{equation}
+  \boxed{\;\dalpha_{\text{frame realization}}\;\lesssim\;\sim2\times10^{-17}\;}
+  \qquad\text{(realization envelope, kinetic-dominated).}
+  \label{eq:framebound}
+\end{equation}
+These two budgets must be kept apart. Only the scale term of \eqref{eq:propagate} is a
+genuine \emph{datum}-channel gain: $\dalpha(\text{scale})\approx2.2\times10^{-18}$ is what a
+nine-vector datum-defect $\delta s$ propagates to the rate (Section~\ref{sec:designlaws}).
+The larger velocity and radial contributions are frame-\emph{realization} /
+orbit-determination errors that, as \eqref{eq:ratetie} and Section~\ref{sec:rows} note, do
+\emph{not} map onto the datum; the envelope \eqref{eq:framebound} merely absorbs them for a
+conservative bound. The gauge-robustness conclusion holds \emph{a fortiori}---the true
+datum-channel gain is an order of magnitude below the realization envelope. Nothing larger
+exists in either budget: the tidal-gradient contribution is $\sim2.7\times10^{-22}$ per
+metre, and the external/tidal potential is excluded from $\Umoon$ by the equivalence
+principle (a freely-falling body does not sense the uniform external potential, so we do not
+add $GM_{\oplus}/d$). We quote the envelope as $\lesssim\!\sim\!2\times10^{-17}$, not
+$\lesssim10^{-17}$, to keep the kinetic term honest.
+
+\paragraph{The reference-surface definition band (\Modelled{}, \modtag{}).}
+Against this estimation coupling stands the \emph{definitional} freedom of the lunar
+timescale rate---the choice of reference surfaces, reference potential $W_0$, and averaging
+window that a standard must fix. The lunar-clock-rate band relative to TT spans
+$[56,59]$~$\mu$s/day, consistent with the lunar-timescale figures discussed in the Moonlight
+reference-system literature
+% confirm the [56,59] $\mu$s/day figure against fienga2024moonlight at camera-ready
+\citep{fienga2024moonlight}; its half-width $\pm1.5$~$\mu$s/day
+converts to a dimensionless rate
+\begin{equation}
+  \pm\frac{1.5\times10^{-6}\ \text{s/day}}{86400\ \text{s/day}}
+  \;=\;\pm1.736\times10^{-11},
+  \label{eq:band}
+\end{equation}
+about $10^{6}$ times the estimation coupling \eqref{eq:framebound}. The two axes are
+orthogonal: one is set by \emph{how well the frame is estimated}, the other by \emph{how the
+reference surfaces are defined}. The band's physical content includes named contributors
+inside the lunar potential---tidal deformation $\approx2.4\times10^{-16}$ and $J_2$
+oblateness $\approx6\times10^{-15}$, together with the periodic solar tidal contribution to
+the Earth--Moon system $\approx6\times10^{-14}$ (periodic, and \emph{larger} than the $J_2$
+term)---this named list is illustrative, not exhaustive (dimensionless; physics-literature
+reference values, not engine-computed); its full $\pm1.7\times10^{-11}$ width is dominated by
+the definitional $W_0$/selenoid-surface choice and the averaging window. A model-center
+cross-check reconciles the band midpoint from first principles: the Earth-geoid redshift
+that defines TT contributes $\approx60.2$~$\mu$s/day, the lunar surface potential subtracts
+$\approx2.71$~$\mu$s/day, and the lunar orbital kinetic term subtracts
+$\approx0.48$~$\mu$s/day, giving $60.2-2.71-0.48=57.0$~$\mu$s/day, comfortably within
+$[56,59]$ (all \Modelled{}, first-principles).
+
+\paragraph{Where the estimation coupling would matter.}
+The estimation bound \eqref{eq:framebound} of $\sim2\times10^{-17}$ sits below the
+stability of near-term deployed optical clocks ($\sim10^{-16}$) and would become relevant
+only for laboratory-grade clocks at $\sim10^{-18}$. It is, for any foreseeable operational
+lunar timescale, negligible against the definitional band.
+
+\paragraph{Headline (\Proven{} logic, \Modelled{} magnitudes).}
+The lunar timescale rate is \textbf{gauge-robust to the frame estimation datum}
+($\lesssim\!\sim\!2\times10^{-17}$) but \textbf{gauge-sensitive to the reference-surface
+definition} ($\pm1.7\times10^{-11}$). The dominant gauge of the rate is
+\emph{definitional}, not \emph{estimational}: no PNT observation reduces it, and a standard
+must \emph{fix} the surfaces and conventions. This is the time-analogue of the spatial
+result of \citep{baweja2026datum}---the datum is fixed by convention and external ties, not
+estimated---transported to the rate of the timescale.

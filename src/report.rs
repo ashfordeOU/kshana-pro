@@ -841,21 +841,26 @@ mod tests {
     #[test]
     fn matrix_counts_match_the_live_matrix() {
         let c = matrix_counts();
-        let total = verification_matrix().len();
-        // Honesty-ledger shape, robust as the open core's matrix grows (it has long
-        // since passed the original handful of validated rows): every tier is
-        // represented, and the three tiers partition the whole ledger exactly.
-        assert!(
-            c.validated > 0,
-            "some capabilities are externally validated"
-        );
-        assert!(c.modelled > 0, "most capabilities are honestly modelled");
-        assert!(c.partner > 0, "some capabilities are partner-owned");
+        // The counts track the live open-core verification matrix (the test's namesake)
+        // rather than pinning a magic range: the engine's validated set grows as the open
+        // core matures, so an upper bound on it is inherently stale.
+        let live = summarize(&verification_matrix());
+        assert_eq!(c.validated, live.validated);
+        assert_eq!(c.modelled, live.modelled);
+        assert_eq!(c.partner, live.partner_owned);
+        // The three tiers partition the whole ledger exactly, with a real spread across
+        // all three provenances.
         assert_eq!(
             c.validated + c.modelled + c.partner,
-            total,
+            verification_matrix().len(),
             "validated/modelled/partner tiers must partition the whole ledger"
         );
+        assert!(
+            c.validated >= 4,
+            "some capabilities are externally validated"
+        );
+        assert!(c.modelled >= 8, "most capabilities are honestly modelled");
+        assert!(c.partner >= 1, "some capabilities are partner-owned");
     }
 
     #[test]

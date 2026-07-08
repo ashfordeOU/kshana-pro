@@ -1,0 +1,74 @@
+\section{Design laws}
+\label{sec:designlaws}
+
+The proven structure of Sections~\ref{sec:obs}--\ref{sec:holdover} yields four design laws
+for an autonomous lunar integrity architecture. Each law's \emph{logic} is \Proven{}; each
+supporting \emph{magnitude} is \Modelled{}, drawn from the representative network and labelled
+where it enters. None is a certified requirement, a technology-readiness claim, or an agency
+endorsement; they are analysis-level guidance.
+
+\begin{quote}
+\textbf{Design law~1 (redundancy $\to$ Byzantine tolerance).} \emph{Cross-link and provider
+redundancy raise the block-spark, and with it the number of Byzantine peers the network can
+detect and identify.} By Theorem~\ref{thm:byzantine} the tolerances are $f_{\mathrm{detect}}=
+\spark_{\mathrm b}-1$ and $f_{\mathrm{identify}}=\lfloor(\spark_{\mathrm b}-1)/2\rfloor$;
+adding independent measurements raises $\spark_{\mathrm b}$ (six independent single-measurement
+peers already give $\spark_{\mathrm b}=7$, $f_{\mathrm{detect}}=6$, $f_{\mathrm{identify}}=3$,
+Table~\ref{tab:byzantine}). An autonomous architecture buys fault tolerance with engineered
+redundancy, not with trust.
+\end{quote}
+
+\begin{quote}
+\textbf{Design law~2 (limit single-node measurement dominance).} \emph{No single peer should
+own a large share of a node's measurements.} A peer owning \emph{all} of a node's incident
+rows has $\spark_{\mathrm b}=1$ and is undetectable (Section~\ref{sec:counts}): it can inject
+a uniform self-bias equal to a shift of that node's own five local degrees of freedom, which
+lies in $\rng(\Gmat)$ and produces zero residual. Broad measurement coverage by one peer is a
+fragility, not a strength; the architecture must spread each node's measurements across
+independent peers so that the union blocks stay full column rank.
+\end{quote}
+
+\begin{quote}
+\textbf{Design law~3 (external tie for the common-rate and common-provider classes).}
+\emph{The common clock rate and the common provider bias cannot be seen internally and
+require an external time/frame tie.} The common rate is a temporal-gauge direction
+(Corollary~\ref{cor:holdover}) and the common provider bias is in $\rng(\Gmat)$
+(Proposition~\ref{prop:provider}); both have zero internal information. Autonomous RAIM cannot
+substitute for an external tie for these classes; a standard must specify the tie and its
+cadence (Section~\ref{sec:ensemble}).
+\end{quote}
+
+\begin{quote}
+\textbf{Design law~4 (the protection gap: no finite alert limit is autonomous for
+$\rng(\Gmat)$).} \emph{No finite alert limit protects the $\rng(\Gmat)$ fault class from an
+internal monitor alone.} The Brown slope is infinite on $\rng(\Gmat)$
+(Proposition~\ref{prop:protection}): those faults corrupt the state while leaving the parity
+residual zero. A protection level built on the residual cannot bound them, so the architecture
+must either exclude the $\rng(\Gmat)$ class by an external tie or accept it as an unbounded,
+unmonitored risk.
+\end{quote}
+
+\paragraph{The protection gap, quantified (\Modelled{}).}
+The finite side of design law~4 fixes the scale. For the representative network the worst
+\emph{detectable} single-measurement fault has a finite Brown slope of $30.984$ (metres of
+observable state error per unit weighted parity), while every in-range fault has slope
+$\infty$ (Proposition~\ref{prop:protection}). Against a \emph{hypothetical} alert limit of
+$50$~m---explicitly not an LNIS-certified value, used only to set a scale---the worst
+detectable fault reaches the alert limit at a parity statistic of
+$50/30.984\approx1.614$, so a residual monitor at that threshold protects the detectable
+class. The in-range class, by contrast, reaches \emph{any} position error at parity zero
+(silent): no finite alert limit protects it. This is the operational face of the one rank
+deficiency---the same $\rng(\Gmat)$ that hides the fault (Theorem~\ref{thm:undetectable})
+defeats the protection level (Proposition~\ref{prop:protection})---and the reason an
+autonomous architecture must tie the frame and timescale externally for that class.
+
+\paragraph{Representativeness ledger.}
+Every magnitude above is \Modelled{} on the eight-node network of Section~\ref{sec:model}:
+the slope $30.984$, the parity crossing $1.614$, the block-spark tolerances of
+Table~\ref{tab:byzantine}, and the provider-count trend of Table~\ref{tab:provider} depend on
+the representative geometry and would shift for a real constellation. What carries over
+unchanged is the \Proven{} structure: the tolerance \emph{formulas}
+($f=\spark_{\mathrm b}-1$, $\lfloor(\spark_{\mathrm b}-1)/2\rfloor$), the infinite slope on
+$\rng(\Gmat)$, the undetectability of the common rate and common provider bias, and the
+self-blindness of a broad-coverage peer. The alert limit is hypothetical; there is no
+certified value, no flight datum, and no technology-readiness claim in any of the four laws.

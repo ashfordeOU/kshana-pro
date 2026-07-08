@@ -1,0 +1,143 @@
+\begin{thebibliography}{17}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Baarda(1973)]{baarda1973}
+Willem Baarda.
+\newblock {S}-transformations and criterion matrices.
+\newblock Publications on Geodesy, New Series Vol.\ 5, No.\ 1, Netherlands
+  Geodetic Commission, Delft, 1973.
+
+\bibitem[Baweja(2026{\natexlab{a}})]{baweja2026datum}
+Chakshu Baweja.
+\newblock Identifiability of the lunar geodetic datum: A null-space
+  classification of the lunocentre--scale degeneracy and the observation
+  geometry that resolves it.
+\newblock \emph{Preprint (companion, P1)}, 2026{\natexlab{a}}.
+\newblock In preparation.
+
+\bibitem[Baweja(2026{\natexlab{b}})]{baweja2026interop}
+Chakshu Baweja.
+\newblock Cross-provider interoperability for lunar positioning, navigation,
+  and timing: A consistency-tolerance theorem and the irreducible
+  inter-ephemeris orientation floor.
+\newblock \emph{Preprint (companion, P2)}, 2026{\natexlab{b}}.
+\newblock In preparation.
+
+\bibitem[Baweja(2026{\natexlab{c}})]{baweja2026kshana}
+Chakshu Baweja.
+\newblock Kshana: An open, reproducible engine for {PNT}-resilience comparison.
+\newblock \emph{Preprint}, 2026{\natexlab{c}}.
+\newblock Software: \url{https://github.com/ashfordeOU/kshana}.
+
+\bibitem[Blanch et~al.(2015)Blanch, Walter, Enge, Lee, Pervan, Rippl, Spletter,
+  and Kropp]{blanch2015}
+Juan Blanch, Todd Walter, Per Enge, Young Lee, Boris Pervan, Markus Rippl,
+  Alexander Spletter, and Victoria Kropp.
+\newblock Baseline advanced {RAIM} user algorithm and possible improvements.
+\newblock \emph{IEEE Transactions on Aerospace and Electronic Systems},
+  51\penalty0 (1):\penalty0 713--732, 2015.
+\newblock \doi{10.1109/TAES.2014.130739}.
+
+\bibitem[Brown(1992)]{brown1992}
+R.~Grover Brown.
+\newblock A baseline {GPS} {RAIM} scheme and a note on the equivalence of three
+  {RAIM} methods.
+\newblock \emph{NAVIGATION: Journal of the Institute of Navigation},
+  39\penalty0 (3):\penalty0 301--316, 1992.
+\newblock \doi{10.1002/j.2161-4296.1992.tb02278.x}.
+
+\bibitem[DeCleene(2000)]{decleene2000}
+Bruce DeCleene.
+\newblock Defining pseudorange integrity---overbounding.
+\newblock In \emph{Proceedings of the 13th International Technical Meeting of
+  the Satellite Division of The Institute of Navigation (ION GPS 2000)}, pages
+  1916--1924, Salt Lake City, UT, 2000.
+
+\bibitem[{EU-U.S. Cooperation on Satellite Navigation, Working Group C, ARAIM
+  Technical Subgroup}(2016)]{wgc2016araim}
+{EU-U.S. Cooperation on Satellite Navigation, Working Group C, ARAIM Technical
+  Subgroup}.
+\newblock {ARAIM} technical subgroup milestone 3 report.
+\newblock Technical report, EU-U.S. Cooperation on Satellite Navigation, 2016.
+\newblock Milestone report series: Milestone 1 (2012), Milestone 2 (2015),
+  Milestone 3 (2016).
+
+\bibitem[Fienga et~al.(2021)Fienga, Deram, Di~Ruscio, Viswanathan, Camargo,
+  Bernus, Gastineau, and Laskar]{fienga2021inpop21a}
+Agn{\`e}s Fienga, Pierre Deram, Alessandra Di~Ruscio, Vishnu Viswanathan,
+  Juli\'o I.~B. Camargo, Laura Bernus, Micka\"el Gastineau, and Jacques Laskar.
+\newblock {INPOP21a} planetary ephemerides.
+\newblock Technical Report S110, IMCCE, Observatoire de Paris (Notes
+  Scientifiques et Techniques de l'Institut de M\'ecanique C\'eleste), 2021.
+\newblock Ephemeris release;
+  \url{https://ftp.imcce.fr/pub/ephem/planets/inpop21a/}.
+
+\bibitem[Fienga et~al.(2024)Fienga, Rambaux, and
+  So{\'s}nica]{fienga2024moonlight}
+Agn{\`e}s Fienga, Nicolas Rambaux, and Krzysztof So{\'s}nica.
+\newblock Lunar reference systems, frames and time-scales in the context of the
+  {ESA} programme {Moonlight}.
+\newblock \emph{arXiv preprint}, arXiv:2409.10043, 2024.
+\newblock \doi{10.48550/arXiv.2409.10043}.
+\newblock [astro-ph.EP].
+
+\bibitem[Israel et~al.(2020)Israel, Mauldin, Roberts,
+  et~al.]{israel2020lunanet}
+David~J. Israel, Kendall~D. Mauldin, Christopher~J. Roberts, et~al.
+\newblock {LunaNet}: A flexible and extensible lunar exploration communications
+  and navigation infrastructure.
+\newblock In \emph{IEEE Aerospace Conference}, 2020.
+\newblock \doi{10.1109/AERO47225.2020.9172509}.
+
+\bibitem[Montenbruck et~al.(2018)Montenbruck, Steigenberger, and
+  Hauschild]{montenbruck2018sisre}
+Oliver Montenbruck, Peter Steigenberger, and Andr\'e Hauschild.
+\newblock Multi-{GNSS} signal-in-space range error assessment---methodology and
+  results.
+\newblock \emph{Advances in Space Research}, 61\penalty0 (12):\penalty0
+  3020--3038, 2018.
+\newblock \doi{10.1016/j.asr.2018.03.041}.
+
+\bibitem[Park et~al.(2021)Park, Folkner, Williams, and Boggs]{park2021de440}
+Ryan~S. Park, William~M. Folkner, James~G. Williams, and Dale~H. Boggs.
+\newblock The {JPL} planetary and lunar ephemerides {DE440} and {DE441}.
+\newblock \emph{The Astronomical Journal}, 161\penalty0 (3):\penalty0 105,
+  2021.
+\newblock \doi{10.3847/1538-3881/abd414}.
+
+\bibitem[Parkinson and Axelrad(1988)]{parkinson1988}
+Bradford~W. Parkinson and Penina Axelrad.
+\newblock Autonomous {GPS} integrity monitoring using the pseudorange residual.
+\newblock \emph{NAVIGATION: Journal of the Institute of Navigation},
+  35\penalty0 (2):\penalty0 255--274, 1988.
+\newblock \doi{10.1002/j.2161-4296.1988.tb00955.x}.
+
+\bibitem[Pitjeva et~al.(2022)Pitjeva, Pavlov, Aksim, and
+  Kan]{pitjeva2021epm2021}
+Elena~V. Pitjeva, Dmitry~A. Pavlov, Dmitry~A. Aksim, and Margarita~V. Kan.
+\newblock Planetary and lunar ephemeris {EPM2021} and its significance for
+  {Solar} system research.
+\newblock \emph{Proceedings of the International Astronomical Union (IAU
+  Symposium 364)}, 15:\penalty0 220--225, 2022.
+\newblock \doi{10.1017/S1743921321001447}.
+\newblock IAA RAS ephemeris release; SPICE kernels at
+  \url{https://ftp.iaaras.ru/pub/epm/EPM2021/}.
+
+\bibitem[Sturza(1988)]{sturza1988}
+Mark~A. Sturza.
+\newblock Navigation system integrity monitoring using redundant measurements.
+\newblock \emph{NAVIGATION: Journal of the Institute of Navigation},
+  35\penalty0 (4):\penalty0 483--501, 1988.
+\newblock \doi{10.1002/j.2161-4296.1988.tb00975.x}.
+
+\bibitem[Teunissen(2000)]{teunissen2000}
+Peter J.~G. Teunissen.
+\newblock \emph{Adjustment Theory: An Introduction}.
+\newblock Series on Mathematical Geodesy and Positioning. Delft University
+  Press, Delft, 2000.
+
+\end{thebibliography}

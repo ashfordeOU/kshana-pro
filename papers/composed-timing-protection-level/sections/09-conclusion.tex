@@ -1,0 +1,44 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+A timing user that must survive the loss of its cross-checking sources needs a
+protection level that spans the transition into holdover and, above all, does not
+fall at the seam. This paper defines that composed timing protection level,
+$\PL(\tau)=\max(\TPL_{\mathrm{handover}},\HPL(\tau))$, and establishes its one
+load-bearing structural property: it is lower-semicontinuous and non-decreasing
+across handover, $\PL(0^{+})\ge\PL(0^{-})$, so it never jumps downward at the
+instant the last independent check is lost. This is deliberately not a continuity
+claim---the handover TPL carries fault-mode overbounds a pure coast lacks, so
+continuity would force an unsafe downward jump---and seeding the coast with the
+disciplining filter's handover covariance $\Pzero$ is a proved safety requirement,
+not an option.
+
+The supporting results are honestly bounded. The scalar timing TPL is the rank-one
+($H=\bm 1_N$) specialization of MHSS-ARAIM solution separation, in which the
+geometry-dilution structure collapses and the PL becomes driven by the worst
+single-source-exclusion subset's bias overbound rather than by geometry; its $N=1$
+closed form evaluates to \SI{9.83}{\nano\second} and is reproduced by the engine's
+general solver to below \num{e-11}. The holdover leg is a $\Pzero$-seeded,
+integrity-risk-allocated envelope with the correct phase-error exponents
+$\tau,\tau^{3},\tau^{5}$, a running-max multiplier $\Kf(\IR/2)$ that is exact for
+the white-FM leg and conservative for the higher legs, and a bounded flicker
+inflation. The law of the iterated logarithm turns the known impossibility of a
+finite worst-case holdover into a positive statement: no such bound exists, yet
+the allocated envelope has the right growth order to overbound the almost-sure
+path as the integrity risk tightens---asymptotically, certifying neither a
+finite-$t$ value nor the deep tail. And exactly one claim is externally
+\Validated{}: the holdover leg's running-max envelope overbound-covers a real BIPM
+$[\utck{}-\mathrm{UTC(USNO)}]$ series on a disjoint segment for every multi-year
+lag $\tau\ge\SI{90}{\day}$, with the short-lag boundary disclosed as \Modelled{}.
+Baweja's conditional TPL is recovered as the $N=1$ special case this generalizes.
+
+The composed PL is intended, not asserted, to be a reference object---status of
+that kind is conferred only by external adoption. It is the method half of a
+planned arc whose companion papers add the heterogeneous $\utck{}$-traceable
+budget, the common-mode correction, the adversarial protection level and
+authenticated protocol, and an open timing-integrity benchmark; the benchmark is
+the yardstick meant to be cited alongside this method. What this paper contributes
+on its own is small and, we hope, durable: the seam nobody owned, made a
+lower-semicontinuous object, with one real-data coverage anchor and its scope
+stated in full. Every number here is reproducible from the open engine by a single
+command.

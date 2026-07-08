@@ -1,0 +1,34 @@
+A lunar positioning, navigation, and timing (PNT) realization jointly fixes a spatial
+reference \emph{frame} and a \emph{timescale}, and the two are not independent. We
+classify the null space---the datum defect---of the \emph{coupled} frame$\oplus$timescale
+Fisher information of a lunar network over a nine-parameter datum (three translations, a
+scale, three rotations, a timescale offset $\dtau$, and a timescale rate $\dalpha$), and
+we separate throughout what we cite, prove, validate, and model. Under the SI second and
+the $c$-defined metre---adopted up front to quarantine the definitional
+unit-of-time/scale coupling and to keep scale \emph{observable} rather than a free datum
+direction---we prove (Theorem~1) that the fully internal \emph{free-network} datum gauge of
+a one-way lunar ranging problem---mutual common-mode clocks, no external tie---is exactly
+\emph{eight}: three translations, three rotations, $\dtau$, and $\dalpha$; the tied,
+anchored realization we validate has defect zero. The classification is \Proven{}
+\emph{basis-invariant}---a function of the null \emph{subspace}
+through the projector $\Pnull=\Umat\Umat^\top$, not of any rotation-ambiguous null
+basis---and a coupled defect is certified only by the off-diagonal projector block
+$\Pst\neq\bm0$: a non-block-diagonal Fisher is necessary but not sufficient. We quantify
+the two frame--time couplings (\Modelled{} magnitudes). Coupling~1,
+range$\leftrightarrow$clock-offset, has unit tie
+$1\,\mathrm{m}\leftrightarrow3.336\,\mathrm{ns}$ ($=1/c$); we correct a natural but false
+claim by showing that in a geometrically diverse multi-beacon one-way network the Fisher
+is full-rank and two-way ranging gives \emph{no} selective scale$\leftrightarrow$offset
+decoupling beyond data volume (lift ratio $\approx1.00$, computed on the modelled network).
+Coupling~2,
+relativistic rate$\leftrightarrow$frame, is fundamentally weak: the frame-estimation datum
+perturbs the lunar timescale rate by $\leq\!\sim\!2\times10^{-17}$, against a
+$\pm1.7\times10^{-11}$ reference-\emph{surface} definitional band---the rate is
+gauge-\emph{robust} to estimation but gauge-\emph{sensitive} to definition. Our single
+\Validated{} claim is that the coupled-Fisher linear-algebra pipeline reproduces an
+independent numpy/LAPACK computation, to relative and absolute error below $10^{-3}$, on
+observation rows carrying real DE440 lunar-orientation partials, for a defect-$0$ and an
+exact-rate-defect network. Two design laws follow: geometric diversity separates the
+frame scale from the timescale offset; and the rate's residual gauge is definitional---so
+a lunar reference \emph{system} standard must fix both a spatial datum and a temporal
+convention.

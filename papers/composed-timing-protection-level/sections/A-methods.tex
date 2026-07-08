@@ -1,0 +1,113 @@
+\section{Methods}
+\label{app:methods}
+
+This appendix records the algebra behind the results: the rank-one fusion and
+separation identity, the MHSS integrity-risk sum and its false-alert allocation,
+the running-max multiplier, the coverage-test procedure, and the LIL envelope. All
+are consistent with the committed modules and the vendored provenance notice
+(Section~\ref{sec:availability}).
+
+\subsection{Rank-one fusion and the separation identity}
+\label{app:algebra}
+
+Under $H=\bm 1_N$ each source $i$ contributes $y_i=x+\nu_i$ with
+$\nu_i\sim\mathcal N(0,\sigma_i^2)$ (bias carried separately). The
+inverse-variance (maximum-likelihood) fused estimate is
+$\hat x_{\mathrm{ff}}=\sigff^{2}\sum_i \sigma_i^{-2}y_i$ with
+$\sigff^{2}=(\sum_i\sigma_i^{-2})^{-1}$, giving \eqref{eq:fused}; its
+weights are $w_i=\sigff^{2}/\sigma_i^{2}$, which sum to one. The subset estimate
+excluding source $j$ is $\hat x_{\mathrm{sub}}$ with variance
+$\sigsub^{2}=(\sum_{i\neq j}\sigma_i^{-2})^{-1}$. Because $\hat x_{\mathrm{ff}}$ is
+the minimum-variance combination, $\hat x_{\mathrm{sub}}$ is a nested estimator and
+$\operatorname{Cov}(\hat x_{\mathrm{ff}},\hat x_{\mathrm{sub}})=\sigff^{2}$;
+therefore the separation statistic $\Delta_j=\hat x_{\mathrm{sub}}-\hat
+x_{\mathrm{ff}}$ has variance
+$\sigss^{2}=\sigsub^{2}-2\sigff^{2}+\sigff^{2}=\sigsub^{2}-\sigff^{2}$, which is
+\eqref{eq:sepvar}. The engine's \code{two\_equal\_sources\_fuse\_then\_exclude}
+test checks the two endpoints of this identity numerically: two equal
+$\sigma=\SI{3}{\nano\second}$ sources fuse to $\sigff=\sigma/\sqrt2$, and the
+single-remaining-source subset recovers $\sigsub=\sigma$.
+
+\subsection{The MHSS integrity-risk sum and false-alert allocation}
+\label{app:mhss}
+
+The protection level solves \eqref{eq:mhss}, the sum over the fault-free
+hypothesis and the $N$ single-source-exclusion hypotheses of the mode integrity
+risks $P(H_m)\,\Qfun\big((\PL-b_m-T_m)/\sigma_m\big)$, set equal to the one-sided
+budget $\IR/2$ (half the two-sided budget, one half per direction of the symmetric
+bound). The fault-free mode carries prior $P(H_{\mathrm{ff}})=1-\sum_i
+p_{\mathrm{fault},i}$, threshold $T_{\mathrm{ff}}=0$, and the weighted nominal bias
+$b_{\mathrm{ff}}=\sum_i w_i|b_i|$; each exclusion mode $j$ carries prior
+$p_{\mathrm{fault},j}$, threshold $T_j=\Kf_{\mathrm{fa}}\,\sigss^{(j)}$, subset
+bias $b_j=\sum_{i\neq j}(\sigsub^{2}/\sigma_i^{2})|b_i|$, and subset sigma
+$\sigsub$. The false-alert multiplier is Bonferroni-split across the $N$ exclusion
+modes,
+\begin{equation}
+  \Kf_{\mathrm{fa}} \;=\;
+  \Phi^{-1}\!\Big(1-\tfrac{p_{\mathrm{fa}}}{2N}\Big)\quad(N\ge2),
+  \qquad
+  \Kf_{\mathrm{fa}} \;=\; \Phi^{-1}\!\Big(1-\tfrac{p_{\mathrm{fa}}}{2}\Big)\quad(N=1),
+\end{equation}
+with $p_{\mathrm{fa}}$ the total false-alert budget. The PL is found by bisection
+on \eqref{eq:mhss}; the driving subset (Theorem~\ref{thm:biasdriven}) is the $j$
+maximizing $b_j+T_j+\sigsub$. For $N=1$ only the fault-free mode survives, and
+\eqref{eq:mhss} inverts to the closed form \eqref{eq:n1}; the engine's
+\code{achieved\_ir\_meets\_budget} test confirms the achieved risk at the returned
+PL does not exceed $\IR/2$.
+
+\subsection{The running-max multiplier}
+\label{app:kir}
+
+A pointwise two-sided PL uses $\Kf(\IR)=\Phi^{-1}(1-\IR/2)$. To bound the supremum
+of the phase-error process over the coast interval, the reflection principle for a
+Brownian leg replaces the pointwise level with the running-max multiplier
+\eqref{eq:kir}, $\Kf(\IR/2)=\Phi^{-1}(1-\IR/4)$, strictly larger than $\Kf(\IR)$.
+The reflection is exact for the white-FM (martingale) leg only; for the
+integrated-Brownian $\tau^{3}$ and $\tau^{5}$ legs, to which the reflection
+principle does not apply, $\Kf(\IR/2)$ is used as a \emph{conservative overbound},
+and this is the sense in which the composite envelope \eqref{eq:hpl} is
+conservative rather than exact. The deterministic aging bias $\tfrac12 D\tau^{2}$,
+being monotone, has its running maximum at the interval endpoint and is added
+outside the stochastic root; the multiplier is applied to the stochastic part only,
+so the bias is not double-counted (via $\sup(a+b)\le\sup a+\sup b$).
+
+\subsection{The coverage-test procedure}
+\label{app:coverage}
+
+The \Validated{} coverage test (Section~\ref{sec:validation}) is implemented by an
+independent \code{numpy}/\code{scipy} oracle. It reads the real five-day
+$[\utck{}-\mathrm{UTC(USNO)}]$ series, splits it disjointly at $\mathrm{MJD}=58000$
+(fit below, test at or above), and fits a single white-FM diffusion from the
+early-segment one-step increments, $q_{\mathrm{wf}}=\overline{\Delta x^{2}/\Delta
+t}$, over the increment set (units: seconds$^2$ per second). At each lag
+$\tau\in\{30,90,180,365,730\}\,$days it forms the envelope
+$\mathrm{env}(\tau)=\Kf(\IR/2)\sqrt{q_{\mathrm{wf}}\,\tau}$ at $\IR=\num{e-2}$ and
+the empirical running-max excursion $\max|x(t+\tau)-x(t)|$ over all test-segment
+windows of length up to $\tau$, and records coverage as $\mathrm{emp}\le
+\mathrm{env}$ (zero piercing). The pass criterion is that every multi-year row
+($\tau\ge\SI{90}{\day}$) is covered; the short-lag $\tau=\SI{30}{\day}$ row is
+recorded for disclosure only. This is a coverage test of a forward-predicted
+envelope, not a re-composition of the engine's already-tested ADEV/Van-Loan
+primitives, and the disjoint split prevents leakage---the two senses in which it is
+non-circular. The Rust reference test reconstructs the same white-FM envelope
+(with $q_{\mathrm{rw}}=q_{\mathrm{drift}}=D=\Pzero=0$, isolating the white-FM leg)
+and asserts agreement with the oracle at every row and zero piercing on the
+multi-year rows.
+
+\subsection{The law-of-the-iterated-logarithm envelope}
+\label{app:lil}
+
+The Hartman--Wintner envelope for the white-FM/Brownian leg is
+$\sqrt{2Dt\ln\ln t}$ \citep{hartman1941}, implemented as \code{lil\_envelope}
+returning zero for $t\le e$ (where $\ln\ln t\le0$) and $\sqrt{2Dt\ln\ln t}$
+otherwise. The consistency predicate \code{hpl\_dominates\_lil} compares the
+IR-allocated leg $\Kf(\IR/2)\sqrt{Dt}$ to this envelope; it is true once
+$\Kf(\IR/2)\ge\sqrt{2\ln\ln t}$, which occurs for any fixed $t$ once $\IR$ is small
+enough (Proposition~\ref{prop:consistency}). The random-walk-FM and drift legs are
+integrated Brownian motions whose suprema diverge almost surely by the
+\emph{upper-class} (Hartman--Wintner-type \citep{hartman1941}) growth of the
+integrated process---not the \emph{lower-class} liminf law of Chung
+\citep{chung1948}---so the divergence of the envelope
+(Proposition~\ref{prop:impossible}) holds component-wise, and the statements are
+asymptotic ($\limsup$, single path), certifying neither a finite-$t$ value nor the
+deep-tail \num{e-7} quantile.

@@ -1,0 +1,200 @@
+\section{Fault observability and the one rank deficiency}
+\label{sec:obs}
+
+This section states the paper's structural core: the parity projector that survives the
+rank-deficient, gauge-carrying $\Gmat$; the characterization of undetectable faults as
+exactly $\rng(\Gmat)$; the one-rank-deficiency unification that ties the parameter-space
+gauge to the measurement-space blind subspace; and the protection-gap consequence. The
+classical parity result is \Cited{}; the gauge-survival, the unification, and the
+protection gap are \Proven{}; the engine numbers that instantiate them are outputs of the
+\Validated{} pipeline of Section~\ref{sec:anchor}.
+
+\subsection{The weighted parity projector}
+\label{sec:parity}
+
+The weighted least-squares estimate of $\xvec$ from \eqref{eq:model} is
+$\hat{\xvec}=(\Gmat^\top\Wmat\Gmat)^{+}\Gmat^\top\Wmat\bm z$, using the Moore--Penrose
+pseudo-inverse because $\Gmat^\top\Wmat\Gmat$ is rank-deficient (its kernel is the gauge
+\eqref{eq:gauge}). The residual is $\bm r=\Pperp\bm z$ with the \emph{weighted parity
+projector}
+\begin{equation}
+  \Pperp \;=\; \bm{I} \;-\; \Gmat\,(\Gmat^\top\Wmat\Gmat)^{+}\,\Gmat^\top\Wmat
+  \;\in\;\R^{84\times84}.
+  \label{eq:pperp}
+\end{equation}
+
+\begin{proposition}[The parity projector is gauge-independent]
+\label{prop:projector}
+Let $\bm M:=\Wmat^{1/2}\Gmat$ and let $\Pi_{\bm M}$ be the orthogonal projector onto
+$\rng(\bm M)$. Then $\Pperp=\Wmat^{-1/2}(\bm{I}-\Pi_{\bm M})\Wmat^{1/2}$ is idempotent and
+$\Wmat$-self-adjoint (i.e.\ $\Wmat\Pperp=\Pperp{}^{\!\top}\Wmat$, \emph{not} ordinary
+symmetric when $\Wmat\neq\bm{I}$), with $\Pperp\Gmat=\bm0$, $\ker\Pperp=\rng(\Gmat)$, and
+$\rng(\Pperp)$ equal to the $\Wmat$-orthogonal complement of $\rng(\Gmat)$. Every one of
+these objects depends only on $\rng(\Gmat)$ and $\Wmat$, hence is invariant under the
+gauge: adding any $\bm n\in\Nsp(\Gmat)$ to the state leaves $\Pperp$ and $\bm r$ unchanged.
+\end{proposition}
+
+\begin{proof}
+$\Gmat(\Gmat^\top\Wmat\Gmat)^{+}\Gmat^\top\Wmat$ is the $\Wmat$-orthogonal (oblique in the
+standard inner product) projector onto $\rng(\Gmat)$: writing $\bm M=\Wmat^{1/2}\Gmat$, one
+has $\Wmat^{1/2}\Gmat(\Gmat^\top\Wmat\Gmat)^{+}\Gmat^\top\Wmat^{1/2}=\bm M(\bm M^\top\bm
+M)^{+}\bm M^\top=\Pi_{\bm M}$, the ordinary orthogonal projector onto $\rng(\bm M)$, whose
+defining properties (idempotence, self-adjointness, range) are basis-free and survive the
+rank deficiency because $(\bm M^\top\bm M)^{+}$ is the pseudo-inverse. Conjugating by
+$\Wmat^{-1/2}$ gives \eqref{eq:pperp}, so $\Pperp=\Wmat^{-1/2}(\bm{I}-\Pi_{\bm M})\Wmat^{1/2}$
+is idempotent, and $\Wmat\Pperp=\Wmat^{1/2}(\bm{I}-\Pi_{\bm M})\Wmat^{1/2}$ is symmetric,
+i.e.\ $\Pperp$ is $\Wmat$-self-adjoint. Finally $\Pperp\Gmat=\Wmat^{-1/2}(\bm{I}-\Pi_{\bm
+M})\bm M=\bm0$, so $\rng(\Gmat)\subseteq\ker\Pperp$; equality follows by dimension count,
+$\dim\ker\Pperp=\rank\Gmat=\dim\rng(\Gmat)$. None of $\rng(\Gmat)$, $\Wmat$, or $\Pi_{\bm
+M}$ references a basis of $\Nsp(\Gmat)$, so all are gauge-independent.
+\end{proof}
+
+Because $\mathbb E[\bm r]=\Pperp\,\mathbb E[\bm z]=\Pperp\bvec$ (the signal $\Gmat\xvec$ is
+annihilated by $\Pperp$), the gauge does \emph{not} leak into detectability: the parity
+residual sees a fault through $\Pperp$ alone.
+
+\subsection{Undetectable faults are exactly \texorpdfstring{$\rng(\Gmat)$}{range(G)}}
+\label{sec:undetectable}
+
+\begin{theorem}[Undetectable-fault characterization, gauge-carrying $\Gmat$]
+\label{thm:undetectable}
+A fault $\bvec$ produces zero expected parity residual, $\mathbb E[\bm r]=\Pperp\bvec=\bm0$,
+if and only if $\bvec\in\rng(\Gmat)$. The characterization holds for the rank-deficient,
+gauge-carrying free-network $\Gmat$ through the pseudo-inverse projector \eqref{eq:pperp}.
+Consequently, in a network with no redundancy ($n=\rank\Gmat$) one has $\rng(\Gmat)=\R^{n}$
+and \emph{nothing} is detectable.
+\end{theorem}
+
+\begin{proof}
+By Proposition~\ref{prop:projector}, $\ker\Pperp=\rng(\Gmat)$, so $\Pperp\bvec=\bm0\iff
+\bvec\in\rng(\Gmat)$. The classical parity statement ``$\bvec$ undetectable
+$\iff\bvec\in\rng(\Gmat)$'' is \Cited{} \citep{sturza1988,brown1992,parkinson1988}; the only
+new content is that it survives a rank-deficient $\Gmat$, which Proposition~\ref{prop:projector}
+supplies by using $(\Gmat^\top\Wmat\Gmat)^{+}$ in place of an inverse and by noting $\Pperp$
+is gauge-independent. If $n=\rank\Gmat$ then $\rng(\Gmat)=\R^{n}$, so every $\bvec$ lies in
+$\rng(\Gmat)$ and $\Pperp=\bm0$.
+\end{proof}
+
+The pipeline evaluates two witnesses on the real-DE440 network (both counts \Validated{},
+Section~\ref{sec:anchor}). An \emph{in-range} fault $\bvec=\Gmat\,\bm e_{\dtau(\text{node
+}1)}$---a shift of node~1's clock offset---has parity norm $\lVert\Pperp\bvec\rVert=9.581
+\times10^{-12}$ and is \textbf{undetectable}. A \emph{generic} fault $\bvec=\bm e_0$ (a
+single measurement bias) has $\lVert\Pperp\bvec\rVert=1.021$ and is \textbf{detectable}.
+
+\subsection{Minimum detectable bias}
+\label{sec:mdb}
+
+For a unit fault direction $\bm c$ (a column of a fault signature), the Baarda minimum
+detectable bias is the smallest fault magnitude a non-central parity test rejects at
+prescribed false-alarm and detection powers \citep{baarda1968,teunissen2006}:
+\begin{equation}
+  \MDB(\bm c)\;=\;\sqrt{\frac{\lambda_0}{\bm c^\top\Wmat\Pperp\bm c}},
+  \label{eq:mdb}
+\end{equation}
+where $\lambda_0$ is the non-centrality set by the false-alarm probability $P_{\mathrm{fa}}$
+and the missed-detection probability $P_{\mathrm{md}}$. The non-centrality is the
+\emph{single}-projector, $\Wmat$-weighted parity energy $\bm c^\top\Wmat\Pperp\bm c$; because
+$\Pperp$ is $\Wmat$-self-adjoint and idempotent (Proposition~\ref{prop:projector}), it equals
+$(\Pperp\bm c)^\top\Wmat(\Pperp\bm c)$ for \emph{all} $\Wmat$---so this correct form is the
+weighted energy of the projected column. It is \emph{not} the double-projector form
+$\bm c^\top\Pperp\Wmat\Pperp\bm c$, which differs whenever $\Wmat\neq\bm{I}$ and is the wrong
+non-centrality; Appendix~\ref{app:mdb} states the identity and the counterexample precisely.
+With $\lambda_0=17.075$ from $P_{\mathrm{fa}}=10^{-3}$, $P_{\mathrm{md}}=0.20$, the pipeline
+reports (both \Validated{}) $\MDB(\bm e_0)=4.6592$ for the generic single-measurement fault,
+and $\MDB=\infty$ for the in-range fault $\Gmat\,\bm e_{\dtau(\text{node }1)}$, whose
+non-centrality $\bm c^\top\Wmat\Pperp\bm c=0$---the protection gap of
+Proposition~\ref{prop:protection} read as a bias magnitude.
+
+\subsection{The one rank deficiency, two faces}
+\label{sec:unification}
+
+\begin{proposition}[One rank deficiency, two faces]
+\label{prop:unification}
+The single rank deficiency of the self-referential Jacobian, $\rank\Gmat=32<40$, produces
+\emph{both}
+\begin{enumerate}
+  \item[(a)] the parameter-space gauge $\Nsp(\Gmat)\subset\R^{40}$, of dimension
+  $40-\rank\Gmat=8$ (the datum$\oplus$timescale gauge, P1$\,\oplus\,$P4); and
+  \item[(b)] the measurement-space blind fault subspace $\rng(\Gmat)\subset\R^{84}$, of
+  dimension $\rank\Gmat=32$ (the undetectable faults of Theorem~\ref{thm:undetectable}, with
+  the P3 common-mode class a subset).
+\end{enumerate}
+The two are linked, not equal: for any undetectable fault $\bvec\in\rng(\Gmat)$ there is a
+state shift $\Delta\xvec$ with $\Gmat\,\Delta\xvec=\bvec$, and $\Delta\xvec$ is determined
+only \emph{modulo} $\Nsp(\Gmat)$. Thus an undetectable fault is precisely one absorbed into
+a state error whose ambiguity is exactly the gauge.
+\end{proposition}
+
+\begin{proof}
+The rank--nullity theorem applied to $\Gmat\colon\R^{40}\to\R^{84}$ gives
+$\dim\Nsp(\Gmat)=40-\rank\Gmat=8$ and $\dim\rng(\Gmat)=\rank\Gmat=32$; both are functions of
+the one integer $\rank\Gmat$, which is (a) and (b). For the link, $\bvec\in\rng(\Gmat)$ means
+$\bvec=\Gmat\,\Delta\xvec$ has a solution by definition of the range; the solution set is the
+coset $\Delta\xvec+\Nsp(\Gmat)$, since $\Gmat(\Delta\xvec+\bm n)=\Gmat\Delta\xvec$ for
+$\bm n\in\Nsp(\Gmat)$ and only for such $\bm n$. Hence the induced state error is defined
+modulo $\Nsp(\Gmat)$.
+\end{proof}
+
+This is the honest form of the program's unification: it is a statement about two subspaces
+tied by one map, \emph{not} the (false) claim that the gauge and the blind subspace are the
+same set. The pipeline reports the two dimensions directly---$\rank\Gmat=32$ and the parity
+dimension $\operatorname{trace}(\Pperp)=84-32=52$ (both \Validated{}), against the eight
+gauge directions $\Nsp(\Gmat)$ that Theorem P4 establishes (\Proven{}). The eight analytic
+gauge generators are annihilated by $\Gmat$ to a worst relative residual of $2.702\times
+10^{-17}$, confirming $\Nsp(\Gmat)\supseteq\operatorname{span}\{\text{3 transl},\text{3
+rot},\dtau,\dalpha\}$ exactly. The count is spectrally unambiguous: the largest
+gauge-direction eigenvalue of the (preconditioned) normal matrix is
+$\lambda_{\text{null}}^{\max}=4.367\times10^{-15}$, the smallest observable eigenvalue is
+$\lambda_{\text{obs}}^{\min}=5.455\times10^{-4}$, and the largest is
+$\lambda^{\max}=8.597\times10^{1}$, a null-to-observable spectral gap of $1.249\times
+10^{11}$.
+
+\begin{remark}[Common-mode is a subset of the blind subspace]
+\label{rem:commonmode}
+The common-mode reference-frame error class of P3 \citep{baweja2026commonmode}---a shift
+$\delta\bm y=\Gmat[\,-\Delta\bm s;\,\bm 0\,]$ that moves the frame realization---is of the
+form $\Gmat\,(\cdot)$ and so lies in $\rng(\Gmat)$ by construction; it is a special case of
+Theorem~\ref{thm:undetectable}, undetectable to any snapshot residual test. Paired with the
+parameter-space gauge $\Nsp(\Gmat)$ (P1/P4), this is the two-faces statement of
+Proposition~\ref{prop:unification}: the frame that a monitor cannot pin (parameter space)
+and the frame-shaped fault it cannot see (measurement space) are the two images of the one
+rank deficiency.
+\end{remark}
+
+\subsection{The protection gap}
+\label{sec:protectiongap}
+
+Theorem~\ref{thm:undetectable} has a protection-level consequence. For an undetectable fault
+the residual is zero but the state estimate still moves; the ratio of the two is the Brown
+slope, and for the $\rng(\Gmat)$ class it is infinite.
+
+\begin{proposition}[The protection gap: infinite slope on $\rng(\Gmat)$]
+\label{prop:protection}
+Let $\Pi_{\mathrm{obs}}$ project the state error onto the observable (user-PVT) directions,
+and define the weighted Brown slope of a fault as
+\begin{equation}
+  \operatorname{slope}(\bvec)
+  \;=\;\frac{\lVert\Pi_{\mathrm{obs}}\,\Delta\hat{\xvec}\rVert}{\lVert\Pperp\bvec\rVert_{\Wmat}},
+  \qquad
+  \Delta\hat{\xvec}=(\Gmat^\top\Wmat\Gmat)^{+}\Gmat^\top\Wmat\,\bvec .
+  \label{eq:slope}
+\end{equation}
+For $\bvec\in\rng(\Gmat)$ with $\Pi_{\mathrm{obs}}\Delta\hat{\xvec}\neq\bm0$ the denominator
+vanishes ($\lVert\Pperp\bvec\rVert_{\Wmat}=0$ by Theorem~\ref{thm:undetectable}) while the
+numerator does not, so $\operatorname{slope}(\bvec)=\infty$: the fault corrupts an observable
+state combination while producing no parity residual. No finite alert limit protects this
+fault class autonomously.
+\end{proposition}
+
+\begin{proof}
+By Theorem~\ref{thm:undetectable}, $\bvec\in\rng(\Gmat)\Rightarrow\Pperp\bvec=\bm0\Rightarrow
+\lVert\Pperp\bvec\rVert_{\Wmat}=0$. The estimator response
+$\Delta\hat{\xvec}=(\Gmat^\top\Wmat\Gmat)^{+}\Gmat^\top\Wmat\bvec$ need not lie in
+$\Nsp(\Gmat)$, so its observable projection $\Pi_{\mathrm{obs}}\Delta\hat{\xvec}$ can be
+nonzero; the in-range witness of Section~\ref{sec:undetectable} (a node-1 offset shift, an
+\emph{observable} relative-clock combination) is such a case. A ratio with zero denominator
+and nonzero numerator is $+\infty$.
+\end{proof}
+
+The finite counterpart---the worst \emph{detectable} single-measurement slope and the
+alert-limit crossing---is a \Modelled{} magnitude quantified in Section~\ref{sec:designlaws}.

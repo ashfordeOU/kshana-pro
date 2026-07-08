@@ -1,0 +1,83 @@
+\section{Model}
+\label{sec:model}
+
+We fix the estimand, the source model, and the holdover state so that the two
+regimes---cross-checked and coasting---are expressed over the same scalar
+quantity and the seam between them is well defined.
+
+\subsection{The scalar estimand}
+\label{sec:estimand}
+
+The quantity to be protected is the receiver's error against a named laboratory
+realization of Coordinated Universal Time,
+\begin{equation}
+  x \;=\; t_{\mathrm{rx}} - \utck{},
+  \label{eq:estimand}
+\end{equation}
+a \emph{scalar}: unlike position ARAIM, whose estimand is a vector state observed
+through a geometry matrix with dilution structure, every time source here reports
+the same one-dimensional offset. This single fact---made precise in
+Section~\ref{sec:scalar}---is what degenerates the geometry and moves the PL from
+a geometry-driven to a bias-driven quantity. Fixing $\utck{}$ (rather than
+``the server clock'') as the reference makes the traceability bias a first-class,
+named term; its construction is deferred to a companion paper, and it enters here
+only as an input overbound (Section~\ref{sec:sourcemodel}).
+
+\subsection{The source model}
+\label{sec:sourcemodel}
+
+Each of $N$ heterogeneous time sources---representatively a GNSS precise-point
+positioning source, a PTP/White-Rabbit packet source, and a low-Earth-orbit
+signals-of-opportunity (LEO-STL) source---is reduced to its scalar $\utck{}$
+contribution and summarized by three numbers:
+\begin{equation}
+  \text{source } i:\qquad
+  \big(\,\sigma_i,\; b_i,\; p_{\mathrm{fault},i}\,\big),
+  \label{eq:source}
+\end{equation}
+where $\sigma_i$ is a one-sigma Gaussian noise overbound on the source's $\utck{}$
+estimate (seconds), $b_i$ is a \emph{bounded deterministic} $\utck{}$ traceability
+bias overbound (seconds), and $p_{\mathrm{fault},i}$ is the source's prior fault
+probability over the exposure interval. Two modelling commitments are load-bearing
+and stated now.
+\begin{itemize}
+  \item \textbf{The bias $b_i$ is an input, not a claim of this paper.} It is a
+  bounded deterministic overbound carried structurally separate from the Gaussian
+  $\sigma_i$ tail: we never inflate a Type-B $k=2$ metrological uncertainty into a
+  deep-tail Gaussian sigma (a category error), but treat the systematic component
+  as a one-sided bounded bias in the ARAIM manner. Assembling a per-source library
+  of $b_i$ from Circular-T $[\utck{}-\utck{}]$ and CGGTTS delay decompositions
+  \citep{bipmcirculart,defraigne2015,panfilo2019}, with correlated
+  cross-covariance for sources sharing a $\utck{}$, is the subject of a companion
+  paper and is out of scope here; in this paper $b_i$ is simply given.
+  \item \textbf{Independence is assumed within this paper and flagged as a
+  limit.} The rank-one budget of Section~\ref{sec:scalar} treats the source fault
+  modes as independent. A common-mode fault shared across sources (a shared
+  $\utck{}$ realization; a GNSS system feeding two nominally independent sources)
+  violates this and is not corrected here; the generalized-least-squares treatment
+  of that case is a companion paper. We state the assumption rather than hide it.
+\end{itemize}
+
+\subsection{The handover state and the $\Pzero$ seed}
+\label{sec:handover}
+
+The disciplined oscillator that continues to keep time after the sources are lost
+is modelled as a three-state clock---phase, fractional frequency, and
+frequency drift---driven by the standard white-FM, random-walk-FM, and
+random-run PSDs $(q_{\mathrm{wf}},q_{\mathrm{rw}},q_{\mathrm{drift}})$
+\citep{zucca2005,riley2008,ieee1139}. At the instant of handover the disciplining
+filter has a state-error covariance; its \emph{phase} block, the variance
+$\Pzero$ (seconds$^2$), is the initial condition of the coast. This seed is not a
+convenience: Section~\ref{sec:composition} proves that setting $\Pzero=0$ (coasting
+as though the clock were perfectly known at handover) makes the holdover PL start
+at zero and thereby \emph{drop} below the TPL that was being reported---the unsafe
+seam. The coast additionally carries a deterministic aging term
+$\tfrac12 D\tau^{2}$ (with $D$ the drift rate, $1/\mathrm{s}^2$) and a bounded
+flicker-floor inflation; these are made precise in Section~\ref{sec:holdover}.
+Throughout, phase-error variance grows as $\tau,\tau^{3},\tau^{5}$ for the
+white-FM, random-walk-FM, and drift components respectively---the \emph{phase}
+exponents, not the frequency-error exponents. The $\tau$ and $\tau^{3}$ terms are
+the white-FM and random-walk-FM phase variances of the Zucca--Tavella model
+\citep{zucca2005}; the $\tau^{5}$ term is the standard random-run (drift) extension
+of that model \citep{riley2008,ieee1139}. We carry the phase-versus-frequency
+distinction explicitly because conflating them is a common and consequential error.
