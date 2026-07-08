@@ -20,7 +20,7 @@ padding:30px 34px;position:relative;overflow:hidden}
 .hero .stamp{position:absolute;top:20px;right:26px;font-family:Menlo,monospace;font-size:11px;color:var(--dim)}
 .prog{margin:22px 0 6px}
 .prog-bar{height:14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line2);overflow:hidden;position:relative}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:15%;transition:width .4s}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:18%;transition:width .4s}
 .prog-lab{font-family:Menlo,monospace;font-size:12px;color:var(--muted);margin-top:6px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin:22px 0}
 .tile{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
@@ -113,12 +113,12 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
 </style></head>
 <body><div class="wrap">
 <header class="hero">
-  <div class="stamp">generated 2026-07-08 19:44 CEST — Phase 1 complete</div>
+  <div class="stamp">generated 2026-07-08 20:15 CEST — Phase 2 complete</div>
   <div class="kicker">Ashforde · Kshana <span class="dev">&#2325;&#2381;&#2359;&#2339;</span> · Build-in-public PNT program</div>
   <h1>Kshana &times; Lunar/Cislunar PNT Papers — Capability-Gap Buildout Tracker</h1>
   <div class="sub">Everything the seven preprints (P1&ndash;P7) compute or claim, mapped to the Kshana codebase, with the exact capabilities to build so each result is producible — and upgradable from <i>Modelled/asserted</i> to Kshana-computed <i>Validated</i>. Follow this during implementation; tick items as they land.</div>
   <div class="prog"><div class="prog-bar"><div class="prog-fill"></div></div>
-    <div class="prog-lab" id="proglab">8/55 gaps complete · 15% · 0 in progress</div></div>
+    <div class="prog-lab" id="proglab">10/55 gaps complete · 18% · 0 in progress</div></div>
 </header>
 
 <div class="tiles">
@@ -165,16 +165,16 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <div class="phase-rationale">All P0/P1 core analyses for P1 in one repo. Includes the three upgrade prescriptions (L03/L04/L05) that convert asserted thresholds into computed results, and the shared horizon helper L01 needed by P2 later. Clean single-repo commit; no cross-repo dependency.</div>
     <ul class="phase-gaps"><li class="ph-gap done"><a href="#L01">L01</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Airless-body geometric horizon / line-of-sight helper</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L02">L02</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Required-transmit-power-vs-standoff inverse solver + scenario</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L03">L03</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Tracking-loop pull-in spoof-capture model (replace static 3 dB J/S)</span> <span class="eff eff-L">L</span></li><li class="ph-gap done"><a href="#L04">L04</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Orbital beam footprint with real antenna pattern + limb link margin</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L05">L05</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Navigation-message-authentication (OSNMA/TESLA) budget sizing analysis</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L06">L06</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Layer-2 cross-sensor integrity sizing (minimum detectable spoof walk)</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L07">L07</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Sparse-monitor-network detection analysis</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L44">L44</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Power-deficit sensitivity-band study (12-18 dB) wired to link budget</span> <span class="eff eff-S">S</span></li></ul>
   </div>
-<div class="phase-card todo" data-status="todo">
+<div class="phase-card done" data-status="done">
     <div class="phase-head">
       <div class="phase-no">Phase 2</div>
       <div class="phase-title">Signal-security paper deliverables</div>
       <div class="phase-repo"><span class="badge repo-pro">kshana-pro · private</span></div>
     </div>
     <div class="phase-goal">Reproduce P1 Table 1 + Figures 1a/1b as committed, deterministic, branded artifacts.</div>
-    <div class="phase-bar"><div class="phase-bar-fill" style="width:0%"></div><span class="phase-bar-lab">0/2 · 0%</span></div>
+    <div class="phase-bar"><div class="phase-bar-fill" style="width:100%"></div><span class="phase-bar-lab">2/2 · 100%</span></div>
     <div class="phase-rationale">Pro pack + Fig 1b generator consume Phase 1 analyses. Ships only after the public engine can produce every headline number, so the pack is a pure orchestration/report commit.</div>
-    <ul class="phase-gaps"><li class="ph-gap todo"><a href="#L42">L42</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Lunar AFS attack-surface study/pack + branded report</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L43">L43</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Fig 1b six-attribute lunar-vs-terrestrial comparison figure generator</span> <span class="eff eff-S">S</span></li></ul>
+    <ul class="phase-gaps"><li class="ph-gap done"><a href="#L42">L42</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Lunar AFS attack-surface study/pack + branded report</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L43">L43</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Fig 1b six-attribute lunar-vs-terrestrial comparison figure generator</span> <span class="eff eff-S">S</span></li></ul>
   </div>
 <div class="phase-card todo" data-status="todo">
     <div class="phase-head">
@@ -374,7 +374,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L42" data-repo="kshana-pro" data-prio="P0" data-kind="pack/study" data-status="todo">
+  <tr class="lrow" id="L42" data-repo="kshana-pro" data-prio="P0" data-kind="pack/study" data-status="done">
     <td class="c-id"><span class="gid">L42</span></td>
     <td class="c-title"><div class="lt">Lunar AFS attack-surface study/pack + branded report</div><div class="ld">kshana-pro pack orchestrating Prx deficit, attacker-power-vs-standoff, horizon reach, orbital footprint, NMA sizing and sensitivity band with per-mechanism Validated/Modelled tagging; emits P1 Table 1, Fig 1a/1b and a branded PDF.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Headline numbers cross-checked vs public linkbudget/jamming unit tests + independent recompute of -140.6 dBW / 15.6 dB / 0.022 mW@1km.</div>
@@ -383,10 +383,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">pack/study</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana-pro/papers/lunar-signal-security/ + src/packs/lunar_signal_security_pack.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L43" data-repo="kshana-pro" data-prio="P2" data-kind="report" data-status="todo">
+  <tr class="lrow" id="L43" data-repo="kshana-pro" data-prio="P2" data-kind="report" data-status="done">
     <td class="c-id"><span class="gid">L43</span></td>
     <td class="c-title"><div class="lt">Fig 1b six-attribute lunar-vs-terrestrial comparison figure generator</div><div class="ld">Provenance-tagged radar/matrix generator where numeric cells derive from L02/L03/L04 and qualitative cells carry explicit Modelled tags, avoiding a single score per the resilience discipline. Produces P1 Fig 1b deterministically.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Numeric cells vs linkbudget/jamming closed forms; qualitative cells asserted with explicit Modelled tags.</div>
@@ -395,7 +395,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">report</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana-pro report_brand / chart routine in L42 pack; reuse mcda/ for attribute structuring</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
   <tr class="lrow" id="L08" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
