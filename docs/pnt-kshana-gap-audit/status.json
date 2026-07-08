@@ -1,3 +1,12 @@
 {
-  "_comment": "Implementation status per gap id (todo|wip|done) and per phase (phaseN). Regenerate the HTML after edits: node gen-report.js ledger.json status.json pnt-kshana-gap-report.html \"<stamp>\". Updated after each build phase."
+  "_comment": "Implementation status per gap id (todo|wip|done) and per phase (phaseN). Regenerate the HTML after edits: node gen-report.js ledger.json status.json pnt-kshana-gap-report.html \"<stamp>\". Updated after each build phase.",
+  "phase1": "done",
+  "L01": "done",
+  "L02": "done",
+  "L03": "done",
+  "L04": "done",
+  "L05": "done",
+  "L06": "done",
+  "L07": "done",
+  "L44": "done"
 }

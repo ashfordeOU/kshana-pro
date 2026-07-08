@@ -20,7 +20,7 @@ padding:30px 34px;position:relative;overflow:hidden}
 .hero .stamp{position:absolute;top:20px;right:26px;font-family:Menlo,monospace;font-size:11px;color:var(--dim)}
 .prog{margin:22px 0 6px}
 .prog-bar{height:14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line2);overflow:hidden;position:relative}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:0%;transition:width .4s}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:15%;transition:width .4s}
 .prog-lab{font-family:Menlo,monospace;font-size:12px;color:var(--muted);margin-top:6px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin:22px 0}
 .tile{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
@@ -113,12 +113,12 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
 </style></head>
 <body><div class="wrap">
 <header class="hero">
-  <div class="stamp">generated 2026-07-08 18:55 CEST</div>
+  <div class="stamp">generated 2026-07-08 19:44 CEST — Phase 1 complete</div>
   <div class="kicker">Ashforde · Kshana <span class="dev">&#2325;&#2381;&#2359;&#2339;</span> · Build-in-public PNT program</div>
   <h1>Kshana &times; Lunar/Cislunar PNT Papers — Capability-Gap Buildout Tracker</h1>
   <div class="sub">Everything the seven preprints (P1&ndash;P7) compute or claim, mapped to the Kshana codebase, with the exact capabilities to build so each result is producible — and upgradable from <i>Modelled/asserted</i> to Kshana-computed <i>Validated</i>. Follow this during implementation; tick items as they land.</div>
   <div class="prog"><div class="prog-bar"><div class="prog-fill"></div></div>
-    <div class="prog-lab" id="proglab">0/55 gaps complete · 0% · 0 in progress</div></div>
+    <div class="prog-lab" id="proglab">8/55 gaps complete · 15% · 0 in progress</div></div>
 </header>
 
 <div class="tiles">
@@ -154,16 +154,16 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
 
 <h2>Build-phase roadmap</h2>
 <p class="lead">Ordered, independently shippable phases. Each phase is a clean commit + push to one repo where possible; dependencies flow P0 core analyses &rarr; packs/studies &rarr; reports/fixtures.</p>
-<div class="phases"><div class="phase-card todo" data-status="todo">
+<div class="phases"><div class="phase-card done" data-status="done">
     <div class="phase-head">
       <div class="phase-no">Phase 1</div>
       <div class="phase-title">Signal-security attack-surface core</div>
       <div class="phase-repo"><span class="badge repo-pub">kshana · public</span></div>
     </div>
     <div class="phase-goal">Land all P1 public-engine analyses: shared airless-horizon helper, attacker-power inverse solver, tracking-loop spoof capture, antenna-pattern orbital footprint, NMA budget sizing, cross-sensor and monitor-network defense sizing, and the deficit sensitivity band.</div>
-    <div class="phase-bar"><div class="phase-bar-fill" style="width:0%"></div><span class="phase-bar-lab">0/8 · 0%</span></div>
+    <div class="phase-bar"><div class="phase-bar-fill" style="width:100%"></div><span class="phase-bar-lab">8/8 · 100%</span></div>
     <div class="phase-rationale">All P0/P1 core analyses for P1 in one repo. Includes the three upgrade prescriptions (L03/L04/L05) that convert asserted thresholds into computed results, and the shared horizon helper L01 needed by P2 later. Clean single-repo commit; no cross-repo dependency.</div>
-    <ul class="phase-gaps"><li class="ph-gap todo"><a href="#L01">L01</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Airless-body geometric horizon / line-of-sight helper</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L02">L02</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Required-transmit-power-vs-standoff inverse solver + scenario</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L03">L03</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Tracking-loop pull-in spoof-capture model (replace static 3 dB J/S)</span> <span class="eff eff-L">L</span></li><li class="ph-gap todo"><a href="#L04">L04</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Orbital beam footprint with real antenna pattern + limb link margin</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L05">L05</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Navigation-message-authentication (OSNMA/TESLA) budget sizing analysis</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L06">L06</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Layer-2 cross-sensor integrity sizing (minimum detectable spoof walk)</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L07">L07</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Sparse-monitor-network detection analysis</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L44">L44</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Power-deficit sensitivity-band study (12-18 dB) wired to link budget</span> <span class="eff eff-S">S</span></li></ul>
+    <ul class="phase-gaps"><li class="ph-gap done"><a href="#L01">L01</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Airless-body geometric horizon / line-of-sight helper</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L02">L02</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Required-transmit-power-vs-standoff inverse solver + scenario</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L03">L03</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Tracking-loop pull-in spoof-capture model (replace static 3 dB J/S)</span> <span class="eff eff-L">L</span></li><li class="ph-gap done"><a href="#L04">L04</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Orbital beam footprint with real antenna pattern + limb link margin</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L05">L05</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Navigation-message-authentication (OSNMA/TESLA) budget sizing analysis</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L06">L06</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Layer-2 cross-sensor integrity sizing (minimum detectable spoof walk)</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L07">L07</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Sparse-monitor-network detection analysis</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L44">L44</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Power-deficit sensitivity-band study (12-18 dB) wired to link budget</span> <span class="eff eff-S">S</span></li></ul>
   </div>
 <div class="phase-card todo" data-status="todo">
     <div class="phase-head">
@@ -278,7 +278,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
 </div>
 <table class="ledger"><thead><tr><th>ID</th><th>Capability</th><th>Papers</th><th>Repo · kind</th><th>Prio · effort</th><th>Location</th><th>Status</th></tr></thead>
 <tbody>
-  <tr class="lrow" id="L01" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L01" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L01</span></td>
     <td class="c-title"><div class="lt">Airless-body geometric horizon / line-of-sight helper</div><div class="ld">Add horizon_distance(radius_m, height_m)=sqrt(2*R*h+h^2) and a two-height surface-to-surface horizon d_max=sqrt(2R*h_b)+sqrt(2R*h_u) on the atmosphereless Moon. Reproduces P1 mast/rim reach table (2 m-&gt;5 km ... 1000 m-&gt;61 km) and underpins P2 beacon siting (50 km on 2 km terrain vs 180 km flat below horizon). Merges P1-G6 and the horizon portion of P2-G2 into one primitive.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Closed-form spherical-tangent identity cross-checked against eo_payload::earth_central_angle reduced to lunar radius at zero elevation.</div>
@@ -287,10 +287,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/lunar.rs (or geometry helper) + expose in attack-surface &amp; beacon scenarios</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L02" data-repo="kshana" data-prio="P1" data-kind="cli/scenario/binding" data-status="todo">
+  <tr class="lrow" id="L02" data-repo="kshana" data-prio="P1" data-kind="cli/scenario/binding" data-status="done">
     <td class="c-id"><span class="gid">L02</span></td>
     <td class="c-title"><div class="lt">Required-transmit-power-vs-standoff inverse solver + scenario</div><div class="ld">Add required_tx_power_dbw for a target J/S at standoff d (inverse of jamming::j_over_s_db) and a runnable 'spoof-jam-standoff' scenario, producing P1 Fig 1a spoof (3 dB) / jam (30 dB) curves and the 0.022 mW@1km / 0.222 W@100km numbers as first-class engine output.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Round-trip inversion: feed solved P_tx back through j_over_s_db and recover the target J/S; TEXBAT power-advantage figures.</div>
@@ -299,10 +299,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">cli/scenario/binding</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/jamming.rs + 'spoof-jam-standoff' scenario in api.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L03" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L03" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L03</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Tracking-loop pull-in spoof-capture model (replace static 3 dB J/S)</div><div class="ld">Compose sdr::{synth_if,track,correlate} to drive an authentic+spoofer composite IF through the DLL/PLL and report capture vs power advantage, carrier offset, loop bandwidth, and lock time. Upgrades P1 capture criterion from an asserted 3 dB threshold to a computed pull-in result (capture map J/S x carrier offset x lock time). synth_if today generates only one signal so the two-signal superposition path is genuinely new.</div>
       <div class="lmeta"><span class="lo">oracle:</span> TEXBAT/OAKBAT raw-IF records (realdata/iqif) capture-vs-lock, plus closed-form DLL/PLL pull-in range from Kaplan &amp; Hegarty ch.8/14.</div>
@@ -311,10 +311,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-L">L</span></td>
     <td class="c-loc"><code>kshana/src/spoof_capture.rs + 'spoof-capture' scenario in api.rs; regression in tests/</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L04" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L04" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L04</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Orbital beam footprint with real antenna pattern + limb link margin</div><div class="ld">Add src/antenna.rs (parabolic-aperture/Gaussian/ITU transmit pattern gain vs off-boresight angle) and compose lunar_service selenographic grid with linkbudget/jamming J/S to produce a per-point footprint map incl. edge-of-disk grazing, replacing P1's uniform-beam whole-hemisphere assertion with a computed capture footprint for the 40 W transmitter.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Closed-form parabolic-aperture (Airy/sinc-Bessel) beamwidth/first-null vs aperture theory; footprint edge vs eo_payload spherical-cap central-angle (grazing=zero-elevation tangent).</div>
@@ -323,10 +323,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/antenna.rs + footprint analysis over lunar_service grid; extend/ add 'orbital-footprint' scenario</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L05" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L05" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L05</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Navigation-message-authentication (OSNMA/TESLA) budget sizing analysis</div><div class="ld">Add NMA overhead/latency analysis (TESLA key length, MAC/tag size, key-disclosure delay, HKROOT/MACK rates, bits-per-frame, fraction of AFS nav-data rate, auth latency) so P1 Layer-1 'fits the budget' becomes a sized percent-of-data-rate + latency result against the AFS budget. No NMA/TESLA machinery exists today.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Galileo OSNMA SIS-ICD numbers (key length, MAC size, HKROOT/MACK bit rates, disclosure delay) reproduced as terrestrial cross-check before applying to AFS.</div>
@@ -335,10 +335,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/nma_budget.rs (or extend security.rs)</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L06" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L06" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L06</span></td>
     <td class="c-title"><div class="lt">Layer-2 cross-sensor integrity sizing (minimum detectable spoof walk)</div><div class="ld">Compose fusion/tightly_coupled + altpnt/terrain + spoof position/clock walk with tpl.rs bound machinery to compute the minimum detectable spoof walk-rate given IMU + TRN noise — the lunar instance of the TPL cross-check, sizing P1 Layer-2 from assertion to a bound.</div>
       <div class="lmeta"><span class="lo">oracle:</span> tpl.rs/baweja2026tpl closed-form time-error bound + published IMU bias/random-walk specs as the noise oracle.</div>
@@ -347,10 +347,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana analysis composing fusion/tightly_coupled.rs, altpnt/terrain.rs, spoof.rs; reuse tpl.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L07" data-repo="kshana" data-prio="P2" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L07" data-repo="kshana" data-prio="P2" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L07</span></td>
     <td class="c-title"><div class="lt">Sparse-monitor-network detection analysis</div><div class="ld">Compose spoof_monitors (AGC/SQM/RAIM-parity) + lunar_service coverage grid + detection.rs Pd/Pfa to compute detection-probability-vs-monitor-count that a sparse surveyed set catches an orbital-scale spoof/jam, sizing P1 Layer-3 from assertion.</div>
       <div class="lmeta"><span class="lo">oracle:</span> detection.rs chi2/Marcum-Q analytic Pd at fixed Pfa as network-detection cross-check.</div>
@@ -359,10 +359,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana analysis composing spoof_monitors.rs + lunar_service coverage grid + detection.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L44" data-repo="kshana" data-prio="P1" data-kind="pack/study" data-status="todo">
+  <tr class="lrow" id="L44" data-repo="kshana" data-prio="P1" data-kind="pack/study" data-status="done">
     <td class="c-id"><span class="gid">L44</span></td>
     <td class="c-title"><div class="lt">Power-deficit sensitivity-band study (12-18 dB) wired to link budget</div><div class="ld">Wire a multi-axis sweep.rs/nd_sweep over LinkParams (GPS reference -125..-128.5 dBW, EIRP, slant range) to report P1's 12-18 dB deficit band and reconcile the 32x-rounded vs 36x-unrounded figure. Sweep engine exists but is not wired to LinkParams.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Monotone closed-form dB arithmetic; band endpoints checked against the paper's -125/-128.5 dBW inputs.</div>
@@ -371,7 +371,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">pack/study</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/sweep.rs over linkbudget::LinkParams; aggregated in L42 pack</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
   <tr class="lrow" id="L42" data-repo="kshana-pro" data-prio="P0" data-kind="pack/study" data-status="todo">
