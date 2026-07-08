@@ -1,0 +1,3 @@
+{
+  "_comment": "Implementation status per gap id (todo|wip|done) and per phase (phaseN). Regenerate the HTML after edits: node gen-report.js ledger.json status.json pnt-kshana-gap-report.html \"<stamp>\". Updated after each build phase."
+}
