@@ -1,0 +1,125 @@
+\section{Validation: multi-year overbound coverage against a real series}
+\label{sec:validation}
+
+This section carries the paper's only externally \Validated{} claim. Everything
+prior is \Cited{} or \Proven{}; here we test the holdover leg's running-max
+envelope for \emph{overbound coverage}---does the real series ever pierce it?---on
+a real BIPM metrology series, on a segment disjoint from the one used to fit the
+model. The scope of the claim is stated as sharply as the claim itself.
+
+\subsection{The oracle and the procedure}
+\label{sec:oracle}
+
+The external series is the BIPM Circular-T $[\utck{}-\mathrm{UTC(USNO)}]$ five-day
+series, MJD 56074--60429 (872 points), retrieved from the BIPM Time Department
+\code{webtai} API \citep{bipmcirculart}. This is the operational offset of a
+national laboratory's realization of UTC against UTC, a \emph{steered operational}
+timescale. An independent \code{numpy}/\code{scipy} oracle
+(\code{scripts/gen\_cti\_holdover\_coverage.py}) performs the test:
+\begin{enumerate}
+  \item \textbf{Disjoint split.} Fit on the early segment $\mathrm{MJD}<58000$;
+  test on the disjoint late segment $\mathrm{MJD}\ge58000$. No test point informs
+  the fit.
+  \item \textbf{Fit.} Estimate a single white-FM diffusion from the early-segment
+  one-step increments, $q_{\mathrm{wf}}=\overline{\Delta x^{2}/\Delta t}=
+  \SI{7.533e-25}{\square\second\per\second}$ (the fitted PSD).
+  \item \textbf{Envelope.} Form the running-max white-FM envelope
+  $\mathrm{env}(\tau)=\Kf(\IR/2)\sqrt{q_{\mathrm{wf}}\,\tau}$ with
+  $\IR=\num{e-2}$, giving $\Kf(\IR/2)=\Phi^{-1}(1-\IR/4)=2.807$.
+  \item \textbf{Empirical excursion.} On the test segment, compute the running-max
+  excursion $\max|x(t+\tau)-x(t)|$ over all windows of length $\tau$.
+  \item \textbf{Coverage.} At each lag, the envelope \emph{covers} iff the
+  empirical excursion does not exceed it (zero piercing).
+\end{enumerate}
+The Rust implementation reconstructs the same white-FM envelope with the fitted
+$q_{\mathrm{wf}}$ and the cross-check
+\code{holdover\_envelope\_overbound\_covers\_multiyear\_regime} asserts, on the
+committed fixture, that the Rust and oracle envelopes agree and that no
+multi-year test point pierces the envelope.
+
+\subsection{Result}
+\label{sec:covresult}
+
+Table~\ref{tab:coverage} is the outcome. For every multi-year lag
+$\tau\ge\SI{90}{\day}$ the real late-segment series stays strictly under the
+envelope---zero piercing---so the running-max holdover envelope \emph{overbound-covers}
+the operational series on the disjoint test segment. This is the \Validated{}
+claim: \emph{the holdover-leg running-max envelope overbound-covers the real BIPM
+$[\utck{}-\mathrm{UTC(USNO)}]$ series on a disjoint segment for every multi-year
+lag $\tau\ge\SI{90}{\day}$.}
+
+\begin{table}[t]
+  \centering
+  \caption{Overbound coverage of the white-FM running-max envelope
+  ($q_{\mathrm{wf}}=\SI{7.533e-25}{\square\second\per\second}$, $\Kf(\IR/2)=2.807$ at $\IR=\num{e-2}$)
+  against the real BIPM $[\utck{}-\mathrm{UTC(USNO)}]$ series on the disjoint test
+  segment. Multi-year lags ($\tau\ge\SI{90}{\day}$) are the \Validated{} regime,
+  covered with zero piercing. The $\tau=\SI{30}{\day}$ row is pierced and is a
+  disclosed \Modelled{} short-lag boundary, not a validated claim.}
+  \label{tab:coverage}
+  \begin{tabular}{r r r c l}
+    \toprule
+    lag $\tau$ & envelope (ns) & empirical (ns) & covered & regime \\
+    \midrule
+    \SI{30}{\day}  & 3.92  & 4.40 & pierced & \Modelled{} short-lag boundary \\
+    \SI{90}{\day}  & 6.79  & 5.60 & \checkmark & \Validated{} multi-year \\
+    \SI{180}{\day} & 9.61  & 7.10 & \checkmark & \Validated{} multi-year \\
+    \SI{365}{\day} & 13.68 & 7.10 & \checkmark & \Validated{} multi-year \\
+    \SI{730}{\day} & 19.35 & 7.10 & \checkmark & \Validated{} multi-year \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Honesty scope of the validated claim}
+\label{sec:covscope}
+
+The coverage claim is deliberately narrow. We enumerate what it is not.
+
+\paragraph{It is conservative by construction, not tight.}
+The $\sqrt{\tau}$ white-FM envelope over-grows a \emph{range-bounded} steered
+series: an operational $[\utck{}-\mathrm{UTC(USNO)}]$ offset is actively kept near
+zero, so its long-lag excursions saturate (the empirical column plateaus at
+\SI{7.1}{\nano\second}) while the envelope keeps rising as $\sqrt{\tau}$. Coverage
+at long $\tau$ is therefore easy and says little about tightness; the
+\emph{informative} test is at short lag, which is exactly the boundary we disclose
+as \Modelled{}. We claim overbound coverage, not envelope tightness (which remains
+\Modelled{}).
+
+\paragraph{The short-lag row is pierced and is disclosed as \Modelled{}.}
+At $\tau=\SI{30}{\day}$ the empirical running-max (\SI{4.40}{\nano\second}) pierces
+the single-parameter white-FM envelope (\SI{3.92}{\nano\second}): the one-parameter
+fit under-covers the steered series' short-lag control-action variance (daily and
+weekly steering cycles). We do \emph{not} assert coverage for $\tau<\SI{90}{\day}$;
+the $\tau=\SI{30}{\day}$ row is retained for transparency, as a \Modelled{}
+short-lag model-validity boundary, not as a validated result. The
+operationally-relevant seconds-to-hours short-coast regime is thus the
+highest-value \emph{open} anchor, and is not validated here.
+
+\paragraph{It is not the fountain-holdover series, and it is a single realization.}
+It is important not to confuse this operational-offset series with the
+rubidium-fountain holdover of Peil, Akin, and Whalen \citep{peil2025}, which
+reports a fountain-steered-timescale-versus-BIPM holdover at the 100-ns level after
+twelve years (with a best-fountain time-deviation of order \SI{14}{\nano\second} at
+a few years). That is a \emph{distinct physical quantity} over the same laboratory
+and window; our oracle is the $[\utck{}-\mathrm{UTC(USNO)}]$ offset series and
+makes no claim to be the fountain-holdover series. Moreover our test is a single
+realization---one near-Brownian path---so it \emph{strengthens but does not
+certify} the envelope; ensemble coverage is not claimed.
+
+\paragraph{The deep tail and free-running coast stay \Modelled{}.}
+The coverage test is run at $\IR=\num{e-2}$, the risk a series of 872 points can
+support; the deep-tail \num{e-7} integrity quantile is \emph{not} tested and stays
+\Modelled{}. The series is a \emph{steered} realization, so the envelope's behavior
+on a \emph{free-running} oscillator coast is not validated here either. And the
+composition of Section~\ref{sec:composition}, the multi-source budget, and any
+system-level claim have \emph{no} external oracle and are \Proven{}${}+{}$\Modelled{}
+only---never \Validated{}.
+
+\paragraph{Circular-T is an input, not a validated output.}
+Finally, we do not claim credit for reproducing Circular-T values: extracting the
+series and its uncertainties \citep{bipmcirculart,defraigne2015,panfilo2019} is
+input bookkeeping, not a contribution. The \Validated{} object is the
+\emph{coverage of a forward-predicted envelope} on a disjoint segment, which is
+independent of the ADEV/Van-Loan primitives the engine already tests
+elsewhere; the disjoint fit/test split prevents leakage, so the check is
+non-circular.

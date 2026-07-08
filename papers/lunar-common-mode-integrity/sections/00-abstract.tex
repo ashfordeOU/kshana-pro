@@ -1,0 +1,49 @@
+A multi-provider lunar positioning, navigation, and timing (PNT) architecture---the
+declared vision of LunaNet, ESA Moonlight/LCNS, and their national counterparts---will
+rely on receiver autonomous integrity monitoring (RAIM), and its advanced variant
+ARAIM, to bound position error in real time. We study one error class that the
+\emph{snapshot residual test} at the heart of RAIM/ARAIM cannot see, and we are
+careful throughout to separate what is classical, what we prove, what we validate on
+real data, and what we model. First, a classical fact we cite rather than claim: the
+parity-space formulation detects a fault only through the parity subspace (the
+orthogonal complement of $\rng(\Gmat)$), so any measurement error lying in
+$\rng(\Gmat)$ produces a zero parity vector and is undetectable
+\citep{sturza1988,brown1992,parkinson1988}. Second, a lemma we prove: to first order
+the \emph{entire} rigid-body transformation of the satellite constellation---three
+translations and three rotations, and independent of the user's own position---lies in
+$\rng(\Gmat)$ and is therefore fully blind; only non-rigid deformation is detectable,
+and the residual of a rigid rotation is second order in the angle
+($\sim\!10^{-9}\,$m for realistic nanoradian frame errors). This is exactly the
+geodetic datum defect / gauge freedom \citep{baarda1973,teunissen2000}, so---connecting
+to our companion datum-identifiability paper \citep{baweja2026datum}---the P1
+datum-defect subspace is a subset of the RAIM blind subspace. We claim novelty for
+none of these three (subspace blindness, the datum-defect$\subset$blind relation, and
+bounding an undetectable error by a protection level are all prior art). Third, the one
+externally \Validated{} row: on the real geocentric-Moon disagreement between the
+independent authoritative ephemerides DE440 (JPL), INPOP21a (IMCCE), and EPM2021
+(IAA~RAS), the engine's parity/least-squares split reproduces an independent NumPy
+computation to relative and absolute error below $10^{-3}$
+($732$ records $=2$ provider pairs $\times366$ epochs). We are scrupulous about what
+realness contributes: the blindness itself (blind fraction $=1$, parity residual
+$\sim\!10^{-15}\,$m) is an \emph{analytic identity} of the common-shift construction
+$\delta\yv=\Gmat[-\ds;0]$, not a measurement---the $\sim\!10^{-15}\,$m is
+floating-point zero, and the data set only the $\approx\!2\,$m \emph{magnitude} of the
+absorbed user-position error. Fourth, and \Modelled{}: mapped through a modelled lunar
+constellation this $\approx\!2\,$m inter-provider common-mode motivates a
+\emph{cross-provider protection level} (CMPL). Here we state the load-bearing claim
+correctly, because its naive form is false: ARAIM is \emph{not} ``provably blind'' to
+common-mode at the protection level---the ARAIM protection level already bounds
+residual-invisible error through its fault-free hypothesis, via the $\sigma_{\mathrm
+{URA}}$ overbound and the nominal bias $b_{\mathrm{nom}}$
+\citep{blanch2015,wgc2016araim}. The genuinely uncovered term is the multi-provider
+case: a frame/ephemeris common-mode between \emph{independent} lunar providers lies
+outside any single provider's per-provider URA/ISM budget. The CMPL restores a valid
+bound for exactly that case, and the conservative envelope
+$\mathrm{HPL}_{\mathrm{total}}=\mathrm{HPL}_{\mathrm{ARAIM}}+\mathrm{CMPL}$ is a
+triangle-inequality sum (a root-sum-square would under-bound and overclaim integrity),
+valid only where the common-mode is not already absorbed into $\sigma_{\mathrm{URA}}$,
+else it double-counts. The classical property and the rigid-body lemma are proven; the
+parity/least-squares split of the real ephemeris disagreement is \Validated{}; the
+constellation, the common-mode covariance, and the whole CMPL envelope are explicitly
+\Modelled{} (the ``providers'' are ephemerides, a representative analog---no two
+lunar-PNT providers fly), and every number is reproducible from a single command.

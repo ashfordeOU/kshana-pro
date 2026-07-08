@@ -13,6 +13,9 @@ use kshana::api::{run_scenario, ExternalPack, KshanaError, RunOutput, ScenarioMe
 use serde::de::DeserializeOwned;
 
 use crate::packs::batch_pack::BatchScenario;
+use crate::packs::beacon_dop_pack::{BeaconDopScenario, SurfaceBeaconDopStudyScenario};
+use crate::packs::beacon_placement_pack::BeaconPlacementScenario;
+use crate::packs::lunar_signal_security_pack::LunarSignalSecurityScenario;
 use crate::packs::mbse_pack::MbseScenario;
 use crate::packs::optimism_gap_audit::OptimismGapAuditScenario;
 use crate::packs::quantum_systematics_pack::QuantumSystematicsScenario;
@@ -60,6 +63,12 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         QuantumSystematicsScenario::KIND => Some(parse::<QuantumSystematicsScenario>(kind, src)),
         MbseScenario::KIND => Some(parse::<MbseScenario>(kind, src)),
         OptimismGapAuditScenario::KIND => Some(parse::<OptimismGapAuditScenario>(kind, src)),
+        LunarSignalSecurityScenario::KIND => Some(parse::<LunarSignalSecurityScenario>(kind, src)),
+        BeaconDopScenario::KIND => Some(parse::<BeaconDopScenario>(kind, src)),
+        SurfaceBeaconDopStudyScenario::KIND => {
+            Some(parse::<SurfaceBeaconDopStudyScenario>(kind, src))
+        }
+        BeaconPlacementScenario::KIND => Some(parse::<BeaconPlacementScenario>(kind, src)),
         _ => None,
     }
 }
@@ -76,6 +85,10 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
         QuantumSystematicsScenario::meta_static(),
         MbseScenario::meta_static(),
         OptimismGapAuditScenario::meta_static(),
+        LunarSignalSecurityScenario::meta_static(),
+        BeaconDopScenario::meta_static(),
+        SurfaceBeaconDopStudyScenario::meta_static(),
+        BeaconPlacementScenario::meta_static(),
     ]
 }
 
@@ -187,7 +200,7 @@ where
 /// [`kshana::registry::PackRegistry`].
 ///
 /// It starts from every open built-in
-/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 7
+/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 11
 /// Pro packs through the public [`ExternalPack::register_into`] seam. The union is
 /// therefore assembled entirely through stable public API: the open half is the open
 /// core's own table (never re-listed here, so it cannot drift), and the Pro half is
@@ -206,6 +219,10 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     QuantumSystematicsScenario::register_into(&mut reg);
     MbseScenario::register_into(&mut reg);
     OptimismGapAuditScenario::register_into(&mut reg);
+    LunarSignalSecurityScenario::register_into(&mut reg);
+    BeaconDopScenario::register_into(&mut reg);
+    SurfaceBeaconDopStudyScenario::register_into(&mut reg);
+    BeaconPlacementScenario::register_into(&mut reg);
     reg
 }
 
@@ -432,6 +449,42 @@ lower_is_better = true
                  ridge_lambda = 0.1\n\
                  n_perms = 20\n\
                  perm_seed = 7\n"
+            }
+            LunarSignalSecurityScenario::KIND => "kind = \"pro-lunar-signal-security\"\n",
+            BeaconDopScenario::KIND => {
+                // Tiny sweep (a single high-latitude band, small fleet, few epochs and
+                // bootstrap resamples): the headline default reproduces the paper's full
+                // sweep and is far too heavy for a unit test.
+                "kind = \"pro-beacon-dop\"\n\
+                 lat_min_deg = -85.0\n\
+                 lat_max_deg = -85.0\n\
+                 lat_step_deg = 1.0\n\
+                 n_fleet = 4\n\
+                 headline_beacons = 3\n\
+                 max_beacons = 4\n\
+                 n_epochs = 1\n\
+                 bootstrap_resamples = 8\n"
+            }
+            SurfaceBeaconDopStudyScenario::KIND => {
+                // Tiny N-sweep + coarse GDOP map; the headline default is a heavy study.
+                "kind = \"pro-surface-beacon-dop-study\"\n\
+                 n_min = 3\n\
+                 n_max = 4\n\
+                 map_n_relays = 3\n\
+                 map_n_lat = 2\n\
+                 map_n_lon = 2\n\
+                 n_epochs = 1\n"
+            }
+            BeaconPlacementScenario::KIND => {
+                // 1×1 user grid, 2×2 candidate grid, one epoch, one beacon — the headline
+                // default runs the full terrain-aware optimizer over a dense grid.
+                "kind = \"pro-beacon-placement\"\n\
+                 user_n_lat = 1\n\
+                 user_n_lon = 1\n\
+                 cand_n_lat = 2\n\
+                 cand_n_lon = 2\n\
+                 n_epochs = 1\n\
+                 k_beacons = 1\n"
             }
             other => panic!("no test source defined for Pro kind '{other}'"),
         }

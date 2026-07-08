@@ -1,0 +1,112 @@
+% SPDX-License-Identifier: CC-BY-4.0
+% P5 autonomous fault observability & Byzantine integrity manuscript.
+% Target: NAVIGATION (ION) / IEEE TAES; conference flag ION GNSS+ 2026.
+% Build: tectonic main.tex   (or pdflatex + bibtex + pdflatex x2)
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{3em}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{orcidlink}
+
+\graphicspath{{./}{figures/}}
+\setlength{\abovecaptionskip}{9pt}
+\setlength{\belowcaptionskip}{6pt}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+% Notation macros
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Gmat}{\bm{G}}                        % geometry (design) matrix
+\newcommand{\Wmat}{\bm{W}}                        % weight matrix Sigma^{-1}
+\newcommand{\Pperp}{\bm{P}^{\perp}}               % parity projector
+\newcommand{\bvec}{\bm{b}}                        % fault (bias) vector
+\newcommand{\xvec}{\bm{x}}                        % state vector
+\newcommand{\thetav}{\bm{\theta}}                 % datum vector
+\newcommand{\Bmat}{\bm{B}}                        % peer fault signature block
+\newcommand{\Gbar}{\bar{\bm{G}}}                  % effective (parity-projected) signature
+\newcommand{\Nsp}{\mathcal{N}}                    % null space
+\newcommand{\dtau}{\delta\tau}                    % timescale offset gauge
+\newcommand{\dalpha}{\delta\alpha}               % timescale rate gauge
+\newcommand{\rng}{\operatorname{range}}
+\newcommand{\Sig}{\bm{\Sigma}}                    % covariance
+\newcommand{\spark}{\operatorname{spark}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\MDB}{MDB}
+
+% Honesty tags: Cited (prior art), Proven (our algebra), Validated (external oracle), Modelled (representative)
+\newcommand{\Cited}{\textsc{Cited}}
+\newcommand{\Proven}{\textsc{Proven}}
+\newcommand{\Modelled}{\textsc{Modelled}}
+\newcommand{\Validated}{\textsc{Validated}}
+
+\title{\textbf{Autonomous fault observability and Byzantine integrity of a
+sparse multi-provider lunar constellation: the datum--timescale gauge as the
+undetectable-fault subspace, and a geometric secure-identification bound}}
+
+\author{Chakshu Baweja\,\orcidlink{0009-0008-2098-0751}\\
+\small Ashforde O\"U, Tallinn, Estonia \\
+\small \texttt{contact@ashforde.org}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{sections/00-abstract}
+\end{abstract}
+
+\noindent\textbf{Keywords:} lunar PNT; autonomous integrity monitoring; fault
+detection and exclusion; RAIM; parity space; protection level; Byzantine fault
+tolerance; secure state estimation; sparse observability; datum defect; gauge
+freedom; timescale holdover; LunaNet; Moonlight; inter-satellite ranging; DE440
+
+\vspace{0.5em}
+\input{sections/01-introduction}
+\input{sections/02-model}
+\input{sections/03-observability}
+\input{sections/04-byzantine}
+\input{sections/05-anchor}
+\input{sections/06-holdover-provider}
+\input{sections/07-design-laws}
+\input{sections/08-discussion}
+\input{sections/09-conclusion}
+
+\section*{Data and code availability}
+\input{sections/10-availability}
+
+\section*{Acknowledgements}
+The numerical substrate underlying this work is part of the open-source
+\code{kshana} engine. The lunar orientation data used here are the JPL DE440
+development ephemeris. This research received no specific grant from any funding
+agency in the public, commercial, or not-for-profit sectors.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\input{sections/A-methods}
+
+\end{document}

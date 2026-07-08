@@ -1,0 +1,120 @@
+\begin{thebibliography}{15}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Altamimi et~al.(2016)Altamimi, Rebischung, M{\'e}tivier, and
+  Collilieux]{altamimi2016itrf2014}
+Zuheir Altamimi, Paul Rebischung, Laurent M{\'e}tivier, and Xavier Collilieux.
+\newblock {ITRF2014}: A new release of the {International Terrestrial Reference
+  Frame} modeling nonlinear station motions.
+\newblock \emph{Journal of Geophysical Research: Solid Earth}, 121\penalty0
+  (8):\penalty0 6109--6131, 2016.
+\newblock \doi{10.1002/2016JB013098}.
+
+\bibitem[Archinal et~al.(2018)Archinal, Acton, A'Hearn,
+  et~al.]{archinal2018iau}
+B.~A. Archinal, C.~H. Acton, M.~F. A'Hearn, et~al.
+\newblock Report of the {IAU} working group on cartographic coordinates and
+  rotational elements: 2015.
+\newblock \emph{Celestial Mechanics and Dynamical Astronomy}, 130\penalty0
+  (3):\penalty0 22, 2018.
+\newblock \doi{10.1007/s10569-017-9805-5}.
+
+\bibitem[Baweja(2026)]{baweja2026kshana}
+Chakshu Baweja.
+\newblock Kshana: An open, reproducible engine for {PNT}-resilience comparison.
+\newblock \emph{Preprint}, 2026.
+\newblock Software: \url{https://github.com/ashfordeOU/kshana}.
+
+\bibitem[Boyd and Vandenberghe(2004)]{boyd2004convex}
+Stephen Boyd and Lieven Vandenberghe.
+\newblock \emph{Convex Optimization}.
+\newblock Cambridge University Press, 2004.
+
+\bibitem[Fienga et~al.(2024)Fienga, Rambaux, and
+  So{\'s}nica]{fienga2024moonlight}
+Agn{\`e}s Fienga, Nicolas Rambaux, and Krzysztof So{\'s}nica.
+\newblock Lunar reference systems, frames and time-scales in the context of the
+  {ESA} programme {Moonlight}.
+\newblock \emph{arXiv preprint}, arXiv:2409.10043, 2024.
+\newblock \doi{10.48550/arXiv.2409.10043}.
+\newblock [astro-ph.EP].
+
+\bibitem[Horn and Johnson(2013)]{hornjohnson2013matrix}
+Roger~A. Horn and Charles~R. Johnson.
+\newblock \emph{Matrix Analysis}.
+\newblock Cambridge University Press, 2nd edition, 2013.
+
+\bibitem[Iiyama et~al.(2023)Iiyama, Casadesus~Vila, and Gao]{iiyama2023lupnt}
+Keidai Iiyama, Guillem Casadesus~Vila, and Grace Gao.
+\newblock {LuPNT}: Open-source simulator for {Lunar} positioning, navigation,
+  and timing.
+\newblock In \emph{Proceedings of the 36th International Technical Meeting of
+  the Satellite Division of The Institute of Navigation (ION GNSS+ 2023)},
+  2023.
+
+\bibitem[Israel et~al.(2020)Israel, Mauldin, Roberts,
+  et~al.]{israel2020lunanet}
+David~J. Israel, Kendall~D. Mauldin, Christopher~J. Roberts, et~al.
+\newblock {LunaNet}: A flexible and extensible lunar exploration communications
+  and navigation infrastructure.
+\newblock In \emph{IEEE Aerospace Conference}, 2020.
+\newblock \doi{10.1109/AERO47225.2020.9172509}.
+
+\bibitem[Kay(1993)]{kay1993estimation}
+Steven~M. Kay.
+\newblock \emph{Fundamentals of Statistical Signal Processing: Estimation
+  Theory}.
+\newblock Prentice Hall, 1993.
+
+\bibitem[Nemhauser et~al.(1978)Nemhauser, Wolsey, and
+  Fisher]{nemhauser1978submodular}
+G.~L. Nemhauser, L.~A. Wolsey, and M.~L. Fisher.
+\newblock An analysis of approximations for maximizing submodular set
+  functions---{I}.
+\newblock \emph{Mathematical Programming}, 14\penalty0 (1):\penalty0 265--294,
+  1978.
+\newblock \doi{10.1007/BF01588971}.
+
+\bibitem[Park et~al.(2021)Park, Folkner, Williams, and Boggs]{park2021de440}
+Ryan~S. Park, William~M. Folkner, James~G. Williams, and Dale~H. Boggs.
+\newblock The {JPL} planetary and lunar ephemerides {DE440} and {DE441}.
+\newblock \emph{The Astronomical Journal}, 161\penalty0 (3):\penalty0 105,
+  2021.
+\newblock \doi{10.3847/1538-3881/abd414}.
+
+\bibitem[P{\"o}hlmann et~al.(2025)P{\"o}hlmann, Staudinger, and
+  Seco-Granados]{pohlmann2025hybrid}
+Robert P{\"o}hlmann, Emanuel Staudinger, and Gonzalo Seco-Granados.
+\newblock Towards hybrid lunar {PNT}: Error models, lower bounds and
+  algorithms.
+\newblock \emph{arXiv preprint}, arXiv:2508.10699, 2025.
+\newblock \doi{10.48550/arXiv.2508.10699}.
+\newblock [eess.SP].
+
+\bibitem[Pukelsheim(2006)]{pukelsheim2006oed}
+Friedrich Pukelsheim.
+\newblock \emph{Optimal Design of Experiments}.
+\newblock Classics in Applied Mathematics. Society for Industrial and Applied
+  Mathematics (SIAM), 2006.
+
+\bibitem[So{\'s}nica et~al.(2025)So{\'s}nica, Fienga, Pavlov, Rambaux, and
+  Zajdel]{sosnica2025ilrf}
+Krzysztof So{\'s}nica, Agn{\`e}s Fienga, Dmitry Pavlov, Nicolas Rambaux, and
+  Rados{\l}aw Zajdel.
+\newblock Definition and realization of the {International Lunar Reference
+  Frame}.
+\newblock \emph{arXiv preprint}, arXiv:2510.15484, 2025.
+\newblock \doi{10.48550/arXiv.2510.15484}.
+\newblock [astro-ph.EP].
+
+\bibitem[Zhang(2005)]{zhang2005schur}
+Fuzhen Zhang, editor.
+\newblock \emph{The Schur Complement and Its Applications}.
+\newblock Springer, 2005.
+\newblock \doi{10.1007/b105056}.
+
+\end{thebibliography}
