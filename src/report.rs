@@ -841,8 +841,15 @@ mod tests {
     #[test]
     fn matrix_counts_match_the_live_matrix() {
         let c = matrix_counts();
-        // The honesty ledger's headline: a handful validated, the rest modelled/partner.
-        assert!(c.validated >= 4 && c.validated <= 8);
+        // Assert the counts track the live open-core verification matrix (the test's
+        // namesake) rather than pinning a magic range: the engine's validated set grows
+        // as the open core matures, so an upper bound on it is inherently stale.
+        let live = summarize(&verification_matrix());
+        assert_eq!(c.validated, live.validated);
+        assert_eq!(c.modelled, live.modelled);
+        assert_eq!(c.partner, live.partner_owned);
+        // The honesty ledger keeps a real spread across all three provenances.
+        assert!(c.validated >= 4);
         assert!(c.modelled >= 8);
         assert!(c.partner >= 1);
     }
