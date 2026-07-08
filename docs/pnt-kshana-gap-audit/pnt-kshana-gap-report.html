@@ -20,7 +20,7 @@ padding:30px 34px;position:relative;overflow:hidden}
 .hero .stamp{position:absolute;top:20px;right:26px;font-family:Menlo,monospace;font-size:11px;color:var(--dim)}
 .prog{margin:22px 0 6px}
 .prog-bar{height:14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line2);overflow:hidden;position:relative}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:18%;transition:width .4s}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:27%;transition:width .4s}
 .prog-lab{font-family:Menlo,monospace;font-size:12px;color:var(--muted);margin-top:6px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin:22px 0}
 .tile{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
@@ -113,12 +113,12 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
 </style></head>
 <body><div class="wrap">
 <header class="hero">
-  <div class="stamp">generated 2026-07-08 20:15 CEST — Phase 2 complete</div>
+  <div class="stamp">generated 2026-07-08 20:46 CEST — Phase 3 complete</div>
   <div class="kicker">Ashforde · Kshana <span class="dev">&#2325;&#2381;&#2359;&#2339;</span> · Build-in-public PNT program</div>
   <h1>Kshana &times; Lunar/Cislunar PNT Papers — Capability-Gap Buildout Tracker</h1>
   <div class="sub">Everything the seven preprints (P1&ndash;P7) compute or claim, mapped to the Kshana codebase, with the exact capabilities to build so each result is producible — and upgradable from <i>Modelled/asserted</i> to Kshana-computed <i>Validated</i>. Follow this during implementation; tick items as they land.</div>
   <div class="prog"><div class="prog-bar"><div class="prog-fill"></div></div>
-    <div class="prog-lab" id="proglab">10/55 gaps complete · 18% · 0 in progress</div></div>
+    <div class="prog-lab" id="proglab">15/55 gaps complete · 27% · 0 in progress</div></div>
 </header>
 
 <div class="tiles">
@@ -176,16 +176,16 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <div class="phase-rationale">Pro pack + Fig 1b generator consume Phase 1 analyses. Ships only after the public engine can produce every headline number, so the pack is a pure orchestration/report commit.</div>
     <ul class="phase-gaps"><li class="ph-gap done"><a href="#L42">L42</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Lunar AFS attack-surface study/pack + branded report</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L43">L43</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Fig 1b six-attribute lunar-vs-terrestrial comparison figure generator</span> <span class="eff eff-S">S</span></li></ul>
   </div>
-<div class="phase-card todo" data-status="todo">
+<div class="phase-card done" data-status="done">
     <div class="phase-head">
       <div class="phase-no">Phase 3</div>
       <div class="phase-title">Surface-beacon DOP core</div>
       <div class="phase-repo"><span class="badge repo-pub">kshana · public</span></div>
     </div>
     <div class="phase-goal">Beacon-augmented DOP with height-aware surface-to-surface visibility, the beacon UERE-&gt;metres error budget, N-sweep and spatial-map aggregates, and perturbed constellation ephemeris.</div>
-    <div class="phase-bar"><div class="phase-bar-fill" style="width:0%"></div><span class="phase-bar-lab">0/5 · 0%</span></div>
+    <div class="phase-bar"><div class="phase-bar-fill" style="width:100%"></div><span class="phase-bar-lab">5/5 · 100%</span></div>
     <div class="phase-rationale">P2 public-engine analyses. L08 consumes the L01 horizon helper built in Phase 1; L09 (the top P2 upgrade, GDOP-&gt;metres) depends on L08. Median-GDOP/map/perturbation gaps round out the engine side in one commit.</div>
-    <ul class="phase-gaps"><li class="ph-gap todo"><a href="#L08">L08</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Beacon-augmented DOP with height-aware surface-to-surface visibility</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L09">L09</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Beacon error budget -&gt; realized accuracy (clock-sync + multipath + survey RSS)</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L10">L10</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">N-sweep (N=4..24) median GDOP + fraction-below-GDOP-6 aggregates</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L11">L11</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Per-cell median-GDOP spatial map over -70..-90 deg with HDOP/VDOP layers</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L12">L12</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Perturbed lunar constellation ephemeris (J2/C22/third-body)</span> <span class="eff eff-L">L</span></li></ul>
+    <ul class="phase-gaps"><li class="ph-gap done"><a href="#L08">L08</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Beacon-augmented DOP with height-aware surface-to-surface visibility</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L09">L09</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Beacon error budget -&gt; realized accuracy (clock-sync + multipath + survey RSS)</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L10">L10</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">N-sweep (N=4..24) median GDOP + fraction-below-GDOP-6 aggregates</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L11">L11</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Per-cell median-GDOP spatial map over -70..-90 deg with HDOP/VDOP layers</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L12">L12</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Perturbed lunar constellation ephemeris (J2/C22/third-body)</span> <span class="eff eff-L">L</span></li></ul>
   </div>
 <div class="phase-card todo" data-status="todo">
     <div class="phase-head">
@@ -398,7 +398,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L08" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L08" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L08</span></td>
     <td class="c-title"><div class="lt">Beacon-augmented DOP with height-aware surface-to-surface visibility</div><div class="ld">Add a beacon visibility predicate at a low (~0 deg) mask bounded by the L01 geometric horizon and dop_with_beacons(user, sats, beacons) that concatenates satellite LOS rows with beacon ranging rows into H, reusing the validated orbit::dop kernel. Underpins P2 Table 2 (GDOP 16.2-&gt;1.6) and horizon-bounded placement.</div>
       <div class="lmeta"><span class="lo">oracle:</span> DOP assembly inherits gnss_lib_py/NumPy-validated orbit::dop; horizon geometry Validated closed form via L01.</div>
@@ -407,10 +407,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/lunar_service.rs (or lunar_beacon.rs) reusing orbit::dop + selenographic_to_mcmf alt_m</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L09" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L09" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L09</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Beacon error budget -&gt; realized accuracy (clock-sync + multipath + survey RSS)</div><div class="ld">Add a beacon UERE composer that RSS-combines clock-synchronisation, surface-to-surface multipath, and beacon-position/survey error into per-beacon sigma_UERE, then maps beacon-augmented GDOP/HDOP/VDOP to realized position sigma (metres). Converts P2's headline 'GDOP 1.6' into metres — the highest-value P2 upgrade. Kshana today has only DOP x a single lumped UERE constant.</div>
       <div class="lmeta"><span class="lo">oracle:</span> sigma_pos=DOP x RSS(clock,multipath,position) vs a hand-worked Kaplan &amp; Hegarty GNSS UERE budget table; component RSS is a uniquely-defined closed form.</div>
@@ -419,10 +419,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/lunar_beacon.rs (or extend lunar_service.rs); reuse orbit.rs sigma-&gt;position pattern</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L10" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L10" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L10</span></td>
     <td class="c-title"><div class="lt">N-sweep (N=4..24) median GDOP + fraction-below-GDOP-6 aggregates</div><div class="ld">Add gdop_median and frac_below_gdop6 accumulators to CoverageStats, lift the n_sats cap (currently clamp(1,12)) to 24, and add a sweep_over_n driver emitting P2 Table 1 rows (availability, median GDOP, time below 6) reproducing the non-monotonic N=6 bump; median crosses 6 near N~12.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Per-sample GDOP Validated (gnss_lib_py/NumPy); median + threshold-fraction are deterministic order statistics reproducible from committed CSV.</div>
@@ -431,10 +431,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/lunar_service.rs CoverageStats + sweep_over_n helper; lift n_sats cap</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L11" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L11" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L11</span></td>
     <td class="c-title"><div class="lt">Per-cell median-GDOP spatial map over -70..-90 deg with HDOP/VDOP layers</div><div class="ld">Extend lunar_coverage_grid (today per-cell visible count + single-snapshot PDOP) to carry time-averaged per-cell median GDOP/HDOP/VDOP over the -70..-90 latitude band x all longitudes for the 6-sat constellation — P2 Figure 1a.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Reuses Validated DOP kernel; deterministic grid reproduction from committed CSV.</div>
@@ -443,10 +443,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/lunar.rs (extend lunar_coverage_grid) or lunar_service coverage-grid variant</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L12" data-repo="kshana" data-prio="P2" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L12" data-repo="kshana" data-prio="P2" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L12</span></td>
     <td class="c-title"><div class="lt">Perturbed lunar constellation ephemeris (J2/C22/third-body)</div><div class="ld">Add a perturbed positions_mcmf variant propagating the ELFO constellation under lunar J2/C22 + Earth/Sun third-body (reusing forces.rs third_body_accel/MU_MOON/MU_SUN) instead of pure two-body Kepler, so P2 DOP reflects realistic perturbed geometry as a sensitivity band.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Perturbed lunar propagation vs Orekit/GMAT lunar propagation over a fixed span, matching secular rates; DOP inherits validated kernel.</div>
@@ -455,7 +455,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-L">L</span></td>
     <td class="c-loc"><code>kshana/src/lunar_service.rs perturbed variant reusing propagator.rs + forces.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
   <tr class="lrow" id="L45" data-repo="kshana-pro" data-prio="P0" data-kind="pack/study" data-status="todo">
