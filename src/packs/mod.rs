@@ -10,6 +10,7 @@
 
 pub mod batch_pack;
 pub mod detector_intake;
+pub mod lunar_signal_security_pack;
 pub mod mbse_pack;
 pub mod optimism_gap_audit;
 pub mod quantum_systematics_pack;

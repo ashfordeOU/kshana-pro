@@ -10,6 +10,7 @@
 use kshana::api::{run_scenario, ExternalPack, KshanaError, RunOutput, ScenarioMeta};
 
 use crate::packs::batch_pack::BatchScenario;
+use crate::packs::lunar_signal_security_pack::LunarSignalSecurityScenario;
 use crate::packs::mbse_pack::MbseScenario;
 use crate::packs::optimism_gap_audit::OptimismGapAuditScenario;
 use crate::packs::quantum_systematics_pack::QuantumSystematicsScenario;
@@ -57,6 +58,9 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         QuantumSystematicsScenario::KIND => Some(parse::<QuantumSystematicsScenario>(kind, src)),
         MbseScenario::KIND => Some(parse::<MbseScenario>(kind, src)),
         OptimismGapAuditScenario::KIND => Some(parse::<OptimismGapAuditScenario>(kind, src)),
+        LunarSignalSecurityScenario::KIND => {
+            Some(parse::<LunarSignalSecurityScenario>(kind, src))
+        }
         _ => None,
     }
 }
@@ -73,6 +77,7 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
         QuantumSystematicsScenario::meta_static(),
         MbseScenario::meta_static(),
         OptimismGapAuditScenario::meta_static(),
+        LunarSignalSecurityScenario::meta_static(),
     ]
 }
 
