@@ -20,7 +20,7 @@ padding:30px 34px;position:relative;overflow:hidden}
 .hero .stamp{position:absolute;top:20px;right:26px;font-family:Menlo,monospace;font-size:11px;color:var(--dim)}
 .prog{margin:22px 0 6px}
 .prog-bar{height:14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line2);overflow:hidden;position:relative}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:27%;transition:width .4s}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:33%;transition:width .4s}
 .prog-lab{font-family:Menlo,monospace;font-size:12px;color:var(--muted);margin-top:6px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin:22px 0}
 .tile{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
@@ -113,12 +113,12 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
 </style></head>
 <body><div class="wrap">
 <header class="hero">
-  <div class="stamp">generated 2026-07-08 20:46 CEST — Phase 3 complete</div>
+  <div class="stamp">generated 2026-07-08 21:46 CEST — Phase 4 complete</div>
   <div class="kicker">Ashforde · Kshana <span class="dev">&#2325;&#2381;&#2359;&#2339;</span> · Build-in-public PNT program</div>
   <h1>Kshana &times; Lunar/Cislunar PNT Papers — Capability-Gap Buildout Tracker</h1>
   <div class="sub">Everything the seven preprints (P1&ndash;P7) compute or claim, mapped to the Kshana codebase, with the exact capabilities to build so each result is producible — and upgradable from <i>Modelled/asserted</i> to Kshana-computed <i>Validated</i>. Follow this during implementation; tick items as they land.</div>
   <div class="prog"><div class="prog-bar"><div class="prog-fill"></div></div>
-    <div class="prog-lab" id="proglab">15/55 gaps complete · 27% · 0 in progress</div></div>
+    <div class="prog-lab" id="proglab">18/55 gaps complete · 33% · 0 in progress</div></div>
 </header>
 
 <div class="tiles">
@@ -187,16 +187,16 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <div class="phase-rationale">P2 public-engine analyses. L08 consumes the L01 horizon helper built in Phase 1; L09 (the top P2 upgrade, GDOP-&gt;metres) depends on L08. Median-GDOP/map/perturbation gaps round out the engine side in one commit.</div>
     <ul class="phase-gaps"><li class="ph-gap done"><a href="#L08">L08</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Beacon-augmented DOP with height-aware surface-to-surface visibility</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L09">L09</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Beacon error budget -&gt; realized accuracy (clock-sync + multipath + survey RSS)</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L10">L10</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">N-sweep (N=4..24) median GDOP + fraction-below-GDOP-6 aggregates</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L11">L11</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Per-cell median-GDOP spatial map over -70..-90 deg with HDOP/VDOP layers</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L12">L12</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Perturbed lunar constellation ephemeris (J2/C22/third-body)</span> <span class="eff eff-L">L</span></li></ul>
   </div>
-<div class="phase-card todo" data-status="todo">
+<div class="phase-card done" data-status="done">
     <div class="phase-head">
       <div class="phase-no">Phase 4</div>
       <div class="phase-title">Surface-beacon DOP studies &amp; reports</div>
       <div class="phase-repo"><span class="badge repo-pro">kshana-pro · private</span></div>
     </div>
     <div class="phase-goal">Multi-latitude x multi-beacon CI sweep (P2 upgrade), the paper study emitting lunar_dop_summary.csv + Figure 1, and terrain beacon-placement optimisation.</div>
-    <div class="phase-bar"><div class="phase-bar-fill" style="width:0%"></div><span class="phase-bar-lab">0/3 · 0%</span></div>
+    <div class="phase-bar"><div class="phase-bar-fill" style="width:100%"></div><span class="phase-bar-lab">3/3 · 100%</span></div>
     <div class="phase-rationale">Pro studies consuming Phase 3's dop_with_beacons kernel. Includes the P2 upgrade prescription L45. Single-repo deliverable commit after the core lands.</div>
-    <ul class="phase-gaps"><li class="ph-gap todo"><a href="#L45">L45</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Beacon-DOP multi-latitude x multi-beacon sweep with CIs, HDOP/VDOP</span> <span class="eff eff-L">L</span></li><li class="ph-gap todo"><a href="#L46">L46</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Surface-beacon-dop paper study + branded report + lunar_dop_summary.csv</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L47">L47</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Beacon-placement optimisation over terrain (LOLA DEM)</span> <span class="eff eff-L">L</span></li></ul>
+    <ul class="phase-gaps"><li class="ph-gap done"><a href="#L45">L45</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Beacon-DOP multi-latitude x multi-beacon sweep with CIs, HDOP/VDOP</span> <span class="eff eff-L">L</span></li><li class="ph-gap done"><a href="#L46">L46</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Surface-beacon-dop paper study + branded report + lunar_dop_summary.csv</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L47">L47</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Beacon-placement optimisation over terrain (LOLA DEM)</span> <span class="eff eff-L">L</span></li></ul>
   </div>
 <div class="phase-card todo" data-status="todo">
     <div class="phase-head">
@@ -458,7 +458,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L45" data-repo="kshana-pro" data-prio="P0" data-kind="pack/study" data-status="todo">
+  <tr class="lrow" id="L45" data-repo="kshana-pro" data-prio="P0" data-kind="pack/study" data-status="done">
     <td class="c-id"><span class="gid">L45</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Beacon-DOP multi-latitude x multi-beacon sweep with CIs, HDOP/VDOP</div><div class="ld">kshana-pro study running dop_with_beacons across user latitudes (-70..-90) AND beacon geometries (count, ring radius, terrain height, azimuth spread), bootstrapping CIs on median GDOP/HDOP/VDOP and reporting HDOP/VDOP separately — the P2 upgrade replacing the single -80 deg scalar-GDOP run.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Per-config DOP Validated (gnss_lib_py/NumPy); bootstrap CIs are internal-consistency (Modelled) but each point estimate Validated; reproducible from committed CSV.</div>
@@ -467,10 +467,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">pack/study</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-L">L</span></td>
     <td class="c-loc"><code>kshana-pro/src/packs/beacon_dop_pack.rs + papers/surface-beacon-dop/; reuse trade_study_pack sweep pattern</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L46" data-repo="kshana-pro" data-prio="P1" data-kind="report" data-status="todo">
+  <tr class="lrow" id="L46" data-repo="kshana-pro" data-prio="P1" data-kind="report" data-status="done">
     <td class="c-id"><span class="gid">L46</span></td>
     <td class="c-title"><div class="lt">Surface-beacon-dop paper study + branded report + lunar_dop_summary.csv</div><div class="ld">kshana-pro study orchestrating L08/L10/L11, emitting the committed lunar_dop_summary.csv, rendering P2 Figure 1 (spatial GDOP map, GDOP-vs-N curve with 4-6 planned band, beacon before/after), and the branded PDF.</div>
       <div class="lmeta"><span class="lo">oracle:</span> CSV/figures reproduce byte-stable; underlying GDOP carries gnss_lib_py/NumPy validation; qualitative claims Modelled.</div>
@@ -479,10 +479,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">report</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana-pro/papers/surface-beacon-dop/ + src pro_study/report_pack reusing report_brand/report_pdf</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L47" data-repo="kshana-pro" data-prio="P2" data-kind="pack/study" data-status="todo">
+  <tr class="lrow" id="L47" data-repo="kshana-pro" data-prio="P2" data-kind="pack/study" data-status="done">
     <td class="c-id"><span class="gid">L47</span></td>
     <td class="c-title"><div class="lt">Beacon-placement optimisation over terrain (LOLA DEM)</div><div class="ld">Optimiser searching beacon lat/lon/height to minimise served-user GDOP/HDOP subject to geometric-horizon + terrain line-of-sight, using mcda/{pareto,topsis} + dop_with_beacons and a LOLA DEM ingest fixture. Frames P2 beacon siting as the genuine optimization variable the paper argues for.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Optimiser vs brute-force grid on small cases (internal consistency); horizon/terrain masking Validated closed form; DEM imported from LOLA (asserted).</div>
@@ -491,7 +491,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">pack/study</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-L">L</span></td>
     <td class="c-loc"><code>kshana-pro/src/packs/beacon_placement_pack.rs + DEM fixture under kshana/src/realdata/</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
   <tr class="lrow" id="L13" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
