@@ -72,6 +72,8 @@ pub fn feature_min_tier(kind: &str) -> Tier {
         "pro-quantum-systematics" => Tier::Pro,
         "pro-optimism-gap-audit" => Tier::Pro,
         "pro-lunar-signal-security" => Tier::Pro,
+        "pro-beacon-dop" => Tier::Pro,
+        "pro-surface-beacon-dop-study" => Tier::Pro,
         "pro-scenario-ci" => Tier::Pro,
         "pro-mbse" => Tier::Enterprise,
         "pro-batch" => Tier::Enterprise,

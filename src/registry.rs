@@ -10,6 +10,7 @@
 use kshana::api::{run_scenario, ExternalPack, KshanaError, RunOutput, ScenarioMeta};
 
 use crate::packs::batch_pack::BatchScenario;
+use crate::packs::beacon_dop_pack::{BeaconDopScenario, SurfaceBeaconDopStudyScenario};
 use crate::packs::lunar_signal_security_pack::LunarSignalSecurityScenario;
 use crate::packs::mbse_pack::MbseScenario;
 use crate::packs::optimism_gap_audit::OptimismGapAuditScenario;
@@ -61,6 +62,10 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         LunarSignalSecurityScenario::KIND => {
             Some(parse::<LunarSignalSecurityScenario>(kind, src))
         }
+        BeaconDopScenario::KIND => Some(parse::<BeaconDopScenario>(kind, src)),
+        SurfaceBeaconDopStudyScenario::KIND => {
+            Some(parse::<SurfaceBeaconDopStudyScenario>(kind, src))
+        }
         _ => None,
     }
 }
@@ -78,6 +83,8 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
         MbseScenario::meta_static(),
         OptimismGapAuditScenario::meta_static(),
         LunarSignalSecurityScenario::meta_static(),
+        BeaconDopScenario::meta_static(),
+        SurfaceBeaconDopStudyScenario::meta_static(),
     ]
 }
 
