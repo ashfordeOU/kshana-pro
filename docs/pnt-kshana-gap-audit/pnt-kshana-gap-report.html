@@ -20,7 +20,7 @@ padding:30px 34px;position:relative;overflow:hidden}
 .hero .stamp{position:absolute;top:20px;right:26px;font-family:Menlo,monospace;font-size:11px;color:var(--dim)}
 .prog{margin:22px 0 6px}
 .prog-bar{height:14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line2);overflow:hidden;position:relative}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:93%;transition:width .4s}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:100%;transition:width .4s}
 .prog-lab{font-family:Menlo,monospace;font-size:12px;color:var(--muted);margin-top:6px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin:22px 0}
 .tile{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
@@ -113,12 +113,12 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
 </style></head>
 <body><div class="wrap">
 <header class="hero">
-  <div class="stamp">generated Phase 9 complete — 51/55 (93%) · cislunar observability + conflict resilience · only Ph10 pro deliverables remain · 2026-07-09</div>
+  <div class="stamp">generated COMPLETE — 55/55 (100%) · all 10 phases · every P1-P7 claim producible in Kshana · 2026-07-09</div>
   <div class="kicker">Ashforde · Kshana <span class="dev">&#2325;&#2381;&#2359;&#2339;</span> · Build-in-public PNT program</div>
   <h1>Kshana &times; Lunar/Cislunar PNT Papers — Capability-Gap Buildout Tracker</h1>
   <div class="sub">Everything the seven preprints (P1&ndash;P7) compute or claim, mapped to the Kshana codebase, with the exact capabilities to build so each result is producible — and upgradable from <i>Modelled/asserted</i> to Kshana-computed <i>Validated</i>. Follow this during implementation; tick items as they land.</div>
   <div class="prog"><div class="prog-bar"><div class="prog-fill"></div></div>
-    <div class="prog-lab" id="proglab">51/55 gaps complete · 93% · 0 in progress</div></div>
+    <div class="prog-lab" id="proglab">55/55 gaps complete · 100% · 0 in progress</div></div>
 </header>
 
 <div class="tiles">
@@ -253,16 +253,16 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <div class="phase-rationale">Both P6 and P7 are self-contained kshana estimation/resilience modules with no cross-dependency on earlier phases, so they batch into one final public-engine phase. L28 precedes L27 (Jacobian feeds Gramian); L32 depends on L27/L28/L29; L35 depends on L34. Contains three upgrade prescriptions (L27/L32/L35). Keeping them together minimizes phase count while staying single-repo.</div>
     <ul class="phase-gaps"><li class="ph-gap done"><a href="#L28">L28</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Inter-satellite planar 4-state range Jacobian</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L27">L27</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Observability-Gramian-over-arc core module</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L29">L29</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">DRO family seeder / IC scan for planar distant-retrograde orbits</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L30">L30</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Range-rate/Doppler design-lever demonstration</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L31">L31</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Wire FD-validated variational STM to de-model first-order STM propagation</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L32">L32</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Validate rank/observability transition against SRIF/batch estimator</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L33">L33</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Position-only GDOP-singular reporting for the CR3BP snapshot</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L34">L34</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Conflict-baseline layered-PNT resilience Monte-Carlo engine</span> <span class="eff eff-L">L</span></li><li class="ph-gap done"><a href="#L35">L35</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Correlated/sourced/sensitivity-swept threat model with per-vector E2 discipline</span> <span class="eff eff-L">L</span></li><li class="ph-gap done"><a href="#L36">L36</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Sourced threat-parameter provenance catalog for layer vulnerabilities</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L41">L41</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Surface binding + scenario runner for conflict-resilience</span> <span class="eff eff-S">S</span></li></ul>
   </div>
-<div class="phase-card todo" data-status="todo">
+<div class="phase-card done" data-status="done">
     <div class="phase-head">
       <div class="phase-no">Phase 10</div>
       <div class="phase-title">Observability &amp; conflict paper deliverables</div>
       <div class="phase-repo"><span class="badge repo-pro">kshana-pro · private</span></div>
     </div>
     <div class="phase-goal">Reproduce P6 (condition/spectrum table + CSV, constellation/rank figure, branded study pack) and P7 (conflict_resilience_table.csv, 2-panel degradation figure, branded report).</div>
-    <div class="phase-bar"><div class="phase-bar-fill" style="width:0%"></div><span class="phase-bar-lab">0/4 · 0%</span></div>
+    <div class="phase-bar"><div class="phase-bar-fill" style="width:100%"></div><span class="phase-bar-lab">4/4 · 100%</span></div>
     <div class="phase-rationale">Final pro deliverable phase consuming Phase 9. L52 is the P6 upgrade (rigorous conditioning table); L53 depends on L52+L32; L55 depends on L34+L35. Single-repo commit closing out all seven papers as reproducible branded artifacts.</div>
-    <ul class="phase-gaps"><li class="ph-gap todo"><a href="#L52">L52</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Cislunar observability condition-number + spectrum table/plot + committed CSV</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L54">L54</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Cislunar constellation + rank-vs-arc + Gramian-spectrum figure renderer</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L53">L53</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Cislunar observability study pack + branded PDF report</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L55">L55</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Conflict-resilience study + branded report + figure + committed CSV</span> <span class="eff eff-M">M</span></li></ul>
+    <ul class="phase-gaps"><li class="ph-gap done"><a href="#L52">L52</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Cislunar observability condition-number + spectrum table/plot + committed CSV</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L54">L54</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Cislunar constellation + rank-vs-arc + Gramian-spectrum figure renderer</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L53">L53</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Cislunar observability study pack + branded PDF report</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L55">L55</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Conflict-resilience study + branded report + figure + committed CSV</span> <span class="eff eff-M">M</span></li></ul>
   </div></div>
 
 <h2>Master gap ledger</h2>
@@ -890,7 +890,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L52" data-repo="kshana-pro" data-prio="P0" data-kind="report" data-status="todo">
+  <tr class="lrow" id="L52" data-repo="kshana-pro" data-prio="P0" data-kind="report" data-status="done">
     <td class="c-id"><span class="gid">L52</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Cislunar observability condition-number + spectrum table/plot + committed CSV</div><div class="ld">kshana-pro study tabulating, per tracking-arc length, observable rank, lambda_min, lambda_max, condition number, and rendering the eigenvalue spectrum + condition-vs-arc figures, emitting cislunar_observability_table.csv. Upgrades P6's qualitative conditioning to a rigorous table+plot.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Values reproduce byte-for-byte from committed CSV; Gramian eigenvalues/condition vs numpy.linalg.eigh/cond on exported matrices.</div>
@@ -899,10 +899,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">report</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana-pro/papers/cislunar-observability/ + src/packs/cislunar_observability_pack.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L54" data-repo="kshana-pro" data-prio="P2" data-kind="report" data-status="todo">
+  <tr class="lrow" id="L54" data-repo="kshana-pro" data-prio="P2" data-kind="report" data-status="done">
     <td class="c-id"><span class="gid">L54</span></td>
     <td class="c-title"><div class="lt">Cislunar constellation + rank-vs-arc + Gramian-spectrum figure renderer</div><div class="ld">Renderer for P6 Fig 1: (a) four DROs in the Earth-Moon rotating frame, (b) observable rank vs tracking-arc, plus the Gramian eigenvalue-spectrum panel. Dark PNG for README + light PDF for paper (crossover-renderer pattern).</div>
       <div class="lmeta"><span class="lo">oracle:</span> Figure regenerates deterministically from committed CSV; visual parity with fig1_main.pdf.</div>
@@ -911,10 +911,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">report</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana-pro/papers/cislunar-observability/ figure renderer</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L53" data-repo="kshana-pro" data-prio="P2" data-kind="pack/study" data-status="todo">
+  <tr class="lrow" id="L53" data-repo="kshana-pro" data-prio="P2" data-kind="pack/study" data-status="done">
     <td class="c-id"><span class="gid">L53</span></td>
     <td class="c-title"><div class="lt">Cislunar observability study pack + branded PDF report</div><div class="ld">Package L27/L30/L31/L32 into a first-class kshana-pro study/pack with Validated/Modelled labeling and branded PDF, mirroring the lunar-pnt static-observability companion, and register a registry.rs oracle entry for the observability-Gramian FOM.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Study output reproduces committed table; oracle entry cites numpy/scipy Gramian eigen/condition + the L32 SRIF cross-check.</div>
@@ -923,10 +923,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">pack/study</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana-pro/src/packs/cislunar_observability_pack.rs + papers/cislunar-observability/ + registry.rs oracle entry</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L55" data-repo="kshana-pro" data-prio="P1" data-kind="pack/study" data-status="todo">
+  <tr class="lrow" id="L55" data-repo="kshana-pro" data-prio="P1" data-kind="pack/study" data-status="done">
     <td class="c-id"><span class="gid">L55</span></td>
     <td class="c-title"><div class="lt">Conflict-resilience study + branded report + figure + committed CSV</div><div class="ld">kshana-pro study driving L34/L35, emitting conflict_resilience_table.csv deterministically, rendering the 2-panel degradation figure (median error vs intensity; total-loss prob vs intensity for 4/3/2-layer) + per-vector survival panel, and a branded PDF with the Validated-vs-Modelled split and non-certification disclaimer.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Deterministic reproduction: pack CSV byte-stable vs committed golden and vs public-engine numbers; figure is a rendering of validated engine output.</div>
@@ -935,7 +935,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">pack/study</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana-pro/src/packs/conflict_resilience_pack.rs + papers/conflict-resilience/</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr></tbody></table>
 
 <h2>Per-paper detail</h2>
