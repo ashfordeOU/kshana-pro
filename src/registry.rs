@@ -18,6 +18,7 @@ use crate::packs::beacon_placement_pack::BeaconPlacementScenario;
 use crate::packs::lunar_signal_security_pack::LunarSignalSecurityScenario;
 use crate::packs::lunar_time_budget_study_pack::LunarTimeBudgetStudyScenario;
 use crate::packs::mbse_pack::MbseScenario;
+use crate::packs::optical_rf_hybrid_study_pack::OpticalRfHybridStudyScenario;
 use crate::packs::optimism_gap_audit::OptimismGapAuditScenario;
 use crate::packs::quantum_systematics_pack::QuantumSystematicsScenario;
 use crate::packs::realtime_frame_eop_study_pack::RealtimeFrameEopStudyScenario;
@@ -77,6 +78,9 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         RealtimeFrameEopStudyScenario::KIND => {
             Some(parse::<RealtimeFrameEopStudyScenario>(kind, src))
         }
+        OpticalRfHybridStudyScenario::KIND => {
+            Some(parse::<OpticalRfHybridStudyScenario>(kind, src))
+        }
         _ => None,
     }
 }
@@ -99,6 +103,7 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
         BeaconPlacementScenario::meta_static(),
         LunarTimeBudgetStudyScenario::meta_static(),
         RealtimeFrameEopStudyScenario::meta_static(),
+        OpticalRfHybridStudyScenario::meta_static(),
     ]
 }
 
@@ -210,7 +215,7 @@ where
 /// [`kshana::registry::PackRegistry`].
 ///
 /// It starts from every open built-in
-/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 13
+/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 14
 /// Pro packs through the public [`ExternalPack::register_into`] seam. The union is
 /// therefore assembled entirely through stable public API: the open half is the open
 /// core's own table (never re-listed here, so it cannot drift), and the Pro half is
@@ -235,6 +240,7 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     BeaconPlacementScenario::register_into(&mut reg);
     LunarTimeBudgetStudyScenario::register_into(&mut reg);
     RealtimeFrameEopStudyScenario::register_into(&mut reg);
+    OpticalRfHybridStudyScenario::register_into(&mut reg);
     reg
 }
 
@@ -513,6 +519,11 @@ lower_is_better = true
                 // the headline default runs 1/2/3-day horizons.
                 "kind = \"pro-realtime-frame-eop-study\"\n\
                  horizons_days = [1]\n"
+            }
+            OpticalRfHybridStudyScenario::KIND => {
+                // The default is already O(1) (single link budgets + a 5-site availability),
+                // so the tiny config is just the kind line — all cited defaults, fast.
+                "kind = \"pro-optical-rf-hybrid-study\"\n"
             }
             other => panic!("no test source defined for Pro kind '{other}'"),
         }

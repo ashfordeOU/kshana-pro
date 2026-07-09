@@ -15,6 +15,7 @@ pub mod detector_intake;
 pub mod lunar_signal_security_pack;
 pub mod lunar_time_budget_study_pack;
 pub mod mbse_pack;
+pub mod optical_rf_hybrid_study_pack;
 pub mod optimism_gap_audit;
 pub mod quantum_systematics_pack;
 pub mod realtime_frame_eop_study_pack;
