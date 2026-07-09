@@ -20,7 +20,7 @@ padding:30px 34px;position:relative;overflow:hidden}
 .hero .stamp{position:absolute;top:20px;right:26px;font-family:Menlo,monospace;font-size:11px;color:var(--dim)}
 .prog{margin:22px 0 6px}
 .prog-bar{height:14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line2);overflow:hidden;position:relative}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:60%;transition:width .4s}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:73%;transition:width .4s}
 .prog-lab{font-family:Menlo,monospace;font-size:12px;color:var(--muted);margin-top:6px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin:22px 0}
 .tile{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
@@ -113,12 +113,12 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
 </style></head>
 <body><div class="wrap">
 <header class="hero">
-  <div class="stamp">generated Phase 6 complete — 36/55 (65%) · consolidated to main · CI green · 2026-07-09</div>
+  <div class="stamp">generated Phases 7-8 complete — 43/55 (78%) · optical/RF hybrid core + study · 2026-07-09</div>
   <div class="kicker">Ashforde · Kshana <span class="dev">&#2325;&#2381;&#2359;&#2339;</span> · Build-in-public PNT program</div>
   <h1>Kshana &times; Lunar/Cislunar PNT Papers — Capability-Gap Buildout Tracker</h1>
   <div class="sub">Everything the seven preprints (P1&ndash;P7) compute or claim, mapped to the Kshana codebase, with the exact capabilities to build so each result is producible — and upgradable from <i>Modelled/asserted</i> to Kshana-computed <i>Validated</i>. Follow this during implementation; tick items as they land.</div>
   <div class="prog"><div class="prog-bar"><div class="prog-fill"></div></div>
-    <div class="prog-lab" id="proglab">33/55 gaps complete · 60% · 0 in progress</div></div>
+    <div class="prog-lab" id="proglab">40/55 gaps complete · 73% · 0 in progress</div></div>
 </header>
 
 <div class="tiles">
@@ -220,27 +220,27 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <div class="phase-rationale">Pro packs for P3 and P4 consuming Phase 5 analyses. L49 is the P4 upgrade prescription (independent prediction, not consistency identity). Single-repo deliverable phase.</div>
     <ul class="phase-gaps"><li class="ph-gap done"><a href="#L48">L48</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Lunar-time-budget study/pack + branded report (Table 1, Figure 1)</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L49">L49</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Realtime-frame-EOP data-forward decomposition study (recast circular framing)</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L50">L50</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">kshana-pro realtime-frame-eop pack + branded PDF + paper folder</span> <span class="eff eff-M">M</span></li></ul>
   </div>
-<div class="phase-card todo" data-status="todo">
+<div class="phase-card done" data-status="done">
     <div class="phase-head">
       <div class="phase-no">Phase 7</div>
       <div class="phase-title">Optical/RF hybrid continuity &amp; integrity core</div>
       <div class="phase-repo"><span class="badge repo-pub">kshana · public</span></div>
     </div>
     <div class="phase-goal">Cross-modality RAIM protection level, discontinuity-free optical&lt;-&gt;RF handoff covariance, optical availability (clear-sky + diversity), joint availability/precision/integrity FoM, optical link budget, and the hybrid scenario binding.</div>
-    <div class="phase-bar"><div class="phase-bar-fill" style="width:0%"></div><span class="phase-bar-lab">0/6 · 0%</span></div>
+    <div class="phase-bar"><div class="phase-bar-fill" style="width:100%"></div><span class="phase-bar-lab">6/6 · 100%</span></div>
     <div class="phase-rationale">All P5 public-engine analyses, including four upgrade prescriptions (L22/L23/L24/L25). L25 depends on L22+L24 within the phase; L40 binds them. Clean single-repo commit.</div>
-    <ul class="phase-gaps"><li class="ph-gap todo"><a href="#L22">L22</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Cross-modality RAIM / integrity protection level (RF + optical)</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L23">L23</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Optical-&gt;RF handoff covariance (discontinuity-free filter transition)</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L24">L24</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Optical availability model (clear-sky climatology + diversity combination)</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L25">L25</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Joint availability/precision/integrity FoM</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L26">L26</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Optical link budget (photon -&gt; mm ranging + ps timing + beam footprint)</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L40">L40</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Scenario TOML binding + serve surface for hybrid optical/RF handoff</span> <span class="eff eff-S">S</span></li></ul>
+    <ul class="phase-gaps"><li class="ph-gap done"><a href="#L22">L22</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Cross-modality RAIM / integrity protection level (RF + optical)</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L23">L23</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Optical-&gt;RF handoff covariance (discontinuity-free filter transition)</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L24">L24</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Optical availability model (clear-sky climatology + diversity combination)</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L25">L25</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Joint availability/precision/integrity FoM</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L26">L26</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Optical link budget (photon -&gt; mm ranging + ps timing + beam footprint)</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L40">L40</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Scenario TOML binding + serve surface for hybrid optical/RF handoff</span> <span class="eff eff-S">S</span></li></ul>
   </div>
-<div class="phase-card todo" data-status="todo">
+<div class="phase-card done" data-status="done">
     <div class="phase-head">
       <div class="phase-no">Phase 8</div>
       <div class="phase-title">Optical/RF hybrid paper deliverable</div>
       <div class="phase-repo"><span class="badge repo-pro">kshana-pro · private</span></div>
     </div>
     <div class="phase-goal">Reproduce P5 Table 1, Table 2, and Figure 1 as a fixed-seed committed-JSON study with a branded PDF.</div>
-    <div class="phase-bar"><div class="phase-bar-fill" style="width:0%"></div><span class="phase-bar-lab">0/1 · 0%</span></div>
+    <div class="phase-bar"><div class="phase-bar-fill" style="width:100%"></div><span class="phase-bar-lab">1/1 · 100%</span></div>
     <div class="phase-rationale">Single pro study consuming Phase 7. Isolated deliverable commit after the core lands.</div>
-    <ul class="phase-gaps"><li class="ph-gap todo"><a href="#L51">L51</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Optical-RF-hybrid study + branded report (Table 1/2, Figure 1)</span> <span class="eff eff-M">M</span></li></ul>
+    <ul class="phase-gaps"><li class="ph-gap done"><a href="#L51">L51</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Optical-RF-hybrid study + branded report (Table 1/2, Figure 1)</span> <span class="eff eff-M">M</span></li></ul>
   </div>
 <div class="phase-card todo" data-status="todo">
     <div class="phase-head">
@@ -674,7 +674,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L22" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L22" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L22</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Cross-modality RAIM / integrity protection level (RF + optical)</div><div class="ld">Treat RF and optical PVT/time solutions as two independent measurements of one geometry, form a solution-separation/chi-square statistic with disparate covariances, and compute a cross-modality protection level (position + timing) for the few-measurement heterogeneous case. Existing raim.rs is homogeneous-RF only. P5 headline integrity claim.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Homogeneous limit reduces exactly to raim.rs snapshot/solution-separation; two-measurement separation PL vs analytic two-hypothesis derivation (Blanch/Walter ARAIM) + non-central chi-square.</div>
@@ -683,10 +683,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/cross_raim.rs reusing raim.rs solution-separation + lunar_dpnt.rs DO-229E PL</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L23" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L23" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L23</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Optical-&gt;RF handoff covariance (discontinuity-free filter transition)</div><div class="ld">Specify a receiver state-and-covariance handoff when the active measurement type switches optical (tight R) &lt;-&gt; RF (loose R) with a proven no-jump (mean-continuity) guarantee and consistent covariance inflation/deflation. Compose fusion/coupled Joseph update + closed_loop reset + hybrid_ukf NEES gate. P5 unsolved filter-design problem.</div>
       <div class="lmeta"><span class="lo">oracle:</span> NEES chi-square consistency across the switch epoch + closed-form no-jump test (posterior mean continuous, covariance = analytic Joseph/van-Loan result when R changes); Monte-Carlo unbiasedness.</div>
@@ -695,10 +695,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/fusion/handoff.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L24" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L24" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L24</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Optical availability model (clear-sky climatology + diversity combination)</div><div class="ld">Per-site clear-sky probability from published cloud climatology x pointing/acquisition factor, plus N-station diversity combination (independent-union + spatially-correlated variant) with every site parameter stated. Produces P5 Table 2 / Fig 1b (53% / 87-91% / 95% / 96%). Kshana has FSO turbulence but no cloud/availability model.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Closed-form probability arithmetic (single-site = clear-sky x pointing; N-station = 1-prod(1-p_i); correlated via stated copula); site clear-sky fractions from published astronomical/optical-comms cloud climatology.</div>
@@ -707,10 +707,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/optical_availability.rs (site climatology table + diversity combiner)</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L25" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L25" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L25</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Joint availability/precision/integrity FoM</div><div class="ld">Compose L22 (integrity), L24 (availability), and the precision model into P(available AND precision-grade AND integrity-assured) with correlation handling, exposed as a scored FoM alongside hybrid.rs pnt_availability (which already fuses availability x precision but not the integrity-assured third factor epoch-by-epoch).</div>
       <div class="lmeta"><span class="lo">oracle:</span> Joint probability = product of (possibly correlated) factors, reduces to each marginal when others=1; vs Monte-Carlo of hybrid.rs sample series (fraction of epochs simultaneously available, in precision spec, PL-bounded).</div>
@@ -719,10 +719,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/hybrid.rs (extend score_hybrid) or joint_trade.rs; packaged via kshana-pro mcda</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L26" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L26" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L26</span></td>
     <td class="c-title"><div class="lt">Optical link budget (photon -&gt; mm ranging + ps timing + beam footprint)</div><div class="ld">Add a 1550nm two-way optical link-budget module: photon-limited ranging CRLB, timing precision (reuse quantum_devices shot model), and diffraction-limited beam footprint at lunar range (~0.7 km = lambda/D x range). Produces the optical column of P5 Table 1. RF linkbudget.rs and shot-timing exist; optical ranging + footprint are missing.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Closed-form Gaussian-beam divergence theta=lambda/(pi w0), footprint=theta x 384400 km; ranging CRLB vs quantum_devices shot-limited jitter/sqrt(R*tau); two-way figures vs giorgetta2013/deschenes2016.</div>
@@ -731,10 +731,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/optical_linkbudget.rs (sibling to linkbudget.rs, reuse quantum_devices shot model)</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L40" data-repo="kshana" data-prio="P2" data-kind="cli/scenario/binding" data-status="todo">
+  <tr class="lrow" id="L40" data-repo="kshana" data-prio="P2" data-kind="cli/scenario/binding" data-status="done">
     <td class="c-id"><span class="gid">L40</span></td>
     <td class="c-title"><div class="lt">Scenario TOML binding + serve surface for hybrid optical/RF handoff</div><div class="ld">Wire the L22+L23+L24 hybrid analysis into the scenario-driven main.rs runner (new scenario kind) + a kshana-pro serve/study-intake endpoint so P5's analysis runs end-to-end, not only as library calls.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Golden JSON snapshot: scenario output equals direct library calls and the L51 study generator (byte-identical, fixed seed).</div>
@@ -743,10 +743,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">cli/scenario/binding</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/scenario.rs + scenarios/optical-rf-hybrid.toml + registry.rs; kshana-pro/src/serve/study_intake.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L51" data-repo="kshana-pro" data-prio="P0" data-kind="pack/study" data-status="todo">
+  <tr class="lrow" id="L51" data-repo="kshana-pro" data-prio="P0" data-kind="pack/study" data-status="done">
     <td class="c-id"><span class="gid">L51</span></td>
     <td class="c-title"><div class="lt">Optical-RF-hybrid study + branded report (Table 1/2, Figure 1)</div><div class="ld">kshana-pro fixed-seed, cited-parameter study (crossover_study.rs pattern) driving L22/L23/L24/L26 + RF/optical link budgets, emitting committed JSON for P5 Table 1 (precision), Table 2 (availability), Figure 1 (ranging precision log-scale; availability vs stations), and a branded PDF.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Golden-snapshot: regenerated Table 1/2 + Figure 1 match committed numbers bit-for-bit; values inherit L22-L26 + link-budget oracles.</div>
@@ -755,7 +755,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">pack/study</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana-pro/src/packs/optical_rf_hybrid_pack.rs + papers/optical-rf-hybrid/</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
   <tr class="lrow" id="L28" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="todo">
