@@ -31,9 +31,9 @@
 
 use kshana::api::{ExternalPack, KshanaError, RunOutput, Scenario, ScenarioMeta};
 use kshana::conflict_resilience::{
-    inverse_variance_fuse, prior_sensitivity, resilience_ratio_closed_form, simulate_correlated,
-    simulate_independent, sweep_correlation, sweep_intensity, ConflictLayer, CorrelationStats,
-    IntensityStats, PriorSensitivity,
+    inverse_variance_fuse, per_vector_survivals, prior_sensitivity, resilience_ratio_closed_form,
+    simulate_correlated, simulate_independent, sweep_correlation, sweep_intensity, ConflictLayer,
+    CorrelationStats, IntensityStats, PriorSensitivity, VectorSurvival,
 };
 use kshana::conflict_threat_params::conflict_baseline;
 
@@ -101,6 +101,16 @@ fn num_or_null(x: f64) -> Value {
     } else {
         Value::Null
     }
+}
+
+/// The named threat vector that drives usable-PNT survival lowest at the reference
+/// intensity — the §4.2 "sharpest vector" ranking.
+fn sharpest_vector(m: &StudyModel) -> &'static str {
+    m.per_vector_survival
+        .iter()
+        .min_by(|a, b| a.survival_at_reference.total_cmp(&b.survival_at_reference))
+        .map(|vs| vs.name)
+        .unwrap_or("")
 }
 
 // ── Scenario ─────────────────────────────────────────────────────────────────
@@ -196,6 +206,8 @@ struct StudyModel {
     intensity_sweep: Vec<IntensityStats>,
     correlation_sweep: Vec<CorrelationStats>,
     layer_configs: Vec<LayerConfigCurve>,
+    /// §4.2 per-vector (jamming/spoofing/kinetic/cyber) usable-PNT survival curves.
+    per_vector_survival: Vec<VectorSurvival>,
     ratio_closed_form: f64,
     ratio_mc_independent: f64,
     sensitivity: PriorSensitivity,
@@ -233,9 +245,18 @@ impl ConflictResilienceStudyScenario {
         let lstr: Vec<String> = layers
             .iter()
             .map(|l| {
+                let [j, sp, k, cy] = l.profile().as_array();
                 format!(
-                    "{}|{:.4}|{:.4}|{:.4}|{:.4}",
-                    l.name, l.availability, l.sigma_m, l.vulnerability, l.vector_weight
+                    "{}|{:.4}|{:.4}|{:.4}|{:.4}|{:.4}/{:.4}/{:.4}/{:.4}",
+                    l.name,
+                    l.availability,
+                    l.sigma_m,
+                    l.vulnerability,
+                    l.vector_weight,
+                    j,
+                    sp,
+                    k,
+                    cy
                 )
             })
             .collect();
@@ -270,6 +291,7 @@ impl ConflictResilienceStudyScenario {
                     sigma_m: p.sigma_m,
                     vulnerability: p.vulnerability_nominal,
                     vector_weight: p.vector_weight,
+                    vector_profile: Some(p.vector_profile),
                 })
                 .collect();
             let priors = base
@@ -416,6 +438,10 @@ impl ConflictResilienceStudyScenario {
             });
         }
 
+        // ── §4.2 per-vector graceful-degradation survival (jam/spoof/kinetic/cyber) ──
+        let per_vector_survival =
+            per_vector_survivals(&layers, &grid, reference_intensity, trials, seed);
+
         // ── Headline resilience ratio (closed form + MC at ρ = 0) ──
         let ratio_closed_form = resilience_ratio_closed_form(&layers, reference_intensity, primary);
         let ratio_mc_independent = {
@@ -470,6 +496,7 @@ impl ConflictResilienceStudyScenario {
             intensity_sweep,
             correlation_sweep,
             layer_configs,
+            per_vector_survival,
             ratio_closed_form,
             ratio_mc_independent,
             sensitivity,
@@ -510,6 +537,10 @@ impl ConflictResilienceStudyScenario {
             let _ = l;
             s.push_str(&format!(",usable_L{i}"));
         }
+        // §4.2 per-vector usable-PNT survival (closed form) columns.
+        for vs in &m.per_vector_survival {
+            s.push_str(&format!(",survival_{}", vs.name));
+        }
         s.push('\n');
         for (row, stats) in m.intensity_sweep.iter().enumerate() {
             s.push_str(&format!(
@@ -525,6 +556,14 @@ impl ConflictResilienceStudyScenario {
             }
             for u in &stats.per_layer_usable {
                 s.push_str(&format!(",{}", fmt_f64(*u)));
+            }
+            for vs in &m.per_vector_survival {
+                let surv = vs
+                    .rows
+                    .get(row)
+                    .map(|r| r.survival_closed_form)
+                    .unwrap_or(f64::NAN);
+                s.push_str(&format!(",{}", fmt_f64(surv)));
             }
             s.push('\n');
         }
@@ -592,6 +631,30 @@ impl ConflictResilienceStudyScenario {
             })
             .collect();
 
+        let per_vector_survival: Vec<Value> = m
+            .per_vector_survival
+            .iter()
+            .map(|vs| {
+                let rows: Vec<Value> = vs
+                    .rows
+                    .iter()
+                    .map(|r| {
+                        json!({
+                            "intensity": r.intensity,
+                            "survival_closed_form": r.survival_closed_form,
+                            "survival_mc": r.survival_mc,
+                        })
+                    })
+                    .collect();
+                json!({
+                    "vector": vs.name,
+                    "survival_at_reference": vs.survival_at_reference,
+                    "rows": rows,
+                })
+            })
+            .collect();
+        let sharpest_vector = sharpest_vector(m);
+
         json!({
             "kind": Self::KIND,
             "overlay": "kshana-pro",
@@ -633,6 +696,12 @@ impl ConflictResilienceStudyScenario {
                 "copula_rho0_vs_independent_residual": tagged(json!(m.copula_rho0_residual), Tag::Validated),
                 "note": "The conflict-resilience FOM has no separate oracle-registration seam in the registry; per the repo's established pattern (see optical_rf_hybrid_study_pack) the Validated oracle residuals are surfaced here in the result document.",
             },
+            "per_vector_survival": {
+                "reference_intensity": m.reference_intensity,
+                "vectors": per_vector_survival,
+                "sharpest_vector": sharpest_vector,
+                "note": "§4.2 graceful degradation: usable-PNT survival under each named threat vector (jamming/spoofing/kinetic/cyber) acting alone. Validated: the seeded per-layer Monte-Carlo (survival_mc) converges to the closed form survival_closed_form = 1 - Prod_i (1 - a_i*(1 - clamp(susceptibility_i,v * x, 0, 1))). Modelled: the per-vector susceptibilities (conflict_threat_params::VectorProfile). Jamming is the sharpest vector for the correlated-RF baseline; a diverse architecture with an RF-immune (inertial) layer degrades gracefully where an all-RF stack collapses.",
+            },
             "figure": { "fig1_svg": fig_svg(m) },
             "report_html": report_html(self, m),
             "csv": self.csv_string(m),
@@ -643,11 +712,19 @@ impl ConflictResilienceStudyScenario {
     fn summary(&self, m: &StudyModel) -> String {
         let first = m.correlation_sweep.first();
         let last = m.correlation_sweep.last();
+        let surv = |name: &str| {
+            m.per_vector_survival
+                .iter()
+                .find(|v| v.name == name)
+                .map(|v| v.survival_at_reference * 100.0)
+                .unwrap_or(f64::NAN)
+        };
         format!(
             "Kshana Pro conflict-resilience study (L55) | {n} layers | reference intensity {ri:.2} | \
              resilience ratio closed-form {cf:.2}x MC {mc:.2}x (layered vs single) | correlation defeats \
-             layering: {r0:.2}x @ rho {rho0:.2} -> {r1:.2}x @ rho {rho1:.2} | oracles: MC-vs-closed-form {o1:.1e} \
-             fuse-identity {o2:.1e} copula(rho=0) {o3:.1e} (Validated) | ~7x headline MODELLED | \
+             layering: {r0:.2}x @ rho {rho0:.2} -> {r1:.2}x @ rho {rho1:.2} | per-vector survival @ ref \
+             jam {sj:.0}% spoof {ss:.0}% kinetic {sk:.0}% cyber {sc:.0}% (sharpest {sv}) | oracles: \
+             MC-vs-closed-form {o1:.1e} fuse-identity {o2:.1e} copula(rho=0) {o3:.1e} (Validated) | ~7x headline MODELLED | \
              CSV conflict_resilience_table.csv (byte-stable) — NOT a certification",
             n = m.layers.len(),
             ri = m.reference_intensity,
@@ -657,6 +734,11 @@ impl ConflictResilienceStudyScenario {
             rho0 = first.map(|s| s.rho).unwrap_or(0.0),
             r1 = last.map(|s| s.resilience_ratio).unwrap_or(f64::NAN),
             rho1 = last.map(|s| s.rho).unwrap_or(0.0),
+            sj = surv("jamming"),
+            ss = surv("spoofing"),
+            sk = surv("kinetic"),
+            sc = surv("cyber"),
+            sv = sharpest_vector(m),
             o1 = m.mc_closed_form_max_residual,
             o2 = m.fuse_identity_residual,
             o3 = m.copula_rho0_residual,
@@ -772,6 +854,48 @@ impl ConflictResilienceStudyScenario {
         }
 
         pdf.gap(2.0);
+        pdf.heading("§4.2 per-vector usable-PNT survival (sharpest vector decides)");
+        pdf.paragraph(&format!(
+            "Under each named threat vector acting alone at the reference intensity, the \
+             probability the architecture keeps at least one usable PNT layer. The sharpest \
+             vector is {sharp}. Validated: the seeded per-layer Monte-Carlo converges to the \
+             closed form; Modelled: the per-vector susceptibilities.",
+            sharp = sharpest_vector(m)
+        ));
+        pdf.header_row(&[
+            (0.0, "Vector"),
+            (60.0, "Survival @ ref"),
+            (120.0, "Provenance"),
+        ]);
+        for vs in &m.per_vector_survival {
+            let mark = if vs.name == sharpest_vector(m) {
+                " (sharpest)"
+            } else {
+                ""
+            };
+            pdf.row(&[
+                Cell {
+                    x_mm: 0.0,
+                    text: &format!("{}{}", vs.name, mark),
+                    bold: vs.name == sharpest_vector(m),
+                    colour: INK,
+                },
+                Cell {
+                    x_mm: 60.0,
+                    text: &format!("{:.1}%", vs.survival_at_reference * 100.0),
+                    bold: true,
+                    colour: INK,
+                },
+                Cell {
+                    x_mm: 120.0,
+                    text: "MC->closed-form Validated / susceptibility Modelled",
+                    bold: false,
+                    colour: BRASS_MUTED,
+                },
+            ]);
+        }
+
+        pdf.gap(2.0);
         pdf.heading("Modelled per-layer priors (sourced provenance)");
         for (i, l) in m.layers.iter().enumerate() {
             let cite = m.citations.get(i).cloned().unwrap_or_default();
@@ -850,13 +974,6 @@ impl ExternalPack for ConflictResilienceStudyScenario {
 }
 
 // ── Figure 1 — three panels (deterministic SVG) ───────────────────────────────
-
-fn layer_color(i: usize) -> &'static str {
-    const PAL: [&str; 6] = [
-        "#f0a868", "#e5645a", "#c7aa66", "#9b8cff", "#6fae7a", "#5fb0c9",
-    ];
-    PAL[i % PAL.len()]
-}
 
 fn config_color(i: usize) -> &'static str {
     const PAL: [&str; 3] = ["#2dd4bf", "#f0a868", "#e5645a"];
@@ -967,8 +1084,12 @@ fn panel_total_loss(s: &mut String, m: &StudyModel, x: f64, y: f64, pw: f64, ph:
     *s += &format!("<text x=\"{:.1}\" y=\"{:.1}\" fill=\"{BRASS}\" text-anchor=\"middle\" font-size=\"9\">threat intensity</text>", x + pw / 2.0, y + ph + 16.0);
 }
 
+/// Panel (c): the §4.2 per-vector graceful-degradation survival curves — for each named
+/// threat vector (jamming/spoofing/kinetic/cyber) acting alone, the usable-PNT survival
+/// `S_v(x) = 1 - Prod_i (1 - a_i·(1 - clamp(susceptibility_i,v·x, 0, 1)))` swept over the
+/// intensity grid. The sharpest vector (lowest survival at reference) is annotated.
 fn panel_survival(s: &mut String, m: &StudyModel, x: f64, y: f64, pw: f64, ph: f64, imax: f64) {
-    *s += &format!("<text x=\"{x:.0}\" y=\"{:.0}\" fill=\"{IVORY_LIGHT}\">(c) per-vector survival — per-layer usable fraction vs threat intensity</text>", y - 8.0);
+    *s += &format!("<text x=\"{x:.0}\" y=\"{:.0}\" fill=\"{IVORY_LIGHT}\">(c) per-vector usable-PNT survival vs threat intensity (jam/spoof/kinetic/cyber)</text>", y - 8.0);
     *s += &format!("<rect x=\"{x:.1}\" y=\"{y:.1}\" width=\"{pw:.1}\" height=\"{ph:.1}\" fill=\"#0b111d\" stroke=\"{BRASS_MUTED}\" stroke-width=\"0.5\"/>");
     let sx = |t: f64| x + (t / imax) * pw;
     let sy = |p: f64| y + ph * (1.0 - p.clamp(0.0, 1.0));
@@ -981,35 +1102,50 @@ fn panel_survival(s: &mut String, m: &StudyModel, x: f64, y: f64, pw: f64, ph: f
         );
         *s += &format!("<text x=\"{:.1}\" y=\"{:.1}\" fill=\"{IVORY}\" font-size=\"8\" text-anchor=\"end\">{:.2}</text>", x - 4.0, gy + 3.0, frac);
     }
-    for (li, layer) in m.layers.iter().enumerate() {
+    let sharpest = sharpest_vector(m);
+    for (vi, vs) in m.per_vector_survival.iter().enumerate() {
         let mut pts = String::new();
-        for st in &m.intensity_sweep {
-            if let Some(&u) = st.per_layer_usable.get(li) {
-                pts.push_str(&format!("{:.1},{:.1} ", sx(st.intensity), sy(u)));
-            }
+        for r in &vs.rows {
+            pts.push_str(&format!(
+                "{:.1},{:.1} ",
+                sx(r.intensity),
+                sy(r.survival_closed_form)
+            ));
         }
+        // The sharpest vector is drawn thicker so it reads at a glance.
+        let width = if vs.name == sharpest { 2.6 } else { 1.6 };
         *s += &format!(
-            "<polyline points=\"{}\" fill=\"none\" stroke=\"{}\" stroke-width=\"1.8\"/>",
+            "<polyline points=\"{}\" fill=\"none\" stroke=\"{}\" stroke-width=\"{width}\"/>",
             pts.trim_end(),
-            layer_color(li)
+            vector_color(vi)
         );
-        // Legend swatch.
-        let lx = x + 12.0 + (li as f64) * 150.0;
+        // Legend swatch + label (sharpest gets a marker).
+        let lx = x + 12.0 + (vi as f64) * 190.0;
         *s += &format!(
             "<rect x=\"{:.1}\" y=\"{:.1}\" width=\"12\" height=\"3\" fill=\"{}\"/>",
             lx,
             y + ph + 22.0,
-            layer_color(li)
+            vector_color(vi)
         );
-        let short: String = layer.name.chars().take(20).collect();
+        let label = if vs.name == sharpest {
+            format!("{} (sharpest)", vs.name)
+        } else {
+            vs.name.to_string()
+        };
         *s += &format!(
             "<text x=\"{:.1}\" y=\"{:.1}\" fill=\"{IVORY}\" font-size=\"8\">{}</text>",
             lx + 16.0,
             y + ph + 25.0,
-            short
+            label
         );
     }
-    *s += &format!("<text x=\"{:.1}\" y=\"{:.1}\" fill=\"{BRASS}\" text-anchor=\"middle\" font-size=\"9\">threat intensity (usable = available AND not denied)</text>", x + pw / 2.0, y + ph + 44.0);
+    *s += &format!("<text x=\"{:.1}\" y=\"{:.1}\" fill=\"{BRASS}\" text-anchor=\"middle\" font-size=\"9\">threat intensity (survival = probability at least one layer keeps usable PNT under vector v alone)</text>", x + pw / 2.0, y + ph + 44.0);
+}
+
+/// The four §4.2 threat-vector colours (jamming/spoofing/kinetic/cyber).
+fn vector_color(i: usize) -> &'static str {
+    const PAL: [&str; 4] = ["#e5645a", "#f0a868", "#6fae7a", "#5fb0c9"];
+    PAL[i % PAL.len()]
 }
 
 // ── Branded HTML report ──────────────────────────────────────────────────────
@@ -1065,6 +1201,25 @@ fn report_html(_scn: &ConflictResilienceStudyScenario, m: &StudyModel) -> String
     })
     .collect();
 
+    let sharp = sharpest_vector(m);
+    let pv_rows: String = m
+        .per_vector_survival
+        .iter()
+        .map(|vs| {
+            let mark = if vs.name == sharp {
+                " <span style=\"color:#e5645a;font-weight:600\">(sharpest)</span>"
+            } else {
+                ""
+            };
+            format!(
+                "<tr>{}{}{}</tr>",
+                td(&format!("{}{}", vs.name, mark)),
+                td(&format!("{:.1}%", vs.survival_at_reference * 100.0)),
+                td("<span style=\"color:#2dd4bf\">MC&#8594;closed-form Validated</span> / susceptibility <span style=\"color:#f0a868\">Modelled</span>"),
+            )
+        })
+        .collect();
+
     let layer_rows: String = m
         .layers
         .iter()
@@ -1103,6 +1258,11 @@ fn report_html(_scn: &ConflictResilienceStudyScenario, m: &StudyModel) -> String
          <table style=\"border-collapse:collapse;width:100%\"><tr>{h_o}{h_r}{h_p}</tr>{oracle_rows}</table>\
          <h2 style=\"font-family:{FONT_HEAD};color:{IVORY_LIGHT}\">Correlation defeats layering</h2>\
          <table style=\"border-collapse:collapse;width:100%\"><tr>{h_rho}{h_ll}{h_sl}{h_rt}</tr>{corr_rows}</table>\
+         <h2 style=\"font-family:{FONT_HEAD};color:{IVORY_LIGHT}\">§4.2 per-vector usable-PNT survival (sharpest vector decides)</h2>\
+         <p>Under each named threat vector acting alone at the reference intensity, the probability the \
+         architecture keeps at least one usable PNT layer. Jamming is sharpest for the correlated-RF baseline; \
+         an RF-immune (inertial) layer is the decisive survivor.</p>\
+         <table style=\"border-collapse:collapse;width:100%\"><tr>{h_v}{h_sr}{h_pp}</tr>{pv_rows}</table>\
          <h2 style=\"font-family:{FONT_HEAD};color:{IVORY_LIGHT}\">Modelled per-layer priors (sourced provenance)</h2>\
          <table style=\"border-collapse:collapse;width:100%\"><tr>{h_ln}{h_av}{h_sg}{h_vu}{h_ci}</tr>{layer_rows}</table>\
          <p style=\"font-size:12px;opacity:.85\">Only the MC&#8594;closed-form convergence, the \
@@ -1129,6 +1289,9 @@ fn report_html(_scn: &ConflictResilienceStudyScenario, m: &StudyModel) -> String
         h_ll = th("Layered loss"),
         h_sl = th("Single-layer loss"),
         h_rt = th("Ratio"),
+        h_v = th("Threat vector"),
+        h_sr = th("Survival @ ref"),
+        h_pp = th("Provenance"),
         h_ln = th("Layer"),
         h_av = th("Avail"),
         h_sg = th("&#963; (m)"),
@@ -1275,6 +1438,77 @@ mod tests {
             vec![4, 3, 2],
             "baseline must yield 4/3/2-layer curves"
         );
+    }
+
+    #[test]
+    fn per_vector_survival_is_wired_into_every_deliverable() {
+        let scn = small();
+        let out = scn.run().unwrap();
+        let v: Value = serde_json::from_str(&out.json).unwrap();
+
+        // JSON block: four named vectors, jamming sharpest for the correlated-RF baseline.
+        let pvs = &v["per_vector_survival"];
+        let vectors = pvs["vectors"].as_array().unwrap();
+        assert_eq!(vectors.len(), 4);
+        assert_eq!(pvs["sharpest_vector"], "jamming");
+        let surv = |name: &str| {
+            vectors.iter().find(|x| x["vector"] == name).unwrap()["survival_at_reference"]
+                .as_f64()
+                .unwrap()
+        };
+        assert!(surv("jamming") < surv("spoofing"));
+        assert!(surv("jamming") < surv("kinetic"));
+
+        // Summary names the per-vector result + sharpest vector.
+        assert!(out.summary.contains("per-vector survival"));
+        assert!(out.summary.contains("sharpest jamming"));
+
+        // CSV carries the per-vector survival columns.
+        let m = scn.compute().unwrap();
+        let csv = scn.csv_string(&m);
+        for name in [
+            "survival_jamming",
+            "survival_spoofing",
+            "survival_kinetic",
+            "survival_cyber",
+        ] {
+            assert!(csv.contains(name), "CSV missing column {name}");
+        }
+
+        // Figure panel (c) is the real per-vector survival, not the old per-layer usable.
+        let svg = fig_svg(&m);
+        assert!(svg.contains("per-vector usable-PNT survival"));
+
+        // HTML + PDF carry the section.
+        assert!(v["report_html"]
+            .as_str()
+            .unwrap()
+            .contains("per-vector usable-PNT survival"));
+        let pdf = scn.to_pdf(&m).unwrap();
+        assert!(pdf.starts_with(b"%PDF-"));
+    }
+
+    #[test]
+    fn per_vector_mc_tracks_closed_form_in_the_study_output() {
+        // ORACLE (Validated): the study's per-vector survival MC tracks its closed form.
+        let m = ConflictResilienceStudyScenario {
+            trials: 8000,
+            sensitivity_samples: 100,
+            ..Default::default()
+        }
+        .compute()
+        .unwrap();
+        for vs in &m.per_vector_survival {
+            for r in &vs.rows {
+                assert!(
+                    (r.survival_closed_form - r.survival_mc).abs() < 0.05,
+                    "vector {} MC {} strayed from closed form {}",
+                    vs.name,
+                    r.survival_mc,
+                    r.survival_closed_form
+                );
+            }
+        }
     }
 
     #[test]
