@@ -181,9 +181,12 @@ posture the open core enforces.
 
 ## Build & run
 
-The dev build uses a **path dependency** to the local open-core checkout
-(`../kshana`), pinned in **lock-step** with the open core (currently `kshana = "0.20"`).
-For a release build, pin the published crate or a git tag instead (see the comments in
+The build tracks the open core by a **git dependency on `main`**
+(`kshana = { git = "…/kshana", branch = "main", version = "0.24" }`), pinned in
+**lock-step** with the open core and locked to an exact rev in `Cargo.lock` for
+reproducibility (`cargo update -p kshana` advances it as each open-core phase lands).
+For local co-development, override with a **path dep** to a sibling `../kshana` checkout;
+for a release build, pin the published crate or a git tag instead (see the comments in
 [`Cargo.toml`](Cargo.toml)). Pro never forks the engine — it embeds it, so the two
 versions move together.
 
@@ -193,11 +196,14 @@ cargo run -- kinds               # list open kinds (inherited) + Pro kinds + the
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **seven integration tests** in
+The suite is unit tests across every module plus **fifteen integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `e2e_interop.rs` (end-to-end), `reproducibility_twin.rs` (deterministic twin),
-`no_overclaims_mission_analysis.rs` (honesty guard), and the `*_in_sync.rs` trio
-(each committed deliverable matches its generator output, so docs never drift).
+`no_overclaims_mission_analysis.rs` (honesty guard), the study/report/pack path
+(`pro_study.rs`, `report_cover.rs`, `report_pdf.rs`, `study_ledger.rs`,
+`study_intake.rs`, `pack_c.rs`, `optimism_gap_scenarios.rs`), and the four
+`*_in_sync.rs` guards (each committed deliverable matches its generator output, so docs
+never drift).
 
 **Licensing (PR7).** `run` is **fail-closed**: with no `--license` it enforces the
 **Evaluation** tier (open scenarios + the free `pro-seam-check` only). A value pack
