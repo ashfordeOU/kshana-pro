@@ -244,6 +244,7 @@ table.atab td{padding:6px;border-bottom:1px solid var(--line2);color:var(--muted
 .vv{font-family:Menlo,monospace;font-size:9.5px;padding:1px 5px;border-radius:4px;border:1px solid var(--line2);color:var(--dim)}
 .vv-confirmed-missing{color:#f0917d;border-color:rgba(224,101,79,.4)}
 .vv-partial-exists{color:var(--wip);border-color:rgba(217,164,65,.4)}
+.vv-resolved{color:#7fc99a;border-color:rgba(45,212,191,.45)}
 .fg{color:var(--dim);font-size:12px;padding:3px 0}
 .dim{color:var(--dim)}
 .toc{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0}
