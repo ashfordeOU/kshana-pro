@@ -75,6 +75,8 @@ pub fn feature_min_tier(kind: &str) -> Tier {
         "pro-beacon-dop" => Tier::Pro,
         "pro-surface-beacon-dop-study" => Tier::Pro,
         "pro-beacon-placement" => Tier::Pro,
+        "pro-lunar-time-budget-study" => Tier::Pro,
+        "pro-realtime-frame-eop-study" => Tier::Pro,
         "pro-scenario-ci" => Tier::Pro,
         "pro-mbse" => Tier::Enterprise,
         "pro-batch" => Tier::Enterprise,
