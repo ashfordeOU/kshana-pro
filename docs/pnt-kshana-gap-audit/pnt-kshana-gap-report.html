@@ -20,7 +20,7 @@ padding:30px 34px;position:relative;overflow:hidden}
 .hero .stamp{position:absolute;top:20px;right:26px;font-family:Menlo,monospace;font-size:11px;color:var(--dim)}
 .prog{margin:22px 0 6px}
 .prog-bar{height:14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line2);overflow:hidden;position:relative}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:33%;transition:width .4s}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:60%;transition:width .4s}
 .prog-lab{font-family:Menlo,monospace;font-size:12px;color:var(--muted);margin-top:6px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin:22px 0}
 .tile{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
@@ -113,12 +113,12 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
 </style></head>
 <body><div class="wrap">
 <header class="hero">
-  <div class="stamp">generated 2026-07-08 21:46 CEST — Phase 4 complete</div>
+  <div class="stamp">generated Phase 6 complete — 36/55 (65%) · consolidated to main · CI green · 2026-07-09</div>
   <div class="kicker">Ashforde · Kshana <span class="dev">&#2325;&#2381;&#2359;&#2339;</span> · Build-in-public PNT program</div>
   <h1>Kshana &times; Lunar/Cislunar PNT Papers — Capability-Gap Buildout Tracker</h1>
   <div class="sub">Everything the seven preprints (P1&ndash;P7) compute or claim, mapped to the Kshana codebase, with the exact capabilities to build so each result is producible — and upgradable from <i>Modelled/asserted</i> to Kshana-computed <i>Validated</i>. Follow this during implementation; tick items as they land.</div>
   <div class="prog"><div class="prog-bar"><div class="prog-fill"></div></div>
-    <div class="prog-lab" id="proglab">18/55 gaps complete · 33% · 0 in progress</div></div>
+    <div class="prog-lab" id="proglab">33/55 gaps complete · 60% · 0 in progress</div></div>
 </header>
 
 <div class="tiles">
@@ -198,27 +198,27 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <div class="phase-rationale">Pro studies consuming Phase 3's dop_with_beacons kernel. Includes the P2 upgrade prescription L45. Single-repo deliverable commit after the core lands.</div>
     <ul class="phase-gaps"><li class="ph-gap done"><a href="#L45">L45</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Beacon-DOP multi-latitude x multi-beacon sweep with CIs, HDOP/VDOP</span> <span class="eff eff-L">L</span></li><li class="ph-gap done"><a href="#L46">L46</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Surface-beacon-dop paper study + branded report + lunar_dop_summary.csv</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L47">L47</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Beacon-placement optimisation over terrain (LOLA DEM)</span> <span class="eff eff-L">L</span></li></ul>
   </div>
-<div class="phase-card todo" data-status="todo">
+<div class="phase-card done" data-status="done">
     <div class="phase-head">
       <div class="phase-no">Phase 5</div>
       <div class="phase-title">Coordinated lunar time + real-time frame/EOP core</div>
       <div class="phase-repo"><span class="badge repo-pub">kshana · public</span></div>
     </div>
     <div class="phase-goal">Frame-limited timescale budget (OD-covariance-derived real-time frame error, tau-swept quadrature assembler, clock catalogue, relativistic scale terms, forward-ADEV oracle) AND the EOP-prediction decomposition (Bulletin-A predicted-column curve, Earth-Moon lever arm, polar-motion + integrated covariance), plus their scenarios/figure.</div>
-    <div class="phase-bar"><div class="phase-bar-fill" style="width:0%"></div><span class="phase-bar-lab">0/12 · 0%</span></div>
+    <div class="phase-bar"><div class="phase-bar-fill" style="width:100%"></div><span class="phase-bar-lab">12/12 · 100%</span></div>
     <div class="phase-rationale">P3 and P4 are one physical story (the ~50 ns real-time frame term). L13 is built once and serves both papers; L21 (P4) depends on L13's covariance rather than rebuilding it. Grouping both papers' kshana core into one phase captures that dedup in a single coherent commit. Contains five upgrade prescriptions (L13/L14/L18/L19).</div>
-    <ul class="phase-gaps"><li class="ph-gap todo"><a href="#L13">L13</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Lunar frame/ephemeris real-time prediction-error (15 m vs 0.27 m -&gt; 50/0.9 ns)</span> <span class="eff eff-L">L</span></li><li class="ph-gap todo"><a href="#L14">L14</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Seven-term quadrature budget assembler with tau sweep + crossover</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L15">L15</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Lunar-timing clock-spec catalogue (optical master, PHM, RAFS, 500 g miniRAFS)</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L16">L16</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Deterministic relativistic scale terms (TCG-TCL secular + topographic spread)</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L17">L17</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">External validation oracle for forward ADEV synthesis</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L18">L18</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Data-derived IERS EOP prediction-error-vs-horizon curve</span> <span class="eff eff-L">L</span></li><li class="ph-gap todo"><a href="#L19">L19</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Earth-Moon lever-arm propagation (UT1 error -&gt; lunar position + timing)</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L20">L20</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Polar-motion prediction propagation lever arm</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L21">L21</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Integrated frame+ephemeris covariance replacing placeholder terms</span> <span class="eff eff-L">L</span></li><li class="ph-gap todo"><a href="#L37">L37</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Committed scenario TOML + CLI/python binding for the one-day time budget</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L38">L38</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">RealtimeFrameEop scenario binding + committed CSV + Table 1/2 emitter</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L39">L39</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Frame-EOP Figure 1 two-panel renderer</span> <span class="eff eff-S">S</span></li></ul>
+    <ul class="phase-gaps"><li class="ph-gap done"><a href="#L13">L13</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Lunar frame/ephemeris real-time prediction-error (15 m vs 0.27 m -&gt; 50/0.9 ns)</span> <span class="eff eff-L">L</span></li><li class="ph-gap done"><a href="#L14">L14</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Seven-term quadrature budget assembler with tau sweep + crossover</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L15">L15</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Lunar-timing clock-spec catalogue (optical master, PHM, RAFS, 500 g miniRAFS)</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L16">L16</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Deterministic relativistic scale terms (TCG-TCL secular + topographic spread)</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L17">L17</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">External validation oracle for forward ADEV synthesis</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L18">L18</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Data-derived IERS EOP prediction-error-vs-horizon curve</span> <span class="eff eff-L">L</span></li><li class="ph-gap done"><a href="#L19">L19</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Earth-Moon lever-arm propagation (UT1 error -&gt; lunar position + timing)</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L20">L20</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Polar-motion prediction propagation lever arm</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L21">L21</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Integrated frame+ephemeris covariance replacing placeholder terms</span> <span class="eff eff-L">L</span></li><li class="ph-gap done"><a href="#L37">L37</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Committed scenario TOML + CLI/python binding for the one-day time budget</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L38">L38</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">RealtimeFrameEop scenario binding + committed CSV + Table 1/2 emitter</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L39">L39</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Frame-EOP Figure 1 two-panel renderer</span> <span class="eff eff-S">S</span></li></ul>
   </div>
-<div class="phase-card todo" data-status="todo">
+<div class="phase-card done" data-status="done">
     <div class="phase-head">
       <div class="phase-no">Phase 6</div>
       <div class="phase-title">Time &amp; frame paper deliverables</div>
       <div class="phase-repo"><span class="badge repo-pro">kshana-pro · private</span></div>
     </div>
     <div class="phase-goal">Reproduce P3 Table 1/Figure 1 and P4 Table 1/2/Figure 1 as branded, committed-CSV studies, including the P4 data-forward recast that removes the circular framing.</div>
-    <div class="phase-bar"><div class="phase-bar-fill" style="width:0%"></div><span class="phase-bar-lab">0/3 · 0%</span></div>
+    <div class="phase-bar"><div class="phase-bar-fill" style="width:100%"></div><span class="phase-bar-lab">3/3 · 100%</span></div>
     <div class="phase-rationale">Pro packs for P3 and P4 consuming Phase 5 analyses. L49 is the P4 upgrade prescription (independent prediction, not consistency identity). Single-repo deliverable phase.</div>
-    <ul class="phase-gaps"><li class="ph-gap todo"><a href="#L48">L48</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Lunar-time-budget study/pack + branded report (Table 1, Figure 1)</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L49">L49</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Realtime-frame-EOP data-forward decomposition study (recast circular framing)</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L50">L50</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">kshana-pro realtime-frame-eop pack + branded PDF + paper folder</span> <span class="eff eff-M">M</span></li></ul>
+    <ul class="phase-gaps"><li class="ph-gap done"><a href="#L48">L48</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Lunar-time-budget study/pack + branded report (Table 1, Figure 1)</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L49">L49</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Realtime-frame-EOP data-forward decomposition study (recast circular framing)</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L50">L50</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">kshana-pro realtime-frame-eop pack + branded PDF + paper folder</span> <span class="eff eff-M">M</span></li></ul>
   </div>
 <div class="phase-card todo" data-status="todo">
     <div class="phase-head">
@@ -494,7 +494,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L13" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L13" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L13</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Lunar frame/ephemeris real-time prediction-error (15 m vs 0.27 m -&gt; 50/0.9 ns)</div><div class="ld">Compose lunar_od covariance + lunar_frame_realise Helmert recovery + eop prediction to propagate an OD/frame state+covariance forward through real-time latency and report predicted position ~15 m vs post-processed ~0.27 m, mapped through delta_r/c to 50.035 ns / 0.901 ns endogenously. Derives P3's central bottleneck instead of importing it; the covariance is reused by P4 (L21).</div>
       <div class="lmeta"><span class="lo">oracle:</span> JPL DE440 vs predicted/degraded ephemeris difference, or Orekit/GODOT lunar OD covariance propagation; real-time sigma vs Moonlight/LLR budget, post-processed 0.27 m vs datum-identifiability companion.</div>
@@ -503,10 +503,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-L">L</span></td>
     <td class="c-loc"><code>kshana/src/lunar_frame_predict.rs composing lunar_od.rs covariance + lunar_frame_realise.rs + eop.rs; 'lunar-frame-prediction-error' scenario</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L14" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L14" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L14</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Seven-term quadrature budget assembler with tau sweep + crossover</div><div class="ld">Assemble all seven P3 terms as x_i(tau) (clock via powerlaw allan_deviation*tau, link floors constant, frame delta_r/c), compute x_Sigma(tau)=sqrt(sum x_i^2) over a tau grid, and emit the crossover tau where frame vs clock dominance swaps — answering the single-tau-artifact objection.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Closed-form quadrature + slope algebra self-verifying (tau^-1/2 vs tau^0 vs constant crossover analytically checkable); per-term ADEV*tau vs powerlaw allan_deviation and holdover coast_phase_sigma.</div>
@@ -515,10 +515,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/lunar_time_budget.rs + 'lunar-time-budget' scenario wired into main.rs/api.rs/python.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L15" data-repo="kshana" data-prio="P1" data-kind="data/fixture" data-status="todo">
+  <tr class="lrow" id="L15" data-repo="kshana" data-prio="P1" data-kind="data/fixture" data-status="done">
     <td class="c-id"><span class="gid">L15</span></td>
     <td class="c-title"><div class="lt">Lunar-timing clock-spec catalogue (optical master, PHM, RAFS, 500 g miniRAFS)</div><div class="ld">Add PowerLaw h-coefficients / q-params for the four named clocks calibrated so allan_deviation reproduces cited stability specs, plus x_clock(tau)=sigma_y(tau)*tau, yielding P3 Table 1 rows 0.009 / 0.995 / 151.238 ns. ClockClass today only enumerates CSAC/USO/DSAC.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Published specs (origlia2015 optical, PHM/RAFS metrology, riley2008nist) reproduced by allan_deviation; ADEV curves vs AllanTools/Stable32 power-law generators.</div>
@@ -527,10 +527,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">data/fixture</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/clock_specs.rs (or powerlaw.rs LunarClock enum); reuse quantum_trade::qparams_from_adev_curve</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L16" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L16" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L16</span></td>
     <td class="c-title"><div class="lt">Deterministic relativistic scale terms (TCG-TCL secular + topographic spread)</div><div class="ld">Add topographic_spread_ns_per_day (min-max gravitational redshift over lunar elevation range, ~26 ns/day) and surface the TCG-TCL secular framing (~1469 ns/day) to LunarTimeReport, so P3's deterministic 'for scale' column is engine-derived. lunar_time.rs has self-potential/kinetic only.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Published lunar-time tables (ashby2024, bourgoin2026, iau2024 LCRS) as closed-form oracle for secular rate + topographic spread.</div>
@@ -539,10 +539,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/lunar_time.rs (topographic_spread + TCG-TCL secular in LunarTimeReport)</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L17" data-repo="kshana" data-prio="P1" data-kind="validation/oracle" data-status="todo">
+  <tr class="lrow" id="L17" data-repo="kshana" data-prio="P1" data-kind="validation/oracle" data-status="done">
     <td class="c-id"><span class="gid">L17</span></td>
     <td class="c-title"><div class="lt">External validation oracle for forward ADEV synthesis</div><div class="ld">Generate synthetic power-law phase noise with known h-coefficients (or ingest AllanTools/Stable32 series), run through allan::overlapping_adev, and confirm recovery matches the powerlaw forward model within CI — lifts P3 clock rows from internal-consistency to genuinely Validated. Estimator side is already externally validated (PHASE.DAT); the forward-synthesis round-trip is the remaining gap.</div>
       <div class="lmeta"><span class="lo">oracle:</span> AllanTools (Python) / Stable32 power-law noise generator + reference ADEV curves as external dataset.</div>
@@ -551,10 +551,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">validation/oracle</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/tests/powerlaw_allantools.rs + fixtures under tests/fixtures/</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L48" data-repo="kshana-pro" data-prio="P1" data-kind="pack/study" data-status="todo">
+  <tr class="lrow" id="L48" data-repo="kshana-pro" data-prio="P1" data-kind="pack/study" data-status="done">
     <td class="c-id"><span class="gid">L48</span></td>
     <td class="c-title"><div class="lt">Lunar-time-budget study/pack + branded report (Table 1, Figure 1)</div><div class="ld">kshana-pro study consuming L14 assembler + L13 derived frame term + L15 clock catalogue; emits the committed budget CSV/JSON (scenario-hash pinned), renders Figure 1 (Allan curves + sorted bar chart vs 1 ns), the sorted 7-row table with per-row Validated/Modelled provenance, and a branded PDF; adds papers/ skeleton.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Committed CSV/JSON regenerates exact Table 1 (0.009/0.035/0.901/0.995/1.732/50.035/151.238 ns) under pinned hash+seed; golden-hash CI gate.</div>
@@ -563,10 +563,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">pack/study</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana-pro/src/packs/lunar_time_budget_pack.rs + papers/lunar-time-frame-limited/</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L37" data-repo="kshana" data-prio="P2" data-kind="cli/scenario/binding" data-status="todo">
+  <tr class="lrow" id="L37" data-repo="kshana" data-prio="P2" data-kind="cli/scenario/binding" data-status="done">
     <td class="c-id"><span class="gid">L37</span></td>
     <td class="c-title"><div class="lt">Committed scenario TOML + CLI/python binding for the one-day time budget</div><div class="ld">Add scenarios/lunar-time-budget.toml (kind='lunar-time-budget'), an api.rs ScenarioMeta entry with honest MODELLED/Validated description, and python.rs binding so P3's budget is runnable from a committed input, not hand-assembled.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Round-trip: committed TOML reproduces JSON budget bit-for-bit (platform-invariant golden hash).</div>
@@ -575,10 +575,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">cli/scenario/binding</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/scenarios/lunar-time-budget.toml + api.rs + python.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L18" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L18" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L18</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Data-derived IERS EOP prediction-error-vs-horizon curve</div><div class="ld">Extend eop.rs to parse the Bulletin A PREDICTED section (today rejected), pair predicted UT1 at horizon h against eventual final UT1, and compute empirical delta_UT1(h) (RMS/quantiles) for h in {final,1,2,5,10 days}, replacing P4's a*h^p two-anchor stand-in with a measured curve.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Real finals2000A.all Bulletin-A predicted UT1 vs later final UT1 residuals; ~0.01 ms final floor and growth-to-ms-at-10-days vs IERS Bulletin A/B published accuracy.</div>
@@ -587,10 +587,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-L">L</span></td>
     <td class="c-loc"><code>kshana/src/frame_eop.rs + predicted-column parser in src/eop.rs (parse_predicted / prediction_error_vs_horizon)</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L19" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L19" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L19</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Earth-Moon lever-arm propagation (UT1 error -&gt; lunar position + timing)</div><div class="ld">Add ut1_error_to_lunar(delta_ut1_s)-&gt;(m,s) implementing delta_r=D_EM*omega_earth*delta_UT1 and delta_r/c, plus the inverse (m-&gt;implied UT1 ms). Constants exist scattered (EARTH_MOON_DIST_KM, EARTH_ROTATION_RATE) but no mapping function. Makes P4's one Validated result reachable as an engine call and composes with L18 for a data-forward frame error.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Closed form (1 ms -&gt; 28.03 m -&gt; 93.5 ns); omega_earth vs cio::earth_rotation_angle ERA rate, D_EM vs DE440 mean distance.</div>
@@ -599,10 +599,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/frame_eop.rs (lever_arm_position_error / ut1_error_to_lunar + inverse)</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L49" data-repo="kshana-pro" data-prio="P0" data-kind="pack/study" data-status="todo">
+  <tr class="lrow" id="L49" data-repo="kshana-pro" data-prio="P0" data-kind="pack/study" data-status="done">
     <td class="c-id"><span class="gid">L49</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Realtime-frame-EOP data-forward decomposition study (recast circular framing)</div><div class="ld">kshana-pro study recasting P4's central check so frame-error is computed forward: data-derived delta_UT1(h) (L18) -&gt; lever arm (L19) -&gt; position/timing at Moon, presenting the match to 15 m/0.27 m budgets as an INDEPENDENT prediction rather than a consistency identity. Answers the hostile-review 'circular' objection.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Forward-computed frame error from L18+L19 lands within tolerance of independently-cited 15 m/0.27 m budgets without using them as calibration inputs.</div>
@@ -611,10 +611,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">pack/study</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana-pro/src/packs/realtime_frame_eop_pack.rs + papers/realtime-frame-eop/</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L38" data-repo="kshana" data-prio="P1" data-kind="cli/scenario/binding" data-status="todo">
+  <tr class="lrow" id="L38" data-repo="kshana" data-prio="P1" data-kind="cli/scenario/binding" data-status="done">
     <td class="c-id"><span class="gid">L38</span></td>
     <td class="c-title"><div class="lt">RealtimeFrameEop scenario binding + committed CSV + Table 1/2 emitter</div><div class="ld">Register ScenarioKind::RealtimeFrameEop, add a TOML struct (epoch, horizons, ephemeris-term, frame-floor, optional --eop finals2000A) running L18+L19, emit P4 Table 1 (consistency) and Table 2 (horizon), and write realtime_frame_eop_table.csv.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Golden-CSV snapshot; scenario numbers equal closed-form lever arm (L19) + L18 curve to machine precision.</div>
@@ -623,10 +623,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">cli/scenario/binding</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/frame_eop.rs scenario + register in api.rs; scenarios/realtime-frame-eop.toml</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L39" data-repo="kshana" data-prio="P1" data-kind="report" data-status="todo">
+  <tr class="lrow" id="L39" data-repo="kshana" data-prio="P1" data-kind="report" data-status="done">
     <td class="c-id"><span class="gid">L39</span></td>
     <td class="c-title"><div class="lt">Frame-EOP Figure 1 two-panel renderer</div><div class="ld">SVG/PDF two-panel figure: (a) UT1 prediction error vs horizon with the 15 m/~0.5 ms/~5-day marker + IERS final floor; (b) position at Moon vs horizon with right-hand equivalent-timing axis + ~5x annotation. Reuse chart.rs (as lunar_time_svg); dark PNG for README + light PDF for paper.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Deterministic-render snapshot; marker coordinates match L18/L19 numeric outputs.</div>
@@ -635,10 +635,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">report</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/frame_eop.rs (frame_eop_svg) using chart.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L50" data-repo="kshana-pro" data-prio="P1" data-kind="report" data-status="todo">
+  <tr class="lrow" id="L50" data-repo="kshana-pro" data-prio="P1" data-kind="report" data-status="done">
     <td class="c-id"><span class="gid">L50</span></td>
     <td class="c-title"><div class="lt">kshana-pro realtime-frame-eop pack + branded PDF + paper folder</div><div class="ld">Package the P4 analysis as a pro study (pack + study ledger + branded PDF via report_pdf/report_brand) with papers/realtime-frame-eop/ mirroring lunar-pnt layout, wiring the data-forward narrative from L49.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Report regenerates byte-stable from committed CSV; pro study ledger cross-checked vs public-engine outputs.</div>
@@ -647,10 +647,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pro">kshana-pro · private</span><br><span class="badge kind">report</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana-pro/src/packs/realtime_frame_eop_pack.rs + papers/realtime-frame-eop/</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L20" data-repo="kshana" data-prio="P2" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L20" data-repo="kshana" data-prio="P2" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L20</span></td>
     <td class="c-title"><div class="lt">Polar-motion prediction propagation lever arm</div><div class="ld">Add polar_motion_position_error projecting predicted-vs-final x_p/y_p (already parsed in eop.rs) through the lever arm so P4's frame-error carries both UT1 and polar-motion terms explicitly, using the same predicted-column differencing as L18.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Closed-form geometric projection vs CIO polar-motion rotation in cio.rs; PM residual curve from real finals2000A predicted vs final x_p/y_p.</div>
@@ -659,10 +659,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/frame_eop.rs (polar_motion_position_error) reusing eop.rs xp/yp</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L21" data-repo="kshana" data-prio="P2" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L21" data-repo="kshana" data-prio="P2" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L21</span></td>
     <td class="c-title"><div class="lt">Integrated frame+ephemeris covariance replacing placeholder terms</div><div class="ld">Derive P4's secondary growing lunar-ephemeris-prediction term and the ~0.2 m frame-realization floor from the L13 propagated ephemeris + frame-realization covariance (lunar_frame_realise Helmert residuals) into the RSS budget, replacing asserted constants.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Covariance consistency vs a reference OD (Orekit/GRAIL) and vs the injected-Helmert recovery already tested in lunar_frame_realise.rs.</div>
@@ -671,7 +671,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-L">L</span></td>
     <td class="c-loc"><code>kshana/src/frame_eop.rs consuming lunar_od/precise_od covariance + lunar_frame_realise residual covariance</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
   <tr class="lrow" id="L22" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
