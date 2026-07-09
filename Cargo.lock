@@ -398,7 +398,7 @@ dependencies = [
 [[package]]
 name = "kshana"
 version = "0.23.0"
-source = "git+https://github.com/ashfordeOU/kshana?branch=main#12b3b1e00f690ae495fda24d1342dd3027a35ba3"
+source = "git+https://github.com/ashfordeOU/kshana?branch=main#de2b0334e04830e007938226f891454015afae0c"
 dependencies = [
  "getrandom 0.2.17",
  "hex",

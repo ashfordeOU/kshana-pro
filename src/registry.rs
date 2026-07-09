@@ -15,6 +15,8 @@ use serde::de::DeserializeOwned;
 use crate::packs::batch_pack::BatchScenario;
 use crate::packs::beacon_dop_pack::{BeaconDopScenario, SurfaceBeaconDopStudyScenario};
 use crate::packs::beacon_placement_pack::BeaconPlacementScenario;
+use crate::packs::cislunar_observability_study_pack::CislunarObservabilityStudyScenario;
+use crate::packs::conflict_resilience_study_pack::ConflictResilienceStudyScenario;
 use crate::packs::lunar_signal_security_pack::LunarSignalSecurityScenario;
 use crate::packs::lunar_time_budget_study_pack::LunarTimeBudgetStudyScenario;
 use crate::packs::mbse_pack::MbseScenario;
@@ -81,6 +83,12 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         OpticalRfHybridStudyScenario::KIND => {
             Some(parse::<OpticalRfHybridStudyScenario>(kind, src))
         }
+        CislunarObservabilityStudyScenario::KIND => {
+            Some(parse::<CislunarObservabilityStudyScenario>(kind, src))
+        }
+        ConflictResilienceStudyScenario::KIND => {
+            Some(parse::<ConflictResilienceStudyScenario>(kind, src))
+        }
         _ => None,
     }
 }
@@ -104,6 +112,8 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
         LunarTimeBudgetStudyScenario::meta_static(),
         RealtimeFrameEopStudyScenario::meta_static(),
         OpticalRfHybridStudyScenario::meta_static(),
+        CislunarObservabilityStudyScenario::meta_static(),
+        ConflictResilienceStudyScenario::meta_static(),
     ]
 }
 
@@ -215,7 +225,7 @@ where
 /// [`kshana::registry::PackRegistry`].
 ///
 /// It starts from every open built-in
-/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 14
+/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 16
 /// Pro packs through the public [`ExternalPack::register_into`] seam. The union is
 /// therefore assembled entirely through stable public API: the open half is the open
 /// core's own table (never re-listed here, so it cannot drift), and the Pro half is
@@ -241,6 +251,8 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     LunarTimeBudgetStudyScenario::register_into(&mut reg);
     RealtimeFrameEopStudyScenario::register_into(&mut reg);
     OpticalRfHybridStudyScenario::register_into(&mut reg);
+    CislunarObservabilityStudyScenario::register_into(&mut reg);
+    ConflictResilienceStudyScenario::register_into(&mut reg);
     reg
 }
 
@@ -524,6 +536,28 @@ lower_is_better = true
                 // The default is already O(1) (single link budgets + a 5-site availability),
                 // so the tiny config is just the kind line — all cited defaults, fast.
                 "kind = \"pro-optical-rf-hybrid-study\"\n"
+            }
+            CislunarObservabilityStudyScenario::KIND => {
+                // Two DROs (chief + one reference), a short 4-epoch range+range-rate arc at
+                // reduced integration resolution — the headline default differential-corrects
+                // four DROs over a 24-epoch range-only arc, far too heavy for a unit test.
+                "kind = \"pro-cislunar-observability-study\"\n\
+                 perilune_km = [20000.0, 32000.0]\n\
+                 ref_phase_frac = [0.0, 0.25]\n\
+                 arc = 0.05\n\
+                 epochs = 4\n\
+                 steps = 800\n\
+                 with_range_rate = true\n"
+            }
+            ConflictResilienceStudyScenario::KIND => {
+                // A tiny Monte-Carlo (few trials / samples, coarse intensity grid) over the
+                // sourced four-layer baseline; the headline default runs 4000 trials / 2000
+                // sensitivity samples over an 11-point grid.
+                "kind = \"pro-conflict-resilience-study\"\n\
+                 intensity_steps = 4\n\
+                 rho_values = [0.0, 0.8]\n\
+                 trials = 300\n\
+                 sensitivity_samples = 100\n"
             }
             other => panic!("no test source defined for Pro kind '{other}'"),
         }

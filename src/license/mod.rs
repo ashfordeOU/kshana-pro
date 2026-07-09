@@ -78,6 +78,8 @@ pub fn feature_min_tier(kind: &str) -> Tier {
         "pro-lunar-time-budget-study" => Tier::Pro,
         "pro-realtime-frame-eop-study" => Tier::Pro,
         "pro-optical-rf-hybrid-study" => Tier::Pro,
+        "pro-cislunar-observability-study" => Tier::Pro,
+        "pro-conflict-resilience-study" => Tier::Pro,
         "pro-scenario-ci" => Tier::Pro,
         "pro-mbse" => Tier::Enterprise,
         "pro-batch" => Tier::Enterprise,
