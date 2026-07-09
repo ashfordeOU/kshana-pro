@@ -20,7 +20,7 @@ padding:30px 34px;position:relative;overflow:hidden}
 .hero .stamp{position:absolute;top:20px;right:26px;font-family:Menlo,monospace;font-size:11px;color:var(--dim)}
 .prog{margin:22px 0 6px}
 .prog-bar{height:14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line2);overflow:hidden;position:relative}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:73%;transition:width .4s}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:93%;transition:width .4s}
 .prog-lab{font-family:Menlo,monospace;font-size:12px;color:var(--muted);margin-top:6px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin:22px 0}
 .tile{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
@@ -113,12 +113,12 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
 </style></head>
 <body><div class="wrap">
 <header class="hero">
-  <div class="stamp">generated Phases 7-8 complete — 43/55 (78%) · optical/RF hybrid core + study · 2026-07-09</div>
+  <div class="stamp">generated Phase 9 complete — 51/55 (93%) · cislunar observability + conflict resilience · only Ph10 pro deliverables remain · 2026-07-09</div>
   <div class="kicker">Ashforde · Kshana <span class="dev">&#2325;&#2381;&#2359;&#2339;</span> · Build-in-public PNT program</div>
   <h1>Kshana &times; Lunar/Cislunar PNT Papers — Capability-Gap Buildout Tracker</h1>
   <div class="sub">Everything the seven preprints (P1&ndash;P7) compute or claim, mapped to the Kshana codebase, with the exact capabilities to build so each result is producible — and upgradable from <i>Modelled/asserted</i> to Kshana-computed <i>Validated</i>. Follow this during implementation; tick items as they land.</div>
   <div class="prog"><div class="prog-bar"><div class="prog-fill"></div></div>
-    <div class="prog-lab" id="proglab">40/55 gaps complete · 73% · 0 in progress</div></div>
+    <div class="prog-lab" id="proglab">51/55 gaps complete · 93% · 0 in progress</div></div>
 </header>
 
 <div class="tiles">
@@ -242,16 +242,16 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <div class="phase-rationale">Single pro study consuming Phase 7. Isolated deliverable commit after the core lands.</div>
     <ul class="phase-gaps"><li class="ph-gap done"><a href="#L51">L51</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Optical-RF-hybrid study + branded report (Table 1/2, Figure 1)</span> <span class="eff eff-M">M</span></li></ul>
   </div>
-<div class="phase-card todo" data-status="todo">
+<div class="phase-card done" data-status="done">
     <div class="phase-head">
       <div class="phase-no">Phase 9</div>
       <div class="phase-title">Cislunar observability &amp; conflict-resilience core</div>
       <div class="phase-repo"><span class="badge repo-pub">kshana · public</span></div>
     </div>
     <div class="phase-goal">Observability Gramian-over-arc (with ISL Jacobian, DRO seeder, Doppler lever, variational-STM wiring, SRIF validation, GDOP-singular reporting) AND the conflict-baseline layered-PNT Monte-Carlo (engine, correlated/sensitivity upgrade, sourced parameters, scenario binding).</div>
-    <div class="phase-bar"><div class="phase-bar-fill" style="width:0%"></div><span class="phase-bar-lab">0/11 · 0%</span></div>
+    <div class="phase-bar"><div class="phase-bar-fill" style="width:100%"></div><span class="phase-bar-lab">11/11 · 100%</span></div>
     <div class="phase-rationale">Both P6 and P7 are self-contained kshana estimation/resilience modules with no cross-dependency on earlier phases, so they batch into one final public-engine phase. L28 precedes L27 (Jacobian feeds Gramian); L32 depends on L27/L28/L29; L35 depends on L34. Contains three upgrade prescriptions (L27/L32/L35). Keeping them together minimizes phase count while staying single-repo.</div>
-    <ul class="phase-gaps"><li class="ph-gap todo"><a href="#L28">L28</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Inter-satellite planar 4-state range Jacobian</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L27">L27</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Observability-Gramian-over-arc core module</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L29">L29</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">DRO family seeder / IC scan for planar distant-retrograde orbits</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L30">L30</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Range-rate/Doppler design-lever demonstration</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L31">L31</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Wire FD-validated variational STM to de-model first-order STM propagation</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L32">L32</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Validate rank/observability transition against SRIF/batch estimator</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L33">L33</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Position-only GDOP-singular reporting for the CR3BP snapshot</span> <span class="eff eff-S">S</span></li><li class="ph-gap todo"><a href="#L34">L34</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Conflict-baseline layered-PNT resilience Monte-Carlo engine</span> <span class="eff eff-L">L</span></li><li class="ph-gap todo"><a href="#L35">L35</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Correlated/sourced/sensitivity-swept threat model with per-vector E2 discipline</span> <span class="eff eff-L">L</span></li><li class="ph-gap todo"><a href="#L36">L36</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Sourced threat-parameter provenance catalog for layer vulnerabilities</span> <span class="eff eff-M">M</span></li><li class="ph-gap todo"><a href="#L41">L41</a> <span class="spill sp-todo">&#9675; to build</span> <span class="ph-gap-t">Surface binding + scenario runner for conflict-resilience</span> <span class="eff eff-S">S</span></li></ul>
+    <ul class="phase-gaps"><li class="ph-gap done"><a href="#L28">L28</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Inter-satellite planar 4-state range Jacobian</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L27">L27</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Observability-Gramian-over-arc core module</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L29">L29</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">DRO family seeder / IC scan for planar distant-retrograde orbits</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L30">L30</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Range-rate/Doppler design-lever demonstration</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L31">L31</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Wire FD-validated variational STM to de-model first-order STM propagation</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L32">L32</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Validate rank/observability transition against SRIF/batch estimator</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L33">L33</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Position-only GDOP-singular reporting for the CR3BP snapshot</span> <span class="eff eff-S">S</span></li><li class="ph-gap done"><a href="#L34">L34</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Conflict-baseline layered-PNT resilience Monte-Carlo engine</span> <span class="eff eff-L">L</span></li><li class="ph-gap done"><a href="#L35">L35</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Correlated/sourced/sensitivity-swept threat model with per-vector E2 discipline</span> <span class="eff eff-L">L</span></li><li class="ph-gap done"><a href="#L36">L36</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Sourced threat-parameter provenance catalog for layer vulnerabilities</span> <span class="eff eff-M">M</span></li><li class="ph-gap done"><a href="#L41">L41</a> <span class="spill sp-done">&#10003; done</span> <span class="ph-gap-t">Surface binding + scenario runner for conflict-resilience</span> <span class="eff eff-S">S</span></li></ul>
   </div>
 <div class="phase-card todo" data-status="todo">
     <div class="phase-head">
@@ -758,7 +758,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L28" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L28" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L28</span></td>
     <td class="c-title"><div class="lt">Inter-satellite planar 4-state range Jacobian</div><div class="ld">Builder that, given user and beacon CR3BP states, returns each inter-satellite range and its 4-state s=[x,y,vx,vy] Jacobian row (LOS unit in position, zeros in velocity). Only station-to-spacecraft partials exist today. Feeds L27.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Analytic LOS-unit partial vs finite-difference of |r_user-r_beacon| (cr3bp FD-oracle pattern); zero velocity columns exact.</div>
@@ -767,10 +767,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/observability.rs::isl_range_jacobian() (planar 4-state)</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L27" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L27" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L27</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Observability-Gramian-over-arc core module</div><div class="ld">Given H(t_k) (L28) and CR3BP STM Phi(t_k), assemble O=stack[H*Phi], return observable rank vs tracking-arc length, form the Gramian W=sum Phi^T H^T H Phi dt, and read off eigenvalue spectrum, min eigenvalue, and condition number. Produces P6 Table 1 (rank 1-&gt;3-&gt;4 over ~1 hr) and the Gramian conditioning result — the paper's headline analysis. Primitives exist but nothing composes them.</div>
       <div class="lmeta"><span class="lo">oracle:</span> numpy.linalg.matrix_rank on stacked O + numpy.linalg.eigh on Gramian (accepted 1e-9 oracle class for fim.rs); rank vs SciPy/python-control obsv/gram on the same LTV system.</div>
@@ -779,10 +779,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/observability.rs: obs_matrix_over_arc(), observability_gramian(), ObservabilityFom{rank_by_arc,lambda_min,lambda_max,condition,spectrum}</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L29" data-repo="kshana" data-prio="P1" data-kind="data/fixture" data-status="todo">
+  <tr class="lrow" id="L29" data-repo="kshana" data-prio="P1" data-kind="data/fixture" data-status="done">
     <td class="c-id"><span class="gid">L29</span></td>
     <td class="c-title"><div class="lt">DRO family seeder / IC scan for planar distant-retrograde orbits</div><div class="ld">IC-scan/differential-corrector for planar DROs at prescribed perilune amplitudes (~11,500-46,000 km) to seed P6's four-spacecraft constellation reproducibly. Engine has halo/NRHO corrector but no DRO generator.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Jacobi-constant conservation over a full period + y=0 perpendicular-crossing periodicity (existing cr3bp oracles); seeded ICs vs published Earth-Moon DRO catalogs.</div>
@@ -791,10 +791,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">data/fixture</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/cr3bp.rs::dro_family() / dro_ic_scan() reusing propagate_to_crossing + differential correction</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L30" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L30" data-repo="kshana" data-prio="P1" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L30</span></td>
     <td class="c-title"><div class="lt">Range-rate/Doppler design-lever demonstration</div><div class="ld">Compose a range+range-rate H (nonzero velocity columns, via deepspace_od::range_rate_observable) into the observability module and show P6's instantaneous rank rises above 1 toward 4, quantifying the collapsed arc — the Discussion 5.2 lever, currently asserted.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Rank of augmented instantaneous Jacobian via numpy.linalg.matrix_rank; velocity columns nonzero verified vs range_rate analytic partial FD-check.</div>
@@ -803,10 +803,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/observability.rs (add range-rate rows) + study row in L52 pack</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L31" data-repo="kshana" data-prio="P1" data-kind="validation/oracle" data-status="todo">
+  <tr class="lrow" id="L31" data-repo="kshana" data-prio="P1" data-kind="validation/oracle" data-status="done">
     <td class="c-id"><span class="gid">L31</span></td>
     <td class="c-title"><div class="lt">Wire FD-validated variational STM to de-model first-order STM propagation</div><div class="ld">Wire L27 to cr3bp::propagate_state_stm (variational Phi, matched to finite-difference) so P6's Phi propagation upgrades from Modelled/first-order toward Validated with negligible new code.</div>
       <div class="lmeta"><span class="lo">oracle:</span> cr3bp STM already validated vs finite-difference (stm_matches_finite_difference); additionally vs a variational STM from Nyx or scipy solve_ivp of the variational equations.</div>
@@ -815,10 +815,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">validation/oracle</span></td>
     <td class="c-prio"><span class="prio p1">P1</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/observability.rs consuming cr3bp::propagate_state_stm</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L32" data-repo="kshana" data-prio="P0" data-kind="validation/oracle" data-status="todo">
+  <tr class="lrow" id="L32" data-repo="kshana" data-prio="P0" data-kind="validation/oracle" data-status="done">
     <td class="c-id"><span class="gid">L32</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Validate rank/observability transition against SRIF/batch estimator</div><div class="ld">Wire the CR3BP DRO inter-satellite-ranging scenario through deepspace_od::Srif and show posterior covariance becomes finite exactly when observable rank reaches 4 and its condition number tracks the Gramian conditioning — upgrades P6's transition + ill-conditioning claim from rank-only toward Validated against an independent estimator.</div>
       <div class="lmeta"><span class="lo">oracle:</span> SRIF/batch posterior covariance unbounded while rank&lt;4, finite at rank=4, condition matches Gramian; vs numpy/scipy batch least-squares on identical measurement stacks.</div>
@@ -827,10 +827,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">validation/oracle</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/observability.rs + tests/cislunar_observability_estimator_reference.rs wiring cr3bp -&gt; deepspace_od::Srif</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L33" data-repo="kshana" data-prio="P2" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L33" data-repo="kshana" data-prio="P2" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L33</span></td>
     <td class="c-title"><div class="lt">Position-only GDOP-singular reporting for the CR3BP snapshot</div><div class="ld">Add a thin reporting path flagging 'GDOP undefined (rank-deficient/singular geometry)' for the cislunar DRO snapshot, reusing pvt.rs singular handling + fim::design_metrics condition=inf, so P6's Results 4.1 claim is machine-produced not asserted.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Information-matrix rank&lt;full and condition=inf vs numpy.linalg.matrix_rank/cond on the instantaneous geometry.</div>
@@ -839,10 +839,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/src/observability.rs reusing pvt.rs / fim::design_metrics</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L34" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L34" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L34</span></td>
     <td class="c-title"><div class="lt">Conflict-baseline layered-PNT resilience Monte-Carlo engine</div><div class="ld">New module: ConflictLayer{availability, sigma_m, per-vector vulnerability}, closed-form inverse-variance position fuse (fused 1sigma=(sum 1/a_i^2)^-1/2), and intensity-swept seeded Monte-Carlo denying each layer with prob vulnerability x intensity x vector-weight, reporting total-loss probability, median fused error, and per-vector usable-PNT survival for 4/3/2-layer architectures. Produces all P7 Model + Results (Table 2, Fig 1a/b, §4.2). The E2 resilience family is timing/detection FOM only, no metre-domain position fuse.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Independent numpy seeded Monte-Carlo reproducing conflict_resilience_table.csv row-for-row + closed-form checks (inverse-variance identity, benign-limit total-loss=1-prod(availability), single-layer degenerate); same external-oracle pattern as gnss_denied_jamming_resilience_reference.rs.</div>
@@ -851,10 +851,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-L">L</span></td>
     <td class="c-loc"><code>kshana/src/resilience/conflict.rs; register in resilience/mod.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L35" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="todo">
+  <tr class="lrow" id="L35" data-repo="kshana" data-prio="P0" data-kind="core-analysis" data-status="done">
     <td class="c-id"><span class="gid">L35</span><span class="upg" title="Upgrade prescription from the hostile peer-review audit — highest value">&#9733; upgrade</span></td>
     <td class="c-title"><div class="lt">Correlated/sourced/sensitivity-swept threat model with per-vector E2 discipline</div><div class="ld">Extend L34 with (a) a sensitivity sweep over vulnerability-probability priors (mcda tornado + dirichlet/percentile_ci) reporting how the total-loss curve and ~7x ratio move, (b) a correlated-Bernoulli/Gaussian-copula denial coupling RF layers and a relaxed/integrity-gated inverse-variance fuse quantifying how the 7x shrinks as correlation rises, (c) per-vector survival curves emitted with E2 provenance/rank-range discipline. Delivers the conclusion that survives: layered&gt;thin and un-jammable layer decisive hold even where the precise 7x does not. Highest-value P7 upgrade.</div>
       <div class="lmeta"><span class="lo">oracle:</span> numpy correlated-denial MC (Gaussian-copula Bernoulli vs known-correlation analytic 2-layer case); sensitivity vs oracle-tested tornado/dirichlet; independence-limit (correlation=0) recovers L34 exactly.</div>
@@ -863,10 +863,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">core-analysis</span></td>
     <td class="c-prio"><span class="prio p0">P0</span> <span class="eff eff-L">L</span></td>
     <td class="c-loc"><code>kshana/src/resilience/conflict.rs (extend L34): correlation/copula draw, sensitivity_sweep(), per-vector survival carrying VerificationStatus + rank ranges; reuse mcda/sensitivity.rs + resilience/stats.rs</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L36" data-repo="kshana" data-prio="P2" data-kind="data/fixture" data-status="todo">
+  <tr class="lrow" id="L36" data-repo="kshana" data-prio="P2" data-kind="data/fixture" data-status="done">
     <td class="c-id"><span class="gid">L36</span></td>
     <td class="c-title"><div class="lt">Sourced threat-parameter provenance catalog for layer vulnerabilities</div><div class="ld">Documented, cited threat-parameter fixture anchoring each P7 layer's per-vector vulnerability + accuracy prior to open sources (GNSS jamming/spoofing incidence, TexBAT, JammerTest 2024 already vendored in realdata/jammertest, LunaNet/IOAG docs) so the L35 sensitivity sweep ranges over sourced priors.</div>
       <div class="lmeta"><span class="lo">oracle:</span> JammerTest 2024 C/N0-fall ordinal facts (already validated in gnss_denied_jamming_resilience_reference.rs) anchor the jam prior; remaining priors stay Modelled but citation-traceable.</div>
@@ -875,10 +875,10 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">data/fixture</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-M">M</span></td>
     <td class="c-loc"><code>kshana/src/resilience/conflict.rs default tables with provenance + tests/fixtures/conflict_resilience/threat_parameters.md</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
-  <tr class="lrow" id="L41" data-repo="kshana" data-prio="P2" data-kind="cli/scenario/binding" data-status="todo">
+  <tr class="lrow" id="L41" data-repo="kshana" data-prio="P2" data-kind="cli/scenario/binding" data-status="done">
     <td class="c-id"><span class="gid">L41</span></td>
     <td class="c-title"><div class="lt">Surface binding + scenario runner for conflict-resilience</div><div class="ld">Add a scenario-TOML schema (layers, vector weights, intensity grid, correlation, trials, seed) + main.rs dispatch, and Python/WASM/MCP entry points so P7's analysis is reachable-from-binary, not only via a test. The resilience family is not currently surfaced via scenario dispatch or Python.</div>
       <div class="lmeta"><span class="lo">oracle:</span> Round-trip: scenario-run output matches direct engine call and the committed CSV (surface-parity check).</div>
@@ -887,7 +887,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <td class="c-repo"><span class="badge repo-pub">kshana · public</span><br><span class="badge kind">cli/scenario/binding</span></td>
     <td class="c-prio"><span class="prio p2">P2</span> <span class="eff eff-S">S</span></td>
     <td class="c-loc"><code>kshana/scenarios/ TOML + main.rs dispatch + python.rs (+kshana.pyi) + wasm.rs + mcp/ tool</code></td>
-    <td class="c-status"><span class="spill sp-todo">&#9675; to build</span></td>
+    <td class="c-status"><span class="spill sp-done">&#10003; done</span></td>
   </tr>
 
   <tr class="lrow" id="L52" data-repo="kshana-pro" data-prio="P0" data-kind="report" data-status="todo">
