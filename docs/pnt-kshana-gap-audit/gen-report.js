@@ -161,6 +161,16 @@ padding:30px 34px;position:relative;overflow:hidden}
 .prog-bar{height:14px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line2);overflow:hidden;position:relative}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:${pct}%;transition:width .4s}
 .prog-lab{font-family:Menlo,monospace;font-size:12px;color:var(--muted);margin-top:6px}
+.published{margin:20px 0 4px;border:1px solid var(--line);border-left:3px solid var(--ok);border-radius:12px;padding:14px 18px;background:linear-gradient(180deg,rgba(95,191,143,.06),var(--panel))}
+.published .pub-h{font-family:"Hoefler Text",Georgia,serif;font-size:16px;color:var(--ok);margin-bottom:8px}
+.published ul{margin:0;padding-left:18px}
+.published li{color:var(--cream);font-size:13px;line-height:1.55;margin:4px 0}
+.published li b{color:var(--gold2);font-weight:600}
+.published a{color:var(--gold2);text-decoration:none;font-family:Menlo,monospace;font-size:12px}
+.published a:hover{text-decoration:underline}
+.published .pub-map{color:var(--dim);font-size:12px}
+.published code{font-family:Menlo,monospace;font-size:11.5px;color:var(--muted)}
+.published .pub-note{color:var(--muted);font-size:12px;margin-top:9px;border-top:1px solid var(--line2);padding-top:8px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin:22px 0}
 .tile{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
 .tile .n{font-family:"Hoefler Text",Georgia,serif;font-size:28px;color:var(--gold2);line-height:1}
@@ -260,6 +270,17 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
   <div class="prog"><div class="prog-bar"><div class="prog-fill"></div></div>
     <div class="prog-lab" id="proglab">${doneCount}/${ledger.length} gaps complete · ${pct}% · ${wipCount} in progress</div></div>
 </header>
+
+<section class="published">
+  <div class="pub-h">&#128220; Published on arXiv &mdash; program output now peer-visible</div>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2607.06212">arXiv:2607.06212</a> &middot; <b>The Cost of Lunar South-Polar Geometry, and Surface Beacons as the Efficient Fix: A Dilution-of-Precision Analysis</b> <span class="pub-map">(P2 &middot; surface-beacon DOP &rarr; <code>src/lunar_beacon.rs</code>)</span> &middot; 7 Jul 2026</li>
+    <li><a href="https://arxiv.org/abs/2607.02566">arXiv:2607.02566</a> &middot; <b>Earth-baseline VLBI restores the observability of a lunar surface station in joint orbit-and-clock determination</b> <span class="pub-map">(lunar joint OD+clock observability &rarr; <code>lunar_vlbi.rs</code> &middot; <code>lunar_combination.rs</code>; cites kshana v0.23.0)</span> &middot; 1 Jul 2026</li>
+    <li><a href="https://arxiv.org/abs/2606.24210">arXiv:2606.24210</a> &middot; <b>A Conditional Timing Protection Level: Holdover-Limited Undetected Time Error Under GNSS Spoofing</b> <span class="pub-map">(TPL &rarr; <code>src/tpl.rs</code>; JammerTest 2024)</span> &middot; 23 Jun 2026</li>
+    <li><a href="https://arxiv.org/abs/2606.22054">arXiv:2606.22054</a> &middot; <b>Anticipating the Optimism Gap: Predicting Distribution-Shift Degradation of RF-Impairment Detectors from In-Distribution Statistics</b> <span class="pub-map">(optimism-gap study &rarr; <code>impairment_study.rs</code>)</span> &middot; 20 Jun 2026</li>
+  </ul>
+  <div class="pub-note">All four cite the open <a href="https://github.com/ashfordeOU/kshana">kshana</a> engine; every headline figure regenerates from a committed scenario + seed. Papers stay <b>arXiv-first</b> &mdash; sources live in <code>papers/</code>, nothing else public until founder announce.</div>
+</section>
 
 <div class="tiles">
   <div class="tile"><div class="n">${ledger.length}</div><div class="l">Total gaps</div></div>

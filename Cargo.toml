@@ -34,7 +34,7 @@ path = "src/main.rs"
 # For local co-development, override with a path dep to a sibling checkout.
 # The `version` field keeps the semver contract recorded; kept in lock-step with the
 # open core's version.
-kshana = { git = "https://github.com/ashfordeOU/kshana", branch = "main", version = "0.23" }
+kshana = { git = "https://github.com/ashfordeOU/kshana", branch = "main", version = "0.24" }
 
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.
