@@ -16,9 +16,11 @@ use crate::packs::batch_pack::BatchScenario;
 use crate::packs::beacon_dop_pack::{BeaconDopScenario, SurfaceBeaconDopStudyScenario};
 use crate::packs::beacon_placement_pack::BeaconPlacementScenario;
 use crate::packs::lunar_signal_security_pack::LunarSignalSecurityScenario;
+use crate::packs::lunar_time_budget_study_pack::LunarTimeBudgetStudyScenario;
 use crate::packs::mbse_pack::MbseScenario;
 use crate::packs::optimism_gap_audit::OptimismGapAuditScenario;
 use crate::packs::quantum_systematics_pack::QuantumSystematicsScenario;
+use crate::packs::realtime_frame_eop_study_pack::RealtimeFrameEopStudyScenario;
 use crate::packs::seam_check::SeamCheckPack;
 use crate::packs::trade_study_pack::TradeStudyScenario;
 use crate::packs::twin_pack::TwinScenario;
@@ -69,6 +71,12 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
             Some(parse::<SurfaceBeaconDopStudyScenario>(kind, src))
         }
         BeaconPlacementScenario::KIND => Some(parse::<BeaconPlacementScenario>(kind, src)),
+        LunarTimeBudgetStudyScenario::KIND => {
+            Some(parse::<LunarTimeBudgetStudyScenario>(kind, src))
+        }
+        RealtimeFrameEopStudyScenario::KIND => {
+            Some(parse::<RealtimeFrameEopStudyScenario>(kind, src))
+        }
         _ => None,
     }
 }
@@ -89,6 +97,8 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
         BeaconDopScenario::meta_static(),
         SurfaceBeaconDopStudyScenario::meta_static(),
         BeaconPlacementScenario::meta_static(),
+        LunarTimeBudgetStudyScenario::meta_static(),
+        RealtimeFrameEopStudyScenario::meta_static(),
     ]
 }
 
@@ -200,7 +210,7 @@ where
 /// [`kshana::registry::PackRegistry`].
 ///
 /// It starts from every open built-in
-/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 11
+/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 13
 /// Pro packs through the public [`ExternalPack::register_into`] seam. The union is
 /// therefore assembled entirely through stable public API: the open half is the open
 /// core's own table (never re-listed here, so it cannot drift), and the Pro half is
@@ -223,6 +233,8 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     BeaconDopScenario::register_into(&mut reg);
     SurfaceBeaconDopStudyScenario::register_into(&mut reg);
     BeaconPlacementScenario::register_into(&mut reg);
+    LunarTimeBudgetStudyScenario::register_into(&mut reg);
+    RealtimeFrameEopStudyScenario::register_into(&mut reg);
     reg
 }
 
@@ -485,6 +497,22 @@ lower_is_better = true
                  cand_n_lon = 2\n\
                  n_epochs = 1\n\
                  k_beacons = 1\n"
+            }
+            LunarTimeBudgetStudyScenario::KIND => {
+                // A tiny τ grid (1 s .. 1000 s, 2 points/decade) — the headline default
+                // sweeps 1 s .. 1e7 s at 8 points/decade. Still assembles the real
+                // 7-term budget through the open engine.
+                "kind = \"pro-lunar-time-budget-study\"\n\
+                 clock = \"passive-h-maser\"\n\
+                 tau_min_s = 1.0\n\
+                 tau_max_s = 1000.0\n\
+                 points_per_decade = 2\n"
+            }
+            RealtimeFrameEopStudyScenario::KIND => {
+                // Just the final floor + a 1-day horizon over the bundled real fixture —
+                // the headline default runs 1/2/3-day horizons.
+                "kind = \"pro-realtime-frame-eop-study\"\n\
+                 horizons_days = [1]\n"
             }
             other => panic!("no test source defined for Pro kind '{other}'"),
         }
