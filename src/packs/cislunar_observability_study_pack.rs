@@ -1277,6 +1277,33 @@ mod tests {
         assert_eq!(data_rows, m.arc_rows.len());
     }
 
+    /// Reproducibility drift-guard: a fresh regeneration of the P6 observability table
+    /// CSV from the SAME default (four-DRO) config that `emit_paper_artifacts` uses must
+    /// byte-match the COMMITTED `papers/cislunar-observability/cislunar_observability_table.csv`.
+    /// This is REPRODUCIBILITY (fresh code output == committed golden), NOT external
+    /// validation — it does not assert flight validation, certification, or ESA
+    /// acceptance, only that our own deterministic emit still reproduces the committed
+    /// bytes. Note the config here is `::default()` (n_dros=4, range-only), matching the
+    /// committed artifact, NOT the smaller `small_full_rank()` fixture used above. If it
+    /// drifts, refresh with `cargo test -p kshana-pro emit_paper_artifacts -- --ignored`.
+    #[test]
+    fn committed_csv_matches_regeneration() {
+        let scn = CislunarObservabilityStudyScenario::default();
+        let m = scn.compute().unwrap();
+        let fresh = scn.csv_string(&m);
+        let committed = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/papers/cislunar-observability/cislunar_observability_table.csv"
+        ))
+        .expect(
+            "committed cislunar_observability_table.csv must exist (run emit_paper_artifacts)",
+        );
+        assert_eq!(
+            fresh, committed,
+            "committed cislunar_observability_table.csv drifted from regeneration"
+        );
+    }
+
     #[test]
     fn svg_is_well_formed_and_deterministic() {
         let scn = small_full_rank();
