@@ -1329,6 +1329,42 @@ mod tests {
         assert_eq!(arows, m.avail.diversity_curve.len());
     }
 
+    /// Reproducibility drift-guard: a fresh regeneration of the P5 Table-1 (precision)
+    /// and Table-2 (availability) CSVs from the SAME default config that
+    /// `emit_paper_artifacts` uses must byte-match the COMMITTED paper artifacts under
+    /// `papers/optical-rf-hybrid/`. This is REPRODUCIBILITY (fresh code output ==
+    /// committed golden), NOT external validation — it does not assert flight validation,
+    /// certification, or ESA acceptance, only that our own deterministic emit still
+    /// reproduces the committed bytes. If it drifts, refresh the committed CSVs with
+    /// `cargo test -p kshana-pro emit_paper_artifacts -- --ignored`.
+    #[test]
+    fn committed_csv_tables_match_regeneration() {
+        let scn = OpticalRfHybridStudyScenario::default();
+        let m = scn.compute().unwrap();
+
+        let fresh_precision = scn.precision_csv(&m);
+        let committed_precision = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/papers/optical-rf-hybrid/optical_rf_precision.csv"
+        ))
+        .expect("committed optical_rf_precision.csv must exist (run emit_paper_artifacts)");
+        assert_eq!(
+            fresh_precision, committed_precision,
+            "committed optical_rf_precision.csv drifted from regeneration"
+        );
+
+        let fresh_availability = scn.availability_csv(&m);
+        let committed_availability = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/papers/optical-rf-hybrid/optical_availability.csv"
+        ))
+        .expect("committed optical_availability.csv must exist (run emit_paper_artifacts)");
+        assert_eq!(
+            fresh_availability, committed_availability,
+            "committed optical_availability.csv drifted from regeneration"
+        );
+    }
+
     #[test]
     fn svg_is_well_formed_and_deterministic() {
         let scn = OpticalRfHybridStudyScenario::default();
