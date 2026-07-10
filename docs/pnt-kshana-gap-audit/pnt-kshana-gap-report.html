@@ -104,6 +104,7 @@ table.atab td{padding:6px;border-bottom:1px solid var(--line2);color:var(--muted
 .v-val{background:rgba(95,191,143,.14);color:var(--ok);border:1px solid rgba(95,191,143,.4)}
 .v-mod{background:rgba(217,164,65,.12);color:var(--wip);border:1px solid rgba(217,164,65,.4)}
 .v-imp{background:rgba(224,101,79,.12);color:#f0917d;border:1px solid rgba(224,101,79,.4)}
+.v-repro{background:rgba(90,150,225,.14);color:#8fb8f0;border:1px solid rgba(90,150,225,.42)}
 .caps{list-style:none;padding:0;margin:6px 0}
 .caps li{font-size:12.5px;padding:4px 0;color:var(--muted);border-bottom:1px solid var(--line2)}
 .cap-ok{color:var(--ok);font-weight:700}.cap-mod{font-family:Menlo,monospace;color:var(--gold2);font-size:11px}
@@ -124,7 +125,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
 </style></head>
 <body><div class="wrap">
 <header class="hero">
-  <div class="stamp">generated 2026-07-09 · 4 papers on arXiv</div>
+  <div class="stamp">generated 2026-07-10 · modelled-claim validation campaign</div>
   <div class="kicker">Ashforde · Kshana <span class="dev">&#2325;&#2381;&#2359;&#2339;</span> · Build-in-public PNT program</div>
   <h1>Kshana &times; Lunar/Cislunar PNT Papers — Capability-Gap Buildout Tracker</h1>
   <div class="sub">Everything the seven preprints (P1&ndash;P7) compute or claim, mapped to the Kshana codebase, with the exact capabilities to build so each result is producible — and upgradable from <i>Modelled/asserted</i> to Kshana-computed <i>Validated</i>. Follow this during implementation; tick items as they land.</div>
@@ -978,7 +979,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <tr><td class="a-name">Horizon-limited surface reach</td><td class="a-comp">Geometric horizon of a mast height h on airless sphere R_moon: d_hor=sqrt(2*R_moon*h+h^2). 2 m-&gt;5 km, 10 m-&gt;8 km, 100 m-&gt;21 km, 1000 m-&gt;61 km.</td>
     <td class="a-sec">Sec 4 Airless-Moon attack surface</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Whole-hemisphere orbital transmitter footprint</td><td class="a-comp">A single ~40 W, 13 dBi orbital transmitter at the Table-1 slant range meets the 3 dB spoof-capture criterion across the entire visible hemisphere, under a single uniform-beam assumption (no antenna-pattern rolloff, no edge-of-disk grazing).</td>
-    <td class="a-sec">Sec 4 / Sec 6</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Sec 4 / Sec 6</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Power-deficit sensitivity band</td><td class="a-comp">Sweep of GPS reference (-125 to -128.5 dBW), satellite EIRP, and slant range showing the deficit stays in a 12-18 dB band (factor 16-63); reconciles the rounded 32x figure vs unrounded 36x text.</td>
     <td class="a-sec">Sec 6 Limitations</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Six-attribute lunar-vs-terrestrial security comparison (Fig 1b)</td><td class="a-comp">Consolidates received-power deficit, specified authentication, receiver cross-checks, spoof power at 1 km, monitoring network, and physical access into a comparison across lunar AFS vs terrestrial GNSS.</td>
@@ -1104,27 +1105,27 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <details open><summary>Analyses in the paper (12)</summary>
       <table class="atab"><thead><tr><th>Analysis</th><th>Computes</th><th>&sect;</th><th>Paper status</th></tr></thead><tbody>
     <tr><td class="a-name">ELFO constellation model + Kepler phasing propagation</td><td class="a-comp">A representative elliptical lunar frozen orbit (sma 6142 km, e=0.6, i=57.7 deg, argp=90 deg for apolune over the south pole), with satellites propagated by Kepler phasing across planes/mean anomaly in MCI, rotated to MCMF.</td>
-    <td class="a-sec">Method (Constellation); Results Table 1</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method (Constellation); Results Table 1</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Visibility test: 5-deg elevation mask + lunar-limb occultation</td><td class="a-comp">A satellite is visible iff elevation &gt;= 5 deg mask and its line of sight is not occulted by the lunar limb (R=1737.4 km). For a surface user, elevation&gt;=0 already excludes below-limb satellites.</td>
-    <td class="a-sec">Method (Visibility and DOP)</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method (Visibility and DOP)</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Geometry matrix H and scalar GDOP</td><td class="a-comp">Forms H from unit LOS vectors augmented with a clock column; GDOP = sqrt(tr[(H^T H)^-1]).</td>
     <td class="a-sec">Method; Results (headline)</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Time-averaged availability + median GDOP at the pole</td><td class="a-comp">Time-average over one orbital cycle: availability = fraction of time with &gt;=4 visible satellites; median GDOP over the samples. GDOP tagged Validated, constellation tagged Modelled.</td>
     <td class="a-sec">Method; Results Table 1</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Satellite-count sweep (N=4..24)</td><td class="a-comp">Table 1: for N in {4,5,6,8,10,12,16,24} reports availability, median GDOP, and fraction of time below GDOP 6; shows median crosses 6 near N~12, non-monotonic bump at N=6.</td>
-    <td class="a-sec">Results (satellite-count cost); Table 1; Fig 1b</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Results (satellite-count cost); Table 1; Fig 1b</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
     <tr><td class="a-name">Spatial GDOP + availability map</td><td class="a-comp">GDOP and availability evaluated on a grid over -70 to -90 deg latitude and all longitudes, time-averaged, for a six-satellite constellation.</td>
-    <td class="a-sec">Method (Spatial map); Results; Fig 1a</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method (Spatial map); Results; Fig 1a</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
     <tr><td class="a-name">Surface-beacon (pseudolite) augmentation of H</td><td class="a-comp">Adds surface ranging beacons as extra ranging rows (near-horizon LOS with large horizontal components) to the geometry matrix H, conditioning the near-vertical satellite geometry.</td>
-    <td class="a-sec">Method (Beacon augmentation); Results Table 2</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method (Beacon augmentation); Results Table 2</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Surface-to-surface horizon-bounded visibility (airless body)</td><td class="a-comp">With no atmospheric refraction, surface-to-surface LOS is bounded by the geometric horizon set by beacon/user heights; a beacon at 50 km on 2 km terrain gives ~1.5 deg elevation while a flat-terrain beacon at 180 km falls below the horizon and contributes nothing.</td>
-    <td class="a-sec">Method; Results (beacon placement is horizon-bounded)</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method; Results (beacon placement is horizon-bounded)</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Beacon before/after GDOP table for -80 deg user</td><td class="a-comp">Table 2: 6-sat ELFO only -&gt; median GDOP 16.2, 15% time below 6; 6-sat ELFO + 3 beacons -&gt; median GDOP 1.6, 100% below 6 (factor ~10, better than a 24-sat fleet at 3.4).</td>
-    <td class="a-sec">Results Table 2; Fig 1c</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Results Table 2; Fig 1c</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
     <tr><td class="a-name">Beacon horizon range vs height (closed form)</td><td class="a-comp">Geometric horizon distance as a function of beacon and user height on a sphere of radius R (airless), used to justify 50 km ring on 2 km terrain vs 180 km flat.</td>
     <td class="a-sec">Results (horizon-bounded)</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr>
     <tr><td class="a-name">Figure 1 three-panel composite</td><td class="a-comp">(a) spatial median-GDOP map, (b) median GDOP vs N curve with planned-fleet band, (c) beacon before/after comparison.</td>
-    <td class="a-sec">Results; Fig 1</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Results; Fig 1</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
     <tr><td class="a-name">Reproducibility summary artifact</td><td class="a-comp">All figures/tables derive from a single committed summary table lunar_dop_summary.csv.</td>
     <td class="a-sec">Method (Reproducibility); Novelty</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr></tbody></table>
     </details>
@@ -1227,9 +1228,9 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <details open><summary>Analyses in the paper (11)</summary>
       <table class="atab"><thead><tr><th>Analysis</th><th>Computes</th><th>&sect;</th><th>Paper status</th></tr></thead><tbody>
     <tr><td class="a-name">Clock Allan-deviation forward model (three-term: white-FM tau^-1/2, flicker floor, random-walk tau^+1/2)</td><td class="a-comp">sigma_y^2(tau)=h_-2/tau + h_-1 + h_-4*tau, calibrated to published specs of 4 clocks (ground optical master, space PHM, RAFS, 500 g miniRAFS)</td>
-    <td class="a-sec">Method (Eq 2, Clocks paragraph)</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method (Eq 2, Clocks paragraph)</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Clock accumulated time error x_clock(tau)=sigma_y(tau)*tau</td><td class="a-comp">per-clock timing error at tau=1 day (e.g. PHM 0.995 ns, miniRAFS 151.238 ns, optical master 0.009 ns)</td>
-    <td class="a-sec">Method / Results Table 1</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method / Results Table 1</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Time-transfer link noise floors</td><td class="a-comp">RF Earth-Moon two-way (~1 ns class -&gt; 1.732 ns) and optical two-way (5-20 ps class -&gt; 0.035 ns) entered directly as x_link</td>
     <td class="a-sec">Method (Time-transfer links)</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr>
     <tr><td class="a-name">Frame/ephemeris light-time conversion x_frame=delta_r/c</td><td class="a-comp">real-time delta_r~15 m -&gt; 50.035 ns; post-processed delta_r~0.27 m -&gt; 0.901 ns</td>
@@ -1237,11 +1238,11 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <tr><td class="a-name">Deterministic relativistic scale terms</td><td class="a-comp">secular TCG-TCL drift ~1469 ns/day, lunar-time monopole term, topographic spread ~26 ns/day (shown for scale, not summed)</td>
     <td class="a-sec">Method (Deterministic relativistic terms)</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr>
     <tr><td class="a-name">Quadrature budget assembly (Eq 1)</td><td class="a-comp">x_Sigma(tau)=sqrt(sum_i x_i^2(tau)) over independent contributions</td>
-    <td class="a-sec">Method (Eq 1) / Results</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method (Eq 1) / Results</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Seven-term realization error budget table at tau=1 day</td><td class="a-comp">Table 1: 7 contributions sorted by magnitude with meets-1 ns column</td>
     <td class="a-sec">Results Table 1</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Figure 1 (Allan deviation curves of 4 clocks + link floors; sorted per-component timing-error bar chart vs 1 ns line)</td><td class="a-comp">visual budget: clock ADEV vs link floors (left), sorted timing errors vs requirement (right)</td>
-    <td class="a-sec">Results Figure 1</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Results Figure 1</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
     <tr><td class="a-name">1 ns requirement line and 1-5 ns robustness claim</td><td class="a-comp">comparison of each term against 1 ns; conclusion invariant across 1-5 ns band</td>
     <td class="a-sec">Method (Requirement line) / Results</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr>
     <tr><td class="a-name">Frame-not-clock conclusion and 50x real-time-vs-post-processed lever</td><td class="a-comp">identifies real-time frame/ephemeris (~50 ns) as dominant systematic; 50-fold gap to post-processed (0.9 ns)</td>
@@ -1341,17 +1342,17 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <tr><td class="a-name">Earth-Moon lever-arm relationship delta_r = D_EM*omega_earth*delta_UT1</td><td class="a-comp">Maps a UT1(-UTC) prediction error (seconds) to a transverse position error at the Moon (meters) and equivalent timing error (delta_r/c). Numeric anchor: 1 ms UT1 -&gt; ~28 m -&gt; ~94 ns. Constants: D_EM=384400 km, omega_earth=7.292115e-5 rad/s, c.</td>
     <td class="a-sec">Method / Sec. lever (eq. 2)</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Two-ended self-consistency check (Table 1)</td><td class="a-comp">Inverts the lever arm on the two published lunar frame budgets: 0.27 m -&gt; 0.010 ms UT1 (matches IERS final), 15 m -&gt; 0.535 ms UT1 (matches IERS ~5-day-predicted). Central claim that the real-time gap is an EOP-prediction gap.</td>
-    <td class="a-sec">Results Sec. 4.1 (Table 1)</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Results Sec. 4.1 (Table 1)</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Power-law EOP error-growth model delta_UT1 = a*h^p</td><td class="a-comp">Two-anchor power law in horizon h (days): calibrated to ~0.1 ms at 1 day and ~1.5 ms at 10 days, giving p~1.18. Converts a prediction horizon into a UT1 error.</td>
-    <td class="a-sec">Method Sec. 3.2</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method Sec. 3.2</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">RSS budget combination (UT1 + ephemeris + frame floor)</td><td class="a-comp">Real-time lunar position knowledge = root-sum-square of the mapped UT1 term, a secondary growing lunar-ephemeris-prediction term, and a sub-meter frame-realization floor (~0.2 m).</td>
-    <td class="a-sec">Method Sec. 3.2</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method Sec. 3.2</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Position/timing vs EOP prediction horizon (Table 2)</td><td class="a-comp">Table over horizons {final,1,2,5,10 days} of UT1 error, position at Moon, timing: e.g. 5 day -&gt; 0.66 ms -&gt; ~19 m -&gt; ~62 ns; 1 day -&gt; 0.10 ms -&gt; ~2.8 m -&gt; ~9.4 ns. Yields the headline ~5x (5-day to 1-day) gain.</td>
-    <td class="a-sec">Results Sec. 4.2 (Table 2)</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Results Sec. 4.2 (Table 2)</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Figure 1 two-panel chart</td><td class="a-comp">(a) UT1 prediction error vs horizon with the 15 m / ~0.5 ms / ~5-day point and IERS final floor marked; (b) real-time position knowledge at the Moon vs horizon with right-axis equivalent timing, annotating the ~5x gain.</td>
-    <td class="a-sec">Results Fig. 1</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Results Fig. 1</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
     <tr><td class="a-name">Committed reproducibility table realtime_frame_eop_table.csv</td><td class="a-comp">CSV from which all Table-1/Table-2 numbers reproduce, plus the stated lever-arm constants.</td>
-    <td class="a-sec">Method Sec. 3.2 (Reproducibility) / Availability</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method Sec. 3.2 (Reproducibility) / Availability</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
     <tr><td class="a-name">Input lunar frame budgets 15 m / 0.27 m and ~50 ns split</td><td class="a-comp">Real-time vs post-processed lunar reference-frame+ephemeris knowledge budgets taken from the companion lunar-time paper; the quantity being decomposed.</td>
     <td class="a-sec">Abstract / Intro / Related</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr>
     <tr><td class="a-name">IERS final and predicted UT1 accuracy regime</td><td class="a-comp">~0.01 ms final, sub-ms at a few days, ~ms at ~10 days: the independent accuracy figures the consistency check and the model are matched/calibrated to.</td>
@@ -1452,7 +1453,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <tr><td class="a-name">RF link-budget precision (S/Ka-band ranging &amp; timing)</td><td class="a-comp">Ranging precision ~1 m (S) / ~0.1 m (Ka) and timing precision ~1 ns / ~0.3 ns from a Friis link budget (Table 1)</td>
     <td class="a-sec">Sec 3.1 Method and results (Table 1)</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
     <tr><td class="a-name">Optical link precision (1550nm two-way ranging/timing + beam footprint)</td><td class="a-comp">~1 mm ranging, 5-20 ps timing, ~0.7 km beam footprint at the Moon (Table 1)</td>
-    <td class="a-sec">Sec 3.1 (Table 1)</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Sec 3.1 (Table 1)</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Optical availability model (single station)</td><td class="a-comp">~53% availability as clear-sky probability x pointing/acquisition factor (Table 2)</td>
     <td class="a-sec">Sec 3.2 (Table 2)</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
     <tr><td class="a-name">Optical availability with ground-station diversity</td><td class="a-comp">3-station ~87-91%, 5-station ~95%, 6-station ~96% via diversity combination with diminishing returns (Table 2, Fig 1b)</td>
@@ -1460,9 +1461,9 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <tr><td class="a-name">RF availability floor</td><td class="a-comp">&gt;99.5% weather-independent availability as the continuity baseline the optical network cannot reach</td>
     <td class="a-sec">Sec 3.2 (Table 2)</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr>
     <tr><td class="a-name">Figure 1a: ranging precision by modality (log scale)</td><td class="a-comp">Log-scale bar of optical mm vs RF meter/decimeter ranging precision</td>
-    <td class="a-sec">Sec 3.2 (Fig 1a)</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Sec 3.2 (Fig 1a)</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
     <tr><td class="a-name">Figure 1b: availability vs number of optical ground stations</td><td class="a-comp">Availability curve saturating near 95-96% vs the RF &gt;99.5% line</td>
-    <td class="a-sec">Sec 3.2 (Fig 1b)</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Sec 3.2 (Fig 1b)</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
     <tr><td class="a-name">Continuity via RF backstop (graceful degradation)</td><td class="a-comp">RF carries the solution during optical outage; precision degrades mm/ps -&gt; m/ns and back without loss of PNT</td>
     <td class="a-sec">Sec 3.3 item 1</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr>
     <tr><td class="a-name">Cross-modality integrity monitor (RAIM-like on modality diversity)</td><td class="a-comp">RF and optical solutions as independent measurements of one geometry; disagreement beyond a modeled threshold flags a fault (spoof/clock-jump/terminal failure)</td>
@@ -1565,7 +1566,7 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <details open><summary>Analyses in the paper (10)</summary>
       <table class="atab"><thead><tr><th>Analysis</th><th>Computes</th><th>&sect;</th><th>Paper status</th></tr></thead><tbody>
     <tr><td class="a-name">CR3BP dynamics, RK4 propagation, and collinear libration points (L1/L2)</td><td class="a-comp">Earth-Moon CR3BP acceleration with mu=0.01215 in the rotating frame, RK4 trajectory integration, Jacobi constant, and L1 (~321,700 km) / L2 (~444,200 km) from the quintic collinear condition</td>
-    <td class="a-sec">Method 3.1 Dynamics</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method 3.1 Dynamics</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">DRO constellation seeding by initial-condition scan (4 planar DROs, perilune ~11,500 to ~46,000 km)</td><td class="a-comp">Four bounded planar distant-retrograde orbits (one user, three ranging beacons) forming a self-contained inter-satellite-ranging cislunar constellation</td>
     <td class="a-sec">Method 3.2 Constellation; Fig 1a</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
     <tr><td class="a-name">Instantaneous inter-satellite ranging Jacobian rank = 1 of 4</td><td class="a-comp">Range measurement Jacobian H for user state s=[x,y,vx,vy] with identically-zero velocity columns; instantaneous stack of 3 ranges has rank 1 of the 4 needed</td>
@@ -1573,17 +1574,17 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <tr><td class="a-name">Instantaneous position-only GDOP is singular/undefined for the DRO geometry</td><td class="a-comp">GDOP from instantaneous range directions; shown singular (not merely large) because velocity is unobservable and beacon position rows are near-collinear</td>
     <td class="a-sec">Results 4.1</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr>
     <tr><td class="a-name">CR3BP state-transition matrix Phi(t) via gravity-gradient Jacobian</td><td class="a-comp">Linearized STM propagated along the user orbit from the CR3BP gravity-gradient Jacobian (paper uses first-order propagation)</td>
-    <td class="a-sec">Method 3.3 Observability analysis</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method 3.3 Observability analysis</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Observability matrix O = stack[H(t_k)Phi(t_k)] and rank versus tracking-arc length</td><td class="a-comp">Observable state dimension as a function of arc: rank 1 (instantaneous and ~19 min), 3 (~38 min), 4/full (~56 min, order one hour)</td>
     <td class="a-sec">Results 4.2; Table 1; Fig 1b</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Observability Gramian W = sum_k Phi^T H^T H Phi dt and its conditioning</td><td class="a-comp">Gramian conditioning (extreme-eigenvalue spread over many orders of magnitude); reported qualitatively as intrinsically ill-conditioned, no single condition number claimed</td>
     <td class="a-sec">Results 4.3; Discussion 5.1</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr>
     <tr><td class="a-name">Committed reproducibility table cislunar_observability_table.csv</td><td class="a-comp">Machine-committed table from which the rank-vs-arc numbers reproduce</td>
-    <td class="a-sec">Method 3.3; Novelty &amp; verification</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Method 3.3; Novelty &amp; verification</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
     <tr><td class="a-name">Design-lever claim: range-rate/Doppler injects velocity information and can restore instantaneous observability</td><td class="a-comp">Assertion that adding a range-rate/Doppler observable makes velocity columns nonzero and collapses the required arc</td>
     <td class="a-sec">Discussion 5.2</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr>
     <tr><td class="a-name">Figure 1 (constellation in rotating frame + observable-rank-versus-arc)</td><td class="a-comp">Two-panel figure: DRO constellation geometry in the Earth-Moon rotating frame and the rank transition curve</td>
-    <td class="a-sec">Results; Fig 1</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr></tbody></table>
+    <td class="a-sec">Results; Fig 1</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr></tbody></table>
     </details>
     <details><summary>Capabilities already in Kshana (10)</summary>
       <ul class="caps">
@@ -1691,13 +1692,13 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <tr><td class="a-name">Inverse-variance fusion of heterogeneous layers</td><td class="a-comp">Fused 1σ = (Σ_i 1/a_i²)^(-1/2), the standard independent-measurement result; combines the standalone accuracies of surviving layers into a single fused position error.</td>
     <td class="a-sec">Model §3.2</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Multi-vector Monte-Carlo threat simulation</td><td class="a-comp">20000 trials/point; each layer denied with probability vulnerability_i × intensity × vector-weight; threat intensity swept 0→2; usable PNT defined as fused error &lt;10 m; total loss = no layer surviving. Seeded/reproducible.</td>
-    <td class="a-sec">Model §3.2</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Model §3.2</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Total-loss probability vs threat intensity (4/3/2-layer)</td><td class="a-comp">Table 2 / Fig 1b: P(total loss) at intensity 0,0.5,1.0,1.5,2.0 for four-layer (0.00,0.017,0.104,0.240,0.374) vs two-layer (0.005,0.385,0.721,0.921,1.000); headline ~7x reduction at full contest; three-layer intermediate curve.</td>
     <td class="a-sec">Results §4.1 (Table 2, Fig 1b)</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Median fused position error vs threat intensity</td><td class="a-comp">Fig 1a: median fused position error as a function of intensity; four-layer holds sub-10 m through moderate contest then falls back to ~25 m onboard-only floor (graceful degradation).</td>
     <td class="a-sec">Results §4.1 (Fig 1a)</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Per-vector graceful-degradation / usable-PNT survival curves</td><td class="a-comp">§4.2: probability of usable PNT under a single adversary vector at fixed intensity — broadband jam ~0.50, spoofing ~0.70, cyber/kinetic ~0.80 — reported per vector rather than aggregated (jam sharpest).</td>
-    <td class="a-sec">Results §4.2</td><td class="a-st"><span class="vtag v-mod">Modelled</span></td></tr>
+    <td class="a-sec">Results §4.2</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Layer-contribution ranking (un-jammable layer decisive)</td><td class="a-comp">Qualitative ranking that the self-contained inertial/TRN layer is the dominant catastrophic-risk reducer (no RF attack denies it, turns total loss into graceful fallback), robust to reasonable parameter changes.</td>
     <td class="a-sec">Results §4.2 / Novelty</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">conflict_resilience_table.csv reproducibility artifact</td><td class="a-comp">Committed CSV from which all headline numbers reproduce deterministically.</td>

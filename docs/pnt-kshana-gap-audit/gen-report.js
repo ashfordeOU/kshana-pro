@@ -99,7 +99,7 @@ const ledgerRows = ledger.map(g => `
   </tr>`).join('\n');
 
 const stTag = (s) => {
-  const c = s === 'Validated' ? 'v-val' : (s === 'Modelled' ? 'v-mod' : 'v-imp');
+  const c = s === 'Validated' ? 'v-val' : (s === 'Reproducible' ? 'v-repro' : (s === 'Modelled' ? 'v-mod' : 'v-imp'));
   return `<span class="vtag ${c}">${esc(s)}</span>`;
 };
 const paperSections = perPaper.map(p => {
@@ -243,6 +243,7 @@ table.atab td{padding:6px;border-bottom:1px solid var(--line2);color:var(--muted
 .v-val{background:rgba(95,191,143,.14);color:var(--ok);border:1px solid rgba(95,191,143,.4)}
 .v-mod{background:rgba(217,164,65,.12);color:var(--wip);border:1px solid rgba(217,164,65,.4)}
 .v-imp{background:rgba(224,101,79,.12);color:#f0917d;border:1px solid rgba(224,101,79,.4)}
+.v-repro{background:rgba(90,150,225,.14);color:#8fb8f0;border:1px solid rgba(90,150,225,.42)}
 .caps{list-style:none;padding:0;margin:6px 0}
 .caps li{font-size:12.5px;padding:4px 0;color:var(--muted);border-bottom:1px solid var(--line2)}
 .cap-ok{color:var(--ok);font-weight:700}.cap-mod{font-family:Menlo,monospace;color:var(--gold2);font-size:11px}
