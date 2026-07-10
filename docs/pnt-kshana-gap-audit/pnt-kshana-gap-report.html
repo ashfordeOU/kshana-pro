@@ -1113,15 +1113,15 @@ footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line2);color:
     <tr><td class="a-name">Time-averaged availability + median GDOP at the pole</td><td class="a-comp">Time-average over one orbital cycle: availability = fraction of time with &gt;=4 visible satellites; median GDOP over the samples. GDOP tagged Validated, constellation tagged Modelled.</td>
     <td class="a-sec">Method; Results Table 1</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Satellite-count sweep (N=4..24)</td><td class="a-comp">Table 1: for N in {4,5,6,8,10,12,16,24} reports availability, median GDOP, and fraction of time below GDOP 6; shows median crosses 6 near N~12, non-monotonic bump at N=6.</td>
-    <td class="a-sec">Results (satellite-count cost); Table 1; Fig 1b</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
+    <td class="a-sec">Results (satellite-count cost); Table 1; Fig 1b</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Spatial GDOP + availability map</td><td class="a-comp">GDOP and availability evaluated on a grid over -70 to -90 deg latitude and all longitudes, time-averaged, for a six-satellite constellation.</td>
-    <td class="a-sec">Method (Spatial map); Results; Fig 1a</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
+    <td class="a-sec">Method (Spatial map); Results; Fig 1a</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Surface-beacon (pseudolite) augmentation of H</td><td class="a-comp">Adds surface ranging beacons as extra ranging rows (near-horizon LOS with large horizontal components) to the geometry matrix H, conditioning the near-vertical satellite geometry.</td>
     <td class="a-sec">Method (Beacon augmentation); Results Table 2</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Surface-to-surface horizon-bounded visibility (airless body)</td><td class="a-comp">With no atmospheric refraction, surface-to-surface LOS is bounded by the geometric horizon set by beacon/user heights; a beacon at 50 km on 2 km terrain gives ~1.5 deg elevation while a flat-terrain beacon at 180 km falls below the horizon and contributes nothing.</td>
     <td class="a-sec">Method; Results (beacon placement is horizon-bounded)</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Beacon before/after GDOP table for -80 deg user</td><td class="a-comp">Table 2: 6-sat ELFO only -&gt; median GDOP 16.2, 15% time below 6; 6-sat ELFO + 3 beacons -&gt; median GDOP 1.6, 100% below 6 (factor ~10, better than a 24-sat fleet at 3.4).</td>
-    <td class="a-sec">Results Table 2; Fig 1c</td><td class="a-st"><span class="vtag v-repro">Reproducible</span></td></tr>
+    <td class="a-sec">Results Table 2; Fig 1c</td><td class="a-st"><span class="vtag v-val">Validated</span></td></tr>
     <tr><td class="a-name">Beacon horizon range vs height (closed form)</td><td class="a-comp">Geometric horizon distance as a function of beacon and user height on a sphere of radius R (airless), used to justify 50 km ring on 2 km terrain vs 180 km flat.</td>
     <td class="a-sec">Results (horizon-bounded)</td><td class="a-st"><span class="vtag v-imp">Imported/asserted</span></td></tr>
     <tr><td class="a-name">Figure 1 three-panel composite</td><td class="a-comp">(a) spatial median-GDOP map, (b) median GDOP vs N curve with planned-fleet band, (c) beacon before/after comparison.</td>
