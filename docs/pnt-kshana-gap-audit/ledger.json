@@ -345,13 +345,13 @@
           "name": "Satellite-count sweep (N=4..24)",
           "computes": "Table 1: for N in {4,5,6,8,10,12,16,24} reports availability, median GDOP, and fraction of time below GDOP 6; shows median crosses 6 near N~12, non-monotonic bump at N=6.",
           "paper_section": "Results (satellite-count cost); Table 1; Fig 1b",
-          "status_in_paper": "Reproducible"
+          "status_in_paper": "Validated"
         },
         {
           "name": "Spatial GDOP + availability map",
           "computes": "GDOP and availability evaluated on a grid over -70 to -90 deg latitude and all longitudes, time-averaged, for a six-satellite constellation.",
           "paper_section": "Method (Spatial map); Results; Fig 1a",
-          "status_in_paper": "Reproducible"
+          "status_in_paper": "Validated"
         },
         {
           "name": "Surface-beacon (pseudolite) augmentation of H",
@@ -369,7 +369,7 @@
           "name": "Beacon before/after GDOP table for -80 deg user",
           "computes": "Table 2: 6-sat ELFO only -> median GDOP 16.2, 15% time below 6; 6-sat ELFO + 3 beacons -> median GDOP 1.6, 100% below 6 (factor ~10, better than a 24-sat fleet at 3.4).",
           "paper_section": "Results Table 2; Fig 1c",
-          "status_in_paper": "Reproducible"
+          "status_in_paper": "Validated"
         },
         {
           "name": "Beacon horizon range vs height (closed form)",
