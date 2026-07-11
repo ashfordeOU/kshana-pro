@@ -1295,9 +1295,7 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/papers/cislunar-observability/cislunar_observability_table.csv"
         ))
-        .expect(
-            "committed cislunar_observability_table.csv must exist (run emit_paper_artifacts)",
-        );
+        .expect("committed cislunar_observability_table.csv must exist (run emit_paper_artifacts)");
         assert_eq!(
             fresh, committed,
             "committed cislunar_observability_table.csv drifted from regeneration"
