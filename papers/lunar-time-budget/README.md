@@ -8,6 +8,23 @@ the growing clock term overtakes the constant real-time frame-realisation term �
 honest answer to the *"you picked the averaging time that flatters your clock"* single-τ
 artifact.
 
+## Manuscript (`main.tex`)
+
+`main.tex` is the **academic manuscript** — *"A User-Level Error Budget for
+Realizing Coordinated Lunar Time: Frame-Realization versus Clock-Stability
+Contributions"* (IEEEtran two-column, `tectonic main.tex` → 4 pp). It is a neutral,
+results-first reframe of the arXiv-declined branded report *"Realizing Coordinated
+Lunar Time at a User Is Frame-Limited, Not Clock-Limited"*: the declarative-thesis
+title and the branded-report form (`report.pdf`, Ashforde cover + MODELLED banner)
+read as a position/technical report rather than a neutral research article. **Content
+and every number are unchanged**; the framing is academic — graded-strength
+contributions, per-term Validated/Modelled provenance, and an explicit *Limitations
+and honesty boundary* section — matching the four accepted arXiv papers in this
+program. `figures/make_figures.py` reads the committed `lunar_time_budget.csv` and
+regenerates Figure 1 as a PDF (sorted budget bars + τ-sweep crossover), printing the
+crossover cross-check (`τ*≈1.006 d`, `x*≈1.001 ns`). Table 1 uses the committed P3
+budget values `0.009/0.035/0.901/0.995/1.732/50.035/151.238 ns`.
+
 ## Files (regenerated deterministically; do not hand-edit)
 
 | File | What it is |
