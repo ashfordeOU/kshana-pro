@@ -1,9 +1,0 @@
-# kshana-pro optical/RF hybrid study (L51) — P5 Table 2: N-station optical availability
-# scenario_hash=69b31f6566a5 single_site_mean=5.281200e-1 independent_union=9.766786e-1 correlated_union=9.633879e-1 correlation=1.500000e-1
-# provenance: independent-union = 1 - prod(1 - a_i) is a Validated closed form; the per-site a_i and rho are Modelled climatology
-n_sites,availability_independent,availability_correlated,provenance
-1,5.301000e-1,5.301000e-1,Modelled
-2,7.884980e-1,7.623620e-1,Modelled
-3,8.985213e-1,8.724333e-1,Modelled
-4,9.533198e-1,9.341046e-1,Modelled
-5,9.766786e-1,9.633879e-1,Modelled
