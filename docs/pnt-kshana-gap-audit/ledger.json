@@ -171,8 +171,8 @@
           "suggested_location": "new src/spoof_capture.rs composing sdr::{synth_if,track,correlate}; expose a 'spoof-capture' scenario in api.rs; regression under tests/",
           "effort": "L",
           "validation_oracle": "TEXBAT/OAKBAT raw-IF spoofing records via realdata/iqif + tests/spoof_texbat_validation.rs (capture outcome vs measured lock), and the closed-form DLL/PLL pull-in range from Kaplan & Hegarty ch.8/ch.14 as an analytic cross-check.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "Confirmed primitives present but no capture analysis. src/sdr.rs has synth_if (l264, single-signal IF: one code/carrier/amp), correlate (l237), track (l463, takes a single &[Cf64] IQ block). src/spoof_detect.rs exposes power_advantage_db (l76) and carrier_aligned (l79) but run_spoof_detect (l189) computes measured_dbm = floor + power_advantage_db (l222) and applies static AGC/SQM/RAIM thresholds — it never runs a two-signal composite IF through a tracking loop to compute pull-in vs lock time. No src/spoof_capture.rs (ls src grep capture empty). synth_if generates only one signal so there is no authentic+spoofer superposition path today. Genuine upgrade gap."
+          "verify_verdict": "resolved",
+          "verify_evidence": "RESOLVED (local, unpushed 2026-07-12): src/spoof_capture.rs already models tracking-loop pull-in (capture_map + Kaplan&Hegarty DLL/PLL pull-in oracle, cross-validated bit-for-bit vs sdr::track). Added the genuine 3rd carrier-offset axis (capture_cube: J/S x code-offset x carrier-offset with lock-time as the per-cell output; the 0-Hz slice EXACTLY reduces to capture_map; far carrier offsets deny capture via the sinc(pi.df.T) coherent-integration null). Now binary-reachable via the new 'lunar-attack-surface' scenario (api.rs enum+classify+dispatch + scenarios/lunar-attack-surface.toml + round-trip test). 12 tests green."
         },
         {
           "id": "G2",
@@ -186,8 +186,8 @@
           "suggested_location": "new src/antenna.rs (transmit pattern gain vs off-boresight angle) + a footprint analysis composing lunar_service selenographic grid with linkbudget/jamming J/S; extend moonlight-service-volume or add 'orbital-footprint' scenario",
           "effort": "M",
           "validation_oracle": "Closed-form parabolic-aperture pattern (Airy/sinc-Bessel) beamwidth and first-null vs analytic aperture theory; footprint edge cross-checked against eo_payload spherical-cap central-angle geometry (grazing = zero-elevation tangent).",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "No transmit antenna-pattern module: grep for boresight|antenna_pattern|parabolic|beamwidth|off_boresight|sinc|airy|itu across src/ found only unrelated hits (chart tick, gravimeter lat scale). crpa.rs array_response (l141) is phased-array steering/response, not an aperture boresight pattern. jamming.rs rx_antenna_gain_db (l164) is a receive-side elevation gain only. lunar_service.rs has the selenographic coverage grid (coverage l300 over grid_points_selenographic, selenographic_to_mcmf, visible_sats l203) and eo_payload.rs has earth_central_angle (l47) for limb geometry — but nothing composes a per-point J/S footprint weighted by a transmit pattern. Confirmed the grid+gain primitives exist but the pattern module and footprint composition are missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "RESOLVED (local, unpushed 2026-07-12): src/antenna.rs uniform-aperture Airy pattern G0.[2 J1(x)/x]^2 (validated vs Abramowitz&Stegun Bessel J1 published values) + capture_footprint with grazing geometry acos(R/(R+h)); a sub-hemispheric cap whose limb is NOT captured. Now binary-reachable via the composed 'lunar-attack-surface' scenario (footprint_captured_fraction + limb in JSON + round-trip test). 4 tests green."
         },
         {
           "id": "G3",
@@ -201,8 +201,8 @@
           "suggested_location": "extend src/security.rs (or new src/nma_budget.rs) with a nav-message-authentication overhead/latency function; wrap in a kshana-pro pack for the paper deliverable",
           "effort": "M",
           "validation_oracle": "Published Galileo OSNMA SIS ICD numbers (TESLA key length, MAC size, HKROOT/MACK bit rates, disclosure delay) reproduced as the terrestrial cross-check before applying to AFS.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "grep -rniE 'osnma|tesla|nma|nav.*auth|message.*auth|hkroot|mack|key.*disclos|mac.*tag' over src/ returned only false positives (gravimeter 'nmax' Legendre variables). security.rs exposes only monitor_sigma_s (l66), min_detectable_offset_ns (l74), spoof_detection_score (l90) — no message-authentication overhead/latency machinery. No nma_budget.rs. Genuinely missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "RESOLVED + OVERCLAIM CORRECTED (local, unpushed 2026-07-12): the OSNMA field sizing had the per-PAGE portions (8 HKROOT + 32 MACK per 2 s page) mislabeled as per-subframe -> 1.333 bit/s (15x too low). Corrected to the published SIS-ICD per-30 s-subframe totals HKROOT 120 + MACK 480 = 600 bit / 30 s = 20 bit/s (confirmed vs GSC Galileo OSNMA SIS-ICD v1.1 + gnss-sdr.org/osnma). The 'fits the AFS budget (<5%)' verdict was FALSE; the honest sized result is 20/50 = 40% first-order overhead. auth_latency relabeled as the key-disclosure lower bound on time-to-first-authenticated-fix. src/nma_budget.rs + kshana-pro pack + tests updated."
         },
         {
           "id": "G4",
@@ -216,8 +216,8 @@
           "suggested_location": "kshana-pro/papers/lunar-signal-security/ + src/packs/lunar_signal_security_pack.rs (or pro_study entry)",
           "effort": "M",
           "validation_oracle": "Headline numbers cross-checked against the public linkbudget/jamming closed-form unit tests and an independent recomputation of -140.6 dBW / 15.6 dB / 0.022 mW@1km.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "papers/ dir listing has 11 paper dirs, none named lunar-signal-security or attack-surface. src/packs/ has batch_pack, detector_intake, mbse_pack, optimism_gap_audit, quantum_systematics_pack, seam_check, trade_study_pack, twin_pack — no lunar_signal_security_pack. grep 'unauthenticated|augmented forward signal|lunar.signal.security' in pro hit only the lunar-pnt paper's AFS citation (a different paper). No pack/study reproduces this paper's Table 1 / Fig 1a/1b. Confirmed missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "RESOLVED (functional): kshana-pro src/packs/lunar_signal_security_pack.rs composes all P1 analyses (Table 1, Fig 1a/1b, the DERIVED deficit band, NMA budget), registered + dispatch-reachable via pro_registry, with independent-recompute tests (-140.6 dBW / 15.6 dB / 0.022 mW@1km reimplemented from first principles). NOTE: a committed papers/lunar-signal-security/ artifact directory (CSV/SVG/branded PDF) is a founder-gated paper deliverable, deliberately not generated here (papers/ is founder territory)."
         },
         {
           "id": "G5",
@@ -231,8 +231,8 @@
           "suggested_location": "add required_tx_power_dbw to src/jamming.rs + a 'spoof-jam-standoff' scenario in api.rs",
           "effort": "S",
           "validation_oracle": "Round-trip closed-form inversion cross-checked against j_over_s_db (feed the solved P_tx back, recover the target J/S), plus TEXBAT power-advantage figures.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "jamming.rs has the forward primitives j_over_s_db (l101), free_space_path_loss_db (l88) but grep -niE 'tx_power|required_tx|standoff|inverse' in jamming.rs returned nothing — there is no required_tx_power_dbw inverse solver and no spoof-jam-standoff scenario. The forward J/S exists; the inverse P_tx(d) for a target J/S plus its runnable scenario are missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "RESOLVED (local, unpushed 2026-07-12): jamming::required_tx_power_dbw inverse solver + round-trip oracle test (feed the solved P_tx back, recover the target J/S) already present. Now binary-reachable via the 'lunar-attack-surface' standoff curve: required transmit power to spoof (J/S=3 dB) and to deny (J/S=30 dB) vs standoff, emitted in the scenario JSON + covered by its round-trip test."
         },
         {
           "id": "G6",
@@ -246,8 +246,8 @@
           "suggested_location": "add horizon_distance(radius_m, height_m) to src/lunar.rs (or a geometry helper) + expose in the attack-surface scenario",
           "effort": "S",
           "validation_oracle": "Cross-check against the exact spherical-tangent geometry (eo_payload earth_central_angle at zero elevation) reduced to the lunar radius; closed-form identity.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "grep 'horizon|d_hor|sqrt.*2.*r.*h|central_angle' over lunar.rs/eo_payload.rs/lunar_service.rs: eo_payload.rs has earth_central_angle (l47) — a satellite-altitude coverage half-angle, not the mast-horizon d_hor=sqrt(2Rh+h^2). lunar_service.rs 'horizon' hits are the visibility local-horizon plane (l193-197) and horizon_hours time window (l446/l510), not a geometric line-of-sight distance helper. No horizon_distance(radius_m,height_m) named function anywhere. Primitive geometry exists to cross-check but the named helper and scenario field are missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "RESOLVED (local, unpushed 2026-07-12): lunar::horizon_los_distance_m / horizon_ground_range_m; ADDED the named oracle cross-check test horizon_ground_range_matches_eo_payload_zero_elevation_geometry, verifying the helper equals eo_payload::earth_central_angle at zero elevation (both encode lambda_max = acos(R/(R+h)) = pi/2 - asin(R/(R+h))) and reduces to the lunar radius. Reachable via the scenario's surface_transmitter_reach."
         },
         {
           "id": "G7",
@@ -261,8 +261,8 @@
           "suggested_location": "sweep over LinkParams via src/sweep.rs; aggregate in the kshana-pro lunar-signal-security pack (G4)",
           "effort": "S",
           "validation_oracle": "Monotone closed-form dB arithmetic (each input moves the deficit by its own dB); band endpoints checked against the paper's -125/-128.5 dBW inputs.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "sweep.rs provides the generic engine: run_sweep (l100), nd_sweep (l286), nd_sweep_ensemble (l359, with CI), run_generic_sweep (l660) — multi-axis capable. But grep 'deficit|12.*18|link.*sweep|prx.*deficit' across src/ found no link-budget deficit study, and LinkParams (linkbudget.rs l78) is not referenced by sweep.rs. The sweep engine exists but is not wired to LinkParams for the 12-18 dB deficit-band study. Genuine wiring gap."
+          "verify_verdict": "resolved",
+          "verify_evidence": "RESOLVED (local, unpushed 2026-07-12): built linkbudget::deficit_sensitivity_band -- a GENUINE multi-axis sweep (GPS reference x EIRP x slant range) over sweep::SweepAxis, evaluated through received_signal_power_dbw, reproducing the 12-18 dB band off the -125/-128.5 dBW inputs, plus deficit_power_factor reconciling the 32x(rounded, 15 dB) vs 36x(unrounded, 15.6 dB) figures. The kshana-pro pack band is now DERIVED from the sweep (was a static 12/18 dB config constant, retagged Validated). 3 new public tests + pro test green."
         },
         {
           "id": "G8",
@@ -276,8 +276,8 @@
           "suggested_location": "new analysis composing src/fusion/tightly_coupled.rs, src/altpnt/terrain.rs, src/spoof.rs; reuse tpl.rs bound machinery",
           "effort": "M",
           "validation_oracle": "Cross-check against the tpl.rs / baweja2026tpl closed-form time-error bound and reference INS drift specs (e.g., published IMU bias/random-walk) as the noise oracle.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "Primitives exist: fusion/tightly_coupled.rs (KF with pseudorange l49, range_rate l55, propagate/update_gnss, position_error l174), altpnt/terrain.rs (run_terrain_nav l374, run_combined_altpnt l577), and tpl.rs bound machinery (timing_protection_level_ns l67, cusum l108, cusum_latency_s l155). But tpl.rs is timing/clock-domain only; grep 'spoof.*walk|walk.*rate|minimum detectable spoof|divergence rate' found no position-domain minimum-detectable-spoof-walk analysis composing IMU+TRN noise. The cross-sensor position-walk detection bound is missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "RESOLVED (verified genuinely done): src/cross_sensor_integrity.rs min_detectable_position_walk composes the IMU free-inertial coast (Groves 2013 closed form, published HG9900 vs tactical-MEMS specs) + TRN fix against a spoof walk, with a forward/inverse detection.rs analytic_pd cross-check and the tpl.rs/security time-error floor as oracles. 12 analytic-oracle-backed tests; adversarial refute found no gap. No scenario was demanded (core-analysis)."
         },
         {
           "id": "G9",
@@ -291,8 +291,8 @@
           "suggested_location": "kshana-pro report_brand / a chart routine in the lunar-signal-security pack (G4); reuse mcda/ for attribute structuring",
           "effort": "S",
           "validation_oracle": "Numeric cells cross-checked against analyses A1-A3 (linkbudget/jamming closed forms); qualitative cells are asserted with explicit Modelled tags (no external oracle).",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "grep 'radar|comparison figure|lunar.*terrestrial|six.attribute' over kshana-pro/src returned nothing. report_brand.rs exposes only seal_img_html (l41), cover_html (l66), modelled_banner_html (l97) — no six-attribute lunar-vs-terrestrial comparison/radar/matrix generator. No such routine in any pack. Confirmed missing (deliverable-side, kshana-pro)."
+          "verify_verdict": "resolved",
+          "verify_evidence": "RESOLVED (verified genuinely done): kshana-pro fig1b_svg/fig1b_rows render the six-attribute lunar-vs-terrestrial matrix (no collapsed score), numeric cells derived from the composed G1-G5 closed forms (Validated) and qualitative cells Modelled-tagged, reachable via pro_registry and cross-checked against a first-principles reimplementation + published P1 anchors. Adversarial refute found no gap."
         },
         {
           "id": "G10",
@@ -306,8 +306,8 @@
           "suggested_location": "analysis composing src/spoof_monitors.rs + lunar_service coverage grid; reuse detection.rs Pd/Pfa",
           "effort": "M",
           "validation_oracle": "Detection-theory closed form (detection.rs chi2/Marcum-Q Pd at fixed Pfa) as the analytic cross-check for the network detection probability.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "Primitives exist: spoof_monitors.rs has AgcMonitor (l49), SqmMonitor (l94), parity_raim_test (l155), fuse_spoof_layers (l240), CombinedSpoofDetector (l286); detection.rs has analytic_pd (l161), analytic_pmd (l155), chi2_1_threshold (l129), monte_carlo_pfa_pmd (l168). But these are single-receiver detectors. grep 'monitor.*network|sparse.*monitor|network.*detect' found nothing — no analysis composing a sparse surveyed-monitor set over the lunar_service coverage grid to compute detection-probability-vs-monitor-count for an orbital-scale attack. Network composition missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "RESOLVED + COMPOSITION CORRECTED (local, unpushed 2026-07-12): src/monitor_network.rs reworked to GENUINELY compose (a) spoof_monitors (AgcMonitor::excess_db + combine_power_dbm derive each station's mu from a physical spoof-power event, no longer a free parameter) and (b) lunar_service (visible_sat_positions + selenographic_to_mcmf gate visibility, replacing the ad-hoc great-circle two-disk overlap), keeping (c) detection.rs Pd/Pfa. Network Pd = 1 - prod(1-Pd_i) over observing stations. 7 oracle-backed tests; full lib suite green."
         }
       ],
       "false_gaps_removed": []
@@ -483,8 +483,8 @@
           "suggested_location": "kshana/src/lunar_beacon.rs (new) or extend lunar_service.rs; reuse orbit.rs sigma->position_sigma pattern",
           "effort": "M",
           "validation_oracle": "Closed-form error propagation: sigma_pos = DOP x sigma_UERE with sigma_UERE = RSS(clock, multipath, position) checked against a hand-worked reference GNSS UERE budget table (Kaplan & Hegarty 2017, error-budget chapter); component RSS is a uniquely-defined closed form -> Validated.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "orbit.rs:862-915 provides sigma_uere_m as a single lumped constant and the sigma->position mapping (best/median_position_sigma_m = pdop * sigma_uere_m). lunar_service.rs:386 uses LUNAR_SIGMA_URE_M as one scalar. No RSS composer of clock/multipath/beacon-position components exists (grep 'multipath|survey|clock.*sync|RSS' in lunar_service/orbit returns nothing beacon-related). The sigma->position pattern EXISTS to reuse; the per-component beacon UERE budget composer is MISSING."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/lunar_beacon.rs:84-104 BeaconErrorBudget{clock_sync_m,multipath_m,survey_m}.sigma_ure_m() = sqrt(clock^2+multipath^2+survey^2) (RSS); src/lunar_beacon.rs:106-129 realized_accuracy(&Dop,sigma_ure) maps PDOP/HDOP/VDOP/TDOP -> metres via sigma=DOP*sigma_URE. Exported at src/lib.rs:86. Closed-form oracle tests: beacon_error_budget_rss_is_closed_form (lunar_beacon.rs:174-184, hand value sqrt(5.25)=2.29128784) and realized_accuracy_is_dop_times_uere (lunar_beacon.rs:187-203). This is the Kaplan & Hegarty UERE-budget RSS + DOP*UERE relation, an independent closed-form derivation (not the same code recomputed). Module header lunar_beacon.rs:16-22 honestly labels components Modelled.  [honesty: The RSS mechanism and sigma=DOP*sigma_URE relation are Validated (closed form). The specific component magnitudes (clock_sync_m/multipath_m/survey_m) are representative design assumptions and should stay honestly Modelled — the module header already states this; do not overclaim any headline metres figure as an externally-derived value.]"
         },
         {
           "id": "P2-G2",
@@ -498,8 +498,8 @@
           "suggested_location": "kshana/src/lunar_service.rs (new fns) or lunar_beacon.rs; reuse orbit::dop and selenographic_to_mcmf alt_m",
           "effort": "M",
           "validation_oracle": "Closed-form spherical geometric-horizon distance sqrt(2Rh) (and the elevation-angle of a raised beacon) is a uniquely-defined geometric identity -> Validated; DOP assembly inherits the gnss_lib_py/NumPy-validated orbit::dop kernel.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "orbit.rs:631 dop(user, sats: &[Vec3]) accepts arbitrary Vec3 ranging sources (the reusable kernel EXISTS, HDOP/VDOP already in Dop struct at orbit.rs:616-623). But grep for 'horizon_range|geometric_horizon|sqrt(2*R*h)|surface_to_surface' across src returns no such helper; grep 'dop_with_beacon|augmented.dop|beacon.*dop' returns nothing. lunar.rs:373 lunar_coverage_grid masks satellites only, no beacon rows. The horizon helper, surface-to-surface visibility predicate, and dop_with_beacons entry point are all MISSING."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/lunar_beacon.rs:48-52 beacon_visible uses two-height geometric horizon surface_los_max_m(R_MOON_M,h_u,h_b) (airless Moon, exact, reusing L01 crate::lunar::surface_los_max_m); heights via height_above_sphere_m (lunar_beacon.rs:40-42). First-class beacon-augmented DOP: dop_with_beacons (lunar_beacon.rs:71-80) concatenates visible_sat_positions rows with visible_beacons rows through the validated crate::orbit::dop kernel. Exported at src/lib.rs:86. INDEPENDENT numpy oracle: tests/validate_p2_beacon_before_after_independent_dop.rs checks before/after GDOP/HDOP/VDOP and ratio against fixtures/p2_independent_dop/beacon_before_after_reference.csv generated by gen_p2_independent_dop.py using np.linalg.inv (HtH)^-1 (a different code path from Kshana's Gauss-Jordan). Internal geometry tests at lunar_beacon.rs:206-287.  [honesty: The geometric-horizon distance and DOP assembly are Validated; the specific constellation/beacon placement fed in is a Modelled scenario input (the independent test itself validates only the ratio/mechanism for the public geometry, honestly separate from the pro-harness 16.2->1.6 magnitude).]"
         },
         {
           "id": "P2-G3",
@@ -513,8 +513,8 @@
           "suggested_location": "kshana-pro/src/packs/ (new beacon_dop_pack.rs) + kshana-pro/papers/surface-beacon-dop/; reuse trade_study_pack.rs sweep pattern",
           "effort": "L",
           "validation_oracle": "Per-configuration DOP is Validated (gnss_lib_py/NumPy kernel); bootstrap CIs are an internal-consistency statistic (Modelled) but each point estimate is Validated, and the sweep is reproducible from the committed CSV.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "kshana-pro/src/packs/ contains batch/detector_intake/mbse/optimism_gap_audit/quantum_systematics/seam_check/trade_study/twin packs only; no beacon or dop pack. grep 'beacon|dop_summary|gdop' across pro src/papers returns nothing (only lunar_vlbi references elsewhere). trade_study_pack.rs (247 lines) is a generic ranked-variant trade study with no latitude/beacon-geometry sweep or bootstrap CI. The pro study is MISSING and depends on the still-missing P2-G2 dop_with_beacons kernel."
+          "verify_verdict": "resolved",
+          "verify_evidence": "kshana-pro/src/packs/beacon_dop_pack.rs present + registered (BeaconDopScenario/SurfaceBeaconDopStudyScenario); multi-latitude x beacon-geometry sweep reporting HDOP/VDOP + CIs."
         },
         {
           "id": "P2-G4",
@@ -528,8 +528,8 @@
           "suggested_location": "kshana/src/lunar_service.rs CoverageStats (add gdop_median, frac_below_gdop6) + a sweep_over_n helper; lift n_sats cap",
           "effort": "M",
           "validation_oracle": "GDOP per sample is Validated (gnss_lib_py/NumPy); median and threshold-fraction are deterministic order statistics reproducible from the committed summary table; constellation stays Modelled per paper.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "CoverageStats (lunar_service.rs:272-291) exposes coverage_fraction, min_sats, pdop_min/mean/max ONLY - it accumulates pdop, never gdop, never a median, never a below-threshold fraction (grep 'gdop_median|median_gdop|frac_below_gdop' across src returns nothing). n_sats is hard-clamped at lunar_service.rs:663 `self.n_sats.clamp(1, 12)` so the paper's N=16/24 cannot be run. Coverage aggregation infra EXISTS but median-GDOP + frac-below-GDOP6 accumulators + N-cap lift + sweep-over-N driver are MISSING."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/lunar_service.rs:295-298 CoverageStats.gdop_median (order statistic) + frac_below_gdop6; computed at lunar_service.rs:359-375. sweep_over_n (lunar_service.rs:415-440) returns NSweepRow{n_sats,coverage_fraction,gdop_median,frac_below_gdop6} over N in [n_min, n_max.min(24)]. illustrative_lcns clamp lifted to 24 (lunar_service.rs:142). Exported at src/lib.rs:95. INDEPENDENT numpy oracle: tests/validate_p2_nsweep_independent_dop.rs (nsweep_reported_aggregates_match_independent_numpy) checks Kshana median GDOP + frac_below_gdop6 + coverage against fixtures/p2_independent_dop/nsweep_aggregate_reference.csv (numpy np.linalg.inv order statistics), and per-sample GDOP/PDOP/HDOP/VDOP against nsweep_samples_reference.csv (>=300 samples).  [honesty: Median/threshold aggregates are deterministic order statistics over the Validated per-sample GDOP kernel; constellation stays Modelled (correct). Note: the LunarServiceScenario::run entrypoint still caps n_sats.clamp(1,12) at lunar_service.rs:742 — the paper N=4..24 sweep is served by sweep_over_n (to 24), not by that scenario, so the scenario-doc cap is cosmetic, not a gap in the analysis.]"
         },
         {
           "id": "P2-G5",
@@ -543,8 +543,8 @@
           "suggested_location": "kshana/src/lunar.rs (extend lunar_coverage_grid to carry gdop/hdop/vdop) or lunar_service coverage-grid variant",
           "effort": "M",
           "validation_oracle": "Reuses Validated DOP kernel; grid is a deterministic reproduction from committed CSV -> map values Validated, constellation Modelled.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "lunar.rs:360 CoverageCell carries only visible-count and pdop (Option<f64>, line 364); lunar_coverage_grid (lunar.rs:373-411) computes lunar_site_dop(...).map(|d| d.pdop) at a single snapshot - no gdop/hdop/vdop layers and no per-cell time-averaged median. The grid scaffold and DOP kernel EXIST; the median-GDOP/HDOP/VDOP time-averaged spatial map is MISSING."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/lunar.rs:418-431 GdopMapCell{lat_deg,lon_deg,n_defined,gdop_median,hdop_median,vdop_median}; src/lunar.rs:454-509 lunar_gdop_map(relays,times_s,lat_min,lat_max,n_lat,n_lon,mask) time-averages (median order statistic, median_of at lunar.rs:434-445) each DOP component per cell over epochs across the -70..-90 band x all longitudes, reusing the Validated lunar_site_dop kernel. Exported via src/lib.rs:85 (lunar). INDEPENDENT numpy oracle: tests/validate_p2_spatial_map_independent_dop.rs (spatial_map_per_cell_gdop_matches_independent_numpy) checks per-cell/per-epoch GDOP/HDOP/VDOP against fixtures/p2_independent_dop/spatial_map_reference.csv (np.linalg.inv (HtH)^-1), covering the -80/0 beacon-user cell (lunar.rs test gdop_map_covers_polar_band_and_is_deterministic:1329-1356).  [honesty: Per-cell median map values are Validated (independent numpy per-epoch DOP + deterministic median); the six-satellite constellation stays Modelled, as the paper states.]"
         },
         {
           "id": "P2-G6",
@@ -558,8 +558,8 @@
           "suggested_location": "kshana-pro/papers/surface-beacon-dop/ + kshana-pro/src/ (pro_study/report_pack) reusing report_brand.rs / report_pdf.rs",
           "effort": "M",
           "validation_oracle": "Artifact-level: CSV/figure reproduce byte-stable from the engine runs; the underlying GDOP numbers carry the gnss_lib_py/NumPy validation; qualitative claims tagged Modelled per paper.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "kshana-pro/papers/ holds composed-timing-protection-level, cross-provider-lunar-interop, impairment-optimism-gap, lunar-autonomous-fault-observability, lunar-common-mode-integrity, lunar-coupled-frame-timescale-gauge, lunar-datum-identifiability, lunar-pnt, open-pnt-simulator, resilience-scoring, timing-protection-level - NO surface-beacon/dop directory. grep 'dop_summary' across pro returns nothing; no lunar_dop_summary.csv exists. report_brand.rs/report_pdf.rs exist to reuse, but the paper study + CSV + 3-panel figure are MISSING."
+          "verify_verdict": "partial-exists",
+          "verify_evidence": "surface-beacon-dop pack + report.html + fig1_* + lunar_dop_summary.csv committed under papers/surface-beacon-dop/; the branded report.pdf (report_pdf.rs wiring + drift guard) is the sole residual (the other 4 papers carry report.pdf). Pro artifacts regenerate against the PUSHED kshana rev -> founder-gated on push."
         },
         {
           "id": "P2-G7",
@@ -573,8 +573,8 @@
           "suggested_location": "kshana-pro/src/packs/ (beacon_placement_pack.rs) using kshana mcda/{pareto,topsis} + dop_with_beacons; DEM ingest fixture under kshana/src/realdata/",
           "effort": "L",
           "validation_oracle": "Optimiser optimality checked against brute-force grid search on small cases (internal consistency -> Modelled); horizon/terrain-masking geometry Validated by closed form; DEM values imported from LOLA (asserted).",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "walker.rs:311-336 optimize_walker_design is a gradient-free grid constellation optimiser and mcda/{pareto,topsis,...} suite exists (reusable optimiser framework). But grep 'LOLA|DEM|digital elevation|placement' across src finds no beacon-placement objective and no lunar DEM ingestion (realdata/ fixtures are all GNSS/RF: gnsslogger, iqif, jammertest, raim, rinex, satgrid, sqm, ubx, yunnan). The beacon-siting objective + horizon/terrain masking + LOLA DEM ingest are MISSING; depends on the still-missing dop_with_beacons kernel."
+          "verify_verdict": "resolved",
+          "verify_evidence": "kshana-pro/src/packs/beacon_placement_pack.rs present; beacon-placement optimisation over terrain using kshana mcda/pareto/topsis + dop_with_beacons."
         },
         {
           "id": "P2-G8",
@@ -588,8 +588,8 @@
           "suggested_location": "kshana/src/lunar_service.rs (perturbed positions_mcmf variant) reusing propagator.rs + forces.rs secular/third-body",
           "effort": "L",
           "validation_oracle": "Validate perturbed lunar propagation against an external ephemeris/library (e.g. Orekit lunar propagation or GMAT) over a fixed span, matching secular rates -> Validated; DOP downstream inherits validated kernel.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "lunar_service.rs:63-88 LunarSat::position_mci is explicitly circular-Keplerian mean-motion (doc: '**MODELLED**: a circular-Keplerian relay set'), no perturbation. forces.rs DOES provide the primitives: third_body_accel (line 203), MU_MOON (195)/MU_SUN (193), and analytic J2 secular rates - but these use Earth literals (MU_EARTH/RE_EARTH) and are not applied to a lunar J2/C22 constellation. The perturbed lunar-constellation propagation variant (lunar J2/C22 + Earth/Sun third-body applied to positions_mcmf) is MISSING; the force primitives exist to reuse."
+          "verify_verdict": "resolved",
+          "verify_evidence": "BUILT 2026-07-14 (kshana commit 80eb51f). Reachability: perturbed=true on the moonlight-service-volume scenario runs the DOP/coverage sweep against PerturbedConstellation via the new PositionsMcmf trait + generic coverage()/sweep(); dispatches end-to-end through api::run_toml (tests/validate_p2_perturbed_service_reachable.rs). Independent-integrator oracle: tests/lunar_perturbed_scipy_reference.rs pins the J2+C22 propagation to SciPy DOP853 (solve_ivp, rtol=atol=1e-12) to sub-metre over ~1.8 orbits, with a control test proving C22 is active. Honesty: perturbation MECHANISM + integration Validated; constellation-geometry realism + third-body analytic ephemeris stay Modelled."
         }
       ],
       "false_gaps_removed": []
@@ -753,8 +753,8 @@
           "suggested_location": "src/lunar_frame_predict.rs (new) composing lunar_od.rs covariance + lunar_frame_realise.rs + eop.rs prediction; expose scenario 'lunar-frame-prediction-error'",
           "effort": "L",
           "validation_oracle": "JPL DE440 vs a predicted/degraded ephemeris difference (park2021de440), or Orekit/GODOT lunar OD covariance propagation; cross-check the derived real-time position sigma against the published Moonlight/LLR real-time budget (fienga2024moonlight) and post-processed 0.27 m against the datum-identifiability companion.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "Pieces confirmed present but not composed. src/lunar_od.rs provides LunarForceModel/AnalyticLunarEnvironment with STM propagation (line 7 'STM propagators fit an orbit about the Moon'), src/lunar_frame_realise.rs (856 lines) does Helmert/similarity recovery via batch_ls::gauss_newton (line 24), deepspace_od.rs has covariance machinery (line 1257). But grep across lunar_frame_realise.rs/lunar_od.rs/lunar_combination.rs/lunar_frame.rs for 'predict|latency|real.time|post.process|smooth|15 m|0.27|50.*ns|light.time|delta_r' found only generic forward-model 'prediction' language (Helmert forward observable), NO prediction-latency covariance propagation and NO real-time-vs-post-processed position-error curve. No lunar_frame_predict.rs exists (grep of src returned none). Confirmed as an upgrade prescription: composition module missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/lunar_frame_predict.rs:193 propagate_covariance (P'=ΦPΦᵀ), :210 predict_frame_error, :225 representative_report — all pub, declared in src/lib.rs:90. INDEPENDENT oracle: tests/lunar_frame_predict_covprop_reference.rs:94 propagate_covariance_matches_numpy_matmul_oracle recomputes P' via NumPy general 2×2 matmul (a DIFFERENT codepath than the crate's hand-expanded scalar form) over 5 fixed cases; :172 representative_case_independently_confirms_14_4m pins the ~14.402 m real-time figure to the NumPy value 14.40253102756595 (not the crate's expansion). Fixture tests/fixtures/lunar_frame_predict_covprop/covprop_reference.txt + generate.py (numpy 1.26.4) exist on disk. The prior back-solved 15.000 m constant was removed (lunar_frame_predict.rs:86-97 explicitly documents this and REPRESENTATIVE_VEL_SIGMA_MPS=4mm/s is a round, not-back-solved value). Corroborated by frame_eop persistence UT1 curve (tests/validate_p4_eop_prediction_growth_longspan.rs, NumPy persistence oracle) bracketing 9.9–18.8 m.  [honesty: The input OD covariance MAGNITUDES (0.27 m post-proc, 4 mm/s velocity, 3600 s latency ⇒ ~14.4 m predicted) are honestly Modelled/representative and are labelled as such in the module docs (lunar_frame_predict.rs:36-43); the propagation MECHANISM and the Δr/c light-time map are Validated. This split is correctly stated — no overclaim.]"
         },
         {
           "id": "P3-G2",
@@ -768,8 +768,8 @@
           "suggested_location": "src/lunar_time_budget.rs (new): quadrature assembler + tau sweep + crossover detection; scenario 'lunar-time-budget' wired into main.rs/api.rs and python.rs",
           "effort": "M",
           "validation_oracle": "Closed-form quadrature and slope algebra are self-verifying (tau^-1/2 clock white-FM vs tau^0 flicker vs constant frame term crossover analytically checkable); cross-check per-term ADEV*tau against powerlaw allan_deviation and holdover coast_phase_sigma for consistency.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "No seven-term quadrature budget assembler exists. src/tpl.rs (timing_protection_level_ns) composes only TWO terms (monitor floor + coast sigma) as a spoofing-undetected-error bound, not a 7-term systems error budget, and does no tau sweep. src/crossover.rs is a quantum-vs-classical dead-reckoning break-even map over (outage x vibration), unrelated to a frame/clock tau crossover. Grep for 'quadrature|budget|crossover|tau.*sweep|rss' in tpl.rs/holdover.rs/lunar_time.rs/lunar_combination.rs surfaced no x_Sigma(tau)=sqrt(sum x_i^2) assembler. No lunar_time_budget.rs and no 'lunar-time-budget' scenario in scenarios/ (200 files listed, none match)."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/lunar_time_budget.rs:164 lunar_time_budget assembles all seven x_i(τ) term curves (clock via clock_specs::x_clock_s, RF/optical/frame/relativistic/ephemeris constants, measurement ∝τ^-1/2), :215 forms RSS x_Σ(τ)=√(Σx_i²), :139 crossover_tau bisection locating clock-vs-frame crossover. pub, declared src/lib.rs:97. Reachable via ScenarioKind::LunarTimeBudget (api.rs:1697 run_toml dispatch) and registry.rs:150. INDEPENDENT oracle: tests/validate_p3_quadrature_rss_identity.rs:31 rss_hypot recomputes x_Σ via stable pairwise hypot fold (numpy.linalg.norm / LAPACK dnrm2 algorithm — never forms Σx² explicitly, different associativity/codepath). Crossover cross-checked against closed forms in lunar_time_budget.rs tests: white_fm τ*=2(δr/c)²/h0 (:297), flicker τ*=(δr/c)/floor (:314); scenario golden tests/lunar_time_budget_scenario_reference.rs:33.  [honesty: The RF/optical-link, frame-realisation, relativistic-residual and ephemeris floor MAGNITUDES are Modelled budget allocations; correctly labelled MODELLED in the scenario LABEL (lunar_time_budget_scenario.rs:28) and api.rs:637 ScenarioMeta. The contribution (reproducible crossover τ + τ-slopes) is Validated. No overclaim.]"
         },
         {
           "id": "P3-G3",
@@ -783,8 +783,8 @@
           "suggested_location": "src/powerlaw.rs (add LunarClock catalogue enum + specs) or new src/clock_specs.rs; reuse quantum_trade::qparams_from_adev_curve to calibrate from datasheet ADEV points",
           "effort": "S",
           "validation_oracle": "Published stability specs (cited: origlia2015 optical, PHM/RAFS metrology, riley2008nist) reproduced by allan_deviation; cross-check synthesized ADEV curves against AllanTools/Stable32 power-law noise generators (external).",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "clock_state::ClockClass enumerates only Csac/Uso/Dsac (src/clock_state.rs:321-339 with adev_1s 3e-10/1e-12/1e-13); holdover::QuantumClockClass adds OpticalLattice/TrappedIon/MercuryIon (quantum_devices.rs). Grep of src for 'RAFS|miniRAFS|optical master|hydrogen maser|PHM|LunarClock|clock_spec|ClockSpec' found NO catalogue for ground optical master / space PHM / RAFS / 500 g miniRAFS. No src/clock_specs.rs. powerlaw.rs (292 lines) has the forward model but no named-clock coefficient set."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/clock_specs.rs:56 LunarClock enum with the four named clocks {OpticalMaster, Phm, Rafs, MiniRafs}, :93 powerlaw() gives calibrated IEEE-1139 h-coefficients, :122 cited_one_day_ns, :151 x_clock_s, :156 x_clock_ns. pub, declared src/lib.rs:26. Reached from the budget scenario (G2/G7). INDEPENDENT oracle: tests/validate_p3_clock_spec_curves.rs checks the optical floor against the published ~1e-16 bracket (Poli 2014 / Origlia 2018), the PHM floor against ~1e-14 (Galileo PHM envelope), and RAFS σ_y(1s)~1e-11 with √τ averaging — recomputing x(1 day) a DIFFERENT way (σ_y(1s)·√86400, a different τ than the engine's σ_y(86400)·86400), so the target is not re-derived from the same literal. Also tests/optical_clock_adev_reference.rs and powerlaw_oadev_reference.rs (allantools) validate the underlying PSD→ADEV conversion.  [honesty: The miniRAFS 151.238 ns/day row is honestly flagged (clock_specs.rs:120-121 and validate_p3_clock_spec_curves.rs docstring) as a coarse-SWaP budget allocation, NOT a manufacturer datasheet point — validated only for internal √τ consistency, not an external datasheet match. Correctly labelled; the other three rows are externally anchored to published floors.]"
         },
         {
           "id": "P3-G4",
@@ -798,8 +798,8 @@
           "suggested_location": "src/lunar_time.rs (add topographic_spread_ns_per_day + TCG-TCL secular framing to LunarTimeReport)",
           "effort": "S",
           "validation_oracle": "Published lunar-time tables (ashby2024lunartime, bourgoin2026lunartime, iau2024lcrs) as closed-form oracle for the secular rate and topographic spread magnitudes.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "src/lunar_time.rs (508 lines) provides self_potential_rate_us_per_day (~57.5 us/day, tested line 338-340) + kinetic_rate + total secular, and a LunarTimeReport with self_potential/kinetic/secular fields. Grep for 'topographic|redshift|elevation.*spread|1469|TCG.*TCL|topo' in lunar_time.rs matched ONLY the self-potential term references; no topographic_spread_ns_per_day function and no TCG-TCL ~1469 ns/day secular framing. Confirmed both 'for-scale' terms are absent from the engine."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/lunar_time.rs:103 topographic_spread_ns_per_day (g_moon·Δh/c²·86400·1e9, g_moon=MU_MOON/R², Δh=LUNAR_TOPO_ELEVATION_SPAN_M) and :117 tcg_tcl_secular_rate_ns_per_day ((MU_EARTH/r_EM + v²/2)/c²·86400·1e9). Both pub, surfaced in LunarTimeReport (lunar_time.rs:287,:289) which is emitted by the reachable lunar-time-offset scenario (ScenarioKind::LunarTime, api.rs:1011, registry LUNAR_TIME_OFFSET). Oracle: lunar_time.rs:544 tcg_tcl_rate_agrees_with_iau_2024_reference checks the first-principles ~1499 ns/day against the published IAU-2024 TCG_TCL_RATE_REF_NS_DAY=1469 (lunar_time.rs:50) to ~2% — a genuine first-principles agreement, NOT back-solved. :533 topographic_spread_is_about_26_ns_per_day asserts the [24,28] band around the published ~26 ns/day (Ashby 2024, Bourgoin 2026, IAU 2024 LCRS).  [honesty: TCG-TCL ~1469 ns/day is a genuine deterministic scale term (first-principles ~1499 agrees to 2%, not back-solved) and is legitimately Validated. BUT the topographic spread ~26 ns/day is back-solved: LUNAR_TOPO_ELEVATION_SPAN_M=16670 m is explicitly documented (lunar_time.rs:38-43) as the span chosen so g·Δh reproduces the published ~26 ns/day, while the real ~20 km peak-to-trough span gives ~31 ns/day. The g·Δh/c² MECHANISM is Validated but the ~26 ns/day MAGNITUDE should stay honestly Modelled (reference-dependent through a chosen elevation span), not claimed as an independently-derived Validated number. The module docstring (lunar_time.rs:101-102) does call it Modelled, so the label is honest — but a Validated tag on the 26 ns/day value itself would overclaim.]"
         },
         {
           "id": "P3-G5",
@@ -813,8 +813,8 @@
           "suggested_location": "tests/powerlaw_allantools.rs (new) or tests/allan_external_oracle.rs; committed AllanTools/Stable32 reference fixtures under tests/fixtures/",
           "effort": "M",
           "validation_oracle": "AllanTools (Python) or Stable32 power-law noise generator + reference ADEV curves as the external dataset.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "Strong external allan-estimator oracle infra already exists: tests/phasedat_reference.rs pins overlapping/modified ADEV + TDEV to the Stable32/allantools PHASE.DAT reference (<=5e-5), tests/cs5071a_reference.rs uses real caesium hardware, tests/optical_clock_adev_reference.rs validates the qparams_from_adev_curve FIT against a peer-reviewed Sr optical-clock curve, tests/allan_nist_sp1065_1000point.rs also present. HOWEVER these validate the estimators and the inverse fit, not the powerlaw.rs FORWARD synthesis (h-coefficients -> ADEV), which src/powerlaw.rs:29 itself flags as 'internal-consistency oracles, not an external dataset'. No test generates synthetic power-law phase noise with known h, runs allan::overlapping_adev, and matches the powerlaw forward model against an external allantools/Stable32 generator. Partial: estimator side externally validated, forward-synthesis round-trip still missing. Scope is narrower than audit implied given the existing infra."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/powerlaw.rs allan_deviation/allan_variance is the forward ADEV model (pub, src/lib.rs:122). The external-oracle harness the gap asks for now EXISTS: tests/powerlaw_allantools.rs synthesises white-FM phase noise with known h_0 using AllanTools generator semantics (σ_y0²=h0/(2τ0), integrate to phase), runs it through kshana::allan::overlapping_adev, and confirms recovery of the closed-form σ_y(τ)=√(h0/2τ) to <5% plus the τ^-1/2 slope (:59) — an external synthetic-data round-trip, not internal consistency. Additionally tests/powerlaw_oadev_reference.rs cross-checks the full PSD→Allan conversion against allantools (A. Wallin) closed-form Noise model across all five IEEE-1139 noise types. This supersedes the stale powerlaw.rs:29 'internal-consistency oracles, not an external dataset' comment.  [honesty: The oracle validates the PSD→Allan CONVERSION and the white-FM forward synthesis; the flicker-FM floor is validated separately by the closed-form floor identity (a flat σ_y cannot be band-limited-synthesised without fractional integration) — this scope is honestly stated (powerlaw_allantools.rs:28-33). Per-device coefficients stay Modelled. Correctly scoped, no overclaim.]"
         },
         {
           "id": "P3-G6",
@@ -828,8 +828,8 @@
           "suggested_location": "kshana-pro/src/packs/lunar_time_budget_pack.rs + papers/lunar-time-frame-limited/ (data/, figures/); reuse report_pdf.rs, report_brand, chart.rs",
           "effort": "M",
           "validation_oracle": "Deterministic reproduction: committed budget CSV/JSON regenerates the exact Table 1 numbers (0.009/0.035/0.901/0.995/1.732/50.035/151.238 ns) under a pinned scenario hash + seed; golden-hash CI gate.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "kshana-pro/src/packs/ contains batch_pack, detector_intake, mbse_pack, optimism_gap_audit, quantum_systematics_pack, seam_check, trade_study_pack, twin_pack — no lunar_time_budget_pack. kshana-pro/papers/ has 12 paper dirs (lunar-pnt, resilience-scoring, lunar-datum-identifiability, cross-provider-lunar-interop, timing-protection-level, impairment-optimism-gap, open-pnt-simulator, lunar-common-mode-integrity, lunar-coupled-frame-timescale-gauge, lunar-autonomous-fault-observability, composed-timing-protection-level) but NONE for the frame-limited lunar-time budget. Grep for 'lunar.time.budget|frame-limited|Table 1' across src/ and papers/ returned no matching study. Confirmed missing."
+          "verify_verdict": "partial-exists",
+          "verify_evidence": "kshana-pro/src/packs/lunar_time_budget_study_pack.rs present + registered (LunarTimeBudgetStudyScenario); papers/lunar-time-frame-limited/ folder (MENU table CSV 0.009/0.035/0.901/0.995/1.732/50.035/151.238 ns + figure + branded report) still empty -> residual. Regenerates against the PUSHED kshana rev -> founder-gated on push."
         },
         {
           "id": "P3-G7",
@@ -843,8 +843,8 @@
           "suggested_location": "scenarios/lunar-time-budget.toml + api.rs ScenarioMeta entry + python.rs binding for lunar_time_budget module",
           "effort": "S",
           "validation_oracle": "Round-trip: running the committed TOML reproduces the JSON budget bit-for-bit (platform-invariant golden hash), same mechanism as existing kshana scenario reproducibility gates.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "scenarios/ (200 entries) has lunar-time-offset.toml, lunar-frame-realisation.toml, lunar-joint-od-clock.toml, lunar-vlbi.toml, lunar-differential-pnt.toml, lunar-interop-export.toml, timetransfer.toml, quantum-time-transfer.toml — but NO lunar-time-budget.toml. Grep of src/api.rs, src/main.rs, src/python.rs for 'lunar-time-budget|lunar_time_budget|frame-prediction|lunar-frame-predict' returned nothing. The reproducibility surface (committed TOML + api.rs ScenarioMeta + python binding) for the 7-term budget does not exist. Dependent on G2 for the underlying assembler."
+          "verify_verdict": "resolved",
+          "verify_evidence": "scenarios/lunar-time-budget.toml committed (kind='lunar-time-budget', honesty MODELLED header). src/lunar_time_budget_scenario.rs:96 run_json emits the budget JSON with kind+MODELLED label. Wired: api.rs:444 ScenarioKind::LunarTimeBudget, :500/:560 name mapping, :637 ScenarioMeta (honest MODELLED description), :1697 run_toml dispatch; registry.rs:87 enum + :150 LUNAR_TIME_BUDGET ScenarioId. Reachable from CLI (main.rs runs everything through kshana::api::run_toml) and from Python (python.rs:127/171 run/run_typed route by scenario kind). Golden/round-trip reproducibility: tests/lunar_time_budget_scenario_reference.rs:17 committed_scenario_reproduces_the_budget_deterministically (run_toml(TOML) is byte-deterministic) + tests/validate_p3_figure1_golden_csv.rs (fixed-precision golden CSV drift guard against tests/golden/p3-figure1.csv).  [honesty: The scenario carries an explicit MODELLED honesty label on both the emitted document (lunar_time_budget_scenario.rs:28 LABEL) and the api.rs:637 ScenarioMeta description, correctly stating the crossover τ is the Validated contribution and the floor magnitudes are Modelled. No overclaim.]"
         }
       ],
       "false_gaps_removed": []
@@ -990,8 +990,8 @@
           "suggested_location": "src/frame_eop.rs (new) plus a predicted-column parser extension in src/eop.rs (parse_predicted / EopSeries::prediction_error_vs_horizon)",
           "effort": "L",
           "validation_oracle": "Real IERS finals2000A.all Bulletin-A predicted UT1 vs later final UT1 residuals (external field data); cross-check the ~0.01 ms final floor and growth-to-ms-at-10-days against IERS Bulletin A/B published accuracy.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "eop.rs parse_line (lines 44-58) only slices the four final columns (MJD/PMx/PMy/UT1) and returns None for prediction-only rows; module doc line 42-43 states blank final fields (prediction-only/future row) are rejected. No predicted-column parser, no prediction_error_vs_horizon, no vintage-differencing. grep for prediction_error across src/ found only eop.rs comment strings. No frame_eop.rs exists."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/frame_eop.rs:205 prediction_error_vs_horizon + :171 parse_daily_ut1 build the data-derived UT1 prediction-error curve (final floor = rapid-minus-final, plus persistence UT1(t+h)=UT1(t) growth) directly off real finals2000A. Predicted-column parser extension lives in src/eop.rs:74 parse_bulletin_b_ut1, :90 parse_bulletin_b_pm, :98 is_prediction_row, :108 parse_predicted, :116 parse_all_predicted. True vintage differencing at src/frame_eop.rs:388 predicted_vs_final_ut1. INDEPENDENT oracle: tests/validate_p4_eop_prediction_growth_longspan.rs:101 matches an independent NumPy re-implementation (tests/fixtures/eop_prediction/generate_eop_prediction_reference.py re-parsing the fixed-width columns in Python + numpy) to <1e-6 s over 45 real IERS rows; final floor lands in IERS-published ~0.005-0.05 ms band (test :178). Real prediction-only rows exercised in tests/validate_p4_predicted_column_ingestion.rs:37 (12 verbatim Bulletin A predicted rows). Reachable: exposed on lib.rs public frame_eop module and driven by the RealtimeFrameEop scenario (api.rs:445/1705, main.rs).  [honesty: The predictor CHOICE (persistence, not IERS's operational least-squares/AR Bulletin A algorithm) is honestly Modelled and labelled as such in src/frame_eop.rs:44-48 and the scenario LABEL (realtime_frame_eop.rs:60-72). The measured growth curve itself is real data / Validated; only the ~15 m / ms-at-10-days headline magnitude is the persistence-envelope, correctly kept Modelled. No back-solving detected.]"
         },
         {
           "id": "P4-G2",
@@ -1005,8 +1005,8 @@
           "suggested_location": "src/frame_eop.rs (lever_arm_position_error / ut1_error_to_lunar + inverse)",
           "effort": "S",
           "validation_oracle": "Closed form (1 ms -> 28.03 m -> 93.5 ns computed directly); cross-check omega_earth against the ERA rate from cio.rs earth_rotation_angle and D_EM against DE440 mean distance.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "Constants confirmed present but scattered: EARTH_MOON_DIST_KM at cr3bp.rs:165 (384_400.0), EARTH_ROTATION_RATE at forces.rs:326. grep for ut1_error_to_lunar / lever_arm / lever / 28.03 / 93.5 / frame_error across src/ returned zero function matches. No mapping function exists anywhere."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/frame_eop.rs:433 ut1_error_to_lunar (Delta_r = D_EM*omega_earth*Delta_UT1, Delta_t = Delta_r/c) and :441 lunar_position_to_ut1 inverse; constants D_EM_M:59, OMEGA_EARTH_RAD_S:64 (built from ERA_TURNS_PER_UT1_DAY), LEVER_M_PER_S:68. Named, tested capability. INDEPENDENT oracle: frame_eop.rs:833 one_ms_ut1_is_28m_and_93_5ns asserts the published 1 ms -> 28.03 m -> 93.5 ns anchor to tight tol; :860 omega_earth_matches_cio_era_rate cross-checks omega_earth against cio::earth_rotation_angle dERA/dt to <1e-14 and against 7.292115e-5. tests/validate_p4_table2_horizon_longspan.rs:51 independent_lever_image recomputes the lever arm from published constants (IERS omega, DE440 D_EM, defining c) assembled locally (NOT the engine constant) and agrees to <1e-4 rel, with the 28.03 m/93.5 ns anchor re-derived at :189. Reachable via public frame_eop module + RealtimeFrameEop scenario Table 1 (realtime_frame_eop.rs:236 position_to_ut1_ms)."
         },
         {
           "id": "P4-G3",
@@ -1020,8 +1020,8 @@
           "suggested_location": "kshana-pro/src/packs/realtime_frame_eop_pack.rs (new) + kshana-pro/papers/realtime-frame-eop/",
           "effort": "M",
           "validation_oracle": "Forward-computed frame error from G1+G2 must land within stated tolerance of the independently-cited 15 m / 0.27 m budgets without those budgets being used as calibration inputs.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "kshana-pro/src/packs holds batch_pack, detector_intake, mbse_pack, optimism_gap_audit, quantum_systematics_pack, seam_check, trade_study_pack, twin_pack -- no realtime_frame_eop_pack. grep for frame_eop/realtime_frame/prediction_error across pro src/ and papers/ returned nothing. The forward-decomposition study does not exist."
+          "verify_verdict": "resolved",
+          "verify_evidence": "kshana-pro/src/packs/realtime_frame_eop_study_pack.rs present + registered; data-forward decomposition (papers/realtime-frame-eop/ carries fig1/fig2 + csv + report.html + report.pdf)."
         },
         {
           "id": "P4-G4",
@@ -1035,8 +1035,8 @@
           "suggested_location": "src/frame_eop.rs (RealtimeFrameEopScenario) + register at src/api.rs:401/451/505/964; scenarios/realtime-frame-eop.toml",
           "effort": "M",
           "validation_oracle": "Golden-CSV snapshot test; scenario numbers must equal the closed-form lever arm (G2) and the G1 curve to machine precision.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "ScenarioKind enum in api.rs (lines 380-466+) enumerates ~40 kinds including LunarTime, LunarFrameRealise, LunarService etc. but NO RealtimeFrameEop variant. LunarTime kind exists at api.rs:401/451 confirming the pattern to follow. No such scenario or CSV emitter present."
+          "verify_verdict": "resolved",
+          "verify_evidence": "ScenarioKind::RealtimeFrameEop registered in src/api.rs:445 (enum), :501 (name), :561 (parse), :642 (ScenarioMeta with honest MODELLED/Validated description + optional_fields), :1705-1714 (dispatch, runs G1+G2, emits Table 1/Table 2 + CSV artifact). registry.rs:88 enum variant + :151 REALTIME_FRAME_EOP ScenarioId const. Scenario struct src/realtime_frame_eop.rs:78 with epoch/horizons/ephemeris/frame-floor/eop_finals2000a fields; to_csv():315 emits Table 1 + Table 2. scenarios/realtime-frame-eop.toml committed. Golden CSV tests/golden/realtime-frame-eop.csv byte-pinned by tests/realtime_frame_eop_scenario_reference.rs:33 committed_scenario_csv_is_byte_stable and :43 table1_equals_the_l13_prediction_and_l19_lever_arm; runtime dispatch emits + writes the CSV (realtime_frame_eop.rs:572 runtime_dispatch_emits_the_csv_artifact; main.rs:249 writes <scenario>.table.csv). Oracle: golden-CSV snapshot + closed-form lever-arm/covariance to machine precision."
         },
         {
           "id": "P4-G5",
@@ -1050,8 +1050,8 @@
           "suggested_location": "src/frame_eop.rs (frame_eop_svg) using src/chart.rs",
           "effort": "S",
           "validation_oracle": "Deterministic-render snapshot; marker coordinates must match the G1/G2 numeric outputs (internal-consistency oracle).",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "No frame_eop_svg exists (no frame_eop.rs). The reusable pattern lunar_time_svg is confirmed at src/lunar_time.rs:277 with a render test at line 486, and chart.rs primitives exist. The specific two-panel UT1/position renderer is genuinely missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/frame_eop.rs:630 frame_eop_svg renders the two-panel figure using crate::chart primitives: panel (a) UT1 error vs horizon with IERS-final-floor line, ~0.5 ms/~15 m marker, ~5-day marker (:667-713); panel (b) position-at-Moon vs horizon with a right-hand equivalent-timing (ns) axis and the 15 m marker (:716-780). Growth annotation is the GENUINE growth_annotation():603 (1-day -> longest real horizon by day VALUE, not a baked-in ~5x). INDEPENDENT-consistency oracle: frame_eop.rs:993 svg_markers_match_numeric_outputs recomputes every marker pixel from the same x_of_days/a_y_of_ms/b_y_of_m maps and the L19 0.5 ms<->15 m equivalence; :1077 growth_annotation_matches_the_measured_curve_and_is_genuine independently recomputes pos_at(10)/pos_at(1) and asserts the SVG carries that exact factor (and does NOT carry a fixed ~5x). Reachable via scenario run_output() (realtime_frame_eop.rs:307) and main.rs SVG write."
         },
         {
           "id": "P4-G6",
@@ -1065,8 +1065,8 @@
           "suggested_location": "kshana-pro/src/packs/realtime_frame_eop_pack.rs + kshana-pro/papers/realtime-frame-eop/",
           "effort": "M",
           "validation_oracle": "Report regenerates byte-stable from the committed CSV; pro study ledger cross-check against public-engine outputs.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "kshana-pro/papers/ contains 11 folders (lunar-pnt, resilience-scoring, lunar-datum-identifiability, cross-provider-lunar-interop, timing-protection-level, impairment-optimism-gap, open-pnt-simulator, lunar-common-mode-integrity, lunar-coupled-frame-timescale-gauge, lunar-autonomous-fault-observability, composed-timing-protection-level) but NO realtime-frame-eop. No matching pack in src/packs. Report/paper deliverable absent."
+          "verify_verdict": "resolved",
+          "verify_evidence": "realtime_frame_eop_study_pack.rs + papers/realtime-frame-eop/report.pdf + README committed."
         },
         {
           "id": "P4-G7",
@@ -1080,8 +1080,8 @@
           "suggested_location": "src/frame_eop.rs (polar_motion_position_error) reusing src/eop.rs xp/yp",
           "effort": "M",
           "validation_oracle": "Closed-form geometric projection cross-checked against the CIO polar-motion rotation in cio.rs; PM residual curve from real finals2000A predicted vs final x_p/y_p.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "Primitives exist: eop.rs parses xp_arcsec/yp_arcsec (EopRecord fields, final columns only); cio.rs uses polar_motion_matrix (imported line 30, applied in gcrs_to_itrs_matrix line 182) and earth_rotation_angle (line 170). MISSING: no polar_motion_position_error lever-arm projection function and no predicted-vs-final PM residual (same prediction-column ingestion gap as G1). The projection into a frame-error budget term is new."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/frame_eop.rs:300 pm_prediction_error_vs_horizon (same rapid-minus-final + persistence differencing applied to the Bulletin B pole, arc seconds) reusing eop.rs:90 parse_bulletin_b_pm on the real xp/yp columns; :464 polar_motion_position_error projects the pole error through the lever arm. INDEPENDENT oracle: tests/validate_p4_pm_prediction_curve.rs:94 pm_prediction_stats_match_numpy_oracle matches an independent NumPy PM re-implementation (generate_eop_pm_prediction_reference.py) to <1e-9 arcsec over the real 2026 fixture; closed-form projection cross-checked vs crate::frames::polar_motion_matrix in frame_eop.rs:1151 polar_motion_position_error_matches_cio_rotation (<0.5%) and the 1 mas -> 1.86 m Moon-frame scale in the validate test :167. The scenario sources its L21 PM term from the MEASURED pole floor (realtime_frame_eop.rs:208-224, tested :621 budget_pm_term_is_sourced_from_measured_pole_residual). Reachable via public frame_eop module + scenario."
         },
         {
           "id": "P4-G8",
@@ -1095,8 +1095,8 @@
           "suggested_location": "src/frame_eop.rs consuming src/lunar_od.rs / src/precise_od.rs covariance + src/lunar_frame_realise.rs residual covariance",
           "effort": "L",
           "validation_oracle": "Covariance consistency vs a reference OD (Orekit/GRAIL-derived) and vs the injected-Helmert recovery already tested in lunar_frame_realise.rs.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "lunar_frame_realise.rs provides the 7-parameter Helmert fit (helmert_fit line 194, helmert_fit_inner line 143, apply_helmert line 74) with residual handling, but grep for 'covariance' in that file, precise_od.rs, and lunar_od.rs returned zero matches -- no covariance is exported. The integrated frame+ephemeris covariance propagation into the RSS budget (replacing the asserted 0.2 m floor and placeholder ephemeris term) does not exist. Building blocks (Helmert fit, OD) present; the covariance integration is missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/frame_eop.rs:496 frame_error_budget forms the RSS of three DERIVED terms: the EOP lever arm (UT1+PM), the lunar-ephemeris real-time term from lunar_frame_predict::predict_frame_error propagating an OdCovariance through the latency (:505), and the frame-realization floor. :528 derived_frame_realization_floor_m derives the floor from an ACTUAL 7-parameter Helmert datum realisation (lunar_frame_realise post-fit RMS residual), replacing the asserted 0.2 m; scenario defaults to it (realtime_frame_eop.rs:191-194, tested :592 default_budget_floor_is_the_derived_helmert_residual which asserts the floor is NOT pinned to 0.2). INDEPENDENT oracle: tests/lunar_frame_predict_covprop_reference.rs:94 validates P'=Phi P Phi^T against a NumPy general matrix-multiply Phi@P@Phi^T (a different codepath, <1e-12 rel) over 5 fixed covariances incl. the representative 14.402 m case (:172); frame_eop.rs:1216 derived_floor_equals_helmert_post_fit_residual cross-checks the floor against the realisation's own residual and its tie-noise scaling. src/lunar_frame_predict.rs is the endogenous covariance-propagation module.  [honesty: The lunar-relay OD covariance INPUT magnitudes (0.27 m post-processed, round 4 mm/s vel -> ~14.4 m real-time) remain honestly Modelled/representative and are documented as NOT back-solved (lunar_frame_predict.rs:86-97, :170-176; the earlier sqrt(15^2-0.27^2)/3600 back-solve was removed and tests assert the output is NOT pinned to 15.000, e.g. :277). The propagation MECHANISM and the Helmert-derived floor are Validated; the input covariance magnitude stays Modelled, which is the correct labelling.]"
         }
       ],
       "false_gaps_removed": []
@@ -1266,8 +1266,8 @@
           "suggested_location": "kshana/src/cross_raim.rs (new; reuse raim.rs solution-separation math and lunar_dpnt.rs DO-229E PL)",
           "effort": "M",
           "validation_oracle": "Closed form: in the homogeneous limit (equal covariances, one measurement type) the cross-modality statistic and PL must reduce exactly to raim.rs snapshot_raim / solution_separation_raim outputs; the two-measurement separation PL checked against an analytic two-hypothesis solution-separation derivation (Blanch/Walter ARAIM) and non-central chi-square from the existing regularized incomplete-gamma path.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "raim.rs provides the homogeneous primitives: snapshot_raim (L287), solution_separation_raim (L516), araim_protection_level (L691), araim_raim/araim_dual_raim, noncentral_chi2_cdf (L210), chi2_quantile, Stanford diagram. lunar_dpnt.rs provides lunar_dgnss_protection_level (L333) via SBAS DO-229E PL machinery. No module models two heterogeneous measurement modalities with disparate covariances: grep for cross_raim/cross_modal/crossmodal returns nothing in src/. The solution-separation + non-central chi2 + PL building blocks exist, but the cross-modality (RF+optical, disparate R) two-hypothesis formulation and the timing PL for it are absent."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/cross_raim.rs implements the cross-modality solution-separation RAIM in full: separation_statistic_axis (:102), axis_protection_level (:116), run_cross_raim (:171) producing HPL/VPL/TPL (position AND timing PLs). Declared in lib.rs:31. Reachable from the public scenario surface: hybrid_integrity.rs:36 imports run_cross_raim/CrossAxis/AxisRole and calls it at :293, and that scenario is wired in BOTH src/api.rs (ScenarioKind::HybridOpticalRf at :446/:502/:562/:1715) and src/registry.rs (BUILTIN_KINDS :89, ids::HYBRID_OPTICAL_RF :152). INDEPENDENT oracle for the numeric claim (homogeneous limit): homogeneous_limit_reduces_to_snapshot_raim_statistic_and_threshold (cross_raim.rs:382) confirms the cross statistic collapses to the hand-derived LSQ SSE/sigma^2 = Delta^2/(2 sigma^2) AND that raim::snapshot_raim derives its threshold from the same chi2_quantile on a real 6-sat geometry; axis_pl_reduces_to_analytic_solution_separation_form_at_equal_covariance (:432) reduces the PL to the ARAIM solution-separation form and cross-checks solution_separation_raim; missed_detection_term_consistent_with_noncentral_chi2_pbias (:476) ties the K_md term to the independent regularized-incomplete-gamma noncentral_chi2_cdf path. These are genuine independent reductions to the pre-existing homogeneous raim.rs, not self-referential.  [honesty: The RF vs optical 1-sigma magnitudes fed to the detector are Modelled inputs (correctly labelled Modelled in the module docs cross_raim.rs:46-48 and in the scenario LABEL). The chi2 detector, protection-level quadrature and quantile mechanism are legitimately Validated; the input magnitudes stay Modelled. No overclaim observed.]"
         },
         {
           "id": "G2",
@@ -1281,8 +1281,8 @@
           "suggested_location": "kshana/src/fusion/handoff.rs (new; compose fusion/coupled.rs Joseph update + closed_loop.rs reset + hybrid_ukf.rs NEES gate)",
           "effort": "M",
           "validation_oracle": "NEES chi-square consistency across the switch epoch (reuse fusion/hybrid_ukf.rs NEES gate: the filter's reported covariance must match its own error spread through the handoff) plus a closed-form no-jump test: the posterior mean is continuous and the covariance equals the analytic Joseph/van-Loan result when the measurement variance R changes; Monte-Carlo unbiasedness.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "fusion/ ships the composable primitives: hybrid_ukf.rs has a full NEES + innovation-whiteness consistency oracle (NEES over observable subset, chi2 bands, ConsistencyFoM), closed_loop.rs has an error-state reset, coupled.rs has cross-covariance/Joseph updates, and hybrid.rs re-anchors the clock at optical/ISL re-sync (ResyncCfg). But grep for handoff/hand_off in src/ returns nothing: there is no dedicated measurement-type handoff module that changes R optical->RF with a proven no-jump (mean-continuity) guarantee and covariance consistency proof across the switch epoch. Primitive exists, paper-grade analysis does not."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/handoff.rs implements the receiver state/covariance handoff: HandoffState::joseph_update_axis (:63), handoff() with bit-for-bit mean copy (:89, the proven no-jump guarantee), nees()/nees_gate() chi2 consistency gate (:100,:123), and both optical_rf_handoff (:172) and rf_optical_handoff (:228). Declared in lib.rs:64. Reachable: hybrid_integrity.rs:37 imports and calls optical_rf_handoff (:350) and rf_optical_handoff (:360) inside the wired hybrid-optical-rf scenario (api.rs:1715 + registry.rs:89). INDEPENDENT oracles: monte_carlo_handoff_is_unbiased_with_nees_at_dof (handoff.rs:415) draws 40,000 seeded realizations and confirms E[x-hat - x] ~= 0 and empirical mean NEES ~= dof (a sampling-law oracle, not the closed form the code uses); joseph_update_matches_analytic_information_form_covariance_at_r_switch (:491) cross-checks the Joseph posterior against the independent information-form 1/(1/P+1/R) across five disparate R-switch cases; reverse handoff continuity test (:529). Mean-continuity is checked by exact float equality.  [honesty: The optical/RF measurement-noise magnitudes and the modality-transition inflation factor are Modelled (module docs handoff.rs:31-32). The mean-continuity invariant and NEES chi2 gate are legitimately Validated. No overclaim.]"
         },
         {
           "id": "G3",
@@ -1296,8 +1296,8 @@
           "suggested_location": "kshana/src/optical_availability.rs (new; site climatology table + diversity combiner)",
           "effort": "M",
           "validation_oracle": "Closed-form probability arithmetic (single-site = clear-sky x pointing; N-station independent = 1 - prod(1-p_i); correlated via a stated copula) checked against hand calculation; site clear-sky fractions sourced from published astronomical/optical ground-station cloud climatology (e.g. ESO/optical-comms site statistics) as an external dataset so the numbers are traceable, not asserted.",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "timetransfer_adv.rs has the FSO turbulence physics only: rytov_variance (L224), fried_parameter (L231), lognormal_fading (L239) — no cloud/clear-sky probability, no site database, no station-diversity combiner. grep for clear_sky/cloud_cover/clearsky in src/ returns nothing; all 'availability' hits are RAIM/PNT-solution availability (raim.rs, hybrid.rs, fom.rs, resilience/), not optical clear-sky. No optical_availability module exists."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/optical_availability.rs implements per-site availability (clear_sky x pointing, :104), independent_union_availability 1-Prod(1-a_i) (:120), correlated_union_availability with N_eff=1+(N-1)(1-rho) reducing exactly to the independent union at rho=0 (:132), and run_optical_availability with a diversity curve (:226). Declared in lib.rs:115. Reachable: hybrid_integrity.rs:38 imports default_network/run_optical_availability and calls them at :303/:309 in the wired scenario. INDEPENDENT external anchor: the per-site clear-sky fractions load from data/optical_site_climatology.csv (include_str! at :56) and site_clear_sky_matches_published_external_values (:348) asserts each equals the published Cavazzani et al. 2011 (MNRAS, arXiv:1011.4815) GOES12 clear-night fraction (Paranal 0.88, La Silla 0.76, La Palma 0.725, Mt. Graham 0.59, Tolonchar 0.865) with a source-citation provenance string per site. The CSV header (data/optical_site_climatology.csv) documents the values as satellite-derived, not asserted by Kshana. The union combinatorics are exact closed form checked to 1e-12 (:272).  [honesty: The pointing/acquisition factor and the spatial correlation rho are Modelled inputs (module docs :40-42), correctly labelled. Clear-sky fractions are externally anchored; the union arithmetic is Validated. No overclaim.]"
         },
         {
           "id": "G4",
@@ -1311,8 +1311,8 @@
           "suggested_location": "kshana/src/hybrid.rs (extend score_hybrid FoM) or new joint_trade.rs; packaged via kshana-pro mcda",
           "effort": "S",
           "validation_oracle": "Closed-form composition: the joint probability equals the product of the (possibly correlated) availability, precision-in-spec, and integrity-assured factors and must reduce to each marginal when the others are set to 1; cross-check against a Monte-Carlo of the hybrid.rs sample series (fraction of epochs that are simultaneously available, in precision spec, and PL-bounded).",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "hybrid.rs score_hybrid (L65) computes pnt_availability = fraction of epochs where BOTH timing and position are within spec — i.e. it already fuses availability x precision-in-spec into one number, and HybridFoM carries an optional `integrity` field (populated by the run layer from the timing-channel Kalman PL). fom.rs score (L126) has a plain availability. But no primitive composes the THIRD factor (integrity-assured / PL-bounded per epoch) into the joint P(available AND precision-grade AND integrity-assured) with correlation handling; integrity is stored as a separate scalar, not intersected epoch-by-epoch. Two of three factors composed; the joint trade quantity is missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/hybrid_integrity.rs::joint_fom (:99) composes the three P5 factors into P(available AND precision-grade AND integrity-assured): independent product A*P*I with a correlation interpolation to min(A,P,I). Declared via lib.rs:67 (pub mod hybrid_integrity). Exposed as a scored FoM in the wired scenario (compute() at :321, emitted in JSON at :463 and the summary/SVG). Also packaged pro-side: kshana-pro/src/packs/optical_rf_hybrid_study_pack.rs registered in kshana-pro/src/registry.rs:253. INDEPENDENT oracles: joint_fom_reduces_to_each_marginal (:619) confirms joint_fom(A,1,1,rho)=A etc. for rho in {0,0.3,0.5,1.0} (the closed-form marginalisation identity the gap requires), and joint_fom_monte_carlo_matches_independent_product (:649) draws 400,000 seeded per-epoch Bernoulli triples and confirms the empirical all-three fraction converges to A*P*I within 4-sigma (a genuine MC oracle independent of the algebraic evaluation).  [honesty: The FoM factor correlation and the integrity-risk budget P_HMI are Modelled inputs (labelled). The composition/marginalisation identities are Validated. No overclaim.]"
         },
         {
           "id": "G5",
@@ -1326,8 +1326,8 @@
           "suggested_location": "kshana-pro/src/packs/optical_rf_hybrid_pack.rs + kshana-pro/papers/optical-rf-hybrid/ (study JSON + report via report_pdf.rs)",
           "effort": "M",
           "validation_oracle": "Golden-snapshot: regenerated Table 1/2 and Figure 1 values match the paper's committed numbers bit-for-bit; underlying values inherit the G1-G4 and link-budget oracles (raim reduction, NEES, probability arithmetic, published climatology).",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "kshana-pro/src/packs/ contains batch_pack, detector_intake, mbse_pack, optimism_gap_audit, quantum_systematics_pack, seam_check, trade_study_pack, twin_pack — no optical_rf_hybrid pack. kshana-pro/papers/ has 13 paper folders (lunar-pnt, resilience-scoring, ...composed-timing-protection-level) but NO optical-rf-hybrid folder; grep for the P5 title 'Precision Without Continuity'/'RF Integrity Backstop'/'Hybrid Handoff' across kshana-pro returns nothing. The study/report generator does not exist. report_pdf.rs / report_brand.rs infrastructure to build it does exist."
+          "verify_verdict": "resolved",
+          "verify_evidence": "kshana-pro/src/packs/optical_rf_hybrid_study_pack.rs (~1518 LOC) present + registered (OpticalRfHybridStudyScenario); papers/optical-rf-hybrid/ carries report.pdf + fig1 + optical_availability.csv + optical_rf_precision.csv."
         },
         {
           "id": "G6",
@@ -1341,8 +1341,8 @@
           "suggested_location": "kshana/src/optical_linkbudget.rs (new; sibling to linkbudget.rs, reuse quantum_devices shot model)",
           "effort": "S",
           "validation_oracle": "Closed-form diffraction (Gaussian-beam divergence theta = lambda/(pi w0); footprint = theta x 384400 km) hand-checked; photon-limited ranging CRLB cross-checked against quantum_devices.rs shot-limited jitter/sqrt(R*tau); optical two-way time transfer figures compared to giorgetta2013/deschenes2016 demonstrated values cited in the paper.",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "linkbudget.rs is RF-only (band_frequency_hz, free_space_loss_db, link_budget with Eb/N0 — LinkParams/LinkResult). quantum_devices.rs EntanglementTimeLink provides the shot-limited TIMING primitive sigma ~ jitter/sqrt(R*tau) with dark-count penalty (L134), which covers the ps-timing piece. timetransfer_adv.rs gives FSO turbulence. But there is no optical photon-budget-to-RANGING CRLB and no diffraction-limited BEAM FOOTPRINT (lambda/D x range) computation anywhere; grep for optical_linkbudget/footprint/diffraction in src/ returns nothing. Timing primitive exists; ranging + footprint absent -> partial."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/optical_linkbudget.rs implements the 1550 nm two-way optical link budget: photon_energy_j hc/lambda (:66), diffraction_divergence_rad lambda/D (:74), diffraction_footprint_m (lambda/D)*L (:83), airy_footprint_m 1.22x (:91), photon_limited_toa_crlb_s sigma_tau/sqrt(N) (:102), photon_limited_range_crlb_m with two-way c/2 factor (:114), and optical_link_budget (:195). Declared in lib.rs:116. Reachable: hybrid_integrity.rs:41 imports all four and calls them (:232,:240,:241,:242) in the wired scenario producing the optical column of Table 1 (footprint, detected photons, ranging sigma, timing sigma). INDEPENDENT oracles: timing_crlb_matches_published_femtosecond_otwtt_demonstrations (:342) reproduces the demonstrated 1 fs OTWTT deviation of Giorgetta et al. 2013 (Nat. Photonics) / Deschenes et al. 2016 (PRX) from a realistic comb regime (100 fs jitter, 1e4 photons) and confirms the CRLB stays a bound (1 ps needs 1e6 photons); shot_bound_agrees_with_quantum_devices_link (:306) cross-checks the sigma_tau/sqrt(N) law against the separate quantum_devices EntanglementTimeLink to 1e-24 s. Diffraction footprint hand-checked to (lambda/D)*range with the P5 ~0.7 km lunar figure (:253).  [honesty: The atmospheric/pointing loss dB allocations and the top-hat geometric-capture approximation are Modelled (module docs :35-37, set magnitude not CRLB form). The photon-energy, diffraction footprint and photon-limited CRLB formulas are Validated. No overclaim.]"
         },
         {
           "id": "G7",
@@ -1356,8 +1356,8 @@
           "suggested_location": "kshana/src/scenario.rs + scenarios/optical-rf-hybrid.toml + registry.rs ScenarioId; kshana-pro/src/serve/study_intake.rs",
           "effort": "S",
           "validation_oracle": "Golden JSON snapshot: running the scenario from main.rs produces the same FoM/table values as the direct library calls and as the G5 study generator (byte-identical for a fixed seed).",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "api.rs ScenarioKind::as_str enumerates all built-in scenario kinds (clock, inertial, integrity, hybrid, hybrid-ukf, fusion, ..., space-weather, ..., attitude-budget) and registry.rs ids mirrors them (HYBRID='hybrid', HYBRID_UKF='hybrid-ukf'). None is an optical/RF hybrid-handoff scenario; grep for optical in registry.rs/scenario.rs returns nothing. The existing 'hybrid'/'hybrid-ukf' kinds are clock+INS/GNSS fusion, not optical-vs-RF modality handoff. No optical-rf-hybrid.toml and no serve endpoint for it."
+          "verify_verdict": "resolved",
+          "verify_evidence": "The hybrid optical/RF analysis is a first-class scenario kind runnable end-to-end. Wired in api.rs: ScenarioKind::HybridOpticalRf enum variant (:446), as_str 'hybrid-optical-rf' (:502), classify (:562), ScenarioMeta with honest MODELLED/VALIDATED description (:638), and dispatch in run_builtin_kind (:1715) calling HybridOpticalRfScenario::run_output(). Wired in registry.rs: BUILTIN_KINDS::HybridOpticalRf (:89) and ids::HYBRID_OPTICAL_RF 'hybrid-optical-rf' (:152); run_toml routes through PackRegistry::with_builtins().build(kind.to_id()).run() (api.rs:919/933), so the scenario is reachable from BOTH surfaces. Committed scenarios/hybrid-optical-rf.toml (all fields optional, shown at defaults). Reproducibility oracle: tests/registry_golden.rs::golden_hybrid_optical_rf (:265) runs the committed TOML via kshana::api::run_toml (check() at :158) and pins the exact summary string and canonical FNV64 hash 0x184c561664c93035 (byte-invariant golden). Additionally hybrid_integrity.rs:755 pins the shared optical/FoM quantities (footprint 700.235, 1489.44 photons, ranging 1.942e-4 m, FoM 0.99266) as the pro-side G5 reconciliation contract. Pro serve/study side: kshana-pro/src/packs/optical_rf_hybrid_study_pack.rs (1518 LOC) registered via OpticalRfHybridStudyScenario in kshana-pro/src/registry.rs (:23,:83,:114,:253,:535).  [honesty: The ScenarioMeta description (api.rs:638) and the TOML/JSON LABEL are explicitly honest: Validated closed forms (CRLB, footprint, chi2 PL quantile, union, handoff continuity+NEES, joint product) vs Modelled inputs (loss allocations, sigma magnitudes, climatology, correlations, P_HMI), 'Not a certified availability/integrity product.' No overclaim.]"
         }
       ],
       "false_gaps_removed": []
@@ -1503,8 +1503,8 @@
           "suggested_location": "kshana/src/observability.rs (new): obs_matrix_over_arc(), observability_gramian(), ObservabilityFom{rank_by_arc, lambda_min, lambda_max, condition, spectrum}",
           "effort": "M",
           "validation_oracle": "numpy.linalg.matrix_rank for the stacked observability matrix and numpy.linalg.eigh for the Gramian spectrum/condition (already the accepted oracle class for fim.rs at 1e-9); cross-check the observable-rank result against SciPy/python-control obsv/gram on the same linearized time-varying system",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "No observability.rs in kshana/src (ls of 193 modules); grep for gramian/arc-stack/H*Phi found only unrelated arcsec/burn-arc hits. Primitives confirmed present: cr3bp::propagate_state_stm (cr3bp.rs:249), deepspace_od::range_observable (deepspace_od.rs:838), fim::sym_eig (fim.rs:55) and design_metrics (fim.rs:276) returning rank/condition. Existing tests/fim_observability_reference.rs only cross-checks fim eigensolver vs numpy; no arc-sweep Gramian assembly exists."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/observability_gramian.rs implements the full headline analysis: observability_matrix() (L123 O=stack_k[H_k·Φ_k]), gramian() (L140 W=Σ Δt·ΦᵀHᵀHΦ), observable_rank()/rank_from_singular_values() (L182-197 SVD threshold), gramian_spectrum() -> GramianSpectrum{eigenvalues,min/max_eigenvalue,trace,condition,rank,defect} (L200-267), rank_vs_arc() (L290 rank-vs-arc-length table). Module declared pub in src/lib.rs:112. External oracle: tests/observability_gramian_reference.rs cross-checks kshana's rank/eigen-spectrum/condition against numpy.linalg.matrix_rank/eigh/cond (LAPACK) via committed fixture tests/fixtures/observability_gramian/observability_gramian_reference.txt (numpy 1.26.4), generated by generate.py (10921 bytes). Reachable from public surface: the cislunar-observability scenario invokes rank_vs_arc/gramian/gramian_spectrum (src/cislunar_observability.rs:212-214), wired in src/api.rs:447 (ScenarioKind::CislunarObservability), :503/:563 (string map), :639 (ScenarioMeta), :1721-1726 (dispatch), and src/registry.rs:90/:153-154. Golden reproducibility gate tests/registry_golden.rs:280-294 pins summary + FNV canonical hash 0x8347e4635b2e2949."
         },
         {
           "id": "P6-G2",
@@ -1518,8 +1518,8 @@
           "suggested_location": "kshana-pro/papers/cislunar-observability/ study + kshana-pro/src/packs/ (new cislunar_observability_pack.rs) emitting cislunar_observability_table.csv and spectrum/condition plots",
           "effort": "M",
           "validation_oracle": "Numerical values reproduce byte-for-byte from the committed CSV; Gramian eigenvalues/condition cross-validated against numpy.linalg.eigh/cond on the exported matrices",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "No cislunar-observability directory under kshana-pro/papers/ (ls shows lunar-pnt, cross-provider-lunar-interop, etc. but no cislunar-observability). No cislunar_observability_pack.rs in kshana-pro/src/packs/ (only batch_pack, detector_intake, mbse_pack, optimism_gap_audit, quantum_systematics_pack, seam_check, trade_study_pack, twin_pack). Depends on P6-G1 which is itself confirmed-missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "kshana-pro/src/packs/cislunar_observability_study_pack.rs present + registered; papers/cislunar-observability/cislunar_observability_table.csv committed. NOTE: the committed CSV reflects the pre-refresh cond; regen against the new cond 2.05e9 is founder-gated on push."
         },
         {
           "id": "P6-G3",
@@ -1533,8 +1533,8 @@
           "suggested_location": "kshana/src/observability.rs + kshana/tests/cislunar_observability_estimator_reference.rs wiring cr3bp scenario through deepspace_od::Srif (and optionally fusion::ukf)",
           "effort": "M",
           "validation_oracle": "Independent estimator agreement: SRIF/batch posterior covariance is unbounded (singular information) while rank<4 and finite once rank=4, and its condition number matches the Gramian condition number; cross-check filter output against a numpy/scipy batch least-squares on identical measurement stacks",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "The estimator exists: deepspace_od::Srif (deepspace_od.rs:57) with zero-information/rank-deficient handling and a run() path (deepspace_od.rs:649). What is MISSING is any test/wiring feeding a CR3BP DRO inter-satellite-ranging scenario through Srif to demonstrate the covariance-finite-at-rank-4 transition: no such test in kshana/tests (only cislunar_mission_analysis_reference.rs, which validates the NRHO halo differential corrector vs JPL, not an ISL observability estimator run)."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/cislunar_srif.rs (pub in lib.rs:25) wires the CR3BP inter-satellite-ranging arc through crate::deepspace_od::Srif (Householder square-root information filter, never forms OᵀO): srif_cross_validation() (L123) folds each observability row via measurement_update and reports srif_posterior_wellposed + srif_condition per arc prefix; full_rank_transition()/srif_finite_transition() (L177-191). Unit test srif_posterior_finite_exactly_at_full_rank (L228) asserts posterior singular while rank<4, finite exactly at rank 4, cond(P) same order as Gramian cond. INDEPENDENT external oracle: tests/cislunar_srif_batch_ls_reference.rs checks SRIF P=(OᵀO)⁻¹ and cond against numpy.linalg.inv/cond + scipy.linalg.inv/lstsq (numpy 1.26.4/scipy 1.13.1), incl. recovery of an injected initial-state offset to 1e-9; fixture tests/fixtures/cislunar_srif_batch_ls/. Reachable: srif_cross_validation is called in src/cislunar_observability.rs:219 and surfaced in scenario JSON srif_cross_validation block; golden summary registry_golden.rs:291 shows 'SRIF posterior finite at rank-4 epoch 8'."
         },
         {
           "id": "P6-G4",
@@ -1548,8 +1548,8 @@
           "suggested_location": "kshana/src/observability.rs::isl_range_jacobian() (planar 4-state) or extend cr3bp.rs",
           "effort": "S",
           "validation_oracle": "Analytic LOS-unit-vector partial matched to finite-difference of |r_user - r_beacon| (same FD-oracle pattern as cr3bp::stm_matches_finite_difference); zero velocity columns exact",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "deepspace_od::range_observable (deepspace_od.rs:838) computes the LOS-unit-vector partial dRho/dr=u, dRho/dv=0 but for a station-to-spacecraft geometry in the fixed N_STATE (9-state reduced-dynamic) layout with a static station_pos. No spacecraft-to-spacecraft (beacon state) planar 4-state [x,y,vx,vy] builder exists; grep for isl/inter-satellite/beacon/spacecraft-to-spacecraft in deepspace_od.rs and cr3bp.rs returned nothing. The LOS math is reusable but the planar-4-state ISL row builder is genuinely absent."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/intersat_range.rs (pub in lib.rs:77) provides the planar 4-state s=[x,y,vx,vy] inter-satellite range/range-rate model: range_row() (L60) returns (ρ,[û_x,û_y,0,0]) — velocity columns structurally zero; range_rate_row() (L79) returns nonzero velocity columns (∂ρ̇/∂v=û). Oracle: range_row_matches_central_finite_difference (L111) and range_rate_row_matches_central_finite_difference (L135) match analytic partials to central FD of |r_a-r_b| to 1e-6 (same FD pattern as cr3bp::stm_matches_finite_difference); range_rate_row_matches_deepspace_od_in_planar_embedding (L160) cross-checks against the crate's independent 3-D deepspace_od::range_rate_observable in the z=0 embedding to 1e-12. Feeds the observability module (observability_gramian.rs:36 imports range_row/range_rate_row) and the scenario. Zero velocity columns for range are exact (asserted L129-130)."
         },
         {
           "id": "P6-G5",
@@ -1563,8 +1563,8 @@
           "suggested_location": "kshana/src/cr3bp.rs::dro_family() / dro_ic_scan() reusing propagate_to_crossing + differential-correction machinery",
           "effort": "M",
           "validation_oracle": "Jacobi constant conservation over a full period and y=0 perpendicular-crossing periodicity (existing cr3bp test oracles); cross-check seeded DRO initial conditions against published Earth-Moon DRO ICs (e.g. GMAT/NASA cislunar catalogs or literature values)",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "cr3bp.rs provides jacobi_constant (line 64), propagate_state_stm (249), PeriodicOrbit (331) and differential_correct_halo (372) for the L2 Southern Halo/NRHO family (validated vs JPL in cislunar_mission_analysis_reference.rs). But grep for 'distant.retrograde'/DRO/dro_ across kshana/src returned zero hits: no planar-DRO family generator or IC-scan exists. The corrector/crossing machinery is reusable but the DRO seeder is missing."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/dro.rs (pub in lib.rs:38) is a genuine planar-DRO differential corrector, not hand-tuned states: dro_from_crossing() (L175) single-shoots ẏ0 at fixed perpendicular x-crossing using the FD-validated planar STM to drive ẋ_f→0; seed_dro()/seed_dro_mu() (L224/L228) secant-solve the crossing abscissa to hit a prescribed perilune amplitude; dro_family() (L257) seeds a family. Validated: corrected_dro_closes_and_is_retrograde (L278) asserts periodicity_residual<1e-8 via an INDEPENDENT finer CR3BP-flow closure (120k steps <1e-7) plus retrograde sign maintained. EXTERNAL published-value oracle: tests/validate_p6_dro_family_jpl.rs validates 4 members against the NASA/JPL Three-Body Periodic Orbit Database (sys=earth-moon&family=dro) with scipy DOP853 (rtol=atol=1e-13); fixture tests/fixtures/dro_family_jpl/dro_family_jpl_reference.txt lists Jacobi C, period, perilune for 4 DROs spanning perilune 11,493..46,025 km (matches paper band ~11.5k-46k km); worst |dC|~7e-8, |dT|/T~2e-7, |dperilune|~0.01 km. Reachable: dro::dro_from_crossing/state_at seed the scenario constellation (src/cislunar_observability.rs:86-89).  [honesty: The choice of WHICH DRO amplitudes/phases form the constellation is honestly Modelled (dro.rs:32, cislunar_observability.rs:34-36, JPL test header lines 47-52); the differential-correction mechanism and per-member DRO identity are Validated. Correctly labelled — no overclaim.]"
         },
         {
           "id": "P6-G6",
@@ -1578,8 +1578,8 @@
           "suggested_location": "kshana/src/observability.rs (add range-rate rows) + a study row in the P6-G2 pack",
           "effort": "S",
           "validation_oracle": "Rank of the augmented instantaneous Jacobian via numpy.linalg.matrix_rank; velocity columns now nonzero verified against range_rate analytic partial vs finite-difference",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "deepspace_od::range_rate_observable (deepspace_od.rs:864) already computes rho_dot and its partials dRhoDot/dv=u (nonzero velocity columns) and dRhoDot/dr, plus doppler_clock_freq_partial (deepspace_od.rs:908). The observable primitive exists, but there is no observability module composing range+range-rate H and demonstrating the instantaneous rank rise (blocked by missing observability.rs / P6-G1)."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/observability_gramian.rs range_vs_range_rate_rank() (L336) builds a range-only stack (velocity columns zero) vs a range+range-rate stack (nonzero velocity columns) at one epoch and returns RankLever{rank_range_only, rank_range_rate}. Unit tests range_rate_raises_instantaneous_rank (L593, asserts rank_range_rate>rank_range_only and range-only<=2) and range_only_single_link_is_rank_one (L611). Rank is via observable_rank -> the same numpy.linalg.matrix_rank-matching threshold validated in observability_gramian_reference.rs; the range-rate analytic partial vs FD is validated in intersat_range.rs:135. Reachable: called in src/cislunar_observability.rs:222; surfaced in scenario JSON range_rate_lever block; golden summary registry_golden.rs:291 shows 'instantaneous rank range-only 2 → range+rate 4 (3 links)'. The Discussion-5.2 claim (Doppler restores observability) is now machine-produced, not asserted."
         },
         {
           "id": "P6-G7",
@@ -1593,8 +1593,8 @@
           "suggested_location": "kshana/src/observability.rs consuming cr3bp::propagate_state_stm (no separate STM implementation needed)",
           "effort": "S",
           "validation_oracle": "cr3bp STM already validated vs finite-difference (stm_matches_finite_difference:487); additionally cross-check Phi against a variational STM from a reference toolkit (Nyx or python-control/scipy solve_ivp of the variational equations)",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "Confirmed cr3bp::propagate_state_stm (cr3bp.rs:249) exists and its FD-validation test stm_matches_finite_difference is present (cr3bp.rs:487), exactly as claimed. The STM primitive is fully in place; the remaining work is the trivial wiring of this STM into the (missing) observability module. Effort is genuinely small but the consuming module (P6-G1) does not yet exist, so the de-modelling wiring is not yet present."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/observability_gramian.rs planar_state_stm() (L56) consumes crate::cr3bp::propagate_state_stm (variational RK4 STM), extracting the planar [x,y,ẋ,ẏ] sub-block — no separate/first-order STM implementation. Self-check planar_stm_matches_finite_difference (L487) vs central FD to 1e-5. The 'additionally' external oracle the gap names EXISTS: tests/cr3bp_variational_stm_reference.rs validates cr3bp::propagate_state_stm element-by-element against an INDEPENDENT scipy.integrate.solve_ivp DOP853 (rtol=atol=1e-13) integration of the coupled state+variational ODE dΦ/dt=A·Φ (different integrator AND different equation set from kshana's RK4), 3 cases (2 planar + 1 full 3-D), TOL 5e-7; fixture tests/fixtures/cr3bp_variational_stm/. Reachable: planar_state_stm is used throughout the observability core and the scenario (cislunar_observability.rs:202). Upgrades Φ propagation from Modelled/first-order to Validated."
         },
         {
           "id": "P6-G8",
@@ -1608,8 +1608,8 @@
           "suggested_location": "kshana-pro papers/cislunar-observability/ figure renderer (dark PNG for README + light PDF for paper, per existing crossover-renderer pattern)",
           "effort": "S",
           "validation_oracle": "Figure regenerates deterministically from the committed CSV/table; visual parity with fig1_main.pdf",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "chart.rs exists in kshana/src (generic charting) and crossover.rs provides the dark-PNG/light-PDF crossover-renderer pattern, but no cislunar-observability figure renderer exists: no cislunar-observability paper directory in kshana-pro/papers/ and no cislunar figure asset (grep 'cislunar' in papers/ hit only lunar-pnt.bib title text and TPL section prose, no constellation/rank-vs-arc renderer)."
+          "verify_verdict": "resolved",
+          "verify_evidence": "papers/cislunar-observability/fig1_cislunar_observability.svg (constellation + rank-vs-arc + Gramian-spectrum renderer) committed."
         },
         {
           "id": "P6-G9",
@@ -1623,8 +1623,8 @@
           "suggested_location": "kshana-pro/src/packs/cislunar_observability_pack.rs + kshana-pro/papers/cislunar-observability/ + registry.rs oracle entry",
           "effort": "M",
           "validation_oracle": "Study output reproduces the committed table; oracle entry cites numpy/scipy Gramian eigen/condition and the SRIF estimator cross-check from P6-G3",
-          "verify_verdict": "confirmed-missing",
-          "verify_evidence": "No cislunar_observability_pack.rs in kshana-pro/src/packs/ and no cislunar-observability paper directory in kshana-pro/papers/. The lunar-pnt companion (VLBI static-observability) exists and is the pattern to mirror, but no cislunar-observability study/pack/branded PDF or registry.rs oracle entry for a Gramian FOM exists yet."
+          "verify_verdict": "resolved",
+          "verify_evidence": "cislunar_observability_study_pack.rs + papers/cislunar-observability/report.pdf + README committed; registered oracle entry in kshana-pro registry.rs."
         },
         {
           "id": "P6-G10",
@@ -1638,8 +1638,8 @@
           "suggested_location": "kshana/src/observability.rs (report GDOP-undefined when snapshot information matrix is rank-deficient), reusing pvt.rs / fim::design_metrics",
           "effort": "S",
           "validation_oracle": "Information-matrix rank<full and condition=inf confirmed against numpy.linalg.matrix_rank/cond on the instantaneous geometry",
-          "verify_verdict": "partial-exists",
-          "verify_evidence": "pvt.rs computes GDOP with explicit singular-geometry handling (pvt.rs:143 'geometry is singular', gdop field:92, fewer-than-4/singular returns None:549) and fim::design_metrics (fim.rs:276) yields condition for rank-deficient information. The primitives exist, but no reporting path applies them to a CR3BP snapshot to machine-produce the 'GDOP undefined (rank-deficient)' flag for the DRO geometry; that thin cislunar-snapshot reporting path lives in the not-yet-created observability module."
+          "verify_verdict": "resolved",
+          "verify_evidence": "src/observability_gramian.rs CislunarGdop enum (L361) + cislunar_gdop() (L388) return CislunarGdop::Undefined{rank,defect,reason} when fim::design_metrics reports defect>0 or condition=inf (the same singular guard pvt::solve_spp's invert4 applies), and Defined{gdop=√trace(M⁻¹),rank} only at full rank. Unit tests rank_deficient_geometry_flags_gdop_undefined (L622) and full_rank_geometry_yields_finite_gdop (L641). EXTERNAL oracle: tests/cislunar_gdop_singular_reference.rs cross-checks rank/defect/condition-finiteness against numpy.linalg.matrix_rank/cond on the ACTUAL default DRO constellation snapshot information matrix; fixture tests/fixtures/cislunar_gdop_singular/cislunar_gdop_singular_reference.txt (numpy 1.26.4) commits range-only rank 2/defect 2/cond inf and range+rate rank 4/defect 0/cond 2.95e3. Reachable: called src/cislunar_observability.rs:234-235; scenario JSON gdop block + test range_only_snapshot_gdop_is_undefined (L647); golden summary shows 'GDOP range-only undefined range+rate 6.353'."
         }
       ],
       "false_gaps_removed": []
