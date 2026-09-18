@@ -6,6 +6,21 @@
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{url}
+\usepackage{listings}
+% Code listings that cannot overflow the column on any TeX distribution: a small
+% monospace face plus hard line breaking at whitespace, so an external recompile
+% (e.g. arXiv's) can never spill a long command into the neighbouring column.
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  breaklines=true,
+  breakatwhitespace=true,
+  keepspaces=true,
+  columns=fixed,
+  xleftmargin=0pt,
+  aboveskip=4pt,
+  belowskip=2pt,
+  postbreak=\mbox{$\hookrightarrow$\space},
+}
 \graphicspath{{figures/}}
 
 \begin{document}
@@ -411,10 +426,10 @@ chance.}\label{fig:satgrid}\end{figure}
 \section{Reproducibility}
 Every number regenerates from a single command, and the figures are built from the
 resulting artifact:
-\begin{verbatim}
+\begin{lstlisting}
 cargo run --release --example optimism_study
 python3 make_figures.py
-\end{verbatim}
+\end{lstlisting}
 The artifact is versioned, self-describing JSON. It records all aggregates, the
 trends with their mean in-distribution AUC, the family gaps and the
 matched-dimensionality pairs, the predictor's cross-validation with the full
@@ -429,7 +444,7 @@ part of Kshana~\cite{kshana}.
 The real-data probes follow the same pattern. Each public corpus has a dedicated
 ingest example that reuses the same scoring path, so a result regenerates from the
 downloaded files in one command:
-\begin{verbatim}
+\begin{lstlisting}
 cargo run --release --example yunnan_probe \
     -- windows.json out.json observation12.json \
        observation16.json observation17.json
@@ -443,7 +458,7 @@ cargo run --release --example texbat_probe -- \
     out.json 25000000 8 0 \
     nominal:cleanStatic.bin p10:ds2.bin \
     p1_3:ds3.bin p0_4:ds4.bin
-\end{verbatim}
+\end{lstlisting}
 A generic \texttt{ingest\_realdata} manifest path is also provided for arbitrary
 file sets. The adapters carry their own unit tests with hand-derived oracles, the
 RAIM channel is checked against a surveyed IGS station, and the software-receiver

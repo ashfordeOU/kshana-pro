@@ -40,7 +40,7 @@ else:  # schema v1 fallback
 labels = {"cn0": "C/N0", "sqm": "SQM (E-L)", "lock": "lock test", "qratio": "Q ratio"}
 markers = {"cn0": "o", "sqm": "s", "lock": "^", "qratio": "D"}
 
-fig, ax = plt.subplots(figsize=(3.4, 2.6))
+fig, ax = plt.subplots(figsize=(3.4, 2.6), layout="constrained")
 for det in sorted(table):
     ys = [table[det][str(lv)] for lv in levels]
     ax.plot(levels, ys, marker=markers.get(det, "o"), ms=4, lw=1.3,
@@ -53,7 +53,6 @@ ax.set_xticks(levels)
 ax.set_ylim(0.35, 0.72)
 ax.legend(fontsize=7, frameon=False, ncol=2, loc="upper right")
 ax.grid(True, alpha=0.25, lw=0.5)
-fig.tight_layout(pad=0.3)
 for ext in ("pdf", "png"):
-    fig.savefig(os.path.join(OUT, f"fig5_satgrid.{ext}"), dpi=200)
+    fig.savefig(os.path.join(OUT, f"fig5_satgrid.{ext}"), dpi=200, bbox_inches="tight")
 print("wrote", os.path.join(OUT, "fig5_satgrid.pdf"))
