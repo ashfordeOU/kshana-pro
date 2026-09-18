@@ -98,7 +98,12 @@ impl Scenario for BatchScenario {
         );
 
         let svg = histogram_svg(&self.title, &self.metric, &r);
-        Ok(RunOutput { json, svg, summary })
+        Ok(RunOutput {
+            json,
+            svg,
+            summary,
+            csv: None,
+        })
     }
 }
 

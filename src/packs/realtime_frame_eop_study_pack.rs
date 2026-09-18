@@ -11,7 +11,7 @@
 //! off the real IERS `finals2000A` series bundled by the open `realtime-frame-eop`
 //! scenario ([`kshana::realtime_frame_eop`]) — and pushes it through the L19 lever arm
 //! `Δr = D_EM·ω⊕·ΔUT1` to a position / timing error **at the Moon**. It then presents
-//! the resulting ~15 m (real-time / multi-day) and ~0.27 m (post-processed / final
+//! the resulting ~14.4 m (real-time / multi-day) and ~0.27 m (post-processed / final
 //! floor) figures against the *independently* modelled OD-covariance budget
 //! ([`kshana::lunar_frame_predict::predict_frame_error`]) as an **independent
 //! prediction, not a consistency identity**.
@@ -28,7 +28,7 @@
 //!   mapped through the L19 closed-form lever arm (`1 ms ↔ 28.03 m ↔ 93.5 ns`, `ω⊕`
 //!   cross-checked against the CIO Earth-rotation angle) — real data + exact closed
 //!   form.
-//! * **Modelled.** The OD-covariance budget magnitudes (0.27 m post-processed, ~15 m
+//! * **Modelled.** The OD-covariance budget magnitudes (0.27 m post-processed, ~14.4 m
 //!   real-time at 1 h latency) and the frame-realisation floor are representative
 //!   allocations, and the persistence predictor is not IERS's operational Bulletin A
 //!   algorithm. Not a certified real-time frame product.
@@ -60,7 +60,7 @@ const LABEL: &str = "Data-forward real-time lunar frame / Earth-orientation pred
 VALIDATED: the data-forward Moon positions are the L18 real-data UT1 prediction-error curve (real IERS \
 finals2000A) mapped through the L19 closed-form lever arm (1 ms ↔ 28.03 m ↔ 93.5 ns, omega_earth \
 cross-checked against the CIO Earth-rotation angle). MODELLED: the OD-covariance budget magnitudes \
-(0.27 m post-processed, ~15 m real-time at 1 h latency) and the frame-realisation floor are \
+(0.27 m post-processed, ~14.4 m real-time at 1 h latency) and the frame-realisation floor are \
 representative allocations, and the multi-day predictor is persistence, not IERS's operational Bulletin \
 A algorithm. Not a certified real-time frame product.";
 
@@ -477,7 +477,7 @@ impl RealtimeFrameEopStudyScenario {
             "narrative": NARRATIVE,
             "provenance_legend": {
                 "Validated": "the data-forward Moon positions are the L18 real-data UT1 prediction-error curve (real IERS finals2000A) mapped through the L19 closed-form lever arm; omega_earth is cross-checked against the CIO Earth-rotation angle.",
-                "Modelled": "the OD-covariance budget magnitudes (0.27 m post-processed, ~15 m real-time at 1 h latency) and the frame-realisation floor are representative allocations; the multi-day predictor is persistence, not IERS's Bulletin A algorithm.",
+                "Modelled": "the OD-covariance budget magnitudes (0.27 m post-processed, ~14.4 m real-time at 1 h latency) and the frame-realisation floor are representative allocations; the multi-day predictor is persistence, not IERS's Bulletin A algorithm.",
             },
             "epoch": m.epoch,
             "eop_source": m.eop_source,
@@ -708,6 +708,7 @@ impl Scenario for RealtimeFrameEopStudyScenario {
             json: doc,
             svg,
             summary,
+            csv: None,
         })
     }
 }
@@ -958,13 +959,45 @@ mod tests {
 
     #[test]
     fn modelled_od_reproduces_p4_magnitudes() {
-        // ORACLE: representative OD covariance ⇒ ~0.27 m post-processed, ~15 m real-time.
+        // ORACLE: the representative OD covariance propagated through 1 h of latency.
+        // Hand-computed here from the published constants rather than re-run through the
+        // same expression, so this cannot pass by sharing the code's own arithmetic:
+        //   √(0.27² + (3600 · 0.004)²) = √(0.0729 + 207.36) = 14.402531… m
+        //
+        // The band used to be a slack (13.0..17.0) around a "~15 m" headline. That slack
+        // is exactly why a real change slipped through: the open core replaced a velocity
+        // 1σ that had been back-solved to land on a round 15 m with an honestly-chosen
+        // 4 mm/s, the figure moved to 14.4 m, and this test stayed green. Pinned tight.
         let m = model();
         assert!((m.modelled_od.postproc_pos_m - 0.27).abs() < 1e-6);
         assert!(
-            (13.0..17.0).contains(&m.modelled_od.realtime_pos_m),
-            "real-time {}",
+            (m.modelled_od.realtime_pos_m - 14.402_531).abs() < 1e-3,
+            "real-time {} is not the 14.4025 m the representative covariance implies",
             m.modelled_od.realtime_pos_m
+        );
+    }
+
+    /// INVARIANT: the committed paper CSV in `papers/realtime-frame-eop/` is exactly what
+    /// the code regenerates today.
+    ///
+    /// The optical/RF pack has carried this guard from the start and it caught its own
+    /// drift the moment the engine's climatology was re-anchored. This pack had no such
+    /// guard, so when the open core replaced the back-solved velocity 1σ the committed
+    /// artifact silently kept the superseded 15.0 m column — stale, and nothing failed.
+    #[test]
+    fn committed_csv_matches_regeneration() {
+        let scn = RealtimeFrameEopStudyScenario::default();
+        let m = scn.compute().unwrap();
+        let committed = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/papers/realtime-frame-eop/realtime_frame_eop.csv"
+        ))
+        .expect("committed realtime_frame_eop.csv must exist (run emit_paper_artifacts)");
+        assert_eq!(
+            scn.csv_string(&m),
+            committed,
+            "committed realtime_frame_eop.csv drifted from regeneration — rerun \
+             `cargo test --lib -- --ignored emit_paper_artifacts`"
         );
     }
 

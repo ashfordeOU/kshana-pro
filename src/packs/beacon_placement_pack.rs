@@ -1021,6 +1021,7 @@ impl Scenario for BeaconPlacementScenario {
             json: doc,
             svg: fig,
             summary,
+            csv: None,
         })
     }
 }

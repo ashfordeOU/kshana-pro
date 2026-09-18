@@ -645,6 +645,7 @@ impl Scenario for LunarTimeBudgetStudyScenario {
             json: doc,
             svg,
             summary,
+            csv: None,
         })
     }
 }

@@ -1,9 +1,9 @@
 # kshana-pro optical/RF hybrid study (L51) — P5 Table 2: N-station optical availability
-# scenario_hash=69b31f6566a5 single_site_mean=5.281200e-1 independent_union=9.766786e-1 correlated_union=9.633879e-1 correlation=1.500000e-1
-# provenance: independent-union = 1 - prod(1 - a_i) is a Validated closed form; the per-site a_i and rho are Modelled climatology
+# scenario_hash=69b31f6566a5 single_site_mean=6.876000e-1 independent_union=9.976273e-1 correlated_union=9.950997e-1 correlation=1.500000e-1
+# provenance: independent-union = 1 - prod(1 - a_i) is a Validated closed form. Each per-site a_i = clear_sky x pointing: the clear-sky fraction is externally anchored (Cavazzani et al. 2011, GOES12 clear-night fractions, MNRAS; arXiv:1011.4815), the pointing/acquisition factor and rho are Modelled allocations, so a_i stays Modelled
 n_sites,availability_independent,availability_correlated,provenance
-1,5.301000e-1,5.301000e-1,Modelled
-2,7.884980e-1,7.623620e-1,Modelled
-3,8.985213e-1,8.724333e-1,Modelled
-4,9.533198e-1,9.341046e-1,Modelled
-5,9.766786e-1,9.633879e-1,Modelled
+1,7.920000e-1,7.920000e-1,Modelled
+2,9.342720e-1,9.193844e-1,Modelled
+3,9.771595e-1,9.666700e-1,Modelled
+4,9.892878e-1,9.821550e-1,Modelled
+5,9.976273e-1,9.950997e-1,Modelled

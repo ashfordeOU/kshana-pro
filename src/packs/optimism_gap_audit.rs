@@ -369,7 +369,12 @@ impl Scenario for OptimismGapAuditScenario {
         );
 
         let svg = audit_svg(&a);
-        Ok(RunOutput { json, svg, summary })
+        Ok(RunOutput {
+            json,
+            svg,
+            summary,
+            csv: None,
+        })
     }
 }
 

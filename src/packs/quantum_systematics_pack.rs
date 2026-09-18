@@ -115,7 +115,12 @@ impl Scenario for QuantumSystematicsScenario {
         );
 
         let svg = budget_svg(&budget);
-        Ok(RunOutput { json, svg, summary })
+        Ok(RunOutput {
+            json,
+            svg,
+            summary,
+            csv: None,
+        })
     }
 }
 

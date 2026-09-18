@@ -34,7 +34,7 @@ bit-identical, and perturbing the EOP horizons leaves Road B unchanged.
   prediction-error curve (real IERS `finals2000A`) mapped through the L19 closed-form
   lever arm (`1 ms ↔ 28.03 m ↔ 93.5 ns`; `ω⊕` cross-checked against the CIO
   Earth-rotation angle).
-- **Modelled** — the OD-covariance budget magnitudes (0.27 m post-processed, ~15 m
+- **Modelled** — the OD-covariance budget magnitudes (0.27 m post-processed, ~14.4 m
   real-time at 1 h latency) and the frame-realisation floor are representative
   allocations; the multi-day predictor is persistence, not IERS's operational Bulletin A
   algorithm.

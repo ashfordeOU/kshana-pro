@@ -97,7 +97,12 @@ impl Scenario for SeamCheckPack {
             crate::version(),
         );
 
-        Ok(RunOutput { json, svg, summary })
+        Ok(RunOutput {
+            json,
+            svg,
+            summary,
+            csv: None,
+        })
     }
 }
 

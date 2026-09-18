@@ -100,25 +100,68 @@ fn benefit_case_over_modelled_foms_emits_no_validated_row() {
     assert!(!case.any_crosses_label);
 }
 
-/// INVARIANT: position-domain FoMs stay not-implemented / partner-follow-on. If the
-/// open core ever implements `positioning_performance`, this fails so the MRD is
-/// revisited rather than silently claiming the capability.
+/// INVARIANT: the position-domain rows are classified against what the engine
+/// actually does.
+///
+/// This guard used to assert `positioning_performance()` was still an honest `Err`.
+/// The 0.26 engine implements it, so that assertion fired exactly as designed — it
+/// was the MRD demanding to be revisited, not a broken test. Silencing it would have
+/// left the deliverable marking a live, externally-validated capability as
+/// "not available". The invariant is now the one that survives the capability
+/// landing: a position row is measured only if it names a field the struct really
+/// has AND resolves to a live verification row; a follow-on row claims neither.
 #[test]
-fn position_domain_capability_remains_unavailable() {
-    assert!(
-        kshana::fom::positioning_performance().is_err(),
-        "positioning_performance() now returns Ok — the MRD position rows must be revisited"
+fn position_domain_rows_are_classified_against_the_live_engine() {
+    // The capability is live: a unit ENU covariance yields the textbook medians.
+    let p = kshana::fom::positioning_performance(
+        [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+        7.5,
     );
+    assert!(
+        p.cep_m.is_finite() && p.sep_m.is_finite() && p.drms2_m.is_finite(),
+        "positioning_performance() must return finite position-domain FoMs"
+    );
+    assert!(
+        p.sep_m >= p.cep_m,
+        "SEP ({}) must not fall below CEP ({})",
+        p.sep_m,
+        p.cep_m
+    );
+
+    let position_sources = [FomSource::PositioningFom, FomSource::SbasProtectionLevel];
+    let mut measured = 0usize;
     for row in mrd_table() {
-        if row.source == FomSource::PositioningFom {
-            assert_eq!(
-                row.availability,
-                Availability::PartnerFollowOn,
-                "MRD row {} (PositioningFom) must stay partner/follow-on",
-                row.id
-            );
+        if !position_sources.contains(&row.source) {
+            continue;
+        }
+        match row.availability {
+            Availability::Measured => {
+                measured += 1;
+                assert!(
+                    !row.field.is_empty(),
+                    "measured position row {} names no field",
+                    row.id
+                );
+                assert!(
+                    resolve_verification(row.verification_requirement).is_some(),
+                    "measured position row {} does not resolve to a live verification row ('{}')",
+                    row.id,
+                    row.verification_requirement
+                );
+            }
+            Availability::PartnerFollowOn => {
+                assert!(
+                    row.field.is_empty() && row.verification_requirement.is_empty(),
+                    "follow-on position row {} must claim no field and no oracle",
+                    row.id
+                );
+            }
         }
     }
+    assert!(
+        measured >= 5,
+        "the CEP/SEP/2DRMS/HPL/VPL rows must be measured against the 0.26 engine, got {measured}"
+    );
 }
 
 /// INVARIANT: every measured MRD row resolves to a real FoM field + a live oracle tag.
@@ -140,17 +183,24 @@ fn every_measured_mrd_row_resolves_to_field_and_oracle() {
     }
 }
 
-/// INVARIANT (defence in depth): no measured MRD row is backed by the not-implemented
-/// PositioningFom — i.e. nothing claims a position-domain number as measured.
+/// INVARIANT (defence in depth): the MRD never credits a pass-through as a
+/// computation.
+///
+/// `PositioningFom.hpl_m` does not compute a protection level — it carries whatever
+/// the caller passed in. So no row may claim HPL or VPL *from `PositioningFom`*; the
+/// HPL/VPL rows must be sourced to `SbasProtectionLevel`, the DO-229E monitor that
+/// actually derives them. This is the specific overclaim the old guard was reaching
+/// for, stated precisely enough to survive the capability landing.
 #[test]
-fn no_measured_row_is_backed_by_unimplemented_positioning() {
+fn no_row_credits_a_pass_through_as_a_computation() {
     for row in mrd_table() {
-        if row.availability == Availability::Measured {
-            assert_ne!(
-                row.source,
-                FomSource::PositioningFom,
-                "measured MRD row {} must not use the not-implemented PositioningFom",
-                row.id
+        if row.source == FomSource::PositioningFom {
+            assert!(
+                !matches!(row.field, "hpl_m" | "vpl_m"),
+                "MRD row {} sources '{}' from PositioningFom, which only passes a caller-supplied \
+                 protection level through; source it to SbasProtectionLevel instead",
+                row.id,
+                row.field
             );
         }
     }
