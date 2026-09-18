@@ -4,16 +4,20 @@ This directory tracks the program to make **every analysis and claim in the seve
 lunar/cislunar PNT preprints (P1–P7) producible in Kshana** — turning imported/asserted
 "Modelled" numbers into Kshana-computed "Validated" results.
 
-## Published on arXiv (2026-07-09)
+## Published on arXiv (re-verified 2026-09-18)
 
-Four program outputs are now live on arXiv (peer-visible); each cites the open `kshana`
-engine and every headline figure regenerates from a committed scenario + seed:
+**Five** program outputs are live on arXiv (peer-visible); each cites the open `kshana`
+engine and every headline figure regenerates from a committed scenario + seed. (This table
+said *four* until 2026-09-18 — it omitted the resilience-scoring paper. Verify with an
+arXiv **author** query, not `all:kshana`: only three of the five name the engine in their
+title or abstract, so a keyword search under-reports.)
 
 | arXiv | Title | Program map |
 |-------|-------|-------------|
 | [2607.06212](https://arxiv.org/abs/2607.06212) | The Cost of Lunar South-Polar Geometry, and Surface Beacons as the Efficient Fix | P2 · surface-beacon DOP → `src/lunar_beacon.rs` |
 | [2607.02566](https://arxiv.org/abs/2607.02566) | Earth-baseline VLBI restores the observability of a lunar surface station in joint orbit-and-clock determination | lunar joint OD+clock → `lunar_vlbi.rs` · `lunar_combination.rs` (cites kshana v0.23.0) |
 | [2606.24210](https://arxiv.org/abs/2606.24210) | A Conditional Timing Protection Level | `src/tpl.rs` (JammerTest 2024) |
+| [2607.05415](https://arxiv.org/abs/2607.05415) | How Stable Is a PNT Resilience Score? Decision-Instability of Single-Number Resilience Scores | resilience scoring → `papers/resilience-scoring/` |
 | [2606.22054](https://arxiv.org/abs/2606.22054) | Anticipating the Optimism Gap | `impairment_study.rs` |
 
 Papers stay **arXiv-first** — LaTeX sources live in [`papers/`](../../papers/); nothing
