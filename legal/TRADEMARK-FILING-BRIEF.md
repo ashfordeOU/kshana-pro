@@ -22,6 +22,51 @@ with a trademark attorney before filing.
 
 ---
 
+## 0. Register check — 2026-09-18
+
+The 2026-06-15 risk note above rested on a **web scan**. These are the registers
+actually queried on 2026-09-18, and what each returned, so the next reader does
+not repeat the same searches.
+
+| Source | Method | Result |
+|---|---|---|
+| TMview (EUIPO + national + USPTO aggregate) | REST + browser fetch | **Not retrievable** — API returns no response; UI is JavaScript-only |
+| EUIPO eSearch | REST | **Not retrievable** — no response |
+| USPTO trademark search | REST | **Not retrievable** — endpoint 404; UI is JavaScript-only |
+| Justia Trademarks (mirrors every USPTO application) | fetch + indexed search | **HTTP 403** on direct fetch; no `KSHANA` record surfaced via indexed search |
+| UK Companies House | direct fetch | **KSHANA LTD, company 14325029** — see below |
+| Kshana Inc. / kshana.ai | indexed search | Still **active**; Kshana AI LLP eFiling status Active per MCA |
+
+**Outcome: the clearance question is still open, and cannot be closed from here.**
+No registered `KSHANA` mark surfaced, but every authoritative register is
+JavaScript-gated or blocks automated access, so this is *absence of evidence from
+indexed mirrors*, **not** a clearance search. The attorney step in the risk note
+above remains required — this section narrows the cost of it, it does not replace
+it.
+
+### New finding — a third `Kshana` entity (UK)
+
+**KSHANA LTD**, UK company **14325029**, incorporated **30 August 2022**, status
+**Active**, registered at Flat 1, 17 Fawley Road, London NW6 1SJ. SIC **68320 —
+management of real estate on a fee or contract basis**.
+
+Real-estate services sit in Nice **Class 36**, nowhere near our Class 9/42 filing,
+so this is **not** a goods-and-services conflict. It matters only as a *company
+name* collision in the UK, and only if the UKIPO step in §2 is ever taken: a
+company registration is not a trademark and does not by itself block one, but it
+can support a passing-off argument where trade actually overlaps. It does not
+here.
+
+### What this changes
+
+- **EUIPO-first remains correct.** Neither of the two live `Kshana` entities
+  (fintech, IN/US; real estate, UK) shows any EU filing or EU trade.
+- **The US route stays the risky one** — Kshana Inc. is US-based (Katy, TX) and in
+  software, which is where a Class 9 collision would actually bite.
+- **Still unverified and still attorney-work:** whether either entity holds a
+  filed or pending mark anywhere. That needs a paid clearance search against the
+  full registers, not a public-web check.
+
 ## 1. What to register
 - **Mark (wordmark):** `KSHANA` (standard characters — broadest protection;
   protects the name regardless of styling).
