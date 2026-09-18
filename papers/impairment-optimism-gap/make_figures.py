@@ -54,7 +54,7 @@ def family(det):
 
 
 # ── Fig 1: scaling — mean gap vs (1 - severity), per class + pooled ──────────
-fig, ax = plt.subplots(figsize=(5.0, 3.4))
+fig, ax = plt.subplots(figsize=(5.0, 3.4), layout="constrained")
 sevs = sorted({c["severity"] for c in cells})
 for cl in classes:
     xs = [1.0 - s for s in sevs]
@@ -73,7 +73,7 @@ save(fig, "fig1_scaling")
 det_gap = {det: st.mean([c["mean_gap"] for c in cells if c["detector"] == det]) for det in d["detectors"]}
 order = sorted(d["detectors"], key=lambda x: det_gap[x], reverse=True)
 colors = {"physics": "#4C72B0", "learned (multi-feature)": "#C44E52", "learned (1-feature)": "#8172B3"}
-fig, ax = plt.subplots(figsize=(6.2, 3.6))
+fig, ax = plt.subplots(figsize=(6.2, 3.6), layout="constrained")
 bars = ax.bar(range(len(order)), [det_gap[x] for x in order],
               color=[colors[family(x)] for x in order])
 ax.set_xticks(range(len(order)))
@@ -86,7 +86,7 @@ ax.grid(alpha=0.3, axis="y")
 save(fig, "fig2_family")
 
 # ── Fig 3: per-class mean gap ────────────────────────────────────────────────
-fig, ax = plt.subplots(figsize=(4.6, 3.2))
+fig, ax = plt.subplots(figsize=(4.6, 3.2), layout="constrained")
 cl_gap = {cl: st.mean([c["mean_gap"] for c in cells if c["class"] == cl]) for cl in classes}
 clo = sorted(classes, key=lambda x: cl_gap[x], reverse=True)
 ax.bar(range(len(clo)), [cl_gap[x] for x in clo], color="#55A868")
@@ -99,7 +99,7 @@ save(fig, "fig3_per_class")
 
 # ── Fig 4: predicted-vs-actual scatter, both CV splits (headline) ────────────
 gp = d["gap_predictor"]
-fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.5))
+fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.5), layout="constrained")
 for ax, key, title in (
     (axes[0], "cv_leave_one_detector_out", "leave-one-detector-out"),
     (axes[1], "cv_leave_one_class_out", "leave-one-class-out"),
@@ -117,8 +117,7 @@ for ax, key, title in (
     ax.set_title(f"{title}\nR² = {cv['r2']:.2f}, RMSE = {cv['rmse']:.3f}", fontsize=9)
     ax.grid(alpha=0.3)
 fig.suptitle("H4 (headline): ID-only features predict the held-out optimism gap",
-             fontsize=10, y=1.02)
-fig.tight_layout(rect=[0, 0, 1, 0.97])
+             fontsize=10)
 save(fig, "fig4_predictor")
 
 print("done →", OUT)
