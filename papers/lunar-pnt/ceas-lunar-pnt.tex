@@ -1,0 +1,125 @@
+% SPDX-License-Identifier: CC-BY-4.0
+% CEAS Space Journal submission build. Science identical to the arXiv preprint
+% (arXiv:2607.02566); this wrapper adds line numbers for review and the Springer
+% mandatory declarations (funding, competing interests, author contributions,
+% data availability). Build: tectonic ceas-lunar-pnt.tex
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{2em}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{orcidlink}
+\usepackage{lineno}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\graphicspath{{./}{figures/}}
+
+\setlength{\abovecaptionskip}{10pt}
+\setlength{\belowcaptionskip}{7pt}
+
+\title{\textbf{Earth-baseline VLBI restores the observability of a lunar
+surface station in joint orbit-and-clock determination}}
+
+\author{Chakshu Baweja\,\orcidlink{0009-0008-2098-0751}\\
+\small Ashforde O\"U, Tallinn, Estonia \\
+\small \texttt{contact@ashforde.org}}
+
+\date{\today}
+
+\begin{document}
+\linenumbers
+\maketitle
+
+\begin{abstract}
+\input{sections/00-abstract}
+\end{abstract}
+
+\noindent\textbf{Keywords:} lunar PNT; orbit determination; observability;
+Fisher information; Cram\'er--Rao bound; very-long-baseline interferometry (VLBI);
+cislunar navigation; reference frames
+
+\input{sections/01-intro}
+\input{sections/03-related}
+\input{sections/02-methodology}
+\input{sections/02b-theory}
+\input{sections/04-results}
+\input{sections/05-toolkit}
+\input{sections/06-limitations}
+\input{sections/07-discussion}
+\input{sections/09-conclusion}
+
+% Availability section inlined (arXiv/Zenodo identifiers filled in) so this CEAS
+% wrapper depends only on the unchanged shared science sections.
+\section{Availability and reproducibility}
+
+The engine is open source (\code{kshana}, AGPL-3.0-only, with a commercial
+licence available), and every release is archived on Zenodo
+\citep{baweja2026kshana}. The figures here were produced by engine v0.23.0, the
+release that carries the Fisher-information / Cram\'er--Rao observability layer
+(\code{fim}) this paper rests on; the analysis scripts, the committed aggregate
+data, and the fixed seed lists rebuild every one of them from that pinned binary
+\citep{fernandezprades2018reproducibility}, so the committed engine version is a
+real artifact rather than a nominal one. The FIM/CRLB engine itself is Validated
+against NumPy and the published bounds of \citet{kay1993}; the lunar application
+of it stays Modelled.
+
+Two external-validation steps are scoped and honest about what they would and
+would not move. First, tying the engine's lunar-time transform to the open,
+IAU-Resolution-compliant LTE440 lunar time ephemeris would let kshana reproduce a
+\emph{released} selenocentric-coordinate-time rate against published values---note
+that this validates a distinct quantity (a centre-of-mass coordinate-time scale)
+and does not turn the surface-clock rate or the joint-OD result into measurements.
+Second, the joint-OD observability result will stay Modelled until real lunar VLBI
+or ranging data exist; no current dataset can flip it, and we say so rather than
+imply otherwise. This work is also available as a preprint (arXiv:2607.02566); the
+v0.23.0 lunar release is archived at Zenodo (DOI:~10.5281/zenodo.20528627), and the
+source repository is \code{github.com/ashfordeOU/kshana} at tag \code{v0.23.0}.
+
+\section*{Statements and declarations}
+
+\subsection*{Funding}
+No external funding was received for this work, which was carried out at
+Ashforde O\"U.
+
+\subsection*{Competing interests}
+The author is the founder of Ashforde O\"U, the company that develops the
+open-source \code{kshana} engine used to produce the results reported in this
+paper. \code{kshana} is distributed under the AGPL-3.0-only licence with a
+commercial licence also available, so the author has a financial interest in the
+software described here. The author declares no other competing financial or
+non-financial interests relevant to this work.
+
+\subsection*{Author contributions}
+Chakshu Baweja is the sole author and is responsible for all aspects of the
+work: conceptualisation, methodology, software, formal analysis, investigation,
+and writing (original draft, review, and editing).
+
+\subsection*{Data and code availability}
+The \code{kshana} engine is open source (AGPL-3.0-only,
+\code{github.com/ashfordeOU/kshana}, tag \code{v0.23.0}) and every release is
+archived on Zenodo (DOI:~10.5281/zenodo.20528627). Every figure and table in this
+paper rebuilds deterministically from a committed scenario, a fixed seed list, and
+the pinned engine version, as described in the Availability and reproducibility
+section. A preprint of this work is available as arXiv:2607.02566.
+
+\subsection*{Acknowledgements}
+The author thanks the open-source PNT and geodesy communities whose public
+references and conventions this work calibrates against.
+
+\bibliographystyle{plainnat}
+\bibliography{lunar-pnt}
+
+\end{document}

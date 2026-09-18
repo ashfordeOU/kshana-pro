@@ -1,0 +1,10 @@
+Author contributions statement
+Manuscript: "Earth-baseline VLBI restores the observability of a lunar surface
+station in joint orbit-and-clock determination"
+
+Chakshu Baweja is the sole author and is responsible for all aspects of the work.
+Using the CRediT taxonomy: Conceptualization; Methodology; Software; Formal
+analysis; Investigation; Data curation; Writing – original draft; Writing –
+review and editing; Visualization.
+
+(There are no other contributors to declare. Single-author submission.)
