@@ -17,6 +17,18 @@ publish = false
 name = "kshana-pro"
 path = "src/main.rs"
 
+[features]
+default = []
+# The cost-aware gauge-constrained OED optimizer (src/lunar_oed.rs) builds on the
+# open core's `lunar_techniques` + `lunar_identifiability` modules. Those ship on the
+# lunar multi-technique substrate branch and are NOT yet on kshana `main`, so the
+# module cannot compile against the pinned rev. It is gated rather than left
+# untracked so the code is version-controlled today and the default build stays
+# green. TO ENABLE once the substrate lands on main: `cargo update -p kshana`, then
+# delete this feature and the `#[cfg(feature = "lunar-oed")]` on the module in
+# src/lib.rs — there is nothing else to undo.
+lunar-oed = []
+
 [dependencies]
 # The open AGPL-3.0-only engine, consumed as a dependency — NEVER forked. Pro is a
 # strict superset of open Kshana by construction: it embeds the whole engine and
