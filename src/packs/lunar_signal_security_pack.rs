@@ -95,11 +95,8 @@ fn d_jam_js_db() -> f64 {
 fn d_nav_data_rate_bps() -> f64 {
     50.0 // representative (MODELLED) AFS nav-data rate
 }
-fn d_deficit_band_lo_db() -> f64 {
-    12.0
-}
-fn d_deficit_band_hi_db() -> f64 {
-    18.0
+fn d_reference_rx_min_dbw() -> f64 {
+    -128.5 // GPS L1 C/A spec-minimum received power (weak end of the reference spread)
 }
 fn d_footprint_altitude_m() -> f64 {
     1.0e5 // 100 km orbital transmitter
@@ -147,12 +144,13 @@ pub struct LunarSignalSecurityScenario {
     /// AFS nav-data rate (bit/s) for the NMA overhead fraction. MODELLED. Baseline: 50.
     #[serde(default = "d_nav_data_rate_bps")]
     pub nav_data_rate_bps: f64,
-    /// Low edge of the power-deficit sensitivity band (dB). Baseline: 12 dB.
-    #[serde(default = "d_deficit_band_lo_db")]
-    pub deficit_band_lo_db: f64,
-    /// High edge of the power-deficit sensitivity band (dB). Baseline: 18 dB.
-    #[serde(default = "d_deficit_band_hi_db")]
-    pub deficit_band_hi_db: f64,
+    /// Weak-end terrestrial reference received power (dBW) — the other axis of the
+    /// power-deficit sensitivity band, swept against `reference_rx_dbw`. Baseline:
+    /// −128.5 dBW (GPS L1 C/A spec minimum). The 12–18 dB band is DERIVED from the
+    /// closed-form sweep over [reference_rx_min_dbw, reference_rx_dbw] × slant range,
+    /// not asserted as a constant.
+    #[serde(default = "d_reference_rx_min_dbw")]
+    pub reference_rx_min_dbw: f64,
     /// Orbital-footprint transmitter altitude (m). Baseline: 100 km.
     #[serde(default = "d_footprint_altitude_m")]
     pub footprint_altitude_m: f64,
@@ -177,8 +175,7 @@ impl Default for LunarSignalSecurityScenario {
             spoof_js_db: d_spoof_js_db(),
             jam_js_db: d_jam_js_db(),
             nav_data_rate_bps: d_nav_data_rate_bps(),
-            deficit_band_lo_db: d_deficit_band_lo_db(),
-            deficit_band_hi_db: d_deficit_band_hi_db(),
+            reference_rx_min_dbw: d_reference_rx_min_dbw(),
             footprint_altitude_m: d_footprint_altitude_m(),
             footprint_tx_dbw: d_footprint_tx_dbw(),
             footprint_diameter_m: d_footprint_diameter_m(),
@@ -280,8 +277,7 @@ impl LunarSignalSecurityScenario {
                 "spoof_js_db",
                 "jam_js_db",
                 "nav_data_rate_bps",
-                "deficit_band_lo_db",
-                "deficit_band_hi_db",
+                "reference_rx_min_dbw",
                 "footprint_altitude_m",
                 "footprint_tx_dbw",
                 "footprint_diameter_m",
@@ -355,8 +351,35 @@ impl LunarSignalSecurityScenario {
         let lunar_spoof_1km_w = spoof[0].p_tx_w;
         let terr_spoof_1km_w = lunar_spoof_1km_w * deficit_factor;
 
-        let band_lo_factor = dbw_to_w(self.deficit_band_lo_db);
-        let band_hi_factor = dbw_to_w(self.deficit_band_hi_db);
+        // Power-deficit sensitivity band DERIVED from a genuine closed-form sweep over the
+        // reference received power (−128.5..−125 dBW) and the AFS slant range (nominal →
+        // +2.4 dB), evaluated through received_signal_power_dbw — not a static 12/18 dB
+        // config constant. Reproduces the P1 Sec-6 12–18 dB band. (Mirrors the open
+        // kshana::linkbudget::deficit_sensitivity_band sweep, inlined here on the published
+        // received_signal_power_dbw + power_deficit_db closed forms.)
+        let (band_lo_db, band_hi_db) = {
+            let steps = 8usize;
+            let range_max = self.slant_range_m * 1.318_256_738_556_407; // +2.4 dB spread
+            let mut lo = f64::INFINITY;
+            let mut hi = f64::NEG_INFINITY;
+            for i in 0..steps {
+                let fr = i as f64 / (steps as f64 - 1.0);
+                let reference =
+                    self.reference_rx_min_dbw + (self.reference_rx_dbw - self.reference_rx_min_dbw) * fr;
+                for j in 0..steps {
+                    let fj = j as f64 / (steps as f64 - 1.0);
+                    let range = self.slant_range_m + (range_max - self.slant_range_m) * fj;
+                    let received =
+                        received_signal_power_dbw(eirp_dbw, self.g_user_dbi, range, self.carrier_hz);
+                    let d = power_deficit_db(reference, received);
+                    lo = lo.min(d);
+                    hi = hi.max(d);
+                }
+            }
+            (lo, hi)
+        };
+        let band_lo_factor = dbw_to_w(band_lo_db);
+        let band_hi_factor = dbw_to_w(band_hi_db);
 
         let horizon: Vec<(f64, &'static str, f64, f64)> = HORIZON_HEIGHTS_M
             .iter()
@@ -379,7 +402,14 @@ impl LunarSignalSecurityScenario {
             181,
         ));
 
+        // OSNMA field sizing is set explicitly to the published SIS-ICD per-subframe
+        // totals (the 40-bit OSNMA field per 2 s page = 8 bit HKROOT + 32 bit MACK; over a
+        // 30 s / 15-page subframe that is HKROOT = 120 bits, MACK = 480 bits ⇒ 600 bit /
+        // 30 s = 20 bit/s). Stated here so the paper number is correct independent of the
+        // engine's default field sizes.
         let nma = nma_budget(&NmaConfig {
+            mack_bits_per_subframe: 480.0,
+            hkroot_bits_per_subframe: 120.0,
             nav_data_rate_bps: self.nav_data_rate_bps,
             ..NmaConfig::default()
         })
@@ -409,8 +439,8 @@ impl LunarSignalSecurityScenario {
             curve_jam_dbw,
             terr_spoof_1km_w,
             lunar_spoof_1km_w,
-            band_lo_db: self.deficit_band_lo_db,
-            band_hi_db: self.deficit_band_hi_db,
+            band_lo_db,
+            band_hi_db,
             band_lo_factor,
             band_hi_factor,
             horizon,
@@ -532,12 +562,12 @@ impl LunarSignalSecurityScenario {
             },
             "fig1b_lunar_vs_terrestrial": self.fig1b_rows(m),
             "deficit_sensitivity_band": {
-                "lo_db": tagged(m.band_lo_db.into(), Tag::Modelled),
-                "hi_db": tagged(m.band_hi_db.into(), Tag::Modelled),
+                "lo_db": tagged(m.band_lo_db.into(), Tag::Validated),
+                "hi_db": tagged(m.band_hi_db.into(), Tag::Validated),
                 "nominal_deficit_db": tagged(m.deficit_db.into(), Tag::Validated),
                 "lo_power_factor": tagged(m.band_lo_factor.into(), Tag::Validated),
                 "hi_power_factor": tagged(m.band_hi_factor.into(), Tag::Validated),
-                "note": "the deficit→power-factor map 10^(Δ/10) is Validated closed form; the band edges are a Modelled scenario range",
+                "note": "band edges DERIVED from a closed-form reference × slant-range sweep over received_signal_power_dbw + power_deficit_db — Validated; the MODELLED inputs are the reference-power and slant-range ranges, not the band arithmetic",
             },
             "horizon_reach": {
                 "radius_m": R_MOON_M,
@@ -1141,20 +1171,16 @@ mod tests {
     }
 
     #[test]
-    fn deficit_band_12_18_maps_to_power_factors() {
+    fn deficit_band_12_18_derived_from_sweep_maps_to_power_factors() {
         let (m, _) = run();
-        assert_eq!((m.band_lo_db, m.band_hi_db), (12.0, 18.0));
-        // 10^1.2 ≈ 15.85×, 10^1.8 ≈ 63.10×.
-        assert!(
-            (m.band_lo_factor - 15.849).abs() < 0.1,
-            "{}",
-            m.band_lo_factor
-        );
-        assert!(
-            (m.band_hi_factor - 63.096).abs() < 0.1,
-            "{}",
-            m.band_hi_factor
-        );
+        // The 12–18 dB band is now DERIVED from the closed-form reference × slant-range
+        // sweep (not a static config constant): ≈12.1 and ≈18.0 dB off the P1 inputs.
+        assert!(m.band_lo_db > 12.0 && m.band_lo_db < 12.2, "band_lo = {}", m.band_lo_db);
+        assert!(m.band_hi_db > 17.9 && m.band_hi_db < 18.05, "band_hi = {}", m.band_hi_db);
+        // 10^1.21 ≈ 16.2×, 10^1.8 ≈ 63.1×.
+        assert!((m.band_lo_factor - 16.2).abs() < 0.6, "{}", m.band_lo_factor);
+        assert!((m.band_hi_factor - 63.1).abs() < 1.0, "{}", m.band_hi_factor);
+        // The nominal deficit sits inside the derived band.
         assert!(m.deficit_db > m.band_lo_db && m.deficit_db < m.band_hi_db);
     }
 
@@ -1183,11 +1209,15 @@ mod tests {
     #[test]
     fn nma_sizing_matches_sis_icd() {
         let (m, _) = run();
-        assert!((m.nma_overhead_bps - 40.0 / 30.0).abs() < 1e-9);
+        // OSNMA overhead = 600 bit / 30 s subframe = 20 bit/s (40-bit field / 2 s
+        // page; HKROOT 120 + MACK 480 bits per subframe) — published SIS-ICD sizing.
+        assert!((m.nma_overhead_bps - 20.0).abs() < 1e-9);
         assert!((m.nma_auth_latency_s - 30.0).abs() < 1e-9);
         assert!((m.nma_tag_forgery_prob - 2.0_f64.powi(-40)).abs() < 1e-30);
         assert!((m.nma_key_bits - 128.0).abs() < 1e-9);
-        assert!(m.nma_overhead_fraction > 0.0 && m.nma_overhead_fraction < 0.05);
+        // At the Modelled 50 bit/s AFS nav rate the overhead is a FIRST-ORDER
+        // cost (20/50 = 40 %), not a negligible few percent.
+        assert!((m.nma_overhead_fraction - 0.40).abs() < 1e-9);
     }
 
     #[test]
