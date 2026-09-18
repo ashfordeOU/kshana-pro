@@ -16,8 +16,10 @@
 //!   covariances.
 //! * [`kshana::handoff`] (L23) — the optical↔RF state/covariance handoff with the
 //!   bit-for-bit no-jump mean invariant and the NEES consistency gate.
-//! * [`kshana::optical_availability`] (L24) — the per-site clear-sky climatology and the
-//!   `N`-station diversity combination (independent union + spatially-correlated union).
+//! * [`kshana::optical_availability`] (L24) — the per-site clear-sky climatology, whose
+//!   clear-sky fractions are externally anchored to Cavazzani et al. 2011 (GOES12
+//!   clear-night fractions), and the `N`-station diversity combination (independent union
+//!   + spatially-correlated union).
 //!
 //! On top of these the pack adds the deliverable surface: two byte-stable committed
 //! CSVs — **P5 Table 1 (precision)**: the RF vs optical vs hybrid ranging/timing 1σ, and
@@ -680,7 +682,7 @@ impl OpticalRfHybridStudyScenario {
             m.avail.correlation,
         ));
         s.push_str(
-            "# provenance: independent-union = 1 - prod(1 - a_i) is a Validated closed form; the per-site a_i and rho are Modelled climatology\n",
+            "# provenance: independent-union = 1 - prod(1 - a_i) is a Validated closed form. Each per-site a_i = clear_sky x pointing: the clear-sky fraction is externally anchored (Cavazzani et al. 2011, GOES12 clear-night fractions, MNRAS; arXiv:1011.4815), the pointing/acquisition factor and rho are Modelled allocations, so a_i stays Modelled\n",
         );
         s.push_str("n_sites,availability_independent,availability_correlated,provenance\n");
         for p in &m.avail.diversity_curve {
@@ -1011,6 +1013,7 @@ impl Scenario for OpticalRfHybridStudyScenario {
             json: doc,
             svg,
             summary,
+            csv: None,
         })
     }
 }
@@ -1438,24 +1441,34 @@ mod tests {
         assert!(hyb <= opt * (1.0 + 1e-12));
     }
 
-    /// Table 2 reproduces the P5 headline progression: single-site ≈ 53 %, three-station
-    /// ≈ 90 %, four-station ≈ 95 %, five-station correlated ≈ 96 %.
+    /// Table 2 reproduces the diversity progression of the **externally anchored**
+    /// climatology: mean single-site ≈ 69 %, three-station ≈ 98 %, four-station ≈ 99 %,
+    /// five-station correlated ≈ 99.5 %.
+    ///
+    /// These bands moved. Until the open core's `7761e0a`, `default_network()` carried
+    /// illustrative per-site numbers giving ≈ 53 % / 90 % / 95 % / 96 %, and this test
+    /// pinned them. That commit re-based the per-site clear-sky fractions on a published
+    /// external dataset (Cavazzani et al. 2011, GOES12 clear-night fractions, MNRAS;
+    /// arXiv:1011.4815) and renamed its own test off the old headline. The old bands were
+    /// therefore pinning a superseded illustrative figure against a dataset-anchored
+    /// engine — so the bands were moved to the anchored values rather than the engine
+    /// being held back to reproduce them.
     #[test]
-    fn table2_reproduces_p5_headline_numbers() {
+    fn table2_reproduces_the_externally_anchored_diversity_progression() {
         let scn = OpticalRfHybridStudyScenario::default();
         let m = scn.compute().unwrap();
         assert!(
-            (0.50..0.56).contains(&m.avail.single_site_mean),
-            "single-site {} not ≈ 53%",
+            (0.66..0.72).contains(&m.avail.single_site_mean),
+            "mean single-site {} not ≈ 69%",
             m.avail.single_site_mean
         );
         let three = m.avail.diversity_curve[2].independent;
-        assert!((0.86..0.92).contains(&three), "3-station {three} not ≈ 90%");
+        assert!((0.96..0.99).contains(&three), "3-station {three} not ≈ 98%");
         let four = m.avail.diversity_curve[3].independent;
-        assert!((0.93..0.97).contains(&four), "4-station {four} not ≈ 95%");
+        assert!((0.98..0.995).contains(&four), "4-station {four} not ≈ 99%");
         assert!(
-            (0.94..0.975).contains(&m.avail.correlated_union),
-            "5-station correlated {} not ≈ 96%",
+            (0.99..0.999).contains(&m.avail.correlated_union),
+            "5-station correlated {} not ≈ 99.5%",
             m.avail.correlated_union
         );
         assert!(m.avail.correlated_union < m.avail.independent_union);

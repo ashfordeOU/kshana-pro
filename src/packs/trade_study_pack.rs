@@ -234,7 +234,12 @@ impl Scenario for TradeStudyScenario {
         };
 
         let svg = trade_svg(&report);
-        Ok(RunOutput { json, svg, summary })
+        Ok(RunOutput {
+            json,
+            svg,
+            summary,
+            csv: None,
+        })
     }
 }
 

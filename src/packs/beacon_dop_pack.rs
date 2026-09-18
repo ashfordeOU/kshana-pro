@@ -836,6 +836,7 @@ impl Scenario for BeaconDopScenario {
             json: doc,
             svg: fig,
             summary,
+            csv: None,
         })
     }
 }
@@ -1649,6 +1650,7 @@ impl Scenario for SurfaceBeaconDopStudyScenario {
             json: doc,
             svg: fig_curve,
             summary,
+            csv: None,
         })
     }
 }

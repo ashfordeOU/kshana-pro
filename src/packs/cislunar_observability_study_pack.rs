@@ -847,6 +847,7 @@ impl Scenario for CislunarObservabilityStudyScenario {
             json: doc,
             svg,
             summary,
+            csv: None,
         })
     }
 }

@@ -364,13 +364,17 @@ impl LunarSignalSecurityScenario {
             let mut hi = f64::NEG_INFINITY;
             for i in 0..steps {
                 let fr = i as f64 / (steps as f64 - 1.0);
-                let reference =
-                    self.reference_rx_min_dbw + (self.reference_rx_dbw - self.reference_rx_min_dbw) * fr;
+                let reference = self.reference_rx_min_dbw
+                    + (self.reference_rx_dbw - self.reference_rx_min_dbw) * fr;
                 for j in 0..steps {
                     let fj = j as f64 / (steps as f64 - 1.0);
                     let range = self.slant_range_m + (range_max - self.slant_range_m) * fj;
-                    let received =
-                        received_signal_power_dbw(eirp_dbw, self.g_user_dbi, range, self.carrier_hz);
+                    let received = received_signal_power_dbw(
+                        eirp_dbw,
+                        self.g_user_dbi,
+                        range,
+                        self.carrier_hz,
+                    );
                     let d = power_deficit_db(reference, received);
                     lo = lo.min(d);
                     hi = hi.max(d);
@@ -510,6 +514,7 @@ impl Scenario for LunarSignalSecurityScenario {
             json: doc,
             svg: fig1a,
             summary,
+            csv: None,
         })
     }
 }
@@ -1175,11 +1180,27 @@ mod tests {
         let (m, _) = run();
         // The 12–18 dB band is now DERIVED from the closed-form reference × slant-range
         // sweep (not a static config constant): ≈12.1 and ≈18.0 dB off the P1 inputs.
-        assert!(m.band_lo_db > 12.0 && m.band_lo_db < 12.2, "band_lo = {}", m.band_lo_db);
-        assert!(m.band_hi_db > 17.9 && m.band_hi_db < 18.05, "band_hi = {}", m.band_hi_db);
+        assert!(
+            m.band_lo_db > 12.0 && m.band_lo_db < 12.2,
+            "band_lo = {}",
+            m.band_lo_db
+        );
+        assert!(
+            m.band_hi_db > 17.9 && m.band_hi_db < 18.05,
+            "band_hi = {}",
+            m.band_hi_db
+        );
         // 10^1.21 ≈ 16.2×, 10^1.8 ≈ 63.1×.
-        assert!((m.band_lo_factor - 16.2).abs() < 0.6, "{}", m.band_lo_factor);
-        assert!((m.band_hi_factor - 63.1).abs() < 1.0, "{}", m.band_hi_factor);
+        assert!(
+            (m.band_lo_factor - 16.2).abs() < 0.6,
+            "{}",
+            m.band_lo_factor
+        );
+        assert!(
+            (m.band_hi_factor - 63.1).abs() < 1.0,
+            "{}",
+            m.band_hi_factor
+        );
         // The nominal deficit sits inside the derived band.
         assert!(m.deficit_db > m.band_lo_db && m.deficit_db < m.band_hi_db);
     }

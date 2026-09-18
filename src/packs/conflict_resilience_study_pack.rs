@@ -957,6 +957,7 @@ impl Scenario for ConflictResilienceStudyScenario {
             json: doc,
             svg,
             summary,
+            csv: None,
         })
     }
 }

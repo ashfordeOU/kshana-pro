@@ -130,8 +130,10 @@ study/bid needs:
   tamper-evident delivery record (request → run → delivered; `verify()` catches any
   alteration); `report_pack_a` / `report_pack_c` render the Pack A / Pack C study faces.
 - **`mrd`** (A03 / D1.4) — machine-checked Mission-Requirements skeleton mapping each
-  PNT requirement to the tender's figure-of-merit vocabulary; guards position-domain
-  FoMs as `PartnerFollowOn`.
+  PNT requirement to the tender's figure-of-merit vocabulary. Each row resolves to the
+  verification evidence that *binds* it, not the strongest in its chain; a follow-on row
+  must claim no field and no oracle, and no row may credit a pass-through field as a
+  computation.
 - **`benefits`** (A02 / D1.1) — benefit-vs-baseline ratio engine over the trade-study
   core, with dual MODELLED/VALIDATED provenance labels and no auto-upgrade to VALIDATED.
 - **`connectors`** (PR21) — STK `.e` (km, J2000/GCRS) + universal CSV exporters, the

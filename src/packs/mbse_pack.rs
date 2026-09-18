@@ -98,7 +98,12 @@ impl Scenario for MbseScenario {
         );
 
         let svg = margins_svg(&self.title, &rows);
-        Ok(RunOutput { json, svg, summary })
+        Ok(RunOutput {
+            json,
+            svg,
+            summary,
+            csv: None,
+        })
     }
 }
 

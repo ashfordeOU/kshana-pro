@@ -128,7 +128,12 @@ impl Scenario for TwinScenario {
         );
 
         let svg = adev_svg(&self.device, &report);
-        Ok(RunOutput { json, svg, summary })
+        Ok(RunOutput {
+            json,
+            svg,
+            summary,
+            csv: None,
+        })
     }
 }
 

@@ -34,7 +34,7 @@ path = "src/main.rs"
 # For local co-development, override with a path dep to a sibling checkout.
 # The `version` field keeps the semver contract recorded; kept in lock-step with the
 # open core's version.
-kshana = { git = "https://github.com/ashfordeOU/kshana", branch = "main", version = "0.24" }
+kshana = { git = "https://github.com/ashfordeOU/kshana", branch = "main", version = "0.26" }
 
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.
@@ -53,6 +53,10 @@ hex = "0.4"
 # Pure-Rust PDF export of the branded study report (src/report_pdf.rs). Default
 # features off: we render from primitives (built-in standard-14 fonts, lines,
 # rectangles, text) and need NONE of the heavy optional layers (html/svg/images/
-# fontconfig/azul). No external TTF files are bundled. CreationDate/ModDate/doc-ID
-# are pinned to a fixed value for byte-identical, reproducible output.
+# fontconfig/azul). No external TTF files are bundled. CreationDate/ModDate/the
+# metadata date are pinned to the Unix epoch, so the PDF BODY is reproducible. The
+# trailer /ID is NOT pinned — printpdf randomises it per build, so two runs of the
+# same input differ in that one line. Committed PDFs are therefore byte-stable in
+# content but not byte-identical as files; the CSV tables are the reproducibility
+# anchor that the committed-artifact tests actually compare.
 printpdf = { version = "0.9.1", default-features = false }
