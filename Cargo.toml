@@ -37,7 +37,12 @@ default = []
 # For local co-development, override with a path dep to a sibling checkout.
 # The `version` field keeps the semver contract recorded; kept in lock-step with the
 # open core's version.
-kshana = { git = "https://github.com/ashfordeOU/kshana", branch = "main", version = "0.26" }
+# Pinned to the published crate, not a branch: the open core has now cut a release
+# carrying the seam (v0.27.1), which is what the note above said to wait for. A
+# registry version is reproducible for anyone who clones this repo; a branch pin
+# resolved to whatever main happened to be, and when main's history was rewritten
+# the recorded rev stopped existing and a fresh clone could not build at all.
+kshana = "0.27"
 
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.
