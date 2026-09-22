@@ -187,3 +187,183 @@ pub fn pareto_frontier(
         })
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use kshana::lunar_techniques::{block_from_rows, representative_lunar_menu};
+
+    /// Conventional tolerance for `decompose` across the open core.
+    const REL_TOL: f64 = 1e-12;
+
+    /// A menu small enough for the exact oracle to sweep (2^n subsets) while still
+    /// being the real representative geometry rather than a toy.
+    fn small_menu() -> Vec<MeasurementBlock> {
+        let menu = representative_lunar_menu();
+        assert!(
+            menu.len() >= 3,
+            "the open menu collapsed to {} blocks; these tests would be vacuous",
+            menu.len()
+        );
+        menu.into_iter().take(5).collect()
+    }
+
+    fn total_cost(blocks: &[MeasurementBlock], chosen: &[usize]) -> f64 {
+        chosen.iter().map(|&i| blocks[i].cost).sum()
+    }
+
+    /// The test this module's own documentation cites — and which did not exist until
+    /// the optimizer was un-gated. `greedy_design`'s doc comment claims it is "validated
+    /// against `exhaustive_best` on representative menus — see
+    /// `tests::greedy_matches_exhaustive_on_constructed_menu`". A claim that names its
+    /// evidence has to have some.
+    #[test]
+    fn greedy_matches_exhaustive_on_constructed_menu() {
+        let blocks = small_menu();
+        let budget: f64 = blocks.iter().map(|b| b.cost).sum::<f64>() * 0.6;
+        let g = greedy_design(&blocks, budget, REL_TOL);
+        let e = exhaustive_best(&blocks, budget, REL_TOL);
+        assert!(
+            (g.degeneracy_metric - e.degeneracy_metric).abs()
+                <= 1e-9 * e.degeneracy_metric.abs().max(1.0),
+            "greedy is sub-optimal on the representative menu at budget {budget}: \
+             greedy {} vs exact {} (chosen {:?} vs {:?}). The heuristic is Modelled and \
+             may lose on adversarial input, but the representative menu is the case the \
+             doc comment claims it wins.",
+            g.degeneracy_metric,
+            e.degeneracy_metric,
+            g.chosen,
+            e.chosen
+        );
+    }
+
+    /// The invariant the module states in prose: the exact oracle is never beaten by the
+    /// heuristic. Checked across the whole budget range rather than at one point.
+    #[test]
+    fn exhaustive_is_never_worse_than_greedy_at_any_budget() {
+        let blocks = small_menu();
+        let full: f64 = blocks.iter().map(|b| b.cost).sum();
+        for step in 0..=8 {
+            let budget = full * f64::from(step) / 8.0;
+            let g = greedy_design(&blocks, budget, REL_TOL);
+            let e = exhaustive_best(&blocks, budget, REL_TOL);
+            assert!(
+                e.degeneracy_metric >= g.degeneracy_metric - 1e-9,
+                "e >= g violated at budget {budget}: exact {} < greedy {}",
+                e.degeneracy_metric,
+                g.degeneracy_metric
+            );
+        }
+    }
+
+    /// A budget is a constraint, not a suggestion — for both solvers.
+    #[test]
+    fn neither_solver_ever_spends_more_than_the_budget() {
+        let blocks = small_menu();
+        let full: f64 = blocks.iter().map(|b| b.cost).sum();
+        for step in 0..=8 {
+            let budget = full * f64::from(step) / 8.0;
+            for (name, r) in [
+                ("greedy", greedy_design(&blocks, budget, REL_TOL)),
+                ("exhaustive", exhaustive_best(&blocks, budget, REL_TOL)),
+            ] {
+                assert!(
+                    total_cost(&blocks, &r.chosen) <= budget + 1e-9,
+                    "{name} overspent at budget {budget}: chose {:?} costing {}",
+                    r.chosen,
+                    total_cost(&blocks, &r.chosen)
+                );
+                assert!(
+                    (r.total_cost - total_cost(&blocks, &r.chosen)).abs() <= 1e-9,
+                    "{name} reported total_cost {} but its selection costs {}",
+                    r.total_cost,
+                    total_cost(&blocks, &r.chosen)
+                );
+            }
+        }
+    }
+
+    /// Nothing is affordable at zero budget, and the report says so rather than
+    /// returning an unpriced selection.
+    #[test]
+    fn a_zero_budget_buys_nothing() {
+        let blocks = small_menu();
+        for (name, r) in [
+            ("greedy", greedy_design(&blocks, 0.0, REL_TOL)),
+            ("exhaustive", exhaustive_best(&blocks, 0.0, REL_TOL)),
+        ] {
+            assert!(
+                r.chosen.is_empty(),
+                "{name} bought {:?} for nothing",
+                r.chosen
+            );
+            assert_eq!(r.total_cost, 0.0, "{name} reported a nonzero cost");
+        }
+    }
+
+    /// A selection is a set of real, distinct blocks.
+    #[test]
+    fn a_selection_is_distinct_and_in_range() {
+        let blocks = small_menu();
+        let full: f64 = blocks.iter().map(|b| b.cost).sum();
+        let r = greedy_design(&blocks, full, REL_TOL);
+        let mut seen = std::collections::BTreeSet::new();
+        for &i in &r.chosen {
+            assert!(i < blocks.len(), "index {i} is outside the menu");
+            assert!(seen.insert(i), "block {i} was selected twice");
+        }
+    }
+
+    /// The frontier reports the labels of what it actually chose, at every budget, and
+    /// respects the budget it was handed.
+    #[test]
+    fn the_frontier_reports_the_labels_of_what_it_chose() {
+        let blocks = small_menu();
+        let full: f64 = blocks.iter().map(|b| b.cost).sum();
+        let budgets: Vec<f64> = (0..=4).map(|k| full * f64::from(k) / 4.0).collect();
+        let frontier = pareto_frontier(&blocks, &budgets, REL_TOL);
+        assert_eq!(frontier.len(), budgets.len());
+        for (p, &budget) in frontier.iter().zip(&budgets) {
+            assert_eq!(p.budget, budget);
+            assert!(p.total_cost <= budget + 1e-9, "frontier point overspent");
+            let expect = greedy_design(&blocks, budget, REL_TOL);
+            let want: Vec<String> = expect
+                .chosen
+                .iter()
+                .map(|&i| blocks[i].label.clone())
+                .collect();
+            assert_eq!(
+                p.chosen, want,
+                "frontier labels disagree with the selection"
+            );
+        }
+    }
+
+    /// A block carrying no information is never worth buying, however cheap. Guards the
+    /// `gain <= 0` cut-off in the greedy loop.
+    ///
+    /// The obvious version of this test is wrong, and was written that way first: a
+    /// DUPLICATE of an already-chosen block is not a block that adds nothing. Fisher
+    /// information is additive, so buying the same measurement twice halves that
+    /// measurement's variance contribution — the optimizer is right to buy it, and the
+    /// test asserting otherwise was encoding a misunderstanding rather than a defect. A
+    /// genuinely empty block is one whose Jacobian rows are zero.
+    #[test]
+    fn a_block_that_adds_nothing_is_never_bought() {
+        let mut blocks = small_menu();
+        blocks.push(block_from_rows(
+            "null-observation",
+            vec![[0.0_f64; 7]],
+            1.0,
+            1e-6,
+        ));
+        let dud_idx = blocks.len() - 1;
+        let full: f64 = blocks.iter().map(|b| b.cost).sum();
+        let r = greedy_design(&blocks, full, REL_TOL);
+        assert!(
+            !r.chosen.contains(&dud_idx),
+            "bought a block whose Fisher contribution is identically zero: {:?}",
+            r.chosen
+        );
+    }
+}

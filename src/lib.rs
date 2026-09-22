@@ -34,7 +34,6 @@ pub mod batch;
 pub mod benefits;
 pub mod connectors;
 pub mod license;
-#[cfg(feature = "lunar-oed")]
 pub mod lunar_oed;
 pub mod mbse;
 pub mod mrd;
