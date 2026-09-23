@@ -96,9 +96,9 @@ Each runs on public data; the tier shown is the licence required to *run* it (se
 | Pack (`kind`) | Layer | What it does | Min tier | State |
 |---------------|-------|--------------|----------|-------|
 | `pro-seam-check` | P0 | Smallest real `ExternalPack` — exercises the whole overlay contract end-to-end | Evaluation (free) | ✅ built + tested |
-| `pro-twin` | L1 | Calibrates a clock twin to a device's *published* Allan budget; validates reproduction with the open-core Allan estimator | Pro | ✅ framework demonstrator (customer-device instance gated) |
+| `pro-twin` | L1 | Calibrates a clock twin to a device's *published* Allan budget; validates reproduction with the open-core Allan estimator; adds holdover-UQ **MTIE(τ)-mask compliance** (reuses the validated `kshana::allan::mtie` estimator with a conservative ±kσ band) against caller-supplied ITU-T-style masks | Pro | ✅ framework demonstrator (customer-device instance gated) |
 | `pro-quantum-systematics` | L1 | Optical-clock systematic frequency-shift budget (BBR, gravitational redshift, Zeeman, extras) + uncertainty floor — formulas built, species coefficients are *cited inputs*, never baked in | Pro | ✅ framework demonstrator |
-| `pro-trade-study` | L3 | Runs architecture variants through the embedded open engine, ranks them on a figure of merit, emits an audit-grade evidence pack with reproducible scenario hashes | Pro | ✅ framework demonstrator (licensed SKU gated) |
+| `pro-trade-study` | L3 | Runs architecture variants through the embedded open engine, ranks them on a figure of merit, and stress-tests the winner with an **8-method MCDA concordance panel** (WSM/WPM/WASPAS/MOORA/TOPSIS/VIKOR/PROMETHEE II + COPRAS; Kendall-τ concordance + rank-reversal count, folded into the ECSS Annex L / NASA-SE-6.8 reports); emits an audit-grade evidence pack with reproducible scenario hashes | Pro | ✅ framework demonstrator (licensed SKU gated) |
 | `pro-optimism-gap-audit` | Pack A | The in- vs out-of-distribution **optimism-gap audit** packaged as a sold study: ingests a customer detector through the open-core eval testbed, scores the ID→OOD degradation, and emits the branded Pack A report (`report_pack_a` + `packs::detector_intake`) | Pro | ✅ built + tested |
 | `pro-mbse` | L3 | ECSS/MBSE artifact generator: requirements → margins table + traceability CSV + ReqIF-lite XML (DOORS/Polarion-importable) | Enterprise | ✅ framework demonstrator (product SKU gated) |
 | `pro-batch` | scale | Parallel Monte-Carlo runner: fans one base scenario across many seeds concurrently, aggregates a figure of merit (mean/std/min/max/p05/p95) | Enterprise | ✅ built + tested |
@@ -118,6 +118,17 @@ Each runs on public data; the tier shown is the licence required to *run* it (se
 Beyond the packs, the overlay ships the deliverable and deployment surface a
 study/bid needs:
 
+- **L3 assurance stack** (`suite::{decision,multi_method,gsn,vcd,provenance,gate,vv_dossier}`)
+  — the trade study upgraded from a single figure of merit to a defensible, agency-shaped
+  decision: an **8-method MCDA concordance panel** (Kendall-τ agreement + rank-reversal
+  count), a **GSN** claim–argument–evidence assurance argument (GSN Community Standard
+  v3), an **ECSS VCD** verification-control matrix (ECSS-E-ST-10-02C), a **W3C-PROV**
+  tamper-evident provenance record, a **fail-closed** multi-criteria assurance gate, and
+  the capstone agency **V&V credibility dossier**.
+- **L1 twin depth** (`twin::{holdover_uq,presets,optical_systematics}`) — holdover-UQ
+  **MTIE(τ)-mask compliance** over the validated `kshana::allan::mtie` estimator (with a
+  conservative ±kσ band), a named clock **device-preset** library, and the optical-lattice
+  **systematic-shift** budget.
 - **`twin::navdt`** (A10) — NAV-DT performance/resilience twin: runs the open-core
   spine end-to-end and assembles one hash-stamped, label-honest bundle.
 - **`report`** (A11) — one renderer (Markdown / HTML / SVG / JSON) over the NAV-DT
@@ -183,14 +194,21 @@ posture the open core enforces.
 
 ## Build & run
 
-The build tracks the open core by a **git dependency on `main`**
-(`kshana = { git = "…/kshana", branch = "main", version = "0.24" }`), pinned in
-**lock-step** with the open core and locked to an exact rev in `Cargo.lock` for
-reproducibility (`cargo update -p kshana` advances it as each open-core phase lands).
-For local co-development, override with a **path dep** to a sibling `../kshana` checkout;
-for a release build, pin the published crate or a git tag instead (see the comments in
-[`Cargo.toml`](Cargo.toml)). Pro never forks the engine — it embeds it, so the two
-versions move together.
+The build depends on the **published open-core crate** (`kshana = "0.27"`), resolved to an
+exact version in `Cargo.lock` and advanced with `cargo update -p kshana` as each open-core
+release lands.
+
+It used to track a **git dependency on the open core's `main` branch**, pinned to
+`version = "0.24"`. That is why it no longer does: a branch pin resolves to whatever the
+branch points at, so when the open core's history was rewritten the pinned commit stopped
+being reachable from `refs/heads/main` — proven with a clean clone, which did not receive
+it. GitHub still served the object by raw SHA, so nothing failed loudly, but the manifest
+demanded a version the branch could no longer supply. A published version is immutable and
+cannot drift that way.
+
+For local co-development, override with a **path dep** to a sibling `../kshana` checkout
+(see the comments in [`Cargo.toml`](Cargo.toml)). Pro never forks the engine — it embeds
+it, so the two versions move together.
 
 ```bash
 cargo test                       # unit + integration tests (proves the overlay)
