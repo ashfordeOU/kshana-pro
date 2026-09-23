@@ -1,0 +1,135 @@
+\section{Introduction}
+\label{sec:intro}
+
+Every timing-integrity monitor publishes numbers, and every monitor publishes
+them on its own terms. A time-RAIM receiver reports a timing protection level
+against a fault-free-plus-single-fault hypothesis set on a GNSS scenario of its
+authors' choosing; a holdover analysis reports a coast bound against a clock model
+and a horizon of its authors' choosing; an authenticated secure-time protocol
+reports a cryptographic freshness guarantee against a threat model of its authors'
+choosing. Each of these is a real, useful result. But there is no common ruler.
+Two monitors that both claim an integrity risk of \num{e-6} may have been measured
+against entirely disjoint fault sets, one of which happens to omit precisely the
+fault the other survives; a monitor that claims to ``detect'' a delay attack and
+one that claims to ``bound'' it may be scored as equals even though one of those
+claims is provably impossible. What is missing is not another monitor. It is a
+\emph{shared, open, versioned yardstick}---a fixed fault menu and a fixed scoring
+rule---against which any monitor's \emph{stated} integrity risk can be compared to
+its \emph{measured} undetected-error exceedance, on the same stimulus, with the
+impossibility results of the field encoded so that no monitor can be credited for
+an impossible feat. This paper defines that yardstick.
+
+\paragraph{The gap, stated precisely.}
+We are careful about the novelty, because the field is mature and almost every
+ingredient here has a parent. The integrity taxonomy---nominal, unavailable,
+misleading, hazardously misleading---is the Stanford--ESA integrity diagram for
+GNSS position integrity \citep{tossaint2007}, whose alert-limit vocabulary comes
+from the WAAS Minimum Operational Performance Standards \citep{rtcado229}; we cite
+both as the scoring \emph{method} and specialize the diagram to the scalar time
+error, claiming no new taxonomy. The integrity-risk-budgeting frame---compare a
+\emph{stated} risk to a \emph{measured} exceedance---is the ARAIM lineage
+\citep{blanch2015}; we inherit the framing, not a new estimator. Timing protection
+levels themselves exist: Gioia's receiver-autonomous timing protection level
+\citep{gioia2023} and the companion composed timing protection level
+\citep{baweja2026cti}, of which the single-source conditional protection level
+\citep{baweja2026tpl} is a special case, are monitors this benchmark can
+\emph{score}, not results it restates. The delay-attack impossibility is
+Mizrahi's \citep{mizrahi7384}, sharpened by the half-round-trip-time asymmetry
+boundary of Narula and Humphreys \citep{narula2018}; we encode it, we do not
+rediscover it. And the secure-time protocols---Network Time Security
+\citep{rfc8915}, Roughtime \citep{roughtime}, and the fault-tolerant selection of
+IEEE~802.1ASed \citep{ieee8021ased}---each carry a bespoke, per-protocol
+evaluation, which is exactly the fragmentation the benchmark exists to make
+comparable. What does not exist, \emph{to our knowledge}, is the open
+cross-protocol conformance benchmark that sits above all of these as their common
+ruler. We claim that superset object and nothing stronger: we do \emph{not} claim
+the first secure-time protocol, the first time-RAIM, or that no timing protection
+level exists---they all do, and the benchmark's value is precisely that it can
+score them side by side.
+
+\paragraph{Why a benchmark, of all things, makes a stable reference.}
+There is a structural reason this object is worth building and worth citing. A
+monitor makes an accuracy claim, and an accuracy claim can be wrong: it can be
+optimistic against reality, and to trust it one must validate it against an
+external truth. A benchmark, by contrast, makes \emph{no accuracy claim of its
+own}. It does not assert that any clock is good, that any protection level is
+tight, or that any monitor is safe; it asserts only that, on a fixed menu, a given
+monitor's declared protection level did or did not bound its true error, and
+tallies the outcome. Because it asserts nothing about accuracy, \emph{it cannot be
+wrong about accuracy}. We call this property \emph{honesty-immunity}, and we take
+it as the paper's organizing principle: a reference object that cannot overclaim
+is a stable thing to cite, precisely because a citing author need
+not take any accuracy claim on faith. The consequence, made explicit throughout,
+is that this paper carries \emph{zero} \Validated{} tags---not because we failed to
+validate something, but because there is nothing accuracy-shaped here to validate.
+The one oracle we do run---an independent re-count of the region tallies---checks
+the \emph{arithmetic of the scorer}, not the accuracy of any monitor, and is
+labelled \Modelled{}~/~\code{InternalConsistency} accordingly.
+
+\paragraph{The impossibility, made a type-level invariant.}
+The benchmark's cleverest and most load-bearing feature is how it treats faults
+that no monitor can detect. Mizrahi's result \citep{mizrahi7384} is that a
+symmetric single-path delay is undetectable by any protocol, cryptographic or not;
+the same holds for a replay inside the freshness window. A benchmark that scored
+such a fault by asking ``did the monitor detect it?'' would be scoring an
+impossible act, and would reward a monitor for falsely claiming to have detected
+it. We refuse to represent that outcome at all. The scorecard's \code{Verdict}
+enumeration has four values---\CovPass{}, \CovFail{}, \Absorbed{}, and
+\Unabsorbed{}---and \emph{no} \textsf{Detected} value. For an undetectable
+scenario, the only reachable verdicts are \Absorbed{} (the protection level was
+large enough to carry the undetectable offset at every epoch) and \Unabsorbed{}
+(it was not). It is therefore \emph{structurally impossible}, at the level of the
+type system and machine-checked by the crate's tests, for the harness to report an
+undetectable fault as detected. Mizrahi's impossibility is not merely cited in a
+comment; it is compiled into the shape of the result. This turns a negative
+result---``you cannot detect this''---into a positive scoring rule: a monitor is
+rewarded for \emph{carrying enough protection level to absorb} an undetectable
+offset, never for the impossible act of detecting it.
+
+\paragraph{Contributions.}
+The contribution is narrow and, we hope, durable.
+\begin{enumerate}
+  \item \textbf{The Stanford integrity diagram specialized to time}
+  (\Cited{} method, \Proven{} specialization; Section~\ref{sec:method}). Each
+  epoch is classified by $|\test-\utc|$ against the declared protection level and
+  the application alert limit into \Nominal{}/\Unavail{}/\MI{}/\HMI{}, and a
+  scenario's overbound-coverage verdict is driven by the \HMI{} rate alone---the
+  hazardous case---while \MI{}, availability, and the nominal rate are reported as
+  softer signals.
+  \item \textbf{An open, parametric fault menu}
+  (\Modelled{}, with a \Cited{} detectability partition;
+  Section~\ref{sec:faultmenu}). Ten fault classes, each a true-error generator plus
+  a detectability flag, with the undetectable set (symmetric delay, replay) fixed
+  by Mizrahi and the asymmetric-delay offset fixed at half the path asymmetry by
+  Narula and Humphreys.
+  \item \textbf{The verdict-algebra impossibility encoding}
+  (\Proven{}; Section~\ref{sec:verdict}). The four-value \code{Verdict} with no
+  \textsf{Detected} variant makes reporting an undetectable fault as detected
+  unrepresentable; the property is machine-checked.
+  \item \textbf{The honesty-immunity argument}
+  (Section~\ref{sec:immunity}). Why a benchmark that makes no accuracy claim is a
+  stable reference cite, why this forces zero \Validated{} tags, and why the
+  only oracle is an \code{InternalConsistency} re-count of the counting.
+  \item \textbf{A demonstration that maps rather than flatters}
+  (\Modelled{}; Section~\ref{sec:demo}). Scoring the companion composed protection
+  level and a deliberately broken monitor against a nanosecond-scale menu, showing
+  the benchmark simultaneously confirms the reference monitor is sound in its
+  holdover regime \emph{and} reveals precisely where it needs adversarial
+  extensions.
+\end{enumerate}
+
+\paragraph{Honesty scope.}
+We separate the kinds of statement and label them at every occurrence. The
+integrity taxonomy, the alert-limit vocabulary, the ARAIM budgeting frame, the
+delay-attack impossibility, and every monitor and protocol we score are
+\Cited{}. The verdict-algebra impossibility encoding is \Proven{}, machine-checked
+by the crate's test suite. The scoring harness, the fault menu, and every scenario
+magnitude are \Modelled{}: representative, not measured, carrying no certification
+or technology-readiness implication of any kind. The word \Validated{} appears in
+this paper only to be \emph{defined and then shown never to be earned}: a benchmark
+makes no accuracy claim, so no row is validated, and the single oracle we run is an
+\code{InternalConsistency} re-count that is explicitly \emph{not} \Validated{} and
+\emph{not} an external accuracy dataset. There is no certified alert limit, no
+DO-229/DO-178/ECSS conformance, no endorsement by any agency; the Stanford diagram
+and the WAAS MOPS are cited as method sources only. Every number is regenerated
+from the open engine by the commands of Section~\ref{sec:availability}.

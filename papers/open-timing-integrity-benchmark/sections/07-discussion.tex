@@ -1,0 +1,89 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Position against bespoke per-protocol evaluation.}
+The value of the benchmark is comparative, and it is worth stating exactly what it
+adds over the status quo. Each timing monitor and protocol we cite carries a real
+evaluation of its own: Gioia's timing protection level \citep{gioia2023} is scored
+against GNSS scenarios, Network Time Security \citep{rfc8915} and Roughtime
+\citep{roughtime} against cryptographic threat models, IEEE~802.1ASed
+\citep{ieee8021ased} against a lying-source selection model, and the composed
+protection level \citep{baweja2026cti} against a holdover metrology series. These
+evaluations are not wrong; they are \emph{incommensurable}. A benchmark's
+contribution is to make them commensurable: the same fault menu, the same scoring
+rule, the same treatment of the undetectable, applied to whichever monitor one can
+express as a protection-level function $\PL(\cdot)$. We do not surpass any of these
+results on its own ground---we cannot, and do not claim to---we provide the common
+ground on which they can be laid side by side.
+
+The closest neighbours to what we build are recent timing-security evaluation
+frameworks, and it is worth saying precisely how this benchmark differs from them.
+BAND \citep{ren2025band}, whose name announces a benchmark, is a physics-based
+analysis of non-reciprocal (asymmetric) delay-attack \emph{detection} on a single
+$100$-km dual-comb optical two-way link; TIMESAFE \citep{groen2024timesafe} is a
+machine-learning \emph{detector} for spoofing and replay on the Precision Time
+Protocol in a 5G fronthaul; and PTPsec \citep{finkenzeller2024ptpsec} is a PTP
+security scheme that detects delay attacks by cyclic path-asymmetry analysis. Each
+is a real and valuable result, but each evaluates \emph{one detector on one
+protocol}: it asks how well a particular mechanism catches a particular attack on a
+particular link. None of them scores an \emph{arbitrary} monitor's \emph{stated}
+integrity risk against a \emph{common, fixed} fault menu through the Stanford
+integrity diagram, and none encodes the symmetric-delay impossibility as a
+structural invariant that forbids crediting detection of the undetectable. The
+distinction is not one of quality but of kind: they are monitors, or detector
+evaluations, on the object side of the ruler; this paper is the ruler.
+
+\paragraph{What the benchmark deliberately does not claim.}
+The honesty-immunity of Section~\ref{sec:immunity} cuts both ways: the benchmark
+cannot overclaim, but it also cannot make several claims one might wish it could. It
+does not assert that any monitor is safe, that any protection level is tight, that
+any fault rate is realistic, or that passing the benchmark implies fitness for any
+application. It emits tallies against a fixed rule; interpreting those tallies for a
+particular application---choosing the alert limit, judging whether the menu covers
+the deployment's real faults, deciding whether the stated integrity risk is
+credible---remains the user's responsibility. In particular, a monitor that passes
+the entire menu has demonstrated coverage \emph{of that menu}, not of the world.
+
+\paragraph{The honest novelty bound.}
+Stated plainly, the novelty is three things and no more. First, the existence of
+the open, versioned, cross-protocol conformance benchmark itself---the common
+ruler---which, to our knowledge, no predecessor provides; we phrase this ``to our
+knowledge'' and take care never to claim a first secure-time protocol, a first
+time-RAIM, or the non-existence of timing protection levels, all of which exist and
+all of which this benchmark scores rather than replaces. Second, the
+verdict-algebra impossibility encoding: making Mizrahi's symmetric-delay
+undetectability a type-level invariant, so that reporting an undetectable fault as
+detected is unrepresentable rather than merely discouraged. Third, the
+honesty-immunity argument: the observation, made structural, that a benchmark which
+makes no accuracy claim carries zero \Validated{} tags by design and is therefore
+a stable kind of reference object---one that cannot be wrong about accuracy because
+it asserts nothing about accuracy. The scoring taxonomy, the fault
+detectability partition, and the monitors scored are all \Cited{}; we claim the
+composition and the invariant, not the ingredients.
+
+\paragraph{Limits, and what is deferred.}
+The limits are deliberate and they set up the rest of the arc. The fault menu is
+\Modelled{}: representative and locked by test on its honesty-critical structure,
+but not exhaustive and not a stochastic model of any real network or clock. The
+demonstration runs at $\IR=\num{e-3}$ on $64$-epoch scenarios; deep-tail integrity
+rates such as \num{e-7} would require far more samples than any illustrative menu
+carries, and resolving them is future work, not a claim made here. Real-capture
+scenarios---driving the scorer with recorded rather than generated true-error
+series---are likewise future work. And the benchmark scores monitors expressed as a
+protection-level function; a monitor whose output is not reducible to a per-epoch
+$\PL(\cdot)$ (a purely cryptographic freshness assertion with no timing bound, for
+instance) can be framed by the menu but not fully scored by the coverage verdict, a
+boundary we note rather than paper over. These are the seams the companion papers
+of the arc are built to fill: the method paper \citep{baweja2026cti} supplies the
+reference monitor demonstrated here, and the adversarial and common-mode extensions
+supply the monitors whose boundaries the demonstration
+(Section~\ref{sec:demo}) exposed.
+
+\paragraph{Reading the numbers.}
+Every magnitude in this paper---the $\SI{27}{\nano\second}$ handover floor, the
+$\SI{200}{\nano\second}$ static delay, the \HMI{} counts, the availability
+percentages---is a \Modelled{} number for a representative monitor and a
+representative menu, regenerated by one command from the open engine. None is an
+operational tolerance, a certified alert limit, or an endorsement. They illustrate
+the yardstick; the yardstick, not the numbers, is what the \Proven{} invariant and
+the honesty-immunity argument are about.

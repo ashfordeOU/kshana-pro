@@ -1,0 +1,208 @@
+\section{Demonstration: scoring a real monitor and a broken one}
+\label{sec:demo}
+
+A benchmark is only as convincing as what it does to a real monitor, so we score
+two. The first is the companion composed timing protection level
+\citep{baweja2026cti}---a genuine, published method---used as the \emph{reference
+monitor}. The second is a deliberately under-bounded constant monitor, used as a
+\emph{broken monitor} whose failures the benchmark should expose. Both are run
+through the identical fault menu, at the identical alert limit and stated integrity
+risk, by \code{examples/tib\_scorecard.rs}. Every number in this section is printed
+by that example; none is transcribed by hand into the code, and all are
+\Modelled{}---representative magnitudes, not operational tolerances, carrying no
+certification implication.
+
+\subsection{Setup}
+\label{sec:demosetup}
+
+The application alert limit is $\AL=\SI{100}{\nano\second}$---a demanding
+time-transfer tolerance---and both monitors declare a stated integrity risk of
+$\IR=\num{e-3}$. The reference monitor is the composed protection level
+$\PL(\tau)=\max(\TPL_{\mathrm{handover}},\mathrm{HPL}(\tau))$ of the companion
+paper, built from three representative sources (a GNSS-PPP source
+$\{\sigma=\SI{2}{\nano\second},b=\SI{1}{\nano\second}\}$, a PTP/White-Rabbit source
+$\{\SI{5}{\nano\second},\SI{2}{\nano\second}\}$, and a LEO-STL source
+$\{\SI{8}{\nano\second},\SI{3}{\nano\second}\}$, each $p_{\mathrm{fault}}=\num{e-4}$)
+and evaluated over a coast of one day discretized into $64$ epochs. It floors at
+$\PL(0)=\SI{27.0}{\nano\second}$ at handover and rises to
+$\SI{264.8}{\nano\second}$ at the $\SI{24}{\hour}$ end of the coast. The broken
+monitor declares a constant $\PL=\SI{5}{\nano\second}$ at every epoch. The menu is
+the nanosecond-scale stimulus of Table~\ref{tab:demomenu}, spanning the holdover
+regime the reference monitor is designed for, the two undetectable delays, and
+adversarial faults deliberately outside the holdover model.
+
+\begin{table}[t]
+  \centering
+  \caption{The demonstration menu (\Modelled{}), $64$ epochs per scenario at
+  $\AL=\SI{100}{\nano\second}$. Undetectable classes are fixed by Mizrahi
+  \citep{mizrahi7384}.}
+  \label{tab:demomenu}
+  \begin{tabular}{l r l}
+    \toprule
+    scenario & peak offset & note \\
+    \midrule
+    domain divergence        & $\sim\!\SI{50}{\nano\second}$   & slow drift \\
+    holdover coast           & (coast profile)                 & the regime the PL models \\
+    static delay             & \SI{200}{\nano\second}          & constant injected delay \\
+    incremental delay        & $\sim\!\SI{126}{\nano\second}$  & ramp \\
+    clock slam               & \SI{150}{\nano\second}          & step at epoch 20 \\
+    asymmetric delay         & \SI{40}{\nano\second}           & half of an \SI{80}{\nano\second} asymmetry \\
+    path-selective           & \SI{50}{\nano\second}           & delay on half the paths \\
+    $k$-of-$N$ quorum        & \SI{30}{\nano\second}           & 1 of 3 sources compromised \\
+    symmetric delay          & \SI{20}{\nano\second}           & \textbf{undetectable} \\
+    replay within freshness  & \SI{15}{\nano\second}           & \textbf{undetectable} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{The reference monitor: covered where designed, honestly exposed elsewhere}
+\label{sec:demoref}
+
+Table~\ref{tab:refcard} is the reference monitor's scorecard. Three things happen,
+and the benchmark reports all three without editorializing.
+
+\begin{table}[t]
+  \centering
+  \caption{Scorecard of the reference monitor (the composed protection level,
+  \SI{27.0}{\nano\second} at handover $\to$ \SI{264.8}{\nano\second} at
+  \SI{24}{\hour}) at $\AL=\SI{100}{\nano\second}$, $\IR=\num{e-3}$. Total
+  hazardous count $n_{\HMI{}}^{\text{total}}=64$;
+  $\mathrm{all\_undetectable\_absorbed}=\text{true}$. \Modelled{}.}
+  \label{tab:refcard}
+  \begin{tabular}{l l r r r r}
+    \toprule
+    scenario & verdict & avail. & nom. & \MI{} & \HMI{} \\
+    \midrule
+    domain divergence        & \CovPass{}                    & \SI{66}{\percent} & \SI{66}{\percent} & 0  & 0  \\
+    holdover coast           & \CovPass{}                    & \SI{66}{\percent} & \SI{66}{\percent} & 0  & 0  \\
+    static delay             & \CovFail{}                    & \SI{66}{\percent} & \SI{0}{\percent}  & 0  & 42 \\
+    incremental delay        & \CovPass{}                    & \SI{66}{\percent} & \SI{31}{\percent} & 22 & 0  \\
+    clock slam               & \CovFail{}                    & \SI{66}{\percent} & \SI{31}{\percent} & 0  & 22 \\
+    asymmetric delay         & \CovPass{}                    & \SI{66}{\percent} & \SI{23}{\percent} & 27 & 0  \\
+    path-selective           & \CovPass{}                    & \SI{66}{\percent} & \SI{19}{\percent} & 30 & 0  \\
+    $k$-of-$N$ quorum        & \CovPass{}                    & \SI{66}{\percent} & \SI{30}{\percent} & 23 & 0  \\
+    symmetric delay          & \Absorbed{}   \emph{(undet.)} & \SI{66}{\percent} & \SI{66}{\percent} & 0  & 0  \\
+    replay within freshness  & \Absorbed{}   \emph{(undet.)} & \SI{66}{\percent} & \SI{66}{\percent} & 0  & 0  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{It covers its design regime.} The two scenarios the composed protection
+level is built for---slow domain divergence and free-running holdover coast---are
+\CovPass{} with zero \HMI{}: the protection level bounds the growing coast error
+throughout, and once the coast finally drives the protection level past the alert
+limit the monitor declares \Unavail{}, a continuity event, never \HMI{}. This is
+the intended behaviour: a coasting clock that outgrows its tolerance says so rather
+than misleading.
+
+\paragraph{Availability is uniform; the tightness spread lives in the nominal rate.}
+Every scenario in Table~\ref{tab:refcard}---detectable and undetectable alike---has
+the \emph{same} $\SI{66}{\percent}$ availability, and that uniformity is itself
+informative. Availability here measures the monitor's self-declared usability
+($1-n_{\Unavail{}}/n$), which is a property of the composed protection level
+$\PL(\tau)$ against the alert limit, \emph{not} of the injected fault: the coast
+crosses $\AL=\SI{100}{\nano\second}$ at the same epoch regardless of which fault is
+present, so the same $\approx\!34\%$ of epochs are declared \Unavail{} on every
+row. The entire per-fault differentiation therefore lives in the two columns that
+\emph{do} depend on the fault: the \emph{nominal rate}, which falls from
+$\SI{66}{\percent}$ on the clean coast to $\SI{19}{\percent}$ under path-selective
+delay as the protection level, though still available, grows loose relative to a
+larger true error (a tightness signal), and the \HMI{} count, which stays zero
+except where an adversarial fault drives the true error past the alert limit. Reading
+availability and the nominal rate as separate columns is what keeps continuity and
+tightness from being conflated.
+
+\paragraph{It absorbs both undetectables.} The symmetric delay
+($\SI{20}{\nano\second}$) and the replay ($\SI{15}{\nano\second}$) both sit under
+the $\SI{27}{\nano\second}$ handover floor, so $\PL(k)\ge|e(k)|$ at every epoch and
+both earn \Absorbed{}; $\mathrm{all\_undetectable\_absorbed}$ is true. The monitor
+is credited for having \emph{reserved enough protection level} to carry faults it
+could never detect---the only honest defence (Section~\ref{sec:absorptionrule})---and
+is nowhere credited for the impossible act of detecting them.
+
+\paragraph{It is honestly exposed at its boundary.} The benchmark does not flatter
+the reference monitor. Adversarial faults \emph{outside} the holdover model produce
+hazardously misleading information: the static $\SI{200}{\nano\second}$ delay draws
+$42$ \HMI{} epochs and \CovFail{}, and the $\SI{150}{\nano\second}$ clock slam
+draws $22$ \HMI{} and \CovFail{}---in both cases the true error exceeds the
+$\SI{100}{\nano\second}$ alert limit while the protection level, tuned for holdover,
+does not cover it. The mid-range faults (incremental, asymmetric, path-selective,
+quorum) pass coverage but accrue \MI{}: the protection level under-bounds them
+\emph{within} the alert limit, a tightness signal, not a hazard. The reference
+monitor's total hazardous count is $n_{\HMI{}}^{\text{total}}=64$. This is the
+demonstration's thesis in one number: a reference yardstick \emph{maps} a method's
+coverage---it confirms the composed protection level is sound in its holdover
+regime and reveals precisely where it needs the adversarial extensions of the later
+papers in the arc---rather than declaring it uniformly safe.
+
+\subsection{The broken monitor: strictly worse, on the same rule}
+\label{sec:demobroken}
+
+Table~\ref{tab:brokencard} scores the deliberately under-bounded
+$\SI{5}{\nano\second}$ monitor. It is worse everywhere the rule can see. Its total
+hazardous count is $n_{\HMI{}}^{\text{total}}=121$, nearly double the reference's;
+the static delay alone draws $64$ \HMI{} (every epoch hazardous, since even the
+$\SI{5}{\nano\second}$ bound plus the $\SI{100}{\nano\second}$ limit cannot contain
+a $\SI{200}{\nano\second}$ error), the clock slam draws $44$, and the incremental
+delay now pierces the alert limit for $13$ \HMI{}. Decisively, \emph{both}
+undetectable offsets are now \Unabsorbed{}: a $\SI{5}{\nano\second}$ protection
+level cannot carry a $\SI{20}{\nano\second}$ or $\SI{15}{\nano\second}$ offset, so
+$\mathrm{all\_undetectable\_absorbed}$ is false. Yet even here---this is the
+invariant of Section~\ref{sec:verdict} at work---neither undetectable scenario is
+ever reported as detected; the honest verdict for a monitor that under-reserves
+against an undetectable fault is \Unabsorbed{}, not ``detection missed.''
+
+\paragraph{Availability $\neq$ integrity, made concrete.} The sharpest reading of
+Table~\ref{tab:brokencard} is its availability column: the broken monitor is
+\SI{100}{\percent} \emph{available} on \emph{every} scenario. Its
+$\SI{5}{\nano\second}$ protection level never exceeds the $\SI{100}{\nano\second}$
+alert limit, so it never once declares itself \Unavail{}---by the Stanford--WAAS
+definition it is maximally available. Yet the same monitor is riddled with
+misleading and hazardously misleading epochs: $121$ \HMI{} in total, and \MI{} on
+nearly every otherwise-``available'' epoch. This is the concrete statement that
+availability is not integrity. A monitor that never says ``unavailable'' but returns
+hazardously wrong answers is not safer than one that honestly withdraws---it is
+worse, because it invites reliance precisely where reliance is unwarranted. The
+reference monitor's lower $\SI{66}{\percent}$ availability, read naively, looks like
+the weaker number; read correctly, it is the honest one, because the epochs it
+declined were epochs on which its bound could no longer be trusted.
+
+\begin{table}[t]
+  \centering
+  \caption{Scorecard of the broken monitor (constant \SI{5}{\nano\second}) on the
+  same menu, alert limit, and stated risk. Total hazardous count
+  $n_{\HMI{}}^{\text{total}}=121$;
+  $\mathrm{all\_undetectable\_absorbed}=\text{false}$. \Modelled{}.}
+  \label{tab:brokencard}
+  \begin{tabular}{l l r r r r}
+    \toprule
+    scenario & verdict & avail. & nom. & \MI{} & \HMI{} \\
+    \midrule
+    domain divergence        & \CovPass{}                    & \SI{100}{\percent} & \SI{11}{\percent} & 57 & 0  \\
+    holdover coast           & \CovPass{}                    & \SI{100}{\percent} & \SI{19}{\percent} & 52 & 0  \\
+    static delay             & \CovFail{}                    & \SI{100}{\percent} & \SI{0}{\percent}  & 0  & 64 \\
+    incremental delay        & \CovFail{}                    & \SI{100}{\percent} & \SI{5}{\percent}  & 48 & 13 \\
+    clock slam               & \CovFail{}                    & \SI{100}{\percent} & \SI{31}{\percent} & 0  & 44 \\
+    asymmetric delay         & \CovPass{}                    & \SI{100}{\percent} & \SI{0}{\percent}  & 64 & 0  \\
+    path-selective           & \CovPass{}                    & \SI{100}{\percent} & \SI{0}{\percent}  & 64 & 0  \\
+    $k$-of-$N$ quorum        & \CovPass{}                    & \SI{100}{\percent} & \SI{0}{\percent}  & 64 & 0  \\
+    symmetric delay          & \Unabsorbed{} \emph{(undet.)} & \SI{100}{\percent} & \SI{0}{\percent}  & 64 & 0  \\
+    replay within freshness  & \Unabsorbed{} \emph{(undet.)} & \SI{100}{\percent} & \SI{0}{\percent}  & 64 & 0  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{What the demonstration shows, and what it does not}
+\label{sec:demoscope}
+
+The demonstration establishes that the benchmark discriminates a sound monitor from
+a broken one on a common rule, rewards honest reservation against the undetectable,
+and refuses to credit detection of the undetectable in either case. What it does
+\emph{not} establish is any accuracy claim: it does not certify that the composed
+protection level is safe in absolute terms, that $\SI{27}{\nano\second}$ is the
+right floor, or that these fault magnitudes are operationally representative---the
+magnitudes are \Modelled{} illustration. Nor can a $64$-epoch run resolve a
+deep-tail \num{e-7} integrity rate; the stated risk here is $\num{e-3}$, the rate a
+short menu can support. The demonstration's role is to show the yardstick working,
+honestly, on a real method---mapping its coverage rather than flattering it---and
+that is exactly what an honesty-immune benchmark should do.

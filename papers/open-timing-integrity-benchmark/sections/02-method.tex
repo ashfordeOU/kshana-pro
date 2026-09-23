@@ -1,0 +1,145 @@
+\section{The scoring method: the Stanford integrity diagram specialized to time}
+\label{sec:method}
+
+The benchmark scores an epoch by comparing three numbers: the monitor's true
+error, the protection level it declared, and the alert limit the application
+imposes. The classification and its four regions are the Stanford--ESA integrity
+diagram \citep{tossaint2007}, whose alert-limit and hazardous-information
+vocabulary is the WAAS MOPS \citep{rtcado229}; both are \Cited{} as the scoring
+\emph{method}. Specializing the diagram from the GNSS position error to the scalar
+time error is the only move we make here, and it is a routine one.
+
+\subsection{The estimand and the three inputs}
+\label{sec:estimand}
+
+The quantity under test is the monitor's timekeeping error against a reference
+realization of Coordinated Universal Time,
+\begin{equation}
+  e \;=\; \big|\,\test - \utc\,\big|,
+  \label{eq:estimand}
+\end{equation}
+a scalar. At each epoch the benchmark holds this true error hidden from the monitor
+and observes two declared quantities: the monitor's protection level $\PL\ge0$
+(its own bound on $e$, computed from whatever observables it consumes) and the
+application alert limit $\AL>0$ (the largest time error the application can
+tolerate before the situation is hazardous). The benchmark asserts nothing about
+whether $\PL$ is a \emph{good} bound---that is the monitor's claim to make and the
+benchmark's job to test---and nothing about whether $\AL$ is the \emph{right}
+tolerance; $\AL$ is an application input.
+
+\subsection{The four-region classification}
+\label{sec:classify}
+
+\begin{definition}[Epoch classification]
+\label{def:classify}
+Given the true error $e=|\test-\utc|$, a declared protection level $\PL$, and an
+alert limit $\AL$, the epoch's integrity class is
+\begin{equation}
+  \classify(e,\PL,\AL) \;=\;
+  \begin{cases}
+    \Unavail{}, & \PL > \AL,\\[2pt]
+    \Nominal{}, & \PL \le \AL \ \text{and}\ e \le \PL,\\[2pt]
+    \MI{}, & \PL \le \AL \ \text{and}\ \PL < e \le \AL,\\[2pt]
+    \HMI{}, & \PL \le \AL \ \text{and}\ e > \AL.
+  \end{cases}
+  \label{eq:classify}
+\end{equation}
+The bounds are inclusive: $e=\PL$ is \Nominal{}, and $e=\AL$ with $e>\PL$ is
+\MI{}. The $\PL>\AL$ test takes \emph{precedence} over the error comparison.
+\end{definition}
+
+Four points of the definition carry the method's meaning, and each is
+machine-checked in \code{src/benchmark/stanford.rs}.
+
+\paragraph{Unavailability is a continuity event, never an integrity failure.}
+When $\PL>\AL$ the monitor has \emph{declared itself unusable}: its own bound
+exceeds what the application can tolerate, so it flags the epoch and the
+application does not rely on it. This is classified \Unavail{} \emph{regardless of
+the true error}---the precedence of the first branch is deliberate. A monitor that
+loudly says ``do not trust me'' has not misled anyone; it has surrendered
+availability, which is a continuity concern, not an integrity one. This distinction
+is the safety heart of the diagram: a coasting clock whose protection level has
+grown past the alert limit correctly declares \Unavail{}, and no such epoch is ever
+counted against integrity.
+
+\paragraph{The alert limit separates hazardous from merely misleading.}
+When the monitor is available ($\PL\le\AL$) but its protection level fails to bound
+the true error ($e>\PL$), the diagram splits the failure in two by the alert limit.
+If $e\le\AL$ the error, though larger than advertised, is still \emph{inside the
+application's tolerance}: this is \emph{misleading information} (\MI{})---the bound
+was optimistic, but no hazard resulted. Only if $e>\AL$ is the undetected error
+beyond the tolerance the application depends on: this is \emph{hazardously
+misleading information} (\HMI{}), the case the benchmark exists to count. That
+\MI{} and \HMI{} are different is the whole reason the alert limit is an input:
+without $\AL$ one cannot say whether an under-bound is dangerous or merely loose.
+
+\paragraph{Inclusive bounds and the use of $|e|$.}
+The classifier operates on $|e|$, so a $-6$\,ns error against a $4$\,ns protection
+level and a $+6$\,ns error are treated identically---the protection level is a
+symmetric two-sided bound. The inclusive boundaries ($e=\PL$ \Nominal{}, $e=\AL$
+\MI{}) are a fixed convention, tested at the exact boundary values.
+
+\subsection{The integrity-coverage verdict}
+\label{sec:coverage}
+
+A scenario is a run of epochs; its score aggregates the per-epoch classes into
+counts and one overbound-coverage decision.
+
+\begin{definition}[Scenario score and coverage]
+\label{def:coverage}
+Over a scenario of $n$ epochs producing counts
+$(n_{\Nominal{}},n_{\Unavail{}},n_{\MI{}},n_{\HMI{}})$, define
+\begin{equation}
+\begin{aligned}
+  &\mathrm{hmi\_rate}=\frac{n_{\HMI{}}}{n},\qquad
+  \mathrm{mi\_rate}=\frac{n_{\MI{}}}{n},\\[3pt]
+  &\mathrm{availability}=1-\frac{n_{\Unavail{}}}{n},\qquad
+  \mathrm{nominal\_rate}=\frac{n_{\Nominal{}}}{n},
+\end{aligned}
+  \label{eq:rates}
+\end{equation}
+and, against a monitor's \emph{stated} integrity risk $\IR$,
+\begin{equation}
+  \mathrm{coverage\_ok} \;\Longleftrightarrow\; \mathrm{hmi\_rate} \;\le\; \IR .
+  \label{eq:covok}
+\end{equation}
+An empty scenario ($n=0$) is \emph{vacuously covered} with all rates zero.
+\end{definition}
+
+The coverage test in \eqref{eq:covok} counts \emph{only} \HMI{}. This is the
+deliberate specialization of the ARAIM stated-vs-measured framing
+\citep{blanch2015} to the diagram: integrity is about \emph{hazardous} undetected
+error---error beyond the alert limit that the monitor did not flag---so only \HMI{}
+epochs count against the stated integrity risk. Misleading-but-not-hazardous
+epochs (\MI{}) are reported as a separate, softer overbound signal: they say the
+protection level is optimistic within the alert limit, which is a tightness
+concern, not an integrity breach. Availability follows the Stanford--WAAS
+convention---the fraction of epochs on which the monitor declares itself usable,
+$\mathrm{availability}=1-n_{\Unavail{}}/n$---so \Nominal{}, \MI{}, and \HMI{}
+epochs all count as available (on each of them the monitor did \emph{not} flag
+itself), and only \Unavail{} epochs ($\PL>\AL$) do not. The distinct
+\emph{nominal rate}, the \Nominal{} fraction $n_{\Nominal{}}/n$, is the tightness
+signal, and the two are not interchangeable: an \MI{} epoch is
+\emph{available-but-loose}---it counts toward availability but not toward the
+nominal rate. A monitor can thus be simultaneously \emph{integrity-covered} (no
+\HMI{} beyond its stated risk), \emph{highly available} (few \Unavail{} epochs),
+and yet \emph{loose} (a low nominal rate from many \MI{} epochs), and the benchmark
+surfaces all of these so the integrity-versus-continuity-versus-tightness
+trade-off is transparent rather than hidden inside a single pass/fail. Empty-input vacuity is not a corner-case nicety: it is the
+formal statement that a monitor which produces no usable epoch has committed no
+integrity failure, only a total availability loss.
+
+\subsection{What this method is, and is not}
+\label{sec:methodscope}
+
+The classification and the coverage verdict are \Cited{} method (the diagram and
+the WAAS taxonomy) plus a routine scalar specialization; they add no new integrity
+theory. Reproducing the taxonomy is \emph{method attribution}, and we state
+plainly what it is not: it is not a claim that this software is DO-229, DO-178, or
+ECSS conformant, not a certified alert limit, and not an endorsement by RTCA, ESA,
+or any agency. The alert limit is an application input, not a certified value; the
+stated integrity risk is the monitor's own number, not ours. The benchmark's
+contribution begins where this method ends---in the fault menu
+(Section~\ref{sec:faultmenu}) and the verdict algebra
+(Section~\ref{sec:verdict}) that drive stimuli through this scorer and refuse to
+misrepresent the undetectable.

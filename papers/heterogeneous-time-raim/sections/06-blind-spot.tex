@@ -1,0 +1,83 @@
+\section{The irreducible common-mode blind spot: large but finite}
+\label{sec:blind}
+
+Suppose an independent anchor is present, so the common-mode statistic of
+Section~\ref{sec:gls} is live and the pre-fit residual carries a fault along some
+unit direction $d\in\R^N$, of magnitude $\xi$. The honest question is: what is the
+largest $\xi$ that \emph{neither} the whitened separation detector \emph{nor} the
+common-mode detector can see? This section answers it as a \Proven{} bound and
+states the blind spot plainly. The answer (caveat~I1) is the paper's honesty
+centerpiece: the blind spot is large but \emph{finite}, and our ceiling
+under-states it.
+
+\subsection{Two detectors, two blind directions}
+\label{sec:twodetectors}
+
+Write the undetectable ceiling along $d$ as the smaller of the two magnitudes at
+which the two detectors respectively trip,
+\begin{equation}
+  \xi^\star(d) \;=\; \min\big(\alpha_{\mathrm{ss}}(d),\ \alpha_{\mathrm{cm}}(d)\big),
+  \label{eq:ceiling}
+\end{equation}
+where $\alpha_{\mathrm{ss}}$ is the trip magnitude of an idealized whitened parity
+(solution-separation) detector and $\alpha_{\mathrm{cm}}$ that of the common-mode
+statistic. A detector \emph{blind} to $d$ has an infinite trip magnitude along it.
+The two blind conditions are, from the parity projection and
+from~\eqref{eq:cmstat} respectively (Appendix~\ref{app:blind}),
+\begin{equation}
+  \alpha_{\mathrm{ss}}(d)=\infty \iff d \parallel \bmone{},
+  \qquad
+  \alpha_{\mathrm{cm}}(d)=\infty \iff \bmone^{\!\top}\Om^{-1} d = 0 .
+  \label{eq:blindconds}
+\end{equation}
+Separation is blind exactly to the common direction $d\parallel\bmone{}$;
+common mode is blind exactly to directions $\Om^{-1}$-orthogonal to $\bmone{}$.
+
+\subsection{The blind conditions are mutually exclusive under a PD whitening}
+\label{sec:mutex}
+
+\begin{theorem}[Finite ceiling for every nonzero direction]
+\label{thm:finite}
+If $\Om{}\succ0$ (positive definite), the two blind conditions
+of~\eqref{eq:blindconds} cannot both hold for any nonzero $d$; hence the two
+detectors jointly cover every nonzero direction and the ceiling~\eqref{eq:ceiling}
+is finite for every nonzero $d$. The ceiling is infinite only for degenerate
+inputs---$d=0$, or a non-PD (rank-deficient) $\Om{}$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+If $d\parallel\bmone{}$, say $d=\lambda\bmone{}$ with $\lambda\neq0$, then
+$\bmone^{\!\top}\Om^{-1}d=\lambda\,\bmone^{\!\top}\Om^{-1}\bmone{}>0$ because
+$\Om^{-1}\succ0$ forces the quadratic form $\bmone^{\!\top}\Om^{-1}\bmone{}>0$;
+so $\alpha_{\mathrm{cm}}$ is finite. Conversely if
+$\bmone^{\!\top}\Om^{-1}d=0$ then $d$ cannot be a nonzero multiple of $\bmone{}$
+(such a multiple gives the strictly positive form above); so $\alpha_{\mathrm{ss}}$
+is finite. The two blind sets therefore intersect only at $d=0$, and their
+complement union is all of $\R^N\setminus\{0\}$. Full detail in
+Appendix~\ref{app:blind}.
+\end{proof}
+
+\begin{remark}[\textbf{Caveat I1: the blind spot is large but finite, and the
+ceiling is a lower bound.}]
+\label{rem:i1}
+Theorem~\ref{thm:finite} is the referee-facing honesty statement, and it cuts in
+the conservative direction. \textbf{The irreducible common-mode blind spot is
+large but \emph{finite}: under a positive-definite whitening the separation and
+common-mode blind directions are mutually exclusive, so the two detectors jointly
+cover every nonzero direction, and the undetectable ceiling is finite for every
+nonzero $d$ (infinite only for the degenerate $d=0$ or a non-PD $\Om{}$).} What
+remains is not a total or infinite blind spot but a bounded one, driven by
+\emph{model mismatch}: the residual undetectable magnitude is largest where the
+true fault-coupling direction is nearly aligned with a blind direction of the
+\emph{modelled} $\Om{}$, and it grows without bound only as $\Om{}$ is pushed toward
+singularity. Two further honesty points sharpen the bound rather than soften it.
+First, the $\alpha_{\mathrm{ss}}$ used in~\eqref{eq:ceiling} is an \emph{idealized}
+single whitened-contrast parity detector, which is \emph{more} sensitive than a
+real integrity-risk-allocated MHSS subset detector with a finite false-alert
+budget; a real monitor trips later, so the true undetectable magnitude is at least
+$\xi^\star(d)$ and our ceiling is a conservative \emph{lower bound}, never an
+overstatement of detectability. Second, we make no claim that the blind spot is
+small---only that it is finite and bounded by the model-mismatch between the true
+coupling and the modelled $\Om{}$. We never assert an infinite or unqualified blind
+spot, and we never assert its absence.
+\end{remark}

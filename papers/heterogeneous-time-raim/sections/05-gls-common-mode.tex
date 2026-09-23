@@ -1,0 +1,90 @@
+\section{A generalized-least-squares common-mode layer}
+\label{sec:gls}
+
+Solution separation is built from \emph{contrasts}: differences between the full
+solution and subset solutions. A contrast is orthogonal to the all-ones direction
+$\bmone{}$, so a shift applied equally to every source---a common-mode error---lies
+exactly in the one direction solution separation cannot resolve. This section adds
+the layer that can, under a generalized-least-squares whitening, and states with
+equal force the condition (caveat~I2) under which even that layer sees nothing.
+
+\subsection{Whitening the correlated residual}
+\label{sec:whiten}
+
+Let $r\in\R^N$ be the per-source residual vector and let $\Om{}\succ0$ be the
+residual covariance, no longer diagonal: it carries the shared-realizer coupling
+of Section~\ref{sec:corr} off the diagonal. Following generalized least squares
+\citep{aitken1935} we Cholesky-factor $\Om{}=LL^{\!\top}$ and whiten,
+\begin{equation}
+  z \;=\; L^{-1} r,
+  \qquad \operatorname{Cov}(z)=I_N,
+  \label{eq:whiten}
+\end{equation}
+so that separation run on the whitened residual $z$ is the correct correlated-error
+generalization of the independent-noise separation of the companion paper. This is
+\Cited{} generalized least squares specialized to the rank-one time geometry; the
+whitening itself is not new.
+
+\subsection{The common-mode consistency statistic}
+\label{sec:cmstat}
+
+The direction solution separation misses is $\bmone{}$. Its GLS-optimal estimator
+and the associated consistency statistic are
+\begin{equation}
+  \hat c \;=\; \frac{\bmone^{\!\top}\Om^{-1} r}{\bmone^{\!\top}\Om^{-1}\bmone},
+  \qquad
+  \scm{} \;=\; \frac{\big(\bmone^{\!\top}\Om^{-1} r\big)^2}
+                    {\bmone^{\!\top}\Om^{-1}\bmone}
+             \;\sim\; \chi^2_1,
+  \label{eq:cmstat}
+\end{equation}
+where $\hat c$ is the maximum-likelihood estimate of a common shift and $\scm{}$ is
+its squared, variance-normalized magnitude. Under the null (no common shift) and
+Gaussian residuals, $\scm{}\sim\chi^2_1$, so a threshold at the $\chi^2_1$
+$95\%$ point $3.841$ (or a deeper integrity-allocated quantile) turns $\scm{}$ into
+a monitor for the one fault solution separation cannot see. The engine's
+\code{gls\_matches\_numpy\_reference} test (\code{tests/gls\_reference.rs})
+cross-checks the \emph{value} of $\scm{}$ against an independent \code{numpy}
+computation; the $\chi^2_1$ null distribution is a \Proven{} \emph{derived} property
+(under Gaussian residuals the statistic is the score $=$ Wald $=$ maximum-likelihood
+statistic for a common-mode shift, hence the square of a unit-variance normal), not
+a distributional unit test. The derivation is in Appendix~\ref{app:cmstat}.
+
+\subsection{Where the anchor must come from}
+\label{sec:anchor}
+
+Equation~\eqref{eq:cmstat} is only as meaningful as the residual $r$ fed to it, and
+this is the whole of caveat~I2.
+
+\begin{remark}[\textbf{Caveat I2: without an independent anchor, common mode is
+unobservable.}]
+\label{rem:i2}
+The statistic $\scm{}$ is meaningful only on a \emph{pre-fit} residual
+$r=y-\bmone\,x_{\mathrm{ref}}$ taken against an \emph{independent} reference
+$x_{\mathrm{ref}}$---a source outside the fused set, an external anchor. On the
+\emph{post-fit} residual, it is identically zero. The generalized-least-squares
+estimate of the fused offset is
+$\hat x=(\bmone^{\!\top}\Om^{-1}\bmone)^{-1}\bmone^{\!\top}\Om^{-1}y$, and its
+residual is $r=y-\bmone\hat x$; substituting,
+\begin{equation}
+  \bmone^{\!\top}\Om^{-1} r
+  \;=\; \bmone^{\!\top}\Om^{-1}y - \big(\bmone^{\!\top}\Om^{-1}\bmone\big)\hat x
+  \;=\; \bmone^{\!\top}\Om^{-1}y - \bmone^{\!\top}\Om^{-1}y
+  \;=\; 0,
+  \label{eq:postfitzero}
+\end{equation}
+so $\scm{}\equiv0$ on the post-fit residual, for \emph{every} $y$: the normal
+equations of the fit consume exactly the common-mode degree of freedom. The
+consequence is not a limitation of our statistic but a structural fact about the
+$H=\bmone_N$ geometry: \textbf{a shift common to all sources is fundamentally
+unobservable from the fused sources alone, and no monitor built on them---separation
+or common mode---can recover it without an external, independent anchor.} This is
+the timing counterpart of the established ensemble-metrology fact that an offset
+common to every clock cancels in all inter-clock time differences and is
+unobservable from the ensemble alone \citep{trainotti2022}; it is the deepest honest
+blind spot of the common-mode layer, and a property of the $H=\bmone_N$ geometry,
+not of the algorithm. The engine's
+\code{post\_fit\_common\_mode\_statistic\_is\_zero} test
+asserts~\eqref{eq:postfitzero} numerically. Section~\ref{sec:blind} takes the pre-fit case---an anchor is
+present---and characterizes what remains undetectable even then.
+\end{remark}

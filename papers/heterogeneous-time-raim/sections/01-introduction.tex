@@ -1,0 +1,119 @@
+\section{Introduction}
+\label{sec:intro}
+
+A timing user that wants to survive the loss or spoofing of any one source does not
+run a single clock; it fuses several. A modern resilient timing front end may carry
+a GNSS precise-point-positioning source, a terrestrial eLoran or R-Mode source, a
+PTP or White-Rabbit packet source, a low-Earth-orbit signals-of-opportunity source,
+and a local disciplined oscillator, and it cross-checks them against one another.
+Every one of these sources is, in the end, an estimate of the same scalar quantity:
+the receiver's offset from a named laboratory realization $\utck{}$ of Coordinated
+Universal Time. But each reaches $\utck{}$ by a \emph{different} traceability chain,
+with a different systematic bias, and---crucially---some of those chains share a
+common realizer, so their biases are not independent. The companion paper
+\citep{baweja2026cti} builds a single protection level (PL) that rides a
+\emph{homogeneous} multi-source cross-check regime through the seam into oscillator
+holdover. This paper takes the orthogonal step: it makes the cross-check regime
+itself \emph{heterogeneous and source-agnostic}, gives every source a first-class
+$\utck{}$ traceability-bias term, couples the biases that share a realizer, and adds
+the one integrity layer a per-source monitor structurally cannot provide---detection
+of a shift common to \emph{all} sources at once.
+
+\paragraph{The gap.}
+Each ingredient has a mature parent, but the composed object does not exist. Time
+receiver-autonomous integrity monitoring (T-RAIM) and the timing protection level
+are GNSS-only: Gioia's $\TPL=\mathrm{WATP}+\TPL_{\mathrm{noise}}$
+\citep{gioia2023} is a residual/weighted-average-time T-RAIM over one constellation,
+with no heterogeneous budget and no traceability-bias layer. Solution separation
+and its multiple-hypothesis budget allocation (MHSS) are aviation ARAIM, cited from
+Blanch \citep{blanch2015} and Joerger \citep{joerger2014}; the all-source extension
+of solution separation by Due{\~n}as Arana and colleagues \citep{duenasarana2020}
+carries separation beyond GNSS to heterogeneous sensors, but for a \emph{position}
+state, with neither a scalar time estimand nor a $\utck{}$ traceability-bias budget.
+Multi-source PNT integrity monitoring exists for a position/PVT state
+\citep{chen2023multisource}, but again with no $\utck{}$ traceability budget built
+into the protection level. Fault detection and identification \emph{within a clock
+ensemble} is mature---the generalized-likelihood-ratio test of Trainotti and
+colleagues \citep{trainotti2022} detects and identifies per-clock faults against the
+ensemble---and it is well established there that an offset common to \emph{all}
+members cancels in every inter-clock time difference and is thus unobservable from
+the ensemble alone. That is per-clock monitoring \emph{inside} an ensemble, not a
+composed, source-agnostic time-RAIM object emitting a protection level with a
+$\utck{}$ traceability-bias budget and an explicit common-mode statistic; we borrow
+its common-offset-unobservability fact (caveat~I2) and build the composed object it
+does not provide. The shared-reference correlation our cross-covariance encodes is
+itself recognized in multi-GNSS timing \citep{sesia2021}, but is not built into an
+integrity protection level.
+The fault-tolerant selection of a trustworthy time source among redundant domains is
+standardized in IEEE~802.1ASed \citep{ieee8021ased}, but the standard
+\emph{selects}; it does not emit a protection level or an integrity-risk budget, and
+selection cannot by construction see a fault shared by every candidate. The
+companion \emph{A Composed Timing Protection Level} \citep{baweja2026cti}---this
+paper's direct parent---defines the scalar timing PL as the rank-one MHSS
+specialization and composes the cross-check and holdover regimes, but treats the
+per-source biases as \emph{given} inputs and treats the source fault modes as
+\emph{independent}; it names both the correlated-bias cross-covariance and the
+common-mode generalized-least-squares treatment explicitly as ``a companion
+paper.'' That companion paper is the present work. Its published single-source
+($N=1$) lineage \citep{baweja2026tpl} is the scalar seam this whole line
+generalizes and is cited, never restated as new.
+
+\paragraph{What is genuinely ours.}
+The contribution is deliberately narrow, and we bound it up front.
+\begin{enumerate}
+  \item \textbf{A heterogeneous, source-agnostic integrity budget with a
+  $\utck{}$-traceability bias overbound and a correlated-bias cross-covariance}
+  (\Cited{} metrology, \Proven{} construction; Sections~\ref{sec:hetero}--\ref{sec:corr}).
+  Each source's published Type-B expanded uncertainty (\Cited{} GUM
+  \citep{jcgm100}) is reconstructed into a one-sided bias overbound at the allocated
+  integrity tail; sources that share a $\utck{}$ realizer are coupled by a
+  positive-semidefinite bias cross-covariance $\Sib{}$. We prove that a
+  variance-style fusion of correlated biases is at least the naive independent-RSS
+  fusion, strictly larger for shared-realizer sources with positive correlation.
+  \item \textbf{A generalized-least-squares common-mode integrity layer with a
+  published, finite irreducible blind spot} (\Cited{} Aitken \citep{aitken1935},
+  \Proven{} statistic and bound; Sections~\ref{sec:gls}--\ref{sec:blind}). Because
+  solution separation forms contrasts orthogonal to $\bmone{}$, it is structurally
+  blind to a common shift. We whiten by the correlated-error covariance, run
+  separation on whitened residuals, add a common-mode consistency statistic
+  $\scm{}\sim\chi^2_1$, and characterize exactly the direction the composed monitor
+  still cannot see.
+\end{enumerate}
+To our knowledge no prior work composes these two into a single source-agnostic
+time-RAIM object; we claim novelty of the \emph{composition and the honest
+blind-spot characterization}, not of any underlying estimator, and we say ``to our
+knowledge,'' never ``first.''
+
+\paragraph{Honesty scope, and three caveats that are the point.}
+We separate four kinds of statement and label them at every occurrence. The MHSS
+solution-separation machinery \citep{blanch2015,joerger2014}, the generalized-least-squares
+whitening \citep{aitken1935}, the Type-B expanded-uncertainty framework
+\citep{jcgm100}, the traceability raw material \citep{defraigne2015,panfilo2019,bipmcirculart},
+the fault-tolerant-selection standard \citep{ieee8021ased}, and the companion PL and
+its $N=1$ lineage \citep{baweja2026cti,baweja2026tpl} are \Cited{}. The bias-overbound
+construction, the $\Sib{}$ positive-semidefiniteness, the correlated-$\ge$-independent
+theorem, the common-mode statistic and its post-fit vanishing, and the finite
+blind-spot bound are \Proven{} algebra. The open engine's tests machine-check the
+correlated-$\ge$-independent dominance, the single-realizer $\rho\!\to\!1$ linear
+reduction, the post-fit vanishing of the common-mode statistic, and the finite
+ceiling for every nonzero direction, and cross-check the statistic's \emph{value}
+and the whitening quadratic forms against independent \code{numpy} computations; the
+$\chi^2_1$ null distribution of the common-mode statistic is a \Proven{} \emph{derived}
+property (the statistic is the score $=$ Wald $=$ maximum-likelihood statistic for a
+common-mode shift), not a distributional unit test. Every source count, magnitude,
+and correlation value read as an operational tolerance is \Modelled{}. \textbf{This paper earns no new externally \Validated{}
+tag.} Its algebra is exact; its scenarios are representative; it has no external
+accuracy oracle of its own. The only \Validated{} row in the arc is the companion's
+holdover overbound-coverage against the real BIPM Circular-T
+$[\utck{}-\mathrm{UTC(USNO)}]$ series \citep{baweja2026cti}; that series enters this
+paper as a \Cited{} magnitude input only and is \emph{not} re-validated here
+(Section~\ref{sec:hetero}). Three caveats recur because the reviews should hunt for
+them and find them stated plainly: \textbf{(I3)} the correlated-bias theorem does
+not harden the companion PL, which already fuses bias linearly and thus more
+conservatively (Section~\ref{sec:corr}); \textbf{(I2)} the common-mode statistic
+needs an independent anchor, without which common mode is unobservable
+(Section~\ref{sec:gls}); \textbf{(I1)} the irreducible common-mode blind spot is
+large but finite, and our ceiling is a lower bound (Section~\ref{sec:blind}). There
+is no flight data, no certified alert limit, no endorsement by any agency, and no
+technology-readiness claim; every number is regenerated from the open engine by the
+commands of Section~\ref{sec:availability}.

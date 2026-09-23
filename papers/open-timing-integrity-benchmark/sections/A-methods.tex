@@ -1,0 +1,131 @@
+\section{Methods}
+\label{app:methods}
+
+This appendix records the exact rules behind the results: the four-region
+classifier, the coverage arithmetic, the fault generators' offset profiles, the
+verdict decision table, and the \code{InternalConsistency} fixture procedure. All
+are consistent with the committed modules \code{src/benchmark/*} and the vendored
+provenance notice (Section~\ref{sec:availability}).
+
+\subsection{The classifier}
+\label{app:classify}
+
+For a true error $e=|\test-\utc|$, a declared protection level $\PL$, and an alert
+limit $\AL$, the classifier of \eqref{eq:classify} is evaluated in the fixed
+precedence order below (the first matching branch wins):
+\begin{enumerate}
+  \item if $\PL>\AL$: \Unavail{} (the monitor has flagged itself; the true error
+  is not consulted);
+  \item else if $e\le\PL$: \Nominal{};
+  \item else if $e\le\AL$: \MI{};
+  \item else: \HMI{}.
+\end{enumerate}
+The bounds are inclusive at $e=\PL$ (\Nominal{}) and at $e=\AL$ with $e>\PL$
+(\MI{}), and the sign of $\test-\utc$ is discarded before comparison, so the
+protection level is a symmetric two-sided bound. The unit tests
+\code{four\_regions} and \code{boundaries\_and\_sign} in \code{stanford.rs} check
+every branch and both inclusive boundaries at the exact boundary values, and check
+that a $\PL>\AL$ epoch is \Unavail{} regardless of $e$.
+
+\subsection{The coverage arithmetic}
+\label{app:coverage}
+
+Over $n$ epochs with region counts
+$(n_{\Nominal{}},n_{\Unavail{}},n_{\MI{}},n_{\HMI{}})$ (which sum to $n$), the
+scorer forms the rates of \eqref{eq:rates}---$\mathrm{hmi\_rate}=n_{\HMI{}}/n$,
+$\mathrm{mi\_rate}=n_{\MI{}}/n$, $\mathrm{availability}=1-n_{\Unavail{}}/n$
+(the Stanford--WAAS usable fraction), and $\mathrm{nominal\_rate}=n_{\Nominal{}}/n$
+(the tightness signal)---and the coverage boolean
+$\mathrm{coverage\_ok}=[\mathrm{hmi\_rate}\le\IR]$. For $n=0$ all rates are defined
+to be zero and $\mathrm{coverage\_ok}$ is true (vacuous safety). Only $n_{\HMI{}}$
+enters the coverage decision; the misleading, nominal, and unavailable tallies are
+reported as tightness and continuity signals but do not gate coverage. The tests \code{clean\_monitor\_covers},
+\code{under\_bounded\_monitor\_fails\_coverage},
+\code{declaring\_unavailable\_is\_safe}, and \code{empty\_input\_is\_vacuously\_safe}
+in \code{coverage.rs} pin the four qualitative cases.
+
+\subsection{The fault generators}
+\label{app:faults}
+
+Each generator emits a length-$n$ true-error series $e(k)$ and a \code{FaultSpec}
+$\{\text{class},\text{detectability},\text{max\_offset}\}$, with $\text{max\_offset}
+=\max_k|e(k)|$. The offset profiles are, for epoch index $k=0,\dots,n-1$:
+\begin{center}
+\begin{tabular}{l l}
+  \toprule
+  generator & $e(k)$ \\
+  \midrule
+  \code{static\_delay}$(n,o)$              & $o$ \\
+  \code{incremental\_delay}$(n,r)$         & $r\,k$ \\
+  \code{domain\_divergence}$(n,r)$         & $r\,k$ \\
+  \code{clock\_slam}$(n,s,k_0)$            & $s\,\mathbf 1[k\ge k_0]$ \\
+  \code{holdover\_coast}$(n,d,r_{\mathrm{rw}})$ & $\tfrac12 d\,k^{2}+r_{\mathrm{rw}}\,k$ \\
+  \code{symmetric\_delay}$(n,o)$           & $o$ \quad(\code{Undetectable}) \\
+  \code{asymmetric\_delay}$(n,\Delta)$     & $\tfrac12\Delta$ \\
+  \code{replay\_within\_freshness}$(n,o)$  & $o$ \quad(\code{Undetectable}) \\
+  \code{path\_selective}$(n,o,f)$          & $o\,f$ \\
+  \code{k\_of\_n\_quorum}$(n,o,k,N)$       & $o\,(k/N)$, or $0$ if $N=0$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+All classes are \code{Detectable} except \code{symmetric\_delay} and
+\code{replay\_within\_freshness}, which are \code{Undetectable} \citep{mizrahi7384};
+the asymmetric-delay offset is exactly half the path asymmetry \citep{narula2018}.
+The default \code{full\_menu} instantiates all ten with $n=64$ and contains exactly
+two \code{Undetectable} scenarios; the tests \code{offset\_profiles},
+\code{undetectable\_faults\_are\_flagged}, and \code{max\_offset\_matches\_series}
+in \code{faults.rs} check the profiles, the flags, the half-asymmetry offset, the
+$\text{max\_offset}$ consistency, and the count of exactly two undetectable classes.
+
+\subsection{The verdict decision table}
+\label{app:verdict}
+
+The scorecard runs a monitor $\PL(\cdot)$ over each scenario and emits one of the
+four verdicts of \eqref{eq:verdict} by the table below; there is no fifth
+(detection) verdict, and the \code{Undetectable} row can only reach an absorption
+verdict.
+\begin{center}
+\begin{tabular}{l l l}
+  \toprule
+  detectability & condition & verdict \\
+  \midrule
+  \code{Detectable}   & $\mathrm{hmi\_rate}\le\IR$        & \CovPass{} \\
+  \code{Detectable}   & $\mathrm{hmi\_rate}>\IR$          & \CovFail{} \\
+  \code{Undetectable} & $\PL(k)\ge|e(k)|\ \forall k$      & \Absorbed{} \\
+  \code{Undetectable} & $\exists\,k:\ \PL(k)<|e(k)|$      & \Unabsorbed{} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+The aggregate scorecard sums $n_{\HMI{}}^{\text{total}}$ over all scenarios and
+sets $\mathrm{all\_undetectable\_absorbed}$ true iff every \code{Undetectable}
+scenario earned \Absorbed{}. The tests
+\code{reference\_pl\_absorbs\_undetectable},
+\code{broken\_pl\_fails\_to\_absorb\_but\_never\_detects},
+\code{detectable\_fault\_uses\_coverage\_verdict}, and
+\code{undetectable\_never\_yields\_a\_coverage\_verdict} in \code{scorecard.rs}
+check each row and the impossibility invariant of Theorem~\ref{thm:invariant}
+across protection levels spanning zero to $10^{6}$.
+
+\subsection{The \code{InternalConsistency} fixture procedure}
+\label{app:fixture}
+
+The scorer's arithmetic is cross-checked, not validated, by an independent
+\code{numpy} re-count (Section~\ref{sec:oracle}):
+\begin{enumerate}
+  \item \code{scripts/gen\_tib\_scorer\_reference.py} generates a fixed synthetic
+  set of $(e,\PL)$ pairs at a fixed $\AL$ and stated $\IR$, classifies each by the
+  four-region rule of Appendix~\ref{app:classify}, and counts the regions.
+  \item It writes \code{tests/fixtures/tib/reference.json}: the inputs, the counts
+  ($n=80$; $n_{\Nominal{}}=40$, $n_{\MI{}}=20$, $n_{\HMI{}}=10$,
+  $n_{\Unavail{}}=10$), the rates ($\mathrm{hmi\_rate}=0.125$,
+  $\mathrm{mi\_rate}=0.25$, $\mathrm{availability}=0.875$,
+  $\mathrm{nominal\_rate}=0.5$), and
+  $\mathrm{coverage\_ok}=\text{false}$ (since $0.125>\IR$).
+  \item \code{tests/tib\_scorer\_reference.rs} reads the fixture, runs the Rust
+  scorer on the identical inputs, and asserts every count matches exactly and every
+  rate matches to \num{e-12}.
+\end{enumerate}
+This checks that two independent implementations of the \emph{counting} agree; it
+asserts nothing about the accuracy of any monitor, and is therefore \Modelled{}~/~
+\code{InternalConsistency}, never \Validated{}, as the fixture's \code{NOTICE.md}
+states.

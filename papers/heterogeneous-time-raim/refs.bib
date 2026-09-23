@@ -1,0 +1,351 @@
+% SPDX-License-Identifier: CC-BY-4.0
+% References for the P2 "Heterogeneous, Source-Agnostic Time-RAIM" manuscript.
+% Bibliographic details given to the best of available knowledge; no DOI is
+% knowingly fabricated. Entries whose DOI/venue/pages were not verified against
+% the publisher record at drafting time are flagged with a "% VERIFY" comment
+% line ABOVE the entry (BibTeX treats % as a comment only outside { } braces) and
+% carry a "to be confirmed" note in place of an asserted DOI where relevant.
+% Confirm every "% VERIFY" entry before camera-ready. Keys are shared with the
+% companion papers (P1/P4 of the timing-integrity arc) where they overlap.
+
+% ---------------------------------------------------------------------------
+% Solution separation / MHSS (the T-RAIM integrity parents) --- CITED
+% ---------------------------------------------------------------------------
+
+% Baseline ARAIM MHSS user algorithm (multiple-hypothesis solution separation).
+% VERIFY IEEE DOI/pages against the publisher record before camera-ready.
+@article{blanch2015,
+  author  = {Blanch, Juan and Walter, Todd and Enge, Per and others},
+  title   = {Baseline Advanced {RAIM} User Algorithm and Possible Improvements},
+  journal = {IEEE Transactions on Aerospace and Electronic Systems},
+  year    = {2015},
+  volume  = {51},
+  number  = {1},
+  pages   = {713--732},
+  doi     = {10.1109/TAES.2014.130739},
+}
+
+% Solution-separation integrity-risk equations (SS test-statistic distribution).
+% VERIFY NAVIGATION (Wiley) DOI/pages.
+@article{joerger2014,
+  author  = {Joerger, Mathieu and Chan, Fang-Cheng and Pervan, Boris},
+  title   = {Solution Separation Versus Residual-Based {RAIM}},
+  journal = {NAVIGATION: Journal of the Institute of Navigation},
+  year    = {2014},
+  volume  = {61},
+  number  = {4},
+  pages   = {273--291},
+  note    = {DOI to be confirmed against the publisher record},
+}
+
+% All-source solution-separation integrity monitoring for localization: SS carried
+% beyond GNSS to heterogeneous sensors, but for a POSITION state, with no scalar
+% time estimand and no UTC(k) traceability-bias budget.
+% Title/authors/venue/volume/issue/pages/DOI confirmed against the SAGE record.
+@article{duenasarana2020,
+  author  = {Due{\~n}as Arana, Guillermo and Abdul Hafez, Osama and
+             Joerger, Mathieu and Spenko, Matthew},
+  title   = {Integrity Monitoring for {Kalman} Filter-Based Localization},
+  journal = {The International Journal of Robotics Research},
+  year    = {2020},
+  volume  = {39},
+  number  = {13},
+  pages   = {1503--1524},
+  doi     = {10.1177/0278364920960517},
+  note    = {All-source solution separation for a POSITION state, not a scalar
+             time / UTC(k) traceability budget.},
+}
+
+% Multi-source PNT resilient-fusion integrity monitoring, but for a POSITION/PVT
+% state with no UTC(k) traceability-bias budget and no composed protection-level
+% object. DOI/title/authors/venue confirmed against the Springer record.
+@article{chen2023multisource,
+  author  = {Chen, Rui and Zhao, Long},
+  title   = {Multi-Level Autonomous Integrity Monitoring Method for Multi-Source
+             {PNT} Resilient Fusion Navigation},
+  journal = {Satellite Navigation},
+  year    = {2023},
+  volume  = {4},
+  number  = {1},
+  pages   = {21},
+  doi     = {10.1186/s43020-023-00111-8},
+  note    = {Multi-source PNT integrity monitoring for a position/PVT state; no
+             UTC(k) traceability-bias budget built into an integrity PL.},
+}
+
+% Shared-reference / common broadcast time offsets across GNSS: the shared-reference
+% correlation IS recognized in multi-GNSS timing, but is not built into an integrity
+% protection level. DOI/title/authors/venue confirmed against the Springer record.
+@article{sesia2021,
+  author  = {Sesia, Ilaria and Signorile, Giovanna and Thai, Tung Thanh and
+             Defraigne, Pascale and Tavella, Patrizia},
+  title   = {{GNSS}-to-{GNSS} Time Offsets: Study on the Broadcast of a Common
+             Reference Time},
+  journal = {GPS Solutions},
+  year    = {2021},
+  volume  = {25},
+  number  = {2},
+  pages   = {61},
+  doi     = {10.1007/s10291-020-01082-y},
+  note    = {Shared-reference correlation is recognized in multi-GNSS timing but is
+             not built into an integrity protection level.},
+}
+
+% ---------------------------------------------------------------------------
+% Time-RAIM / timing protection level lineage --- CITED
+% ---------------------------------------------------------------------------
+
+% Receiver-autonomous timing protection level (TPL = WATP + TPL_noise); GNSS-only,
+% residual/weighted-average-time T-RAIM. NOT the SS/MHSS parent (Blanch/Joerger).
+% DOI, title, volume/issue, and article number confirmed against the MDPI record.
+@article{gioia2023,
+  author  = {Gioia, Ciro},
+  title   = {{T-RAIM} Approaches: Testing with {Galileo} Measurements},
+  journal = {Sensors},
+  year    = {2023},
+  volume  = {23},
+  number  = {4},
+  pages   = {2283},
+  doi     = {10.3390/s23042283},
+  note    = {Residual / weighted-average-time T-RAIM, GNSS-only; MDPI article
+             number 2283. No heterogeneous budget and no UTC(k) traceability-bias
+             term.},
+}
+
+% The companion P1 this paper directly extends: the composed timing protection
+% level (the scalar TPL = rank-one MHSS specialization + P0-seeded holdover
+% ride-through, with the single externally VALIDATED BIPM overbound-coverage row).
+% Cross-referenced by title; never restated as new.
+@article{baweja2026cti,
+  author  = {Baweja, Chakshu},
+  title   = {A Composed Timing Protection Level: Lower-Semicontinuous,
+             {$P_0$}-Seeded Ride-Through of the Cross-Check--to--Holdover Seam},
+  journal = {Preprint (companion, timing-integrity arc)},
+  year    = {2026},
+  note    = {The method half this paper extends: the scalar TPL and the rank-one
+             all-ones-geometry recap are cited from here, and the correlated-bias
+             and common-mode treatments named there as "a companion paper" are the
+             present work.},
+}
+
+% The published N=1 / scalar-seam lineage this construction generalizes; the
+% single-source conditional TPL and coast-over-latency impossibility.
+% eprint arXiv:2606.24210 confirmed against the arXiv record.
+@article{baweja2026tpl,
+  author  = {Baweja, Chakshu},
+  title   = {A Conditional Timing Protection Level: Holdover-Limited Undetected
+             Time Error Under {GNSS} Spoofing},
+  journal = {arXiv preprint},
+  year    = {2026},
+  volume  = {arXiv:2606.24210},
+  doi     = {10.48550/arXiv.2606.24210},
+  note    = {[eess.SP]. The single-source (N=1) special case; cited, never
+             restated as new.},
+}
+
+% ---------------------------------------------------------------------------
+% Generalized least squares / whitening (the common-mode layer's engine) --- CITED
+% ---------------------------------------------------------------------------
+
+% Generalized least squares: the correlated-error whitening (Omega = L L^T,
+% z = L^{-1} r) our common-mode layer runs solution separation on.
+% VERIFY Proc. Roy. Soc. Edinburgh volume/pages and the (Cambridge) DOI.
+@article{aitken1935,
+  author  = {Aitken, Alexander C.},
+  title   = {On Least Squares and Linear Combination of Observations},
+  journal = {Proceedings of the Royal Society of Edinburgh},
+  year    = {1935},
+  volume  = {55},
+  pages   = {42--48},
+  note    = {The generalized-least-squares / whitening result; volume/pages and
+             DOI to be confirmed against the publisher record},
+}
+
+% ---------------------------------------------------------------------------
+% Clock-ensemble fault detection (the common-mode incumbency) --- CITED
+% ---------------------------------------------------------------------------
+
+% Per-clock fault detection and identification WITHIN a clock ensemble via a
+% generalized likelihood ratio test. The design-spine incumbency for the
+% common-mode layer: it is well established here that an offset common to every
+% ensemble member cancels in all inter-clock time differences and is therefore
+% unobservable from the ensemble alone. Distinct from the present composed,
+% source-agnostic time-RAIM object (a protection-level with a UTC(k)
+% traceability-bias budget and an explicit common-mode statistic).
+% DOI/title/authors/venue/pages confirmed against the IOP Metrologia record.
+@article{trainotti2022,
+  author  = {Trainotti, Christian and Giorgi, Gabriele and G{\"u}nther, Christoph},
+  title   = {Detection and Identification of Faults in Clock Ensembles with the
+             Generalized Likelihood Ratio Test},
+  journal = {Metrologia},
+  year    = {2022},
+  volume  = {59},
+  number  = {4},
+  pages   = {045010},
+  doi     = {10.1088/1681-7575/ac7686},
+  note    = {Per-clock GLRT fault detection/identification in a clock ENSEMBLE, not
+             a composed source-agnostic time-RAIM protection-level object. The
+             common-offset-cancels-in-all-time-differences unobservability is
+             established ensemble metrology. Corrigendum: Metrologia 62(2):029501,
+             2025, DOI 10.1088/1681-7575/adb03e.},
+}
+
+% ---------------------------------------------------------------------------
+% Metrological uncertainty: the Type-B raw material for the bias overbound --- CITED
+% ---------------------------------------------------------------------------
+
+% GUM: evaluation of measurement data --- the Type-B expanded-uncertainty (U, k)
+% framework whose k=2 expanded uncertainty is the raw material this paper
+% reconstructs into an integrity-tail bias overbound. No DOI; JCGM document.
+@techreport{jcgm100,
+  author      = {{Joint Committee for Guides in Metrology}},
+  title       = {Evaluation of Measurement Data---Guide to the Expression of
+                 Uncertainty in Measurement ({GUM})},
+  institution = {BIPM / JCGM},
+  year        = {2008},
+  type        = {JCGM},
+  number      = {100:2008},
+  note        = {GUM 1995 with minor corrections; the Type-B expanded-uncertainty
+                 (U, coverage factor k) framework. Freely distributed by the BIPM.},
+}
+
+% CGGTTS-2E: per-source GNSS time-transfer delay decomposition (raw material for a
+% UTC(k) traceability-bias term).
+% VERIFY Metrologia DOI (expected 10.1088/0026-1394/52/6/G1).
+@article{defraigne2015,
+  author  = {Defraigne, Pascale and Petit, G{\'e}rard},
+  title   = {{CGGTTS}-Version {2E}: An Extended Standard for {GNSS} Time Transfer},
+  journal = {Metrologia},
+  year    = {2015},
+  volume  = {52},
+  number  = {6},
+  pages   = {G1},
+  note    = {DOI to be confirmed against the publisher record},
+}
+
+% UTC and its realization / uncertainty budgeting (context for traceability).
+% VERIFY Metrologia DOI (expected 10.1088/1681-7575/ab1e68).
+@article{panfilo2019,
+  author  = {Panfilo, Gianna and Arias, Felicitas},
+  title   = {The Coordinated Universal Time ({UTC})},
+  journal = {Metrologia},
+  year    = {2019},
+  volume  = {56},
+  number  = {4},
+  pages   = {042001},
+  note    = {DOI to be confirmed against the publisher record},
+}
+
+% BIPM Circular-T [UTC-UTC(k)] monthly bulletin; the source of the
+% [UTC-UTC(USNO)] series. In THIS paper it is a CITED magnitude INPUT ONLY: it is
+% already the externally VALIDATED overbound-coverage oracle of the companion P1,
+% and is NOT re-validated here. Reproducing its values is bookkeeping.
+@techreport{bipmcirculart,
+  author      = {{Bureau International des Poids et Mesures}},
+  title       = {{Circular T}},
+  institution = {Bureau International des Poids et Mesures (BIPM), Time Department},
+  year        = {2026},
+  note        = {Monthly bulletin of [UTC-UTC(k)]; retrieved via the BIPM Time
+                 Department webtai API. \url{https://webtai.bipm.org/}. A CITED
+                 input here, NOT re-validated (it is P1's validated oracle).},
+}
+
+% ---------------------------------------------------------------------------
+% Heterogeneous time-source families / clock stability (source context) --- CITED
+% ---------------------------------------------------------------------------
+
+% The PSD-to-phase-variance clock model underlying the local-oscillator source
+% and the ageing term of the bias overbound; also P1's holdover model.
+% VERIFY IEEE UFFC DOI/pages.
+@article{zucca2005,
+  author  = {Zucca, Chiara and Tavella, Patrizia},
+  title   = {The Clock Model and Its Relationship with the {Allan} and Related
+             Variances},
+  journal = {IEEE Transactions on Ultrasonics, Ferroelectrics, and Frequency
+             Control},
+  year    = {2005},
+  volume  = {52},
+  number  = {2},
+  pages   = {289--296},
+  note    = {DOI to be confirmed against the publisher record},
+}
+
+% ---------------------------------------------------------------------------
+% Fault-tolerant / resilient timing standards (positioning context) --- CITED
+% ---------------------------------------------------------------------------
+
+% Fault-tolerant gPTP time distribution with a time-selection function; it
+% SELECTS a trustworthy source without emitting a protection level or IR budget.
+% VERIFY IEEE 802.1ASed amendment designation and publication year.
+@techreport{ieee8021ased,
+  author      = {{IEEE}},
+  title       = {{IEEE} Standard for Local and Metropolitan Area Networks---Timing
+                 and Synchronization for Time-Sensitive Applications---Amendment:
+                 Fault Tolerant Timing with Time Integrity},
+  institution = {IEEE},
+  year        = {2026},
+  type        = {IEEE Std},
+  number      = {802.1ASed-2026},
+  note        = {Amendment to IEEE Std 802.1AS; standardizes selection without a
+                 protection level. Designation/year to be confirmed},
+}
+
+% ---------------------------------------------------------------------------
+% Secure/verifiable time --- delay-attack context (discussion only) --- CITED
+% ---------------------------------------------------------------------------
+
+% Delay attacks are not preventable by cryptography; symmetric single-path delay
+% is provably undetectable. Cited as context; the adversary is companion P3 scope.
+@techreport{mizrahi7384,
+  author      = {Mizrahi, Tal},
+  title       = {Security Requirements of Time Protocols in Packet Switched
+                 Networks},
+  institution = {Internet Engineering Task Force (IETF)},
+  year        = {2014},
+  type        = {RFC},
+  number      = {7384},
+  doi         = {10.17487/RFC7384},
+}
+
+% Two-way exchange requirement; maximum undetectable offset = half-RTT asymmetry.
+% Cited only as context (adversary is companion-paper scope).
+% VERIFY IEEE JSTSP DOI/pages.
+@article{narula2018,
+  author  = {Narula, Lakshay and Humphreys, Todd E.},
+  title   = {Requirements for Secure Clock Synchronization},
+  journal = {IEEE Journal of Selected Topics in Signal Processing},
+  year    = {2018},
+  volume  = {12},
+  number  = {4},
+  pages   = {749--762},
+  note    = {arXiv:1710.05798; DOI/pages to be confirmed},
+}
+
+% Single-protocol (PTP) cyclic-path-asymmetry delay-attack detector; a
+% protocol-specific monitor, not a source-agnostic time-RAIM budget.
+% eprint arXiv:2401.10664 confirmed against the arXiv record.
+@article{finkenzeller2024ptpsec,
+  author  = {Finkenzeller, Andreas and Butowski, Oliver and Regnath, Emanuel and
+             Hamad, Mohammad and Steinhorst, Sebastian},
+  title   = {{PTPsec}: Securing the {Precision Time Protocol} Against Time Delay
+             Attacks Using Cyclic Path Asymmetry Analysis},
+  journal = {arXiv preprint},
+  year    = {2024},
+  volume  = {arXiv:2401.10664},
+  doi     = {10.48550/arXiv.2401.10664},
+  note    = {[cs.CR]. Single-protocol PTP delay-attack detector. INFOCOM 2024
+             venue/pages to be confirmed},
+}
+
+% ---------------------------------------------------------------------------
+% Software substrate
+% ---------------------------------------------------------------------------
+
+@article{baweja2026kshana,
+  author  = {Baweja, Chakshu},
+  title   = {Kshana: An Open, Reproducible Engine for {PNT}-Resilience
+             Comparison},
+  journal = {Preprint},
+  year    = {2026},
+  note    = {Software: \url{https://github.com/ashfordeOU/kshana} (AGPL-3.0-only)},
+}

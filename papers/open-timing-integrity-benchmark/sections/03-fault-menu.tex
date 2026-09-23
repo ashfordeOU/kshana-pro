@@ -1,0 +1,118 @@
+\section{The fault menu}
+\label{sec:faultmenu}
+
+The stimulus side of the benchmark is a catalogue of parametric fault generators.
+Each generator emits a true-error time series---one value per epoch, the hidden
+$e(k)$ the scorer of Section~\ref{sec:method} compares against the monitor's
+declared protection level---together with a \code{FaultSpec} recording the fault's
+class, its worst-case injected offset, and, crucially, its \emph{detectability}.
+The generators are \Modelled{}: they are representative, parametric, and
+deliberately simple, not measured captures and not an exhaustive adversary. The
+detectability partition, by contrast, is \Cited{}: which faults can be detected in
+principle is a settled impossibility question, not a modelling choice.
+
+\subsection{The ten fault classes}
+\label{sec:classes}
+
+Table~\ref{tab:faults} lists the catalogue and each class's offset profile and
+detectability, as implemented in \code{src/benchmark/faults.rs}. The offset
+profiles are elementary functions of the epoch index $k$; what matters is not their
+sophistication but that they span the qualitatively distinct ways a timing service
+loses integrity---slow domain drift, an abrupt slam, free-running holdover growth,
+constant and ramping delays, the two provably undetectable delays, a
+half-round-trip-time asymmetry, and the two partial-compromise geometries
+(path-selective and $k$-of-$N$ quorum).
+
+\begin{table}[t]
+  \centering
+  \caption{The fault menu (\Modelled{} generators; \Cited{} detectability). Offset
+  profiles are functions of the epoch index $k$; $\mathrm{rate}$, $\mathrm{step}$,
+  $d_{\mathrm{aging}}$, $r_{\mathrm{rw}}$, and the delay magnitudes are
+  per-scenario parameters. The two undetectable classes are fixed by Mizrahi
+  \citep{mizrahi7384}; the asymmetric-delay offset is fixed at half the path
+  asymmetry by Narula and Humphreys \citep{narula2018}.}
+  \label{tab:faults}
+  \begin{tabular}{l l l}
+    \toprule
+    class & true-error profile $e(k)$ & detectability \\
+    \midrule
+    domain divergence     & $\mathrm{rate}\cdot k$ (slow drift)             & detectable \\
+    clock slam            & $\mathrm{step}\cdot\mathbf 1[k\ge k_0]$          & detectable \\
+    holdover coast        & $\tfrac12 d_{\mathrm{aging}}k^{2}+r_{\mathrm{rw}}k$ & detectable \\
+    static delay          & constant offset                                 & detectable \\
+    incremental delay     & $\mathrm{rate}\cdot k$ (ramp)                    & detectable \\
+    symmetric delay       & constant offset                                 & \textbf{undetectable} \\
+    asymmetric delay      & $\tfrac12\cdot(\text{path asymmetry})$           & detectable \\
+    replay within freshness & constant offset                               & \textbf{undetectable} \\
+    path-selective        & $\text{offset}\cdot(\text{fraction affected})$  & detectable \\
+    $k$-of-$N$ quorum     & $\text{offset}\cdot(k/N)$                        & detectable \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The holdover-coast profile is monotone and quadratic-plus-linear in $k$
+($\tfrac12 d_{\mathrm{aging}}k^{2}+r_{\mathrm{rw}}k$), matching the deterministic
+shape of an aging, random-walk-driven free-running clock; the benchmark's own unit
+test asserts this series is non-decreasing. The path-selective and quorum classes
+model \emph{partial} compromise: a delay applied to a fraction of paths, or $k$ of
+$N$ sources corrupted together, produces an effective fused offset scaled by that
+fraction ($\text{fraction affected}$, or $k/N$)---detectable while an uncorrupted
+quorum remains. These are representative geometries, not a claim about any specific
+fusion rule.
+
+\subsection{The detectability partition is \Cited{}, not modelled}
+\label{sec:detectability}
+
+Each generator carries a \code{Detectability} flag with two values,
+\code{Detectable} and \code{Undetectable}, and the assignment is a citation, not a
+design decision.
+
+\paragraph{The undetectable set (Mizrahi).}
+A \emph{symmetric single-path delay}---an adversary that delays the timing signal
+by the same amount in both directions of a two-way exchange---is provably
+undetectable by any protocol, cryptographic or otherwise, because it is
+indistinguishable from a genuine change in path length \citep{mizrahi7384}.
+Cryptographic authentication does not help: the delayed message is authentic, only
+late, and the lateness is symmetric so the two-way estimate is unbiased about a
+\emph{wrong} value. The same holds for a \emph{replay inside the freshness
+window}: a message replayed before its freshness bound expires passes every
+freshness and authentication check by construction. Both classes are therefore
+flagged \code{Undetectable}, and the consequence---elaborated in
+Section~\ref{sec:verdict}---is that a monitor's only honest defence is to
+\emph{carry enough protection level to absorb} the offset, never to claim
+detection. The benchmark's \code{full\_menu} contains \emph{exactly two}
+undetectable scenarios, and this count is asserted by a unit test, so the
+undetectable set cannot silently grow or vanish.
+
+\paragraph{The boundable boundary (Narula and Humphreys).}
+The complementary boundary is the \emph{asymmetric} delay. When the induced path
+asymmetry is $\Delta$, the maximum offset a two-way exchange cannot resolve is
+$\Delta/2$---half the round-trip-time asymmetry \citep{narula2018}. The generator
+encodes exactly this: the injected offset of an asymmetric-delay scenario is
+$\tfrac12\cdot(\text{path asymmetry})$. We are precise about what this partition
+asserts: a pure path asymmetry is not \emph{directly detected} from a single
+two-way exchange---nothing in one exchange isolates the asymmetry itself. What is
+true is that its induced offset is \emph{boundable (resolvable)}: an asymmetry,
+unlike a symmetric delay, perturbs the two-way residual and can in principle be
+bounded. The class therefore carries the code's \code{Detectable} flag as a
+\emph{routing} decision---the scenario is sent to the coverage verdict
+(Section~\ref{sec:coverage}) rather than to the absorption verdict reserved for the
+provably undetectable---not as a claim that the asymmetry is pinpointed. The unit
+test checks both facts: that the asymmetric offset is half the asymmetry, and that
+it lies on the boundable (\code{Detectable}) side of the partition.
+
+\subsection{Scope of the menu}
+\label{sec:menuscope}
+
+The menu is \Modelled{} and we bound it plainly. The generators are deterministic
+representative profiles, not stochastic captures of real network or clock
+behaviour; the offset magnitudes are illustrative parameters, not operational
+tolerances; and the ten classes, while spanning the qualitatively distinct failure
+modes, are not an exhaustive adversary catalogue. Deep-tail integrity rates such as
+\num{e-7} cannot be measured on the short scenarios a demonstration runs---resolving
+them would need far more epochs than any illustrative menu carries, a point we
+return to in Section~\ref{sec:discussion}. What the menu \emph{does} guarantee is
+that the honesty-critical structure---the two undetectable classes and the
+half-asymmetry boundary---is fixed by citation and locked by test, so that no
+monitor can be scored against a menu that quietly omits the faults it cannot
+survive.
