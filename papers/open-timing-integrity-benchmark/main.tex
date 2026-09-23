@@ -1,0 +1,123 @@
+% SPDX-License-Identifier: CC-BY-4.0
+% P4 open timing-integrity benchmark manuscript (timing-integrity program).
+% The yardstick paired with P1 "A Composed Timing Protection Level" (the method).
+% Target: NAVIGATION (ION) / IEEE TAES; conference flag ION GNSS+ / ITSF.
+% Build: tectonic main.tex   (or pdflatex + bibtex + pdflatex x2)
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{3em}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{orcidlink}
+
+\graphicspath{{./}{figures/}}
+\setlength{\abovecaptionskip}{9pt}
+\setlength{\belowcaptionskip}{6pt}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+% Notation macros
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\PL}{\mathrm{PL}}                     % protection level
+\newcommand{\AL}{\mathrm{AL}}                     % application alert limit
+\newcommand{\IR}{\mathrm{IR}}                     % (stated) integrity risk
+\newcommand{\utc}{\mathrm{UTC}}                   % reference time
+\newcommand{\test}{\hat t}                        % monitor's time estimate
+\newcommand{\TPL}{\mathrm{TPL}}                   % handover timing protection level
+\DeclareMathOperator{\classify}{classify}
+% Integrity-diagram region names (typeset consistently)
+\newcommand{\Nominal}{\textsf{Nominal}}
+\newcommand{\Unavail}{\textsf{Unavailable}}
+\newcommand{\MI}{\textsf{MI}}
+\newcommand{\HMI}{\textsf{HMI}}
+% Verdict names
+\newcommand{\CovPass}{\textsf{CoveragePass}}
+\newcommand{\CovFail}{\textsf{CoverageFail}}
+\newcommand{\Absorbed}{\textsf{AbsorbedUndetectable}}
+\newcommand{\Unabsorbed}{\textsf{UnabsorbedUndetectable}}
+
+% Honesty tags: Cited (prior art / method source), Proven (our algebra),
+% Modelled (representative harness/scenario), Validated (external accuracy oracle).
+% In this paper the word Validated is DEFINED and then shown never to be earned:
+% a benchmark makes no accuracy claim, so it is honesty-immune.
+\newcommand{\Cited}{\textsc{Cited}}
+\newcommand{\Proven}{\textsc{Proven}}
+\newcommand{\Modelled}{\textsc{Modelled}}
+\newcommand{\Validated}{\textsc{Validated}}
+
+\title{\textbf{The Open Timing Integrity Benchmark: an honesty-immune,
+cross-protocol conformance yardstick with the symmetric-delay impossibility
+encoded as a verdict-algebra invariant}}
+
+\author{Chakshu Baweja\,\orcidlink{0009-0008-2098-0751}\\
+\small Ashforde O\"U, Tallinn, Estonia \\
+\small \texttt{contact@ashforde.org}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{sections/00-abstract}
+\end{abstract}
+
+\noindent\textbf{Keywords:} timing integrity; cross-protocol conformance
+benchmark; Stanford integrity diagram; hazardously misleading information;
+integrity risk; time-RAIM; timing protection level; delay-attack impossibility;
+symmetric-delay undetectability; honesty-immune benchmark; secure time;
+NTS; Roughtime
+
+\vspace{0.5em}
+\input{sections/01-introduction}
+\input{sections/02-method}
+\input{sections/03-fault-menu}
+\input{sections/04-verdict-algebra}
+\input{sections/05-honesty-immunity}
+\input{sections/06-demonstration}
+\input{sections/07-discussion}
+\input{sections/08-conclusion}
+
+\section*{Data and code availability}
+\input{sections/09-availability}
+
+\section*{Acknowledgements}
+The scoring machinery, fault catalogue, verdict algebra, and end-to-end
+demonstration underlying this work are part of the open-source \code{kshana}
+engine. The scoring taxonomy is the Stanford--ESA integrity diagram; the
+undetectable-fault set is the delay-attack impossibility of RFC~7384. No external
+dataset underwrites any accuracy claim, and by design none is required: a
+benchmark asserts nothing about accuracy. This research received no specific
+grant from any funding agency in the public, commercial, or not-for-profit
+sectors.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\input{sections/A-methods}
+
+\end{document}

@@ -1,0 +1,121 @@
+% SPDX-License-Identifier: CC-BY-4.0
+% P2 heterogeneous source-agnostic time-RAIM manuscript (timing-integrity program).
+% Extends P1 "A Composed Timing Protection Level" (the method): the scalar timing
+% PL is generalized to a heterogeneous, source-agnostic UTC(k)-traceability budget
+% with a correlated-bias cross-covariance, and a GLS common-mode integrity layer
+% is added with its published, finite irreducible blind spot.
+% Target: NAVIGATION (ION) / IEEE TAES; conference flag ION GNSS+ / PTTI.
+% Build: tectonic main.tex   (or pdflatex + bibtex + pdflatex x2)
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{3em}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{orcidlink}
+
+\graphicspath{{./}{figures/}}
+\setlength{\abovecaptionskip}{9pt}
+\setlength{\belowcaptionskip}{6pt}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+% Notation macros
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\PL}{\mathrm{PL}}                     % protection level
+\newcommand{\TPL}{\mathrm{TPL}}                   % timing protection level
+\newcommand{\HPL}{\mathrm{HPL}}                   % holdover protection level
+\newcommand{\IR}{\mathrm{IR}}                     % integrity risk
+\newcommand{\utc}{\mathrm{UTC}}                   % reference time
+\newcommand{\utck}{\mathrm{UTC}(k)}               % lab realization
+\newcommand{\Om}{\Omega}                          % GLS covariance / whitening
+\newcommand{\bmone}{\bm 1}                        % all-ones geometry column
+\newcommand{\Sib}{\Sigma_{b}}                     % bias cross-covariance
+\newcommand{\scm}{s_{\mathrm{cm}}}                % common-mode statistic
+\DeclareMathOperator{\erf}{erf}
+
+% Honesty tags: Cited (prior art), Proven (our algebra), Modelled (representative),
+% Validated (external accuracy oracle). In THIS paper the word Validated is
+% DEFINED and then shown never to be earned by a P2 result: P2 adds no new
+% externally validated claim. It appears only to reference P1's companion
+% Validated holdover-coverage anchor, or in an explicit negation.
+\newcommand{\Cited}{\textsc{Cited}}
+\newcommand{\Proven}{\textsc{Proven}}
+\newcommand{\Modelled}{\textsc{Modelled}}
+\newcommand{\Validated}{\textsc{Validated}}
+
+\title{\textbf{Heterogeneous, Source-Agnostic Time-RAIM: a $\utck{}$-traceability
+integrity budget with a correlated-bias cross-covariance and a
+generalized-least-squares common-mode layer with a finite irreducible blind spot}}
+
+\author{Chakshu Baweja\,\orcidlink{0009-0008-2098-0751}\\
+\small Ashforde O\"U, Tallinn, Estonia \\
+\small \texttt{contact@ashforde.org}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{sections/00-abstract}
+\end{abstract}
+
+\noindent\textbf{Keywords:} time-RAIM; timing protection level; solution
+separation; MHSS; UTC(k) traceability; Type-B uncertainty; correlated bias;
+bias cross-covariance; generalized least squares; Aitken whitening; common-mode
+integrity; irreducible blind spot; heterogeneous time sources
+
+\vspace{0.5em}
+\input{sections/01-introduction}
+\input{sections/02-heterogeneous-model}
+\input{sections/03-traceability-bias}
+\input{sections/04-correlated-bias}
+\input{sections/05-gls-common-mode}
+\input{sections/06-blind-spot}
+\input{sections/07-demonstration}
+\input{sections/08-discussion}
+\input{sections/09-conclusion}
+
+\section*{Data and code availability}
+\input{sections/10-availability}
+
+\section*{Acknowledgements}
+The heterogeneous budget, the bias cross-covariance, the generalized-least-squares
+common-mode layer, and the end-to-end demonstration underlying this work are part
+of the open-source \code{kshana} engine. The per-source traceability magnitudes are
+drawn as \Cited{} inputs from the published metrology literature and from the BIPM
+Circular-T $[\utck{}-\mathrm{UTC(USNO)}]$ bulletin; reproducing those values is
+bookkeeping, not validation, and no external dataset underwrites any accuracy claim
+of this paper. This research received no specific grant from any funding agency in
+the public, commercial, or not-for-profit sectors.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\input{sections/A-methods}
+
+\end{document}

@@ -1,0 +1,95 @@
+\section{Demonstration}
+\label{sec:demo}
+
+We exercise both constructions end to end on a single heterogeneous scenario, by
+the committed example \code{examples/hetero\_gls\_demo.rs}. Every number in this
+section is printed by that example; none is transcribed by hand into the code, and
+all are \Modelled{}---representative magnitudes chosen to make the algebra visible,
+not operational tolerances and carrying no certification implication. There is no
+accuracy claim in this section.
+
+\subsection{Scenario}
+\label{sec:demoscenario}
+
+The scenario is the five-source set of~\eqref{eq:sourceset}: a GNSS-PPP source
+(index $0$), an eLoran/R-Mode source (index $1$), a PTP/White-Rabbit source
+(index $2$), a LEO-STL source (index $3$), and a local oscillator (index $4$). The
+shared-realizer structure is the load-bearing choice: \emph{sources $0$ and $1$
+both trace $\utc{}(\mathrm{USNO})$}, so their traceability biases are coupled by a
+positive off-diagonal in $\Sib{}$ (a two-source realizer group with correlation
+$\rho$), while sources $2$--$4$ are independent. Per-source noise overbounds
+$\sigma_i$, bias overbounds $b_i$ from~\eqref{eq:overbound}, and fault priors
+$p_{\mathrm{fault},i}$ are representative nanosecond-scale values set in the
+example; we report the fused outputs rather than assert the inputs as tolerances.
+
+\subsection{R2: correlated bias exceeds the naive independent fusion}
+\label{sec:demor2}
+
+Fusing the biases with the shared-realizer coupling of~\eqref{eq:corrgeqindep}
+gives a correlated fused bias of
+\begin{equation}
+  \text{correlated fused bias} \;=\; \SI{7.788}{\nano\second},
+  \qquad
+  \text{naive independent (RSS)} \;=\; \SI{6.681}{\nano\second},
+  \label{eq:demor2}
+\end{equation}
+an understatement of $\Delta=\SI{1.107}{\nano\second}$ that a variance- or RSS-style
+allocation ignoring the shared $\utc{}(\mathrm{USNO})$ realizer would incur. This is
+the concrete form of Theorem~\ref{thm:corr}: correlated $\ge$ independent, with the
+gap living entirely in the source-$0$/source-$1$ cross term. We stress the reading
+demanded by caveat~I3 (Remark~\ref{rem:i3}): the $\SI{1.107}{\nano\second}$ is the
+error of the \emph{naive independent} treatment, not a margin missing from the
+companion protection level---the companion's \emph{linear} bias fusion is at or
+above the $\SI{7.788}{\nano\second}$ correlated value, so this demonstration warns
+against a variance-style allocation and does not harden P1.
+
+\subsection{R3: the common-mode statistic responds to a shift separation cannot see}
+\label{sec:demor3}
+
+Running solution separation on the whitened residual~\eqref{eq:whiten} and
+evaluating the common-mode statistic~\eqref{eq:cmstat} on a pre-fit residual against
+an independent anchor gives
+\begin{equation}
+  \scm{}^{\text{null}} \;=\; 0.01,
+  \qquad
+  \scm{}^{\text{common shift}} \;=\; 0.68 ,
+  \label{eq:demor3}
+\end{equation}
+so the statistic rises by nearly two orders of magnitude in response to an
+all-source shift that solution separation, forming contrasts orthogonal to
+$\bmone{}$, reports as nominal. We state the honest limit explicitly: $0.68$ is
+\emph{below} the $\chi^2_1$ $95\%$ threshold $3.841$, so this run demonstrates that
+the statistic \emph{responds} to the common-mode fault, not that it trips a $95\%$
+test at this magnitude; a larger shift, or a deeper integrity-allocated threshold,
+would be needed to trip. It is a response demonstration, not a detection claim.
+
+\subsection{R3: the undetectable ceiling is finite}
+\label{sec:democeiling}
+
+Finally we evaluate the undetectable ceiling~\eqref{eq:ceiling} along the modelled
+common-coupling axis. It is
+\begin{equation}
+  \xi^\star \;=\; \min\big(\alpha_{\mathrm{ss}},\alpha_{\mathrm{cm}}\big) \;=\; 2.371
+  \quad\text{(normalized units)},
+  \label{eq:democeiling}
+\end{equation}
+a \emph{finite} value, exactly as Theorem~\ref{thm:finite} requires under a
+positive-definite whitening: the modelled common axis is not a joint blind
+direction of both detectors, so the residual undetectable magnitude is bounded.
+Per caveat~I1 (Remark~\ref{rem:i1}), $2.371$ is a large-but-finite ceiling and,
+because $\alpha_{\mathrm{ss}}$ is the idealized parity detector, a conservative
+\emph{lower} bound on the true undetectable magnitude, not an infinite blind spot.
+
+\subsection{What the demonstration shows, and what it does not}
+\label{sec:demoscope}
+
+The run shows three things: a shared realizer makes correlated bias fusion strictly
+exceed the naive independent fusion (the R2 warning); the common-mode statistic
+responds to a shift that solution separation cannot see (the R3 blindness); and the
+undetectable ceiling along the modelled common axis is finite (the R3 blind spot,
+large but bounded). It shows \emph{none} of the following: it is not an accuracy
+claim, not a certification, not evidence that $\SI{7.788}{\nano\second}$ or
+$2.371$ is an operational tolerance, and---because the scenario is a handful of
+sources at one epoch---not a resolution of any deep-tail integrity quantile. The
+magnitudes are \Modelled{} illustration of \Proven{} algebra over \Cited{}
+metrology, and the demonstration adds no \Validated{} tag.

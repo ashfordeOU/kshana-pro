@@ -1,0 +1,43 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Timing-integrity monitors are plentiful and each publishes its own numbers on its
+own terms; what the field lacks is a common ruler. This paper defines that ruler:
+an open, versioned, cross-protocol conformance benchmark that scores any monitor's
+stated integrity risk against its measured undetected-error exceedance, under one
+fault menu, with the Stanford integrity diagram specialized to time as its scoring
+method (\Cited{}), a parametric ten-class fault menu as its stimulus (\Modelled{}),
+and a four-value verdict algebra as its core. The verdict algebra is the load-bearing
+contribution: because its enumeration contains no detection token, an undetectable
+fault---a symmetric single-path delay or a replay within freshness---can only be
+scored as \Absorbed{} or \Unabsorbed{} by the protection level, never as detected.
+Mizrahi's impossibility is thereby made a machine-checked, type-level invariant
+(\Proven{}), and a negative result is turned into a positive scoring rule: a
+monitor is rewarded for carrying enough protection level to absorb what it cannot
+see, never for the impossible act of detecting it.
+
+The benchmark's defining property is that it makes no accuracy claim of its own. It
+does not assert that any clock is accurate, any protection level tight, or any
+monitor safe; it applies a fixed rule to a fixed menu and tallies the outcome.
+Because it asserts nothing about accuracy, it cannot be wrong about accuracy---it is
+honesty-immune---and so it carries \emph{zero} \Validated{} tags by construction,
+not by omission. The single cross-check we run, an independent re-count of the
+region tallies, verifies the scorer's arithmetic and is labelled \Modelled{}~/~
+\code{InternalConsistency}: it checks the counting, not any accuracy, and is
+explicitly neither validation nor an external dataset. This is what makes the object
+worth citing---a reference that cannot overclaim, reproducible by one command.
+
+We demonstrated the benchmark by scoring the companion composed protection level
+and a deliberately broken monitor. The reference monitor covered its holdover
+design regime, absorbed both sub-floor undetectable offsets, and---crucially---was
+\emph{honestly exposed} at its boundary, drawing hazardously misleading information
+on the adversarial faults outside its model ($n_{\HMI{}}^{\text{total}}=64$); the
+broken monitor was strictly worse on the same rule
+($n_{\HMI{}}^{\text{total}}=121$, both undetectables unabsorbed). A reference
+yardstick maps a method's coverage rather than flattering it. This benchmark is the
+yardstick half of a citable pair whose method half is the companion composed timing
+protection level \citep{baweja2026cti}; the adversarial and common-mode papers of
+the arc extend the monitors it scores. What this paper contributes on its own is
+small and, we hope, durable: a common ruler the field did not have, with its
+central impossibility compiled into the shape of the result, and every number
+reproducible from the open engine.

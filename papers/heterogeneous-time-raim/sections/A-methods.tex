@@ -1,0 +1,150 @@
+\section{Methods}
+\label{app:methods}
+
+This appendix records the algebra behind the results: the bias-overbound
+reconstruction, the positive-semidefiniteness of the bias cross-covariance, the
+correlated-$\ge$-independent inequality, the Cholesky whitening and the
+common-mode statistic, and the finite-ceiling blind-spot bound with its
+mutual-exclusivity argument. All are consistent with the committed modules of
+Section~\ref{sec:availability}.
+
+\subsection{The bias-overbound reconstruction}
+\label{app:overbound}
+
+A metrology laboratory reports a Type-B expanded uncertainty $U_i$ at coverage
+factor $k_{\mathrm{cov}}$, so the standard uncertainty is $u_i=U_i/k_{\mathrm{cov}}$
+\citep{jcgm100}. To carry the systematic component as a one-sided bounded bias at
+an allocated integrity tail rather than as a Gaussian noise sigma
+(Remark~\ref{rem:category}), we scale $u_i$ by the two-sided normal quantile at that
+tail and add the deterministic ageing allowance,
+\begin{equation}
+  b_i \;=\; u_i\,\Phi^{-1}\!\Big(1-\tfrac{\mathrm{tail}}{2}\Big)+\mathrm{ageing}_i
+       \;=\; \frac{U_i}{k_{\mathrm{cov}}}\,\Phi^{-1}\!\Big(1-\tfrac{\mathrm{tail}}{2}\Big)
+             +\mathrm{ageing}_i,
+  \tag{\ref{eq:overbound}}
+\end{equation}
+which is~\eqref{eq:overbound}. The multiplier $\Phi^{-1}(1-\mathrm{tail}/2)$ realizes
+a zero-mean Gaussian CDF-overbound (DeCleene-style paired overbounding) of the
+traceability-bias error: it bounds $|X|\le b_i$ at two-sided probability
+$1-\mathrm{tail}$, so the tail scaling is exact under that overbound, which is the
+operative modelling assumption we own here rather than a claim of physical
+Gaussianity (Remark~\ref{rem:category}). The deep-tail choice---the demonstration
+uses a two-sided $\mathrm{tail}=\num{2e-7}$, i.e.\ a per-side $\num{e-7}$ giving
+$\Phi^{-1}(1-\num{e-7})$---is \Modelled{}, because no monthly bulletin has sample
+support at that probability (Section~\ref{sec:tracescope}). The ageing term is added
+outside the quantile scaling because it is deterministic, so its worst case over the
+exposure interval is its endpoint value and it is not inflated by the tail factor.
+
+\subsection{Positive semidefiniteness of $\Sib{}$}
+\label{app:psd}
+
+With $D=\operatorname{diag}(b_1,\dots,b_N)$ and correlation matrix
+$R=(\rho_{ij})$ (symmetric, unit diagonal, $R\succeq0$), the bias
+cross-covariance~\eqref{eq:sigmab} is the congruence
+\begin{equation}
+  \Sib{} \;=\; D\,R\,D,
+  \label{eq:congruence}
+\end{equation}
+since $(DRD)_{ij}=b_i\rho_{ij}b_j$. For any $v\in\R^N$, set $w=Dv$; then
+$v^{\!\top}\Sib{}v=w^{\!\top}Rw\ge0$ because $R\succeq0$. Hence
+$\Sib{}\succeq0$ (Proposition~\ref{prop:psd}). A block-constant $R$ built from
+disjoint shared-realizer groups---each group an all-$\rho$ block, zero across
+groups---is positive semidefinite for $\rho\in[0,1]$ (each block has eigenvalues
+$1+(m-1)\rho\ge0$ and $1-\rho\ge0$ for a group of size $m$), so the demonstration's
+pattern is admissible.
+
+\subsection{Correlated fusion dominates independent fusion}
+\label{app:corr}
+
+Expanding the quadratic form with $w_i\ge0$, $b_i\ge0$, $\rho_{ij}\in[0,1]$,
+\begin{equation}
+  w^{\!\top}\Sib{}\,w
+  \;=\; \sum_i w_i^2 b_i^2 \;+\; \sum_{i\neq j} \rho_{ij}\,w_i w_j\,b_i b_j
+  \;\ge\; \sum_i w_i^2 b_i^2,
+  \label{eq:expand}
+\end{equation}
+because every off-diagonal term is nonnegative; taking square roots (both sides
+nonnegative, $\sqrt{\cdot}$ monotone) gives~\eqref{eq:corrgeqindep}. The gap is
+$\sum_{i\neq j}\rho_{ij}w_iw_jb_ib_j$, nonzero only for shared-realizer pairs
+($\rho_{ij}>0$), and strictly positive whenever two such sources carry nonzero
+weight (Theorem~\ref{thm:corr}). In the fully coherent limit $\rho_{ij}\equiv1$
+within a group, $\sum_{i,j\in\text{grp}}w_iw_jb_ib_j=(\sum_{i\in\text{grp}}w_ib_i)^2$,
+so the correlated form is the squared within-group \emph{linear} sum. This is the
+key to caveat~I3: the companion's linear fusion $\sum_i w_i b_i$ satisfies
+\begin{equation}
+  \Big(\sum_i w_i b_i\Big)^2
+  = \sum_i w_i^2 b_i^2 + \sum_{i\neq j} w_i w_j b_i b_j
+  \;\ge\; \sum_i w_i^2 b_i^2 + \sum_{i\neq j}\rho_{ij} w_i w_j b_i b_j
+  = w^{\!\top}\Sib{}w,
+  \label{eq:lindominates}
+\end{equation}
+since $\rho_{ij}\le1$; the companion protection level's bias term therefore
+dominates the correlated fusion. Equality holds \emph{iff} every weight-carrying
+pair lies in a single shared realizer at $\rho_{ij}=1$ (all weighted sources in one
+realizer group); with two or more distinct realizer groups the linear
+across-all-sources form \emph{strictly} dominates $w^{\!\top}\Sib{}w$ \emph{even at}
+$\rho\equiv1$, since $\Sib{}$ then omits the cross-group products $w_iw_jb_ib_j$ that
+the linear square retains. The correlated-bias theorem thus warns against a
+variance-style allocation and does not harden the linear companion PL
+(Remark~\ref{rem:i3}); the strict multi-group dominance only reinforces that it
+cannot.
+
+\subsection{Cholesky whitening and the common-mode statistic}
+\label{app:cmstat}
+
+With residual covariance $\Om{}\succ0$, the Cholesky factor $L$ ($\Om{}=LL^{\!\top}$,
+$L$ lower-triangular, positive diagonal) whitens $z=L^{-1}r$ with
+$\operatorname{Cov}(z)=L^{-1}\Om{}L^{-\top}=I_N$ \citep{aitken1935}. The
+generalized-least-squares estimate of a common shift $c$ (model $r=\bmone c+\text{noise}$,
+$\operatorname{Cov}=\Om{}$) minimizes $(r-\bmone c)^{\!\top}\Om^{-1}(r-\bmone c)$,
+giving $\hat c=(\bmone^{\!\top}\Om^{-1}\bmone)^{-1}\bmone^{\!\top}\Om^{-1}r$ with
+$\operatorname{Var}(\hat c)=(\bmone^{\!\top}\Om^{-1}\bmone)^{-1}$. The
+variance-normalized square is
+\begin{equation}
+  \scm{} \;=\; \frac{\hat c^{\,2}}{\operatorname{Var}(\hat c)}
+         \;=\; \frac{(\bmone^{\!\top}\Om^{-1}r)^2}{\bmone^{\!\top}\Om^{-1}\bmone},
+  \tag{\ref{eq:cmstat}}
+\end{equation}
+which is~\eqref{eq:cmstat}; under Gaussian residuals and the null $c=0$ it is the
+square of a unit-variance normal, hence $\scm{}\sim\chi^2_1$. For the post-fit
+residual $r=y-\bmone\hat x$ with
+$\hat x=(\bmone^{\!\top}\Om^{-1}\bmone)^{-1}\bmone^{\!\top}\Om^{-1}y$, one has
+$\bmone^{\!\top}\Om^{-1}r=\bmone^{\!\top}\Om^{-1}y-(\bmone^{\!\top}\Om^{-1}\bmone)\hat
+x=0$, so $\scm{}\equiv0$ identically~\eqref{eq:postfitzero}: the fit consumes the
+common-mode degree of freedom, and the statistic is informative only on a pre-fit
+residual against an independent anchor (caveat~I2, Remark~\ref{rem:i2}).
+
+\subsection{The finite-ceiling blind-spot bound}
+\label{app:blind}
+
+Let a unit fault direction $d$ enter the pre-fit residual, $r=d\,\xi$. Whiten:
+$L^{-1}d\,\xi$. The idealized solution-separation (parity) detector projects onto
+the orthogonal complement of the whitened geometry $L^{-1}\bmone{}$; with
+$P=I-\tfrac{(L^{-1}\bmone)(L^{-1}\bmone)^{\!\top}}{\|L^{-1}\bmone\|^2}$ its statistic
+is $\propto\|P L^{-1}d\|\,\xi$, so its trip magnitude is
+$\alpha_{\mathrm{ss}}(d)\propto\|P L^{-1}d\|^{-1}$, infinite iff $P L^{-1}d=0$, i.e.\
+$L^{-1}d\in\operatorname{span}(L^{-1}\bmone)$, i.e.\ $d\parallel\bmone{}$. The
+common-mode detector~\eqref{eq:cmstat} has statistic
+$\propto|\bmone^{\!\top}\Om^{-1}d|\,\xi/\sqrt{\bmone^{\!\top}\Om^{-1}\bmone}$, so its
+trip magnitude is $\alpha_{\mathrm{cm}}(d)\propto|\bmone^{\!\top}\Om^{-1}d|^{-1}$,
+infinite iff $\bmone^{\!\top}\Om^{-1}d=0$. These are the two blind
+conditions~\eqref{eq:blindconds}, and the ceiling is
+$\xi^\star(d)=\min(\alpha_{\mathrm{ss}},\alpha_{\mathrm{cm}})$~\eqref{eq:ceiling}.
+
+\paragraph{Mutual exclusivity under a PD whitening (caveat~I1).}
+Suppose $\Om{}\succ0$, so $\Om^{-1}\succ0$ and in particular
+$\bmone^{\!\top}\Om^{-1}\bmone{}>0$. If the first blind condition holds,
+$d=\lambda\bmone{}$ with $\lambda\neq0$, then
+$\bmone^{\!\top}\Om^{-1}d=\lambda\,\bmone^{\!\top}\Om^{-1}\bmone{}\neq0$, so the
+second fails and $\alpha_{\mathrm{cm}}$ is finite. If the second holds,
+$\bmone^{\!\top}\Om^{-1}d=0$, then $d$ cannot equal any nonzero $\lambda\bmone{}$
+(which would give the strictly positive form above), so $d\not\parallel\bmone{}$,
+$P L^{-1}d\neq0$, and $\alpha_{\mathrm{ss}}$ is finite. The two blind sets meet only
+at $d=0$; for every nonzero $d$ at least one detector has a finite trip magnitude,
+so $\xi^\star(d)<\infty$ (Theorem~\ref{thm:finite}). The ceiling is infinite only
+for $d=0$ or a rank-deficient (non-PD) $\Om{}$. Finally, the idealized parity
+$\alpha_{\mathrm{ss}}$ omits the false-alert threshold and Bonferroni allocation of a
+real MHSS subset detector, which raise the real trip magnitude; the modelled
+$\alpha_{\mathrm{ss}}$ is therefore smaller than the operational one, and
+$\xi^\star(d)$ is a conservative \emph{lower} bound on the true undetectable
+magnitude.

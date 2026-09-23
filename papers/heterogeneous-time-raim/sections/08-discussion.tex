@@ -1,0 +1,53 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Position against prior art.}
+The heterogeneous budget of Sections~\ref{sec:hetero}--\ref{sec:corr} takes the
+scalar timing PL of the companion \citep{baweja2026cti}---itself the rank-one
+specialization of MHSS solution separation \citep{blanch2015,joerger2014}---and
+makes its per-source bias a constructed, coupled quantity rather than a given,
+independent one. Against Gioia's GNSS-only residual T-RAIM \citep{gioia2023} the
+step is heterogeneity and traceability; against the all-source solution separation
+of Due{\~n}as Arana and colleagues \citep{duenasarana2020} the step is that our
+estimand is a scalar time offset with a $\utck{}$ traceability budget, not a
+position state; against IEEE~802.1ASed \citep{ieee8021ased} the step is that we emit
+an integrity-risk-budgeted protection quantity and, in Section~\ref{sec:gls}, a
+monitor for the exact fault selection cannot see---a shift shared by every
+candidate. We claim, to our knowledge, that no prior work composes a
+source-agnostic bias budget with a common-mode layer as one object; we do not claim
+a new estimator, and the whitening \citep{aitken1935} and the uncertainty framework
+\citep{jcgm100} are cited as the mature tools they are.
+
+\paragraph{Limitations, stated plainly.}
+Four limitations bound this work, and three of them are the recurring caveats.
+\emph{(I3)} The correlated-bias theorem is a warning against a variance-style bias
+allocation and a motivation for the companion's linear treatment; it does not
+harden the companion protection level, which already fuses bias linearly and thus
+at least as conservatively (Remark~\ref{rem:i3}). \emph{(I2)} The common-mode
+statistic requires an independent external anchor; on the post-fit $H=\bmone_N$
+residual it is identically zero, and without an anchor a common shift is
+unobservable (Remark~\ref{rem:i2}). \emph{(I1)} The irreducible common-mode blind
+spot is large but finite, and our ceiling is a conservative lower bound, not a
+total blind spot (Remark~\ref{rem:i1}). Beyond these: the deep integrity tail
+of the bias overbound~\eqref{eq:overbound} is \Modelled{}, an extrapolation of a
+$95\%$ metrological input that a monthly bulletin cannot validate
+(Section~\ref{sec:tracescope}); and the single-realizer-group scenario of
+Section~\ref{sec:demo} is a \Modelled{} illustration, not a survey of real shared
+realizers. No result here is externally \Validated{}; the only \Validated{} row in
+the arc is the companion's holdover overbound coverage, and the BIPM Circular-T
+series that sizes our biases is a \Cited{} input, not re-validated
+(Section~\ref{sec:datasetnote}).
+
+\paragraph{What the rest of the arc adds.}
+This paper is P2 of a four-paper Composed Timing Integrity arc and is honest about
+what it defers. The adversary---delay attacks, which are provably undetectable in
+the symmetric single-path case \citep{mizrahi7384,narula2018} and are attacked
+protocol-specifically by monitors such as PTPsec \citep{finkenzeller2024ptpsec}---is
+the subject of the adversarial companion P3; here the fault model is benign
+common-mode and shared-realizer bias, and the anchor of caveat~I2 is assumed
+trustworthy. The question of whether any monitor, including this one, is
+\emph{sound} on a common rule---mapping its coverage rather than flattering
+it---is the subject of the open benchmark companion P4, which scores methods on a
+shared fault menu and makes no accuracy claim by design. This paper contributes the
+one missing composed object, and its honest blind-spot characterization, between
+them.

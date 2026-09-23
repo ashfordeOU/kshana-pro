@@ -1,0 +1,86 @@
+\section{The $\utck{}$ traceability-bias overbound}
+\label{sec:trace}
+
+The companion paper carried each source's bias $b_i$ as a given input and deferred
+its construction. This section builds it, from published metrology, as a one-sided
+bounded overbound at the allocated integrity tail. The raw material---Type-B
+expanded uncertainties and per-source delay decompositions---is \Cited{}; the
+reconstruction into an integrity-tail bias term is the \Proven{} contribution, and
+its honest scope is stated as sharply as the construction.
+
+\subsection{From a Type-B expanded uncertainty to an integrity-tail bias}
+\label{sec:overbound}
+
+A metrology laboratory publishes a source's traceability to $\utck{}$ as a Type-B
+\emph{expanded} uncertainty $U_i$ at a stated coverage factor $k_{\mathrm{cov}}$
+(conventionally $k_{\mathrm{cov}}=2$, nominally $95\%$), following the GUM
+\citep{jcgm100}. The standard uncertainty is recovered as
+$u_i=U_i/k_{\mathrm{cov}}$. An integrity budget, however, is not written at $95\%$;
+it is written at an allocated per-source integrity tail. We therefore reconstruct
+the published expanded uncertainty into a bias overbound at that tail,
+\begin{equation}
+  b_i \;=\; \frac{U_i}{k_{\mathrm{cov}}}\,
+            \Phi^{-1}\!\Big(1-\tfrac{\mathrm{tail}}{2}\Big)
+            \;+\; \mathrm{ageing}_i,
+  \label{eq:overbound}
+\end{equation}
+where $\Phi^{-1}$ is the standard-normal inverse CDF, $\mathrm{tail}$ is the
+per-source integrity tail allocated to the traceability term (two-sided), and
+$\mathrm{ageing}_i$ is a deterministic drift-of-bias allowance over the exposure
+interval (for the local oscillator this is the standard clock-model ageing
+\citep{zucca2005}; for a metrology-steered source it is the between-calibration
+drift of the published offset). Two modelling commitments make~\eqref{eq:overbound}
+honest rather than a sleight of hand.
+
+\begin{remark}[This is a category-consistent reconstruction, not a $\sigma$
+inflation]
+\label{rem:category}
+The companion paper warned specifically against inflating a Type-B $k=2$
+metrological uncertainty into a deep-tail \emph{Gaussian $\sigma$}, which is a
+category error: a systematic offset is not a noise process, and treating it as one
+double-counts it in the solution-separation variance. Equation~\eqref{eq:overbound}
+does the opposite. It first \emph{deflates} the published expanded uncertainty back
+to the standard uncertainty $u_i=U_i/k_{\mathrm{cov}}$, then re-expresses that
+standard uncertainty as a \emph{bounded bias} $b_i$ at the integrity tail, carried
+structurally separate from the Gaussian $\sigma_i$ in the ARAIM manner. The factor
+$\Phi^{-1}(1-\mathrm{tail}/2)$ carries an explicit, load-bearing overbounding
+assumption, which we own rather than disclaim: $b_i=u_i\,\Phi^{-1}(1-\mathrm{tail}/2)$
+bounds $|X|\le b_i$ at probability $1-\mathrm{tail}$ only under a \emph{zero-mean
+Gaussian CDF-overbound} of the traceability-bias error, in the DeCleene-style
+paired-overbounding sense. That Gaussian overbound is the operative modelling
+assumption of the reconstruction, not an incidental convenience: for a general
+zero-mean error of standard deviation $u_i$ a distribution-free (Chebyshev) bound at
+the same coverage is weaker by orders of magnitude (at a per-side $\num{e-7}$ tail,
+roughly $\Phi^{-1}(1-\num{e-7})^{-2}\!\approx\!4\%$ versus the Gaussian
+$2\times\num{e-7}$), so the Gaussian-overbound assumption is precisely what buys the
+stated tail, and we state it as such. Under that overbound the tail scaling is exact;
+the deep tail itself remains \Modelled{} (Section~\ref{sec:tracescope}), because no
+monthly metrological series can validate a $\num{e-7}$ quantile. Two further points
+keep the \emph{one-sided} language honest. The overbound is \emph{symmetric}: it
+bounds $|X|\le b_i$ with two-sided probability $1-\mathrm{tail}$, which is exactly why
+the two-sided quantile $\Phi^{-1}(1-\mathrm{tail}/2)$ is the correct multiplier. We
+call $b_i$ ``one-sided'' only in the sense that it enters the protection level as a
+single $\pm b_i$ worst-case displacement of a bounded systematic offset, not that a
+single tail is bounded.
+\end{remark}
+
+\subsection{Honest scope: the deep tail is \Modelled{}}
+\label{sec:tracescope}
+
+The load-bearing honesty statement of this section is about the tail. A monthly
+metrological bulletin---Circular-T is published at five-day cadence, order
+$10^2$--$10^3$ points per source-year---cannot \emph{validate} a deep integrity
+quantile such as a two-sided $\mathrm{tail}=\num{2e-7}$ (per-side $\num{e-7}$); there
+is no sample support at that
+probability, and no amount of bookkeeping changes that. We therefore label the
+deep-tail evaluation of~\eqref{eq:overbound} \Modelled{}: it is the
+integrity-risk-allocated extrapolation of a \Cited{} $95\%$ metrological input, and
+it inherits exactly the confidence of that extrapolation and no more. The published
+magnitudes $U_i$ that seed~\eqref{eq:overbound}---GNSS time-transfer delay
+decompositions \citep{defraigne2015}, the UTC realization budget
+\citep{panfilo2019}, and the Circular-T $[\utck{}-\utck{}]$ offsets
+\citep{bipmcirculart}---are \Cited{}. The reconstruction map~\eqref{eq:overbound} is
+\Proven{} algebra. The specific tail, and any specific $b_i$ read as an operational
+tolerance, are \Modelled{}. We claim no \Validated{} status for any $b_i$; the
+Circular-T series that sizes them is P1's oracle, a \Cited{} input here, and is not
+re-validated (Section~\ref{sec:datasetnote}).

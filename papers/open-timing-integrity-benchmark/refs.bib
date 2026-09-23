@@ -1,0 +1,258 @@
+% SPDX-License-Identifier: CC-BY-4.0
+% References for the P4 "The Open Timing Integrity Benchmark" manuscript.
+% Bibliographic details given to the best of available knowledge; no DOI is
+% knowingly fabricated. Entries whose DOI/venue/pages/edition were not verified
+% against the publisher record at drafting time are flagged with a "% VERIFY"
+% comment line ABOVE the entry (BibTeX treats % as a comment only outside { }
+% braces) and carry a "to be confirmed" note in place of an asserted DOI where
+% relevant. Confirm every "% VERIFY" entry before camera-ready. Keys shared with
+% companion papers (P1--P3 of the timing-integrity arc).
+
+% ---------------------------------------------------------------------------
+% Stanford integrity diagram / integrity taxonomy (the CITED scoring method)
+% ---------------------------------------------------------------------------
+
+% The Stanford--ESA integrity diagram: the MI / HMI four-region user-domain
+% integrity assessment tool specialized here to |t_hat - UTC|. CITED as the
+% scoring METHOD, not a conformance claim about this crate.
+% VERIFY NAVIGATION (Wiley/ION) volume/issue/pages and full author list against
+% the publisher record; some references place this at ION GNSS 2005/2007.
+@article{tossaint2007,
+  author  = {Tossaint, Michel and Samson, Jaron and Toran, Fernando and
+             Ventura-Traveset, Javier and Hern{\'a}ndez-Pajares, Manuel and
+             Juan, Jos{\'e} Miguel and Sanz, Jaume and Ramos-Bosch, Pedro},
+  title   = {The {Stanford}--{ESA} Integrity Diagram: A New Tool for the User
+             Domain {SBAS} Integrity Assessment},
+  journal = {NAVIGATION: Journal of the Institute of Navigation},
+  year    = {2007},
+  volume  = {54},
+  number  = {2},
+  pages   = {153--162},
+  note    = {Stanford--ESA integrity diagram; venue/volume/pages to be confirmed
+             against the publisher record},
+}
+
+% WAAS Minimum Operational Performance Standards: the origin of the alert-limit /
+% HMI vocabulary. CITED as a METHOD source only. This crate is NOT DO-229,
+% DO-178, or ECSS certified; no conformance is claimed.
+% VERIFY exact RTCA document edition (DO-229D / DO-229E) and year.
+@techreport{rtcado229,
+  author      = {{RTCA SC-159}},
+  title       = {Minimum Operational Performance Standards for {Global Positioning
+                 System/Satellite-Based Augmentation System} Airborne Equipment},
+  institution = {RTCA, Inc.},
+  year        = {2016},
+  type        = {RTCA},
+  number      = {DO-229E},
+  note        = {WAAS MOPS; cited as the integrity-taxonomy method source, NOT a
+                 conformance claim. Edition/year to be confirmed},
+}
+
+% Baseline ARAIM MHSS user algorithm: the integrity-risk-budgeting lineage the
+% coverage verdict inherits its stated-IR-vs-measured-exceedance framing from.
+% VERIFY IEEE DOI/pages against the publisher record before camera-ready.
+@article{blanch2015,
+  author  = {Blanch, Juan and Walter, Todd and Enge, Per and others},
+  title   = {Baseline Advanced {RAIM} User Algorithm and Possible Improvements},
+  journal = {IEEE Transactions on Aerospace and Electronic Systems},
+  year    = {2015},
+  volume  = {51},
+  number  = {1},
+  pages   = {713--732},
+  doi     = {10.1109/TAES.2014.130739},
+}
+
+% ---------------------------------------------------------------------------
+% Time-RAIM / timing protection level lineage (monitors the benchmark SCORES)
+% ---------------------------------------------------------------------------
+
+% Receiver-autonomous timing protection level (TPL = WATP + TPL_noise); GNSS-only.
+% CITED as a monitor the benchmark can score, NOT restated.
+% VERIFY MDPI Sensors DOI (expected 10.3390/s23042283) and exact article title.
+@article{gioia2023,
+  author  = {Gioia, Ciro},
+  title   = {{GNSS} Time {RAIM} and Timing Protection Level},
+  journal = {Sensors},
+  year    = {2023},
+  volume  = {23},
+  number  = {4},
+  pages   = {2283},
+  note    = {MDPI article number 2283; DOI/exact title to be confirmed},
+}
+
+% The companion P1 method paper: the composed timing protection level scored here
+% as the reference monitor. CITED as the paired method; this paper is its yardstick.
+@article{baweja2026cti,
+  author  = {Baweja, Chakshu},
+  title   = {A Composed Timing Protection Level: Lower-Semicontinuous,
+             {$P_0$}-Seeded Ride-Through of the Cross-Check--to--Holdover Seam},
+  journal = {Preprint (companion, timing-integrity arc)},
+  year    = {2026},
+  note    = {The method half of the citable pair; this benchmark is its yardstick.},
+}
+
+% The N=1 conditional TPL special case. CITED as a monitor the benchmark can
+% score (and the single-source special case of the companion). eprint
+% arXiv:2606.24210 confirmed against the arXiv record.
+@article{baweja2026tpl,
+  author  = {Baweja, Chakshu},
+  title   = {A Conditional Timing Protection Level: Holdover-Limited Undetected
+             Time Error Under {GNSS} Spoofing},
+  journal = {arXiv preprint},
+  year    = {2026},
+  volume  = {arXiv:2606.24210},
+  doi     = {10.48550/arXiv.2606.24210},
+  note    = {[eess.SP]. A single-source (N=1) monitor the benchmark can score.},
+}
+
+% ---------------------------------------------------------------------------
+% Delay-attack impossibility: the CITED undetectable set
+% ---------------------------------------------------------------------------
+
+% Delay attacks are not preventable by cryptography; a symmetric single-path delay
+% is provably undetectable. CITED as the impossibility encoded in the verdict
+% algebra: such a fault must be ABSORBED by the protection level, never detected.
+@techreport{mizrahi7384,
+  author      = {Mizrahi, Tal},
+  title       = {Security Requirements of Time Protocols in Packet Switched
+                 Networks},
+  institution = {Internet Engineering Task Force (IETF)},
+  year        = {2014},
+  type        = {RFC},
+  number      = {7384},
+  doi         = {10.17487/RFC7384},
+}
+
+% Two-way exchange requirement; the maximum undetectable offset of a half-RTT
+% asymmetry is the DETECTABLE boundary. CITED for the detectability partition.
+% VERIFY IEEE JSTSP DOI/pages.
+@article{narula2018,
+  author  = {Narula, Lakshay and Humphreys, Todd E.},
+  title   = {Requirements for Secure Clock Synchronization},
+  journal = {IEEE Journal of Selected Topics in Signal Processing},
+  year    = {2018},
+  volume  = {12},
+  number  = {4},
+  pages   = {749--762},
+  note    = {arXiv:1710.05798; DOI/pages to be confirmed},
+}
+
+% ---------------------------------------------------------------------------
+% Secure/verifiable time protocols with bespoke, non-delay-bounded evaluation
+% (monitors the benchmark could, in principle, score) --- CITED
+% ---------------------------------------------------------------------------
+
+% Network Time Security for NTP: authenticated time, but no protection-level or
+% delay-bounded integrity budget. CITED as a protocol with a bespoke evaluation.
+@techreport{rfc8915,
+  author      = {Franke, Daniel Fox and Sibold, Dieter and Teichel, Kristof and
+                 Dansarie, Marcus and Sundblad, Ragnar},
+  title       = {Network Time Security for the {Network Time Protocol}},
+  institution = {Internet Engineering Task Force (IETF)},
+  year        = {2020},
+  type        = {RFC},
+  number      = {8915},
+  doi         = {10.17487/RFC8915},
+}
+
+% Roughtime: a secure-time protocol with a nonce/merkle freshness structure but no
+% quantitative delay-bounded protection level. CITED as bespoke-evaluation context.
+% VERIFY the IETF NTP-WG draft designation and status/year before camera-ready.
+@techreport{roughtime,
+  author      = {Malhotra, Aanchal and Langley, Adam and Ladd, Watson and
+                 Mundozahi, Marcus},
+  title       = {Roughtime},
+  institution = {Internet Engineering Task Force (IETF)},
+  year        = {2025},
+  type        = {Internet-Draft},
+  number      = {draft-ietf-ntp-roughtime},
+  note        = {IETF NTP working-group draft; designation/authors/year to be
+                 confirmed against the datatracker record},
+}
+
+% Fault-tolerant gPTP time distribution with a time-selection function that
+% rejects a lying source; standardizes SELECTION, not a quantitative IR-budgeted
+% protection level. CITED as a resilient-timing standard the benchmark can frame.
+% VERIFY IEEE 802.1ASed amendment designation and publication year.
+@techreport{ieee8021ased,
+  author      = {{IEEE}},
+  title       = {{IEEE} Standard for Local and Metropolitan Area Networks---Timing
+                 and Synchronization for Time-Sensitive Applications---Amendment:
+                 Fault Tolerant Timing with Time Integrity},
+  institution = {IEEE},
+  year        = {2026},
+  type        = {IEEE Std},
+  number      = {802.1ASed-2026},
+  note        = {Amendment to IEEE Std 802.1AS; standardizes selection without a
+                 protection level. Designation/year to be confirmed},
+}
+
+% ---------------------------------------------------------------------------
+% Closest-neighbour timing-security evaluations: single-detector / single-protocol
+% frameworks distinguished from the cross-protocol conformance yardstick. CITED to
+% delimit scope --- each scores ONE detector on ONE protocol, not arbitrary
+% monitors' STATED integrity risk against a common fixed fault menu via the
+% Stanford diagram. arXiv DOIs use the deterministic arXiv scheme (not asserted
+% publisher DOIs); titles/authors verified against the arXiv record.
+% ---------------------------------------------------------------------------
+
+% BAND: a physics-based benchmark/analysis for detecting NON-RECIPROCAL (asymmetric)
+% delay attacks on a single 100-km dual-comb optical two-way time-transfer link.
+% Single-system, single-protocol; no Stanford diagram, no stated-IR-vs-exceedance.
+@article{ren2025band,
+  author  = {Ren, Zishuo and Lin, Yiting and Zhang, Yufei and Li, Yang and
+             Chen, Ziyang and Guo, Hong},
+  title   = {Benchmark for Non-reciprocal Attack Detection on Synchronization},
+  journal = {arXiv preprint},
+  year    = {2025},
+  volume  = {arXiv:2512.12133},
+  doi     = {10.48550/arXiv.2512.12133},
+  note    = {A single-link non-reciprocal-attack detection benchmark, not a
+             cross-protocol conformance yardstick over stated integrity risk.},
+}
+
+% TIMESAFE: a machine-learning DETECTOR for PTP spoofing/replay in 5G fronthaul,
+% with an assessment methodology for that one system. A monitor, not a benchmark
+% OF monitors' stated integrity risk. VERIFY the full author list spelling.
+@article{groen2024timesafe,
+  author  = {Groen, Joshua and Di Valerio, Simone and Karim, Imtiaz and
+             Villa, Davide and others},
+  title   = {{TIMESAFE}: Timing Interruption Monitoring and Security Assessment
+             for Fronthaul Environments},
+  journal = {arXiv preprint},
+  year    = {2024},
+  volume  = {arXiv:2412.13049},
+  doi     = {10.48550/arXiv.2412.13049},
+  note    = {[cs.NI]. A single-protocol (PTP / 5G fronthaul) detector, not a
+             cross-protocol benchmark of monitors.},
+}
+
+% PTPsec: a PTP security scheme with time-delay-attack detection via cyclic path
+% asymmetry analysis. A single-protocol monitor, not a benchmark OF monitors.
+% VERIFY the IEEE INFOCOM 2024 proceedings venue/pages if citing that version.
+@article{finkenzeller2024ptpsec,
+  author  = {Finkenzeller, Andreas and Butowski, Oliver and Regnath, Emanuel and
+             Hamad, Mohammad and Steinhorst, Sebastian},
+  title   = {{PTPsec}: Securing the {Precision Time Protocol} Against Time Delay
+             Attacks Using Cyclic Path Asymmetry Analysis},
+  journal = {arXiv preprint},
+  year    = {2024},
+  volume  = {arXiv:2401.10664},
+  doi     = {10.48550/arXiv.2401.10664},
+  note    = {[cs.CR]. A single-protocol (PTP) delay-attack detector, not a
+             cross-protocol benchmark of monitors. INFOCOM 2024 venue/pages to be
+             confirmed},
+}
+
+% ---------------------------------------------------------------------------
+% Software substrate
+% ---------------------------------------------------------------------------
+
+@article{baweja2026kshana,
+  author  = {Baweja, Chakshu},
+  title   = {Kshana: An Open, Reproducible Engine for {PNT}-Resilience
+             Comparison},
+  journal = {Preprint},
+  year    = {2026},
+  note    = {Software: \url{https://github.com/ashfordeOU/kshana} (AGPL-3.0-only)},
+}

@@ -1,0 +1,119 @@
+\section{The verdict algebra: Mizrahi's impossibility as a type-level invariant}
+\label{sec:verdict}
+
+This is the object the paper is built around. Everything before it is method
+(\Cited{}) and stimulus (\Modelled{}); here is the one \Proven{} contribution---a
+scoring algebra whose \emph{shape} makes a certain dishonest outcome impossible to
+express. The design goal is blunt: it must be structurally impossible for the
+benchmark to credit any monitor with detecting a fault that is provably
+undetectable. We achieve this not by a runtime check that could be bypassed, but by
+the enumeration of possible verdicts itself.
+
+\subsection{The four-value \code{Verdict} and the absent fifth}
+\label{sec:verdictenum}
+
+The scorecard runs a monitor---a function $\PL(k)$ giving the protection level it
+declares at each epoch from the epoch's observables, with the true error held
+hidden---against every scenario in a menu and emits, per scenario, one of exactly
+four verdicts:
+\begin{equation}
+  \code{Verdict} \;\in\; \big\{\,
+  \CovPass{},\;\;
+  \CovFail{},\;\;
+  \Absorbed{},\;\;
+  \Unabsorbed{}
+  \,\big\}.
+  \label{eq:verdict}
+\end{equation}
+There is no fifth value. In particular there is no \textsf{Detected} and no
+\textsf{DetectionMissed}: the enumeration simply does not contain a token for
+``the monitor detected the fault.'' This absence is the invariant.
+
+The two \code{Coverage} verdicts apply only to \code{Detectable} scenarios and are
+the coverage decision of Section~\ref{sec:coverage}: \CovPass{} when the empirical
+\HMI{} rate is within the monitor's stated integrity risk, \CovFail{} otherwise.
+The two \code{Undetectable} verdicts apply only to \code{Undetectable} scenarios
+and are an \emph{absorption} decision:
+\begin{equation}
+  \text{undetectable scenario} \;\Longrightarrow\;
+  \begin{cases}
+    \Absorbed{}, & \PL(k)\ \ge\ |e(k)| \ \ \text{for every epoch } k,\\[2pt]
+    \Unabsorbed{}, & \text{otherwise.}
+  \end{cases}
+  \label{eq:absorb}
+\end{equation}
+The dispatch is on the scenario's cited detectability flag
+(Section~\ref{sec:detectability}), so the mapping from fault kind to verdict kind
+is fixed before any monitor is run.
+
+\subsection{The impossibility theorem}
+\label{sec:impossibility}
+
+\begin{theorem}[Undetectable faults are never reported as detected]
+\label{thm:invariant}
+For every monitor $\PL(\cdot)$, every alert limit, every stated integrity risk,
+and every scenario flagged \code{Undetectable}, the emitted verdict is either
+\Absorbed{} or \Unabsorbed{}. No execution path of the scorecard emits a
+detection-flavoured verdict for such a scenario, and no such verdict exists to be
+emitted.
+\end{theorem}
+
+\begin{proof}
+The verdict set \eqref{eq:verdict} contains no detection token, so no value
+denoting detection can be constructed. The scorecard's dispatch branches on the
+scenario's \code{Detectability}: the \code{Undetectable} branch computes only the
+absorption predicate \eqref{eq:absorb} and can return only \Absorbed{} or
+\Unabsorbed{}; the \code{Coverage} verdicts are unreachable from that branch. Since
+the two branches partition the scenarios and the \code{Undetectable} branch's range
+is exactly $\{\Absorbed{},\Unabsorbed{}\}$, the conclusion follows by exhaustion of
+the (finite, four-valued) codomain.
+\end{proof}
+
+The proof is deliberately short, and its shortness is the point: the theorem holds
+by the \emph{shape of the type}, not by a defensive conditional a future refactor
+could remove. Mizrahi's impossibility \citep{mizrahi7384}---that a symmetric
+single-path delay cannot be detected by any protocol---is thus encoded not as prose
+in a comment but as an unrepresentable state. The crate's tests make the invariant
+executable: \code{undetectable\_never\_yields\_a\_coverage\_verdict} runs an
+undetectable scenario across protection levels spanning zero to $10^{6}$ and
+asserts the verdict is always an absorption verdict, and the honesty-gate test
+\code{undetectable\_faults\_never\_described\_as\_detected} scans the benchmark
+source so that no line naming an undetectable class may also assert detection
+(negations such as ``never detected'' excepted). The type makes the dishonest
+outcome unconstructable; the tests make sure the prose around it stays honest too.
+
+\subsection{Absorption as a positive scoring rule}
+\label{sec:absorptionrule}
+
+The elegance of \eqref{eq:absorb} is that it converts a negative result into a
+positive incentive. Because an undetectable offset cannot be detected, the only
+honest question a benchmark can ask about it is: \emph{was the monitor's protection
+level large enough to carry it?} If $\PL(k)\ge|e(k)|$ at every epoch, the
+undetectable offset never escaped the declared bound---the monitor was
+\emph{honest about its own uncertainty}, having reserved enough protection level to
+cover a fault it could never have seen. That is \Absorbed{}, and it is the correct
+passing outcome. If the protection level ever fell below the offset, the monitor
+under-reserved against the undetectable, and that is \Unabsorbed{}. Note what is
+\emph{not} rewarded: nowhere does a monitor gain credit for flagging, alerting on,
+or detecting the symmetric delay, because there is no verdict for that and no
+adversary it could distinguish. A monitor is rewarded strictly for carrying
+sufficient protection level---exactly the behaviour Mizrahi's result says is the
+only available defence.
+
+\subsection{The aggregate scorecard}
+\label{sec:aggregate}
+
+Across a menu, the scorecard aggregates two honesty-relevant totals: the total
+\HMI{} count $n_{\HMI{}}^{\text{total}}$ summed over all scenarios (the count of
+hazardous undetected-error epochs, the benchmark's headline integrity number), and
+a boolean $\mathrm{all\_undetectable\_absorbed}$ that is true iff every
+undetectable scenario earned \Absorbed{}. The first measures how a monitor fares on
+the detectable menu; the second measures whether it honestly reserved against the
+undetectable. Neither is an accuracy claim about the monitor---the benchmark still
+asserts nothing about how good the monitor is in absolute terms---and both are pure
+tallies of the fixed scoring rule. A monitor with a small
+$n_{\HMI{}}^{\text{total}}$ and $\mathrm{all\_undetectable\_absorbed}=\text{true}$
+has covered the detectable faults and honestly carried the undetectable ones; a
+monitor that fails either is exposed, on the same menu, by the same rule. The
+demonstration of Section~\ref{sec:demo} reads exactly these two totals off a real
+reference monitor and a broken one.

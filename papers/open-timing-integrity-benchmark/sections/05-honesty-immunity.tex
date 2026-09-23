@@ -1,0 +1,101 @@
+\section{Honesty-immunity: why a benchmark carries zero \Validated{} tags by design}
+\label{sec:immunity}
+
+The companion method paper \citep{baweja2026cti} carries exactly one externally
+\Validated{} row---a real-data overbound-coverage anchor---and is scrupulous about
+where that word may and may not appear. This paper carries \emph{zero}. That is not
+a weaker result; it is a categorically different, and we argue more useful, kind of
+object. This section makes the argument, states the firewall precisely, and
+describes the one oracle we do run and why it is not validation.
+
+\subsection{A benchmark makes no accuracy claim, so it cannot overclaim}
+\label{sec:noaccuracy}
+
+The four honesty tags of this program partition statements by what could make them
+wrong. A \Cited{} statement is wrong if the citation is misread. A \Proven{}
+statement is wrong if the algebra is wrong---and is machine-checked. A \Modelled{}
+statement is a representative construction that claims no external fidelity. A
+\Validated{} statement is an \emph{accuracy} claim---that some modelled quantity
+matches an external truth---and it is the only kind that can be optimistic against
+reality, which is exactly why it demands an external oracle and the most conservative
+scope language.
+
+A benchmark inhabits none of the accuracy-claiming category. It does not assert
+that any clock is accurate, that any protection level is tight, that any monitor is
+safe, or that any fault rate matches the world. It asserts only, on a fixed
+stimulus and a fixed rule: \emph{this monitor's declared protection level did, or
+did not, bound its true error at these epochs}, and it tallies the outcome. There
+is no external truth the tally could contradict, because the tally is a statement
+about the monitor's own declarations, not about reality. We call this
+\emph{honesty-immunity}: because the benchmark makes no accuracy claim, it cannot
+be wrong about accuracy, and so there is nothing to validate. The absence of a
+\Validated{} tag is therefore not a gap in the evidence---it is the formal
+signature of an object that structurally cannot overclaim.
+
+This is what makes such an object a stable reference to cite. A
+citing author who relies on a monitor must, in the end, trust that monitor's
+accuracy claim; a citing author who relies on \emph{this benchmark} need trust only
+that a fixed, open, versioned rule was applied to a fixed, open menu---something
+they can re-run themselves in one command (Section~\ref{sec:availability}). The
+yardstick's authority comes not from an accuracy claim we ask readers to believe,
+but from the reproducibility of a rule that claims nothing.
+
+\subsection{The honesty firewall}
+\label{sec:firewall}
+
+We state the firewall as a set of hard rules, each mirrored by a machine-checked
+honesty gate over the benchmark source (\code{tests/tib\_honesty\_gates.rs}).
+
+\begin{enumerate}
+  \item \textbf{Zero \Validated{} tags.} No row of this paper or its benchmark is
+  \Validated{}. The gate \code{no\_validated\_accuracy\_claim\_in\_benchmark}
+  forbids the token ``validated'' from co-occurring with any accuracy word in the
+  source. The word appears in this manuscript only to be defined and then shown
+  never to be earned.
+  \item \textbf{Method citations, not conformance.} The Stanford diagram
+  \citep{tossaint2007} and the WAAS MOPS \citep{rtcado229} are \Cited{} as the
+  scoring \emph{method}. The gate \code{no\_forbidden\_overclaim\_phrases} forbids
+  ``certified'', ``formally verified'', ``DO-178'', ``ECSS conformance'', and any
+  technology-readiness token; \code{required\_citations\_present} requires the
+  Stanford, WAAS, and Mizrahi (RFC~7384) attributions to be present. This crate is
+  not DO-229, DO-178, or ECSS certified, and claims no readiness level.
+  \item \textbf{Undetectable means absorbed, never detected.} The gate
+  \code{undetectable\_faults\_never\_described\_as\_detected} enforces
+  Theorem~\ref{thm:invariant} at the level of prose as well as type: no source line
+  naming an undetectable fault may assert detection.
+  \item \textbf{No worst-case holdover.} The phrase ``worst-case holdover'' is
+  forbidden; the benchmark scores absorption of an offset, not a deterministic
+  bound on a coast.
+  \item \textbf{No misattribution.} The benchmark source and this manuscript carry
+  no author attribution other than the named author; a gate forbids stray
+  attribution tokens in the source.
+\end{enumerate}
+
+The firewall is not decoration. It is the reason a reader can take the
+honesty-immunity claim at face value: every clause is checked by a test that fails
+the build if violated, including a fail-loud guard that treats a moved or renamed
+benchmark source as a firewall violation rather than a silently skipped scan.
+
+\subsection{The one oracle, and why it is not validation}
+\label{sec:oracle}
+
+We run exactly one cross-check, and we are careful to name it correctly. The
+scorer's arithmetic---does the Rust implementation of \eqref{eq:classify} and
+\eqref{eq:rates} count the four regions correctly?---is verified against an
+\emph{independent} \code{numpy} re-implementation of the same four-region rule on a
+fixed synthetic sample set (\code{scripts/gen\_tib\_scorer\_reference.py} writing
+\code{tests/fixtures/tib/reference.json}; the Rust side asserts agreement in
+\code{tests/tib\_scorer\_reference.rs}). This is an \code{InternalConsistency}
+oracle in the program's verification matrix, and it is \Modelled{}, not
+\Validated{}, for a precise reason: it cross-checks the \emph{counting}, not any
+accuracy. The two implementations agree that a given $(e,\PL,\AL)$ triple falls in
+a given region; neither asserts that the region assignment matches any real-world
+truth, because there is no real-world truth about a synthetic triple to match. The
+fixture's own \code{NOTICE.md} states this in the same words: it is \emph{not} an
+external dataset and \emph{not} a validated accuracy oracle; the benchmark is
+honesty-immune, so only the counting is checked. The reference tally is fixed and
+small---$n=80$ epochs classified as $40$ \Nominal{}, $20$ \MI{}, $10$ \HMI{}, and
+$10$ \Unavail{}, with $\mathrm{hmi\_rate}=0.125>\IR$ so $\mathrm{coverage\_ok}$ is
+false---and the Rust scorer reproduces every one of those integers and every rate
+to \num{e-12}. That agreement is real and useful; it is just not, and is never
+labelled, validation.

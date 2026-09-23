@@ -1,0 +1,107 @@
+\section{Correlated traceability bias across shared realizers}
+\label{sec:corr}
+
+Two sources that reach $\utck{}$ through the \emph{same} realizer---two GNSS
+solutions steered to the same laboratory, or two services fed by a common
+reference---do not have independent traceability biases: a shift in the shared
+realizer moves both together. This section couples such biases through a bias
+cross-covariance and proves the one comparison that motivates how the companion
+paper treats bias. The comparison is a \emph{warning}, and its honest scope
+(caveat~I3) is as important as the inequality.
+
+\subsection{The bias cross-covariance $\Sib{}$}
+\label{sec:sigmab}
+
+Let $b=(b_1,\dots,b_N)^{\!\top}$ be the per-source bias overbounds
+of~\eqref{eq:overbound}, and let a symmetric correlation pattern
+$\rho_{ij}\in[0,1]$ encode shared realizers ($\rho_{ii}=1$; $\rho_{ij}>0$ iff $i$
+and $j$ share a realizer; $\rho_{ij}=0$ otherwise). Define the bias
+cross-covariance
+\begin{equation}
+  (\Sib{})_{ij} \;=\; \rho_{ij}\,b_i\,b_j,
+  \qquad
+  (\Sib{})_{ii} \;=\; b_i^2 .
+  \label{eq:sigmab}
+\end{equation}
+
+\begin{proposition}[$\Sib{}$ is positive semidefinite]
+\label{prop:psd}
+For any correlation pattern that is itself a valid (positive-semidefinite)
+correlation matrix $R=(\rho_{ij})$, the matrix $\Sib{}=DRD$ with
+$D=\operatorname{diag}(b_1,\dots,b_N)$ is positive semidefinite.
+\end{proposition}
+
+The proof is the congruence $\Sib{}=DRD$ (Appendix~\ref{app:psd}): a congruence
+transform preserves positive semidefiniteness, so $\Sib{}\succeq0$ whenever
+$R\succeq0$. In particular the block-constant pattern of a set of disjoint
+shared-realizer groups (each group an all-$\rho$ block, cross-group zero) is
+positive semidefinite for $\rho\in[0,1]$, and the demonstration
+(Section~\ref{sec:demo}) uses exactly such a pattern.
+
+\subsection{Correlated fusion dominates independent fusion}
+\label{sec:corrthm}
+
+With the rank-one weights $w=(w_1,\dots,w_N)^{\!\top}$ of Section~\ref{sec:rankone},
+a variance-style fusion of the biases forms the quadratic form $w^{\!\top}\Sib{}w$;
+the naive treatment that ignores the shared realizer replaces $\Sib{}$ by its
+diagonal, giving the independent root-sum-square (RSS) form $\sum_i w_i^2 b_i^2$.
+
+\begin{theorem}[Correlated bias fusion is at least independent fusion]
+\label{thm:corr}
+For $\Sib{}$ as in~\eqref{eq:sigmab} with $b_i\ge0$, $w_i\ge0$, and $\rho_{ij}\ge0$,
+\begin{equation}
+  \underbrace{\sqrt{w^{\!\top}\Sib{}\,w}}_{\text{correlated}}
+  \;\ge\;
+  \underbrace{\sqrt{\textstyle\sum_i w_i^2 b_i^2}}_{\text{independent}},
+  \qquad
+  w^{\!\top}\Sib{}\,w - \textstyle\sum_i w_i^2 b_i^2
+  \;=\; \sum_{\substack{i\neq j}} \rho_{ij}\,w_i w_j\,b_i b_j \;\ge\;0,
+  \label{eq:corrgeqindep}
+\end{equation}
+with the gap equal to $\sum_{i\neq j,\ \text{same realizer}} w_i w_j\,\rho_{ij}\,b_i
+b_j$ and strictly positive whenever at least two shared-realizer sources carry
+nonzero weight and positive correlation. At $\rho_{ij}\equiv1$ within a realizer
+group, the group's correlated form reduces to the squared \emph{linear} sum
+$\big(\sum_{i\in\text{group}} w_i b_i\big)^2$.
+\end{theorem}
+
+The proof (Appendix~\ref{app:corr}) is the off-diagonal expansion of the quadratic
+form; every cross term is nonnegative, so dropping the shared-realizer coupling
+\emph{understates} the fused bias. The engine's
+\code{correlated\_fused\_bias\_dominates\_independent\_when\_correlated} test
+machine-checks inequality~\eqref{eq:corrgeqindep} on the demonstration scenario, and
+the $\rho\!\to\!1$ reduction of a \emph{single} realizer group to its within-group
+linear sum is checked by \code{rho\_one\_single\_realizer\_recovers\_linear\_sum}.
+
+\begin{remark}[\textbf{Caveat I3: this does not harden the companion protection
+level.}]
+\label{rem:i3}
+The companion protection level \citep{baweja2026cti} does \emph{not} fuse bias by
+either root-sum-square. It fuses nominal bias \emph{linearly}, as
+$b_{\mathrm{ff}}=\sum_i w_i|b_i|$---the worst-case-aligned upper bound in which
+every source's systematic error is assumed to point the same way. That linear sum
+dominates \emph{both} sides of~\eqref{eq:corrgeqindep}: for nonnegative $w_i,b_i$,
+$\big(\sum_i w_i b_i\big)^2=\sum_i w_i^2 b_i^2+\sum_{i\neq j} w_i w_j b_i b_j \ge
+w^{\!\top}\Sib{}w$ because every $\rho_{ij}\le1$. Equality holds \emph{iff} every
+weight-carrying pair $(i,j)$ shares a realizer with $\rho_{ij}=1$---i.e.\ all
+weighted sources lie in a \emph{single} realizer group; with two or more distinct
+realizer groups the linear (across-\emph{all}-sources) form \emph{strictly}
+dominates the correlated form \emph{even at} $\rho\equiv1$, because $w^{\!\top}\Sib{}w$
+then retains only the within-group products $w_iw_jb_ib_j$ while the linear square
+keeps every cross-group product as well. This only \emph{strengthens} the caveat:
+in the multi-realizer setting of the demonstration---four realizer groups, the pair
+$\{0,1\}$ sharing $\utc{}(\mathrm{USNO})$ and sources $2,3,4$ each their own---the
+companion's linear bias fusion is strictly larger than the correlated form
+regardless of $\rho$. Consequently
+Theorem~\ref{thm:corr} is \emph{not} a tightening of the companion PL and does
+\emph{not} make it safer; the companion PL is already at or above the correlated
+value. The theorem's role is precisely the opposite: it is a \emph{warning} that a
+hypothetical variance- or RSS-style bias allocation---the natural but unsafe
+efficiency optimization someone might reach for---silently understates the fused
+bias by exactly the shared-realizer gap of~\eqref{eq:corrgeqindep}, and it is thus
+the \emph{motivation} for the companion's conservative linear treatment. We state
+plainly that this result adds no safety margin to P1's PL; anyone reading it as a
+hardening of P1 has read it backwards. It coheres with P1 only in the degenerate
+single-group case, where one realizer group's correlated form collapses to that
+group's linear sum; with two or more groups P1's linear fusion strictly dominates.
+\end{remark}

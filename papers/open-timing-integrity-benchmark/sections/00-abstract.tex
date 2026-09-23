@@ -1,0 +1,36 @@
+Timing monitors already abound: time-RAIM, timing protection levels, holdover
+bounds, and authenticated secure-time protocols (NTS, Roughtime) all exist, and
+each publishes an integrity or accuracy claim on scenarios of its own choosing. What does not exist, to our knowledge, is an \emph{open, versioned,
+cross-protocol conformance benchmark} that scores \emph{any} such monitor's
+\emph{stated} integrity risk against its \emph{measured} undetected-error
+exceedance, under one common fault menu, with the symmetric-delay impossibility
+encoded honestly. This paper defines that benchmark. Its scoring method is the
+Stanford--ESA integrity diagram specialized to time---each epoch classified by
+the relation between the true error $|\test-\utc|$, the monitor's declared
+protection level, and the application alert limit into \Nominal{}, \Unavail{},
+\emph{misleading} (\MI{}), or \emph{hazardously misleading} (\HMI{}) information
+(\Cited{} from Tossaint et al.\ and the WAAS MOPS). Its stimulus is a parametric
+ten-class fault menu spanning divergence, slam, holdover, static/incremental/
+symmetric/asymmetric delay, replay, path-selective, and quorum faults
+(\Modelled{}). Its core is a four-value \code{Verdict} algebra in which reporting
+an \emph{undetectable} fault (a symmetric single-path delay, or a replay inside
+the freshness window) as ``detected'' is \emph{structurally unrepresentable}: the
+enum has no \textsf{Detected} variant, so the Mizrahi delay-attack impossibility
+(\Cited{} RFC~7384; the half-round-trip-time asymmetry boundary of Narula and
+Humphreys) becomes a machine-checked, type-level invariant (\Proven{})---an
+undetectable fault can only be \Absorbed{} or \Unabsorbed{} by the protection
+level, never detected. The benchmark makes \emph{no accuracy claim of its own},
+and this is its defining strength, not a gap: because it asserts nothing about
+accuracy, it cannot be wrong about accuracy---it is \emph{honesty-immune}, and
+therefore carries \emph{zero} \Validated{} tags by construction. Its only oracle
+is an independent \code{numpy} re-count of the region tallies, which cross-checks
+the \emph{counting} and nothing else (\Modelled{}, \code{InternalConsistency};
+explicitly \emph{not} \Validated{} and \emph{not} an external accuracy dataset).
+We demonstrate the benchmark by scoring the companion composed timing protection
+level (the reference monitor) and a deliberately under-bounded monitor against a
+nanosecond-scale menu at a demanding alert limit: the reference monitor covers
+its holdover design regime and absorbs both sub-floor undetectable offsets, yet
+the benchmark \emph{honestly exposes} exactly where adversarial faults outside
+that model produce hazardous information---a reference yardstick maps a method's
+coverage, it does not flatter it. This is the yardstick half of a pair whose
+method half is the companion composed timing protection level.

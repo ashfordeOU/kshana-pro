@@ -1,0 +1,48 @@
+A resilient timing user fuses heterogeneous time sources---GNSS precise-point
+positioning, eLoran or R-Mode, PTP/White-Rabbit, low-Earth-orbit signals of
+opportunity, a local oscillator---each traceable to a laboratory realization
+$\utck{}$ of Coordinated Universal Time through a \emph{different} chain, and each
+therefore carrying its own traceability bias. Source-agnostic time-RAIM with a
+per-source $\utck{}$ traceability-bias budget, and a layer that sees the failure
+mode a per-source monitor cannot---a shift common to \emph{all} sources---does not
+yet exist as one composed object. Extending the companion \emph{A Composed Timing
+Protection Level} \citep{baweja2026cti}, whose scalar timing protection level we
+recap as the rank-one ($H=\bmone_N$) specialization of MHSS solution separation
+(\Cited{} from Blanch \citep{blanch2015} and Joerger \citep{joerger2014}), we add
+two things. First, a heterogeneous integrity budget in which each source's Type-B
+expanded uncertainty (\Cited{} GUM \citep{jcgm100}) is reconstructed into an
+integrity-tail bias overbound, and sources sharing a $\utck{}$ realizer are coupled
+by a positive-semidefinite bias cross-covariance $\Sib{}$; we prove
+(\Proven{}) that a variance-style fusion of these correlated biases is at least the
+naive independent-RSS fusion, strictly so for shared-realizer sources with positive
+correlation. Second, a generalized-least-squares common-mode layer: because
+solution separation forms contrasts orthogonal to $\bmone{}$ it is structurally
+blind to a common shift, so we whiten by the correlated-error covariance (\Cited{}
+Aitken \citep{aitken1935}), run separation on whitened residuals, and add a
+common-mode consistency statistic $\scm{}\sim\chi^2_1$. A five-source demonstration
+(two sources sharing $\utc{}(\mathrm{USNO})$) makes both concrete: the correlated
+fused bias is \SI{7.788}{\nano\second} against a naive-independent
+\SI{6.681}{\nano\second}, a \SI{1.107}{\nano\second} understatement a
+variance-style allocation would incur, and the common-mode statistic rises from
+$0.01$ (null) to $0.68$ under an all-source shift. We carry three honest caveats
+throughout, and they are the point of the paper as much as the constructions.
+\textbf{(I3)} The companion's protection level already fuses nominal bias
+\emph{linearly} ($\sum_i w_i|b_i|$, the worst-case-aligned upper bound),
+which dominates both the correlated and the independent RSS biases; the
+correlated-bias theorem is therefore a \emph{warning} against a variance-style
+allocation and a \emph{motivation} for the companion's linear treatment---it does
+\emph{not} harden the companion's already-conservative protection level, and we
+never claim it does. \textbf{(I2)} The common-mode statistic is meaningful only on
+pre-fit residuals against an \emph{independent} anchor; on the post-fit $H=\bmone_N$
+residual the normal equations force it identically to zero, so a shift common to
+every source is fundamentally \emph{unobservable} without an external reference.
+\textbf{(I1)} The residual undetectable common-mode error is a large-but-\emph{finite}
+irreducible blind spot---under a positive-definite whitening the separation and
+common-mode blind directions are mutually exclusive, so the two detectors jointly
+cover every nonzero direction---and our ceiling is a conservative \emph{lower}
+bound on the true undetectable magnitude, not a total or infinite blind spot. This
+paper's contributions are \Proven{} algebra over \Cited{} metrology, exercised on
+\Modelled{} scenarios; it adds \emph{no} new externally \Validated{} claim. The
+only \Validated{} anchor in this arc remains the companion's holdover
+overbound-coverage row against the BIPM Circular-T series, which enters here as a
+\Cited{} input and is not re-validated.

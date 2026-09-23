@@ -1,0 +1,87 @@
+\section{The heterogeneous source model}
+\label{sec:hetero}
+
+We fix the estimand, the heterogeneous source set, and the rank-one geometry so
+that the traceability-bias budget of Section~\ref{sec:trace} and the common-mode
+layer of Section~\ref{sec:gls} are expressed over the same scalar quantity as the
+companion \citep{baweja2026cti}.
+
+\subsection{One scalar estimand for every source}
+\label{sec:estimand}
+
+The quantity to be protected is the receiver's error against a named laboratory
+realization of Coordinated Universal Time,
+\begin{equation}
+  x \;=\; t_{\mathrm{rx}} - \utck{},
+  \label{eq:estimand}
+\end{equation}
+a scalar. This is the source-agnostic commitment: whatever the physical bearer of a
+source---a GNSS pseudorange solution, a Loran envelope, a packet timestamp, a
+Doppler-derived LEO fix, or a free-running oscillator---each is reduced to its
+scalar estimate of the same one-dimensional offset~\eqref{eq:estimand}. Fixing
+$\utck{}$ (rather than ``the server clock'') as the reference is what makes the
+traceability bias a first-class, named term rather than an afterthought, and it is
+what lets otherwise-incomparable sources be fused on a common footing.
+
+\subsection{The heterogeneous source set}
+\label{sec:sourceset}
+
+We carry a representative, heterogeneous set of $N$ sources,
+\begin{equation}
+  \mathcal S \;=\;
+  \{\,\text{GNSS-PPP},\ \text{eLoran/R-Mode},\ \text{PTP/White-Rabbit},\
+      \text{LEO-STL},\ \text{local oscillator}\,\},
+  \label{eq:sourceset}
+\end{equation}
+chosen so that no two members share a failure physics by default: an RF ranging
+source, a low-frequency terrestrial source, a packet-network source, an orbital
+signals-of-opportunity source, and a self-contained frequency reference. Each
+source $i$ is reduced to its scalar $\utck{}$ contribution and summarized by three
+numbers, exactly as in the companion model \citep{baweja2026cti},
+\begin{equation}
+  \text{source } i:\qquad \big(\,\sigma_i,\; b_i,\; p_{\mathrm{fault},i}\,\big),
+  \label{eq:source}
+\end{equation}
+where $\sigma_i$ is a one-sigma Gaussian noise overbound on the source's $\utck{}$
+estimate (seconds), $b_i$ is a bounded deterministic $\utck{}$ \emph{traceability
+bias} overbound (seconds), and $p_{\mathrm{fault},i}$ is the source's prior fault
+probability over the exposure interval. The companion carried $b_i$ as a given
+input; the whole of Section~\ref{sec:trace} is the construction of $b_i$ from
+published metrology, and the whole of Sections~\ref{sec:corr}--\ref{sec:blind} is
+what happens when the $b_i$ and the fault modes are \emph{not} independent across
+sources. Nothing about~\eqref{eq:source} is specific to a protocol; adding a source
+family is adding a row.
+
+\subsection{The rank-one geometry, recapped}
+\label{sec:rankone}
+
+Because every source observes the same scalar~\eqref{eq:estimand}, the geometry
+matrix is the all-ones column,
+\begin{equation}
+  H \;=\; \bmone_N \;=\; (1,\dots,1)^{\!\top}\in\R^{N},
+  \qquad \operatorname{rank}H = 1,
+  \label{eq:h1n}
+\end{equation}
+so the geometric-dilution structure of position ARAIM vanishes and the protection
+level is bias-driven rather than geometry-driven. This rank-one specialization, the
+inverse-variance fused estimate with variance
+$\sigma_{\mathrm{ff}}^2=(\sum_i\sigma_i^{-2})^{-1}$ and weights
+$w_i=\sigma_{\mathrm{ff}}^2/\sigma_i^2$ (summing to one), and the nested-estimator
+separation identity are \Cited{} results of the companion paper
+\citep{baweja2026cti}, themselves specializations of Blanch \citep{blanch2015} and
+Joerger \citep{joerger2014}; we recap them only as the platform this paper builds
+on and claim no new estimator here. What is new begins with the bias term.
+
+\subsection{A note on the one external dataset, stated once}
+\label{sec:datasetnote}
+
+Section~\ref{sec:trace} draws per-source traceability \emph{magnitudes} from the
+published metrology literature and from the BIPM Circular-T
+$[\utck{}-\utck{}]$ bulletin \citep{bipmcirculart,defraigne2015,panfilo2019}. That
+Circular-T series is \emph{already} the externally \Validated{} overbound-coverage
+oracle of the companion paper \citep{baweja2026cti}. In the present paper it is a
+\Cited{} magnitude \emph{input} only: reading its published values to size a bias
+overbound is bookkeeping, not validation, and nothing in this paper is
+\Validated{} by that data. We state this circularity guard once here and once more
+in the availability section, and we never imply that reproducing a Circular-T
+value confers a \Validated{} tag on any result of this paper.
