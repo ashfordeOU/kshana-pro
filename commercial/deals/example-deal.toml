@@ -1,0 +1,74 @@
+# EXAMPLE deal file. The buyer below is FICTIONAL and the prices are placeholders.
+#
+# One TOML file per deal. commercial/tools/render.py combines it with
+# commercial/payment-details.toml to produce the quotation, the order form and the
+# invoice for this deal:
+#
+#   python3 commercial/tools/render.py render quotation  --deal commercial/deals/example-deal.toml --draft
+#   python3 commercial/tools/render.py render order-form --deal commercial/deals/example-deal.toml --draft
+#   python3 commercial/tools/render.py render invoice    --deal commercial/deals/example-deal.toml --draft
+#
+# Without --draft the renderer refuses while any payment detail is empty or any value
+# below is still "PLACEHOLDER". Prices are set by the founder (see legal/PRICING.md);
+# never invent one here.
+
+schema = 1
+
+[deal]
+id = "EX001"
+title = "Critical-infrastructure timing holdover sizing study"
+# Must match [bank].currency in payment-details.toml.
+currency = "EUR"
+# Days from invoice date to due date. Founder-set (legal/PRICING.md section 5).
+payment_terms_days = "PLACEHOLDER"
+
+[buyer]
+legal_name = "Example Timing Operator Ltd (fictional)"
+address = ["1 Example Street", "Example City", "Exampleland"]
+# Optional. The buyer's VAT identification number, when it has one.
+vat_id = ""
+# Optional. The buyer's company registration number.
+registry_code = ""
+contact_name = "A. Example"
+contact_email = "procurement@example.invalid"
+
+# One [[items]] block per line. unit_price is a decimal string in [deal].currency, or
+# "PLACEHOLDER" until the founder sets it.
+[[items]]
+description = "Fixed-scope timing holdover sizing study, one site class"
+quantity = "1"
+unit = "study"
+unit_price = "PLACEHOLDER"
+
+[[items]]
+description = "Additional site class, same scope"
+quantity = "1"
+unit = "site class"
+unit_price = "PLACEHOLDER"
+
+[quotation]
+number = "Q-2026-EX001"
+date = 2026-09-25
+valid_until = 2026-10-25
+
+[order_form]
+number = "OF-2026-EX001"
+date = 2026-09-25
+# Licence tier from legal/COMMERCIAL-LICENSE.md: "Evaluation", "Pro" or "Enterprise".
+tier = "Pro"
+term_start = 2026-10-01
+term_end = 2027-09-30
+# The licence text this order form attaches to, by path and date.
+licence_reference = "Kshana Pro Commercial Licence Agreement, legal/COMMERCIAL-LICENSE.md (working draft dated 2026-06-23)"
+
+[invoice]
+number = "INV-2026-0001"
+issue_date = 2026-10-01
+# Optional. Leave out to compute issue_date + payment_terms_days.
+# due_date = 2026-10-31
+
+# Only read when [tax].vat_status is "registered". "standard" needs rate_percent;
+# "reverse-charge" needs [buyer].vat_id. The accountant confirms the treatment per deal.
+[vat]
+treatment = ""
+rate_percent = ""
