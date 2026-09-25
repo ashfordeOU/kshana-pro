@@ -32,7 +32,8 @@ pub enum GsnNodeKind {
 }
 
 impl GsnNodeKind {
-    fn tag(self) -> &'static str {
+    /// The node kind's name as the standard writes it.
+    pub fn tag(self) -> &'static str {
         match self {
             GsnNodeKind::Goal => "Goal",
             GsnNodeKind::Strategy => "Strategy",
@@ -77,7 +78,8 @@ pub struct GsnArgument {
 }
 
 impl GsnArgument {
-    fn node(&mut self, id: &str, kind: GsnNodeKind, statement: String) {
+    /// Add a node.
+    pub fn node(&mut self, id: &str, kind: GsnNodeKind, statement: String) {
         self.nodes.push(GsnNode {
             id: id.to_string(),
             kind,
@@ -85,7 +87,8 @@ impl GsnArgument {
         });
     }
 
-    fn supported_by(&mut self, from: &str, to: &str) {
+    /// Add a supported-by link.
+    pub fn supported_by(&mut self, from: &str, to: &str) {
         self.links.push(GsnLink {
             from: from.to_string(),
             to: to.to_string(),
@@ -93,7 +96,8 @@ impl GsnArgument {
         });
     }
 
-    fn in_context_of(&mut self, from: &str, to: &str) {
+    /// Add an in-context-of link.
+    pub fn in_context_of(&mut self, from: &str, to: &str) {
         self.links.push(GsnLink {
             from: from.to_string(),
             to: to.to_string(),
