@@ -32,9 +32,9 @@ Dear [Time and Frequency team],
 I lead Ashforde OÜ, a small Estonian company that builds Kshana, an open-source engine
 for the resilience of positioning, navigation and timing (PNT). One thing it does is
 predict how long a clock stays inside a time-error budget after the Global Navigation
-Satellite System (GNSS) signal is lost ("holdover"), with an uncertainty band, and
-check the result against the maximum time interval error (MTIE) masks that telecom
-timing specifications use.
+Satellite System (GNSS) signal is lost ("holdover"), and compute the maximum time
+interval error (MTIE) and time deviation (TDEV) of the result and check them against the
+limits that telecom timing specifications publish.
 
 The engine is published under the GNU Affero General Public License on GitHub
 (github.com/ashfordeOU/kshana) and on the Rust, Python and JavaScript package

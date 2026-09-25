@@ -20,8 +20,9 @@ own bullet so parallel work merges cleanly.
   alone and reports each figure's change and elasticity. For `clock` scenarios the
   dossier adds the Pro holdover band and its maximum time interval error (MTIE) check
   against the scenario's own time-error budget and the published clock-class limits
-  already in `twin::holdover_uq` (enhanced primary reference time clock (ePRTC) 30 ns,
-  primary reference time clock (PRTC-A) 100 ns, 1.5 µs over 24 h). No new mask values
+  already in `twin::holdover_uq`: the enhanced primary reference time clock (ePRTC) 30 ns
+  and primary reference time clock (PRTC-A) 100 ns class limits, and the conventional
+  1.5 µs / 24 h holdover budget (an industry convention, not an ITU-T clock-class limit). No new mask values
   were added: the MTIE check already existed. The run's behaviour is read against the
   four levels of the US Department of Homeland Security (DHS) Resilient PNT Conformance
   Framework (RPCF) v2.0, Table 1, with each of its eight minimum requirements recorded

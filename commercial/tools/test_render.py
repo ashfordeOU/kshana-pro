@@ -69,11 +69,25 @@ def example_deal() -> dict:
 
 def priced_deal() -> dict:
     deal = example_deal()
+    deal["deal"]["example"] = False  # a real deal copied from the example
     deal["deal"]["payment_terms_days"] = 30
     deal["items"][0]["unit_price"] = "1250.50"
     deal["items"][0]["quantity"] = "2"
     deal["items"][1]["unit_price"] = "99.99"
     return deal
+
+
+class ExampleDealGuard(unittest.TestCase):
+    def test_example_deal_is_refused_unless_draft(self):
+        deal = example_deal()
+        deal["deal"]["example"] = True
+        deal["deal"]["payment_terms_days"] = 30
+        deal["items"][0]["unit_price"] = "1250.50"
+        deal["items"][1]["unit_price"] = "99.99"
+        problems = render.deal_problems(deal, "invoice", filled_payment(), draft=False)
+        self.assertTrue(any("example = true" in p for p in problems), problems)
+        draft_problems = render.deal_problems(deal, "invoice", filled_payment(), draft=True)
+        self.assertFalse(any("example = true" in p for p in draft_problems), draft_problems)
 
 
 class ShippedFiles(unittest.TestCase):
@@ -89,6 +103,8 @@ class ShippedFiles(unittest.TestCase):
     def test_shipped_example_deal_is_placeholder_priced_only(self):
         problems = render.deal_problems(example_deal(), "invoice", filled_payment(), draft=False)
         self.assertTrue(problems)
+        # The example flag is its own refusal; the remaining ones must all be placeholders.
+        problems = [p for p in problems if "example = true" not in p]
         for pr in problems:
             self.assertIn("PLACEHOLDER", pr)
 
@@ -177,7 +193,7 @@ class Rendering(unittest.TestCase):
         self.assertIn("WESTGB2L", page)
         # 2 × 1,250.50 + 1 × 99.99 = 2,600.99
         self.assertIn("2,600.99", page)
-        self.assertIn("ASH INV-2026-0001", page)
+        self.assertIn("ASH INV-EXAMPLE-0001", page)
         self.assertIn("2026-10-31", page)  # 2026-10-01 + 30 days
         self.assertIn("not registered for value added tax (VAT)", page)
         self.assertIn("IBAN (International Bank Account Number)", page)
@@ -206,9 +222,9 @@ class Rendering(unittest.TestCase):
         self.assertTrue(render.rf_is_valid("RF18 5390 0754 7034"))
         pd = filled_payment()
         pd["payment_reference"] = {"scheme": "rf", "format": "{invoice_number}"}
-        ref, problem = render.payment_reference(pd, priced_deal(), "INV-2026-0001")
+        ref, problem = render.payment_reference(pd, priced_deal(), "INV-EXAMPLE-0001")
         self.assertIsNone(problem)
-        self.assertTrue(ref.endswith("INV20260001"))
+        self.assertTrue(ref.endswith("INVEXAMPLE0001"))
         self.assertTrue(render.rf_is_valid(ref))
 
     def test_rf_reference_too_long_is_refused(self):
