@@ -1,0 +1,4 @@
+# Rendered documents are outputs, regenerated from payment-details.toml and a deal file.
+# Issued invoices are archived in the accounting records, not in this repository.
+/out/
+__pycache__/

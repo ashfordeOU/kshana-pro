@@ -1,0 +1,92 @@
+# PROPRIETARY — Kshana Pro overlay. Internal commercial record. Not part of the open-source engine.
+#
+# THE single source of payment details for every commercial document Ashforde OÜ issues:
+# invoices, quotations and order forms, all rendered by commercial/tools/render.py.
+#
+# Status on 2026-09-25: the company has no business bank account yet, so every [bank],
+# [payment_reference] and [tax] field below is deliberately EMPTY. While any of them is
+# empty the renderer refuses to produce a document (non-zero exit, and it names every
+# missing field). The day the account exists:
+#
+#   1. fill in [bank], [payment_reference] and [tax] from the bank's account confirmation;
+#   2. run   python3 commercial/tools/render.py check
+#   3. work through commercial/GO-LIVE-CHECKLIST.md for every other place the same
+#      details must be entered (the European Space Agency's esa-star registration,
+#      the licence order form, and so on).
+#
+# Nothing else needs editing: every document reads this file and nothing else for these
+# values. Never copy the IBAN into another file; point to this one.
+#
+# This file holds no secret. An IBAN is printed on every invoice. It is still internal:
+# this repository is private and must stay private.
+
+schema = 1
+
+# ---------------------------------------------------------------------------------------
+# Seller identity. Already known; printed on every document.
+# ---------------------------------------------------------------------------------------
+[seller]
+legal_name = "Ashforde OÜ"
+legal_form = "Private limited company (osaühing), Estonia"
+registry_code = "17321180"
+registered_address = [
+  "Ahtri tn 12",
+  "Kesklinna linnaosa",
+  "15551 Tallinn",
+  "Estonia",
+]
+email = "contact@ashforde.org"
+website = "https://ashforde.org"
+
+# Where the identity above was read, and whether it has been checked against the
+# primary register. On 2026-09-25 the Estonian e-Business Register page
+# (https://ariregister.rik.ee/eng/company/17321180) sat behind a browser challenge and
+# could not be read by a script, so the values were taken from the company's own
+# published legal notice. Re-check them against the register by hand and replace
+# "verify" with the date checked (YYYY-MM-DD).
+identity_source = "https://ashforde.org/legal (company legal notice, read 2026-09-25)"
+registry_check = "verify"
+
+# ---------------------------------------------------------------------------------------
+# Bank account. Every field comes from the bank's account confirmation. ALL EMPTY until
+# the account exists.
+# ---------------------------------------------------------------------------------------
+[bank]
+# Must be exactly the seller's legal name above. The renderer refuses any other holder,
+# so a personal account can never end up printed on a company invoice.
+account_holder = ""
+# International Bank Account Number, with or without spaces. Checked with the ISO 13616
+# mod-97 checksum before any document is rendered.
+iban = ""
+# Business Identifier Code (also called the SWIFT code), 8 or 11 characters.
+bic = ""
+bank_name = ""
+# The bank's postal address, one string, as the bank states it.
+bank_address = ""
+# ISO 4217 three-letter code of the account's currency, for example "EUR". Every deal
+# must be priced in this currency.
+currency = ""
+
+# ---------------------------------------------------------------------------------------
+# How customers identify a payment. EMPTY until chosen together with the bank.
+# ---------------------------------------------------------------------------------------
+[payment_reference]
+# "unstructured" — the reference is printed as the format below, as free text.
+# "rf"           — an ISO 11649 structured creditor reference ("RF" + two check digits
+#                  + the format below), which banks across the Single Euro Payments
+#                  Area (SEPA) can pass through unchanged.
+scheme = ""
+# Must contain {invoice_number}; may also contain {deal_id}. For "rf" every character
+# that is not a letter or digit is dropped, and at most 21 may remain.
+format = ""
+
+# ---------------------------------------------------------------------------------------
+# Value added tax (VAT) status. In Estonia the VAT number is the KMKR number
+# (käibemaksukohustuslase registreerimisnumber). EMPTY until confirmed by the accountant.
+# The company's published legal notice said "Not registered for VAT" on 2026-09-25.
+# ---------------------------------------------------------------------------------------
+[tax]
+# "not-registered" or "registered".
+vat_status = ""
+# Only when registered: "EE" followed by nine digits.
+kmkr_number = ""
