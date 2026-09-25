@@ -81,6 +81,7 @@ pub fn feature_min_tier(kind: &str) -> Tier {
         "pro-cislunar-observability-study" => Tier::Pro,
         "pro-conflict-resilience-study" => Tier::Pro,
         "pro-scenario-ci" => Tier::Pro,
+        "pro-study-dossier" => Tier::Pro,
         "pro-mbse" => Tier::Enterprise,
         "pro-batch" => Tier::Enterprise,
         _ => Tier::Enterprise,
@@ -99,6 +100,22 @@ pub fn ensure_ci_entitled(ent: &Entitlement, now_unix: i64) -> Result<(), Kshana
         Err(KshanaError::Unsupported(format!(
             "Pack C (scenario-subscription CI) requires the '{}' tier",
             feature_min_tier("pro-scenario-ci").as_str()
+        )))
+    }
+}
+
+/// Gate the study dossier (`kshana-pro study --dossier`): succeed when `ent` permits
+/// the `pro-study-dossier` feature at `now_unix`, else return an [`Unsupported`]
+/// error naming the tier the feature requires.
+///
+/// [`Unsupported`]: KshanaError::Unsupported
+pub fn ensure_dossier_entitled(ent: &Entitlement, now_unix: i64) -> Result<(), KshanaError> {
+    if ent.allows("pro-study-dossier", now_unix) {
+        Ok(())
+    } else {
+        Err(KshanaError::Unsupported(format!(
+            "the study dossier requires the '{}' tier",
+            feature_min_tier("pro-study-dossier").as_str()
         )))
     }
 }
@@ -334,6 +351,8 @@ mod tests {
     #[test]
     fn pack_c_feature_is_pro_tier() {
         assert_eq!(feature_min_tier("pro-scenario-ci"), Tier::Pro);
+        assert_eq!(feature_min_tier("pro-study-dossier"), Tier::Pro);
+        assert!(ensure_dossier_entitled(&Entitlement::evaluation(), 0).is_err());
     }
 
     #[test]

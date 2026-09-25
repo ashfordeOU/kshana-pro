@@ -27,7 +27,8 @@ pub enum VerificationMethod {
 }
 
 impl VerificationMethod {
-    fn label(self) -> &'static str {
+    /// Display label.
+    pub fn label(self) -> &'static str {
         match self {
             VerificationMethod::Test => "Test",
             VerificationMethod::Analysis => "Analysis",
@@ -47,7 +48,8 @@ pub enum VcdStatus {
 }
 
 impl VcdStatus {
-    fn label(self) -> &'static str {
+    /// Display label.
+    pub fn label(self) -> &'static str {
         match self {
             VcdStatus::Pass => "PASS",
             VcdStatus::Fail => "FAIL",
