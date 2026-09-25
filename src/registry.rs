@@ -624,7 +624,7 @@ lower_is_better = true
     #[test]
     fn every_pro_kind_builds_and_runs_through_the_registry() {
         // Build + run EVERY Pro kind by id through pro_registry(). No silent skips:
-        // each of the 7 has a minimal valid source in `pro_src` and must succeed.
+        // each registered kind has a minimal valid source in `pro_src` and must succeed.
         let reg = pro_registry();
         for m in pro_kinds() {
             let id = kshana::registry::ScenarioId::from_static(m.name);

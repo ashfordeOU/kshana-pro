@@ -27,6 +27,7 @@ fn usage() -> &'static str {
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
        kshana-pro serve [--addr <host:port>] [--license <token>] [--dev]   Host the HTTP service\n\
        kshana-pro ci --pack <manifest.toml> [--baseline <ci.json>] [--thresholds <spec>] [--utc <iso>] [--customer <name>] [--out <report.html>] [--json <ci.json>] [--license <token>] [--dev]   Run a Pack C scenario-subscription CI (Pro)\n\
+       kshana-pro study --dossier <scenario.toml> --out <dir> [--utc <iso>] [--license <token>] [--dev]   Reproducible study dossier, HTML + JSON (Pro)\n\
        kshana-pro license issue --tier <t> --licensee <name> [--days <n>]\n\
        kshana-pro license verify <token>\n\
      \n\
@@ -134,6 +135,9 @@ fn main() -> ExitCode {
         // optionally gate it against a stored baseline, and emit a branded report
         // (Pro-tier entitlement; --dev bypasses enforcement for local use).
         Some("ci") => ci_cmd(&args),
+        // Study dossier: one scenario -> a reproducible evidence dossier (JSON + HTML)
+        // laid out as a technical note (Pro-tier entitlement; --dev bypasses it).
+        Some("study") => study_cmd(&args),
         Some("healthcheck") => {
             let addr = flag(&args, "--addr").unwrap_or_else(|| "127.0.0.1:8088".to_string());
             if kshana_pro::serve::healthcheck(&addr) {
@@ -332,6 +336,96 @@ fn ci_cmd(args: &[String]) -> ExitCode {
             ExitCode::from(v.exit_code() as u8)
         }
     }
+}
+
+/// `study --dossier` — build the reproducible study dossier for one scenario and
+/// write `dossier.json`, `dossier.html` and the scenario as run into `--out`.
+fn study_cmd(args: &[String]) -> ExitCode {
+    let Some(path) = flag(args, "--dossier") else {
+        eprintln!(
+            "error: study needs --dossier <scenario.toml>\n\n{}",
+            usage()
+        );
+        return ExitCode::from(2);
+    };
+    let Some(out_dir) = flag(args, "--out") else {
+        eprintln!("error: study needs --out <dir>\n\n{}", usage());
+        return ExitCode::from(2);
+    };
+    let now = now_unix();
+    let ent = if has_flag(args, "--dev") {
+        eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
+        Entitlement {
+            licensee: "(dev)".into(),
+            tier: Tier::Enterprise,
+            expires_unix: 0,
+            features: vec![],
+        }
+    } else {
+        match flag(args, "--license") {
+            Some(tok) => match license::verify(&signing_secret(), &tok, now) {
+                Ok(e) => e,
+                Err(e) => {
+                    eprintln!("error: license invalid: {e}");
+                    return ExitCode::FAILURE;
+                }
+            },
+            None => {
+                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
+                Entitlement::evaluation()
+            }
+        }
+    };
+    if let Err(e) = license::ensure_dossier_entitled(&ent, now) {
+        eprintln!("error: {e}");
+        return ExitCode::FAILURE;
+    }
+    // A Pro scenario inside the dossier still needs its own entitlement.
+    let src = match std::fs::read_to_string(&path) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("error: could not read {path}: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+    if let Some(kind) = kshana_pro::registry::peek_kind(&src) {
+        if kind.starts_with(kshana_pro::registry::PRO_KIND_PREFIX) && !ent.allows(&kind, now) {
+            eprintln!(
+                "error: '{kind}' requires the '{}' tier",
+                license::feature_min_tier(&kind).as_str()
+            );
+            return ExitCode::FAILURE;
+        }
+    }
+    let opts = kshana_pro::study_dossier::DossierOptions {
+        issued_utc: flag(args, "--utc"),
+    };
+    let dossier = match kshana_pro::study_dossier::build(&src, &opts) {
+        Ok(d) => d,
+        Err(e) => {
+            eprintln!("error: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+    let dir = std::path::Path::new(&out_dir);
+    if let Err(e) = std::fs::create_dir_all(dir) {
+        eprintln!("error: could not create {out_dir}: {e}");
+        return ExitCode::FAILURE;
+    }
+    for (name, body) in [
+        ("dossier.json", dossier.to_json()),
+        ("dossier.html", dossier.to_html()),
+        ("scenario.run.toml", dossier.body.run_scenario_toml.clone()),
+    ] {
+        let p = dir.join(name);
+        if let Err(e) = std::fs::write(&p, body) {
+            eprintln!("error: could not write {}: {e}", p.display());
+            return ExitCode::FAILURE;
+        }
+    }
+    eprintln!("[wrote dossier.json, dossier.html, scenario.run.toml to {out_dir}]");
+    println!("{}", dossier.result_hash);
+    ExitCode::SUCCESS
 }
 
 /// Parse a `--thresholds` spec into [`Thresholds`](kshana_pro::pack_c::Thresholds).

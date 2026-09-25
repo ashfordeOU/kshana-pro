@@ -101,7 +101,8 @@ impl TradeStudyScenario {
         }
     }
 
-    fn trade_space(&self) -> TradeSpace {
+    /// The [`TradeSpace`] this scenario describes (shared with the study dossier).
+    pub fn trade_space(&self) -> TradeSpace {
         let variants: Vec<Variant> = self
             .variants
             .iter()

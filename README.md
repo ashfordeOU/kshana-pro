@@ -21,7 +21,7 @@ construction*; Pro adds the value that must stay closed.
         │  │ L1 twin          │      │ docs/tenders/  13503·13494·   │    │
         │  │ L2 resilience 🔒 │      │   lunar  (bid evidence, decks)│    │
         │  │ L3 suite (gated) │      │ papers/        (arXiv-track)  │    │
-        │  │ + 7 Pro packs    │      │ docs/gtm · docs/strategy      │    │
+        │  │ + 16 Pro packs   │      │ docs/gtm · docs/strategy      │    │
         │  │   via ExternalPack│     │ legal/  (licence·NDA·export·  │    │
         │  │   / ErrorModel   │      │   BIPR·trademark)             │    │
         │  └────────┬─────────┘      │ docs/kshana-architecture.html │    │
@@ -80,7 +80,7 @@ won tenders and revenue. The map:
 
 ## Status — what is built vs gated
 
-The overlay is well past its P0 seam: **seven Pro packs** (plus the **Pack C**
+The overlay is well past its P0 seam: **sixteen Pro packs** (plus the **Pack C**
 scenario-CI subscription product) are built and tested on public data across the
 P0 / L1 / L3 value layers, plus the deliverable and deployment modules listed below. What stays **gated** is never a *framework* — it is the
 *instance* that needs private data, export clearance, or a signed customer: a real
@@ -91,7 +91,10 @@ on spec)**.
 ### Built Pro packs
 
 Each runs on public data; the tier shown is the licence required to *run* it (see
-[Licensing](#build--run)).
+[Licensing](#build--run)). The table covers the framework packs; the full list of the
+sixteen registered in [`src/registry.rs`](src/registry.rs), with their tiers, comes from
+`cargo run -- kinds`. `tests/readme_counts.rs` fails the build if the pack count written
+here stops matching the registry.
 
 | Pack (`kind`) | Layer | What it does | Min tier | State |
 |---------------|-------|--------------|----------|-------|
@@ -216,14 +219,15 @@ cargo run -- kinds               # list open kinds (inherited) + Pro kinds + the
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **fifteen integration tests** in
+The suite is unit tests across every module plus **seventeen integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `e2e_interop.rs` (end-to-end), `reproducibility_twin.rs` (deterministic twin),
 `no_overclaims_mission_analysis.rs` (honesty guard), the study/report/pack path
 (`pro_study.rs`, `report_cover.rs`, `report_pdf.rs`, `study_ledger.rs`,
-`study_intake.rs`, `pack_c.rs`, `optimism_gap_scenarios.rs`), and the four
-`*_in_sync.rs` guards (each committed deliverable matches its generator output, so docs
-never drift).
+`study_intake.rs`, `pack_c.rs`, `optimism_gap_scenarios.rs`, `study_dossier.rs`), the
+four `*_in_sync.rs` guards (each committed deliverable matches its generator output, so
+docs never drift), and `readme_counts.rs` (the pack and integration-test counts in this
+README match the registry and the `tests/` directory).
 
 **Licensing (PR7).** `run` is **fail-closed**: with no `--license` it enforces the
 **Evaluation** tier (open scenarios + the free `pro-seam-check` only). A value pack
@@ -266,6 +270,7 @@ overlay exposes the study-deliverable and service surface (full list: `kshana-pr
 with no args, or see [`src/main.rs`](src/main.rs) `usage()`):
 
 ```bash
+cargo run -- study --dossier scenarios/dossier-holdover-csac.toml --out out/ --dev  # study dossier: HTML + JSON technical note (Pro)
 cargo run -- navdt scenarios/twin-csac.toml                 # A10 NAV-DT twin bundle (JSON)
 cargo run -- report scenarios/trade-clock.toml --format html # A11 consolidated report (md|json|html|svg)
 cargo run -- report scenarios/trade-clock.toml --pdf out.pdf # A11 pure-Rust PDF export (report_pdf)
@@ -275,6 +280,24 @@ cargo run -- benefits --json                                # A02/D1.1 benefit-v
 cargo run -- spacestream --schema                           # A09 SpaceStream codec goldens / ICD schema
 cargo run -- serve --addr 127.0.0.1:8088                    # PR22 HTTP service — GET /health /version /kinds · POST /run /study, entitlement-gated
 ```
+
+**Study dossier (the paid unit).** `study --dossier <scenario.toml> --out <dir>` turns
+one scenario into a reproducible evidence dossier laid out like a European Space Agency
+(ESA) technical note: identification, scope, applicable and reference documents, method,
+results, limitations. It writes `dossier.json`, `dossier.html` and `scenario.run.toml`
+(the exact text run) and prints the dossier's SHA-256 result hash; the same scenario
+gives the same hash and, without `--utc`, byte-identical files. The results carry the engine and Pro
+versions, the engine's scenario hash, a VALIDATED or MODELLED tier on every figure (read
+from the open verification matrix), a one-at-a-time sensitivity sweep, a holdover band
+and maximum time interval error (MTIE) check for `clock` scenarios, and the Goal
+Structuring Notation (GSN) argument, Verification Control Document (VCD) and W3C-PROV
+provenance record from the L3 stack. It also maps the run's behaviour to the four levels
+of the US Department of Homeland Security (DHS) Resilient PNT Conformance Framework (RPCF)
+v2.0 and gives Prevent / Respond / Recover readings for later mapping to IEEE P1952, all
+labelled **tentative, simulation-derived, not a certified level**. The optional
+`[dossier]` block in the scenario sets the title, subject, figures, sweep and holdover
+settings; `scenarios/dossier-holdover-csac.toml` is the worked example. There is no PDF
+face for the dossier yet. Pro tier.
 
 The Pro packs (runnable examples in [`scenarios/`](scenarios)):
 - `scenarios/twin-csac.toml` — `pro-twin`: calibrates a clock twin to a representative
@@ -287,6 +310,9 @@ The Pro packs (runnable examples in [`scenarios/`](scenarios)):
   traceability CSV + ReqIF-lite XML.
 - `scenarios/batch-clock-mc.toml` — `pro-batch`: a Monte-Carlo ensemble of a clock scenario
   across many seeds (Enterprise tier).
+- `scenarios/dossier-holdover-csac.toml` — `study --dossier`: an open `clock` scenario
+  with a `[dossier]` block; the chip-scale atomic clock's holdover through a 110-minute
+  GNSS denial, written up as a study dossier.
 - `scenarios/spacestream-*.json` — SpaceStream NAV-DT metrics fixtures (nominal / jamming /
   spoof-time / degraded) for the connector / `spacestream` path.
 

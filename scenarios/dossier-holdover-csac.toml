@@ -1,0 +1,59 @@
+# Kshana Pro study dossier — timing holdover of a chip-scale atomic clock (CSAC).
+#
+# An ordinary open `clock` scenario plus a `[dossier]` block. The dossier command
+# removes the block, runs the rest through the engine, and writes a reproducible
+# evidence dossier (JSON + HTML) laid out as a technical note:
+#
+#   kshana-pro study --dossier scenarios/dossier-holdover-csac.toml --out out/ --dev
+#
+# The clock parameters are the same representative values as scenarios/trade-clock.toml
+# (optical-lattice vs CSAC); the CSAC (the "classical" side) is the subject.
+kind = "clock"
+seed = 42
+threshold_ns = 20.0
+
+[time]
+step_s = 10.0
+duration_s = 7200.0
+
+[gnss]
+windows = [
+  { t0 = 0.0,   t1 = 600.0,  state = "nominal" },
+  { t0 = 600.0, t1 = 7200.0, state = "denied" },
+]
+
+[clock_quantum]
+id = "optical-sr-lattice"
+provenance = "Sr optical lattice, goal sigma_y(1s)=1e-15; q_wf=sigma_y(1s)^2"
+y0 = 0.0
+q_wf = 1.0e-30
+q_rw = 0.0
+
+[clock_classical]
+id = "csac-sa45s"
+provenance = "CSAC sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2"
+y0 = 0.0
+q_wf = 9.0e-20
+q_rw = 0.0
+
+[dossier]
+title = "CSAC timing holdover through a 110-minute GNSS denial"
+subject = "classical"
+
+[dossier.holdover]
+x0_ns = 0.0
+sigma_y0 = 0.0
+k = 2.0
+
+[[dossier.sweep]]
+param = "clock_classical.q_wf"
+factors = [0.5, 2.0]
+
+[[dossier.sweep]]
+param = "threshold_ns"
+factors = [0.5, 2.0]
+
+[[dossier.sweep]]
+param = "clock_classical.y0"
+values = [1.0e-12]
+note = "what-if residual frequency offset left after synchronisation; illustrative, not a datasheet value"
