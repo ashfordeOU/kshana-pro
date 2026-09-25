@@ -618,7 +618,7 @@ fn reference_documents(has_timing: bool, has_trade: bool) -> Vec<RefDoc> {
             title: "Resilient Positioning, Navigation, and Timing (PNT) Conformance Framework, Version 2.0 (26 April 2022)".into(),
             issuer: "US Department of Homeland Security, Science and Technology Directorate, with the Cybersecurity and Infrastructure Security Agency".into(),
             source: "https://www.dhs.gov/sites/default/files/2022-05/22_0531_st_resilient_pnt_conformance_framework_v2.0.pdf".into(),
-            used_for: "Resilience levels 0 to 4 and minimum requirements 1 to 8 (section 5.3, Table 1); core functions Prevent, Respond, Recover (section 5.2)".into(),
+            used_for: "Resilience levels 0 to 4 (section 5.3); minimum requirements 1 to 8 (section 5.5, Table 1); core functions Prevent, Respond, Recover (section 5.2)".into(),
         },
         RefDoc {
             id: "RD-2".into(),

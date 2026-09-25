@@ -21,8 +21,13 @@
 > customer's phase or time-interval-error log into the calibration input, and the
 > long-duration aging and temperature behaviour for a named oscillator. The sensitivity
 > table and the oscillator-class comparison are also assembled by the study team from
-> repeated runs (the device presets exist; a one-command report does not). Do not promise a
-> turnaround until the study team has run one end-to-end on public data.
+> repeated runs (the device presets exist; a one-command report does not). Two more
+> deliverable gaps: the dossier has **no PDF face yet** (HTML and JSON only; a PDF is made
+> by printing the HTML), and the Pro MTIE check compares against **flat time-error
+> ceilings**, not the observation-interval-dependent ITU-T MTIE breakpoint tables. The
+> breakpoint tables ship in the open engine's `telecom-timing` kind from the release after
+> 0.27.2; until Pro is rebuilt on that release, run the mask check with that kind. Do not
+> promise a turnaround until the study team has run one end-to-end on public data.
 
 # Timing holdover sizing study for critical infrastructure
 
@@ -78,7 +83,7 @@ engagement contract and is not placed in any public repository.
 
 ## What you receive
 
-A **Kshana Pro study dossier**, as PDF, HTML and machine-readable JSON, containing:
+A **Kshana Pro study dossier**, as HTML (printable to PDF) and machine-readable JSON, containing:
 
 - the **holdover curve**: time error against time since GNSS loss, with a stated
   coverage band;

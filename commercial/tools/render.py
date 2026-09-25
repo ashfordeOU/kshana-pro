@@ -308,6 +308,8 @@ def deal_problems(deal: dict, doc_type: str, pd: dict, draft: bool) -> list[str]
     p: list[str] = []
     if deal.get("schema") != 1:
         p.append("schema must be 1")
+    if _get(deal, "deal.example") is True and not draft:
+        p.append("[deal] example = true: this is the fictional example deal; copy it to a new file for a real deal, or render it with --draft")
     for key in ("deal.id", "deal.currency", "buyer.legal_name"):
         if not _s(_get(deal, key)):
             p.append(f"[{key.split('.')[0]}] {key.split('.')[1]} is empty")

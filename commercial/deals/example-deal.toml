@@ -15,6 +15,8 @@
 schema = 1
 
 [deal]
+# A fictional example: render.py refuses to render it except as a --draft preview.
+example = true
 id = "EX001"
 title = "Critical-infrastructure timing holdover sizing study"
 # Must match [bank].currency in payment-details.toml.
@@ -62,7 +64,7 @@ term_end = 2027-09-30
 licence_reference = "Kshana Pro Commercial Licence Agreement, legal/COMMERCIAL-LICENSE.md (working draft dated 2026-06-23)"
 
 [invoice]
-number = "INV-2026-0001"
+number = "INV-EXAMPLE-0001"
 issue_date = 2026-10-01
 # Optional. Leave out to compute issue_date + payment_terms_days.
 # due_date = 2026-10-31
