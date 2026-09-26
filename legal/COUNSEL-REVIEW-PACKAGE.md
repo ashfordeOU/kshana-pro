@@ -124,7 +124,10 @@ relevant draft.
   checklist).
 - Confirm the regime: per the DE operative nationality, **EU Dual-Use Reg (EU) 2021/821** as
   implemented in Germany (AWV), administered by **BAFA**; intangible technology transfer is in
-  scope. (`EXPORT-CONTROL-ASSESSMENT.md` §1.)
+  scope. (`EXPORT-CONTROL-ASSESSMENT.md` §1.) **Revised 2026-09-26:** Ashforde OÜ is
+  established in Estonia and BAFA issues no goods-list opinion to a foreign company, so
+  the likely authority is Estonia's Strategic Goods Commission. Confirm the authority
+  first (question E1 in `commercial/export-control/CLASSIFICATION-REQUEST-PACK.md`).
 - **No L2 work begins** until (a) this assessment is counsel-reviewed, (b) a per-item
   classification is recorded, and (c) the customer's end-use/end-user is screened.
   (`EXPORT-CONTROL-ASSESSMENT.md` §3–§4.) Confirm there is **no indemnity for customer
@@ -188,7 +191,7 @@ relevant draft.
 
 ### 5.2 BEFORE SCALING (later)
 - [ ] Counsel-review **`EXPORT-CONTROL-ASSESSMENT.md`** and complete per-item classification +
-      BAFA ruling where uncertain — **mandatory before any Pack B / L2 work** (§4.5).
+      a ruling from the competent authority (question E1) where uncertain — **mandatory before any Pack B / L2 work** (§4.5).
 - [ ] Run the **formal trademark clearance search** and obtain a **coexistence opinion** for the
       "Kshana" mark in Classes 9/42; decide jurisdictions; then file (§4.6).
 - [ ] Finalize the **`BIPR-DECLARATION-TEMPLATE.md`** against a specific ESA ITT's IPR Annex

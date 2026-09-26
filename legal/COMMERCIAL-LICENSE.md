@@ -3,11 +3,12 @@
 **Owner:** Ashforde OÜ · **Status:** working draft · **Date:** 2026-06-23
 **Review gate:** ⚠️ commercial/legal template — have counsel review before using in any signed order. Bracketed `[…]` items are deal- or counsel-set; do not rely on this as legal advice.
 
-The end-user terms under which a licensee uses **Kshana Pro** and receives **PNT-Resilience
-Study Reports**. It sits on top of [`IP-POLICY.md`](IP-POLICY.md) (IP ownership) and
+The end-user terms under which a licensee uses **Kshana Pro**, receives **PNT-Resilience
+Study Reports**, or takes the open engine under commercial terms instead of the AGPL (§2A). It sits on top of [`IP-POLICY.md`](IP-POLICY.md) (IP ownership) and
 [`SUPPORT-SLA.md`](SUPPORT-SLA.md) (support/warranty), and attaches to an order form / MSA.
-Open Kshana is **not** covered here — it is licensed separately under AGPL-3.0 (or this
-commercial licence for closed/proprietary use; see the open repo's `LICENSING.md`).
+Open Kshana is licensed to the public under AGPL-3.0. A licensee who wants it on commercial
+terms instead ("Option B" in the open repo's `LICENSING.md`) takes it under §2A, which applies
+only when the order form names the Engine.
 
 ---
 
@@ -21,6 +22,37 @@ commercial licence for closed/proprietary use; see the open repo's `LICENSING.md
 Subject to payment and these terms, Ashforde grants the licensee a **non-exclusive,
 non-transferable, non-sublicensable** licence to use Pro and the Study Reports for the
 licensee's internal business purposes, for the Tier and term stated in the order form.
+
+## 2A. Commercial licence to the Engine (Option B) — DRAFT, pending counsel
+> Added 2026-09-26 so that the public `LICENSING.md` Option B has text behind it. It is
+> wording for counsel to mark up (`commercial/counsel/COMMERCIAL-LICENCE-FINALISATION.md`,
+> issue 1), not agreed terms. Applies only when the order form names the Engine.
+
+1. **Grant.** Subject to payment and these terms, Ashforde grants the licensee a
+   non-exclusive, non-transferable licence, for the term and scope in the order form, to
+   use, copy and modify the Engine version(s) named there, and to combine it with the
+   licensee's own software, **without** the obligations of the GNU AGPL-3.0, including its
+   §13 duty to offer source to network users.
+2. **Distribution and hosting.** Where the order form permits it, the licensee may
+   distribute the Engine, modified or not, in object code **as part of** its own product,
+   and may run a modified Engine as part of a network service, in each case under the
+   licensee's own terms to its end users. `[Source-code redistribution, standalone
+   redistribution and sublicensing: counsel to set.]`
+3. **Separation from Pro.** The Pro restrictions in §3 do not apply to the Engine except
+   the marking and trademark restrictions. Hosting the Engine as part of a service, where
+   permitted by (2), is not a breach of §3.
+4. **Notices.** The licensee keeps Ashforde's copyright notice and the third-party
+   dependency notices with every distributed copy.
+5. **No AGPL obligations, no AGPL rights.** Copies taken under this section are not
+   received under the AGPL. Any warranty or indemnity for the Engine comes only from §7
+   and §8 of this agreement (and `SUPPORT-SLA.md`), not from the AGPL.
+6. **Public versions stay public.** Nothing here withdraws the AGPL from anyone else, and
+   the licensee may also use any public version under the AGPL on the AGPL's terms.
+7. **Trademarks.** As in §5: no right to the "Kshana" name or marks beyond identifying
+   that the product embeds the Engine, in the form set in the order form.
+8. **Export.** §10 applies. The Engine as published is public; any non-public build,
+   scenario or tailored work supplied under this section is subject to the export-control
+   determination first.
 
 ## 3. Restrictions
 The licensee shall not: redistribute, sublicense, resell, or host Pro as a service to third
@@ -70,5 +102,6 @@ align with the MSA]`.
 
 ---
 **Contact:** [contact@ashforde.org](mailto:contact@ashforde.org) · Ashforde OÜ
-*Open issues for counsel: liability cap & carve-outs; governing law (EE vs DE); consumer-law
+*Open issues for counsel: §2A Engine grant (scope of redistribution and sublicensing, and
+whether inbound contribution terms support relicensing); liability cap & carve-outs; governing law (EE vs DE); consumer-law
 exclusions (B2B only); interaction with the MSA as the master contract.*

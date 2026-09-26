@@ -26,7 +26,7 @@ things that need licence terms:
 
 | # | What | Today's licence position |
 |---|---|---|
-| A | **The open Kshana engine** (Rust crate `kshana`, version 0.27.2 on crates.io), for customers who want to embed it in closed software or run a modified version as a network service without the AGPL's source-disclosure duties. | Public `LICENSING.md` promises a commercial licence ("Option B"). **No text grants it** (issue 1). |
+| A | **The open Kshana engine** (Rust crate `kshana`, version 0.27.2 on crates.io), for customers who want to embed it in closed software or run a modified version as a network service without the AGPL's source-disclosure duties. | Public `LICENSING.md` promises a commercial licence ("Option B"). Until 2026-09-26 no text granted it (issue 1); a draft grant is now `legal/COMMERCIAL-LICENSE.md` §2A, for counsel to mark up. |
 | B | **Kshana Pro**, the proprietary overlay (this private repository), which depends on and embeds engine A. | `legal/COMMERCIAL-LICENSE.md`, working draft dated 2026-06-23. |
 | C | **Study reports and dossiers** produced with B for a customer, such as the fixed-scope timing holdover study (`commercial/offers/cni-timing-holdover-study.md`). | Same draft, sections 1, 4 and 5. |
 
