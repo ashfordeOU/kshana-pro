@@ -150,7 +150,7 @@ Roadmap granularity; **blocked on export-control clearance** (founder/counsel) b
 | Pricing numbers sign-off | Founder | I draft structure; you set the figures |
 | Counsel review of EULA/MSA/DPA/SOW | Counsel | Templates are drafts "subject to counsel" |
 | Trademark clearance search + filing | Attorney | Coexistence risk flagged |
-| Export-control (BAFA) determination for L2 | Counsel | Gates Pack B delivery |
+| Export-control determination for L2 (competent authority to confirm: probably Estonia's Strategic Goods Commission) | Counsel | Gates Pack B delivery |
 | arXiv submissions/replacements | Founder | Authenticated manual step |
 | Customer data | Founder | Real customer/threat data stays out of public repo |
 

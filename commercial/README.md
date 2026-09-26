@@ -46,7 +46,9 @@ Language, a configuration file format).
    Estonia. See section 1 of the classification pack.
 2. **No text yet grants the commercial licence for the open engine** that the public
    `LICENSING.md` advertises; the draft licence covers only Kshana Pro and study
-   reports. See issue 1 of the counsel pack.
+   reports. See issue 1 of the counsel pack. **Update 2026-09-26:** a draft grant is now
+   `legal/COMMERCIAL-LICENSE.md` §2A, for counsel to mark up; the legal drafts now name
+   the Estonian Strategic Goods Commission as the likely authority, pending question E1.
 3. **The timing holdover study is "Pack B"**, which `legal/EXPORT-CONTROL-DETERMINATION.md`
    puts on hold until a determination exists. The offer page is ready but must not go
    out before then.

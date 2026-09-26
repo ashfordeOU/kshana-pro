@@ -5,12 +5,14 @@
 > ⚠️ **THIS DOCUMENT IS NOT LEGAL OR EXPORT-CONTROL ADVICE, AND IT IS NOT A
 > DETERMINATION.** It is a structured checklist of the questions and steps that a
 > qualified export-control adviser and/or the competent national authority (for
-> Ashforde OÜ: Germany's **BAFA — Bundesamt für Wirtschaft und Ausfuhrkontrolle**)
-> will use to *make* a determination. It does not classify any item, does not
+> Ashforde OÜ, established in Estonia: probably Estonia's **Strategic Goods Commission**
+> at the Ministry of Foreign Affairs, to be confirmed by counsel as question E1 in
+> `commercial/export-control/CLASSIFICATION-REQUEST-PACK.md`; this draft first assumed
+> Germany's BAFA, see §2.3) will use to *make* a determination. It does not classify any item, does not
 > assert that anything is or is not controlled, and does not authorise any sale.
 > Nothing here may be relied upon as a basis to export, disclose, package, or sell.
-> A binding outcome requires qualified counsel and, where relevant, a formal BAFA
-> classification ruling.
+> A binding outcome requires qualified counsel and, where relevant, a formal
+> classification opinion from the competent authority.
 
 ---
 
@@ -88,7 +90,15 @@ be **determined**, never as a conclusion reached here.
   how the candidate categories above apply to **modelling software** (as opposed to
   hardware or real performance data)?
 
-### 2.3 German national route (BAFA)
+### 2.3 National route: which authority? (revised 2026-09-26)
+
+> **Revision.** This section first assumed the German route. Ashforde OÜ is established
+> in Estonia, and BAFA's own page says it issues no goods-list opinion (AzG, Auskunft zur
+> Güterliste) to a foreign company or for technology. The likely competent authority is
+> Estonia's Strategic Goods Commission, under the Strategic Goods Act. Counsel confirms
+> this first (question E1 in `commercial/export-control/CLASSIFICATION-REQUEST-PACK.md`).
+> The German questions below stay relevant only if a German-established entity exports
+> or contracts, or a German customer seeks its own classification.
 
 - Ashforde OÜ's operative EU nationality is **German (DE)**; the EU Regulation is
   implemented nationally via the **Außenwirtschaftsverordnung (AWV)** and
@@ -210,14 +220,16 @@ counsel. Mark anything unresolved **OPEN**.
 1. **Assemble the product description / evidence pack.** A precise, written Pack B
    description answering Section 3A–E: outputs, build form, crypto status,
    scenario/parameter provenance, public-vs-non-public component list, intended ICP,
-   and delivery model. This is the document counsel/BAFA will classify.
-2. **Engage export-control counsel** experienced with **German / EU dual-use**
-   (Regulation (EU) 2021/821 + AWV/BAFA practice). Have them review the assessment
+   and delivery model. This is the document counsel and the competent authority will classify.
+2. **Engage export-control counsel** experienced with **EU dual-use** and the practice of
+   the competent authority (Regulation (EU) 2021/821; for an Estonian company, the
+   Strategic Goods Act and the Strategic Goods Commission). Have them review the assessment
    and this completed questionnaire.
-3. **File a BAFA classification request where uncertain.** Where counsel cannot give
+3. **File a classification request with the competent authority where uncertain.** Where counsel cannot give
    a confident classification (especially for any non-public Pack B build,
-   scenarios, or anti-jam/anti-spoof-adjacent content), pursue a **Güterlisteneinstufung
-   / Auskunft zur Güterliste** to obtain a documented classification.
+   scenarios, or anti-jam/anti-spoof-adjacent content), pursue a documented classification from the
+   authority counsel confirms under E1 (the German Auskunft zur Güterliste is not open
+   to a foreign company).
 4. **Document the determination.** Record per-component outcomes (Annex I
    category / "not listed", carve-out applicability, any licence requirement) in the
    **Record of determinations** table in `legal/EXPORT-CONTROL-ASSESSMENT.md` (that
@@ -233,7 +245,7 @@ counsel. Mark anything unresolved **OPEN**.
 ## 5. GATE statement
 
 > **Pack B packaging and sale remain ON HOLD** until a **documented export-control
-> determination exists** (counsel opinion and/or a BAFA classification ruling),
+> determination exists** (counsel opinion and/or a classification opinion from the competent authority),
 > and the screening/recordkeeping in Step 5 is in place.
 >
 > The **open core engine** and **Pack A (optimism-gap audit)** are **already public
@@ -249,5 +261,5 @@ counsel. Mark anything unresolved **OPEN**.
 > ⚠️ **REMINDER — THIS IS NOT LEGAL OR EXPORT-CONTROL ADVICE AND NOT A
 > DETERMINATION.** It is a checklist to drive one. Do not act on it as a
 > classification. Obtain qualified export-control counsel and, where relevant, a
-> formal **BAFA** classification ruling before packaging, offering, exporting, or
+> formal classification opinion from the **competent authority** (see §2.3) before packaging, offering, exporting, or
 > disclosing any Pack B component. Contact for this matter: **contact@ashforde.org**.

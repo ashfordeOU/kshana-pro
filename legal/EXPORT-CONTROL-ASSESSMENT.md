@@ -4,8 +4,9 @@
 **Decision gate:** this assessment is the **mandatory gate before any L2 resilience
 work (PR12–PR14)**. ⚠️ It is a preliminary internal screen, **not a legal
 classification**. A binding classification requires counsel and, where relevant, a
-formal ruling from the competent authority (Germany: **BAFA**) before exporting or
-disclosing controlled items.
+formal ruling from the competent authority (for Ashforde OÜ, established in Estonia:
+probably the **Strategic Goods Commission**, to be confirmed by counsel; this draft first
+said Germany's BAFA, see §1) before exporting or disclosing controlled items.
 
 ---
 
@@ -20,7 +21,16 @@ breach.
 Per the ESA-STAR determination, Ashforde's operative nationality is **German (DE)**;
 the governing regime is therefore **EU Dual-Use Regulation (EU) 2021/821** as
 implemented in Germany via the **Außenwirtschaftsverordnung (AWV)** and administered
-by **BAFA**. ("Export" includes intangible technology transfer — i.e. sending
+by **BAFA**.
+
+> **Revised 2026-09-26.** The paragraph above follows the ESA-STAR record. Ashforde OÜ is
+> established in Estonia, EU dual-use authorisations come from the Member State where the
+> exporter is established, and BAFA issues no goods-list opinion to a foreign company. The
+> likely authority is therefore Estonia's Strategic Goods Commission, under the Strategic
+> Goods Act. Counsel confirms this first (question E1 in
+> `commercial/export-control/CLASSIFICATION-REQUEST-PACK.md`).
+
+("Export" includes intangible technology transfer — i.e. sending
 controlled software/technology or disclosing it to a foreign national, including
 electronically.)
 
@@ -56,10 +66,10 @@ electronically.)
 
 ## 4. Actions before L2 (checklist)
 
-- [ ] Counsel review of this assessment (DE/EU dual-use specialist).
+- [ ] Counsel review of this assessment (EU dual-use specialist; Estonian practice first).
 - [ ] Per-item classification (ECCN-equivalent / EU Annex I category) for each L2
       artifact, recorded in a control log.
-- [ ] BAFA ruling where classification is uncertain (esp. waveforms / performance).
+- [ ] Ruling from the competent authority (question E1) where classification is uncertain (esp. waveforms / performance).
 - [ ] Customer end-use/end-user screening procedure documented.
 - [ ] Access-control + audit mechanism for L2 artifacts specified (need-to-know).
 - [ ] Confirm the "publicly available / basic scientific research" carve-out for the
