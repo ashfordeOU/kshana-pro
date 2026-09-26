@@ -6,22 +6,57 @@
 //! tamper-evident license token, and feature gating that maps each Pro pack to the
 //! tier that unlocks it.
 //!
-//! **Token format (honest):** `payload_hex.signature_hex`, where `payload` is the
-//! JSON of [`LicenseClaims`] and `signature` is `HMAC-SHA256(secret, payload)`. The
-//! secret is the vendor's signing key (configured per deployment, never committed).
-//! HMAC is symmetric — fine for a self-hosted check; a distributed product would
-//! move to asymmetric signing (e.g. Ed25519: vendor signs with a private key, the
-//! build verifies with an embedded public key) so the verifying binary never holds
-//! the signing secret. That swap is isolated to [`issue`]/[`verify`].
+//! **Token format:** `payload_hex.signature_hex`, where `payload` is the JSON of
+//! [`LicenseClaims`] and `signature` is an Ed25519 signature over it. The vendor
+//! signs with a private key that never leaves the vendor ([`issue`]); a build
+//! verifies with the matching public key only ([`verify`]), embedded at compile
+//! time from `KSHANA_PRO_LICENSE_PUBKEY` ([`embedded_public_key`]). A binary
+//! handed to a customer therefore cannot mint tokens: holding it gives the public
+//! key, not the signing key. (Until 2026-09-26 tokens were HMAC-SHA256, where the
+//! verifying binary had to hold the signing secret; those tokens no longer verify.)
 //!
 //! **Eval default:** with no license, a Pro build runs in *Evaluation* tier — only
 //! the free seam-check pack is entitled; the value packs require a real license.
+//!
+//! **What this does not do:** it does not bind a token to a machine, and it does
+//! not stop someone who has the *source* from removing the check. The protection
+//! for the source is that this repository is private and never published.
 
-use hmac::{Hmac, Mac};
+use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
 use kshana::api::KshanaError;
-use sha2::Sha256;
 
-type HmacSha256 = Hmac<Sha256>;
+/// Length of an Ed25519 private-key seed and of a public key, in bytes.
+pub const KEY_LEN: usize = 32;
+
+/// The licence public key compiled into this build, from the
+/// `KSHANA_PRO_LICENSE_PUBKEY` environment variable at build time (64 hex
+/// characters). `None` when the build was made without one: such a build can
+/// verify no token and runs every Pro kind at Evaluation tier. There is
+/// deliberately no run-time override, which would let a holder of the binary
+/// substitute a key of their own and sign their own tokens.
+pub fn embedded_public_key() -> Option<Result<[u8; KEY_LEN], KshanaError>> {
+    option_env!("KSHANA_PRO_LICENSE_PUBKEY")
+        .filter(|s| !s.trim().is_empty())
+        .map(parse_key_hex)
+}
+
+/// Parse a 32-byte key written as 64 hex characters.
+pub fn parse_key_hex(s: &str) -> Result<[u8; KEY_LEN], KshanaError> {
+    let bytes =
+        hex::decode(s.trim()).map_err(|_| KshanaError::InvalidInput("key is not hex".into()))?;
+    bytes.try_into().map_err(|b: Vec<u8>| {
+        KshanaError::InvalidInput(format!(
+            "key must be {KEY_LEN} bytes ({} hex characters), got {} bytes",
+            2 * KEY_LEN,
+            b.len()
+        ))
+    })
+}
+
+/// The public key that verifies tokens signed with the private-key `seed`.
+pub fn public_key_for(seed: &[u8; KEY_LEN]) -> [u8; KEY_LEN] {
+    SigningKey::from_bytes(seed).verifying_key().to_bytes()
+}
 
 /// Pro licence tiers, ordered by capability.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -174,33 +209,43 @@ impl Entitlement {
     }
 }
 
-/// Sign claims into a license token with `secret`.
-pub fn issue(secret: &[u8], claims: &LicenseClaims) -> Result<String, KshanaError> {
+/// Sign claims into a license token with the vendor's private-key `seed`.
+pub fn issue(seed: &[u8; KEY_LEN], claims: &LicenseClaims) -> Result<String, KshanaError> {
     let payload = serde_json::to_vec(claims)
         .map_err(|e| KshanaError::InvalidInput(format!("could not serialise claims: {e}")))?;
-    let sig = sign(secret, &payload)?;
-    Ok(format!("{}.{}", hex::encode(&payload), hex::encode(sig)))
+    let sig = SigningKey::from_bytes(seed).sign(&payload);
+    Ok(format!(
+        "{}.{}",
+        hex::encode(&payload),
+        hex::encode(sig.to_bytes())
+    ))
 }
 
-/// Verify a token against `secret` at `now_unix`, returning the entitlement.
-/// Fails on a malformed token, a bad signature (tamper), an unknown tier, or
-/// expiry.
-pub fn verify(secret: &[u8], token: &str, now_unix: i64) -> Result<Entitlement, KshanaError> {
-    let (payload_hex, sig_hex) = token.split_once('.').ok_or_else(|| {
+/// Verify a token against the vendor `public_key` at `now_unix`, returning the
+/// entitlement. Fails on a malformed token, a bad signature (tamper or wrong key),
+/// an unknown tier, or expiry.
+pub fn verify(
+    public_key: &[u8; KEY_LEN],
+    token: &str,
+    now_unix: i64,
+) -> Result<Entitlement, KshanaError> {
+    let (payload_hex, sig_hex) = token.trim().split_once('.').ok_or_else(|| {
         KshanaError::InvalidInput("malformed token (expected payload.signature)".into())
     })?;
     let payload = hex::decode(payload_hex)
         .map_err(|_| KshanaError::InvalidInput("malformed token payload (not hex)".into()))?;
-    let sig = hex::decode(sig_hex)
-        .map_err(|_| KshanaError::InvalidInput("malformed token signature (not hex)".into()))?;
-
-    // Constant-time verification via the MAC's own `verify_slice`.
-    let mut mac = HmacSha256::new_from_slice(secret)
-        .map_err(|e| KshanaError::InvalidInput(format!("invalid signing key: {e}")))?;
-    mac.update(&payload);
-    mac.verify_slice(&sig).map_err(|_| {
-        KshanaError::InvalidInput("invalid license signature (tampered or wrong key)".into())
-    })?;
+    let sig_bytes: [u8; 64] = hex::decode(sig_hex)
+        .ok()
+        .and_then(|b| b.try_into().ok())
+        .ok_or_else(|| {
+            KshanaError::InvalidInput("malformed token signature (not 64 hex bytes)".into())
+        })?;
+    let key = VerifyingKey::from_bytes(public_key)
+        .map_err(|_| KshanaError::InvalidInput("invalid licence public key".into()))?;
+    key.verify_strict(&payload, &Signature::from_bytes(&sig_bytes))
+        .map_err(|_| {
+            KshanaError::InvalidInput("invalid license signature (tampered or wrong key)".into())
+        })?;
 
     let claims: LicenseClaims = serde_json::from_slice(&payload)
         .map_err(|e| KshanaError::InvalidInput(format!("invalid license claims: {e}")))?;
@@ -220,19 +265,15 @@ pub fn verify(secret: &[u8], token: &str, now_unix: i64) -> Result<Entitlement, 
     Ok(ent)
 }
 
-fn sign(secret: &[u8], payload: &[u8]) -> Result<Vec<u8>, KshanaError> {
-    // HMAC accepts any key length except empty; surface that as an error, not a panic.
-    let mut mac = HmacSha256::new_from_slice(secret)
-        .map_err(|_| KshanaError::InvalidInput("signing key must be non-empty".into()))?;
-    mac.update(payload);
-    Ok(mac.finalize().into_bytes().to_vec())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    const SECRET: &[u8] = b"test-vendor-signing-secret";
+    const SEED: [u8; KEY_LEN] = [7; KEY_LEN];
+
+    fn public() -> [u8; KEY_LEN] {
+        public_key_for(&SEED)
+    }
 
     fn claims(tier: &str, expires: i64) -> LicenseClaims {
         LicenseClaims {
@@ -245,42 +286,57 @@ mod tests {
 
     #[test]
     fn issue_then_verify_round_trips() {
-        let tok = issue(SECRET, &claims("pro", 0)).unwrap();
-        let ent = verify(SECRET, &tok, 1_000).unwrap();
+        let tok = issue(&SEED, &claims("pro", 0)).unwrap();
+        let ent = verify(&public(), &tok, 1_000).unwrap();
         assert_eq!(ent.tier, Tier::Pro);
         assert_eq!(ent.licensee, "ACME Space");
     }
 
     #[test]
-    fn issue_with_empty_secret_does_not_panic() {
-        // HMAC-SHA256 accepts any key length (incl. empty), so `sign` does not panic
-        // and `issue` succeeds. Empty-secret protection for production lives in
-        // main.rs::signing_secret() (which falls back to the demo key, never "").
-        assert!(issue(b"", &claims("pro", 0)).is_ok());
+    fn public_key_cannot_sign() {
+        // The verifying side holds only the public key. Using those same bytes as a
+        // signing seed yields a different key pair, so its tokens do not verify.
+        let forged = issue(&public(), &claims("enterprise", 0)).unwrap();
+        assert!(verify(&public(), &forged, 1_000).is_err());
+    }
+
+    #[test]
+    fn hmac_era_token_is_rejected() {
+        // A 32-byte signature (the old HMAC-SHA256 format) is malformed now.
+        let payload = hex::encode(serde_json::to_vec(&claims("pro", 0)).unwrap());
+        let tok = format!("{payload}.{}", hex::encode([0u8; 32]));
+        assert!(verify(&public(), &tok, 1_000).is_err());
+    }
+
+    #[test]
+    fn parse_key_hex_checks_length() {
+        assert_eq!(parse_key_hex(&hex::encode(public())).unwrap(), public());
+        assert!(parse_key_hex("abcd").is_err());
+        assert!(parse_key_hex("zz").is_err());
     }
 
     #[test]
     fn tampered_token_fails() {
-        let tok = issue(SECRET, &claims("enterprise", 0)).unwrap();
+        let tok = issue(&SEED, &claims("enterprise", 0)).unwrap();
         // Flip a character in the payload portion.
         let mut bad = tok.clone();
         let first = bad.chars().next().unwrap();
         let repl = if first == 'a' { 'b' } else { 'a' };
         bad.replace_range(0..1, &repl.to_string());
-        assert!(verify(SECRET, &bad, 1_000).is_err());
+        assert!(verify(&public(), &bad, 1_000).is_err());
     }
 
     #[test]
     fn wrong_secret_fails() {
-        let tok = issue(SECRET, &claims("pro", 0)).unwrap();
-        assert!(verify(b"other-secret", &tok, 1_000).is_err());
+        let tok = issue(&SEED, &claims("pro", 0)).unwrap();
+        assert!(verify(&public_key_for(&[9; KEY_LEN]), &tok, 1_000).is_err());
     }
 
     #[test]
     fn expired_license_fails_verify() {
-        let tok = issue(SECRET, &claims("pro", 5_000)).unwrap();
-        assert!(verify(SECRET, &tok, 4_999).is_ok()); // before expiry
-        assert!(verify(SECRET, &tok, 5_000).is_err()); // at/after expiry
+        let tok = issue(&SEED, &claims("pro", 5_000)).unwrap();
+        assert!(verify(&public(), &tok, 4_999).is_ok()); // before expiry
+        assert!(verify(&public(), &tok, 5_000).is_err()); // at/after expiry
     }
 
     #[test]
@@ -370,8 +426,8 @@ mod tests {
         assert!(ensure_ci_entitled(&pro, 0).is_ok());
 
         // An unexpired Pro license also entitles (constructed via the token path).
-        let tok = issue(SECRET, &claims("pro", 5_000)).unwrap();
-        let ent = verify(SECRET, &tok, 4_999).unwrap();
+        let tok = issue(&SEED, &claims("pro", 5_000)).unwrap();
+        let ent = verify(&public(), &tok, 4_999).unwrap();
         assert!(ensure_ci_entitled(&ent, 4_999).is_ok());
 
         // An expired entitlement is denied.

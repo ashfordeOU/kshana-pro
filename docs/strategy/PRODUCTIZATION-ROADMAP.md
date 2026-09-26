@@ -29,7 +29,7 @@ audit's job was to stop exactly that.
 | Honesty gate | DONE (7 retired overclaims banned in CI) | `kshana/tests/no_overclaims.rs` |
 | Overlay architecture (superset-by-construction, never forks) | DONE | `kshana-pro/src/registry.rs`, `docs/OVERLAY-ARCHITECTURE.md` |
 | Commercial report renderer (MD/HTML/SVG/JSON, fingerprint) | DONE | `kshana-pro/src/report.rs` |
-| Licensing / tier enforcement (HMAC tokens, Eval/Pro/Enterprise) | DONE | `kshana-pro/src/license/` |
+| Licensing / tier enforcement (Ed25519 tokens, HMAC until 2026-09-26; Eval/Pro/Enterprise) | DONE | `kshana-pro/src/license/` |
 | Serve layer (`/health`, `/version`, `/kinds`, `POST /run`, entitlement-gated) | DONE | `kshana-pro/src/serve/` |
 | Six Pro packs (twin, trade-study, mbse, batch, quantum-systematics, seam-check) | BUILT (public-data demonstrators) | `kshana-pro/src/packs/` |
 | Legal foundation (SLA, IP policy, NDA ×2, export-control, BIPR, trademark brief) | DRAFTS | `kshana-pro/legal/` |

@@ -20,7 +20,8 @@ antenna), MVDR (minimum-variance distortionless response, a beamforming method),
 (Galileo Open Service Navigation Message Authentication), TESLA (Timed Efficient Stream
 Loss-tolerant Authentication), RAIM (receiver autonomous integrity monitoring), MTIE
 (maximum time interval error), AGPL (GNU Affero General Public License, version 3), HMAC
-(hash-based message authentication code), SHA-256 (Secure Hash Algorithm, 256-bit),
+(hash-based message authentication code), Ed25519 (the Edwards-curve digital signature
+algorithm on Curve25519), SHA-256 (Secure Hash Algorithm, 256-bit),
 AES (Advanced Encryption Standard), BAFA (Bundesamt für Wirtschaft und Ausfuhrkontrolle,
 Germany's Federal Office for Economic Affairs and Export Control), AzG (Auskunft zur
 Güterliste, BAFA's goods-list classification opinion), ELAN-K2 (BAFA's electronic
@@ -136,13 +137,15 @@ contracts, or if a German customer asks for its own classification.
   - study packs (for example the optimism-gap audit, trade studies, conflict
     resilience, lunar time budget) and branded HTML/PDF study dossiers with a
     tamper-evident, hash-chained study ledger (`packs`, `report*`, `study_ledger`);
-  - a licence-entitlement check using HMAC-SHA256 tokens (`license`);
+  - a licence-entitlement check using Ed25519-signed tokens (`license`; HMAC-SHA256
+    until 2026-09-26);
   - an "L2" resilience layer, which today is a stub. **Real threat libraries,
     adversary waveforms and anti-jam or anti-spoof performance data are not in the
     code and must not enter this repository** (`legal/EXPORT-CONTROL-ASSESSMENT.md`
     section 3).
-- **Cryptographic primitives present:** SHA-256 (ledger and fingerprints), HMAC-SHA256
-  (licence tokens: authentication and integrity only). A PDF library dependency
+- **Cryptographic primitives present:** SHA-256 (ledger and fingerprints), Ed25519
+  digital signatures (licence tokens: authentication and integrity only; they replaced
+  HMAC-SHA256 on 2026-09-26). A PDF library dependency
   (`lopdf`) pulls in AES and cipher-block-chaining code, which PDF uses for document
   encryption; whether any Pro code path calls it has not been established (question A3).
 
@@ -188,7 +191,7 @@ quotations.
 | 4 | **Category 7 technology (7E) and technical assistance** | Study dossiers and consulting explain navigation and timing performance. Technology "required" for controlled items is controlled even when no software is shipped. | Confirmation that modelled figures of merit from public-parameter scenarios are not "required" technology. |
 | 5 | **Category 3, atomic frequency standards (3A) and related software (3D) and technology (3E)** | Pro calibrates twins of atomic clocks and oscillators from datasheets and predicts their holdover; the engine carries clock presets for atomic standards. | Confirmation that modelling published clock performance is not development or production technology for a controlled frequency standard. |
 | 6 | **Entries added in the 2025 update for quantum technologies** | The engine and Pro compare quantum sensors and clocks with classical ones. The Commission's notice says the update adds "controls related to quantum technology", giving as examples quantum computers, electronic components designed to work at cryogenic temperatures, parametric signal amplifiers and cryogenic cooling systems. | Confirmation that no added entry covers trade-study software for quantum PNT sensors. |
-| 7 | **Category 5 Part 2, information security (5A002, 5D002)** | Cryptographic primitives are present (section 2). HMAC and hashing are for authentication and integrity; a PDF library carries AES code. | Confirmation that the primitives present fall outside the confidentiality-cryptography controls, and whether an unused library routine matters. |
+| 7 | **Category 5 Part 2, information security (5A002, 5D002)** | Cryptographic primitives are present (section 2). Digital signatures and hashing are for authentication and integrity; a PDF library carries AES code. | Confirmation that the primitives present fall outside the confidentiality-cryptography controls, and whether an unused library routine matters. |
 | 8 | **Category 5 Part 1, telecommunications** | The first commercial study targets telecom timing and synchronisation. | Confirmation that timing analysis software for network operators is not telecom equipment software under Part 1. |
 | 9 | **EU Common Military List: military electronic equipment including GNSS jamming (ML11), software (ML21) and technology (ML22)** | The engine models jamming and spoofing effects and anti-jam processing. Military-list items are licensed nationally. | Confirmation that the software is not "specially designed" for military use and that public-parameter effect models are not military technology. |
 | 10 | **National lists**: Estonia's list under the Strategic Goods Act; Germany's Export List Part I Section B (national dual-use entries), if a German entity is involved | National entries can go beyond Annex I. | A statement that no national entry applies. |
