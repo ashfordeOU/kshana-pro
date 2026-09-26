@@ -15,7 +15,8 @@ Abbreviations: AGPL (GNU Affero General Public License, version 3, "AGPL-3.0-onl
 SLA (service level agreement), DPA (data processing agreement), NDA (non-disclosure
 agreement), CLA (contributor licence agreement), DCO (Developer Certificate of Origin),
 ESA (European Space Agency), API (application programming interface), SHA-256 (Secure Hash Algorithm, 256-bit), EE (Estonia), DE (Germany), B2B (business to business),
-HMAC (hash-based message authentication code).
+HMAC (hash-based message authentication code), Ed25519 (the Edwards-curve digital
+signature algorithm on Curve25519).
 
 ---
 
@@ -65,10 +66,14 @@ things that need licence terms:
   permissive and are checked by `deny.toml`. Pro adds its own dependencies (for example
   the PDF libraries `printpdf` and `lopdf`); this repository has no equivalent licence
   check and no third-party notices file.
-- **Licence enforcement in code.** Pro's `license` module checks a token signed with an
-  HMAC over SHA-256. The module's own documentation says a symmetric key is acceptable
-  for a self-hosted check but a distributed product should move to asymmetric signing,
-  because otherwise the verifying binary holds the signing secret.
+- **Licence enforcement in code.** *Revised 2026-09-26.* Pro's `license` module used to
+  check a token signed with an HMAC over SHA-256, so any binary that verified tokens also
+  held the secret that signs them; a `--dev` flag and a built-in demo secret also let
+  any holder of a binary switch the check off. Tokens are now Ed25519-signed: the vendor
+  keeps the private key, and a build carries only the public key. Release builds refuse
+  `--dev` and contain no demo key. Still open: tokens are not tied to a machine, so a
+  copied token works on a second installation until it expires. The licence terms
+  (section 2A) should carry the no-copying obligation the code does not enforce.
 - **Contracting entity.** The company is registered in Estonia; its ESA-determined
   operative nationality is Germany (see `legal/COUNSEL-REVIEW-PACKAGE.md` section 2).
 

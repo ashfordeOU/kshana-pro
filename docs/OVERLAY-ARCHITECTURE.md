@@ -270,7 +270,7 @@ to the embedded open engine.
 ```mermaid
 flowchart TB
   CLI["kshana-pro CLI / serve"] --> REG["registry — superset dispatcher<br/>peek_kind → pro-* vs open"]
-  REG --> LIC["license — tiers + HMAC token<br/>run_gated · ensure_ci_entitled (fail-closed)"]
+  REG --> LIC["license — tiers + Ed25519 token<br/>run_gated · ensure_ci_entitled (fail-closed)"]
   LIC --> PACKS
   subgraph PACKS["Pro packs (ExternalPack · const KIND + meta_static)"]
     P1["seam_check — P0 proof"]

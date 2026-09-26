@@ -41,17 +41,22 @@ exposing `8088`.
 ## Standard / on-prem / hosted
 
 ```bash
-export KSHANA_PRO_LICENSE_SECRET="<your vendor signing secret>"
+export KSHANA_PRO_LICENSE_PUBKEY="<licence public key, 64 hex characters>"
 docker compose -f kshana-pro/deploy/docker-compose.product.yml up --build
 ```
 
 Runs fail-closed at **Evaluation** tier (open engine + free seam-check). To unlock
-Pro features, issue a token and pass it as the command's `--license` (see the
-commented `command:` line in the compose file):
+Pro features, issue a token on the vendor side and pass it as the command's
+`--license` (see the commented `command:` line in the compose file):
 
 ```bash
-kshana-pro license issue --tier pro --licensee "Customer" --days 365   # → token
+# Vendor side only, never on the customer's machine:
+KSHANA_PRO_SIGNING_KEY=... kshana-pro license issue --tier pro --licensee "Customer" --days 365   # → token
 ```
+
+Tokens are Ed25519-signed. The image contains only the **public** key, baked in at
+build time, so a customer holding the image can check tokens but cannot mint them.
+A release build also refuses `--dev` and contains no demo key.
 
 ## Air-gapped / sovereign
 
@@ -79,8 +84,13 @@ curl -s -X POST --data-binary @scenario.toml localhost:8088/run
 
 ## Operational notes
 
-- **Licensing in production:** set `KSHANA_PRO_LICENSE_SECRET` from a secret store
-  (not in the compose file); rotate by re-issuing tokens.
+- **Licensing in production:** create the vendor key pair once with
+  `kshana-pro license keygen`. Keep `KSHANA_PRO_SIGNING_KEY` in the vendor's secret
+  store; it never goes into a build, an image or a customer's hands. Bake
+  `KSHANA_PRO_LICENSE_PUBKEY` into customer builds. Re-keying invalidates every
+  token issued under the old key, so customers need new tokens and a new build.
+- **Not covered:** tokens are not bound to a machine, so a token can be copied to a
+  second installation until it expires; keep terms short for binaries you hand over.
 - **TLS / auth:** terminate TLS and add authentication at your gateway/ingress; the
   service speaks plain HTTP and assumes a trusted front end.
 - **Scale:** the server is one-thread-per-connection (Connection: close). For high

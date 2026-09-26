@@ -15,6 +15,11 @@ WORKDIR /src
 COPY kshana ./kshana
 COPY kshana-pro ./kshana-pro
 WORKDIR /src/kshana-pro
+# The licence PUBLIC key is compiled into the binary (64 hex characters, from
+# `kshana-pro license keygen`). Without it the release binary verifies no token and
+# serves every Pro kind at Evaluation tier. Never pass the signing key here.
+ARG KSHANA_PRO_LICENSE_PUBKEY=""
+ENV KSHANA_PRO_LICENSE_PUBKEY=${KSHANA_PRO_LICENSE_PUBKEY}
 RUN cargo build --release --locked
 
 # ---- runtime stage (minimal, non-root) ----

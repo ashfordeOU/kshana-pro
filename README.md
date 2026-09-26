@@ -156,7 +156,7 @@ study/bid needs:
   (`GET /health` · `/version` · `/kinds`; `POST /run` · `POST /study`) for on-prem /
   air-gapped / sovereign / hosted deployment, entitlement-gated and **fail-closed**
   (open engine + free seam-check at Evaluation until a license token is supplied).
-- **`license`** (PR7) — the tier mechanics: HMAC-SHA256 tokens, fail-closed Evaluation
+- **`license`** (PR7) — the tier mechanics: Ed25519-signed tokens (public key only in the build), fail-closed Evaluation
   default, per-`kind` tier mapping.
 
 ### What is NOT built on spec (gated)
@@ -231,7 +231,8 @@ README match the registry and the `tests/` directory).
 
 **Licensing (PR7).** `run` is **fail-closed**: with no `--license` it enforces the
 **Evaluation** tier (open scenarios + the free `pro-seam-check` only). A value pack
-needs a license token (or `--dev` for local runs). Open scenarios are always free.
+needs a license token (or `--dev` for local runs in a debug build; a release build
+refuses `--dev`). Open scenarios are always free.
 
 ```bash
 # Open scenario — always free, no license needed:
@@ -251,8 +252,11 @@ cargo run -- run scenarios/batch-clock-mc.toml --license "$TOK"  # DENIED (Enter
 Tiers: **Evaluation** (free `pro-seam-check`) → **Pro** (`pro-twin`,
 `pro-trade-study`, `pro-quantum-systematics`, `pro-optimism-gap-audit`,
 `pro-scenario-ci`) → **Enterprise** (+ `pro-mbse`, `pro-batch`). Tokens are
-HMAC-SHA256 signed; the vendor secret is
-`$KSHANA_PRO_LICENSE_SECRET` (a demo secret is used otherwise — never for production).
+Ed25519-signed: `license issue` signs with `$KSHANA_PRO_SIGNING_KEY` (vendor only),
+and a build verifies with the public key compiled in from `$KSHANA_PRO_LICENSE_PUBKEY`
+(`license keygen` makes the pair). Debug builds fall back to a demo key pair so the
+commands above work locally; release builds contain no demo key, and one built
+without a public key runs every Pro kind at Evaluation tier.
 
 **Connectors & CI (PR21).** Export an ephemeris to enterprise tools, or gate a
 metric in CI. The open core already emits CCSDS OEM/SP3 (GMAT/Orekit); Pro adds STK

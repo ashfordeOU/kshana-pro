@@ -30,16 +30,26 @@ fn usage() -> &'static str {
        kshana-pro study --dossier <scenario.toml> --out <dir> [--utc <iso>] [--license <token>] [--dev]   Reproducible study dossier, HTML + JSON (Pro)\n\
        kshana-pro license issue --tier <t> --licensee <name> [--days <n>]\n\
        kshana-pro license verify <token>\n\
+       kshana-pro license keygen                       New vendor key pair (vendor only)\n\
      \n\
      Tiers: evaluation | pro | enterprise. `run` is FAIL-CLOSED: with no --license it\n\
      enforces Evaluation tier (open scenarios + the free seam-check only). --license\n\
-     <token> enforces that token's tier; --dev disables enforcement (local use only).\n\
-     Open (non-pro) scenarios are always free. Signing secret: $KSHANA_PRO_LICENSE_SECRET\n\
-     (a built-in DEMO secret is used otherwise)."
+     <token> enforces that token's tier; --dev disables enforcement (debug builds only;\n\
+     a release build refuses it). Open (non-pro) scenarios are always free. Tokens are\n\
+     Ed25519-signed: `license issue` signs with $KSHANA_PRO_SIGNING_KEY (vendor only);\n\
+     a build verifies with the public key compiled in from $KSHANA_PRO_LICENSE_PUBKEY.\n\
+     Debug builds fall back to a DEMO key pair that release builds do not contain."
 }
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
+    // `--dev` turns entitlement enforcement off, so it exists only in debug builds
+    // (`cargo run`, `cargo test`). A release build — anything handed to a customer —
+    // refuses it here, the one place every subcommand passes through.
+    if !DEV_BUILD && has_flag(&args, "--dev") {
+        eprintln!("error: --dev is not available in a release build; pass --license <token>");
+        return ExitCode::FAILURE;
+    }
     match args.first().map(String::as_str) {
         Some("run") => match args.get(1) {
             Some(path) => run_file(path, flag(&args, "--license"), has_flag(&args, "--dev")),
@@ -168,7 +178,7 @@ fn serve_cmd(args: &[String]) -> ExitCode {
         }
     } else {
         match flag(args, "--license") {
-            Some(tok) => match license::verify(&signing_secret(), &tok, now_unix()) {
+            Some(tok) => match verify_token(&tok, now_unix()) {
                 Ok(e) => e,
                 Err(e) => {
                     eprintln!("error: license invalid: {e}");
@@ -241,7 +251,7 @@ fn ci_cmd(args: &[String]) -> ExitCode {
         }
     } else {
         match flag(args, "--license") {
-            Some(tok) => match license::verify(&signing_secret(), &tok, now) {
+            Some(tok) => match verify_token(&tok, now) {
                 Ok(e) => e,
                 Err(e) => {
                     eprintln!("error: license invalid: {e}");
@@ -363,7 +373,7 @@ fn study_cmd(args: &[String]) -> ExitCode {
         }
     } else {
         match flag(args, "--license") {
-            Some(tok) => match license::verify(&signing_secret(), &tok, now) {
+            Some(tok) => match verify_token(&tok, now) {
                 Ok(e) => e,
                 Err(e) => {
                     eprintln!("error: license invalid: {e}");
@@ -719,13 +729,54 @@ fn civil_from_days(z: i64) -> (i64, u32, u32) {
     (if m <= 2 { y + 1 } else { y }, m, d)
 }
 
-/// The vendor signing secret: from the environment, or a clearly-labelled demo key.
-fn signing_secret() -> Vec<u8> {
-    match std::env::var("KSHANA_PRO_LICENSE_SECRET") {
-        Ok(s) if !s.is_empty() => s.into_bytes(),
+/// Whether this is a debug build, the only kind that honours `--dev` and the demo
+/// key pair.
+const DEV_BUILD: bool = cfg!(debug_assertions);
+
+/// Private-key seed of the DEMO key pair. Debug builds only: it is compiled out of
+/// release builds, so a release binary never accepts a token signed with it.
+#[cfg(debug_assertions)]
+const DEMO_SEED: [u8; license::KEY_LEN] = *b"kshana-pro-demo-key-debug-only!!";
+
+/// The public key tokens are verified against: the one compiled in from
+/// `KSHANA_PRO_LICENSE_PUBKEY`, or in a debug build without one, the demo key.
+fn verifying_key() -> Result<[u8; license::KEY_LEN], kshana::api::KshanaError> {
+    if let Some(k) = license::embedded_public_key() {
+        return k;
+    }
+    #[cfg(debug_assertions)]
+    {
+        eprintln!("[warning] debug build without KSHANA_PRO_LICENSE_PUBKEY: verifying against the DEMO key");
+        Ok(license::public_key_for(&DEMO_SEED))
+    }
+    #[cfg(not(debug_assertions))]
+    Err(kshana::api::KshanaError::Unsupported(
+        "this build has no licence public key (build with KSHANA_PRO_LICENSE_PUBKEY set), \
+         so it cannot verify tokens; without --license it runs at Evaluation tier"
+            .into(),
+    ))
+}
+
+fn verify_token(token: &str, now: i64) -> Result<Entitlement, kshana::api::KshanaError> {
+    license::verify(&verifying_key()?, token, now)
+}
+
+/// The vendor's private-key seed, for `license issue`: from `KSHANA_PRO_SIGNING_KEY`
+/// (64 hex characters, kept in the vendor's secret store), or in a debug build, the
+/// demo seed. Customers never need it.
+fn signing_seed() -> Result<[u8; license::KEY_LEN], kshana::api::KshanaError> {
+    match std::env::var("KSHANA_PRO_SIGNING_KEY") {
+        Ok(s) if !s.trim().is_empty() => license::parse_key_hex(&s),
         _ => {
-            eprintln!("[warning] using the built-in DEMO signing secret — set KSHANA_PRO_LICENSE_SECRET for real licenses");
-            b"kshana-pro-demo-secret-do-not-use-in-production".to_vec()
+            #[cfg(debug_assertions)]
+            {
+                eprintln!("[warning] KSHANA_PRO_SIGNING_KEY not set: signing with the DEMO key (debug builds only)");
+                Ok(DEMO_SEED)
+            }
+            #[cfg(not(debug_assertions))]
+            Err(kshana::api::KshanaError::InvalidInput(
+                "set KSHANA_PRO_SIGNING_KEY to the vendor signing key".into(),
+            ))
         }
     }
 }
@@ -755,7 +806,7 @@ fn run_file(path: &str, license_token: Option<String>, dev_mode: bool) -> ExitCo
         kshana_pro::registry::run(&src)
     } else {
         match license_token {
-            Some(tok) => match license::verify(&signing_secret(), &tok, now) {
+            Some(tok) => match verify_token(&tok, now) {
                 Ok(ent) => {
                     eprintln!(
                         "[license: {} tier, licensee: {}]",
@@ -843,7 +894,14 @@ fn license_cmd(args: &[String]) -> ExitCode {
                 expires_unix,
                 features: Vec::new(),
             };
-            match license::issue(&signing_secret(), &claims) {
+            let seed = match signing_seed() {
+                Ok(k) => k,
+                Err(e) => {
+                    eprintln!("error: {e}");
+                    return ExitCode::FAILURE;
+                }
+            };
+            match license::issue(&seed, &claims) {
                 Ok(tok) => {
                     eprintln!(
                         "[issued {} license for '{}'{}]",
@@ -865,7 +923,7 @@ fn license_cmd(args: &[String]) -> ExitCode {
             }
         }
         Some("verify") => match args.get(1) {
-            Some(tok) => match license::verify(&signing_secret(), tok, now_unix()) {
+            Some(tok) => match verify_token(tok, now_unix()) {
                 Ok(ent) => {
                     print_entitlement(&ent);
                     ExitCode::SUCCESS
@@ -880,8 +938,23 @@ fn license_cmd(args: &[String]) -> ExitCode {
                 ExitCode::FAILURE
             }
         },
+        Some("keygen") => {
+            // A fresh vendor key pair. The private key goes to the secret store as
+            // KSHANA_PRO_SIGNING_KEY; the public key is baked into customer builds as
+            // KSHANA_PRO_LICENSE_PUBKEY. Re-keying invalidates every token issued before.
+            use rand::RngCore;
+            let mut seed = [0u8; license::KEY_LEN];
+            rand::rngs::OsRng.fill_bytes(&mut seed);
+            eprintln!("[new key pair: keep the private key secret; it is shown once]");
+            println!("KSHANA_PRO_SIGNING_KEY={}", hex::encode(seed));
+            println!(
+                "KSHANA_PRO_LICENSE_PUBKEY={}",
+                hex::encode(license::public_key_for(&seed))
+            );
+            ExitCode::SUCCESS
+        }
         _ => {
-            eprintln!("usage: kshana-pro license <issue|verify> ...");
+            eprintln!("usage: kshana-pro license <issue|verify|keygen> ...");
             ExitCode::FAILURE
         }
     }

@@ -13,13 +13,15 @@ services:
     build:
       context: ../..
       dockerfile: kshana-pro/Dockerfile
+      args:
+        # Licence PUBLIC key, compiled into the binary. The signing key never
+        # goes into a build or a container.
+        KSHANA_PRO_LICENSE_PUBKEY: "${KSHANA_PRO_LICENSE_PUBKEY:-}"
     image: kshana-pro:latest
     container_name: kshana-pro-sovereign
     restart: unless-stopped
     ports:
       - "127.0.0.1:8088:8088" # bind to loopback by default; front with your own gateway
-    environment:
-      KSHANA_PRO_LICENSE_SECRET: "${KSHANA_PRO_LICENSE_SECRET:-}"
     # No-egress posture: the Kshana engine and Pro overlay make NO external calls and
     # emit NO telemetry (auditable — std-only server, no async/network deps beyond the
     # listening socket). Enforce egress blocking at the enclave's network policy /
