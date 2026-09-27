@@ -2,7 +2,7 @@
 name = "kshana-pro"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.75"
+rust-version = "1.85"  # the open engine's floor since 0.28.0
 description = "Kshana Pro — proprietary overlay on the open Kshana PNT-resilience engine"
 authors = ["Chakshu Baweja <contact@ashforde.org>"]
 license-file = "LICENSE"
@@ -42,7 +42,8 @@ default = []
 # registry version is reproducible for anyone who clones this repo; a branch pin
 # resolved to whatever main happened to be, and when main's history was rewritten
 # the recorded rev stopped existing and a fresh clone could not build at all.
-kshana = "0.27"
+# 0.28.0 adds the slot-timing kind and the commercial clock classes (TCXO, OCXO, RAFS).
+kshana = "0.28"
 
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.

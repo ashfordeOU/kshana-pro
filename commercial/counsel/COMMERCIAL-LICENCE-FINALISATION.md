@@ -27,7 +27,7 @@ things that need licence terms:
 
 | # | What | Today's licence position |
 |---|---|---|
-| A | **The open Kshana engine** (Rust crate `kshana`, version 0.27.2 on crates.io), for customers who want to embed it in closed software or run a modified version as a network service without the AGPL's source-disclosure duties. | Public `LICENSING.md` promises a commercial licence ("Option B"). Until 2026-09-26 no text granted it (issue 1); a draft grant is now `legal/COMMERCIAL-LICENSE.md` §2A, for counsel to mark up. |
+| A | **The open Kshana engine** (Rust crate `kshana`, version 0.28.0 on crates.io), for customers who want to embed it in closed software or run a modified version as a network service without the AGPL's source-disclosure duties. | Public `LICENSING.md` promises a commercial licence ("Option B"). Until 2026-09-26 no text granted it (issue 1); a draft grant is now `legal/COMMERCIAL-LICENSE.md` §2A, for counsel to mark up. |
 | B | **Kshana Pro**, the proprietary overlay (this private repository), which depends on and embeds engine A. | `legal/COMMERCIAL-LICENSE.md`, working draft dated 2026-06-23. |
 | C | **Study reports and dossiers** produced with B for a customer, such as the fixed-scope timing holdover study (`commercial/offers/cni-timing-holdover-study.md`). | Same draft, sections 1, 4 and 5. |
 
@@ -36,7 +36,7 @@ things that need licence terms:
 | Document | Location | Status |
 |---|---|---|
 | Commercial licence (covers B and C) | `legal/COMMERCIAL-LICENSE.md` | working draft, 2026-06-23 |
-| Public dual-licence explanation | `LICENSING.md` in the public `kshana` repository (also shipped inside the crates.io package `kshana-0.27.2`) | published |
+| Public dual-licence explanation | `LICENSING.md` in the public `kshana` repository (also shipped inside the crates.io package `kshana-0.28.0`) | published |
 | Inbound contribution terms | `CONTRIBUTING.md`, "License" section, same public repository | published |
 | Open licence text | `LICENSE` in the public repository (GNU AGPL-3.0) | published |
 | Support, warranty, indemnity, liability cap | `legal/SUPPORT-SLA.md` | commercial template |

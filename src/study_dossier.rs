@@ -1038,7 +1038,7 @@ fn run_sweep(
             for c in &cases {
                 for d in c.deltas.iter().filter(|d| d.path == f.path) {
                     if let Some(e) = d.elasticity {
-                        if best.as_ref().map_or(true, |(_, b)| e.abs() > *b) {
+                        if best.as_ref().is_none_or(|(_, b)| e.abs() > *b) {
                             best = Some((c.param.clone(), e.abs()));
                         }
                     }
