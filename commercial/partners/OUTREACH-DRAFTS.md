@@ -221,7 +221,7 @@ Ashforde OÜ · contact@ashforde.org
 | Claim | Source |
 |---|---|
 | The engine is public on GitHub under the AGPL | GitHub API, `repos/ashfordeOU/kshana`: not private, licence AGPL-3.0 |
-| It is on the Rust, Python and JavaScript registries | crates.io `kshana` 0.27.2; Python Package Index `kshana` 0.27.2; npm `kshana` 0.27.2 |
+| It is on the Rust, Python and JavaScript registries | crates.io `kshana` 0.28.0; Python Package Index `kshana` 0.28.0; npm `kshana` 0.28.0 (all three re-checked 2026-09-27) |
 | Figures are labelled VALIDATED or MODELLED; results reproduce from input, seed and version | public engine documentation and `commercial/export-control/CLASSIFICATION-REQUEST-PACK.md` section 2 |
 | arXiv:2606.24210 title | arXiv listing <https://arxiv.org/abs/2606.24210> |
 | NPL Report TQE 32, title and date | <https://eprintspublications.npl.co.uk/9987/1/TQE32.pdf> |

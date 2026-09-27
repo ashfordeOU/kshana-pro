@@ -25,9 +25,14 @@
 > deliverable gaps: the dossier has **no PDF face yet** (HTML and JSON only; a PDF is made
 > by printing the HTML), and the Pro MTIE check compares against **flat time-error
 > ceilings**, not the observation-interval-dependent ITU-T MTIE breakpoint tables. The
-> breakpoint tables ship in the open engine's `telecom-timing` kind from the release after
-> 0.27.2; until Pro is rebuilt on that release, run the mask check with that kind. Do not
-> promise a turnaround until the study team has run one end-to-end on public data.
+> breakpoint tables ship in the open engine's `telecom-timing` kind (since 0.27.3), and Pro
+> now builds on engine 0.28.0, so run the mask check with that kind. Engine 0.28.0 also adds
+> the `slot-timing` kind (how long a clock stays inside a guard interval, and which error
+> term uses the margin) and TCXO, OCXO and rubidium (RAFS) presets; predicting holdover from
+> a measured phase record is VALIDATED on held-out data from a real caesium clock, while the
+> crystal-oscillator case stays MODELLED (conservative on a public OCXO record, outside the
+> factor-of-1.5 bar). Do not promise a turnaround until the study team has run one
+> end-to-end on public data.
 
 # Timing holdover sizing study for critical infrastructure
 

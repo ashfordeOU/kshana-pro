@@ -78,15 +78,23 @@ contracts, or if a German customer asks for its own classification.
   Rust. A user describes a scenario in a TOML file (threat, sensor or clock set,
   budget); the engine computes figures of merit and writes JSON, HTML or charts. Each
   result is reproducible from scenario + random seed + engine version.
-- **Version and licence.** 0.27.2, licensed AGPL-3.0-only with a commercial option.
-- **Where it is public (checked 2026-09-25).** Public GitHub repository
+- **Version and licence.** 0.28.0, licensed AGPL-3.0-only with a commercial option.
+  *(Revised 2026-09-27: this pack first described 0.27.2. Between the two releases the
+  engine added the telecom timing, slot timing and orbital timing modules listed below and
+  no new dependency; no cryptographic code was added.)*
+- **Where it is public (checked 2026-09-27).** Public GitHub repository
   `ashfordeOU/kshana` (GitHub API: not private, licence AGPL-3.0); crates.io crate
-  `kshana`, latest 0.27.2; Python Package Index project `kshana`, 0.27.2; npm package
-  `kshana`, latest 0.27.2, licence AGPL-3.0-only. Anyone may download, copy and
+  `kshana`, latest 0.28.0; Python Package Index project `kshana`, 0.28.0; npm package
+  `kshana`, latest 0.28.0, licence AGPL-3.0-only. Anyone may download, copy and
   redistribute it without asking.
-- **What it computes (module names from the 0.27.2 source):**
+- **What it computes (module names from the 0.28.0 source):**
   - clock and holdover models: Allan deviation, MTIE, holdover time to an error
     budget (`allan`, `holdover`, `clock_state`, `clock_specs`);
+  - timing against a requirement: time error, MTIE and TDEV against published ITU-T
+    telecom masks (`telecom_timing`); how long a clock stays inside a scheduled slot's
+    guard interval after losing its reference (`slot_timing`); and a timing protection
+    level for a satellite cross-checked by ground contacts or crosslinks
+    (`orbital_timing`);
   - GNSS measurement simulation, position solutions and dilution of precision
     (`gnss_sim`, `pvt`, `rinex`, `sp3`);
   - integrity monitoring: RAIM variants and protection levels (`raim`, `integrity`,
@@ -120,7 +128,7 @@ contracts, or if a German customer asks for its own classification.
   - it does **not** encrypt data. Cryptographic primitives present: SHA-256 hashing
     (dependency `sha2`) used to fingerprint scenarios and results, and a ChaCha-based
     pseudo-random number generator (dependency `rand_chacha`) used for reproducible
-    seeded simulation. The OSNMA module only sizes a scheme's budget: in the 0.27.2
+    seeded simulation. The OSNMA module only sizes a scheme's budget: in the 0.28.0
     source it imports no cryptographic code.
 
 ### 2.2 The private overlay: Kshana Pro
