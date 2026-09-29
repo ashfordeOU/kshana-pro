@@ -1,0 +1,444 @@
+{
+  "report_schema": "kshana-report",
+  "report_schema_version": "1.0",
+  "kind": "integrity",
+  "title": "integrity-raim (integrity)",
+  "executive_summary": {
+    "what_ran": "Snapshot / solution-separation / ARAIM RAIM with HPL/VPL and a Stanford diagram.",
+    "summary": "integrity | 24 satellites | 344/361 epochs available (95.3%) | HAL 40 m VAL 50 m | sigma 1.0 m | Stanford(V): 0 integrity events, 0 HMI",
+    "label": "The result carries no run-level honesty label; the verification labels of the capabilities it used are listed in their own section, and the per-figure tiers where the result states them.",
+    "label_source": "not stated by the result",
+    "key_figures": [
+      {
+        "path": "al_h_m",
+        "value": 40.0,
+        "display": "40",
+        "unit": "m"
+      },
+      {
+        "path": "al_v_m",
+        "value": 50.0,
+        "display": "50",
+        "unit": "m"
+      },
+      {
+        "path": "samples_available",
+        "value": 344,
+        "display": "344",
+        "unit": "count"
+      },
+      {
+        "path": "samples_total",
+        "value": 361,
+        "display": "361",
+        "unit": "count"
+      },
+      {
+        "path": "stanford.alert_limit_m",
+        "value": 50.0,
+        "display": "50",
+        "unit": "m"
+      }
+    ],
+    "capability_labels": {
+      "validated": 3,
+      "modelled": 1,
+      "partner": 0
+    }
+  },
+  "inputs": {
+    "items": [
+      {
+        "path": "al_h_m",
+        "value": 40.0,
+        "display": "40",
+        "unit": "m",
+        "unit_source": "field-units schema: units entry `al_h_m`"
+      },
+      {
+        "path": "al_v_m",
+        "value": 50.0,
+        "display": "50",
+        "unit": "m",
+        "unit_source": "field-units schema: units entry `al_v_m`"
+      },
+      {
+        "path": "constellation.altitude_km",
+        "value": 20200.0,
+        "display": "20200",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "constellation.inclination_deg",
+        "value": 55.0,
+        "display": "55",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "constellation.phasing_f",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "constellation.planes",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "constellation.sats_per_plane",
+        "value": 4,
+        "display": "4",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "kind",
+        "value": "integrity",
+        "display": "integrity",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "mask_deg",
+        "value": 5.0,
+        "display": "5",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "p_fa",
+        "value": 0.00001,
+        "display": "1.0000e-5",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "p_md",
+        "value": 0.001,
+        "display": "0.001",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "seed",
+        "value": 7,
+        "display": "7",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "sigma_uere_m",
+        "value": 1.0,
+        "display": "1",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "time.duration_s",
+        "value": 43200.0,
+        "display": "43200",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "time.step_s",
+        "value": 120.0,
+        "display": "120",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "user.altitude_km",
+        "value": 0.4,
+        "display": "0.4",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "user.inclination_deg",
+        "value": 45.0,
+        "display": "45",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "user.raan_deg",
+        "value": 10.0,
+        "display": "10",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "user.u0_deg",
+        "value": 0.0,
+        "display": "0",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      }
+    ],
+    "omitted": 0
+  },
+  "results": {
+    "scalars": {
+      "items": [
+        {
+          "path": "al_h_m",
+          "value": 40.0,
+          "display": "40",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `al_h_m`"
+        },
+        {
+          "path": "al_v_m",
+          "value": 50.0,
+          "display": "50",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `al_v_m`"
+        },
+        {
+          "path": "samples_available",
+          "value": 344,
+          "display": "344",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `samples_available`"
+        },
+        {
+          "path": "samples_total",
+          "value": 361,
+          "display": "361",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `samples_total`"
+        },
+        {
+          "path": "stanford.alert_limit_m",
+          "value": 50.0,
+          "display": "50",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `stanford.alert_limit_m`"
+        }
+      ],
+      "omitted": 0
+    },
+    "series": {
+      "items": [
+        {
+          "path": "epochs[].hpl_m",
+          "n": 361,
+          "min": 3.39304094829196,
+          "max": 360.51424212018975,
+          "first": 5.244759305055194,
+          "last": 7.094247429541916,
+          "unit": "m"
+        },
+        {
+          "path": "epochs[].n_visible",
+          "n": 361,
+          "min": 6.0,
+          "max": 10.0,
+          "first": 8.0,
+          "last": 8.0,
+          "unit": "count"
+        },
+        {
+          "path": "epochs[].t_s",
+          "n": 361,
+          "min": 0.0,
+          "max": 43200.0,
+          "first": 0.0,
+          "last": 43200.0,
+          "unit": "s"
+        },
+        {
+          "path": "epochs[].vpl_m",
+          "n": 361,
+          "min": 5.6759353819693095,
+          "max": 559.5631419214317,
+          "first": 21.635891784290592,
+          "last": 20.073643597368317,
+          "unit": "m"
+        },
+        {
+          "path": "stanford.points[].error_m",
+          "n": 361,
+          "min": 0.00005397710310772741,
+          "max": 7.007636673139073,
+          "first": 1.6187151397436568,
+          "last": 3.7477328190884838,
+          "unit": "m"
+        },
+        {
+          "path": "stanford.points[].pl_m",
+          "n": 361,
+          "min": 5.6759353819693095,
+          "max": 559.5631419214317,
+          "first": 21.635891784290592,
+          "last": 20.073643597368317,
+          "unit": "m"
+        }
+      ],
+      "omitted": 0
+    },
+    "charts": [
+      {
+        "id": "primary",
+        "title": "Result chart",
+        "file": "integrity-raim.chart.svg"
+      },
+      {
+        "id": "timeline",
+        "title": "Events timeline"
+      }
+    ]
+  },
+  "events": {
+    "items": [
+      {
+        "t_s": 0.0,
+        "t_end_s": 43200.0,
+        "label": "run span",
+        "source": "scenario `time.duration_s`"
+      }
+    ],
+    "omitted": 0
+  },
+  "capabilities": {
+    "statement": "Each row is a verification-matrix row this run's kinds exercise, with the label and the oracle the matrix gives it (src/verification.rs, docs/VERIFICATION-MATRIX.md). A label grades the capability as the matrix records it; it does not grade this scenario's configuration, and a VALIDATED row does not make the run's inputs measured. A PARTNER row is a discipline the run relies on that Kshana does not provide.",
+    "rows": [
+      {
+        "requirement": "Integrity (RAIM/ARAIM/SBAS)",
+        "capability": "Snapshot/MHSS RAIM, ARAIM P_HMI budget, SBAS DO-229E combination",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "DO-229E/DO-316 K-factors; real IGS SP3 geometry",
+        "tests": "tests/igs_real_data.rs, tests/araim_dual_real_data.rs (real IGS SP3 + Celestrak TLE)",
+        "module": "raim, sbas, lunar",
+        "used_by": [
+          "integrity"
+        ]
+      },
+      {
+        "requirement": "GNSS geometry / dilution of precision (DOP)",
+        "capability": "GDOP/PDOP/HDOP/VDOP/TDOP from line-of-sight geometry via Q=(HᵀH)⁻¹ with a local ENU split",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "gnss_lib_py 1.0.4 (Stanford NAV Lab) DOP — independent library, matched to 1e-6 relative",
+        "tests": "tests/dop_reference.rs (8 geometries, well-conditioned → near-singular)",
+        "module": "orbit (dop)",
+        "used_by": [
+          "integrity"
+        ]
+      },
+      {
+        "requirement": "RAIM/ARAIM integrity statistical kernel (χ² / non-central χ² / normal laws)",
+        "capability": "The distributional core every protection level rests on: the snapshot fault-detection threshold χ²₁₋ₚfₐ(dof), the missed-detection non-centrality pbias=√λ, and the K_fa/K_md/K_V solution-separation multipliers",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "SciPy 1.17.0 (scipy.stats.chi2/.norm/.ncx2 + optimize.brentq) — independent library (Cephes/Boost), a different algorithm from Kshana's incomplete-gamma series; matched to ≤1e-6 rel. Kernel only. The ARAIM MHSS P_HMI budget *allocation* is no longer without a published numeric oracle — the WG-C ARAIM Technical Subgroup's own worked example now backs the separate 'ARAIM MHSS protection levels against published reference vectors' row, matched at the reference's own TOL_PL = 5e-2 m — so this row's scope is the statistical kernel and that row carries the allocation (see docs/ARAIM_REFERENCE.md)",
+        "tests": "tests/raim_reference.rs (171 cases: χ² CDF/quantile, normal CDF/quantile, non-central χ² CDF, pbias across the P_fa/P_md/redundancy ranges)",
+        "module": "raim (chi2_cdf, chi2_quantile, noncentral_chi2_cdf, normal_cdf, normal_quantile, pbias)",
+        "used_by": [
+          "integrity"
+        ]
+      },
+      {
+        "requirement": "Reproducibility & software assurance",
+        "capability": "Deterministic, scenario-hashed, SBOM + cross-platform golden gates",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "SBOM conformance to the official CycloneDX 1.5 JSON Schema (+ valid SPDX identifiers) — an external published standard, zero validation errors over the full dependency graph; the FoM-determinism / byte-reproducibility part remains a pinned self-consistency check, so the row stays MODELLED",
+        "tests": "tests/golden.rs, tests/determinism.rs, tests/cross_platform_golden.rs; tests/reproducibility_software_assurance_reference.rs (the generated SBOM validates with zero errors against the official CycloneDX 1.5 JSON Schema over the full 66-component shipped graph: default + python + wasm features, dev-dependencies excluded)",
+        "module": "report, scenario; CI (golden/determinism/SBOM)",
+        "used_by": [
+          "every run"
+        ]
+      }
+    ],
+    "figure_tiers": []
+  },
+  "not_modelled": {
+    "items": [
+      {
+        "text": "Reproducibility & software assurance is MODELLED, not validated: a sub-claim is externally checked, but the whole capability composes modelled pieces, so the capability stays Modelled.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      }
+    ],
+    "omitted": 0
+  },
+  "companions": {
+    "animation": {
+      "available": true,
+      "embedded": true,
+      "files": [],
+      "command": "kshana integrity-raim.toml --animate html"
+    },
+    "exports": [
+      {
+        "format": "czml",
+        "applies": true,
+        "spec_url": "https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Structure",
+        "files": []
+      },
+      {
+        "format": "kml",
+        "applies": true,
+        "spec_url": "https://www.ogc.org/standard/kml/",
+        "files": []
+      },
+      {
+        "format": "geojson",
+        "applies": true,
+        "spec_url": "https://www.rfc-editor.org/rfc/rfc7946",
+        "files": []
+      },
+      {
+        "format": "stk",
+        "applies": true,
+        "spec_url": "https://help.agi.com/stk/#stk/importfiles-02.htm",
+        "files": []
+      },
+      {
+        "format": "sigmf",
+        "applies": false,
+        "reason": "SigMF holds complex baseband samples, which only the `spectrum` kind synthesises",
+        "spec_url": "https://github.com/sigmf/SigMF/blob/main/sigmf-spec.md",
+        "files": []
+      }
+    ],
+    "export_command": "kshana integrity-raim.toml --export all"
+  },
+  "reproducibility": {
+    "engine_version": "0.28.0",
+    "git_commit": null,
+    "git_commit_note": "not recorded: this engine was built without the KSHANA_GIT_COMMIT environment variable; the engine version identifies the release",
+    "scenario_file": "integrity-raim.toml",
+    "scenario_sha256": "0bf9f03f8cfb2062635165c37914e12006bf5e7e0abe12438bacb0490315b4a3",
+    "result_scenario_hash": null,
+    "result_sha256": "0a35cad31d468db07a9202a3e6ff912969b87aa47650d680df987e8940a67353",
+    "result_file": "integrity-raim.result.json",
+    "seed": 7,
+    "seed_source": "scenario `seed`",
+    "platform": {
+      "os": "macos",
+      "arch": "aarch64",
+      "family": "unix"
+    },
+    "command": "kshana integrity-raim.toml",
+    "argv": [
+      "kshana",
+      "integrity-raim.toml"
+    ],
+    "working_directory": "Run the command from the directory the original run was started in: the scenario path, and any relative data path inside the scenario, resolve against it. Check the scenario file against scenario_sha256 first.",
+    "input_files": [],
+    "determinism": "Same scenario bytes, seed and engine build give a byte-identical result document and report; this report carries no timestamp. Floating-point results are pinned per platform; another operating system or architecture may differ in the last digits."
+  }
+}

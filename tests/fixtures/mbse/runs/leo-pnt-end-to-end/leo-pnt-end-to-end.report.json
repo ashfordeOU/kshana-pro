@@ -1,0 +1,1480 @@
+{
+  "report_schema": "kshana-report",
+  "report_schema_version": "1.0",
+  "kind": "leo-pnt-chain",
+  "title": "LEO-PNT end to end, generic 1080 km constellation",
+  "executive_summary": {
+    "what_ran": "One LEO-PNT (positioning, navigation and timing from low Earth orbit) system end to end, for any constellation and signal: the leo-signal design named by signal_design (a public preset or an inline [signal] design) sets a [pass] band's centre, bandwidth, chip rate and EIRP split, the leo-pass link budget gives the tracked C/N0 and band-limited code jitter over the pass, a C/N0 line in sin(elevation) and the [navmsg] message's broadcast SISRE (fitted at the pass satellite's altitude) feed every LEO system of the [fusion] leo-pvt joint fix, and optionally the [ppp] leo-ppp cases; every hand-off is listed with its value and unit.",
+    "summary": "LEO-PNT end to end, generic 1080 km constellation\n  signal generic-l (https://www.itu.int/pub/R-REG-RR), tracked pilot at 10.230 Mchip/s, C/N0 offset -2.57 dB\n  pass LEO-1 1080 km: tracked C/N0 peak 58.2 dB-Hz, code jitter median 0.050 m; C/N0 line 35.6 + 24.3 sin(el) dB-Hz\n  message kepler-rac 300 s fit / 300 s update: representation SISRE 0.826 mm RMS (orbit 0.005 mm), with 0.250 m orbit determination: 0.250 m handed on\n  fused fix: GNSS only PDOP 1.47 RMS 3D 1.60 m -> GNSS + LEO PDOP 1.06 RMS 3D 0.43 m\n  PPP convergence: GNSS only 11.5 min, 240 LEO 7.5 min\n  11 values handed between stages. MODELLED.",
+    "label": "MODELLED — the chain hands each stage's output to the next; the stages keep their own labels (leo-signal, leo-pass, leo-navmsg, leo-pvt and leo-ppp rows of the verification matrix).",
+    "label_source": "result `label`",
+    "key_figures": [
+      {
+        "path": "fusion.fraction_epochs_with_leo",
+        "value": 1.0,
+        "display": "1",
+        "unit": "1"
+      },
+      {
+        "path": "fusion.fused.availability",
+        "value": 1.0,
+        "display": "1",
+        "unit": "1"
+      },
+      {
+        "path": "fusion.fused.median_pdop",
+        "value": 1.0647776660776234,
+        "display": "1.064778",
+        "unit": "1"
+      },
+      {
+        "path": "fusion.fused.median_sigma_3d_m",
+        "value": 0.4337901222395106,
+        "display": "0.43379",
+        "unit": "m"
+      },
+      {
+        "path": "fusion.fused.rms_error_3d_m",
+        "value": 0.4348878376732138,
+        "display": "0.434888",
+        "unit": "m"
+      },
+      {
+        "path": "fusion.gnss.availability",
+        "value": 1.0,
+        "display": "1",
+        "unit": "1"
+      }
+    ],
+    "capability_labels": {
+      "validated": 6,
+      "modelled": 8,
+      "partner": 0
+    }
+  },
+  "inputs": {
+    "items": [
+      {
+        "path": "fusion.duration_s",
+        "value": 1800.0,
+        "display": "1800",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "fusion.joint.max_leo_sweep",
+        "value": 8,
+        "display": "8",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "fusion.mode",
+        "value": "joint",
+        "display": "joint",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "fusion.step_s",
+        "value": 30.0,
+        "display": "30",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "fusion.system[0].cn0_dbhz",
+        "value": [
+          38.0,
+          48.0
+        ],
+        "display": "[38, 48]",
+        "unit": "dB-Hz",
+        "unit_source": "field-units schema: input entry `fusion.systems[].cn0_dbhz[]`, matched by field name"
+      },
+      {
+        "path": "fusion.system[0].name",
+        "value": "GPS",
+        "display": "GPS",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "fusion.system[0].preset",
+        "value": "gps-baseline",
+        "display": "gps-baseline",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "fusion.system[0].sisre_m",
+        "value": 0.6,
+        "display": "0.6",
+        "unit": "m",
+        "unit_source": "field-units schema: input entry `fusion.systems[].sisre_m`, matched by field name"
+      },
+      {
+        "path": "fusion.system[1].cn0_dbhz",
+        "value": [
+          38.0,
+          48.0
+        ],
+        "display": "[38, 48]",
+        "unit": "dB-Hz",
+        "unit_source": "field-units schema: input entry `fusion.systems[].cn0_dbhz[]`, matched by field name"
+      },
+      {
+        "path": "fusion.system[1].isb_ns",
+        "value": 12.0,
+        "display": "12",
+        "unit": "ns",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "fusion.system[1].name",
+        "value": "Galileo",
+        "display": "Galileo",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "fusion.system[1].preset",
+        "value": "galileo",
+        "display": "galileo",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "fusion.system[1].sisre_m",
+        "value": 0.3,
+        "display": "0.3",
+        "unit": "m",
+        "unit_source": "field-units schema: input entry `fusion.systems[].sisre_m`, matched by field name"
+      },
+      {
+        "path": "fusion.system[2].isb_ns",
+        "value": 25.0,
+        "display": "25",
+        "unit": "ns",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "fusion.system[2].name",
+        "value": "Generic LEO",
+        "display": "Generic LEO",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "fusion.system[2].role",
+        "value": "leo",
+        "display": "leo",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "fusion.system[2].shell[0].altitude_km",
+        "value": 1080.0,
+        "display": "1080",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "fusion.system[2].shell[0].inclination_deg",
+        "value": 53.0,
+        "display": "53",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "fusion.system[2].shell[0].phasing",
+        "value": 1,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "fusion.system[2].shell[0].planes",
+        "value": 12,
+        "display": "12",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "fusion.system[2].shell[0].total",
+        "value": 240,
+        "display": "240",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "fusion.user.height_m",
+        "value": 650.0,
+        "display": "650",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "fusion.user.lat_deg",
+        "value": 40.42,
+        "display": "40.42",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "fusion.user.lon_deg",
+        "value": -3.7,
+        "display": "-3.7",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "kind",
+        "value": "leo-pnt-chain",
+        "display": "leo-pnt-chain",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "name",
+        "value": "LEO-PNT end to end, generic 1080 km constellation",
+        "display": "LEO-PNT end to end, generic 1080 km constellation",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "navmsg.message.fit_interval_s",
+        "value": 300.0,
+        "display": "300",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `navmsg.fit_interval_s`, matched by field name"
+      },
+      {
+        "path": "navmsg.message.model",
+        "value": "kepler-rac",
+        "display": "kepler-rac",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "navmsg.trade.span_s",
+        "value": 1200.0,
+        "display": "1200",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "od_sisre_m",
+        "value": 0.25,
+        "display": "0.25",
+        "unit": "m",
+        "unit_source": "field-units schema: input entry `navmsg.od_sisre_m`, matched by field name"
+      },
+      {
+        "path": "pass.duration_s",
+        "value": 1200.0,
+        "display": "1200",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "pass.epoch",
+        "value": "2026-09-28T08:00:00",
+        "display": "2026-09-28T08:00:00",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "pass.gnss.band",
+        "value": "L1",
+        "display": "L1",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "pass.gnss.constellation",
+        "value": "gps-baseline",
+        "display": "gps-baseline",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "pass.satellite[0].altitude_km",
+        "value": 1080.0,
+        "display": "1080",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "pass.satellite[0].band[0].eirp_dbw",
+        "value": 10.0,
+        "display": "10",
+        "unit": "dBW",
+        "unit_source": "field-units schema: input entry `pass.eirp_dbw`, matched by field name"
+      },
+      {
+        "path": "pass.satellite[0].band[0].name",
+        "value": "L",
+        "display": "L",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "pass.satellite[0].band[0].signal",
+        "value": "generic-l",
+        "display": "generic-l",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "pass.satellite[0].bands",
+        "value": [
+          "L"
+        ],
+        "display": "[L]",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "pass.satellite[0].id",
+        "value": "LEO-1",
+        "display": "LEO-1",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "pass.satellite[0].inclination_deg",
+        "value": 53.0,
+        "display": "53",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "pass.satellite[0].max_elevation_deg",
+        "value": 75.0,
+        "display": "75",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "pass.satellite[0].orbit",
+        "value": "pass",
+        "display": "pass",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "pass.satellite[0].system",
+        "value": "generic-leo",
+        "display": "generic-leo",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "pass.satellite[0].tca_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "pass.step_s",
+        "value": 5.0,
+        "display": "5",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "pass.user.environment",
+        "value": "ground",
+        "display": "ground",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "pass.user.height_m",
+        "value": 650.0,
+        "display": "650",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "pass.user.lat_deg",
+        "value": 40.42,
+        "display": "40.42",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "pass.user.lon_deg",
+        "value": -3.7,
+        "display": "-3.7",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "pass.user.mask_deg",
+        "value": 10.0,
+        "display": "10",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "ppp.case[0].name",
+        "value": "240 LEO",
+        "display": "240 LEO",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "ppp.case[0].system[0].mask_deg",
+        "value": 7.0,
+        "display": "7",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "ppp.case[0].system[0].name",
+        "value": "Generic LEO",
+        "display": "Generic LEO",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "ppp.case[0].system[0].shell[0].altitude_km",
+        "value": 1080.0,
+        "display": "1080",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "ppp.case[0].system[0].shell[0].inclination_deg",
+        "value": 53.0,
+        "display": "53",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "ppp.case[0].system[0].shell[0].phasing",
+        "value": 1,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "ppp.case[0].system[0].shell[0].planes",
+        "value": 12,
+        "display": "12",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "ppp.case[0].system[0].shell[0].total",
+        "value": 240,
+        "display": "240",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "ppp.duration_s",
+        "value": 1800.0,
+        "display": "1800",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "ppp.gnss[0].mask_deg",
+        "value": 7.0,
+        "display": "7",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "ppp.gnss[0].name",
+        "value": "GPS",
+        "display": "GPS",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "ppp.gnss[0].preset",
+        "value": "gps-baseline",
+        "display": "gps-baseline",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "ppp.gnss[1].mask_deg",
+        "value": 7.0,
+        "display": "7",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "ppp.gnss[1].name",
+        "value": "Galileo",
+        "display": "Galileo",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "ppp.gnss[1].preset",
+        "value": "galileo",
+        "display": "galileo",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "ppp.runs",
+        "value": 2,
+        "display": "2",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "ppp.site[0].lat_deg",
+        "value": 40.42,
+        "display": "40.42",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "ppp.site[0].lon_deg",
+        "value": -3.7,
+        "display": "-3.7",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "ppp.step_s",
+        "value": 10.0,
+        "display": "10",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "seed",
+        "value": 5,
+        "display": "5",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "signal.presets",
+        "value": [
+          "generic-bands"
+        ],
+        "display": "[generic-bands]",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "signal_design",
+        "value": "generic-l",
+        "display": "generic-l",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      }
+    ],
+    "omitted": 0
+  },
+  "results": {
+    "scalars": {
+      "items": [
+        {
+          "path": "fusion.fraction_epochs_with_leo",
+          "value": 1.0,
+          "display": "1",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `fusion.fraction_epochs_with_leo`"
+        },
+        {
+          "path": "fusion.fused.availability",
+          "value": 1.0,
+          "display": "1",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `fusion.fused.availability`"
+        },
+        {
+          "path": "fusion.fused.median_pdop",
+          "value": 1.0647776660776234,
+          "display": "1.064778",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `fusion.fused.median_pdop`"
+        },
+        {
+          "path": "fusion.fused.median_sigma_3d_m",
+          "value": 0.4337901222395106,
+          "display": "0.43379",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `fusion.fused.median_sigma_3d_m`"
+        },
+        {
+          "path": "fusion.fused.rms_error_3d_m",
+          "value": 0.4348878376732138,
+          "display": "0.434888",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `fusion.fused.rms_error_3d_m`"
+        },
+        {
+          "path": "fusion.gnss.availability",
+          "value": 1.0,
+          "display": "1",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `fusion.gnss.availability`"
+        },
+        {
+          "path": "fusion.gnss.median_pdop",
+          "value": 1.4745298562385387,
+          "display": "1.47453",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `fusion.gnss.median_pdop`"
+        },
+        {
+          "path": "fusion.gnss.median_sigma_3d_m",
+          "value": 1.575654530362884,
+          "display": "1.575655",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `fusion.gnss.median_sigma_3d_m`"
+        },
+        {
+          "path": "fusion.gnss.rms_error_3d_m",
+          "value": 1.6021599959614203,
+          "display": "1.60216",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `fusion.gnss.rms_error_3d_m`"
+        },
+        {
+          "path": "fusion.leo.availability",
+          "value": 1.0,
+          "display": "1",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `fusion.leo.availability`"
+        },
+        {
+          "path": "fusion.leo.median_pdop",
+          "value": 1.7098431909065872,
+          "display": "1.709843",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `fusion.leo.median_pdop`"
+        },
+        {
+          "path": "fusion.leo.median_sigma_3d_m",
+          "value": 0.45081428084385533,
+          "display": "0.450814",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `fusion.leo.median_sigma_3d_m`"
+        },
+        {
+          "path": "fusion.leo.rms_error_3d_m",
+          "value": 0.4841306707193868,
+          "display": "0.484131",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `fusion.leo.rms_error_3d_m`"
+        },
+        {
+          "path": "fusion.leo_cn0_mask_dbhz",
+          "value": 39.80503238850088,
+          "display": "39.805032",
+          "unit": "dB-Hz",
+          "unit_source": "field-units schema: units entry `fusion.leo_cn0_mask_dbhz`"
+        },
+        {
+          "path": "fusion.leo_cn0_zenith_dbhz",
+          "value": 59.91191931509621,
+          "display": "59.911919",
+          "unit": "dB-Hz",
+          "unit_source": "field-units schema: units entry `fusion.leo_cn0_zenith_dbhz`"
+        },
+        {
+          "path": "fusion.leo_systems_fed",
+          "value": 1,
+          "display": "1",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `fusion.leo_systems_fed`"
+        },
+        {
+          "path": "name",
+          "value": "LEO-PNT end to end, generic 1080 km constellation",
+          "display": "LEO-PNT end to end, generic 1080 km constellation",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "navmsg.altitude_km",
+          "value": 1079.999999999999,
+          "display": "1080",
+          "unit": "km",
+          "unit_source": "field-units schema: units entry `navmsg.altitude_km`"
+        },
+        {
+          "path": "navmsg.fit_interval_s",
+          "value": 300.0,
+          "display": "300",
+          "unit": "s",
+          "unit_source": "field-units schema: units entry `navmsg.fit_interval_s`"
+        },
+        {
+          "path": "navmsg.model",
+          "value": "kepler-rac",
+          "display": "kepler-rac",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "navmsg.od_sisre_m",
+          "value": 0.25,
+          "display": "0.25",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `navmsg.od_sisre_m`"
+        },
+        {
+          "path": "navmsg.representation_sisre_rms_m",
+          "value": 0.0008264869178219137,
+          "display": "8.2649e-4",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `navmsg.representation_sisre_rms_m`"
+        },
+        {
+          "path": "navmsg.sisre_max_m",
+          "value": 0.0027565120742442354,
+          "display": "0.002757",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `navmsg.sisre_max_m`"
+        },
+        {
+          "path": "navmsg.sisre_orbit_rms_m",
+          "value": 5.263446411738822e-6,
+          "display": "5.2634e-6",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `navmsg.sisre_orbit_rms_m`"
+        },
+        {
+          "path": "navmsg.sisre_rms_m",
+          "value": 0.2500013661575179,
+          "display": "0.250001",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `navmsg.sisre_rms_m`"
+        },
+        {
+          "path": "navmsg.update_period_s",
+          "value": 300.0,
+          "display": "300",
+          "unit": "s",
+          "unit_source": "field-units schema: units entry `navmsg.update_period_s`"
+        },
+        {
+          "path": "navmsg.zero_clock",
+          "value": false,
+          "display": "false",
+          "unit": "flag",
+          "unit_source": "a true/false result carries no unit"
+        },
+        {
+          "path": "pass.altitude_km",
+          "value": 1079.999999999999,
+          "display": "1080",
+          "unit": "km",
+          "unit_source": "field-units schema: units entry `pass.altitude_km`"
+        },
+        {
+          "path": "pass.band",
+          "value": "L",
+          "display": "L",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "pass.cn0_fit_intercept_dbhz",
+          "value": 35.57980509548111,
+          "display": "35.579805",
+          "unit": "dB-Hz",
+          "unit_source": "field-units schema: units entry `pass.cn0_fit_intercept_dbhz`"
+        },
+        {
+          "path": "pass.cn0_fit_points",
+          "value": 169,
+          "display": "169",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `pass.cn0_fit_points`"
+        },
+        {
+          "path": "pass.cn0_fit_slope_dbhz",
+          "value": 24.332114219615097,
+          "display": "24.332114",
+          "unit": "dB-Hz",
+          "unit_source": "field-units schema: units entry `pass.cn0_fit_slope_dbhz`"
+        },
+        {
+          "path": "pass.duration_above_mask_s",
+          "value": 845.0,
+          "display": "845",
+          "unit": "s",
+          "unit_source": "field-units schema: units entry `pass.duration_above_mask_s`"
+        },
+        {
+          "path": "pass.eirp_dbw",
+          "value": 10.0,
+          "display": "10",
+          "unit": "dBW",
+          "unit_source": "field-units schema: units entry `pass.eirp_dbw`"
+        },
+        {
+          "path": "pass.inclination_deg",
+          "value": 53.028785284918264,
+          "display": "53.028785",
+          "unit": "deg",
+          "unit_source": "field-units schema: units entry `pass.inclination_deg`"
+        },
+        {
+          "path": "pass.max_code_jitter_m",
+          "value": 0.18210881564824805,
+          "display": "0.182109",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `pass.max_code_jitter_m`"
+        },
+        {
+          "path": "pass.max_elevation_deg",
+          "value": 74.99999999999994,
+          "display": "75",
+          "unit": "deg",
+          "unit_source": "field-units schema: units entry `pass.max_elevation_deg`"
+        },
+        {
+          "path": "pass.median_code_jitter_m",
+          "value": 0.050037952065353025,
+          "display": "0.050038",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `pass.median_code_jitter_m`"
+        },
+        {
+          "path": "pass.min_code_jitter_m",
+          "value": 0.018058085279641287,
+          "display": "0.018058",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `pass.min_code_jitter_m`"
+        },
+        {
+          "path": "pass.peak_cn0_dbhz",
+          "value": 60.73416051021579,
+          "display": "60.734161",
+          "unit": "dB-Hz",
+          "unit_source": "field-units schema: units entry `pass.peak_cn0_dbhz`"
+        },
+        {
+          "path": "pass.peak_tracked_cn0_dbhz",
+          "value": 58.167832804124984,
+          "display": "58.167833",
+          "unit": "dB-Hz",
+          "unit_source": "field-units schema: units entry `pass.peak_tracked_cn0_dbhz`"
+        },
+        {
+          "path": "pass.satellite",
+          "value": "LEO-1",
+          "display": "LEO-1",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "ppp.criterion_horizontal_m",
+          "value": 0.1,
+          "display": "0.1",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `ppp.criterion_horizontal_m`"
+        },
+        {
+          "path": "ppp.runs_per_case",
+          "value": 2,
+          "display": "2",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `ppp.runs_per_case`"
+        },
+        {
+          "path": "signal.centre_hz",
+          "value": 1191795000.0,
+          "display": "1191795000",
+          "unit": "Hz",
+          "unit_source": "field-units schema: units entry `signal.centre_hz`"
+        },
+        {
+          "path": "signal.chip_rate_hz",
+          "value": 10230000.0,
+          "display": "10230000",
+          "unit": "chip/s",
+          "unit_source": "field-units schema: units entry `signal.chip_rate_hz`"
+        },
+        {
+          "path": "signal.design",
+          "value": "generic-l",
+          "display": "generic-l",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "signal.in_band_fraction",
+          "value": 0.9028233335801484,
+          "display": "0.902823",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `signal.in_band_fraction`"
+        },
+        {
+          "path": "signal.source",
+          "value": "https://www.itu.int/pub/R-REG-RR",
+          "display": "https://www.itu.int/pub/R-REG-RR",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "signal.tracked_cn0_offset_db",
+          "value": -2.5663277060908056,
+          "display": "-2.566328",
+          "unit": "dB",
+          "unit_source": "field-units schema: units entry `signal.tracked_cn0_offset_db`"
+        },
+        {
+          "path": "signal.tracked_component",
+          "value": "pilot",
+          "display": "pilot",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "signal.tracked_share",
+          "value": 0.5,
+          "display": "0.5",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `signal.tracked_share`"
+        },
+        {
+          "path": "signal.tx_bandwidth_hz",
+          "value": 20460000.0,
+          "display": "20460000",
+          "unit": "Hz",
+          "unit_source": "field-units schema: units entry `signal.tx_bandwidth_hz`"
+        }
+      ],
+      "omitted": 0
+    },
+    "series": {
+      "items": [
+        {
+          "path": "fusion.epochs.error_fused_m[]",
+          "n": 61,
+          "min": 0.023076030765789967,
+          "max": 1.0822477858810202,
+          "first": 0.6186726102889143,
+          "last": 0.40885972387478015,
+          "unit": "m"
+        },
+        {
+          "path": "fusion.epochs.error_gnss_m[]",
+          "n": 61,
+          "min": 0.2191728034717115,
+          "max": 3.130694770675141,
+          "first": 0.925916210383862,
+          "last": 1.576214646324057,
+          "unit": "m"
+        },
+        {
+          "path": "fusion.epochs.pdop_fused[]",
+          "n": 61,
+          "min": 0.9236678736863625,
+          "max": 1.2914702259944117,
+          "first": 1.0681652949053035,
+          "last": 1.044829153521897,
+          "unit": "1"
+        },
+        {
+          "path": "fusion.epochs.pdop_gnss[]",
+          "n": 61,
+          "min": 1.4075432320985513,
+          "max": 1.666763159310345,
+          "first": 1.414124175560965,
+          "last": 1.4738657502119064,
+          "unit": "1"
+        },
+        {
+          "path": "fusion.epochs.t_s[]",
+          "n": 61,
+          "min": 0.0,
+          "max": 1800.0,
+          "first": 0.0,
+          "last": 1800.0,
+          "unit": "s"
+        },
+        {
+          "path": "fusion.systems[].cn0_dbhz[]",
+          "n": 6,
+          "min": 38.0,
+          "max": 59.91191931509621,
+          "first": 38.0,
+          "last": 59.91191931509621,
+          "unit": "dB-Hz"
+        },
+        {
+          "path": "fusion.systems[].n_satellites",
+          "n": 3,
+          "min": 24.0,
+          "max": 240.0,
+          "first": 24.0,
+          "last": 240.0,
+          "unit": "count"
+        },
+        {
+          "path": "fusion.systems[].sigma_pr_30deg_m",
+          "n": 3,
+          "min": 0.2571235831927786,
+          "max": 1.251219579343576,
+          "first": 1.251219579343576,
+          "last": 0.2571235831927786,
+          "unit": "m"
+        },
+        {
+          "path": "fusion.systems[].sisre_m",
+          "n": 3,
+          "min": 0.2500013661575179,
+          "max": 0.6,
+          "first": 0.6,
+          "last": 0.2500013661575179,
+          "unit": "m"
+        },
+        {
+          "path": "handoffs[].value",
+          "n": 11,
+          "min": 0.2500013661575179,
+          "max": 1191795000.0,
+          "first": 0.5,
+          "last": 0.2500013661575179,
+          "unit": "varies"
+        },
+        {
+          "path": "ppp.cases[].fraction_converged",
+          "n": 2,
+          "min": 1.0,
+          "max": 1.0,
+          "first": 1.0,
+          "last": 1.0,
+          "unit": "1"
+        },
+        {
+          "path": "ppp.cases[].median_convergence_min",
+          "n": 2,
+          "min": 7.5,
+          "max": 11.5,
+          "first": 11.5,
+          "last": 7.5,
+          "unit": "min"
+        },
+        {
+          "path": "ppp.cases[].n_leo",
+          "n": 2,
+          "min": 0.0,
+          "max": 240.0,
+          "first": 0.0,
+          "last": 240.0,
+          "unit": "count"
+        },
+        {
+          "path": "ppp.cases[].nees_mean",
+          "n": 2,
+          "min": 1.4664209211943866,
+          "max": 2.0496035527536813,
+          "first": 2.0496035527536813,
+          "last": 1.4664209211943866,
+          "unit": "1"
+        },
+        {
+          "path": "series.cn0_dbhz[]",
+          "n": 169,
+          "min": 40.66097510476226,
+          "max": 60.73416051021579,
+          "first": 40.66097510476226,
+          "last": 40.66219374573967,
+          "unit": "dB-Hz"
+        },
+        {
+          "path": "series.code_jitter_m[]",
+          "n": 169,
+          "min": 0.018058085279641287,
+          "max": 0.18210881564824805,
+          "first": 0.18210881564824805,
+          "last": 0.18208326735016017,
+          "unit": "m"
+        },
+        {
+          "path": "series.doppler_hz[]",
+          "n": 169,
+          "min": -23288.180603494406,
+          "max": 23291.26613545341,
+          "first": 23291.26613545341,
+          "last": -23288.180603494406,
+          "unit": "Hz"
+        },
+        {
+          "path": "series.elevation_deg[]",
+          "n": 169,
+          "min": 10.00682087872741,
+          "max": 74.99693797212123,
+          "first": 10.00682087872741,
+          "last": 10.094460788284493,
+          "unit": "deg"
+        },
+        {
+          "path": "series.t_s[]",
+          "n": 169,
+          "min": 135.0,
+          "max": 975.0,
+          "first": 135.0,
+          "last": 975.0,
+          "unit": "s"
+        },
+        {
+          "path": "series.tracked_cn0_dbhz[]",
+          "n": 169,
+          "min": 38.094647398671455,
+          "max": 58.167832804124984,
+          "first": 38.094647398671455,
+          "last": 38.09586603964887,
+          "unit": "dB-Hz"
+        }
+      ],
+      "omitted": 0
+    },
+    "charts": [
+      {
+        "id": "primary",
+        "title": "Result chart",
+        "file": "leo-pnt-end-to-end.chart.svg"
+      }
+    ]
+  },
+  "events": {
+    "items": [],
+    "omitted": 0,
+    "statement": "No timed event: the scenario scripts no window or onset time and the result reports no event. The kind evaluates its configuration as one case."
+  },
+  "capabilities": {
+    "statement": "Each row is a verification-matrix row this run's kinds exercise, with the label and the oracle the matrix gives it (src/verification.rs, docs/VERIFICATION-MATRIX.md). A label grades the capability as the matrix records it; it does not grade this scenario's configuration, and a VALIDATED row does not make the run's inputs measured. A PARTNER row is a discipline the run relies on that Kshana does not provide.",
+    "rows": [
+      {
+        "requirement": "Reproducibility & software assurance",
+        "capability": "Deterministic, scenario-hashed, SBOM + cross-platform golden gates",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "SBOM conformance to the official CycloneDX 1.5 JSON Schema (+ valid SPDX identifiers) — an external published standard, zero validation errors over the full dependency graph; the FoM-determinism / byte-reproducibility part remains a pinned self-consistency check, so the row stays MODELLED",
+        "tests": "tests/golden.rs, tests/determinism.rs, tests/cross_platform_golden.rs; tests/reproducibility_software_assurance_reference.rs (the generated SBOM validates with zero errors against the official CycloneDX 1.5 JSON Schema over the full 66-component shipped graph: default + python + wasm features, dev-dependencies excluded)",
+        "module": "report, scenario; CI (golden/determinism/SBOM)",
+        "used_by": [
+          "every run"
+        ]
+      },
+      {
+        "requirement": "Band-limited closed forms for any ranging signal: power in band and early-late code-tracking jitter against published values, with the Gabor bandwidth and offset spectral separation cross-checked",
+        "capability": "navsignal: the sine integral (sine_integral), the BPSK-R fraction of power inside a double-sided band in closed form (bpsk_power_in_band_closed_form), the band-limited BPSK Gabor bandwidth in closed form (bpsk_gabor_bandwidth_closed_form_hz), the band-limited coherent and non-coherent early-late delay-lock-loop jitter for any unit-area spectrum after Betz & Kolodziejski 2009 (dll_jitter_bandlimited_s) and its vanishing-spacing Gabor bound (dll_jitter_small_spacing_limit_s), the offset BPSK spectral separation coefficient in closed form (bpsk_offset_ssc_closed_form), the Galileo E5 AltBOC(15,10) spectrum (altboc_15_10_psd) and a modulation-label parser (parse_modulation); used by the `leo-signal` kind for every signal design",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "Externally pinned: 90.3 per cent main-lobe power, the coherent early-late jitter at the stated operating point, the sine-integral table values, and the BPSK self spectral separation coefficient 2/(3 R_c) at zero offset. Internal cross-checks only, not external validation: the band-limited BPSK Gabor-bandwidth closed form and its asymptote, and the offset BPSK spectral separation coefficient at non-zero offsets, both derived here and checked against quadrature. Published closed forms: the BPSK-R sinc-squared spectrum and its 90 per cent main-lobe power (Kaplan & Hegarty, Understanding GPS/GNSS, 3rd ed.); the coherent early-late code-tracking jitter sigma^2 = B_L d / (2 C/N0) chips^2 (Kaplan & Hegarty, section 8) and the band-limited generalisation with its Gabor-bandwidth limit (Betz & Kolodziejski, Generalized Theory of Code Tracking with an Early-Late Discriminator, Part I, IEEE Transactions on Aerospace and Electronic Systems 45(4), 2009); the sine-integral tables of Abramowitz & Stegun (Table 5.1); the spectral separation coefficient as the Fourier transform of the squared autocorrelation (Betz 2001). The AltBOC spectrum is checked for unit area and lobe position only (the Galileo Open Service Signal-in-Space Interface Control Document expression integrates to 8 and is divided by it).",
+        "tests": "navsignal::band_limited_tests (sine_integral_matches_tables_and_its_limit — Si(1), Si(pi), Si(2 pi) to 1e-12; bpsk_power_in_band_closed_form_matches_textbook_and_numeric — 0.9028 of the power in the main lobe for BPSK(1/3), BPSK(1), BPSK(5), BPSK(10), and the closed form equal to quadrature to 1e-7 in 10, 15, 20 and 51.15 MHz; bpsk_gabor_closed_form_matches_numeric_and_asymptote — to 1e-4, and the sqrt(B R_c / (2 pi^2)) asymptote; bandlimited_dll_reduces_to_the_textbook_forms — coherent early-late BPSK(1) at 45 dB-Hz, B_L 1 Hz, d 1 chip, T 20 ms: 0.0039564 chips (1.159 m) within 1 %, the non-coherent form equal to navsignal::dll_code_jitter_chips within 1 %, the vanishing-spacing limit equal to its closed form to 1e-5; offset_bpsk_ssc_matches_parseval_closed_form — offsets 0 to 3.2 R_c within 0.01 dB and -71.86 dB/Hz at zero offset for BPSK(10); altboc_psd_is_unit_area_with_lobes_at_e5a_and_e5b; modulation_labels_round_trip)",
+        "module": "navsignal (sine_integral, bpsk_power_in_band_closed_form, bpsk_gabor_bandwidth_closed_form_hz, dll_jitter_bandlimited_s, dll_jitter_small_spacing_limit_s, bpsk_offset_ssc_closed_form, altboc_15_10_psd, parse_modulation)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "Low Earth orbit positioning, navigation and timing signal designs: code tracking, acquisition, GNSS compatibility and a band trade for any system",
+        "capability": "The `leo-signal` kind: parameterised signal designs (band, transmit bandwidth, ITU allocation; acquisition, data and pilot components with BPSK(n), BOC(m,n), MBOC or flat spectra, power shares, FDMA sub-carriers, code lengths and data rates) from compiled-in public preset files (Xona Pulsar, Iridium STL, Starlink signal of opportunity, CentiSpace, a generic C-band design and generic UHF/L/S/C/wide-C designs, each with its source URL and unpublished values labelled REPRESENTATIVE) or written inline; per signal the band-limited power spectral density, in-band power fractions, Gabor bandwidth, code jitter against C/N0 and spacing and the ranging accuracy, the acquisition search space, square-law detection probability and mean serial and code-parallel acquisition time, the spectral separation coefficient into and from GPS L1 C/A, Galileo E1, GPS L5, Galileo E5a, E5b and AltBOC with the C/N0 degradation, and the CW, wideband and matched J/S tolerance from the spectrum kind's SSC chain; a band trade of ionospheric delay, free-space loss, ranging accuracy at equal C/N0 and equal EIRP and jammer tolerance; and qualitative shape checks of a design against a described measurement",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "InternalConsistency",
+        "oracle": "The validated closed forms of the two rows above, the square-law false-alarm identity P_d(snr = 0) = P_fa and Holmes's mean acquisition time, and reduction to the spectrum kind's own SSC chain (the same Jammer::ssc code). The designs themselves are inputs: presets marked REPRESENTATIVE or WORKSHOP are not published specifications, enhanced Feher QPSK, code shift keying and OFDM spectra are approximated, and the shape checks compare shapes, not calibrated levels.",
+        "tests": "leo_signal::tests (every_public_preset_parses_and_cites_a_url; detector_reduces_to_pfa_and_grows_with_snr; detection_probability_with_several_looks_matches_the_noncentral_chi_square; mean_time_of_a_perfect_detector_is_half_the_cells; compatibility_ssc_magnitudes_match_independent_quadrature; to_spectrum_band_is_consistent_with_the_design; jammer_tolerance_orders_cw_matched_wideband; e5_centred_signal_hits_e5a_and_e5b_equally; defaults_run_on_the_generic_band_preset; inline_signal_and_bad_inputs); tests/leo_signal_reference.rs (every bundled system-agnostic scenario runs with no workshop data, the band trade's ionospheric ratios equal (f_ref/f)^2 and its free-space differences 20 log10(f/f_ref), the jitter at the reference C/N0 sits between its Gabor bound and its unlimited-band form, the workshop-parameter scenario's E5 shape checks are consistent when that file is present, and no source file compiles that file in)",
+        "module": "leo_signal (LeoSignalScenario, SignalDesign, Component, Shape, code_jitter_m, gabor_bandwidth_hz, detection_probability, threshold_for_pfa, mean_acquisition_time_s, ssc_leo_into_gnss, ssc_gnss_into_leo, jammer_tolerance, gnss_victim, preset, public_signal)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "Tropospheric amplitude scintillation on an Earth-space link",
+        "capability": "ITU-R P.618-14 section 2.4.1 steps 3 to 9 (reference sigma from N_wet, effective path length, antenna averaging factor, fade depth for 0.01 % to 50 % of the time), with N_wet an input or computed from temperature, humidity and pressure by the ITU-R P.453-14 expressions; below 4 GHz the `leo-pass` kind flags the value as an extrapolation",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "ITU-R Study Group 3 validation examples (CG-3M3J-13-ValEx-Rev8.3.0) for P.618-14 scintillation, with each site's P.453-14 N_wet from the same examples; committed in tests/fixtures/leo_link/p618_14_scintillation.csv with the URLs and retrieval date. The wet-refractivity expression from temperature and humidity is not covered by this row",
+        "tests": "tests/leo_link_reference.rs (p618_scintillation_matches_the_itu_validation_examples: 42 cases at seven sites, 14.25 and 20 GHz, within 1e-5 dB; observed 5e-7 dB)",
+        "module": "leo_link::itu (p618_scintillation_db, wet_refractivity, ScintillationPath)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "First-order ionospheric delay per band, the ionosphere-free combination and free-space loss",
+        "capability": "Group delay 40.3 STEC/f^2 per band; the ionosphere-free coefficients f1^2/(f1^2 - f2^2) and -f2^2/(f1^2 - f2^2) and the noise amplification sqrt(a1^2 s1^2 + a2^2 s2^2) for any band pair; the free-space loss 20 log10(4 pi R f/c) of linkbudget::free_space_loss_db in its kilometre-megahertz form",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "IS-GPS-200 section 20.3.3.3.3.2, which states the L1/L2 group-delay ratio gamma = (77/60)^2 that follows from first-order 1/f^2 scaling, and the Friis transmission formula (Proc. IRE, 1946). Validates the scaling laws, not a slant TEC",
+        "tests": "tests/leo_link_reference.rs (first_order_iono_reproduces_the_is_gps_200_group_delay_ratio: gamma = (77/60)^2 to 1e-12, L1/L2 and L1/L5 amplification 2.978 and 2.588; free_space_loss_is_the_friis_kilometre_megahertz_form: 32.4478 + 20 log d + 20 log f to 1e-4 dB); leo_link::iono::tests (delay_scales_as_one_over_f_squared; iono_free_combination_removes_the_first_order_delay)",
+        "module": "leo_link::iono (group_delay_m, iono_free_coefficients, iono_free_noise_amplification); leo_link (fspl_db); linkbudget (free_space_loss_db)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "Maximum Doppler a static user sees from a LEO or MEO orbit",
+        "capability": "leo_link::geometry::max_static_user_range_rate: a search over every orbit position and every user on the satellite's horizon of a circular orbit, with the Earth turning, for the largest range rate, plus the orbital and largest Earth-fixed satellite speeds; reported per band as the Doppler envelope by the `leo-pass` kind and used as the cold-start search window of its low-energy model",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "Leclere, Marathe and Reid, Insights into Xona Pulsar LEO PNT: Constellation, Signals, and Receiver Design, ION GNSS+ 2025, arXiv 2509.19551, Table 1 (static receiver on a 6371 km sphere, Earth rotation the only other effect): 37751.7 / 33628.5 / 31813.4 / 4018.4 Hz on L1. Covers circular two-body orbits",
+        "tests": "tests/leo_link_reference.rs (doppler_envelope_reproduces_the_pulsar_paper_table_1: Pulsar IOV 520 km 97 deg, Pulsar FOC polar 1080 km 97 deg, Pulsar FOC inclined 1080 km 53 deg and GPS 20180 km 55 deg; orbital speed, maximum ECEF speed, maximum relative speed and maximum L1- and L5-band carrier Doppler, 20 values, each within 0.05 %)",
+        "module": "leo_link::geometry (max_static_user_range_rate, DopplerEnvelope, doppler_hz)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "A LEO-PNT pass and its per-band link budget against the MEO GNSS satellites in view",
+        "capability": "The `leo-pass` kind: satellites from a designed pass, elements, a TLE through SGP4 or a Walker constellation from constellation-design; per band and epoch the look angles, range, closed-form range rate and range acceleration (checked each run against central differences and reported), free-space loss, EIRP with an isoflux, Gaussian or flat pattern, a patch, hemispherical or isotropic user antenna, ITU-R P.676-10 Annex 2 gaseous attenuation, P.618 rain and scintillation, P.2109 building entry loss, polarisation mismatch, system noise temperature, C/N0, Doppler and Doppler rate, and the first-order delay from a Klobuchar or vertical-TEC slant TEC scaled by the Chapman fraction below the satellite; ionosphere-free pairs with code noise at the pass peak; Galileo or GPS carriers from their interface-document received powers through the same receiver",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "InternalConsistency",
+        "oracle": "Closed forms and self-consistency: the range-rate and range-acceleration identities against numerical derivatives, the isoflux gain cancelling the range growth, the textbook polarisation-loss limits, the qualitative LEO-versus-GNSS observation (a bell-shaped pass of minutes peaking several dB above flat 44-51 dB-Hz GNSS carriers). The EIRPs and patterns are published received powers turned into an EIRP or representative choices, the gaseous term is the superseded P.676-10 simplified method, and nothing is compared with a measured LEO C/N0",
+        "tests": "leo_pass::tests (the_leo_pass_is_a_bell_above_flat_gnss; closed_form_doppler_agrees_with_the_numerical_derivative: under 0.01 Hz and 0.01 Hz/s; indoor_uhf_suffers_less_building_loss_than_c_band; rain_attenuates_c_band_more_than_s_band; iono_delay_scales_as_one_over_f_squared_across_bands; a_fully_custom_band_needs_no_preset; a_walker_constellation_and_a_tle_satellite_both_run; defaults_run_with_no_preset_named_and_every_number_has_a_unit); leo_link::geometry::tests (kepler_velocity_is_the_derivative_of_the_position; a_designed_pass_reaches_the_requested_elevation; closed_form_range_rate_and_accel_match_central_differences_for_two_body_motion); leo_link::antenna::tests",
+        "module": "leo_pass (LeoPassScenario); leo_link::geometry (design_pass, link_geometry, numerical_check, SatMotion, UserMotion); leo_link::antenna; leo_link::itu (p676_gaseous_attenuation_db); leo_link (system_noise_temperature_k, cn0_dbhz)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "Named LEO-PNT system presets with stated sources, and a system-agnostic engine",
+        "capability": "leo_link::presets: generic multi-band (UHF, L, S, C), generic C band, Xona Pulsar X1/X5, Iridium STL, Starlink as a Doppler-only signal of opportunity, CentiSpace and an optional Celeste IOD preset, each with its source marked PUBLIC (with URL), REPRESENTATIVE or WORKSHOP, the workshop one in the optional Celeste IOD preset file, compiled in only when that file exists; every band and orbit overridable in a scenario, and a scenario may name no preset at all",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "InternalConsistency",
+        "oracle": "Transcription of the cited public figures and a consistency check: an EIRP set from a published minimum received power predicts the published maximum within 0.5 dB with a flat pattern. That is a check of the range spread, not a validation of any satellite's antenna; representative presets make no claim about a real system",
+        "tests": "leo_link::presets::tests (every_preset_is_sourced_and_self_consistent; only_the_celeste_preset_is_sourced_from_the_workshop); leo_link::presets::xona_pulsar::tests (the_eirps_reproduce_the_published_minimum_power_at_ten_degrees; a_flat_pattern_lands_the_zenith_power_near_the_published_maximum: within 0.5 dB of -139.1 and -136.2 dBW); leo_link::presets::iridium::tests; leo_pass::tests (a_fully_custom_band_needs_no_preset)",
+        "module": "leo_link::presets (SystemPreset, BandPreset, all, by_id, gnss_meo); leo_pass (resolve_bands)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "Global-average signal-in-space range error weights for any orbit altitude",
+        "capability": "leo_navmsg::sisre::sisre_weights: the radial weight w_R and the squared transverse weight w_AC^2 as averages of cos^2 and half sin^2 of the line-of-sight nadir angle over users uniformly distributed on the visible Earth cap above an elevation mask, for any orbit radius, by Simpson integration; used by every leo-navmsg SISRE figure (at 510 km, w_R 0.46 and w_AC^2 1/2.5)",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "The published SISRE weighting-factor table of Montenbruck, Steigenberger and Hauschild (2018), Multi-GNSS signal-in-space range error assessment - Methodology and results, Advances in Space Research 61(12):3020-3038, doi 10.1016/j.asr.2018.03.041: GPS 0.98 and 1/49, GLONASS 0.98 and 1/45, Galileo 0.98 and 1/61, BeiDou MEO 0.98 and 1/54, BeiDou IGSO/GEO 0.99 and 1/126. The same average evaluated at LEO radii gives the LEO weights; no published LEO table is pinned, so the LEO values are the validated method applied, not separately validated",
+        "tests": "leo_navmsg::sisre::tests (weights_reproduce_the_published_meo_and_geo_table — GPS 0.979 and 1/48.9, GLONASS 1/45.0, Galileo 0.984 and 1/61.1, BeiDou MEO 1/54.2, geostationary 0.992 and 1/126.2 at a 0 deg mask, each within 0.005 of w_R and 0.5 of 1/w_AC^2; leo_weights_shift_toward_the_transverse_axes — horizon nadir angle 67.8 deg at 510 km)",
+        "module": "leo_navmsg::sisre (sisre_weights, StatsAcc)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "Galileo ICD broadcast-ephemeris user algorithm as the base of a LEO navigation message",
+        "capability": "leo_navmsg::elements::kepler_point: the Galileo OS SIS ICD Keplerian evaluation (Kepler's equation, second-harmonic corrections, Earth-fixed node) written separately from the engine's RINEX evaluator, returning the position with the argument of latitude, inclination and node the along/cross/radial correction frame is built from, and the Liu et al. 2025 extension terms",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "RTKLIB 2.4.2-p13 eph2pos ECEF positions (an independent implementation of the same ICD algorithm) for real BKG/IGS broadcast records of 2024-09-10, both committed with provenance in tests/fixtures/rinex_sp3_interop (NOTICE, rinex_ecef_reference.txt, brdc_multignss_slice.rnx). This validates the Keplerian user algorithm; the along/cross/radial corrections and the Liu terms added on top are Kshana's and are covered by the modelled rows below",
+        "tests": "tests/leo_navmsg_reference.rs (the_galileo_user_algorithm_reproduces_rtklib_to_a_millimetre — four real Galileo broadcast ephemerides E10, E19, E24, E25 at tk = 0, +/-600, +/-1800, +/-3600 s, every axis within 1 mm of RTKLIB; real_galileo_records_survive_the_binary_frame_and_the_text_block — within 5 mm after the Kshana binary frame and 1 mm after the RINEX-style block)",
+        "module": "leo_navmsg::elements (kepler_point, kepler_frame, ephemeris_at, sat_state)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "LEO broadcast-ephemeris fitter and signal-in-space range error versus fit interval and update period",
+        "capability": "The `leo-navmsg` kind's fitter and trade: a truth orbit integrated with zonal J2-J6 or EGM2008 gravity to the chosen degree and drag, and a seeded free or steered clock; a Levenberg-Marquardt fit of the Galileo Keplerian set on non-singular elements with weak priors, then along-track, cross-track and radial correction polynomials by linear least squares; the clock polynomial fitted net of the user's relativistic term; SISRE (orbit-only and with clock) over usage periods centred in their fit windows, versus fit interval and update period",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "InternalConsistency",
+        "oracle": "Internal consistency: a two-body truth is recovered by the 16-parameter set to below 1 mm (the model is exact there), and a J2-J6 truth over one minute by the corrected set to below 1 mm. The SISRE figures are the representation error against Kshana's own integrated truth; no orbit determination or prediction error is modelled and no real LEO broadcast message is in the repository to compare with",
+        "tests": "leo_navmsg::tests::a_two_body_truth_is_recovered_by_the_keplerian_fit_to_a_millimetre; leo_navmsg::tests::the_user_algorithm_reproduces_the_fitted_truth_to_a_millimetre_with_corrections; leo_navmsg::tests::the_clock_fit_returns_the_truth_clock_through_the_user_relativistic_term; leo_navmsg::tests::keplerian_sisre_grows_with_the_fit_interval_and_the_corrections_fix_it (monotonic growth from 1 to 15 minutes and at least a threefold improvement at 15 minutes); leo_navmsg::tests::defaults_run_encode_decode_without_any_preset_and_are_deterministic",
+        "module": "leo_navmsg::fit (fit_message, lstsq, polyfit); leo_navmsg::truth (TruthOrbit, TruthClock); leo_navmsg (sequence_stats, LeoNavmsgScenario)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "Joint GNSS and LEO pseudorange positioning with inter-system biases and per-signal error models",
+        "capability": "Weighted least-squares Gauss-Newton fixes over any mix of systems, one receiver clock per system (the inter-system bias estimated with the position) or a known broadcast offset on the reference time scale; per-measurement sigmas supplied by the caller, by default the engine's delay-lock-loop thermal noise (navsignal::dll_code_jitter_chips) at the C/N0 of the elevation combined with the signal-in-space range error; unweighted DOP (GDOP, PDOP, HDOP, VDOP, TDOP) in the local geodetic frame, formal east-north-up sigmas and the bias sigmas; the `leo-pvt` joint mode compares GNSS-only, LEO-only and fused fixes and sweeps the DOP against the number of LEO satellites added",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "InternalConsistency",
+        "oracle": "A hand-derived four-satellite DOP (one satellite at the zenith and three on the horizon 120 deg apart, whose normal matrix inverts by hand), the structural identity that a system with its own clock and one satellite adds no geometry, noise-free recovery of position, clock and bias, and seeded errors against the covariance. Internal checks only; not compared with a receiver's output",
+        "tests": "leo_fusion::joint_pvt::tests (dop_matches_the_hand_derived_zenith_plus_three_horizon_case: HDOP = VDOP = sqrt(4/3), TDOP = sqrt(1/3), PDOP = sqrt(8/3), GDOP = sqrt(3) to 1e-9; a_lone_satellite_with_its_own_clock_adds_nothing_and_a_known_offset_does; a_noise_free_fix_recovers_position_clock_and_inter_system_bias; seeded_fixes_agree_with_their_formal_covariance; dll_noise_is_the_textbook_figure_for_gps_l1_ca); leo_fusion::pvt_kind::tests (fusing_leo_never_worsens_the_median_pdop_and_the_isb_is_recovered); tests/leo_fusion_scenarios.rs (meo_leo_fusion_beats_gnss_alone_and_recovers_the_leo_bias)",
+        "module": "leo_fusion::joint_pvt (solve, dop, code_sigma_dll_m, SystemClock); leo_fusion::system (SystemCfg, System); leo_fusion::pvt_kind (run_joint)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "Precise point positioning convergence with GNSS only and with LEO augmentation",
+        "capability": "A float PPP extended Kalman filter on ionosphere-free code and phase: static coordinates, a white receiver clock, one inter-system bias per extra system, a random-walk zenith wet delay mapped by 1/sin(elevation), a float ambiguity per satellite arc added at rise and dropped at set, and the precise orbit-and-clock error common to a satellite's code and phase, processed as one correlated two-row update in a Joseph-stabilised form; measurements simulated from the same model; convergence time (errors below the thresholds until the end of the run), error curves and the run-averaged position NEES for GNSS only and each LEO case, run as the `leo-ppp` kind",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "The NEES chi-square test is an internal consistency check (truth and filter share the model). The trend is compared with Li et al., LEO constellation-augmented multi-GNSS for rapid PPP convergence, J. Geod. 93:749-764 (2019), doi 10.1007/s00190-018-1195-2: multi-GNSS 9.6 min shortened to 7.0, 3.2, 2.1 and 1.3 min with 60, 96, 192 and 288 LEO satellites. The bundled scenario gives 7.4, 4.8, 3.2, 2.7 and 2.3 min with its own representative 1000 km, 60 deg shells, noise and stations; the paper's constellations, noise and convergence definition are not reproduced, so this is a MODELLED consistency of the trend (monotone shortening, the largest constellation under a third of the GNSS-only time), not a validation",
+        "tests": "leo_fusion::ppp::tests (the_filter_is_consistent_over_monte_carlo_seeds: 24 seeds, run-averaged NEES mean in [2.4, 3.6] and at least 75% of epochs inside the two-sided 95% chi-square band; measured with 150 seeds, mean 2.84 GNSS only and 2.87 with LEO; leo_augmentation_shortens_convergence; same_seed_same_answer_and_every_number_has_a_unit); tests/leo_fusion_scenarios.rs (ppp_convergence_of_the_bundled_scenario_shortens_monotonically)",
+        "module": "leo_fusion::ppp (run, PppScenario, LI_2019)",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      },
+      {
+        "requirement": "One LEO-PNT system end to end: signal design, pass link budget, navigation message and fused positioning, each stage's output handed to the next",
+        "capability": "The `leo-pnt-chain` kind: a leo-signal design (public preset or inline) sets a leo-pass band's centre, bandwidth, chip rate and EIRP split; the pass gives the tracked-component C/N0 and band-limited code jitter per epoch; a least-squares C/N0 line in sin(elevation), the leo-navmsg message's SISRE (fitted at the pass satellite's orbit, plus a stated orbit-determination term in root-sum-square) and the design's carrier and chip rate go to every LEO system of a leo-pvt joint fix and, optionally, to the LEO cases of leo-ppp; every hand-off is reported with its value and unit",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "InternalConsistency",
+        "oracle": "Self-consistency of the hand-offs: each handed-on value equals the upstream stage's own output, and mutating an upstream input moves every downstream figure that depends on it. The stages keep their own labels; the chain adds no physics and no external oracle",
+        "tests": "leo_pnt_chain::tests (a_sine_line_fit_recovers_its_line); tests/leo_pnt_chain.rs (every_upstream_change_moves_the_downstream_figures: a stronger EIRP, a longer fit interval and a larger orbit-determination term each move the handed-on value and the fused fix; the_handed_on_values_are_the_stage_outputs; a_band_design_splits_the_eirp_and_reports_the_design_jitter; the_pass_export_reproduces_the_engine_range)",
+        "module": "leo_pnt_chain (LeoPntChainScenario); leo_pass (BandCfg::signal, design_tracking); leo_navmsg (LeoNavmsgScenario::broadcast_sisre); leo_fusion::pvt_kind; leo_fusion::ppp",
+        "used_by": [
+          "leo-pnt-chain"
+        ]
+      }
+    ],
+    "figure_tiers": []
+  },
+  "not_modelled": {
+    "items": [
+      {
+        "text": "The positioning stage models C/N0 as a straight line in the sine of the elevation between the mask and the zenith; the chain fits that line to the pass's tracked C/N0, so a pass-specific shape (an isoflux plateau, a beam edge) is reduced to two numbers.",
+        "source": "result `limitations[0]`"
+      },
+      {
+        "text": "The SISRE handed to the positioning stages is the navigation message's representation error against a Kshana-integrated truth orbit, plus the scenario's stated od_sisre_m in root-sum-square; the message stage itself models no orbit determination or prediction.",
+        "source": "result `limitations[1]`"
+      },
+      {
+        "text": "The positioning stage computes its own delay-lock-loop jitter from the handed-on C/N0 with an unlimited-bandwidth formula; the pass reports the band-limited jitter of the actual design beside it.",
+        "source": "result `limitations[2]`"
+      },
+      {
+        "text": "The precise point positioning stage takes the message's SISRE as the LEO orbit-and-clock error; its code and phase noise stay the stage's own inputs.",
+        "source": "result `limitations[3]`"
+      },
+      {
+        "text": "One satellite, the first whose band carries the design, stands for the whole LEO system in the pass and message stages.",
+        "source": "result `limitations[4]`"
+      },
+      {
+        "text": "MODELLED — the chain hands each stage's output to the next; the stages keep their own labels (leo-signal, leo-pass, leo-navmsg, leo-pvt and leo-ppp rows of the verification matrix).",
+        "source": "result `label`"
+      },
+      {
+        "text": "MODELLED.",
+        "source": "kind catalogue (`kshana kinds --json`)"
+      },
+      {
+        "text": "MODELLED: every stage keeps its own label; the chain adds no physics.",
+        "source": "scenario file comment, line 25"
+      },
+      {
+        "text": "Reproducibility & software assurance is MODELLED, not validated: a sub-claim is externally checked, but the whole capability composes modelled pieces, so the capability stays Modelled.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "Low Earth orbit positioning, navigation and timing signal designs: code tracking, acquisition, GNSS compatibility and a band trade for any system is MODELLED, not validated: checked against its own closed-form / analytic identity — catches transcription and coefficient errors, but is not an external oracle.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "A LEO-PNT pass and its per-band link budget against the MEO GNSS satellites in view is MODELLED, not validated: checked against its own closed-form / analytic identity — catches transcription and coefficient errors, but is not an external oracle.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "Named LEO-PNT system presets with stated sources, and a system-agnostic engine is MODELLED, not validated: checked against its own closed-form / analytic identity — catches transcription and coefficient errors, but is not an external oracle.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "LEO broadcast-ephemeris fitter and signal-in-space range error versus fit interval and update period is MODELLED, not validated: checked against its own closed-form / analytic identity — catches transcription and coefficient errors, but is not an external oracle.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "Joint GNSS and LEO pseudorange positioning with inter-system biases and per-signal error models is MODELLED, not validated: checked against its own closed-form / analytic identity — catches transcription and coefficient errors, but is not an external oracle.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "Precise point positioning convergence with GNSS only and with LEO augmentation is MODELLED, not validated: a sub-claim is externally checked, but the whole capability composes modelled pieces, so the capability stays Modelled.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "One LEO-PNT system end to end: signal design, pass link budget, navigation message and fused positioning, each stage's output handed to the next is MODELLED, not validated: checked against its own closed-form / analytic identity — catches transcription and coefficient errors, but is not an external oracle.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      }
+    ],
+    "omitted": 0
+  },
+  "companions": {
+    "animation": {
+      "available": true,
+      "embedded": true,
+      "files": [],
+      "command": "kshana leo-pnt-end-to-end.toml --animate html"
+    },
+    "exports": [
+      {
+        "format": "czml",
+        "applies": true,
+        "spec_url": "https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Structure",
+        "files": []
+      },
+      {
+        "format": "kml",
+        "applies": true,
+        "spec_url": "https://www.ogc.org/standard/kml/",
+        "files": []
+      },
+      {
+        "format": "geojson",
+        "applies": true,
+        "spec_url": "https://www.rfc-editor.org/rfc/rfc7946",
+        "files": []
+      },
+      {
+        "format": "stk",
+        "applies": true,
+        "spec_url": "https://help.agi.com/stk/#stk/importfiles-02.htm",
+        "files": []
+      },
+      {
+        "format": "sigmf",
+        "applies": false,
+        "reason": "SigMF holds complex baseband samples, which only the `spectrum` kind synthesises",
+        "spec_url": "https://github.com/sigmf/SigMF/blob/main/sigmf-spec.md",
+        "files": []
+      }
+    ],
+    "export_command": "kshana leo-pnt-end-to-end.toml --export all"
+  },
+  "reproducibility": {
+    "engine_version": "0.28.0",
+    "git_commit": null,
+    "git_commit_note": "not recorded: this engine was built without the KSHANA_GIT_COMMIT environment variable; the engine version identifies the release",
+    "scenario_file": "leo-pnt-end-to-end.toml",
+    "scenario_sha256": "4a0286b53161bff2257bb693b77f73c20632df077f0eb84a459d5a32ef21ebce",
+    "result_scenario_hash": null,
+    "result_sha256": "f3545413a18a2bd30415cc96f6b4b31a8e58d9fdf62b6d09086e3368d252f788",
+    "result_file": "leo-pnt-end-to-end.result.json",
+    "seed": 5,
+    "seed_source": "scenario `seed`",
+    "platform": {
+      "os": "macos",
+      "arch": "aarch64",
+      "family": "unix"
+    },
+    "command": "kshana leo-pnt-end-to-end.toml",
+    "argv": [
+      "kshana",
+      "leo-pnt-end-to-end.toml"
+    ],
+    "working_directory": "Run the command from the directory the original run was started in: the scenario path, and any relative data path inside the scenario, resolve against it. Check the scenario file against scenario_sha256 first.",
+    "input_files": [],
+    "determinism": "Same scenario bytes, seed and engine build give a byte-identical result document and report; this report carries no timestamp. Floating-point results are pinned per platform; another operating system or architecture may differ in the last digits."
+  }
+}

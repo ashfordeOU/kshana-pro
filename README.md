@@ -156,6 +156,17 @@ study/bid needs:
   (`GET /health` · `/version` · `/kinds`; `POST /run` · `POST /study`) for on-prem /
   air-gapped / sovereign / hosted deployment, entitlement-gated and **fail-closed**
   (open engine + free seam-check at Evaluation until a license token is supplied).
+- **`mbse`** — model-based systems engineering (MBSE) and programme tooling over the
+  open engine's own outputs (`kshana-pro mbse import|trace|vcrm|sysml|impact|pack`):
+  requirements imported from comma-separated values (CSV), a documented subset of the
+  Requirements Interchange Format (ReqIF) and Systems Modeling Language v2 (SysML v2)
+  text, each with a machine-checkable acceptance criterion over `result.json` fields
+  with units; evaluation against real runs, unit-checked against the field-units
+  schema; a verification cross-reference matrix (VCRM) whose evidence is each run's
+  `scenario_hash`, `seed`, `engine_version` and the field paths and values read, with
+  a MODELLED or PARTNER basis flagged; a SysML v2 export checked against the grammar
+  subset it uses; change impact between two traces or two scenario files; and an
+  offline HTML plus JSON evidence pack. See [`docs/MBSE.md`](docs/MBSE.md).
 - **`license`** (PR7) — the tier mechanics: Ed25519-signed tokens (public key only in the build), fail-closed Evaluation
   default, per-`kind` tier mapping.
 
@@ -219,12 +230,13 @@ cargo run -- kinds               # list open kinds (inherited) + Pro kinds + the
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **seventeen integration tests** in
+The suite is unit tests across every module plus **eighteen integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `e2e_interop.rs` (end-to-end), `reproducibility_twin.rs` (deterministic twin),
 `no_overclaims_mission_analysis.rs` (honesty guard), the study/report/pack path
 (`pro_study.rs`, `report_cover.rs`, `report_pdf.rs`, `study_ledger.rs`,
-`study_intake.rs`, `pack_c.rs`, `optimism_gap_scenarios.rs`, `study_dossier.rs`), the
+`study_intake.rs`, `pack_c.rs`, `optimism_gap_scenarios.rs`, `study_dossier.rs`),
+`mbse.rs` (the MBSE commands over real open-engine runs), the
 four `*_in_sync.rs` guards (each committed deliverable matches its generator output, so
 docs never drift), and `readme_counts.rs` (the pack and integration-test counts in this
 README match the registry and the `tests/` directory).
@@ -275,6 +287,8 @@ with no args, or see [`src/main.rs`](src/main.rs) `usage()`):
 
 ```bash
 cargo run -- study --dossier scenarios/dossier-holdover-csac.toml --out out/ --dev  # study dossier: HTML + JSON technical note (Pro)
+cargo run -- mbse vcrm tests/fixtures/mbse/trace.toml --dev    # MBSE: verification cross-reference matrix over real runs (Enterprise, `pro-mbse`)
+cargo run -- mbse pack tests/fixtures/mbse/trace.toml --out out/ --dev  # MBSE evidence pack: HTML + JSON
 cargo run -- navdt scenarios/twin-csac.toml                 # A10 NAV-DT twin bundle (JSON)
 cargo run -- report scenarios/trade-clock.toml --format html # A11 consolidated report (md|json|html|svg)
 cargo run -- report scenarios/trade-clock.toml --pdf out.pdf # A11 pure-Rust PDF export (report_pdf)

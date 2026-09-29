@@ -10,6 +10,21 @@
 
 use kshana::api::KshanaError;
 
+// Requirements, traceability and verification tooling over the open engine's own
+// outputs (docs/MBSE.md). The margins generator below predates it and is what the
+// `pro-mbse` scenario pack runs.
+pub mod cli;
+pub mod criterion;
+pub mod evidence;
+pub mod impact;
+pub mod pack;
+pub mod reqif;
+pub mod requirements;
+pub mod sysml;
+pub mod trace;
+pub mod units;
+pub mod xml;
+
 /// One requirement with its verification status.
 #[derive(Debug, Clone)]
 pub struct Requirement {

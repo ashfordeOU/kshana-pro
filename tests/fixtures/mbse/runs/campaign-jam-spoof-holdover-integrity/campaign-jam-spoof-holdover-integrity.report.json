@@ -1,0 +1,3285 @@
+{
+  "report_schema": "kshana-report",
+  "report_schema_version": "1.0",
+  "kind": "campaign",
+  "title": "Jamming, spoofing, holdover and integrity: a chained mission",
+  "executive_summary": {
+    "what_ran": "Campaign: existing scenario kinds composed into one run, with every number read from a real run of the named kind.",
+    "summary": "campaign f87a4a0e0bab | Jamming, spoofing, holdover and integrity: a chained mission | chain: 6 phases over 4570 s, 2 events, alarm raised on 2770 s of the grid | 18 member runs (MODELLED)",
+    "label": "MODELLED composition of existing scenario kinds. Every number is read from a real run of the named kind; the chaining (additive carry of a channel across a phase boundary, zero-order hold onto the timeline grid, a phase ended at a computed time) is a modelling choice, and each phase carries the label of the kind that produced it.",
+    "label_source": "result `label`",
+    "key_figures": [
+      {
+        "path": "reproducibility.runs_total",
+        "value": 18,
+        "display": "18",
+        "unit": "count"
+      },
+      {
+        "path": "seed",
+        "value": 20260928,
+        "display": "20260928",
+        "unit": "1"
+      },
+      {
+        "path": "timeline.duration_s",
+        "value": 4570.0,
+        "display": "4570",
+        "unit": "s"
+      },
+      {
+        "path": "timeline.step_s",
+        "value": 10.0,
+        "display": "10",
+        "unit": "s"
+      },
+      {
+        "path": "reproducibility.runs_total",
+        "value": 18,
+        "display": "18",
+        "unit": "count"
+      }
+    ],
+    "capability_labels": {
+      "validated": 4,
+      "modelled": 8,
+      "partner": 1
+    },
+    "member_runs": 18
+  },
+  "inputs": {
+    "items": [
+      {
+        "path": "kind",
+        "value": "campaign",
+        "display": "campaign",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[0].duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].name",
+        "value": "nominal",
+        "display": "nominal",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.clock_classical.id",
+        "value": "csac-sa45s",
+        "display": "csac-sa45s",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.clock_classical.provenance",
+        "value": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "display": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.clock_classical.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.clock_classical.q_wf",
+        "value": 9e-20,
+        "display": "9.0000e-20",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.clock_classical.y0",
+        "value": 5e-10,
+        "display": "5.0000e-10",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.clock_quantum.id",
+        "value": "optical-sr-lattice",
+        "display": "optical-sr-lattice",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.clock_quantum.provenance",
+        "value": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "display": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.clock_quantum.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.clock_quantum.q_wf",
+        "value": 1e-30,
+        "display": "1.0000e-30",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.clock_quantum.y0",
+        "value": 5e-17,
+        "display": "5.0000e-17",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.gnss.windows[0].state",
+        "value": "nominal",
+        "display": "nominal",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.gnss.windows[0].t0",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.gnss.windows[0].t1",
+        "value": 600.0,
+        "display": "600",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.seed",
+        "value": 42,
+        "display": "42",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.threshold_ns",
+        "value": 50.0,
+        "display": "50",
+        "unit": "ns",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[0].scenario.time.step_s",
+        "value": 10.0,
+        "display": "10",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.constellation.altitude_km",
+        "value": 20200.0,
+        "display": "20200",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.constellation.inclination_deg",
+        "value": 55.0,
+        "display": "55",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.constellation.phasing_f",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.constellation.planes",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.constellation.sats_per_plane",
+        "value": 4,
+        "display": "4",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.kind",
+        "value": "jamming",
+        "display": "jamming",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.mask_deg",
+        "value": 5.0,
+        "display": "5",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.receiver.alt_m",
+        "value": 0.0,
+        "display": "0",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.receiver.lat_deg",
+        "value": 52.0,
+        "display": "52",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.receiver.lon_deg",
+        "value": 4.0,
+        "display": "4",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.seed",
+        "value": 1,
+        "display": "1",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.time.step_s",
+        "value": 30.0,
+        "display": "30",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[0].runs[1].scenario.tracking_threshold_dbhz",
+        "value": 25.0,
+        "display": "25",
+        "unit": "dB-Hz",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.al_h_m",
+        "value": 40.0,
+        "display": "40",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.al_v_m",
+        "value": 50.0,
+        "display": "50",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.constellation.altitude_km",
+        "value": 20200.0,
+        "display": "20200",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.constellation.inclination_deg",
+        "value": 55.0,
+        "display": "55",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.constellation.phasing_f",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.constellation.planes",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.constellation.sats_per_plane",
+        "value": 4,
+        "display": "4",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.kind",
+        "value": "integrity",
+        "display": "integrity",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.mask_deg",
+        "value": 5.0,
+        "display": "5",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.p_fa",
+        "value": 0.00001,
+        "display": "1.0000e-5",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.p_md",
+        "value": 0.001,
+        "display": "0.001",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.seed",
+        "value": 7,
+        "display": "7",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.sigma_uere_m",
+        "value": 1.0,
+        "display": "1",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.time.step_s",
+        "value": 30.0,
+        "display": "30",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.user.altitude_km",
+        "value": 0.4,
+        "display": "0.4",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.user.inclination_deg",
+        "value": 45.0,
+        "display": "45",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.user.raan_deg",
+        "value": 10.0,
+        "display": "10",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[0].runs[2].scenario.user.u0_deg",
+        "value": 0.0,
+        "display": "0",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].name",
+        "value": "jamming",
+        "display": "jamming",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.clock_classical.id",
+        "value": "csac-sa45s",
+        "display": "csac-sa45s",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.clock_classical.provenance",
+        "value": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "display": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.clock_classical.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.clock_classical.q_wf",
+        "value": 9e-20,
+        "display": "9.0000e-20",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.clock_classical.y0",
+        "value": 5e-10,
+        "display": "5.0000e-10",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.clock_quantum.id",
+        "value": "optical-sr-lattice",
+        "display": "optical-sr-lattice",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.clock_quantum.provenance",
+        "value": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "display": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.clock_quantum.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.clock_quantum.q_wf",
+        "value": 1e-30,
+        "display": "1.0000e-30",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.clock_quantum.y0",
+        "value": 5e-17,
+        "display": "5.0000e-17",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.gnss.windows[0].state",
+        "value": "nominal",
+        "display": "nominal",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.gnss.windows[0].t0",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.gnss.windows[0].t1",
+        "value": 600.0,
+        "display": "600",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.seed",
+        "value": 43,
+        "display": "43",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.threshold_ns",
+        "value": 50.0,
+        "display": "50",
+        "unit": "ns",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[0].scenario.time.step_s",
+        "value": 10.0,
+        "display": "10",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.constellation.altitude_km",
+        "value": 20200.0,
+        "display": "20200",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.constellation.inclination_deg",
+        "value": 55.0,
+        "display": "55",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.constellation.phasing_f",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.constellation.planes",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.constellation.sats_per_plane",
+        "value": 4,
+        "display": "4",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.jammer.bandwidth_mhz",
+        "value": 20.0,
+        "display": "20",
+        "unit": "MHz",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.jammer.gain_dbi",
+        "value": 0.0,
+        "display": "0",
+        "unit": "dBi",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.jammer.jammer_type",
+        "value": "broadband",
+        "display": "broadband",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.jammer.position_ecef_m",
+        "value": [
+          3926375.101,
+          274488.966,
+          5002803.345
+        ],
+        "display": "[3.9264e6, 2.7449e5, 5.0028e6]",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.jammer.power_dbw",
+        "value": -30.0,
+        "display": "-30",
+        "unit": "dBW",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.kind",
+        "value": "jamming",
+        "display": "jamming",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.mask_deg",
+        "value": 5.0,
+        "display": "5",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.receiver.alt_m",
+        "value": 0.0,
+        "display": "0",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.receiver.lat_deg",
+        "value": 52.0,
+        "display": "52",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.receiver.lon_deg",
+        "value": 4.0,
+        "display": "4",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.seed",
+        "value": 1,
+        "display": "1",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.time.step_s",
+        "value": 30.0,
+        "display": "30",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[1].runs[1].scenario.tracking_threshold_dbhz",
+        "value": 25.0,
+        "display": "25",
+        "unit": "dB-Hz",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.al_h_m",
+        "value": 40.0,
+        "display": "40",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.al_v_m",
+        "value": 50.0,
+        "display": "50",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.constellation.altitude_km",
+        "value": 20200.0,
+        "display": "20200",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.constellation.inclination_deg",
+        "value": 55.0,
+        "display": "55",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.constellation.phasing_f",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.constellation.planes",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.constellation.sats_per_plane",
+        "value": 4,
+        "display": "4",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.kind",
+        "value": "integrity",
+        "display": "integrity",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.mask_deg",
+        "value": 5.0,
+        "display": "5",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.p_fa",
+        "value": 0.00001,
+        "display": "1.0000e-5",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.p_md",
+        "value": 0.001,
+        "display": "0.001",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.seed",
+        "value": 7,
+        "display": "7",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.sigma_uere_m",
+        "value": 1.0,
+        "display": "1",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.time.step_s",
+        "value": 30.0,
+        "display": "30",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.user.altitude_km",
+        "value": 0.4,
+        "display": "0.4",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.user.inclination_deg",
+        "value": 45.0,
+        "display": "45",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.user.raan_deg",
+        "value": 10.0,
+        "display": "10",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[1].runs[2].scenario.user.u0_deg",
+        "value": 0.0,
+        "display": "0",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].duration_s",
+        "value": 900.0,
+        "display": "900",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].end_at",
+        "value": "classical.detect_time_s",
+        "display": "classical.detect_time_s",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[2].name",
+        "value": "spoofing",
+        "display": "spoofing",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.attack.rate_ns_per_s",
+        "value": 0.1,
+        "display": "0.1",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.attack.start_s",
+        "value": 0.0,
+        "display": "0",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.clock_classical.id",
+        "value": "csac-sa45s",
+        "display": "csac-sa45s",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.clock_classical.provenance",
+        "value": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "display": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.clock_classical.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.clock_classical.q_wf",
+        "value": 9e-20,
+        "display": "9.0000e-20",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.clock_classical.y0",
+        "value": 5e-10,
+        "display": "5.0000e-10",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.clock_quantum.id",
+        "value": "optical-sr-lattice",
+        "display": "optical-sr-lattice",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.clock_quantum.provenance",
+        "value": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "display": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.clock_quantum.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.clock_quantum.q_wf",
+        "value": 1e-30,
+        "display": "1.0000e-30",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.clock_quantum.y0",
+        "value": 5e-17,
+        "display": "5.0000e-17",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.kind",
+        "value": "spoof",
+        "display": "spoof",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.threshold_ns",
+        "value": 50.0,
+        "display": "50",
+        "unit": "ns",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.time.duration_s",
+        "value": 900.0,
+        "display": "900",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[0].scenario.time.step_s",
+        "value": 10.0,
+        "display": "10",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.attack.carrier_aligned",
+        "value": false,
+        "display": "false",
+        "unit": "flag",
+        "unit_source": "a true/false input carries no unit"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.attack.el_imbalance",
+        "value": 0.12,
+        "display": "0.12",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.attack.num_biased",
+        "value": 3,
+        "display": "3",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.attack.power_advantage_db",
+        "value": 1.5,
+        "display": "1.5",
+        "unit": "dB",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.attack.push",
+        "value": "position",
+        "display": "position",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.attack.push_magnitude_m",
+        "value": 75.0,
+        "display": "75",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.detector.agc_margin_db",
+        "value": 3.0,
+        "display": "3",
+        "unit": "dB",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.detector.fusion_threshold",
+        "value": 0.5,
+        "display": "0.5",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.detector.raim_p_fa",
+        "value": 0.001,
+        "display": "0.001",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.detector.sat_power_dbm",
+        "value": -130.0,
+        "display": "-130",
+        "unit": "dBm",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.detector.sigma_m",
+        "value": 5.0,
+        "display": "5",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.detector.sqm_tolerance",
+        "value": 0.1,
+        "display": "0.1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[1].scenario.kind",
+        "value": "spoof-detect",
+        "display": "spoof-detect",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.constellation.altitude_km",
+        "value": 20200.0,
+        "display": "20200",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.constellation.inclination_deg",
+        "value": 55.0,
+        "display": "55",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.constellation.phasing_f",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.constellation.planes",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.constellation.sats_per_plane",
+        "value": 4,
+        "display": "4",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.jammer.bandwidth_mhz",
+        "value": 20.0,
+        "display": "20",
+        "unit": "MHz",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.jammer.gain_dbi",
+        "value": 0.0,
+        "display": "0",
+        "unit": "dBi",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.jammer.jammer_type",
+        "value": "broadband",
+        "display": "broadband",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.jammer.position_ecef_m",
+        "value": [
+          3926375.101,
+          274488.966,
+          5002803.345
+        ],
+        "display": "[3.9264e6, 2.7449e5, 5.0028e6]",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.jammer.power_dbw",
+        "value": -30.0,
+        "display": "-30",
+        "unit": "dBW",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.kind",
+        "value": "jamming",
+        "display": "jamming",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.mask_deg",
+        "value": 5.0,
+        "display": "5",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.receiver.alt_m",
+        "value": 0.0,
+        "display": "0",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.receiver.lat_deg",
+        "value": 52.0,
+        "display": "52",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.receiver.lon_deg",
+        "value": 4.0,
+        "display": "4",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.seed",
+        "value": 1,
+        "display": "1",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.time.duration_s",
+        "value": 900.0,
+        "display": "900",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.time.step_s",
+        "value": 30.0,
+        "display": "30",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[2].runs[2].scenario.tracking_threshold_dbhz",
+        "value": 25.0,
+        "display": "25",
+        "unit": "dB-Hz",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].carry",
+        "value": [
+          "time_error_ns"
+        ],
+        "display": "[time_error_ns]",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].duration_s",
+        "value": 1800.0,
+        "display": "1800",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].name",
+        "value": "holdover",
+        "display": "holdover",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.clock_classical.id",
+        "value": "csac-sa45s",
+        "display": "csac-sa45s",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.clock_classical.provenance",
+        "value": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "display": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.clock_classical.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.clock_classical.q_wf",
+        "value": 9e-20,
+        "display": "9.0000e-20",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.clock_classical.y0",
+        "value": 5e-10,
+        "display": "5.0000e-10",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.clock_quantum.id",
+        "value": "optical-sr-lattice",
+        "display": "optical-sr-lattice",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.clock_quantum.provenance",
+        "value": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "display": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.clock_quantum.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.clock_quantum.q_wf",
+        "value": 1e-30,
+        "display": "1.0000e-30",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.clock_quantum.y0",
+        "value": 5e-17,
+        "display": "5.0000e-17",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.gnss.windows[0].state",
+        "value": "nominal",
+        "display": "nominal",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.gnss.windows[0].t0",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.gnss.windows[0].t1",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.gnss.windows[1].state",
+        "value": "denied",
+        "display": "denied",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.gnss.windows[1].t0",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.gnss.windows[1].t1",
+        "value": 1800.0,
+        "display": "1800",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.seed",
+        "value": 44,
+        "display": "44",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.threshold_ns",
+        "value": 50.0,
+        "display": "50",
+        "unit": "ns",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.time.duration_s",
+        "value": 1800.0,
+        "display": "1800",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[0].scenario.time.step_s",
+        "value": 10.0,
+        "display": "10",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.alt_m",
+        "value": 0.0,
+        "display": "0",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.fix_interval_s",
+        "value": 1.0,
+        "display": "1",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.gnss.windows[0].state",
+        "value": "nominal",
+        "display": "nominal",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.gnss.windows[0].t0",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.gnss.windows[0].t1",
+        "value": 100.0,
+        "display": "100",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.gnss.windows[1].state",
+        "value": "denied",
+        "display": "denied",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.gnss.windows[1].t0",
+        "value": 100.0,
+        "display": "100",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.gnss.windows[1].t1",
+        "value": 1900.0,
+        "display": "1900",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.imu_classical.accel_bias",
+        "value": [
+          0.03,
+          -0.02,
+          0.0
+        ],
+        "display": "[0.03, -0.02, 0]",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.imu_classical.gyro_bias",
+        "value": [
+          0.0,
+          0.0,
+          0.0001
+        ],
+        "display": "[0, 0, 1.0000e-4]",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.imu_classical.id",
+        "value": "tactical-imu",
+        "display": "tactical-imu",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.imu_classical.provenance",
+        "value": "Tactical-grade MEMS/quartz inertial unit: larger residual bias",
+        "display": "Tactical-grade MEMS/quartz inertial unit: larger residual bias",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.imu_quantum.accel_bias",
+        "value": [
+          0.015,
+          0.0,
+          0.0
+        ],
+        "display": "[0.015, 0, 0]",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.imu_quantum.gyro_bias",
+        "value": [
+          0.0,
+          0.0,
+          0.00005
+        ],
+        "display": "[0, 0, 5.0000e-5]",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.imu_quantum.id",
+        "value": "cold-atom-imu",
+        "display": "cold-atom-imu",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.imu_quantum.provenance",
+        "value": "Quantum-grade inertial unit: low residual accelerometer/gyro bias (cold-atom-class)",
+        "display": "Quantum-grade inertial unit: low residual accelerometer/gyro bias (cold-atom-class)",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.kind",
+        "value": "gnss-ins",
+        "display": "gnss-ins",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.lat_deg",
+        "value": 52.0,
+        "display": "52",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.lon_deg",
+        "value": 4.0,
+        "display": "4",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.seed",
+        "value": 7,
+        "display": "7",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.sigma_pos_m",
+        "value": 1.0,
+        "display": "1",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.sigma_vel_mps",
+        "value": 0.05,
+        "display": "0.05",
+        "unit": "m/s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.threshold_m",
+        "value": 50.0,
+        "display": "50",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.time.duration_s",
+        "value": 1900.0,
+        "display": "1900",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[1].scenario.time.step_s",
+        "value": 0.5,
+        "display": "0.5",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[3].runs[1].skip_s",
+        "value": 100.0,
+        "display": "100",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.phases[].runs[].skip_s`, matched by field name"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.constellation.altitude_km",
+        "value": 20200.0,
+        "display": "20200",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.constellation.inclination_deg",
+        "value": 55.0,
+        "display": "55",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.constellation.phasing_f",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.constellation.planes",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.constellation.sats_per_plane",
+        "value": 4,
+        "display": "4",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.jammer.bandwidth_mhz",
+        "value": 20.0,
+        "display": "20",
+        "unit": "MHz",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.jammer.gain_dbi",
+        "value": 0.0,
+        "display": "0",
+        "unit": "dBi",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.jammer.jammer_type",
+        "value": "broadband",
+        "display": "broadband",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.jammer.position_ecef_m",
+        "value": [
+          3926375.101,
+          274488.966,
+          5002803.345
+        ],
+        "display": "[3.9264e6, 2.7449e5, 5.0028e6]",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.jammer.power_dbw",
+        "value": 10.0,
+        "display": "10",
+        "unit": "dBW",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.kind",
+        "value": "jamming",
+        "display": "jamming",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.mask_deg",
+        "value": 5.0,
+        "display": "5",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.receiver.alt_m",
+        "value": 0.0,
+        "display": "0",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.receiver.lat_deg",
+        "value": 52.0,
+        "display": "52",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.receiver.lon_deg",
+        "value": 4.0,
+        "display": "4",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.seed",
+        "value": 1,
+        "display": "1",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.time.duration_s",
+        "value": 1800.0,
+        "display": "1800",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.time.step_s",
+        "value": 30.0,
+        "display": "30",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[3].runs[2].scenario.tracking_threshold_dbhz",
+        "value": 25.0,
+        "display": "25",
+        "unit": "dB-Hz",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].carry",
+        "value": [
+          "time_error_ns"
+        ],
+        "display": "[time_error_ns]",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].name",
+        "value": "integrity-alarm",
+        "display": "integrity-alarm",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.clock_classical.id",
+        "value": "csac-sa45s",
+        "display": "csac-sa45s",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.clock_classical.provenance",
+        "value": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "display": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.clock_classical.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.clock_classical.q_wf",
+        "value": 9e-20,
+        "display": "9.0000e-20",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.clock_classical.y0",
+        "value": 5e-10,
+        "display": "5.0000e-10",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.clock_quantum.id",
+        "value": "optical-sr-lattice",
+        "display": "optical-sr-lattice",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.clock_quantum.provenance",
+        "value": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "display": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.clock_quantum.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.clock_quantum.q_wf",
+        "value": 1e-30,
+        "display": "1.0000e-30",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.clock_quantum.y0",
+        "value": 5e-17,
+        "display": "5.0000e-17",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.gnss.windows[0].state",
+        "value": "nominal",
+        "display": "nominal",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.gnss.windows[0].t0",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.gnss.windows[0].t1",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.gnss.windows[1].state",
+        "value": "denied",
+        "display": "denied",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.gnss.windows[1].t0",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.gnss.windows[1].t1",
+        "value": 600.0,
+        "display": "600",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.seed",
+        "value": 45,
+        "display": "45",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.threshold_ns",
+        "value": 50.0,
+        "display": "50",
+        "unit": "ns",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[0].scenario.time.step_s",
+        "value": 10.0,
+        "display": "10",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.constellation.altitude_km",
+        "value": 20200.0,
+        "display": "20200",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.constellation.inclination_deg",
+        "value": 55.0,
+        "display": "55",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.constellation.phasing_f",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.constellation.planes",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.constellation.sats_per_plane",
+        "value": 4,
+        "display": "4",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.jammer.bandwidth_mhz",
+        "value": 20.0,
+        "display": "20",
+        "unit": "MHz",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.jammer.gain_dbi",
+        "value": 0.0,
+        "display": "0",
+        "unit": "dBi",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.jammer.jammer_type",
+        "value": "broadband",
+        "display": "broadband",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.jammer.position_ecef_m",
+        "value": [
+          3926375.101,
+          274488.966,
+          5002803.345
+        ],
+        "display": "[3.9264e6, 2.7449e5, 5.0028e6]",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.jammer.power_dbw",
+        "value": -30.0,
+        "display": "-30",
+        "unit": "dBW",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.kind",
+        "value": "jamming",
+        "display": "jamming",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.mask_deg",
+        "value": 25.0,
+        "display": "25",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.receiver.alt_m",
+        "value": 0.0,
+        "display": "0",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.receiver.lat_deg",
+        "value": 52.0,
+        "display": "52",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.receiver.lon_deg",
+        "value": 4.0,
+        "display": "4",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.seed",
+        "value": 1,
+        "display": "1",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.time.step_s",
+        "value": 30.0,
+        "display": "30",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[4].runs[1].scenario.tracking_threshold_dbhz",
+        "value": 25.0,
+        "display": "25",
+        "unit": "dB-Hz",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.al_h_m",
+        "value": 40.0,
+        "display": "40",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.al_v_m",
+        "value": 50.0,
+        "display": "50",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.constellation.altitude_km",
+        "value": 20200.0,
+        "display": "20200",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.constellation.inclination_deg",
+        "value": 55.0,
+        "display": "55",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.constellation.phasing_f",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.constellation.planes",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.constellation.sats_per_plane",
+        "value": 4,
+        "display": "4",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.kind",
+        "value": "integrity",
+        "display": "integrity",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.mask_deg",
+        "value": 25.0,
+        "display": "25",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.p_fa",
+        "value": 0.00001,
+        "display": "1.0000e-5",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.p_md",
+        "value": 0.001,
+        "display": "0.001",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.seed",
+        "value": 7,
+        "display": "7",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.sigma_uere_m",
+        "value": 1.0,
+        "display": "1",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.time.step_s",
+        "value": 30.0,
+        "display": "30",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.user.altitude_km",
+        "value": 0.4,
+        "display": "0.4",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.user.inclination_deg",
+        "value": 45.0,
+        "display": "45",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.user.raan_deg",
+        "value": 10.0,
+        "display": "10",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[4].runs[2].scenario.user.u0_deg",
+        "value": 0.0,
+        "display": "0",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].name",
+        "value": "recovery",
+        "display": "recovery",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.clock_classical.id",
+        "value": "csac-sa45s",
+        "display": "csac-sa45s",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.clock_classical.provenance",
+        "value": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "display": "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.clock_classical.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.clock_classical.q_wf",
+        "value": 9e-20,
+        "display": "9.0000e-20",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.clock_classical.y0",
+        "value": 5e-10,
+        "display": "5.0000e-10",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.clock_quantum.id",
+        "value": "optical-sr-lattice",
+        "display": "optical-sr-lattice",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.clock_quantum.provenance",
+        "value": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "display": "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown.",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.clock_quantum.q_rw",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.clock_quantum.q_wf",
+        "value": 1e-30,
+        "display": "1.0000e-30",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.clock_quantum.y0",
+        "value": 5e-17,
+        "display": "5.0000e-17",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.gnss.windows[0].state",
+        "value": "nominal",
+        "display": "nominal",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.gnss.windows[0].t0",
+        "value": 0.0,
+        "display": "0",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.gnss.windows[0].t1",
+        "value": 600.0,
+        "display": "600",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.seed",
+        "value": 46,
+        "display": "46",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.threshold_ns",
+        "value": 50.0,
+        "display": "50",
+        "unit": "ns",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[0].scenario.time.step_s",
+        "value": 10.0,
+        "display": "10",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.constellation.altitude_km",
+        "value": 20200.0,
+        "display": "20200",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.constellation.inclination_deg",
+        "value": 55.0,
+        "display": "55",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.constellation.phasing_f",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.constellation.planes",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.constellation.sats_per_plane",
+        "value": 4,
+        "display": "4",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.kind",
+        "value": "jamming",
+        "display": "jamming",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.mask_deg",
+        "value": 5.0,
+        "display": "5",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.receiver.alt_m",
+        "value": 0.0,
+        "display": "0",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.receiver.lat_deg",
+        "value": 52.0,
+        "display": "52",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.receiver.lon_deg",
+        "value": 4.0,
+        "display": "4",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.seed",
+        "value": 1,
+        "display": "1",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.time.step_s",
+        "value": 30.0,
+        "display": "30",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[5].runs[1].scenario.tracking_threshold_dbhz",
+        "value": 25.0,
+        "display": "25",
+        "unit": "dB-Hz",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.al_h_m",
+        "value": 40.0,
+        "display": "40",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.al_v_m",
+        "value": 50.0,
+        "display": "50",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.constellation.altitude_km",
+        "value": 20200.0,
+        "display": "20200",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.constellation.inclination_deg",
+        "value": 55.0,
+        "display": "55",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.constellation.phasing_f",
+        "value": 1.0,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.constellation.planes",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.constellation.sats_per_plane",
+        "value": 4,
+        "display": "4",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.kind",
+        "value": "integrity",
+        "display": "integrity",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.mask_deg",
+        "value": 5.0,
+        "display": "5",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.p_fa",
+        "value": 0.00001,
+        "display": "1.0000e-5",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.p_md",
+        "value": 0.001,
+        "display": "0.001",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.seed",
+        "value": 7,
+        "display": "7",
+        "unit": "1",
+        "unit_source": "field-units schema: input entry `seed`, matched by field name"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.sigma_uere_m",
+        "value": 1.0,
+        "display": "1",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.time.duration_s",
+        "value": 600.0,
+        "display": "600",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.time.step_s",
+        "value": 30.0,
+        "display": "30",
+        "unit": "s",
+        "unit_source": "field-units schema: input entry `timeline.step_s`, matched by field name"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.user.altitude_km",
+        "value": 0.4,
+        "display": "0.4",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.user.inclination_deg",
+        "value": 45.0,
+        "display": "45",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.user.raan_deg",
+        "value": 10.0,
+        "display": "10",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "phases[5].runs[2].scenario.user.u0_deg",
+        "value": 0.0,
+        "display": "0",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "seed",
+        "value": 20260928,
+        "display": "20260928",
+        "unit": "1",
+        "unit_source": "field-units schema: units entry `seed`"
+      },
+      {
+        "path": "timeline.step_s",
+        "value": 10.0,
+        "display": "10",
+        "unit": "s",
+        "unit_source": "field-units schema: units entry `timeline.step_s`"
+      },
+      {
+        "path": "title",
+        "value": "Jamming, spoofing, holdover and integrity: a chained mission",
+        "display": "Jamming, spoofing, holdover and integrity: a chained mission",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      }
+    ],
+    "omitted": 0
+  },
+  "results": {
+    "scalars": {
+      "items": [
+        {
+          "path": "reproducibility.campaign_hash",
+          "value": "f87a4a0e0babe2ea4b7e8adc7739cf564e270dc1c261d2ff48386766bf9d1ba1",
+          "display": "f87a4a0e0babe2ea4b7e8adc7739cf564e270dc1c261d2ff48386766bf9d1ba1",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "reproducibility.run_digest",
+          "value": "409e4768131bf4deac94865261578a66046dc5b498de845d68a8b9e438d1a3e2",
+          "display": "409e4768131bf4deac94865261578a66046dc5b498de845d68a8b9e438d1a3e2",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "reproducibility.runs_total",
+          "value": 18,
+          "display": "18",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `reproducibility.runs_total`"
+        },
+        {
+          "path": "seed",
+          "value": 20260928,
+          "display": "20260928",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `seed`"
+        },
+        {
+          "path": "timeline.channels.alarm.label",
+          "value": "alarm flag: 1 while any monitor of the phase alarms",
+          "display": "alarm flag: 1 while any monitor of the phase alarms",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.alarm.unit",
+          "value": "1",
+          "display": "1",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.alert_limit_m.label",
+          "value": "vertical alert limit",
+          "display": "vertical alert limit",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.alert_limit_m.unit",
+          "value": "m",
+          "display": "m",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.cn0_dbhz.label",
+          "value": "mean effective carrier-to-noise density ratio over the visible satellites",
+          "display": "mean effective carrier-to-noise density ratio over the visible satellites",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.cn0_dbhz.unit",
+          "value": "dB-Hz",
+          "display": "dB-Hz",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.cn0_floor_dbhz.label",
+          "value": "tracking-loss floor of the receiver",
+          "display": "tracking-loss floor of the receiver",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.cn0_floor_dbhz.unit",
+          "value": "dB-Hz",
+          "display": "dB-Hz",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.guard_ns.label",
+          "value": "time-error guard (the run's own threshold)",
+          "display": "time-error guard (the run's own threshold)",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.guard_ns.unit",
+          "value": "ns",
+          "display": "ns",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.position_error_m.label",
+          "value": "position error",
+          "display": "position error",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.position_error_m.unit",
+          "value": "m",
+          "display": "m",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.position_threshold_m.label",
+          "value": "position-error threshold (the run's own)",
+          "display": "position-error threshold (the run's own)",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.position_threshold_m.unit",
+          "value": "m",
+          "display": "m",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.protection_level_m.label",
+          "value": "vertical protection level",
+          "display": "vertical protection level",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.protection_level_m.unit",
+          "value": "m",
+          "display": "m",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.time_error_ns.label",
+          "value": "clock time error",
+          "display": "clock time error",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.time_error_ns.unit",
+          "value": "ns",
+          "display": "ns",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.tracking.label",
+          "value": "satellites still tracking",
+          "display": "satellites still tracking",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.channels.tracking.unit",
+          "value": "count",
+          "display": "count",
+          "unit": "text",
+          "unit_source": "a text result carries no unit"
+        },
+        {
+          "path": "timeline.duration_s",
+          "value": 4570.0,
+          "display": "4570",
+          "unit": "s",
+          "unit_source": "field-units schema: units entry `timeline.duration_s`"
+        },
+        {
+          "path": "timeline.step_s",
+          "value": 10.0,
+          "display": "10",
+          "unit": "s",
+          "unit_source": "field-units schema: units entry `timeline.step_s`"
+        }
+      ],
+      "omitted": 0
+    },
+    "series": {
+      "items": [
+        {
+          "path": "timeline.channels.alarm.values[]",
+          "n": 458,
+          "min": 0.0,
+          "max": 1.0,
+          "first": 0.0,
+          "last": 0.0,
+          "unit": "1"
+        },
+        {
+          "path": "timeline.channels.alert_limit_m.values[]",
+          "n": 241,
+          "min": 50.0,
+          "max": 50.0,
+          "first": 50.0,
+          "last": 50.0,
+          "unit": "m"
+        },
+        {
+          "path": "timeline.channels.cn0_dbhz.values[]",
+          "n": 458,
+          "min": -12.15767492902368,
+          "max": 43.03730444994616,
+          "first": 43.03730444994616,
+          "last": 43.019528670533546,
+          "unit": "dB-Hz"
+        },
+        {
+          "path": "timeline.channels.cn0_floor_dbhz.values[]",
+          "n": 458,
+          "min": 25.0,
+          "max": 25.0,
+          "first": 25.0,
+          "last": 25.0,
+          "unit": "dB-Hz"
+        },
+        {
+          "path": "timeline.channels.guard_ns.values[]",
+          "n": 458,
+          "min": 50.0,
+          "max": 50.0,
+          "first": 50.0,
+          "last": 50.0,
+          "unit": "ns"
+        },
+        {
+          "path": "timeline.channels.position_error_m.values[]",
+          "n": 180,
+          "min": 0.616601555010003,
+          "max": 24343.217838430228,
+          "first": 0.616601555010003,
+          "last": 24343.217838430228,
+          "unit": "m"
+        },
+        {
+          "path": "timeline.channels.position_threshold_m.values[]",
+          "n": 180,
+          "min": 50.0,
+          "max": 50.0,
+          "first": 50.0,
+          "last": 50.0,
+          "unit": "m"
+        },
+        {
+          "path": "timeline.channels.protection_level_m.values[]",
+          "n": 223,
+          "min": 8.949323171927855,
+          "max": 135.28453166123654,
+          "first": 21.635891784290592,
+          "last": 8.949323171927855,
+          "unit": "m"
+        },
+        {
+          "path": "timeline.channels.time_error_ns.values[]",
+          "n": 458,
+          "min": -0.4327759796988663,
+          "max": 62.73774862275424,
+          "first": 0.0,
+          "last": -0.4327759796988663,
+          "unit": "ns"
+        },
+        {
+          "path": "timeline.channels.tracking.values[]",
+          "n": 458,
+          "min": 0.0,
+          "max": 8.0,
+          "first": 8.0,
+          "last": 8.0,
+          "unit": "count"
+        },
+        {
+          "path": "timeline.events[].t_s",
+          "n": 2,
+          "min": 1200.0,
+          "max": 1570.0,
+          "first": 1200.0,
+          "last": 1570.0,
+          "unit": "s"
+        },
+        {
+          "path": "timeline.phases[].carried.time_error_ns",
+          "n": 2,
+          "min": 37.0,
+          "max": 59.580321432984064,
+          "first": 37.0,
+          "last": 59.580321432984064,
+          "unit": "ns"
+        },
+        {
+          "path": "timeline.phases[].runs[].skip_s",
+          "n": 18,
+          "min": 0.0,
+          "max": 100.0,
+          "first": 0.0,
+          "last": 0.0,
+          "unit": "s"
+        },
+        {
+          "path": "timeline.phases[].t0_s",
+          "n": 6,
+          "min": 0.0,
+          "max": 3970.0,
+          "first": 0.0,
+          "last": 3970.0,
+          "unit": "s"
+        },
+        {
+          "path": "timeline.phases[].t1_s",
+          "n": 6,
+          "min": 600.0,
+          "max": 4570.0,
+          "first": 600.0,
+          "last": 4570.0,
+          "unit": "s"
+        },
+        {
+          "path": "timeline.t_s[]",
+          "n": 458,
+          "min": 0.0,
+          "max": 4570.0,
+          "first": 0.0,
+          "last": 4570.0,
+          "unit": "s"
+        }
+      ],
+      "omitted": 0
+    },
+    "charts": [
+      {
+        "id": "primary",
+        "title": "Result chart",
+        "file": "campaign-jam-spoof-holdover-integrity.chart.svg"
+      },
+      {
+        "id": "timeline",
+        "title": "Events timeline"
+      }
+    ]
+  },
+  "aggregation": {
+    "mode": "chain",
+    "runs_total": 18,
+    "run_digest": "409e4768131bf4deac94865261578a66046dc5b498de845d68a8b9e438d1a3e2",
+    "tables": [
+      {
+        "title": "Chain phases",
+        "columns": [
+          "phase",
+          "start",
+          "end",
+          "duration",
+          "ended by",
+          "member kinds",
+          "carried in"
+        ],
+        "units": [
+          "",
+          "s",
+          "s",
+          "s",
+          "",
+          "",
+          ""
+        ],
+        "rows": [
+          [
+            "nominal",
+            0.0,
+            600.0,
+            600.0,
+            "duration_s",
+            "clock, jamming, integrity",
+            "nothing carried"
+          ],
+          [
+            "jamming",
+            600.0,
+            1200.0,
+            600.0,
+            "duration_s",
+            "clock, jamming, integrity",
+            "nothing carried"
+          ],
+          [
+            "spoofing",
+            1200.0,
+            1570.0,
+            370.0,
+            "end_at classical.detect_time_s = 370 s",
+            "spoof, spoof-detect, jamming",
+            "nothing carried"
+          ],
+          [
+            "holdover",
+            1570.0,
+            3370.0,
+            1800.0,
+            "duration_s",
+            "clock, gnss-ins, jamming",
+            "time_error_ns = 37"
+          ],
+          [
+            "integrity-alarm",
+            3370.0,
+            3970.0,
+            600.0,
+            "duration_s",
+            "clock, jamming, integrity",
+            "time_error_ns = 59.580321"
+          ],
+          [
+            "recovery",
+            3970.0,
+            4570.0,
+            600.0,
+            "duration_s",
+            "clock, jamming, integrity",
+            "nothing carried"
+          ]
+        ]
+      }
+    ],
+    "distributions": []
+  },
+  "events": {
+    "items": [
+      {
+        "t_s": 0.0,
+        "t_end_s": 600.0,
+        "label": "phase nominal (ended by duration_s)",
+        "source": "result `timeline.phases[0]`"
+      },
+      {
+        "t_s": 600.0,
+        "t_end_s": 1200.0,
+        "label": "phase jamming (ended by duration_s)",
+        "source": "result `timeline.phases[1]`"
+      },
+      {
+        "t_s": 1200.0,
+        "t_end_s": 1570.0,
+        "label": "phase spoofing (ended by end_at classical.detect_time_s = 370 s)",
+        "source": "result `timeline.phases[2]`"
+      },
+      {
+        "t_s": 1200.0,
+        "label": "RF spoofing detector alarms (fused consistency, power and signal-quality monitors) (phase spoofing) [alarm]",
+        "source": "result `timeline.events[]`"
+      },
+      {
+        "t_s": 1570.0,
+        "t_end_s": 3370.0,
+        "label": "phase holdover (ended by duration_s)",
+        "source": "result `timeline.phases[3]`"
+      },
+      {
+        "t_s": 1570.0,
+        "label": "clock-aided spoofing monitor alarms (phase spoofing) [alarm]",
+        "source": "result `timeline.events[]`"
+      },
+      {
+        "t_s": 3370.0,
+        "t_end_s": 3970.0,
+        "label": "phase integrity-alarm (ended by duration_s)",
+        "source": "result `timeline.phases[4]`"
+      },
+      {
+        "t_s": 3970.0,
+        "t_end_s": 4570.0,
+        "label": "phase recovery (ended by duration_s)",
+        "source": "result `timeline.phases[5]`"
+      }
+    ],
+    "omitted": 0
+  },
+  "capabilities": {
+    "statement": "Each row is a verification-matrix row this run's kinds exercise, with the label and the oracle the matrix gives it (src/verification.rs, docs/VERIFICATION-MATRIX.md). A label grades the capability as the matrix records it; it does not grade this scenario's configuration, and a VALIDATED row does not make the run's inputs measured. A PARTNER row is a discipline the run relies on that Kshana does not provide.",
+    "rows": [
+      {
+        "requirement": "Frequency stability characterisation",
+        "capability": "Allan/modified/Hadamard deviation + power-law noise ID with χ² CIs",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "NIST SP 1065 (Riley) / Stable32 reference deviations on NBS14",
+        "tests": "tests/allan_reference.rs (NBS14 vs Stable32 to 1e-4); allan::tests",
+        "module": "allan",
+        "used_by": [
+          "clock"
+        ]
+      },
+      {
+        "requirement": "Integrity (RAIM/ARAIM/SBAS)",
+        "capability": "Snapshot/MHSS RAIM, ARAIM P_HMI budget, SBAS DO-229E combination",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "DO-229E/DO-316 K-factors; real IGS SP3 geometry",
+        "tests": "tests/igs_real_data.rs, tests/araim_dual_real_data.rs (real IGS SP3 + Celestrak TLE)",
+        "module": "raim, sbas, lunar",
+        "used_by": [
+          "integrity"
+        ]
+      },
+      {
+        "requirement": "GNSS geometry / dilution of precision (DOP)",
+        "capability": "GDOP/PDOP/HDOP/VDOP/TDOP from line-of-sight geometry via Q=(HᵀH)⁻¹ with a local ENU split",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "gnss_lib_py 1.0.4 (Stanford NAV Lab) DOP — independent library, matched to 1e-6 relative",
+        "tests": "tests/dop_reference.rs (8 geometries, well-conditioned → near-singular)",
+        "module": "orbit (dop)",
+        "used_by": [
+          "integrity"
+        ]
+      },
+      {
+        "requirement": "RAIM/ARAIM integrity statistical kernel (χ² / non-central χ² / normal laws)",
+        "capability": "The distributional core every protection level rests on: the snapshot fault-detection threshold χ²₁₋ₚfₐ(dof), the missed-detection non-centrality pbias=√λ, and the K_fa/K_md/K_V solution-separation multipliers",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "SciPy 1.17.0 (scipy.stats.chi2/.norm/.ncx2 + optimize.brentq) — independent library (Cephes/Boost), a different algorithm from Kshana's incomplete-gamma series; matched to ≤1e-6 rel. Kernel only. The ARAIM MHSS P_HMI budget *allocation* is no longer without a published numeric oracle — the WG-C ARAIM Technical Subgroup's own worked example now backs the separate 'ARAIM MHSS protection levels against published reference vectors' row, matched at the reference's own TOL_PL = 5e-2 m — so this row's scope is the statistical kernel and that row carries the allocation (see docs/ARAIM_REFERENCE.md)",
+        "tests": "tests/raim_reference.rs (171 cases: χ² CDF/quantile, normal CDF/quantile, non-central χ² CDF, pbias across the P_fa/P_md/redundancy ranges)",
+        "module": "raim (chi2_cdf, chi2_quantile, noncentral_chi2_cdf, normal_cdf, normal_quantile, pbias)",
+        "used_by": [
+          "integrity"
+        ]
+      },
+      {
+        "requirement": "GNSS-denied clock holdover",
+        "capability": "Closed-form coast-error growth + holdover-to-threshold; quantum-clock classes",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ReferenceImpl",
+        "oracle": "Multi-step clock_state covariance recursion (same-codebase cross-check); the underlying coast-variance & holdover-inversion kernel is externally validated vs scipy (see 'Clock-holdover coast-variance & threshold inversion'). The per-class red-noise-floor holdover figures stay MODELLED",
+        "tests": "holdover::tests (vs multi-step Kalman covariance recursion; white-FM exact; round-trip); coast-variance kernel externally validated in tests/gnss_denied_clock_holdover_reference.rs (vs scipy Van-Loan/brentq)",
+        "module": "holdover",
+        "used_by": [
+          "clock"
+        ]
+      },
+      {
+        "requirement": "Onboard clock state estimation",
+        "capability": "3-state (phase/freq/drift) van-Loan Kalman clock, Joseph-stabilised",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ReferenceImpl",
+        "oracle": "filterpy 1.4.5 KalmanFilter (R. Labbe, MIT), with F via scipy.linalg.expm and Q via the Van-Loan 1978 block-matrix — an independent reference implementation reproducing kshana's full filter trajectory. Cross-implementation consistency: the clock physics / Allan calibration are not externally validated, so this stays MODELLED",
+        "tests": "clock_state::tests (analytic van-Loan Q; NEES; PSD positivity); tests/clock_state_reference.rs (full predict+update trajectory — state x and 3×3 covariance P over 1925 steps / 4 parameter sets vs filterpy 1.4.5; worst |relΔ| 2.8e-14)",
+        "module": "clock_state",
+        "used_by": [
+          "clock"
+        ]
+      },
+      {
+        "requirement": "Quantum inertial sensor performance",
+        "capability": "Cold-atom interferometer accelerometer from first principles (k_eff·T², QPN)",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "Published CAI primary-paper numeric vectors (Cheinet 2008 transfer function; Peters/Freier sensitivity): k_eff·T² matched exactly, shot-noise ASD a one-sided floor within ~2× of each published instrument (real devices carry technical noise above the quantum floor). A bracket, not parity",
+        "tests": "quantum_imu::tests (k_eff; Mach-Zehnder T²; Freier-2016 floor bracket); tests/quantum_inertial_sensor_reference.rs (transfer function |H(ω)|, k_eff·T² and shot-noise ASD vs published Cheinet 2008 / Peters / Freier numeric vectors)",
+        "module": "inertial::quantum_imu",
+        "used_by": [
+          "gnss-ins"
+        ]
+      },
+      {
+        "requirement": "GNSS/INS sensor fusion",
+        "capability": "15-state error-state EKF (loosely & tightly coupled), tightly-coupled pseudorange/Doppler UKF, and a coupled clock+position filter",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ReferenceImpl",
+        "oracle": "filterpy 1.4.5 (R. Labbe, MIT) on numpy/scipy. The three LINEAR filters reach the uniquely-defined Bayesian posterior independently (Joseph vs standard form, machine precision) — a genuine library-vs-library check; the tightly-coupled UKF shares the same sigma-point recursion, so it is consistency-only. Stays MODELLED (the trajectory truth / sensor calibration are not externally validated)",
+        "tests": "fusion::tests (UKF==linear-KF identity; outage coast; NEES); tests/gnss_ins_sensor_fusion_reference.rs (50 cases vs filterpy 1.4.5: linear EKF loose/tight + coupled-PNT posteriors to ≤2.4e-12; UKF 40-epoch run worst |Δx| 1.9e-7 / |ΔP| 9.5e-6)",
+        "module": "fusion (gnss_ins_ekf, tightly_coupled, ukf, coupled)",
+        "used_by": [
+          "gnss-ins"
+        ]
+      },
+      {
+        "requirement": "GNSS-denied jamming resilience",
+        "capability": "Geometry J/S link budget, anti-jam C/N₀, per-satellite loss-of-lock",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "InternalConsistency",
+        "oracle": "Anti-jam C/N₀ link-budget equation cross-checked against an independent numpy re-derivation (shares the same closed form → InternalConsistency) plus a real-JammerTest-2024 C/N₀ degradation characterisation",
+        "tests": "jamming::tests (PSD-derived Q cross-check; despreading); tests/gnss_denied_jamming_resilience_reference.rs (FSPL/J-S/effective-C-N₀ vs an independent numpy re-derivation of the Kaplan & Hegarty §9.4 link budget; real JammerTest C/N₀ falls monotonically through the 25 dB-Hz threshold)",
+        "module": "jamming",
+        "used_by": [
+          "jamming"
+        ]
+      },
+      {
+        "requirement": "Spoofing detection",
+        "capability": "Clock-aided χ², RAIM, AGC, SQM fused per-epoch security FoM",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "TEXBAT scenario parameters (Humphreys 2012) — characterisation, not pinned vectors",
+        "tests": "tests/spoof_texbat_validation.rs (TEXBAT parameter characterisation)",
+        "module": "spoof, spoof_detect, spoof_monitors",
+        "used_by": [
+          "clock",
+          "spoof",
+          "spoof-detect"
+        ]
+      },
+      {
+        "requirement": "Reproducibility & software assurance",
+        "capability": "Deterministic, scenario-hashed, SBOM + cross-platform golden gates",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "SBOM conformance to the official CycloneDX 1.5 JSON Schema (+ valid SPDX identifiers) — an external published standard, zero validation errors over the full dependency graph; the FoM-determinism / byte-reproducibility part remains a pinned self-consistency check, so the row stays MODELLED",
+        "tests": "tests/golden.rs, tests/determinism.rs, tests/cross_platform_golden.rs; tests/reproducibility_software_assurance_reference.rs (the generated SBOM validates with zero errors against the official CycloneDX 1.5 JSON Schema over the full 66-component shipped graph: default + python + wasm features, dev-dependencies excluded)",
+        "module": "report, scenario; CI (golden/determinism/SBOM)",
+        "used_by": [
+          "every run"
+        ]
+      },
+      {
+        "requirement": "Navigation RF payload & antenna hardware design",
+        "capability": "Not provided — Kshana models signal performance, not payload/antenna hardware",
+        "label": "PARTNER",
+        "role": "relied on, not provided",
+        "oracle_kind": "NoneKind",
+        "oracle": "none: a partner-owned discipline, with no module and no test by design",
+        "tests": "none: a partner-owned discipline",
+        "module": "none",
+        "used_by": [
+          "jamming",
+          "spoof-detect"
+        ]
+      },
+      {
+        "requirement": "A chained mission across scenario kinds on one shared timeline",
+        "capability": "The `campaign` kind's phases: each phase runs one or more scenarios of existing kinds through run_toml, reads their outputs into named channels (clock time error and guard, mean effective carrier-to-noise density ratio and tracking floor, vertical protection level and alert limit, position error, satellites tracking, alarm flags) by per-kind presets or explicit result paths, places them at the phase start and holds them onto a common grid, with phase boundaries and events; state is handed on by carry (a channel continues from the previous phase's end value), handoff (a previous phase's number written into the next scenario) and end_at (a phase ends at a time a run computed, such as a spoofing monitor's detection time); a campaign hash and a digest over every member result",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "InternalConsistency",
+        "oracle": "Composition identities against the stand-alone runs of the same kinds: a one-phase campaign reproduces the stand-alone output bit for bit, the carried offset equals the previous run's own last sample, and the phase ended by end_at has exactly the run's detection time as its length. The additive carry across a phase boundary and the zero-order hold are modelling choices, and each phase is as good as the kind that ran it; no chained mission has been checked against a measured one",
+        "tests": "tests/campaign_composition_reference.rs (a_one_phase_clock_campaign_reproduces_the_standalone_run_bit_for_bit, a_one_phase_integrity_campaign_reproduces_the_standalone_run_bit_for_bit, a_one_phase_jamming_campaign_reproduces_the_standalone_run_bit_for_bit — the member result byte-identical to the stand-alone run and every aligned value equal to the stand-alone series; the_chained_mission_hands_state_on_and_ends_the_spoofing_phase_on_detection; a_handoff_writes_the_previous_phase_number_into_the_next_scenario; malformed_campaigns_fail_loudly)",
+        "module": "campaign (run_campaign_detailed, run_chain, presets, extract, to_svg)",
+        "used_by": [
+          "campaign"
+        ]
+      }
+    ],
+    "figure_tiers": []
+  },
+  "not_modelled": {
+    "items": [
+      {
+        "text": "MODELLED composition of existing scenario kinds. Every number is read from a real run of the named kind; the chaining (additive carry of a channel across a phase boundary, zero-order hold onto the timeline grid, a phase ended at a computed time) is a modelling choice, and each phase carries the label of the kind that produced it.",
+        "source": "result `label`"
+      },
+      {
+        "text": "MODELLED: the additive carry and the zero-order hold are modelling choices, and each phase carries the label of the kind that ran it.",
+        "source": "kind catalogue (`kshana kinds --json`)"
+      },
+      {
+        "text": "MODELLED: the chaining is a modelling choice (additive carry, zero-order hold), and each phase is as good as the kind that ran it.",
+        "source": "scenario file comment, lines 30 to 31"
+      },
+      {
+        "text": "GNSS-denied clock holdover is MODELLED, not validated: checked against a separate implementation in this same codebase — independent of the unit under test, but not externally authoritative.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "Onboard clock state estimation is MODELLED, not validated: checked against a separate implementation in this same codebase — independent of the unit under test, but not externally authoritative.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "Quantum inertial sensor performance is MODELLED, not validated: a sub-claim is externally checked, but the whole capability composes modelled pieces, so the capability stays Modelled.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "GNSS/INS sensor fusion is MODELLED, not validated: checked against a separate implementation in this same codebase — independent of the unit under test, but not externally authoritative.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "GNSS-denied jamming resilience is MODELLED, not validated: checked against its own closed-form / analytic identity — catches transcription and coefficient errors, but is not an external oracle.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "Spoofing detection is MODELLED, not validated: a sub-claim is externally checked, but the whole capability composes modelled pieces, so the capability stays Modelled.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "Reproducibility & software assurance is MODELLED, not validated: a sub-claim is externally checked, but the whole capability composes modelled pieces, so the capability stays Modelled.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "A chained mission across scenario kinds on one shared timeline is MODELLED, not validated: checked against its own closed-form / analytic identity — catches transcription and coefficient errors, but is not an external oracle.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      }
+    ],
+    "omitted": 0
+  },
+  "companions": {
+    "animation": {
+      "available": true,
+      "embedded": true,
+      "files": [],
+      "command": "kshana campaign-jam-spoof-holdover-integrity.toml --animate html"
+    },
+    "exports": [
+      {
+        "format": "czml",
+        "applies": true,
+        "spec_url": "https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Structure",
+        "files": []
+      },
+      {
+        "format": "kml",
+        "applies": true,
+        "spec_url": "https://www.ogc.org/standard/kml/",
+        "files": []
+      },
+      {
+        "format": "geojson",
+        "applies": true,
+        "spec_url": "https://www.rfc-editor.org/rfc/rfc7946",
+        "files": []
+      },
+      {
+        "format": "stk",
+        "applies": true,
+        "spec_url": "https://help.agi.com/stk/#stk/importfiles-02.htm",
+        "files": []
+      },
+      {
+        "format": "sigmf",
+        "applies": false,
+        "reason": "no member scenario of the campaign has anything this format describes; export a member on its own to see its reason",
+        "spec_url": "https://github.com/sigmf/SigMF/blob/main/sigmf-spec.md",
+        "files": []
+      }
+    ],
+    "export_command": "kshana campaign-jam-spoof-holdover-integrity.toml --export all"
+  },
+  "reproducibility": {
+    "engine_version": "0.28.0",
+    "git_commit": null,
+    "git_commit_note": "not recorded: this engine was built without the KSHANA_GIT_COMMIT environment variable; the engine version identifies the release",
+    "scenario_file": "campaign-jam-spoof-holdover-integrity.toml",
+    "scenario_sha256": "cec1e10f8eb478bae58acebe9c2f06cfccf6572f6f6895dc633fb409b8d8ee5f",
+    "result_scenario_hash": "f87a4a0e0babe2ea4b7e8adc7739cf564e270dc1c261d2ff48386766bf9d1ba1",
+    "result_sha256": "3ab00422cd46ef6b8b8651777cc0afe8a8982667d32c6af8e536fcdbac27341a",
+    "result_file": "campaign-jam-spoof-holdover-integrity.result.json",
+    "seed": 20260928,
+    "seed_source": "scenario `seed`",
+    "platform": {
+      "os": "macos",
+      "arch": "aarch64",
+      "family": "unix"
+    },
+    "command": "kshana campaign-jam-spoof-holdover-integrity.toml",
+    "argv": [
+      "kshana",
+      "campaign-jam-spoof-holdover-integrity.toml"
+    ],
+    "working_directory": "Run the command from the directory the original run was started in: the scenario path, and any relative data path inside the scenario, resolve against it. Check the scenario file against scenario_sha256 first.",
+    "input_files": [],
+    "determinism": "Same scenario bytes, seed and engine build give a byte-identical result document and report; this report carries no timestamp. Floating-point results are pinned per platform; another operating system or architecture may differ in the last digits."
+  }
+}
