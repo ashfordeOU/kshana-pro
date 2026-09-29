@@ -5,6 +5,39 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Model-based systems engineering (MBSE) and programme tooling over the open engine's
+  own outputs (`kshana-pro mbse import|trace|vcrm|sysml|impact|pack`).** Requirements are
+  imported from comma-separated values (CSV), a documented subset of the Requirements
+  Interchange Format (ReqIF 1.2) and Systems Modeling Language v2 (SysML v2) text. Each
+  carries a verification method (test, analysis, inspection or demonstration) and an
+  acceptance criterion: a machine-checkable expression over the fields of an open-engine
+  `result.json`, with units, aggregates (`max`, `p95`, `fraction`, ...) and `for all` /
+  `for any` quantifiers over arrays. A trace file links requirements to runs; each
+  criterion is evaluated against the real result document and unit-checked through the
+  engine's field-units schema (`kinds.<kind>.fields.<path>.unit`), with the result's own
+  `units` block as fallback, and a unit mismatch is reported as not verified. The
+  verification cross-reference matrix (VCRM) records, per requirement and run, the
+  verdict (met / not met / not verified), the run's `scenario_hash`, `seed`,
+  `engine_version` and `schema_version`, every field path and value read, and the
+  VALIDATED / MODELLED / PARTNER label the verdict rests on (from `figure_tiers`, the
+  schema's `evidence_tier`, the report's `capabilities.rows` and the verification
+  matrix), so a MODELLED or PARTNER basis is flagged. A scenario or result file whose
+  SHA-256 no longer matches its report makes the run's verdicts not verified. The SysML
+  v2 export (part definitions for the simulated clocks, receivers, constellations and
+  jammers with units from the schema, requirement definitions, verification cases per
+  run, `satisfy` only where met) passes an in-repository checker for the grammar subset
+  it uses, documented in `docs/MBSE.md`. Change impact lists the requirements to
+  re-verify between two traces (scenario hash, engine version, seed or capability label
+  changed) or two scenario files (keys compared after parsing). The evidence pack is one
+  offline HTML page plus JSON with the VCRM, a traceability graph, the reproducibility
+  record of every run, open items and a sign-off table, hashed for reproducibility. The
+  commands need the `pro-mbse` feature (Enterprise tier), gated exactly like `ci` and
+  `study`. Tests: `tests/mbse.rs` (19 tests) over real `kshana 0.28.0` runs of
+  clock-holdover, integrity-raim, campaign-jam-spoof-holdover-integrity,
+  leo-pnt-end-to-end and a re-specified clock-holdover, committed with their provenance
+  in `tests/fixtures/mbse/`, plus unit tests in each new module. The README states
+  eighteen integration tests (was seventeen).
+
 - **Study dossier (`kshana-pro study --dossier`), and the README pack count fixed.**
   One scenario now becomes a reproducible evidence dossier, written as JSON
   (`dossier.json`), a self-contained HTML page (`dossier.html`) and the exact scenario
