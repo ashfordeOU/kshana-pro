@@ -155,6 +155,23 @@ pub fn ensure_dossier_entitled(ent: &Entitlement, now_unix: i64) -> Result<(), K
     }
 }
 
+/// Gate the MBSE and programme tooling (`kshana-pro mbse ...`): succeed when `ent`
+/// permits the `pro-mbse` feature at `now_unix`, else return an [`Unsupported`] error
+/// naming the tier the feature requires. It is the same feature id as the `pro-mbse`
+/// scenario pack, so one entitlement covers both.
+///
+/// [`Unsupported`]: KshanaError::Unsupported
+pub fn ensure_mbse_entitled(ent: &Entitlement, now_unix: i64) -> Result<(), KshanaError> {
+    if ent.allows("pro-mbse", now_unix) {
+        Ok(())
+    } else {
+        Err(KshanaError::Unsupported(format!(
+            "the MBSE tooling requires the '{}' tier (or the 'pro-mbse' feature on the licence)",
+            feature_min_tier("pro-mbse").as_str()
+        )))
+    }
+}
+
 /// The signed claims carried by a license token.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct LicenseClaims {

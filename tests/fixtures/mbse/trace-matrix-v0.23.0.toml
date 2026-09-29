@@ -1,0 +1,44 @@
+# Worked example of a Kshana Pro MBSE trace, over real outputs of the open Kshana
+# engine (see PROVENANCE.md for how each file was produced).
+title = "Kshana timing, integrity and LEO programme (labels from the v0.23.0 verification matrix)"
+programme = "Requirements verified against four open Kshana engine runs: clock holdover, RAIM integrity, a chained jamming-spoofing-holdover campaign, and a LEO-PNT chain."
+requirements = "requirements.csv"
+field_units_schema = "engine/field-units-schema.json"
+verification_matrix = "engine/verification-matrix-v0.23.0.json"
+
+[[run]]
+id = "RUN-CLOCK"
+description = "Clock holdover: optical and chip-scale atomic clocks through a 1.8 h GNSS outage"
+scenario = "runs/clock-holdover/clock-holdover.toml"
+result = "runs/clock-holdover/clock-holdover.result.json"
+report = "runs/clock-holdover/clock-holdover.report.json"
+
+[[run]]
+id = "RUN-RAIM"
+description = "Snapshot RAIM availability over a 24-satellite constellation, APV-I alert limits"
+scenario = "runs/integrity-raim/integrity-raim.toml"
+result = "runs/integrity-raim/integrity-raim.result.json"
+report = "runs/integrity-raim/integrity-raim.report.json"
+
+[[run]]
+id = "RUN-CAMPAIGN"
+description = "Chained mission: nominal, jamming, spoofing, holdover, integrity alarm, recovery"
+scenario = "runs/campaign-jam-spoof-holdover-integrity/campaign-jam-spoof-holdover-integrity.toml"
+result = "runs/campaign-jam-spoof-holdover-integrity/campaign-jam-spoof-holdover-integrity.result.json"
+report = "runs/campaign-jam-spoof-holdover-integrity/campaign-jam-spoof-holdover-integrity.report.json"
+
+[[run]]
+id = "RUN-LEO"
+description = "LEO-PNT end to end: signal, pass, navigation message, fused positioning, PPP"
+scenario = "runs/leo-pnt-end-to-end/leo-pnt-end-to-end.toml"
+result = "runs/leo-pnt-end-to-end/leo-pnt-end-to-end.result.json"
+report = "runs/leo-pnt-end-to-end/leo-pnt-end-to-end.report.json"
+
+[[sign_off]]
+role = "Prepared by"
+
+[[sign_off]]
+role = "Checked by"
+
+[[sign_off]]
+role = "Approved by"

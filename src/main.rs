@@ -28,6 +28,7 @@ fn usage() -> &'static str {
        kshana-pro serve [--addr <host:port>] [--license <token>] [--dev]   Host the HTTP service\n\
        kshana-pro ci --pack <manifest.toml> [--baseline <ci.json>] [--thresholds <spec>] [--utc <iso>] [--customer <name>] [--out <report.html>] [--json <ci.json>] [--license <token>] [--dev]   Run a Pack C scenario-subscription CI (Pro)\n\
        kshana-pro study --dossier <scenario.toml> --out <dir> [--utc <iso>] [--license <token>] [--dev]   Reproducible study dossier, HTML + JSON (Pro)\n\
+       kshana-pro mbse <import|trace|vcrm|sysml|impact|pack> ... [--license <token>] [--dev]   Requirements, traceability, VCRM, SysML v2, change impact, evidence pack (Pro; `kshana-pro mbse` for details)\n\
        kshana-pro license issue --tier <t> --licensee <name> [--days <n>]\n\
        kshana-pro license verify <token>\n\
        kshana-pro license keygen                       New vendor key pair (vendor only)\n\
@@ -148,6 +149,10 @@ fn main() -> ExitCode {
         // Study dossier: one scenario -> a reproducible evidence dossier (JSON + HTML)
         // laid out as a technical note (Pro-tier entitlement; --dev bypasses it).
         Some("study") => study_cmd(&args),
+        // MBSE and programme tooling over the open engine's own outputs: requirements
+        // import, traceability, the verification cross-reference matrix, SysML v2
+        // export, change impact and the evidence pack (feature `pro-mbse`).
+        Some("mbse") => mbse_cmd(&args[1..]),
         Some("healthcheck") => {
             let addr = flag(&args, "--addr").unwrap_or_else(|| "127.0.0.1:8088".to_string());
             if kshana_pro::serve::healthcheck(&addr) {
@@ -344,6 +349,51 @@ fn ci_cmd(args: &[String]) -> ExitCode {
         Some(v) => {
             eprintln!("[ci] REGRESSIONS: {}", v.regressions.len());
             ExitCode::from(v.exit_code() as u8)
+        }
+    }
+}
+
+/// `mbse <command>` — resolve the entitlement exactly as `ci` and `study` do (`--dev`
+/// in a debug build = full; else a token enforces its tier; else Evaluation), require
+/// the `pro-mbse` feature, then run the command.
+fn mbse_cmd(args: &[String]) -> ExitCode {
+    if args.is_empty() || matches!(args[0].as_str(), "help" | "--help" | "-h") {
+        println!("{}", kshana_pro::mbse::cli::USAGE);
+        return ExitCode::SUCCESS;
+    }
+    let now = now_unix();
+    let ent = if has_flag(args, "--dev") {
+        eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
+        Entitlement {
+            licensee: "(dev)".into(),
+            tier: Tier::Enterprise,
+            expires_unix: 0,
+            features: vec![],
+        }
+    } else {
+        match flag(args, "--license") {
+            Some(tok) => match verify_token(&tok, now) {
+                Ok(e) => e,
+                Err(e) => {
+                    eprintln!("error: license invalid: {e}");
+                    return ExitCode::FAILURE;
+                }
+            },
+            None => {
+                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
+                Entitlement::evaluation()
+            }
+        }
+    };
+    if let Err(e) = license::ensure_mbse_entitled(&ent, now) {
+        eprintln!("error: {e}");
+        return ExitCode::FAILURE;
+    }
+    match kshana_pro::mbse::cli::run(args) {
+        Ok(code) => ExitCode::from(code),
+        Err(e) => {
+            eprintln!("error: {e}");
+            ExitCode::FAILURE
         }
     }
 }
