@@ -36,6 +36,8 @@ const MUTED: &str = "#6b645a";
 
 /// Figures shown on a run's sheet before the rest is left to `dossier.json`.
 pub const MAX_SHEET_FIGURES: usize = 30;
+/// Lines of text one table cell may hold in the PDF.
+const MAX_CELL_LINES: usize = 40;
 /// Outputs of another provenance class shown on a run's sheet.
 pub const MAX_SHEET_OTHER_OUTPUTS: usize = 12;
 /// Not-modelled notes shown on a run's sheet before the rest is left to the report.
@@ -192,6 +194,17 @@ fn table(l: &mut Layout, cols: &[Col], rows: &[Vec<Cell>], pt: f32) {
                     (pt, 0.52)
                 };
                 wrap_cell(&ascii(&c.text), col.w - 2.0, size, em)
+            })
+            .collect();
+        // A cell never grows past what one page holds.
+        let wrapped: Vec<Vec<String>> = wrapped
+            .into_iter()
+            .map(|mut lines| {
+                if lines.len() > MAX_CELL_LINES {
+                    lines.truncate(MAX_CELL_LINES);
+                    lines.push("[cut here; the full text is in dossier.json]".to_string());
+                }
+                lines
             })
             .collect();
         let lines = wrapped.iter().map(Vec::len).max().unwrap_or(1);
@@ -1085,6 +1098,18 @@ fn closing(l: &mut Layout, d: &Dossier) {
         small(l, &format!("- {line}"));
         l.advance(1.0);
     }
+    l.advance(2.0);
+    small(
+        l,
+        &format!(
+            "Abbreviations: {}.",
+            b.terms
+                .iter()
+                .map(|t| format!("{} - {}", t.term, t.meaning))
+                .collect::<Vec<_>>()
+                .join("; ")
+        ),
+    );
 }
 
 /// Count the ops of the page in progress plus the finished pages.

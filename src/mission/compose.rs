@@ -264,6 +264,38 @@ pub struct DossierBody {
     pub reproducibility_note: String,
     pub sign_off: Vec<SignOff>,
     pub limitations: Vec<String>,
+    /// The abbreviations the dossier's own text uses, spelled out.
+    pub terms: Vec<Term>,
+}
+
+/// An abbreviation and what it stands for.
+#[derive(Debug, Clone, Serialize, PartialEq)]
+pub struct Term {
+    pub term: String,
+    pub meaning: String,
+}
+
+/// The abbreviations of the dossier's own headings, tables and notes. A programme's
+/// requirement texts and the engine's notes spell out their own.
+fn terms() -> Vec<Term> {
+    [
+        ("ECSS", "European Cooperation for Space Standardization"),
+        ("HTML", "HyperText Markup Language"),
+        ("JSON", "JavaScript Object Notation"),
+        ("PDF", "Portable Document Format"),
+        ("PNT", "positioning, navigation and timing"),
+        ("SHA-256", "Secure Hash Algorithm, 256-bit"),
+        (
+            "UTC",
+            "Coordinated Universal Time, the time scale of the issue stamp",
+        ),
+    ]
+    .iter()
+    .map(|(t, m)| Term {
+        term: t.to_string(),
+        meaning: m.to_string(),
+    })
+    .collect()
 }
 
 /// The mission dossier.
@@ -660,6 +692,7 @@ pub fn compose(
         reproducibility_note: reproducibility_note(),
         sign_off,
         limitations: limitations(),
+        terms: terms(),
     };
     let dossier_sha256 = sha256_hex(canonical_json(&body)?.as_bytes());
     Ok(Dossier {

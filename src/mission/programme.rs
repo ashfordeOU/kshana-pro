@@ -47,6 +47,19 @@ use kshana::api::KshanaError;
 /// The run identifier the trade study gets in the trace and the dossier.
 pub const TRADE_RUN_ID: &str = "TRADE";
 
+/// File names the build writes at the top of the dossier directory; the copy of the
+/// requirements file may not take one of them.
+pub const RESERVED_NAMES: [&str; 8] = [
+    "trace.toml",
+    "dossier.json",
+    "dossier.html",
+    "dossier.pdf",
+    "evidence-pack.html",
+    "evidence-pack.json",
+    "manifest.json",
+    "ledger.json",
+];
+
 fn err(msg: impl Into<String>) -> KshanaError {
     KshanaError::InvalidInput(msg.into())
 }
@@ -352,8 +365,11 @@ impl Programme {
             path: file_name(&pf.requirements)?,
             sha256: sha256_hex(&requirements_bytes),
         };
-        if requirements_file.path == "trace.toml" {
-            return Err(err("the requirements file may not be named trace.toml"));
+        if RESERVED_NAMES.contains(&requirements_file.path.as_str()) {
+            return Err(err(format!(
+                "the requirements file may not be named {}: the dossier writes a file of that name",
+                requirements_file.path
+            )));
         }
         let mut canon = format!(
             "programme {}\nrequirements {}\n",

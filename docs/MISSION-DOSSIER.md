@@ -17,10 +17,11 @@ Abbreviations used on this page, in full:
 
 | Abbreviation | Meaning |
 |---|---|
-| A4 | the 210 mm by 297 mm paper size of ISO 216 |
+| A4 | the 210 mm by 297 mm paper size of the International Organization for Standardization standard ISO 216 |
+| ASCII | American Standard Code for Information Interchange |
 | C/A | coarse/acquisition (the GPS L1 civil signal) |
 | C/N0 | carrier-to-noise density ratio |
-| CSV | comma-separated values (RFC 4180) |
+| CSV | comma-separated values (Request for Comments 4180) |
 | ECSS | European Cooperation for Space Standardization |
 | GNSS | Global Navigation Satellite System |
 | GPS | Global Positioning System |
@@ -110,8 +111,9 @@ name = ""
 
 The programme is checked before anything runs: a missing scenario file, a requirements
 file with no requirements, a link to a requirement or a run that does not exist, a run
-identifier that is not usable as a directory name and a Pro kind the licence does not
-carry are all refused, and nothing is written.
+identifier that is not usable as a directory name, a requirements file named like one of
+the files the build writes, and a Pro kind the licence does not carry are all refused,
+and nothing is written.
 
 ## What the command does
 
