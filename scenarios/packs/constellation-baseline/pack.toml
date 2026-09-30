@@ -1,0 +1,95 @@
+# Campaign watch subscription pack: constellations.
+#
+# The GPS baseline 24-slot preset under the conditions of GPS Standard Positioning
+# Service Performance Standard Appendix B (derived from the open multi-GNSS scenario;
+# PROVENANCE.md states the edit), the open multi-GNSS coverage run and the open lunar
+# relay constellation. Requirements are the published figures docs/CONSTELLATION-DESIGN.md
+# states. MODELLED geometry, not a certification.
+id = "constellation-baseline"
+version = "1.0.0"
+description = "Campaign watch pack: the GPS baseline constellation under the SPS Performance Standard Appendix B conditions, four-system coverage and a lunar relay constellation, watched on availability and dilution of precision. MODELLED."
+
+[[entries]]
+path = "gps-baseline-sps.toml"
+label = "gps-sps"
+
+[[entries]]
+path = "constellation-multi-gnss-coverage.toml"
+label = "multi-gnss"
+
+[[entries]]
+path = "lunar-relay-constellation.toml"
+label = "lunar-relay"
+
+[[watch]]
+name = "GPS: global availability (PDOP at most 6)"
+entry = "gps-sps"
+metric = "global.availability_pct"
+direction = "higher"
+tolerance = { abs = 0.0 }
+requirement = "watched >= 98 %"
+note = "SPS Performance Standard Table 3.8-1: 98 % global."
+
+[[watch]]
+name = "GPS: worst-site availability"
+entry = "gps-sps"
+metric = "global.worst_site_availability_pct"
+direction = "higher"
+tolerance = { abs = 0.0 }
+requirement = "watched >= 88 %"
+note = "SPS Performance Standard Table 3.8-1: 88 % at the worst site."
+
+[[watch]]
+name = "GPS: global HDOP median"
+entry = "gps-sps"
+metric = "global.hdop.median"
+direction = "lower"
+tolerance = { abs = 0.005 }
+requirement = "watched >= 0.91 and watched <= 0.97"
+note = "SPS Performance Standard Appendix B: median 0.94, bar 0.03 (docs/CONSTELLATION-DESIGN.md)."
+
+[[watch]]
+name = "GPS: global HDOP 95th percentile"
+entry = "gps-sps"
+metric = "global.hdop.p95"
+direction = "lower"
+tolerance = { abs = 0.005 }
+requirement = "watched >= 1.22 and watched <= 1.28"
+note = "SPS Performance Standard Appendix B: 95 % 1.25, bar 0.03."
+
+[[watch]]
+name = "GPS: global HDOP mean"
+entry = "gps-sps"
+metric = "global.hdop.mean"
+direction = "lower"
+tolerance = { abs = 0.005 }
+requirement = "watched >= 0.93 and watched <= 0.99"
+note = "SPS Performance Standard Appendix B: mean 0.96, bar 0.03."
+
+[[watch]]
+name = "four systems: fewest satellites in view"
+entry = "multi-gnss"
+metric = "global.min_visible"
+direction = "higher"
+tolerance = { abs = 0.0 }
+
+[[watch]]
+name = "four systems: PDOP 95th percentile"
+entry = "multi-gnss"
+metric = "global.pdop.p95"
+direction = "lower"
+tolerance = { abs = 0.005 }
+
+[[watch]]
+name = "lunar relay: global availability"
+entry = "lunar-relay"
+metric = "global.availability_pct"
+direction = "higher"
+tolerance = { abs = 0.0 }
+
+[[watch]]
+name = "lunar relay: worst-site availability"
+entry = "lunar-relay"
+metric = "global.worst_site_availability_pct"
+direction = "higher"
+tolerance = { abs = 0.0 }

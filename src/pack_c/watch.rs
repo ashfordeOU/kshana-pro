@@ -75,6 +75,22 @@ pub struct Ensemble {
     pub std: String,
     /// Path of the number of realisations.
     pub n: String,
+    /// Which tests decide the watch: `mean` (the Welch test, in the watch's direction),
+    /// `spread` (the F-test on the variance) or `both` (the default).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub test: Option<String>,
+}
+
+impl Ensemble {
+    /// Whether the mean test decides this watch.
+    pub fn tests_mean(&self) -> bool {
+        matches!(self.test.as_deref(), None | Some("both") | Some("mean"))
+    }
+
+    /// Whether the spread test decides this watch.
+    pub fn tests_spread(&self) -> bool {
+        matches!(self.test.as_deref(), None | Some("both") | Some("spread"))
+    }
 }
 
 /// For a sweep: the threshold whose first crossing along the first axis is the figure.
@@ -275,6 +291,14 @@ impl Watch {
             if self.crossing.is_some() {
                 return Err(format!(
                     "{who}: 'ensemble' and 'crossing' cannot be combined"
+                ));
+            }
+            if !matches!(
+                e.test.as_deref(),
+                None | Some("both") | Some("mean") | Some("spread")
+            ) {
+                return Err(format!(
+                    "{who}: ensemble.test must be one of mean, spread, both"
                 ));
             }
         }
