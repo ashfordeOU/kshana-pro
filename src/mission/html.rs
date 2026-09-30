@@ -601,7 +601,14 @@ ul.items{{padding-left:20px;font:13.5px/1.5 system-ui,sans-serif}}ul.items li{{m
         for l in &b.limitations {
             h += &format!("<li>{}</li>", esc(l));
         }
-        h += "</ul>";
+        h += "</ul><p class=\"small\">Abbreviations: ";
+        h += &b
+            .terms
+            .iter()
+            .map(|t| format!("<b>{}</b> {}", esc(&t.term), esc(&t.meaning)))
+            .collect::<Vec<_>>()
+            .join("; ");
+        h += ".</p>";
         h += &format!(
             "<p class=\"small\">{} · MODELLED engineering study, not a certification.</p>",
             esc(&b.generated_by)

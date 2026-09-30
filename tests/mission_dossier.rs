@@ -1406,6 +1406,16 @@ fn bad_programmes_are_refused_and_a_wrong_unit_is_never_met() {
     assert!(dossier.body.trade.is_none());
     assert!(check(&built.out_dir, None).unwrap().passed());
 
+    // A requirements file named like a file the build writes.
+    let d = small_programme(
+        "adv-name",
+        &SMALL.replace("requirements.csv", "manifest.json"),
+        reqs,
+    );
+    std::fs::rename(d.join("requirements.csv"), d.join("manifest.json")).unwrap();
+    let e = go(&d).unwrap_err().to_string();
+    assert!(e.contains("manifest.json"), "{e}");
+
     // A run identifier that would leave the dossier directory.
     let d = small_programme("adv-id", &SMALL.replace("RUN-MARS", "../x"), reqs);
     assert!(go(&d)
