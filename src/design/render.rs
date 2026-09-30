@@ -591,7 +591,10 @@ pub fn report_html(doc: &Value, svg: &str) -> String {
                         ""
                     }
                 ),
-                format!("<code>{}</code>", esc(f["file"].as_str().unwrap_or(""))),
+                format!(
+                    "<code class=\"nw\">{}</code>",
+                    esc(f["file"].as_str().unwrap_or(""))
+                ),
             ];
             for v in &variables {
                 r.push(esc(&value_text(
@@ -883,6 +886,7 @@ th {{ color:var(--muted); font-weight:600; white-space:nowrap; background:var(--
 tr:last-child td {{ border-bottom:0; }}
 .n {{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }}
 code {{ font:12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap:anywhere; }}
+.nw {{ white-space:nowrap; overflow-wrap:normal; }}
 .tag {{ display:inline-block; border:1px solid var(--line); border-radius:3px; padding:0 6px; font-size:11px; letter-spacing:.03em; color:var(--muted); white-space:nowrap; }}
 ul {{ padding-left:20px; max-width:75ch; }}
 footer {{ margin-top:48px; color:var(--muted); font-size:12px; }}

@@ -1287,3 +1287,177 @@ fn every_shipped_study_parses_and_its_space_is_the_stated_size() {
         assert!(feasible <= r.study.search.budget, "{name} is exhaustive");
     }
 }
+
+// ─────────────────────────────────────────────────────── 14. the guide's numbers
+
+/// A number as the guide writes it: at most four decimals, no trailing zeros.
+fn shown(x: f64) -> String {
+    let s = format!("{x:.4}");
+    s.trim_end_matches('0').trim_end_matches('.').to_string()
+}
+
+fn front_points(v: &Value) -> BTreeSet<(u64, String)> {
+    v["front"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|f| {
+            (
+                num(&f["objectives"]["satellites"]) as u64,
+                shown(num(&f["objectives"]["availability_pct"])),
+            )
+        })
+        .collect()
+}
+
+#[test]
+fn the_user_guide_quotes_the_numbers_the_studies_give() {
+    // A number in prose is a copy. Each one the guide quotes is re-derived here.
+    let guide = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("docs/DESIGN-OPTIMISER.md"),
+    )
+    .unwrap();
+    let has = |needle: &str| assert!(guide.contains(needle), "the guide lacks: {needle}");
+
+    // Whole Moon.
+    let (_, g) = lunar();
+    has("1 152 combinations");
+    assert_eq!(g["space"]["grid_size"], 1152);
+    has("removes 544 of them");
+    has("The front has 12 designs at\n6 distinct points");
+    assert_eq!(g["front_summary"]["designs"], 12);
+    let points = front_points(g);
+    assert_eq!(points.len(), 6);
+    for (sats, avail) in &points {
+        let cell = if avail == "100" {
+            "100.0"
+        } else {
+            avail.as_str()
+        };
+        has(&format!("| {sats} | {cell} |"));
+    }
+    for f in g["front"].as_array().unwrap() {
+        assert_eq!(
+            num(&f["variables"]["altitude_km"]),
+            8000.0,
+            "highest altitude offered"
+        );
+    }
+    has("its worst-site availability is\n0 %), which the open engine's coverage map of `front/004.toml` shows");
+    let knee = &g["front"][3];
+    assert_eq!(knee["id"], "004");
+    assert_eq!(knee["knee"], true);
+    let (kd, _) = direct(knee["scenario"].as_str().unwrap());
+    assert_eq!(num(&kd["global"]["worst_site_availability_pct"]), 0.0);
+    assert_eq!(num(&kd["global"]["availability_pct"]), 85.0404);
+    let at_full = g["front"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|f| num(&f["objectives"]["availability_pct"]) == 100.0)
+        .count();
+    assert_eq!(at_full, 7, "seven designs reach it");
+    has(&format!(
+        "14 satellites and {} % availability, and two\nfront designs",
+        shown(num(&g["reference"]["objectives"]["availability_pct"]))
+    ));
+    assert_eq!(g["reference"]["dominated_by"].as_array().unwrap().len(), 2);
+
+    // South polar cap.
+    let (_, p) = run(&study("lunar-navigation-south-polar.toml"), THREADS);
+    assert_eq!(p["work"]["evaluations"], 608);
+    assert_eq!(p["front_summary"]["designs"], 9);
+    has("give a front of 9 designs at 4 points: 8 satellites 24.5261 %, 12 satellites 69.5825 %,\n14 satellites 91.6739 % (the knee) and 16 satellites 100 %");
+    let expected: BTreeSet<(u64, String)> = [
+        (8, "24.5261"),
+        (12, "69.5825"),
+        (14, "91.6739"),
+        (16, "100"),
+    ]
+    .into_iter()
+    .map(|(n, a)| (n, a.to_string()))
+    .collect();
+    assert_eq!(front_points(&p), expected);
+    assert_eq!(num(&p["knee"]["objectives"]["satellites"]), 14.0);
+    let r = &p["reference"];
+    has("14 satellites and 96.7241 %: no front design dominates it, and it dominates the best\n14-satellite single-shell design");
+    assert_eq!(shown(num(&r["objectives"]["availability_pct"])), "96.7241");
+    assert_eq!(num(&r["objectives"]["satellites"]), 14.0);
+    assert_eq!(r["on_front"], true);
+    assert_eq!(r["dominated_by"], serde_json::json!([]));
+    assert_eq!(r["dominates"], serde_json::json!(["003"]));
+    assert_eq!(num(&p["front"][2]["objectives"]["satellites"]), 14.0);
+    // The reference of the polar study, run directly.
+    let polar_ref = Study::parse(&study("lunar-navigation-south-polar.toml"))
+        .unwrap()
+        .reference
+        .unwrap()
+        .scenario
+        .unwrap();
+    let (d, sha) = direct(&polar_ref);
+    assert_eq!(r["result_sha256"].as_str().unwrap(), sha);
+    assert_eq!(
+        num(&r["objectives"]["availability_pct"]),
+        num(&d["global"]["availability_pct"])
+    );
+
+    // Low Earth orbit.
+    let (_, e) = run(&study("leo-positioning-earth.toml"), THREADS);
+    has("1 782 combinations, 351\n  removed by the Walker constraint, 1 431 run, 1 141 of those kept off the front");
+    assert_eq!(e["space"]["grid_size"], 1782);
+    assert_eq!(e["work"]["infeasible"], 351);
+    assert_eq!(e["work"]["evaluations"], 1431);
+    assert_eq!(e["work"]["constraint_violated"], 1141);
+    assert_eq!(e["work"]["failed"], 0);
+    has("the front has 22 designs and its knee is 168 satellites, 90.0661 %\n  availability and a 95th-percentile PDOP of 8.81");
+    assert_eq!(e["front_summary"]["designs"], 22);
+    let knee = e["front"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|f| f["knee"] == true)
+        .expect("the front has a knee");
+    assert_eq!(num(&knee["objectives"]["satellites"]), 168.0);
+    let (k, _) = direct(knee["scenario"].as_str().unwrap());
+    assert_eq!(num(&k["global"]["pdop"]["p95"]), 8.81);
+    assert_eq!(num(&k["global"]["availability_pct"]), 90.0661);
+    assert_eq!(num(&knee["objectives"]["pdop_p95"]), 8.81);
+    assert_eq!(num(&knee["objectives"]["availability_pct"]), 90.0661);
+
+    // Mars.
+    has("a Walker shell around Mars, 72 designs, a front of 8");
+    let (_, m) = run(&study("mars-navigation-shell.toml"), THREADS);
+    assert_eq!(m["work"]["evaluations"], 72);
+    assert_eq!(m["front_summary"]["designs"], 8);
+
+    // The budgeted search paragraph.
+    has("seeds 1, 2 and 3 found 4, 5 and 3 of the 6\ntrue front points, and the hypervolume of the front found was 0.6217, 0.6347 and 0.6087\nagainst 0.6558 for the true front. With 300 runs they found 5, 6 and 5.");
+    assert_eq!(shown(num(&g["hypervolume"]["value"])), "0.6558");
+    let mut found = Vec::new();
+    let mut volumes = Vec::new();
+    for budget in [150, 300] {
+        for seed in [1, 2, 3] {
+            let src = with_search(
+                &study("lunar-navigation-global.toml").replacen(
+                    "seed = 1\n",
+                    &format!("seed = {seed}\n"),
+                    1,
+                ),
+                &format!(
+                    "method = \"nsga2\"\nbudget = {budget}\npopulation = 30\ngenerations = 40"
+                ),
+            );
+            let (_, v) = run(&src, THREADS);
+            found.push(front_points(&v).intersection(&points).count());
+            if budget == 150 {
+                volumes.push(shown(num(&v["hypervolume"]["value"])));
+            }
+        }
+    }
+    assert_eq!(found, vec![4, 5, 3, 5, 6, 5]);
+    assert_eq!(volumes, vec!["0.6217", "0.6347", "0.6087"]);
+
+    // The ZDT1 figure and the published anchor are held by their own tests above.
+    has("the mean distance to it is 0.00018 on the development machine (the bar, fixed before the\nfirst run, is 0.05)");
+    has("a global HDOP median of 0.94, a 90th\npercentile of 1.165 and a 95th percentile of 1.255 (published: 0.94, 1.16 and 1.25) and\na PDOP median of 1.795");
+}

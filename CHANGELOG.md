@@ -110,3 +110,33 @@ own bullet so parallel work merges cleanly.
   count, stops matching the registry or `tests/`. Tests: `tests/study_dossier.rs`
   (determinism, tier split, the binary end to end and its licence gate) and unit tests
   in `src/study_dossier.rs`.
+
+- **Design optimiser: the Pareto front of a design space, over any open kind and around
+  any body (`kshana-pro design <study.toml> --out <dir>`, new pack `pro-design-optimise`).**
+  A study states variables written into a base scenario of any open kind, constraints
+  (a Walker pattern constraint that removes infeasible designs without a run, and conditions
+  on result fields that keep a run off the front) and two or three objectives, each a field
+  of the engine's result or a design variable; there is no cost model. Every design is one
+  run of the open engine through `kshana::api::run_scenario`; the front and its knee come
+  from the open kernel `kshana::mcda::pareto`. The search is exhaustive when the feasible
+  space fits the budget and a seeded NSGA-II (non-dominated sorting genetic algorithm II)
+  otherwise; a front that is not exhaustive is labelled "best found in N runs". The same
+  study and seed give the same bytes for any thread count. Outputs: `design.result.json`
+  (with the Pro result stamp: `scenario_hash`, `units` for every numeric field,
+  `figure_tiers`, `not_modelled`, `reproducibility.run_digest`), `design.pareto.svg`,
+  a self-contained `design.report.html`, `front/index.csv` and `front/NNN.toml`, each front
+  design as a plain open scenario that the free engine runs to the same result document.
+  Every result is labelled MODELLED, and each figure takes the label of the weakest open
+  capability it rests on. Five worked studies in `scenarios/pro-power/design/` (a lunar
+  navigation constellation over the whole Moon and over the south polar cap, a low-Earth-orbit
+  positioning shell, a Mars shell, a link budget), with provenance. Measured: the 608-design
+  lunar space has a front of 12 designs at 6 points (8 satellites 19.5446 % availability
+  to 24 satellites 100 %), equal to a brute-force front over scenarios the test writes
+  itself; through the evaluator the GPS (Global Positioning System) baseline constellation
+  reads the published horizontal dilution of precision (median 0.94, 95th percentile 1.255
+  against 1.25 published); on the analytic ZDT1 benchmark the search kernel's mean distance
+  to the true front is 0.00018 against a bar of 0.05 fixed beforehand (the first run missed
+  the bar at 0.177 because the crossover lacked its exchange step; the operator was
+  corrected and the bar was not moved). The feature falls to the default, fail-closed
+  licence tier. Guide: `docs/DESIGN-OPTIMISER.md`. Tests: `tests/design_optimise.rs`
+  (the README now states twenty integration tests and seventeen Pro packs).
