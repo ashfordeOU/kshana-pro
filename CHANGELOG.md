@@ -5,6 +5,16 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **The clock twin result is labelled MODELLED.** The public Kshana Pro page says every Pro
+  output is labelled MODELLED; a `pro-twin` result carried no label at all. It now has a
+  `label` field that starts with MODELLED and says the twin reproduces a published
+  Allan-deviation budget with the open clock model, not a measured unit, and its run
+  summary ends `| MODELLED`. A unit test holds both. No figure changes. The trade-study
+  result and the scenario regression check's JSON still carry no label (the regression
+  check's HTML report does); labelling the trade-study result changes the bytes of the
+  mission dossier's trade run and so the published dossier hash, which needs its own
+  regeneration.
+
 - **The three Pro power features integrated on `feat/pro-power`: design optimiser,
   uncertainty and sensitivity, and mission dossier.** Each was merged from its own branch
   after an independent verification. The README count words each branch wrote
