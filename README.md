@@ -21,7 +21,7 @@ construction*; Pro adds the value that must stay closed.
         │  │ L1 twin          │      │ docs/tenders/  13503·13494·   │    │
         │  │ L2 resilience 🔒 │      │   lunar  (bid evidence, decks)│    │
         │  │ L3 suite (gated) │      │ papers/        (arXiv-track)  │    │
-        │  │ + 17 Pro packs   │      │ docs/gtm · docs/strategy      │    │
+        │  │ + 18 Pro packs   │      │ docs/gtm · docs/strategy      │    │
         │  │   via ExternalPack│     │ legal/  (licence·NDA·export·  │    │
         │  │   / ErrorModel   │      │   BIPR·trademark)             │    │
         │  └────────┬─────────┘      │ docs/kshana-architecture.html │    │
@@ -73,6 +73,7 @@ won tenders and revenue. The map:
 | **Strategy & roadmaps** | [`docs/strategy/`](docs/strategy/), [`docs/roadmaps/`](docs/roadmaps/) | Pricing proposal, productization roadmap, phase plans, the quantum-PNT-13503 and lunar-PNT build roadmaps. |
 | **Legal** | [`legal/`](legal/) | Commercial licence, NDA/SOW/DPA templates, IP policy, export-control determination, BIPR & trademark briefs, counsel-review package. |
 | **The overlay (code)** | [`src/`](src/), [`scenarios/`](scenarios/), [`tests/`](tests/) | The Pro packs + deliverable/deployment modules ([Status](#status--what-is-built-vs-gated)); seam map in [`docs/OVERLAY-ARCHITECTURE.md`](docs/OVERLAY-ARCHITECTURE.md). |
+| **User guides (code features)** | [`docs/PRO-POWER.md`](docs/PRO-POWER.md), [`docs/DESIGN-OPTIMISER.md`](docs/DESIGN-OPTIMISER.md), [`docs/UNCERTAINTY.md`](docs/UNCERTAINTY.md), [`docs/MISSION-DOSSIER.md`](docs/MISSION-DOSSIER.md), [`docs/MBSE.md`](docs/MBSE.md) | The summary of the three Pro power features, then one guide per feature: what it does, the command, inputs and outputs, worked examples with measured numbers, and what is not done. |
 
 **Visibility rule (non-negotiable):** everything in this repo is **PRIVATE**. Capability
 *code* is mirrored to the open [`kshana`](https://github.com/AshfordeOU/kshana) repo;
@@ -80,7 +81,7 @@ won tenders and revenue. The map:
 
 ## Status — what is built vs gated
 
-The overlay is well past its P0 seam: **seventeen Pro packs** (plus the **Pack C**
+The overlay is well past its P0 seam: **eighteen Pro packs** (plus the **Pack C**
 scenario-CI subscription product) are built and tested on public data across the
 P0 / L1 / L3 value layers, plus the deliverable and deployment modules listed below. What stays **gated** is never a *framework* — it is the
 *instance* that needs private data, export clearance, or a signed customer: a real
@@ -92,7 +93,7 @@ on spec)**.
 
 Each runs on public data; the tier shown is the licence required to *run* it (see
 [Licensing](#build--run)). The table covers the framework packs; the full list of the
-seventeen registered in [`src/registry.rs`](src/registry.rs), with their tiers, comes from
+eighteen registered in [`src/registry.rs`](src/registry.rs), with their tiers, comes from
 `cargo run -- kinds`. `tests/readme_counts.rs` fails the build if the pack count written
 here stops matching the registry.
 
@@ -106,6 +107,8 @@ here stops matching the registry.
 | `pro-mbse` | L3 | ECSS/MBSE artifact generator: requirements → margins table + traceability CSV + ReqIF-lite XML (DOORS/Polarion-importable) | Enterprise | ✅ framework demonstrator (product SKU gated) |
 | `pro-batch` | scale | Parallel Monte-Carlo runner: fans one base scenario across many seeds concurrently, aggregates a figure of merit (mean/std/min/max/p05/p95) | Enterprise | ✅ built + tested |
 | `pro-scenario-ci` | Pack C | The **scenario-subscription CI** product (run via `kshana-pro ci`): a manifest of scenarios + metric thresholds gated against a rolling baseline (the JSON output doubles as the next run's baseline), emitting the branded Pack C regression report (`pack_c::{manifest,metrics,gate,run}` + `report_pack_c`) | Pro | ✅ built + tested |
+| `pro-design-optimise` | L3 | **Design optimiser** (`kshana-pro design`): a design space over a base scenario of any open kind, Walker and result constraints, two or three objectives; returns the Pareto front, its knee and the place of a reference design. Exhaustive when the space fits the budget, seeded NSGA-II (non-dominated sorting genetic algorithm II) otherwise, labelled "best found in N runs"; every front design is exported as a plain open scenario the free engine re-runs to the same result. See [`docs/DESIGN-OPTIMISER.md`](docs/DESIGN-OPTIMISER.md) | Enterprise | ✅ built + tested |
+| `pro-uncertainty` | scale | **Uncertainty and sensitivity** (`kshana-pro uncertainty`): stated input distributions over any open scenario; per output the mean, spread, percentiles with a bootstrap interval, the probability of meeting a limit (Wilson interval), time-series bands, and Sobol' or standardised-regression sensitivity; seeded, thread-count independent, stop and resume. See [`docs/UNCERTAINTY.md`](docs/UNCERTAINTY.md) | Enterprise | ✅ built + tested |
 
 ### Layer attach points & gates
 
@@ -167,6 +170,16 @@ study/bid needs:
   a MODELLED or PARTNER basis flagged; a SysML v2 export checked against the grammar
   subset it uses; change impact between two traces or two scenario files; and an
   offline HTML plus JSON evidence pack. See [`docs/MBSE.md`](docs/MBSE.md).
+- **`mission`** — the **mission dossier** (`kshana-pro mission build|check`, licence
+  feature `pro-mission-dossier`, Enterprise tier): one programme file (requirements in CSV,
+  ReqIF or SysML v2, scenarios of any kind, an optional trade, sign-off rows) becomes one
+  dossier: every scenario run, every requirement checked against the runs, a verification
+  matrix, figures, `dossier.pdf` / `.html` / `.json`, the evidence pack, a manifest and a
+  hash-chained ledger; `mission check` re-hashes a delivered dossier and, with `--rerun`,
+  runs every scenario again. It is a command, not a scenario kind, so it is not in the
+  pack count. See [`docs/MISSION-DOSSIER.md`](docs/MISSION-DOSSIER.md).
+- **Pro power summary** — what each of the three features above does, its inputs and
+  outputs, and what is honestly not done: [`docs/PRO-POWER.md`](docs/PRO-POWER.md).
 - **`license`** (PR7) — the tier mechanics: Ed25519-signed tokens (public key only in the build), fail-closed Evaluation
   default, per-`kind` tier mapping.
 
@@ -241,7 +254,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **twenty integration tests** in
+The suite is unit tests across every module plus **twenty-two integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
@@ -250,7 +263,9 @@ and must give the open engine's result byte for byte),
 `no_overclaims_mission_analysis.rs` (honesty guard), the study/report/pack path
 (`pro_study.rs`, `report_cover.rs`, `report_pdf.rs`, `study_ledger.rs`,
 `study_intake.rs`, `pack_c.rs`, `optimism_gap_scenarios.rs`, `study_dossier.rs`),
-`mbse.rs` (the MBSE commands over real open-engine runs), the
+`mbse.rs` (the MBSE commands over real open-engine runs), the three Pro power features
+(`design_optimise.rs`, `uncertainty.rs`, `mission_dossier.rs`, each checked against
+independent open-engine runs and closed forms), the
 four `*_in_sync.rs` guards (each committed deliverable matches its generator output, so
 docs never drift), and `readme_counts.rs` (the pack and integration-test counts in this
 README match the registry and the `tests/` directory).
@@ -345,6 +360,14 @@ The Pro packs (runnable examples in [`scenarios/`](scenarios)):
 - `scenarios/dossier-holdover-csac.toml` — `study --dossier`: an open `clock` scenario
   with a `[dossier]` block; the chip-scale atomic clock's holdover through a 110-minute
   GNSS denial, written up as a study dossier.
+- `scenarios/pro-power/design/*.toml` — `kshana-pro design`: five worked design studies
+  (a lunar navigation constellation over the whole Moon and over the south polar cap, a
+  low-Earth-orbit positioning shell, a Mars shell, a link budget), with provenance.
+- `scenarios/pro-power/uncertainty/uq-*.toml` — `kshana-pro uncertainty`: five worked
+  studies (link margin, clock holdover over seeds and over an uncertain noise level, the
+  low-Earth-orbit positioning chain with regression and with Sobol' sensitivity).
+- `scenarios/pro-power/mission/programme.toml` — `kshana-pro mission build`: a
+  twelve-requirement programme over five scenarios and a lunar relay trade.
 - `scenarios/spacestream-*.json` — SpaceStream NAV-DT metrics fixtures (nominal / jamming /
   spoof-time / degraded) for the connector / `spacestream` path.
 
