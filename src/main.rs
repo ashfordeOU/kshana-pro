@@ -218,7 +218,39 @@ fn serve_cmd(args: &[String]) -> ExitCode {
             }
         }
     };
-    match kshana_pro::serve::serve(&addr, ent) {
+    // The on-premises job service: --data-dir turns it on; --workers sizes the pool;
+    // --api-token-file guards every route except /health. The token is read from the
+    // file, never from the command line, and is never printed.
+    let mut config = kshana_pro::serve::ServeConfig::new(&addr, ent);
+    config.data_dir = flag(args, "--data-dir").map(std::path::PathBuf::from);
+    if let Some(w) = flag(args, "--workers") {
+        match w.parse::<usize>() {
+            Ok(n) if (1..=kshana_pro::serve::worker::MAX_WORKERS).contains(&n) => {
+                config.workers = n
+            }
+            _ => {
+                eprintln!(
+                    "error: --workers must be an integer from 1 to {}",
+                    kshana_pro::serve::worker::MAX_WORKERS
+                );
+                return ExitCode::from(2);
+            }
+        }
+    }
+    if let Some(path) = flag(args, "--api-token-file") {
+        match std::fs::read_to_string(&path) {
+            Ok(s) if !s.trim().is_empty() => config.api_token = Some(s.trim().to_string()),
+            Ok(_) => {
+                eprintln!("error: the token file {path} is empty");
+                return ExitCode::FAILURE;
+            }
+            Err(e) => {
+                eprintln!("error: could not read the token file {path}: {}", e.kind());
+                return ExitCode::FAILURE;
+            }
+        }
+    }
+    match kshana_pro::serve::serve_with(config) {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => {
             eprintln!("error: could not serve on {addr}: {e}");
