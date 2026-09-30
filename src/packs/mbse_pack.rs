@@ -8,6 +8,9 @@ use kshana::api::{ExternalPack, KshanaError, RunOutput, Scenario, ScenarioMeta};
 
 use crate::mbse::{all_compliant, margins, to_csv, to_reqif, validate, Requirement};
 
+/// The honesty label every `pro-mbse` result carries, in the open engine's `label` form.
+pub const MBSE_LABEL: &str = "MODELLED - requirement margins computed from the target and achieved values the scenario states: a traceability and compliance aid over stated or simulated figures, not a verification of real hardware and not a certification.";
+
 /// A requirement entry in a `pro-mbse` scenario.
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct RequirementSpec {
@@ -73,6 +76,7 @@ impl Scenario for MbseScenario {
             "overlay": "kshana-pro",
             "overlay_version": crate::version(),
             "title": self.title,
+            "label": MBSE_LABEL,
             "all_compliant": compliant,
             "n_requirements": rows.len(),
             "n_pass": n_pass,

@@ -262,7 +262,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **twenty-five integration tests** in
+The suite is unit tests across every module plus **twenty-six integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
@@ -276,7 +276,9 @@ and must give the open engine's result byte for byte),
 `spectrum_coexistence.rs`, `service_jobs.rs`, each checked against independent
 open-engine runs, closed forms or real sockets), the
 four `*_in_sync.rs` guards (each committed deliverable matches its generator output, so
-docs never drift), and `readme_counts.rs` (the pack and integration-test counts in this
+docs never drift), `modelled_label.rs` (every Pro kind's result and every command's
+result document carries a top-level `label` that starts with MODELLED, the open engine's
+own form), and `readme_counts.rs` (the pack and integration-test counts in this
 README match the registry and the `tests/` directory).
 
 **Licensing (PR7).** `run` is **fail-closed**: with no `--license` it enforces the

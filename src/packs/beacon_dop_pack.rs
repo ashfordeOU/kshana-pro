@@ -51,6 +51,14 @@ use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use serde_json::{json, Value};
 
+/// The honesty label every `pro-beacon-dop` result carries, in the open engine's `label`
+/// form. Figures keep their own Validated / Modelled tags (see `provenance_legend`).
+pub const BEACON_DOP_LABEL: &str = "MODELLED - a surface-beacon-augmented lunar dilution-of-precision sweep over a representative constellation, beacon geometry and error budget. Figures tagged Validated inherit the open engine's dilution-of-precision kernel, a computational check only; the sweep is not flight validation and not a certification.";
+
+/// The honesty label every `pro-surface-beacon-dop-study` result carries, in the open
+/// engine's `label` form. Figures keep their own Validated / Modelled tags.
+pub const SURFACE_BEACON_DOP_STUDY_LABEL: &str = "MODELLED - a surface-beacon dilution-of-precision study over an illustrative constellation, relay set, beacon placement and error budget. Figures tagged Validated inherit the open engine's dilution-of-precision kernel, a computational check only; the study is not flight validation and not a certification.";
+
 use crate::report_brand::{
     cover_html, modelled_banner_html, BRASS, BRASS_MUTED, FONT_BODY, FONT_HEAD, INK, IVORY,
     IVORY_LIGHT, NAVY,
@@ -802,6 +810,7 @@ impl Scenario for BeaconDopScenario {
             "kind": Self::KIND,
             "overlay": "kshana-pro",
             "overlay_version": crate::version(),
+            "label": BEACON_DOP_LABEL,
             "paper": "P2 — Surface-beacon-augmented lunar DOP (L45)",
             "provenance_legend": {
                 "Validated": "the DOP inherits the kshana::orbit::dop kernel (cross-checked vs gnss_lib_py/NumPy); the median is a deterministic order statistic; σ = DOP · σ_URE is a closed form. A computational check, NOT flight validation or certification.",
@@ -1616,6 +1625,7 @@ impl Scenario for SurfaceBeaconDopStudyScenario {
             "kind": Self::KIND,
             "overlay": "kshana-pro",
             "overlay_version": crate::version(),
+            "label": SURFACE_BEACON_DOP_STUDY_LABEL,
             "paper": "P2 — Surface-beacon-augmented lunar DOP, Figure 1 (L46)",
             "provenance_legend": {
                 "Validated": "every per-sample GDOP/HDOP/VDOP inherits the kshana::orbit::dop kernel (cross-checked vs gnss_lib_py/NumPy); medians/coverage are deterministic order statistics. A computational check, NOT flight validation or certification.",

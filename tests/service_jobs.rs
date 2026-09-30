@@ -386,6 +386,27 @@ fn a_pro_kind_at_evaluation_is_refused_and_nothing_is_queued() {
     srv.stop();
 }
 
+/// A Pro kind's job result carries the MODELLED label the direct run carries, and the
+/// job status reads its evidence tier from that label.
+#[test]
+fn a_pro_kind_job_result_is_labelled_modelled() {
+    let data = fresh_dir("pro-label");
+    let srv = start(Some(&data), 1, enterprise());
+    let addr = srv.local_addr();
+    let src = include_str!("../scenarios/trade-clock.toml");
+    let id = submit_run(addr, src);
+    let st = wait_finished(addr, &id);
+    assert_eq!(st["state"], "succeeded", "{st}");
+    let got = get(addr, &format!("/jobs/{id}/result")).json();
+    assert!(
+        got["label"].as_str().unwrap().starts_with("MODELLED"),
+        "{got}"
+    );
+    assert_eq!(st["label"], got["label"]);
+    assert_eq!(st["evidence_tier"], "MODELLED");
+    srv.stop();
+}
+
 // ─── 6. Failure is never success ────────────────────────────────────────────────
 
 #[test]
@@ -972,14 +993,13 @@ fn a_ci_job_equals_the_pack_c_run_on_the_same_files() {
     let report = get(addr, &format!("/jobs/{id}/artefacts/report.html")).body;
     assert!(report.contains("<html"));
     // What the job board and the guide say about a ci job's evidence label must stay
-    // true: ci.json carries no tier word, and report.html states MODELLED.
-    let result = get(addr, &format!("/jobs/{id}/result")).body;
-    for tier in ["VALIDATED", "MODELLED", "PARTNER"] {
-        assert!(!result.contains(tier), "ci.json now carries {tier}");
-    }
+    // true: ci.json carries a label that starts with MODELLED, and report.html states
+    // MODELLED; neither claims a higher tier.
+    let result: Value = get(addr, &format!("/jobs/{id}/result")).json();
+    assert!(result["label"].as_str().unwrap().starts_with("MODELLED"));
     assert!(report.contains("MODELLED"));
     let st = get(addr, &format!("/jobs/{id}")).json();
-    assert!(st.get("evidence_tier").is_none(), "{st}");
+    assert_eq!(st["evidence_tier"], "MODELLED", "{st}");
     srv.stop();
 }
 
@@ -1025,7 +1045,7 @@ fn the_job_board_is_self_contained_and_lists_real_jobs() {
     // The page never tells a reader that a result carries labels it does not carry.
     let page = get(addr, "/").body;
     assert!(page.contains("no tier word in the label"));
-    assert!(page.contains("its ci.json carries no label"));
+    assert!(page.contains("its ci.json carries a MODELLED label"));
     assert!(
         !page.contains("CI (continuous integration) results carry a label per figure"),
         "the board must not claim per-figure labels for ci results"

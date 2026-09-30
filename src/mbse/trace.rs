@@ -312,9 +312,15 @@ pub struct Summary {
     pub open_items: usize,
 }
 
+/// The honesty label every verification cross-reference matrix and trace carries, in the
+/// open engine's `label` form.
+pub const VCRM_LABEL: &str = "MODELLED - requirements checked against open-engine simulation runs: each verdict states the evidence basis of the runs it rests on (MODELLED, PARTNER or VALIDATED, exactly as the open engine labels them). A met requirement is met in simulation; it is not verified on hardware and not certified.";
+
 /// The verification cross-reference matrix.
 #[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct Vcrm {
+    /// The honesty label, [`VCRM_LABEL`].
+    pub label: &'static str,
     pub title: String,
     pub programme: Option<String>,
     pub overlay_version: String,
@@ -548,6 +554,7 @@ pub fn vcrm(trace: &Trace) -> Vcrm {
         inputs.push(m.source.clone());
     }
     Vcrm {
+        label: VCRM_LABEL,
         title: trace.title.clone(),
         programme: trace.programme.clone(),
         overlay_version: crate::version().to_string(),
@@ -691,6 +698,7 @@ impl Vcrm {
     pub fn links_json(&self) -> serde_json::Value {
         serde_json::json!({
             "title": self.title,
+            "label": VCRM_LABEL,
             "links": self.rows.iter().map(|r| serde_json::json!({
                 "requirement": r.requirement,
                 "runs": r.cells.iter().map(|c| serde_json::json!({

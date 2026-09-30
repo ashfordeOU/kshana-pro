@@ -9,6 +9,9 @@ use kshana::api::{ExternalPack, KshanaError, RunOutput, Scenario, ScenarioMeta};
 
 use crate::batch::{run_monte_carlo, MonteCarloSpec};
 
+/// The honesty label every `pro-batch` result carries, in the open engine's `label` form.
+pub const BATCH_LABEL: &str = "MODELLED - statistics of one open-engine scenario run over a range of engine seeds: every sample is a simulation run of the open engine, never a measurement, and the statistics are only as good as the base scenario's own model.";
+
 fn default_seed_start() -> u64 {
     1
 }
@@ -71,6 +74,7 @@ impl Scenario for BatchScenario {
             "overlay": "kshana-pro",
             "overlay_version": crate::version(),
             "title": self.title,
+            "label": BATCH_LABEL,
             "metric": self.metric,
             "threads": self.max_threads,
             "stats": {

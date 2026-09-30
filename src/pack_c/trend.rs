@@ -106,6 +106,7 @@ pub fn render_json(records: &[ChainedRecord], title: &str) -> String {
         .collect();
     serde_json::to_string_pretty(&json!({
         "title": title,
+        "label": TREND_LABEL,
         "records": records.len(),
         "last_hash": records.last().map(|c| c.hash.clone()),
         "runs": runs,
@@ -113,6 +114,10 @@ pub fn render_json(records: &[ChainedRecord], title: &str) -> String {
     }))
     .unwrap_or_default()
 }
+
+/// The honesty label every campaign-watch trend document carries, in the open engine's
+/// `label` form.
+pub const TREND_LABEL: &str = "MODELLED - the trend of watched figures across a verified campaign-watch history: every point is simulation output of the open engine for one CI run, with its own evidence label; it is not a measurement series.";
 
 const W: f64 = 340.0;
 const H: f64 = 130.0;
@@ -360,6 +365,7 @@ mod tests {
             pack_id: "p".into(),
             pack_version: "1".into(),
             pack_hash: "h".into(),
+            label: crate::pack_c::run::CI_LABEL.to_string(),
             metrics_digest: "d".into(),
             verdict: verdict.into(),
             failures: if verdict == "fail" {

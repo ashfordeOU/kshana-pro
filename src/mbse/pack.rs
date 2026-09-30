@@ -45,9 +45,16 @@ pub struct PackBody {
     pub sign_off: Vec<SignOff>,
 }
 
+/// The honesty label every evidence pack carries, in the open engine's `label` form. It
+/// sits beside the hashed body, like the issue stamp; the body's matrix carries
+/// [`super::trace::VCRM_LABEL`] inside the hash.
+pub const PACK_LABEL: &str = "MODELLED - an evidence pack over open-engine simulation runs: the matrix, the requirement-to-run graph and the sign-off block rest on modelled runs, each with its own evidence basis. It is not a verification on hardware and not a certification.";
+
 /// The evidence pack.
 #[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct Pack {
+    /// The honesty label, [`PACK_LABEL`].
+    pub label: &'static str,
     pub body: PackBody,
     pub pack_sha256: String,
     pub issued_utc: Option<String>,
@@ -108,6 +115,7 @@ pub fn build(trace: &Trace, issued_utc: Option<String>) -> Pack {
     };
     let canonical = serde_json::to_string(&body).expect("pack body serialises");
     Pack {
+        label: PACK_LABEL,
         pack_sha256: sha256_hex(canonical.as_bytes()),
         body,
         issued_utc,

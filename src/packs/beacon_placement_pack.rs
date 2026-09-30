@@ -60,6 +60,10 @@ use kshana::realdata::lola_dem::{terrain_los_clear, DemTile};
 
 use serde_json::{json, Value};
 
+/// The honesty label every `pro-beacon-placement` result carries, in the open engine's
+/// `label` form. Figures keep their own Validated / Modelled tags.
+pub const BEACON_PLACEMENT_LABEL: &str = "MODELLED - a surface-beacon siting optimisation over a terrain tile with a representative constellation and error budget. Figures tagged Validated inherit the open engine's closed-form terrain line-of-sight and dilution-of-precision kernels, a computational check only; the siting is not a survey, not flight validation and not a certification.";
+
 use crate::report_brand::{
     cover_html, modelled_banner_html, BRASS, BRASS_MUTED, FONT_BODY, FONT_HEAD, INK, IVORY,
     IVORY_LIGHT, NAVY,
@@ -993,6 +997,7 @@ impl Scenario for BeaconPlacementScenario {
             "kind": Self::KIND,
             "overlay": "kshana-pro",
             "overlay_version": crate::version(),
+            "label": BEACON_PLACEMENT_LABEL,
             "paper": "P2 — Surface-beacon PLACEMENT optimization over terrain (L47)",
             "model": model_json,
             "figure": { "dem_siting_svg": fig },

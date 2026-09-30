@@ -46,7 +46,7 @@ use crate::report_brand::{
 const ONE_NS_S: f64 = 1.0e-9;
 
 /// The honesty label carried on the result document (contains both tier words).
-const LABEL: &str = "Coordinated Lunar Time (LTC) end-to-end time-error budget. \
+const LABEL: &str = "MODELLED Coordinated Lunar Time (LTC) end-to-end time-error budget. \
 VALIDATED: the clock row reproduces the published one-day clock spec (kshana::clock_specs), and the \
 clock-vs-frame crossover is a closed form checked against an analytic oracle to machine precision. \
 MODELLED: the RF/optical-link, frame-realisation, relativistic-residual, ephemeris and measurement \

@@ -298,9 +298,16 @@ fn terms() -> Vec<Term> {
     .collect()
 }
 
+/// The honesty label every mission dossier carries, in the open engine's `label` form. It
+/// sits beside the hashed body, like the issue stamp; the body's `banner` says the same
+/// inside the hash.
+pub const DOSSIER_LABEL: &str = "MODELLED - a mission dossier over open-engine simulation runs: every number is simulation output, each labelled with its own evidence basis exactly as the open engine labels it. It is an engineering study, not flight or in-orbit validation and not a certification.";
+
 /// The mission dossier.
 #[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct Dossier {
+    /// The honesty label, [`DOSSIER_LABEL`].
+    pub label: &'static str,
     pub body: DossierBody,
     pub dossier_sha256: String,
     pub issued_utc: Option<String>,
@@ -696,6 +703,7 @@ pub fn compose(
     };
     let dossier_sha256 = sha256_hex(canonical_json(&body)?.as_bytes());
     Ok(Dossier {
+        label: DOSSIER_LABEL,
         body,
         dossier_sha256,
         issued_utc,

@@ -65,7 +65,7 @@ a { color: var(--link); }
 <tbody id="rows"></tbody>
 </table>
 </div>
-<p class="foot">Evidence is the engine's own label on each result: VALIDATED (checked against an independent outside answer within a stated tolerance), MODELLED (built from sound physics and checked for internal consistency, not yet compared with an outside answer) or PARTNER (belongs to a hardware or product-assurance partner; nothing is claimed). A label that does not start with one of these words is shown as it is (hover the cell), with no tier assigned to it. A dossier result carries a label per figure inside it. A CI (continuous integration) report compares figures between runs: its ci.json carries no label and its report.html states MODELLED for the whole report. Times are the server's clock. <a href="ledger/verify">Verify the ledger</a> · <a href="openapi.json">OpenAPI document</a></p>
+<p class="foot">Evidence is the engine's own label on each result: VALIDATED (checked against an independent outside answer within a stated tolerance), MODELLED (built from sound physics and checked for internal consistency, not yet compared with an outside answer) or PARTNER (belongs to a hardware or product-assurance partner; nothing is claimed). A label that does not start with one of these words is shown as it is (hover the cell), with no tier assigned to it. Every Kshana Pro result starts its label with MODELLED. A dossier result also carries a label per figure inside it. A CI (continuous integration) report compares figures between runs: its ci.json carries a MODELLED label and its report.html states MODELLED for the whole report. Times are the server's clock. <a href="ledger/verify">Verify the ledger</a> · <a href="openapi.json">OpenAPI document</a></p>
 </main>
 <script type="application/json" id="initial-jobs">__KSHANA_INITIAL_JOBS__</script>
 <script>
@@ -83,7 +83,7 @@ a { color: var(--link); }
     if (j.evidence_tier) return j.evidence_tier;
     if (j.state !== "succeeded") return "—";
     if (j.op === "dossier") return "per figure, in the result";
-    if (j.op === "ci") return "none in ci.json; report.html states MODELLED";
+    if (j.op === "ci") return "MODELLED, in ci.json and report.html";
     if (j.label) return "no tier word in the label";
     return "none in the result";
   }

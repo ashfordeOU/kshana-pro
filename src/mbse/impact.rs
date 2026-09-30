@@ -42,8 +42,13 @@ pub struct RunChange {
 }
 
 /// The impact report.
+/// The honesty label every change-impact report carries, in the open engine's `label` form.
+pub const IMPACT_LABEL: &str = "MODELLED - a change-impact list over a trace of open-engine simulation runs: it names the requirements to verify again after a change. It verifies nothing itself, and every verdict it refers to rests on modelled runs.";
+
 #[derive(Debug, Clone, Serialize, PartialEq)]
 pub struct Impact {
+    /// The honesty label, [`IMPACT_LABEL`].
+    pub label: &'static str,
     pub old: String,
     pub new: String,
     pub reverify: Vec<Reverify>,
@@ -276,6 +281,7 @@ pub fn compare(old: &Trace, new: &Trace) -> Impact {
         }
     }
     Impact {
+        label: IMPACT_LABEL,
         old: old.title.clone(),
         new: new.title.clone(),
         reverify,
@@ -394,6 +400,7 @@ pub fn compare_scenarios(trace: &Trace, old: &Path, new: &Path) -> Result<Impact
         }
     }
     Ok(Impact {
+        label: IMPACT_LABEL,
         old: old.display().to_string(),
         new: new.display().to_string(),
         reverify,
