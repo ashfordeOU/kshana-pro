@@ -48,6 +48,7 @@ pub mod report_pack_a;
 pub mod report_pack_c;
 pub mod report_pdf;
 pub mod serve;
+pub mod spectrum_coexistence;
 pub mod study_dossier;
 pub mod study_ledger;
 mod util;

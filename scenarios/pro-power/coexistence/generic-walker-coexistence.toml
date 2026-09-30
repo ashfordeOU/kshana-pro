@@ -1,0 +1,92 @@
+# Spectrum coexistence showcase: four candidate signal plans against every open-service
+# GNSS (global navigation satellite system) signal the open engine models, in both
+# directions, worldwide.
+#
+# Signal designs: only the open engine's generic REPRESENTATIVE designs (the
+# `generic-bands` and `generic-c-band` presets). No operator's system is modelled.
+#   L band      generic-l           1191.795 MHz, BPSK(10) in 20.46 MHz (the Galileo E5 centre)
+#   C band      generic-c-band-leo  5020 MHz,     BPSK(10) in 20 MHz
+#   wide C band generic-c-wide      5100 MHz,     BPSK(50) in 120 MHz
+# (BPSK binary phase-shift keying.) The designs state no received power, so the open
+# leo-signal run uses the receiver's reference carrier-to-noise density (C/N0) of
+# 45 dB-Hz; with no maximum stated, the bound uses that same power for every satellite.
+#
+# Constellations: illustrative Walker delta shells at 1000 km and 55 deg inclination,
+# 288 satellites in 12 planes and 144 satellites in 12 planes. Not any operator's design.
+#
+# The limit is ILLUSTRATIVE, chosen for this example only: it is not a regulatory,
+# coordination or protection criterion. A real study states the limit its programme
+# must meet and where it comes from.
+#
+# Result: a MODELLED upper bound. Every satellite in view at a cell is taken at the
+# maximum received power, with no elevation-dependent power and no receive-antenna
+# pattern. Run:
+#   kshana-pro coexist scenarios/pro-power/coexistence/generic-walker-coexistence.toml --out <dir> --license <token>
+
+kind = "pro-spectrum-coexistence"
+title = "Generic low Earth orbit signal plans against the open satellite navigation signals (illustrative Walker shells)"
+max_degradation_db = 0.1
+limit_source = "Illustrative limit for this example only; not a regulatory, coordination or protection criterion"
+victims = ["gps-l1ca", "galileo-e1", "gps-l5", "galileo-e5a", "galileo-e5b", "galileo-e5-altboc"]
+
+[receiver]
+antenna_temp_k = 290.0
+noise_figure_db = 2.0
+reference_cn0_dbhz = 45.0
+
+[grid]
+grid_step_deg = 5.0
+duration_s = 86400.0
+step_s = 300.0
+
+[[plan]]
+label = "L band, 288 satellites"
+signal = "generic-l"
+mask_deg = 10.0
+
+[[plan.shell]]
+pattern = "delta"
+total = 288
+planes = 12
+phasing = 1
+altitude_km = 1000.0
+inclination_deg = 55.0
+
+[[plan]]
+label = "L band, 144 satellites"
+signal = "generic-l"
+mask_deg = 10.0
+
+[[plan.shell]]
+pattern = "delta"
+total = 144
+planes = 12
+phasing = 1
+altitude_km = 1000.0
+inclination_deg = 55.0
+
+[[plan]]
+label = "C band, 288 satellites"
+signal = "generic-c-band-leo"
+mask_deg = 10.0
+
+[[plan.shell]]
+pattern = "delta"
+total = 288
+planes = 12
+phasing = 1
+altitude_km = 1000.0
+inclination_deg = 55.0
+
+[[plan]]
+label = "Wide C band, 288 satellites"
+signal = "generic-c-wide"
+mask_deg = 10.0
+
+[[plan.shell]]
+pattern = "delta"
+total = 288
+planes = 12
+phasing = 1
+altitude_km = 1000.0
+inclination_deg = 55.0
