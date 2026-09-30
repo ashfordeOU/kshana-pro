@@ -492,7 +492,9 @@ fn collect_parts(run: &Run, trace: &Trace) -> Vec<SystemPart> {
         let mut attrs = Vec::new();
         for (k, v) in &t {
             let value = match v {
-                toml::Value::Float(f) => AttrValue::Num(*f),
+                // SysML v2 has no literal for NaN or infinity; writing one as a number
+                // would state a value the scenario does not have, so it is left out.
+                toml::Value::Float(f) if f.is_finite() => AttrValue::Num(*f),
                 toml::Value::Integer(i) => AttrValue::Int(*i),
                 toml::Value::String(s) => AttrValue::Str(s.clone()),
                 toml::Value::Boolean(b) => AttrValue::Bool(*b),

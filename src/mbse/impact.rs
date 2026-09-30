@@ -127,6 +127,15 @@ fn run_changes(
                 .unwrap_or_else(|| "none".into())
         ));
     }
+    // No stamp told the runs apart (a kind with no scenario_hash and a trace with no
+    // report or scenario file, or identical stamps): the result file itself is the
+    // evidence, so a different result file is a change.
+    if out.is_empty() && old.stamp.result_sha256_actual != new.stamp.result_sha256_actual {
+        out.push(format!(
+            "result file changed although no stamp differs: SHA-256 {} → {}",
+            old.stamp.result_sha256_actual, new.stamp.result_sha256_actual
+        ));
+    }
     let ol = labels(old, om);
     let nl = labels(new, nm);
     for (cap, l) in &nl {
