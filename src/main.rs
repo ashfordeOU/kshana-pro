@@ -126,6 +126,9 @@ fn main() -> ExitCode {
             }
             ExitCode::SUCCESS
         }
+        // Spectrum coexistence: whole signal plans and constellations against the open
+        // GNSS signals (feature `pro-spectrum-coexistence`).
+        Some("coexist") => coexist_cmd(&args[1..]),
         Some("version") => {
             println!(
                 "kshana-pro {} (overlay) · embeds open Kshana engine reporting {} scenario kinds",
@@ -857,6 +860,56 @@ fn export_cmd(path: &str, format: Option<String>) -> ExitCode {
             print!("{text}");
             ExitCode::SUCCESS
         }
+        Err(e) => {
+            eprintln!("error: {e}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+/// `coexist <study.toml> --out <dir>` — resolve the entitlement exactly as `mbse` does
+/// (`--dev` in a debug build = full; else a token enforces its tier; else Evaluation),
+/// require the `pro-spectrum-coexistence` feature, then run the study.
+fn coexist_cmd(args: &[String]) -> ExitCode {
+    if args.is_empty() || matches!(args[0].as_str(), "help" | "--help" | "-h") {
+        println!("{}", kshana_pro::spectrum_coexistence::cli::USAGE);
+        return ExitCode::SUCCESS;
+    }
+    let now = now_unix();
+    let ent = if has_flag(args, "--dev") {
+        eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
+        Entitlement {
+            licensee: "(dev)".into(),
+            tier: Tier::Enterprise,
+            expires_unix: 0,
+            features: vec![],
+        }
+    } else {
+        match flag(args, "--license") {
+            Some(tok) => match verify_token(&tok, now) {
+                Ok(e) => e,
+                Err(e) => {
+                    eprintln!("error: license invalid: {e}");
+                    return ExitCode::FAILURE;
+                }
+            },
+            None => {
+                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
+                Entitlement::evaluation()
+            }
+        }
+    };
+    let feature = kshana_pro::spectrum_coexistence::KIND;
+    if !ent.allows(feature, now) {
+        eprintln!(
+            "error: spectrum coexistence requires the '{}' tier (or the '{feature}' feature on the licence); current tier is '{}'",
+            license::feature_min_tier(feature).as_str(),
+            ent.tier.as_str()
+        );
+        return ExitCode::FAILURE;
+    }
+    match kshana_pro::spectrum_coexistence::cli::run(args) {
+        Ok(code) => ExitCode::from(code),
         Err(e) => {
             eprintln!("error: {e}");
             ExitCode::FAILURE
