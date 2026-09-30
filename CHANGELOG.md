@@ -5,6 +5,42 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Pro now builds on the integrated open engine: 75 open scenario kinds (was 63), all
+  reachable through Pro. DEVELOPMENT PIN, not a release pin.** On branch `feat/pro-power`
+  the `kshana` dependency points by path at a dedicated, read-only engine worktree
+  (`../kshana-wt-pro-engine`, branch `feat/pro-engine-base` of the open repository, commit
+  `da55ae6`). That engine adds twelve kinds to the published 0.28.0: `spectrum`,
+  `solar-system`, `body-pnt`, `constellation-design`, `campaign`, `leo-signal`,
+  `leo-pass`, `leo-navmsg`, `leo-pvt`, `leo-ppp`, `ntn-positioning` and `leo-pnt-chain`
+  (spectrum and waterfall, the solar system and positioning around any body,
+  constellation design, campaigns, and the low-Earth-orbit positioning, navigation and
+  timing (LEO-PNT) chain; both lists were counted with each binary's `kinds --json`). The
+  engine's animation, report and interoperability-export commands are command-line
+  features of the open binary, not scenario kinds, and are not re-exposed by the
+  `kshana-pro` command line here. The tree still reports version 0.28.0 but is
+  not the 0.28.0 on crates.io. **Release step owed, not done:** before any Pro release,
+  replace the path with the published engine version that carries these kinds, run
+  `cargo update -p kshana`, and re-run the whole check set with `--locked`; a path pin
+  builds only on a machine that has the worktree. No overlay source needed changing to
+  compile: the engine's public seams (`api`, `registry`, `fom_label`, the model traits)
+  are unchanged for the overlay's uses. New: `kshana-pro kinds --json` prints the open
+  and Pro catalogues with `open_count` and `pro_count` (the open half is read from the
+  embedded engine, never re-listed), and `tests/open_engine_reachable.rs` runs every
+  open kind from one of the engine's own generic scenario files three ways (open engine,
+  Pro dispatcher with no licence, open ∪ Pro registry by id) and requires the same result
+  document byte for byte. It never uses the engine's optional Celeste preset files, so it
+  passes with that preset absent. The README states nineteen integration tests (was
+  eighteen). The sixteen Pro packs are unchanged and all still build and run
+  (`registry::tests::every_pro_kind_builds_and_runs_through_the_registry`).
+  Development and test builds now compile the embedded engine at optimisation level 3
+  (`[profile.dev.package.kshana]`), so the library tests take about half a minute instead
+  of about nine. Measured on the engine's 138 scenario files (its optional preset's five
+  included) against the open release binary: `kshana-pro run` from a release build gave
+  the same result document byte for byte on all 138; from a development build it matched
+  136 and differed in the last bits of one field in each of two files
+  (`combined-altpnt`, `gravity-map-nav`; relative 3e-15 to 6e-15). A number for a
+  customer or a publication comes from a release build.
+
 - **Model-based systems engineering (MBSE) and programme tooling over the open engine's
   own outputs (`kshana-pro mbse import|trace|vcrm|sysml|impact|pack`).** Requirements are
   imported from comma-separated values (CSV), a documented subset of the Requirements

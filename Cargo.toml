@@ -43,7 +43,20 @@ default = []
 # resolved to whatever main happened to be, and when main's history was rewritten
 # the recorded rev stopped existing and a fresh clone could not build at all.
 # 0.28.0 adds the slot-timing kind and the commercial clock classes (TCXO, OCXO, RAFS).
-kshana = "0.28"
+#
+# DEVELOPMENT PIN (branch feat/pro-power), NOT the release pin. The integrated open
+# engine (75 scenario kinds; the twelve beyond the published 0.28.0 cover spectrum, the
+# solar system, constellation design, campaigns and the low-Earth-orbit positioning,
+# navigation and timing chain) is not published yet, so the overlay builds against a
+# dedicated, read-only engine worktree by path: `../kshana-wt-pro-engine`, branch
+# `feat/pro-engine-base` of the open repository. That tree still reports version
+# 0.28.0; it is NOT the 0.28.0 on crates.io.
+#
+# RELEASE STEP (not done): before any Pro release, replace this line with the
+# published engine version that carries those kinds, e.g. `kshana = "<published>"`,
+# run `cargo update -p kshana`, and re-run the whole gate with `--locked`. A path pin
+# builds only on a machine that has the worktree; a release must not depend on it.
+kshana = { path = "../kshana-wt-pro-engine", version = "0.28" }
 
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.
@@ -70,3 +83,17 @@ hex = "0.4"
 # content but not byte-identical as files; the CSV tables are the reproducibility
 # anchor that the committed-artifact tests actually compare.
 printpdf = { version = "0.9.1", default-features = false }
+
+# The embedded open engine is compiled optimised even in development and test builds.
+# The overlay's tests run real engine scenarios (tests/open_engine_reachable.rs runs
+# every open kind three times); unoptimised, one scenario can take many minutes.
+# Debug assertions and overflow checks stay on. The level is 3, the level of a release
+# build, on purpose: the engine's published numbers come from release builds, and an
+# unoptimised engine differs from them in the last bits of some floating-point results.
+# Measured on the engine's 138 scenario files against the open release binary: a Pro
+# release build matched all 138 byte for byte; this development build matched 136 and
+# differed in one field each of two files by a relative 3e-15 to 6e-15; with the engine
+# unoptimised, 25 or more files differed (relative differences up to about 6e-14).
+# A number for a customer or a publication comes from a release build.
+[profile.dev.package.kshana]
+opt-level = 3

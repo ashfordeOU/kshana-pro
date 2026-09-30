@@ -117,6 +117,37 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
     ]
 }
 
+/// Every kind a Pro build can run, as one JSON document (`kshana-pro kinds --json`).
+///
+/// `open` is the embedded open engine's own catalogue
+/// ([`kshana::api::list_scenario_kinds`]), never re-listed here, so it cannot drift
+/// from the engine the build embeds. `pro` is [`pro_kinds`], each entry carrying the
+/// minimum licence tier that runs it. `open_count` and `pro_count` are the lengths of
+/// those two arrays, so a reader can count without parsing the entries.
+pub fn kinds_json() -> String {
+    let open = kshana::api::list_scenario_kinds();
+    let pro: Vec<serde_json::Value> = pro_kinds()
+        .iter()
+        .map(|m| {
+            serde_json::json!({
+                "name": m.name,
+                "min_tier": crate::license::feature_min_tier(m.name).as_str(),
+                "description": m.description,
+                "required_fields": m.required_fields,
+                "optional_fields": m.optional_fields,
+            })
+        })
+        .collect();
+    let doc = serde_json::json!({
+        "open_count": open.len(),
+        "pro_count": pro.len(),
+        "open": open,
+        "pro": pro,
+    });
+    // Static strings and integers only: serialisation cannot fail.
+    serde_json::to_string_pretty(&doc).expect("the kind catalogue is plain static data")
+}
+
 /// The superset dispatcher. Route `pro-*` kinds to their Pro pack; delegate every
 /// other scenario unchanged to the open engine. This is the single entry point a
 /// Pro caller (CLI, future binding) uses.
@@ -287,6 +318,34 @@ mod tests {
                 m.name.starts_with(PRO_KIND_PREFIX),
                 "Pro pack '{}' must carry the {PRO_KIND_PREFIX} prefix",
                 m.name
+            );
+        }
+    }
+
+    #[test]
+    fn kinds_json_counts_match_the_engine_and_the_pro_registry() {
+        // `kshana-pro kinds --json` is how the open kind count is read from a Pro
+        // build, so its counts must be the lengths of the real catalogues.
+        let doc: serde_json::Value =
+            serde_json::from_str(&kinds_json()).expect("kinds_json prints JSON");
+        let open = doc["open"].as_array().expect("open is an array");
+        let pro = doc["pro"].as_array().expect("pro is an array");
+        assert_eq!(open.len(), kshana::api::list_scenario_kinds().len());
+        assert_eq!(doc["open_count"].as_u64(), Some(open.len() as u64));
+        assert_eq!(pro.len(), pro_kinds().len());
+        assert_eq!(doc["pro_count"].as_u64(), Some(pro.len() as u64));
+        for (entry, meta) in pro.iter().zip(pro_kinds()) {
+            assert_eq!(entry["name"].as_str(), Some(meta.name));
+            assert_eq!(
+                entry["min_tier"].as_str(),
+                Some(crate::license::feature_min_tier(meta.name).as_str())
+            );
+        }
+        for entry in open {
+            let name = entry["name"].as_str().expect("an open kind has a name");
+            assert!(
+                !name.starts_with(PRO_KIND_PREFIX),
+                "open kind '{name}' carries the Pro prefix"
             );
         }
     }
