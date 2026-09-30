@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kshana Pro jobs</title>
+<style>
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --ink: #14171c; --muted: #5b6472; --line: #dde1e7;
+  --queued: #6b5b00; --queued-bg: #fff4c2; --running: #0b4f8a; --running-bg: #dcecfb;
+  --ok: #17663a; --ok-bg: #dcf3e5; --bad: #9b1c1c; --bad-bg: #fbe1e1; --link: #0b57a8;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1216; --surface: #171b21; --ink: #e7eaee; --muted: #9aa3af; --line: #2a3039;
+    --queued: #f1d66b; --queued-bg: #3a3210; --running: #8cc4f5; --running-bg: #12304c;
+    --ok: #8fdcaf; --ok-bg: #123824; --bad: #f3a3a3; --bad-bg: #441717; --link: #8cc4f5;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1216; --surface: #171b21; --ink: #e7eaee; --muted: #9aa3af; --line: #2a3039;
+  --queued: #f1d66b; --queued-bg: #3a3210; --running: #8cc4f5; --running-bg: #12304c;
+  --ok: #8fdcaf; --ok-bg: #123824; --bad: #f3a3a3; --bad-bg: #441717; --link: #8cc4f5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
+main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.sub { color: var(--muted); margin: 0 0 20px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+.tile b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
+.tile span { color: var(--muted); font-size: 13px; }
+.wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+td.id { font-family: var(--mono); font-size: 13px; }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.queued { color: var(--queued); background: var(--queued-bg); }
+.running { color: var(--running); background: var(--running-bg); }
+.succeeded { color: var(--ok); background: var(--ok-bg); }
+.failed { color: var(--bad); background: var(--bad-bg); }
+.err { color: var(--bad); font-size: 13px; margin-top: 4px; max-width: 360px; overflow-wrap: anywhere; }
+a { color: var(--link); }
+.links a { margin-right: 8px; white-space: nowrap; }
+.muted { color: var(--muted); }
+.foot { color: var(--muted); font-size: 13px; margin-top: 16px; }
+.foot abbr { text-decoration: none; }
+</style>
+</head>
+<body>
+<main>
+<h1>Kshana Pro job service</h1>
+<p class="sub">Queued runs that survive a restart, stored artefacts and a hash-chained delivery ledger. Page served <span id="served">__KSHANA_SERVED_UTC__</span> (UTC) by kshana-pro __KSHANA_VERSION__; <span id="refresh">refreshes every 5 seconds while the server is reachable</span>.</p>
+<div class="tiles" id="tiles"></div>
+<div class="wrap">
+<table>
+<thead><tr><th>Job</th><th>Operation</th><th>Kind</th><th>State</th><th>Evidence</th><th>Submitted (UTC)</th><th>Finished (UTC)</th><th>Attempts</th><th>Outputs</th></tr></thead>
+<tbody id="rows"></tbody>
+</table>
+</div>
+<p class="foot">Evidence is the engine's own label on each result: VALIDATED (checked against a published reference), MODELLED (a model, not checked against a reference) or PARTNER (data from a partner). Dossier and CI (continuous integration) results carry a label per figure inside the result. Times are the server's clock. <a href="ledger/verify">Verify the ledger</a> · <a href="openapi.json">OpenAPI document</a></p>
+</main>
+<script type="application/json" id="initial-jobs">__KSHANA_INITIAL_JOBS__</script>
+<script>
+(function () {
+  "use strict";
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined && text !== null) e.textContent = String(text);
+    return e;
+  }
+  function link(href, text) { var a = el("a", null, text); a.href = href; return a; }
+  function render(page) {
+    var tiles = document.getElementById("tiles");
+    tiles.textContent = "";
+    var t = el("div", "tile"); t.appendChild(el("b", null, page.total)); t.appendChild(el("span", null, "jobs in the store")); tiles.appendChild(t);
+    ["queued", "running", "succeeded", "failed"].forEach(function (s) {
+      var d = el("div", "tile"); d.appendChild(el("b", null, (page.counts || {})[s] || 0)); d.appendChild(el("span", null, s)); tiles.appendChild(d);
+    });
+    var body = document.getElementById("rows");
+    body.textContent = "";
+    if (!page.jobs || page.jobs.length === 0) {
+      var tr0 = el("tr"); var td0 = el("td", "muted", "No jobs yet. Submit one with POST /jobs."); td0.colSpan = 9; tr0.appendChild(td0); body.appendChild(tr0);
+      return;
+    }
+    page.jobs.forEach(function (j) {
+      var tr = el("tr");
+      var id = el("td", "id"); id.appendChild(link("jobs/" + j.job_id, j.job_id.slice(0, 12))); id.title = j.job_id; tr.appendChild(id);
+      tr.appendChild(el("td", null, j.op));
+      tr.appendChild(el("td", null, j.kind || "—"));
+      var st = el("td"); st.appendChild(el("span", "pill " + j.state, j.state));
+      if (j.state === "failed" && j.error) st.appendChild(el("div", "err", j.error));
+      tr.appendChild(st);
+      var ev = el("td", null, j.evidence_tier || (j.state === "succeeded" ? "per figure, in the result" : "—"));
+      if (j.label) ev.title = j.label;
+      tr.appendChild(ev);
+      tr.appendChild(el("td", "num", j.submitted_utc || ""));
+      tr.appendChild(el("td", "num", j.finished_utc || "—"));
+      tr.appendChild(el("td", "num", j.attempts));
+      var out = el("td", "links");
+      if (j.state === "succeeded") {
+        out.appendChild(link("jobs/" + j.job_id + "/result", "result"));
+        (j.artefacts || []).forEach(function (a) { out.appendChild(link("jobs/" + j.job_id + "/artefacts/" + encodeURIComponent(a.name), a.name)); });
+      } else { out.appendChild(el("span", "muted", "—")); }
+      tr.appendChild(out);
+      body.appendChild(tr);
+    });
+  }
+  try { render(JSON.parse(document.getElementById("initial-jobs").textContent)); } catch (e) { /* keep the static page */ }
+  function refresh() {
+    if (!window.fetch) return;
+    fetch("jobs?limit=100", { headers: { "Accept": "application/json" } })
+      .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
+      .then(function (p) { render(p); })
+      .catch(function () { document.getElementById("refresh").textContent = "showing the jobs as they were when the page was served (the server is not reachable from here)"; });
+  }
+  setInterval(refresh, 5000);
+})();
+</script>
+</body>
+</html>

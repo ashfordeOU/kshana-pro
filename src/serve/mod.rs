@@ -13,18 +13,39 @@
 //!  * `GET  /kinds`   → open + Pro scenario kinds (with min tier)
 //!  * `POST /run` → body is a scenario TOML; runs it (entitlement-gated), returns JSON
 //!  * `POST /study` → body is a JSON study request; validates + acknowledges it
-//!    (entitlement-gated; a study requires at least the Pro tier). Does NOT run the
-//!    pack — intake only (see [`study_intake`]).
+//!    (entitlement-gated; a study requires at least the Pro tier). Without a data
+//!    directory it runs nothing (intake only, see [`study_intake`]); with one it also
+//!    queues a `dossier` job for `inputs.scenario` and adds `job_id` to the reply.
+//!  * `GET /openapi.json` → the OpenAPI 3.1 document, generated from [`api::ROUTES`]
+//!
+//! With a data directory (`--data-dir`), the on-premises job service is added
+//! ([`api`], [`jobs`], [`worker`], [`ops`], [`delivery`]): `POST /jobs`, `GET /jobs`,
+//! `GET /jobs/<id>`, `GET /jobs/<id>/result`, `GET /jobs/<id>/artefacts/<name>`,
+//! `GET /ledger`, `GET /ledger/verify` and the job board page at `GET /`. Jobs are
+//! stored on disk, run by a bounded worker pool, survive a restart, and every delivery
+//! is recorded in a hash-chained ledger. An optional bearer token
+//! (`--api-token-file`) guards every route except `/health`. The service makes no
+//! outbound connection and sends no telemetry: the only outgoing socket in this module
+//! is [`healthcheck`], which probes the server's own address.
 //!
 //! The pure request handler ([`handle`]) and reader ([`read_request`]) are unit
-//! tested without sockets; [`serve`] is the thin socket loop.
+//! tested without sockets; [`start`] / [`serve_with`] / [`serve`] are the thin socket
+//! loop.
 
+pub mod api;
+pub mod delivery;
+pub mod jobs;
+pub mod openapi;
+pub mod ops;
 pub mod study_intake;
+pub mod worker;
 
 use std::io::{Read, Write};
-use std::net::{TcpListener, TcpStream};
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::net::{SocketAddr, TcpListener, TcpStream};
+use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::thread::JoinHandle;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use kshana::api::KshanaError;
@@ -35,6 +56,9 @@ use study_intake::{study_id, validate, StudyRequest};
 /// Caps to bound resource use (a basic DoS guard for an exposed service).
 pub const MAX_HEADER_BYTES: usize = 16 * 1024;
 pub const MAX_BODY_BYTES: usize = 1024 * 1024;
+/// Body cap for `POST /jobs` (16 MiB): room for a Pack C manifest with its scenario
+/// texts inline. A body above it is refused with 413 before it is read.
+pub const JOBS_MAX_BODY_BYTES: usize = 16 * 1024 * 1024;
 /// Per-socket read/write timeout — bounds slow-client (Slowloris) thread holds.
 pub const IO_TIMEOUT_SECS: u64 = 30;
 /// Max concurrent connections — bounds thread/memory use under a connection flood.
@@ -54,6 +78,8 @@ pub struct HttpResponse {
     pub status: u16,
     pub content_type: &'static str,
     pub body: String,
+    /// Extra response headers (name, value), e.g. `WWW-Authenticate`.
+    pub headers: Vec<(&'static str, String)>,
 }
 
 impl HttpResponse {
@@ -62,6 +88,7 @@ impl HttpResponse {
             status,
             content_type: "application/json",
             body,
+            headers: Vec::new(),
         }
     }
     fn text(status: u16, body: &str) -> Self {
@@ -69,6 +96,7 @@ impl HttpResponse {
             status,
             content_type: "text/plain",
             body: body.to_string(),
+            headers: Vec::new(),
         }
     }
     fn error(status: u16, msg: &str) -> Self {
@@ -76,13 +104,17 @@ impl HttpResponse {
     }
     /// Serialise to raw HTTP/1.1 bytes (Connection: close — one request per conn).
     pub fn to_bytes(&self) -> Vec<u8> {
-        let head = format!(
-            "HTTP/1.1 {} {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+        let mut head = format!(
+            "HTTP/1.1 {} {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n",
             self.status,
             reason(self.status),
             self.content_type,
             self.body.len(),
         );
+        for (name, value) in &self.headers {
+            head.push_str(&format!("{name}: {value}\r\n"));
+        }
+        head.push_str("\r\n");
         let mut bytes = head.into_bytes();
         bytes.extend_from_slice(self.body.as_bytes());
         bytes
@@ -92,9 +124,12 @@ impl HttpResponse {
 fn reason(status: u16) -> &'static str {
     match status {
         200 => "OK",
+        202 => "Accepted",
         400 => "Bad Request",
+        401 => "Unauthorized",
         403 => "Forbidden",
         404 => "Not Found",
+        409 => "Conflict",
         413 => "Payload Too Large",
         422 => "Unprocessable Entity",
         500 => "Internal Server Error",
@@ -107,6 +142,7 @@ struct Head {
     method: String,
     path: String,
     content_length: Option<usize>,
+    authorization: Option<String>,
 }
 
 /// Parse the request head (everything before the blank line). Pure.
@@ -117,8 +153,12 @@ fn parse_request_head(head: &str) -> Option<Head> {
     let method = parts.next()?.to_string();
     let path = parts.next()?.to_string();
     let mut content_length = None;
+    let mut authorization = None;
     for line in lines {
         if let Some((k, v)) = line.split_once(':') {
+            if k.trim().eq_ignore_ascii_case("authorization") {
+                authorization = Some(v.trim().to_string());
+            }
             if k.trim().eq_ignore_ascii_case("content-length") {
                 // Reject duplicate or malformed Content-Length (request-smuggling guard).
                 if content_length.is_some() {
@@ -135,16 +175,27 @@ fn parse_request_head(head: &str) -> Option<Head> {
         method,
         path,
         content_length,
+        authorization,
     })
 }
 
 /// Read one HTTP request from `r`, enforcing header/body size caps. Generic over
 /// [`Read`] so it is unit-tested with an in-memory cursor (no socket).
 pub fn read_request<R: Read>(
-    mut r: R,
+    r: R,
     max_header: usize,
     max_body: usize,
 ) -> Result<HttpRequest, String> {
+    read_request_with(r, max_header, |_, _| max_body).map(|(req, _)| req)
+}
+
+/// [`read_request`] with a body cap chosen from the method and path, returning the raw
+/// `Authorization` header too. A body above the cap is refused before it is read.
+pub fn read_request_with<R: Read>(
+    mut r: R,
+    max_header: usize,
+    max_body_for: impl Fn(&str, &str) -> usize,
+) -> Result<(HttpRequest, Option<String>), String> {
     // Accumulate bytes until the header terminator `\r\n\r\n`.
     let mut buf = Vec::new();
     let mut byte = [0u8; 1];
@@ -165,17 +216,31 @@ pub fn read_request<R: Read>(
     let head = parse_request_head(&head_str).ok_or("malformed request line")?;
 
     let clen = head.content_length.unwrap_or(0);
+    let max_body = max_body_for(&head.method, head.path.split('?').next().unwrap_or(""));
     if clen > max_body {
         return Err(format!("body too large ({clen} > {max_body} bytes)"));
     }
     let mut body = vec![0u8; clen];
     r.read_exact(&mut body)
         .map_err(|e| format!("body read error: {e}"))?;
-    Ok(HttpRequest {
-        method: head.method,
-        path: head.path,
-        body: String::from_utf8_lossy(&body).to_string(),
-    })
+    Ok((
+        HttpRequest {
+            method: head.method,
+            path: head.path,
+            body: String::from_utf8_lossy(&body).to_string(),
+        },
+        head.authorization,
+    ))
+}
+
+/// The body cap for a request: [`JOBS_MAX_BODY_BYTES`] for `POST /jobs`, else
+/// [`MAX_BODY_BYTES`].
+pub fn body_cap(method: &str, path: &str) -> usize {
+    if method == "POST" && path == "/jobs" {
+        JOBS_MAX_BODY_BYTES
+    } else {
+        MAX_BODY_BYTES
+    }
 }
 
 /// Current Unix time (seconds) for entitlement expiry checks.
@@ -315,19 +380,181 @@ fn study_route(body: &str, entitlement: &Entitlement, now: i64) -> HttpResponse 
 }
 
 /// Run the blocking HTTP server, one thread per connection. Each connection serves
-/// exactly one request (Connection: close).
+/// exactly one request (Connection: close). No data directory: exactly the routes and
+/// behaviour the service had before the job service existed.
 pub fn serve(addr: &str, entitlement: Entitlement) -> std::io::Result<()> {
-    let listener = TcpListener::bind(addr)?;
+    serve_with(ServeConfig::new(addr, entitlement))
+}
+
+/// How to run the server. [`ServeConfig::new`] gives the defaults: no data directory
+/// (no job service), one worker, no access token.
+pub struct ServeConfig {
+    /// Address to listen on, e.g. `127.0.0.1:8088` (port 0: the system picks one).
+    pub addr: String,
+    /// The single entitlement the whole process serves at.
+    pub entitlement: Entitlement,
+    /// The job store, ledger and artefacts live here; `None` turns the job service off.
+    pub data_dir: Option<PathBuf>,
+    /// Worker threads for jobs (clamped to 1..=[`worker::MAX_WORKERS`]).
+    pub workers: usize,
+    /// When set, every route except `/health` needs `Authorization: Bearer <token>`.
+    /// Only its SHA-256 is kept once the server starts.
+    pub api_token: Option<String>,
+    /// Re-queue jobs left queued or running by an earlier process (default true). A
+    /// test switches it off to prove that recovery is what finishes those jobs.
+    #[doc(hidden)]
+    pub recover_on_start: bool,
+}
+
+impl ServeConfig {
+    /// The defaults for `addr` and `entitlement`.
+    pub fn new(addr: &str, entitlement: Entitlement) -> ServeConfig {
+        ServeConfig {
+            addr: addr.to_string(),
+            entitlement,
+            data_dir: None,
+            workers: 1,
+            api_token: None,
+            recover_on_start: true,
+        }
+    }
+}
+
+/// A running server, returned by [`start`].
+pub struct ServerHandle {
+    addr: SocketAddr,
+    stop: Arc<AtomicBool>,
+    accept: Option<JoinHandle<()>>,
+    pool: Option<worker::WorkerPool>,
+    service: Arc<api::Service>,
+}
+
+impl ServerHandle {
+    /// The address actually bound (useful when the configured port was 0).
+    pub fn local_addr(&self) -> SocketAddr {
+        self.addr
+    }
+
+    /// The job service, when the server has a data directory.
+    pub fn jobs(&self) -> Option<&Arc<worker::JobService>> {
+        self.service.jobs.as_ref()
+    }
+
+    /// Clean stop: stop accepting connections, let each worker finish the job it is
+    /// running, and return. Jobs still queued stay queued on disk for the next start.
+    pub fn stop(mut self) {
+        self.shutdown();
+    }
+
+    /// Block until the accept loop ends (it ends only when [`stop`](Self::stop) is
+    /// called from another handle, so a command-line server runs until killed).
+    pub fn wait(mut self) -> std::io::Result<()> {
+        if let Some(h) = self.accept.take() {
+            let _ = h.join();
+        }
+        self.shutdown();
+        Ok(())
+    }
+
+    fn shutdown(&mut self) {
+        self.stop.store(true, Ordering::SeqCst);
+        if let Some(h) = self.accept.take() {
+            let _ = h.join();
+        }
+        if let Some(p) = self.pool.take() {
+            p.stop();
+        }
+    }
+}
+
+impl Drop for ServerHandle {
+    fn drop(&mut self) {
+        self.shutdown();
+    }
+}
+
+/// How often the accept loop checks for a stop request while no connection arrives.
+const ACCEPT_POLL: Duration = Duration::from_millis(20);
+
+/// Bind, open the job store (when configured), re-queue unfinished jobs, start the
+/// workers and the accept loop, and return at once.
+pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
+    let listener = TcpListener::bind(&config.addr)?;
+    let addr = listener.local_addr()?;
+    listener.set_nonblocking(true)?;
+
+    let (jobs, pool, recovered) = match &config.data_dir {
+        Some(dir) => {
+            let svc = Arc::new(worker::JobService::open(
+                dir.clone(),
+                config.entitlement.clone(),
+            )?);
+            let recovered = if config.recover_on_start {
+                svc.recover()
+            } else {
+                0
+            };
+            let pool = worker::WorkerPool::spawn(config.workers, svc.clone());
+            (Some(svc), Some(pool), recovered)
+        }
+        None => (None, None, 0),
+    };
+    let service = Arc::new(api::Service::new(
+        config.entitlement.clone(),
+        jobs,
+        config.api_token.as_deref(),
+    ));
+
     eprintln!(
         "kshana-pro serving on http://{addr}  (tier: {}, licensee: {})",
-        entitlement.tier.as_str(),
-        entitlement.licensee
+        config.entitlement.tier.as_str(),
+        config.entitlement.licensee
     );
-    eprintln!("routes: GET /health  GET /version  GET /kinds  POST /run  POST /study");
+    let routes: Vec<String> = api::served_routes(service.jobs.is_some())
+        .map(|r| format!("{} {}", r.method, r.path))
+        .collect();
+    eprintln!("routes: {}", routes.join("  "));
+    if let Some(dir) = &config.data_dir {
+        eprintln!(
+            "job service: data directory {}, {} worker(s), {} unfinished job(s) re-queued",
+            dir.display(),
+            config.workers.clamp(1, worker::MAX_WORKERS),
+            recovered
+        );
+    }
+    if service.has_token() {
+        eprintln!("access token: required on every route except /health");
+    }
+
+    let stop = Arc::new(AtomicBool::new(false));
+    let accept = {
+        let stop = stop.clone();
+        let service = service.clone();
+        std::thread::Builder::new()
+            .name("kshana-accept".into())
+            .spawn(move || accept_loop(listener, service, stop))?
+    };
+    Ok(ServerHandle {
+        addr,
+        stop,
+        accept: Some(accept),
+        pool,
+        service,
+    })
+}
+
+/// Start the server and serve until the process is stopped.
+pub fn serve_with(config: ServeConfig) -> std::io::Result<()> {
+    start(config)?.wait()
+}
+
+fn accept_loop(listener: TcpListener, service: Arc<api::Service>, stop: Arc<AtomicBool>) {
     let active = Arc::new(AtomicUsize::new(0));
-    for stream in listener.incoming() {
-        match stream {
-            Ok(mut s) => {
+    while !stop.load(Ordering::SeqCst) {
+        match listener.accept() {
+            Ok((mut s, _)) => {
+                // An accepted socket may inherit the listener's non-blocking mode.
+                let _ = s.set_nonblocking(false);
                 // Shed load when at the connection ceiling (bounds thread/memory use).
                 if active.load(Ordering::Relaxed) >= MAX_CONNECTIONS {
                     let _ = s.set_write_timeout(Some(Duration::from_secs(IO_TIMEOUT_SECS)));
@@ -335,19 +562,24 @@ pub fn serve(addr: &str, entitlement: Entitlement) -> std::io::Result<()> {
                     continue;
                 }
                 active.fetch_add(1, Ordering::Relaxed);
-                let ent = entitlement.clone();
+                let svc = service.clone();
                 let active = active.clone();
                 std::thread::spawn(move || {
                     let _guard = ConnGuard(active); // decrements on exit, even on panic
-                    if let Err(e) = handle_conn(s, &ent) {
+                    if let Err(e) = handle_conn(s, &svc) {
                         eprintln!("connection error: {e}");
                     }
                 });
             }
-            Err(e) => eprintln!("accept error: {e}"),
+            Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
+                std::thread::sleep(ACCEPT_POLL);
+            }
+            Err(e) => {
+                eprintln!("accept error: {e}");
+                std::thread::sleep(ACCEPT_POLL);
+            }
         }
     }
-    Ok(())
 }
 
 /// Decrements the active-connection counter when a worker thread ends.
@@ -376,12 +608,12 @@ pub fn healthcheck(addr: &str) -> bool {
     }
 }
 
-fn handle_conn(mut stream: TcpStream, entitlement: &Entitlement) -> std::io::Result<()> {
+fn handle_conn(mut stream: TcpStream, service: &api::Service) -> std::io::Result<()> {
     // Bound slow clients: a read/write that stalls past the timeout fails the conn.
     stream.set_read_timeout(Some(Duration::from_secs(IO_TIMEOUT_SECS)))?;
     stream.set_write_timeout(Some(Duration::from_secs(IO_TIMEOUT_SECS)))?;
-    let resp = match read_request(&mut stream, MAX_HEADER_BYTES, MAX_BODY_BYTES) {
-        Ok(req) => handle(&req, entitlement, now_unix()),
+    let resp = match read_request_with(&mut stream, MAX_HEADER_BYTES, body_cap) {
+        Ok((req, auth)) => api::dispatch(service, &req, auth.as_deref(), now_unix()),
         Err(e) => {
             let status = if e.contains("too large") { 413 } else { 400 };
             HttpResponse::error(status, &e)
