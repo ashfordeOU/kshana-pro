@@ -1,0 +1,110 @@
+# Design study: a low-Earth-orbit (LEO) positioning shell around the Earth.
+#
+# Question: for a single Walker shell in low Earth orbit, which designs trade the number of
+# satellites against the share of time and surface with a usable position fix and against
+# the 95th-percentile position dilution of precision (PDOP)? Three objectives, so the front
+# is a surface: the chart plots satellites against availability and shades each front
+# design by its 95th-percentile PDOP.
+#
+# Run conditions: six hours at 600 s steps, 10 deg elevation mask, PDOP at or below 6,
+# 10 deg grid over the whole Earth, one receiver clock, secular J2 drift on. The design is
+# generic: it is not any operator's constellation.
+#
+# MODELLED: two-body orbits with secular J2 around a spherical Earth, geometry only (no
+# signal power, no satellite health, no terrain).
+#
+# Run:  kshana-pro design scenarios/pro-power/design/leo-positioning-earth.toml --out out/
+
+kind = "pro-design-optimise"
+title = "Low-Earth-orbit positioning shell: satellites, availability and 95th-percentile PDOP"
+seed = 1
+
+base_scenario = """
+kind = "constellation-design"
+body = "earth"
+duration_s = 21600.0
+step_s = 600.0
+mask_deg = 10.0
+pdop_threshold = 6.0
+grid_step_deg = 10.0
+clock = "common"
+j2 = true
+track_points = 13
+max_tracks = 60
+
+[[constellation]]
+name = "LEO positioning shell"
+
+[[constellation.shell]]
+pattern = "delta"
+total = 120
+planes = 12
+phasing = 1
+altitude_km = 1200.0
+inclination_deg = 55.0
+"""
+
+[[variable]]
+name = "total"
+key = "constellation[0].shell[0].total"
+type = "choice"
+values = [120, 144, 168, 192, 216, 240, 264, 288, 312, 336, 360]
+unit = "count"
+
+[[variable]]
+name = "planes"
+key = "constellation[0].shell[0].planes"
+type = "choice"
+values = [6, 8, 12, 16, 18, 24]
+unit = "count"
+
+[[variable]]
+name = "phasing"
+key = "constellation[0].shell[0].phasing"
+type = "integer"
+min = 0
+max = 2
+unit = "count"
+
+[[variable]]
+name = "altitude_km"
+key = "constellation[0].shell[0].altitude_km"
+type = "choice"
+values = [600.0, 900.0, 1200.0]
+unit = "km"
+
+[[variable]]
+name = "inclination_deg"
+key = "constellation[0].shell[0].inclination_deg"
+type = "choice"
+values = [55.0, 70.0, 85.0]
+unit = "deg"
+
+[[constraint]]
+walker = { total = "total", planes = "planes", phasing = "phasing" }
+
+# A positioning service needs a fix nearly everywhere and always: designs with a fix at
+# fewer than 99 % of the time-space points stay in the evaluation log and are kept off the
+# front. (PDOP percentiles are taken over the points that have a fix, so without this a
+# sparse design could show a low PDOP on the few points it serves.)
+[[constraint]]
+result = { path = "global.fix_pct", op = ">=", value = 99.0 }
+
+[[objective]]
+name = "satellites"
+sense = "min"
+variable = "total"
+
+[[objective]]
+name = "availability_pct"
+sense = "max"
+path = "global.availability_pct"
+
+[[objective]]
+name = "pdop_p95"
+sense = "min"
+path = "global.pdop.p95"
+
+[search]
+method = "auto"
+budget = 3000

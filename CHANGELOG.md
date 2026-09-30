@@ -110,3 +110,52 @@ own bullet so parallel work merges cleanly.
   count, stops matching the registry or `tests/`. Tests: `tests/study_dossier.rs`
   (determinism, tier split, the binary end to end and its licence gate) and unit tests
   in `src/study_dossier.rs`.
+
+- **Design optimiser: the Pareto front of a design space, over any open kind and around
+  any body (`kshana-pro design <study.toml> --out <dir>`, new pack `pro-design-optimise`).**
+  A study states variables written into a base scenario of any open kind, constraints
+  (a Walker pattern constraint that removes infeasible designs without a run, and conditions
+  on result fields that keep a run off the front) and two or three objectives, each a field
+  of the engine's result or a design variable; there is no cost model. Every design is one
+  run of the open engine through `kshana::api::run_scenario`; the front and its knee come
+  from the open kernel `kshana::mcda::pareto`. The search is exhaustive when the feasible
+  space fits the budget and a seeded NSGA-II (non-dominated sorting genetic algorithm II)
+  otherwise; a front that is not exhaustive is labelled "best found in N runs". The same
+  study and seed give the same bytes for any thread count. Outputs: `design.result.json`
+  (with the Pro result stamp: `scenario_hash`, `units` for every numeric field,
+  `figure_tiers`, `not_modelled`, `reproducibility.run_digest`), `design.pareto.svg`,
+  a self-contained `design.report.html`, `front/index.csv` and `front/NNN.toml`, each front
+  design as a plain open scenario that the free engine runs to the same result document.
+  Every result is labelled MODELLED, and each figure takes the label of the weakest open
+  capability it rests on. Five worked studies in `scenarios/pro-power/design/` (a lunar
+  navigation constellation over the whole Moon and over the south polar cap, a low-Earth-orbit
+  positioning shell, a Mars shell, a link budget), with provenance. Measured: the 608-design
+  lunar space has a front of 12 designs at 6 points (8 satellites 19.5446 % availability
+  to 24 satellites 100 %), equal to a brute-force front over scenarios the test writes
+  itself; through the evaluator the GPS (Global Positioning System) baseline constellation
+  reads the published horizontal dilution of precision (median 0.94, 95th percentile 1.255
+  against 1.25 published); on the analytic ZDT1 benchmark the search kernel's mean distance
+  to the true front is 0.00018 against a bar of 0.05 fixed beforehand (the first run missed
+  the bar at 0.177 because the crossover lacked its exchange step; the operator was
+  corrected and the bar was not moved). The feature falls to the default, fail-closed
+  licence tier. Guide: `docs/DESIGN-OPTIMISER.md`. Tests: `tests/design_optimise.rs`
+  (the README now states twenty integration tests and seventeen Pro packs).
+
+- **Design optimiser: five defects found by an independent verification, each fixed with a
+  test.** (1) A key the study format does not have was ignored, so a misspelt table
+  (`[[constraints]]` for `[[constraint]]`) dropped the constraint and the study still
+  returned a front; an unknown key is now an error at every level, on `kshana-pro design`
+  and on `kshana-pro run`, and a file of another `kind` is refused. (2) A `unit` written in
+  the study file replaced the unit the engine's own result states, so `unit = "m"` could
+  relabel a number the engine gives in kilometres; the engine's unit is now always used,
+  the study's only where the engine states none (as the guide already said), and the
+  `units` note records a disagreement. (3) `kshana-pro design --out <dir>` deleted the
+  whole `<dir>/front/` folder before writing; it now removes only `index.csv` and
+  `NNN.toml` files of an earlier run. (4) The report and the chart rounded to four
+  decimals, so a value of 0.000004 read "0"; a number below 0.1 now keeps four significant
+  digits. (5) The README still said sixteen packs in one sentence; it says seventeen and
+  `tests/readme_counts.rs` now reads that sentence too. None of this changes a published
+  number: the five worked studies give the same `design.result.json`, chart, report and
+  front files byte for byte, with the same study hashes. The test that keeps the optional
+  low-Earth-orbit preset out of the feature's scenarios now looks at file names inside the
+  scenario folder, not at the path the repository is checked out in.

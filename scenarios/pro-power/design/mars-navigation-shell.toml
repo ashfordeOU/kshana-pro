@@ -1,0 +1,86 @@
+# Design study around another body: a navigation shell around Mars.
+#
+# Question: for a single Walker shell around Mars, which designs give the highest share of
+# time and surface with a usable position fix for the fewest satellites? The central body is
+# named in the base scenario; the gravitational parameter, radius and spin rate come from
+# the open engine's body constants. One Martian day (88 620 s) at 1 800 s steps, 10 deg
+# elevation mask, position dilution of precision (PDOP) at or below 6, 10 deg grid.
+#
+# MODELLED: two-body orbits around a spherical Mars, geometry only.
+#
+# Run:  kshana-pro design scenarios/pro-power/design/mars-navigation-shell.toml --out out/
+
+kind = "pro-design-optimise"
+title = "Mars navigation shell: fewest satellites against availability"
+seed = 1
+
+base_scenario = """
+kind = "constellation-design"
+body = "mars"
+duration_s = 88620.0
+step_s = 1800.0
+mask_deg = 10.0
+pdop_threshold = 6.0
+grid_step_deg = 10.0
+clock = "common"
+track_points = 25
+max_tracks = 24
+
+[[constellation]]
+name = "Mars navigation shell"
+
+[[constellation.shell]]
+pattern = "delta"
+total = 12
+planes = 3
+phasing = 1
+altitude_km = 6000.0
+inclination_deg = 60.0
+"""
+
+[[variable]]
+name = "total"
+key = "constellation[0].shell[0].total"
+type = "choice"
+values = [12, 18, 24]
+unit = "count"
+
+[[variable]]
+name = "planes"
+key = "constellation[0].shell[0].planes"
+type = "choice"
+values = [3, 4, 6]
+unit = "count"
+
+[[variable]]
+name = "altitude_km"
+key = "constellation[0].shell[0].altitude_km"
+type = "choice"
+values = [6000.0, 12000.0, 17000.0]
+unit = "km"
+
+[[variable]]
+name = "inclination_deg"
+key = "constellation[0].shell[0].inclination_deg"
+type = "real"
+min = 45.0
+max = 75.0
+step = 15.0
+unit = "deg"
+
+[[constraint]]
+walker = { total = "total", planes = "planes" }
+
+[[objective]]
+name = "satellites"
+sense = "min"
+variable = "total"
+
+[[objective]]
+name = "availability_pct"
+sense = "max"
+path = "global.availability_pct"
+
+[search]
+method = "auto"
+budget = 200
