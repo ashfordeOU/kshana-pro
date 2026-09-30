@@ -201,6 +201,38 @@ fn check_id(id: &str) -> Result<(), KshanaError> {
     }
 }
 
+/// The first value of a scenario that is not a finite number, as `key = value`.
+///
+/// TOML allows `nan` and `inf`, and the engine takes them: a threshold of `nan` is never
+/// crossed, so the run reports a figure no real threshold would give, and the result
+/// echoes the input as `null`, which no sheet shows. A verdict read from such a run is
+/// not evidence, so the programme is refused before anything runs. A scenario text
+/// embedded in a string named `scenario` (a variant of a trade study) is checked too.
+fn non_finite_value(v: &toml::Value, path: &str) -> Option<String> {
+    match v {
+        toml::Value::Float(x) if !x.is_finite() => Some(format!("{path} = {x}")),
+        toml::Value::Array(a) => a
+            .iter()
+            .enumerate()
+            .find_map(|(i, e)| non_finite_value(e, &format!("{path}[{i}]"))),
+        toml::Value::Table(t) => t.iter().find_map(|(k, e)| {
+            let p = if path.is_empty() {
+                k.clone()
+            } else {
+                format!("{path}.{k}")
+            };
+            match e {
+                toml::Value::String(s) if k == "scenario" => toml::from_str::<toml::Value>(s)
+                    .ok()
+                    .and_then(|inner| non_finite_value(&inner, ""))
+                    .map(|found| format!("{p}: {found}")),
+                _ => non_finite_value(e, &p),
+            }
+        }),
+        _ => None,
+    }
+}
+
 fn read(path: &Path, what: &str) -> Result<Vec<u8>, KshanaError> {
     std::fs::read(path).map_err(|e| err(format!("could not read {what} {}: {e}", path.display())))
 }
@@ -227,8 +259,13 @@ fn load_scenario(
     let bytes = read(&base.join(path), &format!("the scenario file of '{id}',"))?;
     let src = String::from_utf8(bytes.clone())
         .map_err(|_| err(format!("scenario '{id}': {path} is not UTF-8")))?;
-    toml::from_str::<toml::Value>(&src)
+    let parsed = toml::from_str::<toml::Value>(&src)
         .map_err(|e| err(format!("scenario '{id}': {path} is not TOML: {e}")))?;
+    if let Some(found) = non_finite_value(&parsed, "") {
+        return Err(err(format!(
+            "scenario '{id}': {path} holds a value that is not a finite number ({found}); a run on such an input is not evidence, so nothing was run"
+        )));
+    }
     let kind = crate::registry::peek_kind(&src).unwrap_or_else(|| "clock".to_string());
     for c in &charts {
         if c.y.is_empty() {
@@ -291,13 +328,26 @@ impl Programme {
 
         let mut scenarios: Vec<Scenario> = Vec::new();
         for s in pf.scenarios {
-            if s.id == TRADE_RUN_ID {
+            // A run identifier becomes a directory name, and a file system that ignores
+            // letter case (the default on macOS and Windows) holds `RUN-A` and `run-a`
+            // in one directory: the second run would overwrite the first one's files and
+            // a verdict would be read from the wrong run. So identifiers must differ in
+            // more than case, from each other and from the trade study's.
+            if s.id.eq_ignore_ascii_case(TRADE_RUN_ID) {
                 return Err(err(format!(
-                    "scenario id '{TRADE_RUN_ID}' is reserved for the [trade] study"
+                    "scenario id '{}' is reserved for the [trade] study ('{TRADE_RUN_ID}', in any letter case)",
+                    s.id
                 )));
             }
-            if scenarios.iter().any(|x| x.id == s.id) {
-                return Err(err(format!("scenario id '{}' appears twice", s.id)));
+            if let Some(x) = scenarios.iter().find(|x| x.id.eq_ignore_ascii_case(&s.id)) {
+                return Err(err(if x.id == s.id {
+                    format!("scenario id '{}' appears twice", s.id)
+                } else {
+                    format!(
+                        "scenario ids '{}' and '{}' differ only in letter case; each becomes a directory name, and on a file system that ignores case one run would overwrite the other",
+                        x.id, s.id
+                    )
+                }));
             }
             scenarios.push(load_scenario(
                 &base,
@@ -408,5 +458,30 @@ mod tests {
         for bad in ["", "..", ".hidden", "a/b", "a b", "a\\b"] {
             assert!(check_id(bad).is_err(), "{bad:?} must be refused");
         }
+    }
+
+    #[test]
+    fn a_value_that_is_not_a_finite_number_is_found_and_named() {
+        let find = |src: &str| non_finite_value(&toml::from_str::<toml::Value>(src).unwrap(), "");
+        assert_eq!(find("a = 1.0\nb = \"nan\"\n[c]\nd = [1.0, 2.0]\n"), None);
+        assert_eq!(
+            find("threshold_ns = nan\n").as_deref(),
+            Some("threshold_ns = NaN")
+        );
+        assert_eq!(
+            find("[c]\nd = [1.0, -inf]\n").as_deref(),
+            Some("c.d[1] = -inf")
+        );
+        assert_eq!(
+            find("[[shell]]\nalt_km = 1.0\n[[shell]]\nalt_km = inf\n").as_deref(),
+            Some("shell[1].alt_km = inf")
+        );
+        // A scenario embedded in a trade variant is read too; another string is not.
+        assert_eq!(
+            find("[[variant]]\nlabel = \"x\"\nscenario = \"\"\"\nmask_deg = nan\n\"\"\"\n")
+                .as_deref(),
+            Some("variant[0].scenario: mask_deg = NaN")
+        );
+        assert_eq!(find("note = \"\"\"\nmask_deg = nan\n\"\"\"\n"), None);
     }
 }
