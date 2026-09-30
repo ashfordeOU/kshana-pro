@@ -317,6 +317,20 @@ impl Dossier {
     /// The dossier as one self-contained HTML page. `engine_charts` maps a run
     /// identifier to the chart the engine drew for it.
     pub fn to_html(&self, engine_charts: &BTreeMap<String, String>) -> String {
+        // Every Kshana Pro document is an Ashforde document: the shared furniture of
+        // crate::report_brand goes around the renderer's own page, which is unchanged.
+        let body = self.to_html_unbranded(engine_charts);
+        let id = format!(
+            "SHA-256 {}",
+            &self.dossier_sha256[..self.dossier_sha256.len().min(16)]
+        );
+        crate::report_brand::finish_html(
+            &body,
+            &crate::report_brand::DocMark::new("Mission dossier", id),
+        )
+    }
+
+    fn to_html_unbranded(&self, engine_charts: &BTreeMap<String, String>) -> String {
         let b = &self.body;
         let id = &b.identification;
         let sm = &b.summary;
@@ -327,12 +341,12 @@ impl Dossier {
             "<style>
 :root{{--navy:{navy};--brass:{brass};--brassm:{brassm};--ivory:{ivory};--paper:#fbf9f4;--fg:{ink};--muted:#6b645a;--line:#d9d3c7;--card:#ffffff;--met:#1f7a52;--fail:#b3261e;--nv:#8a6d00;--mod:#6a3fb5;--node:#f1ece0}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--paper);color:var(--fg);font:15px/1.5 Georgia,'Times New Roman',serif}}
-header.cover{{background:var(--navy);color:var(--ivory);border-bottom:3px solid var(--brass);padding:40px 16px 32px}}
+header.cover{{background:var(--ivory);color:var(--fg);border-bottom:3px solid var(--brass);padding:40px 16px 32px}}
 header.cover .in,main{{max-width:1080px;margin:0 auto}}main{{padding:8px 16px 72px}}
 .brand{{font:700 14px/1.2 system-ui,sans-serif;letter-spacing:.42em;color:var(--brass)}}.brand2{{font:11px/1.4 system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--brassm)}}
-h1{{font-size:36px;line-height:1.15;margin:26px 0 6px;color:#f6f4f0}}header .sub{{font-style:italic;font-size:17px}}
+h1{{font-size:36px;line-height:1.15;margin:26px 0 6px;color:var(--navy)}}header .sub{{font-style:italic;font-size:17px}}
 h2{{font-size:22px;margin:42px 0 10px;border-bottom:1px solid var(--brassm);padding-bottom:6px;color:var(--navy)}}h3{{font-size:16px;margin:24px 0 8px}}
-.banner{{background:var(--brass);color:var(--fg);font:700 14px/1.45 system-ui,sans-serif;padding:12px 16px;border-radius:4px;margin:22px 0}}
+.banner{{background:{brass_seal};color:var(--fg);font:700 14px/1.45 system-ui,sans-serif;padding:12px 16px;border-radius:4px;margin:22px 0}}
 .meta{{display:grid;grid-template-columns:max-content 1fr;gap:4px 18px;font:13px/1.5 system-ui,sans-serif}}.meta dt{{color:var(--brassm);font-weight:700}}.meta dd{{margin:0;word-break:break-word}}
 .tiles{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:18px 0}}.tile{{background:var(--card);border:1px solid var(--line);border-top:3px solid currentColor;border-radius:6px;padding:10px 12px;font:13px/1.4 system-ui,sans-serif}}.tile b{{display:block;font:700 30px/1.1 Georgia,serif}}.tile span{{color:var(--muted)}}
 .scroll{{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--card);margin:8px 0}}table{{border-collapse:collapse;width:100%;font:13px/1.45 system-ui,sans-serif}}
@@ -346,6 +360,7 @@ ul.items{{padding-left:20px;font:13.5px/1.5 system-ui,sans-serif}}ul.items li{{m
 </style></head><body>",
             navy = brand::NAVY,
             brass = brand::BRASS,
+            brass_seal = brand::BRASS_SEAL,
             brassm = brand::BRASS_MUTED,
             ivory = brand::IVORY,
             ink = brand::INK

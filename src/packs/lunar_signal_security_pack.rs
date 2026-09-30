@@ -919,6 +919,22 @@ fn fig1b_svg(m: &Model) -> String {
 // ── Branded HTML report (reuses report_brand furniture) ─────────────────────
 
 fn report_html(scn: &LunarSignalSecurityScenario, m: &Model, fig1a: &str, fig1b: &str) -> String {
+    // Every Kshana Pro document is an Ashforde document: the shared furniture of
+    // crate::report_brand goes around the renderer's own page, which is unchanged.
+    let body = report_html_unbranded(scn, m, fig1a, fig1b);
+    let id = crate::report_brand::content_id(&body);
+    crate::report_brand::finish_html(
+        &body,
+        &crate::report_brand::DocMark::new("Lunar signal security study", id),
+    )
+}
+
+fn report_html_unbranded(
+    scn: &LunarSignalSecurityScenario,
+    m: &Model,
+    fig1a: &str,
+    fig1b: &str,
+) -> String {
     let badge = |t: Tag| {
         format!(
             "<span style=\"background:{};color:{INK};font-size:11px;font-weight:700;\

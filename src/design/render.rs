@@ -567,6 +567,17 @@ fn table(head: &[String], rows: &[Vec<String>], numeric_from: usize) -> String {
 
 /// `design.report.html`: one self-contained page.
 pub fn report_html(doc: &Value, svg: &str) -> String {
+    // Every Kshana Pro document is an Ashforde document: the shared furniture of
+    // crate::report_brand goes around the renderer's own page, which is unchanged.
+    let body = report_html_unbranded(doc, svg);
+    let id = crate::report_brand::content_id(&body);
+    crate::report_brand::finish_html(
+        &body,
+        &crate::report_brand::DocMark::new("Design study", id),
+    )
+}
+
+fn report_html_unbranded(doc: &Value, svg: &str) -> String {
     let empty = Vec::new();
     let title = doc["title"].as_str().unwrap_or("Design study");
     let variables: Vec<&Value> = doc["space"]["variables"]

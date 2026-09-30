@@ -16,7 +16,7 @@
 //! `printpdf` fills with random characters (see `tests/mission_dossier.rs` for the
 //! mask).
 
-use printpdf::{BuiltinFont, Op, PdfDocument, PdfFontHandle, PdfSaveOptions};
+use printpdf::{BuiltinFont, Op, PdfFontHandle};
 
 use super::compose::{Dossier, RunSheet, BANNER_LINES};
 use super::figures::FigureRow;
@@ -24,7 +24,7 @@ use super::pdf_chart;
 use crate::report_brand as brand;
 use crate::report_pdf::{
     rgb, sans, sans_bold, serif, serif_bold, wrap, Layout, BOTTOM_Y_MM, CONTENT_W_MM, MARGIN_MM,
-    MM_PER_PT, PAGE_H_MM, PAGE_W_MM,
+    MM_PER_PT, PAGE_H_MM,
 };
 
 const MET: &str = "#1f7a52";
@@ -272,7 +272,7 @@ fn banner(l: &mut Layout) {
         l.y_mm - h + 4.0,
         CONTENT_W_MM,
         h,
-        rgb(brand::BRASS),
+        rgb(brand::BRASS_SEAL),
     );
     l.advance(2.0);
     for line in BANNER_LINES {
@@ -305,29 +305,13 @@ fn key_values(l: &mut Layout, rows: &[(&str, String)], mono_values: bool) {
 fn cover(l: &mut Layout, d: &Dossier) {
     let b = &d.body;
     let id = &b.identification;
-    // Navy band across the top of the cover.
-    let band_h = 96.0;
-    l.fill_rect(0.0, PAGE_H_MM - band_h, PAGE_W_MM, band_h, rgb(brand::NAVY));
-    l.fill_rect(
-        0.0,
-        PAGE_H_MM - band_h - 1.2,
-        PAGE_W_MM,
-        1.2,
-        rgb(brand::BRASS),
-    );
-    l.y_mm = PAGE_H_MM - 24.0;
-    l.text_at(MARGIN_MM, "ASHFORDE", sans_bold(), 13.0, rgb(brand::BRASS));
-    l.advance(6.0);
-    l.text_at(
-        MARGIN_MM,
-        "Ashforde OU  |  Quantitative PNT Resilience",
-        sans(),
-        9.0,
-        rgb(brand::BRASS_MUTED),
-    );
-    l.advance(16.0);
+    // The Ashforde lockup across the top of the cover, then the title in navy.
+    l.ops.extend(crate::brand_pdf::cover_lockup_ops(
+        "Quantitative PNT Resilience",
+    ));
+    l.y_mm = PAGE_H_MM - crate::brand_pdf::COVER_BAND_MM - 16.0;
     for line in wrap(&ascii(&id.title), CONTENT_W_MM, 23.0).iter().take(3) {
-        l.text_at(MARGIN_MM, line, serif_bold(), 23.0, rgb(brand::IVORY_LIGHT));
+        l.text_at(MARGIN_MM, line, serif_bold(), 23.0, rgb(brand::NAVY_INK));
         l.advance(10.5);
     }
     l.advance(1.0);
@@ -336,9 +320,9 @@ fn cover(l: &mut Layout, d: &Dossier) {
         "Mission dossier: requirements, runs and verification matrix",
         serif(),
         13.0,
-        rgb(brand::IVORY),
+        rgb(brand::INK),
     );
-    l.y_mm = PAGE_H_MM - band_h - 12.0;
+    l.advance(12.0);
 
     banner(l);
 
@@ -397,7 +381,7 @@ fn cover(l: &mut Layout, d: &Dossier) {
     let top = l.y_mm;
     for (i, (label, n, colour)) in tiles.iter().enumerate() {
         let x = MARGIN_MM + i as f32 * (w + gap);
-        l.fill_rect(x, top - h, w, h, rgb(brand::IVORY_LIGHT));
+        l.fill_rect(x, top - h, w, h, rgb(brand::PLATE));
         l.fill_rect(x, top - 1.0, w, 1.0, rgb(colour));
         l.y_mm = top - 12.0;
         l.text_at(x + 3.0, &n.to_string(), serif_bold(), 22.0, rgb(colour));
@@ -1140,21 +1124,15 @@ pub fn render(d: &Dossier) -> Result<PdfOutput, String> {
     ))
     .replace(['(', ')'], "");
     let pages_n = page_count(&l.pages, &l.ops).max(1);
-    let pages = l.finish(&footer);
+    let doc_id = format!(
+        "SHA-256 {}",
+        &d.dossier_sha256[..d.dossier_sha256.len().min(16)]
+    );
+    let mark = crate::brand_pdf::PdfMark::new("Mission dossier", doc_id);
+    let pages = l.finish(&footer, &mark);
     debug_assert_eq!(pages.len(), pages_n);
-
-    let mut doc = PdfDocument::new(&ascii(&id.title));
-    let opts = PdfSaveOptions::default();
-    let mut warnings = Vec::new();
     let n = pages.len();
-    let bytes = doc.with_pages(pages).save(&opts, &mut warnings);
-    if bytes.is_empty() || !bytes.starts_with(b"%PDF-") {
-        return Err(format!(
-            "printpdf produced no valid PDF (len {}, warnings: {})",
-            bytes.len(),
-            warnings.len()
-        ));
-    }
+    let bytes = crate::brand_pdf::save(&ascii(&id.title), pages)?;
     Ok(PdfOutput { bytes, pages: n })
 }
 

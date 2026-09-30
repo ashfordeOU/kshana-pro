@@ -1123,7 +1123,10 @@ fn the_html_is_self_contained_and_shows_the_same_dossier() {
         "href='http",
         "srcset",
     ] {
-        assert!(!html.contains(banned), "the page contains {banned}");
+        // The Ashforde furniture embeds the seal and the type as data: URIs, which
+        // fetch nothing; any other url( is a reference.
+        let rest = html.replace("url(data:", "");
+        assert!(!rest.contains(banned), "the page contains {banned}");
     }
     assert!(html.contains("@media print"));
     assert!(html.contains(
@@ -1797,7 +1800,8 @@ fn markup_in_programme_text_is_escaped_in_the_html() {
         for raw in [
             "<script",
             "<iframe",
-            "<img src=",
+            "<img src=http",
+            "<img src=\"http",
             "<b>ref</b>",
             "<i>Restricted",
         ] {
