@@ -469,6 +469,7 @@ mod tests {
                 ("araim::fom.mean_hpl_m", 22.5),
             ]),
             verdict: None,
+            watch: None,
         }
     }
 

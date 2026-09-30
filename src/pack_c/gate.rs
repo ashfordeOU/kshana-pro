@@ -221,9 +221,44 @@ pub fn compare(baseline: &MetricSet, current: &MetricSet, thr: &Thresholds) -> G
     }
 }
 
+/// Classify one watched figure against its baseline: `unchanged` when equal, `changed`
+/// when the watch has no direction, else `regressed` when it worsened by more than
+/// `allowance` (in the figure's unit), `improved` when it got better, and
+/// `within-tolerance` otherwise.
+pub fn judge_watch(
+    direction: crate::pack_c::watch::WatchDirection,
+    allowance: f64,
+    baseline: f64,
+    current: f64,
+) -> &'static str {
+    if current == baseline {
+        return "unchanged";
+    }
+    match direction.degradation(baseline, current) {
+        None => "changed",
+        Some(d) if d > allowance => "regressed",
+        Some(d) if d < 0.0 => "improved",
+        Some(_) => "within-tolerance",
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn judge_watch_classifies_by_direction() {
+        use crate::pack_c::watch::WatchDirection as D;
+        assert_eq!(judge_watch(D::Higher, 0.0, 100.0, 99.0), "regressed");
+        assert_eq!(judge_watch(D::Higher, 0.0, 99.0, 100.0), "improved");
+        assert_eq!(judge_watch(D::Higher, 2.0, 100.0, 99.0), "within-tolerance");
+        assert_eq!(judge_watch(D::Lower, 0.0, 1.0, 1.0), "unchanged");
+        assert_eq!(judge_watch(D::None, 0.0, 1.0, 5.0), "changed");
+        assert_eq!(
+            judge_watch(D::Target(0.0), 0.1, -1.0, 1.05),
+            "within-tolerance"
+        );
+    }
 
     #[test]
     fn direction_for_classifies_known_and_unknown_leaves() {

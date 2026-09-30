@@ -218,6 +218,111 @@ fn serve_cmd(args: &[String]) -> ExitCode {
 fn ci_cmd(args: &[String]) -> ExitCode {
     use std::fs;
 
+    // Resolve the entitlement EXACTLY as run/serve do: --dev = full (Enterprise, no
+    // enforcement); else a token enforces its tier; else Evaluation (fail-closed).
+    let entitled = || -> Result<(), ExitCode> {
+        let now = now_unix();
+        let ent = if has_flag(args, "--dev") {
+            eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
+            Entitlement {
+                licensee: "(dev)".into(),
+                tier: Tier::Enterprise,
+                expires_unix: 0,
+                features: vec![],
+            }
+        } else {
+            match flag(args, "--license") {
+                Some(tok) => match verify_token(&tok, now) {
+                    Ok(e) => e,
+                    Err(e) => {
+                        eprintln!("error: license invalid: {e}");
+                        return Err(ExitCode::FAILURE);
+                    }
+                },
+                None => {
+                    eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
+                    Entitlement::evaluation()
+                }
+            }
+        };
+        if let Err(e) = kshana_pro::license::ensure_ci_entitled(&ent, now) {
+            eprintln!("{e}");
+            return Err(ExitCode::FAILURE);
+        }
+        Ok(())
+    };
+
+    // Sub-forms: `ci history verify <file>` and `ci diff <old.json> <new.json>`.
+    match args.get(1).map(String::as_str) {
+        Some("history") => {
+            if let Err(code) = entitled() {
+                return code;
+            }
+            let (Some("verify"), Some(file)) = (args.get(2).map(String::as_str), args.get(3))
+            else {
+                eprintln!("error: usage: kshana-pro ci history verify <history.jsonl>");
+                return ExitCode::from(2);
+            };
+            let text = match fs::read_to_string(file) {
+                Ok(t) => t,
+                Err(e) => {
+                    eprintln!("error: could not read {file}: {e}");
+                    return ExitCode::FAILURE;
+                }
+            };
+            return match kshana_pro::pack_c::history::verify(&text) {
+                Ok(recs) => {
+                    match recs.last() {
+                        Some(last) => println!(
+                            "history {file}: {} record(s), chain intact, last hash {}",
+                            recs.len(),
+                            last.hash
+                        ),
+                        None => println!("history {file}: empty (0 records)"),
+                    }
+                    ExitCode::SUCCESS
+                }
+                Err(b) => {
+                    println!("history {file}: BROKEN: {b}");
+                    ExitCode::FAILURE
+                }
+            };
+        }
+        Some("diff") => {
+            if let Err(code) = entitled() {
+                return code;
+            }
+            let (Some(a), Some(b)) = (args.get(2), args.get(3)) else {
+                eprintln!(
+                    "error: usage: kshana-pro ci diff <old ci.json> <new ci.json> [--json <out>]"
+                );
+                return ExitCode::from(2);
+            };
+            let read = |p: &String| -> Result<kshana_pro::pack_c::CiReport, String> {
+                let t = fs::read_to_string(p).map_err(|e| format!("could not read {p}: {e}"))?;
+                kshana_pro::pack_c::CiReport::from_json(&t).map_err(|e| format!("{p}: {e}"))
+            };
+            let (old, new) = match (read(a), read(b)) {
+                (Ok(o), Ok(n)) => (o, n),
+                (Err(e), _) | (_, Err(e)) => {
+                    eprintln!("error: {e}");
+                    return ExitCode::FAILURE;
+                }
+            };
+            let d = kshana_pro::pack_c::diff::diff(&old, &new);
+            print!("{}", kshana_pro::pack_c::diff::to_text(&d));
+            if let Some(out) = flag(args, "--json") {
+                if let Err(e) = fs::write(&out, kshana_pro::pack_c::diff::to_json(&d)) {
+                    eprintln!("error: could not write {out}: {e}");
+                    return ExitCode::FAILURE;
+                }
+                eprintln!("[wrote diff JSON to {out}]");
+            }
+            return ExitCode::SUCCESS;
+        }
+        _ => {}
+    }
+
     let pack_path = match flag(args, "--pack") {
         Some(p) => p,
         None => {
@@ -247,35 +352,8 @@ fn ci_cmd(args: &[String]) -> ExitCode {
         }
     };
 
-    // Resolve the entitlement EXACTLY as run/serve do: --dev = full (Enterprise, no
-    // enforcement); else a token enforces its tier; else Evaluation (fail-closed).
-    let now = now_unix();
-    let ent = if has_flag(args, "--dev") {
-        eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
-        Entitlement {
-            licensee: "(dev)".into(),
-            tier: Tier::Enterprise,
-            expires_unix: 0,
-            features: vec![],
-        }
-    } else {
-        match flag(args, "--license") {
-            Some(tok) => match verify_token(&tok, now) {
-                Ok(e) => e,
-                Err(e) => {
-                    eprintln!("error: license invalid: {e}");
-                    return ExitCode::FAILURE;
-                }
-            },
-            None => {
-                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
-                Entitlement::evaluation()
-            }
-        }
-    };
-    if let Err(e) = kshana_pro::license::ensure_ci_entitled(&ent, now) {
-        eprintln!("{e}");
-        return ExitCode::FAILURE;
+    if let Err(code) = entitled() {
+        return code;
     }
 
     // Optional baseline to gate against.
@@ -306,13 +384,31 @@ fn ci_cmd(args: &[String]) -> ExitCode {
         thresholds,
     };
 
-    let report = match kshana_pro::pack_c::run_ci(&pack, base_dir, baseline.as_ref(), &ctx) {
-        Ok(r) => r,
-        Err(e) => {
+    let opts = kshana_pro::pack_c::WatchOptions {
+        exact: has_flag(args, "--exact"),
+    };
+    let history_path = flag(args, "--history");
+    let trend_path = flag(args, "--trend");
+    if trend_path.is_some() && history_path.is_none() {
+        eprintln!("error: --trend needs --history <file>");
+        return ExitCode::from(2);
+    }
+    // Refuse to run onto a broken history: verify it before spending the run.
+    if let Some(h) = &history_path {
+        if let Err(e) = kshana_pro::pack_c::history::load(std::path::Path::new(h)) {
             eprintln!("error: {e}");
             return ExitCode::FAILURE;
         }
-    };
+    }
+
+    let report =
+        match kshana_pro::pack_c::run_ci_with(&pack, base_dir, baseline.as_ref(), &ctx, &opts) {
+            Ok(r) => r,
+            Err(e) => {
+                eprintln!("error: {e}");
+                return ExitCode::FAILURE;
+            }
+        };
 
     let branded = kshana_pro::report_pack_c::PackCReport::from_ci(
         format!("Pack C — {} {}", pack.id, pack.version),
@@ -338,6 +434,81 @@ fn ci_cmd(args: &[String]) -> ExitCode {
     }
     if out_html.is_none() && out_json.is_none() {
         println!("{}", report.to_json());
+    }
+
+    if let Some(h) = &history_path {
+        let rec = kshana_pro::pack_c::history::record_from_report(&report);
+        match kshana_pro::pack_c::history::append(std::path::Path::new(h), rec) {
+            Ok(c) => eprintln!("[appended history record {} to {h}]", c.record.index),
+            Err(e) => {
+                eprintln!("error: {e}");
+                return ExitCode::FAILURE;
+            }
+        }
+    }
+    if let (Some(h), Some(out)) = (&history_path, &trend_path) {
+        let recs = match kshana_pro::pack_c::history::load(std::path::Path::new(h)) {
+            Ok(r) => r,
+            Err(e) => {
+                eprintln!("error: {e}");
+                return ExitCode::FAILURE;
+            }
+        };
+        let title = format!("Campaign watch: {} {}", pack.id, pack.version);
+        let html =
+            kshana_pro::pack_c::trend::render_html(&recs, &title, pack.description.as_deref());
+        let json_out = match out.strip_suffix(".html") {
+            Some(stem) => format!("{stem}.json"),
+            None => format!("{out}.json"),
+        };
+        if let Err(e) = fs::write(out, html).and_then(|_| {
+            fs::write(
+                &json_out,
+                kshana_pro::pack_c::trend::render_json(&recs, &title),
+            )
+        }) {
+            eprintln!("error: could not write the trend report: {e}");
+            return ExitCode::FAILURE;
+        }
+        eprintln!("[wrote trend report to {out} and {json_out}]");
+    }
+
+    if let Some(ex) = report.watch.as_ref().and_then(|w| w.exact.as_ref()) {
+        if ex.compared {
+            eprintln!(
+                "[ci] exact: {} result(s) changed{}{}",
+                ex.changed.len(),
+                if ex.changed.is_empty() { "" } else { ": " },
+                ex.changed.join(", ")
+            );
+        } else {
+            eprintln!("[ci] exact: no baseline member hashes to compare with");
+        }
+    }
+
+    // Watched pack: the watches decide.
+    if let Some(w) = report.watch.as_ref().filter(|w| w.watched) {
+        let failed: Vec<&kshana_pro::pack_c::WatchOutcome> =
+            w.outcomes.iter().filter(|o| o.failed()).collect();
+        if failed.is_empty() {
+            eprintln!("[ci] PASS ({} watch(es))", w.outcomes.len());
+        } else {
+            eprintln!(
+                "[ci] WATCH FAILURES: {} of {}",
+                failed.len(),
+                w.outcomes.len()
+            );
+            for o in failed {
+                let req = o
+                    .requirement
+                    .as_ref()
+                    .filter(|r| r.verdict != "met")
+                    .map(|r| format!("; requirement `{}` {}", r.criterion, r.verdict))
+                    .unwrap_or_default();
+                eprintln!("[ci]   {}: {}{req}", o.id, o.status);
+            }
+        }
+        return ExitCode::from(report.exit_code() as u8);
     }
 
     // One-line human summary + the verdict-driven exit code.

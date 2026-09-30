@@ -24,6 +24,7 @@ use crate::pack_c::gate::{self, GateVerdict, Thresholds};
 use crate::pack_c::manifest::ScenarioPack;
 use crate::pack_c::metrics::{self, MetricSet};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::path::Path;
 
 /// Caller-supplied context for a CI run: the wall-clock stamp (the library reads
@@ -67,6 +68,10 @@ pub struct CiReport {
     /// The regression-gate verdict, present only when a baseline was supplied.
     #[serde(default)]
     pub verdict: Option<GateVerdict>,
+    /// The campaign-watch section: present only for a pack with `[[watch]]` tables or a
+    /// run with `--exact`, so the report of any other run is unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub watch: Option<WatchSection>,
 }
 
 impl CiReport {
@@ -80,6 +85,176 @@ impl CiReport {
     pub fn from_json(s: &str) -> Result<CiReport, String> {
         serde_json::from_str(s).map_err(|e| format!("invalid CI report: {e}"))
     }
+
+    /// Whether the run passes: the watch verdict when the pack has watches, else the
+    /// legacy regression gate (a run with no baseline passes as informational).
+    pub fn passed(&self) -> bool {
+        if let Some(w) = self.watch.as_ref().filter(|w| w.watched) {
+            return w.passed;
+        }
+        self.verdict.as_ref().map(|v| v.passed).unwrap_or(true)
+    }
+
+    /// `0` when the run passes, `1` for a regression, an unmet or unverifiable
+    /// requirement, or a watched figure that could not be read.
+    pub fn exit_code(&self) -> i32 {
+        if self.passed() {
+            0
+        } else {
+            1
+        }
+    }
+}
+
+/// One member scenario of a run, pinned by content hashes.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MemberResult {
+    /// The entry label.
+    pub label: String,
+    /// The scenario path, relative to the pack.
+    pub path: String,
+    /// The scenario kind the result states.
+    #[serde(default)]
+    pub kind: Option<String>,
+    /// SHA-256 of the scenario file as read.
+    pub scenario_sha256: String,
+    /// SHA-256 of the result document the engine returned.
+    pub result_sha256: String,
+    /// The evidence label the result states: VALIDATED, MODELLED, PARTNER or MIXED, or
+    /// `not stated` when the result carries no label.
+    pub evidence: String,
+}
+
+/// A requirement's verdict for one watch.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RequirementOutcome {
+    /// The criterion as written.
+    pub criterion: String,
+    /// `met`, `not met` or `not verified`.
+    pub verdict: String,
+    /// Why it is not met or not verified.
+    #[serde(default)]
+    pub reason: Option<String>,
+    /// What was compared, in words, one line per field read.
+    #[serde(default)]
+    pub evidence: Vec<String>,
+}
+
+/// The outcome of one watch in one run.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WatchOutcome {
+    /// The watch identity (its name, or `entry::metric`).
+    pub id: String,
+    /// The entry label.
+    pub entry: String,
+    /// The watched figure's name.
+    pub metric: String,
+    /// The figure's unit.
+    #[serde(default)]
+    pub unit: Option<String>,
+    /// The figure's value in this run (the mean, for an ensemble watch).
+    #[serde(default)]
+    pub value: Option<f64>,
+    /// The baseline value.
+    #[serde(default)]
+    pub baseline: Option<f64>,
+    /// `value - baseline`.
+    #[serde(default)]
+    pub change: Option<f64>,
+    /// `(value - baseline) / |baseline|`, when the baseline is not zero.
+    #[serde(default)]
+    pub rel_change: Option<f64>,
+    /// The better-or-worse direction applied.
+    pub direction: crate::pack_c::watch::WatchDirection,
+    /// The worsening allowed before a regression, in the figure's unit.
+    #[serde(default)]
+    pub allowance: Option<f64>,
+    /// `regressed`, `improved`, `within-tolerance`, `unchanged`, `changed` (no declared
+    /// direction), `no-significant-change`, `no-baseline` or `not-found`.
+    pub status: String,
+    /// Why the figure could not be read, or what the statistical gate found.
+    #[serde(default)]
+    pub reason: Option<String>,
+    /// The requirement's verdict.
+    #[serde(default)]
+    pub requirement: Option<RequirementOutcome>,
+    /// The ensemble statistics of this run (kept so this report can be a baseline).
+    #[serde(default)]
+    pub ensemble: Option<crate::pack_c::stat_gate::EnsembleStats>,
+    /// The statistical verdict against the baseline ensemble.
+    #[serde(default)]
+    pub stat: Option<crate::pack_c::stat_gate::StatVerdict>,
+    /// Requirement limits on the figure, in its unit.
+    #[serde(default)]
+    pub limits: Vec<crate::pack_c::watch::Limit>,
+    /// The entry result's evidence label.
+    pub evidence: String,
+    /// The watch's note.
+    #[serde(default)]
+    pub note: Option<String>,
+}
+
+impl WatchOutcome {
+    /// Whether this watch fails the run.
+    pub fn failed(&self) -> bool {
+        matches!(self.status.as_str(), "regressed" | "not-found")
+            || self
+                .requirement
+                .as_ref()
+                .map(|r| r.verdict != "met")
+                .unwrap_or(false)
+    }
+}
+
+/// The `--exact` comparison of member result hashes against the baseline.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ExactReport {
+    /// False when the baseline carries no member hashes to compare with.
+    pub compared: bool,
+    /// Entries whose result SHA-256 changed.
+    pub changed: Vec<String>,
+    /// Entries whose result SHA-256 is identical.
+    pub unchanged: Vec<String>,
+    /// Entries new in this run.
+    pub added: Vec<String>,
+    /// Entries of the baseline absent from this run.
+    pub removed: Vec<String>,
+}
+
+/// The campaign-watch section of a report.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct WatchSection {
+    /// True when the pack has `[[watch]]` tables (false for an `--exact`-only run of a
+    /// pack without them).
+    pub watched: bool,
+    /// Whether every watch holds.
+    pub passed: bool,
+    /// The rule that decided which leaves are figures.
+    pub figures_rule: String,
+    /// Entries whose result had no `units` block, so every numeric leaf was taken.
+    #[serde(default)]
+    pub fallback_entries: Vec<String>,
+    /// The unit of each figure in `metrics`.
+    #[serde(default)]
+    pub units: BTreeMap<String, String>,
+    /// Every member result, pinned by hashes.
+    pub members: Vec<MemberResult>,
+    /// The statistical test, stated when any watch uses it.
+    #[serde(default)]
+    pub stat_test: Option<String>,
+    /// Every watch's outcome, in manifest order.
+    #[serde(default)]
+    pub outcomes: Vec<WatchOutcome>,
+    /// The `--exact` comparison, when asked for.
+    #[serde(default)]
+    pub exact: Option<ExactReport>,
+}
+
+/// Options of a campaign-watch run that the legacy [`CiContext`] does not carry.
+#[derive(Clone, Debug, Default)]
+pub struct WatchOptions {
+    /// Report any change of a member result's SHA-256 against the baseline.
+    pub exact: bool,
 }
 
 /// Run every scenario in `pack` (in declaration order) through the open engine,
@@ -161,6 +336,7 @@ pub fn assemble_report(
         customer: ctx.customer.clone(),
         metrics,
         verdict,
+        watch: None,
     }
 }
 
@@ -183,6 +359,453 @@ pub fn run_ci(
     ))
 }
 
+/// One member scenario as run.
+struct MemberRun {
+    label: String,
+    path: String,
+    scenario_sha256: String,
+    json: String,
+    doc: serde_json::Value,
+}
+
+fn sha256_hex(bytes: &[u8]) -> String {
+    use sha2::{Digest, Sha256};
+    hex::encode(Sha256::digest(bytes))
+}
+
+/// The evidence label a result states in its `label` field.
+fn evidence_label(doc: &serde_json::Value) -> String {
+    let text = doc.get("label").and_then(|v| v.as_str()).unwrap_or("");
+    let first: String = text
+        .chars()
+        .take_while(|c| c.is_ascii_uppercase())
+        .collect();
+    match first.as_str() {
+        "VALIDATED" | "MODELLED" | "PARTNER" | "MIXED" => first,
+        _ => "not stated".to_string(),
+    }
+}
+
+fn run_members(pack: &ScenarioPack, base_dir: &Path) -> Result<Vec<MemberRun>, String> {
+    let mut out = Vec::new();
+    for entry in &pack.entries {
+        let path = base_dir.join(&entry.path);
+        let src = std::fs::read_to_string(&path).map_err(|e| {
+            format!(
+                "pack '{}': cannot read scenario '{}': {e}",
+                pack.id, entry.path
+            )
+        })?;
+        let run = crate::registry::run(&src)
+            .map_err(|e| format!("pack '{}': scenario '{}' failed: {e}", pack.id, entry.path))?;
+        let doc: serde_json::Value = serde_json::from_str(&run.json).map_err(|e| {
+            format!(
+                "pack '{}': scenario '{}' produced invalid result JSON: {e}",
+                pack.id, entry.path
+            )
+        })?;
+        out.push(MemberRun {
+            label: entry.label(),
+            path: entry.path.clone(),
+            scenario_sha256: sha256_hex(src.as_bytes()),
+            json: run.json,
+            doc,
+        });
+    }
+    Ok(out)
+}
+
+/// The statement of the figure rule carried in every watched report.
+pub const FIGURES_RULE: &str = "a figure is a numeric leaf whose entry in the result's own \
+    units block has provenance computed, modelled or derived, excluding leaves that only \
+    describe the output's layout (grid sizes, bin widths, exported-file bookkeeping, run \
+    counts); plus the named campaign figures; arrays longer than 8 are read through watches";
+
+/// Run a pack with its watches (and, with `opts.exact`, the member-hash comparison).
+///
+/// A pack with no `[[watch]]` tables and no `--exact` takes exactly the legacy
+/// [`run_ci`] path, so its report is byte-identical to the report before campaign watch
+/// existed. With watches, the metrics are the figures of [`crate::pack_c::semantics`]
+/// plus the campaign figures of [`crate::pack_c::campaign`], and only the watches decide
+/// the verdict: every other figure is informational.
+pub fn run_ci_with(
+    pack: &ScenarioPack,
+    base_dir: &Path,
+    baseline: Option<&CiReport>,
+    ctx: &CiContext,
+    opts: &WatchOptions,
+) -> Result<CiReport, String> {
+    if pack.watches.is_empty() && !opts.exact {
+        return run_ci(pack, base_dir, baseline, ctx);
+    }
+    let members = run_members(pack, base_dir)?;
+    let watched = !pack.watches.is_empty();
+
+    let mut metrics = MetricSet::default();
+    let mut units: BTreeMap<String, String> = BTreeMap::new();
+    let mut fallback_entries = Vec::new();
+    let mut docs: BTreeMap<String, serde_json::Value> = BTreeMap::new();
+    let mut scenario_hashes = Vec::new();
+    let mut engine_version: Option<String> = None;
+    for m in &members {
+        if watched {
+            let figs = crate::pack_c::semantics::figures_of(&m.label, &m.doc);
+            if figs.fallback_all_leaves {
+                fallback_entries.push(m.label.clone());
+            }
+            metrics.merge(figs.metrics);
+            units.extend(figs.units);
+            for nf in crate::pack_c::campaign::figures(&m.doc) {
+                let key = format!("{}::campaign.{}", m.label, nf.name);
+                metrics.0.insert(key.clone(), nf.value);
+                units.insert(key, nf.unit);
+            }
+            let aug = crate::pack_c::campaign::augment(&m.doc)
+                .map_err(|e| format!("pack '{}': entry '{}': {e}", pack.id, m.label))?;
+            docs.insert(m.label.clone(), aug);
+        } else {
+            metrics.merge(metrics::extract(&m.label, &m.json)?);
+        }
+        if let Some(h) = m.doc.get("scenario_hash").and_then(|v| v.as_str()) {
+            if !h.is_empty() {
+                scenario_hashes.push(h.to_string());
+            }
+        }
+        if engine_version.is_none() {
+            if let Some(v) = m.doc.get("engine_version").and_then(|v| v.as_str()) {
+                if !v.is_empty() {
+                    engine_version = Some(v.to_string());
+                }
+            }
+        }
+    }
+    scenario_hashes.sort();
+    scenario_hashes.dedup();
+
+    let member_results: Vec<MemberResult> = members
+        .iter()
+        .map(|m| MemberResult {
+            label: m.label.clone(),
+            path: m.path.clone(),
+            kind: m
+                .doc
+                .get("kind")
+                .and_then(|v| v.as_str())
+                .map(str::to_string),
+            scenario_sha256: m.scenario_sha256.clone(),
+            result_sha256: sha256_hex(m.json.as_bytes()),
+            evidence: evidence_label(&m.doc),
+        })
+        .collect();
+
+    let mut outcomes = Vec::new();
+    for w in &pack.watches {
+        let evidence = member_results
+            .iter()
+            .find(|m| m.label == w.entry)
+            .map(|m| m.evidence.clone())
+            .unwrap_or_else(|| "not stated".into());
+        let base_outcome = baseline
+            .and_then(|b| b.watch.as_ref())
+            .and_then(|s| s.outcomes.iter().find(|o| o.id == w.id()));
+        let base_metric =
+            baseline.and_then(|b| b.metrics.get(&format!("{}::{}", w.entry, w.figure_name())));
+        outcomes.push(evaluate_watch(
+            w,
+            docs.get(&w.entry),
+            evidence,
+            base_outcome,
+            base_metric,
+            ctx.thresholds.default_rel,
+        ));
+    }
+
+    let exact = if opts.exact {
+        Some(exact_compare(baseline, &member_results))
+    } else {
+        None
+    };
+    let stat_test = pack
+        .watches
+        .iter()
+        .any(|w| w.ensemble.is_some())
+        .then(|| crate::pack_c::stat_gate::TEST_DESCRIPTION.to_string());
+    let passed = outcomes.iter().all(|o| !o.failed());
+    let verdict = if watched {
+        None
+    } else {
+        baseline.map(|b| gate::compare(&b.metrics, &metrics, &ctx.thresholds))
+    };
+    Ok(CiReport {
+        pack_id: pack.id.clone(),
+        pack_version: pack.version.clone(),
+        pack_hash: pack.pack_hash(),
+        engine_version,
+        scenario_hashes,
+        generated_utc: ctx.generated_utc.clone(),
+        customer: ctx.customer.clone(),
+        metrics,
+        verdict,
+        watch: Some(WatchSection {
+            watched,
+            passed,
+            figures_rule: if watched {
+                FIGURES_RULE.to_string()
+            } else {
+                "every numeric leaf (legacy extraction; the pack has no watches)".to_string()
+            },
+            fallback_entries,
+            units,
+            members: member_results,
+            stat_test,
+            outcomes,
+            exact,
+        }),
+    })
+}
+
+fn exact_compare(baseline: Option<&CiReport>, current: &[MemberResult]) -> ExactReport {
+    let base: Option<BTreeMap<&str, &str>> = baseline.and_then(|b| b.watch.as_ref()).map(|w| {
+        w.members
+            .iter()
+            .map(|m| (m.label.as_str(), m.result_sha256.as_str()))
+            .collect()
+    });
+    let Some(base) = base else {
+        return ExactReport {
+            compared: false,
+            changed: vec![],
+            unchanged: vec![],
+            added: vec![],
+            removed: vec![],
+        };
+    };
+    let mut r = ExactReport {
+        compared: true,
+        changed: vec![],
+        unchanged: vec![],
+        added: vec![],
+        removed: vec![],
+    };
+    for m in current {
+        match base.get(m.label.as_str()) {
+            Some(h) if *h == m.result_sha256 => r.unchanged.push(m.label.clone()),
+            Some(_) => r.changed.push(m.label.clone()),
+            None => r.added.push(m.label.clone()),
+        }
+    }
+    for label in base.keys() {
+        if !current.iter().any(|m| m.label == *label) {
+            r.removed.push(label.to_string());
+        }
+    }
+    r
+}
+
+fn evaluate_watch(
+    w: &crate::pack_c::watch::Watch,
+    doc: Option<&serde_json::Value>,
+    evidence: String,
+    base_outcome: Option<&WatchOutcome>,
+    base_metric: Option<f64>,
+    default_rel: f64,
+) -> WatchOutcome {
+    use crate::pack_c::stat_gate::{self, EnsembleStats};
+    use crate::pack_c::watch::resolve_metric;
+    let source = format!("result units block of entry '{}'", w.entry);
+    let direction = w.resolved_direction();
+    let mut out = WatchOutcome {
+        id: w.id(),
+        entry: w.entry.clone(),
+        metric: w.figure_name(),
+        unit: None,
+        value: None,
+        baseline: None,
+        change: None,
+        rel_change: None,
+        direction,
+        allowance: None,
+        status: "not-found".into(),
+        reason: None,
+        requirement: None,
+        ensemble: None,
+        stat: None,
+        limits: vec![],
+        evidence,
+        note: w.note.clone(),
+    };
+    let Some(doc) = doc else {
+        out.reason = Some(format!("entry '{}' has no result", w.entry));
+        return out;
+    };
+    // The figure.
+    let resolved: Result<(f64, Option<String>), String> = if let Some(c) = &w.crossing {
+        crate::pack_c::campaign::sweep_crossing(doc, &w.metric, c).map(|(v, u)| (v, Some(u)))
+    } else if let Some(e) = &w.ensemble {
+        let read = |p: &str| resolve_metric(doc, p, &source);
+        match (read(&e.mean), read(&e.std), read(&e.n)) {
+            (Ok((m, mu)), Ok((sd, _)), Ok((n, _))) => {
+                out.ensemble = Some(EnsembleStats {
+                    mean: m,
+                    std: sd,
+                    n,
+                });
+                Ok((m, mu))
+            }
+            (Err(x), _, _) | (_, Err(x), _) | (_, _, Err(x)) => Err(x),
+        }
+    } else {
+        resolve_metric(doc, &w.metric, &source)
+    };
+    match resolved {
+        Ok((v, u)) => {
+            out.value = Some(v);
+            out.unit = u;
+        }
+        Err(e) => {
+            out.reason = Some(format!("not found: {e}"));
+        }
+    }
+    out.limits = w.limits(out.unit.as_deref());
+
+    // Against the baseline.
+    let base_value = base_outcome.and_then(|o| o.value).or(base_metric);
+    out.baseline = base_value;
+    if let Some(v) = out.value {
+        match base_value {
+            None => out.status = "no-baseline".into(),
+            Some(b) => {
+                out.change = Some(v - b);
+                out.rel_change = (b != 0.0).then(|| (v - b) / b.abs());
+                if w.ensemble.is_some() {
+                    match (base_outcome.and_then(|o| o.ensemble), out.ensemble) {
+                        (Some(bs), Some(cs)) => {
+                            match stat_gate::decide(bs, cs, direction, w.alpha()) {
+                                Ok(sv) => {
+                                    out.status = if sv.regressed() {
+                                        "regressed"
+                                    } else if sv.mean_improved {
+                                        "improved"
+                                    } else {
+                                        "no-significant-change"
+                                    }
+                                    .into();
+                                    out.reason = Some(format!(
+                                    "mean: Welch t = {:.3}, df = {:.1}, p = {:.3e}{}; spread: F = {:.3} on ({:.0}, {:.0}) degrees of freedom, p = {:.3e}{}; alpha = {}",
+                                    sv.t,
+                                    sv.df,
+                                    sv.p_mean,
+                                    if sv.mean_regressed {
+                                        " (significant, worse)"
+                                    } else if sv.mean_improved {
+                                        " (significant, better)"
+                                    } else {
+                                        ""
+                                    },
+                                    sv.f,
+                                    sv.df_f.0,
+                                    sv.df_f.1,
+                                    sv.p_spread,
+                                    if sv.spread_regressed { " (spread grew)" } else { "" },
+                                    sv.alpha
+                                ));
+                                    out.stat = Some(sv);
+                                }
+                                Err(e) => {
+                                    out.status = "not-found".into();
+                                    out.reason = Some(format!("statistical gate: {e}"));
+                                }
+                            }
+                        }
+                        _ => {
+                            out.status = "no-baseline".into();
+                            out.reason = Some(
+                                "the baseline carries no ensemble statistics for this watch".into(),
+                            );
+                        }
+                    }
+                } else {
+                    let allowance = w
+                        .tolerance
+                        .clone()
+                        .unwrap_or(crate::pack_c::watch::Tolerance {
+                            rel: None,
+                            abs: None,
+                        })
+                        .allowance(b, default_rel);
+                    out.allowance = Some(allowance);
+                    out.status = gate::judge_watch(direction, allowance, b, v).into();
+                }
+            }
+        }
+    }
+
+    // The requirement, against the entry's own result, with `watched` bound.
+    if let Some(req) = &w.requirement {
+        out.requirement = Some(evaluate_requirement(
+            req,
+            doc,
+            out.value,
+            out.unit.as_deref(),
+            &source,
+        ));
+    }
+    out
+}
+
+fn evaluate_requirement(
+    req: &str,
+    doc: &serde_json::Value,
+    value: Option<f64>,
+    unit: Option<&str>,
+    source: &str,
+) -> RequirementOutcome {
+    use crate::mbse::criterion;
+    use crate::pack_c::watch::{DocUnits, WATCHED};
+    let c = match criterion::parse(req) {
+        Ok(c) => c,
+        Err(e) => {
+            return RequirementOutcome {
+                criterion: req.to_string(),
+                verdict: "not verified".into(),
+                reason: Some(format!("the criterion does not parse: {e}")),
+                evidence: vec![],
+            }
+        }
+    };
+    let mut bound = doc.clone();
+    if let (Some(v), Some(obj)) = (value, bound.as_object_mut()) {
+        if !obj.contains_key(WATCHED) {
+            obj.insert(WATCHED.into(), serde_json::json!(v));
+            if let Some(u) = unit {
+                let units = obj
+                    .entry("units")
+                    .or_insert_with(|| serde_json::Value::Object(Default::default()));
+                if let Some(m) = units.as_object_mut() {
+                    m.insert(
+                        WATCHED.into(),
+                        serde_json::json!({"unit": u, "provenance": "computed"}),
+                    );
+                }
+            }
+        }
+    }
+    let ev = criterion::evaluate(
+        &c,
+        &bound,
+        &DocUnits {
+            doc: &bound,
+            source,
+        },
+    );
+    RequirementOutcome {
+        criterion: req.to_string(),
+        verdict: ev.verdict.as_str().to_string(),
+        reason: ev.reason,
+        evidence: ev.observations.iter().map(|o| o.detail.clone()).collect(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -199,6 +822,7 @@ mod tests {
                 path: "araim.toml".to_string(),
                 label: Some("araim".to_string()),
             }],
+            watches: vec![],
         }
     }
 
