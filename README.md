@@ -208,9 +208,19 @@ posture the open core enforces.
 
 ## Build & run
 
-The build depends on the **published open-core crate** (`kshana = "0.27"`), resolved to an
-exact version in `Cargo.lock` and advanced with `cargo update -p kshana` as each open-core
-release lands.
+A **release** build depends on the **published open-core crate** (`kshana = "<version>"`),
+resolved to an exact version in `Cargo.lock` and advanced with `cargo update -p kshana` as
+each open-core release lands.
+
+> **Development pin on branch `feat/pro-power` (not a release pin).** The integrated open
+> engine (75 scenario kinds, counted with `cargo run -- kinds --json`) is not published
+> yet, so this branch builds against a dedicated, read-only engine worktree by path:
+> `kshana = { path = "../kshana-wt-pro-engine", version = "0.28" }`, which is branch
+> `feat/pro-engine-base` of the open repository. That tree still reports version 0.28.0
+> but is **not** the 0.28.0 on crates.io. **Release step, not done:** before any Pro
+> release, replace the path with the published engine version that carries those kinds,
+> run `cargo update -p kshana`, and re-run every check below with `--locked`. A path pin
+> builds only on a machine that has the worktree; a release must not depend on it.
 
 It used to track a **git dependency on the open core's `main` branch**, pinned to
 `version = "0.24"`. That is why it no longer does: a branch pin resolves to whatever the
@@ -227,11 +237,15 @@ it, so the two versions move together.
 ```bash
 cargo test                       # unit + integration tests (proves the overlay)
 cargo run -- kinds               # list open kinds (inherited) + Pro kinds + their tier
+cargo run -- kinds --json        # the same as JSON, with open_count and pro_count
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **eighteen integration tests** in
+The suite is unit tests across every module plus **nineteen integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
+`open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
+the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
+and must give the open engine's result byte for byte),
 `e2e_interop.rs` (end-to-end), `reproducibility_twin.rs` (deterministic twin),
 `no_overclaims_mission_analysis.rs` (honesty guard), the study/report/pack path
 (`pro_study.rs`, `report_cover.rs`, `report_pdf.rs`, `study_ledger.rs`,

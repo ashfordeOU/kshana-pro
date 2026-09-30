@@ -16,7 +16,7 @@ fn usage() -> &'static str {
      \n\
      USAGE:\n\
        kshana-pro run <scenario.toml> [--license <token>] [--dev]   Run open OR Pro scenario\n\
-       kshana-pro kinds                                              List kinds + their tier\n\
+       kshana-pro kinds [--json]                                     List kinds + their tier (--json: machine-readable, with counts)\n\
        kshana-pro mrd                                                Emit the machine-checked D1.4 MRD FoM-mapping (Markdown)\n\
        kshana-pro benefits [--json|--svg]                            Benefit-vs-baseline reference table (A02, D1.1)\n\
        kshana-pro report <scenario.toml> [--subject <s>] [--format md|json|html|svg] [--pdf <out.pdf>]   Consolidated report (A11)\n\
@@ -60,7 +60,11 @@ fn main() -> ExitCode {
             }
         },
         Some("kinds") => {
-            list_kinds();
+            if has_flag(&args, "--json") {
+                println!("{}", kshana_pro::registry::kinds_json());
+            } else {
+                list_kinds();
+            }
             ExitCode::SUCCESS
         }
         // The D1.4 Mission Requirements Document FoM-mapping skeleton, rendered from
