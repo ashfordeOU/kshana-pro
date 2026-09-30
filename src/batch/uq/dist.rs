@@ -66,6 +66,12 @@ impl Dist {
                 if min > max {
                     return Err(format!("`min` ({min}) is above `max` ({max})"));
                 }
+                if !(max - min).is_finite() {
+                    return Err(format!(
+                        "the range from `min` ({min}) to `max` ({max}) is too wide to be a \
+                         finite number"
+                    ));
+                }
             }
             Dist::Lognormal { median, ln_std } => {
                 finite("median", *median)?;
@@ -84,6 +90,12 @@ impl Dist {
                 if !(min <= mode && mode <= max) {
                     return Err(format!(
                         "need min <= mode <= max (got min {min}, mode {mode}, max {max})"
+                    ));
+                }
+                if !(max - min).is_finite() {
+                    return Err(format!(
+                        "the range from `min` ({min}) to `max` ({max}) is too wide to be a \
+                         finite number"
                     ));
                 }
             }

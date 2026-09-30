@@ -145,3 +145,10 @@ own bullet so parallel work merges cleanly.
   direct engine runs, thread-count independence, stop and resume, failed runs,
   adversarial studies, the licence gate) and unit tests in each module. The README now
   states seventeen Pro packs (was sixteen) and twenty integration tests (was nineteen).
+  Hardened after an independent review: a declared output `unit` that differs from the
+  unit the base kind reports is refused (it was taken as given); a distribution that
+  gives a value that is not a finite number is refused before anything runs; a study
+  whose every realisation fails finishes with null and a reason under `src` (it
+  panicked); one study makes at most 10,000,000 engine runs (a very large `n` exhausted
+  memory); a new study does not start beside the result files of another run. No
+  published number changes.

@@ -813,6 +813,20 @@ fn t07_a_stopped_run_resumes_to_byte_identical_files() {
     let out = uncertainty(&study_path, &parts, &[]);
     assert!(!out.status.success());
     assert!(String::from_utf8_lossy(&out.stderr).contains("--resume"));
+    // Nor does a new study start beside the result files of another run: a stopped run
+    // writes no result, so the old one would sit next to the new checkpoint as if it
+    // were this study's.
+    let stale = dir.join("stale");
+    std::fs::create_dir_all(&stale).expect("directory");
+    std::fs::copy(whole.join("uq.result.json"), stale.join("uq.result.json")).expect("copy");
+    let out = uncertainty(&study_path, &stale, &["--max-runs", "5"]);
+    assert!(!out.status.success(), "a new study beside old results");
+    let err = String::from_utf8_lossy(&out.stderr);
+    assert!(
+        err.contains("another run") && err.contains("uq.result.json"),
+        "{err}"
+    );
+    assert!(!stale.join("runs.jsonl").exists(), "nothing was started");
     // A second stop, then the rest.
     let out = uncertainty(&study_path, &parts, &["--resume", "--max-runs", "20"]);
     assert!(out.status.success());
