@@ -126,8 +126,9 @@ own bullet so parallel work merges cleanly.
   SHA-256 of its scenario and result, and stops if its rebuilt single-satellite loss
   differs from the open run's by more than 1e-9 dB. Refused: any table named for jammers,
   spoofers, attacks or threats; any victim outside the open list (GPS L2C included: the
-  open engine has no compatibility model for it). No jammer-tolerance field is carried
-  through. Outputs: result JSON, matrix, map and Pareto charts (SVG), a self-contained HTML
+  open engine has no compatibility model for it), and any reference or maximum received
+  power of 0 dBW (1 W) or more (an EIRP or a unit slip, not a received power). No
+  jammer-tolerance field is carried through. Outputs: result JSON, matrix, map and Pareto charts (SVG), a self-contained HTML
   report; `kshana-pro run` prints the JSON. New: `src/spectrum_coexistence/`,
   `src/packs/spectrum_coexistence_pack.rs`, `scenarios/pro-power/coexistence/`,
   `tests/spectrum_coexistence.rs`, `docs/SPECTRUM-COEXISTENCE.md`. Seventeen Pro packs,

@@ -585,7 +585,6 @@ fn export_cmd(path: &str, format: Option<String>) -> ExitCode {
     }
 }
 
-/// Consolidated performance/resilience report over a scenario (A11).
 /// `coexist <study.toml> --out <dir>` — resolve the entitlement exactly as `mbse` does
 /// (`--dev` in a debug build = full; else a token enforces its tier; else Evaluation),
 /// require the `pro-spectrum-coexistence` feature, then run the study.
@@ -636,6 +635,7 @@ fn coexist_cmd(args: &[String]) -> ExitCode {
     }
 }
 
+/// Consolidated performance/resilience report over a scenario (A11).
 fn report_cmd(args: &[String]) -> ExitCode {
     let path = match args.get(1) {
         Some(p) if !p.starts_with("--") => p,
