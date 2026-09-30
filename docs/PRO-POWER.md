@@ -1,6 +1,6 @@
-# Kshana Pro power features: design optimiser, uncertainty, mission dossier
+# Kshana Pro power features: design optimiser, uncertainty, mission dossier, campaign watch, spectrum coexistence, job service
 
-Open Kshana answers "what does this one scenario give". The three features on this page
+Open Kshana answers "what does this one scenario give". The six features on this page
 answer the questions a programme asks next, over the same open engine and on any open
 scenario kind:
 
@@ -9,21 +9,36 @@ scenario kind:
 | Which design should we fly? | `kshana-pro design` | [DESIGN-OPTIMISER.md](DESIGN-OPTIMISER.md) |
 | How sure are we, and what drives the result? | `kshana-pro uncertainty` | [UNCERTAINTY.md](UNCERTAINTY.md) |
 | Does the mission meet its requirements, and can we hand that over? | `kshana-pro mission build` / `mission check` | [MISSION-DOSSIER.md](MISSION-DOSSIER.md) |
+| Did a figure that matters get worse since the last run, or is it noise? | `kshana-pro ci` with `[[watch]]` tables, `ci history verify`, `ci diff` | [CAMPAIGN-WATCH.md](CAMPAIGN-WATCH.md) |
+| Does our whole signal plan and constellation coexist with the open navigation signals? | `kshana-pro coexist` | [SPECTRUM-COEXISTENCE.md](SPECTRUM-COEXISTENCE.md) |
+| Can the team run all of this as a service on its own network? | `kshana-pro serve --data-dir` | [SERVICE.md](SERVICE.md) |
 
 None of them adds or changes a physical model. Every number comes from a run of the open
-engine through its public interface (`kshana::api::run_scenario`), so a figure is as
-trustworthy as the open scenario kind it comes from, and never more. Every output is
-labelled MODELLED and carries the engine's own VALIDATED / MODELLED / PARTNER tier for
-each figure, never a higher one. Each feature works on any system: none depends on the
-optional low-Earth-orbit workshop preset of the open engine, and each was tested with
-that preset deleted from the engine (the mission dossier before its last three fixes,
-which did not touch how scenarios are run).
+engine through its public interface, so a figure is as trustworthy as the open scenario
+kind it comes from, and never more. The results carry the engine's own VALIDATED /
+MODELLED / PARTNER tier for each figure, never a higher one; the design optimiser,
+uncertainty, mission dossier and spectrum coexistence label every output MODELLED;
+campaign watch carries each result's own label next to every watched figure; the job
+service stores each result as the engine gave it and shows only the tier the result
+states. None depends on the optional low-Earth-orbit workshop preset of the open engine.
+The first three were tested with that preset deleted from the engine (the mission dossier
+before its last three fixes, which did not touch how scenarios are run); for campaign
+watch and spectrum coexistence a test scans the feature's files for the preset's name;
+the job service runs whatever scenario it is sent.
 
 Abbreviations used on this page, in full:
 
 | Abbreviation | Meaning |
 |---|---|
+| C/N0 | carrier-to-noise density ratio |
+| CI | continuous integration |
 | CSV | comma-separated values |
+| GNSS | global navigation satellite system |
+| GPS | Global Positioning System |
+| HTTP | HyperText Transfer Protocol |
+| JSONL | JSON Lines (one JSON document per line) |
+| OpenAPI | the OpenAPI Specification, a machine-readable description of an HTTP interface |
+| TLS | Transport Layer Security |
 | HTML | HyperText Markup Language |
 | JSON | JavaScript Object Notation |
 | LEO | low Earth orbit |
@@ -35,7 +50,10 @@ Abbreviations used on this page, in full:
 | SysML v2 | Systems Modeling Language, version 2 |
 | TOML | Tom's Obvious Minimal Language (the scenario and study file format) |
 
-All three need the Enterprise tier (or the feature named on the licence). Without a
+The design optimiser, uncertainty, the mission dossier and spectrum coexistence need the
+Enterprise tier (or the feature named on the licence); campaign watch needs the
+`pro-scenario-ci` feature (Pro tier); the job service serves every operation at the tier
+of the licence the process runs with. Without a
 licence the binary runs at the Evaluation tier and refuses; `--dev` switches the check off
 in a debug build only, and a release build refuses it. For access, write to
 contact@ashforde.org.
@@ -197,13 +215,163 @@ value was recomputed from the free engine's own output files.
   check; only Chromium on macOS was used for the HTML.
 - Nothing here is a certification, a qualification or an acceptance by any authority.
 
-## 4. What holds for all three
+## 4. Campaign watch
 
-- **Verification.** Each feature was built on its own branch, then checked by a separate
-  reviewer who re-ran every claim, compared outputs with the free engine run on its own,
-  tried adversarial inputs, mutated the code to prove the tests fail, and fixed what they
-  found with a test for each defect. Test files: `tests/design_optimise.rs`,
-  `tests/uncertainty.rs`, `tests/mission_dossier.rs`.
+**What it does.** It turns a scenario pack into a subscription that keeps proving itself.
+A pack manifest carries `[[watch]]` tables: the figures that matter (a result path, an
+aggregate such as `max(...)`, a named campaign figure such as a channel's value at the end
+of a phase, the first alarm time or a sweep crossing), what worse means for each
+(`higher`, `lower` or `target`), a tolerance, and an optional absolute requirement checked
+with units. `kshana-pro ci` then fails the pipeline when a watched figure gets worse or a
+requirement stops being met. A Monte Carlo figure is decided by a Welch t-test on the
+means and an F-test on the variances at a stated significance level (default 0.01), so
+another set of seeds is not called a regression and a doubled spread is. A pack without
+watch tables runs exactly as before, byte for byte.
+
+**Command.**
+
+```bash
+kshana-pro ci --pack <pack.toml> [--baseline <ci.json>] --json <ci.json> [--out <report.html>] \
+              [--history <history.jsonl>] [--trend <trend.html>] [--exact] [--license <token>]
+kshana-pro ci history verify <history.jsonl>
+kshana-pro ci diff <old ci.json> <new ci.json> [--json <out>]
+```
+
+Scenario kind of the product: `pro-scenario-ci`.
+
+**Inputs.** A pack manifest (TOML) listing scenarios of any open kind, with `[[watch]]`
+tables; optionally the previous passing `ci.json` as the baseline and an existing history.
+
+**Outputs.** `ci.json` (every figure, every watch and its verdict; it is the next run's
+baseline), the branded HTML report, the append-only hash-chained `history.jsonl`, a trend
+page (`trend.html` with one sparkline per watched figure, and `trend.json`), and the
+figure-by-figure diff. Exit code 0 when every watch holds, 1 otherwise. Five subscription
+packs ship in `scenarios/packs/` (low Earth orbit, constellations, spectrum, campaigns,
+the solar system), each with provenance, and a six-revision demonstration sequence in
+`scenarios/pro-power/watch-demo/`.
+
+**Checked at merge.** `campaign-baseline` run twice on the merged branch: 10 watches, PASS
+both times, `--exact` found 0 changed results, `ci history verify` reported 2 records with
+the chain intact, and `ci diff` reported 0 of 125 figures moved.
+
+**Honestly not done.**
+- A watch proves that a MODELLED figure stayed stable or moved; it does not prove the
+  figure is true.
+- The statistical gate needs the ensemble's mean, standard deviation and count; there is no
+  test for correlated realisations or for percentiles, and the F-test assumes roughly
+  normal samples.
+- A figure with no stated direction is informational and never fails a run.
+- The end of a campaign phase is read on the campaign's grid and can differ from the
+  engine's carried value by one grid step.
+- Criteria compare values; there is no arithmetic between fields.
+
+## 5. Spectrum coexistence
+
+**What it does.** It tests one or more candidate signal plans, each a signal design plus a
+constellation, against every open-service GNSS signal the open engine models (GPS L1 C/A
+(coarse/acquisition) and L5; Galileo E1, E5a, E5b and the E5 alternative binary offset
+carrier signal), in both directions and over a worldwide grid, and gives a verdict per plan
+and signal against the limit the study states (`max_degradation_db` with its
+`limit_source`; no limit is built in). The free `leo-signal` kind answers this for one
+satellite; this answers it for every satellite of the plan in view at once. Every physical
+number is read from open `leo-signal` and `constellation-design` runs; the feature adds
+only the aggregation and ranks the plans with the open Pareto routine. It refuses any
+table named for jammers, spoofers, attacks or threats.
+
+**Command.**
+
+```bash
+kshana-pro coexist <study.toml> --out <dir> [--license <token>]
+kshana-pro run <study.toml> [--license <token>]      # prints the result JSON
+```
+
+Scenario kind: `pro-spectrum-coexistence`.
+
+**Inputs.** One study file (`kind = "pro-spectrum-coexistence"`): the limit and its source,
+the victim signals (only the six open-service signals above), the grid, and one `[[plan]]`
+per candidate with its signal design and its satellites. A received power of 0 dBW (1 W)
+or more is refused as a unit slip.
+
+**Outputs.** `coexistence.result.json` (a MODELLED upper bound, every open run with the
+SHA-256 of its scenario and result, a unit for every numeric field),
+`coexistence.matrix.svg`, `coexistence.map.svg`, `coexistence.pareto.svg` and a
+self-contained `coexistence.report.html`.
+
+**Worked example** (`scenarios/pro-power/coexistence/generic-walker-coexistence.toml`):
+four plans on the open engine's generic designs against an illustrative 0.1 dB limit.
+**Checked at merge.** Re-run: scenario hash `479364bd…985d4`, 4 of 4 plans compatible; the 288-satellite
+L-band plan's worst loss caused is 0.00544 dB, the 144-satellite plan's 0.00288 dB, and
+the two C-band plans have no spectral overlap with any victim.
+
+**Honestly not done.**
+- An upper bound: every visible satellite at the maximum received power, no
+  elevation-dependent power, no receive-antenna pattern.
+- Open-service signals only, and only those the open engine models (not GPS L2C).
+- Smooth spectra with no spreading-code lines, as in the open `leo-signal` kind.
+- No other systems in the sum: other GNSS, other low Earth orbit systems and terrestrial
+  services are left out.
+- Not a coordination filing and not a regulatory finding.
+
+## 6. On-premises job service
+
+**What it does.** `kshana-pro serve --data-dir <dir>` keeps a queue of jobs on disk, runs
+them on a bounded pool of workers, stores each result and its artefacts under a job
+identifier (the SHA-256 of the operation and the canonical request, so the same request is
+the same job), and records every delivery in a hash-chained ledger. A stop or a crash loses
+no work: on restart every unfinished job is queued again, and a finished job is never run
+twice. Three operations ship: `run` (any open or Pro scenario), `dossier` (the study
+dossier) and `ci` (a Pack C run). The OpenAPI 3.1 document is generated from the same route
+table as the router. A self-contained job board page lists the jobs. Standard library
+only, no outbound connection, no telemetry.
+
+**Command.**
+
+```bash
+kshana-pro serve --addr <host:port> --data-dir <dir> [--workers <n>] \
+                 [--api-token-file <path>] [--license <token>]
+```
+
+Routes: `POST /jobs`, `GET /jobs`, `GET /jobs/<id>`, `GET /jobs/<id>/result`,
+`GET /jobs/<id>/artefacts/<name>`, `GET /ledger`, `GET /ledger/verify`,
+`GET /openapi.json`, `GET /` (the job board), beside the existing `GET /health`,
+`/version`, `/kinds`, `POST /run` and `POST /study`.
+
+**Inputs.** `{"op": ..., "request": ...}` as JSON (at most 16 MiB, mebibytes): a scenario's
+text for `run` and `dossier`; a manifest, its scenario texts and an optional baseline for
+`ci`. The entitlement is checked on submission (403, nothing queued) and again when the job
+runs.
+
+**Outputs.** Per job under `<data-dir>/jobs/<id>/`: `request.json`, `status.json`,
+`result.json` and `artefacts/`; the delivery ledger; the verification report of
+`GET /ledger/verify`.
+
+**Checked at merge.** A server on the merged branch with two workers took one `run` job
+(the public link-budget scenario from `tests/fixtures/service/`): 202 on submission,
+succeeded after one attempt, its result the same JSON document as `kshana-pro run` on the
+same file (the command line prints it formatted, so the bytes differ), `GET /ledger/verify`
+verified with 3 records and 1 delivered job, the OpenAPI document listed 13 paths, and the
+job board answered 200.
+
+**Honestly not done.**
+- One request per connection, no keep-alive or streaming; a client polls.
+- One entitlement for the whole process; no per-user tier.
+- The bearer token is one shared secret, not user management.
+- Plain HTTP only: TLS belongs in the site's own reverse proxy.
+- One server per data directory; nothing locks it. No cancellation, no time limit, no
+  priority, no retention policy.
+- The data directory is the only copy of the results and the ledger; back it up.
+
+## 7. What holds for all six
+
+- **Verification.** Each feature was built on its own branch and then checked by a
+  separate reviewer, who fixed what they found with a test for each defect. For the first
+  three the reviewer re-ran every claim, compared outputs with the free engine run on its
+  own, tried adversarial inputs and mutated the code to prove the tests fail. The last
+  three passed their independent verification after fixes and were merged together; after
+  the merge every test binary passed and each new command was run once for real (the
+  "Checked at merge" lines above). Test files: `tests/design_optimise.rs`,
+  `tests/uncertainty.rs`, `tests/mission_dossier.rs`, `tests/campaign_watch.rs`,
+  `tests/spectrum_coexistence.rs`, `tests/service_jobs.rs`.
 - **Not yet a release.** Every number above comes from a debug build of Kshana Pro, which
   embeds the open engine optimised. No release build and no signed licence token were
   exercised; only the refusal without a licence and the development switch were. Numbers

@@ -73,7 +73,7 @@ won tenders and revenue. The map:
 | **Strategy & roadmaps** | [`docs/strategy/`](docs/strategy/), [`docs/roadmaps/`](docs/roadmaps/) | Pricing proposal, productization roadmap, phase plans, the quantum-PNT-13503 and lunar-PNT build roadmaps. |
 | **Legal** | [`legal/`](legal/) | Commercial licence, NDA/SOW/DPA templates, IP policy, export-control determination, BIPR & trademark briefs, counsel-review package. |
 | **The overlay (code)** | [`src/`](src/), [`scenarios/`](scenarios/), [`tests/`](tests/) | The Pro packs + deliverable/deployment modules ([Status](#status--what-is-built-vs-gated)); seam map in [`docs/OVERLAY-ARCHITECTURE.md`](docs/OVERLAY-ARCHITECTURE.md). |
-| **User guides (code features)** | [`docs/PRO-POWER.md`](docs/PRO-POWER.md), [`docs/DESIGN-OPTIMISER.md`](docs/DESIGN-OPTIMISER.md), [`docs/UNCERTAINTY.md`](docs/UNCERTAINTY.md), [`docs/MISSION-DOSSIER.md`](docs/MISSION-DOSSIER.md), [`docs/MBSE.md`](docs/MBSE.md) | The summary of the three Pro power features, then one guide per feature: what it does, the command, inputs and outputs, worked examples with measured numbers, and what is not done. |
+| **User guides (code features)** | [`docs/PRO-POWER.md`](docs/PRO-POWER.md), [`docs/DESIGN-OPTIMISER.md`](docs/DESIGN-OPTIMISER.md), [`docs/UNCERTAINTY.md`](docs/UNCERTAINTY.md), [`docs/MISSION-DOSSIER.md`](docs/MISSION-DOSSIER.md), [`docs/CAMPAIGN-WATCH.md`](docs/CAMPAIGN-WATCH.md), [`docs/SPECTRUM-COEXISTENCE.md`](docs/SPECTRUM-COEXISTENCE.md), [`docs/SERVICE.md`](docs/SERVICE.md), [`docs/MBSE.md`](docs/MBSE.md) | The summary of the six Pro power features, then one guide per feature: what it does, the command, inputs and outputs, worked examples with measured numbers, and what is not done. |
 
 **Visibility rule (non-negotiable):** everything in this repo is **PRIVATE**. Capability
 *code* is mirrored to the open [`kshana`](https://github.com/AshfordeOU/kshana) repo;
@@ -93,7 +93,7 @@ on spec)**.
 
 Each runs on public data; the tier shown is the licence required to *run* it (see
 [Licensing](#build--run)). The table covers the framework packs; the full list of the
-eighteen registered in [`src/registry.rs`](src/registry.rs), with their tiers, comes from
+nineteen registered in [`src/registry.rs`](src/registry.rs), with their tiers, comes from
 `cargo run -- kinds`. `tests/readme_counts.rs` fails the build if the pack count written
 here stops matching the registry.
 
@@ -106,9 +106,10 @@ here stops matching the registry.
 | `pro-optimism-gap-audit` | Pack A | The in- vs out-of-distribution **optimism-gap audit** packaged as a sold study: ingests a customer detector through the open-core eval testbed, scores the ID→OOD degradation, and emits the branded Pack A report (`report_pack_a` + `packs::detector_intake`) | Pro | ✅ built + tested |
 | `pro-mbse` | L3 | ECSS/MBSE artifact generator: requirements → margins table + traceability CSV + ReqIF-lite XML (DOORS/Polarion-importable) | Enterprise | ✅ framework demonstrator (product SKU gated) |
 | `pro-batch` | scale | Parallel Monte-Carlo runner: fans one base scenario across many seeds concurrently, aggregates a figure of merit (mean/std/min/max/p05/p95) | Enterprise | ✅ built + tested |
-| `pro-scenario-ci` | Pack C | The **scenario-subscription CI** product (run via `kshana-pro ci`): a manifest of scenarios + metric thresholds gated against a rolling baseline (the JSON output doubles as the next run's baseline), emitting the branded Pack C regression report (`pack_c::{manifest,metrics,gate,run}` + `report_pack_c`) | Pro | ✅ built + tested |
+| `pro-scenario-ci` | Pack C | The **scenario-subscription CI** product (run via `kshana-pro ci`): a manifest of scenarios + metric thresholds gated against a rolling baseline (the JSON output doubles as the next run's baseline), emitting the branded Pack C regression report (`pack_c::{manifest,metrics,gate,run}` + `report_pack_c`). **Campaign watch**: `[[watch]]` tables name the figures that matter (result paths, aggregates, named campaign figures, sweep crossings), what worse means for each and optional unit-checked requirements; a Monte Carlo figure is gated by a Welch t-test on the mean and an F-test on the spread; `--history` keeps a hash-chained history (`ci history verify`), `--trend` draws it, `--exact` reports every changed member result, `ci diff` lists what moved. Five subscription packs in `scenarios/packs/`. See [`docs/CAMPAIGN-WATCH.md`](docs/CAMPAIGN-WATCH.md) | Pro | ✅ built + tested |
 | `pro-design-optimise` | L3 | **Design optimiser** (`kshana-pro design`): a design space over a base scenario of any open kind, Walker and result constraints, two or three objectives; returns the Pareto front, its knee and the place of a reference design. Exhaustive when the space fits the budget, seeded NSGA-II (non-dominated sorting genetic algorithm II) otherwise, labelled "best found in N runs"; every front design is exported as a plain open scenario the free engine re-runs to the same result. See [`docs/DESIGN-OPTIMISER.md`](docs/DESIGN-OPTIMISER.md) | Enterprise | ✅ built + tested |
 | `pro-uncertainty` | scale | **Uncertainty and sensitivity** (`kshana-pro uncertainty`): stated input distributions over any open scenario; per output the mean, spread, percentiles with a bootstrap interval, the probability of meeting a limit (Wilson interval), time-series bands, and Sobol' or standardised-regression sensitivity; seeded, thread-count independent, stop and resume. See [`docs/UNCERTAINTY.md`](docs/UNCERTAINTY.md) | Enterprise | ✅ built + tested |
+| `pro-spectrum-coexistence` | L3 | **Spectrum coexistence** (`kshana-pro coexist`): whole candidate signal plans (a signal design plus a constellation) against every open-service global navigation satellite system (GNSS) signal the open engine models, in both directions, over a worldwide grid, with a verdict per plan and signal against the limit the study states (no limit is built in); a MODELLED upper bound read from open `leo-signal` and `constellation-design` runs; refuses any jammer, spoofer, attack or threat table. See [`docs/SPECTRUM-COEXISTENCE.md`](docs/SPECTRUM-COEXISTENCE.md) | Enterprise | ✅ built + tested |
 
 ### Layer attach points & gates
 
@@ -159,6 +160,12 @@ study/bid needs:
   (`GET /health` · `/version` · `/kinds`; `POST /run` · `POST /study`) for on-prem /
   air-gapped / sovereign / hosted deployment, entitlement-gated and **fail-closed**
   (open engine + free seam-check at Evaluation until a license token is supplied).
+  With `--data-dir` it is also an **on-premises job service**: a job queue on disk,
+  a bounded worker pool (`--workers`), the operations `run`, `dossier` and `ci`,
+  results and artefacts stored per job, a hash-chained delivery ledger
+  (`GET /ledger/verify`), unfinished jobs queued again after a restart, an OpenAPI
+  document generated from the route table, a job board page and an optional bearer
+  token (`--api-token-file`). See [`docs/SERVICE.md`](docs/SERVICE.md).
 - **`mbse`** — model-based systems engineering (MBSE) and programme tooling over the
   open engine's own outputs (`kshana-pro mbse import|trace|vcrm|sysml|impact|pack`):
   requirements imported from comma-separated values (CSV), a documented subset of the
@@ -178,7 +185,8 @@ study/bid needs:
   hash-chained ledger; `mission check` re-hashes a delivered dossier and, with `--rerun`,
   runs every scenario again. It is a command, not a scenario kind, so it is not in the
   pack count. See [`docs/MISSION-DOSSIER.md`](docs/MISSION-DOSSIER.md).
-- **Pro power summary** — what each of the three features above does, its inputs and
+- **Pro power summary** — what each of the six Pro power features (design optimiser,
+  uncertainty, mission dossier, campaign watch, spectrum coexistence, job service) does, its inputs and
   outputs, and what is honestly not done: [`docs/PRO-POWER.md`](docs/PRO-POWER.md).
 - **`license`** (PR7) — the tier mechanics: Ed25519-signed tokens (public key only in the build), fail-closed Evaluation
   default, per-`kind` tier mapping.
@@ -263,9 +271,10 @@ and must give the open engine's result byte for byte),
 `no_overclaims_mission_analysis.rs` (honesty guard), the study/report/pack path
 (`pro_study.rs`, `report_cover.rs`, `report_pdf.rs`, `study_ledger.rs`,
 `study_intake.rs`, `pack_c.rs`, `optimism_gap_scenarios.rs`, `study_dossier.rs`),
-`mbse.rs` (the MBSE commands over real open-engine runs), the three Pro power features
-(`design_optimise.rs`, `uncertainty.rs`, `mission_dossier.rs`, each checked against
-independent open-engine runs and closed forms), the
+`mbse.rs` (the MBSE commands over real open-engine runs), the six Pro power features
+(`design_optimise.rs`, `uncertainty.rs`, `mission_dossier.rs`, `campaign_watch.rs`,
+`spectrum_coexistence.rs`, `service_jobs.rs`, each checked against independent
+open-engine runs, closed forms or real sockets), the
 four `*_in_sync.rs` guards (each committed deliverable matches its generator output, so
 docs never drift), and `readme_counts.rs` (the pack and integration-test counts in this
 README match the registry and the `tests/` directory).
@@ -368,6 +377,15 @@ The Pro packs (runnable examples in [`scenarios/`](scenarios)):
   low-Earth-orbit positioning chain with regression and with Sobol' sensitivity).
 - `scenarios/pro-power/mission/programme.toml` — `kshana-pro mission build`: a
   twelve-requirement programme over five scenarios and a lunar relay trade.
+- `scenarios/packs/*/pack.toml` — `kshana-pro ci`: five campaign-watch subscription packs
+  (low Earth orbit, constellations, spectrum, campaigns, the solar system), each with a
+  `PROVENANCE.md`; `scenarios/pro-power/watch-demo/` holds a six-revision demonstration
+  sequence and its script `run-demo.sh`.
+- `scenarios/pro-power/coexistence/generic-walker-coexistence.toml` — `kshana-pro coexist`:
+  four plans on the open engine's generic designs against all six open-service signals,
+  with an illustrative limit.
+- `tests/fixtures/service/*.toml` — public open-engine scenarios, with provenance, that the
+  job service's acceptance test submits through `POST /jobs`.
 - `scenarios/spacestream-*.json` — SpaceStream NAV-DT metrics fixtures (nominal / jamming /
   spoof-time / degraded) for the connector / `spacestream` path.
 
