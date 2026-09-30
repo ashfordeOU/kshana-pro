@@ -384,7 +384,7 @@ impl PackCReport {
         if let Some(ex) = &w.exact {
             notes.push_str(&if ex.compared {
                 format!(
-                    "<p>Exact comparison of member result SHA-256: {} changed{}; {} unchanged.</p>",
+                    "<p>Exact comparison of member result SHA-256 (Secure Hash Algorithm, 256-bit) digests: {} changed{}; {} unchanged.</p>",
                     ex.changed.len(),
                     if ex.changed.is_empty() {
                         String::new()

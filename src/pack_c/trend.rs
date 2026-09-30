@@ -317,7 +317,7 @@ tr.fail td{{color:var(--bad);font-weight:600}}.legend{{font-size:13px;color:var(
 <p class=\"chain\">History verified: {n} record(s), hash chain intact, last hash <code>{last}</code>.</p>\
 <div class=\"grid\">{cards}</div>\
 <p class=\"legend\">Red point: the figure regressed or failed its requirement in that run. Dashed line: a requirement limit. Dotted line: the engine version changed between two runs.</p>\
-<section class=\"runs\"><h2>Runs</h2><table><thead><tr><th>Run</th><th>Time (UTC)</th><th>Engine</th><th>Verdict</th><th>Failed watches</th><th>Chain hash</th></tr></thead><tbody>{rows}</tbody></table></section>\
+<section class=\"runs\"><h2>Runs</h2><table><thead><tr><th>Run</th><th>Time (Coordinated Universal Time, UTC)</th><th>Engine</th><th>Verdict</th><th>Failed watches</th><th>Chain hash</th></tr></thead><tbody>{rows}</tbody></table></section>\
 <p class=\"honesty\">Every figure is the output of an open-engine scenario run and carries that run's evidence label (VALIDATED, MODELLED, PARTNER or MIXED). A watch proves that a figure stayed stable or moved; it does not prove that a MODELLED figure is true. Decision support for your own verification and validation, not a certification.</p>\
 </main></body></html>",
         title = esc(title),
