@@ -1,0 +1,196 @@
+# Kshana Pro uncertainty and sensitivity study (kind pro-uncertainty). Guide: docs/UNCERTAINTY.md.
+#
+# The same low Earth orbit (LEO) positioning, navigation and timing (PNT) chain with four
+# uncertain inputs and variance-based (Sobol') sensitivity indices: the share of each
+# output's variance that each input explains alone (first order) and with its
+# interactions (total), each with a 95 % confidence interval.
+#
+# Three outputs are watched: the position error of the fused fix (GPS, Galileo and the
+# LEO layer together), the position error of GPS and Galileo alone, and the peak
+# carrier-to-noise density of the LEO pass. The question is which input drives which.
+#
+# The base scenario is the open engine's leo-pnt-end-to-end example
+# (engine/leo-pnt-end-to-end.toml), a generic 1080 km constellation with no named
+# system's data. GPS is the Global Positioning System.
+#
+# Run (1024 * (4 + 2) = 6144 runs of the whole chain; stop and resume at will):
+#   kshana-pro uncertainty scenarios/pro-power/uncertainty/uq-leo-pnt-chain-sobol.toml --out out/uq-leo-sobol --license <token>
+kind = "pro-uncertainty"
+title = "LEO-PNT chain: what drives the position error with and without the LEO layer"
+seed = 20260930
+
+base_scenario = """
+kind = "leo-pnt-chain"
+name = "LEO-PNT end to end, generic 1080 km constellation"
+seed = 5
+signal_design = "generic-l"
+od_sisre_m = 0.25
+
+[signal]
+presets = ["generic-bands"]
+
+[pass]
+epoch = "2026-09-28T08:00:00"
+duration_s = 1200.0
+step_s = 5.0
+
+[pass.user]
+environment = "ground"
+lat_deg = 40.42
+lon_deg = -3.70
+height_m = 650.0
+mask_deg = 10.0
+
+[[pass.satellite]]
+id = "LEO-1"
+system = "generic-leo"
+bands = ["L"]
+orbit = "pass"
+altitude_km = 1080.0
+inclination_deg = 53.0
+max_elevation_deg = 75.0
+tca_s = 600.0
+
+[[pass.satellite.band]]
+name = "L"
+signal = "generic-l"
+eirp_dbw = 10.0
+
+[pass.gnss]
+constellation = "gps-baseline"
+band = "L1"
+
+[navmsg.message]
+model = "kepler-rac"
+fit_interval_s = 300.0
+
+[navmsg.trade]
+span_s = 1200.0
+
+[fusion]
+mode = "joint"
+duration_s = 1800.0
+step_s = 30.0
+
+[fusion.user]
+lat_deg = 40.42
+lon_deg = -3.70
+height_m = 650.0
+
+[fusion.joint]
+max_leo_sweep = 8
+
+[[fusion.system]]
+name = "GPS"
+preset = "gps-baseline"
+cn0_dbhz = [38.0, 48.0]
+sisre_m = 0.6
+
+[[fusion.system]]
+name = "Galileo"
+preset = "galileo"
+cn0_dbhz = [38.0, 48.0]
+sisre_m = 0.3
+isb_ns = 12.0
+
+[[fusion.system]]
+name = "Generic LEO"
+role = "leo"
+isb_ns = 25.0
+
+[[fusion.system.shell]]
+total = 240
+planes = 12
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 53.0
+
+[ppp]
+duration_s = 1800.0
+step_s = 10.0
+runs = 2
+
+[[ppp.site]]
+lat_deg = 40.42
+lon_deg = -3.70
+
+[[ppp.gnss]]
+name = "GPS"
+preset = "gps-baseline"
+mask_deg = 7.0
+
+[[ppp.gnss]]
+name = "Galileo"
+preset = "galileo"
+mask_deg = 7.0
+
+[[ppp.case]]
+name = "240 LEO"
+
+[[ppp.case.system]]
+name = "Generic LEO"
+mask_deg = 7.0
+
+[[ppp.case.system.shell]]
+total = 240
+planes = 12
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 53.0
+"""
+
+[[input]]
+name = "od_sisre"
+key = "od_sisre_m"
+unit = "m"
+dist = "uniform"
+min = 0.10
+max = 0.40
+source = "assumed: 0.10 m to 0.40 m around the base scenario's 0.25 m (its comment cites decimetre-level on-board orbit determination and clock prediction)"
+
+[[input]]
+name = "eirp"
+key = "pass.satellite.0.band.0.eirp_dbw"
+unit = "dBW"
+dist = "normal"
+mean = 10.0
+std = 1.0
+source = "assumed: 1 dB (one standard deviation) on the transmit power of the generic design"
+
+[[input]]
+name = "gps_sisre"
+key = "fusion.system.0.sisre_m"
+unit = "m"
+dist = "uniform"
+min = 0.4
+max = 0.8
+source = "assumed: 0.4 m to 0.8 m around the base scenario's 0.6 m signal-in-space range error for GPS"
+
+[[input]]
+name = "galileo_sisre"
+key = "fusion.system.1.sisre_m"
+unit = "m"
+dist = "uniform"
+min = 0.2
+max = 0.4
+source = "assumed: 0.2 m to 0.4 m around the base scenario's 0.3 m signal-in-space range error for Galileo"
+
+[[output]]
+name = "fused_error"
+path = "fusion.fused.rms_error_3d_m"
+limit = { op = "le", value = 0.6 }
+
+[[output]]
+name = "gnss_only_error"
+path = "fusion.gnss.rms_error_3d_m"
+
+[[output]]
+name = "peak_cn0"
+path = "pass.peak_cn0_dbhz"
+
+[sampling]
+method = "lhs"
+n = 1024
+
+[sensitivity]
+method = "sobol"

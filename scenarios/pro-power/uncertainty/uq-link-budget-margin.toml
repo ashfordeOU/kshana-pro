@@ -1,0 +1,68 @@
+# Kshana Pro uncertainty and sensitivity study (kind pro-uncertainty). Guide: docs/UNCERTAINTY.md.
+#
+# How much link margin is there when the transmit power, the receive figure of merit
+# and the lumped losses are each uncertain, and which of the three drives the margin?
+#
+# The base scenario is the open engine's link-budget example
+# (engine/link-budget.toml, see engine/PROVENANCE.md). The margin is linear in the three
+# inputs, so this study has a closed form: the mean is the base run's margin, the
+# standard deviation is sqrt(1.0^2 + 0.5^2 + 0.5^2) = sqrt(1.5) dB, and the inputs explain
+# 2/3, 1/6 and 1/6 of the variance with nothing left to interactions. tests/uncertainty.rs
+# holds the estimators to those values.
+#
+# Run (8192 * (3 + 2) = 40,960 runs of the link equation, a few seconds):
+#   kshana-pro uncertainty scenarios/pro-power/uncertainty/uq-link-budget-margin.toml --out out/uq-link --license <token>
+kind = "pro-uncertainty"
+title = "X-band link margin under stated input uncertainty"
+seed = 20260930
+
+base_scenario = """
+kind = "link-budget"
+
+band = "x"
+eirp_dbw = 55.0
+g_over_t_db = 53.0
+range_km = 2000.0
+data_rate_bps = 1.0e6
+other_losses_db = 3.0
+required_eb_n0_db = 4.5
+"""
+
+[[input]]
+name = "eirp"
+key = "eirp_dbw"
+unit = "dBW"
+dist = "normal"
+mean = 55.0
+std = 1.0
+source = "assumed: 1 dB (one standard deviation) on the transmit chain, no unit measured"
+
+[[input]]
+name = "g_over_t"
+key = "g_over_t_db"
+unit = "dB/K"
+dist = "normal"
+mean = 53.0
+std = 0.5
+source = "assumed: 0.5 dB (one standard deviation) on the receive figure of merit"
+
+[[input]]
+name = "other_losses"
+key = "other_losses_db"
+unit = "dB"
+dist = "normal"
+mean = 3.0
+std = 0.5
+source = "assumed: 0.5 dB (one standard deviation) on the lumped pointing, polarisation and atmosphere loss"
+
+[[output]]
+name = "margin"
+path = "margin_db"
+limit = { op = "ge", value = 91.0 }
+
+[sampling]
+method = "lhs"
+n = 8192
+
+[sensitivity]
+method = "sobol"
