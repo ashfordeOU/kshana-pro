@@ -754,7 +754,21 @@ fn a_changed_result_byte_fails_the_check_and_names_the_file() {
     let b = build_worked("tamper");
     let clean = check(&b.out_dir, None).unwrap();
     assert!(clean.passed(), "{:?}", clean.problems);
-    assert!(clean.files_checked > 30);
+    // The count is of distinct files: every file the manifest lists, each once, although
+    // the files the body lists as well are compared with both records.
+    let manifest: Value =
+        serde_json::from_slice(&std::fs::read(b.out_dir.join("manifest.json")).unwrap()).unwrap();
+    let listed = manifest["files"].as_array().unwrap().len();
+    assert_eq!(
+        listed, 35,
+        "three faces, the evidence pack twice, and 30 more"
+    );
+    assert_eq!(clean.files_checked, listed);
+    assert_eq!(
+        b.dossier.body.identification.files.len(),
+        30,
+        "the trace, the requirements copy, 5 files for each of 5 open runs and 3 for the trade"
+    );
 
     let victim = "runs/RUN-MARS/mars-orbit-pnt.result.json";
     let path = b.out_dir.join(victim);

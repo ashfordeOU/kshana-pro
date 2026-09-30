@@ -18,6 +18,7 @@
 //!
 //! A failed check names each file or run it failed on.
 
+use std::collections::BTreeSet;
 use std::path::{Component, Path};
 
 use serde_json::Value;
@@ -46,7 +47,8 @@ pub struct Rerun {
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct CheckReport {
     pub dossier_sha256: String,
-    /// Files whose hash was compared.
+    /// Distinct files whose hash was compared. A file that both `dossier.json` and
+    /// `manifest.json` list is compared with each record and counted once.
     pub files_checked: usize,
     /// Every problem found, each naming its file or run. Empty means the check passed.
     pub problems: Vec<String>,
@@ -143,7 +145,13 @@ pub fn differences(a: &Value, b: &Value, limit: usize) -> (usize, Vec<String>) {
     (n, out)
 }
 
-fn check_files(dir: &Path, files: &[(String, String)], source: &str, report: &mut CheckReport) {
+fn check_files(
+    dir: &Path,
+    files: &[(String, String)],
+    source: &str,
+    seen: &mut BTreeSet<String>,
+    report: &mut CheckReport,
+) {
     for (path, recorded) in files {
         if !safe(path) {
             report.problems.push(format!(
@@ -156,7 +164,9 @@ fn check_files(dir: &Path, files: &[(String, String)], source: &str, report: &mu
                 .problems
                 .push(format!("{path}: missing ({source} lists it)")),
             Ok(bytes) => {
-                report.files_checked += 1;
+                if seen.insert(path.clone()) {
+                    report.files_checked += 1;
+                }
                 let actual = sha256_hex(&bytes);
                 if &actual != recorded {
                     report.problems.push(format!(
@@ -211,7 +221,8 @@ pub fn check(dir: &Path, rerun: Option<(&Entitlement, i64)>) -> Result<CheckRepo
             .problems
             .push("dossier.json: the body lists no files".into());
     }
-    check_files(dir, &body_files, "dossier.json", &mut report);
+    let mut seen = BTreeSet::new();
+    check_files(dir, &body_files, "dossier.json", &mut seen, &mut report);
 
     // 3. The manifest.
     match std::fs::read_to_string(dir.join("manifest.json")) {
@@ -241,7 +252,7 @@ pub fn check(dir: &Path, rerun: Option<(&Entitlement, i64)>) -> Result<CheckRepo
                             .push(format!("manifest.json: does not list {face}"));
                     }
                 }
-                check_files(dir, &files, "manifest.json", &mut report);
+                check_files(dir, &files, "manifest.json", &mut seen, &mut report);
             }
         },
     }
