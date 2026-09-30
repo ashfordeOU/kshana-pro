@@ -114,8 +114,8 @@ pub fn render_json(records: &[ChainedRecord], title: &str) -> String {
     .unwrap_or_default()
 }
 
-const W: f64 = 640.0;
-const H: f64 = 150.0;
+const W: f64 = 340.0;
+const H: f64 = 130.0;
 const PAD_L: f64 = 12.0;
 const PAD_R: f64 = 12.0;
 const PAD_T: f64 = 22.0;
@@ -165,7 +165,7 @@ fn sparkline(records: &[ChainedRecord], id: &str) -> String {
     };
     let y = |v: f64| PAD_T + (H - PAD_T - PAD_B) * (hi - v) / (hi - lo);
     let mut svg = format!(
-        "<svg class=\"spark\" viewBox=\"0 0 {W} {H}\" role=\"img\" aria-label=\"{} over {n} runs\" preserveAspectRatio=\"none\">",
+        "<svg class=\"spark\" viewBox=\"0 0 {W} {H}\" role=\"img\" aria-label=\"{} over {n} runs\">",
         esc(id)
     );
     // Engine-version boundaries.
@@ -252,7 +252,13 @@ pub fn render_html(records: &[ChainedRecord], title: &str, description: Option<&
             .unwrap_or_else(|| "not stated".into());
         let latest = last
             .and_then(|p| p.value)
-            .map(|v| format!("{} {}", fmt(v), esc(&unit)))
+            .map(|v| {
+                if unit == "1" {
+                    fmt(v)
+                } else {
+                    format!("{} {}", fmt(v), esc(&unit))
+                }
+            })
             .unwrap_or_else(|| "not found".into());
         let n_points = records
             .iter()
@@ -266,7 +272,7 @@ pub fn render_html(records: &[ChainedRecord], title: &str, description: Option<&
             latest,
             n_points,
             records.len(),
-            if unit.is_empty() { String::new() } else { format!(" &middot; unit {}", esc(&unit)) },
+            if unit.is_empty() || unit == "1" { String::new() } else { format!(" &middot; unit {}", esc(&unit)) },
             sparkline(records, &id)
         ));
     }
@@ -274,7 +280,7 @@ pub fn render_html(records: &[ChainedRecord], title: &str, description: Option<&
     for c in records {
         let r = &c.record;
         rows.push_str(&format!(
-            "<tr class=\"{}\"><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td><code>{}</code></td></tr>",
+            "<tr class=\"{}\"><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td class=\"why\">{}</td><td><code>{}</code></td></tr>",
             if r.verdict == "fail" { "fail" } else { "" },
             r.index,
             esc(r.time_utc.as_deref().unwrap_or("")),
@@ -293,18 +299,18 @@ pub fn render_html(records: &[ChainedRecord], title: &str, description: Option<&
 :root[data-theme=\"dark\"]{{--bg:#10141c;--panel:#171d28;--ink:#e7e9ee;--muted:#9aa3b5;--line:#2a3242;--accent:#6fb3e0;--bad:#ef7a66;--limit:#d8b75a;--engine:#a998e8}}\
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}}\
 main{{max-width:1040px;margin:0 auto;padding:24px 16px 48px}}h1{{font-size:24px;margin:0 0 4px}}\
-.lede{{color:var(--muted);margin:0 0 6px}}.chain{{font-size:13px;color:var(--muted);margin:0 0 20px}}\
-.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}}\
-.card{{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}}\
+.lede{{color:var(--muted);margin:0 0 6px}}.chain{{font-size:13px;color:var(--muted);margin:0 0 20px;overflow-wrap:anywhere}}\
+.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px}}\
+.card{{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}}\
 .card-head{{display:flex;justify-content:space-between;align-items:baseline;gap:8px}}\
 .card h2{{font-size:15px;margin:0;word-break:break-word}}.tag{{font-size:11px;letter-spacing:.06em;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--muted)}}\
 .meta{{font-size:13px;color:var(--muted);margin:4px 0 6px}}.muted{{color:var(--muted)}}\
-.spark{{width:100%;height:150px;display:block}}.line{{fill:none;stroke:var(--accent);stroke-width:2;vector-effect:non-scaling-stroke}}\
+.spark{{width:100%;height:auto;display:block}}.line{{fill:none;stroke:var(--accent);stroke-width:2;vector-effect:non-scaling-stroke}}\
 .pt{{fill:var(--accent)}}.pt.bad{{fill:var(--bad)}}.limit{{stroke:var(--limit);stroke-width:1.5;stroke-dasharray:6 4;vector-effect:non-scaling-stroke}}\
 .limit-label{{fill:var(--limit);font-size:11px}}.engine{{stroke:var(--engine);stroke-width:1.5;stroke-dasharray:2 3;vector-effect:non-scaling-stroke}}\
 .engine-label{{fill:var(--engine);font-size:11px}}.axis{{fill:var(--muted);font-size:10px}}\
-.runs{{margin-top:26px;overflow-x:auto}}table{{border-collapse:collapse;width:100%;font-size:13px}}\
-th,td{{text-align:left;padding:6px 10px 6px 0;border-top:1px solid var(--line);white-space:nowrap}}\
+.runs{{margin-top:26px;overflow-x:auto;scrollbar-color:var(--line) transparent}}table{{border-collapse:collapse;width:100%;font-size:13px}}\
+th,td{{text-align:left;padding:6px 10px 6px 0;border-top:1px solid var(--line);white-space:nowrap;vertical-align:top}}td.why{{white-space:normal;min-width:220px}}\
 tr.fail td{{color:var(--bad);font-weight:600}}.legend{{font-size:13px;color:var(--muted);margin:18px 0 0}}\
 .honesty{{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin-top:26px;padding-top:12px}}\
 </style></head><body><main><h1>{title}</h1>{desc}\

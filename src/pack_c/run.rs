@@ -415,6 +415,18 @@ fn run_members(pack: &ScenarioPack, base_dir: &Path) -> Result<Vec<MemberRun>, S
     Ok(out)
 }
 
+/// The embedded open engine's version, for a pack none of whose results echo it: the
+/// smallest open run that does (a 20 s clock run), exactly as the study dossier asks.
+fn embedded_engine_version() -> Option<String> {
+    let probe = "kind = \"clock\"\nseed = 1\nthreshold_ns = 20.0\n[time]\nstep_s = 10.0\nduration_s = 20.0\n[gnss]\nwindows = [ { t0 = 0.0, t1 = 20.0, state = \"nominal\" } ]\n[clock_quantum]\nid = \"probe\"\nprovenance = \"version probe\"\ny0 = 0.0\nq_wf = 1.0e-20\nq_rw = 0.0\n[clock_classical]\nid = \"probe\"\nprovenance = \"version probe\"\ny0 = 0.0\nq_wf = 1.0e-20\nq_rw = 0.0\n";
+    let out = crate::registry::run(probe).ok()?;
+    let v: serde_json::Value = serde_json::from_str(&out.json).ok()?;
+    v.get("engine_version")
+        .and_then(|x| x.as_str())
+        .filter(|x| !x.is_empty())
+        .map(str::to_string)
+}
+
 /// The statement of the figure rule carried in every watched report.
 pub const FIGURES_RULE: &str = "a figure is a numeric leaf whose entry in the result's own \
     units block has provenance computed, modelled or derived, excluding leaves that only \
@@ -481,6 +493,9 @@ pub fn run_ci_with(
     }
     scenario_hashes.sort();
     scenario_hashes.dedup();
+    if engine_version.is_none() {
+        engine_version = embedded_engine_version();
+    }
 
     let member_results: Vec<MemberResult> = members
         .iter()

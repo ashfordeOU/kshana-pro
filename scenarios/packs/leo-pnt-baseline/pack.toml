@@ -26,7 +26,7 @@ requirement = "watched < 0.2505 m"
 note = "docs/LEO-PNT.md: SISRE 0.250 m handed on (stated to three decimals)."
 
 [[watch]]
-name = "generic: fused GNSS + LEO 3D position error"
+name = "generic: fused global navigation satellite system (GNSS) + low-Earth-orbit (LEO) 3D position error"
 entry = "generic-chain"
 metric = "fusion.fused.rms_error_3d_m"
 direction = "lower"
@@ -35,7 +35,7 @@ requirement = "fusion.fused.rms_error_3d_m < fusion.gnss.rms_error_3d_m"
 note = "docs/LEO-PNT.md: GNSS-only RMS 3D error 1.60 m, GNSS + LEO 0.43 m."
 
 [[watch]]
-name = "generic: tracked C/N0 peak of the pass"
+name = "generic: tracked carrier-to-noise density ratio (C/N0) peak of the pass"
 entry = "generic-chain"
 metric = "pass.peak_tracked_cn0_dbhz"
 direction = "higher"
@@ -49,7 +49,7 @@ direction = "lower"
 tolerance = { rel = 0.02 }
 
 [[watch]]
-name = "generic: PPP convergence with the LEO layer"
+name = "generic: precise point positioning (PPP) convergence with the LEO layer"
 entry = "generic-chain"
 metric = "ppp.cases[1].median_convergence_min"
 direction = "lower"

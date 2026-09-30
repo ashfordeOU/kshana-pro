@@ -1,0 +1,54 @@
+# The campaign-watch demonstration sequence (see README.md). The pack watches one
+# entry, mission.toml; run-demo.sh copies each revision under revisions/ into place as
+# mission.toml and runs the pack, so the history holds one record per revision.
+id = "watch-demo"
+version = "1.0.0"
+description = "Demonstration sequence: six revisions of the open chained-mission campaign (jamming, spoofing, holdover, integrity) run through one campaign watch; revision 4 strengthens the jammer, the carrier-to-noise density ratio (C/N0) falls below the tracking floor, and the watch catches it as a regression. MODELLED scenarios; decision support, not a certification."
+
+[[entries]]
+path = "mission.toml"
+label = "mission"
+
+[[watch]]
+name = "carrier-to-noise density ratio (C/N0) at the end of the jamming phase"
+entry = "mission"
+metric = "campaign.phase.jamming.end.cn0_dbhz"
+direction = "higher"
+tolerance = { abs = 0.1 }
+requirement = "watched >= 25 dB-Hz"
+note = "The receiver's tracking floor is 25 dB-Hz (docs/CAMPAIGNS.md)."
+
+[[watch]]
+name = "satellites tracking at the end of the jamming phase"
+entry = "mission"
+metric = "campaign.phase.jamming.end.tracking"
+direction = "higher"
+tolerance = { abs = 0.0 }
+
+[[watch]]
+name = "spoofing detected (phase length)"
+entry = "mission"
+metric = "campaign.phase.spoofing.duration_s"
+direction = "lower"
+tolerance = { abs = 0.0 }
+
+[[watch]]
+name = "time error at the end of holdover"
+entry = "mission"
+metric = "campaign.phase.holdover.end.time_error_ns"
+direction = "lower"
+tolerance = { rel = 0.02 }
+
+[[watch]]
+name = "largest time error on the mission timeline"
+entry = "mission"
+metric = "max(timeline.channels.time_error_ns.values[])"
+direction = "lower"
+tolerance = { rel = 0.02 }
+
+[[watch]]
+name = "share of the mission under alarm"
+entry = "mission"
+metric = "campaign.alarm_share"
+direction = "lower"
+tolerance = { abs = 0.0 }
