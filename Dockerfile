@@ -29,6 +29,9 @@ LABEL org.opencontainers.image.title="Kshana Pro" \
       org.opencontainers.image.description="Proprietary overlay on the open Kshana PNT engine"
 # Non-root runtime user.
 RUN useradd --system --uid 10001 --no-create-home kshana
+# The job service's data directory. A named volume mounted here takes this ownership,
+# so the non-root user can write the job store and the ledger.
+RUN mkdir -p /var/lib/kshana-pro && chown kshana /var/lib/kshana-pro
 COPY --from=build /src/kshana-pro/target/release/kshana-pro /usr/local/bin/kshana-pro
 USER kshana
 EXPOSE 8088

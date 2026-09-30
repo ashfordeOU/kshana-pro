@@ -21,10 +21,29 @@ or sovereign install.
 | GET | `/version` | Overlay + embedded-engine info |
 | GET | `/kinds` | Open + Pro scenario kinds (with min tier) |
 | POST | `/run` | Body = scenario TOML → result JSON (entitlement-gated) |
+| POST | `/study` | Validate + acknowledge a study request; with a data directory, also queue its dossier job (`job_id` in the reply) |
+| GET | `/openapi.json` | OpenAPI 3.1 document, generated from the router's own route table |
 
 `POST /run` is **fail-closed**: open scenarios are always free; Pro scenarios require
 the serving entitlement's tier (set by `--license`). Denied → HTTP 403; invalid
 scenario → 422; oversized request → 413.
+
+**Job service routes** (only when the server is started with `--data-dir <dir>`):
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/` | Job board: a self-contained page (no external assets) listing the jobs |
+| POST | `/jobs` | Submit `{"op": ..., "request": ...}` → 202 with the job identifier (200 if that exact job already exists; 403 when the entitlement does not allow it, nothing queued) |
+| GET | `/jobs` | List jobs, newest first (`?limit=`, `?state=`) |
+| GET | `/jobs/<id>` | Status: state, server-clock times, attempts, error text |
+| GET | `/jobs/<id>/result` | Result document (409 while unfinished or when failed) |
+| GET | `/jobs/<id>/artefacts/<name>` | One stored artefact (chart, table, dossier page, CI report) |
+| GET | `/ledger` | The hash-chained delivery ledger |
+| GET | `/ledger/verify` | Verify the chain and every delivered job's stored files |
+
+Operations: `run` (any open or Pro kind), `dossier` (the study dossier) and `ci` (a
+Pack C scenario pack with its scenario texts inline). The full guide, with a recorded
+session, is `docs/SERVICE.md`.
 
 ## Image
 
@@ -74,12 +93,72 @@ capabilities dropped, tmpfs scratch, bounded CPU/memory, loopback-bound port. Th
 service needs **no outbound connectivity** — block egress at your enclave's network
 policy; nothing in Kshana attempts it.
 
+## The data directory (job service)
+
+`--data-dir <dir>` turns the job service on. The compose files mount a named volume
+`kshana-pro-data` at `/var/lib/kshana-pro` (the image creates that directory owned by
+the non-root user), so the root file system stays read-only. Layout:
+
+```text
+<data-dir>/
+  jobs/<job_id>/request.json     the submitted request (written once)
+  jobs/<job_id>/status.json      state, server-clock times, attempts, error text
+  jobs/<job_id>/result.json      the result document (succeeded jobs)
+  jobs/<job_id>/artefacts/       named artefacts (succeeded jobs)
+  jobs/<job_id>/inputs/          input files an operation needed on disk (ci)
+  ledger.json                    the hash-chained delivery ledger
+```
+
+`--workers <n>` sets the worker threads (1 to 64, default 1). Every write is a
+temporary file renamed into place, so a crash leaves no half-written file. On start,
+every job left `queued` or `running` is queued again; a finished job is never re-run.
+Run **one server per data directory**: two processes on the same directory would each
+run the queued jobs.
+
+**Backup.** The job store is not a backup. Copy the whole directory while the server is
+stopped (or at least while no job is running), for example:
+
+```bash
+docker compose -f kshana-pro/deploy/docker-compose.product.yml stop
+docker run --rm -v kshana-pro-data:/data -v "$PWD":/backup debian:bookworm-slim \
+  tar -C /data -czf /backup/kshana-pro-data-$(date -u +%Y%m%dT%H%M%SZ).tgz .
+docker compose -f kshana-pro/deploy/docker-compose.product.yml start
+```
+
+**Restore.** Stop the service, empty the volume, unpack the archive into it, start the
+service, then check `GET /ledger/verify` returns `"verified": true`:
+
+```bash
+docker compose -f kshana-pro/deploy/docker-compose.product.yml stop
+docker run --rm -v kshana-pro-data:/data -v "$PWD":/backup debian:bookworm-slim \
+  sh -c 'find /data -mindepth 1 -delete && tar -C /data -xzf /backup/<archive>.tgz && chown -R 10001 /data'
+docker compose -f kshana-pro/deploy/docker-compose.product.yml start
+curl -s localhost:8088/ledger/verify
+```
+
+## Access token
+
+`--api-token-file <path>` makes every route except `/health` require
+`Authorization: Bearer <token>`; without it, the behaviour is as before. The token is
+read from the file (one line; surrounding white space is ignored), only its SHA-256 is
+kept in memory, the comparison runs in constant time, and it is never logged or echoed.
+In the compose files, mount it as a secret (commented lines show how) and pass
+`--api-token-file /run/secrets/kshana_api_token`. A bearer token is one shared secret,
+not user management: put per-user authentication, and transport encryption, in your
+gateway. A browser cannot add the header to a page load, so to use the job board with a
+token, let the gateway add the header for authenticated users.
+
 ## Smoke test
 
 ```bash
 curl -s localhost:8088/health                      # ok
 curl -s localhost:8088/version
 curl -s -X POST --data-binary @scenario.toml localhost:8088/run
+# With --data-dir:
+python3 -c 'import json,sys; print(json.dumps({"op":"run","request":{"scenario":open(sys.argv[1]).read()}}))' scenario.toml \
+  | curl -s -X POST --data-binary @- localhost:8088/jobs
+curl -s localhost:8088/jobs
+curl -s localhost:8088/ledger/verify
 ```
 
 ## Operational notes
@@ -94,5 +173,9 @@ curl -s -X POST --data-binary @scenario.toml localhost:8088/run
 - **TLS / auth:** terminate TLS and add authentication at your gateway/ingress; the
   service speaks plain HTTP and assumes a trusted front end.
 - **Scale:** the server is one-thread-per-connection (Connection: close). For high
-  throughput, run multiple replicas behind a load balancer.
-- **Limits:** requests are capped (header 16 KiB, body 1 MiB) as a basic DoS guard.
+  throughput, run multiple replicas behind a load balancer; with the job service, give
+  each replica its own data directory (a job's identifier is only known to the replica
+  that stored it, so route `/jobs/<id>` requests back to that replica).
+- **Limits:** requests are capped (header 16 KiB, body 1 MiB; 16 MiB for `POST /jobs`)
+  as a basic denial-of-service guard. A body above the cap is refused with 413 before
+  it is read.
