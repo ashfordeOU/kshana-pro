@@ -552,6 +552,21 @@ pub fn run(study: &Study) -> Result<Value, KshanaError> {
                 "no maximum received power stated: the bound uses the reference power".to_string(),
             ),
         };
+        // A satellite signal at a ground receiver is far below 1 W. A value at or above
+        // 0 dBW is an EIRP or a value in the wrong unit, and would otherwise run to a
+        // meaningless loss (or overflow to an infinite ratio).
+        for (what, p, basis) in [
+            ("reference", p_ref, &p_ref_basis),
+            ("maximum", p_max, &p_max_basis),
+        ] {
+            if p >= 0.0 {
+                return Err(err(format!(
+                    "plan '{label}': the {what} received power {p} dBW ({basis}) is 0 dBW (1 W) or more; \
+                     a received power at the user antenna is far weaker: check it is a received power \
+                     in dBW, not an EIRP or a value in another unit"
+                )));
+            }
+        }
         if p_max < p_ref {
             return Err(err(format!(
                 "plan '{label}': the maximum received power {p_max} dBW is below the reference power {p_ref} dBW"

@@ -104,7 +104,12 @@ For each plan:
 own received power; else, when the design states none (the generic designs), the open
 run's reference C/N0 plus its noise density, which is the power the open run itself uses
 for that design. **Maximum power**: the plan's `received_power_max_dbw`, else the design's,
-else the reference power. Each basis is stated beside the number in the result.
+else the reference power. Each basis is stated beside the number in the result. A reference
+or maximum power of 0 dBW (1 W) or more is refused: no satellite signal reaches a user
+antenna that strongly, so such a value is an equivalent isotropically radiated power (EIRP)
+or a number in another unit. (The open `leo-signal` kind does not currently return for an
+inline design that itself states a received power above about -125 dBW; that is an
+open-engine limit, not something this pack can catch before the run.)
 
 **No spectral overlap.** A null SSC in the open result means the bands do not overlap. It is
 carried as "no spectral overlap" with a null loss, never as zero, and the verdict says
@@ -218,8 +223,9 @@ development pin; a debug build, with the engine compiled optimised):
 For the 288-satellite L-band plan the read SSC into the AltBOC signal is -86.325 dB/Hz, so
 one satellite gives an INR of -41.33 dB (a loss of 0.00032 dB); 17 in view at the worst cell
 (47.5 S, 177.5 W) give an INR of -29.02 dB and the 0.00544 dB above. Into GPS L5, Galileo
-E5a and E5b the SSC is -96.45 dB/Hz and the worst loss 0.00053 dB. The mean case at the
-worst cell is 0.00472 dB into AltBOC. In the other direction, at most 10 GPS or 10 Galileo
+E5a and E5b the SSC is -96.45 dB/Hz and the worst loss 0.00053 dB. The largest mean-case
+loss over the cells is 0.00472 dB into AltBOC (at the upper-bound worst cell, with 14.43
+satellites in view on average, the mean case is 0.00462 dB). In the other direction, at most 10 GPS or 10 Galileo
 satellites are in view; at their minimum powers they lower the L-band plan's C/N0 by at most
 0.0091 dB (AltBOC, -152 dBW). The Pareto front is the 144-satellite L-band plan (fewest
 satellites) and the wide C-band plan (finest ranging, no overlap).

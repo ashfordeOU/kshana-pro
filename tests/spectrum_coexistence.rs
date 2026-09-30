@@ -723,6 +723,31 @@ fn malformed_plans_are_refused() {
     assert!(msg.contains("below the reference power"), "{msg}");
 }
 
+#[test]
+fn a_received_power_of_one_watt_or_more_is_refused() {
+    // A received power at the user antenna of 0 dBW (1 W) or more is not a satellite
+    // signal at a ground receiver: it is an EIRP, or a value in the wrong unit. Such a
+    // value once ran to a 1118 dB "loss", and 4000 dBW overflowed to an infinite ratio
+    // that the JSON wrote as null beside a "not compatible" verdict.
+    let base = |p: &str| run_err(&study(p, ALL, LIMIT));
+    for (key, v) in [
+        ("received_power_dbw", "30.0"),
+        ("received_power_dbw", "4000.0"),
+        ("received_power_max_dbw", "0.0"),
+        ("received_power_max_dbw", "1000.0"),
+    ] {
+        let msg = base(
+            &one_sat_plan("a", "\"generic-l\"")
+                .replace("mask_deg = 10.0", &format!("mask_deg = 10.0\n{key} = {v}")),
+        );
+        assert!(msg.contains("0 dBW (1 W) or more"), "{key} = {v}: {msg}");
+    }
+    // The guard also covers a power read from the design, but an inline design stating
+    // such a power is not exercised here: the open leo-signal run itself does not return
+    // for a stated received power above about -125 dBW (its acquisition detection
+    // probability sum), so the study never reaches the guard.
+}
+
 // ── The result contract ─────────────────────────────────────────────────────────────
 
 fn numeric_paths(v: &Value, path: String, out: &mut Vec<String>) {
