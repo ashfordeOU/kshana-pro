@@ -314,7 +314,7 @@ regression. Use `sobol` then.
 Line 1, the header:
 
 ```json
-{"engine_version":"0.28.0","kshana_pro_uncertainty_checkpoint":1,"overlay_version":"0.1.0","runs_total":2000,"study_hash":"a084b040…f5e570"}
+{"engine_version":"0.29.0","kshana_pro_uncertainty_checkpoint":1,"overlay_version":"0.2.0","runs_total":2000,"study_hash":"a084b040…f5e570"}
 ```
 
 Every further line, one finished realisation: its `index`, the `inputs` vector, the
@@ -398,7 +398,12 @@ Pro starts where the campaign stops.
 
 All numbers below are from runs of the study files in
 `scenarios/pro-power/uncertainty/` on open engine 0.28.0 (the 75-kind build), made with
-a debug build of Kshana Pro 0.1.0, which embeds the engine optimised. The base
+a debug build of Kshana Pro 0.1.0, which embeds the engine optimised. For Kshana Pro
+0.2.0 on open engine 0.29.0 the X-band link margin (8192 × 5 runs), the clock holdover
+with an uncertain `q_wf` (2000 runs, also stopped at 700 and resumed: the same six files)
+and the low-Earth-orbit chain (6144 runs) were run again and gave the same figures at the
+precision stated here; their run digests changed, because every result document states
+the engine version. The base
 scenarios are the open engine's own public example files, copied unchanged into
 `scenarios/pro-power/uncertainty/engine/` with their provenance.
 

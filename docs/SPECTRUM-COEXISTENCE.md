@@ -210,8 +210,9 @@ mask, all six victims, and an ILLUSTRATIVE limit of 0.1 dB (not a regulatory, co
 or protection criterion). The generic designs state no received power, so the reference and
 maximum power are the open run's reference C/N0 of 45 dB-Hz plus its noise density of
 -201.975 dBW/Hz: -156.975 dBW. Numbers from the run with scenario hash
-`479364bde54004a2300562d7468c9accb53b87ac7408982de86d810aadf985d4` (engine 0.28.0 at the
-development pin; a debug build, with the engine compiled optimised):
+`479364bde54004a2300562d7468c9accb53b87ac7408982de86d810aadf985d4` (first run on engine 0.28.0
+at the development pin, then again with Kshana Pro 0.2.0 on engine 0.29.0, with the same
+figures; a debug build, with the engine compiled optimised):
 
 | Plan | Most in view | Worst loss caused (upper bound) | Verdict | Ranging accuracy |
 |---|---|---|---|---|
