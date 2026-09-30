@@ -5,6 +5,79 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-01
+
+Kshana Pro 0.2.0, on open engine 0.29.0. Summary of this release (each item has its own
+entry below):
+
+- **Six power features.** The design optimiser (`kshana-pro design`: the Pareto front of a
+  design space over any open kind); uncertainty and sensitivity at scale
+  (`kshana-pro uncertainty`: confidence bands, the probability of meeting a limit, Sobol'
+  indices, checkpoint and resume); the mission dossier (`kshana-pro mission build` and
+  `mission check`: requirements to verdicts, PDF and HTML, a hash-checked evidence pack
+  and a re-run check); campaign watch (`kshana-pro ci` over campaigns, a hash-chained
+  history, trend pages and `ci diff`); spectrum coexistence (`kshana-pro coexist`, kind
+  `pro-spectrum-coexistence`); and the on-premises job service (`kshana-pro serve
+  --data-dir`: queued jobs that survive a restart, stored artefacts, a ledger and an
+  OpenAPI description).
+- **Model-based systems engineering (MBSE):** SysML v2 text, a trace, a verification
+  cross-reference matrix, change impact and an evidence pack over real open-engine runs.
+- **The MODELLED label on every output.** Every Pro result document and command output
+  carries a `label` that starts with MODELLED, held by `tests/modelled_label.rs`.
+- **The Ashforde document style.** Every HTML and PDF output uses the Ashforde theme, the
+  registered seal (unaltered) and a seal watermark; `--sample` marks public samples
+  "SAMPLE: illustrative programme on public data, not a real mission".
+- **Open engine 0.29.0.** The development pin moves from the 0.28.0-reporting integration
+  tree (`da55ae6`) to the 0.29.0 release tree (`feat/integration-bc` `38feb76`, 75
+  scenario kinds): `kshana = { path = "../kshana-wt-pro-engine", version = "0.29" }`.
+  After the crates.io publish the pin becomes `kshana = "0.29.0"`. No overlay source
+  needed changing to compile.
+- **Revision to published hashes and version stamps (see the next entry).**
+
+- **Revision to published hashes and version stamps: Kshana Pro 0.2.0 on open engine
+  0.29.0 (no verdict, count or figure at its published precision changed).** Every
+  public showcase was run again with the development build of this branch at 0.2.0 on
+  engine 0.29.0, with the same inputs, commands and `--utc` stamps, and `--sample` (the
+  Ashforde SAMPLE marking). Every output now states engine 0.29.0 and overlay 0.2.0, so
+  hashes over those documents changed:
+  - Mission dossier: dossier SHA-256
+    `c37799f792d6e47fe78ad57d2a7b91164272c8603b09f443b73206256c4eea03` →
+    `49df1e0e78e07cc53649ff7d2ded07a53c02da1af508fce46660cb5da599eac9`; evidence pack
+    `212686add4abbc7772b9d755574fa327822d7a4e1c8fb6c90916e3c44389d8b9` →
+    `65d40cb458d2fb39d08c2ed8e890b4848ebe51df698e542e3bd686997750237a`; trade-study result
+    `82e0ab74ea88d9f5526cc171581191cfbf958bac80d662ad705f7068ca21b782` →
+    `a645049be5743f74f489920239964c0ae025e50ee532d263f3611c3ae6c3154d`. The low-Earth-orbit,
+    campaign and L-band run results changed with the engine (the lunar and Mars ones are
+    byte-identical); LEO-003's value moved from 0.43488783767 m to 0.43488821078 m (0.4349 m
+    rounded, verdict unchanged). `mission check --rerun` repeated the six runs to the same
+    bytes, and the open engine 0.29.0 release binary gave the same result and `report.json`
+    bytes for all five open runs. Still 7 met, 4 not met, 1 not verified, 15 open items,
+    21 pages.
+  - Uncertainty run digests: clock holdover
+    `159d2e1d37b4443bcb58bc8f068643478cac2c0fb9dc39e02d8ba8b1294d4138` →
+    `abab765e36ce4b78865b1d9f91aa8240b683f22892abc5fbe9c58267af87ffbb`; low-Earth-orbit
+    chain `2f2c4572d8dc085df3eca2f552fdca71a77e947cd41fc79278a36925ba417b24` →
+    `fb54eac6f964fe134457ffe6fcc6a8294ec2ff0fa06af620fac2df71959aabb0`. Stopped at 700 of
+    2,000 and resumed, the clock study still ends with the same six files as a run
+    without a stop; the X-band link-margin study gives the same figures.
+  - Campaign watch: history last hash
+    `71397c3eee5b8822cf4b2109e135576fda9fef44c63201d049835d48dac67c2c` →
+    `bb2f10ebaec45beb1ed95c4a54c652d351a2d9eda3c24d421860b30c2700dc4c`; every scenario hash,
+    verdict and exit code is the same (r4-stronger-jammer still exits 1).
+  - Unchanged: both lunar design run digests (`df81aad4…`, `53dcc9c4…`), the whole-Moon
+    knee result (`89882372…`), all 43 front designs re-run by the open 0.29.0 release
+    binary to the SHA-256 in their index (12 of 12 and 9 of 9 for the two lunar studies),
+    and the coexistence scenario hash (`479364bd…`).
+  - Job service: re-recorded; job identifiers, the constellation result and the counts are
+    unchanged, the times, ledger hashes and the campaign job's run digest changed. In the
+    crash-restart test the kill (0.3 s after three submissions) now lands while the second
+    job runs, not the third (seen twice; a timing difference of this build): it
+    ran again on its second attempt, the finished job was not run again, the queued one
+    ran once, and the ledger verified 9 records and 3 delivered jobs.
+  - Tests: the MBSE golden SysML and the D1.4 requirements table print Kshana Pro 0.2.0;
+    the campaign-watch branch-point test also puts back the fixture's engine version
+    (0.28.0) before its byte comparison.
+
 - **Every Pro output is labelled MODELLED.** The public Kshana Pro page says so; now it is
   true. Each result document carries a top-level `label` string that starts with
   MODELLED, the open engine's own field form, and never leads with a higher tier.

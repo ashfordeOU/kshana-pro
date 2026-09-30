@@ -109,8 +109,8 @@ fn write_pack(dir: &Path, body: &str) {
 /// A manifest with no watch tables runs exactly as it did at the branch point: the
 /// committed fixture is the `ci.json` the branch-point binary (feat/pro-power 26d069a)
 /// wrote for the resilience-baseline pack with the same `--utc`; this build must write
-/// the same bytes apart from the added MODELLED `label` line, so the pack hash and every
-/// metric are unchanged.
+/// the same bytes apart from the added MODELLED `label` line and the embedded engine's
+/// version, so the pack hash and every metric are unchanged.
 #[test]
 fn backward_compatible_with_the_branch_point() {
     let dir = scratch("compat");
@@ -132,6 +132,21 @@ fn backward_compatible_with_the_branch_point() {
         "tests/fixtures/campaign-watch/resilience-baseline.branch-point.ci.json",
     )
     .unwrap();
+    // The embedded open engine has moved on since the branch point (0.28.0 then, 0.29.0
+    // from Kshana Pro 0.2.0), and a report states the engine version its runs wrote. That
+    // one line is put back to the branch point's before the comparison.
+    let now_v: Value = serde_json::from_str(&now).unwrap();
+    let then_v: Value = serde_json::from_str(&then).unwrap();
+    assert_eq!(
+        then_v["engine_version"], "0.28.0",
+        "the branch-point fixture"
+    );
+    assert!(
+        now_v["engine_version"].is_string(),
+        "ci.json states the engine"
+    );
+    let engine_line = |v: &Value| format!("  \"engine_version\": {},\n", v["engine_version"]);
+    let now = now.replacen(&engine_line(&now_v), &engine_line(&then_v), 1);
     // The one addition since the branch point is the honesty label line; everything
     // else, the pack hash and every metric, is byte for byte the same.
     let label_line = format!(

@@ -100,6 +100,14 @@ kshana-pro serve --dev --addr 127.0.0.1:0 --data-dir showcase/data --workers 1
 with `--dev` so that no licence and no customer or licensee name appears anywhere. The
 scenarios are the open engine's own public files.
 
+This session was recorded with Kshana Pro 0.1.0 on open engine 0.28.0. The showcase was
+recorded again with Kshana Pro 0.2.0 on open engine 0.29.0 (with `--sample`): the job
+identifiers, the constellation job's result (SHA-256 `a60ed771…`, the same figures), the
+counts and the ledger check are the same. The times, the ledger's record hashes, the
+campaign job's run digest (its results state engine 0.29.0) and the constellation job's
+`chart.svg` (the same 141,789 bytes, now SHA-256 `0f3ac477dc10…`) differ, so the times,
+hashes and engine version quoted below are the first recording's.
+
 **Submit the 5000-satellite LEO PNT constellation design as a job.** The request body
 carries the scenario file (`leo-pnt-mega-shell.toml`, SHA-256
 `935a3860dbb7cb70cb64b60089040d642dfdf2cf11b519c47a76d4a96377595f`) as a JSON string:

@@ -258,15 +258,17 @@ shasum -a 256 mars-orbit-pnt.result.json     # compare with the dossier's Result
 
 This was run for the five open runs of the worked example
 (`tests/mission_dossier.rs::the_free_engine_reproduces_every_open_run`, on macOS arm64,
-open engine 0.28.0 at the commit PROVENANCE.md names):
+open engine 0.28.0 at the commit PROVENANCE.md names, and again for Kshana Pro 0.2.0
+with open engine 0.29.0, the release tree `38feb76`):
 
 - with a release build of the open engine, all five result files, and the five
-  `report.json` files, are byte-identical to the dossier's;
+  `report.json` files, are byte-identical to the dossier's (on both engines);
 - with an unoptimised debug build of the open engine, four of the five are
   byte-identical. The LEO chain differs in 33 floating-point fields, by a relative
   4.8e-5 at most (the largest is `navmsg.sisre_orbit_rms_m`, 5.2634e-6 m against
   5.2637e-6 m). One value a verdict reads moves, in its tenth digit (the RMS error of
-  LEO-003, 0.43488783762 m against 0.43488783767 m), and no verdict changes.
+  LEO-003, 0.43488783762 m against 0.43488783767 m), and no verdict changes (measured
+  on engine 0.28.0).
 
 So the dossier states byte identity for a release build of the engine on the same
 platform, and says that another platform or an unoptimised build can give slightly
