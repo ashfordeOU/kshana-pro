@@ -110,3 +110,27 @@ own bullet so parallel work merges cleanly.
   count, stops matching the registry or `tests/`. Tests: `tests/study_dossier.rs`
   (determinism, tier split, the binary end to end and its licence gate) and unit tests
   in `src/study_dossier.rs`.
+- **Campaign watch: the scenario subscription (`kshana-pro ci`) now understands campaigns
+  and statistics.** A pack manifest can carry `[[watch]]` tables: the figures that matter
+  (a result path, an aggregate such as `max(...)`, a named campaign figure, or a sweep
+  crossing), what worse means for each (`higher`, `lower` or `target`), a tolerance, an
+  optional absolute requirement checked with units, and, for a Monte Carlo figure, the
+  ensemble's mean, standard deviation and count. A watched pack collects figures only:
+  numeric leaves whose units entry says the run produced them (on
+  `l-band-waterfall-jamming`, 199 metrics become 112; the receiver noise figure and the
+  waterfall grid size are gone). Campaign results yield named figures (each channel's
+  value at the end of each phase, carried values, first alarm time, share under alarm,
+  event times, Monte Carlo statistics, sweep extremes). A Monte Carlo watch is decided by
+  a Welch t-test on the means and an F-test on the variances at a stated alpha (default
+  0.01): 200 other seeds of the clock ensemble move the mean by 156 % and are not a
+  regression (p = 0.65); a doubled spread is (F = 4.0, p = 2.4e-21). New flags:
+  `--history` (an append-only, hash-chained `history.jsonl`; `kshana-pro ci history
+  verify` names the first broken record), `--trend` (an HTML page with a sparkline per
+  watched figure, and JSON), `--exact` (report any changed member result SHA-256), and
+  `kshana-pro ci diff old.json new.json`. Five subscription packs ship under
+  `scenarios/packs/` (low-Earth-orbit, constellations, spectrum, campaigns, the solar
+  system), each with provenance, plus a six-revision demonstration sequence under
+  `scenarios/pro-power/watch-demo/`. A pack without watch tables runs exactly as before:
+  same pack hash, same report, byte for byte (tested against the branch-point report).
+  Guide: `docs/CAMPAIGN-WATCH.md`. The README states twenty integration tests (was
+  nineteen).
