@@ -395,7 +395,11 @@ fn ci_cmd(args: &[String]) -> ExitCode {
     }
     // Refuse to run onto a broken history: verify it before spending the run.
     if let Some(h) = &history_path {
-        if let Err(e) = kshana_pro::pack_c::history::load(std::path::Path::new(h)) {
+        let checked = kshana_pro::pack_c::history::load(std::path::Path::new(h)).and_then(|r| {
+            kshana_pro::pack_c::history::check_pack(&r, &pack.id)
+                .map_err(|e| format!("history {h}: {e}"))
+        });
+        if let Err(e) = checked {
             eprintln!("error: {e}");
             return ExitCode::FAILURE;
         }
