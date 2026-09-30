@@ -13,6 +13,7 @@
 //! Metric extraction, the regression gate, the run orchestrator, the branded
 //! report, and the CLI are separate later concerns and are *not* built here.
 
+use crate::pack_c::watch::Watch;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
@@ -51,12 +52,21 @@ pub struct ScenarioPack {
     pub description: Option<String>,
     /// Ordered scenario entries; at least one is required.
     pub entries: Vec<PackEntry>,
+    /// The `[[watch]]` tables: the figures that matter, what worse means for each, and
+    /// optional absolute requirements (see [`crate::pack_c::watch`]). A pack with none
+    /// behaves exactly as before campaign watch existed.
+    #[serde(default, rename = "watch", skip_serializing_if = "Vec::is_empty")]
+    pub watches: Vec<Watch>,
 }
 
 impl ScenarioPack {
     /// A deterministic SHA-256 content digest (lowercase hex) over the pack's
     /// `id`, `version`, and entries in order. Pinning this in a run report lets a
     /// regression gate detect when the pack contents themselves changed.
+    ///
+    /// The watches are hashed after the entries, one canonical JSON line each, and only
+    /// when there are any, so a manifest without `[[watch]]` tables hashes exactly as it
+    /// did before watches existed and its stored baselines stay valid.
     pub fn pack_hash(&self) -> String {
         let mut canonical = format!("{}\n{}\n", self.id, self.version);
         for entry in &self.entries {
@@ -65,6 +75,10 @@ impl ScenarioPack {
                 entry.path,
                 entry.label.clone().unwrap_or_default()
             ));
+        }
+        for watch in &self.watches {
+            let line = serde_json::to_string(watch).unwrap_or_default();
+            canonical.push_str(&format!("watch\t{line}\n"));
         }
         let digest = Sha256::digest(canonical.as_bytes());
         hex::encode(digest)
@@ -86,6 +100,28 @@ pub fn parse_pack(src: &str) -> Result<ScenarioPack, String> {
     }
     if pack.entries.is_empty() {
         return Err("scenario pack: at least one entry is required".to_string());
+    }
+    if !pack.watches.is_empty() {
+        let labels: Vec<String> = pack.entries.iter().map(PackEntry::label).collect();
+        for (i, l) in labels.iter().enumerate() {
+            if labels[..i].contains(l) {
+                return Err(format!(
+                    "scenario pack: two entries share the label '{l}', so a watch cannot name one"
+                ));
+            }
+        }
+        let mut ids: Vec<String> = Vec::new();
+        for w in &pack.watches {
+            w.validate(&labels)
+                .map_err(|e| format!("scenario pack: {e}"))?;
+            let id = w.id();
+            if ids.contains(&id) {
+                return Err(format!(
+                    "scenario pack: two watches share the identity '{id}'; give one a 'name'"
+                ));
+            }
+            ids.push(id);
+        }
     }
     Ok(pack)
 }
@@ -166,6 +202,32 @@ version = "1.0.0"
 entries = []
 "#;
         assert!(parse_pack(src).is_err());
+    }
+
+    #[test]
+    fn pack_hash_is_unchanged_without_watches_and_moves_with_them() {
+        // The hash of a watch-free manifest is the pre-watch canonical form, byte for
+        // byte, so stored baselines of existing packs stay valid.
+        let pack = parse_pack(REPRESENTATIVE).unwrap();
+        let canonical =
+            "resilience-baseline\n1.0.0\naraim.toml\tARAIM availability\nholdover.toml\t\n";
+        assert_eq!(
+            pack.pack_hash(),
+            hex::encode(Sha256::digest(canonical.as_bytes()))
+        );
+        let watched = format!(
+            "{REPRESENTATIVE}\n[[watch]]\nentry = \"holdover\"\nmetric = \"fom.holdover_s\"\n"
+        );
+        let w = parse_pack(&watched).expect("watched manifest parses");
+        assert_eq!(w.watches.len(), 1);
+        assert_ne!(w.pack_hash(), pack.pack_hash());
+    }
+
+    #[test]
+    fn a_watch_on_an_unknown_entry_is_refused() {
+        let src = format!("{REPRESENTATIVE}\n[[watch]]\nentry = \"nope\"\nmetric = \"x\"\n");
+        let e = parse_pack(&src).unwrap_err();
+        assert!(e.contains("not a label"), "{e}");
     }
 
     #[test]

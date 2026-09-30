@@ -1,0 +1,83 @@
+# Campaign watch subscription pack: spectrum.
+#
+# Two open-engine L-band and multi-band spectrum scenarios, copied verbatim from the
+# open repository (PROVENANCE.md). Requirements are the figures docs/SPECTRUM.md states
+# for the bundled example. MODELLED scenarios, not a certification.
+id = "spectrum-baseline"
+version = "1.0.0"
+description = "Campaign watch pack: the L-band waterfall jamming example and the multi-band waterfall, watched on each band's minimum carrier-to-noise density ratio, tracking share and first loss. MODELLED."
+
+[[entries]]
+path = "l-band-waterfall-jamming.toml"
+label = "l-band"
+
+[[entries]]
+path = "multi-band-jamming-waterfall.toml"
+label = "multi-band"
+
+[[watch]]
+name = "Global Positioning System (GPS) L1 coarse/acquisition (C/A) code: minimum carrier-to-noise density ratio (C/N0)"
+entry = "l-band"
+metric = "timeline.bands[0].min_cn0_dbhz"
+direction = "higher"
+tolerance = { abs = 0.05 }
+
+[[watch]]
+name = "GPS L1 C/A share of rows tracking"
+entry = "l-band"
+metric = "timeline.bands[0].tracking_fraction"
+direction = "higher"
+tolerance = { abs = 0.0 }
+
+[[watch]]
+name = "GPS L1 C/A first loss of lock"
+entry = "l-band"
+metric = "timeline.bands[0].first_loss_t_s"
+direction = "higher"
+tolerance = { abs = 0.0 }
+
+[[watch]]
+name = "Galileo E1 share of rows tracking"
+entry = "l-band"
+metric = "timeline.bands[1].tracking_fraction"
+direction = "higher"
+tolerance = { abs = 0.0 }
+
+[[watch]]
+name = "GPS L2C share of rows tracking"
+entry = "l-band"
+metric = "timeline.bands[2].tracking_fraction"
+direction = "higher"
+tolerance = { abs = 0.0 }
+requirement = "watched >= 1"
+note = "docs/SPECTRUM.md: L2C never loses lock, 100 % of rows tracking."
+
+[[watch]]
+name = "GPS L5 minimum C/N0"
+entry = "l-band"
+metric = "timeline.bands[3].min_cn0_dbhz"
+direction = "higher"
+tolerance = { abs = 0.05 }
+requirement = "watched >= 25 dB-Hz"
+note = "docs/SPECTRUM.md: L5 stays at 44.08 dB-Hz, above the 25 dB-Hz tracking threshold."
+
+[[watch]]
+name = "worst in-band jammer-to-signal ratio (J/S) on GPS L1 C/A"
+entry = "l-band"
+metric = "timeline.bands[0].worst_js_db"
+direction = "lower"
+tolerance = { abs = 0.05 }
+
+[[watch]]
+name = "multi-band: GPS L1 C/A share of rows tracking"
+entry = "multi-band"
+metric = "timeline.bands[1].tracking_fraction"
+direction = "higher"
+tolerance = { abs = 0.0 }
+
+[[watch]]
+name = "multi-band: lowest minimum C/N0 over all bands"
+entry = "multi-band"
+metric = "min(timeline.bands[].min_cn0_dbhz)"
+direction = "higher"
+tolerance = { abs = 0.05 }

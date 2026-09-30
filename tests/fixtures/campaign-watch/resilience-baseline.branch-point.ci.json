@@ -1,0 +1,39 @@
+{
+  "pack_id": "resilience-baseline",
+  "pack_version": "1.0.0",
+  "pack_hash": "762220a20d4b4ed52385c8dc4feea73f0c9ddd82d55d3b23b274fc3cf1d4464b",
+  "engine_version": "0.28.0",
+  "scenario_hashes": [
+    "2f464480f2e0ae8e06e0e58ddc33c803e57650fb18d62891b37c050ad94defa2",
+    "bf4c64fe8bfba5d4402e0acdec6d3bdb6e76fa0999ebdef45ae3949cea4238d8"
+  ],
+  "generated_utc": "2026-09-30T00:00:00Z",
+  "metrics": {
+    "araim::fom.fault_rate": 0.0,
+    "araim::fom.mean_hpl_m": 15.104871903650922,
+    "araim::fom.mean_iono_m": 21.003075072047547,
+    "araim::fom.mean_tropo_m": 7.925382350406306,
+    "araim::fom.mean_vpl_m": 24.122911345861873,
+    "araim::fom.raim_availability": 0.75,
+    "impairment::auc": 0.99771875,
+    "impairment::corpus.n_cases": 1000.0,
+    "impairment::corpus.n_per_class": 200.0,
+    "impairment::distribution_shift.auc_in": 0.99771875,
+    "impairment::distribution_shift.auc_out": 0.98113125,
+    "impairment::distribution_shift.optimism_gap": 0.016587499999999977,
+    "impairment::distribution_shift.shift_severity_scale": 0.5,
+    "impairment::operating_point.accuracy": 0.983,
+    "impairment::operating_point.f1": 0.9893948845913911,
+    "impairment::operating_point.pd": 0.99125,
+    "impairment::operating_point.pfa": 0.05,
+    "impairment::operating_point.pmd": 0.008750000000000036,
+    "impairment::operating_point.precision": 0.987546699875467,
+    "impairment::per_class_pd.0.pd": 0.965,
+    "impairment::per_class_pd.1.pd": 1.0,
+    "impairment::per_class_pd.2.pd": 1.0,
+    "impairment::per_class_pd.3.pd": 1.0,
+    "impairment::roc_points": 1002.0,
+    "impairment::target_pfa": 0.05
+  },
+  "verdict": null
+}

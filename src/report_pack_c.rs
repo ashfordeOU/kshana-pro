@@ -110,6 +110,28 @@ impl PackCReport {
     /// PASS when the gate held, or a REGRESSIONS count when it did not. Pass and fail
     /// are visually distinct (brass-on-ink vs warning-red-on-ivory).
     fn verdict_banner_html(&self) -> String {
+        if let Some(w) = self.report.watch.as_ref().filter(|w| w.watched) {
+            let failed = w.outcomes.iter().filter(|o| o.failed()).count();
+            let (bg, fg, text) = if failed == 0 {
+                (
+                    brand::BRASS,
+                    brand::INK,
+                    format!("PASS &mdash; {} watch(es) hold", w.outcomes.len()),
+                )
+            } else {
+                (
+                    WARN_RED,
+                    brand::IVORY_LIGHT,
+                    format!("WATCH FAILURES: {failed} of {}", w.outcomes.len()),
+                )
+            };
+            return format!(
+                "<div style=\"background:{bg};color:{fg};font-family:{head};font-weight:700;\
+                 font-size:22px;text-align:center;padding:14px 16px;border-radius:4px;\
+                 margin:18px 0;letter-spacing:.06em\">CI Verdict &mdash; {text}</div>",
+                head = brand::FONT_HEAD,
+            );
+        }
         let (bg, fg, text) = match &self.report.verdict {
             None => (
                 brand::NAVY_PANEL,
@@ -265,6 +287,141 @@ impl PackCReport {
         )
     }
 
+    /// The campaign-watch table: one row per watch with its value, baseline, change,
+    /// status, requirement verdict and statistical verdict, then the statistical test,
+    /// the figure rule and the `--exact` comparison. Empty for a run without watches.
+    fn watch_section_html(&self) -> String {
+        let Some(w) = &self.report.watch else {
+            return String::new();
+        };
+        let cell = |t: String| {
+            format!(
+                "<td style=\"padding:7px 10px 7px 0;color:{iv};vertical-align:top\">{t}</td>",
+                iv = brand::IVORY
+            )
+        };
+        let num = |v: Option<f64>, u: &Option<String>| match v {
+            Some(x) => format!(
+                "{}{}",
+                fmt_num(x),
+                u.as_ref()
+                    .filter(|u| !u.is_empty() && u.as_str() != "1")
+                    .map(|u| format!(" {}", xml(u)))
+                    .unwrap_or_default()
+            ),
+            None => "&mdash;".into(),
+        };
+        let mut rows = String::new();
+        for o in &w.outcomes {
+            let colour = if o.failed() { WARN_RED } else { brand::BRASS };
+            let req = match &o.requirement {
+                Some(r) => format!(
+                    "<span style=\"color:{c};font-weight:700\">{v}</span><br><code>{crit}</code>{why}",
+                    c = if r.verdict == "met" { brand::BRASS } else { WARN_RED },
+                    v = xml(&r.verdict),
+                    crit = xml(&r.criterion),
+                    why = r
+                        .reason
+                        .as_ref()
+                        .map(|x| format!("<br>{}", xml(x)))
+                        .unwrap_or_default()
+                ),
+                None => "&mdash;".into(),
+            };
+            let stat = match &o.stat {
+                Some(sv) => format!(
+                    "mean p = {:.3e}; spread F = {:.3}, p = {:.3e}; alpha {}",
+                    sv.p_mean, sv.f, sv.p_spread, sv.alpha
+                ),
+                None => "&mdash;".into(),
+            };
+            let change = match (o.change, o.rel_change) {
+                (Some(c), Some(r)) => format!("{} ({})", fmt_num(c), xml(&Self::rel_pct(r))),
+                (Some(c), None) => fmt_num(c),
+                _ => "&mdash;".into(),
+            };
+            rows.push_str(&format!(
+                "<tr style=\"border-top:1px solid {bm}\">{}{}{}{}{}{}{}{}</tr>",
+                cell(format!(
+                    "{}<br><span style=\"font-size:12px;opacity:.8\">{} &middot; {}</span>",
+                    xml(&o.id),
+                    xml(&o.metric),
+                    xml(&o.direction.describe())
+                )),
+                cell(format!(
+                    "{}<br><span style=\"font-size:12px\">{}</span>",
+                    xml(&o.entry),
+                    xml(&o.evidence)
+                )),
+                cell(num(o.value, &o.unit)),
+                cell(num(o.baseline, &o.unit)),
+                cell(change),
+                cell(format!(
+                    "<span style=\"color:{colour};font-weight:700\">{}</span>{}",
+                    xml(&o.status),
+                    o.reason
+                        .as_ref()
+                        .filter(|_| o.stat.is_none())
+                        .map(|r| format!("<br><span style=\"font-size:12px\">{}</span>", xml(r)))
+                        .unwrap_or_default()
+                )),
+                cell(req),
+                cell(stat),
+                bm = brand::BRASS_MUTED,
+            ));
+        }
+        let mut notes = String::new();
+        if let Some(t) = &w.stat_test {
+            notes.push_str(&format!("<p>Statistical gate: {}.</p>", xml(t)));
+        }
+        notes.push_str(&format!("<p>Figures: {}.</p>", xml(&w.figures_rule)));
+        if !w.fallback_entries.is_empty() {
+            notes.push_str(&format!(
+                "<p>No units block, every numeric leaf taken: {}.</p>",
+                xml(&w.fallback_entries.join(", "))
+            ));
+        }
+        if let Some(ex) = &w.exact {
+            notes.push_str(&if ex.compared {
+                format!(
+                    "<p>Exact comparison of member result SHA-256 (Secure Hash Algorithm, 256-bit) digests: {} changed{}; {} unchanged.</p>",
+                    ex.changed.len(),
+                    if ex.changed.is_empty() {
+                        String::new()
+                    } else {
+                        format!(" ({})", xml(&ex.changed.join(", ")))
+                    },
+                    ex.unchanged.len()
+                )
+            } else {
+                "<p>Exact comparison requested, but the baseline carries no member hashes.</p>"
+                    .into()
+            });
+        }
+        let table = if w.outcomes.is_empty() {
+            String::new()
+        } else {
+            format!(
+                "<table style=\"border-collapse:collapse;width:100%;font-family:{body};font-size:14px\">\
+                 <thead><tr style=\"text-align:left;color:{brass}\">\
+                 <th>Watch</th><th>Entry</th><th>Value</th><th>Baseline</th><th>Change</th>\
+                 <th>Status</th><th>Requirement</th><th>Statistics</th></tr></thead><tbody>{rows}</tbody></table>",
+                body = brand::FONT_BODY,
+                brass = brand::BRASS,
+            )
+        };
+        format!(
+            "<section style=\"margin:22px 0\">\
+             <h2 style=\"font-family:{head};color:{brass};font-size:22px;font-weight:700;\
+             border-bottom:1px solid {bm};padding-bottom:6px\">Campaign Watch</h2>{table}\
+             <div style=\"font-family:{body};font-size:13px;color:{bm};margin-top:10px\">{notes}</div></section>",
+            head = brand::FONT_HEAD,
+            body = brand::FONT_BODY,
+            brass = brand::BRASS,
+            bm = brand::BRASS_MUTED,
+        )
+    }
+
     /// The inline MODELLED / "not a certification" note carried inside the section
     /// fragment, so the honesty framing travels with the section even when embedded.
     fn modelled_note_html(&self) -> String {
@@ -374,9 +531,10 @@ impl PackCReport {
     /// render exactly ONCE for the whole study.
     pub fn section_fragment_html(&self) -> String {
         format!(
-            "<section style=\"margin:22px 0\">{verdict}{prov_line}{metrics}{regressions}{note}</section>",
+            "<section style=\"margin:22px 0\">{verdict}{prov_line}{watch}{metrics}{regressions}{note}</section>",
             verdict = self.verdict_banner_html(),
             prov_line = self.provenance_line_html(),
+            watch = self.watch_section_html(),
             metrics = self.metrics_table_html(),
             regressions = self.regressions_table_html(),
             note = self.modelled_note_html(),
@@ -469,6 +627,7 @@ mod tests {
                 ("araim::fom.mean_hpl_m", 22.5),
             ]),
             verdict: None,
+            watch: None,
         }
     }
 
