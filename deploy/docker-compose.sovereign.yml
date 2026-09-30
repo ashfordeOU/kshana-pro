@@ -22,6 +22,16 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:8088:8088" # bind to loopback by default; front with your own gateway
+    # The job service's data directory (job store, artefacts, delivery ledger) on a
+    # named volume: the root file system stays read-only. Back the volume up.
+    command: ["serve","--addr","0.0.0.0:8088","--data-dir","/var/lib/kshana-pro","--workers","2"]
+    volumes:
+      - kshana-pro-data:/var/lib/kshana-pro
+    # Bearer token on every route except /health: add
+    #   "--api-token-file","/run/secrets/kshana_api_token"
+    # to the command and uncomment the secrets entries below and at the end.
+    # secrets:
+    #   - kshana_api_token
     # No-egress posture: the Kshana engine and Pro overlay make NO external calls and
     # emit NO telemetry (auditable — std-only server, no async/network deps beyond the
     # listening socket). Enforce egress blocking at the enclave's network policy /
@@ -40,3 +50,10 @@ services:
         limits:
           cpus: "2.0"
           memory: 1g
+
+volumes:
+  kshana-pro-data:
+
+# secrets:
+#   kshana_api_token:
+#     file: ./kshana_api_token.txt   # one line, the token; keep it out of version control
