@@ -159,3 +159,24 @@ own bullet so parallel work merges cleanly.
   filled polygon. The footer separator, a middle dot the built-in fonts showed as two
   wrong characters, is now a vertical bar. These PDFs now show their full first page;
   apart from that separator their text is unchanged.
+
+- **Mission dossier and acceptance criteria: three refusals that protect a verdict.**
+  (1) `kshana-pro mission build` refuses run identifiers that differ only in letter
+  case, and any spelling of `TRADE` for a scenario. Each identifier becomes a directory
+  under `runs/`; on a file system that ignores case (the default on macOS and Windows)
+  `RUN-A` and `run-a` shared one directory, the second run overwrote the first one's
+  files, and the build returned success with the first run's verdict read from the
+  second run's result (measured on two Mars runs with seeds 7 and 99: a limit of 1.9 m
+  that seed 7 meets at 1.8827 m was reported not met at 2.0928 m, and `mission check`
+  then failed on its own dossier with 10 problems). (2) It refuses a scenario that
+  holds a value that is not a finite number (`nan`, `inf`), naming the key, also inside
+  a variant of a trade study: the engine takes such a value (measured on the open engine's
+  `clock-holdover.toml`: the classical clock's holdover is 2610 s with the 20 ns
+  threshold and reads 6600 s with `threshold_ns = nan`, which is never crossed), the
+  result echoes it as `null`, and no sheet showed it. (3) **A revision of existing
+  behaviour in `kshana-pro mbse`:** a criterion number must be finite. A literal too
+  large for a double (`<= 1e999 m`) parsed to infinity and the criterion read as met
+  for every value; it now does not parse, and the requirements file does not load.
+  Tests: `run_ids_that_differ_only_in_letter_case_are_refused` and
+  `values_that_are_not_finite_numbers_are_refused` in `tests/mission_dossier.rs`, and
+  unit tests in `src/mission/programme.rs` and `src/mbse/criterion.rs`.

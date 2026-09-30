@@ -166,6 +166,9 @@ PATH       := SEG ( "." SEG )*     SEG := NAME | NAME "[]" | NAME "[" INDEX "]"
   `count`, `1` for dimensionless, and the older dimensionless spellings). Logarithmic
   units (`dB`, `dBW`, `dB-Hz` and so on) compare only with the identical unit and are
   never scaled.
+- **Numbers** must be finite. A literal too large for a double-precision number
+  (`1e999`) would read as infinity, and a limit of infinity holds for every value, so
+  the criterion does not parse. The words `nan` and `inf` are not numbers either.
 
 A criterion is **met**, **not met** or **not verified**. It is not verified when a
 field is missing, has no unit or a unit that is not a unit, when the units do not match,

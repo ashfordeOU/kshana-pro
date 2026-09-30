@@ -113,7 +113,23 @@ The programme is checked before anything runs: a missing scenario file, a requir
 file with no requirements, a link to a requirement or a run that does not exist, a run
 identifier that is not usable as a directory name, a requirements file named like one of
 the files the build writes, and a Pro kind the licence does not carry are all refused,
-and nothing is written.
+and nothing is written. Three more refusals protect the verdicts themselves:
+
+- **Run identifiers that differ only in letter case** (`RUN-A` and `run-a`), and any
+  spelling of `TRADE` for a scenario. Each identifier becomes a directory, and a file
+  system that ignores case (the default on macOS and Windows) would hold both runs in
+  one directory, so one run would overwrite the other and a verdict would be read from
+  the wrong run.
+- **A scenario value that is not a finite number.** TOML allows `nan` and `inf` and the
+  engine takes them: a threshold of `nan` is never crossed, so the run reports a figure
+  no real threshold would give, and the result echoes the input as `null`. The refusal
+  names the key (`user.altitude_km = inf`), also inside a variant of a trade study.
+- **A criterion limit that is not finite** (`<= 1e999 m` reads as infinity and would
+  hold for every value): the requirements file does not load.
+
+A scenario that fails while it runs stops the build with the engine's message. Runs
+that finished before it stay under `runs/`, and no dossier, manifest or ledger record
+is written.
 
 ## What the command does
 

@@ -253,6 +253,11 @@ fn lex(src: &str) -> Result<Vec<Tok>, String> {
                 let value: f64 = raw
                     .parse()
                     .map_err(|_| format!("'{raw}' is not a number"))?;
+                // A literal too large for a double parses to infinity (`1e999`), and
+                // `x <= inf` holds for every x: a limit that tests nothing is refused.
+                if !value.is_finite() {
+                    return Err(format!("'{raw}' is not a finite number"));
+                }
                 // An optional unit follows after whitespace.
                 let mut j = i;
                 while j < chars.len() && chars[j] == ' ' {
@@ -1414,6 +1419,22 @@ mod tests {
         assert_eq!(e.verdict, Verdict::NotVerified);
         let e = run("al_h_m > fom.p95_ns");
         assert!(e.reason.unwrap().contains("unit mismatch"));
+    }
+
+    #[test]
+    fn a_limit_that_is_not_finite_does_not_parse() {
+        // `1e999` is too large for a double and would parse to infinity; a limit of
+        // infinity holds for every value and would read as met.
+        for src in [
+            "fom.p95_ns <= 1e999 ns",
+            "fom.p95_ns >= -1e999 ns",
+            "fom.p95_ns <= 1e999",
+        ] {
+            let e = parse(src).expect_err("an infinite limit must not parse");
+            assert!(e.contains("is not a finite number"), "{src}: {e}");
+        }
+        // A large finite limit still parses.
+        assert_eq!(run("fom.p95_ns <= 1e300 ns").verdict, Verdict::Met);
     }
 
     #[test]

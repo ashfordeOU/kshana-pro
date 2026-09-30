@@ -1443,6 +1443,153 @@ fn bad_programmes_are_refused_and_a_wrong_unit_is_never_met() {
         .contains("must be a pro-trade-study scenario"));
 }
 
+/// Run identifiers that differ only in letter case would share one directory on a file
+/// system that ignores case (the default on macOS and Windows): the second run would
+/// overwrite the first one's files and the first run's verdict would be read from the
+/// second run's result. The programme is refused before anything runs.
+#[test]
+fn run_ids_that_differ_only_in_letter_case_are_refused() {
+    // Two Mars runs with the same file name, different seeds and different errors: the
+    // limit of 1.9 m is met on seed 7 (1.8827 m) and not on seed 99.
+    let seed7 = std::fs::read_to_string(fixtures().join("mars-orbit-pnt.toml")).unwrap();
+    assert!(seed7.contains("seed = 7"));
+    let seed99 = seed7.replace("seed = 7", "seed = 99");
+    let rms = |src: &str| {
+        let out = kshana::api::run_scenario(src).expect("the open engine runs it");
+        let doc: Value = serde_json::from_str(&out.json).unwrap();
+        num(&doc, &["fom", "rms_error_relays_m"])
+    };
+    let (a, b) = (rms(&seed7), rms(&seed99));
+    assert!(
+        a <= 1.9 && b > 1.9,
+        "the two runs give different verdicts: {a} and {b}"
+    );
+
+    let programme = |second_id: &str| {
+        format!("{SMALL}[[scenario]]\nid = \"{second_id}\"\npath = \"other/mars-orbit-pnt.toml\"\n")
+    };
+    let requirements = |second_id: &str| {
+        format!(
+            "id,text,method,criterion,runs\n\
+             R1,seed 7,analysis,fom.rms_error_relays_m <= 1.9 m,RUN-MARS\n\
+             R2,seed 99,analysis,fom.rms_error_relays_m <= 1.9 m,{second_id}\n"
+        )
+    };
+    let setup = |tag: &str, second_id: &str| {
+        let d = small_programme(tag, &programme(second_id), &requirements(second_id));
+        std::fs::create_dir_all(d.join("other")).unwrap();
+        std::fs::write(d.join("other/mars-orbit-pnt.toml"), &seed99).unwrap();
+        d
+    };
+    let go = |dir: &Path| {
+        build(
+            &dir.join("programme.toml"),
+            &dir.join("out"),
+            &opts(enterprise()),
+        )
+    };
+
+    let d = setup("case-ids", "run-mars");
+    let e = go(&d).unwrap_err().to_string();
+    assert!(
+        e.contains("'RUN-MARS'")
+            && e.contains("'run-mars'")
+            && e.contains("differ only in letter case"),
+        "{e}"
+    );
+    assert!(!d.join("out").exists(), "nothing was run or written");
+
+    // The trade study's identifier is reserved in any letter case.
+    let d = small_programme(
+        "case-trade",
+        &SMALL.replace("RUN-MARS", "Trade"),
+        &requirements("Trade").replace("RUN-MARS", "Trade"),
+    );
+    let e = go(&d).unwrap_err().to_string();
+    assert!(e.contains("reserved for the [trade] study"), "{e}");
+
+    // Identifiers that differ in more than case build, each verdict is read from its
+    // own run, and the delivered dossier passes its own check.
+    let d = setup("case-ok", "RUN-MARS-99");
+    let built = go(&d).expect("distinct identifiers build");
+    assert_eq!(row(&built.dossier, "R1").verdict, "met");
+    assert_eq!(value_read(&built.dossier, "R1"), a);
+    assert_eq!(row(&built.dossier, "R2").verdict, "not met");
+    assert_eq!(value_read(&built.dossier, "R2"), b);
+    let report = check(&built.out_dir, None).unwrap();
+    assert!(report.passed(), "{:?}", report.problems);
+}
+
+/// TOML allows `nan` and `inf`, and the engine takes them: a threshold of `nan` is
+/// never crossed, the result echoes it as `null`, and no sheet would show it. A
+/// programme with such a scenario is refused before anything runs, and so is a
+/// criterion whose limit overflows to infinity (it would hold for every value).
+#[test]
+fn values_that_are_not_finite_numbers_are_refused() {
+    let go = |dir: &Path| {
+        build(
+            &dir.join("programme.toml"),
+            &dir.join("out"),
+            &opts(enterprise()),
+        )
+    };
+    let reqs = "id,text,method,criterion,runs\nR1,x,analysis,fom.median_pdop <= 6,RUN-MARS\n";
+    let mars = std::fs::read_to_string(fixtures().join("mars-orbit-pnt.toml")).unwrap();
+    assert!(mars.contains("step_s = 300.0") && mars.contains("altitude_km = 300.0"));
+
+    for (tag, from, to, names) in [
+        ("nan-top", "step_s = 300.0", "step_s = nan", "step_s = NaN"),
+        (
+            "inf-nested",
+            "altitude_km = 300.0",
+            "altitude_km = inf",
+            "user.altitude_km = inf",
+        ),
+    ] {
+        let d = small_programme(tag, SMALL, reqs);
+        std::fs::write(d.join("mars-orbit-pnt.toml"), mars.replacen(from, to, 1)).unwrap();
+        let e = go(&d).unwrap_err().to_string();
+        assert!(
+            e.contains("RUN-MARS") && e.contains("not a finite number") && e.contains(names),
+            "{tag}: {e}"
+        );
+        assert!(!d.join("out").exists(), "{tag}: nothing was run or written");
+    }
+
+    // Inside a variant of the trade study.
+    let d = small_programme(
+        "nan-trade",
+        &format!("{SMALL}[trade]\npath = \"trade-lunar-relay.toml\"\n"),
+        reqs,
+    );
+    let trade = std::fs::read_to_string(fixtures().join("trade-lunar-relay.toml")).unwrap();
+    assert!(trade.contains("mask_deg = 10.0"));
+    std::fs::write(
+        d.join("trade-lunar-relay.toml"),
+        trade.replacen("mask_deg = 10.0", "mask_deg = nan", 1),
+    )
+    .unwrap();
+    let e = go(&d).unwrap_err().to_string();
+    assert!(
+        e.contains("TRADE") && e.contains("variant[0].scenario: mask_deg = NaN"),
+        "{e}"
+    );
+    assert!(!d.join("out").exists());
+
+    // A criterion limit too large for a double.
+    let d = small_programme(
+        "inf-limit",
+        SMALL,
+        "id,text,method,criterion,runs\nR1,x,analysis,fom.rms_error_relays_m <= 1e999 m,RUN-MARS\n",
+    );
+    let e = go(&d).unwrap_err().to_string();
+    assert!(
+        e.contains("'R1'") && e.contains("is not a finite number"),
+        "{e}"
+    );
+    assert!(!d.join("out").exists());
+}
+
 // ------------------------------------------------------------------ 10. ledger
 
 #[test]
