@@ -40,7 +40,10 @@ own bullet so parallel work merges cleanly.
     `71397c3eee5b8822cf4b2109e135576fda9fef44c63201d049835d48dac67c2c`, and every `ci.json`,
     trend and diff there gains the label. The branch-point compatibility test now allows
     exactly the one added label line. The design, uncertainty and coexistence showcases
-    were run again and are byte-identical.
+    were run again and are byte-identical. The service showcase was recorded again at
+    90b09f7 because its served job board showed the old `ci` text: every job result and
+    artefact is byte-identical; the time stamps, the ledger hashes over them (ledger
+    SHA-256 `6a155762ab945c3f…` → `bea4419a2d02cb1b…`) and the board text changed.
 
 - **The clock twin result is labelled MODELLED.** The public Kshana Pro page says every Pro
   output is labelled MODELLED; a `pro-twin` result carried no label at all. It now has a
