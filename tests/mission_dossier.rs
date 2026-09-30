@@ -1677,3 +1677,154 @@ fn the_dossier_does_not_depend_on_where_the_programme_is() {
         "the dossier holds no absolute path"
     );
 }
+
+/// The summary's split of the verdicts by label is the split of the matrix cells, and
+/// of the requirements tooling's own matrix: no PARTNER verdict is counted as MODELLED.
+#[test]
+fn the_summary_counts_each_label_as_the_matrix_carries_it() {
+    let b = shared();
+    let d = &b.dossier;
+    let cells_with = |label: &str| {
+        d.body
+            .matrix
+            .iter()
+            .flat_map(|r| &r.cells)
+            .filter(|c| c.basis == label)
+            .count()
+    };
+    let by = &d.body.summary.verdicts_by_basis;
+    assert_eq!(
+        (by.validated, by.modelled, by.partner),
+        (
+            cells_with("VALIDATED"),
+            cells_with("MODELLED"),
+            cells_with("PARTNER")
+        )
+    );
+    // The worked example: the spectrum and campaign runs rely on a PARTNER capability.
+    assert_eq!((by.validated, by.modelled, by.partner), (0, 7, 4));
+    let trace = Trace::load(&b.out_dir.join("trace.toml")).unwrap();
+    let v = vcrm(&trace);
+    for label in ["VALIDATED", "MODELLED", "PARTNER"] {
+        let tooling = v
+            .rows
+            .iter()
+            .flat_map(|r| &r.cells)
+            .filter(|c| c.basis.label == label)
+            .count();
+        assert_eq!(cells_with(label), tooling, "{label}");
+    }
+    for r in &d.body.matrix {
+        for c in &r.cells {
+            let expected = match c.run.as_str() {
+                "RUN-SPECTRUM" | "RUN-CAMPAIGN" => "PARTNER",
+                _ => "MODELLED",
+            };
+            assert_eq!(c.basis, expected, "{} on {}", r.requirement, c.run);
+        }
+    }
+    // The page states the split.
+    let html = std::fs::read_to_string(b.out_dir.join("dossier.html")).unwrap();
+    assert!(html.contains("7 on a MODELLED basis") && html.contains("4 on a PARTNER basis"));
+}
+
+/// Text a programme supplies (title, reference, requirement text, descriptions, chart
+/// titles, sign-off rows) is shown as text: markup in it is escaped in the HTML page, so
+/// a delivered dossier cannot carry a script or fetch anything.
+#[test]
+fn markup_in_programme_text_is_escaped_in_the_html() {
+    let programme = "title = \"T <script>alert(1)</script> & \\\"q\\\" (a) )(\"\n\
+        reference = \"<b>ref</b>\"\n\
+        classification = \"<i>Restricted</i>\"\n\
+        requirements = \"requirements.csv\"\n\
+        [[scenario]]\n\
+        id = \"RUN-MARS\"\n\
+        path = \"mars-orbit-pnt.toml\"\n\
+        description = \"<iframe src=http://example.invalid></iframe>\"\n\
+        [[scenario.chart]]\n\
+        title = \"</svg><script>alert(2)</script>\"\n\
+        x = \"epochs[].t_s\"\n\
+        y = [\"epochs[].error_relays_m\"]\n\
+        [[sign_off]]\n\
+        role = \"<script>alert(3)</script>\"\n\
+        name = \"<img src=http://example.invalid/n.png>\"\n";
+    let requirements = "id,text,method,criterion,runs\n\
+        R<1>,\"<img src=\"\"http://example.invalid/x.png\"\"> & <script>alert(4)</script>\",analysis,fom.median_pdop <= 6,RUN-MARS\n";
+    let d = small_programme("markup", programme, requirements);
+    let built = build(
+        &d.join("programme.toml"),
+        &d.join("out"),
+        &opts(enterprise()),
+    )
+    .expect("text with markup builds");
+    assert_eq!(row(&built.dossier, "R<1>").verdict, "met");
+    for face in ["dossier.html", "evidence-pack.html"] {
+        let html = std::fs::read_to_string(built.out_dir.join(face)).unwrap();
+        for raw in [
+            "<script",
+            "<iframe",
+            "<img src=",
+            "<b>ref</b>",
+            "<i>Restricted",
+        ] {
+            assert!(!html.contains(raw), "{face} carries {raw} unescaped");
+        }
+    }
+    let html = std::fs::read_to_string(built.out_dir.join("dossier.html")).unwrap();
+    for escaped in [
+        "T &lt;script&gt;alert(1)&lt;/script&gt; &amp; &quot;q&quot; (a) )(",
+        "&lt;b&gt;ref&lt;/b&gt;",
+        "&lt;iframe src=http://example.invalid&gt;&lt;/iframe&gt;",
+        "&lt;/svg&gt;&lt;script&gt;alert(2)&lt;/script&gt;",
+        "&lt;script&gt;alert(3)&lt;/script&gt;",
+        "&lt;script&gt;alert(4)&lt;/script&gt;",
+        "<b>R&lt;1&gt;</b>",
+    ] {
+        assert!(html.contains(escaped), "the page shows {escaped}");
+    }
+    // The PDF is still a PDF with every page numbered, and the dossier checks.
+    let pdf = std::fs::read(built.out_dir.join("dossier.pdf")).unwrap();
+    assert!(pdf.starts_with(b"%PDF-"));
+    assert_eq!(
+        count(&pdf, format!("page {0} of {0}", built.pdf_pages).as_bytes()),
+        1
+    );
+    assert!(check(&built.out_dir, None).unwrap().passed());
+}
+
+/// A ledger that verifies but belongs to another dossier is not accepted: its last
+/// record must carry the hash of the dossier it lies beside.
+#[test]
+fn a_ledger_from_another_dossier_fails_the_check() {
+    let go = |tag: &str, limit: &str| {
+        let d = small_programme(
+            tag,
+            SMALL,
+            &format!(
+                "id,text,method,criterion,runs\nR1,x,analysis,fom.median_pdop <= {limit},RUN-MARS\n"
+            ),
+        );
+        build(
+            &d.join("programme.toml"),
+            &d.join("out"),
+            &opts(enterprise()),
+        )
+        .unwrap()
+    };
+    let (a, b) = (go("ledger-a", "6"), go("ledger-b", "7"));
+    assert_ne!(a.dossier.dossier_sha256, b.dossier.dossier_sha256);
+    assert!(check(&a.out_dir, None).unwrap().passed());
+    std::fs::copy(b.out_dir.join("ledger.json"), a.out_dir.join("ledger.json")).unwrap();
+    let ledger =
+        StudyLedger::from_json(&std::fs::read_to_string(a.out_dir.join("ledger.json")).unwrap())
+            .unwrap();
+    assert!(
+        ledger.verify(),
+        "the other dossier's ledger is itself intact"
+    );
+    let report = check(&a.out_dir, None).unwrap();
+    assert_eq!(
+        report.problems,
+        vec!["ledger.json: the last record does not carry this dossier's hash".to_string()]
+    );
+}
