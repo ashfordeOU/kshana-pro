@@ -16,7 +16,7 @@ path = "multi-band-jamming-waterfall.toml"
 label = "multi-band"
 
 [[watch]]
-name = "GPS L1 C/A minimum C/N0"
+name = "Global Positioning System (GPS) L1 coarse/acquisition (C/A) code: minimum carrier-to-noise density ratio (C/N0)"
 entry = "l-band"
 metric = "timeline.bands[0].min_cn0_dbhz"
 direction = "higher"
@@ -62,7 +62,7 @@ requirement = "watched >= 25 dB-Hz"
 note = "docs/SPECTRUM.md: L5 stays at 44.08 dB-Hz, above the 25 dB-Hz tracking threshold."
 
 [[watch]]
-name = "worst in-band J/S on GPS L1 C/A"
+name = "worst in-band jammer-to-signal ratio (J/S) on GPS L1 C/A"
 entry = "l-band"
 metric = "timeline.bands[0].worst_js_db"
 direction = "lower"

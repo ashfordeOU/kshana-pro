@@ -22,7 +22,7 @@ path = "lunar-relay-constellation.toml"
 label = "lunar-relay"
 
 [[watch]]
-name = "GPS: global availability (PDOP at most 6)"
+name = "Global Positioning System (GPS): global availability (position dilution of precision, PDOP, at most 6)"
 entry = "gps-sps"
 metric = "global.availability_pct"
 direction = "higher"
@@ -40,7 +40,7 @@ requirement = "watched >= 88 %"
 note = "SPS Performance Standard Table 3.8-1: 88 % at the worst site."
 
 [[watch]]
-name = "GPS: global HDOP median"
+name = "GPS: global horizontal dilution of precision (HDOP) median"
 entry = "gps-sps"
 metric = "global.hdop.median"
 direction = "lower"

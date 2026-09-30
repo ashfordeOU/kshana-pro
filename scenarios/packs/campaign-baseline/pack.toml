@@ -33,7 +33,7 @@ requirement = "watched <= 370 s"
 note = "The spoofing phase ends when the clock-aided monitor alarms; docs/CAMPAIGNS.md: at 370 s."
 
 [[watch]]
-name = "C/N0 at the end of the jamming phase"
+name = "carrier-to-noise density ratio (C/N0) at the end of the jamming phase"
 entry = "mission"
 metric = "campaign.phase.jamming.end.cn0_dbhz"
 direction = "higher"
