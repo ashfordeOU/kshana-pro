@@ -27,6 +27,7 @@ use crate::packs::realtime_frame_eop_study_pack::RealtimeFrameEopStudyScenario;
 use crate::packs::seam_check::SeamCheckPack;
 use crate::packs::trade_study_pack::TradeStudyScenario;
 use crate::packs::twin_pack::TwinScenario;
+use crate::packs::uncertainty_pack::UncertaintyScenario;
 
 /// Prefix every Pro-only scenario kind carries. The dispatcher routes on it, and
 /// it makes Pro kinds visually unmistakable in a scenario file and in logs.
@@ -63,6 +64,7 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
     match kind {
         SeamCheckPack::KIND => Some(parse::<SeamCheckPack>(kind, src)),
         TwinScenario::KIND => Some(parse::<TwinScenario>(kind, src)),
+        UncertaintyScenario::KIND => Some(parse::<UncertaintyScenario>(kind, src)),
         TradeStudyScenario::KIND => Some(parse::<TradeStudyScenario>(kind, src)),
         BatchScenario::KIND => Some(parse::<BatchScenario>(kind, src)),
         QuantumSystematicsScenario::KIND => Some(parse::<QuantumSystematicsScenario>(kind, src)),
@@ -100,6 +102,7 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
     vec![
         SeamCheckPack::meta_static(),
         TwinScenario::meta_static(),
+        UncertaintyScenario::meta_static(),
         TradeStudyScenario::meta_static(),
         BatchScenario::meta_static(),
         QuantumSystematicsScenario::meta_static(),
@@ -256,7 +259,7 @@ where
 /// [`kshana::registry::PackRegistry`].
 ///
 /// It starts from every open built-in
-/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 16
+/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 17
 /// Pro packs through the public [`ExternalPack::register_into`] seam. The union is
 /// therefore assembled entirely through stable public API: the open half is the open
 /// core's own table (never re-listed here, so it cannot drift), and the Pro half is
@@ -270,6 +273,7 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     let mut reg = kshana::registry::PackRegistry::with_builtins();
     SeamCheckPack::register_into(&mut reg);
     TwinScenario::register_into(&mut reg);
+    UncertaintyScenario::register_into(&mut reg);
     TradeStudyScenario::register_into(&mut reg);
     BatchScenario::register_into(&mut reg);
     QuantumSystematicsScenario::register_into(&mut reg);
@@ -409,6 +413,39 @@ mod tests {
                  tau0_s = 1.0\n\
                  n_samples = 4096\n\
                  seed = 7\n"
+            }
+            UncertaintyScenario::KIND => {
+                // Eight runs of a closed-form link budget with one uncertain input.
+                r#"kind = "pro-uncertainty"
+title = "test uncertainty"
+seed = 3
+
+base_scenario = """
+kind = "link-budget"
+band = "x"
+eirp_dbw = 55.0
+g_over_t_db = 53.0
+range_km = 2000.0
+data_rate_bps = 1.0e6
+other_losses_db = 3.0
+required_eb_n0_db = 4.5
+"""
+
+[[input]]
+name = "eirp"
+key = "eirp_dbw"
+dist = "normal"
+mean = 55.0
+std = 1.0
+source = "assumed"
+
+[[output]]
+name = "margin"
+path = "margin_db"
+
+[sampling]
+n = 8
+"#
             }
             TradeStudyScenario::KIND => {
                 r#"kind = "pro-trade-study"
