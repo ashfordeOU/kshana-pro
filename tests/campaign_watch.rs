@@ -241,8 +241,7 @@ fn campaign_figures_equal_the_stand_alone_numbers() {
         .as_array()
         .unwrap()
         .iter()
-        .filter(|e| e["t"].as_f64().unwrap() <= last_grid - t0 + 1e-9)
-        .last()
+        .rfind(|e| e["t"].as_f64().unwrap() <= last_grid - t0 + 1e-9)
         .unwrap();
     let cn0: Vec<f64> = epoch["sats"]
         .as_array()
