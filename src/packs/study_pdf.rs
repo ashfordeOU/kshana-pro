@@ -21,8 +21,8 @@
 //! "not a certification" therefore survives contiguously in the content stream).
 
 use printpdf::{
-    BuiltinFont, Color, Line, LinePoint, Mm, Op, PaintMode, PdfDocument, PdfFontHandle, PdfPage,
-    PdfSaveOptions, Point, Pt, Rect, Rgb, TextItem, WindingOrder,
+    BuiltinFont, Color, Line, LinePoint, Mm, Op, PaintMode, PdfFontHandle, Point, Polygon,
+    PolygonRing, Pt, Rgb, TextItem, WindingOrder,
 };
 
 use crate::report_brand as brand;
@@ -90,11 +90,12 @@ fn serif() -> PdfFontHandle {
 fn serif_bold() -> PdfFontHandle {
     PdfFontHandle::Builtin(BuiltinFont::TimesBold)
 }
+// Every face of an Ashforde document is a serif: the former sans labels use Times too.
 fn sans() -> PdfFontHandle {
-    PdfFontHandle::Builtin(BuiltinFont::Helvetica)
+    PdfFontHandle::Builtin(BuiltinFont::TimesRoman)
 }
 fn sans_bold() -> PdfFontHandle {
-    PdfFontHandle::Builtin(BuiltinFont::HelveticaBold)
+    PdfFontHandle::Builtin(BuiltinFont::TimesBold)
 }
 
 /// One placed cell of a tabular row: `(x-offset-mm-from-left-margin, text, bold)`.
@@ -151,16 +152,27 @@ impl StudyPdf {
         self.y_mm -= mm;
     }
 
+    /// A filled rectangle, drawn as a four-point polygon: `printpdf` 0.9.1 writes
+    /// `Op::DrawRectangle` as a clipping path whatever its paint mode, which clipped
+    /// everything after it on the page (the page furniture included) to its area.
     fn fill_rect(&mut self, x_mm: f32, y_mm: f32, w_mm: f32, h_mm: f32, col: Color) {
+        let corner = |x: f32, y: f32| LinePoint {
+            p: Point::new(Mm(x), Mm(y)),
+            bezier: false,
+        };
         self.ops.push(Op::SetFillColor { col });
-        self.ops.push(Op::DrawRectangle {
-            rectangle: Rect {
-                x: Pt(x_mm / MM_PER_PT),
-                y: Pt(y_mm / MM_PER_PT),
-                width: Pt(w_mm / MM_PER_PT),
-                height: Pt(h_mm / MM_PER_PT),
-                mode: Some(PaintMode::Fill),
-                winding_order: Some(WindingOrder::NonZero),
+        self.ops.push(Op::DrawPolygon {
+            polygon: Polygon {
+                rings: vec![PolygonRing {
+                    points: vec![
+                        corner(x_mm, y_mm),
+                        corner(x_mm + w_mm, y_mm),
+                        corner(x_mm + w_mm, y_mm + h_mm),
+                        corner(x_mm, y_mm + h_mm),
+                    ],
+                }],
+                mode: PaintMode::Fill,
+                winding_order: WindingOrder::NonZero,
             },
         });
     }
@@ -204,17 +216,10 @@ impl StudyPdf {
     /// The branded cover: the Ashforde identity, the study `title` (wrapped) and an
     /// italic-ish serif `subtitle`, closed by a brass rule.
     pub fn cover(&mut self, title: &str, subtitle: &str) {
-        self.advance(6.0);
-        self.text_at(MARGIN_MM, "ASHFORDE", sans_bold(), 13.0, rgb(brand::BRASS));
-        self.advance(6.0);
-        self.text_at(
-            MARGIN_MM,
-            "Ashforde OU  |  Quantitative PNT Resilience",
-            sans(),
-            9.0,
-            rgb(brand::BRASS_MUTED),
-        );
-        self.advance(10.0);
+        self.ops.extend(crate::brand_pdf::cover_lockup_ops(
+            "Quantitative PNT Resilience",
+        ));
+        self.y_mm = PAGE_H_MM - crate::brand_pdf::COVER_BAND_MM - 14.0;
         for line in wrap(title, CONTENT_W_MM, 22.0) {
             self.ensure(10.0);
             self.text_at(MARGIN_MM, &line, serif_bold(), 22.0, rgb(brand::INK));
@@ -247,7 +252,7 @@ impl StudyPdf {
             self.y_mm - banner_h + 4.0,
             CONTENT_W_MM,
             banner_h,
-            rgb(brand::BRASS),
+            rgb(brand::BRASS_SEAL),
         );
         self.advance(2.0);
         for line in &lines {
@@ -315,8 +320,11 @@ impl StudyPdf {
         self.advance(mm);
     }
 
-    /// Finalise into PDF bytes: append a footer to every page, assemble the document
-    /// and serialize. Returns `Err` if the serializer produced no `%PDF-` output.
+    /// Finalise into PDF bytes: dress every page in the Ashforde furniture
+    /// ([`crate::brand_pdf::dress`]: watermark, running header, the footer line
+    /// `footer` with the document id and page number, the SAMPLE mark when
+    /// [`brand::sample`] is on), assemble the document and serialize. Returns `Err` if
+    /// the serializer produced no `%PDF-` output.
     pub fn render(mut self, title: &str, footer: &str) -> Result<Vec<u8>, String> {
         if !self.ops.is_empty() {
             let done = std::mem::take(&mut self.ops);
@@ -325,63 +333,11 @@ impl StudyPdf {
         if self.pages.is_empty() {
             self.pages.push(Vec::new());
         }
-        let n = self.pages.len();
-        let pages: Vec<PdfPage> = self
-            .pages
-            .into_iter()
-            .enumerate()
-            .map(|(i, mut ops)| {
-                let fy = MARGIN_MM - 4.0;
-                ops.push(Op::SetOutlineColor {
-                    col: rgb(brand::BRASS_MUTED),
-                });
-                ops.push(Op::SetOutlineThickness { pt: Pt(0.4) });
-                ops.push(Op::DrawLine {
-                    line: Line {
-                        points: vec![
-                            LinePoint {
-                                p: Point::new(Mm(MARGIN_MM), Mm(fy + 4.0)),
-                                bezier: false,
-                            },
-                            LinePoint {
-                                p: Point::new(Mm(PAGE_W_MM - MARGIN_MM), Mm(fy + 4.0)),
-                                bezier: false,
-                            },
-                        ],
-                        is_closed: false,
-                    },
-                });
-                let label = format!("{footer}   -   page {} of {}", i + 1, n);
-                ops.push(Op::StartTextSection);
-                ops.push(Op::SetTextCursor {
-                    pos: Point::new(Mm(MARGIN_MM), Mm(fy)),
-                });
-                ops.push(Op::SetFont {
-                    font: sans(),
-                    size: Pt(8.0),
-                });
-                ops.push(Op::SetFillColor {
-                    col: rgb(brand::BRASS_MUTED),
-                });
-                ops.push(Op::ShowText {
-                    items: vec![TextItem::Text(label)],
-                });
-                ops.push(Op::EndTextSection);
-                PdfPage::new(Mm(PAGE_W_MM), Mm(PAGE_H_MM), ops)
-            })
-            .collect();
-
-        let mut doc = PdfDocument::new(title);
-        let opts = PdfSaveOptions::default();
-        let mut warnings = Vec::new();
-        let bytes = doc.with_pages(pages).save(&opts, &mut warnings);
-        if bytes.is_empty() || !bytes.starts_with(b"%PDF-") {
-            return Err(format!(
-                "printpdf produced no valid PDF (len {}, warnings: {})",
-                bytes.len(),
-                warnings.len()
-            ));
-        }
-        Ok(bytes)
+        let mark = crate::brand_pdf::PdfMark::new(
+            crate::mission::pdf::ascii(title),
+            crate::brand_pdf::content_id(&self.pages),
+        );
+        let pages = crate::brand_pdf::dress(self.pages, footer, &mark, brand::sample());
+        crate::brand_pdf::save(title, pages)
     }
 }

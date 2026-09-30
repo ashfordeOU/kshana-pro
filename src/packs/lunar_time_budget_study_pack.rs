@@ -892,6 +892,17 @@ fn th(s: &str) -> String {
 }
 
 fn budget_report_html(scn: &LunarTimeBudgetStudyScenario, m: &StudyModel) -> String {
+    // Every Kshana Pro document is an Ashforde document: the shared furniture of
+    // crate::report_brand goes around the renderer's own page, which is unchanged.
+    let body = budget_report_html_unbranded(scn, m);
+    let id = crate::report_brand::content_id(&body);
+    crate::report_brand::finish_html(
+        &body,
+        &crate::report_brand::DocMark::new("Lunar time budget study", id),
+    )
+}
+
+fn budget_report_html_unbranded(scn: &LunarTimeBudgetStudyScenario, m: &StudyModel) -> String {
     let fig = fig_budget_svg(scn, m);
     let sorted_rows: String = m
         .sorted_terms

@@ -17,6 +17,19 @@ licensed separately under the Apache License, Version 2.0, and remains governed
 by that licence. The proprietary terms above apply only to the Kshana Pro overlay
 code in this repository, not to the embedded Apache-2.0 engine. See NOTICE.
 
+EMBEDDED FONTS
+--------------
+The typefaces in assets/brand/fonts/ (Cormorant Garamond, EB Garamond and IBM Plex
+Mono: cormorant-garamond-600-normal-latin.woff2, CormorantGaramond-600-subset.ttf,
+CormorantGaramond-700-subset.ttf, eb-garamond-400-normal-latin.woff2,
+eb-garamond-400-italic-latin.woff2 and ibm-plex-mono-400-normal-latin.woff2) are
+licensed under the SIL Open Font License 1.1, not under the proprietary terms above.
+Their copyright notices and the licence text are in assets/brand/fonts/OFL.txt. Each
+document Kshana Pro writes embeds some of them under that licence.
+
+The Ashforde seal in assets/brand/ is a registered mark of Ashforde OÜ and is not
+licensed by any of the above.
+
 "Kshana" is a trademark of Ashforde OÜ. The trademark is not licensed by the
 Apache-2.0 licence of the open engine.
 

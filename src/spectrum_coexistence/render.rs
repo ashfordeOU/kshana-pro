@@ -525,6 +525,17 @@ fn direction_table(p: &Value, key: &str, heading: &str) -> String {
 
 /// The self-contained report page.
 pub fn report_html(r: &Value, matrix: &str, map: &str, pareto: &str) -> String {
+    // Every Kshana Pro document is an Ashforde document: the shared furniture of
+    // crate::report_brand goes around the renderer's own page, which is unchanged.
+    let body = report_html_unbranded(r, matrix, map, pareto);
+    let id = crate::report_brand::content_id(&body);
+    crate::report_brand::finish_html(
+        &body,
+        &crate::report_brand::DocMark::new("Coexistence study", id),
+    )
+}
+
+fn report_html_unbranded(r: &Value, matrix: &str, map: &str, pareto: &str) -> String {
     let mut plans_html = String::new();
     for p in arr(r, "plans") {
         let sig = &p["signal"];

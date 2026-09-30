@@ -1176,6 +1176,17 @@ fn th(s: &str) -> String {
 }
 
 fn study_report_html(scn: &OpticalRfHybridStudyScenario, m: &StudyModel) -> String {
+    // Every Kshana Pro document is an Ashforde document: the shared furniture of
+    // crate::report_brand goes around the renderer's own page, which is unchanged.
+    let body = study_report_html_unbranded(scn, m);
+    let id = crate::report_brand::content_id(&body);
+    crate::report_brand::finish_html(
+        &body,
+        &crate::report_brand::DocMark::new("Optical and radio-frequency hybrid study", id),
+    )
+}
+
+fn study_report_html_unbranded(scn: &OpticalRfHybridStudyScenario, m: &StudyModel) -> String {
     let fig = fig1_svg(m);
     let prec_rows: String = m
         .rows

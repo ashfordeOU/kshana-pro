@@ -1017,9 +1017,11 @@ fn the_job_board_is_self_contained_and_lists_real_jobs() {
         page.body.contains(&id),
         "the embedded snapshot lists the job"
     );
+    // The Ashforde furniture embeds the seal as a data: URI, which fetches nothing.
+    let body = page.body.replace("src=\"data:", "");
     for external in ["http://", "https://", "<link", "src=\"", "@import"] {
         assert!(
-            !page.body.contains(external),
+            !body.contains(external),
             "external asset marker {external:?}"
         );
     }

@@ -1017,6 +1017,21 @@ fn fmt_ci(ci: Option<(f64, f64)>, prec: usize) -> String {
 }
 
 fn beacon_dop_report_html(scn: &BeaconDopScenario, m: &BeaconDopModel, fig: &str) -> String {
+    // Every Kshana Pro document is an Ashforde document: the shared furniture of
+    // crate::report_brand goes around the renderer's own page, which is unchanged.
+    let body = beacon_dop_report_html_unbranded(scn, m, fig);
+    let id = crate::report_brand::content_id(&body);
+    crate::report_brand::finish_html(
+        &body,
+        &crate::report_brand::DocMark::new("Beacon dilution-of-precision study", id),
+    )
+}
+
+fn beacon_dop_report_html_unbranded(
+    scn: &BeaconDopScenario,
+    m: &BeaconDopModel,
+    fig: &str,
+) -> String {
     // Latitude sweep table: before/after GDOP/HDOP/VDOP + horizontal accuracy.
     let lat_rows: String = m
         .lat_rows
@@ -1956,6 +1971,17 @@ fn fig_before_after_svg(m: &StudyModel) -> String {
 // ── L46 branded HTML report ─────────────────────────────────────────────────
 
 fn study_report_html(scn: &SurfaceBeaconDopStudyScenario, m: &StudyModel) -> String {
+    // Every Kshana Pro document is an Ashforde document: the shared furniture of
+    // crate::report_brand goes around the renderer's own page, which is unchanged.
+    let body = study_report_html_unbranded(scn, m);
+    let id = crate::report_brand::content_id(&body);
+    crate::report_brand::finish_html(
+        &body,
+        &crate::report_brand::DocMark::new("Surface beacon dilution-of-precision study", id),
+    )
+}
+
+fn study_report_html_unbranded(scn: &SurfaceBeaconDopStudyScenario, m: &StudyModel) -> String {
     let n_rows: String = m
         .n_sweep
         .iter()

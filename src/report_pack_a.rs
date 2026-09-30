@@ -411,6 +411,17 @@ impl PackAReport {
     /// MODELLED banner, the "not a certification" disclaimer, and the preprint
     /// citation are always present.
     pub fn to_html(&self) -> String {
+        // Every Kshana Pro document is an Ashforde document: the shared furniture of
+        // crate::report_brand goes around the renderer's own page, which is unchanged.
+        let body = self.to_html_unbranded();
+        let id = crate::report_brand::content_id(&body);
+        crate::report_brand::finish_html(
+            &body,
+            &crate::report_brand::DocMark::new("Optimism-gap study", id),
+        )
+    }
+
+    fn to_html_unbranded(&self) -> String {
         format!(
             "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">\
              <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\
