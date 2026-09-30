@@ -1,0 +1,99 @@
+# A Kshana Pro trade study for the worked mission dossier: two lunar relay designs ranked
+# by the share of the Moon and of the day with a usable fix.
+#
+# Each variant is a complete open `constellation-design` scenario, run unchanged by the
+# embedded open engine. Both designs are illustrative and no agency's:
+#
+# - `south-biased-14` has the orbits of lunar-relay-constellation.toml: eight satellites
+#   in elliptical lunar frozen orbits with apolune over the south, and six in a circular
+#   1 500 km shell.
+# - `north-and-south-22` adds a second shell of eight elliptical orbits with the argument
+#   of perilune turned to 270 deg, so that shell lingers over the north.
+#
+# MODELLED: two-body orbits around a spherical Moon, geometry only.
+kind = "pro-trade-study"
+title = "Lunar relay: south-biased 14 satellites against north-and-south 22"
+metric = "global.availability_pct"
+lower_better = false
+
+[[variant]]
+label = "south-biased-14"
+scenario = """
+kind = "constellation-design"
+body = "moon"
+duration_s = 86400.0
+step_s = 1800.0
+mask_deg = 10.0
+pdop_threshold = 6.0
+grid_step_deg = 10.0
+clock = "common"
+track_points = 49
+max_tracks = 14
+
+[[constellation]]
+name = "Lunar relay"
+
+[[constellation.shell]]
+pattern = "delta"
+total = 8
+planes = 4
+phasing = 1
+semi_major_axis_km = 5847.4
+eccentricity = 0.58
+inclination_deg = 57.8
+argp_deg = 90.0
+
+[[constellation.shell]]
+pattern = "delta"
+total = 6
+planes = 3
+phasing = 1
+altitude_km = 1500.0
+inclination_deg = 85.0
+"""
+
+[[variant]]
+label = "north-and-south-22"
+scenario = """
+kind = "constellation-design"
+body = "moon"
+duration_s = 86400.0
+step_s = 1800.0
+mask_deg = 10.0
+pdop_threshold = 6.0
+grid_step_deg = 10.0
+clock = "common"
+track_points = 49
+max_tracks = 22
+
+[[constellation]]
+name = "Lunar relay"
+
+[[constellation.shell]]
+pattern = "delta"
+total = 8
+planes = 4
+phasing = 1
+semi_major_axis_km = 5847.4
+eccentricity = 0.58
+inclination_deg = 57.8
+argp_deg = 90.0
+
+[[constellation.shell]]
+pattern = "delta"
+total = 8
+planes = 4
+phasing = 1
+semi_major_axis_km = 5847.4
+eccentricity = 0.58
+inclination_deg = 57.8
+argp_deg = 270.0
+
+[[constellation.shell]]
+pattern = "delta"
+total = 6
+planes = 3
+phasing = 1
+altitude_km = 1500.0
+inclination_deg = 85.0
+"""

@@ -540,6 +540,40 @@ fn shallow_numeric_paths(v: &serde_json::Value) -> Vec<String> {
     out
 }
 
+/// Keep only the figures the result itself marks as computed.
+///
+/// A result document's `units` block gives every field a `provenance`. When it does,
+/// a default figure must be a field with `provenance = "computed"`: an echoed input
+/// (`inputs.mask_deg`) or a constant (`body.mu_km3_s2`) is not a figure of the run.
+/// If none of the candidates is computed, every computed scalar of the result outside
+/// its arrays is taken instead. A result with no provenance in its `units` block (or
+/// no `units` block) keeps the candidates unchanged.
+fn computed_only(result: &serde_json::Value, candidates: Vec<String>) -> Vec<String> {
+    let Some(units) = result.get("units").and_then(|u| u.as_object()) else {
+        return candidates;
+    };
+    let provenance = |path: &str| {
+        kshana::field_schema::lookup(units, path)
+            .and_then(|(_, e)| e.get("provenance"))
+            .and_then(|p| p.as_str())
+    };
+    if !units.values().any(|e| e.get("provenance").is_some()) {
+        return candidates;
+    }
+    let kept: Vec<String> = candidates
+        .into_iter()
+        .filter(|p| provenance(p) == Some("computed"))
+        .collect();
+    if !kept.is_empty() {
+        return kept;
+    }
+    kshana::field_schema::numeric_leaf_paths(result)
+        .into_iter()
+        .filter(|p| !p.contains("[]") && provenance(p) == Some("computed"))
+        .filter(|p| dot_path_number(result, p).is_some())
+        .collect()
+}
+
 fn tier_of(path: &str) -> (String, String) {
     let leaf = path.rsplit('.').next().unwrap_or(path);
     match tier_for(leaf) {
@@ -1367,11 +1401,12 @@ pub fn build(src: &str, opts: &DossierOptions) -> Result<StudyDossier, KshanaErr
             ""
         };
         let p = fom_paths(&result, prefix);
-        if p.is_empty() {
+        let p = if p.is_empty() {
             shallow_numeric_paths(&result)
         } else {
             p
-        }
+        };
+        computed_only(&result, p)
     };
     if paths.is_empty() {
         return Err(invalid(
@@ -1972,6 +2007,48 @@ q_rw = 0.0
     fn longest_denial_reads_the_gnss_windows() {
         let v: toml::Value = toml::from_str(CLOCK).unwrap();
         assert_eq!(longest_denial_s(&v), Some(600.0));
+    }
+
+    #[test]
+    fn default_figures_are_only_the_fields_the_result_marks_computed() {
+        let result = serde_json::json!({
+            "body": { "mu_km3_s2": 4902.8 },
+            "inputs": { "mask_deg": 10.0 },
+            "global": { "availability_pct": 21.3, "pdop": { "median": 5.2 } },
+            "units": {
+                "body.mu_km3_s2": { "unit": "km^3/s^2", "provenance": "constant" },
+                "inputs.mask_deg": { "unit": "deg", "provenance": "input" },
+                "global.availability_pct": { "unit": "%", "provenance": "computed" },
+                "global.pdop.median": { "unit": "1", "provenance": "computed" }
+            }
+        });
+        // The shallow candidates hold an input and a constant; only the computed one stays.
+        let shallow = shallow_numeric_paths(&result);
+        assert!(shallow.contains(&"inputs.mask_deg".to_string()));
+        assert!(shallow.contains(&"body.mu_km3_s2".to_string()));
+        assert_eq!(
+            computed_only(&result, shallow),
+            vec!["global.availability_pct".to_string()]
+        );
+        // No computed candidate: every computed scalar of the result is taken.
+        assert_eq!(
+            computed_only(&result, vec!["inputs.mask_deg".into()]),
+            vec![
+                "global.availability_pct".to_string(),
+                "global.pdop.median".to_string()
+            ]
+        );
+        // A result that states no provenance keeps its candidates.
+        let plain = serde_json::json!({ "a": 1.0, "units": { "a": { "unit": "m" } } });
+        assert_eq!(
+            computed_only(&plain, vec!["a".into()]),
+            vec!["a".to_string()]
+        );
+        let bare = serde_json::json!({ "a": 1.0 });
+        assert_eq!(
+            computed_only(&bare, vec!["a".into()]),
+            vec!["a".to_string()]
+        );
     }
 
     #[test]

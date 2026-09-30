@@ -163,6 +163,10 @@ fn main() -> ExitCode {
         // import, traceability, the verification cross-reference matrix, SysML v2
         // export, change impact and the evidence pack (feature `pro-mbse`).
         Some("mbse") => mbse_cmd(&args[1..]),
+        // Mission dossier: one programme (requirements and scenarios of any kind) to
+        // runs, a verification cross-reference matrix and a branded PDF, in one command
+        // (feature `pro-mission-dossier`).
+        Some("mission") => mission_cmd(&args[1..]),
         Some("healthcheck") => {
             let addr = flag(&args, "--addr").unwrap_or_else(|| "127.0.0.1:8088".to_string());
             if kshana_pro::serve::healthcheck(&addr) {
@@ -496,6 +500,52 @@ fn study_cmd(args: &[String]) -> ExitCode {
     eprintln!("[wrote dossier.json, dossier.html, scenario.run.toml to {out_dir}]");
     println!("{}", dossier.result_hash);
     ExitCode::SUCCESS
+}
+
+/// `mission <command>` — resolve the entitlement exactly as `mbse` does (`--dev` in a
+/// debug build = full; else a token enforces its tier; else Evaluation), require the
+/// `pro-mission-dossier` feature, then run the command. A Pro kind inside a programme
+/// still needs its own entitlement.
+fn mission_cmd(args: &[String]) -> ExitCode {
+    if args.is_empty() || matches!(args[0].as_str(), "help" | "--help" | "-h") {
+        println!("{}", kshana_pro::mission::cli::USAGE);
+        return ExitCode::SUCCESS;
+    }
+    let now = now_unix();
+    let ent = if has_flag(args, "--dev") {
+        eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
+        Entitlement {
+            licensee: "(dev)".into(),
+            tier: Tier::Enterprise,
+            expires_unix: 0,
+            features: vec![],
+        }
+    } else {
+        match flag(args, "--license") {
+            Some(tok) => match verify_token(&tok, now) {
+                Ok(e) => e,
+                Err(e) => {
+                    eprintln!("error: license invalid: {e}");
+                    return ExitCode::FAILURE;
+                }
+            },
+            None => {
+                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
+                Entitlement::evaluation()
+            }
+        }
+    };
+    if let Err(e) = kshana_pro::mission::ensure_entitled(&ent, now) {
+        eprintln!("error: {e}");
+        return ExitCode::FAILURE;
+    }
+    match kshana_pro::mission::cli::run(args, &ent, now) {
+        Ok(code) => ExitCode::from(code),
+        Err(e) => {
+            eprintln!("error: {e}");
+            ExitCode::FAILURE
+        }
+    }
 }
 
 /// Parse a `--thresholds` spec into [`Thresholds`](kshana_pro::pack_c::Thresholds).
