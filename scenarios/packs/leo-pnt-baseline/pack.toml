@@ -1,0 +1,83 @@
+# Campaign watch subscription pack: low-Earth-orbit positioning, navigation and timing.
+#
+# The two open end-to-end low-Earth-orbit chains that use public data (a generic
+# 1080 km design and Xona Pulsar from arXiv 2509.19551), copied verbatim from the open
+# repository (PROVENANCE.md). Requirements come from docs/LEO-PNT.md. No workshop
+# preset is used. MODELLED scenarios, not a certification.
+id = "leo-pnt-baseline"
+version = "1.0.0"
+description = "Campaign watch pack: the generic and the Xona Pulsar low-Earth-orbit positioning, navigation and timing chains, watched on the signal-in-space range error, the fused position error, tracked C/N0 and precise point positioning convergence. MODELLED."
+
+[[entries]]
+path = "leo-pnt-end-to-end.toml"
+label = "generic-chain"
+
+[[entries]]
+path = "xona-pulsar-end-to-end.toml"
+label = "xona-chain"
+
+[[watch]]
+name = "generic: signal-in-space range error handed on"
+entry = "generic-chain"
+metric = "navmsg.sisre_rms_m"
+direction = "lower"
+tolerance = { rel = 0.02 }
+requirement = "watched < 0.2505 m"
+note = "docs/LEO-PNT.md: SISRE 0.250 m handed on (stated to three decimals)."
+
+[[watch]]
+name = "generic: fused GNSS + LEO 3D position error"
+entry = "generic-chain"
+metric = "fusion.fused.rms_error_3d_m"
+direction = "lower"
+tolerance = { rel = 0.02 }
+requirement = "fusion.fused.rms_error_3d_m < fusion.gnss.rms_error_3d_m"
+note = "docs/LEO-PNT.md: GNSS-only RMS 3D error 1.60 m, GNSS + LEO 0.43 m."
+
+[[watch]]
+name = "generic: tracked C/N0 peak of the pass"
+entry = "generic-chain"
+metric = "pass.peak_tracked_cn0_dbhz"
+direction = "higher"
+tolerance = { abs = 0.05 }
+
+[[watch]]
+name = "generic: median code jitter"
+entry = "generic-chain"
+metric = "pass.median_code_jitter_m"
+direction = "lower"
+tolerance = { rel = 0.02 }
+
+[[watch]]
+name = "generic: PPP convergence with the LEO layer"
+entry = "generic-chain"
+metric = "ppp.cases[1].median_convergence_min"
+direction = "lower"
+tolerance = { rel = 0.02 }
+requirement = "ppp.cases[1].median_convergence_min < ppp.cases[0].median_convergence_min"
+note = "docs/LEO-PNT.md: precise point positioning convergence 11.5 min GNSS only, 7.5 min with the LEO layer."
+
+[[watch]]
+name = "Xona: fused GNSS + LEO 3D position error"
+entry = "xona-chain"
+metric = "fusion.fused.rms_error_3d_m"
+direction = "lower"
+tolerance = { rel = 0.02 }
+requirement = "fusion.fused.rms_error_3d_m < fusion.gnss.rms_error_3d_m"
+note = "docs/LEO-PNT.md: GNSS-only RMS 3D error 1.49 m, GNSS + LEO 0.68 m."
+
+[[watch]]
+name = "Xona: tracked C/N0 peak of the pass"
+entry = "xona-chain"
+metric = "pass.peak_tracked_cn0_dbhz"
+direction = "higher"
+tolerance = { abs = 0.05 }
+
+[[watch]]
+name = "Xona: PPP convergence with Pulsar"
+entry = "xona-chain"
+metric = "ppp.cases[1].median_convergence_min"
+direction = "lower"
+tolerance = { rel = 0.02 }
+requirement = "ppp.cases[1].median_convergence_min < ppp.cases[0].median_convergence_min"
+note = "docs/LEO-PNT.md: convergence 20.6 min GNSS only, 5.9 min with Pulsar."

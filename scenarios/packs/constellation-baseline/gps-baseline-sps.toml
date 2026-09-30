@@ -1,0 +1,25 @@
+# The Global Positioning System (GPS) baseline 24-slot constellation under the conditions
+# of the GPS Standard Positioning Service Performance Standard (SPS PS), 5th edition
+# (2020), Appendix B: one sidereal day in 287 five-minute steps, a 4 deg global grid, a
+# 5 deg elevation mask and one receiver clock. Derived from the open scenario
+# constellation-multi-gnss-coverage.toml (see PROVENANCE.md for the edits). The open
+# document docs/CONSTELLATION-DESIGN.md states the published figures it reproduces:
+# global horizontal dilution of precision (HDOP) median 0.94, 95 % 1.25, mean 0.96, and
+# position dilution of precision (PDOP) at most 6 for 98 % of time and space globally and
+# 88 % at the worst site (SPS PS Table 3.8-1). MODELLED: two-body orbits, a spherical
+# Earth, geometry only.
+
+kind = "constellation-design"
+body = "earth"
+duration_s = 86164.0
+step_s = 300.0
+mask_deg = 5.0
+pdop_threshold = 6.0
+grid_step_deg = 4.0
+clock = "common"
+track_points = 25
+max_tracks = 24
+
+[[constellation]]
+name = "GPS"
+preset = "gps-baseline"

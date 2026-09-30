@@ -1,0 +1,110 @@
+# Campaign watch subscription pack: campaigns.
+#
+# Three open-engine campaigns, copied verbatim from the open repository (PROVENANCE.md
+# gives the engine commit and the SHA-256 of each file): a chained mission (jamming,
+# spoofing, holdover, integrity), a 200-seed Monte Carlo ensemble of a free-running
+# clock, and a jammer-power sweep. The watches name campaign figures (see
+# docs/CAMPAIGN-WATCH.md); requirements are the figures the open document
+# docs/CAMPAIGNS.md states. MODELLED scenarios: decision support for your own
+# verification and validation, not a certification.
+id = "campaign-baseline"
+version = "1.0.0"
+description = "Campaign watch pack: a chained jamming, spoofing, holdover and integrity mission, a 200-seed Monte Carlo clock ensemble and a jammer-power sweep, watched on the figures the open campaign documentation states. MODELLED."
+
+[[entries]]
+path = "campaign-jam-spoof-holdover-integrity.toml"
+label = "mission"
+
+[[entries]]
+path = "campaign-monte-carlo-clock-holdover.toml"
+label = "clock-ensemble"
+
+[[entries]]
+path = "campaign-sweep-jammer-power.toml"
+label = "jammer-sweep"
+
+[[watch]]
+name = "spoofing detected (phase length)"
+entry = "mission"
+metric = "campaign.phase.spoofing.duration_s"
+direction = "lower"
+tolerance = { abs = 0.0 }
+requirement = "watched <= 370 s"
+note = "The spoofing phase ends when the clock-aided monitor alarms; docs/CAMPAIGNS.md: at 370 s."
+
+[[watch]]
+name = "C/N0 at the end of the jamming phase"
+entry = "mission"
+metric = "campaign.phase.jamming.end.cn0_dbhz"
+direction = "higher"
+tolerance = { abs = 0.1 }
+requirement = "watched >= 25 dB-Hz"
+note = "docs/CAMPAIGNS.md: C/N0 falls to 27.7 dB-Hz against the 25 dB-Hz tracking floor, all 8 satellites still tracking."
+
+[[watch]]
+name = "satellites tracking at the end of the jamming phase"
+entry = "mission"
+metric = "campaign.phase.jamming.end.tracking"
+direction = "higher"
+tolerance = { abs = 0.0 }
+requirement = "watched >= 8"
+
+[[watch]]
+name = "time error carried into holdover"
+entry = "mission"
+metric = "campaign.phase.holdover.carried.time_error_ns"
+direction = "lower"
+tolerance = { rel = 0.02 }
+note = "docs/CAMPAIGNS.md: the holdover carries 37.0 ns from the spoofing phase."
+
+[[watch]]
+name = "time error at the end of holdover"
+entry = "mission"
+metric = "campaign.phase.holdover.end.time_error_ns"
+direction = "lower"
+tolerance = { rel = 0.02 }
+requirement = "watched >= 36.4 ns and watched <= 62.7 ns"
+note = "docs/CAMPAIGNS.md: time error 36.4 to 62.7 ns over the holdover phase."
+
+[[watch]]
+name = "largest time error on the mission timeline"
+entry = "mission"
+metric = "max(timeline.channels.time_error_ns.values[])"
+direction = "lower"
+tolerance = { rel = 0.02 }
+
+[[watch]]
+name = "share of the mission under alarm"
+entry = "mission"
+metric = "campaign.alarm_share"
+direction = "lower"
+tolerance = { abs = 0.0 }
+
+[[watch]]
+name = "clock final error, ensemble mean"
+entry = "clock-ensemble"
+metric = "campaign.mc.final_error.mean"
+direction = "target"
+target = 0.0
+ensemble = { mean = "campaign.mc.final_error.mean", std = "campaign.mc.final_error.std", n = "campaign.mc.final_error.n", test = "mean" }
+requirement = "campaign.mc.final_error.ci95_low <= 0 ns and campaign.mc.final_error.ci95_high >= 0 ns"
+note = "docs/CAMPAIGNS.md: the 95 % interval on the mean contains the true mean, 0 ns."
+
+[[watch]]
+name = "clock final error, ensemble spread"
+entry = "clock-ensemble"
+metric = "campaign.mc.final_error.std"
+direction = "lower"
+ensemble = { mean = "campaign.mc.final_error.mean", std = "campaign.mc.final_error.std", n = "campaign.mc.final_error.n", test = "spread" }
+requirement = "watched >= 14.32 ns and watched <= 18.55 ns"
+note = "docs/CAMPAIGNS.md: closed-form standard deviation 16.459 ns; its chi-square statistic must lie in the two-sided 99 % interval [151.37, 254.14], which for 200 seeds is a population standard deviation of 14.32 to 18.55 ns."
+
+[[watch]]
+name = "jammer power at which availability falls below one half"
+entry = "jammer-sweep"
+metric = "availability"
+crossing = { below = 0.5 }
+direction = "higher"
+tolerance = { abs = 0.0 }
+requirement = "watched >= -30 dBW and watched <= -25 dBW"
+note = "docs/CAMPAIGNS.md: availability falls from 1 to 0 between -30 and -25 dBW."

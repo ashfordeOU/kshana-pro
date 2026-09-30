@@ -644,13 +644,13 @@ fn evaluate_watch(
     } else if let Some(e) = &w.ensemble {
         let read = |p: &str| resolve_metric(doc, p, &source);
         match (read(&e.mean), read(&e.std), read(&e.n)) {
-            (Ok((m, mu)), Ok((sd, _)), Ok((n, _))) => {
+            (Ok((m, _)), Ok((sd, _)), Ok((n, _))) => {
                 out.ensemble = Some(EnsembleStats {
                     mean: m,
                     std: sd,
                     n,
                 });
-                Ok((m, mu))
+                resolve_metric(doc, &w.metric, &source)
             }
             (Err(x), _, _) | (_, Err(x), _) | (_, _, Err(x)) => Err(x),
         }
