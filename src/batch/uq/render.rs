@@ -1211,6 +1211,17 @@ fn td(v: &Value) -> String {
 
 /// The self-contained report page: no script, no external resource.
 pub fn report_html(doc: &Value) -> String {
+    // Every Kshana Pro document is an Ashforde document: the shared furniture of
+    // crate::report_brand goes around the renderer's own page, which is unchanged.
+    let body = report_html_unbranded(doc);
+    let id = crate::report_brand::content_id(&body);
+    crate::report_brand::finish_html(
+        &body,
+        &crate::report_brand::DocMark::new("Uncertainty study", id),
+    )
+}
+
+fn report_html_unbranded(doc: &Value) -> String {
     let mut h = String::new();
     h += "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\">\
           <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">";

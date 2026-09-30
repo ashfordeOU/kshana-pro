@@ -84,6 +84,11 @@ hex = "0.4"
 # anchor that the committed-artifact tests actually compare.
 printpdf = { version = "0.9.1", default-features = false }
 
+[dev-dependencies]
+# Reads the PDFs back in the branding tests (tests/ashforde_brand.rs). Already in the
+# graph as printpdf's own PDF layer, with the same features, so nothing new is built.
+lopdf = { version = "0.39", default-features = false, features = ["time"] }
+
 # The embedded open engine is compiled optimised even in development and test builds.
 # The overlay's tests run real engine scenarios (tests/open_engine_reachable.rs runs
 # every open kind three times); unoptimised, one scenario can take many minutes.

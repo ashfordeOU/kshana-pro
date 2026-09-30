@@ -506,11 +506,15 @@ fn board(j: &JobService) -> HttpResponse {
         .replace("__KSHANA_INITIAL_JOBS__", &safe)
         .replace("__KSHANA_SERVED_UTC__", &utc)
         .replace("__KSHANA_VERSION__", crate::version());
+    let page = crate::report_brand::finish_html(
+        &page,
+        &crate::report_brand::DocMark::new("Service job board", format!("served {utc}")),
+    );
     let mut r = HttpResponse::json(200, page);
     r.content_type = "text/html; charset=utf-8";
     r.headers.push((
         "Content-Security-Policy",
-        "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'".into(),
+        "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'".into(),
     ));
     r
 }

@@ -486,6 +486,7 @@ dependencies = [
  "ed25519-dalek",
  "hex",
  "kshana",
+ "lopdf",
  "printpdf",
  "rand 0.8.6",
  "rand_chacha 0.3.1",

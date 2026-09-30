@@ -5,10 +5,11 @@
 //! A self-contained PDF renderer for [`crate::report::ConsolidatedReport`]. It
 //! builds the document **from the report's structured data** — the same fields the
 //! HTML face reads ([`crate::report`]) — never by parsing the rendered HTML. There
-//! is **no external tool** (no headless browser, no `wkhtmltopdf`) and **no bundled
-//! font binary**: it uses [`printpdf`]'s built-in standard-14 fonts (Times for the
-//! serif headings, Helvetica for body/labels) so the deliverable is fully
-//! pure-Rust and portable.
+//! is **no external tool** (no headless browser, no `wkhtmltopdf`). Text is set in
+//! [`printpdf`]'s built-in standard-14 serif (Times) and Courier; only the Ashforde
+//! wordmark and entity name use the embedded Cormorant Garamond of
+//! [`crate::brand_pdf`], which also draws the seal, the watermark, the running header
+//! and the footer of every page.
 //!
 //! ## Honesty parity with the HTML face
 //! The PDF carries the same non-negotiable furniture: the branded cover (Ashforde
@@ -29,8 +30,8 @@
 //! is identical. We do not read the system clock anywhere in this module.
 
 use printpdf::{
-    BuiltinFont, Color, Line, LinePoint, Mm, Op, PaintMode, PdfDocument, PdfFontHandle, PdfPage,
-    PdfSaveOptions, Point, Polygon, PolygonRing, Pt, Rgb, TextItem, WindingOrder,
+    BuiltinFont, Color, Line, LinePoint, Mm, Op, PaintMode, PdfFontHandle, PdfPage, Point, Polygon,
+    PolygonRing, Pt, Rgb, TextItem, WindingOrder,
 };
 
 use crate::packs::optimism_gap_audit::ARXIV_PREPRINT_ID;
@@ -104,11 +105,13 @@ pub(crate) fn serif() -> PdfFontHandle {
 pub(crate) fn serif_bold() -> PdfFontHandle {
     PdfFontHandle::Builtin(BuiltinFont::TimesBold)
 }
+/// The text face. The names are historical: every face of an Ashforde document is a
+/// serif, so the former sans-serif body and labels are set in the standard Times too.
 pub(crate) fn sans() -> PdfFontHandle {
-    PdfFontHandle::Builtin(BuiltinFont::Helvetica)
+    PdfFontHandle::Builtin(BuiltinFont::TimesRoman)
 }
 pub(crate) fn sans_bold() -> PdfFontHandle {
-    PdfFontHandle::Builtin(BuiltinFont::HelveticaBold)
+    PdfFontHandle::Builtin(BuiltinFont::TimesBold)
 }
 
 /// Incremental, page-aware layout builder. Holds the current page's ops and the
@@ -252,8 +255,20 @@ impl Layout {
         self.advance(6.0);
     }
 
-    /// Finalise: push the in-progress page and append a footer to every page.
-    pub(crate) fn finish(mut self, footer: &str) -> Vec<PdfPage> {
+    /// The cover lockup across the top of the first page ([`crate::brand_pdf`]); the
+    /// cursor moves below it.
+    pub(crate) fn cover_lockup(&mut self) {
+        self.ops.extend(crate::brand_pdf::cover_lockup_ops(
+            "Quantitative PNT Resilience",
+        ));
+        self.y_mm = PAGE_H_MM - crate::brand_pdf::COVER_BAND_MM - 14.0;
+    }
+
+    /// Finalise: push the in-progress page and dress every page in the Ashforde
+    /// furniture ([`crate::brand_pdf::dress`]): watermark, running header, the footer
+    /// line `footer` with the document id and page number, and the SAMPLE mark when
+    /// [`brand::sample`] is on.
+    pub(crate) fn finish(mut self, footer: &str, mark: &crate::brand_pdf::PdfMark) -> Vec<PdfPage> {
         if !self.ops.is_empty() {
             let done = std::mem::take(&mut self.ops);
             self.pages.push(done);
@@ -261,53 +276,14 @@ impl Layout {
         if self.pages.is_empty() {
             self.pages.push(Vec::new());
         }
-        let n = self.pages.len();
-        self.pages
-            .into_iter()
-            .enumerate()
-            .map(|(i, mut ops)| {
-                // Footer rule + line at the very bottom of each page.
-                let fy = MARGIN_MM - 4.0;
-                ops.push(Op::SetOutlineColor {
-                    col: rgb(brand::BRASS_MUTED),
-                });
-                ops.push(Op::SetOutlineThickness { pt: Pt(0.4) });
-                ops.push(Op::DrawLine {
-                    line: Line {
-                        points: vec![
-                            LinePoint {
-                                p: Point::new(Mm(MARGIN_MM), Mm(fy + 4.0)),
-                                bezier: false,
-                            },
-                            LinePoint {
-                                p: Point::new(Mm(PAGE_W_MM - MARGIN_MM), Mm(fy + 4.0)),
-                                bezier: false,
-                            },
-                        ],
-                        is_closed: false,
-                    },
-                });
-                // ASCII separator: the built-in fonts use WinAnsi encoding, and a middle
-                // dot written as UTF-8 showed as two wrong characters in the footer.
-                let label = format!("{footer}   |   page {} of {}", i + 1, n);
-                ops.push(Op::StartTextSection);
-                ops.push(Op::SetTextCursor {
-                    pos: Point::new(Mm(MARGIN_MM), Mm(fy)),
-                });
-                ops.push(Op::SetFont {
-                    font: sans(),
-                    size: Pt(8.0),
-                });
-                ops.push(Op::SetFillColor {
-                    col: rgb(brand::BRASS_MUTED),
-                });
-                ops.push(Op::ShowText {
-                    items: vec![TextItem::Text(label)],
-                });
-                ops.push(Op::EndTextSection);
-                PdfPage::new(Mm(PAGE_W_MM), Mm(PAGE_H_MM), ops)
-            })
-            .collect()
+        crate::brand_pdf::dress(self.pages, footer, mark, brand::sample())
+    }
+
+    /// The content id of the pages drawn so far ([`crate::brand_pdf::content_id`]).
+    pub(crate) fn content_id(&self) -> String {
+        let mut all = self.pages.clone();
+        all.push(self.ops.clone());
+        crate::brand_pdf::content_id(&all)
     }
 }
 
@@ -321,17 +297,7 @@ pub fn to_pdf(report: &ConsolidatedReport) -> Result<Vec<u8>, String> {
     let mut l = Layout::new();
 
     // --- Branded cover -------------------------------------------------------
-    l.advance(6.0);
-    l.text_at(MARGIN_MM, "ASHFORDE", sans_bold(), 13.0, rgb(brand::BRASS));
-    l.advance(6.0);
-    l.text_at(
-        MARGIN_MM,
-        "Ashforde OU  |  Quantitative PNT Resilience",
-        sans(),
-        9.0,
-        rgb(brand::BRASS_MUTED),
-    );
-    l.advance(10.0);
+    l.cover_lockup();
     // Study title (serif bold), wrapped.
     for line in wrap(&report.title, CONTENT_W_MM, 24.0) {
         l.ensure(11.0);
@@ -364,7 +330,7 @@ pub fn to_pdf(report: &ConsolidatedReport) -> Result<Vec<u8>, String> {
         l.y_mm - banner_h + 4.0,
         CONTENT_W_MM,
         banner_h,
-        rgb(brand::BRASS),
+        rgb(brand::BRASS_SEAL),
     );
     l.advance(2.0);
     for line in banner_lines {
@@ -534,25 +500,14 @@ pub fn to_pdf(report: &ConsolidatedReport) -> Result<Vec<u8>, String> {
     let footer = format!(
         "Ashforde OU  |  {classification}  |  MODELLED engineering study - not a certification"
     );
-    let pages = l.finish(&footer);
+    let mark = crate::brand_pdf::PdfMark::new("Study report", l.content_id());
+    let pages = l.finish(&footer, &mark);
 
-    let mut doc = PdfDocument::new(&report.title);
     // `PdfDocumentInfo::default()` pins all dates to the Unix epoch — no clock is
     // read here or in printpdf for our build path. The only nondeterministic byte
     // sequence is the trailer `/ID` array (random in `serialize_pdf`, no hook),
     // documented in the module header and masked by tests/report_pdf.rs.
-    let opts = PdfSaveOptions::default();
-    let mut warnings = Vec::new();
-    let bytes = doc.with_pages(pages).save(&opts, &mut warnings);
-
-    if bytes.is_empty() || !bytes.starts_with(b"%PDF-") {
-        return Err(format!(
-            "printpdf produced no valid PDF (len {}, warnings: {})",
-            bytes.len(),
-            warnings.len()
-        ));
-    }
-    Ok(bytes)
+    crate::brand_pdf::save(&report.title, pages)
 }
 
 /// Render a Pack-A optimism-gap study ([`PackAReport`]) to a self-contained PDF
@@ -573,17 +528,7 @@ pub fn to_pdf_pack_a(report: &PackAReport) -> Result<Vec<u8>, String> {
     let mut l = Layout::new();
 
     // --- Branded cover -------------------------------------------------------
-    l.advance(6.0);
-    l.text_at(MARGIN_MM, "ASHFORDE", sans_bold(), 13.0, rgb(brand::BRASS));
-    l.advance(6.0);
-    l.text_at(
-        MARGIN_MM,
-        "Ashforde OU  |  Quantitative PNT Resilience",
-        sans(),
-        9.0,
-        rgb(brand::BRASS_MUTED),
-    );
-    l.advance(10.0);
+    l.cover_lockup();
     for line in wrap(&report.title, CONTENT_W_MM, 24.0) {
         l.ensure(11.0);
         l.text_at(MARGIN_MM, &line, serif_bold(), 24.0, rgb(brand::INK));
@@ -613,7 +558,7 @@ pub fn to_pdf_pack_a(report: &PackAReport) -> Result<Vec<u8>, String> {
         l.y_mm - banner_h + 4.0,
         CONTENT_W_MM,
         banner_h,
-        rgb(brand::BRASS),
+        rgb(brand::BRASS_SEAL),
     );
     l.advance(2.0);
     for line in banner_lines {
@@ -822,21 +767,9 @@ pub fn to_pdf_pack_a(report: &PackAReport) -> Result<Vec<u8>, String> {
         "Ashforde OU  |  {classification}  |  MODELLED engineering study - not a certification. \
          Proof: {ARXIV_PREPRINT_ID}, an arXiv preprint."
     );
-    let pages = l.finish(&footer);
-
-    let mut doc = PdfDocument::new(&report.title);
-    let opts = PdfSaveOptions::default();
-    let mut warnings = Vec::new();
-    let bytes = doc.with_pages(pages).save(&opts, &mut warnings);
-
-    if bytes.is_empty() || !bytes.starts_with(b"%PDF-") {
-        return Err(format!(
-            "printpdf produced no valid PDF (len {}, warnings: {})",
-            bytes.len(),
-            warnings.len()
-        ));
-    }
-    Ok(bytes)
+    let mark = crate::brand_pdf::PdfMark::new("Optimism-gap study", l.content_id());
+    let pages = l.finish(&footer, &mark);
+    crate::brand_pdf::save(&report.title, pages)
 }
 
 #[cfg(test)]
@@ -872,8 +805,8 @@ mod tests {
 
     #[test]
     fn rgb_parses_brand_hex() {
-        // Brass #c7aa66 → (199, 170, 102) / 255.
-        if let Color::Rgb(c) = rgb(brand::BRASS) {
+        // The seal's brass #c7aa66 → (199, 170, 102) / 255.
+        if let Color::Rgb(c) = rgb(brand::BRASS_SEAL) {
             assert!((c.r - 199.0 / 255.0).abs() < 1e-6);
             assert!((c.g - 170.0 / 255.0).abs() < 1e-6);
             assert!((c.b - 102.0 / 255.0).abs() < 1e-6);

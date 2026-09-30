@@ -20,7 +20,7 @@ use crate::report_pdf::{rgb, sans, Layout};
 
 /// Series colours, chosen to stay apart on white paper and in greyscale print.
 pub const PALETTE: [&str; 6] = [
-    brand::NAVY,
+    brand::NAVY_INK,
     brand::BRASS_MUTED,
     "#9a3b2e",
     "#2f6f62",

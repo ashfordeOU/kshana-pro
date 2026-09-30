@@ -32,6 +32,7 @@ pub use kshana;
 
 pub mod batch;
 pub mod benefits;
+pub mod brand_pdf;
 pub mod connectors;
 pub mod design;
 pub mod license;
