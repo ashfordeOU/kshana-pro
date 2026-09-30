@@ -184,3 +184,7 @@ own bullet so parallel work merges cleanly.
   `the_summary_counts_each_label_as_the_matrix_carries_it` (a PARTNER verdict counted as
   MODELLED went unnoticed), `markup_in_programme_text_is_escaped_in_the_html` (an
   unescaped page went unnoticed) and `a_ledger_from_another_dossier_fails_the_check`.
+  **A changed number in `mission check`'s output:** the count of files re-hashed is
+  now of distinct files. A file listed by both `dossier.json` and `manifest.json` was
+  counted twice, so the worked example printed 65 for the 35 files it holds (30 of them
+  listed twice); it now prints 35. Every comparison is still made.
