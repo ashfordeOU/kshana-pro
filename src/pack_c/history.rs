@@ -208,10 +208,25 @@ pub fn chain(existing: &[ChainedRecord], mut record: HistoryRecord) -> (ChainedR
     (ChainedRecord { record, hash }, line)
 }
 
+/// Refuse a history whose records belong to another pack: one history file follows one
+/// pack, so its trend never mixes two packs' figures into one series.
+pub fn check_pack(existing: &[ChainedRecord], pack_id: &str) -> Result<(), String> {
+    match existing.iter().find(|r| r.record.pack_id != pack_id) {
+        Some(r) => Err(format!(
+            "the history holds runs of pack '{}' (record {}), not of pack '{pack_id}'; \
+             use one history file per pack",
+            r.record.pack_id, r.record.index
+        )),
+        None => Ok(()),
+    }
+}
+
 /// Verify the file at `path`, then append `record` to it. Refuses to append to a broken
-/// history. Returns the chained record.
+/// history, or to the history of another pack. Returns the chained record.
 pub fn append(path: &Path, record: HistoryRecord) -> Result<ChainedRecord, String> {
     let existing = load(path)?;
+    check_pack(&existing, &record.pack_id)
+        .map_err(|e| format!("history {}: {e}", path.display()))?;
     let text = std::fs::read_to_string(path).unwrap_or_default();
     let (chained, line) = chain(&existing, record);
     let mut out = text;

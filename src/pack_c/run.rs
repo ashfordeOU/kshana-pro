@@ -450,8 +450,18 @@ pub fn run_ci_with(
     if pack.watches.is_empty() && !opts.exact {
         return run_ci(pack, base_dir, baseline, ctx);
     }
-    let members = run_members(pack, base_dir)?;
     let watched = !pack.watches.is_empty();
+    // A watch finds its baseline by identity; a report of another pack shares none, so
+    // every watch would read "no baseline" and the run would pass without comparing
+    // anything. Refuse it instead of passing silently.
+    if let Some(b) = baseline.filter(|b| watched && b.pack_id != pack.id) {
+        return Err(format!(
+            "pack '{}': the baseline is a report of pack '{}'; a watched pack is gated only \
+             against a report of the same pack",
+            pack.id, b.pack_id
+        ));
+    }
+    let members = run_members(pack, base_dir)?;
 
     let mut metrics = MetricSet::default();
     let mut units: BTreeMap<String, String> = BTreeMap::new();

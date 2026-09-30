@@ -196,7 +196,8 @@ baseline.
   status and requirement limits, each member result's SHA-256, the previous hash and the
   record's own hash. Each line stores the exact bytes that were hashed, so verification
   re-hashes what is written. The file is verified before a run, and a run refuses to
-  append to a broken history.
+  append to a broken history or to the history of another pack (one history file follows
+  one pack).
 - `kshana-pro ci history verify <file>` exits 0 and prints the record count and last
   hash, or exits 1 and names the first record that fails and why (a changed byte, a
   broken link, a wrong index). An empty file is a valid, empty history.
@@ -273,6 +274,10 @@ builds only.
   MIXED) is carried next to every watched figure.
 - A watched figure that cannot be read, and a requirement that cannot be verified (a
   missing unit, a unit mismatch), fail the run: the gate fails closed.
+- A watched pack refuses a `--baseline` that is a report of another pack (another `id`):
+  its watches would find no baseline and the run would pass without comparing anything.
+  A report of the same pack with edited watches is accepted; a watch whose identity is new
+  reads *no baseline* until the next run.
 - The end of a campaign phase is read on the campaign's grid; the engine's own carried
   value can differ by one grid step of drift.
 - Criteria compare values; there is no arithmetic between fields.

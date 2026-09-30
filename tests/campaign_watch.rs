@@ -802,6 +802,95 @@ fn adversarial_manifests_and_histories() {
     assert_eq!(recs[0].record.index, 0);
 }
 
+/// A report or a history of another pack is refused, never compared or appended: with a
+/// foreign baseline every watch would read "no baseline" and the run would pass without
+/// comparing anything, and a foreign history would mix two packs in one trend.
+#[test]
+fn a_baseline_or_history_of_another_pack_is_refused() {
+    let dir = scratch("foreign");
+    std::fs::copy(
+        "scenarios/packs/solar-system-baseline/mars-orbit-pnt.toml",
+        dir.join("m.toml"),
+    )
+    .unwrap();
+    let watch = "[[entries]]\npath = \"m.toml\"\nlabel = \"m\"\n\
+                 [[watch]]\nentry = \"m\"\nmetric = \"fom.median_pdop\"\ndirection = \"lower\"\n";
+    let other = dir.join("other");
+    std::fs::create_dir_all(&other).unwrap();
+    std::fs::copy(dir.join("m.toml"), other.join("m.toml")).unwrap();
+    write_pack(&other, &format!("id = \"other\"\nversion = \"1\"\n{watch}"));
+    let other_hist = dir.join("other.jsonl");
+    let (out, _) = ci(
+        &other,
+        &dir.join("other.json"),
+        &["--history", other_hist.to_str().unwrap()],
+    );
+    assert_eq!(out.code, 0, "{}", out.stderr);
+
+    write_pack(&dir, &format!("id = \"mine\"\nversion = \"1\"\n{watch}"));
+    let pack = dir.join("pack.toml");
+    let foreign = dir.join("other.json");
+    let o = kp(&[
+        "ci",
+        "--pack",
+        pack.to_str().unwrap(),
+        "--dev",
+        "--utc",
+        UTC,
+        "--baseline",
+        foreign.to_str().unwrap(),
+    ]);
+    assert_eq!(o.code, 1, "a foreign baseline never passes: {}", o.stderr);
+    assert!(
+        o.stderr
+            .contains("the baseline is a report of pack 'other'"),
+        "{}",
+        o.stderr
+    );
+
+    let before = std::fs::read_to_string(&other_hist).unwrap();
+    let o = kp(&[
+        "ci",
+        "--pack",
+        pack.to_str().unwrap(),
+        "--dev",
+        "--utc",
+        UTC,
+        "--history",
+        other_hist.to_str().unwrap(),
+    ]);
+    assert_eq!(o.code, 1, "{}", o.stderr);
+    assert!(
+        o.stderr.contains("holds runs of pack 'other'"),
+        "{}",
+        o.stderr
+    );
+    assert_eq!(
+        std::fs::read_to_string(&other_hist).unwrap(),
+        before,
+        "nothing is appended to another pack's history"
+    );
+
+    // The library refuses too, for a caller that skips the command line.
+    let recs = pack_c::history::load(&other_hist).unwrap();
+    let mut rec = recs[0].record.clone();
+    rec.pack_id = "mine".into();
+    let e = pack_c::history::append(&other_hist, rec).unwrap_err();
+    assert!(e.contains("holds runs of pack 'other'"), "{e}");
+
+    // The same pack's own baseline is still accepted.
+    let own = dir.join("own.json");
+    let (out, _) = ci(&dir, &own, &[]);
+    assert_eq!(out.code, 0, "{}", out.stderr);
+    let (out, r) = ci(
+        &dir,
+        &dir.join("again.json"),
+        &["--baseline", own.to_str().unwrap()],
+    );
+    assert_eq!(out.code, 0, "{}", out.stderr);
+    assert_eq!(r.watch.unwrap().outcomes[0].status, "unchanged");
+}
+
 // Packs hygiene ---------------------------------------------------------------------
 
 fn files_under(dir: &Path, out: &mut Vec<PathBuf>) {
