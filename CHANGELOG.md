@@ -110,3 +110,52 @@ own bullet so parallel work merges cleanly.
   count, stops matching the registry or `tests/`. Tests: `tests/study_dossier.rs`
   (determinism, tier split, the binary end to end and its licence gate) and unit tests
   in `src/study_dossier.rs`.
+
+- **Mission dossier (`kshana-pro mission build` and `mission check`): requirements to
+  runs to verification matrix to a branded PDF, in one command.** A programme file
+  (TOML: title, reference, issue, classification, a requirements file in comma-separated
+  values (CSV), Requirements Interchange Format (ReqIF) or Systems Modeling Language
+  version 2 (SysML v2), a list of scenarios of any kind with optional headline figures
+  and charts, optional links, an optional `pro-trade-study`, sign-off rows) becomes one
+  deliverable. Every scenario's exact bytes are run through the gated dispatcher and
+  written under `runs/<id>/` as the open engine's own command line writes them, with the
+  open engine's report (`kshana::advanced_report::build`), so the requirements tooling's
+  integrity checks hold; a Pro kind is written without a report and the dossier says its
+  integrity rests on the result hash alone. The trace file is written and the
+  verification cross-reference matrix and evidence pack are built by the existing
+  model-based systems engineering (MBSE) code (`mbse::trace`, `mbse::pack`); no second
+  requirements engine was written. Outputs: `dossier.json` (with `dossier_sha256` over
+  the canonical body; the `--utc` stamp is outside the hash), `dossier.html`
+  (self-contained, no network, print stylesheet), `dossier.pdf` (A4, brand colours,
+  cover, the MODELLED banner with "not a certification", tables with repeated headers,
+  vector charts, page numbers), `runs/`, `trace.toml`, the evidence pack, `manifest.json`
+  and a hash-chained `ledger.json` (`study_ledger`). A figure is only a scalar the
+  result's own `units` block marks `provenance = "computed"`; inputs and constants are
+  listed as inputs. `mission check <dir>` re-hashes every file and names what changed;
+  `--rerun` runs every stored scenario again and compares. Needs the
+  `pro-mission-dossier` feature (Enterprise tier, or granted by name); a Pro kind in a
+  programme still needs its own tier. Worked example in `scenarios/pro-power/mission/`:
+  five open-engine runs on public data (a low Earth orbit navigation chain, a lunar
+  constellation, the L band under interference, a chained campaign, Mars orbit
+  navigation) and one trade study; twelve requirements give 7 met (all 7 on a MODELLED
+  or PARTNER basis), 4 not met and 1 not verified, with 15 open items. Checked against
+  the free engine: with the open release binary all five result files and reports are
+  byte-identical to the dossier's; with an unoptimised debug build of the open engine
+  four are, and the low Earth orbit chain differs in 33 floating-point fields by a
+  relative 4.8e-5 at most, with no verdict changed. Guide: `docs/MISSION-DOSSIER.md`.
+  Tests: `tests/mission_dossier.rs` (every expected value is also read from a direct
+  open-engine run) and unit tests in `src/mission/`. The README states twenty
+  integration tests (was nineteen). **Two revisions of existing output.**
+  (1) `kshana-pro study --dossier`: when a result's `units` block carries provenance,
+  the default figures are only the `computed` fields, so for kinds other than `clock`
+  echoed inputs and constants are no longer listed as figures (measured on four
+  scenarios: lunar constellation 30 figures to 18, low Earth orbit chain 33 to 16,
+  spectrum 25 to 7, Mars unchanged at 12). The clock worked example is unchanged: the
+  dossier hash of `scenarios/dossier-holdover-csac.toml` is `d5e3acdc…9d3e` before and
+  after, and its three files are byte-identical. (2) `kshana-pro report --pdf` and the
+  Pack-A PDF: `report_pdf::Layout::fill_rect` drew the banner with `Op::DrawRectangle`,
+  which `printpdf` 0.9.1 writes as a clipping path, so the banner background was never
+  painted and everything after the banner on its page was clipped away; it now draws a
+  filled polygon. The footer separator, a middle dot the built-in fonts showed as two
+  wrong characters, is now a vertical bar. These PDFs now show their full first page;
+  apart from that separator their text is unchanged.
