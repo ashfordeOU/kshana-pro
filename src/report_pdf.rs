@@ -30,7 +30,7 @@
 
 use printpdf::{
     BuiltinFont, Color, Line, LinePoint, Mm, Op, PaintMode, PdfDocument, PdfFontHandle, PdfPage,
-    PdfSaveOptions, Point, Pt, Rect, Rgb, TextItem, WindingOrder,
+    PdfSaveOptions, Point, Polygon, PolygonRing, Pt, Rgb, TextItem, WindingOrder,
 };
 
 use crate::packs::optimism_gap_audit::ARXIV_PREPRINT_ID;
@@ -39,18 +39,18 @@ use crate::report_brand as brand;
 use crate::report_pack_a::PackAReport;
 
 // --- A4 page geometry (mm) ---------------------------------------------------
-const PAGE_W_MM: f32 = 210.0;
-const PAGE_H_MM: f32 = 297.0;
-const MARGIN_MM: f32 = 20.0;
-const CONTENT_W_MM: f32 = PAGE_W_MM - 2.0 * MARGIN_MM;
-const TOP_Y_MM: f32 = PAGE_H_MM - MARGIN_MM;
-const BOTTOM_Y_MM: f32 = MARGIN_MM + 6.0; // leave room above the footer
+pub(crate) const PAGE_W_MM: f32 = 210.0;
+pub(crate) const PAGE_H_MM: f32 = 297.0;
+pub(crate) const MARGIN_MM: f32 = 20.0;
+pub(crate) const CONTENT_W_MM: f32 = PAGE_W_MM - 2.0 * MARGIN_MM;
+pub(crate) const TOP_Y_MM: f32 = PAGE_H_MM - MARGIN_MM;
+pub(crate) const BOTTOM_Y_MM: f32 = MARGIN_MM + 6.0; // leave room above the footer
 
 // 1 mm = 72/25.4 pt.
-const MM_PER_PT: f32 = 25.4 / 72.0;
+pub(crate) const MM_PER_PT: f32 = 25.4 / 72.0;
 
 /// A brand colour as a printpdf RGB fill/stroke colour (parses `#rrggbb`).
-fn rgb(hex: &str) -> Color {
+pub(crate) fn rgb(hex: &str) -> Color {
     let h = hex.trim_start_matches('#');
     let parse =
         |i: usize| -> f32 { u8::from_str_radix(&h[i..i + 2], 16).unwrap_or(0) as f32 / 255.0 };
@@ -66,13 +66,13 @@ fn rgb(hex: &str) -> Color {
 /// face. The standard-14 metrics are not exposed by printpdf for built-in fonts,
 /// so we use a conservative average advance (~0.52 em) to wrap text. This keeps
 /// layout deterministic without any font-file or glyph-metric dependency.
-fn text_width_mm(n: usize, pt: f32) -> f32 {
+pub(crate) fn text_width_mm(n: usize, pt: f32) -> f32 {
     let em_mm = pt * MM_PER_PT;
     n as f32 * em_mm * 0.52
 }
 
 /// Greedy word-wrap to a column `width_mm` wide at point size `pt`.
-fn wrap(text: &str, width_mm: f32, pt: f32) -> Vec<String> {
+pub(crate) fn wrap(text: &str, width_mm: f32, pt: f32) -> Vec<String> {
     let mut lines = Vec::new();
     let mut cur = String::new();
     for word in text.split_whitespace() {
@@ -98,30 +98,30 @@ fn wrap(text: &str, width_mm: f32, pt: f32) -> Vec<String> {
 }
 
 /// A serif heading vs sans body distinction, mapped to built-in standard-14 fonts.
-fn serif() -> PdfFontHandle {
+pub(crate) fn serif() -> PdfFontHandle {
     PdfFontHandle::Builtin(BuiltinFont::TimesRoman)
 }
-fn serif_bold() -> PdfFontHandle {
+pub(crate) fn serif_bold() -> PdfFontHandle {
     PdfFontHandle::Builtin(BuiltinFont::TimesBold)
 }
-fn sans() -> PdfFontHandle {
+pub(crate) fn sans() -> PdfFontHandle {
     PdfFontHandle::Builtin(BuiltinFont::Helvetica)
 }
-fn sans_bold() -> PdfFontHandle {
+pub(crate) fn sans_bold() -> PdfFontHandle {
     PdfFontHandle::Builtin(BuiltinFont::HelveticaBold)
 }
 
 /// Incremental, page-aware layout builder. Holds the current page's ops and the
 /// cursor (in mm from the page bottom-left), flushing to a new page when the
 /// cursor would cross the bottom margin.
-struct Layout {
-    pages: Vec<Vec<Op>>,
-    ops: Vec<Op>,
-    y_mm: f32,
+pub(crate) struct Layout {
+    pub(crate) pages: Vec<Vec<Op>>,
+    pub(crate) ops: Vec<Op>,
+    pub(crate) y_mm: f32,
 }
 
 impl Layout {
-    fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Layout {
             pages: Vec::new(),
             ops: Vec::new(),
@@ -130,7 +130,7 @@ impl Layout {
     }
 
     /// Start a fresh page, resetting the cursor to the top margin.
-    fn new_page(&mut self) {
+    pub(crate) fn new_page(&mut self) {
         if !self.ops.is_empty() {
             let done = std::mem::take(&mut self.ops);
             self.pages.push(done);
@@ -139,34 +139,47 @@ impl Layout {
     }
 
     /// Ensure `need_mm` of vertical space remains; break to a new page if not.
-    fn ensure(&mut self, need_mm: f32) {
+    pub(crate) fn ensure(&mut self, need_mm: f32) {
         if self.y_mm - need_mm < BOTTOM_Y_MM {
             self.new_page();
         }
     }
 
     /// Advance the cursor down by `mm`.
-    fn advance(&mut self, mm: f32) {
+    pub(crate) fn advance(&mut self, mm: f32) {
         self.y_mm -= mm;
     }
 
     /// A filled rectangle in page coordinates (mm), e.g. the banner background.
-    fn fill_rect(&mut self, x_mm: f32, y_mm: f32, w_mm: f32, h_mm: f32, col: Color) {
+    ///
+    /// Drawn as a filled four-point polygon. `printpdf` 0.9.1 writes `Op::DrawRectangle`
+    /// as a clipping path (`re W n`) whatever paint mode it is given, so a rectangle
+    /// drawn that way painted nothing and clipped everything after it on the page to
+    /// its own area.
+    pub(crate) fn fill_rect(&mut self, x_mm: f32, y_mm: f32, w_mm: f32, h_mm: f32, col: Color) {
+        let corner = |x: f32, y: f32| LinePoint {
+            p: Point::new(Mm(x), Mm(y)),
+            bezier: false,
+        };
         self.ops.push(Op::SetFillColor { col });
-        self.ops.push(Op::DrawRectangle {
-            rectangle: Rect {
-                x: Pt(x_mm / MM_PER_PT),
-                y: Pt(y_mm / MM_PER_PT),
-                width: Pt(w_mm / MM_PER_PT),
-                height: Pt(h_mm / MM_PER_PT),
-                mode: Some(PaintMode::Fill),
-                winding_order: Some(WindingOrder::NonZero),
+        self.ops.push(Op::DrawPolygon {
+            polygon: Polygon {
+                rings: vec![PolygonRing {
+                    points: vec![
+                        corner(x_mm, y_mm),
+                        corner(x_mm + w_mm, y_mm),
+                        corner(x_mm + w_mm, y_mm + h_mm),
+                        corner(x_mm, y_mm + h_mm),
+                    ],
+                }],
+                mode: PaintMode::Fill,
+                winding_order: WindingOrder::NonZero,
             },
         });
     }
 
     /// A horizontal rule (brass accent) across the content column at the cursor.
-    fn rule(&mut self, col: Color, thickness_pt: f32) {
+    pub(crate) fn rule(&mut self, col: Color, thickness_pt: f32) {
         let y = self.y_mm;
         self.ops.push(Op::SetOutlineColor { col });
         self.ops.push(Op::SetOutlineThickness {
@@ -191,7 +204,14 @@ impl Layout {
 
     /// Draw a single line of text at `(x_mm, self.y_mm)` in the given font/size/colour.
     /// Does NOT advance the cursor (caller controls line spacing).
-    fn text_at(&mut self, x_mm: f32, text: &str, font: PdfFontHandle, pt: f32, col: Color) {
+    pub(crate) fn text_at(
+        &mut self,
+        x_mm: f32,
+        text: &str,
+        font: PdfFontHandle,
+        pt: f32,
+        col: Color,
+    ) {
         self.ops.push(Op::StartTextSection);
         self.ops.push(Op::SetTextCursor {
             pos: Point::new(Mm(x_mm), Mm(self.y_mm)),
@@ -207,7 +227,14 @@ impl Layout {
     /// A wrapped paragraph across the full content column (left margin to right
     /// margin), advancing the cursor and breaking pages as needed. `lh_mm` is the
     /// line height.
-    fn paragraph(&mut self, text: &str, font: PdfFontHandle, pt: f32, lh_mm: f32, col: Color) {
+    pub(crate) fn paragraph(
+        &mut self,
+        text: &str,
+        font: PdfFontHandle,
+        pt: f32,
+        lh_mm: f32,
+        col: Color,
+    ) {
         for line in wrap(text, CONTENT_W_MM, pt) {
             self.ensure(lh_mm);
             self.text_at(MARGIN_MM, &line, font.clone(), pt, col.clone());
@@ -216,7 +243,7 @@ impl Layout {
     }
 
     /// A section heading (serif bold, brass) with a thin brass underline rule.
-    fn heading(&mut self, title: &str) {
+    pub(crate) fn heading(&mut self, title: &str) {
         self.ensure(14.0);
         self.advance(4.0);
         self.text_at(MARGIN_MM, title, serif_bold(), 15.0, rgb(brand::BRASS));
@@ -226,7 +253,7 @@ impl Layout {
     }
 
     /// Finalise: push the in-progress page and append a footer to every page.
-    fn finish(mut self, footer: &str) -> Vec<PdfPage> {
+    pub(crate) fn finish(mut self, footer: &str) -> Vec<PdfPage> {
         if !self.ops.is_empty() {
             let done = std::mem::take(&mut self.ops);
             self.pages.push(done);
@@ -260,7 +287,9 @@ impl Layout {
                         is_closed: false,
                     },
                 });
-                let label = format!("{footer}   ·   page {} of {}", i + 1, n);
+                // ASCII separator: the built-in fonts use WinAnsi encoding, and a middle
+                // dot written as UTF-8 showed as two wrong characters in the footer.
+                let label = format!("{footer}   |   page {} of {}", i + 1, n);
                 ops.push(Op::StartTextSection);
                 ops.push(Op::SetTextCursor {
                     pos: Point::new(Mm(MARGIN_MM), Mm(fy)),
