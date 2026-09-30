@@ -1,0 +1,71 @@
+# Campaign watch subscription pack: the solar system.
+#
+# The open solar-system tour and two open positioning scenarios around other bodies (a
+# Mars orbiter and a Europa surface user), copied verbatim
+# from the open repository (PROVENANCE.md). Ephemeris light times have no better or
+# worse: they are watched without a direction, so they are informational and any change
+# is reported. MIXED and MODELLED labels as each result states them; not a certification.
+id = "solar-system-baseline"
+version = "1.0.0"
+description = "Campaign watch pack: the solar-system tour's link light times and positioning around other bodies (a Mars orbiter and a Europa surface user, each with a deep-space range from the Earth), watched on position error and availability. MIXED and MODELLED."
+
+[[entries]]
+path = "solar-system-tour.toml"
+label = "tour"
+
+[[entries]]
+path = "mars-orbit-pnt.toml"
+label = "mars-orbiter"
+
+[[entries]]
+path = "europa-surface-pnt.toml"
+label = "europa-surface"
+
+[[watch]]
+name = "Mars to Jupiter one-way light time"
+entry = "tour"
+metric = "links[0].one_way_light_time_s"
+note = "No better or worse: informational, any change is listed."
+
+[[watch]]
+name = "Saturn to Earth one-way light time"
+entry = "tour"
+metric = "links[1].one_way_light_time_s"
+note = "No better or worse: informational, any change is listed."
+
+[[watch]]
+name = "Mars orbiter: RMS position error with the Earth range"
+entry = "mars-orbiter"
+metric = "fom.rms_error_with_earth_m"
+direction = "lower"
+tolerance = { rel = 0.02 }
+
+[[watch]]
+name = "Mars orbiter: RMS position error, relays only"
+entry = "mars-orbiter"
+metric = "fom.rms_error_relays_m"
+direction = "lower"
+tolerance = { rel = 0.02 }
+
+[[watch]]
+name = "Mars orbiter: availability with the Earth range"
+entry = "mars-orbiter"
+metric = "fom.availability_with_earth"
+direction = "higher"
+tolerance = { abs = 0.0 }
+
+[[watch]]
+name = "Europa surface: availability with the Earth range"
+entry = "europa-surface"
+metric = "fom.availability_with_earth"
+direction = "higher"
+tolerance = { abs = 0.0 }
+requirement = "fom.availability_with_earth >= fom.availability_relays"
+note = "An extra range from the Earth can only add fixes: an invariant of the body-pnt model (docs/SCENARIOS.md), not a published figure."
+
+[[watch]]
+name = "Europa surface: RMS position error with the Earth range"
+entry = "europa-surface"
+metric = "fom.rms_error_with_earth_m"
+direction = "lower"
+tolerance = { rel = 0.02 }
