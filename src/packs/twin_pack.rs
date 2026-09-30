@@ -9,6 +9,10 @@ use kshana::api::{ExternalPack, KshanaError, RunOutput, Scenario, ScenarioMeta};
 
 use crate::twin::{calibrate, calibrate3, validate, DeviceSpec};
 
+/// The honesty label every `pro-twin` result carries: a twin reproduces a published budget
+/// with the open clock model, so it is MODELLED, never a characterisation of a real unit.
+pub const TWIN_LABEL: &str = "MODELLED - a clock digital twin: the open engine's clock model fitted to the device's published Allan-deviation points and checked with the open engine's overlapping Allan-deviation estimator within the stated tolerance. It reproduces a published budget; it is not a measurement or a characterisation of any real unit.";
+
 fn default_tolerance() -> f64 {
     0.25
 }
@@ -93,6 +97,7 @@ impl Scenario for TwinScenario {
             "overlay_version": crate::version(),
             "device": self.device,
             "provenance": spec.provenance,
+            "label": TWIN_LABEL,
             "calibration": {
                 "q_wf": twin.q_wf,
                 "flicker_floor": twin.flicker_floor,
@@ -117,7 +122,7 @@ impl Scenario for TwinScenario {
         .to_string();
 
         let summary = format!(
-            "Kshana Pro L1 twin | device: {} | calibrated q_wf={:.3e} flicker_floor={:.3e} q_rw={:.3e} | validation vs open-core Allan: max rel err {:.1}% (tol {:.0}%) => {}",
+            "Kshana Pro L1 twin | device: {} | calibrated q_wf={:.3e} flicker_floor={:.3e} q_rw={:.3e} | validation vs open-core Allan: max rel err {:.1}% (tol {:.0}%) => {} | MODELLED",
             self.device,
             twin.q_wf,
             twin.flicker_floor,
@@ -237,6 +242,16 @@ mod tests {
         let v: serde_json::Value = serde_json::from_str(&out.json).unwrap();
         assert_eq!(v["validation"]["passed"], true);
         assert!(out.svg.contains("<svg"));
+        // Every Pro output is labelled MODELLED (docs/PRO.md of the open repository says so).
+        let label = v["label"]
+            .as_str()
+            .expect("the twin result carries a label");
+        assert!(label.starts_with("MODELLED"), "label: {label}");
+        assert!(
+            out.summary.ends_with("| MODELLED"),
+            "summary: {}",
+            out.summary
+        );
     }
 
     #[test]
