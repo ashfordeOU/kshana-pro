@@ -1,0 +1,177 @@
+# Kshana Pro uncertainty and sensitivity study (kind pro-uncertainty). Guide: docs/UNCERTAINTY.md.
+#
+# A low Earth orbit (LEO) positioning, navigation and timing (PNT) chain with two
+# uncertain inputs: the orbit-and-clock error of the broadcast message and the transmit
+# power. Which output does each input drive?
+#
+# The base scenario is the open engine's leo-pnt-end-to-end example
+# (engine/leo-pnt-end-to-end.toml), a generic 1080 km constellation with no named
+# system's data. Direct runs of the open engine show the peak carrier-to-noise density
+# moves exactly 1 dB per dB of transmit power and not at all with the orbit-and-clock
+# error, and that the broadcast signal-in-space range error follows the orbit-and-clock
+# error alone; tests/uncertainty.rs confirms both by direct runs and then holds the
+# regression to them.
+#
+# Run (64 runs of the whole chain):
+#   kshana-pro uncertainty scenarios/pro-power/uncertainty/uq-leo-pnt-chain.toml --out out/uq-leo --license <token>
+kind = "pro-uncertainty"
+title = "LEO-PNT chain: what the orbit-and-clock error and the transmit power drive"
+seed = 20260930
+
+base_scenario = """
+kind = "leo-pnt-chain"
+name = "LEO-PNT end to end, generic 1080 km constellation"
+seed = 5
+signal_design = "generic-l"
+od_sisre_m = 0.25
+
+[signal]
+presets = ["generic-bands"]
+
+[pass]
+epoch = "2026-09-28T08:00:00"
+duration_s = 1200.0
+step_s = 5.0
+
+[pass.user]
+environment = "ground"
+lat_deg = 40.42
+lon_deg = -3.70
+height_m = 650.0
+mask_deg = 10.0
+
+[[pass.satellite]]
+id = "LEO-1"
+system = "generic-leo"
+bands = ["L"]
+orbit = "pass"
+altitude_km = 1080.0
+inclination_deg = 53.0
+max_elevation_deg = 75.0
+tca_s = 600.0
+
+[[pass.satellite.band]]
+name = "L"
+signal = "generic-l"
+eirp_dbw = 10.0
+
+[pass.gnss]
+constellation = "gps-baseline"
+band = "L1"
+
+[navmsg.message]
+model = "kepler-rac"
+fit_interval_s = 300.0
+
+[navmsg.trade]
+span_s = 1200.0
+
+[fusion]
+mode = "joint"
+duration_s = 1800.0
+step_s = 30.0
+
+[fusion.user]
+lat_deg = 40.42
+lon_deg = -3.70
+height_m = 650.0
+
+[fusion.joint]
+max_leo_sweep = 8
+
+[[fusion.system]]
+name = "GPS"
+preset = "gps-baseline"
+cn0_dbhz = [38.0, 48.0]
+sisre_m = 0.6
+
+[[fusion.system]]
+name = "Galileo"
+preset = "galileo"
+cn0_dbhz = [38.0, 48.0]
+sisre_m = 0.3
+isb_ns = 12.0
+
+[[fusion.system]]
+name = "Generic LEO"
+role = "leo"
+isb_ns = 25.0
+
+[[fusion.system.shell]]
+total = 240
+planes = 12
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 53.0
+
+[ppp]
+duration_s = 1800.0
+step_s = 10.0
+runs = 2
+
+[[ppp.site]]
+lat_deg = 40.42
+lon_deg = -3.70
+
+[[ppp.gnss]]
+name = "GPS"
+preset = "gps-baseline"
+mask_deg = 7.0
+
+[[ppp.gnss]]
+name = "Galileo"
+preset = "galileo"
+mask_deg = 7.0
+
+[[ppp.case]]
+name = "240 LEO"
+
+[[ppp.case.system]]
+name = "Generic LEO"
+mask_deg = 7.0
+
+[[ppp.case.system.shell]]
+total = 240
+planes = 12
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 53.0
+"""
+
+[[input]]
+name = "od_sisre"
+key = "od_sisre_m"
+unit = "m"
+dist = "uniform"
+min = 0.10
+max = 0.40
+source = "assumed: 0.10 m to 0.40 m around the base scenario's 0.25 m (its comment cites decimetre-level on-board orbit determination and clock prediction)"
+
+[[input]]
+name = "eirp"
+key = "pass.satellite.0.band.0.eirp_dbw"
+unit = "dBW"
+dist = "normal"
+mean = 10.0
+std = 1.0
+source = "assumed: 1 dB (one standard deviation) on the transmit power of the generic design"
+
+[[output]]
+name = "peak_cn0"
+path = "pass.peak_cn0_dbhz"
+
+[[output]]
+name = "broadcast_sisre"
+path = "navmsg.sisre_rms_m"
+
+[[output]]
+name = "fused_error"
+path = "fusion.fused.rms_error_3d_m"
+limit = { op = "le", value = 0.6 }
+
+[sampling]
+method = "lhs"
+n = 64
+
+[sensitivity]
+method = "src"

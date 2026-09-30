@@ -1,0 +1,65 @@
+# Kshana Pro uncertainty and sensitivity study (kind pro-uncertainty). Guide: docs/UNCERTAINTY.md.
+#
+# The open engine's own Monte Carlo campaign, reproduced exactly, then taken further.
+#
+# The base scenario is the member scenario of the open campaign
+# campaign-monte-carlo-clock-holdover (engine/campaign-monte-carlo-clock-holdover.toml,
+# its [monte_carlo.scenario] table): a chip-scale atomic clock disciplined to a global
+# navigation satellite system for 600 s, then coasting to 3600 s. No input is varied:
+# realisation k runs with the engine seed 42 + k, the open campaign's rule. With the
+# campaign's seed (20260928) this study gives the campaign's 200 samples, mean, standard
+# deviation, percentiles and bootstrap interval value for value (tests/uncertainty.rs
+# checks it against a campaign run). What Pro adds on the same runs: the 5th to 95th
+# percentile band of the whole time-error curve, the probability of staying inside the
+# scenario's 20 ns guard, and the running estimate as runs accumulate.
+#
+# Run:
+#   kshana-pro uncertainty scenarios/pro-power/uncertainty/uq-clock-holdover-seeds.toml --out out/uq-clock-seeds --license <token>
+kind = "pro-uncertainty"
+title = "Free-running clock error over engine seeds (the open campaign, reproduced)"
+seed = 20260928
+
+base_scenario = """
+seed = 42
+threshold_ns = 20.0
+[time]
+step_s = 10.0
+duration_s = 3600.0
+[gnss]
+windows = [
+  { t0 = 0.0, t1 = 600.0, state = "nominal" },
+  { t0 = 600.0, t1 = 3600.0, state = "denied" },
+]
+[clock_quantum]
+id = "optical-sr-lattice"
+provenance = "Strontium optical lattice clock, space-oriented goal sigma_y(1s)=1e-15 (arXiv:1503.08457); not flown."
+y0 = 5.0e-17
+q_wf = 1.0e-30
+q_rw = 0.0
+[clock_classical]
+id = "csac-sa45s"
+provenance = "Microchip SA65 / SA.45s CSAC datasheet sigma_y(1s)=3e-10; q_wf=sigma_y(1s)^2."
+y0 = 5.0e-10
+q_wf = 9.0e-20
+q_rw = 0.0
+"""
+
+[[output]]
+name = "final_error"
+path = "classical.series[-1].error_ns"
+limit = { op = "abs_le", value = 20.0 }
+
+[[output]]
+name = "timing_rms"
+path = "classical.fom.timing_rms_ns"
+
+[[output]]
+name = "time_error"
+series = "classical.series[].error_ns"
+time = "classical.series[].t"
+limit = { op = "abs_le", value = 20.0 }
+
+[sampling]
+method = "lhs"
+n = 200
+vary_seed = true

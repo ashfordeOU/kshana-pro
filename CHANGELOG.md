@@ -110,3 +110,38 @@ own bullet so parallel work merges cleanly.
   count, stops matching the registry or `tests/`. Tests: `tests/study_dossier.rs`
   (determinism, tier split, the binary end to end and its licence gate) and unit tests
   in `src/study_dossier.rs`.
+
+- **Uncertainty and sensitivity at scale, over any scenario kind (`kshana-pro
+  uncertainty`, kind `pro-uncertainty`).** A study names any open scenario, states how
+  uncertain its inputs are (normal, uniform, lognormal, triangular or discrete, each with
+  the source of that uncertainty; the word `assumed` is allowed and is then printed as
+  ASSUMED on every output) and lists the outputs to watch. It runs the open engine over a
+  seeded Latin hypercube or plain random sample and reports, per output: the mean, the
+  standard deviation, the 5th, 50th and 95th percentiles and a bootstrap interval on the
+  mean, the running estimate as runs accumulate, the probability of meeting a limit with
+  a Wilson interval ("given the stated input uncertainty"), and for a time series the
+  percentile band at every step. Sensitivity is either standardised regression
+  coefficients from the same runs, flagged in words as not reliable when the R-squared of
+  the linear fit is below 0.7, or first-order (Saltelli and others 2010) and total-order
+  (Jansen 1999) Sobol' indices with bootstrap intervals, from `n * (k + 2)` runs for `k`
+  inputs. A constant output or input gives null with the reason, never zero. The result
+  is byte-identical for any thread count. The command appends one line per finished
+  realisation to `runs.jsonl`, stops cleanly at `--max-runs` and continues with
+  `--resume`, refuses a study that changed since the checkpoint was started, and repairs
+  a last line cut short by re-running that realisation; a stopped and resumed study ends
+  with the same six files as an uninterrupted one. A failed engine run is recorded and
+  counted, never dropped, and never counts as meeting a limit. With no input and the
+  engine seed varied, a study reproduces the open `campaign [monte_carlo]` bit for bit
+  (samples, statistics and bootstrap interval), so free and Pro never disagree on a
+  number. Every result is labelled MODELLED, carries a unit for every numeric field and
+  the base kind's tier for every output, never a higher one, and lists what is not
+  modelled (correlation between inputs first). `pro-batch` is unchanged. Needs the
+  Enterprise tier (feature `pro-uncertainty`); fails closed without a licence. New:
+  `src/batch/uq/`, `src/packs/uncertainty_pack.rs`, five studies and their engine
+  scenario copies with provenance in `scenarios/pro-power/uncertainty/`, the guide
+  `docs/UNCERTAINTY.md`. Tests: `tests/uncertainty.rs` (15 tests: the Ishigami closed
+  form, a link margin's closed form, the open campaign reproduced, the mixture closed
+  form for an uncertain clock noise level, the low-Earth-orbit navigation chain against
+  direct engine runs, thread-count independence, stop and resume, failed runs,
+  adversarial studies, the licence gate) and unit tests in each module. The README now
+  states seventeen Pro packs (was sixteen) and twenty integration tests (was nineteen).
