@@ -56,6 +56,9 @@ pub const KIND: &str = "pro-uncertainty";
 pub const SCHEMA_VERSION: &str = "1.0";
 /// The licence feature that gates the capability.
 pub const FEATURE: &str = "pro-uncertainty";
+/// The most engine runs one study may make: every finished realisation is held in
+/// memory until the result is written.
+pub const MAX_RUNS: usize = 10_000_000;
 
 // ─── The study file ────────────────────────────────────────────────────────────────
 
@@ -504,6 +507,17 @@ impl Plan {
         if let Some(0) = spec.run.threads {
             return Err("run `threads` must be at least 1".into());
         }
+        let runs = match sensitivity {
+            Sensitivity::Sobol => spec.sampling.n.checked_mul(inputs.len() + 2),
+            _ => Some(spec.sampling.n),
+        };
+        if runs.is_none_or(|r| r > MAX_RUNS) {
+            return Err(format!(
+                "the study needs {} engine runs; one study may make at most {MAX_RUNS} (every \
+                 finished realisation is held in memory until the result is written)",
+                runs.map_or_else(|| "more than 2^64".to_string(), |r| r.to_string())
+            ));
+        }
         Ok(Plan {
             title: spec.title.clone(),
             seed: spec.seed,
@@ -564,14 +578,30 @@ impl Plan {
                         )
                     }
                 };
+                // A distribution whose tail overflows (a lognormal with a very large
+                // `ln_std`, a normal with a huge `std`) would hand the engine an infinity;
+                // the study is refused before anything runs.
+                let inputs = self
+                    .inputs
+                    .iter()
+                    .zip(&u)
+                    .map(|(inp, u)| {
+                        let v = inp.dist.inverse_cdf(*u);
+                        if v.is_finite() {
+                            Ok(v)
+                        } else {
+                            Err(format!(
+                                "input `{}`: its distribution gives a value that is not a \
+                                 finite number ({v}) at realisation {index}; narrow the \
+                                 distribution",
+                                inp.name
+                            ))
+                        }
+                    })
+                    .collect::<Result<Vec<f64>, String>>()?;
                 Ok(Job {
                     index,
-                    inputs: self
-                        .inputs
-                        .iter()
-                        .zip(&u)
-                        .map(|(inp, u)| inp.dist.inverse_cdf(*u))
-                        .collect(),
+                    inputs,
                     seed,
                 })
             })
@@ -904,16 +934,22 @@ pub fn prepare_spec(spec: &StudySpec) -> Result<Prepared, String> {
         input_nominal,
         ..BaseInfo::default()
     };
+    // The unit of an output is the base kind's own. A declared `unit` fills the gap only
+    // where the base kind's units block says nothing; one that disagrees with the base
+    // kind is refused, so a result can never carry a unit the engine did not report.
     let unit_of = |declared: &Option<String>, path: &str, name: &str| -> Result<String, String> {
-        if let Some(u) = declared {
-            return Ok(u.clone());
-        }
-        paths::unit_in_doc(&base_doc, path).ok_or_else(|| {
-            format!(
+        match (declared, paths::unit_in_doc(&base_doc, path)) {
+            (Some(d), Some(engine)) if *d != engine => Err(format!(
+                "output `{name}`: `unit` is \"{d}\", but the base kind reports `{path}` in \
+                 \"{engine}\"; remove `unit` (it is read from the base run) or correct it"
+            )),
+            (_, Some(engine)) => Ok(engine),
+            (Some(d), None) => Ok(d.clone()),
+            (None, None) => Err(format!(
                 "output `{name}`: path `{path}` has no entry in the base kind's units block; \
                  declare its `unit` on the [[output]]"
-            )
-        })
+            )),
+        }
     };
     for o in &plan.scalars {
         let nominal =
@@ -1601,7 +1637,18 @@ pub fn analyse(
                 let rows: Vec<&RunRecord> = stat.iter().filter(|r| value_of(r).is_some()).collect();
                 let x: Vec<Vec<f64>> = rows.iter().map(|r| r.inputs.clone()).collect();
                 let y: Vec<f64> = rows.iter().filter_map(|r| value_of(r)).collect();
-                let out = src_rank::regress(&x, &y);
+                // Every realisation failed or gave no value: nothing to fit, and each
+                // input still gets its entry (null, with the reason).
+                let out = if rows.is_empty() {
+                    src_rank::no_fit(
+                        k,
+                        0,
+                        "no realisation gave a value for this output, so there is nothing to \
+                         fit",
+                    )
+                } else {
+                    src_rank::regress(&x, &y)
+                };
                 let rank = src_rank::rank_by_magnitude(&out.entries);
                 let entries: Vec<Value> = plan
                     .inputs
@@ -2300,6 +2347,110 @@ method = "sobol"
         assert!(is_assumed("no datasheet yet, ASSUMED"));
         assert!(!is_assumed("datasheet, section 4.2"));
         assert!(!is_assumed("unassumedly precise"));
+    }
+
+    #[test]
+    fn a_declared_unit_that_disagrees_with_the_engine_is_refused() {
+        let wrong = LINK.replace(
+            "path = \"margin_db\"\n",
+            "path = \"margin_db\"\nunit = \"km\"\n",
+        );
+        assert_ne!(wrong, LINK);
+        let e = prepare(&wrong)
+            .err()
+            .expect("a unit the engine did not report");
+        assert!(
+            e.contains("output `margin`") && e.contains("\"km\"") && e.contains("\"dB\""),
+            "{e}"
+        );
+        // The engine's own unit, stated again, is accepted.
+        let same = LINK.replace(
+            "path = \"margin_db\"\n",
+            "path = \"margin_db\"\nunit = \"dB\"\n",
+        );
+        assert_eq!(prepare(&same).expect("valid").info.scalar_units, vec!["dB"]);
+    }
+
+    #[test]
+    fn a_distribution_that_overflows_is_refused_before_anything_runs() {
+        let wide = LINK.replace("min = 2.0\nmax = 4.0", "min = -1.7e308\nmax = 1.7e308");
+        assert_ne!(wide, LINK);
+        let e = prepare(&wide)
+            .err()
+            .expect("a range wider than a finite number");
+        assert!(
+            e.contains("input `losses`") && e.contains("too wide"),
+            "{e}"
+        );
+        let tail = LINK.replace(
+            "dist = \"normal\"\nmean = 55.0\nstd = 1.0",
+            "dist = \"lognormal\"\nmedian = 1.0e300\nln_std = 400.0",
+        );
+        assert_ne!(tail, LINK);
+        let e = prepare(&tail).err().expect("a tail that reaches infinity");
+        assert!(
+            e.contains("input `eirp`") && e.contains("not a finite number"),
+            "{e}"
+        );
+    }
+
+    #[test]
+    fn a_study_whose_every_run_fails_reports_null_with_a_reason() {
+        // The slant range is drawn below zero in every realisation and the engine refuses
+        // each one. Every method must still give a result, never a crash.
+        let failing = LINK.replace(
+            "key = \"eirp_dbw\"\ndist = \"normal\"\nmean = 55.0\nstd = 1.0",
+            "key = \"range_km\"\ndist = \"uniform\"\nmin = -300.0\nmax = -100.0",
+        );
+        assert_ne!(failing, LINK);
+        for method in ["none", "src", "sobol"] {
+            let run = run_study(
+                &with(&format!("[sensitivity]\nmethod = \"{method}\"\n")).replace(LINK, &failing),
+                &RunOptions::default(),
+            )
+            .unwrap_or_else(|e| panic!("{method}: the study itself runs: {e}"));
+            let d = run.result.expect("complete").doc;
+            assert_eq!(d["runs"]["failed"], d["runs"]["total"], "{method}");
+            let m = &d["outputs"]["margin"];
+            assert_eq!(m["n"], 0, "{method}");
+            assert!(
+                m["mean"].is_null() && m["reason"].is_string(),
+                "{method}: {m}"
+            );
+            assert_eq!(m["limit"]["probability"], 0.0, "{method}");
+            if method != "none" {
+                let s = &d["sensitivity"]["outputs"]["margin"];
+                assert!(s["reason"].is_string(), "{method}: {s}");
+                let entries = s["inputs"].as_array().expect("one entry per input");
+                assert_eq!(entries.len(), 2, "{method}");
+                for e in entries {
+                    assert!(
+                        e["rank"].is_null() && e["reason"].is_string(),
+                        "{method}: {e}"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn a_study_too_large_to_hold_in_memory_is_refused() {
+        let plan = |text: &str| {
+            let spec: StudySpec = toml::from_str(text).expect("parses");
+            Plan::from_spec(&spec)
+        };
+        let sobol = |n: &str| with("[sensitivity]\nmethod = \"sobol\"\n").replace("n = 64", n);
+        // Two inputs: a Sobol' design makes n * 4 runs.
+        assert!(plan(&sobol("n = 2500000")).is_ok());
+        let e = plan(&sobol("n = 2500001")).expect_err("10,000,004 runs");
+        assert!(
+            e.contains("10000004") && e.contains("at most 10000000"),
+            "{e}"
+        );
+        let e = plan(&sobol("n = 9223372036854775807")).expect_err("overflows");
+        assert!(e.contains("more than 2^64"), "{e}");
+        let e = plan(&LINK.replace("n = 64", "n = 4000000000000")).expect_err("too many");
+        assert!(e.contains("4000000000000"), "{e}");
     }
 
     #[test]

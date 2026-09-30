@@ -149,7 +149,9 @@ A misspelled field name anywhere in the file is an error, never silently ignored
 | `discrete` | `values`, optional `weights` (equal when left out) | the value whose cumulative weight first exceeds `u`. A key that holds a whole number can only be varied this way, with whole-number values |
 
 A spread of zero is allowed: the input is then constant, and its sensitivity is reported
-as null with the reason, not as zero.
+as null with the reason, not as zero. A distribution that would give a value that is not a
+finite number (a `uniform` or `triangular` range too wide to represent, a tail that
+overflows) is refused before anything runs.
 
 ### `[[output]]`: one watched output
 
@@ -161,14 +163,14 @@ Either a scalar or a series. Output names are letters, digits, `_` or `-`.
 | `path` | a scalar result path, in the open campaign's grammar: dotted field names; `name[i]` takes element `i` of an array and counts from the end when `i` is negative, so `classical.series[-1].error_ns` is the last row |
 | `series` and `time` | instead of `path`: two paths with one `[]` segment each, for example `classical.series[].error_ns` and `classical.series[].t`. The output is then a band over time |
 | `limit` | optional `{ op, value }`, the value in the output's own unit. `op` is `lt`, `le`, `gt`, `ge`, or, for a symmetric guard, `abs_lt` or `abs_le` (the magnitude is below, or at most, the value) |
-| `unit` | only for a path the base kind's own units block does not describe. Otherwise the unit is read from the base run, and cannot be overridden by mistake |
+| `unit` | only for a path the base kind's own units block does not describe. Otherwise the unit is read from the base run; a declared `unit` that differs from it is refused, so a result never carries a unit the engine did not report |
 
 ### `[sampling]`
 
 | Field | Default | Meaning |
 |---|---|---|
 | `method` | `lhs` | `lhs` (Latin hypercube sampling) or `random` |
-| `n` | required, at least 2 | the size of the sample the statistics are taken over |
+| `n` | required, at least 2 | the size of the sample the statistics are taken over. One study makes at most 10,000,000 engine runs (`n`, or `n * (k + 2)` with `sobol`): every finished realisation is held in memory until the result is written |
 | `vary_seed` | `false` | realisation `k` runs with the engine seed `base + k`, `base` being the base scenario's own seed: the open campaign's rule |
 | `seed_key` | `seed` | the scenario key that holds the engine seed |
 | `keep_samples` | `true` | keep each realisation's value of each scalar output in the result |
@@ -334,6 +336,9 @@ of the engine's result document, and `error` (null, or why the run failed).
   realisation again, and says so. A line that does not parse anywhere else means the
   file was damaged or edited, and the resume is refused.
 - Without `--resume`, an existing `runs.jsonl` is never overwritten.
+- A new study does not start in a directory that holds result files (`uq.result.json`
+  and the others) but no `runs.jsonl`: those files belong to another run, and a stopped
+  run writes no result that would replace them.
 
 A study that was stopped and resumed, any number of times, ends with the same six files
 as an uninterrupted one, byte for byte. `tests/uncertainty.rs` checks exactly that.
@@ -366,7 +371,9 @@ is recorded with its error in `runs.jsonl`, counted in `runs.failed`, and listed
 `runs.failures[]`. It is never dropped and never counted as meeting a limit. Every
 statistic is over the successful realisations only, and the summary line and the report
 say so whenever a run failed. In a Sobol' design a failed run removes its whole row
-from the index estimate; `n_rows` says how many rows were used.
+from the index estimate; `n_rows` says how many rows were used. If every realisation fails, the
+study still finishes: each statistic, coefficient and index is null with its reason, and
+the probability of meeting a limit is 0.
 
 ## 6. How this relates to `campaign [monte_carlo]` and to `pro-batch`
 

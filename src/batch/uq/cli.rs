@@ -34,24 +34,25 @@ Files written to <dir>:\n\
 `kshana-pro run <study.toml>` runs the same study in memory, with no checkpoint, and\n\
 prints the result document.";
 
+/// The names of the files a finished study is written as, in [`output_files`] order.
+pub const RESULT_FILES: [&str; 5] = [
+    "uq.result.json",
+    "uq.bands.svg",
+    "uq.sensitivity.svg",
+    "uq.convergence.svg",
+    "uq.report.html",
+];
+
 /// The files a finished study is written as: `(file name, content)`.
 pub fn output_files(result: &StudyResult) -> Vec<(&'static str, String)> {
-    vec![
-        ("uq.result.json", format!("{}\n", result.json)),
-        (
-            "uq.bands.svg",
-            format!("{}\n", render::bands_svg(&result.doc)),
-        ),
-        (
-            "uq.sensitivity.svg",
-            format!("{}\n", render::sensitivity_svg(&result.doc)),
-        ),
-        (
-            "uq.convergence.svg",
-            format!("{}\n", render::convergence_svg(&result.doc)),
-        ),
-        ("uq.report.html", render::report_html(&result.doc)),
-    ]
+    let bodies = [
+        format!("{}\n", result.json),
+        format!("{}\n", render::bands_svg(&result.doc)),
+        format!("{}\n", render::sensitivity_svg(&result.doc)),
+        format!("{}\n", render::convergence_svg(&result.doc)),
+        render::report_html(&result.doc),
+    ];
+    RESULT_FILES.into_iter().zip(bodies).collect()
 }
 
 fn flag(args: &[String], name: &str) -> Option<String> {
@@ -89,10 +90,22 @@ pub fn run(args: &[String]) -> Result<u8, String> {
         .map_err(|e| format!("could not read {study_path}: {e}"))?;
     let dir = Path::new(&out_dir);
     std::fs::create_dir_all(dir).map_err(|e| format!("could not create {out_dir}: {e}"))?;
+    let checkpoint = dir.join(CHECKPOINT_FILE);
+    // A new study never starts beside the result files of another run: a stopped run
+    // writes no result, so an old `uq.result.json` would sit next to the new checkpoint
+    // and read as this study's result.
+    if !checkpoint.exists() {
+        if let Some(stale) = RESULT_FILES.iter().find(|f| dir.join(f).exists()) {
+            return Err(format!(
+                "{out_dir} already holds {stale} but no {CHECKPOINT_FILE}: those result files \
+                 belong to another run. Choose another output directory, or remove them first"
+            ));
+        }
+    }
 
     let opts = RunOptions {
         threads,
-        checkpoint: Some(dir.join(CHECKPOINT_FILE)),
+        checkpoint: Some(checkpoint),
         resume: args.iter().any(|a| a == "--resume"),
         max_runs,
     };

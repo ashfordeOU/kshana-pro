@@ -82,19 +82,26 @@ fn solve(mut m: Vec<Vec<f64>>, mut rhs: Vec<f64>) -> Option<Vec<f64>> {
     Some(x)
 }
 
-/// Regress `y` on the columns of `x` (rows are realisations).
-pub fn regress(x: &[Vec<f64>], y: &[f64]) -> SrcOutcome {
-    let n = y.len();
-    let k = x.first().map(Vec::len).unwrap_or(0);
-    let none = |reason: String| SrcOutcome {
+/// The outcome when nothing can be fitted over `n` realisations: each of the `k` inputs
+/// gets no coefficient, with `reason`.
+pub fn no_fit(k: usize, n: usize, reason: &str) -> SrcOutcome {
+    SrcOutcome {
         n,
-        entries: (0..k).map(|_| Err(reason.clone())).collect(),
+        entries: (0..k).map(|_| Err(reason.to_string())).collect(),
         r_squared: None,
         sum_src_squared: None,
         reliable: false,
-        statement: reason.clone(),
-        reason: Some(reason),
-    };
+        statement: reason.to_string(),
+        reason: Some(reason.to_string()),
+    }
+}
+
+/// Regress `y` on the columns of `x` (rows are realisations). With no row at all the
+/// number of inputs is unknown here; the caller uses [`no_fit`] instead.
+pub fn regress(x: &[Vec<f64>], y: &[f64]) -> SrcOutcome {
+    let n = y.len();
+    let k = x.first().map(Vec::len).unwrap_or(0);
+    let none = |reason: String| no_fit(k, n, &reason);
     if k == 0 {
         return none("the study has no uncertain input".to_string());
     }
