@@ -5,6 +5,18 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **The three Pro power features integrated on `feat/pro-power`: design optimiser,
+  uncertainty and sensitivity, and mission dossier.** Each was merged from its own branch
+  after an independent verification. The README count words each branch wrote
+  (seventeen packs, twenty integration tests) are superseded by the merged state: the
+  registry holds **eighteen** Pro packs (`pro-design-optimise` and `pro-uncertainty` are
+  new; the mission dossier is a command, not a scenario kind) and `tests/` holds
+  **twenty-two** integration tests (`design_optimise.rs`, `uncertainty.rs`,
+  `mission_dossier.rs` are new). The `kshana-pro --help` text now lists the `design`,
+  `uncertainty` and `mission` commands (they ran before but were not listed). The README
+  status tables name the two new packs and the `mission` module, and `docs/PRO-POWER.md`
+  summarises all three features and what is not done. No published number changes.
+
 - **Pro now builds on the integrated open engine: 75 open scenario kinds (was 63), all
   reachable through Pro. DEVELOPMENT PIN, not a release pin.** On branch `feat/pro-power`
   the `kshana` dependency points by path at a dedicated, read-only engine worktree
