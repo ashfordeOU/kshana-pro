@@ -65,7 +65,7 @@ a { color: var(--link); }
 <tbody id="rows"></tbody>
 </table>
 </div>
-<p class="foot">Evidence is the engine's own label on each result: VALIDATED (checked against an independent outside answer within a stated tolerance), MODELLED (built from sound physics and checked for internal consistency, not yet compared with an outside answer) or PARTNER (belongs to a hardware or product-assurance partner; nothing is claimed). Dossier and CI (continuous integration) results carry a label per figure inside the result. Times are the server's clock. <a href="ledger/verify">Verify the ledger</a> · <a href="openapi.json">OpenAPI document</a></p>
+<p class="foot">Evidence is the engine's own label on each result: VALIDATED (checked against an independent outside answer within a stated tolerance), MODELLED (built from sound physics and checked for internal consistency, not yet compared with an outside answer) or PARTNER (belongs to a hardware or product-assurance partner; nothing is claimed). A label that does not start with one of these words is shown as it is (hover the cell), with no tier assigned to it. A dossier result carries a label per figure inside it. A CI (continuous integration) report compares figures between runs: its ci.json carries no label and its report.html states MODELLED for the whole report. Times are the server's clock. <a href="ledger/verify">Verify the ledger</a> · <a href="openapi.json">OpenAPI document</a></p>
 </main>
 <script type="application/json" id="initial-jobs">__KSHANA_INITIAL_JOBS__</script>
 <script>
@@ -78,6 +78,15 @@ a { color: var(--link); }
     return e;
   }
   function link(href, text) { var a = el("a", null, text); a.href = href; return a; }
+  // What the result itself says about its evidence tier; never more than that.
+  function evidence(j) {
+    if (j.evidence_tier) return j.evidence_tier;
+    if (j.state !== "succeeded") return "—";
+    if (j.op === "dossier") return "per figure, in the result";
+    if (j.op === "ci") return "none in ci.json; report.html states MODELLED";
+    if (j.label) return "no tier word in the label";
+    return "none in the result";
+  }
   function render(page) {
     var tiles = document.getElementById("tiles");
     tiles.textContent = "";
@@ -99,7 +108,7 @@ a { color: var(--link); }
       var st = el("td"); st.appendChild(el("span", "pill " + j.state, j.state));
       if (j.state === "failed" && j.error) st.appendChild(el("div", "err", j.error));
       tr.appendChild(st);
-      var ev = el("td", null, j.evidence_tier || (j.state === "succeeded" ? "per figure, in the result" : "—"));
+      var ev = el("td", null, evidence(j));
       if (j.label) ev.title = j.label;
       tr.appendChild(ev);
       tr.appendChild(el("td", "num", j.submitted_utc || ""));

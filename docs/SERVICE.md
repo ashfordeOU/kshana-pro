@@ -16,9 +16,11 @@ Abbreviations used on this page, in full:
 | Abbreviation | Meaning |
 |---|---|
 | API | application programming interface |
+| CCSDS | Consultative Committee for Space Data Systems |
 | CI | continuous integration (here: Pack C, the scenario-subscription CI) |
 | CSV | comma-separated values |
 | DOP | dilution of precision (PDOP: position DOP) |
+| DSN | Deep Space Network |
 | HTML | HyperText Markup Language |
 | HTTP | HyperText Transfer Protocol |
 | JSON | JavaScript Object Notation |
@@ -40,7 +42,7 @@ kshana-pro serve --addr 127.0.0.1:8088 --data-dir /var/lib/kshana-pro --workers 
 
 | Flag | Meaning |
 |---|---|
-| `--data-dir <dir>` | Turns the job service on. The job store, the artefacts and the ledger live here. Without it the server answers exactly the routes it answered before, with the same behaviour. |
+| `--data-dir <dir>` | Turns the job service on. The job store, the artefacts and the ledger live here. Without it the server answers the routes it answered before, with the same behaviour, plus `GET /openapi.json`. |
 | `--workers <n>` | Worker threads for jobs, 1 to 64 (default 1). |
 | `--api-token-file <path>` | Every route except `GET /health` then needs `Authorization: Bearer <token>`. The file holds the token on one line. |
 | `--license <token>` | The entitlement the whole process serves at (a development build also accepts `--dev`). |
@@ -132,7 +134,13 @@ server's clock:
 ```
 
 The engine's own evidence label travels with the job (`label`, shortened here with
-"..."), and `evidence_tier` is its leading word: VALIDATED, MODELLED or PARTNER.
+"..."), and `evidence_tier` is its leading word: VALIDATED, MODELLED or PARTNER. Some
+open kinds write a label that does not start with a tier word (the `link-budget` label,
+for example, begins "One-way link budget over the CCSDS 401 / DSN 810-005 link
+equation"); such a job carries the label as it is and no `evidence_tier`, and the
+service assigns it none. A dossier result carries a label per figure inside it. A `ci`
+result (`ci.json`) carries no label; its `report.html` states MODELLED for the whole
+report.
 
 **Fetch the result.** `GET /jobs/<id>/result` returned the 194,023-byte result document,
 byte for byte the document a direct run of the same file gives (the acceptance test
@@ -324,7 +332,8 @@ between the ledger write and the status write is not recorded twice.
 Content-Security-Policy that allows connections only to the server itself). It embeds
 the current job list when served, so it shows real jobs at once, and refreshes from
 `GET /jobs` every 5 seconds. For each job it shows the operation, the kind, the state
-(with the error text of a failed job), the engine's evidence tier, the server-clock
+(with the error text of a failed job), the evidence tier the result itself states (and
+says so when it states none), the server-clock
 times, the attempts and links to the result and the artefacts.
 
 ## Limitations

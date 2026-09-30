@@ -570,6 +570,48 @@ fn the_ledger_verifies_and_names_a_changed_record() {
 
 // ─── 10. The access token ───────────────────────────────────────────────────────
 
+/// A spawned server process that is killed and reaped when this value is dropped, so a
+/// failing assertion (which unwinds past the end of the test) never leaves an orphaned
+/// server listening on a port.
+struct KillOnDrop(std::process::Child);
+
+impl Drop for KillOnDrop {
+    fn drop(&mut self) {
+        let _ = self.0.kill();
+        let _ = self.0.wait();
+    }
+}
+
+#[test]
+fn a_spawned_server_is_killed_when_its_guard_is_dropped() {
+    // The token test below spawns the real binary; if any of its assertions fails, the
+    // guard must still stop the process. Prove the guard does so on a panic.
+    let pid = std::panic::catch_unwind(|| {
+        let guard = KillOnDrop(
+            Command::new(env!("CARGO_BIN_EXE_kshana-pro"))
+                .args(["serve", "--dev", "--addr", "127.0.0.1:0"])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+                .expect("spawn the server binary"),
+        );
+        let pid = guard.0.id();
+        std::panic::panic_any(pid);
+    })
+    .expect_err("the closure panics")
+    .downcast::<u32>()
+    .map(|b| *b)
+    .expect("the panic carries the process identifier");
+    // `kill -0` succeeds only while a process with that identifier exists.
+    let alive = Command::new("kill")
+        .args(["-0", &pid.to_string()])
+        .stderr(Stdio::null())
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false);
+    assert!(!alive, "the server process {pid} outlived its guard");
+}
+
 #[test]
 fn the_access_token_guards_every_route_but_health_and_never_leaks() {
     let dir = fresh_dir("token");
@@ -582,16 +624,18 @@ fn the_access_token_guards_every_route_but_health_and_never_leaks() {
     std::fs::write(&token_file, format!("{token}\n")).unwrap();
     let data = dir.join("data");
 
-    let mut child = Command::new(env!("CARGO_BIN_EXE_kshana-pro"))
-        .args(["serve", "--dev", "--addr", "127.0.0.1:0", "--data-dir"])
-        .arg(&data)
-        .arg("--api-token-file")
-        .arg(&token_file)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .expect("spawn the server binary");
-    let mut err = BufReader::new(child.stderr.take().unwrap());
+    let mut child = KillOnDrop(
+        Command::new(env!("CARGO_BIN_EXE_kshana-pro"))
+            .args(["serve", "--dev", "--addr", "127.0.0.1:0", "--data-dir"])
+            .arg(&data)
+            .arg("--api-token-file")
+            .arg(&token_file)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("spawn the server binary"),
+    );
+    let mut err = BufReader::new(child.0.stderr.take().unwrap());
     let mut log = String::new();
     let addr: SocketAddr = loop {
         let mut line = String::new();
@@ -696,8 +740,7 @@ fn the_access_token_guards_every_route_but_health_and_never_leaks() {
         200,
     );
 
-    child.kill().unwrap();
-    let _ = child.wait();
+    drop(child); // kills the server and reaps it, so its stderr reaches end of file
     log.push_str(&reader.join().unwrap());
     assert!(log.contains("access token: required"), "{log}");
     assert!(
@@ -926,9 +969,17 @@ fn a_ci_job_equals_the_pack_c_run_on_the_same_files() {
         get(addr, &format!("/jobs/{id}/artefacts/ci.json")).body,
         want.to_json()
     );
-    assert!(get(addr, &format!("/jobs/{id}/artefacts/report.html"))
-        .body
-        .contains("<html"));
+    let report = get(addr, &format!("/jobs/{id}/artefacts/report.html")).body;
+    assert!(report.contains("<html"));
+    // What the job board and the guide say about a ci job's evidence label must stay
+    // true: ci.json carries no tier word, and report.html states MODELLED.
+    let result = get(addr, &format!("/jobs/{id}/result")).body;
+    for tier in ["VALIDATED", "MODELLED", "PARTNER"] {
+        assert!(!result.contains(tier), "ci.json now carries {tier}");
+    }
+    assert!(report.contains("MODELLED"));
+    let st = get(addr, &format!("/jobs/{id}")).json();
+    assert!(st.get("evidence_tier").is_none(), "{st}");
     srv.stop();
 }
 
@@ -953,6 +1004,32 @@ fn the_job_board_is_self_contained_and_lists_real_jobs() {
         );
     }
     assert!(page.head.contains("Content-Security-Policy"));
+
+    // A label with no leading tier word is carried as it is, and no tier is assigned:
+    // the engine's link-budget label begins with a description, not a tier.
+    let lb = submit_run(addr, &fixture("link-budget.toml"));
+    let st = wait_finished(addr, &lb);
+    assert_eq!(st["state"], "succeeded");
+    let want: Value = serde_json::from_str(&direct(&fixture("link-budget.toml")).json).unwrap();
+    assert_eq!(st["label"], want["label"]);
+    let label = st["label"]
+        .as_str()
+        .expect("the link-budget result has a label");
+    assert!(
+        !["VALIDATED", "MODELLED", "PARTNER"]
+            .iter()
+            .any(|t| label.trim_start().starts_with(t)),
+        "this check needs a label with no leading tier word: {label}"
+    );
+    assert!(st.get("evidence_tier").is_none(), "{st}");
+    // The page never tells a reader that a result carries labels it does not carry.
+    let page = get(addr, "/").body;
+    assert!(page.contains("no tier word in the label"));
+    assert!(page.contains("its ci.json carries no label"));
+    assert!(
+        !page.contains("CI (continuous integration) results carry a label per figure"),
+        "the board must not claim per-figure labels for ci results"
+    );
     srv.stop();
 }
 

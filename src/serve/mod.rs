@@ -380,8 +380,8 @@ fn study_route(body: &str, entitlement: &Entitlement, now: i64) -> HttpResponse 
 }
 
 /// Run the blocking HTTP server, one thread per connection. Each connection serves
-/// exactly one request (Connection: close). No data directory: exactly the routes and
-/// behaviour the service had before the job service existed.
+/// exactly one request (Connection: close). No data directory: the routes and behaviour
+/// the service had before the job service existed, plus `GET /openapi.json`.
 pub fn serve(addr: &str, entitlement: Entitlement) -> std::io::Result<()> {
     serve_with(ServeConfig::new(addr, entitlement))
 }

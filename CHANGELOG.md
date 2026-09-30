@@ -136,11 +136,12 @@ own bullet so parallel work merges cleanly.
   above. No new crate dependency, no asynchronous runtime, no outbound connection. The
   compose files mount a data volume, and `deploy/DEPLOY.md` covers the routes, the data
   directory, backup and restore, and the token file. Guide: `docs/SERVICE.md`. Tests:
-  `tests/service_jobs.rs` (18 tests over real sockets: the 5000-satellite design and the
+  `tests/service_jobs.rs` (19 tests over real sockets: the 5000-satellite design and the
   200-seed campaign byte-identical to direct runs, idempotence, restart recovery with a
   control that fails without recovery, entitlement, failure, hostile input, the OpenAPI
   document against the route table both ways, ledger tampering, the token, `POST /study`
   with and without a data directory, the outgoing-socket scan, three workers, the `ci`
-  operation and the job board), on public engine scenarios recorded in
+  operation, the job board, and a guard that stops a spawned server when a test fails),
+  on public engine scenarios recorded in
   `tests/fixtures/service/PROVENANCE.md`. The README states twenty integration tests
   (was nineteen).
