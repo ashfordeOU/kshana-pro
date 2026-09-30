@@ -311,7 +311,7 @@ impl Run {
                 (Some(k.to_string()), "report.json `kind`".to_string())
             } else if let Some(k) = str_at(&result, &["kind"]) {
                 (Some(k.to_string()), "result.json `kind`".to_string())
-            } else if let Some(k) = scenario_kind {
+            } else if let Some(k) = scenario_kind.clone() {
                 (Some(k), "scenario `kind`".to_string())
             } else if scenario_src.is_some() {
                 (
@@ -403,6 +403,30 @@ impl Run {
                 integrity_problems.push(format!(
                     "the scenario file changed after the run: report records SHA-256 {rec}, the file now hashes to {act}; re-run the engine"
                 ));
+            }
+        }
+        // Without a report nothing hashes the scenario against the run, so check what
+        // the scenario itself states against what the run stamped: a scenario file of
+        // another kind, or with another seed, is not the input of this run.
+        if let Some(src) = scenario_src.as_deref() {
+            let stated = report
+                .as_ref()
+                .and_then(|r| str_at(r, &["kind"]))
+                .or_else(|| str_at(&result, &["kind"]));
+            let sk = scenario_kind.clone().unwrap_or_else(|| "clock".to_string());
+            if let Some(rk) = stated {
+                if rk != sk {
+                    integrity_problems.push(format!(
+                        "the scenario file is not this run's input: it is of kind '{sk}', the run is of kind '{rk}'"
+                    ));
+                }
+            }
+            if let (Some(ss), Some(rs)) = (kshana_pro_peek_seed(src), stamp.seed) {
+                if ss != rs {
+                    integrity_problems.push(format!(
+                        "the scenario file is not this run's input: it sets seed {ss}, the run stamped seed {rs}"
+                    ));
+                }
             }
         }
         if let Some(rec) = &stamp.result_sha256_recorded {
@@ -512,6 +536,12 @@ impl Run {
             ),
         })
     }
+}
+
+/// The top-level `seed` key of a scenario TOML, if it has a non-negative integer one.
+fn kshana_pro_peek_seed(src: &str) -> Option<u64> {
+    let v: toml::Value = toml::from_str(src).ok()?;
+    u64::try_from(v.get("seed")?.as_integer()?).ok()
 }
 
 /// The `kind` key of a scenario TOML, if it has one.

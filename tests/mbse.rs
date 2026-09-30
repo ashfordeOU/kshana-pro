@@ -414,6 +414,79 @@ fn altered_evidence_is_not_verified() {
 }
 
 #[test]
+fn a_scenario_file_from_another_run_is_not_verified() {
+    // A trace may name a scenario without a report, and then no hash ties the two. The
+    // scenario's own kind and seed must still agree with what the run stamped, or the
+    // SysML parts and change impact would describe a system the run never simulated.
+    let d = copy_fixtures("wrong-scenario");
+    std::fs::write(
+        d.join("reqs.csv"),
+        "id,text,method,criterion,runs\n\
+         W-1,CSAC p95.,analysis,classical.fom.timing_p95_ns <= 20 ns,RUN-A\n\
+         W-2,SISRE.,analysis,navmsg.sisre_rms_m <= 30 cm,RUN-B\n\
+         W-3,CSAC p95.,analysis,classical.fom.timing_p95_ns <= 20 ns,RUN-C\n",
+    )
+    .unwrap();
+    let t = |a_scen: &str, b_scen: &str| {
+        format!(
+            "title = \"t\"\nrequirements = \"reqs.csv\"\n\
+             field_units_schema = \"engine/field-units-schema.json\"\n\
+             [[run]]\nid = \"RUN-A\"\n\
+             result = \"runs/clock-holdover/clock-holdover.result.json\"\n\
+             scenario = \"{a_scen}\"\n\
+             [[run]]\nid = \"RUN-B\"\n\
+             result = \"runs/leo-pnt-end-to-end/leo-pnt-end-to-end.result.json\"\n\
+             scenario = \"{b_scen}\"\n\
+             [[run]]\nid = \"RUN-C\"\n\
+             result = \"runs/clock-holdover/clock-holdover.result.json\"\n\
+             scenario = \"runs/clock-holdover-retuned/clock-holdover-retuned.toml\"\n"
+        )
+    };
+    // Right scenarios: both verify (no report, so nothing else is checked). RUN-C shows
+    // the limit of the check: a retuned clock scenario has the same kind and seed.
+    std::fs::write(
+        d.join("good.toml"),
+        t(
+            "runs/clock-holdover/clock-holdover.toml",
+            "runs/leo-pnt-end-to-end/leo-pnt-end-to-end.toml",
+        ),
+    )
+    .unwrap();
+    let v = vcrm(&Trace::load(&d.join("good.toml")).unwrap());
+    for id in ["W-1", "W-2", "W-3"] {
+        assert_eq!(row(&v, id).verdict, Verdict::Met, "{id}");
+    }
+    // Swapped: the clock result (seed 42, no kind) with the RAIM scenario (seed 7), and
+    // the LEO result (kind leo-pnt-chain) with the clock scenario (default kind clock).
+    std::fs::write(
+        d.join("bad.toml"),
+        t(
+            "runs/integrity-raim/integrity-raim.toml",
+            "runs/clock-holdover/clock-holdover.toml",
+        ),
+    )
+    .unwrap();
+    let v = vcrm(&Trace::load(&d.join("bad.toml")).unwrap());
+    let a = &row(&v, "W-1").cells[0];
+    assert_eq!(a.verdict, Verdict::NotVerified);
+    assert!(
+        a.reason.as_deref().unwrap().contains("sets seed 7"),
+        "{:?}",
+        a.reason
+    );
+    let b = &row(&v, "W-2").cells[0];
+    assert_eq!(b.verdict, Verdict::NotVerified);
+    assert!(
+        b.reason
+            .as_deref()
+            .unwrap()
+            .contains("of kind 'clock', the run is of kind 'leo-pnt-chain'"),
+        "{:?}",
+        b.reason
+    );
+}
+
+#[test]
 fn trace_links_carry_the_stamps() {
     let v = vcrm(&trace());
     let links = v.links_json();
@@ -489,6 +562,31 @@ fn sysml_export_is_golden_valid_and_round_trips() {
 }
 
 #[test]
+fn sysml_export_never_writes_a_nan_scenario_value_as_a_number() {
+    // TOML allows `nan` and `inf`; SysML v2 has no literal for them. The export must
+    // leave such a key out rather than write a number the scenario does not hold.
+    let d = copy_fixtures("sysml-nan");
+    let sc = d.join("runs/clock-holdover/clock-holdover.toml");
+    let src = std::fs::read_to_string(&sc).unwrap();
+    assert!(src.contains("q_rw = 0.0"));
+    std::fs::write(&sc, src.replacen("q_rw = 0.0", "q_rw = nan", 1)).unwrap();
+    let t = Trace::load(&d.join("trace.toml")).unwrap();
+    let text = sysml::export(&t, &vcrm(&t));
+    sysml::check(&text).expect("still in the subset");
+    let clock = text
+        .split("part 'RUN-CLOCK' {")
+        .nth(1)
+        .and_then(|s| s.split("part 'RUN-RAIM' {").next())
+        .expect("the clock run's parts");
+    // Two clocks in the scenario; only the untouched one keeps its q_rw.
+    assert_eq!(
+        clock.matches("attribute :>> q_rw = 0.0;").count(),
+        1,
+        "{clock}"
+    );
+}
+
+#[test]
 fn sysml_checker_rejects_a_broken_export() {
     let t = trace();
     let text = sysml::export(&t, &vcrm(&t));
@@ -551,6 +649,49 @@ fn impact_of_a_capability_label_change_between_engine_versions() {
         row(&vcrm(&new), "CLK-005").cells[0].basis.label,
         "VALIDATED"
     );
+}
+
+#[test]
+fn impact_catches_a_changed_result_when_no_stamp_identifies_the_run() {
+    // The integrity kind stamps no scenario_hash, and a trace may give only the result
+    // file (no report, no scenario). Then no stamp tells the two runs apart, and only the
+    // result file's own SHA-256 shows that the evidence changed.
+    let d = copy_fixtures("impact-result-only");
+    let raim = "runs/integrity-raim/integrity-raim.result.json";
+    let mut v: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(d.join(raim)).unwrap()).unwrap();
+    v["al_h_m"] = serde_json::json!(8.0);
+    std::fs::write(d.join("changed.result.json"), v.to_string()).unwrap();
+    std::fs::write(
+        d.join("reqs.csv"),
+        "id,text,method,criterion,runs\n\
+         INT-X,HPL below HAL.,analysis,epochs.hpl_m < al_h_m for all epochs,RUN-RAIM\n",
+    )
+    .unwrap();
+    let t = |result: &str| {
+        format!(
+            "title = \"t\"\nrequirements = \"reqs.csv\"\n\
+             field_units_schema = \"engine/field-units-schema.json\"\n\
+             [[run]]\nid = \"RUN-RAIM\"\nresult = \"{result}\"\n"
+        )
+    };
+    std::fs::write(d.join("a.toml"), t(raim)).unwrap();
+    std::fs::write(d.join("b.toml"), t("changed.result.json")).unwrap();
+    std::fs::write(d.join("c.toml"), t(raim)).unwrap();
+    let a = Trace::load(&d.join("a.toml")).unwrap();
+    let im = impact::compare(&a, &Trace::load(&d.join("b.toml")).unwrap());
+    assert_eq!(im.reverify.len(), 1, "{}", im.to_markdown());
+    assert!(
+        im.reverify[0]
+            .reasons
+            .iter()
+            .any(|r| r.contains("result file changed")),
+        "{:?}",
+        im.reverify[0].reasons
+    );
+    // The same file on both sides is not a change.
+    let same = impact::compare(&a, &Trace::load(&d.join("c.toml")).unwrap());
+    assert!(same.reverify.is_empty(), "{}", same.to_markdown());
 }
 
 #[test]

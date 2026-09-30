@@ -210,8 +210,13 @@ comparison and the first failing (or closest) element.
 **Integrity checks.** When the report is present, the SHA-256 of the scenario file must
 equal the report's `scenario_sha256` (so a scenario edited after the run is caught) and
 the SHA-256 of the result file must equal the report's `result_sha256`. The result and
-report must agree on the engine version. Any failure makes every verdict on that run
-not verified and adds an open item.
+report must agree on the engine version. When a scenario file is given, with or
+without a report, its `kind` (the engine's default kind, `clock`, when it has none) must
+equal the kind the report or result states, and its top-level `seed` must equal the seed
+the run stamped, so a scenario file from another run is caught. Without a report this is
+the only check tying the scenario to the run: a scenario of the same kind and seed with
+other values (a retuned clock, say) is not caught, so keep the report with every run.
+Any failure makes every verdict on that run not verified and adds an open item.
 
 **Basis.** Every verdict carries the label of the evidence it rests on: VALIDATED,
 MODELLED or PARTNER. The label is the weakest of:
@@ -273,7 +278,8 @@ name, and resolves every name used for typing, satisfy, verify and units to an e
 in the file or to one of the standard-library names the export uses.
 
 Round trips: CSV to ReqIF and back, and CSV to SysML v2 and back, are lossless for the
-requirement fields. A requirements-only SysML model (`import --to sysml`) has no verify
+requirement fields, with one exception: a SysML v2 comment has no escape for its own
+terminator, so a `*/` in a requirement's text is written as `* /` in the SysML v2 file. A requirements-only SysML model (`import --to sysml`) has no verify
 relationships, so run links are carried only by the full export.
 
 ## 5. Change impact
@@ -289,7 +295,9 @@ With two traces, a requirement needs re-verification when a linked run's
 `scenario_hash` changed (for a kind whose result carries none, its scenario SHA-256),
 its `engine_version` or `seed` changed, a capability label its run rests on changed
 between the two verification matrices or reports, a pinned capability's label changed,
-or its criterion, method or links changed. Both matrices are evaluated and each
+or its criterion, method or links changed. When none of the run's stamps differ (for
+example a kind with no `scenario_hash` traced without its report or scenario file), a
+change in the result file's own SHA-256 is reported instead. Both matrices are evaluated and each
 requirement shows its verdict before and after.
 
 With two scenario files, the files are compared key by key after parsing, so comments
@@ -331,7 +339,9 @@ check off in debug builds only; a release build refuses it.
   SHA-256 stands in for it in evidence and change impact.
 - SysML parts come from scenario tables whose names denote a system; other tables are
   left out, and a unit given only by a key suffix is a naming convention, not a
-  statement by the engine. The export says which applies to each attribute.
+  statement by the engine. The export says which applies to each attribute. A
+  scenario value of `nan` or `inf` has no SysML v2 literal and is left out of the
+  export.
 - Simulation evidence counts as analysis. For a test, inspection or demonstration
   requirement a met criterion supports the requirement but does not replace the test,
   inspection or demonstration; the pack lists it as an open item.

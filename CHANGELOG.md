@@ -22,17 +22,19 @@ own bullet so parallel work merges cleanly.
   VALIDATED / MODELLED / PARTNER label the verdict rests on (from `figure_tiers`, the
   schema's `evidence_tier`, the report's `capabilities.rows` and the verification
   matrix), so a MODELLED or PARTNER basis is flagged. A scenario or result file whose
-  SHA-256 no longer matches its report makes the run's verdicts not verified. The SysML
+  SHA-256 no longer matches its report, or a scenario file whose `kind` or `seed`
+  disagrees with the run's, makes the run's verdicts not verified. The SysML
   v2 export (part definitions for the simulated clocks, receivers, constellations and
   jammers with units from the schema, requirement definitions, verification cases per
   run, `satisfy` only where met) passes an in-repository checker for the grammar subset
   it uses, documented in `docs/MBSE.md`. Change impact lists the requirements to
   re-verify between two traces (scenario hash, engine version, seed or capability label
-  changed) or two scenario files (keys compared after parsing). The evidence pack is one
+  changed, or, when no stamp tells the runs apart, the result file's SHA-256) or two
+  scenario files (keys compared after parsing). The evidence pack is one
   offline HTML page plus JSON with the VCRM, a traceability graph, the reproducibility
   record of every run, open items and a sign-off table, hashed for reproducibility. The
   commands need the `pro-mbse` feature (Enterprise tier), gated exactly like `ci` and
-  `study`. Tests: `tests/mbse.rs` (19 tests) over real `kshana 0.28.0` runs of
+  `study`. Tests: `tests/mbse.rs` (22 tests) over real `kshana 0.28.0` runs of
   clock-holdover, integrity-raim, campaign-jam-spoof-holdover-integrity,
   leo-pnt-end-to-end and a re-specified clock-holdover, committed with their provenance
   in `tests/fixtures/mbse/`, plus unit tests in each new module. The README states
