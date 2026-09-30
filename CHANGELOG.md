@@ -110,3 +110,25 @@ own bullet so parallel work merges cleanly.
   count, stops matching the registry or `tests/`. Tests: `tests/study_dossier.rs`
   (determinism, tier split, the binary end to end and its licence gate) and unit tests
   in `src/study_dossier.rs`.
+- **Spectrum coexistence (new Pro power track, feature and kind `pro-spectrum-coexistence`).**
+  `kshana-pro coexist <study.toml> --out <dir>` tests whole candidate signal plans (a signal
+  design plus a constellation) against every open-service global navigation satellite
+  system (GNSS) signal the open engine models (GPS L1 C/A and L5; Galileo E1, E5a, E5b and
+  the E5 alternative binary offset carrier (AltBOC) signal), in both directions, over a
+  worldwide grid, and gives a verdict per plan and signal against the study's own
+  `max_degradation_db` and `limit_source` (both required; no limit is built in). Method:
+  effective carrier-to-noise density C/(N0 + I) (International Telecommunication Union
+  Recommendation ITU-R M.1831; Betz 2001; Kaplan and Hegarty section 9.4). Every physical
+  number is read from open `leo-signal` and `constellation-design` runs; the pack adds only
+  the aggregation and ranks plans with `kshana::mcda::pareto`. The result is labelled a
+  MODELLED upper bound (every satellite in view at the maximum received power, no
+  elevation-dependent power, no receive-antenna pattern), lists every open run with the
+  SHA-256 of its scenario and result, and stops if its rebuilt single-satellite loss
+  differs from the open run's by more than 1e-9 dB. Refused: any table named for jammers,
+  spoofers, attacks or threats; any victim outside the open list (GPS L2C included: the
+  open engine has no compatibility model for it). No jammer-tolerance field is carried
+  through. Outputs: result JSON, matrix, map and Pareto charts (SVG), a self-contained HTML
+  report; `kshana-pro run` prints the JSON. New: `src/spectrum_coexistence/`,
+  `src/packs/spectrum_coexistence_pack.rs`, `scenarios/pro-power/coexistence/`,
+  `tests/spectrum_coexistence.rs`, `docs/SPECTRUM-COEXISTENCE.md`. Seventeen Pro packs,
+  twenty integration tests.

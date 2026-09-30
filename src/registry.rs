@@ -25,6 +25,7 @@ use crate::packs::optimism_gap_audit::OptimismGapAuditScenario;
 use crate::packs::quantum_systematics_pack::QuantumSystematicsScenario;
 use crate::packs::realtime_frame_eop_study_pack::RealtimeFrameEopStudyScenario;
 use crate::packs::seam_check::SeamCheckPack;
+use crate::packs::spectrum_coexistence_pack::SpectrumCoexistenceScenario;
 use crate::packs::trade_study_pack::TradeStudyScenario;
 use crate::packs::twin_pack::TwinScenario;
 
@@ -89,6 +90,7 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         ConflictResilienceStudyScenario::KIND => {
             Some(parse::<ConflictResilienceStudyScenario>(kind, src))
         }
+        SpectrumCoexistenceScenario::KIND => Some(parse::<SpectrumCoexistenceScenario>(kind, src)),
         _ => None,
     }
 }
@@ -114,6 +116,7 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
         OpticalRfHybridStudyScenario::meta_static(),
         CislunarObservabilityStudyScenario::meta_static(),
         ConflictResilienceStudyScenario::meta_static(),
+        SpectrumCoexistenceScenario::meta_static(),
     ]
 }
 
@@ -256,7 +259,7 @@ where
 /// [`kshana::registry::PackRegistry`].
 ///
 /// It starts from every open built-in
-/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 16
+/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 17
 /// Pro packs through the public [`ExternalPack::register_into`] seam. The union is
 /// therefore assembled entirely through stable public API: the open half is the open
 /// core's own table (never re-listed here, so it cannot drift), and the Pro half is
@@ -284,6 +287,7 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     OpticalRfHybridStudyScenario::register_into(&mut reg);
     CislunarObservabilityStudyScenario::register_into(&mut reg);
     ConflictResilienceStudyScenario::register_into(&mut reg);
+    SpectrumCoexistenceScenario::register_into(&mut reg);
     reg
 }
 
@@ -617,6 +621,30 @@ lower_is_better = true
                  rho_values = [0.0, 0.8]\n\
                  trials = 300\n\
                  sensitivity_samples = 100\n"
+            }
+            SpectrumCoexistenceScenario::KIND => {
+                // One satellite, a coarse grid and a short span: the real study through
+                // two open kinds, fast enough for a unit test.
+                r#"kind = "pro-spectrum-coexistence"
+title = "registry test"
+max_degradation_db = 1.0
+limit_source = "test limit"
+victims = ["gps-l5"]
+
+[grid]
+grid_step_deg = 45.0
+duration_s = 600.0
+step_s = 300.0
+
+[[plan]]
+label = "one"
+signal = "generic-l"
+mask_deg = 10.0
+
+[[plan.satellite]]
+altitude_km = 1000.0
+inclination_deg = 53.0
+"#
             }
             other => panic!("no test source defined for Pro kind '{other}'"),
         }

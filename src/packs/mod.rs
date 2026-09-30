@@ -22,6 +22,7 @@ pub mod optimism_gap_audit;
 pub mod quantum_systematics_pack;
 pub mod realtime_frame_eop_study_pack;
 pub mod seam_check;
+pub mod spectrum_coexistence_pack;
 pub mod study_pdf;
 pub mod trade_study_pack;
 pub mod twin_pack;
