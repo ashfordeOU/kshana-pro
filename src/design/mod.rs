@@ -65,6 +65,7 @@ fn default_generations() -> usize {
 
 /// One `[[objective]]`: a name, a sense, and where the number comes from.
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ObjectiveSpec {
     pub name: String,
     /// `min` or `max`.
@@ -82,6 +83,7 @@ pub struct ObjectiveSpec {
 
 /// The `[search]` table.
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct SearchSpec {
     /// `exhaustive`, `nsga2` or `auto`.
     #[serde(default = "default_method")]
@@ -112,6 +114,7 @@ impl Default for SearchSpec {
 
 /// The `[reference]` table: a design to place against the front.
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ReferenceSpec {
     pub label: String,
     /// The reference as one value per variable.
@@ -123,8 +126,17 @@ pub struct ReferenceSpec {
 }
 
 /// A design study, as written in a study file.
+///
+/// A key the study file format does not have is an error, at every level. A misspelt
+/// table (`[[constraints]]` for `[[constraint]]`) would otherwise be ignored and the study
+/// would return a front as if the constraint held.
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct Study {
+    /// The `kind` line of the file. It may be left out; when present it must be
+    /// [`KIND`]. It is not part of the study hash, which states the kind itself.
+    #[serde(default, skip_serializing)]
+    pub kind: Option<String>,
     pub title: String,
     #[serde(default = "default_seed")]
     pub seed: u64,
@@ -182,6 +194,13 @@ impl Study {
 
     /// Check the study against its base scenario.
     pub fn resolve(&self) -> Result<Resolved, KshanaError> {
+        if let Some(kind) = &self.kind {
+            if kind != KIND {
+                return Err(invalid(format!(
+                    "the file is a `{kind}` scenario, not a design study (kind = \"{KIND}\")"
+                )));
+            }
+        }
         let base: toml::Value = toml::from_str(&self.base_scenario)
             .map_err(|e| invalid(format!("base_scenario is not valid TOML: {e}")))?;
         let base_kind = base
@@ -821,16 +840,22 @@ pub fn run_resolved(r: &Resolved, opts: &Options) -> Result<Outcome, KshanaError
         .and_then(|f| f.engine_version.clone())
         .unwrap_or_else(engine_version);
     let base_label = facts.and_then(|f| f.label.clone());
+    // A unit the engine states is never replaced by one written in the study file; the
+    // study's unit is used only where the engine states none.
+    let objective_engine_unit = |k: usize| -> Option<String> {
+        match &r.objectives[k].source {
+            Source::Result { .. } => facts
+                .and_then(|f| f.objective_units.get(k).cloned().flatten())
+                .map(|(u, _)| u),
+            Source::Variable(i) => engine_variable_unit(facts, *i),
+        }
+    };
     let objective_unit = |k: usize| -> String {
         let o = &r.objectives[k];
-        o.unit
-            .clone()
-            .or_else(|| match &o.source {
-                Source::Result { .. } => facts
-                    .and_then(|f| f.objective_units.get(k).cloned().flatten())
-                    .map(|(u, _)| u),
-                Source::Variable(i) => variable_unit_of(r, facts, *i),
-            })
+        // For an objective that is a variable, `o.unit` already falls back to the
+        // variable's own `unit`.
+        objective_engine_unit(k)
+            .or_else(|| o.unit.clone())
             .unwrap_or_else(|| UNSTATED.to_string())
     };
 
@@ -1250,6 +1275,10 @@ pub fn run_resolved(r: &Resolved, opts: &Options) -> Result<Outcome, KshanaError
         if u == UNSTATED {
             note.push_str(NO_UNIT_NOTE);
         }
+        note.push_str(&overridden_note(
+            v.unit.as_deref(),
+            engine_variable_unit(facts, i).as_deref(),
+        ));
         for g in ["evaluated[]", "front[]", "knee", "reference"] {
             unit(&format!("{g}.variables.{}", v.name), &u, "input", &note);
         }
@@ -1277,6 +1306,10 @@ pub fn run_resolved(r: &Resolved, opts: &Options) -> Result<Outcome, KshanaError
         if u == UNSTATED {
             note.push_str(NO_UNIT_NOTE);
         }
+        note.push_str(&overridden_note(
+            o.unit.as_deref(),
+            objective_engine_unit(k).as_deref(),
+        ));
         for g in ["evaluated[]", "front[]", "knee", "reference"] {
             unit(&format!("{g}.objectives.{}", o.name), &u, provenance, &note);
         }
@@ -1467,9 +1500,22 @@ pub fn run_resolved(r: &Resolved, opts: &Options) -> Result<Outcome, KshanaError
 pub const UNSTATED: &str = "unstated - see note";
 const NO_UNIT_NOTE: &str = "; neither the engine's result nor the study states a unit for it (set `unit` in the study file)";
 
+/// The unit the engine's own result states for variable `i`, when it states one.
+fn engine_variable_unit(facts: Option<&RunFacts>, i: usize) -> Option<String> {
+    facts.and_then(|f| f.variable_units.get(i).cloned().flatten())
+}
+
+/// The unit of variable `i`: the engine's when it states one, otherwise the study's.
 fn variable_unit_of(r: &Resolved, facts: Option<&RunFacts>, i: usize) -> Option<String> {
-    r.space.variables[i]
-        .unit
-        .clone()
-        .or_else(|| facts.and_then(|f| f.variable_units.get(i).cloned().flatten()))
+    engine_variable_unit(facts, i).or_else(|| r.space.variables[i].unit.clone())
+}
+
+/// What a units note says when the study file writes a unit the engine contradicts.
+fn overridden_note(written: Option<&str>, engine: Option<&str>) -> String {
+    match (written, engine) {
+        (Some(w), Some(e)) if w != e => format!(
+            "; the study file states '{w}', but the engine's result states '{e}', which is used"
+        ),
+        _ => String::new(),
+    }
 }

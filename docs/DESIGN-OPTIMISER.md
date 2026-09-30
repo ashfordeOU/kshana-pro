@@ -52,6 +52,13 @@ This writes five things into `out/`:
 `kshana-pro run <study.toml>` runs the same study and prints the JSON, so a study also runs
 through the service and the registry like any other scenario kind (`pro-design-optimise`).
 
+If `out/front/` already exists, the `index.csv` and `NNN.toml` files of an earlier run are
+replaced and every other file in it is left alone.
+
+The report and the chart show a number with up to four decimals, or with four significant
+digits when it is below 0.1 (0.001234, 4e-6), so a small value is never shown as 0. The
+JSON and the CSV hold every number in full.
+
 To open a front design in free Kshana, run the file with the open engine:
 
 ```bash
@@ -74,7 +81,9 @@ wrote, or the value of a design variable.
 
 ## The study file
 
-A study is a TOML file.
+A study is a TOML file. A key the format does not have is an error, at every level: a
+misspelt table such as `[[constraints]]` stops the study with the name of the key, instead
+of being ignored and leaving a front that looks as if the constraint held.
 
 ```toml
 kind = "pro-design-optimise"
@@ -138,7 +147,7 @@ scenario = '''
 
 | Key | Meaning |
 |---|---|
-| `kind` | `pro-design-optimise` |
+| `kind` | `pro-design-optimise`. `kshana-pro run` finds the study by it; `kshana-pro design` accepts a file without it and refuses any other kind. |
 | `title` | Shown on the chart and the report |
 | `seed` | Seed of the search's random numbers (default 1). It matters only for NSGA-II. |
 | `base_scenario` | A complete open scenario as a TOML string. Every design is this scenario with the variables' values written in. |
@@ -150,7 +159,7 @@ scenario = '''
 | `name` | The name used by constraints, objectives, the reference and the outputs |
 | `key` | Dotted path of the key in the base scenario, with `[i]` for an element of an array of tables, for example `constellation[0].shell[0].inclination_deg`. The key must already exist in the base scenario. |
 | `type` | `real` or `integer` (a range: `min`, `max`, `step`; `step` defaults to 1 for an integer) or `choice` (a list: `values`, of numbers, strings or booleans) |
-| `unit` | Optional. Used in the outputs when the engine's result does not state a unit for the key. |
+| `unit` | Optional. Used in the outputs when the engine's result does not state a unit for the key. A unit the engine states is never replaced: if the study writes a different one, the engine's is used and the note in the `units` block says so. |
 
 Every variable is a finite list of levels, so a real variable is searched on a grid. A
 value is written in the type the base scenario's key already has: a float key stays a
@@ -173,6 +182,9 @@ Two or three objectives. Each has a `name`, a `sense` (`min` or `max`) and exact
 |---|---|
 | `path` | A path into the run's result document, for example `global.pdop.p95` |
 | `variable` | The name of a design variable, for example the satellite count |
+
+An objective may also carry a `unit`, used the same way as a variable's: only where the
+engine's result states none.
 
 ### `[search]`
 

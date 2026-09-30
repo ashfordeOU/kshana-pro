@@ -83,6 +83,20 @@ fn readme_pro_pack_count_matches_the_registry() {
             "README says {n} Pro packs; src/registry.rs registers {registered}"
         );
     }
+    // The sentence under "Built Pro packs" states the count a third time ("the full list
+    // of the <count> registered in src/registry.rs"); it stayed at sixteen when the
+    // seventeenth pack landed.
+    let third = claims("registered in");
+    assert!(
+        !third.is_empty(),
+        "README no longer states how many packs are registered in src/registry.rs"
+    );
+    for n in third {
+        assert_eq!(
+            n, registered,
+            "README says {n} registered in src/registry.rs; it registers {registered}"
+        );
+    }
 }
 
 #[test]

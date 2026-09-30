@@ -170,6 +170,7 @@ pub fn units_key(path: &str) -> String {
 
 /// One `[[variable]]` of a study file.
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct VariableSpec {
     /// The name used by constraints, objectives, the reference design and the outputs.
     pub name: String,
@@ -195,6 +196,7 @@ pub struct VariableSpec {
 /// `walker = { total, planes, phasing }`: the three named variables must form a Walker
 /// pattern (planes divides total, and phasing is in `0..planes`).
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct WalkerSpec {
     pub total: String,
     pub planes: String,
@@ -204,6 +206,7 @@ pub struct WalkerSpec {
 
 /// `result = { path, op, value }`: a condition on a number of the run's result.
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ResultConstraintSpec {
     pub path: String,
     /// One of `<=`, `<`, `>=`, `>`, `==`, `!=`.
@@ -213,6 +216,7 @@ pub struct ResultConstraintSpec {
 
 /// One `[[constraint]]`: exactly one of `walker` or `result`.
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstraintSpec {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub walker: Option<WalkerSpec>,

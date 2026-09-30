@@ -140,3 +140,22 @@ own bullet so parallel work merges cleanly.
   corrected and the bar was not moved). The feature falls to the default, fail-closed
   licence tier. Guide: `docs/DESIGN-OPTIMISER.md`. Tests: `tests/design_optimise.rs`
   (the README now states twenty integration tests and seventeen Pro packs).
+
+- **Design optimiser: five defects found by an independent verification, each fixed with a
+  test.** (1) A key the study format does not have was ignored, so a misspelt table
+  (`[[constraints]]` for `[[constraint]]`) dropped the constraint and the study still
+  returned a front; an unknown key is now an error at every level, on `kshana-pro design`
+  and on `kshana-pro run`, and a file of another `kind` is refused. (2) A `unit` written in
+  the study file replaced the unit the engine's own result states, so `unit = "m"` could
+  relabel a number the engine gives in kilometres; the engine's unit is now always used,
+  the study's only where the engine states none (as the guide already said), and the
+  `units` note records a disagreement. (3) `kshana-pro design --out <dir>` deleted the
+  whole `<dir>/front/` folder before writing; it now removes only `index.csv` and
+  `NNN.toml` files of an earlier run. (4) The report and the chart rounded to four
+  decimals, so a value of 0.000004 read "0"; a number below 0.1 now keeps four significant
+  digits. (5) The README still said sixteen packs in one sentence; it says seventeen and
+  `tests/readme_counts.rs` now reads that sentence too. None of this changes a published
+  number: the five worked studies give the same `design.result.json`, chart, report and
+  front files byte for byte, with the same study hashes. The test that keeps the optional
+  low-Earth-orbit preset out of the feature's scenarios now looks at file names inside the
+  scenario folder, not at the path the repository is checked out in.

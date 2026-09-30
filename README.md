@@ -92,7 +92,7 @@ on spec)**.
 
 Each runs on public data; the tier shown is the licence required to *run* it (see
 [Licensing](#build--run)). The table covers the framework packs; the full list of the
-sixteen registered in [`src/registry.rs`](src/registry.rs), with their tiers, comes from
+seventeen registered in [`src/registry.rs`](src/registry.rs), with their tiers, comes from
 `cargo run -- kinds`. `tests/readme_counts.rs` fails the build if the pack count written
 here stops matching the registry.
 

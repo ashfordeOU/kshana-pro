@@ -60,6 +60,32 @@ fn write(path: &Path, content: &str) -> Result<(), KshanaError> {
         .map_err(|e| err(format!("could not write {}: {e}", path.display())))
 }
 
+/// True for a file name this command writes into `front/`: `index.csv`, or digits and
+/// `.toml` (`001.toml`).
+fn is_front_file(name: &str) -> bool {
+    name == "index.csv"
+        || name
+            .strip_suffix(".toml")
+            .is_some_and(|stem| !stem.is_empty() && stem.bytes().all(|b| b.is_ascii_digit()))
+}
+
+/// Remove what an earlier run of this command wrote into `front/`, and nothing else: the
+/// folder may hold files of the user's, and those are left alone.
+fn clear_front_files(front_dir: &Path) -> Result<(), KshanaError> {
+    let entries = std::fs::read_dir(front_dir)
+        .map_err(|e| err(format!("could not read {}: {e}", front_dir.display())))?;
+    for entry in entries {
+        let entry =
+            entry.map_err(|e| err(format!("could not read {}: {e}", front_dir.display())))?;
+        let path = entry.path();
+        if path.is_file() && is_front_file(&entry.file_name().to_string_lossy()) {
+            std::fs::remove_file(&path)
+                .map_err(|e| err(format!("could not remove {}: {e}", path.display())))?;
+        }
+    }
+    Ok(())
+}
+
 /// Run `kshana-pro design` (`args` are the arguments after `design`). Returns the
 /// process exit code.
 pub fn run(args: &[String]) -> Result<u8, KshanaError> {
@@ -84,13 +110,10 @@ pub fn run(args: &[String]) -> Result<u8, KshanaError> {
 
     let dir = Path::new(&out);
     let front_dir = dir.join("front");
-    // A front directory from an earlier run would leave stale scenario files behind.
-    if front_dir.exists() {
-        std::fs::remove_dir_all(&front_dir)
-            .map_err(|e| err(format!("could not clear {}: {e}", front_dir.display())))?;
-    }
     std::fs::create_dir_all(&front_dir)
         .map_err(|e| err(format!("could not create {}: {e}", front_dir.display())))?;
+    // A front folder from an earlier run would leave stale scenario files behind.
+    clear_front_files(&front_dir)?;
     write(
         &dir.join("design.result.json"),
         &(outcome.json.clone() + "\n"),
@@ -108,4 +131,27 @@ pub fn run(args: &[String]) -> Result<u8, KshanaError> {
         dir.display()
     );
     Ok(0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn only_the_commands_own_front_files_are_cleared() {
+        for name in ["index.csv", "001.toml", "0042.toml", "9.toml"] {
+            assert!(is_front_file(name), "{name}");
+        }
+        for name in [
+            "notes.txt",
+            "my-design.toml",
+            ".toml",
+            "001.toml.bak",
+            "index.csv.old",
+            "12a.toml",
+            "001.json",
+        ] {
+            assert!(!is_front_file(name), "{name}");
+        }
+    }
 }
