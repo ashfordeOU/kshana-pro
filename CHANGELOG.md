@@ -179,4 +179,8 @@ own bullet so parallel work merges cleanly.
   for every value; it now does not parse, and the requirements file does not load.
   Tests: `run_ids_that_differ_only_in_letter_case_are_refused` and
   `values_that_are_not_finite_numbers_are_refused` in `tests/mission_dossier.rs`, and
-  unit tests in `src/mission/programme.rs` and `src/mbse/criterion.rs`.
+  unit tests in `src/mission/programme.rs` and `src/mbse/criterion.rs`. Three more
+  tests close gaps a mutation check found (the code was right, no test held it):
+  `the_summary_counts_each_label_as_the_matrix_carries_it` (a PARTNER verdict counted as
+  MODELLED went unnoticed), `markup_in_programme_text_is_escaped_in_the_html` (an
+  unescaped page went unnoticed) and `a_ledger_from_another_dossier_fails_the_check`.
