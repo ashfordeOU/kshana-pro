@@ -17,6 +17,7 @@ use crate::packs::beacon_dop_pack::{BeaconDopScenario, SurfaceBeaconDopStudyScen
 use crate::packs::beacon_placement_pack::BeaconPlacementScenario;
 use crate::packs::cislunar_observability_study_pack::CislunarObservabilityStudyScenario;
 use crate::packs::conflict_resilience_study_pack::ConflictResilienceStudyScenario;
+use crate::packs::design_optimise_pack::DesignOptimiseScenario;
 use crate::packs::lunar_signal_security_pack::LunarSignalSecurityScenario;
 use crate::packs::lunar_time_budget_study_pack::LunarTimeBudgetStudyScenario;
 use crate::packs::mbse_pack::MbseScenario;
@@ -68,6 +69,7 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         QuantumSystematicsScenario::KIND => Some(parse::<QuantumSystematicsScenario>(kind, src)),
         MbseScenario::KIND => Some(parse::<MbseScenario>(kind, src)),
         OptimismGapAuditScenario::KIND => Some(parse::<OptimismGapAuditScenario>(kind, src)),
+        DesignOptimiseScenario::KIND => Some(parse::<DesignOptimiseScenario>(kind, src)),
         LunarSignalSecurityScenario::KIND => Some(parse::<LunarSignalSecurityScenario>(kind, src)),
         BeaconDopScenario::KIND => Some(parse::<BeaconDopScenario>(kind, src)),
         SurfaceBeaconDopStudyScenario::KIND => {
@@ -105,6 +107,7 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
         QuantumSystematicsScenario::meta_static(),
         MbseScenario::meta_static(),
         OptimismGapAuditScenario::meta_static(),
+        DesignOptimiseScenario::meta_static(),
         LunarSignalSecurityScenario::meta_static(),
         BeaconDopScenario::meta_static(),
         SurfaceBeaconDopStudyScenario::meta_static(),
@@ -256,7 +259,7 @@ where
 /// [`kshana::registry::PackRegistry`].
 ///
 /// It starts from every open built-in
-/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 16
+/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 17
 /// Pro packs through the public [`ExternalPack::register_into`] seam. The union is
 /// therefore assembled entirely through stable public API: the open half is the open
 /// core's own table (never re-listed here, so it cannot drift), and the Pro half is
@@ -275,6 +278,7 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     QuantumSystematicsScenario::register_into(&mut reg);
     MbseScenario::register_into(&mut reg);
     OptimismGapAuditScenario::register_into(&mut reg);
+    DesignOptimiseScenario::register_into(&mut reg);
     LunarSignalSecurityScenario::register_into(&mut reg);
     BeaconDopScenario::register_into(&mut reg);
     SurfaceBeaconDopStudyScenario::register_into(&mut reg);
@@ -538,6 +542,47 @@ lower_is_better = true
                  ridge_lambda = 0.1\n\
                  n_perms = 20\n\
                  perm_seed = 7\n"
+            }
+            DesignOptimiseScenario::KIND => {
+                // A six-design link-budget study: the closed-form kind keeps it fast.
+                r#"kind = "pro-design-optimise"
+title = "test design study"
+seed = 1
+base_scenario = """
+kind = "link-budget"
+band = "x"
+eirp_dbw = 55.0
+g_over_t_db = 53.0
+range_km = 2000.0
+data_rate_bps = 1.0e6
+other_losses_db = 3.0
+required_eb_n0_db = 4.5
+"""
+
+[[variable]]
+name = "eirp_dbw"
+key = "eirp_dbw"
+type = "real"
+min = 40.0
+max = 50.0
+step = 5.0
+
+[[variable]]
+name = "data_rate_bps"
+key = "data_rate_bps"
+type = "choice"
+values = [1.0e6, 1.0e7]
+
+[[objective]]
+name = "margin_db"
+sense = "max"
+path = "margin_db"
+
+[[objective]]
+name = "eirp_dbw"
+sense = "min"
+variable = "eirp_dbw"
+"#
             }
             LunarSignalSecurityScenario::KIND => "kind = \"pro-lunar-signal-security\"\n",
             BeaconDopScenario::KIND => {

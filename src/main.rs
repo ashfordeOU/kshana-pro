@@ -131,6 +131,9 @@ fn main() -> ExitCode {
             );
             ExitCode::SUCCESS
         }
+        // Design optimiser: a design space over any open kind -> the Pareto front, its
+        // knee and the place of a reference design (feature `pro-design-optimise`).
+        Some("design") => design_cmd(&args[1..]),
         Some("export") => match args.get(1) {
             Some(path) => export_cmd(path, flag(&args, "--format")),
             None => {
@@ -545,6 +548,54 @@ fn run_to_json(path: &str) -> Result<String, String> {
     kshana::api::run_scenario(&src)
         .map(|o| o.json)
         .map_err(|e| format!("{e}"))
+}
+/// `design <study.toml> --out <dir>` — run a design study and write its result, chart,
+/// report and the front's scenario files.
+fn design_cmd(args: &[String]) -> ExitCode {
+    if args.is_empty() || matches!(args[0].as_str(), "help" | "--help" | "-h") {
+        println!("{}", kshana_pro::design::cli::USAGE);
+        return ExitCode::SUCCESS;
+    }
+    let now = now_unix();
+    let ent = if has_flag(args, "--dev") {
+        eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
+        Entitlement {
+            licensee: "(dev)".into(),
+            tier: Tier::Enterprise,
+            expires_unix: 0,
+            features: vec![],
+        }
+    } else {
+        match flag(args, "--license") {
+            Some(tok) => match verify_token(&tok, now) {
+                Ok(e) => e,
+                Err(e) => {
+                    eprintln!("error: license invalid: {e}");
+                    return ExitCode::FAILURE;
+                }
+            },
+            None => {
+                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
+                Entitlement::evaluation()
+            }
+        }
+    };
+    let feature = kshana_pro::design::KIND;
+    if !ent.allows(feature, now) {
+        eprintln!(
+            "error: the design optimiser requires the '{}' tier (or the '{feature}' feature on the licence); current license tier is '{}'",
+            license::feature_min_tier(feature).as_str(),
+            ent.tier.as_str()
+        );
+        return ExitCode::FAILURE;
+    }
+    match kshana_pro::design::cli::run(args) {
+        Ok(code) => ExitCode::from(code),
+        Err(e) => {
+            eprintln!("error: {e}");
+            ExitCode::FAILURE
+        }
+    }
 }
 
 fn export_cmd(path: &str, format: Option<String>) -> ExitCode {
