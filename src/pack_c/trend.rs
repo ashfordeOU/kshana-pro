@@ -248,6 +248,21 @@ fn sparkline(records: &[ChainedRecord], id: &str) -> String {
 /// The trend as a self-contained HTML page. `title` names the pack; `description` (the
 /// pack's own description) is printed under it.
 pub fn render_html(records: &[ChainedRecord], title: &str, description: Option<&str>) -> String {
+    // Every Kshana Pro document is an Ashforde document: the shared furniture of
+    // crate::report_brand goes around the renderer's own page, which is unchanged.
+    let body = render_html_unbranded(records, title, description);
+    let id = crate::report_brand::content_id(&body);
+    crate::report_brand::finish_html(
+        &body,
+        &crate::report_brand::DocMark::new("Campaign watch trend", id),
+    )
+}
+
+fn render_html_unbranded(
+    records: &[ChainedRecord],
+    title: &str,
+    description: Option<&str>,
+) -> String {
     let mut cards = String::new();
     for id in figure_ids(records) {
         let last = records.iter().rev().find_map(|c| c.record.figures.get(&id));

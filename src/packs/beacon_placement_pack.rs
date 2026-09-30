@@ -1214,6 +1214,21 @@ fn sites_label(m: &PlacementModel, sites: &[usize]) -> String {
 }
 
 fn placement_report_html(_scn: &BeaconPlacementScenario, m: &PlacementModel, fig: &str) -> String {
+    // Every Kshana Pro document is an Ashforde document: the shared furniture of
+    // crate::report_brand goes around the renderer's own page, which is unchanged.
+    let body = placement_report_html_unbranded(_scn, m, fig);
+    let id = crate::report_brand::content_id(&body);
+    crate::report_brand::finish_html(
+        &body,
+        &crate::report_brand::DocMark::new("Beacon placement study", id),
+    )
+}
+
+fn placement_report_html_unbranded(
+    _scn: &BeaconPlacementScenario,
+    m: &PlacementModel,
+    fig: &str,
+) -> String {
     let rec = &m.evals[m.recommended];
 
     let front_rows: String = m

@@ -884,10 +884,15 @@ fn the_binary_refuses_the_study_without_a_licence_and_runs_it_with_dev() {
     let html = std::fs::read_to_string(d.join("design.report.html")).unwrap();
     assert!(html.contains("<svg") && html.contains("MODELLED"));
     // Self-contained: nothing is fetched.
+    // The Ashforde furniture embeds the seal and the type as data: URIs, which fetch
+    // nothing; with those taken out, nothing else may reference a resource.
+    let body = html
+        .replace("http://www.w3.org/2000/svg", "")
+        .replace("<img src=\"data:", "")
+        .replace("url(data:", "");
     for needle in [
         "http://", "https://", "<script", "<link", "<img", "@import", "url(",
     ] {
-        let body = html.replace("http://www.w3.org/2000/svg", "");
         assert!(!body.contains(needle), "the report references {needle}");
     }
     let csv = std::fs::read_to_string(d.join("front/index.csv")).unwrap();

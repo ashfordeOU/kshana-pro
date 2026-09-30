@@ -39,6 +39,10 @@ fn usage() -> &'static str {
        kshana-pro license verify <token>\n\
        kshana-pro license keygen                       New vendor key pair (vendor only)\n\
      \n\
+     --sample (any command): every page of every document written also carries the mark\n\
+     \"SAMPLE: illustrative programme on public data, not a real mission\"; use it for\n\
+     public showcase outputs. Without it, documents carry the Ashforde seal watermark only.\n\
+     \n\
      Tiers: evaluation | pro | enterprise. `run` is FAIL-CLOSED: with no --license it\n\
      enforces Evaluation tier (open scenarios + the free seam-check only). --license\n\
      <token> enforces that token's tier; --dev disables enforcement (debug builds only;\n\
@@ -49,7 +53,14 @@ fn usage() -> &'static str {
 }
 
 fn main() -> ExitCode {
-    let args: Vec<String> = std::env::args().skip(1).collect();
+    let mut args: Vec<String> = std::env::args().skip(1).collect();
+    // `--sample`, accepted by every command: each page of every document this run writes
+    // also carries the SAMPLE mark, so a public sample can never be taken for a customer
+    // deliverable. Without it, documents carry the seal watermark only.
+    if has_flag(&args, "--sample") {
+        args.retain(|a| a != "--sample");
+        kshana_pro::report_brand::set_sample(true);
+    }
     // `--dev` turns entitlement enforcement off, so it exists only in debug builds
     // (`cargo run`, `cargo test`). A release build — anything handed to a customer —
     // refuses it here, the one place every subcommand passes through.

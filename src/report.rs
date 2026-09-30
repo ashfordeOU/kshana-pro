@@ -689,6 +689,17 @@ impl ConsolidatedReport {
     /// fetches (offline/PDF-safe): brand tokens and the seal are inlined. The
     /// MODELLED banner and the "not a certification" disclaimer are always present.
     pub fn to_html(&self) -> String {
+        // Every Kshana Pro document is an Ashforde document: the shared furniture of
+        // crate::report_brand goes around the renderer's own page, which is unchanged.
+        let body = self.to_html_unbranded();
+        let id = crate::report_brand::content_id(&body);
+        crate::report_brand::finish_html(
+            &body,
+            &crate::report_brand::DocMark::new("Study report", id),
+        )
+    }
+
+    fn to_html_unbranded(&self) -> String {
         // Detail sections (verification posture, resilience, RTM, trade, caveats)
         // are kept from the Markdown body, rendered as a readable monospace block
         // below the branded face so no detail is lost.
