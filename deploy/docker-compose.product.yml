@@ -19,11 +19,28 @@ services:
     restart: unless-stopped
     ports:
       - "8088:8088"
-    # To unlock Pro features, supply a licence token:
-    # command: ["serve","--addr","0.0.0.0:8088","--license","${KSHANA_PRO_LICENSE_TOKEN}"]
+    # The job service: queued runs that survive a restart, stored artefacts and the
+    # delivery ledger live in the data directory, a named volume that outlives the
+    # container. Back it up (see deploy/DEPLOY.md); the job store is not a backup.
+    command: ["serve","--addr","0.0.0.0:8088","--data-dir","/var/lib/kshana-pro","--workers","2"]
+    volumes:
+      - kshana-pro-data:/var/lib/kshana-pro
+    # To unlock Pro features, add the licence token to the command:
+    #   "--license","${KSHANA_PRO_LICENSE_TOKEN}"
+    # To require a bearer token on every route except /health, put it in a file and
+    # add "--api-token-file","/run/secrets/kshana_api_token" to the command, with:
+    # secrets:
+    #   - kshana_api_token
     # Hardening.
     read_only: true
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
+
+volumes:
+  kshana-pro-data:
+
+# secrets:
+#   kshana_api_token:
+#     file: ./kshana_api_token.txt   # one line, the token; keep it out of version control

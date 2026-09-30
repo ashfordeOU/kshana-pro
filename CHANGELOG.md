@@ -110,3 +110,37 @@ own bullet so parallel work merges cleanly.
   count, stops matching the registry or `tests/`. Tests: `tests/study_dossier.rs`
   (determinism, tier split, the binary end to end and its licence gate) and unit tests
   in `src/study_dossier.rs`.
+- **On-premises job service: queued runs that survive a restart, stored artefacts, a
+  delivery ledger.** `kshana-pro serve --data-dir <dir>` keeps jobs on disk
+  (`<dir>/jobs/<job_id>/`: request, status, result, artefacts; every write a temporary
+  file renamed into place), runs them on a bounded worker pool (`--workers N`, default
+  1), and on start queues again every job left queued or running, so a stop or a crash
+  loses no work; a finished job is never re-run. The job identifier is the SHA-256 of the
+  operation and the canonical JSON (JavaScript Object Notation) request, so the same
+  request submitted twice is one job and one execution. New routes: `POST /jobs`,
+  `GET /jobs`, `GET /jobs/<id>`, `GET /jobs/<id>/result` (409 until succeeded),
+  `GET /jobs/<id>/artefacts/<name>`, `GET /ledger`, `GET /ledger/verify`,
+  `GET /openapi.json` (OpenAPI 3.1, generated from the router's own route table) and a
+  self-contained job board at `GET /`. Operations: `run` (any open or Pro kind; the
+  result is the run's document byte for byte, with the chart and table as artefacts),
+  `dossier` (the study dossier) and `ci` (a Pack C scenario pack with its scenario texts
+  inline); the entitlement is checked at submission (403, nothing queued) and again at
+  run time. Each succeeded job appends request, run and delivered records to a
+  hash-chained ledger (`src/study_ledger.rs`); verification names the first changed
+  record and also re-hashes every delivered job's stored files. A failed job carries the
+  engine's error and is never recorded as delivered. Optional `--api-token-file`: every
+  route except `/health` then needs a bearer token, compared in constant time over its
+  SHA-256 and never logged or echoed. With a data directory, `POST /study` also queues a
+  `dossier` job for `inputs.scenario` and adds `job_id`; without one every existing route
+  behaves exactly as before. `POST /jobs` accepts bodies up to 16 MiB (mebibytes); 413
+  above. No new crate dependency, no asynchronous runtime, no outbound connection. The
+  compose files mount a data volume, and `deploy/DEPLOY.md` covers the routes, the data
+  directory, backup and restore, and the token file. Guide: `docs/SERVICE.md`. Tests:
+  `tests/service_jobs.rs` (18 tests over real sockets: the 5000-satellite design and the
+  200-seed campaign byte-identical to direct runs, idempotence, restart recovery with a
+  control that fails without recovery, entitlement, failure, hostile input, the OpenAPI
+  document against the route table both ways, ledger tampering, the token, `POST /study`
+  with and without a data directory, the outgoing-socket scan, three workers, the `ci`
+  operation and the job board), on public engine scenarios recorded in
+  `tests/fixtures/service/PROVENANCE.md`. The README states twenty integration tests
+  (was nineteen).
