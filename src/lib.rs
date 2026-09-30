@@ -33,6 +33,7 @@ pub use kshana;
 pub mod batch;
 pub mod benefits;
 pub mod connectors;
+pub mod design;
 pub mod license;
 pub mod lunar_oed;
 pub mod mbse;
