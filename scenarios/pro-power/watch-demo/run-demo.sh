@@ -15,7 +15,15 @@ out="${1:?usage: run-demo.sh <output-dir> [kshana-pro binary]}"
 bin="${2:-target/debug/kshana-pro}"
 demo="scenarios/pro-power/watch-demo"
 work="$out/work"
-rm -rf "$out"
+# Only an earlier output of this script (it holds SHOWCASE.md) or an empty or new
+# directory is replaced; any other directory is refused, never deleted.
+if [ -d "$out" ] && [ -n "$(ls -A "$out")" ] && [ ! -f "$out/SHOWCASE.md" ]; then
+  echo "error: $out exists, is not empty and is not an earlier output of this script" >&2
+  exit 2
+fi
+if [ -f "$out/SHOWCASE.md" ]; then
+  rm -rf "$out"
+fi
 mkdir -p "$work" "$out/runs" "$out/packs"
 cp "$demo/pack.toml" "$work/pack.toml"
 

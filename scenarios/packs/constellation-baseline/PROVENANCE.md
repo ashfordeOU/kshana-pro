@@ -20,7 +20,8 @@ test `constellation::tests::gps_baseline_global_dop_matches_the_sps_performance_
 sets them. The edits:
 
 - only the `gps-baseline` preset (Galileo, BeiDou and GLONASS removed);
-- `duration_s = 86164.0` (one sidereal day) and `step_s = 300.0` (287 five-minute epochs);
+- `step_s = 300.0` (287 five-minute epochs over the source's unchanged `duration_s = 86164.0`,
+  one sidereal day);
 - `mask_deg = 5.0`, `grid_step_deg = 4.0`, `clock = "common"` (one receiver clock);
 - `max_tracks = 24` (one ground track per satellite); the comment header is replaced by one
   that states the derivation.
