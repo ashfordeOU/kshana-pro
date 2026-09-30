@@ -267,6 +267,19 @@ fn polyline(xs: &[f64], ys: &[Option<f64>], sx: Scale, sy: Scale) -> Vec<String>
     paths
 }
 
+/// An index for a label: three decimals, never a signed zero.
+fn fmt_index(v: f64) -> String {
+    if !v.is_finite() {
+        return "n/a".to_string();
+    }
+    let s = format!("{v:.3}");
+    if s == "-0.000" {
+        "0.000".to_string()
+    } else {
+        s
+    }
+}
+
 fn legend(items: &[(&str, &str, &str)], x: f64, y: f64) -> String {
     // (colour, kind, label); kind is "line", "area", "dash" or "bar".
     let mut s = String::new();
@@ -688,7 +701,7 @@ pub fn sensitivity_svg(doc: &Value) -> String {
             74.0 + rows as f64 * row_h + 30.0
         })
         .collect();
-    let h = TOP + panel_heights.iter().sum::<f64>() + 30.0;
+    let h = TOP + panel_heights.iter().sum::<f64>() + 30.0 + if sobol { 64.0 } else { 0.0 };
     let mut s = svg_open(
         h,
         "Sensitivity of each output to each input",
@@ -706,7 +719,8 @@ pub fn sensitivity_svg(doc: &Value) -> String {
             "What drives each output: standardised regression coefficient per input"
         },
     );
-    let mut y = TOP + 8.0;
+    let legend_h = if sobol { 64.0 } else { 0.0 };
+    let mut y = TOP + 8.0 + legend_h;
     for (pi, name) in names.iter().enumerate() {
         let e = &doc["sensitivity"]["outputs"][name];
         let rows = ranked(e);
@@ -874,8 +888,8 @@ pub fn sensitivity_svg(doc: &Value) -> String {
             let label = if sobol {
                 format!(
                     "{} · {}",
-                    fmt_num(r["first_order"].as_f64().unwrap_or(f64::NAN)),
-                    fmt_num(r["total"].as_f64().unwrap_or(f64::NAN))
+                    fmt_index(r["first_order"].as_f64().unwrap_or(f64::NAN)),
+                    fmt_index(r["total"].as_f64().unwrap_or(f64::NAN))
                 )
             } else {
                 format!("{:+.3}", r["src"].as_f64().unwrap_or(f64::NAN))
@@ -895,8 +909,8 @@ pub fn sensitivity_svg(doc: &Value) -> String {
                         (SERIES[1], "bar", "total index"),
                         (TEXT, "line", "95% interval"),
                     ],
-                    x1 + 8.0,
-                    24.0,
+                    ML,
+                    TOP + 6.0,
                 );
             } else {
                 s += &format!(
@@ -1230,7 +1244,7 @@ pub fn report_html(doc: &Value) -> String {
         "<p class=\"muted\">Kshana Pro · uncertainty and sensitivity study</p><h1>{}</h1>\
          <p><span class=\"tag\">MODELLED</span> <span class=\"muted\">{}</span></p>",
         esc(text(&doc["title"])),
-        esc(text(&doc["label"]))
+        esc(text(&doc["label"]).trim_start_matches("MODELLED: "))
     );
     h += &format!(
         "<p>{} runs of the open engine's <code>{}</code> scenario kind ({} finished, {} failed), sampled by {} with n = {}; sensitivity method: {}.</p>",
@@ -1311,7 +1325,7 @@ pub fn report_html(doc: &Value) -> String {
     }
 
     // Outputs.
-    h += "<h2>How sure are we: each output</h2><div class=\"scroll\"><table><tr><th>Output</th><th>Unit</th><th class=\"num\">Base run</th><th class=\"num\">Mean</th><th class=\"num\">95 % interval on the mean</th><th class=\"num\">Standard deviation</th><th class=\"num\">5th percentile</th><th class=\"num\">Median</th><th class=\"num\">95th percentile</th><th class=\"num\">Values</th><th>Tier</th></tr>";
+    h += "<h2>How sure are we: each output</h2><div class=\"scroll\"><table><tr><th>Output</th><th class=\"num\">Base run</th><th class=\"num\">Mean</th><th class=\"num\">95 % interval on the mean</th><th class=\"num\">Standard deviation</th><th class=\"num\">5th percentile · median · 95th percentile</th><th>Tier</th></tr>";
     for n in &scalar_names {
         let o = &doc["outputs"][n];
         let tier = doc["figure_tiers"]["figures"]
@@ -1324,18 +1338,18 @@ pub fn report_html(doc: &Value) -> String {
             _ => "n/a".to_string(),
         };
         h += &format!(
-            "<tr><td>{}<br><code>{}</code></td><td>{}</td>{}{}<td class=\"num\">{}</td>{}{}{}{}<td class=\"num\">{}</td><td>{}</td></tr>",
+            "<tr><td>{} ({})<br><code>{}</code><br><span class=\"muted\">{} values</span></td>{}{}<td class=\"num\">{}</td>{}<td class=\"num\">{} · {} · {}</td><td>{}</td></tr>",
             esc(n),
-            esc(text(&o["path"])),
             esc(text(&o["unit"])),
+            esc(text(&o["path"])),
+            o["n"],
             td(&o["nominal"]),
             td(&o["mean"]),
             ci,
             td(&o["std"]),
-            td(&o["p05"]),
-            td(&o["p50"]),
-            td(&o["p95"]),
-            o["n"],
+            fmt_num(o["p05"].as_f64().unwrap_or(f64::NAN)),
+            fmt_num(o["p50"].as_f64().unwrap_or(f64::NAN)),
+            fmt_num(o["p95"].as_f64().unwrap_or(f64::NAN)),
             esc(tier),
         );
     }
@@ -1496,6 +1510,9 @@ mod tests {
         assert_eq!(fmt_num(1234.56), "1234.6");
         assert_eq!(fmt_num(1.575e-19), "1.575e-19");
         assert_eq!(fmt_num(f64::NAN), "n/a");
+        assert_eq!(fmt_index(9.372e-4), "0.001");
+        assert_eq!(fmt_index(-1.5e-4), "0.000");
+        assert_eq!(fmt_index(0.98803), "0.988");
         assert_eq!(fmt_tick(20.0), "20");
         assert_eq!(fmt_tick(-0.5), "-0.5");
         assert_eq!(fmt_tick(1000.0), "1000");
