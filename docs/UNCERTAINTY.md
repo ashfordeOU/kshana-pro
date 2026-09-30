@@ -486,11 +486,33 @@ the orbit-and-clock error alone. The study finds the same:
 | peak C/N0 | 1 dB-Hz per dB | 0 | 1 |
 | broadcast SISRE | 0 | 1 m per m | 1 |
 
-`uq-leo-pnt-chain-sobol.toml` adds the SISRE of GPS and of Galileo as inputs and asks
-which of the four drives the fused position error, with Sobol' indices over
-256 × (4 + 2) = 1536 runs of the whole chain:
+`uq-leo-pnt-chain-sobol.toml` adds the SISRE of GPS and of Galileo as inputs (uniform,
+0.4 m to 0.8 m and 0.2 m to 0.4 m, both ASSUMED) and asks which of the four inputs drives
+the position error, with and without the LEO layer, using Sobol' indices over
+1024 × (4 + 2) = 6144 runs of the whole chain:
 
-LEO_SOBOL_TABLE
+| Output | Mean | 5th to 95th percentile | Input | First-order index (95 % interval) | Total index (95 % interval) |
+|---|---|---|---|---|---|
+| fused position error (GPS, Galileo and LEO) | 0.431 m | 0.247 m to 0.604 m | orbit-and-clock error | 0.988 (0.919 to 1.059) | 0.989 (0.932 to 1.049) |
+| | | | EIRP | 0.001 (−0.003 to 0.005) | 0.002 (0.002 to 0.002) |
+| | | | SISRE of Galileo | 0.001 (−0.001 to 0.002) | 0.000 |
+| | | | SISRE of GPS | 0.000 (−0.001 to 0.001) | 0.000 |
+| position error of GPS and Galileo alone | 1.604 m | 1.539 m to 1.674 m | SISRE of GPS | 0.713 (0.648 to 0.776) | 0.679 (0.635 to 0.728) |
+| | | | SISRE of Galileo | 0.330 (0.288 to 0.376) | 0.320 (0.295 to 0.346) |
+| | | | orbit-and-clock error, EIRP | 0 | 0 |
+| peak C/N0 | 60.73 dB-Hz | 59.09 to 62.37 dB-Hz | EIRP | 1.007 (0.915 to 1.091) | 1.006 (0.947 to 1.066) |
+| | | | the other three | 0 | 0 |
+
+Read across the rows: without the LEO layer the position error is set by the range errors
+of GPS (about two thirds of its variance) and Galileo (about one third). With the LEO
+layer the fused error is set almost entirely by the LEO orbit-and-clock error, and the
+range errors of GPS and Galileo no longer matter to it. The probability that the fused
+error stays at or below 0.6 m is 0.937 (95 % interval 0.920 to 0.950, 959 of 1024),
+given the stated input uncertainty. An index estimate is not clamped, so the index of a
+sole driver scatters around 1 and its interval straddles it.
+
+Study hash `a96a8850a373f4e6fbb2eae8258a7f10a5e929352d32841525ee98518082ac65`, seed
+20260930. This run was stopped after 2000 realisations and resumed.
 
 The 0.6 m limit on the fused error in these two studies is an example requirement, not a
 value from any specification.
@@ -502,7 +524,7 @@ code under test:
 
 | Check | Reference |
 |---|---|
-| Sobol' first-order and total indices | the Ishigami function's closed form (a = 7, b = 0.1): 0.3139, 0.4424, 0 and 0.5576, 0.4424, 0.2437, each within 0.02 and inside its own interval at `n` = 65,536 (327,680 evaluations); and over twelve seeds at `n` = 4096, the closed-form value lies inside the reported 95 % interval in at least 65 of the 72 cases (70 were measured) |
+| Sobol' first-order and total indices | the Ishigami function's closed form (a = 7, b = 0.1): 0.3139, 0.4424, 0 and 0.5576, 0.4424, 0.2437, each within 0.02 and inside its own interval at `n` = 65,536 (327,680 evaluations); and over twelve seeds at `n` = 4096, the closed-form value lies inside the reported 95 % interval in at least 65 of the 72 cases (72 were measured) |
 | mean, standard deviation, probability, indices, coefficients | the link margin's closed form (7.1), with tolerances derived from `n` |
 | samples, statistics, bootstrap interval | the open engine's own `campaign [monte_carlo]`, bit for bit (7.2) |
 | spread under input uncertainty, band | the mixture's closed form (7.3); the band at the last step equals the scalar output's percentiles |
@@ -540,7 +562,8 @@ anything runs. For access, write to contact@ashforde.org.
 - **Bootstrap intervals on Sobol' indices resample design rows as if they were
   independent.** For a Latin hypercube they are slightly negatively dependent, so the
   intervals tend to be a little wide rather than narrow. Over twelve seeds of the
-  Ishigami check at `n` = 4096 they contained the closed-form value in 70 of 72 cases. A
+  Ishigami check at `n` = 4096 they contained the closed-form value in 72 of 72 cases (70 of 72 with other bootstrap
+  streams). A
   95 % interval still misses one time in twenty: with the study seed 20260930, one of the
   six Ishigami intervals missed its closed-form value at `n` = 16,384 and another at
   32,768, and all six contained it at 65,536.

@@ -227,16 +227,27 @@ impl Dist {
     /// One line for a report, for example `normal(mean 55, std 1)`.
     pub fn describe(&self) -> String {
         match self {
-            Dist::Normal { mean, std } => format!("normal(mean {mean}, std {std})"),
-            Dist::Uniform { min, max } => format!("uniform({min} to {max})"),
+            Dist::Normal { mean, std } => format!("normal(mean {}, std {})", g(*mean), g(*std)),
+            Dist::Uniform { min, max } => format!("uniform({} to {})", g(*min), g(*max)),
             Dist::Lognormal { median, ln_std } => {
-                format!("lognormal(median {median}, ln_std {ln_std})")
+                format!("lognormal(median {}, ln_std {})", g(*median), g(*ln_std))
             }
             Dist::Triangular { min, mode, max } => {
-                format!("triangular({min}, mode {mode}, {max})")
+                format!("triangular({}, mode {}, {})", g(*min), g(*mode), g(*max))
             }
             Dist::Discrete { values, .. } => format!("discrete({} values)", values.len()),
         }
+    }
+}
+
+/// A parameter as a reader writes it: plain between 1e-4 and 1e6, else with an exponent
+/// (`4.5e-20`, not twenty zeros).
+fn g(v: f64) -> String {
+    let a = v.abs();
+    if v == 0.0 || (1e-4..1e6).contains(&a) {
+        format!("{v}")
+    } else {
+        format!("{v:e}")
     }
 }
 
@@ -451,6 +462,20 @@ mod tests {
                 d.variance()
             );
         }
+    }
+
+    #[test]
+    fn a_description_is_short_for_very_small_and_very_large_parameters() {
+        let d = Dist::Uniform {
+            min: 4.5e-20,
+            max: 2.7e-19,
+        };
+        assert_eq!(d.describe(), "uniform(4.5e-20 to 2.7e-19)");
+        let d = Dist::Normal {
+            mean: 55.0,
+            std: 1.0,
+        };
+        assert_eq!(d.describe(), "normal(mean 55, std 1)");
     }
 
     #[test]
