@@ -6,8 +6,8 @@
 //! ([`match_route`]) and the OpenAPI document ([`super::openapi`]) are both generated
 //! from it, so the two cannot drift. Routes marked `needs_data_dir` are served only
 //! when the server was started with a data directory; without one, the server answers
-//! exactly the routes it answered before the job service existed, with the same
-//! behaviour.
+//! the routes it answered before the job service existed, with the same behaviour, plus
+//! `GET /openapi.json`, which documents only those routes.
 //!
 //! Access token: when the server has one (`--api-token-file`), every request except
 //! `GET /health` must carry `Authorization: Bearer <token>`. Only the token's SHA-256
