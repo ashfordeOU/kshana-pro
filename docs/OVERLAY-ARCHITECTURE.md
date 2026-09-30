@@ -239,6 +239,16 @@ gate crossed); only the gated instances and all of L2 wait on triggers.
   `report_pack_c`, run via `kshana-pro ci`, `pro-scenario-ci`) — ✅ a manifest of
   scenarios + metric thresholds gated against a rolling baseline (the JSON output is the
   next run's baseline). Entitlement: `license::ensure_ci_entitled` (Pro tier).
+  **Campaign watch** (`pack_c::{watch, semantics, campaign, stat_gate, history, trend,
+  diff}`) extends it: `[[watch]]` tables, named campaign figures, a Welch / F-test gate
+  for Monte Carlo figures, a hash-chained history, a trend page and `ci diff`; a pack
+  without watch tables runs byte for byte as before. Guide: `docs/CAMPAIGN-WATCH.md`.
+- **L3 — Spectrum coexistence** (`spectrum_coexistence`, `packs::spectrum_coexistence_pack`,
+  `pro-spectrum-coexistence`, run via `kshana-pro coexist`) — ✅ whole signal plans and
+  constellations against the open-service global navigation satellite system (GNSS)
+  signals, both directions, worldwide; every physical number is read from open
+  `leo-signal` and `constellation-design` runs (Enterprise tier). Guide:
+  `docs/SPECTRUM-COEXISTENCE.md`.
 - **Scale — Batch Monte-Carlo** (`batch`, `packs::batch_pack`, `pro-batch`) — ✅ fans one
   base scenario across many seeds and aggregates a figure of merit (Enterprise tier).
 - **ECSS/MBSE** (`mbse`, `packs::mbse_pack`, `pro-mbse`) — ✅ framework built: requirements
@@ -248,7 +258,8 @@ gate crossed); only the gated instances and all of L2 wait on triggers.
 Above the packs sits the **deliverable / service layer** — `pro_study` (composes one
 branded study from N pack sections), `report` / `report_pdf` / `report_pack_a` /
 `report_pack_c` (the rendered faces), `study_ledger` (a hash-chained delivery record),
-`serve` (the HTTP service), `connectors` (STK / CSV / CI gate), and `license` +
+`serve` (the HTTP service and, with `--data-dir`, the on-premises job service:
+`serve::{jobs, worker, ops, delivery, api, openapi}`, guide `docs/SERVICE.md`), `connectors` (STK / CSV / CI gate), and `license` +
 `registry` (the superset dispatcher + tier gate). See §6 for the module map and the
 study / deployment pipelines.
 
@@ -286,6 +297,7 @@ flowchart TB
     P5["optimism_gap_audit + detector_intake — Pack A"]
     P6["pack_c (manifest·metrics·gate·run) — Pack C scenario-CI"]
     P7["batch_pack + batch — scale Monte-Carlo"]
+    P8["spectrum_coexistence_pack + spectrum_coexistence — L3 signal-plan coexistence"]
     PG["resilience 🔒 — L2 export wall (fail-closed)"]
   end
   PACKS --> OPEN["kshana — open engine (embedded)<br/>api::run_scenario · ErrorModel · ExternalPack seams"]
@@ -293,7 +305,7 @@ flowchart TB
   subgraph DELIV["Deliverable / service"]
     R["report · report_pdf · report_brand · report_pack_a · report_pack_c"]
     PS["pro_study (compose) · study_ledger (hash-chain)"]
-    SV["serve — GET /health /version /kinds · POST /run /study"]
+    SV["serve — GET /health /version /kinds · POST /run /study<br/>+ --data-dir: /jobs · /ledger · /openapi.json · job board"]
     CN["connectors — STK .e · CSV · CI gate · spacestream"]
   end
 ```
