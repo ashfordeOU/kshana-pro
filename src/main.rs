@@ -141,6 +141,9 @@ fn main() -> ExitCode {
                 ExitCode::FAILURE
             }
         },
+        // Uncertainty and sensitivity study of any open scenario, with a checkpoint so
+        // that it can be stopped and resumed (feature `pro-uncertainty`).
+        Some("uncertainty") => uncertainty_cmd(&args[1..]),
         Some("gate") => match args.get(1) {
             Some(path) => gate_cmd(path, &args),
             None => {
@@ -709,6 +712,56 @@ fn navdt_cmd(args: &[String]) -> ExitCode {
             println!("{}", b.to_json());
             ExitCode::SUCCESS
         }
+        Err(e) => {
+            eprintln!("error: {e}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+/// `uncertainty <study.toml> --out <dir>` — resolve the entitlement exactly as `mbse`
+/// does (`--dev` in a debug build = full; else a token enforces its tier; else
+/// Evaluation), require the `pro-uncertainty` feature, then run the study.
+fn uncertainty_cmd(args: &[String]) -> ExitCode {
+    if args.is_empty() || matches!(args[0].as_str(), "help" | "--help" | "-h") {
+        println!("{}", kshana_pro::batch::uq::cli::USAGE);
+        return ExitCode::SUCCESS;
+    }
+    let now = now_unix();
+    let ent = if has_flag(args, "--dev") {
+        eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
+        Entitlement {
+            licensee: "(dev)".into(),
+            tier: Tier::Enterprise,
+            expires_unix: 0,
+            features: vec![],
+        }
+    } else {
+        match flag(args, "--license") {
+            Some(tok) => match verify_token(&tok, now) {
+                Ok(e) => e,
+                Err(e) => {
+                    eprintln!("error: license invalid: {e}");
+                    return ExitCode::FAILURE;
+                }
+            },
+            None => {
+                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
+                Entitlement::evaluation()
+            }
+        }
+    };
+    let feature = kshana_pro::batch::uq::FEATURE;
+    if !ent.allows(feature, now) {
+        eprintln!(
+            "error: the uncertainty study requires the '{}' tier (or the '{feature}' feature on the licence); current license tier is '{}'",
+            license::feature_min_tier(feature).as_str(),
+            ent.tier.as_str()
+        );
+        return ExitCode::FAILURE;
+    }
+    match kshana_pro::batch::uq::cli::run(args) {
+        Ok(code) => ExitCode::from(code),
         Err(e) => {
             eprintln!("error: {e}");
             ExitCode::FAILURE

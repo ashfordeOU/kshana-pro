@@ -11,6 +11,8 @@
 //! version)`, so the aggregate is identical regardless of thread scheduling — the
 //! parallel result equals the sequential result. That invariant is battle-tested.
 
+pub mod uq;
+
 use kshana::api::{run_scenario, KshanaError};
 
 use crate::util::{dot_path_number, inject_seed, percentile};
