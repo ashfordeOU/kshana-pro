@@ -183,6 +183,8 @@ pub struct StudyProvenance {
 /// evidence pack ([`ConsolidatedReport::to_evidence_json`]).
 #[derive(Debug, Clone, Serialize)]
 pub struct ConsolidatedReport {
+    /// The honesty label, [`REPORT_LABEL`], in the open engine's `label` form.
+    pub label: &'static str,
     pub title: String,
     pub bundle: NavDtBundle,
     /// Resilience-vs-time series `[t_s, |error|]` extracted from the open run.
@@ -202,6 +204,9 @@ pub struct ConsolidatedReport {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub provenance: Option<StudyProvenance>,
 }
+
+/// The honesty label every consolidated report carries in its JSON evidence pack.
+pub const REPORT_LABEL: &str = "MODELLED - a consolidated report over one open-engine run: every figure is simulation output, and each figure of merit carries its own tier from the open engine's verification matrix. It is an engineering study, not flight or in-orbit validation and not a certification.";
 
 /// The validation-tier tag (`VALIDATED` / `MODELLED` / `PARTIAL`) for a bundle FoM,
 /// sourced from the open core's single source of truth
@@ -263,6 +268,7 @@ pub fn build_report(
     let threshold = json.get("threshold_ns").and_then(|v| v.as_f64());
 
     Ok(ConsolidatedReport {
+        label: REPORT_LABEL,
         title: title.into(),
         bundle,
         resilience_series,

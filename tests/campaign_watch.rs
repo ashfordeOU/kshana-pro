@@ -109,7 +109,8 @@ fn write_pack(dir: &Path, body: &str) {
 /// A manifest with no watch tables runs exactly as it did at the branch point: the
 /// committed fixture is the `ci.json` the branch-point binary (feat/pro-power 26d069a)
 /// wrote for the resilience-baseline pack with the same `--utc`; this build must write
-/// the same bytes, so the pack hash and every metric are unchanged.
+/// the same bytes apart from the added MODELLED `label` line, so the pack hash and every
+/// metric are unchanged.
 #[test]
 fn backward_compatible_with_the_branch_point() {
     let dir = scratch("compat");
@@ -131,9 +132,20 @@ fn backward_compatible_with_the_branch_point() {
         "tests/fixtures/campaign-watch/resilience-baseline.branch-point.ci.json",
     )
     .unwrap();
+    // The one addition since the branch point is the honesty label line; everything
+    // else, the pack hash and every metric, is byte for byte the same.
+    let label_line = format!(
+        "  \"label\": {},\n",
+        serde_json::to_string(pack_c::run::CI_LABEL).unwrap()
+    );
+    assert!(
+        now.contains(&label_line),
+        "ci.json carries the MODELLED label"
+    );
     assert_eq!(
-        now, then,
-        "a watch-free pack must write the branch-point report byte for byte"
+        now.replacen(&label_line, "", 1),
+        then,
+        "a watch-free pack must write the branch-point report byte for byte, apart from the label"
     );
     let manifest = pack_c::parse_pack(&std::fs::read_to_string(pack).unwrap()).unwrap();
     assert_eq!(

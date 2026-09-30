@@ -69,7 +69,7 @@ const C_M_S: f64 = 299_792_458.0;
 const TEAL: &str = "#2dd4bf";
 
 /// The honesty label carried on the result document (contains both tier words).
-const LABEL: &str = "P5 heterogeneous optical + RF PNT study. \
+const LABEL: &str = "MODELLED P5 heterogeneous optical + RF PNT study. \
 VALIDATED: the photon-limited ranging/timing CRLB equals the closed form sigma_tau/sqrt(N), the \
 optical diffraction footprint equals (lambda/D)*L, the inverse-variance fused precision equals \
 1/sqrt(1/sigma_rf^2 + 1/sigma_opt^2), and the N-station independent-union availability equals \

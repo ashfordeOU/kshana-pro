@@ -5,6 +5,43 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Every Pro output is labelled MODELLED.** The public Kshana Pro page says so; now it is
+  true. Each result document carries a top-level `label` string that starts with
+  MODELLED, the open engine's own field form, and never leads with a higher tier.
+  - Pro kinds that had no label now have one: `pro-trade-study`, `pro-batch`, `pro-mbse`,
+    `pro-quantum-systematics`, `pro-lunar-signal-security`, `pro-beacon-dop`,
+    `pro-surface-beacon-dop-study`, `pro-beacon-placement` and `pro-seam-check`. The seam
+    check's optional scenario `label` is now echoed as `scenario_label`.
+  - Four study labels that began with a description now begin with MODELLED
+    (`pro-lunar-time-budget-study`, `pro-realtime-frame-eop-study`,
+    `pro-optical-rf-hybrid-study`, `pro-cislunar-observability-study`); their text is
+    otherwise unchanged. Rows tagged Validated inside the beacon and signal-security packs
+    keep their tags.
+  - Command outputs: the CI report (`ci --json`), each history record, the trend JSON,
+    `ci diff --json`, the consolidated report JSON (`report --format json`), the study
+    dossier JSON, the MBSE trace, verification cross-reference matrix (VCRM), change
+    impact and evidence pack, and the mission dossier JSON. A CI report or history record
+    written before the label reads back unchanged; older history chains still verify.
+  - A job of the service now reads `evidence_tier` MODELLED for every Pro kind and for
+    `ci` and dossier jobs; the job board and docs/SERVICE.md say so.
+  - `tests/modelled_label.rs` runs one example of every registered Pro kind (and fails if
+    a kind has none) plus each command output; the mission dossier and service tests
+    check theirs. Each label site was removed once and its test went red.
+  - **Revision to published hashes (no figure, verdict or run changed).** Mission dossier
+    showcase, same command and `--utc`: dossier SHA-256
+    `ddfb1599b7c20aec0db3f6e0aa0c2eab2f377c3e50174f7883634206e4b49e6d` →
+    `c37799f792d6e47fe78ad57d2a7b91164272c8603b09f443b73206256c4eea03`; evidence pack
+    `719bfbdf1d07f6078ca3bfb076bbaeec2f530315c024ce3755fbbbd011b21073` →
+    `212686add4abbc7772b9d755574fa327822d7a4e1c8fb6c90916e3c44389d8b9`; trade-study result
+    `e5f94602479a5d9f859b560e76687535772aefcb4cdeb627748cffd4ec90d425` →
+    `82e0ab74ea88d9f5526cc171581191cfbf958bac80d662ad705f7068ca21b782`. Campaign-watch
+    showcase, same commands and `--utc`: history last hash
+    `f17496625f4536b1ea914bbbb5f031d1e153d28ccc57e232bacd174c8ee37177` →
+    `71397c3eee5b8822cf4b2109e135576fda9fef44c63201d049835d48dac67c2c`, and every `ci.json`,
+    trend and diff there gains the label. The branch-point compatibility test now allows
+    exactly the one added label line. The design, uncertainty and coexistence showcases
+    were run again and are byte-identical.
+
 - **The clock twin result is labelled MODELLED.** The public Kshana Pro page says every Pro
   output is labelled MODELLED; a `pro-twin` result carried no label at all. It now has a
   `label` field that starts with MODELLED and says the twin reproduces a published

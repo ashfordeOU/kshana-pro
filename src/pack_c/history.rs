@@ -65,6 +65,11 @@ pub struct HistoryRecord {
     pub pack_version: String,
     /// Pack content hash.
     pub pack_hash: String,
+    /// The honesty label of the run, [`crate::pack_c::run::CI_LABEL`]. A record written
+    /// before the label existed reads back with it; its hash covers the text as written,
+    /// so older chains still verify.
+    #[serde(default = "history_label")]
+    pub label: String,
     /// SHA-256 of the run's metrics, as serialised in its `ci.json`.
     pub metrics_digest: String,
     /// `pass`, `fail` or `informational`.
@@ -80,6 +85,10 @@ pub struct HistoryRecord {
     pub result_sha256: BTreeMap<String, String>,
     /// The previous record's hash (the genesis constant for the first).
     pub prev_hash: String,
+}
+
+fn history_label() -> String {
+    crate::pack_c::run::CI_LABEL.to_string()
 }
 
 /// A record together with its hash, as read back from a history file.
@@ -289,6 +298,7 @@ pub fn record_from_report(report: &crate::pack_c::run::CiReport) -> HistoryRecor
         pack_id: report.pack_id.clone(),
         pack_version: report.pack_version.clone(),
         pack_hash: report.pack_hash.clone(),
+        label: report.label.clone(),
         metrics_digest: hex::encode(Sha256::digest(metrics_json.as_bytes())),
         verdict: verdict.to_string(),
         failures,
@@ -322,6 +332,7 @@ mod tests {
             pack_id: "p".into(),
             pack_version: "1".into(),
             pack_hash: "h".into(),
+            label: crate::pack_c::run::CI_LABEL.to_string(),
             metrics_digest: "d".into(),
             verdict: verdict.into(),
             failures: vec![],

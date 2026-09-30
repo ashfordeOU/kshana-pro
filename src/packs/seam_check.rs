@@ -22,10 +22,15 @@ use kshana::api::{ExternalPack, KshanaError, RunOutput, Scenario, ScenarioMeta};
 /// echoed back so a caller can confirm round-tripping of pack-specific input.
 #[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct SeamCheckPack {
-    /// Optional label echoed into the result (proves pack-specific fields parse).
+    /// Optional label echoed into the result as `scenario_label` (proves pack-specific
+    /// fields parse). The result's own `label` is the honesty label [`SEAM_CHECK_LABEL`].
     #[serde(default)]
     pub label: Option<String>,
 }
+
+/// The honesty label every `pro-seam-check` result carries, in the open engine's `label`
+/// form. The scenario's own optional `label` is echoed as `scenario_label`.
+pub const SEAM_CHECK_LABEL: &str = "MODELLED - an overlay seam check: it counts the open engine's scenario kinds and the registered Pro kinds to prove the overlay embeds the open engine. It computes no figure of merit and is not a product capability.";
 
 impl SeamCheckPack {
     /// The kind string this pack answers to.
@@ -73,7 +78,8 @@ impl Scenario for SeamCheckPack {
             "open_engine_kinds": open_kinds.len(),
             "open_engine_kind_names": open_kinds,
             "pro_kinds": pro_kinds,
-            "label": label,
+            "label": SEAM_CHECK_LABEL,
+            "scenario_label": label,
             "seam_ok": true,
         })
         .to_string();
@@ -145,7 +151,8 @@ mod tests {
         let out = pack.run().unwrap();
         assert!(out.summary.contains("bid-demo"));
         let v: serde_json::Value = serde_json::from_str(&out.json).unwrap();
-        assert_eq!(v["label"], "bid-demo");
+        assert_eq!(v["scenario_label"], "bid-demo");
+        assert!(v["label"].as_str().unwrap().starts_with("MODELLED"));
     }
 
     #[test]

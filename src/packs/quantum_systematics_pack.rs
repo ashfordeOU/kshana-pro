@@ -9,6 +9,10 @@ use kshana::api::{ExternalPack, KshanaError, RunOutput, Scenario, ScenarioMeta};
 
 use crate::premium::{quantum_systematics, QuantumSystematicsSpec, SystematicEffect};
 
+/// The honesty label every `pro-quantum-systematics` result carries, in the open engine's
+/// `label` form.
+pub const QUANTUM_SYSTEMATICS_LABEL: &str = "MODELLED - a systematic frequency-shift budget computed from the cited published coefficients and the stated operating conditions with closed-form formulas; it is not a measurement or a characterisation of any real clock.";
+
 fn default_rel_uncertainty() -> f64 {
     0.02
 }
@@ -88,6 +92,7 @@ impl Scenario for QuantumSystematicsScenario {
             "kind": Self::KIND,
             "overlay": "kshana-pro",
             "overlay_version": crate::version(),
+            "label": QUANTUM_SYSTEMATICS_LABEL,
             "species": budget.species,
             "temperature_k": self.temperature_k,
             "effects": budget.effects.iter().map(|e| serde_json::json!({

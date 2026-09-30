@@ -60,8 +60,18 @@ pub struct Side {
 }
 
 /// The comparison of two reports.
+/// The honesty label every CI diff carries, in the open engine's `label` form.
+pub const DIFF_LABEL: &str = "MODELLED - the figures that moved between two scenario-subscription CI reports: both sides are simulation output of the open engine, so a move is a change in modelled figures, not in measured performance.";
+
+fn diff_label() -> String {
+    DIFF_LABEL.to_string()
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct DiffReport {
+    /// The honesty label, [`DIFF_LABEL`].
+    #[serde(default = "diff_label")]
+    pub label: String,
     /// The old report.
     pub old: Side,
     /// The new report.
@@ -179,6 +189,7 @@ pub fn diff(old: &CiReport, new: &CiReport) -> DiffReport {
         }
     }
     DiffReport {
+        label: diff_label(),
         old: side(old),
         new: side(new),
         moved: out_moved,
@@ -275,6 +286,7 @@ mod tests {
             scenario_hashes: vec![],
             generated_utc: None,
             customer: None,
+            label: crate::pack_c::run::CI_LABEL.to_string(),
             metrics: MetricSet(pairs.iter().map(|(k, v)| (k.to_string(), *v)).collect()),
             verdict: None,
             watch: None,

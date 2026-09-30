@@ -377,9 +377,15 @@ pub struct DossierBody {
     pub run_scenario_toml: String,
 }
 
+/// The honesty label every study dossier carries, in the open engine's `label` form. It
+/// sits beside the hashed body, like the issue stamp.
+pub const STUDY_DOSSIER_LABEL: &str = "MODELLED - a reproducible study dossier over one open-engine run: every figure is simulation output with its own VALIDATED, MODELLED or PARTIAL tier read from the open engine's verification matrix, never promoted. It is an engineering study, not a certification.";
+
 /// The complete dossier: the hashed body, its hash, and the unhashed stamp.
 #[derive(Debug, Clone, Serialize)]
 pub struct StudyDossier {
+    /// The honesty label, [`STUDY_DOSSIER_LABEL`].
+    pub label: &'static str,
     #[serde(flatten)]
     pub body: DossierBody,
     /// SHA-256 of the canonical JSON of [`DossierBody`].
@@ -1551,6 +1557,7 @@ pub fn build(src: &str, opts: &DossierOptions) -> Result<StudyDossier, KshanaErr
     let canonical = serde_json::to_string(&body)
         .map_err(|e| invalid(format!("dossier does not serialise: {e}")))?;
     Ok(StudyDossier {
+        label: STUDY_DOSSIER_LABEL,
         body,
         result_hash: sha_hex(canonical.as_bytes()),
         issued_utc: opts.issued_utc.clone(),

@@ -1085,6 +1085,26 @@ fn the_pdf_parses_and_carries_the_requirements_and_the_honesty_words() {
     assert_eq!(count(&pdf, b"/Subtype /Image"), 0);
 }
 
+// ------------------------------------------------------------------ the honesty label
+
+/// The dossier JSON, its evidence pack and its trade-study run each carry the top-level
+/// MODELLED label, in the open engine's `label` form.
+#[test]
+fn the_dossier_its_evidence_pack_and_its_trade_run_are_labelled_modelled() {
+    let b = shared();
+    for f in [
+        "dossier.json",
+        "evidence-pack.json",
+        "runs/TRADE/trade-lunar-relay.result.json",
+    ] {
+        let v: Value = serde_json::from_slice(&std::fs::read(b.out_dir.join(f)).unwrap()).unwrap();
+        let label = v["label"]
+            .as_str()
+            .unwrap_or_else(|| panic!("{f}: no top-level label"));
+        assert!(label.starts_with("MODELLED"), "{f}: {label}");
+    }
+}
+
 // ------------------------------------------------------------------ the HTML
 
 #[test]

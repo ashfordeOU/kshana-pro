@@ -138,9 +138,10 @@ The engine's own evidence label travels with the job (`label`, shortened here wi
 open kinds write a label that does not start with a tier word (the `link-budget` label,
 for example, begins "One-way link budget over the CCSDS 401 / DSN 810-005 link
 equation"); such a job carries the label as it is and no `evidence_tier`, and the
-service assigns it none. A dossier result carries a label per figure inside it. A `ci`
-result (`ci.json`) carries no label; its `report.html` states MODELLED for the whole
-report.
+service assigns it none. Every Pro kind's result starts its label with MODELLED, so its
+job carries `evidence_tier` MODELLED. A dossier result carries a label per figure inside
+it and a top-level MODELLED label. A `ci` result (`ci.json`) carries a top-level label
+that starts with MODELLED, and its `report.html` states MODELLED for the whole report.
 
 **Fetch the result.** `GET /jobs/<id>/result` returned the 194,023-byte result document,
 byte for byte the document a direct run of the same file gives (the acceptance test

@@ -467,6 +467,11 @@ impl LunarSignalSecurityScenario {
     }
 }
 
+/// The honesty label every `pro-lunar-signal-security` result carries, in the open engine's
+/// `label` form. Rows keep their own Validated / Modelled tags (see `provenance_legend`);
+/// the study as a whole is MODELLED.
+pub const LUNAR_SIGNAL_SECURITY_LABEL: &str = "MODELLED - a lunar signal-security study composed from the open engine's link-budget, jamming, antenna, spoofing-capture and navigation-message-authentication analyses over stated scenario inputs. Rows tagged Validated are closed-form transforms checked against the open engine and an independent recompute, a computational check only; the study is not flight validation and not a certification.";
+
 impl Scenario for LunarSignalSecurityScenario {
     fn run(&self) -> Result<RunOutput, KshanaError> {
         let m = self.compute()?;
@@ -479,6 +484,7 @@ impl Scenario for LunarSignalSecurityScenario {
             "kind": Self::KIND,
             "overlay": "kshana-pro",
             "overlay_version": crate::version(),
+            "label": LUNAR_SIGNAL_SECURITY_LABEL,
             "paper": "P1 — Lunar surface navigation signal security",
             "provenance_legend": {
                 "Validated": "deterministic closed-form transform, cross-checked vs the open engine and an independent recompute (computational check; NOT flight validation or certification)",

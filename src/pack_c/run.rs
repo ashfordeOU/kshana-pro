@@ -39,6 +39,14 @@ pub struct CiContext {
     pub thresholds: Thresholds,
 }
 
+/// The honesty label every scenario-subscription CI report carries, in the open engine's
+/// `label` form (its HTML report shows the same tier inline).
+pub const CI_LABEL: &str = "MODELLED - a scenario-subscription CI run: every figure is simulation output of the open engine for the pack's scenarios, compared with a stored baseline or the pack's stated limits. It shows whether modelled figures moved; it is not a measurement and not a certification.";
+
+fn ci_label() -> String {
+    CI_LABEL.to_string()
+}
+
 /// A reproducible, scored report for one CI run of a scenario pack.
 ///
 /// Pins the pack identity + content hash, the engine version, and the per-scenario
@@ -63,6 +71,10 @@ pub struct CiReport {
     /// Caller-supplied customer label, if any.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub customer: Option<String>,
+    /// The honesty label, [`CI_LABEL`]; a report written before the label existed reads
+    /// back with it.
+    #[serde(default = "ci_label")]
+    pub label: String,
     /// The flattened figures of merit collected across every scenario.
     pub metrics: MetricSet,
     /// The regression-gate verdict, present only when a baseline was supplied.
@@ -334,6 +346,7 @@ pub fn assemble_report(
         scenario_hashes,
         generated_utc: ctx.generated_utc.clone(),
         customer: ctx.customer.clone(),
+        label: ci_label(),
         metrics,
         verdict,
         watch: None,
@@ -569,6 +582,7 @@ pub fn run_ci_with(
         scenario_hashes,
         generated_utc: ctx.generated_utc.clone(),
         customer: ctx.customer.clone(),
+        label: ci_label(),
         metrics,
         verdict,
         watch: Some(WatchSection {

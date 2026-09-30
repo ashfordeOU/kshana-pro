@@ -622,6 +622,7 @@ mod tests {
             scenario_hashes: vec!["hash-a".to_string(), "hash-b".to_string()],
             generated_utc: Some("2026-01-01T00:00:00Z".to_string()),
             customer: Some("ACME".to_string()),
+            label: crate::pack_c::run::CI_LABEL.to_string(),
             metrics: metric_set(&[
                 ("araim::fom.raim_availability", 0.95),
                 ("araim::fom.mean_hpl_m", 22.5),

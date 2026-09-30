@@ -56,7 +56,7 @@ independently-modelled OD budget is a prediction, not a tautology. The data-forw
 covariance and the modelled-OD road uses no EOP data, so neither computation feeds the other.";
 
 /// The honesty label carried on the result document (contains both tier words).
-const LABEL: &str = "Data-forward real-time lunar frame / Earth-orientation prediction decomposition. \
+const LABEL: &str = "MODELLED data-forward real-time lunar frame / Earth-orientation prediction decomposition. \
 VALIDATED: the data-forward Moon positions are the L18 real-data UT1 prediction-error curve (real IERS \
 finals2000A) mapped through the L19 closed-form lever arm (1 ms ↔ 28.03 m ↔ 93.5 ns, omega_earth \
 cross-checked against the CIO Earth-rotation angle). MODELLED: the OD-covariance budget magnitudes \

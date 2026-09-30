@@ -55,7 +55,7 @@ use crate::report_brand::{
 };
 
 /// The honesty label carried on the result document (contains both tier words).
-const LABEL: &str = "Planar cislunar constellation observability over a tracking arc (P6). \
+const LABEL: &str = "MODELLED planar cislunar constellation observability over a tracking arc (P6). \
 VALIDATED: the observability-Gramian condition number and eigen-spectrum come from the \
 finite-difference-validated open core and satisfy the spectral invariants trace(W)=sum(lambda), \
 Frobenius^2(W)=sum(lambda^2), det(W)=prod(lambda) (independent Gaussian-elimination determinant) \

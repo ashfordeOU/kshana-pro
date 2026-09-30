@@ -14,6 +14,10 @@ use std::collections::BTreeMap;
 use kshana::api::{ExternalPack, KshanaError, RunOutput, Scenario, ScenarioMeta};
 use kshana::mcda::wsm::Constraint;
 
+/// The honesty label every `pro-trade-study` result carries, in the open engine's `label`
+/// form. A variant's own `label` field (inside `variants`) is its name, not this.
+pub const TRADE_LABEL: &str = "MODELLED - a trade study over open-engine simulation runs: every variant's figures are simulation output of the open engine, and the ranking, decision and assurance artefacts are computed from those figures and the stated weights. It is an engineering study, not a certification.";
+
 use crate::suite::decision::{TradeCriterion, Weighting};
 use crate::suite::{
     evidence_pack_markdown, gate, gsn, reports, run_trade_study, vcd, GateThresholds, TradeReport,
@@ -186,6 +190,7 @@ impl Scenario for TradeStudyScenario {
             "overlay": "kshana-pro",
             "overlay_version": crate::version(),
             "title": report.title,
+            "label": TRADE_LABEL,
             "metric": report.metric,
             "lower_better": report.lower_better,
             "multi_criteria": report.decision.is_some(),
