@@ -36,6 +36,7 @@ pub mod connectors;
 pub mod license;
 pub mod lunar_oed;
 pub mod mbse;
+pub mod mission;
 pub mod mrd;
 pub mod pack_c;
 pub mod packs;

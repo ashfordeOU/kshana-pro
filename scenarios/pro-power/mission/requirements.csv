@@ -1,0 +1,13 @@
+id,text,method,criterion,runs,capability
+LEO-001,"With 240 low Earth orbit (LEO) satellites added, precise point positioning (PPP) shall converge within 10 minutes (median over the seeded runs).",analysis,ppp.cases[1].median_convergence_min <= 10 min,RUN-LEO,
+LEO-002,"With GPS and Galileo alone, precise point positioning (PPP) shall converge within 10 minutes (median over the seeded runs).",analysis,ppp.cases[0].median_convergence_min <= 10 min,RUN-LEO,
+LEO-003,"With the LEO layer the fused three-dimensional position error shall be 0.5 m root mean square (RMS) or better.",test,fusion.fused.rms_error_3d_m <= 0.5 m,RUN-LEO,
+LUN-001,"The lunar relay constellation shall give a position fix with a position dilution of precision (PDOP) of 6 or better over at least 95 % of the lunar surface and of the day.",analysis,global.availability_pct >= 95 %,RUN-LUNAR,
+LUN-002,"Where the lunar relay constellation gives a fix, the median position dilution of precision (PDOP) shall be 6 or better.",analysis,global.pdop.median <= 6,RUN-LUNAR,
+SPC-001,"Under the scripted L-band interference, the GPS L5 carrier-to-noise density ratio (C/N0) shall stay at or above 25 dB-Hz.",analysis,timeline.bands[3].min_cn0_dbhz >= 25 dB-Hz,RUN-SPECTRUM,
+SPC-002,"Under the scripted L-band interference, the GPS L1 coarse/acquisition (C/A) carrier-to-noise density ratio (C/N0) shall stay at or above 25 dB-Hz.",analysis,timeline.bands[0].min_cn0_dbhz >= 25 dB-Hz,RUN-SPECTRUM,
+CMP-001,"In the chained jamming, spoofing and holdover mission the clock time error shall stay within its 50 ns guard at every timeline step.",analysis,timeline.channels.time_error_ns.values <= timeline.channels.guard_ns.values for all values,RUN-CAMPAIGN,
+CMP-002,"In the chained mission a spoofing alarm shall be raised within 30 minutes of the start.",demonstration,min(timeline.events[].t_s) <= 30 min,RUN-CAMPAIGN,
+MARS-001,"Around Mars the constellation-only position error shall be 5 m root mean square (RMS) or better over one sol.",analysis,fom.rms_error_relays_m <= 5 m,RUN-MARS,
+MARS-002,"Around Mars the constellation shall give a position fix at 99 % of epochs or more.",analysis,fom.availability_relays >= 99 %,RUN-MARS,
+OPS-001,"The receiver housing shall carry the programme's identification label.",inspection,,,
