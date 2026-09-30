@@ -87,13 +87,13 @@ Consequence — **superset by construction**:
 - **Release:** pin the published crate (`kshana = "<version>"`), resolved to an exact
   version in `Cargo.lock`, so a Pro build is tied to an exact, released open engine.
   `main` of this repository does this (`kshana = "0.28"`).
-- **Development (branch `feat/pro-power`):** the integrated open engine (75 scenario
-  kinds, counted with `kshana-pro kinds --json`) is not published yet, so the overlay
-  builds against a dedicated, read-only engine worktree by path
-  (`kshana = { path = "../kshana-wt-pro-engine", version = "0.28" }`, branch
-  `feat/pro-engine-base` of the open repository). This is not a release pin. Before
-  any Pro release the path is replaced by the published engine version that carries
-  those kinds, `cargo update -p kshana` is run, and every check is re-run with
+- **Development (branch `feat/pro-power`, Kshana Pro 0.2.0):** open engine 0.29.0
+  (75 scenario kinds, counted with `kshana-pro kinds --json`) is not on crates.io yet,
+  so the overlay builds against a dedicated, read-only engine worktree by path
+  (`kshana = { path = "../kshana-wt-pro-engine", version = "0.29" }`, branch
+  `feat/pro-engine-base` of the open repository, at the 0.29.0 release tree). This is
+  not a release pin. After the crates.io publish the path is replaced by
+  `kshana = "0.29.0"`, `cargo update -p kshana` is run, and every check is re-run with
   `--locked`.
 - **Not used any more:** a git dependency on the open core's `main` branch. A branch
   pin resolves to whatever the branch points at, and stopped building when the open

@@ -233,15 +233,16 @@ A **release** build depends on the **published open-core crate** (`kshana = "<ve
 resolved to an exact version in `Cargo.lock` and advanced with `cargo update -p kshana` as
 each open-core release lands.
 
-> **Development pin on branch `feat/pro-power` (not a release pin).** The integrated open
-> engine (75 scenario kinds, counted with `cargo run -- kinds --json`) is not published
-> yet, so this branch builds against a dedicated, read-only engine worktree by path:
-> `kshana = { path = "../kshana-wt-pro-engine", version = "0.28" }`, which is branch
-> `feat/pro-engine-base` of the open repository. That tree still reports version 0.28.0
-> but is **not** the 0.28.0 on crates.io. **Release step, not done:** before any Pro
-> release, replace the path with the published engine version that carries those kinds,
-> run `cargo update -p kshana`, and re-run every check below with `--locked`. A path pin
-> builds only on a machine that has the worktree; a release must not depend on it.
+> **Kshana Pro 0.2.0 on open engine 0.29.0. Development pin on branch `feat/pro-power`
+> (not a release pin).** Open engine 0.29.0 (75 scenario kinds, counted with
+> `cargo run -- kinds --json`) is not on crates.io yet, so this branch builds against a
+> dedicated, read-only engine worktree by path:
+> `kshana = { path = "../kshana-wt-pro-engine", version = "0.29" }`, which is branch
+> `feat/pro-engine-base` of the open repository, fast-forwarded to the 0.29.0 release tree.
+> **Release step, not done:** after the crates.io publish, replace the path with
+> `kshana = "0.29.0"`, run `cargo update -p kshana`, and re-run every check below with
+> `--locked`. A path pin builds only on a machine that has the worktree; a release must
+> not depend on it.
 
 It used to track a **git dependency on the open core's `main` branch**, pinned to
 `version = "0.24"`. That is why it no longer does: a branch pin resolves to whatever the
