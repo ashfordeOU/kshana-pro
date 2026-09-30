@@ -11,9 +11,13 @@ use kshana::api::{ExternalPack, KshanaError, RunOutput, Scenario, ScenarioMeta};
 use crate::design::{run_resolved, Options, Study};
 
 /// A `pro-design-optimise` scenario: a design study (see `docs/DESIGN-OPTIMISER.md`).
+///
+/// The scenario file is the study file itself. It is read as the study (not flattened
+/// into a wider struct), so the study's rule that an unknown key is an error holds on
+/// this route too.
 #[derive(Debug, Clone, serde::Deserialize)]
+#[serde(transparent)]
 pub struct DesignOptimiseScenario {
-    #[serde(flatten)]
     pub study: Study,
 }
 

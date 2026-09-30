@@ -1216,8 +1216,11 @@ fn no_scenario_or_fixture_of_this_feature_uses_the_optional_leo_preset() {
             "{} mentions the optional preset",
             f.display()
         );
+        // The name inside this folder, so the folder the repository is checked out in
+        // cannot fail the test.
+        let inside = f.strip_prefix(dir()).unwrap_or(&f);
         assert!(
-            !f.to_string_lossy().to_lowercase().contains(&needle),
+            !inside.to_string_lossy().to_lowercase().contains(&needle),
             "{} is named after the optional preset",
             f.display()
         );
@@ -1460,4 +1463,250 @@ fn the_user_guide_quotes_the_numbers_the_studies_give() {
     // The ZDT1 figure and the published anchor are held by their own tests above.
     has("the mean distance to it is 0.00018 on the development machine (the bar, fixed before the\nfirst run, is 0.05)");
     has("a global HDOP median of 0.94, a 90th\npercentile of 1.165 and a 95th percentile of 1.255 (published: 0.94, 1.16 and 1.25) and\na PDOP median of 1.795");
+}
+
+// ─────────────────────────────── 15. defects found by the independent verification
+
+#[test]
+fn an_unknown_key_is_an_error_and_never_a_silently_dropped_constraint() {
+    // Before the fix a misspelt table was ignored: `[[constraints]]` (plural) dropped the
+    // constraint and the study still returned a front, as if the constraint held.
+    let good = study("link-budget-trade.toml");
+    let cases: [(String, &str); 9] = [
+        (
+            good.replace(
+                "[[objective]]\nname = \"margin_db\"",
+                "[[constraints]]\nresult = { path = \"margin_db\", op = \">=\", value = 1.0e9 }\n\n[[objective]]\nname = \"margin_db\"",
+            ),
+            "constraints",
+        ),
+        (good.replace("seed = 1\n", "sead = 1\n"), "sead"),
+        (
+            good.replace("step = 5.0", "step = 5.0\nunitt = \"dBW\""),
+            "unitt",
+        ),
+        (
+            good.replace("budget = 100", "budget = 100\nbuget = 10"),
+            "buget",
+        ),
+        (
+            good.replace(
+                "label = \"Bundled link budget (55 dBW, 1 Mbit/s)\"",
+                "label = \"Bundled link budget (55 dBW, 1 Mbit/s)\"\nnote = \"x\"",
+            ),
+            "note",
+        ),
+        (
+            good.replace("sense = \"max\"", "sense = \"max\"\nweight = 2.0"),
+            "weight",
+        ),
+        (
+            good.replace(
+                "[[objective]]\nname = \"margin_db\"",
+                "[[constraint]]\nresult = { path = \"margin_db\", op = \">=\", value = 0.0, valeu = 1.0 }\n\n[[objective]]\nname = \"margin_db\"",
+            ),
+            "valeu",
+        ),
+        (
+            study("mars-navigation-shell.toml").replace(
+                "walker = { total = \"total\", planes = \"planes\" }",
+                "walker = { total = \"total\", planes = \"planes\", phase = \"planes\" }",
+            ),
+            "phase",
+        ),
+        (
+            good.replace(
+                "kind = \"pro-design-optimise\"",
+                "kind = \"pro-trade-study\"",
+            ),
+            "pro-trade-study",
+        ),
+    ];
+    for (src, word) in &cases {
+        assert_ne!(src, &good, "the case for '{word}' changed nothing");
+        let e = error_of(src);
+        assert!(e.contains(word), "'{word}' is not named in: {e}");
+    }
+    // The registry route (`kshana-pro run`) refuses the same file.
+    let e = match kshana_pro::registry::run(&cases[0].0) {
+        Ok(_) => panic!("the registry ran a study with a misspelt table"),
+        Err(e) => e.to_string(),
+    };
+    assert!(e.contains("constraints"), "{e}");
+    // A study without the `kind` line is still a study for `kshana-pro design`.
+    let without_kind = good.replace("kind = \"pro-design-optimise\"\n", "");
+    assert_ne!(without_kind, good);
+    let hash = |src: &str| Study::parse(src).unwrap().resolve().unwrap().scenario_hash;
+    assert_eq!(hash(&without_kind), hash(&good));
+}
+
+#[test]
+fn the_engines_own_unit_is_never_replaced_by_a_unit_written_in_the_study() {
+    // Before the fix `unit = "W"` on an objective or a variable relabelled a number the
+    // engine states in dB or dBW.
+    let src = study("link-budget-trade.toml")
+        .replace("path = \"margin_db\"", "path = \"margin_db\"\nunit = \"W\"")
+        .replace("step = 5.0", "step = 5.0\nunit = \"W\"");
+    assert!(src.matches("unit = \"W\"").count() == 2);
+    let (_, v) = run(&src, 2);
+    for group in ["evaluated[]", "front[]", "knee", "reference"] {
+        let o = &v["units"][format!("{group}.objectives.margin_db")];
+        assert_eq!(o["unit"], "dB", "{group}");
+        assert!(
+            o["note"]
+                .as_str()
+                .unwrap()
+                .contains("the study file states 'W'"),
+            "{o}"
+        );
+        let x = &v["units"][format!("{group}.variables.eirp_dbw")];
+        assert_eq!(x["unit"], "dBW", "{group}");
+        assert!(
+            x["note"]
+                .as_str()
+                .unwrap()
+                .contains("the study file states 'W'"),
+            "{x}"
+        );
+        // The objective that is the variable follows the variable.
+        assert_eq!(
+            v["units"][format!("{group}.objectives.eirp_dbw")]["unit"],
+            "dBW"
+        );
+    }
+    assert_eq!(v["objectives"][0]["unit"], "dB");
+    assert_eq!(v["objectives"][1]["unit"], "dBW");
+    assert_eq!(v["space"]["variables"][0]["unit"], "dBW");
+    // Where the engine states no unit, the study's unit is used, as the guide says.
+    let lunar = &lunar().1;
+    assert_eq!(
+        lunar["units"]["front[].variables.altitude_km"]["unit"],
+        "km"
+    );
+    assert!(!lunar["units"]["front[].variables.altitude_km"]["note"]
+        .as_str()
+        .unwrap()
+        .contains("the study file states"));
+}
+
+#[test]
+fn an_existing_front_folder_keeps_the_files_the_tool_did_not_write() {
+    // Before the fix the whole `front/` folder of the output directory was deleted.
+    let d = tmp("keep");
+    let front = d.join("front");
+    std::fs::create_dir_all(&front).unwrap();
+    std::fs::write(front.join("notes.txt"), "mine\n").unwrap();
+    std::fs::write(front.join("my-design.toml"), "kind = \"clock\"\n").unwrap();
+    // Left by an earlier run with a longer front: these two must go.
+    std::fs::write(front.join("999.toml"), "stale\n").unwrap();
+    std::fs::write(front.join("index.csv"), "stale\n").unwrap();
+    let out = bin()
+        .arg("design")
+        .arg(dir().join("link-budget-trade.toml"))
+        .arg("--out")
+        .arg(&d)
+        .arg("--dev")
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert_eq!(
+        std::fs::read_to_string(front.join("notes.txt")).unwrap(),
+        "mine\n"
+    );
+    assert_eq!(
+        std::fs::read_to_string(front.join("my-design.toml")).unwrap(),
+        "kind = \"clock\"\n"
+    );
+    assert!(
+        !front.join("999.toml").exists(),
+        "a stale front file stayed"
+    );
+    let csv = std::fs::read_to_string(front.join("index.csv")).unwrap();
+    assert!(csv.starts_with("id,file,knee,"), "{csv}");
+    let mut names: Vec<String> = std::fs::read_dir(&front)
+        .unwrap()
+        .map(|e| e.unwrap().file_name().to_string_lossy().to_string())
+        .collect();
+    names.sort();
+    assert_eq!(
+        names,
+        [
+            "001.toml",
+            "002.toml",
+            "003.toml",
+            "004.toml",
+            "005.toml",
+            "index.csv",
+            "my-design.toml",
+            "notes.txt"
+        ]
+    );
+}
+
+#[test]
+fn the_report_never_shows_a_small_number_as_zero() {
+    // Before the fix the report and the chart rounded to four decimals, so a ground
+    // sample distance of 0.000004 m read "0".
+    let src = r#"kind = "pro-design-optimise"
+title = "small numbers"
+base_scenario = """
+kind = "eo-coverage"
+altitude_km = 700.0
+half_fov_deg = 7.5
+ifov_microrad = 14.0
+max_off_nadir_deg = 45.0
+"""
+
+[[variable]]
+name = "altitude_km"
+key = "altitude_km"
+type = "choice"
+values = [400.0, 500.0]
+
+[[variable]]
+name = "ifov_microrad"
+key = "ifov_microrad"
+type = "choice"
+values = [0.00001, 0.00002]
+
+[[objective]]
+name = "nadir_gsd_m"
+sense = "min"
+path = "nadir_gsd_m"
+
+[[objective]]
+name = "swath_width_km"
+sense = "max"
+path = "swath_width_km"
+"#;
+    let out = run_study(src, &Options { threads: Some(2) }).unwrap();
+    let v: Value = serde_json::from_str(&out.json).unwrap();
+    let front = v["front"].as_array().unwrap();
+    assert_eq!(front.len(), 2);
+    let gsd = num(&front[0]["objectives"]["nadir_gsd_m"]);
+    // The engine's number, from a direct run of the front scenario: 400 km x 0.00001 microrad.
+    let (d, _) = direct(front[0]["scenario"].as_str().unwrap());
+    assert_eq!(gsd, num(&d["nadir_gsd_m"]));
+    assert!((gsd - 4.0e-6).abs() < 1e-15, "{gsd}");
+    assert!(
+        out.html.contains("<td class=\"n\">4e-6</td>"),
+        "the report does not show 4e-6"
+    );
+    assert!(
+        out.html.contains("<td class=\"n\">1e-5</td>"),
+        "the instantaneous field of view"
+    );
+    assert!(
+        !out.html.contains("<td class=\"n\">0</td>"),
+        "a non-zero number is shown as 0"
+    );
+    assert!(
+        out.svg.contains("nadir_gsd_m 4e-6"),
+        "the chart's hover text"
+    );
+    assert!(!out.svg.contains("nadir_gsd_m 0 "), "the chart shows 0");
 }

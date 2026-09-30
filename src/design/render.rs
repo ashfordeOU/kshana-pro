@@ -31,13 +31,31 @@ pub fn esc(s: &str) -> String {
 }
 
 /// A number as a person writes it: whole numbers without a point, others with up to
-/// four decimals and no trailing zeros.
+/// four decimals and no trailing zeros. A number smaller than 0.1 keeps four significant
+/// digits instead (0.001234, 4e-6), so a small value is never shown as 0.
 pub fn num(x: f64) -> String {
     if x.fract() == 0.0 && x.abs() < 1e15 {
         return format!("{x:.0}");
     }
-    let s = format!("{x:.4}");
-    s.trim_end_matches('0').trim_end_matches('.').to_string()
+    let trim = |s: String| -> String {
+        if s.contains('.') {
+            s.trim_end_matches('0').trim_end_matches('.').to_string()
+        } else {
+            s
+        }
+    };
+    if x.abs() >= 0.1 || !x.is_finite() {
+        return trim(format!("{x:.4}"));
+    }
+    // Four significant digits, read off the scientific form.
+    let sci = format!("{x:.3e}");
+    let (mantissa, exponent) = sci.split_once('e').unwrap_or((&sci, "0"));
+    let exponent: i32 = exponent.parse().unwrap_or(0);
+    if exponent >= -4 {
+        trim(format!("{x:.*}", (3 - exponent) as usize))
+    } else {
+        format!("{}e{exponent}", trim(mantissa.to_string()))
+    }
 }
 
 fn value_text(v: &Value) -> String {
@@ -990,6 +1008,19 @@ mod tests {
         assert_eq!(num(85.0404), "85.0404");
         assert_eq!(num(0.5), "0.5");
         assert_eq!(num(-3.10), "-3.1");
+        assert_eq!(num(0.0), "0");
+        assert_eq!(num(0.6558), "0.6558");
+        assert_eq!(num(0.1), "0.1");
+        // Below 0.1: four significant digits, never a bare 0.
+        assert_eq!(num(0.05), "0.05");
+        assert_eq!(num(0.001234), "0.001234");
+        assert_eq!(num(0.00018), "0.00018");
+        assert_eq!(num(0.0999999), "0.1");
+        assert_eq!(num(4.0e-6), "4e-6");
+        assert_eq!(num(0.00001234), "1.234e-5");
+        assert_eq!(num(-0.00002), "-2e-5");
+        assert_eq!(num(7.000000000000001e-6), "7e-6");
+        assert_eq!(num(1.0e-300), "1e-300");
     }
 
     #[test]
