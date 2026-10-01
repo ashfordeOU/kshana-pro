@@ -1,0 +1,252 @@
+<!-- EVIDENCE on the Observatory system (R4). The validated-results bento draws every compared
+     value from js/evidence-data.mjs (src/tools/gen_evidence_data.py runs the engine's validated
+     modules against the same external oracles as its tests). Matrix counts, matrix cells, the
+     ledger and the standards come from build.py (the engine's verification-matrix.json and
+     capabilities.json). Static numbers marked data-ev are the generator's own strings; its
+     --check fails if they drift. -->
+<section class="page-hero ev-hero hx-hero">
+  <div class="wrap">
+    <div class="hx">
+      <div class="hx-copy">
+        <span class="eyebrow" style="--c:var(--lime)"><i></i>Evidence</span>
+        <h1 class="h1">Every capability wears <span class="soft">its evidence.</span></h1>
+        <p class="lede">{{TOTAL}} capabilities, each graded. <b>{{VAL}} validated</b> against independent external oracles. <b>{{MOD}} honestly labelled Modelled.</b> {{PAR}} partner-owned. Nothing is rounded up.</p>
+      </div>
+      <!-- R5 hero instrument: one cell per row of the engine's verification matrix (build.py page data
+           "matrix", from web/data/verification-matrix.json), drawn and swept by js/ev-hero.mjs. -->
+      <div class="hx-vis">
+        <figure class="hx-win eh-win" id="ehWin" aria-labelledby="ehCapH">
+          <div class="hx-bar">
+            <span class="live"><i></i>Verification matrix <b>v{{VER}}</b></span>
+            <span class="hx-r"><button type="button" class="hx-btn" id="ehPlay" aria-pressed="true" aria-label="Pause the sweep"><svg class="i-play" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg><svg class="i-pause" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h3v10H2zM7 1h3v10H7z" fill="currentColor"/></svg></button><span class="tag real">From the repository</span></span>
+          </div>
+          <div class="eh-count" aria-hidden="true">
+            <div class="eh-n v"><i class="eh-s v"></i><b data-to="{{VAL}}">{{VAL}}</b><span>Validated</span></div>
+            <div class="eh-n m"><i class="eh-s m"></i><b data-to="{{MOD}}">{{MOD}}</b><span>Modelled</span></div>
+            <div class="eh-n p"><i class="eh-s p"></i><b data-to="{{PAR}}">{{PAR}}</b><span>Partner-owned</span></div>
+            <div class="eh-n t"><b data-to="{{TOTAL}}">{{TOTAL}}</b><span>capabilities</span></div>
+          </div>
+          <div class="eh-grid" id="ehGrid" tabindex="0" role="group" aria-roledescription="matrix" aria-label="Verification matrix, one cell per capability in ledger order: {{VAL}} validated (filled squares), {{MOD}} modelled (hollow squares), {{PAR}} partner-owned (diamonds). Arrow keys move between cells; the capability and its oracle are read out below." aria-describedby="ehRead"></div>
+          <div class="eh-read" id="ehRead"><p class="eh-cap">Hover or focus a cell to read its capability and the oracle that grades it.</p></div>
+          <p class="vh" id="ehLive" aria-live="polite"></p>
+          <figcaption class="eh-foot" id="ehCapH"><span class="eh-key"><i class="eh-s v"></i>Validated: an independent external oracle agrees</span><span class="eh-key"><i class="eh-s m"></i>Modelled</span><span class="eh-key"><i class="eh-s p"></i>Partner-owned</span></figcaption>
+        </figure>
+        <p class="prov hx-prov" id="ehProv"><span class="prov-src">Engine v{{VER}} · <code>web/data/verification-matrix.json</code>, generated from <code>src/verification.rs</code> · {{TOTAL}} rows · no scenario or seed: the engine's own ledger</span><a class="prov-open" href="#ledger">Read the ledger</a></p>
+      </div>
+    </div>
+    <ul class="ev-eds" aria-label="Editions on this page">
+      <li><span class="ev-ed fr">Free core</span><span>The ledger, the results, the reproducibility stamp and the tests behind them are all in the open engine.</span></li>
+      <li><span class="ev-ed pr">Pro</span><span>Packages the evidence into an audit-grade, reproducible evidence pack for a review board. <a href="#next">See below</a></span></li>
+      <li><span class="ev-ed cs">Custom study</span><span>Answers your own question with the same labels, not a certification. <a href="#next">See below</a></span></li>
+    </ul>
+    <nav class="subnav" aria-label="On this page"><a href="#matrix">Matrix</a><a href="#ledger">Ledger</a><a href="#research">Research</a><a href="#cite-engine">Cite</a><a href="#results">Validated results</a><a href="#repro">Reproduce it</a><a href="#standards">Standards</a><a href="docs/glossary.html">Glossary (Docs)</a></nav>
+  </div>
+</section>
+
+<!-- ============================================================ 01 VALIDATED RESULTS -->
+<section class="block ev-res" id="results" aria-label="Validated results">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">01</span>Validated results · every compared value</div><h2 class="h2 h2-sm rv">Checked against someone else's answer.</h2></div>
+      <p class="lede rv">Each tile draws every value the engine compared with an independent reference: published vectors, a separate flight-dynamics library, precise ephemerides, a statistics library, a standards publication, and a measured clock record held out from fitting. Hover or focus a mark for its value.</p>
+    </div>
+    <div class="ev-bento" id="evBento">
+
+      <article class="glass ev-tile rv" id="ev-sgp4" style="--c:var(--cyan)" data-area="sgp">
+        <div class="ev-k"><span class="kicker"><i></i>Orbits · analytic</span><span class="ok">Validated</span></div>
+        <div class="ev-num"><b data-ev="sgp4_n">666</b><span class="sl">/</span><b data-ev="sgp4_n">666</b></div>
+        <h3>SGP4 (Simplified General Perturbations 4) orbit propagation</h3>
+        <p>Every AIAA (American Institute of Aeronautics and Astronautics) reference vector reproduced, deep-space SDP4 (Simplified Deep-space Perturbations 4) cases included. Worst case <b data-ev="sgp4_worst_mm">4.12</b>&nbsp;mm.</p>
+        <div class="ev-vis" data-vis="sgp4"><p class="ev-nojs">One square per compared vector, coloured by its position error.</p></div>
+        <p class="ev-or"><span>oracle · AIAA 2006-6753 verification vectors</span><a href="docs/sgp4-validation.html">How it was checked</a></p>
+        <p class="prov ev-prov"><span class="prov-src">Engine v{{VER}}, build <code data-ev="commit">{{BUILD}}</code> · <code>tests/sgp4_verification.rs</code> · deterministic, no seed</span><a class="prov-open" href="studio/index.html?scenario=orbit-sgp4-gps&amp;tab=overview">{{STUDIO_OPEN}}: the same propagator, <code>orbit-sgp4-gps.toml</code><span class="nw"> · seed <span data-ev="seed_sgp4">17</span></span><svg aria-hidden="true"><use href="#i-ext"/></svg></a><span class="prov-tools"><button class="prov-x" type="button" data-copy="cargo test --test sgp4_verification -- --nocapture" title="Copy the command that reproduces it">Copy command</button></span></p>
+      </article>
+
+      <article class="glass ev-tile rv" id="ev-raim" style="--c:var(--magenta)" data-area="raim">
+        <div class="ev-k"><span class="kicker"><i></i>Integrity · statistics</span><span class="ok">Validated</span></div>
+        <div class="ev-num"><b data-ev="raim_n">171</b><small>cases</small></div>
+        <h3>RAIM detection thresholds</h3>
+        <p>The statistical kernel of RAIM (receiver autonomous integrity monitoring) against SciPy, case by case.</p>
+        <div class="ev-vis" data-vis="raim"><p class="ev-nojs">One square per SciPy case, grouped by kernel.</p></div>
+        <p class="ev-or"><span>oracle · SciPy</span><a href="docs/integrity.html">How it was checked</a></p>
+        <p class="prov ev-prov"><span class="prov-src">Engine v{{VER}}, build <code data-ev="commit">{{BUILD}}</code> · <code>tests/raim_reference.rs</code> · deterministic, no seed</span><a class="prov-open" href="studio/index.html?scenario=integrity-raim&amp;tab=timeseries">{{STUDIO_OPEN}}: the kernel at work, <code>integrity-raim.toml</code><span class="nw"> · seed <span data-ev="seed_raim">7</span></span><svg aria-hidden="true"><use href="#i-ext"/></svg></a><span class="prov-tools"><button class="prov-x" type="button" data-copy="cargo test --test raim_reference" title="Copy the command that reproduces it">Copy command</button></span></p>
+      </article>
+
+      <article class="glass ev-tile rv" id="ev-cowell" style="--c:var(--cyan)" data-area="cow">
+        <div class="ev-k"><span class="kicker"><i></i>Orbits · numerical</span><span class="ok">Validated</span></div>
+        <div class="ev-num"><b data-ev="cowell_worst">0.08</b><small>m</small></div>
+        <h3>Numerical (Cowell) propagation</h3>
+        <p>Against the Orekit 12.2 flight-dynamics library at every epoch of a 24-hour arc, force tier by force tier.</p>
+        <div class="ev-vis" data-vis="cowell"><p class="ev-nojs">Position difference against time, per force tier.</p></div>
+        <p class="ev-or"><span>oracle · Orekit 12.2</span><a href="docs/agency-orbit-validation.html">How it was checked</a></p>
+        <p class="prov ev-prov"><span class="prov-src">Engine v{{VER}}, build <code data-ev="commit">{{BUILD}}</code> · <code>tests/numerical_cowell_propagator_reference.rs</code> · deterministic, no seed</span><span class="prov-na">No {{STUDIO}} view: this comparison runs as an engine test.</span><span class="prov-tools"><button class="prov-x" type="button" data-copy="cargo test --test numerical_cowell_propagator_reference -- --nocapture" title="Copy the command that reproduces it">Copy command</button></span></p>
+      </article>
+
+      <article class="glass ev-tile rv" id="ev-ladder" style="--c:var(--lime)" data-area="lad">
+        <div class="ev-k"><span class="kicker"><i></i>Orbits · millimetres to metres</span><span class="ok">Validated</span></div>
+        <div class="ev-num ev-num-2"><span><b data-ev="galileo">0.61</b><small>m Galileo</small></span><span class="sl">/</span><span><b data-ev="swarm">0.10</b><small>m Swarm-A</small></span></div>
+        <h3>Every orbit residual on one scale</h3>
+        <p>From the propagator checks to fits against ESA (European Space Agency) precise ephemerides. The lunar orbiter, above the bar, is shown too.</p>
+        <div class="ev-vis" data-vis="ladder"><p class="ev-nojs">Each residual on a logarithmic scale from a millimetre to twenty metres.</p></div>
+        <p class="ev-or"><span>oracle · ESA precise ephemerides, the lunar orbiter's reconstructed trajectory, Orekit 12.2, AIAA vectors</span><a href="docs/agency-orbit-validation.html">How it was checked</a></p>
+        <p class="prov ev-prov"><span class="prov-src">Engine v{{VER}} · <code>docs/AGENCY-ORBIT-VALIDATION.md</code> residual tables, with the two propagator checks recomputed at build <code data-ev="commit">{{BUILD}}</code> · deterministic, no seed</span><span class="prov-na">No {{STUDIO}} view: precise orbit determination runs as engine tests.</span><span class="prov-tools"><button class="prov-x" type="button" data-copy="cargo test --test agency_galileo --test agency_swarm -- --nocapture" title="Copy the command that reproduces it">Copy command</button></span></p>
+      </article>
+
+      <article class="glass ev-tile rv" id="ev-allan" style="--c:var(--amber)" data-area="adev">
+        <div class="ev-k"><span class="kicker"><i></i>Clocks · stability</span><span class="ok">Validated</span></div>
+        <div class="ev-num"><b data-ev="allan_n">12</b><small>of <span data-ev="allan_n">12</span> published values</small></div>
+        <h3>Allan deviation</h3>
+        <p>Reproduces the reference values of NIST (National Institute of Standards and Technology) Special Publication (SP) 1065, Table 31, on its own 1000-point data set.</p>
+        <div class="ev-vis" data-vis="allan"><p class="ev-nojs">Four deviations against averaging time, with the published values as rings.</p></div>
+        <p class="ev-or"><span>oracle · NIST SP 1065</span><a href="docs/validation.html">How it was checked</a></p>
+        <p class="prov ev-prov"><span class="prov-src">Engine v{{VER}}, build <code data-ev="commit">{{BUILD}}</code> · <code>tests/allan_nist_sp1065_1000point.rs</code> · deterministic, no seed</span><a class="prov-open" href="studio/index.html?scenario=clock-holdover&amp;tab=stability">{{STUDIO_OPEN}}: the estimators on a clock, <code>clock-holdover.toml</code><span class="nw"> · seed <span data-ev="seed_clock">42</span></span><svg aria-hidden="true"><use href="#i-ext"/></svg></a><span class="prov-tools"><button class="prov-x" type="button" data-copy="cargo test --test allan_nist_sp1065_1000point" title="Copy the command that reproduces it">Copy command</button></span></p>
+      </article>
+
+      <article class="glass ev-tile rv" id="ev-hold" style="--c:var(--lime)" data-area="hold">
+        <div class="ev-k"><span class="kicker"><i></i>Clocks · holdover</span><span class="ok">Validated</span></div>
+        <div class="ev-num"><b data-ev="hold_lo">0.84</b><span class="sl">to</span><b data-ev="hold_hi">1.03</b></div>
+        <h3>Holdover prediction on a real caesium clock</h3>
+        <p>Fitted on the first third of a measured caesium record, predicted on the other two thirds: inside the pre-set factor of <b data-ev="hold_bar">1.5</b>.</p>
+        <div class="ev-vis" data-vis="hold"><p class="ev-nojs">Measured and predicted time error against coast time, and the ratio window.</p></div>
+        <p class="ev-or"><span>oracle · measured caesium record</span><a href="docs/validation.html">How it was checked</a></p>
+        <p class="prov ev-prov"><span class="prov-src">Engine v{{VER}}, build <code data-ev="commit">{{BUILD}}</code> · <code>tests/slot_timing_cs5071a_holdout.rs</code> · deterministic, no seed</span><a class="prov-open" href="studio/index.html?scenario=slot-timing-ocxo-leo&amp;tab=holdover">{{STUDIO_OPEN}}: the same inversion, <code>slot-timing-ocxo-leo.toml</code><span class="nw"> · deterministic</span><svg aria-hidden="true"><use href="#i-ext"/></svg></a><span class="prov-tools"><button class="prov-x" type="button" data-copy="scripts/fetch_cs5071a.sh &amp;&amp; cargo test --test slot_timing_cs5071a_holdout -- --nocapture" title="Copy the command that reproduces it">Copy command</button></span></p>
+      </article>
+
+    </div>
+    <div class="ev-tip" id="evTip" aria-hidden="true"></div><p class="vh" id="evLive" aria-live="polite" aria-atomic="true"></p>
+  </div>
+</section>
+
+<!-- ============================================================ 02 VERIFICATION MATRIX + LABELS -->
+<section class="block ev-mx" id="matrix" aria-label="Verification matrix">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">02</span>Verification matrix</div><h2 class="h2 h2-sm rv">One cell per capability.</h2></div>
+      <p class="lede rv">Validated means an independent external source agrees: published reference vectors, a separate tool, or measured data. Anything else says Modelled. Pick a label to light its cells.</p>
+    </div>
+    <div class="ev-mwrap">
+      <div class="glass ev-matrix rv">
+        <div class="m-top">
+          <div><h3>Capabilities graded</h3><div class="m-total">{{VAL}}<small>of {{TOTAL}} validated</small></div></div>
+          <span class="tag">Hover a cell</span>
+        </div>
+        <div class="ev-cells" id="evCells" role="img" aria-label="Verification matrix: {{VAL}} validated, {{MOD}} modelled, {{PAR}} partner-owned, {{TOTAL}} in total">{{MATRIX_CELLS}}</div>
+        <div class="ev-legend" role="group" aria-label="Light the cells of one label">
+          <button class="lg" type="button" data-f="v" aria-pressed="false"><span class="n"><i class="c-v"></i>{{VAL}}</span><span class="d">Validated against an independent external oracle</span></button>
+          <button class="lg" type="button" data-f="m" aria-pressed="false"><span class="n"><i class="c-m"></i>{{MOD}}</span><span class="d">Modelled: implemented, not yet externally validated</span></button>
+          <button class="lg" type="button" data-f="p" aria-pressed="false"><span class="n"><i class="c-p"></i>{{PAR}}</span><span class="d">Partner-owned: outside what the engine does</span></button>
+        </div>
+        <p class="m-note">Counts are exact, from the engine's verification matrix. Cells follow the ledger's row order.</p>
+      </div>
+      <div class="glass ev-why rv" id="labels">
+        <div class="eyebrow">Three words, used strictly</div>
+        <div class="oracle-flow" aria-hidden="true">
+          <div class="box">Kshana output<small>engine run</small></div>
+          <svg width="40" height="14" viewBox="0 0 40 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 7h36M31 2l6 5-6 5"/></svg>
+          <div class="box">Independent oracle<small>published reference</small></div>
+        </div>
+        <dl class="ev-lbls">
+          <div class="v"><dt>Validated</dt><dd>Only with an independent external oracle: published reference vectors, a separate implementation, or measured data held out from fitting. The ledger names the oracle and the test, and the matrix invariant tests enforce the rule.</dd></div>
+          <div class="m"><dt>Modelled</dt><dd>A published model or a documented modelling choice, internally tested, with no independent external oracle yet. Said out loud, not rounded up.</dd></div>
+          <div class="p"><dt>Partner-owned</dt><dd>Spacecraft bus engineering, navigation payload and antenna hardware, quantum payload hardware, and flight-hardware product assurance. Kshana claims none of them; a partner owns them.</dd></div>
+        </dl>
+      </div>
+    </div>
+    <p class="pro-note"><b>With Pro:</b> a <b>mission dossier</b> checks every requirement against real runs and keeps these labels in its verification matrix: a requirement met on a MODELLED or PARTNER basis is flagged. <a href="editions.html#pro-dossier">See a real dossier</a></p>
+  </div>
+</section>
+
+<!-- ============================================================ 03 VALIDATION LEDGER -->
+<section class="block ev-lg" id="ledger" aria-label="Validation ledger">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">03</span>Validation ledger</div><h2 class="h2 h2-sm rv">All {{TOTAL}} rows, one line each.</h2></div>
+      <p class="lede rv">Every row names its requirement, its status and the module that implements it. Open a row for its oracle and tests, or pick a domain to narrow it.</p>
+    </div>
+{{LEDGER}}
+    <p class="ev-next-line"><span class="ev-ed pr">Pro</span><span>Need this ledger as an audit-grade, reproducible evidence pack for a review board? <a href="#next">Kshana Pro packages it</a>.</span></p>
+  </div>
+</section>
+
+<!-- ============================================================ 04 REPRODUCE IT -->
+<section class="block ev-rp" id="repro" aria-label="Reproduce it">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">04</span>Reproducible by default</div><h2 class="h2 h2-sm rv">Rerun it. Get the same numbers.</h2></div>
+      <p class="lede rv"><span class="ev-ed fr">Free core</span> A result is reproducible bit for bit from scenario, seed and engine version. Nothing here needs a licence, an account or us.</p>
+    </div>
+    <div class="repro-grid">
+      <div class="glass repro-free rv">
+        <div class="code-h"><span>The stamp every <code>result.json</code> carries</span><span class="tag real">Recorded run</span></div>
+        <div class="repro-in">
+          <p class="muted">This one is from the recorded clock-holdover run. Open it in {{STUDIO}}, or rerun it yourself:</p>
+          {{REPRO_STAMP}}
+        </div>
+      </div>
+      <ol class="rp-steps rv">
+        <li><b>Install the engine.</b><button class="cmd" type="button" data-copy="cargo install kshana" aria-label="Copy: cargo install kshana"><span class="pr">$</span><span class="cmd-t">cargo install kshana</span><span class="cp"><svg width="14" height="14" aria-hidden="true"><use href="#i-copy"/></svg></span></button><span class="muted">Or <code>pip install kshana</code>, or <a href="developers.html#install">any other channel</a>.</span></li>
+        <li><b>Run the same scenario.</b><button class="cmd" type="button" data-copy="kshana scenarios/clock-holdover.toml" aria-label="Copy: kshana scenarios/clock-holdover.toml"><span class="pr">$</span><span class="cmd-t">kshana scenarios/<wbr><span class="nw">clock-holdover.toml</span></span><span class="cp"><svg width="14" height="14" aria-hidden="true"><use href="#i-copy"/></svg></span></button><span class="muted">It writes <code>result.json</code>, <code>chart.svg</code>, <code>report.html</code> and <code>table.csv</code> next to the scenario.</span></li>
+        <li><b>Compare the stamp.</b><span class="muted">The scenario hash is a SHA-256 (256-bit Secure Hash Algorithm) digest over the canonical scenario: seed, thresholds, model parameters. Change any input and the hash changes. Every chart footer carries its first 12 hex characters.</span></li>
+        <li><b>Let the engine check itself.</b><span class="muted">On every build, tests confirm that the published figures still reproduce (<code class="rp-chip" title="tests/published_figures_still_reproduce.rs">tests/<wbr>published_<wbr>figures_<wbr>still_<wbr>reproduce.rs</code>) and that every ledger row names a test and cites evidence that exists (<code class="rp-chip" title="tests/verification_rows_name_a_test_that_exists.rs">tests/<wbr>verification_<wbr>rows_<wbr>name_<wbr>a_<wbr>test_<wbr>that_<wbr>exists.rs</code>, <code class="rp-chip" title="tests/verification_rows_cite_evidence_that_exists.rs">tests/<wbr>verification_<wbr>rows_<wbr>cite_<wbr>evidence_<wbr>that_<wbr>exists.rs</code>).</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 05 STANDARDS -->
+<section class="block ev-sd" id="standards" aria-label="Standards">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">05</span>Standards grid</div><h2 class="h2 h2-sm rv">Speaks the formats you already file.</h2></div>
+      <p class="lede rv">{{NSTD}} standards and formats the engine implements. A green mark means it is checked against real data, a published example or an independent reference implementation.</p>
+    </div>
+{{STANDARDS}}
+  </div>
+</section>
+
+<!-- ============================================================ PRO AND CUSTOM STUDY -->
+<section class="block ev-nx" id="next" aria-label="When a review needs more">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><i style="--c:var(--magenta)"></i>When a review needs more</div><h2 class="h2 h2-sm rv">Same evidence, packaged or done for you.</h2></div>
+      <p class="lede rv">The engine and everything above stay free. Two paid routes build on them, under contract.</p>
+    </div>
+    <div class="ev-paths">
+      <article class="glass ev-path pr rv">
+        <span class="ev-ed pr">Pro</span>
+        <h3 class="card-h">Kshana Pro: a mission dossier and an evidence pack</h3>
+        <p>Kshana Pro packages the evidence a review or procurement board asks for, reproducibly. What it builds on: this ledger, where every capability names its oracle and its test, and the stamp every result carries. In one command, a mission dossier checks every requirement against real runs and writes a verification matrix with its open items and a PDF (Portable Document Format).</p>
+        <p class="ev-path-a"><a class="btn btn-ink" href="mailto:contact@ashforde.org?subject=Kshana%20Pro%20evaluation">Request a Pro evaluation <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><a href="editions.html#pro-dossier">See a real dossier</a></p>
+      </article>
+      <article class="glass ev-path cs rv">
+        <span class="ev-ed cs">Custom study</span>
+        <h3 class="card-h">A custom study: your question, answered</h3>
+        <p>A custom study answers your own question with the same labels: every figure Validated or Modelled, not a certification. Export-controlled work is handled under clearance and NDA (non-disclosure agreement).</p>
+        <p class="ev-path-a"><a class="btn btn-ghost" href="mailto:contact@ashforde.org?subject=Kshana%20study%20request">Request a study <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><a href="editions.html#custom-why">Why and who it is for</a></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 06 RESEARCH AND CITATION -->
+<section class="block ev-ct" id="cite" aria-label="Research and citation">
+  <div class="wrap">
+    <div class="sec-head" id="research">
+      <div><div class="eyebrow"><span class="idx">06</span>Research and citation</div><h2 class="h2 h2-sm rv">Published research.</h2></div>
+      <p class="lede rv">{{NPUBS}} papers on arXiv, the open preprint archive, built on the open engine. Each opens to a figure rerun on the engine, its findings, the command and its DOI (Digital Object Identifier).</p>
+    </div>
+    <div class="pubs">
+{{PUBS}}
+    </div>
+    <div class="cite-eng glass" id="cite-engine">
+      <div class="ce-a">
+        <h3 class="card-h">Cite the engine</h3>
+        <p class="ce-l">Every release is archived on Zenodo with a citable DOI, and a CITATION.cff ships in the repository. Please cite the engine version, the scenario and the seed.</p>
+      </div>
+      <div class="ce-a">
+        <p class="apa">{{APA}}</p>
+        <details class="pub-more ce-b"><summary>BibTeX for the engine</summary><div class="bib-h"><span>BibTeX</span><button class="tbtn" type="button" data-copy-from="bibText">Copy BibTeX</button></div><pre id="bibText">{{BIBTEX}}</pre></details>
+      </div>
+    </div>
+  </div>
+</section>

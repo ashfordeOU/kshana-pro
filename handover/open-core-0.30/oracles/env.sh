@@ -1,0 +1,11 @@
+# source ~/Code/kshana-oracles/env.sh — every path a fixture generator or xval crate reads
+export KSHANA_ORACLES="/Users/chak/Code/kshana-oracles"
+. "/Users/chak/Code/kshana-oracles/orekit/cp.sh"
+export RTKLIB="/Users/chak/Code/kshana-oracles/RTKLIB"
+export NAVEGO="/Users/chak/Code/kshana-oracles/NaveGo"
+export ORACLE_PY="/Users/chak/Code/kshana-oracles/.venv/bin/python"
+export KSHANA_ANISE_BPC="/Users/chak/Code/kshana-oracles/data/naif/earth_latest_high_prec.bpc"
+export KSHANA_ANISE_DE440S="/Users/chak/Code/kshana-oracles/data/naif/de440s.bsp"
+export KSHANA_ANISE_DE="/Users/chak/Code/kshana-oracles/data/naif/de440s.bsp"
+export KSHANA_ANISE_MOON_PA="/Users/chak/Code/kshana-oracles/data/naif/moon_pa_de440_200625.bpc"
+export CARGO_TARGET_DIR_XVAL="/Users/chak/Code/kshana-oracles/build/xval-target"

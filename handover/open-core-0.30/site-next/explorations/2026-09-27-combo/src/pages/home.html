@@ -1,0 +1,287 @@
+<!-- HOME on the Observatory system (founder's choice, 2026-09-28): the mission console hero, the
+     scrubbable mission timeline, the capability bento, the AI assistant, the spoofing scroll story,
+     the proof strip and the Pro band. Every trace is a real engine run: the chained campaign and
+     the 102-satellite constellation (src/data/runs), the Studio's recordings
+     and the Missions footprint runs. Numbers come in through {{...}} from build.py. -->
+<section class="hero" id="top" aria-label="Kshana mission console">
+  <div class="hero-stage" id="heroStage">
+    <img class="fallback" src="assets/planets/earth-disc-640.webp" alt="" aria-hidden="true" width="640" height="640">
+    <canvas id="glHero" data-planet="earth" aria-hidden="true"></canvas>
+    <div class="globe-labels" aria-hidden="true">
+      <span class="glabel rx" data-k="rx" id="rxLabel">Receiver · {{S_TRK}} tracking</span>
+      <span class="glabel jam" data-k="jam">Jammer · {{S_JAMKM}} km away</span>
+      <span class="glabel sp" data-k="sp">Spoofer · {{S_RATE}} ns/s time push</span>
+    </div>
+    <div class="hero-scrim"></div>
+  </div>
+
+  <div class="wrap hero-grid">
+    <div class="console-bar" aria-label="Console status">
+      <span class="live"><i></i>Replay</span><span class="sep"></span>
+      <span class="cb-mis">Mission <b id="hClock">T+00:00:00</b></span><span class="sep hide-m"></span>
+      <span class="hide-m cb-scn">Scenario <b>{{CAMP_FILE}}</b></span><span class="sep"></span>
+      <span class="phase-pill" id="hPhase" style="--c:var(--lime)">Nominal</span>
+      <span class="right"><span class="hide-m">Engine v{{VER}} · seed {{CAMP_SEED}}</span><span class="tag real">Real run</span></span>
+    </div>
+
+    <div class="hero-copy">
+      <a class="ver" href="docs/changelog.html"><span>v{{VER}}</span>Open source · <abbr title="GNU Affero General Public License, version 3">AGPL-3.0</abbr> · by Ashforde</a>
+      <p class="kname hero-kname">Kshana · <span lang="sa" class="dev">क्षण</span> · <em>the precise instant</em></p>
+      <h1>Rehearse the minute <em>GNSS goes dark.</em></h1>
+      <p class="lede">Kshana is an open-source simulator for PNT (positioning, navigation and timing) resilience. Replay jamming, spoofing and clock holdover when GNSS (Global Navigation Satellite System) signals fail, in a Rust engine that runs right in your browser, and see exactly which results were checked against independent references.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="studio/index.html">{{STUDIO_CTA}} <span class="arr" aria-hidden="true">→</span></a>
+        <button class="btn btn-code" type="button" data-copy="{{CLI_CMD}}" aria-label="Copy install command: {{CLI_CMD}}"><span class="dollar">$</span>{{CLI_CMD}}<span class="cp">Copy</span></button>
+      </div>
+      <p class="hero-hint">Press <kbd class="kmod">⌘K</kbd> to search pages, scenarios and docs</p>
+      <a class="pro-line" href="editions.html#pro-design"><span class="pro-tag">Kshana Pro</span>{{PRO_HERO_MINI}}<span>{{PRO_HERO_TEXT}}</span><span class="arr" aria-hidden="true">→</span></a>
+    </div>
+
+    <aside class="hero-panels" aria-label="Telemetry replayed from the chained campaign run">
+      <div class="glass chart-panel" data-k="te">
+        <div class="cp-head"><div class="cp-title">Clock time error<small>vs {{S_GUARD}} ns guard · linear</small></div><div class="cp-val" data-v>–</div></div>
+        <svg class="cp-svg" data-plot viewBox="0 0 300 74" aria-hidden="true"></svg>
+        <div class="cp-foot"><span>T+0</span><span data-state>–</span><span>now</span></div>
+      </div>
+      <div class="glass chart-panel" data-k="cn">
+        <div class="cp-head"><div class="cp-title">Carrier-to-noise density<small>C/N0 · floor {{S_FLOOR}} dB-Hz</small></div><div class="cp-val" data-v>–</div></div>
+        <svg class="cp-svg" data-plot viewBox="0 0 300 74" aria-hidden="true"></svg>
+        <div class="cp-foot"><span>T+0</span><span data-state>–</span><span>now</span></div>
+      </div>
+      <div class="glass chart-panel" data-k="pl">
+        <div class="cp-head"><div class="cp-title">Protection level vs alert limit<small>PL · AL {{S_AL}} m, vertical</small></div><div class="cp-val" data-v>–</div></div>
+        <svg class="cp-svg" data-plot viewBox="0 0 300 74" aria-hidden="true"></svg>
+        <div class="cp-foot"><span>T+0</span><span data-state>–</span><span>now</span></div>
+      </div>
+    </aside>
+
+    <div class="glass hero-log" aria-label="Event log of the chained campaign run">
+      <div class="log-head"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Event log · {{CAMP_FILE}}</span><span class="tag real">Real events</span></div>
+      <div class="log-body" id="hLog" aria-live="off"></div>
+    </div>
+
+  </div>
+</section>
+<div class="wrap hero-prov-wrap"><details class="hero-prov">
+    <summary>Where every trace comes from</summary>
+    <p class="prov">{{PROV_CAMP_L}}</p>
+    <p class="prov">{{PROV_CONST_L}}</p>
+    <p class="hp-note">The console, the three cards and the log replay one chained run of {{CAMP_NPH}} phases and {{CAMP_NRUNS}} member runs on its {{CAMP_STEP}} s grid ({{CAMP_DUR}} of mission time). The orbits are the {{CONST_N}} satellites of {{CONST_SYS}} from the constellation run, each recovered as a circular two-body orbit from the engine's ground track (worst residual {{CONST_RES}}°), radii compressed for display. Links are drawn to satellites above the constellation run's {{CONST_MASK}}° mask ({{S_MASK2}}° in the integrity-alarm phase, the campaign's reacquisition mask), dimmed by its jamming and cut in holdover. Earth: NASA Blue Marble and Black Marble. {{STUDIO}} replays the chained run in your browser; the engine's own report and the command reproduce each run.</p>
+  </details></div>
+
+<!-- ============================================================ PROOF STRIP -->
+<div class="stats" id="proof" aria-label="Evidence at a glance">
+  <div class="wrap stats-in">
+    <a class="stat" href="capabilities.html#atlas"><span class="n">{{KINDS}}</span><span class="l">scenario kinds</span></a>
+    <a class="stat" href="capabilities.html#atlas"><span class="n">{{FILES}}</span><span class="l">bundled scenario files</span></a>
+    <a class="stat" href="evidence.html#matrix"><span class="n">{{TOTAL}}</span><span class="l">capabilities in the verification matrix</span></a>
+    <a class="stat" href="evidence.html#ledger"><span class="n">{{VAL}}<i>/{{TOTAL}}</i></span><span class="l">validated against independent external oracles</span></a>
+    <a class="stat stat-link" href="evidence.html#research"><span class="n">{{NPUBS}}</span><span class="l">papers on arXiv built on the open engine</span><span class="stat-go">Read the research <span aria-hidden="true">→</span></span></a>
+    <a class="stat" href="studio/index.html"><span class="n">WASM</span><span class="l">runs in the browser as WebAssembly, no install</span></a>
+  </div>
+</div>
+
+<!-- ============================================================ L-BAND CONSOLE
+     The spectrum kind's waterfall, replayed from a real engine run (l-band-waterfall-jamming.toml)
+     with the campaign it drives. Self-contained: css/home-waterfall.css and js/home-waterfall.mjs,
+     data in assets/waterfall/ from src/tools/gen_waterfall.py (which runs the engine). -->
+<section class="lb" id="lband" aria-labelledby="lbTitle">
+  <link rel="stylesheet" href="css/home-waterfall.css">
+  <div class="wrap">
+    <div class="lb-head">
+      <div><div class="eyebrow"><i style="--c:var(--amber)"></i>L-band console · the spectrum kind</div><h2 class="lb-h" id="lbTitle">Watch a jammer take the band.</h2></div>
+      <p class="lb-lede">The GNSS L band as one PSD (power spectral density): frequency across, time down, colour for power above the noise floor. The signals sit under that floor, so what lights up is the jammers: a chirp, a CW (continuous-wave) tone and narrowband noise. Hover, tap or use the arrow keys for each band's <b>C/N0</b> (carrier-to-noise density) and <b>J/S</b> (jammer-to-signal ratio).</p>
+    </div>
+    <div class="window lb-win">
+      <div class="win-bar">
+        <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="win-title"><b>kshana</b> spectrum <span class="hide-m">· <span id="lbTitleFile">l-band-waterfall-jamming.toml</span></span></span>
+        <span class="tag real">Real run</span>
+      </div>
+      <div class="lb-body">
+        <div class="lb-scope" id="lbScope" tabindex="0" role="group" aria-roledescription="waterfall" aria-label="L-band waterfall, frequency across and time down. Arrow keys move a cursor over frequency and time; Escape leaves it." aria-describedby="lbSummary">
+          <div class="lb-chips" id="lbChips"></div>
+          <div class="lb-canvas-wrap"><p class="lb-nojs">The waterfall is drawn from the recorded run with JavaScript. The engine's report below shows the same run.</p></div>
+          <div class="lb-tip" id="lbTip" aria-hidden="true"></div>
+          <p class="vh" id="lbSummary"></p>
+          <p class="vh" id="lbLive" aria-live="polite"></p>
+        </div>
+        <aside class="lb-side" aria-label="Receiver readout for the row on show">
+          <div class="lb-k"><span id="lbWho">Worst band</span><b id="lbT">–</b></div>
+          <div class="lb-now">
+            <div class="lb-big" id="lbCn0">–<small>dB-Hz</small></div>
+            <div class="lb-who"><span class="lb-band" id="lbBand">–</span><span class="lb-state" id="lbState" data-s="ok" style="--c:var(--lime)">Tracking</span></div>
+          </div>
+          <div class="lb-js">J/S <b id="lbJs">–</b></div>
+          <ul class="lb-bars" id="lbBars" aria-label="Carrier-to-noise density of each band against the tracking floor"></ul>
+          <div class="lb-legend"><span>floor</span><span class="ramp" id="lbRamp"></span><span id="lbMax"></span><span class="cap" id="lbScaleCap"></span><span class="cap fl" id="lbFloorTxt"></span></div>
+        </aside>
+      </div>
+      <div class="lb-foot">
+        <button class="play-btn" id="lbPlay" type="button" aria-label="Pause the waterfall"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg></button>
+        <div class="lb-ph-wrap"><div class="lb-ph-cap">The campaign this run drives · each phase follows the jammer state</div><ol class="lb-phases" id="lbPhases"></ol></div>
+      </div>
+    </div>
+    <p class="prov lb-prov"><span class="prov-src" id="lbSrc">Engine run of <code>l-band-waterfall-jamming.toml</code></span>{{STUDIO_OPEN_LINK l-band-waterfall-jamming}}<a href="assets/waterfall/l-band-waterfall-jamming/report.html">Engine report</a><button class="lb-cmd" type="button" data-copy="kshana l-band-waterfall-jamming.toml" aria-label="Copy the command that reproduces the run: kshana l-band-waterfall-jamming.toml"><span>$ kshana l-band-waterfall-jamming.toml</span><span class="cp">Copy</span></button></p>
+    <details class="lb-more">
+      <summary>Scenario, result data, the campaign run and what is modelled</summary>
+      <p class="prov lb-prov"><span class="prov-src" id="lbSrcS">Spectrum run</span><a href="assets/waterfall/l-band-waterfall-jamming/l-band-waterfall-jamming.toml.txt">Scenario file</a><a href="assets/waterfall/l-band-waterfall-jamming/result.json">Result data</a></p>
+      <p class="prov lb-prov"><span class="prov-src" id="lbSrcC">Campaign it drives: <code>campaign-spectrum-holdover-integrity.toml</code></span>{{STUDIO_OPEN_LINK campaign-spectrum-holdover-integrity}}<a href="assets/waterfall/campaign-spectrum-holdover-integrity/report.html">Engine report</a><a href="assets/waterfall/campaign-spectrum-holdover-integrity/campaign-spectrum-holdover-integrity.toml.txt">Scenario file</a></p>
+      <p class="lb-note">Modelled: closed-form spectra over a thermal noise floor, scored per band by spectral separation; jammer powers and timings are scenario inputs. The time axis counts seconds before now; the cyan line marks where the replay restarted. {{STUDIO}} runs the same scenario in your browser and replays the waterfall; the report and the command reproduce the run.</p>
+    </details>
+  </div>
+  <script type="module" src="js/home-waterfall.mjs"></script>
+</section>
+
+<!-- ============================================================ TIMELINE -->
+<section class="tl" id="timeline" aria-label="Mission timeline">
+  <div class="tl-pin" id="tlPin">
+    <div class="wrap tl-head">
+      <div>
+        <div class="eyebrow"><span class="idx">01</span>Mission timeline · scroll or drag to scrub</div>
+        <h2 class="tl-phase"><span class="pn" id="tlPn">1/{{CAMP_NPH}}</span><span id="tlTitle">Nominal</span></h2>
+      </div>
+      <p class="tl-cap" id="tlCap">Every satellite is tracked. The clock is disciplined to GNSS time, and the protection level sits well below the alert limit.</p>
+      <div class="tl-clock"><div class="c" id="tlClock">T+00:00:00</div><div class="u">Mission time</div></div>
+    </div>
+    <div class="wrap">
+      <div class="window">
+        <div class="win-bar">
+          <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="win-title"><b>kshana</b> campaign <span class="hide-m">· {{CAMP_FILE}} · seed {{CAMP_SEED}}</span></span>
+          <span class="tag real">Real run</span>
+        </div>
+        <div class="win-body">
+          <div class="win-side" aria-label="Phases and the member runs each one dispatches">
+            <h3>Phases · member runs</h3>
+            <ol class="scn-list" id="tlSide">{{TL_SIDE}}</ol>
+            <div class="more">{{CAMP_NPH}} phases · {{CAMP_NRUNS}} member runs of existing kinds</div>
+          </div>
+          <div class="win-stage">
+            <div class="hud" aria-hidden="true">
+              <span class="hud-row"><i style="background:var(--cyan)"></i>Satellites · {{CONST_N}}, four systems</span>
+              <span class="hud-row"><i style="background:var(--lime)"></i>Receiver · PL ring against the AL ring</span>
+              <span class="hud-row"><i style="background:var(--amber)"></i>Jammer · {{S_JAMKM}} km from the receiver</span>
+              <span class="hud-row"><i style="background:var(--magenta)"></i>Spoofer</span>
+            </div>
+            <img class="fallback" src="assets/planets/earth-disc-640.webp" alt="" aria-hidden="true" width="640" height="640">
+            <canvas id="glTl" data-planet="earth" aria-hidden="true"></canvas>
+            <div class="alarm-banner" id="tlAlarm" role="status"></div>
+          </div>
+          <div class="win-right">
+            <div class="chart-panel" data-k="te">
+              <div class="cp-head"><div class="cp-title">Clock time error<small>ns · guard {{S_GUARD}}</small></div><div class="cp-val" data-v>–</div></div>
+              <svg class="cp-svg" data-plot viewBox="0 0 300 80" aria-hidden="true"></svg>
+            </div>
+            <div class="chart-panel" data-k="cn">
+              <div class="cp-head"><div class="cp-title">C/N0<small>dB-Hz · floor {{S_FLOOR}}</small></div><div class="cp-val" data-v>–</div></div>
+              <svg class="cp-svg" data-plot viewBox="0 0 300 80" aria-hidden="true"></svg>
+            </div>
+            <div class="chart-panel" data-k="pl">
+              <div class="cp-head"><div class="cp-title">PL vs AL<small>metres · AL {{S_AL}}</small></div><div class="cp-val" data-v>–</div></div>
+              <svg class="cp-svg" data-plot viewBox="0 0 300 80" aria-hidden="true"></svg>
+            </div>
+          </div>
+        </div>
+        <div class="win-foot">
+          <button class="play-btn" id="tlPlay" type="button" aria-label="Play the mission"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path class="pl-ic" d="M2 1l9 5-9 5z" fill="currentColor"/></svg></button>
+          <div class="scrub" id="scrub" role="slider" tabindex="0" aria-label="Mission time" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="T+00:00:00 Nominal">
+            <div class="scrub-labels" id="scrubLabels">{{TL_LABELS}}</div>
+            <div class="scrub-track"><div class="scrub-fill" id="scrubFill" style="--fill:{{TL_FILL}}"></div></div>
+            <div class="scrub-handle" id="scrubHandle" style="left:0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tl-hint"><span>T+00:00:00 → {{CAMP_DUR}} mission time · the chained run, not three runs side by side</span><span>PL = protection level · AL = alert limit · INS = inertial navigation system</span></div>
+      <p class="prov tl-prov">{{PROV_CAMP}}</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CAPABILITIES -->
+<section class="block" id="capabilities" aria-label="Capabilities">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">02</span>Capabilities</div><h2 class="h2 rv">One engine for the whole failure chain.</h2></div>
+      <p class="lede rv">From the first jammed satellite to the last nanosecond of clock holdover: signals, sensors, clocks, orbits and integrity in one simulator. Every picture below is a real engine run, and says which.</p>
+    </div>
+{{HOME_BENTO}}
+  </div>
+</section>
+
+<!-- ============================================================ AI ASSISTANT -->
+<section class="block asst" id="assistant" aria-label="AI assistant">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">03</span>AI assistants · kshana-mcp</div><h2 class="h2 h2-sm rv">Ask your AI assistant. The engine answers.</h2></div>
+      <p class="lede rv">Your AI (artificial intelligence) assistant runs the engine over MCP (Model Context Protocol) through <b>kshana-mcp</b> and reads back JSON (JavaScript Object Notation).</p>
+    </div>
+    <div class="asst-grid">
+      <div class="glass code asst-inst rv">
+        <div class="code-h"><span>Install</span><span class="tag real">Generated from the repository</span></div>
+{{INSTALLER_COMPACT}}
+        <p class="code-foot">Then register it in your assistant's MCP client configuration. <a href="developers.html#install">Full configuration on Developers</a></p>
+      </div>
+      <div class="glass mp rv" id="mcpChat">
+        <div class="mp-head">
+          <span class="who"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2"/></svg></i>AI assistant + kshana-mcp</span>
+          <span class="mp-hr"><button type="button" class="mp-btn mp-play" id="mcpPlay" aria-pressed="false"><svg class="i-play" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><svg class="i-pause" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg><span>Play</span></button><span class="tag real">Recorded session</span></span>
+        </div>
+        <p class="mp-meta" id="mcpLede">The messages an assistant exchanges with kshana-mcp, captured from the server.</p>
+        <div class="mp-nav">
+          <button type="button" class="mp-btn" id="mcpPrev" aria-label="Previous step"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <div class="mp-steps" role="tablist" aria-label="Steps of the recorded session" id="mcpSteps"></div>
+          <button type="button" class="mp-btn" id="mcpNext" aria-label="Next step"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+        <p class="vh" id="mcpStatus" aria-live="polite" aria-atomic="true"></p>
+        <div class="mp-stage" id="mcpStage"><p class="mp-nojs">The recorded session plays here step by step.</p></div>
+        <p class="prov mp-prov" data-prov="fail-tim" data-prov-lead="Same run in the Studio"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ STORY -->
+<section class="story" id="story" aria-label="Spoofing scroll story">
+  <div class="story-track" id="storyTrack">
+  <div class="stage" id="stage" data-beat="-1">
+    <img class="fallback" src="assets/planets/earth-disc-640.webp" alt="" aria-hidden="true" width="640" height="640">
+    <canvas id="glStory" data-planet="earth" aria-hidden="true"></canvas>
+    <div class="stage-shade"></div>
+    <div class="wrap stage-in">
+      <div class="story-copy" id="storyCopy">
+        <div class="eyebrow"><span class="idx">04</span>Scroll story · one chained run</div>
+        <h2 class="h2">A lie that looks like a fix.</h2>
+        <p class="lede">One receiver, {{CAMP_DUR}} of mission time: a clean sky, a jammer, a spoofer that moves the answer instead of blocking it, then a clock left on its own. The {{CONST_N}} satellites are the four systems of the constellation run, on the real Earth. Scroll.</p>
+      </div>
+      <div class="beats" id="beats" aria-live="polite">
+        <div class="beat" style="--c:var(--lime)"><div class="k">01 · Nominal</div><h3>Every link, accounted for.</h3><p>{{S_TRK}} satellites tracked at a mean C/N0 (carrier-to-noise density) of <b>{{S_CN0}} dB-Hz</b>. The vertical protection level stays between {{S_PL0}} and {{S_PL1}} m, under the {{S_AL}} m alert limit.</p></div>
+        <div class="beat" style="--c:var(--amber)"><div class="k">02 · Jamming</div><h3>Noise swallows the sky.</h3><p>A broadband jammer {{S_JAMKM}} km away comes on at <b>{{S_JAM1}} dBW</b>. C/N0 falls to <b>{{S_CN0J}} dB-Hz</b>, just above the {{S_FLOOR}} dB-Hz tracking floor. Loud, so the receiver knows.</p></div>
+        <div class="beat" style="--c:var(--magenta)"><div class="k">03 · Spoofing</div><h3>A lie that looks like a fix.</h3><p>A spoofer pushes the clock at <b>{{S_RATE}} ns/s</b>. The RF (radio-frequency) detector alarms at {{S_RF_T}}; the clock-aided monitor needs <b>{{S_DET_S}} s</b>, and by then {{S_OFF}} ns are already pulled in.</p></div>
+        <div class="beat" style="--c:var(--cyan)"><div class="k">04 · Holdover</div><h3>Then time starts to drift.</h3><p>The jammer goes to {{S_JAM2}} dBW and every satellite is lost. The clock free-runs from the {{S_CARRY}} ns the spoofer left and crosses its <b>{{S_GUARD}} ns guard at {{S_GUARD_T}}</b>; the inertial error reaches {{S_INS_KM}} km.</p></div>
+      </div>
+      <div class="glass hold" id="hold" aria-hidden="true">
+        <div class="hold-k"><span>Clock time error · holdover</span><span class="tag real">Real run</span></div>
+        <div class="hold-v"><span id="holdNs">0.0</span><small>ns</small></div>
+        <div class="hold-bar"><i id="holdFill"></i><b id="holdGuard"></b></div>
+        <div class="hold-meta"><span id="holdT">T+00:00:00</span><span>guard {{S_GUARD}} ns</span></div>
+      </div>
+      <div class="rail" id="rail" aria-hidden="true"><div><span><i></i></span>Nominal</div><div><span><i></i></span>Jamming</div><div><span><i></i></span>Spoofing</div><div><span><i></i></span>Holdover</div></div>
+      <div class="legend" id="storyLegend" aria-label="Constellation legend"></div>
+    </div>
+  </div>
+  </div>
+  <div class="wrap story-prov"><p class="prov">{{PROV_CAMP_L}}</p><p class="prov">{{PROV_CONST_L}}</p></div>
+</section>
+
+{{PRO_BAND_HOME}}
+
+<section class="closing">
+  <div class="wrap closing-in">
+    <h2 class="rv">Find where your timing breaks, before it does.</h2>
+    <div class="cta-row rv">
+      <a class="btn btn-primary" href="studio/index.html">{{STUDIO_CTA}} <span class="arr" aria-hidden="true">→</span></a>
+      <button class="btn btn-code" type="button" data-copy="{{CLI_CMD}}" aria-label="Copy install command: {{CLI_CMD}}"><span class="dollar">$</span>{{CLI_CMD}}<span class="cp">Copy</span></button>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,3156 @@
+[
+ {
+  "device": "desktop",
+  "file": "jamming-demo.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "Tracking threshold (tracking_threshold_dbhz)",
+   "Lat (receiver.lat_deg)",
+   "Lon (receiver.lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "maritime-strait-jamming.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "Tracking threshold (tracking_threshold_dbhz)",
+   "Lat (receiver.lat_deg)",
+   "Lon (receiver.lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "maritime-spoof-position-push.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Power advantage (attack.power_advantage_db)",
+   "Push magnitude (attack.push_magnitude_m)",
+   "Num biased (attack.num_biased)",
+   "El imbalance (attack.el_imbalance)",
+   "Sat power (detector.sat_power_dbm)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "maritime-port-approach-coast.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Speed (speed_m_s)",
+   "Ref accel m s2 (ref_accel_m_s2)",
+   "Drift band lo m per (drift_band_lo_m_per_s)",
+   "Drift band hi m per (drift_band_hi_m_per_s)",
+   "Mission duration (mission_duration_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "automotive-urban-canyon.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Threshold (threshold_m)",
+   "Fix interval (fix_interval_s)",
+   "Sigma pos (sigma_pos_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "rail-tunnel-coast.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Speed (speed_m_s)",
+   "Ref accel m s2 (ref_accel_m_s2)",
+   "Drift band lo m per (drift_band_lo_m_per_s)",
+   "Drift band hi m per (drift_band_hi_m_per_s)",
+   "Mission duration (mission_duration_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "small-uas-jammed-nav.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Threshold (threshold_m)",
+   "Fix interval (fix_interval_s)",
+   "Sigma pos (sigma_pos_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "tracking-loop.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Pll bandwidth (pll_bandwidth_hz)",
+   "Dll bandwidth (dll_bandwidth_hz)",
+   "Predetection integration (predetection_integration_s)",
+   "Correlator spacing chips (correlator_spacing_chips)",
+   "Carrier allowance (carrier_allowance_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "impairment-eval.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "N per class (n_per_class)",
+   "Nominal cn0 (nominal_cn0_dbhz)",
+   "Meas noise (meas_noise)",
+   "Target pfa (target_pfa)",
+   "Shift severity scale (shift_severity_scale)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "conflict-resilience.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Trials (trials)",
+   "Primary layer (primary_layer)",
+   "Min (intensity.min)",
+   "Max (intensity.max)",
+   "Steps (intensity.steps)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "spoof-attack.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "Start (attack.start_s)",
+   "Rate ns per (attack.rate_ns_per_s)",
+   "Y0 (clock_quantum.y0)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "spoof-detect.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Power advantage (attack.power_advantage_db)",
+   "Push magnitude (attack.push_magnitude_m)",
+   "Num biased (attack.num_biased)",
+   "El imbalance (attack.el_imbalance)",
+   "Sat power (detector.sat_power_dbm)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "spoof-meaconing.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "Start (attack.start_s)",
+   "Target pfa (attack.target_pfa)",
+   "Mc runs (attack.mc_runs)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "clock-holdover.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "Y0 (clock_quantum.y0)",
+   "Q wf (clock_quantum.q_wf)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "clock-holdover-labsr.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "Y0 (clock_quantum.y0)",
+   "Q wf (clock_quantum.q_wf)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "clock-ensemble.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "Runs (runs)",
+   "Y0 (clock_quantum.y0)",
+   "Q wf (clock_quantum.q_wf)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "slot-timing-ocxo-leo.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "Guard (slot.guard_ns)",
+   "K sigma (slot.k_sigma)",
+   "Fix sigma (slot.fix_sigma_ns)",
+   "Elapsed since sync (slot.elapsed_since_sync_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "telecom-prtc-holdover-24h.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Gnss loss (holdover.gnss_loss_s)",
+   "Duration (holdover.duration_s)",
+   "Sample interval (holdover.sample_interval_s)",
+   "Locked te sigma (holdover.locked_te_sigma_ns)",
+   "Initial frequency offset (holdover.initial_frequency_offset)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "telecom-tie-ingest.toml",
+  "visible_inputs": 2,
+  "inputs": [
+   "Holdover start (series.holdover_start_s)",
+   "Locked duration (series.locked_duration_days)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "timetransfer.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Diurnal/differential-delay random-walk floor of an RF link (link_classical.q_rw_s)",
+   "Samples (samples)",
+   "Range spec mm (range_spec_mm)",
+   "Sigma j (link_quantum.sigma_j_s)",
+   "Q rw (link_quantum.q_rw_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "quantum-time-transfer.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Integration (integration_s)",
+   "Dissemination interval (dissemination_interval_s)",
+   "Link loss (link_loss_db)",
+   "Classical link sigma (classical_link_sigma_s)",
+   "Monitor pfa (monitor_pfa)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "sweep-clock-stability.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "~ optical-class sigma_y(1s)=1e-12 (start)",
+   "~ poor oscillator sigma_y(1s)=1e-9 (stop)",
+   "Steps (steps)",
+   "Threshold (base.threshold_ns)",
+   "Duration (base.time.duration_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "imu-deadreckoning.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Threshold (threshold_m)",
+   "Bias (accel_quantum.bias)",
+   "Q va (accel_quantum.q_va)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "ins-trn-coast.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Speed (speed_m_s)",
+   "Ref accel m s2 (ref_accel_m_s2)",
+   "Drift band lo m per (drift_band_lo_m_per_s)",
+   "Drift band hi m per (drift_band_hi_m_per_s)",
+   "Trn fix interval (trn_fix_interval_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "gnss-ins.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Threshold (threshold_m)",
+   "Fix interval (fix_interval_s)",
+   "Sigma pos (sigma_pos_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "fusion-pnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Timing spec (timing_spec_ns)",
+   "Position spec (position_spec_m)",
+   "Interval (resync.interval_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "hybrid-pnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Timing spec (timing_spec_ns)",
+   "Position spec (position_spec_m)",
+   "Interval (resync.interval_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "hybrid-ukf.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-time-duration_s",
+   "Measurement cycle time T_c (accel.cai.cycle_time_s)",
+   "Fallback classical value (accel.q_va)",
+   "Interrogation pulse separation T (accel.cai.pulse_sep_t)",
+   "Detected atoms per shot N (accel.cai.atom_number)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "terrain-nav.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Dem seed (dem_seed)",
+   "Start lat (start_lat_deg)",
+   "Start lon (start_lon_deg)",
+   "Step lat (step_lat_deg)",
+   "Step lon (step_lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "terrain-slam.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Dem seed (dem_seed)",
+   "Start lat (start_lat_deg)",
+   "Start lon (start_lon_deg)",
+   "Step lat (step_lat_deg)",
+   "Step lon (step_lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "gravity-map-nav.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Nmax (nmax)",
+   "Start lat (start_lat_deg)",
+   "Start lon (start_lon_deg)",
+   "Step lat (step_lat_deg)",
+   "Step lon (step_lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "gps-denied-gravity-nav.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Nmax (nmax)",
+   "Start lat (start_lat_deg)",
+   "Start lon (start_lon_deg)",
+   "Step lat (step_lat_deg)",
+   "Step lon (step_lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "combined-altpnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Start lat (start_lat_deg)",
+   "Start lon (start_lon_deg)",
+   "Step lat (step_lat_deg)",
+   "Step lon (step_lon_deg)",
+   "Waypoints (waypoints)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "quantum-gnss-free-nav.toml",
+  "visible_inputs": 4,
+  "inputs": [
+   "Outage (outage_s)",
+   "Threshold (threshold_m)",
+   "Quantum bias m s2 (quantum_bias_m_s2)",
+   "Classical bias m s2 (classical_bias_m_s2)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "hybrid-optical-rf.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "1 mW mean optical power (tx_power_w)",
+   "-> ~0.7 km diffraction footprint at lunar range (tx_aperture_m)",
+   "Mean Earth-Moon distance (range_km)",
+   "Modelled 1550 nm clear-sky allocation (atmospheric_loss_db)",
+   "Modelled terminal pointing/jitter allocation (pointing_loss_db)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "integrity-raim.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-sigma_uere_m",
+   "Horizontal alert limit (al_h_m)",
+   "Vertical alert limit (al_v_m)",
+   "k-time-duration_s",
+   "k-top-mask_deg"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "araim-gps-galileo.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-sigma_uere_m",
+   "Horizontal alert limit (al_h_m)",
+   "Vertical alert limit (al_v_m)",
+   "k-time-duration_s",
+   "k-top-mask_deg"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "araim-reference-check.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "desktop",
+  "file": "gnss-sim-raim.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "1σ thermal noise per pseudorange (noise_sigma_m)",
+   "Peak deterministic multipath, scaled by (multipath_m)",
+   "Peak per-PRN satellite clock offset (sat_clock_rms_m)",
+   "RAIM 1σ user-equivalent range error (uere_m)",
+   "k-time-duration_s"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "pvt-abmf.toml",
+  "visible_inputs": 1,
+  "inputs": [
+   "k-top-mask_deg"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "orbit-gnss-challenged.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "orbit-sgp4-gps.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "orbit-multignss.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km",
+   "k-user-inclination_deg"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "orbit-molniya.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "orbit-real-tle.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "orbit-rinex.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "ephemeris.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-duration_s",
+   "k-station-lat_deg",
+   "k-station-lon_deg",
+   "k-top-dut1_s",
+   "Xp arcsec (xp_arcsec)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "passes.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Sun-synchronous-like (inclination_deg)",
+   "k-top-mask_deg",
+   "Altitude (altitude_km)",
+   "Raan (raan_deg)",
+   "Arg lat (arg_lat_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "launch-window.toml",
+  "visible_inputs": 3,
+  "inputs": [
+   "Kennedy Space Center (site_lat_deg)",
+   "ISS inclination (target_inclination_deg)",
+   "Altitude (altitude_km)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "reentry.toml",
+  "visible_inputs": 3,
+  "inputs": [
+   "Near-circular LEO entry interface speed (entry_velocity_m_s)",
+   "Below local horizontal (flight_path_angle_deg)",
+   "Ballistic coeff kg m2 (ballistic_coeff_kg_m2)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "eo-coverage.toml",
+  "visible_inputs": 4,
+  "inputs": [
+   "Nadir half-angle from boresight (half_fov_deg)",
+   "Slewable field of regard (max_off_nadir_deg)",
+   "Per-pixel IFOV for the nadir GSD (ifov_microrad)",
+   "Altitude (altitude_km)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "link-budget.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Eirp (eirp_dbw)",
+   "G over t (g_over_t_db)",
+   "Range (range_km)",
+   "Data rate bps (data_rate_bps)",
+   "Other losses (other_losses_db)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "attitude-budget.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Altitude (altitude_km)",
+   "I max kg m2 (i_max_kg_m2)",
+   "I min kg m2 (i_min_kg_m2)",
+   "Sigma arcsec (contributors[0].sigma_arcsec)",
+   "Sigma arcsec (contributors[1].sigma_arcsec)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "space-weather.toml",
+  "visible_inputs": 3,
+  "inputs": [
+   "Daily 10.7 cm solar radio flux (sfu) — an active sun (f107)",
+   "81-day average (f107a)",
+   "Planetary geomagnetic index (0-9); 4 = unsettled (kp)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "aperture-duty-cycle.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Apertures (apertures)",
+   "Aos (contacts[0].aos_s)",
+   "Los (contacts[0].los_s)",
+   "Aos (contacts[1].aos_s)",
+   "Los (contacts[1].los_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "moonlight-service-volume.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "~8000 km perilune altitude above the mean lunar radius (sma_km)",
+   "Apolune over the southern hemisphere (argp_deg)",
+   "N sats (n_sats)",
+   "Eccentricity (eccentricity)",
+   "Inc (inc_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunanet-araim.toml",
+  "visible_inputs": 4,
+  "inputs": [
+   "LunaNet surface-ops alert limit (alert_limit_m)",
+   "k-top-duration_s",
+   "Lunar surface integrity-risk budget (p_hmi)",
+   "k-top-step_s"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-jamming.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Shackleton crater rim (site_lat_deg)",
+   "Representative lunar AFS EIRP (sat_eirp_dbw)",
+   "S-band AFS carrier (carrier_hz)",
+   "Despreading processing gain (chip_rate_hz)",
+   "J/S is invariant to this; it moves C/N0 only (user_boresight_gain_dbi)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-attack-surface.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "GPS L1 C/A typical received power, dBW (gps_reference_dbw)",
+   "ICD-GPS-200 specification minimum, dBW (gps_reference_min_dbw)",
+   "0.25 m ... 4 m, i.e. HPBW 29.2 deg ... 1.83 deg (footprint_diameter_min_m)",
+   "Afs eirp (afs_eirp_dbw)",
+   "User gain (user_gain_dbi)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-time-offset.toml",
+  "visible_inputs": 4,
+  "inputs": [
+   "Accumulate the LTC-TT offset over one day (horizon_days)",
+   "Epoch year (epoch_year)",
+   "Epoch month (epoch_month)",
+   "Epoch (epoch_day)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-time-budget.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "desktop",
+  "file": "earth-gnss-lunar.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Altitude (altitude_km)",
+   "Inclination (inclination_deg)",
+   "Planes (planes)",
+   "Sats per plane (sats_per_plane)",
+   "Phasing f (phasing_f)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-beacon.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "N satellites (n_satellites)",
+   "Comparison n satellites (comparison_n_satellites)",
+   "Epoch (epoch_s)",
+   "Elevation mask (elevation_mask_deg)",
+   "Clock sync (clock_sync_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-differential-pnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "~8000 km perilune altitude above the mean lunar radius (sma_km)",
+   "Apolune over the southern hemisphere (argp_deg)",
+   "Orbit-error vector magnitude (orbit_err_m)",
+   "Clock error in range units (clock_err_m)",
+   "Per-receiver measurement noise (noise_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-vlbi.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Station1 lat (station1_lat_deg)",
+   "Station1 lon (station1_lon_deg)",
+   "Station1 alt (station1_alt_m)",
+   "Station2 lat (station2_lat_deg)",
+   "Station2 lon (station2_lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-vlbi-fim.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-joint-od-clock.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "VLBI delay sigma (s) ~ 3 mm path length (sigma_vlbi_s)",
+   "Radiometric / lunar-local range sigma (sigma_range_m)",
+   "Inter-satellite (optical) range sigma (sigma_isl_m)",
+   "Constellation satellites (n_sat)",
+   "N earth (n_earth)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-frame-realisation.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "N points (n_points)",
+   "Tx (tx_m)",
+   "Ty (ty_m)",
+   "Tz (tz_m)",
+   "Rot x urad (rot_x_urad)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-frame-campaign.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-llr-datum.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-interop-export.toml",
+  "visible_inputs": 2,
+  "inputs": [
+   "N states (n_states)",
+   "Step (step_min)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "realtime-frame-eop.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "desktop",
+  "file": "cislunar-observability.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "desktop",
+  "file": "cislunar-arc-recovery.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "desktop",
+  "file": "mars-pnt-lmo.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-duration_s",
+   "DSN-class range noise (range_sigma_m)",
+   "0.1 mm/s Doppler noise (doppler_sigma_mps)",
+   "Mars gravity field degree/order (nmax)",
+   "Reduced-dynamic knob (dynamic → kinematic), 0..1 (dynamic_tightness)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "mars-pnt-surface.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-duration_s",
+   "Nmax (nmax)",
+   "Range sigma (range_sigma_m)",
+   "Doppler sigma (doppler_sigma_mps)",
+   "Dynamic tightness (dynamic_tightness)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "mars-pnt-transfer.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "A two-way pass every hour (two_way_period_s)",
+   "k-top-duration_s",
+   "Nmax (nmax)",
+   "Range sigma (range_sigma_m)",
+   "Doppler sigma (doppler_sigma_mps)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "l-band-waterfall-jamming.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the waterfall replay",
+   "k-receiver-tracking-threshold-dbhz",
+   "k-receiver-noise-figure-db",
+   "k-jammers-0-eirp-dbw",
+   "k-jammers-0-range-m"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "multi-band-jamming-waterfall.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the waterfall replay",
+   "k-receiver-tracking-threshold-dbhz",
+   "k-receiver-noise-figure-db",
+   "k-jammers-0-received-power-dbw",
+   "k--duration-s"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-resilience-js-margin.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the waterfall replay",
+   "k-receiver-tracking-threshold-dbhz",
+   "k-receiver-noise-figure-db",
+   "k-jammers-0-received-power-dbw",
+   "k-jammers-0-bandwidth-mhz"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "constellation-multi-gnss-coverage.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the orbit replay",
+   "Field to map",
+   "k--mask-deg",
+   "k--pdop-threshold",
+   "k--grid-step-deg"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-pnt-mega-shell.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the orbit replay",
+   "Field to map",
+   "k--mask-deg",
+   "k--pdop-threshold",
+   "k--grid-step-deg"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "lunar-relay-constellation.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the orbit replay",
+   "Field to map",
+   "k--mask-deg",
+   "k--pdop-threshold",
+   "k--grid-step-deg"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-band-trade.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-receiver-reference-cn0-dbhz",
+   "k-receiver-loop-bandwidth-hz",
+   "k-trade-slant-tec-tecu",
+   "k-trade-slant-range-km",
+   "k-acquisition-altitude-km"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "xona-pulsar-signals.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-receiver-reference-cn0-dbhz",
+   "k-receiver-loop-bandwidth-hz",
+   "k-trade-slant-tec-tecu",
+   "k-trade-slant-range-km",
+   "Noise figure (receiver.noise_figure_db)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-pass-vs-gnss-cn0.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-mask-deg",
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-pass-xona-pulsar.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-pass-iridium.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-indoor-uhf.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-iot-energy.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "k-iot-active-power-mw",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-focus-science-iono-sounding.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-mask-deg",
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-resilience-spoof-doppler.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-mask-deg",
+   "k-user-lat-deg",
+   "k-spoofer-offset-m",
+   "k-spoofer-onset-s",
+   "Duration (duration_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-navmsg-fit-interval-trade.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-orbit-altitude-km",
+   "k-orbit-inclination-deg",
+   "k-orbit-gravity-degree",
+   "Cd area over mass (orbit.cd_area_over_mass)",
+   "Span (trade.span_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-navmsg-model-comparison.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-orbit-altitude-km",
+   "k-orbit-inclination-deg",
+   "k-orbit-gravity-degree",
+   "Span (comparison.span_s)",
+   "Liu arcs (comparison.liu_arcs)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-navmsg-midpass-update.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-orbit-altitude-km",
+   "k-orbit-inclination-deg",
+   "k-message-fit-interval-s",
+   "k-message-update-period-s",
+   "k-orbit-gravity-degree"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-navmsg-encode-decode.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-orbit-altitude-km",
+   "k-orbit-inclination-deg",
+   "k-message-fit-interval-s",
+   "k-message-update-period-s",
+   "k-orbit-gravity-degree"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "meo-leo-fused-pvt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-lat-deg",
+   "k-system-0-sisre-m",
+   "k-system-1-sisre-m",
+   "k-joint-max-leo-sweep",
+   "k--duration-s"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-doppler-positioning.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-lat-deg",
+   "k-system-0-sigma-doppler-hz",
+   "k--duration-s",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "starlink-sop-doppler-positioning.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-lat-deg",
+   "k-system-0-mask-deg",
+   "k--duration-s",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-timing-utc.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-lat-deg",
+   "k-system-0-mask-deg",
+   "k--duration-s",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "polar-arctic-leo-coverage.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-system-0-mask-deg",
+   "k--duration-s",
+   "Lat step (polar.lat_step_deg)",
+   "Lon step (polar.lon_step_deg)",
+   "Pdop threshold (polar.pdop_threshold)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-ppp-convergence.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k--duration-s",
+   "k--runs",
+   "k-gnss-0-mask-deg",
+   "Lat (site[0].lat_deg)",
+   "Lon (site[0].lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "ntn-5g-positioning.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-signal-0-bandwidth-hz",
+   "k--integration-s",
+   "k--sync-error-m",
+   "k-system-0-mask-deg",
+   "Carrier (carrier_hz)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-pnt-end-to-end.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k--od-sisre-m",
+   "k-pass-satellite-0-altitude-km",
+   "k-pass-satellite-0-max-elevation-deg",
+   "k-pass-satellite-band-0-eirp-dbw",
+   "k-navmsg-message-fit-interval-s"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "xona-pulsar-end-to-end.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k--od-sisre-m",
+   "k-pass-satellite-0-altitude-km",
+   "k-pass-satellite-0-max-elevation-deg",
+   "k-navmsg-message-fit-interval-s",
+   "Duration (pass.duration_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-focus-data-services.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-compose-shared-0-value",
+   "Altitude (compose.members[0].scenario.orbit.altitude_km)",
+   "Inclination (compose.members[0].scenario.orbit.inclination_deg)",
+   "Gravity degree (compose.members[0].scenario.orbit.gravity_degree)",
+   "Fit interval (compose.members[0].scenario.message.fit_interval_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-focus-fused-pnt-sisre.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Duration (sweep.scenario.duration_s)",
+   "Lat (sweep.scenario.user.lat_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-focus-indoor-uhf.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Duration (compose.members[0].scenario.duration_s)",
+   "Lat (compose.members[0].scenario.user.lat_deg)",
+   "Lon (compose.members[0].scenario.user.lon_deg)",
+   "Height (compose.members[0].scenario.user.height_m)",
+   "Building probability (compose.members[0].scenario.user.building_probability)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-focus-iot-eirp.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Duration (sweep.scenario.duration_s)",
+   "Lat (sweep.scenario.user.lat_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-focus-ntn-bandwidth.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Carrier (sweep.scenario.carrier_hz)",
+   "Integration (sweep.scenario.integration_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-focus-ppp-altitude.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Duration (sweep.scenario.duration_s)",
+   "Runs (sweep.scenario.runs)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-resilience-gnss-jammed-leo-carries.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Duration (phases.runs[0].scenario.duration_s)",
+   "Noise figure (phases.runs[0].scenario.receiver.noise_figure_db)",
+   "Antenna temp (phases.runs[0].scenario.receiver.antenna_temp_k)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-resilience-multiband-diversity.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Duration (sweep.scenario.duration_s)",
+   "Noise figure (sweep.scenario.receiver.noise_figure_db)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-resilience-spoof-monitors.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-compose-shared-0-value",
+   "Duration (compose.members[0].scenario.duration_s)",
+   "Lat (compose.members[0].scenario.user.lat_deg)",
+   "Lon (compose.members[0].scenario.user.lon_deg)",
+   "Height (compose.members[0].scenario.user.height_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-vertical-5g-network-timing.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Gnss loss (phases.runs[0].scenario.holdover.gnss_loss_s)",
+   "Duration (phases.runs[0].scenario.holdover.duration_s)",
+   "Sample interval (phases.runs[0].scenario.holdover.sample_interval_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-vertical-asset-tracking-iot.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Duration (phases.runs[0].scenario.duration_s)",
+   "Lat (phases.runs[0].scenario.user.lat_deg)",
+   "Lon (phases.runs[0].scenario.user.lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-vertical-autonomous-vehicle.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Duration (phases.runs[0].scenario.duration_s)",
+   "Lat (phases.runs[0].scenario.user.lat_deg)",
+   "Lon (phases.runs[0].scenario.user.lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-vertical-critical-infrastructure-timing.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Threshold (phases.runs[0].scenario.threshold_ns)",
+   "Duration (phases.runs[0].scenario.time.duration_s)",
+   "Y0 (phases.runs[0].scenario.clock_quantum.y0)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-vertical-polar-arctic.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Duration (phases.runs[0].scenario.duration_s)",
+   "Lat (phases.runs[0].scenario.user.lat_deg)",
+   "Lon (phases.runs[0].scenario.user.lon_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-vertical-rail-maritime.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Mask (phases.runs[0].scenario.mask_deg)",
+   "Tracking threshold (phases.runs[0].scenario.tracking_threshold_dbhz)",
+   "Duration (phases.runs[0].scenario.time.duration_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "campaign-jam-spoof-holdover-integrity.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Threshold (phases.runs[0].scenario.threshold_ns)",
+   "Duration (phases.runs[0].scenario.time.duration_s)",
+   "Y0 (phases.runs[0].scenario.clock_quantum.y0)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "campaign-spectrum-holdover-integrity.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "End at run (phases[0].end_at_run)",
+   "Threshold (phases.runs[0].scenario.threshold_ns)",
+   "Duration (phases.runs[0].scenario.time.duration_s)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "campaign-sweep-jammer-power.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Mask (sweep.scenario.mask_deg)",
+   "Tracking threshold (sweep.scenario.tracking_threshold_dbhz)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "campaign-monte-carlo-clock-holdover.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-monte-carlo-runs",
+   "Threshold (monte_carlo.scenario.threshold_ns)",
+   "Duration (monte_carlo.scenario.time.duration_s)",
+   "Y0 (monte_carlo.scenario.clock_quantum.y0)",
+   "Q wf (monte_carlo.scenario.clock_quantum.q_wf)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "campaign-shared-jammer-sea-road.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-compose-shared-0-value",
+   "Mask (compose.members[0].scenario.mask_deg)",
+   "Tracking threshold (compose.members[0].scenario.tracking_threshold_dbhz)",
+   "Duration (compose.members[0].scenario.time.duration_s)",
+   "Lat (compose.members[0].scenario.receiver.lat_deg)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "solar-system-tour.toml",
+  "visible_inputs": 1,
+  "inputs": [
+   "k--track-points"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "mars-orbit-pnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-constellation-planes",
+   "k-constellation-sats-per-plane",
+   "k-constellation-altitude-km",
+   "k-constellation-inclination-deg",
+   "k-constellation-sigma-range-m"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "europa-surface-pnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-constellation-planes",
+   "k-constellation-sats-per-plane",
+   "k-constellation-altitude-km",
+   "k-constellation-inclination-deg",
+   "k-constellation-sigma-range-m"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "quantum-trade.toml",
+  "visible_inputs": 2,
+  "inputs": [
+   "20 ns phase-error threshold (timing_threshold_s)",
+   "100 m position-error threshold (position_threshold_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "quantum-anomaly-detect.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Fault mu (fault_mu)",
+   "Quantum sigma (quantum_sigma)",
+   "Classical sigma (classical_sigma)",
+   "Pfa (pfa)",
+   "Pd (pd)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "sweep-nd-inertial.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Start (axes[0].start)",
+   "Stop (axes[0].stop)",
+   "Steps (axes[0].steps)",
+   "Start (axes[1].start)",
+   "Stop (axes[1].stop)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "oem-interop.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "desktop",
+  "file": "space-packet.toml",
+  "visible_inputs": 3,
+  "inputs": [
+   "Application Process Identifier (apid)",
+   "Frame a short sequence (packet_count)",
+   "User-data-field octets per packet (data_len)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "quantum-pnt-demonstrator.suite.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "desktop",
+  "file": "celeste-iod-classical-pilot-signals.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-receiver-reference-cn0-dbhz",
+   "k-receiver-loop-bandwidth-hz",
+   "k-trade-slant-tec-tecu",
+   "k-trade-slant-range-km",
+   "k-acquisition-altitude-km"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-pass-celeste-iod-multiband.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "leo-navmsg-celeste-iod.toml",
+  "visible_inputs": 3,
+  "inputs": [
+   "Span (trade.span_s)",
+   "Update fit interval (trade.update_fit_interval_s)",
+   "Seed (seed)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "celeste-iod-fused-pvt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-lat-deg",
+   "k-joint-max-leo-sweep",
+   "k--duration-s",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "desktop",
+  "file": "celeste-iod-end-to-end.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k--od-sisre-m",
+   "k-pass-satellite-0-max-elevation-deg",
+   "Centre (signal.signals[0].centre_mhz)",
+   "Tx bandwidth (signal.signals[0].tx_bandwidth_mhz)",
+   "Orbit altitude (signal.signals[0].orbit_altitude_km)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "jamming-demo.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "Tracking threshold (tracking_threshold_dbhz)",
+   "Lat (receiver.lat_deg)",
+   "Lon (receiver.lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "maritime-strait-jamming.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "Tracking threshold (tracking_threshold_dbhz)",
+   "Lat (receiver.lat_deg)",
+   "Lon (receiver.lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "maritime-spoof-position-push.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Power advantage (attack.power_advantage_db)",
+   "Push magnitude (attack.push_magnitude_m)",
+   "Num biased (attack.num_biased)",
+   "El imbalance (attack.el_imbalance)",
+   "Sat power (detector.sat_power_dbm)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "maritime-port-approach-coast.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Speed (speed_m_s)",
+   "Ref accel m s2 (ref_accel_m_s2)",
+   "Drift band lo m per (drift_band_lo_m_per_s)",
+   "Drift band hi m per (drift_band_hi_m_per_s)",
+   "Mission duration (mission_duration_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "automotive-urban-canyon.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Threshold (threshold_m)",
+   "Fix interval (fix_interval_s)",
+   "Sigma pos (sigma_pos_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "rail-tunnel-coast.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Speed (speed_m_s)",
+   "Ref accel m s2 (ref_accel_m_s2)",
+   "Drift band lo m per (drift_band_lo_m_per_s)",
+   "Drift band hi m per (drift_band_hi_m_per_s)",
+   "Mission duration (mission_duration_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "small-uas-jammed-nav.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Threshold (threshold_m)",
+   "Fix interval (fix_interval_s)",
+   "Sigma pos (sigma_pos_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "tracking-loop.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Pll bandwidth (pll_bandwidth_hz)",
+   "Dll bandwidth (dll_bandwidth_hz)",
+   "Predetection integration (predetection_integration_s)",
+   "Correlator spacing chips (correlator_spacing_chips)",
+   "Carrier allowance (carrier_allowance_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "impairment-eval.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "N per class (n_per_class)",
+   "Nominal cn0 (nominal_cn0_dbhz)",
+   "Meas noise (meas_noise)",
+   "Target pfa (target_pfa)",
+   "Shift severity scale (shift_severity_scale)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "conflict-resilience.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Trials (trials)",
+   "Primary layer (primary_layer)",
+   "Min (intensity.min)",
+   "Max (intensity.max)",
+   "Steps (intensity.steps)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "spoof-attack.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "Start (attack.start_s)",
+   "Rate ns per (attack.rate_ns_per_s)",
+   "Y0 (clock_quantum.y0)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "spoof-detect.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Power advantage (attack.power_advantage_db)",
+   "Push magnitude (attack.push_magnitude_m)",
+   "Num biased (attack.num_biased)",
+   "El imbalance (attack.el_imbalance)",
+   "Sat power (detector.sat_power_dbm)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "spoof-meaconing.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "Start (attack.start_s)",
+   "Target pfa (attack.target_pfa)",
+   "Mc runs (attack.mc_runs)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "clock-holdover.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "Y0 (clock_quantum.y0)",
+   "Q wf (clock_quantum.q_wf)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "clock-holdover-labsr.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "Y0 (clock_quantum.y0)",
+   "Q wf (clock_quantum.q_wf)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "clock-ensemble.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "Runs (runs)",
+   "Y0 (clock_quantum.y0)",
+   "Q wf (clock_quantum.q_wf)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "slot-timing-ocxo-leo.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "Guard (slot.guard_ns)",
+   "K sigma (slot.k_sigma)",
+   "Fix sigma (slot.fix_sigma_ns)",
+   "Elapsed since sync (slot.elapsed_since_sync_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "telecom-prtc-holdover-24h.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Gnss loss (holdover.gnss_loss_s)",
+   "Duration (holdover.duration_s)",
+   "Sample interval (holdover.sample_interval_s)",
+   "Locked te sigma (holdover.locked_te_sigma_ns)",
+   "Initial frequency offset (holdover.initial_frequency_offset)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "telecom-tie-ingest.toml",
+  "visible_inputs": 2,
+  "inputs": [
+   "Holdover start (series.holdover_start_s)",
+   "Locked duration (series.locked_duration_days)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "timetransfer.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Diurnal/differential-delay random-walk floor of an RF link (link_classical.q_rw_s)",
+   "Samples (samples)",
+   "Range spec mm (range_spec_mm)",
+   "Sigma j (link_quantum.sigma_j_s)",
+   "Q rw (link_quantum.q_rw_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "quantum-time-transfer.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Integration (integration_s)",
+   "Dissemination interval (dissemination_interval_s)",
+   "Link loss (link_loss_db)",
+   "Classical link sigma (classical_link_sigma_s)",
+   "Monitor pfa (monitor_pfa)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "sweep-clock-stability.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "~ optical-class sigma_y(1s)=1e-12 (start)",
+   "~ poor oscillator sigma_y(1s)=1e-9 (stop)",
+   "Steps (steps)",
+   "Threshold (base.threshold_ns)",
+   "Duration (base.time.duration_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "imu-deadreckoning.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Threshold (threshold_m)",
+   "Bias (accel_quantum.bias)",
+   "Q va (accel_quantum.q_va)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "ins-trn-coast.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Speed (speed_m_s)",
+   "Ref accel m s2 (ref_accel_m_s2)",
+   "Drift band lo m per (drift_band_lo_m_per_s)",
+   "Drift band hi m per (drift_band_hi_m_per_s)",
+   "Trn fix interval (trn_fix_interval_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "gnss-ins.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Threshold (threshold_m)",
+   "Fix interval (fix_interval_s)",
+   "Sigma pos (sigma_pos_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "fusion-pnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Timing spec (timing_spec_ns)",
+   "Position spec (position_spec_m)",
+   "Interval (resync.interval_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "hybrid-pnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-time-duration_s",
+   "Timing spec (timing_spec_ns)",
+   "Position spec (position_spec_m)",
+   "Interval (resync.interval_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "hybrid-ukf.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-time-duration_s",
+   "Measurement cycle time T_c (accel.cai.cycle_time_s)",
+   "Fallback classical value (accel.q_va)",
+   "Interrogation pulse separation T (accel.cai.pulse_sep_t)",
+   "Detected atoms per shot N (accel.cai.atom_number)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "terrain-nav.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Dem seed (dem_seed)",
+   "Start lat (start_lat_deg)",
+   "Start lon (start_lon_deg)",
+   "Step lat (step_lat_deg)",
+   "Step lon (step_lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "terrain-slam.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Dem seed (dem_seed)",
+   "Start lat (start_lat_deg)",
+   "Start lon (start_lon_deg)",
+   "Step lat (step_lat_deg)",
+   "Step lon (step_lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "gravity-map-nav.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Nmax (nmax)",
+   "Start lat (start_lat_deg)",
+   "Start lon (start_lon_deg)",
+   "Step lat (step_lat_deg)",
+   "Step lon (step_lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "gps-denied-gravity-nav.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Nmax (nmax)",
+   "Start lat (start_lat_deg)",
+   "Start lon (start_lon_deg)",
+   "Step lat (step_lat_deg)",
+   "Step lon (step_lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "combined-altpnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Start lat (start_lat_deg)",
+   "Start lon (start_lon_deg)",
+   "Step lat (step_lat_deg)",
+   "Step lon (step_lon_deg)",
+   "Waypoints (waypoints)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "quantum-gnss-free-nav.toml",
+  "visible_inputs": 4,
+  "inputs": [
+   "Outage (outage_s)",
+   "Threshold (threshold_m)",
+   "Quantum bias m s2 (quantum_bias_m_s2)",
+   "Classical bias m s2 (classical_bias_m_s2)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "hybrid-optical-rf.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "1 mW mean optical power (tx_power_w)",
+   "-> ~0.7 km diffraction footprint at lunar range (tx_aperture_m)",
+   "Mean Earth-Moon distance (range_km)",
+   "Modelled 1550 nm clear-sky allocation (atmospheric_loss_db)",
+   "Modelled terminal pointing/jitter allocation (pointing_loss_db)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "integrity-raim.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-sigma_uere_m",
+   "Horizontal alert limit (al_h_m)",
+   "Vertical alert limit (al_v_m)",
+   "k-time-duration_s",
+   "k-top-mask_deg"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "araim-gps-galileo.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-sigma_uere_m",
+   "Horizontal alert limit (al_h_m)",
+   "Vertical alert limit (al_v_m)",
+   "k-time-duration_s",
+   "k-top-mask_deg"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "araim-reference-check.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "phone",
+  "file": "gnss-sim-raim.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "1σ thermal noise per pseudorange (noise_sigma_m)",
+   "Peak deterministic multipath, scaled by (multipath_m)",
+   "Peak per-PRN satellite clock offset (sat_clock_rms_m)",
+   "RAIM 1σ user-equivalent range error (uere_m)",
+   "k-time-duration_s"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "pvt-abmf.toml",
+  "visible_inputs": 1,
+  "inputs": [
+   "k-top-mask_deg"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "orbit-gnss-challenged.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "orbit-sgp4-gps.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "orbit-multignss.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km",
+   "k-user-inclination_deg"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "orbit-molniya.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "orbit-real-tle.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "orbit-rinex.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "ho-thr",
+   "k-top-threshold_ns",
+   "k-time-duration_s",
+   "k-top-mask_deg",
+   "k-user-altitude_km"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "ephemeris.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-duration_s",
+   "k-station-lat_deg",
+   "k-station-lon_deg",
+   "k-top-dut1_s",
+   "Xp arcsec (xp_arcsec)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "passes.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Sun-synchronous-like (inclination_deg)",
+   "k-top-mask_deg",
+   "Altitude (altitude_km)",
+   "Raan (raan_deg)",
+   "Arg lat (arg_lat_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "launch-window.toml",
+  "visible_inputs": 3,
+  "inputs": [
+   "Kennedy Space Center (site_lat_deg)",
+   "ISS inclination (target_inclination_deg)",
+   "Altitude (altitude_km)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "reentry.toml",
+  "visible_inputs": 3,
+  "inputs": [
+   "Near-circular LEO entry interface speed (entry_velocity_m_s)",
+   "Below local horizontal (flight_path_angle_deg)",
+   "Ballistic coeff kg m2 (ballistic_coeff_kg_m2)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "eo-coverage.toml",
+  "visible_inputs": 4,
+  "inputs": [
+   "Nadir half-angle from boresight (half_fov_deg)",
+   "Slewable field of regard (max_off_nadir_deg)",
+   "Per-pixel IFOV for the nadir GSD (ifov_microrad)",
+   "Altitude (altitude_km)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "link-budget.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Eirp (eirp_dbw)",
+   "G over t (g_over_t_db)",
+   "Range (range_km)",
+   "Data rate bps (data_rate_bps)",
+   "Other losses (other_losses_db)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "attitude-budget.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Altitude (altitude_km)",
+   "I max kg m2 (i_max_kg_m2)",
+   "I min kg m2 (i_min_kg_m2)",
+   "Sigma arcsec (contributors[0].sigma_arcsec)",
+   "Sigma arcsec (contributors[1].sigma_arcsec)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "space-weather.toml",
+  "visible_inputs": 3,
+  "inputs": [
+   "Daily 10.7 cm solar radio flux (sfu) — an active sun (f107)",
+   "81-day average (f107a)",
+   "Planetary geomagnetic index (0-9); 4 = unsettled (kp)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "aperture-duty-cycle.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Apertures (apertures)",
+   "Aos (contacts[0].aos_s)",
+   "Los (contacts[0].los_s)",
+   "Aos (contacts[1].aos_s)",
+   "Los (contacts[1].los_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "moonlight-service-volume.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "~8000 km perilune altitude above the mean lunar radius (sma_km)",
+   "Apolune over the southern hemisphere (argp_deg)",
+   "N sats (n_sats)",
+   "Eccentricity (eccentricity)",
+   "Inc (inc_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunanet-araim.toml",
+  "visible_inputs": 4,
+  "inputs": [
+   "LunaNet surface-ops alert limit (alert_limit_m)",
+   "k-top-duration_s",
+   "Lunar surface integrity-risk budget (p_hmi)",
+   "k-top-step_s"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunar-jamming.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Shackleton crater rim (site_lat_deg)",
+   "Representative lunar AFS EIRP (sat_eirp_dbw)",
+   "S-band AFS carrier (carrier_hz)",
+   "Despreading processing gain (chip_rate_hz)",
+   "J/S is invariant to this; it moves C/N0 only (user_boresight_gain_dbi)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunar-attack-surface.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "GPS L1 C/A typical received power, dBW (gps_reference_dbw)",
+   "ICD-GPS-200 specification minimum, dBW (gps_reference_min_dbw)",
+   "0.25 m ... 4 m, i.e. HPBW 29.2 deg ... 1.83 deg (footprint_diameter_min_m)",
+   "Afs eirp (afs_eirp_dbw)",
+   "User gain (user_gain_dbi)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunar-time-offset.toml",
+  "visible_inputs": 4,
+  "inputs": [
+   "Accumulate the LTC-TT offset over one day (horizon_days)",
+   "Epoch year (epoch_year)",
+   "Epoch month (epoch_month)",
+   "Epoch (epoch_day)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunar-time-budget.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "phone",
+  "file": "earth-gnss-lunar.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Altitude (altitude_km)",
+   "Inclination (inclination_deg)",
+   "Planes (planes)",
+   "Sats per plane (sats_per_plane)",
+   "Phasing f (phasing_f)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunar-beacon.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "N satellites (n_satellites)",
+   "Comparison n satellites (comparison_n_satellites)",
+   "Epoch (epoch_s)",
+   "Elevation mask (elevation_mask_deg)",
+   "Clock sync (clock_sync_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunar-differential-pnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "~8000 km perilune altitude above the mean lunar radius (sma_km)",
+   "Apolune over the southern hemisphere (argp_deg)",
+   "Orbit-error vector magnitude (orbit_err_m)",
+   "Clock error in range units (clock_err_m)",
+   "Per-receiver measurement noise (noise_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunar-vlbi.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Station1 lat (station1_lat_deg)",
+   "Station1 lon (station1_lon_deg)",
+   "Station1 alt (station1_alt_m)",
+   "Station2 lat (station2_lat_deg)",
+   "Station2 lon (station2_lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunar-vlbi-fim.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "phone",
+  "file": "lunar-joint-od-clock.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "VLBI delay sigma (s) ~ 3 mm path length (sigma_vlbi_s)",
+   "Radiometric / lunar-local range sigma (sigma_range_m)",
+   "Inter-satellite (optical) range sigma (sigma_isl_m)",
+   "Constellation satellites (n_sat)",
+   "N earth (n_earth)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunar-frame-realisation.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "N points (n_points)",
+   "Tx (tx_m)",
+   "Ty (ty_m)",
+   "Tz (tz_m)",
+   "Rot x urad (rot_x_urad)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunar-frame-campaign.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "phone",
+  "file": "lunar-llr-datum.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "phone",
+  "file": "lunar-interop-export.toml",
+  "visible_inputs": 2,
+  "inputs": [
+   "N states (n_states)",
+   "Step (step_min)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "realtime-frame-eop.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "phone",
+  "file": "cislunar-observability.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "phone",
+  "file": "cislunar-arc-recovery.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "phone",
+  "file": "mars-pnt-lmo.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-duration_s",
+   "DSN-class range noise (range_sigma_m)",
+   "0.1 mm/s Doppler noise (doppler_sigma_mps)",
+   "Mars gravity field degree/order (nmax)",
+   "Reduced-dynamic knob (dynamic → kinematic), 0..1 (dynamic_tightness)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "mars-pnt-surface.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-top-duration_s",
+   "Nmax (nmax)",
+   "Range sigma (range_sigma_m)",
+   "Doppler sigma (doppler_sigma_mps)",
+   "Dynamic tightness (dynamic_tightness)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "mars-pnt-transfer.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "A two-way pass every hour (two_way_period_s)",
+   "k-top-duration_s",
+   "Nmax (nmax)",
+   "Range sigma (range_sigma_m)",
+   "Doppler sigma (doppler_sigma_mps)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "l-band-waterfall-jamming.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the waterfall replay",
+   "k-receiver-tracking-threshold-dbhz",
+   "k-receiver-noise-figure-db",
+   "k-jammers-0-eirp-dbw",
+   "k-jammers-0-range-m"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "multi-band-jamming-waterfall.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the waterfall replay",
+   "k-receiver-tracking-threshold-dbhz",
+   "k-receiver-noise-figure-db",
+   "k-jammers-0-received-power-dbw",
+   "k--duration-s"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-resilience-js-margin.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the waterfall replay",
+   "k-receiver-tracking-threshold-dbhz",
+   "k-receiver-noise-figure-db",
+   "k-jammers-0-received-power-dbw",
+   "k-jammers-0-bandwidth-mhz"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "constellation-multi-gnss-coverage.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the orbit replay",
+   "Field to map",
+   "k--mask-deg",
+   "k--pdop-threshold",
+   "k--grid-step-deg"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-pnt-mega-shell.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the orbit replay",
+   "Field to map",
+   "k--mask-deg",
+   "k--pdop-threshold",
+   "k--grid-step-deg"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "lunar-relay-constellation.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the orbit replay",
+   "Field to map",
+   "k--mask-deg",
+   "k--pdop-threshold",
+   "k--grid-step-deg"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-band-trade.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-receiver-reference-cn0-dbhz",
+   "k-receiver-loop-bandwidth-hz",
+   "k-trade-slant-tec-tecu",
+   "k-trade-slant-range-km",
+   "k-acquisition-altitude-km"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "xona-pulsar-signals.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-receiver-reference-cn0-dbhz",
+   "k-receiver-loop-bandwidth-hz",
+   "k-trade-slant-tec-tecu",
+   "k-trade-slant-range-km",
+   "Noise figure (receiver.noise_figure_db)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-pass-vs-gnss-cn0.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-mask-deg",
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-pass-xona-pulsar.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-pass-iridium.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-indoor-uhf.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-iot-energy.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "k-iot-active-power-mw",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-focus-science-iono-sounding.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-mask-deg",
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-resilience-spoof-doppler.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-mask-deg",
+   "k-user-lat-deg",
+   "k-spoofer-offset-m",
+   "k-spoofer-onset-s",
+   "Duration (duration_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-navmsg-fit-interval-trade.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-orbit-altitude-km",
+   "k-orbit-inclination-deg",
+   "k-orbit-gravity-degree",
+   "Cd area over mass (orbit.cd_area_over_mass)",
+   "Span (trade.span_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-navmsg-model-comparison.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-orbit-altitude-km",
+   "k-orbit-inclination-deg",
+   "k-orbit-gravity-degree",
+   "Span (comparison.span_s)",
+   "Liu arcs (comparison.liu_arcs)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-navmsg-midpass-update.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-orbit-altitude-km",
+   "k-orbit-inclination-deg",
+   "k-message-fit-interval-s",
+   "k-message-update-period-s",
+   "k-orbit-gravity-degree"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-navmsg-encode-decode.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-orbit-altitude-km",
+   "k-orbit-inclination-deg",
+   "k-message-fit-interval-s",
+   "k-message-update-period-s",
+   "k-orbit-gravity-degree"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "meo-leo-fused-pvt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-lat-deg",
+   "k-system-0-sisre-m",
+   "k-system-1-sisre-m",
+   "k-joint-max-leo-sweep",
+   "k--duration-s"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-doppler-positioning.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-lat-deg",
+   "k-system-0-sigma-doppler-hz",
+   "k--duration-s",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "starlink-sop-doppler-positioning.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-lat-deg",
+   "k-system-0-mask-deg",
+   "k--duration-s",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-timing-utc.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-lat-deg",
+   "k-system-0-mask-deg",
+   "k--duration-s",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "polar-arctic-leo-coverage.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-system-0-mask-deg",
+   "k--duration-s",
+   "Lat step (polar.lat_step_deg)",
+   "Lon step (polar.lon_step_deg)",
+   "Pdop threshold (polar.pdop_threshold)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-ppp-convergence.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k--duration-s",
+   "k--runs",
+   "k-gnss-0-mask-deg",
+   "Lat (site[0].lat_deg)",
+   "Lon (site[0].lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "ntn-5g-positioning.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-signal-0-bandwidth-hz",
+   "k--integration-s",
+   "k--sync-error-m",
+   "k-system-0-mask-deg",
+   "Carrier (carrier_hz)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-pnt-end-to-end.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k--od-sisre-m",
+   "k-pass-satellite-0-altitude-km",
+   "k-pass-satellite-0-max-elevation-deg",
+   "k-pass-satellite-band-0-eirp-dbw",
+   "k-navmsg-message-fit-interval-s"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "xona-pulsar-end-to-end.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k--od-sisre-m",
+   "k-pass-satellite-0-altitude-km",
+   "k-pass-satellite-0-max-elevation-deg",
+   "k-navmsg-message-fit-interval-s",
+   "Duration (pass.duration_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-focus-data-services.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-compose-shared-0-value",
+   "Altitude (compose.members[0].scenario.orbit.altitude_km)",
+   "Inclination (compose.members[0].scenario.orbit.inclination_deg)",
+   "Gravity degree (compose.members[0].scenario.orbit.gravity_degree)",
+   "Fit interval (compose.members[0].scenario.message.fit_interval_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-focus-fused-pnt-sisre.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Duration (sweep.scenario.duration_s)",
+   "Lat (sweep.scenario.user.lat_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-focus-indoor-uhf.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Duration (compose.members[0].scenario.duration_s)",
+   "Lat (compose.members[0].scenario.user.lat_deg)",
+   "Lon (compose.members[0].scenario.user.lon_deg)",
+   "Height (compose.members[0].scenario.user.height_m)",
+   "Building probability (compose.members[0].scenario.user.building_probability)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-focus-iot-eirp.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Duration (sweep.scenario.duration_s)",
+   "Lat (sweep.scenario.user.lat_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-focus-ntn-bandwidth.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Carrier (sweep.scenario.carrier_hz)",
+   "Integration (sweep.scenario.integration_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-focus-ppp-altitude.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Duration (sweep.scenario.duration_s)",
+   "Runs (sweep.scenario.runs)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-resilience-gnss-jammed-leo-carries.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Duration (phases.runs[0].scenario.duration_s)",
+   "Noise figure (phases.runs[0].scenario.receiver.noise_figure_db)",
+   "Antenna temp (phases.runs[0].scenario.receiver.antenna_temp_k)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-resilience-multiband-diversity.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Duration (sweep.scenario.duration_s)",
+   "Noise figure (sweep.scenario.receiver.noise_figure_db)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-resilience-spoof-monitors.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-compose-shared-0-value",
+   "Duration (compose.members[0].scenario.duration_s)",
+   "Lat (compose.members[0].scenario.user.lat_deg)",
+   "Lon (compose.members[0].scenario.user.lon_deg)",
+   "Height (compose.members[0].scenario.user.height_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-vertical-5g-network-timing.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Gnss loss (phases.runs[0].scenario.holdover.gnss_loss_s)",
+   "Duration (phases.runs[0].scenario.holdover.duration_s)",
+   "Sample interval (phases.runs[0].scenario.holdover.sample_interval_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-vertical-asset-tracking-iot.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Duration (phases.runs[0].scenario.duration_s)",
+   "Lat (phases.runs[0].scenario.user.lat_deg)",
+   "Lon (phases.runs[0].scenario.user.lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-vertical-autonomous-vehicle.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Duration (phases.runs[0].scenario.duration_s)",
+   "Lat (phases.runs[0].scenario.user.lat_deg)",
+   "Lon (phases.runs[0].scenario.user.lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-vertical-critical-infrastructure-timing.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Threshold (phases.runs[0].scenario.threshold_ns)",
+   "Duration (phases.runs[0].scenario.time.duration_s)",
+   "Y0 (phases.runs[0].scenario.clock_quantum.y0)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-vertical-polar-arctic.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Duration (phases.runs[0].scenario.duration_s)",
+   "Lat (phases.runs[0].scenario.user.lat_deg)",
+   "Lon (phases.runs[0].scenario.user.lon_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-vertical-rail-maritime.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Mask (phases.runs[0].scenario.mask_deg)",
+   "Tracking threshold (phases.runs[0].scenario.tracking_threshold_dbhz)",
+   "Duration (phases.runs[0].scenario.time.duration_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "campaign-jam-spoof-holdover-integrity.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "Threshold (phases.runs[0].scenario.threshold_ns)",
+   "Duration (phases.runs[0].scenario.time.duration_s)",
+   "Y0 (phases.runs[0].scenario.clock_quantum.y0)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "campaign-spectrum-holdover-integrity.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Position in the mission replay",
+   "k-phases-0-duration-s",
+   "End at run (phases[0].end_at_run)",
+   "Threshold (phases.runs[0].scenario.threshold_ns)",
+   "Duration (phases.runs[0].scenario.time.duration_s)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "campaign-sweep-jammer-power.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-sweep-axes-0-start",
+   "k-sweep-axes-0-stop",
+   "k-sweep-axes-0-steps",
+   "Mask (sweep.scenario.mask_deg)",
+   "Tracking threshold (sweep.scenario.tracking_threshold_dbhz)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "campaign-monte-carlo-clock-holdover.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-monte-carlo-runs",
+   "Threshold (monte_carlo.scenario.threshold_ns)",
+   "Duration (monte_carlo.scenario.time.duration_s)",
+   "Y0 (monte_carlo.scenario.clock_quantum.y0)",
+   "Q wf (monte_carlo.scenario.clock_quantum.q_wf)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "campaign-shared-jammer-sea-road.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-compose-shared-0-value",
+   "Mask (compose.members[0].scenario.mask_deg)",
+   "Tracking threshold (compose.members[0].scenario.tracking_threshold_dbhz)",
+   "Duration (compose.members[0].scenario.time.duration_s)",
+   "Lat (compose.members[0].scenario.receiver.lat_deg)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "solar-system-tour.toml",
+  "visible_inputs": 1,
+  "inputs": [
+   "k--track-points"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "mars-orbit-pnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-constellation-planes",
+   "k-constellation-sats-per-plane",
+   "k-constellation-altitude-km",
+   "k-constellation-inclination-deg",
+   "k-constellation-sigma-range-m"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "europa-surface-pnt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-constellation-planes",
+   "k-constellation-sats-per-plane",
+   "k-constellation-altitude-km",
+   "k-constellation-inclination-deg",
+   "k-constellation-sigma-range-m"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "quantum-trade.toml",
+  "visible_inputs": 2,
+  "inputs": [
+   "20 ns phase-error threshold (timing_threshold_s)",
+   "100 m position-error threshold (position_threshold_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "quantum-anomaly-detect.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Fault mu (fault_mu)",
+   "Quantum sigma (quantum_sigma)",
+   "Classical sigma (classical_sigma)",
+   "Pfa (pfa)",
+   "Pd (pd)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "sweep-nd-inertial.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "Start (axes[0].start)",
+   "Stop (axes[0].stop)",
+   "Steps (axes[0].steps)",
+   "Start (axes[1].start)",
+   "Stop (axes[1].stop)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "oem-interop.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "phone",
+  "file": "space-packet.toml",
+  "visible_inputs": 3,
+  "inputs": [
+   "Application Process Identifier (apid)",
+   "Frame a short sequence (packet_count)",
+   "User-data-field octets per packet (data_len)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "quantum-pnt-demonstrator.suite.toml",
+  "visible_inputs": 0,
+  "inputs": []
+ },
+ {
+  "device": "phone",
+  "file": "celeste-iod-classical-pilot-signals.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-receiver-reference-cn0-dbhz",
+   "k-receiver-loop-bandwidth-hz",
+   "k-trade-slant-tec-tecu",
+   "k-trade-slant-range-km",
+   "k-acquisition-altitude-km"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-pass-celeste-iod-multiband.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-satellite-0-max-elevation-deg",
+   "k-user-lat-deg",
+   "Duration (duration_s)",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "leo-navmsg-celeste-iod.toml",
+  "visible_inputs": 3,
+  "inputs": [
+   "Span (trade.span_s)",
+   "Update fit interval (trade.update_fit_interval_s)",
+   "Seed (seed)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "celeste-iod-fused-pvt.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k-user-lat-deg",
+   "k-joint-max-leo-sweep",
+   "k--duration-s",
+   "Lon (user.lon_deg)",
+   "Height (user.height_m)"
+  ]
+ },
+ {
+  "device": "phone",
+  "file": "celeste-iod-end-to-end.toml",
+  "visible_inputs": 5,
+  "inputs": [
+   "k--od-sisre-m",
+   "k-pass-satellite-0-max-elevation-deg",
+   "Centre (signal.signals[0].centre_mhz)",
+   "Tx bandwidth (signal.signals[0].tx_bandwidth_mhz)",
+   "Orbit altitude (signal.signals[0].orbit_altitude_km)"
+  ]
+ }
+]

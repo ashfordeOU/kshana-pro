@@ -1,0 +1,36 @@
+# DERIVED by scratch/actlocal/derive.py; do not edit
+name: Release
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ inputs.tag || github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        fetch-depth: 0
+    - uses: dtolnay/rust-toolchain@1.93.0
+      with:
+        components: rustfmt, clippy
+    - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+    - run: ./scripts/check-toolchain.sh
+    - run: ./scripts/check-version-sync.sh
+    - run: cargo fmt --all -- --check
+    - run: cargo clippy --all-targets -- -D warnings
+    - run: cargo test --all
+    - run: ./scripts/check-reproducible.sh
+    - run: ./scripts/check-no-attribution.sh
+'on':
+  push:
+    tags:
+    - v*
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to (re)build the release for, e.g. v0.19.0
+        required: true
+        type: string

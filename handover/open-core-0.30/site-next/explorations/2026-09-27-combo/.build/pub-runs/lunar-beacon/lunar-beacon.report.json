@@ -1,0 +1,477 @@
+{
+  "report_schema": "kshana-report",
+  "report_schema_version": "1.0",
+  "kind": "lunar-beacon",
+  "title": "lunar-beacon (lunar-beacon)",
+  "executive_summary": {
+    "what_ran": "Surface-beacon augmentation of a lunar orbital navigation service, as a runnable before/after table.",
+    "summary": "Lunar surface-beacon augmentation — mask 5.0 deg, epoch +0 s, per-beacon sigma_URE 1.1576 m\n  6 satellites, no beacons                      sats  5  beacons  0  GDOP 11.6627  PDOP 9.6941  HDOP 3.4868  VDOP 9.0454  TDOP 6.4840\n                                                realised 1-sigma: 3D 11.222 m  H 4.036 m  V 10.471 m\n  6 satellites + 1 visible beacons              sats  5  beacons  1  GDOP 4.9979  PDOP 4.1160  HDOP 1.9721  VDOP 3.6128  TDOP 2.8350\n                                                realised 1-sigma: 3D 4.765 m  H 2.283 m  V 4.182 m\n  24 satellites, no beacons                     sats 19  beacons  0  GDOP 2.8929  PDOP 2.4226  HDOP 1.0199  VDOP 2.1974  TDOP 1.5811\n                                                realised 1-sigma: 3D 2.804 m  H 1.181 m  V 2.544 m\n  beacons improve PDOP by 2.355x; a larger constellation instead, 4.002x\n  MODELLED: the constellation, the beacon placement and the error budget are illustrative inputs.\n  The DOP kernel underneath is the gnss_lib_py-validated one and the beacon horizon is the L01 closed form.\n",
+    "label": "The result carries no run-level honesty label; the verification labels of the capabilities it used are listed in their own section, and the per-figure tiers where the result states them.",
+    "label_source": "not stated by the result",
+    "key_figures": [
+      {
+        "path": "beacon_pdop_improvement",
+        "value": 2.355210608819964,
+        "display": "2.355211",
+        "unit": "1"
+      },
+      {
+        "path": "constellation_pdop_improvement",
+        "value": 4.001565613845625,
+        "display": "4.001566",
+        "unit": "1"
+      },
+      {
+        "path": "elevation_mask_deg",
+        "value": 5.0,
+        "display": "5",
+        "unit": "deg"
+      },
+      {
+        "path": "epoch_s",
+        "value": 0.0,
+        "display": "0",
+        "unit": "s"
+      },
+      {
+        "path": "sigma_ure_m",
+        "value": 1.1575836902790226,
+        "display": "1.157584",
+        "unit": "m"
+      }
+    ],
+    "capability_labels": {
+      "validated": 0,
+      "modelled": 2,
+      "partner": 0
+    }
+  },
+  "inputs": {
+    "items": [
+      {
+        "path": "beacons[0].alt_m",
+        "value": 2000.0,
+        "display": "2000",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "beacons[0].lat_deg",
+        "value": -80.0,
+        "display": "-80",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "beacons[0].lon_deg",
+        "value": 0.0,
+        "display": "0",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "beacons[1].alt_m",
+        "value": 2000.0,
+        "display": "2000",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "beacons[1].lat_deg",
+        "value": -79.0,
+        "display": "-79",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "beacons[1].lon_deg",
+        "value": 60.0,
+        "display": "60",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "beacons[2].alt_m",
+        "value": 2000.0,
+        "display": "2000",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "beacons[2].lat_deg",
+        "value": -79.0,
+        "display": "-79",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "beacons[2].lon_deg",
+        "value": -60.0,
+        "display": "-60",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "clock_sync_m",
+        "value": 1.0,
+        "display": "1",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "comparison_n_satellites",
+        "value": 24,
+        "display": "24",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "elevation_mask_deg",
+        "value": 5.0,
+        "display": "5",
+        "unit": "deg",
+        "unit_source": "field-units schema: units entry `elevation_mask_deg`"
+      },
+      {
+        "path": "epoch_s",
+        "value": 0.0,
+        "display": "0",
+        "unit": "s",
+        "unit_source": "field-units schema: units entry `epoch_s`"
+      },
+      {
+        "path": "kind",
+        "value": "lunar-beacon",
+        "display": "lunar-beacon",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "multipath_m",
+        "value": 0.5,
+        "display": "0.5",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "n_satellites",
+        "value": 6,
+        "display": "6",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "survey_m",
+        "value": 0.3,
+        "display": "0.3",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "user.alt_m",
+        "value": 2.0,
+        "display": "2",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "user.lat_deg",
+        "value": -80.0,
+        "display": "-80",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "user.lon_deg",
+        "value": 0.0,
+        "display": "0",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      }
+    ],
+    "omitted": 0
+  },
+  "results": {
+    "scalars": {
+      "items": [
+        {
+          "path": "beacon_pdop_improvement",
+          "value": 2.355210608819964,
+          "display": "2.355211",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `beacon_pdop_improvement`"
+        },
+        {
+          "path": "constellation_pdop_improvement",
+          "value": 4.001565613845625,
+          "display": "4.001566",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `constellation_pdop_improvement`"
+        },
+        {
+          "path": "elevation_mask_deg",
+          "value": 5.0,
+          "display": "5",
+          "unit": "deg",
+          "unit_source": "field-units schema: units entry `elevation_mask_deg`"
+        },
+        {
+          "path": "epoch_s",
+          "value": 0.0,
+          "display": "0",
+          "unit": "s",
+          "unit_source": "field-units schema: units entry `epoch_s`"
+        },
+        {
+          "path": "sigma_ure_m",
+          "value": 1.1575836902790226,
+          "display": "1.157584",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `sigma_ure_m`"
+        }
+      ],
+      "omitted": 0
+    },
+    "series": {
+      "items": [
+        {
+          "path": "rows[].accuracy.horizontal_m",
+          "n": 3,
+          "min": 1.180622321209889,
+          "max": 4.036294739678587,
+          "first": 4.036294739678587,
+          "last": 1.180622321209889,
+          "unit": "m"
+        },
+        {
+          "path": "rows[].accuracy.pos_3d_m",
+          "n": 3,
+          "min": 2.804348862008643,
+          "max": 11.221785975440897,
+          "first": 11.221785975440897,
+          "last": 2.804348862008643,
+          "unit": "m"
+        },
+        {
+          "path": "rows[].accuracy.time_m",
+          "n": 3,
+          "min": 1.8302095477223024,
+          "max": 7.505822686995556,
+          "first": 7.505822686995556,
+          "last": 1.8302095477223024,
+          "unit": "m"
+        },
+        {
+          "path": "rows[].accuracy.vertical_m",
+          "n": 3,
+          "min": 2.543718434597302,
+          "max": 10.47075953563279,
+          "first": 10.47075953563279,
+          "last": 2.543718434597302,
+          "unit": "m"
+        },
+        {
+          "path": "rows[].dop.gdop",
+          "n": 3,
+          "min": 2.8928681641652942,
+          "max": 11.662731007045512,
+          "first": 11.662731007045512,
+          "last": 2.8928681641652942,
+          "unit": "1"
+        },
+        {
+          "path": "rows[].dop.hdop",
+          "n": 3,
+          "min": 1.0199023458297976,
+          "max": 3.486827581948466,
+          "first": 3.486827581948466,
+          "last": 1.0199023458297976,
+          "unit": "1"
+        },
+        {
+          "path": "rows[].dop.pdop",
+          "n": 3,
+          "min": 2.4225884362042853,
+          "max": 9.694146582815113,
+          "first": 9.694146582815113,
+          "last": 2.4225884362042853,
+          "unit": "1"
+        },
+        {
+          "path": "rows[].dop.tdop",
+          "n": 3,
+          "min": 1.5810602404748384,
+          "max": 6.484043227307704,
+          "first": 6.484043227307704,
+          "last": 1.5810602404748384,
+          "unit": "1"
+        },
+        {
+          "path": "rows[].dop.vdop",
+          "n": 3,
+          "min": 2.197438039217853,
+          "max": 9.04535855468811,
+          "first": 9.04535855468811,
+          "last": 2.197438039217853,
+          "unit": "1"
+        },
+        {
+          "path": "rows[].n_visible_beacons",
+          "n": 3,
+          "min": 0.0,
+          "max": 1.0,
+          "first": 0.0,
+          "last": 0.0,
+          "unit": "count"
+        },
+        {
+          "path": "rows[].n_visible_sats",
+          "n": 3,
+          "min": 5.0,
+          "max": 19.0,
+          "first": 5.0,
+          "last": 19.0,
+          "unit": "count"
+        }
+      ],
+      "omitted": 0
+    },
+    "charts": [
+      {
+        "id": "primary",
+        "title": "Result chart",
+        "file": "lunar-beacon.chart.svg"
+      }
+    ]
+  },
+  "events": {
+    "items": [],
+    "omitted": 0,
+    "statement": "No timed event: the scenario scripts no window or onset time and the result reports no event. The kind evaluates its configuration as one case."
+  },
+  "capabilities": {
+    "statement": "Each row is a verification-matrix row this run's kinds exercise, with the label and the oracle the matrix gives it (src/verification.rs, docs/VERIFICATION-MATRIX.md). A label grades the capability as the matrix records it; it does not grade this scenario's configuration, and a VALIDATED row does not make the run's inputs measured. A PARTNER row is a discipline the run relies on that Kshana does not provide.",
+    "rows": [
+      {
+        "requirement": "Reproducibility & software assurance",
+        "capability": "Deterministic, scenario-hashed, SBOM + cross-platform golden gates",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "SBOM conformance to the official CycloneDX 1.5 JSON Schema (+ valid SPDX identifiers) — an external published standard, zero validation errors over the full dependency graph; the FoM-determinism / byte-reproducibility part remains a pinned self-consistency check, so the row stays MODELLED",
+        "tests": "tests/golden.rs, tests/determinism.rs, tests/cross_platform_golden.rs; tests/reproducibility_software_assurance_reference.rs (the generated SBOM validates with zero errors against the official CycloneDX 1.5 JSON Schema over the full 66-component shipped graph: default + python + wasm features, dev-dependencies excluded)",
+        "module": "report, scenario; CI (golden/determinism/SBOM)",
+        "used_by": [
+          "every run"
+        ]
+      },
+      {
+        "requirement": "Lunar surface-beacon DOP augmentation",
+        "capability": "Beacon-augmented dilution of precision for a lunar surface user: the visible-satellite line-of-sight rows and the visible-surface-beacon ranging rows are concatenated into one design matrix and evaluated through the shared DOP kernel, and the resulting DOP is mapped to a realised 1-sigma accuracy IN METRES through a per-beacon user-equivalent ranging error assembled as the root-sum-square of clock-synchronisation, multipath and survey terms. Beacon visibility is the airless-Moon two-height geometric horizon, which has no refractive extension and is therefore exact rather than approximate. Runnable as the `lunar-beacon` scenario kind, which reports satellites alone, satellites plus beacons, and a larger constellation as the competing route to the same geometry. MEASURED on the bundled golden geometry (user at -80 deg, three surveyed beacons, six-satellite illustrative LCNS at t=0, 5 deg mask): 5 visible satellites give PDOP 9.6941 and a 3-D 1-sigma of 11.222 m; adding the beacons that actually clear the horizon gives PDOP 4.1160 and 4.765 m, a factor of 2.355; the 24-satellite service instead gives PDOP 2.4226 and 2.804 m, a factor of 4.002. The report prints the VISIBLE beacon count rather than the configured one, and on this geometry only ONE of the three beacons clears the horizon: the two flanking sites lie about 333 km from the user against an 86 km horizon for a 2 m antenna, so a reader is never left to assume all three contributed",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ReferenceImpl",
+        "oracle": "The DOP arithmetic is the crate::orbit::dop kernel, separately externally validated against gnss_lib_py in tests/dop_reference.rs; this row does not re-borrow that row's status. The beacon-visibility horizon is the L01 closed form, and sigma = DOP x sigma_URE is the standard GNSS relation (Kaplan and Hegarty, Understanding GPS/GNSS, section 7). Within this row the augmentation itself is checked against an independent in-repo DOP path and pinned to a committed golden. WHY MODELLED: the constellation design, the beacon placement, the antenna heights and all three error-budget magnitudes are illustrative inputs rather than a fielded survey or a measured link, so the reported metres are a property of a chosen scenario and not of any deployed service. NOTE ON PROVENANCE: this capability was advertised in the README and exercised by two validation tests, yet carried NO matrix row and no scenario kind, so it could not be reached from a run at all. It was claimed in prose, absent from the ledger, and unreachable in the engine at the same time. The row and the kind were added together",
+        "tests": "lunar_beacon::tests (horizon visibility against the L01 closed form; the beacon-augmented DOP against the bare one; the error-budget root-sum-square; the DOP-to-metres relation); tests/validate_p2_beacon_before_after_table.rs (the whole before/after table pinned to a committed golden at 1e-9 relative); tests/validate_p2_beacon_before_after_independent_dop.rs (the same geometry through an INDEPENDENT DOP path, so the augmentation is not checked against the kernel that produced it)",
+        "module": "lunar_beacon",
+        "used_by": [
+          "lunar-beacon"
+        ]
+      }
+    ],
+    "figure_tiers": []
+  },
+  "not_modelled": {
+    "items": [
+      {
+        "text": "MODELLED: the constellation design, the beacon placement and every error-budget magnitude are illustrative inputs, not a fielded survey or a measured link; only the DOP arithmetic, the horizon closed form and the sigma = DOP x sigma_URE relation are externally anchored.",
+        "source": "kind catalogue (`kshana kinds --json`)"
+      },
+      {
+        "text": "WHAT IS ANCHORED AND WHAT IS NOT Anchored: the DOP assembly is the kernel cross-checked against gnss_lib_py in tests/dop_reference.rs; beacon visibility is the airless-Moon two-height geometric horizon closed form (no atmosphere, so there is no refractive extension and the bound is exact); and sigma = DOP x sigma_URE is the standard relation (Kaplan & Hegarty, Understanding GPS/GNSS, section 7). NOT anchored — MODELLED inputs, every one: the constellation design, the beacon placement, the antenna heights, and all three error-budget magnitudes. They are representative choices, not a fielded survey or a measured link. Nothing here is a service-performance commitment, a TRL claim, or affiliated with any agency's programme.",
+        "source": "scenario file comment, lines 40 to 49"
+      },
+      {
+        "text": "Reproducibility & software assurance is MODELLED, not validated: a sub-claim is externally checked, but the whole capability composes modelled pieces, so the capability stays Modelled.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "Lunar surface-beacon DOP augmentation is MODELLED, not validated: checked against a separate implementation in this same codebase — independent of the unit under test, but not externally authoritative.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      }
+    ],
+    "omitted": 0
+  },
+  "companions": {
+    "animation": {
+      "available": false,
+      "embedded": false,
+      "reason": "no time series to animate: the lunar-beacon result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+      "files": [],
+      "command": "kshana lunar-beacon.toml --animate html"
+    },
+    "exports": [
+      {
+        "format": "czml",
+        "applies": false,
+        "reason": "the kind's geometry is centred on the Moon, Mars or another solar-system body; CZML, KML and GeoJSON describe positions on or about the Earth, and this release writes STK ephemerides with CentralBody Earth only",
+        "spec_url": "https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Structure",
+        "files": []
+      },
+      {
+        "format": "kml",
+        "applies": false,
+        "reason": "the kind's geometry is centred on the Moon, Mars or another solar-system body; CZML, KML and GeoJSON describe positions on or about the Earth, and this release writes STK ephemerides with CentralBody Earth only",
+        "spec_url": "https://www.ogc.org/standard/kml/",
+        "files": []
+      },
+      {
+        "format": "geojson",
+        "applies": false,
+        "reason": "the kind's geometry is centred on the Moon, Mars or another solar-system body; CZML, KML and GeoJSON describe positions on or about the Earth, and this release writes STK ephemerides with CentralBody Earth only",
+        "spec_url": "https://www.rfc-editor.org/rfc/rfc7946",
+        "files": []
+      },
+      {
+        "format": "stk",
+        "applies": false,
+        "reason": "the kind's geometry is centred on the Moon, Mars or another solar-system body; CZML, KML and GeoJSON describe positions on or about the Earth, and this release writes STK ephemerides with CentralBody Earth only",
+        "spec_url": "https://help.agi.com/stk/#stk/importfiles-02.htm",
+        "files": []
+      },
+      {
+        "format": "sigmf",
+        "applies": false,
+        "reason": "SigMF holds complex baseband samples, which only the `spectrum` kind synthesises",
+        "spec_url": "https://github.com/sigmf/SigMF/blob/main/sigmf-spec.md",
+        "files": []
+      }
+    ],
+    "export_command": "kshana lunar-beacon.toml --export all"
+  },
+  "reproducibility": {
+    "engine_version": "0.29.3",
+    "git_commit": null,
+    "git_commit_note": "not recorded: this engine was built without the KSHANA_GIT_COMMIT environment variable; the engine version identifies the release",
+    "scenario_file": "lunar-beacon.toml",
+    "scenario_sha256": "70b5924f8a3f5a56310f3ae24d14e8b9f2b33778013bef54ab4bf78bf37a8689",
+    "result_scenario_hash": null,
+    "result_sha256": "7c00d5c1117527f335e3a3b21a8b7756faa584955ac10a052f62f65bceabd402",
+    "result_file": "lunar-beacon.result.json",
+    "seed": null,
+    "seed_source": "Neither the scenario nor the result carries a seed. The result is fixed by the scenario file and the engine build alone; the determinism test re-runs every bundled scenario and requires byte-identical output.",
+    "platform": {
+      "os": "macos",
+      "arch": "aarch64",
+      "family": "unix"
+    },
+    "command": "kshana lunar-beacon.toml",
+    "argv": [
+      "kshana",
+      "lunar-beacon.toml"
+    ],
+    "working_directory": "Run the command from the directory the original run was started in: the scenario path, and any relative data path inside the scenario, resolve against it. Check the scenario file against scenario_sha256 first.",
+    "input_files": [],
+    "determinism": "Same scenario bytes, seed and engine build give a byte-identical result document and report; this report carries no timestamp. Floating-point results are pinned per platform; another operating system or architecture may differ in the last digits."
+  }
+}

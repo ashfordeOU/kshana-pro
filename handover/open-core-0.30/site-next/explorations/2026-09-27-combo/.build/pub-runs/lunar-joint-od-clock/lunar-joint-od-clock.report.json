@@ -1,0 +1,582 @@
+{
+  "report_schema": "kshana-report",
+  "report_schema_version": "1.0",
+  "kind": "lunar-joint-od-clock",
+  "title": "lunar-joint-od-clock (lunar-joint-od-clock)",
+  "executive_summary": {
+    "what_ran": "Modelled joint multi-technique lunar OD + clock batch estimator on a SIMULATED network: a Gauss-Newton snapshot fit that fuses Earth-baseline geodetic VLBI delays, lunar-local station↔satellite ranges and inter-satellite ranges to recover, together, a lunar surface station's 3-D position, a small constellation's positions and every asset's clock offset from an injected truth.",
+    "summary": "lunar-joint-od-clock | 3 sats, 6 Earth stations | station 3-D err with VLBI 3.55 m vs range-only 2182.98 m (615.5× sharper) | sat pos RMS 2.20 m | station clk err 2.87e-10 s | obs 40/16 params",
+    "label": "The result carries no run-level honesty label; the verification labels of the capabilities it used are listed in their own section, and the per-figure tiers where the result states them.",
+    "label_source": "not stated by the result",
+    "key_figures": [
+      {
+        "path": "n_earth",
+        "value": 6,
+        "display": "6",
+        "unit": "count"
+      },
+      {
+        "path": "n_sat",
+        "value": 3,
+        "display": "3",
+        "unit": "count"
+      },
+      {
+        "path": "observability.condition",
+        "value": 1236400.6966074079,
+        "display": "1.2364e6",
+        "unit": "1"
+      },
+      {
+        "path": "observability.defect",
+        "value": 0,
+        "display": "0",
+        "unit": "count"
+      },
+      {
+        "path": "observability.e_opt",
+        "value": 1340402842.3405383,
+        "display": "1.3404e9",
+        "unit": "1/(10^6 m)^2"
+      },
+      {
+        "path": "observability.n_params",
+        "value": 16,
+        "display": "16",
+        "unit": "count"
+      }
+    ],
+    "capability_labels": {
+      "validated": 1,
+      "modelled": 3,
+      "partner": 0
+    }
+  },
+  "inputs": {
+    "items": [
+      {
+        "path": "epoch_day",
+        "value": 1,
+        "display": "1",
+        "unit": "d",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "epoch_month",
+        "value": 1,
+        "display": "1",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "epoch_year",
+        "value": 2024,
+        "display": "2024",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "kind",
+        "value": "lunar-joint-od-clock",
+        "display": "lunar-joint-od-clock",
+        "unit": "text",
+        "unit_source": "a text input carries no unit"
+      },
+      {
+        "path": "n_earth",
+        "value": 6,
+        "display": "6",
+        "unit": "count",
+        "unit_source": "field-units schema: units entry `n_earth`"
+      },
+      {
+        "path": "n_sat",
+        "value": 3,
+        "display": "3",
+        "unit": "count",
+        "unit_source": "field-units schema: units entry `n_sat`"
+      },
+      {
+        "path": "orbit_radius_km",
+        "value": 6000.0,
+        "display": "6000",
+        "unit": "km",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "seed",
+        "value": 42,
+        "display": "42",
+        "unit": "not stated",
+        "unit_source": "no units entry and no unit suffix"
+      },
+      {
+        "path": "sigma_isl_m",
+        "value": 0.1,
+        "display": "0.1",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "sigma_range_m",
+        "value": 0.1,
+        "display": "0.1",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "sigma_vlbi_s",
+        "value": 1e-11,
+        "display": "1.0000e-11",
+        "unit": "s",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "station_alt_m",
+        "value": 0.0,
+        "display": "0",
+        "unit": "m",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "station_lat_deg",
+        "value": -88.0,
+        "display": "-88",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      },
+      {
+        "path": "station_lon_deg",
+        "value": 23.0,
+        "display": "23",
+        "unit": "deg",
+        "unit_source": "field-name suffix"
+      }
+    ],
+    "omitted": 0
+  },
+  "results": {
+    "scalars": {
+      "items": [
+        {
+          "path": "n_earth",
+          "value": 6,
+          "display": "6",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `n_earth`"
+        },
+        {
+          "path": "n_sat",
+          "value": 3,
+          "display": "3",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `n_sat`"
+        },
+        {
+          "path": "observability.condition",
+          "value": 1236400.6966074079,
+          "display": "1.2364e6",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `observability.condition`"
+        },
+        {
+          "path": "observability.defect",
+          "value": 0,
+          "display": "0",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `observability.defect`"
+        },
+        {
+          "path": "observability.e_opt",
+          "value": 1340402842.3405383,
+          "display": "1.3404e9",
+          "unit": "1/(10^6 m)^2",
+          "unit_source": "field-units schema: units entry `observability.e_opt`"
+        },
+        {
+          "path": "observability.n_params",
+          "value": 16,
+          "display": "16",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `observability.n_params`"
+        },
+        {
+          "path": "observability.rank",
+          "value": 16,
+          "display": "16",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `observability.rank`"
+        },
+        {
+          "path": "observability.station_pos_crlb_m",
+          "value": 20.07769432856372,
+          "display": "20.077694",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `observability.station_pos_crlb_m`"
+        },
+        {
+          "path": "observability.station_pos_unobservable_axes",
+          "value": 0.0,
+          "display": "0",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `observability.station_pos_unobservable_axes`"
+        },
+        {
+          "path": "observability_without_vlbi.condition",
+          "value": 2158996.5311040576,
+          "display": "2.1590e6",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `observability_without_vlbi.condition`"
+        },
+        {
+          "path": "observability_without_vlbi.defect",
+          "value": 1,
+          "display": "1",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `observability_without_vlbi.defect`"
+        },
+        {
+          "path": "observability_without_vlbi.e_opt",
+          "value": 80710.67934492756,
+          "display": "80710.679345",
+          "unit": "1/(10^6 m)^2",
+          "unit_source": "field-units schema: units entry `observability_without_vlbi.e_opt`"
+        },
+        {
+          "path": "observability_without_vlbi.n_params",
+          "value": 16,
+          "display": "16",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `observability_without_vlbi.n_params`"
+        },
+        {
+          "path": "observability_without_vlbi.rank",
+          "value": 15,
+          "display": "15",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `observability_without_vlbi.rank`"
+        },
+        {
+          "path": "observability_without_vlbi.station_pos_crlb_m",
+          "value": null,
+          "display": "no value",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `observability_without_vlbi.station_pos_crlb_m`"
+        },
+        {
+          "path": "observability_without_vlbi.station_pos_unobservable_axes",
+          "value": 0.3403972615184532,
+          "display": "0.340397",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `observability_without_vlbi.station_pos_unobservable_axes`"
+        },
+        {
+          "path": "station_observability_improvement_factor",
+          "value": 615.5179685859817,
+          "display": "615.517969",
+          "unit": "1",
+          "unit_source": "field-units schema: units entry `station_observability_improvement_factor`"
+        },
+        {
+          "path": "with_vlbi.converged",
+          "value": true,
+          "display": "true",
+          "unit": "flag",
+          "unit_source": "a true/false result carries no unit"
+        },
+        {
+          "path": "with_vlbi.iterations",
+          "value": 2,
+          "display": "2",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `with_vlbi.iterations`"
+        },
+        {
+          "path": "with_vlbi.n_obs",
+          "value": 40,
+          "display": "40",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `with_vlbi.n_obs`"
+        },
+        {
+          "path": "with_vlbi.n_params",
+          "value": 16,
+          "display": "16",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `with_vlbi.n_params`"
+        },
+        {
+          "path": "with_vlbi.rms_residual",
+          "value": 0.051282479418169095,
+          "display": "0.051282",
+          "unit": "mixed - see note",
+          "unit_source": "field-units schema: units entry `with_vlbi.rms_residual`"
+        },
+        {
+          "path": "with_vlbi.sat_clock_rms_s",
+          "value": 7.277691380173022e-9,
+          "display": "7.2777e-9",
+          "unit": "s",
+          "unit_source": "field-units schema: units entry `with_vlbi.sat_clock_rms_s`"
+        },
+        {
+          "path": "with_vlbi.sat_pos_rms_m",
+          "value": 2.2030600620837193,
+          "display": "2.20306",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `with_vlbi.sat_pos_rms_m`"
+        },
+        {
+          "path": "with_vlbi.station_clock_err_s",
+          "value": 2.867804275413919e-10,
+          "display": "2.8678e-10",
+          "unit": "s",
+          "unit_source": "field-units schema: units entry `with_vlbi.station_clock_err_s`"
+        },
+        {
+          "path": "with_vlbi.station_pos_err_m",
+          "value": 3.546567263009864,
+          "display": "3.546567",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `with_vlbi.station_pos_err_m`"
+        },
+        {
+          "path": "without_vlbi.converged",
+          "value": true,
+          "display": "true",
+          "unit": "flag",
+          "unit_source": "a true/false result carries no unit"
+        },
+        {
+          "path": "without_vlbi.iterations",
+          "value": 2,
+          "display": "2",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `without_vlbi.iterations`"
+        },
+        {
+          "path": "without_vlbi.n_obs",
+          "value": 25,
+          "display": "25",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `without_vlbi.n_obs`"
+        },
+        {
+          "path": "without_vlbi.n_params",
+          "value": 16,
+          "display": "16",
+          "unit": "count",
+          "unit_source": "field-units schema: units entry `without_vlbi.n_params`"
+        },
+        {
+          "path": "without_vlbi.rms_residual",
+          "value": 0.0872200291146747,
+          "display": "0.08722",
+          "unit": "mixed - see note",
+          "unit_source": "field-units schema: units entry `without_vlbi.rms_residual`"
+        },
+        {
+          "path": "without_vlbi.sat_clock_rms_s",
+          "value": 4.143132837495366e-6,
+          "display": "4.1431e-6",
+          "unit": "s",
+          "unit_source": "field-units schema: units entry `without_vlbi.sat_clock_rms_s`"
+        },
+        {
+          "path": "without_vlbi.sat_pos_rms_m",
+          "value": 717.1813465962244,
+          "display": "717.181347",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `without_vlbi.sat_pos_rms_m`"
+        },
+        {
+          "path": "without_vlbi.station_clock_err_s",
+          "value": 2.881774202686567e-10,
+          "display": "2.8818e-10",
+          "unit": "s",
+          "unit_source": "field-units schema: units entry `without_vlbi.station_clock_err_s`"
+        },
+        {
+          "path": "without_vlbi.station_pos_err_m",
+          "value": 2182.9758771813767,
+          "display": "2182.975877",
+          "unit": "m",
+          "unit_source": "field-units schema: units entry `without_vlbi.station_pos_err_m`"
+        }
+      ],
+      "omitted": 0
+    },
+    "series": {
+      "items": [],
+      "omitted": 0,
+      "statement": "The result document carries no numeric array: every result is a scalar in the table above."
+    },
+    "charts": [
+      {
+        "id": "primary",
+        "title": "Result chart",
+        "file": "lunar-joint-od-clock.chart.svg"
+      }
+    ]
+  },
+  "events": {
+    "items": [],
+    "omitted": 0,
+    "statement": "No timed event: the scenario scripts no window or onset time and the result reports no event. The kind evaluates its configuration as one case."
+  },
+  "capabilities": {
+    "statement": "Each row is a verification-matrix row this run's kinds exercise, with the label and the oracle the matrix gives it (src/verification.rs, docs/VERIFICATION-MATRIX.md). A label grades the capability as the matrix records it; it does not grade this scenario's configuration, and a VALIDATED row does not make the run's inputs measured. A PARTNER row is a discipline the run relies on that Kshana does not provide.",
+    "rows": [
+      {
+        "requirement": "Reproducibility & software assurance",
+        "capability": "Deterministic, scenario-hashed, SBOM + cross-platform golden gates",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "SBOM conformance to the official CycloneDX 1.5 JSON Schema (+ valid SPDX identifiers) — an external published standard, zero validation errors over the full dependency graph; the FoM-determinism / byte-reproducibility part remains a pinned self-consistency check, so the row stays MODELLED",
+        "tests": "tests/golden.rs, tests/determinism.rs, tests/cross_platform_golden.rs; tests/reproducibility_software_assurance_reference.rs (the generated SBOM validates with zero errors against the official CycloneDX 1.5 JSON Schema over the full 66-component shipped graph: default + python + wasm features, dev-dependencies excluded)",
+        "module": "report, scenario; CI (golden/determinism/SBOM)",
+        "used_by": [
+          "every run"
+        ]
+      },
+      {
+        "requirement": "Lunar joint multi-technique OD + clock",
+        "capability": "Batch fusion of VLBI + lunar-local range + inter-sat range to recover station+constellation positions and clocks",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "ReferenceImpl",
+        "oracle": "Recovery of an injected simulated truth + NEES covariance consistency (internal); the underlying batch-LS estimator primitive is additionally cross-checked against Orekit 12.2 / Hipparchus Levenberg-Marquardt on identical observations (ReferenceImpl). The joint multi-technique solve as a whole stays MODELLED — the frame/VLBI sub-models are validated separately",
+        "tests": "lunar_combination::tests (recovers simulated truth; VLBI restores station 3-D observability; deterministic); tests/lunar_joint_multi_technique_od_reference.rs (6 geometries × 16 params, 31 obs each, vs Orekit 12.2 / Hipparchus Levenberg-Marquardt on identical observations; recovered state worst |Δ| 1.4e-8 m)",
+        "module": "lunar_combination",
+        "used_by": [
+          "lunar-joint-od-clock"
+        ]
+      },
+      {
+        "requirement": "Fisher information & Cramér–Rao observability",
+        "capability": "Fisher information M=HᵀWH, Cramér–Rao lower bound, observability rank / datum-defect null space (Moore–Penrose pseudo-inverse), and D/A/E/T-optimal experiment-design scalars from a symmetric Jacobi eigensolver",
+        "label": "VALIDATED",
+        "role": "exercised",
+        "oracle_kind": "ExternalDataset",
+        "oracle": "NumPy 2.4.1 (numpy.linalg.eigh / .inv; BSD-3-Clause, LAPACK-backed) — an independent third-party authority computing the same uniquely-defined eigenvalues, σ²(XᵀX)⁻¹ Cramér–Rao covariance and GNSS dilution-of-precision factors by a different algorithm (LAPACK divide-and-conquer + LU) than Kshana's cyclic-Jacobi sweep and spectral pseudo-inverse; matched to 1e-9. The same external-library class already validates the DOP engine (vs gnss_lib_py) and the χ²/erf kernels (vs SciPy). Additionally cross-checked against the Kay (1993) closed-form CRLBs and Monte-Carlo CRLB attainment (internal)",
+        "tests": "tests/fim_observability_reference.rs (eigenvalues vs numpy.linalg.eigh; CRLB covariance vs σ²(XᵀX)⁻¹ via numpy.linalg.inv; GNSS GDOP/PDOP/HDOP/VDOP/TDOP from the information matrix vs numpy — all matched to 1e-9); fim::tests (Jacobi eigensolver vs closed-form spectra; CRLB vs Kay 1993 closed forms — DC-in-WGN σ²/N and line-fit σ²(XᵀX)⁻¹; Monte-Carlo CRLB attainment; Moore–Penrose identity MM⁺M=M; datum-defect null space)",
+        "module": "fim",
+        "used_by": [
+          "lunar-joint-od-clock"
+        ]
+      },
+      {
+        "requirement": "Lunar absolute-station observability (datum defect)",
+        "capability": "Fisher-information observability of the joint lunar solve: without Earth baselines the absolute-frame datum lies in the null space of HᵀWH (station position unobservable); ≥3 baselines restore full rank and bound the station Cramér–Rao error, which the estimator attains",
+        "label": "MODELLED",
+        "role": "exercised",
+        "oracle_kind": "InternalConsistency",
+        "oracle": "Analytic datum-defect structure — the unobservable absolute-frame mode lies in the null space of the Fisher information (closed-form), the rank threshold matches the published 3-station design rationale, and the estimator attains the resulting CRLB in Monte-Carlo. The lunar geometry itself is a representative network (not a flown ephemeris), so the row stays MODELLED; the underlying FIM/CRLB engine is checked against the Kay (1993) closed forms separately",
+        "tests": "lunar_combination::tests (rank-deficient without Earth baselines; three baselines restore full rank — the 3-station threshold from the information rank, not solve error; station CRLB attained by the estimator at efficiency 0.98; CRLB tightens monotonically with baselines)",
+        "module": "lunar_combination (lunar_observability) + fim",
+        "used_by": [
+          "lunar-joint-od-clock"
+        ]
+      }
+    ],
+    "figure_tiers": []
+  },
+  "not_modelled": {
+    "items": [
+      {
+        "text": "MODELLED simulated closed-loop recovery (truth shares the observation model), deterministic (seeded), NOT real-data validated; no force-model propagation inside the solver; no TRL/heritage/agency endorsement.",
+        "source": "kind catalogue (`kshana kinds --json`)"
+      },
+      {
+        "text": "Honesty: MODELLED simulated closed-loop recovery. An injected truth is mapped to synthetic observables through the SAME geometry model the solver inverts, seeded Gaussian noise is added, and the estimator recovers the injected truth within the noise. The oracle is internal consistency (truth recovery + NEES covariance realism), NOT real-data validation. There is no force-model propagation inside the solver — the satellites are fixed, distinct, illustrative points on a representative lunar orbit. No TRL, flight heritage or agency endorsement claimed.",
+        "source": "scenario file comment, lines 24 to 29"
+      },
+      {
+        "text": "Reproducibility & software assurance is MODELLED, not validated: a sub-claim is externally checked, but the whole capability composes modelled pieces, so the capability stays Modelled.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "Lunar joint multi-technique OD + clock is MODELLED, not validated: checked against a separate implementation in this same codebase — independent of the unit under test, but not externally authoritative.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      },
+      {
+        "text": "Lunar absolute-station observability (datum defect) is MODELLED, not validated: checked against its own closed-form / analytic identity — catches transcription and coefficient errors, but is not an external oracle.",
+        "source": "verification matrix (docs/MODELLED-RATIONALE.md)"
+      }
+    ],
+    "omitted": 0
+  },
+  "companions": {
+    "animation": {
+      "available": false,
+      "embedded": false,
+      "reason": "no time series to animate: the lunar-joint-od-clock result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+      "files": [],
+      "command": "kshana lunar-joint-od-clock.toml --animate html"
+    },
+    "exports": [
+      {
+        "format": "czml",
+        "applies": false,
+        "reason": "the kind's geometry is centred on the Moon, Mars or another solar-system body; CZML, KML and GeoJSON describe positions on or about the Earth, and this release writes STK ephemerides with CentralBody Earth only",
+        "spec_url": "https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Structure",
+        "files": []
+      },
+      {
+        "format": "kml",
+        "applies": false,
+        "reason": "the kind's geometry is centred on the Moon, Mars or another solar-system body; CZML, KML and GeoJSON describe positions on or about the Earth, and this release writes STK ephemerides with CentralBody Earth only",
+        "spec_url": "https://www.ogc.org/standard/kml/",
+        "files": []
+      },
+      {
+        "format": "geojson",
+        "applies": false,
+        "reason": "the kind's geometry is centred on the Moon, Mars or another solar-system body; CZML, KML and GeoJSON describe positions on or about the Earth, and this release writes STK ephemerides with CentralBody Earth only",
+        "spec_url": "https://www.rfc-editor.org/rfc/rfc7946",
+        "files": []
+      },
+      {
+        "format": "stk",
+        "applies": false,
+        "reason": "the kind's geometry is centred on the Moon, Mars or another solar-system body; CZML, KML and GeoJSON describe positions on or about the Earth, and this release writes STK ephemerides with CentralBody Earth only",
+        "spec_url": "https://help.agi.com/stk/#stk/importfiles-02.htm",
+        "files": []
+      },
+      {
+        "format": "sigmf",
+        "applies": false,
+        "reason": "SigMF holds complex baseband samples, which only the `spectrum` kind synthesises",
+        "spec_url": "https://github.com/sigmf/SigMF/blob/main/sigmf-spec.md",
+        "files": []
+      }
+    ],
+    "export_command": "kshana lunar-joint-od-clock.toml --export all"
+  },
+  "reproducibility": {
+    "engine_version": "0.29.3",
+    "git_commit": null,
+    "git_commit_note": "not recorded: this engine was built without the KSHANA_GIT_COMMIT environment variable; the engine version identifies the release",
+    "scenario_file": "lunar-joint-od-clock.toml",
+    "scenario_sha256": "ed72546371ba80dd4b8d2a3f7ff9c5618a8d58af3650eeecfa28655e09367118",
+    "result_scenario_hash": null,
+    "result_sha256": "6873e68d9d7ebc2fc3047c44fbd42cd726ee7b904ec05b1eeee0df848c307fda",
+    "result_file": "lunar-joint-od-clock.result.json",
+    "seed": 42,
+    "seed_source": "scenario `seed`",
+    "platform": {
+      "os": "macos",
+      "arch": "aarch64",
+      "family": "unix"
+    },
+    "command": "kshana lunar-joint-od-clock.toml",
+    "argv": [
+      "kshana",
+      "lunar-joint-od-clock.toml"
+    ],
+    "working_directory": "Run the command from the directory the original run was started in: the scenario path, and any relative data path inside the scenario, resolve against it. Check the scenario file against scenario_sha256 first.",
+    "input_files": [],
+    "determinism": "Same scenario bytes, seed and engine build give a byte-identical result document and report; this report carries no timestamp. Floating-point results are pinned per platform; another operating system or architecture may differ in the last digits."
+  }
+}

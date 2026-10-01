@@ -1,0 +1,60 @@
+# DERIVED by scratch/actlocal/derive.py; do not edit
+name: Release
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ inputs.tag || github.ref }}
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: dtolnay/rust-toolchain@1.93.0
+    - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+    - run: cargo build --release
+    - name: Build the kshana-mcp server binary
+      run: cargo build --release --manifest-path mcp/kshana-mcp/Cargo.toml
+    - name: Generate the CycloneDX SBOM
+      run: ./scripts/gen-sbom.sh > kshana-sbom.cdx.json
+    - name: Generate the validation summary
+      run: cargo run --release --bin validation_report -- kshana-validation-summary.html
+    - name: Generate release notes from CHANGELOG
+      env:
+        TAG: ${{ inputs.tag || github.ref_name }}
+      run: bash scripts/changelog-extract.sh "${TAG#v}" > RELEASE_NOTES.md
+    - name: (local) assets dir the binaries download would create
+      run: mkdir -p assets
+    - name: Stage every asset and write SHA256SUMS
+      run: 'set -euo pipefail
+
+        cp target/release/kshana assets/kshana
+
+        cp mcp/kshana-mcp/target/release/kshana-mcp assets/kshana-mcp
+
+        cp kshana-sbom.cdx.json kshana-validation-summary.html assets/
+
+        ( cd assets && sha256sum -- * > ../SHA256SUMS )
+
+        mv SHA256SUMS assets/SHA256SUMS
+
+        ls -l assets
+
+        cat assets/SHA256SUMS
+
+        '
+'on':
+  push:
+    tags:
+    - v*
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to (re)build the release for, e.g. v0.19.0
+        required: true
+        type: string

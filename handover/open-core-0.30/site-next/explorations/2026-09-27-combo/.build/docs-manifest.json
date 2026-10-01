@@ -1,0 +1,411 @@
+{
+ "pages": [
+  {
+   "slug": "overview",
+   "source": "README.md",
+   "group": "Get started"
+  },
+  {
+   "slug": "concepts",
+   "source": "docs/CONCEPTS.md",
+   "group": "Get started"
+  },
+  {
+   "slug": "glossary",
+   "source": "docs/GLOSSARY.md",
+   "group": "Get started"
+  },
+  {
+   "slug": "studio",
+   "source": "web/README.md",
+   "group": "Get started"
+  },
+  {
+   "slug": "tutorials",
+   "source": "docs/tutorials/README.md",
+   "group": "Get started"
+  },
+  {
+   "slug": "tutorial-first-orbit",
+   "source": "docs/tutorials/01-first-orbit.md",
+   "group": "Get started"
+  },
+  {
+   "slug": "tutorial-clock-holdover",
+   "source": "docs/tutorials/02-clock-holdover.md",
+   "group": "Get started"
+  },
+  {
+   "slug": "tutorial-quantum-vs-classical",
+   "source": "docs/tutorials/03-quantum-vs-classical.md",
+   "group": "Get started"
+  },
+  {
+   "slug": "example-multi-tool",
+   "source": "docs/examples/multi-tool-pipeline.md",
+   "group": "Get started"
+  },
+  {
+   "slug": "scenarios",
+   "source": "docs/SCENARIOS.md",
+   "group": "Scenarios"
+  },
+  {
+   "slug": "scenario-reference",
+   "source": "@scenario-reference",
+   "group": "Scenarios"
+  },
+  {
+   "slug": "schema",
+   "source": "docs/SCHEMA.md",
+   "group": "Scenarios"
+  },
+  {
+   "slug": "real-tle-guide",
+   "source": "docs/REAL_TLE_GUIDE.md",
+   "group": "Scenarios"
+  },
+  {
+   "slug": "campaigns",
+   "source": "docs/CAMPAIGNS.md",
+   "group": "Scenarios"
+  },
+  {
+   "slug": "reports",
+   "source": "docs/REPORTS.md",
+   "group": "Outputs and exports"
+  },
+  {
+   "slug": "animation",
+   "source": "docs/ANIMATION.md",
+   "group": "Outputs and exports"
+  },
+  {
+   "slug": "interop",
+   "source": "docs/INTEROP.md",
+   "group": "Outputs and exports"
+  },
+  {
+   "slug": "validation",
+   "source": "docs/VALIDATION.md",
+   "group": "Validation and evidence"
+  },
+  {
+   "slug": "verification-matrix",
+   "source": "docs/VERIFICATION-MATRIX.md",
+   "group": "Validation and evidence"
+  },
+  {
+   "slug": "capability-reference",
+   "source": "@capability-reference",
+   "group": "Validation and evidence"
+  },
+  {
+   "slug": "modelled-rationale",
+   "source": "docs/MODELLED-RATIONALE.md",
+   "group": "Validation and evidence"
+  },
+  {
+   "slug": "claims-vs-reality",
+   "source": "docs/CLAIMS-VS-REALITY.md",
+   "group": "Validation and evidence"
+  },
+  {
+   "slug": "provenance",
+   "source": "docs/PROVENANCE.md",
+   "group": "Validation and evidence"
+  },
+  {
+   "slug": "reproducibility",
+   "source": "docs/REPRODUCIBILITY.md",
+   "group": "Validation and evidence"
+  },
+  {
+   "slug": "capability-map",
+   "source": "docs/CAPABILITY.md",
+   "group": "Validation and evidence"
+  },
+  {
+   "slug": "standards",
+   "source": "docs/STANDARDS.md",
+   "group": "Validation and evidence"
+  },
+  {
+   "slug": "line-coverage",
+   "source": "docs/COVERAGE.md",
+   "group": "Validation and evidence"
+  },
+  {
+   "slug": "slot-timing",
+   "source": "docs/SLOT-TIMING.md",
+   "group": "Timing"
+  },
+  {
+   "slug": "telecom-timing",
+   "source": "docs/TELECOM-TIMING.md",
+   "group": "Timing"
+  },
+  {
+   "slug": "deceived-time",
+   "source": "docs/DECEIVED-TIME.md",
+   "group": "Timing"
+  },
+  {
+   "slug": "integrity",
+   "source": "docs/INTEGRITY.md",
+   "group": "Integrity and interference"
+  },
+  {
+   "slug": "spectrum",
+   "source": "docs/SPECTRUM.md",
+   "group": "Integrity and interference"
+  },
+  {
+   "slug": "araim-reference",
+   "source": "docs/ARAIM_REFERENCE.md",
+   "group": "Integrity and interference"
+  },
+  {
+   "slug": "compliance",
+   "source": "docs/COMPLIANCE.md",
+   "group": "Integrity and interference"
+  },
+  {
+   "slug": "resilience-crosswalk",
+   "source": "docs/RESILIENCE-CROSSWALK.md",
+   "group": "Integrity and interference"
+  },
+  {
+   "slug": "sgp4-validation",
+   "source": "docs/SGP4-VALIDATION.md",
+   "group": "Orbits"
+  },
+  {
+   "slug": "agency-orbit-validation",
+   "source": "docs/AGENCY-ORBIT-VALIDATION.md",
+   "group": "Orbits"
+  },
+  {
+   "slug": "solar-system",
+   "source": "docs/SOLAR-SYSTEM.md",
+   "group": "Orbits"
+  },
+  {
+   "slug": "leo-pnt",
+   "source": "docs/LEO-PNT.md",
+   "group": "Low Earth orbit (LEO) navigation"
+  },
+  {
+   "slug": "leo-signal",
+   "source": "docs/LEO-SIGNAL.md",
+   "group": "Low Earth orbit (LEO) navigation"
+  },
+  {
+   "slug": "leo-pass",
+   "source": "docs/LEO-PASS.md",
+   "group": "Low Earth orbit (LEO) navigation"
+  },
+  {
+   "slug": "leo-navmsg",
+   "source": "docs/LEO-NAVMSG.md",
+   "group": "Low Earth orbit (LEO) navigation"
+  },
+  {
+   "slug": "leo-pnt-fusion",
+   "source": "docs/LEO-PNT-FUSION.md",
+   "group": "Low Earth orbit (LEO) navigation"
+  },
+  {
+   "slug": "constellation-design",
+   "source": "docs/CONSTELLATION-DESIGN.md",
+   "group": "Low Earth orbit (LEO) navigation"
+  },
+  {
+   "slug": "quantum-models",
+   "source": "docs/QUANTUM-MODELS.md",
+   "group": "Quantum sensors"
+  },
+  {
+   "slug": "quantum-physics",
+   "source": "docs/QUANTUM.md",
+   "group": "Quantum sensors"
+  },
+  {
+   "slug": "python-api",
+   "source": "docs/PYTHON_API.md",
+   "group": "APIs and integrations"
+  },
+  {
+   "slug": "npm",
+   "source": "README.npm.md",
+   "group": "APIs and integrations"
+  },
+  {
+   "slug": "rust",
+   "source": "README.crates.md",
+   "group": "APIs and integrations"
+  },
+  {
+   "slug": "mcp",
+   "source": "mcp/kshana-mcp/README.md",
+   "group": "APIs and integrations"
+  },
+  {
+   "slug": "jetbrains",
+   "source": "ide/jetbrains/README.md",
+   "group": "APIs and integrations"
+  },
+  {
+   "slug": "deployment-targets",
+   "source": "docs/DEPLOYMENT-TARGETS.md",
+   "group": "APIs and integrations"
+  },
+  {
+   "slug": "architecture",
+   "source": "docs/ARCHITECTURE.md",
+   "group": "APIs and integrations"
+  },
+  {
+   "slug": "positioning",
+   "source": "docs/POSITIONING.md",
+   "group": "APIs and integrations"
+  },
+  {
+   "slug": "changelog",
+   "source": "CHANGELOG.md",
+   "group": "Project"
+  },
+  {
+   "slug": "licensing",
+   "source": "LICENSING.md",
+   "group": "Project"
+  },
+  {
+   "slug": "security",
+   "source": "SECURITY.md",
+   "group": "Project"
+  },
+  {
+   "slug": "contributing",
+   "source": "CONTRIBUTING.md",
+   "group": "Project"
+  },
+  {
+   "slug": "governance",
+   "source": "GOVERNANCE.md",
+   "group": "Project"
+  },
+  {
+   "slug": "code-of-conduct",
+   "source": "CODE_OF_CONDUCT.md",
+   "group": "Project"
+  }
+ ],
+ "excluded": [
+  "docs/RELEASING.md (release procedure)",
+  "docs/WHEEL_TAGS.md (packaging detail)",
+  "docs/revisions/ (internal change notes)",
+  "docs/design/ (internal design notes)",
+  "README.pypi.md (the PyPI page; the Python API doc covers it)",
+  ".github/ templates",
+  "docs/integrations.md (organised around named third-party AI products, which this site does not name)"
+ ],
+ "assets": [
+  "docs/assets/readme/kshana-logo-light.svg",
+  "docs/assets/readme/kshana-logo-dark.svg",
+  "docs/assets/readme/hero-light.svg",
+  "docs/assets/readme/hero-dark.svg",
+  "docs/assets/readme/studio/studio-task-light.jpg",
+  "docs/assets/readme/studio/studio-task-dark.jpg",
+  "docs/assets/readme/studio/studio-home-light.jpg",
+  "docs/assets/readme/studio/studio-home-dark.jpg",
+  "docs/assets/readme/studio/studio-advanced-light.jpg",
+  "docs/assets/readme/studio/studio-advanced-dark.jpg",
+  "docs/assets/readme/site/site-strip-light.jpg",
+  "docs/assets/readme/site/site-strip-dark.jpg",
+  "docs/assets/readme/campaign-timeline-light.svg",
+  "docs/assets/readme/campaign-timeline-dark.svg",
+  "docs/assets/readme/lband-waterfall-light.svg",
+  "docs/assets/readme/lband-waterfall-dark.svg",
+  "docs/assets/readme/coverage-map-light.svg",
+  "docs/assets/readme/coverage-map-dark.svg",
+  "docs/assets/readme/solar-system-light.svg",
+  "docs/assets/readme/solar-system-dark.svg",
+  "docs/assets/readme/leo-pass-light.svg",
+  "docs/assets/readme/leo-pass-dark.svg",
+  "docs/assets/figures/scenario-fom.png",
+  "paper/crossover/clock.png",
+  "paper/crossover/inertial.png",
+  "docs/assets/inertial-deadreckoning.svg",
+  "docs/assets/clock-holdover.svg",
+  "docs/assets/orbit-gnss-challenged.svg",
+  "docs/assets/readme/flow-leo-chain-light.svg",
+  "docs/assets/readme/flow-leo-chain-dark.svg",
+  "docs/assets/readme/flow-pipeline-light.svg",
+  "docs/assets/readme/flow-pipeline-dark.svg",
+  "docs/assets/readme/flow-verification-light.svg",
+  "docs/assets/readme/flow-verification-dark.svg",
+  "docs/assets/diagrams/validation-provenance.png",
+  "docs/assets/figures/oracle-kind-stacked.png",
+  "docs/assets/figures/sgp4-regime-bars.png",
+  "docs/assets/figures/validation-breakdown.png",
+  "docs/assets/readme/architecture-light.svg",
+  "docs/assets/readme/architecture-dark.svg",
+  "docs/assets/readme/flow-architecture-light.svg",
+  "docs/assets/readme/flow-architecture-dark.svg",
+  "docs/assets/readme/research-light.svg",
+  "docs/assets/readme/research-dark.svg"
+ ],
+ "tablePipeRepairs": [
+  {
+   "file": "README.md",
+   "fixed": 1,
+   "unresolved": 0,
+   "left": []
+  },
+  {
+   "file": "docs/VALIDATION.md",
+   "fixed": 4,
+   "unresolved": 0,
+   "left": []
+  },
+  {
+   "file": "docs/VERIFICATION-MATRIX.md",
+   "fixed": 30,
+   "unresolved": 0,
+   "left": []
+  },
+  {
+   "file": "docs/MODELLED-RATIONALE.md",
+   "fixed": 14,
+   "unresolved": 0,
+   "left": []
+  },
+  {
+   "file": "docs/CAPABILITY.md",
+   "fixed": 1,
+   "unresolved": 1,
+   "left": [
+    "line 63: 5 cells for 3 columns, surplus joined into the last cell"
+   ]
+  },
+  {
+   "file": "docs/TELECOM-TIMING.md",
+   "fixed": 7,
+   "unresolved": 0,
+   "left": []
+  },
+  {
+   "file": "docs/ARAIM_REFERENCE.md",
+   "fixed": 1,
+   "unresolved": 0,
+   "left": []
+  },
+  {
+   "file": "docs/LEO-PASS.md",
+   "fixed": 1,
+   "unresolved": 0,
+   "left": []
+  }
+ ]
+}
