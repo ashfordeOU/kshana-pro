@@ -155,6 +155,19 @@ fn every_open_kind_runs_through_pro_and_matches_the_open_engine() {
         };
         // The first file of the kind (file-name order) is the one proven.
         let (file, src) = &files[0];
+        // The lunar laser-ranging slice ships with the engine repository but not with the
+        // published crate. When the engine comes from crates.io, run the same scenario on
+        // the copy of that slice vendored here (tests/fixtures/lunar_llr, from the v0.29.0
+        // tag), exactly as the engine's own error message directs.
+        let vendored_llr;
+        let src =
+            if meta.name == "lunar-llr-datum" && !dir.join("tests/fixtures/lunar_llr").is_dir() {
+                let slice = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/lunar_llr");
+                vendored_llr = format!("{src}\ndata_dir = {:?}\n", slice.display().to_string());
+                &vendored_llr
+            } else {
+                src
+            };
 
         let open = match kshana::api::run_scenario(src) {
             Ok(o) => o,
