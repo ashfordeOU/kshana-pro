@@ -1,0 +1,33 @@
+# DERIVED by scratch/actlocal/derive.py; do not edit
+name: JetBrains plugin
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ide/jetbrains
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - name: Version sync (tag == manifest)
+      working-directory: .
+      run: ./scripts/check-version-sync.sh
+    - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+      with:
+        distribution: temurin
+        java-version: '21'
+    - name: Build + unit-test + assemble the plugin
+      run: "set +e\nattempt=1; max=3\nwhile :; do\n  out=\"$(./gradlew test buildPlugin --no-daemon --console=plain 2>&1)\"; rc=$?\n  printf '%s\\n' \"$out\"\n  if [ \"$rc\" -eq 0 ]; then break; fi\n  # Retry only on transient JetBrains CDN / network resolution failures.\n  if [ \"$attempt\" -lt \"$max\" ] && printf '%s\\n' \"$out\" | grep -qiE \"bad gateway|could not resolve|could not get resource|status code: (429|50[0-9])|gateway time-?out|connection (reset|timed out)|read timed out|timeout\"; then\n    echo \"::warning::transient IntelliJ Platform resolution failure during build (attempt $attempt/$max) - retrying\"\n    sleep $((attempt * 30))\n    attempt=$((attempt + 1))\n    continue\n  fi\n  exit \"$rc\"\ndone\n"
+    - name: Upload the plugin distributable
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: kshana-jetbrains-plugin
+        path: ide/jetbrains/build/distributions/*.zip
+        if-no-files-found: warn
+'on':
+  push:
+    tags:
+    - v*

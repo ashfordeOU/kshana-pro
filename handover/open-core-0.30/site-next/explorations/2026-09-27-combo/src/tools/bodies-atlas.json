@@ -1,0 +1,911 @@
+{
+ "tile": [
+  768,
+  384
+ ],
+ "cols": 4,
+ "rows": 5,
+ "bodies": {
+  "Sun": {
+   "i": 0,
+   "licence": "CC BY 4.0",
+   "credit": "Solar System Scope (solarsystemscope.com), from NASA mission data",
+   "source": "https://commons.wikimedia.org/wiki/File%3ASolarsystemscope_texture_2k_sun.jpg",
+   "padded": false
+  },
+  "Mercury": {
+   "i": 1,
+   "licence": "CC BY 4.0",
+   "credit": "Solar System Scope (solarsystemscope.com), from NASA mission data",
+   "source": "https://commons.wikimedia.org/wiki/File%3ASolarsystemscope_texture_2k_mercury.jpg",
+   "padded": false
+  },
+  "Venus": {
+   "i": 2,
+   "licence": "CC BY 4.0",
+   "credit": "Solar System Scope (solarsystemscope.com), from NASA mission data",
+   "source": "https://commons.wikimedia.org/wiki/File%3ASolarsystemscope_texture_2k_venus_atmosphere.jpg",
+   "padded": false
+  },
+  "Earth": {
+   "i": 3,
+   "licence": "Public domain",
+   "credit": "NASA Visible Earth, Blue Marble",
+   "source": "assets/planets/earth-day-2048.jpg",
+   "padded": false
+  },
+  "Moon": {
+   "i": 4,
+   "licence": "Public domain",
+   "credit": "NASA Scientific Visualization Studio, CGI Moon Kit",
+   "source": "assets/planets/moon-2048.jpg",
+   "padded": false
+  },
+  "Mars": {
+   "i": 5,
+   "licence": "Public domain",
+   "credit": "NASA/JPL",
+   "source": "assets/planets/mars-1440.jpg",
+   "padded": false
+  },
+  "Phobos": {
+   "i": 6,
+   "licence": "Public domain",
+   "credit": "USGS Astrogeology / Planetary Data System, Viking mosaic (P. Stooke)",
+   "source": "https://commons.wikimedia.org/wiki/File%3APhobos_Viking_Mosaic_DLRcontrol_7200.jpg",
+   "padded": false
+  },
+  "Deimos": {
+   "i": 7,
+   "licence": "CC BY-SA 3.0",
+   "credit": "Oleg-Pluton, from NASA Viking imagery",
+   "source": "https://commons.wikimedia.org/wiki/File%3ADeimos_color_map.jpg",
+   "padded": false
+  },
+  "Jupiter": {
+   "i": 8,
+   "licence": "CC BY 4.0",
+   "credit": "Solar System Scope (solarsystemscope.com), from NASA mission data",
+   "source": "https://commons.wikimedia.org/wiki/File%3ASolarsystemscope_texture_2k_jupiter.jpg",
+   "padded": false
+  },
+  "Io": {
+   "i": 9,
+   "licence": "Public domain",
+   "credit": "NASA/JPL/USGS, Galileo and Voyager mosaic",
+   "source": "https://commons.wikimedia.org/wiki/File%3AIo_from_Galileo_and_Voyager_missions.jpg",
+   "padded": true
+  },
+  "Europa": {
+   "i": 10,
+   "licence": "Public domain",
+   "credit": "USGS / Planetary Data System, Voyager and Galileo SSI mosaic",
+   "source": "https://commons.wikimedia.org/wiki/File%3AEuropa_Voyager_GalileoSSI_global_mosaic.jpg",
+   "padded": false
+  },
+  "Ganymede": {
+   "i": 11,
+   "licence": "Public domain",
+   "credit": "Caltech/JPL/USGS, Voyager mosaic",
+   "source": "https://commons.wikimedia.org/wiki/File%3AGanymede_map_NASA_JPL_Voyager.jpg",
+   "padded": false
+  },
+  "Callisto": {
+   "i": 12,
+   "licence": "Public domain",
+   "credit": "USGS Astrogeology Science Center",
+   "source": "https://commons.wikimedia.org/wiki/File%3ACallisto_USGS_global_small.jpg",
+   "padded": true
+  },
+  "Saturn": {
+   "i": 13,
+   "licence": "CC BY 4.0",
+   "credit": "Solar System Scope (solarsystemscope.com), from NASA mission data",
+   "source": "https://commons.wikimedia.org/wiki/File%3ASolarsystemscope_texture_2k_saturn.jpg",
+   "padded": false
+  },
+  "Titan": {
+   "i": 14,
+   "licence": "Public domain",
+   "credit": "NASA/JPL-Caltech/University of Arizona, Cassini mosaic PIA22770",
+   "source": "https://commons.wikimedia.org/wiki/File%3APIA22770-SaturnMoon-Titan-Surface-20181206.jpg",
+   "padded": false
+  },
+  "Uranus": {
+   "i": 15,
+   "licence": "CC BY 4.0",
+   "credit": "Solar System Scope (solarsystemscope.com), from NASA mission data",
+   "source": "https://commons.wikimedia.org/wiki/File%3ASolarsystemscope_texture_2k_uranus.jpg",
+   "padded": false
+  },
+  "Neptune": {
+   "i": 16,
+   "licence": "CC BY 4.0",
+   "credit": "Solar System Scope (solarsystemscope.com), from NASA mission data",
+   "source": "https://commons.wikimedia.org/wiki/File%3ASolarsystemscope_texture_2k_neptune.jpg",
+   "padded": false
+  },
+  "Pluto": {
+   "i": 17,
+   "licence": "Public domain",
+   "credit": "NASA/Johns Hopkins APL/Southwest Research Institute, New Horizons PIA20658",
+   "source": "https://commons.wikimedia.org/wiki/File%3APIA20658-Pluto-Global-released20160502.jpg",
+   "padded": false
+  }
+ },
+ "ring": {
+  "source": "https://commons.wikimedia.org/wiki/File%3ASolarsystemscope_texture_2k_saturn_ring_alpha.png",
+  "licence": "CC BY 4.0",
+  "credit": "Solar System Scope (solarsystemscope.com), from NASA mission data",
+  "rgba": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ],
+   [
+    21,
+    21,
+    42,
+    12
+   ],
+   [
+    19,
+    19,
+    39,
+    13
+   ],
+   [
+    30,
+    22,
+    52,
+    34
+   ],
+   [
+    29,
+    23,
+    53,
+    43
+   ],
+   [
+    31,
+    31,
+    53,
+    48
+   ],
+   [
+    43,
+    39,
+    55,
+    64
+   ],
+   [
+    41,
+    37,
+    54,
+    61
+   ],
+   [
+    39,
+    39,
+    57,
+    58
+   ],
+   [
+    48,
+    40,
+    55,
+    69
+   ],
+   [
+    47,
+    41,
+    57,
+    80
+   ],
+   [
+    52,
+    49,
+    60,
+    88
+   ],
+   [
+    53,
+    44,
+    61,
+    91
+   ],
+   [
+    52,
+    46,
+    62,
+    98
+   ],
+   [
+    51,
+    49,
+    63,
+    104
+   ],
+   [
+    54,
+    46,
+    62,
+    94
+   ],
+   [
+    55,
+    48,
+    62,
+    110
+   ],
+   [
+    56,
+    51,
+    64,
+    103
+   ],
+   [
+    57,
+    52,
+    64,
+    107
+   ],
+   [
+    53,
+    48,
+    61,
+    100
+   ],
+   [
+    57,
+    53,
+    64,
+    110
+   ],
+   [
+    59,
+    55,
+    67,
+    125
+   ],
+   [
+    56,
+    53,
+    63,
+    104
+   ],
+   [
+    57,
+    52,
+    62,
+    106
+   ],
+   [
+    59,
+    55,
+    67,
+    128
+   ],
+   [
+    54,
+    51,
+    62,
+    94
+   ],
+   [
+    52,
+    47,
+    60,
+    92
+   ],
+   [
+    55,
+    48,
+    62,
+    106
+   ],
+   [
+    58,
+    56,
+    65,
+    117
+   ],
+   [
+    58,
+    53,
+    65,
+    109
+   ],
+   [
+    63,
+    57,
+    67,
+    125
+   ],
+   [
+    68,
+    64,
+    73,
+    150
+   ],
+   [
+    69,
+    64,
+    69,
+    135
+   ],
+   [
+    77,
+    72,
+    76,
+    161
+   ],
+   [
+    94,
+    85,
+    86,
+    192
+   ],
+   [
+    102,
+    93,
+    92,
+    209
+   ],
+   [
+    100,
+    93,
+    91,
+    204
+   ],
+   [
+    100,
+    93,
+    90,
+    205
+   ],
+   [
+    101,
+    94,
+    93,
+    208
+   ],
+   [
+    100,
+    93,
+    91,
+    204
+   ],
+   [
+    100,
+    94,
+    93,
+    208
+   ],
+   [
+    99,
+    93,
+    92,
+    207
+   ],
+   [
+    103,
+    95,
+    93,
+    212
+   ],
+   [
+    103,
+    96,
+    93,
+    209
+   ],
+   [
+    102,
+    95,
+    93,
+    212
+   ],
+   [
+    104,
+    96,
+    95,
+    213
+   ],
+   [
+    110,
+    100,
+    99,
+    221
+   ],
+   [
+    124,
+    113,
+    111,
+    236
+   ],
+   [
+    122,
+    112,
+    109,
+    237
+   ],
+   [
+    126,
+    116,
+    106,
+    237
+   ],
+   [
+    130,
+    117,
+    112,
+    240
+   ],
+   [
+    124,
+    116,
+    114,
+    237
+   ],
+   [
+    129,
+    120,
+    117,
+    240
+   ],
+   [
+    130,
+    121,
+    121,
+    241
+   ],
+   [
+    121,
+    114,
+    114,
+    237
+   ],
+   [
+    120,
+    111,
+    102,
+    232
+   ],
+   [
+    125,
+    112,
+    103,
+    237
+   ],
+   [
+    129,
+    116,
+    107,
+    238
+   ],
+   [
+    130,
+    118,
+    107,
+    239
+   ],
+   [
+    131,
+    119,
+    107,
+    241
+   ],
+   [
+    128,
+    118,
+    106,
+    238
+   ],
+   [
+    138,
+    128,
+    117,
+    243
+   ],
+   [
+    137,
+    126,
+    118,
+    243
+   ],
+   [
+    126,
+    116,
+    106,
+    236
+   ],
+   [
+    135,
+    126,
+    118,
+    241
+   ],
+   [
+    137,
+    129,
+    126,
+    244
+   ],
+   [
+    128,
+    120,
+    110,
+    238
+   ],
+   [
+    120,
+    110,
+    100,
+    231
+   ],
+   [
+    120,
+    111,
+    101,
+    232
+   ],
+   [
+    123,
+    113,
+    106,
+    232
+   ],
+   [
+    125,
+    116,
+    108,
+    232
+   ],
+   [
+    124,
+    116,
+    110,
+    234
+   ],
+   [
+    125,
+    115,
+    111,
+    234
+   ],
+   [
+    122,
+    114,
+    108,
+    233
+   ],
+   [
+    121,
+    112,
+    105,
+    231
+   ],
+   [
+    121,
+    112,
+    107,
+    231
+   ],
+   [
+    127,
+    119,
+    114,
+    236
+   ],
+   [
+    132,
+    125,
+    121,
+    241
+   ],
+   [
+    116,
+    111,
+    113,
+    236
+   ],
+   [
+    91,
+    86,
+    90,
+    200
+   ],
+   [
+    51,
+    54,
+    58,
+    79
+   ],
+   [
+    56,
+    54,
+    64,
+    103
+   ],
+   [
+    54,
+    54,
+    62,
+    94
+   ],
+   [
+    53,
+    50,
+    62,
+    81
+   ],
+   [
+    51,
+    54,
+    61,
+    79
+   ],
+   [
+    67,
+    68,
+    75,
+    152
+   ],
+   [
+    64,
+    64,
+    70,
+    142
+   ],
+   [
+    73,
+    73,
+    76,
+    167
+   ],
+   [
+    87,
+    85,
+    88,
+    202
+   ],
+   [
+    95,
+    91,
+    93,
+    212
+   ],
+   [
+    94,
+    92,
+    92,
+    207
+   ],
+   [
+    92,
+    87,
+    90,
+    204
+   ],
+   [
+    90,
+    85,
+    86,
+    194
+   ],
+   [
+    89,
+    86,
+    83,
+    180
+   ],
+   [
+    89,
+    85,
+    82,
+    180
+   ],
+   [
+    91,
+    85,
+    81,
+    181
+   ],
+   [
+    88,
+    87,
+    81,
+    175
+   ],
+   [
+    88,
+    85,
+    81,
+    176
+   ],
+   [
+    88,
+    85,
+    81,
+    176
+   ],
+   [
+    89,
+    83,
+    82,
+    177
+   ],
+   [
+    88,
+    84,
+    81,
+    176
+   ],
+   [
+    90,
+    84,
+    81,
+    175
+   ],
+   [
+    88,
+    82,
+    81,
+    176
+   ],
+   [
+    89,
+    86,
+    82,
+    180
+   ],
+   [
+    86,
+    82,
+    81,
+    176
+   ],
+   [
+    90,
+    85,
+    82,
+    177
+   ],
+   [
+    89,
+    86,
+    83,
+    183
+   ],
+   [
+    88,
+    85,
+    79,
+    176
+   ],
+   [
+    72,
+    69,
+    69,
+    106
+   ],
+   [
+    92,
+    88,
+    87,
+    196
+   ],
+   [
+    93,
+    88,
+    90,
+    201
+   ],
+   [
+    91,
+    87,
+    89,
+    203
+   ],
+   [
+    91,
+    91,
+    91,
+    206
+   ],
+   [
+    87,
+    87,
+    89,
+    207
+   ],
+   [
+    86,
+    81,
+    96,
+    106
+   ],
+   [
+    28,
+    28,
+    56,
+    9
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    72,
+    7
+   ],
+   [
+    0,
+    0,
+    72,
+    7
+   ],
+   [
+    0,
+    0,
+    72,
+    7
+   ],
+   [
+    12,
+    24,
+    48,
+    21
+   ],
+   [
+    23,
+    23,
+    46,
+    11
+   ]
+  ]
+ }
+}

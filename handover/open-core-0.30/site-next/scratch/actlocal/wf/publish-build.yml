@@ -1,0 +1,75 @@
+# DERIVED by scratch/actlocal/derive.py; do not edit
+name: publish
+permissions:
+  contents: read
+jobs:
+  gates-guards:
+    name: pre-publish gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: read
+      actions: read
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        fetch-depth: 0
+    - uses: dtolnay/rust-toolchain@1.93.0
+    - name: Toolchain pin guard
+      run: ./scripts/check-toolchain.sh
+    - name: Version consistency guard
+      run: ./scripts/check-version-sync.sh
+    - name: Repository hygiene guard
+      run: ./scripts/check-no-attribution.sh
+  npm-build:
+    name: npm package (build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: dtolnay/rust-toolchain@1.93.0
+      with:
+        targets: wasm32-unknown-unknown
+    - name: Toolchain pin guard
+      run: ./scripts/check-toolchain.sh
+    - name: Install wasm-pack (pinned)
+      uses: taiki-e/install-action@4cef1412cce204788f482e778a0b9187f9626a29
+      with:
+        tool: wasm-pack@0.13.1
+    - name: Build module
+      run: wasm-pack build --target web --out-dir web/pkg --release -- --features wasm
+    - name: Stage npm package README
+      run: cp README.npm.md web/pkg/README.md
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: '20'
+    - name: Ship the CycloneDX SBOM inside the npm package
+      run: "set -euo pipefail\n./scripts/gen-sbom.sh > web/pkg/kshana-sbom.cdx.json\npython3 - web/pkg/kshana-sbom.cdx.json <<'PY'\nimport json, sys\ndoc = json.load(open(sys.argv[1]))\nassert doc.get(\"bomFormat\") == \"CycloneDX\", \"not a CycloneDX document\"\nn = len(doc.get(\"components\") or [])\nassert n > 0, \"SBOM carries no components\"\nprint(f\"OK: CycloneDX {doc.get('specVersion')} with {n} components\")\nPY\nnode -e '\n  const fs = require(\"fs\");\n  const p = \"web/pkg/package.json\";\n  const j = JSON.parse(fs.readFileSync(p, \"utf8\"));\n  j.files = Array.from(new Set([...(j.files || []), \"kshana-sbom.cdx.json\", \"README.md\"]));\n  fs.writeFileSync(p, JSON.stringify(j, null, 2) + \"\\n\");\n'\ncat web/pkg/package.json\n"
+    - name: Pack the npm tarball (the exact bytes npm publish uploads)
+      id: pack
+      run: 'set -euo pipefail
+
+        mkdir -p npm-dist
+
+        tarball="$(npm pack ./web/pkg --pack-destination npm-dist --silent)"
+
+        echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
+
+        ls -l "npm-dist/$tarball"
+
+        '
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: npm-tarball
+        path: npm-dist
+        if-no-files-found: error
+'on':
+  push:
+    tags:
+    - v*

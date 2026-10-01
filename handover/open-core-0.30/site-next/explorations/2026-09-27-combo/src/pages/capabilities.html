@@ -1,0 +1,621 @@
+<!-- CAPABILITIES on the Observatory system (founder's choice, 2026-09-28; rollout R4, 2026-09-29).
+     Liked parts from Spectrum (the L-band waterfall window, the six ways GNSS fails, the integrity and
+     coasting cards, the band atlas, the Earth-Moon-Mars journey grown into the solar system, the clock
+     ladder, slot timing) rebuilt in Observatory type, colour and components. Every visual is a real
+     engine run: the engine's recorded runs in assets/capabilities/capabilities.json (written by
+     src/tools/gen_capabilities.py, which runs the engine; the build never does) and the Studio's
+     recordings. Figures reach the page through {{...}} from build.py or from that JSON, never typed. -->
+<section class="page-hero cap-hero hx-hero">
+  <div class="wrap">
+    <div class="console-bar cap-bar" aria-label="Console status">
+      <span class="live"><i></i>Engine</span><span class="sep"></span>
+      <span>v<b>{{VER}}</b></span><span class="sep"></span>
+      <span class="hide-s"><b>{{KINDS}}</b> scenario kinds</span><span class="sep hide-m"></span>
+      <span class="hide-m"><b>{{ALLFILES}}</b> scenario files</span>
+      <span class="right"><span class="tag real">Real runs</span></span>
+    </div>
+    <div class="hx">
+      <div class="hx-copy">
+        <span class="eyebrow"><i style="--c:var(--cyan)"></i>Capabilities</span>
+        <h1 class="h1">One engine for the whole failure chain.</h1>
+        <p class="lede">Interference, spoofing, inertial coasting, clocks, orbits, integrity, telecom timing, positioning around the Moon, Mars and the moons of Jupiter, and quantum-sensor trade studies, with standard exchange formats. Every visual on this page is an engine run you can reproduce. <b>It is not an RF (radio-frequency) signal simulator and not a GNSS (Global Navigation Satellite System) receiver.</b></p>
+      </div>
+      <!-- R5 hero instrument: the solar-system kind's run (assets/capabilities/capabilities.json, "solar"),
+           each body moving along the engine's own orbit track for it; drawn by js/cap-hero.mjs. -->
+      <div class="hx-vis">
+        <figure class="hx-win hx-space ch-win" id="chWin" aria-labelledby="chCap">
+          <div class="hx-bar">
+            <span class="live"><i></i><b>kshana</b> solar-system</span>
+            <span class="hide-s" id="chFile">solar-system-tour.toml</span>
+            <span class="hx-r"><button type="button" class="hx-btn" id="chPlay" aria-pressed="true" aria-label="Pause the orbits"><svg class="i-play" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg><svg class="i-pause" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h3v10H2zM7 1h3v10H7z" fill="currentColor"/></svg></button><span class="tag real">Real run</span></span>
+          </div>
+          <div class="ch-stage" id="chStage">
+            <p class="ch-nojs">The solar system is drawn from the engine's run with JavaScript; the scenario file and command below reproduce it.</p>
+            <div class="ch-hud" aria-hidden="true"><span>Epoch <b id="chEpoch">–</b></span><span><b id="chClock">+0 days</b></span></div>
+            <div class="ch-read" id="chRead" aria-live="off"></div>
+          </div>
+          <figcaption class="ch-foot" id="chCap">
+            <span class="ch-key"><i class="v" aria-hidden="true"></i>Validated orbit (solid) against JPL Horizons (Jet Propulsion Laboratory ephemeris service)</span>
+            <span class="ch-key"><i class="m" aria-hidden="true"></i>Modelled (dashed)</span>
+            <span class="ch-key ch-rate" id="chRate"></span>
+          </figcaption>
+        </figure>
+        <ul class="vh" id="chList" aria-label="The bodies in the run"></ul>
+        <p class="prov hx-prov" id="chProv"></p>
+      </div>
+    </div>
+    <nav class="subnav" aria-label="On this page"><a href="#waterfall">L-band waterfall</a><a href="#fails">Signals and jamming</a><a href="#integrity">Integrity and coasting</a><a href="#clocks">Clocks and timing</a><a href="#constellations">Orbits and constellations</a><a href="#journey">Solar system</a><a href="#campaigns">Campaigns</a><a href="#customise">Make it yours</a><a href="#studio">{{STUDIO}}</a><a href="#atlas">Scenario atlas</a><a href="#explorer">Capability cards</a><a href="#standards">Standards</a></nav>
+    <ul class="edk" aria-label="Editions on this page">
+      <li class="edk-i" style="--c:var(--lime)"><span class="edtag">Free core</span><p>Everything shown on this page: every scenario kind, scenario file, band, clock and body runs in the open engine under the AGPL-3.0 (GNU Affero General Public License, version 3), with no feature gate.</p></li>
+      <li class="edk-i" style="--c:var(--magenta)"><span class="edtag">Kshana Pro</span><p>Marked where it builds on a capability: the design optimiser, uncertainty and sensitivity, the mission dossier, calibrated clock twins and ranked trade studies. <a href="editions.html#pro">What Pro adds</a></p></li>
+      <li class="edk-i" style="--c:var(--cyan)"><span class="edtag">Custom study</span><p>When it has to be done for you: sensor models calibrated to your hardware, or a Modelled resilience study. <a href="mailto:contact@ashforde.org?subject=Kshana%20study%20request">Request a study</a></p></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ 01 L-BAND WATERFALL (signature) -->
+<section class="block cw" id="waterfall" aria-labelledby="cwH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">01</span>L-band console · spectrum kind</div><span class="edtag edtag-s">Free core</span><h2 class="h2" id="cwH">The whole L band, second by second.</h2></div>
+      <p class="lede">A PSD (power spectral density) waterfall of the GNSS L band from the engine's <code>spectrum</code> kind: frequency across, time down, colour for power above the thermal noise floor. The satellite signals sit below that floor, so what lights up is interference: a chirp jammer, a CW (continuous-wave) tone and narrowband noise. The receiver panel reads each band's <b>C/N0</b> (carrier-to-noise density) and <b>J/S</b> (jammer-to-signal ratio) for the row on show.</p>
+    </div>
+    <div class="window cw-win" id="cwWin">
+      <div class="win-bar">
+        <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="win-title"><b>kshana</b> spectrum <span class="hide-m">· l-band-waterfall-jamming.toml</span></span>
+        <span class="tag real">Real run</span>
+      </div>
+      <div class="cw-body">
+        <div class="cw-main">
+          <div class="cw-over" id="cwOver" aria-hidden="true"></div>
+          <div class="cw-scope" id="cwScope" tabindex="0" role="group" aria-roledescription="waterfall" aria-label="L-band waterfall in three zoomed windows, frequency across and time down, newest row at the top. Arrow keys move a cursor over frequency and time; Escape leaves it." aria-describedby="cwSummary">
+            <p class="cw-nojs">The waterfall is drawn from the recorded run with JavaScript. The engine's report, linked below, shows the same run.</p>
+            <div class="cw-tip" id="cwTip" aria-hidden="true"></div>
+          </div>
+          <div class="cw-an">
+            <div class="cw-an-h"><b>Spectrum analyser</b><span id="cwAnCap">the row on show, whole grid</span></div>
+            <svg class="cw-an-svg" id="cwAn" viewBox="0 0 900 120" preserveAspectRatio="none" aria-hidden="true"></svg>
+          </div>
+          <p class="vh" id="cwSummary"></p>
+          <p class="vh" id="cwLive" aria-live="polite"></p>
+        </div>
+        <aside class="cw-side" aria-label="Receiver readout for the row on show">
+          <div class="cw-lab">Receiver · <span id="cwBandName">–</span></div>
+          <div class="cw-bandsel" id="cwBandSel" role="radiogroup" aria-label="Band shown in the readout"></div>
+          <div class="cw-now"><b id="cwCn0">–</b><span>dB-Hz</span></div>
+          <div class="cw-cap">C/N0 on this band, row <span id="cwRowT">–</span></div>
+          <div class="cw-status" id="cwStatus" data-s="ok" role="status"><i></i><span>Tracking</span></div>
+          <svg class="cw-spark" id="cwSpark" viewBox="0 0 260 64" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div class="cw-js"><span>J/S on this band</span><b id="cwJs">–</b></div>
+          <ul class="cw-bars" id="cwBars" aria-label="C/N0 of every band against the tracking floor"></ul>
+          <div class="cw-jam"><div class="cw-lab">Jammers</div><ul id="cwJam"></ul></div>
+        </aside>
+      </div>
+      <div class="win-foot cw-foot">
+        <button class="play-btn" id="cwPlay" type="button" aria-label="Pause the waterfall" aria-pressed="true"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path class="i-play" d="M2 1l9 5-9 5z" fill="currentColor"/><path class="i-pause" d="M2 1h3v10H2zM7 1h3v10H7z" fill="currentColor"/></svg></button>
+        <div class="scrub cw-scrub" id="cwScrub" role="slider" tabindex="0" aria-label="Row of the waterfall" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">
+          <div class="scrub-labels" id="cwScrubL"></div>
+          <div class="scrub-track"><div class="scrub-fill" id="cwFill" style="--fill:var(--amber)"></div></div>
+          <div class="scrub-handle" id="cwHandle" style="left:0"></div>
+        </div>
+        <div class="cw-legend"><span>floor</span><span class="ramp" id="cwRamp"></span><span id="cwMax"></span></div>
+      </div>
+    </div>
+    <p class="prov cap-prov" data-cprov="spectrum"></p>
+    <details class="cap-more">
+      <summary>What the spectrum kind models, and what it leaves out</summary>
+      <p class="cap-note" id="cwLabel"></p>
+      <ul class="cap-list" id="cwNot"></ul>
+      <p class="cap-note">{{STUDIO}} runs this scenario in your browser and replays the waterfall; the engine's report and the command reproduce this run exactly.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============================================================ <SPAN CLASS="IDX">02</SPAN>CAPABILITY CONSOLE (R5: one tabbed console) -->
+<section class="block cc cc-main" id="console" aria-labelledby="ccH" data-cc>
+  <div class="wrap">
+    <div class="sec-head cc-head">
+      <div><div class="eyebrow"><span class="idx">02</span>Capability console</div><h2 class="h2 h2-sm" id="ccH">Six consoles, one engine.</h2></div>
+      <p class="lede">Every capability on one screen: pick a console. Each tab holds real engine runs with their provenance, and every link into this page opens the right tab.</p>
+    </div>
+    <div class="cc-tabs" role="tablist" aria-label="Capability consoles" id="ccTabs"><button type="button" role="tab" id="cct-signals" aria-controls="ccp-signals" aria-selected="true" tabindex="0" style="--c:var(--coral)"><i aria-hidden="true"></i><b>Signals and jamming</b><small>six failures · band atlas</small></button><button type="button" role="tab" id="cct-integrity" aria-controls="ccp-integrity" aria-selected="false" tabindex="-1" style="--c:var(--amber)"><i aria-hidden="true"></i><b>Integrity and coasting</b><small>protection levels · five runs</small></button><button type="button" role="tab" id="cct-clocks" aria-controls="ccp-clocks" aria-selected="false" tabindex="-1" style="--c:var(--cyan)"><i aria-hidden="true"></i><b>Clocks and timing</b><small>clock ladder · timing wall</small></button><button type="button" role="tab" id="cct-orbits" aria-controls="ccp-orbits" aria-selected="false" tabindex="-1" style="--c:var(--lime)"><i aria-hidden="true"></i><b>Orbits and constellations</b><small>constellation designer</small></button><button type="button" role="tab" id="cct-solar" aria-controls="ccp-solar" aria-selected="false" tabindex="-1" style="--c:var(--magenta)"><i aria-hidden="true"></i><b>Solar system</b><small>18 bodies · three worlds</small></button><button type="button" role="tab" id="cct-campaigns" aria-controls="ccp-campaigns" aria-selected="false" tabindex="-1" style="--c:var(--amber)"><i aria-hidden="true"></i><b>Campaigns</b><small>chain · sweep · Monte Carlo</small></button></div>
+  </div>
+<div class="cc-panel" role="tabpanel" id="ccp-signals" aria-labelledby="cct-signals" tabindex="-1">
+<section class="fx" id="fails" aria-labelledby="fxH">
+  <div class="fx-pin" id="fxPin">
+    <div class="wrap fx-head">
+      <div>
+        <div class="eyebrow"><span class="idx">02</span>Six ways GNSS fails</div><span class="edtag edtag-s">Free core</span>
+        <h2 class="h2" id="fxH">Six ways GNSS fails.</h2>
+        <div class="fx-prog" id="fxProg" aria-hidden="true"><span style="--c:var(--coral)"><i></i></span><span style="--c:var(--magenta)"><i></i></span><span style="--c:var(--cyan)"><i></i></span><span style="--c:var(--cyan)"><i></i></span><span style="--c:var(--amber)"><i></i></span><span style="--c:var(--lime)"><i></i></span></div>
+      </div>
+      <p class="lede">Each card replays one recorded run from {{STUDIO}}: the line draws in and a marker rides the real series. Every card opens its run in {{STUDIO}}.</p>
+    </div>
+    <div class="fx-vp" id="fxVp">
+      <div class="fx-track" id="fxTrack">
+        <article class="glass fcard" data-six="jam" style="--c:var(--coral)">
+          <div class="fc-top"><span>Interference</span><span class="fc-n" aria-hidden="true"></span></div>
+          <div class="fc-vis"><svg class="fc-svg" viewBox="0 0 400 190" aria-hidden="true"></svg></div>
+          <h3>Jamming and interference</h3>
+          <p>A broadband jammer near a receiver: every satellite's effective C/N0 falls far below its nominal value and under the tracking floor, so none of the satellites in view can be tracked.</p>
+          <p class="fc-fig" data-fig></p>
+          <p class="prov fc-prov" data-cprov></p>
+        </article>
+        <article class="glass fcard" data-six="spoof" style="--c:var(--magenta)">
+          <div class="fc-top"><span>Spoofing</span><span class="fc-n" aria-hidden="true"></span></div>
+          <div class="fc-vis"><svg class="fc-svg" viewBox="0 0 400 190" aria-hidden="true"></svg></div>
+          <h3>Spoofing and time push</h3>
+          <p>A spoofer walks the receiver's time off at a steady rate. Each clock's monitor has its own detection bound: the better clock flags the lie far sooner.</p>
+          <p class="fc-fig" data-fig></p>
+          <p class="prov fc-prov" data-cprov></p>
+        </article>
+        <article class="glass fcard" data-six="clock" style="--c:var(--cyan)">
+          <div class="fc-top"><span>Timing</span><span class="fc-n" aria-hidden="true"></span></div>
+          <div class="fc-vis"><svg class="fc-svg" viewBox="0 0 400 190" aria-hidden="true"></svg></div>
+          <h3>Clock holdover</h3>
+          <p>GNSS time is lost and each clock free-runs. The time error grows until it leaves the guard interval; the log axis shows both clocks at once.</p>
+          <p class="fc-fig" data-fig></p>
+          <p class="prov fc-prov" data-cprov></p>
+        </article>
+        <article class="glass fcard" data-six="orbit" style="--c:var(--cyan)">
+          <div class="fc-top"><span>Orbits</span><span class="fc-n" aria-hidden="true"></span></div>
+          <div class="fc-vis fc-map"><svg class="fc-svg" viewBox="0 0 400 190" aria-hidden="true"></svg></div>
+          <h3>Orbits and ephemerides</h3>
+          <p>SGP4 (Simplified General Perturbations 4) propagation of a real two-line element set, drawn as a ground track on real imagery; CCSDS OEM (Consultative Committee for Space Data Systems orbit ephemeris message) and SP3 (Standard Product 3) files in and out.</p>
+          <p class="fc-fig" data-fig></p>
+          <p class="prov fc-prov" data-cprov></p>
+        </article>
+        <article class="glass fcard" data-six="integ" style="--c:var(--amber)">
+          <div class="fc-top"><span>Integrity</span><span class="fc-n" aria-hidden="true"></span></div>
+          <div class="fc-vis"><svg class="fc-svg" viewBox="0 0 400 190" aria-hidden="true"></svg></div>
+          <h3>Integrity</h3>
+          <p>RAIM (receiver autonomous integrity monitoring) protection levels against the alert limit. When the protection level crosses the line, the position cannot be trusted.</p>
+          <p class="fc-fig" data-fig></p>
+          <p class="prov fc-prov" data-cprov></p>
+        </article>
+        <article class="glass fcard" data-six="coast" style="--c:var(--lime)">
+          <div class="fc-top"><span>Navigation</span><span class="fc-n" aria-hidden="true"></span></div>
+          <div class="fc-vis"><svg class="fc-svg" viewBox="0 0 400 190" aria-hidden="true"></svg></div>
+          <h3>Coasting without GNSS</h3>
+          <p>A small uncrewed aircraft loses GNSS and flies on its INS (inertial navigation system). Two IMUs (inertial measurement units), one position budget.</p>
+          <p class="fc-fig" data-fig></p>
+          <p class="prov fc-prov" data-cprov></p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="block" id="bands" aria-labelledby="bandsH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">08</span>Band atlas</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="bandsH">The signals the engine actually models.</h2></div>
+      <p class="lede">Only the bands the engine models are on the map: a log-scale overview and a zoomed L-band inset with leader lines; S, X and Ka are the DSN (Deep Space Network) allocations. Select a band, on the map or below, to see which bundled scenarios use it, what interference does to it, and each satellite's effective C/N<sub>0</sub> by PRN (pseudo-random noise code number). Systems the engine does <b>not model</b> are named under the map, not drawn on it.</p>
+    </div>
+    <div class="band-atlas">
+{{BANDS}}
+    </div>
+  </div>
+</section>
+</div>
+<div class="cc-panel" role="tabpanel" id="ccp-integrity" aria-labelledby="cct-integrity" tabindex="-1" hidden>
+<section class="block ic" id="integrity" aria-labelledby="icH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">03</span>Integrity and coasting</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="icH">Can you trust the fix, and how long can you do without it?</h2></div>
+      <p class="lede">Integrity as a Stanford diagram: every epoch's true position error against the protection level the receiver claimed. Coasting as the engine's own error budget: each inertial error term's growth law, their combination, and when the total crosses each position budget, for four grades of IMU (inertial measurement unit).</p>
+    </div>
+    <div class="ic-grid">
+      <article class="glass ic-card" data-ic="integ" style="--c:var(--amber)">
+        <div class="ic-k"><span class="kicker"><i></i>Integrity</span><span class="ic-val" data-v>–</span></div>
+        <h3>Stanford diagram: error against protection level</h3>
+        <svg class="ic-svg" viewBox="0 0 600 300" aria-hidden="true"></svg>
+        <p class="ic-fig" data-fig></p>
+        <p class="prov fc-prov" data-cprov></p>
+      </article>
+      <article class="glass ic-card" data-ic="coast" style="--c:var(--lime)">
+        <div class="ic-k"><span class="kicker"><i></i>Coasting</span><span class="ic-val" data-v>–</span></div>
+        <h3>Inertial error budget after GNSS is lost</h3>
+        <svg class="ic-svg" viewBox="0 0 600 300" aria-hidden="true"></svg>
+        <div class="ic-grades" data-grades></div>
+        <p class="ic-fig" data-fig></p>
+        <p class="prov fc-prov" data-cprov></p>
+      </article>
+    </div>
+  </div>
+</section>
+<section class="block" id="runs" aria-labelledby="runsH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">04</span>The engine at work</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="runsH">Five recorded runs, one screen.</h2></div>
+      <p class="lede">Holdover, integrity, telecom masks, inertial coasting and a quantum sensor, each drawn from a recorded engine run with the engine's own figures. Every tile opens the exact run in {{STUDIO}}, exports a report and downloads its data.</p>
+    </div>
+{{ENGINE_BENTO}}
+  </div>
+</section>
+</div>
+<div class="cc-panel" role="tabpanel" id="ccp-clocks" aria-labelledby="cct-clocks" tabindex="-1" hidden>
+<section class="block" id="clocks" aria-labelledby="clocksH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">09</span>Clocks and timing</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="clocksH">The clock ladder.</h2></div>
+      <p class="lede">Clock stability from real runs, then what happens when GNSS is lost: each clock's recorded time error, read at the moment you choose. Every chart opens its run in {{STUDIO}} and exports a report, its data and the drawing.</p>
+    </div>
+    <div class="ladder">
+      <div class="glass ld-main">
+        <h3 class="card-h">Allan deviation, σ<sub>y</sub>(τ), from recorded runs</h3>
+        <figure class="viz viz-dark" data-viz="clk-adev" data-w="760" data-h="360"></figure>
+      </div>
+      <div class="glass ld-side">
+        <h3 class="card-h">Clock classes in the lunar time budget</h3>
+        <table class="mini" id="lunarClasses">{{LUNAR_CLASSES}}</table>
+        <p class="prov" data-prov="clk-lunar-classes"></p>
+        <div class="ld-ev">
+          <div><span class="real-tag">Validated</span><b>0.84 to 1.03</b><p>Holdover predicted ÷ measured on a real caesium record held out from fitting, inside the pre-set factor of 1.5.</p></div>
+          <div><span class="real-tag">Validated</span><b>NIST SP 1065</b><p>The Allan-deviation code reproduces the reference values of NIST (National Institute of Standards and Technology) Special Publication 1065.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <details class="cap-all">
+      <summary>Show all clock classes and clock models <span>6 classes · the models in the bundled scenarios</span></summary>
+    <div class="cat-grid">
+{{CLOCK_CATALOGUE}}
+    </div>
+    </details>
+    <p class="pro-note">Kshana Pro calibrates a <b>clock digital twin</b> to your device's published Allan budget, built on the <code>clock</code> kind and the classes above. <a href="editions.html#pro-twin">What Pro adds</a></p>
+
+    <div class="glass holdover" id="holdover">
+      <div class="ho-head">
+        <h3 class="card-h">GNSS lost. Where is each clock after <output id="hoT" for="hoS">10 min</output>?</h3>
+        <label class="vh" for="hoS">Time since GNSS was lost</label>
+        <input id="hoS" type="range" min="0" max="1000" value="120" step="1">
+      </div>
+      <div class="ho-bars" id="hoBars" aria-live="polite"></div>
+      <p class="ho-note">Each bar reads the time error at that moment from a recorded engine run; beyond a run's length the bar says so rather than extrapolating. The runs are listed with their charts below.</p>
+      <details class="cap-all">
+        <summary>Show the two recorded runs behind the bars <span>time error against time since GNSS was lost</span></summary>
+      <div class="ho-charts">
+        <figure class="viz viz-dark" data-viz="clk-hold-a" data-w="560" data-h="280"></figure>
+        <figure class="viz viz-dark" data-viz="clk-hold-b" data-w="560" data-h="280"></figure>
+      </div>
+      </details>
+    </div>
+  </div>
+</section>
+<section class="block" id="timing" aria-labelledby="timingH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">10</span>The timing wall</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="timingH">Three ways time fails a system.</h2></div>
+      <p class="lede">A telecom clock against ITU-T (International Telecommunication Union, Telecommunication Standardization Sector) limits, a satellite's clock against its slot guard, and the rate at which time runs on the Moon, each from a recorded run you can reproduce and export.</p>
+    </div>
+    <details class="cap-all">
+      <summary>Show all oscillator presets and ITU-T masks <span>4 presets · every mask and budget</span></summary>
+{{TIMING_CATALOGUE}}
+    </details>
+    <p class="pro-note">Kshana Pro calibrates a clock digital twin to a device's published Allan budget and checks it with the open engine's Allan-deviation estimator; a twin of your own device is built under contract. <a href="editions.html#pro-twin">What Pro adds</a></p>
+    <div class="wall">
+      <div class="glass wcard wide">
+        <h3 class="card-h">Telecom holdover: MTIE and TDEV of a {{TELECOM_OSC}} <code class="kind-tag">telecom-timing</code></h3>
+        <div class="w-two">
+          <figure class="viz viz-dark" data-viz="tw-mtie" data-w="560" data-h="300"></figure>
+          <figure class="viz viz-dark" data-viz="tw-mtie" data-w="560" data-h="300" data-variant="tdev"></figure>
+        </div>
+        <div class="verdicts">{{TELECOM_VERDICTS}}</div>
+        <table class="mini budgets">{{TELECOM_BUDGETS}}</table>
+      </div>
+      <div class="glass wcard">
+        <h3 class="card-h">Slot timing: an OCXO (oven-controlled crystal oscillator) on a low-Earth-orbit smallsat <code class="kind-tag">slot-timing</code></h3>
+        <figure class="viz viz-dark" data-viz="clk-slot" data-w="420" data-h="240"></figure>
+        <p class="wc-note">{{SLOT_TEXT}}</p>
+      </div>
+      <div class="glass wcard">
+        <h3 class="card-h">Lunar time <code class="kind-tag">lunar-time-offset</code> <code class="kind-tag">lunar-time-budget</code></h3>
+        <div class="lunar-rate"><b>{{FIG tw-lunar figures.secular_rate_us_per_day 2}}</b><span>µs per day faster than on Earth's geoid</span></div>
+        {{LUNAR_TIME}}
+        <p class="wc-note">The engine sums the self-potential ({{FIG tw-lunar figures.self_potential_us_per_day 2}} µs/day) and kinetic ({{FIG tw-lunar figures.kinetic_us_per_day 2}} µs/day) terms and reports the rate beside the published {{FIG tw-lunar figures.band_low 0}} to {{FIG tw-lunar figures.band_high 0}} µs/day band. Modelled, not certified.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+<div class="cc-panel" role="tabpanel" id="ccp-orbits" aria-labelledby="cct-orbits" tabindex="-1" hidden>
+<section class="block cd" id="constellations" aria-labelledby="cdH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">05</span>Constellation designer · constellation-design kind</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="cdH">From four GNSS to a mega-constellation, on any body.</h2></div>
+      <p class="lede">Three real runs of the <code>constellation-design</code> kind: the four GNSS together, a low-Earth-orbit mega-constellation of four Walker shells, and a relay set around the Moon. Each is scored as a map of satellites in view, DOP (dilution of precision; PDOP is its position form) and availability. Drag the globe to turn it; scroll or pinch to zoom.</p>
+    </div>
+    <div class="window cd-win" id="cdWin">
+      <div class="win-bar">
+        <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="win-title"><b>kshana</b> constellation-design <span class="hide-m" id="cdFile"></span></span>
+        <span class="tag real">Real run</span>
+      </div>
+      <div class="cd-body">
+        <div class="cd-side">
+          <h3>Designs</h3>
+          <div class="cd-list" id="cdList" role="tablist" aria-label="Constellation designs"></div>
+          <div class="cd-work" id="cdWork"></div>
+        </div>
+        <div class="cd-stage" id="cdStage">
+          <div class="cd-hud" id="cdHud" aria-hidden="true"></div>
+        </div>
+        <div class="cd-right">
+          <div class="cd-seg" role="radiogroup" aria-label="Map metric" id="cdSeg"></div>
+          <div class="cd-map" id="cdMap"><p class="cd-map-cap" id="cdMapCap"></p></div>
+          <dl class="cd-stats" id="cdStats"></dl>
+          <p class="cd-note" id="cdNote"></p>
+        </div>
+      </div>
+      <div class="win-foot cd-foot">
+        <button class="play-btn" id="cdPlay" type="button" aria-label="Pause the orbits" aria-pressed="true"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path class="i-play" d="M2 1l9 5-9 5z" fill="currentColor"/><path class="i-pause" d="M2 1h3v10H2zM7 1h3v10H7z" fill="currentColor"/></svg></button>
+        <div class="cd-clock"><b id="cdClock">T+00:00</b><span id="cdSpan"></span></div>
+        <div class="cd-foot-r"><div class="cd-legend" id="cdLegend"></div><p class="cd-foot-note" id="cdFootNote"></p></div>
+      </div>
+    </div>
+    <p class="prov cap-prov" data-cprov="constellation"></p>
+    <p class="pro-note"><b>With Pro:</b> the design optimiser returns the <b>Pareto front</b> of a whole constellation design space around the Earth, the Moon or Mars, each front design written out as a plain scenario file, and a <b>ranked trade study</b> compares architectures on a figure of merit. <a href="editions.html#pro-design">See a real front</a></p>
+  </div>
+</section>
+</div>
+<div class="cc-panel" role="tabpanel" id="ccp-solar" aria-labelledby="cct-solar" tabindex="-1" hidden>
+<section class="journey ss" id="journey" aria-labelledby="ssH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow eyebrow-d"><span class="idx">07</span>The solar system · solar-system kind</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-d" id="ssH">Every body the engine knows, where it is today.</h2></div>
+      <p class="lede lede-d">One run of the <code>solar-system</code> kind puts the Sun, the eight planets, Pluto, the Moon and the major moons of Mars, Jupiter and Saturn at one epoch, each with its gravity, radius, rotation, pole and light time from Earth. Pick a body to turn and zoom its real imagery. Orbits are to scale in angle, compressed in distance; body sizes are enlarged.</p>
+    </div>
+    <div class="ss-grid" id="ssGrid">
+      <div class="ss-orrery" id="ssOrrery">
+        <div class="ss-olabels" id="ssLabels" aria-hidden="true"></div>
+        <div class="ss-ohud" id="ssHud"></div>
+        <div class="ss-obar">
+          <div class="wv-zoom" role="group" aria-label="Solar-system view">
+            <button type="button" class="wv-b" data-ss="in" aria-label="Zoom in">+</button>
+            <button type="button" class="wv-b" data-ss="out" aria-label="Zoom out">−</button>
+            <button type="button" class="wv-b wv-reset" data-ss="reset">Reset view</button>
+          </div>
+          <p class="wv-hint">Drag to tilt and turn. Scroll (once selected) or pinch to zoom. Select a body to fly to it.</p>
+        </div>
+      </div>
+      <div class="ss-side">
+        <div class="ss-globe" id="ssGlobe" tabindex="0" role="img" aria-label="The selected body on its real imagery. Drag or use the arrow keys to turn it; plus and minus zoom."></div>
+        <div class="ss-facts" id="ssFacts" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="ss-picker" id="ssPicker" role="listbox" aria-label="Bodies">{{SS_BODIES}}</div>
+    <div class="ss-pnt" id="ssPnt" hidden></div>
+    <p class="prov cap-prov" data-cprov="solar"></p>
+    <p class="ss-credit" id="ssCredit"></p>
+
+    <div class="ss-three">
+      <h3 class="wv-bh">Positioning at three bodies, in {{STUDIO}}</h3>
+      <div class="ss-three-grid">
+        <article class="jr" style="--c:var(--s-tim)">
+          <div class="jr-k">Earth orbit</div>
+          <p>The International Space Station (ISS) ground track the engine propagates from a real two-line element set.</p>
+          <figure class="viz viz-dark" data-viz="jr-earth" data-w="520" data-h="0"></figure>
+          <button type="button" class="jr-more" aria-expanded="false" aria-controls="jrr-earth">Earth-orbit runs in {{STUDIO}}</button>
+          <div class="tags" id="jrr-earth" hidden>{{JR_EARTH}}</div>
+        </article>
+        <article class="jr" style="--c:var(--s-spf)">
+          <div class="jr-k">The lunar south pole</div>
+          <p>A landed receiver against a representative LunaNet relay set: horizontal protection level over a 24-hour pass, against a 50 m surface-operations alert limit.</p>
+          <figure class="viz viz-dark" data-viz="jr-moon" data-w="520" data-h="240"></figure>
+          <button type="button" class="jr-more" aria-expanded="false" aria-controls="jrr-moon">Lunar and cislunar runs in {{STUDIO}}</button>
+          <div class="tags" id="jrr-moon" hidden>{{JR_MOON}}</div>
+        </article>
+        <article class="jr" style="--c:var(--s-int)">
+          <div class="jr-k">Mars</div>
+          <p>A surface user against a simulated areostationary relay constellation: position error and its 3-sigma bound from the joint one-way and two-way estimator.</p>
+          <figure class="viz viz-dark" data-viz="jr-mars" data-w="520" data-h="240"></figure>
+          <button type="button" class="jr-more" aria-expanded="false" aria-controls="jrr-mars">Mars runs in {{STUDIO}}</button>
+          <div class="tags" id="jrr-mars" hidden>{{JR_MARS}}</div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+<div class="cc-panel" role="tabpanel" id="ccp-campaigns" aria-labelledby="cct-campaigns" tabindex="-1" hidden>
+<section class="block cg" id="campaigns" aria-labelledby="cgH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">06</span>Campaigns · campaign kind</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="cgH">Many runs, one answer.</h2></div>
+      <p class="lede">A campaign composes ordinary scenarios of existing kinds four ways: chain them on one mission timeline, sweep a field, repeat over many seeds, or share one cause between several members. Each tab is a real campaign run.</p>
+    </div>
+    <div class="window cg-win" id="cgWin">
+      <div class="win-bar">
+        <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="win-title"><b>kshana</b> campaign <span class="hide-m" id="cgFile"></span></span>
+        <span class="tag real">Real run</span>
+      </div>
+      <div class="cg-tabs" role="tablist" aria-label="Campaign modes">
+        <button type="button" role="tab" id="cgt-chain" aria-controls="cgp-chain" aria-selected="true" data-cg="chain"><b>Chain</b><small>one mission timeline</small></button>
+        <button type="button" role="tab" id="cgt-sweep" aria-controls="cgp-sweep" aria-selected="false" tabindex="-1" data-cg="sweep"><b>Sweep</b><small>one field over a range</small></button>
+        <button type="button" role="tab" id="cgt-monte" aria-controls="cgp-monte" aria-selected="false" tabindex="-1" data-cg="monte"><b>Monte Carlo</b><small>many seeds</small></button>
+        <button type="button" role="tab" id="cgt-compose" aria-controls="cgp-compose" aria-selected="false" tabindex="-1" data-cg="compose"><b>Compose</b><small>one cause, many members</small></button>
+      </div>
+      <div class="cg-panel" role="tabpanel" id="cgp-chain" aria-labelledby="cgt-chain">
+        <ol class="cg-phases" id="cgPhases"></ol>
+        <div class="cg-charts" id="cgCharts"></div>
+        <div class="cg-log" id="cgLog" aria-label="Events of the chained run"></div>
+      </div>
+      <div class="cg-panel" role="tabpanel" id="cgp-sweep" aria-labelledby="cgt-sweep" hidden><div class="cg-one" id="cgSweep"></div></div>
+      <div class="cg-panel" role="tabpanel" id="cgp-monte" aria-labelledby="cgt-monte" hidden><div class="cg-one" id="cgMonte"></div></div>
+      <div class="cg-panel" role="tabpanel" id="cgp-compose" aria-labelledby="cgt-compose" hidden><div class="cg-one" id="cgCompose"></div></div>
+    </div>
+    <p class="prov cap-prov" data-cprov="campaign"></p>
+    <p class="cap-note">{{STUDIO}} plays each campaign back in your browser; the command and the scenario file reproduce each run, and the chained run's own report is published.</p>
+    <p class="pro-note"><b>With Pro:</b> stated input uncertainties give <b>confidence bands</b>, the probability of meeting a limit and a ranking of the inputs that drive the result, over thousands of runs that can be stopped and resumed. <a href="editions.html#pro-uncertainty">See a real band</a></p>
+  </div>
+</section>
+</div>
+</section>
+
+<!-- ============================================================ <SPAN CLASS="IDX">03</SPAN>MAKE IT YOURS · {{STUDIO}} (R5: one tabbed console) -->
+<section class="block cc cc-build" id="build" aria-labelledby="cbH" data-cc>
+  <div class="wrap">
+    <div class="sec-head cc-head">
+      <div><div class="eyebrow"><span class="idx">03</span>Make it yours · {{STUDIO}}</div><h2 class="h2 h2-sm" id="cbH">Change any run, in your browser.</h2></div>
+      <p class="lede">Four steps from a run on this page to a run of your own, then the app that does it: the library, the scenario you are editing and the results, side by side.</p>
+    </div>
+    <div class="cc-tabs" role="tablist" aria-label="Make it yours and the Studio" id="cbTabs"><button type="button" role="tab" id="cbt-customise" aria-controls="cbp-customise" aria-selected="true" tabindex="0" style="--c:var(--cyan)"><i aria-hidden="true"></i><b>Make it yours</b><small>any scenario, any body</small></button><button type="button" role="tab" id="cbt-studio" aria-controls="cbp-studio" aria-selected="false" tabindex="-1" style="--c:var(--lime)"><i aria-hidden="true"></i><b>{{STUDIO}}</b><small>the app behind every chart</small></button></div>
+  </div>
+<div class="cc-panel" role="tabpanel" id="cbp-customise" aria-labelledby="cbt-customise" tabindex="-1">
+<section class="block" id="customise" aria-labelledby="czH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">11</span>Make it yours</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="czH">Any scenario, any constellation, any body.</h2></div>
+      <p class="lede">Every chart on this page is a scenario file the engine ran. In {{STUDIO}} you open that same file, change it and run it again, in your browser: the engine is Rust compiled to WebAssembly, and nothing is uploaded.</p>
+    </div>
+    <div class="cz">
+      <ol class="cz-steps">
+        <li class="glass cz-step" style="--c:var(--cyan)">
+          <h3><span class="cz-n" aria-hidden="true">1</span>Start from any scenario</h3>
+          <p>Pick one of {{ALLFILES}} scenario files across {{KINDS}} kinds, or write your own. <code>kshana kinds --json</code> lists every kind with its fields, and <code>kshana example</code> prints a file to start from.</p>
+          <a class="tbtn" href="studio/index.html">The library in {{STUDIO}}</a>
+        </li>
+        <li class="glass cz-step" style="--c:var(--lime)">
+          <h3><span class="cz-n" aria-hidden="true">2</span>Set the satellites and constellations</h3>
+          <p>An orbit scenario describes each constellation as a Walker pattern: <code>altitude_km</code>, <code>inclination_deg</code>, <code>planes</code>, <code>sats_per_plane</code> and <code>phasing_f</code>. Each extra <code>[[constellations]]</code> block adds another one; <code>--export-sp3</code> writes the result as an SP3 precise-ephemeris file for other tools.</p>
+          <a class="tbtn" href="studio/index.html?scenario=orbit-multignss&amp;tab=orbit">Two constellations in 3-D</a>
+        </li>
+        <li class="glass cz-step" style="--c:var(--magenta)">
+          <h3><span class="cz-n" aria-hidden="true">3</span>Choose the body</h3>
+          <p>Earth, the Moon, Mars and every other body of the solar-system run above have their gravity, rotation and pole in the engine, and the Sun's gravity enters as a third-body force. The <code>body-pnt</code> kind positions an orbiter or a lander around any of them; the lunar integrity scenario navigates against a representative LunaNet relay set, the Mars scenarios against a simulated relay constellation.</p>
+          <span class="cz-links"><a class="tbtn" href="studio/index.html?scenario=lunanet-araim&amp;tab=overview">Moon</a><a class="tbtn" href="studio/index.html?scenario=mars-pnt-surface&amp;tab=overview">Mars</a></span>
+        </li>
+        <li class="glass cz-step" style="--c:var(--amber)">
+          <h3><span class="cz-n" aria-hidden="true">4</span>Sweep, compare and export</h3>
+          <p>Sweep one or two fields over a range, pin runs and compare them side by side, then export the run: a reproducible HTML report, the full JSON (JavaScript Object Notation) result, the scenario file and a CSV (comma-separated values) table.</p>
+          <a class="tbtn" href="studio/index.html?scenario=orbit-multignss&amp;tab=exports">Exports and report</a>
+        </li>
+      </ol>
+
+      <div class="glass cz-demo" id="czDemo" aria-labelledby="czDemoH">
+        <div class="cz-dh"><h3 class="card-h" id="czDemoH">One block, a different answer</h3><span class="real-tag">Recorded engine runs</span></div>
+        <p class="cz-sub">The same user orbit, well inside the GNSS shell, seen by a GPS-like Walker constellation alone, then with a Galileo-like one added as a second block. PDOP is the position dilution of precision: lower is better.</p>
+        <div class="cz-cols">
+          <div class="cz-col" data-run="orbit-gnss-challenged">
+            <div class="cz-ch"><b>GPS-like only</b><a class="prov-open" href="studio/index.html?scenario=orbit-gnss-challenged&amp;tab=overview">{{STUDIO_OPEN}}</a></div>
+            <pre class="cz-toml"><code data-cz="toml">Loading the recorded run…</code></pre>
+            <dl class="cz-m" data-cz="m"></dl>
+          </div>
+          <div class="cz-col" data-run="orbit-multignss">
+            <div class="cz-ch"><b>GPS-like + Galileo-like</b><a class="prov-open" href="studio/index.html?scenario=orbit-multignss&amp;tab=overview">{{STUDIO_OPEN}}</a></div>
+            <pre class="cz-toml"><code data-cz="toml">Loading the recorded run…</code></pre>
+            <dl class="cz-m" data-cz="m"></dl>
+          </div>
+        </div>
+        <p class="prov"><span class="prov-src">Engine v{{VER}} · <code>orbit-gnss-challenged.toml</code> + <code>orbit-multignss.toml</code> · seed 7</span><span class="prov-tools"><a class="prov-x" href="studio/index.html?scenario=orbit-gnss-challenged&amp;tab=exports">Report, first run</a><a class="prov-x" href="studio/index.html?scenario=orbit-multignss&amp;tab=exports">Report, second run</a></span></p>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+<div class="cc-panel" role="tabpanel" id="cbp-studio" aria-labelledby="cbt-studio" tabindex="-1" hidden>
+<section class="block sec-studio" id="studio" aria-labelledby="smH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">12</span>{{STUDIO}}</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="smH">The app behind every chart.</h2></div>
+      <p class="lede">This is the layout of {{STUDIO}} as it ships: a library, the scenario you are editing, and the results of the run. Load the real app right here, or open it full screen.</p>
+    </div>
+    <div class="window sm" id="studioMap" data-embed="studio/index.html?embed=1&amp;scenario=orbit-multignss&amp;tab=orbit">
+      <div class="win-bar sm-bar">
+        <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        <b class="sm-brand">{{STUDIO}}</b>
+        <span class="sm-chip"><i></i>Live engine · v{{VER}}</span>
+        <span class="sm-tools"><span>History</span><span>Share or embed</span><span>Tour</span><span>Search</span></span>
+      </div>
+      <div class="sm-body">
+        <div class="sm-pane">
+          <h3 class="sm-h">Library</h3>
+          <p>Every bundled scenario with the question it answers, grouped by domain and searchable; the validation ledger's counts sit underneath.</p>
+          <ul class="sm-list"><li style="--c:var(--coral)">Jamming &amp; interference</li><li style="--c:var(--magenta)">Spoofing &amp; signal security</li><li style="--c:var(--cyan)">Clocks &amp; timing</li><li style="--c:var(--lime)">Inertial &amp; alternative navigation</li><li style="--c:var(--amber)">Integrity &amp; positioning</li><li style="--c:var(--cyan)">Orbits &amp; GNSS geometry</li><li style="--c:var(--cyan)">Mission analysis &amp; space operations</li><li style="--c:var(--ink-3)">Moon, cislunar &amp; Mars</li><li style="--c:var(--magenta)">Quantum, trade studies &amp; interoperability</li></ul>
+        </div>
+        <div class="sm-pane">
+          <h3 class="sm-h">Scenario</h3>
+          <p class="sm-seg"><span>Guided</span><span>All fields</span></p>
+          <p>Guided knobs for the fields that matter or every field of the file, with the TOML (Tom's Obvious, Minimal Language) source underneath to edit directly. <b>Run</b> re-runs it in the browser; <b>Pin</b> keeps a run for Compare; Reset restores the bundled file.</p>
+        </div>
+        <div class="sm-pane sm-res">
+          <h3 class="sm-h">Results</h3>
+          <p>Headline figures, each labelled Validated or Modelled, then the views this run has data for:</p>
+          <ul class="sm-views">
+            <li><a href="studio/index.html?scenario=integrity-raim&amp;tab=overview">Overview</a></li>
+            <li><a href="studio/index.html?scenario=integrity-raim&amp;tab=timeseries">Time series</a></li>
+            <li><a href="studio/index.html?scenario=jamming-demo&amp;tab=signal">Signal &amp; band</a></li>
+            <li><a href="studio/index.html?scenario=clock-holdover&amp;tab=holdover">Holdover</a></li>
+            <li><a href="studio/index.html?scenario=telecom-prtc-holdover-24h&amp;tab=masks">Timing masks</a></li>
+            <li><a href="studio/index.html?scenario=clock-holdover&amp;tab=stability">Stability</a></li>
+            <li><a href="studio/index.html?scenario=orbit-multignss&amp;tab=orbit">3-D orbit</a></li>
+            <li><a href="studio/index.html?scenario=ephemeris&amp;tab=ground">Ground track</a></li>
+            <li><span>Sweep</span></li>
+            <li><span>Compare</span></li>
+            <li><a href="studio/index.html?scenario=orbit-multignss&amp;tab=exports">Exports &amp; report</a></li>
+            <li><a href="studio/index.html?scenario=orbit-multignss&amp;tab=json">JSON</a></li>
+          </ul>
+          <p class="sm-note">Sweep needs the live engine; Compare appears once a run is pinned. Orbit runs also export SP3 and a CCSDS orbit ephemeris message.</p>
+        </div>
+      </div>
+      <div class="sm-live" hidden></div>
+      <div class="sm-foot">
+        <button type="button" class="btn btn-primary" data-studio-load>Load {{STUDIO}} here</button>
+        <a class="btn btn-ghost" href="studio/index.html">{{STUDIO_CTA}}</a>
+        <p class="sm-fine">Where WebAssembly is blocked, {{STUDIO}} shows the recorded runs of the same files and says so.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+</section>
+
+<!-- ============================================================ <SPAN CLASS="IDX">04</SPAN>REFERENCE (R5: one tabbed console) -->
+<section class="block cc cc-ref" id="reference" aria-labelledby="crH" data-cc>
+  <div class="wrap">
+    <div class="sec-head cc-head">
+      <div><div class="eyebrow"><span class="idx">04</span>Reference</div><h2 class="h2 h2-sm" id="crH">Every scenario, capability and standard.</h2></div>
+      <p class="lede">The whole catalogue, generated from the engine's own files: the scenario atlas, the capability cards and the standards the engine implements.</p>
+    </div>
+    <div class="cc-tabs" role="tablist" aria-label="Reference" id="crTabs"><button type="button" role="tab" id="crt-atlas" aria-controls="crp-atlas" aria-selected="true" tabindex="0" style="--c:var(--cyan)"><i aria-hidden="true"></i><b>Scenario atlas</b><small>every bundled file</small></button><button type="button" role="tab" id="crt-explorer" aria-controls="crp-explorer" aria-selected="false" tabindex="-1" style="--c:var(--lime)"><i aria-hidden="true"></i><b>Capability cards</b><small>each with its proof</small></button><button type="button" role="tab" id="crt-standards" aria-controls="crp-standards" aria-selected="false" tabindex="-1" style="--c:var(--magenta)"><i aria-hidden="true"></i><b>Standards and formats</b><small>reference checks</small></button></div>
+  </div>
+<div class="cc-panel" role="tabpanel" id="crp-atlas" aria-labelledby="crt-atlas" tabindex="-1">
+<section class="block sec-compact" id="atlas" aria-labelledby="atlasH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">13</span>Scenario atlas</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="atlasH">Every bundled scenario, on one map.</h2></div>
+      <p class="lede">All {{ALLFILES}} scenario files across {{KINDS}} kinds, grouped by domain; {{FILES}} are bundled into the engine, and {{NOTBUNDLED}} run from the repository with the command line. The dot shows the ledger status of the kind's module where the ledger names it. A file with a recorded run opens it in {{STUDIO}}; the others open their entry in the scenario reference, with the file and the command that runs it.</p>
+    </div>
+    <div class="atlas">
+{{ATLAS}}
+    </div>
+  </div>
+</section>
+</div>
+<div class="cc-panel" role="tabpanel" id="crp-explorer" aria-labelledby="crt-explorer" tabindex="-1" hidden>
+<section class="block sec-compact" id="explorer" aria-labelledby="exH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">14</span>Capability cards</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="exH">{{NCAPS}} capabilities, each with its proof.</h2></div>
+      <p class="lede">The capability cards from the engine's own capability file. <b>Run in {{STUDIO}}</b> opens the matching scenario's recorded run.</p>
+    </div>
+    <div class="explorer">
+{{EXPLORER}}
+    </div>
+  </div>
+</section>
+</div>
+<div class="cc-panel" role="tabpanel" id="crp-standards" aria-labelledby="crt-standards" tabindex="-1" hidden>
+<section class="block sec-compact" id="standards" aria-labelledby="stdH">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">15</span>Standards and formats</div><span class="edtag edtag-s">Free core</span><h2 class="h2 h2-sm" id="stdH">{{NSTD}} standards and exchange formats.</h2></div>
+      <p class="lede">The standards the engine implements and the files it reads and writes, marked where a reference check stands behind them. The evidence behind each check is on <a href="evidence.html#standards">Evidence</a>.</p>
+    </div>
+{{STANDARDS}}
+  </div>
+</section>
+</div>
+</section>

@@ -1,0 +1,1545 @@
+{
+"aperture-duty-cycle": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=aperture-duty-cycle&tab=overview"
+},
+"araim-gps-galileo": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=araim-gps-galileo&tab=timeseries"
+},
+"araim-reference-check": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=araim-reference-check&tab=overview"
+},
+"attitude-budget": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=attitude-budget&tab=overview"
+},
+"automotive-urban-canyon": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=automotive-urban-canyon&tab=holdover"
+},
+"campaign-jam-spoof-holdover-integrity": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=campaign-jam-spoof-holdover-integrity&tab=campaign&play=1"
+},
+"campaign-monte-carlo-clock-holdover": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=campaign-monte-carlo-clock-holdover&tab=campaign"
+},
+"campaign-shared-jammer-sea-road": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=campaign-shared-jammer-sea-road&tab=campaign"
+},
+"campaign-spectrum-holdover-integrity": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=campaign-spectrum-holdover-integrity&tab=campaign&play=1"
+},
+"campaign-sweep-jammer-power": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=campaign-sweep-jammer-power&tab=campaign"
+},
+"celeste-iod-classical-pilot-signals": {
+"tabs": [
+"overview",
+"leo-signal",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=celeste-iod-classical-pilot-signals&tab=leo-signal"
+},
+"celeste-iod-end-to-end": {
+"tabs": [
+"overview",
+"leo-chain",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=celeste-iod-end-to-end&tab=leo-chain"
+},
+"celeste-iod-fused-pvt": {
+"tabs": [
+"overview",
+"leo-positioning",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=celeste-iod-fused-pvt&tab=leo-positioning"
+},
+"cislunar-arc-recovery": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=cislunar-arc-recovery&tab=overview"
+},
+"cislunar-observability": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=cislunar-observability&tab=overview"
+},
+"clock-ensemble": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=clock-ensemble&tab=timeseries"
+},
+"clock-holdover": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"stability",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=clock-holdover&tab=holdover"
+},
+"clock-holdover-labsr": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"stability",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=clock-holdover-labsr&tab=holdover"
+},
+"combined-altpnt": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=combined-altpnt&tab=overview"
+},
+"conflict-resilience": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=conflict-resilience&tab=overview"
+},
+"constellation-multi-gnss-coverage": {
+"tabs": [
+"overview",
+"coverage",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&play=1"
+},
+"earth-gnss-lunar": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=earth-gnss-lunar&tab=overview"
+},
+"eo-coverage": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=eo-coverage&tab=overview"
+},
+"ephemeris": {
+"tabs": [
+"overview",
+"timeseries",
+"orbit",
+"ground",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=ephemeris&tab=ground"
+},
+"europa-surface-pnt": {
+"tabs": [
+"overview",
+"body-pnt",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=europa-surface-pnt&tab=body-pnt"
+},
+"fusion-pnt": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=fusion-pnt&tab=holdover"
+},
+"gnss-ins": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=gnss-ins&tab=holdover"
+},
+"gnss-sim-raim": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=gnss-sim-raim&tab=overview"
+},
+"gps-denied-gravity-nav": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=gps-denied-gravity-nav&tab=overview"
+},
+"gravity-map-nav": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=gravity-map-nav&tab=overview"
+},
+"hybrid-optical-rf": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=hybrid-optical-rf&tab=overview"
+},
+"hybrid-pnt": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=hybrid-pnt&tab=holdover"
+},
+"hybrid-ukf": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=hybrid-ukf&tab=overview"
+},
+"impairment-eval": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=impairment-eval&tab=overview"
+},
+"imu-deadreckoning": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=imu-deadreckoning&tab=holdover"
+},
+"ins-trn-coast": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=ins-trn-coast&tab=overview"
+},
+"integrity-raim": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=integrity-raim&tab=timeseries"
+},
+"jamming-demo": {
+"tabs": [
+"overview",
+"timeseries",
+"signal",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=jamming-demo&tab=signal"
+},
+"l-band-waterfall-jamming": {
+"tabs": [
+"overview",
+"spectrum",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=l-band-waterfall-jamming&tab=spectrum&play=1"
+},
+"launch-window": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=launch-window&tab=overview"
+},
+"leo-band-trade": {
+"tabs": [
+"overview",
+"leo-signal",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-band-trade&tab=leo-signal"
+},
+"leo-doppler-positioning": {
+"tabs": [
+"overview",
+"leo-positioning",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-doppler-positioning&tab=leo-positioning"
+},
+"leo-focus-data-services": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-focus-data-services&tab=campaign"
+},
+"leo-focus-fused-pnt-sisre": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-focus-fused-pnt-sisre&tab=campaign"
+},
+"leo-focus-indoor-uhf": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-focus-indoor-uhf&tab=campaign"
+},
+"leo-focus-iot-eirp": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-focus-iot-eirp&tab=campaign"
+},
+"leo-focus-ntn-bandwidth": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-focus-ntn-bandwidth&tab=campaign"
+},
+"leo-focus-ppp-altitude": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-focus-ppp-altitude&tab=campaign"
+},
+"leo-focus-science-iono-sounding": {
+"tabs": [
+"overview",
+"leo-pass",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-focus-science-iono-sounding&tab=leo-pass"
+},
+"leo-indoor-uhf": {
+"tabs": [
+"overview",
+"leo-pass",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-indoor-uhf&tab=leo-pass"
+},
+"leo-iot-energy": {
+"tabs": [
+"overview",
+"leo-pass",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-iot-energy&tab=leo-pass"
+},
+"leo-navmsg-celeste-iod": {
+"tabs": [
+"overview",
+"leo-navmsg",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-navmsg-celeste-iod&tab=leo-navmsg"
+},
+"leo-navmsg-encode-decode": {
+"tabs": [
+"overview",
+"leo-navmsg",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-navmsg-encode-decode&tab=leo-navmsg"
+},
+"leo-navmsg-fit-interval-trade": {
+"tabs": [
+"overview",
+"leo-navmsg",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-navmsg-fit-interval-trade&tab=leo-navmsg"
+},
+"leo-navmsg-midpass-update": {
+"tabs": [
+"overview",
+"leo-navmsg",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-navmsg-midpass-update&tab=leo-navmsg"
+},
+"leo-navmsg-model-comparison": {
+"tabs": [
+"overview",
+"leo-navmsg",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-navmsg-model-comparison&tab=leo-navmsg"
+},
+"leo-pass-celeste-iod-multiband": {
+"tabs": [
+"overview",
+"leo-pass",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-pass-celeste-iod-multiband&tab=leo-pass"
+},
+"leo-pass-iridium": {
+"tabs": [
+"overview",
+"leo-pass",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-pass-iridium&tab=leo-pass"
+},
+"leo-pass-vs-gnss-cn0": {
+"tabs": [
+"overview",
+"leo-pass",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-pass-vs-gnss-cn0&tab=leo-pass"
+},
+"leo-pass-xona-pulsar": {
+"tabs": [
+"overview",
+"leo-pass",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-pass-xona-pulsar&tab=leo-pass"
+},
+"leo-pnt-end-to-end": {
+"tabs": [
+"overview",
+"leo-chain",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-pnt-end-to-end&tab=leo-chain"
+},
+"leo-pnt-mega-shell": {
+"tabs": [
+"overview",
+"coverage",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&play=1"
+},
+"leo-ppp-convergence": {
+"tabs": [
+"overview",
+"leo-positioning",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-ppp-convergence&tab=leo-positioning"
+},
+"leo-resilience-gnss-jammed-leo-carries": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-resilience-gnss-jammed-leo-carries&tab=campaign&play=1"
+},
+"leo-resilience-js-margin": {
+"tabs": [
+"overview",
+"spectrum",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-resilience-js-margin&tab=spectrum&play=1"
+},
+"leo-resilience-multiband-diversity": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-resilience-multiband-diversity&tab=campaign"
+},
+"leo-resilience-spoof-doppler": {
+"tabs": [
+"overview",
+"leo-pass",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-resilience-spoof-doppler&tab=leo-pass"
+},
+"leo-resilience-spoof-monitors": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-resilience-spoof-monitors&tab=campaign"
+},
+"leo-timing-utc": {
+"tabs": [
+"overview",
+"leo-positioning",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-timing-utc&tab=leo-positioning"
+},
+"leo-vertical-5g-network-timing": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-vertical-5g-network-timing&tab=campaign&play=1"
+},
+"leo-vertical-asset-tracking-iot": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-vertical-asset-tracking-iot&tab=campaign&play=1"
+},
+"leo-vertical-autonomous-vehicle": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-vertical-autonomous-vehicle&tab=campaign&play=1"
+},
+"leo-vertical-critical-infrastructure-timing": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-vertical-critical-infrastructure-timing&tab=campaign&play=1"
+},
+"leo-vertical-polar-arctic": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-vertical-polar-arctic&tab=campaign&play=1"
+},
+"leo-vertical-rail-maritime": {
+"tabs": [
+"overview",
+"campaign",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=leo-vertical-rail-maritime&tab=campaign&play=1"
+},
+"link-budget": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=link-budget&tab=overview"
+},
+"lunanet-araim": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunanet-araim&tab=timeseries"
+},
+"lunar-attack-surface": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-attack-surface&tab=overview"
+},
+"lunar-beacon": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-beacon&tab=overview"
+},
+"lunar-differential-pnt": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-differential-pnt&tab=overview"
+},
+"lunar-frame-campaign": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-frame-campaign&tab=overview"
+},
+"lunar-frame-realisation": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-frame-realisation&tab=overview"
+},
+"lunar-interop-export": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-interop-export&tab=overview"
+},
+"lunar-jamming": {
+"tabs": [
+"overview",
+"timeseries",
+"signal",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-jamming&tab=signal"
+},
+"lunar-joint-od-clock": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-joint-od-clock&tab=overview"
+},
+"lunar-llr-datum": {
+"tabs": [
+"overview",
+"llr-datum",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-llr-datum&tab=llr-datum"
+},
+"lunar-relay-constellation": {
+"tabs": [
+"overview",
+"coverage",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-relay-constellation&tab=coverage&play=1"
+},
+"lunar-time-budget": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-time-budget&tab=overview"
+},
+"lunar-time-offset": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-time-offset&tab=overview"
+},
+"lunar-vlbi": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-vlbi&tab=overview"
+},
+"lunar-vlbi-fim": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=lunar-vlbi-fim&tab=overview"
+},
+"maritime-port-approach-coast": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=maritime-port-approach-coast&tab=overview"
+},
+"maritime-spoof-position-push": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=maritime-spoof-position-push&tab=overview"
+},
+"maritime-strait-jamming": {
+"tabs": [
+"overview",
+"timeseries",
+"signal",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=maritime-strait-jamming&tab=signal"
+},
+"mars-orbit-pnt": {
+"tabs": [
+"overview",
+"body-pnt",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=mars-orbit-pnt&tab=body-pnt"
+},
+"mars-pnt-lmo": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=mars-pnt-lmo&tab=timeseries"
+},
+"mars-pnt-surface": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=mars-pnt-surface&tab=timeseries"
+},
+"mars-pnt-transfer": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=mars-pnt-transfer&tab=timeseries"
+},
+"meo-leo-fused-pvt": {
+"tabs": [
+"overview",
+"leo-positioning",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=meo-leo-fused-pvt&tab=leo-positioning"
+},
+"moonlight-service-volume": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=moonlight-service-volume&tab=overview"
+},
+"multi-band-jamming-waterfall": {
+"tabs": [
+"overview",
+"spectrum",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=multi-band-jamming-waterfall&tab=spectrum&play=1"
+},
+"ntn-5g-positioning": {
+"tabs": [
+"overview",
+"leo-positioning",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=ntn-5g-positioning&tab=leo-positioning"
+},
+"oem-interop": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=oem-interop&tab=overview"
+},
+"orbit-gnss-challenged": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"stability",
+"orbit",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=orbit-gnss-challenged&tab=holdover"
+},
+"orbit-molniya": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"stability",
+"orbit",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=orbit-molniya&tab=holdover"
+},
+"orbit-multignss": {
+"tabs": [
+"overview",
+"timeseries",
+"stability",
+"orbit",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=orbit-multignss&tab=timeseries"
+},
+"orbit-real-tle": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"stability",
+"orbit",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=orbit-real-tle&tab=holdover"
+},
+"orbit-rinex": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"stability",
+"orbit",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=orbit-rinex&tab=holdover"
+},
+"orbit-sgp4-gps": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"stability",
+"orbit",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=orbit-sgp4-gps&tab=holdover"
+},
+"passes": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=passes&tab=overview"
+},
+"polar-arctic-leo-coverage": {
+"tabs": [
+"overview",
+"leo-positioning",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=polar-arctic-leo-coverage&tab=leo-positioning"
+},
+"pvt-abmf": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=pvt-abmf&tab=overview"
+},
+"quantum-anomaly-detect": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=quantum-anomaly-detect&tab=overview"
+},
+"quantum-gnss-free-nav": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=quantum-gnss-free-nav&tab=overview"
+},
+"quantum-time-transfer": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=quantum-time-transfer&tab=overview"
+},
+"quantum-trade": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=quantum-trade&tab=overview"
+},
+"rail-tunnel-coast": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=rail-tunnel-coast&tab=overview"
+},
+"realtime-frame-eop": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=realtime-frame-eop&tab=overview"
+},
+"reentry": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=reentry&tab=overview"
+},
+"slot-timing-ocxo-leo": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=slot-timing-ocxo-leo&tab=holdover"
+},
+"small-uas-jammed-nav": {
+"tabs": [
+"overview",
+"timeseries",
+"holdover",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=small-uas-jammed-nav&tab=holdover"
+},
+"solar-system-tour": {
+"tabs": [
+"overview",
+"solar",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=solar-system-tour&tab=solar"
+},
+"space-packet": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=space-packet&tab=overview"
+},
+"space-weather": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=space-weather&tab=overview"
+},
+"spoof-attack": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=spoof-attack&tab=timeseries"
+},
+"spoof-detect": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=spoof-detect&tab=overview"
+},
+"spoof-meaconing": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=spoof-meaconing&tab=timeseries"
+},
+"starlink-sop-doppler-positioning": {
+"tabs": [
+"overview",
+"leo-positioning",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=starlink-sop-doppler-positioning&tab=leo-positioning"
+},
+"sweep-clock-stability": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=sweep-clock-stability&tab=timeseries"
+},
+"sweep-nd-inertial": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=sweep-nd-inertial&tab=overview"
+},
+"telecom-prtc-holdover-24h": {
+"tabs": [
+"overview",
+"timeseries",
+"masks",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=telecom-prtc-holdover-24h&tab=masks"
+},
+"telecom-tie-ingest": {
+"tabs": [
+"overview",
+"timeseries",
+"masks",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=telecom-tie-ingest&tab=masks"
+},
+"terrain-nav": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=terrain-nav&tab=overview"
+},
+"terrain-slam": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=terrain-slam&tab=timeseries"
+},
+"timetransfer": {
+"tabs": [
+"overview",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=timetransfer&tab=timeseries"
+},
+"tracking-loop": {
+"tabs": [
+"overview",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=tracking-loop&tab=overview"
+},
+"xona-pulsar-end-to-end": {
+"tabs": [
+"overview",
+"leo-chain",
+"timeseries",
+"animation",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=xona-pulsar-end-to-end&tab=leo-chain"
+},
+"xona-pulsar-signals": {
+"tabs": [
+"overview",
+"leo-signal",
+"timeseries",
+"report",
+"exports",
+"json"
+],
+"best": "index.html?scenario=xona-pulsar-signals&tab=leo-signal"
+}
+}
