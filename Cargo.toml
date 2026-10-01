@@ -52,11 +52,9 @@ default = []
 # `../kshana-wt-pro-engine`, branch `feat/pro-engine-base` of the open repository,
 # fast-forwarded to the 0.29.0 release tree (feat/integration-bc 38feb76).
 #
-# RELEASE STEP (not done): after the crates.io publish, replace this line with
-# `kshana = "0.29.0"`, run `cargo update -p kshana`, and re-run the whole gate with
-# `--locked`. A path pin builds only on a machine that has the worktree; a release must
-# not depend on it.
-kshana = { path = "../kshana-wt-pro-engine", version = "0.29" }
+# The open core from crates.io, pinned exactly: Pro 0.2.0 is built and its showcases
+# recorded on this release.
+kshana = "=0.29.0"
 
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.
