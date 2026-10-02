@@ -1,0 +1,5 @@
+file	url	http	retrieved_utc	note
+bulletinA.txt	https://datacenter.iers.org/data/latestVersion/bulletinA.txt	200	2026-10-02T10:51:00Z	
+finals.all.iau2000.txt	https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt	200	2026-10-02T10:51:05Z	
+IGS0OPSULT_20262740600_02D_15M_ORB.SP3.gz	https://igs.bkg.bund.de/root_ftp/IGS/products/2438/IGS0OPSULT_20262740600_02D_15M_ORB.SP3.gz	200	2026-10-02T10:51:09Z	
+IGS0OPSULT_20262740600_02D_01D_ERP.ERP.gz	https://igs.bkg.bund.de/root_ftp/IGS/products/2438/IGS0OPSULT_20262740600_02D_01D_ERP.ERP.gz	200	2026-10-02T10:51:10Z	
