@@ -1,0 +1,6 @@
+{
+  "_comment": "Where the site reads its facts: ONE engine checkout. repo: the Kshana checkout for counts, scenarios, ledger, install channels, recorded runs and the engine binary (target/release/kshana) the recorders in src/tools run. docs_repo: the checkout whose committed (HEAD) Markdown becomes docs/*.html; keep it equal to repo. Paths may start with ~. Override with KSHANA_REPO / KSHANA_DOCS_REPO (and KSHANA_ENGINE_TREE for the recorders). studio: the Kshana Studio folder the site is built with, relative to the site folder (override with KSHANA_STUDIO); ../2026-09-27-playground is the previous Studio, kept as the fallback. mcp_repo: the checkout the MCP (Model Context Protocol) server's tool list is read from, while the branch that adds tools is not yet merged into repo (override with KSHANA_MCP_REPO); drop the key once repo carries it, and re-record src/data/mcp-session.json with tools/record_mcp_session.py whenever the tool list changes.",
+  "repo": "~/Code/kshana-wt-0293",
+  "docs_repo": "~/Code/kshana-wt-0293",
+  "studio": "../2026-10-01-studio-rebuild"
+}

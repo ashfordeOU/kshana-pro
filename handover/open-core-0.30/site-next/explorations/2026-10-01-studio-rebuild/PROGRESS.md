@@ -1,0 +1,40 @@
+# Studio rebuild: progress log
+
+Source of truth for resuming. Base: a copy of `../2026-09-30-studio-dash` (0.29.2 quick wins plus the approved light theme), taken 2026-10-01. studio-dash is never edited.
+
+Engine bytes: `pkg/kshana_bg.wasm` sha256 `8548ddd1ee601186b0aec35293248462e36cfb673151c78312912f3766da1dec` (same as studio-dash). Must not change.
+
+## Steps
+- [x] 1. Copy studio-dash to this folder.
+- [x] 2. Survey recorded results per kind (scratch survey script).
+- [x] 3. New pure modules with tests: lib/meaning.mjs (plain sentences), lib/inputs.mjs (input ranking), lib/urlstate.mjs (URL state), lib/areas.mjs (capability map model).
+- [x] 4. tools_areas.mjs: builds data/areas.json (per-area counts, evidence mix, preview) from recorded/.
+- [x] 5. index.html + app.js restructure: opening screen, domain screen, task screen, loading state.
+- [x] 6. CSS: layout desktop + phone (390), both themes.
+- [x] 7. Gates script (REVIEW/gates.mjs, adapted from research/studio-ux-baseline/baseline.mjs).
+- [x] 8. Deep links from the combo site build: all land correctly.
+- [x] 9. Screenshots to REVIEW/.
+- [x] 10. Serve on LAN 8877.
+
+## Log
+- 14:2x Modules done and tested: lib/meaning.mjs (templates: integrity, lunar-integrity, constellation-design, jamming, lunar-jamming, spectrum, orbit, clock/navigator pair, clock ensemble; else first headline figure), lib/inputs.mjs (tiers documented in the file), lib/urlstate.mjs, lib/areas.mjs. tools_areas.mjs writes data/areas.json and celeste/areas.json.
+- Evidence decision: the verification matrix has only VALIDATED / MODELLED / PARTNER statuses ("cross-checked" appears only as a word inside oracle text), so tiles use TWO parts (validated / modelled), counted from matrix rows mapped to the engine kinds each area runs.
+- 14:5x index.html rebuilt (screens home / browse / task), app.js restructured (render, settings, how, researcher, router), studio.css replaces dash.css (deleted). Server on 8877 (nohup). Smoke: home, RAIM, waterfall, clock, lunar, domain, search all render with 0 console errors. REVIEW/gates.mjs written.
+- 15:3x DONE. Gates (REVIEW/gates.mjs; results REVIEW/gates-*.json):
+  - first result unthrottled: 64-85 ms desktop and phone, all 5 entries (target <= 1500 ms) PASS
+  - throttled Fast 3G + 4x CPU: labelled recorded result at 8.3-8.9 s, engine ready at ~59 s (baseline 107 s, quick wins ~10 s) PASS (before the engine). Not "instant": python http.server sends no compression; ~1 MB of uncompressed JS/CSS/data is on the path. Compression or bundling is host/engineering work.
+  - clicks: 1 (question, hero), 2 (tile then scenario; browse, search, hit); deep links 0 PASS
+  - inputs: all 139 scenarios x desktop and phone, max 5 visible (budget = 5 minus inputs the default view already shows) PASS
+  - phone: header 56 px, no sideways page or box, no target under 44 px on 22 views incl. the loading state PASS
+  - links: 266 distinct Studio links in the combo build open the right scenario and view PASS
+  - errors: 0 (two Playwright harness messages in the sandboxed report frame are listed apart; they do not occur without the harness)
+  - selfcheck.mjs all checks passed (32 module test files, incl. new meaning/inputs/urlstate/areas/abbr); engine sha256 unchanged.
+- Screenshots: REVIEW/*.jpg (26 shots, light+dark, desktop+phone; log REVIEW/shots.log).
+- Open points for the founder: 108 of 133 kinds use the generic sentence (first headline figure stated plainly), 25 have a written template; the area evidence mix depends on the hand-written KIND_MODULES alias table in lib/areas.mjs; search ranking unchanged ("coverage" puts EO coverage first).
+
+## 0.29.3 round (founder: ship the rebuild as 0.29.3 tonight)
+- [x] G1 Plain meaning for every kind: lib/meaning-kinds.mjs (62 kind templates) + the 9 in meaning.mjs. 138 of 138 recorded runs get a written sentence (0 generic); the one suite with no recording says why. Test in meaning.test.mjs walks all 139 catalogue scenarios and rejects undefined / NaN / null / empty placeholders.
+- [x] G2 Search: lib/catalog.mjs searchScenarios ranks domain (label or its one-line description, DOMAIN_LINES moved from app.js) and title matches strictly above file/question matches; a domain named for the word leads. catalog.test.mjs: rule over 8 queries + 10 representative top-hit checks (coverage, orbit, clock, jamming, waterfall, spoof, mars, integrity, timing). The palette uses the same ranking.
+- [x] G5 Advanced view: advanced/index.html (studio-dash page with <base href="../">, so it shares lib/, pkg/, the worker and all data; no copy) + advanced.js (studio-dash app.js with the switch and edit carry-over) + advanced/dash.css + advanced/advanced.css (phone: one header row, wrapping tabs, no sideways strips). Switch in both headers + "Open in Advanced view" in For researchers. State travels as ?scenario=&tab= plus the edited TOML in the fragment (lib/urlstate.mjs viewUrl/readSwitch/chooseView, round-trip tests). localStorage "kshana-studio-view" (try/catch, Simple on failure); site deep links open Simple unless view=advanced; the bare address opens the remembered view. One engine per page; a switch is a page load (the engine file comes from the HTTP cache).
+- [x] G3 First paint: data/firstpaint.json (133 task screens, 90 kB) + data/firstpaint-home.json (0.6 kB), generated with lib/meaning.mjs taskWords (the same function the Studio uses; areas.test.mjs keeps them in step). A head script starts the fetch; an end-of-body script paints the recorded answer, then starts app.js (task links) — other screens load the modules at once. Fast 3G + 4x CPU: task answer 2.2 s (was 8.3-8.9), landing answer 1.8-2.8 s, landing map 8.9 s, engine ~62 s. No inline critical CSS (the stylesheets were not the bottleneck).
+- [x] G4 All gates re-run (REVIEW/gates-*.json): load 41-113 ms; clicks <= 2; inputs <= 5 on 139 x 2; phone PASS incl. engine-loading state; 266 site links PASS; advanced PASS (switch on every page, phone header 57 px, nothing off-screen); throttle PASS; 0 errors. selfcheck all passed. 38 screenshots (REVIEW/shots.log) incl. view-toggle-* and advanced-view-*.

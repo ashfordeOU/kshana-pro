@@ -1,0 +1,85 @@
+// Self-check for the redesigned playground. Run: node selfcheck.mjs
+// 1. every PARITY.md row's Check token is present in the named file;
+// 2. every lib module test passes (node --test);
+// 3. no external host outside the allowed CDNs, fonts and project links;
+// 4. no forbidden names; no invented pricing;
+// 5. every numeric claim the app states about the catalogue matches the files on disk;
+// 6. the recorded fallback covers every scenario with a run, and says which engine made each;
+// 7. the native engine's recordings cover every scenario, and the optional group is self-contained.
+import { readFileSync, readdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+const here = new URL(".", import.meta.url).pathname;
+const read = (f) => readFileSync(here + f, "utf8");
+let fails = 0;
+const ok = (cond, msg) => { if (!cond) { fails++; console.log("FAIL", msg); } };
+
+// 1. parity
+const parity = read("PARITY.md");
+const rows = [...parity.matchAll(/`((?:app\.js|index\.html|app\.css)): ([^`]+)`/g)];
+for (const [, file, token] of rows) ok(read(file).includes(token), `PARITY check missing: ${file}: ${token}`);
+console.log(`parity: ${rows.length} checks`);
+
+// 2. module tests
+try {
+  const out = execFileSync("node", ["--test", ...readdirSync(here + "lib").filter((f) => f.endsWith(".test.mjs")).map((f) => "lib/" + f)], { cwd: here, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  const pass = (out.match(/^ℹ pass (\d+)/m) || [])[1], fail = (out.match(/^ℹ fail (\d+)/m) || [])[1];
+  ok(fail === "0", `module tests failed: ${fail}`);
+  console.log(`module tests: ${pass} passed, ${fail} failed`);
+} catch (e) { ok(false, "module tests did not run cleanly: " + String(e.stdout || e).slice(-400)); }
+
+// 3. external hosts
+const allowed = /^(cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com|kshana\.dev|www\.w3\.org|github\.com)$/;
+const own = ["index.html", "app.js", "app.css", "studio.css", "lib/catalog.mjs", "lib/params.mjs", "lib/views.mjs", "lib/kinds.mjs", "lib/stages.mjs", "lib/meaning.mjs", "lib/inputs.mjs", "lib/urlstate.mjs", "lib/areas.mjs", "lib/abbr.mjs", "tools_areas.mjs", "data/areas.json", "advanced/index.html", "advanced.js", "advanced/dash.css", "advanced/advanced.css", "lib/meaning-kinds.mjs"];
+for (const f of own) for (const m of read(f).matchAll(/https?:\/\/([a-z0-9.-]+)/gi)) ok(allowed.test(m[1]), `${f}: unexpected host ${m[1]}`);
+ok(/three@0\.160\.0/.test(read("index.html")), "Three.js is pinned to 0.160.0");
+
+// 4. names and pricing
+for (const f of [...own, "PARITY.md", "tokens.css"]) {
+  const t = read(f);
+  ok(!/aperio/i.test(t), `${f}: names Aperio`);
+  ok(!/\bclaude\b|anthropic/i.test(t), `${f}: names an AI vendor`);
+  ok(!/[€$£]\s?\d|\bprice\b|\bpricing\b|per seat|\/month/i.test(t), `${f}: mentions a price`);
+}
+ok(/mailto:contact@ashforde\.org/.test(read("index.html")), "Pro call to action is a mailto");
+
+// 5. catalogue numbers
+const files = readdirSync(here + "scenarios").filter((f) => f.endsWith(".toml"));
+const catalog = read("lib/catalog.mjs");
+const listed = [...catalog.matchAll(/^\s*\["([a-z0-9.-]+\.toml)",/gm)].map((m) => m[1]);
+ok(listed.length === files.length, `library lists ${listed.length}, disk has ${files.length}`);
+ok(parity.includes(`all ${files.length} bundled files`), `PARITY states the file count (${files.length})`);
+
+// 6. recorded fallback
+const idx = JSON.parse(read("recorded/index.json"));
+const runnable = Object.values(idx.runs).filter((r) => !r.error).length;
+// The recordings must be the package's own: re-record (tools_native.mjs, then tools_record.mjs) after a package swap.
+const pkgVersion = JSON.parse(read("pkg/package.json")).version;
+ok(idx.engine_version === pkgVersion, `the recorded runs are engine ${idx.engine_version}, the package is ${pkgVersion}`);
+// The install commands the Studio shows (the site build overwrites this file with its own copy).
+ok(JSON.parse(read("channels.json")).version === pkgVersion, `channels.json is for ${JSON.parse(read("channels.json")).version}, the package is ${pkgVersion}`);
+ok(/url\(assets\/brand\/kshana-mark-mask\.png\)/.test(read("index.html")) && readdirSync(here + "assets/brand").includes("kshana-mark-mask.png"), "the brand mark ships inside the Studio folder");
+ok(JSON.parse(read("native/index.json")).engine_version === pkgVersion, `the native recordings are engine ${JSON.parse(read("native/index.json")).engine_version}, the package is ${pkgVersion}`);
+ok(parity.includes(`${runnable} of ${files.length} scenarios`), `PARITY states recorded coverage (${runnable} of ${files.length})`);
+for (const [f, r] of Object.entries(idx.runs)) if (!r.error) { const rec = JSON.parse(read("recorded/" + r.file)); ok(rec.toml === read("scenarios/" + f), `recorded ${f} matches the bundled scenario text`); }
+
+ok(Object.entries(idx.runs).filter(([, r]) => r.source === "native").every(([f]) => /RECORDED_NATIVELY = \[[^\]]*"/.test(catalog) && catalog.includes(`"${f}"`)), "a natively recorded run is listed as such");
+
+// 7. native recordings and the optional group
+const nat = JSON.parse(read("native/index.json"));
+const single = files.filter((f) => !f.endsWith(".suite.toml"));
+ok(single.every((f) => nat.runs[f] && !nat.runs[f].error), "every bundled scenario has a native recording");
+ok(single.every((f) => nat.runs[f] && nat.runs[f].report), "every bundled scenario has the engine's report");
+for (const f of ["index.html", "app.css", "studio.css", "lib/catalog.mjs", "lib/kinds.mjs", "lib/stages.mjs", "lib/views.mjs", "lib/meaning.mjs", "lib/inputs.mjs", "lib/urlstate.mjs", "lib/areas.mjs", "lib/meaning-kinds.mjs", "data/areas.json", "advanced/index.html", "advanced.js", "PARITY.md"]) ok(!/celeste/i.test(read(f)), `${f}: names the optional group (it must live only in its own folder and the loader)`);
+for (const f of files) ok(!/=\s*"[^"]*celeste/i.test(read("scenarios/" + f)), `scenarios/${f}: uses the optional preset`);
+ok(!/celeste/i.test(read("app.js")), "app.js: names the optional group (groups.json is the only place that lists it)");
+// The Advanced view shares the engine, the worker, the modules and the data: no second copy.
+const adv = read("advanced/index.html");
+ok(/<base href="\.\.\/">/.test(adv) && /src="advanced\.js"/.test(adv), "advanced/index.html resolves from the Studio folder and runs advanced.js");
+ok(!readdirSync(here + "advanced").some((f) => /^(pkg|lib|recorded|scenarios|data|native)$/.test(f) || f.endsWith(".mjs") || f.endsWith(".wasm")), "advanced/ holds no copy of the engine, modules or data");
+ok(read("advanced.js").includes('new URL("./pkg/kshana_bg.wasm", import.meta.url)') && read("advanced.js").includes('new URL("./lib/engine-worker.mjs", import.meta.url)'), "advanced.js loads the one engine and worker from the Studio folder");
+ok(!/Kshana Pro</.test(adv.split("</header>")[0]) && !/Kshana Pro</.test(read("index.html").split("</header>")[0]), "no Kshana Pro link in either header (footer and For researchers only)");
+for (const g of JSON.parse(read("groups.json")).groups) { const gi = JSON.parse(read(g + "index.json")); ok(gi.scenarios.every((x) => readdirSync(here + g).includes(x[0])), `${g}: every listed scenario file is in the folder`); ok(Object.keys(JSON.parse(read(g + "recorded/index.json")).runs).length === gi.scenarios.length, `${g}: every scenario of the group is recorded`); }
+console.log(`native recordings: ${Object.keys(nat.runs).length}; with an animation ${Object.values(nat.runs).filter((r) => r.animation).length}; with an export ${Object.values(nat.runs).filter((r) => (r.exports || []).length).length}`);
+
+console.log(fails ? `SELFCHECK: ${fails} failure(s)` : "SELFCHECK: all checks passed");
+process.exit(fails ? 1 : 0);

@@ -1,0 +1,212 @@
+{
+  "with_vlbi": {
+    "station_pos_err_m": 3.546567263009864,
+    "sat_pos_rms_m": 2.2030600620837193,
+    "station_clock_err_s": 2.867804275413919e-10,
+    "sat_clock_rms_s": 7.277691380173022e-9,
+    "converged": true,
+    "iterations": 2,
+    "rms_residual": 0.051282479418169095,
+    "n_obs": 40,
+    "n_params": 16
+  },
+  "without_vlbi": {
+    "station_pos_err_m": 2182.9758771813767,
+    "sat_pos_rms_m": 717.1813465962244,
+    "station_clock_err_s": 2.881774202686567e-10,
+    "sat_clock_rms_s": 4.143132837495366e-6,
+    "converged": true,
+    "iterations": 2,
+    "rms_residual": 0.0872200291146747,
+    "n_obs": 25,
+    "n_params": 16
+  },
+  "station_observability_improvement_factor": 615.5179685859817,
+  "observability": {
+    "n_params": 16,
+    "rank": 16,
+    "defect": 0,
+    "station_pos_crlb_m": 20.07769432856372,
+    "station_pos_unobservable_axes": 0.0,
+    "e_opt": 1340402842.3405383,
+    "condition": 1236400.6966074079
+  },
+  "observability_without_vlbi": {
+    "n_params": 16,
+    "rank": 15,
+    "defect": 1,
+    "station_pos_crlb_m": null,
+    "station_pos_unobservable_axes": 0.3403972615184532,
+    "e_opt": 80710.67934492756,
+    "condition": 2158996.5311040576
+  },
+  "n_sat": 3,
+  "n_earth": 6,
+  "units": {
+    "n_earth": {
+      "note": "Earth ground stations in the simulated network",
+      "provenance": "input",
+      "unit": "count"
+    },
+    "n_sat": {
+      "note": "constellation satellites in the simulated network",
+      "provenance": "input",
+      "unit": "count"
+    },
+    "observability.condition": {
+      "note": "condition number lambda_max / lambda_min of the Fisher information over the observable subspace, for the configured network with VLBI",
+      "provenance": "computed",
+      "unit": "1"
+    },
+    "observability.defect": {
+      "note": "datum-defect dimension n - rank, the number of unobservable directions; 0 means fully observable, for the configured network with VLBI",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "observability.e_opt": {
+      "note": "E-optimality lambda_min of the Fisher information matrix, the worst-observed direction; the state is stored in units of 1e6 m (clocks as range-equivalent metres) so the information is an inverse squared stored unit, for the configured network with VLBI",
+      "provenance": "computed",
+      "unit": "1/(10^6 m)^2"
+    },
+    "observability.n_params": {
+      "note": "state dimension n of the Fisher information matrix, for the configured network with VLBI",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "observability.rank": {
+      "note": "numerical rank of the Fisher information matrix, for the configured network with VLBI",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "observability.station_pos_crlb_m": {
+      "note": "Cramer-Rao lower bound on the station 3-D absolute-position error (1-sigma RSS of the three position variances, rescaled to metres); null when the station position lies inside the datum defect, for the configured network with VLBI",
+      "provenance": "computed",
+      "unit": "m"
+    },
+    "observability.station_pos_unobservable_axes": {
+      "note": "effective number of the station's three position axes captured by the datum defect, sum over null-space basis vectors of the squared projection onto those axes; a generally fractional number in [0, 3] where 0 is fully observable, for the configured network with VLBI",
+      "provenance": "computed",
+      "unit": "1"
+    },
+    "observability_without_vlbi.condition": {
+      "note": "condition number lambda_max / lambda_min of the Fisher information over the observable subspace, for the same network with the VLBI legs removed",
+      "provenance": "computed",
+      "unit": "1"
+    },
+    "observability_without_vlbi.defect": {
+      "note": "datum-defect dimension n - rank, the number of unobservable directions; 0 means fully observable, for the same network with the VLBI legs removed",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "observability_without_vlbi.e_opt": {
+      "note": "E-optimality lambda_min of the Fisher information matrix, the worst-observed direction; the state is stored in units of 1e6 m (clocks as range-equivalent metres) so the information is an inverse squared stored unit, for the same network with the VLBI legs removed",
+      "provenance": "computed",
+      "unit": "1/(10^6 m)^2"
+    },
+    "observability_without_vlbi.n_params": {
+      "note": "state dimension n of the Fisher information matrix, for the same network with the VLBI legs removed",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "observability_without_vlbi.rank": {
+      "note": "numerical rank of the Fisher information matrix, for the same network with the VLBI legs removed",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "observability_without_vlbi.station_pos_crlb_m": {
+      "note": "Cramer-Rao lower bound on the station 3-D absolute-position error (1-sigma RSS of the three position variances, rescaled to metres); null when the station position lies inside the datum defect, for the same network with the VLBI legs removed",
+      "provenance": "computed",
+      "unit": "m"
+    },
+    "observability_without_vlbi.station_pos_unobservable_axes": {
+      "note": "effective number of the station's three position axes captured by the datum defect, sum over null-space basis vectors of the squared projection onto those axes; a generally fractional number in [0, 3] where 0 is fully observable, for the same network with the VLBI legs removed",
+      "provenance": "computed",
+      "unit": "1"
+    },
+    "station_observability_improvement_factor": {
+      "note": "without_vlbi.station_pos_err_m / with_vlbi.station_pos_err_m - how many times the Earth-baseline VLBI legs sharpen the station 3-D recovery",
+      "provenance": "computed",
+      "unit": "1"
+    },
+    "with_vlbi.iterations": {
+      "note": "Gauss-Newton iterations actually run before the step norm fell below tolerance (or the cap was hit), with the Earth-baseline VLBI legs included",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "with_vlbi.n_obs": {
+      "note": "observables in the batch, with the Earth-baseline VLBI legs included",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "with_vlbi.n_params": {
+      "note": "estimated parameters: 3 station position + 3 per satellite + one clock per asset, with the Earth-baseline VLBI legs included",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "with_vlbi.rms_residual": {
+      "note": "unweighted RMS of the post-fit residual z - h(x) over the whole observation vector, which mixes the VLBI delays (s) with the clock-sync pseudo-observation and every range (m, clocks carried as range-equivalent metres); a diagnostic, not a single-unit quantity, with the Earth-baseline VLBI legs included",
+      "provenance": "computed",
+      "unit": "mixed - see note"
+    },
+    "with_vlbi.sat_clock_rms_s": {
+      "note": "RMS over the constellation of the per-satellite clock-offset error, in seconds after the range-equivalent-metre state is divided by c, with the Earth-baseline VLBI legs included",
+      "provenance": "computed",
+      "unit": "s"
+    },
+    "with_vlbi.sat_pos_rms_m": {
+      "note": "RMS over the constellation of the per-satellite 3-D position error (recovered minus true), with the Earth-baseline VLBI legs included",
+      "provenance": "computed",
+      "unit": "m"
+    },
+    "with_vlbi.station_clock_err_s": {
+      "note": "magnitude of the station clock-offset error; the clock state is estimated in range-equivalent metres and divided by c on the way out, with the Earth-baseline VLBI legs included",
+      "provenance": "computed",
+      "unit": "s"
+    },
+    "with_vlbi.station_pos_err_m": {
+      "note": "magnitude of the recovered-minus-true lunar station 3-D position error, with the Earth-baseline VLBI legs included",
+      "provenance": "computed",
+      "unit": "m"
+    },
+    "without_vlbi.iterations": {
+      "note": "Gauss-Newton iterations actually run before the step norm fell below tolerance (or the cap was hit), with lunar-local ranging only",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "without_vlbi.n_obs": {
+      "note": "observables in the batch, with lunar-local ranging only",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "without_vlbi.n_params": {
+      "note": "estimated parameters: 3 station position + 3 per satellite + one clock per asset, with lunar-local ranging only",
+      "provenance": "computed",
+      "unit": "count"
+    },
+    "without_vlbi.rms_residual": {
+      "note": "unweighted RMS of the post-fit residual z - h(x) over the whole observation vector, which mixes the VLBI delays (s) with the clock-sync pseudo-observation and every range (m, clocks carried as range-equivalent metres); a diagnostic, not a single-unit quantity, with lunar-local ranging only",
+      "provenance": "computed",
+      "unit": "mixed - see note"
+    },
+    "without_vlbi.sat_clock_rms_s": {
+      "note": "RMS over the constellation of the per-satellite clock-offset error, in seconds after the range-equivalent-metre state is divided by c, with lunar-local ranging only",
+      "provenance": "computed",
+      "unit": "s"
+    },
+    "without_vlbi.sat_pos_rms_m": {
+      "note": "RMS over the constellation of the per-satellite 3-D position error (recovered minus true), with lunar-local ranging only",
+      "provenance": "computed",
+      "unit": "m"
+    },
+    "without_vlbi.station_clock_err_s": {
+      "note": "magnitude of the station clock-offset error; the clock state is estimated in range-equivalent metres and divided by c on the way out, with lunar-local ranging only",
+      "provenance": "computed",
+      "unit": "s"
+    },
+    "without_vlbi.station_pos_err_m": {
+      "note": "magnitude of the recovered-minus-true lunar station 3-D position error, with lunar-local ranging only",
+      "provenance": "computed",
+      "unit": "m"
+    }
+  }
+}
