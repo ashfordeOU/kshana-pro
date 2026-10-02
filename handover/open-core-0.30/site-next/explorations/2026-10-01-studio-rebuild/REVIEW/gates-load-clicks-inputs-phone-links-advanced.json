@@ -1,0 +1,565 @@
+{
+ "studio": "http://127.0.0.1:8877/",
+ "when": "2026-10-01T14:17:29.462Z",
+ "gates": {
+  "load": {
+   "target": "<= 1500 ms",
+   "rows": [
+    {
+     "device": "desktop",
+     "entry": "landing",
+     "first_result_ms": 113,
+     "runs": [
+      89,
+      113,
+      129
+     ]
+    },
+    {
+     "device": "desktop",
+     "entry": "dl-waterfall",
+     "first_result_ms": 47,
+     "runs": [
+      48,
+      47,
+      41
+     ]
+    },
+    {
+     "device": "desktop",
+     "entry": "dl-raim",
+     "first_result_ms": 41,
+     "runs": [
+      41,
+      42,
+      41
+     ]
+    },
+    {
+     "device": "desktop",
+     "entry": "dl-lunar-time",
+     "first_result_ms": 41,
+     "runs": [
+      40,
+      45,
+      41
+     ]
+    },
+    {
+     "device": "desktop",
+     "entry": "dl-clock-exports",
+     "first_result_ms": 41,
+     "runs": [
+      46,
+      41,
+      41
+     ]
+    },
+    {
+     "device": "phone",
+     "entry": "landing",
+     "first_result_ms": 82,
+     "runs": [
+      87,
+      81,
+      82
+     ]
+    },
+    {
+     "device": "phone",
+     "entry": "dl-waterfall",
+     "first_result_ms": 43,
+     "runs": [
+      43,
+      43,
+      43
+     ]
+    },
+    {
+     "device": "phone",
+     "entry": "dl-raim",
+     "first_result_ms": 43,
+     "runs": [
+      43,
+      42,
+      47
+     ]
+    },
+    {
+     "device": "phone",
+     "entry": "dl-lunar-time",
+     "first_result_ms": 44,
+     "runs": [
+      45,
+      44,
+      42
+     ]
+    },
+    {
+     "device": "phone",
+     "entry": "dl-clock-exports",
+     "first_result_ms": 43,
+     "runs": [
+      43,
+      43,
+      43
+     ]
+    }
+   ],
+   "pass": true
+  },
+  "clicks": {
+   "target": "<= 2 clicks (deep links: 0)",
+   "paths": [
+    {
+     "device": "desktop",
+     "task": "question: can I trust my fix",
+     "clicks": 1,
+     "url": "?scenario=integrity-raim&tab=timeseries",
+     "big": "Yes, mostly: for 95.3 % of the 12 h."
+    },
+    {
+     "device": "desktop",
+     "task": "hero: open this result",
+     "clicks": 1,
+     "url": "?scenario=constellation-multi-gnss-coverage&tab=coverage",
+     "big": "At least 22 satellites in view at every place, 31 on average."
+    },
+    {
+     "device": "desktop",
+     "task": "tile: Moon and Mars, then lunar integrity",
+     "clicks": 2,
+     "url": "?scenario=lunanet-araim&tab=timeseries",
+     "big": "No: at none of the 24 checks."
+    },
+    {
+     "device": "desktop",
+     "task": "tile: orbits, then SGP4 orbits",
+     "clicks": 2,
+     "url": "?scenario=orbit-sgp4-gps&tab=holdover",
+     "big": "A fix is possible 95.6 % of the time."
+    },
+    {
+     "device": "desktop",
+     "task": "browse all, search coverage, first hit",
+     "clicks": 2,
+     "url": "?scenario=constellation-multi-gnss-coverage&tab=coverage",
+     "big": "At least 22 satellites in view at every place, 31 on average."
+    },
+    {
+     "device": "phone",
+     "task": "question: can I trust my fix",
+     "clicks": 1,
+     "url": "?scenario=integrity-raim&tab=timeseries",
+     "big": "Yes, mostly: for 95.3 % of the 12 h."
+    },
+    {
+     "device": "phone",
+     "task": "hero: open this result",
+     "clicks": 1,
+     "url": "?scenario=constellation-multi-gnss-coverage&tab=coverage",
+     "big": "At least 22 satellites in view at every place, 31 on average."
+    },
+    {
+     "device": "phone",
+     "task": "tile: Moon and Mars, then lunar integrity",
+     "clicks": 2,
+     "url": "?scenario=lunanet-araim&tab=timeseries",
+     "big": "No: at none of the 24 checks."
+    },
+    {
+     "device": "phone",
+     "task": "tile: orbits, then SGP4 orbits",
+     "clicks": 2,
+     "url": "?scenario=orbit-sgp4-gps&tab=holdover",
+     "big": "A fix is possible 95.6 % of the time."
+    },
+    {
+     "device": "phone",
+     "task": "browse all, search coverage, first hit",
+     "clicks": 2,
+     "url": "?scenario=constellation-multi-gnss-coverage&tab=coverage",
+     "big": "At least 22 satellites in view at every place, 31 on average."
+    }
+   ],
+   "max": 2,
+   "pass": true
+  },
+  "inputs": {
+   "target": "<= 5 per scenario",
+   "scenarios": 139,
+   "checked": 278,
+   "max": 5,
+   "over": [],
+   "histogram": {
+    "0": 20,
+    "1": 4,
+    "2": 6,
+    "3": 10,
+    "4": 8,
+    "5": 230
+   },
+   "pass": true
+  },
+  "phone": {
+   "target": "header <= 64 px, no sideways content, targets >= 44 px",
+   "rows": [
+    {
+     "view": "landing",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 34
+    },
+    {
+     "view": "domain",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 35
+    },
+    {
+     "view": "browse-search",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 66
+    },
+    {
+     "view": "dl-waterfall",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 46
+    },
+    {
+     "view": "dl-raim",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 35
+    },
+    {
+     "view": "dl-lunar-time",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 24
+    },
+    {
+     "view": "dl-clock-exports",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 41
+    },
+    {
+     "view": "coverage",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 42
+    },
+    {
+     "view": "campaign",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 48
+    },
+    {
+     "view": "raim-open-all",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 96
+    },
+    {
+     "view": "landing-engine-loading",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [
+      "body. 409/390"
+     ],
+     "smallTargets": [],
+     "controls": 34
+    },
+    {
+     "view": "raim-engine-loading",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [
+      "body. 409/390"
+     ],
+     "smallTargets": [],
+     "controls": 37
+    },
+    {
+     "view": "raim-sweep",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 41
+    },
+    {
+     "view": "raim-json",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 36
+    },
+    {
+     "view": "raim-animation",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 36
+    },
+    {
+     "view": "raim-report",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 36
+    },
+    {
+     "view": "telecom-masks",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 46
+    },
+    {
+     "view": "solar",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 40
+    },
+    {
+     "view": "leo-chain",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 45
+    },
+    {
+     "view": "orbit-3d",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 35
+    }
+   ],
+   "pass": false
+  },
+  "links": {
+   "target": "every site link opens its scenario and view",
+   "total": 266,
+   "bad": [],
+   "tab_not_offered": [],
+   "pass": true
+  },
+  "advanced": {
+   "target": "0 errors; the switch on every page; on a phone header <= 64 px, nothing off-screen or hidden sideways",
+   "rows": [
+    {
+     "device": "desktop",
+     "url": "advanced/",
+     "path": "/advanced/",
+     "scenario": null,
+     "title": "Clock holdover · Kshana Studio",
+     "header": 56,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "desktop",
+     "url": "advanced/?scenario=integrity-raim&tab=timeseries",
+     "path": "/advanced/?scenario=integrity-raim&tab=timeseries",
+     "scenario": "integrity-raim",
+     "title": "RAIM integrity · Kshana Studio",
+     "header": 56,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "desktop",
+     "url": "advanced/?scenario=l-band-waterfall-jamming&tab=spectrum&play=1",
+     "path": "/advanced/?scenario=l-band-waterfall-jamming&tab=spectrum&play=1",
+     "scenario": "l-band-waterfall-jamming",
+     "title": "L-band waterfall under jamming · Kshana Studio",
+     "header": 56,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [
+      "div.chart-box 520/447"
+     ],
+     "switchShown": true
+    },
+    {
+     "device": "desktop",
+     "url": "advanced/?scenario=clock-holdover&tab=exports",
+     "path": "/advanced/?scenario=clock-holdover&tab=exports",
+     "scenario": "clock-holdover",
+     "title": "Clock holdover · Kshana Studio",
+     "header": 56,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "desktop",
+     "url": "advanced/?scenario=constellation-multi-gnss-coverage",
+     "path": "/advanced/?scenario=constellation-multi-gnss-coverage",
+     "scenario": "constellation-multi-gnss-coverage",
+     "title": "Four GNSS constellations, one map · Kshana Studio",
+     "header": 56,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "desktop",
+     "url": "advanced/?scenario=campaign-jam-spoof-holdover-integrity",
+     "path": "/advanced/?scenario=campaign-jam-spoof-holdover-integrity",
+     "scenario": "campaign-jam-spoof-holdover-integrity",
+     "title": "Chained mission: jam, spoof, hold over, alarm · Kshana Studio",
+     "header": 56,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "desktop",
+     "url": "index.html?scenario=telecom-prtc-holdover-24h&view=advanced",
+     "path": "/advanced/?scenario=telecom-prtc-holdover-24h",
+     "scenario": "telecom-prtc-holdover-24h",
+     "title": "Telecom holdover, 24 h · Kshana Studio",
+     "header": 56,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "phone",
+     "url": "advanced/",
+     "path": "/advanced/",
+     "scenario": null,
+     "title": "Clock holdover · Kshana Studio",
+     "header": 57,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "phone",
+     "url": "advanced/?scenario=integrity-raim&tab=timeseries",
+     "path": "/advanced/?scenario=integrity-raim&tab=timeseries",
+     "scenario": "integrity-raim",
+     "title": "RAIM integrity · Kshana Studio",
+     "header": 57,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "phone",
+     "url": "advanced/?scenario=l-band-waterfall-jamming&tab=spectrum&play=1",
+     "path": "/advanced/?scenario=l-band-waterfall-jamming&tab=spectrum&play=1",
+     "scenario": "l-band-waterfall-jamming",
+     "title": "L-band waterfall under jamming · Kshana Studio",
+     "header": 57,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "phone",
+     "url": "advanced/?scenario=clock-holdover&tab=exports",
+     "path": "/advanced/?scenario=clock-holdover&tab=exports",
+     "scenario": "clock-holdover",
+     "title": "Clock holdover · Kshana Studio",
+     "header": 57,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "phone",
+     "url": "advanced/?scenario=constellation-multi-gnss-coverage",
+     "path": "/advanced/?scenario=constellation-multi-gnss-coverage",
+     "scenario": "constellation-multi-gnss-coverage",
+     "title": "Four GNSS constellations, one map · Kshana Studio",
+     "header": 57,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "phone",
+     "url": "advanced/?scenario=campaign-jam-spoof-holdover-integrity",
+     "path": "/advanced/?scenario=campaign-jam-spoof-holdover-integrity",
+     "scenario": "campaign-jam-spoof-holdover-integrity",
+     "title": "Chained mission: jam, spoof, hold over, alarm · Kshana Studio",
+     "header": 57,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    },
+    {
+     "device": "phone",
+     "url": "index.html?scenario=telecom-prtc-holdover-24h&view=advanced",
+     "path": "/advanced/?scenario=telecom-prtc-holdover-24h",
+     "scenario": "telecom-prtc-holdover-24h",
+     "title": "Telecom holdover, 24 h · Kshana Studio",
+     "header": 57,
+     "pageSideways": false,
+     "off": [],
+     "boxes": [],
+     "switchShown": true
+    }
+   ],
+   "pass": true
+  },
+  "errors": {
+   "target": "0",
+   "count": 0,
+   "errors": [],
+   "harness_noise": 6,
+   "pass": true
+  }
+ }
+}

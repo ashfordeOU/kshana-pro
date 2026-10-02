@@ -1,0 +1,32 @@
+# DERIVED by scratch/actlocal/derive.py; do not edit
+name: CI
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.sha }}
+  cancel-in-progress: true
+jobs:
+  xarch-pins:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    - uses: dtolnay/rust-toolchain@1.93.0
+    - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+    - name: x86-64 byte and figure pins
+      run: 'set -euo pipefail
+
+        uname -m
+
+        cargo test --no-fail-fast --test citation_metadata_doc_sync --test coverage_figure_doc_sync --test cross_platform_golden --test determinism --test distribution_diagram_doc_sync --test figures_doc_sync --test golden --test leo_navmsg_reference --test matrix_total_no_stale_count_doc_sync --test published_figures_still_reproduce --test readme_code_fences_doc_sync --test readme_validation_counts_doc_sync --test registry_golden --test scenario_count_doc_sync --test scenario_examples_doc_sync --test scenarios_reference_doc_sync --test security_md_doc_sync --test sgp4_verification --test surface_readme_image_urls_doc_sync --test verification_artifacts_doc_sync --test web_validation_counts_doc_sync --test workshop_preset_isolation
+
+        cargo test --lib portable_math
+
+        '
+'on':
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main

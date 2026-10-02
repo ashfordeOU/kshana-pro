@@ -1,0 +1,4 @@
+{
+  "studio": "Kshana Studio",
+  "note": "The in-browser app's working name (founder, 2026-09-27; may still change). This is the ONE place it is set: build.py derives {{STUDIO}}, {{STUDIO_CTA}} ('Launch <name>') and {{STUDIO_OPEN}} ('Open in <name>') from it for every page, the docs and site.js, and check.py reads it to require it on every chart link."
+}
