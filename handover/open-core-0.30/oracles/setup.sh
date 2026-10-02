@@ -156,6 +156,24 @@ fi
 git -C "$ROOT/NaveGo" -c advice.detachedHead=false checkout -q v1.4 2>/dev/null || fail "NaveGo checkout v1.4"
 command -v octave >/dev/null && echo "octave: $(octave --version 2>/dev/null | head -1)" || echo "octave not found (NaveGo drivers need it)"
 
+# ── 4b. GMAT R2026a (Apache-2.0) and GNSS-SDR 0.0.19 (GPL-3.0): run-only oracle tools ──
+# Founder decision 5 (2026-10-01): installed as run-only tools, outside every release gate.
+step "4b. GMAT R2026a + GNSS-SDR"
+GMAT_SHA=fe124b4a606b2e3b704a6fbb1c37b87598d5df0d18cb661c304b5f60074a7754
+if [ ! -x "$ROOT/tools/gmat/GMAT/R2026a/bin/GmatConsole" ]; then
+  mkdir -p "$ROOT/tools/gmat"
+  fetch "https://sourceforge.net/projects/gmat/files/GMAT/GMAT-R2026a/gmat-ubuntu-x64-R2026a.tar.gz/download" "$ROOT/tools/gmat/gmat.tar.gz"
+  echo "$GMAT_SHA  $ROOT/tools/gmat/gmat.tar.gz" | sha256sum -c - >/dev/null || fail "GMAT tarball SHA-256"
+  nice -n 15 tar -xzf "$ROOT/tools/gmat/gmat.tar.gz" -C "$ROOT/tools/gmat" && rm -f "$ROOT/tools/gmat/gmat.tar.gz"
+fi
+[ -x "$ROOT/tools/gmat/GMAT/R2026a/bin/GmatConsole" ] && echo "GMAT R2026a at tools/gmat/GMAT/R2026a" || fail "GMAT install"
+if ! command -v gnss-sdr >/dev/null; then
+  if command -v apt-get >/dev/null; then nice -n 15 sudo apt-get install -y --no-install-recommends gnss-sdr || fail "gnss-sdr apt install"
+  elif command -v brew >/dev/null; then nice -n 15 brew install gnss-sdr || fail "gnss-sdr brew install"
+  else fail "gnss-sdr: no package manager"; fi
+fi
+command -v gnss-sdr >/dev/null && echo "gnss-sdr: $(gnss-sdr --version 2>&1 | tail -1)"
+
 # ── 5. Public datasets ────────────────────────────────────────────────────────
 if [ "$DO_DATA" = 1 ]; then
   step "5. Public datasets (sources.tsv + generated series)"
@@ -293,6 +311,7 @@ export KSHANA_ANISE_DE440S="$ROOT/data/naif/de440s.bsp"
 export KSHANA_ANISE_DE="$ROOT/data/naif/de440s.bsp"
 export KSHANA_ANISE_MOON_PA="$ROOT/data/naif/moon_pa_de440_200625.bpc"
 export CARGO_TARGET_DIR_XVAL="$ROOT/build/xval-target"
+export KSHANA_GMAT="$ROOT/tools/gmat/GMAT/R2026a/bin/GmatConsole"
 EOF
 # The committed fixture generators still name /tmp/kshana-oracles; point it here so
 # they run unchanged. The link is recreated on every run; nothing lives in /tmp.

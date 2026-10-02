@@ -40,6 +40,13 @@ unlocked build would rewrite files in the worktree. `setup.sh` therefore builds 
 `build/xval-src/xval/<crate>` (with `tests/` symlinked so the crates' `include_str!` paths resolve)
 and leaves the worktree untouched. Refreshing those lock files is a small repository fix for later.
 
+Run-only tools added for 0.30 (founder decision 5, 2026-10-01; never part of a release gate):
+
+| Tool | Version | Licence | Oracle for |
+|---|---|---|---|
+| GMAT (General Mission Analysis Tool), `tools/gmat/GMAT/R2026a/bin/GmatConsole` | R2026a | Apache-2.0 | B-plane targeting and gravity assist (M060) |
+| GNSS-SDR (`gnss-sdr`, system package) | 0.0.19 | GPL-3.0 (tool only) | software-receiver acquisition and tracking (M068) |
+
 Python packages (exact pins in `requirements.lock`; the full resolved set in
 `requirements.frozen.txt`):
 
