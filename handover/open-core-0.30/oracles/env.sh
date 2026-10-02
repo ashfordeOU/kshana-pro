@@ -9,3 +9,4 @@ export KSHANA_ANISE_DE440S="/Users/chak/Code/kshana-oracles/data/naif/de440s.bsp
 export KSHANA_ANISE_DE="/Users/chak/Code/kshana-oracles/data/naif/de440s.bsp"
 export KSHANA_ANISE_MOON_PA="/Users/chak/Code/kshana-oracles/data/naif/moon_pa_de440_200625.bpc"
 export CARGO_TARGET_DIR_XVAL="/Users/chak/Code/kshana-oracles/build/xval-target"
+export KSHANA_GMAT="$HOME/Code/kshana-oracles/tools/gmat/GMAT/R2026a/bin/GmatConsole"
