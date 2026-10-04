@@ -1,0 +1,179 @@
+{
+ "studio": "http://127.0.0.1:8877/",
+ "when": "2026-10-01T14:25:41.845Z",
+ "gates": {
+  "phone": {
+   "target": "header <= 64 px, no sideways content, targets >= 44 px",
+   "rows": [
+    {
+     "view": "landing",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 34
+    },
+    {
+     "view": "domain",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 35
+    },
+    {
+     "view": "browse-search",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 66
+    },
+    {
+     "view": "dl-waterfall",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 46
+    },
+    {
+     "view": "dl-raim",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 35
+    },
+    {
+     "view": "dl-lunar-time",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 24
+    },
+    {
+     "view": "dl-clock-exports",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 41
+    },
+    {
+     "view": "coverage",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 42
+    },
+    {
+     "view": "campaign",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 48
+    },
+    {
+     "view": "raim-open-all",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 96
+    },
+    {
+     "view": "landing-engine-loading",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 34
+    },
+    {
+     "view": "raim-engine-loading",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 37
+    },
+    {
+     "view": "raim-sweep",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 41
+    },
+    {
+     "view": "raim-json",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 36
+    },
+    {
+     "view": "raim-animation",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 36
+    },
+    {
+     "view": "raim-report",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 36
+    },
+    {
+     "view": "telecom-masks",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 46
+    },
+    {
+     "view": "solar",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 40
+    },
+    {
+     "view": "leo-chain",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 45
+    },
+    {
+     "view": "orbit-3d",
+     "header": 56,
+     "pageSideways": false,
+     "boxes": [],
+     "smallTargets": [],
+     "controls": 35
+    }
+   ],
+   "pass": true
+  },
+  "errors": {
+   "target": "0",
+   "count": 0,
+   "errors": [],
+   "harness_noise": 6,
+   "pass": true
+  }
+ }
+}

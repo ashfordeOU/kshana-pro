@@ -1,0 +1,4 @@
+{
+ "_comment": "IndexNow key for kshana.dev (https://www.indexnow.org/documentation). Not a secret by design: build.py publishes it as /<key>.txt, the file a search engine fetches to confirm the site owns the key. After a deploy, ping once with the command in PORT-RUNBOOK.md (section: After a deploy). Changing the key means the next ping re-verifies; there is no other effect.",
+ "key": "3dbc29973d0072b686a7bf255b082cb0"
+}

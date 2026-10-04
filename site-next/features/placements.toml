@@ -1,0 +1,945 @@
+# Kshana site placements for the feature register (hand-edited).
+#
+# One entry per feature id in features.json. A feature with no entry is UNPLACED: the checker
+# fails, nothing is defaulted. Fields:
+#   page     Home | Missions | Capabilities | Evidence | Developers | Editions | Docs | Studio
+#   section  the element id on that page that must show the feature (Docs: '<file>.html#<anchor>';
+#            Studio: an element id in the Studio index.html)
+#   studio   the Studio scenario id that runs it, '#<element-id>' for a Studio control, or 'none'
+#   docs     'docs/<file>.html#<anchor>' in the built docs, or 'none'
+#   also     optional secondary 'Page#section' placements (reported, not failed)
+#   pro_link optional Pro/Study row id when Pro or a study adds something to this capability
+#   description / note  optional overrides
+
+[abbreviations]
+# Extra expansions used when descriptions are written in plain words (docs/GLOSSARY.md is read first).
+"BSP" = "binary SPICE kernel file"
+"DE" = "JPL Development Ephemeris"
+"EPM" = "Ephemerides of Planets and the Moon (Institute of Applied Astronomy, Russian Academy of Sciences)"
+"IEEE" = "Institute of Electrical and Electronics Engineers"
+"ILRS" = "International Laser Ranging Service"
+"INPOP" = "Intégration Numérique Planétaire de l'Observatoire de Paris ephemeris"
+"J2000" = "the J2000.0 reference epoch and frame"
+"TPL" = "timing protection level"
+"US" = "United States"
+"UT" = "Universal Time"
+"AD" = "anno Domini"
+"BC" = "before Christ"
+"CZML" = "Cesium Language"
+"KML" = "Keyhole Markup Language"
+"MBOC" = "multiplexed binary offset carrier"
+"PS" = "Performance Standard"
+"SPS" = "Standard Positioning Service"
+"SAO" = "Smithsonian Astrophysical Observatory"
+"SIS" = "signal in space"
+"STEC" = "slant total electron content"
+"XOR" = "exclusive OR"
+"RFC" = "Request for Comments"
+"ION" = "Institute of Navigation"
+"ADEV" = "Allan deviation"
+"AF" = "averaging factor"
+"AFS" = "augmented forward signal"
+"AGC" = "automatic gain control"
+"AGPL" = "GNU Affero General Public License"
+"AHP" = "analytic hierarchy process"
+"AI" = "artificial intelligence"
+"AO" = "announcement of opportunity"
+"AOCS" = "attitude and orbit control system"
+"AOS" = "acquisition of signal"
+"API" = "application programming interface"
+"APID" = "application process identifier"
+"ARAIM" = "advanced receiver autonomous integrity monitoring"
+"AUC" = "area under the curve"
+"B-plane" = "target plane of a flyby"
+"BOC" = "binary offset carrier"
+"BPSK" = "binary phase-shift keying"
+"C/A" = "coarse/acquisition"
+"CAI" = "cold-atom interferometer"
+"CCSDS" = "Consultative Committee for Space Data Systems"
+"CDF" = "cumulative distribution function"
+"CHIMERA" = "Chips-Message Robust Authentication"
+"CIO" = "Celestial Intermediate Origin"
+"CIs" = "confidence intervals"
+"CLI" = "command-line interface"
+"CN0" = "carrier-to-noise density ratio"
+"CR" = "consistency ratio"
+"CR3BP" = "circular restricted three-body problem"
+"CRLB" = "Cramér-Rao lower bound"
+"CSAC" = "chip-scale atomic clock"
+"CSV" = "comma-separated values"
+"CUSUM" = "cumulative sum"
+"DE440" = "JPL Development Ephemeris 440"
+"DEM" = "digital elevation model"
+"DGNSS" = "differential GNSS"
+"DHS" = "Department of Homeland Security"
+"DLL" = "delay-locked loop"
+"DOF" = "degree of freedom"
+"DOP" = "dilution of precision"
+"DP5" = "Dormand-Prince fifth-order integrator"
+"DRO" = "distant retrograde orbit"
+"DSAC" = "Deep Space Atomic Clock"
+"DSN" = "Deep Space Network"
+"ECEF" = "Earth-centred, Earth-fixed"
+"EGM2008" = "Earth Gravitational Model 2008"
+"EIRP" = "effective isotropic radiated power"
+"EKF" = "extended Kalman filter"
+"ENU" = "east-north-up"
+"EO" = "Earth observation"
+"EOP" = "Earth-orientation parameters"
+"ePRTC" = "enhanced primary reference time clock"
+"ESA" = "European Space Agency"
+"ESOC" = "European Space Operations Centre"
+"FIM" = "Fisher information matrix"
+"FM" = "frequency modulation"
+"FoM" = "figure of merit"
+"FoMs" = "figures of merit"
+"GCRS" = "Geocentric Celestial Reference System"
+"GDOP" = "geometric dilution of precision"
+"GEO" = "geostationary orbit"
+"GHz" = "gigahertz"
+"GMAT" = "General Mission Analysis Tool"
+"GNC" = "guidance, navigation and control"
+"GNSS" = "Global Navigation Satellite System"
+"GPS" = "Global Positioning System"
+"GRS80" = "Geodetic Reference System 1980"
+"GSD" = "ground sample distance"
+"HAL" = "horizontal alert limit"
+"HDOP" = "horizontal dilution of precision"
+"HMI" = "hazardously misleading information"
+"HPL" = "horizontal protection level"
+"HTML" = "HyperText Markup Language"
+"IAU" = "International Astronomical Union"
+"ICGEM" = "International Centre for Global Earth Models"
+"ICRF" = "International Celestial Reference Frame"
+"ID" = "identification"
+"IDE" = "integrated development environment"
+"IERS" = "International Earth Rotation and Reference Systems Service"
+"IF" = "ionosphere-free"
+"IGRF" = "International Geomagnetic Reference Field"
+"IGS" = "International GNSS Service"
+"IGSO" = "inclined geosynchronous orbit"
+"IMU" = "inertial measurement unit"
+"INS" = "inertial navigation system"
+"IOAG" = "Interagency Operations Advisory Group"
+"IONEX" = "Ionosphere Map Exchange format"
+"IR" = "infrared"
+"IS-GPS-200" = "the GPS interface specification"
+"ISL" = "inter-satellite link"
+"ITRF" = "International Terrestrial Reference Frame"
+"ITRS" = "International Terrestrial Reference System"
+"ITU" = "International Telecommunication Union"
+"ITU-T" = "International Telecommunication Union, Telecommunication Standardization Sector"
+"J/S" = "jammer-to-signal ratio"
+"JPL" = "Jet Propulsion Laboratory"
+"JSON" = "JavaScript Object Notation"
+"KIF" = "Kshana Interchange Format"
+"KV" = "key-value"
+"LAMBDA" = "least-squares ambiguity decorrelation adjustment"
+"LCNS" = "Lunar Communications and Navigation Services"
+"LEO" = "low Earth orbit"
+"LFSR" = "linear-feedback shift register"
+"LLR" = "lunar laser ranging"
+"LNSS" = "Lunar Navigation Satellite System"
+"LOS" = "loss of signal"
+"LTC" = "Coordinated Lunar Time"
+"LVLH" = "local vertical, local horizontal"
+"MARCONI" = "MARCONI (ESA lunar study)"
+"MBSE" = "model-based systems engineering"
+"MC" = "Monte Carlo"
+"MCMF" = "Moon-centred, Moon-fixed"
+"MCP" = "Model Context Protocol"
+"MDEV" = "modified Allan deviation"
+"MEMS" = "micro-electro-mechanical systems"
+"MEO" = "medium Earth orbit"
+"MHz" = "megahertz"
+"MI" = "misleading information"
+"MJD" = "modified Julian date"
+"ML" = "machine learning"
+"MLP" = "multi-layer perceptron"
+"MOORA" = "multi-objective optimisation on the basis of ratio analysis"
+"MSV" = "Moonlight service volume"
+"MTIE" = "maximum time interval error"
+"MVDR" = "minimum-variance distortionless response"
+"N0" = "noise density"
+"NASA" = "National Aeronautics and Space Administration"
+"NDA" = "non-disclosure agreement"
+"NED" = "north-east-down"
+"NEES" = "normalised estimation error squared"
+"NIS" = "normalised innovation squared"
+"NIST" = "National Institute of Standards and Technology"
+"NMA" = "navigation message authentication"
+"NNLS" = "non-negative least squares"
+"NRHO" = "near-rectilinear halo orbit"
+"NTP" = "Network Time Protocol"
+"OCXO" = "oven-controlled crystal oscillator"
+"OD" = "orbit determination"
+"OEM" = "Orbit Ephemeris Message"
+"OMM" = "Orbit Mean-elements Message"
+"OSNMA" = "Open Service Navigation Message Authentication"
+"OX" = "OX (Microchip part prefix)"
+"P1" = "paper P1"
+"PA" = "power amplifier"
+"PDOP" = "position dilution of precision"
+"PFA" = "probability of false alarm"
+"Pfa" = "probability of false alarm"
+"PHM" = "passive hydrogen maser"
+"PHMI" = "probability of hazardously misleading information"
+"PL" = "protection level"
+"PLL" = "phase-locked loop"
+"PM" = "phase modulation"
+"Pmd" = "probability of missed detection"
+"PNT" = "positioning, navigation and timing"
+"PPP" = "precise point positioning"
+"PRN" = "pseudo-random noise"
+"PRTC" = "primary reference time clock"
+"PTP" = "Precision Time Protocol"
+"PVT" = "position, velocity and time"
+"QPN" = "quantum projection noise"
+"RAFS" = "rubidium atomic frequency standard"
+"RAIM" = "receiver autonomous integrity monitoring"
+"RF" = "radio frequency"
+"RINEX" = "Receiver Independent Exchange Format"
+"RK4" = "fourth-order Runge-Kutta"
+"ROC" = "receiver operating characteristic"
+"ROI" = "region of interest"
+"RPCF" = "Resilient PNT Conformance Framework"
+"RSS" = "root sum square"
+"RTK" = "real-time kinematic"
+"SA" = "SA (Microchip part prefix)"
+"SBAS" = "satellite-based augmentation system"
+"SBOM" = "software bill of materials"
+"SDP4" = "Simplified Deep-space Perturbations 4 orbit model"
+"SDR" = "software-defined radio"
+"SGP4" = "Simplified General Perturbations 4 orbit model"
+"SI" = "International System of Units"
+"SITAN" = "Sandia Inertial Terrain-Aided Navigation"
+"SMAD" = "Space Mission Analysis and Design"
+"SNR" = "signal-to-noise ratio"
+"SP3" = "Standard Product 3 precise-ephemeris format"
+"SPICE" = "NASA's navigation and ancillary information system"
+"SPK" = "SPICE kernel"
+"SPP" = "single-point positioning"
+"SQM" = "signal quality monitoring"
+"SRP" = "solar radiation pressure"
+"SRTM" = "Shuttle Radar Topography Mission"
+"STK" = "Systems Tool Kit"
+"STM" = "state transition matrix"
+"SV" = "space vehicle"
+"SVG" = "scalable vector graphics"
+"SWaP" = "size, weight and power"
+"T-BC" = "telecom boundary clock"
+"T-TSC" = "telecom time slave clock"
+"TAI" = "International Atomic Time"
+"TC" = "telecommand"
+"TCA" = "time of closest approach"
+"TCL" = "Lunar Coordinate Time"
+"TCXO" = "temperature-compensated crystal oscillator"
+"TDEV" = "time deviation"
+"TDM" = "Tracking Data Message"
+"TDOP" = "time dilution of precision"
+"TEC" = "total electron content"
+"TECU" = "total electron content unit"
+"TEME" = "True Equator Mean Equinox frame"
+"TERCOM" = "terrain contour matching"
+"TLE" = "two-line element set"
+"TM" = "telemetry"
+"TOML" = "Tom's Obvious Minimal Language, the scenario file format"
+"TRIAD" = "tri-axial attitude determination"
+"TRL" = "technology readiness level"
+"TRN" = "terrain-relative navigation"
+"TT" = "Terrestrial Time"
+"TWSTFT" = "two-way satellite time and frequency transfer"
+"UAS" = "uncrewed aircraft system"
+"UKF" = "unscented Kalman filter"
+"USO" = "ultra-stable oscillator"
+"USSA76" = "US Standard Atmosphere 1976"
+"UT1" = "Universal Time 1 (Earth-rotation time)"
+"UTC" = "Coordinated Universal Time"
+"VAL" = "vertical alert limit"
+"VDOP" = "vertical dilution of precision"
+"VLBI" = "very-long-baseline interferometry"
+"VPL" = "vertical protection level"
+"WASM" = "WebAssembly"
+"WG" = "working group"
+"WG-C" = "EU-US Working Group C"
+"WGS" = "World Geodetic System"
+"WH" = "white-noise"
+"WPM" = "weighted product model"
+"WSM" = "weighted sum model"
+
+[abbreviations_ignore]
+# Upper-case fragments that are not abbreviations (maths symbols, part of a formula), or whose expansion
+# the public sources do not give (left visible as warnings instead of guessed).
+tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021", "RE", "DELTA", "STAR", "EPH", "KP16", "KRAC", "LU22", "APOL"]
+# RE: the Earth radius symbol in a formula; DELTA, STAR: Walker pattern keywords; EPH, KP16, KRAC,
+# LU22, APOL: RINEX-4-style record names, quoted as written.
+
+[site_tokens]
+# Identifiers the site may print that are neither features nor found in the engine repository.
+# (2026-09-30: the scenario files of the campaign, constellation-design, spectrum, body-pnt and solar-system
+# kinds that used to be listed here are register rows now; the site and the register read one engine checkout.)
+# Docs (2026-09-30): file names a reader types in shell examples (`> campaign.toml`, `> s.toml`) and a
+# signal data file (data/leo-signals/generic-c-band.toml), none of them scenarios.
+ignore = ["campaign", "s", "generic-c-band"]
+
+[placements]
+# ---- kind ----
+"kind:clock" = { page = "Capabilities", section = "atlas", studio = "clock-ensemble", docs = "docs/scenarios.html#clock", also = ["Capabilities#clocks"], pro_link = "pro:calibrated-clock-twin" }
+"kind:inertial" = { page = "Capabilities", section = "atlas", studio = "imu-deadreckoning", docs = "docs/scenarios.html#inertial" }
+"kind:orbit" = { page = "Capabilities", section = "atlas", studio = "orbit-gnss-challenged", docs = "docs/scenarios.html#orbit" }
+"kind:ephemeris" = { page = "Capabilities", section = "atlas", studio = "ephemeris", docs = "docs/scenarios.html#ephemeris" }
+"kind:integrity" = { page = "Capabilities", section = "atlas", studio = "araim-gps-galileo", docs = "docs/scenarios.html#integrity" }
+"kind:lunar-integrity" = { page = "Capabilities", section = "atlas", studio = "lunanet-araim", docs = "docs/scenarios.html#lunar-integrity", also = ["Capabilities#journey"] }
+"kind:lunar-time-offset" = { page = "Capabilities", section = "atlas", studio = "lunar-time-offset", docs = "docs/scenarios.html#lunar-time-offset", also = ["Capabilities#journey"], pro_link = "pro:calibrated-clock-twin" }
+"kind:lunar-vlbi" = { page = "Capabilities", section = "atlas", studio = "lunar-vlbi", docs = "docs/scenarios.html#lunar-vlbi", also = ["Capabilities#journey"] }
+"kind:lunar-joint-od-clock" = { page = "Capabilities", section = "atlas", studio = "lunar-joint-od-clock", docs = "docs/scenarios.html#lunar-joint-od-clock", also = ["Capabilities#journey"] }
+"kind:lunar-frame-realisation" = { page = "Capabilities", section = "atlas", studio = "lunar-frame-realisation", docs = "docs/scenarios.html#lunar-frame-realisation", also = ["Capabilities#journey"] }
+"kind:moonlight-service-volume" = { page = "Capabilities", section = "atlas", studio = "moonlight-service-volume", docs = "docs/scenarios.html#moonlight-service-volume", also = ["Capabilities#journey"] }
+"kind:lunar-differential-pnt" = { page = "Capabilities", section = "atlas", studio = "lunar-differential-pnt", docs = "docs/scenarios.html#lunar-differential-pnt", also = ["Capabilities#journey"] }
+"kind:lunar-interop-export" = { page = "Capabilities", section = "atlas", studio = "lunar-interop-export", docs = "docs/scenarios.html#lunar-interop-export", also = ["Capabilities#journey"] }
+"kind:timetransfer" = { page = "Capabilities", section = "atlas", studio = "timetransfer", docs = "docs/scenarios.html#timetransfer", pro_link = "pro:calibrated-clock-twin" }
+"kind:quantum-anomaly-detect" = { page = "Capabilities", section = "atlas", studio = "quantum-anomaly-detect", docs = "docs/scenarios.html#quantum-anomaly-detect" }
+"kind:quantum-gnss-free-nav" = { page = "Capabilities", section = "atlas", studio = "quantum-gnss-free-nav", docs = "docs/scenarios.html#quantum-gnss-free-nav" }
+"kind:quantum-time-transfer" = { page = "Capabilities", section = "atlas", studio = "quantum-time-transfer", docs = "docs/scenarios.html#quantum-time-transfer", pro_link = "pro:calibrated-clock-twin" }
+"kind:hybrid" = { page = "Capabilities", section = "atlas", studio = "hybrid-pnt", docs = "docs/scenarios.html#hybrid" }
+"kind:fusion" = { page = "Capabilities", section = "atlas", studio = "fusion-pnt", docs = "docs/scenarios.html#fusion" }
+"kind:hybrid-ukf" = { page = "Capabilities", section = "atlas", studio = "hybrid-ukf", docs = "docs/scenarios.html#hybrid-ukf" }
+"kind:gnss-ins" = { page = "Capabilities", section = "atlas", studio = "gnss-ins", docs = "docs/scenarios.html#gnss-ins" }
+"kind:gnss-sim" = { page = "Capabilities", section = "atlas", studio = "gnss-sim-raim", docs = "docs/scenarios.html#gnss-sim" }
+"kind:jamming" = { page = "Capabilities", section = "atlas", studio = "jamming-demo", docs = "docs/scenarios.html#jamming", also = ["Home#jam"] }
+"kind:spoof" = { page = "Capabilities", section = "atlas", studio = "spoof-attack", docs = "docs/scenarios.html#spoof" }
+"kind:spoof-detect" = { page = "Capabilities", section = "atlas", studio = "spoof-detect", docs = "docs/scenarios.html#spoof-detect" }
+"kind:sweep" = { page = "Capabilities", section = "atlas", studio = "sweep-clock-stability", docs = "docs/scenarios.html#sweep", pro_link = "pro:ranked-trade-study" }
+"kind:sweep-nd" = { page = "Capabilities", section = "atlas", studio = "sweep-nd-inertial", docs = "docs/scenarios.html#sweep-nd", pro_link = "pro:ranked-trade-study" }
+"kind:gravity-map" = { page = "Capabilities", section = "atlas", studio = "gps-denied-gravity-nav", docs = "docs/scenarios.html#gravity-map" }
+"kind:terrain-nav" = { page = "Capabilities", section = "atlas", studio = "terrain-nav", docs = "docs/scenarios.html#terrain-nav" }
+"kind:terrain-slam" = { page = "Capabilities", section = "atlas", studio = "terrain-slam", docs = "docs/scenarios.html#terrain-slam" }
+"kind:combined-altpnt" = { page = "Capabilities", section = "atlas", studio = "combined-altpnt", docs = "docs/scenarios.html#combined-altpnt", pro_link = "pro:ranked-trade-study" }
+"kind:pvt" = { page = "Capabilities", section = "atlas", studio = "pvt-abmf", docs = "docs/scenarios.html#pvt" }
+"kind:mars-pnt" = { page = "Capabilities", section = "atlas", studio = "mars-pnt-lmo", docs = "docs/scenarios.html#mars-pnt", also = ["Capabilities#journey"] }
+"kind:impairment-eval" = { page = "Capabilities", section = "atlas", studio = "impairment-eval", docs = "docs/scenarios.html#impairment-eval", pro_link = "study:modelled-resilience-study" }
+"kind:quantum-trade" = { page = "Capabilities", section = "atlas", studio = "quantum-trade", docs = "docs/scenarios.html#quantum-trade", pro_link = "pro:ranked-trade-study" }
+"kind:space-weather" = { page = "Capabilities", section = "atlas", studio = "space-weather", docs = "docs/scenarios.html#space-weather" }
+"kind:oem-interop" = { page = "Capabilities", section = "atlas", studio = "oem-interop", docs = "docs/scenarios.html#oem-interop" }
+"kind:launch-window" = { page = "Capabilities", section = "atlas", studio = "launch-window", docs = "docs/scenarios.html#launch-window" }
+"kind:reentry" = { page = "Capabilities", section = "atlas", studio = "reentry", docs = "docs/scenarios.html#reentry" }
+"kind:eo-coverage" = { page = "Capabilities", section = "atlas", studio = "eo-coverage", docs = "docs/scenarios.html#eo-coverage" }
+"kind:space-packet" = { page = "Capabilities", section = "atlas", studio = "space-packet", docs = "docs/scenarios.html#space-packet" }
+"kind:attitude-budget" = { page = "Capabilities", section = "atlas", studio = "attitude-budget", docs = "docs/scenarios.html#attitude-budget" }
+"kind:passes" = { page = "Capabilities", section = "atlas", studio = "passes", docs = "docs/scenarios.html#passes" }
+"kind:link-budget" = { page = "Capabilities", section = "atlas", studio = "link-budget", docs = "docs/scenarios.html#link-budget" }
+"kind:lunar-time-budget" = { page = "Capabilities", section = "atlas", studio = "lunar-time-budget", docs = "docs/scenarios.html#lunar-time-budget", also = ["Capabilities#timing", "Capabilities#journey"], pro_link = "pro:calibrated-clock-twin" }
+"kind:hybrid-optical-rf" = { page = "Capabilities", section = "atlas", studio = "hybrid-optical-rf", docs = "docs/scenarios.html#hybrid-optical-rf", pro_link = "pro:ranked-trade-study" }
+"kind:cislunar-observability" = { page = "Capabilities", section = "atlas", studio = "cislunar-observability", docs = "docs/scenarios.html#cislunar-observability", also = ["Capabilities#journey"] }
+"kind:conflict-resilience" = { page = "Capabilities", section = "atlas", studio = "conflict-resilience", docs = "docs/scenarios.html#conflict-resilience", pro_link = "pro:ranked-trade-study" }
+"kind:lunar-attack-surface" = { page = "Capabilities", section = "atlas", studio = "lunar-attack-surface", docs = "docs/scenarios.html#lunar-attack-surface", also = ["Capabilities#journey"] }
+"kind:realtime-frame-eop" = { page = "Capabilities", section = "atlas", studio = "realtime-frame-eop", docs = "docs/scenarios.html#realtime-frame-eop" }
+"kind:aperture-duty-cycle" = { page = "Capabilities", section = "atlas", studio = "aperture-duty-cycle", docs = "docs/scenarios.html#aperture-duty-cycle" }
+"kind:lunar-jamming" = { page = "Capabilities", section = "atlas", studio = "lunar-jamming", docs = "docs/scenarios.html#lunar-jamming", also = ["Capabilities#journey"] }
+"kind:ins-trn-coast" = { page = "Capabilities", section = "atlas", studio = "ins-trn-coast", docs = "docs/scenarios.html#ins-trn-coast" }
+"kind:lunar-vlbi-fim" = { page = "Capabilities", section = "atlas", studio = "lunar-vlbi-fim", docs = "docs/scenarios.html#lunar-vlbi-fim", also = ["Capabilities#journey"] }
+"kind:tracking-loop" = { page = "Capabilities", section = "atlas", studio = "tracking-loop", docs = "docs/scenarios.html#tracking-loop" }
+"kind:araim-reference-check" = { page = "Capabilities", section = "atlas", studio = "araim-reference-check", docs = "docs/scenarios.html#araim-reference-check" }
+"kind:lunar-frame-campaign" = { page = "Capabilities", section = "atlas", studio = "lunar-frame-campaign", docs = "docs/scenarios.html#lunar-frame-campaign", also = ["Capabilities#journey"] }
+"kind:lunar-llr-datum" = { page = "Capabilities", section = "atlas", studio = "lunar-llr-datum", docs = "docs/scenarios.html#lunar-llr-datum", also = ["Capabilities#journey"] }
+"kind:lunar-beacon" = { page = "Capabilities", section = "atlas", studio = "lunar-beacon", docs = "docs/scenarios.html#lunar-beacon", also = ["Capabilities#journey"] }
+"kind:earth-gnss-lunar" = { page = "Capabilities", section = "atlas", studio = "earth-gnss-lunar", docs = "docs/scenarios.html#earth-gnss-lunar", also = ["Capabilities#journey"] }
+"kind:cislunar-arc-recovery" = { page = "Capabilities", section = "atlas", studio = "cislunar-arc-recovery", docs = "docs/scenarios.html#cislunar-arc-recovery", also = ["Capabilities#journey"] }
+"kind:telecom-timing" = { page = "Capabilities", section = "atlas", studio = "telecom-prtc-holdover-24h", docs = "docs/scenarios.html#telecom-timing", also = ["Capabilities#timing"], pro_link = "pro:calibrated-clock-twin" }
+"kind:slot-timing" = { page = "Capabilities", section = "atlas", studio = "slot-timing-ocxo-leo", docs = "docs/scenarios.html#slot-timing", also = ["Capabilities#timing"], pro_link = "pro:calibrated-clock-twin" }
+# ---- scenario ----
+"scenario:aperture-duty-cycle" = { page = "Capabilities", section = "atlas", studio = "aperture-duty-cycle", docs = "docs/scenario-reference.html#aperture-duty-cycle" }
+"scenario:araim-gps-galileo" = { page = "Capabilities", section = "atlas", studio = "araim-gps-galileo", docs = "docs/scenario-reference.html#araim-gps-galileo" }
+"scenario:araim-reference-check" = { page = "Capabilities", section = "atlas", studio = "araim-reference-check", docs = "docs/scenario-reference.html#araim-reference-check" }
+"scenario:attitude-budget" = { page = "Capabilities", section = "atlas", studio = "attitude-budget", docs = "docs/scenario-reference.html#attitude-budget" }
+"scenario:automotive-urban-canyon" = { page = "Capabilities", section = "atlas", studio = "automotive-urban-canyon", docs = "docs/scenario-reference.html#automotive-urban-canyon", also = ["Missions#sectors"] }
+"scenario:cislunar-arc-recovery" = { page = "Capabilities", section = "atlas", studio = "cislunar-arc-recovery", docs = "docs/scenario-reference.html#cislunar-arc-recovery" }
+"scenario:cislunar-observability" = { page = "Capabilities", section = "atlas", studio = "cislunar-observability", docs = "docs/scenario-reference.html#cislunar-observability" }
+"scenario:clock-ensemble" = { page = "Capabilities", section = "atlas", studio = "clock-ensemble", docs = "docs/scenario-reference.html#clock-ensemble" }
+"scenario:clock-holdover-labsr" = { page = "Capabilities", section = "atlas", studio = "clock-holdover-labsr", docs = "docs/scenario-reference.html#clock-holdover-labsr" }
+"scenario:clock-holdover" = { page = "Capabilities", section = "atlas", studio = "clock-holdover", docs = "docs/scenario-reference.html#clock-holdover" }
+"scenario:combined-altpnt" = { page = "Capabilities", section = "atlas", studio = "combined-altpnt", docs = "docs/scenario-reference.html#combined-altpnt" }
+"scenario:conflict-resilience" = { page = "Capabilities", section = "atlas", studio = "conflict-resilience", docs = "docs/scenario-reference.html#conflict-resilience" }
+"scenario:earth-gnss-lunar" = { page = "Capabilities", section = "atlas", studio = "earth-gnss-lunar", docs = "docs/scenario-reference.html#earth-gnss-lunar" }
+"scenario:eo-coverage" = { page = "Capabilities", section = "atlas", studio = "eo-coverage", docs = "docs/scenario-reference.html#eo-coverage" }
+"scenario:ephemeris" = { page = "Capabilities", section = "atlas", studio = "ephemeris", docs = "docs/scenario-reference.html#ephemeris" }
+"scenario:fusion-pnt" = { page = "Capabilities", section = "atlas", studio = "fusion-pnt", docs = "docs/scenario-reference.html#fusion-pnt" }
+"scenario:gnss-ins" = { page = "Capabilities", section = "atlas", studio = "gnss-ins", docs = "docs/scenario-reference.html#gnss-ins" }
+"scenario:gnss-sim-raim" = { page = "Capabilities", section = "atlas", studio = "gnss-sim-raim", docs = "docs/scenario-reference.html#gnss-sim-raim" }
+"scenario:gps-denied-gravity-nav" = { page = "Capabilities", section = "atlas", studio = "gps-denied-gravity-nav", docs = "docs/scenario-reference.html#gps-denied-gravity-nav" }
+"scenario:gravity-map-nav" = { page = "Capabilities", section = "atlas", studio = "gravity-map-nav", docs = "docs/scenario-reference.html#gravity-map-nav" }
+"scenario:hybrid-optical-rf" = { page = "Capabilities", section = "atlas", studio = "hybrid-optical-rf", docs = "docs/scenario-reference.html#hybrid-optical-rf" }
+"scenario:hybrid-pnt" = { page = "Capabilities", section = "atlas", studio = "hybrid-pnt", docs = "docs/scenario-reference.html#hybrid-pnt" }
+"scenario:hybrid-ukf" = { page = "Capabilities", section = "atlas", studio = "hybrid-ukf", docs = "docs/scenario-reference.html#hybrid-ukf" }
+"scenario:impairment-eval" = { page = "Capabilities", section = "atlas", studio = "impairment-eval", docs = "docs/scenario-reference.html#impairment-eval" }
+"scenario:imu-deadreckoning" = { page = "Capabilities", section = "atlas", studio = "imu-deadreckoning", docs = "docs/scenario-reference.html#imu-deadreckoning" }
+"scenario:ins-trn-coast" = { page = "Capabilities", section = "atlas", studio = "ins-trn-coast", docs = "docs/scenario-reference.html#ins-trn-coast" }
+"scenario:integrity-raim" = { page = "Capabilities", section = "atlas", studio = "integrity-raim", docs = "docs/scenario-reference.html#integrity-raim" }
+"scenario:jamming-demo" = { page = "Capabilities", section = "atlas", studio = "jamming-demo", docs = "docs/scenario-reference.html#jamming-demo" }
+"scenario:launch-window" = { page = "Capabilities", section = "atlas", studio = "launch-window", docs = "docs/scenario-reference.html#launch-window" }
+"scenario:link-budget" = { page = "Capabilities", section = "atlas", studio = "link-budget", docs = "docs/scenario-reference.html#link-budget" }
+"scenario:lunanet-araim" = { page = "Capabilities", section = "atlas", studio = "lunanet-araim", docs = "docs/scenario-reference.html#lunanet-araim" }
+"scenario:lunar-attack-surface" = { page = "Capabilities", section = "atlas", studio = "lunar-attack-surface", docs = "docs/scenario-reference.html#lunar-attack-surface" }
+"scenario:lunar-beacon" = { page = "Capabilities", section = "atlas", studio = "lunar-beacon", docs = "docs/scenario-reference.html#lunar-beacon" }
+"scenario:lunar-differential-pnt" = { page = "Capabilities", section = "atlas", studio = "lunar-differential-pnt", docs = "docs/scenario-reference.html#lunar-differential-pnt" }
+"scenario:lunar-frame-campaign" = { page = "Capabilities", section = "atlas", studio = "lunar-frame-campaign", docs = "docs/scenario-reference.html#lunar-frame-campaign" }
+"scenario:lunar-frame-realisation" = { page = "Capabilities", section = "atlas", studio = "lunar-frame-realisation", docs = "docs/scenario-reference.html#lunar-frame-realisation" }
+"scenario:lunar-interop-export" = { page = "Capabilities", section = "atlas", studio = "lunar-interop-export", docs = "docs/scenario-reference.html#lunar-interop-export" }
+"scenario:lunar-jamming" = { page = "Capabilities", section = "atlas", studio = "lunar-jamming", docs = "docs/scenario-reference.html#lunar-jamming" }
+"scenario:lunar-joint-od-clock" = { page = "Capabilities", section = "atlas", studio = "lunar-joint-od-clock", docs = "docs/scenario-reference.html#lunar-joint-od-clock" }
+"scenario:lunar-llr-datum" = { page = "Capabilities", section = "atlas", studio = "lunar-llr-datum", docs = "docs/scenario-reference.html#lunar-llr-datum" }
+"scenario:lunar-time-budget" = { page = "Capabilities", section = "atlas", studio = "lunar-time-budget", docs = "docs/scenario-reference.html#lunar-time-budget" }
+"scenario:lunar-time-offset" = { page = "Capabilities", section = "atlas", studio = "lunar-time-offset", docs = "docs/scenario-reference.html#lunar-time-offset" }
+"scenario:lunar-vlbi-fim" = { page = "Capabilities", section = "atlas", studio = "lunar-vlbi-fim", docs = "docs/scenario-reference.html#lunar-vlbi-fim" }
+"scenario:lunar-vlbi" = { page = "Capabilities", section = "atlas", studio = "lunar-vlbi", docs = "docs/scenario-reference.html#lunar-vlbi" }
+"scenario:maritime-port-approach-coast" = { page = "Capabilities", section = "atlas", studio = "maritime-port-approach-coast", docs = "docs/scenario-reference.html#maritime-port-approach-coast", also = ["Missions#sectors"] }
+"scenario:maritime-spoof-position-push" = { page = "Capabilities", section = "atlas", studio = "maritime-spoof-position-push", docs = "docs/scenario-reference.html#maritime-spoof-position-push", also = ["Missions#sectors"] }
+"scenario:maritime-strait-jamming" = { page = "Capabilities", section = "atlas", studio = "maritime-strait-jamming", docs = "docs/scenario-reference.html#maritime-strait-jamming", also = ["Missions#sectors"] }
+"scenario:mars-pnt-lmo" = { page = "Capabilities", section = "atlas", studio = "mars-pnt-lmo", docs = "docs/scenario-reference.html#mars-pnt-lmo" }
+"scenario:mars-pnt-surface" = { page = "Capabilities", section = "atlas", studio = "mars-pnt-surface", docs = "docs/scenario-reference.html#mars-pnt-surface" }
+"scenario:mars-pnt-transfer" = { page = "Capabilities", section = "atlas", studio = "mars-pnt-transfer", docs = "docs/scenario-reference.html#mars-pnt-transfer" }
+"scenario:moonlight-service-volume" = { page = "Capabilities", section = "atlas", studio = "moonlight-service-volume", docs = "docs/scenario-reference.html#moonlight-service-volume" }
+"scenario:oem-interop" = { page = "Capabilities", section = "atlas", studio = "oem-interop", docs = "docs/scenario-reference.html#oem-interop" }
+"scenario:orbit-gnss-challenged" = { page = "Capabilities", section = "atlas", studio = "orbit-gnss-challenged", docs = "docs/scenario-reference.html#orbit-gnss-challenged" }
+"scenario:orbit-molniya" = { page = "Capabilities", section = "atlas", studio = "orbit-molniya", docs = "docs/scenario-reference.html#orbit-molniya" }
+"scenario:orbit-multignss" = { page = "Capabilities", section = "atlas", studio = "orbit-multignss", docs = "docs/scenario-reference.html#orbit-multignss" }
+"scenario:orbit-real-tle" = { page = "Capabilities", section = "atlas", studio = "orbit-real-tle", docs = "docs/scenario-reference.html#orbit-real-tle" }
+"scenario:orbit-rinex" = { page = "Capabilities", section = "atlas", studio = "orbit-rinex", docs = "docs/scenario-reference.html#orbit-rinex" }
+"scenario:orbit-sgp4-gps" = { page = "Capabilities", section = "atlas", studio = "orbit-sgp4-gps", docs = "docs/scenario-reference.html#orbit-sgp4-gps" }
+"scenario:passes" = { page = "Capabilities", section = "atlas", studio = "passes", docs = "docs/scenario-reference.html#passes" }
+"scenario:pvt-abmf" = { page = "Capabilities", section = "atlas", studio = "pvt-abmf", docs = "docs/scenario-reference.html#pvt-abmf" }
+"scenario:quantum-anomaly-detect" = { page = "Capabilities", section = "atlas", studio = "quantum-anomaly-detect", docs = "docs/scenario-reference.html#quantum-anomaly-detect" }
+"scenario:quantum-gnss-free-nav" = { page = "Capabilities", section = "atlas", studio = "quantum-gnss-free-nav", docs = "docs/scenario-reference.html#quantum-gnss-free-nav" }
+"scenario:quantum-pnt-demonstrator.suite" = { page = "Developers", section = "ways", studio = "none", docs = "docs/scenarios.html#scenario-kinds" }
+"scenario:quantum-time-transfer" = { page = "Capabilities", section = "atlas", studio = "quantum-time-transfer", docs = "docs/scenario-reference.html#quantum-time-transfer" }
+"scenario:quantum-trade" = { page = "Capabilities", section = "atlas", studio = "quantum-trade", docs = "docs/scenario-reference.html#quantum-trade" }
+"scenario:rail-tunnel-coast" = { page = "Capabilities", section = "atlas", studio = "rail-tunnel-coast", docs = "docs/scenario-reference.html#rail-tunnel-coast", also = ["Missions#sectors"] }
+"scenario:realtime-frame-eop" = { page = "Capabilities", section = "atlas", studio = "realtime-frame-eop", docs = "docs/scenario-reference.html#realtime-frame-eop" }
+"scenario:reentry" = { page = "Capabilities", section = "atlas", studio = "reentry", docs = "docs/scenario-reference.html#reentry" }
+"scenario:slot-timing-ocxo-leo" = { page = "Capabilities", section = "atlas", studio = "slot-timing-ocxo-leo", docs = "docs/scenario-reference.html#slot-timing-ocxo-leo" }
+"scenario:small-uas-jammed-nav" = { page = "Capabilities", section = "atlas", studio = "small-uas-jammed-nav", docs = "docs/scenario-reference.html#small-uas-jammed-nav" }
+"scenario:space-packet" = { page = "Capabilities", section = "atlas", studio = "space-packet", docs = "docs/scenario-reference.html#space-packet" }
+"scenario:space-weather" = { page = "Capabilities", section = "atlas", studio = "space-weather", docs = "docs/scenario-reference.html#space-weather" }
+"scenario:spoof-attack" = { page = "Capabilities", section = "atlas", studio = "spoof-attack", docs = "docs/scenario-reference.html#spoof-attack" }
+"scenario:spoof-detect" = { page = "Capabilities", section = "atlas", studio = "spoof-detect", docs = "docs/scenario-reference.html#spoof-detect" }
+"scenario:spoof-meaconing" = { page = "Capabilities", section = "atlas", studio = "spoof-meaconing", docs = "docs/scenario-reference.html#spoof-meaconing" }
+"scenario:sweep-clock-stability" = { page = "Capabilities", section = "atlas", studio = "sweep-clock-stability", docs = "docs/scenario-reference.html#sweep-clock-stability" }
+"scenario:sweep-nd-inertial" = { page = "Capabilities", section = "atlas", studio = "sweep-nd-inertial", docs = "docs/scenario-reference.html#sweep-nd-inertial" }
+"scenario:telecom-prtc-holdover-24h" = { page = "Capabilities", section = "atlas", studio = "telecom-prtc-holdover-24h", docs = "docs/scenario-reference.html#telecom-prtc-holdover-24h" }
+"scenario:telecom-tie-ingest" = { page = "Capabilities", section = "atlas", studio = "telecom-tie-ingest", docs = "docs/scenario-reference.html#telecom-tie-ingest" }
+"scenario:terrain-nav" = { page = "Capabilities", section = "atlas", studio = "terrain-nav", docs = "docs/scenario-reference.html#terrain-nav" }
+"scenario:terrain-slam" = { page = "Capabilities", section = "atlas", studio = "terrain-slam", docs = "docs/scenario-reference.html#terrain-slam" }
+"scenario:timetransfer" = { page = "Capabilities", section = "atlas", studio = "timetransfer", docs = "docs/scenario-reference.html#timetransfer" }
+"scenario:tracking-loop" = { page = "Capabilities", section = "atlas", studio = "tracking-loop", docs = "docs/scenario-reference.html#tracking-loop" }
+# ---- cli ----
+"cli:run" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:kinds" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:kinds--json" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:example" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--help" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--version" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--validate" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--study" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--study-name" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--export-sp3" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--export-omm" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--export-oem" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--eop" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+# ---- mcp-tool ----
+"mcp-tool:run_scenario" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:list_scenario_kinds" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:validate_scenario" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:export_sp3" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:export_omm" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:export_oem" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:export_table_csv" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:list_example_scenarios" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:get_example_scenario" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:report_scenario" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:animate_scenario" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:list_export_formats" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:export_interop" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:import_route" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+# ---- binding ----
+"binding:crate-kshana" = { page = "Developers", section = "install", studio = "none", docs = "docs/rust.html#install" }
+"binding:crate-kshana-mcp" = { page = "Developers", section = "install", studio = "none", docs = "docs/mcp.html#install" }
+"binding:mcp-registry" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#register-it-with-a-client" }
+"binding:ghcr-image" = { page = "Developers", section = "ways", studio = "none", docs = "docs/mcp.html#install" }
+"binding:pypi" = { page = "Developers", section = "install", studio = "none", docs = "docs/python-api.html#quickstart" }
+"binding:npm" = { page = "Developers", section = "install", studio = "none", docs = "docs/npm.html#install" }
+"binding:browser-studio" = { page = "Developers", section = "install", studio = "#run", docs = "docs/overview.html" }
+"binding:jetbrains" = { page = "Developers", section = "jetbrains", studio = "none", docs = "docs/jetbrains.html#what-it-does" }
+"binding:python.RunOutput" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.run" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.run_full" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.run_typed" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.scenario_kinds" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.validate_toml" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.list_kinds" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.error_kind" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.version" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:wasm.run" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.chart_svg" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.summary" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.table_csv" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.run_all" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.list_kinds" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.error_kind" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.version" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.encode_permalink" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.decode_permalink" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.export_sp3" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.export_omm" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.export_oem" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:rust.without_figure_tiers" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.list_scenario_kinds" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.list_scenario_kinds_json" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.scenarios_reference_md" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.validate_scenario" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.export_sp3" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.auto_export_sp3" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.export_omm" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.auto_export_omm" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.export_oem" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.auto_export_oem" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.inject_eop" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.with_study_meta" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.run_scenario" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"binding:rust.run_toml" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+# ---- export ----
+"export:result.json" = { page = "Developers", section = "ways", studio = "#v-json", docs = "docs/schema.html#result-schema--reading-a-kshana-resultjson" }
+"export:chart.svg" = { page = "Developers", section = "ways", studio = "#v-overview", docs = "docs/rust.html#usage--cli" }
+"export:report.html" = { page = "Developers", section = "ways", studio = "#v-exports", docs = "docs/rust.html#usage--cli" }
+"export:table.csv" = { page = "Developers", section = "ways", studio = "#v-exports", docs = "docs/rust.html#usage--cli" }
+"export:sp3" = { page = "Developers", section = "ways", studio = "#v-exports", docs = "docs/rust.html#usage--cli" }
+"export:omm" = { page = "Developers", section = "ways", studio = "#v-exports", docs = "docs/rust.html#usage--cli" }
+"export:oem" = { page = "Developers", section = "ways", studio = "#v-exports", docs = "docs/rust.html#usage--cli" }
+"export:study.json" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"export:study.html" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"export:kif" = { page = "Developers", section = "ways", studio = "none", docs = "docs/schema.html#interchange-envelope-kif-the-kshana-interchange-format--recognising-and-version-checking-an-artifact" }
+"export:ccsds-tdm" = { page = "Docs", section = "rust.html#usage--library", studio = "none", docs = "docs/rust.html#usage--library" }
+"export:permalink" = { page = "Studio", section = "share-row", studio = "#share-row", docs = "none" }
+# ---- clock ----
+"clock:class:csac" = { page = "Capabilities", section = "clocks", studio = "slot-timing-ocxo-leo", docs = "docs/slot-timing.html#where-the-clock-comes-from" }
+"clock:class:uso" = { page = "Capabilities", section = "clocks", studio = "slot-timing-ocxo-leo", docs = "docs/slot-timing.html#where-the-clock-comes-from" }
+"clock:class:dsac" = { page = "Capabilities", section = "clocks", studio = "slot-timing-ocxo-leo", docs = "docs/slot-timing.html#where-the-clock-comes-from" }
+"clock:class:tcxo" = { page = "Capabilities", section = "clocks", studio = "slot-timing-ocxo-leo", docs = "docs/slot-timing.html#where-the-clock-comes-from" }
+"clock:class:ocxo" = { page = "Capabilities", section = "clocks", studio = "slot-timing-ocxo-leo", docs = "docs/slot-timing.html#where-the-clock-comes-from" }
+"clock:class:rafs" = { page = "Capabilities", section = "clocks", studio = "slot-timing-ocxo-leo", docs = "docs/slot-timing.html#where-the-clock-comes-from" }
+"clock:preset:ocxo" = { page = "Capabilities", section = "timing", studio = "telecom-prtc-holdover-24h", docs = "docs/telecom-timing.html#oscillator-presets-modelled", pro_link = "pro:calibrated-clock-twin" }
+"clock:preset:rubidium" = { page = "Capabilities", section = "timing", studio = "telecom-prtc-holdover-24h", docs = "docs/telecom-timing.html#oscillator-presets-modelled", pro_link = "pro:calibrated-clock-twin" }
+"clock:preset:caesium" = { page = "Capabilities", section = "timing", studio = "telecom-prtc-holdover-24h", docs = "docs/telecom-timing.html#oscillator-presets-modelled", pro_link = "pro:calibrated-clock-twin" }
+"clock:preset:csac" = { page = "Capabilities", section = "timing", studio = "telecom-prtc-holdover-24h", docs = "docs/telecom-timing.html#oscillator-presets-modelled", pro_link = "pro:calibrated-clock-twin" }
+"clock:mask:prtc-a" = { page = "Capabilities", section = "timing", studio = "telecom-tie-ingest", docs = "docs/telecom-timing.html#limits-implemented" }
+"clock:mask:prtc-b" = { page = "Capabilities", section = "timing", studio = "telecom-tie-ingest", docs = "docs/telecom-timing.html#limits-implemented" }
+"clock:mask:eprtc" = { page = "Capabilities", section = "timing", studio = "telecom-tie-ingest", docs = "docs/telecom-timing.html#limits-implemented" }
+"clock:mask:eprtc-a-holdover" = { page = "Capabilities", section = "timing", studio = "telecom-tie-ingest", docs = "docs/telecom-timing.html#limits-implemented" }
+"clock:mask:t-bc-class-a" = { page = "Capabilities", section = "timing", studio = "telecom-tie-ingest", docs = "docs/telecom-timing.html#limits-implemented" }
+"clock:mask:t-bc-class-b" = { page = "Capabilities", section = "timing", studio = "telecom-tie-ingest", docs = "docs/telecom-timing.html#limits-implemented" }
+"clock:mask:t-bc-class-c" = { page = "Capabilities", section = "timing", studio = "telecom-tie-ingest", docs = "docs/telecom-timing.html#limits-implemented" }
+"clock:mask:t-bc-class-d" = { page = "Capabilities", section = "timing", studio = "telecom-tie-ingest", docs = "docs/telecom-timing.html#limits-implemented" }
+"clock:mask:g8271-1-point-c" = { page = "Capabilities", section = "timing", studio = "telecom-tie-ingest", docs = "docs/telecom-timing.html#limits-implemented" }
+"clock:mask:g8271-1-point-c-enhanced" = { page = "Capabilities", section = "timing", studio = "telecom-tie-ingest", docs = "docs/telecom-timing.html#limits-implemented" }
+"clock:mask:g8271-1-point-c-access" = { page = "Capabilities", section = "timing", studio = "telecom-tie-ingest", docs = "docs/telecom-timing.html#limits-implemented" }
+"clock:lunar:optical-master" = { page = "Capabilities", section = "clocks", studio = "lunar-time-budget", docs = "docs/scenarios.html#lunar-time-budget" }
+"clock:lunar:passive-h-maser" = { page = "Capabilities", section = "clocks", studio = "lunar-time-budget", docs = "docs/scenarios.html#lunar-time-budget" }
+"clock:lunar:rafs" = { page = "Capabilities", section = "clocks", studio = "lunar-time-budget", docs = "docs/scenarios.html#lunar-time-budget" }
+"clock:lunar:mini-rafs" = { page = "Capabilities", section = "clocks", studio = "lunar-time-budget", docs = "docs/scenarios.html#lunar-time-budget" }
+"clock:model:csac" = { page = "Capabilities", section = "clocks", studio = "spoof-meaconing", docs = "docs/scenario-reference.html#clock-holdover" }
+"clock:model:csac-sa45s" = { page = "Capabilities", section = "clocks", studio = "clock-ensemble", docs = "docs/scenario-reference.html#clock-holdover" }
+"clock:model:optical-lab-sr" = { page = "Capabilities", section = "clocks", studio = "clock-holdover-labsr", docs = "docs/scenario-reference.html#clock-holdover" }
+"clock:model:optical-lattice" = { page = "Capabilities", section = "clocks", studio = "spoof-meaconing", docs = "docs/scenario-reference.html#clock-holdover" }
+"clock:model:optical-sr-lattice" = { page = "Capabilities", section = "clocks", studio = "clock-ensemble", docs = "docs/scenario-reference.html#clock-holdover" }
+"clock:model:ultrastable-optical" = { page = "Capabilities", section = "clocks", studio = "hybrid-ukf", docs = "docs/scenario-reference.html#clock-holdover" }
+# ---- band ----
+"band:l1-e1" = { page = "Capabilities", section = "bands", studio = "jamming-demo", docs = "docs/glossary.html" }
+"band:l2" = { page = "Capabilities", section = "bands", studio = "pvt-abmf", docs = "docs/glossary.html" }
+"band:l5-e5a" = { page = "Capabilities", section = "bands", studio = "conflict-resilience", docs = "docs/glossary.html" }
+"band:lunar-s-afs" = { page = "Capabilities", section = "bands", studio = "lunar-jamming", docs = "docs/glossary.html" }
+"band:deep-space-s" = { page = "Capabilities", section = "bands", studio = "mars-pnt-transfer", docs = "docs/glossary.html" }
+"band:deep-space-x" = { page = "Capabilities", section = "bands", studio = "mars-pnt-transfer", docs = "docs/glossary.html" }
+"band:deep-space-ka" = { page = "Capabilities", section = "bands", studio = "mars-pnt-transfer", docs = "docs/glossary.html" }
+"band:optical-1550" = { page = "Capabilities", section = "bands", studio = "hybrid-optical-rf", docs = "docs/glossary.html" }
+# ---- body ----
+"body:earth" = { page = "Capabilities", section = "journey", studio = "orbit-sgp4-gps", docs = "docs/concepts.html" }
+"body:mars" = { page = "Capabilities", section = "journey", studio = "mars-pnt-lmo", docs = "docs/concepts.html" }
+"body:moon" = { page = "Capabilities", section = "journey", studio = "lunar-vlbi", docs = "docs/concepts.html" }
+"body:sun" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/concepts.html" }
+# ---- validation ----
+"validation:frequency-stability-characterisation" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:frequency-stability-on-a-real-measured-clock" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:allan-estimator-parity-on-the-canonical-stable32-reference-s" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:extended-range-frequency-stability-theo1-totdev" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:maximum-time-interval-error-mtie-telecom-wander-metric" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:modified-allan-time-deviation-mdev-tdev" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:optical-clock-frequency-stability-on-a-real-measured-curve" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:integrity-raim-araim-sbas" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:orbit-propagation-determination" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:numerical-cowell-propagator-force-model" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:batch-sequential-orbit-determination" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:deep-space-radiometric-light-time-solver" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:broadcast-ephemeris-satellite-position-multi-gnss-rinex" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:sp3-precise-ephemeris-interpolation" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:strapdown-ins-mechanization" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gravity-field-functional-synthesis-gravity-aided-gnss-free-n" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lambert-two-body-transfer-solver" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:reference-frames-timescales" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ranging-code-design-trade" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gnss-geometry-dilution-of-precision-dop" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:broadcast-ionosphere-model-klobuchar-is-gps-200" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:raim-araim-integrity-statistical-kernel-non-central-normal-l" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:sbas-protection-level-do-229e-weighted-ls-hpl-vpl" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ml-detector-evaluation-metrics-roc-auc-confusion-pfa-pmd" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:anomaly-detection-scoring-on-real-spacecraft-telemetry" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:quantum-trade-numerical-kernels-nnls-bands-van-loan-q" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:geomagnetic-reference-field-igrf-14-synthesis" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:detection-statistics-gaussian-auc-minimum-detectable-fault" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:rank-order-statistics-kernel-kendall-dirichlet-percentile" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:mcda-priority-derivation-kernel-ahp-eigenvector-consistency-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:mcda-weighted-aggregation-kernels-wsm-wpm" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:mcda-distance-to-ideal-ranking-topsis" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:mcda-compromise-ranking-vikor" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:mcda-outranking-net-flow-ranking-promethee-ii" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:mcda-outranking-choice-kernel-electre-i" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:mcda-aggregation-kernels-waspas-moora" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:mcda-proportional-ranking-copras" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:cusum-change-detection-latency-arl" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:clock-holdover-coast-variance-threshold-inversion" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:inverse-simpson-diversity-kernel" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gnss-denied-clock-holdover" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:onboard-clock-state-estimation" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:time-transfer-error-budgeting" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:nav-signal-modulation-code-tracking-analysis" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gps-l1-c-a-spreading-code-generation" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:quantum-inertial-sensor-performance" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:quantum-inertial-sensor-fringe-ambiguity-dynamic-range" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:quantum-inertial-dead-reckoning-resilience" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gnss-ins-sensor-fusion" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gnss-denied-jamming-resilience" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:spoofing-detection" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:timing-protection-level-under-spoofing" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:cislunar-mission-analysis" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:alternative-complementary-pnt" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:srtm-digital-elevation-reader-on-real-terrain" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:reproducibility-software-assurance" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ai-ml-rf-impairment-detection-evaluation-13494" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ai-ml-rf-impairment-optimism-gap-study-id-only-gap-predictor" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:quantum-vs-classical-pnt-trade-gnss-denied-resilience-13503" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:space-weather-environment-activity-driven-thermospheric-dens" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ccsds-oem-interoperability-gmat-orekit-stk-ephemeris-import" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:launch-window-ascent-geometry-mission-analysis" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ballistic-re-entry-corridor-allen-eggers" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:eo-payload-footprint-coverage-geometry" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ccsds-space-packet-133-0-tm-tc-framing" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:3-dof-attitude-pointing-error-budget-aocs" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ground-station-pass-prediction-ground-segment" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:one-way-link-budget-comms-link-design" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:frugal-cost-per-coverage-roi-framing" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:detection-miss-integrity-impact-context-aware-hpl-vpl-vs-ale" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:cai-cited-error-model-parameter-sheet-13503" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:timing-integrity-conformance-benchmark-stanford-integrity-di" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:timing-integrity-conformance-benchmark-integrity-coverage-sc" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:timing-integrity-conformance-benchmark-fault-catalog-paramet" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:timing-integrity-conformance-benchmark-undetectable-absorpti" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:spacecraft-bus-engineering-aocs-thermal-structures-propulsio" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:navigation-rf-payload-antenna-hardware-design" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:quantum-payload-hardware-design-maturation" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:flight-hardware-product-assurance-radiation-eee-mait" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-coordinate-time" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:hybrid-optical-rf-report-self-description" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:hybrid-optical-rf-link-availability-on-the-rf-side" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:like-for-like-optical-versus-rf-ranging-comparison" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:link-budget-report-self-description" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:per-clock-class-lunar-time-crossover-table" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:joint-ut1-and-polar-motion-error-over-a-common-row-set" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:offline-default-earth-orientation-input-is-a-real-iers-produ" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:capture-footprint-against-altitude-and-beamwidth" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-time-error-budget-reproducibility" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-geodetic-vlbi" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:earth-gnss-at-lunar-distance" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-surface-beacon-dop-augmentation" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:common-mode-integrity-blindness" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:common-mode-protection-level-and-total-integrity-envelope" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-joint-multi-technique-od-clock" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:fisher-information-cram-r-rao-observability" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-absolute-station-observability-datum-defect" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-reference-frame-realisation" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-navigation-service-volume" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-joint-communications-and-navigation-geometry" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-differential-pnt" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-interoperability-export" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:pnt-resilience-framework-aligned-scoring" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:resilience-score-decision-instability-study" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:demonstration-representativeness-gaps-to-flight" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:quantum-vs-classical-trade-evidence-common-shape" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:quantum-device-error-model-library" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:trusted-quantum-timing-time-transfer-secure-dissemination-an" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gnss-free-quantum-navigation" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:fault-anomaly-detection-for-quantum-pnt-systems" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:torque-free-rigid-body-attitude-dynamics" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:clohessy-wiltshire-hill-relative-motion-dynamics" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:tdoa-fdoa-passive-emitter-geolocation" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:wahba-triad-quest-attitude-determination" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gnss-square-law-acquisition-detection-statistics" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gnss-carrier-phase-integer-ambiguity-resolution-lambda" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:b-plane-targeting-patched-conic-gravity-assist" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:crpa-anti-jam-array-beamforming" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ieee-1139-power-law-clock-noise-flicker-fm-floor" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ccsds-oem-covariance-block-interchange" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ins-trn-coasting-error-growth-threshold-crossings" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:aperture-navigation-versus-communications-duty-cycle" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-surface-navigation-rf-jamming-per-satellite-j-s" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-denial-contour-with-an-uncertainty-band-from-the-measu" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:cross-modality-integrity-monitor-detection-power" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:post-handover-covariance-re-growth-against-the-alert-limit" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:off-boresight-antenna-pattern-in-the-lunar-geometry-export" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:tracking-loop-loss-of-lock-and-spoof-pull-in-under-interfere" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-vlbi-station-coordinate-covariance-from-a-tracking-sch" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-surface-point-coordinate-covariance-from-a-vlbi-delay-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-differential-pnt-correction-link-residual-budget" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-araim-protection-level-kernel" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:araim-mhss-protection-levels-against-published-reference-vec" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:spatial-noisy-multi-family-cislunar-arc-length-observability" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:operational-style-earth-orientation-prediction-error-measure" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-frame-datum-from-an-observing-campaign" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:independent-estimator-corroboration-of-the-cislunar-arc-leng" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-service-volume-from-real-retrieved-constellation-geome" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:unit-and-provenance-declared-for-every-reported-quantity" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-frame-datum-from-a-real-observing-campaign" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:built-in-analytic-lunar-ephemeris-its-stated-accuracy-bound-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gate-integrity-a-green-that-means-what-it-says" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:composed-timing-pl-scalar-mhss-specialization-h-1-n" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:composed-timing-pl-p0-seeded-holdover-ride-through" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:composed-timing-pl-holdover-envelope-coverage-multi-year-reg" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:composed-timing-pl-lil-a-s-envelope-impossibility-consistenc" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:heterogeneous-utc-k-traceability-bias-integrity-overbound" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:correlated-traceability-bias-cross-covariance-common-mode-un" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gls-common-mode-whitening-aitken-mahalanobis-identity" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:common-mode-consistency-statistic-separation-blind-shared-re" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:residual-outside-omega-undetectable-common-mode-bound" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-datum-identifiability-decomposition-linear-algebra" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-datum-null-space-classification-llr-rank-additivity-li" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:multi-technique-lunar-datum-information-llr-lunar-vlbi-orbit" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:de440-lunar-principal-axis-orientation-provider" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-llr-datum-geometry-substrate-principal-axis-reflectors" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:coupled-lunar-frame-and-timescale-gauge-the-joint-spatial-da" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:range-to-clock-offset-degeneracy-in-one-way-lunar-ranging-an" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:relativistic-clock-rate-to-frame-coupling-for-the-lunar-time" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:basis-invariant-classification-of-the-coupled-frame-and-time" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:representative-multi-technique-measurement-menu-and-the-addi" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:cross-provider-lunar-frame-dynamics-consistency-real-inter-e" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:cross-provider-consistency-tolerance-for-a-mixed-provider-us" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:multi-provider-lunar-interoperability-error-budget-and-frame" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:autonomous-free-network-fault-observability-linear-algebra-p" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:byzantine-block-spark-detect-identify-bound-on-the-autonomou" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:autonomous-holdover-temporal-gauge-floor-for-the-self-refere" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:provider-common-differential-split-one-rank-deficiency-unifi" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:telecom-timing-mtie-and-tdev-on-a-holdover-time-error-series" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:itu-t-telecom-synchronisation-masks-with-pass-fail-and-margi" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:oscillator-holdover-presets-from-public-datasheets" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:holdover-prediction-from-a-measured-clock-record-checked-on-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:seconds-until-a-free-running-clock-leaves-a-time-indexed-slo" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:timing-protection-level-for-a-receiver-in-orbit-under-gnss-s" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+# ---- pro ----
+"pro:calibrated-clock-twin" = { page = "Editions", section = "pro", studio = "none", docs = "none", also = ["Home#pro-band"] }
+"pro:ranked-trade-study" = { page = "Editions", section = "pro", studio = "none", docs = "none", also = ["Home#pro-band"] }
+"pro:evidence-pack" = { page = "Editions", section = "pro", studio = "none", docs = "none", also = ["Home#pro-band"] }
+"pro:mbse-programme-tooling" = { page = "Editions", section = "pro", studio = "none", docs = "none", also = ["Home#pro-band"] }
+"pro:strict-superset" = { page = "Editions", section = "pro", studio = "none", docs = "none" }
+"pro:design-optimiser" = { page = "Editions", section = "pro-design", studio = "none", docs = "none", also = ["Home#pro-band", "Capabilities#constellations", "Missions#orbits"] }
+"pro:uncertainty-sensitivity" = { page = "Editions", section = "pro-uncertainty", studio = "none", docs = "none", also = ["Home#pro-band", "Capabilities#campaigns"] }
+"pro:mission-dossier" = { page = "Editions", section = "pro-dossier", studio = "none", docs = "none", also = ["Home#pro-band", "Evidence#matrix", "Evidence#next"] }
+"pro:scenario-regression-check" = { page = "Editions", section = "pro-watch", studio = "none", docs = "none" }
+"pro:study-dossier" = { page = "Editions", section = "pro-study", studio = "none", docs = "none" }
+"pro:on-premises-service" = { page = "Editions", section = "pro-jobs", studio = "none", docs = "none" }
+"pro:campaign-watch" = { page = "Editions", section = "pro-watch", studio = "none", docs = "none" }
+"pro:spectrum-coexistence" = { page = "Editions", section = "pro-coexist", studio = "none", docs = "none" }
+"pro:on-premises-job-service" = { page = "Editions", section = "pro-jobs", studio = "none", docs = "none" }
+# ---- study ----
+"study:modelled-resilience-study" = { page = "Editions", section = "editions", studio = "none", docs = "none" }
+"study:custom-sensor-models" = { page = "Editions", section = "editions", studio = "none", docs = "none" }
+"study:export-controlled-work" = { page = "Editions", section = "editions", studio = "none", docs = "none" }
+"study:support-integration" = { page = "Editions", section = "editions", studio = "none", docs = "none" }
+"study:training-consulting" = { page = "Editions", section = "editions", studio = "none", docs = "none" }
+# ---- pro ----
+"pro:commercial-licence" = { page = "Editions", section = "editions", studio = "none", docs = "docs/licensing.html#option-b--commercial-licence-from-ashforde-oü" }
+
+# ==== the integrated 75-kind engine (2026-09-30): spectrum, solar system, constellations, campaigns, animation,
+# ==== reports, interoperability exports and low Earth orbit (LEO) positioning, navigation and timing.
+# The Studio's library does not carry these kinds yet, so studio = "none" (NO_STUDIO warnings) until it does.
+# ---- kind (12) ----
+"kind:spectrum" = { page = "Capabilities", section = "atlas", studio = "l-band-waterfall-jamming", docs = "docs/scenarios.html#spectrum", also = ["Capabilities#waterfall"] }
+"kind:solar-system" = { page = "Capabilities", section = "atlas", studio = "solar-system-tour", docs = "docs/scenarios.html#solar-system", also = ["Capabilities#journey"] }
+"kind:body-pnt" = { page = "Capabilities", section = "atlas", studio = "mars-orbit-pnt", docs = "docs/scenarios.html#body-pnt" }
+"kind:constellation-design" = { page = "Capabilities", section = "atlas", studio = "constellation-multi-gnss-coverage", docs = "docs/scenarios.html#constellation-design", also = ["Capabilities#constellations"] }
+"kind:campaign" = { page = "Capabilities", section = "atlas", studio = "leo-focus-data-services", docs = "docs/scenarios.html#campaign" }
+"kind:leo-signal" = { page = "Capabilities", section = "atlas", studio = "leo-band-trade", docs = "docs/scenarios.html#leo-signal", also = ["Missions#sectors"] }
+"kind:leo-pass" = { page = "Capabilities", section = "atlas", studio = "leo-pass-vs-gnss-cn0", docs = "docs/scenarios.html#leo-pass", also = ["Missions#sectors"] }
+"kind:leo-navmsg" = { page = "Capabilities", section = "atlas", studio = "leo-navmsg-fit-interval-trade", docs = "docs/scenarios.html#leo-navmsg", also = ["Missions#sectors"] }
+"kind:leo-pvt" = { page = "Capabilities", section = "atlas", studio = "meo-leo-fused-pvt", docs = "docs/scenarios.html#leo-pvt", also = ["Missions#sectors"] }
+"kind:leo-ppp" = { page = "Capabilities", section = "atlas", studio = "leo-ppp-convergence", docs = "docs/scenarios.html#leo-ppp", also = ["Missions#sectors"] }
+"kind:ntn-positioning" = { page = "Capabilities", section = "atlas", studio = "ntn-5g-positioning", docs = "docs/scenarios.html#ntn-positioning", also = ["Missions#sectors"] }
+"kind:leo-pnt-chain" = { page = "Capabilities", section = "atlas", studio = "leo-pnt-end-to-end", docs = "docs/scenarios.html#leo-pnt-chain", also = ["Missions#sectors"] }
+# ---- scenario (56) ----
+"scenario:campaign-jam-spoof-holdover-integrity" = { page = "Capabilities", section = "atlas", studio = "campaign-jam-spoof-holdover-integrity", docs = "docs/scenario-reference.html#campaign-jam-spoof-holdover-integrity" }
+"scenario:campaign-monte-carlo-clock-holdover" = { page = "Capabilities", section = "atlas", studio = "campaign-monte-carlo-clock-holdover", docs = "docs/scenario-reference.html#campaign-monte-carlo-clock-holdover" }
+"scenario:campaign-shared-jammer-sea-road" = { page = "Capabilities", section = "atlas", studio = "campaign-shared-jammer-sea-road", docs = "docs/scenario-reference.html#campaign-shared-jammer-sea-road" }
+"scenario:campaign-spectrum-holdover-integrity" = { page = "Capabilities", section = "atlas", studio = "campaign-spectrum-holdover-integrity", docs = "docs/scenario-reference.html#campaign-spectrum-holdover-integrity" }
+"scenario:campaign-sweep-jammer-power" = { page = "Capabilities", section = "atlas", studio = "campaign-sweep-jammer-power", docs = "docs/scenario-reference.html#campaign-sweep-jammer-power" }
+"scenario:celeste-iod-classical-pilot-signals" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#celeste-iod-classical-pilot-signals" }
+"scenario:celeste-iod-end-to-end" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#celeste-iod-end-to-end" }
+"scenario:celeste-iod-fused-pvt" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#celeste-iod-fused-pvt" }
+"scenario:constellation-multi-gnss-coverage" = { page = "Capabilities", section = "atlas", studio = "constellation-multi-gnss-coverage", docs = "docs/scenario-reference.html#constellation-multi-gnss-coverage" }
+"scenario:europa-surface-pnt" = { page = "Capabilities", section = "atlas", studio = "europa-surface-pnt", docs = "docs/scenario-reference.html#europa-surface-pnt" }
+"scenario:l-band-waterfall-jamming" = { page = "Capabilities", section = "atlas", studio = "l-band-waterfall-jamming", docs = "docs/scenario-reference.html#l-band-waterfall-jamming" }
+"scenario:leo-band-trade" = { page = "Capabilities", section = "atlas", studio = "leo-band-trade", docs = "docs/scenario-reference.html#leo-band-trade" }
+"scenario:leo-doppler-positioning" = { page = "Capabilities", section = "atlas", studio = "leo-doppler-positioning", docs = "docs/scenario-reference.html#leo-doppler-positioning" }
+"scenario:leo-focus-data-services" = { page = "Capabilities", section = "atlas", studio = "leo-focus-data-services", docs = "docs/scenario-reference.html#leo-focus-data-services" }
+"scenario:leo-focus-fused-pnt-sisre" = { page = "Capabilities", section = "atlas", studio = "leo-focus-fused-pnt-sisre", docs = "docs/scenario-reference.html#leo-focus-fused-pnt-sisre" }
+"scenario:leo-focus-indoor-uhf" = { page = "Capabilities", section = "atlas", studio = "leo-focus-indoor-uhf", docs = "docs/scenario-reference.html#leo-focus-indoor-uhf" }
+"scenario:leo-focus-iot-eirp" = { page = "Capabilities", section = "atlas", studio = "leo-focus-iot-eirp", docs = "docs/scenario-reference.html#leo-focus-iot-eirp" }
+"scenario:leo-focus-ntn-bandwidth" = { page = "Capabilities", section = "atlas", studio = "leo-focus-ntn-bandwidth", docs = "docs/scenario-reference.html#leo-focus-ntn-bandwidth" }
+"scenario:leo-focus-ppp-altitude" = { page = "Capabilities", section = "atlas", studio = "leo-focus-ppp-altitude", docs = "docs/scenario-reference.html#leo-focus-ppp-altitude" }
+"scenario:leo-focus-science-iono-sounding" = { page = "Capabilities", section = "atlas", studio = "leo-focus-science-iono-sounding", docs = "docs/scenario-reference.html#leo-focus-science-iono-sounding" }
+"scenario:leo-indoor-uhf" = { page = "Capabilities", section = "atlas", studio = "leo-indoor-uhf", docs = "docs/scenario-reference.html#leo-indoor-uhf" }
+"scenario:leo-iot-energy" = { page = "Capabilities", section = "atlas", studio = "leo-iot-energy", docs = "docs/scenario-reference.html#leo-iot-energy" }
+"scenario:leo-navmsg-celeste-iod" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#leo-navmsg-celeste-iod" }
+"scenario:leo-navmsg-encode-decode" = { page = "Capabilities", section = "atlas", studio = "leo-navmsg-encode-decode", docs = "docs/scenario-reference.html#leo-navmsg-encode-decode" }
+"scenario:leo-navmsg-fit-interval-trade" = { page = "Capabilities", section = "atlas", studio = "leo-navmsg-fit-interval-trade", docs = "docs/scenario-reference.html#leo-navmsg-fit-interval-trade" }
+"scenario:leo-navmsg-midpass-update" = { page = "Capabilities", section = "atlas", studio = "leo-navmsg-midpass-update", docs = "docs/scenario-reference.html#leo-navmsg-midpass-update" }
+"scenario:leo-navmsg-model-comparison" = { page = "Capabilities", section = "atlas", studio = "leo-navmsg-model-comparison", docs = "docs/scenario-reference.html#leo-navmsg-model-comparison" }
+"scenario:leo-pass-celeste-iod-multiband" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#leo-pass-celeste-iod-multiband" }
+"scenario:leo-pass-iridium" = { page = "Capabilities", section = "atlas", studio = "leo-pass-iridium", docs = "docs/scenario-reference.html#leo-pass-iridium" }
+"scenario:leo-pass-vs-gnss-cn0" = { page = "Capabilities", section = "atlas", studio = "leo-pass-vs-gnss-cn0", docs = "docs/scenario-reference.html#leo-pass-vs-gnss-cn0" }
+"scenario:leo-pass-xona-pulsar" = { page = "Capabilities", section = "atlas", studio = "leo-pass-xona-pulsar", docs = "docs/scenario-reference.html#leo-pass-xona-pulsar" }
+"scenario:leo-pnt-end-to-end" = { page = "Capabilities", section = "atlas", studio = "leo-pnt-end-to-end", docs = "docs/scenario-reference.html#leo-pnt-end-to-end" }
+"scenario:leo-pnt-mega-shell" = { page = "Capabilities", section = "atlas", studio = "leo-pnt-mega-shell", docs = "docs/scenario-reference.html#leo-pnt-mega-shell" }
+"scenario:leo-ppp-convergence" = { page = "Capabilities", section = "atlas", studio = "leo-ppp-convergence", docs = "docs/scenario-reference.html#leo-ppp-convergence" }
+"scenario:leo-resilience-gnss-jammed-leo-carries" = { page = "Capabilities", section = "atlas", studio = "leo-resilience-gnss-jammed-leo-carries", docs = "docs/scenario-reference.html#leo-resilience-gnss-jammed-leo-carries" }
+"scenario:leo-resilience-js-margin" = { page = "Capabilities", section = "atlas", studio = "leo-resilience-js-margin", docs = "docs/scenario-reference.html#leo-resilience-js-margin" }
+"scenario:leo-resilience-multiband-diversity" = { page = "Capabilities", section = "atlas", studio = "leo-resilience-multiband-diversity", docs = "docs/scenario-reference.html#leo-resilience-multiband-diversity" }
+"scenario:leo-resilience-spoof-doppler" = { page = "Capabilities", section = "atlas", studio = "leo-resilience-spoof-doppler", docs = "docs/scenario-reference.html#leo-resilience-spoof-doppler" }
+"scenario:leo-resilience-spoof-monitors" = { page = "Capabilities", section = "atlas", studio = "leo-resilience-spoof-monitors", docs = "docs/scenario-reference.html#leo-resilience-spoof-monitors" }
+"scenario:leo-timing-utc" = { page = "Capabilities", section = "atlas", studio = "leo-timing-utc", docs = "docs/scenario-reference.html#leo-timing-utc" }
+"scenario:leo-vertical-5g-network-timing" = { page = "Capabilities", section = "atlas", studio = "leo-vertical-5g-network-timing", docs = "docs/scenario-reference.html#leo-vertical-5g-network-timing" }
+"scenario:leo-vertical-asset-tracking-iot" = { page = "Capabilities", section = "atlas", studio = "leo-vertical-asset-tracking-iot", docs = "docs/scenario-reference.html#leo-vertical-asset-tracking-iot" }
+"scenario:leo-vertical-autonomous-vehicle" = { page = "Capabilities", section = "atlas", studio = "leo-vertical-autonomous-vehicle", docs = "docs/scenario-reference.html#leo-vertical-autonomous-vehicle" }
+"scenario:leo-vertical-critical-infrastructure-timing" = { page = "Capabilities", section = "atlas", studio = "leo-vertical-critical-infrastructure-timing", docs = "docs/scenario-reference.html#leo-vertical-critical-infrastructure-timing" }
+"scenario:leo-vertical-polar-arctic" = { page = "Capabilities", section = "atlas", studio = "leo-vertical-polar-arctic", docs = "docs/scenario-reference.html#leo-vertical-polar-arctic" }
+"scenario:leo-vertical-rail-maritime" = { page = "Capabilities", section = "atlas", studio = "leo-vertical-rail-maritime", docs = "docs/scenario-reference.html#leo-vertical-rail-maritime" }
+"scenario:lunar-relay-constellation" = { page = "Capabilities", section = "atlas", studio = "lunar-relay-constellation", docs = "docs/scenario-reference.html#lunar-relay-constellation" }
+"scenario:mars-orbit-pnt" = { page = "Capabilities", section = "atlas", studio = "mars-orbit-pnt", docs = "docs/scenario-reference.html#mars-orbit-pnt" }
+"scenario:meo-leo-fused-pvt" = { page = "Capabilities", section = "atlas", studio = "meo-leo-fused-pvt", docs = "docs/scenario-reference.html#meo-leo-fused-pvt" }
+"scenario:multi-band-jamming-waterfall" = { page = "Capabilities", section = "atlas", studio = "multi-band-jamming-waterfall", docs = "docs/scenario-reference.html#multi-band-jamming-waterfall" }
+"scenario:ntn-5g-positioning" = { page = "Capabilities", section = "atlas", studio = "ntn-5g-positioning", docs = "docs/scenario-reference.html#ntn-5g-positioning" }
+"scenario:polar-arctic-leo-coverage" = { page = "Capabilities", section = "atlas", studio = "polar-arctic-leo-coverage", docs = "docs/scenario-reference.html#polar-arctic-leo-coverage" }
+"scenario:solar-system-tour" = { page = "Capabilities", section = "atlas", studio = "solar-system-tour", docs = "docs/scenario-reference.html#solar-system-tour" }
+"scenario:starlink-sop-doppler-positioning" = { page = "Capabilities", section = "atlas", studio = "starlink-sop-doppler-positioning", docs = "docs/scenario-reference.html#starlink-sop-doppler-positioning" }
+"scenario:xona-pulsar-end-to-end" = { page = "Capabilities", section = "atlas", studio = "xona-pulsar-end-to-end", docs = "docs/scenario-reference.html#xona-pulsar-end-to-end" }
+"scenario:xona-pulsar-signals" = { page = "Capabilities", section = "atlas", studio = "xona-pulsar-signals", docs = "docs/scenario-reference.html#xona-pulsar-signals" }
+# ---- cli (5) ----
+"cli:--animate" = { page = "Developers", section = "ways", studio = "none", docs = "docs/animation.html#outputs" }
+"cli:--animate-fps" = { page = "Developers", section = "ways", studio = "none", docs = "docs/animation.html#outputs" }
+"cli:--export" = { page = "Developers", section = "ways", studio = "none", docs = "docs/interop.html#formats" }
+"cli:--animate-duration" = { page = "Developers", section = "ways", studio = "none", docs = "docs/animation.html#outputs" }
+"cli:--import-route" = { page = "Developers", section = "ways", studio = "none", docs = "docs/interop.html#imports" }
+# ---- binding (1) ----
+"binding:rust.animate_toml" = { page = "Docs", section = "animation.html#library-use", studio = "none", docs = "docs/animation.html#library-use" }
+# ---- export (4) ----
+"export:animation.svg" = { page = "Developers", section = "ways", studio = "none", docs = "docs/animation.html#outputs" }
+"export:animation.html" = { page = "Developers", section = "ways", studio = "none", docs = "docs/animation.html#outputs" }
+"export:frames" = { page = "Developers", section = "ways", studio = "none", docs = "docs/animation.html#the-frame-sequence" }
+"export:report.json" = { page = "Developers", section = "ways", studio = "none", docs = "docs/reports.html#the-json-document" }
+# ---- clock (1) ----
+"clock:model:tcxo-class" = { page = "Capabilities", section = "clocks", studio = "none", docs = "docs/scenario-reference.html#leo-vertical-critical-infrastructure-timing" }
+# ---- body (14) ----
+"body:mercury" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:venus" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:jupiter" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:saturn" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:uranus" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:neptune" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:pluto" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:phobos" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:deimos" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:io" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:europa" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:ganymede" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:callisto" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+"body:titan" = { page = "Capabilities", section = "journey", studio = "none", docs = "docs/solar-system.html" }
+# ---- validation (49) ----
+"validation:closed-form-l-band-signal-power-spectral-densities-and-spect" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:l-band-spectrum-waterfall-with-per-band-j-s-and-effective-c-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:sigmf-recording-input-and-output-and-welch-spectral-estimate" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:planet-positions-across-the-solar-system-from-the-jpl-standi" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:light-time-between-solar-system-bodies" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:uranus-and-neptune-from-standish-table-1-pluto-and-planetary" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:positions-of-the-moon-and-seven-major-moons-phobos-deimos-th" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:physical-constants-of-every-solar-system-body-and-the-whole-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:positioning-around-any-solar-system-body-with-a-local-conste" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:walker-constellation-geometry-and-the-published-nominal-slot" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:global-dilution-of-precision-of-the-gps-baseline-constellati" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:coverage-and-dilution-of-precision-maps-for-arbitrary-multi-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:a-chained-mission-across-scenario-kinds-on-one-shared-timeli" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:parameter-sweeps-and-seeded-monte-carlo-ensembles-over-any-s" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:several-scenarios-under-shared-conditions-with-a-combined-su" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:band-limited-closed-forms-for-any-ranging-signal-power-in-ba" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:maximum-doppler-of-a-low-earth-orbit-navigation-satellite-wh" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:low-earth-orbit-positioning-navigation-and-timing-signal-des" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:multi-band-spectrum-waterfall-uhf-l-s-c-with-designed-signal" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:rain-specific-attenuation-coefficients-for-any-band-a-leo-pn" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:long-term-slant-path-rain-attenuation-on-an-earth-space-link" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:tropospheric-amplitude-scintillation-on-an-earth-space-link" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:building-entry-loss-for-an-indoor-leo-pnt-user" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:first-order-ionospheric-delay-per-band-the-ionosphere-free-c" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:maximum-doppler-a-static-user-sees-from-a-leo-or-meo-orbit" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:a-leo-pnt-pass-and-its-per-band-link-budget-against-the-meo-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:named-leo-pnt-system-presets-with-stated-sources-and-a-syste" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:low-energy-positioning-time-to-first-fix-and-energy-per-fix-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:global-average-signal-in-space-range-error-weights-for-any-o" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:galileo-icd-broadcast-ephemeris-user-algorithm-as-the-base-o" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:crc-24q-frame-check-for-the-leo-navigation-message" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:leo-broadcast-ephemeris-fitter-and-signal-in-space-range-err" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:mid-pass-leo-navigation-message-update-with-a-continuity-che" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:documented-binary-encoding-of-the-leo-navigation-message-wit" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:rinex-4-style-and-csv-exports-of-leo-navigation-messages" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:liu-et-al-2025-22-parameter-leo-ephemeris-model-and-its-fit-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:single-frequency-ionospheric-and-utc-services-of-a-leo-navig" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:doppler-a-ground-receiver-must-handle-from-a-leo-navigation-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:positioning-from-leo-doppler-single-and-multi-satellite-with" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:joint-gnss-and-leo-pseudorange-positioning-with-inter-system" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:precise-point-positioning-convergence-with-gnss-only-and-wit" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:5g-non-terrestrial-network-positioning-accuracy-from-signal-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:leo-assisted-time-transfer-to-utc-against-c-n0-and-the-recei" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:leo-coverage-and-dilution-of-precision-for-polar-and-arctic-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:named-leo-pnt-systems-as-optional-data-presets-each-with-its" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:one-leo-pnt-system-end-to-end-signal-design-pass-link-budget" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:spoofing-detection-by-leo-doppler-and-pass-geometry-consiste" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:spoofing-detection-by-cross-band-consistency-of-a-multi-band" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ionosphere-sounding-slant-tec-from-the-dual-band-delay-of-a-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:power-law-noise-identification-by-lag-1-autocorrelation" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:two-part-julian-dates-and-leap-seconds-on-the-earth-orbit-ti" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:one-earth-orbit-path-sgp4-element-sets-to-the-gcrs-and-itrs-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:measured-clock-device-cards-held-out-prediction" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:measured-gps-block-iif-clock-cards-with-per-revolution-terms" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:apparent-ground-station-pass-prediction-with-refraction-and-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-geodetic-vlbi-kernel-path" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:naif-kernel-reader-daf-container-spk-type-2-and-binary-pck-t" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunanet-afs-spreading-code-generation-lsis-v1-0" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunanet-afs-baseband-rendering-against-an-independent-genera" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunanet-afs-frame-channel-coding-fid-0-lsis-v1-0" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunanet-afs-closed-loop-decodability-by-an-independent-recei" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gps-l1-c-a-cross-generator-conformance" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gps-lnav-encoding-decoded-by-an-independent-receiver-library" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gps-lnav-navigation-message-encoding" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:acquisition-and-c-n0-estimation-on-real-lunar-iq" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:acquisition-on-real-lunar-iq-against-orbit-predicted-doppler" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:acquisition-on-real-lunar-iq-scored-by-orbit-predicted-doppl" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:acquisition-on-held-out-real-lunar-iq-against-orbit-predicte" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-surface-point-coordinate-covariance-from-a-vlbi-delay--2" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-frame-datum-from-a-real-observing-campaign-kernel-moon" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:llr-measured-range-model-reflector-catalogue-itrf2020-statio" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:sun-moon-mercury-and-venus-positions-from-the-de440-kernel-a" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:atomic-zero-clock-ecef-polynomial-and-the-synthetic-five-alt" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-frame-datum-covariance-with-the-stations-estimated-aga" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:square-root-information-datum-solver-against-50-digit-extend" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }

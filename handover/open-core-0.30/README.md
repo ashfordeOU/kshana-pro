@@ -1,5 +1,8 @@
 # Open core 0.30: cloud workspace
 
+> Superseded for the site on 2026-10-04: the current site and Studio source is `site-next/` at the
+> root of this repository (see `SOURCES.md`). This folder is the 2026-10-01 snapshot.
+
 This branch (`handover/open-core-0.30` in the private `ashfordeOU/kshana-pro`) carries everything a
 cloud session needs to work on kshana 0.30 without the founder's Mac. It was packed on 2026-10-01.
 
