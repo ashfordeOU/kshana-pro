@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+import { spawn } from 'child_process';
+const srv = spawn('/opt/homebrew/bin/python3', ['-m','http.server','8797'], {cwd:'/Users/chak/Code/kshana-site-next/explorations/2026-09-27-combo', stdio:'ignore'});
+await new Promise(r=>setTimeout(r,1000));
+const b = await chromium.launch();
+const p = await b.newPage();
+p.on('console',m=>console.log('console',m.type(),m.text())); p.on('pageerror',e=>console.log('pageerror',String(e)));
+await p.goto('http://localhost:8797/'+process.argv[2]); await p.waitForTimeout(3000);
+console.log(await p.evaluate(process.argv[3]||'1'));
+await b.close(); srv.kill();

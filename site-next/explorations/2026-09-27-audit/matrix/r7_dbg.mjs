@@ -1,0 +1,14 @@
+import { chromium } from 'playwright';
+import { spawn } from 'child_process';
+const port = 8700 + Math.floor(Math.random()*90);
+const srv = spawn('/opt/homebrew/bin/python3', ['-m','http.server',String(port),'--bind','127.0.0.1'], {cwd:'/Users/chak/Code/kshana-site-next/explorations/' + (process.env.SITE||'2026-09-27-combo'), stdio:'ignore'});
+await new Promise(r=>setTimeout(r,1200));
+const b = await chromium.launch();
+const [w,h] = (process.env.VP||'390x844').split('x').map(Number);
+const ctx = await b.newContext({viewport:{width:w,height:h}, colorScheme: process.env.CS||'light', forcedColors: process.env.FC||'none'});
+const p = await ctx.newPage();
+p.on('pageerror',e=>console.log('pageerror',String(e)));
+await p.goto(`http://127.0.0.1:${port}/`+process.argv[2]); await p.waitForTimeout(2500);
+console.log(JSON.stringify(await p.evaluate(process.argv[3]||'1'),null,1));
+if (process.env.SHOT) await p.screenshot({path:process.env.SHOT});
+await b.close(); srv.kill();

@@ -1,0 +1,137 @@
+<!-- EDITIONS on the Observatory system (R4). Three symmetric editions on one row grid with a shared
+     label rail (#29), the dual licence placed with the open core (LICENSING.md), the shared Pro band,
+     how a custom study runs, then install and the contact routes. No prices anywhere. -->
+<section class="page-hero ed-hero hx-hero">
+  <div class="wrap">
+    <div class="hx">
+      <div class="hx-copy">
+        <span class="eyebrow" style="--c:var(--lime)"><i></i>Editions · open core, Pro and custom study</span>
+        <h1 class="h1">Free to build on. <span class="soft">Pro when it has to stand up in review.</span></h1>
+        <p class="lede">The engine is, and stays, open source under the AGPL-3.0 (GNU Affero General Public License, version 3), with no feature gate. Ashforde® OÜ sustains it with expertise and a proprietary overlay, not with seat fees on the open engine. There are no prices on this site: every paid route starts with a message.</p>
+        <div class="ctas"><a class="btn btn-ink" href="studio/index.html">{{STUDIO_CTA}} <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="btn btn-ghost" href="#pro">See Kshana Pro</a><a class="btn btn-ghost" href="#contact">Talk to us</a></div>
+      </div>
+      <!-- R5 hero instrument: the three editions on one engine. The core ring is every scenario kind the
+           open engine runs (src/api.rs), marked with its ledger status; the Pro and custom-study rings
+           connect to the kinds they build on (build.py EXTENDS). Page data "editions"; js/editions.mjs. -->
+      <div class="hx-vis">
+        <figure class="hx-win eo-win" id="eoWin" aria-labelledby="eoCap">
+          <div class="hx-bar">
+            <span class="live"><i></i>One engine · <b>kshana v{{VER}}</b></span>
+            <span class="hx-r"><button type="button" class="hx-btn" id="eoPlay" aria-pressed="true" aria-label="Pause the rings"><svg class="i-play" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg><svg class="i-pause" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h3v10H2zM7 1h3v10H7z" fill="currentColor"/></svg></button><span class="tag real">From the repository</span></span>
+          </div>
+          <div class="eo-stage"><svg class="eo-svg" id="eoSvg" viewBox="0 0 520 420" role="img" aria-labelledby="eoCap"></svg></div>
+          <div class="eo-read" id="eoRead" aria-live="off"></div>
+          <ul class="eo-eds">
+            <li style="--c:var(--lime)"><span class="eo-k"><i></i>Open core</span><a href="studio/index.html">{{STUDIO_CTA}}</a></li>
+            <li style="--c:var(--magenta)"><span class="eo-k"><i></i>Kshana Pro</span><a href="mailto:contact@ashforde.org?subject=Kshana%20Pro%20evaluation">Request an evaluation</a></li>
+            <li style="--c:var(--cyan)"><span class="eo-k"><i></i>Custom study</span><a href="mailto:contact@ashforde.org?subject=Kshana%20study%20request">Request a study</a></li>
+          </ul>
+          <figcaption class="eo-foot" id="eoCap">The open engine at the centre: one mark per scenario kind ({{KINDS}}), filled where the kind has validated ledger rows, hollow where its rows are Modelled, a dash where no ledger module matches it by name. Kshana Pro and the custom study sit around it and connect to the kinds they build on.</figcaption>
+        </figure>
+        <p class="prov hx-prov" id="eoProv"><span class="prov-src">Engine v{{VER}} · {{KINDS}} kinds from <code>src/api.rs</code> · ledger status from <code>web/data/verification-matrix.json</code> · what Pro and a study build on: the site's editions register · no scenario or seed</span><a class="prov-open" href="#editions">Compare the editions</a></p>
+      </div>
+    </div>
+    <nav class="subnav" aria-label="On this page"><a href="#editions">Compare the editions</a><a href="#licence">Open core licence</a><a href="#pro">Kshana Pro, amplified</a><a href="#custom-why">How a study runs</a><a href="#contact">Contact</a></nav>
+  </div>
+</section>
+
+<!-- ============================================================ 01 COMPARE -->
+<section class="block" id="editions" aria-label="Compare the editions">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">01</span>Three ways to work with us</div><h2 class="h2 h2-sm rv">Compare the editions.</h2></div>
+      <p class="lede rv">The same engine sits under all three. Read across a row to compare why it matters, who each one is for, what it includes and how it starts.</p>
+    </div>
+    <div class="eds" id="why">
+      <div class="ed-rail" aria-hidden="true"><span></span><span>Why it matters</span><span>Who it is for</span><span>What is included</span><span>Terms</span><span>Start</span></div>
+      <article class="glass ed ed-free" id="open-core" style="--c:var(--lime)">
+        <header class="ed-top"><span class="lic"><i></i>Free · AGPL-3.0 or commercial licence</span><h3>Open core</h3><p>The whole validated engine and every surface, free with no feature gate. Everything on this site runs on it.</p></header>
+        <div class="ed-why"><span class="ed-l">Why everyone needs it</span><p>Anyone who takes position or time from GNSS (Global Navigation Satellite Systems) is exposed: jamming, spoofing and signal loss reach vehicles, networks, grids and spacecraft alike. The open core shows how exposed, and says which figures are checked.</p></div>
+        <div class="ed-row"><span class="ed-l">Who it is for</span><ul><li>Engineers of vehicles, networks, grids and spacecraft that take position or time from GNSS</li><li>Researchers, students and reviewers who need figures they can reproduce and cite</li><li>Developers wiring the engine into code, a CI (continuous integration) suite or an AI (artificial intelligence) assistant</li></ul></div>
+        <div class="ed-row"><span class="ed-l">What is included</span><ul><li>All {{KINDS}} scenario kinds and {{FILES}} bundled scenarios: native, Python, JavaScript, in the browser and over MCP (Model Context Protocol)</li><li>The full verification matrix: {{VAL}} of {{TOTAL}} capabilities validated against independent oracles, the rest labelled Modelled</li><li>Every result stamped with scenario hash, seed and engine version, and written as JSON (JavaScript Object Notation), CSV (comma-separated values) tables and SVG (Scalable Vector Graphics) charts</li><li>The free <code>kshana --study</code> suite runner</li></ul></div>
+        <div class="ed-row"><span class="ed-l">Terms</span><p>Free under the AGPL-3.0. The same core is also offered under a commercial licence, for closed integration into proprietary products (<a href="#licence">below</a>).</p></div>
+        <div class="go"><a class="btn btn-ink" href="studio/index.html">{{STUDIO_CTA}} <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="ed-more" href="mailto:contact@ashforde.org?subject=Kshana%20commercial%20licence">Ask about a commercial licence</a></div>
+      </article>
+      <article class="ed ed-pro" style="--c:var(--magenta)">
+        <header class="ed-top"><span class="lic"><i></i>Commercial · the same engine, amplified</span><h3>Kshana Pro</h3><p>A proprietary overlay that depends on the open core and never forks it: a strict superset of open Kshana. Available under contract.</p></header>
+        <div class="ed-why"><span class="ed-l">Why Pro, even more</span><p>Open Kshana runs one scenario and tells you what it gives. Kshana Pro answers the questions a programme asks next: which design to fly, how sure the answer is, and whether the mission meets its requirements in a form a review board can check.</p></div>
+        <div class="ed-row"><span class="ed-l">Who it is for</span><ul><li>Programmes that must hand a mission dossier or an audit-grade evidence pack to a review or procurement board</li><li>Architects choosing a design from the Pareto front of a whole design space, or from trade studies ranked on a figure of merit</li><li>Timing and hardware teams who need a clock digital twin calibrated to their device</li></ul></div>
+        <div class="ed-row"><span class="ed-l">What is included</span><ul><li><a href="#pro-design">A design optimiser</a>: the Pareto front of a design space, with every front design as a scenario the free engine re-runs</li><li><a href="#pro-uncertainty">Uncertainty and sensitivity</a> over thousands of runs</li><li><a href="#pro-dossier">A one-command mission dossier</a> with a verification matrix and a PDF (Portable Document Format) file</li><li>Audit-grade, reproducible evidence packs, clock digital twins calibrated to a device's published Allan budget, and architecture trade studies ranked on a figure of merit</li><li>Model-based systems-engineering (MBSE) and programme tooling that checks a programme's requirements against runs of the open engine, reading only the outputs the engine publishes</li></ul></div>
+        <div class="ed-row"><span class="ed-l">Terms</span><p>Kshana Pro is available under contract. It depends on the open core and never forks it, so nothing is taken out of the free engine.</p></div>
+        <div class="go"><a class="btn btn-white" href="mailto:contact@ashforde.org?subject=Kshana%20Pro%20evaluation">Request an evaluation <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="ed-more" href="#pro">See it amplified</a></div>
+      </article>
+      <article class="glass ed ed-custom" id="custom" style="--c:var(--cyan)">
+        <header class="ed-top"><span class="lic"><i></i>Paid work · done for you</span><h3>Custom study</h3><p>Work done for you, on your system: the paid custom study, not the free <code>kshana --study</code> command.</p></header>
+        <div class="ed-why"><span class="ed-l">Why a custom study</span><p>When the question is yours but the time, the modelling or the clearance is not: we model your system with the same engine, label every figure Validated or Modelled, and hand back a result you can reproduce.</p></div>
+        <div class="ed-row"><span class="ed-l">Who it is for</span><ul><li>Programme and procurement teams who need an independent, modelled view of a PNT (positioning, navigation and timing) architecture's resilience</li><li>Hardware builders who want models of their own devices</li><li>Export-sensitive programmes, and teams who want Kshana in their toolchain</li></ul></div>
+        <div class="ed-row"><span class="ed-l">What is included</span><ul><li>A Modelled PNT-resilience study, for example an optimism-gap audit. Not a certification.</li><li>Sensor and resilience models calibrated to your hardware</li><li>Export-controlled resilience work under the appropriate clearance and NDA (non-disclosure agreement)</li><li>Commercial support and integration, training and consulting</li></ul></div>
+        <div class="ed-row"><span class="ed-l">Terms</span><p>Scoped to your question and delivered under contract, reproducible from scenario, seed and engine version.</p></div>
+        <div class="go"><a class="btn btn-ink" href="mailto:contact@ashforde.org?subject=Kshana%20study%20request">Request a study <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="ed-more" href="#custom-why">How a study runs</a></div>
+      </article>
+    </div>
+
+    <!-- the dual licence belongs to the open core (LICENSING.md): one engine, two licences -->
+    <div class="glass lic-free" id="licence" style="--c:var(--lime)">
+      <div class="lic-h">
+        <span class="lic"><i></i>Open core licence</span>
+        <h3>One engine, two licences.</h3>
+        <p>Pick the one that fits how you use it. Both cover the same open engine; nothing is held back from either.</p>
+        <p class="lic-links"><a href="docs/licensing.html">Licensing guide</a><a href="mailto:contact@ashforde.org?subject=Kshana%20commercial%20licence">contact@ashforde.org</a></p>
+      </div>
+      <div class="lic-opt">
+        <span class="lic-k">Option A · open source</span>
+        <h4>GNU AGPL-3.0</h4>
+        <p>Use, study, modify and redistribute it free of charge. If you distribute a derivative, or let people use a modified engine over a network, you share its source under the same licence.</p>
+        <p class="lic-fit">Right for academic work, open-source projects, internal evaluation and research.</p>
+      </div>
+      <div class="lic-opt lic-opt-b">
+        <span class="lic-k">Option B · from Ashforde® OÜ</span>
+        <h4>Commercial licence</h4>
+        <ul><li>Embed the engine in a closed-source product</li><li>Run a network service on a modified engine without the source-disclosure obligation</li><li>Integrate it into a toolchain whose other parts cannot be AGPL</li><li>Get warranty, indemnity or support terms the AGPL disclaims</li></ul>
+        <p class="lic-go"><a class="btn btn-ghost" href="mailto:contact@ashforde.org?subject=Kshana%20commercial%20licence">Ask about a commercial licence <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></p>
+      </div>
+      <p class="lic-note">Kshana Pro and the other proprietary overlays are separate products under their own contract, not part of either licence. <a href="docs/licensing.html#option-b--commercial-licence-from-ashforde-oü">What the commercial licence covers</a></p>
+    </div>
+  </div>
+</section>
+
+{{PRO_BAND_EDITIONS}}
+
+<!-- ============================================================ 03 HOW A STUDY RUNS -->
+<section class="block" id="custom-why" aria-label="How a custom study runs">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow" style="--c:var(--cyan)"><span class="idx">02</span>Custom study · how it runs</div><h2 class="h2 h2-sm rv">When you need an answer, not a tool.</h2></div>
+      <p class="lede rv">A custom study uses the same engine you can run yourself, so every figure in it can be checked by anyone.</p>
+    </div>
+    <ol class="steps">
+      <li class="glass"><b>Tell us the question.</b> Mail <a href="mailto:contact@ashforde.org?subject=Kshana%20study%20request">contact@ashforde.org</a> with the system and the decision it feeds. There is no form.</li>
+      <li class="glass"><b>We scope it.</b> What will be modelled, with which scenarios, and what stays out of scope, under the appropriate clearance and NDA where the work needs it.</li>
+      <li class="glass"><b>We model it with the same engine.</b> Every figure is labelled Validated or Modelled, exactly as on this site.</li>
+      <li class="glass"><b>You get a reproducible result.</b> Reproducible from scenario, seed and engine version. A modelled study, not a certification.</li>
+    </ol>
+    <p class="free-vs-paid"><b>Not the same as <code>kshana --study</code>:</b> that free command runs a suite of scenarios you write into one stamped report (<a href="developers.html#ways">Developers</a>). A custom study is paid work we do for you.</p>
+  </div>
+</section>
+
+<!-- ============================================================ 04 INSTALL + CONTACT -->
+<section class="block ed-last" id="install-core" aria-label="Install and contact">
+  <div class="wrap">
+    <div class="ed-end">
+      <div class="glass ed-inst">
+        <div class="ed-card-h"><span>Install the open core</span><span class="tag real">From the manifests</span></div>
+{{INSTALLER_COMPACT}}
+      </div>
+      <div class="glass ed-contact" id="contact">
+        <div class="ed-card-h"><span>Talk to us</span><span class="tag">No forms, no prices</span></div>
+        <ul class="ct">
+          <li><a href="mailto:contact@ashforde.org?subject=Kshana%20Pro%20evaluation"><b>Evaluate Kshana Pro</b><span>Request an evaluation under contract</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+          <li><a href="mailto:contact@ashforde.org?subject=Kshana%20study%20request"><b>Request a custom study</b><span>Tell us the system and the decision it feeds</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+          <li><a href="mailto:contact@ashforde.org?subject=Kshana%20commercial%20licence"><b>Commercial licence</b><span>The open core, for closed integration</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+          <li><a href="mailto:contact@ashforde.org"><b>Anything else</b><span>contact@ashforde.org · mail goes straight to the team</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+        </ul>
+        <p class="ed-foot">Ashforde® OÜ · <a href="https://ashforde.org">ashforde.org</a></p>
+      </div>
+    </div>
+  </div>
+</section>

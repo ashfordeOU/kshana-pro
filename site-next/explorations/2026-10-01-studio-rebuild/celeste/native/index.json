@@ -1,0 +1,78 @@
+{
+ "engine_version": "0.31.0",
+ "source": "native",
+ "platform": "darwin arm64",
+ "recorded_utc": "2026-10-04T20:40:29.101Z",
+ "runs": {
+  "celeste-iod-classical-pilot-signals.toml": {
+   "file": "celeste-iod-classical-pilot-signals.json.gz",
+   "bytes": 26170,
+   "unpacked_bytes": 118718,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the leo-signal result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
+  "celeste-iod-end-to-end.toml": {
+   "file": "celeste-iod-end-to-end.json.gz",
+   "bytes": 103845,
+   "unpacked_bytes": 324958,
+   "report": true,
+   "animation": true,
+   "animation_reason": "",
+   "exports": [
+    "czml",
+    "geojson",
+    "kml",
+    "stk"
+   ],
+   "export_files": 4,
+   "export_files_stored": 4,
+   "full_run": false
+  },
+  "celeste-iod-fused-pvt.toml": {
+   "file": "celeste-iod-fused-pvt.json.gz",
+   "bytes": 35641,
+   "unpacked_bytes": 127667,
+   "report": true,
+   "animation": true,
+   "animation_reason": "",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
+  "leo-navmsg-celeste-iod.toml": {
+   "file": "leo-navmsg-celeste-iod.json.gz",
+   "bytes": 16059,
+   "unpacked_bytes": 62808,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the leo-navmsg result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
+  "leo-pass-celeste-iod-multiband.toml": {
+   "file": "leo-pass-celeste-iod-multiband.json.gz",
+   "bytes": 170088,
+   "unpacked_bytes": 570498,
+   "report": true,
+   "animation": true,
+   "animation_reason": "",
+   "exports": [
+    "czml",
+    "geojson",
+    "kml",
+    "stk"
+   ],
+   "export_files": 4,
+   "export_files_stored": 4,
+   "full_run": false
+  }
+ }
+}

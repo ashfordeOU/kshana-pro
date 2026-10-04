@@ -1,0 +1,29 @@
+{
+ "engine": {
+  "version": "0.31.0",
+  "commit": "bfed2d8",
+  "tree": "site/refresh-0.31.0",
+  "dirty": false,
+  "kinds": 75
+ },
+ "runs": {
+  "campaign-jam-spoof-holdover-integrity": {
+   "file": "campaign-jam-spoof-holdover-integrity.toml",
+   "kind": "campaign",
+   "sha256": "cec1e10f8eb478bae58acebe9c2f06cfccf6572f6f6895dc633fb409b8d8ee5f",
+   "seed": 20260928,
+   "engine_version": "0.31.0",
+   "summary": "campaign f87a4a0e0bab | Jamming, spoofing, holdover and integrity: a chained mission | chain: 6 phases over 4570 s, 2 events, alarm raised on 2770 s of the grid | 18 member runs (MODELLED)",
+   "published": "assets/runs/campaign-jam-spoof-holdover-integrity/"
+  },
+  "constellation-multi-gnss-coverage": {
+   "file": "constellation-multi-gnss-coverage.toml",
+   "kind": "constellation-design",
+   "sha256": "ab1e8d8d48fdfba293faeacac0ec15cbd0ef8a0a7658663055c5a3e7eb7233f0",
+   "seed": null,
+   "engine_version": "0.31.0",
+   "summary": "constellation-design: 102 satellites (GPS, Galileo, BeiDou, GLONASS) around the Earth; availability 100.00% (PDOP <= 6 at 10 deg mask), worst site 100.00%, median PDOP 0.95, mean 31.0 in view; 648 grid points x 95 epochs (MODELLED)",
+   "published": "assets/runs/constellation-multi-gnss-coverage/"
+  }
+ }
+}

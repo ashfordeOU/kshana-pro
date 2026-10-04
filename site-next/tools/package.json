@@ -1,0 +1,11 @@
+{
+  "name": "kshana-site-tools",
+  "private": true,
+  "type": "module",
+  "description": "Build-time tools for the kshana.dev redesign: Markdown rendering and code highlighting for the docs.",
+  "dependencies": {
+    "marked": "12.0.2",
+    "marked-gfm-heading-id": "3.1.3",
+    "highlight.js": "11.9.0"
+  }
+}

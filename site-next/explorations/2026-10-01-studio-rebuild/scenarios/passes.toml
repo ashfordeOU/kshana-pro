@@ -1,0 +1,30 @@
+# Ground-station pass prediction demonstrator (ground segment & operations).
+#
+# Predicts the visibility passes (AOS / TCA / LOS, maximum elevation, duration) of
+# a circular orbit over a ground station above an elevation mask across a window --
+# the rise/set scheduler the static look-angle primitives do not provide. AOS/LOS
+# crossings are solved by bisection and the culmination by golden-section search;
+# total access time is summed.
+#
+# The orbit is an SGP4 element set on the IAU 2006/2000A Earth-fixed frame (UT1 = UTC
+# and no polar motion unless ut1_minus_utc_s, xp_arcsec, yp_arcsec are given); the
+# elevations are apparent, with ITU-R P.834-9 refraction and the downlink light time
+# (switches `refraction` and `light_time`, both on by default).
+# Run:  kshana scenarios/passes.toml
+kind = "passes"
+
+altitude_km = 550.0
+inclination_deg = 97.6      # sun-synchronous-like
+raan_deg = 0.0
+arg_lat_deg = 0.0
+
+station_lat_deg = 52.2       # Delft, NL
+station_lon_deg = 4.4
+station_alt_m = 0.0
+
+# epoch = [year, month, day, hour, minute, second]  (UTC ~ UT1)
+epoch = [2024.0, 1.0, 1.0, 0.0, 0.0, 0.0]
+
+mask_deg = 10.0
+duration_hours = 24.0
+step_s = 10.0

@@ -1,0 +1,23 @@
+# Build outputs of explorations/2026-09-27-combo/build.py (its docstring lists them). The sources are
+# under src/; assets/ is kept because the recorders in src/tools write their engine runs there.
+/explorations/2026-09-27-combo/studio/
+/explorations/2026-09-27-combo/playground/
+/explorations/2026-09-27-combo/docs/
+/explorations/2026-09-27-combo/.build/
+/explorations/2026-09-27-combo/js/
+/explorations/2026-09-27-combo/css/
+/explorations/2026-09-27-combo/data/
+/explorations/2026-09-27-combo/*.html
+/explorations/2026-09-27-combo/*.txt
+/explorations/2026-09-27-combo/sitemap.xml
+/explorations/2026-09-27-combo/site.css
+/explorations/2026-09-27-combo/site.js
+/explorations/2026-09-27-combo/tokens.css
+/explorations/2026-09-27-combo/theme.css
+/explorations/2026-09-27-combo/channels.json
+# Installed with `npm ci` (tools/, explorations/2026-09-27-audit/matrix/) and caches
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+/explorations/2026-09-27-audit/matrix/out/

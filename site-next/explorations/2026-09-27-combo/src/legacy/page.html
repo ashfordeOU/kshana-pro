@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kshana</title>
+<meta name="description" content="Kshana is an open-source PNT (positioning, navigation and timing) resilience simulator. A Rust engine that runs in your browser as WebAssembly, with every capability labelled Validated or Modelled. By Ashforde.">
+<meta name="color-scheme" content="light dark">
+<script>try{var t=localStorage.getItem('kshana-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}window.KS={p:0,target:0,reduced:matchMedia('(prefers-reduced-motion: reduce)').matches};if(!window.KS.reduced)document.documentElement.classList.add('js-motion');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/*__CSS__*/
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-copy" viewBox="0 0 16 16"><rect x="5" y="5" width="9" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 16 16"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 12 12"><path d="M3 1.5v9l7.5-4.5Z" fill="currentColor"/></symbol>
+  <symbol id="i-down" viewBox="0 0 16 16"><path d="M8 2v9M4 7.5l4 4 4-4M3 14h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-link" viewBox="0 0 16 16"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.8 2.8 0 0 1 4 4L11 8.5M9 11.5l-1.2 1.2a2.8 2.8 0 0 1-4-4L5 7.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-mark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5.2" fill="currentColor"/><ellipse cx="12" cy="12" rx="10.5" ry="4.2" fill="none" stroke="currentColor" stroke-width="1.3" transform="rotate(-28 12 12)" opacity=".75"/><circle cx="20.6" cy="7.4" r="1.8" fill="#3DDC84"/></symbol>
+</svg>
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Kshana home"><svg aria-hidden="true"><use href="#i-mark"/></svg>Kshana <small>by Ashforde</small></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#timeline">Console</a><a href="#playground">Playground</a><a href="#proof">Proof</a><a href="#capabilities">Capabilities</a><a href="#developers">Developers</a><a href="#editions">Editions</a>
+    </nav>
+    <div class="nav-right">
+      <button class="k-btn" id="kbtn" aria-haspopup="dialog" aria-controls="palette"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="lbl">Search</span><kbd class="kmod">⌘K</kbd></button>
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle colour theme" title="Toggle colour theme"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4z" fill="currentColor"/></svg></button>
+      <a class="pill" href="#playground">Try it</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<!-- ============ HERO + STORY ============ -->
+<section id="story" aria-label="Kshana introduction">
+  <div class="stage" id="stage" data-phase="hero">
+    <div class="stage-fallback" aria-hidden="true">
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"><g transform="translate(1000 450)" fill="none" stroke="#5a7bb0" stroke-opacity=".28"><circle r="230"/><ellipse rx="230" ry="80"/><ellipse rx="230" ry="160"/><ellipse rx="80" ry="230"/><ellipse rx="160" ry="230"/><ellipse rx="360" ry="120" transform="rotate(-20)" stroke="#6A98FF" stroke-opacity=".3"/><ellipse rx="430" ry="150" transform="rotate(28)" stroke="#A58BFF" stroke-opacity=".22"/></g></svg>
+    </div>
+    <canvas id="globe" aria-hidden="true"></canvas>
+    <div class="stage-shade"></div>
+
+    <div class="hero-copy" id="heroCopy">
+      <a class="release" href="#editions"><b>v{{VER}}</b>Open source · AGPL-3.0 or commercial · by Ashforde</a>
+      <h1 class="hero-h1">Rehearse the minute <span class="hl">GNSS goes dark.</span></h1>
+      <p class="hero-sub">Kshana is an open-source simulator for <b>PNT (positioning, navigation and timing) resilience</b>. Replay jamming, spoofing and clock holdover when GNSS (Global Navigation Satellite System) signals fail, in a Rust engine that runs right here in your browser, and see which results were checked against independent references.</p>
+      <div class="ctas">
+        <a class="btn btn-white" href="#playground">Open the playground <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <button class="cmd dark" type="button" data-copy="cargo install kshana" aria-label="Copy install command: cargo install kshana"><span class="pr">$</span>cargo install kshana<span class="cp"><svg width="14" height="14" aria-hidden="true"><use href="#i-copy"/></svg></span></button>
+      </div>
+      <div class="chips" aria-label="Failure domains">
+        <a class="chip" href="#fails" data-card="0" style="--c:var(--s-int)"><i></i>Interference</a>
+        <a class="chip" href="#fails" data-card="1" style="--c:var(--s-spf)"><i></i>Spoofing</a>
+        <a class="chip" href="#fails" data-card="2" style="--c:var(--s-tim)"><i></i>Timing</a>
+        <a class="chip" href="#fails" data-card="3" style="--c:var(--s-orb)"><i></i>Orbits</a>
+        <a class="chip" href="#fails" data-card="4" style="--c:var(--s-itg)"><i></i>Integrity</a>
+        <a class="chip" href="#fails" data-card="5" style="--c:var(--s-nav)"><i></i>Navigation</a>
+      </div>
+      <p class="hero-hint">Press <kbd>⌘K</kbd> or <kbd>Ctrl K</kbd> to search every section and all {{KINDS}} scenario kinds.</p>
+    </div>
+
+    <div class="beats" id="beats" aria-live="polite">
+      <div class="beat" style="--c:var(--s-itg)"><div class="k">01 · Nominal</div><h3>Every link, accounted for.</h3><p>A receiver tracks <b>GPS, Galileo, GLONASS and BeiDou</b> at once. Kshana models the geometry and signal strength of every link.</p></div>
+      <div class="beat" style="--c:var(--s-int)"><div class="k">02 · Jamming</div><h3>Noise swallows the sky.</h3><p>A jammer raises the noise floor. Carrier-to-noise density falls, links drop one by one, and you see <b>exactly when positioning fails</b>.</p></div>
+      <div class="beat" style="--c:var(--s-spf)"><div class="k">03 · Spoofing</div><h3>A lie that looks like a fix.</h3><p>A spoofer walks the solution off its true track. Kshana's <b>spoofing and meaconing detectors</b> flag the divergence.</p></div>
+      <div class="beat" style="--c:var(--s-nav)"><div class="k">04 · Holdover</div><h3>Then time starts to drift.</h3><p>With GNSS gone, the clock is on its own. Kshana predicts <b>how long it stays inside its guard interval</b>.</p></div>
+    </div>
+
+    <div class="telemetry" id="telemetry" aria-hidden="true">
+      <div class="glass tm-state"><span>Receiver state</span><span class="state-pill" id="tmState"><i></i><span>Tracking</span></span></div>
+      <div class="glass tm" style="--c:var(--s-orb)"><div class="tm-h"><span>C/N₀ · carrier-to-noise density</span><b id="tmCn">45.0<small>dB-Hz</small></b></div><canvas id="tmCnC"></canvas></div>
+      <div class="glass tm"><div class="tm-h"><span>Clock time error · guard 100 ns</span><b id="tmTe">1.6<small>ns</small></b></div><canvas id="tmTeC"></canvas></div>
+      <div class="glass tm"><div class="tm-h"><span>Position error vs truth</span><b id="tmPe">2<small>m</small></b></div><canvas id="tmPeC"></canvas></div>
+      <div class="illus" style="color:var(--space-ink-3);justify-self:end">Illustrative telemetry</div>
+    </div>
+
+    <div class="rail" id="rail" aria-hidden="true">
+      <div style="--c:var(--s-itg)"><span><i></i></span>Nominal</div><div style="--c:var(--s-int)"><span><i></i></span>Jamming</div><div style="--c:var(--s-spf)"><span><i></i></span>Spoofing</div><div style="--c:var(--s-nav)"><span><i></i></span>Holdover</div>
+    </div>
+    <div class="legend" aria-label="Constellation legend">
+      <span class="it" style="--c:#58a4ff"><i></i>GPS</span><span class="it" style="--c:#ae90ff"><i></i>Galileo</span><span class="it" style="--c:#ff7d66"><i></i>GLONASS</span><span class="it" style="--c:#ffc247"><i></i>BeiDou</span><span class="illus">Illustrative</span>
+    </div>
+    <div class="scroll-hint" aria-hidden="true">Scroll<i></i></div>
+  </div>
+  <div class="beats-static">
+    <div style="--c:var(--s-itg)"><div class="k">01 · Nominal</div><h3>Every link, accounted for.</h3><p>A receiver tracks GPS, Galileo, GLONASS and BeiDou at once.</p></div>
+    <div style="--c:var(--s-int)"><div class="k">02 · Jamming</div><h3>Noise swallows the sky.</h3><p>Links drop one by one; you see exactly when positioning fails.</p></div>
+    <div style="--c:var(--s-spf)"><div class="k">03 · Spoofing</div><h3>A lie that looks like a fix.</h3><p>Spoofing and meaconing detectors flag the divergence from the true track.</p></div>
+    <div style="--c:var(--s-nav)"><div class="k">04 · Holdover</div><h3>Then time starts to drift.</h3><p>How long the clock stays inside its guard interval, predicted.</p></div>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<div class="stats">
+  <div class="wrap stats-in">
+    <div class="stat"><div class="n">{{KINDS}}</div><div class="l">scenario kinds in the engine</div></div>
+    <div class="stat"><div class="n">{{FILES}}</div><div class="l">bundled scenario files, ready to run</div></div>
+    <div class="stat"><div class="n">{{TOTAL}}</div><div class="l">capabilities in the verification matrix</div></div>
+    <div class="stat"><div class="n">{{VAL}}<i>/{{TOTAL}}</i></div><div class="l">validated against independent external oracles</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">things to install: it runs as WebAssembly (WASM) in the browser</div></div>
+  </div>
+</div>
+
+<!-- ============ JAM IT (waterfall) ============ -->
+<section class="sec jam" id="jam">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--int)"><i></i>Interference, hands on</span><h2 class="h2 rv">Jam it here, not in the field.</h2></div>
+      <p class="lede rv">Move across the spectrum to switch on a jammer. Watch the carrier-to-noise density (C/N₀) collapse on the band you hit, and the receiver go from <b>tracking</b> to <b>degraded</b> to <b>lost lock</b>.</p>
+    </div>
+    <div class="scope-wrap rv">
+      <div class="scope">
+        <div class="scope-main" id="scopeMain" tabindex="0" aria-label="Illustrative spectrum waterfall. Move the pointer, or use the left and right arrow keys, to inject a jammer.">
+          <div class="scope-bar"><span class="live-dot" aria-hidden="true"></span><span class="ttl">L-BAND WATERFALL</span><span class="hide-sm">frequency across · time down · colour = power</span><span class="illus">Illustrative</span></div>
+          <div class="t-axis" aria-hidden="true"><span style="top:2%">now</span><span style="top:41.7%">−2 s</span><span style="top:83.3%">−4 s</span></div>
+          <canvas id="wf" aria-hidden="true"></canvas>
+          <div id="blines" aria-hidden="true"></div>
+          <div class="jcur" id="jcur" aria-hidden="true"><b>JAMMER</b></div>
+          <div class="f-axis" id="faxis" aria-hidden="true"><span class="ax">frequency →</span></div>
+          <div class="hint" id="hint"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l8 6-3.6.7L10.6 13l-1.8.9-2.2-4.3L4 12Z" fill="#fff"/></svg>Move across the spectrum to jam it</div>
+        </div>
+        <aside class="scope-side">
+          <div class="side-lab">Receiver · GPS L1</div>
+          <div class="cn0"><b id="cn0">46.0</b><span>dB-Hz</span></div>
+          <div class="cn0-cap">C/N₀ on the signal the receiver tracks</div>
+          <div class="state-pill" id="status" role="status" style="align-self:flex-start"><i></i><span>Tracking</span></div>
+          <canvas id="spark" aria-hidden="true"></canvas>
+          <div class="bands" id="bands"></div>
+          <div class="js-row"><span>J/S, jammer-to-signal ratio</span><b id="jsv">none</b></div>
+          <p class="side-note">Illustrative. Kshana models what interference does to a receiver and a system. It is not an RF (radio-frequency) signal simulator and not a GNSS receiver.</p>
+        </aside>
+      </div>
+    </div>
+    <div class="band-atlas rv" id="bands-atlas">
+      <div class="ba-head"><div><h3>Band atlas</h3><p>The signals the engine actually models, on one frequency axis. Select a band to see which bundled scenarios use it and what interference does to it. Hatched bands are named for context and are <b>not modelled</b>.</p></div><div class="seg" id="baZoom" role="group" aria-label="Frequency range"><button aria-pressed="true" data-z="l">L-band</button><button aria-pressed="false" data-z="all">1–40 GHz</button></div></div>
+      <div class="ba-axis"><canvas id="baC" aria-label="Frequency axis with modelled and unmodelled bands"></canvas></div>
+      <div class="ba-chips" id="baChips" role="tablist" aria-label="Bands"></div>
+      <div class="ba-detail" id="baDetail" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SIX WAYS ============ -->
+<section class="fails" id="fails">
+  <div class="fails-pin">
+    <div class="wrap fails-head">
+      <div>
+        <span class="eyebrow" style="--c:var(--spf)"><i></i>Failure domains</span>
+        <h2 class="h2">Six ways GNSS fails.</h2>
+        <div class="fprog" id="fprog" aria-hidden="true"><span style="--c:var(--int)"><i></i></span><span style="--c:var(--spf)"><i></i></span><span style="--c:var(--tim)"><i></i></span><span style="--c:var(--orb)"><i></i></span><span style="--c:var(--itg)"><i></i></span><span style="--c:var(--nav)"><i></i></span></div>
+      </div>
+      <p class="lede">Satellite navigation is quietly load-bearing. Each card is one way it breaks, and each domain keeps its colour everywhere on this page. The code chips are bundled scenario files you can run.</p>
+    </div>
+    <div class="fails-viewport" id="failsVp">
+      <div class="fails-track" id="failsTrack">
+        <article class="fcard" data-d="int">
+          <div class="fc-top"><span>01 / 06</span><span>Interference</span></div>
+          <div class="diag"><canvas data-diag="jam"></canvas><span class="illus">Illustrative</span></div>
+          <div><h3>Jamming and interference</h3><p>How far a jammer's denial bubble reaches, who loses lock inside it, and how C/N₀ collapses as a vehicle drives in.</p></div>
+          <div class="tags"><code>jamming-demo</code><code>small-uas-jammed-nav</code><code>lunar-jamming</code></div>
+        </article>
+        <article class="fcard" data-d="spf">
+          <div class="fc-top"><span>02 / 06</span><span>Spoofing</span></div>
+          <div class="diag"><canvas data-diag="spoof"></canvas><span class="illus">Illustrative</span></div>
+          <div><h3>Spoofing and meaconing</h3><p>A counterfeit signal drags the solution away from the truth. Test when multi-layer detection fires, including meaconing: the delayed rebroadcast of real signals.</p></div>
+          <div class="tags"><code>spoof-attack</code><code>spoof-detect</code><code>spoof-meaconing</code></div>
+        </article>
+        <article class="fcard" data-d="tim">
+          <div class="fc-top"><span>03 / 06</span><span>Timing</span></div>
+          <div class="diag"><canvas data-diag="clock"></canvas><span class="illus">Illustrative</span></div>
+          <div><h3>Clock holdover</h3><p>How long a CSAC (chip-scale atomic clock), TCXO (temperature-compensated crystal oscillator), OCXO (oven-controlled crystal oscillator), rubidium or caesium clock stays inside its guard interval, and telecom masks for MTIE (maximum time interval error) and TDEV (time deviation).</p></div>
+          <div class="tags"><code>clock-holdover</code><code>slot-timing-ocxo-leo</code><code>telecom-prtc-holdover-24h</code></div>
+        </article>
+        <article class="fcard" data-d="orb">
+          <div class="fc-top"><span>04 / 06</span><span>Orbits</span></div>
+          <div class="diag"><canvas data-diag="orbit"></canvas><span class="illus">Illustrative</span></div>
+          <div><h3>Orbits and geometry</h3><p>SGP4 (Simplified General Perturbations 4) and numerical propagation, constellation visibility and DOP (dilution of precision), exchanged as CCSDS (Consultative Committee for Space Data Systems) OEM and SP3 files.</p></div>
+          <div class="tags"><code>ephemeris</code><code>orbit-sgp4-gps</code><code>oem-interop</code></div>
+        </article>
+        <article class="fcard" data-d="itg">
+          <div class="fc-top"><span>05 / 06</span><span>Integrity</span></div>
+          <div class="diag"><canvas data-diag="integ"></canvas><span class="illus">Illustrative</span></div>
+          <div><h3>Integrity</h3><p>RAIM (receiver autonomous integrity monitoring) and ARAIM (advanced RAIM) protection levels (PL) against the alert limit (AL). When the bar crosses the line, the position cannot be trusted.</p></div>
+          <div class="tags"><code>integrity-raim</code><code>araim-gps-galileo</code><code>araim-reference-check</code></div>
+        </article>
+        <article class="fcard" data-d="nav">
+          <div class="fc-top"><span>06 / 06</span><span>Navigation</span></div>
+          <div class="diag"><canvas data-diag="drift"></canvas><span class="illus">Illustrative</span></div>
+          <div><h3>Coasting without GNSS</h3><p>When satellites drop out, an INS (inertial navigation system) carries on alone and its error cone grows. Terrain, gravity and magnetic map matching can rein it in.</p></div>
+          <div class="tags"><code>small-uas-jammed-nav</code><code>ins-trn-coast</code><code>terrain-nav</code><code>hybrid-pnt</code></div>
+        </article>
+        <article class="fcard" data-d="more">
+          <div class="fc-top"><span>And beyond</span><span>Trade studies</span></div>
+          <ul class="more-list">
+            <li style="--c:var(--orb)"><i></i><span><b>Lunar and Mars PNT.</b> Service volumes, lunar time scales, beacons and relay navigation.</span></li>
+            <li style="--c:var(--spf)"><i></i><span><b>Quantum-sensor trade studies.</b> Where a quantum clock or inertial sensor pays off against a classical one.</span></li>
+            <li style="--c:var(--tim)"><i></i><span><b>Resilience scoring.</b> PNT-resilience scores, decision instability and cost per coverage.</span></li>
+          </ul>
+          <div style="margin-top:auto"><div class="big">{{KINDS}}</div><h3>scenario kinds.</h3><p style="opacity:.75">{{FILES}} bundled scenario files, ready to run.</p></div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============ MISSIONS ============ -->
+<section class="sec" id="missions">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--orb)"><i></i>Missions</span><h2 class="h2 rv">Your mission. Its failure. A scenario that shows it.</h2></div>
+      <p class="lede rv">Pick a sector. Each one names the question it answers, the threat, the <b>real bundled scenario files</b> that demonstrate it, the figures of merit they produce and the standards involved. Where no scenario ships yet, it says which kinds to build it from.</p>
+    </div>
+    <div class="sectors" role="tablist" id="sectorTabs" aria-label="Sectors"></div>
+    <div class="mission" id="missionPanel" role="tabpanel" aria-live="polite">
+      <div class="m-main">
+        <div class="m-k" id="mK"></div>
+        <h3 id="mQ"></h3>
+        <div class="m-threat"><span>Threat or failure</span><b id="mT"></b></div>
+        <div class="m-block"><h4>Scenario files you can run</h4><div class="m-files" id="mFiles"></div><p class="m-build" id="mBuild"></p></div>
+        <div class="m-cols">
+          <div class="m-block"><h4>Figures of merit</h4><ul id="mFom"></ul></div>
+          <div class="m-block"><h4>Standards involved</h4><div class="m-std" id="mStd"></div></div>
+        </div>
+        <p class="m-note" id="mNote"></p>
+      </div>
+      <div class="m-side">
+        <div class="m-viz"><canvas id="mViz" aria-hidden="true"></canvas><span class="illus">Illustrative</span></div>
+        <div class="tiers">
+          <div class="tier-row free"><span class="tl">Free today</span><p id="mFree"></p></div>
+          <div class="tier-row pro"><span class="tl" id="mProL">Pro adds</span><p id="mPro"></p></div>
+          <a class="tier-link" href="#editions">Compare the editions <svg width="14" height="14" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHO USES IT ============ -->
+<section class="sec" id="who" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--spf)"><i></i>Who it is for</span><h2 class="h2 rv">A way in for every role.</h2></div>
+      <p class="lede rv">Eight kinds of user, each with the entry point, the command or the feature they would reach for first, and what Pro or custom work adds for them.</p>
+    </div>
+    <div class="roles" id="roles"></div>
+  </div>
+</section>
+
+<!-- ============ MISSION TIMELINE ============ -->
+<section class="tl" id="timeline" aria-label="Mission timeline">
+  <div class="tl-pin" id="tlPin">
+    <div class="wrap tl-head">
+      <div>
+        <div class="eyebrow">Mission console · scroll or drag to scrub</div>
+        <h2 class="tl-phase"><span class="pn" id="tlPn">1/5</span><span id="tlTitle">Nominal</span></h2>
+      </div>
+      <p class="tl-cap" id="tlCap">Every satellite is tracked. The clock is disciplined to GNSS time and the protection level sits far below the alert limit.</p>
+      <div class="tl-clock"><div class="c" id="tlClock">05:33:00</div><div class="u">Mission time · UTC (Coordinated Universal Time)</div></div>
+    </div>
+    <div class="wrap">
+      <div class="console">
+        <div class="con-bar"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><span><b>kshana</b> console · hybrid-pnt</span><span class="illus">Illustrative replay</span></div>
+        <div class="con-body">
+          <div class="sky"><div class="cap">Sky plot · receiver view</div><canvas id="skyC" aria-label="Sky plot of tracked satellites, illustrative"></canvas></div>
+          <div class="charts">
+            <div class="chart-row" style="--c:var(--s-orb)"><div class="cr-h"><span>C/N₀<small>dB-Hz · tracking floor 28</small></span><b id="tvCn">45</b></div><canvas id="tcCn"></canvas></div>
+            <div class="chart-row" style="--c:var(--s-nav)"><div class="cr-h"><span>Clock time error<small>log scale · guard 1 µs</small></span><b id="tvTe">0 ns</b></div><canvas id="tcTe"></canvas></div>
+            <div class="chart-row" style="--c:var(--s-itg)"><div class="cr-h"><span>Protection level vs alert limit<small>metres · AL 40</small></span><b id="tvPl">9 m</b></div><canvas id="tcPl"></canvas></div>
+          </div>
+          <div class="log"><div class="panel-h">Event log</div><div class="log-body" id="tlLog"></div></div>
+        </div>
+        <div class="con-foot">
+          <button class="play-btn" id="tlPlay" aria-label="Play the mission"><svg width="12" height="12" aria-hidden="true"><use href="#i-play"/></svg></button>
+          <div class="scrub" id="scrub" role="slider" tabindex="0" aria-label="Mission time" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="scrub-labels" id="scrubLabels"><span class="on">Nominal</span><span>Jamming</span><span>Spoofing</span><span>Holdover</span><span>Integrity alarm</span></div>
+            <div class="scrub-track"><div class="scrub-fill" id="scrubFill"></div></div>
+            <div class="scrub-handle" id="scrubHandle" style="left:0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tl-hint"><span>05:33 → 06:18 mission time · all traces illustrative</span><span>PL = protection level · AL = alert limit · INS = inertial navigation system</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EARTH TO MOON TO MARS ============ -->
+<section class="journey" id="journey" aria-label="Earth to Moon to Mars">
+  <div class="j-stage" id="jStage">
+    <canvas id="jGl" aria-hidden="true"></canvas>
+    <div class="j-fallback" aria-hidden="true"><svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"><circle cx="360" cy="470" r="120" fill="#12304f"/><circle cx="820" cy="400" r="46" fill="#3b3f4c"/><circle cx="1180" cy="460" r="70" fill="#6b2f1e"/><g fill="none" stroke="#6A98FF" stroke-opacity=".4"><ellipse cx="360" cy="470" rx="220" ry="70"/><ellipse cx="820" cy="400" rx="100" ry="40"/><ellipse cx="1180" cy="460" rx="130" ry="44"/></g></svg></div>
+    <div class="wrap j-copy">
+      <span class="eyebrow" style="--c:var(--s-orb)"><i></i>Earth → Moon → Mars · scroll</span>
+      <div class="j-stops" id="jStops">
+        <div class="j-stop on" style="--c:var(--s-tim)"><div class="k">Stop 1 · Earth orbit</div><h3>A GNSS shell around Earth.</h3><p>Real GPS geometry from two-line elements, Molniya users, low-Earth-orbit slot timing and ground passes.</p><div class="tags" id="jT0"></div></div>
+        <div class="j-stop" style="--c:var(--s-spf)"><div class="k">Stop 2 · Cislunar space</div><h3>Beyond the shell, the signals thin out.</h3><p>Earth GNSS received at lunar distance, lunar service volumes, integrity, time scales, a laser-ranging datum and VLBI.</p><div class="tags" id="jT1"></div></div>
+        <div class="j-stop" style="--c:var(--s-int)"><div class="k">Stop 3 · Mars</div><h3>Navigation with a relay, not a constellation.</h3><p>Radiometric navigation and relay PNT for users in low Mars orbit, on the surface and in transfer.</p><div class="tags" id="jT2"></div></div>
+      </div>
+      <div class="j-rail" aria-hidden="true"><span class="on">Earth</span><span>Moon</span><span>Mars</span></div>
+      <span class="illus j-illus">Illustrative · not to scale</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLOCKS AND TIMING ============ -->
+<section class="sec" id="clocks">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--tim)"><i></i>Clocks and timing</span><h2 class="h2 rv">The clock ladder.</h2></div>
+      <p class="lede rv">Every clock the engine carries, from a receiver's crystal to a space optical master, on one Allan-deviation chart. Then lose GNSS for a few hours and watch each clock's time error against your guard.</p>
+    </div>
+    <div class="ladder rv">
+      <div class="ld-chart"><div class="rp-h"><b>σ<sub>y</sub>(τ), Allan deviation, log–log</b><span class="real">Datasheet points and class figures from the engine source</span></div><canvas id="ldC" aria-label="Allan deviation of every clock preset"></canvas><div class="ld-key" id="ldKey"></div></div>
+      <div class="ld-side">
+        <div class="ld-ctl">
+          <label for="ldH">GNSS lost for <output id="ldHo">4 h</output></label><input id="ldH" type="range" min="0" max="48" step="0.5" value="4">
+          <div class="seg" id="ldG" role="group" aria-label="Guard interval"><button aria-pressed="false" data-g="100">100 ns</button><button aria-pressed="true" data-g="1000">1 µs</button><button aria-pressed="false" data-g="10000">10 µs</button></div>
+        </div>
+        <div class="ld-bars" id="ldBars"></div>
+        <p class="ld-note">Time error here is σ<sub>y</sub>(τ)·τ, the convention the engine's lunar clock module uses, without ageing or temperature terms: an order-of-magnitude comparison, labelled <span class="illus">Illustrative</span>. The engine's holdover and telecom kinds model the full noise, ageing and temperature budget.</p>
+        <div class="ld-ev">
+          <div><span class="real">Validated</span><b>0.84–1.03</b><p>Holdover predicted ÷ measured on a real caesium record held out from fitting, inside the pre-set factor of 1.5.</p></div>
+          <div><span class="real">Validated</span><b>NIST SP 1065</b><p>The Allan-deviation code reproduces the reference values of NIST Special Publication 1065.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wall rv" id="timing">
+      <div class="wall-h"><h3>The timing wall</h3><p>Three ways time fails a system, each backed by a bundled scenario.</p></div>
+      <div class="wall-grid">
+        <div class="wcard wide">
+          <div class="rp-h"><b>MTIE, maximum time interval error, against an ITU-T mask</b><span class="acts"><span class="seg" id="mkSel" role="group" aria-label="Mask"><button aria-pressed="true" data-m="PRTC_A_MTIE">PRTC-A</button><button aria-pressed="false" data-m="PRTC_B_MTIE">PRTC-B</button></span></span></div>
+          <canvas id="mkC" aria-label="MTIE curve against the selected ITU-T mask with pass and fail regions"></canvas>
+          <div class="wc-foot"><label for="mkQ">Clock noise <output id="mkQo">×1</output></label><input id="mkQ" type="range" min="0" max="100" value="40"><span class="verdict" id="mkV">PASS</span></div>
+          <p class="wc-note">The mask is ITU-T G.8272 Table 1 or 2, primary reference time clock class A or B, as the engine carries it. The MTIE curve is <span class="illus">Illustrative</span>; <code>telecom-prtc-holdover-24h</code> and <code>telecom-tie-ingest</code> compute real MTIE and TDEV (time deviation) with a pass, a fail and a margin per mask.</p>
+        </div>
+        <div class="wcard"><div class="rp-h"><b>Slot timing</b><span class="illus">Illustrative</span></div><canvas id="slC" aria-label="Clock time error leaving a slot guard"></canvas><p class="wc-note">How long an OCXO on a low-Earth-orbit smallsat stays inside a routing slot's guard after its last GNSS fix, and how often it needs a fix. <code>slot-timing-ocxo-leo</code></p></div>
+        <div class="wcard"><div class="rp-h"><b>Lunar time</b><span class="illus">Modelled</span></div><div class="lunar-rate"><b>≈ 57</b><span>µs per day</span></div><p class="wc-note">A clock on the lunar surface ticks faster than one on Earth's geoid: the engine sums the self-potential and second-order Doppler terms and reports the rate beside the published 56 to 59 µs/day band. Modelled, not certified. <code>lunar-time-offset</code> · <code>lunar-time-budget</code></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PLAYGROUND ============ -->
+<section class="sec" id="playground">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--tim)"><i></i>Playground</span><h2 class="h2 rv">A full PNT lab. In a browser tab.</h2></div>
+      <p class="lede rv">The Rust engine compiled to <b>WebAssembly</b>: nothing to install, no account, nothing uploaded. Pick any of the {{FILES}} bundled scenarios or edit its TOML, run it, then read, compare, sweep, share and export the result.</p>
+    </div>
+    <div class="win-stage">
+      <div class="win" id="win" role="group" aria-label="Kshana playground preview">
+        <div class="win-bar">
+          <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="win-url"><svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="5" width="8" height="6" rx="1.5" fill="currentColor"/><path d="M4 5V3.5a2 2 0 0 1 4 0V5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>kshana.dev/#playground</span>
+          <span class="win-badge">WebAssembly · v{{VER}} · runs locally</span>
+        </div>
+        <div class="win-body">
+          <aside class="side" id="pgSide">
+            <label class="sel"><span class="vh">Scenario</span><select id="pgSelect" aria-label="Pick a bundled scenario"></select></label>
+            <h4><span>Popular</span><span>{{FILES}}</span></h4>
+            <div id="pgPopular"></div>
+            <div class="foot"><b>{{KINDS}}</b> scenario kinds<br><b>{{FILES}}</b> bundled scenario files<br>Every run is deterministic from scenario, seed and engine version.</div>
+          </aside>
+          <div class="pg-main">
+            <div class="pg-tool">
+              <div class="nm"><i></i><span id="pgName">clock-holdover.toml</span></div>
+              <button class="tbtn" id="pgToml" aria-pressed="false" data-tour="toml"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M5 4L1.5 8 5 12M11 4l3.5 4-3.5 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="t">Edit TOML</span></button>
+              <button class="tbtn" id="pgShare" data-tour="share"><svg aria-hidden="true"><use href="#i-link"/></svg><span class="t">Copy share link</span></button>
+              <button class="tbtn" id="pgTour"><span>Take the 60-second tour</span></button>
+              <button class="tbtn run" id="pgRun" data-tour="run"><svg aria-hidden="true"><use href="#i-play"/></svg>Run</button>
+            </div>
+            <div class="knobs" data-tour="knobs">
+              <div class="knob"><label for="kSeed">Seed <output id="oSeed">42</output></label><input id="kSeed" type="range" min="1" max="99" value="42"></div>
+              <div class="knob"><label for="kThr">Time-error threshold <output id="oThr">20 ns</output></label><input id="kThr" type="range" min="5" max="100" value="20"></div>
+              <div class="knob"><label for="kDur">Run duration <output id="oDur">7200 s</output></label><input id="kDur" type="range" min="1800" max="14400" step="600" value="7200"></div>
+            </div>
+            <pre class="toml" id="tomlView" aria-label="Scenario definition in TOML (Tom's Obvious, Minimal Language)" contenteditable="true" spellcheck="false"></pre>
+            <div class="rtabs" role="tablist" aria-label="Result views" data-tour="tabs">
+              <button role="tab" aria-selected="true" data-p="sum">Summary</button>
+              <button role="tab" aria-selected="false" data-p="fom">Figures of merit</button>
+              <button role="tab" aria-selected="false" data-p="ts">Time series</button>
+              <button role="tab" aria-selected="false" data-p="adev">Stability</button>
+              <button role="tab" aria-selected="false" data-p="health">Filter health</button>
+              <button role="tab" aria-selected="false" data-p="orbit">3-D orbit</button>
+              <button role="tab" aria-selected="false" data-p="cmp">A/B compare</button>
+              <button role="tab" aria-selected="false" data-p="sweep">Sweep</button>
+              <button role="tab" aria-selected="false" data-p="json">JSON</button>
+              <button role="tab" aria-selected="false" data-p="rep">Report &amp; export</button>
+              <button role="tab" aria-selected="false" data-p="embed">Share &amp; embed</button>
+            </div>
+
+            <div class="rpane on" data-p="sum" role="tabpanel">
+              <div class="rp-h"><b>One-line summary</b><span class="real" id="sumTag">Real engine output</span></div>
+              <div class="summary-line" id="sumLine"></div>
+              <div class="kv" id="sumKv"></div>
+              <p style="font-size:12.5px;color:var(--ink-3);margin:12px 0 0" id="sumNote"></p>
+            </div>
+            <div class="rpane" data-p="fom" role="tabpanel">
+              <div class="rp-h"><b>Figures of merit, with units and provenance</b><span class="acts"><span class="real">Real engine output</span></span></div>
+              <div style="overflow-x:auto"><table class="fom" id="fomT"></table></div>
+              <p style="font-size:12.5px;color:var(--ink-3);margin:10px 0 0">The Tier column reads from the same ledger as the proof section below. The playground's timing, integrity and security figures are all Modelled.</p>
+            </div>
+            <div class="rpane" data-p="ts" role="tabpanel">
+              <div class="rp-h"><b>Timing error through the GNSS outage</b><span class="acts"><span class="real">Real engine output</span><button class="tbtn" data-dl="ts"><svg aria-hidden="true"><use href="#i-down"/></svg>Download chart</button></span></div>
+              <canvas class="cvs" id="tsC" aria-label="Timing error against time for both clocks"></canvas>
+            </div>
+            <div class="rpane" data-p="adev" role="tabpanel">
+              <div class="rp-h"><b>σ<sub>y</sub>(τ): overlapping Allan deviation with 95% confidence intervals</b><span class="acts"><span class="real">Real engine output</span><button class="tbtn" data-dl="adev"><svg aria-hidden="true"><use href="#i-down"/></svg>Download chart</button></span></div>
+              <canvas class="cvs" id="adevC" aria-label="Allan deviation against averaging time for both clocks"></canvas>
+            </div>
+            <div class="rpane" data-p="health" role="tabpanel">
+              <div class="rp-h"><b>Filter health: is the Kalman filter's reported uncertainty honest?</b><span class="real">Real engine output</span></div>
+              <canvas class="cvs" id="healthC" style="height:220px" aria-label="Normalised innovation and estimation error squared, inside their 95 percent bands"></canvas>
+              <p style="font-size:13px;color:var(--ink-2);margin:10px 0 0">NIS (normalised innovation squared) should sit near 1 and NEES (normalised estimation error squared) near 2, each inside its 95% χ² band: a Monte Carlo check of the clock filter's tuning.</p>
+            </div>
+            <div class="rpane" data-p="orbit" role="tabpanel">
+              <div class="rp-h"><b>Orbit view: propagated track in Earth-centred inertial coordinates</b><span class="illus">Illustrative · drag to rotate</span></div>
+              <canvas class="cvs" id="orbC" aria-label="Rotatable orbit view, illustrative"></canvas>
+            </div>
+            <div class="rpane" data-p="cmp" role="tabpanel">
+              <div class="rp-h"><b>A/B compare: two clocks, one scenario</b><span class="real">Real engine output</span></div>
+              <div class="cmp" id="cmpV"></div>
+            </div>
+            <div class="rpane" data-p="sweep" role="tabpanel">
+              <div class="rp-h"><b>Parameter sweep</b><span class="illus">Illustrative</span></div>
+              <div class="sweep-ctl"><label>Sweep <select id="swKey"><option value="thr">threshold_ns</option><option value="seed">seed</option></select></label><label>from <input id="swA" type="number" value="5"></label><label>to <input id="swB" type="number" value="60"></label><label>in <input id="swN" type="number" value="12"> steps</label><label>plot <select id="swY"><option value="hold">holdover_s</option><option value="avail">availability</option></select></label><button class="tbtn run" id="swGo">Sweep</button></div>
+              <canvas class="cvs" id="swC" style="height:260px" aria-label="Sweep result, illustrative"></canvas>
+            </div>
+            <div class="rpane" data-p="json" role="tabpanel">
+              <div class="rp-h"><b>Full result (JSON), every field with a unit and a provenance</b><span class="acts"><button class="tbtn" id="jsonCopy"><svg aria-hidden="true"><use href="#i-copy"/></svg>Copy</button><button class="tbtn" data-dl="json"><svg aria-hidden="true"><use href="#i-down"/></svg>Download JSON</button></span></div>
+              <pre class="jsonv" id="jsonV"></pre>
+            </div>
+            <div class="rpane" data-p="rep" role="tabpanel">
+              <div class="rp-h"><b>Downloadable report and exports</b><span class="illus">Preview</span></div>
+              <div class="report">
+                <div class="paper" aria-hidden="true"><i class="t"></i><i style="width:90%"></i><i style="width:60%"></i><svg viewBox="0 0 120 50"><path d="M2 46 L40 46 C 60 44, 80 30, 118 6" fill="none" stroke="#1F55F0" stroke-width="2"/><path d="M2 46 L118 45" fill="none" stroke="#0F8A47" stroke-width="2"/></svg><i></i><i style="width:80%"></i><i style="width:70%"></i><i></i><i style="width:50%"></i></div>
+                <div>
+                  <ul class="list-plain">
+                    <li style="--c:var(--tim)"><span><b>Report (HTML)</b>: summary, figures of merit with tiers, charts and the full scenario, stamped with engine version, seed and scenario hash.</span></li>
+                    <li style="--c:var(--orb)"><span><b>Chart (SVG)</b> for every view, and <b>JSON</b> with units and provenance on every field.</span></li>
+                    <li style="--c:var(--itg)"><span><b>CSV (comma-separated values) table</b> for the kinds that publish one.</span></li>
+                    <li style="--c:var(--spf)"><span><b>Orbit exports</b> from the engine and the MCP server: SP3, CCSDS OEM and OMM.</span></li>
+                  </ul>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px"><button class="tbtn run" data-dl="report"><svg aria-hidden="true"><use href="#i-down"/></svg>Download report</button><button class="tbtn" data-dl="json"><svg aria-hidden="true"><use href="#i-down"/></svg>JSON</button><button class="tbtn" data-dl="ts"><svg aria-hidden="true"><use href="#i-down"/></svg>Chart</button></div>
+                </div>
+              </div>
+            </div>
+            <div class="rpane" data-p="embed" role="tabpanel">
+              <div class="rp-h"><b>Share a run, or embed the playground</b><span class="illus">Format preview</span></div>
+              <ul class="list-plain">
+                <li style="--c:var(--tim)"><span><b>Share link.</b> The whole scenario is encoded into the address after <code>#s=</code>, so the link reproduces the run exactly and no server stores anything.</span></li>
+                <li style="--c:var(--spf)"><span><b>Embed mode.</b> Add <code>?embed=1</code> to show only the playground, for a course page or a report. Optional <code>scenario</code>, <code>seed</code> and <code>tab</code> preselect the run.</span></li>
+              </ul>
+              <div class="snip"><code id="shareSnip"></code><button class="tbtn" data-copy-from="shareSnip">Copy</button></div>
+              <div class="snip"><code id="embedSnip"></code><button class="tbtn" data-copy-from="embedSnip">Copy</button></div>
+            </div>
+            <div class="tour-tip" id="tourTip" role="dialog" aria-live="polite"><b id="ttT"></b><span id="ttB"></span><div class="tt-f"><span id="ttN"></span><span><button id="ttSkip" style="background:transparent;color:inherit">Skip</button> <button id="ttNext">Next</button></span></div></div>
+          </div>
+        </div>
+        <div class="win-status"><span>engine: kshana (WebAssembly)</span><span id="pgStat">seed 42 · sample loaded</span><span class="real" id="pgProv">Committed engine output</span></div>
+      </div>
+    </div>
+    <div class="below-win">
+      <a class="btn btn-ink" href="https://kshana.dev/#playground">Open the live playground <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="btn btn-ghost" href="../2026-09-27-playground/index.html">Open the new playground concept</a>
+      <p>This concept shows the committed result of <code>scenarios/clock-holdover.toml</code>. The live playground re-runs any scenario in your browser.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROOF ============ -->
+<section class="sec" id="proof" style="background:var(--bg-2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--itg)"><i></i>Verification matrix</span><h2 class="h2 rv">Every capability wears its evidence.</h2></div>
+      <p class="lede rv">{{TOTAL}} capabilities, each graded. <b>{{VAL}} validated</b> against independent external oracles. <b>{{MOD}} honestly labelled Modelled.</b> {{PAR}} partner-owned. Nothing is rounded up.</p>
+    </div>
+    <div class="proof-top">
+      <div class="ring rv" id="ring">
+        <svg viewBox="0 0 400 400" aria-hidden="true">
+          <circle cx="200" cy="200" r="170" fill="none" stroke="var(--line)" stroke-width="24"/>
+          <circle id="arcV" cx="200" cy="200" r="170" fill="none" stroke="var(--itg)" stroke-width="24" stroke-linecap="round" transform="rotate(-90 200 200)"/>
+          <circle id="arcM" cx="200" cy="200" r="170" fill="none" stroke="color-mix(in srgb,var(--ink) 30%,transparent)" stroke-width="24" stroke-linecap="round" transform="rotate(-90 200 200)"/>
+          <circle id="arcP" cx="200" cy="200" r="170" fill="none" stroke="var(--nav)" stroke-width="24" stroke-linecap="round" transform="rotate(-90 200 200)"/>
+        </svg>
+        <div class="ring-c"><div class="n" id="ringN">{{VAL}}</div><div class="of">of <b>{{TOTAL}}</b> capabilities<br>validated</div></div>
+      </div>
+      <div class="matrix rv">
+        <div class="m-top"><div><h3>One cell per capability</h3><p>Hover or focus a cell to read it. Filter by status.</p></div></div>
+        <div class="cells" id="cells" role="group" aria-label="Verification matrix: {{VAL}} validated, {{MOD}} modelled, {{PAR}} partner-owned, {{TOTAL}} in total"></div>
+        <div class="cell-tip" id="cellTip">Validated means an independent external source agrees: published reference vectors, a separate tool, or measured data. Anything else says Modelled.</div>
+        <div class="lgd" id="lgd">
+          <button aria-pressed="false" data-f="v"><i style="background:var(--itg)"></i><b>{{VAL}}</b> Validated</button>
+          <button aria-pressed="false" data-f="m"><i style="border:1.5px solid color-mix(in srgb,var(--ink) 30%,transparent)"></i><b>{{MOD}}</b> Modelled</button>
+          <button aria-pressed="false" data-f="p"><i style="border:1.5px dashed var(--nav)"></i><b>{{PAR}}</b> Partner-owned</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="res solid" style="--c:var(--orb-card)"><div class="k"><span>Orbits · SGP4</span><span class="ok">Validated</span></div><div class="v">666<small>/666</small></div><h3>SGP4 orbit propagation</h3><p>All 666 AIAA (American Institute of Aeronautics and Astronautics) reference vectors reproduced. Worst case 4.12 mm.</p><span class="or">oracle · AIAA reference vectors</span></div>
+      <div class="res" style="--c:var(--orb)"><div class="k"><span>Orbits · numerical</span><span class="ok">Validated</span></div><div class="v">0.08<small>m</small></div><h3>Numerical (Cowell) orbit propagation</h3><p>Agrees with an independent flight-dynamics library.</p><span class="or">oracle · Orekit 12.2</span></div>
+      <div class="res" style="--c:var(--orb)"><div class="k"><span>Orbits · precise</span><span class="ok">Validated</span></div><div class="v">0.61<small>m</small> <span style="opacity:.35">/</span> 0.10<small>m</small></div><h3>Galileo and Swarm-A orbits</h3><p>Galileo 0.61 m and Swarm-A 0.10 m against ESA (European Space Agency) precise ephemerides.</p><span class="or">oracle · ESA precise ephemerides</span></div>
+      <div class="res solid" style="--c:var(--itg-card)"><div class="k"><span>Integrity · RAIM</span><span class="ok">Validated</span></div><div class="v">171<small>cases</small></div><h3>RAIM detection thresholds</h3><p>Detection thresholds validated against SciPy across 171 cases.</p><span class="or">oracle · SciPy</span></div>
+      <div class="res" style="--c:var(--tim)"><div class="k"><span>Clocks · stability</span><span class="ok">Validated</span></div><div class="v" style="font-size:clamp(34px,3.2vw,48px)">NIST SP 1065</div><h3>Allan deviation</h3><p>Reproduces the reference values of NIST (National Institute of Standards and Technology) Special Publication 1065.</p><span class="or">oracle · NIST SP 1065</span></div>
+      <div class="res solid" style="--c:var(--tim-card)"><div class="k"><span>Clocks · holdover</span><span class="ok">Validated</span></div><div class="v">0.84–1.03</div><h3>Holdover prediction on a real caesium clock</h3><p>Predicted over measured on a record held out from fitting: inside the pre-set factor of 1.5.</p>
+        <svg viewBox="0 0 300 44" aria-hidden="true"><g font-family="Geist Mono, monospace" font-size="9" fill="#fff"><rect x="0" y="14" width="300" height="10" rx="5" fill="rgba(255,255,255,.18)"/><rect x="85.6" y="14" width="97.7" height="10" rx="5" fill="#fff"/><line x1="150" y1="8" x2="150" y2="30" stroke="#fff" stroke-width="1.2" opacity=".7"/><text x="0" y="42">÷1.5</text><text x="140" y="42">1.00</text><text x="276" y="42">×1.5</text></g></svg>
+      </div>
+    </div>
+
+    <div class="ledger rv" id="ledger">
+      <div class="lg-bar">
+        <h3>The full validation ledger</h3>
+        <div class="seg" id="lgSeg" role="group" aria-label="Filter by status"><button aria-pressed="true" data-s="">All {{TOTAL}}</button><button aria-pressed="false" data-s="v">Validated</button><button aria-pressed="false" data-s="m">Modelled</button><button aria-pressed="false" data-s="p">Partner</button></div>
+        <label><span class="vh">Search the ledger</span><input id="lgQ" type="search" placeholder="Search requirement, oracle or module"></label>
+      </div>
+      <div class="lg-scroll"><table class="lg-table"><thead><tr><th>Requirement</th><th>Capability</th><th>Status</th><th>Oracle</th><th>Module · test</th></tr></thead><tbody id="lgBody"></tbody></table></div>
+      <div class="lg-foot"><span id="lgCount"></span><span>Generated from the engine's verification matrix and pinned by a test. Text shortened for display.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAPABILITIES ============ -->
+<section class="sec" id="capabilities">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--orb)"><i></i>Capabilities</span><h2 class="h2 rv">One engine for the whole failure chain.</h2></div>
+      <p class="lede rv">Interference, spoofing, inertial coasting, clocks, orbits, integrity, telecom timing, lunar PNT and quantum sensors, with standard exchange formats. <b>It is not an RF signal simulator and not a GNSS receiver.</b></p>
+    </div>
+    <div class="bento">
+      <article class="tile t-hold rv" style="--c:var(--tim)">
+        <span class="illus">Illustrative</span>
+        <div class="tk">Clock holdover · slot timing</div>
+        <h3>How long does your clock stay inside the guard?</h3>
+        <p>Chip-scale atomic clock, TCXO, OCXO, rubidium and caesium: each drifts differently once GNSS is gone.</p>
+        <div class="viz"><svg id="vHold" viewBox="0 0 700 300" preserveAspectRatio="none" role="img" aria-label="Time error growth for five clock types against a 100 nanosecond guard"></svg></div>
+        <div class="hl-legend"><span style="--c:var(--int)"><i></i>TCXO</span><span style="--c:var(--nav)"><i></i>OCXO</span><span style="--c:var(--spf)"><i></i>Chip-scale atomic</span><span style="--c:var(--tim)"><i></i>Rubidium</span><span style="--c:var(--ink)"><i></i>Caesium</span></div>
+      </article>
+      <article class="tile t-raim rv" style="--c:var(--itg)"><span class="illus">Illustrative</span><div class="tk">Integrity</div><h3>RAIM and ARAIM protection levels.</h3><div class="viz"><svg id="vRaim" viewBox="0 0 300 150" role="img" aria-label="Protection level inside the alert limit"></svg></div></article>
+      <article class="tile t-mtie rv" style="--c:var(--tim)"><span class="illus">Illustrative</span><div class="tk">Telecom timing</div><h3>MTIE and TDEV against ITU-T masks.</h3><div class="viz"><svg id="vMtie" viewBox="0 0 300 150" preserveAspectRatio="none" role="img" aria-label="Maximum time interval error under the mask"></svg></div></article>
+      <article class="tile t-ins rv" style="--c:var(--nav)"><span class="illus">Illustrative</span><div class="tk">GNSS / INS coasting</div><h3>Inertial and terrain-relative coasting through an outage.</h3><div class="viz"><svg id="vIns" viewBox="0 0 400 150" preserveAspectRatio="none" role="img" aria-label="Inertial error cone growing during an outage and shrinking with map matching"></svg></div></article>
+      <article class="tile t-quant rv" style="--c:var(--spf)"><span class="illus">Illustrative</span><div class="tk">Quantum-sensor trade studies</div><h3>Classical against quantum, same scenario.</h3>
+        <div class="qbars"><div class="qb" style="--c:var(--int);--w:.92"><span>Tactical-grade IMU</span><div class="bar"><i></i></div></div><div class="qb" style="--c:var(--nav);--w:.52"><span>Navigation-grade IMU</span><div class="bar"><i></i></div></div><div class="qb" style="--c:var(--spf);--w:.16"><span>Quantum inertial sensor</span><div class="bar"><i></i></div></div></div>
+        <p style="margin-top:14px;font-size:12.5px">Relative position drift after GNSS loss. IMU: inertial measurement unit. Sensors are driven by published noise coefficients.</p></article>
+      <article class="tile t-lunar rv" style="--c:var(--orb)"><span class="illus">Illustrative</span><div class="tk">Lunar PNT</div><h3>Navigation beyond Earth orbit.</h3><div class="viz"><svg id="vLunar" viewBox="0 0 400 170" role="img" aria-label="Relay satellites orbiting the Moon"></svg></div></article>
+      <article class="tile t-fmt rv" style="--c:var(--itg)"><div class="tk">Formats and standards</div><h3>Reads and writes what the industry uses.</h3><p>Green formats are checked against real data or a published example. The full grid is below.</p><div class="fmts" id="fmtChips"></div></article>
+    </div>
+
+    <div class="explorer" id="explorer">
+      <div class="ex-head"><div><h3>Capability explorer</h3><p>All {{NCAPS}} capability cards from the live site. <b>Run</b> loads the matching scenario in the playground.</p></div><span class="illus" style="color:var(--ink-3)">Tier shows Validated or Modelled</span></div>
+      <div class="ex-filters" id="exF" role="group" aria-label="Filter capability cards"></div>
+      <div class="ex-grid" id="exG"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAPABILITY ATLAS ============ -->
+<section class="sec" id="atlas" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--spf)"><i></i>Capability atlas</span><h2 class="h2 rv">Every bundled scenario, on one map.</h2></div>
+      <p class="lede rv">All {{FILES}} scenario files across {{KINDS}} kinds, grouped by domain. Colour shows the ledger status of the kind's module where the ledger names it; select a node for its description and a deep link that runs it.</p>
+    </div>
+    <div class="atlas rv">
+      <div class="at-bar"><label><span class="vh">Filter scenarios</span><input id="atQ" type="search" placeholder="Filter by file, kind or words"></label><div class="at-key"><span><i class="v"></i>Kind has validated ledger rows</span><span><i class="m"></i>Kind's ledger rows are Modelled</span><span><i class="u"></i>Not matched to a ledger module by name</span></div></div>
+      <div class="at-map" id="atMap"></div>
+      <div class="at-detail" id="atDetail" aria-live="polite">Select a node to read what it models.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STANDARDS ============ -->
+<section class="sec" id="standards" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--itg)"><i></i>Standards grid</span><h2 class="h2 rv">Speaks the formats you already file.</h2></div>
+      <p class="lede rv">{{NSTD}} standards and formats the engine implements. A green mark means it is checked against real data, a published Blue Book example or an independent reference implementation.</p>
+    </div>
+    <div class="std-grid" id="stdG"></div>
+  </div>
+</section>
+
+<!-- ============ SCENARIO GALLERY ============ -->
+<section class="sec" id="scenarios" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--nav)"><i></i>Scenario gallery</span><h2 class="h2 rv">Pick a failure. Run it.</h2></div>
+      <p class="lede rv">Scenarios are plain TOML files you can read, diff and share. Start from a bundled one and change the threat, the platform or the clock.</p>
+    </div>
+    <div class="gal">
+      <div class="gt big rv"><div><div class="n">{{KINDS}}</div><h3>scenario kinds</h3><p>{{FILES}} bundled scenario files ship with the engine, at least one for every kind.</p></div><button class="btn btn-ink" type="button" data-open-pal style="align-self:flex-start">Browse all kinds <kbd style="background:transparent;border-color:currentColor;color:inherit">⌘K</kbd></button></div>
+      <button class="gt rv" data-run="jamming-demo" style="--c:var(--int-card)"><svg class="vis" viewBox="0 0 200 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle class="pulse" cx="100" cy="50" r="30"/><circle class="pulse d2" cx="100" cy="50" r="30"/><circle class="pulse d3" cx="100" cy="50" r="30"/></g><circle cx="100" cy="50" r="6" fill="currentColor"/></svg><span class="nm">jamming-demo</span><span class="kd">kind · jamming</span></button>
+      <button class="gt rv" data-run="spoof-detect" style="--c:var(--spf-card)"><svg class="vis" viewBox="0 0 200 100" aria-hidden="true"><path d="M8 70 C 60 70, 90 66, 192 64" fill="none" stroke="currentColor" stroke-width="2" opacity=".35"/><path d="M8 70 C 60 70, 90 66, 120 52 S 170 18, 192 12" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="120" cy="52" r="5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="nm">spoof-detect</span><span class="kd">kind · spoof-detect</span></button>
+      <button class="gt wide rv" data-run="small-uas-jammed-nav" style="--c:var(--nav-card)" data-nav><svg class="vis" viewBox="0 0 420 100" aria-hidden="true"><path d="M170 50 L 400 14 L 400 86 Z" fill="currentColor" opacity=".12"/><path d="M10 50 L170 50" stroke="currentColor" stroke-width="2.4"/><path d="M170 50 C 240 50, 300 44, 400 30" fill="none" stroke="currentColor" stroke-width="2.4"/><line x1="170" y1="10" x2="170" y2="90" stroke="currentColor" stroke-dasharray="2 4" opacity=".7"/><text x="176" y="96" font-family="Geist Mono,monospace" font-size="10.5" fill="currentColor">GNSS lost, INS coasting</text></svg><span class="nm">small-uas-jammed-nav</span><p>A small UAS (uncrewed aircraft system) loses GNSS mid-route and flies on inertial.</p></button>
+      <button class="gt rv" data-run="spoof-meaconing" style="--c:var(--spf-card)"><svg class="vis" viewBox="0 0 200 100" aria-hidden="true"><path d="M0 36 q12.5 -22 25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18 66 q12.5 -22 25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4" opacity=".7"/></svg><span class="nm">spoof-meaconing</span><span class="kd">delayed rebroadcast</span></button>
+      <button class="gt rv" data-run="terrain-nav" style="--c:var(--orb-card)"><svg class="vis" viewBox="0 0 200 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.2" opacity=".5"><ellipse cx="120" cy="50" rx="70" ry="38"/><ellipse cx="124" cy="48" rx="50" ry="26"/><ellipse cx="128" cy="46" rx="30" ry="15"/></g><path d="M6 88 C 50 80, 70 30, 120 40 S 180 20, 196 14" fill="none" stroke="currentColor" stroke-width="2.4"/></svg><span class="nm">terrain-nav</span><span class="kd">kind · terrain-nav</span></button>
+      <button class="gt wide rv" data-run="slot-timing-ocxo-leo" style="--c:var(--tim-card)"><svg class="vis" viewBox="0 0 420 100" aria-hidden="true"><rect x="0" y="30" width="420" height="40" rx="6" fill="currentColor" opacity=".12"/><line x1="0" y1="30" x2="420" y2="30" stroke="currentColor" stroke-dasharray="5 5" opacity=".7"/><line x1="0" y1="70" x2="420" y2="70" stroke="currentColor" stroke-dasharray="5 5" opacity=".7"/><path d="M0 50 C 120 50, 220 46, 300 36 S 380 8, 420 0" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="321" cy="30" r="5" fill="currentColor"/></svg><span class="nm">slot-timing-ocxo-leo</span><p>How long a clock stays inside its guard interval once its reference is gone.</p></button>
+      <button class="gt rv" data-run="hybrid-pnt" style="--c:var(--itg-card)"><svg class="vis" viewBox="0 0 200 100" aria-hidden="true"><g font-family="Geist Mono,monospace" font-size="9.5" fill="currentColor"><text x="0" y="17">GNSS</text><text x="0" y="39">INS</text><text x="0" y="61">clock</text><text x="0" y="83">terrain</text></g><g stroke="currentColor" stroke-width="5" stroke-linecap="round"><line x1="52" y1="14" x2="96" y2="14"/><line x1="52" y1="36" x2="148" y2="36" opacity=".75"/><line x1="52" y1="58" x2="148" y2="58" opacity=".55"/><line x1="52" y1="80" x2="148" y2="80" opacity=".4"/></g></svg><span class="nm">hybrid-pnt</span><span class="kd">kind · hybrid</span></button>
+      <button class="gt rv" data-run="moonlight-service-volume" style="--c:var(--orb-card)"><svg class="vis" viewBox="0 0 200 100" aria-hidden="true"><circle cx="150" cy="50" r="22" fill="currentColor" opacity=".2"/><circle cx="150" cy="50" r="22" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="150" cy="50" r="40" fill="none" stroke="currentColor" stroke-dasharray="3 4" opacity=".6"/><circle cx="190" cy="50" r="4" fill="currentColor"/><circle cx="30" cy="50" r="13" fill="currentColor" opacity=".55"/></svg><span class="nm">moonlight-service-volume</span><span class="kd">lunar PNT</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEVELOPERS ============ -->
+<section class="sec" id="developers" style="background:var(--bg-2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--tim)"><i></i>Developers</span><h2 class="h2 rv">One engine. Every door in.</h2></div>
+      <p class="lede rv">The same Rust engine behind a command-line tool, a Rust crate, a Python package, a JavaScript package, the browser playground, a JetBrains plugin and an MCP (Model Context Protocol) server, so an AI assistant runs the validated engine instead of guessing the maths.</p>
+    </div>
+    <div class="ways rv" id="ways">
+      <div class="ways-h"><h3>Ways to use it</h3><p>Eleven ways in. Every command is real and copies with one click.</p></div>
+      <div class="ways-scroll"><table class="ways-t"><thead><tr><th>Way in</th><th>Command or link</th><th>What you get</th></tr></thead><tbody id="waysBody"></tbody></table></div>
+    </div>
+    <div class="dev-grid">
+      <div>
+        <div class="doors" role="tablist" id="doors" aria-label="Ways in">
+          <button class="door" role="tab" aria-selected="true" data-k="cli" style="--c:var(--int)"><i></i><b>Command line</b><span>crates.io</span></button>
+          <button class="door" role="tab" aria-selected="false" data-k="rust" style="--c:var(--nav)"><i></i><b>Rust crate</b><span>cargo add kshana</span></button>
+          <button class="door" role="tab" aria-selected="false" data-k="py" style="--c:var(--tim)"><i></i><b>Python</b><span>PyPI</span></button>
+          <button class="door" role="tab" aria-selected="false" data-k="js" style="--c:var(--itg)"><i></i><b>JavaScript</b><span>npm · WebAssembly</span></button>
+          <button class="door" role="tab" aria-selected="false" data-k="mcp" style="--c:var(--spf)"><i></i><b>MCP server</b><span>crates.io · MCP registry</span></button>
+          <button class="door" role="tab" aria-selected="false" data-k="docker" style="--c:var(--orb)"><i></i><b>Container</b><span>ghcr.io image</span></button>
+        </div>
+        <div class="term">
+          <div class="term-bar"><span id="termTitle">terminal · command line</span><button class="tbtn" id="termCopy"><svg aria-hidden="true"><use href="#i-copy"/></svg>Copy</button></div>
+          <pre id="termPre"></pre>
+        </div>
+        <p class="term-note">Or install nothing at all: the playground runs the engine in your browser.</p>
+        <div class="facts">
+          <div class="fact" style="--c:var(--orb)"><i><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 4h12v10H3z M6 4v10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></i><span><b>JetBrains Marketplace plugin, "Kshana — PNT simulator".</b> Right-click any scenario <code>.toml</code>, choose Run Kshana Scenario, and read the figures of merit in a tool window.</span></div>
+          <div class="fact" style="--c:var(--nav)"><i><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 6l-2 3 2 3M14 6l2 3-2 3M11 3 7 15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span><b>Every run writes</b> <code>result.json</code>, <code>chart.svg</code> and <code>report.html</code>, plus a CSV table for the kinds that publish one.</span></div>
+          <div class="fact" style="--c:var(--itg)"><i><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9.5l3.5 3.5L15 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span><b>Reproducible.</b> Deterministic from scenario, seed and engine version, with a CycloneDX SBOM (software bill of materials) and SLSA (Supply-chain Levels for Software Artifacts) build provenance on every release.</span></div>
+        </div>
+      </div>
+      <div class="mcp" id="mcp">
+        <div class="mcp-h">
+          <span class="eyebrow" style="--c:var(--spf)"><i></i>AI agents</span>
+          <h3>Callable from your AI assistant over MCP.</h3>
+          <p><code>kshana-mcp</code> is published on crates.io, as a multi-architecture container image and in the official MCP registry as <code>io.github.ashfordeOU/kshana-mcp</code>. It works with Cursor, JetBrains AI Assistant and Junie, and any MCP-compatible assistant. Seven tools, each a thin wrapper over the public Kshana API:</p>
+          <div class="tools"><code>run_scenario</code><code>list_scenario_kinds</code><code>validate_scenario</code><code>export_sp3</code><code>export_omm</code><code>export_oem</code><code>export_table_csv</code></div>
+        </div>
+        <div class="chat" id="chat">
+          <div class="chat-h"><span>AI assistant with kshana-mcp</span><span class="illus">Illustrative mock</span></div>
+          <div class="msg u">What's the GPS-denied position drift over a one-hour outage with a cold-atom IMU?</div>
+          <div class="msg tool"><div class="tn"><i></i>kshana-mcp · run_scenario</div>{ <span class="s">"scenario"</span>: <span class="s">"imu-deadreckoning.toml"</span> }</div>
+          <div class="msg a"><span class="who">AI assistant</span><span id="chatA">I ran the engine rather than estimating. It returns the drift with its figures of merit and their provenance, so the number I quote is cited, not guessed. Want the classical IMU alongside?</span></div>
+        </div>
+        <div class="jb"><svg viewBox="0 0 30 30" aria-hidden="true"><rect x="1" y="1" width="28" height="28" rx="6" fill="var(--ink)"/><rect x="6" y="20" width="11" height="2.4" fill="var(--bg)"/><text x="6" y="16" font-family="Geist Mono,monospace" font-size="9" font-weight="700" fill="var(--bg)">KS</text></svg><span><b>Prefer to click?</b> Install from the JetBrains Marketplace, or Settings → Plugins → Marketplace → search "Kshana".</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="not"><div class="wrap"><p class="rv">Kshana is <b>not an RF signal simulator</b> and <b>not a GNSS receiver</b>. It is a study and trade-off instrument: it simulates what jamming, spoofing and signal loss do to a navigation and timing solution, and tells you which of its answers are validated. <b>Not a flight product.</b></p></div></section>
+
+<!-- ============ EDITIONS ============ -->
+<section class="sec eds-sec" id="editions">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow" style="--c:var(--s-itg)"><i></i>Editions · free and Pro</span><h2 class="h2 rv" style="color:#fff">Free to build on. <span style="color:var(--space-ink-3)">Pro when it has to stand up in review.</span></h2></div>
+      <p class="lede rv">The engine is, and stays, open source under the AGPL-3.0 (GNU Affero General Public License, version 3). Ashforde OÜ sustains it with expertise and a proprietary overlay, not with seat fees on the open engine.</p>
+    </div>
+    <div class="why rv">
+      <div class="why-col">
+        <span class="eyebrow" style="--c:var(--s-itg)"><i></i>Why every team needs Kshana</span>
+        <ul>
+          <li><b>Everyone who takes position or time from GNSS is exposed.</b> Jamming, spoofing and signal loss reach vehicles, networks, grids and spacecraft alike.</li>
+          <li><b>It says what is checked.</b> {{VAL}} of {{TOTAL}} capabilities agree with independent external oracles, and the other {{MOD}} are labelled Modelled, out loud.</li>
+          <li><b>Free, reproducible, in the browser.</b> Deterministic from scenario, seed and engine version, with nothing to install.</li>
+          <li><b>One engine for the whole chain.</b> From jamming to holdover to integrity, orbits and lunar PNT, with {{KINDS}} scenario kinds.</li>
+        </ul>
+      </div>
+      <div class="why-col pro">
+        <span class="eyebrow" style="--c:var(--s-spf)"><i></i>Why Pro, when it matters more</span>
+        <ul>
+          <li><b>Evidence you can hand to a reviewer.</b> Audit-grade, reproducible evidence packs for a review or a procurement board.</li>
+          <li><b>Calibrated to your device.</b> Clock digital twins calibrated to a device's published Allan budget, not generic presets.</li>
+          <li><b>Ranked answers.</b> Architecture trade studies ranked on a figure of merit.</li>
+          <li><b>Closed integration.</b> A commercial licence for proprietary products, without AGPL obligations.</li>
+          <li><b>Sensitive work, handled properly.</b> Export-controlled resilience work under the appropriate clearance and NDA, by a named team.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="eds">
+      <div class="ed rv" style="--c:var(--s-itg)">
+        <svg class="orb" viewBox="0 0 240 240" aria-hidden="true"><circle cx="120" cy="120" r="90" fill="none" stroke="#6A98FF" stroke-opacity=".35"/><circle cx="120" cy="120" r="64" fill="none" stroke="#A58BFF" stroke-opacity=".35"/><circle cx="120" cy="120" r="38" fill="none" stroke="#FFB224" stroke-opacity=".35"/><circle cx="210" cy="120" r="4" fill="#6A98FF"/><circle cx="75" cy="75" r="4" fill="#A58BFF"/></svg>
+        <div class="lic">Free · AGPL-3.0</div>
+        <h3>Open core</h3>
+        <p>The whole validated engine and every surface, native, Python, in-browser and over MCP, free with no feature gate. Everything on this page runs on it.</p>
+        <div class="ed-links" aria-label="Free channels">
+          <a href="https://kshana.dev">Playground · kshana.dev</a><a href="https://github.com/ashfordeOU/kshana">GitHub</a><a href="https://crates.io/crates/kshana">crates.io</a><a href="https://pypi.org/project/kshana/">PyPI</a><a href="https://www.npmjs.com/package/kshana">npm</a><a href="https://crates.io/crates/kshana-mcp">kshana-mcp</a><a href="https://registry.modelcontextprotocol.io">MCP registry</a><a href="https://plugins.jetbrains.com/plugin/32181-kshana--pnt-simulator">JetBrains plugin</a><a href="https://github.com/ashfordeOU/kshana/pkgs/container/kshana-mcp">Container image</a>
+        </div>
+        <div class="ed-cmds"><button class="cmd dark" type="button" data-copy="cargo install kshana"><span class="pr">$</span>cargo install kshana<span class="cp">Copy</span></button><button class="cmd dark" type="button" data-copy="pip install kshana"><span class="pr">$</span>pip install kshana<span class="cp">Copy</span></button><button class="cmd dark" type="button" data-copy="npm install kshana"><span class="pr">$</span>npm install kshana<span class="cp">Copy</span></button></div>
+        <div class="go"><a class="btn btn-white" href="https://kshana.dev">Open the playground <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="btn btn-ghost-d" href="mailto:contact@ashforde.org?subject=Kshana%20commercial%20licence">Talk to us about a licence</a></div>
+      </div>
+      <div class="ed ed-pro rv" style="--c:var(--s-spf)">
+        <div class="lic">Commercial · proprietary overlay</div>
+        <h3>Kshana Pro</h3>
+        <p>An overlay that depends on the open core and never forks it. Available under contract.</p>
+        <ul><li>Clock digital twins calibrated to a device's published Allan budget</li><li>Architecture trade studies ranked on a figure of merit</li><li>Audit-grade, reproducible evidence packs</li></ul>
+        <div class="go"><a class="btn btn-white" href="mailto:contact@ashforde.org?subject=Kshana%20Pro%20evaluation">Request an evaluation <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+      </div>
+      <div class="ed rv" style="--c:var(--s-nav)">
+        <div class="lic">Custom work and studies</div>
+        <h3>Custom and export-sensitive</h3>
+        <p>Sensor and resilience models calibrated to your hardware, including export-controlled resilience work under the appropriate clearance and NDA (non-disclosure agreement), plus integration, training and consulting.</p>
+        <ul><li><b>Request a study:</b> a Modelled PNT-resilience study, reproducible from scenario, seed and engine version</li><li>Every figure labelled. Not a certification.</li></ul>
+        <div class="go"><a class="btn btn-white" href="mailto:contact@ashforde.org?subject=Kshana%20study%20request">Request a study</a><a class="btn btn-ghost-d" href="https://ashforde.org">ashforde.org</a></div>
+      </div>
+    </div>
+    <p class="ed-foot rv">Talk to us: <a href="mailto:contact@ashforde.org">contact@ashforde.org</a> · <a href="https://ashforde.org">ashforde.org</a>. Mail goes straight to the team; there is no form.</p>
+  </div>
+</section>
+
+<!-- ============ CITE ============ -->
+<section class="sec" id="cite">
+  <div class="wrap cite">
+    <div class="rv">
+      <span class="eyebrow" style="--c:var(--spf)"><i></i>Cite and use</span>
+      <h2 class="h2" style="font-size:clamp(2.2rem,4.2vw,3.8rem)">Built to be referenced.</h2>
+      <p class="lede" style="margin-top:16px">Every release is archived on Zenodo with a citable DOI (Digital Object Identifier), and a CITATION.cff ships in the repository. Please cite the engine version and the scenario and seed.</p>
+      <ul class="pubs" aria-label="Related publications">
+        <li>Baweja, C. (2026). The Cost of Lunar South-Polar Geometry, and Surface Beacons as the Efficient Fix: A Dilution-of-Precision Analysis. <a href="https://arxiv.org/abs/2607.06212">arXiv:2607.06212</a></li>
+        <li>Baweja, C. (2026). Earth-baseline VLBI restores the observability of a lunar surface station in joint orbit-and-clock determination. <a href="https://arxiv.org/abs/2607.02566">arXiv:2607.02566</a></li>
+        <li>Baweja, C. (2026). A Conditional Timing Protection Level: Holdover-Limited Undetected Time Error Under GNSS Spoofing. <a href="https://arxiv.org/abs/2606.24210">arXiv:2606.24210</a></li>
+        <li>Baweja, C. (2026). Anticipating the Optimism Gap: Predicting Distribution-Shift Degradation of RF-Impairment Detectors from In-Distribution Statistics. <a href="https://arxiv.org/abs/2606.22054">arXiv:2606.22054</a></li>
+      </ul>
+    </div>
+    <div class="rv">
+      <div class="bib"><button class="tbtn" id="bibCopy"><svg aria-hidden="true"><use href="#i-copy"/></svg>Copy BibTeX</button><pre id="bibText"><span class="k">@software</span>{<span class="v">kshana</span>,
+  <span class="k">title</span>   = {Kshana — a PNT-resilience simulator with
+             quantum-sensor performance models},
+  <span class="k">author</span>  = {Baweja, Chakshu},
+  <span class="k">version</span> = {{{VER}}},
+  <span class="k">year</span>    = {2026},
+  <span class="k">doi</span>     = {10.5281/zenodo.20528627},
+  <span class="k">url</span>     = {https://github.com/ashfordeOU/kshana},
+  <span class="k">license</span> = {AGPL-3.0-only}
+}</pre></div>
+      <p class="apa">Baweja, C. (2026). <i>Kshana — a PNT-resilience simulator with quantum-sensor performance models</i> (Version {{VER}}). Ashforde OÜ. https://doi.org/10.5281/zenodo.20528627</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GLOSSARY ============ -->
+<section class="sec" id="glossary" style="padding-top:0">
+  <div class="wrap">
+    <span class="eyebrow" style="--c:var(--ink-3)"><i></i>Glossary</span>
+    <h2 class="h2" style="font-size:clamp(2rem,3.4vw,3rem)">Every abbreviation on this page.</h2>
+    <div class="gloss" id="gloss"></div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section style="padding-bottom:24px">
+  <div class="cta rv">
+    <svg class="cta-rings" viewBox="0 0 400 400" aria-hidden="true"><circle cx="200" cy="200" r="30" style="fill:#fff"/><circle cx="200" cy="200" r="70" stroke-width="1.5" opacity=".55"/><circle cx="200" cy="200" r="115" stroke-width="1.5" opacity=".4"/><circle cx="200" cy="200" r="160" stroke-width="1.5" opacity=".28" stroke-dasharray="4 6"/><circle cx="200" cy="200" r="198" stroke-width="1.5" opacity=".16"/></svg>
+    <span class="eyebrow" style="--c:#fff"><i></i>Start in thirty seconds</span>
+    <h2>Find where your timing breaks, before it does.</h2>
+    <p>Open the playground in a tab, or install the engine and run a bundled scenario on your own machine.</p>
+    <div class="ctas"><a class="btn btn-white" href="#playground">Open the playground <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><button class="cmd dark" type="button" data-copy="cargo install kshana" aria-label="Copy install command: cargo install kshana"><span class="pr">$</span>cargo install kshana<span class="cp"><svg width="14" height="14" aria-hidden="true"><use href="#i-copy"/></svg></span></button></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div><a class="brand" href="#top"><svg aria-hidden="true"><use href="#i-mark"/></svg>Kshana <small>by Ashforde</small></a><p>Open-source PNT resilience simulator. Not an RF signal simulator, and not a GNSS receiver.</p></div>
+      <div><h5>Product</h5><a href="#playground">Playground</a><a href="#timeline">Mission console</a><a href="#scenarios">Scenarios</a><a href="#proof">Verification matrix</a><a href="#ledger">Validation ledger</a></div>
+      <div><h5>Developers</h5><a href="#developers">Install</a><a href="#mcp">MCP server</a><a href="#standards">Standards</a><a href="https://github.com/ashfordeOU/kshana">GitHub</a></div>
+      <div><h5>Company</h5><a href="#editions">Editions</a><a href="#cite">Cite</a><a href="mailto:contact@ashforde.org">contact@ashforde.org</a><a href="https://ashforde.org">ashforde.org</a></div>
+    </div>
+    <div class="bigword" aria-hidden="true">kshana</div>
+    <div class="foot-bottom"><span>v{{VER}} · by Ashforde OÜ · AGPL-3.0, with a commercial licence option</span><span>Charts marked Illustrative stand in for engine output. Charts marked Real engine output are read from committed results.</span></div>
+  </div>
+</footer>
+
+<!-- ============ PALETTE ============ -->
+<div class="pal" id="palette" role="dialog" aria-modal="true" aria-label="Search sections, scenarios and actions">
+  <div class="pal-box">
+    <div class="pal-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="palInput" type="text" placeholder="Search sections, scenario kinds, scenario files and actions…" autocomplete="off" spellcheck="false" aria-controls="palList"><kbd>esc</kbd></div>
+    <div class="pal-list" id="palList" role="listbox"></div>
+    <div class="pal-foot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>↵</kbd> select</span><span style="margin-left:auto" id="palCount"></span></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>window.KDATA=/*__DATA__*/null;</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script>
+/*__APP__*/
+</script>
+<script type="module">
+/*__GLOBE__*/
+</script>
+</body>
+</html>

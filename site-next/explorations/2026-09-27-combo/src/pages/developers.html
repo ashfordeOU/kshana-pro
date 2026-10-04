@@ -1,0 +1,202 @@
+<!-- DEVELOPERS on the Observatory system (R4). One compact start block (install console beside the
+     recorded kshana-mcp player, like Home's), the ways-to-use selector, then the command line,
+     libraries, interoperability and plugin in one grid. Install commands come from the repository
+     manifests (build.py); the player replays src/data/mcp-session.json (via js/developers-data.mjs). -->
+<section class="page-hero dx-hero hx-hero">
+  <div class="wrap">
+    <div class="hx">
+      <div class="hx-copy">
+        <span class="eyebrow" style="--c:var(--cyan)"><i></i>Developers</span>
+        <h1 class="h1">One engine. <span class="soft">Every door in.</span></h1>
+    <p class="lede">One Rust engine for GNSS (Global Navigation Satellite System) and PNT (positioning, navigation and timing) resilience: a command-line interface (CLI), Rust, Python and JavaScript packages, {{STUDIO}} in the browser, a JetBrains IDE (integrated development environment) plugin and an MCP (Model Context Protocol) server, so an AI (artificial intelligence) assistant runs the validated engine instead of guessing the maths. Open source under the AGPL-3.0 (GNU Affero General Public License, version 3) or a commercial licence.</p>
+      </div>
+      <!-- R5 hero instrument: a terminal replaying real kshana commands and their real output, captured
+           by src/tools/record_cli_session.py (src/data/cli-session.json, build.py page data "cli"). -->
+      <div class="hx-vis">
+        <figure class="hx-win hx-space dt-win" id="dtWin" aria-labelledby="dtCap">
+          <div class="hx-bar">
+            <span class="live"><i></i>Terminal · <b>kshana</b> <span id="dtVer">v{{VER}}</span></span>
+            <span class="hx-r"><button type="button" class="hx-btn" id="dtPlay" aria-pressed="true" aria-label="Pause the replay"><svg class="i-play" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg><svg class="i-pause" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h3v10H2zM7 1h3v10H7z" fill="currentColor"/></svg></button><span class="tag real">Recorded run</span></span>
+          </div>
+          <pre class="dt-term" id="dtTerm" tabindex="0" aria-label="Terminal replay of real kshana commands and their output"><code id="dtCode">The recorded session plays here with JavaScript.</code></pre>
+          <figcaption class="dt-foot" id="dtCap">Real commands, real output, replayed as captured. In the output: SVs, space vehicles (satellites); J/S, jammer-to-signal ratio; thr, threshold; RAIM, receiver autonomous integrity monitoring; SQM, signal quality monitoring; p95, the 95th percentile.</figcaption>
+        </figure>
+        <p class="prov hx-prov" id="dtProv"></p>
+        <ul class="dt-chs" aria-label="The same engine, every channel"><li><a class="dt-chip" href="#ways" data-way="browser"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span><b>{{STUDIO}}</b><small>in the browser</small></span></a></li><li><a class="dt-chip" href="#ways" data-way="cli"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></svg><span><b>Command line</b><small>crates.io</small></span></a></li><li><a class="dt-chip" href="#ways" data-way="rust"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8.5 5v10L12 22l-8.5-5V7z"/><path d="M12 22V12M20.5 7L12 12 3.5 7"/></svg><span><b>Rust crate</b><small>crates.io</small></span></a></li><li><a class="dt-chip" href="#ways" data-way="python"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 8V5a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v5H9a3 3 0 0 0-3 3v1H5a3 3 0 0 1-3-3v-1a3 3 0 0 1 3-3z"/><path d="M16 16v3a3 3 0 0 1-3 3h-2a3 3 0 0 1-3-3v-5h7a3 3 0 0 0 3-3v-1h1a3 3 0 0 1 3 3v1a3 3 0 0 1-3 3z"/></svg><span><b>Python</b><small>PyPI (Python Package Index)</small></span></a></li><li><a class="dt-chip" href="#ways" data-way="npm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4H6a2 2 0 0 0-2 2v4l-2 2 2 2v4a2 2 0 0 0 2 2h2M16 4h2a2 2 0 0 1 2 2v4l2 2-2 2v4a2 2 0 0 1-2 2h-2"/></svg><span><b>JavaScript</b><small>npm · WebAssembly</small></span></a></li><li><a class="dt-chip" href="#ways" data-way="mcp"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7V3M15 7V3M7 7h10v4a5 5 0 0 1-10 0zM12 16v5"/></svg><span><b>MCP server</b><small>for AI assistants</small></span></a></li><li><a class="dt-chip" href="#ways" data-way="docker"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="10" width="18" height="10" rx="2"/><path d="M7 10V6h4v4M13 10V6h4v4"/></svg><span><b>Container</b><small>Docker image</small></span></a></li><li><a class="dt-chip" href="#ways" data-way="jetbrains"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 16h5"/></svg><span><b>JetBrains</b><small>IDE plugin</small></span></a></li></ul>
+      </div>
+    </div>
+    <div class="dx-bar" aria-label="Release">
+      <span class="live"><i></i>Release <b>v{{VER}}</b></span><span class="sep"></span>
+      <span><b>{{KINDS}}</b> scenario kinds</span><span class="sep"></span>
+      <span><b>{{NTOOLS}}</b> MCP tools</span><span class="sep hide-s"></span>
+      <span class="hide-s">AGPL-3.0 or commercial licence</span>
+      <span class="right"><span class="tag real">Generated from the repository</span></span>
+    </div>
+    <nav class="subnav" aria-label="On this page"><a href="#install">Install</a><a href="#assistant">AI assistants</a><a href="#ways">Ways in</a><a href="#cli">Command line</a><a href="#api">Rust, Python, JavaScript</a><a href="#interop">Interoperability</a><a href="#jetbrains">JetBrains</a><a href="docs/index.html">Docs</a></nav>
+  </div>
+</section>
+
+<!-- ============================================================ 01 INSTALL + AI ASSISTANT -->
+<section class="block dx-start" id="start" aria-label="Install and AI assistants">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow"><span class="idx">01</span>Install · AI assistants</div><h2 class="h2 h2-sm rv">Install in one line. Or none.</h2></div>
+      <p class="lede rv">Generated from the repository's manifests and cross-checked against its READMEs, so every command matches v{{VER}}. <b>{{MCP_CRATE}}</b> gives your AI assistant the same engine: a TOML (Tom's Obvious, Minimal Language) scenario in, JSON (JavaScript Object Notation) and CSV (comma-separated values) out.</p>
+    </div>
+    <div class="dx-grid-start">
+      <div class="glass code dx-inst rv" id="install">
+        <div class="code-h"><span>Install</span><span class="tag real">From the manifests</span></div>
+{{INSTALLER}}
+        <p class="code-foot"><span><b>Rust</b> engine</span><span><b>AGPL-3.0</b> or commercial licence</span><span><b>Software bill of materials</b> and build provenance on every release</span></p>
+      </div>
+      <div class="glass mp rv" id="assistant">
+        <div class="mp-head">
+          <span class="who"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2"/></svg></i>AI assistant + kshana-mcp</span>
+          <span class="mp-hr"><button type="button" class="mp-btn mp-play" id="mcpPlay" aria-pressed="false"><svg class="i-play" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><svg class="i-pause" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg><span>Play</span></button><span class="tag real">Recorded session</span></span>
+        </div>
+        <p class="mp-meta" id="mcpLede">The messages an assistant exchanges with kshana-mcp, captured from the server.</p>
+        <div class="mp-nav">
+          <button type="button" class="mp-btn" id="mcpPrev" aria-label="Previous step"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <div class="mp-steps" role="tablist" aria-label="Steps of the recorded session" id="mcpSteps"></div>
+          <button type="button" class="mp-btn" id="mcpNext" aria-label="Next step"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+        <p class="vh" id="mcpStatus" aria-live="polite" aria-atomic="true"></p>
+        <div class="mp-stage" id="mcpStage"><p class="mp-nojs">The recorded session plays here step by step.</p></div>
+        <p class="prov mp-prov" data-prov="fail-tim" data-prov-lead="Same run in the Studio"></p>
+      </div>
+      <div class="glass dx-tools rv" id="mcp">
+          <p class="dx-tools-h"><b>{{NTOOLS}} tools</b> over the public Kshana API (application programming interface), in the official MCP registry as <code>{{MCP_REG}}</code>. Orbit exports: SP3 (Standard Product 3) and CCSDS (Consultative Committee for Space Data Systems) OMM and OEM (orbit mean-elements and ephemeris messages, TEME: True Equator, Mean Equinox frame). Register it under <b>AI assistant (MCP server)</b> or <b>Docker image</b>. <a href="docs/mcp.html">MCP server docs</a></p>
+          <div class="tools">
+{{MCP_TOOLS}}
+          </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 02 WAYS TO USE IT -->
+<section class="block dx-ways" id="ways" aria-label="Ways to use it">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow" style="--c:var(--magenta)"><span class="idx">02</span>Ways to use it</div><h2 class="h2 h2-sm rv">Eleven ways in.</h2></div>
+      <p class="lede rv">From a browser tab to a continuous integration (CI) regression suite. Every door runs the same engine and writes the same JSON result, SVG (Scalable Vector Graphics) chart and HTML (HyperText Markup Language) report. Pick one; every command is real and copies with one click.</p>
+    </div>
+{{WAYS}}
+
+    <!-- ======================================================== 03 COMMAND LINE, LIBRARIES, FORMATS
+         (inside #ways: the feature register places the command line and the run outputs there) -->
+    <div class="dx-build" id="build">
+    <div class="sec-head">
+      <div><div class="eyebrow" style="--c:var(--lime)"><span class="idx">03</span>Command line · libraries · formats</div><h2 class="h2 h2-sm rv">One call, three languages, the same answer.</h2></div>
+      <p class="lede rv">The command line, the Rust, Python and JavaScript bindings and the file formats the engine reads and writes, side by side. Everything here is the free open core.</p>
+    </div>
+    <div class="bx">
+      <article class="glass bx-card bx-cli rv" id="cli">
+        <div class="code-h"><span>Command line · <code>kshana --help</code></span><span class="tag real">From the binary</span></div>
+        <div class="bx-in">
+{{CLI_REFERENCE}}
+          <p class="study-note"><code>kshana --study</code> is the free suite runner. If you want the analysis done for you instead, that is a paid <a href="editions.html#custom-why">custom study</a>.</p>
+        </div>
+      </article>
+
+      <article class="glass bx-card bx-out rv">
+        <div class="code-h"><span>Every run</span><span class="tag real">Deterministic</span></div>
+        <ul class="bx-facts">
+          <li style="--c:var(--cyan)"><b>Writes</b> <code>result.json</code>, <code>chart.svg</code>, <code>report.html</code> and the same report as <code>report.json</code>, plus a CSV (comma-separated values) table for the kinds that publish one. On request it also writes an animation of the run (<code>--animate</code>) and the scenario in the formats other tools read (<code>--export</code>).</li>
+          <li style="--c:var(--lime)"><b>Reproducible</b> from scenario, seed and engine version, with a CycloneDX SBOM (software bill of materials) and SLSA (Supply-chain Levels for Software Artifacts) build provenance on every release.</li>
+          <li style="--c:var(--magenta)"><b>Documented:</b> concepts, scenario schema, Python API, validation and every tutorial, generated from the repository. <a href="docs/index.html">Docs</a></li>
+        </ul>
+      </article>
+
+      <article class="glass bx-card bx-api rv" id="api">
+        <div class="code-h"><span>Rust, Python, JavaScript</span><span class="tag real">Run against v{{VER}}</span></div>
+        <div class="bx-in">
+          <p class="src-note">Each program runs the bundled <code>clock-holdover</code> scenario (write it with <code>kshana example clock-holdover &gt; clock-holdover.toml</code>) and prints the same one-line summary. The package READMEs carry the full versions.</p>
+          <div class="api" data-ks-tabs>
+            <div class="api-tabs" role="tablist" aria-label="Library language">
+              <button role="tab" type="button" id="at-rust" aria-controls="ap-rust" aria-selected="true" tabindex="0">Rust crate</button>
+              <button role="tab" type="button" id="at-py" aria-controls="ap-py" aria-selected="false" tabindex="-1">Python</button>
+              <button role="tab" type="button" id="at-js" aria-controls="ap-js" aria-selected="false" tabindex="-1">JavaScript · WebAssembly</button>
+            </div>
+            <div class="api-p" role="tabpanel" id="ap-rust" aria-labelledby="at-rust">
+              <div class="cfg"><div class="cfg-h"><span>src/main.rs · after <code>cargo add kshana</code></span><button class="tbtn" type="button" data-copy-from="code-rust">Copy</button></div><pre tabindex="0"><code id="code-rust">use kshana::api;
+
+fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    let toml = std::fs::read_to_string("clock-holdover.toml")?;
+    let out = api::run_toml(&amp;toml)?;              // RunOutput { json, svg, summary, csv }
+    println!("{}", out.summary);                  // the one-line result string
+    std::fs::write("clock-holdover.result.json", &amp;out.json)?;
+    Ok(())
+}</code></pre></div>
+              <p class="api-n"><code>kshana::api</code> also has <code>run_scenario</code>, <code>validate_scenario</code>, <code>list_scenario_kinds</code> and the orbit exporters. <a href="docs/rust.html">Rust docs</a></p>
+            </div>
+            <div class="api-p" role="tabpanel" id="ap-py" aria-labelledby="at-py" hidden>
+              <div class="cfg"><div class="cfg-h"><span>run.py · after <code>pip install kshana</code></span><button class="tbtn" type="button" data-copy-from="code-py">Copy</button></div><pre tabindex="0"><code id="code-py">import json, kshana
+
+toml = open("clock-holdover.toml").read()
+result = json.loads(kshana.run(toml))        # the full result document
+print(result["quantum"]["fom"]["integrity"])
+
+result_json, chart_svg, summary = kshana.run_full(toml)
+print(kshana.version(), summary)</code></pre></div>
+              <p class="api-n">The package also has <code>validate_toml</code> and <code>list_kinds</code>. <a href="docs/python-api.html">Python docs</a></p>
+            </div>
+            <div class="api-p" role="tabpanel" id="ap-js" aria-labelledby="at-js" hidden>
+              <div class="cfg"><div class="cfg-h"><span>run.mjs · Node.js, after <code>npm install kshana</code></span><button class="tbtn" type="button" data-copy-from="code-js">Copy</button></div><pre tabindex="0"><code id="code-js">import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { initSync, run, summary, version } from "kshana";
+
+const wasm = createRequire(import.meta.url).resolve("kshana/kshana_bg.wasm");
+initSync({ module: readFileSync(wasm) });     // in a browser: await init()
+
+const toml = readFileSync("clock-holdover.toml", "utf8");
+const result = JSON.parse(run(toml));         // the full result document
+console.log(version(), result.classical.fom.timing_p95_ns);
+console.log(summary(toml));                   // the one-line result string</code></pre></div>
+              <p class="api-n">The same package runs in the browser; it is what {{STUDIO}} uses. <a href="docs/npm.html">npm docs</a></p>
+            </div>
+          </div>
+          <p class="api-open"><a class="btn btn-ghost" href="studio/index.html?scenario=clock-holdover&amp;tab=overview">{{STUDIO_OPEN}}: clock-holdover <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></p>
+        </div>
+      </article>
+
+      <article class="glass bx-card bx-io rv" id="interop">
+        <div class="code-h"><span>Interoperability · read and write</span><span class="tag real">Each row names its check</span></div>
+        <div class="bx-in">
+          <p class="src-note">Formats the engine handles today, from the repository's standards page (<a href="docs/standards.html">Docs: standards</a>). Open a row for how to reach it and what it was checked against.</p>
+          <ul class="io-list">
+            <li><details><summary><span class="io-n">CCSDS OEM <small>Consultative Committee for Space Data Systems, Orbit Ephemeris Message</small></span><span class="io-d rw">read · write</span></summary><dl><dt>How</dt><dd><code>--export-oem</code>, MCP <code>export_oem</code></dd><dt>Checked against</dt><dd>The CCSDS Blue Book example, recovered verbatim</dd></dl></details></li>
+            <li><details><summary><span class="io-n">CCSDS OMM <small>Orbit Mean-Elements Message</small></span><span class="io-d w">write</span></summary><dl><dt>How</dt><dd><code>--export-omm</code>, MCP <code>export_omm</code></dd><dt>Checked against</dt><dd>Round-trip test on real two-line element sets</dd></dl></details></li>
+            <li><details><summary><span class="io-n">SP3-c / SP3-d <small>Standard Product 3, precise ephemeris</small></span><span class="io-d rw">read · write</span></summary><dl><dt>How</dt><dd><code>--export-sp3</code>, MCP <code>export_sp3</code></dd><dt>Checked against</dt><dd>Round trip on a real GPS (Global Positioning System) constellation snapshot</dd></dl></details></li>
+            <li><details><summary><span class="io-n">CCSDS TDM <small>Tracking Data Message</small></span><span class="io-d rw">read · write</span></summary><dl><dt>How</dt><dd>Rust library</dd><dt>Checked against</dt><dd>The CCSDS Blue Book example, recovered verbatim</dd></dl></details></li>
+            <li><details><summary><span class="io-n">CCSDS Space Packet <small>telemetry and telecommand packets</small></span><span class="io-d rw">read · write</span></summary><dl><dt>How</dt><dd><code>space-packet</code> scenarios</dd><dt>Checked against</dt><dd>An independent library's published byte-level test vectors</dd></dl></details></li>
+            <li><details><summary><span class="io-n">RINEX <small>Receiver Independent Exchange Format, navigation and observation</small></span><span class="io-d r">read</span></summary><dl><dt>How</dt><dd>Scenario inputs, such as <code>pvt</code></dd><dt>Checked against</dt><dd>Observation files from a real International GNSS (Global Navigation Satellite System) Service station</dd></dl></details></li>
+            <li><details><summary><span class="io-n">TLE <small>two-line element set</small></span><span class="io-d r">read</span></summary><dl><dt>How</dt><dd><code>orbit</code> scenarios</dd><dt>Checked against</dt><dd>The official AIAA (American Institute of Aeronautics and Astronautics) reference vectors</dd></dl></details></li>
+            <li><details><summary><span class="io-n">IONEX <small>IONosphere map EXchange format</small></span><span class="io-d r">read</span></summary><dl><dt>How</dt><dd>Rust library</dd><dt>Checked against</dt><dd>Reads the International GNSS Service product; no external check listed yet</dd></dl></details></li>
+            <li><details><summary><span class="io-n">IERS Earth orientation <small>International Earth Rotation and Reference Systems Service</small></span><span class="io-d r">read</span></summary><dl><dt>How</dt><dd><code>--eop</code> with a finals2000A file</dd><dt>Checked against</dt><dd>The official product, including predicted rows</dd></dl></details></li>
+            <li><details><summary><span class="io-n">KIF <small>Kshana Interchange Format</small></span><span class="io-d rw">read · write</span></summary><dl><dt>How</dt><dd>Envelope around any result</dd><dt>Checked against</dt><dd>Kshana's own versioned envelope, not an external standard; each consumer gets a compatibility verdict</dd></dl></details></li>
+            <li><details><summary><span class="io-n">JSON, SVG, HTML, CSV <small>the run outputs</small></span><span class="io-d w">write</span></summary><dl><dt>How</dt><dd>Every run; MCP <code>export_table_csv</code></dd><dt>Checked against</dt><dd>Deterministic from scenario, seed and engine version</dd></dl></details></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="glass bx-card bx-jb rv" id="jetbrains">
+        <div class="code-h"><span>JetBrains IDE plugin</span><span class="tag">IntelliJ · PyCharm · CLion</span></div>
+        <div class="bx-in">
+          <h3 class="card-h">Prefer to click?</h3>
+          <p>The "Kshana — PNT simulator" plugin: right-click any scenario <code>.toml</code>, choose Run Kshana Scenario, and read the figures of merit in a tool window.</p>
+          <div class="ctas"><a class="btn btn-ghost" href="{{JB_URL}}">Open in JetBrains Marketplace <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+        </div>
+      </article>
+
+      <aside class="glass bx-card bx-ed rv" aria-label="Editions">
+        <div class="bx-in">
+          <p class="bx-ed-k"><i></i>Open core</p>
+          <p>Every surface on this page is the free open core, under the AGPL-3.0 or a commercial licence for closed integration. Need it integrated into your toolchain, or a study done for you? <a href="editions.html#custom">Custom study</a>. Evidence packs and calibrated models: <a href="editions.html#pro">Kshana Pro</a>.</p>
+          <p class="bx-ed-mail"><a href="mailto:contact@ashforde.org?subject=Kshana%20integration">contact@ashforde.org</a></p>
+        </div>
+      </aside>
+    </div>
+    </div>
+  </div>
+</section>
