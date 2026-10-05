@@ -11,6 +11,44 @@ public `ashfordeOU/kshana`), or is named with its exact location.
 
 ---
 
+## 0. How this handover works + where-is-what index
+
+**How it works.** The container you (a session) run on is **ephemeral and holds nothing
+durable** — it is reclaimed on inactivity, and every past confusion came from treating a
+local disk as storage. The durable record is **git only**. This file is the entry point:
+read it, pick a task from §7, follow its steps, commit + push, update this file's §9 status
+table. A fresh session needs nothing but: clone this repo → open `handover/post-0.32/` →
+read `KICKOFF.md` (paste it) and this `README.md`.
+
+**The repos (the only durable storage).** All under GitHub owner `ashfordeOU`:
+
+| Repo | Visibility | What it is |
+| --- | --- | --- |
+| `kshana` | public (AGPL-3.0) | the engine + all its surfaces; releases ship from here |
+| `kshana-pro` | private | **this repo** — the proprietary overlay AND the source of truth for everything Kshana that isn't the public engine (site source, legal, commercial, papers, handovers) |
+| `ashforde-site` | private | the **company** website (ashforde.org) source — distinct from kshana.dev (which is built from this repo's site source) |
+| `ashforde-commercial` | private | company-wide commercial material (broader than this repo's Kshana-specific `commercial/`) |
+
+(The account has many other unrelated project repos — out of scope for Kshana.)
+
+**Where-is-what index** (look here first; paths are in `kshana-pro` unless noted):
+
+| You need… | It's here |
+| --- | --- |
+| Current state, rules, plan, kickoff | `handover/post-0.32/` (this dir) |
+| The engine source / release machinery | public `kshana`: `src/`, `docs/RELEASING.md`, `.github/workflows/`, `scripts/check-*.sh` |
+| The IQ layer | public `kshana` `src/iq/` (CLI `src/iq/cli/`, Python `src/python.rs`, stub `kshana.pyi`) |
+| The kshana.dev **site source** (to re-port `web/`) | `handover/open-core-0.30/` (`site-next/`, `restore.sh`) |
+| NDAs / export control / DPA / IP policy | `legal/` (canonical `NDA-TEMPLATE-MUTUAL.md`; branded variant + `.docx` + builder in `legal/nda-mutual-branded/`) |
+| Commercial: partners, deals, offers, pricing | `commercial/` (Kshana-specific); company-wide in the separate `ashforde-commercial` repo |
+| Papers / tenders / MRD | `papers/`, `docs/tenders/` (D1.4 MRD canonical at `docs/tenders/cross-tender/D1.4-mrd-fom-mapping.md`) |
+| Oracle toolchain (Orekit/RTKLIB/NaveGo/SPICE) setup | `handover/open-core-0.30/oracles/` |
+| Salvaged background (v0.31.0 site audits, MRD draft) | `handover/post-0.32/salvage/` |
+| Prospective-partner specifics (names, contacts) | ONLY `commercial/partners/` + `commercial/deals/` — never elsewhere, never in public `kshana` |
+| Secrets / tokens | NOT in git — in the environment (see the in-session `read_documentation` tool, topic `environment.secrets`) |
+
+---
+
 ## 1. Where things stand (ground truth as of 2026-10-05)
 
 ### Public engine — `ashfordeOU/kshana` (AGPL-3.0)
