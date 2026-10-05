@@ -236,11 +236,10 @@ Prioritize by audience value:
 2. **A Python/notebook worked example** — "load an IQ recording → `iq_acquire` → `iq_track` →
    plot", using the published wheel. Store here or as a gist; it turns the wheel into day-one
    value.
-3. **NDA reconciliation** — the canonical mutual NDA is `legal/NDA-TEMPLATE-MUTUAL.md`. A
-   polished branded mutual-NDA draft + a `python-docx` builder (`.docx` with the Ashforde
-   wordmark, superscript ®, CONFIDENTIAL watermark) were produced in an earlier chat as
-   **local/Claude-Doc artifacts and are NOT in git**. If that polished version is preferred,
-   recreate it into `legal/` (doc + builder script) so it is not lost. Outreach waits on the
+3. **NDA reconciliation** — two forms now live in git: the concise canonical
+   `legal/NDA-TEMPLATE-MUTUAL.md`, and the longer branded variant + `.docx` + `python-docx`
+   builder in `legal/nda-mutual-branded/` (preserved from the earlier session; see its
+   README). Reconcile into one canonical form at counsel review. Outreach waits on the
    partner's reply + a signed NDA; drafts are in `commercial/partners/OUTREACH-DRAFTS.md`.
 
 ### D. Repo hygiene
