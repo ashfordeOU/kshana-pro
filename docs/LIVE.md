@@ -1,4 +1,4 @@
-Updated: 2026-10-07T17:57:20Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T17:57:59Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:57:59 Mac probe 37653732273 (macOS arm64, kshana 9925c103): 3813 passed / 10 failed / 100 ignored (3823 = Linux count). All 10 are bit-exact or 1e-15 engine-input-vs-fixture pins (Orekit launch azimuth, LEO polar CSV, lunar mpmath/numpy/SPICE fixtures), from libm last-bit differences; lunar Jacobian rows show ~3e-8 relative from cancellation. No oracle disagreement. Issue #36 → W2 (fix/macos-fixture-tolerance): ULP/row-scaled tolerances on the fixture pins only, no oracle tolerance or pre-registered bar touched, mutation check; verify on the Mac probe before merge.
 - 17:57:20 [W2] relayed W3's signal matrix as kshana PR 51 (feat/035-signal-matrix 48643b8e on main 18e860a; 3 commits, author Ashforde OÜ; only tests/iq_signal_matrix.rs; 8 passed / 4 ignored as D8×2, D9, D10). Holds until after 0.33.0. Mac probe 37653732273 completed 17:51:52Z conclusion=failure → runner extracting the failing tests for issue #36. Pro PR 17 Mac check green on 32b0908 (waits for the single re-pin).
 - 17:51:53 [W3] signal matrix v2 (3 commits: bars pre-registered → disclosed harness amendment → results) sent to W2 for push: 8 pass (L1CA, L5I, L5Q, E5a-I, E5a-Q, B1I, GLONASS, E1-B on-grid control); ignored as findings: D8 (E1-B/C false-lock +125 Hz), D9 (L2C no lock), D10 narrowed to B1C (NWPR −2.45 dB). GLONASS sat_id: 0.33 documents the u32 wrap; 0.34 plan = slot id + signed freq_channel field (W5 to assess).
 - 17:51:50 [W3] signal matrix (gap #6) sent to W2 as mbox: 8 pass / 4 ignored findings D8–D10; awaiting W2 PR
