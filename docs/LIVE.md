@@ -1,4 +1,4 @@
-Updated: 2026-10-07T14:41:43Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T14:42:24Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -56,6 +56,7 @@ No external deadline set.
 - 2026-10-07 The gps-sdr-sim ledger row stays MODELLED (pre-registered bar f88f2969 failed on
   230/1152 fields); never relax a pre-registered bar after the fact.
 - Workers open PRs; only the coordinator merges.
+- 2026-10-07 Site theme target = the current live site theme (kshana.dev home page, expected Observatory); everything else (old sections, Studio drift, report exports, og-card, README/docs screenshots) is brought onto it.
 - 2026-10-07 W2 rows approved: "GNSS IQ scene signal geometry vs gps-sdr-sim" ExternalDataset/VALIDATED (pre-registered 7777da5, pushed 11:15:27Z before any run; 11 ch, pseudorange 1.6e-3 m vs bar 0.05 m); "GNSS IQ acquisition on gps-sdr-sim I/Q" MODELLED (bar B2 failed: 21 unsimulated PRNs cross the Gaussian threshold). Guard-forced count edits to README/web approved; hand glyph-edit of validation-provenance.png rejected (re-render or revert); unforced README image refresh split into a droppable commit.
 
 ## Open for the founder
@@ -71,13 +72,14 @@ No external deadline set.
    channels ~500 Hz off in the W3 notebook; change the default in 0.33.0? (behaviour change)
 
 ## Next
-**0.33.0 release checklist** also: (f) old-theme sections + old-theme README/docs screenshots fixed (W4 audit → site-source PR + regeneration); target theme to be confirmed by founder (Observatory vs Ashforde gold).
+**0.33.0 release checklist** also: (f) old-theme sections + old-theme README/docs screenshots fixed (W4 audit → site-source PR + regeneration); target theme = the CURRENT live site theme (home page; expected Observatory) — founder 14:49. Ashforde gold/Garamond is not the target.
 **0.33.0 release checklist (from the rehearsal, kshana-pro PR 11):** (a) docs prose bumps + README image regeneration IN the bump commit before recordings (re-run quoted figures); (b) placements.toml rows for 11 unplaced features + PR 34's 6 MCP IQ tools (coordinator reviews); (c) Studio channels.json version bump (8 strings); (d) eyeball nav: desktop / → /editions, /capabilities #constellations, #campaigns; (e) flip KSHANA_VERSION_SYNC_SITE default to strict.
 - Merge PR 7 when Mac CI green + runner VERIFY green.
 - Review W2 row proposal; review W1 MCP design; merge their public PRs after CI (~2.5 h `check`).
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:42:24 Founder: theme target = current live site theme (Observatory if that's it). Passed to W4.
 - 14:42:09 [W3] gap analysis pushed: partners/receiver-test-gap 4f77fe0 (analysis only; awaiting review).
 - 14:41:43 Founder: old theme still on many site sections + old-theme README screenshots → W4 theme audit. Two salvage audits conflict on the target theme (Observatory vs Ashforde gold) → asked founder.
 - 14:40:38 W1 merged main into PR 34 (eba7d10) and 34 into PR 38 (d542efa); CHANGELOG conflicts resolved (both entries kept); local gates OK. New CI ~2.5 h.
