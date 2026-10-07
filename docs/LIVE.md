@@ -1,4 +1,4 @@
-Updated: 2026-10-07T14:39:35Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T14:40:38Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -25,8 +25,8 @@ No external deadline set.
 | kshana-pro | partners/iq-deliverables | 4c7b6e2 | PR 7 MERGED → 78ab489 |
 | kshana-pro | claude/pro-030 | d94b280 | stale, superseded by PR 5; delete approved, blocked by proxy (founder deletes) |
 | kshana | main | 58957f8 | PR 35 merged (IQ ledger rows); 0.32.0 released |
-| kshana | feat/mcp-iq | a477eec | PR 34: guard fix pushed (15 doc-sync/source-guard binaries 60 passed; MCP 33 passed); CI re-running; runner re-verify queued |
-| kshana | feat/iq-track-default | d5d6708 | PR 38 open (W1), stacked on 34: auto acq_coherent default; iq_cli 11, MCP 33, pytest 20, stubtest clean |
+| kshana | feat/mcp-iq | eba7d10 | PR 34: CI #517 green on a477eec; main merged (CHANGELOG resolved); new CI running (~17:10) |
+| kshana | feat/iq-track-default | d542efa | PR 38: eba7d10 merged in; new CI running (~17:10) |
 | kshana | chore/version-sync-coverage | bd05a27 | PR 37 open (W2): version-sync covers server.json + README (strict), site (warn) |
 | kshana | feat/iq-validation-ledger | bb7edf8 | PR 35 MERGED → 58957f8 (CI #516 14/14 green; native 3823 passed) |
 
@@ -77,6 +77,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:40:38 W1 merged main into PR 34 (eba7d10) and 34 into PR 38 (d542efa); CHANGELOG conflicts resolved (both entries kept); local gates OK. New CI ~2.5 h.
 - 14:40:10 [W1] main→34 (eba7d10), 34→38 (d542efa) pushed; local gates green.
 - 14:39:35 W2: kshana-pro PR 11 now includes placements for the 11 unplaced features (UNPLACED=0). Found a real 0.32.0 docs gap: PYTHON_API.md Surface and npm usage don't list the 8 iq_*/receiver_trust bindings → approved public docs PR (docs/iq-bindings-surface).
 - 14:38:20 W2 rehearsal ended; kshana-pro PR 11 (runbook fixes F1–F11 + check_nav/selfcheck code fixes) opened. Nav like-for-like: main 4 BAD, rehearsal 17 BAD (mostly timing noise; 3 recurring items to eyeball).
