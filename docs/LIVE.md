@@ -1,4 +1,4 @@
-Updated: 2026-10-07T15:42:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T15:44:01Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -89,6 +89,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:44:01 W2 opened kshana PR 41 (docs-only capability accuracy: IQ-layer scope, spectrum jammer IQ snapshot since 0.29, in-memory spoof composite, software receiver since 0.20.0). Follow-ups: W4 → kshana-pro site text ("not a GNSS receiver" etc.); W1 → PR 34 MCP wording scope. W6 decisions: timing #1C4FE0; 5 charts gain bg; domain-coverage-map data refresh in its own commit.
 - 15:42:25 W4 PR 15: Studio selfcheck failure root-caused to missing Git LFS objects (not code); preflight + RE-PORT step. W3 Pro lab-report plan approved (re-renders engine cells, never recomputes; data-class banner; export-control notice slot pending N6); building L1–L6.
 - 15:41:51 [W3] lab campaign report plan pushed: pro/lab-campaign-report-plan d067277.
 - 15:40:03 Merged kshana-pro PR 13 (ae783d7, site + Studio onto Observatory). W3 opened kshana-pro PR 14 (export-control pack correction, DRAFT for counsel; N6: analysing partner jammer/spoofer recordings touches the "no anti-jam/anti-spoof performance data in any repo" gate → counsel before partner-data work). W5 opened kshana PR 40 (D3 integer scaling). W1 design API at e7453d8. W7 design approved (a: Cn0Profile SceneChannel owned by W8, now unblocked; b: rebase on track-engine; c: bars in campaign file + per-recording override; d: max_cells ok; e: reacq from offset and from loss). W3 → Pro campaign report plan.
