@@ -2717,8 +2717,8 @@ def home_bento(root):
          f'<div class="vis"><div class="chips">{chips}</div><p class="chips-note">CCSDS OEM: Consultative Committee for Space Data Systems Orbit Ephemeris Message. SP3: Standard Product 3 orbit format.</p></div>'),
         ("s3", None, "--coral", "Scope, stated plainly", "What Kshana is not",
          "Knowing the edges matters as much as the features.",
-         f'<div class="vis not-list"><div class="not">{NOT_ICON}<div>Not an RF signal simulator<span>It does not generate radio-frequency (RF) waveforms.</span></div></div>'
-         f'<div class="not">{NOT_ICON}<div>Not a GNSS receiver<span>It simulates what happens to PNT; it does not track real signals.</span></div></div>'
+         f'<div class="vis not-list"><div class="not">{NOT_ICON}<div>Not RF signal-generator hardware<span>It drives no radio and transmits nothing; its signal-level output is baseband IQ sample files for software receivers.</span></div></div>'
+         f'<div class="not">{NOT_ICON}<div>Not a hardware or certified GNSS receiver<span>Its software receiver (acquisition and tracking on recorded or generated IQ) is an analysis tool, not a navigation product.</span></div></div>'
          f'<div class="not">{NOT_ICON}<div>Not a flight product<span>A study and trade-off instrument, every answer labelled Validated or Modelled.</span></div></div></div>'),
     ]
     out = []
@@ -3392,8 +3392,8 @@ llms = [f"# Kshana", "", f"> {_home_desc} Version {version}, {cff_lic} licence, 
         f"{summ['validated']} of {summ['total']} capabilities are validated against external oracles; the rest are labelled Modelled or partner-owned.", "",
         "Kshana is a deterministic Rust engine for PNT (positioning, navigation and timing) resilience studies: GNSS (global navigation satellite system) jamming and "
         "spoofing, clock holdover, RAIM (receiver autonomous integrity monitoring) and protection levels, orbits, low-Earth-orbit navigation, and navigation at the Moon "
-        f"and Mars. Every scenario is a TOML file; every run is reproducible from its scenario, seed and engine version. It is not an RF (radio-frequency) signal simulator, "
-        f"not a GNSS receiver and not a flight product.", "",
+        f"and Mars. Every scenario is a TOML file; every run is reproducible from its scenario, seed and engine version. It drives no radio hardware and transmits nothing: its signal-level output "
+        f"is baseband IQ sample files for software receivers, its software GNSS receiver is an analysis tool, and it is not a flight product.", "",
         "## Site", ""] + [_md_link(f"{k}.html") for k, *_ in PAGES] + [_md_link("studio/index.html", STUDIO), "",
         "## Install", ""] + [f"- {c['name']}: `{c['command']}` ({c['registry']})" for c in channels if c["command"]] + [
         f"- Source code: {REPO_URL}", f"- Cite the software: DOI [{cff_doi}](https://doi.org/{cff_doi})", "",
