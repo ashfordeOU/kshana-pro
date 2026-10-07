@@ -78,6 +78,10 @@ pub struct ScoreRow {
     pub false_lock_per_locked_hour: Stat,
     pub false_lock_episodes: Stat,
     pub losses: Stat,
+    /// The engine's whole-run verdicts against the client's bars: (passed, evaluated).
+    pub verdicts: (usize, usize),
+    /// Bars that failed, with how many rows failed each.
+    pub failed_bars: BTreeMap<String, usize>,
 }
 
 /// One stated event, for one (chain, design), over the satellites it affected.
@@ -85,7 +89,10 @@ pub struct ScoreRow {
 pub struct EventRow {
     pub recording: String,
     pub event_id: String,
+    /// `interference`, `spoofing`, `outage` or `other`.
     pub kind: String,
+    /// The lab's stated type label.
+    pub event_type: String,
     pub frontend: String,
     pub design: String,
     pub satellites: usize,
@@ -99,8 +106,10 @@ pub struct EventRow {
     pub reacquired: Stat,
     pub reacq_time_s: Stat,
     pub availability: Stat,
-    /// Per pass/fail bar: (passed, evaluated).
-    pub bars: BTreeMap<String, (usize, usize)>,
+    /// The engine's verdicts for this event against the client's bars: (passed, evaluated).
+    pub verdicts: (usize, usize),
+    /// Bars that failed, with how many satellites failed each.
+    pub failed_bars: BTreeMap<String, usize>,
 }
 
 /// One J/S bin of an event's curve, for one (chain, design), across satellites.
@@ -159,7 +168,8 @@ fn count(n: usize, of: usize) -> Stat {
 
 fn score_row(fe: &str, de: &str, cells: &[&CampaignCell]) -> ScoreRow {
     let sats: Vec<_> = cells.iter().flat_map(|c| &c.satellites).collect();
-    let w = |f: fn(&super::model::WholeRun) -> f64| median(sats.iter().map(|s| f(&s.whole_run)));
+    let w =
+        |f: fn(&super::model::WholeRun) -> Option<f64>| opt(sats.iter().map(|s| f(&s.whole_run)));
     let episodes: u64 = sats.iter().map(|s| s.whole_run.false_lock_episodes).sum();
     let locked_h: f64 = sats.iter().map(|s| s.whole_run.locked_s).sum::<f64>() / 3600.0;
     let losses: u64 = sats.iter().map(|s| s.whole_run.loss_count).sum();
@@ -187,27 +197,20 @@ fn score_row(fe: &str, de: &str, cells: &[&CampaignCell]) -> ScoreRow {
             op: Op::Sum,
             n: sats.len(),
         },
+        verdicts: (0, 0),
+        failed_bars: BTreeMap::new(),
     }
 }
 
 fn event_row(rec: &str, fe: &str, de: &str, evs: &[&EventResult]) -> EventRow {
     let n = evs.len();
     let lost = evs.iter().filter(|e| e.lost).count();
-    let reacq = evs.iter().filter(|e| e.reacquired == Some(true)).count();
-    let mut bars: BTreeMap<String, (usize, usize)> = BTreeMap::new();
-    for e in evs {
-        for (k, ok) in &e.pass {
-            let b = bars.entry(k.clone()).or_default();
-            b.1 += 1;
-            if *ok {
-                b.0 += 1;
-            }
-        }
-    }
+    let reacq = evs.iter().filter(|e| e.reacquired).count();
     EventRow {
         recording: rec.to_owned(),
         event_id: evs[0].event_id.clone(),
         kind: evs[0].kind.clone(),
+        event_type: evs[0].event_type.clone(),
         frontend: fe.to_owned(),
         design: de.to_owned(),
         satellites: n,
@@ -217,8 +220,9 @@ fn event_row(rec: &str, fe: &str, de: &str, evs: &[&EventResult]) -> EventRow {
         js_at_loss_db: opt(evs.iter().map(|e| e.js_at_loss_db)),
         reacquired: count(reacq, lost),
         reacq_time_s: opt(evs.iter().map(|e| e.reacq_time_s)),
-        availability: median(evs.iter().map(|e| e.availability)),
-        bars,
+        availability: opt(evs.iter().map(|e| e.availability)),
+        verdicts: (0, 0),
+        failed_bars: BTreeMap::new(),
     }
 }
 
@@ -259,15 +263,49 @@ fn curve(rec: &str, fe: &str, de: &str, evs: &[&EventResult]) -> Option<Curve> {
     })
 }
 
+/// The engine's own verdicts (from `scorecard.json`) for the rows of `cells` in `scope`
+/// (`run` or `event`, and then for `event_id`): (passed, evaluated) and failed-bar counts.
+/// A row with an empty verdict had no bar to meet and is not counted.
+fn verdicts(
+    c: &LoadedCampaign,
+    cells: &[&str],
+    scope: &str,
+    event_id: Option<&str>,
+) -> ((usize, usize), BTreeMap<String, usize>) {
+    let mut passed = 0;
+    let mut evaluated = 0;
+    let mut failed: BTreeMap<String, usize> = BTreeMap::new();
+    for r in c.scorecard.rows.iter().filter(|r| {
+        r.scope == scope
+            && cells.contains(&r.cell.as_str())
+            && event_id.is_none_or(|id| r.event_id == id)
+    }) {
+        match r.verdict.as_str() {
+            "PASS" => {
+                passed += 1;
+                evaluated += 1;
+            }
+            "FAIL" => {
+                evaluated += 1;
+                for b in &r.failed_bars {
+                    *failed.entry(b.clone()).or_default() += 1;
+                }
+            }
+            _ => {}
+        }
+    }
+    ((passed, evaluated), failed)
+}
+
 /// Build the report's tables from a loaded campaign.
 pub fn aggregate(c: &LoadedCampaign) -> Aggregates {
-    let frontends: Vec<String> = c
-        .manifest
-        .frontends
-        .iter()
-        .map(|f| f.name.clone())
+    let m = &c.manifest;
+    let frontends: Vec<String> = (0..m.frontends.len())
+        .filter_map(|i| m.frontend_name(i).map(str::to_owned))
         .collect();
-    let designs: Vec<String> = c.manifest.designs.iter().map(|d| d.name.clone()).collect();
+    let designs: Vec<String> = (0..m.designs.len())
+        .filter_map(|i| m.design_name(i).map(str::to_owned))
+        .collect();
     let mut scorecard = Vec::new();
     let mut events = Vec::new();
     let mut curves = Vec::new();
@@ -277,7 +315,10 @@ pub fn aggregate(c: &LoadedCampaign) -> Aggregates {
             if cells.is_empty() {
                 continue;
             }
-            scorecard.push(score_row(fe, de, &cells));
+            let mut row = score_row(fe, de, &cells);
+            let keys: Vec<&str> = cells.iter().map(|x| x.key.as_str()).collect();
+            (row.verdicts, row.failed_bars) = verdicts(c, &keys, "run", None);
+            scorecard.push(row);
         }
     }
     for rec in &c.manifest.recordings {
@@ -310,7 +351,19 @@ pub fn aggregate(c: &LoadedCampaign) -> Aggregates {
                     if evs.is_empty() {
                         continue;
                     }
-                    events.push(event_row(&rec.id, fe, de, &evs));
+                    let mut row = event_row(&rec.id, fe, de, &evs);
+                    let keys: Vec<&str> = c
+                        .cells
+                        .iter()
+                        .filter(|x| {
+                            x.recording.id == rec.id
+                                && &x.frontend.name == fe
+                                && &x.design.name == de
+                        })
+                        .map(|x| x.key.as_str())
+                        .collect();
+                    (row.verdicts, row.failed_bars) = verdicts(c, &keys, "event", Some(id));
+                    events.push(row);
                     if let Some(cv) = curve(&rec.id, fe, de, &evs) {
                         curves.push(cv);
                     }

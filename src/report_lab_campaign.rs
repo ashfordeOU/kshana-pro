@@ -181,7 +181,10 @@ fn td_stat(s: &Stat, decimals: usize, unit: &str, none: &str) -> String {
 }
 
 /// A table cell for a fraction copied from a cell field, printed as a percentage.
-fn td_cell_pct(v: f64) -> String {
+fn td_cell_pct(v: Option<f64>) -> String {
+    let Some(v) = v else {
+        return "<td class=\"none\" data-op=\"cell\" data-n=\"1\">no data</td>".to_owned();
+    };
     format!(
         "<td class=\"num\" data-v=\"{}\" data-op=\"cell\" data-n=\"1\">{:.1}&#8239;%</td>",
         raw(v),
@@ -317,7 +320,7 @@ fn body_html(c: &LoadedCampaign, a: &Aggregates, o: &LabReportOptions) -> String
     s.push_str(&curves_section(a));
     s.push_str(&stability_section(a));
     s.push_str(&pass_fail_section(c, a));
-    s.push_str(&method_section());
+    s.push_str(&method_section(c));
     s.push_str(&provenance_section(c));
     s.push_str(&limits_section(o));
     s.push_str(&appendix(c));
@@ -436,7 +439,11 @@ pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
     );
     let mut keys: Vec<(String, String, String)> = Vec::new();
     for e in &a.events {
-        let k = (e.recording.clone(), e.event_id.clone(), e.kind.clone());
+        let k = (
+            e.recording.clone(),
+            e.event_id.clone(),
+            format!("{} / {}", e.kind, e.event_type),
+        );
         if !keys.contains(&k) {
             keys.push(k);
         }
@@ -523,14 +530,15 @@ pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
         }
     }
     let (passed, evaluated) = a
-        .events
+        .scorecard
         .iter()
-        .flat_map(|r| r.bars.values())
+        .map(|r| r.verdicts)
+        .chain(a.events.iter().map(|r| r.verdicts))
         .fold((0, 0), |(p, e), (bp, be)| (p + bp, e + be));
     let bars = (evaluated > 0).then(|| {
         format!(
-            "Against the client's stated bars: {passed} of {evaluated} satellite-event checks \
-             passed (section 7)."
+            "Against the client's stated bars, the engine's verdicts: {passed} of {evaluated} \
+             checks passed (whole-run and per-event, per satellite; section 7)."
         )
     });
     Summary { intro, items, bars }
@@ -596,15 +604,44 @@ fn js_range(ev: &serde_json::Value) -> String {
     }
 }
 
-fn params_text(v: &serde_json::Value) -> String {
+/// `v` without the named top-level keys (identity fields the table shows separately).
+pub(crate) fn without(v: &serde_json::Value, keys: &[&str]) -> serde_json::Value {
     match v.as_object() {
-        Some(m) if m.is_empty() => "(empty chain)".to_owned(),
-        Some(m) => m
-            .iter()
-            .map(|(k, v)| format!("{k}={}", v.to_string().trim_matches('"')))
-            .collect::<Vec<_>>()
-            .join(", "),
-        None => v.to_string(),
+        Some(m) => serde_json::Value::Object(
+            m.iter()
+                .filter(|(k, _)| !keys.contains(&k.as_str()))
+                .map(|(k, x)| (k.clone(), x.clone()))
+                .collect(),
+        ),
+        None => v.clone(),
+    }
+}
+
+/// Flatten nested parameters to `a.b=value` pairs (objects one level deep at most per key).
+fn params_text(v: &serde_json::Value) -> String {
+    let mut out = Vec::new();
+    flatten("", v, &mut out);
+    if out.is_empty() {
+        "(defaults)".to_owned()
+    } else {
+        out.join(", ")
+    }
+}
+
+fn flatten(prefix: &str, v: &serde_json::Value, out: &mut Vec<String>) {
+    match v {
+        serde_json::Value::Object(m) => {
+            for (k, x) in m {
+                let p = if prefix.is_empty() {
+                    k.clone()
+                } else {
+                    format!("{prefix}.{k}")
+                };
+                flatten(&p, x, out);
+            }
+        }
+        serde_json::Value::Null => {}
+        other => out.push(format!("{prefix}={}", other.to_string().trim_matches('"'))),
     }
 }
 
@@ -676,24 +713,27 @@ fn test_matrix(c: &LoadedCampaign, a: &Aggregates) -> String {
         }
     }
     s.push_str("</table><h3>Front-end chains</h3><table><tr><th>Chain</th><th>Parameters</th><th>Hash</th></tr>");
-    for f in &c.manifest.frontends {
+    for (spec, hash) in &c.manifest.frontends {
+        let name = spec.get("name").and_then(|n| n.as_str()).unwrap_or("?");
         let _ = write!(
             s,
             "<tr><td>{}</td><td>{}</td><td class=\"mono\">{}</td></tr>",
-            xml(&f.name),
-            xml(&params_text(&f.params)),
-            xml(&short(&f.hash))
+            xml(name),
+            xml(&params_text(&without(spec, &["name"]))),
+            xml(&short(hash))
         );
     }
     s.push_str("</table><h3>Loop designs</h3><table><tr><th>Design</th><th>Parameters</th><th>Hash</th></tr>");
     for d in &c.manifest.designs {
+        let name = d.get("name").and_then(|n| n.as_str()).unwrap_or("?");
+        let hash = d.get("hash").and_then(|n| n.as_str()).unwrap_or("");
         let _ = write!(
             s,
             "<tr><td>{}{}</td><td>{}</td><td class=\"mono\">{}</td></tr>",
-            swatch(a, &d.name),
-            xml(&d.name),
-            xml(&params_text(&d.params)),
-            xml(&short(&d.hash))
+            swatch(a, name),
+            xml(name),
+            xml(&params_text(&without(d, &["name", "hash", "schema"]))),
+            xml(&short(hash))
         );
     }
     s.push_str("</table>");
@@ -845,7 +885,7 @@ fn events_section(a: &Aggregates) -> String {
              <th>Lost</th><th>Time to loss</th><th>Stated J/S at loss</th><th>Re-acquired</th>\
              <th>Re-acquisition time</th><th>Availability in event</th></tr>",
             xml(&e.event_id),
-            xml(&e.kind),
+            xml(&format!("{} / {}", e.kind, e.event_type)),
             xml(&e.recording)
         );
         for r in a
@@ -1134,38 +1174,82 @@ fn stability_section(a: &Aggregates) -> String {
 
 fn pass_fail_section(c: &LoadedCampaign, a: &Aggregates) -> String {
     let bars = c.manifest.scoring.get("bars").and_then(|b| b.as_object());
-    let any = a.events.iter().any(|r| !r.bars.is_empty());
-    let (Some(bars), true) = (bars, any) else {
+    let evaluated: usize = a
+        .scorecard
+        .iter()
+        .map(|r| r.verdicts.1)
+        .chain(a.events.iter().map(|r| r.verdicts.1))
+        .sum();
+    if evaluated == 0 {
         return "<h2>7. Pass/fail</h2><p><em>The client set no pass/fail bars for this campaign, so \
                 no pass or fail is implied.</em></p>"
             .to_owned();
-    };
-    let mut s = String::from("<h2>7. Pass/fail against the client's bars</h2><p>Bars as stated: ");
+    }
+    let mut s = String::from(
+        "<h2>7. Pass/fail against the client's bars</h2><p>The verdicts are the engine's own \
+         (<code>scorecard.json</code>); this report counts them. Bars as stated for the campaign: ",
+    );
     s.push_str(
         &bars
-            .iter()
-            .map(|(k, v)| format!("<code>{}</code> = {}", xml(k), xml(&v.to_string())))
-            .collect::<Vec<_>>()
-            .join(", "),
+            .map(|b| {
+                b.iter()
+                    .map(|(k, v)| format!("<code>{}</code> = {}", xml(k), xml(&v.to_string())))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            })
+            .unwrap_or_else(|| "none (per-recording bars only)".to_owned()),
     );
     s.push_str(
-        ".</p><table><tr><th>Event</th><th>Chain</th><th>Design</th><th>Bar</th><th>Passed</th>\
-         <th>Evaluated</th></tr>",
+        ". A recording's own bars, where stated in its test conditions, override these.</p>\
+         <table><tr><th>Scope</th><th>Chain</th><th>Design</th><th>Passed</th><th>Evaluated</th>\
+         <th>Failed bars</th></tr>",
     );
-    for r in a.events.iter().filter(|r| !r.bars.is_empty()) {
-        for (k, (p, e)) in &r.bars {
-            let _ = write!(
-                s,
-                "<tr><td>{}</td><td>{}</td><td>{}{}</td><td><code>{}</code></td>\
-                 <td class=\"num\" data-v=\"{p}\" data-op=\"count\" data-n=\"{e}\">{p}</td>\
-                 <td class=\"num\" data-v=\"{e}\" data-op=\"count\" data-n=\"{e}\">{e}</td></tr>",
-                xml(&r.event_id),
-                xml(&r.frontend),
-                swatch(a, &r.design),
-                xml(&r.design),
-                xml(k)
-            );
+    let failed = |m: &std::collections::BTreeMap<String, usize>| {
+        if m.is_empty() {
+            "–".to_owned()
+        } else {
+            m.iter()
+                .map(|(k, n)| format!("<code>{}</code> ×{n}", xml(k)))
+                .collect::<Vec<_>>()
+                .join(", ")
         }
+    };
+    let row = |s: &mut String,
+               scope: &str,
+               fe: &str,
+               de: &str,
+               (p, e): (usize, usize),
+               f: String| {
+        let _ = write!(
+            s,
+            "<tr><td>{}</td><td>{}</td><td>{}{}</td>\
+             <td class=\"num\" data-v=\"{p}\" data-op=\"count\" data-n=\"{e}\">{p}</td>\
+             <td class=\"num\" data-v=\"{e}\" data-op=\"count\" data-n=\"{e}\">{e}</td><td>{f}</td></tr>",
+            xml(scope),
+            xml(fe),
+            swatch(a, de),
+            xml(de),
+        );
+    };
+    for r in a.scorecard.iter().filter(|r| r.verdicts.1 > 0) {
+        row(
+            &mut s,
+            "whole run",
+            &r.frontend,
+            &r.design,
+            r.verdicts,
+            failed(&r.failed_bars),
+        );
+    }
+    for r in a.events.iter().filter(|r| r.verdicts.1 > 0) {
+        row(
+            &mut s,
+            &format!("{} ({})", r.event_id, r.recording),
+            &r.frontend,
+            &r.design,
+            r.verdicts,
+            failed(&r.failed_bars),
+        );
     }
     s.push_str("</table>");
     s
@@ -1187,18 +1271,36 @@ pub(crate) const DEFINITIONS: &[(&str, &str)] = &[
     ("PLL / DLL jitter", "sample standard deviation of the PLL (deg) and DLL (chips) discriminator outputs over locked epochs: baseline window and per event"),
 ];
 
-fn method_section() -> String {
+/// The lock sources the cells report, and what each means for the lock-based metrics.
+pub(crate) fn lock_source_note(c: &LoadedCampaign) -> String {
+    let mut src: Vec<&str> = c.cells.iter().map(|x| x.lock_source.as_str()).collect();
+    src.sort_unstable();
+    src.dedup();
+    let detail = if src == ["lock-indicators"] {
+        " The lock state in these cells comes from the tracking loop's phase- and code-lock \
+         indicators, as the campaign scorer derives it. False locks are found only against a truth \
+         file where one is given; there is no alias search and no re-acquisition step. A channel \
+         that drifts during an outage may therefore not relock."
+    } else {
+        ""
+    };
+    format!("Lock source in these cells: {}.{detail}", src.join(", "))
+}
+
+fn method_section(c: &LoadedCampaign) -> String {
     let mut s = String::from(
         "<h2>8. Method and definitions</h2><p>Each cell replays one recording through one front-end \
          chain and one loop design in Kshana's software receiver and scores the epoch stream online \
          against the recording's stated test conditions. Definitions, as fixed by the engine for cell \
          schema <code>kshana.campaign-cell/1</code>:</p><table><tr><th>Metric</th><th>Definition</th></tr>",
     );
+    let note = lock_source_note(c);
     for (k, v) in DEFINITIONS {
         let _ = write!(s, "<tr><td>{}</td><td>{}</td></tr>", xml(k), xml(v));
     }
+    s.push_str(&format!("</table><p>{}</p>", xml(&note)));
     s.push_str(
-        "</table><p>Aggregates in this report are medians, sums, counts, or ratios of sums over the \
+        "<p>Aggregates in this report are medians, sums, counts, or ratios of sums over the \
          cells' values. Each one says so, and gives its input count in the document source \
          (<code>data-op</code>, <code>data-n</code>).</p>",
     );
@@ -1277,7 +1379,7 @@ fn appendix(c: &LoadedCampaign) -> String {
     let mut s = String::from(
         "<h2>Appendix A. Per-satellite results</h2><table><tr><th>Recording</th><th>Chain</th>\
          <th>Design</th><th>Satellite</th><th>Availability</th><th>Losses</th><th>Re-acq.</th>\
-         <th>Baseline C/N0</th><th>PLL jitter</th><th>DLL jitter</th></tr>",
+         <th>Median C/N0</th><th>PLL jitter</th><th>DLL jitter</th></tr>",
     );
     for x in &c.cells {
         for sat in &x.satellites {
@@ -1293,7 +1395,7 @@ fn appendix(c: &LoadedCampaign) -> String {
                 td_cell_pct(w.availability),
                 td_cell(Some(w.loss_count as f64), 0, "", "–"),
                 td_cell(Some(w.reacq_count as f64), 0, "", "–"),
-                td_cell(w.baseline_cn0_dbhz, 1, "&#8239;dB-Hz", "no data"),
+                td_cell(w.median_cn0_dbhz, 1, "&#8239;dB-Hz", "no data"),
                 td_cell(w.pll_jitter_deg, 2, "&#8239;°", "no data"),
                 td_cell(w.dll_jitter_chips, 3, "&#8239;chip", "no data"),
             );

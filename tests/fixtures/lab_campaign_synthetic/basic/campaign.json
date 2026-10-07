@@ -1,75 +1,216 @@
 {
   "cells": [
-    "faf1d5059e12f064bc14127801f9037f787c18c267c96cefee67830c148faebf",
-    "8b3b9d0cd5ba8e0defee0073752c72edd163238e336db7da905cbee4da29bdff",
-    "2a17adaed59cc9526f00122700d020cc7f75419bb6bba950b3287429bb3d295f",
-    "39d6027f0793166d9d78a536ee3352a3b3f318983e5088de14b35090dd446729",
-    "b69ced521627b046b54d322edc2983d1126a3448cdff24a5c447165357ffdf57",
-    "a0e835c68b242a1219381d209b931c1addc7d27f249c6d9372d10a3eb39e8881",
-    "fb93da97686a784b8667a075d193d7db4b46d41b7057f46fe14a215187f29875",
-    "924ca0c1504bc17a8ca0d64852ae17f487001d67ea2854f0c670bb9ff6fb81d1",
-    "8941adbc2546d0d65aeb4e5513ec8bb17a3f43863a62faf7556dbf04761721d9",
-    "e03961e0979d0782e6afb4e740d285178f952fdcedecbfb71be3b35af5156b5e",
-    "5c9b01db469a1fbf30401e9910ddff2af56b1db7893ca4e0a4700a11964e1532",
-    "869de52344e3a20ee5f1c879e0ce06f12608ac27135ec1fc8c60a225f871921a"
+    {
+      "design": 0,
+      "frontend": 0,
+      "key": "49d8a63821a9a905e1c68965144b0e4e582c7bc1bfe4523574b22fb279efd69a",
+      "recording": 0
+    },
+    {
+      "design": 1,
+      "frontend": 0,
+      "key": "1a80cbf95f54f56634c806a88abf75b02bba4e854efe098b61d33752af9c8a45",
+      "recording": 0
+    },
+    {
+      "design": 0,
+      "frontend": 1,
+      "key": "1d02917b870858f25d46e4fef6d806c56e490102d23e27a871edc48ef952e2de",
+      "recording": 0
+    },
+    {
+      "design": 1,
+      "frontend": 1,
+      "key": "cec7b212ab0a4d0b64662bc90be54c9bd1e98363e140cdc96d331a14355ee5ec",
+      "recording": 0
+    },
+    {
+      "design": 0,
+      "frontend": 0,
+      "key": "102e2a4872c7cbaa063376e7ffc07196bf6972bc98b42cda2e4a05ab2693e4ec",
+      "recording": 1
+    },
+    {
+      "design": 1,
+      "frontend": 0,
+      "key": "253c1c6f129f01a8c1b594a93e00866b1d1d7ca146c09cb09e0172de4423e043",
+      "recording": 1
+    },
+    {
+      "design": 0,
+      "frontend": 1,
+      "key": "93369332e078c8fc5064f47a05e103d66c4e7b1f0d4e6a165f42b60d06e329ff",
+      "recording": 1
+    },
+    {
+      "design": 1,
+      "frontend": 1,
+      "key": "e110576dabcc094f6eb3ccb8527a8963923c0d208a2768baa0292cdc92ebac2b",
+      "recording": 1
+    }
   ],
-  "data_class": "synthetic",
   "designs": [
     {
-      "hash": "8607b9acdffae2cc21fe40d8e4d0a812b302bceeb9d53f5f77bb8b2d0d74a868",
-      "name": "baseline",
-      "params": {
-        "coherent_ms": 1,
-        "dll_bw_hz": 2.0,
+      "acquisition": {
+        "coherent_periods": "auto",
+        "doppler_max_hz": 5000.0,
+        "doppler_step_hz": "auto",
+        "noncoherent": 1,
+        "pfa": 0.001
+      },
+      "bit_sync": {
+        "min_votes": 12,
+        "ratio": 3.0
+      },
+      "carrier": {
         "fll_bw_hz": 10.0,
+        "fll_discriminator": "atan2",
+        "fll_order": 1,
+        "kind": "fll-assisted-pll",
         "pll_bw_hz": 15.0,
-        "pll_order": 2,
+        "pll_discriminator": "costas-atan",
+        "pll_order": 2
+      },
+      "code": {
+        "bw_hz": 2.0,
+        "carrier_aiding": true,
+        "discriminator": "eml-power",
+        "order": 1
+      },
+      "hash": "e846b802a63808e61d7bac077a05c5a08889356c91a01dd97e922e54782830b5",
+      "integration": {
+        "coherent_periods": 1,
         "spacing_chips": 0.5
-      }
+      },
+      "lock": {
+        "cn0_window_periods": 20,
+        "cn0_windows": 50,
+        "code_lock_cn0_dbhz": 26.0,
+        "false_lock_check": true,
+        "false_lock_margin_db": 3.0,
+        "loss_dwell_s": 0.2,
+        "max_reacq_attempts": 3,
+        "pli_threshold": 0.8,
+        "pull_in_max_s": 2.0,
+        "reacq_doppler_window_hz": 500.0,
+        "reacquire": false
+      },
+      "name": "baseline",
+      "schema": "kshana.loop-design/1"
     },
     {
-      "hash": "2c23aae8f7818f876c9961f196ae489b905ca4704d9d936d67a0500420cb5156",
-      "name": "narrow-pll",
-      "params": {
-        "coherent_ms": 4,
-        "dll_bw_hz": 1.0,
-        "fll_bw_hz": 5.0,
-        "pll_bw_hz": 8.0,
-        "pll_order": 3,
-        "spacing_chips": 0.5
-      }
-    },
-    {
-      "hash": "898d035a633e199b06975164fa308359a95f32ef5d3d16940b78b5b3128fbf97",
-      "name": "wide-pll",
-      "params": {
-        "coherent_ms": 1,
-        "dll_bw_hz": 2.0,
+      "acquisition": {
+        "coherent_periods": "auto",
+        "doppler_max_hz": 5000.0,
+        "doppler_step_hz": "auto",
+        "noncoherent": 1,
+        "pfa": 0.001
+      },
+      "bit_sync": {
+        "min_votes": 12,
+        "ratio": 3.0
+      },
+      "carrier": {
         "fll_bw_hz": 10.0,
-        "pll_bw_hz": 25.0,
-        "pll_order": 2,
+        "fll_discriminator": "atan2",
+        "fll_order": 1,
+        "kind": "fll-assisted-pll",
+        "pll_bw_hz": 8.0,
+        "pll_discriminator": "costas-atan",
+        "pll_order": 2
+      },
+      "code": {
+        "bw_hz": 1.0,
+        "carrier_aiding": true,
+        "discriminator": "eml-power",
+        "order": 1
+      },
+      "hash": "134bd16de32a2697c67308e9d1780cde734c0097d969666fd16540c21a1b4709",
+      "integration": {
+        "coherent_periods": 1,
         "spacing_chips": 0.5
-      }
+      },
+      "lock": {
+        "cn0_window_periods": 20,
+        "cn0_windows": 50,
+        "code_lock_cn0_dbhz": 26.0,
+        "false_lock_check": true,
+        "false_lock_margin_db": 3.0,
+        "loss_dwell_s": 0.2,
+        "max_reacq_attempts": 3,
+        "pli_threshold": 0.8,
+        "pull_in_max_s": 2.0,
+        "reacq_doppler_window_hz": 500.0,
+        "reacquire": false
+      },
+      "name": "narrow-pll",
+      "schema": "kshana.loop-design/1"
     }
   ],
-  "engine_version": "0.34.0",
+  "engine_version": "0.32.0",
   "frontends": [
-    {
-      "hash": "519d5427513015422061324e12ba9ac591701971d5e3563157cd54dc845f4011",
-      "name": "raw",
-      "params": {}
-    },
-    {
-      "hash": "fffebdaf54fc64f271b43fe4ae31419b957c3d63ceb354ec21353d36c97ffff1",
-      "name": "notch+2bit",
-      "params": {
-        "bits": 2,
-        "notch": true
-      }
-    }
+    [
+      {
+        "agc": false,
+        "excise": false,
+        "name": "raw",
+        "no_agc": false,
+        "notch": false
+      },
+      "e015d238c0a790e588996bb468d17cd806681a3cba558a308b298d1b68986c41"
+    ],
+    [
+      {
+        "agc": false,
+        "bits": 3,
+        "excise": false,
+        "name": "agc-3bit",
+        "no_agc": false,
+        "notch": false
+      },
+      "c5220976d1bc77e0da3ecb07a97c215a7944217cc4eb7ac3d719975822b77923"
+    ]
   ],
-  "name": "synthetic-basic",
+  "name": "synthetic-fixture",
   "recordings": [
+    {
+      "conditions": {
+        "event": [
+          {
+            "affects": "all",
+            "id": "gap-1",
+            "kind": "outage",
+            "offset_s": 5.5,
+            "onset_s": 4.0,
+            "type": "unknown"
+          }
+        ],
+        "expected": [
+          {
+            "ids": [
+              7
+            ],
+            "signal": "gps-l1ca"
+          }
+        ],
+        "receiver": {
+          "dut": "synthetic scene (no receiver)",
+          "front_end": "",
+          "notes": ""
+        },
+        "recording": {
+          "id": "synthetic-gap",
+          "path": "../synthetic-gap.bin",
+          "settle_s": 1.0
+        },
+        "schema": "kshana.test-conditions/1"
+      },
+      "conditions_file": "conds/gap.toml",
+      "conditions_hash": "5e35638cb5127cbfc97ca1b017f1df163a3700b70a6ca8836f819008a1458aa7",
+      "id": "synthetic-gap",
+      "path": "conds/../synthetic-gap.bin",
+      "sha256": "2af728853654052064139ea5d1602c1d34945ed808d3d11333a118f06853e6a9"
+    },
     {
       "conditions": {
         "event": [
@@ -77,18 +218,18 @@
             "affects": "all",
             "id": "ramp-1",
             "kind": "interference",
-            "offset_s": 180.0,
-            "onset_s": 60.0,
+            "offset_s": 12.0,
+            "onset_s": 4.0,
             "power": {
-              "interpolation": "linear",
+              "interpolation": "step",
               "points": [
                 [
-                  60.0,
+                  4.0,
                   20.0
                 ],
                 [
-                  180.0,
-                  50.0
+                  8.0,
+                  30.0
                 ]
               ],
               "quantity": "js_db"
@@ -103,7 +244,8 @@
               11
             ],
             "nominal_cn0_dbhz": 45.0,
-            "signal": "gps-l1ca"
+            "signal": "gps-l1ca",
+            "truth": "../synthetic-ramp.truth.csv"
           }
         ],
         "receiver": {
@@ -112,67 +254,31 @@
           "notes": ""
         },
         "recording": {
-          "id": "synthetic-rec-a",
-          "path": "scene-a.sigmf-meta",
-          "settle_s": 5.0
+          "id": "synthetic-ramp",
+          "path": "../synthetic-ramp.bin",
+          "settle_s": 1.0
         },
         "schema": "kshana.test-conditions/1"
       },
-      "conditions_hash": "713c80cceb7126218486671fab56bbf3ffa07a365fdabcd54753b9e92abe817b",
-      "id": "synthetic-rec-a",
-      "sha256": "5bd6c440cc913583de9fa6c9ffe2e6f69999fdec9c12e2477fe3a76aeb280342"
-    },
-    {
-      "conditions": {
-        "event": [
-          {
-            "affects": [
-              6
-            ],
-            "id": "gap-1",
-            "kind": "outage",
-            "offset_s": 40.0,
-            "onset_s": 30.0,
-            "type": "unknown"
-          }
-        ],
-        "expected": [
-          {
-            "ids": [
-              6,
-              22
-            ],
-            "signal": "gps-l1ca"
-          }
-        ],
-        "receiver": {
-          "dut": "synthetic scene (no receiver)",
-          "front_end": "ideal",
-          "notes": ""
-        },
-        "recording": {
-          "id": "synthetic-rec-b",
-          "path": "scene-b.sigmf-meta",
-          "settle_s": 5.0
-        },
-        "schema": "kshana.test-conditions/1"
-      },
-      "conditions_hash": "3b9e0849714ad14557d74b98b89e857b41cd4c97946093398e03a914093ac155",
-      "id": "synthetic-rec-b",
-      "sha256": "98283c4868c4617e0d8d6bf7fd509e648c06912a00b05514c359f0b602f29d30"
+      "conditions_file": "conds/ramp.toml",
+      "conditions_hash": "a23ce5d058053fd6095cffc444d67e689f635b8ec2b58c18684d213af197e676",
+      "id": "synthetic-ramp",
+      "path": "conds/../synthetic-ramp.bin",
+      "sha256": "a9d8f7a7f64032fde671e335df3b14ba842a0abbd748c86d0f61e8535c922ff6"
     }
   ],
-  "run_hash": "5b1e8dce46a640dd80083b9e55f9ead463cc80ad112872b2950aaa3cce9b3ab5",
-  "schema": "kshana.campaign/1",
+  "run_hash": "c2f008aa9053bc1948a5860c3067ed09ebb5bf98f1e13164cbcd144ecb897fcb",
+  "schema": "kshana.campaign-plan/1",
   "scoring": {
     "bars": {
-      "max_reacq_s": 5.0
+      "max_reacq_s": 3.0,
+      "min_availability": 0.5
     },
-    "baseline_window_s": 10.0,
-    "false_lock_doppler_hz": "auto",
+    "baseline_window_s": 2.0,
+    "false_lock_min_epochs": 50,
     "js_bin_db": 5.0,
     "reacq_grace_s": 30.0,
     "reference_curve": true
   },
-  "scoring_hash": "c25b139d718e24c5bd829c7271d27cdc3cc37ff7e89b21bef421fafd95b61a9b"
+  "scoring_hash": "6fe5ecc249f2730dc12209bf0d3299b24a40068d45f09cc067724b2d4436c2f2"
 }

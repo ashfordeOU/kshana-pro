@@ -10,8 +10,8 @@
 //! - any campaign, campaign-cell or test-condition document (recognised by its `schema`
 //!   string) outside [`FIXTURE_DIR`];
 //! - any SigMF recording anywhere;
-//! - any fixture campaign whose name does not start with `synthetic-`, or whose
-//!   `data_class` is not `synthetic`.
+//! - any fixture campaign whose name does not start with `synthetic-`, or that states a
+//!   `data_class` other than `synthetic`.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -21,7 +21,9 @@ const FIXTURE_DIR: &str = "tests/fixtures/lab_campaign_synthetic";
 /// Schema prefixes of the engine's lab-replay documents (public `docs/design/LAB-CAMPAIGN.md`).
 const SCHEMAS: &[&str] = &[
     "kshana.campaign/",
+    "kshana.campaign-plan/",
     "kshana.campaign-cell/",
+    "kshana.campaign-scorecard/",
     "kshana.test-conditions/",
 ];
 
@@ -103,7 +105,7 @@ fn no_client_campaign_data_outside_the_synthetic_fixtures() {
             ));
             continue;
         }
-        if schema.starts_with("kshana.campaign/") {
+        if schema.starts_with("kshana.campaign-plan/") || schema.starts_with("kshana.campaign/") {
             fixture_campaigns += 1;
             let v: serde_json::Value = if ext == "json" {
                 serde_json::from_str(&text).unwrap()
@@ -116,10 +118,13 @@ fn no_client_campaign_data_outside_the_synthetic_fixtures() {
                     "{rel}: fixture campaign name {name:?} must start with `synthetic-`"
                 ));
             }
-            if v.get("data_class").and_then(|d| d.as_str()) != Some("synthetic") {
-                violations.push(format!(
-                    "{rel}: fixture campaign must set data_class = \"synthetic\""
-                ));
+            // An engine that carries a data class must say synthetic here.
+            if let Some(dc) = v.get("data_class") {
+                if dc.as_str() != Some("synthetic") {
+                    violations.push(format!(
+                        "{rel}: fixture campaign data_class must be \"synthetic\""
+                    ));
+                }
             }
         }
     }

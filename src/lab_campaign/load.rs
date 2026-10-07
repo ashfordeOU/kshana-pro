@@ -1,21 +1,24 @@
 //! Load a campaign output directory and check it before anything is rendered.
 //!
 //! Checks, in order:
-//! 1. `campaign.json` parses, and its schema is one this overlay reads;
-//! 2. every `cells/*.json` parses, its schema is known, its file name equals its `key`,
-//!    and its key re-derives from its own inputs (LAB-CAMPAIGN.md §2, "Cells");
-//! 3. every cell belongs to the campaign (its key is listed, its recording, chain and
-//!    design are the campaign's, its run/scoring hashes match), and every cell has the
-//!    campaign's engine version;
+//! 1. `campaign.json` parses and its schema is one this overlay reads;
+//! 2. every planned cell's key, chain and design resolve inside the campaign;
+//! 3. every `cells/*.json` parses, its schema is known, its file name equals its `key`, its
+//!    key re-derives from its own inputs, it is a planned cell, its recording, chain, design and
+//!    run/scoring hashes are the plan's, and its engine version is the campaign's;
 //! 4. every `modelled` block carries the `MODELLED` label;
-//! 5. `DIGEST` matches the cells actually present.
+//! 5. `DIGEST` matches the cells present (the engine writes it only for a complete campaign;
+//!    a complete campaign without one is refused);
+//! 6. `scorecard.json` (the engine's verdicts against the client's bars) belongs to this
+//!    campaign: same name, engine and digest, and every row names a present cell.
 //!
-//! A cell the campaign lists but the directory lacks makes the campaign *incomplete*,
-//! which is reported, not hidden. Anything else that fails is an error.
+//! A cell the campaign lists but the directory lacks makes the campaign *incomplete*, which is
+//! reported, not hidden. Anything else that fails is an error.
 
 use super::hash::{cell_key, digest, sha256_hex};
 use super::model::{
-    CampaignCell, CampaignManifest, DataClass, CAMPAIGN_SCHEMAS, CELL_SCHEMAS, MODELLED_LABEL,
+    CampaignCell, CampaignManifest, DataClass, Scorecard, CELL_SCHEMAS, MODELLED_LABEL,
+    PLAN_SCHEMAS, SCORECARD_SCHEMAS,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
@@ -33,6 +36,7 @@ pub enum LoadError {
         file: String,
         schema: String,
     },
+    BadPlan(String),
     KeyMismatch {
         file: String,
         detail: String,
@@ -55,6 +59,8 @@ pub enum LoadError {
         stated: String,
         computed: String,
     },
+    MissingScorecard,
+    ScorecardMismatch(String),
 }
 
 impl fmt::Display for LoadError {
@@ -65,6 +71,7 @@ impl fmt::Display for LoadError {
             LoadError::UnknownSchema { file, schema } => {
                 write!(f, "{file}: schema {schema:?} is not one this overlay reads")
             }
+            LoadError::BadPlan(m) => write!(f, "campaign.json: {m}"),
             LoadError::KeyMismatch { file, detail } => write!(f, "{file}: cell key {detail}"),
             LoadError::NotInCampaign { file, detail } => {
                 write!(f, "{file}: not part of this campaign ({detail})")
@@ -82,13 +89,18 @@ impl fmt::Display for LoadError {
                     "{file}: reference curve labelled {found:?}, must be {MODELLED_LABEL:?}"
                 )
             }
-            LoadError::MissingDigest => write!(f, "DIGEST is missing"),
+            LoadError::MissingDigest => write!(f, "the campaign is complete but DIGEST is missing"),
             LoadError::DigestMismatch { stated, computed } => {
                 write!(
                     f,
                     "DIGEST mismatch: file says {stated}, cells give {computed}"
                 )
             }
+            LoadError::MissingScorecard => write!(
+                f,
+                "scorecard.json is missing; run `kshana iq campaign report <dir>` first"
+            ),
+            LoadError::ScorecardMismatch(m) => write!(f, "scorecard.json: {m}"),
         }
     }
 }
@@ -104,8 +116,11 @@ pub struct LoadedCampaign {
     pub cells: Vec<CampaignCell>,
     /// Keys the campaign lists that have no cell file yet.
     pub missing: Vec<String>,
-    /// The verified DIGEST.
+    /// The verified DIGEST of the cells present (recomputed; the engine writes it to disk only
+    /// for a complete campaign).
     pub digest: String,
+    /// The engine's verdicts against the client's bars.
+    pub scorecard: Scorecard,
 }
 
 impl LoadedCampaign {
@@ -114,7 +129,7 @@ impl LoadedCampaign {
         self.missing.is_empty()
     }
 
-    /// The campaign's declared data class, if it states one.
+    /// The campaign's declared data class, if the engine states one.
     pub fn data_class(&self) -> Option<DataClass> {
         self.manifest.data_class
     }
@@ -131,41 +146,51 @@ fn parse<T: serde::de::DeserializeOwned>(file: &str, text: &str) -> Result<T, Lo
     })
 }
 
+/// What a planned cell must contain, resolved from the plan's indices.
+struct Expected<'a> {
+    recording: (&'a str, &'a str, &'a str),
+    frontend: (&'a str, &'a str),
+    design: (&'a str, &'a str),
+}
+
 /// Load and check `dir` (the engine's campaign `--out` directory).
 pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
-    let manifest_text = read(&dir.join("campaign.json"))?;
-    let manifest: CampaignManifest = parse("campaign.json", &manifest_text)?;
-    if !CAMPAIGN_SCHEMAS.contains(&manifest.schema.as_str()) {
+    let manifest: CampaignManifest = parse("campaign.json", &read(&dir.join("campaign.json"))?)?;
+    if !PLAN_SCHEMAS.contains(&manifest.schema.as_str()) {
         return Err(LoadError::UnknownSchema {
             file: "campaign.json".into(),
             schema: manifest.schema.clone(),
         });
     }
 
-    let listed: BTreeSet<&str> = manifest.cells.iter().map(String::as_str).collect();
-    let recordings: BTreeMap<&str, (&str, &str)> = manifest
-        .recordings
-        .iter()
-        .map(|r| {
-            (
-                r.id.as_str(),
-                (r.sha256.as_str(), r.conditions_hash.as_str()),
-            )
-        })
-        .collect();
-    let frontends: BTreeMap<&str, &str> = manifest
-        .frontends
-        .iter()
-        .map(|f| (f.name.as_str(), f.hash.as_str()))
-        .collect();
-    let designs: BTreeMap<&str, &str> = manifest
-        .designs
-        .iter()
-        .map(|d| (d.name.as_str(), d.hash.as_str()))
-        .collect();
+    let mut expected: BTreeMap<&str, Expected> = BTreeMap::new();
+    for pc in &manifest.cells {
+        let r = manifest.recordings.get(pc.recording).ok_or_else(|| {
+            LoadError::BadPlan(format!("cell {} names recording {}", pc.key, pc.recording))
+        })?;
+        let fe = manifest
+            .frontend_name(pc.frontend)
+            .zip(manifest.frontend_hash(pc.frontend))
+            .ok_or_else(|| {
+                LoadError::BadPlan(format!("cell {} names front end {}", pc.key, pc.frontend))
+            })?;
+        let de = manifest
+            .design_name(pc.design)
+            .zip(manifest.design_hash(pc.design))
+            .ok_or_else(|| {
+                LoadError::BadPlan(format!("cell {} names design {}", pc.key, pc.design))
+            })?;
+        expected.insert(
+            pc.key.as_str(),
+            Expected {
+                recording: (r.id.as_str(), r.sha256.as_str(), r.conditions_hash.as_str()),
+                frontend: fe,
+                design: de,
+            },
+        );
+    }
 
-    let cells_dir = dir.join("cells");
-    let mut entries: Vec<PathBuf> = match std::fs::read_dir(&cells_dir) {
+    let mut entries: Vec<PathBuf> = match std::fs::read_dir(dir.join("cells")) {
         Ok(rd) => rd
             .flatten()
             .map(|e| e.path())
@@ -178,7 +203,8 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
     let mut by_key: BTreeMap<String, (CampaignCell, String)> = BTreeMap::new();
     for path in &entries {
         let file = format!("cells/{}", path.file_name().unwrap().to_string_lossy());
-        let text = read(path)?;
+        let bytes = std::fs::read(path).map_err(|e| LoadError::Io(format!("{file}: {e}")))?;
+        let text = String::from_utf8_lossy(&bytes);
         let cell: CampaignCell = parse(&file, &text)?;
         if !CELL_SCHEMAS.contains(&cell.schema.as_str()) {
             return Err(LoadError::UnknownSchema {
@@ -186,8 +212,7 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
                 schema: cell.schema,
             });
         }
-        let stem = path.file_stem().unwrap().to_string_lossy();
-        if stem != cell.key {
+        if path.file_stem().unwrap().to_string_lossy() != cell.key {
             return Err(LoadError::KeyMismatch {
                 file,
                 detail: format!("{:?} differs from the file name", cell.key),
@@ -203,12 +228,12 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
                 ),
             });
         }
-        if !listed.contains(cell.key.as_str()) {
+        let Some(exp) = expected.get(cell.key.as_str()) else {
             return Err(LoadError::NotInCampaign {
                 file,
-                detail: "key not listed".into(),
+                detail: "key not planned".into(),
             });
-        }
+        };
         if cell.engine_version != manifest.engine_version {
             return Err(LoadError::EngineVersion {
                 file,
@@ -216,14 +241,13 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
                 expected: manifest.engine_version.clone(),
             });
         }
-        let rec_ok = recordings.get(cell.recording.id.as_str())
-            == Some(&(
-                cell.recording.sha256.as_str(),
-                cell.recording.conditions_hash.as_str(),
-            ));
-        let fe_ok =
-            frontends.get(cell.frontend.name.as_str()) == Some(&cell.frontend.hash.as_str());
-        let de_ok = designs.get(cell.design.name.as_str()) == Some(&cell.design.hash.as_str());
+        let rec_ok = (
+            cell.recording.id.as_str(),
+            cell.recording.sha256.as_str(),
+            cell.recording.conditions_hash.as_str(),
+        ) == exp.recording;
+        let fe_ok = (cell.frontend.name.as_str(), cell.frontend.hash.as_str()) == exp.frontend;
+        let de_ok = (cell.design.name.as_str(), cell.design.hash.as_str()) == exp.design;
         let run_ok =
             cell.run_hash == manifest.run_hash && cell.scoring_hash == manifest.scoring_hash;
         if !(rec_ok && fe_ok && de_ok && run_ok) {
@@ -254,29 +278,65 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
                 }
             }
         }
-        let file_sha = sha256_hex(text.as_bytes());
-        by_key.insert(cell.key.clone(), (cell, file_sha));
+        by_key.insert(cell.key.clone(), (cell, sha256_hex(&bytes)));
     }
 
-    let stated = match std::fs::read_to_string(dir.join("DIGEST")) {
-        Ok(t) => t.trim().to_owned(),
-        Err(_) => return Err(LoadError::MissingDigest),
-    };
     let computed = digest(
         by_key
             .iter()
             .map(|(k, (_, sha))| (k.as_str(), sha.as_str())),
     );
-    if stated != computed {
-        return Err(LoadError::DigestMismatch { stated, computed });
+    let complete = by_key.len() == manifest.cells.len();
+    match std::fs::read_to_string(dir.join("DIGEST")) {
+        Ok(t) if t.trim() != computed => {
+            return Err(LoadError::DigestMismatch {
+                stated: t.trim().to_owned(),
+                computed,
+            })
+        }
+        Ok(_) => {}
+        Err(_) if complete => return Err(LoadError::MissingDigest),
+        Err(_) => {}
+    }
+
+    let scorecard: Scorecard = match std::fs::read_to_string(dir.join("scorecard.json")) {
+        Ok(t) => parse("scorecard.json", &t)?,
+        Err(_) => return Err(LoadError::MissingScorecard),
+    };
+    if !SCORECARD_SCHEMAS.contains(&scorecard.schema.as_str()) {
+        return Err(LoadError::UnknownSchema {
+            file: "scorecard.json".into(),
+            schema: scorecard.schema.clone(),
+        });
+    }
+    if scorecard.campaign != manifest.name || scorecard.engine_version != manifest.engine_version {
+        return Err(LoadError::ScorecardMismatch(
+            "built for another campaign or engine".into(),
+        ));
+    }
+    if complete && scorecard.digest.as_deref() != Some(computed.as_str()) {
+        return Err(LoadError::ScorecardMismatch(
+            "its digest is not the cells' (rebuild it with `kshana iq campaign report`)".into(),
+        ));
+    }
+    let present: BTreeSet<&str> = by_key.keys().map(String::as_str).collect();
+    if let Some(r) = scorecard
+        .rows
+        .iter()
+        .find(|r| !present.contains(r.cell.as_str()))
+    {
+        return Err(LoadError::ScorecardMismatch(format!(
+            "row names absent cell {}",
+            r.cell
+        )));
     }
 
     let mut cells = Vec::with_capacity(by_key.len());
     let mut missing = Vec::new();
-    for key in &manifest.cells {
-        match by_key.remove(key) {
+    for pc in &manifest.cells {
+        match by_key.remove(&pc.key) {
             Some((cell, _)) => cells.push(cell),
-            None => missing.push(key.clone()),
+            None => missing.push(pc.key.clone()),
         }
     }
 
@@ -286,5 +346,6 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
         cells,
         missing,
         digest: computed,
+        scorecard,
     })
 }
