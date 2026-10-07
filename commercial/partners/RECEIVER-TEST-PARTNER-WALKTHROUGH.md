@@ -103,7 +103,7 @@ kshana iq track lab-run-017.bin --signal gps-l1ca --prn 3,11,22 \
 ```
 
 The front end is applied to both the acquisition pass and the tracking pass. PR #44's tests check
-that the result is byte-identical to `iq frontend` then `iq track` on the copy. On the dry run all
+that the output equals `iq track` run on the cf32 copy `iq frontend` writes. On the dry run all
 three satellites tracked at about 44 dB-Hz through the 2-bit front end (phase lock 0.96–0.97 over
 6 s, 7 s wall time). `--acq-coherent 4` is needed on the PR #44 build; see §8 item 4.
 
@@ -286,9 +286,10 @@ Each one is reported to the engine owner. None of them blocks the sequence.
 
 1. **The campaign and `iq track` disagree on re-acquisition.** This is `feat/034-campaign` @
    da95b9c. The campaign's own lock state has no REACQ state. A channel that loses lock in a
-   long outage can stay lost (PRN 11, raw/baseline above). The campaign is being moved onto the
-   track engine's session (`lock_source = "track-session"`). After that move, cells, keys and the
-   DIGEST will all change, so re-run the campaign rather than mixing old and new cells.
+   long outage can stay lost (PRN 11, raw/baseline above). Public PR #46 @ d696bc46 has since moved
+   the campaign runner onto the track engine's session (`lock_source = "track-session"`); this
+   walkthrough has not been re-run on it yet. Cells, keys and the DIGEST change with that move, so
+   re-run a campaign rather than mixing old and new cells.
 2. **`--reacquire` gives up too early by default.** This is PR #45 @ a60ad59. With the default
    `max_reacq_attempts = 3`, every channel uses its three attempts within about 0.1 s of the
    loss and is RETIRED. It does not come back when the signal returns at 10 s. The workaround is
