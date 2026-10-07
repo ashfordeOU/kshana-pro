@@ -1,4 +1,4 @@
-Updated: 2026-10-07T12:24:21Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T12:24:57Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -66,6 +66,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:24:57 Heartbeat found dead since the ~12:00 restart (false 'running' from pgrep self-match); restarted; RECOVERY lesson added.
 - 12:23:40 [RUNNER] kshana PR 34 @6fae76b4: RED, run 37616257744 coverage, same doc_sync guard (fixed in a477eec, re-verify pending).
 - 12:05 [RUNNER] kshana PR 34 @6fae76b4 partial native: toolchain/fmt/no-attribution/version-sync/mcp-check/deny/mcp-deny/wasm32/clippy/public-standalone all 0; test --all stopped (superseded by a477eec).
 - 12:05:24 PR 8 merged (Mac CI run 37617589011 success) → kshana-pro main 1ca4c90.

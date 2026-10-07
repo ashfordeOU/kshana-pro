@@ -64,6 +64,10 @@ Run anything long detached (`setsid nohup … > log 2>&1 &`), record sha + log n
   build with debuginfo and incremental off.
 - Never relax a pre-registered validation bar after the result (gps-sdr-sim row stays MODELLED).
 - Claude Docs and chat do not migrate between accounts: anything canonical goes into git.
+- Cloud containers restart without warning (twice on 2026-10-07): disk survives, background processes
+  (the LIVE.md heartbeat, detached test runs) do not. After any reconnect, check with
+  `ps -eo pid,args | awk '$3=="bash" && $4 ~ /heartbeat.sh$/'` (plain `pgrep -af` matches its own
+  command line and lies) and restart what died; re-run detached jobs whose log shows no end.
 
 ## 6. Shared usage budget
 All sessions on one account share one limit. When tight: pause non-critical lanes (push first,
