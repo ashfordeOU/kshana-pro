@@ -49,7 +49,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
 | session_01U47Y1DtpBY9SupJum3iE6Q | W1 PR 34 + PR 38 (CI) + 0.34.0 track engine (B3.1/B3.2/B3.3/B6.1) | feat/mcp-iq @ eba7d10; feat/iq-track-default @ b41a61d; feat/034-track-engine @ d1a575a | PR 34/38 CI pending (unverified). 0.34 lane: loop-design TOML + epoch record + lock state machine proposal sent (docs/design/LOOP-DESIGN-TOML.md @ d1a575a); waiting for approval before implementing. Owed: PYTHON_API.md iq_track line after #39 |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
-| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 Pro lab campaign report (L1–L6 on synthetic fixtures) | pro/lab-campaign-report-plan | plan d067277 approved 15:43; PR 14 (export pack DRAFT) awaiting founder read |
+| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 Pro lab campaign report (L1–L6) | pro/lab-campaign-report-plan @ 485339c | PR 17 open (footer stripped): plan + L1 loader + L6 N6 guard; gates green (fmt, clippy, cargo test 819/0/9). Q1–Q3 sent to W7. PR 14 open (founder). Next: L2 aggregation |
 | session_01LStocVmSb3UAXorqXZT3BQ | W5 IQ defect fixes D1/D2/D3/D5/D7 for 0.33.0 (public) | fix/iq-d* | plan approved 14:52; D3 first (row recorded by coordinator) |
 | session_01QU3dhUo1RBWW24nEVVzxst | W6 engine graphics onto Observatory | feat/observatory-graphics | plan approved 15:27 (palette.rs single source, palette_sync guard, colour-normalised equality evidence, dark-only charts, report light/dark, 3 orphan figure generators) |
 | session_011PWAHJi1S2BLjLeD5uidXf | W7 0.34 campaign runner + scoring + F1 analytic J/S reference (public) | feat/034-campaign | spawned 15:24; schema design owed |
@@ -95,6 +95,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:02:53 [W3] PR 17 opened (pro/lab-campaign-report-plan 485339c): L1 + L6, tests 819 passed.
 - 15:58:12 [RUNNER] watch baseline: 6 public PR CI runs in progress (table in Running now); 0 conflicts with main 9925c103.
 - 15:57:56 [W2] merge-tree vs main 9925c10: kshana #41 c2b06d15, #42 84104a5e, #39 7f25f18b all merge cleanly; no merge commits needed. W2 idle until the bump go.
 - 15:57:37 Merged kshana-pro PR 16 (squash → main 56fcca5; Mac CI run 37646531287 green). PR 15 merged 15:52:21Z (CI run 37646011566 green). kshana-pro open: PR 14 only (export pack DRAFT, founder read).
