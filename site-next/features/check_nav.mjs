@@ -48,7 +48,8 @@ const key = (p) => { try { p = decodeURI(p); } catch { /* as is */ } if (p.endsW
 const isPage = (p) => !p.startsWith("/studio/") && !p.startsWith("/playground/") && (/\.html$/.test(p) || p.endsWith("/") || !/\.[a-z0-9]+$/i.test(p.split("/").pop()));
 const ONE = ONE_RAW ? key(ONE_RAW) : null;
 
-const browser = await chromium.launch({ channel: "chrome" });
+// Linux: KSHANA_CHROME names a Chromium binary (e.g. /opt/pw-browsers/chromium-1194/chrome-linux/chrome); otherwise macOS Chrome.
+const browser = await chromium.launch(process.env.KSHANA_CHROME ? { executablePath: process.env.KSHANA_CHROME } : { channel: "chrome" });
 const VIEWPORTS = [["phone", { ...devices["iPhone 13"] }], ["desktop", { viewport: { width: 1440, height: 900 } }]].filter(([n]) => !ONLY || n === ONLY);
 const newCtx = async (opts) => { const c = await browser.newContext(opts); c.setDefaultTimeout(15000); c.setDefaultNavigationTimeout(30000); return c; };
 
