@@ -1,4 +1,4 @@
-Updated: 2026-10-07T12:52:19Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T12:53:51Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -73,6 +73,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:55 [RUNNER] kshana PR 37 @bd05a276: GREEN native, version-sync warn exit 0 (4 WARN), strict exit 1 (only the 4 known site items), no-attribution 0, doc_sync 51/51; CI #518 (37624082630) running.
 - 12:52:19 W2 opened kshana PR 37 (version-sync coverage; warn exit 0 / strict exit 1 on 67 chips, 67 footers, llms.txt, changelog.html).
 - 12:50:40 W2 version-sync plan approved (strict: server.json + README version tokens → 0.32.0; warn-only site checks behind KSHANA_VERSION_SYNC_SITE, strict in the release PR). W4 pushed chore/pro-changelog dbc2802 (Pro CHANGELOG PRs 5–8 + changelog_tracks_engine_pin guard, negative check bites); now proving the site toolchain.
 - 12:49:07 W1 iq_track proposal approved (auto ≈4 ms coherent).
