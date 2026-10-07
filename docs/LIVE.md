@@ -1,4 +1,4 @@
-Updated: 2026-10-07T20:59:03Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T20:59:39Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 20:59:39 Mac probe 37685384793 (kshana 1be39823, macOS arm64): success; lunar_frame_campaign scenario 2 exact 0x39456eef9ebdd3c3 len 2912 (scenarios 1/3 match pins 0x1e88104569a8abe2 / 0x556a4c1d055fd815) → W6 commits it. Haiku 4.5 runner stopped (kshana API 403 without a push-access attach); Haiku 5.5 runner authorised to attach kshana with push access for API reads only (no pushing).
 - 20:59:03 Founder: use 5.5 of every model. Probed 20:58Z: claude-haiku-5-5 works; claude-fable-5-5 does not exist (fell back to Opus 5), so the critic stays on claude-fable-5-1 (confirmed last_served_model). Runner replaced: Haiku 5.5 session_01KLmdamUgaeQcrY5G67bSXG (the Haiku 4.5 runner stops). Workers: Sonnet 5.5; mechanical: Haiku 5.5. Probe sessions archived.
 - 20:57:19 [CRITIC/Fable] kshana PR 38 @79ff31e: VERDICT MERGE. The coordinator's merge checked both ways (nothing dropped); the new test fails with the old default (Doppler −2900.9 vs −2400) and passes with the fix; CHANGELOG numbers match results.json. Should-fix for the follow-up docs PR: PYTHON_API.md:150 stub still says acq_coherent: int (pyi says Optional[int]). Nit: sweep USAGE omits --acq-* flags. Heads-up: iq_cli.rs:531 pins that --acq-coherent 1 still false-locks; W1's FLL change may trip it → make the scene harder, never drop the assertion. Merge waits for CI on 79ff31e.
 - 20:53:20 W6 handed over (dfd80fa; feat/observatory-graphics 1be39823 WIP: --lib 2755/0, --all partial 3491/0 before a container restart). Spawned W6 successor (Sonnet) session_01PtZVCSGSaiVwqQ5vkaZu4a. Dispatched Mac probe on 1be39823 for the scenario-2 emission pin (runner relays the values).
