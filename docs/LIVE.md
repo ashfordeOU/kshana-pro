@@ -1,4 +1,4 @@
-Updated: 2026-10-07T17:32:07Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T17:37:18Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:37:18 [W5] D5 WIP on fix/iq-d5-jammer-q: Q_CW=1.0, Q_BROADBAND=2.0 (swept=broadband per the spectrum oracle test); new closed-form test; inverted narrowband-vs-broadband tests renamed; SPECTRUM.md rewritten. Output change: CW −1.8 dB, broadband +3 dB effective C/N0 at high J/S (jamming/lunar-jamming/interop). Approved with checks: no ledger count change, stop on any pre-registered bar, tool-regenerated moved outputs listed, CHANGELOG entry, stack after #50. W2 relays W3's B1.1 signal-matrix patch (W3 has no public push).
 - 17:32:07 [W1] carrier-lock pre-registration a4119ba (B1–B3: default design ≥35 dB-Hz phase lock ≥95%, 0 slips, LOCKED ≥95%; B4 pull-in from 100 Hz). Root cause H1: the always-on 10 Hz FLL injects frequency noise (35 dB-Hz: PL 10–16% vs PLL-only 100%). APPROVED: fll_assist = pull-in|always (default pull-in, with hysteresis; 'always' bit-identical). Default design hash changes again → W7 merges canonical hash + FLL change together; W3 pins once.
 - 17:29:27 [W5] opened kshana PR 50 (fix/iq-d7-glonass-fdma 8655d92): SampleSpec::baseband_hz(carrier) used by acquisition + tracking; GLONASS k=0/+3/−7 test fails on main; CDMA unchanged. GLONASS sat_id i64→u32 truth bug → fold into #50. D5 = (a) CW/NB 1.0, broadband 2.0 (14:52 decision). Re-asked W5 to stack #44⊃#38, #48⊃#44, #50⊃#48; merge order 34 → 38 → 44 → 48 → 50.
 - 17:26:39 Safety-net check-in: heartbeat alive; PR 34 #521 coverage still running (2 h 47 min; timeout 240 min ≈ 18:40Z), all other jobs green; CodeQL rust/c-cpp queued since 14:39 (not required). Pro PR 17 waits for W7's hash re-pin; Pro PR 19 CI queued behind the Mac probe (running since 16:47Z). Nothing else actionable.
