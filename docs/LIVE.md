@@ -1,4 +1,4 @@
-Updated: 2026-10-07T16:31:39Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T16:32:16Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -100,6 +100,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:32:16 [W6] observatory graphics: 5 commits local (palette, figure generators, domain-coverage-map 28→46 refresh, README assets, diagrams), rebased on main; 138/138 result/report/table byte-identical, charts paint-only; 3 byte pins handled (without_paint normalisation proved on the pre-revision engine). One mac-only pin (lunar_frame_campaign scenario 2) can't be computed off-mac → W4 assigned kshana-pro ci/mac-probe (workflow_dispatch on the self-hosted Mac runner, any public ref + cargo command); also unblocks issue #36. W6 pushes + opens its PR when cargo test --all is green.
 - 16:31:39 [W3] PR 17 @6d8368e: L4 PDF (shared summary builder with the HTML; parses, same facts, data class enforced), L1–L6 complete, 838/0/9. Merge blocked only on W7 Q1–Q3 (2nd nudge sent) + Mac CI. W3 next: pro/partner-traceability — (A) R1–R9/D1–D7 → PR/sha status table and real remaining gaps, (B) partner walkthrough runbook on synthetic data.
 - 16:31:19 Heartbeat found dead again (container restart); restarted. Coordinator now bumps Updated on every LIVE edit, not only via the heartbeat.
 - 16:30:42 [W3] PR 17 @ 6d8368e: L4 PDF pushed; L1–L6 complete; cargo test 838 passed.
