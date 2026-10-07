@@ -13,8 +13,8 @@ use crate::lab_campaign::model::DataClass;
 use crate::lab_campaign::LoadedCampaign;
 use crate::report_brand as brand;
 use crate::report_lab_campaign::{
-    check, lock_source_note, summary, without, LabReportOptions, RenderError, CAVEATS, DEFINITIONS,
-    EXPORT_NOTICE_PLACEHOLDER,
+    check, lock_source_note, strip_markers, summary, without, LabReportOptions, RenderError,
+    CAVEATS, DEFINITIONS, EXPORT_NOTICE_PLACEHOLDER,
 };
 use crate::report_pdf::{
     rgb, sans, sans_bold, serif, serif_bold, wrap, Layout, CONTENT_W_MM, MARGIN_MM,
@@ -243,12 +243,12 @@ fn banner(l: &mut Layout, c: &LoadedCampaign, o: &LabReportOptions) {
 fn summary_section(l: &mut Layout, c: &LoadedCampaign, a: &Aggregates) {
     let sm = summary(c, a);
     l.heading("1. Summary");
-    para(l, &sm.intro);
+    para(l, &strip_markers(&sm.intro));
     for (head, body) in &sm.items {
-        para(l, &format!("- {head}: {body}"));
+        para(l, &format!("- {head}: {}", strip_markers(body)));
     }
     if let Some(b) = &sm.bars {
-        para(l, &format!("- {b}"));
+        para(l, &format!("- {}", strip_markers(b)));
     }
     for (tag, text) in CAVEATS {
         let t = if tag.is_empty() {

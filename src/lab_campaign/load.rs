@@ -383,6 +383,19 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
             "built for another campaign, engine or data class".into(),
         ));
     }
+    if scorecard.cells_total != manifest.cells.len()
+        || scorecard.cells_present != by_key.len()
+        || scorecard.complete != complete
+    {
+        return Err(LoadError::ScorecardMismatch(format!(
+            "it says {} of {} cells present (complete: {}), the directory has {} of {} (complete: {complete})",
+            scorecard.cells_present,
+            scorecard.cells_total,
+            scorecard.complete,
+            by_key.len(),
+            manifest.cells.len()
+        )));
+    }
     if complete && scorecard.digest.as_deref() != Some(computed.as_str()) {
         return Err(LoadError::ScorecardMismatch(
             "its digest is not the cells' (rebuild it with `kshana iq campaign report`)".into(),

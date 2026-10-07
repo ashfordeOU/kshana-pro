@@ -50,10 +50,16 @@ fn cell_numbers() -> Vec<f64> {
     out
 }
 
-/// `(value, op, n)` of every traced number in the document.
-fn traced(doc: &str) -> Vec<(f64, String, usize)> {
+/// `(value, op, n, tag, printed)` of every traced number in the document; `tag` is the element
+/// name carrying the attributes and `printed` the text up to the next `<`.
+fn traced(doc: &str) -> Vec<(f64, String, usize, String, String)> {
     let mut out = Vec::new();
     for (i, _) in doc.match_indices("data-v=\"") {
+        let tag_at = doc[..i].rfind('<').unwrap() + 1;
+        let tag: String = doc[tag_at..]
+            .chars()
+            .take_while(|c| c.is_ascii_alphanumeric())
+            .collect();
         let rest = &doc[i + 8..];
         let v: f64 = rest[..rest.find('"').unwrap()].parse().unwrap();
         let op_at = rest.find("data-op=\"").unwrap() + 9;
@@ -62,7 +68,168 @@ fn traced(doc: &str) -> Vec<(f64, String, usize)> {
         let n: usize = rest[n_at..n_at + rest[n_at..].find('"').unwrap()]
             .parse()
             .unwrap();
-        out.push((v, op.to_owned(), n));
+        let close = rest[n_at..].find('>').unwrap() + n_at + 1;
+        let printed =
+            rest[close..rest[close..].find('<').map_or(rest.len(), |p| close + p)].to_owned();
+        out.push((v, op.to_owned(), n, tag, printed));
+    }
+    out
+}
+
+/// The cell documents, as JSON.
+fn cells() -> Vec<serde_json::Value> {
+    let mut v: Vec<_> = std::fs::read_dir(fixture().join("cells"))
+        .unwrap()
+        .flatten()
+        .map(|e| serde_json::from_str(&std::fs::read_to_string(e.path()).unwrap()).unwrap())
+        .collect();
+    v.sort_by_key(|c: &serde_json::Value| c["key"].as_str().unwrap().to_owned());
+    v
+}
+
+fn scorecard_rows() -> Vec<serde_json::Value> {
+    let v: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(fixture().join("scorecard.json")).unwrap())
+            .unwrap();
+    v["rows"].as_array().unwrap().clone()
+}
+
+type Key = (String, u64, usize);
+
+fn key(op: &str, v: f64, n: usize) -> Key {
+    (op.to_owned(), v.to_bits(), n)
+}
+
+/// Every `(op, value, inputs)` a count, sum or ratio may legitimately take, recomputed from
+/// the cell files and `scorecard.json` here, independently of the report's aggregation.
+fn expected_derived() -> BTreeSet<Key> {
+    use std::collections::BTreeMap;
+    let cells = cells();
+    let mut out = BTreeSet::new();
+    let f = |v: &serde_json::Value, k: &str| v[k].as_f64().unwrap_or(0.0);
+    let name = |v: &serde_json::Value, k: &str| v[k]["name"].as_str().unwrap().to_owned();
+
+    // Whole-run sums and the false-lock ratio, per (chain, design).
+    let mut whole: BTreeMap<(String, String), Vec<&serde_json::Value>> = BTreeMap::new();
+    for c in &cells {
+        for s in c["satellites"].as_array().unwrap() {
+            whole
+                .entry((name(c, "frontend"), name(c, "design")))
+                .or_default()
+                .push(&s["whole_run"]);
+        }
+    }
+    for runs in whole.values() {
+        let n = runs.len();
+        let episodes: f64 = runs.iter().map(|r| f(r, "false_lock_episodes")).sum();
+        let losses: f64 = runs.iter().map(|r| f(r, "loss_count")).sum();
+        let locked_h: f64 = runs.iter().map(|r| f(r, "locked_s")).sum::<f64>() / 3600.0;
+        out.insert(key("sum", episodes, n));
+        out.insert(key("sum", losses, n));
+        if locked_h > 0.0 {
+            out.insert(key("ratio", episodes / locked_h, n));
+        }
+    }
+
+    // Event counts, and curve-bin sums, per (recording, event, chain, design).
+    let mut events: BTreeMap<(String, String, String, String), Vec<&serde_json::Value>> =
+        BTreeMap::new();
+    for c in &cells {
+        for s in c["satellites"].as_array().unwrap() {
+            for e in s["events"].as_array().unwrap() {
+                events
+                    .entry((
+                        c["recording"]["id"].as_str().unwrap().to_owned(),
+                        e["event_id"].as_str().unwrap().to_owned(),
+                        name(c, "frontend"),
+                        name(c, "design"),
+                    ))
+                    .or_default()
+                    .push(e);
+            }
+        }
+    }
+    for evs in events.values() {
+        let lost = evs.iter().filter(|e| e["lost"] == true).count();
+        let reacq = evs.iter().filter(|e| e["reacquired"] == true).count();
+        out.insert(key("count", lost as f64, evs.len()));
+        out.insert(key("count", reacq as f64, lost));
+        let mut bins: BTreeMap<u64, (f64, usize)> = BTreeMap::new();
+        for e in evs {
+            for b in e["cn0_curve"].as_array().unwrap() {
+                let slot = bins
+                    .entry(b["js_db"].as_f64().unwrap().to_bits())
+                    .or_default();
+                slot.0 += f(b, "n");
+                slot.1 += 1;
+            }
+        }
+        for (sum, k) in bins.into_values() {
+            out.insert(key("sum", sum, k));
+        }
+    }
+
+    // Counts of the campaign's own parts, printed as "n of n": cells, recordings, chains, designs.
+    let distinct = |f: &dyn Fn(&serde_json::Value) -> String| {
+        cells.iter().map(f).collect::<BTreeSet<_>>().len()
+    };
+    for n in [
+        cells.len(),
+        distinct(&|c| c["recording"]["id"].as_str().unwrap().to_owned()),
+        distinct(&|c| name(c, "frontend")),
+        distinct(&|c| name(c, "design")),
+    ] {
+        out.insert(key("count", n as f64, n));
+    }
+
+    // Verdict counts: PASS / (PASS + FAIL) of the engine's rows, grouped every way the report
+    // groups them, and in total.
+    let rows = scorecard_rows();
+    let tally = |sel: &dyn Fn(&serde_json::Value) -> bool| {
+        let (mut p, mut e) = (0usize, 0usize);
+        for r in rows.iter().filter(|r| sel(r)) {
+            match r["verdict"].as_str().unwrap_or("") {
+                "PASS" => {
+                    p += 1;
+                    e += 1;
+                }
+                "FAIL" => e += 1,
+                _ => {}
+            }
+        }
+        (p, e)
+    };
+    let mut add = |(p, e): (usize, usize)| {
+        if e > 0 {
+            out.insert(key("count", p as f64, e));
+            out.insert(key("count", e as f64, e));
+        }
+    };
+    add(tally(&|_| true));
+    let mut groups = BTreeSet::new();
+    for r in &rows {
+        let s = |k: &str| r[k].as_str().unwrap_or("").to_owned();
+        groups.insert((
+            s("scope"),
+            s("frontend"),
+            s("design"),
+            s("recording"),
+            s("event_id"),
+        ));
+    }
+    for (scope, fe, de, rec, ev) in groups {
+        add(tally(&|r| {
+            let s = |k: &str| r[k].as_str().unwrap_or("");
+            s("scope") == scope && s("frontend") == fe && s("design") == de
+        }));
+        add(tally(&|r| {
+            let s = |k: &str| r[k].as_str().unwrap_or("");
+            s("scope") == scope
+                && s("frontend") == fe
+                && s("design") == de
+                && s("recording") == rec
+                && s("event_id") == ev
+        }));
     }
     out
 }
@@ -78,25 +245,91 @@ fn every_printed_number_traces_to_the_cells() {
     let nums = cell_numbers();
     let has = |v: f64| nums.contains(&v);
     let mid = |v: f64| nums.iter().any(|a| nums.iter().any(|b| 0.5 * (a + b) == v));
+    let expected = expected_derived();
     let t = traced(&doc);
     assert!(
         t.len() > 100,
         "expected many traced numbers, found {}",
         t.len()
     );
-    for (v, op, n) in t {
+    let mut seen = BTreeSet::new();
+    let mut failures = Vec::new();
+    for (v, op, n, _tag, _printed) in t {
+        seen.insert(op.clone());
         let ok = match op.as_str() {
             "cell" => has(v),
+            // An odd count prints the middle value; an even one the mean of the middle two.
+            "median" if n % 2 == 1 => has(v),
             "median" => n > 0 && (has(v) || mid(v)),
-            "count" | "sum" => v >= 0.0 && v.fract() == 0.0,
-            "ratio" => v >= 0.0 && v.is_finite(),
+            "count" | "sum" | "ratio" => expected.contains(&key(&op, v, n)),
             other => panic!("unknown data-op {other:?}"),
         };
+        if !ok {
+            failures.push(format!("printed {v} ({op} over {n})"));
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "do not trace to the cells: {failures:?}"
+    );
+    for op in ["cell", "median", "count", "sum", "ratio"] {
+        assert!(seen.contains(op), "the fixture report has no {op} number");
+    }
+}
+
+#[test]
+fn a_wrong_count_sum_or_ratio_would_not_trace() {
+    // The check is not "any non-negative value": a perturbed number is not in the expected set.
+    let expected = expected_derived();
+    let (op, bits, n) = expected.iter().find(|k| k.0 == "sum").cloned().unwrap();
+    let v = f64::from_bits(bits);
+    assert!(expected.contains(&key(&op, v, n)));
+    assert!(!expected.contains(&key(&op, v + 1.0, n)));
+    assert!(!expected.contains(&key(&op, v, n + 1000)));
+    let r = expected.iter().find(|k| k.0 == "ratio").cloned().unwrap();
+    assert!(!expected.contains(&key("ratio", f64::from_bits(r.1) * 1.01 + 1e-9, r.2)));
+}
+
+#[test]
+fn the_summary_and_heatmap_numbers_are_traced_and_match_their_text() {
+    let doc = html();
+    let t = traced(&doc);
+    let spans: Vec<_> = t.iter().filter(|x| x.3 == "span").collect();
+    // Intro (recordings, chains, designs, cells), per-event findings and the verdict totals.
+    assert!(spans.len() >= 8, "summary spans: {}", spans.len());
+    for (v, op, _n, _tag, printed) in &spans {
+        let p: f64 = printed
+            .parse()
+            .unwrap_or_else(|_| panic!("{printed:?} is not a number"));
+        let decimals = printed.split('.').nth(1).map_or(0, str::len) as i32;
         assert!(
-            ok,
-            "printed {v} ({op} over {n}) does not trace to the cells"
+            (p - v).abs() <= 0.5 * 10f64.powi(-decimals) + 1e-12,
+            "{op}: printed {printed} but traced {v}"
         );
     }
+    let texts: Vec<_> = t.iter().filter(|x| x.3 == "text").collect();
+    assert_eq!(texts.len(), 4, "one traced heatmap cell per chain x design");
+    for (v, op, _n, _tag, printed) in &texts {
+        assert_eq!(op, "median");
+        assert_eq!(*printed, format!("{:.1} %", 100.0 * v));
+    }
+    // The intro counts equal the loaded campaign.
+    let c = load(&fixture()).unwrap();
+    let counts: Vec<f64> = spans
+        .iter()
+        .filter(|x| x.1 == "count")
+        .map(|x| x.0)
+        .take(4)
+        .collect();
+    assert_eq!(
+        counts,
+        vec![
+            c.manifest.recordings.len() as f64,
+            2.0,
+            2.0,
+            c.cells.len() as f64
+        ]
+    );
 }
 
 #[test]
