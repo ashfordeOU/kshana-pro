@@ -1,4 +1,4 @@
-Updated: 2026-10-07T14:33:56Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T14:38:20Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -71,11 +71,14 @@ No external deadline set.
    channels ~500 Hz off in the W3 notebook; change the default in 0.33.0? (behaviour change)
 
 ## Next
+**0.33.0 release checklist (from the rehearsal, kshana-pro PR 11):** (a) docs prose bumps + README image regeneration IN the bump commit before recordings (re-run quoted figures); (b) placements.toml rows for 11 unplaced features + PR 34's 6 MCP IQ tools (coordinator reviews); (c) Studio channels.json version bump (8 strings); (d) eyeball nav: desktop / → /editions, /capabilities #constellations, #campaigns; (e) flip KSHANA_VERSION_SYNC_SITE default to strict.
 - Merge PR 7 when Mac CI green + runner VERIFY green.
 - Review W2 row proposal; review W1 MCP design; merge their public PRs after CI (~2.5 h `check`).
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:38:20 W2 rehearsal ended; kshana-pro PR 11 (runbook fixes F1–F11 + check_nav/selfcheck code fixes) opened. Nav like-for-like: main 4 BAD, rehearsal 17 BAD (mostly timing noise; 3 recurring items to eyeball).
+- 14:37 [RUNNER] kshana PR 34 @a477eec GREEN CI #517; PR 34 + 38 conflict with main 58957f8 in CHANGELOG.md only; PR 37 merges clean (its check/coverage still running).
 - 14:29:33 kshana PR 35 squash-merged → main 58957f8. W1: after PR 34 CI #517 finishes, merge main into 34 (CHANGELOG), then 34 into 38.
 - 14:28:15 [RUNNER] kshana PR 35 @bb7edf87: GREEN CI #516 (37617204859), 14/14 jobs incl. check, coverage, 3-OS reproducibility.
 - 14:24 [RUNNER] kshana PR 35 @bb7edf87: GREEN native full, test --all 3823 passed / 0 failed / 100 ignored (358 suites), repeatability 3x2751 identical, reproducible/doc-coverage/site.test/doc_sync/clippy 0; CI #516 (37617204859) running.
