@@ -167,3 +167,101 @@ fn a_reference_curve_must_be_labelled_modelled() {
     });
     assert!(matches!(load(&d), Err(LoadError::ModelledLabel { .. })));
 }
+
+// ── L2: aggregation over the synthetic fixture ─────────────────────────────────────────
+
+use kshana_pro::lab_campaign::aggregate::{aggregate, rank, Op};
+
+#[test]
+fn aggregation_keeps_campaign_order_and_one_row_per_chain_and_design() {
+    let a = aggregate(&load(&fixture()).unwrap());
+    assert_eq!(a.frontends, vec!["raw", "notch+2bit"]);
+    assert_eq!(a.designs, vec!["baseline", "narrow-pll", "wide-pll"]);
+    assert_eq!(a.scorecard.len(), 6);
+    assert_eq!(a.events.len(), 12, "2 events x 2 chains x 3 designs");
+    assert_eq!(
+        a.curves.len(),
+        6,
+        "only the interference event has a J/S curve"
+    );
+    let first = &a.scorecard[0];
+    assert_eq!(
+        (first.frontend.as_str(), first.design.as_str()),
+        ("raw", "baseline")
+    );
+    assert_eq!((first.cells, first.satellites), (2, 4));
+}
+
+#[test]
+fn scorecard_values_are_declared_aggregates_of_cell_fields() {
+    let a = aggregate(&load(&fixture()).unwrap());
+    let row = |fe: &str, de: &str| {
+        a.scorecard
+            .iter()
+            .find(|r| r.frontend == fe && r.design == de)
+            .unwrap()
+    };
+    // Whole-run availability per satellite in the fixture: 0.9, 0.9, 0.9, 1.0 -> median 0.9.
+    let b = row("raw", "baseline");
+    assert_eq!(b.availability.value, Some(0.9));
+    assert_eq!((b.availability.op, b.availability.n), (Op::Median, 4));
+    assert_eq!(b.losses.value, Some(3.0));
+    assert_eq!(b.false_lock_per_locked_hour.value, Some(0.0));
+    assert_eq!(b.false_lock_per_locked_hour.op, Op::RatioOfSums);
+    assert_eq!(row("raw", "narrow-pll").availability.value, Some(0.88));
+}
+
+#[test]
+fn event_rows_stay_per_event_and_count_bars() {
+    let a = aggregate(&load(&fixture()).unwrap());
+    let ev = |id: &str, fe: &str, de: &str| {
+        a.events
+            .iter()
+            .find(|r| r.event_id == id && r.frontend == fe && r.design == de)
+            .unwrap()
+    };
+    let r = ev("ramp-1", "raw", "baseline");
+    assert_eq!((r.satellites, r.held), (2, 0));
+    assert_eq!(r.time_to_loss_s.value, Some(21.25));
+    assert_eq!(r.js_at_loss_db.value, Some(25.25));
+    assert_eq!(r.reacq_time_s.value, Some(3.5));
+    assert_eq!(r.bars.get("max_reacq_s"), Some(&(2, 2)));
+    assert_eq!(
+        ev("ramp-1", "raw", "narrow-pll").bars.get("max_reacq_s"),
+        Some(&(0, 2))
+    );
+    // The outage event affects one satellite and has no J/S.
+    let g = ev("gap-1", "raw", "baseline");
+    assert_eq!(g.satellites, 1);
+    assert_eq!(g.js_at_loss_db.value, None);
+    assert!(g.bars.is_empty());
+}
+
+#[test]
+fn curves_keep_empty_bins_visible_and_carry_the_reference() {
+    let a = aggregate(&load(&fixture()).unwrap());
+    let c = &a.curves[0];
+    assert_eq!(
+        c.bins.iter().map(|b| b.js_db).collect::<Vec<_>>(),
+        vec![20.0, 25.0, 30.0]
+    );
+    // The 30 dB bin has no locked epochs: no measured value, but the MODELLED value stays.
+    assert_eq!(c.bins[2].n.value, Some(0.0));
+    assert_eq!(c.bins[2].measured_degradation_db.value, None);
+    assert_eq!(c.bins[2].modelled_degradation_db.value, Some(7.6));
+    assert_eq!(c.q, Some(2.0));
+}
+
+#[test]
+fn ranking_by_reacquisition_time_on_the_fixture() {
+    let a = aggregate(&load(&fixture()).unwrap());
+    let vals: Vec<(String, Option<f64>)> = a
+        .events
+        .iter()
+        .filter(|r| r.event_id == "ramp-1" && r.frontend == "raw")
+        .map(|r| (r.design.clone(), r.reacq_time_s.value))
+        .collect();
+    let r = rank(&vals, false);
+    assert_eq!(r[0], ("wide-pll".to_string(), 1));
+    assert_eq!(r[2], ("narrow-pll".to_string(), 3));
+}

@@ -12,6 +12,7 @@
 //! committed fixtures are synthetic (`tests/fixtures/lab_campaign_synthetic/`), and
 //! `tests/lab_campaign_no_client_data.rs` enforces it.
 
+pub mod aggregate;
 pub mod hash;
 pub mod load;
 pub mod model;
