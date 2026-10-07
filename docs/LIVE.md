@@ -1,4 +1,4 @@
-Updated: 2026-10-07T17:47:42Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T17:51:53Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:51:53 [W3] signal matrix v2 (3 commits: bars pre-registered → disclosed harness amendment → results) sent to W2 for push: 8 pass (L1CA, L5I, L5Q, E5a-I, E5a-Q, B1I, GLONASS, E1-B on-grid control); ignored as findings: D8 (E1-B/C false-lock +125 Hz), D9 (L2C no lock), D10 narrowed to B1C (NWPR −2.45 dB). GLONASS sat_id: 0.33 documents the u32 wrap; 0.34 plan = slot id + signed freq_channel field (W5 to assess).
 - 17:51:50 [W3] signal matrix (gap #6) sent to W2 as mbox: 8 pass / 4 ignored findings D8–D10; awaiting W2 PR
 - 17:47:42 [W7] PR 46 @ee032df6: data_class required (closed enum; in Plan, cells, keys, scorecard, report), W3 reacq scenario as regression tests (reacquire on: back within 2 s; off: pinned), scorer fix (time after a retired channel's last update now counts as unlocked; availability had read 0.95 for a dead channel), lock_source track-session, Q single-source, run.epochs wired (csv/jsonl/bin per cell, hashed into the cell), LAB-CAMPAIGN.md implemented. Next in this PR: SigMF annotation import + GB perf test. Re-merge W1 after the fll_assist change, then W3 pins.
 - 17:44:33 [W3] signal matrix run 1 (feat/035-signal-matrix 1c62b9e, local; bars pre-registered): 5/11 pass every bar (L1 C/A, L5-I/Q, E5a-Q, GLONASS L1OF). New defects → W5 after D5: D8 acquisition step 2/(3T) vs FLL pull-in ±1/(4T) → Galileo E1-B/C false-lock ±125 Hz; D9 L2C CM (T=20 ms) can't hold lock with default loop (Bn·T 0.3); D10 BOC C/N0 1.2–1.6 dB low. Harness v2 amendment approved (disclosed, bars untouched); findings kept as ignored tests that the fixes must un-ignore.
