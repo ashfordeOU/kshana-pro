@@ -33,8 +33,14 @@ No external deadline set.
 ## Running now
 | What | Sha | Where to look |
 |---|---|---|
-| kshana-pro CI on main push | db2210a | Actions › CI (self-hosted `macmini-kshana-pro`) |
-| Runner: amd64 build of act image, then VERIFY PR 7 | db2210a / dbc8c81 | runner session transcript |
+| kshana main push CI #528 | 9925c103 | Actions › CI |
+| kshana PR 34 CI #521 (37638566324) | eba7d104 | since 14:39Z |
+| kshana PR 38 CI #524 (37641898570) | b41a61d6 | since 15:03Z |
+| kshana PR 39 CI #523 (37639074529) | 7f25f18b | since 14:43Z |
+| kshana PR 40 CI #525 (37644853913) | 5540205f | since 15:33Z |
+| kshana PR 41 CI #526 (37646208174) | c2b06d15 | since 15:43Z |
+| kshana PR 42 CI #527 (37646632037) | 84104a5e | since 15:46Z |
+Runner watches all of the above; all six heads merge cleanly into 9925c103 (merge-tree, 15:58Z).
 
 ## Sessions (environment AshfordeKSH)
 | Id | Lane | Branch | State |
@@ -89,6 +95,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:58:12 [RUNNER] watch baseline: 6 public PR CI runs in progress (table in Running now); 0 conflicts with main 9925c103.
 - 15:57:56 [W2] merge-tree vs main 9925c10: kshana #41 c2b06d15, #42 84104a5e, #39 7f25f18b all merge cleanly; no merge commits needed. W2 idle until the bump go.
 - 15:57:37 Merged kshana-pro PR 16 (squash → main 56fcca5; Mac CI run 37646531287 green). PR 15 merged 15:52:21Z (CI run 37646011566 green). kshana-pro open: PR 14 only (export pack DRAFT, founder read).
 - 15:57:04 Merged kshana PR 37 (squash → main 9925c10; CI #518 run 37624082630 green). Open public PRs now 34, 38, 39, 40, 41, 42 — may need main merged for CHANGELOG [Unreleased]. Killed 8 duplicate heartbeat processes (one left).
