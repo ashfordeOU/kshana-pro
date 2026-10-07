@@ -21,7 +21,7 @@ console.log(`parity: ${rows.length} checks`);
 
 // 2. module tests
 try {
-  const out = execFileSync("node", ["--test", ...readdirSync(here + "lib").filter((f) => f.endsWith(".test.mjs")).map((f) => "lib/" + f)], { cwd: here, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  const out = execFileSync("node", ["--test", "--test-reporter=spec", ...readdirSync(here + "lib").filter((f) => f.endsWith(".test.mjs")).map((f) => "lib/" + f)], { cwd: here, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   const pass = (out.match(/^ℹ pass (\d+)/m) || [])[1], fail = (out.match(/^ℹ fail (\d+)/m) || [])[1];
   ok(fail === "0", `module tests failed: ${fail}`);
   console.log(`module tests: ${pass} passed, ${fail} failed`);
