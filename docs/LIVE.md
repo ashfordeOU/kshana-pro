@@ -1,4 +1,4 @@
-Updated: 2026-10-07T14:40:38Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T14:41:43Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -44,7 +44,7 @@ No external deadline set.
 | session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (PR 38) | feat/mcp-iq @ eba7d10; feat/iq-track-default @ d542efa | PR 34 run 37618278079 all green on a477eec; main (58957f8) merged into 34 → eba7d10 (CHANGELOG both entries kept); then 34 merged into 38 → d542efa. Local gates on both: fmt, doc_sync+source_guards+iq_cli (+iq_gpssdrsim on 38), MCP 33 passed, version-sync OK, no-attribution OK; clippy OK on 38. New CI pending (unverified) |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 receiver-test partner gap analysis + build plan | partners/receiver-test-gap | assigned 14:18 — analysis owed before any build |
-| session_01YCEg68jFdLERESsPcMmyMz | W4 Pro CHANGELOG + pin guard + RE-PORT.md | chore/pro-changelog | DONE — PR 10 merged (96d64cc); idle |
+| session_01YCEg68jFdLERESsPcMmyMz | W4 theme audit (site sections, Studio, reports, og-card, README/docs images) | chore/theme-audit | assigned 14:47 — audit owed |
 
 ## Decisions
 - 2026-10-07 No AI attribution in commits/PRs (repo rule beats harness defaults). The GitHub tool
@@ -71,12 +71,14 @@ No external deadline set.
    channels ~500 Hz off in the W3 notebook; change the default in 0.33.0? (behaviour change)
 
 ## Next
+**0.33.0 release checklist** also: (f) old-theme sections + old-theme README/docs screenshots fixed (W4 audit → site-source PR + regeneration); target theme to be confirmed by founder (Observatory vs Ashforde gold).
 **0.33.0 release checklist (from the rehearsal, kshana-pro PR 11):** (a) docs prose bumps + README image regeneration IN the bump commit before recordings (re-run quoted figures); (b) placements.toml rows for 11 unplaced features + PR 34's 6 MCP IQ tools (coordinator reviews); (c) Studio channels.json version bump (8 strings); (d) eyeball nav: desktop / → /editions, /capabilities #constellations, #campaigns; (e) flip KSHANA_VERSION_SYNC_SITE default to strict.
 - Merge PR 7 when Mac CI green + runner VERIFY green.
 - Review W2 row proposal; review W1 MCP design; merge their public PRs after CI (~2.5 h `check`).
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:41:43 Founder: old theme still on many site sections + old-theme README screenshots → W4 theme audit. Two salvage audits conflict on the target theme (Observatory vs Ashforde gold) → asked founder.
 - 14:40:38 W1 merged main into PR 34 (eba7d10) and 34 into PR 38 (d542efa); CHANGELOG conflicts resolved (both entries kept); local gates OK. New CI ~2.5 h.
 - 14:40:10 [W1] main→34 (eba7d10), 34→38 (d542efa) pushed; local gates green.
 - 14:39:35 W2: kshana-pro PR 11 now includes placements for the 11 unplaced features (UNPLACED=0). Found a real 0.32.0 docs gap: PYTHON_API.md Surface and npm usage don't list the 8 iq_*/receiver_trust bindings → approved public docs PR (docs/iq-bindings-surface).
