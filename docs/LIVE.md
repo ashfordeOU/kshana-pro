@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:02:37Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:03:33Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:03:33 Founder: close useless sessions. Archived: old Opus runner, Haiku 4.5 runner, old W3 (handover 5749af4d), W4, old W6, old W7 (plus the 2 model probes earlier). Still open: coordinator, critic (Fable 5.1), runner (Haiku 5.5), W6/W7 (Sonnet 5.5), new W3 (Sonnet 5.5, session_01JVvBrvuLkRhbtP3YWv3eRb), and W1/W2/W5/W8 (Opus, finishing their handovers; archived after). Non-Kshana sessions (VCPrep, Arksa, Job Applications) untouched.
 - 21:02:37 Runner's push-access attach was denied by the permission classifier (respected). New split: coordinator watches public kshana CI directly (subscribed to #38, #44, #45, #48, #49, #50); the Haiku 5.5 runner does merge-tree checks, kshana-pro CI and Mac probes. Triage: #45 runs #541/#542 red on source_guards every_pin_declares_its_scope (design.rs:966 hash pin lacks PIN-SCOPE/PIN-EXCLUDES); #49 runs #538/#544 red on source_guards temp_paths_all_carry_a_per_call_unique_component (iq_monitor.rs:641/644, pid-keyed temp dir) → W1/W8 or their successors. [W3] PR 17 re-pin ready on pro/lab-campaign-repin-wip 136b47a (844/0/9), held for the single pin.
 - 21:01:00 [W3] kshana #51 up via W2; PR 17 re-pin prepared on pro/lab-campaign-repin-wip @ 136b47a (validated on ee032df6, 844 pass), held for final engine sha
 - 21:00:00 [W6] feat/observatory-graphics 0a6c3b64: scenario-2 pin 0x39456eef9ebdd3c3 committed (from probe 37685384793); full gates running, PR next. [CRITIC] kshana PR 44 @15107fa: VERDICT MERGE (the test fails when track/sweep are reverted: --notch swallowed --bits; front-end stages stream, so the result is independent of read size). Nits: restack must keep auto_coherent_periods + through_frontend on both passes (critic re-checks the restack head); MCP iq_track has no front-end fields (follow-up).
