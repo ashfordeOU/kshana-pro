@@ -1,4 +1,4 @@
-Updated: 2026-10-07T22:03:15Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T22:03:49Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 22:03:49 22:03Z Decisions: D8 = cap the default acquisition Doppler step at 0.4/T_track via a shared acq::default_step_hz helper (cause: E1-B residual 83 Hz vs FLL pull-in 62.5 Hz); refinement stays with W1b's B3.4. D9 = scale default loop bandwidths with Bn·T ≤ 0.1 only for T > 4 ms; the design hash must cover the effective parameters and the default pin must stay 33261cd1…. Bars pre-registered in the PR before running. W5 branch fix/iq-d8-acq-step-pullin from f3a8ca8b.
 - 22:03:15 22:03Z W1 FINAL: #45 @f3a8ca8b, default design hash 33261cd1…8e80. Fixed 0.1 s re-acquisition interval with the 0.3 s bar kept; critic items addressed. Open findings in W1.md: no FLL→PLL hand-over at 33 dB-Hz; commensurate bias at 4 spc and 0 Hz. Critic re-check requested. W7 told to merge f3a8ca8 into #46 and re-pin. W1 archived; successor W1b (Sonnet 5.5) started as session_01JSzHbpAvHygc1JYY532ete. W5: no-attribution check clean on #54.
 - 22:02:04 22:02Z W5 pushed D5 (a2) @de9034b on #50. Coordinator opened public #54 (footer stripped) and subscribed. Critic review requested. Release run: 3830 passed; 3 doc-sync failures fixed by regeneration; no pinned number moved. Merge order: #38 → #44 → #48 → #50 → #54.
 - 22:01:00 22:00Z W3: absolute-path guard @46da56c on wip. Coordinator pointed W3 at the bars: campaign.json scoring.bars and recordings[].conditions.bars (merged field by field in report.rs:181-206), so a relaxed-bar flag needs no new engine field.
