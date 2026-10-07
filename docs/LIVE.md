@@ -95,6 +95,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:03:10 [W3] opened kshana-pro PR 17 (pro/lab-campaign-report-plan 485339c): L6 guard (fails on campaign/cell docs outside tests/fixtures/lab_campaign_synthetic/ and any SigMF file; tested by planting a cell), L1 strict loader (9 tests, 12-cell synthetic fixture), README count parser fix. Gates: fmt, clippy, test --all 819/0/9. Not merging until L2/L3 land and W7 settles the schema.
 - 16:02:53 [W3] PR 17 opened (pro/lab-campaign-report-plan 485339c): L1 + L6, tests 819 passed.
 - 15:58:12 [RUNNER] watch baseline: 6 public PR CI runs in progress (table in Running now); 0 conflicts with main 9925c103.
 - 15:57:56 [W2] merge-tree vs main 9925c10: kshana #41 c2b06d15, #42 84104a5e, #39 7f25f18b all merge cleanly; no merge commits needed. W2 idle until the bump go.
