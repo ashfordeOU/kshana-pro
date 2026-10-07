@@ -13,6 +13,27 @@ const read = (f) => readFileSync(here + f, "utf8");
 let fails = 0;
 const ok = (cond, msg) => { if (!cond) { fails++; console.log("FAIL", msg); } };
 
+// 0. Git LFS: the package (pkg/*.wasm) and the native recordings (native/*.gz) are LFS objects in
+// kshana-pro. A clone that never ran `git lfs pull` holds 130-byte pointer files instead, and the
+// module tests then fail deep inside zlib ("incorrect header check"). Say so up front instead.
+{
+  const { readdirSync: ls, statSync, openSync, readSync, closeSync } = await import("node:fs");
+  const pointers = [];
+  for (const dir of ["pkg", "native"]) {
+    let names = []; try { names = ls(here + dir); } catch { continue; }
+    for (const f of names) {
+      const p = `${here}${dir}/${f}`; if (!statSync(p).isFile() || statSync(p).size > 1024) continue;
+      const b = Buffer.alloc(40), fd = openSync(p, "r"); readSync(fd, b, 0, 40, 0); closeSync(fd);
+      if (b.toString("utf8").startsWith("version https://git-lfs")) pointers.push(`${dir}/${f}`);
+    }
+  }
+  if (pointers.length) {
+    console.log(`FAIL Git LFS objects are not checked out (${pointers.length} pointer files, e.g. ${pointers[0]}).`);
+    console.log("     Run, from the kshana-pro checkout:  git lfs install && git lfs pull --include='site-next/**'");
+    process.exit(1);
+  }
+}
+
 // 1. parity
 const parity = read("PARITY.md");
 const rows = [...parity.matchAll(/`((?:app\.js|index\.html|app\.css)): ([^`]+)`/g)];
