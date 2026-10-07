@@ -174,7 +174,7 @@ SECTORS = [
          next=["campaign-jam-spoof-holdover-integrity", "l-band-waterfall-jamming", "campaign-sweep-jammer-power",
                "leo-resilience-gnss-jammed-leo-carries", "leo-resilience-spoof-monitors"],
          tiers=[T_FREE % "", T_PRO % P_PACK, T_CUS % C_EXPORT],
-         note="Defensive use only: protecting your own navigation and timing, resilience assessment and holdover planning. Kshana does not model targeting, interception or guidance, and it is not an RF signal simulator or a receiver."),
+         note="Defensive use only: protecting your own navigation and timing, resilience assessment and holdover planning. Kshana does not model targeting, interception or guidance. It drives no radio hardware and transmits nothing: its signal-level output is baseband IQ sample files for software receivers."),
     dict(id="space", n="Space: Earth orbit", c="--cyan",
          q="Does my spacecraft see enough navigation satellites, how long does its clock hold time between fixes, and what would a low-orbit navigation layer add?",
          threat="GNSS outage above or inside the constellation, clock drift between fixes, sparse geometry",
