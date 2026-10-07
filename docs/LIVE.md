@@ -37,7 +37,7 @@ No external deadline set.
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
-| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP (PR 34) + iq_track default (feat/iq-track-default) | feat/mcp-iq @ a477eec | PR 34: CI red on 6fae76b (run 37615528447, scenario_count_doc_sync MCP README guard scanned server.rs only) → fixed a477eec (guard scans server.rs + iq.rs, asserts iq_tool_router is merged); local: 15 doc_sync/source_guards binaries 60 passed, MCP 33 passed, clippy OK; CI re-run pending (unverified); idle |
+| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (0.33.0) | feat/mcp-iq @ a477eec; feat/iq-track-default @ a477eec | PR 34 waiting on CI (unverified). New task: running seeded false-lock sweep (60 scenes × 3 PRNs × 5 candidates) for the acq default; proposal to coordinator before implementing |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 §7-B2 IQ ledger rows (public) (row recorded by coordinator) | feat/iq-validation-ledger | bb7edf8: 26e1fe6 rows+artifacts, 225176e guard-forced counts (PNG re-rendered, Chromium/Liberation Sans), bb7edf8 droppable; clippy/no-attribution/version-sync/doc-coverage/site tests OK; PR 35 open, idle |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | DONE — PR 7 merged (78ab489); idle |
 | session_01YCEg68jFdLERESsPcMmyMz | W4 site + changelog refresh (§7-D1) | (audit) | assigned 12:47 — audit + plan owed |
@@ -72,6 +72,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:46:59 [W1] Started iq_track default task: branch feat/iq-track-default; false-lock sweep running.
 - 12:45:33 Founder: file macOS issue (→ kshana #36), change iq_track default (→ W1), make site + changelogs current incl. all releases/tooling (→ W4 audit; 0.33.0 release planned). Asked founder what "kenn" refers to (no match in either repo).
 - 12:40 [RUNNER] kshana PR 34 @a477eec: GREEN targeted, doc_sync 51/51, mcp 33/33, fmt/clippy 0, guard negative test bites; CI #517 (37618278079) running; full native test --all pending (after PR 35).
 - 12:28:10 Check-in: PR 34 @a477eec run 37618278079 — all 18 non-long jobs green (deny, mcp-check, msrv, package, wasm, python, 3× reproducibility, CodeQL); check + coverage running. PR 35 @bb7edf87 run 37617204859 — same, check + coverage running. Next check-in ~13:28.
