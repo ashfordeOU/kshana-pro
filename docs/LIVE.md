@@ -1,4 +1,4 @@
-Updated: 2026-10-07T15:40:03Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T15:42:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -43,12 +43,12 @@ No external deadline set.
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
 | session_01U47Y1DtpBY9SupJum3iE6Q | W1 PR 34 + PR 38 (CI) + 0.34.0 track engine (B3.1/B3.2/B3.3/B6.1) | feat/mcp-iq @ eba7d10; feat/iq-track-default @ b41a61d; feat/034-track-engine @ d1a575a | PR 34/38 CI pending (unverified). 0.34 lane: loop-design TOML + epoch record + lock state machine proposal sent (docs/design/LOOP-DESIGN-TOML.md @ d1a575a); waiting for approval before implementing. Owed: PYTHON_API.md iq_track line after #39 |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
-| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 Pro lab campaign report (plan) + PR 14 | pro/lab-campaign-report-plan @ d067277 | plan pushed (`docs/plans/2026-10-07-lab-campaign-report-plan.md`): sections, JSON-mirror architecture, L1–L8 (~2 wk for L1–L6), synthetic-only tests, N6 data-hygiene guards, 5 open questions (3 for W7). No PR yet. PR 14 open. Next: coordinator review |
+| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 Pro lab campaign report (L1–L6 on synthetic fixtures) | pro/lab-campaign-report-plan | plan d067277 approved 15:43; PR 14 (export pack DRAFT) awaiting founder read |
 | session_01LStocVmSb3UAXorqXZT3BQ | W5 IQ defect fixes D1/D2/D3/D5/D7 for 0.33.0 (public) | fix/iq-d* | plan approved 14:52; D3 first (row recorded by coordinator) |
 | session_01QU3dhUo1RBWW24nEVVzxst | W6 engine graphics onto Observatory | feat/observatory-graphics | plan approved 15:27 (palette.rs single source, palette_sync guard, colour-normalised equality evidence, dark-only charts, report light/dark, 3 orphan figure generators) |
 | session_011PWAHJi1S2BLjLeD5uidXf | W7 0.34 campaign runner + scoring + F1 analytic J/S reference (public) | feat/034-campaign | spawned 15:24; schema design owed |
 | session_01PwGcK67ty6g2wP1Kwx4S8k | W8 0.34 lab formats (b) → IQ monitors (a) → C/N0 profiles (c) | feat/034-formats | plan approved 15:28; (b) started; (c) waits for W5 scene PRs |
-| session_01YCEg68jFdLERESsPcMmyMz | W4 theme sweep (PR 13 merged) + Studio selfcheck | fix/studio-stages-test @ cf5fe30 | PR 15 open: selfcheck failure was missing Git LFS objects (pointer files), not code; preflight + RE-PORT LFS step; selfcheck all green with LFS; idle |
+| session_01YCEg68jFdLERESsPcMmyMz | W4 site theme + Studio selfcheck | fix/studio-stages-test | PR 13 merged; PR 15 open (selfcheck failure = missing Git LFS objects; preflight added); idle |
 
 ## Decisions
 - 2026-10-07 No AI attribution in commits/PRs (repo rule beats harness defaults). The GitHub tool
@@ -81,6 +81,7 @@ No external deadline set.
    channels ~500 Hz off in the W3 notebook; change the default in 0.33.0? (behaviour change)
 
 ## Next
+**0.33.0 release checklist** also: (g) `git lfs install && git lfs pull --include='site-next/**'` before the re-port (Studio recordings + wasm are LFS; kshana-pro PR 15).
 **0.33.0 release checklist** also: (f) old-theme sections + old-theme README/docs screenshots fixed (W4 audit → site-source PR + regeneration); target theme = the CURRENT live site theme (home page; expected Observatory) — founder 14:49. Ashforde gold/Garamond is not the target.
 **0.33.0 release checklist (from the rehearsal, kshana-pro PR 11):** (a) docs prose bumps + README image regeneration IN the bump commit before recordings (re-run quoted figures); (b) placements.toml rows for 11 unplaced features + PR 34's 6 MCP IQ tools (coordinator reviews); (c) Studio channels.json version bump (8 strings); (d) eyeball nav: desktop / → /editions, /capabilities #constellations, #campaigns; (e) flip KSHANA_VERSION_SYNC_SITE default to strict.
 - Merge PR 7 when Mac CI green + runner VERIFY green.
@@ -88,6 +89,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:42:25 W4 PR 15: Studio selfcheck failure root-caused to missing Git LFS objects (not code); preflight + RE-PORT step. W3 Pro lab-report plan approved (re-renders engine cells, never recomputes; data-class banner; export-control notice slot pending N6); building L1–L6.
 - 15:41:51 [W3] lab campaign report plan pushed: pro/lab-campaign-report-plan d067277.
 - 15:40:03 Merged kshana-pro PR 13 (ae783d7, site + Studio onto Observatory). W3 opened kshana-pro PR 14 (export-control pack correction, DRAFT for counsel; N6: analysing partner jammer/spoofer recordings touches the "no anti-jam/anti-spoof performance data in any repo" gate → counsel before partner-data work). W5 opened kshana PR 40 (D3 integer scaling). W1 design API at e7453d8. W7 design approved (a: Cn0Profile SceneChannel owned by W8, now unblocked; b: rebase on track-engine; c: bars in campaign file + per-recording override; d: max_cells ok; e: reacq from offset and from loss). W3 → Pro campaign report plan.
 - 15:39:42 [W3] PR 14 updated (3da57fd): F4 line + founder decision recorded.
