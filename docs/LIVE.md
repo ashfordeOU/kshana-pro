@@ -41,7 +41,7 @@ No external deadline set.
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
-| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (PR 38) | feat/mcp-iq @ eba7d10; feat/iq-track-default @ d542efa | PR 34 run 37618278079 all green on a477eec; main (58957f8) merged into 34 → eba7d10 (CHANGELOG both entries kept); then 34 merged into 38 → d542efa. Local gates on both: fmt, doc_sync+source_guards+iq_cli (+iq_gpssdrsim on 38), MCP 33 passed, version-sync OK, no-attribution OK; clippy OK on 38. New CI pending (unverified) |
+| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (PR 38) | feat/mcp-iq @ eba7d10; feat/iq-track-default @ b41a61d | D4 resolved (approved a+b): rule stays on full (tiered) period, docs/CHANGELOG corrected, per-signal test over build_code (11 signals pinned). Gates at b41a61d: iq_cli 12 passed, doc_sync+source_guards OK, MCP 33, clippy root/python/MCP OK, stubtest clean, pytest 20 passed, doc-coverage OK, no-attribution OK. CI pending (unverified). Owed: docs/PYTHON_API.md iq_track signature after #39 merges |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 receiver-test partner gap analysis (pro, analysis only) | partners/receiver-test-gap @ 4f77fe0 | PR 12 open (footer stripped, re-read): requirements + gap analysis, Markdown only. Next: idle, available for the Pro campaign report |
 | session_01YCEg68jFdLERESsPcMmyMz | W4 theme audit (0.33.0) | chore/theme-audit @ 89f5c53 | Theme audit pushed (handover/post-0.32/THEME-AUDIT-0.33.md): 10 OLD + 2 MIXED of 52 live sections, Studio combo, 19 of 32 README images OLD; awaiting founder decisions (target theme, Studio, chart/report look) before the CSS PR |
@@ -79,6 +79,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:04:00 [W1] PR 38 → b41a61d (D4: full-period rule documented + per-signal test); gates + stubtest green.
 - 14:43:37 [W3] opened kshana-pro PR 12 (partners/receiver-test-gap 4f77fe0), footer stripped.
 - 14:42:24 Founder: theme target = current live site theme (Observatory if that's it). Passed to W4.
 - 14:42:09 [W3] gap analysis pushed: partners/receiver-test-gap 4f77fe0 (analysis only; awaiting review).
