@@ -1,4 +1,4 @@
-Updated: 2026-10-07T11:40:06Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T11:42:42Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -15,7 +15,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 |---|---|---|---|
 | kshana-pro | main | db2210a | engine `=0.32.0`; PR 5 + PR 6 merged; Mac CI on main: running (unverified) |
 | kshana-pro | partners/iq-deliverables | dbc8c81 | PR 7 open (W3) |
-| kshana-pro | claude/pro-030 | d94b280 | stale, superseded by PR 5; delete awaits founder go-ahead |
+| kshana-pro | claude/pro-030 | d94b280 | stale, superseded by PR 5; delete approved, blocked by proxy (founder deletes) |
 | kshana | main | f570219 | v0.32.0 released; CI green (run 37283754192) |
 | kshana | feat/mcp-iq | cff687f | W1 WIP, no PR yet |
 | kshana | feat/iq-validation-ledger | ef75a49 | W2 WIP, no PR yet |
@@ -48,9 +48,12 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Workers open PRs; only the coordinator merges.
 
 ## Open for the founder
-1. Delete stale branches (`claude/pro-030`, `handover/kickoff`, `handover/post-0.32`,
-   `handover/where-is-what`, `salvage/local-artifacts`, `partners/baseband-brief`, and merged
-   `claude/pensive-cannon-ogxhr4`, `chore/pro-hygiene`).
+1. Delete stale branches — founder approved 11:40; cloud git proxy refused (HTTP 403 on ref
+   delete, pushes OK) → founder to delete from GitHub UI or a local clone: `claude/pro-030`
+   (d94b280), `chore/pro-hygiene` (b398677, merged), `handover/kickoff` (73d5451),
+   `handover/post-0.32` (a96bf49), `handover/where-is-what` (31f6e22),
+   `salvage/local-artifacts` (e493d8c), `partners/baseband-brief` (2ad7b6b, merged). All verified
+   merged or content-on-main at 11:41.
 2. File the public macOS-local test-failures issue (§7-D2)?
 3. Optional full site re-render at 0.32.0 (§7-D1)?
 4. Public engine: `iq_track` default `acq_coherent=1` (~667 Hz Doppler bins) false-locked 2/3
@@ -62,6 +65,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:42:42 RECOVERY.md added. Branch deletion approved by founder; proxy 403 → handed back.
 - 11:40:06 LIVE.md + RECOVERY.md created on `ws/coordination`.
 - 11:38:36 PR 6 merged → main db2210a (Mac CI check success, run 37614594723).
 - 11:33 W2 redirected (existing gps-sdr-sim row); W3 claims checked against src/verification.rs.
