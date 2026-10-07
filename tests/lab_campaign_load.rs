@@ -132,6 +132,7 @@ fn a_missing_cell_is_reported_as_incomplete() {
     fs::remove_file(d.join("DIGEST")).unwrap();
     edit_json(&d.join("scorecard.json"), |v| {
         v["complete"] = false.into();
+        v["cells_present"] = 7.into();
         v["digest"] = serde_json::Value::Null;
         let rows = v["rows"].as_array_mut().unwrap();
         rows.retain(|r| r["cell"] != key.as_str());
@@ -302,6 +303,22 @@ fn the_scorecard_must_be_present_and_belong_to_the_campaign() {
     edit_json(&d.join("scorecard.json"), |v| {
         v["data_class"] = "client-confidential".into()
     });
+    assert!(matches!(load(&d), Err(LoadError::ScorecardMismatch(_))));
+}
+
+#[test]
+fn the_scorecard_must_agree_with_the_directory_on_completeness() {
+    // Says incomplete while every cell is present.
+    let d = scratch();
+    edit_json(&d.join("scorecard.json"), |v| v["complete"] = false.into());
+    assert!(matches!(load(&d), Err(LoadError::ScorecardMismatch(_))));
+    // Wrong present count.
+    let d = scratch();
+    edit_json(&d.join("scorecard.json"), |v| v["cells_present"] = 7.into());
+    assert!(matches!(load(&d), Err(LoadError::ScorecardMismatch(_))));
+    // Wrong total.
+    let d = scratch();
+    edit_json(&d.join("scorecard.json"), |v| v["cells_total"] = 9.into());
     assert!(matches!(load(&d), Err(LoadError::ScorecardMismatch(_))));
 }
 

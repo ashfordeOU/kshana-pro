@@ -156,6 +156,71 @@ fn op_name(op: Op) -> &'static str {
     }
 }
 
+/// Marker delimiters for a traced number inside summary prose. The summary text is shared by
+/// the HTML and the PDF; the HTML turns a marker into a `<span>` carrying the trace
+/// attributes, the PDF strips it to the printed text.
+const MARK_OPEN: char = '\u{1}';
+const MARK_SEP: char = '\u{2}';
+const MARK_CLOSE: char = '\u{3}';
+
+/// `text` printed in prose, traced as `value` obtained by `op` over `n` inputs.
+pub(crate) fn tr(text: &str, value: f64, op: &str, n: usize) -> String {
+    format!(
+        "{MARK_OPEN}{}|{op}|{n}{MARK_SEP}{text}{MARK_CLOSE}",
+        raw(value)
+    )
+}
+
+/// `text` traced to a derived [`Stat`]; plain text when the stat has no value.
+pub(crate) fn tr_stat(s: &Stat, text: &str) -> String {
+    match s.value {
+        Some(v) => tr(text, v, op_name(s.op), s.n),
+        None => text.to_owned(),
+    }
+}
+
+/// Turn the markers of an XML-escaped string into traced `<span>`s.
+pub(crate) fn expand_markers(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    let mut rest = s;
+    while let Some(i) = rest.find(MARK_OPEN) {
+        out.push_str(&rest[..i]);
+        let body = &rest[i + MARK_OPEN.len_utf8()..];
+        let (Some(sep), Some(close)) = (body.find(MARK_SEP), body.find(MARK_CLOSE)) else {
+            break;
+        };
+        let attrs: Vec<&str> = body[..sep].splitn(3, '|').collect();
+        let _ = write!(
+            out,
+            "<span data-v=\"{}\" data-op=\"{}\" data-n=\"{}\">{}</span>",
+            attrs[0],
+            attrs[1],
+            attrs[2],
+            &body[sep + MARK_SEP.len_utf8()..close]
+        );
+        rest = &body[close + MARK_CLOSE.len_utf8()..];
+    }
+    out.push_str(rest);
+    out
+}
+
+/// The printed text of a string with markers.
+pub(crate) fn strip_markers(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    let mut rest = s;
+    while let Some(i) = rest.find(MARK_OPEN) {
+        out.push_str(&rest[..i]);
+        let body = &rest[i + MARK_OPEN.len_utf8()..];
+        let (Some(sep), Some(close)) = (body.find(MARK_SEP), body.find(MARK_CLOSE)) else {
+            break;
+        };
+        out.push_str(&body[sep + MARK_SEP.len_utf8()..close]);
+        rest = &body[close + MARK_CLOSE.len_utf8()..];
+    }
+    out.push_str(rest);
+    out
+}
+
 /// A table cell for a derived value, with its trace attributes. `none` is the word printed
 /// when there is no value (e.g. "held lock").
 fn td_stat(s: &Stat, decimals: usize, unit: &str, none: &str) -> String {
@@ -419,16 +484,21 @@ pub(crate) const CAVEATS: [(&str, &str); 3] = [
     ),
 ];
 
+/// A count printed in prose: its own value over as many inputs.
+fn count_tr(n: usize) -> String {
+    tr(&n.to_string(), n as f64, "count", n)
+}
+
 /// Build the summary from fixed sentence templates over the aggregates.
 pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
     let intro = format!(
         "This campaign replayed {r} recording(s) through {f} front-end chain(s) and {d} loop \
          design(s): {n} cell(s){inc}. Each cell is one recording processed by one chain and one \
          design; every figure below is read from those cells.",
-        r = c.manifest.recordings.len(),
-        f = a.frontends.len(),
-        d = a.designs.len(),
-        n = c.cells.len(),
+        r = count_tr(c.manifest.recordings.len()),
+        f = count_tr(a.frontends.len()),
+        d = count_tr(a.designs.len()),
+        n = count_tr(c.cells.len()),
         inc = if c.is_complete() {
             ""
         } else {
@@ -484,17 +554,26 @@ pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
             } else if all {
                 let _ = write!(
                     body,
-                    "every design lost lock after the same median time ({:.2} s after onset)",
-                    b0.time_to_loss_s.value.unwrap_or(f64::NAN)
+                    "every design lost lock after the same median time ({} s after onset)",
+                    tr_stat(
+                        &b0.time_to_loss_s,
+                        &format!("{:.2}", b0.time_to_loss_s.value.unwrap_or(f64::NAN))
+                    )
                 );
             } else {
                 let _ = write!(
                     body,
-                    "{} held lock longest before loss (median {:.2} s after onset{})",
+                    "{} held lock longest before loss (median {} s after onset{})",
                     names(&best),
-                    b0.time_to_loss_s.value.unwrap_or(f64::NAN),
+                    tr_stat(
+                        &b0.time_to_loss_s,
+                        &format!("{:.2}", b0.time_to_loss_s.value.unwrap_or(f64::NAN))
+                    ),
                     match b0.js_at_loss_db.value {
-                        Some(js) => format!(", at stated J/S {js:.1} dB"),
+                        Some(js) => format!(
+                            ", at stated J/S {} dB",
+                            tr_stat(&b0.js_at_loss_db, &format!("{js:.1}"))
+                        ),
                         None => String::new(),
                     }
                 );
@@ -504,23 +583,21 @@ pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
                 .map(|r| (r.design.clone(), r.reacq_time_s.value))
                 .collect();
             let fastest = top(&rank(&re, false));
-            if let Some(v) = rows
-                .iter()
-                .find(|r| r.design == fastest[0])
-                .and_then(|r| r.reacq_time_s.value)
-            {
-                if fastest.len() == rows.len() && rows.len() > 1 {
-                    let _ = write!(
-                        body,
-                        "; every design re-acquired after the same median time ({v:.2} s)"
-                    );
-                } else {
-                    let _ = write!(
-                        body,
-                        "; {} re-acquired fastest (median {:.2} s)",
-                        names(&fastest),
-                        v
-                    );
+            if let Some(r0) = rows.iter().find(|r| r.design == fastest[0]) {
+                if let Some(v) = r0.reacq_time_s.value {
+                    let t = tr_stat(&r0.reacq_time_s, &format!("{v:.2}"));
+                    if fastest.len() == rows.len() && rows.len() > 1 {
+                        let _ = write!(
+                            body,
+                            "; every design re-acquired after the same median time ({t} s)"
+                        );
+                    } else {
+                        let _ = write!(
+                            body,
+                            "; {} re-acquired fastest (median {t} s)",
+                            names(&fastest)
+                        );
+                    }
                 }
             }
             body.push('.');
@@ -535,8 +612,10 @@ pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
         .fold((0, 0), |(p, e), (bp, be)| (p + bp, e + be));
     let bars = (evaluated > 0).then(|| {
         format!(
-            "Against the client's stated bars, the engine's verdicts: {passed} of {evaluated} \
-             checks passed (whole-run and per-event, per satellite; section 7)."
+            "Against the client's stated bars, the engine's verdicts: {} of {} \
+             checks passed (whole-run and per-event, per satellite; section 7).",
+            tr(&passed.to_string(), passed as f64, "count", evaluated),
+            tr(&evaluated.to_string(), evaluated as f64, "count", evaluated),
         )
     });
     Summary { intro, items, bars }
@@ -544,12 +623,20 @@ pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
 
 fn exec_summary(c: &LoadedCampaign, a: &Aggregates) -> String {
     let sm = summary(c, a);
-    let mut s = format!("<h2>1. Summary</h2><p>{}</p><ul>", xml(&sm.intro));
+    let mut s = format!(
+        "<h2>1. Summary</h2><p>{}</p><ul>",
+        expand_markers(&xml(&sm.intro))
+    );
     for (head, body) in &sm.items {
-        let _ = write!(s, "<li><strong>{}</strong>: {}</li>", xml(head), xml(body));
+        let _ = write!(
+            s,
+            "<li><strong>{}</strong>: {}</li>",
+            xml(head),
+            expand_markers(&xml(body))
+        );
     }
     if let Some(b) = &sm.bars {
-        let _ = write!(s, "<li>{}</li>", xml(b));
+        let _ = write!(s, "<li>{}</li>", expand_markers(&xml(b)));
     }
     s.push_str("</ul><ul class=\"caveats\">");
     for (tag, text) in CAVEATS {
@@ -813,11 +900,24 @@ fn heatmap(a: &Aggregates) -> String {
         );
         for (j, d) in a.designs.iter().enumerate() {
             let x = lw + cw * j as f64;
-            let v = a
+            let stat = a
                 .scorecard
                 .iter()
                 .find(|r| &r.frontend == f && &r.design == d)
-                .and_then(|r| r.availability.value);
+                .map(|r| r.availability);
+            let v = stat.as_ref().and_then(|s| s.value);
+            let attrs = match &stat {
+                Some(st) => match st.value {
+                    Some(v) => format!(
+                        " data-v=\"{}\" data-op=\"{}\" data-n=\"{}\"",
+                        raw(v),
+                        op_name(st.op),
+                        st.n
+                    ),
+                    None => String::new(),
+                },
+                None => String::new(),
+            };
             let (fill, ink, txt) = match v {
                 Some(v) => {
                     // Light-to-dark blue over the observed range (mid tone if all equal).
@@ -842,7 +942,7 @@ fn heatmap(a: &Aggregates) -> String {
             let _ = write!(
                 s,
                 "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"3\" fill=\"{fill}\"/>\
-                 <text x=\"{}\" y=\"{}\" text-anchor=\"middle\" fill=\"{ink}\">{txt}</text>",
+                 <text x=\"{}\" y=\"{}\" text-anchor=\"middle\" fill=\"{ink}\"{attrs}>{txt}</text>",
                 x + 2.0,
                 y + 2.0,
                 cw - 4.0,
