@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:29:45Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:30:45Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:30:45 21:30Z #43 now at aa518b6 (CHANGELOG line). Coordinator updated the #43 PR body via MCP: unsigned 12/16-bit and a follow-ups list. Held for 0.34.
 - 21:29:45 21:29Z W8 pushed the #43 follow-up feat/034-formats @b36d743: cu16 and cu12 unsigned encodings, SigMF mapping, round-trip tests; fmt/clippy/doc-coverage clean. Held for 0.34. W8 told that its C/N0 PR is #53.
 - 21:29:17 21:29Z pro PR 19 (partner traceability + walkthrough) merged with a merge commit → 84375bf (Mac CI green, run 37687556380; critic MERGE). Public #38 is at 79ff31e: 18/20 checks green; check and coverage still running.
 - 21:28:52 21:28Z is the time stamp. W1 B-scope order approved (B3.5→B6.2→B6.3→B3.4). B3.4 redefined as acquisition-surface export. W1 is still finishing the #45 final push, then hands over.
