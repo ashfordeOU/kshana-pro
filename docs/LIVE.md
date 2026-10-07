@@ -37,7 +37,7 @@ No external deadline set.
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
-| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (0.33.0) | feat/mcp-iq @ a477eec; feat/iq-track-default @ a477eec | PR 34 waiting on CI (unverified). New task: running seeded false-lock sweep (60 scenes × 3 PRNs × 5 candidates) for the acq default; proposal to coordinator before implementing |
+| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (0.33.0) | feat/mcp-iq @ a477eec; feat/iq-track-default @ f47054a | PR 34 waiting on CI (unverified). Sweep done (180 channels): today N=1 → 27 silent false locks; N=4 → 1. Proposal sent (auto ~4 ms coherent = ceil(4ms/T_code)); waiting for approval |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | DONE — PR 7 merged (78ab489); idle |
 | session_01YCEg68jFdLERESsPcMmyMz | W4 Pro CHANGELOG + pin guard; site-build toolchain proof + RE-PORT.md runbook | chore/pro-changelog | audit done 12:47 (12 stale surfaces); public push DENIED by classifier → public parts moved to W2 |
@@ -72,6 +72,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:48:49 [W1] iq_track default sweep done (evidence feat/iq-track-default @ f47054a); proposal sent, awaiting approval.
 - 12:48:35 W4 audit approved (a–e); W4 → Pro CHANGELOG + guard + toolchain proof/runbook; W2 → version-sync coverage PR + owns release/0.33.0. W1 sweeping iq_track candidates (acq_coherent 1/2/4, finer doppler_step).
 - 12:46:59 [W1] Started iq_track default task: branch feat/iq-track-default; false-lock sweep running.
 - 12:45:33 Founder: file macOS issue (→ kshana #36), change iq_track default (→ W1), make site + changelogs current incl. all releases/tooling (→ W4 audit; 0.33.0 release planned). Asked founder what "kenn" refers to (no match in either repo).
