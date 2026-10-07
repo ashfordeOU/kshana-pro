@@ -1,6 +1,6 @@
 # Pro lab campaign report — plan (PLAN ONLY, nothing built)
 
-**Status:** plan for coordinator review. No code yet.
+**Status:** plan APPROVED by the coordinator (2026-10-07). Building L1–L6 on synthetic fixtures; L6 (guard) and L1 (loader) done.
 **Input contract:** the engine's lab-replay results, as proposed in public `kshana` branch
 `feat/034-campaign`, `docs/design/LAB-CAMPAIGN.md` @ `f69efe9` (0.34.0 "Lab replay"):
 `campaign.json`, `cells/<key>.json` (`kshana.campaign-cell/1`), `scorecard.csv/json`,
@@ -148,7 +148,11 @@ Total L1–L6 ≈ 2 weeks. L7 and L8 follow the engine release.
 2. **To W7.** Will the canonical-JSON hash and DIGEST functions be public in `kshana::iq::campaign`,
    so Pro verifies with the engine's own code?
 3. **To W7.** Can `data_class` (§6) go into the campaign schema?
-4. **To the coordinator.** Should the Pro report become the delivered artefact for the
-   after-0.34.0 demo (gap analysis §14), while the engine's `report.html` stays technical?
-5. **To the coordinator/founder.** For a CLIENT-CONFIDENTIAL render, should the report carry the
-   export-control notice from counsel once N6 is answered? There is a placeholder slot on the cover.
+4. **Answered (coordinator): yes.** The Pro lab campaign report is the deliverable for the
+   after-0.34.0 demo; the engine's `report.html` stays the technical face.
+5. **Answered (coordinator): yes.** CLIENT-CONFIDENTIAL renders carry an export-control notice
+   slot on the cover; its wording stays a placeholder until counsel answers N6.
+
+Questions 1–3 were sent to the engine-side worker (coordinator's preference: yes to all three).
+Until they are answered, `campaign.json`'s shape and the DIGEST byte form are provisional in
+`src/lab_campaign/{model,hash}.rs`.
