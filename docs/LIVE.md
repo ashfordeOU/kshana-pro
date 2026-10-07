@@ -48,7 +48,7 @@ No external deadline set.
 | session_01QU3dhUo1RBWW24nEVVzxst | W6 engine graphics onto Observatory | feat/observatory-graphics | plan approved 15:27 (palette.rs single source, palette_sync guard, colour-normalised equality evidence, dark-only charts, report light/dark, 3 orphan figure generators) |
 | session_011PWAHJi1S2BLjLeD5uidXf | W7 0.34 campaign runner + scoring + F1 analytic J/S reference (public) | feat/034-campaign | spawned 15:24; schema design owed |
 | session_01PwGcK67ty6g2wP1Kwx4S8k | W8 0.34 lab formats (b) → IQ monitors (a) → C/N0 profiles (c) | feat/034-formats | plan approved 15:28; (b) started; (c) waits for W5 scene PRs |
-| session_01YCEg68jFdLERESsPcMmyMz | W4 site source (pro) | fix/studio-stages-test @ cf5fe30; fix/site-capability-wording @ c754521 | PR 15 (Studio selfcheck LFS preflight) and PR 16 (accurate RF/receiver wording, matches public PR 41) open; idle |
+| session_01YCEg68jFdLERESsPcMmyMz | W4 site source (pro) | fix/studio-stages-test @ cf5fe30; fix/site-capability-wording @ c754521 | PR 15 merged 15:52; PR 16 merged 56fcca5; idle |
 
 ## Decisions
 - 2026-10-07 No AI attribution in commits/PRs (repo rule beats harness defaults). The GitHub tool
@@ -89,6 +89,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:57:37 Merged kshana-pro PR 16 (squash → main 56fcca5; Mac CI run 37646531287 green). PR 15 merged 15:52:21Z (CI run 37646011566 green). kshana-pro open: PR 14 only (export pack DRAFT, founder read).
 - 15:57:04 Merged kshana PR 37 (squash → main 9925c10; CI #518 run 37624082630 green). Open public PRs now 34, 38, 39, 40, 41, 42 — may need main merged for CHANGELOG [Unreleased]. Killed 8 duplicate heartbeat processes (one left).
 - 15:46:37 Open PRs: kshana 34, 37, 38, 39, 40 (D3), 41 (accuracy), 42 (LFS guard); kshana-pro 14 (export pack DRAFT, awaiting founder read), 15 (Studio selfcheck LFS preflight), 16 (site capability wording). W4 PR 16 opened; W2 PR 42 opened.
 - 15:44:31 W2 found a guard gap: Git LFS pointer files copied by the site build would pass site.test.mjs (manifest SHAs come from the copy). W2 → public PR chore/lfs-pointer-guard (site.test.mjs + port_site.py refuse pointers).
