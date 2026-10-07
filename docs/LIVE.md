@@ -1,4 +1,4 @@
-Updated: 2026-10-07T17:44:33Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T17:47:42Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:47:42 [W7] PR 46 @ee032df6: data_class required (closed enum; in Plan, cells, keys, scorecard, report), W3 reacq scenario as regression tests (reacquire on: back within 2 s; off: pinned), scorer fix (time after a retired channel's last update now counts as unlocked; availability had read 0.95 for a dead channel), lock_source track-session, Q single-source, run.epochs wired (csv/jsonl/bin per cell, hashed into the cell), LAB-CAMPAIGN.md implemented. Next in this PR: SigMF annotation import + GB perf test. Re-merge W1 after the fll_assist change, then W3 pins.
 - 17:44:33 [W3] signal matrix run 1 (feat/035-signal-matrix 1c62b9e, local; bars pre-registered): 5/11 pass every bar (L1 C/A, L5-I/Q, E5a-Q, GLONASS L1OF). New defects → W5 after D5: D8 acquisition step 2/(3T) vs FLL pull-in ±1/(4T) → Galileo E1-B/C false-lock ±125 Hz; D9 L2C CM (T=20 ms) can't hold lock with default loop (Bn·T 0.3); D10 BOC C/N0 1.2–1.6 dB low. Harness v2 amendment approved (disclosed, bars untouched); findings kept as ignored tests that the fixes must un-ignore.
 - 17:37:18 [W5] D5 WIP on fix/iq-d5-jammer-q: Q_CW=1.0, Q_BROADBAND=2.0 (swept=broadband per the spectrum oracle test); new closed-form test; inverted narrowband-vs-broadband tests renamed; SPECTRUM.md rewritten. Output change: CW −1.8 dB, broadband +3 dB effective C/N0 at high J/S (jamming/lunar-jamming/interop). Approved with checks: no ledger count change, stop on any pre-registered bar, tool-regenerated moved outputs listed, CHANGELOG entry, stack after #50. W2 relays W3's B1.1 signal-matrix patch (W3 has no public push).
 - 17:32:07 [W1] carrier-lock pre-registration a4119ba (B1–B3: default design ≥35 dB-Hz phase lock ≥95%, 0 slips, LOCKED ≥95%; B4 pull-in from 100 Hz). Root cause H1: the always-on 10 Hz FLL injects frequency noise (35 dB-Hz: PL 10–16% vs PLL-only 100%). APPROVED: fll_assist = pull-in|always (default pull-in, with hysteresis; 'always' bit-identical). Default design hash changes again → W7 merges canonical hash + FLL change together; W3 pins once.
