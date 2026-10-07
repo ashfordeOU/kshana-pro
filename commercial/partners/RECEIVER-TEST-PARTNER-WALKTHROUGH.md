@@ -222,6 +222,7 @@ offset_s = 10.0
 # campaign.toml
 schema = "kshana.campaign/1"
 name = "synthetic-walkthrough"
+data_class = "synthetic"      # required; a partner writes "client-confidential"
 
 [inputs]
 conditions = ["conds/*.toml"]
@@ -324,7 +325,7 @@ Each one is reported to the engine owner. None of them blocks the sequence.
    4 ms the default for 1 ms codes, so after both merge the flag should not be needed. Re-check
    this on the 0.33.0 tag.
 5. **The cell key will change once more.** The design hash is moving to canonical JSON, and the
-   campaign will carry `data_class` in every cell and in its key. Re-run campaigns made before
+   campaign carries `data_class` (required) in every cell and in its key. Re-run campaigns made before
    0.34.0 is tagged.
 6. **Engine version string.** These branch builds report `engine_version = "0.32.0"`. The
    released 0.34.0 reports its own version, and `lab-report` checks that every cell matches the
@@ -335,7 +336,7 @@ Each one is reported to the engine owner. None of them blocks the sequence.
 ## Appendix A. The synthetic stand-in used for this dry run
 
 This appendix is for reproducing the dry run only. A partner skips it and uses their capture.
-`iq scene` (0.32.0) makes the satellites. The 8–10 s noise-only stretch and the int16 header file
+`iq scene` (0.32.0) makes the satellites. The 8–10 s stretch, effectively noise only (a 0 dB-Hz satellite plus noise), and the int16 header file
 are spliced in with a few lines of NumPy, because the scene CLI has no per-interval C/N0 profile.
 That is a signal-power change on the legitimate signal, not an interference waveform.
 
@@ -349,7 +350,7 @@ kshana iq scene gap.cf32 --rate 4.092e6 --duration 2 --signal gps-l1ca --prn 3 -
 import numpy as np
 fs = 4_092_000
 x = np.memmap("full.cf32", dtype=np.complex64, mode="r+")
-x[8*fs:10*fs] = np.fromfile("gap.cf32", dtype=np.complex64)[:2*fs]  # noise only, same power
+x[8*fs:10*fs] = np.fromfile("gap.cf32", dtype=np.complex64)[:2*fs]  # effectively noise only (0 dB-Hz satellite + noise), same noise power
 s = np.clip(np.round(x.view(np.float32) * 4096), -32768, 32767).astype("<i2")
 with open("lab-run-017.bin", "wb") as f:
     f.write(b"\0" * 512)          # stand-in vendor header
