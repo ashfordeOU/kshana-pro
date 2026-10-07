@@ -50,7 +50,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
-| session_01U47Y1DtpBY9SupJum3iE6Q | W1 PR 34 + PR 38 + PR 45 (0.34 track engine) + follow-up docs PR (after 34/39/38) | feat/034-track-engine @ 351b0ca; wording fix f7e95e2 on wip/mcp-iq-wording | PR 45: commensurate_sampling warning added (ratios within 1e-6 of n/2; evidence table in dll-jitter/RESULTS.md); unsearchable-rate abort fixed. Gates @351b0ca: 26 bins 172 passed, MCP 33, pytest 23, stubtest clean, clippy clean. Waiting: W8 tap field name; 34/39/38 merges for follow-up docs PR (wording + PYTHON_API + known-limitation para) |
+| session_01U47Y1DtpBY9SupJum3iE6Q | W1 PR 34 + PR 38 + PR 45 (0.34 track engine) + follow-up docs PR (after 34/39/38) | feat/034-track-engine @ a4119ba; wording fix f7e95e2 on wip/mcp-iq-wording | PR 45: canonical design hash pushed @ e992038 (default 0773c7ee…94ff, pinned by test). Carrier-lock (FLL assist) investigation pre-registered @ a4119ba; survey running. Next: (spc,d) sweep to make the commensurate warning evidence-based, then B3.4/B3.5/B6.2/B6.3 scoping. Tap field proposed to W8 (extra_taps_chips + EpochOutput.extra). |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 partner traceability + walkthrough; PR 17 report | pro/partner-traceability @ 7137344; pro/lab-campaign-report-plan @ 32b0908 | PR 19 ready for review: (A) traceability + (B) walkthrough runbook, every step run on its shipping branch (#43/#44/#45/campaign da95b9c/PR 17). PR 17 waits on W7's data_class/lock_source/canonical-hash sha to re-pin + regenerate fixture |
 | session_01LStocVmSb3UAXorqXZT3BQ | W5 IQ defect fixes D1/D2/D3/D5/D7 for 0.33.0 (public) | fix/iq-d* | PR 40 (D3) CI running; PR 44 (D1 front end in track/sweep, 15107fa) open, merges after #38; D2 next |
@@ -216,6 +216,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - 11:44:17 W1 opened kshana PR 34 (MCP IQ tools); design reviewed + approved; runner queued.
 - 11:44:13 [W3] pushed partners/iq-deliverables 4c7b6e2 (merge main =0.32.0 + claim fix); fmt+clippy OK; tests running.
 - 11:43:37 [W1] PR 34 (kshana, feat/mcp-iq @ cff687f) open: 6 MCP IQ tools; local gates green; awaiting design review + CI.
+- 17:24:38 [W1] PR 45: canonical design hash @ e992038; carrier-lock pre-registration @ a4119ba; survey running.
 - 11:42:42 RECOVERY.md added. Branch deletion approved by founder; proxy 403 → handed back.
 - 11:40:06 LIVE.md + RECOVERY.md created on `ws/coordination`.
 - 11:38:36 PR 6 merged → main db2210a (Mac CI check success, run 37614594723).
