@@ -1,4 +1,4 @@
-Updated: 2026-10-07T14:22:03Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T14:23:17Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -6,6 +6,8 @@ Rules: see `docs/RECOVERY.md`. If `Updated` is >30 min old while anything below 
 running, assume the coordinator is gone and take over from this file.
 
 ## Goal
+**Top priority (founder, 14:15):** make Kshana deliver everything the prospective receiver-test partner needs or might need, and make it the strongest open tool in its class. Requirements: kshana-pro `commercial/partners/RECEIVER-TEST-PARTNER-REQUIREMENTS.md` (R1–R9, name-free). Gap analysis → W3. Binding line: no jammer/spoofer RF synthesis, no transmit.
+
 Ship kshana **0.33.0** (public) and bring Pro onto it, with every surface current:
 1. PR 34 MCP IQ tools + PR 35 IQ ledger rows merged (CI green).
 2. `iq_track` default changed (founder decision 12:43; W1 evidence-backed proposal first).
@@ -41,7 +43,7 @@ No external deadline set.
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
 | session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (0.33.0) | feat/mcp-iq @ a477eec; feat/iq-track-default @ d5d6708 | PR 34 waiting on CI (unverified). PR 38 open (stacked on 34; footer stripped): auto acq_coherent=ceil(4ms/T_code); local: iq_cli 11 passed (new regression), doc_sync+source_guards OK, MCP 33 passed, pytest 20 passed, stubtest clean, clippy root/python/MCP OK, doc-coverage 985/985, no-attribution OK; full root suite not run (CI). Next: merge main into 38 after 34 merges |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
-| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | DONE — PR 7 merged (78ab489); idle |
+| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 receiver-test partner gap analysis + build plan | partners/receiver-test-gap | assigned 14:18 — analysis owed before any build |
 | session_01YCEg68jFdLERESsPcMmyMz | W4 Pro CHANGELOG + pin guard + RE-PORT.md | chore/pro-changelog | DONE — PR 10 merged (96d64cc); idle |
 
 ## Decisions
@@ -74,6 +76,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:23:17 Founder supplied partner correspondence (kept outside git). Name audit: public kshana history commit 7afdf69 (reachable from main) contains a full personal name, removed from the tree by 76cc62a; no current file in any branch has it. kshana-pro: a first name in this file's log (coordinator's own line) removed in 07242e7. Requirements doc committed (26add7a, branch claude/pensive-cannon-ogxhr4). W3 → gap analysis.
 - 14:10:20 [RUNNER] kshana PR 34 @6fae76b4 (superseded): RED, run 37616257744 check, same doc_sync guard; fixed in a477eec (CI #517 pending).
 - 14:04:23 [RUNNER] kshana PR 34 @cff687fb (superseded): RED, run 37615528447 check, same doc_sync guard; fixed in a477eec (CI #517 pending). PR 35 native test --all: 251 suites done, 0 failures so far.
 - 13:29:58 Check-in: heartbeat dead again (container restart) → restarted. PR 34/35/37/38 long CI jobs (check ~2.5 h) still running; earliest finish ~14:25. Next check-in ~14:40. Planned merge order: 34 → 37 → 35 (CHANGELOG conflict fix by W2) → 38 (W1 merges main).
