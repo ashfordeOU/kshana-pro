@@ -1,4 +1,4 @@
-Updated: 2026-10-07T16:35:22Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T16:37:31Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -102,6 +102,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:37:31 [W3] code review of 0.34 branches: campaign.json is Plan kshana.campaign-plan/1 with no data_class; campaign runs its own lockstate (diverges from #45 TrackSession); MODELLED curve uses uncorrected Q; #45 lacks B3.4/B3.5/B6.2/B6.3 and its design hash isn't key-sorted; #43 lacks vendor importers, multi-lane .sdrx, unsigned 16/12. Routed: W3 realigns PR 17 to the real engine; W7 adds data_class, adopts TrackSession, single-source Q, epochs via sink; W1 canonical hash (urgent) + scope B3.4/B3.5/B6.2/B6.3; W8 scopes the #43 follow-ups.
 - 16:36:51 [W1] PR 45 → e9df466: W7 findings resolved (DLL σ = commensurate-sampling artefact, pre-reg a60ad59 bars pass); ledger rows proposed in body.
 - 16:35:22 kshana-pro PR 17 Mac CI green on 6d8368e (run 37652556368); only W7 Q1–Q3 left. [W3] traceability so far: no branch yet covers D2/D5/D7 (W5 queue); D1 CLI closed by #44, Python/MCP front-end → W1 0.34; D3 closed by #40, clipping into SigMF meta → W5 0.34; monitors branch lib-only, references a non-existent 'kshana iq monitor' → W8. Subscribed to pro PRs 17, 18.
 - 16:34:48 [W4] opened kshana-pro PR 18 (ci/mac-probe 399ff54): workflow_dispatch Mac probe, public kshana ref + argv-only cargo command (metacharacters rejected), own target dir under runner temp, log artifact 7 d, cleanup. Coordinator reviewed the diff: OK. Mac CI run 37653073511 queued; merge when green (workflow_dispatch must be on main to dispatch).
