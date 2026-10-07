@@ -1,4 +1,4 @@
-Updated: 2026-10-07T14:27:34Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T14:29:33Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -24,11 +24,11 @@ No external deadline set.
 | kshana-pro | main | 3d77978 | engine `=0.32.0`; PRs 5–10 merged; CHANGELOG current; handover §4 → root site-next/ |
 | kshana-pro | partners/iq-deliverables | 4c7b6e2 | PR 7 MERGED → 78ab489 |
 | kshana-pro | claude/pro-030 | d94b280 | stale, superseded by PR 5; delete approved, blocked by proxy (founder deletes) |
-| kshana | main | f570219 | v0.32.0 released; CI green (run 37283754192) |
+| kshana | main | 58957f8 | PR 35 merged (IQ ledger rows); 0.32.0 released |
 | kshana | feat/mcp-iq | a477eec | PR 34: guard fix pushed (15 doc-sync/source-guard binaries 60 passed; MCP 33 passed); CI re-running; runner re-verify queued |
 | kshana | feat/iq-track-default | d5d6708 | PR 38 open (W1), stacked on 34: auto acq_coherent default; iq_cli 11, MCP 33, pytest 20, stubtest clean |
 | kshana | chore/version-sync-coverage | bd05a27 | PR 37 open (W2): version-sync covers server.json + README (strict), site (warn) |
-| kshana | feat/iq-validation-ledger | bb7edf8 | PR 35 open (W2); CI pending; full suite via runner + CI |
+| kshana | feat/iq-validation-ledger | bb7edf8 | PR 35 MERGED → 58957f8 (CI #516 14/14 green; native 3823 passed) |
 
 ## Running now
 | What | Sha | Where to look |
@@ -76,6 +76,8 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:29:33 kshana PR 35 squash-merged → main 58957f8. W1: after PR 34 CI #517 finishes, merge main into 34 (CHANGELOG), then 34 into 38.
+- 14:28:15 [RUNNER] kshana PR 35 @bb7edf87: GREEN CI #516 (37617204859), 14/14 jobs incl. check, coverage, 3-OS reproducibility.
 - 14:24 [RUNNER] kshana PR 35 @bb7edf87: GREEN native full, test --all 3823 passed / 0 failed / 100 ignored (358 suites), repeatability 3x2751 identical, reproducible/doc-coverage/site.test/doc_sync/clippy 0; CI #516 (37617204859) running.
 - 14:23:56 W2 re-port REHEARSAL GREEN end to end at 0.32.0 (public bd05a276 + local scratch commit; pro d7b2313): strict version-sync 0 WARN; port 649 files; diff vs web/ 400 files. 13 manual fixes (F1–F13: binaryen via proxy, Celeste scenario routing, channels.json hand-kept, selfcheck reporter, areas step, capabilities mirror, 8th recorder gen_footprint, check_features order, Pro public text symlink, rule-17 docs tokens + images in the bump commit, check_nav env, 11 unplaced features, wasm path bytes) → kshana-pro chore/re-port-fixes. Nav compare running (main baseline 4 BAD). W2's freed 9 GB was its own target/debug only.
 - 14:23:17 Founder supplied partner correspondence (kept outside git). Name audit: public kshana history commit 7afdf69 (reachable from main) contains a full personal name, removed from the tree by 76cc62a; no current file in any branch has it. kshana-pro: a first name in this file's log (coordinator's own line) removed in 07242e7. Requirements doc committed (26add7a, branch claude/pensive-cannon-ogxhr4). W3 → gap analysis.
