@@ -82,6 +82,8 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 
 - 2026-10-07 One lock machine: the campaign runner uses W1's TrackSession (drops its lockstate shim). The campaign Plan and its cells carry a required `data_class` (N6 safeguard, cross-checked by Pro). The MODELLED J/S reference reads Q from the engine's jamming table (single source, so D5 flows through). Design hash = canonical key-sorted JSON (W1), and Pro PR 17 pins to that sha.
 
+- 2026-10-07 MODELS (founder 20:48): coordinator = Opus; workers = Sonnet (engineering lanes) and Haiku (mechanical lanes: runner, relays, site re-ports); critic = Fable, which reviews every PR before merge plus pre-registrations and decisions (read-only, reports to the coordinator). Opus workers hand over via docs/lanes/<lane>.md on ws/coordination, then stop. Shared rules: docs/lanes/RULES.md.
+
 ## Open for the founder
 1. Delete stale branches — founder approved 11:40; cloud git proxy refused (HTTP 403 on ref
    delete, pushes OK) → founder to delete from GitHub UI or a local clone: `claude/pro-030`
