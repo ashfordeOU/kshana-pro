@@ -31,7 +31,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner (verify/watch only, never writes code) | — | active; PR 5 verified GREEN (Linux 802 passed + Mac run 37614073848) |
-| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 IQ over MCP (public) | feat/mcp-iq @ cff687f | PR 34 open (public), footer stripped; local gates green (MCP `cargo test --locked` 33 passed; root iq_cli 10 passed; fmt; clippy root+MCP+python; no-attribution; doc-coverage 985/985; version-sync); cargo deny not run (not installed); public CI pending (unverified). Next: await coordinator review of new pub API `iq::cli::execute` + work-dir/budget contract |
+| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 IQ over MCP (public) | feat/mcp-iq @ 6fae76b | PR 34 open, design approved by coordinator; review doc lines pushed (6fae76b; MCP `cargo test --locked` 33 passed, fmt/clippy/doc-coverage/no-attribution OK); waiting on public CI (unverified); idle |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 §7-B2 IQ ledger rows (public) | feat/iq-validation-ledger | redirected 11:33 (existing gps-sdr-sim row stays MODELLED); row list owed |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | PR 7 open, footer stripped; main merged; local gates GREEN (fmt OK, clippy OK, `cargo test --all --locked` 802 passed / 0 failed / 9 ignored on 0fbf7c5; 4c7b6e2 is docs-only). Next: await Mac CI + coordinator merge; idle |
 | session_01YCEg68jFdLERESsPcMmyMz | W4 pro hygiene | chore/pro-hygiene | DONE — PR 6 merged (db2210a); idle |
@@ -65,6 +65,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:45:34 [W1] PR 34 → 6fae76b (execute grammar = public API doc, budget in bytes, acq_coherent comment); waiting on CI; idle.
 - 11:45:24 Check-in: W1 idle (PR 34 awaiting CI); W3 pushed 4c7b6e2 to PR 7 (claim fixed, main merged), tests running; W2 paused — built 2 rows (scene geometry Validated, acquisition Modelled) + 117-file site/README refresh without the requested proposal; asked for pre-registration evidence and how web/ was regenerated; W4 idle.
 - 11:44:56 [W3] PR 7 local gates green: 802 passed, 0 failed, 9 ignored (merge 0fbf7c5); head 4c7b6e2.
 - 11:44:17 W1 opened kshana PR 34 (MCP IQ tools); design reviewed + approved; runner queued.
