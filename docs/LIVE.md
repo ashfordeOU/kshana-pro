@@ -1,4 +1,4 @@
-Updated: 2026-10-07T16:31:19Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T16:31:39Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -100,6 +100,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:31:39 [W3] PR 17 @6d8368e: L4 PDF (shared summary builder with the HTML; parses, same facts, data class enforced), L1–L6 complete, 838/0/9. Merge blocked only on W7 Q1–Q3 (2nd nudge sent) + Mac CI. W3 next: pro/partner-traceability — (A) R1–R9/D1–D7 → PR/sha status table and real remaining gaps, (B) partner walkthrough runbook on synthetic data.
 - 16:31:19 Heartbeat found dead again (container restart); restarted. Coordinator now bumps Updated on every LIVE edit, not only via the heartbeat.
 - 16:30:42 [W3] PR 17 @ 6d8368e: L4 PDF pushed; L1–L6 complete; cargo test 838 passed.
 - 16:23:04 [W1] working the W7 findings: DLL σ first (bar pre-registered in git before measuring); clippy at design.rs:891 already fixed (c1f8c1b). Decision: the PR 34 MCP wording fix and the PYTHON_API iq_track line go into one follow-up docs PR after #34/#39/#38 merge (no pushes to #34/#38, which would restart their CI); it lands before the 0.33.0 bump.
