@@ -89,6 +89,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:57:56 [W2] merge-tree vs main 9925c10: kshana #41 c2b06d15, #42 84104a5e, #39 7f25f18b all merge cleanly; no merge commits needed. W2 idle until the bump go.
 - 15:57:37 Merged kshana-pro PR 16 (squash → main 56fcca5; Mac CI run 37646531287 green). PR 15 merged 15:52:21Z (CI run 37646011566 green). kshana-pro open: PR 14 only (export pack DRAFT, founder read).
 - 15:57:04 Merged kshana PR 37 (squash → main 9925c10; CI #518 run 37624082630 green). Open public PRs now 34, 38, 39, 40, 41, 42 — may need main merged for CHANGELOG [Unreleased]. Killed 8 duplicate heartbeat processes (one left).
 - 15:46:37 Open PRs: kshana 34, 37, 38, 39, 40 (D3), 41 (accuracy), 42 (LFS guard); kshana-pro 14 (export pack DRAFT, awaiting founder read), 15 (Studio selfcheck LFS preflight), 16 (site capability wording). W4 PR 16 opened; W2 PR 42 opened.
