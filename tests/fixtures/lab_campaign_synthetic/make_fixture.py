@@ -94,7 +94,9 @@ def ramp_event(design, fe, sat_id):
     ttl += FE_SHIFT[fe] + 0.25 * (sat_id % 2)
     curve = []
     for k, js_db in enumerate([20.0, 25.0, 30.0]):
-        meas = round(45.0 - [0.5, 3.0, None][k], 2) if k < 2 else None
+        # Hand-made per-design spread so the curves are distinguishable.
+        spread = {"baseline": 0.0, "narrow-pll": -0.3, "wide-pll": 0.6}[design]
+        meas = round(45.0 - ([0.5, 3.0][k] + spread * k), 2) if k < 2 else None
         curve.append({
             "js_db": js_db, "n": [5000, 4000, 0][k],
             "measured_cn0_dbhz": meas,

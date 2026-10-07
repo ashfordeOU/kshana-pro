@@ -32,8 +32,8 @@
             },
             {
               "js_db": 25.0,
-              "measured_cn0_dbhz": 42.0,
-              "measured_degradation_db": 3.0,
+              "measured_cn0_dbhz": 41.4,
+              "measured_degradation_db": 3.6,
               "modelled_cn0_dbhz": 41.9,
               "modelled_degradation_db": 3.1,
               "n": 4000
@@ -99,8 +99,8 @@
             },
             {
               "js_db": 25.0,
-              "measured_cn0_dbhz": 42.0,
-              "measured_degradation_db": 3.0,
+              "measured_cn0_dbhz": 41.4,
+              "measured_degradation_db": 3.6,
               "modelled_cn0_dbhz": 41.9,
               "modelled_degradation_db": 3.1,
               "n": 4000

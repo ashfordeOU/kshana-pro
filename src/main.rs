@@ -29,6 +29,7 @@ fn usage() -> &'static str {
        kshana-pro ci --pack <manifest.toml> [--baseline <ci.json>] [--thresholds <spec>] [--utc <iso>] [--customer <name>] [--out <report.html>] [--json <ci.json>] [--history <history.jsonl>] [--trend <trend.html>] [--exact] [--license <token>] [--dev]   Run a Pack C scenario-subscription CI, with campaign watch (Pro)\n\
        kshana-pro ci history verify <history.jsonl>                  Verify a campaign-watch history chain (Pro)\n\
        kshana-pro ci diff <old ci.json> <new ci.json> [--json <out>]  List every figure that moved between two CI reports (Pro)\n\
+       kshana-pro lab-report <campaign-out-dir> --data-class <synthetic|client-confidential> --html <out.html> [--client <name>] [--doc-id <id>] [--utc <iso>] [--allow-incomplete] [--license <token>] [--dev]   Branded lab campaign report from `kshana iq campaign` output (Pro)\n\
        kshana-pro study --dossier <scenario.toml> --out <dir> [--utc <iso>] [--license <token>] [--dev]   Reproducible study dossier, HTML + JSON (Pro)\n\
        kshana-pro mbse <import|trace|vcrm|sysml|impact|pack> ... [--license <token>] [--dev]   Requirements, traceability, VCRM, SysML v2, change impact, evidence pack (Pro; `kshana-pro mbse` for details)\n\
        kshana-pro design <study.toml> --out <dir> [--threads <n>] [--license <token>] [--dev]   Pareto front of a design space over any open kind (Enterprise; `kshana-pro design` for details)\n\
@@ -179,6 +180,7 @@ fn main() -> ExitCode {
         // Study dossier: one scenario -> a reproducible evidence dossier (JSON + HTML)
         // laid out as a technical note (Pro-tier entitlement; --dev bypasses it).
         Some("study") => study_cmd(&args),
+        Some("lab-report") => lab_report_cmd(&args),
         // MBSE and programme tooling over the open engine's own outputs: requirements
         // import, traceability, the verification cross-reference matrix, SysML v2
         // export, change impact and the evidence pack (feature `pro-mbse`).
@@ -641,6 +643,105 @@ fn mbse_cmd(args: &[String]) -> ExitCode {
 
 /// `study --dossier` — build the reproducible study dossier for one scenario and
 /// write `dossier.json`, `dossier.html` and the scenario as run into `--out`.
+/// `lab-report`: the branded lab campaign report over an engine campaign output directory.
+/// Client data is read at run time only and is never written into the repository (N6).
+fn lab_report_cmd(args: &[String]) -> ExitCode {
+    use kshana_pro::lab_campaign::{load, DataClass};
+    use kshana_pro::report_lab_campaign::{render_html, LabReportOptions};
+    let dir = match args.get(1) {
+        Some(p) if !p.starts_with("--") => std::path::PathBuf::from(p),
+        _ => {
+            eprintln!(
+                "error: lab-report needs a campaign output directory\n\n{}",
+                usage()
+            );
+            return ExitCode::from(2);
+        }
+    };
+    let data_class = match flag(args, "--data-class").as_deref() {
+        Some("synthetic") => DataClass::Synthetic,
+        Some("client-confidential") => DataClass::ClientConfidential,
+        Some(other) => {
+            eprintln!(
+                "error: --data-class must be synthetic or client-confidential, not {other:?}"
+            );
+            return ExitCode::from(2);
+        }
+        None => {
+            eprintln!(
+                "error: lab-report needs --data-class <synthetic|client-confidential>; it is stated \
+                 on every page and is never assumed"
+            );
+            return ExitCode::from(2);
+        }
+    };
+    let Some(out) = flag(args, "--html") else {
+        eprintln!("error: lab-report needs --html <out.html>\n\n{}", usage());
+        return ExitCode::from(2);
+    };
+    let now = now_unix();
+    let ent = if has_flag(args, "--dev") {
+        eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
+        Entitlement {
+            licensee: "(dev)".into(),
+            tier: Tier::Enterprise,
+            expires_unix: 0,
+            features: vec![],
+        }
+    } else {
+        match flag(args, "--license") {
+            Some(tok) => match verify_token(&tok, now) {
+                Ok(e) => e,
+                Err(e) => {
+                    eprintln!("error: license invalid: {e}");
+                    return ExitCode::FAILURE;
+                }
+            },
+            None => {
+                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
+                Entitlement::evaluation()
+            }
+        }
+    };
+    if let Err(e) = license::ensure_dossier_entitled(&ent, now) {
+        eprintln!("error: {e}");
+        return ExitCode::FAILURE;
+    }
+    let campaign = match load(&dir) {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("error: {}: {e}", dir.display());
+            return ExitCode::FAILURE;
+        }
+    };
+    let mut opts = LabReportOptions::new(data_class);
+    opts.client = flag(args, "--client");
+    opts.doc_id = flag(args, "--doc-id");
+    opts.prepared_utc = flag(args, "--utc");
+    opts.allow_incomplete = has_flag(args, "--allow-incomplete");
+    match render_html(&campaign, &opts) {
+        Ok(html) => match std::fs::write(&out, html.as_bytes()) {
+            Ok(()) => {
+                eprintln!(
+                    "[wrote {out}: {} cell(s), DIGEST {} verified, {}]",
+                    campaign.cells.len(),
+                    campaign.digest,
+                    data_class.label()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => {
+                eprintln!("error: could not write {out}: {e}");
+                ExitCode::FAILURE
+            }
+        },
+        Err(e) => {
+            eprintln!("error: {e}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
 fn study_cmd(args: &[String]) -> ExitCode {
     let Some(path) = flag(args, "--dossier") else {
         eprintln!(

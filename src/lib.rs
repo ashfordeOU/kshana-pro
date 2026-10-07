@@ -48,6 +48,7 @@ pub mod pro_study;
 pub mod registry;
 pub mod report;
 pub mod report_brand;
+pub mod report_lab_campaign;
 pub mod report_pack_a;
 pub mod report_pack_c;
 pub mod report_pdf;
