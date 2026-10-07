@@ -1,4 +1,4 @@
-Updated: 2026-10-07T17:13:28Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T17:20:37Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:20:37 Container restart; heartbeat restarted. [W8] opened kshana PR 49 (feat/034-iq-monitors 9394e08): iq::monitor (power/AGC, spectral excess, kurtosis, pulses, C/N0 CUSUM, SQM + tap hook), run_monitors + MonitorConfig, 'kshana iq monitor' CLI, Python iq_monitor; 12 closed-form tests; 5 proposed Modelled rows. Decisions: drop LockMonitor state (one lock machine = W1 TrackSession); Cn0Profile via SceneChannel hook GO now; then unsigned 12/16-bit on #43; MCP iq_monitor after #34. [W1] PR 45 351b0ca: commensurate_sampling warning + fix for false-lock search aborting sessions at unsearchable rates; warning to be evidence-graded (no false alarm at 4.092 MHz). [W3] found #45 re-acq retires channels within ~0.1 s of an outage (attempt-count budget) + summary final_state bug → W1: time-based reacq_window_s with spaced attempts. [W3] PR 17 realigned @32b0908 to real engine output (841/0/9).
 - 17:16:25 [W3] walkthrough runbook pushed to PR 19 (4882ee0); PR #43 step pending build
 - 17:05:15 [W1] PR 45 → 351b0ca: commensurate_sampling warning (track/sweep/MCP/Python) + unsearchable-rate fix.
 - 17:01:51 GitHub write 500s 16:53–~17:02 (reads OK; status page green); pushes recovered; check-runs API for public kshana still 500 → runner asked for CI states. [W7] PR 46 (DRAFT, feat/034-campaign d696bc46, base feat/034-track-engine): runner on W1 TrackSession (shim deleted), synthetic campaign at 2.5 MHz, Q via jamming::q_factor at runtime; perf 2.2× real time, +8 MB RSS (60 s × 16 ch). run.epochs → wire in this PR. Finding → W1: default FLL-assisted design declares LOST at ~39 dB-Hz clean (PLI ~55%) — root-cause with a pre-registered bar.
