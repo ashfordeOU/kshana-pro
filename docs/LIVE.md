@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:39:00Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:40:13Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:40:13 21:40Z Critic on #46 (ee032df + 2a5233a): FIX-FIRST, merging after 0.33.0 and #45. Rules clean. Findings: MCP campaign tool reads conditions/design/sigmf files before the containment check (should-fix, sent to W7 to fix first); the observe-only pin breaks once #45 merges (re-pin after W1's final sha); stale LAB-CAMPAIGN docs; no positive stale-detection test. Schema notes sent to W3 for the PR 17 re-pin.
 - 21:39:00 21:38Z W3 recorded the critic's PR 17 findings in W3.md (2e4ed11). Item 1 is mostly already on wip 136b47a. Go given for engine-independent items 2–4 (traceability, N6 guard, nits) on the wip branch; the re-pin is still held.
 - 21:38:16 21:38Z Critic re-check: #48 @80e8b7f MERGE (the timing discriminator bites on a revert) and #50 @e5cd543 MERGE. #53 @3f7139c MERGE after 0.33.0, with a CHANGELOG bars/measured fix and 2 doc nits sent to W8. Pro PR 17 @32b0908 FIX-FIRST at re-pin (data_class/epochs mirror drift, cell_key, lock source, traceability ops, N6 guard gaps) sent to W3.
 - 21:34:15 21:34Z Runner merge-tree against main 2ef6541: #38, #43, #44, #45, #48, #49, #50 and #51 merge cleanly. #46 (2a5233a) still conflicts, which is expected: W7 resolves it after #38/#44 land and W1's final #45. Mac probe 37687568077 still running.
