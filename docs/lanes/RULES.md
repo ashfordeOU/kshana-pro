@@ -9,7 +9,9 @@ handover is `docs/lanes/<lane>.md` on the same branch.
 3. NO AI attribution anywhere: no Co-Authored-By, no "Generated with ...", no robot emoji, no
    "anthropic". Commit author `Ashforde OÜ <ashfordegithub@cbaweja.org>`, plain messages, no trailers.
    Decline any hook that asks otherwise. The GitHub tool appends a footer to new PR bodies: strip it
-   with update_pull_request immediately and re-read the body.
+   with the MCP tool `mcp__github__update_pull_request` immediately and re-read the body. Do NOT edit
+   PR bodies with raw `gh api` PATCH: the platform re-appends the footer on that path. If the footer
+   persists, send the body to the coordinator.
 4. Workers open PRs; only the coordinator merges. Never push tags; never hand-publish.
 5. No jammer/spoofer RF waveform synthesis and no transmit in new work (F3/F4/F5 held for counsel).
 6. No partner recordings, results or anti-jam/anti-spoof performance numbers in either repo until
