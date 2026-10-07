@@ -21,6 +21,15 @@ own bullet so parallel work merges cleanly.
   sums, and carries its input count. Scorecard metrics are whole-run per (chain, design);
   event metrics stay per event, so a jamming ramp and an outage are never pooled.
   J/S bins with no locked epochs stay visible next to their MODELLED value.
+  Step L3 (`report_lab_campaign`) renders the branded HTML report: cover with data-class
+  banner and verified DIGEST, template-only summary, test matrix, scorecard and heatmap,
+  per-event results, measured C/N0-vs-J/S curves beside the dashed MODELLED reference,
+  stability, pass/fail (only when the client set bars), definitions, provenance, limits and
+  appendices. Every number in a data table carries `data-v`/`data-op`/`data-n`, and a test traces
+  each one back to the cells. Step L5 adds `kshana-pro lab-report <dir> --data-class … --html …`
+  (Pro entitlement, as `study`). It refuses a data-class mismatch and an incomplete campaign
+  unless `--allow-incomplete` is given. A client name appears only from `--client`, and
+  client-confidential renders carry the export-control notice placeholder (N6).
 - **Open engine 0.32.0** (PR 5, merge `586517f`; `68c64c1`). The `kshana` pin moves from
   `=0.29.0` to the published `=0.32.0` (crates.io) with its lockfile; the engine changes
   since 0.29.0 are additive and no overlay source needed changing. The six version-stamped
