@@ -25,8 +25,12 @@ handover is `docs/lanes/<lane>.md` on the same branch.
    and factual: sha, test counts, run ids.
 10. Use real UTC times from `date -u`. Never write secrets, tokens or private scratch paths into git.
 
-## Model roles (founder decision 2026-10-07)
-- Coordinator: Opus. Orchestrates, decides, merges, keeps LIVE.md.
-- Workers: Sonnet for engineering lanes (DSP, campaign, formats, report, release); Haiku for
-  mechanical lanes (CI watching, relays, restacks, site re-ports, doc/table edits).
-- Critic: Fable. Reviews every PR before merge and every pre-registration/decision; read-only.
+## Model roles (founder decisions 2026-10-07)
+Use version 5.5 of every model where it exists. Model IDs:
+- Coordinator: Opus 5.5 (`claude-opus-5-5`). Orchestrates, decides, merges, keeps LIVE.md.
+- Workers: Sonnet 5.5 (`claude-sonnet-5-5`) for engineering lanes (DSP, campaign, formats, report,
+  release); Haiku 5.5 (`claude-haiku-5-5`) for mechanical lanes (CI watching, relays, restacks, site
+  re-ports, doc/table edits). Never Haiku 4.5.
+- Critic: Fable (`claude-fable-5-1`). Reviews every PR before merge and every pre-registration and
+  decision; read-only. Fable 5.5 does not exist yet: probed 2026-10-07 20:58Z,
+  `claude-fable-5-5` fell back to Opus. Move to Fable 5.5 when it ships.
