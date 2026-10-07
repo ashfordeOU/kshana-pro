@@ -43,7 +43,7 @@ No external deadline set.
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
 | session_01U47Y1DtpBY9SupJum3iE6Q | W1 PR 34 + PR 38 (CI) + 0.34.0 track engine (B3.1/B3.2/B3.3/B6.1) | feat/mcp-iq @ eba7d10; feat/iq-track-default @ b41a61d; feat/034-track-engine @ d1a575a | PR 34/38 CI pending (unverified). 0.34 lane: loop-design TOML + epoch record + lock state machine proposal sent (docs/design/LOOP-DESIGN-TOML.md @ d1a575a); waiting for approval before implementing. Owed: PYTHON_API.md iq_track line after #39 |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
-| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 export-control pack factual correction (DRAFT for counsel) + Pro lab campaign report design | legal/classification-pack-iq | assigned 15:25 |
+| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 export-control factual correction (pro, DRAFT for counsel) | legal/classification-pack-iq @ 86a3209 | PR 14 open (footer stripped): pack §2.1 corrected + §2.1a (S1–S12, N1–N6, A4–A6); notes in assessment/determination; partner docs corrected. Finding: public engine writes jammer-waveform IQ (`spectrum` [iq] --export sigmf, since 0.29.0) and synthesises a spoofer in memory (`spoof_capture`). Next: founder review; then plan Pro lab campaign report |
 | session_01LStocVmSb3UAXorqXZT3BQ | W5 IQ defect fixes D1/D2/D3/D5/D7 for 0.33.0 (public) | fix/iq-d* | plan approved 14:52; D3 first (row recorded by coordinator) |
 | session_01QU3dhUo1RBWW24nEVVzxst | W6 engine graphics onto Observatory | feat/observatory-graphics | plan approved 15:27 (palette.rs single source, palette_sync guard, colour-normalised equality evidence, dark-only charts, report light/dark, 3 orphan figure generators) |
 | session_011PWAHJi1S2BLjLeD5uidXf | W7 0.34 campaign runner + scoring + F1 analytic J/S reference (public) | feat/034-campaign | spawned 15:24; schema design owed |
@@ -86,6 +86,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:29:45 [W3] opened kshana-pro PR 14 (legal/classification-pack-iq 86a3209): export pack factual correction, DRAFT for counsel.
 - 15:26:42 W8 plan approved (formats: ci4/cu8/ci12/2-bit-per-byte, multi-stream, sidecars, .sdrx, 2 GB #[ignore] + 200 MB CI test; monitors: power/AGC, C/N0 CUSUM, SQM, lock, spectral/kurtosis/pulse, each vs closed form, MODELLED rows). W1 asked to add extra_taps_chips (default empty, byte-identical) for SQM.
 - 15:26:01 Approved W6 graphics plan, W1 loop-design schema (forwarded to W7). W4 opened kshana-pro PR 13 (site + Studio onto Observatory).
 - 15:25:21 [W1] 0.34 track-engine: schema proposal pushed (feat/034-track-engine @ d1a575a) and sent; awaiting approval.
