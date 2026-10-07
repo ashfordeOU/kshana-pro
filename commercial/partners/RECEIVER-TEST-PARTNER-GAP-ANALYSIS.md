@@ -427,7 +427,7 @@ branch, not only the PR descriptions. Public `kshana` heads used:
 
 | Ref | Head | Content |
 |---|---|---|
-| `main` | `18e860a` | 0.32.0 + #34 (MCP IQ tools), #35, #37, #39, #40 (D3), #41, #42 |
+| `main` | `2ef6541` | 0.32.0 + #34 (MCP IQ tools, merged `11b39f6`), #35, #37, #39 (`18e860a`), #40 (D3, `1b6e826`), #41 (`564e937`), #42 (`2ef6541`) |
 | PR #38 | `79ff31e` | auto hand-off ≈ 4 ms (D4 documented); MCP IQ tools are on `main` via #34 |
 | PR #40 | merged (`1b6e826`) | integer scene output scaled to the integer range (D3) |
 | PR #43 | `18d3b42` | lab-recording formats, multi-stream, `.sdrx` (B9.1, B9.2) |
