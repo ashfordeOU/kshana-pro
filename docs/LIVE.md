@@ -1,4 +1,4 @@
-Updated: 2026-10-07T14:23:56Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T14:27:34Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -76,6 +76,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:24 [RUNNER] kshana PR 35 @bb7edf87: GREEN native full, test --all 3823 passed / 0 failed / 100 ignored (358 suites), repeatability 3x2751 identical, reproducible/doc-coverage/site.test/doc_sync/clippy 0; CI #516 (37617204859) running.
 - 14:23:56 W2 re-port REHEARSAL GREEN end to end at 0.32.0 (public bd05a276 + local scratch commit; pro d7b2313): strict version-sync 0 WARN; port 649 files; diff vs web/ 400 files. 13 manual fixes (F1–F13: binaryen via proxy, Celeste scenario routing, channels.json hand-kept, selfcheck reporter, areas step, capabilities mirror, 8th recorder gen_footprint, check_features order, Pro public text symlink, rule-17 docs tokens + images in the bump commit, check_nav env, 11 unplaced features, wasm path bytes) → kshana-pro chore/re-port-fixes. Nav compare running (main baseline 4 BAD). W2's freed 9 GB was its own target/debug only.
 - 14:23:17 Founder supplied partner correspondence (kept outside git). Name audit: public kshana history commit 7afdf69 (reachable from main) contains a full personal name, removed from the tree by 76cc62a; no current file in any branch has it. kshana-pro: a first name in this file's log (coordinator's own line) removed in 07242e7. Requirements doc committed (26add7a, branch claude/pensive-cannon-ogxhr4). W3 → gap analysis.
 - 14:10:20 [RUNNER] kshana PR 34 @6fae76b4 (superseded): RED, run 37616257744 check, same doc_sync guard; fixed in a477eec (CI #517 pending).
