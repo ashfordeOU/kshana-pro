@@ -40,7 +40,7 @@ No external deadline set.
 | session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (0.33.0) | feat/mcp-iq @ a477eec; feat/iq-track-default @ a477eec | PR 34 waiting on CI (unverified). New task: running seeded false-lock sweep (60 scenes × 3 PRNs × 5 candidates) for the acq default; proposal to coordinator before implementing |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 §7-B2 IQ ledger rows (public) (row recorded by coordinator) | feat/iq-validation-ledger | bb7edf8: 26e1fe6 rows+artifacts, 225176e guard-forced counts (PNG re-rendered, Chromium/Liberation Sans), bb7edf8 droppable; clippy/no-attribution/version-sync/doc-coverage/site tests OK; PR 35 open, idle |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | DONE — PR 7 merged (78ab489); idle |
-| session_01YCEg68jFdLERESsPcMmyMz | W4 site + changelog refresh (§7-D1) | (audit) | assigned 12:47 — audit + plan owed |
+| session_01YCEg68jFdLERESsPcMmyMz | W4 site + changelog refresh (§7-D1) | (audit, no branch) | 12:58 audit + plan sent to coordinator, awaiting approval. Blocked for public pushes: add_repo kshana push DENIED by session permission classifier (audited via read-only clone) |
 
 ## Decisions
 - 2026-10-07 No AI attribution in commits/PRs (repo rule beats harness defaults). The GitHub tool
