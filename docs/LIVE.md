@@ -50,7 +50,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
-| session_01U47Y1DtpBY9SupJum3iE6Q | W1 PR 45 (0.34 track engine) + follow-up docs PR (after 38) | feat/034-track-engine (WIP ff1f3f7 pushed; combined push pending gates); #38 head 79ff31e merged in locally | Combined change ready: fll_assist pull-in gate with hysteresis (carrier-lock bars B1–B4 PASS, RESULTS.md), time-based reacq window (W3 2 s outage: all 3 PRNs recover), summary final_state fix. New default hash c6c25a27…3d2c. Gates running. Next: evidence-based (spc,d) warning, B-scope estimates, follow-up docs PR. |
+| session_01U47Y1DtpBY9SupJum3iE6Q | W1 PR 45 (0.34 track engine) + follow-up docs PR (after 38) | feat/034-track-engine @ 03eeb00; docs/iq-followup @ af3ae6f (PR not opened until #38 lands) | Pushed: fll_assist pull-in gate + hysteresis (carrier-lock B1–B4 PASS), time-based reacq window (W3 outage: all recover), final_state fix; #38 79ff31e merged in. Default design hash c6c25a27…3d2c. Gates @03eeb00: clippy, lib iq 119, 12 iq bins, MCP 33, pytest 23, stubtest, wasm OK. Now: (spc,d) sweep at 6/8/16 spc + Doppler 0/4000 for a measured-table warning rule. B-scope estimates sent (B3.5→B6.2→B6.3→B3.4). |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 partner walkthrough (PR 19 done); PR 17 report; public signal matrix (kshana #51) | pro/lab-campaign-repin-wip @ 136b47a; PR 17 @ 32b0908; kshana #51 @ 48643b8e (via W2) | kshana #51 open (8 pass, D8–D10 ignored findings; holds after 0.33.0). PR 17 re-pin code validated on engine ee032df6 (844 pass) on wip branch; waits for W7 head with W1's default-design change, then one regen + fast-forward |
 | session_01LStocVmSb3UAXorqXZT3BQ | W5 IQ defect fixes D1/D2/D3/D5/D7 for 0.33.0 (public) | fix/iq-d* | PR 40 (D3) CI running; PR 44 (D1 front end in track/sweep, 15107fa) open, merges after #38; D2 next |
@@ -260,6 +260,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - 11:43:37 [W1] PR 34 (kshana, feat/mcp-iq @ cff687f) open: 6 MCP IQ tools; local gates green; awaiting design review + CI.
 - 17:24:38 [W1] PR 45: canonical design hash @ e992038; carrier-lock pre-registration @ a4119ba; survey running.
 - 21:04:35 [W1] PR 45: fll_assist + reacq window + final_state ready; #38 merged in locally; gates running before the combined push.
+- 21:30:19 [W1] PR 45 @ 03eeb00 (fll_assist + reacq window + final_state; hash c6c25a27). Docs follow-up branch docs/iq-followup @ af3ae6f ready, PR after #38.
 - 11:42:42 RECOVERY.md added. Branch deletion approved by founder; proxy 403 → handed back.
 - 11:40:06 LIVE.md + RECOVERY.md created on `ws/coordination`.
 - 11:38:36 PR 6 merged → main db2210a (Mac CI check success, run 37614594723).
