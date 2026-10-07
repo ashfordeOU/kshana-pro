@@ -102,15 +102,13 @@ impl std::fmt::Display for RenderError {
 impl std::error::Error for RenderError {}
 
 /// The checks both editions make before rendering: the data class must match the campaign's
-/// own (when it states one), and a campaign with missing cells needs `allow_incomplete`.
+/// own, and a campaign with missing cells needs `allow_incomplete`.
 pub(crate) fn check(c: &LoadedCampaign, opts: &LabReportOptions) -> Result<(), RenderError> {
-    if let Some(declared) = c.data_class() {
-        if declared != opts.data_class {
-            return Err(RenderError::DataClassMismatch {
-                campaign: declared,
-                requested: opts.data_class,
-            });
-        }
+    if c.data_class() != opts.data_class {
+        return Err(RenderError::DataClassMismatch {
+            campaign: c.data_class(),
+            requested: opts.data_class,
+        });
     }
     if !c.is_complete() && !opts.allow_incomplete {
         return Err(RenderError::Incomplete {
@@ -1276,11 +1274,11 @@ pub(crate) fn lock_source_note(c: &LoadedCampaign) -> String {
     let mut src: Vec<&str> = c.cells.iter().map(|x| x.lock_source.as_str()).collect();
     src.sort_unstable();
     src.dedup();
-    let detail = if src == ["lock-indicators"] {
-        " The lock state in these cells comes from the tracking loop's phase- and code-lock \
-         indicators, as the campaign scorer derives it. False locks are found only against a truth \
-         file where one is given; there is no alias search and no re-acquisition step. A channel \
-         that drifts during an outage may therefore not relock."
+    let detail = if src == ["track-session"] {
+        " The lock state in these cells is the tracking session's lock state machine (LOCKED \
+         against everything else), with its loss-of-lock, false-lock and re-acquisition events, as \
+         set by each loop design's lock settings. Time after a channel's last update (retired, or \
+         never acquired) counts as unlocked."
     } else {
         ""
     };

@@ -10,8 +10,8 @@
 //! - any campaign, campaign-cell or test-condition document (recognised by its `schema`
 //!   string) outside [`FIXTURE_DIR`];
 //! - any SigMF recording anywhere;
-//! - any fixture campaign whose name does not start with `synthetic-`, or that states a
-//!   `data_class` other than `synthetic`.
+//! - any fixture campaign whose name does not start with `synthetic-`, or whose `data_class`
+//!   is not `synthetic`.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -118,13 +118,10 @@ fn no_client_campaign_data_outside_the_synthetic_fixtures() {
                     "{rel}: fixture campaign name {name:?} must start with `synthetic-`"
                 ));
             }
-            // An engine that carries a data class must say synthetic here.
-            if let Some(dc) = v.get("data_class") {
-                if dc.as_str() != Some("synthetic") {
-                    violations.push(format!(
-                        "{rel}: fixture campaign data_class must be \"synthetic\""
-                    ));
-                }
+            if v.get("data_class").and_then(|d| d.as_str()) != Some("synthetic") {
+                violations.push(format!(
+                    "{rel}: fixture campaign data_class must be \"synthetic\""
+                ));
             }
         }
     }

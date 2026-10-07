@@ -4,21 +4,23 @@
 //! 1. `campaign.json` parses and its schema is one this overlay reads;
 //! 2. every planned cell's key, chain and design resolve inside the campaign;
 //! 3. every `cells/*.json` parses, its schema is known, its file name equals its `key`, its
-//!    key re-derives from its own inputs, it is a planned cell, its recording, chain, design and
-//!    run/scoring hashes are the plan's, and its engine version is the campaign's;
-//! 4. every `modelled` block carries the `MODELLED` label;
+//!    key re-derives from its own inputs, it is a planned cell, its recording, chain, design,
+//!    run/scoring hashes and data class are the plan's, its engine version is the campaign's,
+//!    and its lock source is one this overlay can describe;
+//! 4. every `modelled` block carries the `MODELLED` label, and every epoch file a cell names
+//!    is present with the size and SHA-256 the cell states;
 //! 5. `DIGEST` matches the cells present (the engine writes it only for a complete campaign;
 //!    a complete campaign without one is refused);
 //! 6. `scorecard.json` (the engine's verdicts against the client's bars) belongs to this
-//!    campaign: same name, engine and digest, and every row names a present cell.
+//!    campaign: same name, data class, engine and digest, and every row names a present cell.
 //!
 //! A cell the campaign lists but the directory lacks makes the campaign *incomplete*, which is
 //! reported, not hidden. Anything else that fails is an error.
 
 use super::hash::{cell_key, digest, sha256_hex};
 use super::model::{
-    CampaignCell, CampaignManifest, DataClass, Scorecard, CELL_SCHEMAS, MODELLED_LABEL,
-    PLAN_SCHEMAS, SCORECARD_SCHEMAS,
+    CampaignCell, CampaignManifest, DataClass, Scorecard, CELL_SCHEMAS, LOCK_SOURCES,
+    MODELLED_LABEL, PLAN_SCHEMAS, SCORECARD_SCHEMAS,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
@@ -53,6 +55,14 @@ pub enum LoadError {
     ModelledLabel {
         file: String,
         found: String,
+    },
+    UnknownLockSource {
+        file: String,
+        found: String,
+    },
+    Epochs {
+        file: String,
+        detail: String,
     },
     MissingDigest,
     DigestMismatch {
@@ -89,6 +99,12 @@ impl fmt::Display for LoadError {
                     "{file}: reference curve labelled {found:?}, must be {MODELLED_LABEL:?}"
                 )
             }
+            LoadError::UnknownLockSource { file, found } => write!(
+                f,
+                "{file}: lock source {found:?} is not one this overlay reads ({})",
+                LOCK_SOURCES.join(", ")
+            ),
+            LoadError::Epochs { file, detail } => write!(f, "{file}: epoch output {detail}"),
             LoadError::MissingDigest => write!(f, "the campaign is complete but DIGEST is missing"),
             LoadError::DigestMismatch { stated, computed } => {
                 write!(
@@ -129,8 +145,8 @@ impl LoadedCampaign {
         self.missing.is_empty()
     }
 
-    /// The campaign's declared data class, if the engine states one.
-    pub fn data_class(&self) -> Option<DataClass> {
+    /// The campaign's declared data class (every cell carries the same one).
+    pub fn data_class(&self) -> DataClass {
         self.manifest.data_class
     }
 }
@@ -151,6 +167,44 @@ struct Expected<'a> {
     recording: (&'a str, &'a str, &'a str),
     frontend: (&'a str, &'a str),
     design: (&'a str, &'a str),
+}
+
+/// Check one epoch file a cell names (`rel`, relative to `dir`): present, inside the output
+/// directory, of the stated size (when given) and SHA-256.
+fn check_epoch_file(
+    dir: &Path,
+    cell_file: &str,
+    rel: &str,
+    sha256: &str,
+    bytes: Option<u64>,
+) -> Result<(), LoadError> {
+    let err = |detail: String| LoadError::Epochs {
+        file: cell_file.to_owned(),
+        detail,
+    };
+    let p = Path::new(rel);
+    if p.is_absolute()
+        || p.components()
+            .any(|c| matches!(c, std::path::Component::ParentDir))
+    {
+        return Err(err(format!("{rel:?} is outside the output directory")));
+    }
+    let data = std::fs::read(dir.join(p)).map_err(|e| err(format!("{rel}: {e}")))?;
+    if let Some(n) = bytes {
+        if data.len() as u64 != n {
+            return Err(err(format!(
+                "{rel}: {} bytes, the cell states {n}",
+                data.len()
+            )));
+        }
+    }
+    let got = sha256_hex(&data);
+    if got != sha256 {
+        return Err(err(format!(
+            "{rel}: SHA-256 {got}, the cell states {sha256}"
+        )));
+    }
+    Ok(())
 }
 
 /// Load and check `dir` (the engine's campaign `--out` directory).
@@ -250,12 +304,14 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
         let de_ok = (cell.design.name.as_str(), cell.design.hash.as_str()) == exp.design;
         let run_ok =
             cell.run_hash == manifest.run_hash && cell.scoring_hash == manifest.scoring_hash;
-        if !(rec_ok && fe_ok && de_ok && run_ok) {
+        let class_ok = cell.data_class == manifest.data_class;
+        if !(rec_ok && fe_ok && de_ok && run_ok && class_ok) {
             let what = [
                 (!rec_ok).then_some("recording"),
                 (!fe_ok).then_some("front-end chain"),
                 (!de_ok).then_some("loop design"),
                 (!run_ok).then_some("run/scoring hash"),
+                (!class_ok).then_some("data class"),
             ]
             .into_iter()
             .flatten()
@@ -265,6 +321,16 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
                 file,
                 detail: format!("{what} differs"),
             });
+        }
+        if !LOCK_SOURCES.contains(&cell.lock_source.as_str()) {
+            return Err(LoadError::UnknownLockSource {
+                file,
+                found: cell.lock_source,
+            });
+        }
+        if let Some(ep) = &cell.epochs {
+            check_epoch_file(dir, &file, &ep.path, &ep.sha256, Some(ep.bytes))?;
+            check_epoch_file(dir, &file, &ep.events_path, &ep.events_sha256, None)?;
         }
         for sat in &cell.satellites {
             for ev in &sat.events {
@@ -309,9 +375,12 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
             schema: scorecard.schema.clone(),
         });
     }
-    if scorecard.campaign != manifest.name || scorecard.engine_version != manifest.engine_version {
+    if scorecard.campaign != manifest.name
+        || scorecard.engine_version != manifest.engine_version
+        || scorecard.data_class != manifest.data_class
+    {
         return Err(LoadError::ScorecardMismatch(
-            "built for another campaign or engine".into(),
+            "built for another campaign, engine or data class".into(),
         ));
     }
     if complete && scorecard.digest.as_deref() != Some(computed.as_str()) {

@@ -147,9 +147,9 @@ fn null_metrics_render_as_words_not_zero() {
 
 #[test]
 fn a_data_class_mismatch_is_refused() {
-    // The engine fixture states no data class yet; declare one as a newer engine will.
-    let mut c = load(&fixture()).unwrap();
-    c.manifest.data_class = Some(DataClass::Synthetic);
+    // The engine fixture declares itself synthetic.
+    let c = load(&fixture()).unwrap();
+    assert_eq!(c.data_class(), DataClass::Synthetic);
     let err = render_html(&c, &LabReportOptions::new(DataClass::ClientConfidential)).unwrap_err();
     assert_eq!(
         err,
@@ -188,7 +188,8 @@ fn a_client_name_appears_only_when_passed() {
 #[test]
 fn a_client_confidential_render_carries_the_export_notice_slot() {
     let mut c = load(&fixture()).unwrap();
-    c.manifest.data_class = None; // an undeclared campaign renders as requested
+    // Relabelled in memory only, to exercise the client-confidential layout on synthetic data.
+    c.manifest.data_class = DataClass::ClientConfidential;
     let o = LabReportOptions::new(DataClass::ClientConfidential);
     let doc = render_html(&c, &o).unwrap();
     assert!(doc.contains("CLIENT-CONFIDENTIAL"));
@@ -306,14 +307,14 @@ fn the_pdf_edition_renders_deterministically_and_carries_the_same_facts() {
 
 #[test]
 fn the_pdf_edition_enforces_the_data_class_too() {
-    let mut c = load(&fixture()).unwrap();
-    c.manifest.data_class = Some(DataClass::Synthetic);
+    let c = load(&fixture()).unwrap();
     assert!(render_pdf(&c, &LabReportOptions::new(DataClass::ClientConfidential)).is_err());
 }
 
 #[test]
 fn the_report_states_which_lock_source_the_cells_used() {
     let doc = html();
-    assert!(doc.contains("Lock source in these cells: lock-indicators."));
-    assert!(doc.contains("may therefore not relock"));
+    assert!(doc.contains("Lock source in these cells: track-session."));
+    assert!(doc.contains("lock state machine"));
+    assert!(doc.contains("counts as unlocked"));
 }

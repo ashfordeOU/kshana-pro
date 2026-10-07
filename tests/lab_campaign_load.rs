@@ -182,6 +182,85 @@ fn a_cell_whose_key_does_not_re_derive_is_refused() {
 }
 
 #[test]
+fn a_cell_of_another_data_class_is_refused() {
+    // The data class is part of the cell key, so a relabelled cell no longer re-derives.
+    let d = scratch();
+    edit_json(&cell_files(&d)[0], |v| {
+        v["data_class"] = "client-confidential".into()
+    });
+    assert!(matches!(load(&d), Err(LoadError::KeyMismatch { .. })));
+    // A plan relabelled without its cells is refused too.
+    let d = scratch();
+    edit_json(&d.join("campaign.json"), |v| {
+        v["data_class"] = "client-confidential".into()
+    });
+    assert!(matches!(load(&d), Err(LoadError::NotInCampaign { .. })));
+}
+
+#[test]
+fn an_unknown_lock_source_is_refused() {
+    let d = scratch();
+    edit_json(&cell_files(&d)[0], |v| {
+        v["lock_source"] = "lock-indicators".into()
+    });
+    assert!(matches!(load(&d), Err(LoadError::UnknownLockSource { .. })));
+}
+
+/// Point the first cell at an epoch file holding `bytes`, stating `stated_sha` and the path
+/// `rel`, then re-seal the campaign (DIGEST and scorecard digest) so only the epoch check can
+/// fail.
+fn with_epochs(d: &Path, rel: &str, bytes: &[u8], stated_sha: Option<&str>) {
+    fs::create_dir_all(d.join("epochs")).unwrap();
+    fs::write(d.join("epochs/e.jsonl"), bytes).unwrap();
+    fs::write(d.join("epochs/e.events.jsonl"), b"{}\n").unwrap();
+    let sha = stated_sha.map_or_else(|| sha256_hex(bytes), str::to_owned);
+    edit_json(&cell_files(d)[0], |v| {
+        v["epochs"] = serde_json::json!({
+            "format": "jsonl",
+            "path": rel,
+            "sha256": sha,
+            "bytes": bytes.len(),
+            "events_path": "epochs/e.events.jsonl",
+            "events_sha256": sha256_hex(b"{}\n"),
+        })
+    });
+    let pairs: Vec<(String, String)> = cell_files(d)
+        .iter()
+        .map(|p| {
+            (
+                p.file_stem().unwrap().to_string_lossy().into_owned(),
+                sha256_hex(&fs::read(p).unwrap()),
+            )
+        })
+        .collect();
+    let dg = digest(pairs.iter().map(|(k, s)| (k.as_str(), s.as_str())));
+    fs::write(d.join("DIGEST"), format!("{dg}\n")).unwrap();
+    edit_json(&d.join("scorecard.json"), |v| {
+        v["digest"] = dg.clone().into()
+    });
+}
+
+#[test]
+fn epoch_files_a_cell_names_are_verified() {
+    let d = scratch();
+    with_epochs(&d, "epochs/e.jsonl", b"epoch\n", None);
+    load(&d).expect("matching epoch files load");
+
+    let d = scratch();
+    with_epochs(&d, "epochs/e.jsonl", b"epoch\n", Some(&"0".repeat(64)));
+    assert!(matches!(load(&d), Err(LoadError::Epochs { .. })));
+
+    let d = scratch();
+    with_epochs(&d, "../e.jsonl", b"epoch\n", None);
+    assert!(matches!(load(&d), Err(LoadError::Epochs { .. })));
+
+    let d = scratch();
+    with_epochs(&d, "epochs/e.jsonl", b"epoch\n", None);
+    fs::remove_file(d.join("epochs/e.jsonl")).unwrap();
+    assert!(matches!(load(&d), Err(LoadError::Epochs { .. })));
+}
+
+#[test]
 fn a_different_engine_version_is_refused() {
     let d = scratch();
     edit_json(&d.join("campaign.json"), |v| {
@@ -217,6 +296,11 @@ fn the_scorecard_must_be_present_and_belong_to_the_campaign() {
     let d = scratch();
     edit_json(&d.join("scorecard.json"), |v| {
         v["campaign"] = "another".into()
+    });
+    assert!(matches!(load(&d), Err(LoadError::ScorecardMismatch(_))));
+    let d = scratch();
+    edit_json(&d.join("scorecard.json"), |v| {
+        v["data_class"] = "client-confidential".into()
     });
     assert!(matches!(load(&d), Err(LoadError::ScorecardMismatch(_))));
 }

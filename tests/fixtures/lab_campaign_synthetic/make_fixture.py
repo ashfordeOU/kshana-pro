@@ -154,6 +154,7 @@ bw_hz = 1.0
 """)
     write("campaign.toml", """schema = "kshana.campaign/1"
 name = "synthetic-fixture"
+data_class = "synthetic"
 [inputs]
 conditions = ["conds/*.toml"]
 designs = "designs.toml"
