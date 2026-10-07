@@ -21,3 +21,6 @@ __pycache__/
 *.pyc
 .DS_Store
 /explorations/2026-09-27-audit/matrix/out/
+
+# local-runner kit: rerun.sh copies itself here while running and removes the copy on exit
+scratch/actlocal/.rerun-snapshot-*.sh

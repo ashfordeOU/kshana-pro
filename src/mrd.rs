@@ -32,10 +32,16 @@
 //!
 //! * **CEP / SEP / 2DRMS** are a transform *of a covariance*. The transform is
 //!   externally validated; the 3×3 ENU covariance feeding it comes from the GNSS/INS
-//!   fusion EKF, whose verification row is **MODELLED** (its trajectory truth and
-//!   sensor calibration are not externally validated). These rows therefore resolve
-//!   to the fusion row — the weaker, binding evidence — because resolving them to
-//!   the SciPy-validated kernel would dress a modelled input in a validated halo.
+//!   fusion EKF, so these rows resolve to the fusion row ([`FUSION_ROW`]) — the
+//!   evidence that binds them — never to the SciPy-validated kernel, which would
+//!   lend the transform's validation to whatever covariance is fed into it. The
+//!   evidence class shown is whatever the engine's fusion row says *today*: it was
+//!   MODELLED through the 0.31 engine and is **VALIDATED** (`ExternalDataset`) from
+//!   0.32.0, when the loosely coupled EKF was scored against NaveGo on NaveGo's real
+//!   IMU/GNSS drive. That oracle has GNSS present for the whole drive — no outage or
+//!   coast is tested — so it validates the filter with GNSS aiding, not a coasting
+//!   covariance (the same boundary as `MRD-INT-04`). The D1.4 footnote is derived
+//!   from the live row, and a test pins the scope caveat to the engine's own words.
 //! * **HPL / VPL** are not computed by `PositioningFom` at all:
 //!   `PositioningFom.hpl_m` is a *pass-through* of a protection level the caller
 //!   supplies. The real producer is the DO-229E weighted-LS monitor
@@ -51,6 +57,11 @@
 
 use kshana::verification::{verification_matrix, OracleKind, VerificationStatus};
 use serde::Serialize;
+
+/// The verification-matrix row that binds the position-domain accuracy rows
+/// (CEP / SEP / 2DRMS): the GNSS/INS fusion EKF that produces the covariance
+/// `positioning_performance` transforms.
+pub const FUSION_ROW: &str = "GNSS/INS sensor fusion";
 
 /// Which open-core struct carries the measuring field.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -212,21 +223,20 @@ pub fn mrd_table() -> Vec<MrdRequirement> {
         // ── Position-domain requirements ────────────────────────────────────────
         // Measured since the 0.26 engine. Each row resolves to the evidence that
         // BINDS it, not to the strongest evidence anywhere in its call chain — see
-        // the module docs for why CEP/SEP/2DRMS point at the MODELLED fusion row
-        // even though their kernel is externally validated.
+        // the module docs for why CEP/SEP/2DRMS point at the fusion row rather than
+        // at their externally validated kernel.
         MrdRequirement {
             id: "MRD-POS-01",
             requirement: "Position accuracy: Circular Error Probable (CEP, horizontal)",
             tender_fom: "horizontal position accuracy",
             source: FomSource::PositioningFom,
             field: "cep_m",
-            verification_requirement: "GNSS/INS sensor fusion",
+            verification_requirement: FUSION_ROW,
             availability: Measured,
-            note:
-                "Exact elliptical-Gaussian median radial error (reduces to the Rayleigh median \
+            note: "Exact elliptical-Gaussian median radial error (reduces to the Rayleigh median \
                    σ√(2ln2) when isotropic), NOT the 0.589·(σ₁+σ₂) linear rule. The kernel is \
                    externally validated vs SciPy/NumPy; this row resolves to the fusion row \
-                   because the covariance it transforms is MODELLED — that is the binding evidence.",
+                   because the covariance it transforms is the binding evidence.",
         },
         MrdRequirement {
             id: "MRD-POS-02",
@@ -234,11 +244,11 @@ pub fn mrd_table() -> Vec<MrdRequirement> {
             tender_fom: "3-D position accuracy",
             source: FomSource::PositioningFom,
             field: "sep_m",
-            verification_requirement: "GNSS/INS sensor fusion",
+            verification_requirement: FUSION_ROW,
             availability: Measured,
             note: "Exact ellipsoidal-Gaussian median 3-D radial error (reduces to the Maxwell \
                    median ≈1.5382σ when isotropic). Same externally-validated kernel, same \
-                   MODELLED covariance input.",
+                   fusion-covariance input.",
         },
         MrdRequirement {
             id: "MRD-POS-03",
@@ -246,11 +256,11 @@ pub fn mrd_table() -> Vec<MrdRequirement> {
             tender_fom: "horizontal position accuracy (95%)",
             source: FomSource::PositioningFom,
             field: "drms2_m",
-            verification_requirement: "GNSS/INS sensor fusion",
+            verification_requirement: FUSION_ROW,
             availability: Measured,
             note: "Closed form 2√(σ_E²+σ_N²). It is a ~95% horizontal bound only for a \
                    near-circular error ellipse — for an eccentric ellipse the true 95% radius \
-                   differs. Inherits the MODELLED covariance.",
+                   differs. Inherits the fusion covariance.",
         },
         MrdRequirement {
             id: "MRD-INT-02",
@@ -306,6 +316,20 @@ pub fn resolve_verification(req: &str) -> Option<(VerificationStatus, OracleKind
         .map(|it| (it.status, it.oracle_kind))
 }
 
+/// The footnote clause naming the fusion row's evidence class, read from the live
+/// verification matrix so the prose cannot drift from the generated table.
+fn fusion_binding_clause() -> String {
+    match resolve_verification(FUSION_ROW) {
+        Some((VerificationStatus::Validated, oracle)) => format!(
+            "VALIDATED ({oracle:?} oracle); that oracle keeps GNSS aiding throughout and tests \
+             no outage or coast, so the validation does not extend to the covariance of a \
+             coasting solution"
+        ),
+        Some((status, oracle)) => format!("{} ({oracle:?} oracle)", status.tag()),
+        None => "not present in the verification matrix".to_string(),
+    }
+}
+
 /// Render the MRD as a Markdown table for the D1.4 deliverable draft.
 pub fn to_markdown() -> String {
     let mut md = String::new();
@@ -353,16 +377,18 @@ pub fn to_markdown() -> String {
             avail,
         ));
     }
-    md.push_str(
+    md.push_str(&format!(
         "\n_Position-domain accuracy (CEP/SEP/2DRMS) is measured by \
          `kshana::fom::positioning_performance`. Its kernel is externally validated (SciPy/NumPy), \
-         but each row resolves to the MODELLED fusion row because the covariance it transforms is \
-         modelled — the binding evidence, not the strongest in the chain. HPL/VPL are sourced to \
+         but each row resolves to the GNSS/INS fusion row, because the covariance it transforms \
+         is what binds it, not the strongest evidence in the chain. On this engine that row is \
+         {}. HPL/VPL are sourced to \
          the DO-229E monitor that actually produces them, since `PositioningFom.hpl_m` is a \
          pass-through. A protection level on the coasting fused INS+GNSS solution remains an \
          honest follow-on (MRD-INT-04). \
          This MRD is a DESIGN skeleton pending the real FPD-10030 SRD, not an agreed requirement set._\n",
-    );
+        fusion_binding_clause()
+    ));
     md
 }
 
@@ -465,6 +491,47 @@ mod tests {
                     r.verification_requirement
                 );
             }
+        }
+    }
+
+    #[test]
+    fn footnote_states_the_fusion_rows_live_evidence_class() {
+        // The footnote prose once claimed the position rows bound to a MODELLED fusion
+        // row after the engine had promoted it to VALIDATED. It is now derived from the
+        // live row; this pins that the derived tag agrees with what the table shows.
+        let (status, oracle) = resolve_verification(FUSION_ROW).expect("fusion row is live");
+        let md = to_markdown();
+        let footnote = md.lines().last().expect("footnote line");
+        assert!(
+            footnote.contains(&format!("On this engine that row is {}", status.tag())),
+            "footnote does not state the fusion row's live status: {footnote}"
+        );
+        assert!(footnote.contains(&format!("{oracle:?} oracle")));
+        for r in mrd_table() {
+            if r.verification_requirement == FUSION_ROW {
+                assert!(
+                    md.contains(&format!("MEASURED ({})", status.tag())),
+                    "{} renders a different evidence class from the footnote",
+                    r.id
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn validated_fusion_caveat_matches_the_engine_oracle_scope() {
+        // When VALIDATED, the footnote says the oracle tests no outage or coast. That is
+        // the engine's own scope statement; if the engine ever adds an outage test, this
+        // fails and the caveat must be re-worded rather than left stale.
+        let item = verification_matrix()
+            .into_iter()
+            .find(|it| it.requirement.contains(FUSION_ROW))
+            .expect("fusion row is live");
+        if item.status == VerificationStatus::Validated {
+            assert!(
+                item.oracle.contains("no outage or coast is tested"),
+                "the engine's fusion oracle scope changed; re-word fusion_binding_clause()"
+            );
         }
     }
 
