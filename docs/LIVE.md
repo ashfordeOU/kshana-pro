@@ -1,4 +1,4 @@
-Updated: 2026-10-07T17:23:21Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T17:26:39Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:26:39 Safety-net check-in: heartbeat alive; PR 34 #521 coverage still running (2 h 47 min; timeout 240 min ≈ 18:40Z), all other jobs green; CodeQL rust/c-cpp queued since 14:39 (not required). Pro PR 17 waits for W7's hash re-pin; Pro PR 19 CI queued behind the Mac probe (running since 16:47Z). Nothing else actionable.
 - 17:23:21 [W1] PR 45 @e9920388: design hash = SHA-256 over canonical key-sorted JSON (own writer); default design 0773c7ee…; insertion-order test. All stored design hashes are now stale → W7 merges into feat/034-campaign, then W3 re-pins PR 17. W1 order: FLL-assist lock-loss (pre-registered) → time-based reacq window + summary bug → (spc, d) sweep → B-scope estimates.
 - 17:22:01 Merged kshana PR 39 (squash → main 18e860a; CI #523 green; runner merge-tree: file sets disjoint from #34, #34 stays clean). PR 34: 13/14 green, coverage still running. [W3] PR 19 @7137344 adds the partner walkthrough (every step run on its shipping branch; §8 limitations). Coordinator reviewed: name-free, synthetic; merge on Mac CI green (queued behind the probe).
 - 17:21:19 [W3] PR 19 @ 7137344: walkthrough runbook complete (multi-stream step run on #43); ready for review
