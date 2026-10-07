@@ -108,9 +108,11 @@ fn write_pack(dir: &Path, body: &str) {
 
 /// A manifest with no watch tables runs exactly as it did at the branch point: the
 /// committed fixture is the `ci.json` the branch-point binary (feat/pro-power 26d069a)
-/// wrote for the resilience-baseline pack with the same `--utc`; this build must write
-/// the same bytes apart from the added MODELLED `label` line and the embedded engine's
-/// version, so the pack hash and every metric are unchanged.
+/// wrote for the resilience-baseline pack with the same `--utc`, re-recorded on open
+/// engine 0.30.0 (whose ARAIM revision moved `mean_hpl_m`, `mean_vpl_m` and, in the
+/// sixteenth digit, `mean_tropo_m`; the pack hash and every other metric are unchanged).
+/// This build must write the same bytes apart from the added MODELLED `label` line and
+/// the embedded engine's version.
 #[test]
 fn backward_compatible_with_the_branch_point() {
     let dir = scratch("compat");
@@ -132,13 +134,14 @@ fn backward_compatible_with_the_branch_point() {
         "tests/fixtures/campaign-watch/resilience-baseline.branch-point.ci.json",
     )
     .unwrap();
-    // The embedded open engine has moved on since the branch point (0.28.0 then, 0.29.0
-    // from Kshana Pro 0.2.0), and a report states the engine version its runs wrote. That
-    // one line is put back to the branch point's before the comparison.
+    // A report states the engine version its runs wrote, and the embedded open engine
+    // moves on between releases. That one line is put back to the fixture's before the
+    // comparison; a metric the engine revises means re-recording the fixture, with a
+    // revision line in CHANGELOG.md.
     let now_v: Value = serde_json::from_str(&now).unwrap();
     let then_v: Value = serde_json::from_str(&then).unwrap();
     assert_eq!(
-        then_v["engine_version"], "0.28.0",
+        then_v["engine_version"], "0.30.0",
         "the branch-point fixture"
     );
     assert!(
