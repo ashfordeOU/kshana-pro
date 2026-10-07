@@ -1,4 +1,4 @@
-Updated: 2026-10-07T11:57:58Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T12:04:54Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -17,7 +17,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 | kshana-pro | partners/iq-deliverables | 4c7b6e2 | PR 7 MERGED → 78ab489 |
 | kshana-pro | claude/pro-030 | d94b280 | stale, superseded by PR 5; delete approved, blocked by proxy (founder deletes) |
 | kshana | main | f570219 | v0.32.0 released; CI green (run 37283754192) |
-| kshana | feat/mcp-iq | 6fae76b | PR 34 RED (doc-sync guard scans only server.rs); fix sent to W1 |
+| kshana | feat/mcp-iq | a477eec | PR 34: guard fix pushed (15 doc-sync/source-guard binaries 60 passed; MCP 33 passed); CI re-running; runner re-verify queued |
 | kshana | feat/iq-validation-ledger | bb7edf8 | PR 35 open (W2); CI pending; full suite via runner + CI |
 
 ## Running now
@@ -66,6 +66,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:04:54 Coordinator container restarted ~12:00 (disk kept, heartbeat process lost → restarted). W1 pushed a477eec fixing the PR 34 doc-sync guard.
 - 12:03:24 [W1] PR 34 → a477eec: README tool guard now scans iq.rs; repro failed before, 60/60 doc-sync+source_guards pass after.
 - 11:57:58 PR 34 RED → W1 asked to widen tests/scenario_count_doc_sync.rs to scan server.rs + iq.rs. kshana-pro PR 8 opened (handover §9 status).
 - 11:56:07 [RUNNER] kshana PR 34 @cff687fb: RED, run 37615528447 coverage: scenario_count_doc_sync::the_mcp_readme_lists_exactly_the_tools_the_server_serves; guard scans only server.rs, IQ tools live in mcp/kshana-mcp/src/iq.rs; same expected on 6fae76b4.
