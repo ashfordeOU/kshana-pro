@@ -1,4 +1,4 @@
-Updated: 2026-10-07T12:48:35Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T12:49:07Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -72,6 +72,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:49:07 W1 iq_track proposal approved (auto ≈4 ms coherent).
 - 12:48:49 [W1] iq_track default sweep done (evidence feat/iq-track-default @ f47054a); proposal sent, awaiting approval.
 - 12:48:35 W4 audit approved (a–e); W4 → Pro CHANGELOG + guard + toolchain proof/runbook; W2 → version-sync coverage PR + owns release/0.33.0. W1 sweeping iq_track candidates (acq_coherent 1/2/4, finer doppler_step).
 - 12:46:59 [W1] Started iq_track default task: branch feat/iq-track-default; false-lock sweep running.
