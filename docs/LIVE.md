@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:43:24Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:55:36Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:55:36 21:55Z W6 (graphics): fmt OK on 0a6c3b6; local full test run too slow on 4 cores. Told to open the PR after the cheap gates, with public CI as the full run. Coordinator heartbeat restarted after a container restart.
 - 21:43:24 21:43Z W8 pushed the #53 critic fixes @457a0db (docs: bars vs measured; truth-exact condition; fade mean dB). Coordinator updated the #53 body to match, with an MCP follow-up line. Held for 0.34.
 - 21:40:13 21:40Z Critic on #46 (ee032df + 2a5233a): FIX-FIRST, merging after 0.33.0 and #45. Rules clean. Findings: MCP campaign tool reads conditions/design/sigmf files before the containment check (should-fix, sent to W7 to fix first); the observe-only pin breaks once #45 merges (re-pin after W1's final sha); stale LAB-CAMPAIGN docs; no positive stale-detection test. Schema notes sent to W3 for the PR 17 re-pin.
 - 21:39:00 21:38Z W3 recorded the critic's PR 17 findings in W3.md (2e4ed11). Item 1 is mostly already on wip 136b47a. Go given for engine-independent items 2–4 (traceability, N6 guard, nits) on the wip branch; the re-pin is still held.
