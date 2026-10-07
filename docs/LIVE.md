@@ -1,4 +1,4 @@
-Updated: 2026-10-07T16:43:06Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T16:44:38Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:44:38 [W2] B7.1 labfit-from-IQ design approved (feat/036-labfit-design aeec1567, docs/design/LABFIT-FROM-IQ.md): fit (C/N0)eff vs J/S for Q_eff and δ, threshold J/S two ways, loss/re-acq dwell; seeded cluster bootstrap over recordings (1000); LORO validation; kshana.labfit-iq/1; synthetic legitimate signals only. Coordinator pre-registered bars: δ ≤0.5 dB, Q ±20% (J/S span ≥12 dB); 95% CI coverage ≥90% of 50 campaigns; LORO 90% PI coverage 80–98%; closed-form threshold within 1 dB of direct. Draft PR to open; code waits for campaign merge + D5.
 - 16:43:06 [W3] evidence on feat/034-campaign da95b9c (synthetic 20 s, 3 PRNs, noise-only gap 8–10 s): 11/12 sat-events re-lock in 0.35–0.41 s; raw/baseline/PRN 11 never re-locks (availability 0.384); with a code-phase jump nothing re-locks → campaign needs TrackSession REACQ. W7 to make it a regression test (reacquire=true must pass; reacquire=false pinned).
 - 16:39:43 Merged kshana-pro PR 18 (squash → 29ff483; Mac CI run 37653073511 green). Dispatched Mac probe run 37653732273 for issue #36 (public main 9925c103, cargo test --all --locked --no-fail-fast); runner watches it and extracts the failing tests. [W3] opened kshana-pro PR 19 (pro/partner-traceability ca5ca11): gap-analysis §16 maps R1–R9/D1–D7 to deliverables and owners; PR 17 realignment GO. W2 → B7.1 labfit-from-IQ design (plan first; bump takes precedence).
 - 16:38:58 [W3] PR 19 opened (pro/partner-traceability ca5ca11): traceability table + real gaps.
