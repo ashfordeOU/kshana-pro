@@ -1,4 +1,4 @@
-Updated: 2026-10-07T15:46:06Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T15:46:37Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -89,6 +89,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:46:37 Open PRs: kshana 34, 37, 38, 39, 40 (D3), 41 (accuracy), 42 (LFS guard); kshana-pro 14 (export pack DRAFT, awaiting founder read), 15 (Studio selfcheck LFS preflight), 16 (site capability wording). W4 PR 16 opened; W2 PR 42 opened.
 - 15:44:31 W2 found a guard gap: Git LFS pointer files copied by the site build would pass site.test.mjs (manifest SHAs come from the copy). W2 → public PR chore/lfs-pointer-guard (site.test.mjs + port_site.py refuse pointers).
 - 15:44:01 W2 opened kshana PR 41 (docs-only capability accuracy: IQ-layer scope, spectrum jammer IQ snapshot since 0.29, in-memory spoof composite, software receiver since 0.20.0). Follow-ups: W4 → kshana-pro site text ("not a GNSS receiver" etc.); W1 → PR 34 MCP wording scope. W6 decisions: timing #1C4FE0; 5 charts gain bg; domain-coverage-map data refresh in its own commit.
 - 15:42:25 W4 PR 15: Studio selfcheck failure root-caused to missing Git LFS objects (not code); preflight + RE-PORT step. W3 Pro lab-report plan approved (re-renders engine cells, never recomputes; data-class banner; export-control notice slot pending N6); building L1–L6.
