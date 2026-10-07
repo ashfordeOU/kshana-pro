@@ -1,7 +1,7 @@
 //! Serde mirror types of the engine's lab-replay results.
 //!
 //! The contract is the public `kshana` lab-replay campaign (0.34.0), as implemented on branch
-//! `feat/034-campaign` @ `da95b9c`: `src/iq/campaign/{runner,score,report}.rs`. Every struct
+//! `feat/034-campaign` (PR #46) @ `ee032df6`: `src/iq/campaign/{runner,score,report}.rs`. Every struct
 //! rejects unknown fields, and every document's `schema` string is checked against the lists
 //! below. A change in the engine's output therefore fails loudly here instead of being misread.
 //! Re-pin to the released engine at 0.34.0.
@@ -18,6 +18,8 @@ pub const CELL_SCHEMAS: &[&str] = &["kshana.campaign-cell/1"];
 pub const PLAN_SCHEMAS: &[&str] = &["kshana.campaign-plan/1"];
 /// Scorecard schema versions this overlay can read.
 pub const SCORECARD_SCHEMAS: &[&str] = &["kshana.campaign-scorecard/1"];
+/// Lock sources this overlay can describe (`CellResult::lock_source`).
+pub const LOCK_SOURCES: &[&str] = &["track-session"];
 /// The only label the engine may put on the analytic reference curve.
 pub const MODELLED_LABEL: &str = "MODELLED";
 
@@ -32,6 +34,14 @@ pub enum DataClass {
 }
 
 impl DataClass {
+    /// The engine's spelling (`synthetic`, `client-confidential`), as it enters the cell key.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            DataClass::Synthetic => "synthetic",
+            DataClass::ClientConfidential => "client-confidential",
+        }
+    }
+
     /// The banner text.
     pub fn label(self) -> &'static str {
         match self {
@@ -153,23 +163,43 @@ pub struct SatelliteResult {
     pub events: Vec<EventResult>,
 }
 
+/// A cell's kept tracking output (`EpochFiles`), present only when the campaign keeps epochs.
+/// Paths are relative to the campaign's output directory.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EpochFiles {
+    /// `csv`, `jsonl` or `binary` (`kshana.track-epoch/1`).
+    pub format: String,
+    pub path: String,
+    pub sha256: String,
+    pub bytes: u64,
+    /// The lock-event file (JSON Lines).
+    pub events_path: String,
+    pub events_sha256: String,
+}
+
 /// `cells/<key>.json`: one (recording, front-end chain, loop design) (`CellResult`).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CampaignCell {
     pub schema: String,
     pub key: String,
+    /// What the data is; part of the cell key.
+    pub data_class: DataClass,
     pub engine_version: String,
     pub recording: CellRecording,
     pub frontend: NamedHash,
     pub design: NamedHash,
     pub run_hash: String,
     pub scoring_hash: String,
-    /// How the lock state was derived (e.g. `lock-indicators`).
+    /// How the lock state was derived (`track-session`).
     pub lock_source: String,
     pub sample_rate_hz: f64,
     pub samples_processed: u64,
     pub satellites: Vec<SatelliteResult>,
+    /// The per-update tracking output, when the campaign keeps it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub epochs: Option<EpochFiles>,
 }
 
 /// A recording in the resolved campaign (`PlannedRecording`).
@@ -204,9 +234,8 @@ pub struct CampaignManifest {
     pub schema: String,
     pub name: String,
     pub engine_version: String,
-    /// Declared data class, once the engine carries it; `None` on engines that do not.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub data_class: Option<DataClass>,
+    /// What the data is (required by the engine; copied into every cell and its key).
+    pub data_class: DataClass,
     pub recordings: Vec<ManifestRecording>,
     /// `[front-end spec, hash]` pairs; the spec carries `name` and the stage parameters.
     pub frontends: Vec<(serde_json::Value, String)>,
@@ -281,6 +310,7 @@ pub struct ScoreRow {
 pub struct Scorecard {
     pub schema: String,
     pub campaign: String,
+    pub data_class: DataClass,
     pub engine_version: String,
     pub cells_total: usize,
     pub cells_present: usize,
