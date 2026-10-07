@@ -357,6 +357,14 @@ the legitimate-signal / receiving / analysis side. The following would touch the
 | F4 | **CW/chirp/pulsed waveforms added to IQ** | Jammer synthesis | Front-end mitigation tests without lab data | **Crosses the line.** Recommend NO; the frontend tests already use tones and noise as generic DSP test signals (`tests/iq_frontend.rs` header) — keep it there, never as a "jammer" product feature |
 | F5 | **Exporting scenes in a format that feeds an RF simulator / SDR transmitter** | A path to transmit | Partner might ask to load our scenes into their simulator | Policy says no format that drives radio hardware (`docs/design/GNSS-IQ-PLAN.md:24-29`); decide explicitly |
 
+**Correction (2026-10-07):** F3 and F4 are not purely hypothetical. The public engine already
+synthesises interference and spoofing signals in software in two places, outside the IQ layer.
+The `spectrum` kind's `[iq]` section, shipped since 0.29.0, draws CW, chirp and noise jammers
+into an IQ snapshot that `--export sigmf` writes to a file. `spoof_capture` adds an in-memory
+spoofer copy of GPS L1 C/A for its loop-capture model. Neither transmits. The facts and the
+counsel questions are in `commercial/export-control/CLASSIFICATION-REQUEST-PACK.md` §2.1a (items
+S4, S5, N3, N4). The founder's F3/F4 decision should cover whether these existing paths stay.
+
 Recommendation: approve **F1** (with D5 fixed and MODELLED labels) and the non-interference wording of **F2**
 (C/N0 profiles only); decline **F3–F5**.
 

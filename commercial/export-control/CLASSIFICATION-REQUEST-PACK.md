@@ -4,6 +4,12 @@
 
 **Owner:** Ashforde OÜ · **Status:** ready for export-control counsel · **Date:** 2026-09-25
 
+> **DRAFT factual update, 2026-10-07, for counsel review.** Section 2.1 described the engine as
+> containing no receiver and no signal generator. That was not accurate for the version it
+> describes (0.28.0), and is further from accurate for the released 0.32.0. The corrected facts
+> are in the new section 2.1a, with new items for counsel to screen. No legal conclusion in
+> this pack has been changed.
+
 > ## NOT A DETERMINATION
 >
 > **This document does not classify anything and is not legal or export-control
@@ -117,8 +123,13 @@ contracts, or if a German customer asks for its own classification.
     (`quantum_trade`, `quantum_devices`);
   - orbit determination, lunar and cislunar navigation and time-transfer analysis.
 - **What it does not do:**
-  - it does **not** transmit, receive or process radio signals; it contains no
-    receiver, no signal generator, no jammer and no spoofer;
+  - ~~it does **not** transmit, receive or process radio signals; it contains no
+    receiver, no signal generator, no jammer and no spoofer;~~ **Corrected 2026-10-07
+    (DRAFT, for counsel review):** it does **not** transmit and has no interface to radio
+    hardware. It **does** generate and process GNSS signals as sampled baseband data in
+    files and memory: it contains a software GNSS receiver, a GNSS signal generator,
+    front-end signal-processing (including interference mitigation), and, in two places,
+    synthesis of interference or spoofing signals in software. See section 2.1a;
   - it does **not** run on or control any hardware, and it is not firmware;
   - it does **not** decrypt any GNSS signal and has no access to any encrypted or
     governmental service (for example Galileo's Public Regulated Service or GPS
@@ -130,6 +141,85 @@ contracts, or if a German customer asks for its own classification.
     pseudo-random number generator (dependency `rand_chacha`) used for reproducible
     seeded simulation. The OSNMA module only sizes a scheme's budget: in the 0.28.0
     source it imports no cryptographic code.
+
+### 2.1a Signal-level (IQ) capabilities — factual update, 2026-10-07 (DRAFT, for counsel review)
+
+**Why this section exists.** Section 2.1 was written against 0.28.0 and said the engine
+"does not transmit, receive or process radio signals; it contains no receiver, no signal
+generator, no jammer and no spoofer". Checked against the public source on 2026-10-07,
+the last part was not accurate even for 0.28.0. The engine has gained more signal-level
+capability since then: the GNSS IQ layer arrived in 0.31.0 and reached the command line and
+Python in 0.32.0. The current published version is **0.32.0** (released 2026-10-05 on
+crates.io, PyPI, npm, the GitHub release and kshana.dev). "IQ" means sampled complex
+baseband (in-phase and quadrature) data. Every capability below works on numbers in files
+or in memory. Paths are in the public repository at tag `v0.32.0`; "since" is the first
+public release in which the capability exists.
+
+**What the engine does at the signal level**
+
+| # | Capability | Since | Evidence (public source) | What it is, factually |
+|---|---|---|---|---|
+| S1 | **Software GNSS receiver front end (single signal)** | ≤ 0.27.2 | `src/sdr.rs` (`acquire`, `track`, `correlate`) | Acquires and tracks a GPS L1 C/A signal in sampled IQ and outputs early/prompt/late correlator values. Written to score signal-quality spoofing detectors on recordings. |
+| S2 | **Single-satellite GNSS signal generator** | ≤ 0.27.2 | `src/sdr.rs` (`synth_if`, public function) | Generates a sampled GPS L1 C/A signal with noise at a chosen sample rate, carrier, code phase and amplitude. |
+| S3 | **Ingest of recorded raw IQ** | ≤ 0.27.2 | `src/realdata/iqif.rs` | Reads 8- and 16-bit IQ recordings and runs S1 on them. The module names public spoofing test recordings as its intended input. |
+| S4 | **Spoofer signal synthesised in memory for a loop-capture model** | ≤ 0.28.0 | `src/spoof_capture.rs:280-313` (private `build_composite`; public `run_capture`, `capture_map`, `capture_cube`) | Adds a spoofer copy of a GPS L1 C/A signal (with power advantage, code offset and carrier offset) to an authentic one, using S2. It then runs tracking loops and reports whether the spoofer captures them. The composite samples are not returned or written; outputs are outcomes and maps. Reachable from the `lunar-attack-surface` scenario kind. |
+| S5 | **Jammer waveforms synthesised into IQ and written to a file** | 0.29.0 | `src/spectrum.rs:827` (`synthesise_iq`); `docs/SPECTRUM.md` "IQ, SigMF and Welch"; `kshana <scenario> --export sigmf` | The `spectrum` scenario kind models a band with signals and jammers: continuous-wave, narrowband, wideband, chirp and matched noise. Its optional `[iq]` section draws a snapshot of that model as IQ samples, with noise-like jammers drawn from their spectrum and CW tones and chirps "as real waveforms". It writes the snapshot as a SigMF recording. Verified 2026-10-07 on 0.32.0: the bundled `scenarios/l-band-waterfall-jamming.toml` with `--export sigmf` wrote 65,536 complex samples at 20.48 MS/s (3.2 ms) with a 16 MHz chirp jammer and a CW tone on GPS L1 active. Parameters are inputs (power, bandwidth, sweep); none is a captured real-world waveform. |
+| S6 | **Square-law acquisition on recorded IQ (lunar flight data)** | 0.30.0 | `src/acquisition.rs` (`pcps_acquire`, `pcps_grid`), `src/realdata/ion_sdr.rs`, `src/realdata/lugre.rs` | Parallel code-phase search and carrier-to-noise estimation on public lunar-mission GNSS IQ recordings. |
+| S7 | **Multi-satellite, multi-signal GNSS IQ scene generator** | 0.31.0 (CLI and Python in 0.32.0) | `src/iq/scene/`, `src/iq/signals/`; `kshana iq scene`; Python `kshana.iq_scene`, `iq_scene_broadcast` | Generates long IQ recordings of several satellites with a per-epoch truth file. It covers 11 open-service signals: GPS L1 C/A, L5, L2C; Galileo E1-B/C, E5a; BeiDou B1I, B1C; GLONASS L1OF. Output formats include SigMF. Satellite positions can come from public broadcast ephemeris. The policy recorded in the CHANGELOG and `docs/design/GNSS-IQ-PLAN.md` is that this generator adds no interference or spoofing signals; S4 and S5 are separate modules. |
+| S8 | **Propagation effects applied to the generated signals** | 0.31.0 | `src/iq/channel/` | Ionosphere, troposphere, scintillation, multipath, land-mobile fading and blocked line of sight, applied to the legitimate signals only. |
+| S9 | **Multi-channel software GNSS receiver (acquisition and tracking)** | 0.31.0 (CLI and Python in 0.32.0) | `src/iq/acq.rs`, `src/iq/track/`; `kshana iq acquire/track/sweep`; Python `iq_acquire`, `iq_track` | FFT acquisition and a bank of configurable carrier and code tracking loops on recorded or generated IQ, for the 11 signals above. It replays one recording through many loop designs. |
+| S10 | **Front-end and interference-mitigation signal processing** | 0.31.0 (CLI and Python in 0.32.0) | `src/iq/frontend/`; `kshana iq frontend`; Python `iq_frontend` | Band-pass filtering, adaptive notch filtering, pulse blanking, frequency-domain excision, automatic gain control and quantisation. Notch filtering, blanking and excision are standard interference-mitigation techniques. |
+| S11 | **Large-recording handling** | 0.31.0 | `src/iq/io/` | Streams multi-file and SigMF recordings in bounded memory; format conversion, resampling, hashing. |
+| S12 | **Fit of a receiver loss-of-lock model to lab runs** | 0.31.0 (CLI and Python in 0.32.0) | `src/iq/labfit/`; `kshana iq labfit` | Fits a tracking-loop model to a real receiver's logs from lab jamming runs, with stated hold-out error. |
+
+**What the engine does not do (checked 2026-10-07 against 0.32.0)**
+
+- It does **not transmit** and has **no interface to radio hardware**. Its dependency list
+  contains no radio or SDR driver, and output is files only (`docs/design/GNSS-IQ-PLAN.md`,
+  "Out of scope").
+- It does **not capture live RF**. It reads recordings that already exist.
+- It does **not decrypt** any GNSS signal; it has no encrypted or governmental codes
+  (for example GPS P(Y)/M or Galileo PRS). All 11 signals are open-service.
+- It contains **no captured real-world threat waveform library**. S4 and S5 build their
+  interference and spoofing signals from parameters supplied as inputs.
+
+**Planned (not released), for counsel to see before they ship**
+
+- **0.33.0 (open pull requests):** the IQ tools above exposed through the engine's MCP
+  server, which lets AI agents drive them on files in a set directory; new validation
+  ledger rows; and a change to the tracking hand-off default.
+- **0.34.0 (proposed, see `commercial/partners/RECEIVER-TEST-PARTNER-GAP-ANALYSIS.md`):**
+  - receiver-side jamming and spoofing **detection monitors** on IQ (power/AGC,
+    carrier-to-noise drop, signal-quality metrics, spectral excess);
+  - a **campaign runner** that replays a partner's lab recordings, made under jammer and
+    spoofer test conditions, through many loop designs and mitigation chains;
+  - **scoring** of loop response against the stated test conditions: time to lose lock,
+    time to re-acquire, carrier-to-noise degradation against stated jammer-to-signal
+    ratio, detector time-to-detect and false-alarm rate.
+
+  The partner's recordings and results would be under NDA and kept outside the public
+  repository.
+
+**New items for counsel to screen** (additions to the list in section 3; not conclusions)
+
+| # | Item | Why it needs screening |
+|---|---|---|
+| N1 | The software receiver and front-end mitigation (S1, S3, S6, S9, S10) | Category 7 software (7D) for GNSS receiving equipment, and the adaptive-antenna/anti-jam entry already listed as row 3. Is open-source receiver and mitigation software that runs on recordings within any entry, and does "in the public domain" (row 1) cover it? |
+| N2 | The GNSS signal generators (S2, S7, S8) | Whether software that generates GNSS signal recordings is within any entry, for example signal-generator or simulator software, or navigation technology. |
+| N3 | **Jammer waveform synthesis to file (S5)** | ML11 (military electronic equipment, including jamming) and related software and technology (ML21, ML22), already row 9. Does a published, parameter-driven jammer snapshot written to a data file (no transmit) fall within any entry? This also bears on the company's own policy wording ("no jammer"). |
+| N4 | **Spoofer signal synthesis in memory (S4)** | The same as N3, for spoofing. |
+| N5 | Agent access through MCP (0.33.0) | Whether exposing S7–S12 to AI agents changes anything (for example intangible transfer, or end-use screening for hosted use). |
+| N6 | **Partner work under the planned 0.34.0** | Analysing a partner's lab recordings of receivers under jammer and spoofer tests, and producing scored anti-jam and anti-spoof performance results. Operating rule 3 in section 5 and gate 3 of `legal/EXPORT-CONTROL-ASSESSMENT.md` say no anti-jam or anti-spoof performance data and no adversary waveforms enter any repository. Counsel should say whether partner recordings and the resulting scores are such data, and how they must be held. |
+
+**Questions added for counsel**
+
+- **A4.** Does the public engine's signal-level capability (S1–S12) change the answer to B1
+  (public domain), or bring any module within section 3 rows 2, 3 or 9 or the new items N1–N4?
+- **A5.** Is a jammer or spoofer signal synthesised **in software only**, never transmitted
+  (S4, S5), a "jammer" or "spoofer" in the sense of any entry? Should the public engine keep
+  S5's file export?
+- **A6.** For the planned partner work (N6), what handling, access control and record-keeping
+  apply to recordings and scores, and must any authorisation be in place first?
 
 ### 2.2 The private overlay: Kshana Pro
 
@@ -293,3 +383,4 @@ These restate, and do not loosen, `legal/EXPORT-CONTROL-ASSESSMENT.md` section 3
 | Date | Step | By | Outcome |
 |---|---|---|---|
 | 2026-09-25 | Pack prepared; BAFA AzG exclusion for foreign companies found | Ashforde OÜ | Authority question E1 opened |
+| 2026-10-07 | DRAFT factual update: section 2.1 receiver/generator claim corrected; section 2.1a added (S1–S12, N1–N6, A4–A6) | Ashforde OÜ | For counsel review; no conclusion changed |
