@@ -5,6 +5,17 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Lab campaign report, step L1 + data-hygiene guard (L6)** (plan
+  `docs/plans/2026-10-07-lab-campaign-report-plan.md`). New `lab_campaign` module reads the
+  engine's 0.34.0 lab-replay output (`campaign.json`, `cells/<key>.json`, `DIGEST`; public
+  `docs/design/LAB-CAMPAIGN.md`) into strict serde mirror types. Before anything is rendered it
+  re-derives every cell key, recomputes the DIGEST, and checks the schema versions, engine
+  version and campaign membership, and that the `MODELLED` label is on the reference curve.
+  An incomplete campaign is reported, not hidden. `campaign.json`'s shape and the DIGEST byte
+  form are provisional until the engine side confirms them. Export-control item N6: a new guard
+  test fails on any campaign or test-condition document outside the synthetic fixtures, and on
+  any SigMF recording anywhere; `.gitignore` blocks campaign output. Fixture: a hand-made
+  synthetic campaign (2 recordings × 2 chains × 3 designs), written by `make_fixture.py`.
 - **Open engine 0.32.0** (PR 5, merge `586517f`; `68c64c1`). The `kshana` pin moves from
   `=0.29.0` to the published `=0.32.0` (crates.io) with its lockfile; the engine changes
   since 0.29.0 are additive and no overlay source needed changing. The six version-stamped

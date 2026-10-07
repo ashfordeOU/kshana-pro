@@ -1,0 +1,76 @@
+{
+  "design": {
+    "hash": "2c23aae8f7818f876c9961f196ae489b905ca4704d9d936d67a0500420cb5156",
+    "name": "narrow-pll"
+  },
+  "engine_version": "0.34.0",
+  "frontend": {
+    "hash": "519d5427513015422061324e12ba9ac591701971d5e3563157cd54dc845f4011",
+    "name": "raw"
+  },
+  "key": "924ca0c1504bc17a8ca0d64852ae17f487001d67ea2854f0c670bb9ff6fb81d1",
+  "recording": {
+    "conditions_hash": "3b9e0849714ad14557d74b98b89e857b41cd4c97946093398e03a914093ac155",
+    "id": "synthetic-rec-b",
+    "sha256": "98283c4868c4617e0d8d6bf7fd509e648c06912a00b05514c359f0b602f29d30"
+  },
+  "run_hash": "5b1e8dce46a640dd80083b9e55f9ead463cc80ad112872b2950aaa3cce9b3ab5",
+  "samples_processed": 1227600000,
+  "satellites": [
+    {
+      "events": [
+        {
+          "availability": 0.0,
+          "cn0_curve": [],
+          "dll_jitter_chips": null,
+          "event_id": "gap-1",
+          "false_lock_episodes": 0,
+          "js_at_loss_db": null,
+          "lost": true,
+          "modelled": null,
+          "pass": {},
+          "pll_jitter_deg": null,
+          "reacq_time_s": 2.25,
+          "reacquired": true,
+          "time_to_loss_s": 0.5,
+          "type": "unknown"
+        }
+      ],
+      "id": 6,
+      "signal": "gps-l1ca",
+      "whole_run": {
+        "availability": 0.88,
+        "baseline_cn0_dbhz": 45.0,
+        "code_lock_frac": 0.91,
+        "dll_jitter_chips": 0.012,
+        "false_lock_episodes": 0,
+        "false_lock_per_hour": 0.0,
+        "locked_s": 240.0,
+        "loss_count": 1,
+        "phase_lock_frac": 0.87,
+        "pll_jitter_deg": 3.0,
+        "reacq_count": 1
+      }
+    },
+    {
+      "events": [],
+      "id": 22,
+      "signal": "gps-l1ca",
+      "whole_run": {
+        "availability": 0.98,
+        "baseline_cn0_dbhz": 45.0,
+        "code_lock_frac": 0.99,
+        "dll_jitter_chips": 0.012,
+        "false_lock_episodes": 0,
+        "false_lock_per_hour": 0.0,
+        "locked_s": 270.0,
+        "loss_count": 0,
+        "phase_lock_frac": 0.97,
+        "pll_jitter_deg": 3.0,
+        "reacq_count": 0
+      }
+    }
+  ],
+  "schema": "kshana.campaign-cell/1",
+  "scoring_hash": "c25b139d718e24c5bd829c7271d27cdc3cc37ff7e89b21bef421fafd95b61a9b"
+}

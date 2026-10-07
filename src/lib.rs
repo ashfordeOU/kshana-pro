@@ -35,6 +35,7 @@ pub mod benefits;
 pub mod brand_pdf;
 pub mod connectors;
 pub mod design;
+pub mod lab_campaign;
 pub mod license;
 pub mod lunar_oed;
 pub mod mbse;

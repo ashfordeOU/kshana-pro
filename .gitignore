@@ -37,3 +37,15 @@ Cargo.lock.orig
 # Dated ledger snapshots taken by hand before a gap-audit re-run. The ledger
 # itself is tracked; these are local rollback copies.
 *.bak-*
+
+# Lab campaign outputs (engine `kshana iq campaign`). Client recordings, campaign results and
+# scores must never be committed: export-control item N6
+# (commercial/export-control/CLASSIFICATION-REQUEST-PACK.md §2.1a). Only the synthetic test
+# fixtures under tests/fixtures/lab_campaign_synthetic/ are tracked, and
+# tests/lab_campaign_no_client_data.rs enforces it.
+/lab-campaigns/
+**/campaign-out/
+*.sigmf-data
+*.sigmf-meta
+**/cells/*.json
+!tests/fixtures/lab_campaign_synthetic/**
