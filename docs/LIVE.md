@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:20:12Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:21:36Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:21:36 [W2] kshana PR 52 → 2e409d35: critic nits done (the mutation test now targets the loosest |x|/row-scale entry; CHANGELOG 'eight pins in seven test files'); NEAR_BIT 1e-5 meta-check still fails all 3; test-only, so the Mac probe on e266eed stays representative. CI restarted.
 - 21:20:12 [W5] restack pushed: #44 0b484880 (⊃ #38 79ff31e7), #48 dfb7b788 (⊃ #44), #50 4d5763de (⊃ #48 + sat_id limitation note); all clean on main 2ef6541; gates green (iq_cli 16/16, lib iq 95/95). Handover 7f6688c. Old W5 archived; W5 successor (Sonnet 5.5) spawned for the critic fixes (#48 10 ms discrimination, #50 if_hz CHANGELOG note), then D5 (a2) stacked on #50, then D8–D10. Critic re-checks the #44 restack.
 - 21:18:43 [W8] handed over (06d5eab): #43 0020a769 all 20 checks green; #49 c6f1579f (temp-path guard fix, main merged, cli/mod.rs conflict resolved; CI pending); feat/034-cn0-profiles 973485b1 (no PR yet). Old W8 archived; W8 successor (Sonnet 5.5) spawned.
 - 21:18:04 [CRITIC] kshana PR 52 @e266eed: MERGE (no oracle tolerance or bar changed; the scale always comes from the fixture; the mutation tests fail at NEAR_BIT 1e-5; the loosest row-relative entry is 1.71e-6 in the rank fixture). Nits → W2 now (mutate the loosest point; CHANGELOG 'eight pins in seven files').
