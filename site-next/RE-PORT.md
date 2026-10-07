@@ -133,9 +133,10 @@ python3 src/tools/gen_developers_data.py
 
 New kinds, tools or scenario files also need a row in `$SN/features/placements.toml`
 (`python3 $SN/features/check_features.py` names each as UNPLACED or UNREGISTERED; run it after
-`build.py`, it reads the built pages). At 0.32.0 eleven are UNPLACED: `cli:iq`, the eight
-`python.iq_*`/`python.receiver_trust` bindings, `wasm.receiver_trust` and the MCP tool
-`assess_receiver_log`. Placing them is an editorial decision; 0.33.0 adds PR 34's MCP IQ tools.
+`build.py`, it reads the built pages). The eleven 0.32.0 features that were UNPLACED (`cli:iq`, the
+eight `python.iq_*`/`python.receiver_trust` bindings, `wasm.receiver_trust` and the MCP tool
+`assess_receiver_log`) now have rows; nine of them stay NOT_SHOWN until the public
+`docs/PYTHON_API.md` surface and the npm usage text list them. 0.33.0 adds PR 34's MCP IQ tools.
 
 **Every recorder records `git rev-parse HEAD` of T, and `build.py` refuses recordings from any other
 commit.** So everything that changes T (the bump itself, the docs prose below, the README images)
