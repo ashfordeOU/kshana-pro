@@ -1,4 +1,4 @@
-Updated: 2026-10-07T13:05:38Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T13:05:43Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -74,6 +74,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:05:43 [RUNNER] PR 35 @bb7edf87: all gates before test --all are 0 (guards, check-paper, site.test.mjs, doc_sync 51/51, clippy); native full suite running (slow: debug orbit fits), no failures so far. PR 38 quick checks started 13:05. Decision: no extra native full suite for 34/38 (CI check job is authoritative); native only to reproduce a CI red.
 - 13:04:56 W1 opened kshana PR 38 (iq_track default); runner queued (incl. full root suite).
 - 13:04:34 [W1] PR 38 opened (iq_track auto ≈4 ms hand-off, stacked on 34) @ d5d6708; local gates green incl. stubtest + pytest.
 - 13:03:55 W2 rehearsal STARTED: public bd05a276 (main+PR 37) + kshana-pro d7b2313 (RE-PORT.md), scratch worktrees; kshana-pro push attached (push_check ok); building wasm-pack 0.13.1 from source; step 1 (release engine, MCP, wasm) + fetch_cs5071a running detached.
