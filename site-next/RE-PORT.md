@@ -47,6 +47,16 @@ S=$SN/explorations/2026-10-01-studio-rebuild # the Studio (src/data/sources.json
 export KSHANA_REPO=$T KSHANA_DOCS_REPO=$T KSHANA_ENGINE_TREE=$T
 ```
 
+**Git LFS first.** The Studio's package (`pkg/kshana_bg.wasm`), its 133 native recordings
+(`native/*.gz`), the site's images and fonts are LFS objects (`.gitattributes`). A clone that
+skipped LFS (a cloud container without `git lfs install`) holds pointer files instead: the
+Studio's `selfcheck.mjs` stops with `Git LFS objects are not checked out`, and the module tests
+otherwise die in zlib (`incorrect header check`). Before anything else:
+
+```sh
+cd $P && git lfs install && git lfs pull --include='site-next/**'
+```
+
 `src/data/sources.json` says `~/Code/kshana`; the three variables override it, so no edit is
 needed. `build.py` also reads the public Pro wording from `src/data/pro-power.json`'s
 `public_text.checkout` (`~/Code/kshana-wt-pro-public`) at a fixed public commit; without that path
