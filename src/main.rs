@@ -29,7 +29,7 @@ fn usage() -> &'static str {
        kshana-pro ci --pack <manifest.toml> [--baseline <ci.json>] [--thresholds <spec>] [--utc <iso>] [--customer <name>] [--out <report.html>] [--json <ci.json>] [--history <history.jsonl>] [--trend <trend.html>] [--exact] [--license <token>] [--dev]   Run a Pack C scenario-subscription CI, with campaign watch (Pro)\n\
        kshana-pro ci history verify <history.jsonl>                  Verify a campaign-watch history chain (Pro)\n\
        kshana-pro ci diff <old ci.json> <new ci.json> [--json <out>]  List every figure that moved between two CI reports (Pro)\n\
-       kshana-pro lab-report <campaign-out-dir> --data-class <synthetic|client-confidential> --html <out.html> [--client <name>] [--doc-id <id>] [--utc <iso>] [--allow-incomplete] [--license <token>] [--dev]   Branded lab campaign report from `kshana iq campaign` output (Pro)\n\
+       kshana-pro lab-report <campaign-out-dir> --data-class <synthetic|client-confidential> --html <out.html> [--pdf <out.pdf>] [--client <name>] [--doc-id <id>] [--utc <iso>] [--allow-incomplete] [--license <token>] [--dev]   Branded lab campaign report from `kshana iq campaign` output (Pro)\n\
        kshana-pro study --dossier <scenario.toml> --out <dir> [--utc <iso>] [--license <token>] [--dev]   Reproducible study dossier, HTML + JSON (Pro)\n\
        kshana-pro mbse <import|trace|vcrm|sysml|impact|pack> ... [--license <token>] [--dev]   Requirements, traceability, VCRM, SysML v2, change impact, evidence pack (Pro; `kshana-pro mbse` for details)\n\
        kshana-pro design <study.toml> --out <dir> [--threads <n>] [--license <token>] [--dev]   Pareto front of a design space over any open kind (Enterprise; `kshana-pro design` for details)\n\
@@ -719,6 +719,21 @@ fn lab_report_cmd(args: &[String]) -> ExitCode {
     opts.doc_id = flag(args, "--doc-id");
     opts.prepared_utc = flag(args, "--utc");
     opts.allow_incomplete = has_flag(args, "--allow-incomplete");
+    if let Some(pdf_out) = flag(args, "--pdf") {
+        match kshana_pro::report_lab_campaign_pdf::render_pdf(&campaign, &opts) {
+            Ok(bytes) => {
+                if let Err(e) = std::fs::write(&pdf_out, &bytes) {
+                    eprintln!("error: could not write {pdf_out}: {e}");
+                    return ExitCode::FAILURE;
+                }
+                eprintln!("[wrote {pdf_out}: {} bytes]", bytes.len());
+            }
+            Err(e) => {
+                eprintln!("error: {e}");
+                return ExitCode::FAILURE;
+            }
+        }
+    }
     match render_html(&campaign, &opts) {
         Ok(html) => match std::fs::write(&out, html.as_bytes()) {
             Ok(()) => {

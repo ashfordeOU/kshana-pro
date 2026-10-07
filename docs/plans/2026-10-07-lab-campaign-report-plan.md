@@ -1,6 +1,6 @@
 # Pro lab campaign report — plan (PLAN ONLY, nothing built)
 
-**Status:** plan APPROVED by the coordinator (2026-10-07). Building L1–L6 on synthetic fixtures; L6 (guard) and L1 (loader) done.
+**Status:** plan APPROVED by the coordinator (2026-10-07). L1–L6 built on synthetic fixtures (PR 17): guard, loader, aggregation, HTML, PDF, command. L7 and L8 wait for the 0.34.0 engine release.
 **Input contract:** the engine's lab-replay results, as proposed in public `kshana` branch
 `feat/034-campaign`, `docs/design/LAB-CAMPAIGN.md` @ `f69efe9` (0.34.0 "Lab replay"):
 `campaign.json`, `cells/<key>.json` (`kshana.campaign-cell/1`), `scorecard.csv/json`,

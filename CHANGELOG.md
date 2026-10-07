@@ -30,6 +30,10 @@ own bullet so parallel work merges cleanly.
   (Pro entitlement, as `study`). It refuses a data-class mismatch and an incomplete campaign
   unless `--allow-incomplete` is given. A client name appears only from `--client`, and
   client-confidential renders carry the export-control notice placeholder (N6).
+  Step L4 (`report_lab_campaign_pdf`) is the A4 PDF edition (`--pdf <out.pdf>`). It has the
+  same sections and the same summary sentences, from one shared builder, with the curves as
+  tables. Table headers stay with their rows, and a subheading never ends a page. Two renders
+  are byte-identical apart from printpdf's random trailer `/ID`.
 - **Open engine 0.32.0** (PR 5, merge `586517f`; `68c64c1`). The `kshana` pin moves from
   `=0.29.0` to the published `=0.32.0` (crates.io) with its lockfile; the engine changes
   since 0.29.0 are additive and no overlay source needed changing. The six version-stamped
