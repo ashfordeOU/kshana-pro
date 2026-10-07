@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:56:00Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:56:35Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:56:35 21:56Z W7: check-no-attribution clean on #46 @67b122a (full history). Holding for the final #45 sha and the #44 merge.
 - 21:56:00 21:55Z W7 pushed the #46 critic fixes @67b122a. MCP campaign paths are now contained before any read (round-trip test; bites on the old loader). Positive stale-detection test added (bites with design_hash dropped from the key). Docs corrected; atomic --json. Item 1 (re-pin after #45) and the main merge are still pending.
 - 21:55:36 21:55Z W6 (graphics): fmt OK on 0a6c3b6; local full test run too slow on 4 cores. Told to open the PR after the cheap gates, with public CI as the full run. Coordinator heartbeat restarted after a container restart.
 - 21:43:24 21:43Z W8 pushed the #53 critic fixes @457a0db (docs: bars vs measured; truth-exact condition; fade mean dB). Coordinator updated the #53 body to match, with an MCP follow-up line. Held for 0.34.
