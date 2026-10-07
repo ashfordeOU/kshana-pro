@@ -16,6 +16,11 @@ own bullet so parallel work merges cleanly.
   test fails on any campaign or test-condition document outside the synthetic fixtures, and on
   any SigMF recording anywhere; `.gitignore` blocks campaign output. Fixture: a hand-made
   synthetic campaign (2 recordings × 2 chains × 3 designs), written by `make_fixture.py`.
+  Step L2 (`lab_campaign::aggregate`) selects and orders the cells' numbers for the report.
+  It computes no metric. Every derived figure is a declared median, sum, count or ratio of
+  sums, and carries its input count. Scorecard metrics are whole-run per (chain, design);
+  event metrics stay per event, so a jamming ramp and an outage are never pooled.
+  J/S bins with no locked epochs stay visible next to their MODELLED value.
 - **Open engine 0.32.0** (PR 5, merge `586517f`; `68c64c1`). The `kshana` pin moves from
   `=0.29.0` to the published `=0.32.0` (crates.io) with its lockfile; the engine changes
   since 0.29.0 are additive and no overlay source needed changing. The six version-stamped
