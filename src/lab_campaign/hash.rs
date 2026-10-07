@@ -1,13 +1,10 @@
-//! Content hashes of the lab-replay results, as the engine defines them.
+//! Content hashes of the lab-replay results, exactly as the engine computes them.
 //!
 //! Canonical JSON is `serde_json`'s compact form of a `serde_json::Value`, with object keys
 //! sorted (this crate graph does not enable `preserve_order`) and shortest round-trip floats,
-//! matching the engine's `iq::campaign::hash` (public `kshana` `feat/034-campaign`).
-//!
-//! [`digest`] is **provisional**. LAB-CAMPAIGN.md §3 defines DIGEST as "SHA-256 over the sorted
-//! (key, sha256(cell file)) list" without fixing the byte form. Here it is the SHA-256 of the
-//! canonical JSON of `[[key, sha256], …]` sorted by key. A request is with the engine side to
-//! make its own function public; once it is, this module calls it instead.
+//! matching the engine's `iq::campaign::hash` (public `kshana`, `feat/034-campaign` @ `da95b9c`).
+//! The cell key is `runner::cell_key` and the DIGEST is `report::build` on that branch. Once the
+//! engine is published at 0.34.0 and pinned here, these call the engine's own functions.
 
 use super::model::CampaignCell;
 use sha2::{Digest, Sha256};
@@ -27,12 +24,16 @@ pub fn canonical_hash(v: &serde_json::Value) -> String {
     sha256_hex(canonical_json(v).as_bytes())
 }
 
-/// A cell's key, re-derived from its own inputs (LAB-CAMPAIGN.md §2, "Cells").
+/// A cell's key, re-derived from the fields the cell itself records (engine `runner::cell_key`).
 pub fn cell_key(c: &CampaignCell) -> String {
     canonical_hash(&serde_json::json!({
+        "schema": c.schema,
+        "recording_id": c.recording.id,
         "recording_sha256": c.recording.sha256,
         "conditions_hash": c.recording.conditions_hash,
+        "frontend": c.frontend.name,
         "frontend_hash": c.frontend.hash,
+        "design": c.design.name,
         "design_hash": c.design.hash,
         "run_hash": c.run_hash,
         "scoring_hash": c.scoring_hash,
@@ -40,15 +41,16 @@ pub fn cell_key(c: &CampaignCell) -> String {
     }))
 }
 
-/// The campaign DIGEST over `(key, sha256 of the cell file)` pairs (PROVISIONAL form).
+/// The campaign DIGEST (engine `report::build`): SHA-256 of the concatenation, in sorted order,
+/// of one line `"<cell key> <sha256 of the cell file's bytes>\n"` per cell. The engine writes it
+/// only when every planned cell is present.
 pub fn digest<'a>(pairs: impl IntoIterator<Item = (&'a str, &'a str)>) -> String {
-    let mut v: Vec<(&str, &str)> = pairs.into_iter().collect();
-    v.sort();
-    let arr: Vec<serde_json::Value> = v
+    let mut lines: Vec<String> = pairs
         .into_iter()
-        .map(|(k, s)| serde_json::json!([k, s]))
+        .map(|(k, s)| format!("{k} {s}\n"))
         .collect();
-    canonical_hash(&serde_json::Value::Array(arr))
+    lines.sort();
+    sha256_hex(lines.concat().as_bytes())
 }
 
 #[cfg(test)]
@@ -63,10 +65,10 @@ mod tests {
     }
 
     #[test]
-    fn digest_does_not_depend_on_input_order() {
+    fn digest_is_order_free_and_uses_the_engine_line_form() {
         let x = digest([("b", "2"), ("a", "1")]);
-        let y = digest([("a", "1"), ("b", "2")]);
-        assert_eq!(x, y);
-        assert_ne!(x, digest([("a", "1")]));
+        assert_eq!(x, digest([("a", "1"), ("b", "2")]));
+        // The byte form is the sorted lines, concatenated.
+        assert_eq!(x, sha256_hex(b"a 1\nb 2\n"));
     }
 }

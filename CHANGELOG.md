@@ -34,6 +34,17 @@ own bullet so parallel work merges cleanly.
   same sections and the same summary sentences, from one shared builder, with the curves as
   tables. Table headers stay with their rows, and a subheading never ends a page. Two renders
   are byte-identical apart from printpdf's random trailer `/ID`.
+  **Realigned to the engine's real output** (`feat/034-campaign` @ `da95b9c`; the provisional
+  markers are gone):
+  - the mirror types are the engine's own structs: `kshana.campaign-plan/1`, cells with
+    hand-off and lock source, and `kshana.campaign-scorecard/1`;
+  - the cell key and the DIGEST use the engine's exact formulas;
+  - pass/fail shows the engine's verdicts from `scorecard.json`, counted and never recomputed;
+  - the method section states the cells' lock source and what it implies;
+  - the fixture is regenerated as real engine output on synthetic recordings (`make_fixture.py`).
+
+  `data_class` is cross-checked when the engine carries it. Re-pin when the canonical design
+  hash lands and at 0.34.0.
 - **Open engine 0.32.0** (PR 5, merge `586517f`; `68c64c1`). The `kshana` pin moves from
   `=0.29.0` to the published `=0.32.0` (crates.io) with its lockfile; the engine changes
   since 0.29.0 are additive and no overlay source needed changing. The six version-stamped

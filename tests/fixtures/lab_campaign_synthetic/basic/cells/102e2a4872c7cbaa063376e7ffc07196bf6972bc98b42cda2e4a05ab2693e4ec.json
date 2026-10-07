@@ -1,0 +1,173 @@
+{
+  "design": {
+    "hash": "e846b802a63808e61d7bac077a05c5a08889356c91a01dd97e922e54782830b5",
+    "name": "baseline"
+  },
+  "engine_version": "0.32.0",
+  "frontend": {
+    "hash": "e015d238c0a790e588996bb468d17cd806681a3cba558a308b298d1b68986c41",
+    "name": "raw"
+  },
+  "key": "102e2a4872c7cbaa063376e7ffc07196bf6972bc98b42cda2e4a05ab2693e4ec",
+  "lock_source": "lock-indicators",
+  "recording": {
+    "conditions_hash": "a23ce5d058053fd6095cffc444d67e689f635b8ec2b58c18684d213af197e676",
+    "id": "synthetic-ramp",
+    "sha256": "a9d8f7a7f64032fde671e335df3b14ba842a0abbd748c86d0f61e8535c922ff6"
+  },
+  "run_hash": "c2f008aa9053bc1948a5860c3067ed09ebb5bf98f1e13164cbcd144ecb897fcb",
+  "sample_rate_hz": 4092000.0,
+  "samples_processed": 65472000,
+  "satellites": [
+    {
+      "events": [
+        {
+          "availability": 0.6351250156783959,
+          "baseline_cn0_dbhz": 44.625,
+          "baseline_dll_jitter_chips": 0.07065842555360927,
+          "baseline_pll_jitter_deg": 7.543550916850151,
+          "baseline_source": "measured",
+          "cn0_curve": [
+            {
+              "js_db": 20.0,
+              "measured_cn0_dbhz": 38.575,
+              "measured_degradation_db": 6.049999999999997,
+              "modelled_cn0_dbhz": 38.78681920242005,
+              "modelled_degradation_db": 5.838180797579952,
+              "n": 4000
+            },
+            {
+              "js_db": 30.0,
+              "measured_cn0_dbhz": 30.375,
+              "measured_degradation_db": 14.25,
+              "modelled_cn0_dbhz": 29.948230205705805,
+              "modelled_degradation_db": 14.676769794294195,
+              "n": 1081
+            }
+          ],
+          "dll_jitter_chips": 0.13846600980033197,
+          "event_id": "ramp-1",
+          "false_lock_episodes": 0,
+          "js_at_loss_db": 30.0,
+          "kind": "interference",
+          "locked_at_onset": true,
+          "lost": true,
+          "modelled": {
+            "chip_rate_hz": 1023000.0,
+            "formula": "(C/N0)eff = [1/(C/N0) + (J/S)/(Q*Rc)]^-1",
+            "label": "MODELLED",
+            "q": 1.0,
+            "q_source": "type-table"
+          },
+          "offset_s": 12.0,
+          "onset_s": 4.0,
+          "outage_s": 3.227997443386304,
+          "pll_jitter_deg": 26.962003609751143,
+          "reacq_time_s": 0.309703055996577,
+          "reacquired": true,
+          "time_to_loss_s": 5.081705612610273,
+          "type": "broadband"
+        }
+      ],
+      "handoff": {
+        "code_phase_chips": 293.75,
+        "doppler_hz": 1333.3333333333333,
+        "source": "acquired",
+        "statistic": 161.58003201414445,
+        "threshold": 38.66983609955844
+      },
+      "id": 3,
+      "signal": "gps-l1ca",
+      "whole_run": {
+        "availability": 0.781533338141713,
+        "code_lock_frac": 0.7746666659933459,
+        "dll_jitter_chips": 0.068120947897917,
+        "false_lock_episodes": 0,
+        "false_lock_per_hour": 0.0,
+        "locked_s": 11.722990713586439,
+        "loss_count": 1,
+        "median_cn0_dbhz": 44.625,
+        "phase_lock_frac": 0.7213333226676265,
+        "pll_jitter_deg": 7.603972398939186,
+        "reacq_count": 1,
+        "scored_s": 14.999988025412609
+      }
+    },
+    {
+      "events": [
+        {
+          "availability": 0.6374999816715067,
+          "baseline_cn0_dbhz": 44.475,
+          "baseline_dll_jitter_chips": 0.06979158765950427,
+          "baseline_pll_jitter_deg": 7.810662486963425,
+          "baseline_source": "measured",
+          "cn0_curve": [
+            {
+              "js_db": 20.0,
+              "measured_cn0_dbhz": 38.475,
+              "measured_degradation_db": 6.0,
+              "modelled_cn0_dbhz": 38.747208483519245,
+              "modelled_degradation_db": 5.727791516480757,
+              "n": 4000
+            },
+            {
+              "js_db": 30.0,
+              "measured_cn0_dbhz": 30.275000000000002,
+              "measured_degradation_db": 14.2,
+              "modelled_cn0_dbhz": 29.9430341232271,
+              "modelled_degradation_db": 14.531965876772901,
+              "n": 1100
+            }
+          ],
+          "dll_jitter_chips": 0.1420041314779132,
+          "event_id": "ramp-1",
+          "false_lock_episodes": 0,
+          "js_at_loss_db": 30.0,
+          "kind": "interference",
+          "locked_at_onset": true,
+          "lost": true,
+          "modelled": {
+            "chip_rate_hz": 1023000.0,
+            "formula": "(C/N0)eff = [1/(C/N0) + (J/S)/(Q*Rc)]^-1",
+            "label": "MODELLED",
+            "q": 1.0,
+            "q_source": "type-table"
+          },
+          "offset_s": 12.0,
+          "onset_s": 4.0,
+          "outage_s": 3.2090047041891214,
+          "pll_jitter_deg": 28.702551472590162,
+          "reacq_time_s": 0.30973147816892244,
+          "reacquired": true,
+          "time_to_loss_s": 5.100726773979801,
+          "type": "broadband"
+        }
+      ],
+      "handoff": {
+        "code_phase_chips": 293.0,
+        "doppler_hz": -2333.333333333333,
+        "source": "acquired",
+        "statistic": 231.77621831425878,
+        "threshold": 38.66983609955844
+      },
+      "id": 11,
+      "signal": "gps-l1ca",
+      "whole_run": {
+        "availability": 0.7827999926361263,
+        "code_lock_frac": 0.7813333281199947,
+        "dll_jitter_chips": 0.06853226709937817,
+        "false_lock_episodes": 0,
+        "false_lock_per_hour": 0.0,
+        "locked_s": 11.742017106548309,
+        "loss_count": 1,
+        "median_cn0_dbhz": 44.425000000000004,
+        "phase_lock_frac": 0.6986666849137338,
+        "pll_jitter_deg": 7.715107877103694,
+        "reacq_count": 1,
+        "scored_s": 15.000021994132059
+      }
+    }
+  ],
+  "schema": "kshana.campaign-cell/1",
+  "scoring_hash": "6fe5ecc249f2730dc12209bf0d3299b24a40068d45f09cc067724b2d4436c2f2"
+}

@@ -13,7 +13,8 @@ use crate::lab_campaign::model::DataClass;
 use crate::lab_campaign::LoadedCampaign;
 use crate::report_brand as brand;
 use crate::report_lab_campaign::{
-    check, summary, LabReportOptions, RenderError, CAVEATS, DEFINITIONS, EXPORT_NOTICE_PLACEHOLDER,
+    check, lock_source_note, summary, without, LabReportOptions, RenderError, CAVEATS, DEFINITIONS,
+    EXPORT_NOTICE_PLACEHOLDER,
 };
 use crate::report_pdf::{
     rgb, sans, sans_bold, serif, serif_bold, wrap, Layout, CONTENT_W_MM, MARGIN_MM,
@@ -126,7 +127,7 @@ pub fn render_pdf(c: &LoadedCampaign, o: &LabReportOptions) -> Result<Vec<u8>, S
     curves_section(&mut l, &a);
     stability_section(&mut l, &a);
     pass_fail_section(&mut l, c, &a);
-    method_section(&mut l);
+    method_section(&mut l, c);
     provenance_section(&mut l, c);
     limits_section(&mut l, o);
     appendix(&mut l, c);
@@ -314,24 +315,56 @@ fn matrix_section(l: &mut Layout, c: &LoadedCampaign) {
     );
     sub(l, "Front-end chains and loop designs");
     let mut rows = Vec::new();
-    for f in &c.manifest.frontends {
-        rows.push(vec!["chain".into(), f.name.clone(), params(&f.params)]);
+    for (spec, _) in &c.manifest.frontends {
+        let name = spec
+            .get("name")
+            .and_then(|n| n.as_str())
+            .unwrap_or("?")
+            .to_owned();
+        rows.push(vec![
+            "chain".into(),
+            name,
+            params(&without(spec, &["name"])),
+        ]);
     }
     for d in &c.manifest.designs {
-        rows.push(vec!["design".into(), d.name.clone(), params(&d.params)]);
+        let name = d
+            .get("name")
+            .and_then(|n| n.as_str())
+            .unwrap_or("?")
+            .to_owned();
+        rows.push(vec![
+            "design".into(),
+            name,
+            params(&without(d, &["name", "hash", "schema"])),
+        ]);
     }
     table(l, &[0.6, 1.0, 4.0], &["Input", "Name", "Parameters"], &rows);
 }
 
 fn params(v: &serde_json::Value) -> String {
-    match v.as_object() {
-        Some(m) if m.is_empty() => "empty chain".into(),
-        Some(m) => m
-            .iter()
-            .map(|(k, v)| format!("{k}={}", v.to_string().trim_matches('"')))
-            .collect::<Vec<_>>()
-            .join(", "),
-        None => v.to_string(),
+    fn flat(prefix: &str, v: &serde_json::Value, out: &mut Vec<String>) {
+        match v {
+            serde_json::Value::Object(m) => {
+                for (k, x) in m {
+                    let p = if prefix.is_empty() {
+                        k.clone()
+                    } else {
+                        format!("{prefix}.{k}")
+                    };
+                    flat(&p, x, out);
+                }
+            }
+            serde_json::Value::Null => {}
+            o => out.push(format!("{prefix}={}", o.to_string().trim_matches('"'))),
+        }
+    }
+    let mut out = Vec::new();
+    flat("", v, &mut out);
+    if out.is_empty() {
+        "defaults".into()
+    } else {
+        out.join(", ")
     }
 }
 
@@ -393,7 +426,10 @@ fn events_section(l: &mut Layout, a: &Aggregates) {
         seen.push(k.clone());
         sub(
             l,
-            &format!("{} - {}, recording {}", e.event_id, e.kind, e.recording),
+            &format!(
+                "{} - {} / {}, recording {}",
+                e.event_id, e.kind, e.event_type, e.recording
+            ),
         );
         let rows: Vec<Vec<String>> = a
             .events
@@ -531,43 +567,84 @@ fn stability_section(l: &mut Layout, a: &Aggregates) {
 
 fn pass_fail_section(l: &mut Layout, c: &LoadedCampaign, a: &Aggregates) {
     l.heading("7. Pass/fail");
-    let bars = c.manifest.scoring.get("bars").and_then(|b| b.as_object());
-    let any = a.events.iter().any(|r| !r.bars.is_empty());
-    let (Some(bars), true) = (bars, any) else {
+    let evaluated: usize = a
+        .scorecard
+        .iter()
+        .map(|r| r.verdicts.1)
+        .chain(a.events.iter().map(|r| r.verdicts.1))
+        .sum();
+    if evaluated == 0 {
         para(
             l,
             "The client set no pass/fail bars for this campaign, so no pass or fail is implied.",
         );
         return;
-    };
-    let stated = bars
-        .iter()
-        .map(|(k, v)| format!("{k} = {v}"))
-        .collect::<Vec<_>>()
-        .join(", ");
-    para(l, &format!("Bars as stated: {stated}."));
-    let mut rows = Vec::new();
-    for r in a.events.iter().filter(|r| !r.bars.is_empty()) {
-        for (k, (p, e)) in &r.bars {
-            rows.push(vec![
-                r.event_id.clone(),
-                r.frontend.clone(),
-                r.design.clone(),
-                k.clone(),
-                p.to_string(),
-                e.to_string(),
-            ]);
+    }
+    let stated = c
+        .manifest
+        .scoring
+        .get("bars")
+        .and_then(|b| b.as_object())
+        .map(|b| {
+            b.iter()
+                .map(|(k, v)| format!("{k} = {v}"))
+                .collect::<Vec<_>>()
+                .join(", ")
+        })
+        .unwrap_or_else(|| "none (per-recording bars only)".into());
+    para(
+        l,
+        &format!(
+            "The verdicts are the engine's own, from scorecard.json. Bars as stated: {stated}."
+        ),
+    );
+    let failed = |m: &std::collections::BTreeMap<String, usize>| {
+        if m.is_empty() {
+            "-".to_owned()
+        } else {
+            m.iter()
+                .map(|(k, n)| format!("{k} x{n}"))
+                .collect::<Vec<_>>()
+                .join(", ")
         }
+    };
+    let mut rows = Vec::new();
+    for r in a.scorecard.iter().filter(|r| r.verdicts.1 > 0) {
+        rows.push(vec![
+            "whole run".into(),
+            r.frontend.clone(),
+            r.design.clone(),
+            r.verdicts.0.to_string(),
+            r.verdicts.1.to_string(),
+            failed(&r.failed_bars),
+        ]);
+    }
+    for r in a.events.iter().filter(|r| r.verdicts.1 > 0) {
+        rows.push(vec![
+            format!("{} {}", r.event_id, r.recording),
+            r.frontend.clone(),
+            r.design.clone(),
+            r.verdicts.0.to_string(),
+            r.verdicts.1.to_string(),
+            failed(&r.failed_bars),
+        ]);
     }
     table(
         l,
-        &[0.9, 1.1, 1.1, 1.2, 0.7, 0.8],
-        &["Event", "Chain", "Design", "Bar", "Passed", "Evaluated"],
+        &[1.6, 1.0, 1.0, 0.6, 0.7, 1.6],
+        &[
+            "Scope",
+            "Chain",
+            "Design",
+            "Passed",
+            "Evaluated",
+            "Failed bars",
+        ],
         &rows,
     );
 }
 
-fn method_section(l: &mut Layout) {
+fn method_section(l: &mut Layout, c: &LoadedCampaign) {
     l.heading("8. Method and definitions");
     para(
         l,
@@ -578,6 +655,7 @@ fn method_section(l: &mut Layout) {
     for (k, v) in DEFINITIONS {
         para(l, &format!("{k}: {v}"));
     }
+    para(l, &lock_source_note(c));
 }
 
 fn provenance_section(l: &mut Layout, c: &LoadedCampaign) {
@@ -659,9 +737,11 @@ fn appendix(l: &mut Layout, c: &LoadedCampaign) {
                 x.frontend.name.clone(),
                 x.design.name.clone(),
                 format!("{} {}", s.signal, s.id),
-                format!("{:.1} %", 100.0 * w.availability),
+                w.availability
+                    .map(|v| format!("{:.1} %", 100.0 * v))
+                    .unwrap_or_else(|| "no data".into()),
                 w.loss_count.to_string(),
-                w.baseline_cn0_dbhz
+                w.median_cn0_dbhz
                     .map(|v| format!("{v:.1} dB-Hz"))
                     .unwrap_or_else(|| "no data".into()),
                 w.pll_jitter_deg
@@ -680,7 +760,7 @@ fn appendix(l: &mut Layout, c: &LoadedCampaign) {
             "Satellite",
             "Avail.",
             "Losses",
-            "Baseline C/N0",
+            "Median C/N0",
             "PLL jitter",
         ],
         &rows,

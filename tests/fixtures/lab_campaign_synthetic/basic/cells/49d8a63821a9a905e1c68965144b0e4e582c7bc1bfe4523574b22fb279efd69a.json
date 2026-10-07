@@ -1,0 +1,76 @@
+{
+  "design": {
+    "hash": "e846b802a63808e61d7bac077a05c5a08889356c91a01dd97e922e54782830b5",
+    "name": "baseline"
+  },
+  "engine_version": "0.32.0",
+  "frontend": {
+    "hash": "e015d238c0a790e588996bb468d17cd806681a3cba558a308b298d1b68986c41",
+    "name": "raw"
+  },
+  "key": "49d8a63821a9a905e1c68965144b0e4e582c7bc1bfe4523574b22fb279efd69a",
+  "lock_source": "lock-indicators",
+  "recording": {
+    "conditions_hash": "5e35638cb5127cbfc97ca1b017f1df163a3700b70a6ca8836f819008a1458aa7",
+    "id": "synthetic-gap",
+    "sha256": "2af728853654052064139ea5d1602c1d34945ed808d3d11333a118f06853e6a9"
+  },
+  "run_hash": "c2f008aa9053bc1948a5860c3067ed09ebb5bf98f1e13164cbcd144ecb897fcb",
+  "sample_rate_hz": 4092000.0,
+  "samples_processed": 40920000,
+  "satellites": [
+    {
+      "events": [
+        {
+          "availability": 0.6006668306726038,
+          "baseline_cn0_dbhz": 44.825,
+          "baseline_dll_jitter_chips": 0.06416034078274147,
+          "baseline_pll_jitter_deg": 7.466094298840689,
+          "baseline_source": "measured",
+          "cn0_curve": [],
+          "dll_jitter_chips": 0.20421755681013484,
+          "event_id": "gap-1",
+          "false_lock_episodes": 0,
+          "js_at_loss_db": null,
+          "kind": "outage",
+          "locked_at_onset": true,
+          "lost": true,
+          "modelled": null,
+          "offset_s": 5.5,
+          "onset_s": 4.0,
+          "outage_s": 1.0279985783967538,
+          "pll_jitter_deg": 51.82189426745203,
+          "reacq_time_s": 0.42970416066166006,
+          "reacquired": true,
+          "time_to_loss_s": 0.9017055822649063,
+          "type": "unknown"
+        }
+      ],
+      "handoff": {
+        "code_phase_chips": 293.75,
+        "doppler_hz": 2333.333333333333,
+        "source": "acquired",
+        "statistic": 275.522124449441,
+        "threshold": 38.66983609955844
+      },
+      "id": 7,
+      "signal": "gps-l1ca",
+      "whole_run": {
+        "availability": 0.8803333240379213,
+        "code_lock_frac": 0.8688888902767855,
+        "dll_jitter_chips": 0.06260077611696278,
+        "false_lock_episodes": 0,
+        "false_lock_per_hour": 0.0,
+        "locked_s": 7.9229885141749765,
+        "loss_count": 1,
+        "median_cn0_dbhz": 44.725,
+        "phase_lock_frac": 0.7977777854410817,
+        "pll_jitter_deg": 7.500254343766477,
+        "reacq_count": 1,
+        "scored_s": 8.999987047898786
+      }
+    }
+  ],
+  "schema": "kshana.campaign-cell/1",
+  "scoring_hash": "6fe5ecc249f2730dc12209bf0d3299b24a40068d45f09cc067724b2d4436c2f2"
+}

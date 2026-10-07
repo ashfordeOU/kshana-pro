@@ -139,14 +139,17 @@ fn the_data_class_is_stated_and_the_digest_shown() {
 #[test]
 fn null_metrics_render_as_words_not_zero() {
     let doc = html();
-    // The outage event states no J/S, and the fixture's 30 dB bin has no locked epochs.
+    // The outage event states no J/S, and in the engine fixture two narrow-PLL channels do not
+    // re-acquire after the outage within the grace window.
     assert!(doc.contains("no J/S stated"));
-    assert!(doc.contains("no locked epochs"));
+    assert!(doc.contains("not within grace"));
 }
 
 #[test]
 fn a_data_class_mismatch_is_refused() {
-    let c = load(&fixture()).unwrap();
+    // The engine fixture states no data class yet; declare one as a newer engine will.
+    let mut c = load(&fixture()).unwrap();
+    c.manifest.data_class = Some(DataClass::Synthetic);
     let err = render_html(&c, &LabReportOptions::new(DataClass::ClientConfidential)).unwrap_err();
     assert_eq!(
         err,
@@ -196,12 +199,12 @@ fn a_client_confidential_render_carries_the_export_notice_slot() {
 #[test]
 fn designs_keep_their_colour_whatever_their_rank() {
     let doc = html();
-    let colours: BTreeSet<&str> = ["#2a78d6", "#eb6834", "#1baf7a"].into_iter().collect();
+    let colours: BTreeSet<&str> = ["#2a78d6", "#eb6834"].into_iter().collect();
     for c in &colours {
         assert!(doc.contains(c), "design colour {c} missing");
     }
-    // The fourth slot is unused with three designs.
-    assert!(!doc.contains("#eda100"));
+    // The third slot is unused with two designs.
+    assert!(!doc.contains("#1baf7a"));
 }
 
 // ── L4: the PDF edition ────────────────────────────────────────────────────────────────
@@ -303,6 +306,14 @@ fn the_pdf_edition_renders_deterministically_and_carries_the_same_facts() {
 
 #[test]
 fn the_pdf_edition_enforces_the_data_class_too() {
-    let c = load(&fixture()).unwrap();
+    let mut c = load(&fixture()).unwrap();
+    c.manifest.data_class = Some(DataClass::Synthetic);
     assert!(render_pdf(&c, &LabReportOptions::new(DataClass::ClientConfidential)).is_err());
+}
+
+#[test]
+fn the_report_states_which_lock_source_the_cells_used() {
+    let doc = html();
+    assert!(doc.contains("Lock source in these cells: lock-indicators."));
+    assert!(doc.contains("may therefore not relock"));
 }
