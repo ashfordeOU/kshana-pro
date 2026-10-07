@@ -66,7 +66,7 @@
     <div class="m-block"><h4>Figures of merit</h4><ul><li>Effective C/N₀ (carrier-to-noise density) and lock state per satellite under a jammer</li><li>Spoof verdict and which detection layer fired</li><li>Total-loss probability against threat intensity for layered PNT</li><li>Bounded alternative-PNT position error through the outage</li></ul></div>
     <div class="tiers"><div class="tier free"><span>Free core</span><p>Run every scenario file in this sector in {{STUDIO}} or from any install, read the ledger and export reports.</p></div><div class="tier pro"><span>Pro adds</span><p>Pro: audit-grade, reproducible evidence packs for a review.</p><a class="tier-mail" href="mailto:contact@ashforde.org?subject=Kshana%20Pro%20evaluation">Request a Pro evaluation</a></div><div class="tier custom"><span>Custom study adds</span><p>Custom: export-controlled resilience work under the appropriate clearance and NDA (non-disclosure agreement).</p><a class="tier-mail" href="mailto:contact@ashforde.org?subject=Kshana%20study%20request">Request a study</a></div><a class="tier-link" href="editions.html">Compare the editions <svg width="14" height="14" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
   </div>
-  <p class="m-note">Defensive use only: protecting your own navigation and timing, resilience assessment and holdover planning. Kshana does not model targeting, interception or guidance, and it is not an RF signal simulator or a receiver.</p>
+  <p class="m-note">Defensive use only: protecting your own navigation and timing, resilience assessment and holdover planning. Kshana does not model targeting, interception or guidance. It drives no radio hardware and transmits nothing: its signal-level output is baseband IQ sample files for software receivers.</p>
 </div>
 <div class="mission" role="tabpanel" id="space" aria-labelledby="st-space" style="--mc:var(--cyan)" hidden>
   <div class="m-head">
@@ -390,4 +390,4 @@
   </div>
 </section>
 
-<section class="honest"><div class="wrap"><p>Kshana is <b>not an RF signal simulator</b> and <b>not a GNSS receiver</b>. It is a study and trade-off instrument: it simulates what jamming, spoofing and signal loss do to a navigation and timing solution, and tells you which of its answers are validated. <b>Not a flight product.</b></p></div></section>
+<section class="honest"><div class="wrap"><p>Kshana <b>drives no radio hardware and transmits nothing</b>. It includes a software GNSS receiver for recorded and generated IQ, and can write synthetic baseband IQ files, but it is <b>not RF signal-generator hardware</b> and <b>not a hardware or certified GNSS receiver</b>. It is a study and trade-off instrument: it simulates what jamming, spoofing and signal loss do to a navigation and timing solution, and tells you which of its answers are validated. <b>Not a flight product.</b></p></div></section>
