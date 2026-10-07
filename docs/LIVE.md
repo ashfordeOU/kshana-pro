@@ -1,4 +1,4 @@
-Updated: 2026-10-07T16:45:32Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T16:53:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:53:25 Container restart again; heartbeat restarted. [W5] opened kshana PR 48 (fix/iq-d2-data-symbols fee6f3d): additive iq::DataModulation + SpreadingCode::data_modulation() (default Lnav) + SignalCode::with_data_modulation(); per-signal symbol timing (L5-I 10 ms, E1-B 4, B1I 20/2 GEO, GLONASS 20 + meander…); pilots/unmodelled refuse data (exit 2 in iq scene --data); tests fail on main. D7 next with generic carrier−centre offset (approved).
 - 16:45:32 [W2] opened kshana PR 47 (DRAFT, feat/036-labfit-design 11293c97): B7.1 design with the four bars pre-registered in §5.1, committed before any fitting code. Holds until after 0.33 + campaign merge + D5. W2 idle for the bump.
 - 16:44:38 [W2] B7.1 labfit-from-IQ design approved (feat/036-labfit-design aeec1567, docs/design/LABFIT-FROM-IQ.md): fit (C/N0)eff vs J/S for Q_eff and δ, threshold J/S two ways, loss/re-acq dwell; seeded cluster bootstrap over recordings (1000); LORO validation; kshana.labfit-iq/1; synthetic legitimate signals only. Coordinator pre-registered bars: δ ≤0.5 dB, Q ±20% (J/S span ≥12 dB); 95% CI coverage ≥90% of 50 campaigns; LORO 90% PI coverage 80–98%; closed-form threshold within 1 dB of direct. Draft PR to open; code waits for campaign merge + D5.
 - 16:43:06 [W3] evidence on feat/034-campaign da95b9c (synthetic 20 s, 3 PRNs, noise-only gap 8–10 s): 11/12 sat-events re-lock in 0.35–0.41 s; raw/baseline/PRN 11 never re-locks (availability 0.384); with a code-phase jump nothing re-locks → campaign needs TrackSession REACQ. W7 to make it a regression test (reacquire=true must pass; reacquire=false pinned).
