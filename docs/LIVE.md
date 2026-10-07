@@ -24,10 +24,10 @@ No external deadline set.
 | kshana-pro | main | 3d77978 | engine `=0.32.0`; PRs 5–10 merged; CHANGELOG current; handover §4 → root site-next/ |
 | kshana-pro | partners/iq-deliverables | 4c7b6e2 | PR 7 MERGED → 78ab489 |
 | kshana-pro | claude/pro-030 | d94b280 | stale, superseded by PR 5; delete approved, blocked by proxy (founder deletes) |
-| kshana | main | 58957f8 | PR 35 merged (IQ ledger rows); 0.32.0 released |
+| kshana | main | 9925c10 | PRs 35, 37 merged; 0.32.0 released |
 | kshana | feat/mcp-iq | eba7d10 | PR 34: CI #517 green on a477eec; main merged (CHANGELOG resolved); new CI running (~17:10) |
 | kshana | feat/iq-track-default | b41a61d | PR 38: D4 doc fix (behaviour unchanged, per-signal test); CI running |
-| kshana | chore/version-sync-coverage | bd05a27 | PR 37 open (W2): version-sync covers server.json + README (strict), site (warn) |
+| kshana | chore/version-sync-coverage | bd05a27 | PR 37 MERGED → main 9925c10 (CI #518 green, runner confirmed clean merge) |
 | kshana | feat/iq-validation-ledger | bb7edf8 | PR 35 MERGED → 58957f8 (CI #516 14/14 green; native 3823 passed) |
 
 ## Running now
@@ -89,6 +89,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:57:04 Merged kshana PR 37 (squash → main 9925c10; CI #518 run 37624082630 green). Open public PRs now 34, 38, 39, 40, 41, 42 — may need main merged for CHANGELOG [Unreleased]. Killed 8 duplicate heartbeat processes (one left).
 - 15:46:37 Open PRs: kshana 34, 37, 38, 39, 40 (D3), 41 (accuracy), 42 (LFS guard); kshana-pro 14 (export pack DRAFT, awaiting founder read), 15 (Studio selfcheck LFS preflight), 16 (site capability wording). W4 PR 16 opened; W2 PR 42 opened.
 - 15:44:31 W2 found a guard gap: Git LFS pointer files copied by the site build would pass site.test.mjs (manifest SHAs come from the copy). W2 → public PR chore/lfs-pointer-guard (site.test.mjs + port_site.py refuse pointers).
 - 15:44:01 W2 opened kshana PR 41 (docs-only capability accuracy: IQ-layer scope, spectrum jammer IQ snapshot since 0.29, in-memory spoof composite, software receiver since 0.20.0). Follow-ups: W4 → kshana-pro site text ("not a GNSS receiver" etc.); W1 → PR 34 MCP wording scope. W6 decisions: timing #1C4FE0; 5 charts gain bg; domain-coverage-map data refresh in its own commit.
