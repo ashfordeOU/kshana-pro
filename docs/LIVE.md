@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:34:15Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:38:16Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:38:16 21:38Z Critic re-check: #48 @80e8b7f MERGE (the timing discriminator bites on a revert) and #50 @e5cd543 MERGE. #53 @3f7139c MERGE after 0.33.0, with a CHANGELOG bars/measured fix and 2 doc nits sent to W8. Pro PR 17 @32b0908 FIX-FIRST at re-pin (data_class/epochs mirror drift, cell_key, lock source, traceability ops, N6 guard gaps) sent to W3.
 - 21:34:15 21:34Z Runner merge-tree against main 2ef6541: #38, #43, #44, #45, #48, #49, #50 and #51 merge cleanly. #46 (2a5233a) still conflicts, which is expected: W7 resolves it after #38/#44 land and W1's final #45. Mac probe 37687568077 still running.
 - 21:30:45 21:30Z #43 now at aa518b6 (CHANGELOG line). Coordinator updated the #43 PR body via MCP: unsigned 12/16-bit and a follow-ups list. Held for 0.34.
 - 21:29:45 21:29Z W8 pushed the #43 follow-up feat/034-formats @b36d743: cu16 and cu12 unsigned encodings, SigMF mapping, round-trip tests; fmt/clippy/doc-coverage clean. Held for 0.34. W8 told that its C/N0 PR is #53.
