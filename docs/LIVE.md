@@ -1,4 +1,4 @@
-Updated: 2026-10-07T11:42:42Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T11:44:17Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -17,7 +17,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 | kshana-pro | partners/iq-deliverables | dbc8c81 | PR 7 open (W3) |
 | kshana-pro | claude/pro-030 | d94b280 | stale, superseded by PR 5; delete approved, blocked by proxy (founder deletes) |
 | kshana | main | f570219 | v0.32.0 released; CI green (run 37283754192) |
-| kshana | feat/mcp-iq | cff687f | W1 WIP, no PR yet |
+| kshana | feat/mcp-iq | cff687f | PR 34 open (W1); CI pending (~2.5 h) |
 | kshana | feat/iq-validation-ledger | ef75a49 | W2 WIP, no PR yet |
 
 ## Running now
@@ -65,6 +65,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:44:17 W1 opened kshana PR 34 (MCP IQ tools); design reviewed + approved; runner queued.
 - 11:44:13 [W3] pushed partners/iq-deliverables 4c7b6e2 (merge main =0.32.0 + claim fix); fmt+clippy OK; tests running.
 - 11:43:37 [W1] PR 34 (kshana, feat/mcp-iq @ cff687f) open: 6 MCP IQ tools; local gates green; awaiting design review + CI.
 - 11:42:42 RECOVERY.md added. Branch deletion approved by founder; proxy 403 → handed back.
