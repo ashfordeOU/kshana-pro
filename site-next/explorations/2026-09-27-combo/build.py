@@ -1821,8 +1821,8 @@ def watch_win(r):
             f'history {_n(H["records"])} records, chain intact, last hash {esc(_short(H["last"]))} · {esc(W["label"].split(" - ")[0])}</span>{studio_open(r, W["base_scenario"])}</p></figure>')
 
 
-CX_RAMP = ["rgba(195,166,255,.12)", "rgba(195,166,255,.22)", "rgba(195,166,255,.32)", "rgba(195,166,255,.42)",
-           "rgba(195,166,255,.54)", "rgba(195,166,255,.66)", "rgba(195,166,255,.8)", "#C3A6FF"]
+CX_RAMP = ["rgba(244,92,203,.12)", "rgba(244,92,203,.22)", "rgba(244,92,203,.32)", "rgba(244,92,203,.42)",
+           "rgba(244,92,203,.54)", "rgba(244,92,203,.66)", "rgba(244,92,203,.8)", "#F45CCB"]
 
 
 def coexist_win(r):
@@ -2086,7 +2086,7 @@ def pro_power(r):
     terms_html = ('<div class="pw-tl"><ul>' + "".join(f"<li><b>{esc(t)}</b> {esc(x)}</li>" for t, x in terms) + '</ul>'
                   + '<div class="plan pw-cs"><h4 class="pw-cs-h">Done as a custom study</h4><ul>'
                   + "".join(f"<li><b>{esc(t)}</b> {esc(x)}</li>" for t, x in cs_terms) + '</ul></div></div>')
-    return f'''<section class="pro-band pw" id="pro" data-nav-dark aria-labelledby="pwH">
+    return f'''<section class="pro-band pw" id="pro" aria-labelledby="pwH">
   <div class="wrap">
     <div class="pw-head">
       <span class="eyebrow eyebrow-d" style="--c:var(--pw-p)"><i></i>Kshana Pro · the same engine, amplified</span>
@@ -2969,6 +2969,7 @@ for root_dir, dirs, fnames in os.walk(PG_SRC):
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         shutil.copyfile(os.path.join(root_dir, fn), dst)
 shutil.copyfile(os.path.join(SRC, "tokens.css"), os.path.join(PG_OUT, "tokens.css"))  # one palette: the site's
+shutil.copyfile(os.path.join(SRC, "theme.css"), os.path.join(PG_OUT, "theme.css"))  # and one theme: Observatory
 _bundle_cmd = ["node", os.path.join(PG_SRC, "tools_bundle.mjs"), "--to", PG_OUT]
 if _withheld:
     _bundle_cmd += ["--without", ",".join(_withheld)]
