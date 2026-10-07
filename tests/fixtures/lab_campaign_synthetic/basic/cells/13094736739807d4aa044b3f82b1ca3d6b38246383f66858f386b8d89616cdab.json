@@ -1,6 +1,7 @@
 {
+  "data_class": "synthetic",
   "design": {
-    "hash": "e846b802a63808e61d7bac077a05c5a08889356c91a01dd97e922e54782830b5",
+    "hash": "0773c7ee07e0fc22835ad563c4d87be2a95d584c6cf3ed94b479f573fdf094ff",
     "name": "baseline"
   },
   "engine_version": "0.32.0",
@@ -8,8 +9,8 @@
     "hash": "e015d238c0a790e588996bb468d17cd806681a3cba558a308b298d1b68986c41",
     "name": "raw"
   },
-  "key": "102e2a4872c7cbaa063376e7ffc07196bf6972bc98b42cda2e4a05ab2693e4ec",
-  "lock_source": "lock-indicators",
+  "key": "13094736739807d4aa044b3f82b1ca3d6b38246383f66858f386b8d89616cdab",
+  "lock_source": "track-session",
   "recording": {
     "conditions_hash": "a23ce5d058053fd6095cffc444d67e689f635b8ec2b58c18684d213af197e676",
     "id": "synthetic-ramp",
@@ -22,7 +23,7 @@
     {
       "events": [
         {
-          "availability": 0.6351250156783959,
+          "availability": 0.532625025911765,
           "baseline_cn0_dbhz": 44.625,
           "baseline_dll_jitter_chips": 0.07065842555360927,
           "baseline_pll_jitter_deg": 7.543550916850151,
@@ -38,14 +39,14 @@
             },
             {
               "js_db": 30.0,
-              "measured_cn0_dbhz": 30.375,
-              "measured_degradation_db": 14.25,
+              "measured_cn0_dbhz": 36.725,
+              "measured_degradation_db": 7.899999999999999,
               "modelled_cn0_dbhz": 29.948230205705805,
               "modelled_degradation_db": 14.676769794294195,
-              "n": 1081
+              "n": 261
             }
           ],
-          "dll_jitter_chips": 0.13846600980033197,
+          "dll_jitter_chips": 0.12667269250756444,
           "event_id": "ramp-1",
           "false_lock_episodes": 0,
           "js_at_loss_db": 30.0,
@@ -61,11 +62,11 @@
           },
           "offset_s": 12.0,
           "onset_s": 4.0,
-          "outage_s": 3.227997443386304,
-          "pll_jitter_deg": 26.962003609751143,
-          "reacq_time_s": 0.309703055996577,
+          "outage_s": 4.199996670206062,
+          "pll_jitter_deg": 19.278332229978528,
+          "reacq_time_s": 0.4617029274209301,
           "reacquired": true,
-          "time_to_loss_s": 5.081705612610273,
+          "time_to_loss_s": 4.261706257214868,
           "type": "broadband"
         }
       ],
@@ -79,24 +80,24 @@
       "id": 3,
       "signal": "gps-l1ca",
       "whole_run": {
-        "availability": 0.781533338141713,
-        "code_lock_frac": 0.7746666659933459,
-        "dll_jitter_chips": 0.068120947897917,
+        "availability": 0.7065858843612345,
+        "code_lock_frac": 0.7746511794626668,
+        "dll_jitter_chips": 0.06817337608487109,
         "false_lock_episodes": 0,
         "false_lock_per_hour": 0.0,
-        "locked_s": 11.722990713586439,
+        "locked_s": 10.598991691104166,
         "loss_count": 1,
         "median_cn0_dbhz": 44.625,
-        "phase_lock_frac": 0.7213333226676265,
-        "pll_jitter_deg": 7.603972398939186,
+        "phase_lock_frac": 0.7213189023354737,
+        "pll_jitter_deg": 7.584747336300503,
         "reacq_count": 1,
-        "scored_s": 14.999988025412609
+        "scored_s": 15.0002878994474
       }
     },
     {
       "events": [
         {
-          "availability": 0.6374999816715067,
+          "availability": 0.5400000024436946,
           "baseline_cn0_dbhz": 44.475,
           "baseline_dll_jitter_chips": 0.06979158765950427,
           "baseline_pll_jitter_deg": 7.810662486963425,
@@ -112,14 +113,14 @@
             },
             {
               "js_db": 30.0,
-              "measured_cn0_dbhz": 30.275000000000002,
-              "measured_degradation_db": 14.2,
+              "measured_cn0_dbhz": 35.875,
+              "measured_degradation_db": 8.600000000000001,
               "modelled_cn0_dbhz": 29.9430341232271,
               "modelled_degradation_db": 14.531965876772901,
-              "n": 1100
+              "n": 320
             }
           ],
-          "dll_jitter_chips": 0.1420041314779132,
+          "dll_jitter_chips": 0.13166161412475774,
           "event_id": "ramp-1",
           "false_lock_episodes": 0,
           "js_at_loss_db": 30.0,
@@ -135,11 +136,11 @@
           },
           "offset_s": 12.0,
           "onset_s": 4.0,
-          "outage_s": 3.2090047041891214,
-          "pll_jitter_deg": 28.702551472590162,
-          "reacq_time_s": 0.30973147816892244,
+          "outage_s": 4.140006058643969,
+          "pll_jitter_deg": 22.11803879351052,
+          "reacq_time_s": 0.46073170819526155,
           "reacquired": true,
-          "time_to_loss_s": 5.100726773979801,
+          "time_to_loss_s": 4.320725649551292,
           "type": "broadband"
         }
       ],
@@ -153,18 +154,18 @@
       "id": 11,
       "signal": "gps-l1ca",
       "whole_run": {
-        "availability": 0.7827999926361263,
-        "code_lock_frac": 0.7813333281199947,
-        "dll_jitter_chips": 0.06853226709937817,
+        "availability": 0.7106542009268019,
+        "code_lock_frac": 0.7813196221060194,
+        "dll_jitter_chips": 0.06876168717715053,
         "false_lock_episodes": 0,
         "false_lock_per_hour": 0.0,
-        "locked_s": 11.742017106548309,
+        "locked_s": 10.660015640273242,
         "loss_count": 1,
         "median_cn0_dbhz": 44.425000000000004,
-        "phase_lock_frac": 0.6986666849137338,
-        "pll_jitter_deg": 7.715107877103694,
+        "phase_lock_frac": 0.6986544290237021,
+        "pll_jitter_deg": 7.71099099744879,
         "reacq_count": 1,
-        "scored_s": 15.000021994132059
+        "scored_s": 15.000285126536859
       }
     }
   ],

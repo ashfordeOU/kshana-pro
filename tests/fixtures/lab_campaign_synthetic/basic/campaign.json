@@ -3,52 +3,53 @@
     {
       "design": 0,
       "frontend": 0,
-      "key": "49d8a63821a9a905e1c68965144b0e4e582c7bc1bfe4523574b22fb279efd69a",
+      "key": "bda35f8664f2c196ca1492a5fb5909287566c1b0048018395efb9a5d32f7b8e6",
       "recording": 0
     },
     {
       "design": 1,
       "frontend": 0,
-      "key": "1a80cbf95f54f56634c806a88abf75b02bba4e854efe098b61d33752af9c8a45",
+      "key": "032a9fc8a2e9f799cad41b41cd29f1d6b3a8a6a4d4c90bcb6eb9c97e6e17bf53",
       "recording": 0
     },
     {
       "design": 0,
       "frontend": 1,
-      "key": "1d02917b870858f25d46e4fef6d806c56e490102d23e27a871edc48ef952e2de",
+      "key": "1e5371a0aff2b6e25b9e61f3231f5bff596c9c8fcd83a22764f729ce01f975fc",
       "recording": 0
     },
     {
       "design": 1,
       "frontend": 1,
-      "key": "cec7b212ab0a4d0b64662bc90be54c9bd1e98363e140cdc96d331a14355ee5ec",
+      "key": "835734e476cf81587cf305963a74a884d19f48e149ed823c5c9e59b3870686ad",
       "recording": 0
     },
     {
       "design": 0,
       "frontend": 0,
-      "key": "102e2a4872c7cbaa063376e7ffc07196bf6972bc98b42cda2e4a05ab2693e4ec",
+      "key": "13094736739807d4aa044b3f82b1ca3d6b38246383f66858f386b8d89616cdab",
       "recording": 1
     },
     {
       "design": 1,
       "frontend": 0,
-      "key": "253c1c6f129f01a8c1b594a93e00866b1d1d7ca146c09cb09e0172de4423e043",
+      "key": "3d130c9f31da1ba2009b4f47e6b6033e085437e07aa6e69479c54af35d997c37",
       "recording": 1
     },
     {
       "design": 0,
       "frontend": 1,
-      "key": "93369332e078c8fc5064f47a05e103d66c4e7b1f0d4e6a165f42b60d06e329ff",
+      "key": "b0ca456bec2c3ff7a9ce89171910618e6a0c539c3728b52106f76baa0c6cc524",
       "recording": 1
     },
     {
       "design": 1,
       "frontend": 1,
-      "key": "e110576dabcc094f6eb3ccb8527a8963923c0d208a2768baa0292cdc92ebac2b",
+      "key": "c5504aaa25b22799dae4bcc2358ea2208b23a688f0fddf281cc3bab3ebef2192",
       "recording": 1
     }
   ],
+  "data_class": "synthetic",
   "designs": [
     {
       "acquisition": {
@@ -77,7 +78,7 @@
         "discriminator": "eml-power",
         "order": 1
       },
-      "hash": "e846b802a63808e61d7bac077a05c5a08889356c91a01dd97e922e54782830b5",
+      "hash": "0773c7ee07e0fc22835ad563c4d87be2a95d584c6cf3ed94b479f573fdf094ff",
       "integration": {
         "coherent_periods": 1,
         "spacing_chips": 0.5
@@ -125,7 +126,7 @@
         "discriminator": "eml-power",
         "order": 1
       },
-      "hash": "134bd16de32a2697c67308e9d1780cde734c0097d969666fd16540c21a1b4709",
+      "hash": "46bb29d68b598f6de8438cd3abf265d34a5b02f4e6034935f2bcd7cac14655a1",
       "integration": {
         "coherent_periods": 1,
         "spacing_chips": 0.5
