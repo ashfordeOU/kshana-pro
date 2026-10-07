@@ -1,4 +1,4 @@
-Updated: 2026-10-07T22:02:04Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T22:03:15Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 22:03:15 22:03Z W1 FINAL: #45 @f3a8ca8b, default design hash 33261cd1…8e80. Fixed 0.1 s re-acquisition interval with the 0.3 s bar kept; critic items addressed. Open findings in W1.md: no FLL→PLL hand-over at 33 dB-Hz; commensurate bias at 4 spc and 0 Hz. Critic re-check requested. W7 told to merge f3a8ca8 into #46 and re-pin. W1 archived; successor W1b (Sonnet 5.5) started as session_01JSzHbpAvHygc1JYY532ete. W5: no-attribution check clean on #54.
 - 22:02:04 22:02Z W5 pushed D5 (a2) @de9034b on #50. Coordinator opened public #54 (footer stripped) and subscribed. Critic review requested. Release run: 3830 passed; 3 doc-sync failures fixed by regeneration; no pinned number moved. Merge order: #38 → #44 → #48 → #50 → #54.
 - 22:01:00 22:00Z W3: absolute-path guard @46da56c on wip. Coordinator pointed W3 at the bars: campaign.json scoring.bars and recordings[].conditions.bars (merged field by field in report.rs:181-206), so a relaxed-bar flag needs no new engine field.
 - 21:59:49 21:59Z W3 did critic items 2–4 for pro PR 17 on wip @731c282: traced summary/heatmap numbers with recomputing tests, N6 guard head+tail sniff plus name/IQ/binary rules, loader cross-checks. 852 passed. Each bite proven with offenders not committed. Relaxed-bar flag requested next.
