@@ -1,4 +1,4 @@
-Updated: 2026-10-07T12:28:10Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T12:40:15Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -66,6 +66,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:40 [RUNNER] kshana PR 34 @a477eec: GREEN targeted, doc_sync 51/51, mcp 33/33, fmt/clippy 0, guard negative test bites; CI #517 (37618278079) running; full native test --all pending (after PR 35).
 - 12:28:10 Check-in: PR 34 @a477eec run 37618278079 — all 18 non-long jobs green (deny, mcp-check, msrv, package, wasm, python, 3× reproducibility, CodeQL); check + coverage running. PR 35 @bb7edf87 run 37617204859 — same, check + coverage running. Next check-in ~13:28.
 - 12:24:57 Heartbeat found dead since the ~12:00 restart (false 'running' from pgrep self-match); restarted; RECOVERY lesson added.
 - 12:23:40 [RUNNER] kshana PR 34 @6fae76b4: RED, run 37616257744 coverage, same doc_sync guard (fixed in a477eec, re-verify pending).
