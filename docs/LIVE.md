@@ -1,4 +1,4 @@
-Updated: 2026-10-07T14:38:20Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T14:39:35Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -77,6 +77,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:39:35 W2: kshana-pro PR 11 now includes placements for the 11 unplaced features (UNPLACED=0). Found a real 0.32.0 docs gap: PYTHON_API.md Surface and npm usage don't list the 8 iq_*/receiver_trust bindings → approved public docs PR (docs/iq-bindings-surface).
 - 14:38:20 W2 rehearsal ended; kshana-pro PR 11 (runbook fixes F1–F11 + check_nav/selfcheck code fixes) opened. Nav like-for-like: main 4 BAD, rehearsal 17 BAD (mostly timing noise; 3 recurring items to eyeball).
 - 14:37 [RUNNER] kshana PR 34 @a477eec GREEN CI #517; PR 34 + 38 conflict with main 58957f8 in CHANGELOG.md only; PR 37 merges clean (its check/coverage still running).
 - 14:29:33 kshana PR 35 squash-merged → main 58957f8. W1: after PR 34 CI #517 finishes, merge main into 34 (CHANGELOG), then 34 into 38.
