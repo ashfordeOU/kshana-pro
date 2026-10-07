@@ -98,6 +98,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:05:22 [W3] PR 17 L2 aggregation pushed d9c8b50 (declared median/sum/count/ratio-of-sums only; events never pooled; empty J/S bins stay visible next to the MODELLED value; 14 integration tests). Next L3.
 - 16:03:59 [W8] opened kshana PR 43 (feat/034-formats): ci4/cu4, cu8/ru8, 12-in-16, 2-bit, interleaved multi-stream, multi-channel SigMF, .sdrx streaming; oracle sigmf-python 1.13.0; 4 GiB at 110 MB/s, +0.6 MB RSS. Decisions sent to all lanes: ledger-row ownership (W2 per release), 0.34 PRs wait for the 0.33.0 cut, SQM taps owned by W1.
 - 16:03:10 [W3] opened kshana-pro PR 17 (pro/lab-campaign-report-plan 485339c): L6 guard (fails on campaign/cell docs outside tests/fixtures/lab_campaign_synthetic/ and any SigMF file; tested by planting a cell), L1 strict loader (9 tests, 12-cell synthetic fixture), README count parser fix. Gates: fmt, clippy, test --all 819/0/9. Not merging until L2/L3 land and W7 settles the schema.
 - 16:02:53 [W3] PR 17 opened (pro/lab-campaign-report-plan 485339c): L1 + L6, tests 819 passed.
