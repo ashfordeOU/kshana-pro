@@ -31,7 +31,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 34 native run started 11:50:52Z @6fae76b4 (fmt, guards, mcp-check/deny, wasm32, clippy, test --all, reproducible, doc-coverage, sbom, package, msrv 1.85); watching kshana-pro main #55 and PR 7 #56 |
-| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 IQ over MCP (public) | feat/mcp-iq @ 6fae76b | PR 34 open, design approved by coordinator; review doc lines pushed (6fae76b; MCP `cargo test --locked` 33 passed, fmt/clippy/doc-coverage/no-attribution OK); waiting on public CI (unverified); idle |
+| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 IQ over MCP (public) | feat/mcp-iq @ a477eec | PR 34: CI red on 6fae76b (run 37615528447, scenario_count_doc_sync MCP README guard scanned server.rs only) → fixed a477eec (guard scans server.rs + iq.rs, asserts iq_tool_router is merged); local: 15 doc_sync/source_guards binaries 60 passed, MCP 33 passed, clippy OK; CI re-run pending (unverified); idle |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 §7-B2 IQ ledger rows (public) (row recorded by coordinator) | feat/iq-validation-ledger | bb7edf8: 26e1fe6 rows+artifacts, 225176e guard-forced counts (PNG re-rendered, Chromium/Liberation Sans), bb7edf8 droppable; clippy/no-attribution/version-sync/doc-coverage/site tests OK; PR 35 open, idle |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | DONE — PR 7 merged (78ab489); idle |
 | session_01YCEg68jFdLERESsPcMmyMz | W4 pro hygiene | chore/pro-hygiene | DONE — PR 6 merged (db2210a); idle |
@@ -66,6 +66,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:03:24 [W1] PR 34 → a477eec: README tool guard now scans iq.rs; repro failed before, 60/60 doc-sync+source_guards pass after.
 - 11:57:58 PR 34 RED → W1 asked to widen tests/scenario_count_doc_sync.rs to scan server.rs + iq.rs. kshana-pro PR 8 opened (handover §9 status).
 - 11:56:07 [RUNNER] kshana PR 34 @cff687fb: RED, run 37615528447 coverage: scenario_count_doc_sync::the_mcp_readme_lists_exactly_the_tools_the_server_serves; guard scans only server.rs, IQ tools live in mcp/kshana-mcp/src/iq.rs; same expected on 6fae76b4.
 - 11:56:47 PR 7 merged → kshana-pro main 78ab489.
