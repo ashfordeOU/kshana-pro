@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:16:25 [W3] walkthrough runbook pushed to PR 19 (4882ee0); PR #43 step pending build
 - 17:05:15 [W1] PR 45 → 351b0ca: commensurate_sampling warning (track/sweep/MCP/Python) + unsearchable-rate fix.
 - 17:01:51 GitHub write 500s 16:53–~17:02 (reads OK; status page green); pushes recovered; check-runs API for public kshana still 500 → runner asked for CI states. [W7] PR 46 (DRAFT, feat/034-campaign d696bc46, base feat/034-track-engine): runner on W1 TrackSession (shim deleted), synthetic campaign at 2.5 MHz, Q via jamming::q_factor at runtime; perf 2.2× real time, +8 MB RSS (60 s × 16 ch). run.epochs → wire in this PR. Finding → W1: default FLL-assisted design declares LOST at ~39 dB-Hz clean (PLI ~55%) — root-cause with a pre-registered bar.
 - 16:54:37 [RUNNER] PR 48 @fee6f3d4 clean vs main, conflicts vs #38/#44 only in CHANGELOG + tests/iq_cli.rs. W5 to stack: #44 ⊃ #38, #48 ⊃ #44. Merge order 34 → 39 → 38 → 44 → 48. GitHub returned HTTP 500 on pushes 16:53–; background retry running.
@@ -222,4 +223,3 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - 11:15 Runner + W1–W4 sessions created.
 - 11:14 PR 5 opened (engine 0.32.0 bump).
 - 10:39 Coordinator session started on the Team account; state recovered from git.
-- 17:16:25 [W3] walkthrough runbook pushed to PR 19 (4882ee0); PR #43 step pending build
