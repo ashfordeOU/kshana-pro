@@ -5,6 +5,46 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Open engine 0.32.0** (PR 5, merge `586517f`; `68c64c1`). The `kshana` pin moves from
+  `=0.29.0` to the published `=0.32.0` (crates.io) with its lockfile; the engine changes
+  since 0.29.0 are additive and no overlay source needed changing. The six version-stamped
+  papers under `papers/` (report HTML/PDF and figures) and the D1.4 MRD block were
+  regenerated. The campaign-watch branch-point fixture was re-recorded: the 0.30.0 ARAIM
+  revision moved `mean_hpl_m` and `mean_vpl_m`, and 0.32.0 writes the same values as
+  0.30.0. Supersedes the unmerged `claude/pro-030` branch.
+- **Campaign-watch fixture compares metrics within 8 ulp** (PR 5; `c3c20c1`, note
+  corrected in `c99d0e7`). The check compared `ci.json` byte for byte, and the macOS
+  arm64 runner rounds the ARAIM sums 1–2 ulp away from Linux x86-64 (`mean_tropo_m` 2 ulp,
+  `mean_vpl_m` 1 ulp), so one platform always failed. Every field, key, metric order and
+  line count stays exact; each metric may differ by at most 8 ulp, far below any engine
+  revision.
+- **D1.4 MRD: the fusion row's evidence class is read from the engine** (PR 6, merge
+  `db2210a`; `c28e71a`). On engine 0.32.0 the "GNSS/INS sensor fusion" verification row is
+  `ExternalDataset` / VALIDATED (the loosely coupled EKF against NaveGo on a real IMU/GNSS
+  drive, GNSS present throughout), but the generated footnote still called it MODELLED.
+  The footnote now takes the row's live status (`mrd::FUSION_ROW`), and two tests pin it
+  to the table and its "no outage or coast is tested" caveat to the engine's own oracle
+  text. The hand-written D1.4 banner, section 2 and section 4 were corrected: coasting
+  through an outage is not validated and MRD-INT-04 stays partner / follow-on. The
+  salvaged MRD draft was reconciled (nothing taken; a note records why).
+- **Local-runner act image** (PR 6). `site-next/scratch/actlocal/image/Dockerfile`, which
+  `rerun.sh` builds and which was never committed, is recreated: the medium
+  `catthehacker/ubuntu:act-latest` image plus rsync and rustup with the pinned 1.93.0
+  toolchain, for arm64 and amd64 (amd64 build verified; arm64 not yet). The stale
+  `.rerun-snapshot-*.sh` copies were removed and are now ignored.
+- **GNSS IQ layer partner deliverables** (PR 7, merge `78ab489`; `220675d`, `dbc8c81`,
+  `4c7b6e2`). An executed GNSS IQ notebook against the published kshana 0.32.0 wheel
+  (`examples/iq-notebook/`, with its builder and pinned requirements), and a one-page IQ
+  layer validation summary for partners (`commercial/partners/`, Markdown and printable
+  HTML with its renderer). The summary records the gps-sdr-sim ledger row as MODELLED by
+  pre-registration and carries the hand-off caveat under its limits.
+- **Handover** (PR 8, merge `1ca4c90`; `ba27e95`, and `eee0fc9` in PR 5). The post-0.32
+  handover records the 0.32.0 Pro refresh, the partner deliverables, the account
+  migration and recovery, and the session roster.
+- **Changelog guard.** `tests/changelog_tracks_engine_pin.rs` fails unless this file names
+  the `kshana` engine version pinned in `Cargo.toml` (as "engine X.Y.Z") in its
+  `[Unreleased]` section or its newest release, so a pin bump cannot land unrecorded again.
+
 ## [0.2.0] - 2026-10-01
 
 Kshana Pro 0.2.0, on open engine 0.29.0. Summary of this release (each item has its own
