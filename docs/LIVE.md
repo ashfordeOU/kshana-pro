@@ -1,4 +1,4 @@
-Updated: 2026-10-07T16:34:18Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T16:34:48Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -100,6 +100,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:34:48 [W4] opened kshana-pro PR 18 (ci/mac-probe 399ff54): workflow_dispatch Mac probe, public kshana ref + argv-only cargo command (metacharacters rejected), own target dir under runner temp, log artifact 7 d, cleanup. Coordinator reviewed the diff: OK. Mac CI run 37653073511 queued; merge when green (workflow_dispatch must be on main to dispatch).
 - 16:34:18 [W1] PR 45 @e9df466: all 5 W7 findings closed. DLL σ flat 0.2 chip = commensurate-sampling artefact (2.000 samples/chip, d=0.5 → S-curve is a single step, bang-bang dither, ~26 m RMS code error); incommensurate rates match theory (σ_D −4% @45 dB-Hz). Bars pre-registered a60ad59, P1–P3 pass; NWPR 2 dB shortfall same cause. Decisions: (a) commensurate_sampling warning in summary/MCP/Python (PR 45); (b) 0.34 examples/docs/walkthrough move off commensurate rates, fixtures unchanged; (c) 0.33.0 known-limitation note in W1's follow-up docs PR.
 - 16:32:16 [W6] observatory graphics: 5 commits local (palette, figure generators, domain-coverage-map 28→46 refresh, README assets, diagrams), rebased on main; 138/138 result/report/table byte-identical, charts paint-only; 3 byte pins handled (without_paint normalisation proved on the pre-revision engine). One mac-only pin (lunar_frame_campaign scenario 2) can't be computed off-mac → W4 assigned kshana-pro ci/mac-probe (workflow_dispatch on the self-hosted Mac runner, any public ref + cargo command); also unblocks issue #36. W6 pushes + opens its PR when cargo test --all is green.
 - 16:31:39 [W3] PR 17 @6d8368e: L4 PDF (shared summary builder with the HTML; parses, same facts, data class enforced), L1–L6 complete, 838/0/9. Merge blocked only on W7 Q1–Q3 (2nd nudge sent) + Mac CI. W3 next: pro/partner-traceability — (A) R1–R9/D1–D7 → PR/sha status table and real remaining gaps, (B) partner walkthrough runbook on synthetic data.
