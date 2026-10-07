@@ -42,6 +42,7 @@ No external deadline set.
 | kshana PR 42 CI #527 (37646632037) | 84104a5e | since 15:46Z |
 | kshana PR 44 CI #530 (37649275102) | 15107fac | since 16:05Z |
 | kshana PR 43 CI #529 (37648912428) | 18d3b42e | since 16:02Z (not merge-bound) |
+| kshana-pro Mac probe run 37653732273 (issue #36: cargo test --all --no-fail-fast on public main) | 9925c103 | Actions › Mac probe; blocks the single Mac runner while it runs |
 Runner watches all of the above; all six heads merge cleanly into 9925c103 (merge-tree, 15:58Z).
 
 ## Sessions (environment AshfordeKSH)
