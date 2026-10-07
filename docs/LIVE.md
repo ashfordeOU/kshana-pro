@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:23:13Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:25:10Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:25:10 [CRITIC] #44 restack 0b484880: MERGE (#44's hunks byte-identical; auto_coherent_periods + through_frontend on both passes; 3/3 tests). #45 @ff1f3f70 (W1 WIP): FIX-FIRST. Blocking: default-hash pin stale (c6c25a27 vs 0773c7ee); re-acq 0.435 s vs a 0.3 s bar from the back-off. Should-fix: stale CHANGELOG/docs, the FLL gate and final_state tests don't bite, carrier-lock B1–B3 unmeasured while mod.rs states H1 as fact, DLL P1/P2/P3 partly uncoded, sweep --design ignores acquisition flags. DECISION: fixed reacq_interval 0.1 s, no doubling by default (our retry schedule must not inflate measured re-acq time); the 0.3 s bar stays. All → W1.
 - 21:23:13 Coordinator opened kshana PR 53 (feat/034-cn0-profiles 3f7139c8, W8: C/N0 step/ramp/points/Rice-fade profiles in legitimate-signal scenes, F2; S4 within 1.3% of closed form; 6 dB step tracked as 6.26 dB; proposed Modelled row). 0.34, held. Footer stripped.
 - 21:21:36 [W2] kshana PR 52 → 2e409d35: critic nits done (the mutation test now targets the loosest |x|/row-scale entry; CHANGELOG 'eight pins in seven test files'); NEAR_BIT 1e-5 meta-check still fails all 3; test-only, so the Mac probe on e266eed stays representative. CI restarted.
 - 21:20:12 [W5] restack pushed: #44 0b484880 (⊃ #38 79ff31e7), #48 dfb7b788 (⊃ #44), #50 4d5763de (⊃ #48 + sat_id limitation note); all clean on main 2ef6541; gates green (iq_cli 16/16, lib iq 95/95). Handover 7f6688c. Old W5 archived; W5 successor (Sonnet 5.5) spawned for the critic fixes (#48 10 ms discrimination, #50 if_hz CHANGELOG note), then D5 (a2) stacked on #50, then D8–D10. Critic re-checks the #44 restack.
