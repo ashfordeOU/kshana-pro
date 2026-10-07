@@ -79,6 +79,8 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - 2026-10-07 Ledger rows: lane PRs never edit src/verification.rs or row counts; they propose the row in the PR body ("Proposed ledger row"). The release owner (W2) adds all rows and regenerates counts/web artifacts in one ledger PR per release (avoids ~100-file count conflicts).
 - 2026-10-07 0.34 PRs (kshana #43 onward) stay unmerged until 0.33.0 is cut; they merge main in afterwards and adapt to it. Extra correlator taps for SQM: W1 owns them (extra_taps_chips → EpochOutput); W8 consumes.
 
+- 2026-10-07 One lock machine: the campaign runner uses W1's TrackSession (drops its lockstate shim). The campaign Plan and its cells carry a required `data_class` (N6 safeguard, cross-checked by Pro). The MODELLED J/S reference reads Q from the engine's jamming table (single source, so D5 flows through). Design hash = canonical key-sorted JSON (W1), and Pro PR 17 pins to that sha.
+
 ## Open for the founder
 1. Delete stale branches — founder approved 11:40; cloud git proxy refused (HTTP 403 on ref
    delete, pushes OK) → founder to delete from GitHub UI or a local clone: `claude/pro-030`
