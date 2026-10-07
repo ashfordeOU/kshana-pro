@@ -5,22 +5,28 @@ site source = kshana-pro `site-next/` (canonical). Read-only: nothing in either 
 except this file and its evidence folder.
 **Evidence:** `theme-audit-0.33/` next to this file (20 JPEGs, 900 px wide, 1.2 MB total).
 
-## 0. Which theme is "current" — the question this audit cannot settle
+## 0. Target theme (founder decision, 2026-10-07): the live home page's theme = Observatory
 
-Two earlier audits in `salvage/` disagree:
+The target is **the theme the live kshana.dev home page uses today**. Anything else is OLD and
+is brought onto it. The Ashforde gold/Garamond theme is **not** the target and is not planned
+here. It stays only in the Pro documents (kshana-pro `src/report_brand.rs`, `brand_pdf.rs`,
+`papers/`), which are out of scope.
 
-- `site-audit-A.md`: the current site theme is **Observatory** = `web/tokens.css` + `web/theme.css`
-  (theme.css header: "the Observatory system (founder's choice, 2026-09-28)"). This matches what
-  is in the canonical source today: `site-next/explorations/2026-09-27-combo/src/theme.css` is
-  byte-identical to the live `web/theme.css`.
-- `site-theme-audit.md`: the target is the **Ashforde gold/Garamond** theme. That theme exists, but
-  only in the Pro document generators (kshana-pro `src/report_brand.rs`, `src/brand_pdf.rs`,
-  `src/report_pdf.rs`, `papers/*/report.html`) and the Pro dossier sample on the Editions page. It
-  was never in the site source.
+Confirmed from https://kshana.dev/ in Chromium on 2026-10-07 (computed values, light / dark):
 
-**This audit measures against Observatory** (the theme the site source declares). If the target is
-Ashforde gold instead, every surface below is OLD — section 6 gives that count — and the fix is
-a site-wide redesign, not a clean-up.
+| Property | Light | Dark |
+|---|---|---|
+| Stylesheets, in load order | `fonts/geist-geist-mono-unbounded.css`, `fonts/noto-sans-devanagari.css`, **`tokens.css`, `theme.css`**, `site.css`, `css/home.css`, `css/pro-power.css`, `css/light.css`, `css/home-waterfall.css` | same |
+| Ground `--bg` / ink `--ink` | `#E8ECF3` / `#182033` | `#060A14` / `#EAF0FF` |
+| Accents `--cyan --magenta --lime --amber --coral` | `#066A86 #A8247F #2F6E0A #764600 #B42D1B` | `#3DDCF7 #F45CCB #A8EE5E #FFB547 #FF6A5C` |
+| Surface `--panel` | `rgba(247,249,252,.9)` | `rgba(16,24,44,.62)` |
+| Fonts loaded | Geist, Geist Mono, Unbounded, Noto Sans Devanagari | same |
+| Body / h1 / wordmark font | Geist / Geist / Unbounded | same |
+
+That is the **Observatory** system: `web/tokens.css` + `web/theme.css`. The theme.css header
+reads "the Observatory system (founder's choice, 2026-09-28)". Its source, kshana-pro
+`site-next/explorations/2026-09-27-combo/src/theme.css`, is byte-identical to the live file.
+The home page itself carries one non-target section, `#pro-band` (section 2).
 
 Five theme systems are in play, oldest first:
 
@@ -154,8 +160,8 @@ What the OLD sections look like (see the screenshots):
   "Published research"** (dark bar plots with combo lavender/blue).
 - **Developers › hero terminal**: MIXED; the space terminal sits inside an Observatory hero.
 - **Studio**: the whole app is combo (tokens.css only, Bricolage Grotesque headings, domain
-  colours, space panels). tokens.css says this split is "by design", but beside the site it reads
-  as the old theme.
+  colours, space panels). tokens.css says this split is "by design"; under the founder's decision it is
+  OLD and moves onto Observatory.
 
 ## 3. Studio, reports, OG card, README and docs images
 
@@ -175,7 +181,7 @@ What the OLD sections look like (see the screenshots):
 | `docs/assets/diagrams/{validation-provenance,system-overview,engine-flow,module-map,distribution}.{svg,png}` (1 in README) | Warm-dark Mermaid (`#11100b` boxes, `#c79e63` borders, Helvetica) | sources `docs/diagrams/*.mmd`; rendered with mermaid-cli, then `tools/render-diagram.sh` (PNG + `rendered-from.json`). **The Mermaid theme config is in neither repo** | **OLD** (warm-dark) ([1](theme-audit-0.33/diagrams_validation-provenance.jpg), [2](theme-audit-0.33/diagrams_system-overview.jpg)) |
 | `paper/crossover/{clock,inertial}.png` (README) | matplotlib dark, warm-tan title; footer **"Kshana v0.20.0"** | public `paper/crossover/render_{clock,inertial}.py` from `*.json` | **OLD** (warm-dark, and version-stale) ([evidence](theme-audit-0.33/paper_crossover_clock.jpg)) |
 | `docs/assets/kshana-{banner,mark,wordmark}.svg`, `kshana-logo.png` (June) | Brand marks, palette-neutral | kshana-pro `brand/` masters | n/a (marks) |
-| Editions › Pro dossier sample (`web/assets/pro/mission-dossier*`) | **Ashforde gold** (Pro document style) | kshana-pro Pro generators; `pro-assets/` | Deliberate: it is a Pro document |
+| Editions › Pro dossier sample (`web/assets/pro/mission-dossier*`) | **Ashforde gold** (Pro document style) | kshana-pro Pro generators; `pro-assets/` | Out of scope: a picture of a Pro document (Ashforde document style), shown as product output, not site styling |
 | `theme-color` meta / `apple-touch-icon` | absent on every page | page `<head>` from `site-next/.../src/shell.html` | Gap, not a theme mismatch (noted in site-audit-A) |
 
 ## 4. Where each OLD item's source lives, and the fix
@@ -188,7 +194,7 @@ What the OLD sections look like (see the screenshots):
 | Evidence repro / standards / research | `src/site.css` (`.repro`, `.sd.ok`, `.evi-n`), `src/css/evidence.css` (`.pub-*`) | **Source change** |
 | Developers hero terminal | `src/site.css` `.hx-space`, `src/css/developers.css` `.dt-*` | **Source change** |
 | Docs `#6A2CD6` callouts | `src/css/docs.css` | **Source change** (one-line token swap) |
-| Studio (whole app) | kshana-pro `site-next/explorations/2026-10-01-studio-rebuild` (`app.css`, `studio.css`, its tokens.css; it loads no theme.css) | **Source change, needs a decision**: load Observatory theme.css + Unbounded in the Studio, or keep the combo Studio deliberately |
+| Studio (whole app) | kshana-pro `site-next/explorations/2026-10-01-studio-rebuild` (`app.css`, `studio.css`, its tokens.css; it loads no theme.css) | **Source change**: load Observatory `theme.css` + the Geist/Unbounded font file in the Studio, drop Bricolage, and map its domain colours (as in plan step 3) |
 | Engine charts (`chart.svg`, Studio exports, report charts, README demo charts) | public `src/chart.rs` + ~35 kind modules | **Public engine change** (one shared chart palette module), then **regenerate** README demo charts + the `published_figures_still_reproduce` goldens, report exports, and Studio recordings |
 | Run report pages (9) | public `src/advanced_report.rs` | **Public engine change**, then **regenerate** (site recorders, then port) |
 | Validation figures | public `tools/gen_validation_figures.py` | **Public tool change**, then **regenerate** |
@@ -219,15 +225,7 @@ What the OLD sections look like (see the screenshots):
 - **Other generated outputs:** 9 run reports (OLD), every engine `chart.svg` (OLD), og-card (CURRENT),
   4 more docs diagrams and 3 more figures (OLD), 2 more docs engine charts (OLD).
 
-## 6. If the target is Ashforde gold instead
-
-Then nothing is CURRENT: all 52 sections, all 61 docs pages, the Studio, the og-card and all 32
-README images are OLD. Only the Pro dossier sample is on target. That would need new site tokens and
-fonts, a new wordmark treatment, re-rendering every image, and a decision on the
-"Kshana · क्षण · the precise instant" name line. `site-theme-audit.md` §11 has the full list. It is
-a redesign, not a fix, so the plan below assumes Observatory.
-
-## 7. Fix plan (assuming Observatory)
+## 6. Fix plan
 
 **A. Site-source PR in kshana-pro (W4), CSS only, no new design:**
 1. `css/pro-power.css` (`.pw*`) and `site.css` `.pro-band` / `.pb-*`: move the Pro blocks from the
@@ -244,9 +242,10 @@ a redesign, not a fix, so the plan below assumes Observatory.
    `.journey` / HUDs, evidence `.pub-*` / `.sd.ok`, reference dots) follows Observatory with no
    per-rule edits. Then fix the near-duplicate hard-codes (`#C9321F #6B4FD8 #2F55C8 #3552A8
    #1F7A3E #7E4B00 #6A2CD6 #C3A6FF #1E1446 #1A1240`) to tokens.
-4. Studio (only if the founder wants it on Observatory): load `theme.css` + the Unbounded/Geist
-   font file in `studio-rebuild` and drop Bricolage; the domain-colour mapping from step 3 then
-   applies.
+4. Studio: load `theme.css` + the Geist/Unbounded font file in `studio-rebuild`, drop
+   Bricolage, and restyle its space panels onto the instrument surface from step 2. The
+   domain-colour mapping from step 3 then applies. Update `tools_*`/`selfcheck.mjs` only if they
+   assert on styles.
 5. Tidy: stale `0.29.2` comments; the tokens.css header still documents Bricolage as the display font.
 6. Verify without a full rebuild: serve public `web/` with the changed CSS swapped in, re-run this
    audit's Playwright pass (light + dark) and screenshot every section. Target: 0 OLD and 0 MIXED.
@@ -269,7 +268,8 @@ a redesign, not a fix, so the plan below assumes Observatory.
    - the paper PNGs;
    - the run reports and Studio recordings, through the recorders.
 
-   **Decision needed:** whether engine charts and reports keep a separate "document" look (warm
-   paper / warm-dark, as now) or follow the site. Changing `src/chart.rs` changes every published
-   chart's bytes, which is a revision under the repo's reproducibility rules.
+   Per the founder's decision these follow the site: Observatory instrument-dark for charts,
+   Observatory light/dark for the report page. Changing `src/chart.rs` changes every published
+   chart's bytes. That is a revision under the repo's reproducibility rules: record it in the
+   CHANGELOG and regenerate the goldens and fixtures in the same PR. It needs public push.
 3. Re-sync kshana-pro `brand/og-card.*` with the public og-card (same theme; the content differs).
