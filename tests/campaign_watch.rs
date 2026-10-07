@@ -108,9 +108,14 @@ fn write_pack(dir: &Path, body: &str) {
 
 /// A manifest with no watch tables runs exactly as it did at the branch point: the
 /// committed fixture is the `ci.json` the branch-point binary (feat/pro-power 26d069a)
-/// wrote for the resilience-baseline pack with the same `--utc`; this build must write
-/// the same bytes apart from the added MODELLED `label` line and the embedded engine's
-/// version, so the pack hash and every metric are unchanged.
+/// wrote for the resilience-baseline pack with the same `--utc`, re-recorded on open
+/// engine 0.30.0 (whose ARAIM revision moved `mean_hpl_m` and `mean_vpl_m`; the pack hash
+/// and every other metric are unchanged). The fixture was recorded on Linux x86-64.
+/// This build must write the same report apart from the added MODELLED `label` line and
+/// the embedded engine's version: every field, key and line identical, and every metric
+/// equal to within a few units in the last place. The last-place allowance is the
+/// platform, not the model: macOS arm64 (the CI runner) and Linux x86-64 round the ARAIM
+/// sums differently in the sixteenth digit; an engine revision moves far more than that.
 #[test]
 fn backward_compatible_with_the_branch_point() {
     let dir = scratch("compat");
@@ -132,13 +137,14 @@ fn backward_compatible_with_the_branch_point() {
         "tests/fixtures/campaign-watch/resilience-baseline.branch-point.ci.json",
     )
     .unwrap();
-    // The embedded open engine has moved on since the branch point (0.28.0 then, 0.29.0
-    // from Kshana Pro 0.2.0), and a report states the engine version its runs wrote. That
-    // one line is put back to the branch point's before the comparison.
+    // A report states the engine version its runs wrote, and the embedded open engine
+    // moves on between releases. That one line is put back to the fixture's before the
+    // comparison; a metric the engine revises means re-recording the fixture, with a
+    // revision line in CHANGELOG.md.
     let now_v: Value = serde_json::from_str(&now).unwrap();
     let then_v: Value = serde_json::from_str(&then).unwrap();
     assert_eq!(
-        then_v["engine_version"], "0.28.0",
+        then_v["engine_version"], "0.30.0",
         "the branch-point fixture"
     );
     assert!(
@@ -157,11 +163,34 @@ fn backward_compatible_with_the_branch_point() {
         now.contains(&label_line),
         "ci.json carries the MODELLED label"
     );
+    let now = now.replacen(&label_line, "", 1);
     assert_eq!(
-        now.replacen(&label_line, "", 1),
-        then,
-        "a watch-free pack must write the branch-point report byte for byte, apart from the label"
+        now.lines().count(),
+        then.lines().count(),
+        "a watch-free pack adds no line to the branch-point report but the label"
     );
+    let mut now_v: Value = serde_json::from_str(&now).unwrap();
+    let mut then_v = then_v;
+    let now_m = now_v["metrics"].take();
+    let then_m = then_v["metrics"].take();
+    assert_eq!(
+        now_v, then_v,
+        "a watch-free pack must write the branch-point report field for field, apart from the label"
+    );
+    let (now_m, then_m) = (now_m.as_object().unwrap(), then_m.as_object().unwrap());
+    assert_eq!(
+        now_m.keys().collect::<Vec<_>>(),
+        then_m.keys().collect::<Vec<_>>(),
+        "the same metrics, in the same order"
+    );
+    for (k, a) in now_m {
+        let (a, b) = (a.as_f64().unwrap(), then_m[k].as_f64().unwrap());
+        let ulps = (a.to_bits() as i64 - b.to_bits() as i64).unsigned_abs();
+        assert!(
+            a.signum() == b.signum() && ulps <= 8,
+            "metric {k}: {a} vs branch point {b} ({ulps} ulp apart)"
+        );
+    }
     let manifest = pack_c::parse_pack(&std::fs::read_to_string(pack).unwrap()).unwrap();
     assert_eq!(
         manifest.pack_hash(),

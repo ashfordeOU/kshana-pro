@@ -2,7 +2,7 @@
   "pack_id": "resilience-baseline",
   "pack_version": "1.0.0",
   "pack_hash": "762220a20d4b4ed52385c8dc4feea73f0c9ddd82d55d3b23b274fc3cf1d4464b",
-  "engine_version": "0.28.0",
+  "engine_version": "0.30.0",
   "scenario_hashes": [
     "2f464480f2e0ae8e06e0e58ddc33c803e57650fb18d62891b37c050ad94defa2",
     "bf4c64fe8bfba5d4402e0acdec6d3bdb6e76fa0999ebdef45ae3949cea4238d8"
@@ -10,10 +10,10 @@
   "generated_utc": "2026-09-30T00:00:00Z",
   "metrics": {
     "araim::fom.fault_rate": 0.0,
-    "araim::fom.mean_hpl_m": 15.104871903650922,
+    "araim::fom.mean_hpl_m": 15.124300183368367,
     "araim::fom.mean_iono_m": 21.003075072047547,
-    "araim::fom.mean_tropo_m": 7.925382350406306,
-    "araim::fom.mean_vpl_m": 24.122911345861873,
+    "araim::fom.mean_tropo_m": 7.9253823504063075,
+    "araim::fom.mean_vpl_m": 24.119991046323047,
     "araim::fom.raim_availability": 0.75,
     "impairment::auc": 0.99771875,
     "impairment::corpus.n_cases": 1000.0,
