@@ -1,4 +1,4 @@
-Updated: 2026-10-07T13:20:37Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T13:29:58Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -74,6 +74,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:29:58 Check-in: heartbeat dead again (container restart) → restarted. PR 34/35/37/38 long CI jobs (check ~2.5 h) still running; earliest finish ~14:25. Next check-in ~14:40. Planned merge order: 34 → 37 → 35 (CHANGELOG conflict fix by W2) → 38 (W1 merges main).
 - 13:20 [RUNNER] kshana PR 38 @d5d67083: GREEN targeted, clippy root/python/mcp 0, iq_cli 11/11, doc_sync 51/51, mcp 33/33, pytest 20/20, stubtest clean; CI #519 (37625615404) running.
 - 13:15:07 kshana-pro PR 10 merged (Mac CI 37626378875 green) → 96d64cc; PR 9 merged → 3d77978. Rehearsal runbook fixes → new branch chore/re-port-fixes.
 - 13:10:37 W4 opened kshana-pro PR 10 (Pro CHANGELOG PRs 5–8, changelog_tracks_engine_pin guard, RE-PORT.md, README integration-test count 28→29). Merge after Mac CI + W2 rehearsal; then PR 9.
