@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:26:53Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:28:52Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:28:52 21:28Z is the time stamp. W1 B-scope order approved (B3.5→B6.2→B6.3→B3.4). B3.4 redefined as acquisition-surface export. W1 is still finishing the #45 final push, then hands over.
 - 21:26:53 [W1] PR 45 combined push 03eeb008 (merges #38 79ff31e): fll_assist pull-in gate with hysteresis (default design 35–45 dB-Hz: PL ≥0.997, LOCKED ≥0.963, 0 slips; was PL 0.10–0.16 at 35; B1–B4 pass, carrier-lock RESULTS.md committed); reacq window (W3's 2 s outage pinned: all recover); final_state fix. But it still uses the 0.25→2 s doubling back-off, which crossed with the 21:25 decision → W1 applies the fixed 0.1 s default + the remaining critic items; the hash changes again, so W7/W3 hold the pin until W1's final sha. [W5] D5 (a2) WIP local on fix/iq-d5-jammer-q-a2 (from #50 e5cd543); full release tests running.
 - 21:25:39 [W5 Sonnet] critic fixes pushed: #48 → 80e8b7f (off-20 ms-grid assertion; proven: L5-I5 or B1C reverted to 20 ms now fails; CHANGELOG clause); #50 → e5cd543 (merge of #48 + if_hz CHANGELOG sentence). Critic re-checking. Next: D5 (a2) PR stacked on #50.
 - 21:25:10 [CRITIC] #44 restack 0b484880: MERGE (#44's hunks byte-identical; auto_coherent_periods + through_frontend on both passes; 3/3 tests). #45 @ff1f3f70 (W1 WIP): FIX-FIRST. Blocking: default-hash pin stale (c6c25a27 vs 0773c7ee); re-acq 0.435 s vs a 0.3 s bar from the back-off. Should-fix: stale CHANGELOG/docs, the FLL gate and final_state tests don't bite, carrier-lock B1–B3 unmeasured while mod.rs states H1 as fact, DLL P1/P2/P3 partly uncoded, sweep --design ignores acquisition flags. DECISION: fixed reacq_interval 0.1 s, no doubling by default (our retry schedule must not inflate measured re-acq time); the 0.3 s bar stays. All → W1.
