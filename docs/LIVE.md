@@ -1,4 +1,4 @@
-Updated: 2026-10-07T15:38:52Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T15:40:03Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -60,6 +60,7 @@ No external deadline set.
 - 2026-10-07 The gps-sdr-sim ledger row stays MODELLED (pre-registered bar f88f2969 failed on
   230/1152 fields); never relax a pre-registered bar after the fact.
 - Workers open PRs; only the coordinator merges.
+- 2026-10-07 No partner recordings, results or anti-jam/anti-spoof performance numbers enter either repo until counsel answers N6 (kshana-pro PR 14). Tooling is built and tested on synthetic data only.
 - 2026-10-07 EXPORT CONTROL (founder 15:31): verified that public `spectrum` [iq] has synthesised jammer IQ snapshots (noise/CW/chirp, SigMF, file only) since 0.29.0; spoof_capture builds a spoofer composite in memory; a software receiver has existed since ≤0.27.2. The export pack's "no receiver/signal generator/jammer/spoofer" claim was inaccurate. Decision: correct the record everywhere, keep the features, counsel review of the corrected pack; 0.33.0 proceeds. W3 drafts the pack correction (DRAFT for counsel); W2 corrects public wording. New F3/F4/F5 capabilities stay held pending counsel.
 - 2026-10-07 Loop-design schema kshana.loop-design/1 approved (W1, feat/034-track-engine d1a575a); epoch stream kshana.track-epoch/1 (CSV/JSONL/binary); reacquire default false. W6 graphics: domains Interference→coral, Spoofing→magenta, Orbit→cyan, Integrity→lime, Navigation→amber, Timing→#1F55F0/#6A98FF; charts dark-only; paper/crossover untouched.
 - 2026-10-07 Founder: start 0.34.0 Lab replay now in parallel. Interference: F1 (analytic SSC J/S reference, MODELLED) and F2 (C/N0 profiles in own scenes) APPROVED and building. F3/F4/F5 (spoofer-shaped scenes, jammer waveforms, RF/transmitter export) ticked by founder but HELD by coordinator pending counsel: kshana-pro legal/EXPORT-CONTROL-ASSESSMENT.md classes adversary waveforms as potentially controlled (L2, Pro-only, kept out of git), and the public engine's uncontrolled status rests on it containing no jammer/spoofer; F5 also enables over-the-air use.
@@ -87,6 +88,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:40:03 Merged kshana-pro PR 13 (ae783d7, site + Studio onto Observatory). W3 opened kshana-pro PR 14 (export-control pack correction, DRAFT for counsel; N6: analysing partner jammer/spoofer recordings touches the "no anti-jam/anti-spoof performance data in any repo" gate → counsel before partner-data work). W5 opened kshana PR 40 (D3 integer scaling). W1 design API at e7453d8. W7 design approved (a: Cn0Profile SceneChannel owned by W8, now unblocked; b: rebase on track-engine; c: bars in campaign file + per-recording override; d: max_cells ok; e: reacq from offset and from loss). W3 → Pro campaign report plan.
 - 15:39:42 [W3] PR 14 updated (3da57fd): F4 line + founder decision recorded.
 - 15:38:52 W3 found existing jammer-IQ synthesis (spectrum [iq], since 0.29) and an in-memory spoofer composite; coordinator verified in src/spectrum.rs + docs/SPECTRUM.md. Founder chose: correct the record, keep, counsel. W2 → public docs wording PR; W3 → pack draft.
 - 15:29:45 [W3] opened kshana-pro PR 14 (legal/classification-pack-iq 86a3209): export pack factual correction, DRAFT for counsel.
