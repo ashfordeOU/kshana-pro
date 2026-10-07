@@ -109,9 +109,10 @@ no transmit path.</p>
   a bit-exact bar, gps-sdr-sim (MIT, commit <code>28ca29a6</code>) run as a separate program on its <code>brdc0010.22n</code>
   (32 satellites). <strong>0 of 32 736 C/A chips differ; parity of 0 of 1 920 words differs</strong> <span class="mark tested">TESTED</span>. 230 of
   1 152 computed LNAV fields differ by one LSB because gps-sdr-sim truncates where IS-GPS-200 needs
-  rounding — pinned as a finding; the strict all-fields test is <code>#[ignore]</code>d with the gap; matrix row
-  stays <strong>MODELLED</strong>. The same encoder decodes in RTKLIB with 608 of 608 broadcast integers equal
-  (<code>tests/gps_lnav_rtklib_integer_oracle.rs</code>; MODELLED on a registration-timing technicality).</li>
+  rounding — pinned as a finding that runs in CI; the strict all-fields test is <code>#[ignore]</code>d with the
+  gap. The ledger row exists ("GPS L1 C/A cross-generator conformance") and is <strong>MODELLED</strong> because the
+  pre-registered bit-exact bar (<code>f88f2969</code>) failed on those fields; promotion is <span class="mark planned">PLANNED</span>.
+  RTKLIB decodes the same encoder's integers 608/608 (<code>tests/gps_lnav_rtklib_integer_oracle.rs</code>).</li>
 <li><strong>Receiver vs closed forms</strong> — <code>tests/iq_receiver.rs</code> (16 tests) <span class="mark tested">TESTED</span>: FFT vs direct DFT to 1e-9;
   empirical P<sub>fa</sub> and P<sub>d</sub> vs square-law / Marcum-Q within 4 binomial σ; loop B<sub>n</sub> vs
   Kaplan &amp; Hegarty Table 5.6 within 6 %; PLL jitter vs thermal-noise closed form within 12 %; 2nd-order
@@ -134,8 +135,7 @@ no transmit path.</p>
   checked against bindings by <code>mypy.stubtest</code> in CI.</li>
 <li><strong>Worked example on the published wheel</strong> — <code>examples/iq-notebook/</code> in this repository <span class="mark tested">TESTED</span> (synthetic scene):
   three PRNs acquired within 0.12 chip; tracked Doppler error ≈ 0.01 Hz (σ ≈ 1.3 Hz), C/N0 within
-  0.8 dB of the injected 45 dB-Hz. It also surfaces a default-setting caveat: with <code>acq_coherent=1</code>
-  the hand-off bin (≈ 667 Hz) can exceed FLL pull-in and false-lock ≈ 500 Hz off; use <code>acq_coherent≥2</code>.</li>
+  0.8 dB of the injected 45 dB-Hz.</li>
 </ul>
 <h2>Explicit limits</h2>
 <ul>
@@ -143,9 +143,11 @@ no transmit path.</p>
   waveform synthesis</strong> — channel effects act on the legitimate signal only; jamming/spoofing remain
   analytic models elsewhere in the engine.</li>
 <li><strong>Not in WASM/browser or MCP in 0.32.0</strong> (<code>iq::cli</code> is <code>cfg(not(wasm32))</code>; no <code>iq_*</code> in <code>src/wasm.rs</code>
-  or the MCP server). MCP exposure, a CI-wired gps-sdr-sim ledger row, and a WASM demo are <strong><span class="mark planned">PLANNED</span></strong>.</li>
+  or the MCP server). MCP exposure and a WASM demo are <strong><span class="mark planned">PLANNED</span></strong>.</li>
+<li><strong>Tracking hand-off default:</strong> <code>iq_track</code> with <code>acq_coherent=1</code> (≈ 667 Hz bins) can false-lock ≈ 500 Hz
+  off; use <code>acq_coherent=2</code> or finer Doppler bins.</li>
 <li><strong>No new VALIDATED ledger rows</strong> for acquisition/tracking/channel in 0.32.0; channel and loop
-  physics stay MODELLED. Real-capture evidence (LuGRE lunar IQ vs GNSS-SDR) is recorded as findings,
-  not validations. Lab-fit results describe observed behaviour, not any receiver's internals.</li>
+  physics stay MODELLED. Real-capture evidence (LuGRE lunar IQ vs
+  GNSS-SDR) is recorded as findings, not validations.</li>
 </ul>
 </main></body></html>
