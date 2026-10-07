@@ -18,7 +18,7 @@ jupyter nbconvert --to notebook --execute --inplace iq_acquire_track.ipynb
 # or open it interactively:  pip install jupyterlab && jupyter lab iq_acquire_track.ipynb
 ```
 
-Runtime ≈ 20 s on 4 cores; peak memory ≈ 1.5 GB (the 2 s scene is 8.2 M complex samples held
+Runtime ≈ 25 s on 4 cores; peak memory ≈ 1.5 GB (the 2 s scene is 8.2 M complex samples held
 as Python float lists — the 0.32.0 Python API passes samples as lists, not NumPy buffers).
 
 ## Environment of the committed outputs
