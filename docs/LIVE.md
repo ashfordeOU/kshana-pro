@@ -1,4 +1,4 @@
-Updated: 2026-10-07T20:52:36Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T20:53:20Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 20:53:20 W6 handed over (dfd80fa; feat/observatory-graphics 1be39823 WIP: --lib 2755/0, --all partial 3491/0 before a container restart). Spawned W6 successor (Sonnet) session_01PtZVCSGSaiVwqQ5vkaZu4a. Dispatched Mac probe on 1be39823 for the scenario-2 emission pin (runner relays the values).
 - 20:52:36 Handovers in: RUNNER, W4 (b803601), W7 (22fa307; PR 46 → 2a5233af with SigMF annotation import + GB test 4.0 GB at 5.45× real time, +2 MB RSS). Spawned W7 successor (Sonnet) session_01TbgJYRn2SrgK8oKKC5Nw65. W4's Haiku successor will be spawned at re-port time. [W2] #36 PR scope: #1–5, #8–10 + mutation tests ('Part of #36'); #6/#7 = iterate/host-H dependence findings → option (b) amendment PR after critic review.
 - 20:51:00 Old runner handed over (read-only; coordinator committed docs/lanes/RUNNER.md edbee95); new Haiku runner watching, incl. #45 (#542) and #49 (#544) CI FAILURES to triage. [W2] #36 fix on fix/macos-fixture-tolerance (WIP): fixture_pin helper; 1e-12-of-row-scale pins for #1–#5 and #8–#10; #7 matrix-scaled 2e-7 (1 ULP of a 4e8 m range over a 2e-6 central difference = 0.0298, exactly the Mac delta). #6 is NOT last-bit: the solver stops on a different iterate (x_hat 5 mm, 1e-4 rel), so pre-registered bars (3)/(4) would fail on Mac. Decision (a): #6 out of this PR ('Part of #36', recorded as a finding); (b) amendment as a separate PR after critic review; no bar values change.
 - 20:49:58 Model switch started: critic Fable session_01FCX7Wse9h6mjZDrm8F2SHt (reviewing #38, #44, #48, #50, then #45/#46, pro 17/19); runner Haiku session_01Fj4wFAGd9JahRkFq8jQxu3. Opus W1–W8 + old runner asked to finish the current step, push, write docs/lanes/<lane>.md and stop; Sonnet replacements (W1, W2, W3, W5, W6, W7, W8) and Haiku W4 are spawned from those handovers.
