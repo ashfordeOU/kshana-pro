@@ -1,4 +1,4 @@
-Updated: 2026-10-07T15:26:01Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T15:26:42Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -47,7 +47,7 @@ No external deadline set.
 | session_01LStocVmSb3UAXorqXZT3BQ | W5 IQ defect fixes D1/D2/D3/D5/D7 for 0.33.0 (public) | fix/iq-d* | plan approved 14:52; D3 first (row recorded by coordinator) |
 | session_01QU3dhUo1RBWW24nEVVzxst | W6 engine graphics onto Observatory | feat/observatory-graphics | plan approved 15:27 (palette.rs single source, palette_sync guard, colour-normalised equality evidence, dark-only charts, report light/dark, 3 orphan figure generators) |
 | session_011PWAHJi1S2BLjLeD5uidXf | W7 0.34 campaign runner + scoring + F1 analytic J/S reference (public) | feat/034-campaign | spawned 15:24; schema design owed |
-| session_01PwGcK67ty6g2wP1Kwx4S8k | W8 0.34 IQ monitors, lab formats + GB-scale, F2 C/N0 profiles (public) | feat/034-* | spawned 15:24; plan owed |
+| session_01PwGcK67ty6g2wP1Kwx4S8k | W8 0.34 lab formats (b) → IQ monitors (a) → C/N0 profiles (c) | feat/034-formats | plan approved 15:28; (b) started; (c) waits for W5 scene PRs |
 | session_01YCEg68jFdLERESsPcMmyMz | W4 site-source theme fix | site/observatory-sweep | kshana-pro PR 13 open @7edd926: 60 sections incl. Studio light 11 OLD+2 MIXED → 0/0, dark 6+9 → 0/0 (local overlay; full build at re-port) |
 
 ## Decisions
@@ -86,6 +86,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:26:42 W8 plan approved (formats: ci4/cu8/ci12/2-bit-per-byte, multi-stream, sidecars, .sdrx, 2 GB #[ignore] + 200 MB CI test; monitors: power/AGC, C/N0 CUSUM, SQM, lock, spectral/kurtosis/pulse, each vs closed form, MODELLED rows). W1 asked to add extra_taps_chips (default empty, byte-identical) for SQM.
 - 15:26:01 Approved W6 graphics plan, W1 loop-design schema (forwarded to W7). W4 opened kshana-pro PR 13 (site + Studio onto Observatory).
 - 15:25:21 [W1] 0.34 track-engine: schema proposal pushed (feat/034-track-engine @ d1a575a) and sent; awaiting approval.
 - 15:24:45 0.34 lanes started: W1 track engine, W7 campaign+scoring (spawned), W8 monitors/formats/C/N0 profiles (spawned); W3 → export-control pack correction (it says the engine has no receiver/no signal generator, stale since 0.31) + Pro campaign report.
