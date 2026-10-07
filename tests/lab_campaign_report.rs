@@ -203,3 +203,106 @@ fn designs_keep_their_colour_whatever_their_rank() {
     // The fourth slot is unused with three designs.
     assert!(!doc.contains("#eda100"));
 }
+
+// ── L4: the PDF edition ────────────────────────────────────────────────────────────────
+
+use kshana_pro::report_lab_campaign_pdf::render_pdf;
+
+/// Blank the trailer `/ID` literals, the one field printpdf randomises (see
+/// tests/report_pdf.rs), so two renders can be compared byte for byte.
+fn mask_id(b: &[u8]) -> Vec<u8> {
+    let mut out = b.to_vec();
+    if let Some(pos) = b.windows(4).position(|w| w == b"/ID[") {
+        let (mut i, mut n) = (pos + 4, 0);
+        while i < out.len() && n < 2 {
+            if out[i] == b'(' {
+                i += 1;
+                while i < out.len() && out[i] != b')' {
+                    out[i] = b'#';
+                    i += 1;
+                }
+                n += 1;
+            } else if out[i] == b']' {
+                break;
+            } else {
+                i += 1;
+            }
+        }
+    }
+    out
+}
+
+/// The literal strings shown on the pages (body text uses the built-in fonts).
+fn pdf_text(bytes: &[u8]) -> String {
+    let doc = lopdf::Document::load_mem(bytes).expect("the PDF parses");
+    let mut all = String::new();
+    for id in doc.get_pages().values() {
+        let s = doc.get_page_content(*id).unwrap();
+        let mut i = 0;
+        while i < s.len() {
+            if s[i] == b'(' {
+                let mut depth = 1;
+                i += 1;
+                while i < s.len() && depth > 0 {
+                    match s[i] {
+                        b'\\' if i + 1 < s.len() => {
+                            all.push(s[i + 1] as char);
+                            i += 1;
+                        }
+                        b'(' => depth += 1,
+                        b')' => depth -= 1,
+                        c => all.push(c as char),
+                    }
+                    i += 1;
+                }
+                all.push('\n');
+            } else if s[i] == b'<' && s.get(i + 1).is_some_and(|c| c.is_ascii_hexdigit()) {
+                // printpdf writes a string containing parentheses as <hex>.
+                let end = i + s[i..].iter().position(|c| *c == b'>').unwrap();
+                let hex = std::str::from_utf8(&s[i + 1..end]).unwrap();
+                for k in (0..hex.len() - hex.len() % 2).step_by(2) {
+                    all.push(u8::from_str_radix(&hex[k..k + 2], 16).unwrap() as char);
+                }
+                all.push('\n');
+                i = end + 1;
+            } else {
+                i += 1;
+            }
+        }
+    }
+    all
+}
+
+#[test]
+fn the_pdf_edition_renders_deterministically_and_carries_the_same_facts() {
+    let c = load(&fixture()).unwrap();
+    let a = render_pdf(&c, &synthetic()).unwrap();
+    assert!(a.starts_with(b"%PDF"));
+    assert_eq!(mask_id(&a), mask_id(&render_pdf(&c, &synthetic()).unwrap()));
+    let doc = lopdf::Document::load_mem(&a).unwrap();
+    assert!(
+        doc.get_pages().len() >= 4,
+        "{} pages",
+        doc.get_pages().len()
+    );
+    let text = pdf_text(&a);
+    for must in [
+        "SYNTHETIC CAMPAIGN",
+        "1. Summary",
+        "5. C/N0 degradation against stated J/S",
+        "MODELLED reference",
+        "10. Limits",
+        &c.digest,
+    ] {
+        assert!(text.contains(must), "PDF text lacks {must:?}");
+    }
+    // The summary sentences are the HTML edition's, word for word (lines re-joined).
+    let flat = text.split_whitespace().collect::<Vec<_>>().join(" ");
+    assert!(flat.contains("narrow-pll held lock longest before loss"));
+}
+
+#[test]
+fn the_pdf_edition_enforces_the_data_class_too() {
+    let c = load(&fixture()).unwrap();
+    assert!(render_pdf(&c, &LabReportOptions::new(DataClass::ClientConfidential)).is_err());
+}

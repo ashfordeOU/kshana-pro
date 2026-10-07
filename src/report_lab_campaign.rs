@@ -101,8 +101,9 @@ impl std::fmt::Display for RenderError {
 
 impl std::error::Error for RenderError {}
 
-/// Render the branded HTML report.
-pub fn render_html(c: &LoadedCampaign, opts: &LabReportOptions) -> Result<String, RenderError> {
+/// The checks both editions make before rendering: the data class must match the campaign's
+/// own (when it states one), and a campaign with missing cells needs `allow_incomplete`.
+pub(crate) fn check(c: &LoadedCampaign, opts: &LabReportOptions) -> Result<(), RenderError> {
     if let Some(declared) = c.data_class() {
         if declared != opts.data_class {
             return Err(RenderError::DataClassMismatch {
@@ -116,6 +117,12 @@ pub fn render_html(c: &LoadedCampaign, opts: &LabReportOptions) -> Result<String
             missing: c.missing.len(),
         });
     }
+    Ok(())
+}
+
+/// Render the branded HTML report.
+pub fn render_html(c: &LoadedCampaign, opts: &LabReportOptions) -> Result<String, RenderError> {
+    check(c, opts)?;
     let a = aggregate(c);
     let body = body_html(c, &a, opts);
     let id = opts
@@ -383,10 +390,37 @@ fn cover_facts(c: &LoadedCampaign, o: &LabReportOptions) -> String {
 
 // ───────────────────────────── §1 summary ─────────────────────────────
 
-fn exec_summary(c: &LoadedCampaign, a: &Aggregates) -> String {
-    let mut s = String::from("<h2>1. Summary</h2><p>");
-    let _ = write!(
-        s,
+/// The summary, as plain text shared by the HTML and PDF editions so they can never differ.
+pub(crate) struct Summary {
+    pub(crate) intro: String,
+    /// `(event and chain, finding)` per event and front-end chain.
+    pub(crate) items: Vec<(String, String)>,
+    pub(crate) bars: Option<String>,
+}
+
+/// The three caveats under every summary: `(label, text)`.
+pub(crate) const CAVEATS: [(&str, &str); 3] = [
+    (
+        "MEASURED",
+        "loop response of Kshana's software receiver on the supplied recordings, scored against \
+         the stated test conditions. It describes these loop designs, not the receiver that was \
+         recorded.",
+    ),
+    (
+        "MODELLED",
+        "the C/N0-vs-J/S reference curve is an analytic spectral-separation model, shown for \
+         comparison only. It is not a validation and not a simulation of any jammer.",
+    ),
+    (
+        "",
+        "\"Loss of lock\" follows each design's lock state machine and dwell times (section 8). \
+         Results hold for the recordings and conditions in section 2 only.",
+    ),
+];
+
+/// Build the summary from fixed sentence templates over the aggregates.
+pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
+    let intro = format!(
         "This campaign replayed {r} recording(s) through {f} front-end chain(s) and {d} loop \
          design(s): {n} cell(s){inc}. Each cell is one recording processed by one chain and one \
          design; every figure below is read from those cells.",
@@ -400,7 +434,6 @@ fn exec_summary(c: &LoadedCampaign, a: &Aggregates) -> String {
             ", campaign INCOMPLETE"
         },
     );
-    s.push_str("</p><ul>");
     let mut keys: Vec<(String, String, String)> = Vec::new();
     for e in &a.events {
         let k = (e.recording.clone(), e.event_id.clone(), e.kind.clone());
@@ -408,6 +441,7 @@ fn exec_summary(c: &LoadedCampaign, a: &Aggregates) -> String {
             keys.push(k);
         }
     }
+    let mut items = Vec::new();
     for (rec, ev, kind) in &keys {
         for fe in &a.frontends {
             let rows: Vec<&EventRow> = a
@@ -418,14 +452,8 @@ fn exec_summary(c: &LoadedCampaign, a: &Aggregates) -> String {
             if rows.is_empty() {
                 continue;
             }
-            let _ = write!(
-                s,
-                "<li><strong>{}</strong> ({}, recording {}), chain <em>{}</em>: ",
-                xml(ev),
-                xml(kind),
-                xml(rec),
-                xml(fe)
-            );
+            let head = format!("{ev} ({kind}, recording {rec}), chain {fe}");
+            let mut body = String::new();
             // Longest time to loss; satellites that held lock count as longest.
             let ttl: Vec<(String, Option<f64>)> = rows
                 .iter()
@@ -447,18 +475,18 @@ fn exec_summary(c: &LoadedCampaign, a: &Aggregates) -> String {
                 } else {
                     names(&best)
                 };
-                let _ = write!(s, "{} held lock throughout", xml(&who));
+                let _ = write!(body, "{who} held lock throughout");
             } else if all {
                 let _ = write!(
-                    s,
+                    body,
                     "every design lost lock after the same median time ({:.2} s after onset)",
                     b0.time_to_loss_s.value.unwrap_or(f64::NAN)
                 );
             } else {
                 let _ = write!(
-                    s,
+                    body,
                     "{} held lock longest before loss (median {:.2} s after onset{})",
-                    xml(&names(&best)),
+                    names(&best),
                     b0.time_to_loss_s.value.unwrap_or(f64::NAN),
                     match b0.js_at_loss_db.value {
                         Some(js) => format!(", at stated J/S {js:.1} dB"),
@@ -478,19 +506,20 @@ fn exec_summary(c: &LoadedCampaign, a: &Aggregates) -> String {
             {
                 if fastest.len() == rows.len() && rows.len() > 1 {
                     let _ = write!(
-                        s,
+                        body,
                         "; every design re-acquired after the same median time ({v:.2} s)"
                     );
                 } else {
                     let _ = write!(
-                        s,
+                        body,
                         "; {} re-acquired fastest (median {:.2} s)",
-                        xml(&names(&fastest)),
+                        names(&fastest),
                         v
                     );
                 }
             }
-            s.push_str(".</li>");
+            body.push('.');
+            items.push((head, body));
         }
     }
     let (passed, evaluated) = a
@@ -498,23 +527,34 @@ fn exec_summary(c: &LoadedCampaign, a: &Aggregates) -> String {
         .iter()
         .flat_map(|r| r.bars.values())
         .fold((0, 0), |(p, e), (bp, be)| (p + bp, e + be));
-    if evaluated > 0 {
-        let _ = write!(
-            s,
-            "<li>Against the client's stated bars: {passed} of {evaluated} satellite-event checks passed (section 7).</li>"
-        );
+    let bars = (evaluated > 0).then(|| {
+        format!(
+            "Against the client's stated bars: {passed} of {evaluated} satellite-event checks \
+             passed (section 7)."
+        )
+    });
+    Summary { intro, items, bars }
+}
+
+fn exec_summary(c: &LoadedCampaign, a: &Aggregates) -> String {
+    let sm = summary(c, a);
+    let mut s = format!("<h2>1. Summary</h2><p>{}</p><ul>", xml(&sm.intro));
+    for (head, body) in &sm.items {
+        let _ = write!(s, "<li><strong>{}</strong>: {}</li>", xml(head), xml(body));
     }
-    s.push_str(
-        "</ul><ul class=\"caveats\">\
-         <li><span class=\"tag measured\">MEASURED</span>loop response of Kshana's software receiver on the \
-         supplied recordings, scored against the stated test conditions. It describes these loop designs, \
-         not the receiver that was recorded.</li>\
-         <li><span class=\"tag modelled\">MODELLED</span>the C/N0-vs-J/S reference curve is an analytic \
-         spectral-separation model, shown for comparison only. It is not a validation and not a simulation \
-         of any jammer.</li>\
-         <li>\"Loss of lock\" follows each design's lock state machine and dwell times (section 8). Results \
-         hold for the recordings and conditions in section 2 only.</li></ul>",
-    );
+    if let Some(b) = &sm.bars {
+        let _ = write!(s, "<li>{}</li>", xml(b));
+    }
+    s.push_str("</ul><ul class=\"caveats\">");
+    for (tag, text) in CAVEATS {
+        let t = match tag {
+            "MEASURED" => "<span class=\"tag measured\">MEASURED</span>",
+            "MODELLED" => "<span class=\"tag modelled\">MODELLED</span>",
+            _ => "",
+        };
+        let _ = write!(s, "<li>{t}{}</li>", xml(text));
+    }
+    s.push_str("</ul>");
     s
 }
 
@@ -1135,7 +1175,7 @@ fn pass_fail_section(c: &LoadedCampaign, a: &Aggregates) -> String {
 
 /// Metric definitions, verbatim from the engine's `docs/design/LAB-CAMPAIGN.md` §3
 /// (`kshana.campaign-cell/1`).
-const DEFINITIONS: &[(&str, &str)] = &[
+pub(crate) const DEFINITIONS: &[(&str, &str)] = &[
     ("availability", "time in LOCKED / time scored (after settle_s); whole run and within each event window"),
     ("time to loss of lock", "first LOCKED → LOST transition in [onset, offset + reacq_grace] minus onset; null = held lock"),
     ("J/S at loss", "stated J/S (from [event.power]) at the moment of loss"),
