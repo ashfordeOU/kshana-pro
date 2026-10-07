@@ -1,4 +1,4 @@
-Updated: 2026-10-07T11:56:12Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T11:56:47Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -13,8 +13,8 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 ## Repo heads (from `git ls-remote`, 2026-10-07T11:40:06Z)
 | Repo | Branch | Sha | State |
 |---|---|---|---|
-| kshana-pro | main | db2210a | engine `=0.32.0`; PR 5 + PR 6 merged; Mac CI on main: running (unverified) |
-| kshana-pro | partners/iq-deliverables | dbc8c81 | PR 7 open (W3) |
+| kshana-pro | main | 78ab489 | engine `=0.32.0`; PR 5, 6, 7 merged; Mac CI green on db2210a (#55) |
+| kshana-pro | partners/iq-deliverables | 4c7b6e2 | PR 7 MERGED → 78ab489 |
 | kshana-pro | claude/pro-030 | d94b280 | stale, superseded by PR 5; delete approved, blocked by proxy (founder deletes) |
 | kshana | main | f570219 | v0.32.0 released; CI green (run 37283754192) |
 | kshana | feat/mcp-iq | cff687f | PR 34 open (W1); CI pending (~2.5 h) |
@@ -33,7 +33,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 34 native run started 11:50:52Z @6fae76b4 (fmt, guards, mcp-check/deny, wasm32, clippy, test --all, reproducible, doc-coverage, sbom, package, msrv 1.85); watching kshana-pro main #55 and PR 7 #56 |
 | session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 IQ over MCP (public) | feat/mcp-iq @ 6fae76b | PR 34 open, design approved by coordinator; review doc lines pushed (6fae76b; MCP `cargo test --locked` 33 passed, fmt/clippy/doc-coverage/no-attribution OK); waiting on public CI (unverified); idle |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 §7-B2 IQ ledger rows (public) (row recorded by coordinator) | feat/iq-validation-ledger | bb7edf8: 26e1fe6 rows+artifacts, 225176e guard-forced counts (PNG re-rendered, Chromium/Liberation Sans), bb7edf8 droppable; clippy/no-attribution/version-sync/doc-coverage/site tests OK; PR 35 open, idle |
-| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | PR 7 open, footer stripped; main merged; local gates GREEN (fmt OK, clippy OK, `cargo test --all --locked` 802 passed / 0 failed / 9 ignored on 0fbf7c5; 4c7b6e2 is docs-only). Next: await Mac CI + coordinator merge; idle |
+| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | DONE — PR 7 merged (78ab489); idle |
 | session_01YCEg68jFdLERESsPcMmyMz | W4 pro hygiene | chore/pro-hygiene | DONE — PR 6 merged (db2210a); idle |
 
 ## Decisions
@@ -66,6 +66,10 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:56:47 PR 7 merged → kshana-pro main 78ab489.
+- 11:55:44 [RUNNER] kshana-pro PR 7 @4c7b6e2: GREEN, Mac CI #56 (37616091434) success; native 804 passed, 0 failed, 9 ignored; notebook exit 0.
+- 11:51:36 [RUNNER] kshana-pro main @db2210a: GREEN, Mac CI #55 (37615463568) success.
+- 11:56 [RUNNER] PR 34 partial native: toolchain/fmt/no-attribution/version-sync/mcp-check/wasm32 0; deny + mcp-deny 0 using a locally cloned advisory-db (f246cde) with --disable-fetch (sandbox proxy blocks RustSec fetch); clippy/test/package/msrv running.
 - 11:56:12 W2 opened kshana PR 35 (IQ ledger rows); footer verified absent. PR 34 and 35 both edit CHANGELOG [Unreleased] → expect a conflict on the second merge.
 - 11:53:25 W2 pushed bb7edf8 (conditions met); opening PR; runner queued for full suite.
 - 11:50:52 [RUNNER] kshana PR 34 @6fae76b4 native verification started.
