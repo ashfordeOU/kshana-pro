@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:59:49Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T22:01:00Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 22:01:00 22:00Z W3: absolute-path guard @46da56c on wip. Coordinator pointed W3 at the bars: campaign.json scoring.bars and recordings[].conditions.bars (merged field by field in report.rs:181-206), so a relaxed-bar flag needs no new engine field.
 - 21:59:49 21:59Z W3 did critic items 2–4 for pro PR 17 on wip @731c282: traced summary/heatmap numbers with recomputing tests, N6 guard head+tail sniff plus name/IQ/binary rules, loader cross-checks. 852 passed. Each bite proven with offenders not committed. Relaxed-bar flag requested next.
 - 21:56:35 21:56Z W7: check-no-attribution clean on #46 @67b122a (full history). Holding for the final #45 sha and the #44 merge.
 - 21:56:00 21:55Z W7 pushed the #46 critic fixes @67b122a. MCP campaign paths are now contained before any read (round-trip test; bites on the old loader). Positive stale-detection test added (bites with design_hash dropped from the key). Docs corrected; atomic --json. Item 1 (re-pin after #45) and the main merge are still pending.
