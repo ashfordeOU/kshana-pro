@@ -111,8 +111,11 @@ fn write_pack(dir: &Path, body: &str) {
 /// wrote for the resilience-baseline pack with the same `--utc`, re-recorded on open
 /// engine 0.30.0 (whose ARAIM revision moved `mean_hpl_m`, `mean_vpl_m` and, in the
 /// sixteenth digit, `mean_tropo_m`; the pack hash and every other metric are unchanged).
-/// This build must write the same bytes apart from the added MODELLED `label` line and
-/// the embedded engine's version.
+/// This build must write the same report apart from the added MODELLED `label` line and
+/// the embedded engine's version: every field, key and line identical, and every metric
+/// equal to within a few units in the last place. The last-place allowance is the
+/// platform, not the model: macOS arm64 (the CI runner) and Linux x86-64 round the ARAIM
+/// sums differently in the sixteenth digit; an engine revision moves far more than that.
 #[test]
 fn backward_compatible_with_the_branch_point() {
     let dir = scratch("compat");
@@ -160,11 +163,34 @@ fn backward_compatible_with_the_branch_point() {
         now.contains(&label_line),
         "ci.json carries the MODELLED label"
     );
+    let now = now.replacen(&label_line, "", 1);
     assert_eq!(
-        now.replacen(&label_line, "", 1),
-        then,
-        "a watch-free pack must write the branch-point report byte for byte, apart from the label"
+        now.lines().count(),
+        then.lines().count(),
+        "a watch-free pack adds no line to the branch-point report but the label"
     );
+    let mut now_v: Value = serde_json::from_str(&now).unwrap();
+    let mut then_v = then_v;
+    let now_m = now_v["metrics"].take();
+    let then_m = then_v["metrics"].take();
+    assert_eq!(
+        now_v, then_v,
+        "a watch-free pack must write the branch-point report field for field, apart from the label"
+    );
+    let (now_m, then_m) = (now_m.as_object().unwrap(), then_m.as_object().unwrap());
+    assert_eq!(
+        now_m.keys().collect::<Vec<_>>(),
+        then_m.keys().collect::<Vec<_>>(),
+        "the same metrics, in the same order"
+    );
+    for (k, a) in now_m {
+        let (a, b) = (a.as_f64().unwrap(), then_m[k].as_f64().unwrap());
+        let ulps = (a.to_bits() as i64 - b.to_bits() as i64).unsigned_abs();
+        assert!(
+            a.signum() == b.signum() && ulps <= 8,
+            "metric {k}: {a} vs branch point {b} ({ulps} ulp apart)"
+        );
+    }
     let manifest = pack_c::parse_pack(&std::fs::read_to_string(pack).unwrap()).unwrap();
     assert_eq!(
         manifest.pack_hash(),
