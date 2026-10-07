@@ -72,6 +72,18 @@ const OUTPUT_NAMES: &[&str] = &[
     "scorecard.json",
 ];
 
+/// Quoted absolute-path prefixes that never belong in a fixture.
+const LOCAL_PATH_PREFIXES: &[&str] = &[
+    "\"/home/",
+    "\"/tmp/",
+    "\"/root/",
+    "\"/Users/",
+    "\"/workspace",
+    "\"/var/",
+    "\"/mnt/",
+    "\"C:\\",
+];
+
 /// Marker files and directories of a campaign output directory.
 const OUTPUT_DIR_MARKERS: &[&str] = &["campaign.json", "cells", "runs.jsonl", "hashes.json"];
 
@@ -177,6 +189,17 @@ fn judge(rel: &str, in_fixture: bool, size: u64, head: &[u8], output_dir: bool) 
         if !text_ext && (head.contains(&0) || std::str::from_utf8(head).is_err()) {
             v.push(format!(
                 "{rel}: unknown non-text file in the synthetic fixtures"
+            ));
+        }
+        // The engine's campaign.json holds absolute paths of the machine that ran it.
+        let text = String::from_utf8_lossy(head);
+        let is_data = matches!(e.as_str(), "json" | "jsonl" | "toml" | "csv");
+        if let Some(p) = LOCAL_PATH_PREFIXES
+            .iter()
+            .find(|p| is_data && text.contains(**p))
+        {
+            v.push(format!(
+                "{rel}: absolute local path ({p}...) in the synthetic fixtures"
             ));
         }
         if text_ext && head.contains(&0) {
@@ -333,6 +356,21 @@ fn raw_iq_is_refused_everywhere() {
         let fx = rel.starts_with(FIXTURE_DIR);
         assert!(!judge(rel, fx, 10, b"x", false).is_empty(), "{rel}");
     }
+}
+
+#[test]
+fn a_fixture_with_an_absolute_local_path_is_refused() {
+    let rel = "tests/fixtures/lab_campaign_synthetic/basic/campaign.json";
+    assert!(!judge(
+        rel,
+        true,
+        50,
+        br#"{"recording":"/home/lab/run1.cf32"}"#,
+        false
+    )
+    .is_empty());
+    assert!(!judge(rel, true, 50, br#"{"out":"/tmp/x"}"#, false).is_empty());
+    assert!(judge(rel, true, 50, br#"{"recording":"synthetic-gap"}"#, false).is_empty());
 }
 
 #[test]
