@@ -48,7 +48,7 @@ No external deadline set.
 | session_01QU3dhUo1RBWW24nEVVzxst | W6 engine graphics onto Observatory | feat/observatory-graphics | plan approved 15:27 (palette.rs single source, palette_sync guard, colour-normalised equality evidence, dark-only charts, report light/dark, 3 orphan figure generators) |
 | session_011PWAHJi1S2BLjLeD5uidXf | W7 0.34 campaign runner + scoring + F1 analytic J/S reference (public) | feat/034-campaign | spawned 15:24; schema design owed |
 | session_01PwGcK67ty6g2wP1Kwx4S8k | W8 0.34 lab formats (b) → IQ monitors (a) → C/N0 profiles (c) | feat/034-formats | plan approved 15:28; (b) started; (c) waits for W5 scene PRs |
-| session_01YCEg68jFdLERESsPcMmyMz | W4 site theme + Studio selfcheck | fix/studio-stages-test | PR 13 merged; PR 15 open (selfcheck failure = missing Git LFS objects; preflight added); idle |
+| session_01YCEg68jFdLERESsPcMmyMz | W4 site source (pro) | fix/studio-stages-test @ cf5fe30; fix/site-capability-wording @ c754521 | PR 15 (Studio selfcheck LFS preflight) and PR 16 (accurate RF/receiver wording, matches public PR 41) open; idle |
 
 ## Decisions
 - 2026-10-07 No AI attribution in commits/PRs (repo rule beats harness defaults). The GitHub tool
