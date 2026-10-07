@@ -1,4 +1,4 @@
-Updated: 2026-10-07T12:05:24Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T12:05:42Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -30,7 +30,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 | Id | Lane | Branch | State |
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
-| session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 34 native run started 11:50:52Z @6fae76b4 (fmt, guards, mcp-check/deny, wasm32, clippy, test --all, reproducible, doc-coverage, sbom, package, msrv 1.85); watching kshana-pro main #55 and PR 7 #56 |
+| session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
 | session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 IQ over MCP (public) | feat/mcp-iq @ a477eec | PR 34: CI red on 6fae76b (run 37615528447, scenario_count_doc_sync MCP README guard scanned server.rs only) → fixed a477eec (guard scans server.rs + iq.rs, asserts iq_tool_router is merged); local: 15 doc_sync/source_guards binaries 60 passed, MCP 33 passed, clippy OK; CI re-run pending (unverified); idle |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 §7-B2 IQ ledger rows (public) (row recorded by coordinator) | feat/iq-validation-ledger | bb7edf8: 26e1fe6 rows+artifacts, 225176e guard-forced counts (PNG re-rendered, Chromium/Liberation Sans), bb7edf8 droppable; clippy/no-attribution/version-sync/doc-coverage/site tests OK; PR 35 open, idle |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | DONE — PR 7 merged (78ab489); idle |
@@ -66,6 +66,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:05 [RUNNER] kshana PR 34 @6fae76b4 partial native: toolchain/fmt/no-attribution/version-sync/mcp-check/deny/mcp-deny/wasm32/clippy/public-standalone all 0; test --all stopped (superseded by a477eec).
 - 12:05:24 PR 8 merged (Mac CI run 37617589011 success) → kshana-pro main 1ca4c90.
 - 12:04:54 Coordinator container restarted ~12:00 (disk kept, heartbeat process lost → restarted). W1 pushed a477eec fixing the PR 34 doc-sync guard.
 - 12:03:24 [W1] PR 34 → a477eec: README tool guard now scans iq.rs; repro failed before, 60/60 doc-sync+source_guards pass after.
