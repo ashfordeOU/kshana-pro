@@ -1,4 +1,4 @@
-Updated: 2026-10-07T14:05:04Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T14:11:10Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -74,6 +74,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:10:20 [RUNNER] kshana PR 34 @6fae76b4 (superseded): RED, run 37616257744 check, same doc_sync guard; fixed in a477eec (CI #517 pending).
 - 14:04:23 [RUNNER] kshana PR 34 @cff687fb (superseded): RED, run 37615528447 check, same doc_sync guard; fixed in a477eec (CI #517 pending). PR 35 native test --all: 251 suites done, 0 failures so far.
 - 13:29:58 Check-in: heartbeat dead again (container restart) → restarted. PR 34/35/37/38 long CI jobs (check ~2.5 h) still running; earliest finish ~14:25. Next check-in ~14:40. Planned merge order: 34 → 37 → 35 (CHANGELOG conflict fix by W2) → 38 (W1 merges main).
 - 13:20 [RUNNER] kshana PR 38 @d5d67083: GREEN targeted, clippy root/python/mcp 0, iq_cli 11/11, doc_sync 51/51, mcp 33/33, pytest 20/20, stubtest clean; CI #519 (37625615404) running.
