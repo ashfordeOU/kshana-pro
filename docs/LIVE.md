@@ -1,4 +1,4 @@
-Updated: 2026-10-07T20:44:47Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T20:47:05Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 20:47:05 Coordinator pushed feat/iq-track-default 79ff31e (merge of main 2ef6541 into #38; MCP files kept from #38 = #34 head; CHANGELOG + tests/iq_cli.rs both sides; iq_cli 13/13, MCP iq_round_trip 13/13, fmt OK). #38 CI restarts. W5 restacks #44/#48/#50 on it; W1 merges it into #45. D5 decision (a2): 0.33 ships the CW/narrowband Q 1.5→1.0 fix only; broadband stays 1.0 (documented as conservative); broadband 2.0 + lunar re-tune (moves lunar acceptance pins and the conflict-resilience prior, i.e. published conclusions) → separate 0.34 PR with coordinator review.
 - 20:44:47 Resumed after a ~2 h 45 min shared usage-limit stall (no branch moved 17:57–20:42); heartbeat restarted. Merged kshana PR 34 (squash → 11b39f6), PR 40 (D3 → 1b6e826), PR 41 (capability accuracy → 564e937), PR 42 (LFS guard → 2ef6541); all CI fully green incl. coverage. PR 38 CI green (CodeQL rust failed only at SARIF upload; analysis 840/0 files OK, not required) but now CONFLICTS after 34's squash (38 contained 34's commits). Coordinator merging main into feat/iq-track-default (kept 38's side for MCP files: identical to 34 head; both sides of the CHANGELOG/iq_cli.rs appends), gates running. LESSON: stacked PRs must be merged with merge commits, not squash, or the PR above conflicts.
 - 17:57:59 Mac probe 37653732273 (macOS arm64, kshana 9925c103): 3813 passed / 10 failed / 100 ignored (3823 = Linux count). All 10 are bit-exact or 1e-15 engine-input-vs-fixture pins (Orekit launch azimuth, LEO polar CSV, lunar mpmath/numpy/SPICE fixtures), from libm last-bit differences; lunar Jacobian rows show ~3e-8 relative from cancellation. No oracle disagreement. Issue #36 → W2 (fix/macos-fixture-tolerance): ULP/row-scaled tolerances on the fixture pins only, no oracle tolerance or pre-registered bar touched, mutation check; verify on the Mac probe before merge.
 - 17:57:20 [W2] relayed W3's signal matrix as kshana PR 51 (feat/035-signal-matrix 48643b8e on main 18e860a; 3 commits, author Ashforde OÜ; only tests/iq_signal_matrix.rs; 8 passed / 4 ignored as D8×2, D9, D10). Holds until after 0.33.0. Mac probe 37653732273 completed 17:51:52Z conclusion=failure → runner extracting the failing tests for issue #36. Pro PR 17 Mac check green on 32b0908 (waits for the single re-pin).
