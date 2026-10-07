@@ -1,4 +1,4 @@
-Updated: 2026-10-07T12:40:15Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T12:45:33Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -6,9 +6,15 @@ Rules: see `docs/RECOVERY.md`. If `Updated` is >30 min old while anything below 
 running, assume the coordinator is gone and take over from this file.
 
 ## Goal
-Continue the post-0.32.0 plan (`handover/post-0.32/README.md` §7 on `main`) after the
-2026-10-07 move to the Claude Team account (old sessions lost; git intact).
-No external deadline set. Next engine release (0.33.0) not yet scheduled.
+Ship kshana **0.33.0** (public) and bring Pro onto it, with every surface current:
+1. PR 34 MCP IQ tools + PR 35 IQ ledger rows merged (CI green).
+2. `iq_track` default changed (founder decision 12:43; W1 evidence-backed proposal first).
+3. Site + changelogs current (kshana.dev changelog page stops at 0.31.0; Pro CHANGELOG stops at 0.2.0;
+   deep pages carry old provenance stamps) — W4 audit → generator-based refresh + drift guard.
+4. 0.33.0 release bump per docs/RELEASING.md (coordinator), tag → publish → parity → site.
+5. kshana-pro pin → `=0.33.0`, papers regenerated, Pro CHANGELOG entry.
+6. Issue #36 (macOS-local oracle failures) filed 12:44; needs a local Mac run to capture test names.
+No external deadline set.
 
 ## Repo heads (from `git ls-remote`, 2026-10-07T11:40:06Z)
 | Repo | Branch | Sha | State |
@@ -31,10 +37,10 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
-| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 IQ over MCP (public) | feat/mcp-iq @ a477eec | PR 34: CI red on 6fae76b (run 37615528447, scenario_count_doc_sync MCP README guard scanned server.rs only) → fixed a477eec (guard scans server.rs + iq.rs, asserts iq_tool_router is merged); local: 15 doc_sync/source_guards binaries 60 passed, MCP 33 passed, clippy OK; CI re-run pending (unverified); idle |
+| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP (PR 34) + iq_track default (feat/iq-track-default) | feat/mcp-iq @ a477eec | PR 34: CI red on 6fae76b (run 37615528447, scenario_count_doc_sync MCP README guard scanned server.rs only) → fixed a477eec (guard scans server.rs + iq.rs, asserts iq_tool_router is merged); local: 15 doc_sync/source_guards binaries 60 passed, MCP 33 passed, clippy OK; CI re-run pending (unverified); idle |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 §7-B2 IQ ledger rows (public) (row recorded by coordinator) | feat/iq-validation-ledger | bb7edf8: 26e1fe6 rows+artifacts, 225176e guard-forced counts (PNG re-rendered, Chromium/Liberation Sans), bb7edf8 droppable; clippy/no-attribution/version-sync/doc-coverage/site tests OK; PR 35 open, idle |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | DONE — PR 7 merged (78ab489); idle |
-| session_01YCEg68jFdLERESsPcMmyMz | W4 pro hygiene | chore/pro-hygiene | DONE — PR 6 merged (db2210a); idle |
+| session_01YCEg68jFdLERESsPcMmyMz | W4 site + changelog refresh (§7-D1) | (audit) | assigned 12:47 — audit + plan owed |
 
 ## Decisions
 - 2026-10-07 No AI attribution in commits/PRs (repo rule beats harness defaults). The GitHub tool
@@ -55,9 +61,9 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
    `handover/post-0.32` (a96bf49), `handover/where-is-what` (31f6e22),
    `salvage/local-artifacts` (e493d8c), `partners/baseband-brief` (2ad7b6b, merged). All verified
    merged or content-on-main at 11:41.
-2. File the public macOS-local test-failures issue (§7-D2)?
+2. DONE 12:44 — macOS-local issue filed: kshana #36.
 3. Optional full site re-render at 0.32.0 (§7-D1)?
-4. Public engine: `iq_track` default `acq_coherent=1` (~667 Hz Doppler bins) false-locked 2/3
+4. DECIDED 12:43 (founder: change it) — was: Public engine: `iq_track` default `acq_coherent=1` (~667 Hz Doppler bins) false-locked 2/3
    channels ~500 Hz off in the W3 notebook; change the default in 0.33.0? (behaviour change)
 
 ## Next
@@ -66,6 +72,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:45:33 Founder: file macOS issue (→ kshana #36), change iq_track default (→ W1), make site + changelogs current incl. all releases/tooling (→ W4 audit; 0.33.0 release planned). Asked founder what "kenn" refers to (no match in either repo).
 - 12:40 [RUNNER] kshana PR 34 @a477eec: GREEN targeted, doc_sync 51/51, mcp 33/33, fmt/clippy 0, guard negative test bites; CI #517 (37618278079) running; full native test --all pending (after PR 35).
 - 12:28:10 Check-in: PR 34 @a477eec run 37618278079 — all 18 non-long jobs green (deny, mcp-check, msrv, package, wasm, python, 3× reproducibility, CodeQL); check + coverage running. PR 35 @bb7edf87 run 37617204859 — same, check + coverage running. Next check-in ~13:28.
 - 12:24:57 Heartbeat found dead since the ~12:00 restart (false 'running' from pgrep self-match); restarted; RECOVERY lesson added.
