@@ -1,0 +1,94 @@
+name: Mac probe
+# Run one cargo command against a public ashfordeOU/kshana ref on the self-hosted macOS arm64
+# runner, for answers only a Mac gives (a macOS-only pinned value, macOS-local oracle failures).
+# Manual only. It checks out nothing from this repository and builds into its own target dir
+# under the runner temp, so it never touches this repository's CI checkout or cache.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Public ashfordeOU/kshana commit sha or branch"
+        required: true
+        type: string
+      command:
+        description: "A cargo command, run in the kshana checkout"
+        required: true
+        default: "cargo test --all --locked"
+        type: string
+permissions:
+  contents: read
+# One probe at a time, never cancelled by the next, and in its own group so it never cancels or
+# is cancelled by CI. (With one runner a probe and a CI job still queue behind each other.)
+concurrency:
+  group: mac-probe
+  cancel-in-progress: false
+jobs:
+  probe:
+    runs-on: [self-hosted, macos, arm64, kshana-pro]
+    timeout-minutes: 180
+    env:
+      REF: ${{ inputs.ref }}
+      COMMAND: ${{ inputs.command }}
+      CARGO_INCREMENTAL: "0"
+      CARGO_PROFILE_DEV_DEBUG: "0"
+    steps:
+      # Inputs reach the shell only through env, never through ${{ }} in a script. The command
+      # must be `cargo ...` with no shell metacharacters; it is split into words and run as an
+      # argument list (no eval), so nothing can be chained onto it.
+      - name: Validate inputs
+        run: |
+          set -euo pipefail
+          { echo "PROBE=$RUNNER_TEMP/mac-probe"; echo "WORK=$RUNNER_TEMP/mac-probe/kshana"
+            echo "CARGO_TARGET_DIR=$RUNNER_TEMP/mac-probe/target"; echo "LOG=$RUNNER_TEMP/mac-probe/probe.log"; } >> "$GITHUB_ENV"
+          if [[ ! "$REF" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$ ]]; then
+            echo "::error::ref must be a sha or branch name ([A-Za-z0-9._/-], not starting with - or .)"; exit 1
+          fi
+          if [[ "$COMMAND" != "cargo "* ]]; then
+            echo "::error::command must start with 'cargo '"; exit 1
+          fi
+          if [[ "$COMMAND" =~ [\;\&\|\`\$\<\>\(\)\{\}\\\"\'] ]] || [[ "$COMMAND" == *$'\n'* ]]; then
+            echo "::error::command must not contain shell metacharacters"; exit 1
+          fi
+      - name: Check out ashfordeOU/kshana at the ref (public, no token)
+        run: |
+          set -euo pipefail
+          rm -rf "$WORK" && mkdir -p "$WORK" "$CARGO_TARGET_DIR"
+          git -C "$WORK" init -q
+          git -C "$WORK" remote add origin https://github.com/ashfordeOU/kshana.git
+          git -C "$WORK" fetch -q --depth 1 origin "$REF"
+          git -C "$WORK" checkout -q --detach FETCH_HEAD
+          echo "kshana at $(git -C "$WORK" rev-parse HEAD) (ref $REF)"
+      - name: Install the toolchain its rust-toolchain file names
+        run: |
+          set -euo pipefail
+          cd "$WORK"
+          f=rust-toolchain.toml; [ -f "$f" ] || f=rust-toolchain
+          channel=$(sed -nE 's/^[[:space:]]*channel[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' "$f" | head -1)
+          [ -n "$channel" ] || channel=$(grep -vE '^[[:space:]]*(#|$)' "$f" | head -1)
+          echo "toolchain: $channel"
+          rustup toolchain install "$channel" --profile minimal --component rustfmt,clippy
+          rustc --version && cargo --version
+      - name: Run the command
+        run: |
+          set -uo pipefail
+          cd "$WORK"
+          read -ra ARGS <<< "$COMMAND"
+          echo "+ ${ARGS[*]}" | tee "$LOG"
+          "${ARGS[@]}" 2>&1 | tee -a "$LOG"
+          status=${PIPESTATUS[0]}
+          echo "exit status: $status" | tee -a "$LOG"
+          exit "$status"
+      - name: Last 200 lines of the log
+        if: always()
+        run: tail -n 200 "$LOG" 2>/dev/null || echo "no log"
+      - name: Upload the log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-probe-log-${{ github.run_id }}
+          path: ${{ runner.temp }}/mac-probe/probe.log
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Clean up the checkout and target dir
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/mac-probe"
