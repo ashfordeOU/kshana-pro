@@ -100,6 +100,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:19:28 Container restarted (heartbeat had stopped at 16:04:56); heartbeat restarted. [W3] PR 17 @3d0475f: L3 HTML report (every table number traced to cells by a test; MEASURED/MODELLED labels; deterministic) + L5 `kshana-pro lab-report` (requires --data-class, refuses mismatch/incomplete unless --allow-incomplete; client name only via --client). 836/0/9. Next L4 PDF. Still provisional on W7 Q1–Q3.
 - 16:19:01 [W3] PR 17 @ 3d0475f: L2+L3+L5 pushed; cargo test 836 passed.
 - 16:07:17 [W7] feat/034-campaign d89e07ed: campaign runner + scoring, tests/iq_campaign.rs 8/8 (degradation within 2 dB of injected value, outage loss/re-acq times, false lock via offset truth, resume byte-identical across worker counts, bar change re-judges without re-run). Findings forwarded to W1: clippy at design.rs:891; Costas-alias hand-off rejected (good); DLL σ flat ~0.20 chip vs ~0.06 theory (PRIORITY root-cause, pre-registered bar); relock with reacquire=false → report as distinct "recovered" (coordinator view, W1 to confirm); NWPR C/N0 ~2 dB low.
 - 16:06:38 [RUNNER] PR 44 @15107fac clean vs main but CONFLICTS vs PR 38 (CHANGELOG.md, tests/iq_cli.rs); PR 43 @18d3b42e clean vs main. Coordinator → W5: merge feat/iq-track-default into #44 now so it lands cleanly right after #38 (saves a CI cycle).
