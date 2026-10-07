@@ -41,7 +41,7 @@ No external deadline set.
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
-| session_01U47Y1DtpBY9SupJum3iE6Q | W1 PR 34/38 + 0.34 track engine (streaming sink, epoch export, lock state machine, loop-design TOML) | feat/mcp-iq @ eba7d10; feat/iq-track-default @ b41a61d | D4 resolved (approved a+b): rule stays on full (tiered) period, docs/CHANGELOG corrected, per-signal test over build_code (11 signals pinned). Gates at b41a61d: iq_cli 12 passed, doc_sync+source_guards OK, MCP 33, clippy root/python/MCP OK, stubtest clean, pytest 20 passed, doc-coverage OK, no-attribution OK. CI pending (unverified). Owed: docs/PYTHON_API.md iq_track signature after #39 merges |
+| session_01U47Y1DtpBY9SupJum3iE6Q | W1 PR 34 + PR 38 (CI) + 0.34.0 track engine (B3.1/B3.2/B3.3/B6.1) | feat/mcp-iq @ eba7d10; feat/iq-track-default @ b41a61d; feat/034-track-engine @ d1a575a | PR 34/38 CI pending (unverified). 0.34 lane: loop-design TOML + epoch record + lock state machine proposal sent (docs/design/LOOP-DESIGN-TOML.md @ d1a575a); waiting for approval before implementing. Owed: PYTHON_API.md iq_track line after #39 |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 export-control pack factual correction (DRAFT for counsel) + Pro lab campaign report design | legal/classification-pack-iq | assigned 15:25 |
 | session_01LStocVmSb3UAXorqXZT3BQ | W5 IQ defect fixes D1/D2/D3/D5/D7 for 0.33.0 (public) | fix/iq-d* | plan approved 14:52; D3 first (row recorded by coordinator) |
@@ -85,6 +85,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:25:21 [W1] 0.34 track-engine: schema proposal pushed (feat/034-track-engine @ d1a575a) and sent; awaiting approval.
 - 15:24:45 0.34 lanes started: W1 track engine, W7 campaign+scoring (spawned), W8 monitors/formats/C/N0 profiles (spawned); W3 → export-control pack correction (it says the engine has no receiver/no signal generator, stale since 0.31) + Pro campaign report.
 - 15:05:11 Merged kshana-pro PR 11 (c9c5f7b, runbook fixes + placements) and PR 12 (f6321fa, partner requirements + gap analysis). W3 gap analysis: R8 scoring GAP, R3–R7/R9 partial; defects D1–D7; founder decisions F1–F5 pending; plan 0.34 Lab replay / 0.35 Breadth / 0.36 Calibrated. W5 spawned (defects). W4 theme audit: 10 OLD + 2 MIXED of 52 site sections, Studio OLD, 19/32 README images OLD, reports + all engine charts OLD, og-card current → W4 site+Studio PR approved; W6 spawned for engine graphics. PR 39 (docs bindings) open. W1 pushed b41a61d (D4 docs).
 - 15:04:00 [W1] PR 38 → b41a61d (D4: full-period rule documented + per-signal test); gates + stubtest green.
