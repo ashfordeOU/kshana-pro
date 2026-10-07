@@ -318,13 +318,16 @@ Prioritize by audience value:
 |---|---|---|
 | kshana 0.32.0 release | ✅ live on all registries + site | — |
 | Public `main` hygiene | ✅ clean, green, no attribution | keep it so |
-| kshana-pro engine pin | 🔄 `=0.32.0` in PR #5 (gates green locally) | merge #5, delete `claude/pro-030` |
-| IQ layer surfaces | CLI + Python only; B1 (MCP) and B2 (ledger) assigned to workers 2026-10-07 | §7-B3 WASM optional |
-| Partner deliverables | C1 summary + C2 notebook assigned to a worker 2026-10-07 | §7-C3 NDA reconcile (needs counsel) |
+| kshana-pro engine pin | ✅ `=0.32.0` on `main` (PR #5, green on Mac CI) | delete `claude/pro-030` (founder; cloud proxy blocks deletes) |
+| IQ layer surfaces | CLI + Python released; MCP tools in public PR #34, ledger rows in public PR #35 (CI pending) | merge #34/#35; §7-B3 WASM optional; `iq_track` default decision for 0.33.0 |
+| Partner deliverables | ✅ C1 summary + C2 executed notebook on `main` (PR #7) | §7-C3 NDA reconcile (needs counsel) |
 | Site full re-render @0.32 | deep pages carry older provenance stamps | §7-D1 (optional) |
 | macOS-local test fails | CI green; local-only | §7-D2 (file issue) |
 
 *Keep this file updated as the single source of truth. When a §7 item lands, tick it here.*
+
+**Live state** (running jobs, sessions, decisions, log) is in `docs/LIVE.md` on branch
+`ws/coordination`; takeover steps in `docs/RECOVERY.md` there. Read those before acting.
 
 ---
 
