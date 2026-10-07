@@ -14,7 +14,7 @@ synthetic (Appendix A), and each command ran on the engine branch that ships it:
 |---|---|---|
 | **0.32.0** | released `v0.32.0` behaviour, present on every branch below | released |
 | **0.33.0** | public PR #44 @ `15107fa` (front end in `track`/`sweep`). PR #38 (≈4 ms auto acquisition default) is *not* in its base | 0.33.0 |
-| **0.34.0-formats** | public PR #43 @ `18d3b42` (4/12-bit, `cu8`, multi-stream, `.sdrx`) | 0.34.0 |
+| **0.34.0-formats** | public PR #43 @ `18d3b42` (4/12-bit, `cu8`, multi-stream, `.sdrx`); only the multi-stream path was run here | 0.34.0 |
 | **0.34.0-track** | public PR #45 @ `a60ad59` (loop-design file, epochs/events/summary, re-acquisition) | 0.34.0 |
 | **0.34.0-campaign** | public `feat/034-campaign` @ `da95b9c` (`iq campaign`, scorecard, DIGEST) | 0.34.0 |
 | **Pro** | this repo, PR 17 `pro/lab-campaign-report-plan` (`kshana-pro lab-report`) | Pro release on engine 0.34.0 |
@@ -80,7 +80,28 @@ expected one.
 - Multi-channel SigMF.
 - ION GNSS SDR `.sdrx` recordings.
 
-STEP1_FORMATS_PLACEHOLDER
+Dry run of the multi-stream case on PR #43 @ 18d3b42. The test file was a 3 s two-stream file,
+`two-ant.bin`: stream 0 was noise only, and stream 1 was the first 3 s of `lab-run-017`,
+sample-interleaved `ci16_le` with no header.
+
+```toml
+# two-ant.toml
+format = "ci16_le"
+sample_rate_hz = 4.092e6
+center_hz = 1575.42e6
+channels = 2      # two sample-interleaved streams
+channel = 1       # read stream 1
+```
+
+```sh
+kshana iq info two-ant.bin             # "channels": 2, n_samples 12 276 000, duration_s 3.0
+kshana iq track two-ant.bin --signal gps-l1ca --prn 3,11,22 --acq-coherent 4 --max-seconds 2
+kshana iq track two-ant.bin --channel 0 --signal gps-l1ca --prn 3 --acq-coherent 4   # the other stream
+```
+
+On stream 1 all three satellites tracked at about 44 dB-Hz. On stream 0, PRN 3 was correctly
+reported as not acquired (statistic 25.2 against threshold 38.7). Without a sidecar the same file
+reads with `--format ci16_le --rate 4.092e6 --channels 2 --channel 1`.
 
 ## 2. Condition the samples: front end — **0.32.0** (standalone), **0.33.0** (inside `track`)
 
