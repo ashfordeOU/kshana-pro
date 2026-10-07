@@ -416,3 +416,93 @@ drop vs their stated J/S, monitor time-to-detect) → repeatability digest. This
 4. DUT receiver logs: RINEX, NMEA, or a proprietary binary (which)? With C/N0 and AGC?
 5. Metrics they already use to grade receivers (to match B8.2 definitions), and pass/fail bars.
 6. Compute: can they run a CLI/Python build on their own machines, or do they need a hosted run?
+
+---
+
+## 16. Traceability and status (as of 2026-10-07 16:40 UTC)
+
+This section maps every requirement (R1–R9) and defect (D1–D7) to its deliverable, where that
+deliverable lives (PR/branch @ sha) and its state. The status comes from reading the code on each
+branch, not only the PR descriptions. Public `kshana` heads used:
+
+| Ref | Head | Content |
+|---|---|---|
+| `main` | `9925c10` | 0.32.0 + #35 (IQ ledger rows) + #37 (version sync) |
+| PR #38 | `b41a61d` | MCP IQ tools (#34 commits) + auto hand-off ≈ 4 ms |
+| PR #40 | `5540205` | integer scene output scaled to the integer range (D3) |
+| PR #43 | `18d3b42` | lab-recording formats, multi-stream, `.sdrx` (B9.1, B9.2) |
+| PR #44 | `15107fa` | front-end flags applied in `iq track` / `iq sweep` (D1) |
+| PR #45 | `a60ad59` | track engine: loop-design TOML, epoch stream, lock state machine (contains #38) |
+| branch `feat/034-campaign` | `da95b9c` (cited `d89e07e` is an ancestor) | test conditions, campaign runner, scorer, Python + MCP (all commits WIP) |
+| branch `feat/034-iq-monitors` | `f1ba332` | IQ-path monitors, Rust library only (WIP) |
+| kshana-pro PR 17 | `6d8368e` | Pro lab campaign report (L1–L6), Mac CI green |
+
+States: **merged** · **open** (PR open) · **branch** (pushed, no PR) · **not started**.
+Owners follow the coordinator's routing of 2026-10-07.
+
+### 16.1 Requirements
+
+| R | Deliverable | Where @ sha | State | Owner | Remaining gap (concrete) |
+|---|---|---|---|---|---|
+| R1 long multi-sat IQ | scene generator, 11 signals, streamed | `main` (0.31/0.32) | merged | — | B1.1 per-signal scene→acquire→track tests; B1.2 multi-signal/multi-constellation scenes; B1.5 dynamics/clock/per-sat C/N0 on CLI; B1.7 composites/new codes: **not started** |
+| | integer output scaling (B1.4 / D3) | PR #40 @ 5540205 | open | W5 | clipping count is free text, not written into SigMF meta (routed to W5 after D7) |
+| | data fidelity (B1.3 / D2) | — | **not started on any branch** (W5 reports in progress) | W5 | `--data` still puts 50 bit/s on pilots and on Galileo/BeiDou |
+| R2 channel in IQ | iono, tropo, Cornell scintillation, multipath, land-mobile, NLOS | `main` | merged (MODELLED) | — | B2.1 measured-scintillation check, B2.2 N-reflector, B2.3 per-satellite carrier, B2.4 broadcast-scene channel kwargs, B2.5 land-mobile spectrum: **not started** |
+| R3 loops visible + changeable | loop-design TOML (`kshana.loop-design/1`, every `LoopConfig` field), overrides recorded, design hash in outputs (B3.1) | PR #45 @ a60ad59 | open | W1 | design hash is struct-order JSON, not key-sorted as `LOOP-DESIGN-TOML.md` says (deterministic, but the doc is wrong) |
+| | full per-epoch export `kshana.track-epoch/1` (csv/jsonl/184-byte binary) + events + summary (B3.2) | PR #45 | open | W1 | — |
+| | lock state machine PULL_IN/LOCKED/LOST/REACQ/RETIRED, false-lock alias check, re-acquisition (B3.3) | PR #45 | open | W1 | — |
+| | tiered hand-off (B3.7 / D4) | PR #38 @ b41a61d | open | W1 | see D4 |
+| | Python: `iq_track(design=…)`, `iq_loop_designs`, `iq_read_epochs`; MCP `iq_track` with design/epochs | PR #45 | open | W1 | **no Python or MCP `iq_sweep`**; no front-end options on Python/MCP `iq_track` (0.34, W1) |
+| | acquisition grid export / fine Doppler (B3.4), multi-correlator / VE-VL taps (B3.5), GNSS-SDR oracle row for `iq::track` (B3.8), vector/EKF (B3.9) | — | **not started** | — | B3.5 also blocks the SQM pair monitor (below) |
+| R4 response to jammers/spoofers (receive side) | front end in `track`/`sweep` (B4.1 / D1) | PR #44 @ 15107fa | open | W5 | CLI only (Python/MCP: W1, 0.34) |
+| | IQ-path monitors: power/AGC, PSD excess, kurtosis, pulses, C/N0 CUSUM, SQM delta/ratio, lock (B4.2) | branch `feat/034-iq-monitors` @ f1ba332 | branch (WIP) | W8 | **Rust library only**: no CLI/Python/MCP; not fed by the campaign; no time-to-detect / false-alarm scoring; `cn0.rs:20` refers to a `kshana iq monitor` command that does not exist; SQM pair test gets no extra taps (needs B3.5); no closed-form Pfa for PSD excess and SQM thresholds; blanking duty / excised bins / notch frequency and acquisition multi-peak alarm not wired |
+| | detection ROC report (B4.3) | — | not started | — | needs scored monitors |
+| R5 recordings × designs, overnight | campaign runner `kshana iq campaign` (cells, resume, `runs.jsonl`, `hashes.json`, DIGEST), Python `iq_campaign*`, MCP `iq_campaign` + `iq_campaign_status` (B5.1, B5.2) | branch `feat/034-campaign` @ da95b9c | branch (WIP) | W7 | **runs its own `lockstate.rs`, not PR #45's lock machine** (LOST only when phase AND code lock are down; no REACQ; `false_lock_flag` hard-coded `false`, so false lock is truth-Doppler only); `run.epochs` accepts only `"none"`; `--dry-run` prints counts, not keys; `LAB-CAMPAIGN.md` still headed "proposal, nothing implemented" |
+| | Pro overnight orchestration + campaign watch (B5.3 / L8) | — | not started | W3 | waits for 0.34.0 |
+| R6 large recordings | streaming epoch sink, bounded memory (B6.1) | PR #45 | open | W1 | — |
+| | multi-GB streamed **reading** test (1 GiB, VmHWM < 64 MB, `#[ignore]`) | PR #43 @ 18d3b42 | open | W8 | — |
+| | per-channel parallel tracking (B6.2); GB-scale **tracking/campaign** perf test (B6.3) | — | **not started** | — | tracking was 0.56× real time for 8 channels (§2) |
+| | Python file-path / NumPy APIs (B6.4); MCP long-job contract (B6.5) | partly: MCP `iq_campaign` is incremental within a sample budget | branch (WIP) | W7 | B6.4 not started |
+| R7 calibration with stated error | `iq labfit` on receiver logs | `main` | merged (MODELLED) | — | **B7.1 labfit from IQ campaign timelines: not started**; B7.2 real-data study: blocked on NDA and counsel item N6; B7.3 log-format breadth: not started |
+| R8 automated scoring | test-condition schema `kshana.test-conditions/1` + `kshana iq conditions` (B8.1) | branch `feat/034-campaign` | branch (WIP) | W7 | **no SigMF annotation import**; no importer for the lab's simulator logs (waits for their sample files) |
+| | scorer: availability, time to loss, J/S at loss, re-acq time, C/N0 per J/S bin + MODELLED curve, false locks per locked hour, PLL/DLL jitter (B8.2) | branch `feat/034-campaign` | branch (WIP) | W7 | MODELLED curve uses the **uncorrected** Q table (D5), although `LAB-CAMPAIGN.md` says corrected; false lock only with a truth file; no monitor time-to-detect |
+| | repeatability DIGEST (B8.3); Pro report verifies it | branch `feat/034-campaign`; kshana-pro PR 17 | branch / open | W7, W3 | PR 17's mirror is being realigned to the real `kshana.campaign-plan/1`, cell key and DIGEST byte form; **no `data_class` field** in the campaign |
+| R9 formats & signals | ci4/cu4/cu8/ci12, 2-bit per byte, multi-stream raw + multi-channel SigMF, `.sdrx` (B9.1, B9.2) | PR #43 | open | W8 | `.sdrx` subset (one lane, stream, block); no unsigned 12/16-bit; **no per-vendor header importers** (wait for the partner's answers, §15); RINEX 4 nav (B9.4) not started |
+
+### 16.2 Defects
+
+| D | Fix | Where @ sha | State | Owner | Note |
+|---|---|---|---|---|---|
+| D1 front-end flags ignored by `track`/`sweep` | applied to acquisition and tracking passes; byte-identical to `iq frontend` then `track` | PR #44 @ 15107fa | open | W5 | CLI fixed; Python/MCP `iq_track` have no front-end option (W1, 0.34) |
+| D2 `--data` bits on pilots / wrong symbol rate | — | none found on any branch | not started (W5 reports in progress) | W5 | |
+| D3 integer scene output ≈ ±1, clipping unreported | scaled to ¼ full scale (ci8 31.75 LSB, ci16 8191.75 LSB, 2-bit thresholds at 1σ); clipping reported | PR #40 @ 5540205 | open | W5 | clipping not in SigMF meta (W5, after D7) |
+| D4 tiered codes get one acquisition period | rule stated and pinned per signal family (4 periods for 1 ms codes; 1 full tiered period for L5-I 10 ms, E1-C 100 ms, L2C 1.5 s) | PR #38 @ b41a61d | open | W1 | **documented, not changed** for tiered codes; whether a 1.5 s L2C hand-off is acceptable is a design decision still open |
+| D5 jammer Q table vs `SPECTRUM.md` | — | none found | not started (W5 queue) | W5 | **the campaign scorer's MODELLED curve depends on it** (`score.rs` `reference_q` → `jamming::q_factor`) |
+| D6 absent PRNs cross threshold on noise-free 2-bit input | recorded as a pinned finding | `main` (#35) | merged (finding) | — | CFAR option (B3.4) not started |
+| D7 GLONASS FDMA offset in acquisition | — | none found | not started (W5 queue) | W5 | |
+
+### 16.3 The real remaining gaps (nothing covers these yet), in priority order
+
+1. **Campaign ↔ track-engine integration.** The campaign scores lock with its own simplified
+   tracker (no re-acquisition, no alias false-lock check). Until it consumes PR #45's lock machine
+   and events, two R8 metrics are not what the design note defines: time to re-acquire and false-lock
+   rate. Owners: W7 + W1.
+2. **D5 before any J/S figure is shown.** The MODELLED reference curve in every campaign report uses
+   the unreconciled Q table.
+3. **Detection on IQ is not reachable or scored (R4).** The monitors exist as a library. No CLI, no
+   Python, no campaign hook, and no time-to-detect / false-alarm metric per stated event. Owner: W8.
+4. **No epoch stream from campaigns** (`run.epochs = "none"` only). A partner cannot inspect inside the
+   loops for a campaign cell, which is R3's point. Owners: W7 + W1.
+5. **Stating test conditions from lab artefacts (R8/R9).** There is no SigMF annotation import and no
+   simulator-log importer. Every recording needs a hand-written conditions file.
+6. **Breadth (R1/R9).** No per-signal end-to-end test beyond GPS L1 C/A, no multi-signal scenes, and D2
+   open. A multi-frequency or Galileo partner test would rest on untested paths.
+7. **Calibration from IQ (R7, B7.1)** is not started; real-data calibration is also blocked on counsel (N6).
+8. **Throughput (R6).** No parallel channels and no GB-scale tracking test. 8 channels run at about half
+   real time on 4 vCPU (§2), so overnight sweeps rely on campaign-level parallelism only.
+9. **Smaller items.**
+   - No multi-correlator taps, so the SQM pair test is idle.
+   - No `data_class` in the campaign, so the Pro report cannot cross-check the class it is told.
+   - No Python sweep.
+   - The design-hash doc does not match the code (struct order, not key-sorted).
+   - `LAB-CAMPAIGN.md` status line and Q-table text are stale.
