@@ -40,6 +40,8 @@ No external deadline set.
 | kshana PR 40 CI #525 (37644853913) | 5540205f | since 15:33Z |
 | kshana PR 41 CI #526 (37646208174) | c2b06d15 | since 15:43Z |
 | kshana PR 42 CI #527 (37646632037) | 84104a5e | since 15:46Z |
+| kshana PR 44 CI #530 (37649275102) | 15107fac | since 16:05Z |
+| kshana PR 43 CI #529 (37648912428) | 18d3b42e | since 16:02Z (not merge-bound) |
 Runner watches all of the above; all six heads merge cleanly into 9925c103 (merge-tree, 15:58Z).
 
 ## Sessions (environment AshfordeKSH)
@@ -98,6 +100,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:06:38 [RUNNER] PR 44 @15107fac clean vs main but CONFLICTS vs PR 38 (CHANGELOG.md, tests/iq_cli.rs); PR 43 @18d3b42e clean vs main. Coordinator → W5: merge feat/iq-track-default into #44 now so it lands cleanly right after #38 (saves a CI cycle).
 - 16:05:45 [W5] opened kshana PR 44 (fix/iq-d1-frontend-track-sweep 15107fa): front-end chain applied before both acquisition and tracking in track/sweep; switch parsing fixed (--notch no longer swallows the next flag); test is byte-identical to the iq frontend → track pipeline and fails on main. Merges after #38. Python iq_track front-end kwargs deferred to 0.34 (W1). D2 approved, starting.
 - 16:05:22 [W3] PR 17 L2 aggregation pushed d9c8b50 (declared median/sum/count/ratio-of-sums only; events never pooled; empty J/S bins stay visible next to the MODELLED value; 14 integration tests). Next L3.
 - 16:03:59 [W8] opened kshana PR 43 (feat/034-formats): ci4/cu4, cu8/ru8, 12-in-16, 2-bit, interleaved multi-stream, multi-channel SigMF, .sdrx streaming; oracle sigmf-python 1.13.0; 4 GiB at 110 MB/s, +0.6 MB RSS. Decisions sent to all lanes: ledger-row ownership (W2 per release), 0.34 PRs wait for the 0.33.0 cut, SQM taps owned by W1.
