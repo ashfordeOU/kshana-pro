@@ -33,7 +33,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner (verify/watch only, never writes code) | — | active; PR 5 verified GREEN (Linux 802 passed + Mac run 37614073848) |
 | session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 IQ over MCP (public) | feat/mcp-iq @ cff687f | PR 34 open (public), footer stripped; local gates green (MCP `cargo test --locked` 33 passed; root iq_cli 10 passed; fmt; clippy root+MCP+python; no-attribution; doc-coverage 985/985; version-sync); cargo deny not run (not installed); public CI pending (unverified). Next: await coordinator review of new pub API `iq::cli::execute` + work-dir/budget contract |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 §7-B2 IQ ledger rows (public) | feat/iq-validation-ledger | redirected 11:33 (existing gps-sdr-sim row stays MODELLED); row list owed |
-| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables | PR 7 open; fixing one claim + merging main |
+| session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | PR 7 open, footer stripped; origin/main merged + gps-sdr-sim claim corrected (summary still 1 A4 page); post-merge fmt OK, clippy OK, `cargo test --all --locked` running. Next: report test result, update PR body |
 | session_01YCEg68jFdLERESsPcMmyMz | W4 pro hygiene | chore/pro-hygiene | DONE — PR 6 merged (db2210a); idle |
 
 ## Decisions
@@ -65,6 +65,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:44:13 [W3] pushed partners/iq-deliverables 4c7b6e2 (merge main =0.32.0 + claim fix); fmt+clippy OK; tests running.
 - 11:43:37 [W1] PR 34 (kshana, feat/mcp-iq @ cff687f) open: 6 MCP IQ tools; local gates green; awaiting design review + CI.
 - 11:42:42 RECOVERY.md added. Branch deletion approved by founder; proxy 403 → handed back.
 - 11:40:06 LIVE.md + RECOVERY.md created on `ws/coordination`.
