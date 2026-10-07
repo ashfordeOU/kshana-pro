@@ -46,7 +46,7 @@ No external deadline set.
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 receiver-test gap analysis | partners/receiver-test-gap | DONE — kshana-pro PR 12 merged (f6321fa); idle, earmarked for Pro campaign report |
 | session_01LStocVmSb3UAXorqXZT3BQ | W5 IQ defect fixes D1/D2/D3/D5/D7 for 0.33.0 (public) | fix/iq-d* | plan approved 14:52; D3 first (row recorded by coordinator) |
 | session_01QU3dhUo1RBWW24nEVVzxst | W6 engine charts/reports/figures/diagrams onto Observatory (public) | feat/observatory-graphics | spawned 15:04; plan owed (row recorded by coordinator) |
-| session_01YCEg68jFdLERESsPcMmyMz | W4 site-source theme fix (10 OLD + 2 MIXED sections + Studio → Observatory) | (kshana-pro, new branch) | audit done (chore/theme-audit 8468f0d); plan A approved 15:04 |
+| session_01YCEg68jFdLERESsPcMmyMz | W4 theme: audit + Observatory sweep (pro) | chore/theme-audit @ 8468f0d; site/observatory-sweep @ 7edd926 | PR 13 open (site-source onto Observatory incl. Studio): local overlay audit 0 OLD/0 MIXED light+dark (was 11+2 / 6+9); waiting for review/merge; engine charts/reports to a public worker |
 
 ## Decisions
 - 2026-10-07 No AI attribution in commits/PRs (repo rule beats harness defaults). The GitHub tool
