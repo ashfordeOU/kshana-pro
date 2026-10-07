@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:13:40Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:18:04Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:18:04 [CRITIC] kshana PR 52 @e266eed: MERGE (no oracle tolerance or bar changed; the scale always comes from the fixture; the mutation tests fail at NEAR_BIT 1e-5; the loosest row-relative entry is 1.71e-6 in the rank fixture). Nits → W2 now (mutate the loosest point; CHANGELOG 'eight pins in seven files').
 - 21:13:40 Decision: no validation-ledger PR for 0.33.0 (no 0.33 PR proposes a row; the D-fixes correct behaviour and make no new validation claims). The 0.34 ledger PR collects the #43/#45/#46/#49/#51 proposals after the cut.
 - 21:13:14 Coordinator opened kshana PR 52 (fix/macos-fixture-tolerance e266eed, 'Part of #36') with W2's body; footer stripped. The W2 successor has no GitHub MCP tools, so the coordinator applies its PR-body edits. Sent to the critic; Mac probe on e266eed running. [CRITIC] #48 follow-up: B1I GEO 2 ms and GLONASS meander are discriminated; the 10 ms cases are not → FIX-FIRST stands.
 - 21:11:18 [W2] handed over (a441a52; #36 fix on fix/macos-fixture-tolerance e266eed, main merged; #1–5 and #8–10 pinned at 1e-12 of fixture scale with mutation tests; #6/#7 findings). Old W2 archived; W2 successor (Sonnet 5.5) spawned. Mac probe dispatched on e266eed (cargo test --all --no-fail-fast; expect #6/#7 still red). [CRITIC] pro PR 19 re-check: MERGE; W3 fixed the last cell (8411dc7); merge on Mac CI green (run 37687556380 in progress).
