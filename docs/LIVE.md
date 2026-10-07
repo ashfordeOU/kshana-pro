@@ -41,7 +41,7 @@ No external deadline set.
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
-| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (0.33.0) | feat/mcp-iq @ a477eec; feat/iq-track-default @ d5d6708 | PR 34 waiting on CI (unverified). PR 38 open (stacked on 34; footer stripped): auto acq_coherent=ceil(4ms/T_code); local: iq_cli 11 passed (new regression), doc_sync+source_guards OK, MCP 33 passed, pytest 20 passed, stubtest clean, clippy root/python/MCP OK, doc-coverage 985/985, no-attribution OK; full root suite not run (CI). Next: merge main into 38 after 34 merges |
+| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (PR 38) | feat/mcp-iq @ eba7d10; feat/iq-track-default @ d542efa | PR 34 run 37618278079 all green on a477eec; main (58957f8) merged into 34 → eba7d10 (CHANGELOG both entries kept); then 34 merged into 38 → d542efa. Local gates on both: fmt, doc_sync+source_guards+iq_cli (+iq_gpssdrsim on 38), MCP 33 passed, version-sync OK, no-attribution OK; clippy OK on 38. New CI pending (unverified) |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 receiver-test partner gap analysis + build plan | partners/receiver-test-gap | assigned 14:18 — analysis owed before any build |
 | session_01YCEg68jFdLERESsPcMmyMz | W4 Pro CHANGELOG + pin guard + RE-PORT.md | chore/pro-changelog | DONE — PR 10 merged (96d64cc); idle |
@@ -77,6 +77,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:40:10 [W1] main→34 (eba7d10), 34→38 (d542efa) pushed; local gates green.
 - 14:39:35 W2: kshana-pro PR 11 now includes placements for the 11 unplaced features (UNPLACED=0). Found a real 0.32.0 docs gap: PYTHON_API.md Surface and npm usage don't list the 8 iq_*/receiver_trust bindings → approved public docs PR (docs/iq-bindings-surface).
 - 14:38:20 W2 rehearsal ended; kshana-pro PR 11 (runbook fixes F1–F11 + check_nav/selfcheck code fixes) opened. Nav like-for-like: main 4 BAD, rehearsal 17 BAD (mostly timing noise; 3 recurring items to eyeball).
 - 14:37 [RUNNER] kshana PR 34 @a477eec GREEN CI #517; PR 34 + 38 conflict with main 58957f8 in CHANGELOG.md only; PR 37 merges clean (its check/coverage still running).
