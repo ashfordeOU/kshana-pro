@@ -1,4 +1,4 @@
-Updated: 2026-10-07T16:37:31Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T16:39:43Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:39:43 Merged kshana-pro PR 18 (squash → 29ff483; Mac CI run 37653073511 green). Dispatched Mac probe run 37653732273 for issue #36 (public main 9925c103, cargo test --all --locked --no-fail-fast); runner watches it and extracts the failing tests. [W3] opened kshana-pro PR 19 (pro/partner-traceability ca5ca11): gap-analysis §16 maps R1–R9/D1–D7 to deliverables and owners; PR 17 realignment GO. W2 → B7.1 labfit-from-IQ design (plan first; bump takes precedence).
 - 16:38:58 [W3] PR 19 opened (pro/partner-traceability ca5ca11): traceability table + real gaps.
 - 16:37:31 [W3] code review of 0.34 branches: campaign.json is Plan kshana.campaign-plan/1 with no data_class; campaign runs its own lockstate (diverges from #45 TrackSession); MODELLED curve uses uncorrected Q; #45 lacks B3.4/B3.5/B6.2/B6.3 and its design hash isn't key-sorted; #43 lacks vendor importers, multi-lane .sdrx, unsigned 16/12. Routed: W3 realigns PR 17 to the real engine; W7 adds data_class, adopts TrackSession, single-source Q, epochs via sink; W1 canonical hash (urgent) + scope B3.4/B3.5/B6.2/B6.3; W8 scopes the #43 follow-ups.
 - 16:36:51 [W1] PR 45 → e9df466: W7 findings resolved (DLL σ = commensurate-sampling artefact, pre-reg a60ad59 bars pass); ledger rows proposed in body.
