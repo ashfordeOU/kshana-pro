@@ -148,21 +148,24 @@ read `KICKOFF.md` (paste it) and this `README.md`.
 
 ---
 
-## 4. The prior handover is still valid — reuse it for the site/Studio source
+## 4. Site and Studio source — where it lives and how to rebuild
 
-`handover/open-core-0.30/README.md` + `restore.sh` reconstruct the founder's `~/Code/...`
-workspace **from git** (no Mac needed):
+The kshana.dev site and Studio source of truth is `site-next/` at the root of kshana-pro (vendored
+2026-10-04): the site is `site-next/explorations/2026-09-27-combo` (build.py, check.py, src/), the
+Studio is `site-next/explorations/2026-10-01-studio-rebuild`, and the docs renderer is
+`site-next/tools/build_docs.mjs` (it renders the public `CHANGELOG.md` into `/docs/changelog`).
+`handover/open-core-0.30/site-next/` is an older copy kept for history — do not build from it.
+
+To rebuild and port the site at a release-bump commit, follow `site-next/RE-PORT.md` (Linux) or
+`site-next/ASSEMBLY-RUNBOOK.md` + `PORT-RUNBOOK.md` (macOS). The public `web/` tree is OUTPUT of
+`web/tools/port_site.py`; never hand-edit it beyond what a release's version bump requires.
+`handover/open-core-0.30/restore.sh` is still the way to recreate the oracle toolchain and the macOS
+`~/Code` layout:
 
 ```
-git clone -b handover/open-core-0.30 https://github.com/ashfordeOU/kshana-pro.git ~/Code/kshana-pro
+git clone https://github.com/ashfordeOU/kshana-pro.git ~/Code/kshana-pro
 WITH_DATA=1 bash ~/Code/kshana-pro/handover/open-core-0.30/restore.sh
 ```
-
-It restores: the public repo clone, the site source (`~/Code/kshana-site-next`, incl. the
-Studio rebuild and the kshana.dev `build.py`/`check.py`), and the oracle toolchain
-(`~/Code/kshana-oracles`). **The site `web/` tree in the public repo is produced from this
-source** via `web/tools/port_site.py --site <built site> --studio <studio folder>`. You need
-this when a task regenerates the site (e.g. §7-D full re-render).
 
 ---
 
