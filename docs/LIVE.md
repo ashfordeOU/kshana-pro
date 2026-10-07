@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:09:29Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:11:18Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:11:18 [W2] handed over (a441a52; #36 fix on fix/macos-fixture-tolerance e266eed, main merged; #1–5 and #8–10 pinned at 1e-12 of fixture scale with mutation tests; #6/#7 findings). Old W2 archived; W2 successor (Sonnet 5.5) spawned. Mac probe dispatched on e266eed (cargo test --all --no-fail-fast; expect #6/#7 still red). [CRITIC] pro PR 19 re-check: MERGE; W3 fixed the last cell (8411dc7); merge on Mac CI green (run 37687556380 in progress).
 - 21:09:29 [CRITIC] kshana PR 48 @fee6f3d: FIX-FIRST. The timing test doesn't discriminate the 10 ms cases (reverting L5-I5/B1C to 20 ms still passes; only the 4 ms E1-B case is proven) → add an off-20 ms-grid sign-change assertion; nit: CHANGELOG clause for a programmatic Scene now erroring on read. Routed to W5 for the restack push.
 - 21:08:31 [CRITIC] kshana PR 50 @8655d92: MERGE (the test fails with baseband_hz reverted: channel +3 lands on 0; both mixers use baseband_hz; scene is self-consistent). Should-fix: CHANGELOG note for users who folded carrier−center into if_hz → W5 in the restack. Heads-up: after 0.33, the #45/#46 merges must keep the baseband_hz line in Channel::new (critic re-checks). Pro PR 19 @7137344: FIX-FIRST (docs: §16 rows stale since 16:40; the walkthrough campaign.toml lacks the now-required data_class) → new W3.
 - 21:07:32 Status 21:07: #38 @79ff31e CI run 37684638997, 13/15 jobs green (incl. CodeQL rust), check + coverage running (≈23:20Z); critic MERGE. #44 critic MERGE (content). #49 @0cde0ea8 only CodeQL ran (conflict blocks the merge-ref CI). W1 combined change ready (carrier-lock B1–B4 PASS; W3 outage scenario: all 3 PRNs recover; new default hash c6c25a27…). Check-in at ~23:22 to merge #38 with a MERGE commit.
