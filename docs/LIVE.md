@@ -56,7 +56,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 | session_01QU3dhUo1RBWW24nEVVzxst | W6 engine graphics onto Observatory | feat/observatory-graphics | plan approved 15:27 (palette.rs single source, palette_sync guard, colour-normalised equality evidence, dark-only charts, report light/dark, 3 orphan figure generators) |
 | session_011PWAHJi1S2BLjLeD5uidXf | W7 0.34 campaign runner + scoring + F1 analytic J/S reference (public) | feat/034-campaign | feat/034-campaign @ d89e07ed: spec/runner/report/lockstate/truth + `iq campaign`/`iq conditions` CLI, 8 tests green (12-cell synthetic); next Python → MCP → docs → PR; owes W3 Q1–Q3 |
 | session_01PwGcK67ty6g2wP1Kwx4S8k | W8 0.34 lab formats (b) → IQ monitors (a) → C/N0 profiles (c) | feat/034-formats | (b) kshana PR 43 (feat/034-formats) open, holds until 0.33.0 cut; (a) IQ monitors on feat/034-iq-monitors started; (c) waits for W5 scene PRs |
-| session_01YCEg68jFdLERESsPcMmyMz | W4 site source (pro) | fix/studio-stages-test @ cf5fe30; fix/site-capability-wording @ c754521 | PR 15 merged 15:52; PR 16 merged 56fcca5; idle |
+| session_01YCEg68jFdLERESsPcMmyMz | W4 kshana-pro site + CI | ci/mac-probe @ 399ff54 | PR 18 open (manual Mac probe workflow: public kshana ref + one cargo command, hardened inputs, actionlint OK; e2e on first dispatch after merge); idle |
 
 ## Decisions
 - 2026-10-07 No AI attribution in commits/PRs (repo rule beats harness defaults). The GitHub tool
