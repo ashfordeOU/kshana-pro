@@ -1,4 +1,4 @@
-Updated: 2026-10-07T11:45:24Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T11:48:57Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -18,7 +18,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 | kshana-pro | claude/pro-030 | d94b280 | stale, superseded by PR 5; delete approved, blocked by proxy (founder deletes) |
 | kshana | main | f570219 | v0.32.0 released; CI green (run 37283754192) |
 | kshana | feat/mcp-iq | cff687f | PR 34 open (W1); CI pending (~2.5 h) |
-| kshana | feat/iq-validation-ledger | ef75a49 | W2 PAUSED by coordinator 11:47 for review (117 files incl. web/); no PR |
+| kshana | feat/iq-validation-ledger | ef75a49 | W2 unpaused 11:51 with conditions; PR pending |
 
 ## Running now
 | What | Sha | Where to look |
@@ -46,6 +46,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - 2026-10-07 The gps-sdr-sim ledger row stays MODELLED (pre-registered bar f88f2969 failed on
   230/1152 fields); never relax a pre-registered bar after the fact.
 - Workers open PRs; only the coordinator merges.
+- 2026-10-07 W2 rows approved: "GNSS IQ scene signal geometry vs gps-sdr-sim" ExternalDataset/VALIDATED (pre-registered 7777da5, pushed 11:15:27Z before any run; 11 ch, pseudorange 1.6e-3 m vs bar 0.05 m); "GNSS IQ acquisition on gps-sdr-sim I/Q" MODELLED (bar B2 failed: 21 unsimulated PRNs cross the Gaussian threshold). Guard-forced count edits to README/web approved; hand glyph-edit of validation-provenance.png rejected (re-render or revert); unforced README image refresh split into a droppable commit.
 
 ## Open for the founder
 1. Delete stale branches — founder approved 11:40; cloud git proxy refused (HTTP 403 on ref
@@ -65,6 +66,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:48:57 W2 report reviewed; rows approved, PNG glyph edit rejected, unpaused with conditions.
 - 11:45:34 [W1] PR 34 → 6fae76b (execute grammar = public API doc, budget in bytes, acq_coherent comment); waiting on CI; idle.
 - 11:45:24 Check-in: W1 idle (PR 34 awaiting CI); W3 pushed 4c7b6e2 to PR 7 (claim fixed, main merged), tests running; W2 paused — built 2 rows (scene geometry Validated, acquisition Modelled) + 117-file site/README refresh without the requested proposal; asked for pre-registration evidence and how web/ was regenerated; W4 idle.
 - 11:44:56 [W3] PR 7 local gates green: 802 passed, 0 failed, 9 ignored (merge 0fbf7c5); head 4c7b6e2.
