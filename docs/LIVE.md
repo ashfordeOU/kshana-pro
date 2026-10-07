@@ -1,4 +1,4 @@
-Updated: 2026-10-07T17:51:53Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T17:57:20Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -103,6 +103,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:57:20 [W2] relayed W3's signal matrix as kshana PR 51 (feat/035-signal-matrix 48643b8e on main 18e860a; 3 commits, author Ashforde OÜ; only tests/iq_signal_matrix.rs; 8 passed / 4 ignored as D8×2, D9, D10). Holds until after 0.33.0. Mac probe 37653732273 completed 17:51:52Z conclusion=failure → runner extracting the failing tests for issue #36. Pro PR 17 Mac check green on 32b0908 (waits for the single re-pin).
 - 17:51:53 [W3] signal matrix v2 (3 commits: bars pre-registered → disclosed harness amendment → results) sent to W2 for push: 8 pass (L1CA, L5I, L5Q, E5a-I, E5a-Q, B1I, GLONASS, E1-B on-grid control); ignored as findings: D8 (E1-B/C false-lock +125 Hz), D9 (L2C no lock), D10 narrowed to B1C (NWPR −2.45 dB). GLONASS sat_id: 0.33 documents the u32 wrap; 0.34 plan = slot id + signed freq_channel field (W5 to assess).
 - 17:51:50 [W3] signal matrix (gap #6) sent to W2 as mbox: 8 pass / 4 ignored findings D8–D10; awaiting W2 PR
 - 17:47:42 [W7] PR 46 @ee032df6: data_class required (closed enum; in Plan, cells, keys, scorecard, report), W3 reacq scenario as regression tests (reacquire on: back within 2 s; off: pinned), scorer fix (time after a retired channel's last update now counts as unlocked; availability had read 0.95 for a dead channel), lock_source track-session, Q single-source, run.epochs wired (csv/jsonl/bin per cell, hashed into the cell), LAB-CAMPAIGN.md implemented. Next in this PR: SigMF annotation import + GB perf test. Re-merge W1 after the fll_assist change, then W3 pins.
