@@ -1,4 +1,4 @@
-Updated: 2026-10-07T13:10:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T13:10:37Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -42,7 +42,7 @@ No external deadline set.
 | session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (0.33.0) | feat/mcp-iq @ a477eec; feat/iq-track-default @ d5d6708 | PR 34 waiting on CI (unverified). PR 38 open (stacked on 34; footer stripped): auto acq_coherent=ceil(4ms/T_code); local: iq_cli 11 passed (new regression), doc_sync+source_guards OK, MCP 33 passed, pytest 20 passed, stubtest clean, clippy root/python/MCP OK, doc-coverage 985/985, no-attribution OK; full root suite not run (CI). Next: merge main into 38 after 34 merges |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | DONE — PR 7 merged (78ab489); idle |
-| session_01YCEg68jFdLERESsPcMmyMz | W4 Pro CHANGELOG + pin guard; site-build toolchain proof + RE-PORT.md runbook | chore/pro-changelog | audit done 12:47 (12 stale surfaces); public push DENIED by classifier → public parts moved to W2 |
+| session_01YCEg68jFdLERESsPcMmyMz | W4 Pro CHANGELOG + pin guard + RE-PORT.md | chore/pro-changelog | PR 10 open @25c51cf (805 passed / 0 failed); idle |
 
 ## Decisions
 - 2026-10-07 No AI attribution in commits/PRs (repo rule beats harness defaults). The GitHub tool
@@ -74,6 +74,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:10:37 W4 opened kshana-pro PR 10 (Pro CHANGELOG PRs 5–8, changelog_tracks_engine_pin guard, RE-PORT.md, README integration-test count 28→29). Merge after Mac CI + W2 rehearsal; then PR 9.
 - 13:05:43 [RUNNER] PR 35 @bb7edf87: all gates before test --all are 0 (guards, check-paper, site.test.mjs, doc_sync 51/51, clippy); native full suite running (slow: debug orbit fits), no failures so far. PR 38 quick checks started 13:05. Decision: no extra native full suite for 34/38 (CI check job is authoritative); native only to reproduce a CI red.
 - 13:04:56 W1 opened kshana PR 38 (iq_track default); runner queued (incl. full root suite).
 - 13:04:34 [W1] PR 38 opened (iq_track auto ≈4 ms hand-off, stacked on 34) @ d5d6708; local gates green incl. stubtest + pytest.
