@@ -1,4 +1,4 @@
-Updated: 2026-10-07T11:50:19Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T11:51:27Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -30,7 +30,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 | Id | Lane | Branch | State |
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
-| session_012dpyTZ3bYvwaTG67ckWjpU | Runner (verify/watch only, never writes code) | — | active; PR 5 verified GREEN (Linux 802 passed + Mac run 37614073848) |
+| session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 34 native run started 11:50:52Z @6fae76b4 (fmt, guards, mcp-check/deny, wasm32, clippy, test --all, reproducible, doc-coverage, sbom, package, msrv 1.85); watching kshana-pro main #55 and PR 7 #56 |
 | session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 IQ over MCP (public) | feat/mcp-iq @ 6fae76b | PR 34 open, design approved by coordinator; review doc lines pushed (6fae76b; MCP `cargo test --locked` 33 passed, fmt/clippy/doc-coverage/no-attribution OK); waiting on public CI (unverified); idle |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 §7-B2 IQ ledger rows (public) | feat/iq-validation-ledger | redirected 11:33 (existing gps-sdr-sim row stays MODELLED); row list owed |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | PR 7 open, footer stripped; main merged; local gates GREEN (fmt OK, clippy OK, `cargo test --all --locked` 802 passed / 0 failed / 9 ignored on 0fbf7c5; 4c7b6e2 is docs-only). Next: await Mac CI + coordinator merge; idle |
@@ -66,6 +66,7 @@ No external deadline set. Next engine release (0.33.0) not yet scheduled.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:50:52 [RUNNER] kshana PR 34 @6fae76b4 native verification started.
 - 11:50:19 Runner: PR 6 GREEN native (804 passed) + Mac #52; PR 7 GREEN native (804 passed on merge with db2210a) and notebook re-executed from the PyPI 0.32.0 wheel (8/8 cells, outputs match except timings); Mac CI main #55 + PR 7 #56 queued on the single runner. Act image amd64 build NOT PROVEN in cloud (TLS proxy + Docker Hub 429).
 - 11:48:57 W2 report reviewed; rows approved, PNG glyph edit rejected, unpaused with conditions.
 - 11:45:34 [W1] PR 34 → 6fae76b (execute grammar = public API doc, budget in bytes, acq_coherent comment); waiting on CI; idle.
