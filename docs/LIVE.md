@@ -38,7 +38,7 @@ No external deadline set.
 |---|---|---|---|
 | session_015EnPpasos1W6PQWi7rHJxu | Coordinator | ws/coordination | active |
 | session_012dpyTZ3bYvwaTG67ckWjpU | Runner: native Linux x86_64 VERIFY + GH WATCH, read-only (rows recorded by coordinator) | — | PR 35 @bb7edf87 native started 12:05:24Z (guards, paper, site tests, doc_sync, clippy, test --all, reproducible, doc-coverage, sbom, repeatability N=3); then PR 34 @a477eec re-verify + CI watch |
-| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (0.33.0) | feat/mcp-iq @ a477eec; feat/iq-track-default @ f47054a | PR 34 waiting on CI (unverified). Sweep done (180 channels): today N=1 → 27 silent false locks; N=4 → 1. Proposal sent (auto ~4 ms coherent = ceil(4ms/T_code)); waiting for approval |
+| session_01U47Y1DtpBY9SupJum3iE6Q | W1 §7-B1 MCP IQ (PR 34) + iq_track default (0.33.0) | feat/mcp-iq @ a477eec; feat/iq-track-default @ d5d6708 | PR 34 waiting on CI (unverified). PR 38 open (stacked on 34; footer stripped): auto acq_coherent=ceil(4ms/T_code); local: iq_cli 11 passed (new regression), doc_sync+source_guards OK, MCP 33 passed, pytest 20 passed, stubtest clean, clippy root/python/MCP OK, doc-coverage 985/985, no-attribution OK; full root suite not run (CI). Next: merge main into 38 after 34 merges |
 | session_01H3zn1aikR8DL8xLVyNASRf | W2 PR 35 (ledger) + 0.33.0 release-bump owner + version-sync coverage guard | release/0.33.0, chore/version-sync-coverage | PR 35 waiting CI; prep assigned 12:50 |
 | session_01BDhQakgc2eHdqnQoRfx2s9 | W3 §7-C1/C2 partner summary + notebook (pro) | partners/iq-deliverables @ 4c7b6e2 | DONE — PR 7 merged (78ab489); idle |
 | session_01YCEg68jFdLERESsPcMmyMz | W4 Pro CHANGELOG + pin guard; site-build toolchain proof + RE-PORT.md runbook | chore/pro-changelog | audit done 12:47 (12 stale surfaces); public push DENIED by classifier → public parts moved to W2 |
@@ -73,6 +73,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:04:34 [W1] PR 38 opened (iq_track auto ≈4 ms hand-off, stacked on 34) @ d5d6708; local gates green incl. stubtest + pytest.
 - 13:03:55 W2 rehearsal STARTED: public bd05a276 (main+PR 37) + kshana-pro d7b2313 (RE-PORT.md), scratch worktrees; kshana-pro push attached (push_check ok); building wasm-pack 0.13.1 from source; step 1 (release engine, MCP, wasm) + fetch_cs5071a running detached.
 - 13:02:31 W2 release build works (cold 5m51s, kshana --version 0.32.0). W2 → attach kshana-pro push + full site re-port REHEARSAL now (scratch, no web/ commits) to make release day a pure re-run.
 - 12:56:22 W4 toolchain proof PARTIAL: node/marked/hljs, Python build.py (to its gates), Playwright+Chromium (executablePath /opt/pw-browsers/chromium-1194/...) work; release `kshana` build DENIED by classifier. Findings: re-port needs server.json at version first; all 7 recorders + Studio recordings must be re-run from the bump commit (recorded at pre-squash bfed2d8); check_nav.mjs needs a Linux path patch; re-record rewrites tracked kshana-pro files → companion pro PR. Passed to W2. RE-PORT.md on chore/pro-changelog d7b2313. Coordinator opened kshana-pro PR 9 (handover §4 → root site-next/).
