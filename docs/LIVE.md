@@ -1,4 +1,4 @@
-Updated: 2026-10-07T16:04:56Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T16:31:19Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -100,6 +100,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:31:19 Heartbeat found dead again (container restart); restarted. Coordinator now bumps Updated on every LIVE edit, not only via the heartbeat.
 - 16:30:42 [W3] PR 17 @ 6d8368e: L4 PDF pushed; L1–L6 complete; cargo test 838 passed.
 - 16:23:04 [W1] working the W7 findings: DLL σ first (bar pre-registered in git before measuring); clippy at design.rs:891 already fixed (c1f8c1b). Decision: the PR 34 MCP wording fix and the PYTHON_API iq_track line go into one follow-up docs PR after #34/#39/#38 merge (no pushes to #34/#38, which would restart their CI); it lands before the 0.33.0 bump.
 - 16:22:38 [W1] opened kshana PR 45 (feat/034-track-engine 07e1eed, stacked on #38): loop-design schema, streamed kshana.track-epoch/1 sink (CSV/JSONL/binary + readers), TrackSession lock state machine + false-lock check (reacquire=false observes only; epochs bit-identical). Evidence: 500 Hz hand-off detected, 0.8 s gap re-acquired within 0.3 s, flat peak heap at 6× length. Gates: 169 + 99 + MCP 33 + pytest 23, stubtest, clippy, wasm, doc-coverage 985/985. Semantics changes approved (LOCKED→LOST on either lock; false-lock check in PULL_IN/LOST). Holds until the 0.33.0 cut. W1 → W7 findings next (DLL σ priority).
