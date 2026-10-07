@@ -1,4 +1,4 @@
-Updated: 2026-10-07T21:28:52Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T21:29:17Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:29:17 21:29Z pro PR 19 (partner traceability + walkthrough) merged with a merge commit → 84375bf (Mac CI green, run 37687556380; critic MERGE). Public #38 is at 79ff31e: 18/20 checks green; check and coverage still running.
 - 21:28:52 21:28Z is the time stamp. W1 B-scope order approved (B3.5→B6.2→B6.3→B3.4). B3.4 redefined as acquisition-surface export. W1 is still finishing the #45 final push, then hands over.
 - 21:26:53 [W1] PR 45 combined push 03eeb008 (merges #38 79ff31e): fll_assist pull-in gate with hysteresis (default design 35–45 dB-Hz: PL ≥0.997, LOCKED ≥0.963, 0 slips; was PL 0.10–0.16 at 35; B1–B4 pass, carrier-lock RESULTS.md committed); reacq window (W3's 2 s outage pinned: all recover); final_state fix. But it still uses the 0.25→2 s doubling back-off, which crossed with the 21:25 decision → W1 applies the fixed 0.1 s default + the remaining critic items; the hash changes again, so W7/W3 hold the pin until W1's final sha. [W5] D5 (a2) WIP local on fix/iq-d5-jammer-q-a2 (from #50 e5cd543); full release tests running.
 - 21:25:39 [W5 Sonnet] critic fixes pushed: #48 → 80e8b7f (off-20 ms-grid assertion; proven: L5-I5 or B1C reverted to 20 ms now fails; CHANGELOG clause); #50 → e5cd543 (merge of #48 + if_hz CHANGELOG sentence). Critic re-checking. Next: D5 (a2) PR stacked on #50.
