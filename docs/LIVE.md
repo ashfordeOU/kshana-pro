@@ -1,4 +1,4 @@
-Updated: 2026-10-07T13:03:55Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T13:04:56Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -24,6 +24,7 @@ No external deadline set.
 | kshana-pro | claude/pro-030 | d94b280 | stale, superseded by PR 5; delete approved, blocked by proxy (founder deletes) |
 | kshana | main | f570219 | v0.32.0 released; CI green (run 37283754192) |
 | kshana | feat/mcp-iq | a477eec | PR 34: guard fix pushed (15 doc-sync/source-guard binaries 60 passed; MCP 33 passed); CI re-running; runner re-verify queued |
+| kshana | feat/iq-track-default | d5d6708 | PR 38 open (W1), stacked on 34: auto acq_coherent default; iq_cli 11, MCP 33, pytest 20, stubtest clean |
 | kshana | chore/version-sync-coverage | bd05a27 | PR 37 open (W2): version-sync covers server.json + README (strict), site (warn) |
 | kshana | feat/iq-validation-ledger | bb7edf8 | PR 35 open (W2); CI pending; full suite via runner + CI |
 
@@ -73,6 +74,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:04:56 W1 opened kshana PR 38 (iq_track default); runner queued (incl. full root suite).
 - 13:04:34 [W1] PR 38 opened (iq_track auto ≈4 ms hand-off, stacked on 34) @ d5d6708; local gates green incl. stubtest + pytest.
 - 13:03:55 W2 rehearsal STARTED: public bd05a276 (main+PR 37) + kshana-pro d7b2313 (RE-PORT.md), scratch worktrees; kshana-pro push attached (push_check ok); building wasm-pack 0.13.1 from source; step 1 (release engine, MCP, wasm) + fetch_cs5071a running detached.
 - 13:02:31 W2 release build works (cold 5m51s, kshana --version 0.32.0). W2 → attach kshana-pro push + full site re-port REHEARSAL now (scratch, no web/ commits) to make release day a pure re-run.
