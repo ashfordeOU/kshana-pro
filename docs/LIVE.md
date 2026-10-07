@@ -1,4 +1,4 @@
-Updated: 2026-10-07T13:00:20Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-07T13:02:31Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -73,6 +73,7 @@ No external deadline set.
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:02:31 W2 release build works (cold 5m51s, kshana --version 0.32.0). W2 → attach kshana-pro push + full site re-port REHEARSAL now (scratch, no web/ commits) to make release day a pure re-run.
 - 12:56:22 W4 toolchain proof PARTIAL: node/marked/hljs, Python build.py (to its gates), Playwright+Chromium (executablePath /opt/pw-browsers/chromium-1194/...) work; release `kshana` build DENIED by classifier. Findings: re-port needs server.json at version first; all 7 recorders + Studio recordings must be re-run from the bump commit (recorded at pre-squash bfed2d8); check_nav.mjs needs a Linux path patch; re-record rewrites tracked kshana-pro files → companion pro PR. Passed to W2. RE-PORT.md on chore/pro-changelog d7b2313. Coordinator opened kshana-pro PR 9 (handover §4 → root site-next/).
 - 12:55 [RUNNER] kshana PR 37 @bd05a276: GREEN native, version-sync warn exit 0 (4 WARN), strict exit 1 (only the 4 known site items), no-attribution 0, doc_sync 51/51; CI #518 (37624082630) running.
 - 12:52:19 W2 opened kshana PR 37 (version-sync coverage; warn exit 0 / strict exit 1 on 67 chips, 67 footers, llms.txt, changelog.html).
