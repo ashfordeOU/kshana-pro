@@ -109,8 +109,8 @@ fn write_pack(dir: &Path, body: &str) {
 /// A manifest with no watch tables runs exactly as it did at the branch point: the
 /// committed fixture is the `ci.json` the branch-point binary (feat/pro-power 26d069a)
 /// wrote for the resilience-baseline pack with the same `--utc`, re-recorded on open
-/// engine 0.30.0 (whose ARAIM revision moved `mean_hpl_m`, `mean_vpl_m` and, in the
-/// sixteenth digit, `mean_tropo_m`; the pack hash and every other metric are unchanged).
+/// engine 0.30.0 (whose ARAIM revision moved `mean_hpl_m` and `mean_vpl_m`; the pack hash
+/// and every other metric are unchanged). The fixture was recorded on Linux x86-64.
 /// This build must write the same report apart from the added MODELLED `label` line and
 /// the embedded engine's version: every field, key and line identical, and every metric
 /// equal to within a few units in the last place. The last-place allowance is the
