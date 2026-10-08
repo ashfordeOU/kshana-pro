@@ -1,4 +1,4 @@
-Updated: 2026-10-08T16:35:32Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T16:35:52Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:35:52 16:37Z — #68 manifest verified: tool output sha256 a0c9e48d… == 7524daeb's PORT-MANIFEST.json (whole file). 7524daeb ready; only the founder's in-session push authorisation in W6 remains before Critic 2 part-2 review.
 - 16:35:32 16:36Z — W2 manifest cross-check (port_site.py, Studio from kshana-pro 2a4c29b): changes vs e94eaef = the same 18 Studio files + PORT-MANIFEST.json only; manifest sha256 a0c9e48d…; port --check OK. W6 comparing against 7524daeb.
 - 16:31:48 16:34Z — W6's private push of 7524daeb refused again (sandbox requires the authorisation in W6's own session, not relayed). Founder to type it in W6's session. Nothing pushed.
 - 16:31:06 16:33Z — Founder authorised the #68 pushes. W6: push 7524daeb to kshana-pro review/kshana-68-delta for Critic 2 part-2 review. One public push of sec/studio-codeql follows after MERGE + manifest cross-check.
