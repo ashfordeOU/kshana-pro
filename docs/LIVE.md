@@ -1,4 +1,4 @@
-Updated: 2026-10-08T14:31:19Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T14:32:38Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:32:38 Public #68 opened (security fix, generic text, footer stripped), head sec/studio-codeql @11b18d02; CI started; Critic 2 reviewing at top priority. Root cause of the early public push: the session stop hook demands commit and push, and W6 followed it over the 'nothing public' instruction. New practice: security drafts go only to kshana-pro, and the public branch gets one push of the final head. W2 told to merge sec/studio-hardening into the kshana-pro Studio source so a later re-port can't undo the fix.
 - 14:31:19 W7 #46 → 875b73a: [scoring] cn0_estimator (default m2m4, in scoring_hash); the pins were pre-registered in b6cf9766 before the scorer change. nwpr reproduces the old results exactly; m2m4 changes only the C/N0 fields; the ramp tolerances are unchanged. DIGEST 64e701cb → 48a64a85 (m2m4) / 57c52a06 (nwpr). PR body updated (footer-free). Delta review → Critic 1. The W3 PR 17 re-pin waits for MERGE.
 - 14:29:28 Main health check (founder asked). Public main 3369e1f: 24 checks green, coverage still running. SonarCloud quality gate RED: new-code duplication 3.07% against ≤3% (82 lines in palette.rs's light/dark const lists). W8 dedupes palette.rs with one macro (no Sonar exclusions, no gate change). kshana-pro main ff295d2: check green. FOUND: W6's security branch sec/studio-codeql was pushed to the PUBLIC repo with payload tests (11b18d02). The fix is accelerated; the PR opens as soon as gates pass, with Critic 2 at top priority. Branch-deletion list prepared for the founder.
 - 14:21:02 W1b: #64 → 9a211e6b with #57 (4ef9e698) merged in. The conflicts (python epoch_value, CHANGELOG) were resolved by keeping both sides; the column counts are now relative to EPOCH_FIELDS.len(). Tests pass: iq_track_engine 18, iq_cli 18, iq_track_cn0 3, lib iq 123. Record is 184 B plus 16 per tap. #65 @8ef7160d already routes the python hand-offs grid-free. W1b idle.
