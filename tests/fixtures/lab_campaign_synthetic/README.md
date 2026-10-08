@@ -6,7 +6,7 @@ measurement of any receiver.
 
 | Item | Value |
 |---|---|
-| Engine | public `kshana`, branch `feat/034-campaign` (PR #46) @ `52492b81ddd5706774265206576b28641642f9e5`, which carries #45 and the M2M4 C/N0 estimator #64 (release build; reports engine version `0.32.0` until 0.34.0 is cut) |
+| Engine | public `kshana`, branch `feat/034-campaign` (PR #46) @ `51ba47872cfdd3421f0e3d6ee5e48194a95194e2`, which carries #45 `010b30b9`, #64 `9a211e6b` (M2M4) and main `51dce137` (release build; reports engine version `0.32.0` until 0.34.0 is cut) |
 | Generator | `make_fixture.py` in this folder (`KSHANA=<engine binary> python3 make_fixture.py <scratch-dir>`) |
 | Recordings | `synthetic-ramp`: 16 s, GPS L1 C/A PRNs 3 and 11, 2.5 MS/s ci16 (non-commensurate with the 1.023 MChip/s code; 4.092 MS/s would give 4 samples/chip, a staircase DLL, and the engine warns about it). The stated broadband J/S steps 20 → 30 dB; the signal's C/N0 follows the engine's analytic value for that J/S. `synthetic-gap`: 10 s, PRN 7, signal absent 4.0–5.5 s |
 | Stimulus | an `iq scene --no-noise` signal × a C/N0 (signal-power) profile, plus seeded unit-power noise. No jammer or spoofer waveform is synthesised |
