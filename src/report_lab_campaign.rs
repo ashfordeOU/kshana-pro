@@ -1477,11 +1477,13 @@ pub(crate) fn cn0_estimator_note(estimator: &str) -> String {
     let (name, what) = match estimator {
         "m2m4" => (
             "M2M4",
-            "the moment-based estimator, which has no bias at high C/N0",
+            "moment-based; free of the loop-jitter bias NWPR carries, but windows with no estimate \
+             at low C/N0 are left out of its medians, and the bin count n reflects that",
         ),
         "nwpr" => (
             "NWPR",
-            "the narrow-band/wide-band power ratio, which has a known bias at high C/N0",
+            "narrow-band/wide-band power ratio; reads low by about 8 dB × Bn·T under the loop's \
+             own jitter",
         ),
         other => (other, "an estimator this overlay does not describe"),
     };
@@ -1661,6 +1663,17 @@ mod tests {
 
     fn v(a: f64, b: f64) -> Vec<(String, Option<f64>)> {
         vec![("baseline".into(), Some(a)), ("narrow".into(), Some(b))]
+    }
+
+    #[test]
+    fn the_estimator_notes_follow_the_pinned_engine_docs() {
+        let n = cn0_estimator_note("nwpr");
+        assert!(n.contains(
+            "NWPR (narrow-band/wide-band power ratio; reads low by about 8 dB × Bn·T under the loop's own jitter)"
+        ));
+        let m = cn0_estimator_note("m2m4");
+        assert!(m.contains("windows with no estimate at low C/N0 are left out of its medians"));
+        assert!(!n.contains("high C/N0") && !m.contains("no bias at high C/N0"));
     }
 
     #[test]

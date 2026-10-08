@@ -693,6 +693,11 @@ fn the_report_states_which_cn0_estimator_was_used() {
     let doc = html();
     assert!(doc.contains("C/N0 estimator for every C/N0 in this report: M2M4"));
     assert!(doc.contains("Median C/N0 (M2M4)"));
+    // The wording follows the pinned engine's LAB-CAMPAIGN.md: NWPR reads low under the loop's
+    // own jitter; M2M4 leaves out windows with no estimate at low C/N0.
+    assert!(doc.contains("free of the loop-jitter bias NWPR carries"));
+    assert!(doc.contains("windows with no estimate at low C/N0 are left out of its medians"));
+    assert!(!doc.contains("known bias at high C/N0") && !doc.contains("no bias at high C/N0"));
     assert!(doc.contains("C/N0 estimator: <strong>M2M4</strong>"));
     let flat = pdf_text(&render_pdf(&c, &synthetic()).unwrap())
         .split_whitespace()
