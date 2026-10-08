@@ -1,4 +1,4 @@
-Updated: 2026-10-08T11:46:26Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T12:09:54Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:09:54 W2 0.33.0 cut: release/0.33.0 @93dc26b has main 3369e1f merged, the bump on all surfaces, CHANGELOG [0.33.0] - 2026-10-08, regenerated charts, wasm 42ff3b14…, Studio re-recorded (SELFCHECK ok), MCP 21 tools. kshana-pro build.py fix: count IQ tools from iq.rs too (21 vs 15). Blocker: check.py rule 17 fails because the README screenshot alt texts say v0.31.0 and the images really are 0.31.0 captures. Coordinator chose option A: retake the 8 screenshots from 0.33.0 and update the alts and SHOTS.json (about 30–40 min); no rule exception.
 - 11:46:26 Public #66 opened (W6, chore/jamming-palette @ea00d466): jamming.rs moved onto the palette and the palette_sync allowlist emptied. Paint only: today's engine on both recorded jamming tomls equals the recorded charts after normalising colour, font and footer. W6's deviation was accepted: the 0.31 Studio recordings are not re-recorded (that would move published jamming values); that happens at the 0.33.0 re-port. #66 and #62 merge after the bump.
 - 11:31:02 W6: #62 (clock-ensemble-band regen) conflicted with main in CHANGELOG only. Merged main and kept both entries (ebf57a4b); the figure is still byte-identical and the figure/palette sync tests pass. CI restarted. #62 is not in the 0.33.0 cut; it lands after the bump. W6 started the jamming.rs palette routing on chore/jamming-palette from 3369e1f.
 - 11:24:45 Merged public #54 (D5 jammer Q / A2) at head a57ab0e as 3369e1f; 20/20 green, critic MERGE. All 0.33.0 PRs are merged. W2 told to CUT: merge main into release/0.33.0, bump, CHANGELOG, site re-port, PR to main (no tags, no publish). W6: jamming.rs palette follow-up plus #62 status. The coordinator worker restarted around 10:10–11:20Z, so the 10:50 check-in ran late at 11:24Z.
