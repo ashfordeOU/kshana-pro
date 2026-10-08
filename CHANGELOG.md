@@ -34,7 +34,7 @@ own bullet so parallel work merges cleanly.
   same sections and the same summary sentences, from one shared builder, with the curves as
   tables. Table headers stay with their rows, and a subheading never ends a page. Two renders
   are byte-identical apart from printpdf's random trailer `/ID`.
-  **Aligned to the engine's real output** (`feat/034-campaign`, PR #46 @ `ee032df6`; the
+  **Aligned to the engine's real output** (`feat/034-campaign`, PR #46 @ `acbdce08`, which carries #45 final `f3a8ca8b`; the
   provisional markers are gone):
   - the mirror types are the engine's own structs: `kshana.campaign-plan/1`, cells with
     hand-off and lock source, and `kshana.campaign-scorecard/1`;
