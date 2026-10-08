@@ -1,4 +1,4 @@
-Updated: 2026-10-08T12:49:49Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T12:53:47Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:53:47 W6 security triage of the Studio CodeQL alerts: one real HIGH issue found in the chart-SVG/Studio path (details only in kshana-pro docs/defects/D13.md, to be written; not in the public repo). Plus LOW findings: urlstate key allowlist, kinds own-property dispatch, a recorded-file gate. The rest of the CodeQL findings are false positives. Decision: #67 (0.33.0) proceeds unchanged. One public PR with generic wording carries the engine-side escape, the Studio sanitiser and the LOW hardening, as 0.33.1 right after 0.33.0. Critic 2 reviews it with priority. A codeql.yml workflow draft comes later as a separate PR. The founder is asked about a GitHub security advisory.
 - 12:49:49 W2: check.py --mutate on the final 0.33.0 site build: 42/42 mutations red, the unmutated build green, none survived. CI running on #67 @5aaf3ec and kshana-pro PR 21 @c8397ce; PR 22 @d4ebd2e. W2 is tracking CI and fixes anything that goes red.
 - 12:36:54 #67 CodeQL red: 4 high and 8 medium annotations in the Studio JS (XML entity expansion app.js:67/advanced.js:64; property injection urlstate.mjs:24; dynamic method call kinds.mjs:659; client-side request URLs). These pre-exist: kinds/urlstate are byte-identical to main, and the app/advanced diff is two colour literals far from the flagged lines. CodeQL notes the large diff and a missing rust default-setup config. Comment posted on #67 (footer stripped). Security follow-up routed to W6: triage first, then fix at the kshana-pro source of truth with biting tests, after 0.33.0. #67 merge plan: tests green → merge, CodeQL treated as pre-existing (flagged to the founder).
 - 12:34:56 Founder decision: the coordinator merges #67 (0.33.0 release) when CI is green on its head; Auto-tag then tags it after main CI. Subscribed to #67; fallback check-in at 15:35Z.
