@@ -92,18 +92,19 @@
     "items": [
      {
       "label": "Without the interferometry tie",
-      "value": 2184.0,
+      "value": 2182.0,
       "note": "Fisher information rank 15 of 16: the station position is not observable, no Cramér–Rao bound"
      },
      {
       "label": "With the Earth-baseline interferometry tie",
-      "value": 3.541,
+      "value": 3.547,
       "note": "full rank 16 of 16 · Cramér–Rao bound 20.1 m"
      }
     ],
     "caption": "The bundled simulated network: 3 lunar satellites, 6 Earth stations, one surface station, the same seed and truth for both fits.",
     "seed": 42,
     "source": "scenarios/lunar-joint-od-clock.toml",
+    "provenance_note": "Recorded on macOS as published. A fresh Linux x86-64 run gives 2184 m / 3.541 m (solver iterate host dependence, issue #36 row 6).",
     "label": "MODELLED",
     "capability": "Lunar absolute-station observability (datum defect)",
     "seconds": 0.01
@@ -234,7 +235,7 @@
     "source": "examples/resilience_report.rs",
     "label": "MODELLED",
     "capability": "Resilience-score decision-instability study",
-    "seconds": 1.85
+    "seconds": 1.98
    },
    "findings": [
     "Re-weighting alone changes the top-ranked architecture in 22% of draws under nominal conditions, and in at most 1.25% under each active threat.",
@@ -1313,7 +1314,7 @@
     "source": "examples/optimism_study.rs",
     "label": "MODELLED",
     "capability": "AI/ML RF-impairment optimism-gap study & ID-only gap predictor",
-    "seconds": 25.29
+    "seconds": 25.0
    },
    "findings": [
     "The gap between in-distribution and shifted area under the curve grows as the shift deepens, and depends on how many observables a detector uses rather than on whether it is learned.",
