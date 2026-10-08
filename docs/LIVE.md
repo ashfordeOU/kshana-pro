@@ -1,4 +1,4 @@
-Updated: 2026-10-08T12:09:54Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T12:26:47Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:26:47 0.33.0 release PRs opened by the coordinator from W2's bodies (footer stripped): public #67 (release/0.33.0 @62c699b → main; bump, README screenshots retaken at 0.33.0, site re-port, strict version-sync) and kshana-pro PR 21 (release/0.33.0-resources @e638d5f; re-port inputs plus the tool fixes reading MCP tools from iq.rs). Published-figure decision B: arXiv 2607.02566 lunar joint-OD keeps its as-published Mac values (2182 m / 3.547 m), with a note that a fresh Linux run gives 2184 / 3.541 (host dependence, #36 row 6). W2 pushes that to both branches. No tags: Auto-tag runs only after main CI is green.
 - 12:09:54 W2 0.33.0 cut: release/0.33.0 @93dc26b has main 3369e1f merged, the bump on all surfaces, CHANGELOG [0.33.0] - 2026-10-08, regenerated charts, wasm 42ff3b14…, Studio re-recorded (SELFCHECK ok), MCP 21 tools. kshana-pro build.py fix: count IQ tools from iq.rs too (21 vs 15). Blocker: check.py rule 17 fails because the README screenshot alt texts say v0.31.0 and the images really are 0.31.0 captures. Coordinator chose option A: retake the 8 screenshots from 0.33.0 and update the alts and SHOTS.json (about 30–40 min); no rule exception.
 - 11:46:26 Public #66 opened (W6, chore/jamming-palette @ea00d466): jamming.rs moved onto the palette and the palette_sync allowlist emptied. Paint only: today's engine on both recorded jamming tomls equals the recorded charts after normalising colour, font and footer. W6's deviation was accepted: the 0.31 Studio recordings are not re-recorded (that would move published jamming values); that happens at the 0.33.0 re-port. #66 and #62 merge after the bump.
 - 11:31:02 W6: #62 (clock-ensemble-band regen) conflicted with main in CHANGELOG only. Merged main and kept both entries (ebf57a4b); the figure is still byte-identical and the figure/palette sync tests pass. CI restarted. #62 is not in the 0.33.0 cut; it lands after the bump. W6 started the jamming.rs palette routing on chore/jamming-palette from 3369e1f.
