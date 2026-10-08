@@ -1,4 +1,4 @@
-Updated: 2026-10-08T21:41:04Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T21:47:46Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:47:46 21:48Z W1b 0.34 prep: pytest 27 pass, stubtest clean, repeatability 3/3 (2802). Changelog draft ready. Decision: no new ledger rows in 0.34.0 (counts stay 124/251); new features labelled MODELLED in CHANGELOG. Bump after v0.33.1.
 - 21:41:04 21:41Z Check-in: v0.33.0 Release run: 3 CLI binaries built; verify job running cargo test --all (publish follows). #72 CI running. Next check 23:45Z.
 - 21:33:51 21:34Z W1b pushed release/0.34.0 c19d290 (13 PRs merged in order; conflicts resolved; guards fixed; 3977 tests pass). One red: iq_campaign DIGEST pins embed engine_version (results bit-identical). Decision: re-pin once in the 0.34.0 bump commit with evidence; bump waits for v0.33.1.
 - 21:32:18 21:32Z Opened #72 chore(release): 0.33.1 (head e34b7c6; generic Security changelog wording). CI ~3 h. Merge alone when green; then v0.33.1 auto-tags.
