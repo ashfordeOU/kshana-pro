@@ -1,4 +1,4 @@
-Updated: 2026-10-08T20:00:47Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T20:36:26Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 20:36:26 20:36Z #71 (site JSON guard) checks complete on d6bb521, none failing. Held by freeze; queued after #68 and v0.33.1.
 - 20:00:47 20:01Z #68 head a6df4a9: all 20 checks green (coverage done 20:00Z). Held: merges only after v0.33.0 auto-tags 6a98521 (not yet tagged; latest tag v0.32.0).
 - 19:38:11 19:38Z #68 coverage red on superseded 7524daeb: workshop_preset_isolation (chart_text_escaped.rs named the preset). Already fixed in head a6df4a9; CI on a6df4a9 running. No push needed.
 - 19:03:59 19:05Z — Main CI on e94eaef GREEN 19:03Z but Auto-tag skipped it: main head had moved to 6a98521 (#69, merged by the coordinator 17:51Z — coordinator error). Decision: MAIN FROZEN until v0.33.0 auto-tags 6a98521 (= e94eaef + output-neutral #69) when its CI goes green (~20:55Z). Held meanwhile: #62, #66 (green), #70, #71, #68. After the tag: merge #68 alone and freeze again until v0.33.1 tags; then the rest.
