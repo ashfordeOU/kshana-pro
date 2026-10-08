@@ -1,4 +1,4 @@
-Updated: 2026-10-08T16:27:50Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T16:30:10Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:30:10 16:31Z — #68 local head 7524daeb (main merged; gates pass; all 18 Studio files byte-identical to kshana-pro main 2a4c29b). Manifest was hand-updated because W6's container cannot build the site (no 5071A evidence cache). W2 runs build.py + port_site.py on e94eaef for an independent manifest cross-check. Nothing pushed.
 - 16:27:50 16:28Z — #66 updated 5a5961bb (main merged fea86c4a; entry moved to [Unreleased] Changed; recorded Studio copies still carry old jamming paint, entry says so). #69 dry-run merge with #66: no conflict, palette tests pass. CI running on #62 and #66; merge when green.
 - 16:23:20 16:25Z — kshana-pro PR 23 (studio hardening) MERGED -> main 2a4c29b after Critic 2 MERGE on a4f70d3 (bites confirmed; 149 inputs inert in Chromium). Studio re-ports now run from a main that contains it. #68 part 2 (public commit) still awaits founder authorisation in W6's session.
 - 16:22:49 16:23Z — #62 main merged (040103eb) + entry moved to [Unreleased] Fixed: head d0f6bec7; [0.33.0] byte-identical to main; figure checks pass. CI (~3 h) running; merge when green.
