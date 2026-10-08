@@ -1,4 +1,4 @@
-Updated: 2026-10-08T09:35:41Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T09:41:55Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 09:41:55 Critic 2: #58 (parallel channel tracking) @7648ecca MERGE. The output is bit-identical serial vs threaded; removing the sort and dropping events each bite in the engine test. Follow-up routed to W1b: the CLI test's events comparison is vacuous (no events in that scene), so make it bite. Plus a CHANGELOG line for the removed unreleased TrackSession accessors.
 - 09:35:41 Critic 2: #57 (extra correlator taps) @4ef9e698 MERGE. fmt, clippy and the no-attribution check pass; iq_track_engine + iq_cli 36/0. Four mutations each bite: tap sign, partial-period discard, hash skip, reader record_bytes check. The default design hash is unchanged when no taps are set. No bar edits.
 - 09:31:03 Critic: #61 @542ab1b MERGE after 0.33.0, behind #45 and #51. Bite proofs: margin 0.4 fails the unit bar, removing the cap reproduces the E1-B finding, clamp 0 breaks L2C lock. The A2 bar is unchanged and only tighter in value. Should-fix: record harness Amendment v3 in the matrix module doc. #63 @7f7a39a MERGE with #61 (docs only; nits: Known-limitations heading vs changelog-extract.sh, and 'fitted 8 dB × Bn·T'). Fixes routed to W5 to ride the merge-main commits.
 - 09:23:34 09:23Z check-in: #55, #52 and #56 are already merged; only #54 is left for 0.33.0 (head a57ab0e, critic MERGE, check/coverage running). Next check-in is at 10:50Z (trig_01STeqmcrv1tXSEXkYMBJgNQ). Heartbeat alive.
