@@ -1,4 +1,4 @@
-Updated: 2026-10-08T14:46:08Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T14:53:36Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:53:36 W7 #46 final → 51ba478 (doc/test fixup S1/S2/N1/N2; both DIGESTs now pinned in a test; iq_campaign 15/2; no code or number change). Head sent to W3 for the single PR 17 re-pin. W7 remaining: the acquire_peak switch after #65; monitor scoring after #49.
 - 14:46:08 Critic 1: #46 @52492b81 MERGE. Commit order verified (pins b6cf9766 before the scorer change 875b73af); all three merges clean; nwpr reproduces the pins; only C/N0 fields move under m2m4; ramp bars byte-identical; DIGESTs confirmed. Fixup (doc and test only) routed to W7: like-for-like MODELLED comparison, the M2M4 censoring at J/S 30 (n 2760 vs 3000), stale comments, pinning both new DIGESTs, tightening n. Then W7 hands the head to W3 for the single PR 17 re-pin.
 - 14:40:59 Public #69 opened (W8 chore/palette-macro @83b8f929): dark/light palette modules generated from one macro token table; API and values unchanged; palette_sync, source_guards and published_figures pass. Fixes the SonarCloud new-code duplication gate on main (124 → ~42 lines). No gate or exclusion change. Merges after #67.
 - 14:39:50 W6: all local gates green on #68 @11b18d02: lib 2759/0; 18 SVG-touching integration binaries 0 failed; no published chart or number moved. Waiting for #67 to merge before merging main into #68.
