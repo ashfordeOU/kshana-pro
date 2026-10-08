@@ -1,4 +1,4 @@
-Updated: 2026-10-08T08:25:47Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T08:26:41Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 08:26:41 08:26Z #60 bar history: W1b wrote S2 = 8 Hz before any run, citing the a-priori quantisation worst case bin/32 = 5.2 Hz; the coordinator's earlier 5 Hz predated that analysis. Decision: keep 8 Hz (pre-run, justified); replace the post-run-chosen test truth with a sweep of ≥16 offsets across a coarse bin, all within the bar; keep the bite test (refinement off fails). MCP cap 4M cells added. D12 grid-free acquire on fix/034-acq-gridfree (stacked on #60), bars written before the first run.
 - 08:25:47 08:25Z W1b opened public #60 (draft, on #45): B3.4 acquisition-surface export @cedc178 (CSV/JSON/bin, fine Doppler: coarse 79.6 Hz off → parabolic 2.0 Hz, fine 3.7 Hz). Coordinator queries: S2 bar 8 Hz vs the planned 5 Hz (commit order to prove it wasn't moved); D12 grid-free acquire not yet in; MCP size-cap test. All four W1 B-items are now drafts: #57, #58, #59, #60.
 - 08:25:11 08:25Z Session cleanup: confirmed archived the 8 old Opus-era Kshana sessions (W2–W8 and the CI runner from 2026-10-07; their handovers are in docs/lanes/). Active and kept: coordinator, critic (Fable), runner (Haiku 5.5), W1b, W2, W3, W5, W6, W7, W8 (Sonnet 5.5); each has open work.
 - 08:20:10 08:20Z W3: kshana-pro PR 17 re-pinned, fast-forwarded 32b0908 → a45a859, engine pinned at kshana #46 d8f3c52; fixture 12 cells, DIGEST df11fe24… (byte-identical to the acbdce0 dry run); 860 passed. PR 17 body set by the coordinator (cell key with data_class, relaxed-bar flag, ties, traceability, N6 guard). Critic re-review requested; held until public 0.34.0.
