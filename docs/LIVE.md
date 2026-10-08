@@ -1,4 +1,4 @@
-Updated: 2026-10-08T23:52:32Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T23:52:52Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 23:52:52 23:54Z Pages deploy 6949400261 (sha 8155a36) live: llms.txt Version 0.33.0. Root cause of the stale site: 0.32.0 web/ never re-ported (pipeline fine); strict version-sync now guards it. Checked: detailed fix wording not on live changelog/llms-full.
 - 23:52:32 23:53Z Deck annex C retaken from live v0.33.0 kshana.dev (9 pages), deck artifact v15 published, PDF re-exported (50 pages).
 - 23:50:09 23:50Z v0.33.0 FULLY RELEASED (W2): Release run success 23:44Z, all channels + MCP registry, Pages deployed 23:49Z; kshana.dev clean console on /, /studio/, changelog; llms.txt Version 0.33.0. Site corruption fixed. Merged kshana-pro PR 24 (pin =0.33.0) -> 87e0539.
 - 23:45:37 23:46Z Check-in: #72 18/20 green (check + coverage running). kshana.dev still serves llms.txt Version 0.31.0 (stale; 0.33.0 site job not yet run, behind ghcr/MCP registry). Pro PR 24 CI running. Next check 01:00Z.
