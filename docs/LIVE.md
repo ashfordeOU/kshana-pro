@@ -1,4 +1,4 @@
-Updated: 2026-10-08T17:07:00Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T17:12:34Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:12:34 17:14Z — #68: founder authorised in W6's session; 7524daeb pushed to kshana-pro review/kshana-68-delta; Critic 2 MERGE (fix bites, manifest = tool output, 127/138 charts identical, 11 differ only by newly escaped entities). W6 given go for the single public fast-forward push of sec/studio-codeql. Site JSON root cause (W1b): release commit f570219e used unescaped sed s/0.31.0/0.32.0/g from a local release script outside both repos; guard PR #71 opened (Critic 1 reviewing). W5 working #61/#63/#70 main merges.
 - 17:07:00 17:12Z — Live kshana.dev (v0.32.0) home hero broken: inline kpage JSON corrupted by an unescaped-regex version bump (time grid '3100.0…' became '.32.0.0…'), so telemetry, event log and charts do not render. main web/ (0.33.0, e94eaef) is clean (all inline JSON parses; home runs without errors locally) and deploys with the v0.33.0 release. W1b: root cause + site.test guard (branch fix/site-inline-json-guard).
 - 16:35:52 16:37Z — #68 manifest verified: tool output sha256 a0c9e48d… == 7524daeb's PORT-MANIFEST.json (whole file). 7524daeb ready; only the founder's in-session push authorisation in W6 remains before Critic 2 part-2 review.
 - 16:35:32 16:36Z — W2 manifest cross-check (port_site.py, Studio from kshana-pro 2a4c29b): changes vs e94eaef = the same 18 Studio files + PORT-MANIFEST.json only; manifest sha256 a0c9e48d…; port --check OK. W6 comparing against 7524daeb.
