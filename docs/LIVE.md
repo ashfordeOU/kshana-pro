@@ -1,4 +1,4 @@
-Updated: 2026-10-08T09:41:55Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T09:43:28Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 09:43:28 Public #64 opened (draft, W1b): the M2M4 C/N0 column (D10), base feat/034-track-engine, head 21210183. Bars were pushed at 3cd91504 before the implementation. M1: on L2C CM at a nominal 40 dB-Hz, M2M4 reads 39.93 at PLL 1/2.5/5/10 Hz (worst 0.07 dB; NWPR 39.55→38.22). M2: L1 C/A 45 → 45.34. M3: NWPR bit-identical. M4: the binary record stays 184 B. Integration note: #57's 27-column tests switch to EPOCH_FIELDS.len() for whichever PR merges second. Review routed to Critic 1. W7 GO for [scoring] cn0_estimator (default m2m4, in scoring_hash) on a local merge of #64; integration order #45 → #64 → #46; nwpr must reproduce the current DIGEST exactly.
 - 09:41:55 Critic 2: #58 (parallel channel tracking) @7648ecca MERGE. The output is bit-identical serial vs threaded; removing the sort and dropping events each bite in the engine test. Follow-up routed to W1b: the CLI test's events comparison is vacuous (no events in that scene), so make it bite. Plus a CHANGELOG line for the removed unreleased TrackSession accessors.
 - 09:35:41 Critic 2: #57 (extra correlator taps) @4ef9e698 MERGE. fmt, clippy and the no-attribution check pass; iq_track_engine + iq_cli 36/0. Four mutations each bite: tap sign, partial-period discard, hash skip, reader record_bytes check. The default design hash is unchanged when no taps are set. No bar edits.
 - 09:31:03 Critic: #61 @542ab1b MERGE after 0.33.0, behind #45 and #51. Bite proofs: margin 0.4 fails the unit bar, removing the cap reproduces the E1-B finding, clamp 0 breaks L2C lock. The A2 bar is unchanged and only tighter in value. Should-fix: record harness Amendment v3 in the matrix module doc. #63 @7f7a39a MERGE with #61 (docs only; nits: Known-limitations heading vs changelog-extract.sh, and 'fitted 8 dB × Bn·T'). Fixes routed to W5 to ride the merge-main commits.
