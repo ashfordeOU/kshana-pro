@@ -1,4 +1,4 @@
-Updated: 2026-10-08T06:30:07Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T06:30:47Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 06:30:47 06:30Z 0.34 lanes resumed at the founder's request: W1b (B3.5 taps), W5 (D8/D9 on fix/iq-d8-acq-step-pullin), W3 (relaxed-bar flag on the PR 17 wip branch), W8 (#49 CI report; main merged into #43/#49/#53). All lanes now active.
 - 06:30:07 06:30Z Merged to public main with merge commits, CI 20/20 green, critic MERGE: #38 →1583cbd, #44 →817a70f, #48 →e7d5ffc, #50 →dab5749. Main = dab5749. #54 (D5) retargeted to main, CI starting. #56 opened: W1's docs follow-up (commensurate limitation, Optional[int], MCP wording). All workers and the critic hit the shared usage limit about 22:10Z and were idle until the 01:40Z reset. Resumed: critic (#54 → #55 → #45), W6 (merge main into #55), runner (Mac probes), W2 (prepare the 0.33.0 bump, not opened), W7 (#45 + main into #46). 0.34 lanes (W1b, W3, W5, W8) restart later to stay inside the limit.
 - 22:05:28 22:05Z Public #55 opened for W6 (Observatory palette for all generated graphics, @3a2e1ed): result/report/table byte-identical across 138 scenarios; one data fix (domain-coverage-map 28→46). In 0.33.0 scope, merging after the IQ stack. Critic review and a Mac probe of the scenario-2 pin requested. W1b's B3.5 taps plan approved (feat/034-track-taps). W5's D8 cap goes inside the 'auto' resolution, with resolved values recorded in the epoch header.
 - 22:03:49 22:03Z Decisions: D8 = cap the default acquisition Doppler step at 0.4/T_track via a shared acq::default_step_hz helper (cause: E1-B residual 83 Hz vs FLL pull-in 62.5 Hz); refinement stays with W1b's B3.4. D9 = scale default loop bandwidths with Bn·T ≤ 0.1 only for T > 4 ms; the design hash must cover the effective parameters and the default pin must stay 33261cd1…. Bars pre-registered in the PR before running. W5 branch fix/iq-d8-acq-step-pullin from f3a8ca8b.
