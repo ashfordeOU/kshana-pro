@@ -3,49 +3,73 @@
     {
       "design": 0,
       "frontend": 0,
-      "key": "1ee6a417ad7b80c27d0f21bc5142b69cffaeaa9768c4f8e75244a705a132f1f2",
+      "key": "2b3833c709b446c167e7475bb48ce242a97aa5b4b362ca7a647c0572dd028f17",
       "recording": 0
     },
     {
       "design": 1,
       "frontend": 0,
-      "key": "9e7c36127dfc9bf471e062ad097df44f4abdf356412a0b910688327d3c1012de",
+      "key": "09c9e021917d1b909224f634a288638ac31ea4b273158f611e9d8379696c124e",
+      "recording": 0
+    },
+    {
+      "design": 2,
+      "frontend": 0,
+      "key": "dfe91a63abd34f81e5d07b20ef07dae38cfba5ffb1b6915984231505bde80872",
       "recording": 0
     },
     {
       "design": 0,
       "frontend": 1,
-      "key": "cd87e112db28f971e5edd05a4ebb4b55ad50ac3901dfede17bcdc5fed1c7ea6b",
+      "key": "d06d344f39ca2f9ed9d1ca327bcc443cd67aad83ae49ce9e5fb0afd7e0490a86",
       "recording": 0
     },
     {
       "design": 1,
       "frontend": 1,
-      "key": "a3781de6a26535de046498622fdfe63871c864b0e22a85907e955e50a0a7d018",
+      "key": "07ce5d4eadca3679f184f1a91a2fee5435edae9fe831e01e8954fddbe0853bd3",
+      "recording": 0
+    },
+    {
+      "design": 2,
+      "frontend": 1,
+      "key": "ff3c67dd3347c1f91bdea5fa743d0a11f01988c055a1b952c07e4e0f096bd9c4",
       "recording": 0
     },
     {
       "design": 0,
       "frontend": 0,
-      "key": "7cdd192684d9cbba7978ad131d79725efcf1a3c1e2e642e3bb4b5b7fb648cd96",
+      "key": "4256efc2efb03f05edce48d23a9dc5b7833dcef7050412a20ec0f2575e72cfc1",
       "recording": 1
     },
     {
       "design": 1,
       "frontend": 0,
-      "key": "7fe052b55d19f0d5df1f87ccdf98a92e1a4adf958cf50fa14f909de7438f9520",
+      "key": "60a1e02221a64af78fbe2456b6b2af311fc51a8f659cb02283159b8c4868fc56",
+      "recording": 1
+    },
+    {
+      "design": 2,
+      "frontend": 0,
+      "key": "4cc14ce9486b5772c28f8f8cc066ce5b5fde9c48b1222fee3d1e2c39076fb5f9",
       "recording": 1
     },
     {
       "design": 0,
       "frontend": 1,
-      "key": "d9ad29255e3d25b5e5207834f5c48606abbad66a2ff93a8a734c6e71a82afc36",
+      "key": "508d30d2ed57bc58da1c905f0ccb74339fe0f6be2ca8e0b35222ef965f3372ed",
       "recording": 1
     },
     {
       "design": 1,
       "frontend": 1,
-      "key": "b01722bd9baebc47687a73a2fc41bc03e1b35dd8f42f2bfdec6bc02a9abbdf7a",
+      "key": "07cb08f916622a4e38eca4c5d3d0d388870edb01f992c769c23d056ccad7e8b6",
+      "recording": 1
+    },
+    {
+      "design": 2,
+      "frontend": 1,
+      "key": "de7a2027888dc5b388a01297646aa5821e05e1b22e7412539d97cb5200ef75cb",
       "recording": 1
     }
   ],
@@ -160,6 +184,61 @@
       },
       "name": "narrow-pll",
       "schema": "kshana.loop-design/1"
+    },
+    {
+      "acquisition": {
+        "coherent_periods": "auto",
+        "doppler_max_hz": 5000.0,
+        "doppler_step_hz": "auto",
+        "noncoherent": 1,
+        "pfa": 0.001
+      },
+      "bit_sync": {
+        "min_votes": 12,
+        "ratio": 3.0
+      },
+      "carrier": {
+        "fll_assist": "pull-in",
+        "fll_bw_hz": 10.0,
+        "fll_discriminator": "atan2",
+        "fll_gate_dwell_s": 0.1,
+        "fll_off_pli": 0.8,
+        "fll_on_pli": 0.6,
+        "fll_order": 1,
+        "kind": "fll-assisted-pll",
+        "pll_bw_hz": 15.0,
+        "pll_discriminator": "costas-atan",
+        "pll_order": 2
+      },
+      "code": {
+        "bw_hz": 2.0,
+        "carrier_aiding": true,
+        "discriminator": "eml-power",
+        "order": 1
+      },
+      "hash": "7ed1441e7fb273643678ca4fec2e7232d3cf1314688763b3eecc60587486eea2",
+      "integration": {
+        "coherent_periods": 1,
+        "spacing_chips": 0.5
+      },
+      "lock": {
+        "cn0_window_periods": 20,
+        "cn0_windows": 50,
+        "code_lock_cn0_dbhz": 26.0,
+        "false_lock_check": true,
+        "false_lock_margin_db": 3.0,
+        "loss_dwell_s": 0.2,
+        "max_reacq_attempts": 0,
+        "pli_threshold": 0.8,
+        "pull_in_max_s": 2.0,
+        "reacq_doppler_window_hz": 500.0,
+        "reacq_interval_s": 0.1,
+        "reacq_max_interval_s": 0.1,
+        "reacq_window_s": 30.0,
+        "reacquire": true
+      },
+      "name": "reacquire",
+      "schema": "kshana.loop-design/1"
     }
   ],
   "engine_version": "0.32.0",
@@ -224,7 +303,7 @@
       "conditions_hash": "5e35638cb5127cbfc97ca1b017f1df163a3700b70a6ca8836f819008a1458aa7",
       "id": "synthetic-gap",
       "path": "conds/../synthetic-gap.bin",
-      "sha256": "2af728853654052064139ea5d1602c1d34945ed808d3d11333a118f06853e6a9"
+      "sha256": "aedb0a808ecc835008927fd45978274f366d6a727c19281d6bcb5970df0896ee"
     },
     {
       "conditions": {
@@ -279,7 +358,7 @@
       "conditions_hash": "a23ce5d058053fd6095cffc444d67e689f635b8ec2b58c18684d213af197e676",
       "id": "synthetic-ramp",
       "path": "conds/../synthetic-ramp.bin",
-      "sha256": "a9d8f7a7f64032fde671e335df3b14ba842a0abbd748c86d0f61e8535c922ff6"
+      "sha256": "c26503cae0fc5a39790e94ba756cca41e0bed066456d3c21acb218f4e2c59426"
     }
   ],
   "run_hash": "c2f008aa9053bc1948a5860c3067ed09ebb5bf98f1e13164cbcd144ecb897fcb",

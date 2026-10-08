@@ -15,7 +15,7 @@ own bullet so parallel work merges cleanly.
   form are provisional until the engine side confirms them. Export-control item N6: a new guard
   test fails on any campaign or test-condition document outside the synthetic fixtures, and on
   any SigMF recording anywhere; `.gitignore` blocks campaign output. Fixture: a hand-made
-  synthetic campaign (2 recordings × 2 chains × 2 designs = 8 cells), written by `make_fixture.py`.
+  synthetic campaign (2 recordings × 2 chains × 3 designs = 12 cells), written by `make_fixture.py`.
   Step L2 (`lab_campaign::aggregate`) selects and orders the cells' numbers for the report.
   It computes no metric. Every derived figure is a declared median, sum, count or ratio of
   sums, and carries its input count. Scorecard metrics are whole-run per (chain, design);

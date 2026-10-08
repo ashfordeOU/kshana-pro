@@ -309,7 +309,7 @@ fn the_summary_and_heatmap_numbers_are_traced_and_match_their_text() {
         );
     }
     let texts: Vec<_> = t.iter().filter(|x| x.3 == "text").collect();
-    assert_eq!(texts.len(), 4, "one traced heatmap cell per chain x design");
+    assert_eq!(texts.len(), 6, "one traced heatmap cell per chain x design");
     for (v, op, _n, _tag, printed) in &texts {
         assert_eq!(op, "median");
         assert_eq!(*printed, format!("{:.1} %", 100.0 * v));
@@ -327,7 +327,7 @@ fn the_summary_and_heatmap_numbers_are_traced_and_match_their_text() {
         vec![
             c.manifest.recordings.len() as f64,
             2.0,
-            2.0,
+            3.0,
             c.cells.len() as f64
         ]
     );
@@ -434,12 +434,12 @@ fn a_client_confidential_render_carries_the_export_notice_slot() {
 #[test]
 fn designs_keep_their_colour_whatever_their_rank() {
     let doc = html();
-    let colours: BTreeSet<&str> = ["#2a78d6", "#eb6834"].into_iter().collect();
+    let colours: BTreeSet<&str> = ["#2a78d6", "#eb6834", "#1baf7a"].into_iter().collect();
     for c in &colours {
         assert!(doc.contains(c), "design colour {c} missing");
     }
-    // The third slot is unused with two designs.
-    assert!(!doc.contains("#1baf7a"));
+    // The fourth slot is unused with three designs.
+    assert!(!doc.contains("#eda100"));
 }
 
 // ── L4: the PDF edition ────────────────────────────────────────────────────────────────
@@ -539,7 +539,7 @@ fn the_pdf_edition_renders_deterministically_and_carries_the_same_facts() {
     assert!(flat.contains("baseline re-acquired fastest"));
     // The outage times to loss differ by about 1e-8 s, below the printed precision: a tie,
     // never "held lock longest".
-    assert!(flat.contains("every design lost lock after the same median time (0.24 s"));
+    assert!(flat.contains("every design lost lock after the same median time (0.22 s"));
     assert!(!flat.contains("held lock longest"));
     assert!(flat.contains("every design held lock throughout"));
 }

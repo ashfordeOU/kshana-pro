@@ -31,7 +31,7 @@ KSHANA = os.environ["KSHANA"]
 WORK = os.path.abspath(sys.argv[1])
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "basic")
-FS = 4.092e6
+FS = 2.5e6  # non-commensurate with the 1.023 MChip/s code (2.44 samples/chip); 4.092e6 gives 4 samples/chip, a DLL staircase
 NOMINAL = 45.0
 RC = 1.023e6
 Q = 1.0  # the engine's broadband Q today (jamming::q_factor)
@@ -151,6 +151,13 @@ extends = "baseline"
 pll_bw_hz = 8.0
 [design.code]
 bw_hz = 1.0
+# baseline and narrow-pll leave lock.reacquire at its default (false): the state machine only
+# observes. This third design is what a lab would run for outages: re-acquire a LOST channel.
+[[design]]
+name = "reacquire"
+extends = "baseline"
+[design.lock]
+reacquire = true
 """)
     write("campaign.toml", """schema = "kshana.campaign/1"
 name = "synthetic-fixture"
