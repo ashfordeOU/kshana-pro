@@ -1,4 +1,4 @@
-Updated: 2026-10-08T09:58:51Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T10:02:20Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 10:02:20 Public #65 opened (draft, W1b): D12 grid-free acquisition, base #60, head 8ef7160d. A2 PASSES: E5a-Q at 25 MS/s peaks at 213 MB against the 256 MB bar (2169 s, Doppler 1233.3 vs truth 1234). The first design failed at 277 MB and was fixed with the bar kept. A1 bit-identical; A3 suites pass with no test edited. Routed: CLI acquire, acquire_inits, Python iq_acquire/iq_track. #58 follow-up 034c932d (the events comparison now bites); #59 doc fix 6ef372f4. #65 review → Critic 2. W1b next: make CI run #64's M1–M3. W2: README stale-IQ sentence fixed on release/0.33.0 (c0dd4ba); llms.txt regenerates at the bump.
 - 09:58:51 Critic 2: #60 (acquisition surface export + fine Doppler) @707c18ee MERGE. S1 bit-identical grid; S2 worst fine error 5.21 Hz across a 66-truth rule-based sweep. Coarse-bin and scaled-cell mutations each bite. Bar history, confirmed: 8 Hz in the first commit (cedc1781) with the a-priori reason bin/32 = 5.2 Hz plus margin; a WIP commit set 5 Hz on a hand-picked truth; the final commit restored 8 Hz and replaced the truth with the sweep. The coordinator's earlier ruling stands: 8 Hz (the first in-repo pre-registration, set before any run, and justified a priori). The coordinator's 5 Hz from planning was never committed, and 5 Hz is below the worst-case quantisation of a 1/16-bin grid. No change.
 - 09:57:26 Critic 1: #64 (M2M4) @21210183 MERGE after 0.33.0, behind #45. The pre-registration (3cd91504) is byte-identical at the head. The NWPR checksum was independently recomputed on base 010b30b9: 0x05b3caf744da2a2d matches. The layouts compose with #57 (the second to merge makes the 27-column tests relative). Required before merge: M1–M3 are #[ignore]d, so CI enforces only M4. W1b un-ignores M2/M3 and either un-ignores M1 or adds a release CI step for it. No bar values change.
 - 09:53:40 Critic 2: #59 (GB-scale streaming track) @348f3889 MERGE. Bars G1–G4 are all in the first commit and unchanged. Run at 0.05 GB: heap +1.6 MiB, 8.5 MS/s, locked 3054/3055 epochs. Holding a 100 MiB buffer trips G1; truncating the epochs file trips G4. Fix: the module doc says one code period but the assertion allows two. The doc is corrected to match the pre-registered assertion (not the other way round). Routed to W1b.
