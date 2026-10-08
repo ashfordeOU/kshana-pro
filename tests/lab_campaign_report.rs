@@ -551,3 +551,85 @@ fn the_report_states_which_lock_source_the_cells_used() {
     assert!(doc.contains("lock state machine"));
     assert!(doc.contains("counts as unlocked"));
 }
+
+// ── per-recording bars that relax a campaign bar ───────────────────────────────────────
+
+/// A scratch copy of the fixture whose first recording states its own `bars`.
+fn with_recording_bars(bars: serde_json::Value) -> PathBuf {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    static N: AtomicUsize = AtomicUsize::new(0);
+    let dir = std::env::temp_dir().join(format!(
+        "kshana-pro-relaxed-{}-{}",
+        std::process::id(),
+        N.fetch_add(1, Ordering::SeqCst)
+    ));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("cells")).unwrap();
+    let src = fixture();
+    for f in ["scorecard.json", "DIGEST"] {
+        std::fs::copy(src.join(f), dir.join(f)).unwrap();
+    }
+    for e in std::fs::read_dir(src.join("cells")).unwrap().flatten() {
+        std::fs::copy(e.path(), dir.join("cells").join(e.file_name())).unwrap();
+    }
+    let mut v: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(src.join("campaign.json")).unwrap()).unwrap();
+    v["recordings"][0]["conditions"]["bars"] = bars;
+    std::fs::write(
+        dir.join("campaign.json"),
+        serde_json::to_string_pretty(&v).unwrap(),
+    )
+    .unwrap();
+    dir
+}
+
+fn relaxed_rendered(bars: serde_json::Value) -> (String, String) {
+    let dir = with_recording_bars(bars);
+    let c = load(&dir).unwrap();
+    let html = render_html(&c, &synthetic()).unwrap();
+    let pdf = pdf_text(&render_pdf(&c, &synthetic()).unwrap());
+    let _ = std::fs::remove_dir_all(&dir);
+    (html, pdf)
+}
+
+#[test]
+fn a_recording_bar_looser_than_the_campaign_bar_is_flagged_in_html_and_pdf() {
+    // The campaign bars are min_availability 0.5 and max_reacq_s 3.0.
+    let (html, pdf) = relaxed_rendered(serde_json::json!({
+        "min_availability": 0.2, "max_reacq_s": 20.0
+    }));
+    for (what, doc) in [("HTML", &html), ("PDF", &pdf)] {
+        assert!(doc.contains("RELAXED BAR"), "{what} lacks the flag");
+        assert!(
+            doc.contains("min_availability"),
+            "{what} lacks the bar name"
+        );
+        assert!(doc.contains("max_reacq_s"), "{what} lacks the second bar");
+    }
+    // Next to the affected recording's event rows and in section 7.
+    assert!(html.matches("RELAXED BAR").count() >= 4);
+    assert!(html.contains("[relaxed bar]"));
+}
+
+#[test]
+fn a_stricter_or_equal_recording_bar_is_not_flagged() {
+    let (h, pdf) = relaxed_rendered(serde_json::json!({
+        "min_availability": 0.9, "max_reacq_s": 1.0
+    }));
+    assert!(!h.contains("RELAXED BAR") && !pdf.contains("RELAXED BAR"));
+    let (h, _) = relaxed_rendered(serde_json::json!({ "min_availability": 0.5 }));
+    assert!(!h.contains("RELAXED BAR"));
+    // A bar the campaign does not state is an extra bar, not a relaxation.
+    let (h, _) = relaxed_rendered(serde_json::json!({ "max_false_locks": 9 }));
+    assert!(!h.contains("RELAXED BAR"));
+    // The unmodified fixture has none.
+    assert!(!html().contains("RELAXED BAR"));
+}
+
+#[test]
+fn a_bar_that_cannot_be_ranked_is_flagged_not_accepted() {
+    let (html, _) = relaxed_rendered(serde_json::json!({ "availability_goal": 0.1 }));
+    assert!(!html.contains("RELAXED BAR"), "not a campaign bar: ignored");
+    let (html, _) = relaxed_rendered(serde_json::json!({ "min_availability": "low" }));
+    assert!(html.contains("RELAXED BAR") && html.contains("cannot be ranked"));
+}

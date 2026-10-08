@@ -18,7 +18,9 @@
 //!   campaign and options give the same bytes.
 //! - **No client name is ever defaulted.** It comes only from [`LabReportOptions::client`].
 
-use crate::lab_campaign::aggregate::{aggregate, rank, Aggregates, Curve, EventRow, Op, Stat};
+use crate::lab_campaign::aggregate::{
+    aggregate, rank, Aggregates, Curve, EventRow, Op, RelaxedBar, Stat,
+};
 use crate::lab_campaign::model::DataClass;
 use crate::lab_campaign::LoadedCampaign;
 use crate::report_brand as brand;
@@ -154,6 +156,32 @@ fn op_name(op: Op) -> &'static str {
         Op::Count => "count",
         Op::RatioOfSums => "ratio",
     }
+}
+
+/// The relaxed per-recording bars that apply to `rec`.
+pub(crate) fn relaxed_for<'a>(a: &'a Aggregates, rec: &str) -> Vec<&'a RelaxedBar> {
+    a.relaxed.iter().filter(|r| r.recording == rec).collect()
+}
+
+/// Plain text of the relaxed-bar note for `rec` (shared by the HTML and the PDF), if any.
+pub(crate) fn relaxed_text(a: &Aggregates, rec: &str) -> Option<String> {
+    let v = relaxed_for(a, rec);
+    (!v.is_empty()).then(|| {
+        format!(
+            "RELAXED BAR: {}.",
+            v.iter()
+                .map(|r| r.describe())
+                .collect::<Vec<_>>()
+                .join("; ")
+        )
+    })
+}
+
+/// The note shown next to the rows of a recording whose own bar is looser than the campaign's.
+fn relaxed_notice(a: &Aggregates, rec: &str) -> String {
+    relaxed_text(a, rec)
+        .map(|t| format!("<div class=\"notice relaxed\">{}</div>", xml(&t)))
+        .unwrap_or_default()
 }
 
 /// Marker delimiters for a traced number inside summary prose. The summary text is shared by
@@ -330,7 +358,7 @@ const CSS: &str = "\
 .lab .banner{font-weight:700;text-align:center;padding:10px 14px;border-radius:4px;margin:16px 0;letter-spacing:.03em}\
 .lab .synthetic{background:#e6eef8;color:#163f73;border:1px solid #9ec5f4}\
 .lab .confidential{background:#f8e7e3;color:#7a2416;border:1px solid #d9a092}\
-.lab .incomplete{background:#fff3cd;color:#664d03;border:1px solid #e0c36a}\
+.lab .incomplete,.lab .relaxed{background:#fff3cd;color:#664d03;border:1px solid #e0c36a}\
 .lab .notice{border:1px dashed var(--lab-line);padding:8px 12px;font-size:13px;margin:8px 0}\
 .lab .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:baseline}\
 .lab .mono{font-family:var(--lab-mono);font-size:12px;word-break:break-all}\
@@ -527,7 +555,14 @@ pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
             if rows.is_empty() {
                 continue;
             }
-            let head = format!("{ev} ({kind}, recording {rec}), chain {fe}");
+            let head = format!(
+                "{ev} ({kind}, recording {rec}), chain {fe}{}",
+                if relaxed_for(a, rec).is_empty() {
+                    ""
+                } else {
+                    " [recording's own bar is relaxed, see section 7]"
+                }
+            );
             let mut body = String::new();
             // Longest time to loss; satellites that held lock count as longest.
             let ttl: Vec<(String, Option<f64>)> = rows
@@ -857,6 +892,13 @@ fn scorecard(a: &Aggregates) -> String {
         );
     }
     s.push_str("</table>");
+    for rb in &a.relaxed {
+        let _ = write!(
+            s,
+            "<div class=\"notice relaxed\">RELAXED BAR (whole-run rows pool every recording): {}.</div>",
+            xml(&rb.describe())
+        );
+    }
     s
 }
 
@@ -979,12 +1021,13 @@ fn events_section(a: &Aggregates) -> String {
         seen.push(k.clone());
         let _ = write!(
             s,
-            "<h3>{} ({}), recording {}</h3><table><tr><th>Chain</th><th>Design</th><th>Satellites</th>\
+            "<h3>{} ({}), recording {}</h3>{}<table><tr><th>Chain</th><th>Design</th><th>Satellites</th>\
              <th>Lost</th><th>Time to loss</th><th>Stated J/S at loss</th><th>Re-acquired</th>\
              <th>Re-acquisition time</th><th>Availability in event</th></tr>",
             xml(&e.event_id),
             xml(&format!("{} / {}", e.kind, e.event_type)),
-            xml(&e.recording)
+            xml(&e.recording),
+            relaxed_notice(a, &e.recording)
         );
         for r in a
             .events
@@ -1049,10 +1092,11 @@ fn curves_section(a: &Aggregates) -> String {
             .collect();
         let _ = write!(
             s,
-            "<h3>{} (recording {}), chain {}</h3>",
+            "<h3>{} (recording {}), chain {}</h3>{}",
             xml(&k.1),
             xml(&k.0),
-            xml(&k.2)
+            xml(&k.2),
+            relaxed_notice(a, &k.0)
         );
         s.push_str(&curve_svg(a, &group));
         s.push_str(&curve_table(a, &group));
@@ -1298,8 +1342,17 @@ fn pass_fail_section(c: &LoadedCampaign, a: &Aggregates) -> String {
             .unwrap_or_else(|| "none (per-recording bars only)".to_owned()),
     );
     s.push_str(
-        ". A recording's own bars, where stated in its test conditions, override these.</p>\
-         <table><tr><th>Scope</th><th>Chain</th><th>Design</th><th>Passed</th><th>Evaluated</th>\
+        ". A recording's own bars, where stated in its test conditions, override these.</p>",
+    );
+    for rb in &a.relaxed {
+        let _ = write!(
+            s,
+            "<div class=\"notice relaxed\">RELAXED BAR: {}.</div>",
+            xml(&rb.describe())
+        );
+    }
+    s.push_str(
+        "<table><tr><th>Scope</th><th>Chain</th><th>Design</th><th>Passed</th><th>Evaluated</th>\
          <th>Failed bars</th></tr>",
     );
     let failed = |m: &std::collections::BTreeMap<String, usize>| {
@@ -1342,7 +1395,16 @@ fn pass_fail_section(c: &LoadedCampaign, a: &Aggregates) -> String {
     for r in a.events.iter().filter(|r| r.verdicts.1 > 0) {
         row(
             &mut s,
-            &format!("{} ({})", r.event_id, r.recording),
+            &format!(
+                "{} ({}){}",
+                r.event_id,
+                r.recording,
+                if relaxed_for(a, &r.recording).is_empty() {
+                    ""
+                } else {
+                    " [relaxed bar]"
+                }
+            ),
             &r.frontend,
             &r.design,
             r.verdicts,
