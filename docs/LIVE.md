@@ -1,4 +1,4 @@
-Updated: 2026-10-08T09:11:14Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T09:15:04Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 09:15:04 09:15Z Critic: #46 @d8f3c52 MERGE after 0.33.0 and #45. All earlier findings resolved (per-front-end re-pin, MCP containment before read, stale-detection test, docs). Note: the planned M2M4/cn0_estimator change (after W1b's column) will need a delta re-review.
 - 09:11:14 09:11Z Public #63 opened (draft, stacked on #61): D10 docs: NWPR limit under PLL jitter (−0.24…−1.58 dB at 20 ms), BOC(1,1) 5 MS/s band-limiting; matrix finding texts corrected; no estimator or bar change. D10 record at kshana-pro docs/defects/D10.md (fc6eb54). W5 on D11 (go given).
 - 09:08:41 09:08Z D11 cause (W5): run_clock's truth carries the flicker bank but the bound comes from a 2-state KalmanClock, and filter_health draws its own 2-state truth, so NIS/NEES never see the scenario's flicker. GO on option 1: an extended filter with a flicker bank built from the same constructor as the truth when floor > 0; byte-identical at floor 0. Bars pre-registered B1–B6: coverage ≥0.99 (p05 ≥0.9); unchanged at floor 0; health sees the truth plus a mismatch negative test; not inflated (≤0.9995, bound/error ≤2); truth metrics unchanged; any moved golden reported. fusion/hybrid checked read-only for the same gap.
 - 09:07:58 09:07Z Campaign C/N0 estimator: W7 confirms the scorer uses NWPR only (runner.rs:717); the D10 jitter bias makes degradation and cross-design comparisons design-dependent. Decision: in 0.34, W1b adds a streaming M2M4 column (bars pre-registered: |M2M4−nominal| ≤ 0.5 dB across Bn·T and on L1 C/A; NWPR unchanged); then W7 adds [scoring] cn0_estimator (in scoring_hash, default m2m4 if the evidence holds) and reports both; then one PR 17 re-pin.
