@@ -1,4 +1,4 @@
-Updated: 2026-10-08T06:38:57Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T06:40:22Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 06:40:22 06:40Z Critic: W2's #52 azimuth-pin fix @c1f08e1 MERGE (mask from the fixture, swap/reflection caught, INC_TOL_RAD untouched, mutations bite). W2 fast-forwarding #52 to c1f08e1; body updated. Critic on #55 @e04412f: main merge clean, still FIX-FIRST on clock-ensemble-band.svg only (W6 on it).
 - 06:38:57 06:38Z Critic on #55 @3a2e1ed: FIX-FIRST. docs/assets/clock-ensemble-band.svg moved DATA (band ~10×: ticks 47→407 ns, spec line moved; last drawn 2026-06-02, unreferenced). W6 restores main's file in #55 and investigates the cause separately. Should-fix: guard or source sgp4-regime-bars values. Everything else holds (without_paint can't mask data, pins proven, 28→46 correct, doc-sync bites). #52 azimuth fix final sha c1f08e1 sent to the critic.
 - 06:38:22 06:38Z Mac probe 37737922125 on #55 (3a2e1ed): lunar_frame_campaign + cislunar_observability 48 passed / 0 failed / 4 ignored. The pin assertions (scenario-2 exact layer, released-SVG hash) pass on macOS arm64, so the emitters aren't needed. #52 azimuth fix on side branch de6e9cb: the critic's pre-read says the approach is sound; Mac probe queued.
 - 06:35:49 06:35Z Critic re-check: #45 FINAL @f3a8ca8 MERGE after 0.33.0. All earlier findings fixed; bars equal the pre-registration. FACT for the record: a_signal_gap_is_lost_then_reacquired was LOOSENED 0.3→1.05 s in WIP commit 6d4bb2e (after the 0.435 s result) and RESTORED to 0.3 s in f3a8ca8; the head ships the original bar. Follow-ups to W1b: document the 0 Hz commensurate bias and the ~35 dB-Hz FLL→PLL floor; add the 39/42/45 dB-Hz carrier-lock assertions.
