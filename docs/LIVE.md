@@ -1,4 +1,4 @@
-Updated: 2026-10-08T14:21:02Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T14:29:28Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:29:28 Main health check (founder asked). Public main 3369e1f: 24 checks green, coverage still running. SonarCloud quality gate RED: new-code duplication 3.07% against ≤3% (82 lines in palette.rs's light/dark const lists). W8 dedupes palette.rs with one macro (no Sonar exclusions, no gate change). kshana-pro main ff295d2: check green. FOUND: W6's security branch sec/studio-codeql was pushed to the PUBLIC repo with payload tests (11b18d02). The fix is accelerated; the PR opens as soon as gates pass, with Critic 2 at top priority. Branch-deletion list prepared for the founder.
 - 14:21:02 W1b: #64 → 9a211e6b with #57 (4ef9e698) merged in. The conflicts (python epoch_value, CHANGELOG) were resolved by keeping both sides; the column counts are now relative to EPOCH_FIELDS.len(). Tests pass: iq_track_engine 18, iq_cli 18, iq_track_cn0 3, lib iq 123. Record is 184 B plus 16 per tap. #65 @8ef7160d already routes the python hand-offs grid-free. W1b idle.
 - 14:13:53 W5 D11 (fix/clock-d11-flicker-bound): implementation plus the B1/B2/B3/B5 tests at 71193502. B4' test committed BEFORE any RMS was computed (1752c032). B4' is running now. B1 classical 0.99970 / quantum 1.0; the floor=0 control reproduces the old numbers exactly; B5 timing and holdover unchanged; B3 detects the unmodelled flicker. Next: the B4' result, fusion/hybrid coverage, B6, D11.md, then the #61/#63 doc fixes.
 - 14:11:25 W1b #64 → b34ce09f: M1–M3 un-ignored; all four bars now run in CI (86 s debug); results unchanged. Integration order fixed: #57 before #64. W1b pre-merges #57 into #64 and makes the column counts relative to EPOCH_FIELDS.len(). The #65 python.rs routing question is re-asked.
