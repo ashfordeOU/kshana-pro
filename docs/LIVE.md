@@ -1,4 +1,4 @@
-Updated: 2026-10-08T17:57:08Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T18:52:33Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 18:52:33 18:55Z — 0.34.0 integration started: W1b builds release/0.34.0 off main 6a98521 merging #43 → #45 → #57 → #58 → #59 → #60 → #64 → #65 → #61 → #63 → #53 → #49 → #46 (merge commits, [Unreleased] only, no bar changes). W7 then adds the acquire_peak hand-off and monitor scoring. Then ledger rows, version bump, critic review of the integration, one CI, merge after 0.33.1. #51 (signal matrix) and #47 (lab-fit design) stay for 0.35/0.36.
 - 17:57:08 17:58Z — #68: pushed a6df4a9 (fast-forward from 7524daeb): drop the withholdable preset's scenario from chart_text_escaped's SKIPPED list (workshop_preset_isolation failure); local: chart_text_escaped pass, workshop_preset_isolation 5/5. Critic 2 confirming delta. CI restarted.
 - 17:51:21 17:52Z — MERGED #69 (palette macro, SonarCloud duplication fix) -> main 6a98521 (all checks green; CodeQL 'Analyze (actions)' stuck queued since 14:40Z, default setup). #68 CI on 7524daeb: coverage on old head 11b18d02 failed workshop_preset_isolation (tests/chart_text_escaped.rs named the withholdable preset in its skip list) — same file at 7524daeb; coordinator fix (drop that skip entry; test then covers the scenario too) under local test before one push.
 - 17:27:02 17:27Z — #71 red on 947538b1 (ci.yml meta-check: test file not enumerated after the tag-fetch step became multi-line; this PR's). Fixed 150c004d: fetch and node test split into two steps; meta-check reproduced red then OK locally. CI re-running.
