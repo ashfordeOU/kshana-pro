@@ -1,4 +1,4 @@
-Updated: 2026-10-08T14:11:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T14:13:53Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:13:53 W5 D11 (fix/clock-d11-flicker-bound): implementation plus the B1/B2/B3/B5 tests at 71193502. B4' test committed BEFORE any RMS was computed (1752c032). B4' is running now. B1 classical 0.99970 / quantum 1.0; the floor=0 control reproduces the old numbers exactly; B5 timing and holdover unchanged; B3 detects the unmodelled flicker. Next: the B4' result, fusion/hybrid coverage, B6, D11.md, then the #61/#63 doc fixes.
 - 14:11:25 W1b #64 → b34ce09f: M1–M3 un-ignored; all four bars now run in CI (86 s debug); results unchanged. Integration order fixed: #57 before #64. W1b pre-merges #57 into #64 and makes the column counts relative to EPOCH_FIELDS.len(). The #65 python.rs routing question is re-asked.
 - 14:10:22 Session audit (founder asked). W5, W1b and W7 hit the usage limit at about 10:05Z and stayed idle after the 11:20 reset, missing their instructions. All three were resumed at 14:10Z with full consolidated tasks. Archived the 4 test-shard runners (shards 2–4 reported green; 0.33.0 RC merged). Every active session was retitled 'who · what · state' so the sidebar shows its current job.
 - 14:07:39 #62 (clock-ensemble-band regen) CI completed on ebf57a4. It is held until #67 (0.33.0) merges, then it gets a main merge for the CHANGELOG and merges.
