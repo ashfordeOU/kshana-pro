@@ -1,4 +1,4 @@
-Updated: 2026-10-08T15:31:59Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T15:36:07Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:36:07 15:37Z — 15:35Z check-in: #67 coverage step still running (3 h 06 m; recent main CI runs 3 h 00–3 h 25 m). Not merged yet; fallback check-in 16:05Z, PR subscription wakes on completion.
 - 15:31:59 15:33Z — PR 17 delta 7eddc9e: Critic 1 MERGE (regenerated fixture byte-identical, DIGEST ba9837d8; 862/0/9; three mutations bite). S1 client-facing estimator wording fix sent to W3 before merge; PR 17 merges with the 0.34 integration. #67 coverage still running (3 h 4 m).
 - 15:23:44 15:28Z — #70 Critic 1: FIX-FIRST @aa8eee05. F1: orbit-gnss-challenged output also moves (integrity, filter_health; quantum consistent true->false = 95%-band sampling event, ~5% false-flag rate shown over 40 seeds) and was unreported. Decision: report it; no ensemble-size or seed change (that would be picking a passing size). F2/F3/N1 doc fixes. W5 fixing. PR 17 7eddc9e Mac CI green; Critic 1 on PR 17 delta.
 - 15:22:39 15:26Z — #68 delta: sandbox refused W6's push to the kshana-pro review branch too (a coordinator message is not founder authorisation). Waiting on the founder to authorise the private push in W6's session. Nothing published.
