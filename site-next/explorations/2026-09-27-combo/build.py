@@ -10,7 +10,7 @@ the engine; nothing is retyped by hand:
   scenario kinds / files   src/api.rs list_scenario_kinds(), scenarios/*.toml (git-tracked only)
   ledger + matrix          web/data/verification-matrix.json
   capability cards         web/capabilities.json
-  MCP tools                mcp/kshana-mcp/src/server.rs (#[tool] functions)
+  MCP tools                mcp/kshana-mcp/src/server.rs and iq.rs (#[tool] functions)
   charts                   the Studio's recorded runs (the folder src/data/sources.json names as
                            studio), through the Studio's own view code: ../../tools/build_viz.mjs
   Studio links             the Studio's own link list (its tools_links.mjs): .build/studio-links.json,
@@ -195,7 +195,9 @@ kind_ledger = {k: [mods[k.replace("-", "_")].count("VALIDATED"), len(mods[k.repl
 # (mcp_repo) while the branch that adds tools is not merged into the site's engine checkout; the
 # recorded session the pages replay (src/data/mcp-session.json) must list exactly these tools.
 MCP_REPO = os.path.expanduser(os.environ.get("KSHANA_MCP_REPO") or SOURCES.get("mcp_repo") or REPO)
-mcp_tools = re.findall(r"#\[tool\(\s*description\s*=\s*\"((?:[^\"\\]|\\.)*)\"\s*\)\]\s*fn (\w+)\(", open(os.path.join(MCP_REPO, "mcp/kshana-mcp/src/server.rs"), encoding="utf-8").read())
+# The tool functions live in server.rs and, since 0.33.0 (the IQ tools), in iq.rs.
+_MCP_SRC = "".join(open(os.path.join(MCP_REPO, "mcp/kshana-mcp/src", f), encoding="utf-8").read() + "\n" for f in ("server.rs", "iq.rs"))
+mcp_tools = re.findall(r"#\[tool\(\s*description\s*=\s*\"((?:[^\"\\]|\\.)*)\"\s*\)\]\s*fn (\w+)\(", _MCP_SRC)
 assert len(mcp_tools) >= 5, mcp_tools
 _session_tools = sorted(t["name"] for t in json.loads(src("data/mcp-session.json"))["tools"])
 assert _session_tools == sorted(n for _, n in mcp_tools), (f"the recorded MCP session lists {len(_session_tools)} tools, the server source {len(mcp_tools)}: "
@@ -882,7 +884,8 @@ def pub_figure(p, featured=False):
     studio = studio_open("", r["studio"]) if "studio" in r else ""
     return (f'<figure class="pub-fig" data-anim><div class="pub-plot">{pub_chart(p, 520, 156)}</div>'
             f'<figcaption class="prov pub-prov"><span class="st st-{st[0]}" title="{esc(f["capability"])}: verification-matrix label">{st[1]}</span><span>Engine v{esc(PUB_ENGINE["version"])} · {src_} · {seed}</span>{studio}</figcaption>'
-            '</figure>')
+            + (f'<p class="pub-how pub-note">{esc(f["provenance_note"])}</p>' if f.get("provenance_note") else "")
+            + '</figure>')
 
 
 def pubs():
