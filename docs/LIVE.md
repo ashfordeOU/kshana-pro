@@ -1,4 +1,4 @@
-Updated: 2026-10-08T15:40:19Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T15:49:17Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:49:17 15:50Z — #70 fixes pushed caa71d37 (doc-only: CHANGELOG reports orbit-gnss-challenged move incl. consistent flip as 95%-band sampling event, 40 fresh seeds 3/80 flagged; test header records B4 withdrawal and B4'); D11.md 3dd318f. To Critic 1 for delta. PR 17 f801932 CI green.
 - 15:40:19 15:41Z — PR 17 S1 fixed: f801932 (estimator note matches engine doc; new pin test; 863/0/9; DIGEST ba9837d8 unchanged). Ready for 0.34 integration.
 - 15:36:07 15:37Z — 15:35Z check-in: #67 coverage step still running (3 h 06 m; recent main CI runs 3 h 00–3 h 25 m). Not merged yet; fallback check-in 16:05Z, PR subscription wakes on completion.
 - 15:31:59 15:33Z — PR 17 delta 7eddc9e: Critic 1 MERGE (regenerated fixture byte-identical, DIGEST ba9837d8; 862/0/9; three mutations bite). S1 client-facing estimator wording fix sent to W3 before merge; PR 17 merges with the 0.34 integration. #67 coverage still running (3 h 4 m).
