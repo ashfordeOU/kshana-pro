@@ -1,4 +1,4 @@
-Updated: 2026-10-08T12:36:54Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T12:49:49Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:49:49 W2: check.py --mutate on the final 0.33.0 site build: 42/42 mutations red, the unmutated build green, none survived. CI running on #67 @5aaf3ec and kshana-pro PR 21 @c8397ce; PR 22 @d4ebd2e. W2 is tracking CI and fixes anything that goes red.
 - 12:36:54 #67 CodeQL red: 4 high and 8 medium annotations in the Studio JS (XML entity expansion app.js:67/advanced.js:64; property injection urlstate.mjs:24; dynamic method call kinds.mjs:659; client-side request URLs). These pre-exist: kinds/urlstate are byte-identical to main, and the app/advanced diff is two colour literals far from the flagged lines. CodeQL notes the large diff and a missing rust default-setup config. Comment posted on #67 (footer stripped). Security follow-up routed to W6: triage first, then fix at the kshana-pro source of truth with biting tests, after 0.33.0. #67 merge plan: tests green → merge, CodeQL treated as pre-existing (flagged to the founder).
 - 12:34:56 Founder decision: the coordinator merges #67 (0.33.0 release) when CI is green on its head; Auto-tag then tags it after main CI. Subscribed to #67; fallback check-in at 15:35Z.
 - 12:30:06 Decision B applied by W2: kshana release/0.33.0 → 5aaf3ec (web only; the arXiv 2607.02566 figure shows 2182 m / 3.547 m plus the Linux provenance line). kshana-pro release/0.33.0-resources → c8397ce (gen_publications.py keeps the published values and writes a provenance_note while a fresh run differs). #67 body updated. kshana-pro PR 22 opened (tool fix only). CI running on #67 and PR 21; W2's check.py --mutate still running.
