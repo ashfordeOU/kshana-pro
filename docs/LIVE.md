@@ -1,4 +1,4 @@
-Updated: 2026-10-08T07:51:55Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T07:57:51Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 07:57:51 07:57Z Critic: #45 @010b30b MERGE after 0.33.0, no findings. Front end is applied on both passes from fresh chains; #38 auto hand-off holds on the session path; #44/#48/#50 tests pass; hash and bars unchanged; carrier_lock_bars is a real tightening to 5 points.
 - 07:51:55 07:51Z W1b: #45 @010b30b = critic follow-ups (aa53e6b: 0 Hz bias docs, 35 dB-Hz floor, carrier_lock_bars 35–45 dB-Hz) + main dab5749 merged, with #44's front-end applied inside the TrackSession path. #44's front-end test passes; default hash unchanged; full gates and no-attribution OK. Sent to W7 (merge into #46), W5 (merge into D8), critic (re-check). Then W3 regenerates PR 17 from W7's head.
 - 07:48:28 07:48Z W5 option 4 applied: the matrix now acquires with the engine's default coherent length; gps_l1ca passes A2 unchanged. gps_l5q still fails A2 only because the harness used a primary-only 1 ms replica, not the engine path. Decision (b): the harness uses the full tiered replica (the engine default) for tiered signals, bars unchanged; the primary-only property is documented. Bite proofs re-run at margin 0.2: the D8 cap and D9 clamp both bite.
 - 07:27:59 07:27Z W3 representativeness dry run @df5f276 (from acbdce0): 2.5 MS/s, third design 'reacquire', 12 cells, DIGEST df11fe24…; reacquire back on both chains at 1.28 s; ramp holds; tests and README updated; 860 passed. Real regen waits for W7's post-merge head (blocked on W1b's #45 main merge).
