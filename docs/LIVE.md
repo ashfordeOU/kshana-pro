@@ -1,4 +1,4 @@
-Updated: 2026-10-08T15:21:08Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T15:21:45Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:21:45 15:24Z — #68 delta ready (local 0f1b84a2 on 11b18d02; studio source kshana-pro sec/studio-hardening a4f70d3). Public push held: routed to kshana-pro review/kshana-68-delta for Critic 2 first; one public push of the final reviewed head after main merge.
 - 15:21:08 15:21Z — #67: 18/19 checks green, coverage still running (pre-existing CodeQL config failure excepted). kshana-pro PRs 21/22/23 green, queued behind #67. W6 on #68 fix, Critic 1 on #70; all other sessions idle, none rate-limited.
 - 15:19:23 W3: kshana-pro PR 17 re-pinned a45a859 → 7eddc9e at kshana #46 51ba478. M2M4 mirrored in the loader and report; fixture DIGEST ba9837d8 (byte-identical to the dry run); 862/0/9; relaxed-bar and N6 guards pass. Mac CI pending. Critic 1 delta review queued after #70; PR body update owed by the coordinator.
 - 15:09:07 Critic 2: #68 security @11b18d02 FIX-FIRST (one item): conflict_resilience.rs pre-escaped subtitle now double-escaped by frame_open. Otherwise verified: the escape test fails on the base and passes on the head; 126/138 charts identical and 11 entity-only; Studio port bytes equal the kshana-pro source; no svgsafe script path found. W6 to fix it, add a double-escape guard test, and harden svgsafe (url() in every attribute; drop adopted <style>), then a quick delta review.
