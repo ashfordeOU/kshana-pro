@@ -123,6 +123,4 @@ state) were triaged: none is exploitable as reported; the cheap guards were adde
 just the engine release. (2) Ecosystem entries: crates.io `kshana` `>= 0.1.0, < 0.33.1` and PyPI
 `kshana` `>= 0.1.0, < 0.33.1` (the PyPI/npm packages carry the same engine; confirm the first version
 of each that shipped the chart text, which I did not check per package). (3) Decide the CVSS scope
-reading above. (4) The `0.1.0` lower bound is the commit that first wrote the clock-id line; the other
-affected text (`sweep.rs`) first appears in `01796136` (2026-06-02, 0.3.0 era): check the exact
-version with `git tag --contains` before filing.
+reading above. (4) Checked: the clock-id line is in v0.1.0; the sweep chart text (`sweep.rs`, commit `01796136`) first ships in v0.4.0. The lower bound 0.1.0 therefore covers both.
