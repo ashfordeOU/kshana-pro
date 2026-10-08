@@ -1,4 +1,4 @@
-Updated: 2026-10-08T11:24:45Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T11:31:02Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:31:02 W6: #62 (clock-ensemble-band regen) conflicted with main in CHANGELOG only. Merged main and kept both entries (ebf57a4b); the figure is still byte-identical and the figure/palette sync tests pass. CI restarted. #62 is not in the 0.33.0 cut; it lands after the bump. W6 started the jamming.rs palette routing on chore/jamming-palette from 3369e1f.
 - 11:24:45 Merged public #54 (D5 jammer Q / A2) at head a57ab0e as 3369e1f; 20/20 green, critic MERGE. All 0.33.0 PRs are merged. W2 told to CUT: merge main into release/0.33.0, bump, CHANGELOG, site re-port, PR to main (no tags, no publish). W6: jamming.rs palette follow-up plus #62 status. The coordinator worker restarted around 10:10–11:20Z, so the 10:50 check-in ran late at 11:24Z.
 - 10:02:20 Public #65 opened (draft, W1b): D12 grid-free acquisition, base #60, head 8ef7160d. A2 PASSES: E5a-Q at 25 MS/s peaks at 213 MB against the 256 MB bar (2169 s, Doppler 1233.3 vs truth 1234). The first design failed at 277 MB and was fixed with the bar kept. A1 bit-identical; A3 suites pass with no test edited. Routed: CLI acquire, acquire_inits, Python iq_acquire/iq_track. #58 follow-up 034c932d (the events comparison now bites); #59 doc fix 6ef372f4. #65 review → Critic 2. W1b next: make CI run #64's M1–M3. W2: README stale-IQ sentence fixed on release/0.33.0 (c0dd4ba); llms.txt regenerates at the bump.
 - 09:58:51 Critic 2: #60 (acquisition surface export + fine Doppler) @707c18ee MERGE. S1 bit-identical grid; S2 worst fine error 5.21 Hz across a 66-truth rule-based sweep. Coarse-bin and scaled-cell mutations each bite. Bar history, confirmed: 8 Hz in the first commit (cedc1781) with the a-priori reason bin/32 = 5.2 Hz plus margin; a WIP commit set 5 Hz on a hand-picked truth; the final commit restored 8 Hz and replaced the truth with the sweep. The coordinator's earlier ruling stands: 8 Hz (the first in-repo pre-registration, set before any run, and justified a priori). The coordinator's 5 Hz from planning was never committed, and 5 Hz is below the worst-case quantisation of a 1/16-bin grid. No change.
