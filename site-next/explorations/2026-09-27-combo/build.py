@@ -884,7 +884,8 @@ def pub_figure(p, featured=False):
     studio = studio_open("", r["studio"]) if "studio" in r else ""
     return (f'<figure class="pub-fig" data-anim><div class="pub-plot">{pub_chart(p, 520, 156)}</div>'
             f'<figcaption class="prov pub-prov"><span class="st st-{st[0]}" title="{esc(f["capability"])}: verification-matrix label">{st[1]}</span><span>Engine v{esc(PUB_ENGINE["version"])} · {src_} · {seed}</span>{studio}</figcaption>'
-            '</figure>')
+            + (f'<p class="pub-how pub-note">{esc(f["provenance_note"])}</p>' if f.get("provenance_note") else "")
+            + '</figure>')
 
 
 def pubs():
