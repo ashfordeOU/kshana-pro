@@ -1,4 +1,4 @@
-Updated: 2026-10-08T06:43:03Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T06:47:06Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 06:47:06 06:47Z W6 pushed #55 critic fixes @8a721c6: clock-ensemble-band.svg restored to main's bytes. Cause of the ~10× band: scenario commit 67fed19e (2026-06-04, flicker floors) postdates the 2026-06-02 drawing; today's engine on the June scenario reproduces the figure exactly, so it's stale, not a regression; regeneration is a follow-up. sgp4-regime-bars guard test added (mutation-checked). #55 body updated; critic confirming.
 - 06:43:03 06:43Z W3: relaxed-bar flag on PR 17 wip @b364c30. It mirrors the engine Bars (7 fields, Min/Max direction) and flags looser recording bars in HTML and PDF; tests bite (flag disabled → fail). The N6 guard catches an out-of-fixture campaign.json (proven with a planted offender, removed). 857 passed. Idle for W7's #46 head. Runner: #52 Mac re-probe shows the launch test PASSES and #6 still red; #7 re-run with --no-fail-fast (37739054903).
 - 06:40:42 06:40Z #52 fast-forwarded by W2 to c1f08e1 (critic MERGE on this exact sha); CI restarted. Mac re-probe on de6e9cb5 counts (docs-only delta). Open for 0.33.0: #54 CI, #52 CI + Mac probe, #56 CI, #55 W6 fix + CI.
 - 06:40:22 06:40Z Critic: W2's #52 azimuth-pin fix @c1f08e1 MERGE (mask from the fixture, swap/reflection caught, INC_TOL_RAD untouched, mutations bite). W2 fast-forwarding #52 to c1f08e1; body updated. Critic on #55 @e04412f: main merge clean, still FIX-FIRST on clock-ensemble-band.svg only (W6 on it).
