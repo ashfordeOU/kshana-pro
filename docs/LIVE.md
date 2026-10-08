@@ -1,4 +1,4 @@
-Updated: 2026-10-08T09:18:56Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T09:19:31Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 09:19:31 Critic re-review: #46 @d8f3c52 MERGE after 0.33.0 and #45, every earlier FIX-FIRST item resolved; it needs one more main merge (19040da) before merging. To split the 0.34 review batch, started Critic 2 (Fable 5.1) as session_019yjY6H7butqBvManomjHCa: #57–#60, then #43/#49/#53. Critic 1 keeps #61 and #63, then the #46 estimator delta.
 - 09:18:56 Founder approved spawning extra runner sessions. Started 4 test-shard runners (Haiku 5.5, read-only, tag kshana-runner): session_01Dz8LhGVpWkC9Pj7FFS1zq2 (1/4, plus lib and doc tests), session_01QWESt4efPKoKcABDWzY5rG (2/4), session_01LUyRwLQQogT8TBbaSZz7c1 (3/4), session_01UxEpDp1D36JhptVXtX4cBa (4/4). They run the full suite on the 0.33.0 RC = 51dce13 + #54 a57ab0e + #56 1886b4b, split by tests/*.rs index mod 4. The results are an early signal only; the CI on each PR is still the merge gate. The same runners will shard the 0.34 integration branch next. Status: #56 is waiting only on coverage; #54 check/coverage are expected around 10:45Z.
 - 09:17:45 Merged public #52 (macOS fixture-pin tolerance, part of #36) at head c1f08e1 as 51dce13; 20/20 checks green, critic MERGE, Mac re-probe confirmed only #6/#7 remain (open findings). 0.33.0 still waiting on #56 and #54.
 - 09:15:04 09:15Z Critic: #46 @d8f3c52 MERGE after 0.33.0 and #45. All earlier findings resolved (per-front-end re-pin, MCP containment before read, stale-detection test, docs). Note: the planned M2M4/cn0_estimator change (after W1b's column) will need a delta re-review.
