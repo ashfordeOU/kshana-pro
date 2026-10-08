@@ -686,3 +686,18 @@ fn every_engine_bar_has_a_direction_and_relaxes_the_right_way() {
         assert!(!relaxed(tighter), "{name}: stricter is not relaxed");
     }
 }
+
+#[test]
+fn the_report_states_which_cn0_estimator_was_used() {
+    let c = load(&fixture()).unwrap();
+    let doc = html();
+    assert!(doc.contains("C/N0 estimator for every C/N0 in this report: M2M4"));
+    assert!(doc.contains("Median C/N0 (M2M4)"));
+    assert!(doc.contains("C/N0 estimator: <strong>M2M4</strong>"));
+    let flat = pdf_text(&render_pdf(&c, &synthetic()).unwrap())
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    assert!(flat.contains("C/N0 estimator for every C/N0 in this report: M2M4"));
+    assert!(flat.contains("C/N0 estimator: M2M4"));
+}

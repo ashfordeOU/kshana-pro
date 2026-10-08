@@ -1,15 +1,16 @@
 {
+  "cn0_estimator": "m2m4",
   "data_class": "synthetic",
   "design": {
-    "hash": "2e21b0935b3fb6bea0ecc2a8180857287b0929126aeb04f0d833895f68608cfa",
-    "name": "narrow-pll"
+    "hash": "33261cd171a53803a6c262686e878e01f37d902a93d5918c20a44297b8ef8e80",
+    "name": "baseline"
   },
   "engine_version": "0.32.0",
   "frontend": {
     "hash": "e015d238c0a790e588996bb468d17cd806681a3cba558a308b298d1b68986c41",
     "name": "raw"
   },
-  "key": "60a1e02221a64af78fbe2456b6b2af311fc51a8f659cb02283159b8c4868fc56",
+  "key": "b841d116c8b1c1e0242e694ad5f5f4521e918c03b94c838ae6b7a55af90bb60c",
   "lock_source": "track-session",
   "recording": {
     "conditions_hash": "a23ce5d058053fd6095cffc444d67e689f635b8ec2b58c18684d213af197e676",
@@ -24,29 +25,35 @@
       "events": [
         {
           "availability": 1.0,
-          "baseline_cn0_dbhz": 45.075,
-          "baseline_dll_jitter_chips": 0.06116520709386452,
-          "baseline_pll_jitter_deg": 7.278112689425109,
+          "baseline_cn0_dbhz": 45.225,
+          "baseline_cn0_m2m4_dbhz": 45.225,
+          "baseline_cn0_nwpr_dbhz": 45.025000000000006,
+          "baseline_dll_jitter_chips": 0.061000670536706644,
+          "baseline_pll_jitter_deg": 7.333727299549152,
           "baseline_source": "measured",
           "cn0_curve": [
             {
               "js_db": 20.0,
-              "measured_cn0_dbhz": 38.675000000000004,
-              "measured_degradation_db": 6.399999999999999,
-              "modelled_cn0_dbhz": 38.89972645228262,
-              "modelled_degradation_db": 6.1752735477173815,
+              "measured_cn0_dbhz": 38.725,
+              "measured_cn0_m2m4_dbhz": 38.725,
+              "measured_cn0_nwpr_dbhz": 38.625,
+              "measured_degradation_db": 6.5,
+              "modelled_cn0_dbhz": 38.935443051199215,
+              "modelled_degradation_db": 6.2895569488007865,
               "n": 4000
             },
             {
               "js_db": 30.0,
-              "measured_cn0_dbhz": 29.725,
-              "measured_degradation_db": 15.350000000000001,
-              "modelled_cn0_dbhz": 29.962816968868328,
-              "modelled_degradation_db": 15.112183031131675,
-              "n": 4000
+              "measured_cn0_dbhz": 29.575000000000003,
+              "measured_cn0_m2m4_dbhz": 29.575000000000003,
+              "measured_cn0_nwpr_dbhz": 29.625,
+              "measured_degradation_db": 15.649999999999999,
+              "modelled_cn0_dbhz": 29.967362889182315,
+              "modelled_degradation_db": 15.257637110817686,
+              "n": 3660
             }
           ],
-          "dll_jitter_chips": 0.15876564283630495,
+          "dll_jitter_chips": 0.1590084071380637,
           "event_id": "ramp-1",
           "false_lock_episodes": 0,
           "js_at_loss_db": null,
@@ -63,7 +70,7 @@
           "offset_s": 12.0,
           "onset_s": 4.0,
           "outage_s": null,
-          "pll_jitter_deg": 30.400453272058378,
+          "pll_jitter_deg": 30.851520757396848,
           "reacq_time_s": null,
           "reacquired": false,
           "time_to_loss_s": null,
@@ -80,47 +87,55 @@
       "id": 3,
       "signal": "gps-l1ca",
       "whole_run": {
-        "availability": 0.9865802924065891,
-        "code_lock_frac": 0.9999800085751304,
-        "dll_jitter_chips": 0.06284491752429859,
+        "availability": 0.9865802924455265,
+        "code_lock_frac": 0.9999800086145967,
+        "dll_jitter_chips": 0.06291578446006334,
         "false_lock_episodes": 0,
         "false_lock_per_hour": 0.0,
-        "locked_s": 14.798988399997246,
+        "locked_s": 14.798988399997247,
         "loss_count": 0,
-        "median_cn0_dbhz": 44.925000000000004,
-        "phase_lock_frac": 0.993313469851401,
-        "pll_jitter_deg": 7.381178787035064,
+        "median_cn0_dbhz": 45.025000000000006,
+        "median_cn0_m2m4_dbhz": 45.025000000000006,
+        "median_cn0_nwpr_dbhz": 44.875,
+        "phase_lock_frac": 0.9879802389114101,
+        "pll_jitter_deg": 7.404366566766542,
         "reacq_count": 0,
-        "scored_s": 15.000287877125253
+        "scored_s": 15.000287876533237
       }
     },
     {
       "events": [
         {
           "availability": 1.0,
-          "baseline_cn0_dbhz": 44.725,
-          "baseline_dll_jitter_chips": 0.062484111195574336,
-          "baseline_pll_jitter_deg": 7.383179329768794,
+          "baseline_cn0_dbhz": 44.625,
+          "baseline_cn0_m2m4_dbhz": 44.625,
+          "baseline_cn0_nwpr_dbhz": 44.675000000000004,
+          "baseline_dll_jitter_chips": 0.06263290548973376,
+          "baseline_pll_jitter_deg": 7.433086834598057,
           "baseline_source": "measured",
           "cn0_curve": [
             {
               "js_db": 20.0,
               "measured_cn0_dbhz": 38.725,
-              "measured_degradation_db": 6.0,
-              "modelled_cn0_dbhz": 38.81267056513928,
-              "modelled_degradation_db": 5.912329434860723,
+              "measured_cn0_m2m4_dbhz": 38.725,
+              "measured_cn0_nwpr_dbhz": 38.625,
+              "measured_degradation_db": 5.899999999999999,
+              "modelled_cn0_dbhz": 38.78681920242005,
+              "modelled_degradation_db": 5.838180797579952,
               "n": 4000
             },
             {
               "js_db": 30.0,
-              "measured_cn0_dbhz": 30.075000000000003,
-              "measured_degradation_db": 14.649999999999999,
-              "modelled_cn0_dbhz": 29.951599206037656,
-              "modelled_degradation_db": 14.773400793962345,
-              "n": 4000
+              "measured_cn0_dbhz": 30.425,
+              "measured_cn0_m2m4_dbhz": 30.425,
+              "measured_cn0_nwpr_dbhz": 29.925,
+              "measured_degradation_db": 14.2,
+              "modelled_cn0_dbhz": 29.948230205705805,
+              "modelled_degradation_db": 14.676769794294195,
+              "n": 3700
             }
           ],
-          "dll_jitter_chips": 0.15742418457648819,
+          "dll_jitter_chips": 0.15782253477177105,
           "event_id": "ramp-1",
           "false_lock_episodes": 0,
           "js_at_loss_db": null,
@@ -137,7 +152,7 @@
           "offset_s": 12.0,
           "onset_s": 4.0,
           "outage_s": null,
-          "pll_jitter_deg": 30.645930749633997,
+          "pll_jitter_deg": 30.965591553603723,
           "reacq_time_s": null,
           "reacquired": false,
           "time_to_loss_s": null,
@@ -154,21 +169,23 @@
       "id": 11,
       "signal": "gps-l1ca",
       "whole_run": {
-        "availability": 0.9866493513343391,
-        "code_lock_frac": 0.9999824578837604,
-        "dll_jitter_chips": 0.06274034864064489,
+        "availability": 0.9866493512246486,
+        "code_lock_frac": 0.9999824577725875,
+        "dll_jitter_chips": 0.06289090427596344,
         "false_lock_episodes": 0,
         "false_lock_per_hour": 0.0,
-        "locked_s": 14.800021599997256,
+        "locked_s": 14.800021599997258,
         "loss_count": 0,
         "median_cn0_dbhz": 44.725,
-        "phase_lock_frac": 0.9853160700121728,
-        "pll_jitter_deg": 7.466325735550503,
+        "median_cn0_m2m4_dbhz": 44.725,
+        "median_cn0_nwpr_dbhz": 44.675000000000004,
+        "phase_lock_frac": 0.9733162713428694,
+        "pll_jitter_deg": 7.51305947876407,
         "reacq_count": 0,
-        "scored_s": 15.000285136742644
+        "scored_s": 15.000285138410298
       }
     }
   ],
   "schema": "kshana.campaign-cell/1",
-  "scoring_hash": "6fe5ecc249f2730dc12209bf0d3299b24a40068d45f09cc067724b2d4436c2f2"
+  "scoring_hash": "06d3da621a3373f6cbc00c1ce9dd32bd8c4ceace3517e5697b276634a2430990"
 }

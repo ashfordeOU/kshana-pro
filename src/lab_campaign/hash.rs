@@ -2,7 +2,7 @@
 //!
 //! Canonical JSON is `serde_json`'s compact form of a `serde_json::Value`, with object keys
 //! sorted (this crate graph does not enable `preserve_order`) and shortest round-trip floats,
-//! matching the engine's `iq::campaign::hash` (public `kshana`, `feat/034-campaign` @ `d8f3c52a` (carries #45 `010b30b9`, main merged)).
+//! matching the engine's `iq::campaign::hash` (public `kshana`, `feat/034-campaign` @ `52492b8` (carries #45 and the M2M4 C/N0 estimator #64)).
 //! The cell key is `runner::cell_key` and the DIGEST is `report::build` on that branch. Once the
 //! engine is published at 0.34.0 and pinned here, these call the engine's own functions.
 

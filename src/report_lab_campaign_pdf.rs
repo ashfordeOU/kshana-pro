@@ -13,8 +13,8 @@ use crate::lab_campaign::model::DataClass;
 use crate::lab_campaign::LoadedCampaign;
 use crate::report_brand as brand;
 use crate::report_lab_campaign::{
-    check, lock_source_note, relaxed_for, relaxed_text, strip_markers, summary, without,
-    LabReportOptions, RenderError, CAVEATS, DEFINITIONS, EXPORT_NOTICE_PLACEHOLDER,
+    check, cn0_estimator_note, lock_source_note, relaxed_for, relaxed_text, strip_markers, summary,
+    without, LabReportOptions, RenderError, CAVEATS, DEFINITIONS, EXPORT_NOTICE_PLACEHOLDER,
 };
 use crate::report_pdf::{
     rgb, sans, sans_bold, serif, serif_bold, wrap, Layout, CONTENT_W_MM, MARGIN_MM,
@@ -489,6 +489,10 @@ fn curves_section(l: &mut Layout, a: &Aggregates) {
          spectral-separation reference, for comparison only; it is not a validation. The HTML \
          edition also draws these as curves.",
     );
+    para(
+        l,
+        &format!("C/N0 estimator: {}.", a.cn0_estimator.to_uppercase()),
+    );
     if a.curves.is_empty() {
         para(l, "No event states a J/S profile; no curve.");
         return;
@@ -683,6 +687,7 @@ fn method_section(l: &mut Layout, c: &LoadedCampaign) {
         para(l, &format!("{k}: {v}"));
     }
     para(l, &lock_source_note(c));
+    para(l, &cn0_estimator_note(c.cn0_estimator()));
 }
 
 fn provenance_section(l: &mut Layout, c: &LoadedCampaign) {
@@ -787,7 +792,7 @@ fn appendix(l: &mut Layout, c: &LoadedCampaign) {
             "Satellite",
             "Avail.",
             "Losses",
-            "Median C/N0",
+            &format!("Median C/N0 ({})", c.cn0_estimator().to_uppercase()),
             "PLL jitter",
         ],
         &rows,

@@ -1,7 +1,7 @@
 //! Serde mirror types of the engine's lab-replay results.
 //!
 //! The contract is the public `kshana` lab-replay campaign (0.34.0), as implemented on branch
-//! `feat/034-campaign` (PR #46) @ `d8f3c52a` (carries #45 `010b30b9`, main merged): `src/iq/campaign/{runner,score,report}.rs`. Every struct
+//! `feat/034-campaign` (PR #46) @ `52492b8` (carries #45 and the M2M4 C/N0 estimator #64): `src/iq/campaign/{runner,score,report}.rs`. Every struct
 //! rejects unknown fields, and every document's `schema` string is checked against the lists
 //! below. A change in the engine's output therefore fails loudly here instead of being misread.
 //! Re-pin to the released engine at 0.34.0.
@@ -18,6 +18,8 @@ pub const CELL_SCHEMAS: &[&str] = &["kshana.campaign-cell/1"];
 pub const PLAN_SCHEMAS: &[&str] = &["kshana.campaign-plan/1"];
 /// Scorecard schema versions this overlay can read.
 pub const SCORECARD_SCHEMAS: &[&str] = &["kshana.campaign-scorecard/1"];
+/// The C/N0 estimators the engine can score with (`[scoring] cn0_estimator`).
+pub const CN0_ESTIMATORS: &[&str] = &["m2m4", "nwpr"];
 /// Lock sources this overlay can describe (`CellResult::lock_source`).
 pub const LOCK_SOURCES: &[&str] = &["track-session"];
 /// The only label the engine may put on the analytic reference curve.
@@ -88,7 +90,10 @@ pub struct WholeRun {
     pub availability: Option<f64>,
     pub phase_lock_frac: Option<f64>,
     pub code_lock_frac: Option<f64>,
+    /// By the campaign's `cn0_estimator`; both estimates follow.
     pub median_cn0_dbhz: Option<f64>,
+    pub median_cn0_nwpr_dbhz: Option<f64>,
+    pub median_cn0_m2m4_dbhz: Option<f64>,
     pub pll_jitter_deg: Option<f64>,
     pub dll_jitter_chips: Option<f64>,
     pub false_lock_episodes: u64,
@@ -104,6 +109,8 @@ pub struct Cn0Bin {
     pub js_db: f64,
     pub n: u64,
     pub measured_cn0_dbhz: Option<f64>,
+    pub measured_cn0_nwpr_dbhz: Option<f64>,
+    pub measured_cn0_m2m4_dbhz: Option<f64>,
     pub measured_degradation_db: Option<f64>,
     pub modelled_cn0_dbhz: Option<f64>,
     pub modelled_degradation_db: Option<f64>,
@@ -141,6 +148,8 @@ pub struct EventResult {
     pub outage_s: Option<f64>,
     pub availability: Option<f64>,
     pub baseline_cn0_dbhz: Option<f64>,
+    pub baseline_cn0_nwpr_dbhz: Option<f64>,
+    pub baseline_cn0_m2m4_dbhz: Option<f64>,
     pub baseline_source: Option<String>,
     pub baseline_pll_jitter_deg: Option<f64>,
     pub baseline_dll_jitter_chips: Option<f64>,
@@ -194,6 +203,8 @@ pub struct CampaignCell {
     pub scoring_hash: String,
     /// How the lock state was derived (`track-session`).
     pub lock_source: String,
+    /// The C/N0 estimator behind the cell's reported C/N0 (`m2m4` or `nwpr`).
+    pub cn0_estimator: String,
     pub sample_rate_hz: f64,
     pub samples_processed: u64,
     pub satellites: Vec<SatelliteResult>,
@@ -326,6 +337,10 @@ pub struct ScoreRow {
     pub reacq_time_s: Option<f64>,
     pub outage_s: Option<f64>,
     pub cn0_dbhz: Option<f64>,
+    /// The estimator behind `cn0_dbhz` (`m2m4` or `nwpr`).
+    pub cn0_estimator: String,
+    pub cn0_nwpr_dbhz: Option<f64>,
+    pub cn0_m2m4_dbhz: Option<f64>,
     pub pll_jitter_deg: Option<f64>,
     pub dll_jitter_chips: Option<f64>,
     pub false_lock_episodes: u64,
