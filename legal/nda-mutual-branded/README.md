@@ -17,3 +17,6 @@ Relationship to `legal/NDA-TEMPLATE-MUTUAL.md`: that file is the concise canonic
 this folder is the longer branded variant produced for a specific prospective partner
 engagement. Reconcile into one canonical form when counsel reviews. **No counterparty name
 appears in any of these files** (placeholders only) — keep it that way.
+
+See also `../nda-mutual-standard/`: the plain variant (2026-10-08), with the security-heavy
+clauses removed, Estonian governing law and a neutral mutual feedback clause.
