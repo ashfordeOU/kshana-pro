@@ -1,4 +1,4 @@
-Updated: 2026-10-08T09:06:52Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T09:07:58Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 09:07:58 09:07Z Campaign C/N0 estimator: W7 confirms the scorer uses NWPR only (runner.rs:717); the D10 jitter bias makes degradation and cross-design comparisons design-dependent. Decision: in 0.34, W1b adds a streaming M2M4 column (bars pre-registered: |M2M4−nominal| ≤ 0.5 dB across Bn·T and on L1 C/A; NWPR unchanged); then W7 adds [scoring] cn0_estimator (in scoring_hash, default m2m4 if the evidence holds) and reports both; then one PR 17 re-pin.
 - 09:06:52 09:06Z D10 cause found (W5): NWPR is unbiased on ideal prompts but reads ~8 dB × Bn·T low under the loop's own PLL jitter (L2C 20 ms: 1/2.5/5/10 Hz → −0.24/−0.44/−0.77/−1.58 dB); M2M4 is insensitive. Plus ~1 dB physical BOC(1,1) band-limiting for B1C at 5 MS/s. Decision (A): document the limit, correct the finding texts, no estimator calibration, no bar change. W7 asked whether the campaign C/N0 degradation uses NWPR (would bias cross-design comparisons) → M2M4 proposal.
 - 09:01:45 09:01Z Public #62 opened: clock-ensemble-band.svg regenerated for the flicker-floor scenario (67fed19e) on the Observatory palette, with before/after in the CHANGELOG (axis 47→407 ns; classical holdover 4050→844 s); no engine change. 0.33.0 docs scope; merges after CI.
 - 08:59:59 08:59Z Public #61 opened (draft, base feat/034-track-engine): D8 acquisition step cap 0.2/T_track + D9 bn_t_max loop clamp @542ab1b (W5). E1-B/E1-C un-ignored and passing; L2C locks (PLI 0.996); bite proofs; default hash unchanged; harness on the engine-default acquisition (E1-C/E5a-Q primary-only pending D12). Critic batch queued: #61, #46, #57–#60, #43/#49/#53. W5 next: D10 then D11.
