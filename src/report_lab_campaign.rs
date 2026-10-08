@@ -1103,6 +1103,11 @@ fn curves_section(a: &Aggregates) -> String {
          (dashed, grey), median over designs, shown for comparison only. Bins with fewer than 50 \
          locked epochs are hollow.</p>",
     );
+    let _ = write!(
+        s,
+        "<p>C/N0 estimator: <strong>{}</strong>.</p>",
+        xml(&a.cn0_estimator.to_uppercase())
+    );
     if a.curves.is_empty() {
         s.push_str(
             "<p><em>No event in this campaign states a J/S profile; no curve is drawn.</em></p>",
@@ -1459,14 +1464,34 @@ pub(crate) const DEFINITIONS: &[(&str, &str)] = &[
     ("time to loss of lock", "first LOCKED → LOST transition in [onset, offset + reacq_grace] minus onset; null = held lock"),
     ("J/S at loss", "stated J/S (from [event.power]) at the moment of loss"),
     ("re-acquisition time", "first return to LOCKED at or after max(offset, t_loss) minus offset; null = not within grace"),
-    ("baseline C/N0", "median NWPR C/N0 over locked epochs in [onset − baseline_window_s, onset) (else the stated nominal_cn0_dbhz)"),
-    ("C/N0 degradation vs J/S", "per js_bin_db bin of stated J/S during the event: n, median measured C/N0 over locked epochs, degradation = baseline − measured"),
+    ("baseline C/N0", "median C/N0 (by the campaign's cn0_estimator, M2M4 or NWPR) over locked epochs in [onset − baseline_window_s, onset) (else the stated nominal_cn0_dbhz)"),
+    ("C/N0 degradation vs J/S", "per js_bin_db bin of stated J/S during the event: n, median measured C/N0 (same estimator) over locked epochs, degradation = baseline − measured"),
     ("MODELLED reference", "per bin: effective C/N0 from the engine's jamming model, (C/N0)eff = [1/(C/N0) + (J/S)/(Q·Rc)]^-1, with Q per jammer type or the event's q"),
     ("false-lock rate", "episodes per hour of locked time; an episode is the lock state machine's FALSE_LOCK alias detection or, with a truth sidecar, consecutive locked epochs with |Doppler − truth| above the threshold"),
     ("PLL / DLL jitter", "sample standard deviation of the PLL (deg) and DLL (chips) discriminator outputs over locked epochs: baseline window and per event"),
 ];
 
 /// The lock sources the cells report, and what each means for the lock-based metrics.
+/// The estimator behind every C/N0 in the report, in words.
+pub(crate) fn cn0_estimator_note(estimator: &str) -> String {
+    let (name, what) = match estimator {
+        "m2m4" => (
+            "M2M4",
+            "the moment-based estimator, which has no bias at high C/N0",
+        ),
+        "nwpr" => (
+            "NWPR",
+            "the narrow-band/wide-band power ratio, which has a known bias at high C/N0",
+        ),
+        other => (other, "an estimator this overlay does not describe"),
+    };
+    format!(
+        "C/N0 estimator for every C/N0 in this report: {name} ({what}); the campaign's \
+         cn0_estimator setting. The cells also hold the other estimator's values; only {name} is \
+         shown."
+    )
+}
+
 pub(crate) fn lock_source_note(c: &LoadedCampaign) -> String {
     let mut src: Vec<&str> = c.cells.iter().map(|x| x.lock_source.as_str()).collect();
     src.sort_unstable();
@@ -1493,7 +1518,11 @@ fn method_section(c: &LoadedCampaign) -> String {
     for (k, v) in DEFINITIONS {
         let _ = write!(s, "<tr><td>{}</td><td>{}</td></tr>", xml(k), xml(v));
     }
-    s.push_str(&format!("</table><p>{}</p>", xml(&note)));
+    s.push_str(&format!(
+        "</table><p>{}</p><p>{}</p>",
+        xml(&note),
+        xml(&cn0_estimator_note(c.cn0_estimator()))
+    ));
     s.push_str(
         "<p>Aggregates in this report are medians, sums, counts, or ratios of sums over the \
          cells' values. Each one says so, and gives its input count in the document source \
@@ -1571,10 +1600,11 @@ fn limits_section(o: &LabReportOptions) -> String {
 }
 
 fn appendix(c: &LoadedCampaign) -> String {
-    let mut s = String::from(
+    let mut s = format!(
         "<h2>Appendix A. Per-satellite results</h2><table><tr><th>Recording</th><th>Chain</th>\
          <th>Design</th><th>Satellite</th><th>Availability</th><th>Losses</th><th>Re-acq.</th>\
-         <th>Median C/N0</th><th>PLL jitter</th><th>DLL jitter</th></tr>",
+         <th>Median C/N0 ({})</th><th>PLL jitter</th><th>DLL jitter</th></tr>",
+        xml(&c.cn0_estimator().to_uppercase())
     );
     for x in &c.cells {
         for sat in &x.satellites {

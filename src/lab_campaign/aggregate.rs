@@ -145,6 +145,8 @@ pub struct Aggregates {
     pub scorecard: Vec<ScoreRow>,
     pub events: Vec<EventRow>,
     pub curves: Vec<Curve>,
+    /// The C/N0 estimator behind every C/N0 in the tables (`m2m4` or `nwpr`).
+    pub cn0_estimator: String,
     /// Per-recording bars that are looser than the campaign's, or that cannot be compared.
     pub relaxed: Vec<RelaxedBar>,
 }
@@ -452,6 +454,7 @@ pub fn aggregate(c: &LoadedCampaign) -> Aggregates {
         scorecard,
         events,
         curves,
+        cn0_estimator: c.cn0_estimator().to_owned(),
         relaxed: relaxed_bars(&c.manifest),
     }
 }

@@ -3,73 +3,73 @@
     {
       "design": 0,
       "frontend": 0,
-      "key": "2b3833c709b446c167e7475bb48ce242a97aa5b4b362ca7a647c0572dd028f17",
+      "key": "10587d01ff09e0dbc0a4e3c1369d2b9515a1ba7ef0043b418732bdf3318a60a0",
       "recording": 0
     },
     {
       "design": 1,
       "frontend": 0,
-      "key": "09c9e021917d1b909224f634a288638ac31ea4b273158f611e9d8379696c124e",
+      "key": "70cea695b001d95bb58e196e154ff5074751d0f08aaf7975cc1f1e81c476d479",
       "recording": 0
     },
     {
       "design": 2,
       "frontend": 0,
-      "key": "dfe91a63abd34f81e5d07b20ef07dae38cfba5ffb1b6915984231505bde80872",
+      "key": "d430d6070b59b2e98a5a051b34fdfb82490c92cb3d802d10764a1a1d7c239fed",
       "recording": 0
     },
     {
       "design": 0,
       "frontend": 1,
-      "key": "d06d344f39ca2f9ed9d1ca327bcc443cd67aad83ae49ce9e5fb0afd7e0490a86",
+      "key": "c01a534440af86450f647720a7f9912ca3b8d1fd8eb85b7fa9cae74a2e4c0d66",
       "recording": 0
     },
     {
       "design": 1,
       "frontend": 1,
-      "key": "07ce5d4eadca3679f184f1a91a2fee5435edae9fe831e01e8954fddbe0853bd3",
+      "key": "cf2a8da1dea7beb9bdad764a9e4c3aa9cad5c652b6bdecd6ca30970b0252f200",
       "recording": 0
     },
     {
       "design": 2,
       "frontend": 1,
-      "key": "ff3c67dd3347c1f91bdea5fa743d0a11f01988c055a1b952c07e4e0f096bd9c4",
+      "key": "0ab44c786966ba9e73c7a98b3794cc8c676ecb1335e36e30679f7856b5380fa9",
       "recording": 0
     },
     {
       "design": 0,
       "frontend": 0,
-      "key": "4256efc2efb03f05edce48d23a9dc5b7833dcef7050412a20ec0f2575e72cfc1",
+      "key": "b841d116c8b1c1e0242e694ad5f5f4521e918c03b94c838ae6b7a55af90bb60c",
       "recording": 1
     },
     {
       "design": 1,
       "frontend": 0,
-      "key": "60a1e02221a64af78fbe2456b6b2af311fc51a8f659cb02283159b8c4868fc56",
+      "key": "e6085bc09d4bf9ebc32d5b4d6f107cea5bda85f26113c6efaa89920cee406db8",
       "recording": 1
     },
     {
       "design": 2,
       "frontend": 0,
-      "key": "4cc14ce9486b5772c28f8f8cc066ce5b5fde9c48b1222fee3d1e2c39076fb5f9",
+      "key": "c158b414c968bc91426eb2bd844983bf3750c9796ab9c2513ff1dee1cc33bfee",
       "recording": 1
     },
     {
       "design": 0,
       "frontend": 1,
-      "key": "508d30d2ed57bc58da1c905f0ccb74339fe0f6be2ca8e0b35222ef965f3372ed",
+      "key": "83ee6b5c61b430e6b47ce6e87eaafb6e470c758f46a40081c1ea02215f9a030e",
       "recording": 1
     },
     {
       "design": 1,
       "frontend": 1,
-      "key": "07cb08f916622a4e38eca4c5d3d0d388870edb01f992c769c23d056ccad7e8b6",
+      "key": "6a4c4a5ad3a69678fc98662890756b3383d3703e675738a404e965b700e91cf0",
       "recording": 1
     },
     {
       "design": 2,
       "frontend": 1,
-      "key": "de7a2027888dc5b388a01297646aa5821e05e1b22e7412539d97cb5200ef75cb",
+      "key": "c437aea4195df763cdf63ef09864b3febadefc941cffb088261078ab2d57f282",
       "recording": 1
     }
   ],
@@ -369,10 +369,11 @@
       "min_availability": 0.5
     },
     "baseline_window_s": 2.0,
+    "cn0_estimator": "m2m4",
     "false_lock_min_epochs": 50,
     "js_bin_db": 5.0,
     "reacq_grace_s": 30.0,
     "reference_curve": true
   },
-  "scoring_hash": "6fe5ecc249f2730dc12209bf0d3299b24a40068d45f09cc067724b2d4436c2f2"
+  "scoring_hash": "06d3da621a3373f6cbc00c1ce9dd32bd8c4ceace3517e5697b276634a2430990"
 }

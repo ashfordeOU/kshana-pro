@@ -19,8 +19,8 @@
 
 use super::hash::{cell_key, digest, sha256_hex};
 use super::model::{
-    CampaignCell, CampaignManifest, DataClass, Scorecard, CELL_SCHEMAS, LOCK_SOURCES,
-    MODELLED_LABEL, PLAN_SCHEMAS, SCORECARD_SCHEMAS,
+    CampaignCell, CampaignManifest, DataClass, Scorecard, CELL_SCHEMAS, CN0_ESTIMATORS,
+    LOCK_SOURCES, MODELLED_LABEL, PLAN_SCHEMAS, SCORECARD_SCHEMAS,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
@@ -55,6 +55,10 @@ pub enum LoadError {
     ModelledLabel {
         file: String,
         found: String,
+    },
+    Cn0Estimator {
+        file: String,
+        msg: String,
     },
     BadBars {
         place: String,
@@ -103,6 +107,7 @@ impl fmt::Display for LoadError {
                     "{file}: reference curve labelled {found:?}, must be {MODELLED_LABEL:?}"
                 )
             }
+            LoadError::Cn0Estimator { file, msg } => write!(f, "{file}: C/N0 estimator {msg}"),
             LoadError::BadBars { place, msg } => write!(f, "{place}: bars {msg}"),
             LoadError::UnknownLockSource { file, found } => write!(
                 f,
@@ -148,6 +153,12 @@ impl LoadedCampaign {
     /// True when every listed cell is present.
     pub fn is_complete(&self) -> bool {
         self.missing.is_empty()
+    }
+
+    /// The C/N0 estimator behind every reported C/N0 (`m2m4` or `nwpr`); the loader has checked
+    /// that the plan, every cell and every scorecard row agree.
+    pub fn cn0_estimator(&self) -> &str {
+        plan_estimator(&self.manifest).unwrap_or("")
     }
 
     /// The campaign's declared data class (every cell carries the same one).
@@ -327,6 +338,26 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
                 detail: format!("{what} differs"),
             });
         }
+        if !CN0_ESTIMATORS.contains(&cell.cn0_estimator.as_str()) {
+            return Err(LoadError::Cn0Estimator {
+                file,
+                msg: format!(
+                    "{:?} is not one of {}",
+                    cell.cn0_estimator,
+                    CN0_ESTIMATORS.join(", ")
+                ),
+            });
+        }
+        if Some(cell.cn0_estimator.as_str()) != plan_estimator(&manifest) {
+            return Err(LoadError::Cn0Estimator {
+                file,
+                msg: format!(
+                    "{:?} differs from the campaign's scoring.cn0_estimator {:?}",
+                    cell.cn0_estimator,
+                    plan_estimator(&manifest)
+                ),
+            });
+        }
         if !LOCK_SOURCES.contains(&cell.lock_source.as_str()) {
             return Err(LoadError::UnknownLockSource {
                 file,
@@ -358,6 +389,16 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
             .map(|(k, (_, sha))| (k.as_str(), sha.as_str())),
     );
     check_bars(&manifest)?;
+    if plan_estimator(&manifest).is_none_or(|e| !CN0_ESTIMATORS.contains(&e)) {
+        return Err(LoadError::Cn0Estimator {
+            file: "campaign.json".into(),
+            msg: format!(
+                "scoring.cn0_estimator is {:?}, expected one of {}",
+                plan_estimator(&manifest),
+                CN0_ESTIMATORS.join(", ")
+            ),
+        });
+    }
     let complete = by_key.len() == manifest.cells.len();
     match std::fs::read_to_string(dir.join("DIGEST")) {
         Ok(t) if t.trim() != computed => {
@@ -388,6 +429,21 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
         return Err(LoadError::ScorecardMismatch(
             "built for another campaign, engine or data class".into(),
         ));
+    }
+    if let Some(r) = scorecard
+        .rows
+        .iter()
+        .find(|r| Some(r.cn0_estimator.as_str()) != plan_estimator(&manifest))
+    {
+        return Err(LoadError::Cn0Estimator {
+            file: "scorecard.json".into(),
+            msg: format!(
+                "row for cell {} says {:?}, the campaign scores with {:?}",
+                r.cell,
+                r.cn0_estimator,
+                plan_estimator(&manifest)
+            ),
+        });
     }
     if scorecard.cells_total != manifest.cells.len()
         || scorecard.cells_present != by_key.len()
@@ -461,4 +517,9 @@ fn check_bars(m: &super::model::CampaignManifest) -> Result<(), LoadError> {
         })?;
     }
     Ok(())
+}
+
+/// The C/N0 estimator the campaign scores with (`scoring.cn0_estimator`).
+fn plan_estimator(m: &super::model::CampaignManifest) -> Option<&str> {
+    m.scoring.get("cn0_estimator").and_then(|e| e.as_str())
 }

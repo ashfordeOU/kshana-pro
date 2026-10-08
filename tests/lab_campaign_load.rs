@@ -207,6 +207,44 @@ fn an_unknown_lock_source_is_refused() {
     assert!(matches!(load(&d), Err(LoadError::UnknownLockSource { .. })));
 }
 
+#[test]
+fn the_cn0_estimator_must_be_known_and_agree_everywhere() {
+    // Unknown estimator in a cell.
+    let d = scratch();
+    edit_json(&cell_files(&d)[0], |v| {
+        v["cn0_estimator"] = "wideband".into()
+    });
+    assert!(matches!(load(&d), Err(LoadError::Cn0Estimator { .. })));
+    // A cell scored with the other estimator than the campaign states.
+    let d = scratch();
+    let plan: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(d.join("campaign.json")).unwrap()).unwrap();
+    let other = if plan["scoring"]["cn0_estimator"] == "m2m4" {
+        "nwpr"
+    } else {
+        "m2m4"
+    };
+    edit_json(&cell_files(&d)[0], |v| v["cn0_estimator"] = other.into());
+    assert!(matches!(load(&d), Err(LoadError::Cn0Estimator { .. })));
+    // A scorecard row that disagrees.
+    let d = scratch();
+    edit_json(&d.join("scorecard.json"), |v| {
+        v["rows"][0]["cn0_estimator"] = other.into()
+    });
+    assert!(matches!(load(&d), Err(LoadError::Cn0Estimator { .. })));
+    // The plan must state one.
+    let d = scratch();
+    edit_json(&d.join("campaign.json"), |v| {
+        v["scoring"]
+            .as_object_mut()
+            .unwrap()
+            .remove("cn0_estimator");
+    });
+    assert!(matches!(load(&d), Err(LoadError::Cn0Estimator { .. })));
+    // The fixture itself loads and reports its estimator.
+    assert_eq!(load(&fixture()).unwrap().cn0_estimator(), "m2m4");
+}
+
 /// Point the first cell at an epoch file holding `bytes`, stating `stated_sha` and the path
 /// `rel`, then re-seal the campaign (DIGEST and scorecard digest) so only the epoch check can
 /// fail.

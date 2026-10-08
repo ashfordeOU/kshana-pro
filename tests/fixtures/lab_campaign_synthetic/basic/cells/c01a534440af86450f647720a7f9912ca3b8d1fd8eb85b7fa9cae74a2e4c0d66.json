@@ -1,15 +1,16 @@
 {
+  "cn0_estimator": "m2m4",
   "data_class": "synthetic",
   "design": {
-    "hash": "7ed1441e7fb273643678ca4fec2e7232d3cf1314688763b3eecc60587486eea2",
-    "name": "reacquire"
+    "hash": "33261cd171a53803a6c262686e878e01f37d902a93d5918c20a44297b8ef8e80",
+    "name": "baseline"
   },
   "engine_version": "0.32.0",
   "frontend": {
     "hash": "c5220976d1bc77e0da3ecb07a97c215a7944217cc4eb7ac3d719975822b77923",
     "name": "agc-3bit"
   },
-  "key": "ff3c67dd3347c1f91bdea5fa743d0a11f01988c055a1b952c07e4e0f096bd9c4",
+  "key": "c01a534440af86450f647720a7f9912ca3b8d1fd8eb85b7fa9cae74a2e4c0d66",
   "lock_source": "track-session",
   "recording": {
     "conditions_hash": "5e35638cb5127cbfc97ca1b017f1df163a3700b70a6ca8836f819008a1458aa7",
@@ -24,7 +25,9 @@
       "events": [
         {
           "availability": 0.1473333023999559,
-          "baseline_cn0_dbhz": 44.625,
+          "baseline_cn0_dbhz": 44.825,
+          "baseline_cn0_m2m4_dbhz": 44.825,
+          "baseline_cn0_nwpr_dbhz": 44.625,
           "baseline_dll_jitter_chips": 0.061431195347087346,
           "baseline_pll_jitter_deg": 7.589380706310414,
           "baseline_source": "measured",
@@ -39,10 +42,10 @@
           "modelled": null,
           "offset_s": 5.5,
           "onset_s": 4.0,
-          "outage_s": 2.5629962418664993,
+          "outage_s": null,
           "pll_jitter_deg": 51.877046023145226,
-          "reacq_time_s": 1.284702908514257,
-          "reacquired": true,
+          "reacq_time_s": null,
+          "reacquired": false,
           "time_to_loss_s": 0.22170666664775762,
           "type": "unknown"
         }
@@ -57,21 +60,23 @@
       "id": 7,
       "signal": "gps-l1ca",
       "whole_run": {
-        "availability": 0.6929426418605071,
-        "code_lock_frac": 0.7930614893110607,
-        "dll_jitter_chips": 0.061173533013102514,
+        "availability": 0.33554430624755494,
+        "code_lock_frac": 0.4133194565557581,
+        "dll_jitter_chips": 0.06127503596589914,
         "false_lock_episodes": 0,
         "false_lock_per_hour": 0.0,
-        "locked_s": 6.235990800000418,
+        "locked_s": 3.0199955999997803,
         "loss_count": 1,
-        "median_cn0_dbhz": 44.625,
-        "phase_lock_frac": 0.8019511253454679,
-        "pll_jitter_deg": 7.655270194804607,
-        "reacq_count": 1,
-        "scored_s": 8.99928857496369
+        "median_cn0_dbhz": 44.775000000000006,
+        "median_cn0_m2m4_dbhz": 44.775000000000006,
+        "median_cn0_nwpr_dbhz": 44.625,
+        "phase_lock_frac": 0.3355443062475549,
+        "pll_jitter_deg": 7.675337151944893,
+        "reacq_count": 0,
+        "scored_s": 9.00028861694263
       }
     }
   ],
   "schema": "kshana.campaign-cell/1",
-  "scoring_hash": "6fe5ecc249f2730dc12209bf0d3299b24a40068d45f09cc067724b2d4436c2f2"
+  "scoring_hash": "06d3da621a3373f6cbc00c1ce9dd32bd8c4ceace3517e5697b276634a2430990"
 }
