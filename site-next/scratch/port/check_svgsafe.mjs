@@ -23,18 +23,26 @@ const vectors = {
   "animated handler": `<svg ${NS}><image href="x"><set attributeName="onerror" to="window.__p=1"/></image></svg>`,
   "script element": `<svg ${NS}><script>window.__p=1</script></svg>`,
   "script address": `<svg ${NS}><a href="javascript:window.__p=1"><text>x</text></a></svg>`,
+  "outside paint": `<svg ${NS}><rect width="5" height="5" fill="url(https://other.example/x.svg#p)"/></svg>`,
+  "outside filter and cursor": `<svg ${NS}><rect width="5" height="5" filter="url(https://other.example/x.svg#f)" cursor="url(https://other.example/c.cur), auto"/></svg>`,
+  "animated outside value": `<svg ${NS}><rect width="5" height="5"><animate attributeName="fill" values="url(https://other.example/x.svg#p)"/></rect></svg>`,
+  "style element": `<svg ${NS}><style>rect{fill:url(https://other.example/x.svg#p)}</style><rect width="5" height="5"/></svg>`,
   "outside link": `<svg ${NS}><image href="https://other.example/x.png" onerror="window.__p=1"/></svg>`,
 };
 if (process.argv[2]) for (const f of fs.readdirSync(process.argv[2]).filter((n) => n.endsWith(".svg")).sort()) vectors[`chart ${f}`] = fs.readFileSync(path.join(process.argv[2], f), "utf8");
 
 const source = fs.readFileSync(lib, "utf8").replace(/^export /gm, "") + "\nwindow.svgsafe = { hasDeclaration, sanitizeSvg };";
 const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
-const page = await browser.newPage();
-await page.setContent("<!doctype html><div id=box></div>");
-await page.addScriptTag({ content: source });
+// A page of its own for every adoption, so a handler that fires late cannot be counted for another input.
+async function fresh() {
+  const page = await browser.newPage();
+  await page.setContent("<!doctype html><div id=box></div>");
+  await page.addScriptTag({ content: source });
+  return page;
+}
 
 // Adopt as the Studio does (app.js svgNode), with or without the sanitiser.
-const adopt = (markup, clean) => page.evaluate(({ markup, clean }) => {
+const adopt = (page, markup, clean) => page.evaluate(({ markup, clean }) => {
   window.__p = 0;
   if (window.svgsafe.hasDeclaration(markup)) return { drawn: false, why: "declaration" };
   const root = new DOMParser().parseFromString(markup, "image/svg+xml").documentElement;
@@ -45,9 +53,9 @@ const adopt = (markup, clean) => page.evaluate(({ markup, clean }) => {
   // What is left that could run or load something, counted on the live tree (text is not markup).
   let bad = 0;
   for (const e of box.querySelectorAll("*")) {
-    if (/^(script|foreignobject|iframe|object|embed|audio|video|canvas|link|meta|base)$/i.test(e.localName)) bad++;
+    if (/^(script|foreignobject|iframe|object|embed|audio|video|canvas|link|meta|base|style)$/i.test(e.localName)) bad++;
     for (const a of e.attributes) {
-      if (/^on/i.test(a.name) || (a.localName.toLowerCase() === "href" && !/^\s*#/.test(a.value)) || /javascript\s*:/i.test(a.value.replace(/[\u0000-\u0020]+/g, ""))) bad++;
+      if (/^on/i.test(a.name) || (a.localName.toLowerCase() === "href" && !/^\s*#/.test(a.value)) || /javascript\s*:/i.test(a.value.replace(/[\u0000-\u0020]+/g, "")) || /url\(\s*['"]?\s*[^#'"\s)]/i.test(a.value)) bad++;
     }
   }
   return { drawn: true, bad };
@@ -56,14 +64,18 @@ const adopt = (markup, clean) => page.evaluate(({ markup, clean }) => {
 const failures = [];
 let controls = 0;
 for (const [name, markup] of Object.entries(vectors)) {
-  const raw = await adopt(markup, false);
+  const rawPage = await fresh();
+  const raw = await adopt(rawPage, markup, false);
   const injected = raw.drawn && raw.bad > 0;
-  await page.waitForTimeout(150);
-  const ran = (await page.evaluate(() => window.__p)) === 1;
+  await rawPage.waitForTimeout(200);
+  const ran = (await rawPage.evaluate(() => window.__p)) === 1;
+  await rawPage.close();
   if (injected && ran) controls++;
-  const clean = await adopt(markup, true);
-  await page.waitForTimeout(150);
-  const ranClean = (await page.evaluate(() => window.__p)) === 1;
+  const cleanPage = await fresh();
+  const clean = await adopt(cleanPage, markup, true);
+  await cleanPage.waitForTimeout(200);
+  const ranClean = (await cleanPage.evaluate(() => window.__p)) === 1;
+  await cleanPage.close();
   const ok = clean.drawn && !ranClean && clean.bad === 0;
   console.log(`${ok ? "ok  " : "FAIL"} ${name}: control ${raw.drawn ? `${raw.bad} live item(s)${ran ? ", handler ran" : ""}` : raw.why}; sanitised ${clean.drawn ? `${clean.bad} left${ranClean ? ", HANDLER RAN" : ""}` : clean.why}`);
   if (!ok) failures.push(name);
