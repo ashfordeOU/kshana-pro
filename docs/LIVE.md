@@ -1,4 +1,4 @@
-Updated: 2026-10-08T21:20:15Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T21:31:32Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:31:32 21:31Z W2 pushed release/0.33.1 ccf1f2b (source bump + site re-port, literal replacements, all local gates green). Changelog wording being shortened to generic before PR opens. 0.33.0 Release run: verify in progress, binaries done, nothing red.
 - 21:20:15 21:14Z v0.33.0 auto-tagged on 6a98521 (W2; tag object de47f6a). Release run 37845409956 in progress. 21:20Z merged #68 ALONE (head a6df4a9) → main 8155a36. Main FROZEN until v0.33.1 tags. W2 preparing release/0.33.1 bump with literal replacement (not the local bump script).
 - 21:01:23 21:01Z Check-in: main CI on 6a98521 13/14 jobs green; coverage still running (3h10m). v0.33.0 not yet tagged. Freeze holds; #68 green on a6df4a9 waiting. Sessions: W2 watching run 37819756238 for tag; W1b running 0.34.0 integration full test suite; Critic 2 done (MERGE on #68 a6df4a9); W3/W5/W8/Mac runner idle. Next check 21:40Z.
 - 20:45:01 20:45Z #70 checks complete on cf7d41f, none failing. Held by freeze; queued after #68 and v0.33.1.
