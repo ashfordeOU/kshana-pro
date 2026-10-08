@@ -1,4 +1,4 @@
-Updated: 2026-10-08T15:07:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T15:09:07Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:09:07 Critic 2: #68 security @11b18d02 FIX-FIRST (one item): conflict_resilience.rs pre-escaped subtitle now double-escaped by frame_open. Otherwise verified: the escape test fails on the base and passes on the head; 126/138 charts identical and 11 entity-only; Studio port bytes equal the kshana-pro source; no svgsafe script path found. W6 to fix it, add a double-escape guard test, and harden svgsafe (url() in every attribute; drop adopted <style>), then a quick delta review.
 - 15:07:25 W3 PR 17 M2M4 mirror dry-run on wip 0962565 (cn0_estimator in cells, rows and the loader with new LoadError::Cn0Estimator; report names the estimator in HTML and PDF; 862/0). The final re-pin at #46 51ba478 is next.
 - 15:06:57 Founder request: the call-prep doc gained an 'After NDA: technical call' tab (what the NDA changes and what it doesn't, agenda, demo plan, deep-dive answers, data handling, a draft joint test plan, commercial approach, questions, follow-ups). The call-assistant session was briefed on NDA mode with the same hard limits (no other partners, no AJ/AS figures, no waveform synthesis, no prices or dates on the call).
 - 15:04:31 Public #70 opened (draft; W5, D11 clock flicker bound) @aa8eee05. B1/B2/B3/B5/B6 PASS. B4 withdrawn as a post-hoc change. B4' (coordinator-set, committed in 1752c032 before its first run) PASSES: RMS 0.9450/0.8886 (seed 42), 0.9028/0.9333 (seed 7), band [0.8, 1.2]. Integrity 0.409/0.330 → 0.9997/1.0. Full release suite 3854/0. Review → Critic 1. D11c (fusion classical 0.80 with floors) logged as a follow-up.
