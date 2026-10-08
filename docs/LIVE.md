@@ -1,4 +1,4 @@
-Updated: 2026-10-08T15:09:07Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T15:19:23Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:19:23 W3: kshana-pro PR 17 re-pinned a45a859 → 7eddc9e at kshana #46 51ba478. M2M4 mirrored in the loader and report; fixture DIGEST ba9837d8 (byte-identical to the dry run); 862/0/9; relaxed-bar and N6 guards pass. Mac CI pending. Critic 1 delta review queued after #70; PR body update owed by the coordinator.
 - 15:09:07 Critic 2: #68 security @11b18d02 FIX-FIRST (one item): conflict_resilience.rs pre-escaped subtitle now double-escaped by frame_open. Otherwise verified: the escape test fails on the base and passes on the head; 126/138 charts identical and 11 entity-only; Studio port bytes equal the kshana-pro source; no svgsafe script path found. W6 to fix it, add a double-escape guard test, and harden svgsafe (url() in every attribute; drop adopted <style>), then a quick delta review.
 - 15:07:25 W3 PR 17 M2M4 mirror dry-run on wip 0962565 (cn0_estimator in cells, rows and the loader with new LoadError::Cn0Estimator; report names the estimator in HTML and PDF; 862/0). The final re-pin at #46 51ba478 is next.
 - 15:06:57 Founder request: the call-prep doc gained an 'After NDA: technical call' tab (what the NDA changes and what it doesn't, agenda, demo plan, deep-dive answers, data handling, a draft joint test plan, commercial approach, questions, follow-ups). The call-assistant session was briefed on NDA mode with the same hard limits (no other partners, no AJ/AS figures, no waveform synthesis, no prices or dates on the call).
