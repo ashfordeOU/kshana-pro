@@ -1,4 +1,4 @@
-Updated: 2026-10-08T08:32:35Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T08:38:40Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 08:38:40 08:38Z W1b: #60 @707c18e, S2 bar 8 Hz (written before the first run) with the truth now a fixed 66-offset sweep; fine worst 5.21 Hz (quantisation limit), parabolic worst 7.74 Hz, coarse up to 83 Hz; bite kept. D12 grid-free acquire on fix/034-acq-gridfree @2c1c7ab, bars pre-registered at dc0dfb0 before implementation; A1 bit-identical passes; A2 RSS run in progress.
 - 08:32:35 08:32Z Critic: kshana-pro PR 17 @a45a859 MERGE (held until public 0.34.0 and the =0.34.0 pin). All earlier findings resolved; keys/DIGEST recomputed independently; fixture provably from the d8f3c52 line, not tuned; N6 guard bites; relaxed-bar flag and tie wording verified. 860 passed.
 - 08:26:41 08:26Z #60 bar history: W1b wrote S2 = 8 Hz before any run, citing the a-priori quantisation worst case bin/32 = 5.2 Hz; the coordinator's earlier 5 Hz predated that analysis. Decision: keep 8 Hz (pre-run, justified); replace the post-run-chosen test truth with a sweep of ≥16 offsets across a coarse bin, all within the bar; keep the bite test (refinement off fails). MCP cap 4M cells added. D12 grid-free acquire on fix/034-acq-gridfree (stacked on #60), bars written before the first run.
 - 08:25:47 08:25Z W1b opened public #60 (draft, on #45): B3.4 acquisition-surface export @cedc178 (CSV/JSON/bin, fine Doppler: coarse 79.6 Hz off → parabolic 2.0 Hz, fine 3.7 Hz). Coordinator queries: S2 bar 8 Hz vs the planned 5 Hz (commit order to prove it wasn't moved); D12 grid-free acquire not yet in; MCP size-cap test. All four W1 B-items are now drafts: #57, #58, #59, #60.
