@@ -1,4 +1,4 @@
-Updated: 2026-10-08T16:31:06Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T16:31:48Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:31:48 16:34Z — W6's private push of 7524daeb refused again (sandbox requires the authorisation in W6's own session, not relayed). Founder to type it in W6's session. Nothing pushed.
 - 16:31:06 16:33Z — Founder authorised the #68 pushes. W6: push 7524daeb to kshana-pro review/kshana-68-delta for Critic 2 part-2 review. One public push of sec/studio-codeql follows after MERGE + manifest cross-check.
 - 16:30:10 16:31Z — #68 local head 7524daeb (main merged; gates pass; all 18 Studio files byte-identical to kshana-pro main 2a4c29b). Manifest was hand-updated because W6's container cannot build the site (no 5071A evidence cache). W2 runs build.py + port_site.py on e94eaef for an independent manifest cross-check. Nothing pushed.
 - 16:27:50 16:28Z — #66 updated 5a5961bb (main merged fea86c4a; entry moved to [Unreleased] Changed; recorded Studio copies still carry old jamming paint, entry says so). #69 dry-run merge with #66: no conflict, palette tests pass. CI running on #62 and #66; merge when green.
