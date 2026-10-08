@@ -3,49 +3,49 @@
     {
       "design": 0,
       "frontend": 0,
-      "key": "bda35f8664f2c196ca1492a5fb5909287566c1b0048018395efb9a5d32f7b8e6",
+      "key": "1ee6a417ad7b80c27d0f21bc5142b69cffaeaa9768c4f8e75244a705a132f1f2",
       "recording": 0
     },
     {
       "design": 1,
       "frontend": 0,
-      "key": "032a9fc8a2e9f799cad41b41cd29f1d6b3a8a6a4d4c90bcb6eb9c97e6e17bf53",
+      "key": "9e7c36127dfc9bf471e062ad097df44f4abdf356412a0b910688327d3c1012de",
       "recording": 0
     },
     {
       "design": 0,
       "frontend": 1,
-      "key": "1e5371a0aff2b6e25b9e61f3231f5bff596c9c8fcd83a22764f729ce01f975fc",
+      "key": "cd87e112db28f971e5edd05a4ebb4b55ad50ac3901dfede17bcdc5fed1c7ea6b",
       "recording": 0
     },
     {
       "design": 1,
       "frontend": 1,
-      "key": "835734e476cf81587cf305963a74a884d19f48e149ed823c5c9e59b3870686ad",
+      "key": "a3781de6a26535de046498622fdfe63871c864b0e22a85907e955e50a0a7d018",
       "recording": 0
     },
     {
       "design": 0,
       "frontend": 0,
-      "key": "13094736739807d4aa044b3f82b1ca3d6b38246383f66858f386b8d89616cdab",
+      "key": "7cdd192684d9cbba7978ad131d79725efcf1a3c1e2e642e3bb4b5b7fb648cd96",
       "recording": 1
     },
     {
       "design": 1,
       "frontend": 0,
-      "key": "3d130c9f31da1ba2009b4f47e6b6033e085437e07aa6e69479c54af35d997c37",
+      "key": "7fe052b55d19f0d5df1f87ccdf98a92e1a4adf958cf50fa14f909de7438f9520",
       "recording": 1
     },
     {
       "design": 0,
       "frontend": 1,
-      "key": "b0ca456bec2c3ff7a9ce89171910618e6a0c539c3728b52106f76baa0c6cc524",
+      "key": "d9ad29255e3d25b5e5207834f5c48606abbad66a2ff93a8a734c6e71a82afc36",
       "recording": 1
     },
     {
       "design": 1,
       "frontend": 1,
-      "key": "c5504aaa25b22799dae4bcc2358ea2208b23a688f0fddf281cc3bab3ebef2192",
+      "key": "b01722bd9baebc47687a73a2fc41bc03e1b35dd8f42f2bfdec6bc02a9abbdf7a",
       "recording": 1
     }
   ],
@@ -64,8 +64,12 @@
         "ratio": 3.0
       },
       "carrier": {
+        "fll_assist": "pull-in",
         "fll_bw_hz": 10.0,
         "fll_discriminator": "atan2",
+        "fll_gate_dwell_s": 0.1,
+        "fll_off_pli": 0.8,
+        "fll_on_pli": 0.6,
         "fll_order": 1,
         "kind": "fll-assisted-pll",
         "pll_bw_hz": 15.0,
@@ -78,7 +82,7 @@
         "discriminator": "eml-power",
         "order": 1
       },
-      "hash": "0773c7ee07e0fc22835ad563c4d87be2a95d584c6cf3ed94b479f573fdf094ff",
+      "hash": "33261cd171a53803a6c262686e878e01f37d902a93d5918c20a44297b8ef8e80",
       "integration": {
         "coherent_periods": 1,
         "spacing_chips": 0.5
@@ -90,10 +94,13 @@
         "false_lock_check": true,
         "false_lock_margin_db": 3.0,
         "loss_dwell_s": 0.2,
-        "max_reacq_attempts": 3,
+        "max_reacq_attempts": 0,
         "pli_threshold": 0.8,
         "pull_in_max_s": 2.0,
         "reacq_doppler_window_hz": 500.0,
+        "reacq_interval_s": 0.1,
+        "reacq_max_interval_s": 0.1,
+        "reacq_window_s": 30.0,
         "reacquire": false
       },
       "name": "baseline",
@@ -112,8 +119,12 @@
         "ratio": 3.0
       },
       "carrier": {
+        "fll_assist": "pull-in",
         "fll_bw_hz": 10.0,
         "fll_discriminator": "atan2",
+        "fll_gate_dwell_s": 0.1,
+        "fll_off_pli": 0.8,
+        "fll_on_pli": 0.6,
         "fll_order": 1,
         "kind": "fll-assisted-pll",
         "pll_bw_hz": 8.0,
@@ -126,7 +137,7 @@
         "discriminator": "eml-power",
         "order": 1
       },
-      "hash": "46bb29d68b598f6de8438cd3abf265d34a5b02f4e6034935f2bcd7cac14655a1",
+      "hash": "2e21b0935b3fb6bea0ecc2a8180857287b0929126aeb04f0d833895f68608cfa",
       "integration": {
         "coherent_periods": 1,
         "spacing_chips": 0.5
@@ -138,10 +149,13 @@
         "false_lock_check": true,
         "false_lock_margin_db": 3.0,
         "loss_dwell_s": 0.2,
-        "max_reacq_attempts": 3,
+        "max_reacq_attempts": 0,
         "pli_threshold": 0.8,
         "pull_in_max_s": 2.0,
         "reacq_doppler_window_hz": 500.0,
+        "reacq_interval_s": 0.1,
+        "reacq_max_interval_s": 0.1,
+        "reacq_window_s": 30.0,
         "reacquire": false
       },
       "name": "narrow-pll",

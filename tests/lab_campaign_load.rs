@@ -402,12 +402,16 @@ fn ranking_by_reacquisition_time_on_the_fixture() {
     let vals: Vec<(String, Option<f64>)> = a
         .events
         .iter()
-        .filter(|r| r.event_id == "ramp-1" && r.frontend == "raw")
+        .filter(|r| r.event_id == "gap-1" && r.frontend == "agc-3bit")
         .map(|r| (r.design.clone(), r.reacq_time_s.value))
         .collect();
     let r = rank(&vals, false);
     assert_eq!(r.len(), 2);
     assert_eq!(r[0].1, 1);
+    // Only one design re-locked after the outage on this chain: it ranks first, the other last.
+    assert_eq!(r[0].0, "baseline");
+    assert_eq!(r[1].1, 2);
+    assert!(vals.iter().any(|(_, v)| v.is_none()));
     let best = vals.iter().find(|(n, _)| *n == r[0].0).unwrap().1.unwrap();
     assert!(vals.iter().all(|(_, v)| v.is_none_or(|v| v >= best)));
 }

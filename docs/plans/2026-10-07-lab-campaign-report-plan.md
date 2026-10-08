@@ -154,7 +154,7 @@ Total L1–L6 ≈ 2 weeks. L7 and L8 follow the engine release.
    slot on the cover; its wording stays a placeholder until counsel answers N6.
 
 Questions 1–3 were sent to the engine-side worker (coordinator's preference: yes to all three).
-Answered from the engine's code (`feat/034-campaign` @ `da95b9c`): `campaign.json` is
+Answered from the engine's code (`feat/034-campaign` @ `acbdce08` (first read at `da95b9c`)): `campaign.json` is
 `kshana.campaign-plan/1` and carries resolved designs and conditions (Q1); the hash functions are
 public and the DIGEST is the SHA-256 of sorted `"<key> <sha256(cell)>\n"` lines (Q2); `data_class`
-is being added (Q3). PR 17 mirrors these exactly; no provisional markers remain.
+is required in the plan, every cell and the scorecard (Q3). PR 17 mirrors these exactly; no provisional markers remain.

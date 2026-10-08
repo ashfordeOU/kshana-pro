@@ -1,15 +1,15 @@
 {
   "data_class": "synthetic",
   "design": {
-    "hash": "46bb29d68b598f6de8438cd3abf265d34a5b02f4e6034935f2bcd7cac14655a1",
+    "hash": "2e21b0935b3fb6bea0ecc2a8180857287b0929126aeb04f0d833895f68608cfa",
     "name": "narrow-pll"
   },
   "engine_version": "0.32.0",
   "frontend": {
-    "hash": "e015d238c0a790e588996bb468d17cd806681a3cba558a308b298d1b68986c41",
-    "name": "raw"
+    "hash": "c5220976d1bc77e0da3ecb07a97c215a7944217cc4eb7ac3d719975822b77923",
+    "name": "agc-3bit"
   },
-  "key": "032a9fc8a2e9f799cad41b41cd29f1d6b3a8a6a4d4c90bcb6eb9c97e6e17bf53",
+  "key": "a3781de6a26535de046498622fdfe63871c864b0e22a85907e955e50a0a7d018",
   "lock_source": "track-session",
   "recording": {
     "conditions_hash": "5e35638cb5127cbfc97ca1b017f1df163a3700b70a6ca8836f819008a1458aa7",
@@ -23,13 +23,13 @@
     {
       "events": [
         {
-          "availability": 0.14733336244166387,
-          "baseline_cn0_dbhz": 44.875,
-          "baseline_dll_jitter_chips": 0.061847104013843406,
-          "baseline_pll_jitter_deg": 7.412691030357349,
+          "availability": 0.16066671315310221,
+          "baseline_cn0_dbhz": 44.825,
+          "baseline_dll_jitter_chips": 0.06238994840496463,
+          "baseline_pll_jitter_deg": 7.4933500882586515,
           "baseline_source": "measured",
           "cn0_curve": [],
-          "dll_jitter_chips": 0.2116796043469108,
+          "dll_jitter_chips": 0.207411841268074,
           "event_id": "gap-1",
           "false_lock_episodes": 0,
           "js_at_loss_db": null,
@@ -40,10 +40,10 @@
           "offset_s": 5.5,
           "onset_s": 4.0,
           "outage_s": null,
-          "pll_jitter_deg": 51.28546124869577,
+          "pll_jitter_deg": 50.42431531510475,
           "reacq_time_s": null,
           "reacquired": false,
-          "time_to_loss_s": 0.2217066595730257,
+          "time_to_loss_s": 0.2417066426739316,
           "type": "unknown"
         }
       ],
@@ -51,24 +51,24 @@
         "code_phase_chips": 293.75,
         "doppler_hz": 2333.333333333333,
         "source": "acquired",
-        "statistic": 275.522124449441,
+        "statistic": 223.27522664273857,
         "threshold": 38.66983609955844
       },
       "id": 7,
       "signal": "gps-l1ca",
       "whole_run": {
-        "availability": 0.33554430332651525,
-        "code_lock_frac": 0.4133194776469758,
-        "dll_jitter_chips": 0.06153410784918777,
+        "availability": 0.3377664542468935,
+        "code_lock_frac": 0.4133194776219165,
+        "dll_jitter_chips": 0.06217942552177767,
         "false_lock_episodes": 0,
         "false_lock_per_hour": 0.0,
-        "locked_s": 3.019995601172801,
+        "locked_s": 3.039995601172799,
         "loss_count": 1,
-        "median_cn0_dbhz": 44.875,
-        "phase_lock_frac": 0.33554430332651525,
-        "pll_jitter_deg": 7.428630230821767,
+        "median_cn0_dbhz": 44.775000000000006,
+        "phase_lock_frac": 0.3377664542468935,
+        "pll_jitter_deg": 7.49363949401322,
         "reacq_count": 0,
-        "scored_s": 9.00028869878941
+        "scored_s": 9.000288699335092
       }
     }
   ],
