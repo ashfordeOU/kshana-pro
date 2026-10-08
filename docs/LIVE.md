@@ -1,4 +1,4 @@
-Updated: 2026-10-08T15:56:42Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T16:22:02Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:22:02 16:24Z — Usage window hit ~16:00Z; Critic 2, W1b, W5, W6, W8 stalled with tasks pending. Reset 16:20Z; all five resumed with their tasks. W2 watching main CI on e94eaef (started 15:53Z).
 - 15:56:42 15:53Z — MERGED kshana #67 (release 0.33.0) -> main e94eaef (all checks green; CodeQL default-setup config failure pre-existing). kshana-pro PR 21 -> c9415e7, PR 22 merged. PR 23 held: head a4f70d3 carries unreviewed svgsafe delta, Critic 2 reviewing. #70 delta Critic 1 MERGE. Dry-run merges: #62/#66 changelog entries would land inside [0.33.0]; W1b (#62), W8 (#66), W5 (#61/#63/#70) merging main and moving entries to [Unreleased]. #69 merges clean, CI running. W2 watching main CI -> auto-tag -> publish, then kshana-pro =0.33.0 pin.
 - 15:49:17 15:50Z — #70 fixes pushed caa71d37 (doc-only: CHANGELOG reports orbit-gnss-challenged move incl. consistent flip as 95%-band sampling event, 40 fresh seeds 3/80 flagged; test header records B4 withdrawal and B4'); D11.md 3dd318f. To Critic 1 for delta. PR 17 f801932 CI green.
 - 15:40:19 15:41Z — PR 17 S1 fixed: f801932 (estimator note matches engine doc; new pin test; 863/0/9; DIGEST ba9837d8 unchanged). Ready for 0.34 integration.
