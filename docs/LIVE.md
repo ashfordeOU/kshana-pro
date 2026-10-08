@@ -1,4 +1,4 @@
-Updated: 2026-10-08T08:42:15Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T08:46:43Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 08:46:43 08:46Z kshana-pro PR 20 (standard mutual NDA) merged with a merge commit after green Mac CI (run 37751576993).
 - 08:42:15 08:42Z kshana-pro PR 20 opened (legal/nda-mutual-standard @7ec887e): plain mutual NDA prepared on a prospective partner's request ('without all the security'). Security-heavy clauses removed; core protections and the AGPL carve-out kept; Estonian governing law; neutral mutual feedback clause added; README records what and why. Placeholders only: no counterparty names or correspondence committed (rule 2). Merges after Mac CI.
 - 08:38:40 08:38Z W1b: #60 @707c18e, S2 bar 8 Hz (written before the first run) with the truth now a fixed 66-offset sweep; fine worst 5.21 Hz (quantisation limit), parabolic worst 7.74 Hz, coarse up to 83 Hz; bite kept. D12 grid-free acquire on fix/034-acq-gridfree @2c1c7ab, bars pre-registered at dc0dfb0 before implementation; A1 bit-identical passes; A2 RSS run in progress.
 - 08:32:35 08:32Z Critic: kshana-pro PR 17 @a45a859 MERGE (held until public 0.34.0 and the =0.34.0 pin). All earlier findings resolved; keys/DIGEST recomputed independently; fixture provably from the d8f3c52 line, not tuned; N6 guard bites; relaxed-bar flag and tie wording verified. 860 passed.
