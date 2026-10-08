@@ -13,8 +13,8 @@ use crate::lab_campaign::model::DataClass;
 use crate::lab_campaign::LoadedCampaign;
 use crate::report_brand as brand;
 use crate::report_lab_campaign::{
-    check, lock_source_note, strip_markers, summary, without, LabReportOptions, RenderError,
-    CAVEATS, DEFINITIONS, EXPORT_NOTICE_PLACEHOLDER,
+    check, lock_source_note, relaxed_for, relaxed_text, strip_markers, summary, without,
+    LabReportOptions, RenderError, CAVEATS, DEFINITIONS, EXPORT_NOTICE_PLACEHOLDER,
 };
 use crate::report_pdf::{
     rgb, sans, sans_bold, serif, serif_bold, wrap, Layout, CONTENT_W_MM, MARGIN_MM,
@@ -408,6 +408,15 @@ fn scorecard_section(l: &mut Layout, a: &Aggregates) {
         ],
         &rows,
     );
+    for rb in &a.relaxed {
+        para(
+            l,
+            &format!(
+                "RELAXED BAR (whole-run rows pool every recording): {}.",
+                rb.describe()
+            ),
+        );
+    }
 }
 
 fn events_section(l: &mut Layout, a: &Aggregates) {
@@ -431,6 +440,9 @@ fn events_section(l: &mut Layout, a: &Aggregates) {
                 e.event_id, e.kind, e.event_type, e.recording
             ),
         );
+        if let Some(t) = relaxed_text(a, &e.recording) {
+            para(l, &t);
+        }
         let rows: Vec<Vec<String>> = a
             .events
             .iter()
@@ -493,6 +505,9 @@ fn curves_section(l: &mut Layout, a: &Aggregates) {
         }
         seen.push(k.clone());
         sub(l, &format!("{} - recording {}, chain {}", k.1, k.0, k.2));
+        if let Some(t) = relaxed_text(a, &k.0) {
+            para(l, &t);
+        }
         let mut rows = Vec::new();
         let mut formula = None;
         for c in a
@@ -598,6 +613,9 @@ fn pass_fail_section(l: &mut Layout, c: &LoadedCampaign, a: &Aggregates) {
             "The verdicts are the engine's own, from scorecard.json. Bars as stated: {stated}."
         ),
     );
+    for rb in &a.relaxed {
+        para(l, &format!("RELAXED BAR: {}.", rb.describe()));
+    }
     let failed = |m: &std::collections::BTreeMap<String, usize>| {
         if m.is_empty() {
             "-".to_owned()
@@ -621,7 +639,16 @@ fn pass_fail_section(l: &mut Layout, c: &LoadedCampaign, a: &Aggregates) {
     }
     for r in a.events.iter().filter(|r| r.verdicts.1 > 0) {
         rows.push(vec![
-            format!("{} {}", r.event_id, r.recording),
+            format!(
+                "{} {}{}",
+                r.event_id,
+                r.recording,
+                if relaxed_for(a, &r.recording).is_empty() {
+                    ""
+                } else {
+                    " [relaxed bar]"
+                }
+            ),
             r.frontend.clone(),
             r.design.clone(),
             r.verdicts.0.to_string(),

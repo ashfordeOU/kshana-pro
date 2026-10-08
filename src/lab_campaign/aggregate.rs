@@ -145,6 +145,76 @@ pub struct Aggregates {
     pub scorecard: Vec<ScoreRow>,
     pub events: Vec<EventRow>,
     pub curves: Vec<Curve>,
+    /// Per-recording bars that are looser than the campaign's, or that cannot be compared.
+    pub relaxed: Vec<RelaxedBar>,
+}
+
+/// A recording's own bar (its test conditions' `bars` table) that is looser than the campaign
+/// bar of the same name, or that this report cannot rank against it. The engine lets a recording
+/// override a campaign bar; the report shows every such override beside the recording's rows.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RelaxedBar {
+    pub recording: String,
+    pub bar: String,
+    /// The campaign's value for the bar, as the engine wrote it.
+    pub campaign: serde_json::Value,
+    /// The recording's value.
+    pub recording_value: serde_json::Value,
+    /// `false` when the direction is unknown (name not `min_*`/`max_*`) or a value is not a
+    /// number: shown as "cannot be compared", never silently accepted.
+    pub comparable: bool,
+}
+
+impl RelaxedBar {
+    /// One line for the HTML and the PDF.
+    pub fn describe(&self) -> String {
+        if self.comparable {
+            format!(
+                "recording {}: bar {} = {} is looser than the campaign's {}",
+                self.recording, self.bar, self.recording_value, self.campaign
+            )
+        } else {
+            format!(
+                "recording {}: bar {} = {} differs from the campaign's {} and cannot be ranked as stricter or looser",
+                self.recording, self.bar, self.recording_value, self.campaign
+            )
+        }
+    }
+}
+
+/// The per-recording bars that relax a campaign bar. A bar the campaign does not state is an
+/// extra bar, not a relaxation. `min_*` bars are looser when smaller, `max_*` when larger.
+pub fn relaxed_bars(m: &super::model::CampaignManifest) -> Vec<RelaxedBar> {
+    let Some(camp) = m.scoring.get("bars").and_then(|b| b.as_object()) else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    for r in &m.recordings {
+        let Some(own) = r.conditions.get("bars").and_then(|b| b.as_object()) else {
+            continue;
+        };
+        for (name, v) in own {
+            let Some(cv) = camp.get(name) else { continue };
+            if cv == v {
+                continue;
+            }
+            let looser = match (cv.as_f64(), v.as_f64()) {
+                (Some(c), Some(x)) if name.starts_with("min_") => Some(x < c),
+                (Some(c), Some(x)) if name.starts_with("max_") => Some(x > c),
+                _ => None,
+            };
+            if looser != Some(false) {
+                out.push(RelaxedBar {
+                    recording: r.id.clone(),
+                    bar: name.clone(),
+                    campaign: cv.clone(),
+                    recording_value: v.clone(),
+                    comparable: looser.is_some(),
+                });
+            }
+        }
+    }
+    out
 }
 
 fn cells_for<'a>(c: &'a LoadedCampaign, fe: &str, de: &str) -> Vec<&'a CampaignCell> {
@@ -377,6 +447,7 @@ pub fn aggregate(c: &LoadedCampaign) -> Aggregates {
         scorecard,
         events,
         curves,
+        relaxed: relaxed_bars(&c.manifest),
     }
 }
 
