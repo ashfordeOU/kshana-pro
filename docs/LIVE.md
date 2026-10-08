@@ -1,4 +1,4 @@
-Updated: 2026-10-08T09:57:26Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T09:58:51Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 09:58:51 Critic 2: #60 (acquisition surface export + fine Doppler) @707c18ee MERGE. S1 bit-identical grid; S2 worst fine error 5.21 Hz across a 66-truth rule-based sweep. Coarse-bin and scaled-cell mutations each bite. Bar history, confirmed: 8 Hz in the first commit (cedc1781) with the a-priori reason bin/32 = 5.2 Hz plus margin; a WIP commit set 5 Hz on a hand-picked truth; the final commit restored 8 Hz and replaced the truth with the sweep. The coordinator's earlier ruling stands: 8 Hz (the first in-repo pre-registration, set before any run, and justified a priori). The coordinator's 5 Hz from planning was never committed, and 5 Hz is below the worst-case quantisation of a 1/16-bin grid. No change.
 - 09:57:26 Critic 1: #64 (M2M4) @21210183 MERGE after 0.33.0, behind #45. The pre-registration (3cd91504) is byte-identical at the head. The NWPR checksum was independently recomputed on base 010b30b9: 0x05b3caf744da2a2d matches. The layouts compose with #57 (the second to merge makes the 27-column tests relative). Required before merge: M1–M3 are #[ignore]d, so CI enforces only M4. W1b un-ignores M2/M3 and either un-ignores M1 or adds a release CI step for it. No bar values change.
 - 09:53:40 Critic 2: #59 (GB-scale streaming track) @348f3889 MERGE. Bars G1–G4 are all in the first commit and unchanged. Run at 0.05 GB: heap +1.6 MiB, 8.5 MS/s, locked 3054/3055 epochs. Holding a 100 MiB buffer trips G1; truncating the epochs file trips G4. Fix: the module doc says one code period but the assertion allows two. The doc is corrected to match the pre-registered assertion (not the other way round). Routed to W1b.
 - 09:43:28 Public #64 opened (draft, W1b): the M2M4 C/N0 column (D10), base feat/034-track-engine, head 21210183. Bars were pushed at 3cd91504 before the implementation. M1: on L2C CM at a nominal 40 dB-Hz, M2M4 reads 39.93 at PLL 1/2.5/5/10 Hz (worst 0.07 dB; NWPR 39.55→38.22). M2: L1 C/A 45 → 45.34. M3: NWPR bit-identical. M4: the binary record stays 184 B. Integration note: #57's 27-column tests switch to EPOCH_FIELDS.len() for whichever PR merges second. Review routed to Critic 1. W7 GO for [scoring] cn0_estimator (default m2m4, in scoring_hash) on a local merge of #64; integration order #45 → #64 → #46; nwpr must reproduce the current DIGEST exactly.
