@@ -1,4 +1,4 @@
-Updated: 2026-10-08T06:51:34Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T06:52:17Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 06:52:17 06:52Z D11 recorded in docs/defects/D11.md (c556856) with W6's reproduction: 3σ coverage 0.41/0.33 while NIS/NEES are bit-identical with and without the floor. W3 told to HOLD the PR 17 push: acbdce0 isn't final, because main's #38/#44 reach #46 via W1b's #45 main merge; dry-run regen at acbdce0 only.
 - 06:51:34 06:51Z New defect D11 (found by W6): in scenarios/clock-ensemble.toml with the flicker-FM floors from 67fed19e, the ensemble Kalman 3σ integrity coverage is 0.409 classical / 0.330 quantum (was 0.998/0.999 before the floors). The two-state filter doesn't model flicker, so its bound is optimistic. Existing behaviour on main; routed to the defects lane after D8/D9. W6's clock-ensemble-band regen branch @57dee64 held until #55 merges, then re-rendered on the palette. W8: #43 @0c77e54 adds the integer-RMS pin test + CHANGELOG.
 - 06:51:05 06:51Z W7: #46 @acbdce0 = #45 FINAL merged + deliberate re-pin (observe-only raw (22,true,true), agc-3bit (22,true,false)) + LAB-CAMPAIGN §6 rewrite; full iq_campaign 12/12. Main merge conflicts with #45's TrackSession rewrite (#44 front-end vs session path). Decision (a): W1b merges main into #45 once; W7 then merges that sha. W3 can re-pin PR 17 against acbdce0.
 - 06:49:24 06:49Z Critic: #55 @8a721c6 MERGE (clock-ensemble-band byte-identical to main; sgp4 guard bites). All four remaining 0.33.0 PRs now critic-cleared or docs-only: #54 MERGE, #52 MERGE, #55 MERGE, #56 docs. All wait on CI only.
