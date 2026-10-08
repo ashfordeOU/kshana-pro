@@ -1,7 +1,7 @@
 //! Serde mirror types of the engine's lab-replay results.
 //!
 //! The contract is the public `kshana` lab-replay campaign (0.34.0), as implemented on branch
-//! `feat/034-campaign` (PR #46) @ `acbdce08` (carries #45 final `f3a8ca8b`): `src/iq/campaign/{runner,score,report}.rs`. Every struct
+//! `feat/034-campaign` (PR #46) @ `d8f3c52a` (carries #45 `010b30b9`, main merged): `src/iq/campaign/{runner,score,report}.rs`. Every struct
 //! rejects unknown fields, and every document's `schema` string is checked against the lists
 //! below. A change in the engine's output therefore fails loudly here instead of being misread.
 //! Re-pin to the released engine at 0.34.0.
