@@ -1,4 +1,4 @@
-Updated: 2026-10-08T08:08:08Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T08:12:04Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 08:12:04 08:12Z W1b opened public #59 (draft, on #45): B6.3 GB-scale ignored test + manual workflow @348f388. 8 GB / 1e9 samples run locally: heap peak 1.6 MiB (bar ≤64), 10.85 MS/s (bar ≥1.0), LOCKED 488758/488759 epochs; bars G1–G4 pre-registered at 7e2aed7. Next: B3.4 plan.
 - 08:08:08 08:08Z #54 CI red: test-wasm-bindings (site.test.mjs) because the Studio ledger copy's SHA in web/PORT-MANIFEST.json wasn't updated after the regeneration. Coordinator fixed it in a57ab0e (one manifest line); node web/site.test.mjs passes locally (649 files, 68 pages). CI restarted on a57ab0e.
 - 08:03:03 08:02Z W1b: #57 @4ef9e69 and #58 @7648ecc updated onto #45 010b30b (#58 adds the Python/MCP threads pass-through); gates pass (pytest/stubtest left to CI). W1b now running B6.3 (GB-scale; bars G1–G4 pre-registered at 7e2aed7).
 - 08:02:39 08:02Z 08:01 check-in: #54 had NO CI (retargeting the base doesn't trigger the workflow); coordinator merged main into fix/iq-d5-jammer-q-a2 → 14c734c, tree identical to the critic-approved de9034b, CI started. #56/#55/#52: 18/20 green, check+coverage running (~09:00–09:20Z). W7: #46 @d8f3c52 = #45 010b30b merged, nothing moved, gates clean; W3 told GO for the final PR 17 re-pin from d8f3c52. Next check-in 09:21Z.
