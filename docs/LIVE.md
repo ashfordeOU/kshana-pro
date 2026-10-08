@@ -1,4 +1,4 @@
-Updated: 2026-10-08T08:12:04Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T08:15:31Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 08:15:31 08:15Z W5: with the full tiered replica, A2 passes on L5-I, L5-Q, E5a-I and E1-C. NEW defect D12 (docs/defects/D12.md, b93fa5f): the default acquisition on 100 ms tiered codes allocates the full grid (E1-C ~2.4 GB, E5a-Q ~12 GB at 25 MS/s, SIGKILL). Pre-existing, independent of the D8 cap. Matrix keeps primary-only for E1-C/E5a-Q with the reason stated; bars unchanged. D12 routed to W1b with B3.4: grid-free acquire by default, bars pre-registered (bit-identical AcqResult; RSS ≤ 256 MB).
 - 08:12:04 08:12Z W1b opened public #59 (draft, on #45): B6.3 GB-scale ignored test + manual workflow @348f388. 8 GB / 1e9 samples run locally: heap peak 1.6 MiB (bar ≤64), 10.85 MS/s (bar ≥1.0), LOCKED 488758/488759 epochs; bars G1–G4 pre-registered at 7e2aed7. Next: B3.4 plan.
 - 08:08:08 08:08Z #54 CI red: test-wasm-bindings (site.test.mjs) because the Studio ledger copy's SHA in web/PORT-MANIFEST.json wasn't updated after the regeneration. Coordinator fixed it in a57ab0e (one manifest line); node web/site.test.mjs passes locally (649 files, 68 pages). CI restarted on a57ab0e.
 - 08:03:03 08:02Z W1b: #57 @4ef9e69 and #58 @7648ecc updated onto #45 010b30b (#58 adds the Python/MCP threads pass-through); gates pass (pytest/stubtest left to CI). W1b now running B6.3 (GB-scale; bars G1–G4 pre-registered at 7e2aed7).
