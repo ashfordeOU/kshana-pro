@@ -1,4 +1,4 @@
-Updated: 2026-10-08T23:42:02Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T23:45:37Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 23:45:37 23:46Z Check-in: #72 18/20 green (check + coverage running). kshana.dev still serves llms.txt Version 0.31.0 (stale; 0.33.0 site job not yet run, behind ghcr/MCP registry). Pro PR 24 CI running. Next check 01:00Z.
 - 23:42:02 23:42Z v0.33.0 parity: all required channels serve 0.33.0 (crates.io kshana + kshana-mcp, npm, PyPI, ghcr). docs.rs built. MCP registry (best-effort) pending; Pages job pending. Opened kshana-pro PR 24 (pin =0.33.0, 805 tests pass).
 - 23:24:12 23:24Z v0.33.0 published (W2, registry APIs 200): crates.io kshana + kshana-mcp, PyPI, npm, JetBrains Marketplace. Still running: ghcr OCI image, then MCP registry, parity, Pages. W2 starting kshana-pro =0.33.0 pin branch.
 - 21:47:46 21:48Z W1b 0.34 prep: pytest 27 pass, stubtest clean, repeatability 3/3 (2802). Changelog draft ready. Decision: no new ledger rows in 0.34.0 (counts stay 124/251); new features labelled MODELLED in CHANGELOG. Bump after v0.33.1.
