@@ -61,3 +61,68 @@ path no bundled scenario takes is covered by the helpers' escaping and by the St
 by a test. The CodeQL XML-entity alerts on `svgNode` and the request-forgery alerts are not
 exploitable as reported (see the triage message of the same date); the entity guard and the
 catalogue check are cheap hardening.
+
+---
+
+# DRAFT security advisory (nothing public until the 0.33.1 deploy to kshana.dev is confirmed)
+
+Founder decision 2026-10-08: publish a GitHub security advisory once the fix is live.
+Drafted by W6 from the repository history; every claim below was checked against git unless marked.
+
+**Title:** Script execution in the Kshana Studio through scenario text carried into generated chart SVG
+
+**Summary.** The engine writes some strings that come from a scenario (for example a clock's `id`,
+a sweep's `scale`) into the SVG charts it generates without escaping them. The Studio on kshana.dev
+runs a scenario given in the address (`/studio/#s=...`) as soon as the page opens and adds the
+resulting chart to the page, so a crafted link makes the page run script chosen by whoever wrote
+the link, in the kshana.dev origin. Fixed in 0.33.1 (engine escaping, and the Studio now reduces
+any adopted markup to drawing).
+
+**Affected.**
+- The Studio (kshana.dev/studio): every deployment from **v0.29.2** (2026-10-01; `web/studio/app.js`
+  first adopts engine chart markup into the page with `DOMParser` and `importNode`) through the
+  deployment of 0.33.1. The in-browser playground before it showed the chart as an image
+  (`<img src="blob:...">`, which does not run handlers); I found no earlier insertion of engine chart
+  markup into the page (history searched for `DOMParser`, `importNode`, `innerHTML` on `web/`; not
+  a proof of absence). The Studio is a website, not a package: there is nothing for a user to upgrade.
+- The engine, as a library and CLI (crates.io `kshana`, PyPI `kshana`): versions **0.1.0 through
+  0.33.0** write the unescaped text (the clock-id line first appears in `0a989efd`, released in
+  v0.1.0). Impact there is limited to opening a generated `*.chart.svg` that was made from an
+  untrusted scenario in a browser as a document of its own; no program of ours does that.
+- Last release before the fix: v0.32.0 (v0.33.0 was not released when this was drafted).
+
+**Patched:** engine 0.33.1; Studio from the deploy that ships the same change.
+
+**Severity (CVSS 3.1): 6.1 Medium, `CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N`.**
+Reasoning: reached through a link (AV:N), needs no preparation (AC:L), no account (PR:N), the reader
+must open the link (UI:R). Scope changed because the script runs in the browser's kshana.dev
+origin, a different authority from the engine that wrote the text. Confidentiality and integrity are
+Low because the origin holds only what the Studio keeps in the reader's own browser (saved runs and
+settings; no sign-in, no server-side data) and the page can be made to say things; availability is
+unaffected. A reader who scores scope as unchanged for this class of issue gets 4.7
+(`.../S:U/C:L/I:L/A:N`). CWE-79 (DOM-based cross-site scripting) and CWE-116 (improper encoding or
+escaping of output).
+
+**Impact.** Client side only. No server, build or release system is involved, no credentials or
+keys are held by the site, and nothing is sent to us by the link (the scenario travels in the
+address fragment, which browsers do not send). An attacker who gets a reader to open a crafted link
+can run script in the kshana.dev origin: read what the Studio stored in that browser, change what
+the page shows (including making a result look like ours), or send the reader elsewhere.
+Not exploited to our knowledge (no log exists for it; the fragment never reaches a server).
+
+**Workarounds.** None needed for users of the CLI or library. Studio users: reload kshana.dev after
+the deploy; until then, do not open Studio links (`#s=...`) from sources you do not trust.
+
+**Not part of this advisory.** Four related static-analysis alerts (XML entity expansion in the chart
+parser, property injection from the address, a method lookup by kind, request construction from
+state) were triaged: none is exploitable as reported; the cheap guards were added in the same change.
+
+**Credits.** Ashforde OÜ.
+
+**Open points before publishing.** (1) Confirm the deploy of the Studio change to kshana.dev, not
+just the engine release. (2) Ecosystem entries: crates.io `kshana` `>= 0.1.0, < 0.33.1` and PyPI
+`kshana` `>= 0.1.0, < 0.33.1` (the PyPI/npm packages carry the same engine; confirm the first version
+of each that shipped the chart text, which I did not check per package). (3) Decide the CVSS scope
+reading above. (4) The `0.1.0` lower bound is the commit that first wrote the clock-id line; the other
+affected text (`sweep.rs`) first appears in `01796136` (2026-06-02, 0.3.0 era): check the exact
+version with `git tag --contains` before filing.
