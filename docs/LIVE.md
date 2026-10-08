@@ -1,4 +1,4 @@
-Updated: 2026-10-08T14:07:39Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T14:10:22Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:10:22 Session audit (founder asked). W5, W1b and W7 hit the usage limit at about 10:05Z and stayed idle after the 11:20 reset, missing their instructions. All three were resumed at 14:10Z with full consolidated tasks. Archived the 4 test-shard runners (shards 2–4 reported green; 0.33.0 RC merged). Every active session was retitled 'who · what · state' so the sidebar shows its current job.
 - 14:07:39 #62 (clock-ensemble-band regen) CI completed on ebf57a4. It is held until #67 (0.33.0) merges, then it gets a main merge for the CHANGELOG and merges.
 - 13:40:10 Critic 1: #49 delta 663acf81..9b8f7bf2 MERGE. Bar commit b5ba2b22 is doc-only, before fix 9b8f7bf2, and no test assertion moved. Pre-fix code fails with exactly 24 pulse events; the binomial tail was cross-checked independently; real spikes still flagged; the fraction check still bites. Two doc nits ride the next main merge. 0.34 critic status: #43 #49 #53 #57 #58 #59 #60 #61 #63 #64 MERGE (#64 needs M1–M3 enforced in CI). Pending review: #65 (Critic 2), the security PR, the #46 estimator delta.
 - 13:30:11 W6 D13 security progress (private): the kshana-pro sec/studio-hardening branch has the Studio sanitiser, own-key lookups, the URL-state allowlist and gated scenario fetches, with tests plus a browser check (53 payload inputs inert, 5 controls fire). D13 record and draft advisory written in kshana-pro docs/defects/D13-chart-text-injection.md. The public engine shared escape (chart::esc) is on a local branch, not pushed; W6 is proving the new test bites on the pre-fix engine. A second unescaped text field was found during the audit.
