@@ -1,4 +1,4 @@
-Updated: 2026-10-08T12:54:39Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T12:57:17Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:57:17 Founder decision: publish a GitHub security advisory for D13 once the fix (0.33.1) is live on kshana.dev. W6 drafts the advisory text in kshana-pro docs/defects/D13.md (affected versions, CVSS 3.1, impact, workarounds). Nothing public before the deploy is confirmed.
 - 12:54:39 Critic 2: #43 (IQ sample formats: 4/8/12/16-bit, interleaved channels, SigMF multi-channel, .sdrx) @0c77e549 MERGE. Four mutations each bite: cu8 decode, channel pinning, 12-bit sign extension, integer scale. No bar edits. 200 MiB streaming at 219 MB/s, VmHWM +0.3 MB. Next for Critic 2: the security PR when it comes, then #49/#53/#65.
 - 12:53:47 W6 security triage of the Studio CodeQL alerts: one real HIGH issue found in the chart-SVG/Studio path (details only in kshana-pro docs/defects/D13.md, to be written; not in the public repo). Plus LOW findings: urlstate key allowlist, kinds own-property dispatch, a recorded-file gate. The rest of the CodeQL findings are false positives. Decision: #67 (0.33.0) proceeds unchanged. One public PR with generic wording carries the engine-side escape, the Studio sanitiser and the LOW hardening, as 0.33.1 right after 0.33.0. Critic 2 reviews it with priority. A codeql.yml workflow draft comes later as a separate PR. The founder is asked about a GitHub security advisory.
 - 12:49:49 W2: check.py --mutate on the final 0.33.0 site build: 42/42 mutations red, the unmutated build green, none survived. CI running on #67 @5aaf3ec and kshana-pro PR 21 @c8397ce; PR 22 @d4ebd2e. W2 is tracking CI and fixes anything that goes red.
