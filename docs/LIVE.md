@@ -1,4 +1,4 @@
-Updated: 2026-10-08T06:49:24Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T06:51:05Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 06:51:05 06:51Z W7: #46 @acbdce0 = #45 FINAL merged + deliberate re-pin (observe-only raw (22,true,true), agc-3bit (22,true,false)) + LAB-CAMPAIGN §6 rewrite; full iq_campaign 12/12. Main merge conflicts with #45's TrackSession rewrite (#44 front-end vs session path). Decision (a): W1b merges main into #45 once; W7 then merges that sha. W3 can re-pin PR 17 against acbdce0.
 - 06:49:24 06:49Z Critic: #55 @8a721c6 MERGE (clock-ensemble-band byte-identical to main; sgp4 guard bites). All four remaining 0.33.0 PRs now critic-cleared or docs-only: #54 MERGE, #52 MERGE, #55 MERGE, #56 docs. All wait on CI only.
 - 06:48:05 06:48Z W8: #49 CI green at c6f1579. Main dab5749 merged into #43 (@8a17fe2: front-end chain + channel open combined; integer scene RMS rule extended to the new encodings at 1/4 full scale, accepted with test + CHANGELOG), #49 (@663acf8) and #53 (@0829b97). Held for 0.34.
 - 06:47:32 06:47Z W1b opened public #57 (draft, base feat/034-track-engine): B3.5 extra correlator taps @51f4d35. Default hash unchanged; tapless output bit-identical; header carries the tap count so old readers refuse tapped files; taps at ±d/2 = E/L bit for bit under Doppler. Held for 0.34. W1b now on the #45 doc/test follow-ups, then B6.2.
