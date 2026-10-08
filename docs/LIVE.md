@@ -1,4 +1,4 @@
-Updated: 2026-10-08T17:51:21Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T17:57:08Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:57:08 17:58Z — #68: pushed a6df4a9 (fast-forward from 7524daeb): drop the withholdable preset's scenario from chart_text_escaped's SKIPPED list (workshop_preset_isolation failure); local: chart_text_escaped pass, workshop_preset_isolation 5/5. Critic 2 confirming delta. CI restarted.
 - 17:51:21 17:52Z — MERGED #69 (palette macro, SonarCloud duplication fix) -> main 6a98521 (all checks green; CodeQL 'Analyze (actions)' stuck queued since 14:40Z, default setup). #68 CI on 7524daeb: coverage on old head 11b18d02 failed workshop_preset_isolation (tests/chart_text_escaped.rs named the withholdable preset in its skip list) — same file at 7524daeb; coordinator fix (drop that skip entry; test then covers the scenario too) under local test before one push.
 - 17:27:02 17:27Z — #71 red on 947538b1 (ci.yml meta-check: test file not enumerated after the tag-fetch step became multi-line; this PR's). Fixed 150c004d: fetch and node test split into two steps; meta-check reproduced red then OK locally. CI re-running.
 - 17:19:13 17:20Z — W5 merged main (e94eaef) into #61 (0928962f; full release test 3890/0), #63 (e115512d), #70 (cf7d41f8; 3860/0); changelog entries under [Unreleased], [0.33.0] byte-identical to main. #70 marked ready (Critic 1 MERGE). D11.md 219cefe B2 wording. #71 delta 947538b1 Critic 1 MERGE; CI running.
