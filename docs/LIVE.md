@@ -1,4 +1,4 @@
-Updated: 2026-10-08T17:13:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T17:19:13Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:19:13 17:20Z — W5 merged main (e94eaef) into #61 (0928962f; full release test 3890/0), #63 (e115512d), #70 (cf7d41f8; 3860/0); changelog entries under [Unreleased], [0.33.0] byte-identical to main. #70 marked ready (Critic 1 MERGE). D11.md 219cefe B2 wording. #71 delta 947538b1 Critic 1 MERGE; CI running.
 - 17:13:25 17:15Z — #68 single public push done: sec/studio-codeql 11b18d02 -> 7524daeb (fast-forward, ls-remote verified). PR body updated (generic). CI running (~3 h); merge when green -> v0.33.1 -> advisory after deploy confirmed (draft in kshana-pro D13; confirm PyPI/npm first-affected versions first).
 - 17:12:34 17:14Z — #68: founder authorised in W6's session; 7524daeb pushed to kshana-pro review/kshana-68-delta; Critic 2 MERGE (fix bites, manifest = tool output, 127/138 charts identical, 11 differ only by newly escaped entities). W6 given go for the single public fast-forward push of sec/studio-codeql. Site JSON root cause (W1b): release commit f570219e used unescaped sed s/0.31.0/0.32.0/g from a local release script outside both repos; guard PR #71 opened (Critic 1 reviewing). W5 working #61/#63/#70 main merges.
 - 17:07:00 17:12Z — Live kshana.dev (v0.32.0) home hero broken: inline kpage JSON corrupted by an unescaped-regex version bump (time grid '3100.0…' became '.32.0.0…'), so telemetry, event log and charts do not render. main web/ (0.33.0, e94eaef) is clean (all inline JSON parses; home runs without errors locally) and deploys with the v0.33.0 release. W1b: root cause + site.test guard (branch fix/site-inline-json-guard).
