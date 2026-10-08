@@ -1,4 +1,4 @@
-Updated: 2026-10-08T07:10:04Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T07:11:09Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 07:11:09 07:11Z W5 D8/D9 (fix/iq-d8-acq-step-pullin @205c334 + local D9): D9 (bn_t_max clamp) passes all pre-registered L2C bars (PLI 0.996, Doppler 0.00 Hz, M2M4 42.71 vs 41.99). Decisions: (1) step margin tightened 0.4→0.2/T_track because the neighbouring bin can win under noise (gps_l1ca false-locked at +500 Hz; E1-B survey 1/42 false locks at 0.4, 0/42 at 0.2); design parameter, stricter, recorded in the PR body. (2) L2C fails matrix T5 (NWPR −1.76 dB); kept as a FINDING, not relaxed, with a separate D9-bar test added. D10 re-scoped: NWPR reads low at high C/N0·T (L2C 20 ms, B1C 10 ms).
 - 07:10:04 07:10Z W3 PR 17 dry run on acbdce0 (wip eb2a1b3, provisional): schema/loader/DIGEST all fine, 857 pass. FINDING: on the Pro synthetic fixture, after a 1.5 s outage only baseline/agc-3bit re-locks; the other 3 gap cells never re-lock (availability ~0.34), whereas on ee032df they did. Sent to W7 for root cause (fixture design settings vs a #45 window regression) before the final pin. Tie tolerance at printed precision approved for the report ranking.
 - 06:55:02 06:55Z Mac probe 37739054903 on de6e9cb5 (= #52 code): launch_geometry passes; #6 and #7 fail as documented; nothing else fails. #52 is ready: critic MERGE, Mac confirmed, waiting on Linux CI.
 - 06:52:17 06:52Z D11 recorded in docs/defects/D11.md (c556856) with W6's reproduction: 3σ coverage 0.41/0.33 while NIS/NEES are bit-identical with and without the floor. W3 told to HOLD the PR 17 push: acbdce0 isn't final, because main's #38/#44 reach #46 via W1b's #45 main merge; dry-run regen at acbdce0 only.
