@@ -1,4 +1,4 @@
-Updated: 2026-10-08T13:14:02Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T13:18:04Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:18:04 W8 #49 a-priori spectral test: the spectral bar PASSED on seed 1 (0 false events; bar 2). W8's own pre-registered extra assertion FAILED: 24 false 'pulse' events at default settings with 10 ms blocks (the small-count Poisson z-score is not a 6-sigma event). Coordinator ruling: the assertion stays unchanged (pre-registered). Fix the new pulse monitor with an exact Poisson tail, under a bar written before the fix (≤ Poisson 99.9% of 2·blocks·pfa); rerun the same 3 seeds; mutation proof with the old z-score. #49 is held until then.
 - 13:14:02 Critic 2: #49 (IQ monitors: power/CUSUM, spectral, SQM, lock indicators) @663acf81 MERGE. ARL vs Siegmund within 3%; four mutations each bite. Flagged by the coordinator as post-hoc: the spectral noise test's 0.5x–2x band was set after seeing 1.3x, and 'at most one event' is at its limit. W8 to add an a-priori-rule bar (Poisson 99.9% of 2·blocks·pfa) run on 3 fresh seeds, label the old band post-hoc, and soften the CHANGELOG '6 %' claim. #49 merges after that.
 - 13:05:48 Founder request: started a dedicated read-only commercial call-assistant session (Sonnet 5.5, tag sjaws-call): session_01SxCJXhRTdDEEZVf7YV8jVX. It does live coaching and prep for one prospect call, using the private call-prep doc plus the public repo. It is bound by the no-NDA rules (no partner names, no real-hardware results, no AJ/AS figures, no pricing, no waveform synthesis) and makes no repo writes. The prep doc gained a Science notes tab (11 sections).
 - 12:57:17 Founder decision: publish a GitHub security advisory for D13 once the fix (0.33.1) is live on kshana.dev. W6 drafts the advisory text in kshana-pro docs/defects/D13.md (affected versions, CVSS 3.1, impact, workarounds). Nothing public before the deploy is confirmed.
