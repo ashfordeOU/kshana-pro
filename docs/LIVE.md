@@ -1,4 +1,4 @@
-Updated: 2026-10-08T08:02:39Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T08:03:03Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 08:03:03 08:02Z W1b: #57 @4ef9e69 and #58 @7648ecc updated onto #45 010b30b (#58 adds the Python/MCP threads pass-through); gates pass (pytest/stubtest left to CI). W1b now running B6.3 (GB-scale; bars G1–G4 pre-registered at 7e2aed7).
 - 08:02:39 08:02Z 08:01 check-in: #54 had NO CI (retargeting the base doesn't trigger the workflow); coordinator merged main into fix/iq-d5-jammer-q-a2 → 14c734c, tree identical to the critic-approved de9034b, CI started. #56/#55/#52: 18/20 green, check+coverage running (~09:00–09:20Z). W7: #46 @d8f3c52 = #45 010b30b merged, nothing moved, gates clean; W3 told GO for the final PR 17 re-pin from d8f3c52. Next check-in 09:21Z.
 - 07:57:51 07:57Z Critic: #45 @010b30b MERGE after 0.33.0, no findings. Front end is applied on both passes from fresh chains; #38 auto hand-off holds on the session path; #44/#48/#50 tests pass; hash and bars unchanged; carrier_lock_bars is a real tightening to 5 points.
 - 07:51:55 07:51Z W1b: #45 @010b30b = critic follow-ups (aa53e6b: 0 Hz bias docs, 35 dB-Hz floor, carrier_lock_bars 35–45 dB-Hz) + main dab5749 merged, with #44's front-end applied inside the TrackSession path. #44's front-end test passes; default hash unchanged; full gates and no-attribution OK. Sent to W7 (merge into #46), W5 (merge into D8), critic (re-check). Then W3 regenerates PR 17 from W7's head.
