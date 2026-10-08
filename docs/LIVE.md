@@ -1,4 +1,4 @@
-Updated: 2026-10-08T09:31:03Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T09:35:41Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 09:35:41 Critic 2: #57 (extra correlator taps) @4ef9e698 MERGE. fmt, clippy and the no-attribution check pass; iq_track_engine + iq_cli 36/0. Four mutations each bite: tap sign, partial-period discard, hash skip, reader record_bytes check. The default design hash is unchanged when no taps are set. No bar edits.
 - 09:31:03 Critic: #61 @542ab1b MERGE after 0.33.0, behind #45 and #51. Bite proofs: margin 0.4 fails the unit bar, removing the cap reproduces the E1-B finding, clamp 0 breaks L2C lock. The A2 bar is unchanged and only tighter in value. Should-fix: record harness Amendment v3 in the matrix module doc. #63 @7f7a39a MERGE with #61 (docs only; nits: Known-limitations heading vs changelog-extract.sh, and 'fitted 8 dB × Bn·T'). Fixes routed to W5 to ride the merge-main commits.
 - 09:23:34 09:23Z check-in: #55, #52 and #56 are already merged; only #54 is left for 0.33.0 (head a57ab0e, critic MERGE, check/coverage running). Next check-in is at 10:50Z (trig_01STeqmcrv1tXSEXkYMBJgNQ). Heartbeat alive.
 - 09:23:01 Merged public #56 (IQ docs follow-up) at head 1886b4b as 0f99527; 20/20 checks green. W7 found one direct acq::acquire hand-off in #46 (runner.rs:678). It switches to acquire_peak after D12 merges, and no campaign value may move (A1 bit-identity). python.rs:465/:536 were added to the D12 scope (W1b). 0.33.0 now waits only on #54 (check/coverage due around 10:45Z); the shard runners are testing main + #54.
