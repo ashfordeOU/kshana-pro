@@ -1,4 +1,4 @@
-Updated: 2026-10-08T09:23:34Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T09:31:03Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 09:31:03 Critic: #61 @542ab1b MERGE after 0.33.0, behind #45 and #51. Bite proofs: margin 0.4 fails the unit bar, removing the cap reproduces the E1-B finding, clamp 0 breaks L2C lock. The A2 bar is unchanged and only tighter in value. Should-fix: record harness Amendment v3 in the matrix module doc. #63 @7f7a39a MERGE with #61 (docs only; nits: Known-limitations heading vs changelog-extract.sh, and 'fitted 8 dB × Bn·T'). Fixes routed to W5 to ride the merge-main commits.
 - 09:23:34 09:23Z check-in: #55, #52 and #56 are already merged; only #54 is left for 0.33.0 (head a57ab0e, critic MERGE, check/coverage running). Next check-in is at 10:50Z (trig_01STeqmcrv1tXSEXkYMBJgNQ). Heartbeat alive.
 - 09:23:01 Merged public #56 (IQ docs follow-up) at head 1886b4b as 0f99527; 20/20 checks green. W7 found one direct acq::acquire hand-off in #46 (runner.rs:678). It switches to acquire_peak after D12 merges, and no campaign value may move (A1 bit-identity). python.rs:465/:536 were added to the D12 scope (W1b). 0.33.0 now waits only on #54 (check/coverage due around 10:45Z); the shard runners are testing main + #54.
 - 09:20:28 W1b D12: the first grid-free design FAILED A2. VmHWM was 277 MB against the 256 MB bar (E5a-Q, 25 MS/s, 1501 bins). The cause was transient copies. The fix is bit-identical with the bar unchanged: in-place inverse FFT plus recomputing the peak row (4266f842). A1 still passes. The full E5a-Q re-run takes about 1 h. W5 D11: semantic correction accepted (an unconditional OU-bank integral bound on the same Flicker object as the truth clock). B4 (3σ coverage ≤ 0.9995) is WITHDRAWN as a POST-HOC change. It sits inside the metric's sampling noise (std about 0.0037 against a 0.0022 margin), and W5's exploratory prototype (classical 0.99968) would have failed it. Replacement B4', set by the coordinator before any computation: pooled RMS(error / 1σ) in [0.8, 1.2] per clock, on seed 42 AND on a fresh seed 7; the test is committed before it is run. B1, B2, B3, B5 and B6 are unchanged. Flagged for the critic and the founder. W7 asked to merge main into #46 and to list any direct acq::acquire hand-offs.
