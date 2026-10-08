@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Open engine 0.33.0.** The `kshana` pin moves from `=0.32.0` to the published `=0.33.0`
+  (crates.io) with its lockfile; no overlay source needed changing, and `cargo test --all
+  --locked` passes. The six version-stamped paper reports under `papers/` were regenerated
+  with the `emit_paper_artifacts` generators: each report changes only in its engine-version
+  footer, and one figure (`papers/realtime-frame-eop/fig2_frame_eop.svg`) also takes the
+  engine's new Observatory colours and font, with every plotted coordinate and label
+  unchanged.
 - **Open engine 0.32.0** (PR 5, merge `586517f`; `68c64c1`). The `kshana` pin moves from
   `=0.29.0` to the published `=0.32.0` (crates.io) with its lockfile; the engine changes
   since 0.29.0 are additive and no overlay source needed changing. The six version-stamped
