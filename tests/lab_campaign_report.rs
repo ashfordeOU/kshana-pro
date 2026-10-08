@@ -556,6 +556,11 @@ fn the_report_states_which_lock_source_the_cells_used() {
 
 /// A scratch copy of the fixture whose first recording states its own `bars`.
 fn with_recording_bars(bars: serde_json::Value) -> PathBuf {
+    with_bars(None, bars)
+}
+
+/// As above, also replacing the campaign bars when given.
+fn with_bars(campaign: Option<serde_json::Value>, bars: serde_json::Value) -> PathBuf {
     use std::sync::atomic::{AtomicUsize, Ordering};
     static N: AtomicUsize = AtomicUsize::new(0);
     let dir = std::env::temp_dir().join(format!(
@@ -574,6 +579,9 @@ fn with_recording_bars(bars: serde_json::Value) -> PathBuf {
     }
     let mut v: serde_json::Value =
         serde_json::from_str(&std::fs::read_to_string(src.join("campaign.json")).unwrap()).unwrap();
+    if let Some(c) = campaign {
+        v["scoring"]["bars"] = c;
+    }
     v["recordings"][0]["conditions"]["bars"] = bars;
     std::fs::write(
         dir.join("campaign.json"),
@@ -620,16 +628,55 @@ fn a_stricter_or_equal_recording_bar_is_not_flagged() {
     let (h, _) = relaxed_rendered(serde_json::json!({ "min_availability": 0.5 }));
     assert!(!h.contains("RELAXED BAR"));
     // A bar the campaign does not state is an extra bar, not a relaxation.
-    let (h, _) = relaxed_rendered(serde_json::json!({ "max_false_locks": 9 }));
+    let (h, _) = relaxed_rendered(serde_json::json!({ "max_false_lock_per_hour": 9.0 }));
     assert!(!h.contains("RELAXED BAR"));
     // The unmodified fixture has none.
     assert!(!html().contains("RELAXED BAR"));
 }
 
 #[test]
-fn a_bar_that_cannot_be_ranked_is_flagged_not_accepted() {
-    let (html, _) = relaxed_rendered(serde_json::json!({ "availability_goal": 0.1 }));
-    assert!(!html.contains("RELAXED BAR"), "not a campaign bar: ignored");
-    let (html, _) = relaxed_rendered(serde_json::json!({ "min_availability": "low" }));
-    assert!(html.contains("RELAXED BAR") && html.contains("cannot be ranked"));
+fn an_unknown_or_non_numeric_recording_bar_is_refused_by_the_loader() {
+    for bars in [
+        serde_json::json!({ "availability_goal": 0.1 }),
+        serde_json::json!({ "min_availability": "low" }),
+    ] {
+        let dir = with_recording_bars(bars);
+        let err = load(&dir).unwrap_err();
+        let _ = std::fs::remove_dir_all(&dir);
+        assert!(
+            matches!(err, kshana_pro::lab_campaign::LoadError::BadBars { .. }),
+            "{err}"
+        );
+    }
+}
+
+#[test]
+fn every_engine_bar_has_a_direction_and_relaxes_the_right_way() {
+    use kshana_pro::lab_campaign::model::BarDir;
+    use kshana_pro::lab_campaign::model::BAR_DIRECTIONS;
+    assert_eq!(BAR_DIRECTIONS.len(), 7);
+    for (name, dir) in BAR_DIRECTIONS {
+        let (strict, loose) = match dir {
+            BarDir::Min => (10.0, 5.0),
+            BarDir::Max => (5.0, 10.0),
+        };
+        let relaxed = |own: f64| {
+            let dir = with_bars(
+                Some(serde_json::json!({ *name: strict })),
+                serde_json::json!({ *name: own }),
+            );
+            let c = load(&dir).unwrap();
+            let _ = std::fs::remove_dir_all(&dir);
+            render_html(&c, &synthetic())
+                .unwrap()
+                .contains("RELAXED BAR")
+        };
+        assert!(relaxed(loose), "{name}: {loose} vs {strict} should relax");
+        assert!(!relaxed(strict), "{name}: equal is not relaxed");
+        let tighter = match dir {
+            BarDir::Min => 20.0,
+            BarDir::Max => 1.0,
+        };
+        assert!(!relaxed(tighter), "{name}: stricter is not relaxed");
+    }
 }

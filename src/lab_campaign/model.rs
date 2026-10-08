@@ -227,6 +227,39 @@ pub struct PlannedCell {
     pub design: usize,
 }
 
+/// Pass/fail bars, as the engine's `Bars` (`iq/campaign/score.rs`): every bar optional, unknown
+/// fields refused. A campaign states them at `scoring.bars`; a recording may override any of them
+/// at `conditions.bars`.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Bars {
+    pub min_time_to_loss_s: Option<f64>,
+    pub max_reacq_s: Option<f64>,
+    pub min_availability: Option<f64>,
+    pub min_event_availability: Option<f64>,
+    pub max_false_lock_per_hour: Option<f64>,
+    pub max_pll_jitter_deg: Option<f64>,
+    pub max_dll_jitter_chips: Option<f64>,
+}
+
+/// Which way a bar is strict: a `Min` bar is looser when smaller, a `Max` bar when larger.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BarDir {
+    Min,
+    Max,
+}
+
+/// Every bar and its direction (the engine's `Bars` fields).
+pub const BAR_DIRECTIONS: &[(&str, BarDir)] = &[
+    ("min_time_to_loss_s", BarDir::Min),
+    ("max_reacq_s", BarDir::Max),
+    ("min_availability", BarDir::Min),
+    ("min_event_availability", BarDir::Min),
+    ("max_false_lock_per_hour", BarDir::Max),
+    ("max_pll_jitter_deg", BarDir::Max),
+    ("max_dll_jitter_chips", BarDir::Max),
+];
+
 /// `campaign.json`: the resolved campaign (`Plan`, `kshana.campaign-plan/1`).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
