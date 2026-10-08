@@ -58,7 +58,7 @@ fn edit_json(path: &Path, f: impl FnOnce(&mut serde_json::Value)) {
 fn the_engine_fixture_loads_complete_and_verified() {
     let c = load(&fixture()).expect("fixture loads");
     assert!(c.is_complete());
-    assert_eq!(c.cells.len(), 8, "2 recordings x 2 chains x 2 designs");
+    assert_eq!(c.cells.len(), 12, "2 recordings x 2 chains x 3 designs");
     assert_eq!(c.manifest.schema, "kshana.campaign-plan/1");
     assert!(c.manifest.name.starts_with("synthetic-"));
     let stated = fs::read_to_string(fixture().join("DIGEST")).unwrap();
@@ -132,7 +132,7 @@ fn a_missing_cell_is_reported_as_incomplete() {
     fs::remove_file(d.join("DIGEST")).unwrap();
     edit_json(&d.join("scorecard.json"), |v| {
         v["complete"] = false.into();
-        v["cells_present"] = 7.into();
+        v["cells_present"] = 11.into();
         v["digest"] = serde_json::Value::Null;
         let rows = v["rows"].as_array_mut().unwrap();
         rows.retain(|r| r["cell"] != key.as_str());
@@ -140,7 +140,7 @@ fn a_missing_cell_is_reported_as_incomplete() {
     let c = load(&d).expect("an incomplete campaign still loads");
     assert!(!c.is_complete());
     assert_eq!(c.missing, vec![key]);
-    assert_eq!(c.cells.len(), 7);
+    assert_eq!(c.cells.len(), 11);
     // The digest of the cells present is still verified in the overlay.
     let pairs: Vec<(String, String)> = cell_files(&d)
         .iter()
@@ -314,7 +314,9 @@ fn the_scorecard_must_agree_with_the_directory_on_completeness() {
     assert!(matches!(load(&d), Err(LoadError::ScorecardMismatch(_))));
     // Wrong present count.
     let d = scratch();
-    edit_json(&d.join("scorecard.json"), |v| v["cells_present"] = 7.into());
+    edit_json(&d.join("scorecard.json"), |v| {
+        v["cells_present"] = 11.into()
+    });
     assert!(matches!(load(&d), Err(LoadError::ScorecardMismatch(_))));
     // Wrong total.
     let d = scratch();
@@ -328,12 +330,12 @@ fn the_scorecard_must_agree_with_the_directory_on_completeness() {
 fn aggregation_keeps_campaign_order_and_one_row_per_chain_and_design() {
     let a = aggregate(&load(&fixture()).unwrap());
     assert_eq!(a.frontends, vec!["raw", "agc-3bit"]);
-    assert_eq!(a.designs, vec!["baseline", "narrow-pll"]);
-    assert_eq!(a.scorecard.len(), 4);
-    assert_eq!(a.events.len(), 8, "2 events x 2 chains x 2 designs");
+    assert_eq!(a.designs, vec!["baseline", "narrow-pll", "reacquire"]);
+    assert_eq!(a.scorecard.len(), 6);
+    assert_eq!(a.events.len(), 12, "2 events x 2 chains x 3 designs");
     assert_eq!(
         a.curves.len(),
-        4,
+        6,
         "only the interference event has a J/S curve"
     );
 }
@@ -406,12 +408,15 @@ fn ranking_by_reacquisition_time_on_the_fixture() {
         .map(|r| (r.design.clone(), r.reacq_time_s.value))
         .collect();
     let r = rank(&vals, false);
-    assert_eq!(r.len(), 2);
+    assert_eq!(r.len(), 3);
     assert_eq!(r[0].1, 1);
-    // Only one design re-locked after the outage on this chain: it ranks first, the other last.
-    assert_eq!(r[0].0, "baseline");
-    assert_eq!(r[1].1, 2);
-    assert!(vals.iter().any(|(_, v)| v.is_none()));
+    // Two designs re-locked after the outage on this chain (the observe-only narrow-pll after
+    // 0.54 s, the re-acquiring design after 1.28 s); the observe-only baseline never did and
+    // ranks last.
+    assert_eq!(r[0].0, "narrow-pll");
+    assert_eq!(r[1].0, "reacquire");
+    assert_eq!((r[1].1, r[2].1), (2, 3));
+    assert_eq!(vals.iter().filter(|(_, v)| v.is_none()).count(), 1);
     let best = vals.iter().find(|(n, _)| *n == r[0].0).unwrap().1.unwrap();
     assert!(vals.iter().all(|(_, v)| v.is_none_or(|v| v >= best)));
 }
