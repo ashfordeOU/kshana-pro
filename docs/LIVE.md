@@ -1,4 +1,4 @@
-Updated: 2026-10-08T06:35:49Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-08T06:38:22Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 06:38:22 06:38Z Mac probe 37737922125 on #55 (3a2e1ed): lunar_frame_campaign + cislunar_observability 48 passed / 0 failed / 4 ignored. The pin assertions (scenario-2 exact layer, released-SVG hash) pass on macOS arm64, so the emitters aren't needed. #52 azimuth fix on side branch de6e9cb: the critic's pre-read says the approach is sound; Mac probe queued.
 - 06:35:49 06:35Z Critic re-check: #45 FINAL @f3a8ca8 MERGE after 0.33.0. All earlier findings fixed; bars equal the pre-registration. FACT for the record: a_signal_gap_is_lost_then_reacquired was LOOSENED 0.3→1.05 s in WIP commit 6d4bb2e (after the 0.435 s result) and RESTORED to 0.3 s in f3a8ca8; the head ships the original bar. Follow-ups to W1b: document the 0 Hz commensurate bias and the ~35 dB-Hz FLL→PLL floor; add the 39/42/45 dB-Hz carrier-lock assertions.
 - 06:34:30 06:34Z W6 merged main into #55, now @e04412f (only conflict: CHANGELOG Changed bullets, both kept). Gates clean; check-reproducible hash unchanged. CI restarts on the new head. The Mac probe on 3a2e1ed still applies (the pin file is unchanged). W2: the #52 Orekit azimuth self-pin is ill-conditioned at asin(-1); fix = pin sin(az) plus a cos-sign branch guard, critic review before push.
 - 06:31:19 06:31Z Critic: #54 @de9034b MERGE (closed form bites, the lunar test change is a correction and stricter, no pinned output moved); merges when CI is green. Runner: #52 Mac full suite 3825 passed / 3 failed. #6 and #7 were expected; NEW launch_geometry_orekit_oracle azimuth pin |Δ|=3.2e-9 on Mac, sent to W2 to investigate (no tolerance widening). #55 Mac probe re-dispatched with the full sha (run 37737922125). W2: release/0.33.0 branch at dab5749, bump held. Critic flagged a pre-existing dataset author's name in a public fixture-generator citation; founder decision.
