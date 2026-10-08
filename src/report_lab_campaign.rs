@@ -576,7 +576,7 @@ pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
                     (r.design.clone(), v)
                 })
                 .collect();
-            let best = top(&rank(&ttl, true));
+            let best = top(&rank_printed(&ttl, TIME_DECIMALS, true));
             let all = best.len() == rows.len() && rows.len() > 1;
             let b0 = rows.iter().find(|r| r.design == best[0]).unwrap();
             if b0.held == b0.satellites {
@@ -598,8 +598,13 @@ pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
             } else {
                 let _ = write!(
                     body,
-                    "{} held lock longest before loss (median {} s after onset{})",
+                    "{} {} (median {} s after onset{})",
                     names(&best),
+                    if best.len() > 1 {
+                        "tied for the longest time before loss"
+                    } else {
+                        "held lock longest before loss"
+                    },
                     tr_stat(
                         &b0.time_to_loss_s,
                         &format!("{:.2}", b0.time_to_loss_s.value.unwrap_or(f64::NAN))
@@ -617,7 +622,7 @@ pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
                 .iter()
                 .map(|r| (r.design.clone(), r.reacq_time_s.value))
                 .collect();
-            let fastest = top(&rank(&re, false));
+            let fastest = top(&rank_printed(&re, TIME_DECIMALS, false));
             if let Some(r0) = rows.iter().find(|r| r.design == fastest[0]) {
                 if let Some(v) = r0.reacq_time_s.value {
                     let t = tr_stat(&r0.reacq_time_s, &format!("{v:.2}"));
@@ -629,8 +634,13 @@ pub(crate) fn summary(c: &LoadedCampaign, a: &Aggregates) -> Summary {
                     } else {
                         let _ = write!(
                             body,
-                            "; {} re-acquired fastest (median {t} s)",
-                            names(&fastest)
+                            "; {} {} (median {t} s)",
+                            names(&fastest),
+                            if fastest.len() > 1 {
+                                "tied for the fastest re-acquisition"
+                            } else {
+                                "re-acquired fastest"
+                            }
                         );
                     }
                 }
@@ -684,6 +694,31 @@ fn exec_summary(c: &LoadedCampaign, a: &Aggregates) -> String {
     }
     s.push_str("</ul>");
     s
+}
+
+/// Decimals the summary prints for a time in seconds.
+const TIME_DECIMALS: i32 = 2;
+
+/// Round `v` to the printed precision, so designs that print the same value tie.
+pub(crate) fn printed(v: f64, decimals: i32) -> f64 {
+    if !v.is_finite() {
+        return v;
+    }
+    let k = 10f64.powi(decimals);
+    (v * k).round() / k
+}
+
+/// Rank by the printed value: values equal at the printed precision share a rank (a tie).
+pub(crate) fn rank_printed(
+    values: &[(String, Option<f64>)],
+    decimals: i32,
+    higher_is_better: bool,
+) -> Vec<(String, usize)> {
+    let q: Vec<(String, Option<f64>)> = values
+        .iter()
+        .map(|(n, v)| (n.clone(), v.map(|x| printed(x, decimals))))
+        .collect();
+    rank(&q, higher_is_better)
 }
 
 fn top(r: &[(String, usize)]) -> Vec<String> {
@@ -1588,4 +1623,42 @@ fn appendix(c: &LoadedCampaign) -> String {
     }
     s.push_str("</table>");
     s
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn v(a: f64, b: f64) -> Vec<(String, Option<f64>)> {
+        vec![("baseline".into(), Some(a)), ("narrow".into(), Some(b))]
+    }
+
+    #[test]
+    fn a_difference_below_the_printed_precision_is_a_tie() {
+        let r = rank_printed(&v(0.2417066542, 0.2417066401), TIME_DECIMALS, false);
+        assert_eq!(r.iter().map(|x| x.1).collect::<Vec<_>>(), vec![1, 1]);
+        assert_eq!(top(&r).len(), 2);
+    }
+
+    #[test]
+    fn a_difference_visible_at_the_printed_precision_ranks() {
+        let r = rank_printed(&v(0.24, 0.26), TIME_DECIMALS, false);
+        assert_eq!(top(&r), vec!["baseline".to_owned()]);
+        let r = rank_printed(&v(0.24, 0.26), TIME_DECIMALS, true);
+        assert_eq!(top(&r), vec!["narrow".to_owned()]);
+        // Held lock throughout (infinite) still beats a finite time; two of them tie.
+        let r = rank_printed(&v(f64::INFINITY, 3.0), TIME_DECIMALS, true);
+        assert_eq!(top(&r), vec!["baseline".to_owned()]);
+    }
+
+    #[test]
+    fn a_partial_tie_is_worded_as_a_tie() {
+        let three = vec![
+            ("a".to_owned(), Some(0.24001)),
+            ("b".to_owned(), Some(0.24002)),
+            ("c".to_owned(), Some(0.50)),
+        ];
+        let best = top(&rank_printed(&three, TIME_DECIMALS, false));
+        assert_eq!(names(&best), "a and b");
+    }
 }

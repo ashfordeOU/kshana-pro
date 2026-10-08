@@ -537,6 +537,10 @@ fn the_pdf_edition_renders_deterministically_and_carries_the_same_facts() {
     // The summary sentences are the HTML edition's, word for word (lines re-joined).
     let flat = text.split_whitespace().collect::<Vec<_>>().join(" ");
     assert!(flat.contains("baseline re-acquired fastest"));
+    // The outage times to loss differ by about 1e-8 s, below the printed precision: a tie,
+    // never "held lock longest".
+    assert!(flat.contains("every design lost lock after the same median time (0.24 s"));
+    assert!(!flat.contains("held lock longest"));
     assert!(flat.contains("every design held lock throughout"));
 }
 
