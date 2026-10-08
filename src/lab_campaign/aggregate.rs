@@ -183,7 +183,8 @@ impl RelaxedBar {
 }
 
 /// The per-recording bars that relax a campaign bar. A bar the campaign does not state is an
-/// extra bar, not a relaxation. `min_*` bars are looser when smaller, `max_*` when larger.
+/// extra bar, not a relaxation. Directions are the engine's (`BAR_DIRECTIONS`); the loader has
+/// already refused unknown or non-numeric bars, so `comparable` is a backstop.
 pub fn relaxed_bars(m: &super::model::CampaignManifest) -> Vec<RelaxedBar> {
     let Some(camp) = m.scoring.get("bars").and_then(|b| b.as_object()) else {
         return Vec::new();
@@ -198,9 +199,13 @@ pub fn relaxed_bars(m: &super::model::CampaignManifest) -> Vec<RelaxedBar> {
             if cv == v {
                 continue;
             }
-            let looser = match (cv.as_f64(), v.as_f64()) {
-                (Some(c), Some(x)) if name.starts_with("min_") => Some(x < c),
-                (Some(c), Some(x)) if name.starts_with("max_") => Some(x > c),
+            let dir = super::model::BAR_DIRECTIONS
+                .iter()
+                .find(|(n, _)| n == name)
+                .map(|(_, d)| *d);
+            let looser = match (cv.as_f64(), v.as_f64(), dir) {
+                (Some(c), Some(x), Some(super::model::BarDir::Min)) => Some(x < c),
+                (Some(c), Some(x), Some(super::model::BarDir::Max)) => Some(x > c),
                 _ => None,
             };
             if looser != Some(false) {

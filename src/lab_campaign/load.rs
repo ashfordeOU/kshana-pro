@@ -56,6 +56,10 @@ pub enum LoadError {
         file: String,
         found: String,
     },
+    BadBars {
+        place: String,
+        msg: String,
+    },
     UnknownLockSource {
         file: String,
         found: String,
@@ -99,6 +103,7 @@ impl fmt::Display for LoadError {
                     "{file}: reference curve labelled {found:?}, must be {MODELLED_LABEL:?}"
                 )
             }
+            LoadError::BadBars { place, msg } => write!(f, "{place}: bars {msg}"),
             LoadError::UnknownLockSource { file, found } => write!(
                 f,
                 "{file}: lock source {found:?} is not one this overlay reads ({})",
@@ -352,6 +357,7 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
             .iter()
             .map(|(k, (_, sha))| (k.as_str(), sha.as_str())),
     );
+    check_bars(&manifest)?;
     let complete = by_key.len() == manifest.cells.len();
     match std::fs::read_to_string(dir.join("DIGEST")) {
         Ok(t) if t.trim() != computed => {
@@ -430,4 +436,29 @@ pub fn load(dir: &Path) -> Result<LoadedCampaign, LoadError> {
         digest: computed,
         scorecard,
     })
+}
+
+/// The campaign's bars and every recording's own bars must parse as the engine's `Bars`
+/// (known names, numeric values); anything else is refused, never read around.
+fn check_bars(m: &super::model::CampaignManifest) -> Result<(), LoadError> {
+    use super::model::Bars;
+    let mut places: Vec<(String, &serde_json::Value)> = Vec::new();
+    if let Some(b) = m.scoring.get("bars") {
+        places.push(("campaign.json scoring.bars".to_owned(), b));
+    }
+    for r in &m.recordings {
+        if let Some(b) = r.conditions.get("bars") {
+            places.push((
+                format!("campaign.json recording {} conditions.bars", r.id),
+                b,
+            ));
+        }
+    }
+    for (place, v) in places {
+        serde_json::from_value::<Bars>(v.clone()).map_err(|e| LoadError::BadBars {
+            place,
+            msg: e.to_string(),
+        })?;
+    }
+    Ok(())
 }
