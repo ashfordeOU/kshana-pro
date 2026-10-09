@@ -1,4 +1,4 @@
-Updated: 2026-10-09T11:08:50Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T11:14:18Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:14:18 11:15Z Merged kshana-pro PR 26 (D13 closed). Security release 0.33.1 fully closed out.
 - 11:08:50 11:08Z Founder: ship 0.34.0 ASAP. Plan changed: W1b merges main 5585da1 into release/0.34.0 now (no wait for #70); #70 and #66 deferred to after v0.34.0 tags.
 - 11:07:11 11:07Z Security advisory GHSA-h25h-cg9f-v2cg PUBLISHED by the founder (Moderate, crates.io/PyPI/npm < 0.33.1, CWE-79/116; no CVE). Follow-ups: CHANGELOG [0.33.1] link via the 0.34.0 merge (W1b); D13 marked closed on a kshana-pro branch (W2).
 - 11:05:29 11:05Z Security advisory GHSA-h25h-cg9f-v2cg drafted by the founder (all required fields complete); publish pending founder click.
