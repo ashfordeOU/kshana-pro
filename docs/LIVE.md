@@ -1,4 +1,4 @@
-Updated: 2026-10-09T08:03:21Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T08:29:10Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 08:29:10 08:29Z release/0.34.0 220c18f full cargo test: 372 binaries, 3982 passed, 0 failed, 119 ignored. Awaiting critic verdict and founder authorisation for the kshana-pro port/0.34.0 push.
 - 08:03:21 08:04Z W1b pushed release/0.34.0 220c18f (bump 0.34.0, DIGEST re-pin with evidence, re-renders, re-port; local gates green, full cargo test running). Decision: ship with 9 unplaced features (placement rows as a follow-up). kshana-pro port/0.34.0 (c4a7408e) committed locally; push awaits founder authorisation. Critic 2 reviewing.
 - 07:38:08 07:38Z W8 brought all four up to date with main bdbfed9: #71 a803777, #66 ddfc26d, #62 575a1e5, #70 c1a2e16; gates green locally; CI running (~3 h). Merge as each goes green; #66/#62/#70 all add [Unreleased] entries, so a later one may need a CHANGELOG-only re-merge.
 - 06:54:10 07:03Z Advisory text prepared (paste-ready, generic; detail stays in D13). Hand-over to the founder after the 0.33.1 Studio deploy is verified (~09:25Z check).
