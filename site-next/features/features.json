@@ -16716,7 +16716,7 @@
    "category": "validation",
    "subtype": "verification-matrix row (MODELLED)",
    "name": "PNT-resilience framework-aligned scoring",
-   "description": "Per-dimension sub-scores over Department of Homeland Security (DHS) Resilient PNT Conformance Framework (RPCF) categories, RethinkPNT Resist-Detect-Respond-Recover (RDRR) functions and Yang criteria, each tagged Modelled with its driver; tentative RPCF Level with a bounded-degradation gate.",
+   "description": "Per-dimension sub-scores over Kshana's own seven resilience categories (not DHS terms), RethinkPNT Resist-Detect-Respond-Recover (RDRR) functions and Yang criteria, each tagged Modelled with its driver; tentative RPCF Level with a bounded-degradation gate.",
    "source": "src/verification.rs:1237",
    "edition": "Free core",
    "edition_source": "README.md:733 “…no feature gate” · README.md:802 “The open engine is complete and usable on its own.”",
