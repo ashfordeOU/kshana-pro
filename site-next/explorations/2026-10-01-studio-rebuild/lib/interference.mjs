@@ -12,6 +12,9 @@
 import { parseGeoJson } from "./geojson-layer.mjs";
 
 export const SCHEMA = "kshana-interference-map/v1";
+// format_version values this page supports (a change that removes or renames a field raises it; adding a
+// field does not, and a reader ignores fields it does not know).
+export const SUPPORTED_FORMATS = [1];
 
 // What a cell's status means, per source. `tone` picks the colour: bad, ok, none (no call), hold.
 export const STATUSES = Object.freeze({
@@ -28,6 +31,33 @@ export const STATUSES = Object.freeze({
 });
 export const KIND_LABEL = { adsb: "ADS-B", ais: "AIS" };
 
+// The four states a reader sees, none hidden or merged with another. "Not observed" has no feature.
+export const STATES = Object.freeze([
+  { id: "degraded", label: { adsb: "Degraded", ais: "Anomalous" }, text: { adsb: "A high share of the sampled aircraft reported low navigation accuracy here that day, well above the day's median cell.", ais: "At least one detector flagged enough distinct vessels here that day (at least 3 vessels and 20% of those observed)." } },
+  { id: "clear", label: { adsb: "Clear", ais: "Clear" }, text: { adsb: "Observed with enough aircraft and not flagged. Not proof that nothing happened.", ais: "Observed with enough vessels and not flagged. Not proof that nothing happened." } },
+  { id: "unassessed", label: { adsb: "Unassessed", ais: "Unassessed" }, text: { adsb: "Observed, but too few aircraft could be sampled, or the day was confounded so no cell was called. No call is made.", ais: "Observed, but no call is made." } },
+  { id: "notobserved", label: { adsb: "Not observed", ais: "Not observed" }, text: { adsb: "No cell drawn: too few aircraft were observed to publish it. This is not evidence that the area was clear.", ais: "No cell drawn: too few vessels were observed to publish it. This is not evidence that the area was clear." } },
+]);
+const STATE_OF = { degraded: "degraded", anomalous: "degraded", not_degraded: "clear", not_anomalous: "clear", insufficient_sample: "unassessed", withheld_day_confounded: "unassessed" };
+export const stateOf = (status) => STATE_OF[status] || "unassessed";
+export const stateInfo = (kind, id) => { const s = STATES.find((x) => x.id === id); return { id, label: s.label[kind], text: s.text[kind] }; };
+export function stateCounts(map) {
+  const c = { degraded: 0, clear: 0, unassessed: 0 };
+  for (const cell of map.cells) c[stateOf(cell.status)]++;
+  return c;
+}
+
+// The caveats that stay visible with every map (docs/INTERFERENCE-MAP.md, Studio map page specification).
+export const KEEP_CAVEATS = Object.freeze([
+  "A degraded or anomalous cell is not a finding of interference. Other causes exist.",
+  "A cell with no colour was not observed. It is not evidence that the area was clear.",
+  "This is a description of past position reports, not a forecast and not a measurement of any receiver.",
+  "Coverage follows the data source; read the coverage notes.",
+]);
+
+// A link only for http(s) addresses; anything else is shown as text.
+export const safeUrl = (u) => (/^https?:\/\/[^\s<>"']+$/i.test(String(u || "")) ? u : null);
+
 const isObj = (x) => x && typeof x === "object" && !Array.isArray(x);
 const str = (x) => (typeof x === "string" ? x : "");
 
@@ -40,6 +70,7 @@ export function parseMapFile(text, name = "file") {
   if (typeof m.schema !== "string" || !m.schema.startsWith("kshana-interference-map/")) return { error: `${name}: unknown schema ${JSON.stringify(m.schema)}; this page reads ${SCHEMA}.` };
   if (m.schema !== SCHEMA) return { error: `${name}: schema ${m.schema} is newer or different from ${SCHEMA}, which this page reads. Update the Studio rather than guess at its fields.` };
   if (m.source_kind !== "adsb" && m.source_kind !== "ais") return { error: `${name}: source_kind ${JSON.stringify(m.source_kind)} is neither adsb nor ais.` };
+  if (typeof m.format_version !== "number" || !SUPPORTED_FORMATS.includes(m.format_version)) return { error: `${name}: not a supported Kshana interference map (format_version ${JSON.stringify(m.format_version)}; this page supports ${SUPPORTED_FORMATS.join(", ")}).` };
   const kind = m.source_kind;
   const known = new Set(STATUSES[kind].map((s) => s.id));
   const cells = [];
@@ -58,7 +89,7 @@ export function parseMapFile(text, name = "file") {
   for (const k of ["licence", "attribution"]) if (!str(data[k]).trim()) missing.push(k);
   if (missing.length) warnings.push(`This file carries no ${missing.join(" or ")} text. It is shown, but a map without its licence and attribution should not be republished.`);
   const day = isObj(m.day) ? m.day : {};
-  if (kind === "adsb" && day.day_confounded === true) warnings.push("This day is confounded: the median cell share was itself high, so no cell is declared degraded.");
+  if (kind === "adsb" && day.day_confounded === true) warnings.push("This day is confounded: no cell was called degraded because of the day\u2019s background (the median cell share was itself high).");
   if (kind === "ais" && typeof day.on_land_detector === "string" && day.on_land_detector.startsWith("disabled")) warnings.push("The on-land detector was off for this file (no land polygons were supplied).");
   return {
     map: {
@@ -99,7 +130,7 @@ export function cellRows(map, cell) {
   } else {
     rows.push(["Vessels observed", p.vessels_observed]);
     const f = isObj(p.vessels_flagged) ? p.vessels_flagged : {};
-    for (const [d, n] of Object.entries(f)) rows.push([`Flagged: ${d.replace(/_/g, " ")}`, n === null ? "1 or 2 (withheld)" : n]);
+    for (const [d, n] of Object.entries(f)) rows.push([`Flagged: ${d.replace(/_/g, " ")}`, n === null ? "withheld (fewer than 3)" : n]);
     rows.push(["Detectors that qualified", Array.isArray(p.detectors) && p.detectors.length ? p.detectors.join(", ").replace(/_/g, " ") : "none"]);
   }
   const b = cellBounds(cell);
@@ -153,3 +184,25 @@ export function cellsForTable(map) {
   const share = (c) => (typeof c.props.affected_share === "number" ? c.props.affected_share : Array.isArray(c.props.detectors) ? c.props.detectors.length : 0);
   return map.cells.map((c, idx) => ({ c, idx })).sort((a, b) => (rank[a.c.status] ?? 9) - (rank[b.c.status] ?? 9) || share(b.c) - share(a.c) || a.c.i - b.c.i || a.c.j - b.c.j);
 }
+
+// ---------- route exposure (kshana-route-exposure/v1) ----------
+
+export const ROUTE_SCHEMA = "kshana-route-exposure/v1";
+export function parseRouteExposure(text, name = "file") {
+  let o;
+  try { o = JSON.parse(String(text).replace(/^\uFEFF/, "")); } catch (e) { return { error: `${name}: not JSON (${e.message}).` }; }
+  const r = isObj(o) && isObj(o.kshana_route_exposure) ? o.kshana_route_exposure : null;
+  if (!r) return { error: `${name}: not a Kshana route-exposure report (no kshana_route_exposure member).` };
+  if (r.schema !== ROUTE_SCHEMA) return { error: `${name}: schema ${JSON.stringify(r.schema)} is not ${ROUTE_SCHEMA}, which this page reads.` };
+  if (!Array.isArray(r.rows)) return { error: `${name}: no rows[] in this report.` };
+  const num = (x) => typeof x === "number" && Number.isFinite(x);
+  const rows = [];
+  let bad = 0;
+  for (const x of r.rows) {
+    if (!isObj(x) || (x.source_kind !== "adsb" && x.source_kind !== "ais") || !["share_degraded", "share_not_degraded", "share_unassessed", "share_not_observed", "route_km"].every((k) => num(x[k]))) { bad++; continue; }
+    rows.push({ date: str(x.date), kind: x.source_kind, km: x.route_km, shares: { degraded: x.share_degraded, clear: x.share_not_degraded, unassessed: x.share_unassessed, notobserved: x.share_not_observed }, licence: str(x.map_licence), attribution: str(x.map_attribution) });
+  }
+  rows.sort((a, b) => a.date.localeCompare(b.date) || a.kind.localeCompare(b.kind));
+  return { report: { name, from: isObj(r.date_range) ? r.date_range.from : null, to: isObj(r.date_range) ? r.date_range.to : null, version: str(r.kshana_version), caveats: Array.isArray(r.caveats) ? r.caveats.filter((c) => typeof c === "string") : [], rows, skipped: bad } };
+}
+export const pct = (x) => `${Math.round(x * 1000) / 10}%`;

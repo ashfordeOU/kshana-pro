@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-// Writes the SYNTHETIC fixture files of the interference map page into interference/demo/. Deterministic
-// (fixed seed). Every number is made up: no tracking source, partner data or real day is involved, and the
-// dataset block says so. The files follow schema kshana-interference-map/v1 as written by
-// `kshana interference-map` (docs/INTERFERENCE-MAP.md on the public repository).
-//   node tools_interference_demo.mjs
+// Builds interference/demo/ (the interference map page's SYNTHETIC demo), two parts:
+//   1. copies the CLI's own synthetic sample outputs (examples/interference-map/output/*.geojson of the
+//      public repository), unchanged, so the demo shows exactly what `kshana interference-map` writes;
+//   2. writes one extra file the samples do not cover, a CONFOUNDED ADS-B day (adsb-2026-03-02.geojson), with
+//      a fixed seed, so the page's day picker and the confounded-day wording can be shown.
+// Every number is made up: no tracking source, partner data or real day is involved, and each file's data
+// block says so. Format: kshana-interference-map/v1, format_version 1 (docs/INTERFERENCE-MAP.md).
+//   node tools_interference_demo.mjs --repo <checkout holding examples/interference-map>
 import { writeFileSync, mkdirSync } from "node:fs";
 const here = new URL(".", import.meta.url).pathname;
 const CELL = 0.5, SCHEMA = "kshana-interference-map/v1";
@@ -15,10 +18,10 @@ const feature = (i, j, props) => {
   const s = -90 + i * CELL, w = -180 + j * CELL, n = s + CELL, e = w + CELL;
   return { type: "Feature", properties: { ...props, cell_i: i, cell_j: j }, geometry: { type: "Polygon", coordinates: [[[w, s], [e, s], [e, n], [w, n], [w, s]]] } };
 };
-// A made-up region: latitudes 58.5 to 61.0, longitudes 21.0 to 27.0.
+// The same made-up open-ocean region as the CLI's synthetic sample (cell rows 238 to 243, columns 257 to 267).
 const rows = [], cols = [];
-for (let lat = 58.5; lat < 61; lat += CELL) rows.push(Math.floor((lat + 90) / CELL));
-for (let lon = 21; lon < 27; lon += CELL) cols.push(Math.floor((lon + 180) / CELL));
+for (let i = 238; i <= 243; i++) rows.push(i);
+for (let j = 257; j <= 267; j++) cols.push(j);
 const centre = (i, j) => [-90 + (i + 0.5) * CELL, -180 + (j + 0.5) * CELL];
 const dist = (i, j, la, lo) => { const [a, b] = centre(i, j); return Math.hypot(a - la, (b - lo) * 0.5); };
 const data = (kind) => ({
@@ -36,7 +39,7 @@ function adsbDay(date, confounded) {
     const observed = ri(2, 60);
     if (observed < 5) continue; // suppressed below the publication minimum
     const sampled = observed < 14 ? ri(0, 9) : ri(10, observed);
-    const hot = dist(i, j, 60.0, 24.5) < 0.8;
+    const hot = dist(i, j, 30.25, -49.25) < 0.8;
     const bg = confounded ? 0.2 : 0.04;
     const share = sampled ? Math.min(1, Math.max(0, bg + (hot ? 0.5 : 0) + (rnd() - 0.5) * 0.1)) : 0;
     const affected = Math.round(share * sampled);
@@ -52,7 +55,7 @@ function adsbDay(date, confounded) {
     return feature(c.i, c.j, { aircraft_observed: c.observed, aircraft_sampled: c.sampled, aircraft_affected: c.affected, affected_share: r4(c.share), status, degraded: status === "degraded" });
   });
   return { type: "FeatureCollection", kshana_interference_map: {
-    schema: SCHEMA, source_kind: "adsb", date, grid: { type: "fixed_lat_lon", cell_deg: CELL },
+    schema: SCHEMA, format_version: 1, source_kind: "adsb", date, grid: { type: "fixed_lat_lon", cell_deg: CELL },
     method: {
       id: "kshana-interference-map/adsb/v1",
       summary: "Share of distinct aircraft whose NIC/NACp reports are low-accuracy within a fixed grid cell, per UTC day.",
@@ -66,41 +69,12 @@ function adsbDay(date, confounded) {
   }, features: feats };
 }
 
-const DET = ["on_land", "circle", "implausible_jump", "implausible_speed", "same_position"];
-function aisDay(date) {
-  const feats = [];
-  for (const i of rows) for (const j of cols) {
-    if (rnd() < 0.3) continue;
-    const observed = ri(3, 70);
-    if (observed < 5) continue;
-    const hot = dist(i, j, 59.6, 23.5) < 0.6;
-    const counts = {}, qual = [];
-    for (const d of DET) {
-      let n = rnd() < 0.15 ? ri(0, 2) : 0;
-      if (hot && (d === "implausible_jump" || d === "same_position")) n = Math.max(3, Math.round(observed * (0.25 + rnd() * 0.2)));
-      if (n >= 3 && n / observed >= 0.2) qual.push(d);
-      counts[d] = n === 1 || n === 2 ? null : n;
-    }
-    feats.push(feature(i, j, { vessels_observed: observed, vessels_flagged: counts, detectors: qual, status: qual.length ? "anomalous" : "not_anomalous", degraded: qual.length > 0 }));
-  }
-  return { type: "FeatureCollection", kshana_interference_map: {
-    schema: SCHEMA, source_kind: "ais", date, grid: { type: "fixed_lat_lon", cell_deg: CELL },
-    method: {
-      id: "kshana-interference-map/ais/v1",
-      summary: "Anomaly detectors on AIS position reports per fixed grid cell and UTC day: positions on land, circular tracks, implausible jumps, implausible speeds, and many vessels at one position.",
-      parameters: { max_speed_kn: 70, min_speed_reports: 3, jump_min_dist_m: 1000, jump_max_dt_s: 3600, min_jumps: 2, land_buffer_m: 2000, min_land_reports: 3, same_position_round_deg: 0.0001, same_position_window_s: 600, same_position_min_vessels: 5, min_flagged_vessels: 3, min_flagged_share: 0.2 },
-      detectors: DET, on_land_detector_enabled: false,
-      guards: ["distinct vessels are counted, not reports", "a detector qualifies in a cell only with a minimum number and share of flagged vessels", "cells with fewer than the minimum distinct vessels are not published; flagged counts of one or two are withheld"],
-      input_stats: { rows: 0, used: 0, rejected_malformed: 0, rejected_invalid_position: 0, note: "synthetic fixture: no input rows" },
-      caveats: ["SYNTHETIC FIXTURE: every number in this file is made up for the Studio demonstration.", "An anomalous cell means vessels reported implausible positions or motion there that day. It does not identify interference as the cause.", "Other causes include vessels in rivers, canals and ports near the coastline, shared or duplicated identifiers, transponder faults, test equipment and legitimate loitering patterns.", "Cells with no published entry were not observed by enough vessels, which is not the same as clear."],
-    },
-    day: { on_land_detector: "disabled: no land polygons supplied", cells_published: feats.length, cells_suppressed_below_min_distinct: 0 },
-    data: data("ais"), kshana_version: "synthetic", notice: NOTICE,
-  }, features: feats };
-}
-
+import { copyFileSync, readdirSync } from "node:fs";
+const ri2 = process.argv.indexOf("--repo");
+if (ri2 < 0 || !process.argv[ri2 + 1]) { console.error("usage: node tools_interference_demo.mjs --repo <checkout>"); process.exit(2); }
+const samples = process.argv[ri2 + 1] + "/examples/interference-map/output/";
 mkdirSync(here + "interference/demo", { recursive: true });
-for (const [name, doc] of [["adsb-2026-03-01.geojson", adsbDay("2026-03-01", false)], ["adsb-2026-03-02.geojson", adsbDay("2026-03-02", true)], ["ais-2026-03-01.geojson", aisDay("2026-03-01")]]) {
-  writeFileSync(here + "interference/demo/" + name, JSON.stringify(doc));
-  console.log(name, doc.features.length, "cells");
-}
+for (const f of readdirSync(samples).filter((x) => x.endsWith(".geojson")).sort()) { copyFileSync(samples + f, here + "interference/demo/" + f); console.log("copied", f); }
+const doc = adsbDay("2026-03-02", true);
+writeFileSync(here + "interference/demo/adsb-2026-03-02.geojson", JSON.stringify(doc));
+console.log("adsb-2026-03-02.geojson", doc.features.length, "cells (confounded: " + doc.kshana_interference_map.day.day_confounded + ")");
