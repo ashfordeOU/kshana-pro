@@ -71,7 +71,7 @@ function openLog(l) {
     ["Largest position error", log.stats.maxErrM == null ? "none reported" : `${Math.round(log.stats.maxErrM)} m at T+${Math.round(log.stats.maxErrAtS)} s`],
     ["Largest time offset", Math.abs(log.stats.maxTimeOffS) < 0.05 ? "none" : `${log.stats.maxTimeOffS > 0 ? "+" : ""}${log.stats.maxTimeOffS.toFixed(1)} s`],
     ["Time with no fix", log.stats.spans.length ? log.stats.spans.map((s) => `T+${Math.round(s.from)} to ${Math.round(s.to)} s`).join(", ") : "none"]];
-  $("tr-facts").replaceChildren(...facts.flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]));
+  $("tr-facts").replaceChildren(...facts.map(([k, v]) => el("div", {}, el("dt", {}, k), el("dd", {}, v))));
   $("tr-slider").max = String(log.track.length - 1);
   layout(); drawTrack(); drawTimeline(); drawEvents(); drawTimelineList(); drawLegend();
   setCursor(0);

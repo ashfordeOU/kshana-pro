@@ -74,8 +74,8 @@ button.tr-chip:hover,.tr-chip.chk:hover{background:var(--line)}
 .tr-legend i{display:inline-block;width:22px;height:0;border-top:4px solid var(--c);border-radius:2px;forced-color-adjust:none}
 .tr-legend i.thin{border-top-width:1.5px}.tr-legend i.dots{border-top-style:dotted;border-top-width:4px}
 
-.tr-cmp{width:100%}
-.tr-cmp th[scope=row]{font-weight:500;color:var(--ink-3);text-align:left;white-space:nowrap}
+.tr-cmp{width:100%;table-layout:fixed}
+.tr-cmp th[scope=row]{font-weight:500;color:var(--ink-3);text-align:left;white-space:normal;width:34%;overflow-wrap:anywhere}
 .tr-cmp td{font-family:var(--f-mono);font-size:12.5px;overflow-wrap:anywhere}
 .tr-cue{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:var(--surface-2);font-size:12.5px;color:var(--ink-2)}
 .tr-act{margin:0;padding-left:18px;font-size:13px}
@@ -103,3 +103,4 @@ button.tr-chip:hover,.tr-chip.chk:hover{background:var(--line)}
 }
 @media (max-width:520px){.wrap.tr{padding-left:16px;padding-right:16px}}
 @media (prefers-reduced-motion:reduce){.tr *{transition:none!important;animation:none!important}}
+.tr-cmp th{white-space:normal;overflow-wrap:anywhere;padding-left:6px;padding-right:6px}.tr-cmp td{padding-left:6px;padding-right:6px}
