@@ -1,6 +1,6 @@
 # D14: MCP `assess_receiver_log` reads any local file named in agent-supplied TOML
 
-Status: OPEN (fix written on public branch feat/surfaces-0.35, ships in 0.35.0). Raised 2026-10-09
+Status: OPEN, SCOPE WIDENED 2026-10-09 (fix written on public branch feat/surfaces-0.35, ships in 0.35.0). Raised 2026-10-09
 by W18 while wiring 0.35 surfaces. Security detail lives here only; public text stays generic.
 
 ## What
@@ -27,3 +27,22 @@ Follow-up: W18 audits every MCP tool for filesystem access derived from agent in
 ## Open decisions (founder)
 1. Ship the fix in 0.35.0 (default) or a 0.34.1 patch.
 2. Whether to publish a GitHub security advisory for kshana-mcp (low severity) once the fix is released.
+
+## Scope widened (W18 audit, 2026-10-09, feat/surfaces-0.35 589725fa)
+The same class affects the general scenario tools, not only `assess_receiver_log`: `run_scenario`,
+`validate_scenario`, `report_scenario`, `animate_scenario`, `list_export_formats`, `export_interop`,
+`import_route`, `export_sp3`, `export_omm`, `export_oem`, `export_table_csv`. Scenario kinds with
+file-source fields reachable through them: telecom-timing `csv_path`; spectrum recording `meta_path`,
+`data_path`; lunar-service `ephemeris_path`; lunar kernel paths (`planetary_kernel_path`,
+`earth_orientation_kernel_path`, `moon_orientation_kernel_path`) in lunar-service, lunar-vlbi,
+lunar-vlbi-fim, lunar-llr; lunar-llr `data_dir`, `normal_points_dir`, `reflectors_path`,
+`stations_path`; realtime-frame-eop `eop_finals2000a`, `eop_finals2000a_later`; receiver-trust
+`[log] path`, `[log.nav] path`; campaign members recursively.
+Not affected: the IQ tools (opt-in work directory, canonicalised and contained), the bundled-example
+tools, and every new 0.35 tool (inline only). No network or process access is reachable from any tool.
+Fix: one guard (`surface::reject_file_sources`, `FILE_SOURCE_KEYS`) refuses these fields by name in
+every scenario tool, 4 MiB input caps, and a source-scanning test that fails if a scenario type gains
+an unlisted path-like field.
+Affected versions: to be re-dated per field (the general tools predate receiver-trust, so the range
+likely starts before 0.31.0). Impact: being re-assessed per field (whether file values can flow into
+tool output) before the severity is set.
