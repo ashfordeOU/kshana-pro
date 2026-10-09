@@ -1,4 +1,4 @@
-Updated: 2026-10-09T08:36:33Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T09:27:15Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 09:27:15 09:28Z v0.33.1 published: crates.io kshana + kshana-mcp, PyPI, npm, JetBrains all success (registry APIs 200). ghcr OCI job running; Pages deploy follows. kshana.dev still 0.33.0 (svgsafe 404). Advisory hand-over moved to ~10:25Z after the Studio deploy is verified.
 - 08:36:33 08:38Z #73 CodeQL 'unpinned dtolnay/rust-toolchain tag' in gb-scale.yml: declined (repo convention; check-toolchain.sh requires the channel tag; dependabot.yml documents it). Replied on the thread, left open for the founder. The reply got an auto-appended attribution footer that no available tool can edit; founder to edit it out in the UI.
 - 08:35:01 08:36Z Critic 2: MERGE on release/0.34.0 220c18f (14 merge resolutions audited via merge-tree; DIGEST claim verified field by field; figures stamp-only). Opened #73 chore(release): 0.34.0. Merge plan: #71/#66/#62/#70 first as they go green, then W1b merges main into #73 and folds their entries into [0.34.0], final CI, merge; then freeze until v0.34.0 tags. Needs: founder authorisation for kshana-pro port/0.34.0 push.
 - 08:29:10 08:29Z release/0.34.0 220c18f full cargo test: 372 binaries, 3982 passed, 0 failed, 119 ignored. Awaiting critic verdict and founder authorisation for the kshana-pro port/0.34.0 push.
