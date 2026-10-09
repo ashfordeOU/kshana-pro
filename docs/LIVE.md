@@ -1,4 +1,4 @@
-Updated: 2026-10-09T16:01:38Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T16:59:46Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:59:46 16:59Z W9 started (Sonnet, session_0152cP5CFP8yUG3zsVp5gcoy) on kshana feat/maritime-trust for 0.35: vessel platform model, moving-platform monitors, 0-100 trust score, live and gate modes, synthetic Baltic demo. Pushes await founder authorisation in W9.
 - 16:01:38 16:01Z legal: standard mutual NDA round-1 reply committed on kshana-pro legal/nda-mutual-standard (1ffa940); repo copy redacted, send copy with founder
 - 15:27:10 15:28Z W1b coverage analysis: cap clipped the run in its last minute (no hang), so 330 is a true fix. Growth comes from 0.34 IQ DSP tests under debug+tarpaulin (~1 h on top of a ~3 h suite). Post-0.34 follow-ups: measure opt-level=1 for the tarpaulin step on a branch; name-index cache for verification_rows_name_a_test_that_exists.
 - 15:26:03 15:26Z #73 head a20f9a6 (coverage timeout 240 -> 330, history comment; nothing else). CI restarted, ~4 h. Note: check job took 3h00 against its 240 cap.
