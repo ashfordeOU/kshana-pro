@@ -1,4 +1,4 @@
-Updated: 2026-10-09T09:46:41Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T09:47:49Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 09:47:49 09:48Z kshana-pro port/0.34.0 pushed by W1b at c4a7408e (Studio package, recordings, recorder outputs for 0.34.0). Unblocks #73.
 - 09:46:41 09:46Z Founder authorised W1b (in W1b's session) to push kshana-pro port/0.34.0 (branch only).
 - 09:27:15 09:28Z v0.33.1 published: crates.io kshana + kshana-mcp, PyPI, npm, JetBrains all success (registry APIs 200). ghcr OCI job running; Pages deploy follows. kshana.dev still 0.33.0 (svgsafe 404). Advisory hand-over moved to ~10:25Z after the Studio deploy is verified.
 - 08:36:33 08:38Z #73 CodeQL 'unpinned dtolnay/rust-toolchain tag' in gb-scale.yml: declined (repo convention; check-toolchain.sh requires the channel tag; dependabot.yml documents it). Replied on the thread, left open for the founder. The reply got an auto-appended attribution footer that no available tool can edit; founder to edit it out in the UI.
