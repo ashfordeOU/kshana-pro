@@ -186,3 +186,12 @@ metadata (server.json, glama.json) updated with the new tools.
 | W14 | session_01EHuXAergYmDpPWprBviAZe | feat/trust-telemetry |
 | W15 | session_01K7EwRN9nAMFR2oABNLH1cA | feat/compliance-bench |
 | W16 | session_012ALsjTj5mB6yjGycqu6mjN | pro/grants-audit (kshana-pro) |
+
+## Studio port list for 0.35 (from W17, kshana-pro site/studio-0.35)
+
+- port_site.py STUDIO_PAGES += trust/index.html, interference/index.html, training/index.html
+- carry trust/demo/*, interference/demo/*, training/demo/* (tests read ../<page>/demo/* from lib/)
+- lib/trust.mjs must be ported with training.js (shared projection helpers)
+- ci.yml steps: node web/studio/lib/trust.test.mjs, interference.test.mjs, geojson-layer.test.mjs, training.test.mjs
+- site.test third-party check: the interference page has real anchors to licence_url hosts (links, not fetches); allow anchors, keep fetches blocked
+- regenerate demos from the release engine with tools_trust_demo.mjs, tools_interference_demo.mjs, tools_training_demo.mjs before porting
