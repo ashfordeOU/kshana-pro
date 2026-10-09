@@ -130,7 +130,10 @@ review of the trust-score method. Founder submits; nothing is sent externally by
 3. Coverage job time measured on the release candidate. If it exceeds 300 minutes, the
    coordinator raises it with the founder before tagging (W1b's opt-level work first).
 4. Public-text scan: no names, no performance numbers, no competitor reference.
-5. Normal release flow: bump commit, main CI, Auto-tag, Release workflow, Pages check.
+5. Studio: rebuild the Studio's packaged wasm from the 0.35 engine (it is still 0.31.0, so
+   it cannot run new scenario kinds such as the vessel platform); port W17's views
+   (port_site.py STUDIO_PAGES entries, demo assets) and add their tests to ci.yml.
+6. Normal release flow: bump commit, main CI, Auto-tag, Release workflow, Pages check.
 
 ## Sessions (started 2026-10-09)
 
