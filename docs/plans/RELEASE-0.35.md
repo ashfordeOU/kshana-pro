@@ -131,3 +131,16 @@ review of the trust-score method. Founder submits; nothing is sent externally by
    coordinator raises it with the founder before tagging (W1b's opt-level work first).
 4. Public-text scan: no names, no performance numbers, no competitor reference.
 5. Normal release flow: bump commit, main CI, Auto-tag, Release workflow, Pages check.
+
+## Sessions (started 2026-10-09)
+
+| Worker | Session | Branch |
+|---|---|---|
+| W9 | session_0152cP5CFP8yUG3zsVp5gcoy | feat/maritime-trust |
+| W10 | session_0189muufZnUWoYZ12SH8jxLc | feat/marine-integrations |
+| W11 | session_01TXLnsnQRNmTJEs6efhkGQz | feat/nmea-training |
+| W12 | session_01Vnxir8oZ8fYdV7FcCMZQAk | feat/osnma-verify |
+| W13 | session_01CbLTuiNyyj3wGPwNE7Rgxm | feat/interference-map |
+| W14 | session_01EHuXAergYmDpPWprBviAZe | feat/trust-telemetry |
+| W15 | session_01K7EwRN9nAMFR2oABNLH1cA | feat/compliance-bench |
+| W16 | session_012ALsjTj5mB6yjGycqu6mjN | pro/grants-audit (kshana-pro) |
