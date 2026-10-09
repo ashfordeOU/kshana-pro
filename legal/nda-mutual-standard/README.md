@@ -95,4 +95,14 @@ defined as the date of the last signature, and a missing comma in §5(a).
 Still open: SJAWS's signatory and who notices should be marked for, and their confirmation of
 the details above. Ashforde's counsel to confirm the Ontario choice before signing.
 
+### Round 2, 2026-10-09: agreed text
+
+The counterparty returned the clean round-1 copy with untracked edits only to its own
+details: its notice email address and attention line, and its signatory's name and title
+(President and CEO). Every other word, including Ontario law with non-exclusive
+jurisdiction and the injunction carve-out, is unchanged from Ashforde's round-1 clean copy
+(checked by a text diff of body, header and footer). `Ashforde-Mutual-NDA-Standard-round-2-agreed.docx`
+is that version, redacted for git (signatory name and both email addresses replaced). Status:
+ready to sign, subject to the founder's counsel confirming Ontario law.
+
 Not legal advice. Have counsel review before signing.
