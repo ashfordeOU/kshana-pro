@@ -1,4 +1,4 @@
-Updated: 2026-10-09T01:01:01Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T03:39:27Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 03:39:27 03:39Z Merged #72 (0.33.1, head 77b521b, all 20 checks green) ALONE -> main bdbfed9. MAIN FROZEN until v0.33.1 auto-tags bdbfed9. Next check 06:55Z.
 - 01:01:01 01:01Z Check-in: site (v0.33.0 live), deck refresh and pro PR 24 done. #72 CI on 77b521b running (~03:30Z). Next check 03:40Z.
 - 00:27:25 00:28Z #72 fix pushed by W2: head 77b521b (README demo charts + scenario-fom + readme assets re-rendered at 0.33.1, stamp-only diffs proven; re-port). CI restarted (~3 h). PR body updated.
 - 00:08:47 00:09Z #72 check red: published_figures_still_reproduce, README demo charts carry the version stamp (values identical). W2 re-rendering all demo charts for 0.33.1 with stamp-only proof.
