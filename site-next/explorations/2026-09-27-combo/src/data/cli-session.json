@@ -1,9 +1,9 @@
 {
- "recorded": "2026-10-08",
+ "recorded": "2026-10-09",
  "engine": {
-  "version": "0.33.0",
-  "commit": "682340e",
-  "tree": "release/0.33.0",
+  "version": "0.34.0",
+  "commit": "9a19f85",
+  "tree": "release/0.34.0",
   "binary": "target/release/kshana"
  },
  "scenarios": {
@@ -27,7 +27,7 @@
   {
    "cmd": "kshana --version",
    "out": [
-    "kshana 0.33.0"
+    "kshana 0.34.0"
    ],
    "rc": 0,
    "ms": 2.1,
@@ -39,7 +39,7 @@
     "ok: jamming — kind resolves and all 4 of its published required-field entries are satisfied; field values are not checked"
    ],
    "rc": 0,
-   "ms": 2.2,
+   "ms": 2.4,
    "scenario": "jamming-demo.toml"
   },
   {
@@ -49,7 +49,7 @@
     "wrote jamming-demo.result.json, jamming-demo.chart.svg, jamming-demo.report.html, and jamming-demo.report.json"
    ],
    "rc": 0,
-   "ms": 8.9,
+   "ms": 8.8,
    "scenario": "jamming-demo.toml"
   },
   {
@@ -59,7 +59,7 @@
     "wrote spoof-detect.result.json, spoof-detect.chart.svg, spoof-detect.report.html, and spoof-detect.report.json"
    ],
    "rc": 0,
-   "ms": 3.8,
+   "ms": 3.4,
    "scenario": "spoof-detect.toml"
   },
   {
@@ -69,7 +69,7 @@
     "wrote clock-holdover.result.json, clock-holdover.chart.svg, clock-holdover.report.html, and clock-holdover.report.json"
    ],
    "rc": 0,
-   "ms": 11.9,
+   "ms": 11.8,
    "scenario": "clock-holdover.toml"
   }
  ]
