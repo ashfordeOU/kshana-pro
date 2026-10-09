@@ -170,6 +170,43 @@ relevant draft.
   grant for external contributions (`IP-POLICY.md` §3, §7). NB: AGPL-3.0 is network copyleft — the
   "no copyleft for ESA/the prime" position now rests on the commercial licence, not on the open licence.
 
+### 4.9 Galileo OSNMA SIS ICD, Annex E (raised 2026-10-09; blocks the 0.35 OSNMA verifier)
+Release 0.35 plans an open-source (AGPL-3.0 + commercial) verifier for Galileo OSNMA navigation
+message authentication, implemented from the public OSNMA SIS ICD (Issue 1.1, October 2023) and the
+OSNMA Receiver Guidelines (v1.3). Annex E of the ICD, "Authorisation Concerning the OSNMA SIS ICD
+IPRs" (pp. 44-48), is a self-executing, royalty-free covenant not to assert, accepted by "practicing,
+using or copying" the ICD IPRs. Relevant terms:
+- Field of use (E.1): R&D, manufacturing, commercialisation, distribution, sale, supply and
+  maintenance of "Products" (software, devices, value-added services using the OSNMA signal)
+  developed by the Authorised Person.
+- E.3: "The Authorisation is non-transferable and non-licensable. The Authorised Person shall not
+  assign, transfer or license any of the rights granted under the Authorisation."
+- E.3 covered activities are an exhaustive list: (a) use of the Technical Data, including integration
+  into Products; (b) storage, with the source acknowledged; (c) reproduction and publication of the
+  ICD itself only for non-commercial purposes and unamended; (d) links. "No other activity shall
+  benefit from the Authorisation."
+- E.3: no statement implying EU development, use or endorsement; practise without harming EU or
+  Member State security interests (Regulation (EU) 2021/696).
+- E.2 withdrawal if the Authorised Person challenges the IPRs; E.5 automatic termination on violation,
+  with an obligation to discontinue the Products; E.6/E.8 as-is, Authorised Person defends third-party
+  claims; E.10 EU law, Belgian law, Brussels courts; E.11 EU may amend on public notice; E.12 the IPRs
+  are listed patents plus the ICD copyright.
+
+Questions for counsel:
+1. Does publishing source code that implements the ICD under AGPL-3.0, and licensing it commercially,
+   amount to "licensing rights granted under the Authorisation" (forbidden by E.3), or is it the
+   integration of Technical Data into a Product (covered by E.3(a)), with each downstream user
+   needing its own authorisation?
+2. Are downstream users and commercial licensees of the verifier themselves covered by the
+   self-executing authorisation on their own acceptance, and what must Kshana's documentation say
+   so we do not purport to grant them anything?
+3. What notices and wording do we need (source acknowledgement under E.3(b), no-endorsement
+   statement, security-interest clause)?
+4. Do any of the E.12 patents read on a receiver-side verifier, as opposed to signal generation?
+Status: the OSNMA verifier code is held off the public repository until counsel answers. Bit-level
+page parsing (no cryptography) was briefly pushed to a public branch on 2026-10-09 and withdrawn the
+same day.
+
 ## 5. Prioritized checklists
 
 ### 5.1 BEFORE FIRST SIGNATURE (blocking subset)
