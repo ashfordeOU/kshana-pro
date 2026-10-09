@@ -122,6 +122,43 @@ In kshana-pro `commercial/grants/`: fit assessments and draft outlines for ESA N
 calendar of deadlines; an audit scoping note and request for proposal for an independent
 review of the trust-score method. Founder submits; nothing is sent externally by a worker.
 
+### I. Every surface wired (founder directive 2026-10-09)
+
+Every 0.35 capability must be reachable from every surface Kshana ships, or be marked N/A
+with a stated reason in the matrix below. The matrix is a release gate: no 0.35 tag while a
+cell is empty.
+
+Workers: **W18** (library surfaces: Rust API, Python, WASM/JS, MCP server tools, Claude
+Code plugin commands and skills, JetBrains actions, notebooks, docs/llms) and **W19**
+(release channels: Release workflow additions, new packages and artefacts, version sync,
+registry metadata). W18 and W19 own src/python.rs, kshana.pyi, src/wasm.rs,
+mcp/kshana-mcp, commands/, .claude-plugin/, ide/jetbrains and .github/workflows/release.yml
+for 0.35; feature workers do not edit those files.
+
+Found while scoping: `.claude-plugin/plugin.json` still says version 0.30.0 and the
+Studio's packaged wasm is 0.31.0. Both go under the version-sync check.
+
+| Capability | CLI | Rust API | Python | WASM/npm | MCP tool | Plugin command/skill | JetBrains | Studio | Docs/llms | Notebook | Release artefact |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| A maritime trust (batch, score, reasons) | W9 | W9 | W18 | W18 | W18 | W18 | W18 | W17 | W9/W18 | W18 | existing channels |
+| A live + gate + listen | W9 | W9 | N/A (process) | N/A (process) | N/A: long-running; MCP gets a bounded "assess stream excerpt" | W18 (how-to) | W18 (run config) | N/A | W9 | N/A | existing CLI binaries |
+| B Signal K plugin | n/a | n/a | n/a | n/a | n/a | W18 (how-to) | n/a | n/a | W10 | n/a | **W19: npm package (name and first publish need founder approval)** |
+| B OpenCPN plugin | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | W10 | n/a | **W19: Linux/macOS/Windows builds attached to the GitHub release; OpenCPN catalogue submission needs founder approval** |
+| B reference build | n/a | n/a | n/a | n/a | n/a | W18 (how-to) | n/a | n/a | W10 | n/a | **W19: ghcr image for the gate service** |
+| C NMEA training scenarios | W11 | W11 | W18 | W18 | W18 | W18 | W18 | W17 (viewer) | W11 | W18 | existing |
+| D OSNMA verify (counsel-gated) | W12 | W12 | W18 | W18 | W18 | W18 | W18 | n/a | W12 | W18 | existing |
+| E interference map + route exposure | W13 | W13 | W18 | W18 | W18 | W18 | W18 | W17 | W13 | W18 | existing |
+| F telemetry exporters | W14 | W14 | N/A (process) | N/A | N/A (process) | W18 (how-to) | n/a | n/a | W14 | n/a | W19: Grafana dashboard attached to release |
+| F evidence packs + verify | W14 | W14 | W18 | W18 (verify only) | W18 | W18 | W18 | n/a | W14 | W18 | existing |
+| G compliance report | W15 | W15 | W18 | W18 | W18 | W18 | W18 | n/a | W15 | W18 | existing |
+| G test-bench export | W15 | W15 | W18 | W18 | W18 | W18 | W18 | n/a | W15 | W18 | existing |
+
+Agentic usage (W18): MCP tools for every row above with round-trip tests; Claude Code plugin
+slash commands and skills for the main workflows (assess a receiver log, build a training
+scenario, make an interference map and route exposure, produce and verify an evidence pack,
+compliance report); an agent guide (docs/AGENTS.md) and llms.txt entries; MCP registry
+metadata (server.json, glama.json) updated with the new tools.
+
 ## Release gate for 0.35.0
 
 1. Every workstream PR merged with a Fable review, CI green.
@@ -133,7 +170,9 @@ review of the trust-score method. Founder submits; nothing is sent externally by
 5. Studio: rebuild the Studio's packaged wasm from the 0.35 engine (it is still 0.31.0, so
    it cannot run new scenario kinds such as the vessel platform); port W17's views
    (port_site.py STUDIO_PAGES entries, demo assets) and add their tests to ci.yml.
-6. Normal release flow: bump commit, main CI, Auto-tag, Release workflow, Pages check.
+6. Surface matrix (section I) complete: every cell done or N/A with reason; version sync covers
+   plugin.json, the Studio wasm and every new package.
+7. Normal release flow: bump commit, main CI, Auto-tag, Release workflow, Pages check.
 
 ## Sessions (started 2026-10-09)
 
