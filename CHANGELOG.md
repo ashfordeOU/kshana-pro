@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Open engine 0.33.1.** The `kshana` pin moves from `=0.33.0` to the published `=0.33.1`
+  (crates.io) with its lockfile; no overlay source needed changing. 0.33.1 is the engine's
+  security release (chart text escaping and the Studio's handling of untrusted scenario text),
+  with no change to any model or published number. The six version-stamped paper reports
+  under `papers/` were regenerated with the `emit_paper_artifacts` generators and change only
+  in their engine-version footer.
 - **Open engine 0.33.0.** The `kshana` pin moves from `=0.32.0` to the published `=0.33.0`
   (crates.io) with its lockfile; no overlay source needed changing, and `cargo test --all
   --locked` passes. The six version-stamped paper reports under `papers/` were regenerated
