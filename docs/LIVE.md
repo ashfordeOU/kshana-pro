@@ -1,4 +1,4 @@
-Updated: 2026-10-09T15:26:03Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T15:27:10Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:27:10 15:28Z W1b coverage analysis: cap clipped the run in its last minute (no hang), so 330 is a true fix. Growth comes from 0.34 IQ DSP tests under debug+tarpaulin (~1 h on top of a ~3 h suite). Post-0.34 follow-ups: measure opt-level=1 for the tarpaulin step on a branch; name-index cache for verification_rows_name_a_test_that_exists.
 - 15:26:03 15:26Z #73 head a20f9a6 (coverage timeout 240 -> 330, history comment; nothing else). CI restarted, ~4 h. Note: check job took 3h00 against its 240 cap.
 - 15:23:23 15:24Z #73 coverage CANCELLED at its 240-min cap (11:22-15:22; killed during verification_rows_name_a_test_that_exists); other 19 green. Not a flake: 0.34 suite ~3h51m+. W1b raising the coverage timeout 240 -> 330 (no test or floor change); CI restarts (~4 h). Slow-binary investigation as a follow-up.
 - 15:17:30 15:17Z #73: 19/20 green; coverage still running (3h55m; the prior 0.34.0 run took 3h51m). Merge on green.
