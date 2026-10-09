@@ -1,4 +1,4 @@
-Updated: 2026-10-09T10:18:56Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T10:23:48Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 10:23:48 10:24Z #70 re-merged with main 5585da1 by W8 -> a60ad94 (CHANGELOG only; quick gates green). CI ~3 h (~13:25Z). #66 held at ddfc26d until after v0.34.0.
 - 10:18:56 10:21Z #66 and #70 conflict with main 5585da1 (CHANGELOG only). Plan: W8 re-merges #70 now (correctness fix, in 0.34.0); #66 (palette refactor) parked until after v0.34.0 tags. Then #73 merges main after #70 lands.
 - 10:18:23 10:19Z Merged #62 (clock-ensemble-band regen, 575a1e5, 20/20 green). #66 and #70 add [Unreleased] entries next to #62's, so they may now need a CHANGELOG-only re-merge.
 - 10:16:15 10:16Z Merged kshana-pro PR 25 (pin =0.33.1, check green).
