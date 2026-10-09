@@ -8,8 +8,10 @@ counterpart to the longer branded draft in `../nda-mutual-branded/`.
   attorney can redline it.
 - `Ashforde-Mutual-NDA-Standard.md`: a text copy for diffs and review.
 
-**No counterparty name appears in any of these files** (placeholders only). Keep it that way;
-who it was sent to is not recorded in git.
+The template itself names no counterparty. From round 1 the negotiated copies name the
+counterparty company (SJAWS Technologies Inc.), as partner specifics may live in `legal/`.
+Individuals' names and personal email addresses still never appear: redact them from any
+markup before it is committed.
 
 ## What changed against the branded draft
 
@@ -64,8 +66,8 @@ Added or decided:
 ### Round 1, 2026-10-09
 
 The counterparty's counsel returned a markup. `Ashforde-Mutual-NDA-Standard-reply-1.docx` is
-Ashforde's reply (`.md` is its text copy). It is redacted for git: the counsel's name and the
-counterparty's product name are replaced. The copy sent is otherwise identical.
+Ashforde's reply (`.md` is its text copy). It is redacted for git: the counsel's name and email
+address are replaced. The copy sent is otherwise identical.
 
 Their changes, all accepted:
 - §1: their methods and software code for their product added to what is confidential.
@@ -79,11 +81,16 @@ Their comments and Ashforde's answers (tracked changes plus threaded replies):
   contact@ashforde.org; the counterparty's address and counsel's address left for them to fill;
   added that the copy to counsel is a courtesy and is not itself notice.
 
+SJAWS's details filled from its Corporations Canada record (read 2026-10-09): SJAWS
+Technologies Inc., a CBCA corporation, number 1464649-5, active, registered office 3200 - 650
+West Georgia Street, Vancouver BC V6B 4P7. Notice email admin@sjaws.com (the address on its
+website), with the copy to the counsel who sent the markup; both left for them to confirm.
+
 Also filled or fixed by Ashforde: registry code 17321180 and registered office (from
 `commercial/payment-details.toml`; check against the e-Business Register), the Effective Date
 defined as the date of the last signature, and a missing comma in §5(a).
 
-Still open: the counterparty's legal name, entity type, jurisdiction, address, notice and
-counsel emails, and signatory. Ashforde's counsel to confirm the Ontario choice before signing.
+Still open: SJAWS's signatory and who notices should be marked for, and their confirmation of
+the details above. Ashforde's counsel to confirm the Ontario choice before signing.
 
 Not legal advice. Have counsel review before signing.

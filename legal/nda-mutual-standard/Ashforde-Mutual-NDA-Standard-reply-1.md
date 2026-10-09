@@ -2,7 +2,7 @@
 
 Text copy of `Ashforde-Mutual-NDA-Standard-reply-1.docx`, for diffs and review. The counterparty's round-1 changes are accepted into the text. Ashforde's round-1 tracked changes are marked `[-deleted-]` and `{+inserted+}`. `<<Cn: ... >>` marks the text a comment is anchored to; the comments are listed at the end.
 
-Redacted for git: the counterparty counsel's name is shown as "Counterparty counsel", and the counterparty's product name as "[Counterparty product]". The copy sent is otherwise identical.
+Redacted for git: the counterparty counsel's name is shown as "Counterparty counsel" and their email address as "[counsel email address]". The copy sent is otherwise identical.
 
 ```text
 Mutual Non-Disclosure Agreement
@@ -11,13 +11,13 @@ Between Ashforde OÜ and the Counterparty
 Parties and purpose
 This Mutual Non-Disclosure Agreement (the "Agreement") is made as of [-[Effective Date]-]{+the date of the last signature below+} (the "Effective Date") between:
 Ashforde OÜ, a private limited company registered in Estonia, registry code [-[registry code]-]{+17321180+}, with its registered office at [-[address]-]{+Ahtri tn 12, 15551 Tallinn, Estonia+} ("Ashforde"); and
-[Counterparty legal name], a [entity type] organised under the laws of [jurisdiction], with its principal place of business at [address] (the "Counterparty").
+[-[Counterparty legal name]-]{+SJAWS Technologies Inc.+}, a [-[entity type]-]{+corporation+} organised under the laws of [-[jurisdiction]-]{+Canada (Canada Business Corporations Act, corporation number 1464649-5)+}, with its [-principal place of business-]{+registered office+} at [-[address]-]{+3200 - 650 West Georgia Street, Vancouver, British Columbia V6B 4P7, Canada+} (the "Counterparty").
 Each is a "Party" and together the "Parties." In relation to any given information, the Party disclosing it is the "Discloser" and the Party receiving it is the "Recipient." This Agreement is mutual: each Party may act in either role.
 Purpose. The Parties wish to explore a possible technical and commercial relationship concerning the evaluation of Ashforde's GNSS receiver and signal-analysis software against the Counterparty's receivers, simulators, recordings, test conditions and data (the "Purpose"). To pursue the Purpose, each Party may disclose Confidential Information to the other.
 1. Confidential Information
 "Confidential Information" means any non-public information disclosed by the Discloser to the Recipient, in any form (oral, written, electronic, visual or by access to systems or samples), that is marked or identified as confidential, or that a reasonable person would understand to be confidential given its nature or the circumstances of disclosure.
 It includes, without limitation: software, source code, algorithms, models and methods; technical data, IQ recordings, measurements, test conditions and results; roadmaps, designs and know-how; business, commercial, financial and customer information; and the existence and content of the Parties' discussions. It also includes information of a third party that the Discloser is obliged to keep confidential.
-Confidential Information does not include software or materials that a Party has made publicly available under an open-source licence. In particular, the publicly released Kshana engine is licensed to everyone under the GNU Affero General Public License v3.0 (AGPL-3.0); it is not confidential, and nothing in this Agreement changes, restricts or adds conditions to the rights anyone has under that licence. Confidentiality under this Agreement attaches only to a Party's non-public materials, such as unreleased code, pre-release builds, Ashforde's proprietary (non-open-source) components, roadmaps not yet published, and the Counterparty's data and test information, methods and software code in relation to the Counterparty’s [Counterparty product] system.
+Confidential Information does not include software or materials that a Party has made publicly available under an open-source licence. In particular, the publicly released Kshana engine is licensed to everyone under the GNU Affero General Public License v3.0 (AGPL-3.0); it is not confidential, and nothing in this Agreement changes, restricts or adds conditions to the rights anyone has under that licence. Confidentiality under this Agreement attaches only to a Party's non-public materials, such as unreleased code, pre-release builds, Ashforde's proprietary (non-open-source) components, roadmaps not yet published, and the Counterparty's data and test information, methods and software code in relation to the Counterparty’s Skysweeper system.
 2. Obligations of the Recipient
 The Recipient shall:
 (a)	use the Confidential Information solely for the Purpose;
@@ -53,7 +53,7 @@ Each Party acknowledges that a breach of this Agreement may cause the other irre
 11. Governing law and jurisdiction
 <<C11:<<C13:This Agreement is governed by the laws of [-the Republic of Estonia-]{+the Province of Ontario and the federal laws of Canada applicable in it+}, without regard to its conflict-of-laws rules. The Parties submit to the [-[exclusive / non-exclusive]-]{+non-exclusive+} jurisdiction of the courts of [-[venue]-]{+the Province of Ontario+} for any dispute arising out of or relating to this Agreement.{+ Nothing in this Section prevents either Party from seeking injunctive or other interim relief under Section 10 in any court of competent jurisdiction.+}>>>>
 12. General
-(a)	Notices. Notices must be in writing and sent to the addresses above or to [-an -]<<C12:<<C14:[-email address a Party designates-]{+the email addresses in this Section 12(a)+}>>>>; email notice is effective on confirmed delivery.{+ Notice email addresses: for Ashforde, contact@ashforde.org (attention: Founder); for the Counterparty, [email address] (attention: [title]), with a copy to its legal counsel at [counsel email address]. Either Party may change its notice email address by notice to the other. A copy sent to legal counsel is a courtesy and does not itself constitute notice.+}
+(a)	Notices. Notices must be in writing and sent to the addresses above or to [-an -]<<C12:<<C14:[-email address a Party designates-]{+the email addresses in this Section 12(a)+}>>>>; email notice is effective on confirmed delivery.{+ Notice email addresses: for Ashforde, contact@ashforde.org (attention: Founder); for the Counterparty, admin@sjaws.com (attention: [name and title]), with a copy to its legal counsel at [counsel email address]. Either Party may change its notice email address by notice to the other. A copy sent to legal counsel is a courtesy and does not itself constitute notice.+}
 (b)	No assignment. Neither Party may assign this Agreement without the other's prior written consent, except to a successor of all or substantially all of its business.
 (c)	No partnership. Nothing here creates a partnership, joint venture, agency or employment relationship between the Parties.
 (d)	Entire agreement. This Agreement is the entire agreement between the Parties on its subject matter and supersedes any prior understanding on it.
@@ -63,7 +63,7 @@ Each Party acknowledges that a breach of this Agreement may cause the other irre
 Signatures
 Agreed and accepted as of the Effective Date.
 Ashforde OÜ
-[Counterparty legal name]
+[-[Counterparty legal name]-]{+SJAWS Technologies Inc.+}
 Signature
 ____________________
 ____________________
@@ -81,5 +81,5 @@ ____________________
 C11 [Counterparty counsel 2026-10-09T09:14:00Z]: Can we make Canadian law apply?  We could do the law of the province of Ontario and make the courts of Ontario have jurisdiction.  This is a neutral territory given that neither company is based in Ontario.
 C12 [Counterparty counsel 2026-10-09T09:16:00Z]: Let’s specify the email address now and do a copy to legal counsel just to be on the safe side.
 C13 [Ashforde OÜ 2026-10-09T16:00:00Z]: Agreed: Ontario law and the courts of Ontario. We have made the jurisdiction non-exclusive and added that either Party may still seek an injunction under Section 10 in any competent court, so that remedy works wherever a breach happens.
-C14 [Ashforde OÜ 2026-10-09T16:00:00Z]: Agreed. Ashforde’s notice address is contact@ashforde.org. Please add the Counterparty’s notice address and its counsel’s address for the copy. We have added that the copy to counsel is a courtesy and is not itself notice, so a missed copy cannot invalidate a notice.
+C14 [Ashforde OÜ 2026-10-09T16:00:00Z]: Agreed. Ashforde’s notice address is contact@ashforde.org. For SJAWS we have used admin@sjaws.com, with the copy to you; please confirm both, or give the addresses you prefer, and the person notices should be marked for. We have also filled in SJAWS’s details from its Corporations Canada record; please confirm. We have added that the copy to counsel is a courtesy and is not itself notice, so a missed copy cannot invalidate a notice.
 ```
