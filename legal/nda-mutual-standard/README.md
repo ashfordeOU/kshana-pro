@@ -66,7 +66,9 @@ Added or decided:
 ### Round 1, 2026-10-09
 
 The counterparty's counsel returned a markup. `Ashforde-Mutual-NDA-Standard-reply-1.docx` is
-Ashforde's reply (`.md` is its text copy). It is redacted for git: the counsel's name and email
+Ashforde's reply, with tracked changes and comments (`.md` is its text copy).
+`Ashforde-Mutual-NDA-Standard-reply-1-clean.docx` is the same text with every change accepted
+and no comments. It is redacted for git: the counsel's name and email
 address are replaced. The copy sent is otherwise identical.
 
 Their changes, all accepted:
