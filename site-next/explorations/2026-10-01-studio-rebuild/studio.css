@@ -419,3 +419,10 @@ body.embed .embed-only{display:block}
   .engine-chip[data-mode="loading"]{width:32px;padding:0;justify-content:center}
   .bar{overflow:hidden}
 }
+
+/* The Receiver trust entry in the header: icon only below 960 px, so the bar never overflows. */
+@media (max-width:960px){
+  #trust-link{width:32px;min-width:32px;padding:0;justify-content:center}
+  #trust-link .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+}
+@media (max-width:760px){#trust-link{width:44px;min-width:44px;height:44px}}

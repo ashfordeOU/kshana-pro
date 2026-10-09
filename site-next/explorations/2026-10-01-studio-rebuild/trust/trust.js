@@ -3,7 +3,7 @@
 // Files are read with File.text() in this page; nothing is sent anywhere.
 import {
   sniff, parseLines, parseTruth, parseTrustCsv, parseNmeaFixes, buildRun, reasonsAt, epochsAboveOnset,
-  stepIndex, describeEpoch, pkshtFor, bandRuns, makeProjection, niceLength, monitorInfo,
+  stepIndex, describeEpoch, pkshtFor, bandRuns, makeProjection, niceLength, monitorInfo, KNOWN_MONITORS,
 } from "../lib/trust.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -86,7 +86,7 @@ function openRun(r) {
   const n = run.epochs.length;
   $("mt-slider").max = String(n - 1);
   $("mt-truth-wrap").hidden = !run.hasTruth;
-  drawTrack(); drawTimeline(); drawStrips(); drawSettings(); drawLegend();
+  layout(); drawTrack(); drawTimeline(); drawStrips(); drawSettings(); drawLegend();
   $("mt-first-ded").disabled = run.firstDeduction < 0;
   $("mt-first-unt").disabled = run.firstUntrusted < 0;
   $("mt-gate-note").textContent = run.gateDerived
@@ -170,6 +170,11 @@ function trackPointer(ev) {
 }
 
 const TL = { L: 120, R: 890, W: 900, scoreTop: 10, scoreBot: 150 };
+// The charts are drawn 1:1 in pixels at the width of their box, so their text stays readable on a phone.
+function layout() {
+  const w = Math.round($("mt-time-svg").parentElement.clientWidth) || 900;
+  TL.W = Math.max(300, w); TL.L = TL.W < 640 ? 92 : 120; TL.R = TL.W - 10;
+}
 function xOf(t) { return TL.L + ((t - run.t0) / Math.max(1e-9, run.t1 - run.t0)) * (TL.R - TL.L); }
 function yOfScore(s) { return TL.scoreBot - (s / 100) * (TL.scoreBot - TL.scoreTop); }
 
@@ -330,11 +335,13 @@ function drawSettings() {
   if (m.weights && Object.keys(m.weights).length) {
     const w = el("dl", { class: "mt-setgrid" });
     for (const [k, v] of Object.entries(m.weights).sort((a, b) => b[1] - a[1])) {
-      const dt = el("dt", { title: monitorInfo(k), tabindex: "0" }, k);
+      const dt = el("dt", { title: monitorInfo(k) }, k);
       w.append(el("div", {}, dt, el("dd", {}, f1(v))));
     }
     box.append(el("h4", {}, "Weight of each check, points"), w);
   }
+  box.append(el("details", { class: "mt-gloss" }, el("summary", {}, "What each check looks at"),
+    el("dl", {}, KNOWN_MONITORS.map((m) => [el("dt", {}, m), el("dd", {}, monitorInfo(m))]).flat())));
   if (run.monitorsRun) box.append(el("h4", {}, "Checks that ran"), el("p", { class: "mt-none" }, run.monitorsRun.join(", ")));
 }
 
@@ -400,6 +407,7 @@ function drawReasons() {
   else if (!run.monitorsRun) box.append(el("p", { class: "mt-rsub" }, "Which monitors ran is not stated in a live stream; a check absent here may not have run."));
 }
 
+function toggleHighlightRedraw() { if (hlMonitor) { const m = hlMonitor; hlMonitor = null; toggleHighlight(m); } }
 function toggleHighlight(monitor) {
   hlMonitor = hlMonitor === monitor ? null : monitor;
   hlSet = hlMonitor ? new Set(epochsAboveOnset(run, hlMonitor)) : new Set();
@@ -490,6 +498,13 @@ function wire() {
     root.dataset.theme = dark ? "light" : "dark";
     try { localStorage.setItem("kshana-theme", root.dataset.theme); } catch (e) { /* storage blocked */ }
   });
+  let rt = 0, lastW = 0;
+  addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => {
+    if (!run) return;
+    const w = Math.round($("mt-time-svg").parentElement.clientWidth);
+    if (w === lastW) return; lastW = w;
+    layout(); drawTimeline(); drawStrips(); toggleHighlightRedraw(); setCursor(cur);
+  }, 120); });
   if (new URLSearchParams(location.search).get("demo") === "1") openDemo();
 }
 wire();
