@@ -1,4 +1,4 @@
-Updated: 2026-10-09T19:01:26Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T19:03:21Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 19:03:21 19:03Z Founder authorised pushes in W10-W16. Archived finished sessions: W5, W6, W7, Critic 1, Critic 2, Mac runner. W13 licence review approved with conditions (adsb.lol ODbL outputs, NOAA + Kystverket AIS, Natural Earth user-supplied, min-count cell suppression). W16 delivered; kshana-pro PR 27 opened.
 - 19:01:26 19:01Z W9 pushed feat/maritime-trust (1fa9e39..9595481, 7 commits): all six deliverables; schema v1 and auth hook documented. Coordinator: hook shape confirmed; demo route to be renamed Tallinn-Helsinki; UBX-SEC-SIG to be verified against the published interface description or dropped; Studio view requested. Formats relayed to W10/W12/W14. Fable critic started (session_01Ff5qFJ58iC71zcg5p913Xb).
 - 18:54:47 18:54Z 0.35 plan committed (docs/plans/RELEASE-0.35.md): workstreams A-H, all items in 0.35. Started W10-W16 (Sonnet). Pushes await founder authorisation in each session. #73: 19/20 green, coverage running.
 - 16:59:46 16:59Z W9 started (Sonnet, session_0152cP5CFP8yUG3zsVp5gcoy) on kshana feat/maritime-trust for 0.35: vessel platform model, moving-platform monitors, 0-100 trust score, live and gate modes, synthetic Baltic demo. Pushes await founder authorisation in W9.
