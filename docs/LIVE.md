@@ -1,4 +1,4 @@
-Updated: 2026-10-09T06:54:10Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T07:38:08Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 07:38:08 07:38Z W8 brought all four up to date with main bdbfed9: #71 a803777, #66 ddfc26d, #62 575a1e5, #70 c1a2e16; gates green locally; CI running (~3 h). Merge as each goes green; #66/#62/#70 all add [Unreleased] entries, so a later one may need a CHANGELOG-only re-merge.
 - 06:54:10 07:03Z Advisory text prepared (paste-ready, generic; detail stays in D13). Hand-over to the founder after the 0.33.1 Studio deploy is verified (~09:25Z check).
 - 06:53:41 07:00Z Advisory prep: live Studio = v0.33.0 tag tree (app.js identical, no svgsafe.mjs: 404); Studio fix ships with the 0.33.1 deploy. Advisory waits for W2 to confirm svgsafe live. Registry ranges: crates.io/PyPI/npm earliest published 0.7.0, affected < 0.33.1.
 - 06:52:27 06:52Z v0.33.1 auto-tagged on bdbfed9 (W2; tag obj 96720ee). Release run 37895486543 started (publish ~08:50Z, Pages ~09:15Z). MAIN UNFROZEN. W8 updating #71/#66/#62/#70 with main; W1b starting 0.34.0 bump. Advisory after 0.33.1 is on the registries.
