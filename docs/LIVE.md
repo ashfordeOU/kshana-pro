@@ -1,4 +1,4 @@
-Updated: 2026-10-09T11:05:29Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T11:07:11Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:07:11 11:07Z Security advisory GHSA-h25h-cg9f-v2cg PUBLISHED by the founder (Moderate, crates.io/PyPI/npm < 0.33.1, CWE-79/116; no CVE). Follow-ups: CHANGELOG [0.33.1] link via the 0.34.0 merge (W1b); D13 marked closed on a kshana-pro branch (W2).
 - 11:05:29 11:05Z Security advisory GHSA-h25h-cg9f-v2cg drafted by the founder (all required fields complete); publish pending founder click.
 - 10:23:48 10:24Z #70 re-merged with main 5585da1 by W8 -> a60ad94 (CHANGELOG only; quick gates green). CI ~3 h (~13:25Z). #66 held at ddfc26d until after v0.34.0.
 - 10:18:56 10:21Z #66 and #70 conflict with main 5585da1 (CHANGELOG only). Plan: W8 re-merges #70 now (correctness fix, in 0.34.0); #66 (palette refactor) parked until after v0.34.0 tags. Then #73 merges main after #70 lands.
