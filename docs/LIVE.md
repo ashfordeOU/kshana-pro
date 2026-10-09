@@ -1,4 +1,4 @@
-Updated: 2026-10-09T15:17:30Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T15:23:23Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:23:23 15:24Z #73 coverage CANCELLED at its 240-min cap (11:22-15:22; killed during verification_rows_name_a_test_that_exists); other 19 green. Not a flake: 0.34 suite ~3h51m+. W1b raising the coverage timeout 240 -> 330 (no test or floor change); CI restarts (~4 h). Slow-binary investigation as a follow-up.
 - 15:17:30 15:17Z #73: 19/20 green; coverage still running (3h55m; the prior 0.34.0 run took 3h51m). Merge on green.
 - 14:31:19 14:31Z #73 f3e5a6b: 19/20 green (check passed 14:22Z); coverage still running. Merge on green.
 - 11:22:43 11:23Z kshana-pro port/0.34.0 -> bee5045 (stamp sync, matches public web/ at f3e5a6b).
