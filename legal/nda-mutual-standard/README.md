@@ -59,4 +59,31 @@ Added or decided:
 - **The other side's third-party (ESA / European partner) obligations:** their attorney may
   add a clause back. That is acceptable.
 
+## Negotiation history
+
+### Round 1, 2026-10-09
+
+The counterparty's counsel returned a markup. `Ashforde-Mutual-NDA-Standard-reply-1.docx` is
+Ashforde's reply (`.md` is its text copy). It is redacted for git: the counsel's name and the
+counterparty's product name are replaced. The copy sent is otherwise identical.
+
+Their changes, all accepted:
+- §1: their methods and software code for their product added to what is confidential.
+- §5(a): their ownership list made to match Ashforde's.
+- §6: the bracketed defaults confirmed: 2-year term, 30 days' notice, 3 years' confidentiality.
+
+Their comments and Ashforde's answers (tracked changes plus threaded replies):
+- §11: they asked for Ontario law and courts. Accepted, with **non-exclusive** jurisdiction and
+  an express right for either Party to seek an injunction (§10) in any competent court.
+- §12(a): they asked for notice emails now, with a copy to counsel. Accepted: Ashforde
+  contact@ashforde.org; the counterparty's address and counsel's address left for them to fill;
+  added that the copy to counsel is a courtesy and is not itself notice.
+
+Also filled or fixed by Ashforde: registry code 17321180 and registered office (from
+`commercial/payment-details.toml`; check against the e-Business Register), the Effective Date
+defined as the date of the last signature, and a missing comma in §5(a).
+
+Still open: the counterparty's legal name, entity type, jurisdiction, address, notice and
+counsel emails, and signatory. Ashforde's counsel to confirm the Ontario choice before signing.
+
 Not legal advice. Have counsel review before signing.
