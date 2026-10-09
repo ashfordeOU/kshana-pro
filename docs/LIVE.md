@@ -1,4 +1,4 @@
-Updated: 2026-10-09T10:07:17Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T10:08:07Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 10:08:07 10:09Z Merged #71 (site inline-JSON guard, a803777, 20/20 green) -> main 020cd5f.
 - 10:07:17 10:08Z v0.33.1 FULLY RELEASED (Release run success 09:55Z; all channels; Pages 10:00Z). Verified with curl: studio/lib/svgsafe.mjs and own.mjs 200, app.js == v0.33.1 tag, llms.txt 0.33.1. Advisory handed to the founder to publish in the GitHub UI. Opened kshana-pro PR 25 (pin =0.33.1). Post 1 cleared to go.
 - 09:47:49 09:48Z kshana-pro port/0.34.0 pushed by W1b at c4a7408e (Studio package, recordings, recorder outputs for 0.34.0). Unblocks #73.
 - 09:46:41 09:46Z Founder authorised W1b (in W1b's session) to push kshana-pro port/0.34.0 (branch only).
