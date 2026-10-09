@@ -1,6 +1,6 @@
 # D13: scenario text reaches chart markup unescaped (DOM script execution in the Studio)
 
-Status: fix in progress (2026-10-08). PRIVATE: this file is the only place the exploit detail is
+Status: closed: fixed in engine 0.33.1 (2026-10-09); Studio fix live on kshana.dev 2026-10-09 10:00Z (svgsafe.mjs served, app.js equals the v0.33.1 tag); advisory GHSA-h25h-cg9f-v2cg published 2026-10-09. PRIVATE: this file is the only place the exploit detail is
 written down. The public PR and commits say only "escape scenario strings in chart SVG; sanitise
 adopted SVG in the Studio; harden URL-state and kind lookups".
 
@@ -119,8 +119,7 @@ state) were triaged: none is exploitable as reported; the cheap guards were adde
 
 **Credits.** Ashforde OÜ.
 
-**Open points before publishing.** (1) Confirm the deploy of the Studio change to kshana.dev, not
-just the engine release. (2) Ecosystem entries: crates.io `kshana` `>= 0.1.0, < 0.33.1` and PyPI
-`kshana` `>= 0.1.0, < 0.33.1` (the PyPI/npm packages carry the same engine; confirm the first version
-of each that shipped the chart text, which I did not check per package). (3) Decide the CVSS scope
-reading above. (4) Checked: the clock-id line is in v0.1.0; the sweep chart text (`sweep.rs`, commit `01796136`) first ships in v0.4.0. The lower bound 0.1.0 therefore covers both.
+**Resolved.** (1) Studio deploy confirmed on kshana.dev 2026-10-09 10:00Z. (2) Affected range on
+crates.io, PyPI and npm: `< 0.33.1`; the earliest published version on all three is 0.7.0. (3) CVSS
+scope "changed" was chosen (6.1, Moderate). (4) No CVE was requested at publication. Advisory:
+GHSA-h25h-cg9f-v2cg, published 2026-10-09.
