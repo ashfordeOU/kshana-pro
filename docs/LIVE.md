@@ -1,4 +1,4 @@
-Updated: 2026-10-09T19:44:53Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T20:29:09Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 20:29:09 20:29Z W18 wired maritime trust, interference map and training on Python, WASM, MCP (4 tools), plugin commands/skills, JetBrains (unbuilt), notebooks, AGENTS.md and SURFACES.md (767e4148). Security finding recorded privately as defect D14 (kshana-pro defects/d14-mcp-path, 7c82fe5); fix ships in 0.35; W18 auditing all MCP tools. W14 evidence packs done; critic started. W13 real-data check done; doc-coverage fix requested. W15 RPCF wording corrections.
 - 19:44:53 19:44Z Founder directive: every 0.35 capability wired on every surface and channel. Plan section I and surface matrix added as a release gate (6b77758). Started W18 (session_01XJaZqemVMyF7E7DDvpwktB, feat/surfaces-0.35: Python, WASM/npm, MCP, Claude Code plugin commands/skills, JetBrains, notebooks, docs/llms) and W19 (session_01KCeQHYmZYduadHAe5baimm, ci/release-0.35-channels: OpenCPN plugin release builds, Signal K npm behind founder switch, gate-service ghcr image, Grafana asset, version sync incl. stale plugin.json 0.30.0 and Studio wasm 0.31.0, dry run). Ownership rule sent to feature workers.
 - 19:40:56 19:40Z W17 pushed kshana-pro site/studio-0.35 (75a6acb): Receiver trust view and Interference map page in the Studio source, demo tools, header links, tests. W10 licence change pushed (cd0ddda), Signal K position context (47b7606). W13 sample outputs (69f698b); real adsb.lol day check approved (3.62 GB, streamed, deleted after).
 - 19:27:16 19:27Z Founder decision: OpenCPN plugin (integrations/opencpn/plugin) licensed GPL-3.0-or-later, excluded from the commercial licence; CONTRIBUTING carve-out. W10 to push. Counsel to confirm with question 4.9. W10 ran the plugin in real OpenCPN 5.8.4 (evidence committed). W13 complete; critic started (session_019MbWaG4JDmMY6Us1m74uR6).
