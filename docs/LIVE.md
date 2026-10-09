@@ -1,4 +1,4 @@
-Updated: 2026-10-09T19:09:18Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T19:12:43Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 19:12:43 19:12Z W9: UBX-SEC-SIG dropped to follow-on (f8d94d4); demo now Tallinn-Helsinki (71083e6). Studio source is in kshana-pro site-next, so W17 (session_01MBQWHeCCUTKEP9PLnMhqnA) started on kshana-pro site/studio-0.35 for all 0.35 Studio views; coordinator ports at release. W10: native OpenCPN plugin built, not yet run inside OpenCPN; licence recommendation (GPL-3.0-or-later, excluded from commercial) awaiting founder. W12 revert pushed (9d5685d).
 - 19:09:18 19:09Z W12: OSNMA ICD Annex E (non-transferable, non-licensable authorisation) may conflict with AGPL/commercial distribution. Counsel question 4.9 added (kshana-pro legal/osnma-annex-e, 10ffb36). W12 implementation held local; parsing commit briefly pushed and being withdrawn to docs-only fb43715. Critic started on W10 branch.
 - 19:03:21 19:03Z Founder authorised pushes in W10-W16. Archived finished sessions: W5, W6, W7, Critic 1, Critic 2, Mac runner. W13 licence review approved with conditions (adsb.lol ODbL outputs, NOAA + Kystverket AIS, Natural Earth user-supplied, min-count cell suppression). W16 delivered; kshana-pro PR 27 opened.
 - 19:01:26 19:01Z W9 pushed feat/maritime-trust (1fa9e39..9595481, 7 commits): all six deliverables; schema v1 and auth hook documented. Coordinator: hook shape confirmed; demo route to be renamed Tallinn-Helsinki; UBX-SEC-SIG to be verified against the published interface description or dropped; Studio view requested. Formats relayed to W10/W12/W14. Fable critic started (session_01Ff5qFJ58iC71zcg5p913Xb).
