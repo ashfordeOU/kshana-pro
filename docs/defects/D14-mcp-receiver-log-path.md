@@ -46,3 +46,22 @@ an unlisted path-like field.
 Affected versions: to be re-dated per field (the general tools predate receiver-trust, so the range
 likely starts before 0.31.0). Impact: being re-assessed per field (whether file values can flow into
 tool output) before the severity is set.
+
+## Impact re-assessed (W18 source reading, 2026-10-09)
+Every field: the error text reveals whether any path exists and is readable.
+File values can reach tool output:
+- spectrum `meta_path` / `data_path`: the data file is read as I/Q samples and its averaged power
+  spectrum is returned; a short file leaks most of its byte values; meta fields are echoed.
+- telecom-timing `csv_path`: two-column numeric rows become the analysed series.
+- realtime-frame-eop EOP files, lunar-service `ephemeris_path` (also echoes `# key: value` header
+  comments as free text), lunar-llr normal points: numeric values flow into results.
+- lunar-llr `reflectors_path` / `stations_path`: parse errors quote the offending line verbatim, so a
+  single line of ANY file can be returned; station names and ids appear in output.
+- kernel path fields: an arbitrary file leaks its first 8 bytes via the error text.
+- receiver-trust `[log]` paths: a log-format file's per-epoch values flow into results.
+Revised severity (provisional): MEDIUM. A local MCP server, but the trigger is agent input, so
+prompt injection from any content the agent reads can request a file and the agent may relay the
+output. CWE-22, CWE-73, CWE-209 (error text quoting file lines).
+Recommendation to the founder: a 0.34.1 patch release carrying only the guard (refuse file-source
+fields by name in every scenario tool, input caps, the source-scanning test), cut from the v0.34.0
+tag, then a GitHub security advisory for kshana-mcp once 0.34.1 is published.
