@@ -95,7 +95,11 @@ export function makeView(bbox, width, height, pad = 12) {
   const wDeg = Math.max(1e-9, (bbox.east - bbox.west) * c), hDeg = Math.max(1e-9, bbox.north - bbox.south);
   const k = Math.min((width - 2 * pad) / wDeg, (height - 2 * pad) / hDeg);
   const x0 = (width - wDeg * k) / 2, y0 = (height - hDeg * k) / 2;
-  return { k, project: ([lon, lat]) => [x0 + (lon - bbox.west) * c * k, y0 + (bbox.north - lat) * k] };
+  return {
+    k,
+    project: ([lon, lat]) => [x0 + (lon - bbox.west) * c * k, y0 + (bbox.north - lat) * k],
+    invert: ([x, y]) => [bbox.west + (x - x0) / (c * k), bbox.north - (y - y0) / k],
+  };
 }
 
 // SVG path data of a geometry through a projection. Rings close with Z; points are not paths (see pointsOf).

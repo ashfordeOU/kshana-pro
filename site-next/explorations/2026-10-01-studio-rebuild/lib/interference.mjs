@@ -1,0 +1,155 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// The interference map page's data model: reads the per-day GeoJSON that `kshana interference-map`
+// writes (schema "kshana-interference-map/v1") and prepares what the page shows. Built on the generic
+// layer loader (geojson-layer.mjs). Pure; tested in interference.test.mjs.
+//
+// What the files are: a description of what published position reports looked like on a past day.
+// Not a measurement of any receiver, not a forecast, not proof of interference. A cell that is not
+// drawn was not observed; that is not evidence of a clear cell.
+// Each file is its own layer. ADS-B and AIS files are never merged: their licences differ (an ADS-B
+// file made from adsb.lol data is ODbL 1.0; AIS files are public domain or NLOD 2.0), and so does
+// what a cell means.
+import { parseGeoJson } from "./geojson-layer.mjs";
+
+export const SCHEMA = "kshana-interference-map/v1";
+
+// What a cell's status means, per source. `tone` picks the colour: bad, ok, none (no call), hold.
+export const STATUSES = Object.freeze({
+  adsb: [
+    { id: "degraded", label: "Degraded", tone: "bad", text: "A high share of the sampled aircraft reported low navigation accuracy here that day, well above the day's median cell. It does not say why." },
+    { id: "not_degraded", label: "Not degraded", tone: "ok", text: "Sampled, and the share of aircraft reporting low accuracy did not stand out. Not proof that nothing happened." },
+    { id: "insufficient_sample", label: "Too few aircraft", tone: "none", text: "Published (at least 5 distinct aircraft observed) but fewer than 10 aircraft could be sampled, so no call is made." },
+    { id: "withheld_day_confounded", label: "Day confounded", tone: "hold", text: "The whole day's median cell share was high, which points to a wide-area cause. No cell is declared degraded on such a day; this cell would otherwise have stood out." },
+  ],
+  ais: [
+    { id: "anomalous", label: "Anomalous", tone: "bad", text: "At least one detector flagged enough distinct vessels here that day (at least 3 vessels and 20% of those observed). Possible causes include interference but also many ordinary ones." },
+    { id: "not_anomalous", label: "Not anomalous", tone: "ok", text: "Observed, and no detector qualified. Not proof that nothing happened." },
+  ],
+});
+export const KIND_LABEL = { adsb: "ADS-B", ais: "AIS" };
+
+const isObj = (x) => x && typeof x === "object" && !Array.isArray(x);
+const str = (x) => (typeof x === "string" ? x : "");
+
+// Read one map file. Returns { map } or { error }.
+export function parseMapFile(text, name = "file") {
+  const g = parseGeoJson(text, name);
+  if (g.error) return { error: g.error };
+  const m = g.layer.meta.kshana_interference_map;
+  if (!isObj(m)) return { error: `${name}: this is GeoJSON but not a Kshana interference map (no kshana_interference_map member).` };
+  if (typeof m.schema !== "string" || !m.schema.startsWith("kshana-interference-map/")) return { error: `${name}: unknown schema ${JSON.stringify(m.schema)}; this page reads ${SCHEMA}.` };
+  if (m.schema !== SCHEMA) return { error: `${name}: schema ${m.schema} is newer or different from ${SCHEMA}, which this page reads. Update the Studio rather than guess at its fields.` };
+  if (m.source_kind !== "adsb" && m.source_kind !== "ais") return { error: `${name}: source_kind ${JSON.stringify(m.source_kind)} is neither adsb nor ais.` };
+  const kind = m.source_kind;
+  const known = new Set(STATUSES[kind].map((s) => s.id));
+  const cells = [];
+  const unknownStatus = new Set();
+  for (const f of g.layer.features) {
+    const p = f.properties;
+    if (f.geometry.type !== "Polygon" || typeof p.status !== "string") continue;
+    if (!known.has(p.status)) unknownStatus.add(p.status);
+    cells.push({ i: p.cell_i, j: p.cell_j, status: p.status, degraded: p.degraded === true, props: p, geometry: f.geometry });
+  }
+  const data = isObj(m.data) ? m.data : {};
+  const warnings = [];
+  if (g.layer.skipped) warnings.push(`${g.layer.skipped} feature(s) were not valid GeoJSON and were skipped.`);
+  if (unknownStatus.size) warnings.push(`Status value(s) this page does not know: ${[...unknownStatus].join(", ")}. They are drawn as "no call".`);
+  const missing = [];
+  for (const k of ["licence", "attribution"]) if (!str(data[k]).trim()) missing.push(k);
+  if (missing.length) warnings.push(`This file carries no ${missing.join(" or ")} text. It is shown, but a map without its licence and attribution should not be republished.`);
+  const day = isObj(m.day) ? m.day : {};
+  if (kind === "adsb" && day.day_confounded === true) warnings.push("This day is confounded: the median cell share was itself high, so no cell is declared degraded.");
+  if (kind === "ais" && typeof day.on_land_detector === "string" && day.on_land_detector.startsWith("disabled")) warnings.push("The on-land detector was off for this file (no land polygons were supplied).");
+  return {
+    map: {
+      name, kind, date: str(m.date), schema: m.schema, version: str(m.kshana_version), grid: isObj(m.grid) ? m.grid : {},
+      method: isObj(m.method) ? m.method : {}, day, data, notice: str(m.notice), cells, bbox: g.layer.bbox, warnings,
+      licence: licenceBlock(data, m.notice),
+    },
+  };
+}
+
+// The licence and attribution text exactly as the file states it, never reworded.
+export function licenceBlock(data, notice) {
+  return {
+    dataset: str(data.dataset), name: str(data.name), licence: str(data.licence), licenceUrl: str(data.licence_url),
+    attribution: str(data.attribution), coverage: Array.isArray(data.coverage_notes) ? data.coverage_notes.filter((x) => typeof x === "string") : [],
+    notice: str(notice),
+  };
+}
+
+export const statusInfo = (kind, id) => STATUSES[kind].find((s) => s.id === id) || { id, label: id, tone: "none", text: "A status this page does not describe." };
+
+export function statusCounts(map) {
+  const c = {};
+  for (const s of STATUSES[map.kind]) c[s.id] = 0;
+  for (const cell of map.cells) c[cell.status] = (c[cell.status] || 0) + 1;
+  return c;
+}
+
+const ratio = (x) => (typeof x === "number" ? `${Math.round(x * 1000) / 10}%` : "");
+
+// Rows [label, value] describing one cell, with what each number means. A null AIS count is a count of
+// one or two, withheld so it cannot single out a vessel.
+export function cellRows(map, cell) {
+  const p = cell.props, rows = [];
+  rows.push(["Status", statusInfo(map.kind, cell.status).label]);
+  if (map.kind === "adsb") {
+    rows.push(["Aircraft observed", p.aircraft_observed], ["Aircraft sampled", p.aircraft_sampled], ["Aircraft affected", p.aircraft_affected], ["Affected share", ratio(p.affected_share)]);
+  } else {
+    rows.push(["Vessels observed", p.vessels_observed]);
+    const f = isObj(p.vessels_flagged) ? p.vessels_flagged : {};
+    for (const [d, n] of Object.entries(f)) rows.push([`Flagged: ${d.replace(/_/g, " ")}`, n === null ? "1 or 2 (withheld)" : n]);
+    rows.push(["Detectors that qualified", Array.isArray(p.detectors) && p.detectors.length ? p.detectors.join(", ").replace(/_/g, " ") : "none"]);
+  }
+  const b = cellBounds(cell);
+  rows.push(["Cell", `i ${p.cell_i}, j ${p.cell_j}`], ["Area", `${fmtLat(b.south)} to ${fmtLat(b.north)}, ${fmtLon(b.west)} to ${fmtLon(b.east)}`]);
+  return rows;
+}
+
+export function cellBounds(cell) {
+  const r = cell.geometry.coordinates[0];
+  const xs = r.map((p) => p[0]), ys = r.map((p) => p[1]);
+  return { west: Math.min(...xs), east: Math.max(...xs), south: Math.min(...ys), north: Math.max(...ys) };
+}
+export const fmtLat = (d) => `${Math.abs(d).toFixed(2)}°${d < 0 ? "S" : "N"}`;
+export const fmtLon = (d) => `${Math.abs(d).toFixed(2)}°${d < 0 ? "W" : "E"}`;
+
+// A flat description of a parameter value for the method table.
+export function showValue(v) {
+  if (v === null) return "none";
+  if (typeof v === "object") return JSON.stringify(v);
+  return String(v);
+}
+
+// Files grouped by source and sorted by date: a list of groups, never one merged layer.
+export function groupBySource(maps) {
+  const out = [];
+  for (const kind of ["adsb", "ais"]) {
+    const ms = maps.filter((m) => m.kind === kind).sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name));
+    if (ms.length) out.push({ kind, maps: ms });
+  }
+  return out;
+}
+
+// The one-line description a screen reader hears for a map.
+export function describeMap(map) {
+  const c = statusCounts(map);
+  const parts = STATUSES[map.kind].map((s) => `${c[s.id]} ${s.label.toLowerCase()}`);
+  return `${KIND_LABEL[map.kind]} map for ${map.date}: ${map.cells.length} cells drawn, ${parts.join(", ")}. Cells not drawn were not observed.`;
+}
+
+// Index of the cell containing a [lon, lat], or -1.
+export function cellAt(map, lon, lat) {
+  const cd = Number(map.grid.cell_deg);
+  if (!(cd > 0)) return map.cells.findIndex((c) => { const b = cellBounds(c); return lon >= b.west && lon < b.east && lat >= b.south && lat < b.north; });
+  const i = Math.floor((lat + 90) / cd), j = Math.floor((lon + 180) / cd);
+  return map.cells.findIndex((c) => c.i === i && c.j === j);
+}
+
+// Cells ordered for a table: calls that matter first, then by share, then position.
+export function cellsForTable(map) {
+  const rank = Object.fromEntries(STATUSES[map.kind].map((s, k) => [s.id, k]));
+  const share = (c) => (typeof c.props.affected_share === "number" ? c.props.affected_share : Array.isArray(c.props.detectors) ? c.props.detectors.length : 0);
+  return map.cells.map((c, idx) => ({ c, idx })).sort((a, b) => (rank[a.c.status] ?? 9) - (rank[b.c.status] ?? 9) || share(b.c) - share(a.c) || a.c.i - b.c.i || a.c.j - b.c.j);
+}

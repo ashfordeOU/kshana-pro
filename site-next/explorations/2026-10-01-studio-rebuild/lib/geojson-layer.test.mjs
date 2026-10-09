@@ -60,6 +60,8 @@ assert.equal(parseGeoJson(JSON.stringify(cell("a", [0, 0, 1, 1])), "f").layer.fe
   const v = makeView({ west: 24, south: 59, east: 25, north: 60 }, 400, 400, 0);
   const [x, y] = v.project([24, 60]);
   assert.ok(Math.abs(x - (400 - 400 * Math.cos(59.5 * Math.PI / 180)) / 2) < 0.01 && Math.abs(y) < 0.01, "north-west corner, equal scale on both axes");
+  const back = v.invert(v.project([24.3, 59.2]));
+  assert.ok(Math.abs(back[0] - 24.3) < 1e-9 && Math.abs(back[1] - 59.2) < 1e-9, "invert undoes project");
   assert.match(pathOf(g, v.project), /^M[-\d. ]+L.*Z/);
   assert.deepEqual(pointsOf({ type: "GeometryCollection", geometries: [{ type: "Point", coordinates: [1, 2] }, { type: "MultiPoint", coordinates: [[3, 4], [5, 6]] }] }), [[1, 2], [3, 4], [5, 6]]);
   assert.equal(makeView(null, 10, 10), null);
