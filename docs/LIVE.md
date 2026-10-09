@@ -1,4 +1,4 @@
-Updated: 2026-10-09T19:16:53Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-09T19:27:16Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 19:27:16 19:27Z Founder decision: OpenCPN plugin (integrations/opencpn/plugin) licensed GPL-3.0-or-later, excluded from the commercial licence; CONTRIBUTING carve-out. W10 to push. Counsel to confirm with question 4.9. W10 ran the plugin in real OpenCPN 5.8.4 (evidence committed). W13 complete; critic started (session_019MbWaG4JDmMY6Us1m74uR6).
 - 19:16:53 19:16Z #73 0.34.0 merged as 68178b6 (all 20 checks green on a20f9a6; coverage 3h50m). Main frozen until v0.34.0 auto-tags. W2 briefed to watch main CI, tag, Release and Pages. 19:45Z check-in replaced by 23:30Z check-in.
 - 19:12:43 19:12Z W9: UBX-SEC-SIG dropped to follow-on (f8d94d4); demo now Tallinn-Helsinki (71083e6). Studio source is in kshana-pro site-next, so W17 (session_01MBQWHeCCUTKEP9PLnMhqnA) started on kshana-pro site/studio-0.35 for all 0.35 Studio views; coordinator ports at release. W10: native OpenCPN plugin built, not yet run inside OpenCPN; licence recommendation (GPL-3.0-or-later, excluded from commercial) awaiting founder. W12 revert pushed (9d5685d).
 - 19:09:18 19:09Z W12: OSNMA ICD Annex E (non-transferable, non-licensable authorisation) may conflict with AGPL/commercial distribution. Counsel question 4.9 added (kshana-pro legal/osnma-annex-e, 10ffb36). W12 implementation held local; parsing commit briefly pushed and being withdrawn to docs-only fb43715. Critic started on W10 branch.
