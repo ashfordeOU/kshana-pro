@@ -195,3 +195,4 @@ metadata (server.json, glama.json) updated with the new tools.
 - ci.yml steps: node web/studio/lib/trust.test.mjs, interference.test.mjs, geojson-layer.test.mjs, training.test.mjs
 - site.test third-party check: the interference page has real anchors to licence_url hosts (links, not fetches); allow anchors, keep fetches blocked
 - regenerate demos from the release engine with tools_trust_demo.mjs, tools_interference_demo.mjs, tools_training_demo.mjs before porting
+- docs pages and llms.txt: W17 added the 0.35 docs to site-next/tools/build_docs.mjs GROUPS (32113b7). At port time the docs_repo checkout must be at the merged 0.35 commit (the builder reads HEAD), then a full rebuild per PORT-RUNBOOK step 0 with check.py (page counts, SEO description uniqueness, forbidden-names rule) and the public web docs-page assertions updated if they pin a count.
