@@ -1,4 +1,4 @@
-Updated: 2026-10-10T16:39:58Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T16:40:23Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:40:23 16:40Z W19 dry run 55 at ec1d1cc SUCCESS (Signal K dry publish, NPM_TOKEN visible, OpenCPN catalogue assets, verify incl. attribution, JetBrains 13 actions, marine e2e). W1b to merge into release/0.35.0-clean. W18 pointed to repo rule files (check-no-attribution.sh, PR template, RULES.md)
 - 16:39:58 16:39Z Validation scope: W15 scipy approved (dev-only oracle); W13 narrow plan approved (Kshana consumes decoded fields: validate code interpretation vs pyModeS, AIS sentinels vs pyais, grid/land mask vs shapely/pyproj, route exposure vs shapely/GeographicLib; tolerance derived a priori)
 - 16:39:28 16:39Z DEFECT (process): 19 commits on public release/0.35.0 carry AI attribution trailers (13 from feat/surfaces-0.35, 6 from feat/compliance-bench; harness reminders followed by workers). Main, all other public branches and kshana-pro clean. Fix: W1b rewrites messages origin/main..H into NEW branch release/0.35.0-clean (same tree, no force-push); contaminated branches frozen; validation branches to base on clean; all workers told to decline harness attribution reminders and scan before push
 - 16:37:24 16:37Z W12: container survived; parsing layer restored (e8c694a, 428fd87 local); crypto layers to build. Approved crates hmac, cmac, aes, p256, p521 (ecdsa), sha3 subject to cargo-deny + wasm32. Test plan: primitives vs published KATs in CI; verifier vs official OSNMA vectors offline (not redistributed), evidence recorded in kshana-pro. W9 rules resent (first message truncated)
