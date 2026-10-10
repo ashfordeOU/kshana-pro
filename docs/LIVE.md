@@ -1,4 +1,4 @@
-Updated: 2026-10-10T17:37:08Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T17:50:33Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:50:33 17:50Z v0.34.1 TAGGED after main CI success (run 38060973199, 14:46-17:45Z). Release run 38073186962 in progress. Main unfrozen. W3 to pin 0.34.1 once on crates.io; W2 to verify channels; W1b to merge main into the clean 0.35 branch
 - 17:37:08 17:37Z W12 OSNMA local ae97c34: CLI kshana osnma verify (text/JSON, exit 3 on failure), advisory, W9 status hook, docs NOTICE, ~185k tags authenticated on 17 official scenarios (HMAC path), 30 unit + 7 synthetic tests. Approvals resent (crates, MACLT, push, UBX SFRBX ingest) due to message delivery lag
 - 17:26:33 17:26Z W1b local head 8c5f6ef9 (iq_campaign DIGEST re-pin for 0.35.0 stamp, provenance diagram 258/130); full test red only on web doc-sync that the final port fixes. Still blocked on rewrite permission (founder decision pending); told to push as backup (fast-forward)
 - 17:20:26 17:20Z VALIDATION W14: evidence packs VALIDATED (RFC 8032 s7.1 vectors 1,2,3,1024 byte-exact + FIPS 180-4 SHA-256; clean-room docs-only verifier agrees 71/71 after one disclosed spec clarification); telemetry Prometheus + OTLP JSON VALIDATED (prometheus_client, opentelemetry-proto strict parse, exact); CEF/LEEF MODELLED (no credible independent validator; pycef declined). Three rows; banned-stem wording fixed
