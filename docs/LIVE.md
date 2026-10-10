@@ -1,4 +1,4 @@
-Updated: 2026-10-10T20:49:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T21:11:12Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:11:12 21:11Z | Completeness audit part 1: 11 blockers (B1-B6 stale ledger/figures/README/CHANGELOG/site/Studio -> W1b; B7 README MCP 38-tool table + B9 first-publish (ref-build ghcr private, NPM_TOKEN new pkg) -> W19; B8 OSNMA merge (348 behind rc, conflicts, deny/SBOM, --help) -> W12; B10 full advisory text in Python/WASM/JetBrains -> W18; B11 author-name fields -> founder decision)
 - 20:49:25 20:49Z | W17 Studio plan approved (Trust & evidence hub, run-it-here panels, AI assistant panel from channels.json); W12 adds examples/osnma synthetic samples; W18 adds wasm telemetry-format export + osnma_verify export after critic
 - 20:48:16 20:48Z | W18 flagged feat/surfaces-0.35 still carries 13 trailer commits; branch will NOT be merged; new trailer-free commits will be cherry-picked onto rc by coordinator
 - 20:47:56 20:47Z | W18 parity audit: SURFACES.md names all exist (47 py, 30 wasm, 38 MCP, 10 cmds, 8 skills, 15 JetBrains); gaps = JetBrains CLI-only cells without reasons; approved actions + N/A reasons + --help + notebooks on feat/surfaces-0.35 (its authorised branch)
