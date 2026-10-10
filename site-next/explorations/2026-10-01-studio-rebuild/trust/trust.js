@@ -7,6 +7,7 @@ import {
 } from "../lib/trust.mjs";
 
 import { getEngine } from "../lib/engine-page.mjs";
+import { hasDeclaration, sanitizeSvg } from "../lib/svgsafe.mjs";
 
 const $ = (id) => document.getElementById(id);
 const NS = "http://www.w3.org/2000/svg";
@@ -110,6 +111,62 @@ async function scoreFile(f) {
   if (!f) return;
   if (f.size > 2 * 1024 * 1024) { scoreStatus(`${f.name}: larger than 2 MiB. The in-browser scorer takes an excerpt that holds the five-minute calibration window.`, true); return; }
   await scoreHere(await f.text(), f.name, null);
+}
+
+// ---------- generic receiver-trust run (engine receiver_trust, log inline) ----------
+function genStatus(msg, err) { const s = $("mt-gen-status"); s.textContent = msg; s.classList.toggle("err", !!err); }
+function saveAs(name, text, mime) {
+  const a = el("a", { href: URL.createObjectURL(new Blob([text], { type: mime || "text/plain" })), download: name });
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function inlineLog(toml, nmea) {
+  if (nmea.includes("'''")) throw new Error("the log contains three single quotes in a row, which cannot be embedded in the settings");
+  // the settings name the log by path; the browser has no file system, so the log goes in as text
+  if (!/^\s*path\s*=\s*"[^"\n]*"/m.test(toml)) throw new Error("the settings have no [log] path line to replace with the log");
+  return toml.replace(/^(\s*)path\s*=\s*"[^"\n]*"/m, (_, sp) => `${sp}text = '''\n${nmea}'''`);
+}
+async function genRun(nmea, name, label) {
+  const out = $("mt-gen-out"); out.replaceChildren();
+  try {
+    if (nmea.length > 2 * 1024 * 1024) { genStatus(`${name}: larger than 2 MiB. Open an excerpt (the command-line tool takes a whole log).`, true); return; }
+    genStatus("Starting the engine and assessing…");
+    const eng = await getEngine();
+    if (!eng.available) { genStatus(`The engine could not start here (${eng.error}).`, true); return; }
+    if (!eng.has("receiver_trust")) { genStatus(`This engine build (version ${eng.version}) has no receiver_trust.`, true); return; }
+    const r = JSON.parse(await eng.call("receiver_trust", inlineLog($("mt-gen-toml").value, nmea)));
+    const doc = JSON.parse(r.json);
+    genStatus(label || `Assessed ${name} with engine ${eng.version}, in this browser.`);
+    const st = doc.states || {};
+    out.append(el("p", { class: "mt-gate-now" }, r.summary));
+    out.append(el("p", { class: "mt-none" }, `Epochs: ${st.nominal_epochs ?? 0} nominal, ${st.degraded_epochs ?? 0} degraded, ${st.untrusted_epochs ?? 0} untrusted after the ${doc.baseline && doc.baseline.calibration_epochs != null ? doc.baseline.calibration_epochs : "?"}-epoch calibration window.`));
+    if (Array.isArray(doc.events) && doc.events.length) {
+      const t = el("table", { class: "tbl" }, el("thead", {}, el("tr", {}, ["Stated event", "Onset, s", "Outcome", "First alarm, s", "Latency, s"].map((x) => el("th", { scope: "col" }, x)))));
+      t.append(el("tbody", {}, doc.events.map((e) => el("tr", {}, el("td", {}, String(e.label ?? "")), el("td", {}, String(e.onset_s ?? "")), el("td", {}, String(e.outcome ?? "")), el("td", {}, e.first_alarm_s == null ? "none" : String(e.first_alarm_s)), el("td", {}, e.latency_s == null ? "none" : String(e.latency_s))))));
+      out.append(el("div", { class: "table-scroll" }, t));
+    }
+    if (typeof r.svg === "string" && !hasDeclaration(r.svg)) {
+      const root = new DOMParser().parseFromString(r.svg, "image/svg+xml").documentElement;
+      if (root && root.nodeName === "svg") { sanitizeSvg(root); const box = el("div", { class: "mt-svgbox", role: "img", "aria-label": "The engine's chart of the run: carrier-to-noise density, state and alarms over time" }); box.append(document.importNode(root, true)); out.append(box); }
+    }
+    const b1 = el("button", { type: "button", class: "mt-chip" }, "Download the result (JSON)"); b1.onclick = () => saveAs("receiver-trust.result.json", r.json, "application/json");
+    const b2 = el("button", { type: "button", class: "mt-chip" }, "Download the per-epoch table (CSV)"); b2.onclick = () => saveAs("receiver-trust.csv", r.csv, "text/csv");
+    out.append(el("div", { class: "mt-tools" }, b1, b2));
+  } catch (e) { genStatus(`${name}: could not be assessed (${e && e.message ? e.message : e}).`, true); }
+}
+async function genDemo() {
+  genStatus("Opening the illustrative example…");
+  try {
+    const [a, b] = await Promise.all([fetch("trust/generic/session.toml"), fetch("trust/generic/illustrative-jamming.nmea")]);
+    if (!a.ok || !b.ok) throw new Error("the example files did not load");
+    $("mt-gen-toml").value = await a.text();
+    await genRun(await b.text(), "illustrative-jamming.nmea", "Illustrative example: a made-up NMEA log with a made-up jammer from 120 s to 240 s, assessed here by the engine. Text, not a measurement.");
+  } catch (e) { genStatus(`The example could not be opened: ${e.message}.`, true); }
+}
+async function genFile(f) {
+  if (!f) return;
+  if (f.size > 2 * 1024 * 1024) { genStatus(`${f.name}: larger than 2 MiB. Open an excerpt.`, true); return; }
+  if (!$("mt-gen-toml").value.trim()) { try { const r = await fetch("trust/generic/session.toml"); if (r.ok) $("mt-gen-toml").value = await r.text(); } catch (e) { /* stated below */ } }
+  await genRun(await f.text(), f.name, null);
 }
 
 async function openDemo() {
@@ -534,6 +591,9 @@ function applyFilterVisual() {
 function wire() {
   fetch("trust/demo/session.toml").then((r) => (r.ok ? r.text() : "")).then((t) => { if (!$("mt-session").value) $("mt-session").value = t; }).catch(() => {});
   $("mt-score-demo").addEventListener("click", scoreDemo);
+  $("mt-gen-demo").addEventListener("click", genDemo);
+  $("mt-gen-file").addEventListener("change", (e) => { genFile(e.target.files[0]); e.target.value = ""; });
+  fetch("trust/generic/session.toml").then((r) => (r.ok ? r.text() : "")).then((t) => { if (!$("mt-gen-toml").value) $("mt-gen-toml").value = t; }).catch(() => {});
   $("mt-nmea").addEventListener("change", (e) => { scoreFile(e.target.files[0]); e.target.value = ""; });
   $("mt-files").addEventListener("change", (e) => { openFiles([...e.target.files]); e.target.value = ""; });
   $("mt-demo").addEventListener("click", openDemo);

@@ -38,4 +38,7 @@ writeFileSync(join(here, "trust", "demo", "tallinn-helsinki.result.json"), JSON.
 copyFileSync(join(src, "tallinn-helsinki.truth.csv"), join(here, "trust", "demo", "tallinn-helsinki.truth.csv"));
 // the raw NMEA log and the session settings, for the "Score a log here" panel (engine receiver_trust_replay)
 for (const f of ["session.toml", "tallinn-helsinki.nmea"]) copyFileSync(join(src, f), join(here, "trust", "demo", f));
-console.log(`${version}\n${summary}\nwrote trust/demo/ (${out.epochs.length} epochs)`);
+// the generic (non-vessel) receiver-trust example, for the "Generic receiver-trust run" panel (engine receiver_trust, log inline)
+mkdirSync(join(here, "trust", "generic"), { recursive: true });
+for (const f of ["session.toml", "illustrative-jamming.nmea"]) copyFileSync(join(repo, "examples", "receiver-trust", f), join(here, "trust", "generic", f));
+console.log(`${version\n${summary}\nwrote trust/demo/ (${out.epochs.length} epochs)`);
