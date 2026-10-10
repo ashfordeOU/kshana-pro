@@ -328,26 +328,39 @@ async function wireAi() {
   card.append(el("div", { class: "card-head" }, el("h2", { class: "h3" }, "Use Kshana from your AI assistant"), el("p", { class: "card-note" }, "The Kshana MCP server lets an AI assistant run the engine instead of guessing numbers. It runs on your computer; nothing is sent to Kshana. Pick the way that suits your tool.")));
   try {
     const d = await (await fetch("channels.json")).json();
-    const all = d.channels || [];
-    const ai = all.filter((c) => AI_IDS.test(c.id) && c.id !== "browser"), rest = all.filter((c) => !ai.includes(c) && c.id !== "browser");
+    const all = (d.channels || []).filter((c) => c && typeof c.id === "string" && c.id !== "browser");
+    const grouped = all.some((c) => c.group);
+    const GROUPS = [["mcp", "Install the MCP server for your assistant"], ["integrations", "Marine, plugin and dashboard integrations"], ["engine", "Install the engine and its libraries"]];
+    const lists = grouped
+      ? [...GROUPS.map(([g, t]) => [t, all.filter((c) => c.group === g)]), ["More ways to install", all.filter((c) => c.group && !GROUPS.some(([g]) => g === c.group))]]
+      : [["Install the MCP server", all.filter((c) => AI_IDS.test(c.id))], ["Other ways to install Kshana", all.filter((c) => !AI_IDS.test(c.id))]];
+    const safe = (u) => { try { const x = new URL(u, document.baseURI); return x.protocol === "https:" || x.protocol === "http:" || x.protocol === location.protocol ? x.href : null; } catch { return null; } };
+    const copyRow = (label, text) => {
+      const row = el("div", { class: "tl-cmd-row" }, el("pre", { class: "tl-cmd", "aria-label": label }, text));
+      const copy = el("button", { type: "button", class: "tl-copy", "aria-label": `Copy ${label}: ${text}` }, "Copy");
+      copy.onclick = async () => { try { await navigator.clipboard.writeText(text); copy.textContent = "Copied"; setTimeout(() => (copy.textContent = "Copy"), 1500); } catch { copy.textContent = "Select and copy"; } };
+      row.append(copy); return row;
+    };
     const draw = (list, title) => {
       if (!list.length) return;
       card.append(el("h4", {}, title));
       const box = el("div", { class: "tl-cards" });
       for (const c of list) {
-        const a = el("article", { class: "card tl-cli" }, el("h3", {}, c.name), el("p", {}, c.audience || ""));
-        if (c.command) { const row = el("div", { class: "tl-cmd-row" }, el("pre", { class: "tl-cmd" }, c.command)); const copy = el("button", { type: "button", class: "tl-copy", "aria-label": `Copy: ${c.command}` }, "Copy"); copy.onclick = async () => { try { await navigator.clipboard.writeText(c.command); copy.textContent = "Copied"; setTimeout(() => (copy.textContent = "Copy"), 1500); } catch { copy.textContent = "Select and copy"; } }; row.append(copy); a.append(row); }
+        const a = el("article", { class: "card tl-cli" }, el("h3", {}, String(c.name || c.id)), el("p", {}, c.audience || ""));
+        if (c.requires) a.append(el("p", { class: "tl-why" }, "Needs: " + c.requires));
+        if (c.command) a.append(copyRow("command", c.command));
+        if (c.pinned) a.append(el("p", { class: "tl-why" }, "Pinned to this release:"), copyRow("pinned command", c.pinned));
         if (c.note) a.append(el("p", { class: "tl-why" }, c.note));
         const links = [];
-        if (c.registry) links.push(el("a", { href: c.registry, rel: "noopener noreferrer" }, c.registry_label || "Open"));
-        if (c.docs) links.push(el("a", { href: "../" + c.docs }, c.docs_label || "Documentation"));
-        if (links.length) a.append(el("p", {}, links.flatMap((l, i) => (i ? [" · ", l] : [l]))));
+        for (const l of Array.isArray(c.links) ? c.links : []) { const h = l && safe(l.url); if (h) links.push(el("a", { class: "tl-linkbtn", href: h, rel: "noopener noreferrer" }, String(l.label || "Open"))); }
+        const reg = c.registry && safe(c.registry); if (reg) links.push(el("a", { href: reg, rel: "noopener noreferrer" }, c.registry_label || "Open"));
+        const doc = c.docs && (/^https?:/i.test(c.docs) ? safe(c.docs) : c.docs); if (doc) links.push(el("a", { href: doc, rel: "noopener noreferrer" }, c.docs_label || "Documentation"));
+        if (links.length) a.append(el("p", { class: "tl-links" }, links));
         box.append(a);
       }
       card.append(box);
     };
-    draw(ai, "Install the MCP server");
-    draw(rest, "Other ways to install Kshana");
+    for (const [title, list] of lists) draw(list, title);
     if (!all.length) card.append(el("p", { class: "tl-no" }, "No install options are listed in this build."));
   } catch (e) { card.append(el("p", { class: "tl-no" }, `The install options did not load (${e.message}). See the documentation for the MCP server.`)); }
   card.append(el("h4", {}, "What to ask, and which tool answers"), el("div", { class: "table-scroll" }, (() => {
@@ -362,10 +375,11 @@ function wireTelemetry() {
   const card = $("cli-telemetry");
   if (!card) return;
   const panel = el("div", { class: "tl-tele" }, el("h4", {}, "Run it here"),
-    el("p", { class: "tl-why" }, "Turn a result file (session.result.json) or the live JSON lines into one of the formats, in this browser. Needs an engine build that has the telemetry export; the commands above work everywhere."));
+    el("p", { class: "tl-why" }, "Turn a result file (session.result.json) or the live JSON lines into one of the formats, in this browser. Needs an engine build that has the telemetry export (0.35 and later with the export); the commands above work everywhere."));
   const file = el("input", { type: "file", id: "te-file", "aria-label": "Result or JSON-lines file" });
   const fmt = el("select", { id: "te-fmt", "aria-label": "Format" }, [["prometheus", "Prometheus metrics"], ["cef", "Syslog, CEF"], ["leef", "Syslog, LEEF"], ["otlp", "OpenTelemetry (OTLP JSON)"]].map(([v, l]) => el("option", { value: v }, l)));
   const host = el("input", { type: "text", id: "te-host", value: "ops-gw1", spellcheck: "false", "aria-label": "Host name written into syslog events" });
+  const all = el("input", { type: "checkbox", id: "te-all" }), pos = el("input", { type: "checkbox", id: "te-pos" });
   const go = el("button", { type: "button", class: "tl-btn" }, "Run");
   const out = el("div", { class: "tl-out", "aria-live": "polite" });
   go.onclick = async () => {
@@ -374,13 +388,15 @@ function wireTelemetry() {
       const text = new TextDecoder().decode(new Uint8Array(await f.arrayBuffer()));
       const e = await useEngine("trust_telemetry");
       const kind = text.trimStart().startsWith("{") && /"epochs"\s*:/.test(text.slice(0, 200000)) ? "result" : "jsonl";
-      const res = await e.call("trust_telemetry", text, fmt.value, host.value, kind);
+      const res = await e.call("trust_telemetry", text, fmt.value, host.value.trim(), kind, JSON.stringify({ expose_position: pos.checked, syslog_all: all.checked }));
       const name = `trust-telemetry.${fmt.value === "prometheus" ? "prom" : fmt.value === "otlp" ? "json" : "log"}`;
       const d = el("button", { type: "button", class: "tl-btn" }, "Download"); d.onclick = () => download(name, res, "text/plain");
       out.replaceChildren(el("div", { class: "tl-row" }, d), el("pre", { class: "tl-pre" }, res.split("\n").slice(0, 60).join("\n") + (res.split("\n").length > 60 ? "\n…" : "")));
     } catch (x) { fail(out, x); }
   };
-  panel.append(el("div", { class: "tl-row" }, file, fmt, el("label", { class: "tl-file2" }, "Host", host), go), out);
+  panel.append(el("div", { class: "tl-row" }, file, fmt, el("label", { class: "tl-file2" }, "Host", host), go),
+    el("div", { class: "tl-row" }, el("label", { class: "tl-chk" }, all, " One syslog event per epoch (default: one per band change)"), el("label", { class: "tl-chk" }, pos, " Include the reported position (off by default)")),
+    el("p", { class: "tl-why" }, "Syslog lines carry no time stamp here (the page reads no clock); the command-line tool stamps them. Prometheus gives the final state. The text is the same the command prints."), out);
   card.insertBefore(panel, card.querySelector("p:last-child"));
 }
 

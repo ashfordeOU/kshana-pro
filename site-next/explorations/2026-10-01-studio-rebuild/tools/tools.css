@@ -77,3 +77,10 @@
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 #te-fmt,#te-host{min-height:44px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);padding:6px 10px;font:13px var(--f-mono);color:var(--ink);box-sizing:border-box}
+
+.tl-links{display:flex;flex-wrap:wrap;gap:8px 14px;margin:8px 0 0;align-items:center}
+.tl-links a{display:inline-flex;align-items:center;min-height:44px}
+.tl-linkbtn{padding:0 14px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);font-weight:600;font-size:13px}
+
+.tl-chk{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:13px;color:var(--ink-2)}
+.tl-chk input{width:18px;height:18px}
