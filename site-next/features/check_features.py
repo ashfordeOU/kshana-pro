@@ -604,7 +604,9 @@ def main() -> int:
         srv_ = os.path.join(mrepo_, "mcp/kshana-mcp/src/server.rs")
         if not os.path.exists(srv_):
             srv_ = os.path.join(rg["engine"]["repo"], "mcp/kshana-mcp/src/server.rs")
-        mcp_ = set(re.findall(r"\b([a-z][a-z0-9]*(?:_[a-z0-9]+)+)\b", open(srv_).read())) if os.path.exists(srv_) else set()
+        # The tool functions live in server.rs and, since 0.33.0 (the IQ tools), in iq.rs.
+        mcp_src_ = "".join(open(f).read() + "\n" for f in (srv_, os.path.join(os.path.dirname(srv_), "iq.rs")) if os.path.exists(f))
+        mcp_ = set(re.findall(r"\b([a-z][a-z0-9]*(?:_[a-z0-9]+)+)\b", mcp_src_))
         return kinds_, scen_, tools_, known_, cli_, mcp_
     site_sets = token_sets(reg, os.path.join(os.path.dirname(os.path.abspath(args.features)), "known-tokens.json"))
     docs_sets = token_sets(dreg, dreg.get("_known_tokens", os.path.join(os.path.dirname(os.path.abspath(args.features)), "known-tokens.json"))) if dreg is not reg else site_sets

@@ -148,21 +148,24 @@ read `KICKOFF.md` (paste it) and this `README.md`.
 
 ---
 
-## 4. The prior handover is still valid — reuse it for the site/Studio source
+## 4. Site and Studio source — where it lives and how to rebuild
 
-`handover/open-core-0.30/README.md` + `restore.sh` reconstruct the founder's `~/Code/...`
-workspace **from git** (no Mac needed):
+The kshana.dev site and Studio source of truth is `site-next/` at the root of kshana-pro (vendored
+2026-10-04): the site is `site-next/explorations/2026-09-27-combo` (build.py, check.py, src/), the
+Studio is `site-next/explorations/2026-10-01-studio-rebuild`, and the docs renderer is
+`site-next/tools/build_docs.mjs` (it renders the public `CHANGELOG.md` into `/docs/changelog`).
+`handover/open-core-0.30/site-next/` is an older copy kept for history — do not build from it.
+
+To rebuild and port the site at a release-bump commit, follow `site-next/RE-PORT.md` (Linux) or
+`site-next/ASSEMBLY-RUNBOOK.md` + `PORT-RUNBOOK.md` (macOS). The public `web/` tree is OUTPUT of
+`web/tools/port_site.py`; never hand-edit it beyond what a release's version bump requires.
+`handover/open-core-0.30/restore.sh` is still the way to recreate the oracle toolchain and the macOS
+`~/Code` layout:
 
 ```
-git clone -b handover/open-core-0.30 https://github.com/ashfordeOU/kshana-pro.git ~/Code/kshana-pro
+git clone https://github.com/ashfordeOU/kshana-pro.git ~/Code/kshana-pro
 WITH_DATA=1 bash ~/Code/kshana-pro/handover/open-core-0.30/restore.sh
 ```
-
-It restores: the public repo clone, the site source (`~/Code/kshana-site-next`, incl. the
-Studio rebuild and the kshana.dev `build.py`/`check.py`), and the oracle toolchain
-(`~/Code/kshana-oracles`). **The site `web/` tree in the public repo is produced from this
-source** via `web/tools/port_site.py --site <built site> --studio <studio folder>`. You need
-this when a task regenerates the site (e.g. §7-D full re-render).
 
 ---
 
@@ -318,10 +321,58 @@ Prioritize by audience value:
 |---|---|---|
 | kshana 0.32.0 release | ✅ live on all registries + site | — |
 | Public `main` hygiene | ✅ clean, green, no attribution | keep it so |
-| kshana-pro engine pin | ⚠️ `main`=0.29.0; stale `claude/pro-030`=0.30.0 | §7-A → `=0.32.0` |
-| IQ layer surfaces | CLI + Python only | §7-B (MCP, ledger, optional WASM) |
-| Partner deliverables | NDA template in `legal/`; outreach drafts in `commercial/` | §7-C (summary, example, NDA reconcile) |
+| kshana-pro engine pin | ✅ `=0.32.0` on `main` (PR #5, green on Mac CI) | delete `claude/pro-030` (founder; cloud proxy blocks deletes) |
+| IQ layer surfaces | CLI + Python released; MCP tools in public PR #34, ledger rows in public PR #35 (CI pending) | merge #34/#35; §7-B3 WASM optional; `iq_track` default decision for 0.33.0 |
+| Partner deliverables | ✅ C1 summary + C2 executed notebook on `main` (PR #7) | §7-C3 NDA reconcile (needs counsel) |
 | Site full re-render @0.32 | deep pages carry older provenance stamps | §7-D1 (optional) |
 | macOS-local test fails | CI green; local-only | §7-D2 (file issue) |
 
 *Keep this file updated as the single source of truth. When a §7 item lands, tick it here.*
+
+**Live state** (running jobs, sessions, decisions, log) is in `docs/LIVE.md` on branch
+`ws/coordination`; takeover steps in `docs/RECOVERY.md` there. Read those before acting.
+
+---
+
+## 10. Account migration (2026-10-07) — what was lost, what was restored
+
+The work moved from a personal Claude account to the organisation's Claude Team account.
+**Sessions, chat history and Claude Docs do not migrate between accounts.** Everything that
+was in git survived intact (verified 2026-10-07: both repos, all branches/tags, public CI
+green on `main`, 0.32.0 live, no open PRs or issues).
+
+**Lost (not recoverable from this account):**
+- The coordinator session and every worker/runner session it spawned (transcripts only — all
+  their work had been pushed, so no code was lost).
+- Claude Docs made in chat on the old account (the mutual-NDA working doc, the 0.32.0 plan
+  doc). They may still be readable from the **old personal account** at claude.ai: if any
+  carries content not already in `legal/` or `docs/plans/`, export it and commit it.
+- Any Routines/scheduled triggers created on the old account (re-create here if needed).
+
+**Restorable / restored:**
+- The "local runner" was `act` + Docker Desktop on the founder's Mac
+  (`site-next/scratch/actlocal/rerun.sh`, results in `site-next/LOCAL-RUNNERS.md`). All scripts
+  are in git except `image/Dockerfile` — being recreated (worker W4). kshana-pro CI itself runs
+  on the self-hosted runner `macmini-kshana-pro` (last green 2026-10-06), which lives on the
+  Mac, not in any Claude account, so it was unaffected.
+- `.ci-native` (the untracked pre-push contract in the founder's `~/Code/kshana`) is recreated
+  with `scripts/install-gate-hook.sh` in the public repo.
+- Stale branches whose content is already on `main` (safe to delete): `handover/kickoff`,
+  `handover/post-0.32`, `handover/where-is-what`, `salvage/local-artifacts`,
+  `partners/baseband-brief` (all superseded by main's handover), and `claude/pro-030` after #5.
+
+**How work is run now (new account).** One coordinator session spawns workers with
+`create_session` (environment `AshfordeKSH`), plus ONE dedicated runner session that only
+verifies branches and watches CI (`VERIFY <repo> <ref>` / `WATCH <repo> <PR>`), never writes
+code. Workers push branches and open PRs; the coordinator merges. Every session obeys §2.
+Session roster as of 2026-10-07 (ids are only valid on the Team account):
+
+| Role | Task |
+|---|---|
+| Coordinator | §7-A engine bump (PR #5), orchestration, this file |
+| Runner | CI/CD verification + pipeline watch for both repos |
+| W1 | §7-B1 IQ layer over MCP (public `feat/mcp-iq`) |
+| W2 | §7-B2 IQ validation ledger rows vs gps-sdr-sim (public `feat/iq-validation-ledger`) |
+| W3 | §7-C1/C2 partner validation summary + IQ notebook (pro `partners/iq-deliverables`) |
+| W4 | MRD footnote fix, salvage MRD reconcile, act runner Dockerfile (pro `chore/pro-hygiene`) |
+

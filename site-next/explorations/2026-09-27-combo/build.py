@@ -10,7 +10,7 @@ the engine; nothing is retyped by hand:
   scenario kinds / files   src/api.rs list_scenario_kinds(), scenarios/*.toml (git-tracked only)
   ledger + matrix          web/data/verification-matrix.json
   capability cards         web/capabilities.json
-  MCP tools                mcp/kshana-mcp/src/server.rs (#[tool] functions)
+  MCP tools                mcp/kshana-mcp/src/server.rs and iq.rs (#[tool] functions)
   charts                   the Studio's recorded runs (the folder src/data/sources.json names as
                            studio), through the Studio's own view code: ../../tools/build_viz.mjs
   Studio links             the Studio's own link list (its tools_links.mjs): .build/studio-links.json,
@@ -195,7 +195,9 @@ kind_ledger = {k: [mods[k.replace("-", "_")].count("VALIDATED"), len(mods[k.repl
 # (mcp_repo) while the branch that adds tools is not merged into the site's engine checkout; the
 # recorded session the pages replay (src/data/mcp-session.json) must list exactly these tools.
 MCP_REPO = os.path.expanduser(os.environ.get("KSHANA_MCP_REPO") or SOURCES.get("mcp_repo") or REPO)
-mcp_tools = re.findall(r"#\[tool\(\s*description\s*=\s*\"((?:[^\"\\]|\\.)*)\"\s*\)\]\s*fn (\w+)\(", open(os.path.join(MCP_REPO, "mcp/kshana-mcp/src/server.rs"), encoding="utf-8").read())
+# The tool functions live in server.rs and, since 0.33.0 (the IQ tools), in iq.rs.
+_MCP_SRC = "".join(open(os.path.join(MCP_REPO, "mcp/kshana-mcp/src", f), encoding="utf-8").read() + "\n" for f in ("server.rs", "iq.rs"))
+mcp_tools = re.findall(r"#\[tool\(\s*description\s*=\s*\"((?:[^\"\\]|\\.)*)\"\s*\)\]\s*fn (\w+)\(", _MCP_SRC)
 assert len(mcp_tools) >= 5, mcp_tools
 _session_tools = sorted(t["name"] for t in json.loads(src("data/mcp-session.json"))["tools"])
 assert _session_tools == sorted(n for _, n in mcp_tools), (f"the recorded MCP session lists {len(_session_tools)} tools, the server source {len(mcp_tools)}: "
@@ -882,7 +884,8 @@ def pub_figure(p, featured=False):
     studio = studio_open("", r["studio"]) if "studio" in r else ""
     return (f'<figure class="pub-fig" data-anim><div class="pub-plot">{pub_chart(p, 520, 156)}</div>'
             f'<figcaption class="prov pub-prov"><span class="st st-{st[0]}" title="{esc(f["capability"])}: verification-matrix label">{st[1]}</span><span>Engine v{esc(PUB_ENGINE["version"])} · {src_} · {seed}</span>{studio}</figcaption>'
-            '</figure>')
+            + (f'<p class="pub-how pub-note">{esc(f["provenance_note"])}</p>' if f.get("provenance_note") else "")
+            + '</figure>')
 
 
 def pubs():
@@ -1821,8 +1824,8 @@ def watch_win(r):
             f'history {_n(H["records"])} records, chain intact, last hash {esc(_short(H["last"]))} · {esc(W["label"].split(" - ")[0])}</span>{studio_open(r, W["base_scenario"])}</p></figure>')
 
 
-CX_RAMP = ["rgba(195,166,255,.12)", "rgba(195,166,255,.22)", "rgba(195,166,255,.32)", "rgba(195,166,255,.42)",
-           "rgba(195,166,255,.54)", "rgba(195,166,255,.66)", "rgba(195,166,255,.8)", "#C3A6FF"]
+CX_RAMP = ["rgba(244,92,203,.12)", "rgba(244,92,203,.22)", "rgba(244,92,203,.32)", "rgba(244,92,203,.42)",
+           "rgba(244,92,203,.54)", "rgba(244,92,203,.66)", "rgba(244,92,203,.8)", "#F45CCB"]
 
 
 def coexist_win(r):
@@ -2086,7 +2089,7 @@ def pro_power(r):
     terms_html = ('<div class="pw-tl"><ul>' + "".join(f"<li><b>{esc(t)}</b> {esc(x)}</li>" for t, x in terms) + '</ul>'
                   + '<div class="plan pw-cs"><h4 class="pw-cs-h">Done as a custom study</h4><ul>'
                   + "".join(f"<li><b>{esc(t)}</b> {esc(x)}</li>" for t, x in cs_terms) + '</ul></div></div>')
-    return f'''<section class="pro-band pw" id="pro" data-nav-dark aria-labelledby="pwH">
+    return f'''<section class="pro-band pw" id="pro" aria-labelledby="pwH">
   <div class="wrap">
     <div class="pw-head">
       <span class="eyebrow eyebrow-d" style="--c:var(--pw-p)"><i></i>Kshana Pro · the same engine, amplified</span>
@@ -2717,8 +2720,8 @@ def home_bento(root):
          f'<div class="vis"><div class="chips">{chips}</div><p class="chips-note">CCSDS OEM: Consultative Committee for Space Data Systems Orbit Ephemeris Message. SP3: Standard Product 3 orbit format.</p></div>'),
         ("s3", None, "--coral", "Scope, stated plainly", "What Kshana is not",
          "Knowing the edges matters as much as the features.",
-         f'<div class="vis not-list"><div class="not">{NOT_ICON}<div>Not an RF signal simulator<span>It does not generate radio-frequency (RF) waveforms.</span></div></div>'
-         f'<div class="not">{NOT_ICON}<div>Not a GNSS receiver<span>It simulates what happens to PNT; it does not track real signals.</span></div></div>'
+         f'<div class="vis not-list"><div class="not">{NOT_ICON}<div>Not RF signal-generator hardware<span>It drives no radio and transmits nothing; its signal-level output is baseband IQ sample files for software receivers.</span></div></div>'
+         f'<div class="not">{NOT_ICON}<div>Not a hardware or certified GNSS receiver<span>Its software receiver (acquisition and tracking on recorded or generated IQ) is an analysis tool, not a navigation product.</span></div></div>'
          f'<div class="not">{NOT_ICON}<div>Not a flight product<span>A study and trade-off instrument, every answer labelled Validated or Modelled.</span></div></div></div>'),
     ]
     out = []
@@ -2969,6 +2972,7 @@ for root_dir, dirs, fnames in os.walk(PG_SRC):
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         shutil.copyfile(os.path.join(root_dir, fn), dst)
 shutil.copyfile(os.path.join(SRC, "tokens.css"), os.path.join(PG_OUT, "tokens.css"))  # one palette: the site's
+shutil.copyfile(os.path.join(SRC, "theme.css"), os.path.join(PG_OUT, "theme.css"))  # and one theme: Observatory
 _bundle_cmd = ["node", os.path.join(PG_SRC, "tools_bundle.mjs"), "--to", PG_OUT]
 if _withheld:
     _bundle_cmd += ["--without", ",".join(_withheld)]
@@ -3391,8 +3395,8 @@ llms = [f"# Kshana", "", f"> {_home_desc} Version {version}, {cff_lic} licence, 
         f"{summ['validated']} of {summ['total']} capabilities are validated against external oracles; the rest are labelled Modelled or partner-owned.", "",
         "Kshana is a deterministic Rust engine for PNT (positioning, navigation and timing) resilience studies: GNSS (global navigation satellite system) jamming and "
         "spoofing, clock holdover, RAIM (receiver autonomous integrity monitoring) and protection levels, orbits, low-Earth-orbit navigation, and navigation at the Moon "
-        f"and Mars. Every scenario is a TOML file; every run is reproducible from its scenario, seed and engine version. It is not an RF (radio-frequency) signal simulator, "
-        f"not a GNSS receiver and not a flight product.", "",
+        f"and Mars. Every scenario is a TOML file; every run is reproducible from its scenario, seed and engine version. It drives no radio hardware and transmits nothing: its signal-level output "
+        f"is baseband IQ sample files for software receivers, its software GNSS receiver is an analysis tool, and it is not a flight product.", "",
         "## Site", ""] + [_md_link(f"{k}.html") for k, *_ in PAGES] + [_md_link("studio/index.html", STUDIO), "",
         "## Install", ""] + [f"- {c['name']}: `{c['command']}` ({c['registry']})" for c in channels if c["command"]] + [
         f"- Source code: {REPO_URL}", f"- Cite the software: DOI [{cff_doi}](https://doi.org/{cff_doi})", "",
