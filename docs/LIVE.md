@@ -1,4 +1,4 @@
-Updated: 2026-10-10T20:47:56Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T20:48:16Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 20:48:16 20:48Z | W18 flagged feat/surfaces-0.35 still carries 13 trailer commits; branch will NOT be merged; new trailer-free commits will be cherry-picked onto rc by coordinator
 - 20:47:56 20:47Z | W18 parity audit: SURFACES.md names all exist (47 py, 30 wasm, 38 MCP, 10 cmds, 8 skills, 15 JetBrains); gaps = JetBrains CLI-only cells without reasons; approved actions + N/A reasons + --help + notebooks on feat/surfaces-0.35 (its authorised branch)
 - 20:45:55 20:45Z | Founder: 0.35 must carry everything (validations, missing parts, README/site/Studio, figures/numbers, release). DoD recorded docs/plans/0.35-DEFINITION-OF-DONE.md; Fable completeness critic session_01KELDytCLm6AKLkGPU8eF5W auditing rc; W17 Studio coverage for every 0.35 feature incl. OSNMA
 - 20:36:26 20:36Z | crates.io shows kshana + kshana-mcp 0.34.1; W3 told to start pin/kshana-0.34.1; W2 channel verification + RustSec draft (held until GHSA published); W12 rewriting OSNMA verifier (trusted time, per-CID chains, IOD)
