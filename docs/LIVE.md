@@ -1,4 +1,4 @@
-Updated: 2026-10-10T20:36:26Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T20:45:55Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 20:45:55 20:45Z | Founder: 0.35 must carry everything (validations, missing parts, README/site/Studio, figures/numbers, release). DoD recorded docs/plans/0.35-DEFINITION-OF-DONE.md; Fable completeness critic session_01KELDytCLm6AKLkGPU8eF5W auditing rc; W17 Studio coverage for every 0.35 feature incl. OSNMA
 - 20:36:26 20:36Z | crates.io shows kshana + kshana-mcp 0.34.1; W3 told to start pin/kshana-0.34.1; W2 channel verification + RustSec draft (held until GHSA published); W12 rewriting OSNMA verifier (trusted time, per-CID chains, IOD)
 - 20:35:52 20:35Z | W1b dry run on rc: regen 98c9e070 (local), check.py OK 98 pages/59.8MB, features UNPLACED=0; 79 placements approved; told to document 6 Python IQ + 7 wasm fns in PYTHON-API/NPM; final regen after mcp-channels + OSNMA merges
 - 20:01:18 20:01Z | Founder: all MCP channels in 0.35 (binaries all OS, .mcpb, Cursor/VS Code one-click, npx/uvx, brew/scoop/winget, Smithery/Glama/plugin dir, HTTP transport self-host) + README + site; W19 briefed on ci/mcp-channels from -rc a9113131
