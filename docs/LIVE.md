@@ -1,4 +1,4 @@
-Updated: 2026-10-10T21:54:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T21:59:00Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:59:00 21:58Z | MCP-channels security critic: FIX-FIRST (D14 closed, bind/token/Host/Origin/launchers/pinning verified). S1 HTTP work not bounded by timeout (wedge repro) -> spawn_blocking pool + engine budget + docs; S2 mcpb packer unpinned in privileged job; S3 Dockerfile --locked; S4 no Smithery hosted deploy; S5 bot email -> contact@ashforde.org; S6 launcher override https/caps/timeouts; S7 advisory phrase; N1-N9. All routed to W19
 - 21:54:25 21:54Z | Merged docs/0.35-names (W15 809dd51d) into rc -> 07004f56: oem oracle cited by PyPI page, no personal names in src/tests; W1b to fix oracle-references.json + regen
 - 21:52:35 21:52Z | rc e37b8b2f: evidence row cites fixed (W14, src only; hand edits to web/ and generated matrix dropped); verification_rows_name_a_test_that_exists 7/7 green
 - 21:48:21 21:48Z | W12 OSNMA fixes pushed feat/osnma-verify 0c5d230+98c0e49: 4 blockers closed with attack tests (trusted time, auth window+IODnav, alert/NMAS, dummy tags); real bug fixed (NPK len for NPKT 4: alerts never verified); official vectors 18/18, 0 failed, 186,382 tags (was 176,805). Sent to critic session_014D7jreQXqWpqGkmufVtZSL for full re-review; W12 preparing samples + rc merge locally
