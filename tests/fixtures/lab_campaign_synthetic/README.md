@@ -6,11 +6,11 @@ measurement of any receiver.
 
 | Item | Value |
 |---|---|
-| Engine | public `kshana`, branch `feat/034-campaign` (PR #46) @ `51ba47872cfdd3421f0e3d6ee5e48194a95194e2`, which carries #45 `010b30b9`, #64 `9a211e6b` (M2M4) and main `51dce137` (release build; reports engine version `0.32.0` until 0.34.0 is cut) |
+| Engine | public `kshana` 0.34.0 as published on crates.io (`cargo install kshana --version =0.34.0 --locked`); reports engine version `0.34.0`. The cells are byte-for-byte what the branch build at `feat/034-campaign` @ `51ba4787` produced, except for `engine_version` (and so the cell keys and the DIGEST) |
 | Generator | `make_fixture.py` in this folder (`KSHANA=<engine binary> python3 make_fixture.py <scratch-dir>`) |
 | Recordings | `synthetic-ramp`: 16 s, GPS L1 C/A PRNs 3 and 11, 2.5 MS/s ci16 (non-commensurate with the 1.023 MChip/s code; 4.092 MS/s would give 4 samples/chip, a staircase DLL, and the engine warns about it). The stated broadband J/S steps 20 → 30 dB; the signal's C/N0 follows the engine's analytic value for that J/S. `synthetic-gap`: 10 s, PRN 7, signal absent 4.0–5.5 s |
 | Stimulus | an `iq scene --no-noise` signal × a C/N0 (signal-power) profile, plus seeded unit-power noise. No jammer or spoofer waveform is synthesised |
-| Campaign | `data_class = "synthetic"`; 2 front-end chains (`raw`, `agc-3bit`) × 3 loop designs (`baseline`, `narrow-pll`, `reacquire`) × 2 recordings = 12 cells; bars `max_reacq_s = 3.0`, `min_availability = 0.5`; lock source `track-session`; DIGEST `ba9837d8…`; default design hash `33261cd1…` (the `baseline` design) |
+| Campaign | `data_class = "synthetic"`; 2 front-end chains (`raw`, `agc-3bit`) × 3 loop designs (`baseline`, `narrow-pll`, `reacquire`) × 2 recordings = 12 cells; bars `max_reacq_s = 3.0`, `min_availability = 0.5`; lock source `track-session`; DIGEST `a76ec0cd…`; default design hash `33261cd1…` (the `baseline` design) |
 | Files kept | `campaign.json` (`kshana.campaign-plan/1`), `cells/*.json` (`kshana.campaign-cell/1`), `scorecard.json` (`kshana.campaign-scorecard/1`), `DIGEST`. The recordings themselves are not kept |
 
 C/N0. The engine at this head scores both NWPR and M2M4 and reports the campaign's
