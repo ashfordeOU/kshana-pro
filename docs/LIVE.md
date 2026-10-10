@@ -1,4 +1,4 @@
-Updated: 2026-10-10T18:37:44Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T18:39:04Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 18:39:04 18:39Z Clean integration base release/0.35.0-clean2 72d77e47 (verified: 0.34.1 + main ancestors, 0 trailers, 181 commits Ashforde OÜ, channels ec1d1cc cherry-picked). release/0.35.0-clean (ee3ca203, duplicate 0.34.1 history) unused, founder to delete. Five validation workers released to cherry-pick onto clean2
 - 18:37:44 18:37Z Founder authorised W1b's message-only rewrite. release/0.35.0-clean (ee3ca203) pushed: tree identical, 0 trailers, check-no-attribution OK; BUT stale origin/main meant the 8 0.34.1 commits got new SHAs (duplicate history vs main 0f41a724). Not used; W1b redoing as release/0.35.0-rc with fresh main so 0.34.1 SHAs stay ancestors; then channels ec1d1cc merge
 - 18:19:51 18:19Z W12 OSNMA crypto pushed 57f8cda (hmac, cmac+aes, sha3, p256/p521 ECDSA; 24 crates added, cargo-deny ok root+MCP, wasm32 ok). 37 unit (KATs RFC 4231/4493, FIPS 197/202, RFC 6979) + 10 synthetic e2e. Official GSC vectors (archive sha256 ef9b9afc..., Guidelines v1.3 annex): 18/18 scenarios, 0 failed tags, 176,805 authenticated, KROOT via P-256 and P-521. Feature freeze after UBX ingest; critic reviewing
 - 18:00:03 18:00Z VALIDATION W11 NMEA training DONE (local): 225,227 sentences from 8 streams parse in pynmea2 with valid checksums, 0 failures; 1148 decoded epochs within pre-registered tolerances. Disclosed: GGA sat-count expectation corrected to NMEA convention (00 without fix), no tolerance change. Row approved VALIDATED/ReferenceImpl. ALL 5 validations complete
