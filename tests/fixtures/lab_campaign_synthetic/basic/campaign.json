@@ -1,0 +1,379 @@
+{
+  "cells": [
+    {
+      "design": 0,
+      "frontend": 0,
+      "key": "5aa3dc802ae51277443a538bca7d80e03dc1cc787b88b8d333e626dc68012677",
+      "recording": 0
+    },
+    {
+      "design": 1,
+      "frontend": 0,
+      "key": "c1e74370760316afe4f56aa27bf4e40094f50a0e653f54d8dd5e8c02dc54bbce",
+      "recording": 0
+    },
+    {
+      "design": 2,
+      "frontend": 0,
+      "key": "f51079f594d1bc0e73c1eb6ec4fda4abe8241637bf4ef975f3c1d3ccafb6b02b",
+      "recording": 0
+    },
+    {
+      "design": 0,
+      "frontend": 1,
+      "key": "4629594217368fd67a2028804684e42ccfc79c2fd5bd47f492a05447b5d20dfb",
+      "recording": 0
+    },
+    {
+      "design": 1,
+      "frontend": 1,
+      "key": "402153d088a8e6b6f4ec859a56c0e7e6657174c687c7f96057d3219f083219e4",
+      "recording": 0
+    },
+    {
+      "design": 2,
+      "frontend": 1,
+      "key": "d5aac35febd88ccf71f39f59d469fe05c433a54374d22d6698f0624ea3fd5bb8",
+      "recording": 0
+    },
+    {
+      "design": 0,
+      "frontend": 0,
+      "key": "0da15141583b6268bb1c7b6bcfeb94d8cca25f62d5337499be1353f1bb9fec2c",
+      "recording": 1
+    },
+    {
+      "design": 1,
+      "frontend": 0,
+      "key": "8cf77089c621e57af3091b44d8d4191b540e60e559b0fbb18c34b2cbd710170e",
+      "recording": 1
+    },
+    {
+      "design": 2,
+      "frontend": 0,
+      "key": "d001b9bee288e1b7e0c7af3fa31858c7a4b79d49ba94e44097b6151b3171848a",
+      "recording": 1
+    },
+    {
+      "design": 0,
+      "frontend": 1,
+      "key": "117108929b7870375f64e3eef2ac7a06bb02ac8f0ad11a3b18714063a3fc1251",
+      "recording": 1
+    },
+    {
+      "design": 1,
+      "frontend": 1,
+      "key": "835c9e0fe1f03a6cbcdc54dd6e0ab656514e0c8bd3a6b7708df2f9271b22ee4e",
+      "recording": 1
+    },
+    {
+      "design": 2,
+      "frontend": 1,
+      "key": "7d0f47469d0de2c4be5c3ece72cbcc5ad80d106b9d280fe610f0d20f72531458",
+      "recording": 1
+    }
+  ],
+  "data_class": "synthetic",
+  "designs": [
+    {
+      "acquisition": {
+        "coherent_periods": "auto",
+        "doppler_max_hz": 5000.0,
+        "doppler_step_hz": "auto",
+        "noncoherent": 1,
+        "pfa": 0.001
+      },
+      "bit_sync": {
+        "min_votes": 12,
+        "ratio": 3.0
+      },
+      "carrier": {
+        "fll_assist": "pull-in",
+        "fll_bw_hz": 10.0,
+        "fll_discriminator": "atan2",
+        "fll_gate_dwell_s": 0.1,
+        "fll_off_pli": 0.8,
+        "fll_on_pli": 0.6,
+        "fll_order": 1,
+        "kind": "fll-assisted-pll",
+        "pll_bw_hz": 15.0,
+        "pll_discriminator": "costas-atan",
+        "pll_order": 2
+      },
+      "code": {
+        "bw_hz": 2.0,
+        "carrier_aiding": true,
+        "discriminator": "eml-power",
+        "order": 1
+      },
+      "hash": "33261cd171a53803a6c262686e878e01f37d902a93d5918c20a44297b8ef8e80",
+      "integration": {
+        "coherent_periods": 1,
+        "spacing_chips": 0.5
+      },
+      "lock": {
+        "cn0_window_periods": 20,
+        "cn0_windows": 50,
+        "code_lock_cn0_dbhz": 26.0,
+        "false_lock_check": true,
+        "false_lock_margin_db": 3.0,
+        "loss_dwell_s": 0.2,
+        "max_reacq_attempts": 0,
+        "pli_threshold": 0.8,
+        "pull_in_max_s": 2.0,
+        "reacq_doppler_window_hz": 500.0,
+        "reacq_interval_s": 0.1,
+        "reacq_max_interval_s": 0.1,
+        "reacq_window_s": 30.0,
+        "reacquire": false
+      },
+      "name": "baseline",
+      "schema": "kshana.loop-design/1"
+    },
+    {
+      "acquisition": {
+        "coherent_periods": "auto",
+        "doppler_max_hz": 5000.0,
+        "doppler_step_hz": "auto",
+        "noncoherent": 1,
+        "pfa": 0.001
+      },
+      "bit_sync": {
+        "min_votes": 12,
+        "ratio": 3.0
+      },
+      "carrier": {
+        "fll_assist": "pull-in",
+        "fll_bw_hz": 10.0,
+        "fll_discriminator": "atan2",
+        "fll_gate_dwell_s": 0.1,
+        "fll_off_pli": 0.8,
+        "fll_on_pli": 0.6,
+        "fll_order": 1,
+        "kind": "fll-assisted-pll",
+        "pll_bw_hz": 8.0,
+        "pll_discriminator": "costas-atan",
+        "pll_order": 2
+      },
+      "code": {
+        "bw_hz": 1.0,
+        "carrier_aiding": true,
+        "discriminator": "eml-power",
+        "order": 1
+      },
+      "hash": "2e21b0935b3fb6bea0ecc2a8180857287b0929126aeb04f0d833895f68608cfa",
+      "integration": {
+        "coherent_periods": 1,
+        "spacing_chips": 0.5
+      },
+      "lock": {
+        "cn0_window_periods": 20,
+        "cn0_windows": 50,
+        "code_lock_cn0_dbhz": 26.0,
+        "false_lock_check": true,
+        "false_lock_margin_db": 3.0,
+        "loss_dwell_s": 0.2,
+        "max_reacq_attempts": 0,
+        "pli_threshold": 0.8,
+        "pull_in_max_s": 2.0,
+        "reacq_doppler_window_hz": 500.0,
+        "reacq_interval_s": 0.1,
+        "reacq_max_interval_s": 0.1,
+        "reacq_window_s": 30.0,
+        "reacquire": false
+      },
+      "name": "narrow-pll",
+      "schema": "kshana.loop-design/1"
+    },
+    {
+      "acquisition": {
+        "coherent_periods": "auto",
+        "doppler_max_hz": 5000.0,
+        "doppler_step_hz": "auto",
+        "noncoherent": 1,
+        "pfa": 0.001
+      },
+      "bit_sync": {
+        "min_votes": 12,
+        "ratio": 3.0
+      },
+      "carrier": {
+        "fll_assist": "pull-in",
+        "fll_bw_hz": 10.0,
+        "fll_discriminator": "atan2",
+        "fll_gate_dwell_s": 0.1,
+        "fll_off_pli": 0.8,
+        "fll_on_pli": 0.6,
+        "fll_order": 1,
+        "kind": "fll-assisted-pll",
+        "pll_bw_hz": 15.0,
+        "pll_discriminator": "costas-atan",
+        "pll_order": 2
+      },
+      "code": {
+        "bw_hz": 2.0,
+        "carrier_aiding": true,
+        "discriminator": "eml-power",
+        "order": 1
+      },
+      "hash": "7ed1441e7fb273643678ca4fec2e7232d3cf1314688763b3eecc60587486eea2",
+      "integration": {
+        "coherent_periods": 1,
+        "spacing_chips": 0.5
+      },
+      "lock": {
+        "cn0_window_periods": 20,
+        "cn0_windows": 50,
+        "code_lock_cn0_dbhz": 26.0,
+        "false_lock_check": true,
+        "false_lock_margin_db": 3.0,
+        "loss_dwell_s": 0.2,
+        "max_reacq_attempts": 0,
+        "pli_threshold": 0.8,
+        "pull_in_max_s": 2.0,
+        "reacq_doppler_window_hz": 500.0,
+        "reacq_interval_s": 0.1,
+        "reacq_max_interval_s": 0.1,
+        "reacq_window_s": 30.0,
+        "reacquire": true
+      },
+      "name": "reacquire",
+      "schema": "kshana.loop-design/1"
+    }
+  ],
+  "engine_version": "0.34.0",
+  "frontends": [
+    [
+      {
+        "agc": false,
+        "excise": false,
+        "name": "raw",
+        "no_agc": false,
+        "notch": false
+      },
+      "e015d238c0a790e588996bb468d17cd806681a3cba558a308b298d1b68986c41"
+    ],
+    [
+      {
+        "agc": false,
+        "bits": 3,
+        "excise": false,
+        "name": "agc-3bit",
+        "no_agc": false,
+        "notch": false
+      },
+      "c5220976d1bc77e0da3ecb07a97c215a7944217cc4eb7ac3d719975822b77923"
+    ]
+  ],
+  "name": "synthetic-fixture",
+  "recordings": [
+    {
+      "conditions": {
+        "event": [
+          {
+            "affects": "all",
+            "id": "gap-1",
+            "kind": "outage",
+            "offset_s": 5.5,
+            "onset_s": 4.0,
+            "type": "unknown"
+          }
+        ],
+        "expected": [
+          {
+            "ids": [
+              7
+            ],
+            "signal": "gps-l1ca"
+          }
+        ],
+        "receiver": {
+          "dut": "synthetic scene (no receiver)",
+          "front_end": "",
+          "notes": ""
+        },
+        "recording": {
+          "id": "synthetic-gap",
+          "path": "../synthetic-gap.bin",
+          "settle_s": 1.0
+        },
+        "schema": "kshana.test-conditions/1"
+      },
+      "conditions_file": "conds/gap.toml",
+      "conditions_hash": "5e35638cb5127cbfc97ca1b017f1df163a3700b70a6ca8836f819008a1458aa7",
+      "id": "synthetic-gap",
+      "path": "conds/../synthetic-gap.bin",
+      "sha256": "aedb0a808ecc835008927fd45978274f366d6a727c19281d6bcb5970df0896ee"
+    },
+    {
+      "conditions": {
+        "event": [
+          {
+            "affects": "all",
+            "id": "ramp-1",
+            "kind": "interference",
+            "offset_s": 12.0,
+            "onset_s": 4.0,
+            "power": {
+              "interpolation": "step",
+              "points": [
+                [
+                  4.0,
+                  20.0
+                ],
+                [
+                  8.0,
+                  30.0
+                ]
+              ],
+              "quantity": "js_db"
+            },
+            "type": "broadband"
+          }
+        ],
+        "expected": [
+          {
+            "ids": [
+              3,
+              11
+            ],
+            "nominal_cn0_dbhz": 45.0,
+            "signal": "gps-l1ca",
+            "truth": "../synthetic-ramp.truth.csv"
+          }
+        ],
+        "receiver": {
+          "dut": "synthetic scene (no receiver)",
+          "front_end": "ideal",
+          "notes": ""
+        },
+        "recording": {
+          "id": "synthetic-ramp",
+          "path": "../synthetic-ramp.bin",
+          "settle_s": 1.0
+        },
+        "schema": "kshana.test-conditions/1"
+      },
+      "conditions_file": "conds/ramp.toml",
+      "conditions_hash": "a23ce5d058053fd6095cffc444d67e689f635b8ec2b58c18684d213af197e676",
+      "id": "synthetic-ramp",
+      "path": "conds/../synthetic-ramp.bin",
+      "sha256": "c26503cae0fc5a39790e94ba756cca41e0bed066456d3c21acb218f4e2c59426"
+    }
+  ],
+  "run_hash": "c2f008aa9053bc1948a5860c3067ed09ebb5bf98f1e13164cbcd144ecb897fcb",
+  "schema": "kshana.campaign-plan/1",
+  "scoring": {
+    "bars": {
+      "max_reacq_s": 3.0,
+      "min_availability": 0.5
+    },
+    "baseline_window_s": 2.0,
+    "cn0_estimator": "m2m4",
+    "false_lock_min_epochs": 50,
+    "js_bin_db": 5.0,
+    "reacq_grace_s": 30.0,
+    "reference_curve": true
+  },
+  "scoring_hash": "06d3da621a3373f6cbc00c1ce9dd32bd8c4ceace3517e5697b276634a2430990"
+}

@@ -263,7 +263,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **twenty-nine integration tests** in
+The suite is unit tests across every module plus **thirty-two integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
@@ -283,8 +283,14 @@ own form), `ashforde_brand.rs` and `ashforde_sample.rs` (every document is an As
 document: the seal watermark on every PDF page and in every HTML report, the embedded
 type, the footer and page numbers, nothing fetched; the SAMPLE mark only with
 `--sample`), `readme_counts.rs` (the pack and integration-test counts in this
-README match the registry and the `tests/` directory), and
-`changelog_tracks_engine_pin.rs` (the changelog names the pinned open-engine version).
+README match the registry and the `tests/` directory),
+`changelog_tracks_engine_pin.rs` (the changelog names the pinned open-engine version),
+`lab_campaign_load.rs` (the lab-campaign loader verifies cell keys, the DIGEST and the
+schema on a synthetic campaign, and refuses tampered input), and
+`lab_campaign_report.rs` (the lab campaign report traces every printed number to the
+cells, labels MEASURED and MODELLED, and enforces the data class),
+`lab_campaign_no_client_data.rs` (no client campaign data or SigMF recording anywhere in
+the tree; export-control item N6).
 
 **Licensing (PR7).** `run` is **fail-closed**: with no `--license` it enforces the
 **Evaluation** tier (open scenarios + the free `pro-seam-check` only). A value pack

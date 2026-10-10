@@ -12,7 +12,7 @@ const README: &str = include_str!("../README.md");
 const ARCHITECTURE: &str = include_str!("../docs/OVERLAY-ARCHITECTURE.md");
 
 fn word_to_number(w: &str) -> Option<usize> {
-    const WORDS: [&str; 31] = [
+    const UNITS: [&str; 20] = [
         "zero",
         "one",
         "two",
@@ -33,22 +33,32 @@ fn word_to_number(w: &str) -> Option<usize> {
         "seventeen",
         "eighteen",
         "nineteen",
-        "twenty",
-        "twenty-one",
-        "twenty-two",
-        "twenty-three",
-        "twenty-four",
-        "twenty-five",
-        "twenty-six",
-        "twenty-seven",
-        "twenty-eight",
-        "twenty-nine",
-        "thirty",
     ];
-    let w = w.trim_matches(|c: char| !c.is_alphanumeric() && c != '-');
-    w.parse::<usize>()
-        .ok()
-        .or_else(|| WORDS.iter().position(|x| x.eq_ignore_ascii_case(w)))
+    const TENS: [&str; 8] = [
+        "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
+    ];
+    let w = w
+        .trim_matches(|c: char| !c.is_alphanumeric() && c != '-')
+        .to_ascii_lowercase();
+    if let Ok(n) = w.parse::<usize>() {
+        return Some(n);
+    }
+    if let Some(n) = UNITS.iter().position(|x| *x == w) {
+        return Some(n);
+    }
+    let (tens, unit) = match w.split_once('-') {
+        Some((t, u)) => (t, Some(u)),
+        None => (w.as_str(), None),
+    };
+    let t = TENS.iter().position(|x| *x == tens)?;
+    let u = match unit {
+        None => 0,
+        Some(u) => match UNITS[1..10].iter().position(|x| *x == u) {
+            Some(i) => i + 1,
+            None => return None,
+        },
+    };
+    Some(20 + 10 * t + u)
 }
 
 /// Every number written immediately before `phrase` in `doc`.
@@ -134,4 +144,14 @@ fn readme_integration_test_count_matches_the_tests_directory() {
             "README says {n} integration tests; tests/ holds {on_disk}"
         );
     }
+}
+
+#[test]
+fn number_words_parse() {
+    assert_eq!(word_to_number("twenty-nine"), Some(29));
+    assert_eq!(word_to_number("thirty-one"), Some(31));
+    assert_eq!(word_to_number("forty"), Some(40));
+    assert_eq!(word_to_number("**Sixteen"), Some(16));
+    assert_eq!(word_to_number("thirty-zero"), None);
+    assert_eq!(word_to_number("word"), None);
 }
