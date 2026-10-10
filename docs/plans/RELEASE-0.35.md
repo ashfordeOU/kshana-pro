@@ -197,3 +197,10 @@ metadata (server.json, glama.json) updated with the new tools.
 - regenerate demos from the release engine with tools_trust_demo.mjs, tools_interference_demo.mjs, tools_training_demo.mjs before porting
 - docs pages and llms.txt: W17 added the 0.35 docs to site-next/tools/build_docs.mjs GROUPS (32113b7). At port time the docs_repo checkout must be at the merged 0.35 commit (the builder reads HEAD), then a full rebuild per PORT-RUNBOOK step 0 with check.py (page counts, SEO description uniqueness, forbidden-names rule) and the public web docs-page assertions updated if they pin a count.
 - Run `cargo run --release --bin gen_validation_artifacts` and the site port in the same integration step: web/data/verification-matrix.json and web/capabilities.json must stay byte-equal to their Studio copies (site.test.mjs), and W15's corrected "Kshana's own seven resilience categories (not DHS terms)" wording reaches the ported pages only through that regeneration.
+- From the W17 critic (blocker 1, public side): web/site.test.mjs VIEWS must list studio/trust/index.html, studio/interference/index.html and studio/training/index.html alongside STUDIO_PAGES, so canonical, sitemap, font-host and link rules treat them as Studio views; ci.yml gets four `node web/studio/lib/{trust,interference,geojson-layer,training}.test.mjs` steps (the "every web test file has a step" assertion fails otherwise).
+
+## Status 2026-10-10 morning
+- v0.34.0 tagged and released (Release run 38002944608 success 03:15Z); kshana.dev, crates.io, PyPI, npm at 0.34.0.
+- An account usage limit stopped workers ~21:00Z on 2026-10-09 (reset 23:40Z); work resumed 10:45Z.
+- 0.34.1 (D14) in progress: W18 fix on release/0.34.1, then W2 bump and CI speed-up.
+- All seven critic reviews delivered and relayed to W9, W10, W11, W13, W14, W15, W17 with fix lists.
