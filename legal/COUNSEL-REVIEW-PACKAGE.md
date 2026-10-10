@@ -203,7 +203,13 @@ Questions for counsel:
 3. What notices and wording do we need (source acknowledgement under E.3(b), no-endorsement
    statement, security-interest clause)?
 4. Do any of the E.12 patents read on a receiver-side verifier, as opposed to signal generation?
-Status: the OSNMA verifier code is held off the public repository until counsel answers. Bit-level
+Answer (2026-10-10, relayed by the founder): counsel cleared the project to go forward; publishing the verifier
+under AGPL-3.0 plus the commercial licence is not considered an issue. Conditions we apply regardless:
+Kshana's documentation states that it grants no rights under the EU's ICD IPRs and that each user relies on the
+Annex E authorisation directly; the ICD is acknowledged as the source (E.3(b)); no statement implies EU development,
+use or endorsement; no ICD text or tables are reproduced in the code or docs (implementation is from the cited
+sections); test data is synthetic; no anti-spoofing performance figures in public text (N6 still open).
+Previous status: the OSNMA verifier code was held off the public repository until counsel answered. Bit-level
 page parsing (no cryptography) was briefly pushed to a public branch on 2026-10-09 and withdrawn the
 same day.
 
