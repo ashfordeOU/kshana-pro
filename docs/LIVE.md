@@ -1,4 +1,4 @@
-Updated: 2026-10-10T21:21:52Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T21:22:54Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:22:54 21:22Z | W17 Studio c12c8b3: generic receiver-trust card (wasm receiver_trust, inline log, advisory); forwarded to W1b
 - 21:21:52 21:21Z | W17 Studio pushed kshana-pro site/studio-0.35 1043d1f: tools hub (evidence, bench, compliance, OSNMA, CLI cards, AI assistant panel from channels.json: 24 cards), live engine panels on trust/training/interference, entry points; 41/41 lib tests, selfcheck OK, phone widths OK; integration list sent to W1b; ruling: carry generic receiver-trust example
 - 21:19:27 21:19Z | Check-in: 0.34.1 Release run 38073186962 all jobs green (crates, PyPI, npm, JetBrains, assets verified) except ghcr OCI image still in progress; W2 waiting on it; W12 OSNMA fixes not pushed yet (head b01b42b1); next check-in +50m
 - 21:13:52 21:13Z | W1b pushed rc a9113131..238cc580 (ff): B1-B4 fixed (260/130/126/4 artefacts, figures, og-card, READMEs, CHANGELOG intro); web/ ported at 0.35.0 (site.test, smoke, legacy, 33 studio tests, version-sync OK; pages for all 0.35 docs); final-pass list: cards, top-level sections, INTERFERENCE-DATA-SOURCES page, manifest source rev, screenshots, CITATION date
