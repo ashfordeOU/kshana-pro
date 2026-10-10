@@ -1,4 +1,4 @@
-Updated: 2026-10-10T23:02:33Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T23:02:55Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 23:02:55 23:02Z | kshana-pro PR 29 (pin =0.34.1) CI green -> merged 621029c6. Next check-in 23:55Z
 - 23:02:33 23:02Z | OSNMA critic re-review (98c0e49, f026fdb): FIX-FIRST. 3/4 blockers closed; remaining: IODnav binding bypass (Word 5 / copied IODnav) -> bind SHA-256 of authenticated ADKD0 bits. Should-fix: clock-freeze warning, old-KROOT replay rule, revocation/NMAS header confirmation + PKREV order. Nits incl CHANGELOG 'not in this release'. Routed to W12. (Verdicts recovered from critic transcript; told critic to send_message.)
 - 23:00:21 23:00Z | W19 security fixes done ci/mcp-channels 92f61660, dry run 38091572524 GREEN (read-only mcpb job, reproducible bundles, launchers via file://, http refused); S1-S7 + N1-N9 addressed; new dep subtle; sent to MCP critic for re-check
 - 22:30:36 22:30Z | W1b gates on 238cc580: full cargo test 4354 pass / 4 fail (all since fixed on rc or count-refresh), repeatability 3x2981 OK, MCP 51 pass, all scripts exit 0; rc -> 013e3092 (matrix regenerated at 262 rows, verification_artifacts_doc_sync 8/8, oracle-references oem via PyPI). W19 .mcpb ruling: plain deterministic zip + schema check (no packer, no guard exclusion)
