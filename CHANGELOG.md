@@ -25,6 +25,49 @@ own bullet so parallel work merges cleanly.
   footer, and one figure (`papers/realtime-frame-eop/fig2_frame_eop.svg`) also takes the
   engine's new Observatory colours and font, with every plotted coordinate and label
   unchanged.
+- **Lab campaign report, step L1 + data-hygiene guard (L6)** (plan
+  `docs/plans/2026-10-07-lab-campaign-report-plan.md`). New `lab_campaign` module reads the
+  engine's 0.34.0 lab-replay output (`campaign.json`, `cells/<key>.json`, `DIGEST`; public
+  `docs/design/LAB-CAMPAIGN.md`) into strict serde mirror types. Before anything is rendered it
+  re-derives every cell key, recomputes the DIGEST, and checks the schema versions, engine
+  version and campaign membership, and that the `MODELLED` label is on the reference curve.
+  An incomplete campaign is reported, not hidden. `campaign.json`'s shape and the DIGEST byte
+  form are provisional until the engine side confirms them. Export-control item N6: a new guard
+  test fails on any campaign or test-condition document outside the synthetic fixtures, and on
+  any SigMF recording anywhere; `.gitignore` blocks campaign output. Fixture: a hand-made
+  synthetic campaign (2 recordings × 2 chains × 3 designs = 12 cells), written by `make_fixture.py`.
+  Step L2 (`lab_campaign::aggregate`) selects and orders the cells' numbers for the report.
+  It computes no metric. Every derived figure is a declared median, sum, count or ratio of
+  sums, and carries its input count. Scorecard metrics are whole-run per (chain, design);
+  event metrics stay per event, so a jamming ramp and an outage are never pooled.
+  J/S bins with no locked epochs stay visible next to their MODELLED value.
+  Step L3 (`report_lab_campaign`) renders the branded HTML report: cover with data-class
+  banner and verified DIGEST, template-only summary, test matrix, scorecard and heatmap,
+  per-event results, measured C/N0-vs-J/S curves beside the dashed MODELLED reference,
+  stability, pass/fail (only when the client set bars), definitions, provenance, limits and
+  appendices. Every number in a data table carries `data-v`/`data-op`/`data-n`, and a test traces
+  each one back to the cells. Step L5 adds `kshana-pro lab-report <dir> --data-class … --html …`
+  (Pro entitlement, as `study`). It refuses a data-class mismatch and an incomplete campaign
+  unless `--allow-incomplete` is given. A client name appears only from `--client`, and
+  client-confidential renders carry the export-control notice placeholder (N6).
+  Step L4 (`report_lab_campaign_pdf`) is the A4 PDF edition (`--pdf <out.pdf>`). It has the
+  same sections and the same summary sentences, from one shared builder, with the curves as
+  tables. Table headers stay with their rows, and a subheading never ends a page. Two renders
+  are byte-identical apart from printpdf's random trailer `/ID`.
+  **Aligned to the engine's real output** (public `kshana` 0.34.0, developed on `feat/034-campaign`, PR #46, last head `51ba4787`; the
+  provisional markers are gone):
+  - the mirror types are the engine's own structs: `kshana.campaign-plan/1`, cells with
+    hand-off and lock source, and `kshana.campaign-scorecard/1`;
+  - the cell key and the DIGEST use the engine's exact formulas;
+  - pass/fail shows the engine's verdicts from `scorecard.json`, counted and never recomputed;
+  - the method section states the cells' lock source and what it implies;
+  - the fixture is regenerated as real engine output on synthetic recordings (`make_fixture.py`);
+  - `data_class` is required in the plan, every cell (where it enters the key) and the
+    scorecard, and must match `--data-class`;
+  - the lock source is the track session's (`track-session`), and an unknown one is refused;
+  - epoch files a cell names are checked for presence, size and SHA-256.
+
+  Re-pin when the engine's default design changes and at 0.34.0.
 - **Open engine 0.32.0** (PR 5, merge `586517f`; `68c64c1`). The `kshana` pin moves from
   `=0.29.0` to the published `=0.32.0` (crates.io) with its lockfile; the engine changes
   since 0.29.0 are additive and no overlay source needed changing. The six version-stamped
