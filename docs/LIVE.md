@@ -1,4 +1,4 @@
-Updated: 2026-10-10T14:08:59Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T14:10:47Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:10:47 14:10Z W1b: cargo-deny on release/0.35.0 root + MCP locks all ok (one warn-only duplicate: syn 2 via curve25519-dalek-derive); flate2 approved; MCP lock refreshed c17c40d3; dropped clock-ensemble-band CHANGELOG entry confirmed present in [0.34.0]
 - 14:08:59 14:08Z Surfaces frozen head updated to 43af7a58 (docs-only JetBrains names on top of 9a4e64a1); W1b told
 - 14:08:43 14:08Z W18 frozen head 9a4e64a1: release/0.34.1 merged, surface reject_file_sources now re-exports kshana::inline_only (single implementation), gates green. All frozen heads sent to W1b (surfaces 9a4e64a1, channels aace6ab)
 - 13:58:51 13:58Z Check-in: #74 check job still running (19/20 green); W2 local full gate 263/367 test binaries, no failures. Next check 14:49Z
