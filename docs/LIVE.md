@@ -1,4 +1,4 @@
-Updated: 2026-10-10T17:12:39Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T17:19:41Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 17:19:41 17:19Z VALIDATION W15: test-bench export VALIDATED (ReferenceImpl: pyproj/PROJ, GeographicLib, pynmea2, scipy; 4 scenarios, every row within pre-registered rounding-limit tolerances). Compliance mapping stays MODELLED (reference index is a self-extracted transcription, not an independent oracle; 49 anchors resolve, negative controls fail); EASA/IMO labels corrected. W12 OSNMA: official EUSPA/GSC vectors 17/17 scenarios 0 failed tags (~190k tags, HMAC path; ECDSA pending crates)
 - 17:12:39 17:12Z W1b BLOCKED: permission classifier denied git filter-branch (history rewrite) for release/0.35.0-clean; not worked around. Local: 2d7d5b5f (7 MODELLED rows 258/124/130/4), c3280ad4 (doc coverage back to 985, read_rinex doc). Rule 12 split done in kshana-pro (uncommitted). Founder decision needed: authorise message-only rewrite in W1b session, or squash to one new commit
 - 17:07:00 17:06Z VALIDATION W9 maritime: decoding vs pynmea2 (1086 epochs), geodesy vs GeographicLib (223 pairs incl. antimeridian), input stats; all within pre-registered tolerances; score aggregation vs clean-room docs-only implementation 600/600 exact. Rulings: harder inputs accepted; bearing quantity amendment (forward->mean azimuth) accepted only with disclosure in row + descriptive check of original; Row A VALIDATED (Library), Row B score rule MODELLED. Docs fixed (tie order, examples)
 - 17:04:43 17:04Z VALIDATION W13 interference map DONE: 5/5 checks pass at pre-registered tolerances (NACp/NIC bounds + classes vs pyModeS; AIS sentinels vs pyais 94 frames; grid 1770 pts vs shapely; route exposure 8 routes worst 0.49% vs 0.6%; land mask 992 pts vs shapely/pyproj, 0 disagreements). Two fixture defects recorded, no tolerance changed; land.rs ring-closing robustness fix. Row approved (VALIDATED, Library). To be cherry-picked onto clean base
