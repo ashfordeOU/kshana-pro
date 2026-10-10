@@ -1,4 +1,4 @@
-Updated: 2026-10-10T21:52:35Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T21:54:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:54:25 21:54Z | Merged docs/0.35-names (W15 809dd51d) into rc -> 07004f56: oem oracle cited by PyPI page, no personal names in src/tests; W1b to fix oracle-references.json + regen
 - 21:52:35 21:52Z | rc e37b8b2f: evidence row cites fixed (W14, src only; hand edits to web/ and generated matrix dropped); verification_rows_name_a_test_that_exists 7/7 green
 - 21:48:21 21:48Z | W12 OSNMA fixes pushed feat/osnma-verify 0c5d230+98c0e49: 4 blockers closed with attack tests (trusted time, auth window+IODnav, alert/NMAS, dummy tags); real bug fixed (NPK len for NPKT 4: alerts never verified); official vectors 18/18, 0 failed, 186,382 tags (was 176,805). Sent to critic session_014D7jreQXqWpqGkmufVtZSL for full re-review; W12 preparing samples + rc merge locally
 - 21:44:07 21:44Z | Merged fix/interference-row-cite (W13 8b164583) into rc -> 7bbe5e82; remaining name-a-test failure = evidence row (W14). W18 patch-by-message abandoned (relay HTML-escapes); carrier merge -s ours on feat/surfaces-0.35 instructed, cherry-pick by SHA
