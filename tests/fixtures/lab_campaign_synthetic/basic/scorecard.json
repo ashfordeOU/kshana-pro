@@ -738,8 +738,8 @@
     }
   ],
   "data_class": "synthetic",
-  "digest": "ba9837d8ef056e7ab26644e98ae5495c878b9e76ce6feb01909518d5d6b66367",
-  "engine_version": "0.32.0",
+  "digest": "a76ec0cd5938e828ccb060dd90d9208b05d9baa736a2b8bd0a1d2394c75bcd82",
+  "engine_version": "0.34.0",
   "modelled_reference": {
     "formula": "(C/N0)eff = [1/(C/N0) + (J/S)/(Q*Rc)]^-1",
     "label": "MODELLED"
@@ -747,7 +747,7 @@
   "rows": [
     {
       "availability": 0.7754184703771683,
-      "cell": "10587d01ff09e0dbc0a4e3c1369d2b9515a1ba7ef0043b418732bdf3318a60a0",
+      "cell": "5aa3dc802ae51277443a538bca7d80e03dc1cc787b88b8d333e626dc68012677",
       "cn0_dbhz": 44.925000000000004,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.925000000000004,
@@ -774,7 +774,7 @@
     },
     {
       "availability": 0.14733330239995587,
-      "cell": "10587d01ff09e0dbc0a4e3c1369d2b9515a1ba7ef0043b418732bdf3318a60a0",
+      "cell": "5aa3dc802ae51277443a538bca7d80e03dc1cc787b88b8d333e626dc68012677",
       "cn0_dbhz": 44.975,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.975,
@@ -801,7 +801,7 @@
     },
     {
       "availability": 0.3355443043438274,
-      "cell": "70cea695b001d95bb58e196e154ff5074751d0f08aaf7975cc1f1e81c476d479",
+      "cell": "c1e74370760316afe4f56aa27bf4e40094f50a0e653f54d8dd5e8c02dc54bbce",
       "cn0_dbhz": 44.925000000000004,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.925000000000004,
@@ -830,7 +830,7 @@
     },
     {
       "availability": 0.1473333023999559,
-      "cell": "70cea695b001d95bb58e196e154ff5074751d0f08aaf7975cc1f1e81c476d479",
+      "cell": "c1e74370760316afe4f56aa27bf4e40094f50a0e653f54d8dd5e8c02dc54bbce",
       "cn0_dbhz": 44.975,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.975,
@@ -859,7 +859,7 @@
     },
     {
       "availability": 0.6929426418358178,
-      "cell": "d430d6070b59b2e98a5a051b34fdfb82490c92cb3d802d10764a1a1d7c239fed",
+      "cell": "f51079f594d1bc0e73c1eb6ec4fda4abe8241637bf4ef975f3c1d3ccafb6b02b",
       "cn0_dbhz": 44.925000000000004,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.925000000000004,
@@ -886,7 +886,7 @@
     },
     {
       "availability": 0.14733330239995587,
-      "cell": "d430d6070b59b2e98a5a051b34fdfb82490c92cb3d802d10764a1a1d7c239fed",
+      "cell": "f51079f594d1bc0e73c1eb6ec4fda4abe8241637bf4ef975f3c1d3ccafb6b02b",
       "cn0_dbhz": 44.975,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.975,
@@ -913,7 +913,7 @@
     },
     {
       "availability": 0.33554430624755494,
-      "cell": "c01a534440af86450f647720a7f9912ca3b8d1fd8eb85b7fa9cae74a2e4c0d66",
+      "cell": "4629594217368fd67a2028804684e42ccfc79c2fd5bd47f492a05447b5d20dfb",
       "cn0_dbhz": 44.775000000000006,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.775000000000006,
@@ -942,7 +942,7 @@
     },
     {
       "availability": 0.1473333023999559,
-      "cell": "c01a534440af86450f647720a7f9912ca3b8d1fd8eb85b7fa9cae74a2e4c0d66",
+      "cell": "4629594217368fd67a2028804684e42ccfc79c2fd5bd47f492a05447b5d20dfb",
       "cn0_dbhz": 44.825,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.825,
@@ -971,7 +971,7 @@
     },
     {
       "availability": 0.7754184703396184,
-      "cell": "cf2a8da1dea7beb9bdad764a9e4c3aa9cad5c652b6bdecd6ca30970b0252f200",
+      "cell": "402153d088a8e6b6f4ec859a56c0e7e6657174c687c7f96057d3219f083219e4",
       "cn0_dbhz": 44.825,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.825,
@@ -998,7 +998,7 @@
     },
     {
       "availability": 0.1473333023999559,
-      "cell": "cf2a8da1dea7beb9bdad764a9e4c3aa9cad5c652b6bdecd6ca30970b0252f200",
+      "cell": "402153d088a8e6b6f4ec859a56c0e7e6657174c687c7f96057d3219f083219e4",
       "cn0_dbhz": 44.825,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.825,
@@ -1025,7 +1025,7 @@
     },
     {
       "availability": 0.6929426418605071,
-      "cell": "0ab44c786966ba9e73c7a98b3794cc8c676ecb1335e36e30679f7856b5380fa9",
+      "cell": "d5aac35febd88ccf71f39f59d469fe05c433a54374d22d6698f0624ea3fd5bb8",
       "cn0_dbhz": 44.825,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.825,
@@ -1052,7 +1052,7 @@
     },
     {
       "availability": 0.1473333023999559,
-      "cell": "0ab44c786966ba9e73c7a98b3794cc8c676ecb1335e36e30679f7856b5380fa9",
+      "cell": "d5aac35febd88ccf71f39f59d469fe05c433a54374d22d6698f0624ea3fd5bb8",
       "cn0_dbhz": 44.825,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.825,
@@ -1079,7 +1079,7 @@
     },
     {
       "availability": 0.9865802924455265,
-      "cell": "b841d116c8b1c1e0242e694ad5f5f4521e918c03b94c838ae6b7a55af90bb60c",
+      "cell": "0da15141583b6268bb1c7b6bcfeb94d8cca25f62d5337499be1353f1bb9fec2c",
       "cn0_dbhz": 45.025000000000006,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 45.025000000000006,
@@ -1106,7 +1106,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "b841d116c8b1c1e0242e694ad5f5f4521e918c03b94c838ae6b7a55af90bb60c",
+      "cell": "0da15141583b6268bb1c7b6bcfeb94d8cca25f62d5337499be1353f1bb9fec2c",
       "cn0_dbhz": 45.225,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 45.225,
@@ -1133,7 +1133,7 @@
     },
     {
       "availability": 0.9866493512246486,
-      "cell": "b841d116c8b1c1e0242e694ad5f5f4521e918c03b94c838ae6b7a55af90bb60c",
+      "cell": "0da15141583b6268bb1c7b6bcfeb94d8cca25f62d5337499be1353f1bb9fec2c",
       "cn0_dbhz": 44.725,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.725,
@@ -1160,7 +1160,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "b841d116c8b1c1e0242e694ad5f5f4521e918c03b94c838ae6b7a55af90bb60c",
+      "cell": "0da15141583b6268bb1c7b6bcfeb94d8cca25f62d5337499be1353f1bb9fec2c",
       "cn0_dbhz": 44.625,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.625,
@@ -1187,7 +1187,7 @@
     },
     {
       "availability": 0.9865802924065891,
-      "cell": "e6085bc09d4bf9ebc32d5b4d6f107cea5bda85f26113c6efaa89920cee406db8",
+      "cell": "8cf77089c621e57af3091b44d8d4191b540e60e559b0fbb18c34b2cbd710170e",
       "cn0_dbhz": 45.075,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 45.075,
@@ -1214,7 +1214,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "e6085bc09d4bf9ebc32d5b4d6f107cea5bda85f26113c6efaa89920cee406db8",
+      "cell": "8cf77089c621e57af3091b44d8d4191b540e60e559b0fbb18c34b2cbd710170e",
       "cn0_dbhz": 45.225,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 45.225,
@@ -1241,7 +1241,7 @@
     },
     {
       "availability": 0.9866493513343391,
-      "cell": "e6085bc09d4bf9ebc32d5b4d6f107cea5bda85f26113c6efaa89920cee406db8",
+      "cell": "8cf77089c621e57af3091b44d8d4191b540e60e559b0fbb18c34b2cbd710170e",
       "cn0_dbhz": 44.725,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.725,
@@ -1268,7 +1268,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "e6085bc09d4bf9ebc32d5b4d6f107cea5bda85f26113c6efaa89920cee406db8",
+      "cell": "8cf77089c621e57af3091b44d8d4191b540e60e559b0fbb18c34b2cbd710170e",
       "cn0_dbhz": 44.625,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.625,
@@ -1295,7 +1295,7 @@
     },
     {
       "availability": 0.9865802924455265,
-      "cell": "c158b414c968bc91426eb2bd844983bf3750c9796ab9c2513ff1dee1cc33bfee",
+      "cell": "d001b9bee288e1b7e0c7af3fa31858c7a4b79d49ba94e44097b6151b3171848a",
       "cn0_dbhz": 45.025000000000006,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 45.025000000000006,
@@ -1322,7 +1322,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "c158b414c968bc91426eb2bd844983bf3750c9796ab9c2513ff1dee1cc33bfee",
+      "cell": "d001b9bee288e1b7e0c7af3fa31858c7a4b79d49ba94e44097b6151b3171848a",
       "cn0_dbhz": 45.225,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 45.225,
@@ -1349,7 +1349,7 @@
     },
     {
       "availability": 0.9866493512246486,
-      "cell": "c158b414c968bc91426eb2bd844983bf3750c9796ab9c2513ff1dee1cc33bfee",
+      "cell": "d001b9bee288e1b7e0c7af3fa31858c7a4b79d49ba94e44097b6151b3171848a",
       "cn0_dbhz": 44.725,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.725,
@@ -1376,7 +1376,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "c158b414c968bc91426eb2bd844983bf3750c9796ab9c2513ff1dee1cc33bfee",
+      "cell": "d001b9bee288e1b7e0c7af3fa31858c7a4b79d49ba94e44097b6151b3171848a",
       "cn0_dbhz": 44.625,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.625,
@@ -1403,7 +1403,7 @@
     },
     {
       "availability": 0.9865802924169609,
-      "cell": "83ee6b5c61b430e6b47ce6e87eaafb6e470c758f46a40081c1ea02215f9a030e",
+      "cell": "117108929b7870375f64e3eef2ac7a06bb02ac8f0ad11a3b18714063a3fc1251",
       "cn0_dbhz": 44.875,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.875,
@@ -1430,7 +1430,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "83ee6b5c61b430e6b47ce6e87eaafb6e470c758f46a40081c1ea02215f9a030e",
+      "cell": "117108929b7870375f64e3eef2ac7a06bb02ac8f0ad11a3b18714063a3fc1251",
       "cn0_dbhz": 45.025000000000006,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 45.025000000000006,
@@ -1457,7 +1457,7 @@
     },
     {
       "availability": 0.9866493511659675,
-      "cell": "83ee6b5c61b430e6b47ce6e87eaafb6e470c758f46a40081c1ea02215f9a030e",
+      "cell": "117108929b7870375f64e3eef2ac7a06bb02ac8f0ad11a3b18714063a3fc1251",
       "cn0_dbhz": 44.625,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.625,
@@ -1484,7 +1484,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "83ee6b5c61b430e6b47ce6e87eaafb6e470c758f46a40081c1ea02215f9a030e",
+      "cell": "117108929b7870375f64e3eef2ac7a06bb02ac8f0ad11a3b18714063a3fc1251",
       "cn0_dbhz": 44.525000000000006,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.525000000000006,
@@ -1511,7 +1511,7 @@
     },
     {
       "availability": 0.9865802923993138,
-      "cell": "6a4c4a5ad3a69678fc98662890756b3383d3703e675738a404e965b700e91cf0",
+      "cell": "835c9e0fe1f03a6cbcdc54dd6e0ab656514e0c8bd3a6b7708df2f9271b22ee4e",
       "cn0_dbhz": 44.875,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.875,
@@ -1538,7 +1538,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "6a4c4a5ad3a69678fc98662890756b3383d3703e675738a404e965b700e91cf0",
+      "cell": "835c9e0fe1f03a6cbcdc54dd6e0ab656514e0c8bd3a6b7708df2f9271b22ee4e",
       "cn0_dbhz": 45.025000000000006,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 45.025000000000006,
@@ -1565,7 +1565,7 @@
     },
     {
       "availability": 0.9866493512881576,
-      "cell": "6a4c4a5ad3a69678fc98662890756b3383d3703e675738a404e965b700e91cf0",
+      "cell": "835c9e0fe1f03a6cbcdc54dd6e0ab656514e0c8bd3a6b7708df2f9271b22ee4e",
       "cn0_dbhz": 44.575,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.575,
@@ -1592,7 +1592,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "6a4c4a5ad3a69678fc98662890756b3383d3703e675738a404e965b700e91cf0",
+      "cell": "835c9e0fe1f03a6cbcdc54dd6e0ab656514e0c8bd3a6b7708df2f9271b22ee4e",
       "cn0_dbhz": 44.525000000000006,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.525000000000006,
@@ -1619,7 +1619,7 @@
     },
     {
       "availability": 0.9865802924169609,
-      "cell": "c437aea4195df763cdf63ef09864b3febadefc941cffb088261078ab2d57f282",
+      "cell": "7d0f47469d0de2c4be5c3ece72cbcc5ad80d106b9d280fe610f0d20f72531458",
       "cn0_dbhz": 44.875,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.875,
@@ -1646,7 +1646,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "c437aea4195df763cdf63ef09864b3febadefc941cffb088261078ab2d57f282",
+      "cell": "7d0f47469d0de2c4be5c3ece72cbcc5ad80d106b9d280fe610f0d20f72531458",
       "cn0_dbhz": 45.025000000000006,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 45.025000000000006,
@@ -1673,7 +1673,7 @@
     },
     {
       "availability": 0.9866493511659675,
-      "cell": "c437aea4195df763cdf63ef09864b3febadefc941cffb088261078ab2d57f282",
+      "cell": "7d0f47469d0de2c4be5c3ece72cbcc5ad80d106b9d280fe610f0d20f72531458",
       "cn0_dbhz": 44.625,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.625,
@@ -1700,7 +1700,7 @@
     },
     {
       "availability": 1.0,
-      "cell": "c437aea4195df763cdf63ef09864b3febadefc941cffb088261078ab2d57f282",
+      "cell": "7d0f47469d0de2c4be5c3ece72cbcc5ad80d106b9d280fe610f0d20f72531458",
       "cn0_dbhz": 44.525000000000006,
       "cn0_estimator": "m2m4",
       "cn0_m2m4_dbhz": 44.525000000000006,
