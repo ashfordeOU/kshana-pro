@@ -1,4 +1,4 @@
-Updated: 2026-10-10T19:47:21Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T20:01:18Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 20:01:18 20:01Z | Founder: all MCP channels in 0.35 (binaries all OS, .mcpb, Cursor/VS Code one-click, npx/uvx, brew/scoop/winget, Smithery/Glama/plugin dir, HTTP transport self-host) + README + site; W19 briefed on ci/mcp-channels from -rc a9113131
 - 19:47:21 19:47Z FOUNDER: 'fix the issues and do well'. W12 told: root-cause fixes, attack-as-test first, no weakened assertions, adversarial self-review; critic on standby for full re-review incl. PoC re-runs. W1b final-pass dry run in parallel
 - 19:36:42 19:36Z OSNMA CRITIC: 4 BLOCKERS (3 with working PoC): spoofed future time erases Failed verdicts; Authenticated never expires; verified Alert/NMAS don't-use ignored; dummy tags count as authenticated. Plus 11 should-fix (overflow/non-ASCII panics, chain lifecycle by CID/CREV/PKREV, time-requirement bounds, PRN_D 255, weak vector oracle, untested paths, advisory on usage, attribution, UBX sync stall). Relayed to W12 for full fix + re-review. OSNMA not mergeable until resolved
 - 19:36:03 19:36Z All 5 validation branches merged into release/0.35.0-rc (a9113131): evidence packs, telemetry, test-bench VALIDATED; CEF/LEEF new MODELLED row; compliance MODELLED. Counts 260 / 130 Validated / 126 Modelled / 4 Partner. Remaining: OSNMA (critic in progress), then final pass
