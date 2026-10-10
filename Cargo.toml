@@ -54,7 +54,7 @@ default = []
 #
 # The open core from crates.io, pinned exactly: Pro 0.2.0 is built and its showcases
 # recorded on this release.
-kshana = "=0.33.1"
+kshana = "=0.34.0"
 
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.
