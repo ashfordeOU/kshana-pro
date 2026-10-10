@@ -1,4 +1,4 @@
-Updated: 2026-10-10T23:14:13Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T23:49:55Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 23:49:55 23:49Z | W12 OSNMA round-2 fixes pushed d01c186: IODnav bypass closed (status bound to SHA-256 of authenticated ADKD0), KeyStall event, stale-KROOT rule, 2-satellite header confirmation + PKREV superseded-key order, nits incl CHANGELOG; vectors 18/18 0 failed 186,382 tags. Sent to critic session_014D7jreQXqWpqGkmufVtZSL for re-review
 - 23:14:13 23:14Z | MCP critic re-check 92f61660: MERGE (S1-S7, N1-N9 verified; wedge repro now 408/503 with server responsive). Merged ci/mcp-channels into rc -> 4c19cb97 (no-attribution OK, cargo check all-targets OK, kshana-mcp tests 72 pass). Residual R1-R3 to W19 as follow-up
 - 23:02:55 23:02Z | kshana-pro PR 29 (pin =0.34.1) CI green -> merged 621029c6. Next check-in 23:55Z
 - 23:02:33 23:02Z | OSNMA critic re-review (98c0e49, f026fdb): FIX-FIRST. 3/4 blockers closed; remaining: IODnav binding bypass (Word 5 / copied IODnav) -> bind SHA-256 of authenticated ADKD0 bits. Should-fix: clock-freeze warning, old-KROOT replay rule, revocation/NMAS header confirmation + PKREV order. Nits incl CHANGELOG 'not in this release'. Routed to W12. (Verdicts recovered from critic transcript; told critic to send_message.)
