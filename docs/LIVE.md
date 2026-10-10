@@ -1,4 +1,4 @@
-Updated: 2026-10-10T13:02:07Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T13:11:15Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:11:14 13:11Z W19 ea35da2: JetBrains compliance-STATEMENT drift guard (skips until compliance merged; proven to fail on a one-word change); JetBrains run 21 green. Integration item for W1b: confirm guard log shows 'OK: the JetBrains compliance statement matches'
 - 13:02:07 13:01Z W19 ci/release-0.35-channels a3a29f2: JetBrains actions for bench-export, compliance report + mapping, evidence verify (pinned only; exit 3 never shown as verified); JetBrains build/test run 19 success. STATEMENT drift guard requested; W18 to update SURFACES.md JB column
 - 12:49:46 12:49Z W19 given evidence verify CLI form (feat/trust-telemetry, docs/EVIDENCE-PACKS.md; exit 0/1/2/3; unpinned never shown as verified) for the JetBrains action
 - 12:48:35 12:48Z W18 cce94e7c: bench-export on all surfaces; full CLI x surface matrix in docs/SURFACES.md; WASM smoke pass. Directed: close all in-memory GAPs (exports/animation/examples on Python+WASM, plugin import-route+IQ, attach-timestamp, keygen Python-only, IQ monitor/labfit/sweep); CLI-only with reasons: --study, iq extract/convert/decimate, live/network. W19: JetBrains actions for evidence verify, bench-export, compliance
