@@ -1,4 +1,4 @@
-Updated: 2026-10-10T13:47:10Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T13:47:22Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:47:22 13:47Z W18 361e11a8 (docs): provisional JB names for W19's six pending actions; to be corrected when W19 lands them
 - 13:47:10 13:47Z W18 4604bf72 (docs): SURFACES.md JB column for W19's four actions; integration to verify names against plugin.xml
 - 13:46:50 13:46Z W18 feat/surfaces-0.35 2045c2b1: every in-memory surface gap closed (exports/animation/examples/import-route on Python+WASM; evidence attach-timestamp on 4 surfaces; keygen Python-only; IQ sweep/monitor/labfit/conditions on MCP+Python; plugin /kshana-iq, /kshana-import-route). SURFACES.md matrix has no GAP cells; N/A reasons documented. Gates green incl. WASM smoke. W19 asked for 6 more JetBrains actions
 - 13:11:14 13:11Z W19 ea35da2: JetBrains compliance-STATEMENT drift guard (skips until compliance merged; proven to fail on a one-word change); JetBrains run 21 green. Integration item for W1b: confirm guard log shows 'OK: the JetBrains compliance statement matches'
