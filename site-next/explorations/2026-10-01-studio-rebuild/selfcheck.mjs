@@ -36,7 +36,7 @@ const ok = (cond, msg) => { if (!cond) { fails++; console.log("FAIL", msg); } };
 
 // 1. parity
 const parity = read("PARITY.md");
-const rows = [...parity.matchAll(/`((?:app\.js|index\.html|app\.css)): ([^`]+)`/g)];
+const rows = [...parity.matchAll(/`((?:app\.js|index\.html|app\.css|advanced\/index\.html|tools\/tools\.js|trust\/trust\.js)): ([^`]+)`/g)];
 for (const [, file, token] of rows) ok(read(file).includes(token), `PARITY check missing: ${file}: ${token}`);
 console.log(`parity: ${rows.length} checks`);
 

@@ -116,3 +116,7 @@ under "For researchers". Kshana Pro is linked from the footer and from "For rese
 |---|---|---|---|
 | R10 | Simple view (default) and Advanced view (the full dashboard, `advanced/`), one switch in each header and "Open in Advanced view" under "For researchers"; the scenario, the panel and any edit travel in the link; the choice is remembered per browser | Header, For researchers | `app.js: switchToAdvanced(` |
 | R11 | The first paint: the recorded answer of a task link, and the opening screen's answer, before the modules load (`data/firstpaint*.json`, written by `tools_areas.mjs`) | Every task link, the opening screen | `index.html: data/firstpaint.json` |
+| T1 | The 0.35 pages are reachable from both views: header links and the Views menu (Simple), the Views menu (Advanced), and an "Open your own files" row on the opening screen | Header, opening screen | `index.html: tools/#evidence` |
+| T2 | Advanced view carries the same entry points to trust, interference map, training debrief and tools | Advanced header | `advanced/index.html: adv-views` |
+| T3 | Tools page: evidence-pack check, test-bench export, compliance mapping, OSNMA check, command-line cards and the "Use from your AI assistant" panel, engine-backed and client-side | Tools | `tools/tools.js: osnma_verify` |
+| T4 | Trust, training and interference pages run the engine in the browser (score an NMEA log, generate a training stream, build an interference map and route exposure) beside opening files | Those pages | `trust/trust.js: receiver_trust_replay` |

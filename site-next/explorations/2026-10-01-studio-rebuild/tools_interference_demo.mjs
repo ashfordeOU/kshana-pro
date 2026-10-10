@@ -68,3 +68,8 @@ const tmpl = JSON.parse(readFileSync(samples + "adsb-custom-2026-03-01.geojson",
 const doc = adsbDay("2026-03-02", true, tmpl);
 writeFileSync(here + "interference/demo/adsb-custom-2026-03-02.geojson", JSON.stringify(doc));
 console.log("adsb-custom-2026-03-02.geojson", doc.features.length, "cells (confounded: " + doc.kshana_interference_map.day.day_confounded + ")");
+// the CLI sample's synthetic CSV inputs, for the "Build a map here" panel (engine interference_map), plus a short route
+mkdirSync(here + "interference/demo/input", { recursive: true });
+for (const f of ["adsb.csv", "ais.csv", "land.geojson"]) copyFileSync(process.argv[ri2 + 1] + "/examples/interference-map/input/" + f, here + "interference/demo/input/" + f);
+writeFileSync(here + "interference/demo/input/route.csv", "lat,lon\n30.2,-50.0\n30.3,-48.75\n30.4,-47.5\n");
+console.log("copied interference/demo/input/ (adsb.csv, ais.csv, land.geojson, route.csv)");

@@ -75,3 +75,5 @@
 @media (prefers-reduced-motion:reduce){.tl *{transition:none!important;animation:none!important}}
 
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+#te-fmt,#te-host{min-height:44px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);padding:6px 10px;font:13px var(--f-mono);color:var(--ink);box-sizing:border-box}

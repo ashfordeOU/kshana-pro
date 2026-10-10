@@ -6,6 +6,8 @@ import {
   stepIndex, describeEpoch, pkshtFor, bandRuns, makeProjection, niceLength, monitorInfo, MAX_BYTES, MAX_BYTES_TEXT, KNOWN_MONITORS,
 } from "../lib/trust.mjs";
 
+import { getEngine } from "../lib/engine-page.mjs";
+
 const $ = (id) => document.getElementById(id);
 const NS = "http://www.w3.org/2000/svg";
 const BAND_VAR = { calibrating: "var(--b-cal)", nominal: "var(--b-nom)", degraded: "var(--b-deg)", untrusted: "var(--b-unt)" };
@@ -74,6 +76,40 @@ async function openFiles(files) {
     }
     await openTexts(items);
   } catch (e) { setStatus(`${files[0].name}: could not be read (${e && e.message ? e.message : e}).`, true); }
+}
+
+// ---------- score an NMEA log with the engine (in this browser) ----------
+function scoreStatus(msg, err) { const s = $("mt-score-status"); s.textContent = msg; s.classList.toggle("err", !!err); }
+async function scoreHere(nmea, nmeaName, truthText, label) {
+  try {
+    const session = $("mt-session").value;
+    if (!session.trim()) { scoreStatus("The session settings are empty. They declare the vessel ([platform] kind = \"vessel\").", true); return; }
+    if (nmea.length > 2 * 1024 * 1024) { scoreStatus(`${nmeaName}: larger than 2 MiB. The in-browser scorer takes an excerpt (the kshana receiver-trust command takes a whole log); open an excerpt that holds the five-minute calibration window.`, true); return; }
+    scoreStatus("Starting the engine and scoring…");
+    const eng = await getEngine();
+    if (!eng.available) { scoreStatus(`The engine could not start here (${eng.error}). Opening result files above still works.`, true); return; }
+    if (!eng.has("receiver_trust_replay")) { scoreStatus(`This engine build (version ${eng.version}) has no log scorer; it predates this page. The command is kshana receiver-trust.`, true); return; }
+    const rep = JSON.parse(await eng.call("receiver_trust_replay", session, nmea));
+    if (!rep || !Array.isArray(rep.epochs) || !rep.epochs.length) { scoreStatus(`${nmeaName}: the engine returned no epochs.`, true); return; }
+    const items = [{ name: "scored-here.jsonl", text: rep.epochs.map((e) => JSON.stringify(e)).join("\n") }, { name: nmeaName, text: nmea }];
+    if (truthText) items.push({ name: "truth.csv", text: truthText });
+    await openTexts(items, label || `Scored ${rep.epochs.length.toLocaleString()} epochs of ${nmeaName} with engine ${eng.version}, in this browser.`);
+    scoreStatus(`Scored ${rep.epochs.length.toLocaleString()} epochs with engine ${eng.version}: ${Object.entries(rep.summary || {}).filter(([k]) => ["calibrating", "nominal", "degraded", "untrusted"].includes(k)).map(([k, v]) => `${v} ${k}`).join(", ")}. Advisory only.`);
+  } catch (e) { scoreStatus(`${nmeaName}: could not be scored (${e && e.message ? e.message : e}).`, true); }
+}
+async function scoreDemo() {
+  scoreStatus("Opening the synthetic demo log…");
+  try {
+    const [a, b, c] = await Promise.all([fetch("trust/demo/tallinn-helsinki.nmea"), fetch("trust/demo/session.toml"), fetch("trust/demo/tallinn-helsinki.truth.csv")]);
+    if (!a.ok || !b.ok || !c.ok) throw new Error("the demo files did not load");
+    $("mt-session").value = await b.text();
+    await scoreHere(await a.text(), "tallinn-helsinki.nmea", await c.text(), "Synthetic demo log, scored here by the engine. Made-up ferry log and drag-off; text, not a measurement.");
+  } catch (e) { scoreStatus(`The demo log could not be opened: ${e.message}.`, true); }
+}
+async function scoreFile(f) {
+  if (!f) return;
+  if (f.size > 2 * 1024 * 1024) { scoreStatus(`${f.name}: larger than 2 MiB. The in-browser scorer takes an excerpt that holds the five-minute calibration window.`, true); return; }
+  await scoreHere(await f.text(), f.name, null);
 }
 
 async function openDemo() {
@@ -496,6 +532,9 @@ function applyFilterVisual() {
 }
 
 function wire() {
+  fetch("trust/demo/session.toml").then((r) => (r.ok ? r.text() : "")).then((t) => { if (!$("mt-session").value) $("mt-session").value = t; }).catch(() => {});
+  $("mt-score-demo").addEventListener("click", scoreDemo);
+  $("mt-nmea").addEventListener("change", (e) => { scoreFile(e.target.files[0]); e.target.value = ""; });
   $("mt-files").addEventListener("change", (e) => { openFiles([...e.target.files]); e.target.value = ""; });
   $("mt-demo").addEventListener("click", openDemo);
   const drop = $("mt-drop");
