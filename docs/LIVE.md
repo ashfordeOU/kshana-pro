@@ -1,4 +1,4 @@
-Updated: 2026-10-10T16:47:45Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T16:53:35Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:53:35 16:53Z W12 OSNMA progress: parsing, DSM-KROOT/PKR, Merkle, TESLA chain (SHA-256), ADKD 0/4/12 extraction, 22 tests; bit layouts checked against Guidelines worked example offline. MACLT table kept as own-notation facts (Annex E E.3(a) integration), cited, run-time extendable. Crate approval re-sent; push requested for critic
 - 16:47:45 16:47Z W15 pushed validate/bench-compliance (c177991) on contaminated base before the hold arrived; will cherry-pick to validate/bench-compliance-clean on release/0.35.0-clean (no delete/force). Tolerances pre-registered; EASA/IMO reference labels corrected to source headings
 - 16:40:23 16:40Z W19 dry run 55 at ec1d1cc SUCCESS (Signal K dry publish, NPM_TOKEN visible, OpenCPN catalogue assets, verify incl. attribution, JetBrains 13 actions, marine e2e). W1b to merge into release/0.35.0-clean. W18 pointed to repo rule files (check-no-attribution.sh, PR template, RULES.md)
 - 16:39:58 16:39Z Validation scope: W15 scipy approved (dev-only oracle); W13 narrow plan approved (Kshana consumes decoded fields: validate code interpretation vs pyModeS, AIS sentinels vs pyais, grid/land mask vs shapely/pyproj, route exposure vs shapely/GeographicLib; tolerance derived a priori)
