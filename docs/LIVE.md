@@ -1,4 +1,4 @@
-Updated: 2026-10-10T19:27:38Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T19:36:03Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 19:36:03 19:36Z All 5 validation branches merged into release/0.35.0-rc (a9113131): evidence packs, telemetry, test-bench VALIDATED; CEF/LEEF new MODELLED row; compliance MODELLED. Counts 260 / 130 Validated / 126 Modelled / 4 Partner. Remaining: OSNMA (critic in progress), then final pass
 - 19:27:38 19:27Z W1b merged interference-map-clean + maritime-clean into release/0.35.0-rc (9566279f): interference row VALIDATED, maritime split (monitors VALIDATED, score MODELLED). Counts 259 rows / 127 Validated / 128 Modelled / 4 Partner. Remaining merges: telemetry-evidence-clean, bench-compliance-clean, OSNMA
 - 19:08:21 19:08Z W15 validate/bench-compliance-clean 11335fe2 (on clean base, 4329 pass; 6 fails are web doc-sync counts fixed by final port) sent to W1b: test-bench row upgraded VALIDATED (Library basis), compliance row stays MODELLED with reference-index oracle text. All 5 validation branches now on clean base
 - 19:01:36 19:01Z W14 validate/telemetry-evidence-clean 36f90156 (on clean base) sent to W1b with 3 rows: evidence packs VALIDATED (Reference basis), telemetry Prometheus/OTLP VALIDATED (Library basis), CEF/LEEF MODELLED (new row)
