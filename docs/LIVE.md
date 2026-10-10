@@ -1,4 +1,4 @@
-Updated: 2026-10-10T14:46:57Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T15:25:53Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:25:53 15:25Z PR #66 CI suite completed on a75c264f; not merged separately (main frozen for v0.34.1; #66 and #70 ride in release/0.35.0 and close when 0.35 merges)
 - 14:46:57 14:46Z PR ashfordeOU/kshana#74 (0.34.1) merged after all 20 checks green -> main 0f41a724. MAIN FROZEN until Auto-tag tags v0.34.1 after main CI (~3h)
 - 14:24:07 14:24Z W1b milestone 2: release/0.35.0 34faad6a, all 10 code branches merged (surfaces 43af7a58, channels aace6ab). CHANGELOG [0.34.1] restored byte-identical; JetBrains STATEMENT guard OK (265 chars); 14 JetBrains names match SURFACES.md; MCP crate formatted + CI fmt step added. Open: compliance wording-rule test failure (fix text, not guard); full test run going
 - 14:15:22 14:15Z W2 0.34.1 post-gate: fmt, clippy (root + MCP), MCP tests, web tests all green. Pre-existing MCP-crate fmt gap (CI blind spot) routed to 0.35 with a new CI step; 0.34.1 kept minimal
