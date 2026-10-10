@@ -38,3 +38,18 @@ Notes:
 - **Discarded** (configuration_1 only) means reserved-ADKD tags set aside per Guidelines 5.5.2.
 
 Legal basis: counsel record on kshana-pro `legal/osnma-annex-e`, §4.9. This is advisory software, not type-approved navigation equipment.
+
+## Parameters exercised by the official vectors
+
+These were read from the DSM-KROOT fields of each set.
+
+- **Same in every scenario:** HF=0 (SHA-256 chain), MF=0 (HMAC-SHA-256), KS=4 (128-bit keys), TS=9 (40-bit tags).
+- **MAC look-up table:** entry 33 (configuration_1) and entry 34 (all other sets).
+- **ECDSA P-256:** configuration_1/2, crev, eoc, npk, oam_step1, nmt_step2/3. PKIDs 1, 2, 7 and 8.
+- **ECDSA P-521:** nmt_step1, nmt_step2, pkrev_step2/3. PKID 9.
+
+Not exercised by any official vector, and covered only by primitive known-answer tests (RFC 4493, FIPS 197, FIPS 202) and synthetic tests:
+- CMAC-AES;
+- a SHA3-256 chain;
+- other key and tag sizes;
+- the other built-in MAC look-up entries.
