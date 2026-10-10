@@ -1,4 +1,4 @@
-Updated: 2026-10-10T22:05:47Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T22:10:55Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 22:10:55 22:10Z | Check-in 22:10Z: W18 carrier push denied by classifier (not worked around); switched to gzip+base64 patch series via messages (escape-proof). OSNMA in critic re-review; W19 on security fixes; pro PR 29 CI running; next check-in 23:01Z
 - 22:05:47 22:05Z | OSNMA evidence re-recorded at 98c0e49: docs/evidence/osnma-official-vectors-2026-10-10-98c0e49.md (18/18, 186,382 tags, 0 failed; alert verifies after NPK fix)
 - 22:05:14 22:05Z | Merged validate/cef-oracle (W14 17bba4fb) into rc -> 73a28225: CEF Validated (pycef 153/153 tier-1, Logstash 157/157 after cfp1/cfp2 amendment 3, bar unchanged), LEEF Modelled; ledger 262/131/127/4; web/ hand edits dropped. W12 OSNMA head f026fdb (rc merged, examples/osnma, --help, SBOM 105 components) -> critic told of new head
 - 21:59:00 21:58Z | MCP-channels security critic: FIX-FIRST (D14 closed, bind/token/Host/Origin/launchers/pinning verified). S1 HTTP work not bounded by timeout (wedge repro) -> spawn_blocking pool + engine budget + docs; S2 mcpb packer unpinned in privileged job; S3 Dockerfile --locked; S4 no Smithery hosted deploy; S5 bot email -> contact@ashforde.org; S6 launcher override https/caps/timeouts; S7 advisory phrase; N1-N9. All routed to W19
