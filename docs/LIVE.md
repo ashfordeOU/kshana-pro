@@ -1,4 +1,4 @@
-Updated: 2026-10-10T20:01:18Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T20:35:52Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 20:35:52 20:35Z | W1b dry run on rc: regen 98c9e070 (local), check.py OK 98 pages/59.8MB, features UNPLACED=0; 79 placements approved; told to document 6 Python IQ + 7 wasm fns in PYTHON-API/NPM; final regen after mcp-channels + OSNMA merges
 - 20:01:18 20:01Z | Founder: all MCP channels in 0.35 (binaries all OS, .mcpb, Cursor/VS Code one-click, npx/uvx, brew/scoop/winget, Smithery/Glama/plugin dir, HTTP transport self-host) + README + site; W19 briefed on ci/mcp-channels from -rc a9113131
 - 19:47:21 19:47Z FOUNDER: 'fix the issues and do well'. W12 told: root-cause fixes, attack-as-test first, no weakened assertions, adversarial self-review; critic on standby for full re-review incl. PoC re-runs. W1b final-pass dry run in parallel
 - 19:36:42 19:36Z OSNMA CRITIC: 4 BLOCKERS (3 with working PoC): spoofed future time erases Failed verdicts; Authenticated never expires; verified Alert/NMAS don't-use ignored; dummy tags count as authenticated. Plus 11 should-fix (overflow/non-ASCII panics, chain lifecycle by CID/CREV/PKREV, time-requirement bounds, PRN_D 255, weak vector oracle, untested paths, advisory on usage, attribution, UBX sync stall). Relayed to W12 for full fix + re-review. OSNMA not mergeable until resolved
