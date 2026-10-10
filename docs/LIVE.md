@@ -1,4 +1,4 @@
-Updated: 2026-10-10T13:47:22Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T13:48:40Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:48:40 13:48Z PR #74: coverage green in 96 min (opt-level 1 confirmed; was ~4h), 19/20 green, check job running (~14:45Z). 0.35 integration GO to W1b now on release/0.35.0 from release/0.34.1 d980eff4 (frozen heads sent; surfaces + channels SHAs to follow). W18 merging release/0.34.1 + inline_only reconciliation now
 - 13:47:22 13:47Z W18 361e11a8 (docs): provisional JB names for W19's six pending actions; to be corrected when W19 lands them
 - 13:47:10 13:47Z W18 4604bf72 (docs): SURFACES.md JB column for W19's four actions; integration to verify names against plugin.xml
 - 13:46:50 13:46Z W18 feat/surfaces-0.35 2045c2b1: every in-memory surface gap closed (exports/animation/examples/import-route on Python+WASM; evidence attach-timestamp on 4 surfaces; keygen Python-only; IQ sweep/monitor/labfit/conditions on MCP+Python; plugin /kshana-iq, /kshana-import-route). SURFACES.md matrix has no GAP cells; N/A reasons documented. Gates green incl. WASM smoke. W19 asked for 6 more JetBrains actions
