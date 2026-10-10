@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Tests for the generic GeoJSON layer loader. Run with `node lib/geojson-layer.test.mjs`.
 import assert from "node:assert/strict";
-import { parseGeoJson, findNotices, stackLayers, makeView, pathOf, pointsOf, containsPoint, positions } from "./geojson-layer.mjs";
+import { MAX_GEOMETRY_DEPTH, MAX_FEATURES, parseGeoJson, findNotices, stackLayers, makeView, pathOf, pointsOf, containsPoint, positions } from "./geojson-layer.mjs";
 
 const sq = (w, s, e, n) => [[[w, s], [e, s], [e, n], [w, n], [w, s]]];
 const fc = (extra, feats) => JSON.stringify({ type: "FeatureCollection", ...extra, features: feats });
@@ -65,5 +65,21 @@ assert.equal(parseGeoJson(JSON.stringify(cell("a", [0, 0, 1, 1])), "f").layer.fe
   assert.match(pathOf(g, v.project), /^M[-\d. ]+L.*Z/);
   assert.deepEqual(pointsOf({ type: "GeometryCollection", geometries: [{ type: "Point", coordinates: [1, 2] }, { type: "MultiPoint", coordinates: [[3, 4], [5, 6]] }] }), [[1, 2], [3, 4], [5, 6]]);
   assert.equal(makeView(null, 10, 10), null);
+}
+// Hostile or broken geometry: deep nesting is refused without recursion, a huge ring needs no spread, a collection of
+// features past the cap is refused with a reason.
+{
+  const r = parseGeoJson(JSON.stringify({ type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "GeometryCollection", geometries: [{ type: "GeometryCollection", geometries: [{ type: "Point", coordinates: [1, 2] }] }] } }] }), "ok");
+  assert.equal(r.layer.features.length, 1, "shallow nesting is fine");
+  // build a deep one without JSON.stringify recursion limits: nest to MAX+1 by hand
+  let deep = { type: "Point", coordinates: [1, 2] };
+  for (let i = 0; i < MAX_GEOMETRY_DEPTH + 1; i++) deep = { type: "GeometryCollection", geometries: [deep] };
+  const d = parseGeoJson(JSON.stringify({ type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: deep }] }), "deep");
+  assert.equal(d.layer.features.length, 0); assert.equal(d.layer.skipped, 1);
+  const ring = Array.from({ length: 300000 }, (_, i) => [24 + (i % 100) * 1e-4, 59 + (i % 7) * 1e-4]); ring.push(ring[0]);
+  const big = parseGeoJson(JSON.stringify({ type: "Polygon", coordinates: [ring] }), "big");
+  assert.deepEqual(Object.keys(big.layer.bbox), ["west", "south", "east", "north"]);
+  const many = { type: "FeatureCollection", features: Array.from({ length: MAX_FEATURES + 1 }, () => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [1, 1] } })) };
+  assert.match(parseGeoJson(JSON.stringify(many), "many").error, /at most 20000/);
 }
 console.log("geojson-layer.test.mjs: ok");

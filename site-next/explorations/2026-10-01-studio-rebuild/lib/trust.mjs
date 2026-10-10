@@ -37,7 +37,12 @@ export const MONITOR_INFO = Object.freeze({
 export const KNOWN_MONITORS = Object.freeze(Object.keys(MONITOR_INFO));
 
 export const monitorInfo = (name) =>
-  MONITOR_INFO[name] || "A monitor this view does not have a description for (newer than the page). Treat it as a monitor.";
+  (Object.hasOwn(MONITOR_INFO, name) && MONITOR_INFO[name]) || "A monitor this view does not have a description for (newer than the page). Treat it as a monitor.";
+
+// Limits a file is read within: a larger file is refused with a stated reason rather than left to hang the page.
+export const MAX_BYTES = 24 * 1024 * 1024;
+export const MAX_EPOCHS = 20000;
+export const MAX_BYTES_TEXT = "24 MiB";
 
 const isNum = (x) => typeof x === "number" && Number.isFinite(x);
 
@@ -87,8 +92,9 @@ export function parseTruth(text) {
   for (let i = 1; i < lines.length; i++) {
     const p = lines[i].split(",");
     if (p.length < 3) continue;
+    if (p[0].trim() === "" || p[1].trim() === "" || p[2].trim() === "") continue; // an empty field is not 0
     const a = Number(p[0]), b = Number(p[1]), c = Number(p[2]);
-    if (isNum(a) && isNum(b) && isNum(c) && p[0].trim() !== "") { t.push(a); lat.push(b); lon.push(c); }
+    if (isNum(a) && isNum(b) && isNum(c) && Math.abs(b) <= 90 && Math.abs(c) <= 180) { t.push(a); lat.push(b); lon.push(c); }
   }
   return { t, lat, lon };
 }
@@ -110,7 +116,7 @@ export function parseTrustCsv(text) {
       const m = /^([a-z0-9-]+):([0-9.]+)$/.exec(r);
       if (m) deductions.push({ monitor: m[1], ratio: null, points: Number(m[2]) });
     }
-    epochs.push({ t_s, state: p[is], score: isNum(sc) ? sc : null, deductions, alarms: (p[ia] || "").split(";").filter(Boolean) });
+    epochs.push({ t_s, state: normState(p[is]), rawState: p[is], score: isNum(sc) ? sc : null, deductions, alarms: (p[ia] || "").split(";").filter(Boolean) });
   }
   return { epochs, hasScore: ic >= 0 };
 }
@@ -146,6 +152,7 @@ export function parseNmeaFixes(text) {
     if (line.length < 8 || line[0] !== "$" || line.slice(3, 6) !== "GGA") continue;
     if (!nmeaChecksumOk(line)) { skipped++; continue; }
     const f = line.split("*")[0].split(",");
+    if (f.length < 7 || typeof f[1] !== "string" || f[1].length < 6) { skipped++; continue; } // "$GPGGAxxxx": not a GGA
     const hh = Number(f[1].slice(0, 2)), mm = Number(f[1].slice(2, 4)), ss = Number(f[1].slice(4));
     const lat = nmeaDeg(f[2], f[3]), lon = nmeaDeg(f[4], f[5]);
     if (![hh, mm, ss].every(isNum) || lat == null || lon == null) { skipped++; continue; }
@@ -195,20 +202,25 @@ export function makeProjection(points) {
 
 // ---------- the run ----------
 
-const bandOf = (s) => (BANDS.includes(s) ? s : "calibrating");
+// A state this page does not know is drawn as calibrating (never scored) and counted, so the page can say so.
+const normState = (s) => (typeof s === "string" && BANDS.includes(s.toLowerCase()) ? s.toLowerCase() : "calibrating");
+const knownState = (s) => typeof s === "string" && BANDS.includes(s.toLowerCase());
+// Monitor-keyed tables from a file: no prototype, so a monitor named "constructor" or "__proto__" is just a name.
+const table = () => Object.create(null);
+const cleanDeductions = (list) => (Array.isArray(list) ? list : []).filter((d) => d && typeof d === "object" && typeof d.monitor === "string" && isNum(d.points)).map((d) => ({ monitor: d.monitor, ratio: isNum(d.ratio) ? d.ratio : null, points: d.points }));
 
 // Normalise a batch result's epoch.
 function fromResultEpoch(e) {
-  const sc = e.score || null;
-  const ratios = {};
-  const m = e.marine || null;
-  for (const r of (m && m.ratios) || []) if (Array.isArray(r) && isNum(r[1])) ratios[r[0]] = r[1];
+  const sc = e.score && typeof e.score === "object" ? e.score : null;
+  const ratios = table();
+  const m = e.marine && typeof e.marine === "object" ? e.marine : null;
+  for (const r of (m && Array.isArray(m.ratios) && m.ratios) || []) if (Array.isArray(r) && typeof r[0] === "string" && isNum(r[1])) ratios[r[0]] = r[1];
   return {
     t_s: e.t_s,
-    state: bandOf(e.state),
+    state: normState(e.state), unknownState: knownState(e.state) ? null : String(e.state),
     score: sc && isNum(sc.score) ? sc.score : null,
-    deductions: sc ? (sc.deductions || []).map((d) => ({ monitor: d.monitor, ratio: d.ratio, points: d.points })) : [],
-    alarms: (e.alarms || []).slice(),
+    deductions: sc ? cleanDeductions(sc.deductions) : [],
+    alarms: (Array.isArray(e.alarms) ? e.alarms : []).filter((x) => typeof x === "string"),
     ratios,
     pos: m && Array.isArray(m.position) && isNum(m.position[0]) && isNum(m.position[1]) ? [m.position[0], m.position[1]] : null,
     gate: null,
@@ -217,25 +229,28 @@ function fromResultEpoch(e) {
 }
 
 function fromLineEpoch(e) {
-  const ratios = {};
-  for (const d of e.deductions || []) if (isNum(d.ratio)) ratios[d.monitor] = d.ratio;
-  // Keys added by later schema versions: a position, if the stream carries one.
+  const ratios = table();
+  const ded = cleanDeductions(e.deductions);
+  for (const d of ded) if (d.ratio != null) ratios[d.monitor] = d.ratio;
+  // A position, from schema 1.1 on: an object {lat_deg, lon_deg, height_m} (the documented shape); an array
+  // [lat, lon] or top-level lat_deg/lon_deg are accepted too.
   let pos = null;
-  const p = e.position || e.pos;
-  if (Array.isArray(p) && isNum(p[0]) && isNum(p[1])) pos = [p[0], p[1]];
+  const p = e.position !== undefined ? e.position : e.pos;
+  if (p && typeof p === "object" && !Array.isArray(p) && isNum(p.lat_deg) && isNum(p.lon_deg)) pos = [p.lat_deg, p.lon_deg];
+  else if (Array.isArray(p) && isNum(p[0]) && isNum(p[1])) pos = [p[0], p[1]];
   else if (isNum(e.lat_deg) && isNum(e.lon_deg)) pos = [e.lat_deg, e.lon_deg];
   else if (isNum(e.lat) && isNum(e.lon)) pos = [e.lat, e.lon];
   return {
     t_s: e.t_s,
-    state: bandOf(e.state),
+    state: normState(e.state), unknownState: knownState(e.state) ? null : String(e.state),
     score: isNum(e.score) ? e.score : null,
-    deductions: (e.deductions || []).map((d) => ({ monitor: d.monitor, ratio: isNum(d.ratio) ? d.ratio : null, points: d.points })),
-    alarms: (e.alarms || []).slice(),
+    deductions: ded,
+    alarms: (Array.isArray(e.alarms) ? e.alarms : []).filter((x) => typeof x === "string"),
     ratios,
     pos,
     gate: ["off", "passed", "withheld"].includes(e.gate) ? e.gate : null,
-    note: e.note || null,
-    time: e.time || null,
+    note: typeof e.note === "string" ? e.note : null,
+    time: typeof e.time === "string" ? e.time : null,
   };
 }
 
@@ -320,22 +335,27 @@ export function buildRun(inputs) {
     const r = inputs.result;
     if (!Array.isArray(r.epochs)) return { error: "This result file has no epochs[]. It needs to come from `kshana receiver-trust <session.toml>` for a vessel session." };
     if (!r.score_model) return { error: "This result has no score_model, so it is a static-platform run with no trust score. The view draws vessel (moving-platform) runs." };
-    epochs = r.epochs.map(fromResultEpoch);
+    const good = r.epochs.filter((e) => e && typeof e === "object" && isNum(e.t_s));
+    if (good.length < r.epochs.length) notes.push(`${r.epochs.length - good.length} epoch(s) without a numeric t_s were skipped.`);
+    epochs = good.map(fromResultEpoch);
     model = r.score_model;
     monitorsRun = Array.isArray(r.monitors_run) ? r.monitors_run.slice() : null;
     events = (r.events || []).filter((e) => isNum(e.onset_s)).map((e) => ({ label: e.label, onset_s: e.onset_s, end_s: e.end_s ?? null }));
     states = r.states || null;
     source = "result";
   } else if (inputs.lines) {
-    epochs = inputs.lines.map(fromLineEpoch);
+    epochs = inputs.lines.filter((e) => e && typeof e === "object" && isNum(e.t_s)).map(fromLineEpoch);
     source = "lines";
     notes.push("A live stream does not state which monitors ran or the score model; the band edges below are the documented defaults and the monitor strips show only monitors that cost points.");
   } else if (inputs.csv) {
-    epochs = inputs.csv.epochs.map((e) => ({ ...e, ratios: {}, pos: null, gate: null, note: null }));
+    epochs = inputs.csv.epochs.map((e) => ({ ...e, unknownState: knownState(e.rawState) ? null : String(e.rawState), deductions: cleanDeductions(e.deductions), ratios: table(), pos: null, gate: null, note: null }));
     source = "csv";
     notes.push("trust.csv carries scores and reasons but not ratios or positions.");
   } else return { error: "Nothing to draw: pick a result JSON, JSON lines or trust.csv." };
   if (!epochs.length) return { error: "The file has no epochs." };
+  if (epochs.length > MAX_EPOCHS) return { error: `The file has ${epochs.length} epochs; this page draws at most ${MAX_EPOCHS}. Open an excerpt.` };
+  const unknown = epochs.filter((e) => e.unknownState);
+  if (unknown.length) notes.push(`${unknown.length} epoch(s) carry a state this page does not know (${[...new Set(unknown.map((e) => e.unknownState))].slice(0, 5).join(", ")}); they are drawn as calibrating, never scored.`);
   epochs.sort((a, b) => a.t_s - b.t_s);
 
   if (!model) model = { nominal_min: 90, degraded_min: 55, onset_ratio: 0.5, full_ratio: 1.5, evidence_hold_s: 10, weights: null, assumed: true };
@@ -360,12 +380,13 @@ export function buildRun(inputs) {
   const seen = new Set();
   for (const e of epochs) for (const k of Object.keys(e.ratios)) seen.add(k);
   const strips = (monitorsRun || [...seen]).filter((m) => seen.has(m) || monitorsRun);
-  const weights = model.weights || {};
+  const weights = model.weights && typeof model.weights === "object" ? model.weights : {};
   const run = {
     source, epochs, model, monitorsRun, events, states, notes,
     strips: strips.slice().sort((a, b) => KNOWN_MONITORS.indexOf(a) - KNOWN_MONITORS.indexOf(b)),
     weights,
     hasPosition: positions > 0,
+    demo: inputs.demo === true,
     hasTruth: truthN > 0,
     gateDerived,
     t0: epochs[0].t_s,
@@ -380,7 +401,7 @@ export function buildRun(inputs) {
 // monitor carries; monitors that ran and cost nothing; monitors that did not run.
 export function reasonsAt(run, i) {
   const e = run.epochs[i];
-  const ded = e.deductions.slice().sort((a, b) => b.points - a.points).map((d) => ({ ...d, weight: isNum(run.weights[d.monitor]) ? run.weights[d.monitor] : null }));
+  const ded = e.deductions.slice().sort((a, b) => b.points - a.points).map((d) => ({ ...d, weight: Object.hasOwn(run.weights, d.monitor) && isNum(run.weights[d.monitor]) ? run.weights[d.monitor] : null }));
   const names = new Set(ded.map((d) => d.monitor));
   let faint = [], notRun = [];
   if (run.monitorsRun) {

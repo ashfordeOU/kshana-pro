@@ -3,7 +3,7 @@
 // Files are read with File.text() in this page; nothing is sent anywhere.
 import {
   sniff, parseLines, parseTruth, parseTrustCsv, parseNmeaFixes, buildRun, reasonsAt, epochsAboveOnset,
-  stepIndex, describeEpoch, pkshtFor, bandRuns, makeProjection, niceLength, monitorInfo, KNOWN_MONITORS,
+  stepIndex, describeEpoch, pkshtFor, bandRuns, makeProjection, niceLength, monitorInfo, MAX_BYTES, MAX_BYTES_TEXT, KNOWN_MONITORS,
 } from "../lib/trust.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -35,35 +35,45 @@ const dyn = {}; // elements updated on cursor moves
 function setStatus(msg, err) { const s = $("mt-status"); s.textContent = msg; s.classList.toggle("err", !!err); }
 function setNotes(list) { const u = $("mt-notes"); u.replaceChildren(...list.map((t) => el("li", {}, t))); }
 
-async function openTexts(items, label) {
-  // items: [{name, text}]
-  const inputs = {};
-  const got = [];
-  for (const it of items) {
-    const kind = sniff(it.text);
-    try {
+async function openTexts(items, label, opts = {}) {
+  // items: [{name, text}]. Nothing in here may leave the page at "Reading…": every failure is said, with the file name.
+  let current = items.length ? items[0].name : "file";
+  try {
+    const inputs = { demo: opts.demo === true };
+    const got = [];
+    for (const it of items) {
+      current = it.name;
+      if (it.text.length > MAX_BYTES) { setStatus(`${it.name}: larger than ${MAX_BYTES_TEXT}. This page reads files up to that size; open an excerpt.`, true); return; }
+      const kind = sniff(it.text);
       if (kind === "result") inputs.result = JSON.parse(it.text);
       else if (kind === "lines") { const p = parseLines(it.text); inputs.lines = p.epochs; if (p.skipped) got.push(`${p.skipped} line(s) of ${it.name} were not epochs and were skipped`); }
       else if (kind === "csv") inputs.csv = parseTrustCsv(it.text);
       else if (kind === "nmea") inputs.nmea = parseNmeaFixes(it.text);
       else if (kind === "truth") inputs.truth = parseTruth(it.text);
       else { setStatus(`${it.name}: not a file this view reads (a result JSON, JSON lines, trust.csv, an NMEA log or a truth file).`, true); return; }
-    } catch (e) { setStatus(`${it.name}: could not be read (${e.message}).`, true); return; }
-    got.push(`${it.name}: ${{ result: "batch result", lines: "JSON lines", csv: "trust.csv", nmea: "NMEA log", truth: "truth file" }[kind]}`);
+      got.push(`${it.name}: ${{ result: "batch result", lines: "JSON lines", csv: "trust.csv", nmea: "NMEA log", truth: "truth file" }[kind]}`);
+    }
+    const r = buildRun(inputs);
+    if (r.error) { setStatus(r.error, true); setNotes(got); return; }
+    openRun(r.run);
+    setStatus(label || `Opened ${run.epochs.length} epochs (${run.source === "result" ? "batch result" : run.source === "lines" ? "JSON lines" : "trust.csv"}).`);
+    setNotes([...got, ...run.notes]);
+  } catch (e) {
+    setStatus(`${current}: could not be read or drawn (${e && e.message ? e.message : e}).`, true);
   }
-  const r = buildRun(inputs);
-  if (r.error) { setStatus(r.error, true); setNotes(got); return; }
-  openRun(r.run);
-  setStatus(label || `Opened ${run.epochs.length} epochs (${run.source === "result" ? "batch result" : run.source === "lines" ? "JSON lines" : "trust.csv"}).`);
-  setNotes([...got, ...run.notes]);
 }
 
 async function openFiles(files) {
   if (!files || !files.length) return;
   setStatus("Reading…");
-  const items = [];
-  for (const f of files) items.push({ name: f.name, text: await f.text() });
-  await openTexts(items);
+  try {
+    const items = [];
+    for (const f of files) {
+      if (f.size > MAX_BYTES) { setStatus(`${f.name}: larger than ${MAX_BYTES_TEXT}. This page reads files up to that size; open an excerpt.`, true); return; }
+      items.push({ name: f.name, text: await f.text() });
+    }
+    await openTexts(items);
+  } catch (e) { setStatus(`${files[0].name}: could not be read (${e && e.message ? e.message : e}).`, true); }
 }
 
 async function openDemo() {
@@ -73,7 +83,7 @@ async function openDemo() {
     if (!a.ok || !b.ok) throw new Error("the demo files did not load");
     const ra = await a.text(), tb = await b.text();
     await openTexts([{ name: "tallinn-helsinki.result.json", text: ra }, { name: "tallinn-helsinki.truth.csv", text: tb }],
-      "Synthetic demo: a made-up ferry log with a made-up position drag-off from 1500 s, scored by Kshana. Recorded from the engine; the log is text, not a measurement.");
+      "Synthetic demo: a made-up ferry log with a made-up position drag-off, scored by Kshana. Recorded from the engine; the log is text, not a measurement.", { demo: true });
   } catch (e) { setStatus(`The demo could not be opened: ${e.message}.`, true); }
 }
 
@@ -243,7 +253,7 @@ function drawTimeline() {
   dyn.curLine = sv("line", { class: "cur", y1: TL.scoreTop - 4, y2: 210 });
   svg.append(dyn.curLine);
   svg.onpointerdown = (ev) => { svg.setPointerCapture?.(ev.pointerId); timePointer(ev); };
-  svg.onpointermove = (ev) => { if (ev.buttons) timePointer(ev); };
+  svg.onpointermove = (ev) => { if (ev.buttons || ev.pointerType === "mouse") timePointer(ev); };
   svg.onkeydown = (ev) => keyStep(ev);
   svg.setAttribute("aria-valuemax", String(run.epochs.length - 1));
 }
@@ -314,7 +324,7 @@ function drawLegend() {
   const items = [["calibrating", "Calibrating (never scored)"], ["nominal", "Nominal"], ["degraded", "Degraded"], ["untrusted", "Untrusted"]];
   const li = items.map(([b, t]) => el("li", { style: `--c:${BAND_VAR[b]}` }, el("i", {}), t));
   if (run.hasTruth) li.push(el("li", { style: "--c:var(--truth)" }, el("i", { class: "thin" }), "True track (synthetic data only)"));
-  li.push(el("li", {}, "The demo receiver reports a valid fix throughout (GGA quality 1, RMC status A). The score is what falls."));
+  if (run.demo) li.push(el("li", {}, "In this demo the receiver reports a valid fix throughout (GGA quality 1, RMC status A). The score is what falls."));
   $("mt-legend").replaceChildren(...li);
 }
 
@@ -388,7 +398,8 @@ function drawReasons() {
   if (r.calibrating) box.append(el("p", { class: "mt-none" }, "Calibrating: the first seconds form the baseline and are never scored."));
   else if (e.score == null) box.append(el("p", { class: "mt-none" }, r.note ? `No score at this epoch: ${r.note}.` : "No score at this epoch."));
   else if (!r.ded.length) box.append(el("p", { class: "mt-none" }, "Nothing was deducted at this epoch. That is not evidence the fix is good: see what the checks cannot see, below."));
-  const maxW = Math.max(1, ...r.ded.map((d) => d.weight || d.points));
+  let maxW = 1;
+  for (const d of r.ded) maxW = Math.max(maxW, d.weight || d.points);
   for (const d of r.ded) {
     const pct = Math.min(100, (d.points / maxW) * 100);
     const row = el("button", { type: "button", class: "mt-rrow", "aria-pressed": hlMonitor === d.monitor ? "true" : "false", title: `${d.monitor}: ${monitorInfo(d.monitor)} Click to mark where it was above its onset.` },
@@ -482,6 +493,8 @@ function wire() {
   for (const ev of ["dragenter", "dragover"]) drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); });
   for (const ev of ["dragleave", "drop"]) drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); });
   drop.addEventListener("drop", (e) => openFiles([...(e.dataTransfer?.files || [])]));
+  // Replay is motion: with a reduced-motion preference it starts at 1x and says so.
+  try { if (matchMedia("(prefers-reduced-motion: reduce)").matches) { $("mt-speed").value = "1"; $("mt-live").textContent = "Reduced motion is preferred, so replay starts at 1x. Use the slider or the arrow keys to move without animation."; } } catch (e) { /* no matchMedia */ }
   $("mt-play").addEventListener("click", () => (playing ? stop() : play()));
   $("mt-slider").addEventListener("input", (e) => { if (playing) stop(); setCursor(Number(e.target.value)); });
   $("mt-first-ded").addEventListener("click", () => { if (run && run.firstDeduction >= 0) { stop(); setCursor(run.firstDeduction); } });

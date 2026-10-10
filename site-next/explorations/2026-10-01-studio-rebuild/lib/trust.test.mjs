@@ -5,7 +5,7 @@ import fs from "node:fs";
 import {
   sniff, parseLines, parseTruth, parseTrustCsv, parseNmeaFixes, nmeaChecksumOk, enOffsetM, distanceM, niceLength,
   makeProjection, deriveGate, nearestIndex, joinFixes, joinTruth, buildRun, reasonsAt, epochsAboveOnset, stepIndex,
-  describeEpoch, pkshtFor, bandRuns, monitorInfo, KNOWN_MONITORS, MONITOR_INFO,
+  describeEpoch, pkshtFor, bandRuns, monitorInfo, KNOWN_MONITORS, MONITOR_INFO, MAX_EPOCHS,
 } from "./trust.mjs";
 
 // A result in the shape `kshana receiver-trust` writes for a vessel: ten epochs, calibrating, then nominal,
@@ -114,8 +114,12 @@ assert.match(buildRun({ lines: [] }).error, /no epochs/);
   assert.ok(run.notes.some((n) => /does not state which monitors ran/.test(n)));
   assert.match(pkshtFor(run.epochs[2], run), /^\$PKSHT,1,080002\.00,23\.4,U,W,heading-course:40\.0\*[0-9A-F]{2}$/);
   // Later schema versions add a position key at the end.
-  const v11 = buildRun({ lines: p.epochs.map((e, i) => ({ ...e, position: [59 + i * 0.001, 24] })) }).run;
+  // Schema 1.1 writes the position as an object {lat_deg, lon_deg, height_m}; an array and flat keys are accepted too.
+  const v11 = buildRun({ lines: p.epochs.map((e, i) => ({ ...e, position: { lat_deg: 59 + i * 0.001, lon_deg: 24, height_m: 17.2 } })) }).run;
   assert.equal(v11.hasPosition, true); assert.deepEqual(v11.epochs[2].pos, [59.002, 24]);
+  assert.deepEqual(buildRun({ lines: p.epochs.map((e, i) => ({ ...e, position: [59 + i * 0.001, 24] })) }).run.epochs[2].pos, [59.002, 24]);
+  assert.deepEqual(buildRun({ lines: p.epochs.map((e, i) => ({ ...e, lat_deg: 59 + i * 0.001, lon_deg: 24 })) }).run.epochs[2].pos, [59.002, 24]);
+  assert.equal(buildRun({ lines: p.epochs.map((e) => ({ ...e, position: { lat_deg: "x", lon_deg: 24 } })) }).run.hasPosition, false);
 }
 
 // NMEA: a corrupt checksum is skipped, southern and western hemispheres are signed.
@@ -181,5 +185,45 @@ if (fs.existsSync(demo)) {
   assert.ok(run.epochs[2900].offsetM > 100, "reported and true positions have separated by the end");
   assert.ok(run.epochs[1000].offsetM < 30, "and are close before the drag-off");
   assert.ok(run.epochs.every((e) => e.pos), "every epoch has a reported position");
+}
+// Robustness: a malformed file never throws; it is counted or refused with a reason.
+{
+  // epochs without a numeric t_s, deductions without a monitor name or points
+  const messy = { ...result, epochs: [null, 3, { state: "nominal" }, ...result.epochs.map((e, i) => (i === 5 ? { ...e, score: { score: 30, band: "untrusted", deductions: [{ monitor: 7, points: 1 }, { monitor: "kinematic" }, null, { monitor: "kinematic", ratio: 2, points: 40 }] } } : e))] };
+  const r = buildRun({ result: messy });
+  assert.equal(r.error, undefined);
+  assert.equal(r.run.epochs.length, 10);
+  assert.ok(r.run.notes.some((n) => /3 epoch\(s\) without a numeric t_s were skipped/.test(n)));
+  assert.deepEqual(r.run.epochs[5].deductions, [{ monitor: "kinematic", ratio: 2, points: 40 }]);
+  const noObjs = buildRun({ lines: [null, 5, "x"] });
+  assert.match(noObjs.error, /no epochs/);
+  // monitor names that are prototype property names
+  const proto = { ...result, monitors_run: ["constructor", "__proto__", "toString"], epochs: result.epochs.map((e, i) => (i === 5 ? { ...e, marine: { ...e.marine, ratios: [["constructor", 2], ["__proto__", 1.5], ["toString", 0.9]] }, score: { score: 10, band: "untrusted", deductions: [{ monitor: "constructor", ratio: 2, points: 40 }, { monitor: "__proto__", ratio: 1.5, points: 30 }, { monitor: "hasOwnProperty", ratio: 1, points: 5 }] } } : e)) };
+  const q = buildRun({ result: proto });
+  assert.equal(q.error, undefined);
+  assert.match(monitorInfo("constructor"), /does not have a description/);
+  assert.match(monitorInfo("__proto__"), /does not have a description/);
+  assert.equal(q.run.epochs[5].ratios.constructor, 2);
+  assert.equal(reasonsAt(q.run, 5).ded[0].weight, null, "a weight is only one the file states");
+  assert.deepEqual(epochsAboveOnset(q.run, "constructor"), [5]);
+  assert.ok(q.run.strips.includes("constructor"));
+  // a state this page does not know is drawn as calibrating and said so; CSV states are normalised too
+  const odd = buildRun({ result: { ...result, epochs: result.epochs.map((e, i) => (i === 4 ? { ...e, state: "Weird" } : i === 5 ? { ...e, state: "UNTRUSTED" } : e)) } }).run;
+  assert.equal(odd.epochs[4].state, "calibrating"); assert.equal(odd.epochs[5].state, "untrusted");
+  assert.ok(odd.notes.some((n) => /1 epoch\(s\) carry a state this page does not know \(Weird\)/.test(n)));
+  const csv = parseTrustCsv("t_s,state,alarms,score,score_reasons\n0,CALIBRATING,,,\n1,Untrusted,x,20,kinematic:40.0\n2,mystery,,50,\n");
+  const cr = buildRun({ csv }).run;
+  assert.deepEqual(cr.epochs.map((e) => e.state), ["calibrating", "untrusted", "calibrating"]);
+  assert.ok(cr.notes.some((n) => /1 epoch\(s\) carry a state this page does not know \(mystery\)/.test(n)));
+  assert.match(pkshtFor(cr.epochs[1], cr), /,U,/);
+  // epoch cap
+  const many = Array.from({ length: MAX_EPOCHS + 1 }, (_, i) => ({ seq: i + 1, t_s: i, state: "nominal", score: 100, deductions: [], alarms: [], gate: "off" }));
+  assert.match(buildRun({ lines: many }).error, /at most 20000/);
+  // NMEA: a GGA with no comma is skipped, the rest still read
+  const f = parseNmeaFixes("$GPGGAxxxx\n$GPGGA,,,,,\n$GPGGA,010203.00,3355.50000,S,15112.00000,W,1,08,1.0,5.0,M,0.0,M,,\n");
+  assert.equal(f.fixes.length, 1); assert.equal(f.skipped, 2);
+  // truth: an empty latitude or longitude is a gap, not 0, 0
+  const t = parseTruth("t_s,true_lat_deg,true_lon_deg\n0,59,24\n1,,\n2,59.1,\n3,,24\n4,95,24\n5,59.2,24.2\n");
+  assert.deepEqual(t.t, [0, 5]);
 }
 console.log("trust.test.mjs: ok");

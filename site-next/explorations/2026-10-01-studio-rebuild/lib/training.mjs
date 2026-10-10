@@ -12,6 +12,18 @@ const isNum = (x) => typeof x === "number" && Number.isFinite(x);
 const isObj = (x) => x && typeof x === "object" && !Array.isArray(x);
 const str = (x) => (typeof x === "string" ? x : "");
 
+// Limits a file is read within.
+export const MAX_BYTES = 12 * 1024 * 1024;
+export const MAX_BYTES_TEXT = "12 MiB";
+export const MAX_ROWS = 20000;
+// How many debrief moments are listed before "first N shown".
+export const MAX_MOMENTS_SHOWN = 200;
+
+// Labels looked up by a name that comes from the file: only the page's own entries count, so a kind or a
+// "what" called "constructor" is shown as itself, not as a function from the prototype.
+export const kindLabel = (k) => (typeof k === "string" && Object.hasOwn(KIND_LABEL, k) ? KIND_LABEL[k] : String(k));
+export const whatLabel = (w) => (typeof w === "string" && Object.hasOwn(WHAT_LABEL, w) ? WHAT_LABEL[w] : String(w));
+
 export const KIND_LABEL = { jamming: "Jamming", "drag-off": "Position drag-off", "time-spoof": "Time spoof", "replay-delay": "Replay delay" };
 export const WHAT_LABEL = { onset: "Onset", "full-effect": "Full effect", "recovery-begins": "Recovery begins", recovered: "Recovered", "fix-lost": "Fix lost", "fix-regained": "Fix regained" };
 
@@ -31,15 +43,18 @@ export function parseInstructorLog(text, name = "file") {
   if (!o.schema.startsWith("kshana-nmea-training/")) return { error: `${name}: unknown schema ${JSON.stringify(o.schema)}; this page reads ${SCHEMA}.` };
   if (o.schema !== SCHEMA) return { error: `${name}: schema ${o.schema} is newer or different from ${SCHEMA}, which this page reads. Update the Studio rather than guess at its fields.` };
   if (!Array.isArray(o.track) || !o.track.length) return { error: `${name}: the log has no track rows to draw.` };
+  if (o.track.length > MAX_ROWS) return { error: `${name}: the log has ${o.track.length} track rows; this page draws at most ${MAX_ROWS}. Log less often (log_interval_s) or open an excerpt.` };
   const warnings = [];
   const track = [];
   let skipped = 0;
   for (const r of o.track) {
     if (!isObj(r) || !isNum(r.t_s) || !isNum(r.true_lat_deg) || !isNum(r.true_lon_deg)) { skipped++; continue; }
-    const rep = isNum(r.reported_lat_deg) && isNum(r.reported_lon_deg) ? [r.reported_lat_deg, r.reported_lon_deg] : null;
+    // A receiver with no fix reports nothing, whatever a row's reported_* fields hold: they are read only when fix_valid is true.
+    const fix = r.fix_valid === true;
+    const rep = fix && isNum(r.reported_lat_deg) && isNum(r.reported_lon_deg) ? [r.reported_lat_deg, r.reported_lon_deg] : null;
     track.push({
       t_s: r.t_s, utc: str(r.utc), truth: [r.true_lat_deg, r.true_lon_deg], trueSog: num(r.true_sog_kn), trueCog: num(r.true_cog_deg), trueHdg: num(r.true_heading_deg),
-      fixValid: r.fix_valid === true, rep, repSog: num(r.reported_sog_kn), repCog: num(r.reported_cog_deg), errM: num(r.position_error_m),
+      fixValid: fix, rep, repSog: fix ? num(r.reported_sog_kn) : null, repCog: fix ? num(r.reported_cog_deg) : null, errM: fix && rep ? num(r.position_error_m) : null,
       timeOff: isNum(r.time_offset_s) ? r.time_offset_s : 0, nUsed: isNum(r.n_used) ? r.n_used : 0, nTracked: isNum(r.n_tracked) ? r.n_tracked : 0,
       cn0: num(r.mean_cn0_dbhz), active: Array.isArray(r.active_events) ? r.active_events.filter(isNum) : [],
     });
@@ -146,12 +161,12 @@ export function describeRow(log, i) {
   if (Math.abs(r.timeOff) >= 0.05) bits.push(`reported time ${r.timeOff > 0 ? "ahead of" : "behind"} true by ${Math.abs(r.timeOff).toFixed(1)} s`);
   bits.push(`${r.nUsed} of ${r.nTracked} satellites used`);
   if (r.cn0 != null) bits.push(`mean C/N0 ${r.cn0.toFixed(1)} dB-Hz`);
-  if (r.active.length) bits.push(`active: ${r.active.map((id) => { const e = log.events.find((x) => x.id === id); return e ? (KIND_LABEL[e.p.kind] || e.p.kind) : `event ${id}`; }).join(", ")}`);
+  if (r.active.length) bits.push(`active: ${r.active.map((id) => { const e = log.events.find((x) => x.id === id); return e ? kindLabel(e.p.kind) : `event ${id}`; }).join(", ")}`);
   return bits.join(", ");
 }
 
 // One-line facts of an event's parameters for the list, in the order the log gives them.
 export function paramRows(p) {
   const label = { kind: "Kind", label: "Label", start_s: "Onset, s", duration_s: "Duration, s", ramp_s: "Onset ramp, s", recovery_s: "Recovery ramp, s", cn0_drop_db: "C/N0 drop, dB", spread_db: "Per-satellite spread, dB", final_offset_m: "Final offset, m", bearing_deg: "Bearing, deg true", relative_bearing_deg: "Bearing relative to course, deg", offset_s: "Time offset, s", delay_s: "Delay, s", affect_time: "Affects time", counterfeit_cn0_dbhz: "Counterfeit C/N0, dB-Hz" };
-  return Object.entries(p).filter(([, v]) => v !== null && v !== undefined).map(([k, v]) => [label[k] || k.replace(/_/g, " "), k === "kind" ? KIND_LABEL[v] || String(v) : String(v)]);
+  return Object.entries(p).filter(([, v]) => v !== null && v !== undefined).map(([k, v]) => [(Object.hasOwn(label, k) && label[k]) || k.replace(/_/g, " "), k === "kind" ? kindLabel(v) : String(v)]);
 }

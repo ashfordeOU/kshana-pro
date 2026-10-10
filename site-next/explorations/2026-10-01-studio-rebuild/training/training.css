@@ -5,9 +5,9 @@
 :root[data-theme="dark"]{--t-small:var(--orb);--t-medium:var(--nav);--t-large:var(--int);--t-lost:#B7A2FF}
 
 .tr{padding-bottom:56px}
-.tr h1{font:700 clamp(28px,4.4vw,46px)/1.05 var(--f-display);font-variation-settings:"wdth" 86;letter-spacing:-.02em;margin:10px 0 8px}
+.tr h1{font:700 clamp(28px,4.4vw,46px)/1.05 var(--f-display);letter-spacing:-.02em;margin:10px 0 8px}
 .tr .lede{max-width:78ch;margin:0 0 14px;color:var(--ink-2);font-size:16px;line-height:1.5}
-.tr .h3{font:650 17px/1.2 var(--f-display);font-variation-settings:"wdth" 92}
+.tr .h3{font:650 17px/1.2 var(--f-display)}
 .tr h4{margin:14px 0 6px;font:600 12px/1.2 var(--f-text);color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .tr-advice{margin:0 0 16px;padding:12px 14px;border-radius:14px;border:1px solid var(--line-2);border-left:4px solid var(--spf-card);background:var(--surface);font-size:13.5px;line-height:1.5;color:var(--ink-2);max-width:96ch}
@@ -18,7 +18,7 @@
 .tr-drop{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px;border:1.5px dashed var(--line-2);border-radius:16px;background:var(--surface-2)}
 .tr-drop.over{border-color:var(--tim);background:color-mix(in srgb,var(--tim) 8%,var(--surface-2))}
 .tr-drop input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
-.tr-file{cursor:pointer}.tr-file:focus-within{outline:2px solid var(--tim);outline-offset:2px}
+.tr-file{cursor:pointer;position:relative}.tr-file:focus-within{outline:2px solid var(--tim);outline-offset:2px}
 .tr-or{color:var(--ink-3);font-size:13px}
 .tr-demos{display:flex;flex-wrap:wrap;gap:8px}
 .tr-demo{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);font-weight:600;font-size:13.5px}

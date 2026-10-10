@@ -12,8 +12,9 @@
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500;600&family=Unbounded:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="theme.css">
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="studio.css">
 <link rel="stylesheet" href="interference/interference.css">
@@ -51,10 +52,9 @@
 
   <section class="card im-load" aria-labelledby="im-load-h">
     <div class="card-head"><h2 id="im-load-h" class="h3">Open map files</h2>
-      <p class="card-note">Choose one or more <code>adsb-YYYY-MM-DD.geojson</code> or <code>ais-YYYY-MM-DD.geojson</code> files. ADS-B and AIS files are always shown as separate maps and never combined: their licences differ (an ADS-B file made from adsb.lol data is ODbL 1.0; AIS files are public domain or NLOD 2.0) and so does what a cell means.</p></div>
+      <p class="card-note">Choose one or more <code>adsb-YYYY-MM-DD.geojson</code> or <code>ais-YYYY-MM-DD.geojson</code> files. ADS-B and AIS files are always shown as separate maps and never combined: their licences differ (an ADS-B file carries its source's licence, ODbL 1.0 for the built-in source; AIS files are public domain or NLOD 2.0) and so does what a cell means.</p></div>
     <div class="im-drop" id="im-drop">
-      <label class="im-file btn-primary" for="im-files">Choose files…</label>
-      <input id="im-files" type="file" multiple accept=".geojson,.json,application/geo+json,application/json">
+      <label class="im-file btn-primary">Choose files…<input id="im-files" type="file" multiple accept=".geojson,.json,application/geo+json,application/json"></label>
       <span class="im-or">or drop them here</span>
       <button class="im-demo" id="im-demo" type="button">Open the synthetic demo</button>
       <button class="im-demo" id="im-clear" type="button" hidden>Close all maps</button>

@@ -7,9 +7,14 @@
 // Not a measurement of any receiver, not a forecast, not proof of interference. A cell that is not
 // drawn was not observed; that is not evidence of a clear cell.
 // Each file is its own layer. ADS-B and AIS files are never merged: their licences differ (an ADS-B
-// file made from adsb.lol data is ODbL 1.0; AIS files are public domain or NLOD 2.0), and so does
+// file made from the ADS-B source's data carries that source's licence, ODbL 1.0; AIS files are public domain or NLOD 2.0), and so does
 // what a cell means.
 import { parseGeoJson } from "./geojson-layer.mjs";
+
+// Limits a file is read within.
+export const MAX_BYTES = 16 * 1024 * 1024;
+export const MAX_BYTES_TEXT = "16 MiB";
+export const MAX_TABLE_ROWS = 500;
 
 export const SCHEMA = "kshana-interference-map/v1";
 // format_version values this page supports (a change that removes or renames a field raises it; adding a
@@ -38,8 +43,8 @@ export const STATES = Object.freeze([
   { id: "unassessed", label: { adsb: "Unassessed", ais: "Unassessed" }, text: { adsb: "Observed, but too few aircraft could be sampled, or the day was confounded so no cell was called. No call is made.", ais: "Observed, but no call is made." } },
   { id: "notobserved", label: { adsb: "Not observed", ais: "Not observed" }, text: { adsb: "No cell drawn: too few aircraft were observed to publish it. This is not evidence that the area was clear.", ais: "No cell drawn: too few vessels were observed to publish it. This is not evidence that the area was clear." } },
 ]);
-const STATE_OF = { degraded: "degraded", anomalous: "degraded", not_degraded: "clear", not_anomalous: "clear", insufficient_sample: "unassessed", withheld_day_confounded: "unassessed" };
-export const stateOf = (status) => STATE_OF[status] || "unassessed";
+const STATE_OF = Object.assign(Object.create(null), { degraded: "degraded", anomalous: "degraded", not_degraded: "clear", not_anomalous: "clear", insufficient_sample: "unassessed", withheld_day_confounded: "unassessed" });
+export const stateOf = (status) => (typeof status === "string" && STATE_OF[status]) || "unassessed";
 export const stateInfo = (kind, id) => { const s = STATES.find((x) => x.id === id); return { id, label: s.label[kind], text: s.text[kind] }; };
 export function stateCounts(map) {
   const c = { degraded: 0, clear: 0, unassessed: 0 };
@@ -68,7 +73,6 @@ export function parseMapFile(text, name = "file") {
   const m = g.layer.meta.kshana_interference_map;
   if (!isObj(m)) return { error: `${name}: this is GeoJSON but not a Kshana interference map (no kshana_interference_map member).` };
   if (typeof m.schema !== "string" || !m.schema.startsWith("kshana-interference-map/")) return { error: `${name}: unknown schema ${JSON.stringify(m.schema)}; this page reads ${SCHEMA}.` };
-  if (m.schema !== SCHEMA) return { error: `${name}: schema ${m.schema} is newer or different from ${SCHEMA}, which this page reads. Update the Studio rather than guess at its fields.` };
   if (m.source_kind !== "adsb" && m.source_kind !== "ais") return { error: `${name}: source_kind ${JSON.stringify(m.source_kind)} is neither adsb nor ais.` };
   if (typeof m.format_version !== "number" || !SUPPORTED_FORMATS.includes(m.format_version)) return { error: `${name}: not a supported Kshana interference map (format_version ${JSON.stringify(m.format_version)}; this page supports ${SUPPORTED_FORMATS.join(", ")}).` };
   const kind = m.source_kind;
@@ -84,6 +88,8 @@ export function parseMapFile(text, name = "file") {
   const data = isObj(m.data) ? m.data : {};
   const warnings = [];
   if (g.layer.skipped) warnings.push(`${g.layer.skipped} feature(s) were not valid GeoJSON and were skipped.`);
+  const disagree = cells.filter((c) => known.has(c.status) && c.degraded !== (c.status === "degraded" || c.status === "anomalous")).length;
+  if (disagree) warnings.push(`${disagree} cell(s) have a "degraded" flag that disagrees with their status. The status is what is drawn.`);
   if (unknownStatus.size) warnings.push(`Status value(s) this page does not know: ${[...unknownStatus].join(", ")}. They are drawn as "no call".`);
   const missing = [];
   for (const k of ["licence", "attribution"]) if (!str(data[k]).trim()) missing.push(k);
@@ -140,8 +146,9 @@ export function cellRows(map, cell) {
 
 export function cellBounds(cell) {
   const r = cell.geometry.coordinates[0];
-  const xs = r.map((p) => p[0]), ys = r.map((p) => p[1]);
-  return { west: Math.min(...xs), east: Math.max(...xs), south: Math.min(...ys), north: Math.max(...ys) };
+  let west = Infinity, east = -Infinity, south = Infinity, north = -Infinity;
+  for (const p of r) { if (p[0] < west) west = p[0]; if (p[0] > east) east = p[0]; if (p[1] < south) south = p[1]; if (p[1] > north) north = p[1]; }
+  return { west, east, south, north };
 }
 export const fmtLat = (d) => `${Math.abs(d).toFixed(2)}°${d < 0 ? "S" : "N"}`;
 export const fmtLon = (d) => `${Math.abs(d).toFixed(2)}°${d < 0 ? "W" : "E"}`;

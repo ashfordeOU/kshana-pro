@@ -4,7 +4,7 @@
 // are checked too when present.
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { parseInstructorLog, errorBand, ERROR_BANDS, eventStrength, eventShape, fixLostSpans, nearestRow, stepTimeline, angDiff, sensorCue, describeRow, paramRows, stats } from "./training.mjs";
+import { parseInstructorLog, errorBand, ERROR_BANDS, eventStrength, eventShape, fixLostSpans, nearestRow, stepTimeline, angDiff, sensorCue, describeRow, paramRows, stats, kindLabel, whatLabel, MAX_ROWS } from "./training.mjs";
 
 const row = (t, o = {}) => ({ t_s: t, utc: `2026-01-01T00:00:${String(t).padStart(2, "0")}.000Z`, true_lat_deg: 59 + t * 1e-4, true_lon_deg: 24, true_sog_kn: 10, true_cog_deg: 0, true_heading_deg: 3, fix_valid: true, reported_lat_deg: 59 + t * 1e-4, reported_lon_deg: 24, reported_sog_kn: 10, reported_cog_deg: 1, position_error_m: 2, time_offset_s: 0, n_used: 9, n_tracked: 11, mean_cn0_dbhz: 44, active_events: [], ...o });
 const NO_FIX = { fix_valid: false, reported_lat_deg: null, reported_lon_deg: null, reported_sog_kn: null, reported_cog_deg: null, position_error_m: null, mean_cn0_dbhz: null, n_used: 2 };
@@ -78,6 +78,29 @@ assert.match(parseInstructorLog(JSON.stringify({ ...log0, track: [] }), "x").err
 }
 assert.equal(parseInstructorLog(JSON.stringify({ ...log0, a_future_key: 1 }), "x").error, undefined, "unknown fields are ignored");
 assert.equal(parseInstructorLog(JSON.stringify({ ...log0, events: [], timeline: [] }), "x").log.events.length, 0, "a clean run has no events");
+
+// No fix, no reported position: a row that carries coordinates but fix_valid false draws nothing for the receiver.
+{
+  const withCoords = { ...log0, track: log0.track.map((r, i) => (i === 4 ? { ...r, fix_valid: false, reported_lat_deg: 59.5, reported_lon_deg: 24.5, reported_sog_kn: 9, reported_cog_deg: 7, position_error_m: 5000 } : r)) };
+  const l = parseInstructorLog(JSON.stringify(withCoords), "x").log;
+  assert.equal(l.track[4].fixValid, false);
+  assert.equal(l.track[4].rep, null); assert.equal(l.track[4].errM, null); assert.equal(l.track[4].repSog, null); assert.equal(l.track[4].repCog, null);
+  assert.equal(l.stats.maxErrM, 120, "an error from a row with no fix does not count");
+  assert.equal(sensorCue(l.track[4]), null);
+  // fix_valid as a string or a number is not a fix either
+  const odd = parseInstructorLog(JSON.stringify({ ...log0, track: log0.track.map((r, i) => (i === 3 ? { ...r, fix_valid: "true" } : r)) }), "x").log;
+  assert.equal(odd.track[3].rep, null);
+}
+// Names from the file that are prototype property names stay names.
+assert.equal(kindLabel("constructor"), "constructor"); assert.equal(kindLabel("__proto__"), "__proto__"); assert.equal(kindLabel("jamming"), "Jamming");
+assert.equal(whatLabel("toString"), "toString"); assert.equal(whatLabel("onset"), "Onset");
+assert.deepEqual(paramRows({ constructor: 1, kind: "constructor" }), [["constructor", "1"], ["Kind", "constructor"]]);
+{
+  const l = parseInstructorLog(JSON.stringify({ ...log0, events: [{ id: 1, description: "d", parameters: { kind: "hasOwnProperty", start_s: 1, duration_s: 1 } }], timeline: [{ t_s: 1, what: "constructor", text: "t" }] }), "x").log;
+  assert.match(describeRow({ ...l, track: [{ ...l.track[2], active: [1] }] }, 0), /active: hasOwnProperty/);
+}
+// A log with more rows than the page draws is refused with the limit.
+assert.match(parseInstructorLog(JSON.stringify({ ...log0, track: Array.from({ length: MAX_ROWS + 1 }, (_, i) => row(i % 60)) }), "big").error, /at most 20000/);
 
 // The library logs, as the CLI wrote them.
 const dir = new URL("../training/demo/", import.meta.url);

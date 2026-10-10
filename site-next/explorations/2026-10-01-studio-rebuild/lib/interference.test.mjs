@@ -74,12 +74,28 @@ assert.match(parseMapFile(JSON.stringify({ type: "FeatureCollection", features: 
 const doc = JSON.parse(demo("ais-2026-03-01.geojson"));
 const withM = (patch) => JSON.stringify({ ...doc, kshana_interference_map: { ...doc.kshana_interference_map, ...patch } });
 assert.match(parseMapFile(withM({ schema: "other/v1" }), "x").error, /unknown schema/);
-assert.match(parseMapFile(withM({ schema: "kshana-interference-map/v2" }), "x").error, /newer or different/);
+// The page gates on format_version: a newer schema label with a supported format_version still reads.
+assert.equal(parseMapFile(withM({ schema: "kshana-interference-map/v2" }), "x").error, undefined);
 assert.match(parseMapFile(withM({ format_version: 2 }), "x").error, /not a supported Kshana interference map/);
 assert.match(parseMapFile(withM({ format_version: undefined }), "x").error, /not a supported Kshana interference map/);
 assert.match(parseMapFile(withM({ format_version: "1" }), "x").error, /not a supported Kshana interference map/);
 assert.match(parseMapFile(withM({ source_kind: "radar" }), "x").error, /neither adsb nor ais/);
 assert.equal(parseMapFile(withM({ a_future_field: { x: 1 } }), "x").error, undefined, "unknown fields are ignored");
+// A degraded flag that disagrees with the status is reported; the status is what is drawn.
+{
+  const bad = JSON.parse(demo("adsb-2026-03-01.geojson")); bad.features[0].properties.degraded = true;
+  const r = parseMapFile(JSON.stringify(bad), "bad");
+  assert.ok(r.map.warnings.some((w) => /1 cell\(s\) have a "degraded" flag that disagrees/.test(w)));
+  assert.equal(r.map.cells[0].degraded, true);
+}
+// A status that is a prototype property name is an unknown status, treated as unassessed.
+{
+  const odd = JSON.parse(demo("adsb-2026-03-01.geojson")); const clear = odd.features.filter((f) => f.properties.status === "not_degraded"); clear[0].properties.status = "constructor"; clear[1].properties.status = "__proto__";
+  const r = parseMapFile(JSON.stringify(odd), "odd");
+  assert.equal(stateOf("constructor"), "unassessed"); assert.equal(stateOf("__proto__"), "unassessed"); assert.equal(typeof stateOf("toString"), "string");
+  assert.ok(r.map.warnings.some((w) => /constructor/.test(w)));
+  assert.equal(stateCounts(r.map).unassessed, 4 + 2);
+}
 // A file with no licence text is shown with a warning, not given one.
 {
   const r = parseMapFile(withM({ data: { dataset: "custom" } }), "bare.geojson");

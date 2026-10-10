@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Interference map page: the DOM layer. Everything it knows about the files is in lib/interference.mjs
 // and lib/geojson-layer.mjs. Files are read with File.text() in this page; nothing is sent anywhere.
-import { parseMapFile, parseRouteExposure, groupBySource, stateCounts, stateOf, stateInfo, statusInfo, STATES, KIND_LABEL, KEEP_CAVEATS, safeUrl, pct, cellRows, cellBounds, cellAt, describeMap, cellsForTable, showValue, fmtLat, fmtLon } from "../lib/interference.mjs";
+import { MAX_BYTES, MAX_BYTES_TEXT, MAX_TABLE_ROWS, parseMapFile, parseRouteExposure, groupBySource, stateCounts, stateOf, stateInfo, statusInfo, STATES, KIND_LABEL, KEEP_CAVEATS, safeUrl, pct, cellRows, cellBounds, cellAt, describeMap, cellsForTable, showValue, fmtLat, fmtLon } from "../lib/interference.mjs";
 import { makeView, pathOf } from "../lib/geojson-layer.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -31,33 +31,49 @@ function setStatus(msg, err) { const s = $("im-status"); s.textContent = msg; s.
 function setNotes(list) { $("im-notes").replaceChildren(...list.map((t) => el("li", {}, t))); }
 
 async function openTexts(items, label) {
+  // Nothing in here may leave the page at "Reading…": every failure is said, with the file name.
   const notes = [], added = [];
-  for (const it of items) {
-    if (maps.length + added.filter((x) => x.kind).length >= MAX_MAPS) { notes.push(`${it.name}: not opened, ${MAX_MAPS} maps are already open. Close some first.`); continue; }
-    if (/"kshana_route_exposure"/.test(it.text.slice(0, 400))) {
-      const rr = parseRouteExposure(it.text, it.name);
-      if (rr.error) notes.push(rr.error); else { rr.report.uid = ++uid; routes.push(rr.report); added.push(rr.report); }
-      continue;
+  let current = "file";
+  try {
+    for (const it of items) {
+      current = it.name;
+      if (maps.length + added.filter((x) => x.kind).length >= MAX_MAPS) { notes.push(`${it.name}: not opened, ${MAX_MAPS} maps are already open. Close some first.`); continue; }
+      if (it.text.length > MAX_BYTES) { notes.push(`${it.name}: larger than ${MAX_BYTES_TEXT}; this page reads map files up to that size.`); continue; }
+      if (/"kshana_route_exposure"/.test(it.text.slice(0, 400))) {
+        const rr = parseRouteExposure(it.text, it.name);
+        if (rr.error) notes.push(rr.error); else { rr.report.uid = ++uid; routes.push(rr.report); added.push(rr.report); }
+        continue;
+      }
+      const r = parseMapFile(it.text, it.name);
+      if (r.error) { notes.push(r.error); continue; }
+      r.map.uid = ++uid;
+      added.push(r.map);
     }
-    const r = parseMapFile(it.text, it.name);
-    if (r.error) { notes.push(r.error); continue; }
-    r.map.uid = ++uid;
-    added.push(r.map);
+    maps.push(...added.filter((x) => x.kind));
+    for (const m of added) if (m.kind) layer[m.kind].uid = m.uid; // the newest file of a source is the day shown
+    render();
+    $("im-clear").hidden = maps.length + routes.length === 0;
+    if (added.length) setStatus(label || `Opened ${added.length} file${added.length > 1 ? "s" : ""}; ${maps.length} map${maps.length > 1 ? "s" : ""} open.`);
+    else setStatus(notes.length ? "No file could be opened." : "Nothing opened.", true);
+    setNotes(notes);
+  } catch (e) {
+    setStatus(`${current}: could not be read or drawn (${e && e.message ? e.message : e}).`, true);
+    setNotes(notes);
   }
-  maps.push(...added.filter((x) => x.kind));
-  for (const m of added) if (m.kind) layer[m.kind].uid = m.uid; // the newest file of a source is the day shown
-  render();
-  $("im-clear").hidden = maps.length + routes.length === 0;
-  if (added.length) setStatus(label || `Opened ${added.length} file${added.length > 1 ? "s" : ""}; ${maps.length} map${maps.length > 1 ? "s" : ""} open.`);
-  else setStatus(notes.length ? "No file could be opened." : "Nothing opened.", true);
-  setNotes(notes);
 }
 async function openFiles(files) {
   if (!files || !files.length) return;
   setStatus("Reading…");
-  const items = [];
-  for (const f of files) items.push({ name: f.name, text: await f.text() });
-  await openTexts(items);
+  try {
+    const items = [], notes = [];
+    for (const f of files) {
+      if (f.size > MAX_BYTES) { notes.push(`${f.name}: larger than ${MAX_BYTES_TEXT}; this page reads map files up to that size.`); continue; }
+      items.push({ name: f.name, text: await f.text() });
+    }
+    if (!items.length) { setStatus("No file could be opened.", true); setNotes(notes); return; }
+    await openTexts(items);
+    if (notes.length) setNotes([...notes, ...[...$("im-notes").children].map((li) => li.textContent)]);
+  } catch (e) { setStatus(`${files[0].name}: could not be read (${e && e.message ? e.message : e}).`, true); }
 }
 async function openDemo() {
   setStatus("Opening the synthetic demo…");
@@ -195,7 +211,8 @@ function method(m) {
 
 function table(m, st) {
   const box = el("details", { class: "im-tabled" }, el("summary", {}, `Every drawn cell as a table (${m.cells.length})`));
-  const rows = cellsForTable(m);
+  const all = cellsForTable(m), rows = all.slice(0, MAX_TABLE_ROWS);
+  if (all.length > rows.length) box.append(el("p", { class: "im-none" }, `First ${rows.length} of ${all.length} cells shown, calls that matter first.`));
   const head = m.kind === "adsb" ? ["Cell area", "Status", "Observed", "Sampled", "Affected", "Share"] : ["Cell area", "Status", "Observed", "Detectors"];
   const t = el("table", { class: "tbl" }, el("thead", {}, el("tr", {}, head.map((h) => el("th", { scope: "col" }, h)))));
   const tb = el("tbody", {});

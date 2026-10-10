@@ -12,8 +12,9 @@
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500;600&family=Unbounded:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="theme.css">
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="studio.css">
 <link rel="stylesheet" href="trust/trust.css">
@@ -52,8 +53,7 @@
     <div class="card-head"><h2 id="mt-load-h" class="h3">Open a run</h2>
       <p class="card-note">Pick a result JSON (<code>session.result.json</code>) or the live JSON lines (<code>--json trust.jsonl</code>). A stream carries no position: add the NMEA log it came from to draw the track. A truth file (<code>t_s,true_lat_deg,true_lon_deg</code>) exists only for synthetic data and adds the true track.</p></div>
     <div class="mt-drop" id="mt-drop">
-      <label class="mt-file btn-primary" for="mt-files">Choose files…</label>
-      <input id="mt-files" type="file" multiple accept=".json,.jsonl,.ndjson,.csv,.nmea,.txt,.log,text/*,application/json">
+      <label class="mt-file btn-primary">Choose files…<input id="mt-files" type="file" multiple accept=".json,.jsonl,.ndjson,.csv,.nmea,.txt,.log,text/*,application/json"></label>
       <span class="mt-or">or drop them here</span>
       <button class="mt-demo" id="mt-demo" type="button">Open the synthetic demo</button>
     </div>
@@ -116,7 +116,7 @@
   <section class="mt-fine" aria-label="About this view">
     <h2 class="h3">What this view does and does not show</h2>
     <ul>
-      <li>The demo is <b>synthetic text</b>: a made-up NMEA log of a ferry on an illustrative Tallinn to Helsinki route, with a made-up position drag-off from 1500 s. It models no radio signal and is not a measurement or a chart.</li>
+      <li>The demo is <b>synthetic text</b>: a made-up NMEA log of a ferry on an illustrative Tallinn to Helsinki route, with a made-up position drag-off partway through. It models no radio signal and is not a measurement or a chart.</li>
       <li>In the demo the receiver reports a <b>valid fix throughout</b> (GGA quality 1, RMC status A). The trust score is what falls. The gap between the reported and the true track is the point of the view.</li>
       <li>NMEA-only checks cannot see a spoofer that reproduces the whole constellation with a self-consistent position, velocity, heading, power and clock, nor a replay of recorded real signals. A fix with no alarm is not thereby a good fix.</li>
       <li>Nothing on this page is a measure of how the checks perform on real interference. The score mapping and every weight are fixed before a log is scored, with no learning and nothing fitted to events.</li>

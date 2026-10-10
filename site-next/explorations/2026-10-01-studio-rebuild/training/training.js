@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Training debrief page: the DOM layer. Everything it knows about the log is in lib/training.mjs.
 // The file is read with File.text() in this page; nothing is sent anywhere.
-import { parseInstructorLog, errorBand, ERROR_BANDS, KIND_LABEL, WHAT_LABEL, eventShape, nearestRow, stepTimeline, sensorCue, describeRow, paramRows } from "../lib/training.mjs";
+import { parseInstructorLog, errorBand, ERROR_BANDS, kindLabel, whatLabel, MAX_BYTES, MAX_BYTES_TEXT, MAX_MOMENTS_SHOWN, eventShape, nearestRow, stepTimeline, sensorCue, describeRow, paramRows } from "../lib/training.mjs";
 import { makeProjection, niceLength } from "../lib/trust.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -34,13 +34,24 @@ function setStatus(msg, err) { const s = $("tr-status"); s.textContent = msg; s.
 function setNotes(list) { $("tr-notes").replaceChildren(...list.map((t) => el("li", {}, t))); }
 
 async function openText(name, text, label) {
-  const r = parseInstructorLog(text, name);
-  if (r.error) { setStatus(r.error, true); setNotes([]); return; }
-  openLog(r.log);
-  setStatus(label || `Opened ${name}: ${log.track.length} log rows over ${Math.round(log.durationS)} s.`);
-  setNotes(log.warnings);
+  // Nothing in here may leave the page at "Reading…": every failure is said, with the file name.
+  try {
+    if (text.length > MAX_BYTES) { setStatus(`${name}: larger than ${MAX_BYTES_TEXT}. This page reads logs up to that size.`, true); setNotes([]); return; }
+    const r = parseInstructorLog(text, name);
+    if (r.error) { setStatus(r.error, true); setNotes([]); return; }
+    openLog(r.log);
+    setStatus(label || `Opened ${name}: ${log.track.length} log rows over ${Math.round(log.durationS)} s.`);
+    setNotes(log.warnings);
+  } catch (e) { setStatus(`${name}: could not be read or drawn (${e && e.message ? e.message : e}).`, true); }
 }
-async function openFile(file) { if (!file) return; setStatus("Reading…"); await openText(file.name, await file.text()); }
+async function openFile(file) {
+  if (!file) return;
+  setStatus("Reading…");
+  try {
+    if (file.size > MAX_BYTES) { setStatus(`${file.name}: larger than ${MAX_BYTES_TEXT}. This page reads logs up to that size.`, true); return; }
+    await openText(file.name, await file.text());
+  } catch (e) { setStatus(`${file.name}: could not be read (${e && e.message ? e.message : e}).`, true); }
+}
 async function openDemo(name, title) {
   setStatus(`Opening ${title}…`);
   try {
@@ -144,7 +155,7 @@ function drawTimeline() {
     const shape = eventShape(e.p);
     if (shape.length) svg.append(sv("polygon", { points: shape.map(([t, s]) => `${f1(xOf(Math.min(Math.max(t, log.t0), log.t1)))},${f1(base - s * (h - 3))}`).join(" "), class: "evbar" }));
     svg.append(sv("line", { x1: L, x2: R, y1: base, y2: base, class: "ax" }));
-    label(`${e.id}. ${KIND_LABEL[e.p.kind] || e.p.kind}`, y + 12, e.description);
+    label(`${e.id}. ${kindLabel(e.p.kind)}`, y + 12, e.description);
     y += h + 6;
   });
   // moments
@@ -152,7 +163,7 @@ function drawTimeline() {
   for (const m of log.timeline) {
     const x = xOf(m.t_s), bad = m.what === "fix-lost";
     const d = sv("path", { d: `M${f1(x)} ${y + 2} l5 5 l-5 5 l-5 -5z`, class: `mom${bad ? " lost" : ""}` });
-    d.append(sv("title", {}, `T+${Math.round(m.t_s)} s ${WHAT_LABEL[m.what] || m.what}: ${m.text}`));
+    d.append(sv("title", {}, `T+${Math.round(m.t_s)} s ${whatLabel(m.what)}: ${m.text}`));
     svg.append(d);
   }
   y += 22;
@@ -173,7 +184,9 @@ function drawTimeline() {
   const line = (name, unit, get, opts = {}) => {
     const h = opts.h || 44, top = y + 4, bot = y + h;
     const vals = T.map(get).filter((v) => v != null);
-    const lo = opts.min ?? Math.min(0, ...vals), hi = Math.max(opts.min2 ?? 0.0001, ...vals, opts.max ?? -Infinity);
+    let lo = 0, hi = Math.max(opts.min2 ?? 0.0001, opts.max ?? -Infinity);
+    for (const v of vals) { if (v < lo) lo = v; if (v > hi) hi = v; }
+    if (opts.min != null) lo = opts.min;
     const yv = (v) => bot - ((v - lo) / (hi - lo || 1)) * (bot - top);
     svg.append(sv("line", { x1: L, x2: R, y1: bot, y2: bot, class: "ax" }));
     if (lo < 0 && hi > 0) svg.append(sv("line", { x1: L, x2: R, y1: yv(0), y2: yv(0), class: "edge" }));
@@ -231,7 +244,7 @@ function drawEvents() {
   box.replaceChildren();
   if (!log.events.length) { box.append(el("p", { class: "tr-none" }, "None: this is a clean run.")); return; }
   for (const e of log.events) {
-    box.append(el("details", { class: "tr-ev", open: "" }, el("summary", {}, `${e.id}. ${KIND_LABEL[e.p.kind] || e.p.kind}${e.p.label ? `: ${e.p.label}` : ""}`),
+    box.append(el("details", { class: "tr-ev", open: "" }, el("summary", {}, `${e.id}. ${kindLabel(e.p.kind)}${e.p.label ? `: ${e.p.label}` : ""}`),
       el("p", {}, e.description), e.startUtc ? el("p", { class: "tr-sub" }, `Onset ${e.startUtc}`) : null,
       el("dl", { class: "tr-kv" }, paramRows(e.p).flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]))));
   }
@@ -240,8 +253,10 @@ function drawTimelineList() {
   const ol = $("tr-tlist");
   ol.replaceChildren();
   if (!log.timeline.length) { ol.append(el("li", { class: "tr-none" }, "No moments recorded.")); return; }
-  for (const m of log.timeline) {
-    const b = el("button", { type: "button", class: "tr-mom" }, el("b", {}, `T+${Math.round(m.t_s)} s`), " ", el("span", { class: `tr-what${m.what === "fix-lost" ? " lost" : ""}` }, WHAT_LABEL[m.what] || m.what), m.event != null ? ` (event ${m.event})` : "", el("span", { class: "tr-mtext" }, m.text));
+  const shown = log.timeline.slice(0, MAX_MOMENTS_SHOWN);
+  $("tr-tl-cap").textContent = log.timeline.length > shown.length ? `First ${shown.length} of ${log.timeline.length} moments shown.` : "";
+  for (const m of shown) {
+    const b = el("button", { type: "button", class: "tr-mom" }, el("b", {}, `T+${Math.round(m.t_s)} s`), " ", el("span", { class: `tr-what${m.what === "fix-lost" ? " lost" : ""}` }, whatLabel(m.what)), m.event != null ? ` (event ${m.event})` : "", el("span", { class: "tr-mtext" }, m.text));
     b.onclick = () => { stop(); setCursor(nearestRow(log, m.t_s)); $("tr-time-svg").scrollIntoView?.({ block: "nearest" }); };
     ol.append(el("li", {}, b));
   }
@@ -331,6 +346,8 @@ function wire() {
   for (const ev of ["dragenter", "dragover"]) drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); });
   for (const ev of ["dragleave", "drop"]) drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); });
   drop.addEventListener("drop", (e) => openFile((e.dataTransfer?.files || [])[0]));
+  // Replay is motion: with a reduced-motion preference it starts at 1x and says so.
+  try { if (matchMedia("(prefers-reduced-motion: reduce)").matches) { $("tr-speed").value = "1"; $("tr-live").textContent = "Reduced motion is preferred, so replay starts at 1x. Use the slider or the arrow keys to move without animation."; } } catch (e) { /* no matchMedia */ }
   $("tr-play").addEventListener("click", () => (playing ? stop() : play()));
   $("tr-slider").addEventListener("input", (e) => { if (playing) stop(); setCursor(Number(e.target.value)); });
   $("tr-prev").addEventListener("click", () => { stop(); const m = stepTimeline(log, log.track[cur].t_s, -1); if (m) setCursor(nearestRow(log, m.t_s)); });

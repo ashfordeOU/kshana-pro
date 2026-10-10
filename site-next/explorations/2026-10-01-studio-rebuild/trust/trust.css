@@ -5,9 +5,9 @@
 :root[data-theme="dark"]{--b-cal:#8A93A8;--b-nom:var(--itg);--b-deg:var(--nav);--b-unt:var(--int);--hl:#B7A2FF}
 
 .mt{padding-bottom:56px}
-.mt h1{font:700 clamp(28px,4.4vw,46px)/1.05 var(--f-display);font-variation-settings:"wdth" 86;letter-spacing:-.02em;margin:10px 0 8px}
+.mt h1{font:700 clamp(28px,4.4vw,46px)/1.05 var(--f-display);letter-spacing:-.02em;margin:10px 0 8px}
 .mt .lede{max-width:78ch;margin:0 0 14px;color:var(--ink-2);font-size:16px;line-height:1.5}
-.mt .h3{font:650 17px/1.2 var(--f-display);font-variation-settings:"wdth" 92}
+.mt .h3{font:650 17px/1.2 var(--f-display)}
 .mt-advice{margin:0 0 16px;padding:12px 14px;border-radius:14px;border:1px solid var(--line-2);border-left:4px solid var(--nav-card);background:var(--surface);font-size:13.5px;line-height:1.5;color:var(--ink-2);max-width:96ch}
 .mt-advice b{color:var(--ink)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -16,8 +16,7 @@
 .mt-drop{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px;border:1.5px dashed var(--line-2);border-radius:16px;background:var(--surface-2)}
 .mt-drop.over{border-color:var(--tim);background:color-mix(in srgb,var(--tim) 8%,var(--surface-2))}
 .mt-drop input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
-.mt-drop input[type=file]:focus-visible + .mt-or{outline:2px solid var(--tim)}
-.mt-file{cursor:pointer}
+.mt-file{cursor:pointer;position:relative}
 .mt-file:focus-within{outline:2px solid var(--tim);outline-offset:2px}
 .mt-or{color:var(--ink-3);font-size:13px}
 .mt-demo{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);font-weight:600;font-size:14px}
@@ -70,7 +69,7 @@ button.mt-chip:hover,.mt-chip.chk:hover{background:var(--line)}
 .mt-offset{margin:8px 0 0;font:500 13px/1.4 var(--f-mono);color:var(--ink)}
 
 /* reasons */
-.mt-rrow{display:grid;grid-template-columns:minmax(0,13ch) 1fr auto;gap:4px 10px;align-items:center;width:100%;min-height:36px;padding:2px 4px;border-radius:8px;text-align:left}
+.mt-rrow{min-height:44px;display:grid;grid-template-columns:minmax(0,13ch) 1fr auto;gap:4px 10px;align-items:center;width:100%;padding:2px 4px;border-radius:8px;text-align:left}
 button.mt-rrow:hover{background:var(--line)}
 .mt-rrow[aria-pressed=true]{background:color-mix(in srgb,var(--hl) 16%,transparent);outline:1px solid var(--hl)}
 .mt-rname{font:550 12.5px/1.2 var(--f-mono);overflow-wrap:anywhere}

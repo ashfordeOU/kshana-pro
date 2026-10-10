@@ -1,6 +1,6 @@
 {
- "studio": "http://127.0.0.1:8877/",
- "when": "2026-10-01T14:25:41.845Z",
+ "studio": "http://127.0.0.1:18899/",
+ "when": "2026-10-10T10:54:45.273Z",
  "gates": {
   "phone": {
    "target": "header <= 64 px, no sideways content, targets >= 44 px",
@@ -11,7 +11,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 34
+     "controls": 35
     },
     {
      "view": "domain",
@@ -19,7 +19,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 35
+     "controls": 36
     },
     {
      "view": "browse-search",
@@ -27,7 +27,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 66
+     "controls": 67
     },
     {
      "view": "dl-waterfall",
@@ -35,7 +35,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 46
+     "controls": 47
     },
     {
      "view": "dl-raim",
@@ -43,7 +43,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 35
+     "controls": 36
     },
     {
      "view": "dl-lunar-time",
@@ -51,7 +51,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 24
+     "controls": 25
     },
     {
      "view": "dl-clock-exports",
@@ -59,7 +59,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 41
+     "controls": 42
     },
     {
      "view": "coverage",
@@ -67,7 +67,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 42
+     "controls": 43
     },
     {
      "view": "campaign",
@@ -75,7 +75,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 48
+     "controls": 49
     },
     {
      "view": "raim-open-all",
@@ -83,7 +83,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 96
+     "controls": 100
     },
     {
      "view": "landing-engine-loading",
@@ -91,7 +91,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 34
+     "controls": 35
     },
     {
      "view": "raim-engine-loading",
@@ -99,7 +99,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 37
+     "controls": 38
     },
     {
      "view": "raim-sweep",
@@ -107,7 +107,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 41
+     "controls": 42
     },
     {
      "view": "raim-json",
@@ -115,7 +115,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 36
+     "controls": 37
     },
     {
      "view": "raim-animation",
@@ -123,7 +123,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 36
+     "controls": 37
     },
     {
      "view": "raim-report",
@@ -131,7 +131,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 36
+     "controls": 37
     },
     {
      "view": "telecom-masks",
@@ -139,7 +139,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 46
+     "controls": 47
     },
     {
      "view": "solar",
@@ -147,7 +147,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 40
+     "controls": 41
     },
     {
      "view": "leo-chain",
@@ -155,7 +155,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 45
+     "controls": 46
     },
     {
      "view": "orbit-3d",
@@ -163,7 +163,7 @@
      "pageSideways": false,
      "boxes": [],
      "smallTargets": [],
-     "controls": 35
+     "controls": 36
     }
    ],
    "pass": true

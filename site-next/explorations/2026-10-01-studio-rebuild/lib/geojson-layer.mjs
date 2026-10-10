@@ -27,6 +27,7 @@ export function parseGeoJson(text, name = "file") {
   else return { error: `${name}: not GeoJSON (a FeatureCollection, Feature or geometry was expected).` };
   const meta = {};
   if (o.type === "FeatureCollection") for (const [k, v] of Object.entries(o)) if (!STANDARD.has(k)) meta[k] = v;
+  if (features.length > MAX_FEATURES) return { error: `${name}: ${features.length} features; this page draws at most ${MAX_FEATURES}.` };
   const out = [];
   let skipped = 0;
   for (const f of features) {
@@ -37,25 +38,38 @@ export function parseGeoJson(text, name = "file") {
   return { layer: { name, meta, features: out, skipped, notices: findNotices(meta, out), bbox: bboxOf(out) } };
 }
 
-function validGeometry(g) {
-  switch (g.type) {
-    case "Point": return isPos(g.coordinates);
-    case "MultiPoint": case "LineString": return Array.isArray(g.coordinates) && g.coordinates.length > 0 && g.coordinates.every(isPos);
-    case "MultiLineString": case "Polygon": return Array.isArray(g.coordinates) && g.coordinates.length > 0 && g.coordinates.every((r) => Array.isArray(r) && r.length > 0 && r.every(isPos));
-    case "MultiPolygon": return Array.isArray(g.coordinates) && g.coordinates.length > 0 && g.coordinates.every((p) => Array.isArray(p) && p.every((r) => Array.isArray(r) && r.every(isPos)));
-    case "GeometryCollection": return Array.isArray(g.geometries) && g.geometries.every((x) => x && GEOMS.has(x.type) && validGeometry(x));
-    default: return false;
+// A GeometryCollection may nest; nesting deeper than this is refused (it would only come from a hostile or broken
+// file), so every later walk of a geometry is bounded. The check itself uses an explicit stack, not recursion.
+export const MAX_GEOMETRY_DEPTH = 4;
+export const MAX_FEATURES = 20000;
+function validGeometry(root) {
+  const stack = [[root, 0]];
+  while (stack.length) {
+    const [g, depth] = stack.pop();
+    if (!g || typeof g !== "object" || !GEOMS.has(g.type) || depth > MAX_GEOMETRY_DEPTH) return false;
+    switch (g.type) {
+      case "Point": if (!isPos(g.coordinates)) return false; break;
+      case "MultiPoint": case "LineString": if (!(Array.isArray(g.coordinates) && g.coordinates.length > 0 && g.coordinates.every(isPos))) return false; break;
+      case "MultiLineString": case "Polygon": if (!(Array.isArray(g.coordinates) && g.coordinates.length > 0 && g.coordinates.every((r) => Array.isArray(r) && r.length > 0 && r.every(isPos)))) return false; break;
+      case "MultiPolygon": if (!(Array.isArray(g.coordinates) && g.coordinates.length > 0 && g.coordinates.every((p) => Array.isArray(p) && p.every((r) => Array.isArray(r) && r.every(isPos))))) return false; break;
+      case "GeometryCollection": if (!Array.isArray(g.geometries)) return false; for (const x of g.geometries) stack.push([x, depth + 1]); break;
+    }
   }
+  return true;
 }
 
 // Every [lon, lat] of a geometry.
-export function* positions(g) {
-  switch (g.type) {
-    case "Point": yield g.coordinates; break;
-    case "MultiPoint": case "LineString": yield* g.coordinates; break;
-    case "MultiLineString": case "Polygon": for (const r of g.coordinates) yield* r; break;
-    case "MultiPolygon": for (const p of g.coordinates) for (const r of p) yield* r; break;
-    case "GeometryCollection": for (const x of g.geometries) yield* positions(x); break;
+export function* positions(root) {
+  const stack = [root];
+  while (stack.length) {
+    const g = stack.pop();
+    switch (g.type) {
+      case "Point": yield g.coordinates; break;
+      case "MultiPoint": case "LineString": yield* g.coordinates; break;
+      case "MultiLineString": case "Polygon": for (const r of g.coordinates) yield* r; break;
+      case "MultiPolygon": for (const p of g.coordinates) for (const r of p) yield* r; break;
+      case "GeometryCollection": for (const x of g.geometries) stack.push(x); break;
+    }
   }
 }
 
