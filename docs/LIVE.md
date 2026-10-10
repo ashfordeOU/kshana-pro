@@ -1,4 +1,4 @@
-Updated: 2026-10-10T11:48:46Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T11:49:19Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:49:19 11:49Z kshana-pro PR 17 (lab campaign report L1-L6) merged after green check -> main 717975f8. PR #74 CI: deny, mcp-check, mcp-deny, python bindings, msrv, package, wasm-registry, CodeQL analyzers green; check/coverage/repro matrix running
 - 11:48:46 11:48Z W2 pushed release/0.34.1 d980eff4 (bump, CHANGELOG, coverage opt-level 1, DIGEST re-pins fcd9f345/6aa6de10, README re-render, re-port). PR ashfordeOU/kshana#74 opened. Coordinator check: fmt OK, reproducible OK, attribution scan clean. W2 full local suite running. MAIN FROZEN until v0.34.1 tagged
 - 11:44:56 11:44Z W18 feat/surfaces-0.35 cc6f752e: latest maritime-trust/marine-integrations/trust-telemetry merged; schema 1.2 + advisory described across Python/WASM/MCP/docs; gates green (wasm smoke, full suite, JetBrains left to integration)
 - 11:44:40 11:44Z W3 kshana-pro PR 17 @03d6048: main merged, fixture regenerated with crates.io kshana 0.34.0; DIGEST a76ec0cd (engine_version in cell key; all metrics and hashes identical to 51ba4787 run); 863 tests; PR body updated
