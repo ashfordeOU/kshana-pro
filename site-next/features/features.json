@@ -1,18 +1,18 @@
 {
  "generated_by": "features/gen_features.py",
- "generated_at": "2026-10-08T12:17:27Z",
+ "generated_at": "2026-10-09T08:01:09Z",
  "engine": {
   "repo": "/workspace/kshana",
-  "version": "0.33.0",
-  "git_head": "682340e3",
+  "version": "0.34.0",
+  "git_head": "9a19f850",
   "worktree_dirty": false
  },
  "counts": {
   "kind": 75,
   "scenario": 139,
   "cli": 19,
-  "mcp-tool": 21,
-  "binding": 55,
+  "mcp-tool": 23,
+  "binding": 62,
   "export": 16,
   "clock": 32,
   "band": 8,
@@ -21,15 +21,25 @@
   "pro": 15,
   "study": 5
  },
- "total": 654,
- "unplaced": [],
+ "total": 663,
+ "unplaced": [
+  "mcp-tool:iq_campaign",
+  "mcp-tool:iq_campaign_status",
+  "binding:python.iq_acq_surface",
+  "binding:python.iq_loop_designs",
+  "binding:python.iq_read_epochs",
+  "binding:python.iq_monitor",
+  "binding:python.iq_test_conditions",
+  "binding:python.iq_campaign",
+  "binding:python.iq_campaign_report"
+ ],
  "stale_placements": [],
  "warnings": [
-  "pro:calibrated-clock-twin: public quote found on branch release/0.33.0 only, not yet in kshana/web/index.html",
-  "pro:evidence-pack: public quote found on branch release/0.33.0 only, not yet in kshana/web/index.html",
-  "study:modelled-resilience-study: public quote found on branch release/0.33.0 only, not yet in kshana/web/index.html",
-  "study:export-controlled-work: public quote found on branch release/0.33.0 only, not yet in kshana/web/index.html",
-  "pro:commercial-licence: public quote found on branch release/0.33.0 only, not yet in kshana/web/index.html"
+  "pro:calibrated-clock-twin: public quote found on branch release/0.34.0 only, not yet in kshana/web/index.html",
+  "pro:evidence-pack: public quote found on branch release/0.34.0 only, not yet in kshana/web/index.html",
+  "study:modelled-resilience-study: public quote found on branch release/0.34.0 only, not yet in kshana/web/index.html",
+  "study:export-controlled-work: public quote found on branch release/0.34.0 only, not yet in kshana/web/index.html",
+  "pro:commercial-licence: public quote found on branch release/0.34.0 only, not yet in kshana/web/index.html"
  ],
  "features": [
   {
@@ -9214,7 +9224,7 @@
    "subtype": "MCP tool",
    "name": "iq_signals",
    "description": "The Global Navigation Satellite System (GNSS) in-phase/quadrature (IQ) layer's set-up, as JavaScript Object Notation (JSON): signals (the signal names iqscene, iqacquire and iqtrack accept), enabled (whether the IQ file tools are on), workdir (the only folder they read and write; every path argument is relative to it)…",
-   "source": "mcp/kshana-mcp/src/iq.rs:854",
+   "source": "mcp/kshana-mcp/src/iq.rs:935",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9242,7 +9252,7 @@
    "subtype": "MCP tool",
    "name": "iq_info",
    "description": "Describe one in-phase/quadrature (IQ) recording in the work directory without processing it: kind (raw with sidecar, SigMF, SigMF collection), sample format, sample rate, centre frequency, total samples, duration, data files and their size, capture boundaries…",
-   "source": "mcp/kshana-mcp/src/iq.rs:870",
+   "source": "mcp/kshana-mcp/src/iq.rs:951",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9270,7 +9280,7 @@
    "subtype": "MCP tool",
    "name": "iq_scene",
    "description": "Generate a multi-satellite Global Navigation Satellite System (GNSS) in-phase/quadrature (IQ) scene into a file in the work directory (kshana iq scene).",
-   "source": "mcp/kshana-mcp/src/iq.rs:908",
+   "source": "mcp/kshana-mcp/src/iq.rs:989",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9298,7 +9308,7 @@
    "subtype": "MCP tool",
    "name": "iq_acquire",
    "description": "FFT acquisition of one or more PRNs over an in-phase/quadrature (IQ) recording in the work directory (kshana iq acquire).",
-   "source": "mcp/kshana-mcp/src/iq.rs:1036",
+   "source": "mcp/kshana-mcp/src/iq.rs:1117",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9328,7 +9338,7 @@
    "subtype": "MCP tool",
    "name": "iq_track",
    "description": "Acquire then track one or more PRNs over an in-phase/quadrature (IQ) recording in the work directory (kshana iq track): acquisition initialises each channel, then the delay-locked loop (DLL)/PLL (optionally FLL-assisted) loop bank replays the recording once.",
-   "source": "mcp/kshana-mcp/src/iq.rs:1117",
+   "source": "mcp/kshana-mcp/src/iq.rs:1236",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9356,7 +9366,7 @@
    "subtype": "MCP tool",
    "name": "iq_frontend",
    "description": "Apply receiver front-end and interference-mitigation DSP to an in-phase/quadrature (IQ) recording in the work directory and write the result as a new raw recording with a <out>.json sidecar (kshana iq frontend). stages picks any of: bandpasshz [lo, hi] FIR…",
-   "source": "mcp/kshana-mcp/src/iq.rs:1202",
+   "source": "mcp/kshana-mcp/src/iq.rs:1376",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9380,6 +9390,62 @@
     "DSP",
     "FIR"
    ]
+  },
+  {
+   "id": "mcp-tool:iq_campaign",
+   "category": "mcp-tool",
+   "subtype": "MCP tool",
+   "name": "iq_campaign",
+   "description": "Run a lab-replay campaign held in the work directory (kshana iq campaign): recordings (each described by a kshana.test-conditions/1 file stating the lab's known truth) x front-end chains x loop designs, each cell tracked and scored against…",
+   "source": "mcp/kshana-mcp/src/iq.rs:1416",
+   "edition": "Free core",
+   "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "iq_campaign"
+   ],
+   "probes": [
+    [
+     "ident",
+     "iq_campaign"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "",
+   "section": "",
+   "studio": "",
+   "docs": "",
+   "also": [],
+   "placed": false,
+   "unexpanded_abbreviations": []
+  },
+  {
+   "id": "mcp-tool:iq_campaign_status",
+   "category": "mcp-tool",
+   "subtype": "MCP tool",
+   "name": "iq_campaign_status",
+   "description": "Report a lab-replay campaign's progress from its output folder in the work directory, reading files only: cells done and pending, the recordings, front ends and designs in the plan, and the digest once every cell is done.",
+   "source": "mcp/kshana-mcp/src/iq.rs:1526",
+   "edition": "Free core",
+   "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "iq_campaign_status"
+   ],
+   "probes": [
+    [
+     "ident",
+     "iq_campaign_status"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "",
+   "section": "",
+   "studio": "",
+   "docs": "",
+   "also": [],
+   "placed": false,
+   "unexpanded_abbreviations": []
   },
   {
    "id": "binding:crate-kshana",
@@ -9406,7 +9472,7 @@
    ],
    "claim": "",
    "facts": {
-    "version": "0.33.0"
+    "version": "0.34.0"
    },
    "page": "Developers",
    "section": "install",
@@ -9625,7 +9691,7 @@
    "subtype": "Python class",
    "name": "kshana.RunOutput",
    "description": "The typed result of a run: result JSON, summary, chart and table.",
-   "source": "kshana.pyi:39",
+   "source": "kshana.pyi:46",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9658,7 +9724,7 @@
    "subtype": "Python function",
    "name": "kshana.run",
    "description": "Run a scenario and return the result JSON.",
-   "source": "kshana.pyi:65",
+   "source": "kshana.pyi:72",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9691,7 +9757,7 @@
    "subtype": "Python function",
    "name": "kshana.run_full",
    "description": "Run a scenario and return the result JSON, the summary and the chart together.",
-   "source": "kshana.pyi:69",
+   "source": "kshana.pyi:76",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9724,7 +9790,7 @@
    "subtype": "Python function",
    "name": "kshana.run_typed",
    "description": "Run a scenario and return a typed result object.",
-   "source": "kshana.pyi:72",
+   "source": "kshana.pyi:79",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9757,7 +9823,7 @@
    "subtype": "Python function",
    "name": "kshana.receiver_trust",
    "description": "NO DESCRIPTION: Python API `receiver_trust` (add it to API_WORDS)",
-   "source": "kshana.pyi:77",
+   "source": "kshana.pyi:84",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9794,7 +9860,7 @@
    "subtype": "Python function",
    "name": "kshana.scenario_kinds",
    "description": "List every scenario kind with its fields, as Python objects.",
-   "source": "kshana.pyi:84",
+   "source": "kshana.pyi:91",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9827,7 +9893,7 @@
    "subtype": "Python function",
    "name": "kshana.validate_toml",
    "description": "Check a scenario before running it and return the problems found.",
-   "source": "kshana.pyi:90",
+   "source": "kshana.pyi:97",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9860,7 +9926,7 @@
    "subtype": "Python function",
    "name": "kshana.list_kinds",
    "description": "List every scenario kind with its fields, as JSON text.",
-   "source": "kshana.pyi:95",
+   "source": "kshana.pyi:102",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9893,7 +9959,7 @@
    "subtype": "Python function",
    "name": "kshana.error_kind",
    "description": "Classify why a scenario failed, so a caller can react to the kind of error.",
-   "source": "kshana.pyi:103",
+   "source": "kshana.pyi:110",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9926,7 +9992,7 @@
    "subtype": "Python function",
    "name": "kshana.version",
    "description": "Return the engine version.",
-   "source": "kshana.pyi:108",
+   "source": "kshana.pyi:115",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9959,7 +10025,7 @@
    "subtype": "Python function",
    "name": "kshana.iq_signals",
    "description": "NO DESCRIPTION: Python API `iq_signals` (add it to API_WORDS)",
-   "source": "kshana.pyi:111",
+   "source": "kshana.pyi:118",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -9996,7 +10062,7 @@
    "subtype": "Python function",
    "name": "kshana.iq_scene",
    "description": "NO DESCRIPTION: Python API `iq_scene` (add it to API_WORDS)",
-   "source": "kshana.pyi:115",
+   "source": "kshana.pyi:122",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -10033,7 +10099,7 @@
    "subtype": "Python function",
    "name": "kshana.iq_scene_broadcast",
    "description": "NO DESCRIPTION: Python API `iq_scene_broadcast` (add it to API_WORDS)",
-   "source": "kshana.pyi:151",
+   "source": "kshana.pyi:162",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -10070,7 +10136,7 @@
    "subtype": "Python function",
    "name": "kshana.iq_acquire",
    "description": "NO DESCRIPTION: Python API `iq_acquire` (add it to API_WORDS)",
-   "source": "kshana.pyi:179",
+   "source": "kshana.pyi:190",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -10102,12 +10168,49 @@
    ]
   },
   {
+   "id": "binding:python.iq_acq_surface",
+   "category": "binding",
+   "subtype": "Python function",
+   "name": "kshana.iq_acq_surface",
+   "description": "NO DESCRIPTION: Python API `iq_acq_surface` (add it to API_WORDS)",
+   "source": "kshana.pyi:210",
+   "edition": "Free core",
+   "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "iq_acq_surface",
+    "kshana.iq_acq_surface"
+   ],
+   "probes": [
+    [
+     "ident",
+     "kshana.iq_acq_surface"
+    ],
+    [
+     "ident",
+     "iq_acq_surface"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "",
+   "section": "",
+   "studio": "",
+   "docs": "",
+   "also": [],
+   "placed": false,
+   "unexpanded_abbreviations": [
+    "DESCRIPTION",
+    "NO",
+    "WORDS"
+   ]
+  },
+  {
    "id": "binding:python.iq_track",
    "category": "binding",
    "subtype": "Python function",
    "name": "kshana.iq_track",
    "description": "NO DESCRIPTION: Python API `iq_track` (add it to API_WORDS)",
-   "source": "kshana.pyi:199",
+   "source": "kshana.pyi:232",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -10139,12 +10242,123 @@
    ]
   },
   {
+   "id": "binding:python.iq_loop_designs",
+   "category": "binding",
+   "subtype": "Python function",
+   "name": "kshana.iq_loop_designs",
+   "description": "NO DESCRIPTION: Python API `iq_loop_designs` (add it to API_WORDS)",
+   "source": "kshana.pyi:277",
+   "edition": "Free core",
+   "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "iq_loop_designs",
+    "kshana.iq_loop_designs"
+   ],
+   "probes": [
+    [
+     "ident",
+     "kshana.iq_loop_designs"
+    ],
+    [
+     "ident",
+     "iq_loop_designs"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "",
+   "section": "",
+   "studio": "",
+   "docs": "",
+   "also": [],
+   "placed": false,
+   "unexpanded_abbreviations": [
+    "DESCRIPTION",
+    "NO",
+    "WORDS"
+   ]
+  },
+  {
+   "id": "binding:python.iq_read_epochs",
+   "category": "binding",
+   "subtype": "Python function",
+   "name": "kshana.iq_read_epochs",
+   "description": "NO DESCRIPTION: Python API `iq_read_epochs` (add it to API_WORDS)",
+   "source": "kshana.pyi:282",
+   "edition": "Free core",
+   "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "iq_read_epochs",
+    "kshana.iq_read_epochs"
+   ],
+   "probes": [
+    [
+     "ident",
+     "kshana.iq_read_epochs"
+    ],
+    [
+     "ident",
+     "iq_read_epochs"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "",
+   "section": "",
+   "studio": "",
+   "docs": "",
+   "also": [],
+   "placed": false,
+   "unexpanded_abbreviations": [
+    "DESCRIPTION",
+    "NO",
+    "WORDS"
+   ]
+  },
+  {
+   "id": "binding:python.iq_monitor",
+   "category": "binding",
+   "subtype": "Python function",
+   "name": "kshana.iq_monitor",
+   "description": "NO DESCRIPTION: Python API `iq_monitor` (add it to API_WORDS)",
+   "source": "kshana.pyi:288",
+   "edition": "Free core",
+   "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "iq_monitor",
+    "kshana.iq_monitor"
+   ],
+   "probes": [
+    [
+     "ident",
+     "kshana.iq_monitor"
+    ],
+    [
+     "ident",
+     "iq_monitor"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "",
+   "section": "",
+   "studio": "",
+   "docs": "",
+   "also": [],
+   "placed": false,
+   "unexpanded_abbreviations": [
+    "DESCRIPTION",
+    "NO",
+    "WORDS"
+   ]
+  },
+  {
    "id": "binding:python.iq_frontend",
    "category": "binding",
    "subtype": "Python function",
    "name": "kshana.iq_frontend",
    "description": "NO DESCRIPTION: Python API `iq_frontend` (add it to API_WORDS)",
-   "source": "kshana.pyi:230",
+   "source": "kshana.pyi:321",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -10176,12 +10390,123 @@
    ]
   },
   {
+   "id": "binding:python.iq_test_conditions",
+   "category": "binding",
+   "subtype": "Python function",
+   "name": "kshana.iq_test_conditions",
+   "description": "NO DESCRIPTION: Python API `iq_test_conditions` (add it to API_WORDS)",
+   "source": "kshana.pyi:351",
+   "edition": "Free core",
+   "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "iq_test_conditions",
+    "kshana.iq_test_conditions"
+   ],
+   "probes": [
+    [
+     "ident",
+     "kshana.iq_test_conditions"
+    ],
+    [
+     "ident",
+     "iq_test_conditions"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "",
+   "section": "",
+   "studio": "",
+   "docs": "",
+   "also": [],
+   "placed": false,
+   "unexpanded_abbreviations": [
+    "DESCRIPTION",
+    "NO",
+    "WORDS"
+   ]
+  },
+  {
+   "id": "binding:python.iq_campaign",
+   "category": "binding",
+   "subtype": "Python function",
+   "name": "kshana.iq_campaign",
+   "description": "NO DESCRIPTION: Python API `iq_campaign` (add it to API_WORDS)",
+   "source": "kshana.pyi:358",
+   "edition": "Free core",
+   "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "iq_campaign",
+    "kshana.iq_campaign"
+   ],
+   "probes": [
+    [
+     "ident",
+     "kshana.iq_campaign"
+    ],
+    [
+     "ident",
+     "iq_campaign"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "",
+   "section": "",
+   "studio": "",
+   "docs": "",
+   "also": [],
+   "placed": false,
+   "unexpanded_abbreviations": [
+    "DESCRIPTION",
+    "NO",
+    "WORDS"
+   ]
+  },
+  {
+   "id": "binding:python.iq_campaign_report",
+   "category": "binding",
+   "subtype": "Python function",
+   "name": "kshana.iq_campaign_report",
+   "description": "NO DESCRIPTION: Python API `iq_campaign_report` (add it to API_WORDS)",
+   "source": "kshana.pyi:375",
+   "edition": "Free core",
+   "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "iq_campaign_report",
+    "kshana.iq_campaign_report"
+   ],
+   "probes": [
+    [
+     "ident",
+     "kshana.iq_campaign_report"
+    ],
+    [
+     "ident",
+     "iq_campaign_report"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "",
+   "section": "",
+   "studio": "",
+   "docs": "",
+   "also": [],
+   "placed": false,
+   "unexpanded_abbreviations": [
+    "DESCRIPTION",
+    "NO",
+    "WORDS"
+   ]
+  },
+  {
    "id": "binding:python.iq_labfit",
    "category": "binding",
    "subtype": "Python function",
    "name": "kshana.iq_labfit",
    "description": "NO DESCRIPTION: Python API `iq_labfit` (add it to API_WORDS)",
-   "source": "kshana.pyi:260",
+   "source": "kshana.pyi:382",
    "edition": "Free core",
    "edition_source": "README.md:737 “…no feature gate” · README.md:806 “The open engine is complete and usable on its own.”",
    "identifiers": [
@@ -21048,9 +21373,9 @@
    "subtype": "edition offer",
    "name": "Calibrated clock digital twin",
    "description": "A digital twin of a clock calibrated to the device's published Allan-deviation budget (the standard measure of clock stability).",
-   "source": "web/index.html:759 (branch release/0.33.0 7f5e3e39)",
+   "source": "web/index.html:759 (branch release/0.34.0 7f5e3e39)",
    "edition": "Pro",
-   "edition_source": "web/index.html:759 (branch release/0.33.0 7f5e3e39) “clock digital twins calibrated to a device's published Allan budget”",
+   "edition_source": "web/index.html:759 (branch release/0.34.0 7f5e3e39) “clock digital twins calibrated to a device's published Allan budget”",
    "identifiers": [],
    "probes": [
     [
@@ -21130,9 +21455,9 @@
    "subtype": "edition offer",
    "name": "Audit-grade, reproducible evidence pack",
    "description": "The evidence a review or procurement board asks for, packaged so every figure can be reproduced.",
-   "source": "web/index.html:760 (branch release/0.33.0 7f5e3e39)",
+   "source": "web/index.html:760 (branch release/0.34.0 7f5e3e39)",
    "edition": "Pro",
-   "edition_source": "web/index.html:760 (branch release/0.33.0 7f5e3e39) “audit-grade, reproducible evidence packs”",
+   "edition_source": "web/index.html:760 (branch release/0.34.0 7f5e3e39) “audit-grade, reproducible evidence packs”",
    "identifiers": [],
    "probes": [
     [
@@ -21521,9 +21846,9 @@
    "subtype": "edition offer",
    "name": "Modelled PNT-resilience study (for example an optimism-gap audit)",
    "description": "A bespoke, modelled positioning, navigation and timing (PNT) resilience study, reproducible from scenario, seed and engine version, every figure labelled; not a certification.",
-   "source": "web/index.html:773 (branch release/0.33.0 7f5e3e39)",
+   "source": "web/index.html:773 (branch release/0.34.0 7f5e3e39)",
    "edition": "Custom study",
-   "edition_source": "web/index.html:773 (branch release/0.33.0 7f5e3e39) “PNT-resilience study — e.g. an optimism-gap audit — reproducible from scenario + seed + engine version”",
+   "edition_source": "web/index.html:773 (branch release/0.34.0 7f5e3e39) “PNT-resilience study — e.g. an optimism-gap audit — reproducible from scenario + seed + engine version”",
    "identifiers": [],
    "probes": [
     [
@@ -21583,9 +21908,9 @@
    "subtype": "edition offer",
    "name": "Export-controlled resilience work under clearance and NDA",
    "description": "Export-controlled resilience work delivered under the appropriate clearance and non-disclosure agreement (NDA).",
-   "source": "web/index.html:766 (branch release/0.33.0 7f5e3e39)",
+   "source": "web/index.html:766 (branch release/0.34.0 7f5e3e39)",
    "edition": "Custom study",
-   "edition_source": "web/index.html:766 (branch release/0.33.0 7f5e3e39) “export-controlled resilience work delivered under the appropriate clearance and NDA”",
+   "edition_source": "web/index.html:766 (branch release/0.34.0 7f5e3e39) “export-controlled resilience work delivered under the appropriate clearance and NDA”",
    "identifiers": [],
    "probes": [
     [
@@ -21694,9 +22019,9 @@
    "subtype": "edition offer",
    "name": "Commercial licence of the open core (dual licence, not Pro)",
    "description": "The same open-core code under a commercial licence for closed or proprietary integration without Affero General Public License (AGPL) obligations. Listed beside Pro because buyers ask for it there, but the public source ties it to the open core.",
-   "source": "web/index.html:751 (branch release/0.33.0 7f5e3e39)",
+   "source": "web/index.html:751 (branch release/0.34.0 7f5e3e39)",
    "edition": "Free core",
-   "edition_source": "web/index.html:751 (branch release/0.33.0 7f5e3e39) “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”",
+   "edition_source": "web/index.html:751 (branch release/0.34.0 7f5e3e39) “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”",
    "identifiers": [],
    "probes": [
     [

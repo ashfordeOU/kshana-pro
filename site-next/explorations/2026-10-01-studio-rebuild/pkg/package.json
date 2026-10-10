@@ -5,7 +5,7 @@
     "Chakshu Baweja <contact@ashforde.org>"
   ],
   "description": "Open, reproducible PNT-resilience simulator with quantum-sensor performance models",
-  "version": "0.33.0",
+  "version": "0.34.0",
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
