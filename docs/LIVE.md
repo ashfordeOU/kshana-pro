@@ -1,4 +1,4 @@
-Updated: 2026-10-10T21:25:33Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T21:36:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:36:25 21:36Z | Merged docs/0.35-completeness (W15 8367e075) into rc -> 67aba259; no-attribution OK full history; mcp crate tests 51 pass. Rulings: library-author name in ledger strings -> library name+URL (W15 docs/0.35-names); captured Signal K evidence JSON not edited, README note instead. W14 also fixes PIN-SCOPE guard failure in telemetry reference
 - 21:25:33 21:25Z | W10 ledger/marine-integrations f0abb394 (Modelled row, evidence named); ruling: new OracleKind IntegrationRun (Modelled-only, own reason) + guard roots incl. integrations/ deploy/. W10 found pre-existing rc failure verification_rows_name_a_test_that_exists (interference row token -> W13; evidence row cites -> W14)
 - 21:22:54 21:22Z | W17 Studio c12c8b3: generic receiver-trust card (wasm receiver_trust, inline log, advisory); forwarded to W1b
 - 21:21:52 21:21Z | W17 Studio pushed kshana-pro site/studio-0.35 1043d1f: tools hub (evidence, bench, compliance, OSNMA, CLI cards, AI assistant panel from channels.json: 24 cards), live engine panels on trust/training/interference, entry points; 41/41 lib tests, selfcheck OK, phone widths OK; integration list sent to W1b; ruling: carry generic receiver-trust example
