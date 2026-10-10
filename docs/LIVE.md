@@ -1,4 +1,4 @@
-Updated: 2026-10-10T19:01:36Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T19:08:21Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 19:08:21 19:08Z W15 validate/bench-compliance-clean 11335fe2 (on clean base, 4329 pass; 6 fails are web doc-sync counts fixed by final port) sent to W1b: test-bench row upgraded VALIDATED (Library basis), compliance row stays MODELLED with reference-index oracle text. All 5 validation branches now on clean base
 - 19:01:36 19:01Z W14 validate/telemetry-evidence-clean 36f90156 (on clean base) sent to W1b with 3 rows: evidence packs VALIDATED (Reference basis), telemetry Prometheus/OTLP VALIDATED (Library basis), CEF/LEEF MODELLED (new row)
 - 18:57:29 18:57Z NMEA row applied VALIDATED (rc 271fd1b2; 258/125/129/4). Correction accepted: the pre-registered invariant requires Validated rows to be oracle_kind ExternalDataset, with independence recorded via OracleBasisEntry basis Library/Reference (source quoted verbatim); my ReferenceImpl instruction withdrawn, guard untouched
 - 18:52:20 18:52Z OSNMA evidence recorded (kshana-pro docs/evidence, c7151753 + parameters): official vectors exercise only HMAC-SHA-256, SHA-256 chain, 128-bit keys, 40-bit tags, MACLT 33/34, ECDSA P-256 + P-521; CMAC/SHA3/other sizes covered by KATs + synthetic only. Row caveat updated accordingly
