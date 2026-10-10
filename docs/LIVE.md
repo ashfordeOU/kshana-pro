@@ -1,4 +1,4 @@
-Updated: 2026-10-10T11:25:44Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T11:26:15Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:26:15 11:26Z W19 dry run 54 success at 37f86a0 (marine e2e, JetBrains, channels, staging); multi-arch image run 5 in progress. W9 schema 1.2 relayed to W10/W14/W17
 - 11:25:44 11:25Z W9 critic fixes done (feat/maritime-trust 2f21a2e/3219d76/2a90ecb; live JSON schema 1.2); W18 told to re-merge and update surfaces. D14 advisory draft committed (f7eefd86) for founder approval
 - 11:25:08 11:25Z kshana-pro PR 28 (pin 0.34.0) merged after green check -> main 59d11adc; W3 told to merge main into PR 17 and re-verify
 - 11:24:29 11:24Z W2 0.34.1: CHANGELOG + bump done locally; kshana-mcp now requires kshana 0.34.1 (needs inline_only); ci.yml coverage opt-level 1 committed; re-pins and gates running
