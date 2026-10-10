@@ -1,4 +1,4 @@
-Updated: 2026-10-10T12:05:30Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T12:05:51Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:05:51 12:05Z W1b 0.35 integration checklist approved (order: main+0.34.1, #70/#66, A,C,E,F,G,B, surfaces last, channels, then gen_validation_artifacts+port in one step; W1b owns placement rows; frozen heads at start). Remote ci/coverage-opt-level (inert) left for founder to delete
 - 12:05:30 12:05Z W19 reference image run 5 success: Docker Hub digest pins confirmed (rust slim, debian slim), multi-arch build 52 min (cap 90), amd64 smoke + HEALTHCHECK pass; ghcr push/attestation not exercised in dry runs
 - 12:04:04 12:04Z W15 critic fixes pushed (feat/compliance-bench 2fe2ac1): wording guard, mapping validation, test-bench fixes, sources; 4018 tests pass; known red guard ledger_json_matches_the_matrix until 0.35 gen_validation_artifacts + port (decision: regenerate at integration, no revert). W18 told to merge and wire compliance
 - 11:49:19 11:49Z kshana-pro PR 17 (lab campaign report L1-L6) merged after green check -> main 717975f8. PR #74 CI: deny, mcp-check, mcp-deny, python bindings, msrv, package, wasm-registry, CodeQL analyzers green; check/coverage/repro matrix running
