@@ -1,4 +1,4 @@
-Updated: 2026-10-10T21:44:07Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T21:48:21Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:48:21 21:48Z | W12 OSNMA fixes pushed feat/osnma-verify 0c5d230+98c0e49: 4 blockers closed with attack tests (trusted time, auth window+IODnav, alert/NMAS, dummy tags); real bug fixed (NPK len for NPKT 4: alerts never verified); official vectors 18/18, 0 failed, 186,382 tags (was 176,805). Sent to critic session_014D7jreQXqWpqGkmufVtZSL for full re-review; W12 preparing samples + rc merge locally
 - 21:44:07 21:44Z | Merged fix/interference-row-cite (W13 8b164583) into rc -> 7bbe5e82; remaining name-a-test failure = evidence row (W14). W18 patch-by-message abandoned (relay HTML-escapes); carrier merge -s ours on feat/surfaces-0.35 instructed, cherry-pick by SHA
 - 21:42:04 21:42Z | W19 ci/mcp-channels c9c1b615 final: release dry run 38086868466 GREEN (5 platforms incl arm64 Linux, .mcpb, launchers vs staged assets incl tamper refusal, brew/scoop/winget manifests, cargo-deny); 25-channel table generated; HTTP transport with loopback default/token/limits; new crates axum/tower/tower-http/tokio-util (+transitive). Security critic session spawned on HTTP + launchers before merge. Site spec forwarded to W1b
 - 21:39:29 21:39Z | W3 pin/kshana-0.34.1 b18c9c3 (863 pass, DIGEST 01ab3ca9..., metrics unchanged); coordinator opened kshana-pro PR 29
