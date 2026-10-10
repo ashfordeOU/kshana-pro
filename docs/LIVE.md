@@ -1,4 +1,4 @@
-Updated: 2026-10-10T21:12:28Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T21:13:21Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:13:21 21:13Z | Audit part 3 routed: W1b site pages for all 0.35 docs + capabilities cards + regen order + Studio re-record + manifest source rev (slug ruling: new /docs/compliance-mapping); W17 worker imports + 0.35 inputs; W19 8->full channel list (README + channels.json) [W19 B7/B9 done dcb04059]; W13 figures/0.35 (trust timeline, interference map, training track)
 - 21:12:28 21:12Z | Audit part 2 routed: W15 docs/0.35-completeness (R1-R5, V3, D1-D5; ruling: training NMEA keeps never-feed-live AND adds full advisory statement); W14 validate/cef-oracle (CEF Validated via pycef, LEEF stays Modelled, pre-registered); W10 ledger/marine-integrations (Modelled row); W19 E1-E3 (--locked, RELEASING bump list, parity !cancelled); W18 S1/S3; W1b V4
 - 21:11:12 21:11Z | Completeness audit part 1: 11 blockers (B1-B6 stale ledger/figures/README/CHANGELOG/site/Studio -> W1b; B7 README MCP 38-tool table + B9 first-publish (ref-build ghcr private, NPM_TOKEN new pkg) -> W19; B8 OSNMA merge (348 behind rc, conflicts, deny/SBOM, --help) -> W12; B10 full advisory text in Python/WASM/JetBrains -> W18; B11 author-name fields -> founder decision)
 - 20:49:25 20:49Z | W17 Studio plan approved (Trust & evidence hub, run-it-here panels, AI assistant panel from channels.json); W12 adds examples/osnma synthetic samples; W18 adds wasm telemetry-format export + osnma_verify export after critic
