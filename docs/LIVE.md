@@ -1,4 +1,4 @@
-Updated: 2026-10-10T18:52:20Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T18:57:29Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 18:57:29 18:57Z NMEA row applied VALIDATED (rc 271fd1b2; 258/125/129/4). Correction accepted: the pre-registered invariant requires Validated rows to be oracle_kind ExternalDataset, with independence recorded via OracleBasisEntry basis Library/Reference (source quoted verbatim); my ReferenceImpl instruction withdrawn, guard untouched
 - 18:52:20 18:52Z OSNMA evidence recorded (kshana-pro docs/evidence, c7151753 + parameters): official vectors exercise only HMAC-SHA-256, SHA-256 chain, 128-bit keys, 40-bit tags, MACLT 33/34, ECDSA P-256 + P-521; CMAC/SHA3/other sizes covered by KATs + synthetic only. Row caveat updated accordingly
 - 18:50:44 18:50Z W12 b01b42b: UBX-RXM-SFRBX ingest (new file only; layout checked on synthetic frames, needs real-capture check, stated in docs), CRC-24Q page check default-on (200/200 official pages), official vectors still 18/18. OSNMA feature-frozen; critic told final head
 - 18:46:51 18:46Z Validation branches on clean base: nmea-training-clean merged (rc 6adf40f6); interference-map-clean 4a65043d and maritime-clean f3d2b93 pushed, sent to W1b with approved rows (maritime split into VALIDATED monitors row + MODELLED score row). Remaining: telemetry-evidence-clean (W14), bench-compliance-clean (W15), OSNMA
