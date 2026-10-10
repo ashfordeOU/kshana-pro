@@ -7,9 +7,9 @@ import fs from "node:fs";
 import { parseMapFile, parseRouteExposure, statusCounts, stateCounts, stateOf, stateInfo, STATES, KEEP_CAVEATS, safeUrl, cellRows, cellBounds, groupBySource, describeMap, cellAt, cellsForTable, licenceBlock, statusInfo, STATUSES, showValue, pct } from "./interference.mjs";
 
 const demo = (n) => fs.readFileSync(new URL(`../interference/demo/${n}`, import.meta.url), "utf8");
-const a1 = parseMapFile(demo("adsb-2026-03-01.geojson"), "adsb-2026-03-01.geojson");
-const a2 = parseMapFile(demo("adsb-2026-03-02.geojson"), "adsb-2026-03-02.geojson");
-const s1 = parseMapFile(demo("ais-2026-03-01.geojson"), "ais-2026-03-01.geojson");
+const a1 = parseMapFile(demo("adsb-custom-2026-03-01.geojson"), "adsb-custom-2026-03-01.geojson");
+const a2 = parseMapFile(demo("adsb-custom-2026-03-02.geojson"), "adsb-custom-2026-03-02.geojson");
+const s1 = parseMapFile(demo("ais-custom-2026-03-01.geojson"), "ais-custom-2026-03-01.geojson");
 for (const r of [a1, a2, s1]) assert.equal(r.error, undefined);
 
 // Licence, attribution, coverage and notice come through verbatim, per file.
@@ -21,7 +21,7 @@ for (const r of [a1, a2, s1]) assert.equal(r.error, undefined);
   assert.equal(m.licence.licenceUrl, "https://creativecommons.org/publicdomain/zero/1.0/");
   assert.deepEqual(m.licence.coverage, ["Coverage of a user-supplied dataset is not described by Kshana."]);
   assert.match(m.licence.notice, /A missing cell was not observed/);
-  assert.match(m.method.id, /^kshana-interference-map\/adsb\/v1$/);
+  assert.match(m.method.id, /^kshana-interference-map\/adsb\/v2$/);
   assert.ok(m.method.caveats.length > 0 && Object.keys(m.method.parameters).length > 5);
 }
 // The four states, none merged: the sample files show degraded, clear, unassessed, and a cell that is not there.
@@ -40,6 +40,37 @@ for (const r of [a1, a2, s1]) assert.equal(r.error, undefined);
   assert.equal(statusCounts(a1.map).insufficient_sample, 4);
   for (const cell of a1.map.cells) assert.equal(cell.degraded, cell.status === "degraded");
 }
+// Methods v2: counts below the publication minimum are null and read "withheld (fewer than 5)", never zero.
+{
+  const nul = a1.map.cells.find((c) => c.props.aircraft_sampled === null);
+  assert.ok(nul, "the sample has a cell with withheld counts");
+  const rows = cellRows(a1.map, nul);
+  for (const k of ["Aircraft sampled", "Aircraft affected", "Affected share"]) assert.equal(rows.find(([l]) => l === k)[1], "withheld (fewer than 5)", k);
+  assert.equal(rows.find(([l]) => l === "Aircraft observed")[1], 28);
+  assert.ok(!rows.some(([, v]) => v === 0 || v === "0%" || v === ""), "no withheld count is shown as zero or blank");
+  assert.equal(statusInfo("adsb", nul.status).label, "Too few aircraft");
+  // a withheld AIS count too
+  const wa = s1.map.cells.find((c) => Object.values(c.props.vessels_flagged).every((v) => v === null));
+  assert.ok(wa && cellRows(s1.map, wa).filter(([k]) => /^Flagged/.test(k)).every(([, v]) => v === "withheld (fewer than 5)"));
+}
+// withheld_no_background is a fifth ADS-B status that reads as unassessed (the day's background could not be estimated).
+{
+  const nb = JSON.parse(demo("adsb-custom-2026-03-01.geojson"));
+  nb.features.find((f) => f.properties.status === "not_degraded").properties.status = "withheld_no_background";
+  const r = parseMapFile(JSON.stringify(nb), "nb");
+  assert.deepEqual(r.map.warnings.filter((w) => /does not know/.test(w)), []);
+  assert.equal(stateOf("withheld_no_background"), "unassessed");
+  assert.equal(stateCounts(r.map).unassessed, 5); assert.equal(stateCounts(r.map).clear, 5);
+  assert.match(statusInfo("adsb", "withheld_no_background").text, /background .* could not be estimated/);
+  assert.equal(STATUSES.adsb.length, 5);
+}
+// A grid that is not the pre-registered cell size is said so.
+{
+  assert.ok(!a1.map.warnings.some((w) => /pre-registered/.test(w)));
+  const g = JSON.parse(demo("adsb-custom-2026-03-01.geojson")); g.kshana_interference_map.grid = { type: "fixed_lat_lon", cell_deg: 0.25, preregistered_cell_deg: 0.5, is_preregistered: false };
+  const r = parseMapFile(JSON.stringify(g), "g");
+  assert.ok(r.map.warnings.some((w) => /cell size of 0\.25° that is not the pre-registered one \(0\.5°\)/.test(w)));
+}
 // A confounded day declares no cell degraded, says so plainly, and keeps the withheld cells as unassessed.
 {
   assert.equal(a2.map.day.day_confounded, true);
@@ -56,7 +87,7 @@ for (const r of [a1, a2, s1]) assert.equal(r.error, undefined);
   const withheld = s1.map.cells.find((x) => Object.values(x.props.vessels_flagged).some((v) => v === null));
   assert.ok(withheld);
   const rows = cellRows(s1.map, withheld);
-  assert.ok(rows.some(([k, v]) => /^Flagged/.test(k) && v === "withheld (fewer than 3)"));
+  assert.ok(rows.some(([k, v]) => /^Flagged/.test(k) && v === "withheld (fewer than 5)"));
   assert.ok(!rows.some(([k, v]) => /^Flagged/.test(k) && v === null));
   const hot = s1.map.cells.filter((x) => x.status === "anomalous");
   assert.deepEqual(hot.map((x) => x.props.detectors[0]).sort(), ["circle", "on_land"]);
@@ -71,7 +102,7 @@ for (const r of [a1, a2, s1]) assert.equal(r.error, undefined);
 // Reading a file: schema prefix and a supported format_version, else a stated refusal; unknown fields ignored.
 assert.match(parseMapFile("{", "x").error, /not JSON/);
 assert.match(parseMapFile(JSON.stringify({ type: "FeatureCollection", features: [] }), "x").error, /not a Kshana interference map/);
-const doc = JSON.parse(demo("ais-2026-03-01.geojson"));
+const doc = JSON.parse(demo("ais-custom-2026-03-01.geojson"));
 const withM = (patch) => JSON.stringify({ ...doc, kshana_interference_map: { ...doc.kshana_interference_map, ...patch } });
 assert.match(parseMapFile(withM({ schema: "other/v1" }), "x").error, /unknown schema/);
 // The page gates on format_version: a newer schema label with a supported format_version still reads.
@@ -83,14 +114,14 @@ assert.match(parseMapFile(withM({ source_kind: "radar" }), "x").error, /neither 
 assert.equal(parseMapFile(withM({ a_future_field: { x: 1 } }), "x").error, undefined, "unknown fields are ignored");
 // A degraded flag that disagrees with the status is reported; the status is what is drawn.
 {
-  const bad = JSON.parse(demo("adsb-2026-03-01.geojson")); bad.features[0].properties.degraded = true;
+  const bad = JSON.parse(demo("adsb-custom-2026-03-01.geojson")); bad.features[0].properties.degraded = true;
   const r = parseMapFile(JSON.stringify(bad), "bad");
   assert.ok(r.map.warnings.some((w) => /1 cell\(s\) have a "degraded" flag that disagrees/.test(w)));
   assert.equal(r.map.cells[0].degraded, true);
 }
 // A status that is a prototype property name is an unknown status, treated as unassessed.
 {
-  const odd = JSON.parse(demo("adsb-2026-03-01.geojson")); const clear = odd.features.filter((f) => f.properties.status === "not_degraded"); clear[0].properties.status = "constructor"; clear[1].properties.status = "__proto__";
+  const odd = JSON.parse(demo("adsb-custom-2026-03-01.geojson")); const clear = odd.features.filter((f) => f.properties.status === "not_degraded"); clear[0].properties.status = "constructor"; clear[1].properties.status = "__proto__";
   const r = parseMapFile(JSON.stringify(odd), "odd");
   assert.equal(stateOf("constructor"), "unassessed"); assert.equal(stateOf("__proto__"), "unassessed"); assert.equal(typeof stateOf("toString"), "string");
   assert.ok(r.map.warnings.some((w) => /constructor/.test(w)));
@@ -104,7 +135,7 @@ assert.equal(parseMapFile(withM({ a_future_field: { x: 1 } }), "x").error, undef
 }
 // An unknown status is kept, treated as unassessed (no call), and reported.
 {
-  const odd = JSON.parse(demo("adsb-2026-03-01.geojson")); odd.features[0].properties.status = "mystery";
+  const odd = JSON.parse(demo("adsb-custom-2026-03-01.geojson")); odd.features[0].properties.status = "mystery";
   const r = parseMapFile(JSON.stringify(odd), "odd");
   assert.ok(r.map.warnings.some((w) => /mystery/.test(w)));
   assert.equal(stateOf("mystery"), "unassessed");
@@ -125,7 +156,7 @@ assert.ok(KEEP_CAVEATS[1].includes("not evidence that the area was clear"));
   assert.equal(t[0].c.status, "degraded"); assert.equal(t.length, 11);
   assert.deepEqual(licenceBlock({}, undefined), { dataset: "", name: "", licence: "", licenceUrl: "", attribution: "", coverage: [], notice: "" });
   assert.equal(showValue(null), "none"); assert.equal(showValue({ a: 1 }), '{"a":1}');
-  assert.ok(STATUSES.adsb.length === 4 && STATUSES.ais.length === 2);
+  assert.ok(STATUSES.adsb.length === 5 && STATUSES.ais.length === 2);
 }
 // Route exposure: all four shares kept together, licence and attribution per row, caveats shown.
 {

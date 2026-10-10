@@ -28,6 +28,7 @@ export const STATUSES = Object.freeze({
     { id: "not_degraded", label: "Not degraded", tone: "ok", text: "Sampled, and the share of aircraft reporting low accuracy did not stand out. Not proof that nothing happened." },
     { id: "insufficient_sample", label: "Too few aircraft", tone: "none", text: "Published (at least 5 distinct aircraft observed) but fewer than 10 aircraft could be sampled, so no call is made." },
     { id: "withheld_day_confounded", label: "Day confounded", tone: "hold", text: "The whole day's median cell share was high, which points to a wide-area cause. No cell is declared degraded on such a day; this cell would otherwise have stood out." },
+    { id: "withheld_no_background", label: "No background estimate", tone: "hold", text: "The day's background (the typical share of aircraft reporting low accuracy) could not be estimated from enough cells, so no cell is compared with it and none is called." },
   ],
   ais: [
     { id: "anomalous", label: "Anomalous", tone: "bad", text: "At least one detector flagged enough distinct vessels here that day (at least 3 vessels and 20% of those observed). Possible causes include interference but also many ordinary ones." },
@@ -40,10 +41,10 @@ export const KIND_LABEL = { adsb: "ADS-B", ais: "AIS" };
 export const STATES = Object.freeze([
   { id: "degraded", label: { adsb: "Degraded", ais: "Anomalous" }, text: { adsb: "A high share of the sampled aircraft reported low navigation accuracy here that day, well above the day's median cell.", ais: "At least one detector flagged enough distinct vessels here that day (at least 3 vessels and 20% of those observed)." } },
   { id: "clear", label: { adsb: "Clear", ais: "Clear" }, text: { adsb: "Observed with enough aircraft and not flagged. Not proof that nothing happened.", ais: "Observed with enough vessels and not flagged. Not proof that nothing happened." } },
-  { id: "unassessed", label: { adsb: "Unassessed", ais: "Unassessed" }, text: { adsb: "Observed, but too few aircraft could be sampled, or the day was confounded so no cell was called. No call is made.", ais: "Observed, but no call is made." } },
+  { id: "unassessed", label: { adsb: "Unassessed", ais: "Unassessed" }, text: { adsb: "Observed, but too few aircraft could be sampled, the day was confounded, or the day's background could not be estimated, so no call is made.", ais: "Observed, but no call is made." } },
   { id: "notobserved", label: { adsb: "Not observed", ais: "Not observed" }, text: { adsb: "No cell drawn: too few aircraft were observed to publish it. This is not evidence that the area was clear.", ais: "No cell drawn: too few vessels were observed to publish it. This is not evidence that the area was clear." } },
 ]);
-const STATE_OF = Object.assign(Object.create(null), { degraded: "degraded", anomalous: "degraded", not_degraded: "clear", not_anomalous: "clear", insufficient_sample: "unassessed", withheld_day_confounded: "unassessed" });
+const STATE_OF = Object.assign(Object.create(null), { degraded: "degraded", anomalous: "degraded", not_degraded: "clear", not_anomalous: "clear", insufficient_sample: "unassessed", withheld_day_confounded: "unassessed", withheld_no_background: "unassessed" });
 export const stateOf = (status) => (typeof status === "string" && STATE_OF[status]) || "unassessed";
 export const stateInfo = (kind, id) => { const s = STATES.find((x) => x.id === id); return { id, label: s.label[kind], text: s.text[kind] }; };
 export function stateCounts(map) {
@@ -94,6 +95,8 @@ export function parseMapFile(text, name = "file") {
   const missing = [];
   for (const k of ["licence", "attribution"]) if (!str(data[k]).trim()) missing.push(k);
   if (missing.length) warnings.push(`This file carries no ${missing.join(" or ")} text. It is shown, but a map without its licence and attribution should not be republished.`);
+  const grid = isObj(m.grid) ? m.grid : {};
+  if (grid.is_preregistered === false) warnings.push(`This file uses a cell size of ${grid.cell_deg}° that is not the pre-registered one${typeof grid.preregistered_cell_deg === "number" ? ` (${grid.preregistered_cell_deg}°)` : ""}: it is not the pre-registered method, so its calls are not comparable with files that use it.`);
   const day = isObj(m.day) ? m.day : {};
   if (kind === "adsb" && day.day_confounded === true) warnings.push("This day is confounded: no cell was called degraded because of the day\u2019s background (the median cell share was itself high).");
   if (kind === "ais" && typeof day.on_land_detector === "string" && day.on_land_detector.startsWith("disabled")) warnings.push("The on-land detector was off for this file (no land polygons were supplied).");
@@ -124,7 +127,10 @@ export function statusCounts(map) {
   return c;
 }
 
-const ratio = (x) => (typeof x === "number" ? `${Math.round(x * 1000) / 10}%` : "");
+// A count the file gives as null is withheld (fewer than the publication minimum of 5), never zero.
+export const WITHHELD = "withheld (fewer than 5)";
+const ratio = (x) => (typeof x === "number" ? `${Math.round(x * 1000) / 10}%` : WITHHELD);
+const count = (x) => (typeof x === "number" ? x : x === null ? WITHHELD : "");
 
 // Rows [label, value] describing one cell, with what each number means. A null AIS count is a count of
 // one or two, withheld so it cannot single out a vessel.
@@ -132,11 +138,11 @@ export function cellRows(map, cell) {
   const p = cell.props, rows = [];
   rows.push(["Status", statusInfo(map.kind, cell.status).label]);
   if (map.kind === "adsb") {
-    rows.push(["Aircraft observed", p.aircraft_observed], ["Aircraft sampled", p.aircraft_sampled], ["Aircraft affected", p.aircraft_affected], ["Affected share", ratio(p.affected_share)]);
+    rows.push(["Aircraft observed", count(p.aircraft_observed)], ["Aircraft sampled", count(p.aircraft_sampled)], ["Aircraft affected", count(p.aircraft_affected)], ["Affected share", ratio(p.affected_share)]);
   } else {
-    rows.push(["Vessels observed", p.vessels_observed]);
+    rows.push(["Vessels observed", count(p.vessels_observed)]);
     const f = isObj(p.vessels_flagged) ? p.vessels_flagged : {};
-    for (const [d, n] of Object.entries(f)) rows.push([`Flagged: ${d.replace(/_/g, " ")}`, n === null ? "withheld (fewer than 3)" : n]);
+    for (const [d, n] of Object.entries(f)) rows.push([`Flagged: ${d.replace(/_/g, " ")}`, n === null ? WITHHELD : n]);
     rows.push(["Detectors that qualified", Array.isArray(p.detectors) && p.detectors.length ? p.detectors.join(", ").replace(/_/g, " ") : "none"]);
   }
   const b = cellBounds(cell);
@@ -188,7 +194,7 @@ export function cellAt(map, lon, lat) {
 // Cells ordered for a table: calls that matter first, then by share, then position.
 export function cellsForTable(map) {
   const rank = Object.fromEntries(STATUSES[map.kind].map((s, k) => [s.id, k]));
-  const share = (c) => (typeof c.props.affected_share === "number" ? c.props.affected_share : Array.isArray(c.props.detectors) ? c.props.detectors.length : 0);
+  const share = (c) => (typeof c.props.affected_share === "number" ? c.props.affected_share : Array.isArray(c.props.detectors) ? c.props.detectors.length : 0); // a withheld (null) share sorts last
   return map.cells.map((c, idx) => ({ c, idx })).sort((a, b) => (rank[a.c.status] ?? 9) - (rank[b.c.status] ?? 9) || share(b.c) - share(a.c) || a.c.i - b.c.i || a.c.j - b.c.j);
 }
 

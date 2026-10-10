@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Interference map page: the DOM layer. Everything it knows about the files is in lib/interference.mjs
 // and lib/geojson-layer.mjs. Files are read with File.text() in this page; nothing is sent anywhere.
-import { MAX_BYTES, MAX_BYTES_TEXT, MAX_TABLE_ROWS, parseMapFile, parseRouteExposure, groupBySource, stateCounts, stateOf, stateInfo, statusInfo, STATES, KIND_LABEL, KEEP_CAVEATS, safeUrl, pct, cellRows, cellBounds, cellAt, describeMap, cellsForTable, showValue, fmtLat, fmtLon } from "../lib/interference.mjs";
+import { WITHHELD, MAX_BYTES, MAX_BYTES_TEXT, MAX_TABLE_ROWS, parseMapFile, parseRouteExposure, groupBySource, stateCounts, stateOf, stateInfo, statusInfo, STATES, KIND_LABEL, KEEP_CAVEATS, safeUrl, pct, cellRows, cellBounds, cellAt, describeMap, cellsForTable, showValue, fmtLat, fmtLon } from "../lib/interference.mjs";
 import { makeView, pathOf } from "../lib/geojson-layer.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -78,7 +78,7 @@ async function openFiles(files) {
 async function openDemo() {
   setStatus("Opening the synthetic demo…");
   try {
-    const names = ["adsb-2026-03-02.geojson", "adsb-2026-03-01.geojson", "ais-2026-03-01.geojson"];
+    const names = ["adsb-custom-2026-03-02.geojson", "adsb-custom-2026-03-01.geojson", "ais-custom-2026-03-01.geojson"];
     const items = [];
     for (const n of names) { const r = await fetch("interference/demo/" + n); if (!r.ok) throw new Error(`${n} did not load`); items.push({ name: n, text: await r.text() }); }
     await openTexts(items, "Synthetic demo: three made-up files on a made-up open-ocean region (two ADS-B days, one of them confounded, and one AIS day). No real aircraft, vessel or day is behind them. Use the day picker on the ADS-B layer.");
@@ -221,7 +221,7 @@ function table(m, st) {
     const area = el("button", { type: "button", class: "im-rowbtn" }, `${fmtLat(b.south)}–${fmtLat(b.north)}, ${fmtLon(b.west)}–${fmtLon(b.east)}`);
     area.onclick = () => { select(st, idx); st.svg.scrollIntoView?.({ block: "nearest" }); };
     const cells = m.kind === "adsb"
-      ? [p.aircraft_observed, p.aircraft_sampled, p.aircraft_affected, typeof p.affected_share === "number" ? `${Math.round(p.affected_share * 1000) / 10}%` : ""]
+      ? [p.aircraft_observed, p.aircraft_sampled, p.aircraft_affected, typeof p.affected_share === "number" ? `${Math.round(p.affected_share * 1000) / 10}%` : p.affected_share === null ? WITHHELD : ""].map((v) => (v === null ? WITHHELD : v))
       : [p.vessels_observed, Array.isArray(p.detectors) && p.detectors.length ? p.detectors.join(", ").replace(/_/g, " ") : "none"];
     tb.append(el("tr", {}, el("td", {}, area), el("td", {}, statusInfo(m.kind, c.status).label), cells.map((v) => el("td", {}, v == null ? "" : String(v)))));
   }
