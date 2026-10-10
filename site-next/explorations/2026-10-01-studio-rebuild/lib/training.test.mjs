@@ -4,7 +4,7 @@
 // are checked too when present.
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { parseInstructorLog, errorBand, ERROR_BANDS, eventStrength, eventShape, fixLostSpans, nearestRow, stepTimeline, angDiff, sensorCue, describeRow, paramRows, stats, kindLabel, whatLabel, MAX_ROWS } from "./training.mjs";
+import { parseInstructorLog, errorBand, ERROR_BANDS, eventStrength, eventShape, fixLostSpans, nearestRow, stepTimeline, angDiff, sensorCue, describeRow, paramRows, stats, kindLabel, whatLabel, MAX_ROWS, eventExtraRows, peakFacts } from "./training.mjs";
 
 const row = (t, o = {}) => ({ t_s: t, utc: `2026-01-01T00:00:${String(t).padStart(2, "0")}.000Z`, true_lat_deg: 59 + t * 1e-4, true_lon_deg: 24, true_sog_kn: 10, true_cog_deg: 0, true_heading_deg: 3, fix_valid: true, reported_lat_deg: 59 + t * 1e-4, reported_lon_deg: 24, reported_sog_kn: 10, reported_cog_deg: 1, position_error_m: 2, time_offset_s: 0, n_used: 9, n_tracked: 11, mean_cn0_dbhz: 44, active_events: [], ...o });
 const NO_FIX = { fix_valid: false, reported_lat_deg: null, reported_lon_deg: null, reported_sog_kn: null, reported_cog_deg: null, position_error_m: null, mean_cn0_dbhz: null, n_used: 2 };
@@ -102,6 +102,23 @@ assert.deepEqual(paramRows({ constructor: 1, kind: "constructor" }), [["construc
 // A log with more rows than the page draws is refused with the limit.
 assert.match(parseInstructorLog(JSON.stringify({ ...log0, track: Array.from({ length: MAX_ROWS + 1 }, (_, i) => row(i % 60)) }), "big").error, /at most 20000/);
 
+// Fields the log computes: a drag-off's bearing as applied and peaks, and the run's peak speeds and accelerations.
+{
+  const withExtra = { ...log0, summary: { true_peak_sog_kn: 17.2, true_peak_accel_mps2: 0.021, reported_peak_sog_kn: 18.9, reported_peak_accel_mps2: 0.0314 },
+    events: [{ id: 1, description: "drag", start_utc: "x", parameters: { kind: "drag-off", start_s: 2, duration_s: 4, ramp_s: 1, recovery_s: 2, final_offset_m: 800, relative_bearing_deg: 40 }, resolved_bearing_deg: 52.25, peak_drag_speed_mps: 1.5, peak_drag_accel_mps2: 0.012 },
+      { id: 2, description: "jam", start_utc: "x", parameters: { kind: "jamming", start_s: 1, duration_s: 1, ramp_s: 0, recovery_s: 0, cn0_drop_db: 20 }, resolved_bearing_deg: null, peak_drag_speed_mps: null, peak_drag_accel_mps2: null }] };
+  const l = parseInstructorLog(JSON.stringify(withExtra), "x").log;
+  assert.deepEqual(eventExtraRows(l.events[0]), [["Bearing as applied, deg true", "52.3"], ["Peak speed the drag adds, m/s", "1.500"], ["Peak acceleration the drag adds, m/s²", "0.0120"]]);
+  assert.deepEqual(eventExtraRows(l.events[1]), []);
+  assert.deepEqual(peakFacts(l), [["Peak speed, true / reported", "17.2 / 18.9 kn"], ["Peak acceleration, true / reported", "0.0210 / 0.0314 m/s²"]]);
+  // an older log has neither: nothing is invented
+  assert.equal(parseInstructorLog(JSON.stringify(log0), "x").log.summary, null);
+  assert.deepEqual(peakFacts(parseInstructorLog(JSON.stringify(log0), "x").log), []);
+  assert.deepEqual(eventExtraRows(parseInstructorLog(JSON.stringify(log0), "x").log.events[0]), []);
+  // a partial summary is not shown
+  assert.equal(parseInstructorLog(JSON.stringify({ ...log0, summary: { true_peak_sog_kn: 1 } }), "x").log.summary, null);
+}
+
 // The library logs, as the CLI wrote them.
 const dir = new URL("../training/demo/", import.meta.url);
 if (fs.existsSync(dir)) {
@@ -124,6 +141,13 @@ if (fs.existsSync(dir)) {
   }
   const by = Object.fromEntries(files.map((f) => [f.replace(".instructor.json", ""), parseInstructorLog(fs.readFileSync(new URL(f, dir), "utf8"), f).log]));
   if (by["open-sea-jamming"]) assert.ok(by["open-sea-jamming"].stats.spans.length >= 1, "jamming loses the fix");
+  for (const l of Object.values(by)) {
+    assert.ok(l.summary && l.summary.reportedPeakSogKn >= 0 && l.summary.truePeakSogKn > 0, l.scenario + ": summary present");
+    for (const e of l.events) {
+      if (e.p.kind === "drag-off") assert.ok(e.resolvedBearingDeg != null && e.peakDragSpeedMps != null && e.peakDragAccelMps2 != null, "drag-off carries bearing and peaks");
+      else assert.ok(e.resolvedBearingDeg == null && e.peakDragSpeedMps == null && e.peakDragAccelMps2 == null, "other kinds carry none");
+    }
+  }
   if (by["coastal-drag-off"]) { assert.ok(by["coastal-drag-off"].stats.maxErrM > 500, "a drag-off walks the reported fix away"); assert.equal(by["coastal-drag-off"].stats.spans.length, 0, "while the receiver keeps a valid fix"); }
   if (by["port-approach-time-spoof"]) assert.ok(Math.abs(by["port-approach-time-spoof"].stats.maxTimeOffS) > 30, "time drifts away from true UTC");
 }

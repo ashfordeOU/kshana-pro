@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Training debrief page: the DOM layer. Everything it knows about the log is in lib/training.mjs.
 // The file is read with File.text() in this page; nothing is sent anywhere.
-import { parseInstructorLog, errorBand, ERROR_BANDS, kindLabel, whatLabel, MAX_BYTES, MAX_BYTES_TEXT, MAX_MOMENTS_SHOWN, eventShape, nearestRow, stepTimeline, sensorCue, describeRow, paramRows } from "../lib/training.mjs";
+import { parseInstructorLog, errorBand, ERROR_BANDS, kindLabel, whatLabel, MAX_BYTES, MAX_BYTES_TEXT, MAX_MOMENTS_SHOWN, eventShape, nearestRow, stepTimeline, sensorCue, describeRow, paramRows, eventExtraRows, peakFacts } from "../lib/training.mjs";
 import { makeProjection, niceLength } from "../lib/trust.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -81,6 +81,7 @@ function openLog(l) {
   const facts = [["Start (UTC)", log.startUtc], ["Duration", `${Math.round(log.durationS)} s`], ["Seed", log.seed], ["Events injected", String(log.events.length)],
     ["Largest position error", log.stats.maxErrM == null ? "none reported" : `${Math.round(log.stats.maxErrM)} m at T+${Math.round(log.stats.maxErrAtS)} s`],
     ["Largest time offset", Math.abs(log.stats.maxTimeOffS) < 0.05 ? "none" : `${log.stats.maxTimeOffS > 0 ? "+" : ""}${log.stats.maxTimeOffS.toFixed(1)} s`],
+    ...peakFacts(log),
     ["Time with no fix", log.stats.spans.length ? log.stats.spans.map((s) => `T+${Math.round(s.from)} to ${Math.round(s.to)} s`).join(", ") : "none"]];
   $("tr-facts").replaceChildren(...facts.map(([k, v]) => el("div", {}, el("dt", {}, k), el("dd", {}, v))));
   $("tr-slider").max = String(log.track.length - 1);
@@ -246,7 +247,7 @@ function drawEvents() {
   for (const e of log.events) {
     box.append(el("details", { class: "tr-ev", open: "" }, el("summary", {}, `${e.id}. ${kindLabel(e.p.kind)}${e.p.label ? `: ${e.p.label}` : ""}`),
       el("p", {}, e.description), e.startUtc ? el("p", { class: "tr-sub" }, `Onset ${e.startUtc}`) : null,
-      el("dl", { class: "tr-kv" }, paramRows(e.p).flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]))));
+      el("dl", { class: "tr-kv" }, [...paramRows(e.p), ...eventExtraRows(e)].flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]))));
   }
 }
 function drawTimelineList() {

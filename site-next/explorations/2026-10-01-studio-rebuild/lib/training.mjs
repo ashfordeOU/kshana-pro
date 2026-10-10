@@ -64,13 +64,19 @@ export function parseInstructorLog(text, name = "file") {
   track.sort((a, b) => a.t_s - b.t_s);
   const events = (Array.isArray(o.events) ? o.events : []).filter((e) => isObj(e) && isNum(e.id)).map((e) => ({
     id: e.id, description: str(e.description), startUtc: str(e.start_utc), p: isObj(e.parameters) ? e.parameters : {},
+    // drag-off only (null for the other kinds, absent in older logs): the bearing as applied and the peaks the drag adds
+    resolvedBearingDeg: num(e.resolved_bearing_deg), peakDragSpeedMps: num(e.peak_drag_speed_mps), peakDragAccelMps2: num(e.peak_drag_accel_mps2),
   }));
   const timeline = (Array.isArray(o.timeline) ? o.timeline : []).filter((t) => isObj(t) && isNum(t.t_s)).map((t) => ({
     t_s: t.t_s, utc: str(t.utc), event: isNum(t.event) ? t.event : null, what: str(t.what), text: str(t.text),
   })).sort((a, b) => a.t_s - b.t_s);
   if (!str(o.warning).trim()) warnings.push("This file carries no warning text. It is a training log: do not feed its stream to live navigation.");
+  // Peaks of the true and the reported track over the run (absent in older logs).
+  const sm = isObj(o.summary) ? o.summary : null;
+  const summary = sm && [sm.true_peak_sog_kn, sm.true_peak_accel_mps2, sm.reported_peak_sog_kn, sm.reported_peak_accel_mps2].every(isNum)
+    ? { truePeakSogKn: sm.true_peak_sog_kn, truePeakAccelMps2: sm.true_peak_accel_mps2, reportedPeakSogKn: sm.reported_peak_sog_kn, reportedPeakAccelMps2: sm.reported_peak_accel_mps2 } : null;
   const log = {
-    name, scenario: str(o.scenario), description: str(o.description), trainerNote: str(o.trainer_note), warning: str(o.warning),
+    summary, name, scenario: str(o.scenario), description: str(o.description), trainerNote: str(o.trainer_note), warning: str(o.warning),
     seed: o.seed, startUtc: str(o.start_utc), durationS: isNum(o.duration_s) ? o.duration_s : track[track.length - 1].t_s,
     events, timeline, track, warnings, t0: track[0].t_s, t1: track[track.length - 1].t_s,
   };
@@ -169,4 +175,21 @@ export function describeRow(log, i) {
 export function paramRows(p) {
   const label = { kind: "Kind", label: "Label", start_s: "Onset, s", duration_s: "Duration, s", ramp_s: "Onset ramp, s", recovery_s: "Recovery ramp, s", cn0_drop_db: "C/N0 drop, dB", spread_db: "Per-satellite spread, dB", final_offset_m: "Final offset, m", bearing_deg: "Bearing, deg true", relative_bearing_deg: "Bearing relative to course, deg", offset_s: "Time offset, s", delay_s: "Delay, s", affect_time: "Affects time", counterfeit_cn0_dbhz: "Counterfeit C/N0, dB-Hz" };
   return Object.entries(p).filter(([, v]) => v !== null && v !== undefined).map(([k, v]) => [(Object.hasOwn(label, k) && label[k]) || k.replace(/_/g, " "), k === "kind" ? kindLabel(v) : String(v)]);
+}
+
+// Extra rows of an event that the log computes (drag-off): the bearing as applied and the peaks the drag adds
+// to the false track. Empty for other kinds and for older logs.
+export function eventExtraRows(e) {
+  const rows = [];
+  if (e.resolvedBearingDeg != null) rows.push(["Bearing as applied, deg true", e.resolvedBearingDeg.toFixed(1)]);
+  if (e.peakDragSpeedMps != null) rows.push(["Peak speed the drag adds, m/s", e.peakDragSpeedMps.toFixed(3)]);
+  if (e.peakDragAccelMps2 != null) rows.push(["Peak acceleration the drag adds, m/s²", e.peakDragAccelMps2.toFixed(4)]);
+  return rows;
+}
+
+// The summary line shown in the facts panel: peak speed and acceleration, true against reported.
+export function peakFacts(log) {
+  const s = log.summary;
+  if (!s) return [];
+  return [["Peak speed, true / reported", `${s.truePeakSogKn.toFixed(1)} / ${s.reportedPeakSogKn.toFixed(1)} kn`], ["Peak acceleration, true / reported", `${s.truePeakAccelMps2.toFixed(4)} / ${s.reportedPeakAccelMps2.toFixed(4)} m/s²`]];
 }
