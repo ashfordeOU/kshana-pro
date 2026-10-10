@@ -1,4 +1,4 @@
-Updated: 2026-10-10T18:40:12Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T18:46:51Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 18:46:51 18:46Z Validation branches on clean base: nmea-training-clean merged (rc 6adf40f6); interference-map-clean 4a65043d and maritime-clean f3d2b93 pushed, sent to W1b with approved rows (maritime split into VALIDATED monitors row + MODELLED score row). Remaining: telemetry-evidence-clean (W14), bench-compliance-clean (W15), OSNMA
 - 18:40:12 18:40Z 0.34.1 Release run: verify job still running (~50 min in), binaries done; crates.io publish follows. W11 validate/nmea-training-clean 3801d9ab pushed on clean base; W1b to merge into release/0.35.0-rc and upgrade the NMEA row to VALIDATED
 - 18:39:30 18:39Z Canonical 0.35 integration branch: release/0.35.0-rc = 72d77e47 (same commit as -clean2). Unused, for founder to delete: release/0.35.0-clean, release/0.35.0-clean2, old validate/* without -clean
 - 18:39:04 18:39Z Clean integration base release/0.35.0-clean2 72d77e47 (verified: 0.34.1 + main ancestors, 0 trailers, 181 commits Ashforde OÜ, channels ec1d1cc cherry-picked). release/0.35.0-clean (ee3ca203, duplicate 0.34.1 history) unused, founder to delete. Five validation workers released to cherry-pick onto clean2
