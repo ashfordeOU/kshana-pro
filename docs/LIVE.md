@@ -1,4 +1,4 @@
-Updated: 2026-10-10T14:15:22Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T14:24:07Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:24:07 14:24Z W1b milestone 2: release/0.35.0 34faad6a, all 10 code branches merged (surfaces 43af7a58, channels aace6ab). CHANGELOG [0.34.1] restored byte-identical; JetBrains STATEMENT guard OK (265 chars); 14 JetBrains names match SURFACES.md; MCP crate formatted + CI fmt step added. Open: compliance wording-rule test failure (fix text, not guard); full test run going
 - 14:15:22 14:15Z W2 0.34.1 post-gate: fmt, clippy (root + MCP), MCP tests, web tests all green. Pre-existing MCP-crate fmt gap (CI blind spot) routed to 0.35 with a new CI step; 0.34.1 kept minimal
 - 14:11:21 14:11Z W2 local full gate GREEN on release/0.34.1 d980eff4: 367 binaries, 3986 passed / 0 failed / 119 ignored (incl. iq_campaign new DIGESTs, published_figures). MCP tests, clippy, fmt, web tests running
 - 14:10:47 14:10Z W1b: cargo-deny on release/0.35.0 root + MCP locks all ok (one warn-only duplicate: syn 2 via curve25519-dalek-derive); flate2 approved; MCP lock refreshed c17c40d3; dropped clock-ensemble-band CHANGELOG entry confirmed present in [0.34.0]
