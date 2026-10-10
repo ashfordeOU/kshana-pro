@@ -1,4 +1,4 @@
-Updated: 2026-10-10T22:30:36Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T23:00:21Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 23:00:21 23:00Z | W19 security fixes done ci/mcp-channels 92f61660, dry run 38091572524 GREEN (read-only mcpb job, reproducible bundles, launchers via file://, http refused); S1-S7 + N1-N9 addressed; new dep subtle; sent to MCP critic for re-check
 - 22:30:36 22:30Z | W1b gates on 238cc580: full cargo test 4354 pass / 4 fail (all since fixed on rc or count-refresh), repeatability 3x2981 OK, MCP 51 pass, all scripts exit 0; rc -> 013e3092 (matrix regenerated at 262 rows, verification_artifacts_doc_sync 8/8, oracle-references oem via PyPI). W19 .mcpb ruling: plain deterministic zip + schema check (no packer, no guard exclusion)
 - 22:10:55 22:10Z | Check-in 22:10Z: W18 carrier push denied by classifier (not worked around); switched to gzip+base64 patch series via messages (escape-proof). OSNMA in critic re-review; W19 on security fixes; pro PR 29 CI running; next check-in 23:01Z
 - 22:05:47 22:05Z | OSNMA evidence re-recorded at 98c0e49: docs/evidence/osnma-official-vectors-2026-10-10-98c0e49.md (18/18, 186,382 tags, 0 failed; alert verifies after NPK fix)
