@@ -1,4 +1,4 @@
-Updated: 2026-10-10T17:52:55Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T18:00:03Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 18:00:03 18:00Z VALIDATION W11 NMEA training DONE (local): 225,227 sentences from 8 streams parse in pynmea2 with valid checksums, 0 failures; 1148 decoded epochs within pre-registered tolerances. Disclosed: GGA sat-count expectation corrected to NMEA convention (00 without fix), no tolerance change. Row approved VALIDATED/ReferenceImpl. ALL 5 validations complete
 - 17:52:55 17:52Z Check-in: W12 pushed feat/osnma-verify 5f0e6e5a; Fable critic spawned for OSNMA (session_014D7jreQXqWpqGkmufVtZSL, read-only). W11 was idle awaiting go-ahead; GO sent (work locally, cherry-pick to -clean). Validation: 4/5 done (W9, W13, W14, W15), W11 starting
 - 17:51:46 17:51Z W1b JetBrains CLI smoke on 0.35.0 binary: all plugin command lines exit 0 on valid inputs; correct refusals on invalid (no-position export, uneven route, orbit bench-export, unpinned verify=3, fake TSR=2). Attach-timestamp success path untested offline (no real RFC 3161 token)
 - 17:50:33 17:50Z v0.34.1 TAGGED after main CI success (run 38060973199, 14:46-17:45Z). Release run 38073186962 in progress. Main unfrozen. W3 to pin 0.34.1 once on crates.io; W2 to verify channels; W1b to merge main into the clean 0.35 branch
