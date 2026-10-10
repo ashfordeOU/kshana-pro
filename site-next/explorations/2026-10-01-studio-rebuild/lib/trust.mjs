@@ -53,7 +53,9 @@ export const DEFAULT_GATE_RELEASE_S = 30;
 
 // Which of the four inputs is this text? Looks at the content, never the name.
 export function sniff(text) {
-  const t = String(text || "").replace(/^﻿/, "").trimStart();
+  let t = String(text || "").replace(/^﻿/, "").trimStart();
+  // trust.csv from a vessel run starts with a "#" comment line carrying the advisory statement: skip comment lines.
+  while (t[0] === "#") { const nl = t.indexOf("\n"); t = nl < 0 ? "" : t.slice(nl + 1).trimStart(); }
   if (!t) return "empty";
   if (t[0] === "$" || t[0] === "!") return "nmea";
   if (/^t_s\s*,\s*true_lat_deg\s*,\s*true_lon_deg/i.test(t)) return "truth";
@@ -102,6 +104,10 @@ export function parseTruth(text) {
 // trust.csv from a batch run: scores and reasons only, no position.
 export function parseTrustCsv(text) {
   const lines = String(text).replace(/^﻿/, "").split(/\r?\n/).filter(Boolean);
+  // Leading "#" comment lines: the advisory statement every vessel output carries (readers skip them as comments).
+  const comments = [];
+  while (lines.length && lines[0].startsWith("#")) comments.push(lines.shift().replace(/^#\s?/, "").trim());
+  const advisory = comments.filter(Boolean).join(" ");
   const head = (lines.shift() || "").split(",");
   const col = (n) => head.indexOf(n);
   const [it, is, ia, ic, ir] = ["t_s", "state", "alarms", "score", "score_reasons"].map(col);
@@ -118,7 +124,7 @@ export function parseTrustCsv(text) {
     }
     epochs.push({ t_s, state: normState(p[is]), rawState: p[is], score: isNum(sc) ? sc : null, deductions, alarms: (p[ia] || "").split(";").filter(Boolean) });
   }
-  return { epochs, hasScore: ic >= 0 };
+  return { epochs, hasScore: ic >= 0, advisory };
 }
 
 // NMEA ddmm.mmmm / dddmm.mmmm with a hemisphere letter to signed degrees.
@@ -330,6 +336,7 @@ export function joinTruth(epochs, truth, tolS = 0.5) {
 // parsed. Returns { run } or { error }.
 export function buildRun(inputs) {
   const notes = [];
+  let advisory = "";
   let epochs, model = null, monitorsRun = null, events = [], source, states = null;
   if (inputs.result) {
     const r = inputs.result;
@@ -338,16 +345,23 @@ export function buildRun(inputs) {
     const good = r.epochs.filter((e) => e && typeof e === "object" && isNum(e.t_s));
     if (good.length < r.epochs.length) notes.push(`${r.epochs.length - good.length} epoch(s) without a numeric t_s were skipped.`);
     epochs = good.map(fromResultEpoch);
+    if (typeof r.advisory === "string") advisory = r.advisory;
     model = r.score_model;
     monitorsRun = Array.isArray(r.monitors_run) ? r.monitors_run.slice() : null;
     events = (r.events || []).filter((e) => isNum(e.onset_s)).map((e) => ({ label: e.label, onset_s: e.onset_s, end_s: e.end_s ?? null }));
     states = r.states || null;
     source = "result";
   } else if (inputs.lines) {
-    epochs = inputs.lines.filter((e) => e && typeof e === "object" && isNum(e.t_s)).map(fromLineEpoch);
+    const ok = inputs.lines.filter((e) => e && typeof e === "object" && isNum(e.t_s));
+    epochs = ok.map(fromLineEpoch);
+    // schema 1.2 puts the advisory statement on every line; the first is shown, a different later one is said
+    const advs = [...new Set(ok.map((e) => e.advisory).filter((a) => typeof a === "string" && a.trim()))];
+    if (advs.length) advisory = advs[0];
+    if (advs.length > 1) notes.push(`The lines carry ${advs.length} different advisory statements; the first is shown.`);
     source = "lines";
     notes.push("A live stream does not state which monitors ran or the score model; the band edges below are the documented defaults and the monitor strips show only monitors that cost points.");
   } else if (inputs.csv) {
+    advisory = typeof inputs.csv.advisory === "string" ? inputs.csv.advisory : "";
     epochs = inputs.csv.epochs.map((e) => ({ ...e, unknownState: knownState(e.rawState) ? null : String(e.rawState), deductions: cleanDeductions(e.deductions), ratios: table(), pos: null, gate: null, note: null }));
     source = "csv";
     notes.push("trust.csv carries scores and reasons but not ratios or positions.");
@@ -387,6 +401,7 @@ export function buildRun(inputs) {
     weights,
     hasPosition: positions > 0,
     demo: inputs.demo === true,
+    advisory,
     hasTruth: truthN > 0,
     gateDerived,
     t0: epochs[0].t_s,

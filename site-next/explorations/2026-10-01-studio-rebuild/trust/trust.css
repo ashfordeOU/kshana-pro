@@ -119,3 +119,6 @@ button.mt-rrow:hover{background:var(--line)}
 
 .mt-track svg text{font-size:15px}
 .mt-time svg text{font-size:10.5px}
+
+.mt-adv{margin:0 0 12px;padding:10px 14px;border-radius:12px;border:1px solid var(--line-2);border-left:4px solid var(--nav-card);background:var(--surface);font-size:13px;line-height:1.45;color:var(--ink-2)}
+.mt-adv b{color:var(--ink)}

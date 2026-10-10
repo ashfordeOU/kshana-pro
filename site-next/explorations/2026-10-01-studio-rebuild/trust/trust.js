@@ -96,6 +96,7 @@ function openRun(r) {
   const n = run.epochs.length;
   $("mt-slider").max = String(n - 1);
   $("mt-truth-wrap").hidden = !run.hasTruth;
+  drawAdvisory();
   layout(); drawTrack(); drawTimeline(); drawStrips(); drawSettings(); drawLegend();
   $("mt-first-ded").disabled = run.firstDeduction < 0;
   $("mt-first-unt").disabled = run.firstUntrusted < 0;
@@ -318,6 +319,14 @@ function drawStrips() {
   svg.append(dyn.stripCur);
   svg.onpointerdown = (ev) => { svg.setPointerCapture?.(ev.pointerId); timePointer(ev); };
   svg.onpointermove = (ev) => { if (ev.buttons || ev.pointerType === "mouse") timePointer(ev); };
+}
+
+// The advisory statement the file itself carries (every vessel output does, from schema 1.2), verbatim.
+function drawAdvisory() {
+  const box = $("mt-adv");
+  box.replaceChildren();
+  if (run.advisory) box.append(el("b", {}, "Advisory statement carried by this file: "), run.advisory);
+  else box.append(el("b", {}, "This file carries no advisory statement "), "(older outputs do not). The advisory at the top of this page applies to it all the same.");
 }
 
 function drawLegend() {

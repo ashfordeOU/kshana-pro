@@ -185,6 +185,7 @@ if (fs.existsSync(demo)) {
   assert.ok(run.epochs[2900].offsetM > 100, "reported and true positions have separated by the end");
   assert.ok(run.epochs[1000].offsetM < 30, "and are close before the drag-off");
   assert.ok(run.epochs.every((e) => e.pos), "every epoch has a reported position");
+  assert.match(run.advisory, /^Advisory software, not type-approved navigation equipment/, "the recorded result carries the advisory statement (schema 1.2)");
 }
 // Robustness: a malformed file never throws; it is counted or refused with a reason.
 {
@@ -225,5 +226,30 @@ if (fs.existsSync(demo)) {
   // truth: an empty latitude or longitude is a gap, not 0, 0
   const t = parseTruth("t_s,true_lat_deg,true_lon_deg\n0,59,24\n1,,\n2,59.1,\n3,,24\n4,95,24\n5,59.2,24.2\n");
   assert.deepEqual(t.t, [0, 5]);
+}
+// Schema 1.2: every vessel output carries the advisory statement; the page shows the file's own text verbatim.
+{
+  const ADV = "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.";
+  // batch result
+  const r = buildRun({ result: { ...result, advisory: ADV } }).run;
+  assert.equal(r.advisory, ADV);
+  // live lines 1.2: the advisory key sits after position on every line; the object position still reads
+  const lines = [0, 1, 2].map((i) => ({ seq: i + 1, t_s: i, time: null, state: i ? "nominal" : "calibrating", score: i ? 100 : null, deductions: [], alarms: [], gate: "off", note: null, position: { lat_deg: 59 + i * 1e-3, lon_deg: 24, height_m: 17 }, advisory: ADV }));
+  assert.equal(sniff(lines.map((l) => JSON.stringify(l)).join("\n")), "lines");
+  const l = buildRun({ lines: parseLines(lines.map((x) => JSON.stringify(x)).join("\n")).epochs }).run;
+  assert.equal(l.advisory, ADV); assert.equal(l.hasPosition, true);
+  // a line stream whose lines disagree says so, and shows the first
+  const d = buildRun({ lines: lines.map((x, i) => (i === 2 ? { ...x, advisory: "other" } : x)) }).run;
+  assert.equal(d.advisory, ADV); assert.ok(d.notes.some((n) => /2 different advisory statements/.test(n)));
+  // trust.csv: the advisory is a first "#" comment line; the file still sniffs as a csv and reads
+  const csvText = `# ${ADV}\nt_s,state,alarms,score,score_reasons\n0,calibrating,,,\n1,nominal,,100,\n`;
+  assert.equal(sniff(csvText), "csv");
+  const c = parseTrustCsv(csvText);
+  assert.equal(c.advisory, ADV); assert.equal(c.epochs.length, 2);
+  assert.equal(buildRun({ csv: c }).run.advisory, ADV);
+  // older outputs carry none: empty, nothing invented
+  assert.equal(buildRun({ result }).run.advisory, "");
+  assert.equal(buildRun({ csv: parseTrustCsv("t_s,state,alarms,score,score_reasons\n0,nominal,,100,\n") }).run.advisory, "");
+  assert.equal(buildRun({ result: { ...result, advisory: 7 } }).run.advisory, "");
 }
 console.log("trust.test.mjs: ok");

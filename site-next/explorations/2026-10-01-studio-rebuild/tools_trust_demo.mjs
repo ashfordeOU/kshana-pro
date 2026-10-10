@@ -29,7 +29,7 @@ const summary = execFileSync(bin, ["receiver-trust", "session.toml"], { cwd: wor
 const j = JSON.parse(readFileSync(join(work, "session.result.json"), "utf8"));
 const out = {
   recorded_with: "kshana receiver-trust (CLI), reduced to the fields the Maritime trust view reads",
-  label: j.label, score_model: j.score_model, monitors_run: j.monitors_run, states: j.states, events: j.events,
+  advisory: j.advisory, label: j.label, score_model: j.score_model, monitors_run: j.monitors_run, states: j.states, events: j.events,
   epochs: j.epochs.map((e) => ({ t_s: e.t_s, state: e.state, alarms: e.alarms, marine: e.marine && { position: e.marine.position, ratios: e.marine.ratios }, score: e.score })),
 };
 mkdirSync(join(here, "trust", "demo"), { recursive: true });
