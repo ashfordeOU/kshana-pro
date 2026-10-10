@@ -1,4 +1,4 @@
-Updated: 2026-10-10T12:27:42Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T12:48:35Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:48:35 12:48Z W18 cce94e7c: bench-export on all surfaces; full CLI x surface matrix in docs/SURFACES.md; WASM smoke pass. Directed: close all in-memory GAPs (exports/animation/examples on Python+WASM, plugin import-route+IQ, attach-timestamp, keygen Python-only, IQ monitor/labfit/sweep); CLI-only with reasons: --study, iq extract/convert/decimate, live/network. W19: JetBrains actions for evidence verify, bench-export, compliance
 - 12:27:42 12:27Z Check-in: PR #74 18/20 green (repro matrix 3 OS, wasm, python, mcp, CodeQL); check + coverage running. W18 d6eb6fcb: compliance wired (Python/WASM/MCP 2 tools/plugin); asked to wire bench-export and send full surface matrix
 - 12:27:08 12:27Z Housekeeping: founder deleted ci/coverage-opt-level. Closed public PRs #46 #57 #58 #59 #60 #61 #63 #64 #65 (head commits already in main via 0.34.0). Branch delete list given to founder (merged or patch-equivalent only)
 - 12:05:51 12:05Z W1b 0.35 integration checklist approved (order: main+0.34.1, #70/#66, A,C,E,F,G,B, surfaces last, channels, then gen_validation_artifacts+port in one step; W1b owns placement rows; frozen heads at start). Remote ci/coverage-opt-level (inert) left for founder to delete
