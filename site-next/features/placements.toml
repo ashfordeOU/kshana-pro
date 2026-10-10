@@ -280,7 +280,9 @@ tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021",
 # kinds that used to be listed here are register rows now; the site and the register read one engine checkout.)
 # Docs (2026-09-30): file names a reader types in shell examples (`> campaign.toml`, `> s.toml`) and a
 # signal data file (data/leo-signals/generic-c-band.toml), none of them scenarios.
-ignore = ["campaign", "s", "generic-c-band"]
+# 0.33.0: `--data` is an option of `kshana iq scene` (src/iq_cli.rs); the register holds the iq
+# subcommand as one row (cli:iq) and does not enumerate its options, and the changelog page now names it.
+ignore = ["campaign", "s", "generic-c-band", "--data"]
 
 [placements]
 # ---- kind ----
@@ -957,3 +959,14 @@ ignore = ["campaign", "s", "generic-c-band"]
 "binding:python.iq_frontend" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
 "binding:python.iq_labfit" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
 "binding:wasm.receiver_trust" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+
+# 0.33.0: the six MCP tools of the GNSS IQ layer (kshana PR 34) and the two ledger rows of the
+# gps-sdr-sim cross-check (kshana PR 35) (placed 2026-10-08 at the 0.33.0 re-port; check_features listed them).
+"mcp-tool:iq_signals" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:iq_info" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:iq_scene" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:iq_acquire" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:iq_track" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:iq_frontend" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"validation:gnss-iq-scene-signal-geometry-against-an-independent-baseban" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gnss-iq-acquisition-on-independently-generated-i-q-samples" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
