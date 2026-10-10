@@ -1,4 +1,4 @@
-Updated: 2026-10-10T21:36:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T21:38:41Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 21:38:41 21:38Z | 0.34.1 ALL CHANNELS PASS (W2: crates x2, PyPI 6 wheels+sdist, npm, JetBrains, ghcr anon, MCP registry 0.34.1, release assets+attestations, parity, kshana.dev) -> founder can publish D14 GHSA. Merged ledger/marine-integrations e9bca91f + figures/0.35 3b98ab20 into rc -> 8be96d2c (cargo check all-targets OK, no-attribution OK). W14 CEF validated (pycef 153/153 tier-1, Logstash 157/157, prereg 5172e579/0a7598aa); ruling: move floats cn1/cn2 -> cfp1/cfp2 in 0.35, re-run oracles, disclose amendment 3
 - 21:36:25 21:36Z | Merged docs/0.35-completeness (W15 8367e075) into rc -> 67aba259; no-attribution OK full history; mcp crate tests 51 pass. Rulings: library-author name in ledger strings -> library name+URL (W15 docs/0.35-names); captured Signal K evidence JSON not edited, README note instead. W14 also fixes PIN-SCOPE guard failure in telemetry reference
 - 21:25:33 21:25Z | W10 ledger/marine-integrations f0abb394 (Modelled row, evidence named); ruling: new OracleKind IntegrationRun (Modelled-only, own reason) + guard roots incl. integrations/ deploy/. W10 found pre-existing rc failure verification_rows_name_a_test_that_exists (interference row token -> W13; evidence row cites -> W14)
 - 21:22:54 21:22Z | W17 Studio c12c8b3: generic receiver-trust card (wasm receiver_trust, inline log, advisory); forwarded to W1b
