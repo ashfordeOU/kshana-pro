@@ -5,6 +5,15 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Open engine 0.34.1.** The `kshana` pin moves from `=0.34.0` to the published `=0.34.1`
+  (crates.io) with its lockfile; no overlay source needed changing. The version-stamped paper
+  reports under `papers/` (and `papers/realtime-frame-eop/fig2_frame_eop.svg`) were
+  regenerated with the `emit_paper_artifacts` generators; each HTML and SVG changes only in its
+  engine-version footer (checked: the old file with `0.34.0` replaced by `0.34.1` is
+  byte-identical to the new one), so no published number moved. The lab-campaign
+  fixture was regenerated with the published 0.34.1 binary: all 12 cells match the 0.34.0 ones
+  field for field except `engine_version`, which is part of the cell key, so the keys and the
+  DIGEST move (`a76ec0cd…` to `01ab3ca9…`).
 - **Open engine 0.34.0.** The `kshana` pin moves from `=0.33.1` to the published `=0.34.0`
   (crates.io) with its lockfile; no overlay source needed changing, and `cargo test --all
   --locked` passes. The six version-stamped paper reports under `papers/` (and the figure
