@@ -1,4 +1,4 @@
-Updated: 2026-10-10T16:19:31Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T16:21:29Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:21:29 16:21Z W19 ec1d1cc: Signal K real publish on tag (token-missing guard, provenance, parity), ghcr.io/ashfordeou/kshana-reference-build (multi-arch, attested, parity requires anonymous pull), OpenCPN catalogue XML validated against real ocpn-plugin.xsd + catalogue tarball + SUBMITTING.md. Confirming dry run running
 - 16:19:31 16:19Z W1b milestone 4: bump to 0.35.0 (2bd20c0c), clippy clean, binaries + wasm built, figures re-rendered (stamp-only), docs prose re-verified, screenshots recaptured, Studio pages wired into port + site tests + CI. Decisions: add 7 MODELLED ledger rows for 0.35 capabilities (draft to coordinator first); site check rule 12 (255-file legacy limit) to be replaced by real Pages limits if Pages is the only deploy path. Founder authorised W1b kshana-pro branch push
 - 16:16:53 16:16Z FOUNDER DECISIONS: Signal K npm name signalk-kshana-trust + first publish approved, NPM_TOKEN added; ghcr images public (kshana-mcp already anonymously pullable; new 0.35 image to be checked after release); OpenCPN catalogue submission approved (W19 prepares metadata + steps; founder opens the external PR after release). NDA: founder handling directly. Advisory and OSNMA 4.9 to be discussed
 - 15:38:50 15:38Z W1b milestone 3: full test of complete 0.35 merge 4316 passed, 6 expected reds fixed (CHANGELOG layout restored, palette_sync, temp-path uniqueness, PIN-SCOPE comments, SBOM 66->86, ledger regen). Ledger diff: 1 row text (resilience categories wording), counts unchanged 251/124/123/4; approved. release/0.35.0 ecfe7ce5
