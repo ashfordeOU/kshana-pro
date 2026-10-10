@@ -1,4 +1,4 @@
-Updated: 2026-10-10T11:44:40Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T11:44:56Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:44:56 11:44Z W18 feat/surfaces-0.35 cc6f752e: latest maritime-trust/marine-integrations/trust-telemetry merged; schema 1.2 + advisory described across Python/WASM/MCP/docs; gates green (wasm smoke, full suite, JetBrains left to integration)
 - 11:44:40 11:44Z W3 kshana-pro PR 17 @03d6048: main merged, fixture regenerated with crates.io kshana 0.34.0; DIGEST a76ec0cd (engine_version in cell key; all metrics and hashes identical to 51ba4787 run); 863 tests; PR body updated
 - 11:38:34 11:38Z W18 feat/surfaces-0.35 d0a796c9: merged nmea-training, marine-integrations, interference-map, trust-telemetry, maritime-trust; evidence verify verdict field on Python/WASM/MCP; asked to take latest W10/W14 heads; 0.34.1 merge held until tag
 - 11:36:55 11:36Z W10 feat/marine-integrations merged maritime-trust 2a90ecb (b902687 + follow-up): Signal K adapter accepts 1.2; relay/OpenCPN unchanged (byte-identical); e2e + plugin tests pass
