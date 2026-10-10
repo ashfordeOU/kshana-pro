@@ -73,3 +73,5 @@
 
 @media (max-width:520px){.wrap.tl{padding-left:16px;padding-right:16px}.tl-form{grid-template-columns:minmax(0,1fr)}}
 @media (prefers-reduced-motion:reduce){.tl *{transition:none!important;animation:none!important}}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

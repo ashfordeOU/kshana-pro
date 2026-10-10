@@ -3,9 +3,9 @@
 // lib/engine-page.mjs (the Studio's WebAssembly engine in a worker). Files are read with File.arrayBuffer() in this
 // page and nothing is sent anywhere.
 import { getEngine } from "../lib/engine-page.mjs";
-import { PAGES, FEATURES, CLI_CARDS, docsHref } from "../lib/tools35-data.mjs";
+import { PAGES, FEATURES, CLI_CARDS, AI_QUESTIONS, docsHref } from "../lib/tools35-data.mjs";
 import { zip } from "../lib/zip.mjs";
-import { packFilesJson, packProblems, parsePublicKey, verdictView, checkEpoch, benchEntries, scenarioKind, BENCH_KINDS, complianceRuns, MAX_COMPLIANCE_RUNS, toBase64 } from "../lib/tools35.mjs";
+import { packFilesJson, packProblems, parsePublicKey, verdictView, checkEpoch, benchEntries, scenarioKind, BENCH_KINDS, complianceRuns, MAX_COMPLIANCE_RUNS, toBase64, complianceView, statusInfo, osnmaView, OSNMA_STATUS, gstText, ubxLines } from "../lib/tools35.mjs";
 
 const $ = (id) => document.getElementById(id);
 function el(tag, attrs, ...kids) {
@@ -189,12 +189,202 @@ function wireEvidence() {
   $("ts-run").onclick = attachTimestamp;
 }
 
-// (bench, compliance, osnma, ai: added below as each tab is built)
-const later = [];
-export function register(fn) { later.push(fn); }
+// ---------- test bench ----------
+async function wireBench() {
+  const sel = $("bn-scn");
+  try {
+    const idx = await (await fetch("scenarios/index.json")).json();
+    const names = Object.keys(idx).filter((n) => BENCH_KINDS.includes(scenarioKind(idx[n]))).sort();
+    for (const n of names) sel.append(el("option", { value: n }, `${n.replace(/\.toml$/, "")} (${scenarioKind(idx[n])})`));
+    sel.dataset.ready = "1";
+    sel._text = (n) => idx[n];
+  } catch (e) { sel.append(el("option", { value: "" }, "The scenario list did not load")); }
+  const run = async (toml, stem) => {
+    const out = $("bn-out");
+    try {
+      const ep = checkEpoch($("bn-epoch").value);
+      if (ep.error) throw new Error(ep.error);
+      const e = await useEngine("bench_export");
+      out.replaceChildren(el("p", { class: "tl-notice" }, "Exporting…"));
+      const r = JSON.parse(await e.call("bench_export", toml, ep.epoch));
+      const entries = benchEntries(r, stem);
+      const nodes = [el("div", { class: "tl-verdict ok", role: "status" }, el("b", {}, `${entries.length} files written to your browser's memory`), el("p", {}, "Motion and labelled event intervals only. Download them to load into a laboratory simulator."))];
+      const ul = el("ul", { class: "tl-files" });
+      for (const f of entries) {
+        const li = el("li", {}, el("code", {}, f.name), el("span", { class: "sz" }, kb(enc.encode(f.data).length)));
+        const b = el("button", { type: "button", class: "tl-btn" }, "Download"); b.onclick = () => download(f.name, f.data, mimeOf(f.name));
+        const d = el("details", { class: "tl-sample" }, el("summary", {}, "Preview"), el("pre", { class: "tl-pre" }, f.data.split("\n").slice(0, 14).join("\n") + (f.data.split("\n").length > 14 ? "\n…" : "")));
+        li.append(b, d); ul.append(li);
+      }
+      nodes.push(ul);
+      const all = el("button", { type: "button", class: "tl-btn" }, "Download all (zip)"); all.onclick = () => download(`${stem}-bench.zip`, zip(entries.map((f) => ({ name: f.name, data: f.data }))), "application/zip");
+      nodes.push(el("div", { class: "tl-row" }, all));
+      if (Array.isArray(r.notes) && r.notes.length) nodes.push(el("h4", {}, "Notes"), el("ul", { class: "tl-list" }, r.notes.map((n) => el("li", {}, String(n)))));
+      if (r.notice) nodes.push(el("p", { class: "tl-notice" }, r.notice));
+      out.replaceChildren(...nodes);
+    } catch (e) { fail(out, e); }
+  };
+  $("bn-run").onclick = () => { const n = sel.value; if (!n || !sel._text) return fail($("bn-out"), "Choose a scenario first."); run(sel._text(n), n.replace(/\.toml$/, "")); };
+  $("bn-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const t = await f.text(); const k = scenarioKind(t); if (!BENCH_KINDS.includes(k)) return fail($("bn-out"), `${f.name} is a ${k || "unknown"} scenario. A vehicle trajectory exists for the ${BENCH_KINDS.join(", ")} kinds; other kinds say why they have none.`); run(t, f.name.replace(/\.toml$/i, "")); e.target.value = ""; });
+}
+
+// ---------- compliance ----------
+let cmpFiles = [];
+function cmpText(files) { return files.map((f) => ({ name: f.name, text: asText(f) })); }
+async function buildCompliance() {
+  const out = $("cp-out");
+  try {
+    const { runs, unusedScenarios } = complianceRuns(cmpText(cmpFiles));
+    if (!runs.length) throw new Error("Choose at least one result file (*.result.json) first.");
+    if (runs.length > MAX_COMPLIANCE_RUNS) throw new Error(`At most ${MAX_COMPLIANCE_RUNS} runs.`);
+    const e = await useEngine("compliance_report");
+    out.replaceChildren(el("p", { class: "tl-notice" }, "Building the report…"));
+    const res = JSON.parse(await e.call("compliance_report", JSON.stringify(runs)));
+    const v = complianceView(res.report);
+    const nodes = [];
+    if (v.statement) nodes.push(el("p", { class: "tl-warn", role: "note" }, v.statement));
+    nodes.push(el("p", { class: "tl-sel" }, `${runs.length} run${runs.length > 1 ? "s" : ""} read${v.engineVersion ? `, by engine ${v.engineVersion}` : ""}: ${v.runs.map((r) => `${r.label} (${r.kind})`).join(", ")}`));
+    if (unusedScenarios.length) nodes.push(el("p", { class: "tl-notice" }, `Scenario files with no matching result were not used: ${unusedScenarios.join(", ")}.`));
+    for (const u of v.unrecognised) nodes.push(el("p", { class: "tl-notice" }, `Not used: ${typeof u === "string" ? u : JSON.stringify(u)}`));
+    for (const f of v.frameworks) {
+      const c = f.counts, d = el("details", { class: "tl-sample", open: "" }, el("summary", {}, `${f.name}: ${c.evidenced} evidenced, ${c["partly-evidenced"]} partly, ${c["not-evidenced"]} not evidenced, ${c["out-of-scope"]} out of scope`));
+      const t = el("table", { class: "tl-checks" }, el("thead", {}, el("tr", {}, ["Row", "Reference", "What it asks", "These runs", "What is missing", "Gap that stays"].map((h) => el("th", { scope: "col" }, h)))));
+      const tb = el("tbody", {});
+      for (const r of f.rows) { const st = statusInfo(r.status); tb.append(el("tr", {}, el("td", {}, String(r.id ?? "")), el("td", {}, String(r.reference ?? "")), el("td", {}, String(r.asks ?? "")), el("td", {}, el("b", {}, st.short), el("br", {}), Array.isArray(r.evidenced_capabilities) ? r.evidenced_capabilities.join(", ") : ""), el("td", {}, Array.isArray(r.missing_capabilities) ? r.missing_capabilities.join(", ") : ""), el("td", {}, String(r.gap ?? "")))); }
+      t.append(tb); d.append(el("div", { class: "table-scroll" }, t)); nodes.push(d);
+    }
+    const dm = el("button", { type: "button", class: "tl-btn" }, "Download the report (Markdown)"); dm.onclick = () => download("compliance-report.compliance.md", res.markdown, "text/markdown");
+    const dj = el("button", { type: "button", class: "tl-btn" }, "Download the report (JSON)"); dj.onclick = () => download("compliance-report.compliance.json", JSON.stringify(res.report, null, 2), "application/json");
+    nodes.push(el("div", { class: "tl-row" }, dm, dj));
+    out.replaceChildren(...nodes);
+  } catch (e) { fail(out, e); }
+}
+async function showMapping(sources) {
+  const out = $("cp-out");
+  try {
+    const e = await useEngine("compliance_mapping");
+    const md = await e.call("compliance_mapping", sources);
+    const d = el("button", { type: "button", class: "tl-btn" }, "Download (Markdown)"); d.onclick = () => download(sources ? "compliance-sources.md" : "compliance-mapping.md", md, "text/markdown");
+    out.replaceChildren(el("div", { class: "tl-row" }, d), el("pre", { class: "tl-pre", style: "max-height:520px;white-space:pre-wrap" }, md));
+  } catch (e) { fail(out, e); }
+}
+function wireCompliance() {
+  const set = (files, label) => { cmpFiles = files; $("cp-sel").textContent = `${label}: ${files.map((f) => f.name).join(", ")}`; $("cp-out").replaceChildren(); };
+  $("cp-files").addEventListener("change", async (e) => { try { set(await readFiles([...e.target.files]), "Chosen"); } catch (x) { fail($("cp-out"), x); } });
+  $("cp-demo").onclick = async () => { try { const idx = await (await fetch("tools/examples/compliance/index.json")).json(); const files = []; for (const n of idx.files) files.push({ name: n, path: n, bytes: await fetchBytes("tools/examples/compliance/" + n) }); set(files, "Synthetic example runs"); $("cp-out").replaceChildren(el("p", { class: "tl-notice" }, idx.note)); } catch (x) { fail($("cp-out"), x); } };
+  $("cp-run").onclick = buildCompliance;
+  $("cp-map").onclick = () => showMapping(false);
+  $("cp-src").onclick = () => showMapping(true);
+}
+
+// ---------- OSNMA ----------
+let osFile = null; // { name, bytes }
+function setOs(name, bytes) { osFile = { name, bytes }; $("os-out").replaceChildren(); $("os-sel").textContent = `${name} (${kb(bytes.length)})`; }
+function renderOsnma(v) {
+  if (v.error) return [el("div", { class: "tl-verdict bad" }, el("b", {}, "Not an OSNMA result"), el("p", {}, v.error))];
+  const tone = v.overall === "authenticated" ? "ok" : v.overall === "failed" ? "bad" : "warn";
+  const word = { authenticated: "At least one satellite is authenticated and none failed", failed: "A check on some satellite's data failed", unavailable: "No satellite is authenticated" }[v.overall] || v.overall;
+  const nodes = [];
+  nodes.push(el("p", { class: "tl-warn", role: "note" }, v.advisory || "Advisory: this is analysis and monitoring output and not type-approved navigation equipment. The authentication status reported here is not a navigation integrity service and must not be the sole basis for any navigation or safety decision."));
+  nodes.push(el("div", { class: `tl-verdict ${tone}`, role: "status" }, el("b", {}, `Overall: ${(OSNMA_STATUS[v.overall] || { label: v.overall }).label}`), el("p", {}, `${word}. ${v.pages != null ? v.pages + " pages read. " : ""}NMA status ${v.nmaStatus}${v.alert ? "; the system raised an alert message" : ""}. ${v.tagCount} tags: ${v.totals.authenticated} authenticated, ${v.totals.failed} failed, ${v.totals.pending} pending, ${v.totals.discarded} discarded.`)));
+  const t = el("table", { class: "tl-checks" }, el("caption", { class: "sr" }, "Authentication status per satellite"), el("thead", {}, el("tr", {}, ["Satellite", "Status", "Tags", "Last authenticated tag (Galileo System Time)", "Why not authenticated"].map((h) => el("th", { scope: "col" }, h)))));
+  const tb = el("tbody", {});
+  for (const s of v.sats) { const st = OSNMA_STATUS[s.status] || { label: s.status, tone: "none" }; const c = s.tags; tb.append(el("tr", {}, el("td", {}, s.sat), el("td", {}, el("span", { class: `tl-st ${st.tone === "ok" ? "pass" : st.tone === "bad" ? "fail" : "skipped"}` }, st.label)), el("td", {}, c ? `${c.authenticated} auth, ${c.failed} failed, ${c.pending} pending, ${c.discarded} discarded` : ""), el("td", {}, gstText(s.lastAuthGst)), el("td", {}, s.reasons.join("; ")))); }
+  t.append(tb); nodes.push(el("div", { class: "table-scroll" }, t));
+  if (v.events.length) nodes.push(el("h4", {}, "What the verifier saw"), el("ul", { class: "tl-list" }, v.events.map((e) => el("li", {}, `${e.kind.replace(/_/g, " ")}${e.count > 1 ? ` (${e.count})` : ""}${e.detail ? `: ${e.detail}` : ""}`))));
+  const ul = ubxLines(v.ubx); if (ul.length) nodes.push(el("h4", {}, "The UBX file"), el("ul", { class: "tl-list" }, ul.map((x) => el("li", {}, x))));
+  if (v.pksos) nodes.push(el("p", { class: "tl-sel" }, `Trust-monitor sentence: ${v.pksos}`));
+  nodes.push(el("p", { class: "tl-notice" }, "Time: every check is relative to the time stamps of the pages given to the verifier, which here come from the data itself and give no protection against replayed old data. Authentication says the data came from the system; it says nothing about the signal it arrived on or the quality of the fix."));
+  return nodes;
+}
+async function runOsnma() {
+  const out = $("os-out");
+  try {
+    if (!osFile) throw new Error("Choose a file first.");
+    const head = new TextDecoder().decode(osFile.bytes.slice(0, 1)).trim();
+    if (head === "{") { out.replaceChildren(...renderOsnma(osnmaView(JSON.parse(new TextDecoder().decode(osFile.bytes))))); return; }
+    const num = (id) => { const t = $(id).value.trim(); if (!t) return NaN; if (!/^\d+$/.test(t)) throw new Error(`${id.replace("os-", "")} must be a whole number`); return Number(t); };
+    const root = $("os-root").value.trim().toLowerCase();
+    if (root && !/^[0-9a-f]{64}$/.test(root)) throw new Error("The Merkle root is 64 hex digits.");
+    const e = await useEngine("osnma_verify");
+    out.replaceChildren(el("p", { class: "tl-notice" }, "Verifying…"));
+    const json = await e.call("osnma_verify", toBase64(osFile.bytes), $("os-format").value, num("os-start"), root, $("os-keys").value.trim(), num("os-ref"), num("os-maxerr"));
+    out.replaceChildren(...renderOsnma(osnmaView(JSON.parse(json))));
+  } catch (e) { fail(out, e); }
+}
+function wireOsnma() {
+  $("os-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) { if (f.size > MAX_FILE) return fail($("os-out"), "That file is larger than 64 MiB."); setOs(f.name, new Uint8Array(await f.arrayBuffer())); } });
+  $("os-demo").onclick = async () => {
+    try { const idx = await (await fetch("tools/examples/osnma/index.json")).json(); const pick = idx.examples[0]; setOs(pick.file, await fetchBytes("tools/examples/osnma/" + pick.file)); $("os-out").replaceChildren(el("p", { class: "tl-notice" }, pick.note)); }
+    catch (x) { fail($("os-out"), "The synthetic example is not in this build yet."); }
+  };
+  $("os-run").onclick = runOsnma;
+}
+
+// ---------- AI assistant ----------
+const AI_IDS = /mcp|docker|cursor|vscode|npx|uvx|brew|scoop|winget|binar|ai/i;
+async function wireAi() {
+  const card = $("ai-card");
+  card.append(el("div", { class: "card-head" }, el("h2", { class: "h3" }, "Use Kshana from your AI assistant"), el("p", { class: "card-note" }, "The Kshana MCP server lets an AI assistant run the engine instead of guessing numbers. It runs on your computer; nothing is sent to Kshana. Pick the way that suits your tool.")));
+  try {
+    const d = await (await fetch("channels.json")).json();
+    const all = d.channels || [];
+    const ai = all.filter((c) => AI_IDS.test(c.id) && c.id !== "browser"), rest = all.filter((c) => !ai.includes(c) && c.id !== "browser");
+    const draw = (list, title) => {
+      if (!list.length) return;
+      card.append(el("h4", {}, title));
+      const box = el("div", { class: "tl-cards" });
+      for (const c of list) {
+        const a = el("article", { class: "card tl-cli" }, el("h3", {}, c.name), el("p", {}, c.audience || ""));
+        if (c.command) { const row = el("div", { class: "tl-cmd-row" }, el("pre", { class: "tl-cmd" }, c.command)); const copy = el("button", { type: "button", class: "tl-copy", "aria-label": `Copy: ${c.command}` }, "Copy"); copy.onclick = async () => { try { await navigator.clipboard.writeText(c.command); copy.textContent = "Copied"; setTimeout(() => (copy.textContent = "Copy"), 1500); } catch { copy.textContent = "Select and copy"; } }; row.append(copy); a.append(row); }
+        if (c.note) a.append(el("p", { class: "tl-why" }, c.note));
+        const links = [];
+        if (c.registry) links.push(el("a", { href: c.registry, rel: "noopener noreferrer" }, c.registry_label || "Open"));
+        if (c.docs) links.push(el("a", { href: "../" + c.docs }, c.docs_label || "Documentation"));
+        if (links.length) a.append(el("p", {}, links.flatMap((l, i) => (i ? [" · ", l] : [l]))));
+        box.append(a);
+      }
+      card.append(box);
+    };
+    draw(ai, "Install the MCP server");
+    draw(rest, "Other ways to install Kshana");
+    if (!all.length) card.append(el("p", { class: "tl-no" }, "No install options are listed in this build."));
+  } catch (e) { card.append(el("p", { class: "tl-no" }, `The install options did not load (${e.message}). See the documentation for the MCP server.`)); }
+  card.append(el("h4", {}, "What to ask, and which tool answers"), el("div", { class: "table-scroll" }, (() => {
+    const t = el("table", { class: "tbl" }, el("thead", {}, el("tr", {}, ["Question", "Tool"].map((h) => el("th", { scope: "col" }, h)))));
+    t.append(el("tbody", {}, AI_QUESTIONS.map(([q, tool]) => el("tr", {}, el("td", {}, q), el("td", {}, el("code", {}, tool))))));
+    return t;
+  })()), el("p", { class: "tl-notice" }, "The rule for every answer: the assistant runs the engine, and reports what a tool returned with its unit and its evidence tier (validated against an external oracle, or modelled), the scenario, the seed and the engine version, so the run can be repeated. A result's own caveats stay with it. The MCP server reads and writes no files outside one opt-in folder."), el("p", {}, el("a", { href: docsHref("agents") }, "Read the agent guide"), " · ", el("a", { href: docsHref("mcp") }, "MCP server documentation"), " · ", el("a", { href: docsHref("surfaces") }, "Where each capability is reachable")));
+}
+
+// ---------- telemetry: run it here ----------
+function wireTelemetry() {
+  const card = $("cli-telemetry");
+  if (!card) return;
+  const panel = el("div", { class: "tl-tele" }, el("h4", {}, "Run it here"),
+    el("p", { class: "tl-why" }, "Turn a result file (session.result.json) or the live JSON lines into one of the formats, in this browser. Needs an engine build that has the telemetry export; the commands above work everywhere."));
+  const file = el("input", { type: "file", id: "te-file", "aria-label": "Result or JSON-lines file" });
+  const fmt = el("select", { id: "te-fmt", "aria-label": "Format" }, [["prometheus", "Prometheus metrics"], ["cef", "Syslog, CEF"], ["leef", "Syslog, LEEF"], ["otlp", "OpenTelemetry (OTLP JSON)"]].map(([v, l]) => el("option", { value: v }, l)));
+  const host = el("input", { type: "text", id: "te-host", value: "ops-gw1", spellcheck: "false", "aria-label": "Host name written into syslog events" });
+  const go = el("button", { type: "button", class: "tl-btn" }, "Run");
+  const out = el("div", { class: "tl-out", "aria-live": "polite" });
+  go.onclick = async () => {
+    try {
+      const f = file.files[0]; if (!f) throw new Error("Choose a file first.");
+      const text = new TextDecoder().decode(new Uint8Array(await f.arrayBuffer()));
+      const e = await useEngine("trust_telemetry");
+      const kind = text.trimStart().startsWith("{") && /"epochs"\s*:/.test(text.slice(0, 200000)) ? "result" : "jsonl";
+      const res = await e.call("trust_telemetry", text, fmt.value, host.value, kind);
+      const name = `trust-telemetry.${fmt.value === "prometheus" ? "prom" : fmt.value === "otlp" ? "json" : "log"}`;
+      const d = el("button", { type: "button", class: "tl-btn" }, "Download"); d.onclick = () => download(name, res, "text/plain");
+      out.replaceChildren(el("div", { class: "tl-row" }, d), el("pre", { class: "tl-pre" }, res.split("\n").slice(0, 60).join("\n") + (res.split("\n").length > 60 ? "\n…" : "")));
+    } catch (x) { fail(out, x); }
+  };
+  panel.append(el("div", { class: "tl-row" }, file, fmt, el("label", { class: "tl-file2" }, "Host", host), go), out);
+  card.insertBefore(panel, card.querySelector("p:last-child"));
+}
 
 function init() {
-  tabs(); coverage(); cliCards(); wireEvidence();
-  for (const fn of later) fn({ $, el, kb, enc, download, mimeOf, useEngine, fail, readFiles, asText, fetchBytes });
+  tabs(); coverage(); cliCards(); wireEvidence(); wireBench(); wireCompliance(); wireOsnma(); wireAi(); wireTelemetry();
 }
 init();

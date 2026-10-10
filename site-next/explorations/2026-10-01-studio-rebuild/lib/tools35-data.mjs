@@ -100,3 +100,15 @@ export const CLI_CARDS = Object.freeze([
 
 // The docs page of a card, as the site's docs slug.
 export const docsHref = (slug) => `../docs/${slug}.html`;
+
+// Which tool answers which question, from docs/AGENTS.md ("Which tool for which question"). Names are the MCP tools.
+export const AI_QUESTIONS = Object.freeze([
+  ["Run or explain a PNT scenario (orbits, GNSS, timing, fusion, lunar)", "run_scenario, report_scenario, validate_scenario, list_example_scenarios"],
+  ["Was this receiver log, or this vessel's NMEA, trustworthy, and when did it stop being?", "assess_receiver_log, assess_vessel_stream"],
+  ["I need synthetic NMEA with a jamming, drag-off, time-spoof or replay event for training", "generate_training_nmea"],
+  ["Where has GNSS looked degraded, and how much of this route is in it?", "build_interference_map, route_exposure"],
+  ["Check or make an evidence pack of a trust event", "verify_evidence_pack, create_evidence_pack"],
+  ["Export a scenario's motion and events for a laboratory simulator", "export_test_bench"],
+  ["Which public-framework rows do these runs support evidence for?", "compliance_report, compliance_mapping"],
+  ["GNSS IQ recordings (scene, acquire, track, front end, campaigns)", "iq_signals first, then the iq_* tools"],
+]);
