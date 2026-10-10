@@ -632,16 +632,20 @@ def _mcp_repo(repo: str) -> str:
 
 
 def enum_mcp(repo: str, abbr) -> list[dict]:
-    path = os.path.join(_mcp_repo(repo), "mcp/kshana-mcp/src/server.rs")
-    src = read(path)
+    # The tool functions live in server.rs and, since 0.33.0 (the IQ tools), in iq.rs.
     rows = []
-    for m in re.finditer(r'#\[tool\(\s*description\s*=\s*"((?:[^"\\]|\\.)*)"\s*\)\]\s*fn\s+([a-z_0-9]+)', src, re.S):
-        desc, name = m.group(1), m.group(2)
-        ln = src[: m.end()].count("\n") + 1
-        rows.append(feature(id=f"mcp-tool:{name}", category="mcp-tool", subtype="MCP tool", name=name,
-                            description=plain(desc.replace('\\"', '"'), abbr),
-                            source=f"mcp/kshana-mcp/src/server.rs:{ln}", identifiers=[name],
-                            probes=[["ident", name]]))
+    for fname in ("server.rs", "iq.rs"):
+        path = os.path.join(_mcp_repo(repo), "mcp/kshana-mcp/src", fname)
+        if not os.path.exists(path):
+            continue
+        src = read(path)
+        for m in re.finditer(r'#\[tool\(\s*description\s*=\s*"((?:[^"\\]|\\.)*)"\s*\)\]\s*fn\s+([a-z_0-9]+)', src, re.S):
+            desc, name = m.group(1), m.group(2)
+            ln = src[: m.end()].count("\n") + 1
+            rows.append(feature(id=f"mcp-tool:{name}", category="mcp-tool", subtype="MCP tool", name=name,
+                                description=plain(desc.replace('\\"', '"'), abbr),
+                                source=f"mcp/kshana-mcp/src/{fname}:{ln}", identifiers=[name],
+                                probes=[["ident", name]]))
     return rows
 
 
