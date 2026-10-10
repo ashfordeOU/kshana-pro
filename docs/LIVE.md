@@ -1,4 +1,4 @@
-Updated: 2026-10-10T16:30:54Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T16:34:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:34:25 16:34Z FOUNDER: counsel cleared OSNMA 4.9 (AGPL + commercial OK). Recorded legal/osnma-annex-e 57452de2 with conditions (no rights granted under EU IPRs, source acknowledged, no endorsement, no ICD text copied, synthetic test data, no anti-spoof numbers). W12 unheld, target 0.35
 - 16:30:54 16:30Z Approved 7 new MODELLED ledger rows for 0.35 (maritime trust score, NMEA training, interference map, telemetry formats, evidence packs, test-bench export, compliance mapping); counts 251/124/123/4 -> 258/124/130/4. No VALIDATED: no in-tree external oracle (e.g. RFC 8032 vectors). Row 7 reworded to avoid banned stems
 - 16:29:58 16:29Z Site check rule 12: kshana.dev deploys only via pages.yml; 255/64MB/15MB limits belong to the optional preview artifact. Decision: deploy gate uses Pages limits (<1GB, <100MB/file); preview-host limits stay gating on the preview bundle path; history documented
 - 16:29:19 16:29Z FOUNDER approved D14 advisory. Final text aa8aaa56: affected range corrected to >=0.27.0,<0.34.1 (file-naming scenario fields first appear at engine v0.27.0; MCP ran any scenario since <0.26), CVSS 3.1 4.3 Medium, CWE-73/209, CVE request, RustSec entry drafted. Publish after W2 confirms 0.34.1 on all channels. D14 defect doc range to be corrected on its branch
