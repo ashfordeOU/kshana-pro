@@ -1,4 +1,4 @@
-Updated: 2026-10-10T21:59:00Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T22:05:14Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 22:05:14 22:05Z | Merged validate/cef-oracle (W14 17bba4fb) into rc -> 73a28225: CEF Validated (pycef 153/153 tier-1, Logstash 157/157 after cfp1/cfp2 amendment 3, bar unchanged), LEEF Modelled; ledger 262/131/127/4; web/ hand edits dropped. W12 OSNMA head f026fdb (rc merged, examples/osnma, --help, SBOM 105 components) -> critic told of new head
 - 21:59:00 21:58Z | MCP-channels security critic: FIX-FIRST (D14 closed, bind/token/Host/Origin/launchers/pinning verified). S1 HTTP work not bounded by timeout (wedge repro) -> spawn_blocking pool + engine budget + docs; S2 mcpb packer unpinned in privileged job; S3 Dockerfile --locked; S4 no Smithery hosted deploy; S5 bot email -> contact@ashforde.org; S6 launcher override https/caps/timeouts; S7 advisory phrase; N1-N9. All routed to W19
 - 21:54:25 21:54Z | Merged docs/0.35-names (W15 809dd51d) into rc -> 07004f56: oem oracle cited by PyPI page, no personal names in src/tests; W1b to fix oracle-references.json + regen
 - 21:52:35 21:52Z | rc e37b8b2f: evidence row cites fixed (W14, src only; hand edits to web/ and generated matrix dropped); verification_rows_name_a_test_that_exists 7/7 green
