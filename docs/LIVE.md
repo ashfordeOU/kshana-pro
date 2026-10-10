@@ -1,4 +1,4 @@
-Updated: 2026-10-10T15:38:50Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-10T16:16:53Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 16:16:53 16:16Z FOUNDER DECISIONS: Signal K npm name signalk-kshana-trust + first publish approved, NPM_TOKEN added; ghcr images public (kshana-mcp already anonymously pullable; new 0.35 image to be checked after release); OpenCPN catalogue submission approved (W19 prepares metadata + steps; founder opens the external PR after release). NDA: founder handling directly. Advisory and OSNMA 4.9 to be discussed
 - 15:38:50 15:38Z W1b milestone 3: full test of complete 0.35 merge 4316 passed, 6 expected reds fixed (CHANGELOG layout restored, palette_sync, temp-path uniqueness, PIN-SCOPE comments, SBOM 66->86, ledger regen). Ledger diff: 1 row text (resilience categories wording), counts unchanged 251/124/123/4; approved. release/0.35.0 ecfe7ce5
 - 15:25:53 15:25Z PR #66 CI suite completed on a75c264f; not merged separately (main frozen for v0.34.1; #66 and #70 ride in release/0.35.0 and close when 0.35 merges)
 - 14:46:57 14:46Z PR ashfordeOU/kshana#74 (0.34.1) merged after all 20 checks green -> main 0f41a724. MAIN FROZEN until Auto-tag tags v0.34.1 after main CI (~3h)
