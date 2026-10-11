@@ -1,4 +1,4 @@
-Updated: 2026-10-11T13:58:09Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T14:11:11Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:11:11 14:11Z | Merged W18 audit fixes (wire c3847d01: SURFACES Studio column, AGENTS/ARCH/CAPABILITY OSNMA, README.pypi, N12 wording; S6 OSNMA plugin/JetBrains given reasons, not actions) -> rc ee24c074. Also rc has launcher TOCTOU fixes 6b1f9654/26e30148. CI: full Rust suite 3030 pass, only stale-count test red (regen). CodeQL 2 high unseen: asked founder
 - 13:58:09 13:58Z | rc -> b0a2b26c: FF W19 ci/mcp-ci-fixes cc633587 (npm test Node 20/22, launcher cache 0700 + single-descriptor verify + atomic rename, dtolnay pinned by SHA e2a55d2f (verified = upstream HEAD) in all workflows, zipslip-safe smoke) + coverage job free-disk step (coverage died ENOSPC/SIGBUS). CodeQL threads replied + resolved. Alert #134 unknown (no access)
 - 13:53:42 13:53Z | rc -> 88170902 (FF ci/mcp-39: 39 tools, Ashforde OÜ metadata, CITATION affiliation). PR #75 CI: mcp-channels (npm test glob on Node 20), CodeQL 4 alerts (launcher.py chmod, launcher.js TOCTOU, unpinned dtolnay in marine-integrations.yml, +1) -> W19 ci/mcp-ci-fixes; test-wasm-bindings (studio test steps before files) -> W1b port. GO sent to W1b final pass + W17 record at H
 - 13:52:11 13:52Z | PR #75 node-tests red: OpenCPN relay test drops the reading consumer on small socket buffers (also red in W19 dry run 38142166170). Reproduced locally via tcp_wmem/rmem 64K; fixed test (cap 1 MiB > batch, drain-wait, 30 s timeout; mutation fails), rc -> 73c8d89e. Distribution secrets visible (dry run). Completeness part 1: 3 BLOCKERS (SURFACES Studio column -> W18; CHANGELOG 263/12 rows -> W1b; metadata -> W19) + SHOULDs routed (W18 AGENTS/SURFACES reasons/pypi README/ARCH-CAP osnma; W1b CEF changelog move, date 2026-10-11, notebooks, kinds count)
