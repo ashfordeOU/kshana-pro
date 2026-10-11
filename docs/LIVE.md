@@ -1,4 +1,4 @@
-Updated: 2026-10-11T12:16:20Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T12:17:32Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:17:32 12:17Z | W18 carrier push feat/surfaces-0.35 cb1232ac (4 parity commits on old rc 8be96d2c; b97e3ca8 conflicts with rc in src/main.rs). Told W18: wire/0.35-parity = rc df2a63c5 + 4 picks + OSNMA parity (python+wasm osnma_verify, MCP N/A with reason, tools stay 39), push directly. W1b pushed kshana-pro port/0.35.0 99044d56 (interim backup, founder-authorised)
 - 12:16:20 12:16Z | FOUNDER: 'W18 authorised, push wire/0.35-parity directly and i want 0.35 release properly'. Relayed verbatim to W18: merge rc df2a63c5, gates, push wire/0.35-parity; then critic -> rc -> W19 39 tools -> W1b final pass -> completeness critic -> release PR, CI, tag, publish
 - 11:44:40 11:44Z | W12 OSNMA follow-up df2a63c fast-forwarded into rc: don't-use clears SatRecord.ok (critic should-fix, attack test + mutation), docs corrected; OSNMA VALIDATED ledger row (ExternalDataset, GSC vectors 18/18, scope stated); source_guards fixed (9 pass). Checked: fmt, no-attribution, osnma_synthetic 41, source_guards 9, lib osnma+verification 62 pass / 1 expected count test (regen). Expected after regen: 263 rows / 132 Validated
 - 11:33:25 11:33Z | W1b full release test on rc 091089a1: lib 3029 pass; 6 known count/stale targets (fixed by regen); NEW from OSNMA: source_guards temp-path uniqueness (9, osnma_synthetic) + PIN-SCOPE (18, src/osnma) -> routed to W12 follow-up. SBOM oracle passes with OSNMA crates
