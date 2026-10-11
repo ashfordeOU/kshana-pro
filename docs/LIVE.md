@@ -1,4 +1,4 @@
-Updated: 2026-10-11T13:19:23Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T13:30:27Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:30:27 13:30Z | FOUNDER: speed up (all 3 approved): draft release PR after W18 merge for early CI; completeness critic part 1 started now on rc b7e43746 + wire 6f221755; final pass split (W1b site/counts/README, W17 Studio re-record). Founder expects extensive README 0.35 pass + site + Studio + clean -> sent to W1b. Branch cleanup list prepared for founder (54 deletable now)
 - 13:19:23 13:19Z | W18 critic fixes d90b99f4: B1 host check_host (<=255 printable, refuse) + in-loop reply cap (MCP 4 MiB, py/wasm 64 MiB), S3 docs, N1-N4; gates green, pytest 52. Sent to critic for re-check
 - 13:17:12 13:17Z | rc -> b7e43746 (FF docs/osnma-coverage: 148 osnma docs, coverage 985/985). FOUNDER opened RustSec PR rustsec/advisory-db#3355 (branch ashfordeOU/advisory-db kshana-mcp-d14 4fcfe95)
 - 13:10:53 13:10Z | FOUNDER: created ashfordeOU/homebrew-tap + scoop-bucket (public, README) and classic PAT public_repo as HOMEBREW_TAP_TOKEN/SCOOP_BUCKET_TOKEN/WINGET_TOKEN. W19 to confirm via release dry run
