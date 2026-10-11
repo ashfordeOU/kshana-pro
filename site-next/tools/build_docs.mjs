@@ -80,6 +80,7 @@ const UNLINKED = new Set(["ROADMAP.md"]);
 // The site names no AI vendor or product. A rendered passage that does (a README paragraph, a
 // changelog entry) is left out and replaced by a pointer to the repository file.
 const VENDOR = /\b(claude|anthropic)\b/i;
+const KNOWN_TAGS = new Set("a abbr b blockquote br caption code col colgroup dd del details div dl dt em figcaption figure h1 h2 h3 h4 h5 h6 hr i img ins kbd li mark ol p picture pre q s samp section small source span strong sub summary sup table tbody td tfoot th thead tr u ul var wbr".split(" "));
 
 const pages = [];
 for (const [g, items] of GROUPS) for (const [p, slug, title] of items) {
@@ -294,6 +295,11 @@ function postProcess(html, fromPath) {
   // Passages naming an AI vendor: dropped, with a pointer to the source.
   const note = `<p class="omitted">A passage naming third-party AI clients is left out here; it is in <a href="${GH}${fromPath}">${esc(fromPath)}</a> on GitHub.</p>`;
   html = html.replace(/<(p|li|pre|tr|blockquote)\b[^>]*>[\s\S]*?<\/\1>/g, (m) => (VENDOR.test(m.replace(/<[^>]+>/g, " ")) || VENDOR.test(m) ? note : m));
+  // A placeholder written as <target> outside a code span is raw HTML to the renderer and opens an element that
+  // never closes: show it as the text it is. (Code spans are already escaped; only known HTML elements stay.)
+  html = html.replace(/<(\/?)([a-z][a-z0-9-]*)>/g, (m, sl, n) => (KNOWN_TAGS.has(n) ? m : `&lt;${sl}${n}&gt;`));
+  // A heading that names one (MCP-INSTALL.md has one per client) keeps its level and loses the name.
+  html = html.replace(/<h([2-6])\b[^>]*>[\s\S]*?<\/h\1>/g, (m, lv) => (VENDOR.test(m.replace(/<[^>]+>/g, " ")) || VENDOR.test(m) ? `<h${lv}>Another client</h${lv}>` : m));
   html = html.replace(/(<p class="omitted">[\s\S]*?<\/p>)(\s*\1)+/g, "$1");
   // Scripts, styles and event handlers never come through from repository HTML.
   html = html.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "").replace(/\son[a-z]+="[^"]*"/gi, "");

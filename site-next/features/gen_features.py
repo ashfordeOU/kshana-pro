@@ -684,11 +684,21 @@ def enum_bindings(repo: str, abbr) -> list[dict]:
                             source=f"mcp/kshana-mcp/server.json:{find_line(sj, r'\"name\"')}", identifiers=[d["name"]],
                             probes=[["phrase", d["name"]]]))
         for pkg in d.get("packages", []):
+            kind = pkg.get("registryType")
             ident = pkg["identifier"].split(":")[0]
-            rows.append(feature(id="binding:ghcr-image", category="binding", subtype="channel", name=f"Container image ({ident})",
-                                description="The MCP server as a multi-architecture container image, no Rust toolchain needed.",
-                                source=f"mcp/kshana-mcp/server.json:{find_line(sj, r'\"identifier\"')}", identifiers=[ident],
-                                probes=[["phrase", ident]]))
+            ln = find_line(sj, r'"identifier": "' + re.escape(pkg["identifier"].split(":")[0]))
+            if kind == "oci":
+                rows.append(feature(id="binding:ghcr-image", category="binding", subtype="channel", name=f"Container image ({ident})",
+                                    description="The MCP server as a multi-architecture container image, no Rust toolchain needed.",
+                                    source=f"mcp/kshana-mcp/server.json:{ln}", identifiers=[ident], probes=[["phrase", ident]]))
+            elif kind == "npm":  # 0.35.0: the launcher packages the registry lists beside the image
+                rows.append(feature(id="binding:mcp-npx", category="binding", subtype="channel", name=f"npx launcher (npm: {ident})",
+                                    description="The MCP server started with npx, which fetches the verified prebuilt binary for the system; no Rust toolchain needed.",
+                                    source=f"mcp/kshana-mcp/server.json:{ln}", identifiers=[f"npx -y {ident}"], probes=[["phrase", f"npx -y {ident}"]]))
+            elif kind == "pypi":
+                rows.append(feature(id="binding:mcp-uvx", category="binding", subtype="channel", name=f"uvx launcher (PyPI: {ident})",
+                                    description="The MCP server started with uvx or pipx, which fetches the verified prebuilt binary for the system; no Rust toolchain needed.",
+                                    source=f"mcp/kshana-mcp/server.json:{ln}", identifiers=[f"uvx {ident}"], probes=[["phrase", f"uvx {ident}"]]))
     py = os.path.join(repo, "pyproject.toml")
     rows.append(feature(id="binding:pypi", category="binding", subtype="channel", name="Python package (PyPI: kshana)",
                         description="The engine as a Python module, installed with pip.",

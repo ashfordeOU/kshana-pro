@@ -100,6 +100,7 @@ VERSION_HISTORY = [
     ("docs/overview.html", "drawn at engine 0.22.0", "the engine the README's figure-of-merit chart was drawn at; its figures are re-checked each build"),
     ("docs/search-docs.json", "drawn at engine 0.22.0", "the same sentence in the docs search index"),
     ("data/search.json", "drawn at engine 0.22.0", "the same sentence in the site search index"),
+    ("docs/mcp-install.html", "0.0.1", "the Continue client's own configuration-file version in its example snippet, not the engine's"),
 ]
 VERSION_CLAIMS = [
     re.compile(r"(?<![\w@.-])[vV](0\.\d+\.\d+)(?![\w-]|\.\d)"),

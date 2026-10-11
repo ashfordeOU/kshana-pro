@@ -296,6 +296,21 @@ if os.path.exists(_pk_path):
             if "configs" in _mine[_c["id"]]:
                 _c["configs"] = _mine[_c["id"]]["configs"]
     channels = _pk["channels"]
+    # The site names no AI vendor or product (check.py rule 3), so the two channels that are named for one
+    # (its command-line `mcp add` and its plugin marketplace) stay in the README and docs/MCP-INSTALL.md on
+    # GitHub, and the desktop-extension channel is named for its format. A channel that is a set of steps
+    # rather than a command (a download, a double-click, a search) shows them as its note, not as a command.
+    _SITE_DROP = {"mcp-claude-code", "claude-plugin"}
+    channels = [c for c in channels if c["id"] not in _SITE_DROP]
+    for _c in channels:
+        if _c["id"] == "mcp-desktop":
+            _c["name"], _c["audience"] = "Desktop assistant extension (.mcpb)", "desktop assistant users, no terminal"
+        if _c.get("command") and _c["command"].startswith(("double-click", "download", "import", "search")):
+            _c["note"] = ((_c["command"][0].upper() + _c["command"][1:] + ". ") + (_c.get("note") or "")).strip()
+            _c["command"] = _c["pinned"] = _c["verify"] = None
+        if _c.get("docs") == "docs/mcp.html#install":
+            _c["docs"] = "docs/mcp.html#install-the-mcp-server"  # the heading is "Install the MCP server" since 0.35.0
+        assert "claude" not in json.dumps(_c).lower(), f"channel {_c['id']} still names an AI vendor on the site"
 write("channels.json", json.dumps({"version": version, "generated_from": "packaging/channels.json of the Kshana repository (scripts/gen_channels.py), cross-checked against README*.md", "channels": channels}, indent=2, ensure_ascii=False))
 
 # =================================================================== sectors, roles, ways
@@ -2253,7 +2268,7 @@ NEW035_STATIC = {
     "docs/marine-integrations.html": ("modelled", "Signal K, OpenCPN and a reference build",
         "The trust score and its reasons on a boat's Signal K server and in an OpenCPN panel, and a pinned image that rebuilds the engine. An integration, not an oracle: stated as modelled.", None),
     "developers.html#channels": ("none", "Every MCP install channel",
-        "Prebuilt binaries for every operating system, the Claude Desktop extension, one-click buttons for Cursor and VS Code, npx and uvx, Homebrew, Scoop and winget, the registries and a self-hosted HTTP mode.", None),
+        "Prebuilt binaries for every operating system, the desktop assistant extension, one-click buttons for Cursor and VS Code, npx and uvx, Homebrew, Scoop and winget, the registries and a self-hosted HTTP mode.", None),
 }
 
 

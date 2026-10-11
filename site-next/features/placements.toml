@@ -469,9 +469,9 @@ ignore = ["campaign", "s", "generic-c-band", "--data", "session", "events", "ben
 "mcp-tool:import_route" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
 # ---- binding ----
 "binding:crate-kshana" = { page = "Developers", section = "install", studio = "none", docs = "docs/rust.html#install" }
-"binding:crate-kshana-mcp" = { page = "Developers", section = "install", studio = "none", docs = "docs/mcp.html#install" }
+"binding:crate-kshana-mcp" = { page = "Developers", section = "install", studio = "none", docs = "docs/mcp.html#install-the-mcp-server" }
 "binding:mcp-registry" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#register-it-with-a-client" }
-"binding:ghcr-image" = { page = "Developers", section = "ways", studio = "none", docs = "docs/mcp.html#install" }
+"binding:ghcr-image" = { page = "Developers", section = "ways", studio = "none", docs = "docs/mcp.html#install-the-mcp-server" }
 "binding:pypi" = { page = "Developers", section = "install", studio = "none", docs = "docs/python-api.html#quickstart" }
 "binding:npm" = { page = "Developers", section = "install", studio = "none", docs = "docs/npm.html#install" }
 "binding:browser-studio" = { page = "Developers", section = "install", studio = "#run", docs = "docs/overview.html" }
@@ -1052,7 +1052,18 @@ ignore = ["campaign", "s", "generic-c-band", "--data", "session", "events", "ben
 "validation:nmea-0183-training-stream-conformance-and-decoded-values" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:interference-map-accuracy-code-meanings-ais-not-available-va" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:trust-telemetry-wire-formats-prometheus-text-exposition-and-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
-"validation:trust-telemetry-siem-events-cef-and-leef-over-syslog" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:evidence-pack-integrity-signature-hash-chain-and-verificatio" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:test-bench-export-kshana-bench-export-earth-fixed-geodetic-a" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:compliance-mapping-to-public-frameworks" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"binding:mcp-npx" = { page = "Developers", section = "channels", studio = "none", docs = "docs/mcp-install.html" }
+"binding:mcp-uvx" = { page = "Developers", section = "channels", studio = "none", docs = "docs/mcp-install.html" }
+"cli:osnma" = { page = "Developers", section = "ways", studio = "none", docs = "docs/osnma.html" }
+"mcp-tool:trust_telemetry" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"binding:python.osnma_verify" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.trust_telemetry" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:wasm.trust_telemetry" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.osnma_verify" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"validation:galileo-osnma-receiver-side-navigation-data-authentication" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:trust-telemetry-siem-events-common-event-format-cef-over-sys" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:trust-telemetry-siem-events-log-event-extended-format-leef-o" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:marine-integrations-signal-k-plugin-opencpn-gate-stream-and-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
