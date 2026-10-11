@@ -6,7 +6,7 @@
 // 5. every numeric claim the app states about the catalogue matches the files on disk;
 // 6. the recorded fallback covers every scenario with a run, and says which engine made each;
 // 7. the native engine's recordings cover every scenario, and the optional group is self-contained.
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 const here = new URL(".", import.meta.url).pathname;
 const read = (f) => readFileSync(here + f, "utf8");
@@ -108,6 +108,18 @@ ok(read("advanced.js").includes('new URL("./pkg/kshana_bg.wasm", import.meta.url
 ok(!/Kshana Pro</.test(adv.split("</header>")[0]) && !/Kshana Pro</.test(read("index.html").split("</header>")[0]), "no Kshana Pro link in either header (footer and For researchers only)");
 for (const g of JSON.parse(read("groups.json")).groups) { const gi = JSON.parse(read(g + "index.json")); ok(gi.scenarios.every((x) => readdirSync(here + g).includes(x[0])), `${g}: every listed scenario file is in the folder`); ok(Object.keys(JSON.parse(read(g + "recorded/index.json")).runs).length === gi.scenarios.length, `${g}: every scenario of the group is recorded`); }
 console.log(`native recordings: ${Object.keys(nat.runs).length}; with an animation ${Object.values(nat.runs).filter((r) => r.animation).length}; with an export ${Object.values(nat.runs).filter((r) => (r.exports || []).length).length}`);
+
+
+// 8. no recorded or native record shows a Kshana version other than the package's (a stale record would
+// otherwise carry an old engine's name in its chart text, report footer or export header)
+{
+  const { gunzipSync } = await import("node:zlib");
+  const stale = [];
+  const scan = (name, text) => { for (const m of text.matchAll(/Kshana,? v?(\d+\.\d+\.\d+)/g)) if (m[1] !== pkgVersion) { stale.push(`${name}: ${m[0]}`); break; } };
+  for (const dir of ["native", "celeste/native"]) if (existsSync(here + dir)) for (const f of readdirSync(here + dir).filter((x) => x.endsWith(".gz"))) scan(`${dir}/${f}`, gunzipSync(readFileSync(here + dir + "/" + f)).toString("utf8"));
+  for (const dir of ["recorded", "celeste/recorded"]) if (existsSync(here + dir)) for (const f of readdirSync(here + dir).filter((x) => x.endsWith(".json") && x !== "index.json")) scan(`${dir}/${f}`, readFileSync(here + dir + "/" + f, "utf8"));
+  ok(stale.length === 0, `records that name another Kshana version than ${pkgVersion}: ${stale.slice(0, 5).join("; ")}${stale.length > 5 ? ` (+${stale.length - 5} more)` : ""}`);
+}
 
 console.log(fails ? `SELFCHECK: ${fails} failure(s)` : "SELFCHECK: all checks passed");
 process.exit(fails ? 1 : 0);

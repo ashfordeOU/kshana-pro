@@ -21,6 +21,9 @@ if (!REPO) { console.error("usage: node tools_native.mjs --repo <kshana checkout
 const BIN = opt("--bin", join(REPO, "target/release/kshana"));
 const WORK = opt("--work", join(here, "..", "..", "scratch", "studio-next", "native-work"));
 const JOBS = parseInt(opt("--jobs", "4"), 10);
+let engineCommit = opt("--engine-commit", null);
+if (!engineCommit) { try { engineCommit = execFileSync("git", ["-C", REPO, "rev-parse", "HEAD"], { encoding: "utf8" }).trim(); } catch { engineCommit = null; } }
+if (engineCommit && !/^[0-9a-f]{40}$/.test(engineCommit)) { console.error("--engine-commit must be a full 40-character lowercase hex SHA"); process.exit(2); }
 const only = args.map((x) => x.replace(/\.toml$/, ""));
 
 // Size limits of one packed record. A file over FILE_CAP, or one that would take the record's
@@ -120,9 +123,6 @@ async function record({ g, f, name }) {
   return rec;
 }
 
-let engineCommit = opt("--engine-commit", null);
-if (!engineCommit) { try { engineCommit = execFileSync("git", ["-C", REPO, "rev-parse", "HEAD"], { encoding: "utf8" }).trim(); } catch { engineCommit = null; } }
-if (engineCommit && !/^[0-9a-f]{40}$/.test(engineCommit)) { console.error("--engine-commit must be a full 40-character lowercase hex SHA"); process.exit(2); }
 const index = { engine_version: version, ...(engineCommit ? { engine_commit: engineCommit } : {}), source: "native", platform: `${process.platform} ${process.arch}`, recorded_utc: new Date().toISOString(), runs: {} };
 const celIndex = { ...index, runs: {} };
 if (only.length) for (const [ix, p] of [[index, "native/index.json"], [celIndex, "celeste/native/index.json"]]) { try { Object.assign(ix.runs, JSON.parse(readFileSync(here + p, "utf8")).runs); } catch { /* first run */ } }
