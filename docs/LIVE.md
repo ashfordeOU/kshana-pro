@@ -1,4 +1,4 @@
-Updated: 2026-10-11T12:59:34Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T13:00:35Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:00:35 13:00Z | W18 critic on 4e2a0625: FIX-FIRST, B1 trust_telemetry host uncapped -> CEF/LEEF amplification (206 MB from 156 KB; OOM via HTTP) -> W18: validate host <=255 + reply cap; S3 docs, N1-N4. S2 doc-coverage 1133>985 (148 in src/osnma) -> W12 docs/osnma-coverage. Tool count verified 39 on wire (critic's 38 wrong)
 - 12:59:34 12:59Z | FOUNDER RULINGS: package metadata = Ashforde OÜ; citation/DOI records (CITATION.cff, codemeta, .zenodo.json) keep founder as author with Ashforde OÜ affiliation; paper authorship refs unchanged; 2 design-doc Author lines -> Ashforde OÜ. Routed to W19 (ci/mcp-39, unpushed)
 - 12:57:23 12:57Z | Tried to create ashfordeOU/homebrew-tap + scoop-bucket via GitHub app: 404 (app cannot create org repos). Founder to create them + one classic PAT (public_repo) as HOMEBREW_TAP_TOKEN/SCOOP_BUCKET_TOKEN/WINGET_TOKEN. Opened founder Q&A side session session_01GjdbgNeaCP64Lg3PiLr9GA (read-only, repo-grounded)
 - 12:55:31 12:55Z | FOUNDER: author name = 'Ashforde OÜ' in all package metadata (B11) -> W19 in ci/mcp-39. Founder wants Homebrew/Scoop/winget actually published (not skipped): needs repos ashfordeOU/homebrew-tap + scoop-bucket and secrets HOMEBREW_TAP_TOKEN, SCOOP_BUCKET_TOKEN (fine-grained), WINGET_TOKEN (classic public_repo); steps given
