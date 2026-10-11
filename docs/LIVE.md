@@ -1,4 +1,4 @@
-Updated: 2026-10-11T10:54:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T11:03:35Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 11:03:35 11:03Z | OSNMA critic on 0178192: MERGE (all PoCs closed; pkrev/superseded and KROOT-header paths: DoS only, no auth gain). Merged feat/osnma-verify into rc -> 091089a1 (mcp Cargo.lock: rc + OSNMA crypto crates only; fmt, clippy -D warnings all-targets, osnma 49 unit + 40 synthetic, mcp check, no-attribution OK; full suite left to CI, local disk too small). Follow-up to W12: clear SatRecord.ok on confirmed don't-use + docs correction
 - 10:54:25 10:54Z | Founder: archive unneeded sessions. Archived 10: MCP critic, W8, W9, W10, W11, W13, W14, W15, W16, SJAWS coach (all work merged/pushed). Kept: W1b, W2, W3, W12, W17, W18, W19, OSNMA critic, completeness critic (final re-audit). OSNMA critic had stopped on usage limit at 00:29Z before verdict on 0178192; resumed
 - 00:23:53 00:23Z | W12 OSNMA 0178192: Word-5-only hole closed (cur_data removed on incomplete ephemeris set), nits 1-5 done incl. new pkrev_done once-per-announcement fix; vectors unchanged 18/18 186,382. Sent to critic for final check
 - 23:59:59 23:59Z | OSNMA critic on d01c186: FIX-FIRST, 1 item (cur_data not cleared when Word 5 arrives without full ADKD0 -> health/iono spoof keeps A; PoC). IODnav, far-future, overflow PoCs closed. Nits: KROOT-confirmed op header sets nmas_agreed, superseded_pk until confirmed CPKS (not 600 s), same-alpha pkid update, crev cid assert, doc vote = anomaly not spoofer protection. Routed to W12
