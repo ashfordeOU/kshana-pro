@@ -80,6 +80,13 @@ ok(idx.engine_version === pkgVersion, `the recorded runs are engine ${idx.engine
 ok(JSON.parse(read("channels.json")).version === pkgVersion, `channels.json is for ${JSON.parse(read("channels.json")).version}, the package is ${pkgVersion}`);
 ok(/url\(assets\/brand\/kshana-mark-mask\.png\)/.test(read("index.html")) && readdirSync(here + "assets/brand").includes("kshana-mark-mask.png"), "the brand mark ships inside the Studio folder");
 ok(JSON.parse(read("native/index.json")).engine_version === pkgVersion, `the native recordings are engine ${JSON.parse(read("native/index.json")).engine_version}, the package is ${pkgVersion}`);
+// The commit stamp (selfcheck.mjs --final, the release gate): both recordings name the same full engine SHA.
+{
+  const natIdx = JSON.parse(read("native/index.json"));
+  const stamped = /^[0-9a-f]{40}$/.test(idx.engine_commit || "") && idx.engine_commit === natIdx.engine_commit;
+  if (process.argv.includes("--final")) ok(stamped, `recorded/index.json engine_commit ${idx.engine_commit} and native/index.json engine_commit ${natIdx.engine_commit} must be the same full SHA`);
+  else if (!stamped) console.log("note: recordings carry no matching engine_commit (required by --final)");
+}
 ok(parity.includes(`${runnable} of ${files.length} scenarios`), `PARITY states recorded coverage (${runnable} of ${files.length})`);
 for (const [f, r] of Object.entries(idx.runs)) if (!r.error) { const rec = JSON.parse(read("recorded/" + r.file)); ok(rec.toml === read("scenarios/" + f), `recorded ${f} matches the bundled scenario text`); }
 

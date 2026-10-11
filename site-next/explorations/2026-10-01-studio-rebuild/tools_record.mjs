@@ -11,13 +11,19 @@ m.initSync({ module: readFileSync(here + "pkg/kshana_bg.wasm") });
 // An export larger than this is not recorded (null = "available with the live engine").
 const EXPORT_CAP = 150_000;
 // Optional file names on the command line record only those (the index keeps every other entry).
-const only = process.argv.slice(2).map((x) => (x.endsWith(".toml") ? x : x + ".toml"));
+// The engine commit these recordings are stamped with (a full 40-hex SHA of the rc the package was built from):
+// --engine-commit <sha> or KSHANA_ENGINE_COMMIT. selfcheck.mjs --final refuses a recording without one.
+const argv = process.argv.slice(2);
+let engineCommit = process.env.KSHANA_ENGINE_COMMIT || null;
+{ const i = argv.indexOf("--engine-commit"); if (i >= 0) { engineCommit = argv[i + 1]; argv.splice(i, 2); } }
+if (engineCommit && !/^[0-9a-f]{40}$/.test(engineCommit)) { console.error("--engine-commit must be a full 40-character lowercase hex SHA"); process.exit(2); }
+const only = argv.map((x) => (x.endsWith(".toml") ? x : x + ".toml"));
 const groups = [{ dir: "scenarios", out: "recorded", native: "native" }];
 if (existsSync(here + "celeste")) groups.push({ dir: "celeste", out: "celeste/recorded", native: "celeste/native" });
 let total = 0, failed = 0, native = 0;
 for (const g of groups) {
   mkdirSync(here + g.out, { recursive: true });
-  const index = { engine_version: m.version(), recorded_utc: new Date().toISOString(), runs: {} };
+  const index = { engine_version: m.version(), ...(engineCommit ? { engine_commit: engineCommit } : {}), recorded_utc: new Date().toISOString(), runs: {} };
   if (only.length) { try { Object.assign(index.runs, JSON.parse(readFileSync(here + g.out + "/index.json", "utf8")).runs); } catch { /* first run */ } }
   for (const f of readdirSync(here + g.dir).filter((x) => x.endsWith(".toml") && (!only.length || only.includes(x))).sort()) {
     const toml = readFileSync(here + g.dir + "/" + f, "utf8");

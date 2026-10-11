@@ -12,7 +12,7 @@ export function animate_scenario(toml: string, format: string, fps: number, dura
 /**
  * Assess a vessel's NMEA 0183 log as a batch run: `session_toml` (`[platform] kind =
  * "vessel"`, no `[log]` needed) and the log text. Returns the result document as JSON, the
- * same as `kshana receiver-trust` writes to `result.json`. Advisory only.
+ * same as `kshana receiver-trust` writes to `result.json`. Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
  */
 export function assess_vessel_log(session_toml: string, log: string): string;
 
@@ -159,8 +159,25 @@ export function list_kinds(): string;
  * Generate synthetic bridge NMEA 0183 for crew training from a `nmea-scenario` TOML.
  * `seed` replaces the scenario's seed unless it is `NaN` or negative. Returns a JSON object
  * `{nmea, log_json, log_text}`. Text only; never for a vessel's live navigation systems.
+ * Advisory, not type-approved navigation equipment.
  */
 export function nmea_training(toml: string, seed: number): string;
+
+/**
+ * Check Galileo OSNMA authentication of I/NAV pages, in memory, with the verifier
+ * `kshana osnma verify` runs. Advisory: this is analysis and monitoring output and not
+ * type-approved navigation equipment. The authentication status reported here is not a
+ * navigation integrity service and must not be the sole basis for any navigation or safety
+ * decision. `input_base64` is the pages (plain text or the published vector CSV) or a u-blox
+ * UBX byte stream; `format` is `"pages"`, `"vector-csv"`, `"ubx"` or `""` (by content);
+ * `start_gst` is a vector CSV's start in GST seconds; `merkle_root_hex` is the trusted Merkle
+ * root (64 hex digits, or `""`); `public_keys` are trusted keys as `ID:TYPE:HEX`;
+ * `reference_time` is the present time in GST seconds from an independent source and
+ * `max_time_error` the widest distance of a sub-frame from it (below 30; needs a reference
+ * time). Without a reference time freshness is not enforced and the report says so. Returns
+ * the JSON `kshana osnma verify --json` prints. Nothing is uploaded.
+ */
+export function osnma_verify(input_base64: string, format: string, start_gst: number | null | undefined, merkle_root_hex: string, public_keys: string[], reference_time?: number | null, max_time_error?: number | null): string;
 
 /**
  * Assess a real receiver log described by a `receiver-trust` scenario (TOML text). The
@@ -175,7 +192,7 @@ export function receiver_trust(toml: string): string;
  * `session_toml` declares a vessel (`[platform] kind = "vessel"`). Returns a JSON object
  * `{schema, epochs, last_pksht, summary}` (`schema` is `"1.2"`): one report per epoch (`state`, `score`, `advisory`,
  * `deductions`, `alarms`, ...) and counts by state. The bounded form of the live command: no
- * socket is opened and the gate is not applied (both are command-line only). Advisory only.
+ * socket is opened and the gate is not applied (both are command-line only). Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
  */
 export function receiver_trust_replay(session_toml: string, nmea: string): string;
 
@@ -219,6 +236,18 @@ export function summary(toml: string): string;
 export function table_csv(toml: string): string | undefined;
 
 /**
+ * Render a trust stream or a batch result in one telemetry format, with the encoders
+ * `kshana trust-telemetry` uses (no process, socket or clock). `format` is `"prometheus"`,
+ * `"cef"`, `"leef"` or `"otlp"`; `input_kind` is `"result"` (a `receiver-trust` result
+ * document) or `"jsonl"` (the live per-epoch stream); `host` names the sender in syslog
+ * events (empty for `kshana`). `options_json` is `""` or an object with `expose_position`
+ * (bool), `syslog_all` (bool: one event per epoch, not per band change) and `unix_nano`
+ * (number, the time of export for `"otlp"`). Syslog lines carry no timestamp. Returns the
+ * formatted text.
+ */
+export function trust_telemetry(input: string, format: string, host: string, input_kind: string, options_json: string): string;
+
+/**
  * Engine version (the crate version).
  */
 export function version(): string;
@@ -249,6 +278,7 @@ export interface InitOutput {
     readonly list_examples: (a: number, b: number) => [number, number, number, number];
     readonly list_kinds: () => [number, number];
     readonly nmea_training: (a: number, b: number, c: number) => [number, number, number, number];
+    readonly osnma_verify: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => [number, number, number, number];
     readonly receiver_trust: (a: number, b: number) => [number, number, number, number];
     readonly receiver_trust_replay: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly route_exposure: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => [number, number, number, number];
@@ -256,12 +286,13 @@ export interface InitOutput {
     readonly run_all: (a: number, b: number) => [number, number, number, number];
     readonly summary: (a: number, b: number) => [number, number, number, number];
     readonly table_csv: (a: number, b: number) => [number, number, number, number];
+    readonly trust_telemetry: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number, number];
     readonly version: () => [number, number];
+    readonly __wbindgen_malloc: (a: number, b: number) => number;
+    readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
     readonly __wbindgen_exn_store: (a: number) => void;
     readonly __externref_table_alloc: () => number;
     readonly __wbindgen_externrefs: WebAssembly.Table;
-    readonly __wbindgen_malloc: (a: number, b: number) => number;
-    readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
     readonly __externref_table_dealloc: (a: number) => void;
     readonly __wbindgen_free: (a: number, b: number, c: number) => void;
     readonly __wbindgen_start: () => void;

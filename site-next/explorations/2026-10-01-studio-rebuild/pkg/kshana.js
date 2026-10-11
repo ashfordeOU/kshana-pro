@@ -38,7 +38,7 @@ export function animate_scenario(toml, format, fps, duration_s, width) {
 /**
  * Assess a vessel's NMEA 0183 log as a batch run: `session_toml` (`[platform] kind =
  * "vessel"`, no `[log]` needed) and the log text. Returns the result document as JSON, the
- * same as `kshana receiver-trust` writes to `result.json`. Advisory only.
+ * same as `kshana receiver-trust` writes to `result.json`. Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
  * @param {string} session_toml
  * @param {string} log
  * @returns {string}
@@ -612,6 +612,7 @@ export function list_kinds() {
  * Generate synthetic bridge NMEA 0183 for crew training from a `nmea-scenario` TOML.
  * `seed` replaces the scenario's seed unless it is `NaN` or negative. Returns a JSON object
  * `{nmea, log_json, log_text}`. Text only; never for a vessel's live navigation systems.
+ * Advisory, not type-approved navigation equipment.
  * @param {string} toml
  * @param {number} seed
  * @returns {string}
@@ -634,6 +635,55 @@ export function nmea_training(toml, seed) {
         return getStringFromWasm0(ptr2, len2);
     } finally {
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Check Galileo OSNMA authentication of I/NAV pages, in memory, with the verifier
+ * `kshana osnma verify` runs. Advisory: this is analysis and monitoring output and not
+ * type-approved navigation equipment. The authentication status reported here is not a
+ * navigation integrity service and must not be the sole basis for any navigation or safety
+ * decision. `input_base64` is the pages (plain text or the published vector CSV) or a u-blox
+ * UBX byte stream; `format` is `"pages"`, `"vector-csv"`, `"ubx"` or `""` (by content);
+ * `start_gst` is a vector CSV's start in GST seconds; `merkle_root_hex` is the trusted Merkle
+ * root (64 hex digits, or `""`); `public_keys` are trusted keys as `ID:TYPE:HEX`;
+ * `reference_time` is the present time in GST seconds from an independent source and
+ * `max_time_error` the widest distance of a sub-frame from it (below 30; needs a reference
+ * time). Without a reference time freshness is not enforced and the report says so. Returns
+ * the JSON `kshana osnma verify --json` prints. Nothing is uploaded.
+ * @param {string} input_base64
+ * @param {string} format
+ * @param {number | null | undefined} start_gst
+ * @param {string} merkle_root_hex
+ * @param {string[]} public_keys
+ * @param {number | null} [reference_time]
+ * @param {number | null} [max_time_error]
+ * @returns {string}
+ */
+export function osnma_verify(input_base64, format, start_gst, merkle_root_hex, public_keys, reference_time, max_time_error) {
+    let deferred6_0;
+    let deferred6_1;
+    try {
+        const ptr0 = passStringToWasm0(input_base64, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(format, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(merkle_root_hex, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passArrayJsValueToWasm0(public_keys, wasm.__wbindgen_malloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ret = wasm.osnma_verify(ptr0, len0, ptr1, len1, isLikeNone(start_gst) ? Number.MAX_SAFE_INTEGER : (start_gst) >>> 0, ptr2, len2, ptr3, len3, isLikeNone(reference_time) ? Number.MAX_SAFE_INTEGER : (reference_time) >>> 0, isLikeNone(max_time_error) ? Number.MAX_SAFE_INTEGER : (max_time_error) >>> 0);
+        var ptr5 = ret[0];
+        var len5 = ret[1];
+        if (ret[3]) {
+            ptr5 = 0; len5 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred6_0 = ptr5;
+        deferred6_1 = len5;
+        return getStringFromWasm0(ptr5, len5);
+    } finally {
+        wasm.__wbindgen_free(deferred6_0, deferred6_1, 1);
     }
 }
 
@@ -671,7 +721,7 @@ export function receiver_trust(toml) {
  * `session_toml` declares a vessel (`[platform] kind = "vessel"`). Returns a JSON object
  * `{schema, epochs, last_pksht, summary}` (`schema` is `"1.2"`): one report per epoch (`state`, `score`, `advisory`,
  * `deductions`, `alarms`, ...) and counts by state. The bounded form of the live command: no
- * socket is opened and the gate is not applied (both are command-line only). Advisory only.
+ * socket is opened and the gate is not applied (both are command-line only). Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
  * @param {string} session_toml
  * @param {string} nmea
  * @returns {string}
@@ -847,6 +897,51 @@ export function table_csv(toml) {
 }
 
 /**
+ * Render a trust stream or a batch result in one telemetry format, with the encoders
+ * `kshana trust-telemetry` uses (no process, socket or clock). `format` is `"prometheus"`,
+ * `"cef"`, `"leef"` or `"otlp"`; `input_kind` is `"result"` (a `receiver-trust` result
+ * document) or `"jsonl"` (the live per-epoch stream); `host` names the sender in syslog
+ * events (empty for `kshana`). `options_json` is `""` or an object with `expose_position`
+ * (bool), `syslog_all` (bool: one event per epoch, not per band change) and `unix_nano`
+ * (number, the time of export for `"otlp"`). Syslog lines carry no timestamp. Returns the
+ * formatted text.
+ * @param {string} input
+ * @param {string} format
+ * @param {string} host
+ * @param {string} input_kind
+ * @param {string} options_json
+ * @returns {string}
+ */
+export function trust_telemetry(input, format, host, input_kind, options_json) {
+    let deferred7_0;
+    let deferred7_1;
+    try {
+        const ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(format, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(host, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(input_kind, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ptr4 = passStringToWasm0(options_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len4 = WASM_VECTOR_LEN;
+        const ret = wasm.trust_telemetry(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4);
+        var ptr6 = ret[0];
+        var len6 = ret[1];
+        if (ret[3]) {
+            ptr6 = 0; len6 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred7_0 = ptr6;
+        deferred7_1 = len6;
+        return getStringFromWasm0(ptr6, len6);
+    } finally {
+        wasm.__wbindgen_free(deferred7_0, deferred7_1, 1);
+    }
+}
+
+/**
  * Engine version (the crate version).
  * @returns {string}
  */
@@ -881,6 +976,14 @@ function __wbg_get_imports() {
         __wbg___wbindgen_is_undefined_67b456be8673d3d7: function(arg0) {
             const ret = arg0 === undefined;
             return ret;
+        },
+        __wbg___wbindgen_string_get_72bdf95d3ae505b1: function(arg0, arg1) {
+            const obj = arg1;
+            const ret = typeof(obj) === 'string' ? obj : undefined;
+            var ptr1 = isLikeNone(ret) ? 0 : passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            var len1 = WASM_VECTOR_LEN;
+            getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
+            getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
         },
         __wbg___wbindgen_throw_1506f2235d1bdba0: function(arg0, arg1) {
             throw new Error(getStringFromWasm0(arg0, arg1));
@@ -987,6 +1090,14 @@ function getArrayU8FromWasm0(ptr, len) {
     return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
 }
 
+let cachedDataViewMemory0 = null;
+function getDataViewMemory0() {
+    if (cachedDataViewMemory0 === null || cachedDataViewMemory0.buffer.detached === true || (cachedDataViewMemory0.buffer.detached === undefined && cachedDataViewMemory0.buffer !== wasm.memory.buffer)) {
+        cachedDataViewMemory0 = new DataView(wasm.memory.buffer);
+    }
+    return cachedDataViewMemory0;
+}
+
 function getStringFromWasm0(ptr, len) {
     return decodeText(ptr >>> 0, len);
 }
@@ -1010,6 +1121,16 @@ function handleError(f, args) {
 
 function isLikeNone(x) {
     return x === undefined || x === null;
+}
+
+function passArrayJsValueToWasm0(array, malloc) {
+    const ptr = malloc(array.length * 4, 4) >>> 0;
+    for (let i = 0; i < array.length; i++) {
+        const add = addToExternrefTable0(array[i]);
+        getDataViewMemory0().setUint32(ptr + 4 * i, add, true);
+    }
+    WASM_VECTOR_LEN = array.length;
+    return ptr;
 }
 
 function passStringToWasm0(arg, malloc, realloc) {
@@ -1089,6 +1210,7 @@ function __wbg_finalize_init(instance, module) {
     wasmInstance = instance;
     wasm = instance.exports;
     wasmModule = module;
+    cachedDataViewMemory0 = null;
     cachedUint8ArrayMemory0 = null;
     wasm.__wbindgen_start();
     return wasm;
