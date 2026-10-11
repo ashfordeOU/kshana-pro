@@ -1,4 +1,4 @@
-Updated: 2026-10-11T12:33:52Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T12:45:40Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:45:40 12:45Z | Founder: repo NPM_TOKEN covers all publishing (new kshana-mcp npm package OK). PyPI: launcher job uses PYPI_API_TOKEN (password), so founder to replace it with an account-scoped token (project-scoped can't create kshana-mcp). D14 GHSA was never created on GitHub; paste-ready text sent to founder
 - 12:33:52 12:33Z | W18 pushed wire/0.35-parity 95e0310d (rc df2a63c5 + 4 series + pin-scope fix): trust_telemetry 39th MCP tool, Python/wasm, plugin, JetBrains, B10 advisory, S1/S3 help parity; gates green except wasm-pack/smoke + Kotlin not run. OSNMA python/wasm exports requested again (crossed messages). Fable critic session_01SuoHnKjQfUoVFV2ZALmZSU started on 95e0310d
 - 12:19:08 12:19Z | W17 Studio OSNMA card pushed site/studio-0.35 513e7ed (synthetic examples, recorded results, wasm osnma_verify hook, advisory verbatim; 41/41, selfcheck OK). Signature relayed to W18; W1b to carry tools/examples/osnma; W17 final SHA after W18 wasm
 - 12:17:32 12:17Z | W18 carrier push feat/surfaces-0.35 cb1232ac (4 parity commits on old rc 8be96d2c; b97e3ca8 conflicts with rc in src/main.rs). Told W18: wire/0.35-parity = rc df2a63c5 + 4 picks + OSNMA parity (python+wasm osnma_verify, MCP N/A with reason, tools stay 39), push directly. W1b pushed kshana-pro port/0.35.0 99044d56 (interim backup, founder-authorised)
