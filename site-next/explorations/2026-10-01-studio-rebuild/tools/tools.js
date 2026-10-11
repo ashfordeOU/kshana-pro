@@ -388,7 +388,7 @@ function wireTelemetry() {
     el("p", { class: "tl-why" }, "Turn a result file (session.result.json) or the live JSON lines into one of the formats, in this browser. Needs an engine build that has the telemetry export (0.35 and later with the export); the commands above work everywhere."));
   const file = el("input", { type: "file", id: "te-file", "aria-label": "Result or JSON-lines file" });
   const fmt = el("select", { id: "te-fmt", "aria-label": "Format" }, [["prometheus", "Prometheus metrics"], ["cef", "Syslog, CEF"], ["leef", "Syslog, LEEF"], ["otlp", "OpenTelemetry (OTLP JSON)"]].map(([v, l]) => el("option", { value: v }, l)));
-  const host = el("input", { type: "text", id: "te-host", value: "ops-gw1", spellcheck: "false", "aria-label": "Host name written into syslog events" });
+  const host = el("input", { type: "text", id: "te-host", value: "ops-gw1", maxlength: "255", spellcheck: "false", "aria-label": "Host name written into syslog events" });
   const all = el("input", { type: "checkbox", id: "te-all" }), pos = el("input", { type: "checkbox", id: "te-pos" });
   const go = el("button", { type: "button", class: "tl-btn" }, "Run");
   const out = el("div", { class: "tl-out", "aria-live": "polite" });
