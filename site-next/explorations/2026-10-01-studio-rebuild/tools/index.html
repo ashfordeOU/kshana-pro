@@ -121,7 +121,9 @@
       <p class="tl-warn" role="note"><b>Advisory.</b> This is analysis and monitoring output and not type-approved navigation equipment. The authentication status reported here is not a navigation integrity service and must not be the sole basis for any navigation or safety decision. <b>Time:</b> checks are relative to the time stamps in the pages. Authentication says the data came from the system; it says nothing about the signal it arrived on or the quality of the fix.</p>
       <div class="tl-row">
         <label class="tl-file btn-primary">Choose a file…<input id="os-file" type="file"></label>
-        <button type="button" class="tl-btn" id="os-demo">Open the synthetic example</button>
+        <label class="tl-sel2">Synthetic example <select id="os-ex" aria-label="Synthetic OSNMA example"></select></label>
+        <button type="button" class="tl-btn" id="os-demo">Load it</button>
+        <button type="button" class="tl-btn" id="os-rec">Show the recorded result</button>
       </div>
       <p class="tl-sel" id="os-sel" role="status" aria-live="polite">Nothing open yet.</p>
       <div class="tl-form" id="os-opts">

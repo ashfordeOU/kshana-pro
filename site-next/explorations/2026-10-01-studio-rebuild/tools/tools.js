@@ -38,7 +38,7 @@ async function useEngine(need) {
   if (need && !engine.has(need)) {
     status.textContent = `This engine build (version ${engine.version}) has no ${need}: it predates the version this tool needs. The command-line equivalent is in the Command line tab.`;
     status.classList.add("err");
-    throw new Error(`no ${need}`);
+    throw new Error(`This engine build (version ${engine.version}) has no ${need}, so it cannot run this here yet. The recorded results and the command line still work.`);
   }
   return engine;
 }
@@ -314,9 +314,17 @@ async function runOsnma() {
 }
 function wireOsnma() {
   $("os-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) { if (f.size > MAX_FILE) return fail($("os-out"), "That file is larger than 64 MiB."); setOs(f.name, new Uint8Array(await f.arrayBuffer())); } });
+  let idx = null;
+  const index = async () => { if (!idx) { const r = await fetch("tools/examples/osnma/index.json"); if (!r.ok) throw new Error("the synthetic examples are not in this build yet"); idx = await r.json(); } return idx; };
+  const pick = async () => { const d = await index(); return d.examples[Number($("os-ex").value)] || d.examples[0]; };
+  index().then((d) => $("os-ex").replaceChildren(...d.examples.map((x, n) => el("option", { value: String(n) }, x.file)))).catch(() => { $("os-ex").replaceChildren(el("option", {}, "none in this build")); });
   $("os-demo").onclick = async () => {
-    try { const idx = await (await fetch("tools/examples/osnma/index.json")).json(); const pick = idx.examples[0]; setOs(pick.file, await fetchBytes("tools/examples/osnma/" + pick.file)); $("os-out").replaceChildren(el("p", { class: "tl-notice" }, pick.note)); }
-    catch (x) { fail($("os-out"), "The synthetic example is not in this build yet."); }
+    try { const d = await index(), x = await pick(); setOs(x.file, await fetchBytes("tools/examples/osnma/" + x.file)); $("os-keys").value = `${d.public_key}`; $("os-format").value = ""; $("os-out").replaceChildren(el("p", { class: "tl-notice" }, x.note + " The throwaway public key is filled in; press Verify to run the verifier here, or show the recorded result.")); }
+    catch (x) { fail($("os-out"), x); }
+  };
+  $("os-rec").onclick = async () => {
+    try { const x = await pick(); const r = await fetch("tools/examples/osnma/" + x.expected); if (!r.ok) throw new Error("the recorded result did not load"); $("os-out").replaceChildren(el("p", { class: "tl-notice" }, `Recorded result of kshana osnma verify --json for ${x.file}. ${x.note}`), ...renderOsnma(osnmaView(JSON.parse(await r.text())))); }
+    catch (x) { fail($("os-out"), x); }
   };
   $("os-run").onclick = runOsnma;
 }
