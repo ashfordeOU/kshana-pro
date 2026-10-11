@@ -1,4 +1,4 @@
-Updated: 2026-10-11T12:51:49Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T12:55:31Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 12:55:31 12:55Z | FOUNDER: author name = 'Ashforde OÜ' in all package metadata (B11) -> W19 in ci/mcp-39. Founder wants Homebrew/Scoop/winget actually published (not skipped): needs repos ashfordeOU/homebrew-tap + scoop-bucket and secrets HOMEBREW_TAP_TOKEN, SCOOP_BUCKET_TOKEN (fine-grained), WINGET_TOKEN (classic public_repo); steps given
 - 12:51:49 12:51Z | W18 OSNMA parity 4e2a0625 (python+wasm osnma_verify sharing CLI verify_report, SURFACES rows, MCP/plugin/JetBrains N/A; surface_osnma 3/3, pytest 46; wasm-pack/smoke not run). Critic told new head; W17 to run wasm-pack + web/smoke.mjs and wire live panels. W2: D14 closed on kshana-pro defects/d14-mcp-path f0d1b0b2; RustSec patch + PR body ready in docs/defects/D14-rustsec-entry.md for founder
 - 12:49:41 12:49Z | FOUNDER: D14 advisory PUBLISHED GHSA-8wpf-hqg5-6xjr (kshana-mcp >=0.27.0,<0.34.1, Medium 4.3, CWE-73/209, CVE requested). PyPI token confirmed all-projects; npm token all-inclusive. W2: RustSec text (founder opens PR) + D14 close on kshana-pro; W1b: CHANGELOG [0.34.1] GHSA link. Open founder items: 5 author name, 6 skip/fail, ghcr ref-build public after release
 - 12:45:40 12:45Z | Founder: repo NPM_TOKEN covers all publishing (new kshana-mcp npm package OK). PyPI: launcher job uses PYPI_API_TOKEN (password), so founder to replace it with an account-scoped token (project-scoped can't create kshana-mcp). D14 GHSA was never created on GitHub; paste-ready text sent to founder
