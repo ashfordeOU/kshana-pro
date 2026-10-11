@@ -54,7 +54,7 @@ const api = {
 
 // 0.35 functions: callable through the worker when the engine has them; an older engine says so, plainly.
 {
-  for (const n of ["receiver_trust", "assess_vessel_log", "receiver_trust_replay", "nmea_training", "interference_map", "route_exposure", "bench_export", "compliance_report", "compliance_mapping", "evidence_verify", "evidence_attach_timestamp", "osnma_verify"]) assert.ok(ENGINE_FNS_035.includes(n), n);
+  for (const n of ["receiver_trust", "assess_vessel_log", "receiver_trust_replay", "nmea_training", "interference_map", "route_exposure", "bench_export", "compliance_report", "compliance_mapping", "evidence_verify", "evidence_attach_timestamp", "osnma_verify", "trust_telemetry"]) assert.ok(ENGINE_FNS_035.includes(n), n);
   assert.ok(!ENGINE_FNS_035.includes("run"), "the 0.35 list holds only the 0.35 functions");
   const r = dispatch(api, { id: 9, fn: "bench_export", args: ["x", ""] });
   assert.equal(r.ok, false); assert.equal(r.missing, true);

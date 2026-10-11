@@ -38,6 +38,7 @@ export const ENGINE_FNS = Object.freeze([
   "evidence_verify",
   "evidence_attach_timestamp",
   "osnma_verify",
+  "trust_telemetry",
   "list_examples",
   "get_example",
   "version",

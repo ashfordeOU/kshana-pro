@@ -308,7 +308,9 @@ async function runOsnma() {
     if (root && !/^[0-9a-f]{64}$/.test(root)) throw new Error("The Merkle root is 64 hex digits.");
     const e = await useEngine("osnma_verify");
     out.replaceChildren(el("p", { class: "tl-notice" }, "Verifying…"));
-    const json = await e.call("osnma_verify", toBase64(osFile.bytes), $("os-format").value, num("os-start"), root, $("os-keys").value.trim(), num("os-ref"), num("os-maxerr"));
+    const nn = (id) => { const v = num(id); return Number.isNaN(v) ? null : v; };
+    const keys = $("os-keys").value.split("\n").map((l) => l.trim()).filter(Boolean);
+    const json = await e.call("osnma_verify", toBase64(osFile.bytes), $("os-format").value, nn("os-start"), root, keys, nn("os-ref"), nn("os-maxerr"));
     out.replaceChildren(...renderOsnma(osnmaView(JSON.parse(json))));
   } catch (e) { fail(out, e); }
 }
