@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Geometry view: a page of the Studio. Every relative address resolves from the Studio's own folder (like the Advanced view), so it shares the theme, tokens, modules and the one WebAssembly engine. Every number on it comes from the engine running in this browser; nothing is fetched from anywhere else and nothing is sent. -->
+<base href="../">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Geometry · Kshana Studio</title>
+<meta name="description" content="Which navigation satellites can you see from a place at a time, and how good is their geometry? A skyplot by constellation, a skyline you can draw, live GDOP, PDOP, HDOP, VDOP and TDOP, the horizontal error ellipse and a seeded Monte Carlo cloud, all from the Kshana engine in your browser.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500;600&family=Unbounded:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="studio.css">
+<link rel="stylesheet" href="geometry/geometry.css">
+<link rel="modulepreload" href="lib/geometry-adapter.mjs">
+<script>
+  // Apply a remembered theme before first paint (per-viewer convenience only).
+  try { const q = new URLSearchParams(location.search).get("theme"); const t = q || localStorage.getItem("kshana-theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-theme" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4z" fill="currentColor"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 16 16"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <pattern id="g-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" class="g-hatch-bg"/><path d="M0 0v6" class="g-hatch-line"/></pattern>
+</svg>
+<a class="skip" href="#main">Skip to the view</a>
+<header class="bar" id="bar">
+  <a class="brand" href="../index.html" aria-label="Kshana home"><span aria-hidden="true" style="display:inline-block;width:34px;height:34px;flex:none;margin:-5px -3px -5px -5px;background:var(--ink);-webkit-mask:url(assets/brand/kshana-mark-mask.png) center/contain no-repeat;mask:url(assets/brand/kshana-mark-mask.png) center/contain no-repeat"></span>Kshana <span class="brand-tag">Studio</span></a>
+  <nav class="crumb" aria-label="Where you are"><span>Geometry</span></nav>
+  <div class="bar-right">
+    <a class="view-switch" href="./" title="Back to the Studio"><svg class="ic flip" aria-hidden="true"><use href="#i-arrow"/></svg><span class="lbl">Studio</span></a>
+    <button class="icon-btn" id="btn-theme" type="button" aria-label="Switch between light and dark" title="Switch between light and dark"><svg aria-hidden="true"><use href="#i-theme"/></svg></button>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+<div class="wrap gm">
+  <p class="kicker"><i style="--c:var(--orb)"></i>Geometry</p>
+  <h1 id="gm-h">Which satellites can you see, and how good is their geometry?</h1>
+  <p class="lede">Pick a place, a time and a mix of global navigation satellite systems (GNSS) and low Earth orbit (LEO) satellites, draw the skyline that blocks your view, and see the dilution of precision (DOP) and the position error it implies. Every number comes from the Kshana engine running in this browser. <a href="geometry/#about">What this shows</a>.</p>
+
+  <p class="gm-advice" role="note"><b>Advisory software.</b> Kshana is not type-approved navigation equipment (IEC 61108, IEC 61162) and has not been assessed against any performance standard. The figures here are MODELLED from nominal constellations, not from the real sky on the date shown, and are aids to judgement. The operator stays responsible for the safe navigation of the vessel or vehicle and for any decision to rely on, or stop relying on, a fix. A low DOP is not thereby a good fix: it says nothing about interference, spoofing, multipath or a faulty satellite.</p>
+  <p class="gm-engine" id="gm-engine" role="status" aria-live="polite">Starting the engine…</p>
+
+  <div class="gm-grid">
+    <form class="card gm-controls" id="gm-form" aria-labelledby="gm-set-h" novalidate>
+      <div class="card-head"><h2 id="gm-set-h" class="h3">Settings</h2><p class="card-note">Every setting is in the page address, so a copied link opens the same sky.</p></div>
+
+      <fieldset class="gm-fs"><legend>Place</legend>
+        <label class="gm-f gm-wide">Preset <select id="gm-place"></select></label>
+        <label class="gm-f">Latitude, degrees <input id="gm-lat" type="number" inputmode="decimal" min="-89.9" max="89.9" step="0.0001" required></label>
+        <label class="gm-f">Longitude, degrees <input id="gm-lon" type="number" inputmode="decimal" min="-180" max="180" step="0.0001" required></label>
+        <label class="gm-f">Height, metres <input id="gm-hgt" type="number" inputmode="decimal" min="-500" max="9000" step="0.1" required></label>
+      </fieldset>
+
+      <fieldset class="gm-fs"><legend>Time, coordinated universal time (UTC)</legend>
+        <label class="gm-f gm-wide">Date and time <input id="gm-time" type="datetime-local" step="1" min="2000-01-01T00:00:00" max="2099-12-31T23:59:59" required></label>
+        <div class="gm-steps" role="group" aria-label="Step the time">
+          <button type="button" class="gm-chip" data-step="-3600">−1 h</button><button type="button" class="gm-chip" data-step="-600">−10 min</button><button type="button" class="gm-chip" data-step="600">+10 min</button><button type="button" class="gm-chip" data-step="3600">+1 h</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="gm-fs"><legend>Constellations</legend>
+        <div class="gm-sys" id="gm-sys"></div>
+        <p class="gm-small" id="gm-sys-note"></p>
+      </fieldset>
+
+      <fieldset class="gm-fs"><legend>Horizon</legend>
+        <label class="gm-f gm-wide">Elevation mask, degrees <span class="gm-range"><input id="gm-mask" type="range" min="0" max="45" step="0.5"><output id="gm-mask-out" for="gm-mask"></output></span></label>
+        <label class="gm-f gm-wide">Skyline <select id="gm-sky"></select></label>
+        <div class="gm-steps" role="group" aria-label="Edit the skyline">
+          <button type="button" class="gm-chip" id="gm-sky-add">Add a point</button><button type="button" class="gm-chip" id="gm-sky-del" disabled>Remove the selected point</button><button type="button" class="gm-chip" id="gm-sky-clear">Clear</button>
+        </div>
+        <p class="gm-small" id="gm-sky-help">Click the skyplot to add a skyline point; drag a point to move it. With a point focused, the arrow keys move it (Shift for 5°), Delete removes it.</p>
+      </fieldset>
+
+      <fieldset class="gm-fs"><legend>Error model</legend>
+        <label class="gm-f"><span>User-equivalent range error (σ<sub>UERE</sub>), metres</span> <input id="gm-sigma" type="number" inputmode="decimal" min="0.1" max="50" step="0.05" required></label>
+        <label class="gm-f">Monte Carlo samples <select id="gm-n"><option>100</option><option>500</option><option>1000</option><option>2000</option><option>5000</option></select></label>
+        <label class="gm-f">Seed <input id="gm-seed" type="number" inputmode="numeric" min="0" max="2147483647" step="1" required></label>
+      </fieldset>
+
+      <div class="gm-share">
+        <button type="button" class="btn-primary" id="gm-copy">Copy a link to this sky</button>
+        <p class="gm-small" id="gm-copy-out" role="status" aria-live="polite"></p>
+      </div>
+      <ul class="gm-notes" id="gm-url-notes" aria-live="polite"></ul>
+    </form>
+
+    <section class="card gm-sky" aria-labelledby="gm-sky-h">
+      <div class="card-head"><h2 id="gm-sky-h" class="h3">Skyplot</h2><p class="card-note">Zenith in the centre, the horizon on the rim, north up. Filled marks are satellites the fix uses; hollow marks are in view but not used; faint marks are hidden by the mask or the skyline.</p></div>
+      <div class="gm-svgbox"><svg id="gm-plot" viewBox="0 0 400 400" role="group" aria-labelledby="gm-sky-h gm-plot-desc"></svg></div>
+      <p class="sr" id="gm-plot-desc" aria-live="polite"></p>
+      <ul class="gm-legend" id="gm-legend" aria-label="Constellations"></ul>
+      <p class="gm-small" id="gm-source"></p>
+    </section>
+
+    <section class="card gm-dop" aria-labelledby="gm-dop-h">
+      <div class="card-head"><h2 id="gm-dop-h" class="h3">Dilution of precision</h2><p class="card-note">How much the geometry multiplies the range error. Lower is better; about 1 is excellent, above 6 is poor.</p></div>
+      <dl class="gm-dops" id="gm-dops" aria-live="polite"></dl>
+      <p class="gm-small" id="gm-used"></p>
+    </section>
+
+    <section class="card gm-err" aria-labelledby="gm-err-h">
+      <div class="card-head"><h2 id="gm-err-h" class="h3">Horizontal position error</h2><p class="card-note">The error ellipse from the geometry's covariance for the chosen σ<sub>UERE</sub>, and a seeded Monte Carlo cloud of position errors. East to the right, north up, in metres.</p></div>
+      <div class="gm-svgbox"><svg id="gm-errplot" viewBox="0 0 400 400" role="img" aria-labelledby="gm-err-h gm-err-desc"></svg></div>
+      <p class="sr" id="gm-err-desc"></p>
+      <dl class="gm-dops gm-errfacts" id="gm-errfacts"></dl>
+    </section>
+  </div>
+
+  <details class="card gm-table" id="gm-tab">
+    <summary><h2 id="gm-tab-h" class="h3">Satellites, as a table</h2> <span class="card-note" id="gm-tab-n">The same satellites as the skyplot.</span></summary>
+    <div class="table-scroll"><table class="tbl" id="gm-sats"><thead><tr><th scope="col">Constellation</th><th scope="col">Satellite</th><th scope="col">Azimuth, °</th><th scope="col">Elevation, °</th><th scope="col">In the fix</th></tr></thead><tbody></tbody></table></div>
+  </details>
+
+  <section class="gm-fine" id="about" aria-labelledby="gm-about-h">
+    <h2 class="h3" id="gm-about-h">What this shows</h2>
+    <ul>
+      <li><b>The skyplot</b> is the sky seen from the place: each mark is a satellite at its azimuth (compass bearing) and elevation (angle above the horizon). Colour and shape both say which constellation it belongs to.</li>
+      <li><b>Dilution of precision (DOP)</b> is how much the satellites' geometry multiplies the error of each range measurement. Satellites spread across the sky give low DOP; satellites bunched together, or all high overhead, give high DOP. GDOP is the geometric DOP (position and time), PDOP the three-dimensional position DOP, HDOP horizontal, VDOP vertical and TDOP the receiver clock (time) DOP.</li>
+      <li><b>Position error ≈ σ<sub>UERE</sub> × DOP.</b> The user-equivalent range error (σ<sub>UERE</sub>) is the one-sigma error of each range: satellite clock and orbit, the atmosphere, multipath and receiver noise together. Multiplying it by HDOP gives the one-sigma horizontal error, and by VDOP the vertical.</li>
+      <li><b>The error ellipse</b> is the one-sigma horizontal error from the geometry's covariance: longer along the directions the satellites constrain least. <b>The Monte Carlo cloud</b> is many seeded random range errors pushed through the same geometry; its spread matches σ<sub>UERE</sub> × DOP, and the same seed always gives the same cloud.</li>
+      <li><b>The skyline</b> is what blocks the sky: buildings, quays, cranes or mountain sides. A satellite behind it is not used. The presets are illustrative outlines, not surveys of any real place; draw your own on the skyplot.</li>
+      <li><b>What it leaves out.</b> Nominal constellations (not the real satellites on that date or their health), no signal strength or multipath from the skyline, and no interference. The model is MODELLED, not validated against a receiver at the place.</li>
+      <li>The engine runs here as WebAssembly. Nothing is fetched from another site and nothing you set is sent anywhere.</li>
+    </ul>
+  </section>
+</div>
+</main>
+<script type="module" src="geometry/geometry.js"></script>
+</body>
+</html>
