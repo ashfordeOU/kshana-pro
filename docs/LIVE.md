@@ -1,4 +1,4 @@
-Updated: 2026-10-11T00:23:53Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T10:54:25Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 10:54:25 10:54Z | Founder: archive unneeded sessions. Archived 10: MCP critic, W8, W9, W10, W11, W13, W14, W15, W16, SJAWS coach (all work merged/pushed). Kept: W1b, W2, W3, W12, W17, W18, W19, OSNMA critic, completeness critic (final re-audit). OSNMA critic had stopped on usage limit at 00:29Z before verdict on 0178192; resumed
 - 00:23:53 00:23Z | W12 OSNMA 0178192: Word-5-only hole closed (cur_data removed on incomplete ephemeris set), nits 1-5 done incl. new pkrev_done once-per-announcement fix; vectors unchanged 18/18 186,382. Sent to critic for final check
 - 23:59:59 23:59Z | OSNMA critic on d01c186: FIX-FIRST, 1 item (cur_data not cleared when Word 5 arrives without full ADKD0 -> health/iono spoof keeps A; PoC). IODnav, far-future, overflow PoCs closed. Nits: KROOT-confirmed op header sets nmas_agreed, superseded_pk until confirmed CPKS (not 600 s), same-alpha pkid update, crev cid assert, doc vote = anomaly not spoofer protection. Routed to W12
 - 23:53:55 23:53Z | W19 R1-R3 (c86dae92): 413 before gate, repeated tables count toward run cap (MAX_TABLE_ARRAY 5000), hashed jsonschema install, bundle==standalone binary check before attest (Linux x64 bare assets now matrix-built). Release dry run 38094607464 green. Fast-forwarded rc -> c86dae92 (kshana-mcp tests + build_mcpb 7 pass locally)
