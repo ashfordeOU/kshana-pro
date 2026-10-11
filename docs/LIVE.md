@@ -1,4 +1,4 @@
-Updated: 2026-10-11T15:34:32Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T15:35:59Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 15:35:59 15:35Z | FINAL rc 8f679ee7 (W1b merge of db65f354 + web re-port, 751 files) FROZEN; kshana-pro port/0.35.0 5c0f4809 (W17 Studio 006b7785). Critic part 2 on these heads; PR #75 final CI on 8f679ee7
 - 15:34:32 15:34Z | Final pass done: rc b09e453c (W1b re-port) + db65f354 (3 Studio .result.json committed; .gitignore exception; site.test 750 files PASS; manifest ignored-count 0). kshana-pro port/0.35.0 19126c01 (W17 Studio). Completeness critic PART 2 started. PR #75 marked READY; final CI running on db65f354
 - 15:24:27 15:24Z | W1b port landed on rc: c2fd0b39 (kshana.dev + Studio at v0.35.0) + a93408bf. CI: site.test fails, 3 manifest .result.json files not committed (root .gitignore *.result.json) -> W1b scoped negation + add files. wasm smoke PASS on port
 - 14:58:42 14:58Z | W17 Studio re-record DONE at H a71fd060: kshana-pro site/studio-0.35 429b2e3a (engine_commit stamped, wasm-pack 0.13.1 + smoke PASS, native 138/0 failed, browser 137 recorded, 263-row data + 25 channels, 41/41, selfcheck --final OK, phone widths OK). W1b porting
