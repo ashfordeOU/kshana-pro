@@ -1,4 +1,4 @@
-Updated: 2026-10-11T13:01:30Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T13:02:46Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:02:46 13:02Z | W17: CI-pinned wasm-pack 0.13.1 build of wire 4e2a0625 OK + web/smoke.mjs PASS; Studio live osnma_verify (4 examples == recorded) + trust_telemetry (Prometheus/CEF/LEEF/OTLP) in Chromium; kshana-pro site/studio-0.35 3d1b169 (41/41, selfcheck). DoD row 5 Studio done pending final port
 - 13:01:30 13:01Z | W18 28c3bb75: pytest osnma_verify on examples/osnma (4 cases = expected JSON; pytest 50); wasm-pack build + web/smoke.mjs OK (trust_telemetry + osnma_verify), wasm-opt skipped locally (binaryen blocked; CI runs it). B1 fix still pending. Critic confirmed 39 tools
 - 13:00:35 13:00Z | W18 critic on 4e2a0625: FIX-FIRST, B1 trust_telemetry host uncapped -> CEF/LEEF amplification (206 MB from 156 KB; OOM via HTTP) -> W18: validate host <=255 + reply cap; S3 docs, N1-N4. S2 doc-coverage 1133>985 (148 in src/osnma) -> W12 docs/osnma-coverage. Tool count verified 39 on wire (critic's 38 wrong)
 - 12:59:34 12:59Z | FOUNDER RULINGS: package metadata = Ashforde OÜ; citation/DOI records (CITATION.cff, codemeta, .zenodo.json) keep founder as author with Ashforde OÜ affiliation; paper authorship refs unchanged; 2 design-doc Author lines -> Ashforde OÜ. Routed to W19 (ci/mcp-39, unpushed)
