@@ -1,6 +1,6 @@
 # D14: MCP `assess_receiver_log` reads any local file named in agent-supplied TOML
 
-Status: OPEN, SCOPE WIDENED 2026-10-09 (fix written on public branch feat/surfaces-0.35, ships in 0.35.0). Raised 2026-10-09
+Status: closed: fixed in kshana-mcp 0.34.1 (2026-10-10; tag v0.34.1, live on every channel 2026-10-10 21:32Z); advisory GHSA-8wpf-hqg5-6xjr published 2026-10-11 (12:48Z). Raised 2026-10-09
 by W18 while wiring 0.35 surfaces. Security detail lives here only; public text stays generic.
 
 ## What
@@ -24,9 +24,17 @@ Docker image limits the reachable filesystem. Provisional: low severity (CWE-22 
 W18: the MCP tool refuses `path` sources (inline content only) and caps input at 4 MiB; a test pins it.
 Follow-up: W18 audits every MCP tool for filesystem access derived from agent input.
 
-## Open decisions (founder)
-1. Ship the fix in 0.35.0 (default) or a 0.34.1 patch.
-2. Whether to publish a GitHub security advisory for kshana-mcp (low severity) once the fix is released.
+## Resolved
+1. Shipped as a 0.34.1 patch (not 0.35.0): the fix commit f4d473af (W18) plus the release bump, cut from the 0.34.0 line; public PR #74
+   merged 2026-10-10, Release run 38073186962 green, 0.34.1 verified live on crates.io (kshana and kshana-mcp), PyPI, npm,
+   JetBrains, ghcr (anonymous pull), the MCP registry, the GitHub Release (assets, SHA256SUMS, attestations) and kshana.dev.
+   kshana-mcp 0.34.1 requires engine ^0.34.1, so it cannot be built against an engine without the check.
+2. Advisory published: GHSA-8wpf-hqg5-6xjr (https://github.com/ashfordeOU/kshana/security/advisories/GHSA-8wpf-hqg5-6xjr),
+   2026-10-11. Package kshana-mcp; affected `>= 0.27.0, < 0.34.1`; patched 0.34.1; Medium, CVSS 3.1 4.3
+   (`CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:N/A:N`); CWE-73 and CWE-209. A CVE was requested and was not assigned at the time of
+   publication.
+3. RustSec: entry prepared for the founder to submit to rustsec/advisory-db (crates/kshana-mcp/RUSTSEC-0000-0000.md, aliases the GHSA
+   ID, date 2026-10-11); the ID is assigned on merge.
 
 ## Scope widened (W18 audit, 2026-10-09, feat/surfaces-0.35 589725fa)
 The same class affects the general scenario tools, not only `assess_receiver_log`: `run_scenario`,
