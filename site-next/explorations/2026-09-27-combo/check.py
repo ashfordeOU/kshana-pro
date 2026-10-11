@@ -18,7 +18,7 @@
                           public claim, or is a reviewed framing sentence
  11  install drift        every rendered install command equals channels.json; the version shown
                           is Cargo.toml's; every README carries the same base commands
- 12  publish list         PUBLISH.txt matches the files on disk and stays under the host's limits
+ 12  publish list         PUBLISH.txt matches the files on disk and stays under Pages' limits (1 GB, 100 MB a file; --preview adds the preview host's)
  13  coverage             every `cover:` link in COVERAGE.md resolves to a published page and anchor
  14  studio name          the app is named only by the one constant in src/data/brand.json: no
                           visible "playground" on any site or docs page (URLs and code excepted),
@@ -100,6 +100,7 @@ VERSION_HISTORY = [
     ("docs/overview.html", "drawn at engine 0.22.0", "the engine the README's figure-of-merit chart was drawn at; its figures are re-checked each build"),
     ("docs/search-docs.json", "drawn at engine 0.22.0", "the same sentence in the docs search index"),
     ("data/search.json", "drawn at engine 0.22.0", "the same sentence in the site search index"),
+    ("docs/mcp-install.html", "0.0.1", "the Continue client's own configuration-file version in its example snippet, not the engine's"),
 ]
 VERSION_CLAIMS = [
     re.compile(r"(?<![\w@.-])[vV](0\.\d+\.\d+)(?![\w-]|\.\d)"),
@@ -408,12 +409,22 @@ def run_checks(override=None):
     if bad: fails.append(("11 install drift", bad[:10]))
 
     # 12 publish list --------------------------------------------------------------------------
+    # History: this rule used to cap the list at 255 files, 64 MB and 15 MB a file, which are the
+    # claude.ai preview host's limits, not kshana.dev's. kshana.dev deploys on GitHub Pages, so the
+    # gate is now Pages' real limits: published size under 1 GB, each file under 100 MB. The preview
+    # host's limits are not softened: `check.py --preview` (and `tools_bundle.mjs --preview-root`)
+    # fail over them, and a plain run prints them as a non-gating note (see RE-PORT.md, HANDOVER.md).
     bad = [p for p in PUB if not os.path.exists(os.path.join(HERE, p))]
-    total = sum(os.path.getsize(os.path.join(HERE, p)) for p in PUB if os.path.exists(os.path.join(HERE, p)))
-    if len(PUB) > 255: bad.append(f"{len(PUB)} files, over the 255-entry limit")
-    if total > 64e6: bad.append(f"{total / 1e6:.1f} MB, over 64 MB")
-    big = [p for p in PUB if os.path.getsize(os.path.join(HERE, p)) > 15e6]
-    bad += [f"{p} over 15 MB" for p in big]
+    sizes = {p: os.path.getsize(os.path.join(HERE, p)) for p in PUB if os.path.exists(os.path.join(HERE, p))}
+    total = sum(sizes.values())
+    if total > 1e9: bad.append(f"{total / 1e6:.1f} MB, over the 1 GB Pages limit")
+    bad += [f"{p} over 100 MB" for p, n in sizes.items() if n > 100e6]
+    pv = []
+    if len(PUB) > 255: pv.append(f"{len(PUB)} files, over the preview host's 255-entry limit")
+    if total > 64e6: pv.append(f"{total / 1e6:.1f} MB, over the preview host's 64 MB")
+    pv += [f"{p} over the preview host's 15 MB" for p, n in sizes.items() if n > 15e6]
+    if "--preview" in sys.argv: bad += pv
+    elif pv: print("note (not gating; kshana.dev deploys on Pages): " + "; ".join(pv) + ". Run with --preview to gate on these.")
     if bad: fails.append(("12 publish list", bad))
     # 13 coverage ------------------------------------------------------------------------------
     bad = []

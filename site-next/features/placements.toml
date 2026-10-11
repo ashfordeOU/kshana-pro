@@ -282,7 +282,12 @@ tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021",
 # signal data file (data/leo-signals/generic-c-band.toml), none of them scenarios.
 # 0.33.0: `--data` is an option of `kshana iq scene` (src/iq_cli.rs); the register holds the iq
 # subcommand as one row (cli:iq) and does not enumerate its options, and the changelog page now names it.
-ignore = ["campaign", "s", "generic-c-band", "--data"]
+# 0.35.0: `session`, `events` and `bench-session` are the file names the receiver-trust, test-bench and
+# telemetry docs type in shell examples (`session.toml`, `events.toml`, `bench-session.toml`), not scenarios;
+# `static` and `vessel` are values of `[platform] kind` in a receiver-trust session file, not scenario kinds;
+# the four are the nmea-scenario library (scenarios/training/*.toml, run by `kshana nmea-scenario`, not
+# `kshana <scenario.toml>`), listed in docs/NMEA-TRAINING.md.
+ignore = ["campaign", "s", "generic-c-band", "--data", "session", "events", "bench-session", "static", "vessel", "open-sea-jamming", "coastal-drag-off", "port-approach-time-spoof", "combined-event"]
 
 [placements]
 # ---- kind ----
@@ -464,9 +469,9 @@ ignore = ["campaign", "s", "generic-c-band", "--data"]
 "mcp-tool:import_route" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
 # ---- binding ----
 "binding:crate-kshana" = { page = "Developers", section = "install", studio = "none", docs = "docs/rust.html#install" }
-"binding:crate-kshana-mcp" = { page = "Developers", section = "install", studio = "none", docs = "docs/mcp.html#install" }
+"binding:crate-kshana-mcp" = { page = "Developers", section = "install", studio = "none", docs = "docs/mcp.html#install-the-mcp-server" }
 "binding:mcp-registry" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#register-it-with-a-client" }
-"binding:ghcr-image" = { page = "Developers", section = "ways", studio = "none", docs = "docs/mcp.html#install" }
+"binding:ghcr-image" = { page = "Developers", section = "ways", studio = "none", docs = "docs/mcp.html#install-the-mcp-server" }
 "binding:pypi" = { page = "Developers", section = "install", studio = "none", docs = "docs/python-api.html#quickstart" }
 "binding:npm" = { page = "Developers", section = "install", studio = "none", docs = "docs/npm.html#install" }
 "binding:browser-studio" = { page = "Developers", section = "install", studio = "#run", docs = "docs/overview.html" }
@@ -970,3 +975,95 @@ ignore = ["campaign", "s", "generic-c-band", "--data"]
 "mcp-tool:iq_frontend" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
 "validation:gnss-iq-scene-signal-geometry-against-an-independent-baseban" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:gnss-iq-acquisition-on-independently-generated-i-q-samples" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+
+# 0.35.0
+"cli:evidence" = { page = "Developers", section = "start", studio = "none", docs = "docs/evidence-packs.html#make-a-pack" }
+"cli:live" = { page = "Docs", section = "maritime-trust.html#run-it-live", studio = "none", docs = "docs/maritime-trust.html#run-it-live" }
+"cli:--out" = { page = "Developers", section = "ways", studio = "none", docs = "docs/test-bench.html#1-export" }
+"cli:--epoch" = { page = "Developers", section = "ways", studio = "none", docs = "docs/test-bench.html#1-export" }
+"cli:--mapping" = { page = "Developers", section = "ways", studio = "none", docs = "docs/compliance-mapping.html#the-report" }
+"cli:--sources" = { page = "Developers", section = "ways", studio = "none", docs = "docs/compliance-mapping.html#the-report" }
+"mcp-tool:iq_campaign" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#the-gnss-iq-tools-files-in-compact-json-out" }
+"mcp-tool:iq_campaign_status" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#the-gnss-iq-tools-files-in-compact-json-out" }
+"mcp-tool:iq_sweep" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#the-gnss-iq-tools-files-in-compact-json-out" }
+"mcp-tool:iq_monitor" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#the-gnss-iq-tools-files-in-compact-json-out" }
+"mcp-tool:iq_test_conditions" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#the-gnss-iq-tools-files-in-compact-json-out" }
+"mcp-tool:iq_labfit" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#the-gnss-iq-tools-files-in-compact-json-out" }
+"mcp-tool:assess_vessel_stream" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:assess_vessel_log" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:generate_training_nmea" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:create_evidence_pack" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:verify_evidence_pack" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:build_interference_map" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:route_exposure" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:compliance_report" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:compliance_mapping" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:export_test_bench" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:attach_evidence_timestamp" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"binding:python.receiver_trust_replay" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.assess_vessel_log" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.evidence_create" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.evidence_verify" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.export_sp3" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.export_omm" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.export_oem" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.export_formats" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.export_scenario" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.import_route" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.animate_scenario" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.list_examples" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.get_example" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.evidence_attach_timestamp" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.evidence_keygen" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.bench_export" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.compliance_report" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.compliance_mapping" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.interference_map" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.route_exposure" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.nmea_training" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.iq_acq_surface" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.iq_info" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.iq_inventory" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.iq_sweep" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.iq_loop_designs" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.iq_read_epochs" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.iq_monitor" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.iq_test_conditions" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.iq_campaign" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.iq_campaign_report" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:wasm.export_formats" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.export_scenario" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.import_route" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.animate_scenario" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.list_examples" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.get_example" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.evidence_attach_timestamp" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.bench_export" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.compliance_report" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.compliance_mapping" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.interference_map" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.route_exposure" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.nmea_training" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.receiver_trust_replay" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.assess_vessel_log" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.evidence_verify" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"validation:maritime-trust-monitors-the-arithmetic-they-rest-on-nmea-dec" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:maritime-trust-score-the-aggregation-of-the-monitors-evidenc" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:nmea-0183-training-stream-conformance-and-decoded-values" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:interference-map-accuracy-code-meanings-ais-not-available-va" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:trust-telemetry-wire-formats-prometheus-text-exposition-and-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:evidence-pack-integrity-signature-hash-chain-and-verificatio" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:test-bench-export-kshana-bench-export-earth-fixed-geodetic-a" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:compliance-mapping-to-public-frameworks" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"binding:mcp-npx" = { page = "Developers", section = "channels", studio = "none", docs = "docs/mcp-install.html" }
+"binding:mcp-uvx" = { page = "Developers", section = "channels", studio = "none", docs = "docs/mcp-install.html" }
+"cli:osnma" = { page = "Developers", section = "ways", studio = "none", docs = "docs/osnma.html" }
+"mcp-tool:trust_telemetry" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"binding:python.osnma_verify" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.trust_telemetry" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:wasm.trust_telemetry" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.osnma_verify" = { page = "Docs", section = "npm.html#usage", studio = "none", docs = "docs/npm.html#usage" }
+"validation:galileo-osnma-receiver-side-navigation-data-authentication" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:trust-telemetry-siem-events-common-event-format-cef-over-sys" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:trust-telemetry-siem-events-log-event-extended-format-leef-o" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:marine-integrations-signal-k-plugin-opencpn-gate-stream-and-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }

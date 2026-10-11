@@ -159,6 +159,17 @@ cd $SN/tools && npm ci
 cd $C && python3 build.py          # last line: … N files to publish, M MB
 cd $C && python3 check.py          # OK: N pages …  (rule 6: every chart's engine version == Cargo.toml's)
 cd $C && python3 check.py --mutate # every mutation RED, unmutated green
+```
+
+Rule 12 (changed at 0.35.0). It used to cap the publish list at 255 files, 64 MB and 15 MB a
+file, the claude.ai preview host's limits, which kshana.dev does not have: kshana.dev deploys on
+GitHub Pages. The rule now gates on Pages' real limits (published size under 1 GB, each file under
+100 MB). Nothing is softened for the preview host: `python3 check.py --preview` gates on its three
+limits, a plain run prints them as a non-gating note, and `node tools_bundle.mjs --preview-root
+<tree to publish>` exits non-zero over them. Run one of those before republishing the preview
+artifact (the unpacked tree was 289 files at 0.35.0).
+
+```sh
 cd $SN/features && python3 check_features.py
 ```
 

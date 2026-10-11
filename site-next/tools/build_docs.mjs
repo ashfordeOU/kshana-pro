@@ -53,7 +53,7 @@ const GROUPS = [
   ["Timing", [["docs/SLOT-TIMING.md", "slot-timing", "Slot timing"], ["docs/TELECOM-TIMING.md", "telecom-timing", "Telecom timing"], ["docs/DECEIVED-TIME.md", "deceived-time", "Deceived time"]]],
   ["Integrity and interference", [["docs/INTEGRITY.md", "integrity", "Integrity and security"], ["docs/SPECTRUM.md", "spectrum", "Spectrum and waterfall"], ["docs/ARAIM_REFERENCE.md", "araim-reference", "ARAIM reference"], ["docs/COMPLIANCE.md", "compliance", "DO-316 / DO-229E map"], ["docs/RESILIENCE-CROSSWALK.md", "resilience-crosswalk", "Resilience cross-walk"]]],
   ["Receiver trust and maritime", [["docs/RECEIVER-TRUST.md", "receiver-trust", "Receiver trust"], ["docs/MARITIME-TRUST.md", "maritime-trust", "Maritime trust"], ["docs/NMEA-TRAINING.md", "nmea-training", "NMEA training streams"],
-    ["docs/INTERFERENCE-MAP.md", "interference-map", "Interference map and route exposure"], ["docs/MARINE-INTEGRATIONS.md", "marine-integrations", "Marine integrations"], ["docs/TRUST-TELEMETRY.md", "trust-telemetry", "Trust as security telemetry"]]],
+    ["docs/INTERFERENCE-MAP.md", "interference-map", "Interference map and route exposure"], ["docs/data/INTERFERENCE-DATA-SOURCES.md", "interference-data-sources", "Interference map: data sources and licences"], ["docs/MARINE-INTEGRATIONS.md", "marine-integrations", "Marine integrations"], ["docs/TRUST-TELEMETRY.md", "trust-telemetry", "Trust as security telemetry"], ["docs/OSNMA.md", "osnma", "Galileo OSNMA verification"]]],
   ["Compliance and test bench", [["docs/TEST-BENCH.md", "test-bench", "Running a receiver against a scenario"], ["docs/compliance/README.md", "compliance-mapping", "Compliance mapping"], ["docs/compliance/dhs-rpcf.md", "compliance-dhs-rpcf", "US DHS resilient PNT framework"],
     ["docs/compliance/imo-ships.md", "compliance-imo-ships", "IMO guidance for ships"], ["docs/compliance/easa-aviation.md", "compliance-easa-aviation", "EASA guidance for aviation"], ["docs/compliance/nis2-art21.md", "compliance-nis2-art21", "EU NIS2, Article 21"], ["docs/compliance/en-16803.md", "compliance-en-16803", "EN 16803"]]],
   ["Orbits", [["docs/SGP4-VALIDATION.md", "sgp4-validation", "SGP4 validation"], ["docs/AGENCY-ORBIT-VALIDATION.md", "agency-orbit-validation", "Force-model validation"], ["docs/SOLAR-SYSTEM.md", "solar-system", "Solar system and other bodies"]]],
@@ -62,7 +62,7 @@ const GROUPS = [
     ["docs/CONSTELLATION-DESIGN.md", "constellation-design", "Constellation design"]]],
   ["Quantum sensors", [["docs/QUANTUM-MODELS.md", "quantum-models", "Quantum-sensor models"], ["docs/QUANTUM.md", "quantum-physics", "Cold-atom interferometer"]]],
   ["APIs and integrations", [["docs/PYTHON_API.md", "python-api", "Python API"], ["README.npm.md", "npm", "npm and WebAssembly"], ["README.crates.md", "rust", "Rust crate"],
-    ["mcp/kshana-mcp/README.md", "mcp", "MCP server"], ["docs/AGENTS.md", "agents", "Using Kshana from an agent"], ["docs/SURFACES.md", "surfaces", "Where each capability is reachable"], ["ide/jetbrains/README.md", "jetbrains", "JetBrains plugin"],
+    ["mcp/kshana-mcp/README.md", "mcp", "MCP server"], ["docs/MCP-INSTALL.md", "mcp-install", "MCP server: every install channel"], ["docs/deploy/mcp-http.md", "mcp-http", "MCP server: self-hosted HTTP mode"], ["docs/AGENTS.md", "agents", "Using Kshana from an agent"], ["docs/SURFACES.md", "surfaces", "Where each capability is reachable"], ["ide/jetbrains/README.md", "jetbrains", "JetBrains plugin"],
     ["docs/DEPLOYMENT-TARGETS.md", "deployment-targets", "Where Kshana runs"], ["docs/ARCHITECTURE.md", "architecture", "Architecture"], ["docs/POSITIONING.md", "positioning", "Where Kshana sits"]]],
   ["Project", [["CHANGELOG.md", "changelog", "Changelog"], ["LICENSING.md", "licensing", "Licensing"],
     ["SECURITY.md", "security", "Security"], ["CONTRIBUTING.md", "contributing", "Contributing"], ["GOVERNANCE.md", "governance", "Governance"], ["CODE_OF_CONDUCT.md", "code-of-conduct", "Code of conduct"]]],
@@ -80,6 +80,7 @@ const UNLINKED = new Set(["ROADMAP.md"]);
 // The site names no AI vendor or product. A rendered passage that does (a README paragraph, a
 // changelog entry) is left out and replaced by a pointer to the repository file.
 const VENDOR = /\b(claude|anthropic)\b/i;
+const KNOWN_TAGS = new Set("a abbr b blockquote br caption code col colgroup dd del details div dl dt em figcaption figure h1 h2 h3 h4 h5 h6 hr i img ins kbd li mark ol p picture pre q s samp section small source span strong sub summary sup table tbody td tfoot th thead tr u ul var wbr".split(" "));
 
 const pages = [];
 for (const [g, items] of GROUPS) for (const [p, slug, title] of items) {
@@ -294,6 +295,11 @@ function postProcess(html, fromPath) {
   // Passages naming an AI vendor: dropped, with a pointer to the source.
   const note = `<p class="omitted">A passage naming third-party AI clients is left out here; it is in <a href="${GH}${fromPath}">${esc(fromPath)}</a> on GitHub.</p>`;
   html = html.replace(/<(p|li|pre|tr|blockquote)\b[^>]*>[\s\S]*?<\/\1>/g, (m) => (VENDOR.test(m.replace(/<[^>]+>/g, " ")) || VENDOR.test(m) ? note : m));
+  // A placeholder written as <target> outside a code span is raw HTML to the renderer and opens an element that
+  // never closes: show it as the text it is. (Code spans are already escaped; only known HTML elements stay.)
+  html = html.replace(/<(\/?)([a-z][a-z0-9-]*)>/g, (m, sl, n) => (KNOWN_TAGS.has(n) ? m : `&lt;${sl}${n}&gt;`));
+  // A heading that names one (MCP-INSTALL.md has one per client) keeps its level and loses the name.
+  html = html.replace(/<h([2-6])\b[^>]*>[\s\S]*?<\/h\1>/g, (m, lv) => (VENDOR.test(m.replace(/<[^>]+>/g, " ")) || VENDOR.test(m) ? `<h${lv}>Another client</h${lv}>` : m));
   html = html.replace(/(<p class="omitted">[\s\S]*?<\/p>)(\s*\1)+/g, "$1");
   // Scripts, styles and event handlers never come through from repository HTML.
   html = html.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "").replace(/\son[a-z]+="[^"]*"/gi, "");

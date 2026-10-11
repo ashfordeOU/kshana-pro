@@ -1,9 +1,9 @@
 {
- "recorded": "2026-10-08",
+ "recorded": "2026-10-11",
  "engine": {
-  "version": "0.33.0",
-  "commit": "682340e",
-  "tree": "release/0.33.0",
+  "version": "0.35.0",
+  "commit": "ed339f1",
+  "tree": "release/0.35.0-rc",
   "binary": "target/release/kshana"
  },
  "scenarios": {
@@ -27,10 +27,10 @@
   {
    "cmd": "kshana --version",
    "out": [
-    "kshana 0.33.0"
+    "kshana 0.35.0"
    ],
    "rc": 0,
-   "ms": 2.1,
+   "ms": 2.7,
    "scenario": null
   },
   {
@@ -59,7 +59,7 @@
     "wrote spoof-detect.result.json, spoof-detect.chart.svg, spoof-detect.report.html, and spoof-detect.report.json"
    ],
    "rc": 0,
-   "ms": 3.8,
+   "ms": 2.9,
    "scenario": "spoof-detect.toml"
   },
   {
@@ -69,7 +69,7 @@
     "wrote clock-holdover.result.json, clock-holdover.chart.svg, clock-holdover.report.html, and clock-holdover.report.json"
    ],
    "rc": 0,
-   "ms": 11.9,
+   "ms": 22.8,
    "scenario": "clock-holdover.toml"
   }
  ]

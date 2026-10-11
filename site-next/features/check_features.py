@@ -605,7 +605,16 @@ def main() -> int:
         if not os.path.exists(srv_):
             srv_ = os.path.join(rg["engine"]["repo"], "mcp/kshana-mcp/src/server.rs")
         # The tool functions live in server.rs and, since 0.33.0 (the IQ tools), in iq.rs.
-        mcp_src_ = "".join(open(f).read() + "\n" for f in (srv_, os.path.join(os.path.dirname(srv_), "iq.rs")) if os.path.exists(f))
+        # 0.35.0: and in marine.rs; read every source file of the crate so a new module is not missed.
+        mcp_dir_ = os.path.dirname(srv_)
+        mcp_src_ = "".join(open(os.path.join(mcp_dir_, f)).read() + "\n" for f in sorted(os.listdir(mcp_dir_)) if f.endswith(".rs"))
+        # 0.35.0: the options of the subcommands with their own parsers (receiver-trust live, trust-telemetry,
+        # interference-map, route-exposure, nmea-scenario, evidence ...) are quoted in the engine's own source.
+        for f_ in glob.glob(os.path.join(rg["engine"]["repo"], "src", "**", "*.rs"), recursive=True):
+            try:
+                cli_ = cli_ | set(re.findall(r'"(--[a-z0-9][a-z0-9-]*)"', open(f_, encoding="utf-8").read()))
+            except (OSError, UnicodeDecodeError):
+                pass
         mcp_ = set(re.findall(r"\b([a-z][a-z0-9]*(?:_[a-z0-9]+)+)\b", mcp_src_))
         return kinds_, scen_, tools_, known_, cli_, mcp_
     site_sets = token_sets(reg, os.path.join(os.path.dirname(os.path.abspath(args.features)), "known-tokens.json"))
@@ -671,7 +680,7 @@ def main() -> int:
                     m = re.match(r"\s*kind\s*=\s*\"([a-z0-9\-]+)\"", line)
                     if m and not in_table and not seen_kind:
                         seen_kind = True
-                        if m.group(1) not in kinds:
+                        if m.group(1) not in kinds and m.group(1) not in ignore_tokens:  # `ignore`: a session file's [platform] kind (0.35.0)
                             unreg("kind", m.group(1), pg, t, "scenario kind")
             if t.ctx == "code":
                 tok = s.strip()

@@ -13,7 +13,7 @@
 //
 // The site build runs the second form when it copies the Studio. Output is deterministic:
 // the same recordings give byte-identical packs.
-import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { statSync, readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { gunzipSync, gzipSync } from "node:zlib";
 import { join } from "node:path";
 import { planPacks } from "./lib/packs.mjs";
@@ -22,6 +22,7 @@ const here = new URL(".", import.meta.url).pathname;
 const args = process.argv.slice(2);
 const opt = (name, dflt) => { const i = args.indexOf(name); return i < 0 ? dflt : args[i + 1]; };
 const TO = opt("--to", null);
+const PREVIEW_ROOT = opt("--preview-root", null);
 const MAX = { recorded: parseInt(opt("--recorded-packs", "12"), 10), native: parseInt(opt("--native-packs", "20"), 10) };
 
 // 1. Scenario files.
@@ -67,3 +68,19 @@ for (const g of groups) {
   }
 }
 console.log(`${nRecords} recordings packed into ${nPacks} files, ${(bytesOut / 1e6).toFixed(1)} MB (${groups.length - 1} optional group(s))`);
+
+// 3. The claude.ai preview host's limits (255 files, 64 MB, 15 MB a file) are not kshana.dev's (Pages:
+// 1 GB, 100 MB a file) but are still enforced for the preview publish: give the tree to be published
+// with --preview-root and this fails when it is over any of them.
+if (PREVIEW_ROOT) {
+  const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)]);
+  const all = walk(PREVIEW_ROOT);
+  const sizes = all.map((f) => statSync(f).size);
+  const total = sizes.reduce((a, b) => a + b, 0);
+  const bad = [];
+  if (all.length > 255) bad.push(`${all.length} files, over 255`);
+  if (total > 64e6) bad.push(`${(total / 1e6).toFixed(1)} MB, over 64 MB`);
+  all.forEach((f, i) => { if (sizes[i] > 15e6) bad.push(`${f} over 15 MB`); });
+  if (bad.length) { console.error("preview host limits exceeded: " + bad.join("; ")); process.exit(1); }
+  console.log(`preview limits ok: ${all.length} files, ${(total / 1e6).toFixed(1)} MB`);
+}

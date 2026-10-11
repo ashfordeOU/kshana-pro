@@ -231,6 +231,12 @@ CLI_DESC = {
     "--import-route": "Read a route drawn as a GeoJSON line and use it as the scenario's trajectory.",
     "--help": "Print the command-line usage.",
     "--version": "Print the engine version, to tie a result file to the build that wrote it.",
+    "evidence": "Make, check and timestamp a signed evidence pack for a window of a vessel's receiver log, and verify one offline against the signer's public key.",
+    "live": "Score a vessel's receiver trust epoch by epoch from a live NMEA stream (standard input, a file, or a network port), optionally gating a downstream consumer on the score.",
+    "--out": "Name the output files of a command that writes several: the test-bench export (motion, events, NMEA) or the compliance report.",
+    "--epoch": "Give the UTC start time of a test-bench export (YYYY-MM-DDTHH:MM:SS), so its time columns and NMEA sentences carry a real date.",
+    "--mapping": "Print the mapping tables from Kshana outputs to the clauses of public frameworks, with the wording rule, without reading any run.",
+    "--sources": "Print the public documents each compliance mapping cites, by clause number only.",
     "kinds": "List every built-in scenario kind.",
     "kinds --json": "List every built-in scenario kind with its description and required and optional fields, as JSON.",
     "example": "List the bundled reference scenarios, or print one to a file so a registry install has something to run.",
@@ -589,13 +595,17 @@ def enum_cli(repo: str, abbr) -> tuple[list[dict], list[str]]:
                         description=CLI_DESC["run"], source=f"src/main.rs:{usage_ln}",
                         identifiers=["kshana <scenario.toml>"],
                         probes=[["phrase", "kshana <scenario>.toml"], ["phrase", "kshana <scenario.toml>"], ["regex", r"kshana\s+(scenarios/)?[a-z0-9-]+\.toml"]]))
+    seen_sub = set()
     for m in re.finditer(r'Some\("([a-z]+)"\)', src):
         sub = m.group(1)
+        if sub in seen_sub:  # a word matched in two places (0.35: `evidence` is also a `receiver-trust` action)
+            continue
+        seen_sub.add(sub)
         ln = src[: m.start()].count("\n") + 1
         rows.append(feature(id=f"cli:{sub}", category="cli", subtype="subcommand", name=f"kshana {sub}",
                             description=CLI_DESC.get(sub, "NO DESCRIPTION: add one to CLI_DESC"),
                             source=f"src/main.rs:{ln}", identifiers=[f"kshana {sub}"],
-                            probes=[["regex", rf"kshana\s+{sub}\b"]]))
+                            probes=[["regex", rf"(?:kshana\s+(?:receiver-trust\s+)?|receiver-trust\s+){sub}\b" if sub == "live" else rf"kshana\s+{sub}\b"]]))
         if sub == "kinds" and re.search(r'flag == "--json"', src):
             ln2 = find_line(main, r'flag == "--json"')
             rows.append(feature(id="cli:kinds--json", category="cli", subtype="subcommand", name="kshana kinds --json",
@@ -632,9 +642,12 @@ def _mcp_repo(repo: str) -> str:
 
 
 def enum_mcp(repo: str, abbr) -> list[dict]:
-    # The tool functions live in server.rs and, since 0.33.0 (the IQ tools), in iq.rs.
+    # The tool functions live in server.rs, in iq.rs (since 0.33.0) and in marine.rs (since 0.35.0);
+    # server.rs first, then any other source file of the crate, so a new module is not missed.
     rows = []
-    for fname in ("server.rs", "iq.rs"):
+    srcdir = os.path.join(_mcp_repo(repo), "mcp/kshana-mcp/src")
+    others = sorted(f for f in os.listdir(srcdir) if f.endswith(".rs") and f != "server.rs") if os.path.isdir(srcdir) else []
+    for fname in ["server.rs"] + others:
         path = os.path.join(_mcp_repo(repo), "mcp/kshana-mcp/src", fname)
         if not os.path.exists(path):
             continue
@@ -671,11 +684,21 @@ def enum_bindings(repo: str, abbr) -> list[dict]:
                             source=f"mcp/kshana-mcp/server.json:{find_line(sj, r'\"name\"')}", identifiers=[d["name"]],
                             probes=[["phrase", d["name"]]]))
         for pkg in d.get("packages", []):
+            kind = pkg.get("registryType")
             ident = pkg["identifier"].split(":")[0]
-            rows.append(feature(id="binding:ghcr-image", category="binding", subtype="channel", name=f"Container image ({ident})",
-                                description="The MCP server as a multi-architecture container image, no Rust toolchain needed.",
-                                source=f"mcp/kshana-mcp/server.json:{find_line(sj, r'\"identifier\"')}", identifiers=[ident],
-                                probes=[["phrase", ident]]))
+            ln = find_line(sj, r'"identifier": "' + re.escape(pkg["identifier"].split(":")[0]))
+            if kind == "oci":
+                rows.append(feature(id="binding:ghcr-image", category="binding", subtype="channel", name=f"Container image ({ident})",
+                                    description="The MCP server as a multi-architecture container image, no Rust toolchain needed.",
+                                    source=f"mcp/kshana-mcp/server.json:{ln}", identifiers=[ident], probes=[["phrase", ident]]))
+            elif kind == "npm":  # 0.35.0: the launcher packages the registry lists beside the image
+                rows.append(feature(id="binding:mcp-npx", category="binding", subtype="channel", name=f"npx launcher (npm: {ident})",
+                                    description="The MCP server started with npx, which fetches the verified prebuilt binary for the system; no Rust toolchain needed.",
+                                    source=f"mcp/kshana-mcp/server.json:{ln}", identifiers=[f"npx -y {ident}"], probes=[["phrase", f"npx -y {ident}"]]))
+            elif kind == "pypi":
+                rows.append(feature(id="binding:mcp-uvx", category="binding", subtype="channel", name=f"uvx launcher (PyPI: {ident})",
+                                    description="The MCP server started with uvx or pipx, which fetches the verified prebuilt binary for the system; no Rust toolchain needed.",
+                                    source=f"mcp/kshana-mcp/server.json:{ln}", identifiers=[f"uvx {ident}"], probes=[["phrase", f"uvx {ident}"]]))
     py = os.path.join(repo, "pyproject.toml")
     rows.append(feature(id="binding:pypi", category="binding", subtype="channel", name="Python package (PyPI: kshana)",
                         description="The engine as a Python module, installed with pip.",
