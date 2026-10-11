@@ -33,8 +33,9 @@ Follow-up: W18 audits every MCP tool for filesystem access derived from agent in
    2026-10-11. Package kshana-mcp; affected `>= 0.27.0, < 0.34.1`; patched 0.34.1; Medium, CVSS 3.1 4.3
    (`CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:N/A:N`); CWE-73 and CWE-209. A CVE was requested and was not assigned at the time of
    publication.
-3. RustSec: entry prepared for the founder to submit to rustsec/advisory-db (crates/kshana-mcp/RUSTSEC-0000-0000.md, aliases the GHSA
-   ID, date 2026-10-11); the ID is assigned on merge.
+3. RustSec: entry opened by the founder as https://github.com/rustsec/advisory-db/pull/3355 (fork branch kshana-mcp-d14, head
+   4fcfe95; crates/kshana-mcp/RUSTSEC-0000-0000.md, aliases the GHSA ID, date 2026-10-11). Open at the time of writing; the RUSTSEC ID is
+   assigned on merge and is to be recorded here.
 
 ## Scope widened (W18 audit, 2026-10-09, feat/surfaces-0.35 589725fa)
 The same class affects the general scenario tools, not only `assess_receiver_log`: `run_scenario`,

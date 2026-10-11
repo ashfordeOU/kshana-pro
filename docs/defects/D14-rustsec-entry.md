@@ -1,5 +1,10 @@
 # D14: RustSec submission (for the founder to open; not opened)
 
+Status 2026-10-11: OPENED by the founder as https://github.com/rustsec/advisory-db/pull/3355 (fork ashfordeOU/advisory-db,
+branch kshana-mcp-d14, head 4fcfe95; the advisory file on that branch is byte-identical to the patch below). Not yet merged:
+when it merges, record the assigned RUSTSEC ID here and in D14-mcp-receiver-log-path.md. If GitHub assigns a CVE to
+GHSA-8wpf-hqg5-6xjr, add it to `aliases` on the fork branch.
+
 Target: https://github.com/rustsec/advisory-db, a PR adding `crates/kshana-mcp/RUSTSEC-0000-0000.md`.
 Prepared 2026-10-11 against advisory-db `7eebec6`. Author of the commit: Ashforde OÜ. A `git am`-able patch follows the PR text.
 GHSA: GHSA-8wpf-hqg5-6xjr (published 2026-10-11 12:48Z). CVE: requested, not assigned at preparation time. If one is
