@@ -2233,8 +2233,54 @@ def channels_all(root):
     return "".join(out)
 
 
+# =================================================================== new in 0.35 (Capabilities, Home)
+# The ten 0.35 entries with the page that explains each and, where there is one, its Studio view. A capability
+# that has a capability card takes its status, name, summary and proof from the card (web/capabilities.json);
+# the two without a card (the Signal K and OpenCPN integrations, the MCP install channels) are stated here.
+NEW035 = [
+    ("Receiver-trust score for a vessel", "docs/maritime-trust.html", "studio/trust/index.html", "Trust view"),
+    ("Crew-training NMEA streams", "docs/nmea-training.html", "studio/training/index.html", "Training debrief"),
+    ("Interference map and route exposure", "docs/interference-map.html", "studio/interference/index.html", "Interference map"),
+    ("Trust telemetry for security operations", "docs/trust-telemetry.html", None, None),
+    ("Signed evidence packs", "docs/evidence-packs.html", None, None),
+    ("Test-bench export", "docs/test-bench.html", None, None),
+    ("Compliance mapping to public frameworks", "docs/compliance-mapping.html", None, None),
+    ("Galileo OSNMA verification", "docs/osnma.html", None, None),
+    (None, "docs/marine-integrations.html", None, None),
+    (None, "developers.html#channels", None, None),
+]
+NEW035_STATIC = {
+    "docs/marine-integrations.html": ("modelled", "Signal K, OpenCPN and a reference build",
+        "The trust score and its reasons on a boat's Signal K server and in an OpenCPN panel, and a pinned image that rebuilds the engine. An integration, not an oracle: stated as modelled.", None),
+    "developers.html#channels": ("none", "Every MCP install channel",
+        "Prebuilt binaries for every operating system, the Claude Desktop extension, one-click buttons for Cursor and VS Code, npx and uvx, Homebrew, Scoop and winget, the registries and a self-hosted HTTP mode.", None),
+}
+
+
+def new035(root, compact=False):
+    by_name = {c["name"]: c for c in cards}
+    items = []
+    for name, doc, view, view_label in NEW035:
+        if name:
+            c = by_name[name]  # a missing card stops the build: the capability must have its card
+            st, title, text, proof = c["status"], c["name"], c["summary"], c.get("proof")
+        else:
+            st, title, text, proof = NEW035_STATIC[doc]
+        first = re.split(r"(?<=[.!?]) ", text)[0]
+        chip = {"validated": '<span class="st st-v">Validated</span>', "modelled": '<span class="st st-m">Modelled</span>', "none": ""}[st]
+        extra = f'<a href="{root}{view}">{esc(view_label)} in {esc(STUDIO)}</a>' if view else ""
+        if compact:
+            items.append(f'<li>{chip}<a href="{root}{doc}">{esc(title)}</a></li>')
+        else:
+            items.append(f'<article class="glass nw" data-s="{st}">{chip}<h3>{esc(title)}</h3><p>{esc(first)}</p>'
+                         f'{"<p class=nw-p>" + esc(proof) + "</p>" if proof else ""}<p class="nw-l"><a href="{root}{doc}">Read more</a>{extra}</p></article>')
+    if compact:
+        return f'<ul class="nw-strip">{"".join(items)}</ul>'
+    return f'<div class="nw-grid">{"".join(items)}</div>'
+
+
 BLOCKS = {
-    "{{CHANNELS_ALL}}": channels_all, "{{SECTOR_TEASERS}}": sector_teasers, "{{ROLES}}": roles, "{{WAYS}}": ways,
+    "{{CHANNELS_ALL}}": channels_all, "{{NEW035}}": new035, "{{NEW035_COMPACT}}": lambda r: new035(r, True), "{{SECTOR_TEASERS}}": sector_teasers, "{{ROLES}}": roles, "{{WAYS}}": ways,
     "{{ATLAS}}": atlas, "{{EXPLORER}}": explorer, "{{BANDS}}": bands_block, "{{MCP_DEMO}}": mcp_demo,
     "{{ENGINE_BENTO}}": engine_bento,
     "{{PRO_BAND_HOME}}": lambda r: pro_band(r, "pro-band"), "{{PRO_BAND_EDITIONS}}": pro_power,
