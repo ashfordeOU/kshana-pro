@@ -24,8 +24,8 @@
   },
   "signer": {
     "algorithm": "ed25519",
-    "public_key": "9b456cf6087e9dabb23be6c525dea92600596540e7d56e87ad53e61d167b5259",
-    "fingerprint": "455d20358486a387aea63f018b15ef79"
+    "public_key": "d351d6c51d5a15622867eaf35941204408137af720c3f2c8f06987df2ec5c07e",
+    "fingerprint": "55b171d79eee435fc40deb3df790f8c9"
   },
   "artifacts": [
     {
@@ -53,9 +53,9 @@
       "name": "summary.html",
       "role": "human-readable summary",
       "bytes": 15114,
-      "sha256": "736405f816594b69757a573c32d3f5fea07dfa410d05b4e4663884b18982ea24",
-      "link": "db46f8054c5c99814d1c550e4f64805427882c3264806997eb04e06340b9b712"
+      "sha256": "d6ade9ccd912a026419e75c99209dc2fbf7cbd75b6b3b4f17dbca4f1be2c423d",
+      "link": "1e7e3db4777e4dec6a0df66bf3feb7023b15727438de350a65b848f97e7151d5"
     }
   ],
-  "chain_head": "db46f8054c5c99814d1c550e4f64805427882c3264806997eb04e06340b9b712"
+  "chain_head": "1e7e3db4777e4dec6a0df66bf3feb7023b15727438de350a65b848f97e7151d5"
 }

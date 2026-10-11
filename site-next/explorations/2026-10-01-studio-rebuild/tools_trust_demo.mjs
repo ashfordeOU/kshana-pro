@@ -41,4 +41,4 @@ for (const f of ["session.toml", "tallinn-helsinki.nmea"]) copyFileSync(join(src
 // the generic (non-vessel) receiver-trust example, for the "Generic receiver-trust run" panel (engine receiver_trust, log inline)
 mkdirSync(join(here, "trust", "generic"), { recursive: true });
 for (const f of ["session.toml", "illustrative-jamming.nmea"]) copyFileSync(join(repo, "examples", "receiver-trust", f), join(here, "trust", "generic", f));
-console.log(`${version\n${summary}\nwrote trust/demo/ (${out.epochs.length} epochs)`);
+console.log(`${version}\n${summary}\nwrote trust/demo/ (${out.epochs.length} epochs)`);

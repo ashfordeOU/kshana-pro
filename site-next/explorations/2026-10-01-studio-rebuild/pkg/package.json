@@ -2,10 +2,10 @@
   "name": "kshana",
   "type": "module",
   "collaborators": [
-    "Chakshu Baweja <contact@ashforde.org>"
+    "Ashforde OÜ <contact@ashforde.org>"
   ],
   "description": "Open, reproducible PNT-resilience simulator with quantum-sensor performance models",
-  "version": "0.33.0",
+  "version": "0.35.0",
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",

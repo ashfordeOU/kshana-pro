@@ -2,9 +2,51 @@
 /* eslint-disable */
 
 /**
+ * Run a scenario and return its time series as an animation. `format` is `svg`, `html` or
+ * `frames` (empty for `svg`); `fps` 0, `duration_s` NaN and `width` 0 mean the defaults (12,
+ * 8 s, 960 px). Returns JSON `{summary, files: {name: text}}`; a kind with no sampled time
+ * axis throws. Nothing is uploaded or written.
+ */
+export function animate_scenario(toml: string, format: string, fps: number, duration_s: number, width: number): string;
+
+/**
+ * Assess a vessel's NMEA 0183 log as a batch run: `session_toml` (`[platform] kind =
+ * "vessel"`, no `[log]` needed) and the log text. Returns the result document as JSON, the
+ * same as `kshana receiver-trust` writes to `result.json`. Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
+ */
+export function assess_vessel_log(session_toml: string, log: string): string;
+
+/**
+ * Export a scenario's vehicle motion and events for a laboratory GNSS simulator
+ * (`docs/TEST-BENCH.md`), in memory: nothing is uploaded or written. `epoch` is the UTC
+ * instant of motion time zero, `YYYY-MM-DDTHH:MM:SS` with an optional `Z` (empty for the
+ * default 2024-01-01T00:00:00Z). Returns JSON `{files: {suffix: text}, notes, notice}`; keep
+ * `notice` with the files. No radio-frequency or baseband signal is written.
+ */
+export function bench_export(toml: string, epoch: string): string;
+
+/**
  * Run a scenario and return its SVG chart.
  */
 export function chart_svg(toml: string): string;
+
+/**
+ * The static public-framework mapping as Markdown, led by the statement every report
+ * carries: the tables (`sources` false) or the source documents they cite (`sources` true).
+ */
+export function compliance_mapping(sources: boolean): string;
+
+/**
+ * Fill the public-framework mapping from result documents: which rows of five resilience
+ * frameworks and standards (`docs/compliance/`) the runs support evidence for, which they
+ * do not, and the gap each row keeps. `runs_json` is a JSON array of `{label, result,
+ * scenario?}` where `result` is the result JSON text and `scenario` the scenario TOML text
+ * (it names the scenario kind a result does not); at most 64 runs. Returns JSON
+ * `{report, markdown}`. The report carries `statement` verbatim: a status says the runs
+ * support evidence for a row's capabilities, not that a framework is met. Nothing is
+ * uploaded or read from disk.
+ */
+export function compliance_report(runs_json: string): string;
 
 /**
  * Decode a permalink token back into the scenario TOML; returns an empty string if the
@@ -25,6 +67,33 @@ export function encode_permalink(toml: string): string;
 export function error_kind(toml: string): string;
 
 /**
+ * Bind an RFC 3161 timestamp token to an evidence pack, in memory. `files_json` is the pack's
+ * files as JSON (name to text or `{"base64": ...}`); `token_base64` is the `.tsr` file's bytes
+ * as base64; `replace` allows replacing an existing token. The pack with the token must still
+ * verify or this throws. Returns JSON `{files, notes}`. This does NOT verify the timestamp
+ * authority's signature or certificate chain (use `openssl ts -verify`). Nothing is uploaded.
+ */
+export function evidence_attach_timestamp(files_json: string, token_base64: string, replace: boolean): string;
+
+/**
+ * Verify an evidence pack. `files_json` is a JSON object of file name to content: a string,
+ * `{"utf8": text}` or `{"base64": bytes}`. `public_key` is the signer's key as 64 hex digits,
+ * obtained from the signer by another route (empty for none: the signature then proves only
+ * that the pack is intact against the key it names itself). `full_log` is the full log text
+ * (empty for none). `require_timestamp` fails a pack without a timestamp token. Returns the
+ * report as JSON: `ok`, `failures`, `checks`, `signer_fingerprint`, `signer_pinned`, `notes`,
+ * plus `verdict` (`"verified"`, `"intact-signer-not-pinned"` or `"failed"`) and `message`. Nothing is uploaded; packs are made with the
+ * command line, Python or the MCP server.
+ */
+export function evidence_verify(files_json: string, public_key: string, full_log: string, require_timestamp: boolean): string;
+
+/**
+ * Which interoperability formats apply to a scenario, without running it: a JSON array of
+ * `{format, applies, reason, spec_url}` for `czml`, `kml`, `geojson`, `stk` and `sigmf`.
+ */
+export function export_formats(toml: string): string;
+
+/**
  * Export the velocity-carrying state as a **CCSDS OEM 2.0** ephemeris string for
  * flight-dynamics tools (GMAT / Orekit / STK; the CLI `--export-oem` artifact). Pure
  * client-side.
@@ -38,11 +107,47 @@ export function export_oem(toml: string): string;
 export function export_omm(toml: string): string;
 
 /**
+ * Export a scenario in one interoperability format (`czml`, `kml`, `geojson`, `stk` or
+ * `sigmf`), in memory. Returns JSON `{format, spec_url, files}`; each file is `{suffix, bytes,
+ * sha256, encoding, content}` with `encoding` `"utf-8"` (the text) or `"base64"` (a binary
+ * file). Times are UTC; the same scenario gives byte-identical files. Nothing is uploaded.
+ */
+export function export_scenario(toml: string, format: string): string;
+
+/**
  * Export a propagated constellation scenario as an **SP3-c** precise-ephemeris string
  * (the same artifact the CLI `--export-sp3` flag writes). Pure client-side; nothing is
  * uploaded. Throws a JS error if the scenario cannot produce an SP3 (e.g. a non-orbit kind).
  */
 export function export_sp3(toml: string): string;
+
+/**
+ * The TOML text of one bundled reference scenario, byte for byte the repository's file.
+ */
+export function get_example(name: string): string;
+
+/**
+ * Write a GeoJSON route into a scenario of a kind that flies a waypoint track and return the
+ * new TOML (the command line's `--import-route`).
+ */
+export function import_route(toml: string, geojson: string): string;
+
+/**
+ * Build a GNSS interference map from CSV text (`source` is `"adsb"` or `"ais"`; formats in
+ * `docs/INTERFERENCE-MAP.md`). `dataset` is an approved preset or `"custom"`, which also
+ * needs `licence`, `licence_url` and `attribution`; pass an empty string for any field
+ * that does not apply, and `NaN` for the default 0.5 degree cell. `land_geojson` (AIS only,
+ * empty for none) is a land-polygon file. Returns a JSON array of
+ * `{file_name, date, cells_published, cells_flagged, geojson}`, one per UTC day. Aggregate
+ * only; a degraded cell does not name interference as the cause. Nothing is uploaded.
+ */
+export function interference_map(source: string, csv: string, dataset: string, cell_deg: number, licence: string, licence_url: string, attribution: string, land_geojson: string): string;
+
+/**
+ * The bundled reference scenarios as JSON `{count, scenarios: [{name, kind, about}]}`; a
+ * non-empty `kind` limits the list to one scenario kind.
+ */
+export function list_examples(kind: string): string;
 
 /**
  * List the available scenario kinds and their metadata as a JSON array (name,
@@ -51,11 +156,54 @@ export function export_sp3(toml: string): string;
 export function list_kinds(): string;
 
 /**
+ * Generate synthetic bridge NMEA 0183 for crew training from a `nmea-scenario` TOML.
+ * `seed` replaces the scenario's seed unless it is `NaN` or negative. Returns a JSON object
+ * `{nmea, log_json, log_text}`. Text only; never for a vessel's live navigation systems.
+ * Advisory, not type-approved navigation equipment.
+ */
+export function nmea_training(toml: string, seed: number): string;
+
+/**
+ * Check Galileo OSNMA authentication of I/NAV pages, in memory, with the verifier
+ * `kshana osnma verify` runs. Advisory: this is analysis and monitoring output and not
+ * type-approved navigation equipment. The authentication status reported here is not a
+ * navigation integrity service and must not be the sole basis for any navigation or safety
+ * decision. `input_base64` is the pages (plain text or the published vector CSV) or a u-blox
+ * UBX byte stream; `format` is `"pages"`, `"vector-csv"`, `"ubx"` or `""` (by content);
+ * `start_gst` is a vector CSV's start in GST seconds; `merkle_root_hex` is the trusted Merkle
+ * root (64 hex digits, or `""`); `public_keys` are trusted keys as `ID:TYPE:HEX`;
+ * `reference_time` is the present time in GST seconds from an independent source and
+ * `max_time_error` the widest distance of a sub-frame from it (below 30; needs a reference
+ * time). Without a reference time freshness is not enforced and the report says so. Returns
+ * the JSON `kshana osnma verify --json` prints. Nothing is uploaded.
+ */
+export function osnma_verify(input_base64: string, format: string, start_gst: number | null | undefined, merkle_root_hex: string, public_keys: string[], reference_time?: number | null, max_time_error?: number | null): string;
+
+/**
  * Assess a real receiver log described by a `receiver-trust` scenario (TOML text). The
  * browser has no file system, so the log (and any navigation file) must be inline as
  * `text` or `base64`. Returns a JSON object `{json, csv, svg, summary}`.
  */
 export function receiver_trust(toml: string): string;
+
+/**
+ * Score a bounded excerpt of a vessel's NMEA 0183 stream the way `kshana receiver-trust
+ * live` scores it (at most 2 MiB and 20,000 epochs; it must hold the calibration window).
+ * `session_toml` declares a vessel (`[platform] kind = "vessel"`). Returns a JSON object
+ * `{schema, epochs, last_pksht, summary}` (`schema` is `"1.2"`): one report per epoch (`state`, `score`, `advisory`,
+ * `deductions`, `alarms`, ...) and counts by state. The bounded form of the live command: no
+ * socket is opened and the gate is not applied (both are command-line only). Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
+ */
+export function receiver_trust_replay(session_toml: string, nmea: string): string;
+
+/**
+ * Share of a route (GeoJSON LineString or `lat,lon` CSV text) through degraded cells of the
+ * maps in `maps_json` (a JSON array of map GeoJSON strings, as `interference_map` returns),
+ * optionally limited to `date_from`..`date_to` (`YYYY-MM-DD`, empty for no limit). Returns
+ * the report as JSON text. Not a forecast; unobserved cells are not evidence of a clear
+ * route.
+ */
+export function route_exposure(route: string, maps_json: string, date_from: string, date_to: string): string;
 
 /**
  * Run a scenario given as a TOML string; returns the result document as a JSON
@@ -88,6 +236,18 @@ export function summary(toml: string): string;
 export function table_csv(toml: string): string | undefined;
 
 /**
+ * Render a trust stream or a batch result in one telemetry format, with the encoders
+ * `kshana trust-telemetry` uses (no process, socket or clock). `format` is `"prometheus"`,
+ * `"cef"`, `"leef"` or `"otlp"`; `input_kind` is `"result"` (a `receiver-trust` result
+ * document) or `"jsonl"` (the live per-epoch stream); `host` names the sender in syslog
+ * events (empty for `kshana`). `options_json` is `""` or an object with `expose_position`
+ * (bool), `syslog_all` (bool: one event per epoch, not per band change) and `unix_nano`
+ * (number, the time of export for `"otlp"`). Syslog lines carry no timestamp. Returns the
+ * formatted text.
+ */
+export function trust_telemetry(input: string, format: string, host: string, input_kind: string, options_json: string): string;
+
+/**
  * Engine version (the crate version).
  */
 export function version(): string;
@@ -96,23 +256,43 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
+    readonly animate_scenario: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number, number];
+    readonly assess_vessel_log: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly bench_export: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly chart_svg: (a: number, b: number) => [number, number, number, number];
+    readonly compliance_mapping: (a: number) => [number, number];
+    readonly compliance_report: (a: number, b: number) => [number, number, number, number];
     readonly decode_permalink: (a: number, b: number) => [number, number];
     readonly encode_permalink: (a: number, b: number) => [number, number];
     readonly error_kind: (a: number, b: number) => [number, number];
+    readonly evidence_attach_timestamp: (a: number, b: number, c: number, d: number, e: number) => [number, number, number, number];
+    readonly evidence_verify: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number, number];
+    readonly export_formats: (a: number, b: number) => [number, number, number, number];
     readonly export_oem: (a: number, b: number) => [number, number, number, number];
     readonly export_omm: (a: number, b: number) => [number, number, number, number];
+    readonly export_scenario: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly export_sp3: (a: number, b: number) => [number, number, number, number];
+    readonly get_example: (a: number, b: number) => [number, number, number, number];
+    readonly import_route: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly interference_map: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number) => [number, number, number, number];
+    readonly list_examples: (a: number, b: number) => [number, number, number, number];
     readonly list_kinds: () => [number, number];
+    readonly nmea_training: (a: number, b: number, c: number) => [number, number, number, number];
+    readonly osnma_verify: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => [number, number, number, number];
     readonly receiver_trust: (a: number, b: number) => [number, number, number, number];
+    readonly receiver_trust_replay: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly route_exposure: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => [number, number, number, number];
     readonly run: (a: number, b: number) => [number, number, number, number];
     readonly run_all: (a: number, b: number) => [number, number, number, number];
     readonly summary: (a: number, b: number) => [number, number, number, number];
     readonly table_csv: (a: number, b: number) => [number, number, number, number];
+    readonly trust_telemetry: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number, number];
     readonly version: () => [number, number];
-    readonly __wbindgen_externrefs: WebAssembly.Table;
     readonly __wbindgen_malloc: (a: number, b: number) => number;
     readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+    readonly __wbindgen_exn_store: (a: number) => void;
+    readonly __externref_table_alloc: () => number;
+    readonly __wbindgen_externrefs: WebAssembly.Table;
     readonly __externref_table_dealloc: (a: number) => void;
     readonly __wbindgen_free: (a: number, b: number, c: number) => void;
     readonly __wbindgen_start: () => void;
