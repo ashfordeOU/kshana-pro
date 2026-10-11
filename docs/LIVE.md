@@ -1,4 +1,4 @@
-Updated: 2026-10-11T13:10:53Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T13:17:12Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:17:12 13:17Z | rc -> b7e43746 (FF docs/osnma-coverage: 148 osnma docs, coverage 985/985). FOUNDER opened RustSec PR rustsec/advisory-db#3355 (branch ashfordeOU/advisory-db kshana-mcp-d14 4fcfe95)
 - 13:10:53 13:10Z | FOUNDER: created ashfordeOU/homebrew-tap + scoop-bucket (public, README) and classic PAT public_repo as HOMEBREW_TAP_TOKEN/SCOOP_BUCKET_TOKEN/WINGET_TOKEN. W19 to confirm via release dry run
 - 13:02:46 13:02Z | W17: CI-pinned wasm-pack 0.13.1 build of wire 4e2a0625 OK + web/smoke.mjs PASS; Studio live osnma_verify (4 examples == recorded) + trust_telemetry (Prometheus/CEF/LEEF/OTLP) in Chromium; kshana-pro site/studio-0.35 3d1b169 (41/41, selfcheck). DoD row 5 Studio done pending final port
 - 13:01:30 13:01Z | W18 28c3bb75: pytest osnma_verify on examples/osnma (4 cases = expected JSON; pytest 50); wasm-pack build + web/smoke.mjs OK (trust_telemetry + osnma_verify), wasm-opt skipped locally (binaryen blocked; CI runs it). B1 fix still pending. Critic confirmed 39 tools
