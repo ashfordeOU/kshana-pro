@@ -50,13 +50,13 @@ try {
 
 // 3. external hosts
 const allowed = /^(cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com|kshana\.dev|www\.w3\.org|github\.com)$/;
-const own = ["index.html", "app.js", "app.css", "studio.css", "lib/catalog.mjs", "lib/params.mjs", "lib/views.mjs", "lib/kinds.mjs", "lib/stages.mjs", "lib/meaning.mjs", "lib/inputs.mjs", "lib/urlstate.mjs", "lib/areas.mjs", "lib/abbr.mjs", "tools_areas.mjs", "data/areas.json", "advanced/index.html", "advanced.js", "advanced/dash.css", "advanced/advanced.css", "lib/meaning-kinds.mjs", "geometry/index.html", "geometry/geometry.js", "geometry/geometry.css", "lib/geomstate.mjs", "lib/skyline.mjs", "lib/skyplot.mjs", "lib/geometry-adapter.mjs"];
+const own = ["index.html", "app.js", "app.css", "studio.css", "lib/catalog.mjs", "lib/params.mjs", "lib/views.mjs", "lib/kinds.mjs", "lib/stages.mjs", "lib/meaning.mjs", "lib/inputs.mjs", "lib/urlstate.mjs", "lib/areas.mjs", "lib/abbr.mjs", "tools_areas.mjs", "data/areas.json", "advanced/index.html", "advanced.js", "advanced/dash.css", "advanced/advanced.css", "lib/meaning-kinds.mjs", "geometry/index.html", "geometry/geometry.js", "geometry/geometry.css", "lib/geometry-url.mjs", "lib/skyline-edit.mjs", "lib/skyplot.mjs", "lib/geometry-adapter.mjs"];
 for (const f of own) for (const m of read(f).matchAll(/https?:\/\/([a-z0-9.-]+)/gi)) ok(allowed.test(m[1]), `${f}: unexpected host ${m[1]}`);
 ok(/three@0\.160\.0/.test(read("index.html")), "Three.js is pinned to 0.160.0");
 // The Geometry view takes no remote data: its script and modules make no request of their own (the engine is
 // started by lib/engine-page.mjs from this folder), and every number comes from the engine through the adapter.
-for (const f of ["geometry/geometry.js", "lib/geomstate.mjs", "lib/skyline.mjs", "lib/skyplot.mjs", "lib/geometry-adapter.mjs"]) ok(!/\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource|sendBeacon|import\s*\(/.test(read(f)), `${f}: makes no request`);
-ok(read("geometry/index.html").includes('<base href="../">') && read("geometry/index.html").includes("Advisory software.") && read("geometry/index.html").includes("IEC 61108, IEC 61162"), "geometry/index.html resolves from the Studio folder and carries the advisory statement");
+for (const f of ["geometry/geometry.js", "lib/geometry-url.mjs", "lib/skyline-edit.mjs", "lib/skyplot.mjs", "lib/geometry-adapter.mjs"]) ok(!/\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource|sendBeacon|import\s*\(/.test(read(f)), `${f}: makes no request`);
+ok(read("geometry/index.html").includes('<base href="../">') && read("geometry/index.html").includes("Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.") && /representative sky, not the sky of that date/i.test(read("geometry/index.html")), "geometry/index.html resolves from the Studio folder and carries the advisory statement and the representative-sky notice");
 
 // 4. names and pricing
 for (const f of [...own, "PARITY.md", "tokens.css"]) {

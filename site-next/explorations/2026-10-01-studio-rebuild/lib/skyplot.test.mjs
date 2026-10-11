@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { project, unproject, outlinePath, markerPath, niceExtent, ellipseAttrs, fmtDop, styleFor, SYSTEM_STYLE } from "./skyplot.mjs";
-import { SYSTEMS } from "./geomstate.mjs";
+import { project, unproject, outlinePath, markerPath, niceExtent, ellipseAttrs, fmtDop, styleFor, SYSTEM_STYLE, SYSTEMS, SCALE_95 } from "./skyplot.mjs";
 
 const near = (a, b, tol = 1e-9) => assert.ok(Math.abs(a - b) < tol, `${a} vs ${b}`);
 
@@ -31,6 +30,8 @@ test("every constellation the address can name has its own colour, shape and lab
   assert.equal(colours.size, SYSTEMS.length);
   assert.equal(styleFor("__proto__").color, "var(--ink-3)");
   assert.ok(Object.isFrozen(SYSTEM_STYLE));
+  assert.deepEqual(SYSTEMS, ["gps", "galileo", "beidou", "leo"]);
+  assert.ok(Math.abs(SCALE_95 - Math.sqrt(5.991)) < 1e-3);
 });
 
 test("paths are plain numbers and commands only", () => {

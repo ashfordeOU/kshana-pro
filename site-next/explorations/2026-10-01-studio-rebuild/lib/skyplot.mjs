@@ -5,15 +5,15 @@
 // engine's (lib/geometry-adapter.mjs). Pure; tested in skyplot.test.mjs.
 
 // Colour and shape per constellation. Colours are the Studio's own domain tokens (blue, amber, violet,
-// teal, red), and every constellation also has its own marker shape and a text label, so no reading
-// depends on telling colours apart.
+// teal), and every constellation also has its own marker shape and a text label, so no reading depends
+// on telling colours apart.
 export const SYSTEM_STYLE = Object.freeze({
   gps: { label: "GPS", color: "var(--tim)", shape: "circle" },
   galileo: { label: "Galileo", color: "var(--nav)", shape: "square" },
   beidou: { label: "BeiDou", color: "var(--spf)", shape: "triangle" },
-  glonass: { label: "GLONASS", color: "var(--int)", shape: "diamond" },
   leo: { label: "LEO", color: "var(--orb)", shape: "cross" },
 });
+export const SYSTEMS = Object.freeze(Object.keys(SYSTEM_STYLE));
 export const styleFor = (sys) => (Object.hasOwn(SYSTEM_STYLE, sys) ? SYSTEM_STYLE[sys] : { label: String(sys), color: "var(--ink-3)", shape: "circle" });
 
 // Polar projection: zenith at the centre, the horizon on a circle of radius R, north up, east right.
@@ -70,6 +70,10 @@ export function niceExtent(values, floor = 1) {
 export function ellipseAttrs(e, cx, cy, scale) {
   return { cx, cy, rx: e.semiMajorM * scale, ry: e.semiMinorM * scale, transform: `rotate(${(e.orientationDeg - 90).toFixed(3)} ${cx} ${cy})` };
 }
+
+// The 95 % horizontal ellipse is the 1-sigma one scaled by sqrt(5.991) = 2.448 (chi-square, 2 degrees of
+// freedom, 0.95), the constant the design note states; the axes themselves are the engine's.
+export const SCALE_95 = 2.448;
 
 // Format a DOP for the readout: two decimals, or the engine's own precision when it gives fewer.
 export function fmtDop(v, digits = 2) {
