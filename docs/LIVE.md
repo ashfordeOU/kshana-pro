@@ -1,4 +1,4 @@
-Updated: 2026-10-11T13:46:52Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T13:52:11Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:52:11 13:52Z | PR #75 node-tests red: OpenCPN relay test drops the reading consumer on small socket buffers (also red in W19 dry run 38142166170). Reproduced locally via tcp_wmem/rmem 64K; fixed test (cap 1 MiB > batch, drain-wait, 30 s timeout; mutation fails), rc -> 73c8d89e. Distribution secrets visible (dry run). Completeness part 1: 3 BLOCKERS (SURFACES Studio column -> W18; CHANGELOG 263/12 rows -> W1b; metadata -> W19) + SHOULDs routed (W18 AGENTS/SURFACES reasons/pypi README/ARCH-CAP osnma; W1b CEF changelog move, date 2026-10-11, notebooks, kinds count)
 - 13:46:52 13:46Z | Opened DRAFT release PR ashfordeOU/kshana#75 (release/0.35.0-rc 5cd9153e -> main) for early CI; subscribed to its activity. Stays draft until final regeneration + completeness audit
 - 13:46:21 13:46Z | W18 critic 6f221755: B1 CONFIRMED FIXED, only F1 mcp rustfmt (fixed by coordinator). rc -> 5cd9153e (wire merged + fmt + W1b README What's-new/CHANGELOG GHSA link/capability cards). mcp tests all pass; source_guards, surface_osnma, surface_trust_telemetry, advisory_sync, cli_help pass. W19 GO for ci/mcp-39
 - 13:45:37 13:45Z | W18 critic on 6f221755: B1 CONFIRMED FIXED (host refused before parse, reply capped in-loop, no bypass), nits closed; only F1 mcp rustfmt. Merged wire/0.35-parity into rc + rustfmt fix -> 2f5100ae (mcp tests all pass, source_guards/surface_*/advisory/cli_help pass, no-attribution OK). W19 told to push ci/mcp-39
