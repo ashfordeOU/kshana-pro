@@ -1,4 +1,4 @@
-Updated: 2026-10-11T14:36:22Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T14:58:42Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 14:58:42 14:58Z | W17 Studio re-record DONE at H a71fd060: kshana-pro site/studio-0.35 429b2e3a (engine_commit stamped, wasm-pack 0.13.1 + smoke PASS, native 138/0 failed, browser 137 recorded, 263-row data + 25 channels, 41/41, selfcheck --final OK, phone widths OK). W1b porting
 - 14:36:22 14:36Z | W1b H = a71fd060 on rc: 263/132/127/4 regenerated (matrix, rationale, ledger JSON, figures, provenance diagram w/ IntegrationRun, social card, README counts); lib 3031 pass, only web/ doc-sync red until port. Freeze rc except web-only until port. W17 recording Studio at H. AGENTS.md interference wording fix -> W1b
 - 14:11:11 14:11Z | Merged W18 audit fixes (wire c3847d01: SURFACES Studio column, AGENTS/ARCH/CAPABILITY OSNMA, README.pypi, N12 wording; S6 OSNMA plugin/JetBrains given reasons, not actions) -> rc ee24c074. Also rc has launcher TOCTOU fixes 6b1f9654/26e30148. CI: full Rust suite 3030 pass, only stale-count test red (regen). CodeQL 2 high unseen: asked founder
 - 13:58:09 13:58Z | rc -> b0a2b26c: FF W19 ci/mcp-ci-fixes cc633587 (npm test Node 20/22, launcher cache 0700 + single-descriptor verify + atomic rename, dtolnay pinned by SHA e2a55d2f (verified = upstream HEAD) in all workflows, zipslip-safe smoke) + coverage job free-disk step (coverage died ENOSPC/SIGBUS). CodeQL threads replied + resolved. Alert #134 unknown (no access)
