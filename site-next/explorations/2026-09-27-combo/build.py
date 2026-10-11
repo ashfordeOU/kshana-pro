@@ -2992,7 +2992,7 @@ json.dump({
     "repo": DOCS_REPO, "out": os.path.join(HERE, "docs"), "manifest": os.path.join(SCRATCH, "docs-manifest.json"), "shell": shell, "version": version,
     "tracked": sorted(t for t in subprocess.run(["git", "-C", DOCS_REPO, "ls-files"], capture_output=True, text=True, check=True).stdout.split("\n") if t),
     # Paths GitHub already serves (origin/main as last fetched): only these get "on GitHub" links.
-    "remote": subprocess.run(["git", "-C", DOCS_REPO, "ls-tree", "-r", "--name-only", "origin/main"], capture_output=True, text=True).stdout.split(),
+    "remote": subprocess.run(["git", "-C", DOCS_REPO, "ls-tree", "-r", "--name-only", os.environ.get("KSHANA_DOCS_REMOTE_REF") or "origin/main"], capture_output=True, text=True).stdout.split(),
     "nav": [[k, l, h] for k, l, h in NAV], "studioDir": "studio", "scalars": SCALARS, "imagery": IMAGERY_CREDIT, "studio": STUDIO, "siteGlossary": GLOSS,
     "scenarios": [{"file": f, "kind": file_kind[f], "desc": file_head.get(f) or file_desc.get(f, ""), "kindDesc": kind_desc_full.get(file_kind[f]) or kind_desc.get(file_kind[f], ""), "toml": file_toml[f],
                    "status": ("v" if kind_ledger.get(file_kind[f], [0])[0] else ("m" if file_kind[f] in kind_ledger else "u")), "recorded": f in recorded,
@@ -3518,7 +3518,7 @@ llms = [f"# Kshana", "", f"> {_home_desc} Version {version}, {cff_lic} licence, 
         f"and Mars. Every scenario is a TOML file; every run is reproducible from its scenario, seed and engine version. It drives no radio hardware and transmits nothing: its signal-level output "
         f"is baseband IQ sample files for software receivers, its software GNSS receiver is an analysis tool, and it is not a flight product.", "",
         "## Site", ""] + [_md_link(f"{k}.html") for k, *_ in PAGES] + [_md_link("studio/index.html", STUDIO), "",
-        "## Install", ""] + [f"- {c['name']}: `{c['command']}` ({c['registry']})" for c in channels if c["command"]] + [
+        "## Install", ""] + [f"- {c['name']}: `{c['command']}`" + (f" ({c['registry']})" if c["registry"] else "") for c in channels if c["command"]] + [
         f"- Source code: {REPO_URL}", f"- Cite the software: DOI [{cff_doi}](https://doi.org/{cff_doi})", "",
         "## Research", ""] + [f"- [{p['title']}](https://arxiv.org/abs/{p['arxiv']}): arXiv {p['arxiv']}. {p['summary']}" for p in PUBS] + [""]
 for g, rels in _docs_groups.items():

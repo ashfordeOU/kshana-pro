@@ -1,10 +1,10 @@
 {
  "generated_by": "features/gen_features.py",
- "generated_at": "2026-10-11T15:18:17Z",
+ "generated_at": "2026-10-11T17:31:05Z",
  "engine": {
   "repo": "/workspace/kshana",
   "version": "0.35.0",
-  "git_head": "ed339f1e",
+  "git_head": "01518b34",
   "worktree_dirty": false
  },
  "counts": {
@@ -24061,9 +24061,9 @@
    "subtype": "edition offer",
    "name": "Architecture trade study ranked on a figure of merit",
    "description": "Candidate positioning, navigation and timing (PNT) architectures compared and ranked on a single figure of merit.",
-   "source": "web/index.html:363",
+   "source": "web/index.html:371",
    "edition": "Pro",
-   "edition_source": "web/index.html:363 “architecture trade studies ranked on a figure of merit”",
+   "edition_source": "web/index.html:371 “architecture trade studies ranked on a figure of merit”",
    "identifiers": [],
    "probes": [
     [
