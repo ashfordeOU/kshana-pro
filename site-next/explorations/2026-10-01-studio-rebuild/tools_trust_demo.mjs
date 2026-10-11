@@ -9,7 +9,8 @@
 //   3. reduces the result to the fields the view reads (score_model, monitors_run, states, events and,
 //      per epoch, t_s, state, alarms, marine.position, marine.ratios, score), 5 MB down to about 1.4 MB;
 //   4. copies <repo>/examples/maritime-trust/tallinn-helsinki.truth.csv unchanged;
-//   5. writes both to trust/demo/ and prints the CLI's version and summary line.
+//   5. also copies the session settings and the NMEA log, unchanged, for the "Score a log here" panel;
+//   6. writes both to trust/demo/ and prints the CLI's version and summary line.
 // The demo is synthetic text made by the engine's own generator: not a measurement. Re-run it with the
 // release engine at port time; lib/trust.test.mjs then checks the new files.
 import { execFileSync } from "node:child_process";
@@ -35,4 +36,9 @@ const out = {
 mkdirSync(join(here, "trust", "demo"), { recursive: true });
 writeFileSync(join(here, "trust", "demo", "tallinn-helsinki.result.json"), JSON.stringify(out));
 copyFileSync(join(src, "tallinn-helsinki.truth.csv"), join(here, "trust", "demo", "tallinn-helsinki.truth.csv"));
-console.log(`${version}\n${summary}\nwrote trust/demo/ (${out.epochs.length} epochs)`);
+// the raw NMEA log and the session settings, for the "Score a log here" panel (engine receiver_trust_replay)
+for (const f of ["session.toml", "tallinn-helsinki.nmea"]) copyFileSync(join(src, f), join(here, "trust", "demo", f));
+// the generic (non-vessel) receiver-trust example, for the "Generic receiver-trust run" panel (engine receiver_trust, log inline)
+mkdirSync(join(here, "trust", "generic"), { recursive: true });
+for (const f of ["session.toml", "illustrative-jamming.nmea"]) copyFileSync(join(repo, "examples", "receiver-trust", f), join(here, "trust", "generic", f));
+console.log(`${version\n${summary}\nwrote trust/demo/ (${out.epochs.length} epochs)`);
