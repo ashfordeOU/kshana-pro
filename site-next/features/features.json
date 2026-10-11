@@ -1,11 +1,11 @@
 {
  "generated_by": "features/gen_features.py",
- "generated_at": "2026-10-11T15:32:07Z",
+ "generated_at": "2026-10-11T15:34:55Z",
  "engine": {
   "repo": "/workspace/kshana",
   "version": "0.35.0",
-  "git_head": "a93408bf",
-  "worktree_dirty": false
+  "git_head": "122cc03c",
+  "worktree_dirty": true
  },
  "counts": {
   "kind": 75,
