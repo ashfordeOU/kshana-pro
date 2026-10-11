@@ -9,7 +9,7 @@
 // command a reader types at the repository root, so the recorded report's reproducibility record
 // names that command and no path of the recording machine.
 import { readFileSync, readdirSync, writeFileSync, mkdirSync, copyFileSync, existsSync, symlinkSync, rmSync, statSync } from "node:fs";
-import { execFile } from "node:child_process";
+import { execFile, execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 
@@ -120,7 +120,10 @@ async function record({ g, f, name }) {
   return rec;
 }
 
-const index = { engine_version: version, source: "native", platform: `${process.platform} ${process.arch}`, recorded_utc: new Date().toISOString(), runs: {} };
+let engineCommit = opt("--engine-commit", null);
+if (!engineCommit) { try { engineCommit = execFileSync("git", ["-C", REPO, "rev-parse", "HEAD"], { encoding: "utf8" }).trim(); } catch { engineCommit = null; } }
+if (engineCommit && !/^[0-9a-f]{40}$/.test(engineCommit)) { console.error("--engine-commit must be a full 40-character lowercase hex SHA"); process.exit(2); }
+const index = { engine_version: version, ...(engineCommit ? { engine_commit: engineCommit } : {}), source: "native", platform: `${process.platform} ${process.arch}`, recorded_utc: new Date().toISOString(), runs: {} };
 const celIndex = { ...index, runs: {} };
 if (only.length) for (const [ix, p] of [[index, "native/index.json"], [celIndex, "celeste/native/index.json"]]) { try { Object.assign(ix.runs, JSON.parse(readFileSync(here + p, "utf8")).runs); } catch { /* first run */ } }
 let next = 0, done = 0;
