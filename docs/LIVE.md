@@ -1,4 +1,4 @@
-Updated: 2026-10-11T13:45:37Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
+Updated: 2026-10-11T13:46:21Z · Coordinator: session_015EnPpasos1W6PQWi7rHJxu
 
 # Kshana — LIVE status (single source of what is happening now)
 
@@ -105,6 +105,7 @@ Runner watches all of the above; all six heads merge cleanly into 9925c103 (merg
 - Fold the 0.32.0 status into `handover/post-0.32/README.md` §9 once PR 7 lands.
 
 ## Log (newest first, UTC)
+- 13:46:21 13:46Z | W18 critic 6f221755: B1 CONFIRMED FIXED, only F1 mcp rustfmt (fixed by coordinator). rc -> 5cd9153e (wire merged + fmt + W1b README What's-new/CHANGELOG GHSA link/capability cards). mcp tests all pass; source_guards, surface_osnma, surface_trust_telemetry, advisory_sync, cli_help pass. W19 GO for ci/mcp-39
 - 13:45:37 13:45Z | W18 critic on 6f221755: B1 CONFIRMED FIXED (host refused before parse, reply capped in-loop, no bypass), nits closed; only F1 mcp rustfmt. Merged wire/0.35-parity into rc + rustfmt fix -> 2f5100ae (mcp tests all pass, source_guards/surface_*/advisory/cli_help pass, no-attribution OK). W19 told to push ci/mcp-39
 - 13:32:29 13:32Z | Founder asked to delete merged branches: session git proxy refuses ref deletion (HTTP 403, policy; not retried). Re-verified 54 kshana + 25 kshana-pro branches fully in main/rc; gave founder delete-merged-branches.sh (gh api). kshana-pro claude/pensive-cannon-ogxhr4 kept (coordinator's designated branch)
 - 13:30:27 13:30Z | FOUNDER: speed up (all 3 approved): draft release PR after W18 merge for early CI; completeness critic part 1 started now on rc b7e43746 + wire 6f221755; final pass split (W1b site/counts/README, W17 Studio re-record). Founder expects extensive README 0.35 pass + site + Studio + clean -> sent to W1b. Branch cleanup list prepared for founder (54 deletable now)
