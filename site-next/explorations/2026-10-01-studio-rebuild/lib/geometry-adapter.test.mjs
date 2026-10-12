@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, statSync } from "node:fs";
 import { createGeometryAdapter, chooseBackend, featuresFor, TLE_FIELDS, MAX_TLE_BYTES, readTleInput, tleEpochOk, buildInterimToml, parseInterimNmea, interimInstant, buildRequest, skylineRequest, systemOf, parseGeometry, parseMonteCarlo, parsePresets, parseProfile, INTERIM_SKYLINES, SKYLINE_LABELS, GEOMETRY_FNS, INTERIM_EPOCH } from "./geometry-adapter.mjs";
-import { parseState, SKYLINE_PRESETS, DEFAULTS } from "./geometry-url.mjs";
+import { parseState, SKYLINE_PRESETS, DEFAULTS, LEO_PRESETS } from "./geometry-url.mjs";
 import { emptyTable, brush, elAt, isOpen, BINS } from "./skyline-edit.mjs";
 import { ENGINE_FNS, ENGINE_FNS_036 } from "./engine.mjs";
 
@@ -252,6 +252,11 @@ test("the geometry backend against a 0.36 engine package", { skip: !PKG036 && "K
   const fewer = await a.compute(state("?sys=G,E,C,L:xona-pulsar"));
   assert.ok(fewer.nMasked === 0 && fewer.nUsed >= r.nUsed, "an open horizon hides nothing and uses at least as many satellites");
   assert.ok(fewer.dop.pdop <= r.dop.pdop + 1e-12, "a skyline never improves the DOP");
+  for (const leo of LEO_PRESETS) {
+    const r2 = await a.compute(state(`?sys=G,E,C,L:${leo}`));
+    assert.ok(r2.sats.some((x) => x.sys === "leo"), `the ${leo} layer is drawn`);
+    assert.ok((await a.monteCarlo(state(`?sys=G,E,C,L:${leo}&mc=100`))).points.length === 100, `${leo}: a cloud`);
+  }
   const mc = await a.monteCarlo(s);
   assert.equal(mc.points.length, 1000);
   assert.ok(Math.abs(mc.rmsHorizontalM / mc.predictedHorizontalM - 1) < 0.1, "cloud RMS ≈ σ_UERE × HDOP");

@@ -20,8 +20,9 @@ import { decodeTable, encodeTable, BINS } from "./skyline-edit.mjs";
 
 // System codes the address may carry, and the view's names for them.
 export const SYSTEM_CODES = Object.freeze({ G: "gps", E: "galileo", C: "beidou" });
-// LEO presets of the engine's leo_fusion pack that the address may name (the engine checks again).
-export const LEO_PRESETS = Object.freeze(["xona-pulsar", "iridium-stl", "starlink-sop", "centispace", "generic-c-band", "atomic-zero-clock"]);
+// LEO constellation presets of the engine's leo_fusion pack that the address may name (the engine checks again).
+// atomic-zero-clock is left out: it is an ephemeris-and-clock model, not a constellation.
+export const LEO_PRESETS = Object.freeze(["xona-pulsar", "iridium-stl", "starlink-sop", "centispace", "generic-c-band"]);
 export const SKYLINE_PRESETS = Object.freeze(["city-street", "harbour-approach", "fjord", "container-terminal"]);
 
 export const MAX_QUERY = 1024;
