@@ -24,6 +24,13 @@ export const SYSTEM_CODES = Object.freeze({ G: "gps", E: "galileo", C: "beidou" 
 // atomic-zero-clock is left out: it is an ephemeris-and-clock model, not a constellation.
 export const LEO_PRESETS = Object.freeze(["xona-pulsar", "iridium-stl", "starlink-sop", "centispace", "generic-c-band"]);
 export const SKYLINE_PRESETS = Object.freeze(["city-street", "harbour-approach", "fjord", "container-terminal"]);
+// The engine's bundled scenarios that run under each preset (0.36), opened in the Studio's scenario picker.
+export const SKYLINE_SCENARIOS = Object.freeze({
+  "city-street": Object.freeze(["orbit-urban-canyon-skyline.toml", "leo-vertical-autonomous-vehicle-skyline.toml"]),
+  "harbour-approach": Object.freeze(["integrity-harbour-approach.toml", "jamming-harbour-approach-skyline.toml"]),
+  "fjord": Object.freeze(["leo-pvt-fjord-skyline.toml"]),
+  "container-terminal": Object.freeze(["gnss-sim-container-terminal-skyline.toml"]),
+});
 
 export const MAX_QUERY = 1024;
 export const MAX_T = 7 * 86400;

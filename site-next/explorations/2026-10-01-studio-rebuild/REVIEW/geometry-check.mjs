@@ -195,6 +195,17 @@ const clean = (log, what) => {
   await ctx.close();
 }
 
+// 4b. A preset links to the engine's scenarios that run under it, in the scenario picker.
+{
+  const { ctx, page, log } = await open("geometry/?sky=p:harbour-approach");
+  await page.waitForSelector("#gm-sky-scen:not([hidden])", { timeout: 30000 });
+  const hrefs = await page.$$eval("#gm-sky-scen a", (as) => as.map((a) => a.href));
+  ok(hrefs.length === 2 && hrefs.every((h) => /\/\?scenario=(integrity-harbour-approach|jamming-harbour-approach-skyline)$/.test(h)), `harbour-approach: links to its two scenarios (${hrefs.map((h) => h.replace(/^.*\?/, "?")).join(", ")})`);
+  await page.selectOption("#gm-sky", "none").catch(() => {});
+  clean(log, "preset scenarios");
+  await ctx.close();
+}
+
 // 5. Entry points: the Studio hub, its Views menu, the Advanced view and the tools page link here.
 for (const [path, what] of [["", "Simple view"], ["advanced/", "Advanced view"], ["tools/", "tools page"]]) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });

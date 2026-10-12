@@ -19,7 +19,7 @@ wrote for each bundled scenario (`native/`, made by `tools_native.mjs`) and labe
 | 1 | Engine off the main thread (module Web Worker, main-thread fallback) | `engine.mjs`, `engine-worker.mjs` | Engine chip in the top bar; `createEngineClient` reused unchanged | `app.js: createEngineClient(` |
 | 2 | Cancel a long run; busy label "Running… N s" | `engine.mjs` `busyLabel`, `cancel` | Run bar: Cancel button, status line, progress bar | `app.js: busyLabel(` |
 | 3 | Supersede a run when inputs change mid-run | `app.js` job queue | Same job model (`SUPERSEDE_MS`) | `app.js: SUPERSEDE_MS` |
-| 4 | Scenario picker (62 entries in a select) | `app.js` `SCENARIOS` | Library rail: all 134 bundled files by mission domain, with search | `app.js: groupedLibrary(` |
+| 4 | Scenario picker (62 entries in a select) | `app.js` `SCENARIOS` | Library rail: all 140 bundled files by mission domain, with search | `app.js: groupedLibrary(` |
 | 5 | Full TOML editor | `#toml` textarea | Scenario source panel with syntax highlighting | `index.html: id="toml"` |
 | 6 | Guided sliders (≤6 knobs per scenario) | `guided.mjs` | Parameters → Guided | `app.js: knobsForToml(` |
 | 7 | One-line summary | `#summary` | Headline card | `index.html: id="summary"` |
@@ -66,7 +66,7 @@ playground feature.
 | N10 | Command palette (⌘K / Ctrl-K): scenarios, views, commands | Top bar | `app.js: renderPalette(` |
 | N11 | Keyboard: ⌘↵ run, / search, [ and ] switch views, arrow keys in tabs | Global | `app.js: cycleTab(` |
 | N12 | Every published figure with its unit, note and provenance from the engine's `units` block | Overview | `app.js: keyFigures(` |
-| N13 | Recorded-run fallback when WebAssembly is blocked (real engine outputs for 133 of 134 scenarios, clearly labelled; the one the browser build cannot run is recorded with the native engine) | Automatic; `?engine=recorded` forces it | `app.js: recordedEngine(` |
+| N13 | Recorded-run fallback when WebAssembly is blocked (real engine outputs for 139 of 140 scenarios, clearly labelled; the one the browser build cannot run is recorded with the native engine) | Automatic; `?engine=recorded` forces it | `app.js: recordedEngine(` |
 | N14 | Light and dark themes with a toggle; charts stay on dark "space" surfaces in both | Top bar | `app.js: toggleTheme(` |
 | N15 | Phone layout at 390 px: the same layers in one column, a 56 px header, a back link that names where it leads | Every screen | `index.html: id="task-back"` |
 | N16 | Copy embed code (iframe snippet) and preview embed | Share menu | `app.js: copyEmbedCode(` |

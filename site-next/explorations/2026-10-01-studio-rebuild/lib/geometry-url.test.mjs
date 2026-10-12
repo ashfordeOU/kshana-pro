@@ -98,3 +98,14 @@ test("normaliseState rounds to what a link can carry and names what it refused",
   assert.deepEqual(r.refused, ["mask"]);
   assert.equal(encodeTable(emptyTable()).length, ENCODED_LENGTH);
 });
+
+test("each skyline preset names the engine's scenarios under it, and each is in the picker and the scenarios folder", async () => {
+  const { SKYLINE_PRESETS, SKYLINE_SCENARIOS } = await import("./geometry-url.mjs");
+  const { SCENARIOS } = await import("./catalog.mjs");
+  const { existsSync } = await import("node:fs");
+  assert.deepEqual(Object.keys(SKYLINE_SCENARIOS).sort(), SKYLINE_PRESETS.slice().sort());
+  for (const [preset, files] of Object.entries(SKYLINE_SCENARIOS)) for (const f of files) {
+    assert.ok(SCENARIOS.some((s) => s[0] === f), `${preset}: ${f} is in the catalog`);
+    assert.ok(existsSync(new URL(`../scenarios/${f}`, import.meta.url)), `${preset}: ${f} is in scenarios/`);
+  }
+});

@@ -49,6 +49,7 @@ export const SCENARIOS = [
   // Jamming & interference
   ["jamming-demo.toml", "interference", "Jamming", "At what jammer-to-signal ratio does the receiver lose lock?"],
   ["maritime-strait-jamming.toml", "interference", "Ship jammed in a strait", "Across 30 km of open water, does a 50 W jammer take a vessel's GNSS away? (modelled)"],
+  ["jamming-harbour-approach-skyline.toml", "interference", "Ship jammed entering harbour", "Under a 2 W shore jammer, how many satellites does a ship keep, and how many does the quay itself hide? (modelled; representative skyline)"],
   ["maritime-spoof-position-push.toml", "spoofing", "Ship position spoofed", "When a spoofer drags a ship's fix 500 m, which detection layers catch it? (modelled)"],
   ["maritime-port-approach-coast.toml", "navigation", "Port approach on inertial", "Entering port without GNSS, when does a navigation-grade INS leave the harbour and ocean budgets? (modelled)"],
   ["automotive-urban-canyon.toml", "navigation", "Car through an urban canyon", "Through an underpass and a roadside jammer, does a car stay inside a half-lane budget? (modelled)"],
@@ -87,14 +88,17 @@ export const SCENARIOS = [
   ["hybrid-optical-rf.toml", "navigation", "Optical/RF hybrid", "What continuity and integrity does combining optical and RF PNT buy? (modelled)"],
   // Integrity & positioning
   ["integrity-raim.toml", "integrity", "RAIM integrity", "Does the geometry meet the alert limits (HPL / VPL)?"],
+  ["integrity-harbour-approach.toml", "integrity", "ARAIM entering harbour", "With quay buildings and a breakwater hiding low satellites, do GPS and Galileo keep ARAIM protection inside the alert limits? (modelled; representative skyline)"],
   ["araim-gps-galileo.toml", "integrity", "Dual-constellation ARAIM", "With GPS + Galileo and the constellation-wide fault hypothesis, how available is advanced RAIM?"],
   ["araim-reference-check.toml", "integrity", "ARAIM reference check", "Do the engine's protection levels land on the published Working Group C worked examples?"],
   ["gnss-sim-raim.toml", "integrity", "GNSS measurements", "How do the ionosphere and troposphere shape raw pseudoranges, and does RAIM still protect?"],
+  ["gnss-sim-container-terminal-skyline.toml", "integrity", "Straddle carrier on a container quay", "With cranes to seaward and stacks to landward, how many satellites are left, and what happens to RAIM protection? (modelled; representative skyline)"],
   ["pvt-abmf.toml", "integrity", "Positioning (SPP)", "Can a real receiver position be solved from raw RINEX measurements?"],
   // Orbits & GNSS geometry
   ["orbit-gnss-challenged.toml", "orbits", "GNSS availability", "When is a fix even possible from the satellite geometry?"],
   ["orbit-sgp4-gps.toml", "orbits", "SGP4 orbits", "How does a real GPS-like constellation propagate over a day?"],
   ["orbit-multignss.toml", "orbits", "Multi-GNSS availability", "How much do GPS + Galileo together lift availability and tighten dilution of precision?"],
+  ["orbit-urban-canyon-skyline.toml", "orbits", "City street availability", "At the bottom of a city street, how much of the day do GPS and Galileo give four satellites, and what does the strip of sky do to PDOP? (modelled; representative skyline)"],
   ["orbit-molniya.toml", "orbits", "Molniya user", "Can a highly-eccentric Molniya-orbit user still see enough GNSS satellites near apogee?"],
   ["orbit-real-tle.toml", "orbits", "Real two-line elements", "What coverage does an actual constellation, given as two-line element sets, provide?"],
   ["orbit-rinex.toml", "orbits", "Broadcast ephemeris", "What availability comes out of a real RINEX 3 broadcast ephemeris?"],
@@ -154,6 +158,7 @@ export const SCENARIOS = [
   ["leo-navmsg-midpass-update.toml", "leo", "Navigation message: mid-pass update", "When a satellite switches to a new message in the middle of a pass, does the user see a jump? (modelled)"],
   ["leo-navmsg-encode-decode.toml", "leo", "Navigation message: binary frame", "What does each field's quantisation cost, and does the frame survive encoding, decoding and a corrupted bit? (modelled)"],
   ["meo-leo-fused-pvt.toml", "leo", "Fused GNSS and low-orbit fix", "What does adding a low-orbit layer to GPS and Galileo do to position error and geometry? (modelled)"],
+  ["leo-pvt-fjord-skyline.toml", "leo", "Ferry deep in a fjord", "Where the fjord walls leave a strip of sky along the channel, how much does a low-orbit layer add to GPS and Galileo? (modelled; representative skyline)"],
   ["leo-doppler-positioning.toml", "leo", "Positioning from Doppler alone", "How good is a fix from ten minutes of Doppler on a low-orbit navigation constellation? (modelled)"],
   ["starlink-sop-doppler-positioning.toml", "leo", "Broadband signals of opportunity", "How well can a receiver position itself from the Doppler of a broadband constellation that sends no navigation message? (modelled)"],
   ["leo-timing-utc.toml", "leo", "Time transfer to UTC", "How closely can a receiver recover Coordinated Universal Time (UTC) from low-orbit satellites, by oscillator and signal level? (modelled)"],
@@ -175,6 +180,7 @@ export const SCENARIOS = [
   ["leo-vertical-5g-network-timing.toml", "leo-missions", "5G base-station timing", "When GNSS is lost for a day, does low-orbit time keep a base station inside its timing limit? (modelled)"],
   ["leo-vertical-asset-tracking-iot.toml", "leo-missions", "Container tracking", "Along a container's journey, what does each position fix cost a battery tag? (modelled)"],
   ["leo-vertical-autonomous-vehicle.toml", "leo-missions", "Vehicle in an urban canyon", "When buildings hide the low satellites, does a low-orbit layer keep a car inside a lane-level error? (modelled)"],
+  ["leo-vertical-autonomous-vehicle-skyline.toml", "leo-missions", "Vehicle in a street, not a flat cut-off", "Modelled as a real street instead of a flat 35° cut-off, does a low-orbit layer still keep a car inside a lane-level error? (modelled; representative skyline)"],
   ["leo-vertical-critical-infrastructure-timing.toml", "leo-missions", "Substation timing", "When GNSS is lost, does low-orbit time hold a substation's synchronisation? (modelled)"],
   ["leo-vertical-polar-arctic.toml", "leo-missions", "Arctic journey", "From Tromsø to the North Pole, what does a polar low-orbit layer add to GNSS? (modelled)"],
   ["leo-vertical-rail-maritime.toml", "leo-missions", "Rail and maritime with a low-orbit layer", "When the bundled ship and train scenarios lose GNSS, does a low-orbit pass still reach them? (modelled)"],
@@ -204,6 +210,20 @@ export const NOT_IN_BROWSER = {
 };
 // Of those, the files the Studio shows as a run recorded with the native command-line engine.
 export const RECORDED_NATIVELY = ["lunar-llr-datum.toml"];
+// Bundled scenarios that need a newer engine than an older package may be: [major, minor]. With an older live engine
+// the Studio shows the recording made with a new enough one and does not run them (an older engine refuses their
+// fields, or runs without them). The 0.36 skyline and ground-site scenarios.
+export const NEEDS_ENGINE = Object.freeze(Object.fromEntries([
+  "gnss-sim-container-terminal-skyline.toml", "integrity-harbour-approach.toml", "jamming-harbour-approach-skyline.toml",
+  "leo-pvt-fjord-skyline.toml", "leo-vertical-autonomous-vehicle-skyline.toml", "orbit-urban-canyon-skyline.toml",
+].map((f) => [f, Object.freeze([0, 36])])));
+// The engine version a scenario needs, as "0.36", when `version` (the live engine's) is older; else null.
+export function needsNewerEngine(file, version) {
+  const need = NEEDS_ENGINE[file];
+  if (!need) return null;
+  const [a, b] = String(version || "").split(".").map((x) => parseInt(x, 10) || 0);
+  return a > need[0] || (a === need[0] && b >= need[1]) ? null : `${need[0]}.${need[1]}`;
+}
 
 export const DEFAULT_SCENARIO = "clock-holdover.toml";
 

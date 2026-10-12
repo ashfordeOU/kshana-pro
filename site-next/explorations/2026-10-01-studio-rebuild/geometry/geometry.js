@@ -3,7 +3,8 @@
 // lib/geometry-url.mjs, skyline drawing is lib/skyline-edit.mjs, the drawing helpers are lib/skyplot.mjs, and
 // every number shown comes from the engine through lib/geometry-adapter.mjs. Nothing here fetches anything or
 // computes a navigation quantity.
-import { parseState, buildSearch, normaliseState, SKYLINE_PRESETS, LEO_PRESETS, MC_CHOICES, MAX_T } from "../lib/geometry-url.mjs";
+import { parseState, buildSearch, normaliseState, SKYLINE_PRESETS, SKYLINE_SCENARIOS, LEO_PRESETS, MC_CHOICES, MAX_T } from "../lib/geometry-url.mjs";
+import { SCENARIOS } from "../lib/catalog.mjs";
 import { emptyTable, paint, keyEdit, describe, outlinePoints, isOpen, elAt } from "../lib/skyline-edit.mjs";
 import { project, unproject, outlinePath, markerPath, niceExtent, ellipseAttrs, fmtDop, styleFor } from "../lib/skyplot.mjs";
 import { createGeometryAdapter, SKYLINE_LABELS, readTleInput } from "../lib/geometry-adapter.mjs";
@@ -56,6 +57,14 @@ function writeAddress() {
   try { history.replaceState(null, "", location.pathname + buildSearch({ ...state, tle: !!tle }, extra)); } catch { /* a sandboxed frame */ }
 }
 
+// The engine's scenarios that run under the chosen preset: links into the Studio's scenario picker.
+function drawSkyScenarios() {
+  const box = $("gm-sky-scen"), files = state.sky.kind === "preset" ? SKYLINE_SCENARIOS[state.sky.name] || [] : [];
+  const rows = files.map((f) => SCENARIOS.find((x) => x[0] === f)).filter(Boolean);
+  box.hidden = !rows.length;
+  box.replaceChildren(...(rows.length ? ["The engine's scenarios under this skyline: ", ...rows.flatMap((r, i) => [i ? "; " : "", el("a", { href: `./?scenario=${encodeURIComponent(r[0].replace(/\.toml$/, ""))}` }, r[2])]), "."] : []));
+}
+
 // ---------------------------------------------------------------- controls
 function fillOnce() {
   $("gm-place").append(el("option", { value: "" }, "A place…"), ...PLACES.map(([n], i) => el("option", { value: String(i) }, n)));
@@ -86,6 +95,7 @@ function fillControls() {
   $("gm-c-az").value = c.streetAz; $("gm-c-w").value = c.widthM; $("gm-c-l").value = c.leftM; $("gm-c-r").value = c.rightM; $("gm-c-a").value = c.antennaM;
   $("gm-uere").value = state.uere; $("gm-mc").value = String(state.mc); $("gm-seed").value = state.seed;
   $("gm-sky-prov").textContent = skyProv;
+  drawSkyScenarios();
 }
 
 function applyFeatures() {

@@ -85,3 +85,14 @@ console.log("catalog.test.mjs: all assertions passed");
   assert.equal(SCENARIOS.some((s) => s[0].includes("/") || s[0].includes("..")), false);
 }
 console.log("catalog.test.mjs: request-path checks passed");
+
+// A scenario that needs a newer engine says which, and only while the engine is older.
+{
+  const { NEEDS_ENGINE, needsNewerEngine } = await import("./catalog.mjs");
+  assert.equal(needsNewerEngine("leo-pvt-fjord-skyline.toml", "0.35.0"), "0.36");
+  assert.equal(needsNewerEngine("leo-pvt-fjord-skyline.toml", "0.36.0"), null);
+  assert.equal(needsNewerEngine("leo-pvt-fjord-skyline.toml", "1.0.0"), null);
+  assert.equal(needsNewerEngine("leo-pvt-fjord-skyline.toml", ""), "0.36", "an unknown version is treated as older");
+  assert.equal(needsNewerEngine("clock-holdover.toml", "0.1.0"), null);
+  for (const f of Object.keys(NEEDS_ENGINE)) assert.ok(SCENARIOS.some((s) => s[0] === f), `${f} is in the catalog`);
+}
