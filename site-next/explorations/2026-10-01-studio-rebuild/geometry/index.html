@@ -71,6 +71,11 @@
         <div class="gm-sys" id="gm-sys"></div>
         <label class="gm-f gm-wide">LEO preset <select id="gm-leo"></select></label>
         <p class="gm-small" id="gm-sys-note"></p>
+        <details class="gm-tle gm-wide" id="gm-tle-box" hidden><summary>Your own orbital elements (TLE)</summary>
+          <label class="gm-f gm-wide">Two-line element sets, pasted here: read in this page, never fetched, never put in the address (at most 4 MiB) <textarea id="gm-tle" rows="5" spellcheck="false" autocomplete="off"></textarea></label>
+          <label class="gm-f gm-wide">Epoch, coordinated universal time (UTC) <input id="gm-tle-epoch" type="datetime-local" step="1" min="2000-01-01T00:00:00" max="2099-12-31T23:59:59"></label>
+          <div class="gm-steps"><button type="button" class="gm-chip" id="gm-tle-use">Use these elements</button><button type="button" class="gm-chip" id="gm-tle-clear">Back to the presets</button></div>
+        </details>
       </fieldset>
 
       <fieldset class="gm-fs"><legend>Horizon</legend>
@@ -107,7 +112,7 @@
 
     <section class="card gm-sky" aria-labelledby="gm-sky-h">
       <div class="card-head"><h2 id="gm-sky-h" class="h3">Skyplot</h2>
-        <p class="gm-rep" role="note"><b>A representative sky, not the sky of that date at that place.</b> The constellations are the engine's nominal presets, whose relative phases come from different reference epochs.</p>
+        <p class="gm-rep" id="gm-rep" role="note"><b>A representative sky, not the sky of that date at that place.</b> The constellations are the engine's nominal presets, whose relative phases come from different reference epochs.</p>
         <p class="card-note">Zenith in the centre, the horizon on the rim, north up. Filled marks are satellites in the solution; hollow marks are hidden by the mask or the skyline, or not used.</p></div>
       <div class="gm-svgbox"><svg id="gm-plot" viewBox="0 0 400 400" tabindex="0" role="application" aria-roledescription="skyplot" aria-labelledby="gm-sky-h" aria-describedby="gm-plot-desc gm-sky-help"></svg></div>
       <p class="sr" id="gm-plot-desc"></p>

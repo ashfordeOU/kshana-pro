@@ -85,6 +85,7 @@ const clean = (log, what) => {
     ok(/Needs engine 0\.36/.test(await page.textContent("#gm-errplot")), "interim: the error panel says it needs engine 0.36");
     ok(/needs engine 0\.36/.test(await page.locator("#gm-dops dd").nth(0).textContent()), "interim: GDOP says it needs engine 0.36");
   }
+  ok(await page.isHidden("#gm-tle-box"), "no TLE panel until the engine takes TLE text (TLE_FIELDS in the adapter)");
   clean(log, "default");
   if (shots) await page.screenshot({ path: shotDir + "desktop-light.png", fullPage: true });
   await ctx.close();

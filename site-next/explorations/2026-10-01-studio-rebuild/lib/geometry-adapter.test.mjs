@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, statSync } from "node:fs";
-import { createGeometryAdapter, chooseBackend, featuresFor, buildInterimToml, parseInterimNmea, interimInstant, buildRequest, skylineRequest, systemOf, parseGeometry, parseMonteCarlo, parsePresets, parseProfile, INTERIM_SKYLINES, SKYLINE_LABELS, GEOMETRY_FNS, INTERIM_EPOCH } from "./geometry-adapter.mjs";
+import { createGeometryAdapter, chooseBackend, featuresFor, TLE_FIELDS, MAX_TLE_BYTES, buildInterimToml, parseInterimNmea, interimInstant, buildRequest, skylineRequest, systemOf, parseGeometry, parseMonteCarlo, parsePresets, parseProfile, INTERIM_SKYLINES, SKYLINE_LABELS, GEOMETRY_FNS, INTERIM_EPOCH } from "./geometry-adapter.mjs";
 import { parseState, SKYLINE_PRESETS, DEFAULTS } from "./geometry-url.mjs";
 import { emptyTable, brush, elAt, isOpen, BINS } from "./skyline-edit.mjs";
 import { ENGINE_FNS, ENGINE_FNS_036 } from "./engine.mjs";
@@ -170,6 +170,32 @@ test("the 0.36 replies are checked field by field", async () => {
   assert.equal(elAt(p.table, 90), 22);
   assert.equal(elAt(await a.profile({ kind: "canyon", streetAz: 0, widthM: 20, leftM: 30, rightM: 30, antennaM: 1.5 }), 5), 30);
   assert.equal(await a.svg(s), "<svg/>");
+});
+
+test("pasted elements: off until the engine's field names are set; then they replace the presets and time_s", async () => {
+  assert.equal(TLE_FIELDS, null, "set TLE_FIELDS when the engine takes TLE text, and update this test");
+  const s = state("?sys=G,E,L:xona-pulsar&t=60");
+  const tle = { text: "ISS\n1 25544U ...\n2 25544 ...", epochUtc: "2026-10-12T06:00:00Z" };
+  assert.equal(buildRequest(s, tle).tle, undefined, "no field name, no TLE in the request");
+  assert.deepEqual(buildRequest(s, tle).systems, ["gps-baseline", "galileo", "xona-pulsar"]);
+  const F = { text: "tle", epoch: "epoch_utc" };
+  const r = buildRequest(s, tle, F);
+  assert.deepEqual(r.systems, [], "the presets are left out: the sky is the person's own");
+  assert.equal(r.tle, tle.text);
+  assert.equal(r.epoch_utc, "2026-10-12T06:00:00Z");
+  assert.equal(r.time_s, undefined, "a calendar epoch replaces the offset");
+  assert.equal(buildRequest(s, { text: "x", epochUtc: "yesterday" }, F).tle, undefined, "a malformed epoch sends no elements");
+  assert.equal(buildRequest(s, { text: "x".repeat(MAX_TLE_BYTES + 1), epochUtc: tle.epochUtc }, F).tle, undefined, "nor does text over the limit");
+  let sent;
+  const eng = fake(["nmea_training", ...GEOMETRY_FNS], { sky_geometry: (j) => { sent = JSON.parse(j); return JSON.stringify({ satellites: [] }); } });
+  assert.equal(createGeometryAdapter(eng).features.tle, false);
+  await createGeometryAdapter(eng).compute(s, tle);
+  assert.equal(sent.tle, undefined, "the adapter never sends elements while the feature is off");
+  const on = createGeometryAdapter(eng, F);
+  assert.equal(on.features.tle, true);
+  await on.compute(s, tle);
+  assert.equal(sent.tle, tle.text);
+  assert.equal(createGeometryAdapter(fake(["nmea_training"]), F).features.tle, false, "the interim engine never offers it");
 });
 
 // Against the real engine package, when it is checked out (not an LFS pointer).

@@ -6,7 +6,7 @@
 import { parseState, buildSearch, normaliseState, SKYLINE_PRESETS, LEO_PRESETS, MC_CHOICES, MAX_T } from "../lib/geometry-url.mjs";
 import { emptyTable, paint, keyEdit, describe, outlinePoints, isOpen, elAt } from "../lib/skyline-edit.mjs";
 import { project, unproject, outlinePath, markerPath, niceExtent, ellipseAttrs, fmtDop, styleFor } from "../lib/skyplot.mjs";
-import { createGeometryAdapter, SKYLINE_LABELS } from "../lib/geometry-adapter.mjs";
+import { createGeometryAdapter, SKYLINE_LABELS, MAX_TLE_BYTES } from "../lib/geometry-adapter.mjs";
 import { parseSvgMarkup, sanitizeSvg } from "../lib/svgsafe.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
 
@@ -42,6 +42,8 @@ const extra = first.extra;
 let table = state.sky.kind === "table" ? state.sky.table : emptyTable(); // what the skyplot draws
 let skyProv = "";
 let cursor = 0;         // the keyboard cursor's azimuth bin
+let tle = null;         // {text, epochUtc}: pasted elements, in this page only (never in the address)
+const REP_HTML = $("gm-rep").innerHTML;
 let adapter = null, features = null;
 let result = null, cloud = null;
 let ticket = 0;
@@ -50,7 +52,7 @@ function setNotes(list) { $("gm-url-notes").replaceChildren(...list.map((t) => e
 setNotes(first.notes);
 
 function writeAddress() {
-  try { history.replaceState(null, "", location.pathname + buildSearch(state, extra)); } catch { /* a sandboxed frame */ }
+  try { history.replaceState(null, "", location.pathname + buildSearch({ ...state, tle: !!tle }, extra)); } catch { /* a sandboxed frame */ }
 }
 
 // ---------------------------------------------------------------- controls
@@ -95,6 +97,7 @@ function applyFeatures() {
   $("gm-mc").disabled = !f.monteCarlo; $("gm-seed").disabled = !f.monteCarlo;
   if (!f.monteCarlo) off.push(`The Monte Carlo cloud ${NEEDS}.`);
   $("gm-svg").hidden = !f.svg;
+  $("gm-tle-box").hidden = !f.tle;
   $("gm-sys-note").textContent = off.join(" ");
 }
 
@@ -149,7 +152,7 @@ $("gm-form").addEventListener("change", (ev) => {
     if (p) { $("gm-lat").value = p[1]; $("gm-lon").value = p[2]; $("gm-hgt").value = p[3]; }
     t.value = "";
   }
-  if (t.id === "gm-brush") return;
+  if (["gm-brush", "gm-tle", "gm-tle-epoch"].includes(t.id)) return;
   commit(readControls());
 });
 $("gm-form").addEventListener("submit", (ev) => ev.preventDefault());
@@ -160,16 +163,32 @@ for (const b of document.querySelectorAll("[data-step]")) b.addEventListener("cl
 });
 $("gm-sky-clear").addEventListener("click", () => { table = emptyTable(); commit({ ...state, sky: { kind: "none" } }); });
 
+// Pasted elements (offered only when the engine takes them: features.tle). They stay in this page.
+function setRep() {
+  if (!tle) { $("gm-rep").innerHTML = REP_HTML; return; }
+  $("gm-rep").replaceChildren(el("b", {}, `Your own elements at ${tle.epochUtc.replace("T", " ").replace("Z", " UTC")}.`), " A dated sky only as good as the elements and their age; the presets are left out.");
+}
+$("gm-tle-use").addEventListener("click", () => {
+  const text = $("gm-tle").value, ep = $("gm-tle-epoch").value;
+  if (!text.trim()) { setNotes(["Paste one or more two-line element sets first."]); return; }
+  if (new Blob([text]).size > MAX_TLE_BYTES) { setNotes(["The pasted elements are larger than 4 MiB, the engine's input limit."]); return; }
+  if (!/^\d{4}-\d\d-\d\dT\d\d:\d\d(:\d\d)?$/.test(ep)) { setNotes(["Give the epoch the sky is for, in UTC."]); return; }
+  tle = { text, epochUtc: (ep.length === 16 ? ep + ":00" : ep) + "Z" };
+  setNotes(["Using your own elements. A link carries only that you used them, not the elements themselves."]);
+  setRep(); writeAddress(); schedule();
+});
+$("gm-tle-clear").addEventListener("click", () => { tle = null; $("gm-tle").value = ""; setNotes([]); setRep(); writeAddress(); schedule(); });
+
 $("gm-copy").addEventListener("click", async () => {
-  const url = location.origin + location.pathname + buildSearch(state, extra);
-  try { await navigator.clipboard.writeText(url); $("gm-copy-out").textContent = "Link copied."; }
+  const url = location.origin + location.pathname + buildSearch({ ...state, tle: !!tle }, extra);
+  try { await navigator.clipboard.writeText(url); $("gm-copy-out").textContent = tle ? "Link copied (without your pasted elements: a link opens the presets)." : "Link copied."; }
   catch { $("gm-copy-out").textContent = `Copy this link: ${url}`; }
 });
 
 // The engine's SVG skyplot, only ever adopted through svgsafe (design note section 3.5).
 $("gm-svg").addEventListener("click", async () => {
   try {
-    const root = parseSvgMarkup(await adapter.svg(state));
+    const root = parseSvgMarkup(await adapter.svg(state, tle));
     if (!root) throw new Error("the engine's SVG was refused");
     sanitizeSvg(root);
     const blob = new Blob([new XMLSerializer().serializeToString(root)], { type: "image/svg+xml" });
@@ -373,7 +392,7 @@ async function compute() {
   const mine = ++ticket;
   $("gm-engine").textContent = "Computing…";
   try {
-    const r = await adapter.compute(state);
+    const r = await adapter.compute(state, tle);
     if (mine !== ticket) return;
     result = r;
     cloud = null;
@@ -381,7 +400,7 @@ async function compute() {
     $("gm-engine").textContent = r.backend === "none" ? r.notes[0] : r.missing.length ? `Ready. Needs engine 0.36: ${r.missing.join(", ")}.` : "Ready.";
     drawAll();
     if (features.monteCarlo && state.mc) {
-      const c = await adapter.monteCarlo(state);
+      const c = await adapter.monteCarlo(state, tle);
       if (mine !== ticket) return;
       cloud = c;
       drawError();

@@ -27,6 +27,11 @@
 import { SKYLINE_PRESETS, LEO_PRESETS } from "./geometry-url.mjs";
 import { tableFromVertices, emptyTable, BINS, snapHalf } from "./skyline-edit.mjs";
 
+// Pasted orbital elements (design note 3.1): the engine field names for the TLE text and its calendar epoch, set
+// here when the engine's sky_geometry takes them (W21, 0.36). While null the page offers no TLE panel.
+export const TLE_FIELDS = null; // e.g. Object.freeze({ text: "tle", epoch: "epoch_utc" })
+export const MAX_TLE_BYTES = 4 * 1024 * 1024; // the engine's input limit
+
 export const GEOMETRY_FNS = Object.freeze(["sky_geometry", "sky_monte_carlo", "skyline_presets", "skyline_profile", "skyplot_svg"]);
 export const INTERIM_FN = "nmea_training";
 // The interim model needs a calendar instant: the time offset counts from this one.
@@ -61,7 +66,7 @@ export function chooseBackend(engine) {
 }
 
 // What each backend offers, so the page can enable a control or say why it cannot.
-export function featuresFor(backend, engine) {
+export function featuresFor(backend, engine, tleFields = TLE_FIELDS) {
   const has = (f) => backend === "geometry" && !!engine && engine.has(f);
   return {
     systems: { gps: backend !== "none", galileo: backend !== "none", beidou: backend !== "none", leo: backend === "geometry" },
@@ -70,7 +75,7 @@ export function featuresFor(backend, engine) {
     presets: backend !== "none",              // engine presets, or the interim outlines
     monteCarlo: has("sky_monte_carlo"),
     svg: has("skyplot_svg"),
-    tle: false,                               // sky_geometry takes preset names and satellites, not TLE text
+    tle: backend === "geometry" && !!tleFields, // pasted elements, once the engine takes them (TLE_FIELDS)
     gdop: backend === "geometry",
   };
 }
@@ -169,9 +174,12 @@ export function skylineRequest(sky) {
 
 // The request sky_geometry, sky_monte_carlo and skyplot_svg take (engine feat/skyline-0.36, src/wasm.rs).
 // The engine validates it again. Only numbers and names from fixed lists are put in it.
-export function buildRequest(state) {
-  const systems = state.sys.filter((s) => Object.hasOwn(SYSTEM_PRESETS, s)).map((s) => SYSTEM_PRESETS[s]);
-  if (state.leo) systems.push(state.leo);
+// `tle`: {text, epochUtc} when the person pasted elements (only with `tleFields`): the sky is then theirs, dated,
+// and the presets are left out.
+export function buildRequest(state, tle = null, tleFields = TLE_FIELDS) {
+  const own = !!(tle && tleFields && typeof tle.text === "string" && tle.text.length <= MAX_TLE_BYTES && /^20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/.test(tle.epochUtc || ""));
+  const systems = own ? [] : state.sys.filter((s) => Object.hasOwn(SYSTEM_PRESETS, s)).map((s) => SYSTEM_PRESETS[s]);
+  if (state.leo && !own) systems.push(state.leo);
   const req = {
     site: { lat_deg: state.lat, lon_deg: state.lon, height_m: state.h },
     time_s: state.t,
@@ -180,6 +188,7 @@ export function buildRequest(state) {
     sigma_uere_m: state.uere,
     confidence: 0.95,
   };
+  if (own) { req[tleFields.text] = tle.text; req[tleFields.epoch] = tle.epochUtc; delete req.time_s; }
   const sky = skylineRequest(state.sky);
   if (sky) req.skyline = sky;
   return req;
@@ -283,9 +292,10 @@ const parseJson = (raw, what) => { try { return JSON.parse(raw); } catch { throw
 
 // ---------------------------------------------------------------- the adapter the view uses
 // engine: what lib/engine-page.mjs getEngine() resolves to ({available, version, has(fn), call(fn, ...args)}).
-export function createGeometryAdapter(engine) {
+export function createGeometryAdapter(engine, tleFields = TLE_FIELDS) {
   const backend = chooseBackend(engine);
-  const features = featuresFor(backend, engine);
+  const features = featuresFor(backend, engine, tleFields);
+  const req = (state, tle) => JSON.stringify(buildRequest(state, features.tle ? tle : null, tleFields));
   let presetCache = null;
   return {
     backend,
@@ -304,19 +314,19 @@ export function createGeometryAdapter(engine) {
       if (!features.canyon) return null;
       return parseProfile(parseJson(await engine.call("skyline_profile", JSON.stringify(skylineRequest(sky))), "skyline profile"));
     },
-    async compute(state) {
-      if (backend === "geometry") return parseGeometry(parseJson(await engine.call("sky_geometry", JSON.stringify(buildRequest(state))), "geometry"), engine.version || "");
+    async compute(state, tle = null) {
+      if (backend === "geometry") return parseGeometry(parseJson(await engine.call("sky_geometry", req(state, tle)), "geometry"), engine.version || "");
       if (backend === "interim") return computeInterim(engine, state);
       return { ...empty("none"), notes: ["The engine is not running in this browser, so there is nothing to show. It runs as WebAssembly; a browser or host that blocks WebAssembly cannot run this view."] };
     },
-    async monteCarlo(state) {
+    async monteCarlo(state, tle = null) {
       if (!features.monteCarlo || !state.mc) return null;
-      return parseMonteCarlo(parseJson(await engine.call("sky_monte_carlo", JSON.stringify(buildRequest(state)), Math.trunc(state.seed), Math.trunc(state.mc)), "Monte Carlo"));
+      return parseMonteCarlo(parseJson(await engine.call("sky_monte_carlo", req(state, tle), Math.trunc(state.seed), Math.trunc(state.mc)), "Monte Carlo"));
     },
     // The engine's own SVG skyplot, as markup still to be parsed and sanitised by the caller (lib/svgsafe.mjs).
-    async svg(state) {
+    async svg(state, tle = null) {
       if (!features.svg) return null;
-      const out = await engine.call("skyplot_svg", JSON.stringify(buildRequest(state)));
+      const out = await engine.call("skyplot_svg", req(state, tle));
       return typeof out === "string" ? out : null;
     },
   };
