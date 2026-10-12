@@ -10,9 +10,10 @@ export function checksum(body) {
   return c.toString(16).toUpperCase().padStart(2, "0");
 }
 
-// From `fromS` seconds after the first GGA: every GSV satellite at azimuth 180 degrees or more loses its signal
-// strength, the others drop by `dropDb`, and GGA reports HDOP `ggaHdop`. Checksums are recomputed.
-export function maskedWith(log, fromS, dropDb, ggaHdop) {
+// From `fromS` seconds after the first GGA: every GSV satellite at azimuth `fromAz` degrees or more (180 in the
+// engine's test) loses its signal strength, the others drop by `dropDb`, and GGA reports HDOP `ggaHdop`.
+// Checksums are recomputed.
+export function maskedWith(log, fromS, dropDb, ggaHdop, fromAz = 180) {
   const out = [];
   let t = 0, t0 = null;
   for (const line of log.split("\n")) {
@@ -32,7 +33,7 @@ export function maskedWith(log, fromS, dropDb, ggaHdop) {
       const g = f.slice();
       for (let i = 4; i + 3 < g.length; i += 4) {
         const az = Number(g[i + 2]) || 0;
-        if (az >= 180) g[i + 3] = "";
+        if (az >= fromAz) g[i + 3] = "";
         else if (g[i + 3] !== "" && Number.isFinite(Number(g[i + 3]))) g[i + 3] = (Number(g[i + 3]) - dropDb).toFixed(0);
       }
       const b = g.join(","); out.push(`$${b}*${checksum(b)}`);

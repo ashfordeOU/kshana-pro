@@ -13,7 +13,7 @@
 //   * a truth file (t_s,true_lat_deg,true_lon_deg), which exists only for synthetic data.
 // Advisory software: nothing here is a measure of how the checks do on real interference.
 
-import { readEpochGeometry, readDegradation, readExplained, readGeometryModel, readGeometrySummary, describeGeometry } from "./trust-geometry.mjs";
+import { readEpochGeometry, readClass, readGeometryModel, readGeometrySummary, describeGeometry } from "./trust-geometry.mjs";
 
 export const BANDS = ["calibrating", "nominal", "degraded", "untrusted"];
 
@@ -35,6 +35,7 @@ export const MONITOR_INFO = Object.freeze({
   raim: "The receiver autonomous integrity monitoring test statistic against its threshold.",
   clock: "The clock-aided monitor: the receiver clock against its predicted line.",
   "solve-failure": "The position solution could not be computed.",
+  geometry: "The satellite geometry (0.36): costs points only when the geometry is poor (HDOP, PDOP or the satellites used beyond their thresholds), capped and never below the degraded band.",
 });
 export const KNOWN_MONITORS = Object.freeze(Object.keys(MONITOR_INFO));
 
@@ -215,7 +216,7 @@ const normState = (s) => (typeof s === "string" && BANDS.includes(s.toLowerCase(
 const knownState = (s) => typeof s === "string" && BANDS.includes(s.toLowerCase());
 // Monitor-keyed tables from a file: no prototype, so a monitor named "constructor" or "__proto__" is just a name.
 const table = () => Object.create(null);
-const cleanDeductions = (list) => (Array.isArray(list) ? list : []).filter((d) => d && typeof d === "object" && typeof d.monitor === "string" && isNum(d.points)).map((d) => ({ monitor: d.monitor, ratio: isNum(d.ratio) ? d.ratio : null, points: d.points }));
+const cleanDeductions = (list) => (Array.isArray(list) ? list : []).filter((d) => d && typeof d === "object" && typeof d.monitor === "string" && isNum(d.points)).map((d) => ({ monitor: d.monitor, ratio: isNum(d.ratio) ? d.ratio : null, points: d.points, class: readClass(d.class) }));
 
 // Normalise a batch result's epoch.
 function fromResultEpoch(e) {
@@ -238,7 +239,7 @@ function fromResultEpoch(e) {
 }
 
 // The 0.36 geometry beside the score (lib/trust-geometry.mjs): the same fields on a batch epoch and a 1.3 line.
-const geometryOf = (e) => ({ geometry: readEpochGeometry(e.geometry), degradation: readDegradation(e.degradation), explained: readExplained(e.explained_by_geometry) });
+const geometryOf = (e) => ({ geometry: readEpochGeometry(e.geometry) });
 
 function fromLineEpoch(e) {
   const ratios = table();
@@ -371,7 +372,7 @@ export function buildRun(inputs) {
     notes.push("A live stream does not state which monitors ran or the score model; the band edges below are the documented defaults and the monitor strips show only monitors that cost points.");
   } else if (inputs.csv) {
     advisory = typeof inputs.csv.advisory === "string" ? inputs.csv.advisory : "";
-    epochs = inputs.csv.epochs.map((e) => ({ ...e, unknownState: knownState(e.rawState) ? null : String(e.rawState), deductions: cleanDeductions(e.deductions), ratios: table(), pos: null, gate: null, note: null, geometry: null, degradation: null, explained: [] }));
+    epochs = inputs.csv.epochs.map((e) => ({ ...e, unknownState: knownState(e.rawState) ? null : String(e.rawState), deductions: cleanDeductions(e.deductions), ratios: table(), pos: null, gate: null, note: null, geometry: null }));
     source = "csv";
     notes.push("trust.csv carries scores and reasons but not ratios or positions.");
   } else return { error: "Nothing to draw: pick a result JSON, JSON lines or trust.csv." };
@@ -399,6 +400,9 @@ export function buildRun(inputs) {
     const g = deriveGate(epochs, inputs.gateReleaseS ?? DEFAULT_GATE_RELEASE_S);
     epochs.forEach((e, i) => { e.gate = g[i]; });
   }
+  // The 0.36 engine runs the geometry monitor on every epoch that carries geometry but leaves it out of
+  // monitors_run (debc5f33); without this the page would list a check that took points as "not run".
+  if (monitorsRun && !monitorsRun.includes("geometry") && epochs.some((e) => e.geometry)) monitorsRun.push("geometry");
   // Monitors to draw as strips: those that ran (batch) or those seen costing points (stream).
   const seen = new Set();
   for (const e of epochs) for (const k of Object.keys(e.ratios)) seen.add(k);
@@ -428,8 +432,8 @@ export function buildRun(inputs) {
 // monitor carries; monitors that ran and cost nothing; monitors that did not run.
 export function reasonsAt(run, i) {
   const e = run.epochs[i];
-  // explained: the geometry explains this monitor at this epoch (it still costs its points).
-  const ded = e.deductions.slice().sort((a, b) => b.points - a.points).map((d) => ({ ...d, weight: Object.hasOwn(run.weights, d.monitor) && isNum(run.weights[d.monitor]) ? run.weights[d.monitor] : null, explained: (e.explained || []).includes(d.monitor) }));
+  // Each deduction keeps the engine's class (geometry, environment or inconsistency; null before 0.36).
+  const ded = e.deductions.slice().sort((a, b) => b.points - a.points).map((d) => ({ ...d, weight: Object.hasOwn(run.weights, d.monitor) && isNum(run.weights[d.monitor]) ? run.weights[d.monitor] : null }));
   const names = new Set(ded.map((d) => d.monitor));
   let faint = [], notRun = [];
   if (run.monitorsRun) {

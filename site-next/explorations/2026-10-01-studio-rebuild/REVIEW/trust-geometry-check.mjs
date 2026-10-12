@@ -42,32 +42,62 @@ const cursorTo = (page, t) => page.evaluate((t) => {
   const s = document.getElementById("mt-slider"); s.value = String(t); s.dispatchEvent(new Event("input", { bubbles: true }));
 }, t);
 
-// 1. The masked-sky demo (recorded with the 0.36 geometry): both strips, the panel, the marks, the settings.
+// 1. The masked-sky demo (recorded with the 0.36 geometry, final contract): sky and class strips, the panel, the
+//    class chips, the settings.
 {
   const { ctx, page, log } = await open("trust/?demo=geometry");
   await page.waitForSelector("#mt-run:not([hidden])", { timeout: 60000 });
   const fills = await page.evaluate(() => [...document.querySelectorAll("#mt-time-svg rect")].map((r) => r.getAttribute("fill")));
-  ok(fills.includes("var(--g-sky)"), "geometry demo: a cause strip in the neutral sky blue");
   ok(fills.includes("var(--b-deg)") && fills.includes("var(--b-nom)"), "geometry demo: the sky strip, good then degraded");
-  ok(await page.evaluate(() => [...document.querySelectorAll("#mt-time-svg text")].some((t) => t.textContent === "sky") && [...document.querySelectorAll("#mt-time-svg text")].some((t) => t.textContent === "cause")), "geometry demo: strips labelled sky and cause");
-  // the sky blue never marks an attack: every rect titled inconsistency is red or amber
-  const attackFills = await page.evaluate(() => [...document.querySelectorAll("#mt-time-svg rect")].filter((r) => /^inconsistency|^geometry and inconsistency/.test(r.querySelector("title")?.textContent || "")).map((r) => r.getAttribute("fill")));
-  ok(attackFills.length > 0 && attackFills.every((f) => f === "var(--b-unt)" || f === "var(--b-deg)"), `geometry demo: attack-like cause drawn red or amber, never the sky blue (${[...new Set(attackFills)]})`);
+  ok(fills.includes("var(--g-env)"), "geometry demo: environment deductions in the class strip");
+  const labels = await page.evaluate(() => [...document.querySelectorAll("#mt-time-svg text")].map((t) => t.textContent));
+  ok(labels.includes("sky") && labels.includes("class"), "geometry demo: strips labelled sky and class");
+  // an attack-like class is red, never a sky or environment colour
+  const attackFills = await page.evaluate(() => [...document.querySelectorAll("#mt-time-svg rect")].filter((r) => /^inconsistency/.test(r.querySelector("title")?.textContent || "")).map((r) => r.getAttribute("fill")));
+  ok(attackFills.length > 0 && attackFills.every((f) => f === "var(--b-unt)"), `geometry demo: inconsistency drawn red (${[...new Set(attackFills)]})`);
   await cursorTo(page, 700);
-  ok(/^Geometry degraded: .*one side of the sky blocked/.test(await page.textContent("#mt-geo-now")), `t=700: the panel says the sky is blocked (${await page.textContent("#mt-geo-now")})`);
-  ok(/HDOP/.test(await page.textContent("#mt-geo-rows")) && /230°/.test(await page.textContent("#mt-geo-rows")), "t=700: DOPs and the azimuth gap are shown");
-  ok(await page.locator("#mt-reasons .mt-explained").count() >= 1, "t=700: loss-of-lock is marked explained by geometry");
-  ok(/25\.0 pts/.test(await page.textContent("#mt-reasons")), "t=700: and it still costs its 25 points");
-  ok(/geometry degraded/.test(await page.getAttribute("#mt-time-svg", "aria-valuetext")), "t=700: the spoken description names the geometry");
+  const now = await page.textContent("#mt-geo-now");
+  ok(/^geometry fair: HDOP 2\.870/.test(now), `t=700: the heading is the engine's note, label and metrics first (${now.slice(0, 60)})`);
+  const rows = await page.textContent("#mt-geo-rows");
+  ok(/fair \(not scored\)/.test(rows) && /HDOP/.test(rows) && /230°/.test(rows) && /6 of 11 in view/.test(rows), "t=700: label, DOPs, gap and satellites are shown");
+  ok(!/Geometry deduction/.test(rows), "t=700: no geometry deduction row while the deduction is zero");
+  ok((await page.locator("#mt-geo-flags li").count()) === 0, "t=700: no flag while none is set");
+  ok(await page.locator("#mt-reasons .mt-class.environment").count() >= 1, "t=700: the loss-of-lock deduction carries its class, environment");
+  ok(/25\.0 pts/.test(await page.textContent("#mt-reasons")), "t=700: and it costs its 25 points");
+  ok(/geometry fair/.test(await page.getAttribute("#mt-time-svg", "aria-valuetext")), "t=700: the spoken description names the geometry");
   await cursorTo(page, 2000);
-  ok(/inconsistency/.test(await page.textContent("#mt-geo-rows")), "t=2000: the drag-off is put down to inconsistency");
+  ok(await page.locator("#mt-reasons .mt-class.inconsistency").count() >= 1, "t=2000: the drag-off deductions are classed inconsistency");
   const set = await page.textContent("#mt-set");
-  ok(/hdop_max/.test(set) && /pdop_max/.test(set) && /azimuth_gap_deg/.test(set), "settings: the geometry thresholds sit beside the score settings");
-  ok(/IEC 61108-1/.test(set) && /Geometry never changes the score|never part of it/.test(set), "settings: their provenance, and that the geometry never changes the score");
-  ok(/Advisory/.test(await page.textContent("#mt-adv")) && /IEC 61108, IEC 61162/.test(await page.textContent("main")), "the advisory statement stays");
-  ok(/geometry unknown \(no GSV or GSA; not good\)/.test(await page.textContent("#mt-legend")), "legend: unknown is never good");
+  ok(/hdop_max/.test(set) && /pdop_max/.test(set) && /azimuth_gap_deg/.test(set) && /cap_in_force/.test(set) && /hold_s/.test(set), "settings: the [geometry] fields sit beside the score settings");
+  ok(/the degraded edge/.test(set) && /0\.25/.test(set), "settings: an empty floor reads as the degraded edge; 0.25 is not rounded");
+  ok(/founder decision B1|design note/.test(set) && /Label: \d+ good, \d+ fair, 0 poor/.test(set), "settings: provenance, and the counts by label");
+  ok(/Advisory software, not type-approved navigation equipment \(IEC 61108, IEC 61162\): the operator remains responsible for the navigation of the vessel\./.test(await page.textContent("main")), "the full advisory statement stays");
+  const legend = await page.textContent("#mt-legend");
+  ok(/geometry unknown \(no GSV or GSA; not good\)/.test(legend) && /Deduction class:/.test(legend), "legend: unknown is never good; the deduction classes");
   clean(log, "geometry demo");
   if (shots) { await cursorTo(page, 700); await page.locator("#mt-run").screenshot({ path: shotDir + "trust-geometry.png" }); }
+  await ctx.close();
+}
+
+// 1b. The review fixture (poor geometry, a stated HDOP that disagrees): the deduction row and the flag appear.
+{
+  const { ctx, page, log } = await open("trust/");
+  await page.setInputFiles("#mt-files", new URL("./fixtures/poor-geometry.result.json", import.meta.url).pathname);
+  await page.waitForSelector("#mt-run:not([hidden])", { timeout: 60000 });
+  await cursorTo(page, 700);
+  ok(/^geometry poor: HDOP 10\.836/.test(await page.textContent("#mt-geo-now")), "poor fixture: the heading reads poor");
+  const rows = await page.textContent("#mt-geo-rows");
+  ok(/Geometry deduction15\.0 points \(inconsistency\)/.test(rows), `poor fixture: the geometry deduction row, 15 points, inconsistency`);
+  ok(/HDOP the receiver states0\.9/.test(rows), "poor fixture: the stated HDOP is shown");
+  const flags = await page.locator("#mt-geo-flags li").allTextContents();
+  ok(flags.some((f) => /disagrees/.test(f)) && flags.some((f) => /Signal loss/.test(f)), `poor fixture: mismatch and signal-loss flags (${flags.length})`);
+  ok(await page.locator("#mt-reasons .mt-class.inconsistency").count() >= 1, "poor fixture: the geometry deduction's class chip");
+  ok(!/Not run[\s\S]*\bgeometry\b/.test(await page.textContent("#mt-reasons")), "poor fixture: the geometry check is never listed as not run");
+  ok(await page.evaluate(() => { const g = document.querySelector(".mt-setgrid dt"); return [...document.querySelectorAll(".mt-setgrid div")].every((d) => d.scrollWidth <= d.clientWidth + 1); }), "poor fixture: no setting name overflows its cell");
+  await cursorTo(page, 400);
+  ok(!/Geometry deduction/.test(await page.textContent("#mt-geo-rows")) && (await page.locator("#mt-geo-flags li").count()) === 0, "poor fixture: before the mask, no deduction row and no flag");
+  if (shots) { await cursorTo(page, 700); await page.locator("#mt-run").screenshot({ path: shotDir + "trust-geometry-poor.png" }); }
+  clean(log, "poor fixture");
   await ctx.close();
 }
 
@@ -89,7 +119,7 @@ if (engineGeo) {
   await page.waitForSelector("#mt-run:not([hidden])", { timeout: 180000 });
   ok(await page.evaluate(() => [...document.querySelectorAll("#mt-time-svg text")].some((t) => t.textContent === "sky")), "scored here: the 1.3 lines carry the lane");
   await cursorTo(page, 400);
-  ok(/^Geometry good\./.test(await page.textContent("#mt-geo-now")), "scored here: the demo's open sky reads good");
+  ok(/^geometry good: HDOP/.test(await page.textContent("#mt-geo-now")), "scored here: the demo's open sky reads good");
   ok(/do(es)? not state the geometry thresholds/.test(await page.textContent("#mt-set")), "scored here: a stream states no thresholds, and the page says so");
   clean(log, "scored here");
   await ctx.close();

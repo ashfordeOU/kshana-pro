@@ -6,7 +6,7 @@ import {
   stepIndex, describeEpoch, pkshtFor, bandRuns, makeProjection, niceLength, monitorInfo, MAX_BYTES, MAX_BYTES_TEXT, KNOWN_MONITORS,
 } from "../lib/trust.mjs";
 
-import { geometryAt, countGeometry, statusKey, causeKey, DEGRADATION_TEXT, UNKNOWN_TEXT } from "../lib/trust-geometry.mjs";
+import { geometryAt, countGeometry, statusKey, classKey, CLASS_TEXT, UNKNOWN_TEXT } from "../lib/trust-geometry.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
 import { parseSvgMarkup, sanitizeSvg } from "../lib/svgsafe.mjs";
 
@@ -14,11 +14,11 @@ const $ = (id) => document.getElementById(id);
 const NS = "http://www.w3.org/2000/svg";
 const BAND_VAR = { calibrating: "var(--b-cal)", nominal: "var(--b-nom)", degraded: "var(--b-deg)", untrusted: "var(--b-unt)" };
 const BAND_W = { calibrating: 2, nominal: 2.6, degraded: 3.2, untrusted: 4 };
-// The geometry lane (0.36). Status: green good, amber degraded, grey hatched unknown (never good). Cause: a masked
-// sky (geometry) in a neutral blue; attack-like inconsistency in the band's red, and with a poor sky in amber; so a
-// masked sky and an attack never share a colour.
+// The geometry lane (0.36). Status: green good, amber degraded, grey hatched unknown (never good). Deduction class:
+// geometry (the sky) in a neutral blue no band uses, environment (the signal) in violet, inconsistency (attack-like)
+// in the band's red; so a masked sky and an attack never share a colour.
 const GEO_FILL = { good: "var(--b-nom)", degraded: "var(--b-deg)", unknown: "url(#mt-hatch)" };
-const CAUSE_FILL = { none: "var(--b-cal)", geometry: "var(--g-sky)", inconsistency: "var(--b-unt)", "geometry-and-inconsistency": "var(--b-deg)" };
+const CLASS_FILL = { none: "var(--b-cal)", geometry: "var(--g-sky)", environment: "var(--g-env)", inconsistency: "var(--b-unt)" };
 
 function el(tag, attrs, ...kids) {
   const n = document.createElement(tag);
@@ -361,17 +361,18 @@ function drawTimeline() {
     svg.append(rc);
   }
   if (geo) {
-    svg.append(sv("text", { x: TL.L - 8, y: stripY.geo + 9, "text-anchor": "end" }, "sky"), sv("text", { x: TL.L - 8, y: stripY.cause + 9, "text-anchor": "end" }, "cause"));
+    svg.append(sv("text", { x: TL.L - 8, y: stripY.geo + 9, "text-anchor": "end" }, "sky"), sv("text", { x: TL.L - 8, y: stripY.cause + 9, "text-anchor": "end" }, "class"));
     for (const [a, b, k] of runsOf(statusKey)) {
       if (k === "missing") continue;
       const rc = sv("rect", { x: xOf(run.epochs[a].t_s), y: stripY.geo, width: Math.max(1, xEnd(b) - xOf(run.epochs[a].t_s)), height: 12, fill: GEO_FILL[k], class: k === "unknown" ? "mt-unknown" : null });
       rc.append(sv("title", {}, `${k === "unknown" ? UNKNOWN_TEXT : `geometry ${k}`}, ${fmtT(run.epochs[a].t_s)} to ${fmtT(run.epochs[b].t_s)}`));
       svg.append(rc);
     }
-    for (const [a, b, k] of runsOf(causeKey)) {
+    // The most serious class costing points at each epoch: inconsistency, then environment, then geometry.
+    for (const [a, b, k] of runsOf(classKey)) {
       if (k === "missing") continue;
-      const rc = sv("rect", { x: xOf(run.epochs[a].t_s), y: stripY.cause, width: Math.max(1, xEnd(b) - xOf(run.epochs[a].t_s)), height: 12, fill: CAUSE_FILL[k], opacity: k === "none" ? 0.3 : 1 });
-      rc.append(sv("title", {}, `${DEGRADATION_TEXT[k]}, ${fmtT(run.epochs[a].t_s)} to ${fmtT(run.epochs[b].t_s)}`));
+      const rc = sv("rect", { x: xOf(run.epochs[a].t_s), y: stripY.cause, width: Math.max(1, xEnd(b) - xOf(run.epochs[a].t_s)), height: 12, fill: CLASS_FILL[k], opacity: k === "none" ? 0.3 : 1 });
+      rc.append(sv("title", {}, `${k === "none" ? "no deduction" : CLASS_TEXT[k]}, ${fmtT(run.epochs[a].t_s)} to ${fmtT(run.epochs[b].t_s)}`));
       svg.append(rc);
     }
   }
@@ -417,6 +418,13 @@ function keyStep(ev) {
   setCursor(i);
 }
 
+function monitorClass(name) {
+  const n = { geometry: 0, environment: 0, inconsistency: 0 };
+  for (const e of run.epochs) for (const d of e.deductions) if (d.monitor === name && d.class && d.points > 0) n[d.class]++;
+  const best = Object.entries(n).sort((a, b) => b[1] - a[1])[0];
+  return best[1] > 0 ? best[0] : null;
+}
+
 function drawStrips() {
   const svg = $("mt-strips-svg");
   svg.replaceChildren();
@@ -428,8 +436,11 @@ function drawStrips() {
     const y0 = r * rowH + 2, top = y0 + 2, bot = y0 + rowH - 6;
     const cap = 3;
     const yv = (v) => bot - (Math.min(cap, Math.max(0, v)) / cap) * (bot - top);
-    const lbl = sv("text", { x: TL.L - 8, y: y0 + 15, "text-anchor": "end", class: "rowlbl" }, name);
+    const lbl = sv("text", { x: TL.L - 14, y: y0 + 15, "text-anchor": "end", class: "rowlbl" }, name);
     lbl.append(sv("title", {}, `${name}: ${monitorInfo(name)}`));
+    // The class this monitor's deductions carried most often (0.36), as a small square by its name.
+    const cls = monitorClass(name);
+    if (cls) svg.append(sv("rect", { x: TL.L - 10, y: y0 + 7, width: 7, height: 7, rx: 1.5, fill: CLASS_FILL[cls], class: "mt-clsdot" }, sv("title", {}, `${name}: ${CLASS_TEXT[cls]}`)));
     svg.append(lbl, sv("line", { x1: TL.L, x2: TL.R, y1: bot, y2: bot, class: "ax" }), sv("line", { x1: TL.L, x2: TL.R, y1: yv(1), y2: yv(1), class: "alarm1" }));
     let d = "", dOver = "", pen = false, penO = false;
     for (const e of run.epochs) {
@@ -463,7 +474,7 @@ function drawLegend() {
   if (run.hasTruth) li.push(el("li", { style: "--c:var(--truth)" }, el("i", { class: "thin" }), "True track (synthetic data only)"));
   if (run.hasGeometry) {
     li.push(el("li", { class: "mt-lg-head" }, "Sky:"), el("li", { style: `--c:${GEO_FILL.good}` }, el("i", {}), "geometry good"), el("li", { style: `--c:${GEO_FILL.degraded}` }, el("i", {}), "geometry degraded"), el("li", {}, el("i", { class: "hatch" }), "geometry unknown (no GSV or GSA; not good)"));
-    li.push(el("li", { class: "mt-lg-head" }, "Cause:"), el("li", { style: `--c:${CAUSE_FILL.geometry}` }, el("i", {}), "geometry: the sky, not the signal"), el("li", { style: `--c:${CAUSE_FILL.inconsistency}` }, el("i", {}), "inconsistency (attack-like)"), el("li", { style: `--c:${CAUSE_FILL["geometry-and-inconsistency"]}` }, el("i", {}), "geometry and inconsistency"));
+    li.push(el("li", { class: "mt-lg-head" }, "Deduction class:"), el("li", { style: `--c:${CLASS_FILL.geometry}` }, el("i", {}), "geometry: the sky, not the signal"), el("li", { style: `--c:${CLASS_FILL.environment}` }, el("i", {}), "environment: the signal"), el("li", { style: `--c:${CLASS_FILL.inconsistency}` }, el("i", {}), "inconsistency (attack-like)"));
   }
   if (run.demo) li.push(el("li", {}, "In this demo the receiver reports a valid fix throughout (GGA quality 1, RMC status A). The score is what falls."));
   $("mt-legend").replaceChildren(...li);
@@ -482,7 +493,9 @@ function drawSettings() {
   box.append(g);
   const c = { nominal: 0, degraded: 0, untrusted: 0, calibrating: 0 };
   for (const e of run.epochs) c[e.state]++;
-  box.append(el("h4", {}, "Epochs"), el("p", { class: "mt-none" }, `${run.epochs.length} in all: ${c.calibrating} calibrating, ${c.nominal} nominal, ${c.degraded} degraded, ${c.untrusted} untrusted.`));
+  const gs = run.geometrySummary;
+  const byClass = gs && gs.classGeometry != null ? ` By deduction class: geometry ${gs.classGeometry}, environment ${gs.classEnvironment}, inconsistency ${gs.classInconsistency}.` : "";
+  box.append(el("h4", {}, "Epochs"), el("p", { class: "mt-none" }, `${run.epochs.length} in all: ${c.calibrating} calibrating, ${c.nominal} nominal, ${c.degraded} degraded, ${c.untrusted} untrusted.${byClass}`));
   if (m.weights && Object.keys(m.weights).length) {
     const w = el("dl", { class: "mt-setgrid" });
     for (const [k, v] of Object.entries(m.weights).sort((a, b) => b[1] - a[1])) {
@@ -497,33 +510,34 @@ function drawSettings() {
   drawGeometrySettings(box);
 }
 
-// The geometry thresholds and their provenance, beside the score settings (0.36). They decide the lane only:
-// the geometry never changes the score.
+// The geometry thresholds and their provenance, beside the score settings (0.36). The geometry monitor deducts
+// only when the label is poor, capped, and never below the floor in force.
 function drawGeometrySettings(box) {
-  box.append(el("h4", {}, "Geometry (beside the score, never part of it)"));
+  box.append(el("h4", {}, "Geometry ([geometry] settings)"));
   if (!run.hasGeometry) { box.append(el("p", { class: "mt-none" }, "This run carries no geometry: it comes from an engine before 0.36, or from trust.csv. Nothing about the sky is shown, and nothing is shown as good.")); return; }
   const gm = run.geometryModel;
   if (gm && gm.thresholds.length) {
     const g = el("dl", { class: "mt-setgrid" });
-    for (const t of gm.thresholds) g.append(el("div", {}, el("dt", { title: t.what }, t.key), el("dd", {}, f1(t.value))));
+    for (const t of gm.thresholds) g.append(el("div", {}, el("dt", { title: t.what }, t.key.split("_").flatMap((w, i) => (i ? [document.createElement("wbr"), "_" + w] : [w]))), el("dd", {}, t.value == null ? "the degraded edge" : String(Number(t.value.toFixed(3))))));
     box.append(g);
-  } else box.append(el("p", { class: "mt-none" }, "A live stream does not state the geometry thresholds; the documented defaults apply (PDOP 6, HDOP 4, five satellites, a 180° azimuth gap)."));
+  } else box.append(el("p", { class: "mt-none" }, "A live stream does not state the geometry thresholds; the documented defaults apply (poor above HDOP 4 or PDOP 6, or below 5 satellites; at most 15 points, never below the degraded band)."));
   const c = countGeometry(run.epochs);
-  box.append(el("p", { class: "mt-none" }, `Epochs: ${c.good} good sky, ${c.degraded} degraded, ${c.unknown} unknown${c.odd ? ` (${c.odd} with a status this page does not know, read as unknown)` : ""}. Put down to geometry ${c.geometry}, to inconsistency ${c.inconsistency}, to both ${c["geometry-and-inconsistency"]}.`));
-  if (gm && (gm.provenance.length || gm.explains)) {
-    const d = el("details", { class: "mt-gloss" }, el("summary", {}, "Where the thresholds come from, and what the geometry can explain"));
+  box.append(el("p", { class: "mt-none" }, `Sky: ${c.good} good, ${c.degraded} degraded, ${c.unknown} unknown${c.odd ? ` (${c.odd} with a value this page does not know, read as unknown)` : ""}. Label: ${c.label.good} good, ${c.label.fair} fair, ${c.label.poor} poor (only poor costs points). Epochs with a deduction of class geometry ${c.cls.geometry}, environment ${c.cls.environment}, inconsistency ${c.cls.inconsistency}.`));
+  if (gm && (gm.provenance.length || gm.classes)) {
+    const d = el("details", { class: "mt-gloss" }, el("summary", {}, "Where the thresholds come from, and how deductions are classed"));
     if (gm.provenance.length) d.append(el("dl", {}, gm.provenance.map((p) => [el("dt", {}, p.key), el("dd", {}, p.text)]).flat()));
-    if (gm.explains) d.append(el("p", { class: "mt-none" }, `The geometry explains a monitor ${gm.explains}`));
+    if (gm.classes) d.append(el("p", { class: "mt-none" }, gm.classes));
     box.append(d);
   }
 }
 
 function drawGeometryNow() {
-  const box = $("mt-geo-now"), rows = $("mt-geo-rows");
+  const box = $("mt-geo-now"), rows = $("mt-geo-rows"), flags = $("mt-geo-flags");
   const a = geometryAt(run.epochs[cur]);
   box.textContent = a.heading;
   box.className = `mt-geo-now ${a.tone}`;
   rows.replaceChildren(...a.rows.map(([k, v]) => el("div", { class: v.length > 16 ? "wide" : null }, el("dt", {}, k), el("dd", {}, v))));
+  flags.replaceChildren(...a.flags.map((f) => el("li", { class: f.kind }, f.text)));
 }
 
 // ---------- the cursor ----------
@@ -575,13 +589,13 @@ function drawReasons() {
   for (const d of r.ded) {
     const pct = Math.min(100, (d.points / maxW) * 100);
     const row = el("button", { type: "button", class: "mt-rrow", "aria-pressed": hlMonitor === d.monitor ? "true" : "false", title: `${d.monitor}: ${monitorInfo(d.monitor)} Click to mark where it was above its onset.` },
-      el("span", { class: "mt-rname" }, d.monitor, d.explained ? el("small", { class: "mt-explained", title: "The geometry explains this check at this epoch (a masked sky). It still costs its points: the geometry never changes the score." }, "explained by geometry") : null),
+      el("span", { class: "mt-rname" }, d.monitor, d.class ? el("small", { class: `mt-class ${d.class}`, title: CLASS_TEXT[d.class] }, d.class) : null),
       el("span", { class: "mt-rtrack" }, el("i", { style: `width:${pct}%` }), d.weight ? el("b", { style: `left:${Math.min(100, (d.weight / maxW) * 100)}%` }) : null),
       el("span", { class: "mt-rnum" }, `${d.points.toFixed(1)} pts${d.ratio != null ? ` · ratio ${d.ratio.toFixed(2)}` : ""}${d.weight ? ` · weight ${f1(d.weight)}` : ""}`));
     row.onclick = () => toggleHighlight(d.monitor);
     box.append(row);
   }
-  if (r.ded.some((d) => d.explained)) box.append(el("p", { class: "mt-rsub" }, "Explained by geometry: still counted in the score"));
+  if (r.ded.some((d) => d.class)) box.append(el("p", { class: "mt-rsub" }, "Each deduction carries the engine's class: geometry (the sky), environment (the signal) or inconsistency (attack-like)"));
   if (hlMonitor && !r.ded.some((d) => d.monitor === hlMonitor)) {
     const row = el("button", { type: "button", class: "mt-rrow faint", "aria-pressed": "true" }, el("span", { class: "mt-rname" }, hlMonitor), el("span", {}), el("span", { class: "mt-rnum" }, "marked; no deduction here"));
     row.onclick = () => toggleHighlight(hlMonitor); box.append(row);
