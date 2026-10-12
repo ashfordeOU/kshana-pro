@@ -190,8 +190,11 @@ export function receiver_trust(toml: string): string;
  * Score a bounded excerpt of a vessel's NMEA 0183 stream the way `kshana receiver-trust
  * live` scores it (at most 2 MiB and 20,000 epochs; it must hold the calibration window).
  * `session_toml` declares a vessel (`[platform] kind = "vessel"`). Returns a JSON object
- * `{schema, epochs, last_pksht, summary}` (`schema` is `"1.2"`): one report per epoch (`state`, `score`, `advisory`,
- * `deductions`, `alarms`, ...) and counts by state. The bounded form of the live command: no
+ * `{schema, epochs, last_pksht, summary}` (`schema` is `"1.3"`): one report per epoch (`state`, `score`, `advisory`,
+ * `deductions` with a `class` each, `alarms`, `geometry`, ...) and counts by state, geometry and
+ * class. The geometry is `good`, `degraded` with reasons, or `unknown` without GSV or GSA, with a
+ * `label` (`good`, `fair`, `poor`) always reported; the score deducts for geometry only when it
+ * is `poor`. The bounded form of the live command: no
  * socket is opened and the gate is not applied (both are command-line only). Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
  */
 export function receiver_trust_replay(session_toml: string, nmea: string): string;
@@ -220,6 +223,56 @@ export function run(toml: string): string;
  * error if the scenario is invalid.
  */
 export function run_all(toml: string): string;
+
+/**
+ * The satellites a site sees under a skyline and their geometry (design note item 2).
+ * `request_json` is a JSON (or TOML) object: `site` (`{lat_deg, lon_deg, height_m}`),
+ * `time_s`, `systems` (preset names such as `"gps-baseline"`, `"galileo"`, `"beidou-meo"`,
+ * `"xona-pulsar"`, or `leo-pvt` `[[system]]` objects) and/or `satellites` (`{id?, system?,
+ * az_deg, el_deg}` or `{id?, system?, ecef_m}`), `mask_deg`, `skyline` (`preset`,
+ * `street_az_deg`, `width_m`, `height_left_m`, `height_right_m`, `antenna_m`, `length_m`,
+ * `table`, `sectors`, `terrain`), `clock` (`"per-system"` default, or `"common"`),
+ * `sigma_uere_m` (default 1) and `confidence` (default 0.95). Returns a JSON object: per
+ * satellite `id`, `system`, `az_deg`, `el_deg`, `cut_deg`, `visible`, `masked`; `n_visible`,
+ * `n_masked`, `open_fraction`; `dop` (`gdop`, `pdop`, `hdop`, `vdop`, `tdop`,
+ * `tdop_by_clock`, or null); `states`, `cofactor_enu`, `covariance_enu_m2`; `ellipse_1sigma`
+ * and `ellipse` (`semi_major_m`, `semi_minor_m`, `orientation_deg`, ...); `label`
+ * (MODELLED), `statement` and `advisory`. Throws a JS error on an invalid request.
+ */
+export function sky_geometry(request_json: string): string;
+
+/**
+ * `n` (1 to 5000) least-squares position errors under independent Gaussian range errors of
+ * `sigma_uere_m` on the visible set of `request_json` (as for `sky_geometry`), seeded by
+ * `seed` (a non-negative integer; the same request, seed and `n` give the same cloud). Returns
+ * a JSON object: `samples_enu_m` (`[[e, n, u], ...]`), `empirical_covariance_enu_m2`,
+ * `rms_horizontal_m`, `rms_3d_m`, `predicted_rms_horizontal_m` (sigma x HDOP),
+ * `predicted_rms_3d_m`, `fraction_inside_95`, `label`, `statement`, `advisory`. Throws a JS
+ * error on an invalid request, a seed that is not a non-negative integer, or `n` out of range.
+ */
+export function sky_monte_carlo(request_json: string, seed: number, n: number): string;
+
+/**
+ * The named skyline presets (`city-street`, `harbour-approach`, `fjord`,
+ * `container-terminal`) as a JSON array: `name`, `label` (REPRESENTATIVE), `description`,
+ * `provenance`, `table` (the cut every degree of azimuth from north, 360 numbers) and
+ * `open_fraction`.
+ */
+export function skyline_presets(): string;
+
+/**
+ * A skyline section (`skyline_json`, the `skyline` object of a `sky_geometry` request) reduced
+ * to the normalised table the engine uses: a JSON object with `table` (360 numbers, the cut
+ * every degree of azimuth from north), `open_fraction`, `source` and `provenance`. Throws a
+ * JS error on an invalid section.
+ */
+export function skyline_profile(skyline_json: string): string;
+
+/**
+ * The skyplot of `request_json` (as for `sky_geometry`) as static SVG markup (no script, no
+ * external reference; every input string escaped). Throws a JS error on an invalid request.
+ */
+export function skyplot_svg(request_json: string): string;
 
 /**
  * Run a scenario and return its one-line human-readable summary.
@@ -284,6 +337,11 @@ export interface InitOutput {
     readonly route_exposure: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => [number, number, number, number];
     readonly run: (a: number, b: number) => [number, number, number, number];
     readonly run_all: (a: number, b: number) => [number, number, number, number];
+    readonly sky_geometry: (a: number, b: number) => [number, number, number, number];
+    readonly sky_monte_carlo: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly skyline_presets: () => [number, number];
+    readonly skyline_profile: (a: number, b: number) => [number, number, number, number];
+    readonly skyplot_svg: (a: number, b: number) => [number, number, number, number];
     readonly summary: (a: number, b: number) => [number, number, number, number];
     readonly table_csv: (a: number, b: number) => [number, number, number, number];
     readonly trust_telemetry: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number, number];

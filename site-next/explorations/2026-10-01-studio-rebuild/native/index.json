@@ -1,9 +1,9 @@
 {
  "engine_version": "0.35.0",
- "engine_commit": "a71fd06081b28020b36f0abd10e3c9503d279115",
+ "engine_commit": "ac733e1acbec7c21533893f5e8cef3aeaa1618f1",
  "source": "native",
  "platform": "linux x64",
- "recorded_utc": "2026-10-11T15:18:47.299Z",
+ "recorded_utc": "2026-10-12T17:47:33.542Z",
  "runs": {
   "aperture-duty-cycle.toml": {
    "file": "aperture-duty-cycle.json.gz",
@@ -76,8 +76,8 @@
   },
   "campaign-jam-spoof-holdover-integrity.toml": {
    "file": "campaign-jam-spoof-holdover-integrity.json.gz",
-   "bytes": 325398,
-   "unpacked_bytes": 1364100,
+   "bytes": 325345,
+   "unpacked_bytes": 1364081,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -105,8 +105,8 @@
   },
   "campaign-shared-jammer-sea-road.toml": {
    "file": "campaign-shared-jammer-sea-road.json.gz",
-   "bytes": 248595,
-   "unpacked_bytes": 962588,
+   "bytes": 248641,
+   "unpacked_bytes": 962768,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the campaign result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
@@ -122,8 +122,8 @@
   },
   "campaign-spectrum-holdover-integrity.toml": {
    "file": "campaign-spectrum-holdover-integrity.json.gz",
-   "bytes": 130840,
-   "unpacked_bytes": 790222,
+   "bytes": 130893,
+   "unpacked_bytes": 790353,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -139,8 +139,8 @@
   },
   "campaign-sweep-jammer-power.toml": {
    "file": "campaign-sweep-jammer-power.json.gz",
-   "bytes": 98051,
-   "unpacked_bytes": 353967,
+   "bytes": 98113,
+   "unpacked_bytes": 354158,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the campaign result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
@@ -350,9 +350,7 @@
    ],
    "export_files": 27,
    "export_files_stored": 27,
-   "full_run": false,
-   "engine_version": "0.35.0",
-   "engine_commit": "7b5cbf966378dc4f92e77abd5534a7c316446bf7"
+   "full_run": false
   },
   "gnss-sim-raim.toml": {
    "file": "gnss-sim-raim.json.gz",
@@ -490,9 +488,7 @@
    ],
    "export_files": 51,
    "export_files_stored": 28,
-   "full_run": false,
-   "engine_version": "0.35.0",
-   "engine_commit": "7b5cbf966378dc4f92e77abd5534a7c316446bf7"
+   "full_run": false
   },
   "integrity-raim.toml": {
    "file": "integrity-raim.json.gz",
@@ -513,8 +509,8 @@
   },
   "jamming-demo.toml": {
    "file": "jamming-demo.json.gz",
-   "bytes": 179629,
-   "unpacked_bytes": 617681,
+   "bytes": 179700,
+   "unpacked_bytes": 617869,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -530,8 +526,8 @@
   },
   "jamming-harbour-approach-skyline.toml": {
    "file": "jamming-harbour-approach-skyline.json.gz",
-   "bytes": 310618,
-   "unpacked_bytes": 1002216,
+   "bytes": 309701,
+   "unpacked_bytes": 1001988,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -543,14 +539,12 @@
    ],
    "export_files": 27,
    "export_files_stored": 8,
-   "full_run": false,
-   "engine_version": "0.35.0",
-   "engine_commit": "7b5cbf966378dc4f92e77abd5534a7c316446bf7"
+   "full_run": false
   },
   "l-band-waterfall-jamming.toml": {
    "file": "l-band-waterfall-jamming.json.gz",
-   "bytes": 555592,
-   "unpacked_bytes": 967409,
+   "bytes": 555647,
+   "unpacked_bytes": 967540,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -880,14 +874,12 @@
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": false,
-   "engine_version": "0.35.0",
-   "engine_commit": "7b5cbf966378dc4f92e77abd5534a7c316446bf7"
+   "full_run": false
   },
   "leo-resilience-gnss-jammed-leo-carries.toml": {
    "file": "leo-resilience-gnss-jammed-leo-carries.json.gz",
-   "bytes": 231046,
-   "unpacked_bytes": 1155056,
+   "bytes": 231096,
+   "unpacked_bytes": 1155187,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -903,8 +895,8 @@
   },
   "leo-resilience-js-margin.toml": {
    "file": "leo-resilience-js-margin.json.gz",
-   "bytes": 36634,
-   "unpacked_bytes": 238683,
+   "bytes": 36686,
+   "unpacked_bytes": 238814,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -915,8 +907,8 @@
   },
   "leo-resilience-multiband-diversity.toml": {
    "file": "leo-resilience-multiband-diversity.json.gz",
-   "bytes": 13655,
-   "unpacked_bytes": 54541,
+   "bytes": 13705,
+   "unpacked_bytes": 54672,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the campaign result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
@@ -1020,9 +1012,7 @@
    ],
    "export_files": 10,
    "export_files_stored": 10,
-   "full_run": false,
-   "engine_version": "0.35.0",
-   "engine_commit": "7b5cbf966378dc4f92e77abd5534a7c316446bf7"
+   "full_run": false
   },
   "leo-vertical-autonomous-vehicle.toml": {
    "file": "leo-vertical-autonomous-vehicle.json.gz",
@@ -1077,8 +1067,8 @@
   },
   "leo-vertical-rail-maritime.toml": {
    "file": "leo-vertical-rail-maritime.json.gz",
-   "bytes": 239272,
-   "unpacked_bytes": 865186,
+   "bytes": 239390,
+   "unpacked_bytes": 865445,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -1118,8 +1108,8 @@
   },
   "lunar-attack-surface.toml": {
    "file": "lunar-attack-surface.json.gz",
-   "bytes": 9941,
-   "unpacked_bytes": 37620,
+   "bytes": 10035,
+   "unpacked_bytes": 37846,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the lunar-attack-surface result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
@@ -1190,8 +1180,8 @@
   },
   "lunar-jamming.toml": {
    "file": "lunar-jamming.json.gz",
-   "bytes": 22255,
-   "unpacked_bytes": 80282,
+   "bytes": 22094,
+   "unpacked_bytes": 79615,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -1237,18 +1227,7 @@
    "full_run": false
   },
   "lunar-station-coverage.toml": {
-   "file": "lunar-station-coverage.json.gz",
-   "bytes": 15382,
-   "unpacked_bytes": 93921,
-   "report": true,
-   "animation": false,
-   "animation_reason": "--animate svg: no time series to animate: the lunar-station-coverage result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
-   "exports": [],
-   "export_files": 0,
-   "export_files_stored": 0,
-   "full_run": false,
-   "engine_version": "0.35.0",
-   "engine_commit": "9caedf9742f727b7bcec741bc1ce579d41933196"
+   "error": "error: unknown scenario kind \"lunar-station-coverage\". `kshana kinds` lists all 75 built-in kinds."
   },
   "lunar-time-budget.toml": {
    "file": "lunar-time-budget.json.gz",
@@ -1324,8 +1303,8 @@
   },
   "maritime-strait-jamming.toml": {
    "file": "maritime-strait-jamming.json.gz",
-   "bytes": 180661,
-   "unpacked_bytes": 620267,
+   "bytes": 180748,
+   "unpacked_bytes": 620507,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -1413,8 +1392,8 @@
   },
   "multi-band-jamming-waterfall.toml": {
    "file": "multi-band-jamming-waterfall.json.gz",
-   "bytes": 37092,
-   "unpacked_bytes": 287991,
+   "bytes": 37142,
+   "unpacked_bytes": 288122,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -1564,9 +1543,7 @@
    ],
    "export_files": 51,
    "export_files_stored": 7,
-   "full_run": false,
-   "engine_version": "0.35.0",
-   "engine_commit": "7b5cbf966378dc4f92e77abd5534a7c316446bf7"
+   "full_run": false
   },
   "passes.toml": {
    "file": "passes.json.gz",
@@ -1903,8 +1880,8 @@
   },
   "tracking-loop.toml": {
    "file": "tracking-loop.json.gz",
-   "bytes": 11793,
-   "unpacked_bytes": 44702,
+   "bytes": 11797,
+   "unpacked_bytes": 44703,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the tracking-loop result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
