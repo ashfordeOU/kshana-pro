@@ -2272,15 +2272,36 @@ NEW035_STATIC = {
 }
 
 
-def new035(root, compact=False):
+NEW036 = [
+    ("Skyline-masked visibility, DOP and error ellipse", "docs/skyline.html", "studio/geometry/index.html", "Geometry view"),
+    ("Skyline presets and the sky-geometry functions", "docs/skyline.html", "studio/geometry/index.html", "Geometry view"),
+    ("Geometry-aware trust classification", "docs/maritime-trust.html", "studio/trust/index.html", "Trust view"),
+]
+NEW036_STATIC = {}
+# The "New in" section of the Capabilities and Home pages is the current minor release's: its table, heading and lede.
+# KSHANA_NEW_SECTION=0.36 builds the 0.36 section before Cargo.toml carries 0.36.
+NEW_SECTIONS = {
+    "0.35": (NEW035, NEW035_STATIC, "On the bridge: trust, training and evidence.",
+             "Score whether a vessel's navigation fix can be trusted, train a crew on it, map where reported positions look degraded, prove what the software said and put the answer where the crew already looks. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software, not type-approved navigation equipment: the operator stays responsible. Nothing here transmits or synthesises a radio waveform.",
+             "trust, training and evidence on the bridge"),
+    "0.36": (NEW036, NEW036_STATIC, "Geometry: what the sky above the antenna allows.",
+             "See which satellites a site can use when buildings, quays, cranes or terrain block part of the sky, what that does to the dilution of precision and the horizontal error ellipse, and how the receiver-trust score reads it. A skyline removes line-of-sight satellites and nothing more. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software, not type-approved navigation equipment: the operator stays responsible. Nothing here transmits or synthesises a radio waveform.",
+             "sky geometry and geometry-aware trust"),
+}
+_new_key = os.environ.get("KSHANA_NEW_SECTION") or ".".join(version.split(".")[:2])
+assert _new_key in NEW_SECTIONS, f"no 'New in' section written for {_new_key}: add it to NEW_SECTIONS"
+NEW_ITEMS, NEW_STATIC, NEW_HEAD, NEW_LEDE, NEW_HOME_HEAD = NEW_SECTIONS[_new_key]
+
+
+def new_section(root, compact=False):
     by_name = {c["name"]: c for c in cards}
     items = []
-    for name, doc, view, view_label in NEW035:
+    for name, doc, view, view_label in NEW_ITEMS:
         if name:
             c = by_name[name]  # a missing card stops the build: the capability must have its card
             st, title, text, proof = c["status"], c["name"], c["summary"], c.get("proof")
         else:
-            st, title, text, proof = NEW035_STATIC[doc]
+            st, title, text, proof = NEW_STATIC[doc]
         first = re.split(r"(?<=[.!?]) ", text)[0]
         chip = {"validated": '<span class="st st-v">Validated</span>', "modelled": '<span class="st st-m">Modelled</span>', "none": ""}[st]
         extra = f'<a href="{root}{view}">{esc(view_label)} in {esc(STUDIO)}</a>' if view else ""
@@ -2295,7 +2316,7 @@ def new035(root, compact=False):
 
 
 BLOCKS = {
-    "{{CHANNELS_ALL}}": channels_all, "{{NEW035}}": new035, "{{NEW035_COMPACT}}": lambda r: new035(r, True), "{{SECTOR_TEASERS}}": sector_teasers, "{{ROLES}}": roles, "{{WAYS}}": ways,
+    "{{CHANNELS_ALL}}": channels_all, "{{NEW}}": new_section, "{{NEW_COMPACT}}": lambda r: new_section(r, True), "{{NEW_HEAD}}": lambda r: esc(NEW_HEAD), "{{NEW_LEDE}}": lambda r: esc(NEW_LEDE), "{{NEW_HOME_HEAD}}": lambda r: esc(NEW_HOME_HEAD), "{{SECTOR_TEASERS}}": sector_teasers, "{{ROLES}}": roles, "{{WAYS}}": ways,
     "{{ATLAS}}": atlas, "{{EXPLORER}}": explorer, "{{BANDS}}": bands_block, "{{MCP_DEMO}}": mcp_demo,
     "{{ENGINE_BENTO}}": engine_bento,
     "{{PRO_BAND_HOME}}": lambda r: pro_band(r, "pro-band"), "{{PRO_BAND_EDITIONS}}": pro_power,
