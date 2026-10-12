@@ -449,6 +449,13 @@
    "bytes": 267935,
    "ms": 21
   },
+  "lunar-station-coverage.toml": {
+   "file": "lunar-station-coverage.json",
+   "bytes": 329874,
+   "ms": 15478,
+   "engine_version": "0.35.0",
+   "engine_commit": "9caedf9742f727b7bcec741bc1ce579d41933196"
+  },
   "lunar-time-budget.toml": {
    "file": "lunar-time-budget.json",
    "bytes": 45073,

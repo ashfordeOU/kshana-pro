@@ -1236,6 +1236,20 @@
    "export_files_stored": 0,
    "full_run": false
   },
+  "lunar-station-coverage.toml": {
+   "file": "lunar-station-coverage.json.gz",
+   "bytes": 15382,
+   "unpacked_bytes": 93921,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the lunar-station-coverage result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false,
+   "engine_version": "0.35.0",
+   "engine_commit": "9caedf9742f727b7bcec741bc1ce579d41933196"
+  },
   "lunar-time-budget.toml": {
    "file": "lunar-time-budget.json.gz",
    "bytes": 8275,

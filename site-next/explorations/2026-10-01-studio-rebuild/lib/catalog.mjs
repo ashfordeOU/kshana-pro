@@ -122,6 +122,7 @@ export const SCENARIOS = [
   ["earth-gnss-lunar.toml", "deepspace", "Earth-GNSS at the Moon", "Can a receiver near the Moon hear Earth's GNSS, and is it ever enough for a fix? (modelled)"],
   ["lunar-beacon.toml", "deepspace", "Lunar surface beacons", "How much does a handful of surveyed surface beacons collapse south-polar DOP? (modelled)"],
   ["lunar-differential-pnt.toml", "deepspace", "Lunar differential PNT", "How much does differential correction cancel common-mode error vs baseline on the Moon? (modelled)"],
+  ["lunar-station-coverage.toml", "deepspace", "Lunar reference station coverage", "Over the south-polar region and a day, what corrected error does a lunar reference station give, and how far from it does coverage hold? (modelled; not a statement about any real system)"],
   ["lunar-vlbi.toml", "deepspace", "Lunar VLBI", "What delay does an Earth-baseline VLBI pair see for a lunar surface beacon? (modelled)"],
   ["lunar-vlbi-fim.toml", "deepspace", "Lunar VLBI information", "What station-coordinate accuracy does a given VLBI tracking schedule actually buy? (modelled)"],
   ["lunar-joint-od-clock.toml", "deepspace", "Lunar joint OD+clock", "Does an Earth-baseline VLBI tie make a lunar station's absolute position observable? (modelled)"],
@@ -210,19 +211,35 @@ export const NOT_IN_BROWSER = {
 };
 // Of those, the files the Studio shows as a run recorded with the native command-line engine.
 export const RECORDED_NATIVELY = ["lunar-llr-datum.toml"];
-// Bundled scenarios that need a newer engine than an older package may be: [major, minor]. With an older live engine
-// the Studio shows the recording made with a new enough one and does not run them (an older engine refuses their
-// fields, or runs without them). The 0.36 skyline and ground-site scenarios.
-export const NEEDS_ENGINE = Object.freeze(Object.fromEntries([
-  "gnss-sim-container-terminal-skyline.toml", "integrity-harbour-approach.toml", "jamming-harbour-approach-skyline.toml",
-  "leo-pvt-fjord-skyline.toml", "leo-vertical-autonomous-vehicle-skyline.toml", "orbit-urban-canyon-skyline.toml",
-].map((f) => [f, Object.freeze([0, 36])])));
-// The engine version a scenario needs, as "0.36", when `version` (the live engine's) is older; else null.
-export function needsNewerEngine(file, version) {
+// Bundled scenarios that need a newer engine than an older package has: what they need (a kind the engine lists, or
+// a function it exports) and the release that brings it. With an engine that lacks it, the Studio shows the recording
+// made with one that has it and does not run them (an older engine refuses their fields, or runs without them).
+// The test is the engine's own capability, not its version string: a build from a branch before the release still
+// reports the previous version. The 0.36 skyline and ground-site scenarios, and the lunar reference-station kind.
+const SKYLINE_036 = Object.freeze({ release: "0.36", fn: "skyline_profile" });
+export const NEEDS_ENGINE = Object.freeze({
+  "gnss-sim-container-terminal-skyline.toml": SKYLINE_036, "integrity-harbour-approach.toml": SKYLINE_036,
+  "jamming-harbour-approach-skyline.toml": SKYLINE_036, "leo-pvt-fjord-skyline.toml": SKYLINE_036,
+  "leo-vertical-autonomous-vehicle-skyline.toml": SKYLINE_036, "orbit-urban-canyon-skyline.toml": SKYLINE_036,
+  "lunar-station-coverage.toml": Object.freeze({ release: "0.36", kind: "lunar-station-coverage" }),
+});
+// What the engine running here can do: {version, kinds, fns} (kinds from list_kinds(), fns its exported functions).
+export function engineCaps(mod) {
+  const fns = new Set(Object.keys(mod || {}).filter((k) => typeof mod[k] === "function"));
+  let kinds = null;
+  try { const k = JSON.parse(mod.list_kinds()); if (Array.isArray(k)) kinds = new Set(k.map((x) => (x && typeof x === "object" ? x.name : x)).filter((x) => typeof x === "string")); } catch { /* an engine without list_kinds */ }
+  return { version: typeof mod?.version === "function" ? String(mod.version()) : "", kinds, fns };
+}
+// The release a scenario needs, as "0.36", when the engine (caps, or a bare version string) lacks what it needs; else
+// null. Without capability facts, the version decides.
+export function needsNewerEngine(file, caps) {
   const need = NEEDS_ENGINE[file];
   if (!need) return null;
-  const [a, b] = String(version || "").split(".").map((x) => parseInt(x, 10) || 0);
-  return a > need[0] || (a === need[0] && b >= need[1]) ? null : `${need[0]}.${need[1]}`;
+  const c = typeof caps === "string" || caps == null ? { version: caps || "" } : caps;
+  if (need.kind && c.kinds) return c.kinds.has(need.kind) ? null : need.release;
+  if (need.fn && c.fns) return c.fns.has(need.fn) ? null : need.release;
+  const [a, b] = String(c.version || "").split(".").map((x) => parseInt(x, 10) || 0), [ma, mb] = need.release.split(".").map(Number);
+  return a > ma || (a === ma && b >= mb) ? null : need.release;
 }
 
 export const DEFAULT_SCENARIO = "clock-holdover.toml";

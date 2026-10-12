@@ -3,7 +3,7 @@
 // The report below is hand-written test input in the engine's field names (src/lunar_station.rs), not an engine output.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readReport, unwrap, percentileOf, textIsGeneric, HONESTY, parseState, buildSearch, withInputs, tomlNumber, stereo, cellsOf, cellPath, thresholdEdges, meets, destination, binOf, pct, metres, INPUTS, REASONS } from "./lunar-station.mjs";
+import { readReport, unwrap, percentileOf, textIsGeneric, HONESTY, parseState, buildSearch, withInputs, tomlNumber, stereo, cellsOf, cellPath, thresholdEdges, meets, destination, binOf, rangeEdges, binIn, dominantShare, pct, metres, INPUTS, REASONS } from "./lunar-station.mjs";
 
 const point = (lat, lon, corrected, extra = {}) => ({ lat_deg: lat, lon_deg: lon, distance_km: 0, azimuth_deg: 0, area_weight: 1, availability: 1, coverage_fraction: 1, corrected_p_3d_m: corrected, corrected_p_h_m: corrected, corrected_p_v_m: corrected, uncorrected_p_3d_m: corrected == null ? null : corrected * 20, hpl_median_m: 3, hpl_max_m: 4, vpl_max_m: 5, hpl_below_alert_fraction: 1, unavailable: { user_lt4: 0, station_missing_sat: 0 }, ...extra });
 // A pole, a ring of four at -89 and a ring of eight at -88: the pole and two of the -89 ring meet 1 m.
@@ -125,4 +125,15 @@ test("the coverage radius is placed along its azimuth; colour bins are multiples
   assert.equal(binOf(null, 1), null); assert.equal(binOf(1, 0), null);
   assert.equal(pct(0.5), "50.0 %"); assert.equal(pct(0.9996), "99.96 %"); assert.equal(pct(null), "not stated");
   assert.equal(metres(0.512), "0.51 m"); assert.equal(metres(28.04), "28.0 m");
+});
+
+test("the own-range colouring spreads the values' range evenly in the logarithm; one-colour maps are detected", () => {
+  const e = rangeEdges([1, 64, null, -3, 8]);
+  assert.equal(e.length, 5);
+  assert.ok(Math.abs(e[0] - 2) < 1e-9 && Math.abs(e[4] - 32) < 1e-9, e.join());
+  assert.deepEqual([1, 2.5, 64, null].map((v) => binIn(v, e)), [0, 1, 5, null]);
+  assert.equal(rangeEdges([null, 0]), null);
+  assert.deepEqual(rangeEdges([3, 3]), [3]);
+  assert.equal(dominantShare([5, 5, 5, 4, null]), 0.75);
+  assert.equal(dominantShare([]), 0);
 });
