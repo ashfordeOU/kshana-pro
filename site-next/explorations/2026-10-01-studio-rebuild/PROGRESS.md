@@ -92,3 +92,4 @@ For the 0.36 lunar reference-station study (plan on the public design branch des
 - Every figure is the report's; the projection, cell outlines, threshold boundary and the azimuth lines only place them on the drawing.
 - Tests: `lib/lunar-station.test.mjs` (hand-written report in the plan's names); `node REVIEW/make-lunar-fixture.mjs && node REVIEW/lunar-check.mjs [base] [--engine-kind] [--shots]` (a synthetic review fixture, not an engine output and not ported; `--engine-kind` runs a small study here once the scenario and a 0.36 pkg are served).
 - Port: `lunar/index.html` joins STUDIO_PAGES and VIEWS, and the lunar-station test joins ci.yml (refreshed port patch).
+- Port patch for the public repository (STUDIO_PAGES, VIEWS, ci.yml test steps, docs/SURFACES.md for the Geometry and Lunar station views and the trust geometry lane): `REVIEW/port/geometry-port-0.36.patch`, kept current; apply with `git am` on release/0.36.0-rc together with the 0.36 web/ port.

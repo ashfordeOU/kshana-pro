@@ -1,0 +1,85 @@
+From 74925165d0f8da54d684cfdfacaea4d80a31d145 Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Sun, 11 Oct 2026 23:01:18 +0000
+Subject: [PATCH] Port wiring for the Studio Geometry and Lunar station views
+ and the trust geometry lane (0.36)
+
+port_site.py treats studio/geometry/index.html and studio/lunar/index.html as Studio pages (their
+font links are localised like the other views); site.test.mjs lists them among the noindex views;
+ci.yml runs the six new Studio module tests (the Geometry view's four, the trust view's geometry
+lane and the lunar station view's reader); docs/SURFACES.md names both pages in the Studio page
+list. The ported web/ tree comes with the 0.36 integration port, which this commit needs to pass CI.
+---
+ .github/workflows/ci.yml | 12 ++++++++++++
+ docs/SURFACES.md         |  2 +-
+ web/site.test.mjs        |  2 +-
+ web/tools/port_site.py   |  4 +++-
+ 4 files changed, 17 insertions(+), 3 deletions(-)
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 311cb4f7..b7af6bb7 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -463,6 +463,18 @@ jobs:
+         run: node web/studio/lib/geojson-layer.test.mjs
+       - name: Test the training debrief's logic
+         run: node web/studio/lib/training.test.mjs
++      - name: Test the Geometry view's address (state round trip, bounds and refusals)
++        run: node web/studio/lib/geometry-url.test.mjs
++      - name: Test the Geometry view's skyline drawing (360-bin table, snapping, encoding)
++        run: node web/studio/lib/skyline-edit.test.mjs
++      - name: Test the Geometry view's skyplot drawing helpers
++        run: node web/studio/lib/skyplot.test.mjs
++      - name: Test the Geometry view's engine adapter
++        run: node web/studio/lib/geometry-adapter.test.mjs
++      - name: Test the trust view's geometry lane (0.36 fields, never good when unknown)
++        run: node web/studio/lib/trust-geometry.test.mjs
++      - name: Test the lunar station view's reader, address and map placement (0.36)
++        run: node web/studio/lib/lunar-station.test.mjs
+   # ---------------------------------------------------------------------------
+   # Overlay-registry assurance gates (Phase 0).
+   #
+diff --git a/docs/SURFACES.md b/docs/SURFACES.md
+index 1c8db47f..17d2a346 100644
+--- a/docs/SURFACES.md
++++ b/docs/SURFACES.md
+@@ -34,7 +34,7 @@ actions that run the CLI), **Notebook** (`notebooks/`), **Studio** (the Kshana S
+ Kshana Studio is the web app built on the WebAssembly build, so a Studio view exists where the
+ WASM column has an entry point, and where it does not the cell points to a **Command line card** (the
+ command to run, with its arguments), never to a result Studio computed. Pages (kshana.dev/studio/, client-side): **Maritime trust**
+-(`trust/`), **Training debrief** (`training/`), **Interference map** (`interference/`) and the
++(`trust/`), **Training debrief** (`training/`), **Interference map** (`interference/`), **Geometry** (`geometry/`: a representative skyplot, skyline, DOP, error ellipse and Monte Carlo cloud from the engine; 0.36), **Lunar station** (`lunar/`: the modelled coverage of a lunar reference station from the `lunar-station-coverage` kind; 0.36) and the
+ **Tools** page, whose sections are OSNMA (`#osnma`), Evidence packs (`#evidence`), Test-bench
+ export (`#bench`), Compliance mapping (`#compliance`), the Command line tab (telemetry card, IQ,
+ marine integrations: commands to run) and Use from your AI assistant (`#ai`). A **—** in the Studio column of the subcommand
+diff --git a/web/site.test.mjs b/web/site.test.mjs
+index c8269fb1..da6c6536 100644
+--- a/web/site.test.mjs
++++ b/web/site.test.mjs
+@@ -32,7 +32,7 @@ const MOVED = Object.keys(JSON.parse(text("tools/legacy-urls.json")).redirects.p
+ // The Studio's Advanced view (the full dashboard) is a second page of the Studio app: a view of
+ // /studio/, noindex, so it is not a page of the site map either. Its <base href="../"> makes its
+ // relative addresses resolve from the Studio's own folder.
+-const VIEWS = ["studio/advanced/index.html", "studio/trust/index.html", "studio/interference/index.html", "studio/training/index.html", "studio/tools/index.html"];
++const VIEWS = ["studio/advanced/index.html", "studio/trust/index.html", "studio/interference/index.html", "studio/training/index.html", "studio/tools/index.html", "studio/geometry/index.html", "studio/lunar/index.html"];
+ const pages = ported.filter((rel) => isPage(rel) && rel !== NOT_FOUND && !MOVED.includes(rel) && !VIEWS.includes(rel));
+ const indexed = pages;
+ for (const rel of MOVED) {
+diff --git a/web/tools/port_site.py b/web/tools/port_site.py
+index a3375f9b..d97efff8 100644
+--- a/web/tools/port_site.py
++++ b/web/tools/port_site.py
+@@ -89,7 +89,9 @@ STUDIO_SKIP_DIRS = {"REVIEW"}
+ # <base href="../"> so it shares the Simple view's engine, worker, modules and data.
+ # Since 0.35.0 it also has four views: the maritime trust view, the interference map, the training debrief and
+ # the tools page (each with <base href="../">, noindex, and a demo/ or examples/ folder of synthetic data its test reads).
+-STUDIO_PAGES = ("index.html", "advanced/index.html", "trust/index.html", "interference/index.html", "training/index.html", "tools/index.html")
++# 0.36 adds the Geometry view (geometry/: <base href="../">, noindex; no data folder, every number comes from the engine)
++# and the Lunar station view (lunar/: the same; it reads the lunar-station-coverage recording and scenario from recorded/ and scenarios/).
++STUDIO_PAGES = ("index.html", "advanced/index.html", "trust/index.html", "interference/index.html", "training/index.html", "tools/index.html", "geometry/index.html", "lunar/index.html")
+ STUDIO_SKIP_RE = re.compile(r"^(tools_.*\.mjs|.*\.d\.ts|\..*)$")
+ 
+ TEXT_EXT = (".html", ".css", ".js", ".mjs", ".json", ".txt", ".xml", ".svg", ".toml", ".md")
+-- 
+2.43.0
+
