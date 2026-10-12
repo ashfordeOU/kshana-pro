@@ -80,9 +80,10 @@
     <section class="card ls-mapcard" aria-labelledby="ls-map-h">
       <div class="card-head"><h2 id="ls-map-h" class="h3">Corrected error over the south-polar region</h2>
         <p class="card-note">South-polar stereographic: the pole in the centre, the grid's edge on the rim, 0° longitude up, 90° east to the right. Each cell is one grid point; the heavy line is where the corrected error crosses the threshold, and the dashed line is the coverage radius per azimuth.</p></div>
-      <label class="ls-f ls-layer">Colour by <select id="ls-layer"><option value="error">corrected percentile error</option><option value="availability">availability</option><option value="coverage">coverage</option></select></label>
-      <div class="ls-svgbox"><svg id="ls-map" viewBox="-210 -210 420 420" role="img" aria-labelledby="ls-map-h ls-map-desc"></svg></div>
+      <label class="ls-f ls-layer">Colour by <select id="ls-layer"><option value="error">corrected percentile error, against the threshold</option><option value="range">corrected percentile error, over its own range</option><option value="availability">availability</option><option value="coverage">coverage</option></select></label>
+      <div class="ls-svgbox"><svg id="ls-map" viewBox="-246 -210 492 420" role="img" aria-labelledby="ls-map-h ls-map-desc"></svg></div>
       <p class="sr" id="ls-map-desc"></p>
+      <p class="ls-small" id="ls-map-note" role="status"></p>
       <ul class="ls-legend" id="ls-legend" aria-label="Map key"></ul>
     </section>
 

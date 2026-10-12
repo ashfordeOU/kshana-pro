@@ -1,9 +1,9 @@
 // Browser check of the lunar station view (0.36).
 //   python3 -m http.server 8871 --bind 127.0.0.1   (from the Studio folder)
 //   node REVIEW/make-lunar-fixture.mjs && node REVIEW/lunar-check.mjs [base-url] [--engine-kind] [--shots]
-// Before the engine kind ships there is no recording and no bundled scenario: the page must say so, and a result
-// file (the synthetic review fixture) must draw. --engine-kind: the served folder has the scenario and a pkg/ that
-// runs it, so a small run here must draw too.
+// The page opens on the recording that ships (or says plainly that none does), and a result file (the synthetic
+// review fixture) must draw. With an engine older than 0.36 a run here says it needs 0.36. --engine-kind: the served
+// pkg/ runs the kind, so a small run here must draw too.
 // Exit 1 on any failure.
 import { createRequire } from "node:module";
 import { mkdirSync } from "node:fs";
@@ -37,6 +37,7 @@ async function open(path, viewport = { width: 1360, height: 1000 }, scheme = "li
   return { ctx, page, log };
 }
 // Before the port the two fixed files of this kind are missing; nothing else may be.
+// Without a recording or scenario (an older checkout) those two files are missing; nothing else may be.
 const EXPECTED_MISSING = /\/(recorded\/lunar-station-coverage\.json|scenarios\/lunar-station-coverage\.toml)$/;
 const clean = (log, what) => {
   ok(!log.console.length, `${what}: no console errors ${JSON.stringify(log.console)}`);
@@ -54,7 +55,8 @@ const HONEST = /MODELLED\.\s*Under the stated public assumptions, not a statemen
   const body = await page.textContent("body");
   ok(!/nova\s*moon|\bESA\b|European Space Agency|Moonlight/i.test(body), "generic names only: no programme or agency named in the page");
   const eng = await page.textContent("#ls-engine");
-  if (!engineKind) ok(/No recording of this study ships yet/.test(eng), `no recording yet, said plainly (${eng})`);
+  const shipped = !log.bad.some((b) => /recorded\/lunar-station-coverage\.json$/.test(b));
+  ok(shipped ? /^Showing the recording that ships/.test(eng) && await page.locator("#ls-map path.ls-cell").count() > 100 : /No recording of this study ships yet/.test(eng), `opens on the recording, or says there is none (${eng})`);
   ok(log.reqs.every((p) => !/\.\.|%2e/i.test(p)), "fixed same-origin paths only");
   clean(log, "opening");
   await ctx.close();
@@ -106,7 +108,14 @@ const HONEST = /MODELLED\.\s*Under the stated public assumptions, not a statemen
   await page.waitForFunction(() => document.getElementById("ls-url-notes").children.length > 0, null, { timeout: 30000 });
   ok(await page.locator("#ls-url-notes li").count() === 2, "two out-of-range inputs are refused, in words");
   ok(await page.isChecked('input[name="ls-src"][value="live"]'), "the source comes from the address");
-  if (!engineKind) ok(await page.isDisabled("#ls-run"), "no bundled scenario yet: a run here is not offered");
+  const hasToml = !log.bad.some((b) => /scenarios\/lunar-station-coverage\.toml$/.test(b));
+  if (!hasToml) ok(await page.isDisabled("#ls-run"), "no bundled scenario: a run here is not offered");
+  else if (!engineKind) {
+    await page.fill("#ls-in-thr", "1.5"); await page.dispatchEvent("#ls-in-thr", "change");
+    await page.click("#ls-run");
+    await page.waitForFunction(() => /needs engine|does not know/.test(document.getElementById("ls-engine").textContent), null, { timeout: 60000 });
+    ok(/needs engine 0\.36 or later/.test(await page.textContent("#ls-engine")), "an older engine: a run here says it needs 0.36");
+  }
   clean(log, "address");
   await ctx.close();
 }
@@ -118,6 +127,14 @@ if (engineKind) {
   await page.click("#ls-run");
   await page.waitForFunction(() => /Showing a run in this browser/.test(document.getElementById("ls-engine").textContent), null, { timeout: 600000 });
   ok(await page.locator("#ls-map path.ls-cell").count() > 10, "a run here draws the map");
+  const region = (await page.textContent("#ls-region")).replace(/\s+/g, " ");
+  ok(/Corrected error, 95 %, 3.D\s*[\d.]+ m/.test(region) && /Worst point\s*[\d.]+ m\s*at -?\d+\.\d{2}°, -?\d+\.\d{2}°/.test(region), `a run here: the engine's region figures, the worst point to two decimals (${region.slice(0, 120)})`);
+  const one = await page.textContent("#ls-map-note");
+  if (one) {
+    await page.selectOption("#ls-layer", "range");
+    ok(await page.locator("#ls-map path.ls-cell[class*='ls-s']").count() > 10 && /m to [\d.]+ m/.test(await page.textContent("#ls-legend")), "a one-colour threshold map: its own range spreads it, keyed in metres");
+  }
+  if (shots) await page.screenshot({ path: shotDir + "lunar-engine.png", fullPage: true });
   clean(log, "run here");
   await ctx.close();
 }

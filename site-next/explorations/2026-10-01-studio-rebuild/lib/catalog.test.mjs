@@ -95,4 +95,17 @@ console.log("catalog.test.mjs: request-path checks passed");
   assert.equal(needsNewerEngine("leo-pvt-fjord-skyline.toml", ""), "0.36", "an unknown version is treated as older");
   assert.equal(needsNewerEngine("clock-holdover.toml", "0.1.0"), null);
   for (const f of Object.keys(NEEDS_ENGINE)) assert.ok(SCENARIOS.some((s) => s[0] === f), `${f} is in the catalog`);
+  // The engine's own capability decides, whatever its version string says (a branch build before the release).
+  const { engineCaps } = await import("./catalog.mjs");
+  const old = { version: "0.35.0", kinds: new Set(["clock"]), fns: new Set(["run_all"]) };
+  const rc = { version: "0.35.0", kinds: new Set(["clock"]), fns: new Set(["run_all", "skyline_profile"]) };
+  const lun = { version: "0.35.0", kinds: new Set(["clock", "lunar-station-coverage"]), fns: new Set(["run_all", "skyline_profile"]) };
+  assert.equal(needsNewerEngine("orbit-urban-canyon-skyline.toml", old), "0.36");
+  assert.equal(needsNewerEngine("orbit-urban-canyon-skyline.toml", rc), null);
+  assert.equal(needsNewerEngine("lunar-station-coverage.toml", rc), "0.36");
+  assert.equal(needsNewerEngine("lunar-station-coverage.toml", lun), null);
+  assert.equal(needsNewerEngine("lunar-station-coverage.toml", { version: "0.36.0", kinds: null, fns: null }), null, "no kind list: the version decides");
+  const caps = engineCaps({ version: () => "0.35.0", list_kinds: () => JSON.stringify([{ name: "clock" }, { name: "lunar-station-coverage" }]), skyline_profile() {} });
+  assert.equal(caps.version, "0.35.0"); assert.ok(caps.kinds.has("lunar-station-coverage") && caps.fns.has("skyline_profile"));
+  assert.equal(engineCaps({ version: () => "0.1.0", list_kinds: () => "nope" }).kinds, null, "an unreadable kind list is no list");
 }

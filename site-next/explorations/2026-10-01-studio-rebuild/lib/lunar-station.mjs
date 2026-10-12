@@ -251,5 +251,28 @@ export function binOf(value, thr) {
   const k = BINS.findIndex((b) => value <= b * thr);
   return k < 0 ? BINS.length : k;
 }
+// Five edges spreading the values' own range over six bins, evenly in the logarithm (the errors span orders of
+// magnitude); null when there are no positive values. For the "its own range" colouring, which shows how the error
+// varies when every point sits in one band of the threshold scale.
+export function rangeEdges(values) {
+  const v = values.filter((x) => isNum(x) && x > 0);
+  if (!v.length) return null;
+  const min = Math.min(...v), lo = Math.log(min), hi = Math.log(Math.max(...v));
+  if (hi - lo < 1e-9) return [min];
+  return [1, 2, 3, 4, 5].map((k) => Math.exp(lo + ((hi - lo) * k) / 6));
+}
+export function binIn(value, edges) {
+  if (value == null || !edges) return null;
+  const k = edges.findIndex((e) => value <= e);
+  return k < 0 ? edges.length : k;
+}
+// The share of the points in the most common bin of a colouring (1 when the map would be one colour).
+export function dominantShare(bins) {
+  const n = bins.filter((b) => b != null);
+  if (!n.length) return 0;
+  const c = {};
+  for (const b of n) c[b] = (c[b] || 0) + 1;
+  return Math.max(...Object.values(c)) / n.length;
+}
 export const pct = (x) => (x == null ? "not stated" : `${(x * 100).toFixed(x > 0.999 && x < 1 ? 2 : 1)} %`);
 export const metres = (x) => (x == null ? "not stated" : x < 10 ? `${x.toFixed(2)} m` : `${x.toFixed(1)} m`);

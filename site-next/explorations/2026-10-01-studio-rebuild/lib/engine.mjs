@@ -25,6 +25,7 @@ export const ENGINE_FNS = Object.freeze([
   "export_sp3",
   "export_omm",
   "export_oem",
+  "list_kinds",
   // 0.35 (the engine package must be built from 0.35 or later; an older package lacks them and says so)
   "receiver_trust",
   "assess_vessel_log",
