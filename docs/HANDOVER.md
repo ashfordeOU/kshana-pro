@@ -1,5 +1,7 @@
 # Kshana coordinator handover
 
+> **2026-10-12 22:31 UTC: coordinator switched to `session_01VfB51TSscNzEYNpCXNGTwL`** (from session_015EnPpasos1W6PQWi7rHJxu). Check-in routine is now `trig_01FNqcRNzC1xsssxncXdR3pV` (00:30Z, bound to the new coordinator); old `trig_013aaWtKK2oZtwxYbFVMQVHJ` disabled. W38 archived (WIP on feat/fusion-ins-0.36 @ 7dfbd51), so §4 item 1 is done. Open: add_repo for kshana was blocked by the auto-mode classifier, so this coordinator has no kshana push or PR #76 subscription until the owner allows it.
+
 Written: 2026-10-12 ~22:35 UTC, by coordinator session `session_015EnPpasos1W6PQWi7rHJxu` (context ~66 % full).
 Repo of record for this file: kshana-pro, branch `ws/coordination` (private). It stays out of public kshana on
 purpose, because it names people and commercial matters. Replace this file at each handover; never append to it.
