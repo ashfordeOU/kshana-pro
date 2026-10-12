@@ -123,6 +123,8 @@ export const SCENARIOS = [
   ["lunar-beacon.toml", "deepspace", "Lunar surface beacons", "How much does a handful of surveyed surface beacons collapse south-polar DOP? (modelled)"],
   ["lunar-differential-pnt.toml", "deepspace", "Lunar differential PNT", "How much does differential correction cancel common-mode error vs baseline on the Moon? (modelled)"],
   ["lunar-station-coverage.toml", "deepspace", "Lunar reference station coverage", "Over the south-polar region and a day, what corrected error does a lunar reference station give, and how far from it does coverage hold? (modelled; not a statement about any real system)"],
+  ["lunar-station-coverage-public-sources.toml", "deepspace", "Lunar reference station, public assumptions", "Under only the publicly stated assumptions, what corrected error does the station give over the south pole? The result is dominated by the orbit elements, which are not public and set ILLUSTRATIVE; this is the input of the frozen prediction. (modelled; not a statement about any real system)"],
+  ["lunar-station-time-lab.toml", "deepspace", "Lunar station time laboratory", "After a station's miniature rubidium clock is last steered to lunar time, how long does it stay within 1, 10 and 100 ns, and which error term dominates? (modelled)"],
   ["lunar-vlbi.toml", "deepspace", "Lunar VLBI", "What delay does an Earth-baseline VLBI pair see for a lunar surface beacon? (modelled)"],
   ["lunar-vlbi-fim.toml", "deepspace", "Lunar VLBI information", "What station-coordinate accuracy does a given VLBI tracking schedule actually buy? (modelled)"],
   ["lunar-joint-od-clock.toml", "deepspace", "Lunar joint OD+clock", "Does an Earth-baseline VLBI tie make a lunar station's absolute position observable? (modelled)"],
@@ -222,6 +224,10 @@ export const NEEDS_ENGINE = Object.freeze({
   "jamming-harbour-approach-skyline.toml": SKYLINE_036, "leo-pvt-fjord-skyline.toml": SKYLINE_036,
   "leo-vertical-autonomous-vehicle-skyline.toml": SKYLINE_036, "orbit-urban-canyon-skyline.toml": SKYLINE_036,
   "lunar-station-coverage.toml": Object.freeze({ release: "0.36", kind: "lunar-station-coverage" }),
+  "lunar-station-coverage-public-sources.toml": Object.freeze({ release: "0.36", kind: "lunar-station-coverage" }),
+  // The lunar-time-budget kind is older, but its [time_lab] block is not: it ships with the station study, whose kind
+  // stands in for it.
+  "lunar-station-time-lab.toml": Object.freeze({ release: "0.36", kind: "lunar-station-coverage" }),
 });
 // What the engine running here can do: {version, kinds, fns} (kinds from list_kinds(), fns its exported functions).
 export function engineCaps(mod) {

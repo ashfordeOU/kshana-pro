@@ -1236,10 +1236,10 @@
    "export_files_stored": 0,
    "full_run": false
   },
-  "lunar-station-coverage.toml": {
-   "file": "lunar-station-coverage.json.gz",
-   "bytes": 15382,
-   "unpacked_bytes": 93921,
+  "lunar-station-coverage-public-sources.toml": {
+   "file": "lunar-station-coverage-public-sources.json.gz",
+   "bytes": 16252,
+   "unpacked_bytes": 90213,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the lunar-station-coverage result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
@@ -1248,7 +1248,35 @@
    "export_files_stored": 0,
    "full_run": false,
    "engine_version": "0.35.0",
-   "engine_commit": "9caedf9742f727b7bcec741bc1ce579d41933196"
+   "engine_commit": "3bbc465795c39d86525a6a54ca8bf9a4a2581eca"
+  },
+  "lunar-station-coverage.toml": {
+   "file": "lunar-station-coverage.json.gz",
+   "bytes": 16711,
+   "unpacked_bytes": 85752,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the lunar-station-coverage result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false,
+   "engine_version": "0.35.0",
+   "engine_commit": "3bbc465795c39d86525a6a54ca8bf9a4a2581eca"
+  },
+  "lunar-station-time-lab.toml": {
+   "file": "lunar-station-time-lab.json.gz",
+   "bytes": 21103,
+   "unpacked_bytes": 78960,
+   "report": true,
+   "animation": true,
+   "animation_reason": "",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false,
+   "engine_version": "0.35.0",
+   "engine_commit": "3bbc465795c39d86525a6a54ca8bf9a4a2581eca"
   },
   "lunar-time-budget.toml": {
    "file": "lunar-time-budget.json.gz",
