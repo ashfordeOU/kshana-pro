@@ -121,6 +121,7 @@ function readControls() {
 const skyKey = (s) => JSON.stringify({ ...s, table: s.table ? Array.from(s.table).join() : undefined });
 
 async function commit(next) {
+  if (!next.sys.length && !next.leo) { setNotes(["Pick at least one constellation."]); fillControls(); return; }
   const prevSky = skyKey(state.sky);
   const { state: n, refused } = normaliseState(next);
   const notes = refused.length ? [`Out of range, so kept at the last good value: ${refused.join(", ")}.`] : [];
@@ -317,9 +318,21 @@ function drawDops() {
     ["Open sky", Number.isFinite(result.openFraction) ? `${Math.round(result.openFraction * 100)} % of the upper hemisphere` : geo ? "not given" : NEEDS],
   ] : [];
   $("gm-counts").replaceChildren(...counts.flatMap(([k, v]) => [el("dt", {}, k), el("dd", { class: /needs|not given/.test(v) ? "na" : /^\d+$/.test(v) ? "" : "txt" }, v)]));
-  const h = d && Number.isFinite(d.hdop) ? d.hdop : null, v = d && Number.isFinite(d.vdop) ? d.vdop : null;
-  $("gm-used").textContent = h !== null ? `With σ_UERE = ${state.uere} m, under the stated error model: horizontal RMS error ≈ σ_UERE × HDOP = ${f1(state.uere * h)} m${v !== null ? `; vertical ≈ σ_UERE × VDOP = ${f1(state.uere * v)} m` : ""}.` : "";
+  // Only the engine's numbers: no multiplication here (the 0.35 GSA DOPs are rounded, and no figure is made in the page).
+  $("gm-used").textContent = errorLine();
   drawModel();
+}
+
+// Position error ≈ σ_UERE × DOP, in the engine's figures: the 1-sigma east and north errors of its ellipse, and the
+// cloud's predicted RMS. With the 0.35 engine the relation is stated without a figure.
+function errorLine() {
+  if (!result) return "";
+  if (result.backend !== "geometry") return `Position error ≈ σ_UERE × HDOP horizontally and σ_UERE × VDOP vertically; the figure ${NEEDS}.`;
+  const e = result.ellipse, bits = [];
+  if (e && Number.isFinite(e.sigmaEastM) && Number.isFinite(e.sigmaNorthM)) bits.push(`1-sigma error east ${f1(e.sigmaEastM)} m, north ${f1(e.sigmaNorthM)} m`);
+  if (cloud && Number.isFinite(cloud.predictedHorizontalM)) bits.push(`horizontal RMS σ_UERE × HDOP = ${f1(cloud.predictedHorizontalM)} m`);
+  if (cloud && Number.isFinite(cloud.predicted3dM)) bits.push(`3-D RMS σ_UERE × PDOP = ${f1(cloud.predicted3dM)} m`);
+  return bits.length ? `With σ_UERE = ${state.uere} m, under the stated error model (engine figures): ${bits.join("; ")}.` : "";
 }
 
 // The engine's own label, statement and advisory, shown with its numbers (every 0.36 result carries them).
@@ -365,10 +378,9 @@ function drawError() {
     facts.push(["Ellipse, 1-sigma", `${f1(e.semiMajorM)} m × ${f1(e.semiMinorM)} m, long axis ${Math.round(((e.orientationDeg % 180) + 180) % 180)}° from north`]);
     if (e95) facts.push([`Ellipse, ${Math.round((e95.confidence ?? 0.95) * 100)} %`, `${f1(e95.semiMajorM)} m × ${f1(e95.semiMinorM)} m${Number.isFinite(e95.scaleK) ? ` (1-sigma × ${e95.scaleK.toFixed(3)})` : ""}`]);
   }
-  const hd = result && result.dop && Number.isFinite(result.dop.hdop) ? result.dop.hdop : null;
   if (c) {
     facts.push(["Monte Carlo", `${c.samples} least-squares solutions, seed ${c.seed ?? state.seed}`]);
-    if (Number.isFinite(c.rmsHorizontalM)) facts.push(["Cloud RMS, horizontal", `${f1(c.rmsHorizontalM)} m${Number.isFinite(c.predictedHorizontalM) ? `, beside σ_UERE × HDOP = ${f1(c.predictedHorizontalM)} m` : hd !== null ? `, beside σ_UERE × HDOP = ${f1(state.uere * hd)} m` : ""}`]);
+    if (Number.isFinite(c.rmsHorizontalM)) facts.push(["Cloud RMS, horizontal", `${f1(c.rmsHorizontalM)} m${Number.isFinite(c.predictedHorizontalM) ? `, beside σ_UERE × HDOP = ${f1(c.predictedHorizontalM)} m` : ""}`]);
     if (Number.isFinite(c.rms3dM)) facts.push(["Cloud RMS, 3-D", `${f1(c.rms3dM)} m${Number.isFinite(c.predicted3dM) ? `, beside σ_UERE × PDOP = ${f1(c.predicted3dM)} m` : ""}`]);
     if (Number.isFinite(c.inside95)) facts.push(["Inside the 95 % ellipse", `${(c.inside95 * 100).toFixed(1)} % of the points`]);
   }
@@ -404,6 +416,7 @@ async function compute() {
       if (mine !== ticket) return;
       cloud = c;
       drawError();
+      $("gm-used").textContent = errorLine();
     }
   } catch (e) {
     if (mine !== ticket) return;

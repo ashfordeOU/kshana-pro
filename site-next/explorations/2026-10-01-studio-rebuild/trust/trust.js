@@ -322,7 +322,8 @@ function drawTimeline() {
   const svg = $("mt-time-svg");
   svg.replaceChildren();
   const geo = run.hasGeometry;
-  const stripY = geo ? { band: 160, gate: 178, geo: 196, cause: 214, hl: 232 } : { band: 160, gate: 178, hl: 196 };
+  // Spec item 6: the geometry under the band strip, then the cause, then the gate and the marks.
+  const stripY = geo ? { band: 160, geo: 178, cause: 196, gate: 214, hl: 232 } : { band: 160, gate: 178, hl: 196 };
   const axisY = stripY.hl + 16;
   const H = axisY + 20;
   svg.setAttribute("viewBox", `0 0 ${TL.W} ${H}`);

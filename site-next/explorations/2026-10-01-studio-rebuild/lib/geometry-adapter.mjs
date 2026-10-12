@@ -210,7 +210,7 @@ function readEllipse(e) {
   if (!e || typeof e !== "object") return null;
   const a = num(e.semi_major_m), b = num(e.semi_minor_m), o = num(e.orientation_deg);
   if (a === null || b === null || o === null || a < 0 || b < 0) return null;
-  return { semiMajorM: a, semiMinorM: b, orientationDeg: o, confidence: num(e.confidence), scaleK: num(e.scale_k) };
+  return { semiMajorM: a, semiMinorM: b, orientationDeg: o, confidence: num(e.confidence), scaleK: num(e.scale_k), sigmaEastM: num(e.sigma_east_m), sigmaNorthM: num(e.sigma_north_m) };
 }
 // What every engine result carries and the page shows (MODELLED label, statement, advisory).
 const provenanceOf = (doc) => ({ label: text(doc.label, 40), statement: text(doc.statement), advisory: text(doc.advisory) });

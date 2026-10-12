@@ -75,9 +75,6 @@
 .g-sat.unused{fill:var(--surface)}
 .g-sat.masked{fill:none;stroke-dasharray:2 2;opacity:.6}
 .gm svg .g-id{font-size:9.5px;fill:var(--ink-2)}
-.g-vtx{fill:var(--surface);stroke:var(--ink);stroke-width:2;cursor:grab}
-.g-vtx.sel,.g-vtx:focus{fill:var(--ink);outline:none}
-.g-vtx:focus-visible{stroke:var(--tim);stroke-width:3}
 .g-errbg{fill:var(--surface-2)}
 .g-cloud circle{fill:var(--tim);fill-opacity:.35}
 .g-ell{fill:none;stroke:var(--int);stroke-width:2.5}
@@ -101,7 +98,7 @@
 
 .gm-table{margin-bottom:16px}
 .gm-table summary{cursor:pointer;min-height:44px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}
-.gm-table summary h2{display:inline;margin:0}
+.gm-table summary .h3{display:inline;margin:0}
 .gm-table[open] summary{margin-bottom:10px}
 .gm-table td.num{font-family:var(--f-mono);text-align:right}
 .gm-fine{max-width:96ch;font-size:14px;line-height:1.55;color:var(--ink-2)}

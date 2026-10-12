@@ -68,6 +68,7 @@ const clean = (log, what) => {
     ok(/^\d+\.\d+$/.test(await page.locator("#gm-dops dd").nth(0).textContent()), "geometry: GDOP is given");
     ok(/^MODELLED/.test(await page.textContent("#gm-model")) && /IEC 61108, IEC 61162/.test(await page.textContent("#gm-model")), "geometry: the engine's label and advisory are shown with the numbers");
     ok(!(await page.isDisabled("#gm-sys-leo")) && await page.isVisible("#gm-svg"), "geometry: LEO and the SVG export are offered");
+    ok(/σ_UERE × HDOP = [\d.]+ m/.test(await page.textContent("#gm-used")) && /east [\d.]+ m, north [\d.]+ m/.test(await page.textContent("#gm-used")), "geometry: the error line carries the engine's figures");
     ok(/\d+ least-squares solutions/.test(await page.textContent("#gm-errfacts")) && /Inside the 95 % ellipse/.test(await page.textContent("#gm-errfacts")), "geometry: the cloud's RMS, prediction and containment are stated");
     // A preset skyline hides satellites, and the canyon form is drawn from the engine's profile.
     await page.selectOption("#gm-sky", "p:city-street");
@@ -83,6 +84,8 @@ const clean = (log, what) => {
     ok(/kshana-skyplot\.svg$/.test((await dl).suggestedFilename()), "geometry: the engine's skyplot downloads through svgsafe");
   } else {
     ok(/Needs engine 0\.36/.test(await page.textContent("#gm-errplot")), "interim: the error panel says it needs engine 0.36");
+    const line = await page.textContent("#gm-used");
+    ok(/needs engine 0\.36/.test(line) && !/=\s*[\d.]+ m/.test(line), `interim: the error line states the relation without a figure made in the page (${line})`);
     ok(/needs engine 0\.36/.test(await page.locator("#gm-dops dd").nth(0).textContent()), "interim: GDOP says it needs engine 0.36");
   }
   ok(await page.isHidden("#gm-tle-box"), "no TLE panel until the engine takes TLE text (TLE_FIELDS in the adapter)");

@@ -125,7 +125,7 @@ test("the 0.36 replies are checked field by field", async () => {
   assert.equal(r.nMasked, 1);
   assert.equal(r.nBelow, 7);
   assert.equal(r.dop.tdop, null);
-  assert.deepEqual(r.ellipse, { semiMajorM: 2.6, semiMinorM: 1.4, orientationDeg: 33, confidence: null, scaleK: null });
+  assert.deepEqual(r.ellipse, { semiMajorM: 2.6, semiMinorM: 1.4, orientationDeg: 33, confidence: null, scaleK: null, sigmaEastM: null, sigmaNorthM: null });
   assert.equal(r.ellipse95.semiMajorM, 6.36);
   assert.equal(r.ellipse95.scaleK, 2.4477);
   assert.equal(r.openFraction, 0.62);

@@ -27,7 +27,7 @@ test("every kind of state round-trips: state -> address -> state is the identity
   const table = brush(brush(emptyTable(), 90, 35, 20), 270, 12.5, 5);
   const states = [
     { ...DEFAULTS, lat: -33.8568, lon: 151.2153, h: 42.5, t: 604800, sys: ["galileo"], leo: "starlink-sop", mask: 12.5, uere: 0.75, sky: { kind: "table", table }, mc: 0, seed: 2147483647 },
-    { ...DEFAULTS, sys: [], leo: null, sky: { kind: "canyon", streetAz: 35, widthM: 18, leftM: 24, rightM: 40, antennaM: 1.5 } },
+    { ...DEFAULTS, sys: ["galileo"], leo: null, sky: { kind: "canyon", streetAz: 35, widthM: 18, leftM: 24, rightM: 40, antennaM: 1.5 } },
     { ...DEFAULTS, sky: { kind: "preset", name: "container-terminal" } },
   ];
   for (const s of states) {
@@ -76,10 +76,18 @@ test("unknown keys are ignored, theme is kept, a repeated key keeps its first va
   assert.equal(long.notes.length, 1);
 });
 
-test("an empty constellation list is kept and canonical order is written", () => {
-  assert.deepEqual(parseState("?sys=").state.sys, []);
+test("an empty constellation list is refused with a notice and never written; canonical order is", () => {
+  const r = parseState("?sys=");
+  assert.deepEqual(r.state.sys, [...DEFAULTS.sys]);
+  assert.equal(r.notes.length, 1);
+  assert.equal(buildSearch({ ...DEFAULTS, sys: [], leo: null }), "", "no sys= is ever written");
+  assert.equal(buildSearch({ ...DEFAULTS, sys: [], leo: "starlink-sop" }), "?sys=L:starlink-sop");
   assert.equal(buildSearch({ ...DEFAULTS, sys: ["beidou", "gps"] }), "?sys=G,C");
   assert.ok(MC_CHOICES.includes(DEFAULTS.mc));
+});
+
+test("theme, like every key, keeps its first value", () => {
+  assert.deepEqual(parseState("?theme=dark&theme=light").extra, { theme: "dark" });
 });
 
 test("normaliseState rounds to what a link can carry and names what it refused", () => {

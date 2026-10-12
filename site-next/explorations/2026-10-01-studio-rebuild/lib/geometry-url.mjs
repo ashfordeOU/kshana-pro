@@ -83,7 +83,8 @@ function readSky(v) {
 
 function readSys(v) {
   if (v === "tle") return { sys: [...DEFAULTS.sys], leo: null, tle: true };
-  const parts = v === "" ? [] : v.split(",");
+  if (v === "") return null; // an empty list is not a sky: the defaults, with a notice
+  const parts = v.split(",");
   if (parts.length > 4) return null;
   const sys = [], seen = new Set();
   let leo = null;
@@ -111,7 +112,7 @@ export function parseState(search) {
   try { params = new URLSearchParams(text); } catch { return { state, notes: ["The address could not be read."], extra }; }
   const seen = new Set();
   for (const [k, v] of params) {
-    if (EXTRA.includes(k)) { if (/^(dark|light)$/.test(v)) extra[k] = v; continue; }
+    if (EXTRA.includes(k)) { if (!Object.hasOwn(extra, k) && /^(dark|light)$/.test(v)) extra[k] = v; continue; }
     if (!KEYS.includes(k)) continue;
     if (seen.has(k)) { notes.push(`"${k}" appears more than once; the first value is used.`); continue; }
     seen.add(k);
@@ -151,7 +152,7 @@ export function buildSearch(state, extra = {}) {
   if (s.lat !== DEFAULTS.lat || s.lon !== DEFAULTS.lon || s.h !== DEFAULTS.h) q.push(`site=${fmt(s.lat, 4)},${fmt(s.lon, 4)},${fmt(s.h, 1)}`);
   if (s.t !== DEFAULTS.t) q.push(`t=${fmt(s.t, 0)}`);
   const codes = s.tle ? ["tle"] : [...Object.entries(SYSTEM_CODES).filter(([, n]) => s.sys.includes(n)).map(([c]) => c), ...(s.leo && LEO_PRESETS.includes(s.leo) ? [`L:${s.leo}`] : [])];
-  if (codes.join(",") !== "G,E,C") q.push(`sys=${codes.join(",")}`);
+  if (codes.length && codes.join(",") !== "G,E,C") q.push(`sys=${codes.join(",")}`); // never an empty sys=
   if (s.mask !== DEFAULTS.mask) q.push(`mask=${fmt(s.mask, 1)}`);
   if (s.uere !== DEFAULTS.uere) q.push(`uere=${fmt(s.uere, 2)}`);
   const sky = s.sky || DEFAULTS.sky;
