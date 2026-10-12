@@ -37,3 +37,4 @@ Cargo.lock.orig
 # Dated ledger snapshots taken by hand before a gap-audit re-run. The ledger
 # itself is tracked; these are local rollback copies.
 *.bak-*
+tools/brief/kshana-brief.png

@@ -1,0 +1,34 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root{--bg:#f7f7f5;--card:#fff;--ink:#1f2328;--muted:#6b7280;--line:#e5e7eb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px/1.4 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
+.wrap{width:1600px;padding:36px 40px}
+header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px}
+h1{margin:0;font-size:30px;letter-spacing:-.01em}.sub{color:var(--muted);margin-top:4px}
+.eta{background:#eef4ff;color:#1e40af;border-radius:10px;padding:10px 14px;font-weight:600}
+.grid{display:grid;grid-template-columns:1.05fr 1fr 1fr;gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 12px}
+.bar{height:14px;background:#eceff3;border-radius:7px;overflow:hidden;margin:8px 0 6px}.bar>i{display:block;height:100%;width:89%;background:linear-gradient(90deg,#16a34a,#22c55e)}
+.big{font-size:44px;font-weight:700;line-height:1}.big small{font-size:16px;color:var(--muted);font-weight:500;margin-left:8px}
+ul{margin:0;padding:0;list-style:none}li{padding:5px 0 5px 22px;position:relative;border-bottom:1px dashed #eef0f2}li:last-child{border:0}
+li:before{position:absolute;left:0;top:5px;font-weight:700}
+li.done:before{content:"✓";color:#16a34a}li.open:before{content:"●";color:#2563eb;font-size:12px;top:7px}li.park:before{content:"‖";color:#9ca3af}
+.sec{margin-top:14px}.sec h3{font-size:13px;margin:0 0 4px;color:#374151}
+table{width:100%;border-collapse:collapse}td{padding:6px 4px;border-bottom:1px dashed #eef0f2;vertical-align:top}tr:last-child td{border:0}
+td.k{font-weight:600;white-space:nowrap;padding-right:12px}.d{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;vertical-align:1px}
+.wait td.k{color:#b45309}.wait tr:first-child td{background:#fff7ed}.wait tr:first-child td.k{color:#c2410c}
+footer{margin-top:16px;color:var(--muted);font-size:12.5px}
+</style></head><body><div class="wrap">
+<header><div><h1>Kshana — 0.36.0 in build (geometry + full lunar station study)</h1><div class="sub">As of 2026-10-12 19:00 UTC · read-only snapshot</div></div><div class="eta">0.36.0 live ≈ 13 Oct 02:00–03:00 UTC (one CI run, approved)</div></header>
+<div class="grid">
+<div class="card"><h2>Plan</h2><div class="big">89%<small>17 of 19 0.36 definition-of-done rows done</small></div><div class="bar"><i></i></div>
+<div class="sec"><h3>Done</h3><ul><li class="done">rc e0536260: geometry, skyline, trust, JetBrains fix, D5 jammer Q</li><li class="done">Lunar time lab + station geodesy + RINEX clock systems</li><li class="done">Lunar coverage map (A): numpy check reviewed; float-rounding miss recorded</li><li class="done">Published-claims comparison (B): reviewer MERGE, 1 of 6 bars, MODELLED</li><li class="done">Ledger 274 rows: 134 VALIDATED / 136 MODELLED / 4 PARTNER</li><li class="done">Frozen prediction (C) written; reviewer reproduced every hash</li><li class="done">Single-CI-run release path approved; workflow change in rc</li><li class="done">LinkedIn posted · NDA sent to SJAWS</li></ul></div>
+<div class="sec"><h3>Missing (in progress)</h3><ul><li class="open">W22: commit C's result files (were git-ignored) + final lunar page → rc (~19:30)</li><li class="open">W1b: version bump, single re-record, counts, social card, port → final commit (~20:30)</li><li class="open">ONE full CI run on the final commit (~4 h) — must be fully green</li><li class="open">Fast-forward main + tag v0.36.0 (~00:30) → release jobs → live ~02:00–03:00</li></ul></div>
+<div class="sec"><h3>Parked</h3><ul><li class="park">Lab-fit from IQ: implementation 0.37</li><li class="park">NDA: file countersigned copy when it returns; schedule call</li><li class="park">winget 0.35.0 PR: waiting on Microsoft review</li></ul></div></div>
+<div style="display:flex;flex-direction:column;gap:18px">
+<div class="card"><h2>Who is working on what</h2><table><tr><td class="k"><span class="d" style="background:#2563eb"></span>Coordinator</td><td>Merging as reviews pass; check-in 20:00 UTC</td></tr><tr><td class="k"><span class="d" style="background:#2563eb"></span>W22</td><td>C fix: result files + final lunar page</td></tr><tr><td class="k"><span class="d" style="background:#d97706"></span>C reviewer</td><td>Confirms the fix (all else verified)</td></tr><tr><td class="k"><span class="d" style="background:#2563eb"></span>W23</td><td>Public-sources + time-lab into Studio</td></tr><tr><td class="k"><span class="d" style="background:#d97706"></span>W1b</td><td>Final site run on the final rc</td></tr><tr><td class="k"><span class="d" style="background:#16a34a"></span>W24</td><td>Done (B merged)</td></tr><tr><td class="k"><span class="d" style="background:#d97706"></span>W2</td><td>Watches RustSec / winget</td></tr></table></div>
+<div class="card"><h2>Recent releases</h2><table><tr><td class="k"><span class="d" style="background:#2563eb"></span>0.36.0</td><td>geometry, skyline, trust, lunar reference station — rc e0536260</td></tr><tr><td class="k"><span class="d" style="background:#16a34a"></span>0.35.0</td><td>12 Oct — all channels verified</td></tr><tr><td class="k"><span class="d" style="background:#16a34a"></span>0.34.1</td><td>10 Oct — D14 fix</td></tr><tr><td class="k"><span class="d" style="background:#16a34a"></span>0.34.0</td><td>10 Oct — GNSS IQ engine, campaigns, monitors</td></tr></table></div></div>
+<div style="display:flex;flex-direction:column;gap:18px">
+<div class="card"><h2>Tests</h2><table><tr><td class="k">Frozen prediction (C)</td><td>region + points + doc hashes reproduced exactly</td></tr><tr><td class="k">Published claims (B)</td><td>figures reproduce in 7.2 s</td></tr><tr><td class="k">Lunar numpy check (A)</td><td>passes; miss pinned, bar unchanged</td></tr><tr><td class="k">CLI first-run · MCP round_trip</td><td>5/5 · 24/24</td></tr><tr><td class="k">CI on rc</td><td>only stale website counts left (site port fixes)</td></tr></table></div>
+<div class="card wait"><h2>Waiting on you</h2><table><tr><td class="k">Later</td><td>Send me Liz's countersigned NDA when it arrives</td></tr><tr><td class="k">At release</td><td>Paste Zenodo notes (file in workspace; hash updated)</td></tr><tr><td class="k">No action</td><td>winget PR, RustSec — external review</td></tr></table></div></div>
+</div><footer>Sources: release/0.36.0-rc e0536260 · feat/geometry-trust-0.36 1afa7633 · site-port/0.36.0 · reviewer reports.</footer></div></body></html>

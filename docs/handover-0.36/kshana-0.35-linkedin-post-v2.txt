@@ -1,0 +1,21 @@
+A GNSS receiver can report a perfectly valid fix while its position is walking away from the truth.
+
+Kshana 0.35 is built for that moment.
+
+🛰️ Receiver trust. Kshana scores every position fix from 0 to 100, using only the NMEA 0183 the receiver already puts on the bus. When the fix still says "valid" but the checks disagree, the score falls, and Kshana names which checks reduced it and by how much.
+
+🧭 Crew training. It generates synthetic bridge NMEA with scripted jamming, position drag-off, time-spoof and replay events, so a crew can see a degraded fix on their own instruments. The debrief view then shows what really happened, moment by moment.
+
+🔐 Galileo OSNMA. An open, pure-Rust receiver-side verifier for authenticated navigation data. It passes all 18 official test-vector sets, with 186,382 tags authenticated and 0 failures.
+
+📡 The answer goes where people already look: signed evidence packs that anyone can verify offline, SOC telemetry (Prometheus, OpenTelemetry, CEF, LEEF), Signal K and OpenCPN on the chart plotter, a per-day interference map from ADS-B and AIS, compliance mapping by clause, and 39 MCP tools for AI assistants.
+
+132 results are validated against external reference data, and each one is traceable in a public ledger.
+
+Open source (AGPL-3.0). Try it in your browser at https://kshana.dev, with no install needed. It installs with cargo, pip, npm, brew or scoop, or as a JetBrains plugin. Source: https://github.com/ashfordeOU/kshana
+
+Everything in the video is the real engine running on kshana.dev. Nothing is mocked up.
+
+Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
+
+#GNSS #PNT #ResilientPNT #GNSSjamming #GNSSspoofing #MaritimeSafety #Cybersecurity #Galileo #OSNMA #OpenSource

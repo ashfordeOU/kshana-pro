@@ -1,0 +1,127 @@
+{
+ "title": "Kshana — 0.36.0 in build (geometry + full lunar station study)",
+ "asof": "2026-10-12 19:00 UTC",
+ "eta": "0.36.0 live ≈ 13 Oct 02:00–03:00 UTC (one CI run, approved)",
+ "plan": {
+  "done": 17,
+  "total": 19,
+  "label": "0.36 definition-of-done rows"
+ },
+ "milestones_done": [
+  "rc e0536260: geometry, skyline, trust, JetBrains fix, D5 jammer Q",
+  "Lunar time lab + station geodesy + RINEX clock systems",
+  "Lunar coverage map (A): numpy check reviewed; float-rounding miss recorded",
+  "Published-claims comparison (B): reviewer MERGE, 1 of 6 bars, MODELLED",
+  "Ledger 274 rows: 134 VALIDATED / 136 MODELLED / 4 PARTNER",
+  "Frozen prediction (C) written; reviewer reproduced every hash",
+  "Single-CI-run release path approved; workflow change in rc",
+  "LinkedIn posted · NDA sent to SJAWS"
+ ],
+ "milestones_open": [
+  "W22: commit C's result files (were git-ignored) + final lunar page → rc (~19:30)",
+  "W1b: version bump, single re-record, counts, social card, port → final commit (~20:30)",
+  "ONE full CI run on the final commit (~4 h) — must be fully green",
+  "Fast-forward main + tag v0.36.0 (~00:30) → release jobs → live ~02:00–03:00"
+ ],
+ "milestones_parked": [
+  "Lab-fit from IQ: implementation 0.37",
+  "NDA: file countersigned copy when it returns; schedule call",
+  "winget 0.35.0 PR: waiting on Microsoft review"
+ ],
+ "people": [
+  [
+   "Coordinator",
+   "Merging as reviews pass; check-in 20:00 UTC",
+   "active"
+  ],
+  [
+   "W22",
+   "C fix: result files + final lunar page",
+   "active"
+  ],
+  [
+   "C reviewer",
+   "Confirms the fix (all else verified)",
+   "waiting"
+  ],
+  [
+   "W23",
+   "Public-sources + time-lab into Studio",
+   "active"
+  ],
+  [
+   "W1b",
+   "Final site run on the final rc",
+   "waiting"
+  ],
+  [
+   "W24",
+   "Done (B merged)",
+   "done"
+  ],
+  [
+   "W2",
+   "Watches RustSec / winget",
+   "waiting"
+  ]
+ ],
+ "releases": [
+  [
+   "0.36.0",
+   "geometry, skyline, trust, lunar reference station — rc e0536260",
+   "now"
+  ],
+  [
+   "0.35.0",
+   "12 Oct — all channels verified",
+   "ok"
+  ],
+  [
+   "0.34.1",
+   "10 Oct — D14 fix",
+   "ok"
+  ],
+  [
+   "0.34.0",
+   "10 Oct — GNSS IQ engine, campaigns, monitors",
+   "ok"
+  ]
+ ],
+ "tests": [
+  [
+   "Frozen prediction (C)",
+   "region + points + doc hashes reproduced exactly"
+  ],
+  [
+   "Published claims (B)",
+   "figures reproduce in 7.2 s"
+  ],
+  [
+   "Lunar numpy check (A)",
+   "passes; miss pinned, bar unchanged"
+  ],
+  [
+   "CLI first-run · MCP round_trip",
+   "5/5 · 24/24"
+  ],
+  [
+   "CI on rc",
+   "only stale website counts left (site port fixes)"
+  ]
+ ],
+ "waiting": [
+  [
+   "Later",
+   "Send me Liz's countersigned NDA when it arrives"
+  ],
+  [
+   "At release",
+   "Paste Zenodo notes (file in workspace; hash updated)"
+  ],
+  [
+   "No action",
+   "winget PR, RustSec — external review"
+  ]
+ ],
+ "sources": "release/0.36.0-rc e0536260 · feat/geometry-trust-0.36 1afa7633 · site-port/0.36.0 · reviewer reports."
+}
