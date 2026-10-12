@@ -1,0 +1,49 @@
+{
+ "studio": "http://127.0.0.1:8871/",
+ "when": "2026-10-12T19:45:48.748Z",
+ "gates": {
+  "throttle": {
+   "target": "a labelled recorded result before the engine is ready (Fast 3G + 4x CPU)",
+   "rows": [
+    {
+     "device": "phone",
+     "entry": "landing",
+     "first_answer_ms": 3058,
+     "first_result_ms": 8923,
+     "engine_ready_ms": 84023,
+     "label": "Recorded result · v0.35.0",
+     "engine_chip_at_result": "Engine loading",
+     "before_engine": true
+    },
+    {
+     "device": "phone",
+     "entry": "dl-raim",
+     "first_answer_ms": 2534,
+     "first_result_ms": 2535,
+     "engine_ready_ms": 85917,
+     "label": "Recorded result · v0.35.0 · engine loading",
+     "engine_chip_at_result": "Engine loading",
+     "before_engine": true
+    },
+    {
+     "device": "desktop",
+     "entry": "dl-waterfall",
+     "first_answer_ms": 2407,
+     "first_result_ms": 2407,
+     "engine_ready_ms": 86699,
+     "label": "Recorded result · v0.35.0 · engine loading",
+     "engine_chip_at_result": "Engine loading",
+     "before_engine": true
+    }
+   ],
+   "pass": true
+  },
+  "errors": {
+   "target": "0",
+   "count": 0,
+   "errors": [],
+   "harness_noise": 0,
+   "pass": true
+  }
+ }
+}
