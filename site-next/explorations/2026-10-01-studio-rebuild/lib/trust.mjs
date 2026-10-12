@@ -13,6 +13,8 @@
 //   * a truth file (t_s,true_lat_deg,true_lon_deg), which exists only for synthetic data.
 // Advisory software: nothing here is a measure of how the checks do on real interference.
 
+import { readEpochGeometry, readDegradation, readExplained, readGeometryModel, readGeometrySummary, describeGeometry } from "./trust-geometry.mjs";
+
 export const BANDS = ["calibrating", "nominal", "degraded", "untrusted"];
 
 // One line per monitor, from docs/MARITIME-TRUST.md ("What each check catches"), for hover text.
@@ -231,8 +233,12 @@ function fromResultEpoch(e) {
     pos: m && Array.isArray(m.position) && isNum(m.position[0]) && isNum(m.position[1]) ? [m.position[0], m.position[1]] : null,
     gate: null,
     note: null,
+    ...geometryOf(e),
   };
 }
+
+// The 0.36 geometry beside the score (lib/trust-geometry.mjs): the same fields on a batch epoch and a 1.3 line.
+const geometryOf = (e) => ({ geometry: readEpochGeometry(e.geometry), degradation: readDegradation(e.degradation), explained: readExplained(e.explained_by_geometry) });
 
 function fromLineEpoch(e) {
   const ratios = table();
@@ -257,6 +263,7 @@ function fromLineEpoch(e) {
     gate: ["off", "passed", "withheld"].includes(e.gate) ? e.gate : null,
     note: typeof e.note === "string" ? e.note : null,
     time: typeof e.time === "string" ? e.time : null,
+    ...geometryOf(e),
   };
 }
 
@@ -337,7 +344,7 @@ export function joinTruth(epochs, truth, tolS = 0.5) {
 export function buildRun(inputs) {
   const notes = [];
   let advisory = "";
-  let epochs, model = null, monitorsRun = null, events = [], source, states = null;
+  let epochs, model = null, monitorsRun = null, events = [], source, states = null, geometryModel = null, geometrySummary = null;
   if (inputs.result) {
     const r = inputs.result;
     if (!Array.isArray(r.epochs)) return { error: "This result file has no epochs[]. It needs to come from `kshana receiver-trust <session.toml>` for a vessel session." };
@@ -350,6 +357,8 @@ export function buildRun(inputs) {
     monitorsRun = Array.isArray(r.monitors_run) ? r.monitors_run.slice() : null;
     events = (r.events || []).filter((e) => isNum(e.onset_s)).map((e) => ({ label: e.label, onset_s: e.onset_s, end_s: e.end_s ?? null }));
     states = r.states || null;
+    geometryModel = readGeometryModel(r.geometry_model);
+    geometrySummary = readGeometrySummary(r.geometry_summary);
     source = "result";
   } else if (inputs.lines) {
     const ok = inputs.lines.filter((e) => e && typeof e === "object" && isNum(e.t_s));
@@ -362,7 +371,7 @@ export function buildRun(inputs) {
     notes.push("A live stream does not state which monitors ran or the score model; the band edges below are the documented defaults and the monitor strips show only monitors that cost points.");
   } else if (inputs.csv) {
     advisory = typeof inputs.csv.advisory === "string" ? inputs.csv.advisory : "";
-    epochs = inputs.csv.epochs.map((e) => ({ ...e, unknownState: knownState(e.rawState) ? null : String(e.rawState), deductions: cleanDeductions(e.deductions), ratios: table(), pos: null, gate: null, note: null }));
+    epochs = inputs.csv.epochs.map((e) => ({ ...e, unknownState: knownState(e.rawState) ? null : String(e.rawState), deductions: cleanDeductions(e.deductions), ratios: table(), pos: null, gate: null, note: null, geometry: null, degradation: null, explained: [] }));
     source = "csv";
     notes.push("trust.csv carries scores and reasons but not ratios or positions.");
   } else return { error: "Nothing to draw: pick a result JSON, JSON lines or trust.csv." };
@@ -408,6 +417,9 @@ export function buildRun(inputs) {
     t1: epochs[epochs.length - 1].t_s,
     firstDeduction: epochs.findIndex((e) => e.deductions.length > 0),
     firstUntrusted: epochs.findIndex((e) => e.state === "untrusted"),
+    // 0.36: the geometry lane. hasGeometry is false for a run from an older engine (nothing is drawn as good).
+    hasGeometry: epochs.some((e) => e.geometry),
+    geometryModel, geometrySummary,
   };
   return { run };
 }
@@ -416,7 +428,8 @@ export function buildRun(inputs) {
 // monitor carries; monitors that ran and cost nothing; monitors that did not run.
 export function reasonsAt(run, i) {
   const e = run.epochs[i];
-  const ded = e.deductions.slice().sort((a, b) => b.points - a.points).map((d) => ({ ...d, weight: Object.hasOwn(run.weights, d.monitor) && isNum(run.weights[d.monitor]) ? run.weights[d.monitor] : null }));
+  // explained: the geometry explains this monitor at this epoch (it still costs its points).
+  const ded = e.deductions.slice().sort((a, b) => b.points - a.points).map((d) => ({ ...d, weight: Object.hasOwn(run.weights, d.monitor) && isNum(run.weights[d.monitor]) ? run.weights[d.monitor] : null, explained: (e.explained || []).includes(d.monitor) }));
   const names = new Set(ded.map((d) => d.monitor));
   let faint = [], notRun = [];
   if (run.monitorsRun) {
@@ -456,6 +469,8 @@ export function describeEpoch(run, i) {
   if (e.deductions.length) bits.push("reasons: " + e.deductions.slice().sort((a, b) => b.points - a.points).slice(0, 3).map((d) => `${d.monitor} ${d.points.toFixed(1)} points`).join(", "));
   if (e.gate && e.gate !== "off") bits.push(`gate ${e.gate}${run.gateDerived ? " (derived)" : ""}`);
   if (e.offsetM != null) bits.push(`reported position ${Math.round(e.offsetM)} m from true`);
+  const geo = describeGeometry(e);
+  if (geo) bits.push(geo);
   return bits.join(", ");
 }
 

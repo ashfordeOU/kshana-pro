@@ -6,6 +6,7 @@ import {
   stepIndex, describeEpoch, pkshtFor, bandRuns, makeProjection, niceLength, monitorInfo, MAX_BYTES, MAX_BYTES_TEXT, KNOWN_MONITORS,
 } from "../lib/trust.mjs";
 
+import { geometryAt, countGeometry, statusKey, causeKey, DEGRADATION_TEXT, UNKNOWN_TEXT } from "../lib/trust-geometry.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
 import { parseSvgMarkup, sanitizeSvg } from "../lib/svgsafe.mjs";
 
@@ -13,6 +14,11 @@ const $ = (id) => document.getElementById(id);
 const NS = "http://www.w3.org/2000/svg";
 const BAND_VAR = { calibrating: "var(--b-cal)", nominal: "var(--b-nom)", degraded: "var(--b-deg)", untrusted: "var(--b-unt)" };
 const BAND_W = { calibrating: 2, nominal: 2.6, degraded: 3.2, untrusted: 4 };
+// The geometry lane (0.36). Status: green good, amber degraded, grey hatched unknown (never good). Cause: a masked
+// sky (geometry) in a neutral blue; attack-like inconsistency in the band's red, and with a poor sky in amber; so a
+// masked sky and an attack never share a colour.
+const GEO_FILL = { good: "var(--b-nom)", degraded: "var(--b-deg)", unknown: "url(#mt-hatch)" };
+const CAUSE_FILL = { none: "var(--b-cal)", geometry: "var(--g-sky)", inconsistency: "var(--b-unt)", "geometry-and-inconsistency": "var(--b-deg)" };
 
 function el(tag, attrs, ...kids) {
   const n = document.createElement(tag);
@@ -180,6 +186,16 @@ async function openDemo() {
   } catch (e) { setStatus(`The demo could not be opened: ${e.message}.`, true); }
 }
 
+async function openGeoDemo() {
+  setStatus("Opening the masked-sky demo…");
+  try {
+    const [a, b] = await Promise.all([fetch("trust/demo/masked-sky.result.json"), fetch("trust/demo/tallinn-helsinki.truth.csv")]);
+    if (!a.ok || !b.ok) throw new Error("the demo files did not load");
+    await openTexts([{ name: "masked-sky.result.json", text: await a.text() }, { name: "tallinn-helsinki.truth.csv", text: await b.text() }],
+      "Synthetic masked-sky demo: the ferry log with the western half of the sky blanked from 600 s (natural degradation, put down to geometry) and the same made-up drag-off from 1500 s (attack-like). Recorded from an engine with the 0.36 geometry; text, not a measurement.", { demo: true });
+  } catch (e) { setStatus(`The demo could not be opened: ${e.message}.`, true); }
+}
+
 // ---------- drawing ----------
 
 function openRun(r) {
@@ -305,7 +321,10 @@ const fmtT = (t) => (t >= 120 ? `${Math.round(t / 60)} min` : `${Math.round(t)} 
 function drawTimeline() {
   const svg = $("mt-time-svg");
   svg.replaceChildren();
-  const H = 232;
+  const geo = run.hasGeometry;
+  const stripY = geo ? { band: 160, gate: 178, geo: 196, cause: 214, hl: 232 } : { band: 160, gate: 178, hl: 196 };
+  const axisY = stripY.hl + 16;
+  const H = axisY + 20;
   svg.setAttribute("viewBox", `0 0 ${TL.W} ${H}`);
   const m = run.model;
   // grid and edges
@@ -316,7 +335,7 @@ function drawTimeline() {
   svg.querySelectorAll("text").forEach((t) => t.setAttribute("style", "font-size:10px"));
   // events
   for (const ev of run.events) {
-    svg.append(sv("line", { x1: xOf(ev.onset_s), x2: xOf(ev.onset_s), y1: TL.scoreTop, y2: 205, class: "evt" }), sv("text", { x: xOf(ev.onset_s) + 4, y: TL.scoreTop + 10 }, `event: ${ev.label || "onset"}`));
+    svg.append(sv("line", { x1: xOf(ev.onset_s), x2: xOf(ev.onset_s), y1: TL.scoreTop, y2: axisY - 7, class: "evt" }), sv("text", { x: xOf(ev.onset_s) + 4, y: TL.scoreTop + 10 }, `event: ${ev.label || "onset"}`));
   }
   // score line, broken where there is no score
   let d = "", pen = false;
@@ -325,8 +344,7 @@ function drawTimeline() {
     d += `${pen ? "L" : "M"}${f1(xOf(e.t_s))} ${f1(yOfScore(e.score))}`; pen = true;
   });
   svg.append(sv("path", { class: "score", d }));
-  // strips: band, gate, highlighted epochs
-  const stripY = { band: 160, gate: 178, hl: 196 };
+  // strips: band, gate, (geometry, cause), highlighted epochs
   svg.append(sv("text", { x: TL.L - 8, y: stripY.band + 9, "text-anchor": "end" }, "band"), sv("text", { x: TL.L - 8, y: stripY.gate + 9, "text-anchor": "end" }, "gate"), sv("text", { x: TL.L - 8, y: stripY.hl + 7, "text-anchor": "end" }, "marked"));
   dyn.bandRects = [];
   for (const [a, b, band] of runsOf((e) => e.state)) {
@@ -341,10 +359,26 @@ function drawTimeline() {
     rc.append(sv("title", {}, `gate ${g}${run.gateDerived ? " (derived)" : ""}, ${fmtT(run.epochs[a].t_s)} to ${fmtT(run.epochs[b].t_s)}`));
     svg.append(rc);
   }
+  if (geo) {
+    svg.append(sv("text", { x: TL.L - 8, y: stripY.geo + 9, "text-anchor": "end" }, "sky"), sv("text", { x: TL.L - 8, y: stripY.cause + 9, "text-anchor": "end" }, "cause"));
+    for (const [a, b, k] of runsOf(statusKey)) {
+      if (k === "missing") continue;
+      const rc = sv("rect", { x: xOf(run.epochs[a].t_s), y: stripY.geo, width: Math.max(1, xEnd(b) - xOf(run.epochs[a].t_s)), height: 12, fill: GEO_FILL[k], class: k === "unknown" ? "mt-unknown" : null });
+      rc.append(sv("title", {}, `${k === "unknown" ? UNKNOWN_TEXT : `geometry ${k}`}, ${fmtT(run.epochs[a].t_s)} to ${fmtT(run.epochs[b].t_s)}`));
+      svg.append(rc);
+    }
+    for (const [a, b, k] of runsOf(causeKey)) {
+      if (k === "missing") continue;
+      const rc = sv("rect", { x: xOf(run.epochs[a].t_s), y: stripY.cause, width: Math.max(1, xEnd(b) - xOf(run.epochs[a].t_s)), height: 12, fill: CAUSE_FILL[k], opacity: k === "none" ? 0.3 : 1 });
+      rc.append(sv("title", {}, `${DEGRADATION_TEXT[k]}, ${fmtT(run.epochs[a].t_s)} to ${fmtT(run.epochs[b].t_s)}`));
+      svg.append(rc);
+    }
+  }
+  dyn.hlY = stripY.hl;
   dyn.hlRects = sv("g"); svg.append(dyn.hlRects);
   // time axis
-  for (const t of timeTicks()) svg.append(sv("line", { x1: xOf(t), x2: xOf(t), y1: 212, y2: 217, class: "ax" }), sv("text", { x: xOf(t), y: 229, "text-anchor": "middle" }, fmtT(t)));
-  dyn.curLine = sv("line", { class: "cur", y1: TL.scoreTop - 4, y2: 210 });
+  for (const t of timeTicks()) svg.append(sv("line", { x1: xOf(t), x2: xOf(t), y1: axisY, y2: axisY + 5, class: "ax" }), sv("text", { x: xOf(t), y: axisY + 17, "text-anchor": "middle" }, fmtT(t)));
+  dyn.curLine = sv("line", { class: "cur", y1: TL.scoreTop - 4, y2: axisY - 2 });
   svg.append(dyn.curLine);
   svg.onpointerdown = (ev) => { svg.setPointerCapture?.(ev.pointerId); timePointer(ev); };
   svg.onpointermove = (ev) => { if (ev.buttons || ev.pointerType === "mouse") timePointer(ev); };
@@ -426,6 +460,10 @@ function drawLegend() {
   const items = [["calibrating", "Calibrating (never scored)"], ["nominal", "Nominal"], ["degraded", "Degraded"], ["untrusted", "Untrusted"]];
   const li = items.map(([b, t]) => el("li", { style: `--c:${BAND_VAR[b]}` }, el("i", {}), t));
   if (run.hasTruth) li.push(el("li", { style: "--c:var(--truth)" }, el("i", { class: "thin" }), "True track (synthetic data only)"));
+  if (run.hasGeometry) {
+    li.push(el("li", { class: "mt-lg-head" }, "Sky:"), el("li", { style: `--c:${GEO_FILL.good}` }, el("i", {}), "geometry good"), el("li", { style: `--c:${GEO_FILL.degraded}` }, el("i", {}), "geometry degraded"), el("li", {}, el("i", { class: "hatch" }), "geometry unknown (no GSV or GSA; not good)"));
+    li.push(el("li", { class: "mt-lg-head" }, "Cause:"), el("li", { style: `--c:${CAUSE_FILL.geometry}` }, el("i", {}), "geometry: the sky, not the signal"), el("li", { style: `--c:${CAUSE_FILL.inconsistency}` }, el("i", {}), "inconsistency (attack-like)"), el("li", { style: `--c:${CAUSE_FILL["geometry-and-inconsistency"]}` }, el("i", {}), "geometry and inconsistency"));
+  }
   if (run.demo) li.push(el("li", {}, "In this demo the receiver reports a valid fix throughout (GGA quality 1, RMC status A). The score is what falls."));
   $("mt-legend").replaceChildren(...li);
 }
@@ -455,6 +493,36 @@ function drawSettings() {
   box.append(el("details", { class: "mt-gloss" }, el("summary", {}, "What each check looks at"),
     el("dl", {}, KNOWN_MONITORS.map((m) => [el("dt", {}, m), el("dd", {}, monitorInfo(m))]).flat())));
   if (run.monitorsRun) box.append(el("h4", {}, "Checks that ran"), el("p", { class: "mt-none" }, run.monitorsRun.join(", ")));
+  drawGeometrySettings(box);
+}
+
+// The geometry thresholds and their provenance, beside the score settings (0.36). They decide the lane only:
+// the geometry never changes the score.
+function drawGeometrySettings(box) {
+  box.append(el("h4", {}, "Geometry (beside the score, never part of it)"));
+  if (!run.hasGeometry) { box.append(el("p", { class: "mt-none" }, "This run carries no geometry: it comes from an engine before 0.36, or from trust.csv. Nothing about the sky is shown, and nothing is shown as good.")); return; }
+  const gm = run.geometryModel;
+  if (gm && gm.thresholds.length) {
+    const g = el("dl", { class: "mt-setgrid" });
+    for (const t of gm.thresholds) g.append(el("div", {}, el("dt", { title: t.what }, t.key), el("dd", {}, f1(t.value))));
+    box.append(g);
+  } else box.append(el("p", { class: "mt-none" }, "A live stream does not state the geometry thresholds; the documented defaults apply (PDOP 6, HDOP 4, five satellites, a 180° azimuth gap)."));
+  const c = countGeometry(run.epochs);
+  box.append(el("p", { class: "mt-none" }, `Epochs: ${c.good} good sky, ${c.degraded} degraded, ${c.unknown} unknown${c.odd ? ` (${c.odd} with a status this page does not know, read as unknown)` : ""}. Put down to geometry ${c.geometry}, to inconsistency ${c.inconsistency}, to both ${c["geometry-and-inconsistency"]}.`));
+  if (gm && (gm.provenance.length || gm.explains)) {
+    const d = el("details", { class: "mt-gloss" }, el("summary", {}, "Where the thresholds come from, and what the geometry can explain"));
+    if (gm.provenance.length) d.append(el("dl", {}, gm.provenance.map((p) => [el("dt", {}, p.key), el("dd", {}, p.text)]).flat()));
+    if (gm.explains) d.append(el("p", { class: "mt-none" }, `The geometry explains a monitor ${gm.explains}`));
+    box.append(d);
+  }
+}
+
+function drawGeometryNow() {
+  const box = $("mt-geo-now"), rows = $("mt-geo-rows");
+  const a = geometryAt(run.epochs[cur]);
+  box.textContent = a.heading;
+  box.className = `mt-geo-now ${a.tone}`;
+  rows.replaceChildren(...a.rows.map(([k, v]) => el("div", { class: v.length > 16 ? "wide" : null }, el("dt", {}, k), el("dd", {}, v))));
 }
 
 // ---------- the cursor ----------
@@ -489,6 +557,7 @@ function setCursor(i, quiet) {
   if (e.offsetM != null && showTruth) off.textContent = `At ${fmtT(e.t_s)} the receiver-reported position is ${e.offsetM < 10 ? e.offsetM.toFixed(1) : Math.round(e.offsetM)} m from where the vessel really was (synthetic truth).`;
   else off.textContent = run.hasTruth && showTruth ? "No true position at this time." : "";
   drawReasons();
+  drawGeometryNow();
   const gt = { off: "Off (calibrating)", passed: "Passed: the fix is forwarded unchanged", withheld: "Withheld: the fix would be marked invalid downstream" }[e.gate] || "Off";
   $("mt-gate-now").textContent = `${gt}${run.gateDerived ? " · derived" : ""}`;
   $("mt-pksht").textContent = pkshtFor(e, run);
@@ -505,12 +574,13 @@ function drawReasons() {
   for (const d of r.ded) {
     const pct = Math.min(100, (d.points / maxW) * 100);
     const row = el("button", { type: "button", class: "mt-rrow", "aria-pressed": hlMonitor === d.monitor ? "true" : "false", title: `${d.monitor}: ${monitorInfo(d.monitor)} Click to mark where it was above its onset.` },
-      el("span", { class: "mt-rname" }, d.monitor),
+      el("span", { class: "mt-rname" }, d.monitor, d.explained ? el("small", { class: "mt-explained", title: "The geometry explains this check at this epoch (a masked sky). It still costs its points: the geometry never changes the score." }, "explained by geometry") : null),
       el("span", { class: "mt-rtrack" }, el("i", { style: `width:${pct}%` }), d.weight ? el("b", { style: `left:${Math.min(100, (d.weight / maxW) * 100)}%` }) : null),
       el("span", { class: "mt-rnum" }, `${d.points.toFixed(1)} pts${d.ratio != null ? ` · ratio ${d.ratio.toFixed(2)}` : ""}${d.weight ? ` · weight ${f1(d.weight)}` : ""}`));
     row.onclick = () => toggleHighlight(d.monitor);
     box.append(row);
   }
+  if (r.ded.some((d) => d.explained)) box.append(el("p", { class: "mt-rsub" }, "Explained by geometry: still counted in the score"));
   if (hlMonitor && !r.ded.some((d) => d.monitor === hlMonitor)) {
     const row = el("button", { type: "button", class: "mt-rrow faint", "aria-pressed": "true" }, el("span", { class: "mt-rname" }, hlMonitor), el("span", {}), el("span", { class: "mt-rnum" }, "marked; no deduction here"));
     row.onclick = () => toggleHighlight(hlMonitor); box.append(row);
@@ -529,7 +599,7 @@ function toggleHighlight(monitor) {
   if (hlMonitor) {
     const idx = [...hlSet].sort((a, b) => a - b);
     let s = null, p = null;
-    const flush = () => { if (s != null) dyn.hlRects.append(sv("rect", { class: "hl-bar", x: xOf(run.epochs[s].t_s), y: 196, width: Math.max(1.5, xEnd(p) - xOf(run.epochs[s].t_s)), height: 8 })); };
+    const flush = () => { if (s != null) dyn.hlRects.append(sv("rect", { class: "hl-bar", x: xOf(run.epochs[s].t_s), y: dyn.hlY, width: Math.max(1.5, xEnd(p) - xOf(run.epochs[s].t_s)), height: 8 })); };
     for (const i of idx) { if (s != null && i === p + 1) p = i; else { flush(); s = p = i; } }
     flush();
   }
@@ -597,6 +667,7 @@ function wire() {
   $("mt-nmea").addEventListener("change", (e) => { scoreFile(e.target.files[0]); e.target.value = ""; });
   $("mt-files").addEventListener("change", (e) => { openFiles([...e.target.files]); e.target.value = ""; });
   $("mt-demo").addEventListener("click", openDemo);
+  $("mt-geo-demo").addEventListener("click", openGeoDemo);
   const drop = $("mt-drop");
   for (const ev of ["dragenter", "dragover"]) drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); });
   for (const ev of ["dragleave", "drop"]) drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); });
@@ -626,6 +697,7 @@ function wire() {
     if (w === lastW) return; lastW = w;
     layout(); drawTimeline(); drawStrips(); toggleHighlightRedraw(); setCursor(cur);
   }, 120); });
-  if (new URLSearchParams(location.search).get("demo") === "1") openDemo();
+  const demoQ = new URLSearchParams(location.search).get("demo");
+  if (demoQ === "1") openDemo(); else if (demoQ === "geometry") openGeoDemo();
 }
 wire();
