@@ -39,6 +39,7 @@ fn usage() -> &'static str {
        kshana-pro license issue --tier <t> --licensee <name> [--days <n>]\n\
        kshana-pro license verify <token>\n\
        kshana-pro license keygen                       New vendor key pair (vendor only)\n\
+       kshana-pro license pubkey                       Public key for $KSHANA_PRO_SIGNING_KEY (vendor only)\n\
      \n\
      --sample (any command): every page of every document written also carries the mark\n\
      \"SAMPLE: illustrative programme on public data, not a real mission\"; use it for\n\
@@ -1554,8 +1555,23 @@ fn license_cmd(args: &[String]) -> ExitCode {
             );
             ExitCode::SUCCESS
         }
+        Some("pubkey") => {
+            // The public key that verifies tokens signed with KSHANA_PRO_SIGNING_KEY: the
+            // value to build with as KSHANA_PRO_LICENSE_PUBKEY. A public key is public; this
+            // only saves deriving it by hand (scripts/release-smoke.sh uses it).
+            match signing_seed() {
+                Ok(seed) => {
+                    println!("{}", hex::encode(license::public_key_for(&seed)));
+                    ExitCode::SUCCESS
+                }
+                Err(e) => {
+                    eprintln!("error: {e}");
+                    ExitCode::FAILURE
+                }
+            }
+        }
         _ => {
-            eprintln!("usage: kshana-pro license <issue|verify|keygen> ...");
+            eprintln!("usage: kshana-pro license <issue|verify|keygen|pubkey> ...");
             ExitCode::FAILURE
         }
     }
