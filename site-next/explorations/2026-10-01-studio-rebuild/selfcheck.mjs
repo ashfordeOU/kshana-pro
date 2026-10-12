@@ -50,12 +50,22 @@ try {
 
 // 3. external hosts
 const allowed = /^(cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com|kshana\.dev|www\.w3\.org|github\.com)$/;
-const own = ["index.html", "app.js", "app.css", "studio.css", "lib/catalog.mjs", "lib/params.mjs", "lib/views.mjs", "lib/kinds.mjs", "lib/stages.mjs", "lib/meaning.mjs", "lib/inputs.mjs", "lib/urlstate.mjs", "lib/areas.mjs", "lib/abbr.mjs", "tools_areas.mjs", "data/areas.json", "advanced/index.html", "advanced.js", "advanced/dash.css", "advanced/advanced.css", "lib/meaning-kinds.mjs", "geometry/index.html", "geometry/geometry.js", "geometry/geometry.css", "lib/geometry-url.mjs", "lib/skyline-edit.mjs", "lib/skyplot.mjs", "lib/geometry-adapter.mjs"];
+const own = ["index.html", "app.js", "app.css", "studio.css", "lib/catalog.mjs", "lib/params.mjs", "lib/views.mjs", "lib/kinds.mjs", "lib/stages.mjs", "lib/meaning.mjs", "lib/inputs.mjs", "lib/urlstate.mjs", "lib/areas.mjs", "lib/abbr.mjs", "tools_areas.mjs", "data/areas.json", "advanced/index.html", "advanced.js", "advanced/dash.css", "advanced/advanced.css", "lib/meaning-kinds.mjs", "geometry/index.html", "geometry/geometry.js", "geometry/geometry.css", "lunar/index.html", "lunar/lunar.js", "lunar/lunar.css", "lib/lunar-station.mjs", "lib/geometry-url.mjs", "lib/skyline-edit.mjs", "lib/skyplot.mjs", "lib/geometry-adapter.mjs"];
 for (const f of own) for (const m of read(f).matchAll(/https?:\/\/([a-z0-9.-]+)/gi)) ok(allowed.test(m[1]), `${f}: unexpected host ${m[1]}`);
 ok(/three@0\.160\.0/.test(read("index.html")), "Three.js is pinned to 0.160.0");
 // The Geometry view takes no remote data: its script and modules make no request of their own (the engine is
 // started by lib/engine-page.mjs from this folder), and every number comes from the engine through the adapter.
 for (const f of ["geometry/geometry.js", "lib/geometry-url.mjs", "lib/skyline-edit.mjs", "lib/skyplot.mjs", "lib/geometry-adapter.mjs", "lib/trust-geometry.mjs", "lib/trust-geometry-demo.mjs"]) ok(!/\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource|sendBeacon|import\s*\(/.test(read(f)), `${f}: makes no request`);
+// The lunar station view fetches only this kind's two fixed files from this site (lib/lunar-station.mjs names them),
+// uses generic names only, and carries the honesty block.
+{
+  const js = read("lunar/lunar.js"), lib = read("lib/lunar-station.mjs"), html = read("lunar/index.html");
+  ok(!/\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource|sendBeacon|import\s*\(/.test(lib), "lib/lunar-station.mjs: makes no request");
+  ok([...js.matchAll(/\bfetch\s*\(([^)]*)\)/g)].every((m) => /^(RECORDED_FILE|SCENARIO_FILE)$/.test(m[1].trim())) && !/XMLHttpRequest|WebSocket|EventSource|sendBeacon|import\s*\(/.test(js), "lunar/lunar.js: fetches only the kind's two fixed files");
+  ok(/export const SCENARIO_FILE = "scenarios\/lunar-station-coverage\.toml";/.test(lib) && /export const RECORDED_FILE = "recorded\/lunar-station-coverage\.json";/.test(lib), "the two fixed files are literal same-origin paths");
+  for (const f of ["lunar/index.html", "lunar/lunar.js", "lunar/lunar.css"]) ok(!/nova\s*moon|\bESA\b|European Space Agency|Moonlight/i.test(read(f)), `${f}: generic names only`);
+  ok(html.includes('<base href="../">') && /<b>MODELLED\.<\/b> <b>Under the stated public assumptions, not a statement about the performance of any real system\.<\/b> <b>Not affiliated with or endorsed by any agency\.<\/b>/.test(html), "lunar/index.html resolves from the Studio folder and carries the honesty block");
+}
 ok(read("geometry/index.html").includes('<base href="../">') && read("geometry/index.html").includes("Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.") && /representative sky, not the sky of that date/i.test(read("geometry/index.html")), "geometry/index.html resolves from the Studio folder and carries the advisory statement and the representative-sky notice");
 
 // 4. names and pricing
