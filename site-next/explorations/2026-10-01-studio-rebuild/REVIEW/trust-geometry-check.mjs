@@ -49,7 +49,7 @@ const cursorTo = (page, t) => page.evaluate((t) => {
   await page.waitForSelector("#mt-run:not([hidden])", { timeout: 60000 });
   const fills = await page.evaluate(() => [...document.querySelectorAll("#mt-time-svg rect")].map((r) => r.getAttribute("fill")));
   ok(fills.includes("var(--b-deg)") && fills.includes("var(--b-nom)"), "geometry demo: the sky strip, good then degraded");
-  ok(fills.includes("var(--g-env)"), "geometry demo: environment deductions in the class strip");
+  ok(fills.includes("var(--g-env)") && fills.includes("var(--g-sky)") && fills.includes("var(--b-unt)"), "geometry demo: all three classes in the class strip (environment, geometry, inconsistency)");
   const labels = await page.evaluate(() => [...document.querySelectorAll("#mt-time-svg text")].map((t) => t.textContent));
   ok(labels.includes("sky") && labels.includes("class"), "geometry demo: strips labelled sky and class");
   // an attack-like class is red, never a sky or environment colour
@@ -65,12 +65,19 @@ const cursorTo = (page, t) => page.evaluate((t) => {
   ok(await page.locator("#mt-reasons .mt-class.environment").count() >= 1, "t=700: the loss-of-lock deduction carries its class, environment");
   ok(/25\.0 pts/.test(await page.textContent("#mt-reasons")), "t=700: and it costs its 25 points");
   ok(/geometry fair/.test(await page.getAttribute("#mt-time-svg", "aria-valuetext")), "t=700: the spoken description names the geometry");
+  await cursorTo(page, 1000);
+  ok(/^geometry poor: HDOP/.test(await page.textContent("#mt-geo-now")), "t=1000: the narrow berth reads poor");
+  ok(/Geometry deduction[\d.]+ points \(geometry\)/.test(await page.textContent("#mt-geo-rows")), "t=1000: a geometry deduction classed geometry");
+  ok((await page.locator("#mt-geo-flags li").count()) === 0, "t=1000: no mismatch and no signal loss");
+  ok(await page.evaluate(() => [...document.querySelectorAll("#mt-time-svg rect.mt-geo-under")].some((r) => r.getAttribute("fill") === "var(--g-sky)")), "t=1000: the class strip underlines the geometry deduction under environment");
+  ok(await page.locator("#mt-reasons .mt-class.geometry").count() >= 1, "t=1000: the geometry class chip on the deduction");
+  if (shots) await page.locator("#mt-run").screenshot({ path: shotDir + "trust-geometry-class.png" });
   await cursorTo(page, 2000);
   ok(await page.locator("#mt-reasons .mt-class.inconsistency").count() >= 1, "t=2000: the drag-off deductions are classed inconsistency");
   const set = await page.textContent("#mt-set");
   ok(/hdop_max/.test(set) && /pdop_max/.test(set) && /azimuth_gap_deg/.test(set) && /cap_in_force/.test(set) && /hold_s/.test(set), "settings: the [geometry] fields sit beside the score settings");
   ok(/the degraded edge/.test(set) && /0\.25/.test(set), "settings: an empty floor reads as the degraded edge; 0.25 is not rounded");
-  ok(/founder decision B1|design note/.test(set) && /Label: \d+ good, \d+ fair, 0 poor/.test(set), "settings: provenance, and the counts by label");
+  ok(/founder decision B1|design note/.test(set) && /Label: \d+ good, \d+ fair, 300 poor/.test(set), "settings: provenance, and the counts by label");
   ok(/Advisory software, not type-approved navigation equipment \(IEC 61108, IEC 61162\): the operator remains responsible for the navigation of the vessel\./.test(await page.textContent("main")), "the full advisory statement stays");
   const legend = await page.textContent("#mt-legend");
   ok(/geometry unknown \(no GSV or GSA; not good\)/.test(legend) && /Deduction class:/.test(legend), "legend: unknown is never good; the deduction classes");

@@ -5,16 +5,19 @@
 //
 // What it does, exactly:
 //   1. reads trust/demo/tallinn-helsinki.nmea (the synthetic ferry log the main demo uses) and edits it as text
-//      (lib/trust-geometry-demo.mjs maskedWith, checksums recomputed);
+//      (lib/trust-geometry-demo.mjs maskedPhases and maskedWith, checksums recomputed);
 //   2. scores each edited log with the engine's receiver_trust (the batch scorer, log inline) under
 //      trust/demo/session.toml;
 //   3. reduces each result to the fields the view reads (as tools_trust_demo.mjs does) plus the 0.36 geometry:
 //      per epoch geometry, and the class on every deduction; geometry_model and geometry_summary.
 // Files written:
 //   trust/demo/masked-sky.result.json — the engine test's own edit (tests/geometry_trust.rs, masked_with(600, 0,
-//     "2.9")): from 600 s every satellite at azimuth 180 degrees or more loses its signal (the western half of the
-//     sky behind a hull or a quay) and GGA reports HDOP 2.9. The demo's made-up drag-off from 1500 s stays, so one
-//     run shows a degraded sky and an attack-like inconsistency side by side.
+//     "2.9")) in three phases (lib/trust-geometry-demo.mjs maskedPhases, DEMO_PHASES): from 600 s every satellite at
+//     azimuth 180 degrees or more loses its signal (the western half of the sky behind a hull or a quay; fair, so
+//     geometry costs nothing) and GGA reports HDOP 2.9; from 900 s to 1200 s only azimuths below 130 degrees stay
+//     (a narrower berth; poor, HDOP about 4.5 with five satellites, the lost ones all on one side so not a signal
+//     loss) and GGA reports HDOP 4.5, which agrees, so the geometry deduction is classed geometry; from 1200 s the
+//     western half again. The demo's made-up drag-off from 1500 s stays, so one run shows all three classes.
 //   REVIEW/fixtures/poor-geometry.result.json — a review fixture, not published (REVIEW/ is not ported): only
 //     azimuths below 120 degrees kept from 600 s, so four satellites are left, the geometry is poor and costs
 //     points, and GGA keeps stating HDOP 0.9, which the derived HDOP contradicts. Epochs to 1000 s.
@@ -22,7 +25,7 @@
 // then checks the demo.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { maskedWith } from "./lib/trust-geometry-demo.mjs";
+import { maskedWith, maskedPhases, DEMO_PHASES } from "./lib/trust-geometry-demo.mjs";
 
 const arg = (n) => { const i = process.argv.indexOf("--" + n); return i > 0 ? process.argv[i + 1] : null; };
 const here = new URL(".", import.meta.url).pathname;
@@ -50,7 +53,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       epochs: j.epochs.filter(keep).map((e) => ({ t_s: e.t_s, state: e.state, alarms: e.alarms, marine: e.marine && { position: e.marine.position, ratios: e.marine.ratios }, score: e.score, geometry: e.geometry })),
     }, round);
   };
-  writeFileSync(join(demo, "masked-sky.result.json"), record(maskedWith(nmea, 600, 0, "2.9"), "the main demo with the western half of the sky masked from 600 s"));
+  writeFileSync(join(demo, "masked-sky.result.json"), record(maskedPhases(nmea, DEMO_PHASES), "the main demo with the western half of the sky masked from 600 s, and only azimuths below 130 degrees from 900 s to 1200 s"));
   mkdirSync(join(here, "REVIEW", "fixtures"), { recursive: true });
   writeFileSync(join(here, "REVIEW", "fixtures", "poor-geometry.result.json"),
     record(maskedWith(nmea, 600, 0, "0.9", 120), "the main demo with only azimuths below 120 degrees kept from 600 s (review fixture)", (e) => e.t_s <= 1000));

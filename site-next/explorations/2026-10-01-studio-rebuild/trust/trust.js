@@ -6,7 +6,7 @@ import {
   stepIndex, describeEpoch, pkshtFor, bandRuns, makeProjection, niceLength, monitorInfo, MAX_BYTES, MAX_BYTES_TEXT, KNOWN_MONITORS,
 } from "../lib/trust.mjs";
 
-import { geometryAt, countGeometry, statusKey, classKey, CLASS_TEXT, UNKNOWN_TEXT } from "../lib/trust-geometry.mjs";
+import { geometryAt, countGeometry, statusKey, classKey, geometryUnder, CLASS_TEXT, UNKNOWN_TEXT } from "../lib/trust-geometry.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
 import { parseSvgMarkup, sanitizeSvg } from "../lib/svgsafe.mjs";
 
@@ -375,6 +375,13 @@ function drawTimeline() {
       rc.append(sv("title", {}, `${k === "none" ? "no deduction" : CLASS_TEXT[k]}, ${fmtT(run.epochs[a].t_s)} to ${fmtT(run.epochs[b].t_s)}`));
       svg.append(rc);
     }
+    // A geometry-class deduction under a more serious class: a thin underline in the geometry colour.
+    for (const [a, b, k] of runsOf(geometryUnder)) {
+      if (!k) continue;
+      const rc = sv("rect", { x: xOf(run.epochs[a].t_s), y: stripY.cause + 9, width: Math.max(1, xEnd(b) - xOf(run.epochs[a].t_s)), height: 3, fill: CLASS_FILL.geometry, class: "mt-geo-under" });
+      rc.append(sv("title", {}, `${CLASS_TEXT.geometry} (also costing points), ${fmtT(run.epochs[a].t_s)} to ${fmtT(run.epochs[b].t_s)}`));
+      svg.append(rc);
+    }
   }
   dyn.hlY = stripY.hl;
   dyn.hlRects = sv("g"); svg.append(dyn.hlRects);
@@ -474,7 +481,7 @@ function drawLegend() {
   if (run.hasTruth) li.push(el("li", { style: "--c:var(--truth)" }, el("i", { class: "thin" }), "True track (synthetic data only)"));
   if (run.hasGeometry) {
     li.push(el("li", { class: "mt-lg-head" }, "Sky:"), el("li", { style: `--c:${GEO_FILL.good}` }, el("i", {}), "geometry good"), el("li", { style: `--c:${GEO_FILL.degraded}` }, el("i", {}), "geometry degraded"), el("li", {}, el("i", { class: "hatch" }), "geometry unknown (no GSV or GSA; not good)"));
-    li.push(el("li", { class: "mt-lg-head" }, "Deduction class:"), el("li", { style: `--c:${CLASS_FILL.geometry}` }, el("i", {}), "geometry: the sky, not the signal"), el("li", { style: `--c:${CLASS_FILL.environment}` }, el("i", {}), "environment: the signal"), el("li", { style: `--c:${CLASS_FILL.inconsistency}` }, el("i", {}), "inconsistency (attack-like)"));
+    li.push(el("li", { class: "mt-lg-head" }, "Deduction class:"), el("li", { style: `--c:${CLASS_FILL.geometry}` }, el("i", {}), "geometry: the sky, not the signal"), el("li", { style: `--c:${CLASS_FILL.environment}` }, el("i", {}), "environment: the signal"), el("li", { style: `--c:${CLASS_FILL.inconsistency}` }, el("i", {}), "inconsistency (attack-like)"), el("li", { style: `--c:${CLASS_FILL.geometry}` }, el("i", { class: "thin" }), "underline: geometry also costing points"));
   }
   if (run.demo) li.push(el("li", {}, "In this demo the receiver reports a valid fix throughout (GGA quality 1, RMC status A). The score is what falls."));
   $("mt-legend").replaceChildren(...li);

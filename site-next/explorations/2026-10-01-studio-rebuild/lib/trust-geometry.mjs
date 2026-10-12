@@ -132,6 +132,10 @@ export function classKey(e) {
   return s.has("inconsistency") ? "inconsistency" : s.has("environment") ? "environment" : s.has("geometry") ? "geometry" : "none";
 }
 
+// Whether a geometry-class deduction costs points at the epoch under a more serious class (the strip's colour), so
+// the view can underline it rather than hide the sky's share.
+export const geometryUnder = (e) => !!e.geometry && classKey(e) !== "geometry" && classesAt(e).has("geometry");
+
 const fmt = (x, d) => (x == null ? "not stated" : x.toFixed(d));
 
 // What the panel shows for the epoch under the cursor: the engine's note as the heading (it opens with the label

@@ -4,9 +4,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { readEpochGeometry, readClass, readGeometryModel, readGeometrySummary, countGeometry, statusKey, classKey, geometryAt, geometryDeduction, describeGeometry, GEO_STATUSES, GEO_LABELS, CLASSES, UNKNOWN_TEXT, THRESHOLDS } from "./trust-geometry.mjs";
+import { readEpochGeometry, readClass, readGeometryModel, readGeometrySummary, countGeometry, statusKey, classKey, geometryUnder, geometryAt, geometryDeduction, describeGeometry, GEO_STATUSES, GEO_LABELS, CLASSES, UNKNOWN_TEXT, THRESHOLDS } from "./trust-geometry.mjs";
 import { buildRun, reasonsAt, describeEpoch, parseLines } from "./trust.mjs";
-import { maskedWith, checksum } from "./trust-geometry-demo.mjs";
+import { maskedWith, maskedPhases, DEMO_PHASES, checksum } from "./trust-geometry-demo.mjs";
 
 const g = (o = {}) => ({ status: "good", reasons: [], source: "derived", n_used: 13, in_view: 13, hdop: 0.8, pdop: 1.43, vdop: 1.19, open_fraction: null, max_azimuth_gap_deg: 40, age_s: 0, reported_hdop: 0.9, reported_derived_mismatch: false, note: "geometry good: HDOP 0.800, PDOP 1.430, VDOP 1.190, 13 satellites; not scored", signal_loss: false, label: "good", ...o });
 const model = { nominal_min: 90, degraded_min: 55, onset_ratio: 0.5, full_ratio: 1.5, evidence_hold_s: 10, weights: { "loss-of-lock": 25, kinematic: 60, geometry: 15 } };
@@ -119,6 +119,9 @@ test("an engine that leaves geometry out of monitors_run: the geometry monitor s
   const { run } = buildRun({ result: { score_model: model, monitors_run: ["loss-of-lock"], epochs: [ep(0, "degraded", 85, [["geometry", 2.7, 15, "inconsistency"]], g({ status: "degraded", label: "poor" }))] } });
   assert.ok(run.monitorsRun.includes("geometry"));
   assert.ok(!reasonsAt(run, 0).notRun.includes("geometry"));
+  const { run: listed } = buildRun({ result: { score_model: model, monitors_run: ["loss-of-lock", "geometry"], epochs: [ep(0, "degraded", 85, [["geometry", 2.7, 15, "geometry"]], g({ status: "degraded", label: "poor" }))] } });
+  assert.equal(listed.monitorsRun.filter((m) => m === "geometry").length, 1, "an engine that lists it: once, not twice");
+  assert.ok(!reasonsAt(listed, 0).notRun.includes("geometry") && !reasonsAt(listed, 0).faint.includes("geometry"));
 });
 
 test("live lines, schema 1.3: geometry at the end of each line, class on each deduction", () => {
@@ -147,11 +150,16 @@ test("the demo generator edits the log as the engine's test does", () => {
   assert.match(out[3], /^\$GPGSV,1,1,02,01,40,090,45,02,30,200,\*/, "the satellite at azimuth 200 loses its signal; the one at 90 keeps it");
   assert.match(maskedWith(log, 600, 0, "0.9", 60).trim().split("\n")[3], /^\$GPGSV,1,1,02,01,40,090,,02,30,200,\*/, "a narrower mask from azimuth 60");
   for (const l of out) assert.equal(l.split("*")[1], checksum(l.slice(1).split("*")[0]), "checksums recomputed");
+  assert.equal(maskedPhases(log, [{ fromS: 600, fromAz: 180, dropDb: 0, ggaHdop: "2.9" }]), maskedWith(log, 600, 0, "2.9"), "one open phase is the engine test's edit");
+  const ph = maskedPhases(log, [{ fromS: 0, toS: 300, fromAz: 60, dropDb: 0, ggaHdop: "4.5" }, { fromS: 300, fromAz: 180, dropDb: 0, ggaHdop: "2.9" }]).trim().split("\n");
+  assert.match(ph[0], /,1,13,4\.5,/); assert.match(ph[1], /^\$GPGSV,1,1,02,01,40,090,,02,30,200,\*/, "first phase: the narrow mask");
+  assert.match(ph[2], /,1,13,2\.9,/); assert.match(ph[3], /^\$GPGSV,1,1,02,01,40,090,45,02,30,200,\*/, "second phase: the half mask");
+  assert.equal(DEMO_PHASES[0].fromS, 900); assert.equal(DEMO_PHASES[0].toS, 1200);
 });
 
 // The recorded demo (tools_trust_geometry_demo.mjs) through the view's own reader.
 const DEMO = new URL("../trust/demo/masked-sky.result.json", import.meta.url);
-test("the masked-sky demo: a degraded but fair sky costs nothing for geometry; the drag-off stays attack-like", { skip: !existsSync(DEMO) && "trust/demo/masked-sky.result.json is not there" }, () => {
+test("the masked-sky demo: a fair sky costs nothing; a poor one is classed geometry; the drag-off stays attack-like", { skip: !existsSync(DEMO) && "trust/demo/masked-sky.result.json is not there" }, () => {
   const result = JSON.parse(readFileSync(DEMO, "utf8"));
   const { run, error } = buildRun({ result, demo: true });
   assert.equal(error, undefined);
@@ -165,6 +173,15 @@ test("the masked-sky demo: a degraded but fair sky costs nothing for geometry; t
   assert.match(at(700).geometry.note, /^geometry (fair|good|poor): HDOP [\d.]+, PDOP [\d.]+, VDOP [\d.]+, \d+ satellites/, "the note opens with the label and the metrics");
   assert.ok(run.epochs.every((e) => e.geometry.label === "poor" || !geometryDeduction(e)), "no geometry deduction unless the label is poor");
   assert.ok(run.epochs.some((e) => e.t_s > 1500 && classKey(e) === "inconsistency"), "the drag-off stays attack-like under the masked sky");
+  assert.equal(at(700).geometry.label, "fair"); assert.equal(geometryDeduction(at(700)), null, "fair: no geometry deduction");
+  const poor = at(1000);
+  assert.equal(poor.geometry.label, "poor"); assert.equal(poor.geometry.mismatch, false); assert.equal(poor.geometry.signalLoss, false);
+  assert.equal(geometryDeduction(poor).class, "geometry", "a poor sky with a stated HDOP that agrees: the deduction is the sky's");
+  assert.ok(geometryDeduction(poor).points > 0 && geometryDeduction(poor).points <= 15);
+  assert.equal(at(1300).geometry.label, "fair", "the half mask again after 1200 s");
+  assert.equal(classKey(poor), "environment"); assert.equal(geometryUnder(poor), true, "the strip's colour is environment; the sky's share is underlined");
+  assert.equal(geometryUnder(at(700)), false);
+  assert.ok(run.geometrySummary.classGeometry > 0 && run.geometrySummary.classEnvironment > 0 && run.geometrySummary.classInconsistency > 0, "all three classes in one run");
   const c = countGeometry(run.epochs), s = run.geometrySummary;
   assert.equal(c.good, s.good); assert.equal(c.degraded, s.degraded); assert.equal(c.unknown, s.unknown);
   assert.equal(c.label.good, s.labelGood); assert.equal(c.label.fair, s.labelFair); assert.equal(c.label.poor, s.labelPoor);

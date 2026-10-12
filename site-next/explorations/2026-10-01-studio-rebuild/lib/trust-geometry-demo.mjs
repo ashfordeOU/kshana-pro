@@ -14,6 +14,13 @@ export function checksum(body) {
 // engine's test) loses its signal strength, the others drop by `dropDb`, and GGA reports HDOP `ggaHdop`.
 // Checksums are recomputed.
 export function maskedWith(log, fromS, dropDb, ggaHdop, fromAz = 180) {
+  return maskedPhases(log, [{ fromS, toS: Infinity, fromAz, dropDb, ggaHdop }]);
+}
+
+// The same edit in phases: from each phase's `fromS` until its `toS` (seconds after the first GGA), satellites at
+// azimuth `fromAz` or more lose their signal strength, the others drop by `dropDb`, and GGA reports `ggaHdop`.
+// Outside every phase a line is left as it is. The first phase that covers a time applies.
+export function maskedPhases(log, phases) {
   const out = [];
   let t = 0, t0 = null;
   for (const line of log.split("\n")) {
@@ -26,18 +33,26 @@ export function maskedWith(log, fromS, dropDb, ggaHdop, fromAz = 180) {
       if (t0 === null) t0 = secs;
       t = secs - t0;
     }
-    if (f[0].endsWith("GGA") && t >= fromS) {
-      const g = f.slice(); g[8] = ggaHdop;
+    const p = phases.find((q) => t >= q.fromS && t < (q.toS ?? Infinity));
+    if (p && f[0].endsWith("GGA")) {
+      const g = f.slice(); g[8] = p.ggaHdop;
       const b = g.join(","); out.push(`$${b}*${checksum(b)}`);
-    } else if (f[0].endsWith("GSV") && t >= fromS) {
+    } else if (p && f[0].endsWith("GSV")) {
       const g = f.slice();
       for (let i = 4; i + 3 < g.length; i += 4) {
         const az = Number(g[i + 2]) || 0;
-        if (az >= fromAz) g[i + 3] = "";
-        else if (g[i + 3] !== "" && Number.isFinite(Number(g[i + 3]))) g[i + 3] = (Number(g[i + 3]) - dropDb).toFixed(0);
+        if (az >= p.fromAz) g[i + 3] = "";
+        else if (g[i + 3] !== "" && Number.isFinite(Number(g[i + 3]))) g[i + 3] = (Number(g[i + 3]) - p.dropDb).toFixed(0);
       }
       const b = g.join(","); out.push(`$${b}*${checksum(b)}`);
     } else out.push(line);
   }
   return out.join("\n") + "\n";
 }
+
+// The phases of the masked-sky demo (tools_trust_geometry_demo.mjs): the western half from 600 s (fair); only
+// azimuths below 130 degrees from 900 s to 1200 s (poor, with a stated HDOP that agrees); the western half again.
+export const DEMO_PHASES = Object.freeze([
+  { fromS: 900, toS: 1200, fromAz: 130, dropDb: 0, ggaHdop: "4.5" },
+  { fromS: 600, toS: Infinity, fromAz: 180, dropDb: 0, ggaHdop: "2.9" },
+]);
