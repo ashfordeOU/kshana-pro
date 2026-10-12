@@ -375,7 +375,7 @@ GROUPS = [
     ("Clocks and timing", "--tim", ["clock", "sweep", "slot-timing", "telecom-timing", "timetransfer"]),
     ("Orbits and mission analysis", "--orb", ["orbit", "ephemeris", "oem-interop", "passes", "launch-window", "reentry", "eo-coverage", "attitude-budget", "space-packet", "space-weather", "link-budget", "aperture-duty-cycle", "constellation-design"]),
     ("Low Earth orbit (LEO) PNT", "--nav", ["leo-signal", "leo-pass", "leo-navmsg", "leo-pvt", "leo-ppp", "ntn-positioning", "leo-pnt-chain"]),
-    ("Lunar and cislunar", "--spf", ["lunar-integrity", "lunar-time-offset", "lunar-vlbi", "lunar-joint-od-clock", "lunar-frame-realisation", "moonlight-service-volume", "lunar-differential-pnt", "lunar-interop-export", "lunar-time-budget", "cislunar-observability", "lunar-attack-surface", "realtime-frame-eop", "lunar-jamming", "lunar-vlbi-fim", "lunar-frame-campaign", "lunar-llr-datum", "lunar-beacon", "earth-gnss-lunar", "cislunar-arc-recovery"]),
+    ("Lunar and cislunar", "--spf", ["lunar-integrity", "lunar-time-offset", "lunar-vlbi", "lunar-joint-od-clock", "lunar-frame-realisation", "moonlight-service-volume", "lunar-differential-pnt", "lunar-station-coverage", "lunar-interop-export", "lunar-time-budget", "cislunar-observability", "lunar-attack-surface", "realtime-frame-eop", "lunar-jamming", "lunar-vlbi-fim", "lunar-frame-campaign", "lunar-llr-datum", "lunar-beacon", "earth-gnss-lunar", "cislunar-arc-recovery"]),
     ("Mars and the solar system", "--int", ["mars-pnt", "body-pnt", "solar-system"]),
     ("Quantum sensors and trade studies", "--spf", ["quantum-anomaly-detect", "quantum-gnss-free-nav", "quantum-time-transfer", "quantum-trade", "conflict-resilience", "sweep-nd"]),
     ("Campaigns", "--itg", ["campaign"]),
@@ -2276,6 +2276,7 @@ NEW036 = [
     ("Skyline-masked visibility, DOP and error ellipse", "docs/skyline.html", "studio/geometry/index.html", "Geometry view"),
     ("Skyline presets and the sky-geometry functions", "docs/skyline.html", "studio/geometry/index.html", "Geometry view"),
     ("Geometry-aware trust classification", "docs/maritime-trust.html", "studio/trust/index.html", "Trust view"),
+    ("Lunar reference-station study", "docs/lunar-reference-station.html", "studio/lunar/index.html", "Lunar station view"),
 ]
 NEW036_STATIC = {}
 # The "New in" section of the Capabilities and Home pages is the current minor release's: its table, heading and lede.

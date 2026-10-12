@@ -1,9 +1,9 @@
 {
  "engine_version": "0.35.0",
- "engine_commit": "ac733e1acbec7c21533893f5e8cef3aeaa1618f1",
+ "engine_commit": "d60b3cb89c0d6c290e656b68889594df5102df3b",
  "source": "native",
  "platform": "linux x64",
- "recorded_utc": "2026-10-12T17:47:33.542Z",
+ "recorded_utc": "2026-10-12T18:37:23.217Z",
  "runs": {
   "aperture-duty-cycle.toml": {
    "file": "aperture-duty-cycle.json.gz",
@@ -1227,7 +1227,16 @@
    "full_run": false
   },
   "lunar-station-coverage.toml": {
-   "error": "error: unknown scenario kind \"lunar-station-coverage\". `kshana kinds` lists all 75 built-in kinds."
+   "file": "lunar-station-coverage.json.gz",
+   "bytes": 16524,
+   "unpacked_bytes": 97505,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the lunar-station-coverage result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
   },
   "lunar-time-budget.toml": {
    "file": "lunar-time-budget.json.gz",

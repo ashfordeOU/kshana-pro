@@ -1110,3 +1110,7 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "scenario:lunar-station-time-lab" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-station-time-lab" }
 "validation:lunar-station-time-laboratory-minirafs-holdover-against-ltc" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:lunar-reference-station-geodesy-added-retroreflector-and-vlb" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"kind:lunar-station-coverage" = { page = "Capabilities", section = "atlas", studio = "lunar-station-coverage", docs = "docs/scenarios.html#lunar-station-coverage" }
+"scenario:lunar-station-coverage" = { page = "Capabilities", section = "atlas", studio = "lunar-station-coverage", docs = "docs/scenario-reference.html#lunar-station-coverage" }
+"scenario:lunar-station-coverage-public-sources" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-station-coverage-public-sources" }
+"validation:lunar-reference-station-coverage-and-accuracy-map" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
