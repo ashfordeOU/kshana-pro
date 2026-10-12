@@ -1068,12 +1068,12 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "validation:trust-telemetry-siem-events-log-event-extended-format-leef-o" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:marine-integrations-signal-k-plugin-opencpn-gate-stream-and-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 # ---- 0.36.0: sky geometry and skylines, geometry-aware trust, harbour scenarios ----
-"scenario:gnss-sim-container-terminal-skyline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#gnss-sim-container-terminal-skyline" }
-"scenario:integrity-harbour-approach" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#integrity-harbour-approach" }
-"scenario:jamming-harbour-approach-skyline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#jamming-harbour-approach-skyline" }
-"scenario:leo-pvt-fjord-skyline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#leo-pvt-fjord-skyline" }
-"scenario:leo-vertical-autonomous-vehicle-skyline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#leo-vertical-autonomous-vehicle-skyline" }
-"scenario:orbit-urban-canyon-skyline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#orbit-urban-canyon-skyline" }
+"scenario:gnss-sim-container-terminal-skyline" = { page = "Capabilities", section = "atlas", studio = "gnss-sim-container-terminal-skyline", docs = "docs/scenario-reference.html#gnss-sim-container-terminal-skyline" }
+"scenario:integrity-harbour-approach" = { page = "Capabilities", section = "atlas", studio = "integrity-harbour-approach", docs = "docs/scenario-reference.html#integrity-harbour-approach" }
+"scenario:jamming-harbour-approach-skyline" = { page = "Capabilities", section = "atlas", studio = "jamming-harbour-approach-skyline", docs = "docs/scenario-reference.html#jamming-harbour-approach-skyline" }
+"scenario:leo-pvt-fjord-skyline" = { page = "Capabilities", section = "atlas", studio = "leo-pvt-fjord-skyline", docs = "docs/scenario-reference.html#leo-pvt-fjord-skyline" }
+"scenario:leo-vertical-autonomous-vehicle-skyline" = { page = "Capabilities", section = "atlas", studio = "leo-vertical-autonomous-vehicle-skyline", docs = "docs/scenario-reference.html#leo-vertical-autonomous-vehicle-skyline" }
+"scenario:orbit-urban-canyon-skyline" = { page = "Capabilities", section = "atlas", studio = "orbit-urban-canyon-skyline", docs = "docs/scenario-reference.html#orbit-urban-canyon-skyline" }
 "cli:sky" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
 "cli:skyline" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
 "cli:--svg" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
@@ -1105,3 +1105,8 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "validation:skyline-presets-city-street-harbour-approach-fjord-container" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:horizontal-error-ellipse-and-per-system-cofactor-from-the-ge" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:sky-geometry-functions-visibility-dop-covariance-error-ellip" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"scenario:lunar-station-geodesy-baseline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-station-geodesy-baseline" }
+"scenario:lunar-station-geodesy-with-station" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-station-geodesy-with-station" }
+"scenario:lunar-station-time-lab" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-station-time-lab" }
+"validation:lunar-station-time-laboratory-minirafs-holdover-against-ltc" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunar-reference-station-geodesy-added-retroreflector-and-vlb" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
