@@ -3,6 +3,7 @@
 Written: 2026-10-12 ~22:35 UTC, by coordinator session `session_015EnPpasos1W6PQWi7rHJxu` (context ~66 % full).
 Repo of record for this file: kshana-pro, branch `ws/coordination` (private). It stays out of public kshana on
 purpose, because it names people and commercial matters. Replace this file at each handover; never append to it.
+Owner's latest words (22:40 UTC): "handle everything, deliver 0.36 with all thats all". Act without asking except for the approvals in §1.
 The old `docs/LIVE.md` is stale (last updated 11 Oct). Ignore it.
 
 ## 1. Owner and how they work
@@ -82,13 +83,13 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 | 08 interop | `feat/interop-api-0.36` @ efcb474c | 3 pre-registrations; handoff in docs/design/interop-0.36-handoff.md |
 | 09 fusion | `feat/fusion-ins-0.36` | W38 stopping (WIP pending) |
 | 10 alt-PNT | `feat/altpnt-maps-0.36` @ 653a971 | SRTM pre-registration 4235687 |
-| 11a labfit | `feat/labfit-iq-0.36` | W28 active |
-| 11b IQ | `feat/iq-ext-0.36` | W40 stopping (WIP pending) |
+| 11a labfit | `feat/labfit-iq-0.36` (amendment b7117bf4) | W28 active; must commit the C/N0 estimator choice (NWPR or M2M4) as a §13 addendum ALONE before the first bar evaluation; one diagnostic run before the amendment is disclosed in the doc |
+| 11b IQ | `feat/iq-ext-0.36` @ 844d4595 | W40 archived; E1 user-file loader done; 5 pre-registrations; keep ONE cargo target dir (W40 filled its disk at 26 GB) |
 | 12 integrity | `feat/integrity-trust-0.36` @ 52a7083 | CAP-13 pre-registration 0fa012b; CAP-14 openssl fixture predates its pre-registration, so regenerate it after pre-registering |
 | 13 platform | `feat/platform-vv-0.36` @ adbe366 | Drop the BuiltinKind::figure_tiers hook; prove an empty output diff |
 | 14 new domains | `feat/new-domains-0.36` @ 1682430 | contact_schedule.rs written, unwired |
 | Studio/Pro | kshana-pro `site/studio-backlog-0.36` @ 58c6c98 (STUDIO-01 done), `pro/backlog-0.36` @ 2066ad0; kshana `feat/wasm-iq-0.36` @ 0927256c | W1b in idle time |
-| Site port | kshana `site-port/0.36.0`; kshana-pro `port/0.36.0`, Studio at `site/geometry-0.36` @ 350296a7 (143 scenarios) | W1b holds the final run until the final SHA |
+| Site port | kshana `site-port/0.36.0`; kshana-pro `port/0.36.0`, Studio at `site/geometry-0.36` @ 350296a7 (143 scenarios) | W1b holds the final run until the final SHA; site-port/0.36.0 merged with rc @ 09e16b96; STUDIO-02 done @ 93f062eb |
 
 - **Release artefacts to use at tag time:**
   - `docs/handover-0.36/kshana-0.36-zenodo-notes.txt`: Zenodo Notes text. Prediction doc hash 38ad2948…45d5; result JSON hashes d108f77e… and 574dbab8….
@@ -99,8 +100,7 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 
 ## 4. Open items, in priority order
 
-1. **Finish the session consolidation.** W38 (fusion) and W40 (IQ ext) were told to push their WIP and stop.
-   On each reply, archive that session. Next action: read the notifications. Due now.
+1. **Finish the session consolidation.** W38 (fusion) was told to push its WIP and stop. On its reply, archive it. Next action: read the notifications. Due now.
 2. **Owner decisions pending; ask once, briefly:**
    - (a) a permission rule in W36's session to build and run RTKLIB/gLAB (without it, those rows stay MODELLED);
    - (b) the Galileo E1 memory-code tables (`data/galileo-os-sis-icd/C7_E1B.txt`, `C8_E1C.txt`, already in public
@@ -132,7 +132,6 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 | W33 | session_01XzDkpE5fPCNrKuqTXE3wmr | WP-02 → WP-01 (S2 fix) → WP-13 |
 | W36 | session_01BpojbwwUWoNKDfSmsCHR3B | WP-07 → WP-09 → WP-14 |
 | W38 (stopping) | session_01K3rTUNk9WGGuT6oLDFLN3m | Archive after its WIP reply |
-| W40 (stopping) | session_01PDitUBooUTucEBvZok9dzk | Archive after its WIP reply |
 
 Reach any of them with send_message (claude-code-remote MCP). Workers follow the "new operating mode":
 - at most 2 subagents;
