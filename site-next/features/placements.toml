@@ -287,7 +287,7 @@ tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021",
 # `static` and `vessel` are values of `[platform] kind` in a receiver-trust session file, not scenario kinds;
 # the four are the nmea-scenario library (scenarios/training/*.toml, run by `kshana nmea-scenario`, not
 # `kshana <scenario.toml>`), listed in docs/NMEA-TRAINING.md.
-ignore = ["campaign", "s", "generic-c-band", "--data", "session", "events", "bench-session", "static", "vessel", "open-sea-jamming", "coastal-drag-off", "port-approach-time-spoof", "combined-event"]
+ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "events", "bench-session", "static", "vessel", "open-sea-jamming", "coastal-drag-off", "port-approach-time-spoof", "combined-event"]
 
 [placements]
 # ---- kind ----
@@ -1067,3 +1067,41 @@ ignore = ["campaign", "s", "generic-c-band", "--data", "session", "events", "ben
 "validation:trust-telemetry-siem-events-common-event-format-cef-over-sys" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:trust-telemetry-siem-events-log-event-extended-format-leef-o" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:marine-integrations-signal-k-plugin-opencpn-gate-stream-and-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+# ---- 0.36.0: sky geometry and skylines, geometry-aware trust, harbour scenarios ----
+"scenario:gnss-sim-container-terminal-skyline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#gnss-sim-container-terminal-skyline" }
+"scenario:integrity-harbour-approach" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#integrity-harbour-approach" }
+"scenario:jamming-harbour-approach-skyline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#jamming-harbour-approach-skyline" }
+"scenario:leo-pvt-fjord-skyline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#leo-pvt-fjord-skyline" }
+"scenario:leo-vertical-autonomous-vehicle-skyline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#leo-vertical-autonomous-vehicle-skyline" }
+"scenario:orbit-urban-canyon-skyline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#orbit-urban-canyon-skyline" }
+"cli:sky" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
+"cli:skyline" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
+"cli:--svg" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
+"cli:--json" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
+"cli:--site" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
+"cli:--systems" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
+"cli:--time" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
+"cli:--mask" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
+"cli:--skyline-preset" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
+"cli:--clock" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"cli:--tle" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"cli:--monte-carlo" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
+"cli:--seed" = { page = "Developers", section = "ways", studio = "none", docs = "docs/skyline.html" }
+"mcp-tool:sky_geometry" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"binding:python.sky_geometry" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"binding:python.sky_monte_carlo" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"binding:python.skyline_presets" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"binding:python.skyline_profile" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"binding:python.skyplot_svg" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"binding:wasm.sky_geometry" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"binding:wasm.sky_monte_carlo" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"binding:wasm.skyline_presets" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"binding:wasm.skyline_profile" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"binding:wasm.skyplot_svg" = { page = "Docs", section = "skyline.html#sky-geometry", studio = "none", docs = "docs/skyline.html#sky-geometry" }
+"validation:position-error-from-geometry-rms-error-sigma-uere-x-dop-for-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:geometry-aware-trust-classification-satellite-geometry-besid" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:azimuth-dependent-skyline-mask-visible-set-azimuth-and-eleva" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:street-canyon-sector-and-terrain-reductions-to-a-table" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:skyline-presets-city-street-harbour-approach-fjord-container" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:horizontal-error-ellipse-and-per-system-cofactor-from-the-ge" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:sky-geometry-functions-visibility-dop-covariance-error-ellip" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
