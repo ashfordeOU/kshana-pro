@@ -42,10 +42,18 @@ export const ENGINE_FNS = Object.freeze([
   "list_examples",
   "get_example",
   "version",
+  // 0.36 (design note 2026-10-12, section 3.2: the Geometry view; an older package lacks them and the view says so)
+  "sky_geometry",
+  "sky_monte_carlo",
+  "skyline_presets",
+  "skyline_profile",
+  "skyplot_svg",
 ]);
 
 // The functions the 0.35 tools pages call. A page checks engineHas() before offering a button.
-export const ENGINE_FNS_035 = Object.freeze(ENGINE_FNS.slice(ENGINE_FNS.indexOf("receiver_trust")));
+export const ENGINE_FNS_035 = Object.freeze(ENGINE_FNS.slice(ENGINE_FNS.indexOf("receiver_trust"), ENGINE_FNS.indexOf("sky_geometry")));
+// The functions the 0.36 Geometry view calls (lib/geometry-adapter.mjs GEOMETRY_FNS).
+export const ENGINE_FNS_036 = Object.freeze(ENGINE_FNS.slice(ENGINE_FNS.indexOf("sky_geometry")));
 export const engineHas = (api, fn) => !!api && typeof api[fn] === "function";
 
 // Normalise a thrown value to a message. wasm-bindgen throws the engine's error as a

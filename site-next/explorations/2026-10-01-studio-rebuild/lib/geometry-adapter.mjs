@@ -3,7 +3,7 @@
 // view shows (where each satellite is, which ones the skyline hides, the DOPs, the open-sky fraction, the
 // horizontal error ellipse and the Monte Carlo cloud) comes from the WebAssembly engine through this file; the
 // view computes no navigation quantity. Switching engine functions is a change to this file only (plus adding
-// the names to ENGINE_FNS in lib/engine.mjs once the package has them): the view reads the normalised result.
+// a name to ENGINE_FNS in lib/engine.mjs): the view reads the normalised result.
 //
 // Backends, best first:
 //   "geometry" — the 0.36 functions (GEOMETRY_FNS): sky_geometry(request_json), sky_monte_carlo(request_json,
@@ -18,11 +18,13 @@
 // The normalised result:
 //   { backend, source, sats: [{sys, id, az, el, used, masked}], nUsed, nVisible, nMasked,
 //     dop: {gdop, pdop, hdop, vdop, tdop} (each a number or null), dopDigits, openFraction,
-//     ellipse: {semiMajorM, semiMinorM, orientationDeg} (1-sigma) | null,
+//     ellipse: {semiMajorM, semiMinorM, orientationDeg} (1-sigma) | null, ellipse95: the same at 95 % | null,
+//     provenance: {label, statement, advisory} (the engine's, shown with the numbers) | null,
 //     missing: [what this backend cannot give], notes: [plain sentences] }
-//   and from monteCarlo(): { points: [[e, n, u]...], seed, samples, rmsHorizontalM, rmsVerticalM, inside95 } | null
+//   and from monteCarlo(): { points: [[e, n, u]...], seed, samples, rmsHorizontalM, rms3dM, predictedHorizontalM,
+//     predicted3dM, inside95, provenance } | null
 // Tested in geometry-adapter.test.mjs.
-import { SKYLINE_PRESETS } from "./geometry-url.mjs";
+import { SKYLINE_PRESETS, LEO_PRESETS } from "./geometry-url.mjs";
 import { tableFromVertices, emptyTable, BINS, snapHalf } from "./skyline-edit.mjs";
 
 export const GEOMETRY_FNS = Object.freeze(["sky_geometry", "sky_monte_carlo", "skyline_presets", "skyline_profile", "skyplot_svg"]);
@@ -68,7 +70,7 @@ export function featuresFor(backend, engine) {
     presets: backend !== "none",              // engine presets, or the interim outlines
     monteCarlo: has("sky_monte_carlo"),
     svg: has("skyplot_svg"),
-    tle: backend === "geometry",
+    tle: false,                               // sky_geometry takes preset names and satellites, not TLE text
     gdop: backend === "geometry",
   };
 }
@@ -152,91 +154,118 @@ async function computeInterim(engine, state) {
 }
 
 // ---------------------------------------------------------------- 0.36 backend
-// The skyline as the engine's [skyline] table takes it (design note section 2.3).
-export function skylineRequest(sky, table) {
+// The engine's preset for each constellation the view toggles (constellation-design GNSS presets; the LEO
+// layer is one of the leo_fusion presets by its own name).
+export const SYSTEM_PRESETS = Object.freeze({ gps: "gps-baseline", galileo: "galileo", beidou: "beidou" });
+
+// The skyline as the engine's skyline object takes it (design note section 2.3): a preset, the canyon form,
+// or a drawn table of [az, el] rows (strictly increasing azimuth).
+export function skylineRequest(sky) {
   if (!sky || sky.kind === "none") return null;
   if (sky.kind === "preset") return { preset: sky.name };
   if (sky.kind === "canyon") return { street_az_deg: sky.streetAz, width_m: sky.widthM, height_left_m: sky.leftM, height_right_m: sky.rightM, antenna_m: sky.antennaM };
-  const t = sky.table || table;
-  return { table: Array.from(t, (v, k) => [k, v / 2]) };
+  return { table: Array.from(sky.table, (v, k) => [k, v / 2]) };
 }
 
-// The request sky_geometry, sky_monte_carlo and skyplot_svg take. The engine validates it again.
-export function buildRequest(state, tleText = "") {
-  const systems = [...state.sys];
+// The request sky_geometry, sky_monte_carlo and skyplot_svg take (engine feat/skyline-0.36, src/wasm.rs).
+// The engine validates it again. Only numbers and names from fixed lists are put in it.
+export function buildRequest(state) {
+  const systems = state.sys.filter((s) => Object.hasOwn(SYSTEM_PRESETS, s)).map((s) => SYSTEM_PRESETS[s]);
+  if (state.leo) systems.push(state.leo);
   const req = {
     site: { lat_deg: state.lat, lon_deg: state.lon, height_m: state.h },
-    t_offset_s: state.t,
-    systems: tleText ? [] : systems,
+    time_s: state.t,
+    systems,
     mask_deg: state.mask,
     sigma_uere_m: state.uere,
+    confidence: 0.95,
   };
-  if (!tleText && state.leo) req.leo_preset = state.leo;
-  if (tleText) req.tle = tleText;
   const sky = skylineRequest(state.sky);
   if (sky) req.skyline = sky;
   return req;
 }
 
-const pick = (o, ...keys) => { for (const k of keys) if (o && Object.hasOwn(o, k)) return o[k]; return undefined; };
-const SYS_NAMES = Object.freeze({ gps: "gps", galileo: "galileo", beidou: "beidou", leo: "leo", G: "gps", E: "galileo", C: "beidou", L: "leo" });
+// The view's constellation for an engine system name: a GNSS preset by its prefix, a LEO preset by name.
+export function systemOf(name) {
+  if (typeof name !== "string" || name.length > 64) return null;
+  const n = name.toLowerCase();
+  if (/^gps(\b|-)/.test(n) || n === "gps") return "gps";
+  if (/^galileo(\b|-)/.test(n) || n === "galileo") return "galileo";
+  if (/^(beidou|bds)(\b|-)/.test(n) || n === "beidou") return "beidou";
+  if (LEO_PRESETS.includes(n) || n === "leo") return "leo";
+  return null;
+}
+
+const text = (x, max = 600) => (typeof x === "string" ? x.slice(0, max) : "");
+function readEllipse(e) {
+  if (!e || typeof e !== "object") return null;
+  const a = num(e.semi_major_m), b = num(e.semi_minor_m), o = num(e.orientation_deg);
+  if (a === null || b === null || o === null || a < 0 || b < 0) return null;
+  return { semiMajorM: a, semiMinorM: b, orientationDeg: o, confidence: num(e.confidence), scaleK: num(e.scale_k) };
+}
+// What every engine result carries and the page shows (MODELLED label, statement, advisory).
+const provenanceOf = (doc) => ({ label: text(doc.label, 40), statement: text(doc.statement), advisory: text(doc.advisory) });
 
 // Read the engine's sky_geometry reply into the normalised result. Every field is checked; a malformed reply
 // throws rather than drawing something the engine did not say.
 export function parseGeometry(doc, version = "") {
   if (!doc || typeof doc !== "object" || Array.isArray(doc)) throw new Error("the engine's geometry reply is not an object");
-  const sats = (Array.isArray(doc.satellites) ? doc.satellites : []).slice(0, 2000).flatMap((s) => {
+  let unknown = 0;
+  const sats = (Array.isArray(doc.satellites) ? doc.satellites : []).slice(0, 3000).flatMap((s) => {
     if (!s || typeof s !== "object") return [];
-    const sysRaw = pick(s, "system", "sys");
-    const sys = typeof sysRaw === "string" && Object.hasOwn(SYS_NAMES, sysRaw) ? SYS_NAMES[sysRaw] : null;
-    const az = num(pick(s, "az_deg", "azimuth_deg")), el = num(pick(s, "el_deg", "elevation_deg"));
-    if (!sys || az === null || el === null) return [];
-    const id = pick(s, "id", "prn", "name");
-    const masked = pick(s, "masked", "masked_by_skyline") === true;
-    const visible = pick(s, "visible", "used") === true;
-    return [{ sys, id: typeof id === "string" || typeof id === "number" ? String(id).slice(0, 24) : "?", az: ((az % 360) + 360) % 360, el, used: visible && !masked, masked }];
+    const sys = systemOf(s.system);
+    const az = num(s.az_deg), el = num(s.el_deg);
+    if (!sys || az === null || el === null) { unknown++; return []; }
+    const masked = s.masked === true, visible = s.visible === true;
+    const rawId = typeof s.id === "string" || typeof s.id === "number" ? String(s.id).slice(0, 48) : "?";
+    // The engine names a preset's satellites "<system>-<n>"; the plot labels them by the part after the system.
+    const id = typeof s.system === "string" && rawId.startsWith(`${s.system}-`) ? rawId.slice(s.system.length + 1) : rawId;
+    return [{ sys, id: id.slice(0, 24) || "?", az: ((az % 360) + 360) % 360, el, cut: num(s.cut_deg), used: visible && !masked, masked }];
   });
   const d = doc.dop && typeof doc.dop === "object" ? doc.dop : {};
   const dop = { gdop: num(d.gdop), pdop: num(d.pdop), hdop: num(d.hdop), vdop: num(d.vdop), tdop: num(d.tdop) };
-  const e = pick(doc, "ellipse", "horizontal_ellipse");
-  const a = e && num(pick(e, "semi_major_m", "major_m")), b = e && num(pick(e, "semi_minor_m", "minor_m")), o = e && num(pick(e, "orientation_deg", "angle_deg"));
-  const ellipse = a !== null && b !== null && o !== null && a >= 0 && b >= 0 ? { semiMajorM: a, semiMinorM: b, orientationDeg: o } : null;
-  const notes = (Array.isArray(doc.notes) ? doc.notes : []).filter((x) => typeof x === "string").map((x) => x.slice(0, 400)).slice(0, 10);
-  const prov = doc.skyline && typeof doc.skyline.provenance === "string" ? doc.skyline.provenance.slice(0, 400) : "";
-  if (prov) notes.unshift(`Skyline: ${prov}`);
-  const of = num(pick(doc, "open_fraction")) ?? num(doc.skyline && doc.skyline.open_fraction);
+  const notes = [];
+  if (unknown) notes.push(`${unknown} satellite record(s) of a system this view does not draw were left out.`);
+  const src = text(doc.skyline_source, 200);
+  if (src) notes.push(`Skyline: ${src}.`);
+  const of = num(doc.open_fraction);
+  const below = num(doc.n_below_horizon);
   return {
     backend: "geometry", source: `Kshana engine ${version}, sky_geometry`.replace("  ", " "),
-    sats, nUsed: sats.filter((s) => s.used).length, nVisible: sats.filter((s) => !s.masked).length, nMasked: sats.filter((s) => s.masked).length,
-    dop, dopDigits: 2, openFraction: of !== null && of >= 0 && of <= 1 ? of : null, ellipse, missing: [], notes,
+    sats, nUsed: sats.filter((s) => s.used).length,
+    nVisible: num(doc.n_visible) ?? sats.filter((s) => s.used).length, nMasked: num(doc.n_masked) ?? sats.filter((s) => s.masked).length, nBelow: below,
+    dop, dopDigits: 2, openFraction: of !== null && of >= 0 && of <= 1 ? of : null,
+    ellipse: readEllipse(doc.ellipse_1sigma), ellipse95: readEllipse(doc.ellipse),
+    provenance: provenanceOf(doc), missing: [], notes,
   };
 }
 
 export function parseMonteCarlo(doc) {
   if (!doc || typeof doc !== "object" || Array.isArray(doc)) throw new Error("the engine's Monte Carlo reply is not an object");
-  const raw = pick(doc, "samples_enu_m", "points_enu_m");
-  const points = (Array.isArray(raw) ? raw : []).slice(0, 5000).filter((p) => Array.isArray(p) && p.length >= 2 && p.slice(0, 3).every((x) => num(x) !== null));
-  const inside = num(pick(doc, "inside_95_fraction", "containment_95"));
+  const points = (Array.isArray(doc.samples_enu_m) ? doc.samples_enu_m : []).slice(0, 5000).filter((p) => Array.isArray(p) && p.length >= 2 && p.slice(0, 3).every((x) => num(x) !== null));
+  const inside = num(doc.fraction_inside_95);
   return {
-    points, seed: num(doc.seed), samples: num(pick(doc, "n", "samples")) ?? points.length,
-    rmsHorizontalM: num(pick(doc, "rms_horizontal_m", "rms_h_m")), rmsVerticalM: num(pick(doc, "rms_vertical_m", "rms_v_m")),
+    points, seed: num(doc.seed), samples: num(doc.n) ?? points.length,
+    rmsHorizontalM: num(doc.rms_horizontal_m), rms3dM: num(doc.rms_3d_m),
+    predictedHorizontalM: num(doc.predicted_rms_horizontal_m), predicted3dM: num(doc.predicted_rms_3d_m),
     inside95: inside !== null && inside >= 0 && inside <= 1 ? inside : null,
+    provenance: provenanceOf(doc),
   };
 }
 
-// skyline_presets() reply: [{name, table: [[az, el]...] | 360 numbers, provenance}] (or {presets: [...]}).
+// skyline_presets() reply: [{name, label, description, provenance, table: 360 numbers, open_fraction}].
 export function parsePresets(doc) {
   const list = Array.isArray(doc) ? doc : doc && Array.isArray(doc.presets) ? doc.presets : [];
   const out = {};
   for (const p of list) {
     if (!p || !SKYLINE_PRESETS.includes(p.name)) continue;
     const t = parseProfile(p);
-    if (t) out[p.name] = { table: t, provenance: typeof p.provenance === "string" ? p.provenance.slice(0, 400) : "" };
+    if (t) out[p.name] = { table: t, provenance: [text(p.label, 40), text(p.description, 400), text(p.provenance, 400)].filter(Boolean).join(". ").replace(/\.\./g, ".") };
   }
   return out;
 }
 
-// skyline_profile() reply, or a preset's table: 360 elevations, or [az, el] pairs on whole degrees.
+// skyline_profile() reply, or a preset: a 360-number table (the cut every degree from north), or [az, el] rows.
 export function parseProfile(doc) {
   const raw = Array.isArray(doc) ? doc : doc && (doc.table || doc.profile);
   if (!Array.isArray(raw)) return null;
@@ -248,7 +277,7 @@ export function parseProfile(doc) {
 }
 
 function empty(backend) {
-  return { backend, source: "", sats: [], nUsed: 0, nVisible: 0, nMasked: 0, dop: { ...NO_DOP }, dopDigits: 2, openFraction: null, ellipse: null, missing: [], notes: [] };
+  return { backend, source: "", sats: [], nUsed: 0, nVisible: 0, nMasked: 0, nBelow: null, dop: { ...NO_DOP }, dopDigits: 2, openFraction: null, ellipse: null, ellipse95: null, provenance: null, missing: [], notes: [] };
 }
 const parseJson = (raw, what) => { try { return JSON.parse(raw); } catch { throw new Error(`the engine's ${what} reply was not JSON`); } };
 
@@ -275,19 +304,19 @@ export function createGeometryAdapter(engine) {
       if (!features.canyon) return null;
       return parseProfile(parseJson(await engine.call("skyline_profile", JSON.stringify(skylineRequest(sky))), "skyline profile"));
     },
-    async compute(state, tleText = "") {
-      if (backend === "geometry") return parseGeometry(parseJson(await engine.call("sky_geometry", JSON.stringify(buildRequest(state, tleText))), "geometry"), engine.version || "");
+    async compute(state) {
+      if (backend === "geometry") return parseGeometry(parseJson(await engine.call("sky_geometry", JSON.stringify(buildRequest(state))), "geometry"), engine.version || "");
       if (backend === "interim") return computeInterim(engine, state);
       return { ...empty("none"), notes: ["The engine is not running in this browser, so there is nothing to show. It runs as WebAssembly; a browser or host that blocks WebAssembly cannot run this view."] };
     },
-    async monteCarlo(state, tleText = "") {
+    async monteCarlo(state) {
       if (!features.monteCarlo || !state.mc) return null;
-      return parseMonteCarlo(parseJson(await engine.call("sky_monte_carlo", JSON.stringify(buildRequest(state, tleText)), Math.trunc(state.seed), Math.trunc(state.mc)), "Monte Carlo"));
+      return parseMonteCarlo(parseJson(await engine.call("sky_monte_carlo", JSON.stringify(buildRequest(state)), Math.trunc(state.seed), Math.trunc(state.mc)), "Monte Carlo"));
     },
     // The engine's own SVG skyplot, as markup still to be parsed and sanitised by the caller (lib/svgsafe.mjs).
-    async svg(state, tleText = "") {
+    async svg(state) {
       if (!features.svg) return null;
-      const out = await engine.call("skyplot_svg", JSON.stringify(buildRequest(state, tleText)));
+      const out = await engine.call("skyplot_svg", JSON.stringify(buildRequest(state)));
       return typeof out === "string" ? out : null;
     },
   };

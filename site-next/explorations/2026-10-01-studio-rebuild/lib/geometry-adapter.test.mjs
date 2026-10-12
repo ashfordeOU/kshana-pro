@@ -2,10 +2,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, statSync } from "node:fs";
-import { createGeometryAdapter, chooseBackend, featuresFor, buildInterimToml, parseInterimNmea, interimInstant, buildRequest, skylineRequest, parseGeometry, parseMonteCarlo, parsePresets, parseProfile, INTERIM_SKYLINES, SKYLINE_LABELS, GEOMETRY_FNS, INTERIM_EPOCH } from "./geometry-adapter.mjs";
+import { createGeometryAdapter, chooseBackend, featuresFor, buildInterimToml, parseInterimNmea, interimInstant, buildRequest, skylineRequest, systemOf, parseGeometry, parseMonteCarlo, parsePresets, parseProfile, INTERIM_SKYLINES, SKYLINE_LABELS, GEOMETRY_FNS, INTERIM_EPOCH } from "./geometry-adapter.mjs";
 import { parseState, SKYLINE_PRESETS, DEFAULTS } from "./geometry-url.mjs";
 import { emptyTable, brush, elAt, isOpen, BINS } from "./skyline-edit.mjs";
-import { ENGINE_FNS } from "./engine.mjs";
+import { ENGINE_FNS, ENGINE_FNS_036 } from "./engine.mjs";
 
 const fake = (fns, impl = {}) => ({ available: true, version: "9.9.9", has: (f) => fns.includes(f), call: async (f, ...a) => impl[f](...a) });
 const state = (q = "") => parseState(q).state;
@@ -20,14 +20,14 @@ test("the backend is chosen from what the engine has, and features follow it", (
   assert.equal(fi.skyline, false);
   assert.equal(fi.monteCarlo, false);
   const fg = featuresFor("geometry", fake(GEOMETRY_FNS));
-  assert.ok(fg.systems.leo && fg.skyline && fg.canyon && fg.monteCarlo && fg.svg && fg.tle);
+  assert.ok(fg.systems.leo && fg.skyline && fg.canyon && fg.monteCarlo && fg.svg && !fg.tle);
   assert.equal(featuresFor("geometry", fake(["sky_geometry"])).monteCarlo, false, "each optional function is checked on its own");
 });
 
-test("the 0.36 names are the design note's, and ENGINE_FNS does not list them before the package has them", () => {
+test("the 0.36 names are the design note's and W21's, and the worker allows exactly them", () => {
   assert.deepEqual([...GEOMETRY_FNS], ["sky_geometry", "sky_monte_carlo", "skyline_presets", "skyline_profile", "skyplot_svg"]);
-  // Remove this assertion in the commit that adds them to ENGINE_FNS with a 0.36 package.
-  assert.ok(GEOMETRY_FNS.every((f) => !ENGINE_FNS.includes(f)));
+  assert.deepEqual([...ENGINE_FNS_036], [...GEOMETRY_FNS]);
+  assert.ok(GEOMETRY_FNS.every((f) => ENGINE_FNS.includes(f)));
 });
 
 test("every preset has a label and an interim outline below 90 degrees", () => {
@@ -98,59 +98,68 @@ test("no engine: an empty result that says why", async () => {
   assert.match(r.notes[0], /not running/);
 });
 
-test("the 0.36 request: site, offset, systems, mask, UERE, and the skyline as the engine's [skyline] table", () => {
-  const s = state("?site=1,2,3&t=60&sys=G,L:xona-pulsar&mask=7&uere=2&sky=c:35,18,24,40,1.5");
-  assert.deepEqual(buildRequest(s), { site: { lat_deg: 1, lon_deg: 2, height_m: 3 }, t_offset_s: 60, systems: ["gps"], mask_deg: 7, sigma_uere_m: 2, leo_preset: "xona-pulsar", skyline: { street_az_deg: 35, width_m: 18, height_left_m: 24, height_right_m: 40, antenna_m: 1.5 } });
+test("the 0.36 request is W21's: site, time_s, preset names, mask, UERE, 95 % and the skyline object", () => {
+  const s = state("?site=1,2,3&t=60&sys=G,C,L:xona-pulsar&mask=7&uere=2&sky=c:35,18,24,40,1.5");
+  assert.deepEqual(buildRequest(s), { site: { lat_deg: 1, lon_deg: 2, height_m: 3 }, time_s: 60, systems: ["gps-baseline", "beidou", "xona-pulsar"], mask_deg: 7, sigma_uere_m: 2, confidence: 0.95, skyline: { street_az_deg: 35, width_m: 18, height_left_m: 24, height_right_m: 40, antenna_m: 1.5 } });
   assert.deepEqual(skylineRequest({ kind: "preset", name: "fjord" }), { preset: "fjord" });
   assert.equal(skylineRequest({ kind: "none" }), null);
   const tab = skylineRequest({ kind: "table", table: brush(emptyTable(), 10, 20) }).table;
   assert.equal(tab.length, BINS);
   assert.deepEqual(tab[10], [10, 20]);
-  const withTle = buildRequest(s, "1 25544U ...");
-  assert.deepEqual(withTle.systems, []);
-  assert.equal(withTle.leo_preset, undefined);
-  assert.equal(withTle.tle, "1 25544U ...");
+  assert.ok(tab.every((r, k) => r[0] === k), "azimuths strictly increasing in [0, 360)");
+  assert.equal(buildRequest(state("?sky=none")).skyline, undefined);
+  for (const [n, sys] of [["gps-baseline", "gps"], ["GPS", "gps"], ["galileo", "galileo"], ["beidou-meo", "beidou"], ["starlink-sop", "leo"], ["glonass", null], ["evil", null], [5, null]]) assert.equal(systemOf(n), sys, String(n));
 });
 
 test("the 0.36 replies are checked field by field", async () => {
   const reply = {
-    satellites: [{ system: "gps", id: 3, az_deg: 370, el_deg: 40, visible: true }, { system: "leo", id: "L12", az_deg: 10, el_deg: 15, visible: true, masked_by_skyline: true }, { system: "evil", az_deg: 1, el_deg: 1 }, { system: "__proto__", az_deg: 1, el_deg: 1 }, { system: "gps", az_deg: "x", el_deg: 1 }],
-    dop: { gdop: 2.1, pdop: 1.9, hdop: 1.1, vdop: 1.5, tdop: "1" },
-    ellipse: { semi_major_m: 2.6, semi_minor_m: 1.4, orientation_deg: 33 },
-    skyline: { open_fraction: 0.62, provenance: "illustrative dimensions" },
-    notes: ["a", 5],
+    label: "MODELLED", statement: "Geometry only.", advisory: "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
+    skyline_source: "preset fjord", open_fraction: 0.62, n_visible: 1, n_masked: 1, n_below_horizon: 7,
+    satellites: [{ id: "G03", system: "gps-baseline", az_deg: 370, el_deg: 40, cut_deg: 5, visible: true, masked: false }, { id: "L12", system: "xona-pulsar", az_deg: 10, el_deg: 15, cut_deg: 22, visible: false, masked: true }, { system: "evil", az_deg: 1, el_deg: 1 }, { system: "__proto__", az_deg: 1, el_deg: 1 }, { system: "gps-baseline", az_deg: "x", el_deg: 1 }],
+    dop: { gdop: 2.1, pdop: 1.9, hdop: 1.1, vdop: 1.5, tdop: "1", tdop_by_clock: [0.6] },
+    ellipse_1sigma: { semi_major_m: 2.6, semi_minor_m: 1.4, orientation_deg: 33 },
+    ellipse: { sigma_uere_m: 2, confidence: 0.95, scale_k: 2.4477, semi_major_m: 6.36, semi_minor_m: 3.43, orientation_deg: 33 },
   };
   const r = parseGeometry(reply, "0.36.0");
-  assert.deepEqual(r.sats.map((x) => [x.sys, x.id, x.az, x.used, x.masked]), [["gps", "3", 10, true, false], ["leo", "L12", 10, false, true]]);
+  assert.deepEqual(r.sats.map((x) => [x.sys, x.id, x.az, x.used, x.masked]), [["gps", "G03", 10, true, false], ["leo", "L12", 10, false, true]]);
   assert.equal(r.nMasked, 1);
+  assert.equal(r.nBelow, 7);
   assert.equal(r.dop.tdop, null);
-  assert.deepEqual(r.ellipse, { semiMajorM: 2.6, semiMinorM: 1.4, orientationDeg: 33 });
+  assert.deepEqual(r.ellipse, { semiMajorM: 2.6, semiMinorM: 1.4, orientationDeg: 33, confidence: null, scaleK: null });
+  assert.equal(r.ellipse95.semiMajorM, 6.36);
+  assert.equal(r.ellipse95.scaleK, 2.4477);
   assert.equal(r.openFraction, 0.62);
-  assert.deepEqual(r.notes, ["Skyline: illustrative dimensions", "a"]);
+  assert.equal(r.provenance.label, "MODELLED");
+  assert.match(r.provenance.advisory, /IEC 61108, IEC 61162/);
+  assert.ok(r.notes.some((n) => /3 satellite record/.test(n)) && r.notes.some((n) => /Skyline: preset fjord/.test(n)));
   assert.throws(() => parseGeometry(null));
   assert.throws(() => parseGeometry([]));
   assert.equal(parseGeometry({ open_fraction: 2 }).openFraction, null);
 
-  const mc = parseMonteCarlo({ seed: 9, n: 3, samples_enu_m: [[1, 2, 3], [0.5, -1, 0], [1, "x", 0], "no"], rms_horizontal_m: 2.2, inside_95_fraction: 0.951 });
+  const mc = parseMonteCarlo({ label: "MODELLED", seed: 9, n: 3, samples_enu_m: [[1, 2, 3], [0.5, -1, 0], [1, "x", 0], "no"], rms_horizontal_m: 2.2, predicted_rms_horizontal_m: 2.1, rms_3d_m: 3.3, predicted_rms_3d_m: 3.2, fraction_inside_95: 0.951 });
   assert.equal(mc.points.length, 2);
   assert.equal(mc.inside95, 0.951);
   assert.equal(mc.samples, 3);
+  assert.equal(mc.predictedHorizontalM, 2.1);
+  assert.equal(mc.provenance.label, "MODELLED");
   assert.throws(() => parseMonteCarlo("x"));
 
-  const presets = parsePresets({ presets: [{ name: "fjord", table: Array(BINS).fill(21.8), provenance: "p" }, { name: "evil", table: Array(BINS).fill(1) }] });
+  const presets = parsePresets([{ name: "fjord", label: "REPRESENTATIVE", description: "d", provenance: "p", table: Array(BINS).fill(21.8), open_fraction: 0.7 }, { name: "evil", table: Array(BINS).fill(1) }]);
   assert.deepEqual(Object.keys(presets), ["fjord"]);
   assert.equal(elAt(presets.fjord.table, 100), 22);
+  assert.equal(presets.fjord.provenance, "REPRESENTATIVE. d. p");
   assert.equal(parseProfile({ table: "x" }), null);
 
   const calls = [];
   const eng = fake(["nmea_training", ...GEOMETRY_FNS], {
     sky_geometry: (j) => { calls.push(["g", JSON.parse(j)]); return JSON.stringify(reply); },
     sky_monte_carlo: (j, seed, n) => { calls.push(["mc", seed, n]); return JSON.stringify({ seed, n, samples_enu_m: [[1, 1, 0]] }); },
-    skyline_presets: () => JSON.stringify([{ name: "fjord", table: [[0, 2], [90, 22], [180, 2], [270, 22]], provenance: "engine" }]),
+    skyline_presets: () => JSON.stringify([{ name: "fjord", table: Array.from({ length: BINS }, (_, k) => (k % 180 === 90 ? 22 : 2)), provenance: "engine" }]),
     skyline_profile: (j) => { calls.push(["p", JSON.parse(j)]); return JSON.stringify({ table: Array(BINS).fill(30) }); },
     skyplot_svg: () => "<svg/>",
   });
   const a = createGeometryAdapter(eng);
+  assert.equal(a.features.tle, false, "sky_geometry takes no TLE text");
   const s = state("?mc=500&seed=4");
   assert.equal((await a.compute(s)).ellipse.semiMajorM, 2.6);
   assert.equal((await a.monteCarlo(s)).points.length, 1);
@@ -180,4 +189,42 @@ test("against the real engine package", { skip: !havePkg && "pkg/kshana_bg.wasm 
   assert.ok(r.dop.pdop > 0 && r.dop.hdop > 0 && r.dop.vdop > 0 && r.dop.pdop >= r.dop.hdop);
   assert.deepEqual(await a.compute(state("?mask=10")), r, "the same state gives the same answer");
   assert.notDeepEqual((await a.compute(state("?mask=10&t=10800"))).sats, r.sats, "the sky moves with the time offset");
+});
+
+// Against a 0.36 engine package with the Geometry functions (a wasm-pack build of the engine branch that adds
+// them), when KSHANA_GEOMETRY_PKG names its folder. The Studio's own pkg/ is the release it ships.
+const PKG036 = process.env.KSHANA_GEOMETRY_PKG ? new URL(`file://${process.env.KSHANA_GEOMETRY_PKG.replace(/\/?$/, "/")}`) : null;
+test("the geometry backend against a 0.36 engine package", { skip: !PKG036 && "KSHANA_GEOMETRY_PKG is not set" }, async () => {
+  const mod = await import(new URL("kshana.js", PKG036).href);
+  await mod.default({ module_or_path: readFileSync(new URL("kshana_bg.wasm", PKG036)) });
+  const eng = { available: true, version: mod.version(), has: (f) => ENGINE_FNS.includes(f) && typeof mod[f] === "function", call: async (f, ...a) => mod[f](...a) };
+  const a = createGeometryAdapter(eng);
+  assert.equal(a.backend, "geometry");
+  assert.ok(a.features.monteCarlo && a.features.canyon && a.features.svg && a.features.systems.leo);
+  const s = state("?sys=G,E,C,L:xona-pulsar&sky=p:fjord&mc=1000");
+  const r = await a.compute(s);
+  assert.ok(r.sats.length > 20 && r.sats.every((x) => ["gps", "galileo", "beidou", "leo"].includes(x.sys)));
+  assert.ok(r.sats.some((x) => x.sys === "leo"), "the LEO layer is drawn");
+  assert.ok(r.nMasked > 0 && r.sats.some((x) => x.masked), "the fjord hides satellites");
+  assert.ok([r.dop.gdop, r.dop.pdop, r.dop.hdop, r.dop.vdop, r.dop.tdop].every((x) => x > 0));
+  assert.ok(r.ellipse && r.ellipse95 && Math.abs(r.ellipse95.semiMajorM / r.ellipse.semiMajorM - r.ellipse95.scaleK) < 1e-9, "the 95 % ellipse is the 1-sigma one times the engine's stated scale");
+  assert.ok(r.openFraction > 0 && r.openFraction < 1);
+  assert.equal(r.provenance.label, "MODELLED");
+  assert.equal(r.provenance.advisory, "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.");
+  const fewer = await a.compute(state("?sys=G,E,C,L:xona-pulsar"));
+  assert.ok(fewer.nMasked === 0 && fewer.nUsed >= r.nUsed, "an open horizon hides nothing and uses at least as many satellites");
+  assert.ok(fewer.dop.pdop <= r.dop.pdop + 1e-12, "a skyline never improves the DOP");
+  const mc = await a.monteCarlo(s);
+  assert.equal(mc.points.length, 1000);
+  assert.ok(Math.abs(mc.rmsHorizontalM / mc.predictedHorizontalM - 1) < 0.1, "cloud RMS ≈ σ_UERE × HDOP");
+  assert.ok(Math.abs(mc.predictedHorizontalM - s.uere * r.dop.hdop) < 1e-9, "the prediction is σ_UERE × HDOP");
+  assert.deepEqual((await a.monteCarlo(s)).points, mc.points, "the same seed gives the same cloud");
+  const p = await a.preset("city-street");
+  assert.match(p.provenance, /REPRESENTATIVE/);
+  const canyon = await a.profile({ kind: "canyon", streetAz: 0, widthM: 20, leftM: 30, rightM: 30, antennaM: 1.5 });
+  assert.ok(elAt(canyon, 90) > 60 && elAt(canyon, 0) === 0, "a north-south street is open along it and walled across it");
+  const drawn = brush(emptyTable(), 120, 40, 10);
+  const back = await a.profile({ kind: "table", table: drawn });
+  assert.deepEqual(back, drawn, "the engine uses exactly the drawn table");
+  assert.match(await a.svg(s), /^<svg[\s>]/);
 });

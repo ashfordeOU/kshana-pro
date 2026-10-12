@@ -66,6 +66,21 @@ const clean = (log, what) => {
     ok(await page.locator("#gm-errplot ellipse.g-ell").count() === 1 && await page.locator("#gm-errplot ellipse.g-ell95").count() === 1, "geometry: the 1-sigma and 95 % ellipses are drawn");
     ok(await page.locator("#gm-errplot .g-cloud circle").count() >= 100, "geometry: the Monte Carlo cloud is drawn");
     ok(/^\d+\.\d+$/.test(await page.locator("#gm-dops dd").nth(0).textContent()), "geometry: GDOP is given");
+    ok(/^MODELLED/.test(await page.textContent("#gm-model")) && /IEC 61108, IEC 61162/.test(await page.textContent("#gm-model")), "geometry: the engine's label and advisory are shown with the numbers");
+    ok(!(await page.isDisabled("#gm-sys-leo")) && await page.isVisible("#gm-svg"), "geometry: LEO and the SVG export are offered");
+    ok(/\d+ least-squares solutions/.test(await page.textContent("#gm-errfacts")) && /Inside the 95 % ellipse/.test(await page.textContent("#gm-errfacts")), "geometry: the cloud's RMS, prediction and containment are stated");
+    // A preset skyline hides satellites, and the canyon form is drawn from the engine's profile.
+    await page.selectOption("#gm-sky", "p:city-street");
+    await page.waitForFunction(() => /sky=p:city-street/.test(location.search) && /^Ready/.test(document.getElementById("gm-engine").textContent));
+    await page.waitForFunction(() => document.querySelectorAll("#gm-plot .g-sat.masked").length > 0, null, { timeout: 30000 });
+    ok(true, "geometry: the city-street preset hides satellites (hollow, dashed)");
+    ok(/REPRESENTATIVE/.test(await page.textContent("#gm-sky-prov")), "geometry: the preset's provenance is shown");
+    await page.selectOption("#gm-sky", "canyon");
+    await page.waitForFunction(() => /sky=c:/.test(location.search) && document.querySelector("#gm-plot .g-skyline"));
+    ok(/engine's reduction/.test(await page.textContent("#gm-sky-prov")), "geometry: the canyon is drawn from the engine's profile");
+    const dl = page.waitForEvent("download", { timeout: 30000 });
+    await page.click("#gm-svg");
+    ok(/kshana-skyplot\.svg$/.test((await dl).suggestedFilename()), "geometry: the engine's skyplot downloads through svgsafe");
   } else {
     ok(/Needs engine 0\.36/.test(await page.textContent("#gm-errplot")), "interim: the error panel says it needs engine 0.36");
     ok(/needs engine 0\.36/.test(await page.locator("#gm-dops dd").nth(0).textContent()), "interim: GDOP says it needs engine 0.36");

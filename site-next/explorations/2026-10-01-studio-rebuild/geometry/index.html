@@ -71,10 +71,6 @@
         <div class="gm-sys" id="gm-sys"></div>
         <label class="gm-f gm-wide">LEO preset <select id="gm-leo"></select></label>
         <p class="gm-small" id="gm-sys-note"></p>
-        <details class="gm-tle gm-wide" id="gm-tle-box"><summary>Your own orbital elements (TLE)</summary>
-          <label class="gm-f gm-wide">Two-line element sets, pasted here; read in this page, never fetched or put in the address <textarea id="gm-tle" rows="5" spellcheck="false" autocomplete="off"></textarea></label>
-          <div class="gm-steps"><button type="button" class="gm-chip" id="gm-tle-use">Use these elements</button><button type="button" class="gm-chip" id="gm-tle-clear">Back to the presets</button></div>
-        </details>
       </fieldset>
 
       <fieldset class="gm-fs"><legend>Horizon</legend>
@@ -123,12 +119,13 @@
     <section class="card gm-dop" aria-labelledby="gm-dop-h">
       <div class="card-head"><h2 id="gm-dop-h" class="h3">Dilution of precision</h2><p class="card-note">How much the geometry multiplies the range error. Lower is better; about 1 is excellent, above 6 is poor.</p></div>
       <dl class="gm-dops" id="gm-dops" aria-live="polite"></dl>
+      <p class="gm-model" id="gm-model" hidden></p>
       <dl class="gm-dops gm-counts" id="gm-counts"></dl>
       <p class="gm-small" id="gm-used"></p>
     </section>
 
     <section class="card gm-err" aria-labelledby="gm-err-h">
-      <div class="card-head"><h2 id="gm-err-h" class="h3">Horizontal position error</h2><p class="card-note">The error ellipse from the geometry's covariance for the chosen σ<sub>UERE</sub>, at 1-sigma and 95 % (1-sigma × √5.991 = 2.448), over a seeded Monte Carlo cloud of least-squares solutions. East to the right, north up, in metres.</p></div>
+      <div class="card-head"><h2 id="gm-err-h" class="h3">Horizontal position error</h2><p class="card-note">The error ellipse from the geometry's covariance for the chosen σ<sub>UERE</sub>, at 1-sigma and 95 % (both from the engine), over a seeded Monte Carlo cloud of least-squares solutions. East to the right, north up, in metres.</p></div>
       <div class="gm-svgbox"><svg id="gm-errplot" viewBox="0 0 400 400" role="img" aria-labelledby="gm-err-h gm-err-desc"></svg></div>
       <p class="sr" id="gm-err-desc"></p>
       <dl class="gm-dops gm-errfacts" id="gm-errfacts"></dl>

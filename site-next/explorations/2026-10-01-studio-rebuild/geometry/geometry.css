@@ -13,6 +13,9 @@
 .gm-canyon[hidden]{display:none}
 .gm-tle summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:13.5px;font-weight:600}
 .gm-tle textarea{min-height:110px;padding:8px 10px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);font:12px var(--f-mono);width:100%;box-sizing:border-box}
+.gm-model{margin:10px 0 0;padding:8px 10px;border-radius:10px;background:var(--surface-2);font-size:12.5px;line-height:1.45;color:var(--ink-2)}
+.gm-model[hidden]{display:none}
+.gm-model b{color:var(--ink);font-family:var(--f-mono);font-size:11.5px;letter-spacing:.04em}
 .gm-counts{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
 .gm-counts dd{font-size:15px}
 .gm-engine{margin:0 0 16px;font-size:13.5px;color:var(--ink-2)}
@@ -89,6 +92,7 @@
 .gm-dops dt abbr{text-decoration:none}
 .gm-dops dt small{font-weight:400;font-size:11.5px;color:var(--ink-3)}
 .gm-dops dd{margin:0;font:600 22px var(--f-mono);color:var(--ink)}
+.gm-dops dd.txt{font:600 14px var(--f-text)}
 .gm-dops dd.na{font:500 13px var(--f-text);color:var(--ink-3)}
 .gm-errfacts{margin-top:10px}
 .gm-errfacts dd{font-size:14px}

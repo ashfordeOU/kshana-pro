@@ -5,7 +5,7 @@
 // computes a navigation quantity.
 import { parseState, buildSearch, normaliseState, SKYLINE_PRESETS, LEO_PRESETS, MC_CHOICES, MAX_T } from "../lib/geometry-url.mjs";
 import { emptyTable, paint, keyEdit, describe, outlinePoints, isOpen, elAt } from "../lib/skyline-edit.mjs";
-import { project, unproject, outlinePath, markerPath, niceExtent, ellipseAttrs, fmtDop, styleFor, SCALE_95 } from "../lib/skyplot.mjs";
+import { project, unproject, outlinePath, markerPath, niceExtent, ellipseAttrs, fmtDop, styleFor } from "../lib/skyplot.mjs";
 import { createGeometryAdapter, SKYLINE_LABELS } from "../lib/geometry-adapter.mjs";
 import { parseSvgMarkup, sanitizeSvg } from "../lib/svgsafe.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
@@ -13,7 +13,6 @@ import { getEngine } from "../lib/engine-page.mjs";
 const $ = (id) => document.getElementById(id);
 const NS = "http://www.w3.org/2000/svg";
 const CX = 200, CY = 200, R = 172;
-const MAX_TLE = 4 * 1024 * 1024; // the engine's input limit
 // Places to jump to (a convenience: only the coordinates go into the address).
 const PLACES = [
   ["Oslo harbour, Norway", 59.91, 10.75, 5], ["Tallinn harbour, Estonia", 59.444, 24.765, 10], ["Port of Rotterdam, Netherlands", 51.955, 4.05, 5],
@@ -42,7 +41,6 @@ let state = first.state;
 const extra = first.extra;
 let table = state.sky.kind === "table" ? state.sky.table : emptyTable(); // what the skyplot draws
 let skyProv = "";
-let tle = "";           // pasted elements, in this page only
 let cursor = 0;         // the keyboard cursor's azimuth bin
 let adapter = null, features = null;
 let result = null, cloud = null;
@@ -52,7 +50,7 @@ function setNotes(list) { $("gm-url-notes").replaceChildren(...list.map((t) => e
 setNotes(first.notes);
 
 function writeAddress() {
-  try { history.replaceState(null, "", location.pathname + buildSearch({ ...state, tle: !!tle }, extra)); } catch { /* a sandboxed frame */ }
+  try { history.replaceState(null, "", location.pathname + buildSearch(state, extra)); } catch { /* a sandboxed frame */ }
 }
 
 // ---------------------------------------------------------------- controls
@@ -96,8 +94,6 @@ function applyFeatures() {
   if (!f.canyon) off.push(`The street-canyon form ${NEEDS}.`);
   $("gm-mc").disabled = !f.monteCarlo; $("gm-seed").disabled = !f.monteCarlo;
   if (!f.monteCarlo) off.push(`The Monte Carlo cloud ${NEEDS}.`);
-  $("gm-tle-use").disabled = !f.tle; $("gm-tle").disabled = !f.tle;
-  if (!f.tle) off.push(`Your own elements: ${NEEDS}.`);
   $("gm-svg").hidden = !f.svg;
   $("gm-sys-note").textContent = off.join(" ");
 }
@@ -153,7 +149,7 @@ $("gm-form").addEventListener("change", (ev) => {
     if (p) { $("gm-lat").value = p[1]; $("gm-lon").value = p[2]; $("gm-hgt").value = p[3]; }
     t.value = "";
   }
-  if (["gm-brush", "gm-tle"].includes(t.id)) return;
+  if (t.id === "gm-brush") return;
   commit(readControls());
 });
 $("gm-form").addEventListener("submit", (ev) => ev.preventDefault());
@@ -164,27 +160,16 @@ for (const b of document.querySelectorAll("[data-step]")) b.addEventListener("cl
 });
 $("gm-sky-clear").addEventListener("click", () => { table = emptyTable(); commit({ ...state, sky: { kind: "none" } }); });
 
-$("gm-tle-use").addEventListener("click", () => {
-  const text = $("gm-tle").value;
-  if (!text.trim()) { setNotes(["Paste one or more two-line element sets first."]); return; }
-  if (text.length > MAX_TLE) { setNotes(["The pasted elements are larger than 4 MiB, the engine's input limit."]); return; }
-  tle = text;
-  writeAddress();
-  setNotes(["Using your own elements. A link carries only that you used them, not the elements themselves."]);
-  schedule();
-});
-$("gm-tle-clear").addEventListener("click", () => { tle = ""; $("gm-tle").value = ""; writeAddress(); setNotes([]); schedule(); });
-
 $("gm-copy").addEventListener("click", async () => {
-  const url = location.origin + location.pathname + buildSearch({ ...state, tle: !!tle }, extra);
-  try { await navigator.clipboard.writeText(url); $("gm-copy-out").textContent = tle ? "Link copied (without your pasted elements)." : "Link copied."; }
+  const url = location.origin + location.pathname + buildSearch(state, extra);
+  try { await navigator.clipboard.writeText(url); $("gm-copy-out").textContent = "Link copied."; }
   catch { $("gm-copy-out").textContent = `Copy this link: ${url}`; }
 });
 
 // The engine's SVG skyplot, only ever adopted through svgsafe (design note section 3.5).
 $("gm-svg").addEventListener("click", async () => {
   try {
-    const root = parseSvgMarkup(await adapter.svg(state, tle));
+    const root = parseSvgMarkup(await adapter.svg(state));
     if (!root) throw new Error("the engine's SVG was refused");
     sanitizeSvg(root);
     const blob = new Blob([new XMLSerializer().serializeToString(root)], { type: "image/svg+xml" });
@@ -309,11 +294,22 @@ function drawDops() {
     ["In view", String(result.nVisible)],
     ["Hidden by the skyline", geo ? String(result.nMasked) : NEEDS],
     ["In the solution", String(result.nUsed)],
+    ...(Number.isFinite(result.nBelow) ? [["Below the horizon", String(result.nBelow)]] : []),
     ["Open sky", Number.isFinite(result.openFraction) ? `${Math.round(result.openFraction * 100)} % of the upper hemisphere` : geo ? "not given" : NEEDS],
   ] : [];
-  $("gm-counts").replaceChildren(...counts.flatMap(([k, v]) => [el("dt", {}, k), el("dd", { class: /needs|not given/.test(v) ? "na" : "" }, v)]));
+  $("gm-counts").replaceChildren(...counts.flatMap(([k, v]) => [el("dt", {}, k), el("dd", { class: /needs|not given/.test(v) ? "na" : /^\d+$/.test(v) ? "" : "txt" }, v)]));
   const h = d && Number.isFinite(d.hdop) ? d.hdop : null, v = d && Number.isFinite(d.vdop) ? d.vdop : null;
   $("gm-used").textContent = h !== null ? `With σ_UERE = ${state.uere} m, under the stated error model: horizontal RMS error ≈ σ_UERE × HDOP = ${f1(state.uere * h)} m${v !== null ? `; vertical ≈ σ_UERE × VDOP = ${f1(state.uere * v)} m` : ""}.` : "";
+  drawModel();
+}
+
+// The engine's own label, statement and advisory, shown with its numbers (every 0.36 result carries them).
+function drawModel() {
+  const p = result && result.provenance;
+  const box = $("gm-model");
+  if (!p || !(p.label || p.statement || p.advisory)) { box.hidden = true; box.replaceChildren(); return; }
+  box.hidden = false;
+  box.replaceChildren(...[p.label && el("b", {}, p.label), p.statement && el("span", {}, ` ${p.statement}`), p.advisory && el("span", { class: "gm-model-adv" }, ` ${p.advisory}`)].filter(Boolean));
 }
 
 function drawError() {
@@ -329,7 +325,9 @@ function drawError() {
     return;
   }
   const vals = [];
-  if (e) vals.push(e.semiMajorM * SCALE_95 * 1.1);
+  const e95 = result && result.ellipse95;
+  if (e) vals.push(e.semiMajorM * 1.1);
+  if (e95) vals.push(e95.semiMajorM * 1.1);
   if (c) for (const p of c.points) vals.push(p[0], p[1]);
   const ext = niceExtent(vals, 1);
   const PX = 180, scale = PX / ext, cx = 200, cy = 200;
@@ -339,20 +337,20 @@ function drawError() {
   kids.push(sv("text", { x: cx + PX, y: cy - 6, class: "g-tick", "text-anchor": "end" }, `E +${ext} m`), sv("text", { x: cx + 6, y: cy - PX + 10, class: "g-tick" }, `N +${ext} m`));
   if (c) { const g = sv("g", { class: "g-cloud", "aria-hidden": "true" }); for (const p of c.points) g.append(sv("circle", { cx: (cx + p[0] * scale).toFixed(1), cy: (cy - p[1] * scale).toFixed(1), r: 1.6 })); kids.push(g); }
   if (e) {
-    kids.push(sv("ellipse", { ...ellipseAttrs({ ...e, semiMajorM: e.semiMajorM * SCALE_95, semiMinorM: e.semiMinorM * SCALE_95 }, cx, cy, scale), class: "g-ell95" }));
+    if (e95) kids.push(sv("ellipse", { ...ellipseAttrs(e95, cx, cy, scale), class: "g-ell95" }));
     kids.push(sv("ellipse", { ...ellipseAttrs(e, cx, cy, scale), class: "g-ell" }));
   }
   svg.replaceChildren(...kids);
   const facts = [];
   if (e) {
     facts.push(["Ellipse, 1-sigma", `${f1(e.semiMajorM)} m × ${f1(e.semiMinorM)} m, long axis ${Math.round(((e.orientationDeg % 180) + 180) % 180)}° from north`]);
-    facts.push(["Ellipse, 95 %", `${f1(e.semiMajorM * SCALE_95)} m × ${f1(e.semiMinorM * SCALE_95)} m (× 2.448)`]);
+    if (e95) facts.push([`Ellipse, ${Math.round((e95.confidence ?? 0.95) * 100)} %`, `${f1(e95.semiMajorM)} m × ${f1(e95.semiMinorM)} m${Number.isFinite(e95.scaleK) ? ` (1-sigma × ${e95.scaleK.toFixed(3)})` : ""}`]);
   }
   const hd = result && result.dop && Number.isFinite(result.dop.hdop) ? result.dop.hdop : null;
   if (c) {
     facts.push(["Monte Carlo", `${c.samples} least-squares solutions, seed ${c.seed ?? state.seed}`]);
-    if (Number.isFinite(c.rmsHorizontalM)) facts.push(["Cloud RMS, horizontal", `${f1(c.rmsHorizontalM)} m${hd !== null ? `, beside σ_UERE × HDOP = ${f1(state.uere * hd)} m` : ""}`]);
-    if (Number.isFinite(c.rmsVerticalM)) facts.push(["Cloud RMS, vertical", `${f1(c.rmsVerticalM)} m`]);
+    if (Number.isFinite(c.rmsHorizontalM)) facts.push(["Cloud RMS, horizontal", `${f1(c.rmsHorizontalM)} m${Number.isFinite(c.predictedHorizontalM) ? `, beside σ_UERE × HDOP = ${f1(c.predictedHorizontalM)} m` : hd !== null ? `, beside σ_UERE × HDOP = ${f1(state.uere * hd)} m` : ""}`]);
+    if (Number.isFinite(c.rms3dM)) facts.push(["Cloud RMS, 3-D", `${f1(c.rms3dM)} m${Number.isFinite(c.predicted3dM) ? `, beside σ_UERE × PDOP = ${f1(c.predicted3dM)} m` : ""}`]);
     if (Number.isFinite(c.inside95)) facts.push(["Inside the 95 % ellipse", `${(c.inside95 * 100).toFixed(1)} % of the points`]);
   }
   $("gm-errfacts").replaceChildren(...facts.flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]));
@@ -375,7 +373,7 @@ async function compute() {
   const mine = ++ticket;
   $("gm-engine").textContent = "Computing…";
   try {
-    const r = await adapter.compute(state, tle);
+    const r = await adapter.compute(state);
     if (mine !== ticket) return;
     result = r;
     cloud = null;
@@ -383,7 +381,7 @@ async function compute() {
     $("gm-engine").textContent = r.backend === "none" ? r.notes[0] : r.missing.length ? `Ready. Needs engine 0.36: ${r.missing.join(", ")}.` : "Ready.";
     drawAll();
     if (features.monteCarlo && state.mc) {
-      const c = await adapter.monteCarlo(state, tle);
+      const c = await adapter.monteCarlo(state);
       if (mine !== ticket) return;
       cloud = c;
       drawError();
