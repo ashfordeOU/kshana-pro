@@ -5,6 +5,7 @@
 //   cd explorations/2026-10-01-studio-rebuild && python3 -m http.server 8877 &   (or the LAN server)
 //   node REVIEW/gates.mjs                 # every gate (about 6 minutes; the throttled loads are slow)
 //   PHASES=load,clicks,inputs,phone,links,throttle node REVIEW/gates.mjs
+//   PHASES=advanced,waterfall-fit node REVIEW/gates.mjs   # the Advanced view only (not in the default run)
 // Environment: STUDIO (default http://127.0.0.1:8877/), REPS (default 3), PW_DIR (playwright).
 //
 // Gates (from the founder's brief, 2026-10-01):
@@ -14,6 +15,8 @@
 //   inputs    <= 5 inputs visible by default on every scenario (all of them, by script)
 //   phone     header <= 64 px; tap targets >= 44 px; no page or box hiding content sideways
 //   links     every Studio link the site build uses opens the right scenario and view
+//   advanced  the Advanced view: the switch on every page; on a phone a usable layout
+//   waterfall-fit  the Advanced waterfall fits its panel at 1280, 1440 and 1920 px and on a phone
 //   errors    0 console errors, page errors or failed requests across every load above
 import fs from "node:fs";
 import path from "node:path";
@@ -82,7 +85,7 @@ const errors = [], harness = [];
 // Loaded without the probe (REVIEW/shots.mjs) the same views log nothing.
 const HARNESS = /Failed to read the 'serviceWorker' property from 'Navigator'|Blocked script execution in 'about:srcdoc'/;
 async function newPage(browser, device, opts = {}) {
-  const ctx = await browser.newContext({ ...DEVICES[device], serviceWorkers: "block", colorScheme: opts.theme || "light" });
+  const ctx = await browser.newContext({ ...DEVICES[device], ...(opts.viewport ? { viewport: opts.viewport } : {}), serviceWorkers: "block", colorScheme: opts.theme || "light" });
   const page = await ctx.newPage();
   await page.addInitScript(PROBE);
   const where = () => page.url().replace(STUDIO, "");
@@ -281,6 +284,34 @@ if (PHASES.includes("advanced")) {
   out.gates.advanced = { target: "0 errors; the switch on every page; on a phone header <= 64 px, nothing off-screen or hidden sideways", rows, pass };
   for (const r of rows) console.log("advanced", r.device, r.url, `header ${r.header}`, r.switchShown ? "switch" : "NO-SWITCH", r.pageSideways ? "PAGE-SIDEWAYS" : "", r.off.length ? "off " + r.off.join(", ") : "", r.boxes.length ? "boxes " + r.boxes.join(", ") : "", "|", r.title);
   console.log("advanced", pass ? "PASS" : "FAIL");
+}
+
+// ---------------------------------------------------------------- the Advanced waterfall fits
+// The spectrum waterfall shares its card with the receiver's bands. At some window widths the
+// chart kept a 520 px floor wider than its box, so its right edge (the top of the band) sat
+// behind a sideways scroll. Fails if the chart, its box or its card ends past the one holding it.
+if (PHASES.includes("waterfall-fit")) {
+  const rows = [];
+  for (const [device, width] of [["desktop", 1280], ["desktop", 1440], ["desktop", 1920], ["phone", 390]]) {
+    const { ctx, page } = await newPage(browser, device, device === "desktop" ? { viewport: { width, height: 900 } } : {});
+    await page.goto(STUDIO + "advanced/?scenario=l-band-waterfall-jamming&tab=spectrum");
+    await page.waitForFunction(() => document.querySelector(".wf-box svg.chart"), null, { timeout: 30000 }).catch(() => {});
+    await page.waitForTimeout(1000);
+    const m = await page.evaluate(() => {
+      const box = document.querySelector(".wf-box"), svg = box && box.querySelector("svg.chart");
+      if (!svg) return { found: false };
+      const card = box.closest(".card"), views = box.closest(".views") || document.body;
+      const right = (el) => Math.round(el.getBoundingClientRect().right * 10) / 10;
+      return { found: true, svg: right(svg), box: right(box), card: right(card), views: right(views), scroll: box.scrollWidth, client: box.clientWidth, pageSideways: document.scrollingElement.scrollWidth > innerWidth };
+    });
+    const fits = m.found && m.svg <= m.box + 0.5 && m.scroll <= m.client + 1 && m.box <= m.card + 0.5 && m.card <= m.views + 0.5 && !m.pageSideways;
+    rows.push({ device, width, ...m, fits });
+    await ctx.close();
+  }
+  const pass = rows.every((r) => r.fits);
+  out.gates["waterfall-fit"] = { target: "the waterfall's right edge inside its box, card and panel at 1280, 1440, 1920 px and on a phone", rows, pass };
+  for (const r of rows) console.log("waterfall-fit", r.device, r.width, r.found ? `svg ${r.svg} box ${r.box} (scroll ${r.scroll}/${r.client}) card ${r.card} views ${r.views}` : "NO WATERFALL", r.fits ? "ok" : "CLIPPED");
+  console.log("waterfall-fit", pass ? "PASS" : "FAIL");
 }
 
 // ---------------------------------------------------------------- throttled
