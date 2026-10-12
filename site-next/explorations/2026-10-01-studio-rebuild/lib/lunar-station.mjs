@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // The lunar reference-station view (0.36): reads the engine's lunar-station-coverage report, keeps the view's state
 // in a validated address, writes the few inputs a reader may change into the bundled scenario file, and places the
-// report's grid points on a south-polar stereographic map. The field names are the plan's proposals
-// (docs/design/2026-10-12-lunar-reference-station-plan.md, A5); they live in FIELDS so a rename is one edit.
+// report's grid points on a south-polar stereographic map. The field names are the engine's (src/lunar_station.rs);
+// they live in FIELDS so a rename is one edit.
 // Every figure shown comes from the report; the projection, cell outlines, threshold boundary and the azimuth
 // lines here only place those figures on the drawing. Pure; tested in lunar-station.test.mjs.
 
@@ -19,18 +19,20 @@ export const HONESTY = Object.freeze([
 const NAMED = /nova\s*moon|moonlight|\besa\b|european space agency|\bnasa\b/i;
 export const textIsGeneric = (s) => typeof s === "string" && !NAMED.test(s);
 
-// The report's field names (plan A5), in one place.
+// The report's field names (engine src/lunar_station.rs, LunarStationCoverageReport), in one place.
 export const FIELDS = Object.freeze({
-  inputs: "inputs_echo", nPoints: "n_grid_points", nEpochs: "n_epochs", nTrials: "n_trials",
+  kind: "kind", inputs: "inputs_echo", errorModel: "error_model", nSats: "n_sats", nPoints: "n_grid_points", nEpochs: "n_epochs", nTrials: "n_trials", percentile: "percentile",
   region: "region", radius: "coverage_radius_km", points: "points", budget: "budget_at_station_and_at_edge",
   label: "label", tiers: "figure_tiers", note: "note", units: "units",
-  r: { availability: "availability", coverage: "coverage_fraction", improvement: "improvement_factor", hplMax: "hpl_max_m", vplMax: "vpl_max_m", hplBelow: "hpl_below_alert_fraction", worst: "worst_point" },
-  p: { lat: "lat", lon: "lon", dist: "distance_km", availability: "availability", coverage: "coverage_fraction", corrected: "corrected_p_3d_m", uncorrected: "uncorrected_p_3d_m", hplMedian: "hpl_median_m", reasons: "unavailable_reasons" },
-  in: { stationLat: "station_lat_deg", stationLon: "station_lon_deg", threshold: "accuracy_threshold_m", percentile: "percentile", alert: "alert_limit_m", latMin: "grid_lat_min_deg", latMax: "grid_lat_max_deg", latStep: "grid_lat_step_deg", moonRadius: "moon_radius_m" },
+  r: { availability: "availability", coverage: "coverage_fraction", corrected3d: "corrected_p_3d_m", correctedH: "corrected_p_h_m", correctedV: "corrected_p_v_m", uncorrected3d: "uncorrected_p_3d_m", improvement: "improvement_factor", hplMax: "hpl_max_m", vplMax: "vpl_max_m", hplBelow: "hpl_below_alert_fraction", worst: "worst_point" },
+  w: { lat: "lat_deg", lon: "lon_deg", value: "corrected_p_3d_m" },
+  az: { az: "azimuth_deg", km: "radius_km", limited: "limited_by_grid", n: "n_points" },
+  p: { lat: "lat_deg", lon: "lon_deg", dist: "distance_km", az: "azimuth_deg", availability: "availability", coverage: "coverage_fraction", corrected: "corrected_p_3d_m", correctedH: "corrected_p_h_m", correctedV: "corrected_p_v_m", uncorrected: "uncorrected_p_3d_m", hplMedian: "hpl_median_m", hplMax: "hpl_max_m", vplMax: "vpl_max_m", hplBelow: "hpl_below_alert_fraction", reasons: "unavailable" },
+  in: { stationLat: "station_lat_deg", stationLon: "station_lon_deg", threshold: "accuracy_threshold_m", percentile: "percentile", alert: "alert_limit_m", latMax: "grid_lat_max_deg", latStep: "grid_lat_step_deg", moonRadius: "moon_radius_m" },
 });
-// The reasons an epoch is unavailable at a point (plan A4).
+// The reasons an epoch is unavailable at a point (engine: user_lt4, station_missing_sat).
 export const REASONS = Object.freeze({ user_lt4: "fewer than four satellites in view of the user", station_missing_sat: "the station does not see every satellite the user uses" });
-// Mean lunar radius, metres: used only to draw the coverage radius on the map when the report does not state one.
+// Mean lunar radius, metres: used only to draw the coverage radius on the map; the report does not state one.
 export const MOON_RADIUS_M = 1737400;
 
 const isNum = (x) => typeof x === "number" && Number.isFinite(x);
@@ -50,16 +52,14 @@ export function unwrap(x) {
   if (typeof v.json === "string") { try { v = JSON.parse(v.json); } catch { return { error: "The file's json field is not JSON." }; } }
   else if (obj(v.json)) v = v.json;
   else if (obj(v.report)) v = v.report;
-  if (!obj(v) || !obj(v[FIELDS.region]) || !Array.isArray(v[FIELDS.points])) return { error: `This is not a ${KIND} report (it has no region figures or grid points).` };
+  if (!obj(v) || (v[FIELDS.kind] !== undefined && v[FIELDS.kind] !== KIND) || !obj(v[FIELDS.region]) || !Array.isArray(v[FIELDS.points])) return { error: `This is not a ${KIND} report.` };
   return { report: v, svg, engineVersion };
 }
 
-// The percentile the report was run at: inputs_echo.percentile, else the N in region.corrected_pN_3d_m.
+// The percentile the report was run at (the report's own, else its inputs').
 export function percentileOf(rep) {
-  const p = num(obj(rep[FIELDS.inputs])?.[FIELDS.in.percentile]);
-  if (p != null && p > 0 && p < 100) return p;
-  const k = Object.keys(obj(rep[FIELDS.region]) || {}).map((s) => /^corrected_p(\d{1,2})_3d_m$/.exec(s)).find(Boolean);
-  return k ? Number(k[1]) : null;
+  for (const p of [rep[FIELDS.percentile], obj(rep[FIELDS.inputs])?.[FIELDS.in.percentile]]) if (isNum(p) && p > 0 && p < 100) return p;
+  return null;
 }
 
 // The report, normalised and checked. Nothing is filled in: a missing figure is null and the page says so.
@@ -67,38 +67,41 @@ export function readReport(input) {
   const u = unwrap(input);
   if (u.error) return u;
   const rep = u.report, inp = obj(rep[FIELDS.inputs]) || {}, reg = obj(rep[FIELDS.region]);
-  const n = percentileOf(rep);
   const label = typeof rep[FIELDS.label] === "string" ? rep[FIELDS.label].slice(0, 40) : "";
   const note = typeof rep[FIELDS.note] === "string" ? rep[FIELDS.note].slice(0, 2000) : "";
   const worst = obj(reg[FIELDS.r.worst]);
+  const P = FIELDS.p;
   const points = rep[FIELDS.points].slice(0, MAX_POINTS).map((p) => {
     const q = obj(p) || {};
-    const reasons = obj(q[FIELDS.p.reasons]) ? Object.entries(q[FIELDS.p.reasons]).filter(([, c]) => isNum(c) && c >= 0).map(([k, c]) => [k.slice(0, 40), Math.round(c)])
-      : Array.isArray(q[FIELDS.p.reasons]) ? q[FIELDS.p.reasons].filter((s) => typeof s === "string").map((s) => [s.slice(0, 40), null]) : [];
-    return { lat: num(q[FIELDS.p.lat]), lon: num(q[FIELDS.p.lon]), distKm: num(q[FIELDS.p.dist]), availability: frac(q[FIELDS.p.availability]), coverage: frac(q[FIELDS.p.coverage]), corrected: num(q[FIELDS.p.corrected]), uncorrected: num(q[FIELDS.p.uncorrected]), hplMedian: num(q[FIELDS.p.hplMedian]), reasons };
+    const reasons = Object.entries(obj(q[P.reasons]) || {}).filter(([, c]) => isNum(c) && c > 0).map(([k, c]) => [k.slice(0, 40), Math.round(c)]);
+    return { lat: num(q[P.lat]), lon: num(q[P.lon]), distKm: num(q[P.dist]), az: num(q[P.az]), availability: frac(q[P.availability]), coverage: frac(q[P.coverage]),
+      corrected: num(q[P.corrected]), correctedH: num(q[P.correctedH]), correctedV: num(q[P.correctedV]), uncorrected: num(q[P.uncorrected]),
+      hplMedian: num(q[P.hplMedian]), hplMax: num(q[P.hplMax]), vplMax: num(q[P.vplMax]), hplBelow: frac(q[P.hplBelow]), reasons };
   }).filter((p) => p.lat != null && p.lon != null && p.lat >= -90 && p.lat <= 0);
+  const A = FIELDS.az;
   const radius = (Array.isArray(rep[FIELDS.radius]) ? rep[FIELDS.radius] : []).slice(0, MAX_RADIUS)
-    .map((r) => ({ az: num(obj(r)?.azimuth_deg), km: num(obj(r)?.radius_km) })).filter((r) => r.az != null && r.az >= 0 && r.az <= 360 && r.km != null && r.km >= 0)
+    .map((r) => ({ az: num(obj(r)?.[A.az]), km: num(obj(r)?.[A.km]), limited: obj(r)?.[A.limited] === true, n: num(obj(r)?.[A.n]) }))
+    .filter((r) => r.az != null && r.az >= 0 && r.az <= 360 && r.km != null && r.km >= 0)
     .sort((a, b) => a.az - b.az);
-  const units = obj(rep[FIELDS.units]) || {};
+  const units = obj(rep[FIELDS.units]) || {}, R = FIELDS.r;
   return {
     label, modelled: /^MODELLED$/i.test(label),
     note: textIsGeneric(note) ? note : "", noteWithheld: !!note && !textIsGeneric(note),
     tiers: obj(rep[FIELDS.tiers]) || (Array.isArray(rep[FIELDS.tiers]) ? rep[FIELDS.tiers] : null),
-    percentile: n,
-    nPoints: num(rep[FIELDS.nPoints]), nEpochs: num(rep[FIELDS.nEpochs]), nTrials: num(rep[FIELDS.nTrials]),
+    percentile: percentileOf(rep),
+    nSats: num(rep[FIELDS.nSats]), nPoints: num(rep[FIELDS.nPoints]), nEpochs: num(rep[FIELDS.nEpochs]), nTrials: num(rep[FIELDS.nTrials]),
     station: { lat: num(inp[FIELDS.in.stationLat]), lon: num(inp[FIELDS.in.stationLon]) },
     threshold: num(inp[FIELDS.in.threshold]), alert: num(inp[FIELDS.in.alert]),
-    grid: { latMin: num(inp[FIELDS.in.latMin]), latMax: num(inp[FIELDS.in.latMax]), latStep: num(inp[FIELDS.in.latStep]) },
+    grid: { latMax: num(inp[FIELDS.in.latMax]), latStep: num(inp[FIELDS.in.latStep]) },
     moonRadiusM: num(inp[FIELDS.in.moonRadius]) ?? num(rep.moon_radius_m),
     region: {
-      availability: frac(reg[FIELDS.r.availability]), coverage: frac(reg[FIELDS.r.coverage]),
-      corrected3d: n == null ? null : num(reg[`corrected_p${n}_3d_m`]), correctedH: n == null ? null : num(reg[`corrected_p${n}_h_m`]), correctedV: n == null ? null : num(reg[`corrected_p${n}_v_m`]),
-      uncorrected3d: n == null ? null : num(reg[`uncorrected_p${n}_3d_m`]),
-      improvement: num(reg[FIELDS.r.improvement]), hplMax: num(reg[FIELDS.r.hplMax]), vplMax: num(reg[FIELDS.r.vplMax]), hplBelow: frac(reg[FIELDS.r.hplBelow]),
-      worst: worst && isNum(worst.lat) && isNum(worst.lon) ? { lat: worst.lat, lon: worst.lon, value: num(worst.value) } : null,
+      availability: frac(reg[R.availability]), coverage: frac(reg[R.coverage]),
+      corrected3d: num(reg[R.corrected3d]), correctedH: num(reg[R.correctedH]), correctedV: num(reg[R.correctedV]), uncorrected3d: num(reg[R.uncorrected3d]),
+      improvement: num(reg[R.improvement]), hplMax: num(reg[R.hplMax]), vplMax: num(reg[R.vplMax]), hplBelow: frac(reg[R.hplBelow]),
+      worst: worst && isNum(worst[FIELDS.w.lat]) && isNum(worst[FIELDS.w.lon]) ? { lat: worst[FIELDS.w.lat], lon: worst[FIELDS.w.lon], value: num(worst[FIELDS.w.value]) } : null,
     },
     radius, points,
+    errorModel: obj(rep[FIELDS.errorModel]),
     budget: obj(rep[FIELDS.budget]),
     inputs: Object.entries(inp).filter(([, v]) => isNum(v) || typeof v === "boolean" || (typeof v === "string" && v.length <= 200)).slice(0, 80),
     units: Object.fromEntries(Object.entries(units).filter(([, v]) => typeof v === "string").map(([k, v]) => [k.slice(0, 60), v.slice(0, 40)])),

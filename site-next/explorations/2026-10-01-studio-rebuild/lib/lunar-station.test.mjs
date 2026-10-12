@@ -1,26 +1,27 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // node --test lib/lunar-station.test.mjs
-// The report below is hand-written test input in the plan's field names (A5), not an engine output.
+// The report below is hand-written test input in the engine's field names (src/lunar_station.rs), not an engine output.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readReport, unwrap, percentileOf, textIsGeneric, HONESTY, parseState, buildSearch, withInputs, tomlNumber, stereo, cellsOf, cellPath, thresholdEdges, meets, destination, binOf, pct, metres, INPUTS, REASONS } from "./lunar-station.mjs";
 
-const point = (lat, lon, corrected, extra = {}) => ({ lat, lon, distance_km: 0, availability: 1, coverage_fraction: 1, corrected_p_3d_m: corrected, uncorrected_p_3d_m: corrected == null ? null : corrected * 20, hpl_median_m: 3, unavailable_reasons: {}, ...extra });
+const point = (lat, lon, corrected, extra = {}) => ({ lat_deg: lat, lon_deg: lon, distance_km: 0, azimuth_deg: 0, area_weight: 1, availability: 1, coverage_fraction: 1, corrected_p_3d_m: corrected, corrected_p_h_m: corrected, corrected_p_v_m: corrected, uncorrected_p_3d_m: corrected == null ? null : corrected * 20, hpl_median_m: 3, hpl_max_m: 4, vpl_max_m: 5, hpl_below_alert_fraction: 1, unavailable: { user_lt4: 0, station_missing_sat: 0 }, ...extra });
 // A pole, a ring of four at -89 and a ring of eight at -88: the pole and two of the -89 ring meet 1 m.
 const report = () => ({
-  label: "MODELLED", figure_tiers: { map: "MODELLED" },
+  kind: "lunar-station-coverage", label: "MODELLED", percentile: 95, n_sats: 8,
+  error_model: { source: "orbit_and_clock", orbit_err_m: 100, clock_err_m: 30, los_sise_sigma_m: 40 },
   note: "MODELLED under stated public assumptions; not a statement about any real system; not affiliated.",
-  inputs_echo: { station_lat_deg: -89, station_lon_deg: 0, accuracy_threshold_m: 1, percentile: 95, alert_limit_m: 10, grid_lat_min_deg: -90, grid_lat_max_deg: -88, grid_lat_step_deg: 1, n_trials: 50 },
+  inputs_echo: { station_lat_deg: -89, station_lon_deg: 0, accuracy_threshold_m: 1, percentile: 95, alert_limit_m: 10, grid_lat_max_deg: -88, grid_lat_step_deg: 1, n_trials: 50 },
   n_grid_points: 13, n_epochs: 144, n_trials: 50,
-  region: { availability: 0.97, coverage_fraction: 0.6, corrected_p95_3d_m: 1.4, corrected_p95_h_m: 0.9, corrected_p95_v_m: 1.1, uncorrected_p95_3d_m: 28, improvement_factor: 20, hpl_max_m: 9, vpl_max_m: 12, hpl_below_alert_fraction: 0.9, worst_point: { lat: -88, lon: 180, value: 3.2 } },
-  coverage_radius_km: [{ azimuth_deg: 90, radius_km: 40 }, { azimuth_deg: 0, radius_km: 55 }, { azimuth_deg: 400, radius_km: 1 }],
+  region: { availability: 0.97, coverage_fraction: 0.6, corrected_p_3d_m: 1.4, corrected_p_h_m: 0.9, corrected_p_v_m: 1.1, uncorrected_p_3d_m: 28, improvement_factor: 20, hpl_max_m: 9, vpl_max_m: 12, hpl_below_alert_fraction: 0.9, worst_point: { lat_deg: -88, lon_deg: 180, corrected_p_3d_m: 3.2 } },
+  coverage_radius_km: [{ azimuth_deg: 90, radius_km: 40, limited_by_grid: false, n_points: 3 }, { azimuth_deg: 0, radius_km: 55, limited_by_grid: true, n_points: 3 }, { azimuth_deg: 400, radius_km: 1 }],
   points: [
     point(-90, 0, 0.4),
     point(-89, 0, 0.5), point(-89, 90, 0.9), point(-89, 180, 1.5), point(-89, -90, 1.2),
-    ...[0, 45, 90, 135, 180, -135, -90, -45].map((lon) => point(-88, lon, lon === 90 ? null : 2, lon === 90 ? { availability: 0.4, unavailable_reasons: { user_lt4: 80, station_missing_sat: 6 } } : {})),
+    ...[0, 45, 90, 135, 180, -135, -90, -45].map((lon) => point(-88, lon, lon === 90 ? null : 2, lon === 90 ? { availability: 0.4, unavailable: { user_lt4: 80, station_missing_sat: 6 } } : {})),
   ],
-  budget_at_station_and_at_edge: { station: { total_m: 0.3 }, edge: { total_m: 2.9 } },
-  units: { corrected_p95_3d_m: "m" },
+  budget_at_station_and_at_edge: { epoch_s: 0, station: { total_m: 0.3 }, worst_point: { total_m: 2.9 } },
+  units: { corrected_p_3d_m: "m" },
 });
 
 test("the report is read field by field; nothing is filled in", () => {
@@ -33,6 +34,9 @@ test("the report is read field by field; nothing is filled in", () => {
   assert.deepEqual(r.points.find((p) => p.lat === -88 && p.lon === 90).reasons, [["user_lt4", 80], ["station_missing_sat", 6]]);
   assert.equal(r.points.find((p) => p.lat === -88 && p.lon === 90).corrected, null);
   assert.deepEqual(r.radius.map((x) => x.az), [0, 90], "sorted by azimuth; an azimuth above 360 is dropped");
+  assert.deepEqual(r.radius.map((x) => x.limited), [true, false]);
+  assert.equal(r.nSats, 8); assert.equal(r.errorModel.los_sise_sigma_m, 40);
+  assert.deepEqual(r.points[0].reasons, [], "zero counts are not reasons");
   assert.deepEqual(r.station, { lat: -89, lon: 0 }); assert.equal(r.threshold, 1);
   const bare = readReport({ region: {}, points: [] });
   assert.equal(bare.percentile, null); assert.equal(bare.region.corrected3d, null); assert.equal(bare.modelled, false);
@@ -48,7 +52,9 @@ test("a run_all reply, a recording and a bare report all open; anything else say
   assert.match(unwrap("{").error, /not JSON/);
   assert.match(unwrap({ n_sats: 8 }).error, /not a lunar-station-coverage report/);
   assert.match(readReport([1]).error, /not a JSON object/);
-  assert.equal(percentileOf({ region: { corrected_p99_3d_m: 1 } }), 99);
+  assert.equal(percentileOf({ percentile: 99 }), 99);
+  assert.equal(percentileOf({ inputs_echo: { percentile: 90 } }), 90);
+  assert.match(unwrap({ kind: "lunar-differential-pnt", region: {}, points: [] }).error, /not a lunar-station-coverage report/);
 });
 
 test("generic names only: a note naming a programme or an agency is withheld, and the honesty block stays", () => {

@@ -64,6 +64,7 @@
 .ls-worst{fill:none;stroke:var(--int);stroke-width:2}
 .ls-radius-plot{fill:none;stroke:var(--tim);stroke-width:2}
 .ls-radius-dot{fill:var(--tim)}
+.ls-radius-dot.ls-limited{fill:var(--surface);stroke:var(--tim);stroke-width:1.8}
 
 .ls-legend{list-style:none;display:flex;flex-wrap:wrap;gap:6px 16px;margin:10px 0 0;padding:0;font-size:12.5px;color:var(--ink-2)}
 .ls-legend li{display:inline-flex;align-items:center;gap:6px}

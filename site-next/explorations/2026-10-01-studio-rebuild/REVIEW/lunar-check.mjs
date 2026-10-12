@@ -77,6 +77,7 @@ const HONEST = /MODELLED\.\s*Under the stated public assumptions, not a statemen
   ok(/Corrected error, 95 %, 3.D\s*1\.18 m/.test(region) && /27\.3 m/.test(region) && /23\.1 ×/.test(region) && /41\.0 %/.test(region), "region figures from the file");
   ok(/alert limit 10\.0 m \(illustrative\)/.test(region), "the alert limit is called illustrative");
   ok(await page.locator("#ls-radplot circle").count() === 36 && await page.locator("#ls-radtab tbody tr").count() === 36, "coverage radius: 36 azimuths, drawn and tabled");
+  ok(await page.locator("#ls-radplot circle.ls-limited").count() > 0 && /edge of the grid/.test(await page.textContent("#ls-rad-lim")), "coverage radius: bearings limited by the grid are hollow and explained");
   ok(/96\.2 %/.test(await page.textContent("#ls-availfigs")) && /fewer than four satellites/.test(await page.textContent("#ls-reasons")), "availability and the reasons in words");
   ok(await page.locator("#ls-points tbody tr").count() === cells, "the table has every point");
   ok(/Synthetic review fixture/.test(await page.textContent("#ls-note")), "the file's statement is shown when it names nothing");

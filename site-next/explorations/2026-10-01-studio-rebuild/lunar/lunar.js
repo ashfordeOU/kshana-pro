@@ -133,7 +133,7 @@ function drawMap(r) {
   if (r.station.lat != null && r.station.lon != null && r.radius.length) {
     const rm = r.moonRadiusM ?? MOON_RADIUS_M;
     const line = r.radius.map((x) => destination(r.station.lat, r.station.lon, x.az, x.km, rm)).map(([la, lo]) => stereo(la, lo, rimLat, R));
-    kids.push(sv("path", { d: `M${line.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(" L")}${r.radius.length > 2 && r.radius[0].az === 0 && r.radius.at(-1).az >= 350 ? "Z" : ""}`, class: "ls-radius-line", "clip-path": "url(#ls-clip)" }, sv("title", {}, "coverage radius per azimuth")));
+    kids.push(sv("path", { d: `M${line.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(" L")}${r.radius.length > 2 && r.radius[0].az === 0 && 360 - r.radius.at(-1).az <= 360 / r.radius.length + 1e-6 ? "Z" : ""}`, class: "ls-radius-line", "clip-path": "url(#ls-clip)" }, sv("title", {}, "coverage radius per azimuth")));
   }
   if (r.region.worst) { const [x, y] = stereo(r.region.worst.lat, r.region.worst.lon, rimLat, R); kids.push(sv("circle", { cx: x.toFixed(1), cy: y.toFixed(1), r: 7, class: "ls-worst" }, sv("title", {}, `worst point ${r.region.worst.lat}°, ${r.region.worst.lon}°: ${metres(r.region.worst.value)}`))); }
   if (r.station.lat != null && r.station.lon != null) {
@@ -165,7 +165,7 @@ function drawRegion(r) {
     fig("HPL, VPL at most", `${metres(g.hplMax)}, ${metres(g.vplMax)}`),
     fig("HPL below the alert limit", pct(g.hplBelow), r.alert == null ? "alert limit not stated" : `alert limit ${metres(r.alert)} (illustrative)`),
     fig("Worst point", g.worst ? metres(g.worst.value) : "not stated", g.worst ? `at ${g.worst.lat}°, ${g.worst.lon}°` : null));
-  $("ls-counts").textContent = `${r.nPoints ?? r.points.length} grid points, ${r.nEpochs ?? "?"} epochs, ${r.nTrials ?? "?"} Monte Carlo trials per epoch. Label: ${r.label || "not stated"}.`;
+  $("ls-counts").textContent = `${r.nSats ?? "?"} satellites, ${r.nPoints ?? r.points.length} grid points, ${r.nEpochs ?? "?"} epochs, ${r.nTrials ?? "?"} Monte Carlo trials per epoch. Label: ${r.label || "not stated"}.`;
 }
 
 function drawRadius(r) {
@@ -178,11 +178,13 @@ function drawRadius(r) {
   for (let az = 0; az <= 360; az += 90) kids.push(sv("text", { x: X(az), y: B + 16, "text-anchor": "middle", class: "ls-lbl" }, `${az}°`));
   kids.push(sv("text", { x: 8, y: T - 2, class: "ls-lbl" }, "km"));
   if (r.radius.length) kids.push(sv("path", { d: `M${r.radius.map((x) => `${X(x.az).toFixed(1)} ${Y(x.km).toFixed(1)}`).join(" L")}`, class: "ls-radius-plot" }));
-  for (const x of r.radius) kids.push(sv("circle", { cx: X(x.az).toFixed(1), cy: Y(x.km).toFixed(1), r: 2.5, class: "ls-radius-dot" }, sv("title", {}, `${x.az}°: ${f1(x.km)} km`)));
+  for (const x of r.radius) kids.push(sv("circle", { cx: X(x.az).toFixed(1), cy: Y(x.km).toFixed(1), r: 3, class: x.limited ? "ls-radius-dot ls-limited" : "ls-radius-dot" }, sv("title", {}, `${x.az}°: ${f1(x.km)} km${x.limited ? " (reaches the edge of the grid: at least this far)" : ""}`)));
   svg.replaceChildren(...kids);
   const lo = r.radius.length ? r.radius.reduce((a, b) => (b.km < a.km ? b : a)) : null, hi = r.radius.length ? r.radius.reduce((a, b) => (b.km > a.km ? b : a)) : null;
-  $("ls-rad-desc").textContent = r.radius.length ? `Coverage radius over ${r.radius.length} azimuths: shortest ${f1(lo.km)} km at ${lo.az}°, longest ${f1(hi.km)} km at ${hi.az}°.` : "The report states no coverage radius.";
-  $("ls-radtab").tBodies[0].replaceChildren(...r.radius.map((x) => el("tr", {}, el("td", {}, String(x.az)), el("td", {}, f1(x.km)))));
+  const lim = r.radius.filter((x) => x.limited).length;
+  $("ls-rad-desc").textContent = r.radius.length ? `Coverage radius over ${r.radius.length} azimuths: shortest ${f1(lo.km)} km at ${lo.az}°, longest ${f1(hi.km)} km at ${hi.az}°.${lim ? ` ${lim} reach the edge of the grid, so coverage runs at least that far there.` : ""}` : "The report states no coverage radius.";
+  $("ls-rad-lim").textContent = lim ? `Hollow points reach the edge of the grid: coverage holds at least that far along that bearing.` : "";
+  $("ls-radtab").tBodies[0].replaceChildren(...r.radius.map((x) => el("tr", {}, el("td", {}, String(x.az)), el("td", {}, f1(x.km)), el("td", {}, x.limited ? "yes: at least this far" : "no"), el("td", {}, x.n == null ? "not stated" : String(x.n)))));
 }
 
 function drawAvailability(r) {
@@ -218,6 +220,7 @@ function flatten(o, pre = "", out = [], depth = 0) {
 function drawMore(r) {
   $("ls-note").textContent = r.note ? r.note : r.noteWithheld ? "The file's own statement names a programme or an agency, so this page does not show it; the statement at the top of the page applies." : "The file states no note.";
   kv($("ls-inputs-echo"), r.inputs, r.units);
+  kv($("ls-errmodel"), flatten(r.errorModel), r.units);
   kv($("ls-budget"), flatten(r.budget), r.units);
 }
 

@@ -96,7 +96,8 @@
       <div class="card-head"><h2 id="ls-radius-h" class="h3">Coverage radius per azimuth</h2><p class="card-note">Along each bearing from the station, the distance at which coverage first drops below 95 %.</p></div>
       <div class="ls-svgbox"><svg id="ls-radplot" viewBox="0 0 400 220" role="img" aria-labelledby="ls-radius-h ls-rad-desc"></svg></div>
       <p class="sr" id="ls-rad-desc"></p>
-      <details class="ls-more"><summary>As a table</summary><div class="table-scroll"><table class="tbl" id="ls-radtab"><thead><tr><th scope="col">Azimuth, °</th><th scope="col">Radius, km</th></tr></thead><tbody></tbody></table></div></details>
+      <p class="ls-small" id="ls-rad-lim"></p>
+      <details class="ls-more"><summary>As a table</summary><div class="table-scroll"><table class="tbl" id="ls-radtab"><thead><tr><th scope="col">Azimuth, °</th><th scope="col">Radius, km</th><th scope="col">At the grid edge</th><th scope="col">Points along it</th></tr></thead><tbody></tbody></table></div></details>
     </section>
 
     <section class="card ls-avail" aria-labelledby="ls-avail-h">
@@ -116,6 +117,8 @@
     <p class="ls-note" id="ls-note"></p>
     <h3 class="ls-sub">Inputs, as the engine read them</h3>
     <dl class="ls-kv" id="ls-inputs-echo"></dl>
+    <h3 class="ls-sub">Error model</h3>
+    <dl class="ls-kv" id="ls-errmodel"></dl>
     <h3 class="ls-sub">Correction-link budget at the station and at the worst point</h3>
     <dl class="ls-kv" id="ls-budget"></dl>
   </details>
