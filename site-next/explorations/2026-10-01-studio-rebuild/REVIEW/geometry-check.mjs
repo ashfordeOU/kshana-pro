@@ -106,6 +106,12 @@ const clean = (log, what) => {
     ok(!/25544U/.test(page.url()), "TLE: the elements never go in the address");
     const rows = await page.evaluate(() => [...document.querySelectorAll("#gm-sats tbody tr")].map((r) => r.textContent));
     ok(rows.length === 1 && /Your elements/.test(rows[0]) && /ISS/.test(rows[0]), `TLE: only the pasted satellite is drawn (${rows})`);
+    // The time controls move a pasted sky: the offset counts from the epoch.
+    ok(/your elements' epoch/.test(await page.textContent("#gm-t-from")), "TLE: the time offset is labelled as counted from the pasted epoch");
+    await page.click('[data-step="600"]');
+    await page.waitForFunction(() => /09:0(3:59\.9|4:00)/.test(document.getElementById("gm-rep").textContent), null, { timeout: 30000 });
+    ok(true, "TLE: +10 min re-dates the pasted sky (the engine's statement says 09:04)");
+    await page.click('[data-step="-600"]');
     await page.click("#gm-tle-clear");
     await page.waitForFunction(() => !/sys=tle/.test(location.search) && /representative sky/i.test(document.getElementById("gm-rep").textContent));
     ok(true, "TLE: back to the presets, and the representative-sky notice returns");

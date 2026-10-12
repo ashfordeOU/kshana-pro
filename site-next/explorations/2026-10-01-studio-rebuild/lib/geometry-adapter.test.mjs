@@ -181,7 +181,7 @@ test("pasted elements: W21's fields, one epoch rule in the page and the request,
   assert.equal(r.tle, tle.text);
   assert.equal(r.epoch, "2026-10-12T06:00:00Z");
   assert.equal(r.tle_system, "TLE");
-  assert.equal(r.time_s, undefined, "a calendar epoch replaces the offset");
+  assert.equal(r.time_s, 60, "the offset still applies, counted from the epoch");
   assert.equal(buildRequest(s, tle, null).tle, undefined, "no field names, no elements in the request");
   assert.equal(buildRequest(s, { text: "x", epochUtc: "1999-12-31T23:59:59Z" }).tle, undefined, "an epoch outside 2000 to 2099 sends no elements");
   assert.equal(buildRequest(s, { text: "x".repeat(MAX_TLE_BYTES + 1), epochUtc: tle.epochUtc }).tle, undefined, "nor does text over the limit");
@@ -275,6 +275,9 @@ test("the geometry backend against a 0.36 engine package", { skip: !PKG036 && "K
     assert.ok(own.sats.every((x) => x.sys === "tle"), "only the person's satellites: the presets are left out");
     assert.deepEqual(own.sats.map((x) => x.id), ["ISS (ZARYA)"], "the ISS is up over Darmstadt at 08:54 UTC");
     assert.ok(own.sats[0].el > 20);
+    const later = await a.compute(state("?site=49.87,8.62,144&sys=G&t=60"), { text: `ISS (ZARYA)\n${iss}`, epochUtc: "2020-02-14T08:54:00Z" });
+    assert.ok(later.sats.length === 0 || Math.abs(later.sats[0].az - own.sats[0].az) > 1, "the time offset moves a pasted sky (the ISS crosses the sky in minutes)");
+    assert.match(later.skyStatement, /2020-02-14T08:5(4:59\.9|5:00)/, "the engine dates the sky at the epoch plus the offset");
     const bad = await a.compute(at, { text: "ISS\n1 25544U garbage\n2 25544 garbage", epochUtc: "2020-02-14T04:30:00Z" }).catch((e) => e);
     assert.ok(typeof bad === "string" || bad instanceof Error || (bad.sats.length === 0 && bad.notes.some((n) => /skipped/.test(n))), "a broken set is refused or reported, never drawn");
   }

@@ -74,6 +74,8 @@ function fillOnce() {
 function fillControls() {
   $("gm-lat").value = state.lat; $("gm-lon").value = state.lon; $("gm-hgt").value = state.h;
   $("gm-t").max = String(Math.max(86400, state.t)); $("gm-t").value = state.t; $("gm-t-out").textContent = hhmm(state.t);
+  // With pasted elements the offset counts from their epoch (the engine adds it), not from the presets' epoch.
+  $("gm-t-from").textContent = tle ? `Offset from your elements' epoch (${tle.epochUtc.replace("T", " ").replace("Z", " UTC")})` : "Offset from the constellations' reference epoch";
   for (const id of ["gps", "galileo", "beidou"]) $(`gm-sys-${id}`).checked = state.sys.includes(id);
   $("gm-sys-leo").checked = !!state.leo;
   $("gm-leo").value = state.leo || LEO_PRESETS[0];
@@ -177,9 +179,9 @@ $("gm-tle-use").addEventListener("click", () => {
   if (r.error) { setNotes([r.error]); return; }
   tle = r.tle;
   setNotes(["Using your own elements. A link carries only that you used them, not the elements themselves."]);
-  setRep(); writeAddress(); schedule();
+  setRep(); writeAddress(); fillControls(); schedule();
 });
-$("gm-tle-clear").addEventListener("click", () => { tle = null; $("gm-tle").value = ""; setNotes([]); setRep(); writeAddress(); schedule(); });
+$("gm-tle-clear").addEventListener("click", () => { tle = null; $("gm-tle").value = ""; setNotes([]); setRep(); writeAddress(); fillControls(); schedule(); });
 
 $("gm-copy").addEventListener("click", async () => {
   const url = location.origin + location.pathname + buildSearch({ ...state, tle: !!tle }, extra);

@@ -206,7 +206,8 @@ export function buildRequest(state, tle = null, tleFields = TLE_FIELDS) {
   };
   if (own) {
     // No systems key at all: an empty list still names the presets in the engine's sky_source.
-    req[tleFields.text] = tle.text; req[tleFields.epoch] = tle.epochUtc; delete req.time_s; delete req.systems;
+    // time_s stays: the engine adds it to the epoch, so the time controls move a pasted sky too.
+    req[tleFields.text] = tle.text; req[tleFields.epoch] = tle.epochUtc; delete req.systems;
     if (tleFields.system) req[tleFields.system] = TLE_SYSTEM;
   }
   const sky = skylineRequest(state.sky);
