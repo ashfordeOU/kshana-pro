@@ -73,7 +73,7 @@
         <p class="gm-small" id="gm-sys-note"></p>
         <details class="gm-tle gm-wide" id="gm-tle-box" hidden><summary>Your own orbital elements (TLE)</summary>
           <label class="gm-f gm-wide">Two-line element sets, pasted here: read in this page, never fetched, never put in the address (at most 4 MiB) <textarea id="gm-tle" rows="5" spellcheck="false" autocomplete="off"></textarea></label>
-          <label class="gm-f gm-wide">Epoch, coordinated universal time (UTC) <input id="gm-tle-epoch" type="datetime-local" step="1" min="2000-01-01T00:00:00" max="2099-12-31T23:59:59"></label>
+          <label class="gm-f gm-wide">Epoch, coordinated universal time (UTC), 2000 to 2099 (entered as UTC; no time-zone conversion) <input id="gm-tle-epoch" type="datetime-local" step="1" min="2000-01-01T00:00:00" max="2099-12-31T23:59:59"></label>
           <div class="gm-steps"><button type="button" class="gm-chip" id="gm-tle-use">Use these elements</button><button type="button" class="gm-chip" id="gm-tle-clear">Back to the presets</button></div>
         </details>
       </fieldset>

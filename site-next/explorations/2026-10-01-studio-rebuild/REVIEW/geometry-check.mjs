@@ -88,7 +88,28 @@ const clean = (log, what) => {
     ok(/needs engine 0\.36/.test(line) && !/=\s*[\d.]+ m/.test(line), `interim: the error line states the relation without a figure made in the page (${line})`);
     ok(/needs engine 0\.36/.test(await page.locator("#gm-dops dd").nth(0).textContent()), "interim: GDOP says it needs engine 0.36");
   }
-  ok(await page.isHidden("#gm-tle-box"), "no TLE panel until the engine takes TLE text (TLE_FIELDS in the adapter)");
+  ok((await page.isHidden("#gm-tle-box")) === (backend === "interim"), `the TLE panel shows only with an engine that takes TLE text (${backend})`);
+  if (backend === "geometry") {
+    // Pasted elements: the ISS set of scenarios/ephemeris.toml, over Darmstadt at 08:54 UTC.
+    await page.goto(base + "geometry/?site=49.87,8.62,144");
+    await page.waitForFunction(() => /^Ready/.test(document.getElementById("gm-engine").textContent));
+    await page.click("#gm-tle-box summary");
+    await page.fill("#gm-tle", "ISS (ZARYA)\n1 25544U 98067A   20045.18587073  .00000950  00000-0  25302-4 0  9990\n2 25544  51.6443 242.0161 0004885 264.6060 207.3845 15.49165514212791\n");
+    await page.$eval("#gm-tle-epoch", (i, v) => { i.value = v; }, "1999-12-31T23:59:00"); // set directly: the min attribute alone must not be the guard
+    await page.click("#gm-tle-use");
+    ok(/Give a UTC epoch from 2000 to 2099/.test(await page.textContent("#gm-url-notes")), "TLE: a 1999 epoch is refused in words");
+    await page.$eval("#gm-tle-epoch", (i, v) => { i.value = v; }, "2020-02-14T08:54:00"); // set directly: the min attribute alone must not be the guard
+    await page.click("#gm-tle-use");
+    await page.waitForFunction(() => /sys=tle/.test(location.search) && /^Ready/.test(document.getElementById("gm-engine").textContent));
+    await page.waitForFunction(() => /not a measurement/.test(document.getElementById("gm-rep").textContent), null, { timeout: 30000 });
+    ok(/Your own elements at 2020-02-14 08:54:00 UTC/.test(await page.textContent("#gm-rep")), "TLE: the sky notice says it is the person's own, dated, in the engine's words");
+    ok(!/25544U/.test(page.url()), "TLE: the elements never go in the address");
+    const rows = await page.evaluate(() => [...document.querySelectorAll("#gm-sats tbody tr")].map((r) => r.textContent));
+    ok(rows.length === 1 && /Your elements/.test(rows[0]) && /ISS/.test(rows[0]), `TLE: only the pasted satellite is drawn (${rows})`);
+    await page.click("#gm-tle-clear");
+    await page.waitForFunction(() => !/sys=tle/.test(location.search) && /representative sky/i.test(document.getElementById("gm-rep").textContent));
+    ok(true, "TLE: back to the presets, and the representative-sky notice returns");
+  }
   clean(log, "default");
   if (shots) await page.screenshot({ path: shotDir + "desktop-light.png", fullPage: true });
   await ctx.close();

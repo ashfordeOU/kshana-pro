@@ -30,7 +30,7 @@ test("every constellation the address can name has its own colour, shape and lab
   assert.equal(colours.size, SYSTEMS.length);
   assert.equal(styleFor("__proto__").color, "var(--ink-3)");
   assert.ok(Object.isFrozen(SYSTEM_STYLE));
-  assert.deepEqual(SYSTEMS, ["gps", "galileo", "beidou", "leo"]);
+  assert.deepEqual(SYSTEMS, ["gps", "galileo", "beidou", "leo", "tle"]);
   assert.ok(Math.abs(SCALE_95 - Math.sqrt(5.991)) < 1e-3);
 });
 

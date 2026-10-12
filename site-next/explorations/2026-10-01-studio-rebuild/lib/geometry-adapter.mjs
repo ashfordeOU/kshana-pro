@@ -27,10 +27,26 @@
 import { SKYLINE_PRESETS, LEO_PRESETS } from "./geometry-url.mjs";
 import { tableFromVertices, emptyTable, BINS, snapHalf } from "./skyline-edit.mjs";
 
-// Pasted orbital elements (design note 3.1): the engine field names for the TLE text and its calendar epoch, set
-// here when the engine's sky_geometry takes them (W21, 0.36). While null the page offers no TLE panel.
-export const TLE_FIELDS = null; // e.g. Object.freeze({ text: "tle", epoch: "epoch_utc" })
-export const MAX_TLE_BYTES = 4 * 1024 * 1024; // the engine's input limit
+// Pasted orbital elements (design note 3.1): the engine's request fields for the TLE text, its UTC epoch and the
+// label its satellites carry (sky_geometry and sky_monte_carlo, engine feat/skyline-0.36 7d9d474a). Set to null
+// and the page offers no TLE panel.
+export const TLE_FIELDS = Object.freeze({ text: "tle", epoch: "epoch", system: "tle_system" });
+export const TLE_SYSTEM = "TLE";
+export const MAX_TLE_BYTES = 4 * 1024 * 1024; // the engine's input limit (geometry::MAX_TLE_BYTES)
+
+// One rule for the epoch, in the page and in the request: UTC, whole seconds, years 2000 to 2099.
+export const tleEpochOk = (s) => typeof s === "string" && /^20\d\d-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\dZ$/.test(s);
+
+// What the page's TLE panel hands over: the pasted text and the epoch input's value (YYYY-MM-DDThh:mm[:ss],
+// entered as UTC). Returns { tle: {text, epochUtc} } or { error } in words for the page.
+export function readTleInput(text, epochValue) {
+  if (typeof text !== "string" || !text.trim()) return { error: "Paste one or more two-line element sets first." };
+  if (new TextEncoder().encode(text).length > MAX_TLE_BYTES) return { error: "The pasted elements are larger than 4 MiB, the engine's input limit." };
+  const v = typeof epochValue === "string" ? epochValue : "";
+  const epochUtc = /^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(v) ? `${v}:00Z` : /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/.test(v) ? `${v}Z` : "";
+  if (!tleEpochOk(epochUtc)) return { error: "Give a UTC epoch from 2000 to 2099." };
+  return { tle: { text, epochUtc } };
+}
 
 export const GEOMETRY_FNS = Object.freeze(["sky_geometry", "sky_monte_carlo", "skyline_presets", "skyline_profile", "skyplot_svg"]);
 export const INTERIM_FN = "nmea_training";
@@ -177,7 +193,7 @@ export function skylineRequest(sky) {
 // `tle`: {text, epochUtc} when the person pasted elements (only with `tleFields`): the sky is then theirs, dated,
 // and the presets are left out.
 export function buildRequest(state, tle = null, tleFields = TLE_FIELDS) {
-  const own = !!(tle && tleFields && typeof tle.text === "string" && tle.text.length <= MAX_TLE_BYTES && /^20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/.test(tle.epochUtc || ""));
+  const own = !!(tle && tleFields && typeof tle.text === "string" && tle.text.length <= MAX_TLE_BYTES && tleEpochOk(tle.epochUtc));
   const systems = own ? [] : state.sys.filter((s) => Object.hasOwn(SYSTEM_PRESETS, s)).map((s) => SYSTEM_PRESETS[s]);
   if (state.leo && !own) systems.push(state.leo);
   const req = {
@@ -188,7 +204,11 @@ export function buildRequest(state, tle = null, tleFields = TLE_FIELDS) {
     sigma_uere_m: state.uere,
     confidence: 0.95,
   };
-  if (own) { req[tleFields.text] = tle.text; req[tleFields.epoch] = tle.epochUtc; delete req.time_s; }
+  if (own) {
+    // No systems key at all: an empty list still names the presets in the engine's sky_source.
+    req[tleFields.text] = tle.text; req[tleFields.epoch] = tle.epochUtc; delete req.time_s; delete req.systems;
+    if (tleFields.system) req[tleFields.system] = TLE_SYSTEM;
+  }
   const sky = skylineRequest(state.sky);
   if (sky) req.skyline = sky;
   return req;
@@ -202,6 +222,7 @@ export function systemOf(name) {
   if (/^galileo(\b|-)/.test(n) || n === "galileo") return "galileo";
   if (/^(beidou|bds)(\b|-)/.test(n) || n === "beidou") return "beidou";
   if (LEO_PRESETS.includes(n) || n === "leo") return "leo";
+  if (n === TLE_SYSTEM.toLowerCase()) return "tle";
   return null;
 }
 
@@ -237,6 +258,8 @@ export function parseGeometry(doc, version = "") {
   if (unknown) notes.push(`${unknown} satellite record(s) of a system this view does not draw were left out.`);
   const src = text(doc.skyline_source, 200);
   if (src) notes.push(`Skyline: ${src}.`);
+  const skipped = (Array.isArray(doc.tle_skipped) ? doc.tle_skipped : []).filter((x) => typeof x === "string");
+  if (skipped.length) notes.push(`${skipped.length} element set(s) were skipped: ${skipped.slice(0, 5).map((x) => x.slice(0, 120)).join("; ")}${skipped.length > 5 ? "; …" : ""}.`);
   const of = num(doc.open_fraction);
   const below = num(doc.n_below_horizon);
   return {
@@ -246,6 +269,8 @@ export function parseGeometry(doc, version = "") {
     dop, dopDigits: 2, openFraction: of !== null && of >= 0 && of <= 1 ? of : null,
     ellipse: readEllipse(doc.ellipse_1sigma), ellipse95: readEllipse(doc.ellipse),
     provenance: provenanceOf(doc), missing: [], notes,
+    // What the sky is: the engine's own words (presets: representative; pasted elements: dated at the epoch).
+    skySource: text(doc.sky_source, 80), skyStatement: text(doc.sky_statement), epochUtc: text(doc.epoch_utc, 40),
   };
 }
 

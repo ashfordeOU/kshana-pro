@@ -12,6 +12,7 @@ export const SYSTEM_STYLE = Object.freeze({
   galileo: { label: "Galileo", color: "var(--nav)", shape: "square" },
   beidou: { label: "BeiDou", color: "var(--spf)", shape: "triangle" },
   leo: { label: "LEO", color: "var(--orb)", shape: "cross" },
+  tle: { label: "Your elements", color: "var(--ink-2)", shape: "diamond" },
 });
 export const SYSTEMS = Object.freeze(Object.keys(SYSTEM_STYLE));
 export const styleFor = (sys) => (Object.hasOwn(SYSTEM_STYLE, sys) ? SYSTEM_STYLE[sys] : { label: String(sys), color: "var(--ink-3)", shape: "circle" });

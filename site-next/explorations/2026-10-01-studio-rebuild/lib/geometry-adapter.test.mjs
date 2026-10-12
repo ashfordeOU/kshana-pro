@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, statSync } from "node:fs";
-import { createGeometryAdapter, chooseBackend, featuresFor, TLE_FIELDS, MAX_TLE_BYTES, buildInterimToml, parseInterimNmea, interimInstant, buildRequest, skylineRequest, systemOf, parseGeometry, parseMonteCarlo, parsePresets, parseProfile, INTERIM_SKYLINES, SKYLINE_LABELS, GEOMETRY_FNS, INTERIM_EPOCH } from "./geometry-adapter.mjs";
+import { createGeometryAdapter, chooseBackend, featuresFor, TLE_FIELDS, MAX_TLE_BYTES, readTleInput, tleEpochOk, buildInterimToml, parseInterimNmea, interimInstant, buildRequest, skylineRequest, systemOf, parseGeometry, parseMonteCarlo, parsePresets, parseProfile, INTERIM_SKYLINES, SKYLINE_LABELS, GEOMETRY_FNS, INTERIM_EPOCH } from "./geometry-adapter.mjs";
 import { parseState, SKYLINE_PRESETS, DEFAULTS } from "./geometry-url.mjs";
 import { emptyTable, brush, elAt, isOpen, BINS } from "./skyline-edit.mjs";
 import { ENGINE_FNS, ENGINE_FNS_036 } from "./engine.mjs";
@@ -20,7 +20,7 @@ test("the backend is chosen from what the engine has, and features follow it", (
   assert.equal(fi.skyline, false);
   assert.equal(fi.monteCarlo, false);
   const fg = featuresFor("geometry", fake(GEOMETRY_FNS));
-  assert.ok(fg.systems.leo && fg.skyline && fg.canyon && fg.monteCarlo && fg.svg && !fg.tle);
+  assert.ok(fg.systems.leo && fg.skyline && fg.canyon && fg.monteCarlo && fg.svg && fg.tle);
   assert.equal(featuresFor("geometry", fake(["sky_geometry"])).monteCarlo, false, "each optional function is checked on its own");
 });
 
@@ -159,7 +159,7 @@ test("the 0.36 replies are checked field by field", async () => {
     skyplot_svg: () => "<svg/>",
   });
   const a = createGeometryAdapter(eng);
-  assert.equal(a.features.tle, false, "sky_geometry takes no TLE text");
+  assert.equal(a.features.tle, true, "sky_geometry takes TLE text (TLE_FIELDS)");
   const s = state("?mc=500&seed=4");
   assert.equal((await a.compute(s)).ellipse.semiMajorM, 2.6);
   assert.equal((await a.monteCarlo(s)).points.length, 1);
@@ -172,30 +172,42 @@ test("the 0.36 replies are checked field by field", async () => {
   assert.equal(await a.svg(s), "<svg/>");
 });
 
-test("pasted elements: off until the engine's field names are set; then they replace the presets and time_s", async () => {
-  assert.equal(TLE_FIELDS, null, "set TLE_FIELDS when the engine takes TLE text, and update this test");
+test("pasted elements: W21's fields, one epoch rule in the page and the request, and never sent while off", async () => {
+  assert.deepEqual({ ...TLE_FIELDS }, { text: "tle", epoch: "epoch", system: "tle_system" });
   const s = state("?sys=G,E,L:xona-pulsar&t=60");
   const tle = { text: "ISS\n1 25544U ...\n2 25544 ...", epochUtc: "2026-10-12T06:00:00Z" };
-  assert.equal(buildRequest(s, tle).tle, undefined, "no field name, no TLE in the request");
-  assert.deepEqual(buildRequest(s, tle).systems, ["gps-baseline", "galileo", "xona-pulsar"]);
-  const F = { text: "tle", epoch: "epoch_utc" };
-  const r = buildRequest(s, tle, F);
-  assert.deepEqual(r.systems, [], "the presets are left out: the sky is the person's own");
+  const r = buildRequest(s, tle);
+  assert.equal(r.systems, undefined, "the presets are left out: the sky is the person's own");
   assert.equal(r.tle, tle.text);
-  assert.equal(r.epoch_utc, "2026-10-12T06:00:00Z");
+  assert.equal(r.epoch, "2026-10-12T06:00:00Z");
+  assert.equal(r.tle_system, "TLE");
   assert.equal(r.time_s, undefined, "a calendar epoch replaces the offset");
-  assert.equal(buildRequest(s, { text: "x", epochUtc: "yesterday" }, F).tle, undefined, "a malformed epoch sends no elements");
-  assert.equal(buildRequest(s, { text: "x".repeat(MAX_TLE_BYTES + 1), epochUtc: tle.epochUtc }, F).tle, undefined, "nor does text over the limit");
+  assert.equal(buildRequest(s, tle, null).tle, undefined, "no field names, no elements in the request");
+  assert.equal(buildRequest(s, { text: "x", epochUtc: "1999-12-31T23:59:59Z" }).tle, undefined, "an epoch outside 2000 to 2099 sends no elements");
+  assert.equal(buildRequest(s, { text: "x".repeat(MAX_TLE_BYTES + 1), epochUtc: tle.epochUtc }).tle, undefined, "nor does text over the limit");
+  // The page path: the same rule, said in words.
+  assert.deepEqual(readTleInput("1 2\n2 3", "2026-10-12T06:00"), { tle: { text: "1 2\n2 3", epochUtc: "2026-10-12T06:00:00Z" } });
+  assert.deepEqual(readTleInput("1 2", "2026-10-12T06:00:30").tle.epochUtc, "2026-10-12T06:00:30Z");
+  for (const bad of ["1999-12-31T23:59", "2100-01-01T00:00", "2026-13-01T00:00", "2026-10-12T24:00", "", "2026-10-12 06:00", "2026-10-12T06:00Z"]) assert.equal(readTleInput("1 2", bad).error, "Give a UTC epoch from 2000 to 2099.", bad);
+  assert.match(readTleInput("  ", "2026-10-12T06:00").error, /Paste/);
+  assert.match(readTleInput("é".repeat(MAX_TLE_BYTES / 2 + 1), "2026-10-12T06:00").error, /4 MiB/, "the cap counts bytes, not characters");
+  assert.ok(tleEpochOk("2000-01-01T00:00:00Z") && tleEpochOk("2099-12-31T23:59:59Z") && !tleEpochOk("2026-10-12T06:00:00"));
+  assert.equal(systemOf("TLE"), "tle");
   let sent;
-  const eng = fake(["nmea_training", ...GEOMETRY_FNS], { sky_geometry: (j) => { sent = JSON.parse(j); return JSON.stringify({ satellites: [] }); } });
-  assert.equal(createGeometryAdapter(eng).features.tle, false);
-  await createGeometryAdapter(eng).compute(s, tle);
+  const eng = fake(["nmea_training", ...GEOMETRY_FNS], { sky_geometry: (j) => { sent = JSON.parse(j); return JSON.stringify({ satellites: [{ id: "TLE-25544", system: "TLE", az_deg: 10, el_deg: 50, visible: true, masked: false }], sky_source: "tle-at-epoch", sky_statement: "The sky those element sets give at 2026-10-12T06:00:00Z; not a measurement.", epoch_utc: "2026-10-12T06:00:00.000000Z", tle_skipped: ["X: bad checksum"] }); } });
+  const off = createGeometryAdapter(eng, null);
+  assert.equal(off.features.tle, false);
+  await off.compute(s, tle);
   assert.equal(sent.tle, undefined, "the adapter never sends elements while the feature is off");
-  const on = createGeometryAdapter(eng, F);
+  const on = createGeometryAdapter(eng);
   assert.equal(on.features.tle, true);
-  await on.compute(s, tle);
+  const res = await on.compute(s, tle);
   assert.equal(sent.tle, tle.text);
-  assert.equal(createGeometryAdapter(fake(["nmea_training"]), F).features.tle, false, "the interim engine never offers it");
+  assert.deepEqual(res.sats.map((x) => [x.sys, x.id]), [["tle", "25544"]]);
+  assert.equal(res.skySource, "tle-at-epoch");
+  assert.match(res.skyStatement, /not a measurement/);
+  assert.ok(res.notes.some((n) => /1 element set\(s\) were skipped: X: bad checksum/.test(n)));
+  assert.equal(createGeometryAdapter(fake(["nmea_training"])).features.tle, false, "the 0.35 engine never offers it");
 });
 
 // Against the real engine package, when it is checked out (not an LFS pointer).
@@ -253,4 +265,17 @@ test("the geometry backend against a 0.36 engine package", { skip: !PKG036 && "K
   const back = await a.profile({ kind: "table", table: drawn });
   assert.deepEqual(back, drawn, "the engine uses exactly the drawn table");
   assert.match(await a.svg(s), /^<svg[\s>]/);
+  // Pasted elements: the ISS set of scenarios/ephemeris.toml, dated near its own epoch, over Darmstadt.
+  if (a.features.tle) {
+    const iss = readFileSync(new URL("../scenarios/ephemeris.toml", import.meta.url), "utf8").match(/tle = """\n([\s\S]*?)"""/)[1];
+    const at = state("?site=49.87,8.62,144&sys=G");
+    const own = await a.compute(at, { text: `ISS (ZARYA)\n${iss}`, epochUtc: "2020-02-14T08:54:00Z" });
+    assert.match(own.skySource, /^tle-at-epoch/);
+    assert.match(own.skyStatement, /measurement/);
+    assert.ok(own.sats.every((x) => x.sys === "tle"), "only the person's satellites: the presets are left out");
+    assert.deepEqual(own.sats.map((x) => x.id), ["ISS (ZARYA)"], "the ISS is up over Darmstadt at 08:54 UTC");
+    assert.ok(own.sats[0].el > 20);
+    const bad = await a.compute(at, { text: "ISS\n1 25544U garbage\n2 25544 garbage", epochUtc: "2020-02-14T04:30:00Z" }).catch((e) => e);
+    assert.ok(typeof bad === "string" || bad instanceof Error || (bad.sats.length === 0 && bad.notes.some((n) => /skipped/.test(n))), "a broken set is refused or reported, never drawn");
+  }
 });

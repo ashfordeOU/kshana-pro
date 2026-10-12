@@ -6,7 +6,7 @@
 import { parseState, buildSearch, normaliseState, SKYLINE_PRESETS, LEO_PRESETS, MC_CHOICES, MAX_T } from "../lib/geometry-url.mjs";
 import { emptyTable, paint, keyEdit, describe, outlinePoints, isOpen, elAt } from "../lib/skyline-edit.mjs";
 import { project, unproject, outlinePath, markerPath, niceExtent, ellipseAttrs, fmtDop, styleFor } from "../lib/skyplot.mjs";
-import { createGeometryAdapter, SKYLINE_LABELS, MAX_TLE_BYTES } from "../lib/geometry-adapter.mjs";
+import { createGeometryAdapter, SKYLINE_LABELS, readTleInput } from "../lib/geometry-adapter.mjs";
 import { parseSvgMarkup, sanitizeSvg } from "../lib/svgsafe.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
 
@@ -43,9 +43,10 @@ let table = state.sky.kind === "table" ? state.sky.table : emptyTable(); // what
 let skyProv = "";
 let cursor = 0;         // the keyboard cursor's azimuth bin
 let tle = null;         // {text, epochUtc}: pasted elements, in this page only (never in the address)
-const REP_HTML = $("gm-rep").innerHTML;
+// The representative-sky notice as written in the page, kept as nodes (never re-read as markup).
+const REP_NODES = [...$("gm-rep").childNodes].map((n) => n.cloneNode(true));
 let adapter = null, features = null;
-let result = null, cloud = null;
+let result = null, cloud = null, cloudError = "";
 let ticket = 0;
 
 function setNotes(list) { $("gm-url-notes").replaceChildren(...list.map((t) => el("li", {}, t))); }
@@ -166,15 +167,15 @@ $("gm-sky-clear").addEventListener("click", () => { table = emptyTable(); commit
 
 // Pasted elements (offered only when the engine takes them: features.tle). They stay in this page.
 function setRep() {
-  if (!tle) { $("gm-rep").innerHTML = REP_HTML; return; }
-  $("gm-rep").replaceChildren(el("b", {}, `Your own elements at ${tle.epochUtc.replace("T", " ").replace("Z", " UTC")}.`), " A dated sky only as good as the elements and their age; the presets are left out.");
+  if (!tle) { $("gm-rep").replaceChildren(...REP_NODES.map((n) => n.cloneNode(true))); return; }
+  // The engine's own sentence about the sky it drew, once it has answered; until then the page's.
+  const said = result && result.backend === "geometry" && result.skyStatement;
+  $("gm-rep").replaceChildren(el("b", {}, `Your own elements at ${tle.epochUtc.replace("T", " ").replace("Z", " UTC")}.`), " ", said || "A dated sky only as good as the elements and their age; the presets are left out.");
 }
 $("gm-tle-use").addEventListener("click", () => {
-  const text = $("gm-tle").value, ep = $("gm-tle-epoch").value;
-  if (!text.trim()) { setNotes(["Paste one or more two-line element sets first."]); return; }
-  if (new Blob([text]).size > MAX_TLE_BYTES) { setNotes(["The pasted elements are larger than 4 MiB, the engine's input limit."]); return; }
-  if (!/^\d{4}-\d\d-\d\dT\d\d:\d\d(:\d\d)?$/.test(ep)) { setNotes(["Give the epoch the sky is for, in UTC."]); return; }
-  tle = { text, epochUtc: (ep.length === 16 ? ep + ":00" : ep) + "Z" };
+  const r = readTleInput($("gm-tle").value, $("gm-tle-epoch").value);
+  if (r.error) { setNotes([r.error]); return; }
+  tle = r.tle;
   setNotes(["Using your own elements. A link carries only that you used them, not the elements themselves."]);
   setRep(); writeAddress(); schedule();
 });
@@ -350,7 +351,7 @@ function drawError() {
   const c = cloud && cloud.points.length ? cloud : null;
   if (!e && !c) {
     const interim = result && result.backend === "interim";
-    const why = !result ? "Waiting for the engine." : interim ? `The error ellipse and the Monte Carlo cloud ${NEEDS} (its sky_geometry and sky_monte_carlo functions); the engine in this page is older.` : "The engine gave no ellipse for this geometry (fewer than four satellites, or a singular geometry).";
+    const why = !result ? "Waiting for the engine." : interim ? `The error ellipse and the Monte Carlo cloud ${NEEDS} (its sky_geometry and sky_monte_carlo functions); the engine in this page is older.` : `The engine gave no ellipse for this geometry (too few satellites for a fix, or a singular geometry)${cloudError ? `: ${cloudError}` : ""}.`;
     svg.replaceChildren(sv("rect", { x: 0, y: 0, width: 400, height: 400, class: "g-errbg" }), sv("text", { x: 200, y: 200, class: "g-empty", "text-anchor": "middle" }, interim ? "Needs engine 0.36" : "No ellipse"));
     $("gm-err-desc").textContent = why;
     $("gm-errfacts").replaceChildren(el("dt", {}, "Why"), el("dd", { class: "na wide" }, why));
@@ -407,12 +408,16 @@ async function compute() {
     const r = await adapter.compute(state, tle);
     if (mine !== ticket) return;
     result = r;
-    cloud = null;
-    $("gm-source").textContent = [r.source ? `${r.source}.` : "", ...r.notes].filter(Boolean).join(" ");
+    cloud = null; cloudError = "";
+    $("gm-source").textContent = [r.source ? `${r.source}.` : "", r.skySource ? `Sky: ${r.skySource}.` : "", ...r.notes].filter(Boolean).join(" ");
+    setRep();
     $("gm-engine").textContent = r.backend === "none" ? r.notes[0] : r.missing.length ? `Ready. Needs engine 0.36: ${r.missing.join(", ")}.` : "Ready.";
     drawAll();
     if (features.monteCarlo && state.mc) {
-      const c = await adapter.monteCarlo(state, tle);
+      // A cloud the engine cannot draw (too few satellites for a fix) leaves the sky and the DOPs standing.
+      let c = null;
+      try { c = await adapter.monteCarlo(state, tle); }
+      catch (e) { if (mine === ticket) cloudError = e && e.message ? e.message : String(e); }
       if (mine !== ticket) return;
       cloud = c;
       drawError();
