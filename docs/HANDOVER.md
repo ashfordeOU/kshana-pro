@@ -1,6 +1,7 @@
 # Kshana coordinator handover
 
 **OWNER ANSWERS (13 Oct ~14:05):** merge path: "push yourself and everything as 0.36" (coordinator pushes to release/0.36.0-rc; session left auto mode, so pushes go through the owner's permission prompts). E1 in 0.31–0.35: "we havent used for commercial so why care about it?" → leave the published versions as they are. RTKLIB/gLAB: "Yes, allow". CODE GIM: not answered (default: leave in history).
+**OWNER (15:30): STUDIO-15 (portable maths, native==wasm byte-identical, re-records 4 pinned tests, ~40 h) IN 0.36.** W43 does it after STUDIO-14, pre-registered, re-baselines only those 4 with docs/revisions entries, stop if any ledger row/figure moves.
 **rc:** 961e7677 → 12b42e4e (WP-05, 14:07) → dc0b85bd (WP-00+WP-03 merged with regeneration + "275 epochs" README fix; ledger 282: 138 V / 140 M / 4 P; 15:20). WP-02+WP-01 integration running (coordinator subagent). Next: WP-00+WP-03 via merge of rc into feat/time-frames-0.36 with regeneration (a coordinator subagent), then WP-02+WP-01, labfit, WP-07, WP-12. Workers told not to merge intermediate rc SHAs.
 
 **Since the switch (11:30):** W33 WP-01 DE440 tier @ 615ee97c (orbits 0.017 m vs Orekit; Sun/Moon position bars missed, MODELLED); W36 confirmed onto WP-09; W1b holds the final run, needs LUNAR-REFERENCE-STATION.md final and will itself hit the rc block; owner asked once for the merge path (recommended PR per package).
