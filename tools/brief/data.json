@@ -1,124 +1,58 @@
 {
- "title": "Kshana — 0.36.0: integrating packages; rc dc0b85bd",
- "asof": "2026-10-13 17:15 UTC",
- "eta": "0.36.0 tag ≈ 17–18 Oct (STUDIO-15 added ~1 day)",
+ "title": "Kshana — 0.36.0: new coordinator; merges blocked on push access",
+ "asof": "2026-10-13 19:45 UTC",
+ "eta": "0.36.0 tag ≈ 17–18 Oct (holds only if push access is granted today)",
  "plan": {
-  "done": 10,
+  "done": 11,
   "total": 15,
   "label": "0.36 work packages finished (WP-00…WP-14)"
  },
  "milestones_done": [
-  "WP-04 timing/quantum DONE @ 7e618a89: figure tiers on 67 kinds; quantum-cai-coast preset (6600 s vs 350 s)",
-  "KF-GINS comparison: all 6 bars held (1.1/0.9 cm vs 1.1/0.8 cm); BeiDou B1I = GNSS-SDR for all 63 PRNs",
-  "rc 961e7677 → 12b42e4e (WP-05) → dc0b85bd (WP-00 docs + WP-03 time); ledger 282: 138 VALIDATED",
-  "README '278 epochs' corruption fixed → 275; count-substitution guard sent to all workers",
-  "0.35 marketing claims made a release gate; OSNMA re-checked: 18 sets, 186,382 tags, 0 failures",
-  "RTKLIB runs: IONEX matches to 3.6e-13 TECU; RTKLIB positioning leg NOT met as a whole (recorded)",
-  "IQ campaigns package done (scorer fix, monitors, ROC) — queued after labfit",
-  "WP-13: optimiser + calibration ensembles; WP-06: MR-08, MR-06 VALIDATED, MR-05 NOT MET (recorded)",
-  "Studio: STUDIO-05/06/11/14 done; WASM IQ short-run in browser"
+  "rc 25af9489: labfit merged; ledger 298 rows — 146 VALIDATED / 148 MODELLED / 4 PARTNER",
+  "Coordinator handed over to successor 3; check-ins and workers re-pointed",
+  "RM-34 VALIDATED (CR3BP → Moon-centred frame vs SPICE), W41 @ dfc55dad",
+  "W45 WP-10: SRTM un-gate VALIDATED; ICGEM Part A VALIDATED, Part B bar NOT MET (recorded)",
+  "W44 FUT-26 done (NumPy accessors bit-equal); W43 Studio + WASM IQ halves done",
+  "OSNMA 0.35 claim re-checked: 18 sets · 186,382 tags · 0 failures"
  ],
  "milestones_open": [
-  "WP-02 + WP-01 merged locally with rc; release tests running → push rc",
-  "Then labfit → IQ campaigns → WP-07 GNSS → WP-12 integrity → WP-04 timing",
-  "Building: WP-06 cislunar, WP-08, WP-09 fusion, WP-10/11b, WP-13, WP-14, STUDIO-15",
+  "Coverage CI fix ready (1 file) → push to rc first",
+  "Then IQ campaigns + wasm fix (W28) → WP-07 → WP-12 → WP-04 → WP-09 → lunar-terrain",
+  "Building: WP-06/08 (W41 → fresh worker), WP-10, WP-11b, WP-13, WP-14, STUDIO-15",
   "Final site run + 0.35-claims gate → ONE CI run → main + tag"
  ],
  "milestones_parked": [
-  "gLAB checks: download blocked by permission system (needs your rule) — else data-gated",
-  "STUDIO-15 bigger than estimated (1,743 maths calls); dry run first, stops if a published number moves",
+  "rc pushes BLOCKED: permission system refused push access to kshana in the new coordinator",
+  "gLAB download still needs your approval in W36",
+  "Paper front matter carries a personal author name — your call",
   "winget 0.35.0 PR: waiting on Microsoft moderator"
  ],
  "people": [
-  [
-   "Coordinator",
-   "Integrating WP-02+WP-01 into rc",
-   "active"
-  ],
-  [
-   "W28",
-   "WP-11b IQ → WP-10 maps",
-   "active"
-  ],
-  [
-   "W30",
-   "WP-04 timing: RM-04, quantum preset",
-   "active"
-  ],
-  [
-   "W30",
-   "WP-04 done → lunar loose ends → WP-14 share",
-   "active"
-  ],
-  [
-   "W41",
-   "WP-06 cislunar: FUT-05 → LRO items",
-   "active"
-  ],
-  [
-   "W42",
-   "WP-13 platform: FUT-26/28, CAP-34",
-   "active"
-  ],
-  [
-   "W43",
-   "STUDIO-15 dry run; holds final site run",
-   "active"
-  ]
+  ["Coordinator", "New session; waiting for push access", "blocked"],
+  ["Old coordinator", "Idle until push access works, then archives", "active"],
+  ["W28", "IQ campaigns rc merge + wasm fix; WP-11b, WP-10 share", "active"],
+  ["W36", "WP-14 new domains (AOCS vs Basilisk)", "active"],
+  ["W41", "Wrapping up → replaced by fresh WP-06/WP-08 worker", "active"],
+  ["W43", "STUDIO-15 dry run; holds final site run", "active"],
+  ["W44", "WP-13 platform: FUT-28, CAP-34", "active"],
+  ["W45", "WP-10 alt-PNT maps: RM-16, RM-18", "active"]
  ],
  "releases": [
-  [
-   "0.36.0",
-   "rc dc0b85bd — 3 packages in, 6 queued",
-   "now"
-  ],
-  [
-   "0.35.0",
-   "12 Oct — all channels verified",
-   "ok"
-  ],
-  [
-   "0.34.1",
-   "10 Oct — D14 fix",
-   "ok"
-  ],
-  [
-   "0.34.0",
-   "10 Oct — GNSS IQ engine, campaigns, monitors",
-   "ok"
-  ]
+  ["0.36.0", "rc 25af9489 — 6 packages in, 9 queued/building", "now"],
+  ["0.35.0", "12 Oct — all channels verified", "ok"],
+  ["0.34.1", "10 Oct — D14 fix", "ok"],
+  ["0.34.0", "10 Oct — GNSS IQ engine, campaigns, monitors", "ok"]
  ],
  "tests": [
-  [
-   "Ledger on rc",
-   "282 rows: 138 VALIDATED / 140 MODELLED / 4 PARTNER"
-  ],
-  [
-   "OSNMA official vectors",
-   "18 sets · 186,382 tags · 0 failures"
-  ],
-  [
-   "CLI first-run · MCP round_trip",
-   "pass · 24/24"
-  ],
-  [
-   "CI on rc",
-   "only stale website counts (final site run fixes)"
-  ]
+  ["Ledger on rc", "298 rows: 146 VALIDATED / 148 MODELLED / 4 PARTNER"],
+  ["OSNMA official vectors", "18 sets · 186,382 tags · 0 failures"],
+  ["CI on rc", "red: coverage (fix ready), wasm build (W28 fixing), website counts (final run)"]
  ],
  "waiting": [
-  [
-   "When asked",
-   "Approve download prompts in worker sessions (gLAB first, in W36)"
-  ],
-  [
-   "Later",
-   "Send Liz's countersigned NDA when it arrives"
-  ],
-  [
-   "No action",
-   "winget PR — external review"
-  ]
+  ["Now", "Allow push access to ashfordeOU/kshana in the new coordinator (or switch it to default mode)"],
+  ["When asked", "Approve the gLAB download in W36"],
+  ["Answer", "Personal author name in the paper's front matter: keep or remove?"],
+  ["No action", "winget PR — external review"]
  ],
- "sources": "release/0.36.0-rc dc0b85bd · package branches · worker reports · kshana-pro ws/coordination."
+ "sources": "release/0.36.0-rc 25af9489 · package branches · worker reports · kshana-pro ws/coordination."
 }
