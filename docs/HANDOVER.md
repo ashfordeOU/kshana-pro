@@ -91,7 +91,7 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 2. The owner's answers still pending:
    (a) the merge path;
    (b) the RTKLIB/gLAB permission for W36 (without it, those rows stay MODELLED/data-gated);
-   (c) whether the E1 files in published 0.35 packages need action;
+   (c) E1 files in published packages: W31 confirmed (13 Oct 11:42) the C7_E1B/C8_E1C tables are in every published kshana crate 0.31.0–0.35.0 (added b5f5bd6d, 4 Oct) and compiled in via include_str! (so the PyPI wheels and npm/WASM 0.35.0 too). E5a fixtures never shipped. Nothing yanked. Owner decides: leave, yank 0.31–0.35 (yank does not delete files), or seek permission from the ICD holder;
    (d) the CODE GIM crop left in git history (recommend: leave it).
 3. Remaining work packages, queued per worker:
    - W31: WP-03 → WP-06 → WP-08
