@@ -1,58 +1,123 @@
 {
- "title": "Kshana — 0.36.0: merging packages into the release candidate",
- "asof": "2026-10-13 14:40 UTC",
- "eta": "0.36.0 tag ≈ 16–17 Oct (3–4 days); merges run today",
+ "title": "Kshana — 0.36.0: integrating packages; rc dc0b85bd",
+ "asof": "2026-10-13 16:30 UTC",
+ "eta": "0.36.0 tag ≈ 17–18 Oct (STUDIO-15 added ~1 day)",
  "plan": {
   "done": 9,
   "total": 15,
   "label": "0.36 work packages finished (WP-00…WP-14)"
  },
  "milestones_done": [
-  "Your answers in: coordinator pushes the rc; old Galileo versions left; RTKLIB allowed",
-  "rc 961e7677 → 12b42e4e: WP-05 lunar station merged",
-  "Ready to merge: WP-00 docs, WP-03 time, WP-02 gravity/OD, WP-01 forces, labfit, WP-07 GNSS, WP-12 integrity",
-  "WP-01: air tide, NRLMSISE-00, drag tier, oblate shadow VALIDATED vs Orekit",
-  "WP-03: GLONASS clock, pre-1972 UTC, ERFA frames VALIDATED",
-  "Scorer bug fixed (false locks now counted); no published number moved",
-  "README fix: '278 epochs' corrupted by a count substitution → 275 (in this merge)",
-  "Sessions rotated (W31, W33, W1b → W41, W42, W43); cap 8 kept"
+  "rc 961e7677 → 12b42e4e (WP-05) → dc0b85bd (WP-00 docs + WP-03 time); ledger 282: 138 VALIDATED",
+  "README '278 epochs' corruption fixed → 275; count-substitution guard sent to all workers",
+  "0.35 marketing claims made a release gate; OSNMA re-checked: 18 sets, 186,382 tags, 0 failures",
+  "RTKLIB runs: IONEX matches to 3.6e-13 TECU; RTKLIB positioning leg NOT met as a whole (recorded)",
+  "IQ campaigns package done (scorer fix, monitors, ROC) — queued after labfit",
+  "WP-13: optimiser + calibration ensembles; WP-06: MR-08, MR-06 VALIDATED, MR-05 NOT MET (recorded)",
+  "Studio: STUDIO-05/06/11/14 done; WASM IQ short-run in browser",
+  "Your calls: STUDIO-15 in 0.36; old Galileo versions left; RTKLIB allowed"
  ],
  "milestones_open": [
-  "WP-00 + WP-03 merge: release tests running → push rc",
-  "Then WP-02+WP-01 → labfit → WP-07 → WP-12 (≈30–60 min each)",
-  "Still building: WP-04 timing, WP-06 cislunar, WP-08 interop, WP-09 fusion, WP-10/11b, WP-13 platform, WP-14 new domains",
-  "Final site run (version bump, counts, social card) → ONE CI run → main + tag"
+  "WP-02 + WP-01 merge into rc: tests running",
+  "Then labfit → IQ campaigns → WP-07 GNSS → WP-12 integrity",
+  "Building: WP-04 timing, WP-06 cislunar, WP-08, WP-09 fusion, WP-10/11b, WP-13, WP-14, STUDIO-15",
+  "Final site run + 0.35-claims gate → ONE CI run → main + tag"
  ],
  "milestones_parked": [
-  "gLAB checks: download blocked by permission system (needs your rule) — else stay data-gated",
-  "CODE GIM crop in git history: left as is",
-  "winget 0.35.0 PR: waiting on Microsoft moderator; 0.36 PR after release"
+  "gLAB checks: download blocked by permission system (needs your rule) — else data-gated",
+  "STUDIO-15 bigger than estimated (1,743 maths calls); dry run first, stops if a published number moves",
+  "winget 0.35.0 PR: waiting on Microsoft moderator"
  ],
  "people": [
-  ["Coordinator", "Merging packages into the rc one by one", "active"],
-  ["W28", "IQ campaigns done (PRO-31/32, DS-LAB-07) → WP-11b, WP-10", "active"],
-  ["W30", "WP-04 timing (CAP-03 VALIDATED) → RM-04, quantum preset", "active"],
-  ["W36", "WP-09 fusion + RTKLIB checks (now building)", "active"],
-  ["W41", "WP-06 cislunar (MR-08 VALIDATED) → WP-08", "active"],
-  ["W42", "WP-13 platform/API → box-wing", "active"],
-  ["W43", "Studio/Pro backlog; holds final site run", "waiting"]
+  [
+   "Coordinator",
+   "Integrating WP-02+WP-01 into rc",
+   "active"
+  ],
+  [
+   "W28",
+   "WP-11b IQ → WP-10 maps",
+   "active"
+  ],
+  [
+   "W30",
+   "WP-04 timing: RM-04, quantum preset",
+   "active"
+  ],
+  [
+   "W36",
+   "WP-09 fusion: KF-GINS comparison",
+   "active"
+  ],
+  [
+   "W41",
+   "WP-06 cislunar: FUT-05 → LRO items",
+   "active"
+  ],
+  [
+   "W42",
+   "WP-13 platform: FUT-26/28, CAP-34",
+   "active"
+  ],
+  [
+   "W43",
+   "STUDIO-15 dry run; holds final site run",
+   "active"
+  ]
  ],
  "releases": [
-  ["0.36.0", "rc 12b42e4e — integrating 7 more packages today", "now"],
-  ["0.35.0", "12 Oct — all channels verified", "ok"],
-  ["0.34.1", "10 Oct — D14 fix", "ok"],
-  ["0.34.0", "10 Oct — GNSS IQ engine, campaigns, monitors", "ok"]
+  [
+   "0.36.0",
+   "rc dc0b85bd — 3 packages in, 6 queued",
+   "now"
+  ],
+  [
+   "0.35.0",
+   "12 Oct — all channels verified",
+   "ok"
+  ],
+  [
+   "0.34.1",
+   "10 Oct — D14 fix",
+   "ok"
+  ],
+  [
+   "0.34.0",
+   "10 Oct — GNSS IQ engine, campaigns, monitors",
+   "ok"
+  ]
  ],
  "tests": [
-  ["Ledger (on branches)", "~278–281 rows; ~138 VALIDATED; misses recorded, bars unchanged"],
-  ["Frozen lunar prediction", "unchanged; guarded by test"],
-  ["CLI first-run · MCP round_trip", "pass · 24/24"],
-  ["CI on rc", "only stale website counts (final site run fixes)"]
+  [
+   "Ledger on rc",
+   "282 rows: 138 VALIDATED / 140 MODELLED / 4 PARTNER"
+  ],
+  [
+   "OSNMA official vectors",
+   "18 sets · 186,382 tags · 0 failures"
+  ],
+  [
+   "CLI first-run · MCP round_trip",
+   "pass · 24/24"
+  ],
+  [
+   "CI on rc",
+   "only stale website counts (final site run fixes)"
+  ]
  ],
  "waiting": [
-  ["Optional", "Allow gLAB download in W36's session if you want those checks"],
-  ["When prompted", "Approve pushes to release/0.36.0-rc"],
-  ["Later", "Send Liz's countersigned NDA when it arrives"]
+  [
+   "Optional",
+   "Allow gLAB download in W36's session if you want those checks"
+  ],
+  [
+   "Later",
+   "Send Liz's countersigned NDA when it arrives"
+  ],
+  [
+   "No action",
+   "winget PR — external review"
+  ]
  ],
- "sources": "release/0.36.0-rc 12b42e4e · package branches · worker reports · kshana-pro ws/coordination."
+ "sources": "release/0.36.0-rc dc0b85bd · package branches · worker reports · kshana-pro ws/coordination."
 }
