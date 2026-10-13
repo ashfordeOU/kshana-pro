@@ -1,5 +1,7 @@
 # Kshana coordinator handover
 
+**Since the switch (11:30):** W33 WP-01 DE440 tier @ 615ee97c (orbits 0.017 m vs Orekit; Sun/Moon position bars missed, MODELLED); W36 confirmed onto WP-09; W1b holds the final run, needs LUNAR-REFERENCE-STATION.md final and will itself hit the rc block; owner asked once for the merge path (recommended PR per package).
+
 **Coordinator switch:** 2026-10-13 11:17 UTC, session_01UmnDCL2ERStnt9tRqC9a4i took over from session_01VfB51TSscNzEYNpCXNGTwL. Check-in routine trig_0141RM2pEj95DjCvcR5BGtxL (every 2 h, bound to the new coordinator); old trig_011Wno8YRNARC5PyeytwiaiK disabled.
 
 Written: 2026-10-13 ~11:20 UTC by coordinator `session_01VfB51TSscNzEYNpCXNGTwL` (took over 2026-10-12 22:31 UTC from session_015EnPpasos1W6PQWi7rHJxu, now archived).
@@ -74,6 +76,7 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 | WP-02 gravity/OD | feat/gravity-od-0.36 @ 31a9908b | 5 VALIDATED; misses recorded MODELLED; RM-09 bars were tightened post-run (allowed; originals must stay recorded) |
 | labfit B7.1 | feat/labfit-iq-0.36 @ 37e8f07c | Most bars NOT MET (recorded honestly); estimator fixed in 5b13e3c2, bundled with the code, disclosed |
 | WP-07 GNSS | feat/gnss-realdata-0.36 @ d521166 | 283 rows; PPP, RTK, SP3 clock, RINEX 4 nav VALIDATED; many data-gated items not run (RTKLIB/gLAB/CDDIS). CODE GIM slice removed (still in git history at 0901cca: owner's call) |
+| WP-12 integrity | feat/integrity-trust-0.36 @ 87a8b739 | Reviewed by successor 2: identity clean, pre-registrations precede results. CAP-14 VALIDATED (27/27 vs OpenSSL); CAP-05a/05b/13 MODELLED (cn0 bar missed 0.0231 vs 0.02, stated on the profile); CAP-05c data-gated. Open: UBX vs CSV false-alarm diff; lunar export site not masked, lola_dem.rs not wired. W30 now on WP-04 |
 
   Every merge after the first needs its ledger/README/figures REGENERATED with the repo tools (gen_validation_artifacts, figures, render-diagram, gen_readme_assets), never hand-merged. Audit for decimal collisions in counts.
 - **In progress:** WP-01 forces (W33, feat/forces-atmosphere-0.36; S2 fix VALIDATED, S1 done). Before WP-01 is called done, re-run the Galileo/Swarm full-arc dispatch figures or mark them pre-fix. WP-03 time (W31, feat/time-frames-0.36 @ 0d36ff2a; close-out). WP-12 integrity (W30; CAP-14, FUT-01, CAP-05a and CAP-13 done; CAP-05b per the coordinator's design: opt-in [integrity] block, separate integrity_fom, never folded into the FoM; CAP-05c data-gated). Profile "jammertest-2024-calibrated": its docs must say cn0_drop missed its held-out bar.
