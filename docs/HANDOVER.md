@@ -1,6 +1,6 @@
 # Kshana coordinator handover
 
-**Coordinator switch 2026-10-13 19:05 UTC:** now `session_01X1Md22tYih7LLQiPqsmUjy` (successor 3), running in AUTO mode. New check-in trig_01ULLGFcqyKVADpHVb7s5Ey6; trig_0141RM2pEj95DjCvcR5BGtxL disabled. add_repo kshana (push) was refused by the classifier, so PR #76 is not subscribed and rc pushes need the owner to allow it.
+**Coordinator switch 2026-10-13 19:05 UTC:** now `session_01X1Md22tYih7LLQiPqsmUjy` (successor 3). New check-in trig_01ULLGFcqyKVADpHVb7s5Ey6; trig_0141RM2pEj95DjCvcR5BGtxL disabled. Owner allowed kshana push ~19:50; PR #76 subscribed. **rc FF'd 25af9489 → 0d9456fb (coverage fix bfaafa41 cherry-picked).** W28 told: your turn @ 0d9456fb. W41 asked to stop + hand off (RM-34 VALIDATED @ dfc55dad); rotate once the old coordinator has archived (cap 8).
 
 Written: 2026-10-13 ~18:25 UTC by coordinator `session_01UmnDCL2ERStnt9tRqC9a4i` ("successor 2"; took over 11:17 UTC from session_01VfB51TSscNzEYNpCXNGTwL, archived). Handing over at ~50 % context.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
