@@ -89,7 +89,7 @@ Coordinator decisions today (standing rules for workers):
 4. WP-04 timing/quantum (feat/timing-quantum-0.36 @ 7e618a89; carries a verbatim copy of append_figure_tiers — keep one).
 5. WP-09 fusion (feat/fusion-ins-0.36 @ d6d60f34; includes W38 carrier_tc).
 6. feat/lunar-terrain-0.36 (W30; export masking 12a98750; units-block + lola_dem.rs pending).
-7. W42's coverage CI fix (fast-track as soon as reported) and feat/platform-vv-0.36 (WP-13: FUT-27 514d994e — api/builtins.rs is a hot file: move any conflicting run_builtin_kind arm into its run_<kind> fn).
+7. COVERAGE CI FIX bfaafa41 on feat/platform-vv-0.36 (fast-track: cherry-pick or merge the ci.yml change into the rc) and feat/platform-vv-0.36 (WP-13: FUT-27 514d994e — api/builtins.rs is a hot file: move any conflicting run_builtin_kind arm into its run_<kind> fn).
 8. feat/wasm-iq-0.36 (W43: DS-GIQ-08b, STUDIO-05/06/14 engine halves, STUDIO-15 later).
 9. feat/cislunar-ephem-0.36 (W41, WP-06 when done), feat/iq-ext-0.36 (W28, WP-11b), WP-10, WP-08, WP-14, then the W43 final run.
 
@@ -118,7 +118,7 @@ Packages done (11 of 15): WP-00, 01, 02, 03, 04, 05, 07, 09, 12, labfit(B7.1), I
 | W30 | session_01TGHRGGhceMneZ1FF8MGZUL | WP-04 DONE 7e618a89 → lunar loose ends (units block, lola_dem.rs) → assign part of WP-14 |
 | W36 | session_01BpojbwwUWoNKDfSmsCHR3B | WP-09 DONE d6d60f34 → WP-14 (feat/new-domains-0.36) |
 | W41 | session_0141f1quqeE6s3YFLMBkzTCR | ~40 % context, handoff 3 @ 46aa2799; ROTATE after RM-35 (handoff 4). WP-06 (FUT-05 1bdd3833 partial: ephemeris leg NOT MET; DE440 routing opt-in by design; rc ee3c71de merged @ 12a67f78; MR-08 V, MR-06 V narrow, MR-05 NOT MET, ME→PA bug fix + revisions/erratum, FUT-05 ANISE next; then RM-34, RM-35, CAPSTONE, LRO, CAP-31/20b, zero-observation beacon bug) → WP-08 |
-| W42 | session_013yHbcHvDJeQEmyTXauC12P | CI coverage fix (PRIORITY) → FUT-26, FUT-28, CAP-34 → box-wing + GMAT (Apache-2.0, run-only) on feat/forces-atmosphere-0.36 from its new head |
+| W44 (replaced W42 18:55; W42 archived) | session_01SVt2FNNE9ZUr9anJAHbyjm | FUT-26, FUT-28, CAP-34 on feat/platform-vv-0.36 (handoff b3408e38 + addendum 70193446) → box-wing (handoff 05391205; prereg vs Orekit) → GMAT leg (exponential tier). W42 pushed the COVERAGE CI FIX bfaafa41 on feat/platform-vv-0.36: fast-track it into the rc (ci.yml only) and confirm the coverage job goes green |
 | W43 (Sonnet) | session_012VCHUyvBgx38Z6Zx43FcjM | site/CI runner; STUDIO-15 dry run; holds the final run (site-next/FINAL-RUN-0.36.md on kshana-pro port/0.36.0) |
 
 Archived today: W31, W33, W1b (rotated to W41, W42, W43), old coordinator. Workers lack create_session: rotate at a WP boundary (worker writes a handoff commit; coordinator creates the replacement with a full brief — branches, rules, queue — then archives the old one; stay within 8).
