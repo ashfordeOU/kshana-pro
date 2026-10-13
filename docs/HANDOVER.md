@@ -1,13 +1,8 @@
 # Kshana coordinator handover
 
-> **2026-10-12 22:31 UTC: coordinator switched to `session_01VfB51TSscNzEYNpCXNGTwL`** (from session_015EnPpasos1W6PQWi7rHJxu). Check-in routine is now `trig_01FNqcRNzC1xsssxncXdR3pV` (00:30Z, bound to the new coordinator); old `trig_013aaWtKK2oZtwxYbFVMQVHJ` disabled. W38 archived (WIP on feat/fusion-ins-0.36 @ 7dfbd51), so §4 item 1 is done. 22:40 UTC (owner: "handle everything the best and most dominant way possible"): kshana attached (push) and PR #76 subscribed; old coordinator archived (8 sessions now); W31 told Galileo E1 tables: keep with NOTICE if the ICD terms allow redistribution, else remove + user-file loader. RTKLIB/gLAB build stays classifier-blocked: rows stay MODELLED unless the owner adds a permission rule in W36. A local `git checkout` in /workspace/kshana was classifier-denied once: do merges via the GitHub API or W1b, don't retry.
-23:50 UTC merge queue (all coordinator-reviewed, all blocked: the classifier refused the rc fast-forward as "Merge Without Review" and refused the W1b review request; waiting on the owner): (1) W30 WP-05 = feat/lunar-station-ext-0.36 @ 12b42e4e, stacked on LRS-01 793dc62c, ff from rc 961e7677, 278 rows 134V/140M/4P; (2) W33 WP-02 in progress on feat/gravity-od-0.36 @ 27b8c48a (RM-09, FUT-11, FUT-12 VALIDATED; RM-09 bars tightened post-run, check originals recorded); (3) W36 WP-07 in progress on feat/gnss-realdata-0.36 @ 6d1343d2 (CAP-25 SP3 clock VALIDATED). Ledger files will conflict between branches: regenerate with the repo tools at each merge, never hand-merge.
-
-Written: 2026-10-12 ~22:35 UTC, by coordinator session `session_015EnPpasos1W6PQWi7rHJxu` (context ~66 % full).
-Repo of record for this file: kshana-pro, branch `ws/coordination` (private). It stays out of public kshana on
-purpose, because it names people and commercial matters. Replace this file at each handover; never append to it.
-Owner's latest words (22:40 UTC): "handle everything, deliver 0.36 with all thats all". Act without asking except for the approvals in §1.
-The old `docs/LIVE.md` is stale (last updated 11 Oct). Ignore it.
+Written: 2026-10-13 ~11:20 UTC by coordinator `session_01VfB51TSscNzEYNpCXNGTwL` (took over 2026-10-12 22:31 UTC from session_015EnPpasos1W6PQWi7rHJxu, now archived).
+Repo of record: kshana-pro, branch `ws/coordination` (private; names people and commercial matters). Replace this file at each handover; never append.
+Owner's latest words: "handle everything, deliver 0.36 with all thats all" (12 Oct 22:40); "handle everything the best and most dominant way possible" (22:40); "Try again" (13 Oct ~10:35, about the blocked rc merge; the retry was blocked again).
 
 ## 1. Owner and how they work
 
@@ -58,96 +53,68 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 - **Lunar prediction:** frozen with the orbit elements labelled ILLUSTRATIVE.
 - **Bundled default:** accuracy_threshold_m 20 m, ILLUSTRATIVE.
 
-## 3. Current state (verify before trusting)
+## 3. Current state (13 Oct ~11:20 UTC; verify with git ls-remote)
 
-- **kshana rc:** `release/0.36.0-rc` @ `961e7677`.
-  - Ledger: 274 rows, 134 VALIDATED / 136 MODELLED / 4 PARTNER.
-  - Content: skyline + geometry + geometry-aware trust + JetBrains fix + D5 jammer Q + lunar A–F + MCP/CLI
-    bundling fixes + the single-run release gate (c8922670).
-  - The crate version is still 0.35.0. The bump happens in W1b's final run.
-- **Draft PR:** ashfordeOU/kshana#76 (rc → main) gives CI on every rc push. The coordinator is subscribed.
-  - Known CI reds are ONLY the stale web/ counts and the kind count (75 → 76), which W1b's site port fixes.
-  - These failures were all commented on once; don't re-comment.
-- **Released:** 0.35.0 (12 Oct, all channels). The winget 0.35.0 PR is waiting on Microsoft.
-- **Scope audit:** kshana `audit/0.36-scope` @ 2a0f9119, file `docs/design/0.36-scope-audit.md`.
-  - About 230 open items; WP-00…WP-14 plus Pro/Studio.
-  - §5 lists about 35 items that need a partner, legal clearance, paid access, founder logins or external review.
-- **Package branches** (WIP, uncompiled unless noted; the handoff for each is in its last commit body):
+- **rc:** `release/0.36.0-rc` @ `961e7677`, UNCHANGED. NOTHING HAS BEEN MERGED SINCE THE HANDOVER, because of the block below.
+- **THE BLOCK:** the auto-mode classifier refuses `git push <sha>:refs/heads/release/0.36.0-rc` as "Merge Without Review" (3 attempts, including after the owner said "Try again"). It also refused a send_message asking W1b for a merge review, and one plain resume message that mentioned re-running figures. Do NOT work around it.
+  Options put to the owner, none chosen yet:
+  (1) the owner runs the push himself;
+  (2) the owner adds a permission rule for the push in this session;
+  (3) the coordinator opens one PR per package into release/0.36.0-rc and the owner merges each.
+  Option (3) also gives a reviewable record. Recommend it if the owner stays silent.
+- **PR #76** (rc → main): subscribed. The reds are only the stale web/ counts (75 vs 76 kinds; 263 vs 274 rows). W1b's final port fixes them. Already commented on; do not re-comment.
+- **Packages READY (coordinator-reviewed: pre-registration order, Ashforde identity, no attribution, honest labels):**
 
-| WP | Branch @ sha | Notes |
+| Package | Branch @ sha | Notes |
 |---|---|---|
-| 00 docs + 03 time | `docs/truth-pass-0.36`, `feat/time-frames-0.36` | W31 active |
-| 01 forces | `feat/forces-atmosphere-0.36` @ 4af078df | DE440 tier + S1 written; S2 fix approved, not started |
-| 02 gravity/OD | `feat/gravity-od-0.36` | W33 active |
-| 04 timing/quantum | `feat/timing-quantum-0.36` @ acf1e729 | CAP-03 pre-registration 0db0bb7; RM-04 interface agreed (figure_tiers appended in api::run_toml_inner) |
-| 05 lunar ext | `feat/lunar-terrain-0.36`, `feat/lunar-station-ext-0.36` | W30 active |
-| 06 cislunar | `feat/cislunar-ephem-0.36` @ b8d9ea2 | 4 pre-registrations; LLR fixtures are missing NOTICEs |
-| 07 GNSS | `feat/gnss-realdata-0.36` | W36 active; RTKLIB build blocked by the classifier |
-| 08 interop | `feat/interop-api-0.36` @ efcb474c | 3 pre-registrations; handoff in docs/design/interop-0.36-handoff.md |
-| 09 fusion | `feat/fusion-ins-0.36` | W38 stopping (WIP pending) |
-| 10 alt-PNT | `feat/altpnt-maps-0.36` @ 653a971 | SRTM pre-registration 4235687 |
-| 11a labfit | `feat/labfit-iq-0.36` (amendment b7117bf4) | W28 active; must commit the C/N0 estimator choice (NWPR or M2M4) as a §13 addendum ALONE before the first bar evaluation; one diagnostic run before the amendment is disclosed in the doc |
-| 11b IQ | `feat/iq-ext-0.36` @ 844d4595 | W40 archived; E1 user-file loader done; 5 pre-registrations; keep ONE cargo target dir (W40 filled its disk at 26 GB) |
-| 12 integrity | `feat/integrity-trust-0.36` @ 52a7083 | CAP-13 pre-registration 0fa012b; CAP-14 openssl fixture predates its pre-registration, so regenerate it after pre-registering |
-| 13 platform | `feat/platform-vv-0.36` @ adbe366 | Drop the BuiltinKind::figure_tiers hook; prove an empty output diff |
-| 14 new domains | `feat/new-domains-0.36` @ 1682430 | contact_schedule.rs written, unwired |
-| Studio/Pro | kshana-pro `site/studio-backlog-0.36` @ 58c6c98 (STUDIO-01 done), `pro/backlog-0.36` @ 2066ad0; kshana `feat/wasm-iq-0.36` @ 0927256c | W1b in idle time |
-| Site port | kshana `site-port/0.36.0`; kshana-pro `port/0.36.0`, Studio at `site/geometry-0.36` @ 350296a7 (143 scenarios) | W1b holds the final run until the final SHA; site-port/0.36.0 merged with rc @ 09e16b96; STUDIO-02 done @ 93f062eb |
+| WP-05 lunar station (LRS-01/02/03/06) | feat/lunar-station-ext-0.36 @ 12b42e4e | FF from rc; 278 rows. Merge FIRST |
+| WP-00 docs truth pass | docs/truth-pass-0.36 @ 8737212a | Galileo E1 tables removed (ICD terms: non-commercial redistribution only), user-supplied loader + fetch script; API break noted in CHANGELOG. LRS-05 left out. W31 still to move the E5a fixtures C3/C4 to fetch-at-test-time and report whether E1 files were in the published 0.35 crate/wheels (owner legal question if yes) |
+| WP-02 gravity/OD | feat/gravity-od-0.36 @ 31a9908b | 5 VALIDATED; misses recorded MODELLED; RM-09 bars were tightened post-run (allowed; originals must stay recorded) |
+| labfit B7.1 | feat/labfit-iq-0.36 @ 37e8f07c | Most bars NOT MET (recorded honestly); estimator fixed in 5b13e3c2, bundled with the code, disclosed |
+| WP-07 GNSS | feat/gnss-realdata-0.36 @ d521166 | 283 rows; PPP, RTK, SP3 clock, RINEX 4 nav VALIDATED; many data-gated items not run (RTKLIB/gLAB/CDDIS). CODE GIM slice removed (still in git history at 0901cca: owner's call) |
 
-- **Release artefacts to use at tag time:**
-  - `docs/handover-0.36/kshana-0.36-zenodo-notes.txt`: Zenodo Notes text. Prediction doc hash 38ad2948…45d5; result JSON hashes d108f77e… and 574dbab8….
-- **Legal and commercial:**
-  - The SJAWS mutual NDA was signed by the owner and sent. When the countersigned copy returns, file it
-    REDACTED in kshana-pro `legal/`, then draft the call scheduling and refresh the call prep. The agreed text is on
-    kshana-pro `legal/nda-mutual-standard` 4f22fb41.
+  Every merge after the first needs its ledger/README/figures REGENERATED with the repo tools (gen_validation_artifacts, figures, render-diagram, gen_readme_assets), never hand-merged. Audit for decimal collisions in counts.
+- **In progress:** WP-01 forces (W33, feat/forces-atmosphere-0.36; S2 fix VALIDATED, S1 done). Before WP-01 is called done, re-run the Galileo/Swarm full-arc dispatch figures or mark them pre-fix. WP-03 time (W31, feat/time-frames-0.36 @ 0d36ff2a; close-out). WP-12 integrity (W30; CAP-14, FUT-01, CAP-05a and CAP-13 done; CAP-05b per the coordinator's design: opt-in [integrity] block, separate integrity_fom, never folded into the FoM; CAP-05c data-gated). Profile "jammertest-2024-calibrated": its docs must say cn0_drop missed its held-out bar.
+- **Open bug:** W28 found the campaign scorer (score.rs) probably never counts a real tracker false lock. Ordered: fix it first, list every affected ledger row/figure with before/after values, and STOP and report if any VALIDATED row or published figure changes.
+- **winget:** PR microsoft/winget-pkgs#450973 (KshanaMcp 0.35.0). The owner posted the CLA agree comment at ~10:55 on 13 Oct; it now waits only on a volunteer moderator, with auto-merge on. Not in this session's GitHub scope.
+- **Release artefacts and legal:** unchanged from before (Zenodo notes in docs/handover-0.36/; SJAWS NDA countersignature pending, owner-triggered).
 
-## 4. Open items, in priority order
+## 4. Open items, in order
 
-1. **Finish the session consolidation.** W38 (fusion) was told to push its WIP and stop. On its reply, archive it. Next action: read the notifications. Due now.
-2. **Owner decisions pending; ask once, briefly:**
-   - (a) a permission rule in W36's session to build and run RTKLIB/gLAB (without it, those rows stay MODELLED);
-   - (b) the Galileo E1 memory-code tables (`data/galileo-os-sis-icd/C7_E1B.txt`, `C8_E1C.txt`, already in public
-     kshana without a LICENSING/NOTICE entry): keep with attribution, or remove. W31 is adding the entry and
-     will report the ICD's reuse terms.
-3. **Merge loop for 0.36.**
-   - As each worker reports a package done: get a review (W1b, or a free slot), merge on MERGE (fast-forward
-     when possible), and tell all live sessions the new rc SHA.
-   - Merge WP-00 first.
-4. **Release.** When every package is merged:
-   1. W1b's final run (version bump first, single record pass, counts, social card, port).
-   2. The ONE CI run on the final SHA.
-   3. If fully green, fast-forward main and push the tag (owner approval stands).
-   4. Zenodo notes.
-   5. kshana-pro PRO-01 re-pin after crates.io publish.
-5. **NDA follow-up:** when the countersigned copy arrives (owner-triggered).
-6. **Post-release:** a command for the owner to delete the merged 0.36 branches. List them only; the owner deletes.
+1. Get the merge block resolved (above). Then merge in order WP-05 → WP-00 → WP-02 → labfit → WP-07 → the rest as they finish. Tell all live sessions each new rc SHA, and have each worker merge the new rc into its branch.
+2. The owner's answers still pending:
+   (a) the merge path;
+   (b) the RTKLIB/gLAB permission for W36 (without it, those rows stay MODELLED/data-gated);
+   (c) whether the E1 files in published 0.35 packages need action;
+   (d) the CODE GIM crop left in git history (recommend: leave it).
+3. Remaining work packages, queued per worker:
+   - W31: WP-03 → WP-06 → WP-08
+   - W28: scorer bug → PRO-31/32, DS-LAB-07 → WP-11b → WP-10 → labfit follow-up pre-registration
+   - W30: WP-12 → WP-04
+   - W33: WP-01 → WP-13
+   - W36: WP-09 → WP-14
+   - W1b: site and CI, plus the Studio/Pro backlog; holds the final run.
+4. Release: W1b final run (version bump first) → ONE CI run on the final SHA → if fully green, ff main + tag (owner approval stands) → Zenodo notes → PRO-01 re-pin.
+5. Post-release: list the merged branches for the owner to delete.
 
-## 5. Sessions (kshana project; cap 8)
+## 5. Sessions (cap 8; old coordinator ARCHIVED; W38 ARCHIVED)
 
-| Session | Id | Job |
-|---|---|---|
-| Coordinator | session_015EnPpasos1W6PQWi7rHJxu (this one; to be replaced) | Merges, reviews, owner contact |
-| W1b | session_01JSzHbpAvHygc1JYY532ete | Site port + CI runner + Studio/Pro backlog (Sonnet) |
-| Founder Q&A | session_01GjdbgNeaCP64Lg3PiLr9GA | Owner's own discussion; don't touch |
-| W31 | session_01Wim8MyGQHF6z3EAALbM7bv | WP-00 → 03 → 06 → 08 |
-| W28 | session_01YLFPWBdmcbeZKKEyiyRxvM | Labfit → PRO-31/32, DS-LAB-07 → WP-11b → WP-10 |
-| W30 | session_01TGHRGGhceMneZ1FF8MGZUL | LRS-01 → LRS-02/03/06 → WP-12 → WP-04 |
-| W33 | session_01XzDkpE5fPCNrKuqTXE3wmr | WP-02 → WP-01 (S2 fix) → WP-13 |
-| W36 | session_01BpojbwwUWoNKDfSmsCHR3B | WP-07 → WP-09 → WP-14 |
-| W38 (stopping) | session_01K3rTUNk9WGGuT6oLDFLN3m | Archive after its WIP reply |
+| Session | Id |
+|---|---|
+| Coordinator | session_01VfB51TSscNzEYNpCXNGTwL (to be replaced) |
+| W1b site/CI | session_01JSzHbpAvHygc1JYY532ete |
+| Founder Q&A (don't touch) | session_01GjdbgNeaCP64Lg3PiLr9GA |
+| W31 | session_01Wim8MyGQHF6z3EAALbM7bv |
+| W28 | session_01YLFPWBdmcbeZKKEyiyRxvM |
+| W30 | session_01TGHRGGhceMneZ1FF8MGZUL |
+| W33 | session_01XzDkpE5fPCNrKuqTXE3wmr |
+| W36 | session_01BpojbwwUWoNKDfSmsCHR3B |
 
-Reach any of them with send_message (claude-code-remote MCP). Workers follow the "new operating mode":
-- at most 2 subagents;
-- push hourly;
-- one item end to end;
-- report "item <id> done @ <sha>".
+Mode: at most 1 subagent each (cut from 2 after all workers hit the 5-hour account usage limit at ~02:15–02:50 UTC on 13 Oct and sat idle until 10:35); push hourly; report "<item> done @ <sha>".
 
-Other sessions on the account (Arksa raise, Job Applications) belong to other projects. Leave them alone.
+## 6. Routines
 
-## 6. Scheduled routines
-
-- `trig_013aaWtKK2oZtwxYbFVMQVHJ` "0.36 integration check-in": one-shot at 2026-10-13T00:30Z, fires into the coordinator
-  session. Its prompt carries the roster. The NEW coordinator must re-create it bound to itself and disable this one.
+- `trig_011Wno8YRNARC5PyeytwiaiK`: one-shot check-in 2026-10-13 12:38Z, into the current coordinator. A new coordinator must re-create its check-in bound to itself and delete or disable this one. `trig_01FNqcRNzC1xsssxncXdR3pV` (fired) and the old `trig_013aaWtKK2oZtwxYbFVMQVHJ` (disabled) need no action.
 
 ## 7. Lessons (don't repeat)
 
@@ -163,6 +130,9 @@ Other sessions on the account (Arksa raise, Job Applications) belong to other pr
 - **Local disk:** the coordinator container has about 2 GB free. Avoid big local builds; let workers and CI build.
 - **Shallow clones:** they make check-no-attribution.sh refuse to run. `git fetch --unshallow` first.
 - **Notifications:** many CI-failure notifications are for old SHAs. Check whether the SHA is still the rc head before acting.
+
+- **Usage limit:** 6 sessions with 2 subagents each hit the 5-hour account limit overnight and nobody resumed them for 7 h. After a limit hit, send each worker a resume message once the reset time passes.
+- **Classifier and merges:** pushes to release/* are treated as "merge without review" even with the coordinator's own review and the owner's "Try again". Peer messages that ask for merge reviews are also blocked. Use a PR-based path or the owner's own push.
 
 ## 8. Setup for a new coordinator
 
