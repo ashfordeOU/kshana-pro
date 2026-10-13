@@ -11,7 +11,7 @@ const opt = (n, d) => { const i = args.indexOf(n); return i < 0 ? d : args[i + 1
 const BASE = opt("--base", "http://127.0.0.1:8841/");
 const OUT = opt("--out", ROOT + "scratch/assembly/reports/prov-audit.json");
 const PAGES = ["index.html", "missions.html", "capabilities.html", "evidence.html", "developers.html", "editions.html"];
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.KSHANA_CHROME ? { executablePath: process.env.KSHANA_CHROME } : {});
 const report = {};
 let missing = 0;
 for (const pg of PAGES) {

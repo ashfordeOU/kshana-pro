@@ -1,8 +1,9 @@
 // Recompute the Missions jamming footprint (src/js/missions.mjs FOOTPRINT) with the Studio's package:
 // one run of maritime-strait-jamming.toml per cell, only [receiver] lat_deg / lon_deg changed.
+const ROOT = new URL("../../", import.meta.url).pathname; // the site-next folder
 import fs from 'fs';
-const S='/Users/chak/Code/kshana-site-next/scratch/assembly/old-dash/2026-09-30-studio-dash/';
-const M='/Users/chak/Code/kshana-site-next/explorations/2026-09-27-combo/src/js/missions.mjs';
+const S=ROOT+'scratch/assembly/old-dash/2026-09-30-studio-dash/';
+const M=ROOT+'explorations/2026-09-27-combo/src/js/missions.mjs';
 const k=await import(S+'pkg/kshana.js'); k.initSync({module: fs.readFileSync(S+'pkg/kshana_bg.wasm')});
 const g=await import(S+'lib/guided.mjs');
 const src=fs.readFileSync(M,'utf8'); const i0=src.indexOf('const FOOTPRINT = {'); const blk=src.slice(i0, src.indexOf('};',i0));

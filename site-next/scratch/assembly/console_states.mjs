@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 const ROOT = new URL("../../", import.meta.url).pathname;
 const require = createRequire(ROOT + "explorations/2026-09-27-audit/matrix/");
 const { chromium } = require("playwright");
-const b = await chromium.launch(); const p = await (await b.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" })).newPage();
+const b = await chromium.launch(process.env.KSHANA_CHROME ? { executablePath: process.env.KSHANA_CHROME } : {}); const p = await (await b.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" })).newPage();
 const errs = []; p.on("console", (m) => { if (m.type() === "error") errs.push(m.text()); }); p.on("pageerror", (e) => errs.push(String(e)));
 await p.goto((process.argv[2] || "http://127.0.0.1:8841/") + "capabilities.html", { waitUntil: "load", timeout: 180000 }); await p.waitForTimeout(3000);
 const read = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? { text: e.textContent.replace(/\s+/g, " ").slice(0, 90), links: [...e.querySelectorAll("a")].map((a) => a.getAttribute("href")).filter((h) => /playground/.test(h)) } : null; }, sel);

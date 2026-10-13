@@ -2,7 +2,7 @@ import { createRequire } from "node:module";
 const ROOT = new URL("../../", import.meta.url).pathname;
 const require = createRequire(ROOT + "explorations/2026-09-27-audit/matrix/");
 const { chromium } = require("playwright");
-const b = await chromium.launch();
+const b = await chromium.launch(process.env.KSHANA_CHROME ? { executablePath: process.env.KSHANA_CHROME } : {});
 for (const base of ["http://127.0.0.1:8843/", "http://127.0.0.1:8841/"]) {
   const p = await (await b.newContext({ viewport: { width: 280, height: 900 } })).newPage();
   await p.goto(base + "docs/scenario-reference.html", { waitUntil: "load", timeout: 180000 }); await p.waitForTimeout(1500);

@@ -1,5 +1,6 @@
+const ROOT = new URL("../../", import.meta.url).pathname; // the site-next folder
 import fs from 'fs';
-const S='/Users/chak/Code/kshana-site-next/explorations/2026-09-30-studio-dash/';
+const S=ROOT+'explorations/2026-09-30-studio-dash/';
 const k=await import(S+'pkg/kshana.js'); k.initSync({module: fs.readFileSync(S+'pkg/kshana_bg.wasm')});
 const toml=fs.readFileSync(S+'scenarios/maritime-strait-jamming.toml','utf8');
 const out=k.run(toml);

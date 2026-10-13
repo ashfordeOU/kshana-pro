@@ -1,5 +1,6 @@
+const ROOT = new URL("../../", import.meta.url).pathname; // the site-next folder
 import { chromium } from "playwright";
-const b = await chromium.launch(); const out = "/Users/chak/Code/kshana-site-next/scratch/assembly/shots/";
+const b = await chromium.launch(process.env.KSHANA_CHROME ? { executablePath: process.env.KSHANA_CHROME } : {}); const out = ROOT+"scratch/assembly/shots/";
 for (const [w, theme] of [[1200, "light"], [1600, "dark"], [1440, "light"], [390, "light"]]) {
   const ctx = await b.newContext({ viewport: { width: w, height: 800 }, colorScheme: theme, deviceScaleFactor: 2 });
   await ctx.addInitScript(() => { try { localStorage.setItem("kshana-studio-hint", "done"); } catch {} });
