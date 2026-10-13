@@ -1,5 +1,7 @@
 # Kshana coordinator handover
 
+**Coordinator switch 2026-10-13 19:05 UTC:** now `session_01X1Md22tYih7LLQiPqsmUjy` (successor 3), running in AUTO mode. New check-in trig_01ULLGFcqyKVADpHVb7s5Ey6; trig_0141RM2pEj95DjCvcR5BGtxL disabled. add_repo kshana (push) was refused by the classifier, so PR #76 is not subscribed and rc pushes need the owner to allow it.
+
 Written: 2026-10-13 ~18:25 UTC by coordinator `session_01UmnDCL2ERStnt9tRqC9a4i` ("successor 2"; took over 11:17 UTC from session_01VfB51TSscNzEYNpCXNGTwL, archived). Handing over at ~50 % context.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 Owner's latest words: "handle everything, deliver 0.36 with all thats all" (12 Oct); today: "push yourself and everything as 0.36"; "ask for downloads permissions i can approve manually"; "dont forget we marketed 0.35 as this" (LinkedIn post, see §2); "brief" (often — render it, §1).
