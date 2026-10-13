@@ -1,5 +1,7 @@
 # Kshana coordinator handover
 
+**Coordinator switch:** 2026-10-13 11:17 UTC, session_01UmnDCL2ERStnt9tRqC9a4i took over from session_01VfB51TSscNzEYNpCXNGTwL. Check-in routine trig_0141RM2pEj95DjCvcR5BGtxL (every 2 h, bound to the new coordinator); old trig_011Wno8YRNARC5PyeytwiaiK disabled.
+
 Written: 2026-10-13 ~11:20 UTC by coordinator `session_01VfB51TSscNzEYNpCXNGTwL` (took over 2026-10-12 22:31 UTC from session_015EnPpasos1W6PQWi7rHJxu, now archived).
 Repo of record: kshana-pro, branch `ws/coordination` (private; names people and commercial matters). Replace this file at each handover; never append.
 Owner's latest words: "handle everything, deliver 0.36 with all thats all" (12 Oct 22:40); "handle everything the best and most dominant way possible" (22:40); "Try again" (13 Oct ~10:35, about the blocked rc merge; the retry was blocked again).
