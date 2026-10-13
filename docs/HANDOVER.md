@@ -94,7 +94,7 @@ Coordinator decisions taken under the owner's standing approval (not owner words
    (c) E1 files in published packages: W31 confirmed (13 Oct 11:42) the C7_E1B/C8_E1C tables are in every published kshana crate 0.31.0–0.35.0 (added b5f5bd6d, 4 Oct) and compiled in via include_str! (so the PyPI wheels and npm/WASM 0.35.0 too). E5a fixtures never shipped. Nothing yanked. Owner decides: leave, yank 0.31–0.35 (yank does not delete files), or seek permission from the ICD holder;
    (d) the CODE GIM crop left in git history (recommend: leave it).
 3. Remaining work packages, queued per worker:
-   - W31: WP-03 → WP-06 → WP-08
+   - W41 (replaced W31): WP-06 from handoff b1252a06 (CAP-20a done @ 13a16dbb, VALIDATED vs pykep; MR-08 → MR-06 → MR-05 → rest; src/cr3bp_family.rs unfinished WIP, must not ship untested) → WP-08
    - W28: scorer bug → PRO-31/32, DS-LAB-07 → WP-11b → WP-10 → labfit follow-up pre-registration
    - W30: WP-12 → WP-04
    - W33: WP-01 → WP-13
@@ -110,7 +110,8 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 | Coordinator | session_01UmnDCL2ERStnt9tRqC9a4i (successor 2; session_01VfB51TSscNzEYNpCXNGTwL ARCHIVED 13 Oct 12:20 for the cap) |
 | W1b site/CI | session_01JSzHbpAvHygc1JYY532ete |
 | Founder Q&A (don't touch) | session_01GjdbgNeaCP64Lg3PiLr9GA |
-| W31 | session_01Wim8MyGQHF6z3EAALbM7bv |
+| W31 | ARCHIVED 13 Oct 12:58 (handoff b1252a06) |
+| W41 (WP-06 rest → WP-08) | session_0141f1quqeE6s3YFLMBkzTCR |
 | W28 | session_01YLFPWBdmcbeZKKEyiyRxvM |
 | W30 | session_01TGHRGGhceMneZ1FF8MGZUL |
 | W33 | session_01XzDkpE5fPCNrKuqTXE3wmr |
