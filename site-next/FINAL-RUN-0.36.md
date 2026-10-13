@@ -43,3 +43,26 @@ Written for whoever runs the final port if the previous runner is out of context
 - `gen_evidence_data.py` reports stale if the public working tree is dirty: run the recorders on a clean checkout.
 - A stale remote ref makes build.py print "not-pushed" spans: fetch the ref as a tracking ref first.
 - The site's price-wording rule rejects "per user" in any docs page.
+
+## Gate: every 0.35 claim still holds on the final tree (owner's rule, added 2026-10-13)
+0.36 must keep every claim marketed for 0.35. Before the final SHA is reported, check each claim below on the
+final tree and put PASS or FAIL with the evidence (command and its output line) in the report. If anything
+regressed, stop and report; do not paper over it.
+
+| # | Claim | How to check (final tree, release build where stated) |
+|---|---|---|
+| 1 | Receiver trust scores every fix 0-100 from NMEA 0183 alone and names which checks reduced it and by how much | `cargo test --test receiver_trust_maritime --test receiver_trust_live --test receiver_trust_jammertest --test maritime_trust_reference`; `node web/smoke.mjs` (wasm `receiver_trust_replay` flags the drag-off, `assess_vessel_log` returns epochs) |
+| 2 | Crew training: synthetic bridge NMEA with scripted jamming, position drag-off, time spoof and replay, plus the debrief view | `cargo test --test nmea_training_scenarios --test nmea_training_reference`; the Studio selfcheck's training demo (`tools_training_demo`) |
+| 3 | Galileo OSNMA: all 18 official test-vector sets pass, 186,382 tags authenticated, 0 failures; unaffected by the WP-00 E1 table removal | the test is opt-in: download the ESA/GSC OSNMA test-vector archive, then `KSHANA_OSNMA_VECTORS=<dir containing osnma_test_vectors/ and cryptographic_material/> cargo test --release --test osnma_official_vectors -- --nocapture` and quote the sets / tags / failures line. If the archive cannot be fetched from this runner, report that plainly: the claim is then unchecked, not passed. Also `cargo test --test osnma_synthetic --test surface_osnma` (always runs) |
+| 4a | Signed evidence packs verifiable offline | `cargo test --test evidence_pack --test evidence_cli --test evidence_crypto_reference --test evidence_assemble` |
+| 4b | SOC telemetry: Prometheus, OpenTelemetry, CEF, LEEF | `cargo test --test telemetry_cli --test surface_trust_telemetry --test cef_reference` (find the LEEF and OpenTelemetry guards with `grep -l -i "leef\|otlp" tests/*.rs` and run them too) |
+| 4c | Signal K and OpenCPN plugins | `scripts/check-version-sync.sh` (it names both plugin versions); the plugins' own tests under their folders |
+| 4d | A per-day interference map from ADS-B and AIS | `cargo test --test interference_map_cli --test interference_map_examples --test interference_map_reference` |
+| 4e | Compliance mapping by clause | `cargo test --test compliance_report --test compliance_references` |
+| 4f | MCP tools at least 39 (state the actual count) | build `mcp/kshana-mcp` (release), send `{"jsonrpc":"2.0","id":1,"method":"tools/list"}` after `initialize` over stdio, count the tools, and compare with the number the README and `docs/MCP.md` state. Report the actual count |
+| 5 | Validated count at least 132 and traceable in the public ledger | `web/data/verification-matrix.json` summary and `docs/VERIFICATION-MATRIX.md` (final ledger: 134 VALIDATED at 274 rows as of 12b42e4e; recount on the final tree) and `tests/verification_rows_cite_evidence_that_exists.rs` |
+| 6 | kshana.dev runs in the browser with no install; installs via cargo, pip, npm, brew, scoop and the JetBrains plugin | `node web/smoke.mjs` and `node web/site.test.mjs` (browser build); the README install table lists cargo, pip, npm, brew, scoop and JetBrains. Registry availability of the new version is an outward fact only the owner can confirm after publishing: report it as such |
+
+Counting rules for the report: use the tools' own output, never a number typed from a document; do not
+substitute counts by pattern (the coordinator restored "275 epochs" after a blanket replace; "137 m @ 1-day arc",
+"grid-resolution floor ~140 m" and "CCSDS 133.0" are not counts either).
