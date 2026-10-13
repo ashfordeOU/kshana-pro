@@ -88,7 +88,7 @@ Coordinator decisions today (standing rules for workers):
 3. WP-12 integrity (feat/integrity-trust-0.36 @ 87a8b739).
 4. WP-04 timing/quantum (feat/timing-quantum-0.36 @ 7e618a89; carries a verbatim copy of append_figure_tiers — keep one).
 5. WP-09 fusion (feat/fusion-ins-0.36 @ d6d60f34; includes W38 carrier_tc).
-6. feat/lunar-terrain-0.36 (W30; export masking 12a98750; units-block + lola_dem.rs pending).
+6. feat/lunar-terrain-0.36 FINAL @ 8bfe269e (W30; export masking, units block, lola_dem tile wired; expect CHANGELOG/VERIFICATION-MATRIX conflicts → regenerate).
 7. COVERAGE CI FIX bfaafa41 on feat/platform-vv-0.36 (fast-track: cherry-pick or merge the ci.yml change into the rc) and feat/platform-vv-0.36 (WP-13: FUT-27 514d994e — api/builtins.rs is a hot file: move any conflicting run_builtin_kind arm into its run_<kind> fn).
 8. feat/wasm-iq-0.36 (W43: DS-GIQ-08b, STUDIO-05/06/14 engine halves, STUDIO-15 later).
 9. feat/cislunar-ephem-0.36 (W41, WP-06 when done), feat/iq-ext-0.36 (W28, WP-11b), WP-10, WP-08, WP-14, then the W43 final run.
@@ -108,6 +108,9 @@ Packages done (11 of 15): WP-00, 01, 02, 03, 04, 05, 07, 09, 12, labfit(B7.1), I
 5. Post-release: list merged branches for the owner to delete.
 6. ETA given to owner: tag ≈ 17–18 Oct.
 
+**OWNER QUESTION OPEN (19:00):** paper/kshana-technical-report.md YAML front matter carries a personal author name (pre-existing) — conflicts with "no personal names in shipped material"? Asked the owner.
+W41 follow-ups done 66956eb3 (asserting miss tests; docs/revisions/FUT05B-lunar-me-pa-offset-cell-changes.md; paper erratum; manual CI job lro-de440-opt-in); handoff 4 @ 00b606e7 — ROTATE W41 now (it continues RM-34 until told).
+
 ## 5. Sessions (cap 8)
 
 | Session | Id | Work |
@@ -115,8 +118,8 @@ Packages done (11 of 15): WP-00, 01, 02, 03, 04, 05, 07, 09, 12, labfit(B7.1), I
 | Coordinator (this, to be replaced) | session_01UmnDCL2ERStnt9tRqC9a4i | archive after handover |
 | Founder Q&A (don't touch) | session_01GjdbgNeaCP64Lg3PiLr9GA | — |
 | W28 | session_01YLFPWBdmcbeZKKEyiyRxvM | PRO-34 10e49e26 (B1/B4 NOT MET, F2); PRO-33 amendment (a) approved (FLL pull-in only, both receivers); VALIDATED rows DS-GIQ-06b + PRO-39 approved (if its classifier refuses, owner must say it in W28 session). WP-11b (feat/iq-ext-0.36: CAP-07a, PRO-39, MR-09, DS-GIQ-06b, PRO-34 running) → WP-10 → labfit follow-up prereg; merges IQ campaigns when told. Context ~50 %+ → rotate at next WP boundary |
-| W30 | session_01TGHRGGhceMneZ1FF8MGZUL | WP-04 DONE 7e618a89 → lunar loose ends (units block, lola_dem.rs) → assign part of WP-14 |
-| W36 | session_01BpojbwwUWoNKDfSmsCHR3B | WP-09 DONE d6d60f34 → WP-14 (feat/new-domains-0.36) |
+| W30 | session_01TGHRGGhceMneZ1FF8MGZUL | WP-04 DONE 7e618a89; lunar-terrain DONE 8bfe269e → WP-10 alt-PNT maps (feat/altpnt-maps-0.36), moved from W28 at 19:00. ~55 % context: rotate at next boundary |
+| W36 | session_01BpojbwwUWoNKDfSmsCHR3B | WP-09 DONE d6d60f34 → WP-14 (feat/new-domains-0.36): CAP-22/23 done a767ef29 (MODELLED; GMAT ContactLocator not attempted), CAP-21 AOCS vs Basilisk 2.9.1 prereg 27d6831a |
 | W41 | session_0141f1quqeE6s3YFLMBkzTCR | ~40 % context, handoff 3 @ 46aa2799; ROTATE after RM-35 (handoff 4). WP-06 (FUT-05 1bdd3833 partial: ephemeris leg NOT MET; DE440 routing opt-in by design; rc ee3c71de merged @ 12a67f78; MR-08 V, MR-06 V narrow, MR-05 NOT MET, ME→PA bug fix + revisions/erratum, FUT-05 ANISE next; then RM-34, RM-35, CAPSTONE, LRO, CAP-31/20b, zero-observation beacon bug) → WP-08 |
 | W44 (replaced W42 18:55; W42 archived) | session_01SVt2FNNE9ZUr9anJAHbyjm | FUT-26, FUT-28, CAP-34 on feat/platform-vv-0.36 (handoff b3408e38 + addendum 70193446) → box-wing (handoff 05391205; prereg vs Orekit) → GMAT leg (exponential tier). W42 pushed the COVERAGE CI FIX bfaafa41 on feat/platform-vv-0.36: fast-track it into the rc (ci.yml only) and confirm the coverage job goes green |
 | W43 (Sonnet) | session_012VCHUyvBgx38Z6Zx43FcjM | site/CI runner; STUDIO-15 dry run; holds the final run (site-next/FINAL-RUN-0.36.md on kshana-pro port/0.36.0) |
