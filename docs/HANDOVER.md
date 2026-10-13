@@ -99,7 +99,7 @@ Coordinator decisions taken under the owner's standing approval (not owner words
    - W30: WP-12 → WP-04
    - W33: WP-01 → WP-13
    - W36: WP-09 → WP-14
-   - W1b: site and CI, plus the Studio/Pro backlog; holds the final run.
+   - W1b: site and CI, plus the Studio/Pro backlog; holds the final run. Final-run handoff: kshana-pro port/0.36.0 @ ce089c58, site-next/FINAL-RUN-0.36.md. STUDIO-02/13/14 done on site/studio-backlog-0.36 (gen_capabilities.py part of STUDIO-13 skipped as unclear); next PRO-14, then feat/wasm-iq-0.36.
 4. Release: W1b final run (version bump first) → ONE CI run on the final SHA → if fully green, ff main + tag (owner approval stands) → Zenodo notes → PRO-01 re-pin.
 5. Post-release: list the merged branches for the owner to delete.
 
