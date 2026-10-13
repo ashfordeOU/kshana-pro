@@ -39,3 +39,8 @@ jobs:
       # is out of date rather than silently updating it.
       - name: Test
         run: cargo test --all --locked
+      # PRO-14: a release build and a signed licence token, which the debug tests above never
+      # exercise. Builds with a CI-only key, issues a Pro token, runs one Pro pack with the
+      # debug and the release binary and requires identical reports (scripts/release-smoke.sh).
+      - name: Release smoke
+        run: scripts/release-smoke.sh
