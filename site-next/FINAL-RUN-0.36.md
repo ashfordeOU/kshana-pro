@@ -38,6 +38,15 @@ Written for whoever runs the final port if the previous runner is out of context
 9. ONE re-port commit on top of the rc head, authored as Ashforde OÜ <ashfordegithub@cbaweja.org>, plain message.
    Pushing to the rc needs the owner-approved path; tell the coordinator when it is ready.
 
+## Preset waiting for the record pass
+`quantum-cai-coast.toml` (CAP-08c, engine `scenarios/quantum-cai-coast.toml`, needs the engine with `[accel_quantum.cai]`)
+is in the Studio list and scenarios folder on `site/studio-backlog-0.36` (merge that branch first) but has no recording.
+The record pass in step 4 makes it; then `node tools_areas.mjs` (needs the 0.36 package in `./pkg`, which has `kind_modules()`)
+regenerates the area counts. Until both are done `lib/meaning.test.mjs` and `lib/areas.test.mjs` are red on that branch.
+Also merge in the same way: STUDIO-05 and STUDIO-06 on that branch read `kind_modules()` and `field_importance()` from the
+engine package (kshana `feat/wasm-iq-0.36`), so the Studio's `./pkg` must be the 0.36 build or the area tiles show fewer
+evidence rows and the headline inputs fall back to the Studio's own ranking.
+
 ## Things that went wrong before
 - Recorders stamped at a commit that was never pushed (squash after the stamp): run them on the SHA that is pushed.
 - `gen_evidence_data.py` reports stale if the public working tree is dirty: run the recorders on a clean checkout.
