@@ -103,7 +103,7 @@ Coordinator decisions taken under the owner's standing approval (not owner words
    - W30: WP-12 → WP-04
    - W42 (replaced W33): WP-13 on feat/platform-vv-0.36 → box-wing ★ + GMAT leg on feat/forces-atmosphere-0.36
    - W36: WP-09 → WP-14
-   - W1b: site and CI, plus the Studio/Pro backlog; holds the final run. Final-run handoff: kshana-pro port/0.36.0 @ ce089c58, site-next/FINAL-RUN-0.36.md. STUDIO-02/13/14 done on site/studio-backlog-0.36 (gen_capabilities.py part of STUDIO-13 skipped as unclear); next PRO-14, then feat/wasm-iq-0.36.
+   - W43 (replaced W1b; brief: PRO-14 → feat/wasm-iq-0.36 → CAP-08c Studio side → hold final run → check LUNAR-REFERENCE-STATION.md). Was W1b: site and CI, plus the Studio/Pro backlog; holds the final run. Final-run handoff: kshana-pro port/0.36.0 @ ce089c58, site-next/FINAL-RUN-0.36.md. STUDIO-02/13/14 done on site/studio-backlog-0.36 (gen_capabilities.py part of STUDIO-13 skipped as unclear); next PRO-14, then feat/wasm-iq-0.36.
 4. Release: W1b final run (version bump first) → ONE CI run on the final SHA → if fully green, ff main + tag (owner approval stands) → Zenodo notes → PRO-01 re-pin.
 5. Post-release: list the merged branches for the owner to delete.
 
@@ -112,7 +112,8 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 | Session | Id |
 |---|---|
 | Coordinator | session_01UmnDCL2ERStnt9tRqC9a4i (successor 2; session_01VfB51TSscNzEYNpCXNGTwL ARCHIVED 13 Oct 12:20 for the cap) |
-| W1b site/CI | session_01JSzHbpAvHygc1JYY532ete |
+| W1b site/CI | ARCHIVED 13 Oct 14:18 (62 % context) |
+| W43 site/CI runner (replaces W1b) | session_012VCHUyvBgx38Z6Zx43FcjM |
 | Founder Q&A (don't touch) | session_01GjdbgNeaCP64Lg3PiLr9GA |
 | W31 | ARCHIVED 13 Oct 12:58 (handoff b1252a06) |
 | W41 (WP-06 rest → WP-08) | session_0141f1quqeE6s3YFLMBkzTCR |
