@@ -1,127 +1,58 @@
 {
- "title": "Kshana — 0.36.0 in build (geometry + full lunar station study)",
- "asof": "2026-10-12 19:00 UTC",
- "eta": "0.36.0 live ≈ 13 Oct 02:00–03:00 UTC (one CI run, approved)",
+ "title": "Kshana — 0.36.0: merging packages into the release candidate",
+ "asof": "2026-10-13 14:40 UTC",
+ "eta": "0.36.0 tag ≈ 16–17 Oct (3–4 days); merges run today",
  "plan": {
-  "done": 17,
-  "total": 19,
-  "label": "0.36 definition-of-done rows"
+  "done": 9,
+  "total": 15,
+  "label": "0.36 work packages finished (WP-00…WP-14)"
  },
  "milestones_done": [
-  "rc e0536260: geometry, skyline, trust, JetBrains fix, D5 jammer Q",
-  "Lunar time lab + station geodesy + RINEX clock systems",
-  "Lunar coverage map (A): numpy check reviewed; float-rounding miss recorded",
-  "Published-claims comparison (B): reviewer MERGE, 1 of 6 bars, MODELLED",
-  "Ledger 274 rows: 134 VALIDATED / 136 MODELLED / 4 PARTNER",
-  "Frozen prediction (C) written; reviewer reproduced every hash",
-  "Single-CI-run release path approved; workflow change in rc",
-  "LinkedIn posted · NDA sent to SJAWS"
+  "Your answers in: coordinator pushes the rc; old Galileo versions left; RTKLIB allowed",
+  "rc 961e7677 → 12b42e4e: WP-05 lunar station merged",
+  "Ready to merge: WP-00 docs, WP-03 time, WP-02 gravity/OD, WP-01 forces, labfit, WP-07 GNSS, WP-12 integrity",
+  "WP-01: air tide, NRLMSISE-00, drag tier, oblate shadow VALIDATED vs Orekit",
+  "WP-03: GLONASS clock, pre-1972 UTC, ERFA frames VALIDATED",
+  "Scorer bug fixed (false locks now counted); no published number moved",
+  "README fix: '278 epochs' corrupted by a count substitution → 275 (in this merge)",
+  "Sessions rotated (W31, W33, W1b → W41, W42, W43); cap 8 kept"
  ],
  "milestones_open": [
-  "W22: commit C's result files (were git-ignored) + final lunar page → rc (~19:30)",
-  "W1b: version bump, single re-record, counts, social card, port → final commit (~20:30)",
-  "ONE full CI run on the final commit (~4 h) — must be fully green",
-  "Fast-forward main + tag v0.36.0 (~00:30) → release jobs → live ~02:00–03:00"
+  "WP-00 + WP-03 merge: release tests running → push rc",
+  "Then WP-02+WP-01 → labfit → WP-07 → WP-12 (≈30–60 min each)",
+  "Still building: WP-04 timing, WP-06 cislunar, WP-08 interop, WP-09 fusion, WP-10/11b, WP-13 platform, WP-14 new domains",
+  "Final site run (version bump, counts, social card) → ONE CI run → main + tag"
  ],
  "milestones_parked": [
-  "Lab-fit from IQ: implementation 0.37",
-  "NDA: file countersigned copy when it returns; schedule call",
-  "winget 0.35.0 PR: waiting on Microsoft review"
+  "gLAB checks: download blocked by permission system (needs your rule) — else stay data-gated",
+  "CODE GIM crop in git history: left as is",
+  "winget 0.35.0 PR: waiting on Microsoft moderator; 0.36 PR after release"
  ],
  "people": [
-  [
-   "Coordinator",
-   "Merging as reviews pass; check-in 20:00 UTC",
-   "active"
-  ],
-  [
-   "W22",
-   "C fix: result files + final lunar page",
-   "active"
-  ],
-  [
-   "C reviewer",
-   "Confirms the fix (all else verified)",
-   "waiting"
-  ],
-  [
-   "W23",
-   "Public-sources + time-lab into Studio",
-   "active"
-  ],
-  [
-   "W1b",
-   "Final site run on the final rc",
-   "waiting"
-  ],
-  [
-   "W24",
-   "Done (B merged)",
-   "done"
-  ],
-  [
-   "W2",
-   "Watches RustSec / winget",
-   "waiting"
-  ]
+  ["Coordinator", "Merging packages into the rc one by one", "active"],
+  ["W28", "IQ campaigns done (PRO-31/32, DS-LAB-07) → WP-11b, WP-10", "active"],
+  ["W30", "WP-04 timing (CAP-03 VALIDATED) → RM-04, quantum preset", "active"],
+  ["W36", "WP-09 fusion + RTKLIB checks (now building)", "active"],
+  ["W41", "WP-06 cislunar (MR-08 VALIDATED) → WP-08", "active"],
+  ["W42", "WP-13 platform/API → box-wing", "active"],
+  ["W43", "Studio/Pro backlog; holds final site run", "waiting"]
  ],
  "releases": [
-  [
-   "0.36.0",
-   "geometry, skyline, trust, lunar reference station — rc e0536260",
-   "now"
-  ],
-  [
-   "0.35.0",
-   "12 Oct — all channels verified",
-   "ok"
-  ],
-  [
-   "0.34.1",
-   "10 Oct — D14 fix",
-   "ok"
-  ],
-  [
-   "0.34.0",
-   "10 Oct — GNSS IQ engine, campaigns, monitors",
-   "ok"
-  ]
+  ["0.36.0", "rc 12b42e4e — integrating 7 more packages today", "now"],
+  ["0.35.0", "12 Oct — all channels verified", "ok"],
+  ["0.34.1", "10 Oct — D14 fix", "ok"],
+  ["0.34.0", "10 Oct — GNSS IQ engine, campaigns, monitors", "ok"]
  ],
  "tests": [
-  [
-   "Frozen prediction (C)",
-   "region + points + doc hashes reproduced exactly"
-  ],
-  [
-   "Published claims (B)",
-   "figures reproduce in 7.2 s"
-  ],
-  [
-   "Lunar numpy check (A)",
-   "passes; miss pinned, bar unchanged"
-  ],
-  [
-   "CLI first-run · MCP round_trip",
-   "5/5 · 24/24"
-  ],
-  [
-   "CI on rc",
-   "only stale website counts left (site port fixes)"
-  ]
+  ["Ledger (on branches)", "~278–281 rows; ~138 VALIDATED; misses recorded, bars unchanged"],
+  ["Frozen lunar prediction", "unchanged; guarded by test"],
+  ["CLI first-run · MCP round_trip", "pass · 24/24"],
+  ["CI on rc", "only stale website counts (final site run fixes)"]
  ],
  "waiting": [
-  [
-   "Later",
-   "Send me Liz's countersigned NDA when it arrives"
-  ],
-  [
-   "At release",
-   "Paste Zenodo notes (file in workspace; hash updated)"
-  ],
-  [
-   "No action",
-   "winget PR, RustSec — external review"
-  ]
+  ["Optional", "Allow gLAB download in W36's session if you want those checks"],
+  ["When prompted", "Approve pushes to release/0.36.0-rc"],
+  ["Later", "Send Liz's countersigned NDA when it arrives"]
  ],
- "sources": "release/0.36.0-rc e0536260 · feat/geometry-trust-0.36 1afa7633 · site-port/0.36.0 · reviewer reports."
+ "sources": "release/0.36.0-rc 12b42e4e · package branches · worker reports · kshana-pro ws/coordination."
 }
