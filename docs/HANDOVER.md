@@ -66,6 +66,8 @@ Owner decisions 13 Oct (exact words where given):
 | STUDIO-15 (portable maths, native==wasm byte-identical) | "Do it in 0.36" | W43; bigger than estimated (1,743 call sites/206 files; moves native last bits). Dry run first; pre-register; re-baseline only named tests with docs/revisions entries; STOP if any ledger row/figure/published number moves |
 | 0.35 marketing claims | "dont forget we marketed 0.35 as this" | Final-run gate (FINAL-RUN-0.36.md, W43): NMEA-only receiver trust 0–100 with named reductions; crew-training NMEA (jamming, drag-off, time-spoof, replay) + debrief; OSNMA 18 sets / 186,382 tags / 0 failures (CHECKED PASS by W43 from gsc-europa.eu Test_vectors.zip sha256 ef9b9afc…, not committed — terms unclear); signed offline evidence packs; Prometheus/OTel/CEF/LEEF; Signal K + OpenCPN; ADS-B/AIS daily interference map; clause compliance mapping; ≥39 MCP tools; ≥132 VALIDATED; kshana.dev in browser; cargo/pip/npm/brew/scoop/JetBrains. Stop on regression |
 | CODE GIM crop in history | not answered | Leave it |
+| gLAB download (13 Oct ~19:55) | "glab i approve" | Relayed to W36; if its classifier still refuses, the owner approves in W36's session |
+| Paper author name (13 Oct ~19:55) | "Paper author personal name necessary and stays in research papers" | Personal author names stay in research papers (paper/ front matter); the no-personal-names rule applies to other shipped/public material. Question closed |
 
 Coordinator decisions today (standing rules for workers):
 - A NOT MET bar is pinned by a test that ASSERTS the recorded miss — never `#[ignore]`.
@@ -112,7 +114,7 @@ Packages done (11 of 15): WP-00, 01, 02, 03, 04, 05, 07, 09, 12, labfit(B7.1), I
 5. Post-release: list merged branches for the owner to delete.
 6. ETA given to owner: tag ≈ 17–18 Oct.
 
-**OWNER QUESTION OPEN (19:00):** paper/kshana-technical-report.md YAML front matter carries a personal author name (pre-existing) — conflicts with "no personal names in shipped material"? Asked the owner.
+**OWNER QUESTION CLOSED (answered ~19:55, see §2):** paper/kshana-technical-report.md YAML front matter carries a personal author name (pre-existing) — conflicts with "no personal names in shipped material"? Asked the owner.
 W41 follow-ups done 66956eb3 (asserting miss tests; docs/revisions/FUT05B-lunar-me-pa-offset-cell-changes.md; paper erratum; manual CI job lro-de440-opt-in); handoff 4 @ 00b606e7 — ROTATE W41 now (it continues RM-34 until told).
 
 ## 5. Sessions (cap 8)
