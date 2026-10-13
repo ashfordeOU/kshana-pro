@@ -85,6 +85,7 @@ export const SCENARIOS = [
   ["gps-denied-gravity-nav.toml", "navigation", "GNSS-free nav", "How far does position drift over a full hour without GNSS — and can a gravity map rein it in?"],
   ["combined-altpnt.toml", "navigation", "Combined alt-PNT", "What does fusing three scalar map channels buy over any one alone?"],
   ["quantum-gnss-free-nav.toml", "navigation", "Quantum GNSS-free nav", "How far does a cold-atom navigator coast vs a nav-grade INS with no GNSS? (modelled)"],
+  ["quantum-cai-coast.toml", "navigation", "Quantum accelerometer coast", "How long does a cold-atom interferometer, specified by its physics, keep dead reckoning inside 100 m after GNSS is lost, against a nav-grade quartz accelerometer? (modelled)"],
   ["hybrid-optical-rf.toml", "navigation", "Optical/RF hybrid", "What continuity and integrity does combining optical and RF PNT buy? (modelled)"],
   // Integrity & positioning
   ["integrity-raim.toml", "integrity", "RAIM integrity", "Does the geometry meet the alert limits (HPL / VPL)?"],
