@@ -1,17 +1,8 @@
 # Kshana coordinator handover
 
-**OWNER ANSWERS (13 Oct ~14:05):** merge path: "push yourself and everything as 0.36" (coordinator pushes to release/0.36.0-rc; session left auto mode, so pushes go through the owner's permission prompts). E1 in 0.31–0.35: "we havent used for commercial so why care about it?" → leave the published versions as they are. RTKLIB/gLAB: "Yes, allow". CODE GIM: not answered (default: leave in history).
-**OWNER (15:30): STUDIO-15 (portable maths, native==wasm byte-identical, re-records 4 pinned tests, ~40 h) IN 0.36.** W43 does it after STUDIO-14, pre-registered, re-baselines only those 4 with docs/revisions entries, stop if any ledger row/figure moves.
-**OWNER (15:32): 0.35 marketing claims must hold in 0.36** (LinkedIn post: NMEA-only receiver trust 0–100 with reasons; crew-training NMEA with jamming/drag-off/time-spoof/replay + debrief; OSNMA 18 sets / 186,382 tags / 0 failures; offline-verifiable evidence packs; Prometheus/OTel/CEF/LEEF; Signal K + OpenCPN; ADS-B/AIS daily interference map; clause compliance mapping; ≥39 MCP tools; ≥132 VALIDATED; kshana.dev in-browser; cargo/pip/npm/brew/scoop/JetBrains). Added as a final-run gate for W43 (PASS/FAIL each, stop on regression).
-**rc:** 961e7677 → 12b42e4e (WP-05, 14:07) → ee3c71de (WP-02+WP-01 + DEM file-source guard fix: dem_path refused over MCP; ledger 297: 146 V / 147 M / 4 P; 17:45) ← dc0b85bd (WP-00+WP-03 merged with regeneration + "275 epochs" README fix; ledger 282: 138 V / 140 M / 4 P; 15:20). WP-02+WP-01 integration running (coordinator subagent). Merge queue (18:05): labfit (running, subagent) → IQ campaigns (W28 merges) → WP-07 (head after RTKLIB runs) → WP-12 87a8b739 → WP-04 7e618a89 → WP-09 fusion feat/fusion-ins-0.36 d6d60f34 → feat/lunar-terrain-0.36 (W30, when final) → CI coverage fix (W42, priority: tarpaulin link Bus error on ee3c71de) → feat/wasm-iq-0.36 (W43: DS-GIQ-08b, STUDIO-05/06/14 engine halves, later STUDIO-15) → remaining WPs as they finish → W43 final run (merges site/studio-backlog-0.36 first). Earlier: WP-00+WP-03 via merge of rc into feat/time-frames-0.36 with regeneration (a coordinator subagent), then WP-02+WP-01, labfit, WP-07, WP-12. Workers told not to merge intermediate rc SHAs.
-
-**Since the switch (11:30):** W33 WP-01 DE440 tier @ 615ee97c (orbits 0.017 m vs Orekit; Sun/Moon position bars missed, MODELLED); W36 confirmed onto WP-09; W1b holds the final run, needs LUNAR-REFERENCE-STATION.md final and will itself hit the rc block; owner asked once for the merge path (recommended PR per package).
-
-**Coordinator switch:** 2026-10-13 11:17 UTC, session_01UmnDCL2ERStnt9tRqC9a4i took over from session_01VfB51TSscNzEYNpCXNGTwL. Check-in routine trig_0141RM2pEj95DjCvcR5BGtxL (every 2 h, bound to the new coordinator); old trig_011Wno8YRNARC5PyeytwiaiK disabled.
-
-Written: 2026-10-13 ~11:20 UTC by coordinator `session_01VfB51TSscNzEYNpCXNGTwL` (took over 2026-10-12 22:31 UTC from session_015EnPpasos1W6PQWi7rHJxu, now archived).
-Repo of record: kshana-pro, branch `ws/coordination` (private; names people and commercial matters). Replace this file at each handover; never append.
-Owner's latest words: "handle everything, deliver 0.36 with all thats all" (12 Oct 22:40); "handle everything the best and most dominant way possible" (22:40); "Try again" (13 Oct ~10:35, about the blocked rc merge; the retry was blocked again).
+Written: 2026-10-13 ~18:25 UTC by coordinator `session_01UmnDCL2ERStnt9tRqC9a4i` ("successor 2"; took over 11:17 UTC from session_01VfB51TSscNzEYNpCXNGTwL, archived). Handing over at ~50 % context.
+Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
+Owner's latest words: "handle everything, deliver 0.36 with all thats all" (12 Oct); today: "push yourself and everything as 0.36"; "ask for downloads permissions i can approve manually"; "dont forget we marketed 0.35 as this" (LinkedIn post, see §2); "brief" (often — render it, §1).
 
 ## 1. Owner and how they work
 
@@ -62,81 +53,80 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 - **Lunar prediction:** frozen with the orbit elements labelled ILLUSTRATIVE.
 - **Bundled default:** accuracy_threshold_m 20 m, ILLUSTRATIVE.
 
-## 3. Current state (13 Oct ~11:20 UTC; verify with git ls-remote)
+Owner decisions 13 Oct (exact words where given):
 
-- **rc:** `release/0.36.0-rc` @ `961e7677`, UNCHANGED. NOTHING HAS BEEN MERGED SINCE THE HANDOVER, because of the block below.
-- **THE BLOCK:** the auto-mode classifier refuses `git push <sha>:refs/heads/release/0.36.0-rc` as "Merge Without Review" (3 attempts, including after the owner said "Try again"). It also refused a send_message asking W1b for a merge review, and one plain resume message that mentioned re-running figures. Do NOT work around it.
-  Options put to the owner, none chosen yet:
-  (1) the owner runs the push himself;
-  (2) the owner adds a permission rule for the push in this session;
-  (3) the coordinator opens one PR per package into release/0.36.0-rc and the owner merges each.
-  Option (3) also gives a reviewable record. Recommend it if the owner stays silent.
-- **PR #76** (rc → main): subscribed. The reds are only the stale web/ counts (75 vs 76 kinds; 263 vs 274 rows). W1b's final port fixes them. Already commented on; do not re-comment.
-- **Packages READY (coordinator-reviewed: pre-registration order, Ashforde identity, no attribution, honest labels):**
-
-| Package | Branch @ sha | Notes |
+| Topic | Owner's words | Effect |
 |---|---|---|
-| WP-05 lunar station (LRS-01/02/03/06) | feat/lunar-station-ext-0.36 @ 12b42e4e | FF from rc; 278 rows. Merge FIRST |
-| WP-00 docs truth pass | docs/truth-pass-0.36 @ 496625fe (was 8737212a; +E5a C.3/C.4 oracle fetched at test time) | Galileo E1 tables removed (ICD terms: non-commercial redistribution only), user-supplied loader + fetch script; API break noted in CHANGELOG. LRS-05 left out. W31 still to move the E5a fixtures C3/C4 to fetch-at-test-time and report whether E1 files were in the published 0.35 crate/wheels (owner legal question if yes) |
-| WP-02 gravity/OD | feat/gravity-od-0.36 @ 31a9908b | 5 VALIDATED; misses recorded MODELLED; RM-09 bars were tightened post-run (allowed; originals must stay recorded) |
-| labfit B7.1 | feat/labfit-iq-0.36 @ 37e8f07c | Most bars NOT MET (recorded honestly); estimator fixed in 5b13e3c2, bundled with the code, disclosed |
-| WP-07 GNSS | feat/gnss-realdata-0.36 @ f7974db (was d521166; + RTKLIB oracle runs 15:20) | 283 rows; PPP, RTK, SP3 clock, RINEX 4 nav VALIDATED; many data-gated items not run (RTKLIB/gLAB/CDDIS). CODE GIM slice removed (still in git history at 0901cca: owner's call) |
-| WP-12 integrity | feat/integrity-trust-0.36 @ 87a8b739 | Reviewed by successor 2: identity clean, pre-registrations precede results. CAP-14 VALIDATED (27/27 vs OpenSSL); CAP-05a/05b/13 MODELLED (cn0 bar missed 0.0231 vs 0.02, stated on the profile); CAP-05c data-gated. Open: UBX vs CSV false-alarm diff; lunar export site not masked, lola_dem.rs not wired. W30 now on WP-04 |
-| WP-03 time/frames | feat/time-frames-0.36 @ 87f30103 | Contains WP-00; merge after it. Reviewed by successor 2 (identity, pre-reg order OK). VALIDATED FUT-20 (vs RTKLIB geph2clk, 292 cases), CAP-02c, FUT-14, RM-20/CAP-02a; CAP-02b MODELLED; FUT-31/MR-07 data-pending to ~Jan 2027 (needs owner's archived 2026-09-30 utclab files). W31 built RTKLIB v2.4.2-p13 (71db0ffa) from source on 12 Oct via xval/rtklib-glonass/build.sh (same pattern as existing xval/rtklib-raim); never refused. Not a workaround; disclosed to owner; row kept unless the owner says hold. W31 now on WP-06 |
-| WP-01 forces | feat/forces-atmosphere-0.36 @ fb846d5b | Reviewed by successor 2: 28 commits, all Ashforde identity, no attribution, every pre-reg before its run. VALIDATED: S2 air tide, NRLMSISE-00 port, drag tier (vs Orekit, 0.03 m), oblate shadow. MODELLED: S1, DE440 tier (ephemeris bar missed), limb darkening. Galileo full-arc figure marked PRE-FIX (not re-run). CONFLICTS with WP-02 in propagator::ForceModel and shared doc paragraphs: merge notes in the fb846d5b message. Box-wing ★ and GMAT leg left for W42 |
-| IQ campaigns (W28) | feat/iq-campaign-ext-0.36 @ 8254d27c | Scorer fix + PRO-31 (M3 timing NOT MET, pinned as a miss) + PRO-32 (R1 NOT MET, AUC 0.786) + DS-LAB-07. Merge right AFTER labfit: W28 merges the then-rc into its branch (maps the 6 false-lock fields in labfit's b3c2d8a0 test, recounts with tools), coordinator reviews and FFs |
+| rc merge path | "push yourself and everything as 0.36" | The coordinator pushes merges to release/0.36.0-rc itself. This session runs in DEFAULT permission mode (not auto), so pushes go through the owner's prompts; they have been passing. Create the successor without auto mode too |
+| Old Galileo E1 tables in published 0.31–0.35 | "we havent used for commercial so why care about it?" | Leave published versions as they are. 0.36 removes the tables (WP-00) |
+| RTKLIB / gLAB | "Yes, allow" | RTKLIB builds/runs (W36). gLAB download still denied by W36's classifier → owner must allow it IN W36's session (command in §4) |
+| Downloads | "ask for downloads permissions i can approve manually" | Workers retry a blocked download ONCE as a plain single command; if denied, report command+URL; coordinator asks the owner to act in that session |
+| STUDIO-15 (portable maths, native==wasm byte-identical) | "Do it in 0.36" | W43; bigger than estimated (1,743 call sites/206 files; moves native last bits). Dry run first; pre-register; re-baseline only named tests with docs/revisions entries; STOP if any ledger row/figure/published number moves |
+| 0.35 marketing claims | "dont forget we marketed 0.35 as this" | Final-run gate (FINAL-RUN-0.36.md, W43): NMEA-only receiver trust 0–100 with named reductions; crew-training NMEA (jamming, drag-off, time-spoof, replay) + debrief; OSNMA 18 sets / 186,382 tags / 0 failures (CHECKED PASS by W43 from gsc-europa.eu Test_vectors.zip sha256 ef9b9afc…, not committed — terms unclear); signed offline evidence packs; Prometheus/OTel/CEF/LEEF; Signal K + OpenCPN; ADS-B/AIS daily interference map; clause compliance mapping; ≥39 MCP tools; ≥132 VALIDATED; kshana.dev in browser; cargo/pip/npm/brew/scoop/JetBrains. Stop on regression |
+| CODE GIM crop in history | not answered | Leave it |
 
-  Every merge after the first needs its ledger/README/figures REGENERATED with the repo tools (gen_validation_artifacts, figures, render-diagram, gen_readme_assets), never hand-merged. Audit for decimal collisions in counts.
-- **In progress:** WP-01 forces (W33, feat/forces-atmosphere-0.36; S2 fix VALIDATED, S1 done). Before WP-01 is called done, re-run the Galileo/Swarm full-arc dispatch figures or mark them pre-fix. WP-03 time (W31, feat/time-frames-0.36 @ 0d36ff2a; close-out). WP-12 integrity (W30; CAP-14, FUT-01, CAP-05a and CAP-13 done; CAP-05b per the coordinator's design: opt-in [integrity] block, separate integrity_fom, never folded into the FoM; CAP-05c data-gated). Profile "jammertest-2024-calibrated": its docs must say cn0_drop missed its held-out bar.
-- **Scorer bug (W28):** confirmed and fixed on feat/iq-campaign-ext-0.36 @ 436eda13. No ledger row, figure or web number changes; only 6 fields in the pinned campaign (ramp/agc-3bit PRN 11 false_lock_episodes 0→1, per_hour 0→~430). Successor 2 approved: re-pin DIGEST_M2M4/DIGEST_NWPR/PRE_M2M4_SCORED; keep pre-registered pins b3c2d8a0/e9c9f840 live, excluding only the false-lock fields (PIN-EXCLUDES), plus a separate assertion on the new values; disclose in the pre-reg doc and CHANGELOG as a post-registration bug fix. Lands after labfit; labfit branch untouched. DONE @ bea0e4e6 (12:07): pin hash maps the 6 fields back to pre-fix values so e9c9f840 reproduces exactly (same form as the q_source relabel); new test pins the fixed values; disclosed. W28 applies the same mapping to b3c2d8a0 when it merges the rc after labfit. W28 now on PRO-31.
-- **winget:** PR microsoft/winget-pkgs#450973 (KshanaMcp 0.35.0). The owner posted the CLA agree comment at ~10:55 on 13 Oct; it now waits only on a volunteer moderator, with auto-merge on. Not in this session's GitHub scope.
-- **Release artefacts and legal:** unchanged from before (Zenodo notes in docs/handover-0.36/; SJAWS NDA countersignature pending, owner-triggered).
+Coordinator decisions today (standing rules for workers):
+- A NOT MET bar is pinned by a test that ASSERTS the recorded miss — never `#[ignore]`.
+- A pre-registered pass against an external oracle may add a VALIDATED row. Data-gated evidence may be VALIDATED if the data is fetched at test time with a pinned SHA-256 (fail on mismatch), a CI/reproduce path runs it, and the row states the gating. (W36's classifier refused to apply this from a peer message: KF-GINS + IONEX B6 promotions need the OWNER to say it in W36's session.)
+- Count updates only via the repo tools / anchored per-phrase edits; never blind substitution. Non-count numbers that collide: "275 epochs", "137 m @ 1-day arc", "grid-resolution floor ~140 m", "135.4 m", "CCSDS 133.0".
+- Published numbers that move because of a bug fix: docs/revisions entry + dated erratum note in paper/kshana-technical-report.md (not silent edits). Applies to W41's lunar ME→PA fix (LRO 53.8→39.9 m raw, 12.6→12.05 dynamic, 6.65→6.67 reduced-dynamic).
+- GPL tools (GNSS-SDR, KF-GINS) are oracle-only: run, commit only outputs + NOTICE (FYI given to owner).
+- Scorer fix (W28): 6 false-lock fields changed; pin hashes map them to pre-fix values so registered digests reproduce; new assertion on fixed values; disclosed. Call them "false-lock check firings from LOCKED".
+- RM-04 (W30): frozen-prediction kinds excluded from figure_tiers by named list + guard test; ONE append_figure_tiers implementation (W42's api/builtins.rs; second merger deletes the copy).
+- PRO-34: cite only "Zenodo 16941224 (INGV, Malindi), CC BY 4.0"; no receiver model name.
+- MCP file-source guard: dem_path refused over MCP (fixed in rc ee3c71de).
+
+## 3. Current state (18:25 UTC; verify with git ls-remote)
+
+- **rc `release/0.36.0-rc` @ ee3c71de** (961e7677 → 12b42e4e WP-05 → dc0b85bd WP-00+WP-03 + "275 epochs" fix → ee3c71de WP-02+WP-01 + DEM guard). Ledger on rc: 297 rows, 146 V / 147 M / 4 P. Only known CI reds: web/* counts (fixed by the final site run) and the `coverage` job's linker Bus error (W42 fixing, PRIORITY).
+- **Integration method:** the coordinator runs ONE background subagent per package in its own container (/workspace/kshana, full history, local git identity set to the owner): merge the rc into the package branch with --no-ff, regenerate generated files with the tools (gen_validation_artifacts; .mmd + tools/render-diagram.sh validation-provenance with mermaid-cli 11.12.0 + Geist fonts; gen_validation_figures/gen_readme_assets/gen_og_card with --check; Studio ledger copy + web/PORT-MANIFEST.json hash), hand-maintained README counts via 3-way merge-file, full gates (fmt, clippy -D warnings, lib, all integration tests --no-fail-fast, MCP round_trip in a SEPARATE target dir, check-no-attribution), then FF-push the package branch and FF-push the rc. Tolerated failures: matrix_total_no_stale_count_doc_sync, scenario_count_doc_sync (2), web_validation_counts_doc_sync (2). A merge takes ~1–2.5 h on this 4-core box.
+- **IN FLIGHT at handover:** labfit integration (subagent in session_01UmnDCL… container; local branch integ3 @ 25af9489 = merge of rc into labfit, tests running). It will push feat/labfit-iq-0.36 and the rc if green. CHECK `git ls-remote` — if the rc is still ee3c71de when you start and no push follows within ~2 h, redo labfit yourself the same way.
+
+**Merge queue after labfit:**
+1. IQ campaigns (W28: feat/iq-campaign-ext-0.36 @ 8254d27c): W28 merges the then-rc itself (maps the 6 false-lock fields in labfit's b3c2d8a0 test, recounts), then the coordinator reviews + FFs. Send W28 "your turn @ <rc sha>".
+2. WP-07 GNSS (feat/gnss-realdata-0.36 @ f7974db; RTKLIB runs added; check head).
+3. WP-12 integrity (feat/integrity-trust-0.36 @ 87a8b739).
+4. WP-04 timing/quantum (feat/timing-quantum-0.36 @ 7e618a89; carries a verbatim copy of append_figure_tiers — keep one).
+5. WP-09 fusion (feat/fusion-ins-0.36 @ d6d60f34; includes W38 carrier_tc).
+6. feat/lunar-terrain-0.36 (W30; export masking 12a98750; units-block + lola_dem.rs pending).
+7. W42's coverage CI fix (fast-track as soon as reported) and feat/platform-vv-0.36 (WP-13: FUT-27 514d994e — api/builtins.rs is a hot file: move any conflicting run_builtin_kind arm into its run_<kind> fn).
+8. feat/wasm-iq-0.36 (W43: DS-GIQ-08b, STUDIO-05/06/14 engine halves, STUDIO-15 later).
+9. feat/cislunar-ephem-0.36 (W41, WP-06 when done), feat/iq-ext-0.36 (W28, WP-11b), WP-10, WP-08, WP-14, then the W43 final run.
+
+Packages done (11 of 15): WP-00, 01, 02, 03, 04, 05, 07, 09, 12, labfit(B7.1), IQ campaigns. In progress: WP-06 (W41), WP-08 (W41 after), WP-10 + WP-11b (W28), WP-13 (W42), WP-14 (W36), STUDIO-15 (W43).
+- **PR #76** (rc → main): subscribed; reds = web counts (commented before; don't re-comment) + coverage Bus error (new, being fixed).
+- **winget** microsoft/winget-pkgs#450973 (KshanaMcp 0.35.0): CLA done, all checks passed, waiting on a Microsoft moderator. A 0.36.0 PR is needed after release (prepare; owner posts).
 
 ## 4. Open items, in order
 
-1. Get the merge block resolved (above). Then merge in order WP-05 → WP-00 → WP-02 → labfit → WP-07 → the rest as they finish. Tell all live sessions each new rc SHA, and have each worker merge the new rc into its branch.
-2. The owner's answers still pending:
-   (a) the merge path;
-   (b) the RTKLIB/gLAB permission for W36 (without it, those rows stay MODELLED/data-gated);
-   (c) E1 files in published packages: W31 confirmed (13 Oct 11:42) the C7_E1B/C8_E1C tables are in every published kshana crate 0.31.0–0.35.0 (added b5f5bd6d, 4 Oct) and compiled in via include_str! (so the PyPI wheels and npm/WASM 0.35.0 too). E5a fixtures never shipped. Nothing yanked. Owner decides: leave, yank 0.31–0.35 (yank does not delete files), or seek permission from the ICD holder;
-   (d) the CODE GIM crop left in git history (recommend: leave it).
-3. Remaining work packages, queued per worker:
-   - W41 (replaced W31): WP-06 from handoff b1252a06 (CAP-20a done @ 13a16dbb, VALIDATED vs pykep; MR-08 → MR-06 → MR-05 → rest; src/cr3bp_family.rs unfinished WIP, must not ship untested) → WP-08
-   - W28: scorer bug → PRO-31/32, DS-LAB-07 → WP-11b → WP-10 → labfit follow-up pre-registration
-   - W30: WP-12 → WP-04
-   - W42 (replaced W33): WP-13 on feat/platform-vv-0.36 → box-wing ★ + GMAT leg on feat/forces-atmosphere-0.36
-   - W36: WP-09 DONE (d6d60f34; KF-GINS + IONEX promotion and gLAB download wait on the OWNER acting directly in W36's session) → WP-14 started 18:05
-   - W43 (replaced W1b; brief: PRO-14 → feat/wasm-iq-0.36 → CAP-08c Studio side → hold final run → check LUNAR-REFERENCE-STATION.md). Was W1b: site and CI, plus the Studio/Pro backlog; holds the final run. Final-run handoff: kshana-pro port/0.36.0 @ ce089c58, site-next/FINAL-RUN-0.36.md. STUDIO-02/13/14 done on site/studio-backlog-0.36 (gen_capabilities.py part of STUDIO-13 skipped as unclear); next PRO-14, then feat/wasm-iq-0.36.
-4. Release: W1b final run (version bump first) → ONE CI run on the final SHA → if fully green, ff main + tag (owner approval stands) → Zenodo notes → PRO-01 re-pin.
-5. Post-release: list the merged branches for the owner to delete.
+1. Keep the merge queue moving (§3). One integration subagent at a time.
+2. Owner actions pending, in W36's session ("W36 0.36 WP-07 GNSS real data"):
+   - allow `curl -fL -o <scratchpad>/glab-dl/gLAB_6.0.0_Linux.tgz https://server.gage.upc.edu/gLAB/src/LINUX/gLAB_6.0.0_Linux.tgz` (checksums at https://server.gage.upc.edu/gLAB/src/checksums.txt);
+   - optionally say "Approved: promote the KF-GINS and IONEX B6 rows to VALIDATED (data-gated, pre-registered pass)".
+3. Watch STUDIO-15 (W43): if the dry run moves any published number, bring it to the owner before any push.
+4. Release: all packages in → W43 final run (version bump first; merges site/studio-backlog-0.36; records Studio incl. quantum-cai-coast; claims gate; pushes kshana site-port/0.36.0) → coordinator FFs rc → ONE CI run on the final SHA → if fully green, FF main + tag v0.36.0 (owner approval stands) → Zenodo notes (docs/handover-0.36/) → PRO-01 re-pin → winget 0.36 PR (owner posts).
+5. Post-release: list merged branches for the owner to delete.
+6. ETA given to owner: tag ≈ 17–18 Oct.
 
-Coordinator decision 15:25: IONEX B6 (RTKLIB iontec 3.6e-13 TECU, pre-registered) may be VALIDATED if the SHA-pinned CODG fetch runs in a CI/reproduce path and the row states data-gating; RM-31 RTKLIB leg NOT met as a whole (3 runs pinned; PPP parity only on the 3rd pre-declared oracle config, stated). gLAB data-gated (download blocked; owner rule needed).
+## 5. Sessions (cap 8)
 
-Standing coordinator rules for workers (13 Oct): a NOT MET bar is pinned by a test that ASSERTS the recorded miss (never #[ignore]); a pre-registered pass against an external oracle may add a VALIDATED row (regenerate with tools). FYI for owner: GNSS-SDR (GPL-3) used as oracle; only its output (BeiDou ICD PRN codes) committed — reading that the GPL does not cover program output, flagged. KF-GINS (GPL-3) likewise oracle-only.
+| Session | Id | Work |
+|---|---|---|
+| Coordinator (this, to be replaced) | session_01UmnDCL2ERStnt9tRqC9a4i | archive after handover |
+| Founder Q&A (don't touch) | session_01GjdbgNeaCP64Lg3PiLr9GA | — |
+| W28 | session_01YLFPWBdmcbeZKKEyiyRxvM | WP-11b (feat/iq-ext-0.36: CAP-07a, PRO-39, MR-09, DS-GIQ-06b, PRO-34 running) → WP-10 → labfit follow-up prereg; merges IQ campaigns when told. Context ~50 %+ → rotate at next WP boundary |
+| W30 | session_01TGHRGGhceMneZ1FF8MGZUL | WP-04 DONE 7e618a89 → lunar loose ends (units block, lola_dem.rs) → assign part of WP-14 |
+| W36 | session_01BpojbwwUWoNKDfSmsCHR3B | WP-09 DONE d6d60f34 → WP-14 (feat/new-domains-0.36) |
+| W41 | session_0141f1quqeE6s3YFLMBkzTCR | WP-06 (MR-08 V, MR-06 V narrow, MR-05 NOT MET, ME→PA bug fix + revisions/erratum, FUT-05 ANISE next; then RM-34, RM-35, CAPSTONE, LRO, CAP-31/20b, zero-observation beacon bug) → WP-08 |
+| W42 | session_013yHbcHvDJeQEmyTXauC12P | CI coverage fix (PRIORITY) → FUT-26, FUT-28, CAP-34 → box-wing + GMAT (Apache-2.0, run-only) on feat/forces-atmosphere-0.36 from its new head |
+| W43 (Sonnet) | session_012VCHUyvBgx38Z6Zx43FcjM | site/CI runner; STUDIO-15 dry run; holds the final run (site-next/FINAL-RUN-0.36.md on kshana-pro port/0.36.0) |
 
-## 5. Sessions (cap 8; old coordinator ARCHIVED; W38 ARCHIVED)
-
-| Session | Id |
-|---|---|
-| Coordinator | session_01UmnDCL2ERStnt9tRqC9a4i (successor 2; session_01VfB51TSscNzEYNpCXNGTwL ARCHIVED 13 Oct 12:20 for the cap) |
-| W1b site/CI | ARCHIVED 13 Oct 14:18 (62 % context) |
-| W43 site/CI runner (replaces W1b) | session_012VCHUyvBgx38Z6Zx43FcjM |
-| Founder Q&A (don't touch) | session_01GjdbgNeaCP64Lg3PiLr9GA |
-| W31 | ARCHIVED 13 Oct 12:58 (handoff b1252a06) |
-| W41 (WP-06 rest → WP-08) | session_0141f1quqeE6s3YFLMBkzTCR |
-| W28 | session_01YLFPWBdmcbeZKKEyiyRxvM |
-| W30 | session_01TGHRGGhceMneZ1FF8MGZUL |
-| W33 | ARCHIVED 13 Oct 13:04 (WP-01 handoff fb846d5b) |
-| W42 (WP-13 → WP-01 box-wing/GMAT) | session_013yHbcHvDJeQEmyTXauC12P |
-| W36 | session_01BpojbwwUWoNKDfSmsCHR3B |
-
-Mode: at most 1 subagent each (cut from 2 after all workers hit the 5-hour account usage limit at ~02:15–02:50 UTC on 13 Oct and sat idle until 10:35); push hourly; report "<item> done @ <sha>".
-
-Worker context at 12:17: W1b 52 %, W31 56 %, W28 50 %, W30 11 % (fresh), W33 61 %, W36 56 %. Workers lack create_session: rotate each at its next WP boundary (worker writes a handoff in its branch, the coordinator creates the replacement then archives the old one, keeping the cap).
+Archived today: W31, W33, W1b (rotated to W41, W42, W43), old coordinator. Workers lack create_session: rotate at a WP boundary (worker writes a handoff commit; coordinator creates the replacement with a full brief — branches, rules, queue — then archives the old one; stay within 8).
+Mode: ≤1 subagent per worker, push hourly, report "<item> done @ <sha>". Workers must not merge intermediate rc SHAs; the coordinator tells each package's owner when it's their turn if they merge.
 
 ## 6. Routines
 
-- `trig_011Wno8YRNARC5PyeytwiaiK`: one-shot check-in 2026-10-13 12:38Z, into the current coordinator. A new coordinator must re-create its check-in bound to itself and delete or disable this one. `trig_01FNqcRNzC1xsssxncXdR3pV` (fired) and the old `trig_013aaWtKK2oZtwxYbFVMQVHJ` (disabled) need no action.
+- `trig_0141RM2pEj95DjCvcR5BGtxL`: every 2 h (minute 16), bound to session_01UmnDCL…. The new coordinator creates its own and DISABLES this one. `trig_011Wno8YRNARC5PyeytwiaiK` is disabled.
 
 ## 7. Lessons (don't repeat)
 
@@ -156,6 +146,11 @@ Worker context at 12:17: W1b 52 %, W31 56 %, W28 50 %, W30 11 % (fresh), W33 61 
 - **Usage limit:** 6 sessions with 2 subagents each hit the 5-hour account limit overnight and nobody resumed them for 7 h. After a limit hit, send each worker a resume message once the reset time passes.
 - **Classifier and merges:** pushes to release/* are treated as "merge without review" even with the coordinator's own review and the owner's "Try again". Peer messages that ask for merge reviews are also blocked. Use a PR-based path or the owner's own push.
 
+- **Integration by subagent works** but takes 1–2.5 h per package; subagents sometimes stop without a report — ask them via SendMessage; they may push after reporting.
+- **Rc-inherited gate failures:** check a failing test on the rc alone before blaming the package (the DEM guard came from WP-05).
+- **Classifier vs peer decisions:** a worker's classifier may refuse to act on a coordinator decision relayed by message (e.g. ledger promotions). Then the owner must say it in that worker's session.
+- **Coverage job:** tarpaulin linking can die with a Bus error (runner disk) as test targets grow.
+
 ## 8. Setup for a new coordinator
 
 1. Clone: `git clone https://github.com/ashfordeOU/kshana` and `https://github.com/ashfordeOU/kshana-pro` (use add_repo
@@ -166,3 +161,5 @@ Worker context at 12:17: W1b 52 %, W31 56 %, W28 50 %, W30 11 % (fresh), W33 61 
    new id.
 5. Brief: `cd kshana-pro/tools/brief && node render.mjs` (Playwright at /opt/node-tools; Chromium preinstalled).
 6. Verify the state in §3 with `git ls-remote` and `get_session` before acting on it.
+
+7. Permission mode: this coordinator ran in DEFAULT mode after the owner left auto mode; rc pushes needed no special handling. Create the successor with permission_mode default.
