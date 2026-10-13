@@ -1957,6 +1957,14 @@ function paintScenarioHeader(entry) {
 // scenario runs (lib/areas.mjs); the references are the oracles of those rows plus the sources
 // the header cites.
 let matrixPromise = null;
+// The engine's kind -> module names table (kind_modules(), 0.36). Read once; an engine without it gives {}
+// and a kind then matches the matrix rows by its own name only.
+let kindModulesP = null;
+function loadKindModules() {
+  return (kindModulesP ||= (S.engineReady || Promise.resolve()).then(async () => {
+    try { const t = JSON.parse(await S.engine.call("kind_modules")); return t && typeof t === "object" ? t : {}; } catch { return {}; }
+  }));
+}
 function loadMatrix() {
   if (!matrixPromise) matrixPromise = fetch("data/verification-matrix.json").then((x) => (x.ok ? x.json() : null)).catch(() => null);
   return matrixPromise;
@@ -1989,7 +1997,9 @@ async function renderHow(run) {
   const matrix = await loadMatrix();
   if (S.run !== run || !matrix) return;
   const rows = matrix.rows;
-  const idx = [...new Set(kindsOfToml(base).flatMap((k) => rowsForKind(k, rows)))];
+  const kindModules = await loadKindModules();
+  if (S.run !== run) return;
+  const idx = [...new Set(kindsOfToml(base).flatMap((k) => rowsForKind(k, rows, kindModules)))];
   if (idx.length) {
     const mix = evidenceMix(idx, rows);
     const ordered = idx.sort((a, b) => (rows[a].status === "VALIDATED" ? 0 : 1) - (rows[b].status === "VALIDATED" ? 0 : 1));

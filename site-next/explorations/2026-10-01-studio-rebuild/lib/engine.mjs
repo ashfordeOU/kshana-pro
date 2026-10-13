@@ -49,12 +49,16 @@ export const ENGINE_FNS = Object.freeze([
   "skyline_presets",
   "skyline_profile",
   "skyplot_svg",
+  // 0.36 (STUDIO-05: the kind-to-module table the capability map used to keep by hand)
+  "kind_modules",
 ]);
 
 // The functions the 0.35 tools pages call. A page checks engineHas() before offering a button.
 export const ENGINE_FNS_035 = Object.freeze(ENGINE_FNS.slice(ENGINE_FNS.indexOf("receiver_trust"), ENGINE_FNS.indexOf("sky_geometry")));
 // The functions the 0.36 Geometry view calls (lib/geometry-adapter.mjs GEOMETRY_FNS).
-export const ENGINE_FNS_036 = Object.freeze(ENGINE_FNS.slice(ENGINE_FNS.indexOf("sky_geometry")));
+export const ENGINE_FNS_036 = Object.freeze(ENGINE_FNS.slice(ENGINE_FNS.indexOf("sky_geometry"), ENGINE_FNS.indexOf("kind_modules")));
+// The 0.36 function the capability map calls (lib/areas.mjs rowsForKind takes its result).
+export const ENGINE_FNS_036_MAP = Object.freeze(["kind_modules"]);
 export const engineHas = (api, fn) => !!api && typeof api[fn] === "function";
 
 // Normalise a thrown value to a message. wasm-bindgen throws the engine's error as a
