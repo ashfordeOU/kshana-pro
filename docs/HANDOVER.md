@@ -114,10 +114,10 @@ Packages done (11 of 15): WP-00, 01, 02, 03, 04, 05, 07, 09, 12, labfit(B7.1), I
 |---|---|---|
 | Coordinator (this, to be replaced) | session_01UmnDCL2ERStnt9tRqC9a4i | archive after handover |
 | Founder Q&A (don't touch) | session_01GjdbgNeaCP64Lg3PiLr9GA | — |
-| W28 | session_01YLFPWBdmcbeZKKEyiyRxvM | WP-11b (feat/iq-ext-0.36: CAP-07a, PRO-39, MR-09, DS-GIQ-06b, PRO-34 running) → WP-10 → labfit follow-up prereg; merges IQ campaigns when told. Context ~50 %+ → rotate at next WP boundary |
+| W28 | session_01YLFPWBdmcbeZKKEyiyRxvM | PRO-34 10e49e26 (B1/B4 NOT MET, F2); PRO-33 amendment (a) approved (FLL pull-in only, both receivers); VALIDATED rows DS-GIQ-06b + PRO-39 approved (if its classifier refuses, owner must say it in W28 session). WP-11b (feat/iq-ext-0.36: CAP-07a, PRO-39, MR-09, DS-GIQ-06b, PRO-34 running) → WP-10 → labfit follow-up prereg; merges IQ campaigns when told. Context ~50 %+ → rotate at next WP boundary |
 | W30 | session_01TGHRGGhceMneZ1FF8MGZUL | WP-04 DONE 7e618a89 → lunar loose ends (units block, lola_dem.rs) → assign part of WP-14 |
 | W36 | session_01BpojbwwUWoNKDfSmsCHR3B | WP-09 DONE d6d60f34 → WP-14 (feat/new-domains-0.36) |
-| W41 | session_0141f1quqeE6s3YFLMBkzTCR | WP-06 (MR-08 V, MR-06 V narrow, MR-05 NOT MET, ME→PA bug fix + revisions/erratum, FUT-05 ANISE next; then RM-34, RM-35, CAPSTONE, LRO, CAP-31/20b, zero-observation beacon bug) → WP-08 |
+| W41 | session_0141f1quqeE6s3YFLMBkzTCR | ~40 % context, handoff 3 @ 46aa2799; ROTATE after RM-35 (handoff 4). WP-06 (FUT-05 1bdd3833 partial: ephemeris leg NOT MET; DE440 routing opt-in by design; rc ee3c71de merged @ 12a67f78; MR-08 V, MR-06 V narrow, MR-05 NOT MET, ME→PA bug fix + revisions/erratum, FUT-05 ANISE next; then RM-34, RM-35, CAPSTONE, LRO, CAP-31/20b, zero-observation beacon bug) → WP-08 |
 | W42 | session_013yHbcHvDJeQEmyTXauC12P | CI coverage fix (PRIORITY) → FUT-26, FUT-28, CAP-34 → box-wing + GMAT (Apache-2.0, run-only) on feat/forces-atmosphere-0.36 from its new head |
 | W43 (Sonnet) | session_012VCHUyvBgx38Z6Zx43FcjM | site/CI runner; STUDIO-15 dry run; holds the final run (site-next/FINAL-RUN-0.36.md on kshana-pro port/0.36.0) |
 
