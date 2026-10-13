@@ -1,5 +1,8 @@
 # Kshana coordinator handover
 
+**OWNER ANSWERS (13 Oct ~14:05):** merge path: "push yourself and everything as 0.36" (coordinator pushes to release/0.36.0-rc; session left auto mode, so pushes go through the owner's permission prompts). E1 in 0.31–0.35: "we havent used for commercial so why care about it?" → leave the published versions as they are. RTKLIB/gLAB: "Yes, allow". CODE GIM: not answered (default: leave in history).
+**rc:** 961e7677 → 12b42e4e (WP-05, fast-forward, 14:07). Next: WP-00+WP-03 via merge of rc into feat/time-frames-0.36 with regeneration (a coordinator subagent), then WP-02+WP-01, labfit, WP-07, WP-12. Workers told not to merge intermediate rc SHAs.
+
 **Since the switch (11:30):** W33 WP-01 DE440 tier @ 615ee97c (orbits 0.017 m vs Orekit; Sun/Moon position bars missed, MODELLED); W36 confirmed onto WP-09; W1b holds the final run, needs LUNAR-REFERENCE-STATION.md final and will itself hit the rc block; owner asked once for the merge path (recommended PR per package).
 
 **Coordinator switch:** 2026-10-13 11:17 UTC, session_01UmnDCL2ERStnt9tRqC9a4i took over from session_01VfB51TSscNzEYNpCXNGTwL. Check-in routine trig_0141RM2pEj95DjCvcR5BGtxL (every 2 h, bound to the new coordinator); old trig_011Wno8YRNARC5PyeytwiaiK disabled.
