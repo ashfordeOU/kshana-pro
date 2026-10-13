@@ -34,7 +34,7 @@ import { fieldIndex, findFields, scenarioCount, filterControls } from "./lib/fin
 import { plainMeaning, plainDuration, headerParagraphs, taskWords } from "./lib/meaning.mjs";
 import { rankInputs, splitInputs, inputLabel, fieldName, VISIBLE_INPUTS } from "./lib/inputs.mjs";
 import { parseState, buildSearch, isNewEntry, persistentExtras, tabFromLink, viewUrl, chooseView, VIEW_KEY } from "./lib/urlstate.mjs";
-import { kindsOfToml, rowsForKind, evidenceMix } from "./lib/areas.mjs";
+import { kindsOfToml, kindOfToml, rowsForKind, evidenceMix } from "./lib/areas.mjs";
 import { spellOut } from "./lib/abbr.mjs";
 import { GUIDED_KNOBS } from "./lib/guided.mjs";
 
@@ -1872,7 +1872,8 @@ function changed() { refreshEditor(); updateSteps(); }
 
 function buildParams() {
   const toml = tomlEl.value;
-  const ranked = rankInputs(numericFields(toml), curatedInputs(toml));
+  const headline = ((S.fieldImportance || {})[kindOfToml(toml)] || {}).headline || [];
+  const ranked = rankInputs(numericFields(toml), curatedInputs(toml), headline);
   const { visible, advanced } = splitInputs(ranked, S.inputBudget);
   S.visibleIds = new Set(visible.map((x) => x.id));
   const kh = $("knobs");
@@ -1959,6 +1960,13 @@ function paintScenarioHeader(entry) {
 let matrixPromise = null;
 // The engine's kind -> module names table (kind_modules(), 0.36). Read once; an engine without it gives {}
 // and a kind then matches the matrix rows by its own name only.
+// The engine's headline fields per kind (field_importance(), 0.36), read once when the engine is ready; the
+// inputs are ranked again when it arrives. An engine without it gives {} and the Studio ranks by itself.
+function loadFieldImportance() {
+  return (S.engineReady || Promise.resolve()).then(async () => {
+    try { const t = JSON.parse(await S.engine.call("field_importance")); return t && typeof t === "object" ? t : {}; } catch { return {}; }
+  });
+}
 let kindModulesP = null;
 function loadKindModules() {
   return (kindModulesP ||= (S.engineReady || Promise.resolve()).then(async () => {
@@ -2848,6 +2856,7 @@ async function main() {
   }
   let booting = bootEngine();
   S.engineReady = booting.catch(() => {});
+  loadFieldImportance().then((t) => { S.fieldImportance = t; try { if (Object.keys(t).length && tomlEl && tomlEl.value) buildParams(); } catch { /* no scenario loaded yet */ } });
   booting.catch(() => { /* reported below */ });
   // Real coastlines for the maps (Natural Earth 1:110m land, public domain).
   fetch("data/land.json").then((r) => (r.ok ? r.json() : [])).then((l) => { S.land = l; if (S.heroRedraw) S.heroRedraw(); if (S.run && V.groundTrack(S.run.result)) renderGround(); if (S.run && S.activeTab && VIEW_ID[S.activeTab] === "v-cap") { S.capDirty = true; selectTab(S.activeTab, { url: false }); } }).catch(() => { S.land = []; });
