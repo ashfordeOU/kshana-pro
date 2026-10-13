@@ -107,7 +107,7 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 
 | Session | Id |
 |---|---|
-| Coordinator | session_01VfB51TSscNzEYNpCXNGTwL (to be replaced) |
+| Coordinator | session_01UmnDCL2ERStnt9tRqC9a4i (successor 2; session_01VfB51TSscNzEYNpCXNGTwL ARCHIVED 13 Oct 12:20 for the cap) |
 | W1b site/CI | session_01JSzHbpAvHygc1JYY532ete |
 | Founder Q&A (don't touch) | session_01GjdbgNeaCP64Lg3PiLr9GA |
 | W31 | session_01Wim8MyGQHF6z3EAALbM7bv |
@@ -117,6 +117,8 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 | W36 | session_01BpojbwwUWoNKDfSmsCHR3B |
 
 Mode: at most 1 subagent each (cut from 2 after all workers hit the 5-hour account usage limit at ~02:15–02:50 UTC on 13 Oct and sat idle until 10:35); push hourly; report "<item> done @ <sha>".
+
+Worker context at 12:17: W1b 52 %, W31 56 %, W28 50 %, W30 11 % (fresh), W33 61 %, W36 56 %. Workers lack create_session: rotate each at its next WP boundary (worker writes a handoff in its branch, the coordinator creates the replacement then archives the old one, keeping the cap).
 
 ## 6. Routines
 
