@@ -375,7 +375,10 @@ job board answered 200.
 - **Not yet a release.** Every number above comes from a debug build of Kshana Pro, which
   embeds the open engine optimised. No release build and no signed licence token were
   exercised; only the refusal without a licence and the development switch were. Numbers
-  for a customer come from a release build.
+  for a customer come from a release build. Since PRO-14, CI runs `scripts/release-smoke.sh`:
+  a release build with a CI-only licence key, a signed Pro token, and one Pro pack whose
+  report must equal the debug build's byte for byte. The figures above were not re-taken
+  from a release build; the smoke test shows only that the two builds agree on that pack.
 - **Development engine pin.** On this branch Pro builds against an unpublished 75-kind
   open engine by path (see the README, "Build & run"). A release must first move to the
   published engine version that carries those kinds and re-run every check with `--locked`.
