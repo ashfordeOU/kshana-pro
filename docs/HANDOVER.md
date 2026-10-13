@@ -112,6 +112,8 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 
 Coordinator decision 15:25: IONEX B6 (RTKLIB iontec 3.6e-13 TECU, pre-registered) may be VALIDATED if the SHA-pinned CODG fetch runs in a CI/reproduce path and the row states data-gating; RM-31 RTKLIB leg NOT met as a whole (3 runs pinned; PPP parity only on the 3rd pre-declared oracle config, stated). gLAB data-gated (download blocked; owner rule needed).
 
+Standing coordinator rules for workers (13 Oct): a NOT MET bar is pinned by a test that ASSERTS the recorded miss (never #[ignore]); a pre-registered pass against an external oracle may add a VALIDATED row (regenerate with tools). FYI for owner: GNSS-SDR (GPL-3) used as oracle; only its output (BeiDou ICD PRN codes) committed — reading that the GPL does not cover program output, flagged. KF-GINS (GPL-3) likewise oracle-only.
+
 ## 5. Sessions (cap 8; old coordinator ARCHIVED; W38 ARCHIVED)
 
 | Session | Id |
