@@ -78,6 +78,7 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 | WP-07 GNSS | feat/gnss-realdata-0.36 @ d521166 | 283 rows; PPP, RTK, SP3 clock, RINEX 4 nav VALIDATED; many data-gated items not run (RTKLIB/gLAB/CDDIS). CODE GIM slice removed (still in git history at 0901cca: owner's call) |
 | WP-12 integrity | feat/integrity-trust-0.36 @ 87a8b739 | Reviewed by successor 2: identity clean, pre-registrations precede results. CAP-14 VALIDATED (27/27 vs OpenSSL); CAP-05a/05b/13 MODELLED (cn0 bar missed 0.0231 vs 0.02, stated on the profile); CAP-05c data-gated. Open: UBX vs CSV false-alarm diff; lunar export site not masked, lola_dem.rs not wired. W30 now on WP-04 |
 | WP-03 time/frames | feat/time-frames-0.36 @ 87f30103 | Contains WP-00; merge after it. Reviewed by successor 2 (identity, pre-reg order OK). VALIDATED FUT-20 (vs RTKLIB geph2clk, 292 cases), CAP-02c, FUT-14, RM-20/CAP-02a; CAP-02b MODELLED; FUT-31/MR-07 data-pending to ~Jan 2027 (needs owner's archived 2026-09-30 utclab files). W31 built RTKLIB v2.4.2-p13 (71db0ffa) from source on 12 Oct via xval/rtklib-glonass/build.sh (same pattern as existing xval/rtklib-raim); never refused. Not a workaround; disclosed to owner; row kept unless the owner says hold. W31 now on WP-06 |
+| WP-01 forces | feat/forces-atmosphere-0.36 @ fb846d5b | Reviewed by successor 2: 28 commits, all Ashforde identity, no attribution, every pre-reg before its run. VALIDATED: S2 air tide, NRLMSISE-00 port, drag tier (vs Orekit, 0.03 m), oblate shadow. MODELLED: S1, DE440 tier (ephemeris bar missed), limb darkening. Galileo full-arc figure marked PRE-FIX (not re-run). CONFLICTS with WP-02 in propagator::ForceModel and shared doc paragraphs: merge notes in the fb846d5b message. Box-wing ★ and GMAT leg left for W42 |
 
   Every merge after the first needs its ledger/README/figures REGENERATED with the repo tools (gen_validation_artifacts, figures, render-diagram, gen_readme_assets), never hand-merged. Audit for decimal collisions in counts.
 - **In progress:** WP-01 forces (W33, feat/forces-atmosphere-0.36; S2 fix VALIDATED, S1 done). Before WP-01 is called done, re-run the Galileo/Swarm full-arc dispatch figures or mark them pre-fix. WP-03 time (W31, feat/time-frames-0.36 @ 0d36ff2a; close-out). WP-12 integrity (W30; CAP-14, FUT-01, CAP-05a and CAP-13 done; CAP-05b per the coordinator's design: opt-in [integrity] block, separate integrity_fom, never folded into the FoM; CAP-05c data-gated). Profile "jammertest-2024-calibrated": its docs must say cn0_drop missed its held-out bar.
@@ -97,7 +98,7 @@ Coordinator decisions taken under the owner's standing approval (not owner words
    - W41 (replaced W31): WP-06 from handoff b1252a06 (CAP-20a done @ 13a16dbb, VALIDATED vs pykep; MR-08 → MR-06 → MR-05 → rest; src/cr3bp_family.rs unfinished WIP, must not ship untested) → WP-08
    - W28: scorer bug → PRO-31/32, DS-LAB-07 → WP-11b → WP-10 → labfit follow-up pre-registration
    - W30: WP-12 → WP-04
-   - W33: WP-01 → WP-13
+   - W42 (replaced W33): WP-13 on feat/platform-vv-0.36 → box-wing ★ + GMAT leg on feat/forces-atmosphere-0.36
    - W36: WP-09 → WP-14
    - W1b: site and CI, plus the Studio/Pro backlog; holds the final run. Final-run handoff: kshana-pro port/0.36.0 @ ce089c58, site-next/FINAL-RUN-0.36.md. STUDIO-02/13/14 done on site/studio-backlog-0.36 (gen_capabilities.py part of STUDIO-13 skipped as unclear); next PRO-14, then feat/wasm-iq-0.36.
 4. Release: W1b final run (version bump first) → ONE CI run on the final SHA → if fully green, ff main + tag (owner approval stands) → Zenodo notes → PRO-01 re-pin.
@@ -114,7 +115,8 @@ Coordinator decisions taken under the owner's standing approval (not owner words
 | W41 (WP-06 rest → WP-08) | session_0141f1quqeE6s3YFLMBkzTCR |
 | W28 | session_01YLFPWBdmcbeZKKEyiyRxvM |
 | W30 | session_01TGHRGGhceMneZ1FF8MGZUL |
-| W33 | session_01XzDkpE5fPCNrKuqTXE3wmr |
+| W33 | ARCHIVED 13 Oct 13:04 (WP-01 handoff fb846d5b) |
+| W42 (WP-13 → WP-01 box-wing/GMAT) | session_013yHbcHvDJeQEmyTXauC12P |
 | W36 | session_01BpojbwwUWoNKDfSmsCHR3B |
 
 Mode: at most 1 subagent each (cut from 2 after all workers hit the 5-hour account usage limit at ~02:15–02:50 UTC on 13 Oct and sat idle until 10:35); push hourly; report "<item> done @ <sha>".
