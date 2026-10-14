@@ -111,10 +111,10 @@ Coordinator decisions today (standing rules for workers):
 | W36 | session_01BpojbwwUWoNKDfSmsCHR3B | WP-14 on feat/new-domains-0.36 @ 3728730c (CAP-21/22/23/28 done); now FUT-19 + any unassigned WP-14 item |
 | W43 (Sonnet) | session_012VCHUyvBgx38Z6Zx43FcjM | STUDIO-15 feat/portable-math-0.36 @ 0e2acedd: finishing lunar_observability re-record (numpy 2.3.5 + scipy 1.18.1) + lunar_station finding 15→20/20 (both owner-approved); then holds the final run |
 | W45 | session_016beTms3DYB3M3B5wA7JA93 | WP-10 DONE cbccf6a7; now WP-14 part on feat/new-domains-b-0.36 (from 3728730c): CAP-20c/d (cherry-picks W41's porkchop, pykep oracle), CAP-30 part, CAP-11 part |
-| W46 | session_01SPEUeWKHbS3bJUJPPRLXNz | WP-08 on feat/interop-api-0.36: FUT-23 space packet 0bb3d21e, RM-30 SPK 9/13 cba5bf31 done; ADM AEM/APM, ODM, telemetry 1.3 next; ledger rows at the end (brief docs/briefs/W46-wp08.md) |
+| W48 | session_01MJa8pU7MYkCVYoSM1Pn1yW | WP-08 rest on feat/interop-api-0.36 from a3506363 (W46 handoff 1; W46 archived 00:25 after FUT-23 0bb3d21e, RM-30 cba5bf31, ADM 2c58b49c): ODM, telemetry 1.3, then all WP-08 rows/counts once (brief docs/briefs/W48-wp08-rest.md) |
 | W47 | session_01KsCQBsMhy6oQNovdU9JTyb | DS-LRO-10 on feat/cislunar-ephem-0.36 from c6dda41d (brief docs/briefs/W47-ds-lro-10.md; cite by title/DOI; may trigger the manual LRO CI job once) |
 
-Archived 13 Oct: old coordinator, W41 (→W47), W44 (→W46). Workers lack create_session/archive: rotate at a boundary (handoff commit → coordinator archives → creates replacement with a full brief from docs/briefs/).
+Archived: old coordinator, W41 (→W47), W44 (→W46), W46 (→W48, 14 Oct 00:25). Workers lack create_session/archive: rotate at a boundary (handoff commit → coordinator archives → creates replacement with a full brief from docs/briefs/).
 
 ## 6. Routines
 
