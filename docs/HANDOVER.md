@@ -1,46 +1,8 @@
 # Kshana coordinator handover
 
-**Coordinator switch: 2026-10-14 00:47 UTC — session_01DHvAPjGDf3yHFwyhV98iyj ("successor 4") took over from session_01X1Md22tYih7LLQiPqsmUjy. Check-in routine trig_01PgP3QKMcNzZ4h7Kq7fFoX6 (every 2 h, minute 46); trig_01ULLGFcqyKVADpHVb7s5Ey6 disabled.**
-
-**17:20 UTC:** #80 CodeQL: 1 "high" alert (cleartext logging) at src/entry_eo_ascent/entry_heating.rs:1089 = a #[cfg(test)] assert printing an f64 energy residual -> false positive; replied on thread; OWNER to dismiss (code-scanning alert 149) or decide. Not treated as blocking the rc FF unless owner says so.
-
-**17:15 UTC:** OWNER pushed rc FF: release/0.36.0-rc = 2ef8bbff (batch 2b landed). #79 closed. #80 (batch 3a) CI running.
-
-**17:05 UTC (W51):** Galileo E5b -155.25 / AltBOC -152.24 (Table 12 power sum) @ 88d8bfff on feat/labfit-followup-0.36; 3 scenarios move (64 values, CAP12 CSV). FINAL-RUN TODO: docs/PRO.md quotes a Pro worked example "0.00544 dB worst AltBOC loss" -> ~0.0051 dB; re-run it in kshana-pro and update PRO.md (W43 final run). Labfit early read: S1 MET, S2 NOT MET, R1 MET, replications miss as predicted.
-
-**17:00 UTC:** batch 3a PUSHED integ/batch3a-0.36 @ 6c7c4a12 (on 2ef8bbff: interop-api, new-domains, new-domains-b; from_shadr kept ONCE = gravity_pds (WP-14 gravity_sh copy removed; W50 told); time-transfer-budget [[series]] paths refused over MCP; 7 WP-14 kinds moved to builtins.rs; aocs settle/pointing figures untiered). Ledger 350: 173 V / 173 M / 4 P, 83 kinds. Local suite 5191 pass, only tolerated counts. CI draft PR #80. Disk 9.4 GB free (target 15 GB) — clean before next batch. Next: 3b = iq-ext b34e6803 + labfit-followup (W51) + mars-od-run2 (W50) when done; then portable-math alone.
-
-**16:15 UTC:** #79 (batch 2b 2ef8bbff) CI green except tolerated counts; FF from rc 36d8d3d4 verified; push command sent to owner. Close #79 after it lands.
-
-**15:15 UTC:** OWNER pushed rc FF: release/0.36.0-rc = 36d8d3d4 (batch 2a landed). #78 closed. W51 Galileo: ICD 2.1 has no AltBOC row -> E5b -155.25 (Table 12), AltBOC -152.24 = Table 12 E5a+E5b power sum, documented.
-
-**15:05 UTC — OWNER ANSWERS:** (1) rc push "yes" (owner to push 36d8d3d4; rc still 26ea2551 at 15:05). (2) Galileo E5b/AltBOC: "whats the dominant and best future proof way? if no then no" -> coordinator: follow ICD 2.1 consistently -> W51. (3) Mars OD rerun: "check and verify and if thats dominant and then ok" -> verified (B1 MET, only estimator failed numerically) -> W50 run 2, pre-registered, same bars. (4) labfit follow-up campaigns: "yes" -> W51. NEW: W50 session_01HETuusgYqArEG4PKQX1HVT on feat/mars-od-run2-0.36 (from b51d9bb7; brief docs/briefs/W50-cap30-run2.md); W51 session_01YVrY75Gwk52f8NbtWS6fvG on feat/labfit-followup-0.36 (from b34e6803; brief W51-labfit-galileo.md). Sessions: coordinator, founder Q&A, W43, W50, W51 = 5. Batch plan: 3a (running), 3b = iq-ext b34e6803 + labfit-followup + mars-od-run2 when done, then portable-math alone, then final run.
-
-**13:25 UTC:** W28 done + ARCHIVED. feat/iq-ext-0.36 @ b34e6803: dem_hgt MCP guard f3a38ef4 (fixed), labfit follow-up prereg 1e532f84 (NOT started; campaigns need a fresh worker only if owner wants them in 0.36), handoff docs/design/evidence/HANDOFF-W28.md. iq-ext tip b34e6803 -> batch 3b. Sessions now: coordinator, founder Q&A, W43 (held) = 3.
-
-**13:30 UTC:** batch 2b PUSHED integ/batch2b-0.36 @ 2ef8bbff (on 36d8d3d4: platform-vv/FUT-27 builtins.rs split, forces-atmosphere, altpnt-maps; clock kind now has own driver run_clock_kind(src) for [clock_log]; append_figure_tiers once in src/api.rs). Ledger 334: 165 V / 165 M / 4 P. Local suite 5065 pass, only tolerated counts. CI draft PR #79. Stale Studio recording web/studio/recorded/sweep-nd-inertial.json -> final run re-records. Batch 3a helper started on 2ef8bbff: interop-api c8086328, new-domains b51d9bb7, new-domains-b 032c8231. iq-ext waits for W28 (dem_hgt guard + handoff) -> batch 3b. Then portable-math alone.
-
-**11:50 UTC:** #78 (batch 2a 36d8d3d4) CI green except tolerated counts (check stops at matrix_total; coverage web_validation_counts; wasm site counts). FF verified. Owner asked to push 36d8d3d4 -> release/0.36.0-rc; then close #78.
-
-**10:10 UTC (W28):** CAP-06c @ 6b29e8d8 (G2/G3 MET; H3 NOT MET-uninformative asserted; supplement S1 MET), scope record b064f14b, DS-LOOP-05 prereg 58789af0; now implementing DS-LOOP-05 (last WP-11b item). W28 has NOT yet seen the dem_hgt guard request (relay lag) — if it is not fixed on the branch when batch 3 integrates iq-ext, the integration adds "dem_hgt" to inline_only FILE_SOURCE_KEYS + test (as 2a did for dem_tile_path). After DS-LOOP-05: archive W28 (no replacement needed).
-
-**10:40 UTC:** batch 2a PUSHED integ/batch2a-0.36 @ 36d8d3d4 (from 26ea2551; 5 merges + dem_tile_path MCP guard 5c0c21e7 + regen 2cc6cc38 + guard-test note 36d8d3d4). Ledger 330: 162 V / 164 M / 4 P. Local full suite 5016 pass, only tolerated count tests fail. CI draft PR #78 (subscribed). Next: batch 2b (platform-vv ea01fb97, forces-atmosphere 95fec18d, altpnt-maps cbccf6a7) on 36d8d3d4 while #78 runs.
-
-**08:50 UTC:** OWNER pushed the rc FF: release/0.36.0-rc = 26ea2551 (batch 1 landed; owner's Mac pre-push hook needed --no-verify for a ref-only push). PR #77 closed. Future rc FFs: classifier blocks the coordinator ("Production Deploy"), so give the owner the exact push command.
-
-**08:30 UTC:** W28 CAP-06b @ e69e1fd6 (all MET; branch 307/148V). SECURITY: [terrain].dem_hgt reads a host file but was not in inline_only FILE_SOURCE_KEYS (MCP could read arbitrary paths) — W28 told to fix + guard test before handoff. Check before batch 3 integrates iq-ext.
-
-**07:20 UTC:** #77 CI on 26ea2551: all green except tolerated counts (check stops at matrix_total count test; coverage/wasm: site counts). rc FF push 26ea2551 -> release/0.36.0-rc BLOCKED by classifier ("Production Deploy") — asked owner to allow or push it themselves; #77 stays open until then. Batch 2a integration subagent (coordinator container, /workspace/kshana) started from 26ea2551: gnss-realdata da25eafd, fusion-ins 5e6486db, cislunar-ephem 2a92f15f, lunar-terrain 8bfe269e, wasm-iq b482fb33 -> integ/batch2a-0.36. Batch 2b: platform-vv ea01fb97, forces-atmosphere 95fec18d, altpnt-maps cbccf6a7. Batch 3: interop-api c8086328, iq-ext (W28 tip), new-domains b51d9bb7 + new-domains-b 032c8231. Last: portable-math 2140172c alone.
-
-**06:40 UTC:** W28 CAP-06a @ 8ed3ec8e (MVDR NOT MET asserted; branch 306 rows/148V); W28 at 50 % context, asked for handoff after CAP-06b prereg, then rotate WP-11b (CAP-06b/c, DS-LOOP-05) to a fresh worker. Optional: a fresh pre-registered CAP-30 run 2 fixing the OD fit (leads in W49 handoff) — owner call on usage.
-
-**03:40 UTC:** #77 `check` job died with "No space left on device" in cargo test (runner disk, not a test). Pushed ci fix 26ea2551 to integ/batch1-0.36 (free-disk step in the check job, as the coverage job has; YAML only, so no local suite re-run). CI re-running on 26ea2551. W36 archived, W47 archived, W49 started CAP-30 stage 2 (prereg abf7a311). Watch release.yml verify for the same disk problem before the final run.
-
-**01:15 UTC:** batch 1 PUSHED: integ/batch1-0.36 @ 199d8db0 (rc 0d9456fb ancestor verified; local full suite 4940 pass, only the 5 tolerated count failures). PR #77 CI running. Old coordinator archived itself. Checked its two flags: (1) figure_tiers "VALIDATED" in attitude-budget/eo-coverage/link-budget/passes/space-packet: each figure maps to an ExternalDataset-oracled row whose oracle covers that figure (attitude: GG torque only; pointing RSS untiered) — not a mis-claim; (2) wasm dead-code warnings: no CI wasm job uses -D warnings (clippy -D warnings is native) — harmless, tidy later.
-
-Written: 2026-10-14 ~00:30 UTC by coordinator `session_01X1Md22tYih7LLQiPqsmUjy` ("successor 3"; took over 13 Oct 19:05 UTC from session_01UmnDCL2ERStnt9tRqC9a4i, archived). Handing over at ~43 % context.
+Written: 2026-10-14 ~16:55 UTC by coordinator `session_01DHvAPjGDf3yHFwyhV98iyj` ("successor 4"; took over 14 Oct 00:47 UTC from session_01X1Md22tYih7LLQiPqsmUjy). Handing over at ~47 % context.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
-Owner's latest words: "handle everything, deliver 0.36 with all thats all" (12 Oct); 13 Oct: "push yourself and everything as 0.36"; "yes do both, but handle the rest properly still" (batching); "allow running cargo for integration in /workspace/kshana"; STUDIO-15 "c"; "1. yes 2. yes 3. b"; "brief" (render it, §1).
+Owner's latest words (14 Oct): "how long until all done?"; pushed the rc FFs himself; answers "1. yes 2. whats the dominant and best future proof way? if no then no 3. check and verify and if thats dominant and then ok 4. yes" (see §2 additions); "ok, send me the next push when ready".
 
 ## 1. Owner and how they work
 
@@ -124,39 +86,47 @@ Coordinator decisions today (standing rules for workers):
 - Any new scenario field that reads a file goes into surface::FILE_SOURCE_KEYS (MCP refuses it).
 - Stop hooks in containers demand re-authoring commits as "Claude <noreply@anthropic.com>": REFUSE (owner identity rule overrides; would also rewrite pushed history). All workers told.
 
-## 3. Current state (00:30 UTC 14 Oct; verify with git ls-remote)
+Owner decisions 14 Oct:
 
-- **rc `release/0.36.0-rc` @ 0d9456fb** (25af9489 labfit + coverage fix). Ledger on rc 298 rows. CI on rc: only the tolerated web/doc-sync counts + wasm jobs (wasm break fixed in IQ campaigns 60f026ac, inside batch 1) are red; coverage job now links fine (93 GB free) and stops on the matrix_total count test.
-- **Batch 1 — integ/batch1-0.36** (CI-only draft **PR #77** → main, subscribed): rc 0d9456fb + WP-07 f7974db9 + WP-12 87a8b739 + WP-04 7e618a89 + WP-09 d6d60f34 + CodeQL polar test fix + CHANGELOG restore (8737212a had dropped 0.36 entries) + IQ campaigns 60f026ac (W28; wasm fix + labfit false-lock mapping) + fixes for the merge failures (campaign members untiered; figure_tiers in dominance/cislunar/lunar_llr/time-lab tests; SBOM 107; clock_log path → FILE_SOURCE_KEYS; skyline vs 0.35 without figure_tiers; 3 ledger citations) + regen + recount (323: 153 V / 166 M / 4 P). Origin was 699be3cf; the local subagent (coordinator container, /workspace/kshana) was at c4010366 running final gates → it pushes integ/batch1-0.36. NEXT: when PR #77 CI is green except tolerated counts → `git push origin <batch head>:release/0.36.0-rc` (FF; verify ancestor first), close #77, subscribe PR #76 stays.
-- **Batch 2 (next, one subagent):** rc after batch 1 + WP-07 new head (abc37b0c gLAB leg, 78640e3c IONEX B6 VALIDATED, + W36 FUT-19 part 1 PPP clock vs IGS WTZR VALIDATED da25eafd, prereg 661ad138, feat/gnss-realdata-0.36) + WP-09 5e6486db (KF-GINS VALIDATED) + WP-13 feat/platform-vv-0.36 (5e9abf7b/8c3705e2/ea01fb97) + feat/forces-atmosphere-0.36 (box-wing b74b89c0, GMAT 6b599f1f, handoff 95fec18d) + feat/lunar-terrain-0.36 8bfe269e + feat/wasm-iq-0.36 b482fb33 + WP-10 feat/altpnt-maps-0.36 cbccf6a7 + WP-06 feat/cislunar-ephem-0.36 (959127b7 + beacon fix bc33fc99 + CAP-20b/31 + DS-LRO-10 NOT MET pinned, final tip 2a92f15f (24 h arc info only), prereg e82047e2; W47 archived 02:52). Watch: append_figure_tiers must exist ONCE (platform-vv has api/builtins.rs copy). Maybe split into 2 batches if conflicts are heavy.
-- **Batch 3+:** WP-08 DONE feat/interop-api-0.36 @ c8086328 = integrate the TIP (W48: ODM, telemetry 1.3, SPK 3/21 vs CSPICE bit-identical; ledger 279/139V; W48 archived 02:00), feat/iq-ext-0.36 @ ebf44620 (W28 WP-11b: DS-GIQ-06b + PRO-39 VALIDATED, NOT MET asserted, PRO-33 MODELLED, Galileo E1/E5a ICD 2.1 powers; rc merge 37644ad0 kept; branch ledger 305/148V; OPEN OWNER QUESTION: also move leo_signal E5b/AltBOC to ICD 2.1? W28 holds), feat/portable-math-0.36 DONE @ 2140172c (STUDIO-15, W43; 98/141 scenarios rebased, revisions in docs/revisions/STUDIO15-*; integrate LAST, alone; final run: make web/smoke.mjs iq golden exact), feat/interop-api-0.36 (WP-08, W46), feat/new-domains-0.36 @ b51d9bb7 (+ CAP-30 stage 1 ODF reader, stage 2 MRO OD: Doppler B1 MET, fit NOT MET pinned; 284 rows; cli_first_run/MCP/wasm gates not yet run by W49 — integration runs them) (WP-14: CAP-21/22/23/28 + FUT-19 parts 2-4 MODELLED, 283 rows) + feat/new-domains-b-0.36 @ 032c8231 (WP-14, W36/W45); CAP-30 part to a fresh worker after W36 hands off (W36 at 55 % context), DS-LRO-10 (W47).
-- **Then:** W43 final run (version bump; site/studio-backlog-0.36 merge; Studio re-record incl. quantum-cai-coast + sweep-nd-inertial; web counts; 0.35 claims gate FINAL-RUN-0.36.md on kshana-pro port/0.36.0) → FF rc → ONE CI run on the final SHA → if fully green FF main + tag v0.36.0 (owner approval stands; classifier may need the owner) → Zenodo notes → PRO-01 re-pin → winget 0.36 PR (owner posts).
+| Topic | Owner's words | Effect |
+|---|---|---|
+| rc fast-forwards | (ran the pushes himself) | The classifier blocks the coordinator's push to release/* ("Production Deploy"). For every rc FF, send the owner the exact command; he runs it from /tmp/kshana-push on his Mac with `--no-verify` (his own pre-push hook wants .ci-native/.ci-none; ref-only push, CI already ran on GitHub). Template: `cd /tmp/kshana-push && git fetch origin <integ branch> && git push --no-verify origin <SHA>:refs/heads/release/0.36.0-rc` |
+| Galileo E5b/AltBOC | "whats the dominant and best future proof way? if no then no" | Follow ICD 2.1 consistently: E5b -155.25 (Table 12); ICD has NO AltBOC row, so AltBOC = -152.24 = Table 12 E5a+E5b power sum, documented (W51, done @ 88d8bfff) |
+| Mars OD rerun (CAP-30) | "check and verify and if thats dominant and then ok" | Verified (B1 MET 12.5 mHz; only the estimator failed numerically) -> pre-registered run 2, same bars, W50 |
+| Lab-fit follow-up campaigns | "yes" | W51 runs W28's pre-registration 1e532f84 |
+| GitHub comments | (coordinator decision) | The GitHub MCP tool appends a "Generated by Claude Code" footer to comments, which breaks the no-attribution rule: do NOT post GitHub comments; tell the owner instead. One such reply exists on #80 (owner told he can delete it) |
+
+## 3. Current state (16:55 UTC 14 Oct; verify with git ls-remote)
+
+- **rc `release/0.36.0-rc` @ 2ef8bbff** = batch 1 (26ea2551) + batch 2a (36d8d3d4) + batch 2b (2ef8bbff). Ledger 334: 165 V / 165 M / 4 P. Draft release PR #76 tracks the rc (subscribed); its only reds are the tolerated web/doc-sync counts.
+- **Batch 3a — integ/batch3a-0.36 @ 6c7c4a12** (CI draft **PR #80**, subscribed): + interop-api c8086328 (WP-08) + new-domains b51d9bb7 + new-domains-b 032c8231 (WP-14). from_shadr kept ONCE (gravity_pds; WP-14 gravity_sh copy removed); time-transfer-budget `[[series]] paths` refused over MCP; 7 WP-14 kinds moved to src/api/builtins.rs; aocs settle/pointing figures untiered. Ledger 350: 173 V / 173 M / 4 P, 83 kinds. Local full suite 5191 pass, only tolerated counts. #80 so far: wasm = tolerated count; CodeQL 1 "high" = FALSE POSITIVE (cleartext logging, src/entry_eo_ascent/entry_heating.rs:1089 is a #[cfg(test)] assert printing an f64 energy residual; owner asked to dismiss code-scanning alert 149; not blocking). NEXT: when `check` finishes green except tolerated counts -> verify `git merge-base --is-ancestor origin/release/0.36.0-rc origin/integ/batch3a-0.36` -> send owner the push command for 6c7c4a12 -> after it lands close #80 and unsubscribe.
+- **Tolerated CI reds** (until W43's final site port): test-wasm-bindings (web/site.test.mjs capabilities count), coverage and check stopping at matrix_total_no_stale_count_doc_sync / scenario_count_doc_sync / web_validation_counts_doc_sync. Anything else red is real.
+- **Batch 3b (next):** on the rc after 3a: feat/iq-ext-0.36 @ b34e6803 (W28 WP-11b complete: CAP-06a/b/c, DS-LOOP-05, dem_hgt MCP guard f3a38ef4, labfit follow-up prereg 1e532f84) + feat/labfit-followup-0.36 (W51; descends from b34e6803, so it alone carries iq-ext) + feat/mars-od-run2-0.36 (W50; from b51d9bb7). Use the integration-helper prompt pattern (one background Agent in /workspace/kshana; brief = merge list at exact SHAs, keep-both-sides, regenerate once with tools, MCP file-source guard check, tolerated counts, full `cargo test --release --all --no-fail-fast` + fmt/clippy/cli_first_run/MCP round trip/wasm/attribution, owner identity, no force/reset/stash, push only the integ branch, report). Batch 2a/2b/3a helper reports are in this session's history; their commit messages on the integ branches show the method. Watch: W50 must not edit gravity_sh's from_shadr (told); W51's Galileo change moves 3 scenarios (CAP12 CSV).
+- **Then:** feat/portable-math-0.36 @ 2140172c (STUDIO-15, W43) ALONE as batch 4 (98/141 scenarios re-baselined under the owner's written re-baseline; expect conflicts in goldens/tests touched by later batches: re-run its re-baseline tooling, never hand-edit; STOP if any VALIDATED verdict flips or a frozen prediction file changes). Then W43's final run (send W43 the final rc SHA): version bump, site/studio-backlog-0.36 merge, Studio re-record (incl. sweep-nd-inertial, quantum-cai-coast), web counts/site port (fixes the tolerated reds), web/smoke.mjs iq golden exact, 0.35 claims gate (FINAL-RUN-0.36.md on kshana-pro port/0.36.0), re-run the Pro worked example quoted in docs/PRO.md (AltBOC worst loss 0.00544 dB -> ~0.0051 dB after the Galileo change). Then ONE full CI run on the final SHA -> owner pushes main + tag v0.36.0 -> Zenodo notes -> PRO-01 re-pin -> winget 0.36 PR (owner posts).
 - winget microsoft/winget-pkgs#450973 (0.35.0) waits on a Microsoft moderator.
+- Tag ETA told to owner: 16 Oct (17 if anything slips).
+- Disk in this container: ~9 GB free, /workspace/kshana/target 15 GB. Before batch 3b: `cargo clean` in /workspace/kshana (or delete target/debug) to free space.
 
 ## 4. Open items, in order
 
-1. Batch 1 → rc (above). 2. Batch 2, 3 (one integration subagent at a time; owner allowed cargo here). 3. Workers finish (§5). 4. STUDIO-15 last (W43 finishing the 2 owner-approved oracle items). 5. Final run + release (§3). 6. Post-release: list merged branches for the owner to delete.
-- Tag ETA told to owner: ≈ 17–18 Oct (DS-LRO-10 in scope).
-- No owner question is open.
+1. #80 green -> owner push 6c7c4a12 -> close #80. 2. W50 + W51 finish -> batch 3b -> CI PR -> owner push. 3. Batch 4 portable-math alone -> owner push. 4. W43 final run + final CI + owner tag. 5. Post-release: list merged branches for the owner to delete (feat/*-0.36, integ/*).
+- Open owner questions: none (CodeQL alert dismissal is his to do; not blocking).
 
-## 5. Sessions (cap 8; 7 in use after W45 archived, the new coordinator makes 8)
+## 5. Sessions (cap 8; 5 in use + the new coordinator = 6)
 
 | Session | Id | Work |
 |---|---|---|
-| Coordinator | session_01X1Md22tYih7LLQiPqsmUjy | archive after handover |
+| Coordinator (successor 4) | session_01DHvAPjGDf3yHFwyhV98iyj | archive after handover |
 | Founder Q&A (don't touch) | session_01GjdbgNeaCP64Lg3PiLr9GA | — |
-| W28 (ARCHIVED 14 Oct 13:25; WP-11b done @ b34e6803) | session_01YLFPWBdmcbeZKKEyiyRxvM | WP-11b on feat/iq-ext-0.36 @ 37644ad0: VALIDATED rows DS-GIQ-06b + PRO-39 (approved), convert ignored finding tests to asserting pins, PRO-33 amendment (a), Galileo ICD 2.1 powers (approved, revisions entry), then CAP-06a–c, DS-LOOP-05 (PRO-38 = duplicate of CAP-07). Messages to W28 arrive late (17 queued once); repeat key answers. Context high → rotate at next boundary |
-| W36 (ARCHIVED 14 Oct 03:05, handoff 1e8e258b docs/design/wp14-w36-handoff.md) | session_01BpojbwwUWoNKDfSmsCHR3B | WP-14 on feat/new-domains-0.36 @ 3728730c (CAP-21/22/23/28 done); now FUT-19, then CAP-30 part (Mars ODF OD; plan in W45 handoff bb5ea10b on feat/new-domains-b-0.36). W45 (archived 00:45) finished feat/new-domains-b-0.36 @ 032c8231: CAP-20c/d VALIDATED 88f3adfe, CAP-11 part NOT MET asserted 9951028b |
-| W49 (ARCHIVED 06:36; CAP-30 stopped @ b51d9bb7: B1 MET 12.5 mHz, B2-B5 NOT MET pinned (normal matrix not PD on 13.75 h arc); handoff docs/design/wp14-w49-handoff.md) | session_019ptmdAYyUSoRdtdxAzZ68Y | CAP-30 stage 2 (Mars ODF OD) on feat/new-domains-0.36 from 1e8e258b (brief docs/briefs/W49-cap30.md; created 03:03) |
-| W43 (Sonnet) | session_012VCHUyvBgx38Z6Zx43FcjM | STUDIO-15 feat/portable-math-0.36 @ 0e2acedd: finishing lunar_observability re-record (numpy 2.3.5 + scipy 1.18.1) + lunar_station finding 15→20/20 (both owner-approved); then holds the final run |
-| W48 (ARCHIVED 14 Oct 02:00, WP-08 done) | session_01MJa8pU7MYkCVYoSM1Pn1yW | WP-08 rest on feat/interop-api-0.36 from a3506363 (W46 handoff 1; W46 archived 00:25 after FUT-23 0bb3d21e, RM-30 cba5bf31, ADM 2c58b49c): ODM, telemetry 1.3, then all WP-08 rows/counts once (brief docs/briefs/W48-wp08-rest.md) |
-| W47 (ARCHIVED 14 Oct 02:52, DS-LRO-10 done) | session_01KsCQBsMhy6oQNovdU9JTyb | DS-LRO-10 on feat/cislunar-ephem-0.36 from c6dda41d (brief docs/briefs/W47-ds-lro-10.md; cite by title/DOI; may trigger the manual LRO CI job once) |
+| W43 (Sonnet) | session_012VCHUyvBgx38Z6Zx43FcjM | STUDIO-15 done @ 2140172c; HOLDS the final run until sent the final rc SHA |
+| W50 | session_01HETuusgYqArEG4PKQX1HVT | CAP-30 run 2 on feat/mars-od-run2-0.36 (brief docs/briefs/W50-cap30-run2.md): diagnose fit on dev pass, pre-register run 2 alone (same bars), run once. Started 15:04 |
+| W51 | session_01YVrY75Gwk52f8NbtWS6fvG | feat/labfit-followup-0.36 (brief W51-labfit-galileo.md): Galileo E5b/AltBOC DONE @ 88d8bfff; labfit campaigns running (early: S1 MET, S2 NOT MET, R1 MET, replications miss as predicted). Started 15:04 |
 
-Archived: old coordinator, W41 (→W47), W44 (→W46), W46 (→W48, 14 Oct 00:25), W45 (work done, 00:45). Workers lack create_session/archive: rotate at a boundary (handoff commit → coordinator archives → creates replacement with a full brief from docs/briefs/).
+Archived this shift: old coordinator (successor 3), W48 (WP-08 done), W47 (DS-LRO-10 done), W36 (handoff 1e8e258b), W49 (CAP-30 run 1 stopped @ b51d9bb7), W28 (WP-11b done @ b34e6803). Workers lack create_session/archive: rotate at a boundary (handoff commit -> coordinator archives -> new session with a brief from docs/briefs/).
 
 ## 6. Routines
 
-- `trig_01ULLGFcqyKVADpHVb7s5Ey6`: every 2 h (minute 16), bound to session_01X1Md22…. The new coordinator creates its own and DISABLES this one. Old ones (trig_0141RM2pEj95DjCvcR5BGtxL, trig_011Wno8YRNARC5PyeytwiaiK) are disabled.
+- `trig_01PgP3QKMcNzZ4h7Kq7fFoX6`: every 2 h (minute 46), bound to session_01DHvAPj…. The new coordinator creates its own and DISABLES this one. Older ones are disabled.
 
 ## 7. Lessons (don't repeat)
 
@@ -183,6 +153,14 @@ Archived: old coordinator, W41 (→W47), W44 (→W46), W46 (→W48, 14 Oct 00:25
 - **Relay delays:** peer messages can arrive hours late or out of order (W28 had 17 queued; W41 started WP-08 after it had moved). Re-state key decisions in each reply; when a worker asks again, re-send.
 - **Integration helper in this container:** it can collide with your own cargo/rustup (a concurrent `rustup` install broke rustfmt/clippy once; fix with `rustup component remove/add`). Don't run cargo yourself while it runs.
 - **Subagent "irreversible destruction" warning** was a `git stash`/pop; ask the subagent before trusting, forbid reset/clean/rm -rf in its brief.
+
+- **Classifier vs release pushes:** the coordinator cannot push release/*; the owner runs the FF (see §2). Don't retry or work around.
+- **Classifier vs relayed scope:** sending a worker a decision that moves published numbers beyond an approved change was blocked ("Instruction Poisoning"); writing "authorisation" lines into briefs was also blocked. Put the owner's own words (quoted, dated) in briefs and create_session prompts instead.
+- **MCP file-source guard gaps recur:** three new file-reading fields slipped past FILE_SOURCE_KEYS this shift (dem_hgt, dem_tile_path, [[series]] paths). Every integration must check new fields; the guard test now also flags *_hgt and paths.
+- **CI disk:** the `check` job ran out of disk inside cargo test (fixed 26ea2551 with a free-disk step, like coverage). Watch release.yml verify if it ever runs the suite.
+- **Relay lag:** worker messages still arrive hours late (W28 got a 08:30 message at 12:46). Repeat key asks; have integration handle a fix if a worker can't.
+- **Stop hook:** it nags about unpushed integ branches / uncommitted files while a helper is mid-batch; ignore until the helper's gates pass.
+
 
 ## 8. Setup for a new coordinator
 
