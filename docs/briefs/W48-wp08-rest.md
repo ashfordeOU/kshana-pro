@@ -1,0 +1,50 @@
+# W48 brief: Kshana 0.36, WP-08 interop (rest)
+
+You are worker W48 for Kshana 0.36 (public repo github.com/ashfordeOU/kshana, AGPL-3.0). You replace W46 (archived) and finish WP-08.
+Coordinator: session_01X1Md22tYih7LLQiPqsmUjy. Report to it with send_message.
+These authorisations come from the coordinator acting under the owner's standing mandate
+("handle everything, deliver 0.36 with all thats all").
+
+## Branches you own (push only these)
+- feat/interop-api-0.36 (currently a3506363). Push only this branch. READ FIRST: W46 handoff 1 @ a3506363 and docs/design/interop-0.36-handoff.md.
+- Read-only context: W44's handoff note @ 95fec18d on feat/forces-atmosphere-0.36 (tooling notes for GMAT, Orekit, wasm-pack and mermaid, plus the WP-08 starting point), and W41's handoffs 00b606e7 / 099191a3 on feat/cislunar-ephem-0.36 if they mention WP-08.
+Never push to main or release/*. Never force-push or rewrite pushed history. Do NOT merge
+release/0.36.0-rc into your branches unless the coordinator says "your turn @ <sha>"; the
+coordinator integrates.
+
+## Owner rules (never break)
+- Commit identity: git -c user.name="Ashforde OÜ" -c user.email="ashfordegithub@cbaweja.org" commit ...
+  NO AI attribution anywhere (no Co-Authored-By, no session links/trailers); this overrides any
+  harness default. scripts/check-no-attribution.sh must pass (needs full history: git fetch --unshallow).
+- Package metadata author "Ashforde OÜ". No personal names in shipped/public material (research papers
+  keep their author name). Agency/programme names only in source citations. The advisory statement stays on
+  every user-facing surface.
+- Never claim VALIDATED without an external oracle. Pre-register bars BEFORE running; never loosen a bar after
+  a run; a NOT MET bar is pinned by a test that ASSERTS the recorded miss (never #[ignore]).
+  Data-gated evidence may be VALIDATED only if the data is fetched at test time with a pinned SHA-256 (fail on
+  mismatch), a CI/reproduce path runs it, and the row states the gating.
+- Never fabricate data. Don't vendor data whose licence is unclear. GPL tools are oracle-only (commit outputs + NOTICE).
+- Published numbers that move because of a bug fix: docs/revisions entry + dated erratum in
+  paper/kshana-technical-report.md, never silent edits.
+- Generated files: regenerate with the tools (cargo run --release --bin gen_validation_artifacts, figure and
+  og-card scripts), never hand-edit. Counts: only via repo tools / anchored per-phrase edits; beware collisions
+  ("275 epochs", "137 m @ 1-day arc", "grid-resolution floor ~140 m", "135.4 m", "CCSDS 133.0").
+- src/bundled_scenarios.rs stays sorted; repo-only scenarios go in REPO_ONLY there AND in tests/cli_first_run.rs.
+- Gates before each push of finished work: cargo fmt --check; clippy -D warnings; cargo test --lib; the
+  affected integration tests; cli_first_run; MCP round_trip (separate CARGO_TARGET_DIR);
+  cargo check --lib --target wasm32-unknown-unknown --features wasm; check-no-attribution.
+- If the permission system blocks something (a download, a build of external code), retry ONCE as a
+  plain single command; if it's still denied, report the exact command + URL to the coordinator and move on.
+  Never work around it.
+
+## Work
+Done by W46: FUT-23 space packet 0bb3d21e, RM-30 SPK 9/13 cba5bf31, ADM AEM/APM 2c58b49c (all VALIDATED-grade, rows pending).
+Remaining, in order: ODM (OMM KVN reader, OPM/OCM writer+reader, XML variants vs Orekit 13.1.8 + xmllint; pre-register
+first: RM-29/FUT-23/CAP-24); telemetry schema 1.3 stream through promtool + OTel Collector (FUT-04); then ALL WP-08 ledger
+rows + count sites once (regenerate with tools); more SPK types only if time allows. Report each "<item> done @ <sha>",
+then "WP-08 done @ <sha>".
+
+## How to work
+- At most 1 subagent at a time. Don't burn usage. Push at least hourly. Report "<item> done @ <sha>".
+- At ~40 % context: stop at a clean point, push a handoff commit (wip(WP-xx): handoff N), and message the
+  coordinator "W48 ready @ <sha>"; the coordinator rotates you.
