@@ -2,6 +2,8 @@
 
 **Coordinator switch: 2026-10-14 00:47 UTC — session_01DHvAPjGDf3yHFwyhV98iyj ("successor 4") took over from session_01X1Md22tYih7LLQiPqsmUjy. Check-in routine trig_01PgP3QKMcNzZ4h7Kq7fFoX6 (every 2 h, minute 46); trig_01ULLGFcqyKVADpHVb7s5Ey6 disabled.**
 
+**10:40 UTC:** batch 2a PUSHED integ/batch2a-0.36 @ 36d8d3d4 (from 26ea2551; 5 merges + dem_tile_path MCP guard 5c0c21e7 + regen 2cc6cc38 + guard-test note 36d8d3d4). Ledger 330: 162 V / 164 M / 4 P. Local full suite 5016 pass, only tolerated count tests fail. CI draft PR #78 (subscribed). Next: batch 2b (platform-vv ea01fb97, forces-atmosphere 95fec18d, altpnt-maps cbccf6a7) on 36d8d3d4 while #78 runs.
+
 **08:50 UTC:** OWNER pushed the rc FF: release/0.36.0-rc = 26ea2551 (batch 1 landed; owner's Mac pre-push hook needed --no-verify for a ref-only push). PR #77 closed. Future rc FFs: classifier blocks the coordinator ("Production Deploy"), so give the owner the exact push command.
 
 **08:30 UTC:** W28 CAP-06b @ e69e1fd6 (all MET; branch 307/148V). SECURITY: [terrain].dem_hgt reads a host file but was not in inline_only FILE_SOURCE_KEYS (MCP could read arbitrary paths) — W28 told to fix + guard test before handoff. Check before batch 3 integrates iq-ext.
