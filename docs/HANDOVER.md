@@ -2,6 +2,8 @@
 
 **Coordinator switch: 2026-10-14 00:47 UTC — session_01DHvAPjGDf3yHFwyhV98iyj ("successor 4") took over from session_01X1Md22tYih7LLQiPqsmUjy. Check-in routine trig_01PgP3QKMcNzZ4h7Kq7fFoX6 (every 2 h, minute 46); trig_01ULLGFcqyKVADpHVb7s5Ey6 disabled.**
 
+**11:50 UTC:** #78 (batch 2a 36d8d3d4) CI green except tolerated counts (check stops at matrix_total; coverage web_validation_counts; wasm site counts). FF verified. Owner asked to push 36d8d3d4 -> release/0.36.0-rc; then close #78.
+
 **10:10 UTC (W28):** CAP-06c @ 6b29e8d8 (G2/G3 MET; H3 NOT MET-uninformative asserted; supplement S1 MET), scope record b064f14b, DS-LOOP-05 prereg 58789af0; now implementing DS-LOOP-05 (last WP-11b item). W28 has NOT yet seen the dem_hgt guard request (relay lag) — if it is not fixed on the branch when batch 3 integrates iq-ext, the integration adds "dem_hgt" to inline_only FILE_SOURCE_KEYS + test (as 2a did for dem_tile_path). After DS-LOOP-05: archive W28 (no replacement needed).
 
 **10:40 UTC:** batch 2a PUSHED integ/batch2a-0.36 @ 36d8d3d4 (from 26ea2551; 5 merges + dem_tile_path MCP guard 5c0c21e7 + regen 2cc6cc38 + guard-test note 36d8d3d4). Ledger 330: 162 V / 164 M / 4 P. Local full suite 5016 pass, only tolerated count tests fail. CI draft PR #78 (subscribed). Next: batch 2b (platform-vv ea01fb97, forces-atmosphere 95fec18d, altpnt-maps cbccf6a7) on 36d8d3d4 while #78 runs.
