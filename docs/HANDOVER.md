@@ -2,6 +2,8 @@
 
 **21:15 14 Oct: rc = 6c7c4a12 (batch 3a, owner pushed); #80 closed + unsubscribed. Batch 3b pushed: integ/batch3b-0.36 @ 36dc5ba9 (on 6c7c4a12; ledger 361: 175 V/182 M/4 P; local full suite only tolerated counts), CI draft PR #81 (subscribed). PR-create via MCP appends a Claude footer to the body: edit the body afterwards to remove it (done on #81). Leftover: src/verification.rs:1981 row text says 'gravity_sh (from_shadr)' (now gravity_pds) -> W43 final run.**
 
+**22:55 14 Oct: batch 4 helper (background Agent, coordinator container) building integ/batch4-0.36 = 3b 36dc5ba9 + portable-math 2140172c, in parallel with #81 CI. STOP conditions: VALIDATED flip, bar verdict change, frozen prediction change. Don't run cargo while it runs.**
+
 **Coordinator switch: 2026-10-14 16:52 UTC — successor 5 = session_01DfFzhRx22yokqTTCMRWmuU (took over from session_01DHvAPjGDf3yHFwyhV98iyj). Check-in routine trig_01SpyoU4onaWDRbEA9ppnKd2 (minute 51, every 2 h); trig_01PgP3QKMcNzZ4h7Kq7fFoX6 disabled.**
 
 Written: 2026-10-14 ~16:55 UTC by coordinator `session_01DHvAPjGDf3yHFwyhV98iyj` ("successor 4"; took over 14 Oct 00:47 UTC from session_01X1Md22tYih7LLQiPqsmUjy). Handing over at ~47 % context.
