@@ -2,6 +2,8 @@
 
 **Coordinator switch: 2026-10-14 00:47 UTC — session_01DHvAPjGDf3yHFwyhV98iyj ("successor 4") took over from session_01X1Md22tYih7LLQiPqsmUjy. Check-in routine trig_01PgP3QKMcNzZ4h7Kq7fFoX6 (every 2 h, minute 46); trig_01ULLGFcqyKVADpHVb7s5Ey6 disabled.**
 
+**01:15 UTC:** batch 1 PUSHED: integ/batch1-0.36 @ 199d8db0 (rc 0d9456fb ancestor verified; local full suite 4940 pass, only the 5 tolerated count failures). PR #77 CI running. Old coordinator archived itself. Checked its two flags: (1) figure_tiers "VALIDATED" in attitude-budget/eo-coverage/link-budget/passes/space-packet: each figure maps to an ExternalDataset-oracled row whose oracle covers that figure (attitude: GG torque only; pointing RSS untiered) — not a mis-claim; (2) wasm dead-code warnings: no CI wasm job uses -D warnings (clippy -D warnings is native) — harmless, tidy later.
+
 Written: 2026-10-14 ~00:30 UTC by coordinator `session_01X1Md22tYih7LLQiPqsmUjy` ("successor 3"; took over 13 Oct 19:05 UTC from session_01UmnDCL2ERStnt9tRqC9a4i, archived). Handing over at ~43 % context.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 Owner's latest words: "handle everything, deliver 0.36 with all thats all" (12 Oct); 13 Oct: "push yourself and everything as 0.36"; "yes do both, but handle the rest properly still" (batching); "allow running cargo for integration in /workspace/kshana"; STUDIO-15 "c"; "1. yes 2. yes 3. b"; "brief" (render it, §1).
