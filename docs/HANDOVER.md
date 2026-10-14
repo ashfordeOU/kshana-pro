@@ -2,6 +2,8 @@
 
 **Coordinator switch: 2026-10-14 00:47 UTC — session_01DHvAPjGDf3yHFwyhV98iyj ("successor 4") took over from session_01X1Md22tYih7LLQiPqsmUjy. Check-in routine trig_01PgP3QKMcNzZ4h7Kq7fFoX6 (every 2 h, minute 46); trig_01ULLGFcqyKVADpHVb7s5Ey6 disabled.**
 
+**13:30 UTC:** batch 2b PUSHED integ/batch2b-0.36 @ 2ef8bbff (on 36d8d3d4: platform-vv/FUT-27 builtins.rs split, forces-atmosphere, altpnt-maps; clock kind now has own driver run_clock_kind(src) for [clock_log]; append_figure_tiers once in src/api.rs). Ledger 334: 165 V / 165 M / 4 P. Local suite 5065 pass, only tolerated counts. CI draft PR #79. Stale Studio recording web/studio/recorded/sweep-nd-inertial.json -> final run re-records. Batch 3a helper started on 2ef8bbff: interop-api c8086328, new-domains b51d9bb7, new-domains-b 032c8231. iq-ext waits for W28 (dem_hgt guard + handoff) -> batch 3b. Then portable-math alone.
+
 **11:50 UTC:** #78 (batch 2a 36d8d3d4) CI green except tolerated counts (check stops at matrix_total; coverage web_validation_counts; wasm site counts). FF verified. Owner asked to push 36d8d3d4 -> release/0.36.0-rc; then close #78.
 
 **10:10 UTC (W28):** CAP-06c @ 6b29e8d8 (G2/G3 MET; H3 NOT MET-uninformative asserted; supplement S1 MET), scope record b064f14b, DS-LOOP-05 prereg 58789af0; now implementing DS-LOOP-05 (last WP-11b item). W28 has NOT yet seen the dem_hgt guard request (relay lag) — if it is not fixed on the branch when batch 3 integrates iq-ext, the integration adds "dem_hgt" to inline_only FILE_SOURCE_KEYS + test (as 2a did for dem_tile_path). After DS-LOOP-05: archive W28 (no replacement needed).
