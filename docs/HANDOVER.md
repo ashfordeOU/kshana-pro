@@ -2,6 +2,8 @@
 
 **Coordinator switch: 2026-10-14 00:47 UTC — session_01DHvAPjGDf3yHFwyhV98iyj ("successor 4") took over from session_01X1Md22tYih7LLQiPqsmUjy. Check-in routine trig_01PgP3QKMcNzZ4h7Kq7fFoX6 (every 2 h, minute 46); trig_01ULLGFcqyKVADpHVb7s5Ey6 disabled.**
 
+**07:20 UTC:** #77 CI on 26ea2551: all green except tolerated counts (check stops at matrix_total count test; coverage/wasm: site counts). rc FF push 26ea2551 -> release/0.36.0-rc BLOCKED by classifier ("Production Deploy") — asked owner to allow or push it themselves; #77 stays open until then. Batch 2a integration subagent (coordinator container, /workspace/kshana) started from 26ea2551: gnss-realdata da25eafd, fusion-ins 5e6486db, cislunar-ephem 2a92f15f, lunar-terrain 8bfe269e, wasm-iq b482fb33 -> integ/batch2a-0.36. Batch 2b: platform-vv ea01fb97, forces-atmosphere 95fec18d, altpnt-maps cbccf6a7. Batch 3: interop-api c8086328, iq-ext (W28 tip), new-domains b51d9bb7 + new-domains-b 032c8231. Last: portable-math 2140172c alone.
+
 **06:40 UTC:** W28 CAP-06a @ 8ed3ec8e (MVDR NOT MET asserted; branch 306 rows/148V); W28 at 50 % context, asked for handoff after CAP-06b prereg, then rotate WP-11b (CAP-06b/c, DS-LOOP-05) to a fresh worker. Optional: a fresh pre-registered CAP-30 run 2 fixing the OD fit (leads in W49 handoff) — owner call on usage.
 
 **03:40 UTC:** #77 `check` job died with "No space left on device" in cargo test (runner disk, not a test). Pushed ci fix 26ea2551 to integ/batch1-0.36 (free-disk step in the check job, as the coverage job has; YAML only, so no local suite re-run). CI re-running on 26ea2551. W36 archived, W47 archived, W49 started CAP-30 stage 2 (prereg abf7a311). Watch release.yml verify for the same disk problem before the final run.
