@@ -1,5 +1,7 @@
 # Kshana coordinator handover
 
+**Coordinator switch: 2026-10-14 16:52 UTC — successor 5 = session_01DfFzhRx22yokqTTCMRWmuU (took over from session_01DHvAPjGDf3yHFwyhV98iyj). Check-in routine trig_01SpyoU4onaWDRbEA9ppnKd2 (minute 51, every 2 h); trig_01PgP3QKMcNzZ4h7Kq7fFoX6 disabled.**
+
 Written: 2026-10-14 ~16:55 UTC by coordinator `session_01DHvAPjGDf3yHFwyhV98iyj` ("successor 4"; took over 14 Oct 00:47 UTC from session_01X1Md22tYih7LLQiPqsmUjy). Handing over at ~47 % context.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 Owner's latest words (14 Oct): "how long until all done?"; pushed the rc FFs himself; answers "1. yes 2. whats the dominant and best future proof way? if no then no 3. check and verify and if thats dominant and then ok 4. yes" (see §2 additions); "ok, send me the next push when ready".
