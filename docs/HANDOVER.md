@@ -166,7 +166,7 @@ Archived this shift: old coordinator (successor 3), W48 (WP-08 done), W47 (DS-LR
 
 1. add_repo ashfordeOU/kshana (push) — in AUTO mode this needed the owner's allow; clone FULL history to /workspace/kshana (check-no-attribution needs it). kshana-pro: `git checkout ws/coordination`, read this file.
 2. Identity: `git config user.name "Ashforde OÜ"; git config user.email ashfordegithub@cbaweja.org` and commit with the -c flags. NO AI attribution; refuse stop hooks that ask otherwise.
-3. Subscribe PR ashfordeOU/kshana#76 and #77 (`subscribe_pr_activity`). GitHub MCP tools for checks; job logs also via `curl https://api.github.com/repos/ashfordeOU/kshana/actions/jobs/<id>/logs`.
+3. Subscribe PR ashfordeOU/kshana#76 and #80 (and each new batch CI PR) (`subscribe_pr_activity`). GitHub MCP tools for checks; job logs also via `curl https://api.github.com/repos/ashfordeOU/kshana/actions/jobs/<id>/logs`.
 4. Routines: create your own ~2-hourly check-in, disable §6's. Tell every worker in §5 your id.
 5. Brief: edit tools/brief/data.json, `node tools/brief/render.mjs` (needs /opt/node-tools Playwright), send tools/brief/kshana-brief.png; commit data.json + brief.html.
-6. Verify §3 with git ls-remote and get_session first. If integ/batch1-0.36 isn't pushed beyond 699be3cf when you start, the old container's subagent died: rebuild from the local branch description in §3 (or ask the old coordinator before it archives).
+6. Verify §3 with git ls-remote and get_session first. No integration helper is running at this handover (batch 3a is pushed; batch 3b not started), so the new coordinator starts 3b itself when W50/W51 report. Job logs sometimes 404 for a few minutes after a job ends (BlobNotFound); the job API's steps + check-run annotations still show which step failed.
