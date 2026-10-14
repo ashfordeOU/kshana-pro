@@ -2,6 +2,8 @@
 
 **Coordinator switch: 2026-10-14 00:47 UTC — session_01DHvAPjGDf3yHFwyhV98iyj ("successor 4") took over from session_01X1Md22tYih7LLQiPqsmUjy. Check-in routine trig_01PgP3QKMcNzZ4h7Kq7fFoX6 (every 2 h, minute 46); trig_01ULLGFcqyKVADpHVb7s5Ey6 disabled.**
 
+**16:15 UTC:** #79 (batch 2b 2ef8bbff) CI green except tolerated counts; FF from rc 36d8d3d4 verified; push command sent to owner. Close #79 after it lands.
+
 **15:15 UTC:** OWNER pushed rc FF: release/0.36.0-rc = 36d8d3d4 (batch 2a landed). #78 closed. W51 Galileo: ICD 2.1 has no AltBOC row -> E5b -155.25 (Table 12), AltBOC -152.24 = Table 12 E5a+E5b power sum, documented.
 
 **15:05 UTC — OWNER ANSWERS:** (1) rc push "yes" (owner to push 36d8d3d4; rc still 26ea2551 at 15:05). (2) Galileo E5b/AltBOC: "whats the dominant and best future proof way? if no then no" -> coordinator: follow ICD 2.1 consistently -> W51. (3) Mars OD rerun: "check and verify and if thats dominant and then ok" -> verified (B1 MET, only estimator failed numerically) -> W50 run 2, pre-registered, same bars. (4) labfit follow-up campaigns: "yes" -> W51. NEW: W50 session_01HETuusgYqArEG4PKQX1HVT on feat/mars-od-run2-0.36 (from b51d9bb7; brief docs/briefs/W50-cap30-run2.md); W51 session_01YVrY75Gwk52f8NbtWS6fvG on feat/labfit-followup-0.36 (from b34e6803; brief W51-labfit-galileo.md). Sessions: coordinator, founder Q&A, W43, W50, W51 = 5. Batch plan: 3a (running), 3b = iq-ext b34e6803 + labfit-followup + mars-od-run2 when done, then portable-math alone, then final run.
