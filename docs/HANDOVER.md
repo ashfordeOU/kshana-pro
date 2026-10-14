@@ -121,7 +121,7 @@ Owner decisions 14 Oct:
 | Coordinator (successor 4) | session_01DHvAPjGDf3yHFwyhV98iyj | archive after handover |
 | Founder Q&A (don't touch) | session_01GjdbgNeaCP64Lg3PiLr9GA | — |
 | W43 (Sonnet) | session_012VCHUyvBgx38Z6Zx43FcjM | STUDIO-15 done @ 2140172c; HOLDS the final run until sent the final rc SHA |
-| W50 | session_01HETuusgYqArEG4PKQX1HVT | NOT STARTED as of 16:51 14 Oct: refused the create_session brief as unconfirmed and waits for the OWNER to confirm in its own session (asked 16:55). CAP-30 run 2 on feat/mars-od-run2-0.36 (brief docs/briefs/W50-cap30-run2.md): diagnose fit on dev pass, pre-register run 2 alone (same bars), run once. Started 15:04 |
+| W50 | session_01HETuusgYqArEG4PKQX1HVT | Idle 15:04–16:55 (refused the create_session brief as unconfirmed); OWNER confirmed in its session ~16:56 14 Oct, now running. CAP-30 run 2 on feat/mars-od-run2-0.36 (brief docs/briefs/W50-cap30-run2.md): diagnose fit on dev pass, pre-register run 2 alone (same bars), run once. Started 15:04 |
 | W51 | session_01YVrY75Gwk52f8NbtWS6fvG | feat/labfit-followup-0.36 (brief W51-labfit-galileo.md): Galileo E5b/AltBOC DONE @ 88d8bfff; labfit campaigns running (early: S1 MET, S2 NOT MET, R1 MET, replications miss as predicted). Started 15:04 |
 
 Archived this shift: old coordinator (successor 3), W48 (WP-08 done), W47 (DS-LRO-10 done), W36 (handoff 1e8e258b), W49 (CAP-30 run 1 stopped @ b51d9bb7), W28 (WP-11b done @ b34e6803). Workers lack create_session/archive: rotate at a boundary (handoff commit -> coordinator archives -> new session with a brief from docs/briefs/).
