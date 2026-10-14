@@ -2,6 +2,8 @@
 
 **Coordinator switch: 2026-10-14 00:47 UTC — session_01DHvAPjGDf3yHFwyhV98iyj ("successor 4") took over from session_01X1Md22tYih7LLQiPqsmUjy. Check-in routine trig_01PgP3QKMcNzZ4h7Kq7fFoX6 (every 2 h, minute 46); trig_01ULLGFcqyKVADpHVb7s5Ey6 disabled.**
 
+**17:20 UTC:** #80 CodeQL: 1 "high" alert (cleartext logging) at src/entry_eo_ascent/entry_heating.rs:1089 = a #[cfg(test)] assert printing an f64 energy residual -> false positive; replied on thread; OWNER to dismiss (code-scanning alert 149) or decide. Not treated as blocking the rc FF unless owner says so.
+
 **17:15 UTC:** OWNER pushed rc FF: release/0.36.0-rc = 2ef8bbff (batch 2b landed). #79 closed. #80 (batch 3a) CI running.
 
 **17:05 UTC (W51):** Galileo E5b -155.25 / AltBOC -152.24 (Table 12 power sum) @ 88d8bfff on feat/labfit-followup-0.36; 3 scenarios move (64 values, CAP12 CSV). FINAL-RUN TODO: docs/PRO.md quotes a Pro worked example "0.00544 dB worst AltBOC loss" -> ~0.0051 dB; re-run it in kshana-pro and update PRO.md (W43 final run). Labfit early read: S1 MET, S2 NOT MET, R1 MET, replications miss as predicted.
