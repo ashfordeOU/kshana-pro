@@ -2,6 +2,8 @@
 
 **Coordinator switch: 2026-10-14 00:47 UTC — session_01DHvAPjGDf3yHFwyhV98iyj ("successor 4") took over from session_01X1Md22tYih7LLQiPqsmUjy. Check-in routine trig_01PgP3QKMcNzZ4h7Kq7fFoX6 (every 2 h, minute 46); trig_01ULLGFcqyKVADpHVb7s5Ey6 disabled.**
 
+**17:05 UTC (W51):** Galileo E5b -155.25 / AltBOC -152.24 (Table 12 power sum) @ 88d8bfff on feat/labfit-followup-0.36; 3 scenarios move (64 values, CAP12 CSV). FINAL-RUN TODO: docs/PRO.md quotes a Pro worked example "0.00544 dB worst AltBOC loss" -> ~0.0051 dB; re-run it in kshana-pro and update PRO.md (W43 final run). Labfit early read: S1 MET, S2 NOT MET, R1 MET, replications miss as predicted.
+
 **17:00 UTC:** batch 3a PUSHED integ/batch3a-0.36 @ 6c7c4a12 (on 2ef8bbff: interop-api, new-domains, new-domains-b; from_shadr kept ONCE = gravity_pds (WP-14 gravity_sh copy removed; W50 told); time-transfer-budget [[series]] paths refused over MCP; 7 WP-14 kinds moved to builtins.rs; aocs settle/pointing figures untiered). Ledger 350: 173 V / 173 M / 4 P, 83 kinds. Local suite 5191 pass, only tolerated counts. CI draft PR #80. Disk 9.4 GB free (target 15 GB) — clean before next batch. Next: 3b = iq-ext b34e6803 + labfit-followup (W51) + mars-od-run2 (W50) when done; then portable-math alone.
 
 **16:15 UTC:** #79 (batch 2b 2ef8bbff) CI green except tolerated counts; FF from rc 36d8d3d4 verified; push command sent to owner. Close #79 after it lands.
