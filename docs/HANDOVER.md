@@ -1,6 +1,6 @@
 # Kshana coordinator handover
 
-**21:05 14 Oct: batch 3a 6c7c4a12 CI done (only tolerated reds) -> owner sent push command, awaiting. Batch 3b pushed: integ/batch3b-0.36 @ 36dc5ba9 (on 6c7c4a12; ledger 361: 175 V/182 M/4 P; local full suite only tolerated counts), CI draft PR #81 (subscribed). PR-create via MCP appends a Claude footer to the body: edit the body afterwards to remove it (done on #81). Leftover: src/verification.rs:1981 row text says 'gravity_sh (from_shadr)' (now gravity_pds) -> W43 final run.**
+**21:15 14 Oct: rc = 6c7c4a12 (batch 3a, owner pushed); #80 closed + unsubscribed. Batch 3b pushed: integ/batch3b-0.36 @ 36dc5ba9 (on 6c7c4a12; ledger 361: 175 V/182 M/4 P; local full suite only tolerated counts), CI draft PR #81 (subscribed). PR-create via MCP appends a Claude footer to the body: edit the body afterwards to remove it (done on #81). Leftover: src/verification.rs:1981 row text says 'gravity_sh (from_shadr)' (now gravity_pds) -> W43 final run.**
 
 **Coordinator switch: 2026-10-14 16:52 UTC — successor 5 = session_01DfFzhRx22yokqTTCMRWmuU (took over from session_01DHvAPjGDf3yHFwyhV98iyj). Check-in routine trig_01SpyoU4onaWDRbEA9ppnKd2 (minute 51, every 2 h); trig_01PgP3QKMcNzZ4h7Kq7fFoX6 disabled.**
 
