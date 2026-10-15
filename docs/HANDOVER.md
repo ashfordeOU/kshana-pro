@@ -6,6 +6,8 @@
 
 **02:55 15 Oct: #81 `check` was CANCELLED by the 240-min timeout (slow runner: every test binary ~1.7x slower than on #80; it never reached the tolerated count stop). Re-ran failed jobs once (run 38637103861). Risk for the FINAL run: once the counts are fixed, `cargo test --all` (debug) runs the whole suite and will likely exceed 240 min -> raise check's timeout-minutes in ci.yml (or run release mode) in W43's final run.**
 
+**08:55 15 Oct: #81 check cancelled at 240 min AGAIN (reached binary 301/~311). Pushed a3843700 to integ/batch3b-0.36: ci.yml check timeout 240->360 (comment explains). #81 re-runs on a3843700; next rc push target = a3843700 (not 36dc5ba9). Batch 4 must merge a3843700.**
+
 **Coordinator switch: 2026-10-14 16:52 UTC — successor 5 = session_01DfFzhRx22yokqTTCMRWmuU (took over from session_01DHvAPjGDf3yHFwyhV98iyj). Check-in routine trig_01SpyoU4onaWDRbEA9ppnKd2 (minute 51, every 2 h); trig_01PgP3QKMcNzZ4h7Kq7fFoX6 disabled.**
 
 Written: 2026-10-14 ~16:55 UTC by coordinator `session_01DHvAPjGDf3yHFwyhV98iyj` ("successor 4"; took over 14 Oct 00:47 UTC from session_01X1Md22tYih7LLQiPqsmUjy). Handing over at ~47 % context.
