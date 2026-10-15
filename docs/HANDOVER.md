@@ -8,6 +8,8 @@
 
 **08:55 15 Oct: #81 check cancelled at 240 min AGAIN (reached binary 301/~311). Pushed a3843700 to integ/batch3b-0.36: ci.yml check timeout 240->360 (comment explains). #81 re-runs on a3843700; next rc push target = a3843700 (not 36dc5ba9). Batch 4 must merge a3843700.**
 
+**13:40 15 Oct: #81 CI on a3843700 done: only tolerated reds (check stopped at matrix_total doc-sync after 4h45m; coverage/wasm counts; CodeQL alert 149 FP). rc ancestor OK. Owner sent push command for a3843700.**
+
 **Coordinator switch: 2026-10-14 16:52 UTC — successor 5 = session_01DfFzhRx22yokqTTCMRWmuU (took over from session_01DHvAPjGDf3yHFwyhV98iyj). Check-in routine trig_01SpyoU4onaWDRbEA9ppnKd2 (minute 51, every 2 h); trig_01PgP3QKMcNzZ4h7Kq7fFoX6 disabled.**
 
 Written: 2026-10-14 ~16:55 UTC by coordinator `session_01DHvAPjGDf3yHFwyhV98iyj` ("successor 4"; took over 14 Oct 00:47 UTC from session_01X1Md22tYih7LLQiPqsmUjy). Handing over at ~47 % context.
