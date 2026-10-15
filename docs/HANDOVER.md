@@ -103,6 +103,7 @@ Owner decisions 15 Oct:
 | Topic | Owner's words | Effect |
 |---|---|---|
 | Batch 4 (17:40 UTC) | "1 a 2 yes" | (1) Greenhall: numerically stable rewrite of greenhall_edf_core meeting the unchanged 1e-9 bar under portable maths. (2) gps-sdr-sim testbench oracle re-run, bar unchanged, revisions entry. Integration helper started in the coordinator container |
+| Speed-up 3 (~20:40 UTC) | "yes do both" | (1) No separate batch-4 CI PR: W43 builds the final run on top of integ/batch4-0.36 once the helper's local gates pass; ONE full CI run on the final SHA covers batch 4 + final run. (2) W43 starts as soon as the helper pushes, without waiting for the owner's rc FF. Tag ETA late 16 / early 17 Oct |
 
 Coordinator decisions 14–15 Oct (successor 5):
 - W50 CAP-30 run 2 amendment R2-A1 (scoring-only fix after the scored run crashed sampling past the fit span) accepted on conditions: identical deterministic re-execution reproducing B2 exactly, no bar/editing/arc change, disclosed in PREREGISTRATION-RUN2.md + docs/revisions; run 1 not re-scored.
