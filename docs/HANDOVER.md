@@ -1,5 +1,7 @@
 # Kshana coordinator handover
 
+**Coordinator switch 2026-10-15 15:36 UTC:** successor 6 `session_011RqoYRajgEEr3gDaV6hhHj` took over from successor 5 (`session_01DfFzhRx22yokqTTCMRWmuU`). Check-in routine `trig_011tTxPdyaCBp9kT9fQYGSaQ` (every 2 h, minute 35, bound to successor 6); `trig_01SpyoU4onaWDRbEA9ppnKd2` disabled. W43 told. §3 verified (rc a3843700, integ/batch4-0.36 ab4fbe09).
+
 Written: 2026-10-15 ~15:10 UTC by coordinator `session_01DfFzhRx22yokqTTCMRWmuU` ("successor 5"; took over 14 Oct 16:52 UTC from session_01DHvAPjGDf3yHFwyhV98iyj). Handing over at the ~1 day threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 Owner's latest words (15 Oct): pasted his successful rc push of a3843700 (batch 3b). Earlier: "done the sending command to that session" (confirmed W50 in its own session). PENDING owner answers on batch 4 (see §4).
