@@ -2,6 +2,7 @@
 
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
+PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
 Owner's latest words (16 Oct): "yes plan it for 0.37 and use a separate worker who can already start working on 0.37 on the side while 0.36 is releasing" (ESA NAVISP EL1-134 optical-PNT analysis capability; W52 created). Earlier today: "brief", "how long?", "all running smooth?". PENDING owner answer: Studio library + features page follow-up before or after the tag (recommended after).
 
 ## 1. Owner and how they work
