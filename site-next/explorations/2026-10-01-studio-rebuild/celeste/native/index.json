@@ -1,14 +1,14 @@
 {
- "engine_version": "0.35.0",
- "engine_commit": "d60b3cb89c0d6c290e656b68889594df5102df3b",
+ "engine_version": "0.36.0",
+ "engine_commit": "d1b4251339e2ee852d9f57d1d9de8ec47b4cf26f",
  "source": "native",
  "platform": "linux x64",
- "recorded_utc": "2026-10-12T18:37:23.217Z",
+ "recorded_utc": "2026-10-16T00:58:21.226Z",
  "runs": {
   "celeste-iod-classical-pilot-signals.toml": {
    "file": "celeste-iod-classical-pilot-signals.json.gz",
-   "bytes": 26272,
-   "unpacked_bytes": 119143,
+   "bytes": 26317,
+   "unpacked_bytes": 119307,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the leo-signal result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
@@ -19,8 +19,8 @@
   },
   "celeste-iod-end-to-end.toml": {
    "file": "celeste-iod-end-to-end.json.gz",
-   "bytes": 103963,
-   "unpacked_bytes": 325403,
+   "bytes": 104117,
+   "unpacked_bytes": 326828,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -36,8 +36,8 @@
   },
   "celeste-iod-fused-pvt.toml": {
    "file": "celeste-iod-fused-pvt.json.gz",
-   "bytes": 35687,
-   "unpacked_bytes": 128079,
+   "bytes": 35856,
+   "unpacked_bytes": 129319,
    "report": true,
    "animation": true,
    "animation_reason": "",
@@ -48,8 +48,8 @@
   },
   "leo-navmsg-celeste-iod.toml": {
    "file": "leo-navmsg-celeste-iod.json.gz",
-   "bytes": 16136,
-   "unpacked_bytes": 63233,
+   "bytes": 16235,
+   "unpacked_bytes": 64054,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the leo-navmsg result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
@@ -60,8 +60,8 @@
   },
   "leo-pass-celeste-iod-multiband.toml": {
    "file": "leo-pass-celeste-iod-multiband.json.gz",
-   "bytes": 170183,
-   "unpacked_bytes": 570918,
+   "bytes": 170349,
+   "unpacked_bytes": 572119,
    "report": true,
    "animation": true,
    "animation_reason": "",

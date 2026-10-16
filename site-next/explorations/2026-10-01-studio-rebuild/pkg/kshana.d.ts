@@ -1,5 +1,160 @@
 /* tslint:disable */
 /* eslint-disable */
+// SPDX-License-Identifier: AGPL-3.0-only
+// Typed declarations appended to the wasm-pack `kshana.d.ts` (CAP-34), through
+// `typescript_custom_section` in src/wasm.rs. The three closed vocabularies below are
+// kept equal to the engine's own lists by tests/typed_api_sync.rs: the scenario kinds
+// (`api::list_scenario_kinds`), the error tags (`KshanaError::kind_tag`) and the
+// provenance classes (`field_schema::ProvenanceClass::ALL`).
+
+/** Every built-in scenario kind, the value of a scenario's top-level `kind`. */
+export type ScenarioKind =
+| "clock"
+| "inertial"
+| "orbit"
+| "ephemeris"
+| "integrity"
+| "lunar-integrity"
+| "lunar-time-offset"
+| "lunar-vlbi"
+| "lunar-joint-od-clock"
+| "lunar-frame-realisation"
+| "moonlight-service-volume"
+| "lunar-differential-pnt"
+| "lunar-station-coverage"
+| "lunar-interop-export"
+| "timetransfer"
+| "quantum-anomaly-detect"
+| "quantum-gnss-free-nav"
+| "quantum-time-transfer"
+| "hybrid"
+| "fusion"
+| "hybrid-ukf"
+| "gnss-ins"
+| "gnss-sim"
+| "jamming"
+| "spoof"
+| "spoof-detect"
+| "sweep"
+| "sweep-nd"
+| "gravity-map"
+| "terrain-nav"
+| "terrain-slam"
+| "combined-altpnt"
+| "pvt"
+| "mars-pnt"
+| "impairment-eval"
+| "quantum-trade"
+| "space-weather"
+| "oem-interop"
+| "launch-window"
+| "reentry"
+| "eo-coverage"
+| "space-packet"
+| "attitude-budget"
+| "passes"
+| "link-budget"
+| "lunar-time-budget"
+| "hybrid-optical-rf"
+| "cislunar-observability"
+| "conflict-resilience"
+| "lunar-attack-surface"
+| "realtime-frame-eop"
+| "aperture-duty-cycle"
+| "lunar-jamming"
+| "ins-trn-coast"
+| "lunar-vlbi-fim"
+| "tracking-loop"
+| "araim-reference-check"
+| "lunar-frame-campaign"
+| "lunar-llr-datum"
+| "lunar-beacon"
+| "earth-gnss-lunar"
+| "cislunar-arc-recovery"
+| "telecom-timing"
+| "slot-timing"
+| "spectrum"
+| "solar-system"
+| "body-pnt"
+| "constellation-design"
+| "campaign"
+| "leo-signal"
+| "leo-pass"
+| "leo-navmsg"
+| "leo-pvt"
+| "leo-ppp"
+| "ntn-positioning"
+| "leo-pnt-chain"
+| "contact-schedule"
+| "acm-link"
+| "aocs"
+| "entry-heating"
+| "eo-radiometry"
+| "ascent-losses"
+| "time-transfer-budget";
+
+/** The failure category `error_kind` returns (`""` on success). */
+export type ErrorKind = "invalid_input" | "non_convergence" | "unsupported" | "io_error";
+
+/** One entry of `scenario_kinds()`. */
+export interface KindMeta {
+    name: ScenarioKind;
+    description: string;
+    required_fields: string[];
+    optional_fields: string[];
+}
+
+/** Where an emitted number came from (`docs/SCHEMA.md`). */
+export type ProvenanceClass =
+| "input"
+| "modelled-input"
+| "computed"
+| "closed-form"
+| "spec"
+| "published"
+| "constant"
+| "modelled"
+| "internal-consistency"
+| "measured"
+| "measured-or-input"
+| "derived";
+
+/** One entry of a result document's `units` block. */
+export interface FieldUnit {
+    unit: string;
+    provenance: ProvenanceClass;
+    note?: string;
+}
+
+/**
+ * A parsed result document. Every kind has its own fields (`docs/SCHEMA.md`,
+ * `docs/field-units-schema.json`); the ones named here are the shared envelope.
+ */
+export interface ResultDocument {
+    [field: string]: unknown;
+    schema_version?: string;
+    engine_version?: string;
+    units?: Record<string, FieldUnit>;
+}
+
+/** What `run_typed` returns: one run's outputs, with the document already parsed. */
+export interface RunOutput {
+    json: string;
+    svg: string;
+    summary: string;
+    csv: string | null;
+    data: ResultDocument;
+}
+
+/** The object `run_all` encodes as JSON. */
+export interface RunAllOutput {
+    json: string;
+    svg: string;
+    summary: string;
+    csv: string | null;
+}
+
+
 
 /**
  * Run a scenario and return its time series as an animation. `format` is `svg`, `html` or
@@ -64,7 +219,7 @@ export function encode_permalink(toml: string): string;
  * (`invalid_input`, `unsupported`, …) so the caller can branch on the failure
  * category rather than parse the message. Returns an empty string on success.
  */
-export function error_kind(toml: string): string;
+export function error_kind(toml: string): ErrorKind | "";
 
 /**
  * Bind an RFC 3161 timestamp token to an evidence pack, in memory. `files_json` is the pack's
@@ -122,6 +277,13 @@ export function export_scenario(toml: string, format: string): string;
 export function export_sp3(toml: string): string;
 
 /**
+ * Which fields of a scenario answer its question, best first, for the kinds where that is stated:
+ * a JSON object, kind to `{"headline": [dotted path, ...]}`. Display metadata for a front end; the
+ * engine never reads it. A kind that is absent has no stated order.
+ */
+export function field_importance(): string;
+
+/**
  * The TOML text of one bundled reference scenario, byte for byte the repository's file.
  */
 export function get_example(name: string): string;
@@ -142,6 +304,27 @@ export function import_route(toml: string, geojson: string): string;
  * only; a degraded cell does not name interference as the cause. Nothing is uploaded.
  */
 export function interference_map(source: string, csv: string, dataset: string, cell_deg: number, licence: string, licence_url: string, attribution: string, land_geojson: string): string;
+
+/**
+ * A short synthetic scene, acquired and tracked in memory: `ids` are the PRNs (GLONASS L1OF:
+ * the frequency channel), `dopplers_hz` one value for all or one each, `cn0_dbhz` NaN for the
+ * elevation default. Bounded to 0.25 s, 1 000 000 samples and 8 satellites. Returns JSON
+ * `{fs_hz, samples, acquisition, tracking}`; the same request gives the same answer as the
+ * native build.
+ */
+export function iq_run_short(fs_hz: number, duration_s: number, signal: string, ids: Float64Array, dopplers_hz: Float64Array, cn0_dbhz: number, seed: number): string;
+
+/**
+ * The signal names `iq_run_short` accepts: a JSON array.
+ */
+export function iq_signals(): string;
+
+/**
+ * The modules a scenario kind's verification-matrix rows name where they differ from the kind's
+ * own name: a JSON object, kind to array of module names. The Studio's capability map joins a
+ * scenario to its matrix rows through it.
+ */
+export function kind_modules(): string;
 
 /**
  * The bundled reference scenarios as JSON `{count, scenarios: [{name, kind, about}]}`; a
@@ -217,12 +400,27 @@ export function run(toml: string): string;
 /**
  * Run a scenario ONCE and return every output of that run as a JSON object string:
  * `{"json": <result document string>, "svg": <chart>, "summary": <one line>,
- * "csv": <table or null>}`. `run`, `chart_svg`, `summary` and `table_csv` each execute
+ * "csv": <table or null>}` (the `RunAllOutput` type). `run_typed` returns the same
+ * outputs, plus the parsed document, as an object. `run`, `chart_svg`, `summary` and `table_csv` each execute
  * the scenario from scratch, so a page that wants all four paid for four full engine
  * runs — about 12 s instead of 3 s for the heaviest kind in a browser. Throws a JS
  * error if the scenario is invalid.
  */
 export function run_all(toml: string): string;
+
+/**
+ * Run a scenario once and return every output as one typed object (`RunOutput` in the
+ * declarations): `json`, `svg`, `summary`, `csv` (`null` for a kind that emits no
+ * table) and `data`, the result document already parsed. A plain object, not a class,
+ * so there is nothing to free. Throws a JS error if the scenario is invalid.
+ */
+export function run_typed(toml: string): RunOutput;
+
+/**
+ * The available scenario kinds and their metadata, already parsed: the typed form of
+ * [`list_kinds`], which keeps its JSON-string return for existing callers.
+ */
+export function scenario_kinds(): KindMeta[];
 
 /**
  * The satellites a site sees under a skyline and their geometry (design note item 2).
@@ -325,9 +523,13 @@ export interface InitOutput {
     readonly export_omm: (a: number, b: number) => [number, number, number, number];
     readonly export_scenario: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly export_sp3: (a: number, b: number) => [number, number, number, number];
+    readonly field_importance: () => [number, number];
     readonly get_example: (a: number, b: number) => [number, number, number, number];
     readonly import_route: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly interference_map: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number) => [number, number, number, number];
+    readonly iq_run_short: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number, number];
+    readonly iq_signals: () => [number, number];
+    readonly kind_modules: () => [number, number];
     readonly list_examples: (a: number, b: number) => [number, number, number, number];
     readonly list_kinds: () => [number, number];
     readonly nmea_training: (a: number, b: number, c: number) => [number, number, number, number];
@@ -337,6 +539,7 @@ export interface InitOutput {
     readonly route_exposure: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => [number, number, number, number];
     readonly run: (a: number, b: number) => [number, number, number, number];
     readonly run_all: (a: number, b: number) => [number, number, number, number];
+    readonly run_typed: (a: number, b: number) => [number, number, number];
     readonly sky_geometry: (a: number, b: number) => [number, number, number, number];
     readonly sky_monte_carlo: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly skyline_presets: () => [number, number];
@@ -346,6 +549,7 @@ export interface InitOutput {
     readonly table_csv: (a: number, b: number) => [number, number, number, number];
     readonly trust_telemetry: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number, number];
     readonly version: () => [number, number];
+    readonly scenario_kinds: () => any;
     readonly __wbindgen_malloc: (a: number, b: number) => number;
     readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
     readonly __wbindgen_exn_store: (a: number) => void;

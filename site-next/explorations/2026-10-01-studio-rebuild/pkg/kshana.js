@@ -223,7 +223,7 @@ export function encode_permalink(toml) {
  * (`invalid_input`, `unsupported`, …) so the caller can branch on the failure
  * category rather than parse the message. Returns an empty string on success.
  * @param {string} toml
- * @returns {string}
+ * @returns {ErrorKind | ""}
  */
 export function error_kind(toml) {
     let deferred2_0;
@@ -457,6 +457,25 @@ export function export_sp3(toml) {
 }
 
 /**
+ * Which fields of a scenario answer its question, best first, for the kinds where that is stated:
+ * a JSON object, kind to `{"headline": [dotted path, ...]}`. Display metadata for a front end; the
+ * engine never reads it. A kind that is absent has no stated order.
+ * @returns {string}
+ */
+export function field_importance() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.field_importance();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
  * The TOML text of one bundled reference scenario, byte for byte the repository's file.
  * @param {string} name
  * @returns {string}
@@ -560,6 +579,82 @@ export function interference_map(source, csv, dataset, cell_deg, licence, licenc
         return getStringFromWasm0(ptr8, len8);
     } finally {
         wasm.__wbindgen_free(deferred9_0, deferred9_1, 1);
+    }
+}
+
+/**
+ * A short synthetic scene, acquired and tracked in memory: `ids` are the PRNs (GLONASS L1OF:
+ * the frequency channel), `dopplers_hz` one value for all or one each, `cn0_dbhz` NaN for the
+ * elevation default. Bounded to 0.25 s, 1 000 000 samples and 8 satellites. Returns JSON
+ * `{fs_hz, samples, acquisition, tracking}`; the same request gives the same answer as the
+ * native build.
+ * @param {number} fs_hz
+ * @param {number} duration_s
+ * @param {string} signal
+ * @param {Float64Array} ids
+ * @param {Float64Array} dopplers_hz
+ * @param {number} cn0_dbhz
+ * @param {number} seed
+ * @returns {string}
+ */
+export function iq_run_short(fs_hz, duration_s, signal, ids, dopplers_hz, cn0_dbhz, seed) {
+    let deferred5_0;
+    let deferred5_1;
+    try {
+        const ptr0 = passStringToWasm0(signal, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArrayF64ToWasm0(ids, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passArrayF64ToWasm0(dopplers_hz, wasm.__wbindgen_malloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ret = wasm.iq_run_short(fs_hz, duration_s, ptr0, len0, ptr1, len1, ptr2, len2, cn0_dbhz, seed);
+        var ptr4 = ret[0];
+        var len4 = ret[1];
+        if (ret[3]) {
+            ptr4 = 0; len4 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred5_0 = ptr4;
+        deferred5_1 = len4;
+        return getStringFromWasm0(ptr4, len4);
+    } finally {
+        wasm.__wbindgen_free(deferred5_0, deferred5_1, 1);
+    }
+}
+
+/**
+ * The signal names `iq_run_short` accepts: a JSON array.
+ * @returns {string}
+ */
+export function iq_signals() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.iq_signals();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * The modules a scenario kind's verification-matrix rows name where they differ from the kind's
+ * own name: a JSON object, kind to array of module names. The Studio's capability map joins a
+ * scenario to its matrix rows through it.
+ * @returns {string}
+ */
+export function kind_modules() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.kind_modules();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
     }
 }
 
@@ -821,7 +916,8 @@ export function run(toml) {
 /**
  * Run a scenario ONCE and return every output of that run as a JSON object string:
  * `{"json": <result document string>, "svg": <chart>, "summary": <one line>,
- * "csv": <table or null>}`. `run`, `chart_svg`, `summary` and `table_csv` each execute
+ * "csv": <table or null>}` (the `RunAllOutput` type). `run_typed` returns the same
+ * outputs, plus the parsed document, as an object. `run`, `chart_svg`, `summary` and `table_csv` each execute
  * the scenario from scratch, so a page that wants all four paid for four full engine
  * runs — about 12 s instead of 3 s for the heaviest kind in a browser. Throws a JS
  * error if the scenario is invalid.
@@ -847,6 +943,34 @@ export function run_all(toml) {
     } finally {
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
+}
+
+/**
+ * Run a scenario once and return every output as one typed object (`RunOutput` in the
+ * declarations): `json`, `svg`, `summary`, `csv` (`null` for a kind that emits no
+ * table) and `data`, the result document already parsed. A plain object, not a class,
+ * so there is nothing to free. Throws a JS error if the scenario is invalid.
+ * @param {string} toml
+ * @returns {RunOutput}
+ */
+export function run_typed(toml) {
+    const ptr0 = passStringToWasm0(toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.run_typed(ptr0, len0);
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
+    }
+    return takeFromExternrefTable0(ret[0]);
+}
+
+/**
+ * The available scenario kinds and their metadata, already parsed: the typed form of
+ * [`list_kinds`], which keeps its JSON-string return for existing callers.
+ * @returns {KindMeta[]}
+ */
+export function scenario_kinds() {
+    const ret = wasm.scenario_kinds();
+    return ret;
 }
 
 /**
@@ -1166,6 +1290,10 @@ function __wbg_get_imports() {
             const ret = arg0.node;
             return ret;
         },
+        __wbg_parse_ee08b1d6033e6687: function(arg0, arg1) {
+            const ret = JSON.parse(getStringFromWasm0(arg0, arg1));
+            return ret;
+        },
         __wbg_process_44c7a14e11e9f69e: function(arg0) {
             const ret = arg0.process;
             return ret;
@@ -1249,6 +1377,14 @@ function getDataViewMemory0() {
     return cachedDataViewMemory0;
 }
 
+let cachedFloat64ArrayMemory0 = null;
+function getFloat64ArrayMemory0() {
+    if (cachedFloat64ArrayMemory0 === null || cachedFloat64ArrayMemory0.byteLength === 0) {
+        cachedFloat64ArrayMemory0 = new Float64Array(wasm.memory.buffer);
+    }
+    return cachedFloat64ArrayMemory0;
+}
+
 function getStringFromWasm0(ptr, len) {
     return decodeText(ptr >>> 0, len);
 }
@@ -1272,6 +1408,13 @@ function handleError(f, args) {
 
 function isLikeNone(x) {
     return x === undefined || x === null;
+}
+
+function passArrayF64ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 8, 8) >>> 0;
+    getFloat64ArrayMemory0().set(arg, ptr / 8);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
 }
 
 function passArrayJsValueToWasm0(array, malloc) {
@@ -1362,6 +1505,7 @@ function __wbg_finalize_init(instance, module) {
     wasm = instance.exports;
     wasmModule = module;
     cachedDataViewMemory0 = null;
+    cachedFloat64ArrayMemory0 = null;
     cachedUint8ArrayMemory0 = null;
     wasm.__wbindgen_start();
     return wasm;
