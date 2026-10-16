@@ -296,8 +296,8 @@ function postProcess(html, fromPath) {
   const note = `<p class="omitted">A passage naming third-party AI clients is left out here; it is in <a href="${GH}${fromPath}">${esc(fromPath)}</a> on GitHub.</p>`;
   html = html.replace(/<(p|li|pre|tr|blockquote)\b[^>]*>[\s\S]*?<\/\1>/g, (m) => (VENDOR.test(m.replace(/<[^>]+>/g, " ")) || VENDOR.test(m) ? note : m));
   // A placeholder written as <target> outside a code span is raw HTML to the renderer and opens an element that
-  // never closes: show it as the text it is. (Code spans are already escaped; only known HTML elements stay.)
-  html = html.replace(/<(\/?)([a-z][a-z0-9-]*)>/g, (m, sl, n) => (KNOWN_TAGS.has(n) ? m : `&lt;${sl}${n}&gt;`));
+  // never closes: show it as the text it is. (Code spans are already escaped; only known HTML elements stay; a Rust generic such as From<TwoPartJd> is text too, whatever its case.)
+  html = html.replace(/<(\/?)([A-Za-z][A-Za-z0-9-]*)>/g, (m, sl, n) => (KNOWN_TAGS.has(n.toLowerCase()) ? m : `&lt;${sl}${n}&gt;`));
   // A heading that names one (MCP-INSTALL.md has one per client) keeps its level and loses the name.
   html = html.replace(/<h([2-6])\b[^>]*>[\s\S]*?<\/h\1>/g, (m, lv) => (VENDOR.test(m.replace(/<[^>]+>/g, " ")) || VENDOR.test(m) ? `<h${lv}>Another client</h${lv}>` : m));
   html = html.replace(/(<p class="omitted">[\s\S]*?<\/p>)(\s*\1)+/g, "$1");

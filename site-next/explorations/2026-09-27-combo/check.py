@@ -100,8 +100,15 @@ VERSION_HISTORY = [
     ("docs/overview.html", "drawn at engine 0.22.0", "the engine the README's figure-of-merit chart was drawn at; its figures are re-checked each build"),
     ("docs/search-docs.json", "drawn at engine 0.22.0", "the same sentence in the docs search index"),
     ("data/search.json", "drawn at engine 0.22.0", "the same sentence in the site search index"),
+    ("docs/capability-map.html", "engine 0.35.0, 75 kinds", "the dated 2026-10-10 revision line of docs/CAPABILITY.md, kept as the history of the kind count"),
+    ("docs/tutorials.html", "kshana 0.35.0 printed", "docs/tutorials/README.md says the table is one dated run (2026-10-10), not pinned by tests, and to rerun for the current value"),
     ("docs/mcp-install.html", "0.0.1", "the Continue client's own configuration-file version in its example snippet, not the engine's"),
 ]
+# A third-party tool's own version, named in an oracle row of the verification ledger (the GNSS-SDR release the
+# IQ tracking engine is compared with), is not an engine version. Only these exact phrasings are set aside, in
+# rule 11 and rule 17; any other "v0.x.y" on a page must still be the engine's.
+THIRD_PARTY_VERSION = re.compile(r"GNSS-SDR (?:v|version )?0\.0\.19\b|\btag v0\.0\.19\b|\bfresh v0\.0\.19\b")
+def without_third_party(text): return THIRD_PARTY_VERSION.sub("[third-party tool version]", text)
 VERSION_CLAIMS = [
     re.compile(r"(?<![\w@.-])[vV](0\.\d+\.\d+)(?![\w-]|\.\d)"),
     re.compile(r"\b(?:[Ee]ngine|Kshana|kshana)(?:\s+version)?(?:\s*[:·]\s*|\s+)v?(0\.\d+\.\d+)(?![\w-]|\.\d)"),
@@ -127,6 +134,7 @@ def version_claims(rel, text):
     if rel.endswith("search.json") or rel.endswith("search-docs.json"):
         try: text = json.dumps([e for e in json.loads(text) if not is_changelog_h(e.get("h", ""))], ensure_ascii=False)
         except ValueError: pass
+    text = without_third_party(text)
     plain = html.unescape(re.sub(r"<[^>]+>", " ", text)) if rel.endswith(".html") else text
     out = []
     history_prose = rel.startswith("docs/") or rel.endswith("search.json")
@@ -401,7 +409,7 @@ def run_checks(override=None):
                 if c not in readmes: bad.append((p, c + " (not in the README)"))
                 continue
             if c.split(" ")[1] in ("install", "add", "run") and c not in cmds and not c.startswith(("cargo install kshana-mcp", "pip install maturin")): bad.append((p, c))
-        for v in re.findall(r"\bv(0\.\d+\.\d+)\b", re.sub(r"<[^>]+>", " ", t)):
+        for v in re.findall(r"\bv(0\.\d+\.\d+)\b", without_third_party(re.sub(r"<[^>]+>", " ", t))):
             if v != ver: bad.append((p, f"shows v{v}"))
     for c in ch["channels"]:
         if c["command"] and c["command"] not in readmes and c["command"].replace("docker run --rm -i", "docker run -i") not in readmes:

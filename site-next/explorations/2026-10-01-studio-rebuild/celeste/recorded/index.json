@@ -1,17 +1,17 @@
 {
  "engine_version": "0.36.0",
- "engine_commit": "d1b4251339e2ee852d9f57d1d9de8ec47b4cf26f",
- "recorded_utc": "2026-10-16T01:03:24.288Z",
+ "engine_commit": "a5f34e077343ebab41690b35e36c7e3e107b0772",
+ "recorded_utc": "2026-10-16T01:30:03.633Z",
  "runs": {
   "celeste-iod-classical-pilot-signals.toml": {
    "file": "celeste-iod-classical-pilot-signals.json",
    "bytes": 250518,
-   "ms": 98
+   "ms": 101
   },
   "celeste-iod-end-to-end.toml": {
    "file": "celeste-iod-end-to-end.json",
    "bytes": 99296,
-   "ms": 294
+   "ms": 262
   },
   "celeste-iod-fused-pvt.toml": {
    "file": "celeste-iod-fused-pvt.json",
@@ -21,12 +21,12 @@
   "leo-navmsg-celeste-iod.toml": {
    "file": "leo-navmsg-celeste-iod.json",
    "bytes": 90661,
-   "ms": 5128
+   "ms": 5264
   },
   "leo-pass-celeste-iod-multiband.toml": {
    "file": "leo-pass-celeste-iod-multiband.json",
    "bytes": 2209438,
-   "ms": 82
+   "ms": 88
   }
  }
 }
