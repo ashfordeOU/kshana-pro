@@ -1,9 +1,10 @@
+const ROOT = new URL("../../", import.meta.url).pathname; // the site-next folder
 import fs from 'fs';
 const load=async(S)=>{const k=await import(S+'pkg/kshana.js'); k.initSync({module: fs.readFileSync(S+'pkg/kshana_bg.wasm')}); return k;};
-const NEW='/Users/chak/Code/kshana-site-next/explorations/2026-09-30-studio-dash/', OLD='/Users/chak/Code/kshana-site-next/scratch/assembly/old-dash/2026-09-30-studio-dash/';
+const NEW=ROOT+'explorations/2026-09-30-studio-dash/', OLD=ROOT+'scratch/assembly/old-dash/2026-09-30-studio-dash/';
 const kn=await load(NEW), ko=await load(OLD); 
 const g=await import(NEW+'lib/guided.mjs');
-const M='/Users/chak/Code/kshana-site-next/explorations/2026-09-27-combo/src/js/missions.mjs';
+const M=ROOT+'explorations/2026-09-27-combo/src/js/missions.mjs';
 const src=fs.readFileSync(M,'utf8'); const i0=src.indexOf('const FOOTPRINT = {'); const blk=src.slice(i0, src.indexOf('};',i0));
 const num=(key)=>Number(blk.match(new RegExp('\\b'+key+':\\s*([-0-9.]+)'))[1]); const arr=(key)=>blk.match(new RegExp('\\b'+key+':\\s*\\[([^\\]]+)\\]'))[1].split(',').map(Number);
 const F={jlat:num('jlat'),jlon:num('jlon'),step:num('step'),nx:num('nx'),ny:num('ny'),js10:arr('js10')};

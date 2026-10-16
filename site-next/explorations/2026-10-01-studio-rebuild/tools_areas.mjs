@@ -16,6 +16,16 @@ const readJson = (f) => JSON.parse(readFileSync(here + f, "utf8"));
 const matrix = readJson("data/verification-matrix.json");
 const rows = matrix.rows;
 
+// The kind -> module table comes from the engine package in ./pkg (0.36 or later), never from a copy kept
+// here. An older package lacks kind_modules(); copy web/pkg over ./pkg after building the engine, then rerun.
+const engine = await import("./pkg/kshana.js");
+await engine.default({ module_or_path: readFileSync(here + "pkg/kshana_bg.wasm") });
+if (typeof engine.kind_modules !== "function") {
+  console.error("tools_areas: ./pkg has no kind_modules(); it is older than 0.36. Rebuild the engine package and copy it here first.");
+  process.exit(1);
+}
+const kindModules = JSON.parse(engine.kind_modules());
+
 const groups = [];
 for (const dir of readJson("groups.json").groups || []) {
   if (!existsSync(here + dir + "index.json")) continue;
@@ -41,7 +51,7 @@ function area(d) {
   for (const f of files) {
     const toml = tomlOf(f);
     if (!toml) continue;
-    for (const k of kindsOfToml(toml)) { kinds.add(k); idx.push(...rowsForKind(k, rows)); }
+    for (const k of kindsOfToml(toml)) { kinds.add(k); idx.push(...rowsForKind(k, rows, kindModules)); }
     if (!preview) {
       const rec = recordedOf(f);
       const p = rec && previewOf(rec.result, rec.toml);

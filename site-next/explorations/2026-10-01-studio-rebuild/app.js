@@ -29,12 +29,12 @@ import * as V from "./lib/views.mjs";
 import * as K from "./lib/kinds.mjs";
 import * as G from "./lib/stages.mjs";
 import { createPackReader } from "./lib/packs.mjs";
-import { kpis as kpiCards, honesty, kpiDelta, kpiKey, plainLabel } from "./lib/kpi.mjs";
+import { kpis as kpiCards, honesty, kpiDelta, kpiKey, plainLabel, figureName } from "./lib/kpi.mjs";
 import { fieldIndex, findFields, scenarioCount, filterControls } from "./lib/finder.mjs";
 import { plainMeaning, plainDuration, headerParagraphs, taskWords } from "./lib/meaning.mjs";
 import { rankInputs, splitInputs, inputLabel, fieldName, VISIBLE_INPUTS } from "./lib/inputs.mjs";
 import { parseState, buildSearch, isNewEntry, persistentExtras, tabFromLink, viewUrl, chooseView, VIEW_KEY } from "./lib/urlstate.mjs";
-import { kindsOfToml, rowsForKind, evidenceMix } from "./lib/areas.mjs";
+import { kindsOfToml, kindOfToml, rowsForKind, evidenceMix } from "./lib/areas.mjs";
 import { spellOut } from "./lib/abbr.mjs";
 import { GUIDED_KNOBS } from "./lib/guided.mjs";
 
@@ -373,7 +373,7 @@ function renderRun(run) {
   add("file", run.file || "shared link");
   if (run.mode === "live") add("time", `${Math.max(1, Math.round(run.ms))} ms`);
   renderAnswer(run);
-  renderOverview(r);
+  renderOverview(r, run.toml);
   buildTabs();
   $("json").replaceChildren(...jsonNodes(r));
   renderHow(run);
@@ -437,7 +437,7 @@ function fieldLabelNode(f) {
   return plain ? h("label", { title: f.key }, plain, h("small", { class: "fkey", text: f.key })) : h("label", { title: f.key }, fieldName(f), h("small", { class: "fkey", text: f.comment ? `${f.key} · ${f.comment}` : f.key }));
 }
 
-function renderOverview(r) {
+function renderOverview(r, toml = "") {
   const rows = buildFomRows(r);
   const t = $("fom-table");
   t.replaceChildren();
@@ -470,7 +470,8 @@ function renderOverview(r) {
     for (const x of kf) {
       const ft = figureTier(r, x.path);
       tb.append(h("tr", {},
-        h("td", {}, h("code", { text: x.path }), " ", tierPill(ft && ft.tier)),
+        h("td", { title: x.path }, figureName(x, toml).name, " ", tierPill(ft && ft.tier),
+          h("small", { class: "fkey", text: figureName(x, toml).where ? `${figureName(x, toml).where} · ${x.path}` : x.path })),
         h("td", { class: "num", text: typeof x.value === "number" ? V.fmt(x.value) : String(x.value) }),
         h("td", { text: x.unit || "—" }),
         h("td", { text: x.provenance || "—" }),
@@ -1871,7 +1872,8 @@ function changed() { refreshEditor(); updateSteps(); }
 
 function buildParams() {
   const toml = tomlEl.value;
-  const ranked = rankInputs(numericFields(toml), curatedInputs(toml));
+  const headline = ((S.fieldImportance || {})[kindOfToml(toml)] || {}).headline || [];
+  const ranked = rankInputs(numericFields(toml), curatedInputs(toml), headline);
   const { visible, advanced } = splitInputs(ranked, S.inputBudget);
   S.visibleIds = new Set(visible.map((x) => x.id));
   const kh = $("knobs");
@@ -1956,6 +1958,21 @@ function paintScenarioHeader(entry) {
 // scenario runs (lib/areas.mjs); the references are the oracles of those rows plus the sources
 // the header cites.
 let matrixPromise = null;
+// The engine's kind -> module names table (kind_modules(), 0.36). Read once; an engine without it gives {}
+// and a kind then matches the matrix rows by its own name only.
+// The engine's headline fields per kind (field_importance(), 0.36), read once when the engine is ready; the
+// inputs are ranked again when it arrives. An engine without it gives {} and the Studio ranks by itself.
+function loadFieldImportance() {
+  return (S.engineReady || Promise.resolve()).then(async () => {
+    try { const t = JSON.parse(await S.engine.call("field_importance")); return t && typeof t === "object" ? t : {}; } catch { return {}; }
+  });
+}
+let kindModulesP = null;
+function loadKindModules() {
+  return (kindModulesP ||= (S.engineReady || Promise.resolve()).then(async () => {
+    try { const t = JSON.parse(await S.engine.call("kind_modules")); return t && typeof t === "object" ? t : {}; } catch { return {}; }
+  }));
+}
 function loadMatrix() {
   if (!matrixPromise) matrixPromise = fetch("data/verification-matrix.json").then((x) => (x.ok ? x.json() : null)).catch(() => null);
   return matrixPromise;
@@ -1988,7 +2005,9 @@ async function renderHow(run) {
   const matrix = await loadMatrix();
   if (S.run !== run || !matrix) return;
   const rows = matrix.rows;
-  const idx = [...new Set(kindsOfToml(base).flatMap((k) => rowsForKind(k, rows)))];
+  const kindModules = await loadKindModules();
+  if (S.run !== run) return;
+  const idx = [...new Set(kindsOfToml(base).flatMap((k) => rowsForKind(k, rows, kindModules)))];
   if (idx.length) {
     const mix = evidenceMix(idx, rows);
     const ordered = idx.sort((a, b) => (rows[a].status === "VALIDATED" ? 0 : 1) - (rows[b].status === "VALIDATED" ? 0 : 1));
@@ -2837,6 +2856,7 @@ async function main() {
   }
   let booting = bootEngine();
   S.engineReady = booting.catch(() => {});
+  loadFieldImportance().then((t) => { S.fieldImportance = t; try { if (Object.keys(t).length && tomlEl && tomlEl.value) buildParams(); } catch { /* no scenario loaded yet */ } });
   booting.catch(() => { /* reported below */ });
   // Real coastlines for the maps (Natural Earth 1:110m land, public domain).
   fetch("data/land.json").then((r) => (r.ok ? r.json() : [])).then((l) => { S.land = l; if (S.heroRedraw) S.heroRedraw(); if (S.run && V.groundTrack(S.run.result)) renderGround(); if (S.run && S.activeTab && VIEW_ID[S.activeTab] === "v-cap") { S.capDirty = true; selectTab(S.activeTab, { url: false }); } }).catch(() => { S.land = []; });

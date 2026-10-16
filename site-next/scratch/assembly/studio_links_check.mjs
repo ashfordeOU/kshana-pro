@@ -29,7 +29,7 @@ for (const top of ["index.html", "missions.html", "capabilities.html", "evidence
 if (opt("--pages", "")) pages = opt("--pages", "").split(",");
 console.log(`${pages.length} pages carry Studio links: ${pages.join(", ")}`);
 
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.KSHANA_CHROME ? { executablePath: process.env.KSHANA_CHROME } : {});
 
 // ---- 1. collect
 const found = [];

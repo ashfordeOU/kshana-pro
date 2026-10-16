@@ -8,7 +8,7 @@ const { chromium } = require("playwright");
 const [out, widths, ...specs] = process.argv.slice(2);
 const bases = process.env.ONLY_AFTER ? { after: "http://127.0.0.1:8841/" } : { before: "http://127.0.0.1:8843/", after: "http://127.0.0.1:8841/" };
 mkdirSync(out, { recursive: true });
-const b = await chromium.launch();
+const b = await chromium.launch(process.env.KSHANA_CHROME ? { executablePath: process.env.KSHANA_CHROME } : {});
 for (const w of widths.split(",").map(Number)) for (const theme of ["light", "dark"]) {
   const ctx = await b.newContext({ viewport: { width: w, height: 900 }, colorScheme: theme, reducedMotion: "reduce", deviceScaleFactor: 1 });
   for (const [side, base] of Object.entries(bases)) {

@@ -5,7 +5,7 @@ const ROOT = new URL("../../", import.meta.url).pathname;
 const require = createRequire(ROOT + "explorations/2026-09-27-audit/matrix/");
 const { chromium } = require("playwright");
 const want = process.argv[2] === "yes", base = process.argv[3] || "http://127.0.0.1:8841/";
-const b = await chromium.launch(); const p = await (await b.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
+const b = await chromium.launch(process.env.KSHANA_CHROME ? { executablePath: process.env.KSHANA_CHROME } : {}); const p = await (await b.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
 const errs = [], reqs = [];
 p.on("console", (m) => { if (m.type() === "error") errs.push(m.text()); }); p.on("pageerror", (e) => errs.push(String(e)));
 p.on("response", (r) => { reqs.push(`${r.status()} ${r.url().replace(base, "")}`); });

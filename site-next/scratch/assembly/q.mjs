@@ -3,7 +3,7 @@ const ROOT = new URL("../../", import.meta.url).pathname;
 const require = createRequire(ROOT + "explorations/2026-09-27-audit/matrix/");
 const { chromium } = require("playwright");
 const [url, expr, wait = "4000"] = process.argv.slice(2);
-const b = await chromium.launch(); const p = await (await b.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
+const b = await chromium.launch(process.env.KSHANA_CHROME ? { executablePath: process.env.KSHANA_CHROME } : {}); const p = await (await b.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
 const errs = []; p.on("console", (m) => { if (m.type() === "error") errs.push(m.text()); }); p.on("pageerror", (e) => errs.push(String(e)));
 p.on("response", (r) => { if (r.status() >= 400) errs.push(r.status() + " " + r.url()); });
 await p.goto(url, { waitUntil: "load", timeout: 120000 }); await p.waitForTimeout(+wait);
