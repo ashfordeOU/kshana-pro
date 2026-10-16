@@ -1,58 +1,52 @@
 {
- "title": "Kshana — 0.36.0: new coordinator; merges blocked on push access",
- "asof": "2026-10-13 19:45 UTC",
- "eta": "0.36.0 tag ≈ 17–18 Oct (holds only if push access is granted today)",
+ "title": "Kshana — 0.36.0: final CI run, version-stamp fixes",
+ "asof": "2026-10-16 11:35 UTC",
+ "eta": "0.36.0 tag ≈ tonight 16 Oct, about 18:00–20:00 UTC (one more CI run of 4–6 h)",
  "plan": {
-  "done": 11,
+  "done": 14,
   "total": 15,
-  "label": "0.36 work packages finished (WP-00…WP-14)"
+  "label": "0.36 steps done: all packages, batch 4, final run; only the last green CI run left"
  },
  "milestones_done": [
-  "rc 25af9489: labfit merged; ledger 298 rows — 146 VALIDATED / 148 MODELLED / 4 PARTNER",
-  "Coordinator handed over to successor 3; check-ins and workers re-pointed",
-  "RM-34 VALIDATED (CR3BP → Moon-centred frame vs SPICE), W41 @ dfc55dad",
-  "W45 WP-10: SRTM un-gate VALIDATED; ICGEM Part A VALIDATED, Part B bar NOT MET (recorded)",
-  "W44 FUT-26 done (NumPy accessors bit-equal); W43 Studio + WASM IQ halves done",
-  "OSNMA 0.35 claim re-checked: 18 sets · 186,382 tags · 0 failures"
+  "Batch 4 (portable maths) pushed b1558f70: Greenhall Bar 1 met (worst 6.0e-13), gps-sdr-sim re-run, all bars hold",
+  "Final run done (W43): 0.36.0 bump, Studio record pass, site port, 108 pages green",
+  "0.35 marketing claims gate: every claim PASS (OSNMA 18 sets/186,382 tags/0 failures, 40 MCP tools, 175 VALIDATED)",
+  "Old count reds fixed: test-wasm-bindings and all doc-sync suites green",
+  "Version-bump pins re-recorded (skyline, telemetry, IQ digests, fusion chart): only the version string moved, no numbers"
  ],
  "milestones_open": [
-  "Coverage CI fix ready (1 file) → push to rc first",
-  "Then IQ campaigns + wasm fix (W28) → WP-07 → WP-12 → WP-04 → WP-09 → lunar-terrain",
-  "Building: WP-06/08 (W41 → fresh worker), WP-10, WP-11b, WP-13, WP-14, STUDIO-15",
-  "Final site run + 0.35-claims gate → ONE CI run → main + tag"
+  "W43: re-render README demo charts + full local test suite, then ONE push",
+  "Single full CI run on that push (draft PR #82)",
+  "You push the rc, main and the v0.36.0 tag (commands sent when green)",
+  "Release pipeline publishes; Zenodo notes, PRO-01 re-pin, winget PR"
  ],
  "milestones_parked": [
-  "rc pushes BLOCKED: permission system refused push access to kshana in the new coordinator",
-  "gLAB download still needs your approval in W36",
-  "Paper front matter carries a personal author name — your call",
+  "Studio library: 19 new scenarios + fjord training label not placed — your call: before or after tag (recommended after)",
+  "Features page: ~130 new 0.36 features not placed — same call",
+  "CodeQL: 2 false positives to dismiss (svgsafe.mjs:30, alert 149)",
   "winget 0.35.0 PR: waiting on Microsoft moderator"
  ],
  "people": [
-  ["Coordinator", "New session; waiting for push access", "blocked"],
-  ["Old coordinator", "Idle until push access works, then archives", "active"],
-  ["W28", "IQ campaigns rc merge + wasm fix; WP-11b, WP-10 share", "active"],
-  ["W36", "WP-14 new domains (AOCS vs Basilisk)", "active"],
-  ["W41", "Wrapping up → replaced by fresh WP-06/WP-08 worker", "active"],
-  ["W43", "STUDIO-15 dry run; holds final site run", "active"],
-  ["W44", "WP-13 platform: FUT-28, CAP-34", "active"],
-  ["W45", "WP-10 alt-PNT maps: RM-16, RM-18", "active"]
+  ["Coordinator", "Successor 6 — drives CI and the release", "active"],
+  ["W43", "Version-stamp fixes + full local suite on site-port/0.36.0", "active"],
+  ["Founder Q&A", "Untouched", "active"]
  ],
  "releases": [
-  ["0.36.0", "rc 25af9489 — 6 packages in, 9 queued/building", "now"],
+  ["0.36.0", "final site-port/0.36.0 cb6d634b, next push pending", "now"],
   ["0.35.0", "12 Oct — all channels verified", "ok"],
   ["0.34.1", "10 Oct — D14 fix", "ok"],
   ["0.34.0", "10 Oct — GNSS IQ engine, campaigns, monitors", "ok"]
  ],
  "tests": [
-  ["Ledger on rc", "298 rows: 146 VALIDATED / 148 MODELLED / 4 PARTNER"],
-  ["OSNMA official vectors", "18 sets · 186,382 tags · 0 failures"],
-  ["CI on rc", "red: coverage (fix ready), wasm build (W28 fixing), website counts (final run)"]
+  ["Ledger", "361 rows: 175 VALIDATED / 182 MODELLED / 4 PARTNER, 83 kinds"],
+  ["CI on cb6d634b", "25 jobs green; red: README demo chart version stamp (fix in progress), CodeQL false positive"],
+  ["0.35 claims gate", "all PASS on the final tree"]
  ],
  "waiting": [
-  ["Now", "Allow push access to ashfordeOU/kshana in the new coordinator (or switch it to default mode)"],
-  ["When asked", "Approve the gLAB download in W36"],
-  ["Answer", "Personal author name in the paper's front matter: keep or remove?"],
+  ["Answer", "Studio library + features page: before the tag, or after as a site update (recommended after)"],
+  ["Tonight", "Push rc, main and tag v0.36.0 when I send the commands"],
+  ["When convenient", "Dismiss the 2 CodeQL false positives"],
   ["No action", "winget PR — external review"]
  ],
- "sources": "release/0.36.0-rc 25af9489 · package branches · worker reports · kshana-pro ws/coordination."
+ "sources": "site-port/0.36.0 cb6d634b · draft PR #82 CI · W43 reports · kshana-pro ws/coordination."
 }
