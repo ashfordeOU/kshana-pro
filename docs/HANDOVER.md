@@ -6,6 +6,8 @@
 
 **Status 16 Oct ~02:20 UTC:** W43 final run DONE: kshana site-port/0.36.0 @ fa3d6956 (FF from main and from batch4 b1558f70; all gates incl. doc_syncs green locally; 0.35 claims gate all PASS; kshana-pro port/0.36.0 @ 7c85e04). Single full CI run = draft PR #82 (site-port/0.36.0 -> main, body footer-free, subscribed). Asked owner: Studio library (19 new scenarios + fjord-natural-degradation) and check_features placements (133) now or as a site follow-up after the tag (recommended follow-up). CHANGELOG/CITATION date 2026-10-16: change if the tag day differs. After green: owner pushes fa3d6956 to release/0.36.0-rc, main, then tag v0.36.0 (or Auto-tag); close #82.
 
+**Status 16 Oct ~04:05 UTC:** CI on fa3d6956 failed coverage: skyline_scenarios 38 rows; root cause = 0.36.0 version bump (engine_version + content digests), verified non-numeric by W43; re-blessed on site-port/0.36.0 @ 4bd16ebd (revisions STUDIO15-skyline-baseline-0.36.0.md). CI re-running on 4bd16ebd (PR #82). CodeQL red = false positives (svgsafe.mjs:30 guarded by hasDeclaration; alert 149) for the owner to dismiss. W43 checking other version-sensitive pins in debug.
+
 Written: 2026-10-15 ~15:10 UTC by coordinator `session_01DfFzhRx22yokqTTCMRWmuU` ("successor 5"; took over 14 Oct 16:52 UTC from session_01DHvAPjGDf3yHFwyhV98iyj). Handing over at the ~1 day threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 Owner's latest words (15 Oct): pasted his successful rc push of a3843700 (batch 3b). Earlier: "done the sending command to that session" (confirmed W50 in its own session). PENDING owner answers on batch 4 (see §4).
