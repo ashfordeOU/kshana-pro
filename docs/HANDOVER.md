@@ -1,5 +1,7 @@
 # Kshana coordinator handover
 
+**Coordinator switch 2026-10-16 13:30 UTC:** successor 7 = `session_017r1WgqGMGAv8D27a1jVw9j` took over from successor 6 (session_011RqoYRajgEEr3gDaV6hhHj). Check-in routine trig_01VUG9ZMztUvVi8bQwMw2JeL (2-hourly, :29); trig_011tTxPdyaCBp9kT9fQYGSaQ disabled. Session lineage depth is 7 of limit 8: the next handover is the last possible successor.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
