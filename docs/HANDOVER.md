@@ -4,6 +4,8 @@
 
 **18:45 UTC 16 Oct:** CI on 5eac3b61 (#82): the whole `cargo test --all` passed. `check` failed only at the documentation-coverage ratchet (1110 undocumented public items, ceiling 984; never reached before). W43 is documenting the items (never raise the ceiling) and moving the release date to 2026-10-17 in ONE push to site-port/0.36.0. Then a new full CI run (~5 h); after that the owner pushes the rc/main/tag (§4.2).
 
+**19:10 UTC 16 Oct:** W43 pushed site-port/0.36.0 @ 12744388 (docs only, verified: 146 `///` lines + CEILING 984->964; all local gates green). New #82 CI started ~19:05, ETA ~00:30 UTC 17 Oct. Release date stays 2026-10-16 (changing it would need a web/ port re-run because PORT-MANIFEST pins the hashes, and CITATION has its own test; coordinator decision: cosmetic, not worth a second cycle). When green: owner push commands with SHA 12744388 (§4.2).
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
