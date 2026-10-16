@@ -2,6 +2,8 @@
 
 **Coordinator switch 2026-10-15 15:36 UTC:** successor 6 `session_011RqoYRajgEEr3gDaV6hhHj` took over from successor 5 (`session_01DfFzhRx22yokqTTCMRWmuU`). Check-in routine `trig_011tTxPdyaCBp9kT9fQYGSaQ` (every 2 h, minute 35, bound to successor 6); `trig_01SpyoU4onaWDRbEA9ppnKd2` disabled. W43 told. §3 verified (rc a3843700, integ/batch4-0.36 ab4fbe09).
 
+**Status 16 Oct ~00:00 UTC:** batch 4 done and pushed: integ/batch4-0.36 @ b1558f70 (rc a3843700 merged; Greenhall Bar 1 met via allan::greenhall_ln double-double log, worst 6.0e-13, published algorithm kept; gps-sdr-sim re-run all bars hold; 12 scenarios re-based; full local release suite green except the 3 tolerated count doc-syncs). Per owner "yes do both": no separate batch-4 CI PR; W43 sent GO on b1558f70 for the final run -> site-port/0.36.0 -> coordinator opens ONE draft CI PR on that SHA -> owner pushes rc/main/tag.
+
 Written: 2026-10-15 ~15:10 UTC by coordinator `session_01DfFzhRx22yokqTTCMRWmuU` ("successor 5"; took over 14 Oct 16:52 UTC from session_01DHvAPjGDf3yHFwyhV98iyj). Handing over at the ~1 day threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 Owner's latest words (15 Oct): pasted his successful rc push of a3843700 (batch 3b). Earlier: "done the sending command to that session" (confirmed W50 in its own session). PENDING owner answers on batch 4 (see §4).
