@@ -12,6 +12,8 @@
 
 **17:28 UTC 17 Oct:** owner pushed 12744388 to release/0.36.0-rc and main (both FF; #82 and #76 auto-closed as merged). Recommended the owner tag v0.36.0 by hand now rather than wait ~5-6 h for main CI + Auto-tag. Next: watch release.yml (verify -> publish -> parity -> site).
 
+**17:30 UTC 17 Oct: v0.36.0 TAGGED** by the owner on 12744388 (annotated tag 050fb6bf). Release run 39053994217 started 17:29. Watch verify -> publish -> parity -> site; then §4.3 (Zenodo notes, PRO-01 re-pin, winget PR via owner, RELEASING.md checklist line) and §4.4.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
