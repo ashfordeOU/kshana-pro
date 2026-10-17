@@ -14,6 +14,8 @@
 
 **17:30 UTC 17 Oct: v0.36.0 TAGGED** by the owner on 12744388 (annotated tag 050fb6bf). Release run 39053994217 started 17:29. Watch verify -> publish -> parity -> site; then §4.3 (Zenodo notes, PRO-01 re-pin, winget PR via owner, RELEASING.md checklist line) and §4.4.
 
+**17:45 UTC 17 Oct, owner:** "pass these to the 0.37 session to include it in 0.37". Studio library (19 scenarios + fjord label) and features placements (133) moved to W52 / 0.37. The ITU-R licence check also went to W52 / 0.37, but it is NOT a yes: numbers stay out until W52 reports the terms and the owner confirms. W52 told v0.36.0 is tagged and it may merge main. Both earlier open questions are closed.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
