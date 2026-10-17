@@ -36,6 +36,8 @@
 
 **21:30 UTC 17 Oct:** W52 pushed the site design passes (kshana-pro site/studio-0.37 @ 2f56018: home New-in, capabilities cards, developers install-channel cards; check.py rule 27 = every class needs a CSS rule or a reviewed hook) and the winget "in review" chip from the channels.json `pending` field (kshana feat/optical-atmosphere-0.37-clean @ b41f2476). Plan approved: A–D and F per docs/plans/0.37-DEFINITION-OF-DONE.md; the version bump is ONE commit at the final integration SHA with the regeneration and the full release test run.
 
+**21:40 UTC 17 Oct:** W52 definition-of-done table: A3, A5, A6, A10 and A12 done, A8 N/A, A7/A9 at the bump; D text prepared in kshana docs/design/0.37-release-text.md. Integration handed to W52: integ/0.37.0 from main + feat branch; ONE release commit (bump, CHANGELOG, README, CITATION, RELEASING line); regenerate counts; 0.37 wasm + Studio re-record + check_features + social card + port_site from site/studio-0.37; full local suite; push integ/0.37.0. Then the coordinator opens the CI-only draft PR. ETA for the tag ~19 Oct.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
