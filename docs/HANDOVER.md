@@ -8,6 +8,8 @@
 
 **02:35 UTC 17 Oct:** `check` on 12744388 was CANCELLED at the 360-min cap (slow runner: 382 of 521 test binaries, 0 failures; the 5eac3b61 run did all 521 in 5h18m). Coordinator re-ran the failed job once (run 38952642905, ~02:35). Owner offered the choice: wait for it (~6 h, may cap again), or accept 5eac3b61 full suite + 12744388 docs-only diff and push now.
 
+**06:30 UTC 17 Oct: CI GREEN on 12744388** (check re-run passed 06:02; all 28 checks green except the known CodeQL false positive). FF from main and rc verified. Push commands sent to the owner (§4.2). Next: watch main CI / auto-tag / release.yml.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
