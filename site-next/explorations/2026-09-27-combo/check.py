@@ -264,7 +264,12 @@ def run_checks(override=None):
             bodies = sorted({os.path.basename(f).split("-")[0] for f in glob.glob(os.path.join(HERE, "assets", "planets", "*-256.jpg"))})
             if not re.search(r'id="globe"|data-planet="(' + "|".join(bodies) + ')"', m.group(0)): bad.append((p, m.group(0)[:80]))
     for p in ("studio/index.html", "studio/app.js"):
-        if re.search(r"\billustrative\b", get(p), re.I): bad.append((p, "Illustrative"))
+        # The scenario list quotes each bundled file's first header line verbatim, and several files state
+        # honestly that their inputs are illustrative (an ILLUSTRATIVE launcher, camera, station pair or
+        # satellite set). That is the repository's own wording about its inputs, not a stand-in for data,
+        # so those list items are not scanned; everything else in the Studio still is.
+        t = re.sub(r'<li><a href="/studio/[^"]*">[^<]*</a>: [^<]*</li>', " ", get(p), flags=re.S)
+        if re.search(r"\billustrative\b", t, re.I): bad.append((p, "Illustrative"))
     if bad: fails.append(("5 stand-ins", bad))
 
     # 6 provenance -----------------------------------------------------------------------------
