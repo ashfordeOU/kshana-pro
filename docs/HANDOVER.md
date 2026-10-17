@@ -10,6 +10,8 @@
 
 **06:30 UTC 17 Oct: CI GREEN on 12744388** (check re-run passed 06:02; all 28 checks green except the known CodeQL false positive). FF from main and rc verified. Push commands sent to the owner (§4.2). Next: watch main CI / auto-tag / release.yml.
 
+**17:28 UTC 17 Oct:** owner pushed 12744388 to release/0.36.0-rc and main (both FF; #82 and #76 auto-closed as merged). Recommended the owner tag v0.36.0 by hand now rather than wait ~5-6 h for main CI + Auto-tag. Next: watch release.yml (verify -> publish -> parity -> site).
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
