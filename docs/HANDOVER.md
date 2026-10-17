@@ -18,6 +18,8 @@
 
 **17:55 UTC 17 Oct:** W43 archived (owner "yes archive W43"). Its last kshana-pro branch site/studio-backlog-0.36 holds nothing beyond port/0.36.0. Sessions in use: coordinator, Founder Q&A, W52 (3 of 8).
 
+**~18:00 UTC 17 Oct:** owner deleted 42 merged/obsolete kshana branches (3 design docs saved first to kshana-pro docs/design/0.36/, c0f3759). Left: main, feat/optical-atmosphere-0.37, release/0.36.0-rc (delete after release: `git push --no-verify origin --delete release/0.36.0-rc` from /tmp/kshana-push). Release run 39053994217: verify GREEN, pre-publish gates green, binaries + wheels building.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
