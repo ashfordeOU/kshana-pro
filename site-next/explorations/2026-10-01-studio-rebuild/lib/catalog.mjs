@@ -227,10 +227,11 @@ export const SCENARIOS = [
 // Files the browser engine cannot run, with the reason shown in the library.
 export const NOT_IN_BROWSER = {
   "lunar-llr-datum.toml": "Needs the archived laser-ranging data slice that ships with the repository, not with the browser build.",
+  "lunar-station-coverage-terrain.toml": "Needs the lunar elevation-model crop (data/lunar-dem/) that ships with the repository, not with the browser build.",
   "quantum-pnt-demonstrator.suite.toml": "A study suite, not a single scenario. Run it with the command-line tool: kshana --study.",
 };
 // Of those, the files the Studio shows as a run recorded with the native command-line engine.
-export const RECORDED_NATIVELY = ["lunar-llr-datum.toml"];
+export const RECORDED_NATIVELY = ["lunar-llr-datum.toml", "lunar-station-coverage-terrain.toml"];
 // Bundled scenarios that need a newer engine than an older package has: what they need (a kind the engine lists, or
 // a function it exports) and the release that brings it. With an engine that lacks it, the Studio shows the recording
 // made with one that has it and does not run them (an older engine refuses their fields, or runs without them).

@@ -3,8 +3,44 @@
  "engine_commit": "c4e84907c126d187b47a874823f84e18e490118a",
  "source": "native",
  "platform": "linux x64",
- "recorded_utc": "2026-10-16T01:59:55.703Z",
+ "recorded_utc": "2026-10-17T19:51:26.706Z",
  "runs": {
+  "acm-link.toml": {
+   "file": "acm-link.json.gz",
+   "bytes": 9368,
+   "unpacked_bytes": 33746,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the acm-link result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
+  "aocs-slew-mekf.toml": {
+   "file": "aocs-slew-mekf.json.gz",
+   "bytes": 29306,
+   "unpacked_bytes": 86856,
+   "report": true,
+   "animation": true,
+   "animation_reason": "",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
+  "aocs-slew.toml": {
+   "file": "aocs-slew.json.gz",
+   "bytes": 28754,
+   "unpacked_bytes": 83627,
+   "report": true,
+   "animation": true,
+   "animation_reason": "",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
   "aperture-duty-cycle.toml": {
    "file": "aperture-duty-cycle.json.gz",
    "bytes": 9226,
@@ -41,6 +77,18 @@
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the araim-reference-check result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
+  "ascent-losses.toml": {
+   "file": "ascent-losses.json.gz",
+   "bytes": 7734,
+   "unpacked_bytes": 29276,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the ascent-losses result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
@@ -95,6 +143,18 @@
    "file": "campaign-monte-carlo-clock-holdover.json.gz",
    "bytes": 12813,
    "unpacked_bytes": 48465,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the campaign result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
+  "campaign-optimize-link-budget.toml": {
+   "file": "campaign-optimize-link-budget.json.gz",
+   "bytes": 12472,
+   "unpacked_bytes": 56957,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the campaign result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
@@ -254,6 +314,18 @@
    "export_files_stored": 0,
    "full_run": false
   },
+  "contact-schedule.toml": {
+   "file": "contact-schedule.json.gz",
+   "bytes": 10684,
+   "unpacked_bytes": 44428,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the contact-schedule result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
   "earth-gnss-lunar.toml": {
    "file": "earth-gnss-lunar.json.gz",
    "bytes": 20524,
@@ -266,6 +338,18 @@
    "export_files_stored": 0,
    "full_run": false
   },
+  "entry-heating-stardust.toml": {
+   "file": "entry-heating-stardust.json.gz",
+   "bytes": 8980,
+   "unpacked_bytes": 33230,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the entry-heating result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
   "eo-coverage.toml": {
    "file": "eo-coverage.json.gz",
    "bytes": 7773,
@@ -273,6 +357,18 @@
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the eo-coverage result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
+  "eo-radiometry.toml": {
+   "file": "eo-radiometry.json.gz",
+   "bytes": 7883,
+   "unpacked_bytes": 29874,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the eo-radiometry result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
@@ -307,6 +403,18 @@
    "export_files_stored": 0,
    "full_run": false
   },
+  "fusion-pnt-coupled.toml": {
+   "file": "fusion-pnt-coupled.json.gz",
+   "bytes": 82393,
+   "unpacked_bytes": 243164,
+   "report": true,
+   "animation": true,
+   "animation_reason": "",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
   "fusion-pnt.toml": {
    "file": "fusion-pnt.json.gz",
    "bytes": 81219,
@@ -317,6 +425,54 @@
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
+   "full_run": false
+  },
+  "gnss-ins-aviation.toml": {
+   "file": "gnss-ins-aviation.json.gz",
+   "bytes": 123804,
+   "unpacked_bytes": 373888,
+   "report": true,
+   "animation": true,
+   "animation_reason": "",
+   "exports": [
+    "czml",
+    "geojson",
+    "kml"
+   ],
+   "export_files": 3,
+   "export_files_stored": 3,
+   "full_run": false
+  },
+  "gnss-ins-maritime.toml": {
+   "file": "gnss-ins-maritime.json.gz",
+   "bytes": 140213,
+   "unpacked_bytes": 564364,
+   "report": true,
+   "animation": true,
+   "animation_reason": "",
+   "exports": [
+    "czml",
+    "geojson",
+    "kml"
+   ],
+   "export_files": 3,
+   "export_files_stored": 3,
+   "full_run": false
+  },
+  "gnss-ins-rail.toml": {
+   "file": "gnss-ins-rail.json.gz",
+   "bytes": 154098,
+   "unpacked_bytes": 521329,
+   "report": true,
+   "animation": true,
+   "animation_reason": "",
+   "exports": [
+    "czml",
+    "geojson",
+    "kml"
+   ],
+   "export_files": 3,
+   "export_files_stored": 3,
    "full_run": false
   },
   "gnss-ins.toml": {
@@ -369,10 +525,42 @@
    "export_files_stored": 27,
    "full_run": false
   },
+  "gps-denied-gravity-nav-egm2008.toml": {
+   "file": "gps-denied-gravity-nav-egm2008.json.gz",
+   "bytes": 10290,
+   "unpacked_bytes": 33130,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the gravity-map result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [
+    "czml",
+    "geojson",
+    "kml"
+   ],
+   "export_files": 3,
+   "export_files_stored": 3,
+   "full_run": false
+  },
   "gps-denied-gravity-nav.toml": {
    "file": "gps-denied-gravity-nav.json.gz",
    "bytes": 10490,
    "unpacked_bytes": 35025,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the gravity-map result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [
+    "czml",
+    "geojson",
+    "kml"
+   ],
+   "export_files": 3,
+   "export_files_stored": 3,
+   "full_run": false
+  },
+  "gravity-map-error-mc.toml": {
+   "file": "gravity-map-error-mc.json.gz",
+   "bytes": 11091,
+   "unpacked_bytes": 37919,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the gravity-map result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
@@ -1238,6 +1426,18 @@
    "export_files_stored": 0,
    "full_run": false
   },
+  "lunar-station-coverage-terrain.toml": {
+   "file": "lunar-station-coverage-terrain.json.gz",
+   "bytes": 53993,
+   "unpacked_bytes": 321918,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the lunar-station-coverage result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": true
+  },
   "lunar-station-coverage.toml": {
    "file": "lunar-station-coverage.json.gz",
    "bytes": 16711,
@@ -1867,6 +2067,18 @@
    "export_files_stored": 0,
    "full_run": false
   },
+  "telecom-synce-eec.toml": {
+   "file": "telecom-synce-eec.json.gz",
+   "bytes": 15664,
+   "unpacked_bytes": 52021,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the telecom-timing result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": false
+  },
   "telecom-tie-ingest.toml": {
    "file": "telecom-tie-ingest.json.gz",
    "bytes": 21185,
@@ -1909,6 +2121,18 @@
    ],
    "export_files": 3,
    "export_files_stored": 3,
+   "full_run": false
+  },
+  "time-transfer-budget.toml": {
+   "file": "time-transfer-budget.json.gz",
+   "bytes": 8064,
+   "unpacked_bytes": 30759,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the time-transfer-budget result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
    "full_run": false
   },
   "timetransfer.toml": {

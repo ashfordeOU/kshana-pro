@@ -1,8 +1,23 @@
 {
  "engine_version": "0.36.0",
  "engine_commit": "c4e84907c126d187b47a874823f84e18e490118a",
- "recorded_utc": "2026-10-16T02:00:53.818Z",
+ "recorded_utc": "2026-10-17T19:51:38.038Z",
  "runs": {
+  "acm-link.toml": {
+   "file": "acm-link.json",
+   "bytes": 12748,
+   "ms": 91
+  },
+  "aocs-slew-mekf.toml": {
+   "file": "aocs-slew-mekf.json",
+   "bytes": 340233,
+   "ms": 45
+  },
+  "aocs-slew.toml": {
+   "file": "aocs-slew.json",
+   "bytes": 339365,
+   "ms": 14
+  },
   "aperture-duty-cycle.toml": {
    "file": "aperture-duty-cycle.json",
    "bytes": 13359,
@@ -17,6 +32,11 @@
    "file": "araim-reference-check.json",
    "bytes": 17267,
    "ms": 5
+  },
+  "ascent-losses.toml": {
+   "file": "ascent-losses.json",
+   "bytes": 9988,
+   "ms": 8
   },
   "attitude-budget.toml": {
    "file": "attitude-budget.json",
@@ -37,6 +57,11 @@
    "file": "campaign-monte-carlo-clock-holdover.json",
    "bytes": 24044,
    "ms": 842
+  },
+  "campaign-optimize-link-budget.toml": {
+   "file": "campaign-optimize-link-budget.json",
+   "bytes": 38666,
+   "ms": 57
   },
   "campaign-shared-jammer-sea-road.toml": {
    "file": "campaign-shared-jammer-sea-road.json",
@@ -93,15 +118,30 @@
    "bytes": 404808,
    "ms": 127
   },
+  "contact-schedule.toml": {
+   "file": "contact-schedule.json",
+   "bytes": 22096,
+   "ms": 398
+  },
   "earth-gnss-lunar.toml": {
    "file": "earth-gnss-lunar.json",
    "bytes": 34667,
    "ms": 3
   },
+  "entry-heating-stardust.toml": {
+   "file": "entry-heating-stardust.json",
+   "bytes": 16050,
+   "ms": 16
+  },
   "eo-coverage.toml": {
    "file": "eo-coverage.json",
    "bytes": 6244,
    "ms": 0
+  },
+  "eo-radiometry.toml": {
+   "file": "eo-radiometry.json",
+   "bytes": 11244,
+   "ms": 148
   },
   "ephemeris.toml": {
    "file": "ephemeris.json",
@@ -113,10 +153,30 @@
    "bytes": 116390,
    "ms": 10
   },
+  "fusion-pnt-coupled.toml": {
+   "file": "fusion-pnt-coupled.json",
+   "bytes": 275548,
+   "ms": 12
+  },
   "fusion-pnt.toml": {
    "file": "fusion-pnt.json",
    "bytes": 277363,
    "ms": 7
+  },
+  "gnss-ins-aviation.toml": {
+   "file": "gnss-ins-aviation.json",
+   "bytes": 1063839,
+   "ms": 112
+  },
+  "gnss-ins-maritime.toml": {
+   "file": "gnss-ins-maritime.json",
+   "bytes": 3160612,
+   "ms": 285
+  },
+  "gnss-ins-rail.toml": {
+   "file": "gnss-ins-rail.json",
+   "bytes": 2382105,
+   "ms": 224
   },
   "gnss-ins.toml": {
    "file": "gnss-ins.json",
@@ -133,10 +193,20 @@
    "bytes": 237433,
    "ms": 197
   },
+  "gps-denied-gravity-nav-egm2008.toml": {
+   "file": "gps-denied-gravity-nav-egm2008.json",
+   "bytes": 6400,
+   "ms": 254
+  },
   "gps-denied-gravity-nav.toml": {
    "file": "gps-denied-gravity-nav.json",
    "bytes": 5843,
    "ms": 62
+  },
+  "gravity-map-error-mc.toml": {
+   "file": "gravity-map-error-mc.json",
+   "bytes": 8175,
+   "ms": 1851
   },
   "gravity-map-nav.toml": {
    "file": "gravity-map-nav.json",
@@ -444,6 +514,12 @@
    "bytes": 324046,
    "ms": 1187
   },
+  "lunar-station-coverage-terrain.toml": {
+   "file": "lunar-station-coverage-terrain.json",
+   "bytes": 238002,
+   "source": "native",
+   "browser_error": "lunar-station-coverage: dem: cannot read data/lunar-dem/lola_ldem_75s_1200m_crop.toml: operation not supported on this platform"
+  },
   "lunar-station-coverage.toml": {
    "file": "lunar-station-coverage.json",
    "bytes": 324660,
@@ -687,6 +763,11 @@
    "bytes": 40719,
    "ms": 158
   },
+  "telecom-synce-eec.toml": {
+   "file": "telecom-synce-eec.json",
+   "bytes": 38518,
+   "ms": 24
+  },
   "telecom-tie-ingest.toml": {
    "file": "telecom-tie-ingest.json",
    "bytes": 58895,
@@ -701,6 +782,11 @@
    "file": "terrain-slam.json",
    "bytes": 18807,
    "ms": 33
+  },
+  "time-transfer-budget.toml": {
+   "file": "time-transfer-budget.json",
+   "bytes": 10888,
+   "ms": 125
   },
   "timetransfer.toml": {
    "file": "timetransfer.json",

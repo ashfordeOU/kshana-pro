@@ -1,0 +1,4990 @@
+[
+ {
+  "file": "jamming-demo.toml",
+  "name": "jamming-demo",
+  "title": "Jamming",
+  "domain": "Jamming & interference",
+  "group": "bundled",
+  "kind": "jamming",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=jamming-demo&tab=signal",
+   "animation": "index.html?scenario=jamming-demo&tab=animation",
+   "report": "index.html?scenario=jamming-demo&tab=report",
+   "exports": "index.html?scenario=jamming-demo&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "signal",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "signal",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "maritime-strait-jamming.toml",
+  "name": "maritime-strait-jamming",
+  "title": "Ship jammed in a strait",
+  "domain": "Jamming & interference",
+  "group": "bundled",
+  "kind": "jamming",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=maritime-strait-jamming&tab=signal",
+   "animation": "index.html?scenario=maritime-strait-jamming&tab=animation",
+   "report": "index.html?scenario=maritime-strait-jamming&tab=report",
+   "exports": "index.html?scenario=maritime-strait-jamming&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "signal",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "signal",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "jamming-harbour-approach-skyline.toml",
+  "name": "jamming-harbour-approach-skyline",
+  "title": "Ship jammed entering harbour",
+  "domain": "Jamming & interference",
+  "group": "bundled",
+  "kind": "jamming",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=jamming-harbour-approach-skyline&tab=signal",
+   "animation": "index.html?scenario=jamming-harbour-approach-skyline&tab=animation",
+   "report": "index.html?scenario=jamming-harbour-approach-skyline&tab=report",
+   "exports": "index.html?scenario=jamming-harbour-approach-skyline&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "signal",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "signal",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "maritime-spoof-position-push.toml",
+  "name": "maritime-spoof-position-push",
+  "title": "Ship position spoofed",
+  "domain": "Spoofing & signal security",
+  "group": "bundled",
+  "kind": "spoof-detect",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=maritime-spoof-position-push&tab=overview",
+   "report": "index.html?scenario=maritime-spoof-position-push&tab=report",
+   "exports": "index.html?scenario=maritime-spoof-position-push&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "maritime-port-approach-coast.toml",
+  "name": "maritime-port-approach-coast",
+  "title": "Port approach on inertial",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "ins-trn-coast",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=maritime-port-approach-coast&tab=overview",
+   "report": "index.html?scenario=maritime-port-approach-coast&tab=report",
+   "exports": "index.html?scenario=maritime-port-approach-coast&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "automotive-urban-canyon.toml",
+  "name": "automotive-urban-canyon",
+  "title": "Car through an urban canyon",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "gnss-ins",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=automotive-urban-canyon&tab=holdover",
+   "animation": "index.html?scenario=automotive-urban-canyon&tab=animation",
+   "report": "index.html?scenario=automotive-urban-canyon&tab=report",
+   "exports": "index.html?scenario=automotive-urban-canyon&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "rail-tunnel-coast.toml",
+  "name": "rail-tunnel-coast",
+  "title": "Train through a tunnel",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "ins-trn-coast",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=rail-tunnel-coast&tab=overview",
+   "report": "index.html?scenario=rail-tunnel-coast&tab=report",
+   "exports": "index.html?scenario=rail-tunnel-coast&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "small-uas-jammed-nav.toml",
+  "name": "small-uas-jammed-nav",
+  "title": "Small drone under jamming",
+  "domain": "Jamming & interference",
+  "group": "bundled",
+  "kind": "gnss-ins",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=small-uas-jammed-nav&tab=holdover",
+   "animation": "index.html?scenario=small-uas-jammed-nav&tab=animation",
+   "report": "index.html?scenario=small-uas-jammed-nav&tab=report",
+   "exports": "index.html?scenario=small-uas-jammed-nav&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "tracking-loop.toml",
+  "name": "tracking-loop",
+  "title": "Tracking loop",
+  "domain": "Jamming & interference",
+  "group": "bundled",
+  "kind": "tracking-loop",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=tracking-loop&tab=overview",
+   "report": "index.html?scenario=tracking-loop&tab=report",
+   "exports": "index.html?scenario=tracking-loop&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "impairment-eval.toml",
+  "name": "impairment-eval",
+  "title": "RF-impairment eval",
+  "domain": "Jamming & interference",
+  "group": "bundled",
+  "kind": "impairment-eval",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=impairment-eval&tab=overview",
+   "report": "index.html?scenario=impairment-eval&tab=report",
+   "exports": "index.html?scenario=impairment-eval&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "conflict-resilience.toml",
+  "name": "conflict-resilience",
+  "title": "Conflict resilience",
+  "domain": "Jamming & interference",
+  "group": "bundled",
+  "kind": "conflict-resilience",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=conflict-resilience&tab=overview",
+   "report": "index.html?scenario=conflict-resilience&tab=report",
+   "exports": "index.html?scenario=conflict-resilience&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "spoof-attack.toml",
+  "name": "spoof-attack",
+  "title": "Spoof detection",
+  "domain": "Spoofing & signal security",
+  "group": "bundled",
+  "kind": "spoof",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=spoof-attack&tab=timeseries",
+   "animation": "index.html?scenario=spoof-attack&tab=animation",
+   "report": "index.html?scenario=spoof-attack&tab=report",
+   "exports": "index.html?scenario=spoof-attack&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": []
+ },
+ {
+  "file": "spoof-detect.toml",
+  "name": "spoof-detect",
+  "title": "Multi-layer spoof detect",
+  "domain": "Spoofing & signal security",
+  "group": "bundled",
+  "kind": "spoof-detect",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=spoof-detect&tab=overview",
+   "report": "index.html?scenario=spoof-detect&tab=report",
+   "exports": "index.html?scenario=spoof-detect&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "spoof-meaconing.toml",
+  "name": "spoof-meaconing",
+  "title": "Spoof detector statistics",
+  "domain": "Spoofing & signal security",
+  "group": "bundled",
+  "kind": "spoof",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=spoof-meaconing&tab=timeseries",
+   "animation": "index.html?scenario=spoof-meaconing&tab=animation",
+   "report": "index.html?scenario=spoof-meaconing&tab=report",
+   "exports": "index.html?scenario=spoof-meaconing&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": []
+ },
+ {
+  "file": "clock-holdover.toml",
+  "name": "clock-holdover",
+  "title": "Clock holdover",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "clock",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=clock-holdover&tab=holdover",
+   "animation": "index.html?scenario=clock-holdover&tab=animation",
+   "report": "index.html?scenario=clock-holdover&tab=report",
+   "exports": "index.html?scenario=clock-holdover&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "stability",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": []
+ },
+ {
+  "file": "clock-holdover-labsr.toml",
+  "name": "clock-holdover-labsr",
+  "title": "Clock holdover, lab optical clock",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "clock",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=clock-holdover-labsr&tab=holdover",
+   "animation": "index.html?scenario=clock-holdover-labsr&tab=animation",
+   "report": "index.html?scenario=clock-holdover-labsr&tab=report",
+   "exports": "index.html?scenario=clock-holdover-labsr&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "stability",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": []
+ },
+ {
+  "file": "clock-ensemble.toml",
+  "name": "clock-ensemble",
+  "title": "Clock holdover ensemble",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "clock",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=clock-ensemble&tab=timeseries",
+   "animation": "index.html?scenario=clock-ensemble&tab=animation",
+   "report": "index.html?scenario=clock-ensemble&tab=report",
+   "exports": "index.html?scenario=clock-ensemble&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": []
+ },
+ {
+  "file": "slot-timing-ocxo-leo.toml",
+  "name": "slot-timing-ocxo-leo",
+  "title": "Slot timing",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "slot-timing",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=slot-timing-ocxo-leo&tab=holdover",
+   "animation": "index.html?scenario=slot-timing-ocxo-leo&tab=animation",
+   "report": "index.html?scenario=slot-timing-ocxo-leo&tab=report",
+   "exports": "index.html?scenario=slot-timing-ocxo-leo&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": []
+ },
+ {
+  "file": "telecom-prtc-holdover-24h.toml",
+  "name": "telecom-prtc-holdover-24h",
+  "title": "Telecom holdover, 24 h",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "telecom-timing",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=telecom-prtc-holdover-24h&tab=masks",
+   "report": "index.html?scenario=telecom-prtc-holdover-24h&tab=report",
+   "exports": "index.html?scenario=telecom-prtc-holdover-24h&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "masks",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "masks",
+  "exports": []
+ },
+ {
+  "file": "telecom-tie-ingest.toml",
+  "name": "telecom-tie-ingest",
+  "title": "Telecom mask check, your data",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "telecom-timing",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=telecom-tie-ingest&tab=masks",
+   "report": "index.html?scenario=telecom-tie-ingest&tab=report",
+   "exports": "index.html?scenario=telecom-tie-ingest&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "masks",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "masks",
+  "exports": []
+ },
+ {
+  "file": "timetransfer.toml",
+  "name": "timetransfer",
+  "title": "Time transfer",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "timetransfer",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=timetransfer&tab=timeseries",
+   "animation": "index.html?scenario=timetransfer&tab=animation",
+   "report": "index.html?scenario=timetransfer&tab=report",
+   "exports": "index.html?scenario=timetransfer&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": []
+ },
+ {
+  "file": "quantum-time-transfer.toml",
+  "name": "quantum-time-transfer",
+  "title": "Quantum time transfer",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "quantum-time-transfer",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=quantum-time-transfer&tab=overview",
+   "report": "index.html?scenario=quantum-time-transfer&tab=report",
+   "exports": "index.html?scenario=quantum-time-transfer&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "sweep-clock-stability.toml",
+  "name": "sweep-clock-stability",
+  "title": "Parameter sweep",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "sweep",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=sweep-clock-stability&tab=timeseries",
+   "report": "index.html?scenario=sweep-clock-stability&tab=report",
+   "exports": "index.html?scenario=sweep-clock-stability&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": []
+ },
+ {
+  "file": "imu-deadreckoning.toml",
+  "name": "imu-deadreckoning",
+  "title": "Inertial dead-reckoning",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "inertial",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=imu-deadreckoning&tab=holdover",
+   "animation": "index.html?scenario=imu-deadreckoning&tab=animation",
+   "report": "index.html?scenario=imu-deadreckoning&tab=report",
+   "exports": "index.html?scenario=imu-deadreckoning&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": []
+ },
+ {
+  "file": "ins-trn-coast.toml",
+  "name": "ins-trn-coast",
+  "title": "INS/TRN coast",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "ins-trn-coast",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=ins-trn-coast&tab=overview",
+   "report": "index.html?scenario=ins-trn-coast&tab=report",
+   "exports": "index.html?scenario=ins-trn-coast&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "gnss-ins.toml",
+  "name": "gnss-ins",
+  "title": "GNSS/INS fusion",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "gnss-ins",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=gnss-ins&tab=holdover",
+   "animation": "index.html?scenario=gnss-ins&tab=animation",
+   "report": "index.html?scenario=gnss-ins&tab=report",
+   "exports": "index.html?scenario=gnss-ins&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "fusion-pnt.toml",
+  "name": "fusion-pnt",
+  "title": "Sensor fusion",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "fusion",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=fusion-pnt&tab=holdover",
+   "animation": "index.html?scenario=fusion-pnt&tab=animation",
+   "report": "index.html?scenario=fusion-pnt&tab=report",
+   "exports": "index.html?scenario=fusion-pnt&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": []
+ },
+ {
+  "file": "hybrid-pnt.toml",
+  "name": "hybrid-pnt",
+  "title": "Hybrid PNT",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "hybrid",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=hybrid-pnt&tab=holdover",
+   "animation": "index.html?scenario=hybrid-pnt&tab=animation",
+   "report": "index.html?scenario=hybrid-pnt&tab=report",
+   "exports": "index.html?scenario=hybrid-pnt&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": []
+ },
+ {
+  "file": "hybrid-ukf.toml",
+  "name": "hybrid-ukf",
+  "title": "Hybrid 17-state UKF",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "hybrid-ukf",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=hybrid-ukf&tab=overview",
+   "report": "index.html?scenario=hybrid-ukf&tab=report",
+   "exports": "index.html?scenario=hybrid-ukf&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "terrain-nav.toml",
+  "name": "terrain-nav",
+  "title": "Terrain nav",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "terrain-nav",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=terrain-nav&tab=overview",
+   "report": "index.html?scenario=terrain-nav&tab=report",
+   "exports": "index.html?scenario=terrain-nav&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "terrain-slam.toml",
+  "name": "terrain-slam",
+  "title": "Terrain SLAM",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "terrain-slam",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=terrain-slam&tab=timeseries",
+   "animation": "index.html?scenario=terrain-slam&tab=animation",
+   "report": "index.html?scenario=terrain-slam&tab=report",
+   "exports": "index.html?scenario=terrain-slam&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "gravity-map-nav.toml",
+  "name": "gravity-map-nav",
+  "title": "Gravity-map navigation",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "gravity-map",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=gravity-map-nav&tab=overview",
+   "report": "index.html?scenario=gravity-map-nav&tab=report",
+   "exports": "index.html?scenario=gravity-map-nav&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "gps-denied-gravity-nav.toml",
+  "name": "gps-denied-gravity-nav",
+  "title": "GNSS-free nav",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "gravity-map",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=gps-denied-gravity-nav&tab=overview",
+   "report": "index.html?scenario=gps-denied-gravity-nav&tab=report",
+   "exports": "index.html?scenario=gps-denied-gravity-nav&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "combined-altpnt.toml",
+  "name": "combined-altpnt",
+  "title": "Combined alt-PNT",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "combined-altpnt",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=combined-altpnt&tab=overview",
+   "report": "index.html?scenario=combined-altpnt&tab=report",
+   "exports": "index.html?scenario=combined-altpnt&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "quantum-gnss-free-nav.toml",
+  "name": "quantum-gnss-free-nav",
+  "title": "Quantum GNSS-free nav",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "quantum-gnss-free-nav",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=quantum-gnss-free-nav&tab=overview",
+   "report": "index.html?scenario=quantum-gnss-free-nav&tab=report",
+   "exports": "index.html?scenario=quantum-gnss-free-nav&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "quantum-cai-coast.toml",
+  "name": "quantum-cai-coast",
+  "title": "Quantum accelerometer coast",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "inertial",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=quantum-cai-coast&tab=holdover",
+   "animation": "index.html?scenario=quantum-cai-coast&tab=animation",
+   "report": "index.html?scenario=quantum-cai-coast&tab=report",
+   "exports": "index.html?scenario=quantum-cai-coast&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": []
+ },
+ {
+  "file": "hybrid-optical-rf.toml",
+  "name": "hybrid-optical-rf",
+  "title": "Optical/RF hybrid",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "hybrid-optical-rf",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=hybrid-optical-rf&tab=overview",
+   "animation": "index.html?scenario=hybrid-optical-rf&tab=animation",
+   "report": "index.html?scenario=hybrid-optical-rf&tab=report",
+   "exports": "index.html?scenario=hybrid-optical-rf&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "fusion-pnt-coupled.toml",
+  "name": "fusion-pnt-coupled",
+  "title": "Coupled sensor-fusion navigator",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "fusion",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=fusion-pnt-coupled&tab=holdover",
+   "animation": "index.html?scenario=fusion-pnt-coupled&tab=animation",
+   "report": "index.html?scenario=fusion-pnt-coupled&tab=report",
+   "exports": "index.html?scenario=fusion-pnt-coupled&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": []
+ },
+ {
+  "file": "gnss-ins-aviation.toml",
+  "name": "gnss-ins-aviation",
+  "title": "Aircraft turn through a GNSS gap",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "gnss-ins",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=gnss-ins-aviation&tab=holdover",
+   "animation": "index.html?scenario=gnss-ins-aviation&tab=animation",
+   "report": "index.html?scenario=gnss-ins-aviation&tab=report",
+   "exports": "index.html?scenario=gnss-ins-aviation&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "gnss-ins-maritime.toml",
+  "name": "gnss-ins-maritime",
+  "title": "Ship weaving through a GNSS outage",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "gnss-ins",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=gnss-ins-maritime&tab=holdover",
+   "animation": "index.html?scenario=gnss-ins-maritime&tab=animation",
+   "report": "index.html?scenario=gnss-ins-maritime&tab=report",
+   "exports": "index.html?scenario=gnss-ins-maritime&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "gnss-ins-rail.toml",
+  "name": "gnss-ins-rail",
+  "title": "Train through a cutting and a tunnel",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "gnss-ins",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=gnss-ins-rail&tab=holdover",
+   "animation": "index.html?scenario=gnss-ins-rail&tab=animation",
+   "report": "index.html?scenario=gnss-ins-rail&tab=report",
+   "exports": "index.html?scenario=gnss-ins-rail&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "gravity-map-error-mc.toml",
+  "name": "gravity-map-error-mc",
+  "title": "Gravity-map error Monte Carlo",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "gravity-map",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=gravity-map-error-mc&tab=overview",
+   "report": "index.html?scenario=gravity-map-error-mc&tab=report",
+   "exports": "index.html?scenario=gravity-map-error-mc&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "gps-denied-gravity-nav-egm2008.toml",
+  "name": "gps-denied-gravity-nav-egm2008",
+  "title": "Gravity navigation on the real field",
+  "domain": "Inertial & alternative navigation",
+  "group": "bundled",
+  "kind": "gravity-map",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=gps-denied-gravity-nav-egm2008&tab=overview",
+   "report": "index.html?scenario=gps-denied-gravity-nav-egm2008&tab=report",
+   "exports": "index.html?scenario=gps-denied-gravity-nav-egm2008&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "integrity-raim.toml",
+  "name": "integrity-raim",
+  "title": "RAIM integrity",
+  "domain": "Integrity & positioning",
+  "group": "bundled",
+  "kind": "integrity",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=integrity-raim&tab=timeseries",
+   "animation": "index.html?scenario=integrity-raim&tab=animation",
+   "report": "index.html?scenario=integrity-raim&tab=report",
+   "exports": "index.html?scenario=integrity-raim&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "integrity-harbour-approach.toml",
+  "name": "integrity-harbour-approach",
+  "title": "ARAIM entering harbour",
+  "domain": "Integrity & positioning",
+  "group": "bundled",
+  "kind": "integrity",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=integrity-harbour-approach&tab=timeseries",
+   "animation": "index.html?scenario=integrity-harbour-approach&tab=animation",
+   "report": "index.html?scenario=integrity-harbour-approach&tab=report",
+   "exports": "index.html?scenario=integrity-harbour-approach&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "araim-gps-galileo.toml",
+  "name": "araim-gps-galileo",
+  "title": "Dual-constellation ARAIM",
+  "domain": "Integrity & positioning",
+  "group": "bundled",
+  "kind": "integrity",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=araim-gps-galileo&tab=timeseries",
+   "animation": "index.html?scenario=araim-gps-galileo&tab=animation",
+   "report": "index.html?scenario=araim-gps-galileo&tab=report",
+   "exports": "index.html?scenario=araim-gps-galileo&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "araim-reference-check.toml",
+  "name": "araim-reference-check",
+  "title": "ARAIM reference check",
+  "domain": "Integrity & positioning",
+  "group": "bundled",
+  "kind": "araim-reference-check",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=araim-reference-check&tab=overview",
+   "report": "index.html?scenario=araim-reference-check&tab=report",
+   "exports": "index.html?scenario=araim-reference-check&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "gnss-sim-raim.toml",
+  "name": "gnss-sim-raim",
+  "title": "GNSS measurements",
+  "domain": "Integrity & positioning",
+  "group": "bundled",
+  "kind": "gnss-sim",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=gnss-sim-raim&tab=overview",
+   "animation": "index.html?scenario=gnss-sim-raim&tab=animation",
+   "report": "index.html?scenario=gnss-sim-raim&tab=report",
+   "exports": "index.html?scenario=gnss-sim-raim&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "gnss-sim-container-terminal-skyline.toml",
+  "name": "gnss-sim-container-terminal-skyline",
+  "title": "Straddle carrier on a container quay",
+  "domain": "Integrity & positioning",
+  "group": "bundled",
+  "kind": "gnss-sim",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=gnss-sim-container-terminal-skyline&tab=overview",
+   "animation": "index.html?scenario=gnss-sim-container-terminal-skyline&tab=animation",
+   "report": "index.html?scenario=gnss-sim-container-terminal-skyline&tab=report",
+   "exports": "index.html?scenario=gnss-sim-container-terminal-skyline&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "pvt-abmf.toml",
+  "name": "pvt-abmf",
+  "title": "Positioning (SPP)",
+  "domain": "Integrity & positioning",
+  "group": "bundled",
+  "kind": "pvt",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=pvt-abmf&tab=overview",
+   "report": "index.html?scenario=pvt-abmf&tab=report",
+   "exports": "index.html?scenario=pvt-abmf&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml"
+  ]
+ },
+ {
+  "file": "time-transfer-budget.toml",
+  "name": "time-transfer-budget",
+  "title": "Two-way satellite time transfer",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "time-transfer-budget",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=time-transfer-budget&tab=overview",
+   "report": "index.html?scenario=time-transfer-budget&tab=report",
+   "exports": "index.html?scenario=time-transfer-budget&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "telecom-synce-eec.toml",
+  "name": "telecom-synce-eec",
+  "title": "Frequency sync against SyncE masks",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "telecom-timing",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=telecom-synce-eec&tab=masks",
+   "report": "index.html?scenario=telecom-synce-eec&tab=report",
+   "exports": "index.html?scenario=telecom-synce-eec&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "masks",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "masks",
+  "exports": []
+ },
+ {
+  "file": "orbit-gnss-challenged.toml",
+  "name": "orbit-gnss-challenged",
+  "title": "GNSS availability",
+  "domain": "Orbits & GNSS geometry",
+  "group": "bundled",
+  "kind": "orbit",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=orbit-gnss-challenged&tab=holdover",
+   "animation": "index.html?scenario=orbit-gnss-challenged&tab=animation",
+   "report": "index.html?scenario=orbit-gnss-challenged&tab=report",
+   "exports": "index.html?scenario=orbit-gnss-challenged&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "stability",
+   "orbit",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "orbit-sgp4-gps.toml",
+  "name": "orbit-sgp4-gps",
+  "title": "SGP4 orbits",
+  "domain": "Orbits & GNSS geometry",
+  "group": "bundled",
+  "kind": "orbit",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=orbit-sgp4-gps&tab=holdover",
+   "animation": "index.html?scenario=orbit-sgp4-gps&tab=animation",
+   "report": "index.html?scenario=orbit-sgp4-gps&tab=report",
+   "exports": "index.html?scenario=orbit-sgp4-gps&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "stability",
+   "orbit",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "orbit-multignss.toml",
+  "name": "orbit-multignss",
+  "title": "Multi-GNSS availability",
+  "domain": "Orbits & GNSS geometry",
+  "group": "bundled",
+  "kind": "orbit",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=orbit-multignss&tab=timeseries",
+   "animation": "index.html?scenario=orbit-multignss&tab=animation",
+   "report": "index.html?scenario=orbit-multignss&tab=report",
+   "exports": "index.html?scenario=orbit-multignss&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "stability",
+   "orbit",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "orbit-urban-canyon-skyline.toml",
+  "name": "orbit-urban-canyon-skyline",
+  "title": "City street availability",
+  "domain": "Orbits & GNSS geometry",
+  "group": "bundled",
+  "kind": "orbit",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=orbit-urban-canyon-skyline&tab=holdover",
+   "animation": "index.html?scenario=orbit-urban-canyon-skyline&tab=animation",
+   "report": "index.html?scenario=orbit-urban-canyon-skyline&tab=report",
+   "exports": "index.html?scenario=orbit-urban-canyon-skyline&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "stability",
+   "orbit",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "orbit-molniya.toml",
+  "name": "orbit-molniya",
+  "title": "Molniya user",
+  "domain": "Orbits & GNSS geometry",
+  "group": "bundled",
+  "kind": "orbit",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=orbit-molniya&tab=holdover",
+   "animation": "index.html?scenario=orbit-molniya&tab=animation",
+   "report": "index.html?scenario=orbit-molniya&tab=report",
+   "exports": "index.html?scenario=orbit-molniya&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "stability",
+   "orbit",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "orbit-real-tle.toml",
+  "name": "orbit-real-tle",
+  "title": "Real two-line elements",
+  "domain": "Orbits & GNSS geometry",
+  "group": "bundled",
+  "kind": "orbit",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=orbit-real-tle&tab=holdover",
+   "animation": "index.html?scenario=orbit-real-tle&tab=animation",
+   "report": "index.html?scenario=orbit-real-tle&tab=report",
+   "exports": "index.html?scenario=orbit-real-tle&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "stability",
+   "orbit",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "orbit-rinex.toml",
+  "name": "orbit-rinex",
+  "title": "Broadcast ephemeris",
+  "domain": "Orbits & GNSS geometry",
+  "group": "bundled",
+  "kind": "orbit",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=orbit-rinex&tab=holdover",
+   "animation": "index.html?scenario=orbit-rinex&tab=animation",
+   "report": "index.html?scenario=orbit-rinex&tab=report",
+   "exports": "index.html?scenario=orbit-rinex&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "holdover",
+   "stability",
+   "orbit",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "holdover",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "ephemeris.toml",
+  "name": "ephemeris",
+  "title": "Ground track",
+  "domain": "Orbits & GNSS geometry",
+  "group": "bundled",
+  "kind": "ephemeris",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=ephemeris&tab=ground",
+   "animation": "index.html?scenario=ephemeris&tab=animation",
+   "report": "index.html?scenario=ephemeris&tab=report",
+   "exports": "index.html?scenario=ephemeris&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "orbit",
+   "ground",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "ground",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "passes.toml",
+  "name": "passes",
+  "title": "Ground passes",
+  "domain": "Orbits & GNSS geometry",
+  "group": "bundled",
+  "kind": "passes",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=passes&tab=overview",
+   "report": "index.html?scenario=passes&tab=report",
+   "exports": "index.html?scenario=passes&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "launch-window.toml",
+  "name": "launch-window",
+  "title": "Launch window",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "launch-window",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=launch-window&tab=overview",
+   "report": "index.html?scenario=launch-window&tab=report",
+   "exports": "index.html?scenario=launch-window&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "reentry.toml",
+  "name": "reentry",
+  "title": "Re-entry corridor",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "reentry",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=reentry&tab=overview",
+   "report": "index.html?scenario=reentry&tab=report",
+   "exports": "index.html?scenario=reentry&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "eo-coverage.toml",
+  "name": "eo-coverage",
+  "title": "EO coverage",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "eo-coverage",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=eo-coverage&tab=overview",
+   "report": "index.html?scenario=eo-coverage&tab=report",
+   "exports": "index.html?scenario=eo-coverage&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "link-budget.toml",
+  "name": "link-budget",
+  "title": "Link budget",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "link-budget",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=link-budget&tab=overview",
+   "report": "index.html?scenario=link-budget&tab=report",
+   "exports": "index.html?scenario=link-budget&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "attitude-budget.toml",
+  "name": "attitude-budget",
+  "title": "Pointing budget",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "attitude-budget",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=attitude-budget&tab=overview",
+   "report": "index.html?scenario=attitude-budget&tab=report",
+   "exports": "index.html?scenario=attitude-budget&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "space-weather.toml",
+  "name": "space-weather",
+  "title": "Space weather",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "space-weather",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=space-weather&tab=overview",
+   "report": "index.html?scenario=space-weather&tab=report",
+   "exports": "index.html?scenario=space-weather&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "aperture-duty-cycle.toml",
+  "name": "aperture-duty-cycle",
+  "title": "Aperture duty cycle",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "aperture-duty-cycle",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=aperture-duty-cycle&tab=overview",
+   "report": "index.html?scenario=aperture-duty-cycle&tab=report",
+   "exports": "index.html?scenario=aperture-duty-cycle&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "acm-link.toml",
+  "name": "acm-link",
+  "title": "Satellite downlink with adaptive coding",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "acm-link",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=acm-link&tab=overview",
+   "report": "index.html?scenario=acm-link&tab=report",
+   "exports": "index.html?scenario=acm-link&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "aocs-slew.toml",
+  "name": "aocs-slew",
+  "title": "Reaction-wheel slew",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "aocs",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=aocs-slew&tab=overview",
+   "animation": "index.html?scenario=aocs-slew&tab=animation",
+   "report": "index.html?scenario=aocs-slew&tab=report",
+   "exports": "index.html?scenario=aocs-slew&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "aocs-slew-mekf.toml",
+  "name": "aocs-slew-mekf",
+  "title": "Slew on an attitude estimate",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "aocs",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=aocs-slew-mekf&tab=overview",
+   "animation": "index.html?scenario=aocs-slew-mekf&tab=animation",
+   "report": "index.html?scenario=aocs-slew-mekf&tab=report",
+   "exports": "index.html?scenario=aocs-slew-mekf&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "ascent-losses.toml",
+  "name": "ascent-losses",
+  "title": "Launch ascent losses",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "ascent-losses",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=ascent-losses&tab=overview",
+   "report": "index.html?scenario=ascent-losses&tab=report",
+   "exports": "index.html?scenario=ascent-losses&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "contact-schedule.toml",
+  "name": "contact-schedule",
+  "title": "Ground-contact plan",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "contact-schedule",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=contact-schedule&tab=overview",
+   "report": "index.html?scenario=contact-schedule&tab=report",
+   "exports": "index.html?scenario=contact-schedule&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "entry-heating-stardust.toml",
+  "name": "entry-heating-stardust",
+  "title": "Stardust capsule entry",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "entry-heating",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=entry-heating-stardust&tab=overview",
+   "report": "index.html?scenario=entry-heating-stardust&tab=report",
+   "exports": "index.html?scenario=entry-heating-stardust&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "eo-radiometry.toml",
+  "name": "eo-radiometry",
+  "title": "Imager radiometry and image quality",
+  "domain": "Mission analysis & space operations",
+  "group": "bundled",
+  "kind": "eo-radiometry",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=eo-radiometry&tab=overview",
+   "report": "index.html?scenario=eo-radiometry&tab=report",
+   "exports": "index.html?scenario=eo-radiometry&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "moonlight-service-volume.toml",
+  "name": "moonlight-service-volume",
+  "title": "Lunar service volume",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "moonlight-service-volume",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=moonlight-service-volume&tab=overview",
+   "report": "index.html?scenario=moonlight-service-volume&tab=report",
+   "exports": "index.html?scenario=moonlight-service-volume&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunanet-araim.toml",
+  "name": "lunanet-araim",
+  "title": "Lunar integrity",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-integrity",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunanet-araim&tab=timeseries",
+   "animation": "index.html?scenario=lunanet-araim&tab=animation",
+   "report": "index.html?scenario=lunanet-araim&tab=report",
+   "exports": "index.html?scenario=lunanet-araim&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": []
+ },
+ {
+  "file": "lunar-jamming.toml",
+  "name": "lunar-jamming",
+  "title": "Lunar jamming",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-jamming",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-jamming&tab=signal",
+   "animation": "index.html?scenario=lunar-jamming&tab=animation",
+   "report": "index.html?scenario=lunar-jamming&tab=report",
+   "exports": "index.html?scenario=lunar-jamming&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "signal",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "signal",
+  "exports": []
+ },
+ {
+  "file": "lunar-attack-surface.toml",
+  "name": "lunar-attack-surface",
+  "title": "Lunar attack surface",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-attack-surface",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-attack-surface&tab=overview",
+   "report": "index.html?scenario=lunar-attack-surface&tab=report",
+   "exports": "index.html?scenario=lunar-attack-surface&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-time-offset.toml",
+  "name": "lunar-time-offset",
+  "title": "Lunar time offset",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-time-offset",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-time-offset&tab=overview",
+   "report": "index.html?scenario=lunar-time-offset&tab=report",
+   "exports": "index.html?scenario=lunar-time-offset&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-time-budget.toml",
+  "name": "lunar-time-budget",
+  "title": "Lunar time budget",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-time-budget",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-time-budget&tab=overview",
+   "report": "index.html?scenario=lunar-time-budget&tab=report",
+   "exports": "index.html?scenario=lunar-time-budget&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "earth-gnss-lunar.toml",
+  "name": "earth-gnss-lunar",
+  "title": "Earth-GNSS at the Moon",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "earth-gnss-lunar",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=earth-gnss-lunar&tab=overview",
+   "animation": "index.html?scenario=earth-gnss-lunar&tab=animation",
+   "report": "index.html?scenario=earth-gnss-lunar&tab=report",
+   "exports": "index.html?scenario=earth-gnss-lunar&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-beacon.toml",
+  "name": "lunar-beacon",
+  "title": "Lunar surface beacons",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-beacon",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-beacon&tab=overview",
+   "report": "index.html?scenario=lunar-beacon&tab=report",
+   "exports": "index.html?scenario=lunar-beacon&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-differential-pnt.toml",
+  "name": "lunar-differential-pnt",
+  "title": "Lunar differential PNT",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-differential-pnt",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-differential-pnt&tab=overview",
+   "report": "index.html?scenario=lunar-differential-pnt&tab=report",
+   "exports": "index.html?scenario=lunar-differential-pnt&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-station-coverage.toml",
+  "name": "lunar-station-coverage",
+  "title": "Lunar reference station coverage",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-station-coverage",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-station-coverage&tab=overview",
+   "report": "index.html?scenario=lunar-station-coverage&tab=report",
+   "exports": "index.html?scenario=lunar-station-coverage&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-station-coverage-public-sources.toml",
+  "name": "lunar-station-coverage-public-sources",
+  "title": "Lunar reference station, public assumptions",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-station-coverage",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-station-coverage-public-sources&tab=overview",
+   "report": "index.html?scenario=lunar-station-coverage-public-sources&tab=report",
+   "exports": "index.html?scenario=lunar-station-coverage-public-sources&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-station-time-lab.toml",
+  "name": "lunar-station-time-lab",
+  "title": "Lunar station time laboratory",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-time-budget",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-station-time-lab&tab=overview",
+   "animation": "index.html?scenario=lunar-station-time-lab&tab=animation",
+   "report": "index.html?scenario=lunar-station-time-lab&tab=report",
+   "exports": "index.html?scenario=lunar-station-time-lab&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-vlbi.toml",
+  "name": "lunar-vlbi",
+  "title": "Lunar VLBI",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-vlbi",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-vlbi&tab=overview",
+   "animation": "index.html?scenario=lunar-vlbi&tab=animation",
+   "report": "index.html?scenario=lunar-vlbi&tab=report",
+   "exports": "index.html?scenario=lunar-vlbi&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-vlbi-fim.toml",
+  "name": "lunar-vlbi-fim",
+  "title": "Lunar VLBI information",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-vlbi-fim",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-vlbi-fim&tab=overview",
+   "animation": "index.html?scenario=lunar-vlbi-fim&tab=animation",
+   "report": "index.html?scenario=lunar-vlbi-fim&tab=report",
+   "exports": "index.html?scenario=lunar-vlbi-fim&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-joint-od-clock.toml",
+  "name": "lunar-joint-od-clock",
+  "title": "Lunar joint OD+clock",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-joint-od-clock",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-joint-od-clock&tab=overview",
+   "report": "index.html?scenario=lunar-joint-od-clock&tab=report",
+   "exports": "index.html?scenario=lunar-joint-od-clock&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-frame-realisation.toml",
+  "name": "lunar-frame-realisation",
+  "title": "Lunar frame",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-frame-realisation",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-frame-realisation&tab=overview",
+   "report": "index.html?scenario=lunar-frame-realisation&tab=report",
+   "exports": "index.html?scenario=lunar-frame-realisation&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-frame-campaign.toml",
+  "name": "lunar-frame-campaign",
+  "title": "Lunar frame campaign",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-frame-campaign",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-frame-campaign&tab=overview",
+   "report": "index.html?scenario=lunar-frame-campaign&tab=report",
+   "exports": "index.html?scenario=lunar-frame-campaign&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-llr-datum.toml",
+  "name": "lunar-llr-datum",
+  "title": "Lunar laser-ranging datum",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-llr-datum",
+  "runs": "recorded (native engine)",
+  "links": {
+   "view": "index.html?scenario=lunar-llr-datum&tab=llr-datum",
+   "best": "index.html?scenario=lunar-llr-datum&tab=llr-datum",
+   "report": "index.html?scenario=lunar-llr-datum&tab=report",
+   "exports": "index.html?scenario=lunar-llr-datum&tab=exports"
+  },
+  "capability": "Laser-ranging datum",
+  "tab": "llr-datum",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "llr-datum",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "llr-datum",
+  "exports": []
+ },
+ {
+  "file": "lunar-interop-export.toml",
+  "name": "lunar-interop-export",
+  "title": "Lunar interop export",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-interop-export",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=lunar-interop-export&tab=overview",
+   "report": "index.html?scenario=lunar-interop-export&tab=report",
+   "exports": "index.html?scenario=lunar-interop-export&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "realtime-frame-eop.toml",
+  "name": "realtime-frame-eop",
+  "title": "Real-time frame/EOP",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "realtime-frame-eop",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=realtime-frame-eop&tab=overview",
+   "report": "index.html?scenario=realtime-frame-eop&tab=report",
+   "exports": "index.html?scenario=realtime-frame-eop&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "cislunar-observability.toml",
+  "name": "cislunar-observability",
+  "title": "Cislunar observability",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "cislunar-observability",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=cislunar-observability&tab=overview",
+   "report": "index.html?scenario=cislunar-observability&tab=report",
+   "exports": "index.html?scenario=cislunar-observability&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "cislunar-arc-recovery.toml",
+  "name": "cislunar-arc-recovery",
+  "title": "Cislunar arc recovery",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "cislunar-arc-recovery",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=cislunar-arc-recovery&tab=overview",
+   "report": "index.html?scenario=cislunar-arc-recovery&tab=report",
+   "exports": "index.html?scenario=cislunar-arc-recovery&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "mars-pnt-lmo.toml",
+  "name": "mars-pnt-lmo",
+  "title": "Mars PNT, low orbit",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "mars-pnt",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=mars-pnt-lmo&tab=timeseries",
+   "animation": "index.html?scenario=mars-pnt-lmo&tab=animation",
+   "report": "index.html?scenario=mars-pnt-lmo&tab=report",
+   "exports": "index.html?scenario=mars-pnt-lmo&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": []
+ },
+ {
+  "file": "mars-pnt-surface.toml",
+  "name": "mars-pnt-surface",
+  "title": "Mars PNT, surface",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "mars-pnt",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=mars-pnt-surface&tab=timeseries",
+   "animation": "index.html?scenario=mars-pnt-surface&tab=animation",
+   "report": "index.html?scenario=mars-pnt-surface&tab=report",
+   "exports": "index.html?scenario=mars-pnt-surface&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": []
+ },
+ {
+  "file": "mars-pnt-transfer.toml",
+  "name": "mars-pnt-transfer",
+  "title": "Mars PNT, transfer",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "mars-pnt",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=mars-pnt-transfer&tab=timeseries",
+   "animation": "index.html?scenario=mars-pnt-transfer&tab=animation",
+   "report": "index.html?scenario=mars-pnt-transfer&tab=report",
+   "exports": "index.html?scenario=mars-pnt-transfer&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "timeseries",
+  "exports": []
+ },
+ {
+  "file": "lunar-station-coverage-terrain.toml",
+  "name": "lunar-station-coverage-terrain",
+  "title": "Lunar station with real terrain",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-station-coverage",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=lunar-station-coverage-terrain&tab=overview",
+   "report": "index.html?scenario=lunar-station-coverage-terrain&tab=report",
+   "exports": "index.html?scenario=lunar-station-coverage-terrain&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "l-band-waterfall-jamming.toml",
+  "name": "l-band-waterfall-jamming",
+  "title": "L-band waterfall under jamming",
+  "domain": "Spectrum",
+  "group": "bundled",
+  "kind": "spectrum",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=l-band-waterfall-jamming&tab=spectrum",
+   "replay": "index.html?scenario=l-band-waterfall-jamming&tab=spectrum&play=1",
+   "best": "index.html?scenario=l-band-waterfall-jamming&tab=spectrum&play=1",
+   "animation": "index.html?scenario=l-band-waterfall-jamming&tab=animation",
+   "report": "index.html?scenario=l-band-waterfall-jamming&tab=report",
+   "exports": "index.html?scenario=l-band-waterfall-jamming&tab=exports"
+  },
+  "capability": "Spectrum",
+  "tab": "spectrum",
+  "stage": "spectrum",
+  "frames": [
+   {
+    "id": "band",
+    "name": "Whole band",
+    "link": "index.html?scenario=l-band-waterfall-jamming&tab=spectrum&frame=band"
+   }
+  ],
+  "dir": "",
+  "tabs": [
+   "overview",
+   "spectrum",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "spectrum",
+  "exports": [
+   "sigmf"
+  ]
+ },
+ {
+  "file": "multi-band-jamming-waterfall.toml",
+  "name": "multi-band-jamming-waterfall",
+  "title": "Multi-band jamming waterfall",
+  "domain": "Spectrum",
+  "group": "bundled",
+  "kind": "spectrum",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=multi-band-jamming-waterfall&tab=spectrum",
+   "replay": "index.html?scenario=multi-band-jamming-waterfall&tab=spectrum&play=1",
+   "best": "index.html?scenario=multi-band-jamming-waterfall&tab=spectrum&play=1",
+   "animation": "index.html?scenario=multi-band-jamming-waterfall&tab=animation",
+   "report": "index.html?scenario=multi-band-jamming-waterfall&tab=report",
+   "exports": "index.html?scenario=multi-band-jamming-waterfall&tab=exports"
+  },
+  "capability": "Spectrum",
+  "tab": "spectrum",
+  "stage": "spectrum",
+  "frames": [
+   {
+    "id": "band",
+    "name": "Whole band",
+    "link": "index.html?scenario=multi-band-jamming-waterfall&tab=spectrum&frame=band"
+   },
+   {
+    "id": "panel-0",
+    "name": "UHF",
+    "link": "index.html?scenario=multi-band-jamming-waterfall&tab=spectrum&frame=panel-0"
+   },
+   {
+    "id": "panel-1",
+    "name": "S band",
+    "link": "index.html?scenario=multi-band-jamming-waterfall&tab=spectrum&frame=panel-1"
+   },
+   {
+    "id": "panel-2",
+    "name": "C band",
+    "link": "index.html?scenario=multi-band-jamming-waterfall&tab=spectrum&frame=panel-2"
+   }
+  ],
+  "dir": "",
+  "tabs": [
+   "overview",
+   "spectrum",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "spectrum",
+  "exports": []
+ },
+ {
+  "file": "leo-resilience-js-margin.toml",
+  "name": "leo-resilience-js-margin",
+  "title": "Jammer margin from received power",
+  "domain": "Spectrum",
+  "group": "bundled",
+  "kind": "spectrum",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-resilience-js-margin&tab=spectrum",
+   "replay": "index.html?scenario=leo-resilience-js-margin&tab=spectrum&play=1",
+   "best": "index.html?scenario=leo-resilience-js-margin&tab=spectrum&play=1",
+   "animation": "index.html?scenario=leo-resilience-js-margin&tab=animation",
+   "report": "index.html?scenario=leo-resilience-js-margin&tab=report",
+   "exports": "index.html?scenario=leo-resilience-js-margin&tab=exports"
+  },
+  "capability": "Spectrum",
+  "tab": "spectrum",
+  "stage": "spectrum",
+  "frames": [
+   {
+    "id": "band",
+    "name": "Whole band",
+    "link": "index.html?scenario=leo-resilience-js-margin&tab=spectrum&frame=band"
+   }
+  ],
+  "dir": "",
+  "tabs": [
+   "overview",
+   "spectrum",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "spectrum",
+  "exports": []
+ },
+ {
+  "file": "constellation-multi-gnss-coverage.toml",
+  "name": "constellation-multi-gnss-coverage",
+  "title": "Four GNSS constellations, one map",
+  "domain": "Constellation design",
+  "group": "bundled",
+  "kind": "constellation-design",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage",
+   "replay": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&play=1",
+   "best": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&play=1",
+   "animation": "index.html?scenario=constellation-multi-gnss-coverage&tab=animation",
+   "report": "index.html?scenario=constellation-multi-gnss-coverage&tab=report",
+   "exports": "index.html?scenario=constellation-multi-gnss-coverage&tab=exports"
+  },
+  "capability": "Coverage",
+  "tab": "coverage",
+  "stage": "coverage",
+  "fields": [
+   {
+    "key": "mean_pdop",
+    "label": "Mean PDOP",
+    "link": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&field=mean_pdop"
+   },
+   {
+    "key": "availability_pct",
+    "label": "Availability",
+    "link": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&field=availability_pct"
+   },
+   {
+    "key": "mean_visible",
+    "label": "Mean visible",
+    "link": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&field=mean_visible"
+   },
+   {
+    "key": "min_visible",
+    "label": "Min visible",
+    "link": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&field=min_visible"
+   },
+   {
+    "key": "max_pdop",
+    "label": "Max PDOP",
+    "link": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&field=max_pdop"
+   },
+   {
+    "key": "fix_pct",
+    "label": "Fix",
+    "link": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&field=fix_pct"
+   },
+   {
+    "key": "mean_gdop",
+    "label": "Mean GDOP",
+    "link": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&field=mean_gdop"
+   },
+   {
+    "key": "mean_hdop",
+    "label": "Mean HDOP",
+    "link": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&field=mean_hdop"
+   },
+   {
+    "key": "mean_vdop",
+    "label": "Mean VDOP",
+    "link": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&field=mean_vdop"
+   },
+   {
+    "key": "max_visible",
+    "label": "Max visible",
+    "link": "index.html?scenario=constellation-multi-gnss-coverage&tab=coverage&field=max_visible"
+   }
+  ],
+  "dir": "",
+  "tabs": [
+   "overview",
+   "coverage",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "coverage",
+  "exports": []
+ },
+ {
+  "file": "leo-pnt-mega-shell.toml",
+  "name": "leo-pnt-mega-shell",
+  "title": "5,000-satellite low-orbit design",
+  "domain": "Constellation design",
+  "group": "bundled",
+  "kind": "constellation-design",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-pnt-mega-shell&tab=coverage",
+   "replay": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&play=1",
+   "best": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&play=1",
+   "animation": "index.html?scenario=leo-pnt-mega-shell&tab=animation",
+   "report": "index.html?scenario=leo-pnt-mega-shell&tab=report",
+   "exports": "index.html?scenario=leo-pnt-mega-shell&tab=exports"
+  },
+  "capability": "Coverage",
+  "tab": "coverage",
+  "stage": "coverage",
+  "fields": [
+   {
+    "key": "mean_pdop",
+    "label": "Mean PDOP",
+    "link": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&field=mean_pdop"
+   },
+   {
+    "key": "availability_pct",
+    "label": "Availability",
+    "link": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&field=availability_pct"
+   },
+   {
+    "key": "mean_visible",
+    "label": "Mean visible",
+    "link": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&field=mean_visible"
+   },
+   {
+    "key": "min_visible",
+    "label": "Min visible",
+    "link": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&field=min_visible"
+   },
+   {
+    "key": "max_pdop",
+    "label": "Max PDOP",
+    "link": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&field=max_pdop"
+   },
+   {
+    "key": "fix_pct",
+    "label": "Fix",
+    "link": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&field=fix_pct"
+   },
+   {
+    "key": "mean_gdop",
+    "label": "Mean GDOP",
+    "link": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&field=mean_gdop"
+   },
+   {
+    "key": "mean_hdop",
+    "label": "Mean HDOP",
+    "link": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&field=mean_hdop"
+   },
+   {
+    "key": "mean_vdop",
+    "label": "Mean VDOP",
+    "link": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&field=mean_vdop"
+   },
+   {
+    "key": "max_visible",
+    "label": "Max visible",
+    "link": "index.html?scenario=leo-pnt-mega-shell&tab=coverage&field=max_visible"
+   }
+  ],
+  "dir": "",
+  "tabs": [
+   "overview",
+   "coverage",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "coverage",
+  "exports": []
+ },
+ {
+  "file": "lunar-relay-constellation.toml",
+  "name": "lunar-relay-constellation",
+  "title": "Lunar relay constellation",
+  "domain": "Constellation design",
+  "group": "bundled",
+  "kind": "constellation-design",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=lunar-relay-constellation&tab=coverage",
+   "replay": "index.html?scenario=lunar-relay-constellation&tab=coverage&play=1",
+   "best": "index.html?scenario=lunar-relay-constellation&tab=coverage&play=1",
+   "animation": "index.html?scenario=lunar-relay-constellation&tab=animation",
+   "report": "index.html?scenario=lunar-relay-constellation&tab=report",
+   "exports": "index.html?scenario=lunar-relay-constellation&tab=exports"
+  },
+  "capability": "Coverage",
+  "tab": "coverage",
+  "stage": "coverage",
+  "fields": [
+   {
+    "key": "mean_pdop",
+    "label": "Mean PDOP",
+    "link": "index.html?scenario=lunar-relay-constellation&tab=coverage&field=mean_pdop"
+   },
+   {
+    "key": "availability_pct",
+    "label": "Availability",
+    "link": "index.html?scenario=lunar-relay-constellation&tab=coverage&field=availability_pct"
+   },
+   {
+    "key": "mean_visible",
+    "label": "Mean visible",
+    "link": "index.html?scenario=lunar-relay-constellation&tab=coverage&field=mean_visible"
+   },
+   {
+    "key": "min_visible",
+    "label": "Min visible",
+    "link": "index.html?scenario=lunar-relay-constellation&tab=coverage&field=min_visible"
+   },
+   {
+    "key": "max_pdop",
+    "label": "Max PDOP",
+    "link": "index.html?scenario=lunar-relay-constellation&tab=coverage&field=max_pdop"
+   },
+   {
+    "key": "fix_pct",
+    "label": "Fix",
+    "link": "index.html?scenario=lunar-relay-constellation&tab=coverage&field=fix_pct"
+   },
+   {
+    "key": "mean_gdop",
+    "label": "Mean GDOP",
+    "link": "index.html?scenario=lunar-relay-constellation&tab=coverage&field=mean_gdop"
+   },
+   {
+    "key": "mean_hdop",
+    "label": "Mean HDOP",
+    "link": "index.html?scenario=lunar-relay-constellation&tab=coverage&field=mean_hdop"
+   },
+   {
+    "key": "mean_vdop",
+    "label": "Mean VDOP",
+    "link": "index.html?scenario=lunar-relay-constellation&tab=coverage&field=mean_vdop"
+   },
+   {
+    "key": "max_visible",
+    "label": "Max visible",
+    "link": "index.html?scenario=lunar-relay-constellation&tab=coverage&field=max_visible"
+   }
+  ],
+  "dir": "",
+  "tabs": [
+   "overview",
+   "coverage",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "coverage",
+  "exports": []
+ },
+ {
+  "file": "leo-band-trade.toml",
+  "name": "leo-band-trade",
+  "title": "Band trade, UHF to C band",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-signal",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-band-trade&tab=leo-signal",
+   "best": "index.html?scenario=leo-band-trade&tab=leo-signal",
+   "report": "index.html?scenario=leo-band-trade&tab=report",
+   "exports": "index.html?scenario=leo-band-trade&tab=exports"
+  },
+  "capability": "Signal design",
+  "tab": "leo-signal",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-signal",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-signal",
+  "exports": []
+ },
+ {
+  "file": "xona-pulsar-signals.toml",
+  "name": "xona-pulsar-signals",
+  "title": "Xona Pulsar signals",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-signal",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=xona-pulsar-signals&tab=leo-signal",
+   "best": "index.html?scenario=xona-pulsar-signals&tab=leo-signal",
+   "report": "index.html?scenario=xona-pulsar-signals&tab=report",
+   "exports": "index.html?scenario=xona-pulsar-signals&tab=exports"
+  },
+  "capability": "Signal design",
+  "tab": "leo-signal",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-signal",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-signal",
+  "exports": []
+ },
+ {
+  "file": "leo-pass-vs-gnss-cn0.toml",
+  "name": "leo-pass-vs-gnss-cn0",
+  "title": "One pass against GNSS",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pass",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-pass-vs-gnss-cn0&tab=leo-pass",
+   "best": "index.html?scenario=leo-pass-vs-gnss-cn0&tab=leo-pass",
+   "animation": "index.html?scenario=leo-pass-vs-gnss-cn0&tab=animation",
+   "report": "index.html?scenario=leo-pass-vs-gnss-cn0&tab=report",
+   "exports": "index.html?scenario=leo-pass-vs-gnss-cn0&tab=exports"
+  },
+  "capability": "Pass & link",
+  "tab": "leo-pass",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-pass",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-pass",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-pass-xona-pulsar.toml",
+  "name": "leo-pass-xona-pulsar",
+  "title": "Xona Pulsar pass",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pass",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-pass-xona-pulsar&tab=leo-pass",
+   "best": "index.html?scenario=leo-pass-xona-pulsar&tab=leo-pass",
+   "animation": "index.html?scenario=leo-pass-xona-pulsar&tab=animation",
+   "report": "index.html?scenario=leo-pass-xona-pulsar&tab=report",
+   "exports": "index.html?scenario=leo-pass-xona-pulsar&tab=exports"
+  },
+  "capability": "Pass & link",
+  "tab": "leo-pass",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-pass",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-pass",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-pass-iridium.toml",
+  "name": "leo-pass-iridium",
+  "title": "Iridium bursts from an aircraft",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pass",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-pass-iridium&tab=leo-pass",
+   "best": "index.html?scenario=leo-pass-iridium&tab=leo-pass",
+   "animation": "index.html?scenario=leo-pass-iridium&tab=animation",
+   "report": "index.html?scenario=leo-pass-iridium&tab=report",
+   "exports": "index.html?scenario=leo-pass-iridium&tab=exports"
+  },
+  "capability": "Pass & link",
+  "tab": "leo-pass",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-pass",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-pass",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-indoor-uhf.toml",
+  "name": "leo-indoor-uhf",
+  "title": "Indoors on UHF",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pass",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-indoor-uhf&tab=leo-pass",
+   "best": "index.html?scenario=leo-indoor-uhf&tab=leo-pass",
+   "animation": "index.html?scenario=leo-indoor-uhf&tab=animation",
+   "report": "index.html?scenario=leo-indoor-uhf&tab=report",
+   "exports": "index.html?scenario=leo-indoor-uhf&tab=exports"
+  },
+  "capability": "Pass & link",
+  "tab": "leo-pass",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-pass",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-pass",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-iot-energy.toml",
+  "name": "leo-iot-energy",
+  "title": "Energy per fix for a tracker",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pass",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-iot-energy&tab=leo-pass",
+   "best": "index.html?scenario=leo-iot-energy&tab=leo-pass",
+   "animation": "index.html?scenario=leo-iot-energy&tab=animation",
+   "report": "index.html?scenario=leo-iot-energy&tab=report",
+   "exports": "index.html?scenario=leo-iot-energy&tab=exports"
+  },
+  "capability": "Pass & link",
+  "tab": "leo-pass",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-pass",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-pass",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-focus-science-iono-sounding.toml",
+  "name": "leo-focus-science-iono-sounding",
+  "title": "Ionosphere sounding from two bands",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pass",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-focus-science-iono-sounding&tab=leo-pass",
+   "best": "index.html?scenario=leo-focus-science-iono-sounding&tab=leo-pass",
+   "animation": "index.html?scenario=leo-focus-science-iono-sounding&tab=animation",
+   "report": "index.html?scenario=leo-focus-science-iono-sounding&tab=report",
+   "exports": "index.html?scenario=leo-focus-science-iono-sounding&tab=exports"
+  },
+  "capability": "Pass & link",
+  "tab": "leo-pass",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-pass",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-pass",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-resilience-spoof-doppler.toml",
+  "name": "leo-resilience-spoof-doppler",
+  "title": "Spoofing caught by Doppler",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pass",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-resilience-spoof-doppler&tab=leo-pass",
+   "best": "index.html?scenario=leo-resilience-spoof-doppler&tab=leo-pass",
+   "animation": "index.html?scenario=leo-resilience-spoof-doppler&tab=animation",
+   "report": "index.html?scenario=leo-resilience-spoof-doppler&tab=report",
+   "exports": "index.html?scenario=leo-resilience-spoof-doppler&tab=exports"
+  },
+  "capability": "Pass & link",
+  "tab": "leo-pass",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-pass",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-pass",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-navmsg-fit-interval-trade.toml",
+  "name": "leo-navmsg-fit-interval-trade",
+  "title": "Navigation message: fit interval",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-navmsg",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-navmsg-fit-interval-trade&tab=leo-navmsg",
+   "best": "index.html?scenario=leo-navmsg-fit-interval-trade&tab=leo-navmsg",
+   "report": "index.html?scenario=leo-navmsg-fit-interval-trade&tab=report",
+   "exports": "index.html?scenario=leo-navmsg-fit-interval-trade&tab=exports"
+  },
+  "capability": "Navigation message",
+  "tab": "leo-navmsg",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-navmsg",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-navmsg",
+  "exports": []
+ },
+ {
+  "file": "leo-navmsg-model-comparison.toml",
+  "name": "leo-navmsg-model-comparison",
+  "title": "Navigation message: four models",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-navmsg",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-navmsg-model-comparison&tab=leo-navmsg",
+   "best": "index.html?scenario=leo-navmsg-model-comparison&tab=leo-navmsg",
+   "report": "index.html?scenario=leo-navmsg-model-comparison&tab=report",
+   "exports": "index.html?scenario=leo-navmsg-model-comparison&tab=exports"
+  },
+  "capability": "Navigation message",
+  "tab": "leo-navmsg",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-navmsg",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-navmsg",
+  "exports": []
+ },
+ {
+  "file": "leo-navmsg-midpass-update.toml",
+  "name": "leo-navmsg-midpass-update",
+  "title": "Navigation message: mid-pass update",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-navmsg",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-navmsg-midpass-update&tab=leo-navmsg",
+   "best": "index.html?scenario=leo-navmsg-midpass-update&tab=leo-navmsg",
+   "animation": "index.html?scenario=leo-navmsg-midpass-update&tab=animation",
+   "report": "index.html?scenario=leo-navmsg-midpass-update&tab=report",
+   "exports": "index.html?scenario=leo-navmsg-midpass-update&tab=exports"
+  },
+  "capability": "Navigation message",
+  "tab": "leo-navmsg",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-navmsg",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-navmsg",
+  "exports": []
+ },
+ {
+  "file": "leo-navmsg-encode-decode.toml",
+  "name": "leo-navmsg-encode-decode",
+  "title": "Navigation message: binary frame",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-navmsg",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-navmsg-encode-decode&tab=leo-navmsg",
+   "best": "index.html?scenario=leo-navmsg-encode-decode&tab=leo-navmsg",
+   "report": "index.html?scenario=leo-navmsg-encode-decode&tab=report",
+   "exports": "index.html?scenario=leo-navmsg-encode-decode&tab=exports"
+  },
+  "capability": "Navigation message",
+  "tab": "leo-navmsg",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-navmsg",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-navmsg",
+  "exports": []
+ },
+ {
+  "file": "meo-leo-fused-pvt.toml",
+  "name": "meo-leo-fused-pvt",
+  "title": "Fused GNSS and low-orbit fix",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pvt",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=meo-leo-fused-pvt&tab=leo-positioning",
+   "best": "index.html?scenario=meo-leo-fused-pvt&tab=leo-positioning",
+   "animation": "index.html?scenario=meo-leo-fused-pvt&tab=animation",
+   "report": "index.html?scenario=meo-leo-fused-pvt&tab=report",
+   "exports": "index.html?scenario=meo-leo-fused-pvt&tab=exports"
+  },
+  "capability": "Positioning",
+  "tab": "leo-positioning",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-positioning",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-positioning",
+  "exports": []
+ },
+ {
+  "file": "leo-pvt-fjord-skyline.toml",
+  "name": "leo-pvt-fjord-skyline",
+  "title": "Ferry deep in a fjord",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pvt",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-pvt-fjord-skyline&tab=leo-positioning",
+   "best": "index.html?scenario=leo-pvt-fjord-skyline&tab=leo-positioning",
+   "animation": "index.html?scenario=leo-pvt-fjord-skyline&tab=animation",
+   "report": "index.html?scenario=leo-pvt-fjord-skyline&tab=report",
+   "exports": "index.html?scenario=leo-pvt-fjord-skyline&tab=exports"
+  },
+  "capability": "Positioning",
+  "tab": "leo-positioning",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-positioning",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-positioning",
+  "exports": []
+ },
+ {
+  "file": "leo-doppler-positioning.toml",
+  "name": "leo-doppler-positioning",
+  "title": "Positioning from Doppler alone",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pvt",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-doppler-positioning&tab=leo-positioning",
+   "best": "index.html?scenario=leo-doppler-positioning&tab=leo-positioning",
+   "animation": "index.html?scenario=leo-doppler-positioning&tab=animation",
+   "report": "index.html?scenario=leo-doppler-positioning&tab=report",
+   "exports": "index.html?scenario=leo-doppler-positioning&tab=exports"
+  },
+  "capability": "Positioning",
+  "tab": "leo-positioning",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-positioning",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-positioning",
+  "exports": []
+ },
+ {
+  "file": "starlink-sop-doppler-positioning.toml",
+  "name": "starlink-sop-doppler-positioning",
+  "title": "Broadband signals of opportunity",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pvt",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=starlink-sop-doppler-positioning&tab=leo-positioning",
+   "best": "index.html?scenario=starlink-sop-doppler-positioning&tab=leo-positioning",
+   "animation": "index.html?scenario=starlink-sop-doppler-positioning&tab=animation",
+   "report": "index.html?scenario=starlink-sop-doppler-positioning&tab=report",
+   "exports": "index.html?scenario=starlink-sop-doppler-positioning&tab=exports"
+  },
+  "capability": "Positioning",
+  "tab": "leo-positioning",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-positioning",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-positioning",
+  "exports": []
+ },
+ {
+  "file": "leo-timing-utc.toml",
+  "name": "leo-timing-utc",
+  "title": "Time transfer to UTC",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pvt",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-timing-utc&tab=leo-positioning",
+   "best": "index.html?scenario=leo-timing-utc&tab=leo-positioning",
+   "animation": "index.html?scenario=leo-timing-utc&tab=animation",
+   "report": "index.html?scenario=leo-timing-utc&tab=report",
+   "exports": "index.html?scenario=leo-timing-utc&tab=exports"
+  },
+  "capability": "Positioning",
+  "tab": "leo-positioning",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-positioning",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-positioning",
+  "exports": []
+ },
+ {
+  "file": "polar-arctic-leo-coverage.toml",
+  "name": "polar-arctic-leo-coverage",
+  "title": "Equator to pole",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pvt",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=polar-arctic-leo-coverage&tab=leo-positioning",
+   "best": "index.html?scenario=polar-arctic-leo-coverage&tab=leo-positioning",
+   "report": "index.html?scenario=polar-arctic-leo-coverage&tab=report",
+   "exports": "index.html?scenario=polar-arctic-leo-coverage&tab=exports"
+  },
+  "capability": "Positioning",
+  "tab": "leo-positioning",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-positioning",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-positioning",
+  "exports": []
+ },
+ {
+  "file": "leo-ppp-convergence.toml",
+  "name": "leo-ppp-convergence",
+  "title": "Precise positioning convergence",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-ppp",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-ppp-convergence&tab=leo-positioning",
+   "best": "index.html?scenario=leo-ppp-convergence&tab=leo-positioning",
+   "animation": "index.html?scenario=leo-ppp-convergence&tab=animation",
+   "report": "index.html?scenario=leo-ppp-convergence&tab=report",
+   "exports": "index.html?scenario=leo-ppp-convergence&tab=exports"
+  },
+  "capability": "Positioning",
+  "tab": "leo-positioning",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-positioning",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-positioning",
+  "exports": []
+ },
+ {
+  "file": "ntn-5g-positioning.toml",
+  "name": "ntn-5g-positioning",
+  "title": "5G satellite downlink positioning",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "ntn-positioning",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=ntn-5g-positioning&tab=leo-positioning",
+   "best": "index.html?scenario=ntn-5g-positioning&tab=leo-positioning",
+   "report": "index.html?scenario=ntn-5g-positioning&tab=report",
+   "exports": "index.html?scenario=ntn-5g-positioning&tab=exports"
+  },
+  "capability": "Positioning",
+  "tab": "leo-positioning",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-positioning",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-positioning",
+  "exports": []
+ },
+ {
+  "file": "leo-pnt-end-to-end.toml",
+  "name": "leo-pnt-end-to-end",
+  "title": "End to end, generic constellation",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pnt-chain",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-pnt-end-to-end&tab=leo-chain",
+   "best": "index.html?scenario=leo-pnt-end-to-end&tab=leo-chain",
+   "animation": "index.html?scenario=leo-pnt-end-to-end&tab=animation",
+   "report": "index.html?scenario=leo-pnt-end-to-end&tab=report",
+   "exports": "index.html?scenario=leo-pnt-end-to-end&tab=exports"
+  },
+  "capability": "End-to-end chain",
+  "tab": "leo-chain",
+  "stage": "chain",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-chain",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-chain",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "xona-pulsar-end-to-end.toml",
+  "name": "xona-pulsar-end-to-end",
+  "title": "End to end, Xona Pulsar",
+  "domain": "Low Earth orbit (LEO) navigation",
+  "group": "bundled",
+  "kind": "leo-pnt-chain",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=xona-pulsar-end-to-end&tab=leo-chain",
+   "best": "index.html?scenario=xona-pulsar-end-to-end&tab=leo-chain",
+   "animation": "index.html?scenario=xona-pulsar-end-to-end&tab=animation",
+   "report": "index.html?scenario=xona-pulsar-end-to-end&tab=report",
+   "exports": "index.html?scenario=xona-pulsar-end-to-end&tab=exports"
+  },
+  "capability": "End-to-end chain",
+  "tab": "leo-chain",
+  "stage": "chain",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "leo-chain",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-chain",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-focus-data-services.toml",
+  "name": "leo-focus-data-services",
+  "title": "Service data against frame length",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-focus-data-services&tab=campaign",
+   "best": "index.html?scenario=leo-focus-data-services&tab=campaign",
+   "report": "index.html?scenario=leo-focus-data-services&tab=report",
+   "exports": "index.html?scenario=leo-focus-data-services&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": []
+ },
+ {
+  "file": "leo-focus-fused-pnt-sisre.toml",
+  "name": "leo-focus-fused-pnt-sisre",
+  "title": "Fused fix against orbit and clock error",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-focus-fused-pnt-sisre&tab=campaign",
+   "best": "index.html?scenario=leo-focus-fused-pnt-sisre&tab=campaign",
+   "report": "index.html?scenario=leo-focus-fused-pnt-sisre&tab=report",
+   "exports": "index.html?scenario=leo-focus-fused-pnt-sisre&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": []
+ },
+ {
+  "file": "leo-focus-indoor-uhf.toml",
+  "name": "leo-focus-indoor-uhf",
+  "title": "Indoor reception by band and building",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-focus-indoor-uhf&tab=campaign",
+   "best": "index.html?scenario=leo-focus-indoor-uhf&tab=campaign",
+   "report": "index.html?scenario=leo-focus-indoor-uhf&tab=report",
+   "exports": "index.html?scenario=leo-focus-indoor-uhf&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-focus-iot-eirp.toml",
+  "name": "leo-focus-iot-eirp",
+  "title": "Tracker energy against transmit power",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-focus-iot-eirp&tab=campaign",
+   "best": "index.html?scenario=leo-focus-iot-eirp&tab=campaign",
+   "report": "index.html?scenario=leo-focus-iot-eirp&tab=report",
+   "exports": "index.html?scenario=leo-focus-iot-eirp&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-focus-ntn-bandwidth.toml",
+  "name": "leo-focus-ntn-bandwidth",
+  "title": "5G downlink positioning against bandwidth",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-focus-ntn-bandwidth&tab=campaign",
+   "best": "index.html?scenario=leo-focus-ntn-bandwidth&tab=campaign",
+   "report": "index.html?scenario=leo-focus-ntn-bandwidth&tab=report",
+   "exports": "index.html?scenario=leo-focus-ntn-bandwidth&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": []
+ },
+ {
+  "file": "leo-focus-ppp-altitude.toml",
+  "name": "leo-focus-ppp-altitude",
+  "title": "Precise positioning against layer altitude",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-focus-ppp-altitude&tab=campaign",
+   "best": "index.html?scenario=leo-focus-ppp-altitude&tab=campaign",
+   "report": "index.html?scenario=leo-focus-ppp-altitude&tab=report",
+   "exports": "index.html?scenario=leo-focus-ppp-altitude&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": []
+ },
+ {
+  "file": "leo-resilience-gnss-jammed-leo-carries.toml",
+  "name": "leo-resilience-gnss-jammed-leo-carries",
+  "title": "GNSS jammed, low orbit carries on",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-resilience-gnss-jammed-leo-carries&tab=campaign",
+   "replay": "index.html?scenario=leo-resilience-gnss-jammed-leo-carries&tab=campaign&play=1",
+   "best": "index.html?scenario=leo-resilience-gnss-jammed-leo-carries&tab=campaign&play=1",
+   "animation": "index.html?scenario=leo-resilience-gnss-jammed-leo-carries&tab=animation",
+   "report": "index.html?scenario=leo-resilience-gnss-jammed-leo-carries&tab=report",
+   "exports": "index.html?scenario=leo-resilience-gnss-jammed-leo-carries&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "timeline",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-resilience-multiband-diversity.toml",
+  "name": "leo-resilience-multiband-diversity",
+  "title": "Band diversity under a barrage jammer",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-resilience-multiband-diversity&tab=campaign",
+   "best": "index.html?scenario=leo-resilience-multiband-diversity&tab=campaign",
+   "report": "index.html?scenario=leo-resilience-multiband-diversity&tab=report",
+   "exports": "index.html?scenario=leo-resilience-multiband-diversity&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": []
+ },
+ {
+  "file": "leo-resilience-spoof-monitors.toml",
+  "name": "leo-resilience-spoof-monitors",
+  "title": "Spoofing monitors against four spoofers",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-resilience-spoof-monitors&tab=campaign",
+   "best": "index.html?scenario=leo-resilience-spoof-monitors&tab=campaign",
+   "report": "index.html?scenario=leo-resilience-spoof-monitors&tab=report",
+   "exports": "index.html?scenario=leo-resilience-spoof-monitors&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-vertical-5g-network-timing.toml",
+  "name": "leo-vertical-5g-network-timing",
+  "title": "5G base-station timing",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-vertical-5g-network-timing&tab=campaign",
+   "replay": "index.html?scenario=leo-vertical-5g-network-timing&tab=campaign&play=1",
+   "best": "index.html?scenario=leo-vertical-5g-network-timing&tab=campaign&play=1",
+   "animation": "index.html?scenario=leo-vertical-5g-network-timing&tab=animation",
+   "report": "index.html?scenario=leo-vertical-5g-network-timing&tab=report",
+   "exports": "index.html?scenario=leo-vertical-5g-network-timing&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "timeline",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-vertical-asset-tracking-iot.toml",
+  "name": "leo-vertical-asset-tracking-iot",
+  "title": "Container tracking",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-vertical-asset-tracking-iot&tab=campaign",
+   "replay": "index.html?scenario=leo-vertical-asset-tracking-iot&tab=campaign&play=1",
+   "best": "index.html?scenario=leo-vertical-asset-tracking-iot&tab=campaign&play=1",
+   "animation": "index.html?scenario=leo-vertical-asset-tracking-iot&tab=animation",
+   "report": "index.html?scenario=leo-vertical-asset-tracking-iot&tab=report",
+   "exports": "index.html?scenario=leo-vertical-asset-tracking-iot&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "timeline",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-vertical-autonomous-vehicle.toml",
+  "name": "leo-vertical-autonomous-vehicle",
+  "title": "Vehicle in an urban canyon",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-vertical-autonomous-vehicle&tab=campaign",
+   "replay": "index.html?scenario=leo-vertical-autonomous-vehicle&tab=campaign&play=1",
+   "best": "index.html?scenario=leo-vertical-autonomous-vehicle&tab=campaign&play=1",
+   "animation": "index.html?scenario=leo-vertical-autonomous-vehicle&tab=animation",
+   "report": "index.html?scenario=leo-vertical-autonomous-vehicle&tab=report",
+   "exports": "index.html?scenario=leo-vertical-autonomous-vehicle&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "timeline",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-vertical-autonomous-vehicle-skyline.toml",
+  "name": "leo-vertical-autonomous-vehicle-skyline",
+  "title": "Vehicle in a street, not a flat cut-off",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-vertical-autonomous-vehicle-skyline&tab=campaign",
+   "replay": "index.html?scenario=leo-vertical-autonomous-vehicle-skyline&tab=campaign&play=1",
+   "best": "index.html?scenario=leo-vertical-autonomous-vehicle-skyline&tab=campaign&play=1",
+   "animation": "index.html?scenario=leo-vertical-autonomous-vehicle-skyline&tab=animation",
+   "report": "index.html?scenario=leo-vertical-autonomous-vehicle-skyline&tab=report",
+   "exports": "index.html?scenario=leo-vertical-autonomous-vehicle-skyline&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "timeline",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-vertical-critical-infrastructure-timing.toml",
+  "name": "leo-vertical-critical-infrastructure-timing",
+  "title": "Substation timing",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-vertical-critical-infrastructure-timing&tab=campaign",
+   "replay": "index.html?scenario=leo-vertical-critical-infrastructure-timing&tab=campaign&play=1",
+   "best": "index.html?scenario=leo-vertical-critical-infrastructure-timing&tab=campaign&play=1",
+   "animation": "index.html?scenario=leo-vertical-critical-infrastructure-timing&tab=animation",
+   "report": "index.html?scenario=leo-vertical-critical-infrastructure-timing&tab=report",
+   "exports": "index.html?scenario=leo-vertical-critical-infrastructure-timing&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "timeline",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-vertical-polar-arctic.toml",
+  "name": "leo-vertical-polar-arctic",
+  "title": "Arctic journey",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-vertical-polar-arctic&tab=campaign",
+   "replay": "index.html?scenario=leo-vertical-polar-arctic&tab=campaign&play=1",
+   "best": "index.html?scenario=leo-vertical-polar-arctic&tab=campaign&play=1",
+   "animation": "index.html?scenario=leo-vertical-polar-arctic&tab=animation",
+   "report": "index.html?scenario=leo-vertical-polar-arctic&tab=report",
+   "exports": "index.html?scenario=leo-vertical-polar-arctic&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "timeline",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-vertical-rail-maritime.toml",
+  "name": "leo-vertical-rail-maritime",
+  "title": "Rail and maritime with a low-orbit layer",
+  "domain": "LEO missions & studies",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-vertical-rail-maritime&tab=campaign",
+   "replay": "index.html?scenario=leo-vertical-rail-maritime&tab=campaign&play=1",
+   "best": "index.html?scenario=leo-vertical-rail-maritime&tab=campaign&play=1",
+   "animation": "index.html?scenario=leo-vertical-rail-maritime&tab=animation",
+   "report": "index.html?scenario=leo-vertical-rail-maritime&tab=report",
+   "exports": "index.html?scenario=leo-vertical-rail-maritime&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "timeline",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "campaign-jam-spoof-holdover-integrity.toml",
+  "name": "campaign-jam-spoof-holdover-integrity",
+  "title": "Chained mission: jam, spoof, hold over, alarm",
+  "domain": "Campaigns",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=campaign-jam-spoof-holdover-integrity&tab=campaign",
+   "replay": "index.html?scenario=campaign-jam-spoof-holdover-integrity&tab=campaign&play=1",
+   "best": "index.html?scenario=campaign-jam-spoof-holdover-integrity&tab=campaign&play=1",
+   "animation": "index.html?scenario=campaign-jam-spoof-holdover-integrity&tab=animation",
+   "report": "index.html?scenario=campaign-jam-spoof-holdover-integrity&tab=report",
+   "exports": "index.html?scenario=campaign-jam-spoof-holdover-integrity&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "timeline",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "campaign-spectrum-holdover-integrity.toml",
+  "name": "campaign-spectrum-holdover-integrity",
+  "title": "Spectrum-driven mission",
+  "domain": "Campaigns",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=campaign-spectrum-holdover-integrity&tab=campaign",
+   "replay": "index.html?scenario=campaign-spectrum-holdover-integrity&tab=campaign&play=1",
+   "best": "index.html?scenario=campaign-spectrum-holdover-integrity&tab=campaign&play=1",
+   "animation": "index.html?scenario=campaign-spectrum-holdover-integrity&tab=animation",
+   "report": "index.html?scenario=campaign-spectrum-holdover-integrity&tab=report",
+   "exports": "index.html?scenario=campaign-spectrum-holdover-integrity&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "timeline",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "campaign-sweep-jammer-power.toml",
+  "name": "campaign-sweep-jammer-power",
+  "title": "Jammer power sweep",
+  "domain": "Campaigns",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=campaign-sweep-jammer-power&tab=campaign",
+   "best": "index.html?scenario=campaign-sweep-jammer-power&tab=campaign",
+   "report": "index.html?scenario=campaign-sweep-jammer-power&tab=report",
+   "exports": "index.html?scenario=campaign-sweep-jammer-power&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "campaign-monte-carlo-clock-holdover.toml",
+  "name": "campaign-monte-carlo-clock-holdover",
+  "title": "Monte Carlo clock holdover",
+  "domain": "Campaigns",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=campaign-monte-carlo-clock-holdover&tab=campaign",
+   "best": "index.html?scenario=campaign-monte-carlo-clock-holdover&tab=campaign",
+   "report": "index.html?scenario=campaign-monte-carlo-clock-holdover&tab=report",
+   "exports": "index.html?scenario=campaign-monte-carlo-clock-holdover&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": []
+ },
+ {
+  "file": "campaign-shared-jammer-sea-road.toml",
+  "name": "campaign-shared-jammer-sea-road",
+  "title": "One jammer, a ship and a car",
+  "domain": "Campaigns",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=campaign-shared-jammer-sea-road&tab=campaign",
+   "best": "index.html?scenario=campaign-shared-jammer-sea-road&tab=campaign",
+   "report": "index.html?scenario=campaign-shared-jammer-sea-road&tab=report",
+   "exports": "index.html?scenario=campaign-shared-jammer-sea-road&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "campaign-optimize-link-budget.toml",
+  "name": "campaign-optimize-link-budget",
+  "title": "Optimise a link budget",
+  "domain": "Campaigns",
+  "group": "bundled",
+  "kind": "campaign",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=campaign-optimize-link-budget&tab=campaign",
+   "best": "index.html?scenario=campaign-optimize-link-budget&tab=campaign",
+   "report": "index.html?scenario=campaign-optimize-link-budget&tab=report",
+   "exports": "index.html?scenario=campaign-optimize-link-budget&tab=exports"
+  },
+  "capability": "Campaign",
+  "tab": "campaign",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "campaign",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "campaign",
+  "exports": []
+ },
+ {
+  "file": "solar-system-tour.toml",
+  "name": "solar-system-tour",
+  "title": "Solar system at one epoch",
+  "domain": "Solar system",
+  "group": "bundled",
+  "kind": "solar-system",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=solar-system-tour&tab=solar",
+   "best": "index.html?scenario=solar-system-tour&tab=solar",
+   "report": "index.html?scenario=solar-system-tour&tab=report",
+   "exports": "index.html?scenario=solar-system-tour&tab=exports"
+  },
+  "capability": "Solar system",
+  "tab": "solar",
+  "stage": "solar",
+  "views": [
+   {
+    "id": "planets",
+    "label": "All planets",
+    "link": "index.html?scenario=solar-system-tour&tab=solar&view=planets"
+   },
+   {
+    "id": "inner",
+    "label": "Inner planets",
+    "link": "index.html?scenario=solar-system-tour&tab=solar&view=inner"
+   },
+   {
+    "id": "moons:Earth",
+    "label": "Earth and its moons",
+    "link": "index.html?scenario=solar-system-tour&tab=solar&view=moons%3AEarth"
+   },
+   {
+    "id": "moons:Mars",
+    "label": "Mars and its moons",
+    "link": "index.html?scenario=solar-system-tour&tab=solar&view=moons%3AMars"
+   },
+   {
+    "id": "moons:Jupiter",
+    "label": "Jupiter and its moons",
+    "link": "index.html?scenario=solar-system-tour&tab=solar&view=moons%3AJupiter"
+   },
+   {
+    "id": "moons:Saturn",
+    "label": "Saturn and its moons",
+    "link": "index.html?scenario=solar-system-tour&tab=solar&view=moons%3ASaturn"
+   }
+  ],
+  "dir": "",
+  "tabs": [
+   "overview",
+   "solar",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "solar",
+  "exports": []
+ },
+ {
+  "file": "mars-orbit-pnt.toml",
+  "name": "mars-orbit-pnt",
+  "title": "Mars orbiter with relays and an Earth link",
+  "domain": "Solar system",
+  "group": "bundled",
+  "kind": "body-pnt",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=mars-orbit-pnt&tab=body-pnt",
+   "best": "index.html?scenario=mars-orbit-pnt&tab=body-pnt",
+   "animation": "index.html?scenario=mars-orbit-pnt&tab=animation",
+   "report": "index.html?scenario=mars-orbit-pnt&tab=report",
+   "exports": "index.html?scenario=mars-orbit-pnt&tab=exports"
+  },
+  "capability": "Relay positioning",
+  "tab": "body-pnt",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "body-pnt",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "body-pnt",
+  "exports": []
+ },
+ {
+  "file": "europa-surface-pnt.toml",
+  "name": "europa-surface-pnt",
+  "title": "Lander on Europa",
+  "domain": "Solar system",
+  "group": "bundled",
+  "kind": "body-pnt",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=europa-surface-pnt&tab=body-pnt",
+   "best": "index.html?scenario=europa-surface-pnt&tab=body-pnt",
+   "animation": "index.html?scenario=europa-surface-pnt&tab=animation",
+   "report": "index.html?scenario=europa-surface-pnt&tab=report",
+   "exports": "index.html?scenario=europa-surface-pnt&tab=exports"
+  },
+  "capability": "Relay positioning",
+  "tab": "body-pnt",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "body-pnt",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "body-pnt",
+  "exports": []
+ },
+ {
+  "file": "quantum-trade.toml",
+  "name": "quantum-trade",
+  "title": "Quantum PNT trade",
+  "domain": "Quantum, trade studies & interoperability",
+  "group": "bundled",
+  "kind": "quantum-trade",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=quantum-trade&tab=overview",
+   "animation": "index.html?scenario=quantum-trade&tab=animation",
+   "report": "index.html?scenario=quantum-trade&tab=report",
+   "exports": "index.html?scenario=quantum-trade&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "quantum-anomaly-detect.toml",
+  "name": "quantum-anomaly-detect",
+  "title": "Quantum anomaly detect",
+  "domain": "Quantum, trade studies & interoperability",
+  "group": "bundled",
+  "kind": "quantum-anomaly-detect",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=quantum-anomaly-detect&tab=overview",
+   "report": "index.html?scenario=quantum-anomaly-detect&tab=report",
+   "exports": "index.html?scenario=quantum-anomaly-detect&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "sweep-nd-inertial.toml",
+  "name": "sweep-nd-inertial",
+  "title": "N-D sweep",
+  "domain": "Quantum, trade studies & interoperability",
+  "group": "bundled",
+  "kind": "sweep-nd",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=sweep-nd-inertial&tab=overview",
+   "report": "index.html?scenario=sweep-nd-inertial&tab=report",
+   "exports": "index.html?scenario=sweep-nd-inertial&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "oem-interop.toml",
+  "name": "oem-interop",
+  "title": "CCSDS OEM bridge",
+  "domain": "Quantum, trade studies & interoperability",
+  "group": "bundled",
+  "kind": "oem-interop",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=oem-interop&tab=overview",
+   "report": "index.html?scenario=oem-interop&tab=report",
+   "exports": "index.html?scenario=oem-interop&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "space-packet.toml",
+  "name": "space-packet",
+  "title": "Space Packet",
+  "domain": "Quantum, trade studies & interoperability",
+  "group": "bundled",
+  "kind": "space-packet",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=space-packet&tab=overview",
+   "report": "index.html?scenario=space-packet&tab=report",
+   "exports": "index.html?scenario=space-packet&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "celeste-iod-classical-pilot-signals.toml",
+  "name": "celeste-iod-classical-pilot-signals",
+  "title": "Celeste demonstration signal designs",
+  "domain": "Celeste in-orbit demonstration (optional preset)",
+  "group": "optional",
+  "kind": "leo-signal",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=celeste-iod-classical-pilot-signals&tab=leo-signal",
+   "best": "index.html?scenario=celeste-iod-classical-pilot-signals&tab=leo-signal",
+   "report": "index.html?scenario=celeste-iod-classical-pilot-signals&tab=report",
+   "exports": "index.html?scenario=celeste-iod-classical-pilot-signals&tab=exports"
+  },
+  "capability": "Signal design",
+  "tab": "leo-signal",
+  "stage": "",
+  "dir": "celeste/",
+  "tabs": [
+   "overview",
+   "leo-signal",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-signal",
+  "exports": []
+ },
+ {
+  "file": "leo-pass-celeste-iod-multiband.toml",
+  "name": "leo-pass-celeste-iod-multiband",
+  "title": "Celeste demonstration pass, all bands",
+  "domain": "Celeste in-orbit demonstration (optional preset)",
+  "group": "optional",
+  "kind": "leo-pass",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-pass-celeste-iod-multiband&tab=leo-pass",
+   "best": "index.html?scenario=leo-pass-celeste-iod-multiband&tab=leo-pass",
+   "animation": "index.html?scenario=leo-pass-celeste-iod-multiband&tab=animation",
+   "report": "index.html?scenario=leo-pass-celeste-iod-multiband&tab=report",
+   "exports": "index.html?scenario=leo-pass-celeste-iod-multiband&tab=exports"
+  },
+  "capability": "Pass & link",
+  "tab": "leo-pass",
+  "stage": "",
+  "dir": "celeste/",
+  "tabs": [
+   "overview",
+   "leo-pass",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-pass",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ },
+ {
+  "file": "leo-navmsg-celeste-iod.toml",
+  "name": "leo-navmsg-celeste-iod",
+  "title": "Celeste demonstration navigation message",
+  "domain": "Celeste in-orbit demonstration (optional preset)",
+  "group": "optional",
+  "kind": "leo-navmsg",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=leo-navmsg-celeste-iod&tab=leo-navmsg",
+   "best": "index.html?scenario=leo-navmsg-celeste-iod&tab=leo-navmsg",
+   "report": "index.html?scenario=leo-navmsg-celeste-iod&tab=report",
+   "exports": "index.html?scenario=leo-navmsg-celeste-iod&tab=exports"
+  },
+  "capability": "Navigation message",
+  "tab": "leo-navmsg",
+  "stage": "",
+  "dir": "celeste/",
+  "tabs": [
+   "overview",
+   "leo-navmsg",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-navmsg",
+  "exports": []
+ },
+ {
+  "file": "celeste-iod-fused-pvt.toml",
+  "name": "celeste-iod-fused-pvt",
+  "title": "GNSS with the two demonstration satellites",
+  "domain": "Celeste in-orbit demonstration (optional preset)",
+  "group": "optional",
+  "kind": "leo-pvt",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=celeste-iod-fused-pvt&tab=leo-positioning",
+   "best": "index.html?scenario=celeste-iod-fused-pvt&tab=leo-positioning",
+   "animation": "index.html?scenario=celeste-iod-fused-pvt&tab=animation",
+   "report": "index.html?scenario=celeste-iod-fused-pvt&tab=report",
+   "exports": "index.html?scenario=celeste-iod-fused-pvt&tab=exports"
+  },
+  "capability": "Positioning",
+  "tab": "leo-positioning",
+  "stage": "",
+  "dir": "celeste/",
+  "tabs": [
+   "overview",
+   "leo-positioning",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-positioning",
+  "exports": []
+ },
+ {
+  "file": "celeste-iod-end-to-end.toml",
+  "name": "celeste-iod-end-to-end",
+  "title": "End to end, Celeste demonstration",
+  "domain": "Celeste in-orbit demonstration (optional preset)",
+  "group": "optional",
+  "kind": "leo-pnt-chain",
+  "runs": "browser",
+  "links": {
+   "view": "index.html?scenario=celeste-iod-end-to-end&tab=leo-chain",
+   "best": "index.html?scenario=celeste-iod-end-to-end&tab=leo-chain",
+   "animation": "index.html?scenario=celeste-iod-end-to-end&tab=animation",
+   "report": "index.html?scenario=celeste-iod-end-to-end&tab=report",
+   "exports": "index.html?scenario=celeste-iod-end-to-end&tab=exports"
+  },
+  "capability": "End-to-end chain",
+  "tab": "leo-chain",
+  "stage": "chain",
+  "dir": "celeste/",
+  "tabs": [
+   "overview",
+   "leo-chain",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "leo-chain",
+  "exports": [
+   "czml",
+   "geojson",
+   "kml",
+   "stk"
+  ]
+ }
+]
