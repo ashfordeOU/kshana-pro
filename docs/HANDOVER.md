@@ -28,6 +28,8 @@
 
 **20:15 UTC 17 Oct:** Zenodo 0.36.0 record auto-created: https://zenodo.org/records/23440323 (DOI 10.5281/zenodo.23440323), notes empty. Corrected notes text in docs/handover-0.36/kshana-0.36-zenodo-notes.txt (9bc6f18a); owner pastes it via the Zenodo web edit. winget: the release opened microsoft/winget-pkgs#454869 (kshana-mcp 0.36.0) itself; 0.35 PR #450973 still with a moderator. README "What is new in 0.36" being drafted by a subagent on kshana branch docs/readme-whats-new-0.36 (owner pushes to main after review).
 
+**~21:00 UTC 17 Oct:** owner pushed the README "What is new in 0.36" (main = 5c92b409) and deleted release/0.36.0-rc and the docs branch. kshana now has only main and feat/optical-atmosphere-0.37-clean. W52 fixed stale POSITIONING/VALIDATION/INTEROP docs on its branch (80c853c7) and was told to merge main. 0.36 remaining: owner pastes the Zenodo notes; PRO-01 re-pin; RELEASING.md checklist line (run the pin-bearing tests right after the version bump), both for 0.37.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
