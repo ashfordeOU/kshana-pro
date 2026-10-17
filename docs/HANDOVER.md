@@ -30,6 +30,8 @@
 
 **~21:00 UTC 17 Oct:** owner pushed the README "What is new in 0.36" (main = 5c92b409) and deleted release/0.36.0-rc and the docs branch. kshana now has only main and feat/optical-atmosphere-0.37-clean. W52 fixed stale POSITIONING/VALIDATION/INTEROP docs on its branch (80c853c7) and was told to merge main. 0.36 remaining: owner pastes the Zenodo notes; PRO-01 re-pin; RELEASING.md checklist line (run the pin-bearing tests right after the version bump), both for 0.37.
 
+**~21:30 UTC 17 Oct, owner:** "a wait for 0.37" (no 0.36.1 site refresh). Owner flagged the home "New in v0.36.0" block as misdesigned: .nw-home/.nw-strip have no CSS at all. Sent to W52 for site/studio-0.37 with Playwright screenshots (desktop and mobile, light and dark) before pushing. kshana.dev/features.html is a 404 live, so W52 must make the 0.37 build emit and link it (or name the right URL). The site shows 0.36 everywhere, but 0.36 features appear outside the Evidence page only partly until 0.37.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
