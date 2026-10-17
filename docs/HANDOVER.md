@@ -24,6 +24,8 @@
 
 **19:25 UTC 17 Oct: 0.36.0 RELEASED.** Release run 39053994217 fully green (verify, publish crates/PyPI/npm/kshana-mcp/ghcr/MCP registry/Signal K, channel parity, pages). crates.io and PyPI serve 0.36.0. Owner may now delete release/0.36.0-rc. W52 pushed clean branch @ 374a74be with count surfaces (web/ still needs the kshana-pro port). Its add_repo kshana-pro push was refused by the classifier: owner must allow it in W52 session.
 
+**19:55 UTC 17 Oct:** W52 pushed kshana-pro site/studio-0.37 @ 969e8de (owner allowed in W52 session; 2 commits, Ashforde OÜ verified): 17 scenarios in the Studio library (2 geodesy excluded; 2 optical deferred to the 0.37 re-record), fjord label, features unplaced 139 -> 0. Left for the 0.37 integration: run port_site.py from site/studio-0.37 with the 0.37 wasm package (clears the web/ count reds) and the check_features NOT_SHOWN/BAD_PLACEMENT/EDITION checks.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
