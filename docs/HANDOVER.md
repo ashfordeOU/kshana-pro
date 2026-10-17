@@ -26,6 +26,8 @@
 
 **19:55 UTC 17 Oct:** W52 pushed kshana-pro site/studio-0.37 @ 969e8de (owner allowed in W52 session; 2 commits, Ashforde OÜ verified): 17 scenarios in the Studio library (2 geodesy excluded; 2 optical deferred to the 0.37 re-record), fjord label, features unplaced 139 -> 0. Left for the 0.37 integration: run port_site.py from site/studio-0.37 with the 0.37 wasm package (clears the web/ count reds) and the check_features NOT_SHOWN/BAD_PLACEMENT/EDITION checks.
 
+**20:15 UTC 17 Oct:** Zenodo 0.36.0 record auto-created: https://zenodo.org/records/23440323 (DOI 10.5281/zenodo.23440323), notes empty. Corrected notes text in docs/handover-0.36/kshana-0.36-zenodo-notes.txt (9bc6f18a); owner pastes it via the Zenodo web edit. winget: the release opened microsoft/winget-pkgs#454869 (kshana-mcp 0.36.0) itself; 0.35 PR #450973 still with a moderator. README "What is new in 0.36" being drafted by a subagent on kshana branch docs/readme-whats-new-0.36 (owner pushes to main after review).
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
