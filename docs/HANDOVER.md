@@ -6,6 +6,8 @@
 
 **19:10 UTC 16 Oct:** W43 pushed site-port/0.36.0 @ 12744388 (docs only, verified: 146 `///` lines + CEILING 984->964; all local gates green). New #82 CI started ~19:05, ETA ~00:30 UTC 17 Oct. Release date stays 2026-10-16 (changing it would need a web/ port re-run because PORT-MANIFEST pins the hashes, and CITATION has its own test; coordinator decision: cosmetic, not worth a second cycle). When green: owner push commands with SHA 12744388 (§4.2).
 
+**02:35 UTC 17 Oct:** `check` on 12744388 was CANCELLED at the 360-min cap (slow runner: 382 of 521 test binaries, 0 failures; the 5eac3b61 run did all 521 in 5h18m). Coordinator re-ran the failed job once (run 38952642905, ~02:35). Owner offered the choice: wait for it (~6 h, may cap again), or accept 5eac3b61 full suite + 12744388 docs-only diff and push now.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
