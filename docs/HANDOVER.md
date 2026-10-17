@@ -22,6 +22,8 @@
 
 **19:10 UTC 17 Oct:** W52 merge commit 68a41a1b was authored "Claude" (no git identity in its container). Owner deleted the old feat/optical-atmosphere-0.37. Clean copy pushed as feat/optical-atmosphere-0.37-clean @ c6a18386 (verified by the coordinator: 10 commits beyond main, all author and committer Ashforde OÜ, no Claude/co-author strings). Pending owner words in W52 session: ITU option (c); kshana-pro push to site/studio-0.37.
 
+**19:25 UTC 17 Oct: 0.36.0 RELEASED.** Release run 39053994217 fully green (verify, publish crates/PyPI/npm/kshana-mcp/ghcr/MCP registry/Signal K, channel parity, pages). crates.io and PyPI serve 0.36.0. Owner may now delete release/0.36.0-rc. W52 pushed clean branch @ 374a74be with count surfaces (web/ still needs the kshana-pro port). Its add_repo kshana-pro push was refused by the classifier: owner must allow it in W52 session.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
