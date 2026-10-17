@@ -81,6 +81,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SOURCES = json.load(open(os.path.join(HERE, "src", "data", "sources.json"), encoding="utf-8"))
 REPO = os.path.expanduser(os.environ.get("KSHANA_REPO") or SOURCES["repo"])
 DOCS_REPO = os.path.expanduser(os.environ.get("KSHANA_DOCS_REPO") or SOURCES.get("docs_repo") or SOURCES["repo"])
+# Classes the built pages carry that have no stylesheet rule of their own, each reviewed on 17 Oct 2026: a wrapper
+# or modifier beside a class that is styled (block, window, hx-win, glass, pb-col, pw-seg, ...), a hook a page script
+# selects, or an SVG state class. A class that is meant to look like something must have a rule, not an entry here.
+CLASS_HOOKS = set("""asst-inst cc-main cd-win cg crawl-text cw-win cx-legend cx-rows d1 dt-win dx-channels ed-custom ed-free
+eo-win ev-ct ev-lg ev-mx ev-nx ev-rp ev-sd explorer free ic km kmod l2 lg-list mh-copy mw no pb-custom pb-free pl-ic plan
+pub-note pw-scrub pw-seg2 pw-src sc-leo sc-searoad sd-wrap sec-studio sp-bar ss unchanged wy-panels docs-page
+class_ function_ invoke__ language_""".split())
+# highlight.js token and language classes (the docs code blocks)
+HOOK_PREFIXES = ("hljs", "language-")
+
 SITE_PAGES = ["index.html", "missions.html", "capabilities.html", "evidence.html", "developers.html", "editions.html"]
 PUB = [l.strip() for l in open(os.path.join(HERE, "PUBLISH.txt")) if l.strip()]
 STUDIO = json.load(open(os.path.join(HERE, "src", "data", "brand.json"), encoding="utf-8"))["studio"]
@@ -699,6 +709,24 @@ def run_checks(override=None):
     if f"{key}.txt" not in PUBSET or get(f"{key}.txt").strip() != key: bad.append("the IndexNow key file is missing or does not hold the key")
     if bad: fails.append(("25 crawl files", bad[:12]))
 
+    # 27 every class has a rule -------------------------------------------------------------------
+    # A class on a page of the site or the docs that no stylesheet mentions is how the "New in" strip, the
+    # Capabilities cards and the install channels shipped as bare, overlapping text: the markup was written
+    # and the CSS never was. Every class the built pages use must be named in a published stylesheet or an
+    # inline <style>, or be a reviewed hook below (a wrapper or modifier that sits beside a styled class, a
+    # script selector, an SVG state, or a syntax-highlighter token).
+    CSS_ALL = "".join(get(p) for p in PUB if p.endswith(".css"))
+    sel = set(re.findall(r"\.([A-Za-z_][\w-]*)", re.sub(r"/\*.*?\*/", "", CSS_ALL, flags=re.S)))
+    used = {}
+    for p, t in texts.items():
+        if p.startswith("studio/"): continue
+        sel |= set(re.findall(r"\.([A-Za-z_][\w-]*)", "".join(re.findall(r"<style[^>]*>(.*?)</style>", t, re.S))))
+        body = re.sub(r"<(script|style)[^>]*>.*?</\1>", "", t, flags=re.S)
+        for m in re.finditer(r'class="([^"]*)"', body):
+            for c in m.group(1).split():
+                if "{{" not in c: used.setdefault(c, p)
+    bad = sorted((c, p) for c, p in used.items() if c not in sel and c not in CLASS_HOOKS and not c.startswith(HOOK_PREFIXES))
+    if bad: fails.append(("27 every class has a rule", [f"{c} ({p})" for c, p in bad[:20]] + ([f"... {len(bad) - 20} more"] if len(bad) > 20 else [])))
     # 26 crawlable text ------------------------------------------------------------------------------
     # The sections a page script draws carry the same key text in <noscript>, from the same data; the
     # Studio carries a description and a link to every scenario it runs.
@@ -735,6 +763,7 @@ if __name__ == "__main__":
     if "--mutate" in sys.argv:
         idx = rd("index.html")
         cases = {
+            "27 every class has a rule": {"index.html": idx.replace("</main>", '<p class="zz-unstyled-class">x</p></main>', 1)},
             "5 stand-ins": {"index.html": idx.replace("</main>", '<p class="illus">Illustrative</p></main>', 1)},
             "6 provenance": {"index.html": re.sub(r'<figcaption class="prov">.*?</figcaption>', "", idx, count=1, flags=re.S)},
             "11 install drift": {"index.html": idx.replace('data-copy="pip install kshana"', 'data-copy="pip install kshana-engine"', 1)},

@@ -2222,7 +2222,7 @@ def channels_all(root):
             continue
         cards = []
         for c in items:
-            b = [f'<h4>{esc(c["name"])}{" <span class=\"ch-opt\">when published</span>" if c.get("optional") else ""}</h4>',
+            b = [f'<h4>{esc(c["name"])}{" <span class=\"ch-opt\" title=\"Submitted; it appears once the third party merges it\">in review</span>" if c.get("pending") else ""}</h4>',
                  f'<p class="ch-aud">For {esc(c["audience"])}. Needs: {esc(c.get("requires") or "nothing")}.</p>']
             if c.get("command"):
                 b.append(f'<div class="ch-cmd" data-latest="{esc(c["command"])}" data-pinned="{esc(c.get("pinned") or c["command"])}">{code_btn(c["command"])}</div>')
@@ -2310,7 +2310,7 @@ def new_section(root, compact=False):
             items.append(f'<li>{chip}<a href="{root}{doc}">{esc(title)}</a></li>')
         else:
             items.append(f'<article class="glass nw" data-s="{st}">{chip}<h3>{esc(title)}</h3><p>{esc(first)}</p>'
-                         f'{"<p class=nw-p>" + esc(proof) + "</p>" if proof else ""}<p class="nw-l"><a href="{root}{doc}">Read more</a>{extra}</p></article>')
+                         f'{"<p class=nw-p>Checked: " + esc(proof) + "</p>" if proof else ""}<p class="nw-l"><a href="{root}{doc}">Read more</a>{extra}</p></article>')
     if compact:
         return f'<ul class="nw-strip">{"".join(items)}</ul>'
     return f'<div class="nw-grid">{"".join(items)}</div>'
