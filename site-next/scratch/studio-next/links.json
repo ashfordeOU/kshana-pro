@@ -1445,6 +1445,54 @@
   "exports": []
  },
  {
+  "file": "holdover-test-example.toml",
+  "name": "holdover-test-example",
+  "title": "Holdover test: a time-error record against the masks",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "holdover-test",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=holdover-test-example&tab=overview",
+   "report": "index.html?scenario=holdover-test-example&tab=report",
+   "exports": "index.html?scenario=holdover-test-example&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "holdover-test-ptp4l.toml",
+  "name": "holdover-test-ptp4l",
+  "title": "Holdover test: a linuxptp log",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "holdover-test",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=holdover-test-ptp4l&tab=overview",
+   "report": "index.html?scenario=holdover-test-ptp4l&tab=report",
+   "exports": "index.html?scenario=holdover-test-ptp4l&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
   "file": "telecom-synce-eec.toml",
   "name": "telecom-synce-eec",
   "title": "Frequency sync against SyncE masks",

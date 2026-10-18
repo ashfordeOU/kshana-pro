@@ -104,6 +104,8 @@ export const SCENARIOS = [
   ["time-transfer-budget.toml", "timing", "Two-way satellite time transfer", "What do station, transponder, ionosphere and Sagnac terms do to a two-way time offset, and what is its uncertainty budget? (modelled)"],
   ["optical-atmosphere-network.toml", "timing", "Optical link through the atmosphere, three sites", "How often is an optical timing link up through clouds and turbulence, and what do extra ground sites buy? (modelled; illustrative cloud climates)"],
   ["optical-atmosphere-techniques.toml", "timing", "Optical link techniques", "What do a larger aperture, another wavelength or adaptive optics buy one optical uplink in cloud and turbulence? (modelled; illustrative cloud climate)"],
+  ["holdover-test-example.toml", "timing", "Holdover test: a time-error record against the masks", "Pull the antenna, score the holdover: a record split at the two times the operator states, each step measured against the ITU-T masks written for it. (modelled; the record is invented for the example)"],
+  ["holdover-test-ptp4l.toml", "timing", "Holdover test: a linuxptp log", "The same four steps read from a ptp4l servo log: how far does the daemon's own offset stay from the masks while GNSS is away? (modelled; the log is invented for the example)"],
   ["telecom-synce-eec.toml", "timing", "Frequency sync against SyncE masks", "Does a free-running oven-controlled oscillator stay inside the synchronous Ethernet equipment-clock wander masks? (modelled)"],
   // Orbits & GNSS geometry
   ["orbit-gnss-challenged.toml", "orbits", "GNSS availability", "When is a fix even possible from the satellite geometry?"],
@@ -230,10 +232,12 @@ export const SCENARIOS = [
 export const NOT_IN_BROWSER = {
   "lunar-llr-datum.toml": "Needs the archived laser-ranging data slice that ships with the repository, not with the browser build.",
   "lunar-station-coverage-terrain.toml": "Needs the lunar elevation-model crop (data/lunar-dem/) that ships with the repository, not with the browser build.",
+  "holdover-test-example.toml": "The holdover-test kind arrives with 0.38; the 0.37 browser package does not know it. The Studio shows the run recorded with the native engine.",
+  "holdover-test-ptp4l.toml": "The holdover-test kind arrives with 0.38; the 0.37 browser package does not know it. The Studio shows the run recorded with the native engine.",
   "quantum-pnt-demonstrator.suite.toml": "A study suite, not a single scenario. Run it with the command-line tool: kshana --study.",
 };
 // Of those, the files the Studio shows as a run recorded with the native command-line engine.
-export const RECORDED_NATIVELY = ["lunar-llr-datum.toml", "lunar-station-coverage-terrain.toml"];
+export const RECORDED_NATIVELY = ["lunar-llr-datum.toml", "lunar-station-coverage-terrain.toml", "holdover-test-example.toml", "holdover-test-ptp4l.toml"];
 // Bundled scenarios that need a newer engine than an older package has: what they need (a kind the engine lists, or
 // a function it exports) and the release that brings it. With an engine that lacks it, the Studio shows the recording
 // made with one that has it and does not run them (an older engine refuses their fields, or runs without them).
@@ -249,6 +253,9 @@ export const NEEDS_ENGINE = Object.freeze({
   // The lunar-time-budget kind is older, but its [time_lab] block is not: it ships with the station study, whose kind
   // stands in for it.
   "lunar-station-time-lab.toml": Object.freeze({ release: "0.36", kind: "lunar-station-coverage" }),
+  // 0.38: the holdover test (a time-error record split at the operator's two times and measured against ITU-T masks).
+  "holdover-test-example.toml": Object.freeze({ release: "0.38", kind: "holdover-test" }),
+  "holdover-test-ptp4l.toml": Object.freeze({ release: "0.38", kind: "holdover-test" }),
 });
 // What the engine running here can do: {version, kinds, fns} (kinds from list_kinds(), fns its exported functions).
 export function engineCaps(mod) {

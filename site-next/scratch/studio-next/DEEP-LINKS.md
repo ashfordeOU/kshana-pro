@@ -229,6 +229,8 @@ These three views show files the native command-line engine wrote (the browser b
 | `time-transfer-budget` | no time axis | `index.html?scenario=time-transfer-budget&tab=report` | `index.html?scenario=time-transfer-budget&tab=exports` | none apply |
 | `optical-atmosphere-network` | no time axis | `index.html?scenario=optical-atmosphere-network&tab=report` | `index.html?scenario=optical-atmosphere-network&tab=exports` | none apply |
 | `optical-atmosphere-techniques` | no time axis | `index.html?scenario=optical-atmosphere-techniques&tab=report` | `index.html?scenario=optical-atmosphere-techniques&tab=exports` | none apply |
+| `holdover-test-example` | no time axis | `index.html?scenario=holdover-test-example&tab=report` | `index.html?scenario=holdover-test-example&tab=exports` | none apply |
+| `holdover-test-ptp4l` | no time axis | `index.html?scenario=holdover-test-ptp4l&tab=report` | `index.html?scenario=holdover-test-ptp4l&tab=exports` | none apply |
 | `telecom-synce-eec` | no time axis | `index.html?scenario=telecom-synce-eec&tab=report` | `index.html?scenario=telecom-synce-eec&tab=exports` | none apply |
 | `orbit-gnss-challenged` | `index.html?scenario=orbit-gnss-challenged&tab=animation` | `index.html?scenario=orbit-gnss-challenged&tab=report` | `index.html?scenario=orbit-gnss-challenged&tab=exports` | czml, geojson, kml, stk |
 | `orbit-sgp4-gps` | `index.html?scenario=orbit-sgp4-gps&tab=animation` | `index.html?scenario=orbit-sgp4-gps&tab=report` | `index.html?scenario=orbit-sgp4-gps&tab=exports` | czml, geojson, kml, stk |
@@ -344,4 +346,4 @@ These three views show files the native command-line engine wrote (the browser b
 | `celeste-iod-fused-pvt` (optional preset) | `index.html?scenario=celeste-iod-fused-pvt&tab=animation` | `index.html?scenario=celeste-iod-fused-pvt&tab=report` | `index.html?scenario=celeste-iod-fused-pvt&tab=exports` | none apply |
 | `celeste-iod-end-to-end` (optional preset) | `index.html?scenario=celeste-iod-end-to-end&tab=animation` | `index.html?scenario=celeste-iod-end-to-end&tab=report` | `index.html?scenario=celeste-iod-end-to-end&tab=exports` | czml, geojson, kml, stk |
 
-Counts: 167 scenarios with a recorded run (5 in the optional preset folder), 60 with a capability view, 85 with an animation, 167 with an engine report, 58 with at least one interoperability export.
+Counts: 169 scenarios with a recorded run (5 in the optional preset folder), 60 with a capability view, 85 with an animation, 169 with an engine report, 58 with at least one interoperability export.

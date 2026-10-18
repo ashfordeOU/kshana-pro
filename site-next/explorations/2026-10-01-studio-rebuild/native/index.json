@@ -589,6 +589,34 @@
    "export_files_stored": 3,
    "full_run": false
   },
+  "holdover-test-example.toml": {
+   "file": "holdover-test-example.json.gz",
+   "bytes": 24532,
+   "unpacked_bytes": 86585,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the holdover-test result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": true,
+   "engine_commit": "a396a84ce6d96a603b3e458132912bf5ad71ef25",
+   "note": "interim: recorded from kshana feat/timing-standards-0.38 at this commit; the release re-record replaces it"
+  },
+  "holdover-test-ptp4l.toml": {
+   "file": "holdover-test-ptp4l.json.gz",
+   "bytes": 28803,
+   "unpacked_bytes": 174598,
+   "report": true,
+   "animation": false,
+   "animation_reason": "--animate svg: no time series to animate: the holdover-test result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
+   "exports": [],
+   "export_files": 0,
+   "export_files_stored": 0,
+   "full_run": true,
+   "engine_commit": "a396a84ce6d96a603b3e458132912bf5ad71ef25",
+   "note": "interim: recorded from kshana feat/timing-standards-0.38 at this commit; the release re-record replaces it"
+  },
   "hybrid-optical-rf.toml": {
    "file": "hybrid-optical-rf.json.gz",
    "bytes": 31843,
