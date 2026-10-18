@@ -40,6 +40,8 @@
 
 **06:50 UTC 18 Oct:** W52 finished the integration: integ/0.37.0 @ 8c8b1342 (32 commits, all Ashforde OÜ; full local suite 5311 passed, 0 failed; all gates OK; site ported (508 files), Studio re-recorded at one engine commit, A7 met; pins re-blessed in docs/revisions/STUDIO15-pins-0.37.0-version.md). CI-only draft PR #83 (integ/0.37.0 -> main) opened and subscribed; CI started ~06:50, ETA ~11:00–13:00 UTC. When green: owner pushes 8c8b1342 to main + tag v0.37.0.
 
+**10:46 UTC 18 Oct: CI ALL GREEN on c0c77700** (#83, 28/28 success, CodeQL included). FF from main verified. Owner push commands sent: main + tag v0.37.0 at c0c77700b1f437844411881c13decc4354587d2e.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
