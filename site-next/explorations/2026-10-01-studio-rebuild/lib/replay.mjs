@@ -7,7 +7,7 @@
 // nominal, a position error from two logged positions) are plain subtractions of logged values, said so on the
 // page. Nothing is predicted or invented. Pure; tested in replay.test.mjs.
 import { buildRun, parseTruth, makeProjection } from "./trust.mjs";
-import { epochAt } from "./gsv.mjs";
+import { epochAt, unheardSectors } from "./gsv.mjs";
 import { kindLabel } from "./training.mjs";
 
 const isNum = (x) => typeof x === "number" && Number.isFinite(x);
@@ -124,6 +124,34 @@ export function stateAt(panel, t) {
   return { i: lo, row, ended: t > panel.t1 + 1e-6, sky };
 }
 
+// ---------- where the log hears nothing ----------
+
+// The compass words for azimuth sectors [{from, to}]: each quarter of the horizon (north 315-45, east 45-135, south
+// 135-225, west 225-315) that a sector covers by at least 30 degrees, in the order north, east, south, west.
+export function sectorWords(sectors) {
+  const quarters = [["north", 315, 405], ["east", 45, 135], ["south", 135, 225], ["west", 225, 315]];
+  const names = quarters.filter(([, a, b]) => sectors.some((s) => [0, 360].some((o) => Math.min(b, s.to + o) - Math.max(a, s.from + o) >= 30))).map(([n]) => n);
+  if (names.length === 4) return "every direction";
+  return names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}` : names[0] || "";
+}
+
+// The stretches of a run where the log lists satellites and hears none in some direction: [{t0, t1, i0, i1, words}],
+// from the log's own GSV (lib/gsv.mjs unheardSectors). Gaps of up to `joinS` seconds are bridged, and a stretch shorter than
+// `minS` is left out, so a single dropped satellite is not drawn. A blocked sky and a jammed signal look the same in a
+// log, so the words say "no signal from", never "blocked".
+export function quietSpans(panel, { minS = 30, joinS = 10 } = {}) {
+  if (!panel.hasSky) return [];
+  const flags = panel.rows.map((r) => { const k = epochAt(r.t, panel.aux.t); return k < 0 ? "" : sectorWords(unheardSectors(panel.aux.sky[k])); });
+  const spans = [];
+  flags.forEach((w, i) => {
+    if (!w) return;
+    const last = spans[spans.length - 1];
+    if (last && last.words === w && panel.rows[i].t - panel.rows[last.i1].t <= joinS + panel.sampleS) last.i1 = i;
+    else spans.push({ words: w, i0: i, i1: i });
+  });
+  return spans.map((x) => ({ ...x, t0: panel.rows[x.i0].t, t1: panel.rows[x.i1].t })).filter((x) => x.t1 - x.t0 >= minS);
+}
+
 // ---------- the verdict ----------
 
 // What the log and the engine's score say about the whole run, from the numbers and nothing else. `latencyS` is the time from the
@@ -178,19 +206,29 @@ const eastNorth = (lat0, lon0, lat, lon) => [((lon - lon0) * Math.PI / 180) * R_
 // else the world file the Studio already carries (data/land.json, coarse) when it reaches the track. Returns
 // { rings: [[[lon, lat], ...]], source, box } or null. Land from here is orientation only.
 export function coastFor(panel, coast, world = []) {
-  const start = panel.rows.map((r) => r.truth || r.rep).find(Boolean);
   const reg = coast && coast.regions ? coast.regions.find((r) => r.demos.includes(panel.id)) : null;
-  // A track that starts on land at this scale (an invented position inside a narrow fjord, say) is not drawn over a
-  // coast that would put the vessel ashore: the map would say something the data does not.
-  if (reg && start && pointInLand(reg.rings, start[1], start[0])) return null;
-  if (reg) return { rings: reg.rings, source: `Natural Earth 1:10 million, ${reg.name} window`, box: reg.box, scale: "1:10m" };
-  const pts = panel.rows.flatMap((r) => [r.truth, r.rep]).filter(Boolean);
-  if (!pts.length || !world.length) return null;
-  let la0 = 90, la1 = -90, lo0 = 180, lo1 = -180;
-  for (const [la, lo] of pts) { la0 = Math.min(la0, la); la1 = Math.max(la1, la); lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); }
-  const m = 1; // degrees of margin
-  const rings = world.filter((ring) => ring.some(([lo, la]) => lo >= lo0 - m && lo <= lo1 + m && la >= la0 - m && la <= la1 + m));
-  return rings.length ? { rings, source: "Natural Earth 1:110 million (the Studio's world outline), coarse", box: [la0 - m, la1 + m, lo0 - m, lo1 + m], scale: "1:110m" } : null;
+  let found = null;
+  if (reg) found = { rings: reg.rings, source: `Natural Earth 1:10 million, ${reg.name} window`, box: reg.box, scale: "1:10m" };
+  else {
+    const pts = panel.rows.flatMap((r) => [r.truth, r.rep]).filter(Boolean);
+    if (!pts.length || !world.length) return null;
+    let la0 = 90, la1 = -90, lo0 = 180, lo1 = -180;
+    for (const [la, lo] of pts) { la0 = Math.min(la0, la); la1 = Math.max(la1, la); lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); }
+    const m = 1; // degrees of margin
+    const rings = world.filter((ring) => ring.some(([lo, la]) => lo >= lo0 - m && lo <= lo1 + m && la >= la0 - m && la <= la1 + m));
+    if (!rings.length) return null;
+    found = { rings, source: "Natural Earth 1:110 million (the Studio's world outline), coarse", box: [la0 - m, la1 + m, lo0 - m, lo1 + m], scale: "1:110m" };
+  }
+  // A true track that runs over land at this scale (invented positions in a narrow fjord or a harbour mouth, a coast too
+  // coarse to follow) would put the ship ashore. The coast is not drawn for that run, and the map says why.
+  if (found.rings.length && trackOnLand(panel, found.rings)) return { rings: [], hidden: COAST_HIDDEN, source: found.source, box: found.box, scale: found.scale };
+  return found;
+}
+export const COAST_HIDDEN = "coast hidden: this log's invented positions fall on land";
+// Whether any logged true position (the reported one when there is no truth) lies on land; every row is tested.
+export function trackOnLand(panel, rings) {
+  for (const r of panel.rows) { const p = r.truth || r.rep; if (p && pointInLand(rings, p[1], p[0])) return true; }
+  return false;
 }
 
 // Whether (lon, lat) is inside land: the even-odd rule over every ring.

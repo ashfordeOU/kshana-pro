@@ -48,7 +48,7 @@
   <p class="kicker"><i style="--c:var(--orb)"></i>Optical PNT</p>
   <h1 id="op-h">Can an optical link get through the weather?</h1>
   <p class="lede">An optical timing or ranging link cannot pass thick cloud, so each ground site has an availability ceiling that no extra margin lifts. These are the two <code>optical-atmosphere</code> scenarios the engine ships, drawn from the results it recorded: availability against that ceiling, the margin each target needs, how long outages last, the timing a clock keeps through them, and what more sites or better optics buy.</p>
-  <p class="op-model" role="note"><b>Model output.</b> Everything here is <b>MODELLED</b>: the cloud climates, the clock classes and the techniques are stated assumptions (the sites are ILLUSTRATIVE, not any dataset or place's measured weather), and the numerics are checked against an independent program that implements the same formulas, not against the atmosphere. The result has no time series of cloud or fade, so there is no curve against time. <b>Advisory software.</b> Kshana is not type-approved navigation equipment and this is not a certified availability.</p>
+  <p class="op-model" role="note"><b>Model output.</b> Everything here is <b>MODELLED</b>: the cloud climates, the clock classes and the techniques are stated assumptions (the sites are ILLUSTRATIVE, not any dataset or place's measured weather), and the numerics are checked against an independent program that implements the same formulas, not against the atmosphere. The time series is one seeded draw from the stated site model, not the climate. <b>Advisory software.</b> Kshana is not type-approved navigation equipment and this is not a certified availability.</p>
 
   <section class="card op-pick" aria-label="Scenario">
     <div class="op-tabs" id="op-tabs" role="tablist" aria-label="Optical-atmosphere scenarios"></div>
@@ -72,7 +72,7 @@
   <section class="op-fine" aria-label="About this page">
     <h2 class="h3">What this page does and does not show</h2>
     <ul>
-      <li>It draws only what the engine recorded for each scenario. The page computes nothing: it scales the engine's numbers to the chart.</li>
+      <li>It draws only what the engine recorded for each scenario, including its seeded time series. The page computes nothing: it scales the engine's numbers to the chart.</li>
       <li>The sites, their cloud climates, the clock classes and the techniques are inputs chosen to illustrate, and are labelled so. No measured availability record has been compared.</li>
       <li>You can run the scenarios yourself in the Studio (Advanced view, "Optical link through the atmosphere") or with <code>kshana scenarios/optical-atmosphere-network.toml</code>.</li>
     </ul>

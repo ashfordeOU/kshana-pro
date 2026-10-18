@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { makeClock, advance, play, pause, seek, stepBy, stepMark, setSpeed, SPEEDS, stateAt, makeView, vesselPath, ringPx, rayEnd, coastFor, pointInLand, fmtT, fmtDur, marksOf } from "./replay.mjs";
+import { makeClock, advance, play, pause, seek, stepBy, stepMark, setSpeed, SPEEDS, stateAt, makeView, vesselPath, ringPx, rayEnd, coastFor, pointInLand, sectorWords, quietSpans, fmtT, fmtDur, marksOf } from "./replay.mjs";
 import { loadDemo, DEMO_LIST, DEFAULT_PAIR } from "./replay-demos.mjs";
 
 const here = new URL("../", import.meta.url).pathname;
@@ -84,14 +84,17 @@ test("stateAt holds the last row at or before t and reports the end", () => {
 test("the coastline is bundled for every demo's window; windows with no land say so", () => {
   const dover = coastFor(panels["coastal-drag-off"], coast, world);
   assert.ok(dover.rings.length >= 1 && dover.scale === "1:10m");
-  assert.ok(coastFor(panels["tallinn-helsinki"], coast, world).rings.length >= 2);
-  assert.equal(coastFor(panels["fjord-natural-degradation"], coast, world), null, "the fjord demo starts on land at 1:10m, so no coast is drawn under it");
+  for (const id of ["tallinn-helsinki", "masked-sky", "fjord-natural-degradation"]) {
+    const c = coastFor(panels[id], coast, world);
+    assert.equal(c.rings.length, 0, `${id}: a true track that runs over land at 1:10m gets no coast`); assert.match(c.hidden, /^coast hidden: this log's invented positions fall on land$/);
+  }
+  assert.ok(coastFor(panels["coastal-drag-off"], coast, world).rings.length >= 1 && !coastFor(panels["coastal-drag-off"], coast, world).hidden, "the drag-off stays at sea, so its coast is drawn");
   assert.equal(pointInLand([[[0, 0], [10, 0], [10, 10], [0, 10]]], 5, 5), true); assert.equal(pointInLand([[[0, 0], [10, 0], [10, 10], [0, 10]]], 15, 5), false);
   assert.equal(coastFor(panels["open-sea-jamming"], coast, world).rings.length, 0);
   assert.equal(coastFor({ id: "elsewhere", rows: [{ truth: [-20, 60], rep: null }] }, coast, world), null, "no land near a track in the South Pacific");
 });
 test("the view fits the track, widens to a near coast but never beyond six times the track", () => {
-  const p = panels["tallinn-helsinki"], r = coastFor(p, coast, world);
+  const p = panels["coastal-drag-off"], r = coastFor(p, coast, world);
   const plain = makeView(p), wide = makeView(p, { rings: r.rings });
   assert.equal(plain.widened, false); assert.ok(wide.spanM >= plain.spanM && wide.spanM <= plain.trackM * 6 + 1);
   const [x, y] = plain.px(p.rows[0].truth); assert.ok(x > 0 && x < 600 && y > 0 && y < 600);
@@ -114,4 +117,19 @@ test("the vessel glyph points along its heading, and the error ring is to scale"
 test("marksOf lists event times and band changes after calibration, once each", () => {
   const rows = [{ t: 0, band: "calibrating" }, { t: 1, band: "nominal" }, { t: 2, band: "nominal" }, { t: 3, band: "degraded" }, { t: 4, band: "nominal" }];
   assert.deepEqual(marksOf([{ onset: 3, end: 9 }], rows), [3, 4, 9]);
+});
+
+test("sectorWords names the quarters of the horizon a sector covers, and every direction when all four", () => {
+  assert.equal(sectorWords([{ from: 240, to: 270 }]), "west");
+  assert.equal(sectorWords([{ from: 60, to: 120 }, { from: 240, to: 300 }]), "east and west");
+  assert.equal(sectorWords([{ from: 150, to: 360 }]), "north, south and west");
+  assert.equal(sectorWords([{ from: 0, to: 360 }]), "every direction");
+  assert.equal(sectorWords([]), "");
+});
+test("quiet spans come from the log's GSV: the fjord log hears nothing from the west for a stretch, a clean run has none, and a one-satellite dropout is not drawn", () => {
+  const f = quietSpans(panels["fjord-natural-degradation"]);
+  assert.ok(f.length >= 1 && f[0].words.includes("west") && f[0].t0 >= 300 && f[0].t1 - f[0].t0 >= 30, JSON.stringify(f));
+  assert.deepEqual(quietSpans(panels["coastal-drag-off"]), []);
+  assert.equal(quietSpans(panels["masked-sky"])[0].t0, 600, "the masked sky goes quiet at T+600 s");
+  assert.deepEqual(quietSpans({ hasSky: false, rows: [] }), []);
 });

@@ -67,7 +67,7 @@ function drawStatic(k) {
   $(`rpl-st${k}`).querySelector(".st").innerHTML = stripStatic(p, TRACK, S.tMax);
   $(`rpl-t${k}`).textContent = p.title;
   $(`rpl-d${k}`).textContent = `${p.description || ""} ${p.source || ""}`.trim();
-  $(`rpl-trd${k}`).textContent = `Track of ${p.rows.length} log rows, north up${v.widened ? ", widened to show the nearest coast" : ""}.${p.region ? ` Coast: ${p.region.source}, illustration only.` : " No coast is drawn: none is bundled for this window, or the track starts on land at this scale."} ${p.verdict.text}`;
+  $(`rpl-trd${k}`).textContent = `Track of ${p.rows.length} log rows, north up${v.widened ? ", widened to show the nearest coast" : ""}.${p.region && p.region.hidden ? ` ${p.region.hidden}.` : p.region ? ` Coast: ${p.region.source}, illustration only.` : " No coast is drawn: none is bundled for this window."} ${p.verdict.text}`;
   $(`rpl-s${k}`).value = DEMO_LIST.some((d) => d.id === p.id) ? p.id : $(`rpl-s${k}`).value;
 }
 

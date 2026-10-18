@@ -86,3 +86,10 @@ test("the animated SVG shows each frame once per loop and stays a sane size", ()
   assert.equal(n, an); assert.ok(n >= 40 && n <= MAX_FRAMES + 1);
   assert.match(svg, /calcMode="discrete"/); assert.ok(svg.length < 3_000_000, String(svg.length));
 });
+
+test("the fjord track carries a halo and a words label from the log where it hears no signal, and the coast note says why it is hidden", () => {
+  const fj = trackStatic(fjord, viewOf(fjord));
+  assert.match(fj, /class="rp-quiet"/); assert.match(fj, /no signal from the west, T\+/); assert.match(fj, /\(from the log\)/);
+  assert.match(fj, /coast hidden: this log&#39;s invented positions fall on land/);
+  assert.doesNotMatch(trackStatic(drag, viewOf(drag)), /rp-quiet"/);
+});

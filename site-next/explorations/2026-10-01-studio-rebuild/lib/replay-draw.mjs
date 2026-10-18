@@ -5,7 +5,7 @@
 // Colours are CSS variables named --rp-*: the page maps them to the Studio tokens, an exported file carries its own
 // (THEME_CSS). Every number drawn is a logged or engine value from lib/replay.mjs; the screen positions are the
 // view's. Pure; tested in replay-draw.test.mjs.
-import { vesselPath, rayEnd, ringPx, stateAt, fmtT, bandLabel } from "./replay.mjs";
+import { vesselPath, rayEnd, ringPx, stateAt, fmtT, bandLabel, quietSpans } from "./replay.mjs";
 import { SKY_CSS, skyMarkup, skyDescribe } from "./skydraw.mjs";
 import { skyCounts } from "./gsv.mjs";
 
@@ -21,6 +21,8 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 export const SVG_CSS = `
 .rp-sea{fill:var(--rp-sea)}
 .rp-land{fill:var(--rp-land);stroke:var(--rp-landline);stroke-width:1;fill-rule:evenodd}
+.rp-quiet{fill:none;stroke:var(--rp-un);stroke-width:11;stroke-linecap:round;stroke-linejoin:round;opacity:.22}
+.rp-quiet-l{font:600 10.5px var(--rp-mono);fill:var(--rp-un)}
 .rp-truth{fill:none;stroke:var(--rp-truth);stroke-width:1.4}
 .rp-nofix{fill:none;stroke:var(--rp-lost);stroke-width:5;stroke-dasharray:2 5;stroke-linecap:round;opacity:.9}
 .rp-rep{fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -83,6 +85,13 @@ export function trackStatic(panel, view, { uid = "p", showTruth = true, showCoas
     const d = panel.region.rings.map((ring) => ring.map(([lo, la], j) => { const [x, y] = px([la, lo]); return `${j ? "L" : "M"}${f1(x)} ${f1(y)}`; }).join("") + "Z").join("");
     out.push(`<path class="rp-land" d="${d}"><title>Land: ${esc(panel.region.source)}. Orientation only, not a chart.</title></path>`);
   }
+  // where the log lists satellites and hears none in some direction: a halo along the track, named in words (from the log)
+  const quiet = quietSpans(panel);
+  for (const q of quiet) {
+    const pts = rows.slice(q.i0, q.i1 + 1).map((r) => r.truth || r.rep).filter(Boolean).map((p) => px(p));
+    if (pts.length > 1) out.push(`<path class="rp-quiet" d="${pathOf(pts)}"><title>From T+${fmtT(q.t0)} to T+${fmtT(q.t1)} the log lists satellites to the ${esc(q.words)} and hears none of them</title></path>`);
+  }
+  quiet.slice(0, 3).forEach((q, k) => out.push(`<text class="rp-quiet-l" x="16" y="${S - 48 - k * 14}">no signal from ${esc(q.words === 'every direction' ? q.words : 'the ' + q.words)}, T+${fmtT(q.t0)} to T+${fmtT(q.t1)} (from the log)</text>`));
   if (showTruth && panel.hasTruth) out.push(`<path class="rp-truth" d="${pathOf(rows.filter((r) => r.truth).map((r) => px(r.truth)))}"/>`);
   for (const r of bandRuns(panel)) out.push(`<path class="rp-rep rp-fade ${bandClass(r.band)}" stroke-width="${BAND_W[r.band] || 2}" d="${pathOf(r.idx.map((i) => px(rows[i].rep)))}"/>`);
   // no-fix spans on the true track
@@ -99,6 +108,7 @@ export function trackStatic(panel, view, { uid = "p", showTruth = true, showCoas
   const nice = niceLen(view.spanM * 0.25), lenPx = nice * view.k;
   out.push(`<path class="rp-ax" d="M16 ${S - 16}h${f1(lenPx)}m0 -4v8m0 -4M16 ${S - 20}v8"/><text class="rp-t" x="16" y="${S - 26}">${nice >= 1000 ? `${nice / 1000} km` : `${nice} m`}</text>`);
   out.push(`<path class="rp-ax" d="M${S - 24} 52v-28m-5 8l5 -8l5 8"/><text class="rp-t" x="${S - 30}" y="66">N</text>`);
+  if (panel.region && panel.region.hidden) out.push(`<text class="rp-ill" x="${S - 14}" y="${S - 14}" text-anchor="end">${esc(panel.region.hidden)}</text>`);
   if (panel.region && panel.region.rings.length) out.push(`<text class="rp-ill" x="${S - 14}" y="${S - 14}" text-anchor="end">Coast: ${esc(panel.region.scale)} Natural Earth, illustration only</text>`);
   return out.join("");
 }

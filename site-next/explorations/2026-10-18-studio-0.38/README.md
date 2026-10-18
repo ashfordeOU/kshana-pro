@@ -8,9 +8,15 @@ Taken with Playwright (Chromium) from `2026-10-01-studio-rebuild/` served locall
 | Bridge replay, half the sky masked vs the plain run (T+10:20, just after the blanking at T+10:00) | `replay-masked-sky-blanking-*` |
 | Training debrief with the skyplot, vessel glyph, heading and error ring (coastal drag-off, row 81) | `training-coastal-drag-off-*` |
 | Maritime trust with the skyplot, glyph and ring (masked-sky demo, cursor 650 s) | `trust-masked-sky-*` |
-| Optical PNT, three sites with diversity | `optical-network-*` |
+| Optical PNT, three sites with diversity and the engine's seeded link-margin time series (interim recording, see below) | `optical-network-*` |
 | Optical PNT, enhancement techniques | `optical-techniques-*` |
 
 `smoke.mjs` is the functional check that ran alongside: play, pause, step, moment steps, keyboard, verdict at the end, the half sky blanking at T+600 s with the same satellites listed, both exports (animated SVG 1.7 MB, frames ZIP 4.6 MB) and both optical scenarios.
 
 All data on these pages is synthetic or recorded engine output; the coast is Natural Earth public-domain land for orientation only.
+
+## Changes after the coordinator's review
+
+- The coast is hidden for a run whose true track runs over land at 1:10m (the Tallinn-Helsinki, masked-sky and fjord logs), with the one-line note "coast hidden: this log's invented positions fall on land".
+- Where a log lists satellites and hears none in some direction, the track carries a halo and a label from the log ("no signal from the west, T+6:00 to T+8:40 (from the log)"; a blocked sky and a jammed signal look the same in a log, so the words say "no signal", not "blocked").
+- The lone Site diversity card spans its row. The optical page now draws link margin against time from the engine's new seeded `timeseries` (kshana feat/studio-replay-0.38). The two recordings under `recorded/` are interim: from a native debug build at the engine commit named in each file (`tools_record_optical_series.mjs` checks that nothing but the series and its units changed against the 0.37 recordings); the release package re-records them at integration.
