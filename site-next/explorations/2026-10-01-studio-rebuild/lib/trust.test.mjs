@@ -169,7 +169,7 @@ assert.match(buildRun({ lines: [] }).error, /no epochs/);
 }
 
 // Every monitor named in the documentation has a description (16, and from 0.36 the geometry monitor).
-assert.equal(KNOWN_MONITORS.length, 17);
+assert.equal(KNOWN_MONITORS.length, 18);
 for (const m of KNOWN_MONITORS) assert.ok(MONITOR_INFO[m].length > 20, m);
 
 // The recorded demo, when it is present: the engine's own result for the synthetic ferry log.
@@ -253,3 +253,6 @@ if (fs.existsSync(demo)) {
   assert.equal(buildRun({ result: { ...result, advisory: 7 } }).run.advisory, "");
 }
 console.log("trust.test.mjs: ok");
+
+assert.ok(KNOWN_MONITORS.includes("receiver-self-report"));
+assert.match(monitorInfo("receiver-self-report"), /receiver's own/);

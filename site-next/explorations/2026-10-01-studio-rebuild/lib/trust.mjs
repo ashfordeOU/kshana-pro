@@ -35,6 +35,7 @@ export const MONITOR_INFO = Object.freeze({
   raim: "The receiver autonomous integrity monitoring test statistic against its threshold.",
   clock: "The clock-aided monitor: the receiver clock against its predicted line.",
   "solve-failure": "The position solution could not be computed.",
+  "receiver-self-report": "The receiver's own spoofing or jamming flag (for example u-blox UBX-SEC-SIG or NAV-STATUS spoofDetState), shown beside Kshana's monitors. Read from the log, not verified; the slot is ready for the 0.38 engine's monitor and draws as a strip once a result carries it.",
   geometry: "The satellite geometry (0.36): costs points only when the geometry is poor (HDOP, PDOP or the satellites used beyond their thresholds), capped and never below the degraded band.",
 });
 export const KNOWN_MONITORS = Object.freeze(Object.keys(MONITOR_INFO));
