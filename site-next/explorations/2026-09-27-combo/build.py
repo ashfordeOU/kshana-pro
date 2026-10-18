@@ -371,7 +371,7 @@ WAYS = [
 GROUPS = [
     ("Earth GNSS and interference", "--int", ["jamming", "spectrum", "tracking-loop", "gnss-sim", "pvt", "spoof", "spoof-detect", "impairment-eval"]),
     ("Integrity and ARAIM", "--itg", ["integrity", "araim-reference-check"]),
-    ("Alternative PNT and fusion", "--nav", ["gravity-map", "terrain-nav", "terrain-slam", "combined-altpnt", "inertial", "gnss-ins", "ins-trn-coast", "fusion", "hybrid", "hybrid-ukf", "hybrid-optical-rf"]),
+    ("Alternative PNT and fusion", "--nav", ["gravity-map", "terrain-nav", "terrain-slam", "combined-altpnt", "inertial", "gnss-ins", "ins-trn-coast", "fusion", "hybrid", "hybrid-ukf", "hybrid-optical-rf", "optical-atmosphere"]),
     ("Clocks and timing", "--tim", ["clock", "sweep", "slot-timing", "telecom-timing", "timetransfer", "time-transfer-budget"]),
     ("Orbits and mission analysis", "--orb", ["orbit", "ephemeris", "oem-interop", "passes", "launch-window", "reentry", "eo-coverage", "attitude-budget", "space-packet", "space-weather", "link-budget", "aperture-duty-cycle", "constellation-design", "acm-link", "aocs", "ascent-losses", "contact-schedule", "entry-heating", "eo-radiometry"]),
     ("Low Earth orbit (LEO) PNT", "--nav", ["leo-signal", "leo-pass", "leo-navmsg", "leo-pvt", "leo-ppp", "ntn-positioning", "leo-pnt-chain"]),
@@ -2279,6 +2279,10 @@ NEW036 = [
     ("Lunar reference-station study", "docs/lunar-reference-station.html", "studio/lunar/index.html", "Lunar station view"),
 ]
 NEW036_STATIC = {}
+NEW037 = [
+    ("Optical timing links through clouds and turbulence", "docs/optical-atmosphere.html", "", ""),
+]
+NEW037_STATIC = {}
 # The "New in" section of the Capabilities and Home pages is the current minor release's: its table, heading and lede.
 # KSHANA_NEW_SECTION=0.36 builds the 0.36 section before Cargo.toml carries 0.36.
 NEW_SECTIONS = {
@@ -2288,6 +2292,9 @@ NEW_SECTIONS = {
     "0.36": (NEW036, NEW036_STATIC, "Geometry: what the sky above the antenna allows.",
              "See which satellites a site can use when buildings, quays, cranes or terrain block part of the sky, what that does to the dilution of precision and the horizontal error ellipse, and how the receiver-trust score reads it. A skyline removes line-of-sight satellites and nothing more. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software, not type-approved navigation equipment: the operator stays responsible. Nothing here transmits or synthesises a radio waveform.",
              "sky geometry and geometry-aware trust"),
+    "0.37": (NEW037, NEW037_STATIC, "Optical timing links through the atmosphere.",
+             "How often an optical time-transfer link is up when clouds and turbulence are in the path: per-site availability against the link margin, the ceiling no margin lifts, what extra ground sites, a larger aperture, another wavelength or adaptive optics buy, and what an outage costs a holdover clock. Every number is MODELLED: published formulas checked against an independent program, with stated cloud-climate assumptions, not a measured availability record.",
+             "optical timing links through clouds and turbulence"),
 }
 _new_key = os.environ.get("KSHANA_NEW_SECTION") or ".".join(version.split(".")[:2])
 assert _new_key in NEW_SECTIONS, f"no 'New in' section written for {_new_key}: add it to NEW_SECTIONS"

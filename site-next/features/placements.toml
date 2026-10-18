@@ -287,7 +287,7 @@ tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021",
 # `static` and `vessel` are values of `[platform] kind` in a receiver-trust session file, not scenario kinds;
 # the four are the nmea-scenario library (scenarios/training/*.toml, run by `kshana nmea-scenario`, not
 # `kshana <scenario.toml>`), listed in docs/NMEA-TRAINING.md.
-ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "events", "bench-session", "static", "vessel", "open-sea-jamming", "coastal-drag-off", "port-approach-time-spoof", "combined-event"]
+ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "events", "bench-session", "static", "vessel", "open-sea-jamming", "coastal-drag-off", "port-approach-time-spoof", "combined-event", "fjord-natural-degradation"]
 
 [placements]
 # ---- kind ----
@@ -1123,7 +1123,7 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "kind:eo-radiometry" = { page = "Capabilities", section = "atlas", studio = "eo-radiometry", docs = "docs/scenarios.html#eo-radiometry" }
 "kind:ascent-losses" = { page = "Capabilities", section = "atlas", studio = "ascent-losses", docs = "docs/scenarios.html#ascent-losses" }
 "kind:time-transfer-budget" = { page = "Capabilities", section = "atlas", studio = "time-transfer-budget", docs = "docs/scenarios.html#time-transfer-budget" }
-"kind:optical-atmosphere" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenarios.html#optical-atmosphere" }
+"kind:optical-atmosphere" = { page = "Capabilities", section = "atlas", studio = "optical-atmosphere-network", docs = "docs/scenarios.html#optical-atmosphere" }
 "scenario:acm-link" = { page = "Capabilities", section = "atlas", studio = "acm-link", docs = "docs/scenario-reference.html#acm-link" }
 "scenario:aocs-slew-mekf" = { page = "Capabilities", section = "atlas", studio = "aocs-slew-mekf", docs = "docs/scenario-reference.html#aocs-slew-mekf" }
 "scenario:aocs-slew" = { page = "Capabilities", section = "atlas", studio = "aocs-slew", docs = "docs/scenario-reference.html#aocs-slew" }
@@ -1139,8 +1139,8 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "scenario:gps-denied-gravity-nav-egm2008" = { page = "Capabilities", section = "atlas", studio = "gps-denied-gravity-nav-egm2008", docs = "docs/scenario-reference.html#gps-denied-gravity-nav-egm2008" }
 "scenario:gravity-map-error-mc" = { page = "Capabilities", section = "atlas", studio = "gravity-map-error-mc", docs = "docs/scenario-reference.html#gravity-map-error-mc" }
 "scenario:lunar-station-coverage-terrain" = { page = "Capabilities", section = "atlas", studio = "lunar-station-coverage-terrain", docs = "docs/scenario-reference.html#lunar-station-coverage-terrain" }
-"scenario:optical-atmosphere-network" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#optical-atmosphere-network" }
-"scenario:optical-atmosphere-techniques" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#optical-atmosphere-techniques" }
+"scenario:optical-atmosphere-network" = { page = "Capabilities", section = "atlas", studio = "optical-atmosphere-network", docs = "docs/scenario-reference.html#optical-atmosphere-network" }
+"scenario:optical-atmosphere-techniques" = { page = "Capabilities", section = "atlas", studio = "optical-atmosphere-techniques", docs = "docs/scenario-reference.html#optical-atmosphere-techniques" }
 "scenario:quantum-cai-coast" = { page = "Capabilities", section = "atlas", studio = "quantum-cai-coast", docs = "docs/scenario-reference.html#quantum-cai-coast" }
 "scenario:telecom-synce-eec" = { page = "Capabilities", section = "atlas", studio = "telecom-synce-eec", docs = "docs/scenario-reference.html#telecom-synce-eec" }
 "scenario:time-transfer-budget" = { page = "Capabilities", section = "atlas", studio = "time-transfer-budget", docs = "docs/scenario-reference.html#time-transfer-budget" }
