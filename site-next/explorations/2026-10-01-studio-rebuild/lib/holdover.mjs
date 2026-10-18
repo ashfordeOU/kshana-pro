@@ -3,9 +3,10 @@
 // time-error record the operator supplied, split at the two times the operator states and measured against public ITU-T masks, and draws
 // what the result holds: the time error over the three phases with the stated limits, the recovery band and the times the budgets are first
 // exceeded, MTIE and TDEV, and the mask checks. Nothing is judged here: a verdict is the engine's word, and every figure is "measured against
-// the mask", never a statement that a clock or system meets a Recommendation. The time error itself is the operator's record: the result does
-// not carry the samples, so the page re-reads them from the scenario text (the `samples` pairs, or the lines of a ptp4l log) and draws them
-// only when what it reads has exactly the sample count, length and interval the engine's `record` block states. Pure; tested in holdover.test.mjs.
+// the mask", never a statement that a clock or system meets a Recommendation. The time error itself is the operator's record, which the engine
+// writes into the result as `record.series` ({ time_s, time_error_ns }, decimated to a stated number of points). The page draws that and nothing
+// else: it has no parser of its own for a record, and a result without `record.series` is shown without a curve, and says so. Pure; tested in
+// holdover.test.mjs.
 
 const isNum = (x) => typeof x === "number" && Number.isFinite(x);
 const num = (x) => (isNum(x) ? x : null);
@@ -19,7 +20,7 @@ export const SCENARIOS = Object.freeze([
   { id: "holdover-test-ptp4l", title: "A linuxptp log", blurb: "The same four steps read from a ptp4l servo log (the daemon's own offset, in ns). The log is written for the example; no daemon ran." },
 ]);
 
-// The recorded result document ({ json, toml, summary, engine_version, ... }) -> { model } or { error }.
+// The recorded result document ({ json, summary, engine_version, ... }) -> { model } or { error }.
 export function readHoldover(doc) {
   let j;
   try { j = typeof doc.json === "string" ? JSON.parse(doc.json) : doc.json; } catch (e) { return { error: `the result is not JSON (${e.message})` }; }
@@ -27,7 +28,7 @@ export function readHoldover(doc) {
   const rec = j.record, t = j.test;
   return {
     model: {
-      label: str(j.label, 800), summary: str(doc.summary, 600), engine: str(doc.engine_version, 20), file: str(doc.file, 80), toml: typeof doc.toml === "string" ? doc.toml : "",
+      label: str(j.label, 800), summary: str(doc.summary, 600), engine: str(doc.engine_version, 20), file: str(doc.file, 80),
       test: { removedS: num(t.gnss_removed_s), restoredS: num(t.gnss_restored_s), lockedDays: num(t.locked_duration_days), bandNs: num(t.recovery_band_ns), dwellS: num(t.recovery_dwell_s), statedBy: str(t.stated_by, 120) },
       record: { n: num(rec.n_samples), lengthS: num(rec.record_length_s), intervalS: num(rec.sample_interval_s), startS: num(rec.start_s), sha: str(rec.series_sha256, 80), series: readInlineSeries(rec.series) },
       steps: j.steps.map((s) => ({ name: str(s.name, 30), startS: num(s.start_s), endS: num(s.end_s), n: num(s.n_samples), meanNs: num(s.mean_te_ns), rmsNs: num(s.rms_te_ns), maxAbsNs: num(s.max_abs_te_ns), firstNs: num(s.first_te_ns), lastNs: num(s.last_te_ns) })),
@@ -52,34 +53,15 @@ function readInlineSeries(s) {
   return null;
 }
 
-// The operator's record from the scenario text: the `samples` pairs, or the master-offset lines of a ptp4l log (offsets in ns; the time axis
-// starts at the first reading, as the engine's clock-log readers do). Returns { t, te } or null.
-export function readRecordFromToml(toml) {
-  if (typeof toml !== "string") return null;
-  const log = [...toml.matchAll(/ptp4l\[(\d+(?:\.\d+)?)\]:\s+master offset\s+(-?\d+(?:\.\d+)?)/g)];
-  if (log.length) { const t0 = Number(log[0][1]); return { t: log.map((m) => Number(m[1]) - t0), te: log.map((m) => Number(m[2])) }; }
-  const i = toml.search(/^\s*samples\s*=\s*\[/m);
-  if (i < 0) return null;
-  const rest = toml.slice(i).replace(/^[^\n]*\bsamples\s*=\s*/, ""), end = rest.search(/\n\s*\[[A-Za-z]/);
-  const pairs = [...(end < 0 ? rest : rest.slice(0, end)).matchAll(/\[\s*(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\s*,\s*(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\s*\]/g)];
-  return pairs.length ? { t: pairs.map((m) => Number(m[1])), te: pairs.map((m) => Number(m[2])) } : null;
-}
-
-// The series to draw: the one in the result, else the one re-read from the scenario text; each only if it has the sample count, the length and
-// the interval the engine's record block states. Returns { series, from } or { series: null, why }.
-export function seriesFor(model, toml = model.toml) {
-  const rec = model.record;
-  const check = (s) => {
-    if (!s || !s.t.length) return "no samples";
-    if (rec.n != null && s.t.length !== rec.n) return `${s.t.length} samples where the engine scored ${rec.n}`;
-    const len = s.t[s.t.length - 1] - s.t[0];
-    if (rec.lengthS != null && Math.abs(len - rec.lengthS) > 1e-6) return `a length of ${len} s where the engine scored ${rec.lengthS} s`;
-    if (rec.intervalS != null && s.t.length > 1 && Math.abs(len / (s.t.length - 1) - rec.intervalS) > 1e-6) return "a different sample interval";
-    return null;
-  };
-  if (rec.series) { const why = check(rec.series); if (!why) return { series: rec.series, from: "the result" }; }
-  const s = readRecordFromToml(toml), why = check(s);
-  return why ? { series: null, why: `the record could not be reproduced from the scenario text (${why}), so no time-error curve is drawn` } : { series: s, from: "the scenario's own record" };
+// The series to draw: the one the result carries in `record.series`, and only if it is a series of a plausible record (at least two samples,
+// time increasing, and, when the engine did not decimate it, the sample count its `record` block states). Returns { series, from } or
+// { series: null, why }.
+export function seriesFor(model) {
+  const rec = model.record, s = rec.series;
+  if (!s) return { series: null, why: "the result carries no time-error samples (record.series), so no curve is drawn" };
+  if (s.t.length < 2 || s.t.some((t, k) => k && !(t > s.t[k - 1]))) return { series: null, why: "the series in the result is not a time series (fewer than two samples, or time not increasing), so no curve is drawn" };
+  if (rec.n != null && s.t.length > rec.n) return { series: null, why: `the series in the result has ${s.t.length} samples where the engine scored ${rec.n}, so no curve is drawn` };
+  return { series: s, from: s.t.length === rec.n ? "the result's record" : `the result's record, decimated to ${s.t.length} of ${rec.n} samples` };
 }
 
 // ---------- charts ----------

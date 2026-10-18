@@ -31,4 +31,9 @@ All data on these pages is synthetic or recorded engine output; the coast is Nat
 
 ## Holdover test view (W55's `holdover-test` kind)
 
-`holdover-example-*` and `holdover-ptp4l-*` are the new `/studio/holdover/` view of the two bundled `holdover-test` scenarios, recorded with the native engine from kshana `feat/timing-standards-0.38` at a396a84c (interim; the release re-record replaces them). The time-error curve is the operator's record re-read from the scenario text and drawn only because its sample count, length and interval equal the engine's `record` block; the test also checks that its largest sample equals the largest the engine scored. Everything else is the engine's result. Words: "measured against the mask"; MODELLED.
+The view draws the engine's result for the two bundled `holdover-test` scenarios, recorded with the native engine from kshana `feat/timing-standards-0.38` at a396a84c (interim; the release re-record replaces them). The time-error curve is drawn only from `record.series`, which W55 has been asked to write into the result; until it does:
+
+- `holdover-recorded-no-series-example-1440-light.png` is the view on the recorded result as it is: no curve, and the page says why.
+- `holdover-shape-fixture-*` are **shape fixtures**: the same results with `record.series` filled from the scenario's own record by a review script (`REVIEW/fixtures/holdover-test-*.with-series.result.json`). They show the drawing, not engine output.
+
+Words on the view: "measured against the mask"; MODELLED.

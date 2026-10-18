@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Holdover test page: the DOM layer. What it reads and draws is in lib/holdover.mjs. It fetches only this folder's own recorded results
 // (recorded/<scenario>.json); a file the person opens is read here with File.text() and goes nowhere.
-import { SCENARIOS, readHoldover, seriesFor, readRecordFromToml, teSvg, curvesSvg, stepRows, holdoverRows } from "../lib/holdover.mjs";
+import { SCENARIOS, readHoldover, seriesFor, teSvg, curvesSvg, stepRows, holdoverRows } from "../lib/holdover.mjs";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -31,20 +31,16 @@ async function open(id) {
 
 async function openFiles(files) {
   try {
-    let result = null, toml = "";
-    for (const f of files) {
-      if (f.size > MAX) { setStatus(`${f.name} is larger than this page reads.`, true); return; }
-      const text = await f.text();
-      if (/\.toml$/i.test(f.name)) toml = text; else { try { result = JSON.parse(text.replace(/^﻿/, "")); } catch (e) { setStatus(`${f.name}: not JSON.`, true); return; } }
-    }
-    if (!result) { setStatus("Choose the result JSON (and, optionally, its scenario file).", true); return; }
-    const doc = typeof result.json === "string" ? result : { json: result, toml, summary: "", engine_version: result.engine_version, file: "" };
-    if (toml) doc.toml = toml;
+    const f = files[0];
+    if (f.size > MAX) { setStatus(`${f.name} is larger than this page reads.`, true); return; }
+    let result;
+    try { result = JSON.parse((await f.text()).replace(/^\uFEFF/, "")); } catch (e) { setStatus(`${f.name}: not JSON.`, true); return; }
+    const doc = typeof result.json === "string" ? result : { json: result, toml: "", summary: "", engine_version: result.engine_version, file: "" };
     const { model, error } = readHoldover(doc);
-    if (error) { setStatus(`${error}.`, true); return; }
+    if (error) { setStatus(`${f.name}: ${error}.`, true); return; }
     for (const b of $("ho-tabs").children) b.setAttribute("aria-selected", "false");
     current = null;
-    draw(model, "Your result, read here; nothing was uploaded.");
+    draw(model, `${f.name}, read here; nothing was uploaded.`);
   } catch (e) { setStatus(`Could not be read or drawn (${e && e.message ? e.message : e}).`, true); }
 }
 
@@ -55,7 +51,7 @@ function draw(m, status) {
   $("ho-chips").innerHTML = chips.map(([k, v]) => `<li class="ho-chipv ho-v-${esc(v.toLowerCase())}"><span>${esc(k)}</span><b>${esc(v)}</b></li>`).join("") + `<li class="ho-chipv ho-v-note"><span>Words</span><b>measured against the mask</b></li>`;
   const { series, from, why } = seriesFor(m);
   $("ho-te").innerHTML = teSvg(m, series);
-  $("ho-te-note").textContent = series ? `Time error from ${from}: ${series.t.length} samples, the count, length and interval the engine scored. The two times were stated by ${m.test.statedBy}.` : `${why}.`;
+  $("ho-te-note").textContent = series ? `Time error from ${from}. The two times were stated by ${m.test.statedBy}.` : `${why}.`;
   $("ho-mtie").innerHTML = curvesSvg(m, "mtie");
   $("ho-tdev").innerHTML = curvesSvg(m, "tdev");
   $("ho-steps").innerHTML = `<thead><tr>${["Step", "Span", "Samples", "Mean, ns", "RMS, ns", "Largest |TE|, ns"].map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead><tbody>${stepRows(m).map((r) => `<tr><th scope="row">${esc(r[0])}</th>${r.slice(1).map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody>`;

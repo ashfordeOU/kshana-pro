@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { SCENARIOS, readHoldover, readRecordFromToml, seriesFor, teSvg, curvesSvg, stepRows, holdoverRows } from "./holdover.mjs";
+import { SCENARIOS, readHoldover, seriesFor, teSvg, curvesSvg, stepRows, holdoverRows } from "./holdover.mjs";
 
 const here = new URL("../", import.meta.url).pathname;
 const load = (id) => JSON.parse(readFileSync(here + `recorded/${id}.json`, "utf8"));
@@ -21,44 +21,53 @@ test("both holdover-test recordings open and carry the engine's numbers unchange
   }
 });
 
-test("the operator's record is re-read from the scenario text and used only when it matches the engine's record block", () => {
+// A SHAPE FIXTURE, not engine output: the record the example scenario states, written into record.series the way the engine is asked to
+// (time_s, time_error_ns), so the drawing can be tested before the engine writes one. The helper reads the scenario text only here, in the test.
+function withSeries(id, decimate = 1) {
+  const doc = load(id), raw = JSON.parse(doc.json), toml = readFileSync(here + `scenarios/${id}.toml`, "utf8");
+  let t, te;
+  const log = [...toml.matchAll(/ptp4l\[(\d+(?:\.\d+)?)\]:\s+master offset\s+(-?\d+)/g)];
+  if (log.length) { t = log.map((m) => Number(m[1]) - Number(log[0][1])); te = log.map((m) => Number(m[2])); }
+  else { const pairs = [...toml.slice(toml.indexOf("samples")).matchAll(/\[\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\]/g)]; t = pairs.map((m) => Number(m[1])); te = pairs.map((m) => Number(m[2])); }
+  raw.record.series = { time_s: t.filter((_, k) => k % decimate === 0), time_error_ns: te.filter((_, k) => k % decimate === 0) };
+  return { raw, doc: { ...doc, json: JSON.stringify(raw) } };
+}
+
+test("the recorded results carry no series yet, and the page says so rather than drawing one of its own", () => {
   for (const sc of SCENARIOS) {
-    const m = models[sc.id], { series, from } = seriesFor(m);
-    assert.ok(series, sc.id); assert.equal(from, "the scenario's own record");
-    assert.equal(series.t.length, m.record.n); assert.equal(series.t[series.t.length - 1] - series.t[0], m.record.lengthS);
+    const { series, why } = seriesFor(models[sc.id]);
+    assert.equal(series, null); assert.match(why, /carries no time-error samples \(record\.series\)/);
+    assert.match(teSvg(models[sc.id], series), /No time-error curve/);
   }
-  const m = models["holdover-test-example"], s = seriesFor(m).series;
-  // the series the engine hashed is the one drawn: its own sha is over the scored record (checked here as the same record, not re-derived)
-  assert.ok(s.te.some((v) => Math.abs(v) > 200), "the example's holdover reaches the drift the scenario states");
-  const raw = JSON.parse(load("holdover-test-example").json);
-  assert.equal(Math.max(...s.te.map(Math.abs)), raw.steps[1].max_abs_te_ns > raw.recovery.peak_abs_te_ns ? raw.steps[1].max_abs_te_ns : Math.max(raw.steps[1].max_abs_te_ns, raw.recovery.peak_abs_te_ns), "the largest sample drawn is the largest the engine scored");
 });
-test("a record that differs from the engine's block in count, length or interval is not drawn, and the reason is said", () => {
-  const m = structuredClone(models["holdover-test-example"]);
-  const bad = m.toml.replace(/\[0, [^\]]*\],/, "");
-  assert.match(seriesFor(m, bad).why, /samples where the engine scored 601/);
-  assert.equal(seriesFor(m, "kind = \"holdover-test\"\n").series, null);
-  const shifted = structuredClone(m); shifted.record.lengthS += 1;
-  assert.match(seriesFor(shifted).why, /a length of/);
+test("a result's record.series is drawn, in either shape, whole or decimated, and nothing else is", () => {
+  for (const sc of SCENARIOS) {
+    const { raw, doc } = withSeries(sc.id), { model } = readHoldover(doc), { series, from } = seriesFor(model);
+    assert.ok(series); assert.equal(from, "the result's record"); assert.equal(series.t.length, raw.record.n_samples);
+    assert.equal(Math.max(...series.te.map(Math.abs)), Math.max(raw.steps[0].max_abs_te_ns, raw.steps[1].max_abs_te_ns, raw.recovery.peak_abs_te_ns), "the largest sample drawn is the largest the engine scored");
+    const dec = seriesFor(readHoldover(withSeries(sc.id, 3).doc).model);
+    assert.match(dec.from, /decimated to \d+ of \d+ samples/);
+  }
+  const { raw } = withSeries("holdover-test-example"); raw.record.series = raw.record.series.time_s.map((t, k) => [t, raw.record.series.time_error_ns[k]]);
+  assert.ok(seriesFor(readHoldover({ ...load("holdover-test-example"), json: JSON.stringify(raw) }).model).series, "pairs are read too");
 });
-test("a series the result itself carries is preferred, in either shape", () => {
-  const m = structuredClone(models["holdover-test-example"]), s = readRecordFromToml(m.toml);
-  m.record.series = { t: s.t, te: s.te };
-  assert.equal(seriesFor(m).from, "the result");
-  const raw = JSON.parse(load("holdover-test-example").json); raw.record.series = { time_s: s.t, time_error_ns: s.te };
-  const { model } = readHoldover({ ...load("holdover-test-example"), json: JSON.stringify(raw) });
-  assert.equal(seriesFor(model).from, "the result");
+test("a series that is not a plausible record is refused with a reason", () => {
+  const { raw } = withSeries("holdover-test-example");
+  const bad = (s) => { const r = structuredClone(raw); r.record.series = s; return seriesFor(readHoldover({ ...load("holdover-test-example"), json: JSON.stringify(r) }).model); };
+  assert.match(bad({ time_s: [0], time_error_ns: [1] }).why, /not a time series/);
+  assert.match(bad({ time_s: [0, 5, 5], time_error_ns: [1, 2, 3] }).why, /not a time series/);
+  assert.match(bad({ time_s: Array.from({ length: 700 }, (_, k) => k), time_error_ns: new Array(700).fill(0) }).why, /700 samples where the engine scored 601/);
+  assert.equal(bad({ time_s: [0, 1], time_error_ns: [1] }).series, null, "mismatched arrays are not a series");
 });
 test("the time-error chart marks the phases, the operator's two times, the mask limits and the exceedances, from the result", () => {
   for (const sc of SCENARIOS) {
-    const m = models[sc.id], svg = teSvg(m, seriesFor(m).series);
+    const m = readHoldover(withSeries(sc.id).doc).model, svg = teSvg(m, seriesFor(m).series);
     for (const p of ["Baseline: locked", "Holdover: GNSS removed", "Recovery: GNSS restored"]) assert.ok(svg.includes(p), p);
     assert.match(svg, /GNSS removed \(stated by the operator\)/); assert.match(svg, /GNSS restored \(stated by the operator\)/);
     assert.match(svg, /prtc-a ±100 ns/); assert.match(svg, /class="ho-line"/); assert.match(svg, /Recovery band ±100 ns/);
     assert.match(svg, /ePRTC-A holdover envelope first exceeded/);
   }
-  assert.match(teSvg(models["holdover-test-example"], null), /No time-error curve/);
-});
+  });
 test("MTIE and TDEV are drawn from the engine's curves with the mask limits as markers", () => {
   const m = models["holdover-test-example"];
   for (const w of ["mtie", "tdev"]) { const svg = curvesSvg(m, w); assert.match(svg, /ho-cv/); assert.match(svg, /ho-mk/); assert.ok(svg.includes("baseline") && svg.includes("holdover")); }
