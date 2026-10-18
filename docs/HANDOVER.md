@@ -1,5 +1,7 @@
 # Kshana coordinator handover
 
+**19:10 UTC 18 Oct: 0.38 STARTED.** Owner: "yes launch the workers and deliver all of it in 0.38". Plan docs/plans/0.38-PLAN.md; briefs docs/briefs/_COMMON-0.38.md + W53/W54/W55. W53 (Sonnet) session_01XaEJJJhJBoM9ZcjCz93qoT: WS-A Studio views + D2 (kshana-pro site/studio-0.38, kshana feat/studio-replay-0.38). W54 (Sonnet) session_014zm6PngtVJmrFuruZioGp3: WS-B Jammertest + receiver protocols (kshana feat/referee-0.38). W55 (Sonnet) session_01UtwQju9MwRdWvYqccey64q: WS-C timing/standards + D1/D3/D4 (kshana feat/timing-standards-0.38). Sessions in use: 5 of 8. Workers may refuse the brief as unconfirmed: owner confirms in their session. Owner-pending: D5 zenodo notes, D6 PDF companion, B7 DataPort licence, C6 legal review, licence split, JOSS/governance, P1952.
+
 **Coordinator switch 2026-10-16 13:30 UTC:** successor 7 = `session_017r1WgqGMGAv8D27a1jVw9j` took over from successor 6 (session_011RqoYRajgEEr3gDaV6hhHj). Check-in routine trig_01VUG9ZMztUvVi8bQwMw2JeL (2-hourly, :29); trig_011tTxPdyaCBp9kT9fQYGSaQ disabled. Session lineage depth is 7 of limit 8: the next handover is the last possible successor.
 
 **18:45 UTC 16 Oct:** CI on 5eac3b61 (#82): the whole `cargo test --all` passed. `check` failed only at the documentation-coverage ratchet (1110 undocumented public items, ceiling 984; never reached before). W43 is documenting the items (never raise the ceiling) and moving the release date to 2026-10-17 in ONE push to site-port/0.36.0. Then a new full CI run (~5 h); after that the owner pushes the rc/main/tag (§4.2).
