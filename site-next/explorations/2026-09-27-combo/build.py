@@ -433,6 +433,8 @@ PAGES = [  # (key, nav label, <title> at most 60 characters, source, meta descri
      "Which Kshana capabilities are validated against independent oracles and which are modelled: verification matrix, validation ledger, papers and citation."),
     ("developers", "Developers", "Install Kshana: CLI, Rust, Python, npm and MCP server", "developers.html",
      "Install Kshana as a command-line tool, Rust crate, Python or npm package, Model Context Protocol (MCP) server, container or JetBrains plugin."),
+    ("benchmark", "Benchmark", "Benchmark: GNSS interference detection · Kshana", "benchmark.html",
+     "kshana-bench: fixed tasks, splits and metrics for GNSS interference detection and timing holdover, pre-registered baselines and a board of result files."),
     ("editions", "Editions", "Editions: open source and Kshana Pro · Kshana", "editions.html",
      "Kshana is free and open source under the AGPL-3.0 licence. Kshana Pro adds a design optimiser, uncertainty and sensitivity studies and a mission dossier."),
 ]
@@ -1134,6 +1136,21 @@ def ss_bodies():
     return "".join(f'<span class="ss-nojs" role="option" aria-selected="false">{esc(b["name"])}</span>' for b in bodies)
 
 
+def bench_leaderboard():
+    """The board of the Benchmark page: the engine's static leaderboard fragment (`kshana bench leaderboard`), embedded as it is, or a
+    stated empty state when the checkout has none. A fragment with a script or a whole document is refused: the page is static."""
+    p = os.path.join(REPO, "bench", "site", "leaderboard.html")
+    if not os.path.exists(p):
+        return ('<div class="bm-empty"><h3>No results published yet</h3>'
+                '<p>The board shows result files scored by <code>kshana bench score</code>, and nothing else. None has been published for this release.</p>'
+                '<p>A submission is a file; the specification, the tasks and the baselines are linked above. No row will ever name an endorser.</p></div>')
+    frag = read(os.path.join("bench", "site", "leaderboard.html"))
+    if re.search(r"<\s*(html|head|body|script)\b", frag, re.I) or "{{" in frag:
+        sys.exit("bench/site/leaderboard.html must be a fragment: no <html>, <head>, <body> or <script>, and no {{ }}")
+    return frag
+
+
+EXTRA_SCALARS["{{BENCH_LEADERBOARD}}"] = bench_leaderboard()
 EXTRA_SCALARS["{{SS_BODIES}}"] = ss_bodies()
 EXTRA_SCALARS.update({"{{REPRO_STAMP}}": repro_stamp(), "{{CLOCK_CATALOGUE}}": clock_catalogue(), "{{TIMING_CATALOGUE}}": timing_catalogue(), "{{CLI_REFERENCE}}": cli_reference()})
 
@@ -2388,6 +2405,7 @@ PAGE_SCRIPTS = {
     "evidence": '<script type="module" src="js/evidence.mjs"></script>',
     "developers": '<script type="module" src="js/developers.mjs"></script>',
     "editions": "",
+    "benchmark": "",
 }
 # =================================================================== Home on the Observatory system (2026-09-28)
 # Every number drawn here is read from a recorded engine run: the Studio's recordings (CHARTS),
@@ -3075,6 +3093,7 @@ SECT = {
     "capabilities": [("The engine at work: five recorded runs", "capabilities.html#runs"), ("Scenario atlas", "capabilities.html#atlas"), ("Capability explorer", "capabilities.html#explorer"), ("Band atlas", "capabilities.html#bands"), ("Clock ladder", "capabilities.html#clocks"), ("Timing wall", "capabilities.html#timing"), ("Earth to Moon to Mars", "capabilities.html#journey")],
     "evidence": [("Validated results", "evidence.html#results"), ("Verification matrix", "evidence.html#matrix"), ("Validation ledger", "evidence.html#ledger"), ("Honesty labels", "evidence.html#labels"), ("Standards grid", "evidence.html#standards"), ("Research", "evidence.html#research"), ("Cite the engine", "evidence.html#cite-engine"), ("Glossary", "docs/glossary.html")],
     "developers": [("Install", "developers.html#install"), ("Ways to use it", "developers.html#ways"), ("MCP server", "developers.html#mcp"), ("JetBrains plugin", "developers.html#jetbrains")],
+    "benchmark": [("Benchmark: the board", "benchmark.html#board"), ("What a row means", "benchmark.html#rules")],
     "editions": [("Editions: free and Pro", "editions.html"), ("Kshana Pro", "editions.html#pro"), ("Custom work and studies", "editions.html#custom"), ("Talk to us", "editions.html#contact")],
 }
 for pg, items in SECT.items():

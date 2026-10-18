@@ -1,0 +1,39 @@
+<!-- BENCHMARK (0.38). The kshana-bench leaderboard. The board is the engine's own static page (`kshana bench leaderboard`, bench/site/leaderboard.html in
+     the engine checkout) embedded as a fragment by build.py; without it the page says no results are published yet. Nothing on this page is a
+     certification or an endorsement (bench/SPEC.md, section 7). -->
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow" style="--c:var(--lime)"><i></i>Benchmark</span>
+    <h1 class="h1">Same logs, same rules. <span class="soft">Scores in the open.</span></h1>
+    <p class="lede">kshana-bench is a fixed set of tasks, splits and metrics for GNSS interference detection and timing holdover, so that different methods can be compared on the same data. A submission is a file; nothing runs on the submitter's behalf. Baselines are the engine's own monitors, with bars written down before the first scored run.</p>
+    <div class="ctas"><a class="btn btn-ink" href="#board">See the board <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="btn btn-ghost" href="https://github.com/ashfordeOU/kshana/blob/main/bench/SPEC.md" rel="noopener">Read the specification</a></div>
+  </div>
+</section>
+
+<section class="block bm" id="board" aria-label="Leaderboard">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow" style="--c:var(--cyan)"><span class="idx">01</span>The board</div><h2 class="h2 h2-sm">Result files, scored by the engine.</h2></div>
+      <p class="lede">Each row is one result file: a score on a stated split under a stated version of the specification. Every score is MODELLED unless a row says an external oracle agreed.</p>
+    </div>
+    <div class="bm-board">
+{{BENCH_LEADERBOARD}}
+    </div>
+  </div>
+</section>
+
+<section class="block bm" id="rules" aria-label="What a row may say">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow" style="--c:var(--magenta)"><span class="idx">02</span>What a row means</div><h2 class="h2 h2-sm">A score describes a log, not a product.</h2></div>
+    </div>
+    <ul class="bm-list">
+      <li>A row says: this file scored X on split S under specification version V. It does not say a product is certified, conformant, approved or endorsed, and no organisation is named as an endorser.</li>
+      <li>The data are recorded or synthetic and named in the specification. Third-party data is never copied into the repository: manifests and fetch scripts pin each file by SHA-256, and each licence is recorded before the data is used.</li>
+      <li>The truth for a recorded log is the test plan's scheduled slots, not recorded on-air times, so a detection probability is a lower bound. The specification says so beside each task.</li>
+      <li>A sealed holdout is scored only in a leaderboard round, and its seed is revealed after it. Bars for any baseline that claims a number are committed before the scored run and never loosened afterwards; a miss is recorded as NOT MET.</li>
+      <li>Advisory only: Kshana results are modelled or measured against stated references, not an approval or a statement of conformance.</li>
+    </ul>
+    <p class="m-note">Run it yourself: <code>kshana bench score</code> turns a submission and a split's truth into a result file; <code>kshana bench leaderboard</code> renders result files into this page.</p>
+  </div>
+</section>

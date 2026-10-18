@@ -24,3 +24,7 @@ All data on these pages is synthetic or recorded engine output; the coast is Nat
 ## Trust: receiver self-report and Jammertest scorecard (shape fixtures)
 
 `trust-self-report-shape-fixture-*` and `trust-jammertest-scorecard-shape-fixture-*` draw the new Trust lanes from hand-built files that mirror the engine's `SelfReportEpoch`/`SelfReportSummary` and `Scorecard` structs (feat/referee-0.38). They exist to check the drawing; the numbers in them are invented and say so in their own label. Fixtures are in `2026-10-01-studio-rebuild/REVIEW/fixtures/` (not ported).
+
+## Site: Benchmark page stub
+
+`site-benchmark-stub-*` is the new `/benchmark` site page in its "no results published yet" state (built in a scratch copy against engine 96a59e44 with the data-staleness gates skipped; `check.py` passes on that build, rules 27 and 28 included). When the engine checkout carries `bench/site/leaderboard.html` (a fragment: no html/head/body/script) `build.py` embeds it in the board section; a whole document or a script stops the build.
