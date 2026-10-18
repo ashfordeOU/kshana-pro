@@ -16,6 +16,7 @@ export const PAGES = Object.freeze({
   bench: { href: "tools/#bench", label: "Test-bench export" },
   compliance: { href: "tools/#compliance", label: "Compliance mapping" },
   osnma: { href: "tools/#osnma", label: "OSNMA verification" },
+  jammertest: { href: "tools/#jammertest", label: "Jammertest scoring" },
   cli: { href: "tools/#cli", label: "Command-line features" },
   ai: { href: "tools/#ai", label: "Use from your AI assistant" },
 });
@@ -59,6 +60,9 @@ export const FEATURES = Object.freeze([
   { id: "osnma", name: "Galileo OSNMA verification (UBX SFRBX input)",
     studio: [["osnma", "Load a recorded file and see the per-satellite, per-tag authentication status"]],
     cli: "kshana osnma verify capture.ubx --json" },
+  { id: "jammertest", name: "Jammertest as a referee: the published test plan as scheduled truth, a receiver log scored against it (0.38)",
+    studio: [["jammertest", "Import the plan for a log's time span, or score a receiver log (UBX, RINEX, Android, NMEA or Septentrio SBF) per test: detection latency, missed, false alarms, time to recover; MODELLED"]],
+    cli: "kshana jammertest score session.toml --catalog catalogue.json --plan plan.json --out scorecard" },
   { id: "ai", name: "Use from an AI assistant (MCP server)",
     studio: [["ai", "Install options for the MCP server, with the questions each tool answers"]],
     cli: "cargo install kshana-mcp" },

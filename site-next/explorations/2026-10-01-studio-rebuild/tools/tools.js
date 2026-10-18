@@ -3,6 +3,7 @@
 // lib/engine-page.mjs (the Studio's WebAssembly engine in a worker). Files are read with File.arrayBuffer() in this
 // page and nothing is sent anywhere.
 import { getEngine } from "../lib/engine-page.mjs";
+import { readScorecard, summaryRows as jtRows, assessability } from "../lib/jammertest-card.mjs";
 import { PAGES, FEATURES, CLI_CARDS, AI_QUESTIONS, docsHref } from "../lib/tools35-data.mjs";
 import { zip } from "../lib/zip.mjs";
 import { exampleFileUrl, packFilesJson, packProblems, parsePublicKey, verdictView, checkEpoch, benchEntries, scenarioKind, BENCH_KINDS, complianceRuns, MAX_COMPLIANCE_RUNS, toBase64, complianceView, statusInfo, osnmaView, OSNMA_STATUS, gstText, ubxLines } from "../lib/tools35.mjs";
@@ -54,7 +55,7 @@ async function readFiles(list) {
 const asText = (f) => new TextDecoder().decode(f.bytes);
 
 // ---------- tabs ----------
-const TABS = [["evidence", "Evidence packs"], ["bench", "Test bench"], ["compliance", "Compliance"], ["osnma", "OSNMA"], ["cli", "Command line"], ["ai", "AI assistant"]];
+const TABS = [["evidence", "Evidence packs"], ["bench", "Test bench"], ["compliance", "Compliance"], ["osnma", "OSNMA"], ["jammertest", "Jammertest"], ["cli", "Command line"], ["ai", "AI assistant"]];
 function tabs() {
   const bar = $("tl-tabs");
   for (const [id, label] of TABS) {
@@ -411,7 +412,63 @@ function wireTelemetry() {
   card.insertBefore(panel, card.querySelector("p:last-child"));
 }
 
+// ---------- Jammertest: the published plan as scheduled truth, a log scored against it ----------
+const jt = { cat: null, plans: [], log: null };
+function jtSelText() {
+  const bits = [jt.cat ? `catalogue ${jt.cat.name}` : "no catalogue", jt.plans.length ? `${jt.plans.length} plan file(s)` : "no plan", jt.log ? `log ${jt.log.name} (${kb(jt.log.bytes.length)})` : "no log"];
+  $("jt-sel").textContent = bits.join("; ") + ".";
+}
+async function jtRead(file) { if (file.size > MAX_FILE) throw new Error(`${file.name} is larger than 64 MiB`); return new Uint8Array(await file.arrayBuffer()); }
+function jtArgs() {
+  const num = (id, what) => { const t = $(id).value.trim(); const v = Number(t); if (t === "" || !Number.isFinite(v)) throw new Error(`${what} must be a number`); return v; };
+  const whole = (id, what) => { const v = num(id, what); if (!Number.isInteger(v) || v < 0) throw new Error(`${what} must be a whole number, 0 for "not given"`); return v; };
+  if (!jt.cat) throw new Error("Choose the catalogue JSON first.");
+  if (!jt.plans.length) throw new Error("Choose at least one plan file.");
+  const dec = new TextDecoder();
+  return { catalog: dec.decode(jt.cat.bytes), plans: JSON.stringify(jt.plans.map((p) => dec.decode(p.bytes))), loc: whole("jt-loc", "The test area"), year: whole("jt-year", "The plan year"), off: num("jt-off", "The offset from UTC"), start: $("jt-start").value.trim(), hold: num("jt-hold", "The recovery hold"), guard: num("jt-guard", "The guard") };
+}
+function jtCard(c) {
+  const a = assessability(c);
+  const t = el("table", { class: "tbl" }, el("thead", {}, el("tr", {}, ["Test", "Name", "Slot, s", "Outcome", "Latency, s", "First monitors", "Recovered"].map((h) => el("th", { scope: "col" }, h)))),
+    el("tbody", {}, c.tests.map((x) => el("tr", {}, el("th", { scope: "row" }, x.id), el("td", {}, x.name), el("td", {}, `${x.onsetS ?? "?"} to ${x.endS ?? "?"}`), el("td", {}, x.outcome || "n/a"), el("td", {}, x.latencyS == null ? "n/a" : x.latencyS.toFixed(1)), el("td", {}, x.firstMonitors.join(", ") || "none"), el("td", {}, x.recovered == null ? "n/a" : x.recovered ? "yes" : "no")))));
+  return [el("p", { class: "tl-notice" }, `${c.label} Guard ${c.options.guardS ?? "?"} s, recovery hold ${c.options.recoverHoldS ?? "?"} s${c.baselineContaminated ? ". The calibration baseline overlapped a scheduled slot." : "."}`), a ? el("p", { class: "tl-warn" }, a) : null,
+    el("dl", { class: "tl-kv" }, jtRows(c).map(([k, v]) => el("div", {}, el("dt", {}, k), el("dd", {}, v)))), el("div", { class: "table-scroll" }, t)].filter(Boolean);
+}
+async function jtImport() {
+  const out = $("jt-out");
+  try {
+    const a = jtArgs();
+    if (!a.start) throw new Error("Import needs the log's first epoch in UTC (ISO 8601), because the plan is in local time.");
+    const e = await useEngine("jammertest_import");
+    out.replaceChildren(el("p", { class: "tl-notice" }, "Reading the plan…"));
+    const r = JSON.parse(await e.call("jammertest_import", a.catalog, a.plans, a.start, a.loc, a.off, a.year));
+    const b = el("button", { type: "button", class: "tl-btn" }, "Download the events (TOML)"); b.onclick = () => download("jammertest-events.toml", r.events_toml, "text/plain");
+    out.replaceChildren(el("p", { class: "tl-verdict ok" }, el("b", {}, `${Array.isArray(r.events) ? r.events.length : "?"} scheduled event(s)`), ` as scheduled truth: planned slots, not recorded on-air times. Not RF: ${r.skipped_non_rf ?? "?"}; outside the log: ${r.outside_log ?? "?"}; unknown ids: ${Array.isArray(r.unknown_ids) ? r.unknown_ids.length : "?"}.`), el("div", { class: "tl-row" }, b), el("pre", { class: "tl-pre" }, String(r.events_toml).split("\n").slice(0, 40).join("\n")));
+  } catch (x) { fail(out, x); }
+}
+async function jtScore() {
+  const out = $("jt-out");
+  try {
+    const a = jtArgs();
+    if (!jt.log) throw new Error("Choose the receiver log first.");
+    const e = await useEngine("jammertest_score");
+    out.replaceChildren(el("p", { class: "tl-notice" }, "Scoring…"));
+    const json = await e.call("jammertest_score", `[log]\nformat = "${$("jt-format").value}"\n`, toBase64(jt.log.bytes), a.catalog, a.plans, a.loc, a.off, a.start, a.year, a.hold, a.guard);
+    const r = readScorecard(json, "the scorecard");
+    if (r.error) throw new Error(r.error);
+    const b = el("button", { type: "button", class: "tl-btn" }, "Download the scorecard (JSON)"); b.onclick = () => download("jammertest-scorecard.json", json, "application/json");
+    out.replaceChildren(el("div", { class: "tl-row" }, b), ...jtCard(r.card));
+  } catch (x) { fail(out, x); }
+}
+function wireJammertest() {
+  const set = async (id, fn) => $(id).addEventListener("change", async (ev) => { try { await fn([...ev.target.files]); jtSelText(); } catch (x) { fail($("jt-out"), x); } ev.target.value = ""; });
+  set("jt-cat", async (fs) => { if (fs[0]) jt.cat = { name: fs[0].name, bytes: await jtRead(fs[0]) }; });
+  set("jt-plans", async (fs) => { jt.plans = []; for (const f of fs) jt.plans.push({ name: f.name, bytes: await jtRead(f) }); });
+  set("jt-log", async (fs) => { if (fs[0]) { jt.log = { name: fs[0].name, bytes: await jtRead(fs[0]) }; const n = fs[0].name.toLowerCase(); if (/\.ubx$/.test(n)) $("jt-format").value = "ubx"; else if (/\.sbf$/.test(n)) $("jt-format").value = "sbf"; else if (/\.(rnx|obs|\d\d o)$/.test(n.replace(/\s/g, ""))) $("jt-format").value = "rinex"; } });
+  $("jt-import").onclick = jtImport; $("jt-score").onclick = jtScore;
+}
+
 function init() {
-  tabs(); coverage(); cliCards(); wireEvidence(); wireBench(); wireCompliance(); wireOsnma(); wireAi(); wireTelemetry();
+  tabs(); coverage(); cliCards(); wireEvidence(); wireBench(); wireCompliance(); wireOsnma(); wireJammertest(); wireAi(); wireTelemetry();
 }
 init();

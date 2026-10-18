@@ -41,3 +41,7 @@ Words on the view: "measured against the mask"; MODELLED.
 ## Site: Benchmark page with W57's fragment
 
 `site-benchmark-w57-fragment-*` is `/benchmark` built in a scratch copy with kshana `feat/bench-observatory-0.38` @ 1df6db2 `bench/site/leaderboard.html` embedded (engine 96a59e44 otherwise, gates skipped in the copy). `check.py` passed on that build (113 pages). The fragment is regenerated when W57 re-scores under spec 2.0.0; nothing on the page is typed by hand except the hero and the "what a row means" text.
+
+## Tools: Jammertest card (wasm)
+
+The Tools page has a Jammertest tab: import the plan (`jammertest_import`) and score a log against it (`jammertest_score`), both run in the browser from the 0.38 package. The committed `pkg/` is still the 0.37 package, so on it the card says plainly that the engine lacks the function; the screenshots `tools-jammertest-synthetic-*` were taken with a package built from `feat/referee-0.38` @ `eb45325` swapped into a scratch copy of the Studio (not committed). `jammertest-smoke.mjs` drives it; `jammertest-fixture/mk.py` writes the synthetic NMEA log, catalogue and plan (one real C/N0 drop in slot one, nothing in slot two, so one detected and one missed). The data are invented and are not Jammertest data; the card's MODELLED label and the advisory statement are shown with the result. SBF is accepted in this card only: no Trust "open a file" wasm entry reads SBF.
