@@ -20,3 +20,7 @@ All data on these pages is synthetic or recorded engine output; the coast is Nat
 - The coast is hidden for a run whose true track runs over land at 1:10m (the Tallinn-Helsinki, masked-sky and fjord logs), with the one-line note "coast hidden: this log's invented positions fall on land".
 - Where a log lists satellites and hears none in some direction, the track carries a halo and a label from the log ("no signal from the west, T+6:00 to T+8:40 (from the log)"; a blocked sky and a jammed signal look the same in a log, so the words say "no signal", not "blocked").
 - The lone Site diversity card spans its row. The optical page now draws link margin against time from the engine's new seeded `timeseries` (kshana feat/studio-replay-0.38). The two recordings under `recorded/` are interim: from a native debug build at the engine commit named in each file (`tools_record_optical_series.mjs` checks that nothing but the series and its units changed against the 0.37 recordings); the release package re-records them at integration.
+
+## Trust: receiver self-report and Jammertest scorecard (shape fixtures)
+
+`trust-self-report-shape-fixture-*` and `trust-jammertest-scorecard-shape-fixture-*` draw the new Trust lanes from hand-built files that mirror the engine's `SelfReportEpoch`/`SelfReportSummary` and `Scorecard` structs (feat/referee-0.38). They exist to check the drawing; the numbers in them are invented and say so in their own label. Fixtures are in `2026-10-01-studio-rebuild/REVIEW/fixtures/` (not ported).

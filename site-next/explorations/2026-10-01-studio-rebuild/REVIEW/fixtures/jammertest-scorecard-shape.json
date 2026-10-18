@@ -1,0 +1,97 @@
+{
+ "label": "MODELLED: scored against the scheduled slots of the published test plan, not against recorded on-air times; no external oracle states when a transmitter was on (SHAPE FIXTURE for the review of this card, not a result)",
+ "advisory": "Advisory",
+ "scenario_hash": "fixture",
+ "options": {
+  "recover_hold_s": 10,
+  "guard_s": 60
+ },
+ "baseline_contaminated": false,
+ "tests": [
+  {
+   "test_id": "1.1.1",
+   "test_name": "Jamming, low power",
+   "year": 2025,
+   "location_id": 1,
+   "plan_status": "",
+   "kind": "jamming",
+   "onset_s": 600,
+   "end_s": 900,
+   "evaluable": true,
+   "outcome": "detected",
+   "latency_s": 12,
+   "first_monitors": [
+    "cn0-drop"
+   ],
+   "recovered": true,
+   "time_to_recover_s": 30
+  },
+  {
+   "test_id": "1.2.1",
+   "test_name": "Spoofing, position",
+   "year": 2025,
+   "location_id": 1,
+   "plan_status": "",
+   "kind": "spoofing",
+   "onset_s": 1200,
+   "end_s": 1500,
+   "evaluable": true,
+   "outcome": "late",
+   "latency_s": 95,
+   "first_monitors": [
+    "kinematic"
+   ],
+   "recovered": true,
+   "time_to_recover_s": 40
+  },
+  {
+   "test_id": "1.3.1",
+   "test_name": "Jamming, high power",
+   "year": 2025,
+   "location_id": 1,
+   "plan_status": "",
+   "kind": "jamming",
+   "onset_s": 1800,
+   "end_s": 2000,
+   "evaluable": true,
+   "outcome": "missed",
+   "latency_s": null,
+   "first_monitors": [],
+   "recovered": null,
+   "time_to_recover_s": null
+  },
+  {
+   "test_id": "1.4.1",
+   "test_name": "Spoofing, early slot",
+   "year": 2025,
+   "location_id": 1,
+   "plan_status": "",
+   "kind": "spoofing",
+   "onset_s": 20,
+   "end_s": 40,
+   "evaluable": false,
+   "outcome": "not-evaluable",
+   "latency_s": null,
+   "first_monitors": [],
+   "recovered": null,
+   "time_to_recover_s": null
+  }
+ ],
+ "summary": {
+  "tests": 4,
+  "evaluable": 3,
+  "detected": 1,
+  "late": 1,
+  "missed": 1,
+  "detection_rate": 0.667,
+  "detected_in_tolerance_rate": 0.333,
+  "median_latency_s": 53.5,
+  "median_time_to_recover_s": 35,
+  "false_alarm_runs": 1,
+  "false_alarm_epochs": 14,
+  "clean_epochs": 3000,
+  "clean_hours": 0.83,
+  "false_alarm_epoch_rate": 0.0047,
+  "false_alarm_runs_per_hour": 1.2
+ }
+}

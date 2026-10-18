@@ -8,6 +8,7 @@ import {
 
 import { geometryAt, countGeometry, statusKey, classKey, geometryUnder, CLASS_TEXT, UNKNOWN_TEXT } from "../lib/trust-geometry.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
+import { readScorecard, summaryRows as jtRows, assessability, MAX_BYTES as JT_MAX } from "../lib/jammertest-card.mjs";
 import { AGREEMENT_TEXT, selfReportAt, summaryLines } from "../lib/trust-selfreport.mjs";
 import { parseAux, epochAt } from "../lib/gsv.mjs";
 import { skyMarkup, skyDescribe } from "../lib/skydraw.mjs";
@@ -738,6 +739,26 @@ function stop() {
   if (run) $("mt-live").textContent = describeEpoch(run, cur);
 }
 
+// ---------- a Jammertest scorecard (kshana jammertest score) ----------
+function jtStatus(msg, err) { const s = $("mt-jt-status"); s.textContent = msg; s.classList.toggle("err", !!err); }
+async function openScorecard(file) {
+  if (!file) return;
+  try {
+    if (file.size > JT_MAX) { jtStatus(`${file.name}: larger than 8 MiB; this page reads a scorecard up to that size.`, true); return; }
+    const r = readScorecard(await file.text(), file.name);
+    if (r.error) { jtStatus(r.error, true); $("mt-jt-out").hidden = true; return; }
+    const c = r.card;
+    $("mt-jt-out").hidden = false;
+    $("mt-jt-label").textContent = `${c.label} Guard ${c.options.guardS ?? "?"} s, recovery hold ${c.options.recoverHoldS ?? "?"} s${c.baselineContaminated ? ". The calibration baseline overlapped a scheduled slot." : "."}`;
+    const a = assessability(c), box = $("mt-jt-assess");
+    box.hidden = !a; box.textContent = a;
+    $("mt-jt-sum").replaceChildren(...jtRows(c).map(([k, v]) => el("div", {}, el("dt", {}, k), el("dd", {}, v))));
+    $("mt-jt-table").replaceChildren(el("thead", {}, el("tr", {}, ["Test", "Name", "Slot, s", "Outcome", "Latency, s", "First monitors", "Recovered"].map((h) => el("th", { scope: "col" }, h)))),
+      el("tbody", {}, c.tests.map((x) => el("tr", {}, el("th", { scope: "row" }, x.id), el("td", {}, x.name), el("td", {}, `${x.onsetS ?? "?"} to ${x.endS ?? "?"}`), el("td", {}, x.outcome || "n/a"), el("td", {}, x.latencyS == null ? "n/a" : x.latencyS.toFixed(1)), el("td", {}, x.firstMonitors.join(", ") || "none"), el("td", {}, x.recovered == null ? "n/a" : x.recovered ? "yes" : "no")))));
+    jtStatus(`Opened ${file.name}: ${c.tests.length} test(s). Read here; nothing was uploaded.`);
+  } catch (e) { jtStatus(`${file.name}: could not be read or drawn (${e && e.message ? e.message : e}).`, true); }
+}
+
 // ---------- wiring ----------
 
 function applyFilterVisual() {
@@ -759,6 +780,7 @@ function wire() {
   $("mt-nmea").addEventListener("change", (e) => { scoreFile(e.target.files[0]); e.target.value = ""; });
   $("mt-files").addEventListener("change", (e) => { openFiles([...e.target.files]); e.target.value = ""; });
   $("mt-demo").addEventListener("click", openDemo);
+  $("mt-jt-file").addEventListener("change", (e) => { openScorecard(e.target.files[0]); e.target.value = ""; });
   $("mt-geo-demo").addEventListener("click", openGeoDemo);
   const drop = $("mt-drop");
   for (const ev of ["dragenter", "dragover"]) drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); });

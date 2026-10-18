@@ -77,6 +77,21 @@
     <p class="mt-status" id="mt-score-status" role="status" aria-live="polite"></p>
   </section>
 
+  <section class="card mt-load mt-jt" aria-labelledby="mt-jt-h">
+    <div class="card-head"><h2 id="mt-jt-h" class="h3">Jammertest scorecard</h2>
+      <p class="card-note">Open the scorecard <code>kshana jammertest score</code> writes: a receiver-trust run scored against the scheduled slots of a published test plan, per test (detected, late, missed, not evaluable) with latency and recovery, and the false alarms outside the slots. The slots are the plan's, not recorded on-air times, so every figure is <b>MODELLED</b>. The file is read here and never uploaded.</p></div>
+    <div class="mt-drop">
+      <label class="mt-file btn-primary">Choose a scorecard…<input id="mt-jt-file" type="file" accept=".json,application/json"></label>
+    </div>
+    <p class="mt-status" id="mt-jt-status" role="status" aria-live="polite">No scorecard open.</p>
+    <div id="mt-jt-out" hidden>
+      <p class="mt-offset" id="mt-jt-label"></p>
+      <p class="mt-advice" id="mt-jt-assess" role="note" hidden></p>
+      <dl class="mt-setgrid mt-geo-rows" id="mt-jt-sum"></dl>
+      <div class="mt-tablewrap"><table class="tbl" id="mt-jt-table"></table></div>
+    </div>
+  </section>
+
   <section class="card mt-load" aria-labelledby="mt-gen-h">
     <div class="card-head"><h2 id="mt-gen-h" class="h3">Generic receiver-trust run (not a vessel)</h2>
       <p class="card-note">For a fixed or unspecified receiver, <code>kshana receiver-trust</code> checks a GNSS log against its own calibration window and says when it stopped looking like itself. It gives states and alarms, not the 0 to 100 vessel score. Run the illustrative example (a made-up log with a jammer from 120 s to 240 s) or your own NMEA log under the same settings. The log is read here and never uploaded.</p></div>
