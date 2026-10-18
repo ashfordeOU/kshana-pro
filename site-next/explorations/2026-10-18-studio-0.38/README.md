@@ -37,3 +37,7 @@ The view draws the engine's result for the two bundled `holdover-test` scenarios
 - `holdover-shape-fixture-*` are **shape fixtures**: the same results with `record.series` filled from the scenario's own record by a review script (`REVIEW/fixtures/holdover-test-*.with-series.result.json`). They show the drawing, not engine output.
 
 Words on the view: "measured against the mask"; MODELLED.
+
+## Site: Benchmark page with W57's fragment
+
+`site-benchmark-w57-fragment-*` is `/benchmark` built in a scratch copy with kshana `feat/bench-observatory-0.38` @ 1df6db2 `bench/site/leaderboard.html` embedded (engine 96a59e44 otherwise, gates skipped in the copy). `check.py` passed on that build (113 pages). The fragment is regenerated when W57 re-scores under spec 2.0.0; nothing on the page is typed by hand except the hero and the "what a row means" text.
