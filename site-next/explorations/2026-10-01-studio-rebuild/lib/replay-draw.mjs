@@ -22,7 +22,7 @@ export const SVG_CSS = `
 .rp-sea{fill:var(--rp-sea)}
 .rp-land{fill:var(--rp-land);stroke:var(--rp-landline);stroke-width:1;fill-rule:evenodd}
 .rp-quiet{fill:none;stroke:var(--rp-un);stroke-width:11;stroke-linecap:round;stroke-linejoin:round;opacity:.22}
-.rp-quiet-l{font:600 10.5px var(--rp-mono);fill:var(--rp-un)}
+.rp-quiet-l{font:600 10.5px var(--rp-mono);fill:var(--rp-un);paint-order:stroke;stroke:var(--rp-sea);stroke-width:3px}
 .rp-truth{fill:none;stroke:var(--rp-truth);stroke-width:1.4}
 .rp-nofix{fill:none;stroke:var(--rp-lost);stroke-width:5;stroke-dasharray:2 5;stroke-linecap:round;opacity:.9}
 .rp-rep{fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -91,7 +91,15 @@ export function trackStatic(panel, view, { uid = "p", showTruth = true, showCoas
     const pts = rows.slice(q.i0, q.i1 + 1).map((r) => r.truth || r.rep).filter(Boolean).map((p) => px(p));
     if (pts.length > 1) out.push(`<path class="rp-quiet" d="${pathOf(pts)}"><title>From T+${fmtT(q.t0)} to T+${fmtT(q.t1)} the log lists satellites to the ${esc(q.words)} and hears none of them</title></path>`);
   }
-  quiet.slice(0, 3).forEach((q, k) => out.push(`<text class="rp-quiet-l" x="16" y="${S - 48 - k * 14}">no signal from ${esc(q.words === 'every direction' ? q.words : 'the ' + q.words)}, T+${fmtT(q.t0)} to T+${fmtT(q.t1)} (from the log)</text>`));
+  // The labels (two short lines each) sit in the first corner whose block is clear of the whole track, its start and end markers and the north arrow, so they never cover the vessel's path.
+  const lines = quiet.slice(0, 3).flatMap((q) => [`no signal from ${q.words === "every direction" ? q.words : "the " + q.words}`, `T+${fmtT(q.t0)} to ${fmtT(q.t1)} (from the log)`]);
+  if (lines.length) {
+    const pts = rows.map((r) => r.truth || r.rep).filter(Boolean).map((p) => px(p)), w = Math.max(...lines.map((t) => t.length)) * 6.6 + 12, h = lines.length * 13 + 6;
+    const slots = [{ x: 14, y: 22, anchor: "start" }, { x: 14, y: S - 46 - h, anchor: "start" }, { x: S - 60, y: 90, anchor: "end" }];
+    const free = (c) => { const x0 = c.anchor === "end" ? c.x - w : c.x - 4; return pts.every(([x, y]) => x < x0 - 14 || x > x0 + w + 14 || y < c.y - 14 || y > c.y + h + 14); };
+    const slot = slots.find(free) || slots[0];
+    lines.forEach((t, k) => out.push(`<text class="rp-quiet-l" x="${slot.x}" y="${slot.y + 12 + k * 13}" text-anchor="${slot.anchor}">${esc(t)}</text>`));
+  }
   if (showTruth && panel.hasTruth) out.push(`<path class="rp-truth" d="${pathOf(rows.filter((r) => r.truth).map((r) => px(r.truth)))}"/>`);
   for (const r of bandRuns(panel)) out.push(`<path class="rp-rep rp-fade ${bandClass(r.band)}" stroke-width="${BAND_W[r.band] || 2}" d="${pathOf(r.idx.map((i) => px(rows[i].rep)))}"/>`);
   // no-fix spans on the true track
