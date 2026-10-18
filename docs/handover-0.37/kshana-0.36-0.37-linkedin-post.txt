@@ -1,23 +1,24 @@
-Kshana 0.36 and 0.37 are out: two releases, one goal. Every claim in the engine says how it was checked.
+🛰️ A poor sky is not an attack.
 
-🌙 Lunar reference station. A reproducible study of what a south-pole reference station could deliver: coverage, accuracy, protection levels and the correction-link budget, with terrain masks, a station time lab and geodesy. Its prediction is frozen and pre-registered, with SHA-256 hashes and a scoring protocol fixed in advance. A miss will be published as prominently as a hit.
+Two vessels. Both lose satellites. One is sailing into a fjord, the other is being spoofed. Their receivers report a valid fix the whole time. The scores and timings in the video are real output from Kshana's engine, run live in the browser on kshana.dev, on two synthetic training logs.
 
-🏙️ Geometry-aware trust. Street canyons, harbours, fjords and terminals now come with skyline masks, so a poor sky no longer looks like an attack. Look angles, DOP and the error ellipse are validated against Orekit, gnss_lib_py and numpy.
+▪️ Vessel A sails into a fjord. From T+300 s the cliffs hide the east and west sky. At T+885 s the score reaches its lowest point, 87.5 (degraded), with 6 satellites and HDOP 1.24. Kshana classes the satellite losses as geometry and environment, not as an attack. In 1,201 epochs the vessel is never untrusted.
+▪️ Vessel B is on a coastal passage. From T+420 s a counterfeit signal starts dragging its position towards land, while GPS quality stays 1 and HDOP stays low, so nothing on the bridge alarms. At T+421 s the C/N0 checks fire and the score drops to 53.0 (untrusted). By T+459 s it is 0.0: heading and the speed log disagree with the fix. At T+1110 s the reported position is 1,408 m from the truth.
+▪️ In the masked-sky demo, half the sky is blanked. HDOP rises to 4.49 and Kshana labels it "not an inconsistency" (71.3, degraded). Then a drag-off starts and the score goes to 0.0.
 
-📡 Real data. RTK with integer ambiguity fixing on real RINEX observations, validated at a median error of 4.5 mm, plus float PPP receiver clocks validated against IGS finals and GNSS/INS fusion validated on a public dataset.
+That is the difference between a bad sky and a spoofer, made visible. You can rerun it yourself: same scenario, same seed, same bits.
 
-🛰️ Space segment and interchange. Entry heating, Earth-observation radiometry, attitude control, adaptive coding and contact scheduling, plus CCSDS orbit and attitude messages and SPICE kernels, validated against Orekit and CSPICE.
+What's new since our last post: Kshana 0.36 and 0.37 add geometry-aware receiver trust with skyline masks for street canyons, harbours, fjords and terminals; a lunar south-pole reference-station study; RTK with integer fixing on real observations; and optical PNT through clouds and turbulence. The evidence ledger grew from 132 to 175 capabilities checked against independent external references, out of 364. Every other result is labelled openly as modelled.
 
-☁️ New in 0.37: optical PNT through the atmosphere. Cloud and clear-air extinction, turbulence and fade probability, site diversity and outage holdover for optical ground links. It is labelled Modelled, because it has not yet been compared with a measured link.
+Kshana (क्षण, Sanskrit for "the precise instant") is open source (AGPL-3.0) and runs in your browser at kshana.dev. Nothing to install, nothing uploaded.
 
-The engine gives the same answer to the byte natively and in the browser.
+If you navigate ships, run bridge training or build receivers, open the Trust page, load a log and tell me where the score disagrees with your crew.
 
-175 of 364 capabilities are validated against independent external references. The rest are labelled Modelled, and every one is traceable in a public ledger.
+🔗 Try it: https://kshana.dev
+💻 Code: https://github.com/ashfordeOU/kshana
+🚀 Kshana Pro: https://kshana.dev/editions.html
+📄 Cite: DOI 10.5281/zenodo.20528627
 
-Open source (AGPL-3.0). It runs in your browser at https://kshana.dev, with no install needed. It installs with cargo, pip, npm, brew or scoop, as an MCP server for AI assistants, or as a JetBrains plugin. Source: https://github.com/ashfordeOU/kshana
+Synthetic training logs. Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
 
-Everything in the video is the real engine running on kshana.dev. Nothing is mocked up.
-
-Advisory software for studies and training. It is not type-approved navigation equipment or a certified receiver, and nothing in it transmits.
-
-#GNSS #PNT #ResilientPNT #LunarNavigation #SpaceTech #OpticalCommunications #GNSSjamming #OpenSource #Rust
+#GNSS #PNT #ResilientPNT #GNSSspoofing #GNSSjamming #MaritimeSafety #Cybersecurity #OpenSource
