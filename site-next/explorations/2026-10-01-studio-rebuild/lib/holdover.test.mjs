@@ -64,7 +64,7 @@ test("the time-error chart marks the phases, the operator's two times, the mask 
     const m = readHoldover(withSeries(sc.id).doc).model, svg = teSvg(m, seriesFor(m).series);
     for (const p of ["Baseline: locked", "Holdover: GNSS removed", "Recovery: GNSS restored"]) assert.ok(svg.includes(p), p);
     assert.match(svg, /GNSS removed \(stated by the operator\)/); assert.match(svg, /GNSS restored \(stated by the operator\)/);
-    assert.match(svg, /prtc-a ±100 ns/); assert.match(svg, /class="ho-line"/); assert.match(svg, /Recovery band ±100 ns/);
+    assert.match(svg, /±100 ns baseline mask/); assert.match(svg, /class="ho-line"/); assert.match(svg, /Recovery band ±100 ns/);
     assert.match(svg, /ePRTC-A holdover envelope first exceeded/);
   }
   });
