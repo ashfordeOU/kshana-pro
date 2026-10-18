@@ -180,7 +180,7 @@ export function readoutOf(panel, st) {
 
 // ---------- one frame of both panels, as a standalone SVG (the export and the animation) ----------
 
-const GAP = 24, HEAD = 56, SKY = 168, READ = 128;
+const GAP = 24, HEAD = 78, SKY = 140, READ = 150;
 export const FRAME_W = TRACK * 2 + GAP;
 const panelH = (hasStrip) => TRACK + (hasStrip ? STRIP_H + 8 : 0) + READ;
 export const FRAME_H = HEAD + panelH(true);
@@ -192,13 +192,13 @@ export function frameStatic(panels, views, tMax, opts = {}) {
 
 // One frame's changing parts at mission time t: the clock, then each panel's vessel, strip cursor, sky and readout.
 export function frameDynamic(panels, views, tMax, t, opts = {}) {
-  const out = [`<text class="rp-big" x="${FRAME_W / 2}" y="26" text-anchor="middle">T+${fmtT(t)}</text><text class="rp-ill" x="${FRAME_W / 2}" y="42" text-anchor="middle">one mission clock, both runs</text>`];
+  const out = [`<text class="rp-big" x="${FRAME_W / 2}" y="24" text-anchor="middle">T+${fmtT(t)}</text><text class="rp-ill" x="${FRAME_W - 2}" y="12" text-anchor="end">one mission clock, both runs</text>`];
   panels.forEach((p, k) => {
     const st = stateAt(p, t), ro = readoutOf(p, st), y0 = TRACK + 8 + STRIP_H + 8;
     out.push(`<g transform="translate(${k * (TRACK + GAP)} ${HEAD})">${trackDynamic(p, views[k], st, opts)}<g transform="translate(0 ${TRACK + 8})">${stripDynamic(p, TRACK, tMax, st)}</g>`);
     out.push(`<g transform="translate(0 ${y0})"><text class="rp-big" x="0" y="26">${ro.score == null ? "–" : ro.score}</text><text class="rp-tb" x="64" y="12">${esc(ro.band || "not scored")}${ro.ended ? " · run ended" : ""}</text><text class="rp-t" x="64" y="28">${esc(ro.fix)} · error ${esc(ro.err)}</text>`);
     out.push(`<text class="rp-t" x="0" y="52">heading (gyro) ${esc(ro.hdg)} · reported course ${esc(ro.cog)}</text><text class="rp-t" x="0" y="68">${esc(ro.sky)}</text>`);
-    if (st.sky) out.push(`<g transform="translate(${TRACK - SKY} ${-12}) scale(${SKY / 240})">${skyMarkup(st.sky, { size: 240, labels: false })}</g>`);
+    if (st.sky) out.push(`<g transform="translate(${TRACK - SKY} ${-4}) scale(${SKY / 240})">${skyMarkup(st.sky, { size: 240, labels: false })}</g>`);
     out.push("</g></g>");
   });
   return out.join("");
@@ -210,5 +210,5 @@ export function frameSvg(panels, views, tMax, t, opts = {}) {
 }
 export function svgDoc(panels, body, extra = "") {
   const title = `Bridge replay: ${panels.map((p) => p.title).join(" and ")}`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${FRAME_W} ${FRAME_H}" width="${FRAME_W}" height="${FRAME_H}" role="img" aria-labelledby="rp-title rp-desc"><title id="rp-title">${esc(title)}</title><desc id="rp-desc">${esc(panels.map((p) => `${p.title}: ${p.verdict.text}`).join(" "))} Synthetic data, advisory only; the coast is illustration. Kshana is not type-approved navigation equipment.</desc><style>${THEME_CSS}${SVG_CSS}</style><rect class="rp-card" width="${FRAME_W}" height="${FRAME_H}"/>${body}<text class="rp-ill" x="0" y="${FRAME_H - 6}">Synthetic data. Advisory only: Kshana is not type-approved navigation equipment (IEC 61108, IEC 61162). The coast is illustration.</text>${extra}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${FRAME_W} ${FRAME_H}" width="${FRAME_W}" height="${FRAME_H}" role="img" aria-labelledby="rp-title rp-desc"><title id="rp-title">${esc(title)}</title><desc id="rp-desc">${esc(panels.map((p) => `${p.title}: ${p.verdict.text}`).join(" "))} Synthetic data, advisory only; the coast is illustration. Kshana is not type-approved navigation equipment.</desc><style>${THEME_CSS}${SVG_CSS}</style><rect class="rp-card" width="${FRAME_W}" height="${FRAME_H}"/>${body}<text class="rp-tb" x="0" y="14">Kshana Studio · Bridge replay</text><text class="rp-ill" x="0" y="${FRAME_H - 6}">Synthetic data. Advisory only: Kshana is not type-approved navigation equipment (IEC 61108, IEC 61162). The coast is illustration.</text>${extra}</svg>`;
 }

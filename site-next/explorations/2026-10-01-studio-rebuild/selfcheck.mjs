@@ -50,7 +50,7 @@ try {
 
 // 3. external hosts
 const allowed = /^(cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com|kshana\.dev|www\.w3\.org|github\.com)$/;
-const own = ["index.html", "app.js", "app.css", "studio.css", "lib/catalog.mjs", "lib/params.mjs", "lib/views.mjs", "lib/kinds.mjs", "lib/stages.mjs", "lib/meaning.mjs", "lib/inputs.mjs", "lib/urlstate.mjs", "lib/areas.mjs", "lib/abbr.mjs", "tools_areas.mjs", "data/areas.json", "advanced/index.html", "advanced.js", "advanced/dash.css", "advanced/advanced.css", "lib/meaning-kinds.mjs", "geometry/index.html", "geometry/geometry.js", "geometry/geometry.css", "lunar/index.html", "lunar/lunar.js", "lunar/lunar.css", "lib/lunar-station.mjs", "lib/geometry-url.mjs", "lib/skyline-edit.mjs", "lib/skyplot.mjs", "lib/geometry-adapter.mjs"];
+const own = ["index.html", "app.js", "app.css", "studio.css", "lib/catalog.mjs", "lib/params.mjs", "lib/views.mjs", "lib/kinds.mjs", "lib/stages.mjs", "lib/meaning.mjs", "lib/inputs.mjs", "lib/urlstate.mjs", "lib/areas.mjs", "lib/abbr.mjs", "tools_areas.mjs", "data/areas.json", "advanced/index.html", "advanced.js", "advanced/dash.css", "advanced/advanced.css", "lib/meaning-kinds.mjs", "geometry/index.html", "geometry/geometry.js", "geometry/geometry.css", "lunar/index.html", "lunar/lunar.js", "lunar/lunar.css", "lib/lunar-station.mjs", "lib/geometry-url.mjs", "lib/skyline-edit.mjs", "lib/skyplot.mjs", "lib/geometry-adapter.mjs", "lib/gsv.mjs", "lib/skydraw.mjs", "lib/skypage.mjs", "lib/replay.mjs", "lib/replay-demos.mjs", "lib/replay-draw.mjs", "lib/replay-export.mjs", "lib/optical.mjs", "replay/index.html", "replay/replay.js", "replay/replay.css", "optical/index.html", "optical/optical.js", "optical/optical.css", "training/training.js", "trust/trust.js"];
 for (const f of own) for (const m of read(f).matchAll(/https?:\/\/([a-z0-9.-]+)/gi)) ok(allowed.test(m[1]), `${f}: unexpected host ${m[1]}`);
 ok(/three@0\.160\.0/.test(read("index.html")), "Three.js is pinned to 0.160.0");
 // The Geometry view takes no remote data: its script and modules make no request of their own (the engine is
@@ -67,6 +67,24 @@ for (const f of ["geometry/geometry.js", "lib/geometry-url.mjs", "lib/skyline-ed
   ok(html.includes('<base href="../">') && /<b>MODELLED\.<\/b> <b>Under the stated public assumptions, not a statement about the performance of any real system\.<\/b> <b>Not affiliated with or endorsed by any agency\.<\/b>/.test(html), "lunar/index.html resolves from the Studio folder and carries the honesty block");
 }
 ok(read("geometry/index.html").includes('<base href="../">') && read("geometry/index.html").includes("Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.") && /representative sky, not the sky of that date/i.test(read("geometry/index.html")), "geometry/index.html resolves from the Studio folder and carries the advisory statement and the representative-sky notice");
+
+// The Bridge replay and the Optical PNT page (0.38): the libraries make no request; the pages fetch only this
+// folder's own bundled files by relative path (never an absolute address); both resolve from the Studio folder and carry
+// the advisory statement and the MODELLED / synthetic labels; the replay's sky comes from the log's own GSV.
+for (const f of ["lib/gsv.mjs", "lib/skydraw.mjs", "lib/skypage.mjs", "lib/replay.mjs", "lib/replay-demos.mjs", "lib/replay-draw.mjs", "lib/replay-export.mjs", "lib/optical.mjs"]) ok(!/\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource|sendBeacon|import\s*\(/.test(read(f)), `${f}: makes no request`);
+for (const f of ["replay/replay.js", "optical/optical.js"]) {
+  const js = read(f);
+  ok([...js.matchAll(/\bfetch\s*\(([^)]*)\)/g)].every((m) => !/https?:|\/\//.test(m[1])) && !/XMLHttpRequest|WebSocket|EventSource|sendBeacon/.test(js), `${f}: fetches only relative, bundled files`);
+}
+for (const f of ["replay/index.html", "optical/index.html"]) ok(read(f).includes('<base href="../">') && /not type-approved navigation equipment/.test(read(f)) && /Advisory software/.test(read(f)), `${f} resolves from the Studio folder and carries the advisory statement`);
+ok(/MODELLED/.test(read("optical/index.html")) && /ILLUSTRATIVE/.test(read("optical/index.html")) && /Model output/.test(read("lib/optical.mjs") + read("optical/optical.js")), "optical page labels its output MODELLED, model output, with ILLUSTRATIVE sites");
+ok(/synthetic/i.test(read("replay/index.html")) && /illustration only/i.test(read("replay/index.html")), "replay page says synthetic and illustration only");
+{
+  // the bundled coastline: its manifest pins the source and the licence, and the file matches the manifest's windows
+  const man = JSON.parse(read("replay/data/coast.manifest.json")), doc = JSON.parse(read("replay/data/coast.json"));
+  ok(/^[0-9a-f]{64}$/.test(man.sha256) && /public domain/i.test(man.licence) && man.windows.length === doc.regions.length, "replay/data/coast.manifest.json pins the source and the licence");
+  ok(doc.regions.every((r, i) => man.windows[i].id === r.id && man.windows[i].rings === r.rings.length), "coast.json matches its manifest");
+}
 
 // 4. names and pricing
 for (const f of [...own, "PARITY.md", "tokens.css"]) {

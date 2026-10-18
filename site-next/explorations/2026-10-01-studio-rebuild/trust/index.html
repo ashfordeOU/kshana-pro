@@ -117,6 +117,13 @@
         <p class="mt-offset" id="mt-offset" aria-live="off"></p>
       </section>
 
+      <section class="card mt-sky" aria-labelledby="mt-sky-h">
+        <div class="card-head"><h3 id="mt-sky-h">Sky at the cursor</h3>
+          <p class="card-note">The satellites the log's own GSV lists. A filled marker has a signal strength; a hollow one is listed with none; a shaded sector is where the log lists satellites and hears none of them (a blocked sky and a jammed signal look the same here). Nominal constellation, not an ephemeris for the log's date.</p></div>
+        <div class="mt-skybox"><svg id="mt-sky-svg" viewBox="0 0 240 240" role="img" aria-labelledby="mt-sky-h mt-sky-cap"></svg></div>
+        <p class="mt-offset" id="mt-sky-cap" aria-live="off"></p>
+      </section>
+
       <section class="card mt-time" aria-labelledby="mt-time-h">
         <div class="card-head"><h3 id="mt-time-h">Score over time</h3>
           <p class="card-note">Score 0 to 100. Dashed lines are the band edges; the strips underneath are the band and the gate. Drag or click to move the time cursor; the arrow keys step it.</p></div>

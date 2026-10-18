@@ -8,6 +8,10 @@ import {
 
 import { geometryAt, countGeometry, statusKey, classKey, geometryUnder, CLASS_TEXT, UNKNOWN_TEXT } from "../lib/trust-geometry.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
+import { parseAux, epochAt } from "../lib/gsv.mjs";
+import { skyMarkup, skyDescribe } from "../lib/skydraw.mjs";
+import { ensureSkyCss } from "../lib/skypage.mjs";
+import { vesselPath, rayEnd, ringPx } from "../lib/replay.mjs";
 import { parseSvgMarkup, sanitizeSvg } from "../lib/svgsafe.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -37,6 +41,7 @@ const f1 = (x) => (Math.round(x * 10) / 10).toString();
 let run = null, cur = 0, playing = false, raf = 0, lastTs = 0, frac = 0;
 let onlyBad = false, showTruth = true, hlMonitor = null, hlSet = new Set();
 let X = null; // timeline x mapping
+let aux = null; // the NMEA log's own sky and heading (lib/gsv.mjs), when the log is at hand
 const dyn = {}; // elements updated on cursor moves
 
 // ---------- opening files ----------
@@ -49,6 +54,7 @@ async function openTexts(items, label, opts = {}) {
   let current = items.length ? items[0].name : "file";
   try {
     const inputs = { demo: opts.demo === true };
+    let auxHere = opts.aux || null;
     const got = [];
     for (const it of items) {
       current = it.name;
@@ -57,13 +63,14 @@ async function openTexts(items, label, opts = {}) {
       if (kind === "result") inputs.result = JSON.parse(it.text);
       else if (kind === "lines") { const p = parseLines(it.text); inputs.lines = p.epochs; if (p.skipped) got.push(`${p.skipped} line(s) of ${it.name} were not epochs and were skipped`); }
       else if (kind === "csv") inputs.csv = parseTrustCsv(it.text);
-      else if (kind === "nmea") inputs.nmea = parseNmeaFixes(it.text);
+      else if (kind === "nmea") { inputs.nmea = parseNmeaFixes(it.text); auxHere = parseAux(it.text, { stepS: it.text.length > 2e6 ? 5 : 1 }); }
       else if (kind === "truth") inputs.truth = parseTruth(it.text);
       else { setStatus(`${it.name}: not a file this view reads (a result JSON, JSON lines, trust.csv, an NMEA log or a truth file).`, true); return; }
       got.push(`${it.name}: ${{ result: "batch result", lines: "JSON lines", csv: "trust.csv", nmea: "NMEA log", truth: "truth file" }[kind]}`);
     }
     const r = buildRun(inputs);
     if (r.error) { setStatus(r.error, true); setNotes(got); return; }
+    aux = auxHere;
     openRun(r.run);
     setStatus(label || `Opened ${run.epochs.length} epochs (${run.source === "result" ? "batch result" : run.source === "lines" ? "JSON lines" : "trust.csv"}).`);
     setNotes([...got, ...run.notes]);
@@ -175,6 +182,9 @@ async function genFile(f) {
   await genRun(await f.text(), f.name, null);
 }
 
+// The sky and heading recorded for a demo (replay/data, from the demo log's own GSV and HDT); null if it does not load.
+async function auxFile(id) { try { const r = await fetch(`replay/data/${id}.aux.json`); return r.ok ? await r.json() : null; } catch (e) { return null; } }
+
 async function openDemo() {
   setStatus("Opening the synthetic demo…");
   try {
@@ -182,7 +192,7 @@ async function openDemo() {
     if (!a.ok || !b.ok) throw new Error("the demo files did not load");
     const ra = await a.text(), tb = await b.text();
     await openTexts([{ name: "tallinn-helsinki.result.json", text: ra }, { name: "tallinn-helsinki.truth.csv", text: tb }],
-      "Synthetic demo: a made-up ferry log with a made-up position drag-off, scored by Kshana. Recorded from the engine; the log is text, not a measurement.", { demo: true });
+      "Synthetic demo: a made-up ferry log with a made-up position drag-off, scored by Kshana. Recorded from the engine; the log is text, not a measurement.", { demo: true, aux: await auxFile("tallinn-helsinki") });
   } catch (e) { setStatus(`The demo could not be opened: ${e.message}.`, true); }
 }
 
@@ -192,14 +202,14 @@ async function openGeoDemo() {
     const [a, b] = await Promise.all([fetch("trust/demo/masked-sky.result.json"), fetch("trust/demo/tallinn-helsinki.truth.csv")]);
     if (!a.ok || !b.ok) throw new Error("the demo files did not load");
     await openTexts([{ name: "masked-sky.result.json", text: await a.text() }, { name: "tallinn-helsinki.truth.csv", text: await b.text() }],
-      "Synthetic masked-sky demo: the ferry log with the western half of the sky blanked from 600 s (natural degradation, put down to geometry) and the same made-up drag-off from 1500 s (attack-like). Recorded from an engine with the 0.36 geometry; text, not a measurement.", { demo: true });
+      "Synthetic masked-sky demo: the ferry log with the western half of the sky blanked from 600 s (natural degradation, put down to geometry) and the same made-up drag-off from 1500 s (attack-like). Recorded from an engine with the 0.36 geometry; text, not a measurement.", { demo: true, aux: await auxFile("masked-sky") });
   } catch (e) { setStatus(`The demo could not be opened: ${e.message}.`, true); }
 }
 
 // ---------- drawing ----------
 
 function openRun(r) {
-  stop();
+  stop(); ensureSkyCss();
   run = r; cur = Math.max(0, r.firstUntrusted >= 0 ? 0 : 0); hlMonitor = null; hlSet = new Set();
   $("mt-run").hidden = false;
   const n = run.epochs.length;
@@ -257,7 +267,10 @@ function drawTrack() {
   dyn.linkL = sv("line", { stroke: "var(--ink)", "stroke-width": 1.2, "stroke-dasharray": "3 2" });
   dyn.repDot = sv("circle", { r: 7, fill: "none", stroke: "var(--tim)", "stroke-width": 2.5 });
   dyn.truDot = sv("circle", { r: 5, fill: "var(--bg)", stroke: "var(--ink)", "stroke-width": 1.8 });
-  dyn.cursorG.append(dyn.linkL, dyn.truDot, dyn.repDot);
+  dyn.ring = sv("circle", { class: "mt-ring", r: 0 });
+  dyn.glyph = sv("path", { class: "mt-glyph" });
+  dyn.hdgRay = sv("line", { class: "mt-hdg" });
+  dyn.cursorG.append(dyn.ring, dyn.linkL, dyn.truDot, dyn.repDot, dyn.hdgRay, dyn.glyph);
   svg.append(dyn.cursorG);
   const nOver = run.epochs.filter((e) => e.state === "untrusted").length;
   $("mt-track-desc").textContent = `Track of ${withPos.length} reported positions, north up. ${nOver} epochs are untrusted.${run.hasTruth ? " A thin grey line shows the true track." : ""}`;
@@ -549,6 +562,32 @@ function drawGeometryNow() {
 
 // ---------- the cursor ----------
 
+// The vessel glyph along the gyro heading (HDT, from the NMEA log), with the error ring to scale; drawn at the true position
+// when the run has one, else at the reported one. No heading, no glyph.
+function drawVessel(e) {
+  if (!dyn.px || !dyn.glyph) return;
+  const k = aux ? epochAt(e.t_s, aux.t) : -1, hdg = k >= 0 ? aux.hdt[k] : null, at = e.truth && showTruth ? e.truth : e.pos;
+  const show = at && hdg != null;
+  dyn.glyph.style.display = dyn.hdgRay.style.display = show ? "" : "none";
+  if (show) {
+    const [x, y] = dyn.px(at), [x2, y2] = rayEnd(x, y, hdg, 36);
+    dyn.glyph.setAttribute("d", vesselPath(x, y, hdg, 22));
+    dyn.hdgRay.setAttribute("x1", x); dyn.hdgRay.setAttribute("y1", y); dyn.hdgRay.setAttribute("x2", x2); dyn.hdgRay.setAttribute("y2", y2);
+  }
+  const ring = e.offsetM != null && e.truth && showTruth ? ringPx(e.offsetM, { k: dyn.k }) : null;
+  dyn.ring.style.display = ring && !ring.tiny ? "" : "none";
+  if (ring && !ring.tiny) { const [x, y] = dyn.px(e.truth); dyn.ring.setAttribute("cx", x); dyn.ring.setAttribute("cy", y); dyn.ring.setAttribute("r", ring.r); }
+}
+// The sky of the log at the cursor: its own GSV satellites (a hollow marker has no signal, a shaded sector is heard by none).
+function drawSky(e) {
+  const svg = $("mt-sky-svg"), cap = $("mt-sky-cap");
+  if (!svg) return;
+  const k = aux ? epochAt(e.t_s, aux.t) : -1;
+  if (k < 0) { svg.replaceChildren(); svg.innerHTML = '<text x="120" y="124" text-anchor="middle" class="sk-lbl">no GSV</text>'; cap.textContent = "No sky: open the NMEA log with the run (or a demo) to see the satellites it lists."; return; }
+  svg.innerHTML = skyMarkup(aux.sky[k], { size: 240, labels: true });
+  cap.textContent = skyDescribe(aux.sky[k]);
+}
+
 function setCursor(i, quiet) {
   if (!run) return;
   cur = Math.max(0, Math.min(run.epochs.length - 1, i));
@@ -575,6 +614,8 @@ function setCursor(i, quiet) {
       } else { dyn.truDot.style.display = "none"; dyn.linkL.style.display = "none"; }
     } else { dyn.repDot.style.display = "none"; dyn.truDot.style.display = "none"; dyn.linkL.style.display = "none"; }
   }
+  drawVessel(e);
+  drawSky(e);
   const off = $("mt-offset");
   if (e.offsetM != null && showTruth) off.textContent = `At ${fmtT(e.t_s)} the receiver-reported position is ${e.offsetM < 10 ? e.offsetM.toFixed(1) : Math.round(e.offsetM)} m from where the vessel really was (synthetic truth).`;
   else off.textContent = run.hasTruth && showTruth ? "No true position at this time." : "";

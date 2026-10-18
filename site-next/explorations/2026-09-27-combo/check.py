@@ -727,6 +727,19 @@ def run_checks(override=None):
                 if "{{" not in c: used.setdefault(c, p)
     bad = sorted((c, p) for c, p in used.items() if c not in sel and c not in CLASS_HOOKS and not c.startswith(HOOK_PREFIXES))
     if bad: fails.append(("27 every class has a rule", [f"{c} ({p})" for c, p in bad[:20]] + ([f"... {len(bad) - 20} more"] if len(bad) > 20 else [])))
+    # 28 no hand-typed scenario count -----------------------------------------------------------------
+    # "160 bundled scenarios" was typed by hand once and went stale when the library grew (0.37 shipped 160, a
+    # later tree has more). The count in a page is {{FILES}}, {{ALLFILES}} or {{KINDS}}, written by build.py from the
+    # engine checkout; a literal number in front of "bundled scenario(s)" or "scenario files" in a source page is a bug.
+    bad = []
+    for root, _, names in os.walk(os.path.join(HERE, "src")):
+        if os.sep + "data" in root or os.sep + "runs" in root: continue
+        for n in names:
+            if not n.endswith((".html", ".mjs", ".js", ".py")) or n.endswith(("-runs.mjs", "-data.mjs")): continue
+            p_ = os.path.join(root, n)
+            for m in re.finditer(r"\b(\d{2,3})\s+(?:bundled\s+scenarios?|(?:bundled\s+)?scenario\s+files|built-in\s+scenarios?)", open(p_, encoding="utf-8", errors="replace").read()):
+                bad.append(f"{os.path.relpath(p_, HERE)}: {m.group(0)!r}")
+    if bad: fails.append(("28 no hand-typed scenario count", bad[:12]))
     # 26 crawlable text ------------------------------------------------------------------------------
     # The sections a page script draws carry the same key text in <noscript>, from the same data; the
     # Studio carries a description and a link to every scenario it runs.
