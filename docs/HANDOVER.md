@@ -48,6 +48,8 @@
 
 **18:20 UTC 18 Oct:** owner deleted kshana integ/0.37.0 and feat/optical-atmosphere-0.37-clean (kshana = main only) and the kshana-pro site/* branches (all contained in port/0.37.0). Open: Zenodo 0.37 notes paste (owner); winget PRs #450973 (0.35), #454869 (0.36) and #455326 (0.37) with Microsoft; W52 archive on the owner word.
 
+**18:25 UTC 18 Oct:** W52 archived (owner "yes archive W52"). Sessions in use: the coordinator and Founder Q&A (2 of 8). Nothing in flight. Open for the owner: the Zenodo 0.37 notes paste; the winget PRs (Microsoft). Next coordinator (if any) is the last in this lineage (depth 8 of 8): it starts fresh from this file.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
