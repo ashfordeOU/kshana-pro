@@ -44,6 +44,8 @@
 
 **11:09 UTC 18 Oct: v0.37.0 TAGGED** by the owner on c0c77700 (main = c0c77700; #83 closed as merged). Release run 39122071433 started. Next: watch to parity and site; post-release: Zenodo notes, branch cleanup list (integ/0.37.0, feat/optical-atmosphere-0.37-clean; kshana-pro site/studio-0.37 -> port/0.37.0?), handover.
 
+**14:35 UTC 18 Oct: 0.37.0 RELEASED.** Release run 39122071433 fully green (channel parity OK); crates.io, PyPI and npm serve 0.37.0; kshana.dev shows 0.37.0 (364 rows, "New in v0.37.0"). Zenodo record https://zenodo.org/records/23451589 has empty notes; text in docs/handover-0.37/kshana-0.37-zenodo-notes.txt for the owner to paste. winget PR microsoft/winget-pkgs#455326 opened by the release. kshana-pro port/0.37.0 created (= site/studio-0.37 @ 40ea3cf). Branches merged and deletable (owner): kshana integ/0.37.0 and feat/optical-atmosphere-0.37-clean; kshana-pro site/studio-0.37, site/studio-backlog-0.36, site/geometry-0.36, site/observatory-sweep, site/studio-0.35. W52 is idle; archive on the owner word.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
