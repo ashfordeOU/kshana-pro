@@ -1,0 +1,23 @@
+Kshana 0.36 and 0.37 are out: two releases, one goal. Every claim in the engine says how it was checked.
+
+🌙 Lunar reference station. A reproducible study of what a south-pole reference station could deliver: coverage, accuracy, protection levels and the correction-link budget, with terrain masks, a station time lab and geodesy. Its prediction is frozen and pre-registered, with SHA-256 hashes and a scoring protocol fixed in advance. A miss will be published as prominently as a hit.
+
+🏙️ Geometry-aware trust. Street canyons, harbours, fjords and terminals now come with skyline masks, so a poor sky no longer looks like an attack. Look angles, DOP and the error ellipse are validated against Orekit, gnss_lib_py and numpy.
+
+📡 Real data. RTK with integer ambiguity fixing on real RINEX observations, validated at a median error of 4.5 mm, plus float PPP receiver clocks validated against IGS finals and GNSS/INS fusion validated on a public dataset.
+
+🛰️ Space segment and interchange. Entry heating, Earth-observation radiometry, attitude control, adaptive coding and contact scheduling, plus CCSDS orbit and attitude messages and SPICE kernels, validated against Orekit and CSPICE.
+
+☁️ New in 0.37: optical PNT through the atmosphere. Cloud and clear-air extinction, turbulence and fade probability, site diversity and outage holdover for optical ground links. It is labelled Modelled, because it has not yet been compared with a measured link.
+
+The engine gives the same answer to the byte natively and in the browser.
+
+175 of 364 capabilities are validated against independent external references. The rest are labelled Modelled, and every one is traceable in a public ledger.
+
+Open source (AGPL-3.0). It runs in your browser at https://kshana.dev, with no install needed. It installs with cargo, pip, npm, brew or scoop, as an MCP server for AI assistants, or as a JetBrains plugin. Source: https://github.com/ashfordeOU/kshana
+
+Everything in the video is the real engine running on kshana.dev. Nothing is mocked up.
+
+Advisory software for studies and training. It is not type-approved navigation equipment or a certified receiver, and nothing in it transmits.
+
+#GNSS #PNT #ResilientPNT #LunarNavigation #SpaceTech #OpticalCommunications #GNSSjamming #OpenSource #Rust
