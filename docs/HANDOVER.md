@@ -38,6 +38,8 @@
 
 **21:40 UTC 17 Oct:** W52 definition-of-done table: A3, A5, A6, A10 and A12 done, A8 N/A, A7/A9 at the bump; D text prepared in kshana docs/design/0.37-release-text.md. Integration handed to W52: integ/0.37.0 from main + feat branch; ONE release commit (bump, CHANGELOG, README, CITATION, RELEASING line); regenerate counts; 0.37 wasm + Studio re-record + check_features + social card + port_site from site/studio-0.37; full local suite; push integ/0.37.0. Then the coordinator opens the CI-only draft PR. ETA for the tag ~19 Oct.
 
+**06:50 UTC 18 Oct:** W52 finished the integration: integ/0.37.0 @ 8c8b1342 (32 commits, all Ashforde OÜ; full local suite 5311 passed, 0 failed; all gates OK; site ported (508 files), Studio re-recorded at one engine commit, A7 met; pins re-blessed in docs/revisions/STUDIO15-pins-0.37.0-version.md). CI-only draft PR #83 (integ/0.37.0 -> main) opened and subscribed; CI started ~06:50, ETA ~11:00–13:00 UTC. When green: owner pushes 8c8b1342 to main + tag v0.37.0.
+
 Written: 2026-10-16 ~13:35 UTC by coordinator `session_011RqoYRajgEEr3gDaV6hhHj` ("successor 6"; took over 15 Oct 15:36 UTC from successor 5 session_01DfFzhRx22yokqTTCMRWmuU). Handing over at the ~40 % context threshold.
 Repo of record: kshana-pro, branch `ws/coordination`. Replace this file at each handover; never append.
 PENDING owner answer 2: may W52 use ITU-R published validation numbers as test values (licence call)? Until answered they stay out of the repo. W52 design note accepted (feat/optical-atmosphere-0.37 @ bb08f07f).
