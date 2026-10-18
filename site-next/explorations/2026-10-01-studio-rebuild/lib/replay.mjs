@@ -178,7 +178,11 @@ const eastNorth = (lat0, lon0, lat, lon) => [((lon - lon0) * Math.PI / 180) * R_
 // else the world file the Studio already carries (data/land.json, coarse) when it reaches the track. Returns
 // { rings: [[[lon, lat], ...]], source, box } or null. Land from here is orientation only.
 export function coastFor(panel, coast, world = []) {
+  const start = panel.rows.map((r) => r.truth || r.rep).find(Boolean);
   const reg = coast && coast.regions ? coast.regions.find((r) => r.demos.includes(panel.id)) : null;
+  // A track that starts on land at this scale (an invented position inside a narrow fjord, say) is not drawn over a
+  // coast that would put the vessel ashore: the map would say something the data does not.
+  if (reg && start && pointInLand(reg.rings, start[1], start[0])) return null;
   if (reg) return { rings: reg.rings, source: `Natural Earth 1:10 million, ${reg.name} window`, box: reg.box, scale: "1:10m" };
   const pts = panel.rows.flatMap((r) => [r.truth, r.rep]).filter(Boolean);
   if (!pts.length || !world.length) return null;
@@ -187,6 +191,18 @@ export function coastFor(panel, coast, world = []) {
   const m = 1; // degrees of margin
   const rings = world.filter((ring) => ring.some(([lo, la]) => lo >= lo0 - m && lo <= lo1 + m && la >= la0 - m && la <= la1 + m));
   return rings.length ? { rings, source: "Natural Earth 1:110 million (the Studio's world outline), coarse", box: [la0 - m, la1 + m, lo0 - m, lo1 + m], scale: "1:110m" } : null;
+}
+
+// Whether (lon, lat) is inside land: the even-odd rule over every ring.
+export function pointInLand(rings, lon, lat) {
+  let inside = false;
+  for (const ring of rings) {
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i], [xj, yj] = ring[j];
+      if (yi > lat !== yj > lat && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+  }
+  return inside;
 }
 
 // A view of a panel's tracks in a `size` square: one scale on both axes, north up. With `rings`, the view

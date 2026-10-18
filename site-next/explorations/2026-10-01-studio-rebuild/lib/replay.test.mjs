@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { makeClock, advance, play, pause, seek, stepBy, stepMark, setSpeed, SPEEDS, stateAt, makeView, vesselPath, ringPx, rayEnd, coastFor, fmtT, fmtDur, marksOf } from "./replay.mjs";
+import { makeClock, advance, play, pause, seek, stepBy, stepMark, setSpeed, SPEEDS, stateAt, makeView, vesselPath, ringPx, rayEnd, coastFor, pointInLand, fmtT, fmtDur, marksOf } from "./replay.mjs";
 import { loadDemo, DEMO_LIST, DEFAULT_PAIR } from "./replay-demos.mjs";
 
 const here = new URL("../", import.meta.url).pathname;
@@ -85,6 +85,8 @@ test("the coastline is bundled for every demo's window; windows with no land say
   const dover = coastFor(panels["coastal-drag-off"], coast, world);
   assert.ok(dover.rings.length >= 1 && dover.scale === "1:10m");
   assert.ok(coastFor(panels["tallinn-helsinki"], coast, world).rings.length >= 2);
+  assert.equal(coastFor(panels["fjord-natural-degradation"], coast, world), null, "the fjord demo starts on land at 1:10m, so no coast is drawn under it");
+  assert.equal(pointInLand([[[0, 0], [10, 0], [10, 10], [0, 10]]], 5, 5), true); assert.equal(pointInLand([[[0, 0], [10, 0], [10, 10], [0, 10]]], 15, 5), false);
   assert.equal(coastFor(panels["open-sea-jamming"], coast, world).rings.length, 0);
   assert.equal(coastFor({ id: "elsewhere", rows: [{ truth: [-20, 60], rep: null }] }, coast, world), null, "no land near a track in the South Pacific");
 });
