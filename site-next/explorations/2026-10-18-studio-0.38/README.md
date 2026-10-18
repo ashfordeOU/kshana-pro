@@ -28,3 +28,7 @@ All data on these pages is synthetic or recorded engine output; the coast is Nat
 ## Site: Benchmark page stub
 
 `site-benchmark-stub-*` is the new `/benchmark` site page in its "no results published yet" state (built in a scratch copy against engine 96a59e44 with the data-staleness gates skipped; `check.py` passes on that build, rules 27 and 28 included). When the engine checkout carries `bench/site/leaderboard.html` (a fragment: no html/head/body/script) `build.py` embeds it in the board section; a whole document or a script stops the build.
+
+## Holdover test view (W55's `holdover-test` kind)
+
+`holdover-example-*` and `holdover-ptp4l-*` are the new `/studio/holdover/` view of the two bundled `holdover-test` scenarios, recorded with the native engine from kshana `feat/timing-standards-0.38` at a396a84c (interim; the release re-record replaces them). The time-error curve is the operator's record re-read from the scenario text and drawn only because its sample count, length and interval equal the engine's `record` block; the test also checks that its largest sample equals the largest the engine scored. Everything else is the engine's result. Words: "measured against the mask"; MODELLED.
