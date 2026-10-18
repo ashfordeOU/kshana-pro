@@ -5,7 +5,7 @@
     "Ashforde OÜ <contact@ashforde.org>"
   ],
   "description": "Open, reproducible PNT-resilience simulator with quantum-sensor performance models",
-  "version": "0.36.0",
+  "version": "0.37.0",
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",

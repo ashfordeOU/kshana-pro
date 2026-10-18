@@ -1397,6 +1397,54 @@
   "exports": []
  },
  {
+  "file": "optical-atmosphere-network.toml",
+  "name": "optical-atmosphere-network",
+  "title": "Optical link through the atmosphere, three sites",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "optical-atmosphere",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=optical-atmosphere-network&tab=overview",
+   "report": "index.html?scenario=optical-atmosphere-network&tab=report",
+   "exports": "index.html?scenario=optical-atmosphere-network&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "optical-atmosphere-techniques.toml",
+  "name": "optical-atmosphere-techniques",
+  "title": "Optical link techniques",
+  "domain": "Clocks & timing",
+  "group": "bundled",
+  "kind": "optical-atmosphere",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=optical-atmosphere-techniques&tab=overview",
+   "report": "index.html?scenario=optical-atmosphere-techniques&tab=report",
+   "exports": "index.html?scenario=optical-atmosphere-techniques&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
   "file": "telecom-synce-eec.toml",
   "name": "telecom-synce-eec",
   "title": "Frequency sync against SyncE masks",

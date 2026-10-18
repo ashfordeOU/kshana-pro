@@ -450,6 +450,17 @@ function timeTransferBudget(r) {
   return { big: `The two-way offset is ${f(r.terms_ns.offset)} ns, with a combined uncertainty of ${f(r.combined_uncertainty_ns)} ns.`, line: has(r, "terms_ns.sagnac", "terms_ns.ionosphere") ? `Sagnac ${f(r.terms_ns.sagnac)} ns; ionosphere ${f(r.terms_ns.ionosphere)} ns.` : undefined };
 }
 
+function opticalAtmosphere(r) {
+  const sites = Array.isArray(r.sites) ? r.sites.filter((x) => has(x, "availability_pct", "availability_ceiling_pct")) : [];
+  if (!sites.length) return null;
+  const best = sites.reduce((a, b) => (b.availability_pct > a.availability_pct ? b : a));
+  const rows = Array.isArray(get(r, "network.rows")) ? r.network.rows.filter((x) => has(x, "independent_pct", "correlated_pct")) : [];
+  const last = rows[rows.length - 1];
+  const team = rows.length > 1 && last ? `${rows.length} sites together reach ${f(last.independent_pct, 1)} % if their weather is independent, ${f(last.correlated_pct, 1)} % with the stated correlation` : `no cloud-free margin lifts it above ${f(best.availability_ceiling_pct, 1)} %`;
+  const tech = Array.isArray(best.techniques) ? best.techniques.find((t) => has(t, "baseline_pct", "with_technique_pct")) : null;
+  return { big: `The best single site keeps the optical link up ${f(best.availability_pct, 1)} % of the time (cloud-free ceiling ${f(best.availability_ceiling_pct, 1)} %); ${team}.`, line: tech ? `${words(tech.name)}: ${f(tech.baseline_pct, 1)} % becomes ${f(tech.with_technique_pct, 1)} %.` : `${sites.length} site${sites.length === 1 ? "" : "s"} modelled; the cloud climates are illustrative.` };
+}
+
 export const KIND_TEMPLATES = {
   campaign, sweep, "sweep-nd": sweepNd, spoof, fusion: pnt, hybrid: pnt, timetransfer, "telecom-timing": telecom, "slot-timing": slotTiming,
   "lunar-time-budget": lunarTimeBudget, "lunar-time-offset": lunarTimeOffset, "quantum-time-transfer": quantumTT,
@@ -465,5 +476,5 @@ export const KIND_TEMPLATES = {
   "lunar-interop-export": lunarInterop, "lunar-vlbi": lunarVlbi, "lunar-vlbi-fim": lunarVlbiFim, "lunar-frame-campaign": lunarFrameCampaign,
   "lunar-llr-datum": lunarLlr, "cislunar-observability": cislunarObs, "cislunar-arc-recovery": cislunarArc,
   "acm-link": acmLink, aocs, "ascent-losses": ascentLosses, "contact-schedule": contactSchedule, "entry-heating": entryHeating,
-  "eo-radiometry": eoRadiometry, "time-transfer-budget": timeTransferBudget,
+  "eo-radiometry": eoRadiometry, "time-transfer-budget": timeTransferBudget, "optical-atmosphere": opticalAtmosphere,
 };

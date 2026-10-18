@@ -102,6 +102,8 @@ export const SCENARIOS = [
   ["gnss-sim-container-terminal-skyline.toml", "integrity", "Straddle carrier on a container quay", "With cranes to seaward and stacks to landward, how many satellites are left, and what happens to RAIM protection? (modelled; representative skyline)"],
   ["pvt-abmf.toml", "integrity", "Positioning (SPP)", "Can a real receiver position be solved from raw RINEX measurements?"],
   ["time-transfer-budget.toml", "timing", "Two-way satellite time transfer", "What do station, transponder, ionosphere and Sagnac terms do to a two-way time offset, and what is its uncertainty budget? (modelled)"],
+  ["optical-atmosphere-network.toml", "timing", "Optical link through the atmosphere, three sites", "How often is an optical timing link up through clouds and turbulence, and what do extra ground sites buy? (modelled; illustrative cloud climates)"],
+  ["optical-atmosphere-techniques.toml", "timing", "Optical link techniques", "What do a larger aperture, another wavelength or adaptive optics buy one optical uplink in cloud and turbulence? (modelled; illustrative cloud climate)"],
   ["telecom-synce-eec.toml", "timing", "Frequency sync against SyncE masks", "Does a free-running oven-controlled oscillator stay inside the synchronous Ethernet equipment-clock wander masks? (modelled)"],
   // Orbits & GNSS geometry
   ["orbit-gnss-challenged.toml", "orbits", "GNSS availability", "When is a fix even possible from the satellite geometry?"],
