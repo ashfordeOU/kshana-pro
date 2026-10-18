@@ -152,6 +152,16 @@
         <dl class="mt-setgrid mt-geo-rows" id="mt-geo-rows"></dl>
       </section>
 
+      <section class="card mt-self" id="mt-self-card" aria-labelledby="mt-self-h" hidden>
+        <div class="card-head"><h3 id="mt-self-h">The receiver's own flag</h3>
+          <p class="card-note">What the receiver itself says about spoofing and jamming (u-blox UBX-NAV-STATUS and UBX-SEC-SIG), set beside Kshana's monitors. The codes are the receiver's; neither detector is ground truth, and agreement is not validation. The flag changes no score.</p></div>
+        <p class="mt-geo-now" id="mt-self-now"></p>
+        <dl class="mt-setgrid mt-geo-rows" id="mt-self-rows"></dl>
+        <h4 class="mt-h4">Over the run</h4>
+        <p class="mt-offset" id="mt-self-sum-note"></p>
+        <dl class="mt-setgrid mt-geo-rows" id="mt-self-sum"></dl>
+      </section>
+
       <section class="card mt-set" aria-labelledby="mt-set-h">
         <div class="card-head"><h3 id="mt-set-h">What the score used</h3><p class="card-note">Read from the run, read-only.</p></div>
         <div id="mt-set"></div>

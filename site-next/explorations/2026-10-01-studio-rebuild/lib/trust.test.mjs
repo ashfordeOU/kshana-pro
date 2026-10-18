@@ -52,7 +52,7 @@ assert.equal(sniff("hello"), "unknown");
   assert.deepEqual(r.ded.map((d) => [d.monitor, d.points, d.weight]), [["heading-course", 40, 40], ["cn0-spread", 30, 30]]);
   assert.deepEqual(r.faint.sort(), ["agc", "kinematic"]);
   assert.ok(r.notRun.includes("osnma") && !r.notRun.includes("agc"), "a monitor that did not run is never shown as passing");
-  assert.equal(r.notRun.length + run.monitorsRun.length, KNOWN_MONITORS.length);
+  assert.equal(r.notRun.length + run.monitorsRun.length, KNOWN_MONITORS.length - 1); // the receiver-self-report is a comparison, not a monitor that can fail to run
   // Above onset (ratio > onset_ratio): agc 0.4 is below it.
   assert.deepEqual(epochsAboveOnset(run, "cn0-spread"), [4, 5]);
   assert.deepEqual(epochsAboveOnset(run, "agc"), []);

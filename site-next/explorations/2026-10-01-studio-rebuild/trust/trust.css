@@ -157,3 +157,6 @@ button.mt-rrow:hover{background:var(--line)}
 .mt svg .mt-ring{fill:color-mix(in srgb,var(--tim) 8%,transparent);stroke:var(--ink);stroke-width:1.4;stroke-dasharray:4 3}
 .mt-skybox{width:100%;max-width:300px;margin:0 auto}
 .mt-skybox svg{display:block;width:100%;height:auto}
+
+/* the receiver's own flag (0.38): a thin outline marks "only the receiver" besides its colour */
+.mt svg .mt-recv-only{stroke:var(--ink);stroke-width:1}

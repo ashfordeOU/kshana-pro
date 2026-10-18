@@ -8,6 +8,7 @@ import {
 
 import { geometryAt, countGeometry, statusKey, classKey, geometryUnder, CLASS_TEXT, UNKNOWN_TEXT } from "../lib/trust-geometry.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
+import { AGREEMENT_TEXT, selfReportAt, summaryLines } from "../lib/trust-selfreport.mjs";
 import { parseAux, epochAt } from "../lib/gsv.mjs";
 import { skyMarkup, skyDescribe } from "../lib/skydraw.mjs";
 import { ensureSkyCss } from "../lib/skypage.mjs";
@@ -17,6 +18,7 @@ import { parseSvgMarkup, sanitizeSvg } from "../lib/svgsafe.mjs";
 const $ = (id) => document.getElementById(id);
 const NS = "http://www.w3.org/2000/svg";
 const BAND_VAR = { calibrating: "var(--b-cal)", nominal: "var(--b-nom)", degraded: "var(--b-deg)", untrusted: "var(--b-unt)" };
+const SELF_FILL = { both: "var(--ink)", "receiver-only": "var(--hl)", "kshana-only": "var(--b-deg)", neither: "var(--b-nom)", calibrating: "var(--b-cal)", unknown: "var(--b-cal)" };
 const BAND_W = { calibrating: 2, nominal: 2.6, degraded: 3.2, untrusted: 4 };
 // The geometry lane (0.36). Status: green good, amber degraded, grey hatched unknown (never good). Deduction class:
 // geometry (the sky) in a neutral blue no band uses, environment (the signal) in violet, inconsistency (attack-like)
@@ -336,7 +338,8 @@ function drawTimeline() {
   svg.replaceChildren();
   const geo = run.hasGeometry;
   // Spec item 6: the geometry under the band strip, then the cause, then the gate and the marks.
-  const stripY = geo ? { band: 160, geo: 178, cause: 196, gate: 214, hl: 232 } : { band: 160, gate: 178, hl: 196 };
+  const names = ["band", ...(geo ? ["geo", "cause"] : []), ...(run.hasSelfReport ? ["self"] : []), "gate", "hl"];
+  const stripY = Object.fromEntries(names.map((n, i) => [n, 160 + 18 * i]));
   const axisY = stripY.hl + 16;
   const H = axisY + 20;
   svg.setAttribute("viewBox", `0 0 ${TL.W} ${H}`);
@@ -393,6 +396,16 @@ function drawTimeline() {
       if (!k) continue;
       const rc = sv("rect", { x: xOf(run.epochs[a].t_s), y: stripY.cause + 9, width: Math.max(1, xEnd(b) - xOf(run.epochs[a].t_s)), height: 3, fill: CLASS_FILL.geometry, class: "mt-geo-under" });
       rc.append(sv("title", {}, `${CLASS_TEXT.geometry} (also costing points), ${fmtT(run.epochs[a].t_s)} to ${fmtT(run.epochs[b].t_s)}`));
+      svg.append(rc);
+    }
+  }
+  if (run.hasSelfReport) {
+    // The receiver's own flag against Kshana's alarms (0.38): the agreement of each epoch, named in the tooltip and the legend.
+    svg.append(sv("text", { x: TL.L - 8, y: stripY.self + 9, "text-anchor": "end" }, "receiver"));
+    for (const [a, b, k] of runsOf((e) => (e.selfReport ? e.selfReport.agreement : "missing"))) {
+      if (k === "missing") continue;
+      const rc = sv("rect", { x: xOf(run.epochs[a].t_s), y: stripY.self, width: Math.max(1, xEnd(b) - xOf(run.epochs[a].t_s)), height: 12, fill: SELF_FILL[k] || SELF_FILL.unknown, opacity: k === "neither" || k === "calibrating" ? 0.35 : 1, class: k === "receiver-only" ? "mt-recv-only" : null });
+      rc.append(sv("title", {}, `${AGREEMENT_TEXT[k] || "an agreement this page does not know"}, ${fmtT(run.epochs[a].t_s)} to ${fmtT(run.epochs[b].t_s)}`));
       svg.append(rc);
     }
   }
@@ -496,6 +509,7 @@ function drawLegend() {
     li.push(el("li", { class: "mt-lg-head" }, "Sky:"), el("li", { style: `--c:${GEO_FILL.good}` }, el("i", {}), "geometry good"), el("li", { style: `--c:${GEO_FILL.degraded}` }, el("i", {}), "geometry degraded"), el("li", {}, el("i", { class: "hatch" }), "geometry unknown (no GSV or GSA; not good)"));
     li.push(el("li", { class: "mt-lg-head" }, "Deduction class:"), el("li", { style: `--c:${CLASS_FILL.geometry}` }, el("i", {}), "geometry: the sky, not the signal"), el("li", { style: `--c:${CLASS_FILL.environment}` }, el("i", {}), "environment: the signal"), el("li", { style: `--c:${CLASS_FILL.inconsistency}` }, el("i", {}), "inconsistency (attack-like)"), el("li", { style: `--c:${CLASS_FILL.geometry}` }, el("i", { class: "thin" }), "underline: geometry also costing points"));
   }
+  if (run.hasSelfReport) li.push(el("li", { class: "mt-lg-head" }, "Receiver's own flag against Kshana's alarms:"), ...[["both", "both flag"], ["receiver-only", "only the receiver"], ["kshana-only", "only Kshana"], ["neither", "neither"]].map(([k, t]) => el("li", { style: `--c:${SELF_FILL[k]}` }, el("i", {}), t)));
   if (run.demo) li.push(el("li", {}, "In this demo the receiver reports a valid fix throughout (GGA quality 1, RMC status A). The score is what falls."));
   $("mt-legend").replaceChildren(...li);
 }
@@ -549,6 +563,20 @@ function drawGeometrySettings(box) {
     if (gm.classes) d.append(el("p", { class: "mt-none" }, gm.classes));
     box.append(d);
   }
+}
+
+// The receiver's own flags at the cursor, and the run's summary of how they sat against Kshana's alarms.
+function drawSelfNow() {
+  const card = $("mt-self-card");
+  if (!card) return;
+  card.hidden = !run.hasSelfReport;
+  if (!run.hasSelfReport) return;
+  const a = selfReportAt(run.epochs[cur]);
+  $("mt-self-now").textContent = a.heading;
+  $("mt-self-rows").replaceChildren(...a.rows.map(([k, v]) => el("div", {}, el("dt", {}, k), el("dd", {}, v))));
+  const sum = run.selfSummary;
+  $("mt-self-sum-note").textContent = sum ? sum.note : "";
+  $("mt-self-sum").replaceChildren(...summaryLines(sum).map(([k, v]) => el("div", {}, el("dt", {}, k), el("dd", {}, v))));
 }
 
 function drawGeometryNow() {
@@ -621,6 +649,7 @@ function setCursor(i, quiet) {
   else off.textContent = run.hasTruth && showTruth ? "No true position at this time." : "";
   drawReasons();
   drawGeometryNow();
+  drawSelfNow();
   const gt = { off: "Off (calibrating)", passed: "Passed: the fix is forwarded unchanged", withheld: "Withheld: the fix would be marked invalid downstream" }[e.gate] || "Off";
   $("mt-gate-now").textContent = `${gt}${run.gateDerived ? " · derived" : ""}`;
   $("mt-pksht").textContent = pkshtFor(e, run);
