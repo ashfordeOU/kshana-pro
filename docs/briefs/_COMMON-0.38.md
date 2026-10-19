@@ -53,3 +53,5 @@ cli_first_run; MCP round_trip (separate CARGO_TARGET_DIR); cargo check --lib --t
 Push WIP often. Report at milestones and at the end: branch + SHA, items done (plan IDs), VALIDATED vs MODELLED,
 any NOT MET, gate results, anything blocked or needing an owner decision. At ~40 % context, write a handover note
 in docs/design/ on your branch and tell the coordinator.
+
+- Identity after a restart: a restarted worker gets /root/.gitconfig back (a default identity). Set the identity repo-local (`git config user.name "Ashforde OÜ"; git config user.email ashfordegithub@cbaweja.org`) in every clone, and run `git var GIT_AUTHOR_IDENT` before every commit.
