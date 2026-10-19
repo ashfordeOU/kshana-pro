@@ -1451,7 +1451,7 @@
   "domain": "Clocks & timing",
   "group": "bundled",
   "kind": "holdover-test",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=holdover-test-example&tab=overview",
    "report": "index.html?scenario=holdover-test-example&tab=report",
@@ -1475,7 +1475,7 @@
   "domain": "Clocks & timing",
   "group": "bundled",
   "kind": "holdover-test",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=holdover-test-ptp4l&tab=overview",
    "report": "index.html?scenario=holdover-test-ptp4l&tab=report",
@@ -2590,6 +2590,64 @@
    "best": "index.html?scenario=lunar-llr-datum&tab=llr-datum",
    "report": "index.html?scenario=lunar-llr-datum&tab=report",
    "exports": "index.html?scenario=lunar-llr-datum&tab=exports"
+  },
+  "capability": "Laser-ranging datum",
+  "tab": "llr-datum",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "llr-datum",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "llr-datum",
+  "exports": []
+ },
+ {
+  "file": "lunar-station-geodesy-baseline.toml",
+  "name": "lunar-station-geodesy-baseline",
+  "title": "Lunar station geodesy: the five arrays alone",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-llr-datum",
+  "runs": "recorded (native engine)",
+  "links": {
+   "view": "index.html?scenario=lunar-station-geodesy-baseline&tab=llr-datum",
+   "best": "index.html?scenario=lunar-station-geodesy-baseline&tab=llr-datum",
+   "report": "index.html?scenario=lunar-station-geodesy-baseline&tab=report",
+   "exports": "index.html?scenario=lunar-station-geodesy-baseline&tab=exports"
+  },
+  "capability": "Laser-ranging datum",
+  "tab": "llr-datum",
+  "stage": "",
+  "dir": "",
+  "tabs": [
+   "overview",
+   "llr-datum",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "llr-datum",
+  "exports": []
+ },
+ {
+  "file": "lunar-station-geodesy-with-station.toml",
+  "name": "lunar-station-geodesy-with-station",
+  "title": "Lunar station geodesy: with a south-polar station",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-llr-datum",
+  "runs": "recorded (native engine)",
+  "links": {
+   "view": "index.html?scenario=lunar-station-geodesy-with-station&tab=llr-datum",
+   "best": "index.html?scenario=lunar-station-geodesy-with-station&tab=llr-datum",
+   "report": "index.html?scenario=lunar-station-geodesy-with-station&tab=report",
+   "exports": "index.html?scenario=lunar-station-geodesy-with-station&tab=exports"
   },
   "capability": "Laser-ranging datum",
   "tab": "llr-datum",

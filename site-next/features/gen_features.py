@@ -216,6 +216,15 @@ PUBLIC_EDITION_SOURCES = [
 
 # Plain-word descriptions of the command-line options (main.rs has no per-flag help text).
 CLI_DESC = {
+    "jammertest": "Read the published Jammertest test plan as scheduled truth and score a receiver log against it, test by test.",
+    "bench": "Score a kshana-bench submission against its truth file and render result files as the static leaderboard.",
+    "spec": "Check the LunaNet augmented forward signal implementation against the specification's printed tables and worked examples.",
+    "symbols": "Read a stream of hard-decision symbols and check its synchronisation pattern, header and frame spacing.",
+    "generate": "Write a test stream of placeholder frames for checking a decoder: symbols only, never a waveform.",
+    "--format": "Name the layout of an input file, for example csv or euroc for an IMU log.",
+    "--axis": "Choose the accelerometer axis (x, y or z) that an IMU fit reads.",
+    "--id": "Name the sensor table that an IMU fit writes.",
+    "--expected-mean": "State the specific force the fitted axis reads at rest, in metres per second squared.",
     "run": "Run one scenario file and write its result, chart and report next to it.",
     "--study": "Run a named suite of scenarios together into one stamped, comparable study (study.json and study.html).",
     "--study-name": "Title a single run: stamp study metadata into the result and name the output files after the title.",
@@ -605,7 +614,7 @@ def enum_cli(repo: str, abbr) -> tuple[list[dict], list[str]]:
         rows.append(feature(id=f"cli:{sub}", category="cli", subtype="subcommand", name=f"kshana {sub}",
                             description=CLI_DESC.get(sub, "NO DESCRIPTION: add one to CLI_DESC"),
                             source=f"src/main.rs:{ln}", identifiers=[f"kshana {sub}"],
-                            probes=[["regex", rf"(?:kshana\s+(?:receiver-trust\s+)?|receiver-trust\s+){sub}\b" if sub == "live" else rf"kshana\s+{sub}\b"]]))
+                            probes=[["regex", rf"(?:kshana\s+(?:receiver-trust\s+)?|receiver-trust\s+){sub}\b" if sub == "live" else (rf"kshana\s+(?:lunanet-afs-check\s+)?{sub}\b" if sub in ("spec", "symbols", "generate") else rf"kshana\s+{sub}\b")]]))
         if sub == "kinds" and re.search(r'flag == "--json"', src):
             ln2 = find_line(main, r'flag == "--json"')
             rows.append(feature(id="cli:kinds--json", category="cli", subtype="subcommand", name="kshana kinds --json",

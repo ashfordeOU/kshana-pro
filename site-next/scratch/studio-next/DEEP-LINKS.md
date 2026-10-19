@@ -168,6 +168,8 @@ Views (`tab=`): `spectrum` (Spectrum), `solar` (Solar system), `body-pnt` (Relay
 | Scenario | Kind | Runs | Link | Replay | Animation | Report |
 |---|---|---|---|---|---|---|
 | Lunar laser-ranging datum | `lunar-llr-datum` | recorded (native engine) | `index.html?scenario=lunar-llr-datum&tab=llr-datum` | — | — | `index.html?scenario=lunar-llr-datum&tab=report` |
+| Lunar station geodesy: the five arrays alone | `lunar-llr-datum` | recorded (native engine) | `index.html?scenario=lunar-station-geodesy-baseline&tab=llr-datum` | — | — | `index.html?scenario=lunar-station-geodesy-baseline&tab=report` |
+| Lunar station geodesy: with a south-polar station | `lunar-llr-datum` | recorded (native engine) | `index.html?scenario=lunar-station-geodesy-with-station&tab=llr-datum` | — | — | `index.html?scenario=lunar-station-geodesy-with-station&tab=report` |
 
 
 ## Animation, engine report and interoperability exports, every scenario
@@ -273,6 +275,8 @@ These three views show files the native command-line engine wrote (the browser b
 | `lunar-frame-realisation` | no time axis | `index.html?scenario=lunar-frame-realisation&tab=report` | `index.html?scenario=lunar-frame-realisation&tab=exports` | none apply |
 | `lunar-frame-campaign` | no time axis | `index.html?scenario=lunar-frame-campaign&tab=report` | `index.html?scenario=lunar-frame-campaign&tab=exports` | none apply |
 | `lunar-llr-datum` | no time axis | `index.html?scenario=lunar-llr-datum&tab=report` | `index.html?scenario=lunar-llr-datum&tab=exports` | none apply |
+| `lunar-station-geodesy-baseline` | no time axis | `index.html?scenario=lunar-station-geodesy-baseline&tab=report` | `index.html?scenario=lunar-station-geodesy-baseline&tab=exports` | none apply |
+| `lunar-station-geodesy-with-station` | no time axis | `index.html?scenario=lunar-station-geodesy-with-station&tab=report` | `index.html?scenario=lunar-station-geodesy-with-station&tab=exports` | none apply |
 | `lunar-interop-export` | no time axis | `index.html?scenario=lunar-interop-export&tab=report` | `index.html?scenario=lunar-interop-export&tab=exports` | none apply |
 | `realtime-frame-eop` | no time axis | `index.html?scenario=realtime-frame-eop&tab=report` | `index.html?scenario=realtime-frame-eop&tab=exports` | none apply |
 | `cislunar-observability` | no time axis | `index.html?scenario=cislunar-observability&tab=report` | `index.html?scenario=cislunar-observability&tab=exports` | none apply |
@@ -346,4 +350,4 @@ These three views show files the native command-line engine wrote (the browser b
 | `celeste-iod-fused-pvt` (optional preset) | `index.html?scenario=celeste-iod-fused-pvt&tab=animation` | `index.html?scenario=celeste-iod-fused-pvt&tab=report` | `index.html?scenario=celeste-iod-fused-pvt&tab=exports` | none apply |
 | `celeste-iod-end-to-end` (optional preset) | `index.html?scenario=celeste-iod-end-to-end&tab=animation` | `index.html?scenario=celeste-iod-end-to-end&tab=report` | `index.html?scenario=celeste-iod-end-to-end&tab=exports` | czml, geojson, kml, stk |
 
-Counts: 169 scenarios with a recorded run (5 in the optional preset folder), 60 with a capability view, 85 with an animation, 169 with an engine report, 58 with at least one interoperability export.
+Counts: 171 scenarios with a recorded run (5 in the optional preset folder), 62 with a capability view, 85 with an animation, 171 with an engine report, 58 with at least one interoperability export.

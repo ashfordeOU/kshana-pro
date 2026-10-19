@@ -92,7 +92,8 @@ export type ScenarioKind =
 | "eo-radiometry"
 | "ascent-losses"
 | "time-transfer-budget"
-| "optical-atmosphere";
+| "optical-atmosphere"
+| "holdover-test";
 
 /** The failure category `error_kind` returns (`""` on success). */
 export type ErrorKind = "invalid_input" | "non_convergence" | "unsupported" | "io_error";
@@ -182,6 +183,18 @@ export function assess_vessel_log(session_toml: string, log: string): string;
 export function bench_export(toml: string, epoch: string): string;
 
 /**
+ * Render kshana-bench result files (a JSON array of result texts) as the static leaderboard
+ * page (HTML).
+ */
+export function bench_leaderboard(results_json: string): string;
+
+/**
+ * Score a kshana-bench predictions file against a truth file (JSON texts) and return the
+ * result file as JSON text. `threshold` is the declared alarm threshold of tasks a and b.
+ */
+export function bench_score(truth_json: string, predictions_json: string, threshold?: number | null): string;
+
+/**
  * Run a scenario and return its SVG chart.
  */
 export function chart_svg(toml: string): string;
@@ -193,7 +206,7 @@ export function chart_svg(toml: string): string;
 export function compliance_mapping(sources: boolean): string;
 
 /**
- * Fill the public-framework mapping from result documents: which rows of five resilience
+ * Fill the public-framework mapping from result documents: which rows of six resilience
  * frameworks and standards (`docs/compliance/`) the runs support evidence for, which they
  * do not, and the gap each row keeps. `runs_json` is a JSON array of `{label, result,
  * scenario?}` where `result` is the result JSON text and `scenario` the scenario TOML text
@@ -296,6 +309,15 @@ export function get_example(name: string): string;
 export function import_route(toml: string, geojson: string): string;
 
 /**
+ * Fit the accelerometer and gyro parameters of the `hybrid` and `fusion` scenarios from a
+ * stationary IMU log (`kshana imu-fit`, docs/MACHINE-INPUTS.md). `log` is the CSV text;
+ * `format` is `"csv"` or `"euroc"`; `axis` is `"x"`, `"y"` or `"z"`; `expected_mean` is the
+ * specific force that axis reads at rest (0 horizontal, about 9.80665 vertical). Returns JSON:
+ * `fit`, a ready-to-paste `[accel_classical]` `toml` and the log's `sha256`. MODELLED.
+ */
+export function imu_fit(log: string, format: string, axis: string, expected_mean: number, id: string): string;
+
+/**
  * Build a GNSS interference map from CSV text (`source` is `"adsb"` or `"ais"`; formats in
  * `docs/INTERFERENCE-MAP.md`). `dataset` is an approved preset or `"custom"`, which also
  * needs `licence`, `licence_url` and `attribution`; pass an empty string for any field
@@ -321,6 +343,24 @@ export function iq_run_short(fs_hz: number, duration_s: number, signal: string, 
 export function iq_signals(): string;
 
 /**
+ * Read the published Jammertest catalogue and transmission plan as scheduled truth
+ * (`kshana jammertest import`). `plans_json` is a JSON array of the plan files' texts,
+ * `local_offset_h` the plan's offset from UTC (CEST: 2), `log_start_utc` the log's first epoch
+ * (ISO-8601 UTC); `location` and `year` are 0 for "not given". Returns JSON `{events_toml,
+ * events, skipped_non_rf, outside_log, unknown_ids}`. Planned slots, not recorded on-air times.
+ */
+export function jammertest_import(catalog_json: string, plans_json: string, log_start_utc: string, location: number, local_offset_h: number, year: number): string;
+
+/**
+ * Score a receiver log against the Jammertest schedule (`kshana jammertest score`). The session
+ * needs only `[log] format = "ubx"` (or `rinex`, `android`, `nmea`, `sbf`); `log_base64` is the
+ * log's bytes; `log_start_utc` is empty when the log states its own UTC start; `location` and
+ * `year` are 0 for "not given". Returns the scorecard as JSON, labelled MODELLED. Signed packs
+ * are made with the command line.
+ */
+export function jammertest_score(session_toml: string, log_base64: string, catalog_json: string, plans_json: string, location: number, local_offset_h: number, log_start_utc: string, year: number, recover_hold_s: number, guard_s: number): string;
+
+/**
  * The modules a scenario kind's verification-matrix rows name where they differ from the kind's
  * own name: a JSON object, kind to array of module names. The Studio's capability map joins a
  * scenario to its matrix rows through it.
@@ -338,6 +378,26 @@ export function list_examples(kind: string): string;
  * description, required and optional fields), for programmatic introspection.
  */
 export function list_kinds(): string;
+
+/**
+ * Check this implementation of the LunaNet Augmented Forward Signal against the published
+ * tables and worked examples of LSIS-AFS V1.0 (LNIS V5): JSON with `bars` (B1 to B10), `all_met`,
+ * `pin` and `status`.
+ */
+export function lunanet_afs_check_spec(): string;
+
+/**
+ * Check an AFS symbol stream given as text of `0` and `1` against section 2.4 of LSIS-AFS V1.0:
+ * JSON with the frames found and any problems. Subframes 2 to 4 (LDPC, CRC-24Q) are not
+ * verified; the report says so.
+ */
+export function lunanet_afs_check_symbols(symbols: string, max_sp_errors: number): string;
+
+/**
+ * A test stream of `frames` (1 to 100) AFS frames as text of `0` and `1` with placeholder
+ * subframes 2 to 4 (not LDPC coded, no message): symbols, not a waveform.
+ */
+export function lunanet_afs_generate(frames: number, toi0: number): string;
 
 /**
  * Generate synthetic bridge NMEA 0183 for crew training from a `nmea-scenario` TOML.
@@ -474,6 +534,18 @@ export function skyline_profile(skyline_json: string): string;
 export function skyplot_svg(request_json: string): string;
 
 /**
+ * The standards packs (`docs/compliance/`): JSON `{packs, notice}`. A pack measures modelled
+ * scenarios against bars stated before the run and rates no product.
+ */
+export function standards_pack_list(): string;
+
+/**
+ * Run one standards pack by id. Returns JSON `{report, markdown}`; a test that needs a
+ * receiver log is `NEEDS INPUT` and not scored. Nothing is uploaded or read from disk.
+ */
+export function standards_pack_run(id: string): string;
+
+/**
  * Run a scenario and return its one-line human-readable summary.
  */
 export function summary(toml: string): string;
@@ -490,7 +562,7 @@ export function table_csv(toml: string): string | undefined;
 /**
  * Render a trust stream or a batch result in one telemetry format, with the encoders
  * `kshana trust-telemetry` uses (no process, socket or clock). `format` is `"prometheus"`,
- * `"cef"`, `"leef"` or `"otlp"`; `input_kind` is `"result"` (a `receiver-trust` result
+ * `"cef"`, `"leef"`, `"otlp"` or `"mqtt"`; `input_kind` is `"result"` (a `receiver-trust` result
  * document) or `"jsonl"` (the live per-epoch stream); `host` names the sender in syslog
  * events (empty for `kshana`). `options_json` is `""` or an object with `expose_position`
  * (bool), `syslog_all` (bool: one event per epoch, not per band change) and `unix_nano`
@@ -511,6 +583,8 @@ export interface InitOutput {
     readonly animate_scenario: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number, number];
     readonly assess_vessel_log: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly bench_export: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly bench_leaderboard: (a: number, b: number) => [number, number, number, number];
+    readonly bench_score: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number, number];
     readonly chart_svg: (a: number, b: number) => [number, number, number, number];
     readonly compliance_mapping: (a: number) => [number, number];
     readonly compliance_report: (a: number, b: number) => [number, number, number, number];
@@ -527,12 +601,18 @@ export interface InitOutput {
     readonly field_importance: () => [number, number];
     readonly get_example: (a: number, b: number) => [number, number, number, number];
     readonly import_route: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly imu_fit: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => [number, number, number, number];
     readonly interference_map: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number) => [number, number, number, number];
     readonly iq_run_short: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number, number];
     readonly iq_signals: () => [number, number];
+    readonly jammertest_import: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => [number, number, number, number];
+    readonly jammertest_score: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number) => [number, number, number, number];
     readonly kind_modules: () => [number, number];
     readonly list_examples: (a: number, b: number) => [number, number, number, number];
     readonly list_kinds: () => [number, number];
+    readonly lunanet_afs_check_spec: () => [number, number];
+    readonly lunanet_afs_check_symbols: (a: number, b: number, c: number) => [number, number, number, number];
+    readonly lunanet_afs_generate: (a: number, b: number) => [number, number, number, number];
     readonly nmea_training: (a: number, b: number, c: number) => [number, number, number, number];
     readonly osnma_verify: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => [number, number, number, number];
     readonly receiver_trust: (a: number, b: number) => [number, number, number, number];
@@ -546,6 +626,8 @@ export interface InitOutput {
     readonly skyline_presets: () => [number, number];
     readonly skyline_profile: (a: number, b: number) => [number, number, number, number];
     readonly skyplot_svg: (a: number, b: number) => [number, number, number, number];
+    readonly standards_pack_list: () => [number, number];
+    readonly standards_pack_run: (a: number, b: number) => [number, number, number, number];
     readonly summary: (a: number, b: number) => [number, number, number, number];
     readonly table_csv: (a: number, b: number) => [number, number, number, number];
     readonly trust_telemetry: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number, number];

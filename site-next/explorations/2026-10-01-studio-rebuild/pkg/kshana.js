@@ -100,6 +100,64 @@ export function bench_export(toml, epoch) {
 }
 
 /**
+ * Render kshana-bench result files (a JSON array of result texts) as the static leaderboard
+ * page (HTML).
+ * @param {string} results_json
+ * @returns {string}
+ */
+export function bench_leaderboard(results_json) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(results_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.bench_leaderboard(ptr0, len0);
+        var ptr2 = ret[0];
+        var len2 = ret[1];
+        if (ret[3]) {
+            ptr2 = 0; len2 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Score a kshana-bench predictions file against a truth file (JSON texts) and return the
+ * result file as JSON text. `threshold` is the declared alarm threshold of tasks a and b.
+ * @param {string} truth_json
+ * @param {string} predictions_json
+ * @param {number | null} [threshold]
+ * @returns {string}
+ */
+export function bench_score(truth_json, predictions_json, threshold) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(truth_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(predictions_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.bench_score(ptr0, len0, ptr1, len1, !isLikeNone(threshold), isLikeNone(threshold) ? 0 : threshold);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+    }
+}
+
+/**
  * Run a scenario and return its SVG chart.
  * @param {string} toml
  * @returns {string}
@@ -145,7 +203,7 @@ export function compliance_mapping(sources) {
 }
 
 /**
- * Fill the public-framework mapping from result documents: which rows of five resilience
+ * Fill the public-framework mapping from result documents: which rows of six resilience
  * frameworks and standards (`docs/compliance/`) the runs support evidence for, which they
  * do not, and the gap each row keeps. `runs_json` is a JSON array of `{label, result,
  * scenario?}` where `result` is the result JSON text and `scenario` the scenario TOML text
@@ -532,6 +590,46 @@ export function import_route(toml, geojson) {
 }
 
 /**
+ * Fit the accelerometer and gyro parameters of the `hybrid` and `fusion` scenarios from a
+ * stationary IMU log (`kshana imu-fit`, docs/MACHINE-INPUTS.md). `log` is the CSV text;
+ * `format` is `"csv"` or `"euroc"`; `axis` is `"x"`, `"y"` or `"z"`; `expected_mean` is the
+ * specific force that axis reads at rest (0 horizontal, about 9.80665 vertical). Returns JSON:
+ * `fit`, a ready-to-paste `[accel_classical]` `toml` and the log's `sha256`. MODELLED.
+ * @param {string} log
+ * @param {string} format
+ * @param {string} axis
+ * @param {number} expected_mean
+ * @param {string} id
+ * @returns {string}
+ */
+export function imu_fit(log, format, axis, expected_mean, id) {
+    let deferred6_0;
+    let deferred6_1;
+    try {
+        const ptr0 = passStringToWasm0(log, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(format, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ret = wasm.imu_fit(ptr0, len0, ptr1, len1, ptr2, len2, expected_mean, ptr3, len3);
+        var ptr5 = ret[0];
+        var len5 = ret[1];
+        if (ret[3]) {
+            ptr5 = 0; len5 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred6_0 = ptr5;
+        deferred6_1 = len5;
+        return getStringFromWasm0(ptr5, len5);
+    } finally {
+        wasm.__wbindgen_free(deferred6_0, deferred6_1, 1);
+    }
+}
+
+/**
  * Build a GNSS interference map from CSV text (`source` is `"adsb"` or `"ais"`; formats in
  * `docs/INTERFERENCE-MAP.md`). `dataset` is an approved preset or `"custom"`, which also
  * needs `licence`, `licence_url` and `attribution`; pass an empty string for any field
@@ -640,6 +738,92 @@ export function iq_signals() {
 }
 
 /**
+ * Read the published Jammertest catalogue and transmission plan as scheduled truth
+ * (`kshana jammertest import`). `plans_json` is a JSON array of the plan files' texts,
+ * `local_offset_h` the plan's offset from UTC (CEST: 2), `log_start_utc` the log's first epoch
+ * (ISO-8601 UTC); `location` and `year` are 0 for "not given". Returns JSON `{events_toml,
+ * events, skipped_non_rf, outside_log, unknown_ids}`. Planned slots, not recorded on-air times.
+ * @param {string} catalog_json
+ * @param {string} plans_json
+ * @param {string} log_start_utc
+ * @param {number} location
+ * @param {number} local_offset_h
+ * @param {number} year
+ * @returns {string}
+ */
+export function jammertest_import(catalog_json, plans_json, log_start_utc, location, local_offset_h, year) {
+    let deferred5_0;
+    let deferred5_1;
+    try {
+        const ptr0 = passStringToWasm0(catalog_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(plans_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(log_start_utc, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ret = wasm.jammertest_import(ptr0, len0, ptr1, len1, ptr2, len2, location, local_offset_h, year);
+        var ptr4 = ret[0];
+        var len4 = ret[1];
+        if (ret[3]) {
+            ptr4 = 0; len4 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred5_0 = ptr4;
+        deferred5_1 = len4;
+        return getStringFromWasm0(ptr4, len4);
+    } finally {
+        wasm.__wbindgen_free(deferred5_0, deferred5_1, 1);
+    }
+}
+
+/**
+ * Score a receiver log against the Jammertest schedule (`kshana jammertest score`). The session
+ * needs only `[log] format = "ubx"` (or `rinex`, `android`, `nmea`, `sbf`); `log_base64` is the
+ * log's bytes; `log_start_utc` is empty when the log states its own UTC start; `location` and
+ * `year` are 0 for "not given". Returns the scorecard as JSON, labelled MODELLED. Signed packs
+ * are made with the command line.
+ * @param {string} session_toml
+ * @param {string} log_base64
+ * @param {string} catalog_json
+ * @param {string} plans_json
+ * @param {number} location
+ * @param {number} local_offset_h
+ * @param {string} log_start_utc
+ * @param {number} year
+ * @param {number} recover_hold_s
+ * @param {number} guard_s
+ * @returns {string}
+ */
+export function jammertest_score(session_toml, log_base64, catalog_json, plans_json, location, local_offset_h, log_start_utc, year, recover_hold_s, guard_s) {
+    let deferred7_0;
+    let deferred7_1;
+    try {
+        const ptr0 = passStringToWasm0(session_toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(log_base64, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(catalog_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(plans_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ptr4 = passStringToWasm0(log_start_utc, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len4 = WASM_VECTOR_LEN;
+        const ret = wasm.jammertest_score(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, location, local_offset_h, ptr4, len4, year, recover_hold_s, guard_s);
+        var ptr6 = ret[0];
+        var len6 = ret[1];
+        if (ret[3]) {
+            ptr6 = 0; len6 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred7_0 = ptr6;
+        deferred7_1 = len6;
+        return getStringFromWasm0(ptr6, len6);
+    } finally {
+        wasm.__wbindgen_free(deferred7_0, deferred7_1, 1);
+    }
+}
+
+/**
  * The modules a scenario kind's verification-matrix rows name where they differ from the kind's
  * own name: a JSON object, kind to array of module names. The Studio's capability map joins a
  * scenario to its matrix rows through it.
@@ -700,6 +884,80 @@ export function list_kinds() {
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Check this implementation of the LunaNet Augmented Forward Signal against the published
+ * tables and worked examples of LSIS-AFS V1.0 (LNIS V5): JSON with `bars` (B1 to B10), `all_met`,
+ * `pin` and `status`.
+ * @returns {string}
+ */
+export function lunanet_afs_check_spec() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.lunanet_afs_check_spec();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Check an AFS symbol stream given as text of `0` and `1` against section 2.4 of LSIS-AFS V1.0:
+ * JSON with the frames found and any problems. Subframes 2 to 4 (LDPC, CRC-24Q) are not
+ * verified; the report says so.
+ * @param {string} symbols
+ * @param {number} max_sp_errors
+ * @returns {string}
+ */
+export function lunanet_afs_check_symbols(symbols, max_sp_errors) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(symbols, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.lunanet_afs_check_symbols(ptr0, len0, max_sp_errors);
+        var ptr2 = ret[0];
+        var len2 = ret[1];
+        if (ret[3]) {
+            ptr2 = 0; len2 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * A test stream of `frames` (1 to 100) AFS frames as text of `0` and `1` with placeholder
+ * subframes 2 to 4 (not LDPC coded, no message): symbols, not a waveform.
+ * @param {number} frames
+ * @param {number} toi0
+ * @returns {string}
+ */
+export function lunanet_afs_generate(frames, toi0) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ret = wasm.lunanet_afs_generate(frames, toi0);
+        var ptr1 = ret[0];
+        var len1 = ret[1];
+        if (ret[3]) {
+            ptr1 = 0; len1 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred2_0 = ptr1;
+        deferred2_1 = len1;
+        return getStringFromWasm0(ptr1, len1);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
 }
 
@@ -1122,6 +1380,51 @@ export function skyplot_svg(request_json) {
 }
 
 /**
+ * The standards packs (`docs/compliance/`): JSON `{packs, notice}`. A pack measures modelled
+ * scenarios against bars stated before the run and rates no product.
+ * @returns {string}
+ */
+export function standards_pack_list() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.standards_pack_list();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Run one standards pack by id. Returns JSON `{report, markdown}`; a test that needs a
+ * receiver log is `NEEDS INPUT` and not scored. Nothing is uploaded or read from disk.
+ * @param {string} id
+ * @returns {string}
+ */
+export function standards_pack_run(id) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.standards_pack_run(ptr0, len0);
+        var ptr2 = ret[0];
+        var len2 = ret[1];
+        if (ret[3]) {
+            ptr2 = 0; len2 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
  * Run a scenario and return its one-line human-readable summary.
  * @param {string} toml
  * @returns {string}
@@ -1174,7 +1477,7 @@ export function table_csv(toml) {
 /**
  * Render a trust stream or a batch result in one telemetry format, with the encoders
  * `kshana trust-telemetry` uses (no process, socket or clock). `format` is `"prometheus"`,
- * `"cef"`, `"leef"` or `"otlp"`; `input_kind` is `"result"` (a `receiver-trust` result
+ * `"cef"`, `"leef"`, `"otlp"` or `"mqtt"`; `input_kind` is `"result"` (a `receiver-trust` result
  * document) or `"jsonl"` (the live per-epoch stream); `host` names the sender in syslog
  * events (empty for `kshana`). `options_json` is `""` or an object with `expose_position`
  * (bool), `syslog_all` (bool: one event per epoch, not per band change) and `unix_nano`
@@ -1290,7 +1593,7 @@ function __wbg_get_imports() {
             const ret = arg0.node;
             return ret;
         },
-        __wbg_parse_ed76aa9055eec7d8: function(arg0, arg1) {
+        __wbg_parse_b203e32bf705d666: function(arg0, arg1) {
             const ret = JSON.parse(getStringFromWasm0(arg0, arg1));
             return ret;
         },

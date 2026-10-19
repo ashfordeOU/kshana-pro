@@ -287,7 +287,8 @@ tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021",
 # `static` and `vessel` are values of `[platform] kind` in a receiver-trust session file, not scenario kinds;
 # the four are the nmea-scenario library (scenarios/training/*.toml, run by `kshana nmea-scenario`, not
 # `kshana <scenario.toml>`), listed in docs/NMEA-TRAINING.md.
-ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "events", "bench-session", "static", "vessel", "open-sea-jamming", "coastal-drag-off", "port-approach-time-spoof", "combined-event", "fjord-natural-degradation"]
+ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "events", "bench-session", "static", "vessel", "open-sea-jamming", "coastal-drag-off", "port-approach-time-spoof", "combined-event", "fjord-natural-degradation", "lab", "holdover-test"]
+# 0.38: `lab.toml` (docs/EVIDENCE-PACKS.md, the --lab-attestation file) and `holdover-test.toml` (docs/TIMING-HIL.md, a shell example) are file names a reader types, not registered scenarios.
 
 [placements]
 # ---- kind ----
@@ -1255,3 +1256,61 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "validation:terrain-shadowing-of-the-jammer-in-the-jamming-kind-against-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:acquisition-hysteresis-and-the-front-end-quantiser-in-the-ja" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:capped-fll-pull-in-below-the-default-design-s-fll-to-pll-han" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+# ---- 0.38 ----
+"kind:holdover-test" = { page = "Capabilities", section = "atlas", studio = "holdover-test-example", docs = "docs/scenarios.html#holdover-test" }
+"scenario:holdover-test-example" = { page = "Capabilities", section = "atlas", studio = "holdover-test-example", docs = "docs/scenario-reference.html#holdover-test-example" }
+"scenario:holdover-test-ptp4l" = { page = "Capabilities", section = "atlas", studio = "holdover-test-ptp4l", docs = "docs/scenario-reference.html#holdover-test-ptp4l" }
+"cli:jammertest" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:bench" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:spec" = { page = "Docs", section = "lunanet-afs.html#kshana-lunanet-afs-check", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:symbols" = { page = "Docs", section = "lunanet-afs.html#kshana-lunanet-afs-check", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:generate" = { page = "Docs", section = "lunanet-afs.html#kshana-lunanet-afs-check", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--format" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--axis" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--id" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--expected-mean" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"mcp-tool:jammertest_import" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:jammertest_score" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:create_round_trip_pack" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:fit_imu_log" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:list_standards_packs" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:run_standards_pack" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:lunanet_afs_check" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:score_benchmark" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:render_leaderboard" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"binding:python.jammertest_import" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.jammertest_score" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.evidence_round_trip" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.bench_score" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.bench_leaderboard" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.standards_pack_list" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.standards_pack_run" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.lunanet_afs_check_spec" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.lunanet_afs_check_symbols" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.lunanet_afs_generate" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.imu_fit" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:wasm.lunanet_afs_check_spec" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.lunanet_afs_check_symbols" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.lunanet_afs_generate" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.standards_pack_list" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.standards_pack_run" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.bench_score" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.bench_leaderboard" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.jammertest_import" = { page = "Docs", section = "agents.html#which-tool-for-which-question", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.jammertest_score" = { page = "Docs", section = "agents.html#which-tool-for-which-question", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.imu_fit" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
+"validation:optical-link-margin-against-time-one-seeded-realisation-of-a" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:clock-log-formats-linuxptp-ptp4l-phc2sys-ts2phc-and-chrony-t" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:holdover-test-scored-from-an-operator-supplied-time-error-re" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:jammertest-scoring-a-receiver-log-scored-per-scheduled-test-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunanet-afs-i-and-afs-q-primary-codes-against-the-lsis-afs-v" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:lunanet-afs-tertiary-codes-and-message-layer-sb1-bch-crc-24q" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:standards-packs-scenarios-scored-against-bars-stated-before-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:laboratory-round-trip-evidence-pack-scenario-test-conditions" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:rtklib-pos-solution-reader-for-receiver-trust" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:novatel-oem7-ascii-and-binary-logs-bestpos-range-rxstatus-fo" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:rtcm-3-msm4-and-msm7-carrier-to-noise-reader-for-receiver-tr" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:gnss-sdr-monitor-adapter-for-receiver-trust" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:imu-log-ingest-gyro-heading-input-and-allan-fit-of-hybrid-se" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:home-assistant-mqtt-discovery-and-state-exporter-for-trust-t" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:ros-2-receiver-trust-package-and-gnss-lib-py-bridge" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }

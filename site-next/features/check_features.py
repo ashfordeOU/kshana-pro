@@ -715,6 +715,8 @@ def main() -> int:
     for pg in list(pages.values()) + list(docs_pages.values()):
         if not pg.exists:
             continue
+        if pg.name == "Docs/changelog.html":
+            continue  # the changelog states the counts of the release each entry describes, not today's
         checks = docs_checks if pg.name.startswith("Docs/") else site_checks
         for t in pg.texts:
             if t.ctx not in ("text", "code"):

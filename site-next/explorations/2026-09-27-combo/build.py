@@ -372,7 +372,7 @@ GROUPS = [
     ("Earth GNSS and interference", "--int", ["jamming", "spectrum", "tracking-loop", "gnss-sim", "pvt", "spoof", "spoof-detect", "impairment-eval"]),
     ("Integrity and ARAIM", "--itg", ["integrity", "araim-reference-check"]),
     ("Alternative PNT and fusion", "--nav", ["gravity-map", "terrain-nav", "terrain-slam", "combined-altpnt", "inertial", "gnss-ins", "ins-trn-coast", "fusion", "hybrid", "hybrid-ukf", "hybrid-optical-rf", "optical-atmosphere"]),
-    ("Clocks and timing", "--tim", ["clock", "sweep", "slot-timing", "telecom-timing", "timetransfer", "time-transfer-budget"]),
+    ("Clocks and timing", "--tim", ["clock", "sweep", "slot-timing", "telecom-timing", "timetransfer", "time-transfer-budget", "holdover-test"]),
     ("Orbits and mission analysis", "--orb", ["orbit", "ephemeris", "oem-interop", "passes", "launch-window", "reentry", "eo-coverage", "attitude-budget", "space-packet", "space-weather", "link-budget", "aperture-duty-cycle", "constellation-design", "acm-link", "aocs", "ascent-losses", "contact-schedule", "entry-heating", "eo-radiometry"]),
     ("Low Earth orbit (LEO) PNT", "--nav", ["leo-signal", "leo-pass", "leo-navmsg", "leo-pvt", "leo-ppp", "ntn-positioning", "leo-pnt-chain"]),
     ("Lunar and cislunar", "--spf", ["lunar-integrity", "lunar-time-offset", "lunar-vlbi", "lunar-joint-od-clock", "lunar-frame-realisation", "moonlight-service-volume", "lunar-differential-pnt", "lunar-station-coverage", "lunar-interop-export", "lunar-time-budget", "cislunar-observability", "lunar-attack-surface", "realtime-frame-eop", "lunar-jamming", "lunar-vlbi-fim", "lunar-frame-campaign", "lunar-llr-datum", "lunar-beacon", "earth-gnss-lunar", "cislunar-arc-recovery"]),
@@ -2300,6 +2300,28 @@ NEW037 = [
     ("Optical timing links through clouds and turbulence", "docs/optical-atmosphere.html", "", ""),
 ]
 NEW037_STATIC = {}
+NEW038 = [
+    (None, "docs/jammertest.html", "studio/tools/index.html#jammertest", "Jammertest card"),
+    (None, "docs/timing-hil.html", "studio/holdover/index.html", "Holdover test"),
+    (None, "docs/machine-inputs.html", "studio/trust/index.html", "Trust view"),
+    (None, "docs/receiver-trust.html", "studio/replay/index.html", "Bridge replay"),
+    (None, "docs/observatory-method.html", "studio/observatory/index.html", "Observatory viewer"),
+    (None, "benchmark.html", None, None),
+]
+NEW038_STATIC = {
+    "docs/jammertest.html": ("modelled", "A referee for jamming tests: the published plan as scheduled truth",
+        "Read the published Jammertest catalogue and transmission plan as the schedule, and score a receiver log against it test by test: how late was each alarm, which were missed, which fell outside every slot and how long recovery took. The scoring bars were fixed before any scored run; on the 2024 dataset the pre-registered minimum-data rule failed, so no bar is assessable and nothing is claimed. The slots are the plan's, not recorded on-air times.", "pre-registered bars, both runs recorded and pinned"),
+    "docs/timing-hil.html": ("modelled", "Holdover test: a time-error record measured against the ITU-T masks",
+        "The operator removes GNSS from a timing system and writes down when; Kshana splits the measured time-error record at those two times and measures each step against masks written from public ITU-T tables. It removes and restores nothing, and a mask that needs a longer record than the step gave is reported as incomplete, never extrapolated. Linuxptp and chrony logs are read too.", "the step logic and the recovery rule, checked on records built from formulas whose answers are known; no laboratory oracle"),
+    "docs/machine-inputs.html": ("modelled", "Machine and sensor inputs for the receiver-trust kind",
+        "Open a RTKLIB solution file, a NovAtel OEM7 log, RTCM 3 observation messages, GNSS-SDR monitor output or an IMU for the heading, beside the UBX, RINEX, Android, NMEA and Septentrio formats already read. All are read only. The receiver's own jammer flag is shown beside Kshana's alarms; neither is ground truth and agreement is not validation. An IMU fit reads sensor noise parameters for the hybrid and fusion scenarios off a stationary log.", "read from public documentation and open decoders on self-written fixtures; no capture from a real receiver"),
+    "docs/receiver-trust.html": ("modelled", "Bridge replay and the receiver's own flags",
+        "Two synthetic runs on one clock: the track, the trust score, the satellites the log hears and the verdict, side by side, with the receiver's own spoofing and jamming flags set against Kshana's monitors where the log carries them. Advisory software, not type-approved navigation equipment: the operator stays responsible for the vessel.", None),
+    "docs/observatory-method.html": ("modelled", "Interference observatory: three states, no cause",
+        "A daily file per region, from one open aircraft-position archive: each cell is degraded, not degraded or not observed, and not observed is not clear. Products are released at least 24 hours after the day ends, on cells of 0.5 degrees or coarser, with no cause or actor attributed. The Studio opens the files you made and shows what they say; it ships none.", "the parameters were pre-registered; there is no ground truth and no external oracle"),
+    "benchmark.html": ("modelled", "kshana-bench: fixed tasks, splits and metrics",
+        "Interference detection on receiver logs and IQ, holdover prediction and the out-of-distribution optimism gap, with split manifests pinned by hash, a sealed holdout and a result-file schema. A row says this file scored X on split S under specification version V, and nothing else. Every score is MODELLED, and one pre-registered bar is NOT MET and pinned.", "bars pre-registered before the baselines ran; no data vendored"),
+}
 # The "New in" section of the Capabilities and Home pages is the current minor release's: its table, heading and lede.
 # KSHANA_NEW_SECTION=0.36 builds the 0.36 section before Cargo.toml carries 0.36.
 NEW_SECTIONS = {
@@ -2312,6 +2334,9 @@ NEW_SECTIONS = {
     "0.37": (NEW037, NEW037_STATIC, "Optical timing links through the atmosphere.",
              "How often an optical time-transfer link is up when clouds and turbulence are in the path: per-site availability against the link margin, the ceiling no margin lifts, what extra ground sites, a larger aperture, another wavelength or adaptive optics buy, and what an outage costs a holdover clock. Every number is MODELLED: published formulas checked against an independent program, with stated cloud-climate assumptions, not a measured availability record.",
              "optical timing links through clouds and turbulence"),
+    "0.38": (NEW038, NEW038_STATIC, "A neutral referee, a holdover test and more inputs.",
+             "Score a receiver log against a published jamming-test plan, measure a holdover test against public ITU-T masks, read more receivers' and sensors' logs, and open the files of an interference observatory without anyone telling you why a cell is red. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software, not type-approved navigation equipment: the operator stays responsible. Nothing here transmits or synthesises a radio waveform.",
+             "a neutral referee, a holdover test and more inputs"),
 }
 _new_key = os.environ.get("KSHANA_NEW_SECTION") or ".".join(version.split(".")[:2])
 assert _new_key in NEW_SECTIONS, f"no 'New in' section written for {_new_key}: add it to NEW_SECTIONS"
