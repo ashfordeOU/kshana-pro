@@ -36,6 +36,13 @@ for (const [w, h, scheme] of [[1440, 1000, "light"], [1440, 1000, "dark"], [390,
     ok(await p.$eval("#mt-gen-format", (e) => e.value) === "rtklib-pos", "pos guessed");
     console.log("pos status:", s3.slice(0, 200));
   }
+  if (main) for (const [f, want, label] of [["rtcm3-msm4.bin", "rtcm3", "RTCM 3"], ["sbf-synthetic.sbf", "sbf", "Septentrio SBF"]]) {
+    await p.goto(`${base}/trust/index.html`); await p.waitForSelector("#mt-gen-file", { state: "attached" }); await p.waitForTimeout(1000);
+    await p.setInputFiles("#mt-gen-file", `${dir}/${f}`); await p.waitForTimeout(2500);
+    const g = await p.$eval("#mt-gen-format", (e) => e.value), s4 = await p.$eval("#mt-gen-status", (e) => e.textContent), o4 = await p.$eval("#mt-gen-out", (e) => e.textContent);
+    ok(g === want && new RegExp(label).test(s4) && /first alarm at \d+/.test(o4), `${label}: sniffed ${g}; ${o4.slice(0, 130)}`);
+    await p.screenshot({ path: `${out}/trust-${want}-synthetic-${w}-${scheme}.png`, fullPage: false });
+  }
   // Tools: IMU fit
   await p.goto(`${base}/tools/index.html#imufit`); await p.waitForSelector("#if-file", { state: "attached" }); await p.waitForTimeout(1500);
   await p.setInputFiles("#if-file", `${dir}/imu-still.csv`); await p.waitForTimeout(300);
