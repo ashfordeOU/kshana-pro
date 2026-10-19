@@ -17,6 +17,7 @@ export const PAGES = Object.freeze({
   compliance: { href: "tools/#compliance", label: "Compliance mapping" },
   osnma: { href: "tools/#osnma", label: "OSNMA verification" },
   jammertest: { href: "tools/#jammertest", label: "Jammertest scoring" },
+  imufit: { href: "tools/#imufit", label: "IMU fit" },
   cli: { href: "tools/#cli", label: "Command-line features" },
   ai: { href: "tools/#ai", label: "Use from your AI assistant" },
 });
@@ -63,6 +64,9 @@ export const FEATURES = Object.freeze([
   { id: "jammertest", name: "Jammertest as a referee: the published test plan as scheduled truth, a receiver log scored against it (0.38)",
     studio: [["jammertest", "Import the plan for a log's time span, or score a receiver log (UBX, RINEX, Android, NMEA or Septentrio SBF) per test: detection latency, missed, false alarms, time to recover; MODELLED"]],
     cli: "kshana jammertest score session.toml --catalog catalogue.json --plan plan.json --out scorecard" },
+  { id: "machines", name: "Receiver and sensor inputs: RTKLIB .pos, NovAtel OEM7, RTCM 3 MSM, GNSS-SDR, an IMU for the heading, and an IMU fit for the hybrid and fusion scenarios (0.38)",
+    studio: [["trust", "Open a log in any of these formats (and an optional IMU file) in the generic receiver-trust run; NovAtel's own jammer flag is compared with Kshana's alarms"], ["imufit", "Fit the accelerometer and gyro parameters of the hybrid and fusion scenarios from a stationary IMU log; MODELLED"]],
+    cli: "kshana imu-fit still.csv --format csv --axis x --expected-mean 0 --id bench-imu" },
   { id: "ai", name: "Use from an AI assistant (MCP server)",
     studio: [["ai", "Install options for the MCP server, with the questions each tool answers"]],
     cli: "cargo install kshana-mcp" },

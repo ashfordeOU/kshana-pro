@@ -140,6 +140,24 @@
     </div>
   </section>
 
+  <section class="tl-panel" id="imufit" role="tabpanel" aria-labelledby="t-imufit" hidden>
+    <div class="card">
+      <div class="card-head"><h2 class="h3">IMU fit: sensor parameters for the hybrid and fusion scenarios</h2>
+        <p class="card-note">The <code>hybrid</code> and <code>fusion</code> scenarios are simulations that take sensor noise parameters, not a measured series. This reads those parameters off a <b>stationary</b> IMU log (the overlapping Allan deviation of the integrated signal) and writes a ready-to-paste <code>[accel_classical]</code> table that names the log's SHA-256. The file is read in this browser and never uploaded.</p></div>
+      <p class="tl-warn" role="note"><b>MODELLED, advisory.</b> The estimator is checked on synthetic white-noise logs with known coefficients (recovered within 10 %), not against an external oracle. A log that is not still, under 2000 samples or unevenly sampled is refused or gives parameters the Allan slopes flag.</p>
+      <div class="tl-row"><label class="tl-file btn-primary">Stationary IMU log (CSV)…<input id="if-file" type="file" accept=".csv,.txt,text/*"></label></div>
+      <p class="tl-sel" id="if-sel" role="status" aria-live="polite">Nothing open yet.</p>
+      <div class="tl-form">
+        <label>Layout<select id="if-format"><option value="csv">CSV with a header row (t_s, gx, gy, gz, ax, ay, az)</option><option value="euroc">EuRoC MAV imu0 data.csv</option></select></label>
+        <label>Accelerometer axis to fit<select id="if-axis"><option value="x">x</option><option value="y">y</option><option value="z">z (vertical)</option></select></label>
+        <label>Specific force that axis reads at rest, m/s² (0 horizontal, about 9.80665 vertical)<input id="if-mean" type="text" inputmode="decimal" value="0" spellcheck="false"></label>
+        <label>Table id<input id="if-id" type="text" value="bench-imu" maxlength="64" spellcheck="false"></label>
+      </div>
+      <div class="tl-row"><button type="button" class="btn-primary" id="if-run">Fit the parameters</button></div>
+      <div id="if-out" class="tl-out" aria-live="polite"></div>
+    </div>
+  </section>
+
   <section class="tl-panel" id="jammertest" role="tabpanel" aria-labelledby="t-jammertest" hidden>
     <div class="card">
       <div class="card-head"><h2 class="h3">Jammertest: score a receiver log against the published test plan</h2>

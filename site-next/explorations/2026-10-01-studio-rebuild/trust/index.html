@@ -98,8 +98,24 @@
     <p class="mt-adv" role="note"><b>Advisory software.</b> Not type-approved navigation equipment. An alarm is an observation about the log, not a finding about the cause, and no alarm is not a guarantee that a fix is good.</p>
     <div class="mt-drop">
       <button class="mt-demo" id="mt-gen-demo" type="button">Run the illustrative jamming example</button>
-      <label class="mt-file btn-primary">Choose an NMEA log…<input id="mt-gen-file" type="file" accept=".nmea,.txt,.log,text/*"></label>
+      <label class="mt-file btn-primary">Choose a receiver log…<input id="mt-gen-file" type="file"></label>
+      <label class="mt-field">Log format <select id="mt-gen-format" aria-describedby="mt-gen-fmt-note"></select></label>
+      <label class="mt-field"><span><input id="mt-gen-vessel" type="checkbox"> Score as a vessel (moving platform, 0 to 100)</span></label>
+      <button class="mt-demo" id="mt-gen-run" type="button" disabled>Assess the chosen file</button>
     </div>
+    <p class="mt-none" id="mt-gen-fmt-note">The format is guessed from the file name; change it here when it is wrong, then assess again. NovAtel OEM7, RTCM 3 and Septentrio SBF are binary formats; they are sent to the engine as they are, in this browser.</p>
+    <details class="mt-gloss"><summary>IMU file (optional): a second sensor for the heading</summary>
+      <p class="mt-none">An IMU log on the receiver log's clock fills the heading the heading-versus-course monitor reads wherever the receiver log carries none. Only a vessel session uses it.</p>
+      <div class="mt-drop">
+        <label class="mt-file btn-primary">Choose an IMU file…<input id="mt-gen-imu" type="file" accept=".csv,.txt,text/*"></label>
+        <label class="mt-field">IMU format <select id="mt-gen-imu-format"></select></label>
+        <label class="mt-field">Heading at its first sample, degrees true <input id="mt-gen-imu-h0" type="text" inputmode="decimal" value="0" spellcheck="false"></label>
+        <label class="mt-field">Added to the IMU clock, s <input id="mt-gen-imu-off" type="text" inputmode="decimal" value="0" spellcheck="false"></label>
+        <label class="mt-field"><input id="mt-gen-imu-down" type="checkbox" checked> Body z points down (NED/FRD)</label>
+        <button class="mt-chip" id="mt-gen-imu-clear" type="button">Remove the IMU file</button>
+      </div>
+      <p class="mt-status" id="mt-gen-imu-status" role="status" aria-live="polite">No IMU file.</p>
+    </details>
     <details class="mt-gloss"><summary>Session settings (TOML, the log is supplied inline)</summary>
       <textarea id="mt-gen-toml" class="mt-toml" rows="12" spellcheck="false" aria-label="Receiver-trust session settings in TOML"></textarea></details>
     <p class="mt-status" id="mt-gen-status" role="status" aria-live="polite"></p>

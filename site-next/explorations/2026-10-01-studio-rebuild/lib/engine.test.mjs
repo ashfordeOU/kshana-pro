@@ -60,7 +60,7 @@ const api = {
   assert.ok(ENGINE_FNS_036.every((n) => !ENGINE_FNS_035.includes(n)), "the 0.35 list holds no 0.36 function");
   assert.deepEqual([...ENGINE_FNS_036_MAP], ["kind_modules"], "the capability map's 0.36 function");
   assert.deepEqual([...ENGINE_FNS_036_INPUTS], ["field_importance"], "the input ranking's 0.36 function");
-  assert.deepEqual([...ENGINE_FNS_038], ["jammertest_import", "jammertest_score"], "the Jammertest card's 0.38 functions");
+  assert.deepEqual([...ENGINE_FNS_038], ["jammertest_import", "jammertest_score", "imu_fit"], "the 0.38 Tools cards' functions");
   assert.ok(ENGINE_FNS_038.every((n) => ENGINE_FNS.includes(n) && !ENGINE_FNS_035.includes(n) && !ENGINE_FNS_036.includes(n)));
   assert.ok(ENGINE_FNS.includes("field_importance") && !ENGINE_FNS_036.includes("field_importance") && !ENGINE_FNS_035.includes("field_importance"));
   assert.ok(ENGINE_FNS.includes("kind_modules") && !ENGINE_FNS_035.includes("kind_modules") && !ENGINE_FNS_036.includes("kind_modules"));

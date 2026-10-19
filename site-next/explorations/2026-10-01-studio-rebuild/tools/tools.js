@@ -3,6 +3,7 @@
 // lib/engine-page.mjs (the Studio's WebAssembly engine in a worker). Files are read with File.arrayBuffer() in this
 // page and nothing is sent anywhere.
 import { getEngine } from "../lib/engine-page.mjs";
+import { imuRows } from "../lib/imufit-card.mjs";
 import { readScorecard, summaryRows as jtRows, assessability } from "../lib/jammertest-card.mjs";
 import { PAGES, FEATURES, CLI_CARDS, AI_QUESTIONS, docsHref } from "../lib/tools35-data.mjs";
 import { zip } from "../lib/zip.mjs";
@@ -55,7 +56,7 @@ async function readFiles(list) {
 const asText = (f) => new TextDecoder().decode(f.bytes);
 
 // ---------- tabs ----------
-const TABS = [["evidence", "Evidence packs"], ["bench", "Test bench"], ["compliance", "Compliance"], ["osnma", "OSNMA"], ["jammertest", "Jammertest"], ["cli", "Command line"], ["ai", "AI assistant"]];
+const TABS = [["evidence", "Evidence packs"], ["bench", "Test bench"], ["compliance", "Compliance"], ["osnma", "OSNMA"], ["jammertest", "Jammertest"], ["imufit", "IMU fit"], ["cli", "Command line"], ["ai", "AI assistant"]];
 function tabs() {
   const bar = $("tl-tabs");
   for (const [id, label] of TABS) {
@@ -389,7 +390,7 @@ function wireTelemetry() {
   const panel = el("div", { class: "tl-tele" }, el("h4", {}, "Run it here"),
     el("p", { class: "tl-why" }, "Turn a result file (session.result.json) or the live JSON lines into one of the formats, in this browser. Needs an engine build that has the telemetry export (0.35 and later with the export); the commands above work everywhere."));
   const file = el("input", { type: "file", id: "te-file", "aria-label": "Result or JSON-lines file" });
-  const fmt = el("select", { id: "te-fmt", "aria-label": "Format" }, [["prometheus", "Prometheus metrics"], ["cef", "Syslog, CEF"], ["leef", "Syslog, LEEF"], ["otlp", "OpenTelemetry (OTLP JSON)"]].map(([v, l]) => el("option", { value: v }, l)));
+  const fmt = el("select", { id: "te-fmt", "aria-label": "Format" }, [["prometheus", "Prometheus metrics"], ["cef", "Syslog, CEF"], ["leef", "Syslog, LEEF"], ["otlp", "OpenTelemetry (OTLP JSON)"], ["mqtt", "MQTT, Home Assistant discovery (topic, tab, payload)"]].map(([v, l]) => el("option", { value: v }, l)));
   const host = el("input", { type: "text", id: "te-host", value: "ops-gw1", maxlength: "255", spellcheck: "false", "aria-label": "Host name written into syslog events" });
   const all = el("input", { type: "checkbox", id: "te-all" }), pos = el("input", { type: "checkbox", id: "te-pos" });
   const go = el("button", { type: "button", class: "tl-btn" }, "Run");
@@ -401,14 +402,14 @@ function wireTelemetry() {
       const e = await useEngine("trust_telemetry");
       const kind = text.trimStart().startsWith("{") && /"epochs"\s*:/.test(text.slice(0, 200000)) ? "result" : "jsonl";
       const res = await e.call("trust_telemetry", text, fmt.value, host.value.trim(), kind, JSON.stringify({ expose_position: pos.checked, syslog_all: all.checked }));
-      const name = `trust-telemetry.${fmt.value === "prometheus" ? "prom" : fmt.value === "otlp" ? "json" : "log"}`;
+      const name = `trust-telemetry.${fmt.value === "prometheus" ? "prom" : fmt.value === "otlp" ? "json" : fmt.value === "mqtt" ? "mqtt.txt" : "log"}`;
       const d = el("button", { type: "button", class: "tl-btn" }, "Download"); d.onclick = () => download(name, res, "text/plain");
       out.replaceChildren(el("div", { class: "tl-row" }, d), el("pre", { class: "tl-pre" }, res.split("\n").slice(0, 60).join("\n") + (res.split("\n").length > 60 ? "\n…" : "")));
     } catch (x) { fail(out, x); }
   };
   panel.append(el("div", { class: "tl-row" }, file, fmt, el("label", { class: "tl-file2" }, "Host", host), go),
     el("div", { class: "tl-row" }, el("label", { class: "tl-chk" }, all, " One syslog event per epoch (default: one per band change)"), el("label", { class: "tl-chk" }, pos, " Include the reported position (off by default)")),
-    el("p", { class: "tl-why" }, "Syslog lines carry no time stamp here (the page reads no clock); the command-line tool stamps them. Prometheus gives the final state. The text is the same the command prints."), out);
+    el("p", { class: "tl-why" }, "Syslog lines carry no time stamp here (the page reads no clock); the command-line tool stamps them. Prometheus gives the final state. MQTT gives one line per message, the topic then a tab then the payload; nothing is published from here. The text is the same the command prints."), out);
   card.insertBefore(panel, card.querySelector("p:last-child"));
 }
 
@@ -460,6 +461,39 @@ async function jtScore() {
     out.replaceChildren(el("div", { class: "tl-row" }, b), ...jtCard(r.card));
   } catch (x) { fail(out, x); }
 }
+// ---------- IMU fit: sensor parameters for the hybrid and fusion scenarios, read off a stationary log ----------
+const imuState = { file: null };
+const IF_ROW = (r) => el("div", {}, el("dt", {}, r[0]), el("dd", {}, r[1]));
+async function imuFit() {
+  const out = $("if-out");
+  try {
+    if (!imuState.file) throw new Error("Choose a stationary IMU log first.");
+    const mean = Number($("if-mean").value);
+    if (!Number.isFinite(mean)) throw new Error("The specific force at rest is not a number (0 for a horizontal axis, about 9.80665 for the vertical one).");
+    const e = await useEngine("imu_fit");
+    out.replaceChildren(el("p", { class: "tl-notice" }, "Fitting…"));
+    const r = JSON.parse(await e.call("imu_fit", new TextDecoder().decode(imuState.file.bytes), $("if-format").value, $("if-axis").value, mean, $("if-id").value.trim()));
+    const fit = r.fit && typeof r.fit === "object" ? r.fit : {};
+    const rows = imuRows(fit);
+    const d = el("button", { type: "button", class: "tl-btn" }, "Download the table (TOML)"); d.onclick = () => download(`${$("if-id").value.trim() || "imu"}.accel-classical.toml`, r.toml, "text/plain");
+    const dj = el("button", { type: "button", class: "tl-btn" }, "Download the whole report (JSON)"); dj.onclick = () => download("imu-fit.json", JSON.stringify(r, null, 2), "application/json");
+    out.replaceChildren(el("p", { class: "tl-notice" }, `${r.evidence || "MODELLED"}: the estimator is checked on synthetic white-noise logs with known coefficients, not against an external oracle. The table names the log's SHA-256 (${String(r.sha256).slice(0, 12)}…).`),
+      rows.length ? el("dl", { class: "tl-kv" }, rows.map(IF_ROW)) : null, el("div", { class: "tl-row" }, d, dj), el("pre", { class: "tl-pre" }, String(r.toml)));
+  } catch (x) { fail(out, x); }
+}
+function wireImuFit() {
+  $("if-file").addEventListener("change", async (ev) => {
+    const f = ev.target.files[0]; ev.target.value = ""; if (!f) return;
+    try {
+      if (f.size > 32 * 1024 * 1024) throw new Error(`${f.name} is larger than 32 MiB; open an excerpt.`);
+      imuState.file = { name: f.name, bytes: new Uint8Array(await f.arrayBuffer()) };
+      if (/imu0|euroc|data\.csv/i.test(f.name)) $("if-format").value = "euroc";
+      $("if-sel").textContent = `${f.name} (${(f.size / 1024).toFixed(1)} kB), read here, never uploaded.`;
+    } catch (x) { fail($("if-out"), x); }
+  });
+  $("if-axis").addEventListener("change", () => { $("if-mean").value = $("if-axis").value === "z" ? "9.80665" : "0"; });
+  $("if-run").onclick = imuFit;
+}
 function wireJammertest() {
   const set = async (id, fn) => $(id).addEventListener("change", async (ev) => { try { await fn([...ev.target.files]); jtSelText(); } catch (x) { fail($("jt-out"), x); } ev.target.value = ""; });
   set("jt-cat", async (fs) => { if (fs[0]) jt.cat = { name: fs[0].name, bytes: await jtRead(fs[0]) }; });
@@ -469,6 +503,6 @@ function wireJammertest() {
 }
 
 function init() {
-  tabs(); coverage(); cliCards(); wireEvidence(); wireBench(); wireCompliance(); wireOsnma(); wireJammertest(); wireAi(); wireTelemetry();
+  tabs(); coverage(); cliCards(); wireEvidence(); wireBench(); wireCompliance(); wireOsnma(); wireJammertest(); wireImuFit(); wireAi(); wireTelemetry();
 }
 init();

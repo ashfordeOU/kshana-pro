@@ -9,7 +9,8 @@ import {
 import { geometryAt, countGeometry, statusKey, classKey, geometryUnder, CLASS_TEXT, UNKNOWN_TEXT } from "../lib/trust-geometry.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
 import { readScorecard, summaryRows as jtRows, assessability, MAX_BYTES as JT_MAX } from "../lib/jammertest-card.mjs";
-import { AGREEMENT_TEXT, selfReportAt, summaryLines } from "../lib/trust-selfreport.mjs";
+import { AGREEMENT_TEXT, selfReportAt, summaryLines, readSelfSummary } from "../lib/trust-selfreport.mjs";
+import { LOG_FORMATS, IMU_FORMATS, formatFromName, sniffFormat, formatInfo, buildSession } from "../lib/trust-open.mjs";
 import { parseAux, epochAt } from "../lib/gsv.mjs";
 import { skyMarkup, skyDescribe } from "../lib/skydraw.mjs";
 import { ensureSkyCss } from "../lib/skypage.mjs";
@@ -135,26 +136,25 @@ function saveAs(name, text, mime) {
   const a = el("a", { href: URL.createObjectURL(new Blob([text], { type: mime || "text/plain" })), download: name });
   document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
-function inlineLog(toml, nmea) {
-  if (nmea.includes("'''")) throw new Error("the log contains three single quotes in a row, which cannot be embedded in the settings");
-  // the settings name the log by path; the browser has no file system, so the log goes in as text
-  if (!/^\s*path\s*=\s*"[^"\n]*"/m.test(toml)) throw new Error("the settings have no [log] path line to replace with the log");
-  return toml.replace(/^(\s*)path\s*=\s*"[^"\n]*"/m, (_, sp) => `${sp}text = '''\n${nmea}'''`);
-}
-async function genRun(nmea, name, label) {
+async function genRun(log, name, label) {
   const out = $("mt-gen-out"); out.replaceChildren();
   try {
-    if (nmea.length > 2 * 1024 * 1024) { genStatus(`${name}: larger than 2 MiB. Open an excerpt (the command-line tool takes a whole log).`, true); return; }
+    if (log.bytes.length > 2 * 1024 * 1024) { genStatus(`${name}: larger than 2 MiB. Open an excerpt (the command-line tool takes a whole log).`, true); return; }
     genStatus("Starting the engine and assessing…");
     const eng = await getEngine();
     if (!eng.available) { genStatus(`The engine could not start here (${eng.error}).`, true); return; }
     if (!eng.has("receiver_trust")) { genStatus(`This engine build (version ${eng.version}) has no receiver_trust.`, true); return; }
-    const r = JSON.parse(await eng.call("receiver_trust", inlineLog($("mt-gen-toml").value, nmea)));
+    const r = JSON.parse(await eng.call("receiver_trust", buildSession($("mt-gen-toml").value, log, genImuCfg(), $("mt-gen-vessel").checked)));
     const doc = JSON.parse(r.json);
     genStatus(label || `Assessed ${name} with engine ${eng.version}, in this browser.`);
     const st = doc.states || {};
     out.append(el("p", { class: "mt-gate-now" }, r.summary));
     out.append(el("p", { class: "mt-none" }, `Epochs: ${st.nominal_epochs ?? 0} nominal, ${st.degraded_epochs ?? 0} degraded, ${st.untrusted_epochs ?? 0} untrusted after the ${doc.baseline && doc.baseline.calibration_epochs != null ? doc.baseline.calibration_epochs : "?"}-epoch calibration window.`));
+    const self = readSelfSummary(doc.receiver_self_report);
+    if (self) {
+      out.append(el("h3", { class: "h3" }, "The receiver's own flags, against Kshana's alarms"), el("p", { class: "mt-none" }, self.note || "A comparison, not a check of either: the receiver's flag is its own report."));
+      out.append(el("dl", { class: "mt-kv" }, summaryLines(self).map(([k, v]) => el("div", {}, el("dt", {}, k), el("dd", {}, v)))));
+    }
     if (Array.isArray(doc.events) && doc.events.length) {
       const t = el("table", { class: "tbl" }, el("thead", {}, el("tr", {}, ["Stated event", "Onset, s", "Outcome", "First alarm, s", "Latency, s"].map((x) => el("th", { scope: "col" }, x)))));
       t.append(el("tbody", {}, doc.events.map((e) => el("tr", {}, el("td", {}, String(e.label ?? "")), el("td", {}, String(e.onset_s ?? "")), el("td", {}, String(e.outcome ?? "")), el("td", {}, e.first_alarm_s == null ? "none" : String(e.first_alarm_s)), el("td", {}, e.latency_s == null ? "none" : String(e.latency_s))))));
@@ -167,6 +167,11 @@ async function genRun(nmea, name, label) {
     const b1 = el("button", { type: "button", class: "mt-chip" }, "Download the result (JSON)"); b1.onclick = () => saveAs("receiver-trust.result.json", r.json, "application/json");
     const b2 = el("button", { type: "button", class: "mt-chip" }, "Download the per-epoch table (CSV)"); b2.onclick = () => saveAs("receiver-trust.csv", r.csv, "text/csv");
     out.append(el("div", { class: "mt-tools" }, b1, b2));
+    if (doc.score_model) {
+      const b3 = el("button", { type: "button", class: "mt-chip" }, "Show this run in the replay below (track, score, the receiver's own flag)");
+      b3.onclick = async () => { await openTexts([{ name: "receiver-trust.result.json", text: r.json }]); $("mt-run").scrollIntoView({ behavior: "smooth" }); };
+      out.append(el("div", { class: "mt-tools" }, b3));
+    }
   } catch (e) { genStatus(`${name}: could not be assessed (${e && e.message ? e.message : e}).`, true); }
 }
 async function genDemo() {
@@ -175,14 +180,46 @@ async function genDemo() {
     const [a, b] = await Promise.all([fetch("trust/generic/session.toml"), fetch("trust/generic/illustrative-jamming.nmea")]);
     if (!a.ok || !b.ok) throw new Error("the example files did not load");
     $("mt-gen-toml").value = await a.text();
-    await genRun(await b.text(), "illustrative-jamming.nmea", "Illustrative example: a made-up NMEA log with a made-up jammer from 120 s to 240 s, assessed here by the engine. Text, not a measurement.");
+    const text = await b.text();
+    await genRun({ format: "nmea", bytes: new TextEncoder().encode(text), text }, "illustrative-jamming.nmea", "Illustrative example: a made-up NMEA log with a made-up jammer from 120 s to 240 s, assessed here by the engine. Text, not a measurement.");
   } catch (e) { genStatus(`The example could not be opened: ${e.message}.`, true); }
 }
+// The file last chosen, kept so a changed format can be assessed again without choosing it twice.
+const gen = { file: null, imu: null };
 async function genFile(f) {
   if (!f) return;
   if (f.size > 2 * 1024 * 1024) { genStatus(`${f.name}: larger than 2 MiB. Open an excerpt.`, true); return; }
+  gen.file = { name: f.name, bytes: new Uint8Array(await f.arrayBuffer()) };
+  const guess = sniffFormat(gen.file.bytes) || formatFromName(f.name);
+  if (guess) $("mt-gen-format").value = guess;
+  $("mt-gen-run").disabled = false;
+  await genAssessChosen();
+}
+async function genAssessChosen() {
+  const f = gen.file; if (!f) return;
   if (!$("mt-gen-toml").value.trim()) { try { const r = await fetch("trust/generic/session.toml"); if (r.ok) $("mt-gen-toml").value = await r.text(); } catch (e) { /* stated below */ } }
-  await genRun(await f.text(), f.name, null);
+  const id = $("mt-gen-format").value, info = formatInfo(id);
+  const text = info && !info.binary ? new TextDecoder().decode(f.bytes) : "";
+  await genRun({ format: id, bytes: f.bytes, text }, f.name, `Assessed ${f.name} as ${info ? info.label : id}, with the engine, in this browser. Nothing was uploaded.`);
+}
+function genImuCfg() {
+  if (!gen.imu) return null;
+  return { format: $("mt-gen-imu-format").value, text: gen.imu.text, heading0Deg: Number($("mt-gen-imu-h0").value), yawAxisDown: $("mt-gen-imu-down").checked, timeOffsetS: Number($("mt-gen-imu-off").value || 0) };
+}
+async function genImuFile(f) {
+  if (!f) return;
+  const st = $("mt-gen-imu-status");
+  if (f.size > 2 * 1024 * 1024) { st.textContent = `${f.name}: larger than 2 MiB. Open an excerpt.`; st.classList.add("err"); return; }
+  gen.imu = { name: f.name, text: await f.text() };
+  if (/imu0|euroc|data\.csv/i.test(f.name)) $("mt-gen-imu-format").value = "euroc";
+  st.classList.remove("err"); st.textContent = `IMU file: ${f.name} (${gen.imu.text.length.toLocaleString("en")} characters). Used on the next assessment${gen.file ? "; press Assess the chosen file" : ""}.`;
+}
+function wireGenFormats() {
+  $("mt-gen-format").replaceChildren(...LOG_FORMATS.map((f) => el("option", { value: f.id }, f.label)));
+  $("mt-gen-imu-format").replaceChildren(...IMU_FORMATS.map((f) => el("option", { value: f.id }, f.label)));
+  $("mt-gen-run").addEventListener("click", genAssessChosen);
+  $("mt-gen-imu").addEventListener("change", (e) => { genImuFile(e.target.files[0]); e.target.value = ""; });
+  $("mt-gen-imu-clear").addEventListener("click", () => { gen.imu = null; const st = $("mt-gen-imu-status"); st.classList.remove("err"); st.textContent = "No IMU file."; });
 }
 
 // The sky and heading recorded for a demo (replay/data, from the demo log's own GSV and HDT); null if it does not load.
@@ -774,6 +811,7 @@ function applyFilterVisual() {
 function wire() {
   fetch("trust/demo/session.toml").then((r) => (r.ok ? r.text() : "")).then((t) => { if (!$("mt-session").value) $("mt-session").value = t; }).catch(() => {});
   $("mt-score-demo").addEventListener("click", scoreDemo);
+  wireGenFormats();
   $("mt-gen-demo").addEventListener("click", genDemo);
   $("mt-gen-file").addEventListener("change", (e) => { genFile(e.target.files[0]); e.target.value = ""; });
   fetch("trust/generic/session.toml").then((r) => (r.ok ? r.text() : "")).then((t) => { if (!$("mt-gen-toml").value) $("mt-gen-toml").value = t; }).catch(() => {});
