@@ -151,6 +151,8 @@ export const SCENARIOS = [
   ["lunar-frame-realisation.toml", "deepspace", "Lunar frame", "Can a Helmert datum fit recover a lunar reference-frame transform? (modelled)"],
   ["lunar-frame-campaign.toml", "deepspace", "Lunar frame campaign", "What datum accuracy comes out of an observing campaign rather than an injected transform? (modelled)"],
   ["lunar-llr-datum.toml", "deepspace", "Lunar laser-ranging datum", "What does the lunar datum look like when the campaign is real archived lunar laser ranging (LLR)? (modelled; a run recorded with the native engine)"],
+  ["lunar-station-geodesy-baseline.toml", "deepspace", "Lunar station geodesy: the five arrays alone", "How well do today's five retroreflector arrays pin the lunar datum on a real schedule, before any station is added? The baseline of a pair. (modelled; a run recorded with the native engine)"],
+  ["lunar-station-geodesy-with-station.toml", "deepspace", "Lunar station geodesy: with a south-polar station", "The same archived schedule with one added south-polar reflector and VLBI beacon: how much does the datum bound tighten? (modelled, illustrative site; a run recorded with the native engine)"],
   ["lunar-interop-export.toml", "deepspace", "Lunar interop export", "Can lunar frame / time / ephemeris round-trip through CCSDS OEM + a KIF envelope?"],
   ["realtime-frame-eop.toml", "deepspace", "Real-time frame/EOP", "How much frame error does real-time (predicted) Earth-orientation introduce? (modelled)"],
   ["cislunar-observability.toml", "deepspace", "Cislunar observability", "How much of a cislunar spacecraft's state does an inter-satellite arc make observable?"],
@@ -231,13 +233,13 @@ export const SCENARIOS = [
 // Files the browser engine cannot run, with the reason shown in the library.
 export const NOT_IN_BROWSER = {
   "lunar-llr-datum.toml": "Needs the archived laser-ranging data slice that ships with the repository, not with the browser build.",
+  "lunar-station-geodesy-baseline.toml": "Needs the archived laser-ranging data slice that ships with the repository, not with the browser build.",
+  "lunar-station-geodesy-with-station.toml": "Needs the archived laser-ranging data slice that ships with the repository, not with the browser build.",
   "lunar-station-coverage-terrain.toml": "Needs the lunar elevation-model crop (data/lunar-dem/) that ships with the repository, not with the browser build.",
-  "holdover-test-example.toml": "The holdover-test kind arrives with 0.38; the 0.37 browser package does not know it. The Studio shows the run recorded with the native engine.",
-  "holdover-test-ptp4l.toml": "The holdover-test kind arrives with 0.38; the 0.37 browser package does not know it. The Studio shows the run recorded with the native engine.",
   "quantum-pnt-demonstrator.suite.toml": "A study suite, not a single scenario. Run it with the command-line tool: kshana --study.",
 };
 // Of those, the files the Studio shows as a run recorded with the native command-line engine.
-export const RECORDED_NATIVELY = ["lunar-llr-datum.toml", "lunar-station-coverage-terrain.toml", "holdover-test-example.toml", "holdover-test-ptp4l.toml"];
+export const RECORDED_NATIVELY = ["lunar-llr-datum.toml", "lunar-station-coverage-terrain.toml", "lunar-station-geodesy-baseline.toml", "lunar-station-geodesy-with-station.toml"];
 // Bundled scenarios that need a newer engine than an older package has: what they need (a kind the engine lists, or
 // a function it exports) and the release that brings it. With an engine that lacks it, the Studio shows the recording
 // made with one that has it and does not run them (an older engine refuses their fields, or runs without them).
