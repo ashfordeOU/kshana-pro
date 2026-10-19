@@ -31,10 +31,9 @@ All data on these pages is synthetic or recorded engine output; the coast is Nat
 
 ## Holdover test view (W55's `holdover-test` kind)
 
-The view draws the engine's result for the two bundled `holdover-test` scenarios, recorded with the native engine from kshana `feat/timing-standards-0.38` at a396a84c (interim; the release re-record replaces them). The time-error curve is drawn only from `record.series`, which W55 has been asked to write into the result; until it does:
+The view draws the engine's result for the two bundled `holdover-test` scenarios, recorded with the native engine from kshana `feat/timing-standards-0.38` at 760fc54d (interim; the release re-record replaces them). The time-error curve is drawn only from the result's own `record.series` ({time_s, time_error_ns}, at most 3000 points, with `series_decimation` stating the rule); both bundled records are 601 samples, so nothing is decimated. The page has no parser of its own for a record: `lib/holdover.test.mjs` checks that the engine's series equals the record read from the scenario text (to rounding in the unit conversion).
 
-- `holdover-recorded-no-series-example-1440-light.png` is the view on the recorded result as it is: no curve, and the page says why.
-- `holdover-shape-fixture-*` are **shape fixtures**: the same results with `record.series` filled from the scenario's own record by a review script (`REVIEW/fixtures/holdover-test-*.with-series.result.json`). They show the drawing, not engine output.
+- `holdover-engine-series-{example,ptp4l}-*` are the view on the recorded results as the engine wrote them, at 1440 and 390 px, light and dark. The earlier no-series and shape-fixture screenshots are removed; `REVIEW/fixtures/holdover-test-*.with-series.result.json` stay as shape fixtures for the unit tests (the two series shapes, pairs and arrays).
 
 Words on the view: "measured against the mask"; MODELLED.
 

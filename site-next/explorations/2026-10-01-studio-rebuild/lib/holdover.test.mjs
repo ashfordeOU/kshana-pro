@@ -33,12 +33,20 @@ function withSeries(id, decimate = 1) {
   return { raw, doc: { ...doc, json: JSON.stringify(raw) } };
 }
 
-test("the recorded results carry no series yet, and the page says so rather than drawing one of its own", () => {
+test("the recorded results carry the engine's own series, and it is the record the scenario holds", () => {
   for (const sc of SCENARIOS) {
-    const { series, why } = seriesFor(models[sc.id]);
-    assert.equal(series, null); assert.match(why, /carries no time-error samples \(record\.series\)/);
-    assert.match(teSvg(models[sc.id], series), /No time-error curve/);
+    const { series, from } = seriesFor(models[sc.id]);
+    assert.ok(series, sc.id); assert.equal(from, "the result's record", "601 of 601 samples: not decimated");
+    const mine = withSeries(sc.id).raw.record.series; // read from the scenario text, in the test only
+    assert.deepEqual(series.t, mine.time_s, "the engine's time axis is the scenario's"); assert.equal(series.te.length, mine.time_error_ns.length); assert.ok(series.te.every((v, k) => Math.abs(v - mine.time_error_ns[k]) < 1e-6), "the engine's samples are the scenario's (to rounding in the unit conversion)");
+    assert.doesNotMatch(teSvg(models[sc.id], series), /No time-error curve/);
   }
+});
+test("a result without record.series is drawn without a curve and says so", () => {
+  const { raw } = withSeries("holdover-test-example"); delete raw.record.series;
+  const m = readHoldover({ ...load("holdover-test-example"), json: JSON.stringify(raw) }).model, { series, why } = seriesFor(m);
+  assert.equal(series, null); assert.match(why, /carries no time-error samples \(record\.series\)/);
+  assert.match(teSvg(m, series), /No time-error curve/);
 });
 test("a result's record.series is drawn, in either shape, whole or decimated, and nothing else is", () => {
   for (const sc of SCENARIOS) {

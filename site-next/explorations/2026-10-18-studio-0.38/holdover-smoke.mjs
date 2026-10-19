@@ -6,10 +6,9 @@ const p = await (await b.newContext({ viewport: { width: 1440, height: 1000 } })
 let fails = 0; const ok = (c, m) => { console.log(c ? "ok  " : "FAIL", m); if (!c) fails++; };
 await p.goto("http://localhost:8851/holdover/index.html"); await p.waitForSelector("#ho-chips li");
 ok(/FAIL/.test(await p.$eval("#ho-chips", (e) => e.textContent)) && /measured against the mask/.test(await p.$eval("#ho-chips", (e) => e.textContent)), "example opens with the engine's verdicts");
+ok((await p.$$(".ho-line")).length === 1 && /the result/.test(await p.$eval("#ho-te-note", (e) => e.textContent)), "example: the engine's record.series is drawn: " + (await p.$eval("#ho-te-note", (e) => e.textContent)).slice(0, 120));
 await p.click('.ho-tab[data-id="holdover-test-ptp4l"]'); await p.waitForTimeout(500);
-ok(/linuxptp|ptp4l/i.test(await p.$eval("#ho-blurb", (e) => e.textContent)) && /carries no time-error samples/.test(await p.$eval("#ho-te-note", (e) => e.textContent)), "ptp4l scenario opens; without record.series it says so");
-await p.setInputFiles("#ho-files", ["/workspace/kshana-pro/site-next/explorations/2026-10-01-studio-rebuild/REVIEW/fixtures/holdover-test-ptp4l.with-series.result.json"]); await p.waitForSelector(".ho-line");
-ok((await p.$$(".ho-line")).length === 1 && /the result/.test(await p.$eval("#ho-te-note", (e) => e.textContent)), "a result with record.series is drawn");
+ok(/linuxptp|ptp4l/i.test(await p.$eval("#ho-blurb", (e) => e.textContent)) && (await p.$$(".ho-line")).length === 1, "ptp4l scenario opens with its curve from the engine's record.series");
 await p.setInputFiles("#ho-files", ["/workspace/kshana-pro/site-next/explorations/2026-10-01-studio-rebuild/scenarios/holdover-test-ptp4l.toml"]); await p.waitForTimeout(300);
 ok(/not JSON/.test(await p.$eval("#ho-status", (e) => e.textContent)), "a scenario file is refused with a reason");
 ok(errs.length === 0, "no page errors " + errs.join(";"));

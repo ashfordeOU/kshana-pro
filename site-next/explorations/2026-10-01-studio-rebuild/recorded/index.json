@@ -215,17 +215,17 @@
   },
   "holdover-test-example.toml": {
    "file": "holdover-test-example.json",
-   "bytes": 41739,
+   "bytes": 62909,
    "source": "native",
    "browser_error": "unknown scenario kind \"holdover-test\". `kshana kinds` lists all 84 built-in kinds.",
-   "engine_commit": "a396a84ce6d96a603b3e458132912bf5ad71ef25"
+   "engine_commit": "760fc54d3e4bfbfa01555bd718bc24b5d1092c57"
   },
   "holdover-test-ptp4l.toml": {
    "file": "holdover-test-ptp4l.json",
-   "bytes": 81453,
+   "bytes": 101958,
    "source": "native",
    "browser_error": "unknown scenario kind \"holdover-test\". `kshana kinds` lists all 84 built-in kinds.",
-   "engine_commit": "a396a84ce6d96a603b3e458132912bf5ad71ef25"
+   "engine_commit": "760fc54d3e4bfbfa01555bd718bc24b5d1092c57"
   },
   "hybrid-optical-rf.toml": {
    "file": "hybrid-optical-rf.json",
