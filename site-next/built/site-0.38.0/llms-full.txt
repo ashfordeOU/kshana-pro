@@ -26,9 +26,9 @@ Event log · campaign-jam-spoof-holdover-integrityReal events
 
 Where every trace comes from
 
-Campaign: Engine v0.38.0, build a9978e3 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
+Campaign: Engine v0.38.0, build 4a11fab · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
 
-Orbits: Engine v0.38.0, build a9978e3 · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
+Orbits: Engine v0.38.0, build 4a11fab · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
 
 The console, the three cards and the log replay one chained run of 6 phases and 18 member runs on its 10 s grid (T+01:16:10 of mission time). The orbits are the 102 satellites of GPS, Galileo, BeiDou and GLONASS from the constellation run, each recovered as a circular two-body orbit from the engine's ground track (worst residual 0.0034°), radii compressed for display. Links are drawn to satellites above the constellation run's 10° mask (25° in the integrity-alarm phase, the campaign's reacquisition mask), dimmed by its jamming and cut in holdover. Earth: NASA Blue Marble and Black Marble. Kshana Studio replays the chained run in your browser; the engine's own report and the command reproduce each run.
 
@@ -162,7 +162,7 @@ NominalJammingSpoofingHoldoverIntegrity alarmRecovery
 
 T+00:00:00 → T+01:16:10 mission time · the chained run, not three runs side by sidePL = protection level · AL = alert limit · INS = inertial navigation system
 
-Engine v0.38.0, build a9978e3 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
+Engine v0.38.0, build 4a11fab · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
 
 02Capabilities
 
@@ -218,7 +218,7 @@ Integrity
 
 Protection levels (PL) from receiver autonomous integrity monitoring (RAIM) and its advanced form (ARAIM), checked against the alert limit: here, the chained mission's integrity-alarm phase. Hatched bars are epochs where no protection level could be formed.
 
-Engine v0.38.0, build a9978e3 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
+Engine v0.38.0, build 4a11fab · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
 
 Telecom
 
@@ -454,9 +454,9 @@ A spoofer pushes the clock at 0.1 ns/s. The RF (radio-frequency) detector alarms
 
 The jammer goes to 10 dBW and every satellite is lost. The clock free-runs from the 37.0 ns the spoofer left and crosses its 50 ns guard at T+00:35:40; the inertial error reaches 24.3 km.
 
-Campaign: Engine v0.38.0, build a9978e3 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
+Campaign: Engine v0.38.0, build 4a11fab · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
 
-Orbits: Engine v0.38.0, build a9978e3 · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
+Orbits: Engine v0.38.0, build 4a11fab · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
 
 Open core, Kshana Pro, custom study
 ## Free for everyone. Pro when the answer has to stand up in a review.
@@ -1037,7 +1037,7 @@ Orbit view
 
 engine v0.38.0t = 0 sReal engine run, replayed
 
-Engine v0.38.0, build a9978e3 · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
+Engine v0.38.0, build 4a11fab · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
 
 Orbits: re-propagated from the run's own elements and checked against the engine's ground tracks. Planets: NASA imagery.
 
@@ -2055,7 +2055,7 @@ Kind has validated ledger rowsKind's rows are ModelledNot matched to a ledger mo
 
 14Capability cards
 Free core
-## 59 capabilities, each with its proof.
+## 61 capabilities, each with its proof.
 
 The capability cards from the engine's own capability file. Run in Kshana Studio opens the matching scenario's recorded run.
 
@@ -2233,7 +2233,7 @@ ModelledMachine-checked verification matrixVerification & assurancevalidated row
 A requirement-to-module-to-test-to-oracle-to-status cross-reference rendered from the engine itself (Markdown/CSV), with unit-tested honesty invariants: a row may be labelled validated only if it carries an independent external oracle (NIST / AIAA / SOFA / IGS / a published value), so an internal self-consistency check cannot masquerade as a validation — and the hardware/PA capabilities Kshana does not provide are recorded as partner-owned gaps. The executable backbone for an ECSS-E-ST-10-02 verification cross-reference.
 CI continuous integration · CSV comma-separated values · NIST National Institute of Standards and Technology · AIAA American Institute of Aeronautics and Astronautics · SOFA Standards of Fundamental Astronomy · IGS International GNSS Service
 
-ModelledUnit and provenance on every reported quantityVerification & assurance85 of 85 kinds, 3029 of 3029 numeric fields
+ModelledUnit and provenance on every reported quantityVerification & assurance87 of 87 kinds, 3127 of 3127 numeric fields
 
 Every numeric field a scenario emits carries a unit and a provenance class drawn from a closed vocabulary, with a definition where one exists, published as a machine-readable schema beside the engine. A ratcheted gate runs every built-in kind and fails on a field that carries none; the kinds not yet complete are named one by one with the reason each is still open, and the list can only shrink. Reports that state their own constants — the one-way link budget, the optical and RF budget — let a reader recompute the headline from the report alone.
 RF radio frequency
@@ -2346,6 +2346,16 @@ ModelledOptical timing links through clouds and turbulenceOptical / RF PNT7 of 7
 How often an optical time-transfer link is up when the atmosphere is in the path. For each ground site the engine gives the clear-air loss, the Hufnagel-Valley turbulence state with gamma-gamma scintillation fades and aperture averaging, the availability against the link margin from a stated cloud climate, the ceiling no margin can lift, the outage-duration distribution and the timing error an outage costs a holdover clock. It then shows what extra sites, a larger aperture, another wavelength or adaptive optics buy. The bundled cloud climates are illustrative, not measured; the output is advisory.
 RF radio frequency · PNT positioning, navigation and timing
 
+ModelledGNSS beyond the constellation: the Space Service Volume and past itNav-signal performanceICG SSV booklet tables, pre-registered; most bars NOT MET (xval/gnss-ssv/RESULTS.md)
+
+For a spacecraft on a sphere (the global shell of the ICG Space Service Volume booklet) or on a Keplerian trajectory from LEO to lunar transfer, counts per constellation (GPS, GLONASS, Galileo, BDS, QZSS, NavIC) and for all together the signals above a C/N0 threshold: availability of one and of four signals, longest outage, received C/N0, dilution of precision, and main-lobe against sidelobe links. Transmit patterns are the booklet's, a parametric stand-in or one you supply; a limb-ray ionosphere, plasmasphere and atmosphere model and a weak-signal receiver design are optional; an onboard GNSS filter for high and lunar-transfer orbits and formation relative navigation are included. MODELLED: compared with the booklet's tables under a pre-registration committed before the run, the minimum-radiated-power constants and the lunar bar agree, the other bars are NOT MET under the pre-registered reading (almost all through the booklet's inconsistent GLONASS beam angle), and the parametric sidelobe stand-in does not reproduce the measured GPS panel patterns.
+GNSS Global Navigation Satellite System · LEO low Earth orbit · GPS Global Positioning System · QZSS Quasi-Zenith Satellite SystemRun gnss-ssv-shell in Kshana Studio
+
+ModelledLunar orbit and surface as navigation and geodetic infrastructureLunar & cislunarnumpy/scipy oracles of the numerics; three pre-registered bars NOT MET (xval/lunar-infra/RESULTS.md)
+
+Five studies in a restricted three-body model: an onboard Earth-GNSS orbit determination in a near-rectilinear halo orbit against an independent ground range and range-rate determination; joint surface-station and orbiter carrier-phase integer ambiguity fixing (LAMBDA); the Fisher information of a seven-parameter lunar datum with and without orbiter-to-surface ranges; GNSS, VLBI and laser-ranging offsets against the local tie; and sensitivity to the lunar tidal and libration parameters. MODELLED with illustrative inputs: the numerics are checked against independent numpy and scipy programs, not the physics. Under the pre-registered bars, three are NOT MET: an injected force error is not detected at the stated rate (C3), the bootstrapped success rate differs from the numpy oracle by 1.7e-6 against a bar of 1e-9 (Q3), and adding a ranging family does not always lower the pseudo-inverse trace (G3, trace half).
+GNSS Global Navigation Satellite System · VLBI very long baseline interferometryRun lunar-infrastructure-od-consistency in Kshana Studio
+
 Nothing matches that filter.
 
 15Standards and formats
@@ -2434,7 +2444,7 @@ One square per compared vector, coloured by its position error.
 
 oracle · AIAA 2006-6753 verification vectorsHow it was checked
 
-Engine v0.38.0, build a9978e3 · tests/sgp4_verification.rs · deterministic, no seedOpen in Kshana Studio: the same propagator, orbit-sgp4-gps.toml · seed 17
+Engine v0.38.0, build 4a11fab · tests/sgp4_verification.rs · deterministic, no seedOpen in Kshana Studio: the same propagator, orbit-sgp4-gps.toml · seed 17
 
 171 of 171 RAIM (receiver autonomous integrity monitoring) threshold cases match SciPy inside the band. Seed 7.
 
@@ -2450,7 +2460,7 @@ One square per SciPy case, grouped by kernel.
 
 oracle · SciPyHow it was checked
 
-Engine v0.38.0, build a9978e3 · tests/raim_reference.rs · deterministic, no seedOpen in Kshana Studio: the kernel at work, integrity-raim.toml · seed 7
+Engine v0.38.0, build 4a11fab · tests/raim_reference.rs · deterministic, no seedOpen in Kshana Studio: the kernel at work, integrity-raim.toml · seed 7
 
 Numerical (Cowell) orbit propagation against Orekit over a 24-hour arc: worst difference 0.08 m in force tiers 1 to 5.
 
@@ -2466,7 +2476,7 @@ Position difference against time, per force tier.
 
 oracle · Orekit 12.2How it was checked
 
-Engine v0.38.0, build a9978e3 · tests/numerical_cowell_propagator_reference.rs · deterministic, no seedNo Kshana Studio view: this comparison runs as an engine test.
+Engine v0.38.0, build 4a11fab · tests/numerical_cowell_propagator_reference.rs · deterministic, no seedNo Kshana Studio view: this comparison runs as an engine test.
 
 Orbits · millimetres to metresValidated
 
@@ -2480,7 +2490,7 @@ Each residual on a logarithmic scale from a millimetre to twenty metres.
 
 oracle · ESA precise ephemerides, the lunar orbiter's reconstructed trajectory, Orekit 12.2, AIAA vectorsHow it was checked
 
-Engine v0.38.0 · docs/AGENCY-ORBIT-VALIDATION.md residual tables, with the two propagator checks recomputed at build a9978e3 · deterministic, no seedNo Kshana Studio view: precise orbit determination runs as engine tests.
+Engine v0.38.0 · docs/AGENCY-ORBIT-VALIDATION.md residual tables, with the two propagator checks recomputed at build 4a11fab · deterministic, no seedNo Kshana Studio view: precise orbit determination runs as engine tests.
 
 Clocks · stabilityValidated
 
@@ -2494,7 +2504,7 @@ Four deviations against averaging time, with the published values as rings.
 
 oracle · NIST SP 1065How it was checked
 
-Engine v0.38.0, build a9978e3 · tests/allan_nist_sp1065_1000point.rs · deterministic, no seedOpen in Kshana Studio: the estimators on a clock, clock-holdover.toml · seed 42
+Engine v0.38.0, build 4a11fab · tests/allan_nist_sp1065_1000point.rs · deterministic, no seedOpen in Kshana Studio: the estimators on a clock, clock-holdover.toml · seed 42
 
 Holdover prediction on a measured caesium clock record: predicted over measured between 0.84 and 1.03, inside the pre-set factor of 1.5.
 
@@ -2510,7 +2520,7 @@ Measured and predicted time error against coast time, and the ratio window.
 
 oracle · measured caesium recordHow it was checked
 
-Engine v0.38.0, build a9978e3 · tests/slot_timing_cs5071a_holdout.rs · deterministic, no seedOpen in Kshana Studio: the same inversion, slot-timing-ocxo-leo.toml · deterministic
+Engine v0.38.0, build 4a11fab · tests/slot_timing_cs5071a_holdout.rs · deterministic, no seedOpen in Kshana Studio: the same inversion, slot-timing-ocxo-leo.toml · deterministic
 
 02Verification matrix
 
@@ -8369,7 +8379,7 @@ Terminal · kshana v0.38.0 Recorded run
 
 ```
 
-A recorded command-line session, engine v0.38.0 (build a9978e3):
+A recorded command-line session, engine v0.38.0 (build 4a11fab):
 
 - $ kshana --version: kshana 0.38.0
 
@@ -14700,9 +14710,9 @@ MODELLED holdover test of a timing system, scored from a time-error record the O
 
 MODELLED GNSS availability and link strength in the Space Service Volume and beyond: for a user on a sphere (the ICG booklet's global shell) or on a Keplerian trajectory (LEO to lunar transfer) it counts, per constellation (GPS, GLONASS, Galileo, BDS, QZSS, NavIC) and for all together, the signals usable above a C/N0 threshold - availability of at least one and of four signals, maximum outage duration, received C/N0, dilution of precision, main-lobe against sidelobe links - with a booklet, parametric or user-supplied transmit pattern, optional limb-ray ionosphere, plasmasphere and atmosphere effects and an optional weak-signal receiver design; also an onboard GNSS extended Kalman filter for HEO and lunar-transfer craft (orbital dynamics, solar radiation pressure, third bodies, clock) and relative navigation of a multi-craft formation by single-differenced pseudoranges. Checked against the ICG SSV booklet tables under a pre-registration (xval/gnss-ssv)
 
-- Required fields: (none)
+- Required fields: shell|trajectory|navigation
 
-- Optional fields: name, constellations, transmit, receiver, atmosphere, shell, trajectory, navigation, formation
+- Optional fields: name, constellations, transmit, receiver, atmosphere, formation
 
 ========================================================================
 URL: https://kshana.dev/docs/scenario-reference
@@ -21189,7 +21199,7 @@ Title: Capability reference · Kshana docs
 
 # Capability reference
 
-The 59 capability cards from web/capabilities.json, then all 388 rows of the verification matrix.
+The 61 capability cards from web/capabilities.json, then all 388 rows of the verification matrix.
 
 ## Capability cards#
 
@@ -21455,7 +21465,7 @@ A requirement-to-module-to-test-to-oracle-to-status cross-reference rendered fro
 
 ### Unit and provenance on every reported quantity
 
-Verification & assuranceModelled85 of 85 kinds, 3029 of 3029 numeric fields
+Verification & assuranceModelled87 of 87 kinds, 3127 of 3127 numeric fields
 
 Every numeric field a scenario emits carries a unit and a provenance class drawn from a closed vocabulary, with a definition where one exists, published as a machine-readable schema beside the engine. A ratcheted gate runs every built-in kind and fails on a field that carries none; the kinds not yet complete are named one by one with the reason each is still open, and the list can only shrink. Reports that state their own constants — the one-way link budget, the optical and RF budget — let a reader recompute the headline from the report alone.
 
@@ -21606,6 +21616,22 @@ One reproducible study of what a lunar south-pole reference station could do und
 Optical / RF PNTModelled7 of 7 pre-registered numerical bars met against an independent mpmath program; no measured availability record has been compared
 
 How often an optical time-transfer link is up when the atmosphere is in the path. For each ground site the engine gives the clear-air loss, the Hufnagel-Valley turbulence state with gamma-gamma scintillation fades and aperture averaging, the availability against the link margin from a stated cloud climate, the ceiling no margin can lift, the outage-duration distribution and the timing error an outage costs a holdover clock. It then shows what extra sites, a larger aperture, another wavelength or adaptive optics buy. The bundled cloud climates are illustrative, not measured; the output is advisory.
+
+### GNSS beyond the constellation: the Space Service Volume and past it
+
+Nav-signal performanceModelledICG SSV booklet tables, pre-registered; most bars NOT MET (xval/gnss-ssv/RESULTS.md)
+
+For a spacecraft on a sphere (the global shell of the ICG Space Service Volume booklet) or on a Keplerian trajectory from LEO to lunar transfer, counts per constellation (GPS, GLONASS, Galileo, BDS, QZSS, NavIC) and for all together the signals above a C/N0 threshold: availability of one and of four signals, longest outage, received C/N0, dilution of precision, and main-lobe against sidelobe links. Transmit patterns are the booklet's, a parametric stand-in or one you supply; a limb-ray ionosphere, plasmasphere and atmosphere model and a weak-signal receiver design are optional; an onboard GNSS filter for high and lunar-transfer orbits and formation relative navigation are included. MODELLED: compared with the booklet's tables under a pre-registration committed before the run, the minimum-radiated-power constants and the lunar bar agree, the other bars are NOT MET under the pre-registered reading (almost all through the booklet's inconsistent GLONASS beam angle), and the parametric sidelobe stand-in does not reproduce the measured GPS panel patterns.
+
+Run gnss-ssv-shell.toml in Kshana Studio
+
+### Lunar orbit and surface as navigation and geodetic infrastructure
+
+Lunar & cislunarModellednumpy/scipy oracles of the numerics; three pre-registered bars NOT MET (xval/lunar-infra/RESULTS.md)
+
+Five studies in a restricted three-body model: an onboard Earth-GNSS orbit determination in a near-rectilinear halo orbit against an independent ground range and range-rate determination; joint surface-station and orbiter carrier-phase integer ambiguity fixing (LAMBDA); the Fisher information of a seven-parameter lunar datum with and without orbiter-to-surface ranges; GNSS, VLBI and laser-ranging offsets against the local tie; and sensitivity to the lunar tidal and libration parameters. MODELLED with illustrative inputs: the numerics are checked against independent numpy and scipy programs, not the physics. Under the pre-registered bars, three are NOT MET: an injected force error is not detected at the stated rate (C3), the bootstrapped success rate differs from the numpy oracle by 1.7e-6 against a bar of 1e-9 (Q3), and adding a ranging family does not always lower the pseudo-inverse trace (G3, trace half).
+
+Run lunar-infrastructure-od-consistency.toml in Kshana Studio
 
 ## Verification matrix#
 
@@ -23229,7 +23255,7 @@ Community / governance |  partial |  Governance scaffolding present — GOVERNAN
 
 Funding & procurement readiness |  none |  TRL ~3; no agency citations/contracts yet (see strategy notes) |
 
-Updated 2026-10-19 for engine 0.38.0 (85 scenario kinds, from kshana kinds --json; new in 0.38.0: holdover-test). 2026-10-18: 84 kinds (new in 0.37: optical-atmosphere). 2026-10-16: 83 kinds (new in 0.36: acm-link, aocs, ascent-losses, contact-schedule, entry-heating, eo-radiometry, lunar-station-coverage and time-transfer-budget). 2026-10-10: engine 0.35.0, 75 kinds, no new kind. 2026-10-09 and 2026-10-08: previous revisions. 2026-10-04: the Nav-signal row notes the 0.31.0 IQ layer. 2026-09-29: LEO-PNT, spectrum, solar-system / any-body PNT, campaign and output rows added. Earlier: aligned with the 2026-06-02 grand audit's 27-row capability matrix; deep-space / Mars PNT row added in v0.17.0. Quantum-PNT additions (GNSS-denied clock holdover src/holdover.rs, composed quantum-inertial dead-reckoning budget QuantumNavBudget, ranging-code design-trade CodeFamily, machine-checked verification matrix src/verification.rs) folded into the Timing, Quantum-PNT-sensor, Nav-signal and V&V rows — each labelled validated-or-modelled per its actual oracle.
+Updated 2026-10-19 for engine 0.38.0 (87 scenario kinds, from kshana kinds --json; new in 0.38.0: holdover-test, gnss-ssv and lunar-infrastructure). 2026-10-18: 84 kinds (new in 0.37: optical-atmosphere). 2026-10-16: 83 kinds (new in 0.36: acm-link, aocs, ascent-losses, contact-schedule, entry-heating, eo-radiometry, lunar-station-coverage and time-transfer-budget). 2026-10-10: engine 0.35.0, 75 kinds, no new kind. 2026-10-09 and 2026-10-08: previous revisions. 2026-10-04: the Nav-signal row notes the 0.31.0 IQ layer. 2026-09-29: LEO-PNT, spectrum, solar-system / any-body PNT, campaign and output rows added. Earlier: aligned with the 2026-06-02 grand audit's 27-row capability matrix; deep-space / Mars PNT row added in v0.17.0. Quantum-PNT additions (GNSS-denied clock holdover src/holdover.rs, composed quantum-inertial dead-reckoning budget QuantumNavBudget, ranging-code design-trade CodeFamily, machine-checked verification matrix src/verification.rs) folded into the Timing, Quantum-PNT-sensor, Nav-signal and V&V rows — each labelled validated-or-modelled per its actual oracle.
 
 FutureNAV demonstrator additions (modelled, internally cross-checked — not externally validated): (1) Machine-learning RF-impairment detection evaluation testbed src/impairment_eval.rs — a labelled synthetic (parameter-grounded, not IQ) impairment corpus + a detector-agnostic ROC/AUC/confusion/Pfa-Pmd (ROC: receiver operating characteristic; AUC: area under the curve) harness with a leakage guard and stratified split; the bundled detectors are transparent published-method baselines, not SOTA (state of the art), and a high AUC here demonstrates the pipeline, not field performance. (2) Quantum-vs-classical PNT trade engine src/quantum_trade.rs — measured-ADEV ingestion (NNLS (non-negative least squares) fit of σ_y²(τ)=q_wf/τ + q_rw·τ/3 + q_drift·τ³/20, round-trip-checked against q_from_allan), a timing/inertial-holdover benefit table that carries the floor-assumption caveat on the artifact, and a GNSS-denied resilience-vs-time envelope; it quantifies a partner's quantum benefit, never validates the device. Both adversarially reviewed (a τ²→τ³ drift-basis bug and a false-"bounded-indefinitely" resilience claim were caught and fixed). 911 lib tests at the time of that addition, fmt+clippy clean.
 
@@ -30453,7 +30479,7 @@ Every capability in the verification matrix is labelled validated (checked again
 
 ## Capabilities#
 
-The engine has 85 scenario kinds; kshana kinds lists them with their fields.
+The engine has 87 scenario kinds; kshana kinds lists them with their fields. New in 0.38.0: gnss-ssv (GNSS signals for spacecraft above, around and past the GNSS orbits) and lunar-infrastructure (lunar orbit and surface as navigation and geodetic infrastructure), both MODELLED, and holdover-test (a time-error record against the ITU-T masks).
 
 - Spectrum: how a jammer takes the GNSS L band, band by band.
 
@@ -30645,7 +30671,7 @@ Every capability in the verification matrix is labelled validated (checked again
 
 ## Capabilities#
 
-The engine has 85 scenario kinds; kshana kinds lists them with their fields.
+The engine has 87 scenario kinds; kshana kinds lists them with their fields. New in 0.38.0: gnss-ssv (GNSS signals for spacecraft above, around and past the GNSS orbits) and lunar-infrastructure (lunar orbit and surface as navigation and geodetic infrastructure), both MODELLED, and holdover-test (a time-error record against the ITU-T masks).
 
 - Spectrum: how a jammer takes the GNSS L band, band by band.
 
@@ -32854,7 +32880,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ### Fixed#
 
-- Issue #36: oracle and reference tests on a Mac. The byte-exact layers of the pin tests were gated on aarch64 macOS, but a literal is one machine's maths library and Apple ships a different one per macOS release. They now also need the declared baseline host (KSHANA_EXACT_PINS=1, set by scripts/gate.sh), so the exact layer stays enforced where the pins were captured and the portable layer runs everywhere. No literal was re-taken and no tolerance changed; a guard test fails if a byte-exact layer is gated on the platform alone again. scripts/oracle-triage.sh and docs/LOCAL-ORACLE-TESTS.md say how to triage a difference.
+- Issue #36: byte-exact pin layers. Byte-exact pin layers run only on a host declared the baseline (KSHANA_EXACT_PINS=1, set by scripts/gate.sh), not on every Apple-silicon Mac, because Apple's maths library differs between macOS releases; the portable layer runs everywhere, and tests/exact_pin_gate_guard.rs stops a byte-exact layer being gated on platform alone again. The oracle comparisons themselves pass on macOS. No literal was re-taken and no tolerance changed. scripts/oracle-triage.sh and docs/LOCAL-ORACLE-TESTS.md say how to triage a difference; .github/workflows/oracle-macos.yml is a manual and weekly diagnostic, not a gate.
 
 - CodeQL: an unanchored pattern in the Studio's trust-open helper now matches the whole header (web/studio/lib/trust-open.mjs).
 

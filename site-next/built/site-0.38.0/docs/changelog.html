@@ -229,12 +229,12 @@ statement. The <code>/benchmark</code> site page shows the <code>kshana bench le
 </ul>
 <h3 id="fixed">Fixed<a class="anchor" href="#fixed" aria-label="Link to this section">#</a></h3>
 <ul>
-<li><strong>Issue #36: oracle and reference tests on a Mac.</strong> The byte-exact layers of the pin tests were gated on aarch64 macOS, but a
-literal is one machine&#39;s maths library and Apple ships a different one per macOS release. They now also need the declared
-baseline host (<code>KSHANA_EXACT_PINS=1</code>, set by <code>scripts/gate.sh</code>), so the exact layer stays enforced where the pins were
-captured and the portable layer runs everywhere. No literal was re-taken and no tolerance changed; a guard test fails if a
-byte-exact layer is gated on the platform alone again. <code>scripts/oracle-triage.sh</code> and
-<span class="not-pushed" title="In the repository branch these docs come from; not yet on GitHub"><code>docs/LOCAL-ORACLE-TESTS.md</code></span> say how to triage a difference.</li>
+<li><strong>Issue #36: byte-exact pin layers.</strong> Byte-exact pin layers run only on a host declared the baseline (<code>KSHANA_EXACT_PINS=1</code>, set
+by <code>scripts/gate.sh</code>), not on every Apple-silicon Mac, because Apple&#39;s maths library differs between macOS releases; the
+portable layer runs everywhere, and <code>tests/exact_pin_gate_guard.rs</code> stops a byte-exact layer being gated on platform alone
+again. The oracle comparisons themselves pass on macOS. No literal was re-taken and no tolerance changed.
+<code>scripts/oracle-triage.sh</code> and <span class="not-pushed" title="In the repository branch these docs come from; not yet on GitHub"><code>docs/LOCAL-ORACLE-TESTS.md</code></span> say how to triage a difference;
+<code>.github/workflows/oracle-macos.yml</code> is a manual and weekly diagnostic, not a gate.</li>
 <li><strong>CodeQL: an unanchored pattern in the Studio&#39;s trust-open helper</strong> now matches the whole header (<code>web/studio/lib/trust-open.mjs</code>).</li>
 <li><strong>CI: runner disk.</strong> The <code>check</code> job builds the dev and test profiles without debug information, so linking no longer fills the disk.</li>
 <li><strong>Source guards.</strong> Every source file that holds pin-bearing test fixtures declares its pin scope, and the tests that write

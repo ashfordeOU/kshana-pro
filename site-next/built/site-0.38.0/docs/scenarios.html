@@ -1049,8 +1049,8 @@
 <h2 id="gnss-ssv"><code>gnss-ssv</code><a class="anchor" href="#gnss-ssv" aria-label="Link to this section">#</a></h2>
 <p>MODELLED GNSS availability and link strength in the Space Service Volume and beyond: for a user on a sphere (the ICG booklet&#39;s global shell) or on a Keplerian trajectory (LEO to lunar transfer) it counts, per constellation (GPS, GLONASS, Galileo, BDS, QZSS, NavIC) and for all together, the signals usable above a C/N0 threshold - availability of at least one and of four signals, maximum outage duration, received C/N0, dilution of precision, main-lobe against sidelobe links - with a booklet, parametric or user-supplied transmit pattern, optional limb-ray ionosphere, plasmasphere and atmosphere effects and an optional weak-signal receiver design; also an onboard GNSS extended Kalman filter for HEO and lunar-transfer craft (orbital dynamics, solar radiation pressure, third bodies, clock) and relative navigation of a multi-craft formation by single-differenced pseudoranges. Checked against the ICG SSV booklet tables under a pre-registration (xval/gnss-ssv)</p>
 <ul>
-<li><strong>Required fields:</strong> <em>(none)</em></li>
-<li><strong>Optional fields:</strong> <code>name</code>, <code>constellations</code>, <code>transmit</code>, <code>receiver</code>, <code>atmosphere</code>, <code>shell</code>, <code>trajectory</code>, <code>navigation</code>, <code>formation</code></li>
+<li><strong>Required fields:</strong> <code>shell|trajectory|navigation</code></li>
+<li><strong>Optional fields:</strong> <code>name</code>, <code>constellations</code>, <code>transmit</code>, <code>receiver</code>, <code>atmosphere</code>, <code>formation</code></li>
 </ul>
 </div>
     <nav class="docs-pn" aria-label="Previous and next"><a class="prev" href="/docs/example-multi-tool"><small>Previous</small>Worked example: multi-tool pipeline</a><a class="next" href="/docs/scenario-reference"><small>Next</small>Scenario reference</a></nav>

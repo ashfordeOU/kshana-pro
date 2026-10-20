@@ -1,11 +1,11 @@
 {
  "generated_by": "features/gen_features.py",
- "generated_at": "2026-10-20T04:18:02Z",
+ "generated_at": "2026-10-20T11:22:26Z",
  "engine": {
   "repo": "/workspace/kshana-integ",
   "version": "0.38.0",
-  "git_head": "a9978e3f",
-  "worktree_dirty": false
+  "git_head": "4a11fab1",
+  "worktree_dirty": true
  },
  "counts": {
   "kind": 87,
@@ -4289,16 +4289,15 @@
    ],
    "claim": "",
    "facts": {
-    "required_fields": [],
+    "required_fields": [
+     "shell|trajectory|navigation"
+    ],
     "optional_fields": [
      "name",
      "constellations",
      "transmit",
      "receiver",
      "atmosphere",
-     "shell",
-     "trajectory",
-     "navigation",
      "formation"
     ],
     "scenarios": [
