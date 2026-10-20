@@ -5,7 +5,7 @@ const require = createRequire("/opt/node22/lib/node_modules/");
 const { chromium } = require("playwright");
 const [base, out, obs] = process.argv.slice(2);
 const pages = [["home", "/index.html"], ["capabilities", "/capabilities.html"], ["evidence", "/evidence.html"], ["developers", "/developers.html"], ["benchmark", "/benchmark.html"],
-  ["replay", "/studio/replay/index.html"], ["optical", "/studio/optical/index.html"], ["holdover", "/studio/holdover/index.html"], ["studio-observatory", "/studio/observatory/index.html"], ["studio-observatory-synthetic-days", "/studio/observatory/index.html", "obs"]];
+  ["replay", "/studio/replay/index.html"], ["optical", "/studio/optical/index.html"], ["holdover", "/studio/holdover/index.html"], ["ssv", "/studio/ssv/index.html?scenario=gnss-ssv-heo"], ["lunar-infra", "/studio/lunar-infra/index.html?scenario=lunar-infrastructure-od-consistency"], ["studio-observatory", "/studio/observatory/index.html"], ["studio-observatory-synthetic-days", "/studio/observatory/index.html", "obs"]];
 const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome", args: ["--no-sandbox"] });
 const bad = [];
 for (const [w, h, scheme] of [[1440, 1000, "light"], [1440, 1000, "dark"], [390, 900, "light"], [390, 900, "dark"]]) {

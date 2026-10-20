@@ -1,10 +1,10 @@
 {
  "engine": {
   "version": "0.38.0",
-  "commit": "0d566f4",
-  "tree": "feat/studio-replay-0.38",
+  "commit": "a9978e3",
+  "tree": "HEAD",
   "dirty": false,
-  "kinds": 85
+  "kinds": 87
  },
  "runs": {
   "campaign-jam-spoof-holdover-integrity": {

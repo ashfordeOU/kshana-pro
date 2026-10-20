@@ -2671,7 +2671,7 @@
   "domain": "Moon, cislunar & Mars",
   "group": "bundled",
   "kind": "gnss-ssv",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=gnss-ssv-shell&tab=overview",
    "report": "index.html?scenario=gnss-ssv-shell&tab=report",
@@ -2695,7 +2695,7 @@
   "domain": "Moon, cislunar & Mars",
   "group": "bundled",
   "kind": "gnss-ssv",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=gnss-ssv-heo&tab=overview",
    "animation": "index.html?scenario=gnss-ssv-heo&tab=animation",
@@ -2721,7 +2721,7 @@
   "domain": "Moon, cislunar & Mars",
   "group": "bundled",
   "kind": "gnss-ssv",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=gnss-ssv-lunar-weak&tab=overview",
    "animation": "index.html?scenario=gnss-ssv-lunar-weak&tab=animation",
@@ -2747,7 +2747,7 @@
   "domain": "Moon, cislunar & Mars",
   "group": "bundled",
   "kind": "gnss-ssv",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=gnss-ssv-nav-lunar&tab=overview",
    "animation": "index.html?scenario=gnss-ssv-nav-lunar&tab=animation",
@@ -2773,7 +2773,7 @@
   "domain": "Moon, cislunar & Mars",
   "group": "bundled",
   "kind": "gnss-ssv",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=gnss-ssv-formation-heo&tab=overview",
    "animation": "index.html?scenario=gnss-ssv-formation-heo&tab=animation",
@@ -2799,7 +2799,7 @@
   "domain": "Moon, cislunar & Mars",
   "group": "bundled",
   "kind": "lunar-infrastructure",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=lunar-infrastructure-od-consistency&tab=overview",
    "report": "index.html?scenario=lunar-infrastructure-od-consistency&tab=report",
@@ -2822,7 +2822,7 @@
   "domain": "Moon, cislunar & Mars",
   "group": "bundled",
   "kind": "lunar-infrastructure",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=lunar-infrastructure-od-consistency-model-error&tab=overview",
    "report": "index.html?scenario=lunar-infrastructure-od-consistency-model-error&tab=report",
@@ -2845,7 +2845,7 @@
   "domain": "Moon, cislunar & Mars",
   "group": "bundled",
   "kind": "lunar-infrastructure",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=lunar-infrastructure-carrier-phase&tab=overview",
    "report": "index.html?scenario=lunar-infrastructure-carrier-phase&tab=report",
@@ -2868,7 +2868,7 @@
   "domain": "Moon, cislunar & Mars",
   "group": "bundled",
   "kind": "lunar-infrastructure",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=lunar-infrastructure-frame-coestimation&tab=overview",
    "report": "index.html?scenario=lunar-infrastructure-frame-coestimation&tab=report",
@@ -2891,7 +2891,7 @@
   "domain": "Moon, cislunar & Mars",
   "group": "bundled",
   "kind": "lunar-infrastructure",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=lunar-infrastructure-space-tie&tab=overview",
    "report": "index.html?scenario=lunar-infrastructure-space-tie&tab=report",
@@ -2914,7 +2914,7 @@
   "domain": "Moon, cislunar & Mars",
   "group": "bundled",
   "kind": "lunar-infrastructure",
-  "runs": "recorded (native engine)",
+  "runs": "browser",
   "links": {
    "best": "index.html?scenario=lunar-infrastructure-geodesy-sensitivity&tab=overview",
    "report": "index.html?scenario=lunar-infrastructure-geodesy-sensitivity&tab=report",

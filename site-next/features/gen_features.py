@@ -952,7 +952,7 @@ def enum_validation(repo: str, abbr) -> list[dict]:
                 break
         rows.append(feature(id=vid, category="validation", subtype=f"verification-matrix row ({r['status']})", name=req,
                             description=plain(r["capability"], abbr), source=f"src/verification.rs:{ln}" if ln else f"web/data/verification-matrix.json#rows[{i-1}]",
-                            identifiers=[], probes=[["exact", req]], facts={"status": r["status"], "module": r.get("module"), "oracle": r.get("oracle")}))
+                            identifiers=[], probes=[["exact", req.split("`")[0].strip() if "`" in req else req]], facts={"status": r["status"], "module": r.get("module"), "oracle": r.get("oracle")}))
     return rows
 
 

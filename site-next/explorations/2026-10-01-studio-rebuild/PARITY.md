@@ -66,7 +66,7 @@ playground feature.
 | N10 | Command palette (⌘K / Ctrl-K): scenarios, views, commands | Top bar | `app.js: renderPalette(` |
 | N11 | Keyboard: ⌘↵ run, / search, [ and ] switch views, arrow keys in tabs | Global | `app.js: cycleTab(` |
 | N12 | Every published figure with its unit, note and provenance from the engine's `units` block | Overview | `app.js: keyFigures(` |
-| N13 | Recorded-run fallback when WebAssembly is blocked (real engine outputs for 177 of 178 scenarios, clearly labelled; the fifteen the browser build cannot run are recorded with the native engine) | Automatic; `?engine=recorded` forces it | `app.js: recordedEngine(` |
+| N13 | Recorded-run fallback when WebAssembly is blocked (real engine outputs for 177 of 178 scenarios, clearly labelled; the four the browser build cannot run are recorded with the native engine) | Automatic; `?engine=recorded` forces it | `app.js: recordedEngine(` |
 | N14 | Light and dark themes with a toggle; charts stay on dark "space" surfaces in both | Top bar | `app.js: toggleTheme(` |
 | N15 | Phone layout at 390 px: the same layers in one column, a 56 px header, a back link that names where it leads | Every screen | `index.html: id="task-back"` |
 | N16 | Copy embed code (iframe snippet) and preview embed | Share menu | `app.js: copyEmbedCode(` |

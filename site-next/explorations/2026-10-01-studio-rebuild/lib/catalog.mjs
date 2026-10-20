@@ -246,22 +246,11 @@ export const NOT_IN_BROWSER = {
   "lunar-llr-datum.toml": "Needs the archived laser-ranging data slice that ships with the repository, not with the browser build.",
   "lunar-station-geodesy-baseline.toml": "Needs the archived laser-ranging data slice that ships with the repository, not with the browser build.",
   "lunar-station-geodesy-with-station.toml": "Needs the archived laser-ranging data slice that ships with the repository, not with the browser build.",
-  "gnss-ssv-shell.toml": "The gnss-ssv kind is not in the 0.38.0 browser package built before the WS-H merge; the Studio shows the run recorded with the native engine.",
-  "gnss-ssv-heo.toml": "The gnss-ssv kind is not in the 0.38.0 browser package built before the WS-H merge; the Studio shows the run recorded with the native engine.",
-  "gnss-ssv-lunar-weak.toml": "The gnss-ssv kind is not in the 0.38.0 browser package built before the WS-H merge; the Studio shows the run recorded with the native engine.",
-  "gnss-ssv-nav-lunar.toml": "The gnss-ssv kind is not in the 0.38.0 browser package built before the WS-H merge; the Studio shows the run recorded with the native engine.",
-  "gnss-ssv-formation-heo.toml": "The gnss-ssv kind is not in the 0.38.0 browser package built before the WS-H merge; the Studio shows the run recorded with the native engine.",
-  "lunar-infrastructure-od-consistency.toml": "The lunar-infrastructure kind is not in the 0.38.0 browser package built before the WS-H merge; the Studio shows the run recorded with the native engine.",
-  "lunar-infrastructure-od-consistency-model-error.toml": "The lunar-infrastructure kind is not in the 0.38.0 browser package built before the WS-H merge; the Studio shows the run recorded with the native engine.",
-  "lunar-infrastructure-carrier-phase.toml": "The lunar-infrastructure kind is not in the 0.38.0 browser package built before the WS-H merge; the Studio shows the run recorded with the native engine.",
-  "lunar-infrastructure-frame-coestimation.toml": "The lunar-infrastructure kind is not in the 0.38.0 browser package built before the WS-H merge; the Studio shows the run recorded with the native engine.",
-  "lunar-infrastructure-space-tie.toml": "The lunar-infrastructure kind is not in the 0.38.0 browser package built before the WS-H merge; the Studio shows the run recorded with the native engine.",
-  "lunar-infrastructure-geodesy-sensitivity.toml": "The lunar-infrastructure kind is not in the 0.38.0 browser package built before the WS-H merge; the Studio shows the run recorded with the native engine.",
   "lunar-station-coverage-terrain.toml": "Needs the lunar elevation-model crop (data/lunar-dem/) that ships with the repository, not with the browser build.",
   "quantum-pnt-demonstrator.suite.toml": "A study suite, not a single scenario. Run it with the command-line tool: kshana --study.",
 };
 // Of those, the files the Studio shows as a run recorded with the native command-line engine.
-export const RECORDED_NATIVELY = ["lunar-llr-datum.toml", "lunar-station-coverage-terrain.toml", "lunar-station-geodesy-baseline.toml", "lunar-station-geodesy-with-station.toml", "gnss-ssv-shell.toml", "gnss-ssv-heo.toml", "gnss-ssv-lunar-weak.toml", "gnss-ssv-nav-lunar.toml", "gnss-ssv-formation-heo.toml", "lunar-infrastructure-od-consistency.toml", "lunar-infrastructure-od-consistency-model-error.toml", "lunar-infrastructure-carrier-phase.toml", "lunar-infrastructure-frame-coestimation.toml", "lunar-infrastructure-space-tie.toml", "lunar-infrastructure-geodesy-sensitivity.toml"];
+export const RECORDED_NATIVELY = ["lunar-llr-datum.toml", "lunar-station-coverage-terrain.toml", "lunar-station-geodesy-baseline.toml", "lunar-station-geodesy-with-station.toml"];
 // Bundled scenarios that need a newer engine than an older package has: what they need (a kind the engine lists, or
 // a function it exports) and the release that brings it. With an engine that lacks it, the Studio shows the recording
 // made with one that has it and does not run them (an older engine refuses their fields, or runs without them).

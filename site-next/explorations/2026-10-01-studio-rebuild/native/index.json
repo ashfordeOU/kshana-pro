@@ -1,9 +1,9 @@
 {
  "engine_version": "0.38.0",
- "engine_commit": "c979ccc8327345bf17a0296edfbb3302b463e388",
+ "engine_commit": "a9978e3f7917da2bbd96e05f3130b909e826dea4",
  "source": "native",
  "platform": "linux x64",
- "recorded_utc": "2026-10-19T11:12:11.669Z",
+ "recorded_utc": "2026-10-20T04:06:47.351Z",
  "runs": {
   "acm-link.toml": {
    "file": "acm-link.json.gz",
@@ -527,73 +527,63 @@
   },
   "gnss-ssv-formation-heo.toml": {
    "file": "gnss-ssv-formation-heo.json.gz",
-   "bytes": 23135,
-   "unpacked_bytes": 87256,
+   "bytes": 20289,
+   "unpacked_bytes": 72515,
    "report": true,
    "animation": true,
    "animation_reason": "",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": true,
-   "engine_commit": "1d728110fa1c66fb0b9c100da8b5d80b67aa35e1",
-   "note": "interim: recorded from kshana feat/ssv-0.38 at this commit; the integration re-record at the merged tree replaces it"
+   "full_run": false
   },
   "gnss-ssv-heo.toml": {
    "file": "gnss-ssv-heo.json.gz",
-   "bytes": 25956,
-   "unpacked_bytes": 110431,
+   "bytes": 21507,
+   "unpacked_bytes": 78775,
    "report": true,
    "animation": true,
    "animation_reason": "",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": true,
-   "engine_commit": "1d728110fa1c66fb0b9c100da8b5d80b67aa35e1",
-   "note": "interim: recorded from kshana feat/ssv-0.38 at this commit; the integration re-record at the merged tree replaces it"
+   "full_run": false
   },
   "gnss-ssv-lunar-weak.toml": {
    "file": "gnss-ssv-lunar-weak.json.gz",
-   "bytes": 24896,
-   "unpacked_bytes": 100950,
+   "bytes": 21182,
+   "unpacked_bytes": 76843,
    "report": true,
    "animation": true,
    "animation_reason": "",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": true,
-   "engine_commit": "1d728110fa1c66fb0b9c100da8b5d80b67aa35e1",
-   "note": "interim: recorded from kshana feat/ssv-0.38 at this commit; the integration re-record at the merged tree replaces it"
+   "full_run": false
   },
   "gnss-ssv-nav-lunar.toml": {
    "file": "gnss-ssv-nav-lunar.json.gz",
-   "bytes": 21574,
-   "unpacked_bytes": 79247,
+   "bytes": 19531,
+   "unpacked_bytes": 69722,
    "report": true,
    "animation": true,
    "animation_reason": "",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": true,
-   "engine_commit": "1d728110fa1c66fb0b9c100da8b5d80b67aa35e1",
-   "note": "interim: recorded from kshana feat/ssv-0.38 at this commit; the integration re-record at the merged tree replaces it"
+   "full_run": false
   },
   "gnss-ssv-shell.toml": {
    "file": "gnss-ssv-shell.json.gz",
-   "bytes": 10661,
-   "unpacked_bytes": 39320,
+   "bytes": 9633,
+   "unpacked_bytes": 33058,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the gnss-ssv result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": true,
-   "engine_commit": "1d728110fa1c66fb0b9c100da8b5d80b67aa35e1",
-   "note": "interim: recorded from kshana feat/ssv-0.38 at this commit; the integration re-record at the merged tree replaces it"
+   "full_run": false
   },
   "gps-denied-gravity-nav-egm2008.toml": {
    "file": "gps-denied-gravity-nav-egm2008.json.gz",
@@ -1450,87 +1440,75 @@
   },
   "lunar-infrastructure-carrier-phase.toml": {
    "file": "lunar-infrastructure-carrier-phase.json.gz",
-   "bytes": 11223,
-   "unpacked_bytes": 44595,
+   "bytes": 10341,
+   "unpacked_bytes": 38516,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the lunar-infrastructure result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": true,
-   "engine_commit": "e383b2326202f3a0746a33659c480b0ec7e4eeda",
-   "note": "interim: recorded from kshana feat/lunar-infra-0.38 (a binary built at e470c7a4; e383b232 differs only in ledger text); the integration re-record at the merged tree replaces it"
+   "full_run": false
   },
   "lunar-infrastructure-frame-coestimation.toml": {
    "file": "lunar-infrastructure-frame-coestimation.json.gz",
-   "bytes": 12421,
-   "unpacked_bytes": 49452,
+   "bytes": 10048,
+   "unpacked_bytes": 37040,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the lunar-infrastructure result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": true,
-   "engine_commit": "e383b2326202f3a0746a33659c480b0ec7e4eeda",
-   "note": "interim: recorded from kshana feat/lunar-infra-0.38 (a binary built at e470c7a4; e383b232 differs only in ledger text); the integration re-record at the merged tree replaces it"
+   "full_run": false
   },
   "lunar-infrastructure-geodesy-sensitivity.toml": {
    "file": "lunar-infrastructure-geodesy-sensitivity.json.gz",
-   "bytes": 12176,
-   "unpacked_bytes": 50583,
+   "bytes": 9986,
+   "unpacked_bytes": 36975,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the lunar-infrastructure result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": true,
-   "engine_commit": "e383b2326202f3a0746a33659c480b0ec7e4eeda",
-   "note": "interim: recorded from kshana feat/lunar-infra-0.38 (a binary built at e470c7a4; e383b232 differs only in ledger text); the integration re-record at the merged tree replaces it"
+   "full_run": false
   },
   "lunar-infrastructure-od-consistency-model-error.toml": {
    "file": "lunar-infrastructure-od-consistency-model-error.json.gz",
-   "bytes": 11736,
-   "unpacked_bytes": 47823,
+   "bytes": 10550,
+   "unpacked_bytes": 39130,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the lunar-infrastructure result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": true,
-   "engine_commit": "e383b2326202f3a0746a33659c480b0ec7e4eeda",
-   "note": "interim: recorded from kshana feat/lunar-infra-0.38 (a binary built at e470c7a4; e383b232 differs only in ledger text); the integration re-record at the merged tree replaces it"
+   "full_run": false
   },
   "lunar-infrastructure-od-consistency.toml": {
    "file": "lunar-infrastructure-od-consistency.json.gz",
-   "bytes": 11691,
-   "unpacked_bytes": 47593,
+   "bytes": 10510,
+   "unpacked_bytes": 38902,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the lunar-infrastructure result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": true,
-   "engine_commit": "e383b2326202f3a0746a33659c480b0ec7e4eeda",
-   "note": "interim: recorded from kshana feat/lunar-infra-0.38 (a binary built at e470c7a4; e383b232 differs only in ledger text); the integration re-record at the merged tree replaces it"
+   "full_run": false
   },
   "lunar-infrastructure-space-tie.toml": {
    "file": "lunar-infrastructure-space-tie.json.gz",
-   "bytes": 10852,
-   "unpacked_bytes": 45222,
+   "bytes": 9744,
+   "unpacked_bytes": 36030,
    "report": true,
    "animation": false,
    "animation_reason": "--animate svg: no time series to animate: the lunar-infrastructure result carries no sampled time axis (see docs/ANIMATION.md for the shapes the exporter recognises)",
    "exports": [],
    "export_files": 0,
    "export_files_stored": 0,
-   "full_run": true,
-   "engine_commit": "e383b2326202f3a0746a33659c480b0ec7e4eeda",
-   "note": "interim: recorded from kshana feat/lunar-infra-0.38 (a binary built at e470c7a4; e383b232 differs only in ledger text); the integration re-record at the merged tree replaces it"
+   "full_run": false
   },
   "lunar-interop-export.toml": {
    "file": "lunar-interop-export.json.gz",
