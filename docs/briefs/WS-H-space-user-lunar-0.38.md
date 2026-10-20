@@ -1,4 +1,4 @@
-# 0.38 WS-H: GNSS beyond Earth
+# 0.38 WS-H: space-user and lunar navigation
 
 Owner's words (19 Oct 2026, coordinator session): "fold it into 0.38, all of it".
 Rules: docs/briefs/_COMMON-0.38.md apply in full. Basis and citations: public sources only (ICG Space Service Volume
