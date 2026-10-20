@@ -76,10 +76,12 @@ const GROUP = { combined: "all together" };
 const groupName = (g) => GROUP[g] || (g.length <= 4 ? g.toUpperCase() : g[0].toUpperCase() + g.slice(1));
 
 // Bars: rows [{ label, values: [{ name, value }] }], 0 to `max`; each value is labelled with its number, and the series differ by pattern as well as shade.
-export function groupedBarsSvg(rows, { max = 100, unit = "%", label = "bars", w = W } = {}) {
+export function groupedBarsSvg(rows, { max = 100, unit = "%", label = "bars", w = W, log = false, dec = 1 } = {}) {
   const series = [...new Set(rows.flatMap((r) => r.values.map((v) => v.name)))];
   const L = 112, R = w - 56, rowH = 12 * series.length + 14, h = 26 + rows.length * rowH + 6;
-  const X = (v) => L + (Math.max(0, Math.min(v, max)) / max) * (R - L);
+  const pos = rows.flatMap((r) => r.values.map((v) => v.value)).filter((v) => isNum(v) && v > 0);
+  const lo = log && pos.length ? Math.floor(Math.log10(Math.min(...pos))) : 0, hi = log && pos.length ? Math.ceil(Math.log10(Math.max(...pos))) : 0;
+  const X = log ? (v) => L + ((Math.log10(Math.max(v, 10 ** lo)) - lo) / Math.max(1e-9, hi - lo)) * (R - L) : (v) => L + (Math.max(0, Math.min(v, max)) / max) * (R - L);
   const o = [`<svg class="ssk-chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">`];
   series.forEach((s, i) => o.push(`<rect class="ssk-key ssk-p${i}" x="${L + i * 130}" y="6" width="12" height="9"/><text class="ssk-t" x="${L + i * 130 + 17}" y="14">${esc(s)}</text>`));
   rows.forEach((r, k) => {
@@ -88,7 +90,7 @@ export function groupedBarsSvg(rows, { max = 100, unit = "%", label = "bars", w 
     r.values.forEach((v, i) => {
       const y = y0 + i * 12;
       o.push(`<rect class="ssk-track" x="${L}" y="${y}" width="${R - L}" height="9"/>`);
-      if (isNum(v.value)) o.push(`<rect class="ssk-bar ssk-p${series.indexOf(v.name)}" x="${L}" y="${y}" width="${f1(X(v.value) - L)}" height="9"><title>${esc(`${r.label}, ${v.name}: ${fmt(v.value)}${unit}`)}</title></rect><text class="ssk-v" x="${f1(X(v.value) + 4)}" y="${y + 8}">${esc(fmt(v.value))}${esc(unit)}</text>`);
+      if (isNum(v.value)) o.push(`<rect class="ssk-bar ssk-p${series.indexOf(v.name)}" x="${L}" y="${y}" width="${f1(X(v.value) - L)}" height="9"><title>${esc(`${r.label}, ${v.name}: ${fmt(v.value, dec)}${unit}`)}</title></rect><text class="ssk-v" x="${f1(X(v.value) + 4)}" y="${y + 8}">${esc(fmt(v.value, dec))}${esc(unit)}</text>`);
       else o.push(`<text class="ssk-v" x="${L + 4}" y="${y + 8}">n/a</text>`);
     });
   });
@@ -96,18 +98,19 @@ export function groupedBarsSvg(rows, { max = 100, unit = "%", label = "bars", w 
 }
 
 // Lines against one x axis: series [{ name, points: [[x, y]], dash }]; every line is named at its end, and the dashed one is the engine's stated bound.
-export function linesSvg(series, { xLabel = "", yLabel = "", yMin = null, yMax = null, logY = false, w = W, h = 230, label = "chart" } = {}) {
-  const pts = series.map((s) => ({ ...s, points: s.points.filter((p) => isNum(p[0]) && isNum(p[1]) && (!logY || p[1] > 0)) }));
+export function linesSvg(series, { xLabel = "", yLabel = "", yMin = null, yMax = null, logY = false, logX = false, w = W, h = 230, label = "chart" } = {}) {
+  const pts = series.map((s) => ({ ...s, points: s.points.filter((p) => isNum(p[0]) && isNum(p[1]) && (!logY || p[1] > 0) && (!logX || p[0] > 0)) }));
   const all = pts.flatMap((s) => s.points);
   if (!all.length) return `<svg class="ssk-chart" viewBox="0 0 ${w} 40" role="img" aria-label="${esc(label)}"><text class="ssk-t" x="8" y="24">The result carries no series for this chart.</text></svg>`;
   const L = 54, R = w - 112, T = 24, B = h - 38;
   const ty = (v) => (logY ? Math.log10(v) : v);
-  const x0 = Math.min(...all.map((p) => p[0])), x1 = Math.max(...all.map((p) => p[0]));
+  const tx = (v) => (logX ? Math.log10(v) : v);
+  const x0 = Math.min(...all.map((p) => tx(p[0]))), x1 = Math.max(...all.map((p) => tx(p[0])));
   const ys = all.map((p) => ty(p[1])), y0 = yMin != null ? ty(yMin) : Math.min(...ys, logY ? Infinity : 0), y1 = yMax != null ? ty(yMax) : Math.max(...ys);
-  const X = (v) => L + ((v - x0) / Math.max(1e-12, x1 - x0)) * (R - L), Y = (v) => B - ((ty(v) - y0) / Math.max(1e-12, y1 - y0)) * (B - T);
+  const X = (v) => L + ((tx(v) - x0) / Math.max(1e-12, x1 - x0)) * (R - L), Y = (v) => B - ((ty(v) - y0) / Math.max(1e-12, y1 - y0)) * (B - T);
   const o = [`<svg class="ssk-chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">`, `<path class="ssk-ax" d="M${L} ${T}V${B}H${R}"/>`];
-  for (let i = 0; i <= 4; i++) { const yv = y0 + ((y1 - y0) * i) / 4, v = logY ? 10 ** yv : yv; o.push(`<line class="ssk-gl" x1="${L}" x2="${R}" y1="${f1(Y(v))}" y2="${f1(Y(v))}"/><text class="ssk-t" x="${L - 6}" y="${f1(Y(v) + 4)}" text-anchor="end">${esc(fmt(v, v < 10 ? 2 : 0))}</text>`); }
-  for (let i = 0; i <= 4; i++) { const xv = x0 + ((x1 - x0) * i) / 4; o.push(`<text class="ssk-t" x="${f1(X(xv))}" y="${B + 15}" text-anchor="middle">${esc(fmt(xv, 0))}</text>`); }
+  for (let i = 0; i <= 4; i++) { const yv = y0 + ((y1 - y0) * i) / 4, v = logY ? 10 ** yv : yv; o.push(`<line class="ssk-gl" x1="${L}" x2="${R}" y1="${f1(Y(v))}" y2="${f1(Y(v))}"/><text class="ssk-t" x="${L - 6}" y="${f1(Y(v) + 4)}" text-anchor="end">${esc(fmt(v, v < 0.1 ? 4 : v < 10 ? 2 : 0))}</text>`); }
+  for (let i = 0; i <= 4; i++) { const xr = x0 + ((x1 - x0) * i) / 4, xv = logX ? 10 ** xr : xr; o.push(`<text class="ssk-t" x="${f1(X(xv))}" y="${B + 15}" text-anchor="middle">${esc(fmt(xv, xv < 10 ? 3 : 0))}</text>`); }
   o.push(`<text class="ssk-t" x="${(L + R) / 2}" y="${h - 6}" text-anchor="middle">${esc(xLabel)}</text><text class="ssk-t" x="8" y="12">${esc(yLabel)}</text>`);
   const ends = [];
   pts.forEach((s, i) => {

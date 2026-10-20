@@ -2793,6 +2793,144 @@
   "exports": []
  },
  {
+  "file": "lunar-infrastructure-od-consistency.toml",
+  "name": "lunar-infrastructure-od-consistency",
+  "title": "Lunar orbit determination: onboard GNSS against ground tracking",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-infrastructure",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=lunar-infrastructure-od-consistency&tab=overview",
+   "report": "index.html?scenario=lunar-infrastructure-od-consistency&tab=report",
+   "exports": "index.html?scenario=lunar-infrastructure-od-consistency&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-infrastructure-od-consistency-model-error.toml",
+  "name": "lunar-infrastructure-od-consistency-model-error",
+  "title": "Lunar orbit determination, with an injected modelling error",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-infrastructure",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=lunar-infrastructure-od-consistency-model-error&tab=overview",
+   "report": "index.html?scenario=lunar-infrastructure-od-consistency-model-error&tab=report",
+   "exports": "index.html?scenario=lunar-infrastructure-od-consistency-model-error&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-infrastructure-carrier-phase.toml",
+  "name": "lunar-infrastructure-carrier-phase",
+  "title": "Lunar carrier phase: surface station and orbiter",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-infrastructure",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=lunar-infrastructure-carrier-phase&tab=overview",
+   "report": "index.html?scenario=lunar-infrastructure-carrier-phase&tab=report",
+   "exports": "index.html?scenario=lunar-infrastructure-carrier-phase&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-infrastructure-frame-coestimation.toml",
+  "name": "lunar-infrastructure-frame-coestimation",
+  "title": "Lunar frame co-estimation with orbiter links",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-infrastructure",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=lunar-infrastructure-frame-coestimation&tab=overview",
+   "report": "index.html?scenario=lunar-infrastructure-frame-coestimation&tab=report",
+   "exports": "index.html?scenario=lunar-infrastructure-frame-coestimation&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-infrastructure-space-tie.toml",
+  "name": "lunar-infrastructure-space-tie",
+  "title": "Space tie: GNSS, VLBI and laser ranging on one spacecraft",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-infrastructure",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=lunar-infrastructure-space-tie&tab=overview",
+   "report": "index.html?scenario=lunar-infrastructure-space-tie&tab=report",
+   "exports": "index.html?scenario=lunar-infrastructure-space-tie&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "lunar-infrastructure-geodesy-sensitivity.toml",
+  "name": "lunar-infrastructure-geodesy-sensitivity",
+  "title": "Lunar Love numbers and libration sensitivity",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "lunar-infrastructure",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=lunar-infrastructure-geodesy-sensitivity&tab=overview",
+   "report": "index.html?scenario=lunar-infrastructure-geodesy-sensitivity&tab=report",
+   "exports": "index.html?scenario=lunar-infrastructure-geodesy-sensitivity&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
   "file": "lunar-interop-export.toml",
   "name": "lunar-interop-export",
   "title": "Lunar interop export",

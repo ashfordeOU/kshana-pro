@@ -497,8 +497,33 @@ function gnssSsv(r) {
   return null;
 }
 
+// lunar-infrastructure (0.38): five studies selected by `study`. One sentence each, from the result's own numbers; the misses are stated.
+function lunarInfrastructure(r) {
+  const tail = "MODELLED: a restricted model with illustrative inputs, not a statement about any mission.";
+  switch (r.study) {
+    case "od-consistency":
+      if (!has(r, "gnss_estimate.position_sigma_m", "ground_estimate.position_sigma_m", "consistency.mean_q")) return null;
+      return { big: `Onboard Earth-GNSS orbit determination in lunar orbit is good to ${f(r.gnss_estimate.position_sigma_m, 0)} m, independent ground tracking to ${f(r.ground_estimate.position_sigma_m, 0)} m; the consistency statistic averages ${f(r.consistency.mean_q, 2)} (${f(r.consistency.expected_mean_q, 0)} expected).`, line: tail };
+    case "carrier-phase": {
+      const a = Array.isArray(r.arcs) && r.arcs.length ? r.arcs[r.arcs.length - 1] : null;
+      if (!a || !has(a, "monte_carlo_success_rate", "arc_days")) return null;
+      return { big: `Integer carrier-phase fixing between a surface station and an orbiter fixed ${f(100 * a.monte_carlo_success_rate, 1)} % of the trials on the longest arc (${f(a.arc_days, 2)} days).`, line: tail };
+    }
+    case "frame-coestimation":
+      if (!has(r, "lambda_min_ratio", "crlb_trace_ratio")) return null;
+      return { big: `Orbiter-to-station links raise the smallest information eigenvalue of the lunar datum ${f(r.lambda_min_ratio, 1)} times and cut the Cramér-Rao trace to ${f(100 * r.crlb_trace_ratio, 1)} %, if the orbit is known in the lunar axes.`, line: tail };
+    case "space-tie":
+      if (!has(r, "local_tie_sigma_m") || !Array.isArray(r.arcs) || !r.arcs.length || !Array.isArray(r.arcs[0].sweep)) return null;
+      return { big: `A ${f(r.local_tie_sigma_m * 1000, 1)} mm local tie on one spacecraft ties the GNSS, VLBI and laser-ranging frames over ${r.arcs[0].sweep.length} tie errors swept.`, line: tail };
+    case "geodesy-sensitivity":
+      if (!Array.isArray(r.crlb_sigma_over_nominal_h2_k2_l2) || r.crlb_sigma_over_nominal_h2_k2_l2.length < 3) return null;
+      return { big: `With all four families together, h2, k2 and l2 are pinned to ${f(100 * r.crlb_sigma_over_nominal_h2_k2_l2[0], 2)} %, ${f(100 * r.crlb_sigma_over_nominal_h2_k2_l2[1], 2)} % and ${f(100 * r.crlb_sigma_over_nominal_h2_k2_l2[2], 2)} % of their nominal values.`, line: tail };
+    default: return null;
+  }
+}
+
 export const KIND_TEMPLATES = {
-  "holdover-test": holdoverTest, "gnss-ssv": gnssSsv,
+  "holdover-test": holdoverTest, "gnss-ssv": gnssSsv, "lunar-infrastructure": lunarInfrastructure,
   campaign, sweep, "sweep-nd": sweepNd, spoof, fusion: pnt, hybrid: pnt, timetransfer, "telecom-timing": telecom, "slot-timing": slotTiming,
   "lunar-time-budget": lunarTimeBudget, "lunar-time-offset": lunarTimeOffset, "quantum-time-transfer": quantumTT,
   "gravity-map": mapMatch, "terrain-nav": mapMatch, "combined-altpnt": mapMatch, "terrain-slam": terrainSlam, "ins-trn-coast": insTrn,

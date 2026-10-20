@@ -282,6 +282,12 @@ These three views show files the native command-line engine wrote (the browser b
 | `gnss-ssv-lunar-weak` | `index.html?scenario=gnss-ssv-lunar-weak&tab=animation` | `index.html?scenario=gnss-ssv-lunar-weak&tab=report` | `index.html?scenario=gnss-ssv-lunar-weak&tab=exports` | none apply |
 | `gnss-ssv-nav-lunar` | `index.html?scenario=gnss-ssv-nav-lunar&tab=animation` | `index.html?scenario=gnss-ssv-nav-lunar&tab=report` | `index.html?scenario=gnss-ssv-nav-lunar&tab=exports` | none apply |
 | `gnss-ssv-formation-heo` | `index.html?scenario=gnss-ssv-formation-heo&tab=animation` | `index.html?scenario=gnss-ssv-formation-heo&tab=report` | `index.html?scenario=gnss-ssv-formation-heo&tab=exports` | none apply |
+| `lunar-infrastructure-od-consistency` | no time axis | `index.html?scenario=lunar-infrastructure-od-consistency&tab=report` | `index.html?scenario=lunar-infrastructure-od-consistency&tab=exports` | none apply |
+| `lunar-infrastructure-od-consistency-model-error` | no time axis | `index.html?scenario=lunar-infrastructure-od-consistency-model-error&tab=report` | `index.html?scenario=lunar-infrastructure-od-consistency-model-error&tab=exports` | none apply |
+| `lunar-infrastructure-carrier-phase` | no time axis | `index.html?scenario=lunar-infrastructure-carrier-phase&tab=report` | `index.html?scenario=lunar-infrastructure-carrier-phase&tab=exports` | none apply |
+| `lunar-infrastructure-frame-coestimation` | no time axis | `index.html?scenario=lunar-infrastructure-frame-coestimation&tab=report` | `index.html?scenario=lunar-infrastructure-frame-coestimation&tab=exports` | none apply |
+| `lunar-infrastructure-space-tie` | no time axis | `index.html?scenario=lunar-infrastructure-space-tie&tab=report` | `index.html?scenario=lunar-infrastructure-space-tie&tab=exports` | none apply |
+| `lunar-infrastructure-geodesy-sensitivity` | no time axis | `index.html?scenario=lunar-infrastructure-geodesy-sensitivity&tab=report` | `index.html?scenario=lunar-infrastructure-geodesy-sensitivity&tab=exports` | none apply |
 | `lunar-interop-export` | no time axis | `index.html?scenario=lunar-interop-export&tab=report` | `index.html?scenario=lunar-interop-export&tab=exports` | none apply |
 | `realtime-frame-eop` | no time axis | `index.html?scenario=realtime-frame-eop&tab=report` | `index.html?scenario=realtime-frame-eop&tab=exports` | none apply |
 | `cislunar-observability` | no time axis | `index.html?scenario=cislunar-observability&tab=report` | `index.html?scenario=cislunar-observability&tab=exports` | none apply |
@@ -355,4 +361,4 @@ These three views show files the native command-line engine wrote (the browser b
 | `celeste-iod-fused-pvt` (optional preset) | `index.html?scenario=celeste-iod-fused-pvt&tab=animation` | `index.html?scenario=celeste-iod-fused-pvt&tab=report` | `index.html?scenario=celeste-iod-fused-pvt&tab=exports` | none apply |
 | `celeste-iod-end-to-end` (optional preset) | `index.html?scenario=celeste-iod-end-to-end&tab=animation` | `index.html?scenario=celeste-iod-end-to-end&tab=report` | `index.html?scenario=celeste-iod-end-to-end&tab=exports` | czml, geojson, kml, stk |
 
-Counts: 176 scenarios with a recorded run (5 in the optional preset folder), 62 with a capability view, 89 with an animation, 176 with an engine report, 58 with at least one interoperability export.
+Counts: 182 scenarios with a recorded run (5 in the optional preset folder), 62 with a capability view, 89 with an animation, 182 with an engine report, 58 with at least one interoperability export.
