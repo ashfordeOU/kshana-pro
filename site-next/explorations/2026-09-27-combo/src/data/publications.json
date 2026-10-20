@@ -7,6 +7,67 @@
  },
  "papers": [
   {
+   "arxiv": "2610.23871",
+   "title": "Cislunar navigation is an observability problem: arc-length thresholds, Gramian conditioning, and the Doppler lever",
+   "authors": [
+    "Chakshu Baweja"
+   ],
+   "published": "2026-09-18",
+   "updated": "2026-09-18",
+   "version": 1,
+   "category": "eess.SP",
+   "abstract": "Dilution of precision is the standard way to describe navigation geometry and it does not apply in cislunar space: its derivation presumes a snapshot solution in which simultaneous measurements determine the state at one instant. A spacecraft tracked by inter-satellite ranging in the Earth-Moon three-body problem has no such solution: range is a function of position only, so the velocity columns of the measurement Jacobian vanish identically and the state is unobservable however many links are in view. The correct figure of merit is dynamical, because the three-body flow carries velocity information into later range measurements. We demonstrate this on four differential-corrected planar distant retrograde orbits, reporting the observability Gramian rather than a dilution of precision. Instantaneous range-only geometry has rank 2 of 4; the full state becomes observable only after a tracking arc of 2.09 h, the first sampled arc at full rank on a 0.26 h grid, and a square-root information filter recomputing the same quantity by a different route becomes well-posed at exactly that arc. Beyond it, conditioning improves monotonically with arc length, the Gramian condition number falling from 1.2e11 at 3 h to 1.4e5 at 48 h. Adding range rate lifts the instantaneous rank from 2 to 4, so a Doppler-capable link makes a snapshot solution exist where a range-only link cannot. Lifting the known-reference assumption, the joint problem of estimating a station and the satellites' states and clocks together is rank-deficient by exactly one without an external interferometric observable in all twenty realizations tested, and full rank with it; the deficiency persists only to four satellites. For the configurations studied, cislunar navigation requirements are better written as arc-length, conditioning and measurement-type budgets than as dilution-of-precision thresholds, which are undefined here.",
+   "summary": "In cislunar space dilution of precision does not apply: range-only links leave the velocity unobservable at any instant, so requirements belong in arc-length, conditioning and measurement-type budgets.",
+   "doi": "10.48550/arXiv.2610.23871",
+   "reproduce": {
+    "kind": "cislunar-observability",
+    "file": "scenarios/cislunar-observability.toml",
+    "studio": "cislunar-observability",
+    "command": "kshana example cislunar-observability > cislunar-observability.toml\nkshana cislunar-observability.toml"
+   },
+   "bibkey": "baweja2026cislunar",
+   "area": "lunar",
+   "method": "The cislunar-observability kind differential-corrects four planar distant retrograde orbits, assembles the range and range-rate Jacobians through the three-body state-transition matrix, and reports the observable rank over a growing tracking arc, the observability Gramian's condition number, and a square-root information filter that recomputes the same quantity by a second route.",
+   "figure": {
+    "type": "hbar",
+    "scale": "linear",
+    "axis": "Observable rank of the 4-state (position and velocity in the plane); higher is better",
+    "items": [
+     {
+      "label": "Range only, one instant",
+      "value": 2,
+      "note": "GDOP undefined: the velocity columns of the range Jacobian vanish"
+     },
+     {
+      "label": "Range and range rate, one instant",
+      "value": 4,
+      "note": "a snapshot solution exists; GDOP 6.353"
+     },
+     {
+      "label": "Range only, tracked for 1.83 h",
+      "value": 3,
+      "note": "the last sampled arc short of full rank"
+     },
+     {
+      "label": "Range only, tracked for 2.09 h",
+      "value": 4,
+      "note": "the first sampled arc at full rank; Gramian condition 1.6e+09 at 6 h"
+     }
+    ],
+    "caption": "The bundled scenario: four differential-corrected planar distant retrograde orbits, tracked by inter-satellite ranging over a 6 h arc sampled every 0.26 h.",
+    "seed": null,
+    "source": "scenarios/cislunar-observability.toml",
+    "label": "MODELLED",
+    "capability": "Spatial, noisy, multi-family cislunar arc-length observability",
+    "seconds": 0.78
+   },
+   "findings": [
+    "In the engine run, range-only geometry at one instant has rank 2 of 4, so a dilution of precision is undefined; the full state becomes observable after a 2.09 h arc.",
+    "Adding range rate lifts the instantaneous rank from 2 to 4: a Doppler-capable link makes a snapshot solution exist where a range-only link cannot.",
+    "Beyond the threshold the conditioning improves with arc length, so requirements read better as arc-length, conditioning and measurement-type budgets."
+   ]
+  },
+  {
    "arxiv": "2607.06212",
    "title": "The Cost of Lunar South-Polar Geometry, and Surface Beacons as the Efficient Fix: A Dilution-of-Precision Analysis",
    "authors": [
@@ -107,7 +168,7 @@
     "provenance_note": "Recorded on macOS as published. A fresh Linux x86-64 run gives 2184 m / 3.537 m (solver iterate host dependence, issue #36 row 6).",
     "label": "MODELLED",
     "capability": "Lunar absolute-station observability (datum defect)",
-    "seconds": 0.01
+    "seconds": 0.02
    },
    "findings": [
     "Ranging inside the lunar network leaves the cluster free to shift and rotate unseen; the clocks stay observable, so the defect is purely positional.",
@@ -175,7 +236,7 @@
     "source": "examples/tpl_jammertest.rs",
     "label": "MODELLED",
     "capability": "Timing Protection Level under spoofing",
-    "seconds": 0.13
+    "seconds": 0.06
    },
    "findings": [
     "A public recorded spoof pulled the receiver's served time by about 1.01 ms while it reported at most 51 ns.",
@@ -235,7 +296,7 @@
     "source": "examples/resilience_report.rs",
     "label": "MODELLED",
     "capability": "Resilience-score decision-instability study",
-    "seconds": 2.22
+    "seconds": 1.75
    },
    "findings": [
     "Re-weighting alone changes the top-ranked architecture in 22% of draws under nominal conditions, and in at most 1.25% under each active threat.",
@@ -1314,7 +1375,7 @@
     "source": "examples/optimism_study.rs",
     "label": "MODELLED",
     "capability": "AI/ML RF-impairment optimism-gap study & ID-only gap predictor",
-    "seconds": 31.36
+    "seconds": 28.4
    },
    "findings": [
     "The gap between in-distribution and shifted area under the curve grows as the shift deepens, and depends on how many observables a detector uses rather than on whether it is learned.",

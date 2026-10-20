@@ -44,19 +44,22 @@ PAPERS = {
                    {"example": "tpl_jammertest", "args": ""}),
     "2606.22054": ('How much an interference detector loses under shifted conditions can be predicted from its own in-distribution scores; synthetic results, checked on open field recordings.',
                    {"example": "optimism_study", "args": "paper-artifacts/optimism-study.json"}),
+    "2610.23871": ('In cislunar space dilution of precision does not apply: range-only links leave the velocity unobservable at any instant, so requirements belong in arc-length, conditioning and measurement-type budgets.',
+                   {"scenario": "cislunar-observability"}),
 }
 STOP = {"a", "an", "the", "how", "is", "of", "and", "on", "in"}
 
 
 # id -> research area (icon and accent colour on the card), the verification-matrix requirement whose
 # label the figure carries, and how the engine reproduces the paper (plain words, from the README).
-AREA = {"2607.06212": "lunar", "2607.02566": "lunar", "2606.24210": "timing", "2607.05415": "resilience", "2606.22054": "rf"}
+AREA = {"2607.06212": "lunar", "2607.02566": "lunar", "2606.24210": "timing", "2607.05415": "resilience", "2606.22054": "rf", "2610.23871": "lunar"}
 MATRIX_ROW = {
     "2607.06212": "Lunar surface-beacon DOP augmentation",
     "2607.02566": "Lunar absolute-station observability (datum defect)",
     "2606.24210": "Timing Protection Level under spoofing",
     "2607.05415": "Resilience-score decision-instability study",
     "2606.22054": "AI/ML RF-impairment optimism-gap study & ID-only gap predictor",
+    "2610.23871": "Spatial, noisy, multi-family cislunar arc-length observability",
 }
 METHOD = {
     "2607.06212": "The lunar-beacon kind builds the ranging geometry of an orbital constellation plus the surveyed surface beacons that clear the airless horizon, on the dilution-of-precision kernel checked against an independent library, and reports each configuration's dilution of precision and its accuracy in metres.",
@@ -64,6 +67,7 @@ METHOD = {
     "2606.24210": "The Timing Protection Level module adds a monitor's detection floor to the oscillator's coast over the detection latency. The example calibrates it with the scalars recovered from the public JammerTest 2024 recording; the raw recording is not shipped.",
     "2607.05415": "The resilience module scores seven reference architectures across the seven framework categories and five threats, draws the category weights at random from a Dirichlet distribution and counts how often the top rank changes. The example writes the whole study as one deterministic file.",
     "2606.22054": "The impairment study generates a synthetic, parameter-grounded corpus for four interference classes, scores thirteen detectors at four shift severities over five seeds, and fits the gap predictor with leave-one-out cross-validation and a permutation test.",
+    "2610.23871": "The cislunar-observability kind differential-corrects four planar distant retrograde orbits, assembles the range and range-rate Jacobians through the three-body state-transition matrix, and reports the observable rank over a growing tracking arc, the observability Gramian's condition number, and a square-root information filter that recomputes the same quantity by a second route.",
 }
 
 
@@ -175,6 +179,22 @@ def figure(repo, pid, spec, work):
         find = ["The gap between in-distribution and shifted area under the curve grows as the shift deepens, and depends on how many observables a detector uses rather than on whether it is learned.",
                 f'In the engine run, a ridge model on in-distribution score statistics predicts the gap for a detector it has not seen (R² {cv["r2"]:.2f}) and for an interference class it has not seen (R² {cls:.2f}).',
                 "The headline findings are synthetic; the paper then checks them on open field recordings."]
+    elif pid == "2610.23871":
+        res, rep, dt = run_scenario(repo, "cislunar-observability", work)
+        arcs = res["rank_vs_arc"]
+        full = next(a for a in arcs if a["rank"] == res["state_dim"])
+        last_short = [a for a in arcs if a["arc_hours"] < full["arc_hours"]][-1]
+        lever = res["range_rate_lever"]
+        items = [{"label": "Range only, one instant", "value": lever["rank_range_only"], "note": "GDOP undefined: the velocity columns of the range Jacobian vanish"},
+                 {"label": "Range and range rate, one instant", "value": lever["rank_range_rate"], "note": f'a snapshot solution exists; GDOP {f3(res["gdop"]["range_rate"]["gdop"]):g}'},
+                 {"label": f'Range only, tracked for {last_short["arc_hours"]:.2f} h', "value": last_short["rank"], "note": "the last sampled arc short of full rank"},
+                 {"label": f'Range only, tracked for {full["arc_hours"]:.2f} h', "value": full["rank"], "note": f'the first sampled arc at full rank; Gramian condition {res["srif_cross_validation"]["arc"][-1]["gramian_condition"]:.1e} at {arcs[-1]["arc_hours"]:g} h'}]
+        fig = {"type": "hbar", "scale": "linear", "axis": f'Observable rank of the {res["state_dim"]}-state (position and velocity in the plane); higher is better', "items": items,
+               "caption": f'The bundled scenario: four differential-corrected planar distant retrograde orbits, tracked by inter-satellite ranging over a {res["arc_hours"]:g} h arc sampled every {arcs[1]["arc_hours"]:.2f} h.',
+               "seed": rep.get("seed"), "source": "scenarios/cislunar-observability.toml"}
+        find = [f'In the engine run, range-only geometry at one instant has rank {lever["rank_range_only"]} of {res["state_dim"]}, so a dilution of precision is undefined; the full state becomes observable after a {full["arc_hours"]:.2f} h arc.',
+                f'Adding range rate lifts the instantaneous rank from {lever["rank_range_only"]} to {lever["rank_range_rate"]}: a Doppler-capable link makes a snapshot solution exist where a range-only link cannot.',
+                "Beyond the threshold the conditioning improves with arc length, so requirements read better as arc-length, conditioning and measurement-type budgets."]
     fig["label"] = matrix_label(repo, MATRIX_ROW[pid])
     fig["capability"] = MATRIX_ROW[pid]
     fig["seconds"] = round(dt, 2)
