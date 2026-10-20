@@ -2665,6 +2665,134 @@
   "exports": []
  },
  {
+  "file": "gnss-ssv-shell.toml",
+  "name": "gnss-ssv-shell",
+  "title": "GNSS signals above the satellites: a shell at 36 000 km",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "gnss-ssv",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=gnss-ssv-shell&tab=overview",
+   "report": "index.html?scenario=gnss-ssv-shell&tab=report",
+   "exports": "index.html?scenario=gnss-ssv-shell&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "gnss-ssv-heo.toml",
+  "name": "gnss-ssv-heo",
+  "title": "GNSS signals in a highly elliptical orbit",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "gnss-ssv",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=gnss-ssv-heo&tab=overview",
+   "animation": "index.html?scenario=gnss-ssv-heo&tab=animation",
+   "report": "index.html?scenario=gnss-ssv-heo&tab=report",
+   "exports": "index.html?scenario=gnss-ssv-heo&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "gnss-ssv-lunar-weak.toml",
+  "name": "gnss-ssv-lunar-weak",
+  "title": "GNSS signals on a lunar transfer, weak-signal receiver",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "gnss-ssv",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=gnss-ssv-lunar-weak&tab=overview",
+   "animation": "index.html?scenario=gnss-ssv-lunar-weak&tab=animation",
+   "report": "index.html?scenario=gnss-ssv-lunar-weak&tab=report",
+   "exports": "index.html?scenario=gnss-ssv-lunar-weak&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "gnss-ssv-nav-lunar.toml",
+  "name": "gnss-ssv-nav-lunar",
+  "title": "Onboard GNSS filter on a lunar transfer",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "gnss-ssv",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=gnss-ssv-nav-lunar&tab=overview",
+   "animation": "index.html?scenario=gnss-ssv-nav-lunar&tab=animation",
+   "report": "index.html?scenario=gnss-ssv-nav-lunar&tab=report",
+   "exports": "index.html?scenario=gnss-ssv-nav-lunar&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
+  "file": "gnss-ssv-formation-heo.toml",
+  "name": "gnss-ssv-formation-heo",
+  "title": "Formation relative navigation, highly elliptical orbit",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "gnss-ssv",
+  "runs": "recorded (native engine)",
+  "links": {
+   "best": "index.html?scenario=gnss-ssv-formation-heo&tab=overview",
+   "animation": "index.html?scenario=gnss-ssv-formation-heo&tab=animation",
+   "report": "index.html?scenario=gnss-ssv-formation-heo&tab=report",
+   "exports": "index.html?scenario=gnss-ssv-formation-heo&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "animation",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
   "file": "lunar-interop-export.toml",
   "name": "lunar-interop-export",
   "title": "Lunar interop export",

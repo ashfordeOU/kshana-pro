@@ -469,8 +469,36 @@ function holdoverTest(r) {
   return { big: `Measured against the masks, the record's holdover of ${f(r.holdover.duration_s, 0)} s reaches ${f(Math.abs(r.holdover.te_at_max_abs_ns), 1)} ns of time error${rec}.`, line: `${masks ? `${masks}. ` : ""}Measured against the mask, never a statement that a system conforms; the two times are the operator's statement.` };
 }
 
+// gnss-ssv (0.38): navigation signals far above the GNSS satellites. One sentence per mode, from the result's own numbers.
+function gnssSsv(r) {
+  const mode = r.mode, groups = (bands) => (Array.isArray(bands) ? bands : []).flatMap((b) => (Array.isArray(b.groups) ? b.groups : []).map((g) => ({ band: b.band, g })));
+  const comb = (bands, pick) => { const x = groups(bands).find((e) => e.g.name === "combined" && e.band === "l1") || groups(bands).find((e) => e.g.name === "combined"); return x ? pick(x.g) : null; };
+  const tail = "MODELLED: a geometric and link-budget sweep, not a measurement of any signal in space.";
+  if (mode === "shell" && Array.isArray(r.bands)) {
+    const c = comb(r.bands, (g) => g);
+    if (!c || !has(c, "at_least_1_pct", "at_least_4_pct")) return null;
+    return { big: `On the shell, all constellations together give at least one signal ${f(c.at_least_1_pct, 1)} % of the time and at least four ${f(c.at_least_4_pct, 1)} % (L1).`, line: tail };
+  }
+  if (mode === "trajectory" && has(r, "result.perigee_alt_km", "result.apogee_alt_km")) {
+    const c = comb(get(r, "result.bands"), (g) => g.availability);
+    if (!c || !has(c, "at_least_1_pct", "at_least_4_pct")) return null;
+    return { big: `From ${f(r.result.perigee_alt_km, 0)} to ${f(r.result.apogee_alt_km, 0)} km altitude, at least one signal is in view ${f(c.at_least_1_pct, 1)} % of the epochs and at least four ${f(c.at_least_4_pct, 1)} % (L1, all constellations).`, line: tail };
+  }
+  if (mode === "navigation" && Array.isArray(get(r, "result.phases"))) {
+    const above = r.result.phases.find((p) => /above/i.test(String(p.phase))), inside = r.result.phases.find((p) => /inside/i.test(String(p.phase)));
+    if (!above || !inside || !has(above, "pos_rms_m") || !has(inside, "pos_rms_m")) return null;
+    return { big: `The onboard filter holds position to ${f(inside.pos_rms_m, 1)} m RMS inside the GNSS orbits and ${f(above.pos_rms_m, 1)} m above them.`, line: tail };
+  }
+  if (mode === "formation" && Array.isArray(get(r, "formation.deputies")) && r.formation.deputies.length) {
+    const d = r.formation.deputies[0];
+    if (!has(d, "baseline_km", "rel_rms_filter_m", "rel_rms_from_absolute_m")) return null;
+    return { big: `At ${f(d.baseline_km, 2)} km apart, the filter knows the relative position to ${f(d.rel_rms_filter_m, 1)} m RMS, against ${f(d.rel_rms_from_absolute_m, 1)} m from differencing the two absolute fixes.`, line: tail };
+  }
+  return null;
+}
+
 export const KIND_TEMPLATES = {
-  "holdover-test": holdoverTest,
+  "holdover-test": holdoverTest, "gnss-ssv": gnssSsv,
   campaign, sweep, "sweep-nd": sweepNd, spoof, fusion: pnt, hybrid: pnt, timetransfer, "telecom-timing": telecom, "slot-timing": slotTiming,
   "lunar-time-budget": lunarTimeBudget, "lunar-time-offset": lunarTimeOffset, "quantum-time-transfer": quantumTT,
   "gravity-map": mapMatch, "terrain-nav": mapMatch, "combined-altpnt": mapMatch, "terrain-slam": terrainSlam, "ins-trn-coast": insTrn,
