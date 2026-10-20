@@ -2306,6 +2306,8 @@ NEW038 = [
     (None, "docs/machine-inputs.html", "studio/trust/index.html", "Trust view"),
     (None, "docs/receiver-trust.html", "studio/replay/index.html", "Bridge replay"),
     (None, "docs/observatory-method.html", "studio/observatory/index.html", "Observatory viewer"),
+    (None, "docs/ssv.html", "studio/ssv/index.html", "Space-user GNSS"),
+    (None, "docs/lunar-infrastructure.html", "studio/lunar-infra/index.html", "Lunar infrastructure"),
     (None, "benchmark.html", None, None),
 ]
 NEW038_STATIC = {
@@ -2319,6 +2321,10 @@ NEW038_STATIC = {
         "Two synthetic runs on one clock: the track, the trust score, the satellites the log hears and the verdict, side by side, with the receiver's own spoofing and jamming flags set against Kshana's monitors where the log carries them. Advisory software, not type-approved navigation equipment: the operator stays responsible for the vessel.", None),
     "docs/observatory-method.html": ("modelled", "Interference observatory: three states, no cause",
         "A daily file per region, from one open aircraft-position archive: each cell is degraded, not degraded or not observed, and not observed is not clear. Products are released at least 24 hours after the day ends, on cells of 0.5 degrees or coarser, with no cause or actor attributed. The Studio opens the files you made and shows what they say; it ships none.", "the parameters were pre-registered; there is no ground truth and no external oracle"),
+    "docs/ssv.html": ("modelled", "Space-user navigation: GNSS above, around and past the constellations",
+        "For a spacecraft in a high orbit or on the way to the Moon: how many navigation signals can it use, how strong are they, how good is the geometry, and what can an onboard filter or a two-spacecraft formation do with them? Compared with the Space Service Volume booklet of the International Committee on GNSS under a pre-registration; most bars are not met, and the page says so.", "pre-registered bars against the booklet's tables; the booklet is itself a simulation, not a measurement"),
+    "docs/lunar-infrastructure.html": ("modelled", "The Moon's orbit and surface as navigation and geodetic infrastructure",
+        "Five studies: onboard Earth-GNSS orbit determination in lunar orbit against ground tracking, carrier-phase fixing between a surface station and an orbiter, co-estimating the lunar frame, tying GNSS, VLBI and laser ranging on one spacecraft, and sensitivity to the Moon's tides and libration. Integer fixing is not reached at the registered inputs and the injected-error check does not fire; both are pinned.", "inputs are illustrative and the model restricted; the numerics are checked against independent programs, nothing is compared with a measurement"),
     "benchmark.html": ("modelled", "kshana-bench: fixed tasks, splits and metrics",
         "Interference detection on receiver logs and IQ, holdover prediction and the out-of-distribution optimism gap, with split manifests pinned by hash, a sealed holdout and a result-file schema. A row says this file scored X on split S under specification version V, and nothing else. Every score is MODELLED, and one pre-registered bar is NOT MET and pinned.", "bars pre-registered before the baselines ran; no data vendored"),
 }
@@ -2334,9 +2340,9 @@ NEW_SECTIONS = {
     "0.37": (NEW037, NEW037_STATIC, "Optical timing links through the atmosphere.",
              "How often an optical time-transfer link is up when clouds and turbulence are in the path: per-site availability against the link margin, the ceiling no margin lifts, what extra ground sites, a larger aperture, another wavelength or adaptive optics buy, and what an outage costs a holdover clock. Every number is MODELLED: published formulas checked against an independent program, with stated cloud-climate assumptions, not a measured availability record.",
              "optical timing links through clouds and turbulence"),
-    "0.38": (NEW038, NEW038_STATIC, "A neutral referee, a holdover test and more inputs.",
-             "Score a receiver log against a published jamming-test plan, measure a holdover test against public ITU-T masks, read more receivers' and sensors' logs, and open the files of an interference observatory without anyone telling you why a cell is red. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software, not type-approved navigation equipment: the operator stays responsible. Nothing here transmits or synthesises a radio waveform.",
-             "a neutral referee, a holdover test and more inputs"),
+    "0.38": (NEW038, NEW038_STATIC, "A neutral referee, a holdover test, more inputs and GNSS beyond the constellation.",
+             "Score a receiver log against a published jamming-test plan, measure a holdover test against public ITU-T masks, read more receivers' and sensors' logs, open the files of an interference observatory without anyone telling you why a cell is red, and see what GNSS offers a spacecraft in a high orbit, on the way to the Moon and in lunar orbit. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software, not type-approved navigation equipment: the operator stays responsible. Nothing here transmits or synthesises a radio waveform.",
+             "a neutral referee, a holdover test, more inputs and GNSS beyond the constellation"),
 }
 _new_key = os.environ.get("KSHANA_NEW_SECTION") or ".".join(version.split(".")[:2])
 assert _new_key in NEW_SECTIONS, f"no 'New in' section written for {_new_key}: add it to NEW_SECTIONS"
