@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-// GNSS beyond Earth: the DOM layer. What is read and drawn is in lib/ssv.mjs. The page fetches only this folder's own recorded results
+// Space-user GNSS: the DOM layer. What is read and drawn is in lib/ssv.mjs. The page fetches only this folder's own recorded results
 // (recorded/<scenario>.json); nothing leaves the page.
 import { SCENARIOS, readSsv, chartsOf, factRows, readIcg, icgTable } from "../lib/ssv.mjs";
 

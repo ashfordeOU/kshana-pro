@@ -1,4 +1,4 @@
-// Screenshots and checks of the GNSS beyond Earth page. Run: node ssv-shoot.mjs http://127.0.0.1:PORT OUT_DIR  (the Studio folder served at that address)
+// Screenshots and checks of the Space-user GNSS page. Run: node ssv-shoot.mjs http://127.0.0.1:PORT OUT_DIR  (the Studio folder served at that address)
 import { createRequire } from "node:module";
 const require = createRequire("/opt/node22/lib/node_modules/");
 const { chromium } = require("playwright");

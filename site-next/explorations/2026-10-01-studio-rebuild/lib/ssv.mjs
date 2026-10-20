@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-// The "GNSS beyond Earth" page's reader and charts. It reads the engine's recorded result of a `gnss-ssv` scenario (the `json` field of
+// The "Space-user GNSS" page's reader and charts. It reads the engine's recorded result of a `gnss-ssv` scenario (the `json` field of
 // recorded/<name>.json) in any of its four modes (shell, trajectory, navigation, formation) and draws what it holds as SVG markup. The
 // result carries statistics per constellation and, for a trajectory, one decimated series of the combined count and the best C/N0: there
 // is NO per-constellation time series and no ICG verdict in the result, so none is drawn; the comparison with the ICG booklet is the

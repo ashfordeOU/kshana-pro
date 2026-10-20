@@ -1,4 +1,4 @@
-/* GNSS beyond Earth page. Colours, type and radii come from tokens.css; layout from app.css and studio.css. A series is never told apart by colour alone. */
+/* Space-user GNSS page. Colours, type and radii come from tokens.css; layout from app.css and studio.css. A series is never told apart by colour alone. */
 .ssk{padding-bottom:56px}
 .ssk h1{font:700 clamp(28px,4.4vw,46px)/1.05 var(--f-display);letter-spacing:-.02em;margin:10px 0 8px}
 .ssk .lede{max-width:78ch;margin:0 0 14px;color:var(--ink-2);font-size:16px;line-height:1.5}

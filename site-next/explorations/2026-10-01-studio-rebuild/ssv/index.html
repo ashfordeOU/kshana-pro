@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<!-- GNSS beyond Earth: a page of the Studio. Every relative address resolves from the Studio's own folder (like the Advanced view), so it shares the theme, tokens and modules. It reads files the person picks, in the browser: nothing is uploaded and the engine is not needed. -->
+<!-- Space-user GNSS: a page of the Studio. Every relative address resolves from the Studio's own folder (like the Advanced view), so it shares the theme, tokens and modules. It reads files the person picks, in the browser: nothing is uploaded and the engine is not needed. -->
 <base href="../">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>GNSS beyond Earth · Kshana Studio</title>
+<title>Space-user GNSS · Kshana Studio</title>
 <meta name="description" content="Which navigation signals can a spacecraft far above the GNSS satellites still use? Read from the results the engine recorded; nothing is uploaded.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="data:,">
@@ -36,7 +36,7 @@
 <a class="skip" href="#main">Skip to the view</a>
 <header class="bar" id="bar">
   <a class="brand" href="../index.html" aria-label="Kshana home"><span aria-hidden="true" style="display:inline-block;width:34px;height:34px;flex:none;margin:-5px -3px -5px -5px;background:var(--ink);-webkit-mask:url(assets/brand/kshana-mark-mask.png) center/contain no-repeat;mask:url(assets/brand/kshana-mark-mask.png) center/contain no-repeat"></span>Kshana <span class="brand-tag">Studio</span></a>
-  <nav class="crumb" aria-label="Where you are"><span>GNSS beyond Earth</span></nav>
+  <nav class="crumb" aria-label="Where you are"><span>Space-user GNSS</span></nav>
   <div class="bar-right">
     <a class="view-switch" href="./" title="Back to the Studio"><svg class="ic flip" aria-hidden="true"><use href="#i-arrow"/></svg><span class="lbl">Studio</span></a>
     <button class="icon-btn" id="btn-theme" type="button" aria-label="Switch between light and dark" title="Switch between light and dark"><svg aria-hidden="true"><use href="#i-theme"/></svg></button>
@@ -45,11 +45,11 @@
 
 <main id="main" tabindex="-1">
 <div class="wrap ssk">
-  <p class="kicker"><i style="--c:var(--orb)"></i>GNSS beyond Earth</p>
+  <p class="kicker"><i style="--c:var(--orb)"></i>Space-user GNSS</p>
   <h1 id="ssk-h">Which navigation signals can a spacecraft far above the GNSS satellites still use?</h1>
   <p class="lede">The satellites of a navigation system point at the Earth, so a spacecraft above them hears only what spills past the limb or leaks through sidelobes. This page shows what the engine finds for five cases: availability on a shell at geostationary height, a highly elliptical orbit, a lunar transfer with a weak-signal receiver, an onboard filter and a two-spacecraft formation. Every number is copied from a result the engine recorded; the page scales it and draws it, and computes nothing else.</p>
   <p class="ssk-adv" role="note"><b>Advisory software.</b> Kshana is not type-approved navigation equipment (IEC 61108, IEC 61162) and has not been assessed against any performance standard. Every figure carries the label the ledger holds for it (<b>MODELLED</b> unless an external oracle was used); it is an aid to judgement, not a finding about any place, mission or event.</p>
-  <section class="card ssk-pick" aria-label="Scenario"><div class="ssk-tabs" id="ssk-tabs" role="tablist" aria-label="GNSS beyond Earth scenarios"></div><p class="ssk-blurb" id="ssk-blurb"></p><p class="ssk-status" id="ssk-status" role="status" aria-live="polite">Opening the scenarios…</p></section>
+  <section class="card ssk-pick" aria-label="Scenario"><div class="ssk-tabs" id="ssk-tabs" role="tablist" aria-label="Space-user GNSS scenarios"></div><p class="ssk-blurb" id="ssk-blurb"></p><p class="ssk-status" id="ssk-status" role="status" aria-live="polite">Opening the scenarios…</p></section>
   <div id="ssk-body" hidden>
     <section class="card" aria-labelledby="ssk-facts-h"><div class="card-head"><h2 id="ssk-facts-h" class="h3">What the result holds</h2><p class="card-note" id="ssk-summary"></p></div><dl class="ssk-kv" id="ssk-kv"></dl></section>
     <p class="ssk-pattern" id="ssk-pattern" role="note"></p>
