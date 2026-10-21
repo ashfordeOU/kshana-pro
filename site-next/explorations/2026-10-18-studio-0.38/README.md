@@ -73,3 +73,7 @@ For integration: the kshana side lists the Studio pages in `web/tools/port_site.
 ## Integration pass 2 (engine a9978e3f, 0.38.0 with gnss-ssv and lunar-infrastructure)
 
 `integration-0.38.0/` was re-shot from the rebuilt site: home, capabilities, evidence, developers, benchmark, replay, optical, holdover, observatory, the Space-user GNSS page and the Lunar infrastructure page, at 1440 and 390 px, light and dark. `shoot.mjs` runs against the built site folder served locally. The site pages load web fonts and a chart library from public hosts as designed; the Studio pages make no third-party request and no page scrolls sideways.
+
+## Home scroll story fixes (engine 242b8037)
+
+`story-fix/` holds the story at five scroll positions (the intro and the four beats) at 1440 and 390 px, light and dark, from the rebuilt site. Fixes: the atmosphere is a thin soft Fresnel rim around the globe, brightest on the sunlit limb; day map, terminator and city lights use one sun direction, with lights only on the night side; the intro copy is no longer covered by the beats' scrim, and its contrast is at least 5.9:1 in both themes with and without reduced motion; the intro has its own headline, "From a clean sky to a free-running clock."
