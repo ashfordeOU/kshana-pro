@@ -45,7 +45,7 @@ const GROUPS = [
   ["Get started", [["README.md", "overview", "Overview"], ["docs/CONCEPTS.md", "concepts", "Concepts primer"], ["docs/GLOSSARY.md", "glossary", "Glossary"], ["web/README.md", "studio", "Studio guide"], ["docs/tutorials/README.md", "tutorials", "Tutorials"],
     ["docs/tutorials/01-first-orbit.md", "tutorial-first-orbit", "1 · Your first orbit"], ["docs/tutorials/02-clock-holdover.md", "tutorial-clock-holdover", "2 · Clock holdover"],
     ["docs/tutorials/03-quantum-vs-classical.md", "tutorial-quantum-vs-classical", "3 · Quantum against classical"], ["docs/examples/multi-tool-pipeline.md", "example-multi-tool", "Worked example: multi-tool pipeline"]]],
-  ["Scenarios", [["docs/SCENARIOS.md", "scenarios", "Scenario kinds"], ["@scenario-reference", "scenario-reference", "Scenario reference"], ["docs/SCHEMA.md", "schema", "Result schema"], ["docs/REAL_TLE_GUIDE.md", "real-tle-guide", "Using real TLEs"], ["docs/CAMPAIGNS.md", "campaigns", "Campaigns"]]],
+  ["Scenarios", [["docs/SCENARIOS.md", "scenarios", "Scenario kinds"], ["docs/KINDS.md", "kinds", "Every scenario kind, by family"], ["docs/COMMANDS.md", "commands", "Every command"], ["docs/ALL-SURFACES.md", "all-surfaces", "Every surface"], ["docs/CAPABILITY-DOMAINS.md", "capability-domains", "Capability domains"], ["@scenario-reference", "scenario-reference", "Scenario reference"], ["docs/SCHEMA.md", "schema", "Result schema"], ["docs/REAL_TLE_GUIDE.md", "real-tle-guide", "Using real TLEs"], ["docs/CAMPAIGNS.md", "campaigns", "Campaigns"]]],
   ["Outputs and exports", [["docs/REPORTS.md", "reports", "Run reports"], ["docs/ANIMATION.md", "animation", "Animation export"], ["docs/INTEROP.md", "interop", "Interoperability exports and imports"]]],
   ["Validation and evidence", [["docs/VALIDATION.md", "validation", "Validation status"], ["docs/VERIFICATION-MATRIX.md", "verification-matrix", "Verification matrix"], ["@capability-reference", "capability-reference", "Capability reference"],
     ["docs/MODELLED-RATIONALE.md", "modelled-rationale", "Why rows stay Modelled"], ["docs/CLAIMS-VS-REALITY.md", "claims-vs-reality", "Claims against reality"], ["docs/PROVENANCE.md", "provenance", "Provenance"],
@@ -70,6 +70,14 @@ const GROUPS = [
   ["Project", [["CHANGELOG.md", "changelog", "Changelog"], ["LICENSING.md", "licensing", "Licensing"],
     ["SECURITY.md", "security", "Security"], ["CONTRIBUTING.md", "contributing", "Contributing"], ["GOVERNANCE.md", "governance", "Governance"], ["CODE_OF_CONDUCT.md", "code-of-conduct", "Code of conduct"]]],
 ];
+// The kind families and the one-page-per-kind reference (docs/KINDS.md links both): written from the tracked
+// files, so a kind added to the engine appears without an edit here. The 87 kind pages stay out of the side
+// navigation and the index list (they would bury everything else); each is reached from its family page.
+const kindFam = cfg.tracked.filter((p) => /^docs\/kinds\/[^/]+\.md$/.test(p)).sort();
+GROUPS.push(["Scenario kind families", kindFam.map((p) => [p, "kinds-" + path.posix.basename(p, ".md"), path.posix.basename(p, ".md").replace(/-/g, " ").replace(/^./, (c) => c.toUpperCase())])]);
+const kindPages = cfg.tracked.filter((p) => /^docs\/kinds\/by-kind\/[^/]+\.md$/.test(p)).sort();
+GROUPS.push(["Scenario kind pages", kindPages.map((p) => [p, "kind-" + path.posix.basename(p, ".md"), path.posix.basename(p, ".md")])]);
+const HIDDEN_GROUPS = new Set(["Scenario kind pages"]);
 // Left out on purpose: maintainer-process documents, not user-facing.
 const EXCLUDED = ["docs/RELEASING.md (release procedure)", "docs/WHEEL_TAGS.md (packaging detail)", "docs/revisions/ (internal change notes)", "docs/design/ (internal design notes)",
   "README.pypi.md (the PyPI page; the Python API doc covers it)", ".github/ templates",
@@ -91,7 +99,7 @@ for (const [g, items] of GROUPS) for (const [p, slug, title] of items) {
     if (!TRACKED.has(p)) { console.warn(`docs: skipping ${p}, not tracked by git`); continue; }
     if (!fs.existsSync(path.join(REPO, p))) { console.warn(`docs: skipping ${p}, missing`); continue; }
   }
-  pages.push({ group: g, path: p, slug, nav: title });
+  pages.push({ group: g, path: p, slug, nav: title, hidden: HIDDEN_GROUPS.has(g) });
 }
 const bySrc = new Map(pages.filter((p) => !p.path.startsWith("@")).map((p) => [p.path, p]));
 fs.mkdirSync(OUT, { recursive: true });
@@ -367,6 +375,7 @@ const search = [];
 const sideNav = (cur) => GROUPS.map(([g]) => {
   const items = pages.filter((p) => p.group === g);
   if (!items.length) return "";
+  if (HIDDEN_GROUPS.has(g) && !items.some((p) => p.slug === cur)) return "";
   return `<div><h2>${esc(g)}</h2>${items.map((p) => `<a href="${p.slug}.html"${p.slug === cur ? ' aria-current="page"' : ""}>${esc(p.nav)}</a>`).join("")}</div>`;
 }).join("");
 
@@ -438,7 +447,7 @@ pages.forEach((p, i) => {
     toc = heads.filter((h) => (h.level === 2 || h.level === 3) && !VENDOR.test(h.text)).map((h) => ({ level: h.level, id: h.id, text: h.text.replace(/<[^>]+>/g, "") }));
   }
   for (const h of [{ id: "", text: title }].concat(toc)) search.push({ t: unent(h.text), h: `/docs/${p.slug}${h.id ? "#" + h.id : ""}`, k: "Docs", d: h.id ? title : p.group, g: p.group, x: h.id ? "" : (p.desc || "") });
-  const prev = pages[i - 1], next = pages[i + 1];
+  const sib = pages.filter((q) => q.hidden === p.hidden), si = sib.indexOf(p), prev = sib[si - 1], next = sib[si + 1];
   const edit = p.path.startsWith("@") ? `<span>Generated from the repository's scenario files and verification matrix at build time.</span>` : `${ghLink(p.path, "Edit on GitHub")}<span>Source: <code>${esc(p.path)}</code></span>`;
   const tocHtml = toc.length ? `<nav class="docs-toc" aria-label="On this page"><h2>On this page</h2>${toc.slice(0, 60).map((h) => `<a class="l${h.level}" href="#${h.id}">${esc(unent(h.text))}</a>`).join("")}</nav>` : `<div></div>`;
   const main = `<div class="docs docs-page">
@@ -465,7 +474,7 @@ const homeMain = `<div class="docs docs-home">
   <article class="docs-main"><div class="prose">
     <h1 id="docs">Kshana documentation</h1>
     <p>Everything here is rendered at build time from Markdown files tracked in the <a href="https://github.com/ashfordeOU/kshana">Kshana repository</a> (engine v${esc(cfg.version)}), plus two reference pages generated from the scenario files and the verification matrix. Nothing is written by hand for the site.</p>
-    ${GROUPS.map(([g]) => { const items = pages.filter((p) => p.group === g); return items.length ? `<h2 id="${esc(g.toLowerCase().replace(/[^a-z]+/g, "-"))}">${esc(g)}</h2><ul>${items.map((p) => `<li><a href="${p.slug}.html"><span>${esc(p.nav)}</span>${p.desc ? `<small>${esc(p.desc)}</small>` : ""}</a></li>`).join("")}</ul>` : ""; }).join("")}
+    ${GROUPS.map(([g]) => { const items = pages.filter((p) => p.group === g); if (HIDDEN_GROUPS.has(g)) return items.length ? `<h2 id="${esc(g.toLowerCase().replace(/[^a-z]+/g, "-"))}">${esc(g)}</h2><p>${items.length} pages, one for each scenario kind, linked from <a href="kinds.html">Every scenario kind, by family</a>.</p>` : ""; return items.length ? `<h2 id="${esc(g.toLowerCase().replace(/[^a-z]+/g, "-"))}">${esc(g)}</h2><ul>${items.map((p) => `<li><a href="${p.slug}.html"><span>${esc(p.nav)}</span>${p.desc ? `<small>${esc(p.desc)}</small>` : ""}</a></li>`).join("")}</ul>` : ""; }).join("")}
     <h2 id="not-included">Not included</h2><p>Maintainer-process documents stay in the repository: ${EXCLUDED.map(esc).join("; ")}.</p>
   </div></article>
   <div></div>
