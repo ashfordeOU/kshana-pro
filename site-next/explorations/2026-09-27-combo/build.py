@@ -1152,6 +1152,19 @@ def bench_leaderboard():
 
 EXTRA_SCALARS["{{BENCH_LEADERBOARD}}"] = bench_leaderboard()
 EXTRA_SCALARS["{{SS_BODIES}}"] = ss_bodies()
+
+
+def bench_verdicts():
+    """The bench verdicts as the engine's docs/BENCH.md states them (committed HEAD), so the page cannot say more or less."""
+    s = subprocess.run(["git", "-C", DOCS_REPO, "show", "HEAD:docs/BENCH.md"], capture_output=True, text=True, check=True).stdout
+    m = re.search(r"Verdicts as recorded there:(.*?)\n\n", s, re.S)
+    assert m, "docs/BENCH.md has no 'Verdicts as recorded there:' paragraph"
+    body = " ".join(m.group(1).split()).replace("**", "").replace("`", "")
+    assert "NOT MET" in body, "docs/BENCH.md verdicts name no NOT MET bar"
+    return esc("Verdicts as recorded in the results file: " + body.lstrip())
+
+
+EXTRA_SCALARS["{{BENCH_VERDICTS}}"] = bench_verdicts()
 EXTRA_SCALARS.update({"{{REPRO_STAMP}}": repro_stamp(), "{{CLOCK_CATALOGUE}}": clock_catalogue(), "{{TIMING_CATALOGUE}}": timing_catalogue(), "{{CLI_REFERENCE}}": cli_reference()})
 
 # =================================================================== shared filter-list toolbar
@@ -2328,6 +2341,22 @@ NEW038_STATIC = {
     "benchmark.html": ("modelled", "kshana-bench: fixed tasks, splits and metrics",
         "Interference detection on receiver logs and IQ, holdover prediction and the out-of-distribution optimism gap, with split manifests pinned by hash, a sealed holdout and a result-file schema. A row says this file scored X on split S under specification version V, and nothing else. Every score is MODELLED, and one pre-registered bar is NOT MET and pinned.", "bars pre-registered before the baselines ran; no data vendored"),
 }
+NEW039 = [
+    (None, "docs/kinds.html", None, None),
+    (None, "docs/commands.html", None, None),
+    (None, "docs/all-surfaces.html", None, None),
+    (None, "benchmark.html", None, None),
+]
+NEW039_STATIC = {
+    "docs/kinds.html": ("none", "Every scenario kind, one page each",
+        "All {{KINDS}} scenario kinds filed under families, with a page for each kind: what it does, its inputs, the results of an example run, the ledger rows and oracles behind its label, the limitations its report states and the chart the engine writes. A family page carries a contact sheet of those charts.", None),
+    "docs/commands.html": ("none", "Every command, every surface",
+        "Every command with an example you can run from a checkout, and every surface (command line, Python, Rust, WebAssembly, the MCP server, the plugin commands, the skills and the Studio pages) with the commands and kinds it carries and the reason where it does not.", None),
+    "docs/all-surfaces.html": ("none", "Which surface carries which capability",
+        "One page lists, for every command and kind, which surface carries it and which do not, with the reason, beside the capability domains and their ledger labels. A capability is VALIDATED only with an independent external oracle.", None),
+    "benchmark.html": ("modelled", "kshana-bench: the bars that were not met, stated",
+        "The benchmark page now lists every bar that was not met, as the results file records them, and says that no bar is loosened. Every score is MODELLED, and a score describes a log or a corpus, never a product.", None),
+}
 # The "New in" section of the Capabilities and Home pages is the current minor release's: its table, heading and lede.
 # KSHANA_NEW_SECTION=0.36 builds the 0.36 section before Cargo.toml carries 0.36.
 NEW_SECTIONS = {
@@ -2340,6 +2369,9 @@ NEW_SECTIONS = {
     "0.37": (NEW037, NEW037_STATIC, "Optical timing links through the atmosphere.",
              "How often an optical time-transfer link is up when clouds and turbulence are in the path: per-site availability against the link margin, the ceiling no margin lifts, what extra ground sites, a larger aperture, another wavelength or adaptive optics buy, and what an outage costs a holdover clock. Every number is MODELLED: published formulas checked against an independent program, with stated cloud-climate assumptions, not a measured availability record.",
              "optical timing links through clouds and turbulence"),
+    "0.39": (NEW039, NEW039_STATIC, "Every kind, every command, and the benchmark's misses.",
+             "No new engine feature: the results are those of 0.38.0. The documentation now has a page for every scenario kind and a list of every command and every surface, and the benchmark page states each bar that was not met. The command line also exits quietly when its output pipe closes. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software.",
+             "every kind, every command, and the benchmark's misses"),
     "0.38": (NEW038, NEW038_STATIC, "A neutral referee, a holdover test, more inputs and GNSS beyond the constellation.",
              "Score a receiver log against a published jamming-test plan, measure a holdover test against public ITU-T masks, read more receivers' and sensors' logs, open the files of an interference observatory without anyone telling you why a cell is red, and see what GNSS offers a spacecraft in a high orbit, on the way to the Moon and in lunar orbit. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software, not type-approved navigation equipment: the operator stays responsible. Nothing here transmits or synthesises a radio waveform.",
              "a neutral referee, a holdover test, more inputs and GNSS beyond the constellation"),

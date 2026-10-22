@@ -31,6 +31,7 @@
       <li>The data are recorded or synthetic and named in the specification. Third-party data is never copied into the repository: manifests and fetch scripts pin each file by SHA-256, and each licence is recorded before the data is used.</li>
       <li>The truth for a recorded log is the test plan's scheduled slots, not recorded on-air times, so a detection probability is a lower bound. The specification says so beside each task.</li>
       <li>A sealed holdout is scored only in a leaderboard round, and its seed is revealed after it. Bars for any baseline that claims a number are committed before the scored run and never loosened afterwards; a miss is recorded as NOT MET.</li>
+      <li>{{BENCH_VERDICTS}}</li>
       <li>Advisory only: Kshana results are modelled or measured against stated references, not an approval or a statement of conformance.</li>
     </ul>
     <p class="m-note">Run it yourself: <code>kshana bench score</code> turns a submission and a split's truth into a result file; <code>kshana bench leaderboard</code> renders result files into this page.</p>
