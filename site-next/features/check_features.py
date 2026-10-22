@@ -718,6 +718,10 @@ def main() -> int:
         if pg.name == "Docs/changelog.html":
             continue  # the changelog states the counts of the release each entry describes, not today's
         checks = docs_checks if pg.name.startswith("Docs/") else site_checks
+        # a kind family page, a kind's own page and the docs index (its card for each family) state the count of
+        # one family or one kind, not of the register; the totals are checked on the pages that state them
+        if pg.name.startswith(("Docs/kinds-", "Docs/kind-")) or pg.name == "Docs/index.html":
+            checks = [c for c in checks if c[2] not in ("scenario kinds", "bundled scenarios")]
         for t in pg.texts:
             if t.ctx not in ("text", "code"):
                 continue

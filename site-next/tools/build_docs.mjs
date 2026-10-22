@@ -444,6 +444,9 @@ pages.forEach((p, i) => {
     const heads = getHeadingList();
     const h1 = heads.find((h) => h.level === 1);
     title = h1 ? unent(h1.text.replace(/<[^>]+>/g, "")) : p.nav;
+    // a family page and the kind it is named after (Campaigns, campaigns) would otherwise share a heading, and so a title
+    const tag = p.slug === "kinds" ? ", by family" : p.group === "Scenario kind families" ? " (scenario kind family)" : p.group === "Scenario kind pages" ? " (scenario kind)" : "";
+    if (tag) { title += tag; body = body.replace(/(<h1\b[^>]*>)([\s\S]*?)(<\/h1>)/, `$1$2${tag}$3`); }
     toc = heads.filter((h) => (h.level === 2 || h.level === 3) && !VENDOR.test(h.text)).map((h) => ({ level: h.level, id: h.id, text: h.text.replace(/<[^>]+>/g, "") }));
   }
   for (const h of [{ id: "", text: title }].concat(toc)) search.push({ t: unent(h.text), h: `/docs/${p.slug}${h.id ? "#" + h.id : ""}`, k: "Docs", d: h.id ? title : p.group, g: p.group, x: h.id ? "" : (p.desc || "") });
