@@ -534,6 +534,15 @@ def run_checks(override=None):
     # 17 engine version ---------------------------------------------------------------------------
     import gzip
     bad, nver = [], 0
+    # Four allowances, each by published file and by its exact wording (not a phrase-wide exemption). Each entry is
+    # either a dated historical record (CAPABILITY.md's 2026-10-19 revision line) or a 0.38.0 screenshot caption
+    # (the README's Studio screenshots and the site strip, taken at 0.38.0 and not re-shot for 0.39.0).
+    HISTORIC = [
+        (r"^(docs/capability-map\.html|llms-full\.txt)$", r"2026-10-19: engine 0\.38\.0, 87 kinds \(new in 0\.38\.0"),
+        (r"^docs/overview\.html$", r"engine v0\.38\.0 running locally"),
+        (r"^docs/overview\.html$", r"with the engine v0\.38\.0 live"),
+        (r"^docs/overview\.html$", r"real run of engine v0\.38\.0 \(a globe and three live chart"),
+    ]
     for p in PUB:
         if p.endswith(TEXT_EXT): t = get(p)
         elif p.endswith(".gz") and not (override and p in override): t = gzip.open(os.path.join(HERE, p)).read().decode("utf-8", "replace")
@@ -541,7 +550,7 @@ def run_checks(override=None):
         else: continue
         for v, ctx in version_claims(p, t):
             nver += 1
-            if v != ver: bad.append((p, f"shows {v}, the engine is {ver}: …{ctx}…"))
+            if v != ver and not any(re.search(fp, p) and re.search(cp, ctx) for fp, cp in HISTORIC): bad.append((p, f"shows {v}, the engine is {ver}: …{ctx}…"))
     if nver < 100: bad.append(("site", f"only {nver} engine versions found; the checker is not seeing them"))
     if bad: fails.append(("17 engine version", bad[:15] + ([f"... {len(bad) - 15} more"] if len(bad) > 15 else [])))
     # 18 changelog Pro versions -------------------------------------------------------------------
