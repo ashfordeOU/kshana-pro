@@ -1,0 +1,11 @@
+# W53 handover (Studio and site worker), 24 Oct 2026
+
+State on kshana-pro `site/studio-0.38`: the 0.39.0 built site is `site-next/built/site-0.39.0` (d3835f6); the Studio source is `site-next/explorations/2026-10-01-studio-rebuild`; the release video is `docs/handover-0.39/video/` (653a2b0, rebuild steps in its README). The Studio evidence badge (workstream A, Studio side) is in `lib/evidence.mjs`, `evidence.css` and the page readers; verified against the engine at 51a2c017.
+
+How a site build runs (all from `site-next/explorations/2026-09-27-combo`, with `KSHANA_REPO=KSHANA_DOCS_REPO=KSHANA_ENGINE_TREE=<engine checkout>`):
+1. Build the engine at the checkout's HEAD (`cargo build --release --bin kshana`; wasm with `wasm-pack build --target web --release --no-opt -- --features wasm`, then `wasm-opt -O` from npm `binaryen`, because the release download is blocked). Link the checkout's `target` to the shared one and `realdata-cache` to /workspace/kshana/realdata-cache (the evidence generator needs the Cs5071A record; without it the holdover figures come out blank).
+2. The recorders: `src/tools/record_runs.py`, `gen_waterfall.py`, `gen_capabilities.py`, `gen_missions_runs.py`, `record_cli_session.py`, `gen_evidence_data.py`, `gen_missions_page.py`, `gen_developers_data.py`, `gen_publications.py` (arXiv may answer 429: retry, or `--offline`), `node src/tools/gen_footprint.mjs`, and `site-next/tools/record_mcp_session.py <kshana-mcp>`. build.py refuses recordings not stamped with the checkout's HEAD.
+3. `python3 build.py`, then `python3 check.py`, then `site-next/features`: `gen_features.py` and `check_features.py`. Copy the files listed in PUBLISH.txt into `site-next/built/site-<version>/`.
+4. The Studio is re-recorded with the steps in the Studio folder's RERECORD.md.
+
+Gotchas: the site check and the engine's own generated docs must agree on the version (rule 17); one allowance remains in check.py (CAPABILITY.md's dated 0.38.0 line). The auto-mode classifier blocks edits that weaken a check; the owner approves them. Push only site/studio-0.38 (and the sanctioned kshana branches). Commit as Ashforde OÜ with no trailers. Worktrees left: /workspace/kshana-integ (engine, detached), /workspace/kshana-shots (docs/screenshots-0.40), /workspace/kshana-pro-ws (ws/coordination, read-only).
