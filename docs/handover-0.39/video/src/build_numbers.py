@@ -40,12 +40,12 @@ cnt = Counter(r["status"] for r in mx)
 N = {
     "engine": {"version": ver, "commit": commit},
     "jt": {"tests": tests, "summary": jt["summary"], "options": jt["options"], "jam_s": D["jt_synthetic"]["jam_s"], "secs": D["jt_synthetic"]["secs"], "plan": D["jt_synthetic"]["plan"],
-           "pack_files": D["pack_files"], "verify": [{"name": c["name"], "status": c["status"]} for c in verify["checks"]], "verify_ok": verify["ok"], "label": jt["label"]},
+           "pack_files": D["pack_files"], "verify": [{"name": c["name"], "status": c["status"]} for c in verify["checks"]], "verify_ok": verify["ok"], "tamper_rc": D["pack_tampered_rc"], "tamper_failures": D["pack_tampered_failures"], "label": jt["label"]},
     "flags": fl,
-    "timing": {"verdicts": tm["verdicts"], "steps": [{"name": s["name"], "max_abs_te_ns": s["max_abs_te_ns"], "start": s["start_s"], "end": s["end_s"]} for s in tm["steps"]], "masks": [m.get("name") or m.get("id") for m in tm["masks"]]},
+    "timing": {"verdicts": tm["verdicts"], "steps": [{"name": s["name"], "max_abs_te_ns": s["max_abs_te_ns"], "start": s["start_s"], "end": s["end_s"]} for s in tm["steps"]], "masks": [m.get("name") or m.get("id") for m in tm["masks"]], "series_ns": tm["record"]["series"]["time_error_ns"], "interval_s": tm["record"]["sample_interval_s"], "checks": {m["id"]: [{k: c.get(k) for k in ("metric", "limit_ns", "value_ns", "verdict", "source")} for c in m["checks"]] for m in tm["masks"]}},
     "standards": std,
     "bench": {"baselines": bench, "A2": a2, "D1": d1, "spec": D["bench"][sorted(D["bench"])[0]]["spec_version"]},
-    "ssv": {"heo_orbit": D["ssv_heo"]["orbit"], "perigee_km": heo.get("perigee_alt_km"), "apogee_km": heo["apogee_alt_km"], "combined": comb, "nav_final_err_m": D["ssv_nav"]["result"]["final_pos_err_m"], "formation_final_err_m": D["ssv_formation"]["result"]["final_pos_err_m"]},
+    "ssv": {"heo_orbit": D["ssv_heo"]["orbit"], "perigee_km": heo.get("perigee_alt_km"), "apogee_km": heo["apogee_alt_km"], "cn0_min_dbhz": D["ssv_heo"]["cn0_min_dbhz"], "combined": comb, "nav_final_err_m": D["ssv_nav"]["result"]["final_pos_err_m"], "formation_final_err_m": D["ssv_formation"]["result"]["final_pos_err_m"]},
     "lunar": {"od_mean_q": od["mean_q"], "od_expected": od["expected_mean_q"], "od_trials": od["trials"], "od_err_mean_q": ode["mean_q"], "od_err_accel": ode["model_error_accel_m_s2"],
               "od_frac_exceed_err": ode["fraction_exceeding_95"], "carrier_arcs": [{"days": a["arc_days"], "success": a["monte_carlo_success_rate"], "ambiguities": a["double_difference_ambiguities"]} for a in cf]},
     "ledger": {"rows": len(mx), "VALIDATED": cnt["VALIDATED"], "MODELLED": cnt["MODELLED"], "PARTNER": cnt["PARTNER"]},
@@ -64,6 +64,7 @@ for i, l in enumerate(D["log"], 1):
 L.append("## Numbers used on screen, and where each comes from\n")
 L.append(f"- Jammertest: {N['jt']['summary']['tests']} tests (published plan, Test Area 2, {', '.join(t['id'] for t in tests)}); outcomes {', '.join(t['id']+' '+t['outcome'] for t in tests)}; latencies {', '.join(str(t['latency']) for t in tests)} s; median latency {N['jt']['summary']['median_latency_s']} s; false-alarm runs {N['jt']['summary']['false_alarm_runs']}, {N['jt']['summary']['false_alarm_epochs']} of {N['jt']['summary']['clean_epochs']} clean epochs. Source: commands 1 and 2 above (`--json`). The log is synthetic.")
 L.append(f"- Evidence pack: files {', '.join(N['jt']['pack_files'])}; `kshana evidence verify` ok={N['jt']['verify_ok']}, checks {', '.join(c['name']+' '+c['status'] for c in N['jt']['verify'])}.")
+L.append(f"- Tampered copy (one byte appended to summary.html): `kshana evidence verify` exit status {D['pack_tampered_rc']}; failures {D['pack_tampered_failures']}.")
 L.append(f"- Receiver self-report (synthetic UBX log, {fl['epochs_reported']} epochs): receiver flag epochs {fl['receiver_flag_epochs']}, both {fl['both']}, receiver only {fl['receiver_only']}, Kshana only {fl['kshana_only']}; first Kshana alarm {fl['first_kshana_alarm_s']} s, first receiver flag {fl['first_receiver_flag_s']} s.")
 L.append(f"- Holdover test (`holdover-test-example.toml`, a synthetic time-error record): verdicts {tm['verdicts']}; masks {N['timing']['masks']}; max |TE| per step {[(s['name'], s['max_abs_te_ns']) for s in N['timing']['steps']]} ns.")
 L.append("- Standards packs: " + "; ".join(f"{s['pack']} {s['met']} met, {s['not_met']} not met, {s['needs_input']} needs input" for s in std) + ".")

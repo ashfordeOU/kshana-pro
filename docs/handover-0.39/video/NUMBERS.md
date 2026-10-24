@@ -24,8 +24,8 @@ Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162)
 ```
 private key: signer.key  (keep it secret; never commit it)
 public key:  signer.key.pub
-public key (hex): bd6b9d6d6caa48b9a9a22c3959433b9e3ca2f147dd990782dc73775d9a9d1990
-fingerprint: 6bb5b50b53b46ab1e229fd11e73b0b9a
+public key (hex): a8c93425f00b9349f8f7c7d033323b533a4f4b4c9837501eee251ef7c238b336
+fingerprint: 4724bd98b46278538ec75301826943b2
 Give verifiers the public key by a route they trust; they pin it with --pubkey.
 ```
 
@@ -46,85 +46,88 @@ Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162)
 ## 5. `kshana evidence verify pack --pubkey signer.key.pub --json`
 - directory: `jt`; exit status 0; verifies the signed pack
 
-## 6. `kshana receiver-trust session.toml`
+## 6. `kshana evidence verify pack-tampered --pubkey signer.key.pub --json`
+- directory: `jt`; exit status 1; the same pack with one byte appended to summary.html
+
+## 7. `kshana receiver-trust session.toml`
 - directory: `flags`; exit status 0; synthetic UBX log, 200 epochs
 ```
 (writes session.result.json)
 ```
 
-## 7. `kshana holdover-test-example.toml`
+## 8. `kshana holdover-test-example.toml`
 - directory: `run`; exit status 0
 ```
 (writes holdover-test-example.result.json)
 ```
 
-## 8. `kshana standards-pack run dhs-rpcf --json`
+## 9. `kshana standards-pack run dhs-rpcf --json`
 - directory: `run`; exit status 0
 
-## 9. `kshana standards-pack run imo-circ-1575 --json`
+## 10. `kshana standards-pack run imo-circ-1575 --json`
 - directory: `run`; exit status 0
 
-## 10. `kshana standards-pack run icao-doc9849-appf --json`
+## 11. `kshana standards-pack run icao-doc9849-appf --json`
 - directory: `run`; exit status 0
 
-## 11. `kshana bench baseline --task d --split test --out bench`
+## 12. `kshana bench baseline --task d --split test --out bench`
 - directory: `run`; exit status 0
 
-## 12. `kshana gnss-ssv-shell.toml`
-- directory: `run`; exit status 0
-```
-(writes result.json)
-```
-
-## 13. `kshana gnss-ssv-heo.toml`
+## 13. `kshana gnss-ssv-shell.toml`
 - directory: `run`; exit status 0
 ```
 (writes result.json)
 ```
 
-## 14. `kshana gnss-ssv-nav-lunar.toml`
+## 14. `kshana gnss-ssv-heo.toml`
 - directory: `run`; exit status 0
 ```
 (writes result.json)
 ```
 
-## 15. `kshana gnss-ssv-formation-heo.toml`
+## 15. `kshana gnss-ssv-nav-lunar.toml`
 - directory: `run`; exit status 0
 ```
 (writes result.json)
 ```
 
-## 16. `kshana lunar-infrastructure-od-consistency.toml`
+## 16. `kshana gnss-ssv-formation-heo.toml`
 - directory: `run`; exit status 0
 ```
 (writes result.json)
 ```
 
-## 17. `kshana lunar-infrastructure-od-consistency-model-error.toml`
+## 17. `kshana lunar-infrastructure-od-consistency.toml`
 - directory: `run`; exit status 0
 ```
 (writes result.json)
 ```
 
-## 18. `kshana lunar-infrastructure-frame-coestimation.toml`
+## 18. `kshana lunar-infrastructure-od-consistency-model-error.toml`
 - directory: `run`; exit status 0
 ```
 (writes result.json)
 ```
 
-## 19. `kshana lunar-infrastructure-space-tie.toml`
+## 19. `kshana lunar-infrastructure-frame-coestimation.toml`
 - directory: `run`; exit status 0
 ```
 (writes result.json)
 ```
 
-## 20. `kshana lunar-infrastructure-geodesy-sensitivity.toml`
+## 20. `kshana lunar-infrastructure-space-tie.toml`
 - directory: `run`; exit status 0
 ```
 (writes result.json)
 ```
 
-## 21. `kshana lunar-infrastructure-carrier-phase.toml`
+## 21. `kshana lunar-infrastructure-geodesy-sensitivity.toml`
+- directory: `run`; exit status 0
+```
+(writes result.json)
+```
+
+## 22. `kshana lunar-infrastructure-carrier-phase.toml`
 - directory: `run`; exit status 0
 ```
 (writes result.json)
@@ -134,6 +137,7 @@ Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162)
 
 - Jammertest: 4 tests (published plan, Test Area 2, 1.1.4, 1.1.8, 1.1.12, 1.1.13); outcomes 1.1.4 late, 1.1.8 late, 1.1.12 missed, 1.1.13 detected; latencies 30.0, 150.0, None, 10.0 s; median latency 30.0 s; false-alarm runs 2, 121 of 1375 clean epochs. Source: commands 1 and 2 above (`--json`). The log is synthetic.
 - Evidence pack: files config.json, epochs.json, log-slice.bin, manifest.json, manifest.sig, summary.html; `kshana evidence verify` ok=True, checks manifest pass, signature pass, files pass, no-extra-files pass, hash-chain pass, slice-and-epochs pass, full-log skipped, timestamp skipped.
+- Tampered copy (one byte appended to summary.html): `kshana evidence verify` exit status 1; failures [{'code': 'file-size-mismatch', 'name': 'summary.html', 'expected': 203788, 'actual': 203789}, {'code': 'file-hash-mismatch', 'name': 'summary.html', 'expected': '7072b40bc57d28abc8ba8898da862b790b637ae2c0322f5ca2f4131158a05c82', 'actual': '184c2d0a703e6dfc15190b089936764979ab2d9d1c14a934960fb95429c6fc10'}].
 - Receiver self-report (synthetic UBX log, 140 epochs): receiver flag epochs 17, both 11, receiver only 6, Kshana only 11; first Kshana alarm 80.0 s, first receiver flag 120.0 s.
 - Holdover test (`holdover-test-example.toml`, a synthetic time-error record): verdicts {'baseline_masks': 'PASS', 'holdover_envelope': 'FAIL', 'holdover_masks': 'FAIL', 'recovery': 'RECOVERED'}; masks ['prtc-a', 'eprtc-a-holdover']; max |TE| per step [('baseline', 4.39), ('holdover', 299.07), ('recovery', 299.94)] ns.
 - Standards packs: dhs-rpcf 6 met, 1 not met, 2 needs input; imo-circ-1575 1 met, 4 not met, 2 needs input; icao-doc9849-appf 6 met, 0 not met, 2 needs input.

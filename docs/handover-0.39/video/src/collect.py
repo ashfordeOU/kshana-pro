@@ -69,6 +69,14 @@ pub = json.loads(Path(jt / "pack" / "manifest.json").read_text()) if (jt / "pack
 vr = subprocess.run([BIN, "evidence", "verify", "pack", "--pubkey", "signer.key.pub", "--json"], cwd=jt, capture_output=True, text=True)
 LOG.append({"cmd": "kshana evidence verify pack --pubkey signer.key.pub --json", "cwd": "jt", "rc": vr.returncode, "stdout": vr.stdout, "stderr": vr.stderr[-300:], "note": "verifies the signed pack"})
 out["pack_verify_rc"] = vr.returncode
+# the same pack with one byte of summary.html changed must fail verification
+shutil.copytree(jt / "pack", jt / "pack-tampered")
+sm = jt / "pack-tampered" / "summary.html"
+sm.write_bytes(sm.read_bytes() + b" ")
+tv = subprocess.run([BIN, "evidence", "verify", "pack-tampered", "--pubkey", "signer.key.pub", "--json"], cwd=jt, capture_output=True, text=True)
+LOG.append({"cmd": "kshana evidence verify pack-tampered --pubkey signer.key.pub --json", "cwd": "jt", "rc": tv.returncode, "stdout": tv.stdout, "stderr": tv.stderr[-300:], "note": "the same pack with one byte appended to summary.html"})
+out["pack_tampered_rc"] = tv.returncode
+out["pack_tampered_failures"] = json.loads(tv.stdout).get("failures", []) if tv.stdout.strip().startswith("{") else []
 out["jt_synthetic"] = {"secs": 4800, "jam_s": JAM, "plan": "NPRA/jammertest-plan @ 75c0b2c, monday 2025-09-15, Test Area 2, tests 1.1.4, 1.1.8, 1.1.12, 1.1.13"}
 
 # 2. the receiver's own flag beside Kshana's alarm (a synthetic UBX log)
