@@ -33,6 +33,10 @@ const scenes = [];
 const scene = (id, build, upd) => {
   const el = h("section", { class: "scene", id });
   build(el);
+  const inner = h("div", { class: "inner" });
+  for (const k of ["justifyContent", "alignItems", "textAlign"]) { inner.style[k] = el.style[k]; el.style[k] = ""; }
+  while (el.firstChild) inner.append(el.firstChild);
+  el.append(inner);
   document.getElementById("scenes").append(el);
   scenes.push({ id, el, t0: T[id][0], t1: T[id][1], upd });
 };
@@ -54,7 +58,7 @@ const JT = N.jt;
 const jtCmd = () => h("div", { class: "cmd" }, h("i", {}, "$ "), "kshana jammertest score session.toml --catalog testcatalog.json --plan plan.json --location 2 --local-offset-h 2");
 scene("jtA", (el) => {
   el.append(head("0.38 · a neutral referee", "Score a receiver against the published test plan", [chip("Modelled", "m"), chip("synthetic log", "s")]));
-  const W = 1500, Hh = 330, X0 = 60, X1 = 1450, S = JT.secs, X = (s) => X0 + (s / S) * (X1 - X0);
+  const W = 1500, Hh = 372, X0 = 60, X1 = 1450, S = JT.secs, X = (s) => X0 + (s / S) * (X1 - X0);
   const svg = h("svg", { viewBox: `0 0 ${W} ${Hh}`, width: "100%", id: "jt-svg" });
   svg.append(h("defs", {}, h("pattern", { id: "hatch", width: 10, height: 10, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, h("rect", { width: 5, height: 10, fill: "rgba(255,79,182,.55)" }))));
   svg.append(h("text", { x: X0, y: 28, fill: "#6f7d9d", "font-size": 17 }, "scheduled test slots (published plan, Test Area 2, Monday 2025-09-15, local time)"));
@@ -64,16 +68,16 @@ scene("jtA", (el) => {
   });
   svg.append(h("text", { x: X0, y: 156, fill: "#6f7d9d", "font-size": 17 }, "synthetic receiver log: jammer on (input, written for this video)"));
   JT.jam_s.forEach(([a, b]) => svg.append(h("rect", { x: X(a), y: 166, width: X(b) - X(a), height: 40, rx: 6, fill: "url(#hatch)", stroke: "rgba(255,79,182,.7)" })));
-  svg.append(h("text", { x: X0, y: 240, fill: "#6f7d9d", "font-size": 17 }, "what Kshana's monitors found"));
-  svg.append(h("line", { x1: X0, x2: X1, y1: 300, y2: 300, stroke: "rgba(255,255,255,.25)" }));
-  for (let s = 0; s <= S; s += 600) { const m = 14 * 60 + s / 60; svg.append(h("line", { x1: X(s), x2: X(s), y1: 300, y2: 308, stroke: "rgba(255,255,255,.3)" }), h("text", { x: X(s), y: 326, "text-anchor": "middle", fill: "#6f7d9d", "font-size": 16 }, `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`)); }
+  svg.append(h("text", { x: X0, y: 244, fill: "#6f7d9d", "font-size": 17 }, "what Kshana's monitors found"));
+  svg.append(h("line", { x1: X0, x2: X1, y1: 340, y2: 340, stroke: "rgba(255,255,255,.25)" }));
+  for (let s = 0; s <= S; s += 600) { const m = 14 * 60 + s / 60; svg.append(h("line", { x1: X(s), x2: X(s), y1: 340, y2: 348, stroke: "rgba(255,255,255,.3)" }), h("text", { x: X(s), y: 368, "text-anchor": "middle", fill: "#6f7d9d", "font-size": 16 }, `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`)); }
   const marks = [];
   JT.tests.forEach((s) => {
     const mid = (s.onset + s.end) / 2;
-    if (s.outcome === "missed") marks.push({ at: s.end, g: h("g", {}, h("path", { d: `M${X(mid) - 10} 252 l20 20 M${X(mid) + 10} 252 l-20 20`, stroke: "#ff5d6c", "stroke-width": 5, "stroke-linecap": "round" }), h("text", { x: X(mid), y: 292, "text-anchor": "middle", fill: "#ff5d6c", "font-size": 20, "font-weight": 700 }, "MISSED")) });
+    if (s.outcome === "missed") marks.push({ at: s.end, g: h("g", {}, h("path", { d: `M${X(mid) - 10} 252 l20 20 M${X(mid) + 10} 252 l-20 20`, stroke: "#ff5d6c", "stroke-width": 5, "stroke-linecap": "round" }), h("text", { x: X(mid), y: 304, "text-anchor": "middle", fill: "#ff5d6c", "font-size": 20, "font-weight": 700 }, "MISSED")) });
     else { const at = s.onset + s.latency, col = s.outcome === "detected" ? "#a6f04a" : "#ffb224"; marks.push({ at, g: h("g", {}, h("circle", { cx: X(at), cy: 262, r: 11, fill: col }), h("text", { x: X(at) + 18, y: 270, fill: col, "font-size": 20, "font-weight": 700 }, `${s.outcome.toUpperCase()} +${fmt(s.latency)} s`)) }); }
   });
-  JT.jam_s.filter(([a, b]) => !JT.tests.some((s) => a < s.end && b > s.onset)).forEach(([a, b]) => marks.push({ at: b, g: h("g", {}, h("circle", { cx: X((a + b) / 2), cy: 262, r: 11, fill: "none", stroke: "#ff5d6c", "stroke-width": 3, "stroke-dasharray": "5 4" }), h("text", { x: X((a + b) / 2) + 18, y: 270, fill: "#ff5d6c", "font-size": 20, "font-weight": 700 }, "FALSE ALARM")) }));
+  JT.jam_s.filter(([a, b]) => !JT.tests.some((s) => a < s.end && b > s.onset)).forEach(([a, b]) => marks.push({ at: b, g: h("g", {}, h("circle", { cx: X((a + b) / 2), cy: 262, r: 11, fill: "none", stroke: "#ff5d6c", "stroke-width": 3, "stroke-dasharray": "5 4" }), h("line", { x1: X((a + b) / 2), x2: X((a + b) / 2), y1: 274, y2: 292, stroke: "#ff5d6c", "stroke-width": 2 }), h("text", { x: X((a + b) / 2), y: 316, "text-anchor": "middle", fill: "#ff5d6c", "font-size": 20, "font-weight": 700 }, "FALSE ALARM")) }));
   marks.forEach((m) => { m.g.style.opacity = 0; svg.append(m.g); });
   const cur = h("line", { x1: X0, x2: X0, y1: 36, y2: 300, stroke: "#eaf0ff", "stroke-width": 2, id: "jt-cur" });
   svg.append(cur);
@@ -204,7 +208,7 @@ scene("close", (el) => {
   el.append(h("img", { src: "kshana-mark.svg", style: "width:96px;height:96px" }), h("h1", { style: "font-size:84px" }, "kshana"), ...(branded ? [h("p", { class: "lede" }, "by Ashforde® OÜ")] : []),
     h("p", { class: "lede", style: "color:var(--cyan)" }, "kshana.dev — runs in your browser, no install"), h("p", { class: "note", style: "font-size:20px" }, "Open source · AGPL-3.0 · github.com/ashfordeOU/kshana"),
     h("p", { class: "note" }, "Scores from real Kshana engine runs; logs are synthetic. Advisory software, not type-approved navigation equipment."));
-}, (el, t) => { reveal(el.firstChild, 1); });
+}, (el, t) => { });
 
 // ---- the renderer
 window.__duration = DURATION;
@@ -222,5 +226,20 @@ window.__render = (t) => {
   }
   return true;
 };
+// Square frame: scale each scene's content block up to fill the frame, centred (the layout is measured, not guessed).
+if (SQ) for (const s of scenes) {
+  const el = s.el, inner = el.firstElementChild, bw = el.clientWidth, bh = el.clientHeight;
+  inner.style.cssText += ";position:absolute;left:0;top:0;transform-origin:0 0;justify-content:flex-start";
+  const measure = (z) => {   // height of the block, in screen pixels, when laid out at scale z
+    inner.style.width = `${bw / z}px`; inner.style.transform = `scale(${z})`;
+    const r0 = inner.getBoundingClientRect(); let mx = r0.bottom;
+    inner.querySelectorAll("*").forEach((c) => { const b = c.getBoundingClientRect(); if (b.height > 0) mx = Math.max(mx, b.bottom); });
+    return mx - r0.top;
+  };
+  let z = 1;
+  for (let i = 0; i < 8; i++) { const ch = measure(z) / z; const nz = Math.min(2.2, Math.max(1, (0.92 * bh) / ch)); if (Math.abs(nz - z) < 0.01) break; z = nz; }
+  while (measure(z) > 0.92 * bh && z > 0.5) z *= 0.97;
+  inner.style.top = `${Math.max(0, (bh - measure(z)) / 2)}px`;
+}
 window.__ready = true;
 window.__render(0);
