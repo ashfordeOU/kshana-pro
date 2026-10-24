@@ -1,0 +1,303 @@
+{
+ "engine": {
+  "version": "0.39.0",
+  "commit": "fc21ac4531fbc56c960284ff27ef58a34b39efa1"
+ },
+ "jt": {
+  "tests": [
+   {
+    "id": "1.1.4",
+    "name": "Jammer S2.1",
+    "onset": 960.0,
+    "end": 1680.0,
+    "outcome": "late",
+    "latency": 30.0,
+    "recover": 0.0
+   },
+   {
+    "id": "1.1.8",
+    "name": "Jammer U1.1",
+    "onset": 1920.0,
+    "end": 2640.0,
+    "outcome": "late",
+    "latency": 150.0,
+    "recover": 1.0
+   },
+   {
+    "id": "1.1.12",
+    "name": "Jammer H1.1",
+    "onset": 2880.0,
+    "end": 3600.0,
+    "outcome": "missed",
+    "latency": null,
+    "recover": null
+   },
+   {
+    "id": "1.1.13",
+    "name": "Jammer H1.2",
+    "onset": 3840.0,
+    "end": 4560.0,
+    "outcome": "detected",
+    "latency": 10.0,
+    "recover": 0.0
+   }
+  ],
+  "summary": {
+   "tests": 4,
+   "evaluable": 4,
+   "detected": 1,
+   "late": 2,
+   "missed": 1,
+   "detection_rate": 0.75,
+   "detected_in_tolerance_rate": 0.25,
+   "median_latency_s": 30.0,
+   "median_time_to_recover_s": 0.0,
+   "false_alarm_runs": 2,
+   "false_alarm_epochs": 121,
+   "clean_epochs": 1375,
+   "clean_hours": 0.3819444444444444,
+   "false_alarm_epoch_rate": 0.088,
+   "false_alarm_runs_per_hour": 5.236363636363636
+  },
+  "options": {
+   "recover_hold_s": 10.0,
+   "guard_s": 60.0
+  },
+  "jam_s": [
+   [
+    400,
+    460
+   ],
+   [
+    990,
+    1660
+   ],
+   [
+    1740,
+    1800
+   ],
+   [
+    2070,
+    2640
+   ],
+   [
+    3850,
+    4550
+   ]
+  ],
+  "secs": 4800,
+  "plan": "NPRA/jammertest-plan @ 75c0b2c, monday 2025-09-15, Test Area 2, tests 1.1.4, 1.1.8, 1.1.12, 1.1.13",
+  "pack_files": [
+   "config.json",
+   "epochs.json",
+   "log-slice.bin",
+   "manifest.json",
+   "manifest.sig",
+   "summary.html"
+  ],
+  "verify": [
+   {
+    "name": "manifest",
+    "status": "pass"
+   },
+   {
+    "name": "signature",
+    "status": "pass"
+   },
+   {
+    "name": "files",
+    "status": "pass"
+   },
+   {
+    "name": "no-extra-files",
+    "status": "pass"
+   },
+   {
+    "name": "hash-chain",
+    "status": "pass"
+   },
+   {
+    "name": "slice-and-epochs",
+    "status": "pass"
+   },
+   {
+    "name": "full-log",
+    "status": "skipped"
+   },
+   {
+    "name": "timestamp",
+    "status": "skipped"
+   }
+  ],
+  "verify_ok": true,
+  "label": "MODELLED: scored against the scheduled slots of the published test plan, not against recorded on-air times; no external oracle states when a transmitter was on"
+ },
+ "flags": {
+  "note": "the receiver's own spoofing/jamming flags (UBX-NAV-STATUS spoofDetState, UBX-SEC-SIG) set against Kshana's monitors; neither is ground truth, agreement is not validation",
+  "epochs_reported": 140,
+  "receiver_flag_epochs": 17,
+  "both": 11,
+  "receiver_only": 6,
+  "kshana_only": 11,
+  "neither": 112,
+  "spoofing_flag_epochs": 17,
+  "jamming_flag_epochs": 0,
+  "first_receiver_flag_s": 120.0,
+  "first_kshana_alarm_s": 80.0
+ },
+ "timing": {
+  "verdicts": {
+   "baseline_masks": "PASS",
+   "holdover_envelope": "FAIL",
+   "holdover_masks": "FAIL",
+   "recovery": "RECOVERED"
+  },
+  "steps": [
+   {
+    "name": "baseline",
+    "max_abs_te_ns": 4.39,
+    "start": 0.0,
+    "end": 595.0
+   },
+   {
+    "name": "holdover",
+    "max_abs_te_ns": 299.07,
+    "start": 600.0,
+    "end": 2395.0
+   },
+   {
+    "name": "recovery",
+    "max_abs_te_ns": 299.94,
+    "start": 2400.0,
+    "end": 3000.0
+   }
+  ],
+  "masks": [
+   "prtc-a",
+   "eprtc-a-holdover"
+  ]
+ },
+ "standards": [
+  {
+   "pack": "dhs-rpcf",
+   "title": "DHS Resilient PNT Conformance Framework v2.0, test profiles for levels 1 to 4",
+   "met": 6,
+   "not_met": 1,
+   "needs_input": 2
+  },
+  {
+   "pack": "imo-circ-1575",
+   "title": "IMO MSC.1/Circ.1575 shipborne PNT data processing: accuracy levels and integrity evaluation",
+   "met": 1,
+   "not_met": 4,
+   "needs_input": 2
+  },
+  {
+   "pack": "icao-doc9849-appf",
+   "title": "ICAO Doc 9849 Appendix F: monitor, assess and mitigate GNSS radio-frequency interference",
+   "met": 6,
+   "not_met": 0,
+   "needs_input": 2
+  }
+ ],
+ "bench": {
+  "baselines": [
+   {
+    "name": "agc-excess",
+    "auc_in": 0.8483875,
+    "auc_out": 0.81864375,
+    "gap": 0.029743749999999958
+   },
+   {
+    "name": "energy(cn0-drop)",
+    "auc_in": 0.594625,
+    "auc_out": 0.5645,
+    "gap": 0.030124999999999957
+   },
+   {
+    "name": "fused(max-z)",
+    "auc_in": 0.9982375,
+    "auc_out": 0.9829375,
+    "gap": 0.01529999999999998
+   },
+   {
+    "name": "raim-parity",
+    "auc_in": 0.6823375,
+    "auc_out": 0.67206875,
+    "gap": 0.010268750000000049
+   },
+   {
+    "name": "sqm-imbalance",
+    "auc_in": 0.88228125,
+    "auc_out": 0.88159375,
+    "gap": 0.0006875000000000631
+   }
+  ],
+  "A2": [
+   "0.766",
+   "NOT MET"
+  ],
+  "D1": [
+   "largest gap 0.0301",
+   "NOT MET** (unchanged from 1.0.0, still pinned)"
+  ],
+  "spec": "kshana-bench/2.0.0"
+ },
+ "ssv": {
+  "heo_orbit": {
+   "a_km": 35937.5,
+   "argp_deg": 270.0,
+   "e": 0.8087,
+   "i_deg": 63.4,
+   "raan_deg": 0.0,
+   "true_anomaly_deg": 0.0
+  },
+  "perigee_km": 496.8437500000009,
+  "apogee_km": 58622.15625,
+  "combined": {
+   "l1": {
+    "at_least_1": 100.0,
+    "at_least_4": 97.36842105263158,
+    "max_outage_4_min": 30.0
+   },
+   "l5": {
+    "at_least_1": 100.0,
+    "at_least_4": 100.0,
+    "max_outage_4_min": 0.0
+   }
+  },
+  "nav_final_err_m": 183.64901769121406,
+  "formation_final_err_m": 88.25079777308706
+ },
+ "lunar": {
+  "od_mean_q": 5.8076539916278564,
+  "od_expected": 6.0,
+  "od_trials": 400,
+  "od_err_mean_q": 5.951324563418403,
+  "od_err_accel": 3e-10,
+  "od_frac_exceed_err": 0.05249999999999999,
+  "carrier_arcs": [
+   {
+    "days": 1.0,
+    "success": 0.01,
+    "ambiguities": 134
+   },
+   {
+    "days": 2.0,
+    "success": 0.005,
+    "ambiguities": 259
+   },
+   {
+    "days": 3.0,
+    "success": 0.0275,
+    "ambiguities": 375
+   }
+  ]
+ },
+ "ledger": {
+  "rows": 388,
+  "VALIDATED": 176,
+  "MODELLED": 208,
+  "PARTNER": 4
+ }
+}
