@@ -44,6 +44,16 @@ def sh(work, *args, ok=(0,), note=""):
 
 tmp = Path(tempfile.mkdtemp(prefix="kshana-video-"))
 run = f.Run(BIN, tmp)
+
+
+def scn(rel, label=None):
+    """Run one bundled scenario file the way a reader does (`kshana <file>.toml`) and keep what it prints."""
+    src = ENG / rel
+    d = tmp / ("run-" + src.stem); d.mkdir()
+    shutil.copyfile(src, d / src.name)
+    sh(d, src.name)
+    return json.loads((d / (src.stem + ".result.json")).read_text())
+
 out = {"engine_commit": commit, "engine_version": version}
 
 # 1. Jammertest scoring: the published plan (Monday 2025-09-15, Test Area 2, its first four test slots, local time
@@ -80,24 +90,29 @@ out["pack_tampered_failures"] = json.loads(tv.stdout).get("failures", []) if tv.
 out["jt_synthetic"] = {"secs": 4800, "jam_s": JAM, "plan": "NPRA/jammertest-plan @ 75c0b2c, monday 2025-09-15, Test Area 2, tests 1.1.4, 1.1.8, 1.1.12, 1.1.13"}
 
 # 2. the receiver's own flag beside Kshana's alarm (a synthetic UBX log)
-fl = f.load_flags(run); LOG.append({"cmd": "kshana receiver-trust session.toml", "cwd": "flags", "rc": 0, "stdout": "(writes session.result.json)", "stderr": "", "note": "synthetic UBX log, 200 epochs"})
-out["flags"] = fl
+fd = tmp / "flags"; fd.mkdir()
+(fd / "log.ubx").write_bytes(f.ubx_log(200, [(80, 90), (120, 130)], [(120, 130), (160, 165)]))
+(fd / "session.toml").write_text('[log]\nformat = "ubx"\npath = "log.ubx"\n')
+sh(fd, "receiver-trust", "session.toml", note="synthetic UBX log, 200 epochs: C/N0 down 20 dB at 80-90 s and 120-130 s; the receiver's spoofDetState set at 120-130 s and 160-165 s")
+out["flags"] = {"result": json.loads((fd / "session.result.json").read_text())}
 # 3. a holdover test scored against the ITU-T masks
-out["timing"] = run.scenario("scenarios/holdover-test-example.toml"); LOG.append({"cmd": "kshana holdover-test-example.toml", "cwd": "run", "rc": 0, "stdout": "(writes holdover-test-example.result.json)", "stderr": "", "note": ""})
+out["timing"] = scn("scenarios/holdover-test-example.toml")
 # 4. the standards packs
-out["standards"] = f.load_standards(run)
+out["standards"] = []
 for pid in ("dhs-rpcf", "imo-circ-1575", "icao-doc9849-appf"):
-    LOG.append({"cmd": f"kshana standards-pack run {pid} --json", "cwd": "run", "rc": 0, "stdout": "", "stderr": "", "note": ""})
+    sh(tmp, "standards-pack", "run", pid, note="text summary")
+    out["standards"].append(json.loads(sh(tmp, "standards-pack", "run", pid, "--json")))
 # 5. kshana-bench task D baselines on the test split, and the committed results file for the bars
-out["bench"] = f.load_bench(run); LOG.append({"cmd": "kshana bench baseline --task d --split test --out bench", "cwd": "run", "rc": 0, "stdout": "", "stderr": "", "note": ""})
+sh(tmp, "bench", "baseline", "--task", "d", "--split", "test", "--out", "bench")
+out["bench"] = {p.name: json.loads(p.read_text()) for p in sorted((tmp / "bench").glob("*.result.json"))}
 out["bench_results_v2"] = (ENG / "xval" / "bench" / "RESULTS-v2.md").read_text()
 out["bench_doc"] = (ENG / "docs" / "BENCH.md").read_text()
 # 6. space-user GNSS and lunar infrastructure (MODELLED)
-for key, scn in [("ssv_shell", "gnss-ssv-shell"), ("ssv_heo", "gnss-ssv-heo"), ("ssv_nav", "gnss-ssv-nav-lunar"), ("ssv_formation", "gnss-ssv-formation-heo"),
+for key, scn_name in [("ssv_shell", "gnss-ssv-shell"), ("ssv_heo", "gnss-ssv-heo"), ("ssv_nav", "gnss-ssv-nav-lunar"), ("ssv_formation", "gnss-ssv-formation-heo"),
                  ("lunar_od", "lunar-infrastructure-od-consistency"), ("lunar_od_error", "lunar-infrastructure-od-consistency-model-error"),
                  ("lunar_frame", "lunar-infrastructure-frame-coestimation"), ("lunar_tie", "lunar-infrastructure-space-tie"), ("lunar_geodesy", "lunar-infrastructure-geodesy-sensitivity"),
                  ("lunar_carrier", "lunar-infrastructure-carrier-phase")]:
-    out[key] = run.scenario(f"scenarios/{scn}.toml"); LOG.append({"cmd": f"kshana {scn}.toml", "cwd": "run", "rc": 0, "stdout": "(writes result.json)", "stderr": "", "note": ""})
+    out[key] = scn(f"scenarios/{scn_name}.toml")
 out["ssv_booklet"] = f.load_ssv_booklet(run)
 out["lunar_carrier_full"] = json.loads((ENG / "tests" / "fixtures" / "lunar_infra" / "phase_full_run.json").read_text())
 # 7. the ledger

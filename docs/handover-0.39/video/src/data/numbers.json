@@ -141,8 +141,8 @@
    {
     "code": "file-hash-mismatch",
     "name": "summary.html",
-    "expected": "7072b40bc57d28abc8ba8898da862b790b637ae2c0322f5ca2f4131158a05c82",
-    "actual": "184c2d0a703e6dfc15190b089936764979ab2d9d1c14a934960fb95429c6fc10"
+    "expected": "005fa2017908eb06be3efd02a0233d113d8d7bc528931081c4679371f349f6b0",
+    "actual": "cc69b39ae67027a157eead48a1c042196c535ecc518119d6d95cd8890fa50181"
    }
   ],
   "label": "MODELLED: scored against the scheduled slots of the published test plan, not against recorded on-air times; no external oracle states when a transmitter was on"
