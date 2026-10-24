@@ -269,5 +269,16 @@
   },
   "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
  },
- "notes": "Terms follow the Chinese national GNSS literature (BeiDou usage: 完好性, 守时, 整周模糊度, 保护级); tier words stay in English."
+ "notes": "Terms follow the Chinese national GNSS literature (BeiDou usage: 完好性, 守时, 整周模糊度, 保护级); tier words stay in English.",
+ "style": {
+  "plural_categories": [
+   "other"
+  ],
+  "plural_note": "One category only: no plural selector is needed; use measure words where English counts (3 个, 5 台) with a Fluent placeable for the number.",
+  "cases": "No grammatical case or inflection. Do not build sentences by concatenating placeables: put the whole sentence in one message so word order and measure words are correct.",
+  "register": "Neutral written technical register (书面语), impersonal; no '您' address and no colloquial particles; imperative as a bare verb on buttons (运行, 保存). Technical terms follow the Chinese national GNSS literature.",
+  "punctuation": "Full-width ，。：；、！？ and （）in Chinese running text; curly quotation marks “ ” (nested ‘ ’), not corner brackets. Half-width ASCII punctuation only inside wholly Latin or numeric spans (for example (IEC 61108)). Digits and Latin letters are half-width. No spaces are inserted between Han characters and Latin letters or digits; a half-width space is kept between a number and its unit exactly as in the English source (20 dB-Hz).",
+  "latin_terms": "GNSS, PNT, DOP and similar acronyms stay in half-width Latin capitals and are glossed in Chinese once per page on first use (GNSS（全球导航卫星系统）). Tier and verdict words stay in English capitals.",
+  "fluent": "Never hand-write a number into a translated string: use a Fluent placeable (numbers are formatted by Intl at runtime). Choose the plural form with a selector on the CLDR category, and always give the required `*[other]` variant."
+ }
 }

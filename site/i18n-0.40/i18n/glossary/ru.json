@@ -269,5 +269,18 @@
   },
   "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
  },
- "notes": "Standard technical terminology only; no political content."
+ "notes": "Standard technical terminology only; no political content.",
+ "style": {
+  "plural_categories": [
+   "one",
+   "few",
+   "many",
+   "other"
+  ],
+  "plural_note": "one: 1, 21, 31 and so on (not 11); few: 2-4, 22-24 and so on (not 12-14); many: 0, 5-20 and the rest; other: fractions. Every counted noun needs all four.",
+  "cases": "6 cases. Numerals govern case (5 приёмников, 2 приёмника, 1 приёмник). Use Fluent terms with case attributes. Abbreviations and kept-English words do not decline: use a carrier noun (сигнал ГНСС, режим holdover). Use 'ё' consistently (приёмник, лётной).",
+  "register": "Formal-neutral technical: 'вы' in lower case when address is unavoidable, polite plural imperative (Запустите); impersonal constructions in prose. Standard technical terminology only; no political or topical content.",
+  "separators": "Decimal comma; thousands separator a non-breaking space; Intl formats these. Quotation marks « » (nested „ “). Em dash with spaces as in the source.",
+  "fluent": "Never hand-write a number into a translated string: use a Fluent placeable (numbers are formatted by Intl at runtime). Choose the plural form with a selector on the CLDR category, and always give the required `*[other]` variant."
+ }
 }

@@ -269,5 +269,16 @@
   },
   "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
  },
- "notes": ""
+ "notes": "",
+ "style": {
+  "plural_categories": [
+   "one",
+   "other"
+  ],
+  "plural_note": "one: exactly 1; other: everything else, including 0 and fractions. After a numeral the noun stays in the singular partitive (5 vastaanotinta): write the partitive in both branches of the selector where it differs, and never rely on a plural ending after a number.",
+  "cases": "15 cases, no articles, no grammatical gender. Use Fluent terms with case attributes (.gen, .part, .ine, .ela, .ill, .ade, .abl, .all, .ess, .tra). Abbreviations and kept-English words take the case ending after a colon (GNSS:n, PNT:n, holdover-tilassa); avoid the problem with a carrier noun where it reads better (GNSS-signaali). The suffix colon is part of the string, not a placeable.",
+  "register": "Neutral technical, impersonal; passive or imperative second person singular on buttons (Käynnistä, Tallenna); no 'te' address. Compound words closed; no hyphen except at a boundary of identical vowels or with abbreviations.",
+  "separators": "Decimal comma; thousands separator a non-breaking space; Intl formats these. Quotation marks ” ” (the same mark both sides). A (non-breaking) space between number and unit, as in the source.",
+  "fluent": "Never hand-write a number into a translated string: use a Fluent placeable (numbers are formatted by Intl at runtime). Choose the plural form with a selector on the CLDR category, and always give the required `*[other]` variant."
+ }
 }

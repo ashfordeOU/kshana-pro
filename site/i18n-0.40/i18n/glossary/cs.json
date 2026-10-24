@@ -269,5 +269,18 @@
   },
   "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
  },
- "notes": ""
+ "notes": "",
+ "style": {
+  "plural_categories": [
+   "one",
+   "few",
+   "many",
+   "other"
+  ],
+  "plural_note": "one: 1; few: 2-4; many: fractions; other: 0 and 5 and up. Every counted noun needs all four.",
+  "cases": "7 cases; nouns after 5 and up take the genitive plural, 2-4 the nominative plural. Use Fluent terms with case attributes for glossary nouns. Abbreviations and kept-English words take no ending: use a carrier noun (signál GNSS, režim holdover).",
+  "register": "Neutral technical, impersonal. Direct address, where unavoidable, with vykání in the polite plural imperative (Spusťte, Uložte); no tykání.",
+  "separators": "Decimal comma; thousands separator a non-breaking space; Intl formats these. Quotation marks „ “. Non-breaking space after one-letter prepositions (k, s, v, z, a, i, o, u) is a typesetting nicety, not required.",
+  "fluent": "Never hand-write a number into a translated string: use a Fluent placeable (numbers are formatted by Intl at runtime). Choose the plural form with a selector on the CLDR category, and always give the required `*[other]` variant."
+ }
 }

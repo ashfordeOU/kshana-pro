@@ -269,5 +269,16 @@
   },
   "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
  },
- "notes": ""
+ "notes": "",
+ "style": {
+  "plural_categories": [
+   "one",
+   "other"
+  ],
+  "plural_note": "one: exactly 1; other: everything else. After a numeral the noun is in the singular partitive (5 vastuvõtjat); write it in the 'other' branch, never a plural ending after a number.",
+  "cases": "14 cases, no articles, no grammatical gender. Use Fluent terms with case attributes (.gen, .part, .ine, .ela, .ill, .ad, .abl, .all, .tr). Abbreviations and kept-English words take case endings after a hyphen (GNSS-i, PNT-d, holdover-i); an apostrophe is used only where the word ends in an unpronounced letter. The suffix is part of the string, not a placeable.",
+  "register": "Neutral technical, impersonal; imperative second person singular on buttons (Käivita, Salvesta); 'sina' address avoided in prose.",
+  "separators": "Decimal comma; thousands separator a non-breaking space; Intl formats these. Quotation marks „ “. A (non-breaking) space between number and unit, as in the source.",
+  "fluent": "Never hand-write a number into a translated string: use a Fluent placeable (numbers are formatted by Intl at runtime). Choose the plural form with a selector on the CLDR category, and always give the required `*[other]` variant."
+ }
 }

@@ -269,5 +269,16 @@
   },
   "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
  },
- "notes": "Terms follow Japanese GNSS usage (QZSS/JAXA/GSI literature); tier words stay in English."
+ "notes": "Terms follow Japanese GNSS usage (QZSS/JAXA/GSI literature); tier words stay in English.",
+ "style": {
+  "plural_categories": [
+   "other"
+  ],
+  "plural_note": "One category only: no plural selector is needed; use a counter in the string where English counts (3件, 5台) with a Fluent placeable for the number.",
+  "cases": "No grammatical case; particles (が, を, に, の) follow the noun and are written in the string. Do not build sentences by concatenating placeables: put the whole sentence in one message so that particles and word order are correct.",
+  "register": "Polite です・ます style in prose, help text and dialogs; noun-ending style (体言止め) for table cells, button labels and headings; no plain だ・である except in verbatim quotations of the English source's tone of 'MUST'. Technical terms follow Japanese GNSS usage.",
+  "punctuation": "Full-width 、。「」（）：； and ！？ in Japanese running text. Half-width ASCII parentheses and punctuation only when their whole content is Latin or numeric (for example (IEC 61108)). Digits and Latin letters are half-width. No spaces are inserted between Japanese and Latin letters or digits; a half-width space is kept between a number and its unit exactly as in the English source (20 dB-Hz).",
+  "latin_terms": "GNSS, PNT, DOP and similar acronyms stay in half-width Latin capitals and are glossed in Japanese once per page on first use (GNSS（全球測位衛星システム）). Tier and verdict words stay in English capitals.",
+  "fluent": "Never hand-write a number into a translated string: use a Fluent placeable (numbers are formatted by Intl at runtime). Choose the plural form with a selector on the CLDR category, and always give the required `*[other]` variant."
+ }
 }

@@ -270,5 +270,18 @@
   },
   "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
  },
- "notes": ""
+ "notes": "",
+ "style": {
+  "plural_categories": [
+   "one",
+   "few",
+   "many",
+   "other"
+  ],
+  "plural_note": "one: 1; few: 2-4 except 12-14; many: 0, 5-21 and the rest of the integers ending 0,1,5-9; other: fractions. Every counted noun needs all four.",
+  "cases": "7 cases (nominative, genitive, dative, accusative, instrumental, locative, vocative). Nouns after numerals and quantifiers take the genitive plural (5 odbiorników). Define each case-sensitive glossary noun as a Fluent term with attributes (.gen, .acc, .inst, .loc) rather than concatenating endings. Kept-English words and abbreviations (GNSS, PNT, holdover) take no ending: use a carrier noun (sygnał GNSS, tryb holdover).",
+  "register": "Neutral technical, impersonal. Imperative second person singular for commands is avoided; use the infinitive-noun form on buttons (Uruchom, Zapisz are fine as imperative) and impersonal constructions in prose (Wyświetla się, Można ...). No Pan/Pani, no 'ty'.",
+  "separators": "Decimal comma; thousands separator a non-breaking space; Intl formats these. Quotation marks „ ”. Space before units as in the source. Colon and semicolon with no space before.",
+  "fluent": "Never hand-write a number into a translated string: use a Fluent placeable (numbers are formatted by Intl at runtime). Choose the plural form with a selector on the CLDR category, and always give the required `*[other]` variant."
+ }
 }
