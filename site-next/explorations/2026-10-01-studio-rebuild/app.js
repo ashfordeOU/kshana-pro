@@ -11,6 +11,7 @@ import { encodeFragment, decodeFragment, patchScalar } from "./lib/share.mjs";
 import { parseSvgMarkup, sanitizeSvg } from "./lib/svgsafe.mjs";
 import { chartFilename, fileMeta, svgSize, svgBlob, triggerDownload, svgToPngBlob } from "./lib/chartdl.mjs";
 import { attachChartHover, parsePolylineXs } from "./lib/hover.mjs";
+import { renderBadge, withEvidenceCsv } from "./lib/evidence.mjs";
 import { knobsForToml, readKnob, patchSectionScalar } from "./lib/guided.mjs";
 import { orbit3dSvg } from "./lib/orbit3d.mjs";
 import { buildFomRows, figureTier } from "./lib/tabs.mjs";
@@ -414,6 +415,8 @@ function renderAnswer(run) {
   chips.replaceChildren(h("span", { class: `chip-s2 ${run.mode === "live" ? "live" : "rec"}${run.preview ? " loading" : ""}` }, h("i"), runSourceText(run)));
   const hn = honesty(r);
   if (hn) chips.append(lvlChip(hn.tier, hn.text));
+  const eb = renderBadge(document, r); // the ledger rows behind this result (absent in a run recorded by an older engine)
+  if (eb) chips.append(eb);
   const seen = new Set(S.seen);
   $("m-big").textContent = spellOut(mean.big, seen);
   $("m-line").textContent = spellOut(mean.line, seen);
@@ -1195,7 +1198,7 @@ async function renderExports() {
     card("JSON", "Full result document", "The engine's complete output for this run, units and provenance included.", "var(--spf)", () => triggerDownload(new Blob([JSON.stringify(run.result, null, 2)], { type: "application/json" }), chartFilename("result", meta, "json"))),
     card("TOML", "Scenario file", "The exact input of this run. Run it again anywhere with the command-line tool or the Python and npm packages.", "var(--tim)", () => triggerDownload(new Blob([run.toml], { type: "text/plain" }), chartFilename("scenario", meta, "toml"))),
   ];
-  if (run.csv) items.push(card("CSV", "Reproducibility table", "The same bytes the command-line tool writes as <scenario>.table.csv.", "var(--itg)", () => triggerDownload(new Blob([run.csv], { type: "text/csv" }), chartFilename("table", meta, "csv"))));
+  if (run.csv) items.push(card("CSV", "Reproducibility table", "The same bytes the command-line tool writes as <scenario>.table.csv.", "var(--itg)", () => triggerDownload(new Blob([withEvidenceCsv(run.csv, run.result)], { type: "text/csv" }), chartFilename("table", meta, "csv"))));
   grid.replaceChildren(...items);
   renderInterop(run);
   // Standards-track ephemeris exports: asked of the engine once per run, when this tab opens.
@@ -2043,7 +2046,7 @@ function renderResearch(run) {
   const row = $("exp-row");
   row.replaceChildren(...[
     btn("Result data (JSON)", "The engine's complete output for this run", () => triggerDownload(new Blob([JSON.stringify(run.result, null, 2)], { type: "application/json" }), chartFilename("result", meta, "json"))),
-    run.csv ? btn("Table (CSV)", "The same bytes the command-line tool writes as <scenario>.table.csv", () => triggerDownload(new Blob([run.csv], { type: "text/csv" }), chartFilename("table", meta, "csv"))) : null,
+    run.csv ? btn("Table (CSV)", "The same bytes the command-line tool writes as <scenario>.table.csv", () => triggerDownload(new Blob([withEvidenceCsv(run.csv, run.result)], { type: "text/csv" }), chartFilename("table", meta, "csv"))) : null,
     btn("Scenario file (TOML)", "The exact input of this run", () => triggerDownload(new Blob([run.toml], { type: "text/plain" }), chartFilename("scenario", meta, "toml"))),
     btn("Figure (SVG)", "The chart on screen, with its title, engine version and DOI", () => { const f = currentFigure(); if (f) triggerDownload(svgBlob(f.svg), chartFilename(f.base, meta, "svg")); else toast("This view has no chart to export."); }),
     btn("Figure (PNG)", "The chart on screen as a high-resolution bitmap", async () => { const f = currentFigure(); if (!f) { toast("This view has no chart to export."); return; } try { const { w, h: hh } = svgSize(f.svg); triggerDownload(await svgToPngBlob(f.svg, w, hh, 2), chartFilename(f.base, meta, "png")); } catch (e) { toast("PNG export failed: " + errorMessage(e)); } }),

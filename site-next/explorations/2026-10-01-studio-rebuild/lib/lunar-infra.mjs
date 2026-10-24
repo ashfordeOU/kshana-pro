@@ -52,6 +52,7 @@ export function readLi(doc) {
       subsets: arr(j.subsets).map((s) => ({ families: arr(s.families).map(String), rank: num(s.rank), lambdaMin: num(s.lambda_min), trace: num(s.crlb_trace), sigma: nums(s.crlb_sigma) })),
       adding: j.adding_a_family ? { pairs: num(j.adding_a_family.pairs_checked), lambda: num(j.adding_a_family.lambda_min_not_smaller), trace: num(j.adding_a_family.trace_not_larger) } : null });
   }
+  if (j.evidence) m.evidence = j.evidence;
   return { model: m };
 }
 

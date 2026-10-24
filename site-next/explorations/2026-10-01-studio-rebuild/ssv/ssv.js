@@ -2,6 +2,7 @@
 // Space-user GNSS: the DOM layer. What is read and drawn is in lib/ssv.mjs. The page fetches only this folder's own recorded results
 // (recorded/<scenario>.json); nothing leaves the page.
 import { SCENARIOS, readSsv, chartsOf, factRows, readIcg, icgTable } from "../lib/ssv.mjs";
+import { mountBadge } from "../lib/evidence.mjs";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -27,6 +28,7 @@ async function open(id) {
 }
 function draw(m) {
   lastModel = m;
+  mountBadge($("ssk-evb"), m);
   $("ssk-body").hidden = false;
   $("ssk-summary").textContent = m.summary;
   $("ssk-kv").innerHTML = factRows(m).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");

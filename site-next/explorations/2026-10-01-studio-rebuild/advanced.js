@@ -13,6 +13,7 @@ import { encodeFragment, decodeFragment, patchScalar } from "./lib/share.mjs";
 import { parseSvgMarkup, sanitizeSvg } from "./lib/svgsafe.mjs";
 import { chartFilename, fileMeta, svgSize, svgBlob, triggerDownload, svgToPngBlob } from "./lib/chartdl.mjs";
 import { attachChartHover, parsePolylineXs } from "./lib/hover.mjs";
+import { renderBadge, withEvidenceCsv } from "./lib/evidence.mjs";
 import { PAGES } from "./lib/tools35-data.mjs";
 import { knobsForToml, readKnob, patchSectionScalar } from "./lib/guided.mjs";
 import { orbit3dSvg } from "./lib/orbit3d.mjs";
@@ -359,6 +360,8 @@ function renderRun(run) {
   if (tiers.validated) b.append(h("span", { class: "badge validated", text: `${tiers.validated} validated` }));
   if (tiers.modelled) b.append(h("span", { class: "badge modelled", text: `${tiers.modelled} modelled` }));
   if (lab && !tiers.validated && !tiers.modelled) b.append(h("span", { class: `badge ${lab.tier.toLowerCase()}`, text: lab.tier.toLowerCase() }));
+  const eb = renderBadge(document, r); // the ledger rows behind this result (absent in a run recorded by an older engine)
+  if (eb) b.append(eb);
   const meta = fileMeta(r, S.version, run.toml);
   const m = $("run-meta");
   m.replaceChildren();
@@ -1230,7 +1233,7 @@ async function renderExports() {
     card("JSON", "Full result document", "The engine's complete output for this run, units and provenance included.", "var(--spf)", () => triggerDownload(new Blob([JSON.stringify(run.result, null, 2)], { type: "application/json" }), chartFilename("result", meta, "json"))),
     card("TOML", "Scenario file", "The exact input of this run. Run it again anywhere with the command-line tool or the Python and npm packages.", "var(--tim)", () => triggerDownload(new Blob([run.toml], { type: "text/plain" }), chartFilename("scenario", meta, "toml"))),
   ];
-  if (run.csv) items.push(card("CSV", "Reproducibility table", "The same bytes the command-line tool writes as <scenario>.table.csv.", "var(--itg)", () => triggerDownload(new Blob([run.csv], { type: "text/csv" }), chartFilename("table", meta, "csv"))));
+  if (run.csv) items.push(card("CSV", "Reproducibility table", "The same bytes the command-line tool writes as <scenario>.table.csv.", "var(--itg)", () => triggerDownload(new Blob([withEvidenceCsv(run.csv, run.result)], { type: "text/csv" }), chartFilename("table", meta, "csv"))));
   grid.replaceChildren(...items);
   renderInterop(run);
   // Standards-track ephemeris exports: asked of the engine once per run, when this tab opens.

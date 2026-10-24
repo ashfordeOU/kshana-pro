@@ -28,6 +28,7 @@ export function readHoldover(doc) {
   const rec = j.record, t = j.test;
   return {
     model: {
+      evidence: j.evidence || undefined,
       label: str(j.label, 800), summary: str(doc.summary, 600), engine: str(doc.engine_version, 20), file: str(doc.file, 80),
       test: { removedS: num(t.gnss_removed_s), restoredS: num(t.gnss_restored_s), lockedDays: num(t.locked_duration_days), bandNs: num(t.recovery_band_ns), dwellS: num(t.recovery_dwell_s), statedBy: str(t.stated_by, 120) },
       record: { n: num(rec.n_samples), lengthS: num(rec.record_length_s), intervalS: num(rec.sample_interval_s), startS: num(rec.start_s), sha: str(rec.series_sha256, 80), series: readInlineSeries(rec.series) },

@@ -2,6 +2,7 @@
 // Optical PNT page: the DOM layer. What it reads and draws is in lib/optical.mjs. It fetches only this folder's own
 // recorded results (recorded/<scenario>.json); nothing leaves the page.
 import { SCENARIOS, readOptical, chartsOf, factRows, fmtPct } from "../lib/optical.mjs";
+import { mountBadge } from "../lib/evidence.mjs";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -29,6 +30,7 @@ async function open(id) {
 
 function draw(m, sc) {
   lastModel = m;
+  mountBadge($("op-evb"), m);
   $("op-body").hidden = false;
   $("op-summary").textContent = m.summary;
   $("op-kv").innerHTML = factRows(m).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");

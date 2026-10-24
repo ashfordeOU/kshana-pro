@@ -4,6 +4,7 @@
 // (the bundled scenario and its recording) from this site; a result file is read in the page.
 import { readReport, parseState, buildSearch, withInputs, tomlNumber, stereo, cellsOf, cellPath, thresholdEdges, segmentPath, destination, binOf, rangeEdges, binIn, dominantShare, meets, pct, metres, INPUTS, REASONS, BINS, KIND, SCENARIO_FILE, RECORDED_FILE, MOON_RADIUS_M } from "../lib/lunar-station.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
+import { mountBadge } from "../lib/evidence.mjs";
 import { needsNewerEngine } from "../lib/catalog.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -117,6 +118,7 @@ $("ls-layer").addEventListener("change", () => { if (rep) drawMap(rep); });
 
 function show(r) {
   $("ls-save").hidden = !r;
+  mountBadge($("ls-evb"), r || {});
   if (!r) { $("ls-map").replaceChildren(); $("ls-region").replaceChildren(); $("ls-radplot").replaceChildren(); $("ls-availfigs").replaceChildren(); $("ls-reasons").replaceChildren(); $("ls-points").tBodies[0].replaceChildren(); $("ls-legend").replaceChildren(); $("ls-map-note").textContent = ""; $("ls-rad-lim").textContent = ""; $("ls-counts").textContent = ""; return; }
   drawMap(r); drawRegion(r); drawRadius(r); drawAvailability(r); drawTable(r); drawMore(r);
 }

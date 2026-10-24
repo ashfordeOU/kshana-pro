@@ -2,6 +2,7 @@
 // Holdover test page: the DOM layer. What it reads and draws is in lib/holdover.mjs. It fetches only this folder's own recorded results
 // (recorded/<scenario>.json); a file the person opens is read here with File.text() and goes nowhere.
 import { SCENARIOS, readHoldover, seriesFor, teSvg, curvesSvg, stepRows, holdoverRows } from "../lib/holdover.mjs";
+import { mountBadge } from "../lib/evidence.mjs";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -46,6 +47,7 @@ async function openFiles(files) {
 
 function draw(m, status) {
   $("ho-body").hidden = false;
+  mountBadge($("ho-evb"), m);
   $("ho-summary").textContent = m.summary || m.label;
   const chips = [["Baseline against its masks", m.verdicts.baseline_masks], ["Holdover against its masks", m.verdicts.holdover_masks], ["ePRTC-A holdover envelope", m.verdicts.holdover_envelope], ["Recovery", m.verdicts.recovery]].filter(([, v]) => v);
   $("ho-chips").innerHTML = chips.map(([k, v]) => `<li class="ho-chipv ho-v-${esc(v.toLowerCase())}"><span>${esc(k)}</span><b>${esc(v)}</b></li>`).join("") + `<li class="ho-chipv ho-v-note"><span>Words</span><b>measured against the mask</b></li>`;

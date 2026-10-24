@@ -2,6 +2,7 @@
 // Lunar infrastructure: the DOM layer. What is read and drawn is in lib/lunar-infra.mjs. The page fetches only this folder's own recorded results
 // (recorded/<scenario>.json) and lunar-infra/bars.json; nothing leaves the page.
 import { SCENARIOS, readLi, readBars, chartsOf, factRows, missNote } from "../lib/lunar-infra.mjs";
+import { mountBadge } from "../lib/evidence.mjs";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -39,6 +40,7 @@ async function open(id) {
 function draw(sc, models) {
   last = [sc, models];
   const m = models[0];
+  mountBadge($("luk-evb"), m);
   $("luk-body").hidden = false;
   $("luk-summary").textContent = models.map((x) => x.summary).join(" | ");
   $("luk-kv").innerHTML = factRows(models).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");

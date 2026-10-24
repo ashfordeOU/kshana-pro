@@ -65,6 +65,7 @@ export function readSsv(doc) {
     m.formation = { epochs: num(f.epochs), chiefAbsRms: num(f.chief_abs_rms_m), deputies: arr(f.deputies).map((d) => ({ offsetDeg: num(d.offset_deg), baselineKm: num(d.baseline_km), common4: num(d.epochs_common_4), commonSignals: num(d.common_signals_mean),
       relFromAbs: num(d.rel_rms_from_absolute_m), relFilter: num(d.rel_rms_filter_m), relVel: num(d.rel_vel_rms_filter_ms), relFromAbsAbove: num(d.rel_rms_from_absolute_above_gnss_m), relFilterAbove: num(d.rel_rms_filter_above_gnss_m), absRms: num(d.abs_rms_m) })) };
   }
+  if (j.evidence) m.evidence = j.evidence;
   return { model: m };
 }
 

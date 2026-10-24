@@ -48,6 +48,7 @@ export function readOptical(doc) {
   }));
   return {
     model: {
+      evidence: j.evidence || undefined,
       label: String(j.label || ""), advisory: String(j.advisory || ""), summary: String(doc.summary || ""), engine: String(doc.engine_version || ""), file: String(doc.file || ""),
       inputs: { wavelengthNm: num(j.inputs && j.inputs.wavelength_nm), elevationDeg: num(j.inputs && j.inputs.elevation_deg), direction: String((j.inputs && j.inputs.direction) || ""), wave: String((j.inputs && j.inputs.wave) || ""), correlationKm: num(j.inputs && j.inputs.correlation_length_km) },
       link: { geometricLossDb: num(j.link && j.link.geometric_loss_db), marginDb: num(j.link && j.link.margin_no_atmosphere_db), receivedDbm: num(j.link && j.link.received_power_no_atmosphere_dbm), sensitivityDbm: num(j.link && j.link.receiver_sensitivity_dbm), footprintM: num(j.link && j.link.footprint_m) },

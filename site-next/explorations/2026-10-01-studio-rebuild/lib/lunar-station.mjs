@@ -106,6 +106,7 @@ export function readReport(input) {
     inputs: Object.entries(inp).filter(([, v]) => isNum(v) || typeof v === "boolean" || (typeof v === "string" && v.length <= 200)).slice(0, 80),
     units: Object.fromEntries(Object.entries(units).filter(([, v]) => typeof v === "string").map(([k, v]) => [k.slice(0, 60), v.slice(0, 40)])),
     svg: u.svg, engineVersion: u.engineVersion,
+    evidence: obj(rep.evidence) || undefined,   // the engine's evidence label (absent in a run of an older engine)
   };
 }
 
