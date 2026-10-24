@@ -1,0 +1,273 @@
+{
+ "lang": "et",
+ "language": "Eesti",
+ "status": "DRAFT glossary, machine-drafted, not reviewed by a native speaker; the path and schema are provisional until the i18n infrastructure confirms them",
+ "machine_translation_notice": {
+  "en": "Machine translation, not reviewed by a native speaker. English is the reference.",
+  "et": "Masintõlge, mida emakeelne kõneleja pole üle vaadanud. Võrdlusallikaks on ingliskeelne versioon."
+ },
+ "never_translate": {
+  "rule": "Copied exactly, in every language: the product name, scenario kind names, command and flag names, file names and formats, units and their symbols, numbers, code spans, links and identifiers.",
+  "examples": [
+   "Kshana",
+   "gnss-ssv",
+   "lunar-infrastructure",
+   "holdover-test",
+   "kshana jammertest score",
+   "--glonass-table-4-2",
+   "TOML",
+   "JSON",
+   "RINEX",
+   "NMEA",
+   "UBX",
+   "SHA-256",
+   "dB-Hz",
+   "m/s2",
+   "ns"
+  ]
+ },
+ "tier_and_verdict_words": {
+  "rule": "Kept in English capitals and never changed, in running text, tables, badges and alt text. The gloss is the translation of what the word means, for use beside the first occurrence on a page.",
+  "words": {
+   "VALIDATED": {
+    "translation": "VALIDATED",
+    "gloss": "sõltumatu väline oraakel nõustub"
+   },
+   "MODELLED": {
+    "translation": "MODELLED",
+    "gloss": "sisemiselt kooskõlas ja see on öeldud välja"
+   },
+   "PARTNER": {
+    "translation": "PARTNER",
+    "gloss": "vastutab riistvarapartner"
+   },
+   "MET": {
+    "translation": "MET",
+    "gloss": "lävi täidetud"
+   },
+   "NOT MET": {
+    "translation": "NOT MET",
+    "gloss": "lävi täitmata"
+   },
+   "EXPLORATORY": {
+    "translation": "EXPLORATORY",
+    "gloss": "uuriv: ei saa sulgeda algset läve"
+   }
+  }
+ },
+ "terms": {
+  "PNT": {
+   "translation": "PNT (positsioneerimine, navigatsioon ja aeg)",
+   "keep_english": false
+  },
+  "GNSS": {
+   "translation": "GNSS (ülemaailmne satelliitnavigatsioonisüsteem)",
+   "keep_english": false
+  },
+  "spoofing": {
+   "translation": "spuufimine (spoofing)",
+   "keep_english": false
+  },
+  "jamming": {
+   "translation": "segamine (jamming)",
+   "keep_english": false
+  },
+  "interference": {
+   "translation": "häire",
+   "keep_english": false
+  },
+  "integrity": {
+   "translation": "terviklikkus",
+   "keep_english": false
+  },
+  "availability": {
+   "translation": "kättesaadavus",
+   "keep_english": false
+  },
+  "continuity": {
+   "translation": "pidevus",
+   "keep_english": false
+  },
+  "accuracy": {
+   "translation": "täpsus",
+   "keep_english": false
+  },
+  "precision": {
+   "translation": "korduvtäpsus",
+   "keep_english": false
+  },
+  "holdover": {
+   "translation": "holdover (aja hoidmine ilma välise etalonita)",
+   "keep_english": true
+  },
+  "ledger": {
+   "translation": "register (ledger)",
+   "keep_english": false
+  },
+  "evidence pack": {
+   "translation": "tõendipakett",
+   "keep_english": false
+  },
+  "pre-registration": {
+   "translation": "eelregistreerimine",
+   "keep_english": false
+  },
+  "bar (pass criterion)": {
+   "translation": "lävi (läbimise kriteerium)",
+   "keep_english": false
+  },
+  "oracle (independent reference)": {
+   "translation": "oraakel (sõltumatu etalon)",
+   "keep_english": false
+  },
+  "advisory": {
+   "translation": "nõuandev",
+   "keep_english": false
+  },
+  "supports evidence for": {
+   "translation": "toetab tõendeid (supports evidence for)",
+   "keep_english": false
+  },
+  "scenario": {
+   "translation": "stsenaarium",
+   "keep_english": false
+  },
+  "receiver": {
+   "translation": "vastuvõtja",
+   "keep_english": false
+  },
+  "clock": {
+   "translation": "kell",
+   "keep_english": false
+  },
+  "oscillator": {
+   "translation": "ostsillaator",
+   "keep_english": false
+  },
+  "time error": {
+   "translation": "ajaviga",
+   "keep_english": false
+  },
+  "ionosphere": {
+   "translation": "ionosfäär",
+   "keep_english": false
+  },
+  "multipath": {
+   "translation": "mitmeteelevi",
+   "keep_english": false
+  },
+  "carrier phase": {
+   "translation": "kandelaine faas",
+   "keep_english": false
+  },
+  "pseudorange": {
+   "translation": "pseudovahemaa",
+   "keep_english": false
+  },
+  "Doppler": {
+   "translation": "Doppler",
+   "keep_english": false
+  },
+  "ephemeris": {
+   "translation": "efemeriid",
+   "keep_english": false
+  },
+  "constellation": {
+   "translation": "satelliidikonstellatsioon",
+   "keep_english": false
+  },
+  "protection level": {
+   "translation": "kaitsetase",
+   "keep_english": false
+  },
+  "dilution of precision (DOP)": {
+   "translation": "DOP (täpsuse halvenemise tegur)",
+   "keep_english": false
+  },
+  "ambiguity resolution": {
+   "translation": "täisarvuliste mitmetähenduslikkuste lahendamine",
+   "keep_english": false
+  },
+  "detection": {
+   "translation": "tuvastamine",
+   "keep_english": false
+  },
+  "false alarm": {
+   "translation": "valehäire",
+   "keep_english": false
+  },
+  "missed detection": {
+   "translation": "tuvastamata jäänud sündmus",
+   "keep_english": false
+  },
+  "Monte Carlo": {
+   "translation": "Monte Carlo",
+   "keep_english": false
+  },
+  "Allan deviation": {
+   "translation": "Alani hälve",
+   "keep_english": false
+  },
+  "time transfer": {
+   "translation": "aja edastamine",
+   "keep_english": false
+  },
+  "resilience": {
+   "translation": "vastupidavus",
+   "keep_english": false
+  },
+  "orbit determination": {
+   "translation": "orbiidi määramine",
+   "keep_english": false
+  },
+  "cislunar": {
+   "translation": "tsislunaarne (Maa–Kuu ruum)",
+   "keep_english": false
+  },
+  "synthetic data": {
+   "translation": "sünteetilised andmed",
+   "keep_english": false
+  },
+  "reproducible": {
+   "translation": "reprodutseeritav",
+   "keep_english": false
+  },
+  "cross-validation": {
+   "translation": "ristvalideerimine",
+   "keep_english": false
+  },
+  "tolerance": {
+   "translation": "tolerants",
+   "keep_english": false
+  },
+  "seed": {
+   "translation": "algväärtus (seed)",
+   "keep_english": true
+  }
+ },
+ "forbidden_translations": {
+  "rule": "Never state that Kshana is certified, conformant or compliant; the English phrase to use is 'supports evidence for'. These renderings must not be used as claims about Kshana:",
+  "words": [
+   "sertifitseeritud",
+   "nõuetele vastav (väitena Kshana kohta)"
+  ]
+ },
+ "advisory": {
+  "en": {
+   "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
+   "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
+   "short": "Advisory: not type-approved navigation equipment.",
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
+   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+  },
+  "et": {
+   "general": "Nõuandev: uurimis- ja inseneeriatööriista analüüsitulemus; mitte tüübikinnitust omav navigatsiooniseade ega inimelu ohutusega seotud teenus.",
+   "general_long": "Nõuandev: uurimis- ja inseneeriatööriista analüüsitulemus; mitte tüübikinnitust omav navigatsiooniseade ega inimelu ohutusega seotud teenus; seda ei tohi kasutada ainsa alusena ühegi navigatsiooni- ega ohutusotsuse tegemisel.",
+   "short": "Nõuandev: mitte tüübikinnitust omav navigatsiooniseade.",
+   "maritime": "Nõuandev tarkvara, mitte tüübikinnitust omav navigatsiooniseade (IEC 61108, IEC 61162): laeva navigeerimise eest vastutab jätkuvalt operaator.",
+   "aviation_proposed": "Nõuandev: uurimis- ja inseneeriatööriista analüüsitulemus; mitte lennukõlblikkuse kinnitust omav avioonika ega inimelu ohutusega seotud teenus; lennu eest vastutab jätkuvalt õhusõiduki kapten."
+  },
+  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+ },
+ "notes": ""
+}

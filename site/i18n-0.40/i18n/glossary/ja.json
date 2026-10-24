@@ -1,0 +1,273 @@
+{
+ "lang": "ja",
+ "language": "日本語",
+ "status": "DRAFT glossary, machine-drafted, not reviewed by a native speaker; the path and schema are provisional until the i18n infrastructure confirms them",
+ "machine_translation_notice": {
+  "en": "Machine translation, not reviewed by a native speaker. English is the reference.",
+  "ja": "機械翻訳であり、ネイティブスピーカーによる確認は行われていません。英語版が基準です。"
+ },
+ "never_translate": {
+  "rule": "Copied exactly, in every language: the product name, scenario kind names, command and flag names, file names and formats, units and their symbols, numbers, code spans, links and identifiers.",
+  "examples": [
+   "Kshana",
+   "gnss-ssv",
+   "lunar-infrastructure",
+   "holdover-test",
+   "kshana jammertest score",
+   "--glonass-table-4-2",
+   "TOML",
+   "JSON",
+   "RINEX",
+   "NMEA",
+   "UBX",
+   "SHA-256",
+   "dB-Hz",
+   "m/s2",
+   "ns"
+  ]
+ },
+ "tier_and_verdict_words": {
+  "rule": "Kept in English capitals and never changed, in running text, tables, badges and alt text. The gloss is the translation of what the word means, for use beside the first occurrence on a page.",
+  "words": {
+   "VALIDATED": {
+    "translation": "VALIDATED",
+    "gloss": "独立した外部のオラクルと一致"
+   },
+   "MODELLED": {
+    "translation": "MODELLED",
+    "gloss": "内部で整合しており、その旨を明示"
+   },
+   "PARTNER": {
+    "translation": "PARTNER",
+    "gloss": "ハードウェアパートナーが所管"
+   },
+   "MET": {
+    "translation": "MET",
+    "gloss": "基準を満たした"
+   },
+   "NOT MET": {
+    "translation": "NOT MET",
+    "gloss": "基準を満たさず"
+   },
+   "EXPLORATORY": {
+    "translation": "EXPLORATORY",
+    "gloss": "探索的：当初の基準を確定させることはできない"
+   }
+  }
+ },
+ "terms": {
+  "PNT": {
+   "translation": "PNT（測位・航法・時刻）",
+   "keep_english": false
+  },
+  "GNSS": {
+   "translation": "GNSS（全球測位衛星システム）",
+   "keep_english": false
+  },
+  "spoofing": {
+   "translation": "スプーフィング",
+   "keep_english": false
+  },
+  "jamming": {
+   "translation": "ジャミング",
+   "keep_english": false
+  },
+  "interference": {
+   "translation": "干渉",
+   "keep_english": false
+  },
+  "integrity": {
+   "translation": "インテグリティ（完全性）",
+   "keep_english": false
+  },
+  "availability": {
+   "translation": "可用性",
+   "keep_english": false
+  },
+  "continuity": {
+   "translation": "連続性",
+   "keep_english": false
+  },
+  "accuracy": {
+   "translation": "精度",
+   "keep_english": false
+  },
+  "precision": {
+   "translation": "精密度",
+   "keep_english": false
+  },
+  "holdover": {
+   "translation": "ホールドオーバー",
+   "keep_english": false
+  },
+  "ledger": {
+   "translation": "台帳（ledger）",
+   "keep_english": false
+  },
+  "evidence pack": {
+   "translation": "エビデンスパック",
+   "keep_english": false
+  },
+  "pre-registration": {
+   "translation": "事前登録",
+   "keep_english": false
+  },
+  "bar (pass criterion)": {
+   "translation": "合格基準",
+   "keep_english": false
+  },
+  "oracle (independent reference)": {
+   "translation": "オラクル（独立した参照）",
+   "keep_english": false
+  },
+  "advisory": {
+   "translation": "助言（アドバイザリー）",
+   "keep_english": false
+  },
+  "supports evidence for": {
+   "translation": "〜の証拠を裏付ける（supports evidence for）",
+   "keep_english": false
+  },
+  "scenario": {
+   "translation": "シナリオ",
+   "keep_english": false
+  },
+  "receiver": {
+   "translation": "受信機",
+   "keep_english": false
+  },
+  "clock": {
+   "translation": "時計（クロック）",
+   "keep_english": false
+  },
+  "oscillator": {
+   "translation": "発振器",
+   "keep_english": false
+  },
+  "time error": {
+   "translation": "時刻誤差",
+   "keep_english": false
+  },
+  "ionosphere": {
+   "translation": "電離圏",
+   "keep_english": false
+  },
+  "multipath": {
+   "translation": "マルチパス",
+   "keep_english": false
+  },
+  "carrier phase": {
+   "translation": "搬送波位相",
+   "keep_english": false
+  },
+  "pseudorange": {
+   "translation": "疑似距離",
+   "keep_english": false
+  },
+  "Doppler": {
+   "translation": "ドップラー",
+   "keep_english": false
+  },
+  "ephemeris": {
+   "translation": "エフェメリス（軌道暦）",
+   "keep_english": false
+  },
+  "constellation": {
+   "translation": "衛星コンステレーション",
+   "keep_english": false
+  },
+  "protection level": {
+   "translation": "保護レベル",
+   "keep_english": false
+  },
+  "dilution of precision (DOP)": {
+   "translation": "DOP（精度低下率）",
+   "keep_english": false
+  },
+  "ambiguity resolution": {
+   "translation": "整数値バイアスの決定（アンビギュイティ解決）",
+   "keep_english": false
+  },
+  "detection": {
+   "translation": "検出",
+   "keep_english": false
+  },
+  "false alarm": {
+   "translation": "誤警報",
+   "keep_english": false
+  },
+  "missed detection": {
+   "translation": "見逃し",
+   "keep_english": false
+  },
+  "Monte Carlo": {
+   "translation": "モンテカルロ",
+   "keep_english": false
+  },
+  "Allan deviation": {
+   "translation": "アラン偏差",
+   "keep_english": false
+  },
+  "time transfer": {
+   "translation": "時刻比較・時刻伝送",
+   "keep_english": false
+  },
+  "resilience": {
+   "translation": "レジリエンス",
+   "keep_english": false
+  },
+  "orbit determination": {
+   "translation": "軌道決定",
+   "keep_english": false
+  },
+  "cislunar": {
+   "translation": "地球・月間空間（シスルナー）",
+   "keep_english": false
+  },
+  "synthetic data": {
+   "translation": "合成データ",
+   "keep_english": false
+  },
+  "reproducible": {
+   "translation": "再現可能",
+   "keep_english": false
+  },
+  "cross-validation": {
+   "translation": "クロスバリデーション",
+   "keep_english": false
+  },
+  "tolerance": {
+   "translation": "許容差",
+   "keep_english": false
+  },
+  "seed": {
+   "translation": "シード",
+   "keep_english": false
+  }
+ },
+ "forbidden_translations": {
+  "rule": "Never state that Kshana is certified, conformant or compliant; the English phrase to use is 'supports evidence for'. These renderings must not be used as claims about Kshana:",
+  "words": [
+   "認証済み",
+   "準拠（Kshanaについての主張として）"
+  ]
+ },
+ "advisory": {
+  "en": {
+   "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
+   "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
+   "short": "Advisory: not type-approved navigation equipment.",
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
+   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+  },
+  "ja": {
+   "general": "助言のみ：研究・エンジニアリング用ツールによる解析出力であり、型式承認を受けた航法装置ではなく、人命安全（safety-of-life）サービスでもありません。",
+   "general_long": "助言のみ：研究・エンジニアリング用ツールによる解析出力であり、型式承認を受けた航法装置ではなく、人命安全（safety-of-life）サービスでもありません。航法または安全に関するいかなる判断の唯一の根拠としても使用してはなりません。",
+   "short": "助言のみ：型式承認を受けた航法装置ではありません。",
+   "maritime": "助言用ソフトウェアであり、型式承認を受けた航法装置（IEC 61108、IEC 61162）ではありません。船舶の航行の責任は引き続き運用者にあります。",
+   "aviation_proposed": "助言のみ：研究・エンジニアリング用ツールによる解析出力であり、耐空承認を受けた航空電子機器ではなく、人命安全（safety-of-life）サービスでもありません。飛行の責任は引き続き機長にあります。"
+  },
+  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+ },
+ "notes": "Terms follow Japanese GNSS usage (QZSS/JAXA/GSI literature); tier words stay in English."
+}

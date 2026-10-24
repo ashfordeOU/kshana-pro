@@ -1,0 +1,273 @@
+{
+ "lang": "uk",
+ "language": "Українська",
+ "status": "DRAFT glossary, machine-drafted, not reviewed by a native speaker; the path and schema are provisional until the i18n infrastructure confirms them",
+ "machine_translation_notice": {
+  "en": "Machine translation, not reviewed by a native speaker. English is the reference.",
+  "uk": "Машинний переклад, не перевірений носієм мови. Еталоном є англійська версія."
+ },
+ "never_translate": {
+  "rule": "Copied exactly, in every language: the product name, scenario kind names, command and flag names, file names and formats, units and their symbols, numbers, code spans, links and identifiers.",
+  "examples": [
+   "Kshana",
+   "gnss-ssv",
+   "lunar-infrastructure",
+   "holdover-test",
+   "kshana jammertest score",
+   "--glonass-table-4-2",
+   "TOML",
+   "JSON",
+   "RINEX",
+   "NMEA",
+   "UBX",
+   "SHA-256",
+   "dB-Hz",
+   "m/s2",
+   "ns"
+  ]
+ },
+ "tier_and_verdict_words": {
+  "rule": "Kept in English capitals and never changed, in running text, tables, badges and alt text. The gloss is the translation of what the word means, for use beside the first occurrence on a page.",
+  "words": {
+   "VALIDATED": {
+    "translation": "VALIDATED",
+    "gloss": "незалежний зовнішній оракул погоджується"
+   },
+   "MODELLED": {
+    "translation": "MODELLED",
+    "gloss": "внутрішньо узгоджено, і про це сказано прямо"
+   },
+   "PARTNER": {
+    "translation": "PARTNER",
+    "gloss": "відповідає апаратний партнер"
+   },
+   "MET": {
+    "translation": "MET",
+    "gloss": "поріг виконано"
+   },
+   "NOT MET": {
+    "translation": "NOT MET",
+    "gloss": "поріг не виконано"
+   },
+   "EXPLORATORY": {
+    "translation": "EXPLORATORY",
+    "gloss": "пошукове: не може закрити початковий поріг"
+   }
+  }
+ },
+ "terms": {
+  "PNT": {
+   "translation": "PNT (позиціонування, навігація та час)",
+   "keep_english": true
+  },
+  "GNSS": {
+   "translation": "ГНСС / GNSS (глобальна навігаційна супутникова система)",
+   "keep_english": false
+  },
+  "spoofing": {
+   "translation": "спуфінг",
+   "keep_english": false
+  },
+  "jamming": {
+   "translation": "глушіння (jamming)",
+   "keep_english": false
+  },
+  "interference": {
+   "translation": "завади",
+   "keep_english": false
+  },
+  "integrity": {
+   "translation": "цілісність",
+   "keep_english": false
+  },
+  "availability": {
+   "translation": "доступність",
+   "keep_english": false
+  },
+  "continuity": {
+   "translation": "безперервність",
+   "keep_english": false
+  },
+  "accuracy": {
+   "translation": "точність",
+   "keep_english": false
+  },
+  "precision": {
+   "translation": "прецизійність",
+   "keep_english": false
+  },
+  "holdover": {
+   "translation": "holdover (утримання часу)",
+   "keep_english": true
+  },
+  "ledger": {
+   "translation": "реєстр (ledger)",
+   "keep_english": false
+  },
+  "evidence pack": {
+   "translation": "пакет доказів",
+   "keep_english": false
+  },
+  "pre-registration": {
+   "translation": "попередня реєстрація",
+   "keep_english": false
+  },
+  "bar (pass criterion)": {
+   "translation": "поріг (критерій відповідності)",
+   "keep_english": false
+  },
+  "oracle (independent reference)": {
+   "translation": "оракул (незалежний еталон)",
+   "keep_english": false
+  },
+  "advisory": {
+   "translation": "консультативний",
+   "keep_english": false
+  },
+  "supports evidence for": {
+   "translation": "підтримує докази для (supports evidence for)",
+   "keep_english": false
+  },
+  "scenario": {
+   "translation": "сценарій",
+   "keep_english": false
+  },
+  "receiver": {
+   "translation": "приймач",
+   "keep_english": false
+  },
+  "clock": {
+   "translation": "годинник",
+   "keep_english": false
+  },
+  "oscillator": {
+   "translation": "генератор (осцилятор)",
+   "keep_english": false
+  },
+  "time error": {
+   "translation": "похибка часу",
+   "keep_english": false
+  },
+  "ionosphere": {
+   "translation": "іоносфера",
+   "keep_english": false
+  },
+  "multipath": {
+   "translation": "багатопроменевість",
+   "keep_english": false
+  },
+  "carrier phase": {
+   "translation": "фаза несівної",
+   "keep_english": false
+  },
+  "pseudorange": {
+   "translation": "псевдодальність",
+   "keep_english": false
+  },
+  "Doppler": {
+   "translation": "Доплер",
+   "keep_english": false
+  },
+  "ephemeris": {
+   "translation": "ефемериди",
+   "keep_english": false
+  },
+  "constellation": {
+   "translation": "орбітальне угруповання",
+   "keep_english": false
+  },
+  "protection level": {
+   "translation": "рівень захисту",
+   "keep_english": false
+  },
+  "dilution of precision (DOP)": {
+   "translation": "геометричний чинник DOP (погіршення точності)",
+   "keep_english": false
+  },
+  "ambiguity resolution": {
+   "translation": "розв'язання неоднозначностей",
+   "keep_english": false
+  },
+  "detection": {
+   "translation": "виявлення",
+   "keep_english": false
+  },
+  "false alarm": {
+   "translation": "хибна тривога",
+   "keep_english": false
+  },
+  "missed detection": {
+   "translation": "пропущене виявлення",
+   "keep_english": false
+  },
+  "Monte Carlo": {
+   "translation": "Монте-Карло",
+   "keep_english": false
+  },
+  "Allan deviation": {
+   "translation": "девіація Аллана",
+   "keep_english": false
+  },
+  "time transfer": {
+   "translation": "передавання часу",
+   "keep_english": false
+  },
+  "resilience": {
+   "translation": "стійкість",
+   "keep_english": false
+  },
+  "orbit determination": {
+   "translation": "визначення орбіти",
+   "keep_english": false
+  },
+  "cislunar": {
+   "translation": "цисмісячний (простір Земля–Місяць)",
+   "keep_english": false
+  },
+  "synthetic data": {
+   "translation": "синтетичні дані",
+   "keep_english": false
+  },
+  "reproducible": {
+   "translation": "відтворюваний",
+   "keep_english": false
+  },
+  "cross-validation": {
+   "translation": "перехресна перевірка",
+   "keep_english": false
+  },
+  "tolerance": {
+   "translation": "допуск",
+   "keep_english": false
+  },
+  "seed": {
+   "translation": "зерно (seed)",
+   "keep_english": true
+  }
+ },
+ "forbidden_translations": {
+  "rule": "Never state that Kshana is certified, conformant or compliant; the English phrase to use is 'supports evidence for'. These renderings must not be used as claims about Kshana:",
+  "words": [
+   "сертифікований",
+   "відповідний вимогам (як твердження про Kshana)"
+  ]
+ },
+ "advisory": {
+  "en": {
+   "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
+   "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
+   "short": "Advisory: not type-approved navigation equipment.",
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
+   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+  },
+  "uk": {
+   "general": "Лише консультативно: результат аналізу від дослідницького та інженерного інструмента; це не навігаційне обладнання із затвердженням типу і не послуга забезпечення безпеки життя.",
+   "general_long": "Лише консультативно: результат аналізу від дослідницького та інженерного інструмента; це не навігаційне обладнання із затвердженням типу і не послуга забезпечення безпеки життя; його не можна використовувати як єдину підставу для будь-якого навігаційного рішення або рішення щодо безпеки.",
+   "short": "Лише консультативно: це не навігаційне обладнання із затвердженням типу.",
+   "maritime": "Консультативне програмне забезпечення, не навігаційне обладнання із затвердженням типу (IEC 61108, IEC 61162): відповідальність за навігацію судна залишається на операторі.",
+   "aviation_proposed": "Лише консультативно: результат аналізу від дослідницького та інженерного інструмента; це не бортове обладнання з підтвердженою льотною придатністю і не послуга забезпечення безпеки життя; відповідальність за політ залишається на командирі повітряного судна."
+  },
+  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+ },
+ "notes": "Standard technical terminology only; no political content."
+}

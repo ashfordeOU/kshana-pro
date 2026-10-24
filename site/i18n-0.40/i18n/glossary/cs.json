@@ -1,0 +1,273 @@
+{
+ "lang": "cs",
+ "language": "Čeština",
+ "status": "DRAFT glossary, machine-drafted, not reviewed by a native speaker; the path and schema are provisional until the i18n infrastructure confirms them",
+ "machine_translation_notice": {
+  "en": "Machine translation, not reviewed by a native speaker. English is the reference.",
+  "cs": "Strojový překlad, nekontrolovaný rodilým mluvčím. Referenční je anglická verze."
+ },
+ "never_translate": {
+  "rule": "Copied exactly, in every language: the product name, scenario kind names, command and flag names, file names and formats, units and their symbols, numbers, code spans, links and identifiers.",
+  "examples": [
+   "Kshana",
+   "gnss-ssv",
+   "lunar-infrastructure",
+   "holdover-test",
+   "kshana jammertest score",
+   "--glonass-table-4-2",
+   "TOML",
+   "JSON",
+   "RINEX",
+   "NMEA",
+   "UBX",
+   "SHA-256",
+   "dB-Hz",
+   "m/s2",
+   "ns"
+  ]
+ },
+ "tier_and_verdict_words": {
+  "rule": "Kept in English capitals and never changed, in running text, tables, badges and alt text. The gloss is the translation of what the word means, for use beside the first occurrence on a page.",
+  "words": {
+   "VALIDATED": {
+    "translation": "VALIDATED",
+    "gloss": "nezávislé vnější orákulum souhlasí"
+   },
+   "MODELLED": {
+    "translation": "MODELLED",
+    "gloss": "vnitřně konzistentní a řečeno otevřeně"
+   },
+   "PARTNER": {
+    "translation": "PARTNER",
+    "gloss": "odpovídá za to hardwarový partner"
+   },
+   "MET": {
+    "translation": "MET",
+    "gloss": "práh splněn"
+   },
+   "NOT MET": {
+    "translation": "NOT MET",
+    "gloss": "práh nesplněn"
+   },
+   "EXPLORATORY": {
+    "translation": "EXPLORATORY",
+    "gloss": "průzkumné: nemůže uzavřít původní práh"
+   }
+  }
+ },
+ "terms": {
+  "PNT": {
+   "translation": "PNT (určování polohy, navigace a času)",
+   "keep_english": false
+  },
+  "GNSS": {
+   "translation": "GNSS (globální družicový navigační systém)",
+   "keep_english": false
+  },
+  "spoofing": {
+   "translation": "spoofing (podvržení signálu)",
+   "keep_english": true
+  },
+  "jamming": {
+   "translation": "rušení (jamming)",
+   "keep_english": false
+  },
+  "interference": {
+   "translation": "interference",
+   "keep_english": false
+  },
+  "integrity": {
+   "translation": "integrita",
+   "keep_english": false
+  },
+  "availability": {
+   "translation": "dostupnost",
+   "keep_english": false
+  },
+  "continuity": {
+   "translation": "kontinuita",
+   "keep_english": false
+  },
+  "accuracy": {
+   "translation": "přesnost",
+   "keep_english": false
+  },
+  "precision": {
+   "translation": "preciznost",
+   "keep_english": false
+  },
+  "holdover": {
+   "translation": "holdover (udržení času)",
+   "keep_english": true
+  },
+  "ledger": {
+   "translation": "registr (ledger)",
+   "keep_english": false
+  },
+  "evidence pack": {
+   "translation": "balíček důkazů",
+   "keep_english": false
+  },
+  "pre-registration": {
+   "translation": "předregistrace",
+   "keep_english": false
+  },
+  "bar (pass criterion)": {
+   "translation": "práh (kritérium splnění)",
+   "keep_english": false
+  },
+  "oracle (independent reference)": {
+   "translation": "orákulum (nezávislá reference)",
+   "keep_english": false
+  },
+  "advisory": {
+   "translation": "poradní",
+   "keep_english": false
+  },
+  "supports evidence for": {
+   "translation": "podporuje důkazy pro (supports evidence for)",
+   "keep_english": false
+  },
+  "scenario": {
+   "translation": "scénář",
+   "keep_english": false
+  },
+  "receiver": {
+   "translation": "přijímač",
+   "keep_english": false
+  },
+  "clock": {
+   "translation": "hodiny",
+   "keep_english": false
+  },
+  "oscillator": {
+   "translation": "oscilátor",
+   "keep_english": false
+  },
+  "time error": {
+   "translation": "časová chyba",
+   "keep_english": false
+  },
+  "ionosphere": {
+   "translation": "ionosféra",
+   "keep_english": false
+  },
+  "multipath": {
+   "translation": "vícecestné šíření",
+   "keep_english": false
+  },
+  "carrier phase": {
+   "translation": "fáze nosné",
+   "keep_english": false
+  },
+  "pseudorange": {
+   "translation": "pseudovzdálenost",
+   "keep_english": false
+  },
+  "Doppler": {
+   "translation": "Doppler",
+   "keep_english": true
+  },
+  "ephemeris": {
+   "translation": "efemeridy",
+   "keep_english": false
+  },
+  "constellation": {
+   "translation": "konstelace",
+   "keep_english": false
+  },
+  "protection level": {
+   "translation": "ochranná úroveň",
+   "keep_english": false
+  },
+  "dilution of precision (DOP)": {
+   "translation": "faktor DOP (zhoršení přesnosti)",
+   "keep_english": false
+  },
+  "ambiguity resolution": {
+   "translation": "řešení nejednoznačností",
+   "keep_english": false
+  },
+  "detection": {
+   "translation": "detekce",
+   "keep_english": false
+  },
+  "false alarm": {
+   "translation": "falešný poplach",
+   "keep_english": false
+  },
+  "missed detection": {
+   "translation": "nezachycená událost",
+   "keep_english": false
+  },
+  "Monte Carlo": {
+   "translation": "Monte Carlo",
+   "keep_english": true
+  },
+  "Allan deviation": {
+   "translation": "Allanova odchylka",
+   "keep_english": false
+  },
+  "time transfer": {
+   "translation": "přenos času",
+   "keep_english": false
+  },
+  "resilience": {
+   "translation": "odolnost",
+   "keep_english": false
+  },
+  "orbit determination": {
+   "translation": "určování oběžné dráhy",
+   "keep_english": false
+  },
+  "cislunar": {
+   "translation": "cislunární",
+   "keep_english": false
+  },
+  "synthetic data": {
+   "translation": "syntetická data",
+   "keep_english": false
+  },
+  "reproducible": {
+   "translation": "reprodukovatelný",
+   "keep_english": false
+  },
+  "cross-validation": {
+   "translation": "křížová validace",
+   "keep_english": false
+  },
+  "tolerance": {
+   "translation": "tolerance",
+   "keep_english": false
+  },
+  "seed": {
+   "translation": "seed (počáteční hodnota generátoru)",
+   "keep_english": true
+  }
+ },
+ "forbidden_translations": {
+  "rule": "Never state that Kshana is certified, conformant or compliant; the English phrase to use is 'supports evidence for'. These renderings must not be used as claims about Kshana:",
+  "words": [
+   "vyhovující",
+   "certifikovaný"
+  ]
+ },
+ "advisory": {
+  "en": {
+   "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
+   "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
+   "short": "Advisory: not type-approved navigation equipment.",
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
+   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+  },
+  "cs": {
+   "general": "Pouze poradní charakter: výstup analýzy z výzkumného a inženýrského nástroje; nejde o typově schválené navigační zařízení ani o službu z oblasti bezpečnosti života.",
+   "general_long": "Pouze poradní charakter: výstup analýzy z výzkumného a inženýrského nástroje; nejde o typově schválené navigační zařízení ani o službu z oblasti bezpečnosti života; nesmí být jediným podkladem pro žádné rozhodnutí o navigaci ani bezpečnosti.",
+   "short": "Pouze poradní charakter: nejde o typově schválené navigační zařízení.",
+   "maritime": "Software pouze poradního charakteru, nikoli typově schválené navigační zařízení (IEC 61108, IEC 61162): za navigaci plavidla zůstává odpovědný provozovatel.",
+   "aviation_proposed": "Pouze poradní charakter: výstup analýzy z výzkumného a inženýrského nástroje; nejde o avioniku s potvrzenou letovou způsobilostí ani o službu z oblasti bezpečnosti života; za let zůstává odpovědný velitel letadla."
+  },
+  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+ },
+ "notes": ""
+}

@@ -1,0 +1,273 @@
+{
+ "lang": "fi",
+ "language": "Suomi",
+ "status": "DRAFT glossary, machine-drafted, not reviewed by a native speaker; the path and schema are provisional until the i18n infrastructure confirms them",
+ "machine_translation_notice": {
+  "en": "Machine translation, not reviewed by a native speaker. English is the reference.",
+  "fi": "Konekäännös, jota äidinkielinen puhuja ei ole tarkistanut. Viitteenä on englanninkielinen versio."
+ },
+ "never_translate": {
+  "rule": "Copied exactly, in every language: the product name, scenario kind names, command and flag names, file names and formats, units and their symbols, numbers, code spans, links and identifiers.",
+  "examples": [
+   "Kshana",
+   "gnss-ssv",
+   "lunar-infrastructure",
+   "holdover-test",
+   "kshana jammertest score",
+   "--glonass-table-4-2",
+   "TOML",
+   "JSON",
+   "RINEX",
+   "NMEA",
+   "UBX",
+   "SHA-256",
+   "dB-Hz",
+   "m/s2",
+   "ns"
+  ]
+ },
+ "tier_and_verdict_words": {
+  "rule": "Kept in English capitals and never changed, in running text, tables, badges and alt text. The gloss is the translation of what the word means, for use beside the first occurrence on a page.",
+  "words": {
+   "VALIDATED": {
+    "translation": "VALIDATED",
+    "gloss": "riippumaton ulkoinen oraakkeli on samaa mieltä"
+   },
+   "MODELLED": {
+    "translation": "MODELLED",
+    "gloss": "sisäisesti johdonmukainen, ja se sanotaan ääneen"
+   },
+   "PARTNER": {
+    "translation": "PARTNER",
+    "gloss": "laitteistokumppani vastaa"
+   },
+   "MET": {
+    "translation": "MET",
+    "gloss": "kynnys täyttyi"
+   },
+   "NOT MET": {
+    "translation": "NOT MET",
+    "gloss": "kynnys ei täyttynyt"
+   },
+   "EXPLORATORY": {
+    "translation": "EXPLORATORY",
+    "gloss": "tutkiva: ei voi sulkea alkuperäistä kynnystä"
+   }
+  }
+ },
+ "terms": {
+  "PNT": {
+   "translation": "PNT (paikannus, navigointi ja ajanmääritys)",
+   "keep_english": false
+  },
+  "GNSS": {
+   "translation": "GNSS (maailmanlaajuinen satelliittinavigointijärjestelmä)",
+   "keep_english": false
+  },
+  "spoofing": {
+   "translation": "harhautus (spoofing)",
+   "keep_english": false
+  },
+  "jamming": {
+   "translation": "häirintä (jamming)",
+   "keep_english": false
+  },
+  "interference": {
+   "translation": "häiriö",
+   "keep_english": false
+  },
+  "integrity": {
+   "translation": "eheys",
+   "keep_english": false
+  },
+  "availability": {
+   "translation": "saatavuus",
+   "keep_english": false
+  },
+  "continuity": {
+   "translation": "jatkuvuus",
+   "keep_english": false
+  },
+  "accuracy": {
+   "translation": "tarkkuus",
+   "keep_english": false
+  },
+  "precision": {
+   "translation": "toistotarkkuus",
+   "keep_english": false
+  },
+  "holdover": {
+   "translation": "holdover (ajanpito ilman ulkoista viitettä)",
+   "keep_english": true
+  },
+  "ledger": {
+   "translation": "kirjanpito (ledger)",
+   "keep_english": false
+  },
+  "evidence pack": {
+   "translation": "todistepaketti",
+   "keep_english": false
+  },
+  "pre-registration": {
+   "translation": "ennakkorekisteröinti",
+   "keep_english": false
+  },
+  "bar (pass criterion)": {
+   "translation": "kynnys (hyväksymiskriteeri)",
+   "keep_english": false
+  },
+  "oracle (independent reference)": {
+   "translation": "oraakkeli (riippumaton vertailu)",
+   "keep_english": false
+  },
+  "advisory": {
+   "translation": "ohjeellinen",
+   "keep_english": false
+  },
+  "supports evidence for": {
+   "translation": "tukee todisteita (supports evidence for)",
+   "keep_english": false
+  },
+  "scenario": {
+   "translation": "skenaario",
+   "keep_english": false
+  },
+  "receiver": {
+   "translation": "vastaanotin",
+   "keep_english": false
+  },
+  "clock": {
+   "translation": "kello",
+   "keep_english": false
+  },
+  "oscillator": {
+   "translation": "oskillaattori",
+   "keep_english": false
+  },
+  "time error": {
+   "translation": "aikavirhe",
+   "keep_english": false
+  },
+  "ionosphere": {
+   "translation": "ionosfääri",
+   "keep_english": false
+  },
+  "multipath": {
+   "translation": "monitie-eteneminen",
+   "keep_english": false
+  },
+  "carrier phase": {
+   "translation": "kantoaallon vaihe",
+   "keep_english": false
+  },
+  "pseudorange": {
+   "translation": "pseudoetäisyys",
+   "keep_english": false
+  },
+  "Doppler": {
+   "translation": "Doppler",
+   "keep_english": false
+  },
+  "ephemeris": {
+   "translation": "efemeridi",
+   "keep_english": false
+  },
+  "constellation": {
+   "translation": "satelliittitähdistö",
+   "keep_english": false
+  },
+  "protection level": {
+   "translation": "suojaustaso",
+   "keep_english": false
+  },
+  "dilution of precision (DOP)": {
+   "translation": "DOP (tarkkuuden heikkenemiskerroin)",
+   "keep_english": false
+  },
+  "ambiguity resolution": {
+   "translation": "kokonaislukuepävarmuuden ratkaisu",
+   "keep_english": false
+  },
+  "detection": {
+   "translation": "havaitseminen",
+   "keep_english": false
+  },
+  "false alarm": {
+   "translation": "väärä hälytys",
+   "keep_english": false
+  },
+  "missed detection": {
+   "translation": "havaitsematta jäänyt tapahtuma",
+   "keep_english": false
+  },
+  "Monte Carlo": {
+   "translation": "Monte Carlo",
+   "keep_english": false
+  },
+  "Allan deviation": {
+   "translation": "Allanin poikkeama",
+   "keep_english": false
+  },
+  "time transfer": {
+   "translation": "ajansiirto",
+   "keep_english": false
+  },
+  "resilience": {
+   "translation": "kestävyys",
+   "keep_english": false
+  },
+  "orbit determination": {
+   "translation": "radanmääritys",
+   "keep_english": false
+  },
+  "cislunar": {
+   "translation": "kuunläheinen (Maa–Kuu-avaruus)",
+   "keep_english": false
+  },
+  "synthetic data": {
+   "translation": "synteettinen data",
+   "keep_english": false
+  },
+  "reproducible": {
+   "translation": "toistettava",
+   "keep_english": false
+  },
+  "cross-validation": {
+   "translation": "ristiinvalidointi",
+   "keep_english": false
+  },
+  "tolerance": {
+   "translation": "toleranssi",
+   "keep_english": false
+  },
+  "seed": {
+   "translation": "siemenluku (seed)",
+   "keep_english": true
+  }
+ },
+ "forbidden_translations": {
+  "rule": "Never state that Kshana is certified, conformant or compliant; the English phrase to use is 'supports evidence for'. These renderings must not be used as claims about Kshana:",
+  "words": [
+   "sertifioitu",
+   "vaatimustenmukainen (väitteenä Kshanasta)"
+  ]
+ },
+ "advisory": {
+  "en": {
+   "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
+   "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
+   "short": "Advisory: not type-approved navigation equipment.",
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
+   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+  },
+  "fi": {
+   "general": "Ohjeellinen: tutkimus- ja suunnittelutyökalun analyysitulos; ei tyyppihyväksytty navigointilaite eikä ihmishengen turvaamiseen tarkoitettu palvelu.",
+   "general_long": "Ohjeellinen: tutkimus- ja suunnittelutyökalun analyysitulos; ei tyyppihyväksytty navigointilaite eikä ihmishengen turvaamiseen tarkoitettu palvelu; sitä ei saa käyttää ainoana perusteena navigointia tai turvallisuutta koskevalle päätökselle.",
+   "short": "Ohjeellinen: ei tyyppihyväksytty navigointilaite.",
+   "maritime": "Ohjeellinen ohjelmisto, ei tyyppihyväksytty navigointilaite (IEC 61108, IEC 61162): käyttäjä vastaa edelleen aluksen navigoinnista.",
+   "aviation_proposed": "Ohjeellinen: tutkimus- ja suunnittelutyökalun analyysitulos; ei lentokelpoisuushyväksytty ilma-aluksen avioniikka eikä ihmishengen turvaamiseen tarkoitettu palvelu; ilma-aluksen päällikkö vastaa edelleen lennosta."
+  },
+  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+ },
+ "notes": ""
+}

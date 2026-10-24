@@ -1,0 +1,273 @@
+{
+ "lang": "zh-Hans",
+ "language": "简体中文",
+ "status": "DRAFT glossary, machine-drafted, not reviewed by a native speaker; the path and schema are provisional until the i18n infrastructure confirms them",
+ "machine_translation_notice": {
+  "en": "Machine translation, not reviewed by a native speaker. English is the reference.",
+  "zh-Hans": "机器翻译，未经母语人士审校。以英文版为准。"
+ },
+ "never_translate": {
+  "rule": "Copied exactly, in every language: the product name, scenario kind names, command and flag names, file names and formats, units and their symbols, numbers, code spans, links and identifiers.",
+  "examples": [
+   "Kshana",
+   "gnss-ssv",
+   "lunar-infrastructure",
+   "holdover-test",
+   "kshana jammertest score",
+   "--glonass-table-4-2",
+   "TOML",
+   "JSON",
+   "RINEX",
+   "NMEA",
+   "UBX",
+   "SHA-256",
+   "dB-Hz",
+   "m/s2",
+   "ns"
+  ]
+ },
+ "tier_and_verdict_words": {
+  "rule": "Kept in English capitals and never changed, in running text, tables, badges and alt text. The gloss is the translation of what the word means, for use beside the first occurrence on a page.",
+  "words": {
+   "VALIDATED": {
+    "translation": "VALIDATED",
+    "gloss": "独立的外部参考基准（oracle）一致"
+   },
+   "MODELLED": {
+    "translation": "MODELLED",
+    "gloss": "内部自洽，并明确说明"
+   },
+   "PARTNER": {
+    "translation": "PARTNER",
+    "gloss": "由硬件合作方负责"
+   },
+   "MET": {
+    "translation": "MET",
+    "gloss": "达到判据"
+   },
+   "NOT MET": {
+    "translation": "NOT MET",
+    "gloss": "未达到判据"
+   },
+   "EXPLORATORY": {
+    "translation": "EXPLORATORY",
+    "gloss": "探索性：不能用来关闭原有判据"
+   }
+  }
+ },
+ "terms": {
+  "PNT": {
+   "translation": "PNT（定位、导航与授时）",
+   "keep_english": false
+  },
+  "GNSS": {
+   "translation": "GNSS（全球导航卫星系统）",
+   "keep_english": false
+  },
+  "spoofing": {
+   "translation": "欺骗干扰（spoofing）",
+   "keep_english": false
+  },
+  "jamming": {
+   "translation": "压制干扰（jamming）",
+   "keep_english": false
+  },
+  "interference": {
+   "translation": "干扰",
+   "keep_english": false
+  },
+  "integrity": {
+   "translation": "完好性",
+   "keep_english": false
+  },
+  "availability": {
+   "translation": "可用性",
+   "keep_english": false
+  },
+  "continuity": {
+   "translation": "连续性",
+   "keep_english": false
+  },
+  "accuracy": {
+   "translation": "精度",
+   "keep_english": false
+  },
+  "precision": {
+   "translation": "精密度",
+   "keep_english": false
+  },
+  "holdover": {
+   "translation": "守时（holdover）",
+   "keep_english": false
+  },
+  "ledger": {
+   "translation": "台账（ledger）",
+   "keep_english": false
+  },
+  "evidence pack": {
+   "translation": "证据包",
+   "keep_english": false
+  },
+  "pre-registration": {
+   "translation": "预先登记",
+   "keep_english": false
+  },
+  "bar (pass criterion)": {
+   "translation": "判据",
+   "keep_english": false
+  },
+  "oracle (independent reference)": {
+   "translation": "参考基准（oracle，独立参照）",
+   "keep_english": false
+  },
+  "advisory": {
+   "translation": "咨询性（仅供参考）",
+   "keep_english": false
+  },
+  "supports evidence for": {
+   "translation": "为……提供证据支持（supports evidence for）",
+   "keep_english": false
+  },
+  "scenario": {
+   "translation": "场景",
+   "keep_english": false
+  },
+  "receiver": {
+   "translation": "接收机",
+   "keep_english": false
+  },
+  "clock": {
+   "translation": "时钟",
+   "keep_english": false
+  },
+  "oscillator": {
+   "translation": "振荡器",
+   "keep_english": false
+  },
+  "time error": {
+   "translation": "钟差（时间误差）",
+   "keep_english": false
+  },
+  "ionosphere": {
+   "translation": "电离层",
+   "keep_english": false
+  },
+  "multipath": {
+   "translation": "多路径",
+   "keep_english": false
+  },
+  "carrier phase": {
+   "translation": "载波相位",
+   "keep_english": false
+  },
+  "pseudorange": {
+   "translation": "伪距",
+   "keep_english": false
+  },
+  "Doppler": {
+   "translation": "多普勒",
+   "keep_english": false
+  },
+  "ephemeris": {
+   "translation": "星历",
+   "keep_english": false
+  },
+  "constellation": {
+   "translation": "星座",
+   "keep_english": false
+  },
+  "protection level": {
+   "translation": "保护级",
+   "keep_english": false
+  },
+  "dilution of precision (DOP)": {
+   "translation": "精度因子（DOP）",
+   "keep_english": false
+  },
+  "ambiguity resolution": {
+   "translation": "整周模糊度解算",
+   "keep_english": false
+  },
+  "detection": {
+   "translation": "检测",
+   "keep_english": false
+  },
+  "false alarm": {
+   "translation": "虚警",
+   "keep_english": false
+  },
+  "missed detection": {
+   "translation": "漏检",
+   "keep_english": false
+  },
+  "Monte Carlo": {
+   "translation": "蒙特卡罗",
+   "keep_english": false
+  },
+  "Allan deviation": {
+   "translation": "阿伦偏差",
+   "keep_english": false
+  },
+  "time transfer": {
+   "translation": "时间传递",
+   "keep_english": false
+  },
+  "resilience": {
+   "translation": "韧性",
+   "keep_english": false
+  },
+  "orbit determination": {
+   "translation": "定轨",
+   "keep_english": false
+  },
+  "cislunar": {
+   "translation": "地月空间",
+   "keep_english": false
+  },
+  "synthetic data": {
+   "translation": "合成数据",
+   "keep_english": false
+  },
+  "reproducible": {
+   "translation": "可复现",
+   "keep_english": false
+  },
+  "cross-validation": {
+   "translation": "交叉验证",
+   "keep_english": false
+  },
+  "tolerance": {
+   "translation": "容差",
+   "keep_english": false
+  },
+  "seed": {
+   "translation": "随机种子（seed）",
+   "keep_english": false
+  }
+ },
+ "forbidden_translations": {
+  "rule": "Never state that Kshana is certified, conformant or compliant; the English phrase to use is 'supports evidence for'. These renderings must not be used as claims about Kshana:",
+  "words": [
+   "已认证",
+   "符合（作为对 Kshana 的声明）"
+  ]
+ },
+ "advisory": {
+  "en": {
+   "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
+   "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
+   "short": "Advisory: not type-approved navigation equipment.",
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
+   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+  },
+  "zh-Hans": {
+   "general": "仅供参考：研究与工程工具的分析输出，不是经型式认可的导航设备，也不是生命安全服务。",
+   "general_long": "仅供参考：研究与工程工具的分析输出，不是经型式认可的导航设备，也不是生命安全服务；不得作为任何导航或安全决策的唯一依据。",
+   "short": "仅供参考：不是经型式认可的导航设备。",
+   "maritime": "仅供参考的软件，不是经型式认可的导航设备（IEC 61108、IEC 61162）：船舶航行的责任仍由操作人员承担。",
+   "aviation_proposed": "仅供参考：研究与工程工具的分析输出，不是经适航认可的航空电子设备，也不是生命安全服务；飞行责任仍由机长承担。"
+  },
+  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+ },
+ "notes": "Terms follow the Chinese national GNSS literature (BeiDou usage: 完好性, 守时, 整周模糊度, 保护级); tier words stay in English."
+}
