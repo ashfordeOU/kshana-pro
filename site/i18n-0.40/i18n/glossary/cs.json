@@ -291,6 +291,77 @@
     "optical_atmosphere_scenario::advisory (result field)": "Pouze poradní analýza: nejde o certifikovaný produkt dostupnosti, integrity ani navigace a nejde o předpověď pro žádné skutečné místo, pokud klimatické vstupy nepocházejí z uvedeného souboru dat.",
     "telemetry::mqtt::advisory (message field)": "Software pouze poradního charakteru, nikoli typově schválené navigační ani časové zařízení."
    }
+  },
+  "engine_legal": {
+   "note": "Existing English disclaimer and statement texts of the engine, translated with every negation and every 'not' scope kept; English stays the reference. Flagged legal for native review by the owner. Protected tokens kept verbatim: MODELLED, VALIDATED, MET, PREDICTION, DHS RPCF v2.0, roc_window_s, P_fa, file names, ids and the ICG WG-B source text. The row marker 'evidenced' is kept in English inside quotation marks; the cell state 'degraded' and 'clear' are rendered in the language (confirm against the UI strings when W55's catalogue lands).",
+   "entries": {
+    "surface::BENCH_NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "Vehicle motion and labelled event intervals only. Nothing exported here is, models or drives a radio-frequency or baseband signal, and an event is a time interval, not a recipe for producing interference. The laboratory simulator and its operator supply the signals and are responsible for running them only where that is authorised (conducted or shielded, per the simulator's own safety instructions). Kshana publishes no results from such runs.",
+     "translation": "Pouze pohyb vozidla a označené intervaly událostí. Nic, co se zde exportuje, není rádiovým signálem ani signálem v základním pásmu, takový signál nemodeluje ani jej neřídí, a událost je časový interval, nikoli návod na vytváření rušení. Signály dodávají laboratorní simulátor a jeho obsluha, která odpovídá za to, že je spouští jen tam, kde je to povoleno (vodivě nebo ve stíněném prostoru, podle bezpečnostních pokynů samotného simulátoru). Kshana nezveřejňuje žádné výsledky takových běhů."
+    },
+    "compliance::STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "A row marked evidenced means a run in this set supports evidence for the capabilities the row names. It is not a finding that a framework is met, and it does not mean any product has been rated or approved by anyone. The gap column states what the runs do not show.",
+     "translation": "Řádek označený jako „evidenced“ znamená, že běh z této sady podporuje důkazy pro schopnosti, které řádek uvádí. Neznamená to zjištění, že jsou požadavky rámce splněny, ani to, že by některý produkt byl kýmkoli ohodnocen či schválen. Sloupec mezer uvádí, co běhy neukazují."
+    },
+    "resilience::report::DISCLAIMER": {
+     "legal": true,
+     "native_review": true,
+     "en": "Simulation-derived self-assessment aligned to DHS RPCF v2.0. This is not a certification or accreditation, and it represents no authority approval (DHS, IEEE, or otherwise). Every sub-score is MODELLED unless explicitly tagged VALIDATED, and the scores are timing-domain and detection figures of merit, not position-domain accuracy.",
+     "translation": "Sebehodnocení odvozené ze simulace, vztažené k DHS RPCF v2.0. Nejde o certifikaci ani akreditaci a nepředstavuje schválení žádným orgánem (DHS, IEEE ani jiným). Každé dílčí skóre je MODELLED, pokud není výslovně označeno VALIDATED, a skóre jsou ukazatele kvality v časové oblasti a v detekci, nikoli přesnost v oblasti polohy."
+    },
+    "evidence::bundle::DISCLAIMER": {
+     "legal": true,
+     "native_review": true,
+     "en": "This pack is a technical record of what the Kshana engine computed from the stated receiver log with the stated configuration. It is not a legal opinion, not a finding of fact about any event or its cause, and not a certification.",
+     "translation": "Tento balíček je technický záznam toho, co engine Kshana vypočítal z uvedeného záznamu přijímače s uvedenou konfigurací. Není právním posudkem, není zjištěním skutečností o jakékoli události ani její příčině a není certifikací."
+    },
+    "standards_pack::NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "A standards pack measures modelled scenarios against bars stated before the run. It supports evidence for the framework rows it names; it does not rate or approve any product, and a MET bar says only that the scenario's modelled output met the stated bar.",
+     "translation": "Balíček norem měří modelované scénáře proti prahům stanoveným před během. Podporuje důkazy pro řádky rámce, které uvádí; žádný produkt neohodnocuje ani neschvaluje a práh označený MET říká pouze to, že modelovaný výstup scénáře uvedený práh splnil."
+    },
+    "evidence::roundtrip::NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "Links four records by hash: the scenario, the laboratory's stated test conditions, the receiver log and the score of that log against the stated events. It is not a signal, not a replay recipe and not a certification. How the scenario's motion reached the receiver (a file played through a laboratory simulator, conducted or shielded) was the operator's responsibility and is recorded here only as stated.",
+     "translation": "Propojuje čtyři záznamy pomocí otisku (hash): scénář, uvedené zkušební podmínky laboratoře, záznam přijímače a skóre tohoto záznamu vůči uvedeným událostem. Není signálem, není návodem k přehrání a není certifikací. Za to, jak se pohyb ze scénáře dostal k přijímači (soubor přehraný laboratorním simulátorem, vodivě nebo ve stíněném prostoru), odpovídal provozovatel, a je zde zaznamenáno pouze tak, jak bylo uvedeno."
+    },
+    "interference_map::observatory::NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "A degraded cell means a high share of aircraft reported low navigation accuracy there that day. No cause is attributed. A cell that is not observed, or absent, was not assessed, which is not the same as clear. Advisory only: not an approval, certification or statement of conformance.",
+     "translation": "Buňka označená jako zhoršená znamená, že vysoký podíl letadel tam ten den hlásil nízkou přesnost navigace. Nepřisuzuje se žádná příčina. Buňka, která není pozorována nebo chybí, nebyla hodnocena, což není totéž jako bez problémů. Pouze poradní charakter: nejde o schválení, certifikaci ani prohlášení o shodě."
+    },
+    "lunar_time_lab::SOURCE_STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "Source statement, not a claim: the ICG WG-B Lunar PNT material of June 2024 (unoosa.org, LunarPNT_Jun24_01_04.pdf, source S3 of the study) describes a lunar time reference laboratory at the station with a nanosecond-level time target. Kshana quotes that target for context only; it does not adopt it, and nothing in this block shows that any real station clock meets it.",
+     "translation": "Prohlášení o zdroji, nikoli tvrzení: materiály ICG WG-B Lunar PNT z června 2024 (unoosa.org, LunarPNT_Jun24_01_04.pdf, zdroj S3 studie) popisují laboratoř lunárního časového etalonu u stanice s časovým cílem na úrovni nanosekund. Kshana tento cíl cituje jen pro kontext; nepřijímá jej a nic v tomto bloku neukazuje, že by jej splňovaly skutečné hodiny kterékoli stanice."
+    },
+    "iq::labfit::iqfit::STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "MODELLED: every fitted number describes the open receiver (the named loop design and front-end chain) on the recordings it was given, fitted to the campaign's scored results. It is not a measurement of any other receiver. Predictions are labelled PREDICTION, with the nearest tested recording and the distance outside the tested conditions.",
+     "translation": "MODELLED: každé nafitované číslo popisuje otevřený přijímač (uvedený návrh smyčky a vstupní řetězec) na záznamech, které dostal, nafitované na hodnocené výsledky kampaně. Není měřením žádného jiného přijímače. Předpovědi jsou označeny PREDICTION, s nejbližším testovaným záznamem a vzdáleností mimo testované podmínky."
+    },
+    "geometry::STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "Geometry under a stated error model (MODELLED): line-of-sight visibility against the stated skyline, dilution of precision and a Gaussian error ellipse for independent, equal, zero-mean Gaussian range errors of the stated user-equivalent range error. It is not a prediction of a receiver's real error, which also has biases, multipath and non-line-of-sight errors, and it is not an integrity bound. Preset constellations are a representative geometry, not the sky of that date at that place.",
+     "translation": "Geometrie při uvedeném modelu chyby (MODELLED): viditelnost v přímé linii proti uvedenému obzoru, faktor DOP a gaussovská elipsa chyby pro nezávislé, stejné, nulově střední gaussovské chyby vzdálenosti o uvedené ekvivalentní chybě vzdálenosti uživatele. Není předpovědí skutečné chyby přijímače, která má také systematické chyby, vícecestné šíření a chyby bez přímé viditelnosti, a není mezí integrity. Přednastavené konstelace jsou reprezentativní geometrií, nikoli oblohou daného data na daném místě."
+    },
+    "iq::campaign::report::ROC_STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "MODELLED: window-level ROC of each monitor on the recordings given. Each stated event window is a positive and each roc_window_s window outside the events a negative; a window counts at a threshold when the monitor's test statistic reaches it in the window. P_fa is per negative window, not per test.",
+     "translation": "MODELLED: ROC na úrovni oken pro každý monitor na daných záznamech. Každé uvedené okno události je pozitivní a každé okno roc_window_s mimo události negativní; okno se při prahu počítá, když testovací statistika monitoru v okně prahu dosáhne. P_fa je na negativní okno, nikoli na test."
+    }
+   }
   }
  },
  "notes": "",

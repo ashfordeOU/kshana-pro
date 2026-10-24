@@ -291,6 +291,77 @@
     "optical_atmosphere_scenario::advisory (result field)": "仅供参考的分析：不是经认证的可用性、完好性或导航产品，也不是对任何真实地点的预测，除非其气候输入来自明示的数据集。",
     "telemetry::mqtt::advisory (message field)": "仅供参考的软件，不是经型式认可的导航或授时设备。"
    }
+  },
+  "engine_legal": {
+   "note": "Existing English disclaimer and statement texts of the engine, translated with every negation and every 'not' scope kept; English stays the reference. Flagged legal for native review by the owner. Protected tokens kept verbatim: MODELLED, VALIDATED, MET, PREDICTION, DHS RPCF v2.0, roc_window_s, P_fa, file names, ids and the ICG WG-B source text. The row marker 'evidenced' is kept in English inside quotation marks; the cell state 'degraded' and 'clear' are rendered in the language (confirm against the UI strings when W55's catalogue lands).",
+   "entries": {
+    "surface::BENCH_NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "Vehicle motion and labelled event intervals only. Nothing exported here is, models or drives a radio-frequency or baseband signal, and an event is a time interval, not a recipe for producing interference. The laboratory simulator and its operator supply the signals and are responsible for running them only where that is authorised (conducted or shielded, per the simulator's own safety instructions). Kshana publishes no results from such runs.",
+     "translation": "仅包含车辆运动和已标注的事件区间。此处导出的任何内容都不是射频或基带信号，不对此类信号建模，也不驱动此类信号；事件是一个时间区间，而不是产生干扰的方法。信号由实验室模拟器及其操作人员提供，操作人员负责仅在获准的地方运行（按模拟器自身的安全说明，采用传导或屏蔽方式）。Kshana不公布此类运行的任何结果。"
+    },
+    "compliance::STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "A row marked evidenced means a run in this set supports evidence for the capabilities the row names. It is not a finding that a framework is met, and it does not mean any product has been rated or approved by anyone. The gap column states what the runs do not show.",
+     "translation": "标记为“evidenced”的行表示，该集合中的某次运行为该行所列能力提供证据支持。这不是框架已被满足的结论，也不表示任何产品已被任何人评级或批准。差距列说明这些运行未能显示的内容。"
+    },
+    "resilience::report::DISCLAIMER": {
+     "legal": true,
+     "native_review": true,
+     "en": "Simulation-derived self-assessment aligned to DHS RPCF v2.0. This is not a certification or accreditation, and it represents no authority approval (DHS, IEEE, or otherwise). Every sub-score is MODELLED unless explicitly tagged VALIDATED, and the scores are timing-domain and detection figures of merit, not position-domain accuracy.",
+     "translation": "基于仿真的自我评估，参照DHS RPCF v2.0。这不是认证或认可，也不代表任何机构（DHS、IEEE或其他）的批准。除非明确标记为VALIDATED，每个子评分均为MODELLED，评分是时间域和检测方面的性能指标，而不是位置域精度。"
+    },
+    "evidence::bundle::DISCLAIMER": {
+     "legal": true,
+     "native_review": true,
+     "en": "This pack is a technical record of what the Kshana engine computed from the stated receiver log with the stated configuration. It is not a legal opinion, not a finding of fact about any event or its cause, and not a certification.",
+     "translation": "本包是Kshana引擎依据所述接收机日志和所述配置计算结果的技术记录。它不是法律意见，不是关于任何事件或其原因的事实认定，也不是认证。"
+    },
+    "standards_pack::NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "A standards pack measures modelled scenarios against bars stated before the run. It supports evidence for the framework rows it names; it does not rate or approve any product, and a MET bar says only that the scenario's modelled output met the stated bar.",
+     "translation": "标准包依据运行前设定的判据衡量建模场景。它为所列框架行提供证据支持；它不对任何产品评级或批准，标记为MET的判据仅表示该场景的建模输出达到了所设判据。"
+    },
+    "evidence::roundtrip::NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "Links four records by hash: the scenario, the laboratory's stated test conditions, the receiver log and the score of that log against the stated events. It is not a signal, not a replay recipe and not a certification. How the scenario's motion reached the receiver (a file played through a laboratory simulator, conducted or shielded) was the operator's responsibility and is recorded here only as stated.",
+     "translation": "通过哈希关联四项记录：场景、实验室声明的测试条件、接收机日志，以及该日志相对于所述事件的评分。它不是信号，不是回放方法，也不是认证。场景的运动如何到达接收机（经实验室模拟器回放的文件，采用传导或屏蔽方式）由操作人员负责，此处仅按所述记录。"
+    },
+    "interference_map::observatory::NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "A degraded cell means a high share of aircraft reported low navigation accuracy there that day. No cause is attributed. A cell that is not observed, or absent, was not assessed, which is not the same as clear. Advisory only: not an approval, certification or statement of conformance.",
+     "translation": "劣化单元格表示当天该处有很高比例的航空器报告导航精度低。不归因于任何原因。未被观测或缺失的单元格未经评估，这与无问题不同。仅供参考：不是批准、认证或符合性声明。"
+    },
+    "lunar_time_lab::SOURCE_STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "Source statement, not a claim: the ICG WG-B Lunar PNT material of June 2024 (unoosa.org, LunarPNT_Jun24_01_04.pdf, source S3 of the study) describes a lunar time reference laboratory at the station with a nanosecond-level time target. Kshana quotes that target for context only; it does not adopt it, and nothing in this block shows that any real station clock meets it.",
+     "translation": "来源声明，而非主张：2024年6月ICG WG-B月球PNT材料（unoosa.org，LunarPNT_Jun24_01_04.pdf，研究来源S3）描述了站点处的月球时间基准实验室，其时间目标为纳秒级。Kshana引用该目标仅作背景说明，不予采纳，本块中的任何内容都不表明任何实际站点时钟达到了该目标。"
+    },
+    "iq::labfit::iqfit::STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "MODELLED: every fitted number describes the open receiver (the named loop design and front-end chain) on the recordings it was given, fitted to the campaign's scored results. It is not a measurement of any other receiver. Predictions are labelled PREDICTION, with the nearest tested recording and the distance outside the tested conditions.",
+     "translation": "MODELLED：每个拟合数值描述的是开放接收机（所述环路设计和前端链路）在所给记录上的情况，并拟合到该活动的评分结果。它不是对任何其他接收机的测量。预测标记为PREDICTION，并附最近的已测试记录以及超出已测试条件的距离。"
+    },
+    "geometry::STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "Geometry under a stated error model (MODELLED): line-of-sight visibility against the stated skyline, dilution of precision and a Gaussian error ellipse for independent, equal, zero-mean Gaussian range errors of the stated user-equivalent range error. It is not a prediction of a receiver's real error, which also has biases, multipath and non-line-of-sight errors, and it is not an integrity bound. Preset constellations are a representative geometry, not the sky of that date at that place.",
+     "translation": "在所述误差模型下的几何：相对于所述天际线的视线可见性、精度因子（DOP）以及针对独立、等值、零均值高斯测距误差（所述用户等效测距误差）的高斯误差椭圆。它不是对接收机实际误差的预测，实际误差还包含偏差、多路径和非视线误差，它也不是完好性界限。预设星座是具有代表性的几何，而不是该日期该地点的天空。"
+    },
+    "iq::campaign::report::ROC_STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "MODELLED: window-level ROC of each monitor on the recordings given. Each stated event window is a positive and each roc_window_s window outside the events a negative; a window counts at a threshold when the monitor's test statistic reaches it in the window. P_fa is per negative window, not per test.",
+     "translation": "MODELLED：在所给记录上对每个监测器按窗口计算的ROC。每个所述事件窗口为正例，事件之外的每个roc_window_s窗口为负例；当监测器的检验统计量在窗口内达到某一阈值时，该窗口在该阈值下计数。P_fa按每个负例窗口计，而不是按每次检验计。"
+    }
+   }
   }
  },
  "notes": "Terms follow the Chinese national GNSS literature (BeiDou usage: 完好性, 守时, 整周模糊度, 保护级); tier words stay in English.",

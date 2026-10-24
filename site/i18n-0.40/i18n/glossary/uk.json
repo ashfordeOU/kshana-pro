@@ -291,6 +291,77 @@
     "optical_atmosphere_scenario::advisory (result field)": "Лише консультативний аналіз: це не сертифікований продукт доступності, цілісності чи навігації і не прогноз для жодного реального місця, якщо кліматичні вхідні дані не походять із зазначеного набору даних.",
     "telemetry::mqtt::advisory (message field)": "Консультативне програмне забезпечення, не навігаційне чи часове обладнання із затвердженням типу."
    }
+  },
+  "engine_legal": {
+   "note": "Existing English disclaimer and statement texts of the engine, translated with every negation and every 'not' scope kept; English stays the reference. Flagged legal for native review by the owner. Protected tokens kept verbatim: MODELLED, VALIDATED, MET, PREDICTION, DHS RPCF v2.0, roc_window_s, P_fa, file names, ids and the ICG WG-B source text. The row marker 'evidenced' is kept in English inside quotation marks; the cell state 'degraded' and 'clear' are rendered in the language (confirm against the UI strings when W55's catalogue lands).",
+   "entries": {
+    "surface::BENCH_NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "Vehicle motion and labelled event intervals only. Nothing exported here is, models or drives a radio-frequency or baseband signal, and an event is a time interval, not a recipe for producing interference. The laboratory simulator and its operator supply the signals and are responsible for running them only where that is authorised (conducted or shielded, per the simulator's own safety instructions). Kshana publishes no results from such runs.",
+     "translation": "Лише рух транспортного засобу та позначені інтервали подій. Ніщо з експортованого тут не є радіочастотним сигналом чи сигналом у базовій смузі, не моделює такого сигналу і не керує ним, а подія — це часовий інтервал, а не рецепт створення завад. Сигнали постачають лабораторний симулятор та його оператор, які відповідають за їх запуск лише там, де це дозволено (кабельно або в екранованому приміщенні, згідно з власними інструкціями безпеки симулятора). Kshana не публікує жодних результатів таких запусків."
+    },
+    "compliance::STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "A row marked evidenced means a run in this set supports evidence for the capabilities the row names. It is not a finding that a framework is met, and it does not mean any product has been rated or approved by anyone. The gap column states what the runs do not show.",
+     "translation": "Рядок, позначений як «evidenced», означає, що запуск із цього набору підтримує докази для можливостей, названих у рядку. Це не висновок, що вимоги рамки виконано, і не означає, що будь-який продукт хтось оцінив чи затвердив. Стовпець прогалин вказує, чого запуски не показують."
+    },
+    "resilience::report::DISCLAIMER": {
+     "legal": true,
+     "native_review": true,
+     "en": "Simulation-derived self-assessment aligned to DHS RPCF v2.0. This is not a certification or accreditation, and it represents no authority approval (DHS, IEEE, or otherwise). Every sub-score is MODELLED unless explicitly tagged VALIDATED, and the scores are timing-domain and detection figures of merit, not position-domain accuracy.",
+     "translation": "Самооцінка на основі симуляції, співвіднесена з DHS RPCF v2.0. Це не сертифікація й не акредитація, і вона не означає схвалення жодним органом (DHS, IEEE чи іншим). Кожна підоцінка є MODELLED, якщо її прямо не позначено VALIDATED, а оцінки є показниками якості у часовій області та виявленні, а не точністю в області положення."
+    },
+    "evidence::bundle::DISCLAIMER": {
+     "legal": true,
+     "native_review": true,
+     "en": "This pack is a technical record of what the Kshana engine computed from the stated receiver log with the stated configuration. It is not a legal opinion, not a finding of fact about any event or its cause, and not a certification.",
+     "translation": "Цей пакет є технічним записом того, що рушій Kshana обчислив зі вказаного журналу приймача за вказаної конфігурації. Він не є юридичним висновком, не є встановленням фактів про будь-яку подію чи її причину і не є сертифікацією."
+    },
+    "standards_pack::NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "A standards pack measures modelled scenarios against bars stated before the run. It supports evidence for the framework rows it names; it does not rate or approve any product, and a MET bar says only that the scenario's modelled output met the stated bar.",
+     "translation": "Пакет стандартів вимірює змодельовані сценарії відносно порогів, визначених до запуску. Він підтримує докази для названих рядків рамки; він не оцінює і не затверджує жоден продукт, а поріг, позначений MET, говорить лише про те, що змодельований результат сценарію досяг визначеного порогу."
+    },
+    "evidence::roundtrip::NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "Links four records by hash: the scenario, the laboratory's stated test conditions, the receiver log and the score of that log against the stated events. It is not a signal, not a replay recipe and not a certification. How the scenario's motion reached the receiver (a file played through a laboratory simulator, conducted or shielded) was the operator's responsibility and is recorded here only as stated.",
+     "translation": "Пов'язує чотири записи за хешем: сценарій, зазначені лабораторією умови випробування, журнал приймача та оцінку цього журналу щодо зазначених подій. Це не сигнал, не рецепт відтворення і не сертифікація. Те, як рух зі сценарію потрапив до приймача (файл, відтворений лабораторним симулятором, кабельно або в екранованому приміщенні), було відповідальністю оператора і записане тут лише так, як його зазначено."
+    },
+    "interference_map::observatory::NOTICE": {
+     "legal": true,
+     "native_review": true,
+     "en": "A degraded cell means a high share of aircraft reported low navigation accuracy there that day. No cause is attributed. A cell that is not observed, or absent, was not assessed, which is not the same as clear. Advisory only: not an approval, certification or statement of conformance.",
+     "translation": "Погіршена комірка означає, що висока частка повітряних суден того дня повідомила там про низьку точність навігації. Жодну причину не приписано. Комірка, яку не спостерігали, або відсутня, не оцінювалася, що не те саме, що чиста. Лише консультативно: це не схвалення, не сертифікація і не заява про відповідність."
+    },
+    "lunar_time_lab::SOURCE_STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "Source statement, not a claim: the ICG WG-B Lunar PNT material of June 2024 (unoosa.org, LunarPNT_Jun24_01_04.pdf, source S3 of the study) describes a lunar time reference laboratory at the station with a nanosecond-level time target. Kshana quotes that target for context only; it does not adopt it, and nothing in this block shows that any real station clock meets it.",
+     "translation": "Заява про джерело, а не твердження: матеріали ICG WG-B Lunar PNT за червень 2024 (unoosa.org, LunarPNT_Jun24_01_04.pdf, джерело S3 дослідження) описують лабораторію місячної опорної шкали часу при станції з цільовим рівнем часу порядку наносекунд. Kshana наводить цю ціль лише для контексту; вона її не приймає, і ніщо в цьому блоці не показує, що будь-який реальний годинник станції її досягає."
+    },
+    "iq::labfit::iqfit::STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "MODELLED: every fitted number describes the open receiver (the named loop design and front-end chain) on the recordings it was given, fitted to the campaign's scored results. It is not a measurement of any other receiver. Predictions are labelled PREDICTION, with the nearest tested recording and the distance outside the tested conditions.",
+     "translation": "MODELLED: кожне підігнане число описує відкритий приймач (названу конструкцію петлі та вхідний тракт) на наданих йому записах, підігнане до оцінених результатів кампанії. Це не вимірювання жодного іншого приймача. Прогнози позначено PREDICTION, із найближчим випробуваним записом і відстанню поза випробуваними умовами."
+    },
+    "geometry::STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "Geometry under a stated error model (MODELLED): line-of-sight visibility against the stated skyline, dilution of precision and a Gaussian error ellipse for independent, equal, zero-mean Gaussian range errors of the stated user-equivalent range error. It is not a prediction of a receiver's real error, which also has biases, multipath and non-line-of-sight errors, and it is not an integrity bound. Preset constellations are a representative geometry, not the sky of that date at that place.",
+     "translation": "Геометрія за вказаної моделі похибок (MODELLED): видимість у прямій видимості відносно вказаного горизонту, геометричний чинник DOP та гаусів еліпс похибок для незалежних, рівних, нуль-середніх гаусових похибок дальності із вказаною еквівалентною похибкою дальності користувача. Це не прогноз реальної похибки приймача, яка має також систематичні похибки, багатопроменевість і похибки поза прямою видимістю, і не межа цілісності. Попередньо задані орбітальні угруповання є репрезентативною геометрією, а не небом тієї дати в тому місці."
+    },
+    "iq::campaign::report::ROC_STATEMENT": {
+     "legal": true,
+     "native_review": true,
+     "en": "MODELLED: window-level ROC of each monitor on the recordings given. Each stated event window is a positive and each roc_window_s window outside the events a negative; a window counts at a threshold when the monitor's test statistic reaches it in the window. P_fa is per negative window, not per test.",
+     "translation": "MODELLED: ROC на рівні вікон для кожного монітора за наданими записами. Кожне вказане вікно події є позитивним, а кожне вікно roc_window_s поза подіями — негативним; вікно зараховується на порозі, коли тестова статистика монітора досягає його у вікні. P_fa — на негативне вікно, а не на тест."
+    }
+   }
   }
  },
  "notes": "Standard technical terminology only; no political content.",
