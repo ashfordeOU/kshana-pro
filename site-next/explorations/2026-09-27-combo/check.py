@@ -534,6 +534,12 @@ def run_checks(override=None):
     # 17 engine version ---------------------------------------------------------------------------
     import gzip
     bad, nver = [], 0
+    # The one remaining allowance, by published file and by its exact wording (not a phrase-wide exemption): CAPABILITY.md's
+    # dated revision line for 0.38.0. It is a true historical record of what the engine was on that date, so it keeps the
+    # version it states; every other 0.38.0 statement in the docs has been restated at the current version.
+    HISTORIC = [
+        (r"^(docs/capability-map\.html|llms-full\.txt)$", r"2026-10-19: engine 0\.38\.0, 87 kinds \(new in 0\.38\.0"),
+    ]
     for p in PUB:
         if p.endswith(TEXT_EXT): t = get(p)
         elif p.endswith(".gz") and not (override and p in override): t = gzip.open(os.path.join(HERE, p)).read().decode("utf-8", "replace")
@@ -541,7 +547,7 @@ def run_checks(override=None):
         else: continue
         for v, ctx in version_claims(p, t):
             nver += 1
-            if v != ver: bad.append((p, f"shows {v}, the engine is {ver}: …{ctx}…"))
+            if v != ver and not any(re.search(fp, p) and re.search(cp, ctx) for fp, cp in HISTORIC): bad.append((p, f"shows {v}, the engine is {ver}: …{ctx}…"))
     if nver < 100: bad.append(("site", f"only {nver} engine versions found; the checker is not seeing them"))
     if bad: fails.append(("17 engine version", bad[:15] + ([f"... {len(bad) - 15} more"] if len(bad) > 15 else [])))
     # 18 changelog Pro versions -------------------------------------------------------------------
