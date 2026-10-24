@@ -1,0 +1,37 @@
+🛰️ Your GNSS receiver "passed" the jamming test. Who says, and can you check it?
+
+Kshana 0.38 and 0.39 turn a published interference test plan into a neutral, signed scorecard for any receiver. Every score in the video is a real run of the Kshana 0.39.0 engine, on a synthetic receiver log.
+
+📋 The plan is the published Jammertest 2025 test plan (Norwegian Public Roads Administration, MIT licence). Kshana reads it as scheduled truth for Test Area 2 and scores the log test by test:
+
+→ 1.1.13: detected, 10 s after the planned start
+→ 1.1.4 and 1.1.8: late, by 30 s and 150 s
+→ 1.1.12: missed, no alarm at all
+→ 2 false-alarm runs in clean time, and recovery within 1 s of each slot ending
+
+🔏 The whole scorecard ships as a signed evidence pack. "kshana evidence verify" says ok: true. Change one byte of the summary and it fails, with the file named.
+
+What else is new since our last post:
+✅ Receiver self-report beside Kshana's own monitors. On one synthetic log the receiver raised its first flag at 120 s and Kshana its first alarm at 80 s; they agreed on 11 epochs and disagreed on 17. Neither is ground truth, and Kshana says so.
+✅ A holdover test for timing hardware against ITU-T masks: baseline masks pass, holdover fails the 100 ns envelope (299 ns worst case), and the clock recovers.
+✅ Standards packs that map results to the DHS Resilient PNT framework, IMO and ICAO guidance, including the requirements that are not met and those that need your input.
+✅ kshana-bench, a public benchmark for interference detectors, with its misses printed in red. Bar A2 (AUC 0.766 against 0.80), D1 and R1 were not met, and none was loosened.
+✅ GNSS for spacecraft above the GNSS constellations, and the Moon's orbit and surface as navigation infrastructure. All modelled, with the bars we missed stated beside the ones we met.
+✅ A sixth paper: "Cislunar navigation is an observability problem" (arXiv:2610.23871).
+
+The evidence ledger now holds 388 rows: 176 checked against independent external references, 208 labelled openly as modelled, 4 awaiting partner data. No black boxes.
+
+Kshana (क्षण, Sanskrit for "the precise instant") is open source (AGPL-3.0) and runs in your browser.
+
+👉 Receiver makers, test houses and GNSS resilience teams: score your own log against the plan, and tell me where Kshana's verdict disagrees with yours. I read every comment.
+
+💬 Which matters more to you in a receiver test: missing a jammer, or crying wolf?
+
+🔗 Try it: https://kshana.dev
+💻 Code: https://github.com/ashfordeOU/kshana
+🚀 Kshana Pro: https://kshana.dev/editions.html
+📄 Cite: DOI 10.5281/zenodo.20528627
+
+Synthetic receiver logs; jamming windows were written for this demonstration. Scores are against the scheduled test slots, not recorded on-air times. Not endorsed by the Norwegian Public Roads Administration, Nkom or the event organisers. Advisory software, not type-approved navigation equipment.
+
+#GNSS #GPS #GNSSjamming #GNSSspoofing #ResilientPNT #PNT #Jammertest #Timing #Navigation #Cybersecurity #SpaceTech #OpenSource #Galileo #Moon
