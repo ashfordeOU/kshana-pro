@@ -195,5 +195,32 @@
     "decimal_separator": ",",
     "thousands_separator": ". (period); Intl does not group 4-digit numbers in es",
     "numbers": "Numbers and units are formatted by Intl at runtime through Fluent placeables ({ NUMBER($n) }); never write a number into a translated string. Where a count changes the wording, use a Fluent selector over the plural categories above, not string concatenation."
+  },
+  "forbidden_translations": {
+    "rule": "Never use these as an affirmative claim about Kshana, a run, a result, a scenario, a pack or a user's system. Negated use is allowed and required where the English is negated (for example 'not type-approved', 'not a certification'). The word 'validated' is a tier word: VALIDATED stays English, and no translation of 'validated' is used as a claim.",
+    "certified": [
+      "certificado",
+      "certificación"
+    ],
+    "conformant": [
+      "conforme",
+      "conformidad"
+    ],
+    "compliant": [
+      "cumple",
+      "cumple con",
+      "cumplimiento",
+      "compatible con la norma"
+    ],
+    "approved": [
+      "aprobado",
+      "homologado",
+      "autorizado",
+      "aprobación"
+    ],
+    "use_instead": {
+      "supports evidence for": "aporta evidencias a favor de"
+    },
+    "note": "Draft by an AI model, not native-reviewed. Where one word covers two English words (for example conform/conforme for both 'conformant' and 'compliant'), both are forbidden."
   }
 }

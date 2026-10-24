@@ -194,5 +194,31 @@
     "decimal_separator": ",",
     "thousands_separator": "U+00A0 no-break space",
     "numbers": "Numbers and units are formatted by Intl at runtime through Fluent placeables ({ NUMBER($n) }); never write a number into a translated string. Where a count changes the wording, use a Fluent selector over the plural categories above, not string concatenation."
+  },
+  "forbidden_translations": {
+    "rule": "Never use these as an affirmative claim about Kshana, a run, a result, a scenario, a pack or a user's system. Negated use is allowed and required where the English is negated (for example 'not type-approved', 'not a certification'). The word 'validated' is a tier word: VALIDATED stays English, and no translation of 'validated' is used as a claim.",
+    "certified": [
+      "certifierad",
+      "certifiering"
+    ],
+    "conformant": [
+      "överensstämmer med",
+      "konform",
+      "överensstämmelse"
+    ],
+    "compliant": [
+      "uppfyller kraven",
+      "efterlever",
+      "compliant"
+    ],
+    "approved": [
+      "godkänd",
+      "typgodkänd",
+      "godkännande"
+    ],
+    "use_instead": {
+      "supports evidence for": "ger belägg för"
+    },
+    "note": "Draft by an AI model, not native-reviewed. Where one word covers two English words (for example conform/conforme for both 'conformant' and 'compliant'), both are forbidden."
   }
 }
