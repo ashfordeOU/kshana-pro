@@ -1,0 +1,106 @@
+{
+  "lang": "de",
+  "status": "DRAFT machine translation by an AI model; NOT reviewed by a native speaker. English is the reference.",
+  "never_translate": [
+    "Kshana",
+    "scenario kind names (for example clock-holdover, earth-gnss-lunar, lunar-infrastructure)",
+    "command and flag names (kshana, --check, --study, bench, receiver-trust)",
+    "file names, paths and extensions",
+    "file formats (TOML, JSON, CSV, RINEX, SP3, NMEA 0183, SigMF, CCSDS OEM, UBX, SBF)",
+    "units and unit symbols (m, s, ns, dB-Hz, m/s^2)",
+    "code spans, field names and numbers",
+    "standard and document identifiers (IEC 61108, IEC 61162, ITU-T G.8272, RTCM, LunaNet)",
+    "tier and verdict words, see keep_english"
+  ],
+  "keep_english": {
+    "VALIDATED": {
+      "keep": "VALIDATED",
+      "gloss_on_first_use": "gegen eine unabhängige externe Referenz geprüft"
+    },
+    "MODELLED": {
+      "keep": "MODELLED",
+      "gloss_on_first_use": "aus einem Modell berechnet, ohne externe Referenz"
+    },
+    "PARTNER": {
+      "keep": "PARTNER",
+      "gloss_on_first_use": "Sache eines Partners; Kshana stellt dies nicht bereit"
+    },
+    "NOT MET": {
+      "keep": "NOT MET",
+      "gloss_on_first_use": "das vorab festgelegte Ziel wurde verfehlt"
+    },
+    "MET": {
+      "keep": "MET",
+      "gloss_on_first_use": "das vorab festgelegte Ziel wurde erreicht"
+    },
+    "EXPLORATORY": {
+      "keep": "EXPLORATORY",
+      "gloss_on_first_use": "explorativ: nicht vorab als Schlussfolgerung angelegt"
+    }
+  },
+  "keep_english_acronyms": [
+    "GNSS",
+    "PNT",
+    "RAIM",
+    "ARAIM",
+    "NMEA",
+    "CUSUM",
+    "AUC",
+    "ROC",
+    "LAMBDA",
+    "DOP"
+  ],
+  "terms": {
+    "scenario": "Szenario",
+    "evidence pack": "Nachweispaket",
+    "ledger": "Register",
+    "verification matrix": "Verifikationsmatrix",
+    "interference": "Störung",
+    "integrity": "Integrität",
+    "trust score": "Vertrauenswert",
+    "receiver": "Empfänger",
+    "clock": "Uhr",
+    "timing": "Zeitgebung",
+    "orbit determination": "Bahnbestimmung",
+    "ephemeris": "Ephemeride",
+    "carrier phase": "Trägerphase",
+    "integer ambiguity": "ganzzahlige Mehrdeutigkeit",
+    "Love number": "Love-Zahl",
+    "libration": "Libration",
+    "reference frame": "Bezugssystem",
+    "pre-registration": "Vorregistrierung",
+    "oracle (independent reference)": "unabhängige Referenz",
+    "bar (pre-registered threshold)": "Zielwert (vorab festgelegt)",
+    "baseline": "Basislinie",
+    "holdout (sealed set)": "zurückgehaltener Datensatz",
+    "advisory": "Hinweis (beratend)",
+    "type-approved": "typzugelassen",
+    "machine translation": "maschinelle Übersetzung",
+    "native speaker": "Muttersprachler",
+    "reviewed": "geprüft"
+  },
+  "terms_kept_in_english_by_field_usage": [
+    "holdover",
+    "jamming",
+    "meaconing",
+    "spoofing"
+  ],
+  "advisory": {
+    "english": {
+      "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
+      "general": "Advisory software, not type-approved equipment.",
+      "research_test": "Advisory software for research, simulation and test. It is not type-approved equipment and does not rate or approve a receiver, a clock or a laboratory.",
+      "short": "Advisory only: not type-approved navigation equipment; the operator remains responsible. Evidence tier: MODELLED."
+    },
+    "translation": {
+      "maritime": "Beratende Software, keine typzugelassene Navigationsausrüstung (IEC 61108, IEC 61162): Der Betreiber bleibt für die Navigation des Schiffes verantwortlich.",
+      "general": "Beratende Software, kein typzugelassenes Gerät.",
+      "research_test": "Beratende Software für Forschung, Simulation und Test. Sie ist kein typzugelassenes Gerät und bewertet oder genehmigt weder einen Empfänger noch eine Uhr noch ein Labor.",
+      "short": "Nur beratend: keine typzugelassene Navigationsausrüstung; der Betreiber bleibt verantwortlich. Evidenzstufe: MODELLED."
+    }
+  },
+  "machine_translation_notice": {
+    "english": "Machine translation, not reviewed by a native speaker. English is the reference.",
+    "translation": "Maschinelle Übersetzung, nicht von einem Muttersprachler geprüft. Englisch ist die maßgebliche Fassung."
+  }
+}

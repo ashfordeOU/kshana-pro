@@ -1,0 +1,106 @@
+{
+  "lang": "sv",
+  "status": "DRAFT machine translation by an AI model; NOT reviewed by a native speaker. English is the reference.",
+  "never_translate": [
+    "Kshana",
+    "scenario kind names (for example clock-holdover, earth-gnss-lunar, lunar-infrastructure)",
+    "command and flag names (kshana, --check, --study, bench, receiver-trust)",
+    "file names, paths and extensions",
+    "file formats (TOML, JSON, CSV, RINEX, SP3, NMEA 0183, SigMF, CCSDS OEM, UBX, SBF)",
+    "units and unit symbols (m, s, ns, dB-Hz, m/s^2)",
+    "code spans, field names and numbers",
+    "standard and document identifiers (IEC 61108, IEC 61162, ITU-T G.8272, RTCM, LunaNet)",
+    "tier and verdict words, see keep_english"
+  ],
+  "keep_english": {
+    "VALIDATED": {
+      "keep": "VALIDATED",
+      "gloss_on_first_use": "prövad mot en oberoende extern referens"
+    },
+    "MODELLED": {
+      "keep": "MODELLED",
+      "gloss_on_first_use": "beräknad ur en modell, utan extern referens"
+    },
+    "PARTNER": {
+      "keep": "PARTNER",
+      "gloss_on_first_use": "hos en partner; Kshana tillhandahåller det inte"
+    },
+    "NOT MET": {
+      "keep": "NOT MET",
+      "gloss_on_first_use": "det i förväg fastställda målet nåddes inte"
+    },
+    "MET": {
+      "keep": "MET",
+      "gloss_on_first_use": "det i förväg fastställda målet nåddes"
+    },
+    "EXPLORATORY": {
+      "keep": "EXPLORATORY",
+      "gloss_on_first_use": "utforskande: inte i förväg avsedd som slutsats"
+    }
+  },
+  "keep_english_acronyms": [
+    "GNSS",
+    "PNT",
+    "RAIM",
+    "ARAIM",
+    "NMEA",
+    "CUSUM",
+    "AUC",
+    "ROC",
+    "LAMBDA",
+    "DOP"
+  ],
+  "terms": {
+    "scenario": "scenario",
+    "evidence pack": "bevispaket",
+    "ledger": "register",
+    "verification matrix": "verifieringsmatris",
+    "interference": "störning",
+    "integrity": "integritet",
+    "trust score": "förtroendepoäng",
+    "receiver": "mottagare",
+    "clock": "klocka",
+    "timing": "tidssynkronisering",
+    "orbit determination": "banbestämning",
+    "ephemeris": "efemerid",
+    "carrier phase": "bärvågsfas",
+    "integer ambiguity": "heltalsosäkerhet",
+    "Love number": "Love-tal",
+    "libration": "libration",
+    "reference frame": "referenssystem",
+    "pre-registration": "förhandsregistrering",
+    "oracle (independent reference)": "oberoende referens",
+    "bar (pre-registered threshold)": "tröskel (fastställd i förväg)",
+    "baseline": "baslinje",
+    "holdout (sealed set)": "undanhållen datamängd",
+    "advisory": "rådgivande",
+    "type-approved": "typgodkänd",
+    "machine translation": "maskinöversättning",
+    "native speaker": "modersmålstalare",
+    "reviewed": "granskad"
+  },
+  "terms_kept_in_english_by_field_usage": [
+    "holdover",
+    "jamming",
+    "meaconing",
+    "spoofing"
+  ],
+  "advisory": {
+    "english": {
+      "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
+      "general": "Advisory software, not type-approved equipment.",
+      "research_test": "Advisory software for research, simulation and test. It is not type-approved equipment and does not rate or approve a receiver, a clock or a laboratory.",
+      "short": "Advisory only: not type-approved navigation equipment; the operator remains responsible. Evidence tier: MODELLED."
+    },
+    "translation": {
+      "maritime": "Rådgivande programvara, inte typgodkänd navigationsutrustning (IEC 61108, IEC 61162): operatören är fortsatt ansvarig för fartygets navigering.",
+      "general": "Rådgivande programvara, inte typgodkänd utrustning.",
+      "research_test": "Rådgivande programvara för forskning, simulering och test. Den är inte typgodkänd utrustning och betygsätter eller godkänner varken en mottagare, en klocka eller ett laboratorium.",
+      "short": "Endast rådgivande: inte typgodkänd navigationsutrustning; operatören är fortsatt ansvarig. Evidensnivå: MODELLED."
+    }
+  },
+  "machine_translation_notice": {
+    "english": "Machine translation, not reviewed by a native speaker. English is the reference.",
+    "translation": "Maskinöversättning, inte granskad av en modersmålstalare. Engelska är referensen."
+  }
+}

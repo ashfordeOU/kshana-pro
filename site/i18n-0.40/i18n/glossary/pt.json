@@ -1,0 +1,106 @@
+{
+  "lang": "pt",
+  "status": "DRAFT machine translation by an AI model; NOT reviewed by a native speaker. English is the reference.",
+  "never_translate": [
+    "Kshana",
+    "scenario kind names (for example clock-holdover, earth-gnss-lunar, lunar-infrastructure)",
+    "command and flag names (kshana, --check, --study, bench, receiver-trust)",
+    "file names, paths and extensions",
+    "file formats (TOML, JSON, CSV, RINEX, SP3, NMEA 0183, SigMF, CCSDS OEM, UBX, SBF)",
+    "units and unit symbols (m, s, ns, dB-Hz, m/s^2)",
+    "code spans, field names and numbers",
+    "standard and document identifiers (IEC 61108, IEC 61162, ITU-T G.8272, RTCM, LunaNet)",
+    "tier and verdict words, see keep_english"
+  ],
+  "keep_english": {
+    "VALIDATED": {
+      "keep": "VALIDATED",
+      "gloss_on_first_use": "verificado face a uma referência externa independente"
+    },
+    "MODELLED": {
+      "keep": "MODELLED",
+      "gloss_on_first_use": "calculado a partir de um modelo, sem referência externa"
+    },
+    "PARTNER": {
+      "keep": "PARTNER",
+      "gloss_on_first_use": "a cargo de um parceiro; o Kshana não o fornece"
+    },
+    "NOT MET": {
+      "keep": "NOT MET",
+      "gloss_on_first_use": "o objetivo fixado antecipadamente não foi atingido"
+    },
+    "MET": {
+      "keep": "MET",
+      "gloss_on_first_use": "o objetivo fixado antecipadamente foi atingido"
+    },
+    "EXPLORATORY": {
+      "keep": "EXPLORATORY",
+      "gloss_on_first_use": "exploratório: não concebido antecipadamente para concluir"
+    }
+  },
+  "keep_english_acronyms": [
+    "GNSS",
+    "PNT",
+    "RAIM",
+    "ARAIM",
+    "NMEA",
+    "CUSUM",
+    "AUC",
+    "ROC",
+    "LAMBDA",
+    "DOP"
+  ],
+  "terms": {
+    "scenario": "cenário",
+    "evidence pack": "pacote de evidências",
+    "ledger": "registro",
+    "verification matrix": "matriz de verificação",
+    "interference": "interferência",
+    "integrity": "integridade",
+    "trust score": "pontuação de confiança",
+    "receiver": "receptor",
+    "clock": "relógio",
+    "timing": "temporização",
+    "orbit determination": "determinação de órbita",
+    "ephemeris": "efemérides",
+    "carrier phase": "fase da portadora",
+    "integer ambiguity": "ambiguidade inteira",
+    "Love number": "número de Love",
+    "libration": "libração",
+    "reference frame": "referencial",
+    "pre-registration": "pré-registro",
+    "oracle (independent reference)": "referência independente",
+    "bar (pre-registered threshold)": "limiar (fixado antecipadamente)",
+    "baseline": "linha de base",
+    "holdout (sealed set)": "conjunto reservado",
+    "advisory": "consultivo",
+    "type-approved": "homologado",
+    "machine translation": "tradução automática",
+    "native speaker": "falante nativo",
+    "reviewed": "revista"
+  },
+  "terms_kept_in_english_by_field_usage": [
+    "holdover",
+    "jamming",
+    "meaconing",
+    "spoofing"
+  ],
+  "advisory": {
+    "english": {
+      "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
+      "general": "Advisory software, not type-approved equipment.",
+      "research_test": "Advisory software for research, simulation and test. It is not type-approved equipment and does not rate or approve a receiver, a clock or a laboratory.",
+      "short": "Advisory only: not type-approved navigation equipment; the operator remains responsible. Evidence tier: MODELLED."
+    },
+    "translation": {
+      "maritime": "Software de caráter consultivo, não um equipamento de navegação homologado (IEC 61108, IEC 61162): o operador continua responsável pela navegação da embarcação.",
+      "general": "Software de caráter consultivo, não um equipamento homologado.",
+      "research_test": "Software de caráter consultivo para investigação, simulação e ensaio. Não é um equipamento homologado e não classifica nem aprova um receptor, um relógio ou um laboratório.",
+      "short": "Apenas consultivo: não é um equipamento de navegação homologado; o operador continua responsável. Nível de evidência: MODELLED."
+    }
+  },
+  "machine_translation_notice": {
+    "english": "Machine translation, not reviewed by a native speaker. English is the reference.",
+    "translation": "Tradução automática, não revista por um falante nativo. O inglês é a referência."
+  }
+}
