@@ -257,17 +257,41 @@
    "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
    "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
    "short": "Advisory: not type-approved navigation equipment.",
-   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
-   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel."
   },
   "zh-Hans": {
    "general": "仅供参考：研究与工程工具的分析输出，不是经型式认可的导航设备，也不是生命安全服务。",
    "general_long": "仅供参考：研究与工程工具的分析输出，不是经型式认可的导航设备，也不是生命安全服务；不得作为任何导航或安全决策的唯一依据。",
    "short": "仅供参考：不是经型式认可的导航设备。",
-   "maritime": "仅供参考的软件，不是经型式认可的导航设备（IEC 61108、IEC 61162）：船舶航行的责任仍由操作人员承担。",
-   "aviation_proposed": "仅供参考：研究与工程工具的分析输出，不是经适航认可的航空电子设备，也不是生命安全服务；飞行责任仍由机长承担。"
+   "maritime": "仅供参考的软件，不是经型式认可的导航设备（IEC 61108、IEC 61162）：船舶航行的责任仍由操作人员承担。"
   },
-  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+  "note": "Pages use only the four variants above (general, general_long, short, maritime); no aviation variant exists. The 'engine' block lists the English texts of the engine's own advisory constants and fields, keyed by Rust path; entries written '=variant' are identical to that variant.",
+  "engine": {
+   "en": {
+    "osnma::ADVISORY": "Advisory: this is analysis and monitoring output and not type-approved navigation equipment. The authentication status reported here is not a navigation integrity service and must not be the sole basis for any navigation or safety decision.",
+    "iq::lunanet_afs::ADVISORY": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service. It checks a symbol stream against one edition of a published specification and says nothing about any LunaNet node or service.",
+    "iq::labfit::iqfit::ADVISORY": "Advisory: analysis output, not type-approved navigation equipment; predictions are model outputs with stated error, not guarantees.",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "Advisory only: Kshana is not type-approved navigation equipment (IEC 61108, IEC 61162) and the operator remains responsible for the vessel. Evidence tier: MODELLED (the monitors' thresholds are stated inputs; detection performance on real interference is not asserted).",
+    "bench::NOTICE": "Advisory: modelled or measured against stated references, not an approval, certification or statement of conformance. A score describes a log or corpus, never a product.",
+    "optical_atmosphere_scenario::advisory (result field)": "Advisory analysis only: not a certified availability, integrity or navigation product, and not a prediction for any real site unless its climate inputs come from a stated dataset.",
+    "telemetry::mqtt::advisory (message field)": "Advisory software, not type-approved navigation or timing equipment."
+   },
+   "zh-Hans": {
+    "osnma::ADVISORY": "仅供参考：这是分析与监测输出，不是经型式认可的导航设备。此处报告的认证状态不是导航完好性服务，不得作为任何导航或安全决策的唯一依据。",
+    "iq::lunanet_afs::ADVISORY": "仅供参考：研究与工程工具的分析输出，不是经型式认可的导航设备，也不是生命安全服务。它依据已发布规范的某一版本检查符号流，对任何LunaNet节点或服务不作任何说明。",
+    "iq::labfit::iqfit::ADVISORY": "仅供参考：分析输出，不是经型式认可的导航设备；预测是带有明示误差的模型输出，不是保证。",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "仅供参考：Kshana不是经型式认可的导航设备（IEC 61108、IEC 61162），船舶的责任仍由操作人员承担。证据等级：MODELLED（监测器的阈值是明示输入；不断言对真实干扰的检测性能）。",
+    "bench::NOTICE": "仅供参考：依据明示的参照进行建模或测量，不是批准、认证或符合性声明。评分描述的是日志或语料，绝非产品。",
+    "optical_atmosphere_scenario::advisory (result field)": "仅供参考的分析：不是经认证的可用性、完好性或导航产品，也不是对任何真实地点的预测，除非其气候输入来自明示的数据集。",
+    "telemetry::mqtt::advisory (message field)": "仅供参考的软件，不是经型式认可的导航或授时设备。"
+   }
+  }
  },
  "notes": "Terms follow the Chinese national GNSS literature (BeiDou usage: 完好性, 守时, 整周模糊度, 保护级); tier words stay in English.",
  "style": {

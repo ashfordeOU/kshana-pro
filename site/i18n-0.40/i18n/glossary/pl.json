@@ -258,17 +258,41 @@
    "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
    "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
    "short": "Advisory: not type-approved navigation equipment.",
-   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
-   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel."
   },
   "pl": {
    "general": "Wyłącznie doradczo: wynik analizy z narzędzia badawczo-inżynieryjnego; nie jest to sprzęt nawigacyjny z zatwierdzeniem typu ani usługa bezpieczeństwa życia.",
    "general_long": "Wyłącznie doradczo: wynik analizy z narzędzia badawczo-inżynieryjnego; nie jest to sprzęt nawigacyjny z zatwierdzeniem typu ani usługa bezpieczeństwa życia; nie może być jedyną podstawą żadnej decyzji nawigacyjnej ani dotyczącej bezpieczeństwa.",
    "short": "Wyłącznie doradczo: nie jest to sprzęt nawigacyjny z zatwierdzeniem typu.",
-   "maritime": "Oprogramowanie wyłącznie doradcze, nie jest to sprzęt nawigacyjny z zatwierdzeniem typu (IEC 61108, IEC 61162): za nawigację statku odpowiada nadal operator.",
-   "aviation_proposed": "Wyłącznie doradczo: wynik analizy z narzędzia badawczo-inżynieryjnego; nie jest to wyposażenie pokładowe z potwierdzoną zdatnością do lotu ani usługa bezpieczeństwa życia; za lot odpowiada nadal dowódca statku powietrznego."
+   "maritime": "Oprogramowanie wyłącznie doradcze, nie jest to sprzęt nawigacyjny z zatwierdzeniem typu (IEC 61108, IEC 61162): za nawigację statku odpowiada nadal operator."
   },
-  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+  "note": "Pages use only the four variants above (general, general_long, short, maritime); no aviation variant exists. The 'engine' block lists the English texts of the engine's own advisory constants and fields, keyed by Rust path; entries written '=variant' are identical to that variant.",
+  "engine": {
+   "en": {
+    "osnma::ADVISORY": "Advisory: this is analysis and monitoring output and not type-approved navigation equipment. The authentication status reported here is not a navigation integrity service and must not be the sole basis for any navigation or safety decision.",
+    "iq::lunanet_afs::ADVISORY": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service. It checks a symbol stream against one edition of a published specification and says nothing about any LunaNet node or service.",
+    "iq::labfit::iqfit::ADVISORY": "Advisory: analysis output, not type-approved navigation equipment; predictions are model outputs with stated error, not guarantees.",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "Advisory only: Kshana is not type-approved navigation equipment (IEC 61108, IEC 61162) and the operator remains responsible for the vessel. Evidence tier: MODELLED (the monitors' thresholds are stated inputs; detection performance on real interference is not asserted).",
+    "bench::NOTICE": "Advisory: modelled or measured against stated references, not an approval, certification or statement of conformance. A score describes a log or corpus, never a product.",
+    "optical_atmosphere_scenario::advisory (result field)": "Advisory analysis only: not a certified availability, integrity or navigation product, and not a prediction for any real site unless its climate inputs come from a stated dataset.",
+    "telemetry::mqtt::advisory (message field)": "Advisory software, not type-approved navigation or timing equipment."
+   },
+   "pl": {
+    "osnma::ADVISORY": "Wyłącznie doradczo: to wynik analizy i monitorowania, a nie sprzęt nawigacyjny z zatwierdzeniem typu. Podany tu stan uwierzytelniania nie jest usługą integralności nawigacji i nie może być jedyną podstawą żadnej decyzji nawigacyjnej ani dotyczącej bezpieczeństwa.",
+    "iq::lunanet_afs::ADVISORY": "Wyłącznie doradczo: wynik analizy z narzędzia badawczo-inżynieryjnego; nie jest to sprzęt nawigacyjny z zatwierdzeniem typu ani usługa bezpieczeństwa życia. Sprawdza strumień symboli względem jednej edycji opublikowanej specyfikacji i nic nie mówi o żadnym węźle ani usłudze LunaNet.",
+    "iq::labfit::iqfit::ADVISORY": "Wyłącznie doradczo: wynik analizy, nie jest to sprzęt nawigacyjny z zatwierdzeniem typu; prognozy są wynikami modelu ze wskazanym błędem, a nie gwarancjami.",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "Wyłącznie doradczo: Kshana nie jest sprzętem nawigacyjnym z zatwierdzeniem typu (IEC 61108, IEC 61162), a za statek odpowiada nadal operator. Poziom dowodów: MODELLED (progi monitorów są podanymi danymi wejściowymi; skuteczność wykrywania rzeczywistych zakłóceń nie jest przedmiotem twierdzenia).",
+    "bench::NOTICE": "Wyłącznie doradczo: modelowane lub mierzone względem podanych wzorców; nie jest to zatwierdzenie, certyfikacja ani oświadczenie o zgodności. Wynik opisuje log lub korpus, nigdy produkt.",
+    "optical_atmosphere_scenario::advisory (result field)": "Wyłącznie analiza doradcza: nie jest to certyfikowany produkt dostępności, integralności ani nawigacji i nie jest to prognoza dla żadnego rzeczywistego miejsca, chyba że dane klimatyczne pochodzą z podanego zbioru danych.",
+    "telemetry::mqtt::advisory (message field)": "Oprogramowanie wyłącznie doradcze, nie jest to sprzęt nawigacyjny ani czasowy z zatwierdzeniem typu."
+   }
+  }
  },
  "notes": "",
  "style": {

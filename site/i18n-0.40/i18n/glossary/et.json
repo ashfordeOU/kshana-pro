@@ -257,17 +257,41 @@
    "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
    "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
    "short": "Advisory: not type-approved navigation equipment.",
-   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
-   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel."
   },
   "et": {
    "general": "Nõuandev: uurimis- ja inseneeriatööriista analüüsitulemus; mitte tüübikinnitust omav navigatsiooniseade ega inimelu ohutusega seotud teenus.",
    "general_long": "Nõuandev: uurimis- ja inseneeriatööriista analüüsitulemus; mitte tüübikinnitust omav navigatsiooniseade ega inimelu ohutusega seotud teenus; seda ei tohi kasutada ainsa alusena ühegi navigatsiooni- ega ohutusotsuse tegemisel.",
    "short": "Nõuandev: mitte tüübikinnitust omav navigatsiooniseade.",
-   "maritime": "Nõuandev tarkvara, mitte tüübikinnitust omav navigatsiooniseade (IEC 61108, IEC 61162): laeva navigeerimise eest vastutab jätkuvalt operaator.",
-   "aviation_proposed": "Nõuandev: uurimis- ja inseneeriatööriista analüüsitulemus; mitte lennukõlblikkuse kinnitust omav avioonika ega inimelu ohutusega seotud teenus; lennu eest vastutab jätkuvalt õhusõiduki kapten."
+   "maritime": "Nõuandev tarkvara, mitte tüübikinnitust omav navigatsiooniseade (IEC 61108, IEC 61162): laeva navigeerimise eest vastutab jätkuvalt operaator."
   },
-  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+  "note": "Pages use only the four variants above (general, general_long, short, maritime); no aviation variant exists. The 'engine' block lists the English texts of the engine's own advisory constants and fields, keyed by Rust path; entries written '=variant' are identical to that variant.",
+  "engine": {
+   "en": {
+    "osnma::ADVISORY": "Advisory: this is analysis and monitoring output and not type-approved navigation equipment. The authentication status reported here is not a navigation integrity service and must not be the sole basis for any navigation or safety decision.",
+    "iq::lunanet_afs::ADVISORY": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service. It checks a symbol stream against one edition of a published specification and says nothing about any LunaNet node or service.",
+    "iq::labfit::iqfit::ADVISORY": "Advisory: analysis output, not type-approved navigation equipment; predictions are model outputs with stated error, not guarantees.",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "Advisory only: Kshana is not type-approved navigation equipment (IEC 61108, IEC 61162) and the operator remains responsible for the vessel. Evidence tier: MODELLED (the monitors' thresholds are stated inputs; detection performance on real interference is not asserted).",
+    "bench::NOTICE": "Advisory: modelled or measured against stated references, not an approval, certification or statement of conformance. A score describes a log or corpus, never a product.",
+    "optical_atmosphere_scenario::advisory (result field)": "Advisory analysis only: not a certified availability, integrity or navigation product, and not a prediction for any real site unless its climate inputs come from a stated dataset.",
+    "telemetry::mqtt::advisory (message field)": "Advisory software, not type-approved navigation or timing equipment."
+   },
+   "et": {
+    "osnma::ADVISORY": "Nõuandev: see on analüüsi- ja seiretulemus, mitte tüübikinnitust omav navigatsiooniseade. Siin esitatud autentimise olek ei ole navigatsiooni terviklikkuse teenus ega tohi olla ainus alus ühegi navigatsiooni- ega ohutusotsuse tegemisel.",
+    "iq::lunanet_afs::ADVISORY": "Nõuandev: uurimis- ja inseneeriatööriista analüüsitulemus; mitte tüübikinnitust omav navigatsiooniseade ega inimelu ohutusega seotud teenus. See kontrollib sümbolivoogu avaldatud spetsifikatsiooni ühe väljaande vastu ega ütle midagi ühegi LunaNeti sõlme ega teenuse kohta.",
+    "iq::labfit::iqfit::ADVISORY": "Nõuandev: analüüsitulemus, mitte tüübikinnitust omav navigatsiooniseade; ennustused on mudeli väljundid teatatud veaga, mitte garantiid.",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "Nõuandev: Kshana ei ole tüübikinnitust omav navigatsiooniseade (IEC 61108, IEC 61162) ja laeva eest vastutab jätkuvalt operaator. Tõendustase: MODELLED (monitoride läved on antud sisendid; tuvastamise toimivust tegelike häirete korral ei väideta).",
+    "bench::NOTICE": "Nõuandev: modelleeritud või mõõdetud teatatud etalonide suhtes; mitte heakskiit, sertifitseerimine ega vastavusavaldus. Skoor kirjeldab logi või korpust, mitte kunagi toodet.",
+    "optical_atmosphere_scenario::advisory (result field)": "Ainult nõuandev analüüs: mitte sertifitseeritud saadavuse, terviklikkuse ega navigatsiooni toode ega ennustus ühegi tegeliku koha kohta, kui kliimasisendid ei pärine esitatud andmekogust.",
+    "telemetry::mqtt::advisory (message field)": "Nõuandev tarkvara, mitte tüübikinnitust omav navigatsiooni- ega ajaseade."
+   }
+  }
  },
  "notes": "",
  "style": {

@@ -257,17 +257,41 @@
    "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
    "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
    "short": "Advisory: not type-approved navigation equipment.",
-   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
-   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel."
   },
   "cs": {
    "general": "Pouze poradní charakter: výstup analýzy z výzkumného a inženýrského nástroje; nejde o typově schválené navigační zařízení ani o službu z oblasti bezpečnosti života.",
    "general_long": "Pouze poradní charakter: výstup analýzy z výzkumného a inženýrského nástroje; nejde o typově schválené navigační zařízení ani o službu z oblasti bezpečnosti života; nesmí být jediným podkladem pro žádné rozhodnutí o navigaci ani bezpečnosti.",
    "short": "Pouze poradní charakter: nejde o typově schválené navigační zařízení.",
-   "maritime": "Software pouze poradního charakteru, nikoli typově schválené navigační zařízení (IEC 61108, IEC 61162): za navigaci plavidla zůstává odpovědný provozovatel.",
-   "aviation_proposed": "Pouze poradní charakter: výstup analýzy z výzkumného a inženýrského nástroje; nejde o avioniku s potvrzenou letovou způsobilostí ani o službu z oblasti bezpečnosti života; za let zůstává odpovědný velitel letadla."
+   "maritime": "Software pouze poradního charakteru, nikoli typově schválené navigační zařízení (IEC 61108, IEC 61162): za navigaci plavidla zůstává odpovědný provozovatel."
   },
-  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+  "note": "Pages use only the four variants above (general, general_long, short, maritime); no aviation variant exists. The 'engine' block lists the English texts of the engine's own advisory constants and fields, keyed by Rust path; entries written '=variant' are identical to that variant.",
+  "engine": {
+   "en": {
+    "osnma::ADVISORY": "Advisory: this is analysis and monitoring output and not type-approved navigation equipment. The authentication status reported here is not a navigation integrity service and must not be the sole basis for any navigation or safety decision.",
+    "iq::lunanet_afs::ADVISORY": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service. It checks a symbol stream against one edition of a published specification and says nothing about any LunaNet node or service.",
+    "iq::labfit::iqfit::ADVISORY": "Advisory: analysis output, not type-approved navigation equipment; predictions are model outputs with stated error, not guarantees.",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "Advisory only: Kshana is not type-approved navigation equipment (IEC 61108, IEC 61162) and the operator remains responsible for the vessel. Evidence tier: MODELLED (the monitors' thresholds are stated inputs; detection performance on real interference is not asserted).",
+    "bench::NOTICE": "Advisory: modelled or measured against stated references, not an approval, certification or statement of conformance. A score describes a log or corpus, never a product.",
+    "optical_atmosphere_scenario::advisory (result field)": "Advisory analysis only: not a certified availability, integrity or navigation product, and not a prediction for any real site unless its climate inputs come from a stated dataset.",
+    "telemetry::mqtt::advisory (message field)": "Advisory software, not type-approved navigation or timing equipment."
+   },
+   "cs": {
+    "osnma::ADVISORY": "Pouze poradní charakter: jde o výstup analýzy a monitorování, nikoli o typově schválené navigační zařízení. Zde uvedený stav autentizace není službou integrity navigace a nesmí být jediným podkladem pro žádné rozhodnutí o navigaci ani bezpečnosti.",
+    "iq::lunanet_afs::ADVISORY": "Pouze poradní charakter: výstup analýzy z výzkumného a inženýrského nástroje; nejde o typově schválené navigační zařízení ani o službu z oblasti bezpečnosti života. Kontroluje proud symbolů proti jednomu vydání zveřejněné specifikace a nic neříká o žádném uzlu ani službě LunaNet.",
+    "iq::labfit::iqfit::ADVISORY": "Pouze poradní charakter: výstup analýzy, nejde o typově schválené navigační zařízení; předpovědi jsou výstupy modelu s uvedenou chybou, nikoli záruky.",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "Pouze poradní charakter: Kshana není typově schválené navigační zařízení (IEC 61108, IEC 61162) a za plavidlo zůstává odpovědný provozovatel. Úroveň důkazů: MODELLED (prahy monitorů jsou zadané vstupy; výkonnost detekce na skutečném rušení se netvrdí).",
+    "bench::NOTICE": "Pouze poradní charakter: modelováno nebo měřeno vůči uvedeným referencím; nejde o schválení, certifikaci ani prohlášení o shodě. Skóre popisuje záznam nebo korpus, nikdy produkt.",
+    "optical_atmosphere_scenario::advisory (result field)": "Pouze poradní analýza: nejde o certifikovaný produkt dostupnosti, integrity ani navigace a nejde o předpověď pro žádné skutečné místo, pokud klimatické vstupy nepocházejí z uvedeného souboru dat.",
+    "telemetry::mqtt::advisory (message field)": "Software pouze poradního charakteru, nikoli typově schválené navigační ani časové zařízení."
+   }
+  }
  },
  "notes": "",
  "style": {

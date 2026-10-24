@@ -257,17 +257,41 @@
    "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
    "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
    "short": "Advisory: not type-approved navigation equipment.",
-   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
-   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel."
   },
   "ja": {
    "general": "助言のみ：研究・エンジニアリング用ツールによる解析出力であり、型式承認を受けた航法装置ではなく、人命安全（safety-of-life）サービスでもありません。",
    "general_long": "助言のみ：研究・エンジニアリング用ツールによる解析出力であり、型式承認を受けた航法装置ではなく、人命安全（safety-of-life）サービスでもありません。航法または安全に関するいかなる判断の唯一の根拠としても使用してはなりません。",
    "short": "助言のみ：型式承認を受けた航法装置ではありません。",
-   "maritime": "助言用ソフトウェアであり、型式承認を受けた航法装置（IEC 61108、IEC 61162）ではありません。船舶の航行の責任は引き続き運用者にあります。",
-   "aviation_proposed": "助言のみ：研究・エンジニアリング用ツールによる解析出力であり、耐空承認を受けた航空電子機器ではなく、人命安全（safety-of-life）サービスでもありません。飛行の責任は引き続き機長にあります。"
+   "maritime": "助言用ソフトウェアであり、型式承認を受けた航法装置（IEC 61108、IEC 61162）ではありません。船舶の航行の責任は引き続き運用者にあります。"
   },
-  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+  "note": "Pages use only the four variants above (general, general_long, short, maritime); no aviation variant exists. The 'engine' block lists the English texts of the engine's own advisory constants and fields, keyed by Rust path; entries written '=variant' are identical to that variant.",
+  "engine": {
+   "en": {
+    "osnma::ADVISORY": "Advisory: this is analysis and monitoring output and not type-approved navigation equipment. The authentication status reported here is not a navigation integrity service and must not be the sole basis for any navigation or safety decision.",
+    "iq::lunanet_afs::ADVISORY": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service. It checks a symbol stream against one edition of a published specification and says nothing about any LunaNet node or service.",
+    "iq::labfit::iqfit::ADVISORY": "Advisory: analysis output, not type-approved navigation equipment; predictions are model outputs with stated error, not guarantees.",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "Advisory only: Kshana is not type-approved navigation equipment (IEC 61108, IEC 61162) and the operator remains responsible for the vessel. Evidence tier: MODELLED (the monitors' thresholds are stated inputs; detection performance on real interference is not asserted).",
+    "bench::NOTICE": "Advisory: modelled or measured against stated references, not an approval, certification or statement of conformance. A score describes a log or corpus, never a product.",
+    "optical_atmosphere_scenario::advisory (result field)": "Advisory analysis only: not a certified availability, integrity or navigation product, and not a prediction for any real site unless its climate inputs come from a stated dataset.",
+    "telemetry::mqtt::advisory (message field)": "Advisory software, not type-approved navigation or timing equipment."
+   },
+   "ja": {
+    "osnma::ADVISORY": "助言のみ：これは解析・監視の出力であり、型式承認を受けた航法装置ではありません。ここに示す認証状態は航法のインテグリティサービスではなく、航法または安全に関するいかなる判断の唯一の根拠としても使用してはなりません。",
+    "iq::lunanet_afs::ADVISORY": "助言のみ：研究・エンジニアリング用ツールによる解析出力であり、型式承認を受けた航法装置ではなく、人命安全（safety-of-life）サービスでもありません。公開仕様の一つの版に対してシンボル列を検査するものであり、いかなるLunaNetのノードやサービスについても何も述べません。",
+    "iq::labfit::iqfit::ADVISORY": "助言のみ：解析出力であり、型式承認を受けた航法装置ではありません。予測は誤差を明示したモデル出力であり、保証ではありません。",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "助言のみ：Kshanaは型式承認を受けた航法装置（IEC 61108、IEC 61162）ではなく、船舶の責任は引き続き運用者にあります。エビデンス区分：MODELLED（モニタのしきい値は明示された入力であり、実際の干渉に対する検出性能は主張しません）。",
+    "bench::NOTICE": "助言のみ：明示された参照に対してモデル化または測定したものであり、承認、認証、適合性の表明ではありません。スコアはログまたはコーパスを記述するものであり、製品を記述するものではありません。",
+    "optical_atmosphere_scenario::advisory (result field)": "助言的な解析のみ：認証された可用性・インテグリティ・航法の製品ではなく、気候入力が明示されたデータセットに由来しない限り、実在のいかなるサイトに対する予測でもありません。",
+    "telemetry::mqtt::advisory (message field)": "助言用ソフトウェアであり、型式承認を受けた航法装置または時刻装置ではありません。"
+   }
+  }
  },
  "notes": "Terms follow Japanese GNSS usage (QZSS/JAXA/GSI literature); tier words stay in English.",
  "style": {

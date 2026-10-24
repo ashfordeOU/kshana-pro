@@ -257,17 +257,41 @@
    "general": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service.",
    "general_long": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision.",
    "short": "Advisory: not type-approved navigation equipment.",
-   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.",
-   "aviation_proposed": "Advisory: analysis output from a research and engineering tool, not airworthiness-approved avionics and not a safety-of-life service; the pilot in command remains responsible for the flight."
+   "maritime": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel."
   },
   "fi": {
    "general": "Ohjeellinen: tutkimus- ja suunnittelutyökalun analyysitulos; ei tyyppihyväksytty navigointilaite eikä ihmishengen turvaamiseen tarkoitettu palvelu.",
    "general_long": "Ohjeellinen: tutkimus- ja suunnittelutyökalun analyysitulos; ei tyyppihyväksytty navigointilaite eikä ihmishengen turvaamiseen tarkoitettu palvelu; sitä ei saa käyttää ainoana perusteena navigointia tai turvallisuutta koskevalle päätökselle.",
    "short": "Ohjeellinen: ei tyyppihyväksytty navigointilaite.",
-   "maritime": "Ohjeellinen ohjelmisto, ei tyyppihyväksytty navigointilaite (IEC 61108, IEC 61162): käyttäjä vastaa edelleen aluksen navigoinnista.",
-   "aviation_proposed": "Ohjeellinen: tutkimus- ja suunnittelutyökalun analyysitulos; ei lentokelpoisuushyväksytty ilma-aluksen avioniikka eikä ihmishengen turvaamiseen tarkoitettu palvelu; ilma-aluksen päällikkö vastaa edelleen lennosta."
+   "maritime": "Ohjeellinen ohjelmisto, ei tyyppihyväksytty navigointilaite (IEC 61108, IEC 61162): käyttäjä vastaa edelleen aluksen navigoinnista."
   },
-  "note": "'aviation_proposed' has no existing English source line in the repositories; its English wording is a proposal for the coordinator to confirm before any page uses it."
+  "note": "Pages use only the four variants above (general, general_long, short, maritime); no aviation variant exists. The 'engine' block lists the English texts of the engine's own advisory constants and fields, keyed by Rust path; entries written '=variant' are identical to that variant.",
+  "engine": {
+   "en": {
+    "osnma::ADVISORY": "Advisory: this is analysis and monitoring output and not type-approved navigation equipment. The authentication status reported here is not a navigation integrity service and must not be the sole basis for any navigation or safety decision.",
+    "iq::lunanet_afs::ADVISORY": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service. It checks a symbol stream against one edition of a published specification and says nothing about any LunaNet node or service.",
+    "iq::labfit::iqfit::ADVISORY": "Advisory: analysis output, not type-approved navigation equipment; predictions are model outputs with stated error, not guarantees.",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "Advisory only: Kshana is not type-approved navigation equipment (IEC 61108, IEC 61162) and the operator remains responsible for the vessel. Evidence tier: MODELLED (the monitors' thresholds are stated inputs; detection performance on real interference is not asserted).",
+    "bench::NOTICE": "Advisory: modelled or measured against stated references, not an approval, certification or statement of conformance. A score describes a log or corpus, never a product.",
+    "optical_atmosphere_scenario::advisory (result field)": "Advisory analysis only: not a certified availability, integrity or navigation product, and not a prediction for any real site unless its climate inputs come from a stated dataset.",
+    "telemetry::mqtt::advisory (message field)": "Advisory software, not type-approved navigation or timing equipment."
+   },
+   "fi": {
+    "osnma::ADVISORY": "Ohjeellinen: tämä on analyysi- ja valvontatuloste, ei tyyppihyväksytty navigointilaite. Tässä ilmoitettu todennuksen tila ei ole navigoinnin eheyspalvelu, eikä sitä saa käyttää ainoana perusteena navigointia tai turvallisuutta koskevalle päätökselle.",
+    "iq::lunanet_afs::ADVISORY": "Ohjeellinen: tutkimus- ja suunnittelutyökalun analyysitulos; ei tyyppihyväksytty navigointilaite eikä ihmishengen turvaamiseen tarkoitettu palvelu. Se tarkistaa symbolivirran julkaistun spesifikaation yhtä painosta vasten eikä kerro mitään yhdestäkään LunaNet-solmusta tai -palvelusta.",
+    "iq::labfit::iqfit::ADVISORY": "Ohjeellinen: analyysitulos, ei tyyppihyväksytty navigointilaite; ennusteet ovat mallin tuloksia ilmoitetulla virheellä, eivät takuita.",
+    "standards_pack::ADVISORY": "=general_long",
+    "receiver_trust::ADVISORY": "=maritime",
+    "geometry::ADVISORY": "=maritime",
+    "mcp::marine::ADVISORY": "Ohjeellinen: Kshana ei ole tyyppihyväksytty navigointilaite (IEC 61108, IEC 61162), ja käyttäjä vastaa edelleen aluksesta. Todistetaso: MODELLED (monitorien kynnysarvot ovat ilmoitettuja syötteitä; todellisten häiriöiden havaitsemiskykyä ei väitetä).",
+    "bench::NOTICE": "Ohjeellinen: mallinnettu tai mitattu ilmoitettuja vertailukohtia vasten; ei hyväksyntä, sertifiointi eikä vaatimustenmukaisuusvakuutus. Pistemäärä kuvaa lokia tai aineistoa, ei koskaan tuotetta.",
+    "optical_atmosphere_scenario::advisory (result field)": "Vain ohjeellinen analyysi: ei sertifioitu saatavuus-, eheys- tai navigointituote eikä ennuste mille tahansa todelliselle paikalle, ellei ilmastosyöte ole peräisin ilmoitetusta aineistosta.",
+    "telemetry::mqtt::advisory (message field)": "Ohjeellinen ohjelmisto, ei tyyppihyväksytty navigointi- tai ajanmittauslaite."
+   }
+  }
  },
  "notes": "",
  "style": {
