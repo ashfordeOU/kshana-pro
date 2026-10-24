@@ -97,10 +97,102 @@
       "general": "Adviserende software, geen typegoedgekeurde apparatuur.",
       "research_test": "Adviserende software voor onderzoek, simulatie en test. Het is geen typegoedgekeurde apparatuur en beoordeelt of keurt geen ontvanger, klok of laboratorium goed.",
       "short": "Alleen adviserend: geen typegoedgekeurde navigatieapparatuur; de exploitant blijft verantwoordelijk. Bewijsniveau: MODELLED."
-    }
+    },
+    "engine": [
+      {
+        "name": "receiver_trust::ADVISORY",
+        "file": "src/receiver_trust/mod.rs",
+        "english": "Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel."
+      },
+      {
+        "name": "geometry::ADVISORY (alias of receiver_trust::ADVISORY)",
+        "file": null,
+        "english": null,
+        "note": "same text as receiver_trust::ADVISORY"
+      },
+      {
+        "name": "iq::labfit::iqfit::ADVISORY",
+        "file": "src/iq/labfit/iqfit.rs",
+        "english": "Advisory: analysis output, not type-approved navigation equipment; predictions are model outputs with stated error, not guarantees."
+      },
+      {
+        "name": "iq::lunanet_afs::ADVISORY",
+        "file": "src/iq/lunanet_afs.rs",
+        "english": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service. It checks a symbol stream against one edition of a published specification and says nothing about any LunaNet node or service."
+      },
+      {
+        "name": "osnma::ADVISORY",
+        "file": "src/osnma/mod.rs",
+        "english": "Advisory: this is analysis and monitoring output and not type-approved navigation equipment. The authentication status reported here is not a navigation integrity service and must not be the sole basis for any navigation or safety decision."
+      },
+      {
+        "name": "standards_pack::ADVISORY",
+        "file": "src/standards_pack.rs",
+        "english": "Advisory: analysis output from a research and engineering tool, not type-approved navigation equipment and not a safety-of-life service; it must not be the sole basis for any navigation or safety decision."
+      },
+      {
+        "name": "standards_pack::NOTICE",
+        "file": "src/standards_pack.rs",
+        "english": "A standards pack measures modelled scenarios against bars stated before the run. It supports evidence for the framework rows it names; it does not rate or approve any product, and a MET bar says only that the scenario's modelled output met the stated bar."
+      },
+      {
+        "name": "bench::NOTICE",
+        "file": "src/bench/mod.rs",
+        "english": "Advisory: modelled or measured against stated references, not an approval, certification or statement of conformance. A score describes a log or corpus, never a product."
+      },
+      {
+        "name": "evidence::bundle::DISCLAIMER",
+        "file": "src/evidence/bundle.rs",
+        "english": "This pack is a technical record of what the Kshana engine computed from the stated receiver log with the stated configuration. It is not a legal opinion, not a finding of fact about any event or its cause, and not a certification."
+      },
+      {
+        "name": "evidence::roundtrip::NOTICE",
+        "file": "src/evidence/roundtrip.rs",
+        "english": "Links four records by hash: the scenario, the laboratory's stated test conditions, the receiver log and the score of that log against the stated events. It is not a signal, not a replay recipe and not a certification. How the scenario's motion reached the receiver (a file played through a laboratory simulator, conducted or shielded) was the operator's responsibility and is recorded here only as stated."
+      },
+      {
+        "name": "interference_map::observatory::NOTICE",
+        "file": "src/interference_map/observatory.rs",
+        "english": "A degraded cell means a high share of aircraft reported low navigation accuracy there that day. No cause is attributed. A cell that is not observed, or absent, was not assessed, which is not the same as clear. Advisory only: not an approval, certification or statement of conformance."
+      },
+      {
+        "name": "resilience::report::DISCLAIMER",
+        "file": "src/resilience/report.rs",
+        "english": "Simulation-derived self-assessment aligned to DHS RPCF v2.0. This is not a certification or accreditation, and it represents no authority approval (DHS, IEEE, or otherwise). Every sub-score is MODELLED unless explicitly tagged VALIDATED, and the scores are timing-domain and detection figures of merit, not position-domain accuracy."
+      },
+      {
+        "name": "surface::BENCH_NOTICE",
+        "file": "src/surface.rs",
+        "english": "Vehicle motion and labelled event intervals only. Nothing exported here is, models or drives a radio-frequency or baseband signal, and an event is a time interval, not a recipe for producing interference. The laboratory simulator and its operator supply the signals and are responsible for running them only where that is authorised (conducted or shielded, per the simulator's own safety instructions). Kshana publishes no results from such runs."
+      },
+      {
+        "name": "optical_atmosphere_scenario report field `advisory`",
+        "file": "src/optical_atmosphere_scenario.rs",
+        "english": "Advisory analysis only: not a certified availability, integrity or navigation product, and not a prediction for any real site unless its climate inputs come from a stated dataset."
+      },
+      {
+        "name": "telemetry::mqtt discovery field `advisory`",
+        "file": "src/telemetry/mqtt.rs",
+        "english": "Advisory software, not type-approved navigation or timing equipment."
+      }
+    ],
+    "engine_note": "English texts of the engine's human-facing advisory, notice and disclaimer constants (kshana origin/main), for W55 to map onto catalogue message ids; no translation here yet. Texts are copied exactly, with Rust line continuations joined."
   },
   "machine_translation_notice": {
     "english": "Machine translation, not reviewed by a native speaker. English is the reference.",
     "translation": "Machinevertaling, niet beoordeeld door een moedertaalspreker. Engels is de referentie."
+  },
+  "linguistic_notes": {
+    "locale": "nl (Netherlands Dutch)",
+    "plural_categories": [
+      "one",
+      "other"
+    ],
+    "plural_note": "'one' is exactly 1; 0 and 2+ are 'other'.",
+    "grammatical_case_and_gender": "No case; two articles (de/het) chosen by noun gender, so a placeable noun that takes an article needs it fixed. Compounds are written as one word; a placeable inside a compound is avoided.",
+    "address_register": "Formal 'u', as usual in technical documentation.",
+    "decimal_separator": ",",
+    "thousands_separator": ". (period)",
+    "numbers": "Numbers and units are formatted by Intl at runtime through Fluent placeables ({ NUMBER($n) }); never write a number into a translated string. Where a count changes the wording, use a Fluent selector over the plural categories above, not string concatenation."
   }
 }
