@@ -19,7 +19,8 @@ for (const line of readFileSync(ui, "utf8").split("\n")) {
   byValue.set(m[2], byValue.has(m[2]) ? null : m[1]);
 }
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
-const unesc = (s) => s.replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+const NAMED = { nbsp: "\u00a0", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", ldquo: "\u201c", rdquo: "\u201d", lsquo: "\u2018", rsquo: "\u2019", mdash: "\u2014", ndash: "\u2013", hellip: "\u2026", middot: "\u00b7", rarr: "\u2192", larr: "\u2190", uarr: "\u2191", darr: "\u2193", times: "\u00d7", minus: "\u2212", deg: "\u00b0", plusmn: "\u00b1", eacute: "\u00e9", laquo: "\u00ab", raquo: "\u00bb", copy: "\u00a9", reg: "\u00ae", trade: "\u2122", bull: "\u2022", thinsp: "\u2009", zwj: "\u200d" };
+const unesc = (s) => s.replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(+d)).replace(/&([a-z]+);/gi, (m, n) => (n in NAMED ? NAMED[n] : m));
 
 const isProse = (t) => /[A-Za-z]{3,}/.test(t) && !/[{}<>]/.test(t) && t.length >= 4 && !/^[\w./:#?=&%@+-]+$/.test(t) && !/^\d/.test(t);
 const slug = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(" ").slice(0, 5).join("-") || "text";

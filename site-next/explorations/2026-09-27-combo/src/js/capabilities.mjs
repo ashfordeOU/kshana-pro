@@ -7,7 +7,7 @@
 // designer · campaigns · solar system · kept modules (holdover reader, one block, Studio loader).
 import { fmt, nearestByX } from "../studio/lib/views.mjs";
 import { studioHref } from "./studio-links.mjs";
-import { t, ready } from "./t.mjs";
+import { t, ready, fetchData } from "./t.mjs";
 await ready(); // the page's first catalogue is loaded before text is built
 
 const D = JSON.parse(document.getElementById("kpage").textContent);
@@ -51,7 +51,7 @@ function watchVisible(node, cb, margin = "0px") {
   new IntersectionObserver((es) => cb(es[es.length - 1].isIntersecting), { rootMargin: margin }).observe(node);
 }
 let dataP = null;
-const data = () => (dataP ||= fetch(ROOT + "assets/capabilities/capabilities.json").then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }));
+const data = () => (dataP ||= fetchData(ROOT + "assets/capabilities/capabilities.json").then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }));
 const n = (v, d = 1) => (v == null || !Number.isFinite(v) ? "–" : Number(v).toLocaleString("en-GB", { minimumFractionDigits: d, maximumFractionDigits: d }));
 const ni = (v) => (v == null ? "–" : Math.round(v).toLocaleString("en-GB"));
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));

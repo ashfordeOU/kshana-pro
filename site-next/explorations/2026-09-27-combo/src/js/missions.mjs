@@ -15,10 +15,10 @@
 //     engine binary (engine version, build, scenario SHA-256 and seed are in it).
 // Sector tabs and #hash deep links are site.js.
 // SVG is built as markup from engine numbers (escaped) and parsed with DOMParser.
-import RUNS from "./missions-runs.mjs";
 import { studioHref, studioHas } from "./studio-links.mjs";
-import { t, ready } from "./t.mjs";
+import { t, ready, fetchData, importData } from "./t.mjs";
 await ready(); // the page's first catalogue is loaded before text is built
+const RUNS = (await importData(new URL("./missions-runs.mjs", import.meta.url).href)).default;
 
 const ROOT = "";
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -46,7 +46,7 @@ function rec(file) {
   return recs.get(file);
 }
 let seriesP = null;
-const series = () => (seriesP ||= fetch(`${ROOT}data/series.json`).then((r) => r.json()));
+const series = () => (seriesP ||= fetchData(`${ROOT}data/series.json`).then((r) => r.json()));
 
 const CSV = {};
 function download(name, text) {

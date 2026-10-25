@@ -7,7 +7,7 @@
 // Distances are compressed on a log scale (directions are true), body sizes are enlarged and the
 // spin is a display rate; the page says so. Reduced motion: the complete frame at the epoch.
 import { studioHref } from "./studio-links.mjs";
-import { t, ready } from "./t.mjs";
+import { t, ready, fetchData } from "./t.mjs";
 await ready(); // the page's first catalogue is loaded before text is built
 const ROOT = (window.KSITE && window.KSITE.root) || "";
 const STUDIO = (window.KSITE && window.KSITE.studio) || "Kshana Studio";
@@ -19,7 +19,7 @@ const ORDER = ["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus
 const n = (v, d = 1) => (v == null || !Number.isFinite(v) ? "–" : Number(v).toLocaleString("en-GB", { minimumFractionDigits: d, maximumFractionDigits: d }));
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
-if (win) fetch(ROOT + "assets/capabilities/capabilities.json").then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+if (win) fetchData(ROOT + "assets/capabilities/capabilities.json").then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
   .then(init).catch((e) => console.warn("capabilities hero:", e));
 
 function init(d) {

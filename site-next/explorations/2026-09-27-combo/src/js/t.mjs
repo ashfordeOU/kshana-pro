@@ -26,3 +26,29 @@ export function english(en, vars) {
 
 /** Resolves when the page's first catalogue is loaded (immediately when none is being loaded): `await ready()` before building text once. */
 export const ready = () => (globalThis.kshanaL10nReady ? Promise.race([globalThis.kshanaL10nReady, new Promise((r) => setTimeout(r, 4000))]) : Promise.resolve());
+
+/** fetch() for a JSON file the build also writes in each language (i18n/data-spec.json): the current language's copy under /<lang>/ when it exists, else the English file. */
+export async function fetchData(url, init) {
+  const l = globalThis.kshanaL10n;
+  const lang = (l && l.lang) || (typeof document !== "undefined" && document.documentElement.lang) || "en";
+  if (lang && lang !== "en" && /^[a-z]{2,3}(-[A-Za-z0-9]+)?$/.test(lang) && typeof document !== "undefined") {
+    try {
+      const u = new URL(url, document.baseURI);
+      if (u.origin === location.origin && !u.pathname.startsWith(`/${lang}/`)) { const r = await fetch(`/${lang}${u.pathname}${u.search}`, init); if (r.ok) return r; }
+    } catch (e) { /* no language copy: the English file */ }
+  }
+  return fetch(url, init);
+}
+
+/** import() for a generated data module the build also writes in each language (i18n/data-spec.json, module files): the language's copy when it exists, else the English module. */
+export async function importData(url) {
+  const l = globalThis.kshanaL10n;
+  const lang = (l && l.lang) || (typeof document !== "undefined" && document.documentElement.lang) || "en";
+  if (lang && lang !== "en" && /^[a-z]{2,3}(-[A-Za-z0-9]+)?$/.test(lang) && typeof location !== "undefined") {
+    try {
+      const u = new URL(url, location.href);
+      if (u.origin === location.origin && !u.pathname.startsWith(`/${lang}/`)) return await import(/* @vite-ignore */ `/${lang}${u.pathname}`);
+    } catch (e) { /* no language copy: the English module */ }
+  }
+  return import(/* @vite-ignore */ url);
+}

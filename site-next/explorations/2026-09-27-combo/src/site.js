@@ -16,6 +16,7 @@
     if (en && typeof en === "object") s = (vars && Number(vars.n) === 1 && en.one !== undefined) ? en.one : en.other;
     return String(s).replace(/\{ \$([A-Za-z0-9_-]+) \}/g, function (_, k) { return vars && vars[k] !== undefined ? String(vars[k]) : ""; });
   }
+  function fetchData(u) { return import("./js/t.mjs").then(function (m) { return m.fetchData(u); }, function () { return fetch(u); }); }
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -330,7 +331,7 @@
     return new XMLSerializer().serializeToString(c).replace(/var\((--[\w-]+)\)/g, function (m, n) { return cssv.getPropertyValue(n).trim() || m; });
   }
   var seriesP = null;
-  function series() { if (!seriesP) seriesP = fetch(ROOT + "data/series.json").then(function (r) { return r.json(); }); return seriesP; }
+  function series() { if (!seriesP) seriesP = fetchData(ROOT + "data/series.json").then(function (r) { return r.json(); }); return seriesP; }
   function csvCell(v) { v = v == null ? "" : String(v); return /[",\n#]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
   function tableCsv(t) { return $$("tr", t).map(function (r) { return $$("th,td", r).map(function (c) { return csvCell(c.textContent.trim()); }).join(","); }).join("\n"); }
   document.addEventListener("click", function (e) {
@@ -377,7 +378,7 @@
   ];
   function load() {
     if (items) return Promise.resolve(items);
-    return fetch(ROOT + "data/search.json").then(function (r) { return r.json(); }).then(function (d) { items = ACTIONS.concat(d); return items; })
+    return fetchData(ROOT + "data/search.json").then(function (r) { return r.json(); }).then(function (d) { items = ACTIONS.concat(d); return items; })
       .catch(function () { items = ACTIONS.slice(); return items; });
   }
   function fuzzy(q, s) {

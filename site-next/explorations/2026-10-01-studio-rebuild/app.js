@@ -7,7 +7,7 @@
 // lib/views.mjs), each with a node test. Every scenario-derived string reaches the page
 // through textContent, or through an escaping SVG builder whose markup is parsed as XML
 // (never assigned as HTML).
-import { t, ready } from "./lib/t.mjs";
+import { t, ready, fetchData } from "./lib/t.mjs";
 import { encodeFragment, decodeFragment, patchScalar } from "./lib/share.mjs";
 import { parseSvgMarkup, sanitizeSvg } from "./lib/svgsafe.mjs";
 import { chartFilename, fileMeta, svgSize, svgBlob, triggerDownload, svgToPngBlob } from "./lib/chartdl.mjs";
@@ -1998,7 +1998,7 @@ function loadKindModules() {
   }));
 }
 function loadMatrix() {
-  if (!matrixPromise) matrixPromise = fetch("data/verification-matrix.json").then((x) => (x.ok ? x.json() : null)).catch(() => null);
+  if (!matrixPromise) matrixPromise = fetchData("data/verification-matrix.json").then((x) => (x.ok ? x.json() : null)).catch(() => null);
   return matrixPromise;
 }
 // The scenario's header comment, as paragraphs.
@@ -2585,7 +2585,7 @@ async function paintChannels() {
   const box = $("install-line");
   if (!box) return;
   try {
-    const d = await (await fetch("channels.json")).json();
+    const d = await (await fetchData("channels.json")).json();
     const pick = ["cli", "python", "npm", "mcp"].map((id) => d.channels.find((c) => c.id === id)).filter(Boolean);
     box.replaceChildren(h("span", { class: "lbl", text: t("js-app-install-label", "Install v{ $version }", { version: d.version }) }), ...pick.map((c) => h("button", { class: "cmd-chip", type: "button", title: t("js-app-install-copy", "Copy: { $command }", { command: c.command }), "data-cmd": c.command, text: c.command })));
     for (const b of box.querySelectorAll("button")) b.addEventListener("click", () => { navigator.clipboard && navigator.clipboard.writeText(b.dataset.cmd); b.classList.add("copied"); setTimeout(() => b.classList.remove("copied"), 1200); });

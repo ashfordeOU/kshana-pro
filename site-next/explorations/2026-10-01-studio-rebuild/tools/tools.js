@@ -2,7 +2,7 @@
 // The tools hub: the DOM layer. Pure parts are in lib/tools35.mjs and lib/tools35-data.mjs; the engine runs through
 // lib/engine-page.mjs (the Studio's WebAssembly engine in a worker). Files are read with File.arrayBuffer() in this
 // page and nothing is sent anywhere.
-import { t, ready } from "../lib/t.mjs";
+import { t, ready, fetchData } from "../lib/t.mjs";
 import { getEngine } from "../lib/engine-page.mjs";
 import { imuRows } from "../lib/imufit-card.mjs";
 import { readScorecard, summaryRows as jtRows, assessability } from "../lib/jammertest-card.mjs";
@@ -353,7 +353,7 @@ async function wireAi() {
   const card = $("ai-card");
   card.append(el("div", { class: "card-head" }, el("h2", { class: "h3" }, t("js-tools-ai-heading", "Use Kshana from your AI assistant")), el("p", { class: "card-note" }, t("js-tools-ai-intro", "The Kshana MCP server lets an AI assistant run the engine instead of guessing numbers. It runs on your computer; nothing is sent to Kshana. Pick the way that suits your tool."))));
   try {
-    const d = await (await fetch("channels.json")).json();
+    const d = await (await fetchData("channels.json")).json();
     const all = (d.channels || []).filter((c) => c && typeof c.id === "string" && c.id !== "browser");
     const grouped = all.some((c) => c.group);
     const GROUPS = [["mcp", t("js-tools-ai-group-mcp", "Install the MCP server for your assistant")], ["integrations", t("js-tools-ai-group-integrations", "Marine, plugin and dashboard integrations")], ["engine", t("js-tools-ai-group-engine", "Install the engine and its libraries")]];

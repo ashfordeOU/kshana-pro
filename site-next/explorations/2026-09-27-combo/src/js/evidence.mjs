@@ -5,9 +5,10 @@
 // one label's cells, and a shared tip reads out any mark under the pointer or the keyboard.
 // The ledger and standards filter through site.js ([data-flist]); copy buttons use [data-copy].
 // Text is always set with textContent: a tip string marks bold with «…» and new lines with \n.
-import D from "./evidence-data.mjs";
-import { t, ready } from "./t.mjs";
+
+import { t, ready, importData } from "./t.mjs";
 await ready(); // the page's first catalogue is loaded before text is built
+const D = (await importData(new URL("./evidence-data.mjs", import.meta.url).href)).default;
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];

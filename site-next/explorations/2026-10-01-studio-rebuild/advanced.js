@@ -36,7 +36,7 @@ import { createPackReader } from "./lib/packs.mjs";
 import { kpis as kpiCards, honesty, kpiDelta, kpiKey, plainLabel } from "./lib/kpi.mjs";
 import { fieldIndex, findFields, scenarioCount, filterControls } from "./lib/finder.mjs";
 import { viewUrl, VIEW_KEY } from "./lib/urlstate.mjs";
-import { t, ready } from "./lib/t.mjs";
+import { t, ready, fetchData } from "./lib/t.mjs";
 await ready(); // the page's first catalogue is loaded before text is built
 
 // Recorded runs and native recordings, from one file per scenario or from packs.
@@ -2267,7 +2267,7 @@ function engineChip() {
 
 async function loadCounts() {
   try {
-    const ledger = await (await fetch("data/verification-matrix.json")).json();
+    const ledger = await (await fetchData("data/verification-matrix.json")).json();
     const m = matrixCounts(ledger);
     $("matrix-line").replaceChildren(...withNodes(t("js-adv-matrix-line", "{ $counts } capabilities validated against independent external oracles · { $modelled } modelled · { $partner } partner-owned", { counts: NM[0], modelled: m.modelled, partner: m.partner }), h("b", { text: t("js-adv-matrix-counts", "{ $validated } of { $total }", { validated: m.validated, total: m.total }) })));
   } catch { /* the ledger is optional context */ }
@@ -2376,7 +2376,7 @@ async function paintChannels() {
   const box = $("install-line");
   if (!box) return;
   try {
-    const d = await (await fetch("channels.json")).json();
+    const d = await (await fetchData("channels.json")).json();
     const pick = ["cli", "python", "npm", "mcp"].map((id) => d.channels.find((c) => c.id === id)).filter(Boolean);
     box.replaceChildren(h("span", { class: "lbl", text: t("js-adv-install-version", "Install v{ $version }", { version: d.version }) }), ...pick.map((c) => h("button", { class: "cmd-chip", type: "button", title: t("js-adv-copy-command", "Copy: { $command }", { command: c.command }), "data-cmd": c.command, text: c.command })));
     for (const b of box.querySelectorAll("button")) b.addEventListener("click", () => { navigator.clipboard && navigator.clipboard.writeText(b.dataset.cmd); b.classList.add("copied"); setTimeout(() => b.classList.remove("copied"), 1200); });

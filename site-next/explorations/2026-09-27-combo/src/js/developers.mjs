@@ -3,10 +3,11 @@
 // library tabs are site.js. Data: build.py page data (#kpage, from src/data/mcp-session.json);
 // js/developers-data.mjs (src/tools/gen_developers_data.py) is kept only as a fallback.
 import { mountPlayer } from "./mcp-player.mjs";
-import GEN from "./developers-data.mjs";
+
 import { studioHref } from "./studio-links.mjs";
-import { t, ready } from "./t.mjs";
+import { t, ready, importData } from "./t.mjs";
 await ready(); // the page's first catalogue is loaded before text is built
+const GEN = (await importData(new URL("./developers-data.mjs", import.meta.url).href)).default;
 
 let D = GEN;
 try { const k = document.getElementById("kpage"); if (k) { const j = JSON.parse(k.textContent); if (j && j.mcp) D = j; } } catch (e) { /* keep the generated module */ }
