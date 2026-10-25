@@ -449,6 +449,19 @@ def run_checks(override=None):
     if "--preview" in sys.argv: bad += pv
     elif pv: print("note (not gating; kshana.dev deploys on Pages): " + "; ".join(pv) + ". Run with --preview to gate on these.")
     if bad: fails.append(("12 publish list", bad))
+    # 12b translations (design i18n v2, section 10): the 17 language trees are generated at deploy time by kshana's
+    # tools/i18n.mjs (apply) from the English pages with every inlined image shared (assets/img), so a language tree is
+    # about the pages' HTML without their inlined images (4 KB or more). The whole deploy tree, English and 17 languages,
+    # stays under 500 MB: the Pages limit is 1 GB and the cap is the room we keep.
+    img_re = re.compile(r"""(?:\s(?:src|href|xlink:href|poster)=(["'])data:image/[a-z+]+(?:;[a-z0-9-]+=[a-z0-9-]+)*(?:;base64)?,.*?\1|url\((["']?)data:image/[a-z+]+(?:;[a-z0-9-]+=[a-z0-9-]+)*(?:;base64)?,.*?\2\))""", re.S)
+    per_lang = 0
+    for p in PUB:
+        if p.endswith(".html") and not p.startswith(("studio/", "playground/", "assets/")) and os.path.exists(os.path.join(HERE, p)):
+            h = open(os.path.join(HERE, p), encoding="utf-8").read()
+            per_lang += len(h.encode("utf-8")) - sum(len(m.group(0).encode("utf-8")) for m in img_re.finditer(h) if len(m.group(0)) >= 4096)
+    projected = total + 17 * per_lang
+    if projected > 500e6: fails.append(("12b translated size", [f"projected {projected / 1e6:.0f} MB with 17 language trees ({per_lang / 1e6:.1f} MB each), over the 500 MB cap"]))
+    else: print(f"note: projected deploy size with 17 language trees: {projected / 1e6:.0f} MB ({per_lang / 1e6:.1f} MB each), cap 500 MB")
     # 13 coverage ------------------------------------------------------------------------------
     bad = []
     for link in re.findall(r"`cover:([^`]+)`", open(os.path.join(HERE, "COVERAGE.md"), encoding="utf-8").read()):
