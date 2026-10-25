@@ -21,7 +21,7 @@ import { buildFomRows, figureTier } from "./lib/tabs.mjs";
 import { sweepValues, sweepToml, sweepMetrics, MAX_SWEEP } from "./lib/sweep.mjs";
 import { overlayRows } from "./lib/overlay.mjs";
 import { isEmbed, embedConfig, embedClassList } from "./lib/embed.mjs";
-import { buildReportHtml, reportFilename, fomTier, NOT_APPLICABLE } from "./lib/report.mjs";
+import { buildReportHtml, reportFilename, fomTier, notApplicable } from "./lib/report.mjs";
 // The app's name comes from the page <title>, which the site build writes from src/data/brand.json.
 const STUDIO_NAME = (document.querySelector("title")?.textContent || "").trim();
 import { clampStep, placeTooltip } from "./lib/tour.mjs";
@@ -490,7 +490,7 @@ function renderOverview(r) {
       tb.append(h("tr", {},
         h("td", { text: x.clockLabel }),
         h("td", { text: x.unit ? `${x.label} (${x.unit})` : x.label }),
-        h("td", { class: "num", text: x.applicable === false ? NOT_APPLICABLE : V.fmt(x.value) }),
+        h("td", { class: "num", text: x.applicable === false ? notApplicable() : V.fmt(x.value) }),
         h("td", {}, tierPill(x.tier || fomTier(x.metric)))));
     }
     fomT.append(tb);
