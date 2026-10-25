@@ -136,7 +136,7 @@
     <div class="lib-foot">
       <button class="btn-quiet small" id="btn-start" type="button"><svg aria-hidden="true"><use href="#i-grid"/></svg><span data-l10n-rich="seg-e00dede0cbb9">All domains, as tiles</span></button>
       <p id="matrix-line" class="matrix-line"></p>
-      <span data-l10n-rich="seg-443149a5e031" data-l10n-tags="{&quot;a1&quot;:{&quot;o&quot;:&quot;<a href=\&quot;https://kshana.dev/#ledger\&quot;>&quot;,&quot;c&quot;:&quot;&quot;},&quot;c1&quot;:{&quot;h&quot;:&quot;<svg aria-hidden=\&quot;true\&quot;>&quot;}}"><a href="https://kshana.dev/#ledger">Open the validation ledger <svg aria-hidden="true"></span><use href="#i-arrow"/></svg></a>
+      <a href="https://kshana.dev/#ledger"><span data-l10n-rich="seg-fdb067cc01c0">Open the validation ledger</span> <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
     </div>
   </aside>
 
@@ -151,7 +151,7 @@
         <li><b>2</b><span data-l10n-rich="seg-0975b02e3951" data-l10n-tags="{&quot;b&quot;:{&quot;o&quot;:&quot;<strong>&quot;,&quot;c&quot;:&quot;</strong>&quot;}}"><strong>Set</strong> its parameters</span></li>
         <li><b>3</b><span data-l10n-rich="seg-ee0ffb5be403" data-l10n-tags="{&quot;b&quot;:{&quot;o&quot;:&quot;<strong>&quot;,&quot;c&quot;:&quot;</strong>&quot;}}"><strong>Run</strong> the engine, locally</span></li>
         <li><b>4</b><span data-l10n-rich="seg-62a3d528203d" data-l10n-tags="{&quot;b&quot;:{&quot;o&quot;:&quot;<strong>&quot;,&quot;c&quot;:&quot;</strong>&quot;}}"><strong>Read</strong> the key figures and panels</span></li>
-        <li><b>5</b><span data-l10n-rich="seg-c3bab83395bf" data-l10n-tags="{&quot;b&quot;:{&quot;o&quot;:&quot;<strong data-l10n=\&quot;studio-advanced-share-or-export\&quot;>&quot;,&quot;c&quot;:&quot;</strong>&quot;}}"><strong data-l10n="studio-advanced-share-or-export">Share or export</strong> the run</span></li>
+        <li><b>5</b><span data-l10n-rich="seg-c3bab83395bf" data-l10n-tags="{&quot;b&quot;:{&quot;o&quot;:&quot;<strong>&quot;,&quot;c&quot;:&quot;</strong>&quot;}}"><strong data-l10n="studio-advanced-share-or-export">Share or export</strong> the run</span></li>
       </ol>
       <label class="search big"><svg aria-hidden="true"><use href="#i-search"/></svg><input id="start-search" type="search" placeholder="Search scenarios, domains or fields, for example elevation mask" aria-label="Search scenarios, domains or fields" autocomplete="off" data-l10n-attr="aria-label:studio-advanced-search-scenarios-domains-or-fields;placeholder:studio-advanced-search-scenarios-domains-or-fields-2"></label>
       <div class="start-results" id="start-results" aria-live="polite"></div>
@@ -176,17 +176,17 @@
         <div class="dh-act runbar" id="runbar">
           <button class="btn-quiet" id="btn-lib" type="button" title="Open the scenario library" data-l10n-attr="title:studio-advanced-open-the-scenario-library"><svg aria-hidden="true"><use href="#i-list"/></svg><span data-l10n-rich="seg-583dc9ff6178">Library</span></button>
           <button class="btn-quiet" id="btn-params" type="button" aria-controls="editor-pane" aria-expanded="false" title="Show the parameters and the scenario source" data-l10n-attr="title:studio-advanced-show-the-parameters-and-the"><svg aria-hidden="true"><use href="#i-sliders"/></svg><span data-l10n-rich="seg-2afa300864a9">Parameters</span></button>
-          <button class="btn-run" id="run" disabled><svg aria-hidden="true"><use href="#i-play"/></svg><span data-l10n-rich="seg-31d58f23c0a2">Run</span><kbd>⌘↵</kbd></button>
+          <button class="btn-run" id="run" disabled><svg aria-hidden="true"><use href="#i-play"/></svg><span data-l10n-rich="seg-6cb7b1848b26" data-l10n-tags="{&quot;c1&quot;:{&quot;h&quot;:&quot;<kbd>⌘↵</kbd>&quot;}}">Run<kbd>⌘↵</kbd></span></button>
           <button class="btn-quiet" id="run-cancel" hidden data-l10n-rich="seg-89a86adcc181">Cancel</button>
           <button class="btn-quiet" id="pin" title="Keep this run to compare with another (up to 4)" data-l10n-attr="title:studio-advanced-keep-this-run-to-compare"><svg aria-hidden="true"><use href="#i-pin"/></svg><span data-l10n="studio-advanced-pin-run">Pin run</span></button>
           <button class="btn-quiet" id="btn-compare" type="button" title="Compare the pinned runs" data-l10n-attr="title:studio-advanced-compare-the-pinned-runs"><svg aria-hidden="true"><use href="#i-compare"/></svg><span data-l10n-rich="seg-fd4276fe5f5e">Compare</span><span class="count" id="pin-count" hidden>0</span></button>
           <div class="menu-wrap">
             <button class="btn-quiet" id="btn-share" aria-haspopup="menu" aria-expanded="false" aria-controls="share-menu" title="Share this run, or download it" data-l10n-attr="title:studio-advanced-share-this-run-or-download"><svg aria-hidden="true"><use href="#i-share"/></svg><span data-l10n="studio-advanced-share-or-export">Share or export</span></button>
             <div class="menu" id="share-menu" role="menu" hidden>
-              <button role="menuitem" data-act="exports" data-l10n-rich="seg-373bdc3fdcd6" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-advanced-report-json-scenario-tables-and\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Download results <small data-l10n="studio-advanced-report-json-scenario-tables-and">report, JSON, scenario, tables and exports</small></button>
-              <button role="menuitem" data-act="share-link" data-l10n-rich="seg-8209cc272c06" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-advanced-the-exact-scenario-in-the\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Copy share link <small data-l10n="studio-advanced-the-exact-scenario-in-the">the exact scenario, in the link</small></button>
-              <button role="menuitem" data-act="embed-code" data-l10n-rich="seg-495154bdae91" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-advanced-an-iframe-for-a-course\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Copy embed code <small data-l10n="studio-advanced-an-iframe-for-a-course">an iframe for a course page or wiki</small></button>
-              <button role="menuitem" data-act="embed-open" data-l10n-rich="seg-e02635128fa4" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-advanced-opens-in-a-new-tab\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Preview embed mode <small data-l10n="studio-advanced-opens-in-a-new-tab">opens in a new tab</small></button>
+              <button role="menuitem" data-act="exports" data-l10n-rich="seg-373bdc3fdcd6" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Download results <small data-l10n="studio-advanced-report-json-scenario-tables-and">report, JSON, scenario, tables and exports</small></button>
+              <button role="menuitem" data-act="share-link" data-l10n-rich="seg-8209cc272c06" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Copy share link <small data-l10n="studio-advanced-the-exact-scenario-in-the">the exact scenario, in the link</small></button>
+              <button role="menuitem" data-act="embed-code" data-l10n-rich="seg-495154bdae91" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Copy embed code <small data-l10n="studio-advanced-an-iframe-for-a-course">an iframe for a course page or wiki</small></button>
+              <button role="menuitem" data-act="embed-open" data-l10n-rich="seg-e02635128fa4" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Preview embed mode <small data-l10n="studio-advanced-opens-in-a-new-tab">opens in a new tab</small></button>
             </div>
           </div>
         </div>
@@ -227,7 +227,7 @@
           <div class="table-scroll"><table class="tbl" id="kf-table"></table></div>
         </div>
         <div class="card" id="health-card" hidden>
-          <div class="card-head"><h3 data-l10n-rich="seg-bdf48a0aa8ee" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-main-kalman-self-consistency\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Filter health <small data-l10n="studio-main-kalman-self-consistency">Kalman self-consistency</small></h3><p class="card-note" data-l10n="studio-main-a-consistent-filter-s-reported">A consistent filter's reported uncertainty matches its actual errors. NIS (normalised innovation squared) should sit near 1 and NEES (normalised estimation error squared) near 2, each inside its 95% χ² band.</p></div>
+          <div class="card-head"><h3 data-l10n-rich="seg-bdf48a0aa8ee" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Filter health <small data-l10n="studio-main-kalman-self-consistency">Kalman self-consistency</small></h3><p class="card-note" data-l10n="studio-main-a-consistent-filter-s-reported">A consistent filter's reported uncertainty matches its actual errors. NIS (normalised innovation squared) should sit near 1 and NEES (normalised estimation error squared) near 2, each inside its 95% χ² band.</p></div>
           <div class="health" id="health"></div>
         </div>
         <div class="card" id="label-card" hidden><p id="label-text" class="label-text"></p></div>
@@ -253,7 +253,7 @@
       <section class="view" id="v-signal" role="tabpanel" aria-label="Signal and band" hidden data-l10n-attr="aria-label:studio-signal-band">
         <div class="grid-2">
           <div class="card scope span-2">
-            <div class="card-head row"><h3 data-l10n-rich="seg-7db3c895178e" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-main-carrier-to-noise-density-db\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">C/N0 by satellite <small data-l10n="studio-main-carrier-to-noise-density-db">carrier-to-noise density, dB-Hz</small></h3><div class="seg dark" role="group" aria-label="Signal field" id="sig-field" data-l10n-attr="aria-label:studio-signal-field"><button type="button" data-field="cn0_effective_dbhz" aria-pressed="true" data-l10n="studio-main-with-the-jammer">With the jammer</button><button type="button" data-field="cn0_nominal_dbhz" aria-pressed="false" data-l10n="studio-main-without-it">Without it</button></div><div class="legend-heat" id="heat-legend"></div></div>
+            <div class="card-head row"><h3 data-l10n-rich="seg-7db3c895178e" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">C/N0 by satellite <small data-l10n="studio-main-carrier-to-noise-density-db">carrier-to-noise density, dB-Hz</small></h3><div class="seg dark" role="group" aria-label="Signal field" id="sig-field" data-l10n-attr="aria-label:studio-signal-field"><button type="button" data-field="cn0_effective_dbhz" aria-pressed="true" data-l10n="studio-main-with-the-jammer">With the jammer</button><button type="button" data-field="cn0_nominal_dbhz" aria-pressed="false" data-l10n="studio-main-without-it">Without it</button></div><div class="legend-heat" id="heat-legend"></div></div>
             <div class="chart-box" id="sig-heat"></div>
             <p class="card-note on-space" data-l10n="studio-main-each-cell-is-one-satellite">Each cell is one satellite at one epoch from this run. Hatched cells are below the receiver's tracking threshold: that satellite is lost.</p>
             <div class="chart-tools" id="sig-tools"></div>
@@ -265,7 +265,7 @@
 
       <section class="view" id="v-holdover" role="tabpanel" aria-label="Clock holdover" hidden data-l10n-attr="aria-label:studio-clock-holdover">
         <div class="card scope">
-          <div class="card-head row"><h3 data-l10n-rich="seg-9cebd87d7cb3" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small id=\&quot;ho-sub\&quot; data-l10n=\&quot;studio-main-error-since-gnss-was-lost\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Holdover <small id="ho-sub" data-l10n="studio-main-error-since-gnss-was-lost">error since GNSS was lost</small></h3></div>
+          <div class="card-head row"><h3 data-l10n-rich="seg-9cebd87d7cb3" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small id=\&quot;ho-sub\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Holdover <small id="ho-sub" data-l10n="studio-main-error-since-gnss-was-lost">error since GNSS was lost</small></h3></div>
           <div class="ho-ctl">
             <label for="ho-thr"><span data-l10n-rich="seg-42cdb8e987e6">Budget</span> <output id="ho-thr-out"></output></label>
             <input type="range" id="ho-thr" min="0" max="100" step="1">
@@ -281,8 +281,8 @@
       <section class="view" id="v-masks" role="tabpanel" aria-label="Telecom timing masks" hidden data-l10n-attr="aria-label:studio-telecom-masks">
         <div class="mask-verdicts" id="mask-verdicts"></div>
         <div class="grid-2">
-          <div class="card scope"><div class="card-head"><h3 data-l10n-rich="seg-bfd7751a9990" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-main-maximum-time-interval-error\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">MTIE <small data-l10n="studio-main-maximum-time-interval-error">maximum time interval error</small></h3></div><div class="chart-box" id="mtie-chart"></div><div class="chart-tools" id="mtie-tools"></div></div>
-          <div class="card scope"><div class="card-head"><h3 data-l10n-rich="seg-9204b8664c7a" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-main-time-deviation\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">TDEV <small data-l10n="studio-main-time-deviation">time deviation</small></h3></div><div class="chart-box" id="tdev-chart"></div><div class="chart-tools" id="tdev-tools"></div></div>
+          <div class="card scope"><div class="card-head"><h3 data-l10n-rich="seg-bfd7751a9990" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">MTIE <small data-l10n="studio-main-maximum-time-interval-error">maximum time interval error</small></h3></div><div class="chart-box" id="mtie-chart"></div><div class="chart-tools" id="mtie-tools"></div></div>
+          <div class="card scope"><div class="card-head"><h3 data-l10n-rich="seg-9204b8664c7a" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">TDEV <small data-l10n="studio-main-time-deviation">time deviation</small></h3></div><div class="chart-box" id="tdev-chart"></div><div class="chart-tools" id="tdev-tools"></div></div>
         </div>
         <div class="card"><div class="card-head"><h3 data-l10n="studio-main-mask-checks-and-holdover-budgets">Mask checks and holdover budgets</h3><p class="card-note" data-l10n="studio-main-each-check-s-limit-is">Each check's limit is plotted as a ring at the averaging time where the margin was worst. Masks are transcribed from the ITU-T (International Telecommunication Union Telecommunication Standardization Sector) Recommendations named in each row.</p></div><div class="table-scroll"><table class="tbl" id="mask-table"></table></div></div>
       </section>
@@ -298,7 +298,7 @@
 
       <section class="view" id="v-orbit" role="tabpanel" aria-label="3-D orbit" hidden data-l10n-attr="aria-label:studio-orbit-3d">
         <div class="card scope">
-          <div class="card-head row"><h3 data-l10n-rich="seg-08c7323197b0" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-main-earth-centred-inertial-frame\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Orbit <small data-l10n="studio-main-earth-centred-inertial-frame">Earth-centred inertial frame</small></h3><p class="card-note on-space" id="orbit-note" data-l10n="studio-main-drag-to-rotate-scroll-to">Drag to rotate, scroll to zoom.</p></div>
+          <div class="card-head row"><h3 data-l10n-rich="seg-08c7323197b0" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Orbit <small data-l10n="studio-main-earth-centred-inertial-frame">Earth-centred inertial frame</small></h3><p class="card-note on-space" id="orbit-note" data-l10n="studio-main-drag-to-rotate-scroll-to">Drag to rotate, scroll to zoom.</p></div>
           <div class="orbit-box" id="orbit-box"><canvas id="orbit-canvas" aria-label="Interactive 3-D view of the propagated track" data-l10n-attr="aria-label:studio-main-interactive-3-d-view-of"></canvas></div>
           <div class="chart-tools" id="orbit-tools"></div>
         </div>
@@ -333,7 +333,7 @@
 
       <section class="view" id="v-compare" role="tabpanel" aria-label="Compare runs" hidden data-l10n-attr="aria-label:studio-compare-runs">
         <div class="card">
-          <div class="card-head row"><h3 data-l10n-rich="seg-8ea98d881360" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-main-pinned-runs-side-by-side\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Compare runs <small data-l10n="studio-main-pinned-runs-side-by-side">pinned runs side by side</small></h3><button class="btn-mini" id="compare-clear" data-l10n="studio-main-clear-pins">Clear pins</button></div>
+          <div class="card-head row"><h3 data-l10n-rich="seg-8ea98d881360" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Compare runs <small data-l10n="studio-main-pinned-runs-side-by-side">pinned runs side by side</small></h3><button class="btn-mini" id="compare-clear" data-l10n="studio-main-clear-pins">Clear pins</button></div>
           <div class="pins" id="pins"></div>
           <p class="card-note" id="compare-note"></p>
           <div class="table-scroll"><table class="tbl" id="compare-table"></table></div>
@@ -345,7 +345,7 @@
 
       <section class="view" id="v-animation" role="tabpanel" aria-label="Animation" hidden data-l10n-attr="aria-label:studio-animation">
         <div class="card" id="anim-card">
-          <div class="card-head"><h3 data-l10n-rich="seg-26461891d3d8" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-main-the-engine-s-own-export\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Animation <small data-l10n="studio-main-the-engine-s-own-export">the engine's own export</small></h3><p class="card-note" id="anim-note"></p></div>
+          <div class="card-head"><h3 data-l10n-rich="seg-26461891d3d8" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Animation <small data-l10n="studio-main-the-engine-s-own-export">the engine's own export</small></h3><p class="card-note" id="anim-note"></p></div>
           <p class="rec-line" id="anim-prov" hidden></p>
           <div class="frame-box" id="anim-box"></div>
           <div class="chart-tools" id="anim-tools"></div>
@@ -354,7 +354,7 @@
 
       <section class="view" id="v-report" role="tabpanel" aria-label="Engine report" hidden data-l10n-attr="aria-label:studio-engine-report">
         <div class="card" id="report-card">
-          <div class="card-head"><h3 data-l10n-rich="seg-5c28f6c1775a" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-main-written-by-the-engine\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Run report <small data-l10n="studio-main-written-by-the-engine">written by the engine</small></h3><p class="card-note" id="report-note"></p></div>
+          <div class="card-head"><h3 data-l10n-rich="seg-5c28f6c1775a" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Run report <small data-l10n="studio-main-written-by-the-engine">written by the engine</small></h3><p class="card-note" id="report-note"></p></div>
           <p class="rec-line" id="report-prov" hidden></p>
           <div class="frame-box tall" id="report-box"></div>
           <div class="chart-tools" id="report-tools"></div>
@@ -364,7 +364,7 @@
       <section class="view" id="v-exports" role="tabpanel" aria-label="Exports and report" hidden data-l10n-attr="aria-label:studio-exports">
         <div class="export-grid" id="export-grid"></div>
         <div class="card" id="interop-card" hidden>
-          <div class="card-head"><h3 data-l10n-rich="seg-c6251ca94299" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-main-czml-kml-geojson-stk-ephemeris\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Interoperability exports <small data-l10n="studio-main-czml-kml-geojson-stk-ephemeris">CZML, KML, GeoJSON, STK ephemeris, SigMF</small></h3><p class="card-note" id="interop-note"></p></div>
+          <div class="card-head"><h3 data-l10n-rich="seg-c6251ca94299" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Interoperability exports <small data-l10n="studio-main-czml-kml-geojson-stk-ephemeris">CZML, KML, GeoJSON, STK ephemeris, SigMF</small></h3><p class="card-note" id="interop-note"></p></div>
           <p class="rec-line" id="interop-prov" hidden></p>
           <div class="table-scroll"><table class="tbl" id="interop-table"></table></div>
         </div>
@@ -393,11 +393,11 @@
       </section>
 
       <footer class="res-foot" id="res-foot">
-      <p data-l10n-rich="seg-dcb3ee3095ea" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<span data-studio-name data-l10n=\&quot;studio-main-kshana-studio\&quot;>&quot;,&quot;c&quot;:&quot;</span>&quot;}}">Kshana is open source under the AGPL-3.0 (GNU Affero General Public License), with a commercial licence available. By Ashforde®. Every figure is labelled with its evidence tier; the <span data-studio-name data-l10n="studio-main-kshana-studio">Kshana Studio</span>'s timing, integrity and security figures are modelled unless marked validated.</p>
-      <p class="pro-line" data-l10n-rich="seg-280926ba03ec" data-l10n-tags="{&quot;a1&quot;:{&quot;o&quot;:&quot;<a href=\&quot;mailto:contact@ashforde.org?subject=Kshana%20Pro%20evaluation\&quot; data-l10n=\&quot;studio-main-request-an-evaluation\&quot;>&quot;,&quot;c&quot;:&quot;</a>&quot;},&quot;a2&quot;:{&quot;o&quot;:&quot;<a href=\&quot;mailto:contact@ashforde.org?subject=Kshana%20commercial%20licence\&quot; data-l10n=\&quot;studio-main-talk-to-us-about-a\&quot;>&quot;,&quot;c&quot;:&quot;</a>&quot;},&quot;a3&quot;:{&quot;o&quot;:&quot;<a href=\&quot;mailto:contact@ashforde.org?subject=Kshana%20study%20request\&quot; data-l10n=\&quot;studio-main-request-a-study\&quot;>&quot;,&quot;c&quot;:&quot;</a>&quot;}}">Need a clock digital twin calibrated to your device, a trade study with an audit-grade evidence pack, or closed-source integration? That is Kshana Pro, available under contract. <a href="mailto:contact@ashforde.org?subject=Kshana%20Pro%20evaluation" data-l10n="studio-main-request-an-evaluation">Request an evaluation</a> · <a href="mailto:contact@ashforde.org?subject=Kshana%20commercial%20licence" data-l10n="studio-main-talk-to-us-about-a">Talk to us about a commercial licence</a> · <a href="mailto:contact@ashforde.org?subject=Kshana%20study%20request" data-l10n="studio-main-request-a-study">Request a study</a></p>
+      <p data-l10n-rich="seg-dcb3ee3095ea" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<span data-studio-name>&quot;,&quot;c&quot;:&quot;</span>&quot;}}">Kshana is open source under the AGPL-3.0 (GNU Affero General Public License), with a commercial licence available. By Ashforde®. Every figure is labelled with its evidence tier; the <span data-studio-name data-l10n="studio-main-kshana-studio">Kshana Studio</span>'s timing, integrity and security figures are modelled unless marked validated.</p>
+      <p class="pro-line" data-l10n-rich="seg-280926ba03ec" data-l10n-tags="{&quot;a1&quot;:{&quot;o&quot;:&quot;<a href=\&quot;mailto:contact@ashforde.org?subject=Kshana%20Pro%20evaluation\&quot;>&quot;,&quot;c&quot;:&quot;</a>&quot;},&quot;a2&quot;:{&quot;o&quot;:&quot;<a href=\&quot;mailto:contact@ashforde.org?subject=Kshana%20commercial%20licence\&quot;>&quot;,&quot;c&quot;:&quot;</a>&quot;},&quot;a3&quot;:{&quot;o&quot;:&quot;<a href=\&quot;mailto:contact@ashforde.org?subject=Kshana%20study%20request\&quot;>&quot;,&quot;c&quot;:&quot;</a>&quot;}}">Need a clock digital twin calibrated to your device, a trade study with an audit-grade evidence pack, or closed-source integration? That is Kshana Pro, available under contract. <a href="mailto:contact@ashforde.org?subject=Kshana%20Pro%20evaluation" data-l10n="studio-main-request-an-evaluation">Request an evaluation</a> · <a href="mailto:contact@ashforde.org?subject=Kshana%20commercial%20licence" data-l10n="studio-main-talk-to-us-about-a">Talk to us about a commercial licence</a> · <a href="mailto:contact@ashforde.org?subject=Kshana%20study%20request" data-l10n="studio-main-request-a-study">Request a study</a></p>
       <div class="install-line" id="install-line" aria-label="Install the engine" data-l10n-attr="aria-label:studio-install-engine"></div>
       <p class="credit" data-l10n="studio-main-imagery-nasa-visible-earth-blue">Imagery: NASA Visible Earth (Blue Marble). Coastlines: Natural Earth. Every chart here is drawn from an engine run; a run, report, animation or export made by the native command-line engine is labelled as recorded.</p>
-      <p class="embed-only"><a href="https://kshana.dev" target="_blank" rel="noopener" data-l10n-rich="seg-e02d92584d5a" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<span data-studio-name data-l10n=\&quot;studio-main-kshana-studio\&quot;>&quot;,&quot;c&quot;:&quot;</span>&quot;}}">Open in <span data-studio-name data-l10n="studio-main-kshana-studio">Kshana Studio</span></a></p>
+      <p class="embed-only"><a href="https://kshana.dev" target="_blank" rel="noopener" data-l10n-rich="seg-e02d92584d5a" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<span data-studio-name>&quot;,&quot;c&quot;:&quot;</span>&quot;}}">Open in <span data-studio-name data-l10n="studio-main-kshana-studio">Kshana Studio</span></a></p>
       </footer>
     </div>
   </main>
@@ -424,7 +424,7 @@
     </div>
 
     <details class="panel src" id="source">
-      <summary><h2 data-l10n-rich="seg-36dcb1255565" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-main-toml-tom-s-obvious-minimal\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Scenario source <small data-l10n="studio-main-toml-tom-s-obvious-minimal">TOML (Tom's Obvious, Minimal Language)</small></h2>
+      <summary><h2 data-l10n-rich="seg-36dcb1255565" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Scenario source <small data-l10n="studio-main-toml-tom-s-obvious-minimal">TOML (Tom's Obvious, Minimal Language)</small></h2>
         <span class="src-tools"><button class="btn-mini" id="src-reset" title="Restore the bundled scenario" data-l10n-attr="title:studio-restore-scenario"><svg aria-hidden="true"><use href="#i-reset"/></svg><span data-l10n-rich="seg-43ed980c95fe">Reset</span></button><button class="btn-mini" id="src-copy" title="Copy the scenario text" data-l10n-attr="title:studio-copy-scenario"><svg aria-hidden="true"><use href="#i-copy"/></svg><span data-l10n-rich="seg-fa37e351f6b4">Copy</span></button></span>
       </summary>
       <div class="code" id="code">
@@ -449,13 +449,13 @@
   <div class="pal-box">
     <div class="pal-in"><svg aria-hidden="true"><use href="#i-search"/></svg><input id="pal-input" placeholder="Find a scenario, domain, field, panel or command" aria-label="Search" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="pal-list" data-l10n-attr="aria-label:studio-search"><kbd>esc</kbd></div>
     <div class="pal-list" id="pal-list" role="listbox"></div>
-    <div class="pal-foot"><span data-l10n-rich="seg-8345e4b0246e" data-l10n-tags="{&quot;c1&quot;:{&quot;h&quot;:&quot;<kbd>↑</kbd>&quot;},&quot;c2&quot;:{&quot;h&quot;:&quot;<kbd>↓</kbd>&quot;}}"><kbd>↑</kbd><kbd>↓</kbd> move</span><span data-l10n-rich="seg-510f4297d825" data-l10n-tags="{&quot;c1&quot;:{&quot;h&quot;:&quot;<kbd>↵</kbd>&quot;}}"><kbd>↵</kbd> open</span><span data-l10n-rich="seg-e838645a0e63" data-l10n-tags="{&quot;c1&quot;:{&quot;h&quot;:&quot;<kbd>⌘↵</kbd>&quot;}}"><kbd>⌘↵</kbd> run</span></div>
+    <div class="pal-foot"><kbd>↑</kbd><span data-l10n-rich="seg-9c28d67257b7" data-l10n-tags="{&quot;c1&quot;:{&quot;h&quot;:&quot;<kbd>↓</kbd>&quot;},&quot;c2&quot;:{&quot;h&quot;:&quot;<kbd>↵</kbd>&quot;},&quot;c3&quot;:{&quot;h&quot;:&quot;<kbd>⌘↵</kbd>&quot;}}"><kbd>↓</kbd> move<kbd>↵</kbd> open<kbd>⌘↵</kbd> run</span></div>
   </div>
 </div>
 
 <!-- History drawer -->
 <aside class="drawer" id="history" role="dialog" aria-modal="false" aria-label="Run history" hidden data-l10n-attr="aria-label:studio-run-history">
-  <div class="drawer-head"><h2 data-l10n-rich="seg-08e485ae99c4" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small data-l10n=\&quot;studio-main-this-session\&quot;>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Run history <small data-l10n="studio-main-this-session">this session</small></h2><button class="icon-btn" id="history-close" aria-label="Close history" data-l10n-attr="aria-label:studio-main-close-history"><svg aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="drawer-head"><h2 data-l10n-rich="seg-08e485ae99c4" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<small>&quot;,&quot;c&quot;:&quot;</small>&quot;}}">Run history <small data-l10n="studio-main-this-session">this session</small></h2><button class="icon-btn" id="history-close" aria-label="Close history" data-l10n-attr="aria-label:studio-main-close-history"><svg aria-hidden="true"><use href="#i-x"/></svg></button></div>
   <ol class="hist" id="hist-list"></ol>
   <p class="hint" id="hist-empty" data-l10n="studio-main-runs-you-make-appear-here">Runs you make appear here. Select one to bring back its scenario and result, or pin it to compare.</p>
 </aside>
