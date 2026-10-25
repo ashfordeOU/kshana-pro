@@ -478,8 +478,8 @@ function leoPppPanels(r) {
     return series.length ? { type: "line", title, wide: true, model: { title, series, xLabel: t("js-kind-axis-time-since-the-start-min", "time since the start (min)"), yLabel: t("js-kind-axis-median-error-m", "median error (m)"), unit: "m", threshold: isNum(thr) ? thr : null, thresholdLabel: t("js-kind-threshold-convergence-criterion", "convergence criterion"), xName: "t", xUnit: "min", outages: [] }, opts: { logY: false }, src: series.map((s) => ({ path: s.path, n: s.n })) } : null;
   };
   return clean([
-    mk("median_horizontal_error_m", "Convergence: median horizontal error", r.criterion_horizontal_m),
-    mk("median_vertical_error_m", "Convergence: median vertical error", r.criterion_vertical_m),
+    mk("median_horizontal_error_m", t("js-replay-kinds-convergence-horizontal", "Convergence: median horizontal error"), r.criterion_horizontal_m),
+    mk("median_vertical_error_m", t("js-replay-kinds-convergence-vertical", "Convergence: median vertical error"), r.criterion_vertical_m),
     table(r, t("js-kind-title-cases", "Cases"), "cases", cols(col("name", { label: t("js-kind-label-case", "Case") }), "n_leo", "mean_sats", "median_convergence_min", "fraction_converged", "nees_mean", "nees_fraction_in_band"), { wide: true,
       note: t("js-kind-note-precise-point-positioning-ppp-converges", "Precise point positioning (PPP) converges when the error stays under the criterion. NEES is the normalised estimation error squared, a filter-consistency check.") }),
     table(r, t("js-kind-title-beside-the-published-speed-up", "Beside the published speed-up"), "li_2019", cols("n_leo", "modelled_min", "published_min", "modelled_ratio", "published_ratio"), { wide: true }),

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Interference observatory page: the DOM layer. What is read, checked and drawn is in lib/observatory.mjs. The page makes no request:
 // it reads files the person opens, in this browser, and shows what they say.
-import { readDay, readIncidents, readManifest, verifyFiles, dayAlt, dayNotes, cellRows, mapSvg, classifyName, safeHttps, cellKey, STATES, STATE_TEXT, STATE_MEANS, notClear, MAX_BYTES } from "../lib/observatory.mjs";
+import { readDay, readIncidents, readManifest, verifyFiles, dayAlt, dayNotes, cellRows, mapSvg, classifyName, safeHttps, cellKey, STATES, STATE_TEXT, STATE_MEANS, notClear, causeText, MAX_BYTES } from "../lib/observatory.mjs";
 import { t, ready } from "../lib/t.mjs";
 await ready(); // the page's first catalogue is loaded before text is built
 
@@ -101,7 +101,7 @@ function drawIncidents(d) {
     const b = x.bbox ? `${x.bbox.south}, ${x.bbox.west}, ${x.bbox.north}, ${x.bbox.east}` : t("js-obs-not-stated", "not stated");
     const btn = el("button", { type: "button", class: "ko-btn ko-rowbtn", "aria-pressed": "false" }, x.id || t("js-obs-incident", "incident"));
     btn.addEventListener("click", () => { const keys = x.cells.map((c) => `${c.i}:${c.j}`), on = keys.every((k) => selected.has(k)); selected = new Set(on ? [] : keys); for (const o of body.querySelectorAll(".ko-rowbtn")) o.setAttribute("aria-pressed", "false"); if (!on) btn.setAttribute("aria-pressed", "true"); drawMap(); });
-    return el("tr", {}, el("th", { scope: "row" }, btn), el("td", {}, b), el("td", {}, String(x.cellCount ?? x.cells.length)), el("td", {}, inc.cause));
+    return el("tr", {}, el("th", { scope: "row" }, btn), el("td", {}, b), el("td", {}, String(x.cellCount ?? x.cells.length)), el("td", {}, causeText(inc.cause)));
   }));
   tbl.replaceChildren(head, body);
 }

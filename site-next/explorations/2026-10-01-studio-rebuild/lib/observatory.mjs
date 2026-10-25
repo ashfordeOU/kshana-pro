@@ -23,6 +23,8 @@ export const STATE_MEANS = Object.freeze({
 });
 // NOT_CLEAR is the English wording kept for callers that read the constant; the page shows notClear(), which follows the language.
 export const NOT_CLEAR = "Not observed is not clear.";
+// The cause every incident carries is the data value "not attributed" (compared as-is); a person reads causeText(), which follows the language.
+export const causeText = () => t("js-replay-obs-not-attributed", "not attributed");
 export const notClear = () => t("js-obs-not-clear", "Not observed is not clear.");
 export const REASON_TEXT = Object.freeze({
   get insufficient_sample() { return t("js-obs-reason-insufficient", "too few aircraft were sampled to make a call"); },
