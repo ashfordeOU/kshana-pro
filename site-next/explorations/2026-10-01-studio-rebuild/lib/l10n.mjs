@@ -15,6 +15,7 @@ import { FluentBundle, FluentResource } from "./vendor/fluent-bundle-0.19.1.mjs"
 export const LANGS = ["nl", "pl", "pt-BR", "pt-PT", "fi", "sv", "da", "nb", "cs", "uk", "ru", "de", "fr", "es", "et", "ja", "zh-Hans"];
 export const NAMES = { en: "English", de: "Deutsch", fr: "Français", es: "Español", "pt-BR": "Português (Brasil)", "pt-PT": "Português (Portugal)", nl: "Nederlands", da: "Dansk", sv: "Svenska", nb: "Norsk bokmål", pl: "Polski", cs: "Čeština", uk: "Українська", ru: "Русский", fi: "Suomi", et: "Eesti", ja: "日本語", "zh-Hans": "简体中文" };
 export const STORAGE_KEY = "kshana-lang";
+export const PSEUDO = "en-XA";
 const RTL = new Set(["ar", "he", "fa", "ur"]);
 export const dirOf = (lang) => (RTL.has(String(lang).split("-")[0]) ? "rtl" : "ltr");
 
@@ -36,18 +37,42 @@ export function negotiate(languages, available = LANGS) {
 /** The language a page shows: ?lang= (also stored), the /<lang>/studio/ stub, the stored choice, then negotiation. */
 export function chooseLang({ search = "", storage = null, languages = [], available = LANGS }) {
   const m = /[?&]lang=([\w-]+)/.exec(search);
-  if (m && (m[1] === "en" || available.includes(m[1]))) { try { storage && storage.setItem(STORAGE_KEY, m[1]); } catch { /* per viewer, optional */ } return m[1]; }
+  if (m && (m[1] === "en" || m[1] === PSEUDO || available.includes(m[1])))  { // en-XA is the pseudo-locale of the tests: only ?lang= asks for it
+    try { if (m[1] !== PSEUDO) storage && storage.setItem(STORAGE_KEY, m[1]); } catch { /* per viewer, optional */ }
+    return m[1];
+  }
   let s = null;
   try { s = storage && storage.getItem(STORAGE_KEY); } catch { s = null; }
   if (s && (s === "en" || available.includes(s))) return s;
   return negotiate(languages, available);
 }
 
-export function createL10n({ base, fetchText, storage = null, languages = [], doc = null, registerEngine = null, available = LANGS, files = ["ui.ftl", "glossary.ftl", "studio-js.ftl"] } = {}) {
+const escText = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/** A translated message with numbered tags (<a1>..</a1>, <b>, <em>, <s1>, <c1/>, <br/>) to HTML, with the page's own tags: a translation can
+ *  only use the elements the English had. Throws on an unknown or unbalanced tag. */
+export function renderRich(str, tags) {
+  const re = /<(\/?)(a\d+|s\d+|b|em)>|<(c\d+)\/>|<br\/>/g;
+  let out = "", last = 0, m;
+  const open = [];
+  while ((m = re.exec(str))) {
+    out += escText(str.slice(last, m.index));
+    last = re.lastIndex;
+    if (m[0] === "<br/>") out += "<br>";
+    else if (m[3]) { if (!tags[m[3]]) throw new Error("unknown tag " + m[3]); out += tags[m[3]].h; }
+    else if (m[1]) { const t = open.pop(); if (t !== m[2]) throw new Error("mismatched tag " + m[2]); out += tags[t].c; }
+    else { if (!tags[m[2]]) throw new Error("unknown tag " + m[2]); open.push(m[2]); out += tags[m[2]].o; }
+  }
+  out += escText(str.slice(last));
+  if (open.length) throw new Error("unclosed tag");
+  return out;
+}
+
+export function createL10n({ base, fetchText, storage = null, languages = [], doc = null, registerEngine = null, available = LANGS, files = ["ui.ftl", "glossary.ftl", "studio-js.ftl", "studio-pages.ftl"] } = {}) {
   let lang = "en";
   let bundles = []; // current language first, English last
   const en = { bundle: null };
   const hooks = [];
+  let rerender = null;
   const state = { engineFallback: false, loaded: { en: false } };
 
   const load = async (code, files) => {
@@ -77,14 +102,39 @@ export function createL10n({ base, fetchText, storage = null, languages = [], do
     return null;
   };
 
+  // A glossary term ("-tier-validated") in the current language, English next, else the plain word the caller passes.
+  const term = (id, fallback = "") => {
+    for (const b of bundles) {
+      const tm = b._terms && b._terms.get(id.startsWith("-") ? id : "-" + id);
+      if (tm && tm.value) { try { return b.formatPattern(tm.value, {}); } catch { /* next */ } }
+    }
+    return fallback;
+  };
+
   const argsOf = (el) => { try { return JSON.parse(el.getAttribute("data-l10n-args") || "{}"); } catch { return {}; } };
+  // An element a script rewrote after the catalogue set it (a placeholder the page fills in) is left alone.
+  const settable = (el, current) => {
+    const k = el.__kl || (el.__kl = { en: current, last: current });
+    return current === k.last || current === k.en;
+  };
   const apply = (root = doc) => {
     if (!root || !root.querySelectorAll) return 0;
     let n = 0;
     for (const el of root.querySelectorAll("[data-l10n]")) {
       const id = el.getAttribute("data-l10n");
       const s = format(id, argsOf(el));
-      if (s !== id) { el.textContent = s; n++; }
+      if (s !== id && settable(el, el.textContent)) { el.textContent = s; el.__kl.last = s; n++; }
+    }
+    for (const el of root.querySelectorAll("[data-l10n-rich]")) {
+      const id = el.getAttribute("data-l10n-rich");
+      let tags = {};
+      try { tags = JSON.parse(el.getAttribute("data-l10n-tags") || "{}"); } catch { continue; }
+      if (!el.__kr) el.__kr = el.innerHTML; // the English, as the page wrote it
+      const s = format(id, { version: (doc && doc.documentElement && doc.documentElement.getAttribute("data-version")) || "" });
+      if (s === id) { if (settable(el, el.innerHTML) && el.__kl && el.innerHTML !== el.__kr) { el.innerHTML = el.__kr; el.__kl.last = el.__kr; } continue; }
+      let html;
+      try { html = renderRich(s, tags); } catch { continue; }
+      if (settable(el, el.innerHTML)) { el.innerHTML = html; el.__kl.last = el.innerHTML; n++; }
     }
     for (const el of root.querySelectorAll("[data-l10n-attr]")) {
       for (const pair of String(el.getAttribute("data-l10n-attr")).split(";")) {
@@ -116,7 +166,11 @@ export function createL10n({ base, fetchText, storage = null, languages = [], do
     /** True when the current (non-English) language has the message; English call sites carry their own text (lib/t.mjs). */
     has: (id) => lang !== "en" && bundles.length > 0 && bundles[0] !== en.bundle && !!bundles[0].getMessage(id),
     attr,
+    term,
     apply,
+    /** A page that can rebuild its script-written text on a language change registers it here; others are reloaded by the language control. */
+    setRerender: (fn) => { rerender = fn; if (fn) hooks.push(fn); },
+    get handled() { return !!rerender; },
     onChange: (fn) => { hooks.push(fn); return () => hooks.splice(hooks.indexOf(fn), 1); },
     number: (n, opts) => new Intl.NumberFormat(lang === "en" ? "en" : lang, opts).format(n),
     date: (d, opts) => new Intl.DateTimeFormat(lang === "en" ? "en" : lang, opts).format(d),

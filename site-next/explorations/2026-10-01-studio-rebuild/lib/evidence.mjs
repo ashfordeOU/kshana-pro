@@ -8,6 +8,7 @@
 //   renderBadge(doc, result)     -> a DOM element (chip + "N ledger rows" + the rows on hover, focus or tap), or null
 //   csvHeader(label)             -> the two `# evidence:` comment lines, byte for byte as the engine writes them
 //   withEvidenceCsv(csv, result) -> a CSV that says its tier: engine CSVs already carry the lines and are returned as they are
+import { t } from "./t.mjs";
 export const EVIDENCE_KEY = "evidence";
 const TIERS = ["VALIDATED", "MODELLED", "PARTNER"];
 
@@ -21,7 +22,7 @@ export function evidenceOf(result) {
 }
 
 export const tierClass = (tier) => String(tier || "").toLowerCase();
-export const countText = (n) => `${n} ledger row${n === 1 ? "" : "s"}`;
+export const countText = (n) => t("js-lib-evidence-ledger-rows", { one: "{ $n } ledger row", other: "{ $n } ledger rows" }, { n });
 
 export function badgeModel(result) {
   const e = evidenceOf(result);
@@ -61,11 +62,11 @@ export function renderBadge(doc, result) {
   const root = el("span", `evb evb-${m.cls}`);
   root.setAttribute("tabindex", "0");
   root.setAttribute("role", "group");
-  root.setAttribute("aria-label", `Evidence: ${m.tier}, ${m.countText}`);
+  root.setAttribute("aria-label", t("js-lib-evidence-aria", "Evidence: { $tier }, { $count }", { tier: m.tier, count: m.countText }));
   const chip = el("span", "evb-chip"); chip.append(el("i"), m.tier);
   root.append(chip, el("span", "evb-n", m.countText));
   const pop = el("span", "evb-pop"); pop.setAttribute("role", "tooltip");
-  pop.append(el("b", "", "Ledger rows behind this result"));
+  pop.append(el("b", "", t("js-lib-evidence-rows-behind", "Ledger rows behind this result")));
   const ul = el("ul");
   for (const r of m.rows) {
     const li = el("li");

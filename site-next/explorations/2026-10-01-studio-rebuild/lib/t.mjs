@@ -22,3 +22,6 @@ export function english(en, vars) {
   }
   return String(s).replace(/\{ \$([A-Za-z0-9_-]+) \}/g, (_, k) => (vars && vars[k] !== undefined ? String(vars[k]) : ""));
 }
+
+/** Resolves when the page's first catalogue is loaded (immediately when none is being loaded): `await ready()` before building text once. */
+export const ready = () => (globalThis.kshanaL10nReady ? Promise.race([globalThis.kshanaL10nReady, new Promise((r) => setTimeout(r, 4000))]) : Promise.resolve());

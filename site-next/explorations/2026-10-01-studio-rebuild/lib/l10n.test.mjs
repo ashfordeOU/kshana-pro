@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createL10n, negotiate, chooseLang, dirOf, LANGS, STORAGE_KEY } from "./l10n.mjs";
+import { createL10n, negotiate, chooseLang, dirOf, renderRich, LANGS, STORAGE_KEY } from "./l10n.mjs";
 
 const EN_UI = `
 studio-title = Kshana Studio
@@ -24,7 +24,7 @@ studio-ledger-rows =
        *[other] { $n } wiersza rejestru
     }
 `;
-const files = { "en/ui.ftl": EN_UI, "en/glossary.ftl": "", "pl/ui.ftl": PL_UI, "pl/glossary.ftl": "", "pl/engine.ftl": "engine-x = x" };
+const files = { "en/ui.ftl": EN_UI, "en/glossary.ftl": "-tier-modelled = MODELLED\n    .gloss = computed from a model", "pl/ui.ftl": PL_UI, "pl/glossary.ftl": "", "pl/engine.ftl": "engine-x = x" };
 const fetchText = async (u) => { const k = u.replace("mem://", ""); if (k in files) return files[k]; throw new Error("404"); };
 const mk = (extra = {}) => createL10n({ base: "mem://", fetchText, ...extra });
 
@@ -137,9 +137,43 @@ test("remember stores the choice; the engine catalogue is registered per languag
   delete files["de/ui.ftl"];
 });
 
+test("glossary terms: the language's rendering, English next, then the caller's fallback", async () => {
+  const l = mk();
+  await l.setLang("pl");
+  assert.equal(l.term("-tier-modelled"), "MODELLED");
+  assert.equal(l.term("tier-modelled"), "MODELLED");
+  assert.equal(l.term("-tier-nope", "x"), "x");
+});
+
 test("Intl: numbers and dates follow the language", async () => {
   const l = mk();
   await l.setLang("pl");
   assert.equal(l.number(1234.5), new Intl.NumberFormat("pl").format(1234.5));
   assert.equal(l.t("studio-count-x", { n: 1.25 }), "1.3 items", "falls back to English text with English number formatting in the fallback bundle");
+});
+
+test("renderRich keeps the page's own tags and refuses others", () => {
+  const tags = { a1: { o: '<a href="x">', c: "</a>" }, c1: { h: "<code>kshana</code>" } };
+  assert.equal(renderRich("Open <a1>the page</a1> or run <c1/> & go<br/>", tags), 'Open <a href="x">the page</a> or run <code>kshana</code> &amp; go<br>');
+  assert.throws(() => renderRich("<a2>x</a2>", tags));
+  assert.throws(() => renderRich("<a1>x", tags));
+  assert.equal(renderRich("a < b", tags), "a &lt; b", "text is escaped, so a translation cannot add an element");
+});
+
+class Rich { constructor(attrs, html) { this.attrs = { ...attrs }; this.innerHTML = html; this.textContent = html; } getAttribute(k) { return k in this.attrs ? this.attrs[k] : null; } setAttribute(k, v) { this.attrs[k] = v; } }
+test("data-l10n-rich sets the element's HTML from a message, and leaves a script-written element alone", async () => {
+  files["en/studio-pages.ftl"] = "seg-aaa = Open <a1>the page</a1>";
+  files["pl/studio-pages.ftl"] = "seg-aaa = Otwórz <a1>stronę</a1>";
+  const tags = '{"a1":{"o":"<a href=\\"x\\">","c":"</a>"}}'.replace(/\\\\/g, "\\");
+  const el = new Rich({ "data-l10n-rich": "seg-aaa", "data-l10n-tags": JSON.stringify({ a1: { o: '<a href="x">', c: "</a>" } }) }, 'Open <a href="x">the page</a>');
+  const other = new Rich({ "data-l10n-rich": "seg-aaa", "data-l10n-tags": JSON.stringify({ a1: { o: "<b>", c: "</b>" } }) }, "x");
+  const doc = { documentElement: new El({}), querySelectorAll: (sel) => (sel === "[data-l10n-rich]" ? [el, other] : []) };
+  const l = createL10n({ base: "mem://", fetchText, doc, files: ["ui.ftl", "glossary.ftl", "studio-pages.ftl"] });
+  await l.setLang("pl");
+  assert.equal(el.innerHTML, 'Otwórz <a href="x">stronę</a>');
+  other.innerHTML = "written by the page's script";
+  await l.setLang("en");
+  assert.equal(el.innerHTML, 'Open <a href="x">the page</a>');
+  assert.equal(other.innerHTML, "written by the page's script");
+  delete files["en/studio-pages.ftl"]; delete files["pl/studio-pages.ftl"];
 });
