@@ -35,10 +35,10 @@
 <a class="skip" href="#main">Skip to the view</a>
 <header class="bar" id="bar">
   <a class="brand" href="../index.html" aria-label="Kshana home"><span aria-hidden="true" style="display:inline-block;width:34px;height:34px;flex:none;margin:-5px -3px -5px -5px;background:var(--ink);-webkit-mask:url(assets/brand/kshana-mark-mask.png) center/contain no-repeat;mask:url(assets/brand/kshana-mark-mask.png) center/contain no-repeat"></span>Kshana <span class="brand-tag">Studio</span></a>
-  <nav class="crumb" aria-label="Where you are"><span>Maritime trust</span></nav>
+  <nav class="crumb" aria-label="Where you are" data-l10n-attr="aria-label:studio-where-you-are"><span>Maritime trust</span></nav>
   <div class="bar-right">
     <a class="view-switch" href="./" title="Back to the Studio"><svg class="ic flip" aria-hidden="true"><use href="#i-arrow"/></svg><span class="lbl">Studio</span></a>
-    <button class="icon-btn" id="btn-theme" type="button" aria-label="Switch between light and dark" title="Switch between light and dark"><svg aria-hidden="true"><use href="#i-theme"/></svg></button>
+    <button class="icon-btn" id="btn-theme" type="button" aria-label="Switch between light and dark" title="Switch between light and dark" data-l10n-attr="aria-label:studio-theme;title:studio-theme"><svg aria-hidden="true"><use href="#i-theme"/></svg></button>
   </div>
 </header>
 
@@ -213,5 +213,6 @@
 </div>
 </main>
 <script type="module" src="trust/trust.js"></script>
+<script type="module" src="lib/l10n-boot.mjs"></script>
 </body>
 </html>

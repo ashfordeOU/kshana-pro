@@ -34,10 +34,10 @@
 <a class="skip" href="#main">Skip to the view</a>
 <header class="bar" id="bar">
   <a class="brand" href="../index.html" aria-label="Kshana home"><span aria-hidden="true" style="display:inline-block;width:34px;height:34px;flex:none;margin:-5px -3px -5px -5px;background:var(--ink);-webkit-mask:url(assets/brand/kshana-mark-mask.png) center/contain no-repeat;mask:url(assets/brand/kshana-mark-mask.png) center/contain no-repeat"></span>Kshana <span class="brand-tag">Studio</span></a>
-  <nav class="crumb" aria-label="Where you are"><span>Lunar station</span></nav>
+  <nav class="crumb" aria-label="Where you are" data-l10n-attr="aria-label:studio-where-you-are"><span>Lunar station</span></nav>
   <div class="bar-right">
     <a class="view-switch" href="./" title="Back to the Studio"><svg class="ic flip" aria-hidden="true"><use href="#i-arrow"/></svg><span class="lbl">Studio</span></a>
-    <button class="icon-btn" id="btn-theme" type="button" aria-label="Switch between light and dark" title="Switch between light and dark"><svg aria-hidden="true"><use href="#i-theme"/></svg></button>
+    <button class="icon-btn" id="btn-theme" type="button" aria-label="Switch between light and dark" title="Switch between light and dark" data-l10n-attr="aria-label:studio-theme;title:studio-theme"><svg aria-hidden="true"><use href="#i-theme"/></svg></button>
   </div>
 </header>
 
@@ -56,7 +56,7 @@
 
   <div class="ls-grid">
     <form class="card ls-controls" id="ls-form" aria-labelledby="ls-set-h" novalidate>
-      <div class="card-head"><h2 id="ls-set-h" class="h3">Result</h2><p class="card-note">The source and every input you change are in the page address, so a copied link opens the same study.</p></div>
+      <div class="card-head"><h2 id="ls-set-h" class="h3" data-l10n="studio-result">Result</h2><p class="card-note">The source and every input you change are in the page address, so a copied link opens the same study.</p></div>
       <fieldset class="ls-fs"><legend>Source</legend>
         <label class="ls-radio"><input type="radio" name="ls-src" value="recorded"> The recording that ships with the Studio</label>
         <label class="ls-radio"><input type="radio" name="ls-src" value="live"> Run it here, in this browser</label>
@@ -139,5 +139,6 @@
 </div>
 </main>
 <script type="module" src="lunar/lunar.js"></script>
+<script type="module" src="lib/l10n-boot.mjs"></script>
 </body>
 </html>
