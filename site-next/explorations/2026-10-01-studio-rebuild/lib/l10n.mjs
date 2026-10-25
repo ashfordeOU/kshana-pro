@@ -43,7 +43,7 @@ export function chooseLang({ search = "", storage = null, languages = [], availa
   return negotiate(languages, available);
 }
 
-export function createL10n({ base, fetchText, storage = null, languages = [], doc = null, registerEngine = null, available = LANGS } = {}) {
+export function createL10n({ base, fetchText, storage = null, languages = [], doc = null, registerEngine = null, available = LANGS, files = ["ui.ftl", "glossary.ftl", "studio-js.ftl"] } = {}) {
   let lang = "en";
   let bundles = []; // current language first, English last
   const en = { bundle: null };
@@ -113,6 +113,8 @@ export function createL10n({ base, fetchText, storage = null, languages = [], do
     get lang() { return lang; },
     get engineFallback() { return state.engineFallback; },
     t: (id, vars) => format(id, vars),
+    /** True when the current (non-English) language has the message; English call sites carry their own text (lib/t.mjs). */
+    has: (id) => lang !== "en" && bundles.length > 0 && bundles[0] !== en.bundle && !!bundles[0].getMessage(id),
     attr,
     apply,
     onChange: (fn) => { hooks.push(fn); return () => hooks.splice(hooks.indexOf(fn), 1); },
@@ -120,11 +122,11 @@ export function createL10n({ base, fetchText, storage = null, languages = [], do
     date: (d, opts) => new Intl.DateTimeFormat(lang === "en" ? "en" : lang, opts).format(d),
     /** Load a language; English is always loaded as the fallback. Never throws: a failed fetch leaves English. */
     async setLang(code, { remember = false } = {}) {
-      if (!en.bundle) en.bundle = await load("en", ["ui.ftl", "glossary.ftl"]);
+      if (!en.bundle) en.bundle = await load("en", files);
       let b = null;
       state.engineFallback = false;
       if (code !== "en") {
-        b = await load(code, ["ui.ftl", "glossary.ftl"]);
+        b = await load(code, files);
         if (!b) code = "en";
       }
       lang = code;
