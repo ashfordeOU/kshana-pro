@@ -9,9 +9,9 @@ State at the end of W60's session (25 Oct 2026). Read `docs/design/i18n-0.40-des
 | i18n tools, catalogues, CI | kshana `feat/i18n-site-0.40` (from origin/main bc04e98): `tools/i18n*.mjs`, `tools/i18n-assets/`, `tools/vendor/`, `i18n/`, `.github/workflows/i18n.yml`, the translation step of `.github/workflows/pages.yml` |
 | Studio and site source changes | kshana-pro `site/i18n-0.40`: Studio `site-next/explorations/2026-10-01-studio-rebuild`, site `site-next/explorations/2026-09-27-combo/src` |
 | Mission thread view | Studio `mission-thread/`, `lib/mission-thread.mjs` (+ test), `recorded/mission-thread-artemis-class.json`, `tools_mission_thread.mjs` |
-| scratch (lost with the container) | `/tmp/claude-0/-workspace-kshana-pro/*/scratchpad`: the proof catalogues, the old-tree copies for the identity test |
+| scratch (lost with the container) | the session scratch directory: the proof catalogues, the old-tree copies for the identity test |
 
-Identity for every commit: `git -c user.name="Ashforde OÜ" -c user.email="ashfordegithub@cbaweja.org"`, no trailers. Never use `pkill -f` or `pgrep -f` with a pattern that appears in your own command line (it kills the shell). The classifier denied `add_repo` and the first clone until the owner left auto mode: if it denies again, stop and tell the coordinator.
+Commits use the project identity the coordinator gave (author and committer), no trailers. Never use `pkill -f` or `pgrep -f` with a pattern that appears in your own command line (it kills the shell). If a repository action is refused, stop and tell the coordinator.
 
 ## What exists (all tested on the 0.39 tree with the pseudo-locale `en-XA` and one real German proof)
 
