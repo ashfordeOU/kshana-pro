@@ -66,3 +66,10 @@ Run in this order; stop and tell the coordinator at each marked point.
 6. Gates: `node --test` on the Studio `lib/*.test.mjs`; fix the `web/*` count tests (87 to 92 kinds, 388 to 400 rows, the social card `og-card.png`, `og-card.rendered-from.json`) only by regenerating from the engine, never by editing a bar; `selfcheck.mjs --final`; `check.py`; `i18n.yml` jobs including `i18n-digits-test.mjs` and `i18n-caps-test.mjs` (add `ci.yml` steps for new web tests `l10n`, `t`, `mission-thread`); pseudo-locale pipeline (`pseudo`, `check`, `apply en-XA`, `verify en-XA`, `i18n-pseudo-test.mjs --all`, `i18n-negotiation-test.mjs`); English identity test against the 0.39.0 trees where the English did not change.
 7. Real languages: `langs --min 0.25`, `apply`, `fonts`, `verify` for all 17 (expect failures from machine translation: report them per language and page, never loosen a bar), `sitemaps`, `english`, `size --cap 500` (the 500 MB check; report the total).
 8. Push on the branch the coordinator names; send SHAs and the gate output. The caps-token list is now 26 words in `tools/i18n-lang.mjs` (`TOKENS`); the digit rule allows an extra run only for an English number word or month name of the same block/message.
+
+## Site-side count tests the full suite flags on the merged tree (from the coordinator, 27 Oct)
+
+Regenerate from the engine at the final commit, never by hand; numbers may move by one if workstream K adds a ledger row (401).
+1. `matrix_total_no_stale_count_doc_sync`: `web/evidence.html` ("All 388 rows" and the provenance line) and `web/index.html` (388).
+2. `scenario_count_doc_sync`: `web/capabilities.json` ("87 of 87 kinds") and `web/index.html` ("87 scenario kinds").
+3. `web_validation_counts_doc_sync`: `web/index.html` and `web/og-card.svg` must say "176 of 400 validated against external oracles" (`python3 tools/gen_og_card.py`).
