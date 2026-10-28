@@ -1,15 +1,15 @@
 {
  "generated_by": "features/gen_features.py",
- "generated_at": "2026-10-28T02:21:17Z",
+ "generated_at": "2026-10-28T11:48:53Z",
  "engine": {
   "repo": "/workspace/kshana-eng",
   "version": "0.40.0",
-  "git_head": "ac05b723c",
+  "git_head": "339521841",
   "worktree_dirty": false
  },
  "counts": {
   "kind": 92,
-  "scenario": 193,
+  "scenario": 194,
   "cli": 49,
   "mcp-tool": 49,
   "binding": 169,
@@ -21,7 +21,7 @@
   "pro": 15,
   "study": 5
  },
- "total": 1054,
+ "total": 1055,
  "unplaced": [],
  "stale_placements": [],
  "warnings": [
@@ -4588,7 +4588,8 @@
      "ground_network"
     ],
     "scenarios": [
-     "mission-thread-artemis-class"
+     "mission-thread-artemis-class",
+     "mission-thread-short"
     ]
    },
    "page": "Capabilities",
@@ -9465,6 +9466,39 @@
    "section": "atlas",
    "studio": "none",
    "docs": "docs/scenario-reference.html#mission-thread-artemis-class",
+   "also": [],
+   "placed": true,
+   "unexpanded_abbreviations": []
+  },
+  {
+   "id": "scenario:mission-thread-short",
+   "category": "scenario",
+   "subtype": "bundled scenario",
+   "name": "mission-thread-short",
+   "description": "A short mission thread that runs from a binary alone: launch and ascent, one low-Earth-orbit rendezvous, one day of trans-lunar cruise and the return and entry, with the Moon's position from the analytic series (no kernel file).",
+   "source": "scenarios/mission-thread-short.toml:1",
+   "edition": "Free core",
+   "edition_source": "README.md:1452 “…no feature gate” · README.md:1521 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "mission-thread-short",
+    "mission-thread-short.toml"
+   ],
+   "probes": [
+    [
+     "ident",
+     "mission-thread-short"
+    ]
+   ],
+   "claim": "",
+   "facts": {
+    "kind": "mission-thread",
+    "bundled": true,
+    "git": "committed"
+   },
+   "page": "Capabilities",
+   "section": "atlas",
+   "studio": "mission-thread-short",
+   "docs": "docs/scenario-reference.html#mission-thread-short",
    "also": [],
    "placed": true,
    "unexpanded_abbreviations": []

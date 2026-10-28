@@ -1352,6 +1352,7 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "scenario:lunar-surface-terrain" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-surface-terrain" }
 "scenario:lunar-surface" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-surface" }
 "scenario:mission-thread-artemis-class" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#mission-thread-artemis-class" }
+"scenario:mission-thread-short" = { page = "Capabilities", section = "atlas", studio = "mission-thread-short", docs = "docs/scenario-reference.html#mission-thread-short" }
 "cli:partner" = { page = "Developers", section = "ways", studio = "none", docs = "docs/partner-data.html" }
 "binding:python.interference_emitter_regions" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
 "binding:python.run_human" = { page = "Docs", section = "i18n.html#choosing-the-language", studio = "none", docs = "docs/i18n.html#choosing-the-language" }
