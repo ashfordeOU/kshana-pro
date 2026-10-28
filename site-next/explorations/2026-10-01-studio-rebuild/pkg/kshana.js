@@ -160,26 +160,29 @@ export function bench_score(truth_json, predictions_json, threshold) {
 /**
  * Run a scenario and return its SVG chart.
  * @param {string} toml
+ * @param {string | null} [lang]
  * @returns {string}
  */
-export function chart_svg(toml) {
-    let deferred3_0;
-    let deferred3_1;
+export function chart_svg(toml, lang) {
+    let deferred4_0;
+    let deferred4_1;
     try {
         const ptr0 = passStringToWasm0(toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.chart_svg(ptr0, len0);
-        var ptr2 = ret[0];
-        var len2 = ret[1];
+        var ptr1 = isLikeNone(lang) ? 0 : passStringToWasm0(lang, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        const ret = wasm.chart_svg(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
         if (ret[3]) {
-            ptr2 = 0; len2 = 0;
+            ptr3 = 0; len3 = 0;
             throw takeFromExternrefTable0(ret[2]);
         }
-        deferred3_0 = ptr2;
-        deferred3_1 = len2;
-        return getStringFromWasm0(ptr2, len2);
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
     } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
 }
 
@@ -277,24 +280,51 @@ export function encode_permalink(toml) {
 }
 
 /**
+ * Why a scenario fails, as a JSON object string `{"kind", "code", "message"}` (`message` in `lang`,
+ * `code` the same in every language, null when the message has none); empty when it runs.
+ * @param {string} toml
+ * @param {string | null} [lang]
+ * @returns {string}
+ */
+export function error_info(toml, lang) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        var ptr1 = isLikeNone(lang) ? 0 : passStringToWasm0(lang, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        const ret = wasm.error_info(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
  * Run a scenario; on failure return the structured error *kind* tag
  * (`invalid_input`, `unsupported`, …) so the caller can branch on the failure
  * category rather than parse the message. Returns an empty string on success.
  * @param {string} toml
+ * @param {string | null} [lang]
  * @returns {ErrorKind | ""}
  */
-export function error_kind(toml) {
-    let deferred2_0;
-    let deferred2_1;
+export function error_kind(toml, lang) {
+    let deferred3_0;
+    let deferred3_1;
     try {
         const ptr0 = passStringToWasm0(toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.error_kind(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
+        var ptr1 = isLikeNone(lang) ? 0 : passStringToWasm0(lang, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        const ret = wasm.error_kind(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
 }
 
@@ -630,6 +660,54 @@ export function imu_fit(log, format, axis, expected_mean, id) {
 }
 
 /**
+ * Estimated emitter regions from ADS-B or AIS CSV text (arguments as `interference_map`, without the
+ * cell size): where, under stated assumptions, a source of the degraded reports could be, as regions at
+ * stated confidence levels with a centroid and an uncertainty ellipse, never a bare point. Returns a JSON
+ * object `{stem, geojson, summary, csv, svg, sessions_published, sessions_withheld}`; each text is labelled
+ * with its evidence tier (MODELLED). Aggregate only. Nothing is uploaded.
+ * @param {string} source
+ * @param {string} csv
+ * @param {string} dataset
+ * @param {string} licence
+ * @param {string} licence_url
+ * @param {string} attribution
+ * @param {string} land_geojson
+ * @returns {string}
+ */
+export function interference_emitter_regions(source, csv, dataset, licence, licence_url, attribution, land_geojson) {
+    let deferred9_0;
+    let deferred9_1;
+    try {
+        const ptr0 = passStringToWasm0(source, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(csv, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(dataset, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(licence, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ptr4 = passStringToWasm0(licence_url, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len4 = WASM_VECTOR_LEN;
+        const ptr5 = passStringToWasm0(attribution, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len5 = WASM_VECTOR_LEN;
+        const ptr6 = passStringToWasm0(land_geojson, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len6 = WASM_VECTOR_LEN;
+        const ret = wasm.interference_emitter_regions(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, ptr5, len5, ptr6, len6);
+        var ptr8 = ret[0];
+        var len8 = ret[1];
+        if (ret[3]) {
+            ptr8 = 0; len8 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred9_0 = ptr8;
+        deferred9_1 = len8;
+        return getStringFromWasm0(ptr8, len8);
+    } finally {
+        wasm.__wbindgen_free(deferred9_0, deferred9_1, 1);
+    }
+}
+
+/**
  * Build a GNSS interference map from CSV text (`source` is `"adsb"` or `"ais"`; formats in
  * `docs/INTERFERENCE-MAP.md`). `dataset` is an approved preset or `"custom"`, which also
  * needs `licence`, `licence_url` and `attribution`; pass an empty string for any field
@@ -871,19 +949,29 @@ export function list_examples(kind) {
 
 /**
  * List the available scenario kinds and their metadata as a JSON array (name,
- * description, required and optional fields), for programmatic introspection.
+ * description, required and optional fields), for programmatic introspection. `lang` (a tag such
+ * as `de`; omitted is English) is the language of each `description`.
+ * @param {string | null} [lang]
  * @returns {string}
  */
-export function list_kinds() {
-    let deferred1_0;
-    let deferred1_1;
+export function list_kinds(lang) {
+    let deferred3_0;
+    let deferred3_1;
     try {
-        const ret = wasm.list_kinds();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
+        var ptr0 = isLikeNone(lang) ? 0 : passStringToWasm0(lang, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len0 = WASM_VECTOR_LEN;
+        const ret = wasm.list_kinds(ptr0, len0);
+        var ptr2 = ret[0];
+        var len2 = ret[1];
+        if (ret[3]) {
+            ptr2 = 0; len2 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
     } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
 }
 
@@ -1106,6 +1194,25 @@ export function receiver_trust_replay(session_toml, nmea) {
 }
 
 /**
+ * Use `ftl` (the text of `i18n/<lang>/engine.ftl`) as the catalogue of language `tag`. The WebAssembly
+ * build embeds English only; a page fetches the file of the chosen language and registers it here
+ * before `run_human`, `run_typed(.., lang)` or `list_kinds(lang)`. Throws if the tag is not a supported
+ * language or the text is not a valid catalogue; the page then stays in English.
+ * @param {string} tag
+ * @param {string} ftl
+ */
+export function register_catalogue(tag, ftl) {
+    const ptr0 = passStringToWasm0(tag, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(ftl, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.register_catalogue(ptr0, len0, ptr1, len1);
+    if (ret[1]) {
+        throw takeFromExternrefTable0(ret[0]);
+    }
+}
+
+/**
  * Share of a route (GeoJSON LineString or `lat,lon` CSV text) through degraded cells of the
  * maps in `maps_json` (a JSON array of map GeoJSON strings, as `interference_map` returns),
  * optionally limited to `date_from`..`date_to` (`YYYY-MM-DD`, empty for no limit). Returns
@@ -1148,26 +1255,29 @@ export function route_exposure(route, maps_json, date_from, date_to) {
  * Run a scenario given as a TOML string; returns the result document as a JSON
  * string. Throws a JS error if the scenario is invalid.
  * @param {string} toml
+ * @param {string | null} [lang]
  * @returns {string}
  */
-export function run(toml) {
-    let deferred3_0;
-    let deferred3_1;
+export function run(toml, lang) {
+    let deferred4_0;
+    let deferred4_1;
     try {
         const ptr0 = passStringToWasm0(toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.run(ptr0, len0);
-        var ptr2 = ret[0];
-        var len2 = ret[1];
+        var ptr1 = isLikeNone(lang) ? 0 : passStringToWasm0(lang, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        const ret = wasm.run(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
         if (ret[3]) {
-            ptr2 = 0; len2 = 0;
+            ptr3 = 0; len3 = 0;
             throw takeFromExternrefTable0(ret[2]);
         }
-        deferred3_0 = ptr2;
-        deferred3_1 = len2;
-        return getStringFromWasm0(ptr2, len2);
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
     } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
 }
 
@@ -1180,27 +1290,50 @@ export function run(toml) {
  * runs — about 12 s instead of 3 s for the heaviest kind in a browser. Throws a JS
  * error if the scenario is invalid.
  * @param {string} toml
+ * @param {string | null} [lang]
  * @returns {string}
  */
-export function run_all(toml) {
-    let deferred3_0;
-    let deferred3_1;
+export function run_all(toml, lang) {
+    let deferred4_0;
+    let deferred4_1;
     try {
         const ptr0 = passStringToWasm0(toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.run_all(ptr0, len0);
-        var ptr2 = ret[0];
-        var len2 = ret[1];
+        var ptr1 = isLikeNone(lang) ? 0 : passStringToWasm0(lang, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        const ret = wasm.run_all(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
         if (ret[3]) {
-            ptr2 = 0; len2 = 0;
+            ptr3 = 0; len3 = 0;
             throw takeFromExternrefTable0(ret[2]);
         }
-        deferred3_0 = ptr2;
-        deferred3_1 = len2;
-        return getStringFromWasm0(ptr2, len2);
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
     } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
+}
+
+/**
+ * Run a scenario ONCE in `lang` and return what a person reads, as an object `{summary, svg}`. The
+ * result document and CSV are not part of it: they are the English run's (`run_typed`), so a page
+ * shows the English result at once and calls this afterwards to localise the summary and the chart.
+ * @param {string} toml
+ * @param {string} lang
+ * @returns {{ summary: string; svg: string }}
+ */
+export function run_human(toml, lang) {
+    const ptr0 = passStringToWasm0(toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(lang, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.run_human(ptr0, len0, ptr1, len1);
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
+    }
+    return takeFromExternrefTable0(ret[0]);
 }
 
 /**
@@ -1209,12 +1342,15 @@ export function run_all(toml) {
  * table) and `data`, the result document already parsed. A plain object, not a class,
  * so there is nothing to free. Throws a JS error if the scenario is invalid.
  * @param {string} toml
+ * @param {string | null} [lang]
  * @returns {RunOutput}
  */
-export function run_typed(toml) {
+export function run_typed(toml, lang) {
     const ptr0 = passStringToWasm0(toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.run_typed(ptr0, len0);
+    var ptr1 = isLikeNone(lang) ? 0 : passStringToWasm0(lang, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len1 = WASM_VECTOR_LEN;
+    const ret = wasm.run_typed(ptr0, len0, ptr1, len1);
     if (ret[2]) {
         throw takeFromExternrefTable0(ret[1]);
     }
@@ -1223,12 +1359,19 @@ export function run_typed(toml) {
 
 /**
  * The available scenario kinds and their metadata, already parsed: the typed form of
- * [`list_kinds`], which keeps its JSON-string return for existing callers.
+ * [`list_kinds`], which keeps its JSON-string return for existing callers. `lang` (a tag such as
+ * `de`; omitted is English) is the language of each `description`; names and fields do not change.
+ * @param {string | null} [lang]
  * @returns {KindMeta[]}
  */
-export function scenario_kinds() {
-    const ret = wasm.scenario_kinds();
-    return ret;
+export function scenario_kinds(lang) {
+    var ptr0 = isLikeNone(lang) ? 0 : passStringToWasm0(lang, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len0 = WASM_VECTOR_LEN;
+    const ret = wasm.scenario_kinds(ptr0, len0);
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
+    }
+    return takeFromExternrefTable0(ret[0]);
 }
 
 /**
@@ -1427,26 +1570,29 @@ export function standards_pack_run(id) {
 /**
  * Run a scenario and return its one-line human-readable summary.
  * @param {string} toml
+ * @param {string | null} [lang]
  * @returns {string}
  */
-export function summary(toml) {
-    let deferred3_0;
-    let deferred3_1;
+export function summary(toml, lang) {
+    let deferred4_0;
+    let deferred4_1;
     try {
         const ptr0 = passStringToWasm0(toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.summary(ptr0, len0);
-        var ptr2 = ret[0];
-        var len2 = ret[1];
+        var ptr1 = isLikeNone(lang) ? 0 : passStringToWasm0(lang, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        var len1 = WASM_VECTOR_LEN;
+        const ret = wasm.summary(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
         if (ret[3]) {
-            ptr2 = 0; len2 = 0;
+            ptr3 = 0; len3 = 0;
             throw takeFromExternrefTable0(ret[2]);
         }
-        deferred3_0 = ptr2;
-        deferred3_1 = len2;
-        return getStringFromWasm0(ptr2, len2);
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
     } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
 }
 
@@ -1457,21 +1603,24 @@ export function summary(toml) {
  * `moonlight-service-volume` with an export site configured emit one). Throws a JS error
  * if the scenario is invalid.
  * @param {string} toml
+ * @param {string | null} [lang]
  * @returns {string | undefined}
  */
-export function table_csv(toml) {
+export function table_csv(toml, lang) {
     const ptr0 = passStringToWasm0(toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.table_csv(ptr0, len0);
+    var ptr1 = isLikeNone(lang) ? 0 : passStringToWasm0(lang, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len1 = WASM_VECTOR_LEN;
+    const ret = wasm.table_csv(ptr0, len0, ptr1, len1);
     if (ret[3]) {
         throw takeFromExternrefTable0(ret[2]);
     }
-    let v2;
+    let v3;
     if (ret[0] !== 0) {
-        v2 = getStringFromWasm0(ret[0], ret[1]).slice();
+        v3 = getStringFromWasm0(ret[0], ret[1]).slice();
         wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
     }
-    return v2;
+    return v3;
 }
 
 /**
@@ -1593,7 +1742,7 @@ function __wbg_get_imports() {
             const ret = arg0.node;
             return ret;
         },
-        __wbg_parse_b223c328060e4a3d: function(arg0, arg1) {
+        __wbg_parse_3f5cd103b9174977: function(arg0, arg1) {
             const ret = JSON.parse(getStringFromWasm0(arg0, arg1));
             return ret;
         },

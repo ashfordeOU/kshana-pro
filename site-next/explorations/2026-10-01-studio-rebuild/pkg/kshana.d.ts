@@ -55,6 +55,10 @@ export type ScenarioKind =
 | "passes"
 | "link-budget"
 | "lunar-time-budget"
+| "lunar-ascent"
+| "lunar-surface"
+| "lunar-descent"
+| "lunar-orbit-rendezvous"
 | "hybrid-optical-rf"
 | "cislunar-observability"
 | "conflict-resilience"
@@ -95,7 +99,8 @@ export type ScenarioKind =
 | "time-transfer-budget"
 | "optical-atmosphere"
 | "holdover-test"
-| "gnss-ssv";
+| "gnss-ssv"
+| "mission-thread";
 
 /** The failure category `error_kind` returns (`""` on success). */
 export type ErrorKind = "invalid_input" | "non_convergence" | "unsupported" | "io_error";
@@ -199,7 +204,7 @@ export function bench_score(truth_json: string, predictions_json: string, thresh
 /**
  * Run a scenario and return its SVG chart.
  */
-export function chart_svg(toml: string): string;
+export function chart_svg(toml: string, lang?: string | null): string;
 
 /**
  * The static public-framework mapping as Markdown, led by the statement every report
@@ -231,11 +236,17 @@ export function decode_permalink(token: string): string;
 export function encode_permalink(toml: string): string;
 
 /**
+ * Why a scenario fails, as a JSON object string `{"kind", "code", "message"}` (`message` in `lang`,
+ * `code` the same in every language, null when the message has none); empty when it runs.
+ */
+export function error_info(toml: string, lang?: string | null): string;
+
+/**
  * Run a scenario; on failure return the structured error *kind* tag
  * (`invalid_input`, `unsupported`, …) so the caller can branch on the failure
  * category rather than parse the message. Returns an empty string on success.
  */
-export function error_kind(toml: string): ErrorKind | "";
+export function error_kind(toml: string, lang?: string | null): ErrorKind | "";
 
 /**
  * Bind an RFC 3161 timestamp token to an evidence pack, in memory. `files_json` is the pack's
@@ -320,6 +331,15 @@ export function import_route(toml: string, geojson: string): string;
 export function imu_fit(log: string, format: string, axis: string, expected_mean: number, id: string): string;
 
 /**
+ * Estimated emitter regions from ADS-B or AIS CSV text (arguments as `interference_map`, without the
+ * cell size): where, under stated assumptions, a source of the degraded reports could be, as regions at
+ * stated confidence levels with a centroid and an uncertainty ellipse, never a bare point. Returns a JSON
+ * object `{stem, geojson, summary, csv, svg, sessions_published, sessions_withheld}`; each text is labelled
+ * with its evidence tier (MODELLED). Aggregate only. Nothing is uploaded.
+ */
+export function interference_emitter_regions(source: string, csv: string, dataset: string, licence: string, licence_url: string, attribution: string, land_geojson: string): string;
+
+/**
  * Build a GNSS interference map from CSV text (`source` is `"adsb"` or `"ais"`; formats in
  * `docs/INTERFERENCE-MAP.md`). `dataset` is an approved preset or `"custom"`, which also
  * needs `licence`, `licence_url` and `attribution`; pass an empty string for any field
@@ -377,9 +397,10 @@ export function list_examples(kind: string): string;
 
 /**
  * List the available scenario kinds and their metadata as a JSON array (name,
- * description, required and optional fields), for programmatic introspection.
+ * description, required and optional fields), for programmatic introspection. `lang` (a tag such
+ * as `de`; omitted is English) is the language of each `description`.
  */
-export function list_kinds(): string;
+export function list_kinds(lang?: string | null): string;
 
 /**
  * Check this implementation of the LunaNet Augmented Forward Signal against the published
@@ -446,6 +467,14 @@ export function receiver_trust(toml: string): string;
 export function receiver_trust_replay(session_toml: string, nmea: string): string;
 
 /**
+ * Use `ftl` (the text of `i18n/<lang>/engine.ftl`) as the catalogue of language `tag`. The WebAssembly
+ * build embeds English only; a page fetches the file of the chosen language and registers it here
+ * before `run_human`, `run_typed(.., lang)` or `list_kinds(lang)`. Throws if the tag is not a supported
+ * language or the text is not a valid catalogue; the page then stays in English.
+ */
+export function register_catalogue(tag: string, ftl: string): void;
+
+/**
  * Share of a route (GeoJSON LineString or `lat,lon` CSV text) through degraded cells of the
  * maps in `maps_json` (a JSON array of map GeoJSON strings, as `interference_map` returns),
  * optionally limited to `date_from`..`date_to` (`YYYY-MM-DD`, empty for no limit). Returns
@@ -458,7 +487,7 @@ export function route_exposure(route: string, maps_json: string, date_from: stri
  * Run a scenario given as a TOML string; returns the result document as a JSON
  * string. Throws a JS error if the scenario is invalid.
  */
-export function run(toml: string): string;
+export function run(toml: string, lang?: string | null): string;
 
 /**
  * Run a scenario ONCE and return every output of that run as a JSON object string:
@@ -469,7 +498,14 @@ export function run(toml: string): string;
  * runs — about 12 s instead of 3 s for the heaviest kind in a browser. Throws a JS
  * error if the scenario is invalid.
  */
-export function run_all(toml: string): string;
+export function run_all(toml: string, lang?: string | null): string;
+
+/**
+ * Run a scenario ONCE in `lang` and return what a person reads, as an object `{summary, svg}`. The
+ * result document and CSV are not part of it: they are the English run's (`run_typed`), so a page
+ * shows the English result at once and calls this afterwards to localise the summary and the chart.
+ */
+export function run_human(toml: string, lang: string): { summary: string; svg: string };
 
 /**
  * Run a scenario once and return every output as one typed object (`RunOutput` in the
@@ -477,13 +513,14 @@ export function run_all(toml: string): string;
  * table) and `data`, the result document already parsed. A plain object, not a class,
  * so there is nothing to free. Throws a JS error if the scenario is invalid.
  */
-export function run_typed(toml: string): RunOutput;
+export function run_typed(toml: string, lang?: string | null): RunOutput;
 
 /**
  * The available scenario kinds and their metadata, already parsed: the typed form of
- * [`list_kinds`], which keeps its JSON-string return for existing callers.
+ * [`list_kinds`], which keeps its JSON-string return for existing callers. `lang` (a tag such as
+ * `de`; omitted is English) is the language of each `description`; names and fields do not change.
  */
-export function scenario_kinds(): KindMeta[];
+export function scenario_kinds(lang?: string | null): KindMeta[];
 
 /**
  * The satellites a site sees under a skyline and their geometry (design note item 2).
@@ -550,7 +587,7 @@ export function standards_pack_run(id: string): string;
 /**
  * Run a scenario and return its one-line human-readable summary.
  */
-export function summary(toml: string): string;
+export function summary(toml: string, lang?: string | null): string;
 
 /**
  * Run a scenario and return its reproducibility table as CSV text — the same bytes the
@@ -559,7 +596,7 @@ export function summary(toml: string): string;
  * `moonlight-service-volume` with an export site configured emit one). Throws a JS error
  * if the scenario is invalid.
  */
-export function table_csv(toml: string): string | undefined;
+export function table_csv(toml: string, lang?: string | null): string | undefined;
 
 /**
  * Render a trust stream or a batch result in one telemetry format, with the encoders
@@ -587,12 +624,13 @@ export interface InitOutput {
     readonly bench_export: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly bench_leaderboard: (a: number, b: number) => [number, number, number, number];
     readonly bench_score: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number, number];
-    readonly chart_svg: (a: number, b: number) => [number, number, number, number];
+    readonly chart_svg: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly compliance_mapping: (a: number) => [number, number];
     readonly compliance_report: (a: number, b: number) => [number, number, number, number];
     readonly decode_permalink: (a: number, b: number) => [number, number];
     readonly encode_permalink: (a: number, b: number) => [number, number];
-    readonly error_kind: (a: number, b: number) => [number, number];
+    readonly error_info: (a: number, b: number, c: number, d: number) => [number, number];
+    readonly error_kind: (a: number, b: number, c: number, d: number) => [number, number];
     readonly evidence_attach_timestamp: (a: number, b: number, c: number, d: number, e: number) => [number, number, number, number];
     readonly evidence_verify: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number, number];
     readonly export_formats: (a: number, b: number) => [number, number, number, number];
@@ -604,6 +642,7 @@ export interface InitOutput {
     readonly get_example: (a: number, b: number) => [number, number, number, number];
     readonly import_route: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly imu_fit: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => [number, number, number, number];
+    readonly interference_emitter_regions: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => [number, number, number, number];
     readonly interference_map: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number) => [number, number, number, number];
     readonly iq_run_short: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number, number];
     readonly iq_signals: () => [number, number];
@@ -611,7 +650,7 @@ export interface InitOutput {
     readonly jammertest_score: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number) => [number, number, number, number];
     readonly kind_modules: () => [number, number];
     readonly list_examples: (a: number, b: number) => [number, number, number, number];
-    readonly list_kinds: () => [number, number];
+    readonly list_kinds: (a: number, b: number) => [number, number, number, number];
     readonly lunanet_afs_check_spec: () => [number, number];
     readonly lunanet_afs_check_symbols: (a: number, b: number, c: number) => [number, number, number, number];
     readonly lunanet_afs_generate: (a: number, b: number) => [number, number, number, number];
@@ -619,10 +658,13 @@ export interface InitOutput {
     readonly osnma_verify: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => [number, number, number, number];
     readonly receiver_trust: (a: number, b: number) => [number, number, number, number];
     readonly receiver_trust_replay: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly register_catalogue: (a: number, b: number, c: number, d: number) => [number, number];
     readonly route_exposure: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => [number, number, number, number];
-    readonly run: (a: number, b: number) => [number, number, number, number];
-    readonly run_all: (a: number, b: number) => [number, number, number, number];
-    readonly run_typed: (a: number, b: number) => [number, number, number];
+    readonly run: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly run_all: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly run_human: (a: number, b: number, c: number, d: number) => [number, number, number];
+    readonly run_typed: (a: number, b: number, c: number, d: number) => [number, number, number];
+    readonly scenario_kinds: (a: number, b: number) => [number, number, number];
     readonly sky_geometry: (a: number, b: number) => [number, number, number, number];
     readonly sky_monte_carlo: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly skyline_presets: () => [number, number];
@@ -630,11 +672,10 @@ export interface InitOutput {
     readonly skyplot_svg: (a: number, b: number) => [number, number, number, number];
     readonly standards_pack_list: () => [number, number];
     readonly standards_pack_run: (a: number, b: number) => [number, number, number, number];
-    readonly summary: (a: number, b: number) => [number, number, number, number];
-    readonly table_csv: (a: number, b: number) => [number, number, number, number];
+    readonly summary: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly table_csv: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly trust_telemetry: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number, number];
     readonly version: () => [number, number];
-    readonly scenario_kinds: () => any;
     readonly __wbindgen_malloc: (a: number, b: number) => number;
     readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
     readonly __wbindgen_exn_store: (a: number) => void;
