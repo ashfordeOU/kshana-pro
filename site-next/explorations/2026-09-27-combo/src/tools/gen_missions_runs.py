@@ -364,8 +364,16 @@ def main():
                 if os.path.exists(os.path.join(SITE, d, "report.html")):
                     pub = {"report": f"{d}/report.html", "json": f"{d}/result.json", "bundle": False, "toml": f"{d}/{name}.toml.txt"}
                     break
+        # how many leading segments of the summary are the engine's own tags ("campaign <hash>", "scenario <name>"): the page drops them by
+        # position (a number, not text), because on the language pages the words of the tag are translated; a tag anywhere else stops the generator
+        segs = [x.strip() for x in re.split(r"\s\|\s", line)]
+        tag = [bool(re.fullmatch(r"campaign [0-9a-f]{8,}|scenario [\w-]+", x)) for x in segs]
+        lead = 0
+        while lead < len(tag) and tag[lead]:
+            lead += 1
+        assert not any(tag[lead:]), f"{name}: a tag segment after a non-tag segment in the summary {line!r}"
         cards[name] = {"file": name + ".toml", "kind": toml.get("kind"), "sha256": hashlib.sha256(raw).hexdigest(), "seed": toml.get("seed"),
-                       "summary": line, "about": first, "pub": pub}
+                       "summary": line, "lead": lead, "about": first, "pub": pub}
         toml_text[name] = raw.decode("utf-8")
         if name in ORBIT:
             runs[name] = constellation_extract(name, res, toml) if res.get("kind") == "constellation-design" else body_extract(name, res, toml)

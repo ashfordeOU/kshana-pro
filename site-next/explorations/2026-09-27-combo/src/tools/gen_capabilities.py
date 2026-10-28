@@ -267,6 +267,12 @@ def walker(shell, raan0):
     return sats
 
 
+def ckey(n):
+    """A constellation's stable key (gps, galileo, beidou, glonass, leo-pnt, lunar-relay): the page picks colours by it. The name is text the
+    language pages translate; the key is data and stays as it is (`key` is in i18n/data-spec.json skipKeys)."""
+    return re.sub(r"[^a-z0-9]+", "-", n.lower()).strip("-")
+
+
 def constellation(name):
     c = res[name]
     t = toml[name]
@@ -280,7 +286,7 @@ def constellation(name):
         swept = sum(angle(a, b) for a, b in zip(v, v[1:]))
         n = swept / (times[-1] - times[0])
         a_km = (body["mu_km3_s2"] / n ** 2) ** (1 / 3)
-        row = {"c": s["constellation"], "id": s["id"], "a_km": round(a_km, 1),
+        row = {"c": s["constellation"], "key": ckey(s["constellation"]), "id": s["id"], "a_km": round(a_km, 1),
                "lat": [r(x, 2) for x in s["lat_deg"]], "lon": [r(x, 2) for x in s["lon_deg"]]}
         # an eccentric shell (the lunar frozen orbits): the radius at each sample from the shell's
         # own elements, with the argument of latitude recovered from the sub-satellite latitude
@@ -301,7 +307,7 @@ def constellation(name):
     g = c["grid"]
     out = {**meta[name], "body": body["name"], "radius_km": body["radius_km"], "rot_deg_s": body["rotation_rate_deg_s"],
            "times": times, "shown": c["tracks"]["shown"], "total": c["total_satellites"], "sats": sats,
-           "constellations": [{"name": k["name"], "satellites": k["satellites"], "mean_visible": r(k["mean_visible"], 2),
+           "constellations": [{"key": ckey(k["name"]), "name": k["name"], "satellites": k["satellites"], "mean_visible": r(k["mean_visible"], 2),
                                "shells": [{kk: (r(vv, 3) if isinstance(vv, float) else vv) for kk, vv in sh.items()} for sh in k["shells"]],
                                "source": k.get("source")} for k in c["constellations"]],
            "global": {k: (r(v, 3) if not isinstance(v, dict) else {kk: r(vv, 3) for kk, vv in v.items()}) for k, v in c["global"].items()},

@@ -70,6 +70,26 @@ def sp1065_table31():
     return out
 
 
+# Each orbit row carries a `key` the Evidence page's ladder looks rows up by. The key is data, not text: the run label (English in the
+# source table) is translated on the language pages, so no script may find a row by the words of its label. The keys are fixed here, by
+# the English labels of the table; a row that matches none (or two) stops the generator.
+ORBIT_KEYS = (
+    ("Galileo E11", lambda r: r.startswith("CI") and "Tier 1" in r, "galileo-ci-tier1"),
+    ("Galileo E11", lambda r: r.startswith("CI") and "Tier 2" in r, "galileo-ci-tier2"),
+    ("Galileo E11", lambda r: r.startswith("Full-arc"), "galileo-full-arc"),
+    ("Swarm-A", lambda r: "reduced-dynamic" in r, "swarm-reduced-dynamic"),
+    ("Swarm-A", lambda r: "dynamic (" in r and "reduced-dynamic" not in r, "swarm-dynamic"),
+    ("LRO", lambda r: "reduced-dynamic" in r, "lro-reduced-dynamic"),
+    ("LRO", lambda r: "dynamic (" in r and "reduced-dynamic" not in r, "lro-dynamic"),
+)
+
+
+def orbit_key(name, run):
+    hits = [k for (s, f, k) in ORBIT_KEYS if s == name and f(run)]
+    assert len(hits) == 1, f"docs/AGENCY-ORBIT-VALIDATION.md: row {name!r} / {run!r} matches {len(hits)} orbit keys (ORBIT_KEYS)"
+    return hits[0]
+
+
 def orbit_tables():
     """The residual tables of docs/AGENCY-ORBIT-VALIDATION.md, per dataset."""
     t = rd("docs/AGENCY-ORBIT-VALIDATION.md")
@@ -86,7 +106,9 @@ def orbit_tables():
             c = [x.strip() for x in line.strip("|").split("|")]
             rms = float(re.search(r"([\d.]+) m", c[4]).group(1))
             rtn = [float(x) for x in re.findall(r"[\d.]+", c[5])[:3]]
-            out.append({"set": name, "run": c[0].replace("`", ""), "arc": c[1], "do": c[2], "n": int(c[3]), "rms_m": rms, "rtn_m": rtn})
+            run = c[0].replace("`", "")
+            out.append({"key": orbit_key(name, run), "set": name, "run": run, "arc": c[1], "do": c[2], "n": int(c[3]), "rms_m": rms, "rtn_m": rtn})
+    assert sorted(r["key"] for r in out) == sorted(k for (_, _, k) in ORBIT_KEYS), "every orbit key names exactly one table row"
     bar = float(re.search(r"GREEN\*\* \(< ([\d.]+) m bar\)", t).group(1))
     return out, bar
 
