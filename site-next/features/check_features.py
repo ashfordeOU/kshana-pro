@@ -325,10 +325,12 @@ def load_studio_catalog(studio: str):
     if not os.path.exists(cat_p):
         return set(), set()
     cat = open(cat_p, encoding="utf-8").read()
-    files = set(re.findall(r'\[\s*"([a-z0-9.\-]+)\.toml"\s*,', cat))
+    # a row is `["x.toml", ...]` (the old shape) or `row("x.toml", ...)` (the i18n conversion, strings in t() getters)
+    files = set(re.findall(r'(?:\[|\brow\()\s*"([a-z0-9.\-]+)\.toml"\s*,', cat))
     nib_block = cat[cat.find("NOT_IN_BROWSER"):]
     nib_block = nib_block[: nib_block.find("};") + 2]
-    nib = set(re.findall(r'"([a-z0-9.\-]+)\.toml"\s*:', nib_block))
+    # a key is `"x.toml": ...` (old) or `get "x.toml"() {...}` (a getter that reads the text through t())
+    nib = set(re.findall(r'(?:\bget\s+)?"([a-z0-9.\-]+)\.toml"\s*(?::|\(\))', nib_block))
     # A file the browser build cannot run but the Studio shows as a run recorded with the native
     # engine (RECORDED_NATIVELY) is shown in the Studio, not command-line only.
     nat = re.search(r"RECORDED_NATIVELY\s*=\s*\[([^\]]*)\]", cat)

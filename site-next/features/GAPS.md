@@ -138,22 +138,22 @@ Smaller items, all in the generated list below:
 
 <!-- BEGIN GENERATED: check_features.py --gaps -->
 
-_Checked site `explorations/2026-09-27-combo` and Studio `explorations/2026-09-27-playground` against 450 register rows (engine v0.28.0 at 479d308)._
+_Checked site `explorations/2026-09-27-combo` and Studio `explorations/2026-10-01-studio-rebuild` against 1054 register rows (engine v0.40.0 at ac05b723c)._
 
 | Class | Count |
 |---|---:|
 | UNPLACED (error) | 0 |
-| EDITION (error) | 9 |
-| NOT_SHOWN (error) | 58 |
-| UNREGISTERED (error) | 0 |
-| BAD_PLACEMENT (error) | 5 |
-| COUNT_DRIFT (error) | 2 |
-| WEAK (warning) | 9 |
-| OTHER_SECTION (warning) | 6 |
-| ALSO (warning) | 24 |
-| PRO_LINK (warning) | 18 |
-| NO_STUDIO (warning) | 6 |
-| ABBREVIATION (warning) | 0 |
+| EDITION (error) | 0 |
+| NOT_SHOWN (error) | 0 |
+| UNREGISTERED (error) | 1 |
+| BAD_PLACEMENT (error) | 0 |
+| COUNT_DRIFT (error) | 3 |
+| WEAK (warning) | 0 |
+| OTHER_SECTION (warning) | 0 |
+| ALSO (warning) | 1 |
+| PRO_LINK (warning) | 0 |
+| NO_STUDIO (warning) | 14 |
+| ABBREVIATION (warning) | 583 |
 
 ### Edition presentation per page
 
@@ -161,214 +161,37 @@ Counts are text fragments mentioning each edition; 'Pro in hero' is whether the 
 
 | Page | Free core | Pro | Custom study | Contact route | Pro in hero |
 |---|---:|---:|---:|---:|---|
-| Home | 6 | 14 | 1 | 3 | yes |
-| Missions | 23 | 20 | 3 | 2 | no |
-| Capabilities | 14 | 1 | 5 | 2 | no |
-| Evidence | 13 | 1 | 0 | 2 | no |
-| Developers | 1 | 1 | 0 | 2 | no |
-| Editions | 14 | 21 | 7 | 8 | yes |
+| Home | 12 | 12 | 6 | 6 | yes |
+| Missions | 46 | 40 | 18 | 16 | yes |
+| Capabilities | 50 | 16 | 14 | 3 | yes |
+| Evidence | 81 | 10 | 7 | 4 | yes |
+| Developers | 14 | 2 | 3 | 4 | no |
+| Editions | 44 | 66 | 23 | 18 | yes |
 
-### EDITION (9)
+### COUNT_DRIFT (3)
 
-**Editions** (6)
+**Docs/i18n.html** (1)
 
-- `pro:commercial-licence` (Editions#why): 'Closed integration. A commercial licence for proprietary products, without AGPL obligations.' is presented as Pro (inside the Pro container <div class=why-col pro>); the public source makes it Free core: web/index.html:751 “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”
-- `study:export-controlled-work` (Editions#why): 'Sensitive work, handled properly. Export-controlled resilience work under the appropriate clearance and NDA (n' is presented as Pro (inside the Pro container <div class=why-col pro>); the public source makes it Custom study: web/index.html:766 “export-controlled resilience work delivered under the appropriate clearance and NDA”
-- `study:export-controlled-work` (Editions#pro): 'Pro is a proprietary overlay that depends on the validated open core and never forks it, available under contr' is presented as Pro (inside the Pro container <section id=pro>); the public source makes it Custom study: web/index.html:766 “export-controlled resilience work delivered under the appropriate clearance and NDA”
-- `export:result.json` (Editions#pro): 'A reproducibility bundle' is presented as Pro (inside the Pro container <section id=pro>); the public source makes it Free core: web/index.html:751 “…no feature gate” · README.md:1328 “The open engine is complete and usable on its own.”
-- `export:result.json` (Editions#pro): 'Every figure traces to scenario, seed and engine version. What it builds on: the stamp the open engine writes ' is presented as Pro (inside the Pro container <section id=pro>); the public source makes it Free core: web/index.html:751 “…no feature gate” · README.md:1328 “The open engine is complete and usable on its own.”
-- `pro:commercial-licence` (Editions#editions): 'A commercial licence for closed or proprietary integration' is presented as Pro (inside the Pro container <div class=ed ed-pro>); the public source makes it Free core: web/index.html:751 “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”
+- `bundled scenarios` (Docs/i18n.html#how-a-run-works-in-another-language-the-run-twice-rule): page says 173 bundled scenarios; the register has 180
 
-**Home** (3)
+**Docs/npm.html** (1)
 
-- `study:export-controlled-work` (Home#pro-band): 'A proprietary overlay on the validated open core that never forks it, available under contract. Procurement bo' is presented as Pro (inside the Pro container <section id=pro-band>); the public source makes it Custom study: web/index.html:766 “export-controlled resilience work delivered under the appropriate clearance and NDA”
-- `export:result.json` (Home#pro-band): 'A reproducibility bundle' is presented as Pro (inside the Pro container <section id=pro-band>); the public source makes it Free core: web/index.html:751 “…no feature gate” · README.md:1328 “The open engine is complete and usable on its own.”
-- `export:result.json` (Home#pro-band): 'Every figure traces to scenario, seed and engine version. What it builds on: the stamp the open engine writes ' is presented as Pro (inside the Pro container <section id=pro-band>); the public source makes it Free core: web/index.html:751 “…no feature gate” · README.md:1328 “The open engine is complete and usable on its own.”
+- `scenario kinds` (Docs/npm.html#capabilities): page says 87 scenario kinds; the register has 92
 
-### COUNT_DRIFT (2)
+**Docs/rust.html** (1)
 
-**Capabilities** (1)
+- `scenario kinds` (Docs/rust.html#capabilities): page says 87 scenario kinds; the register has 92
 
-- `scenario files` (Capabilities#atlas): page says 77 scenario files; the register has 83
+### UNREGISTERED (1)
 
-**Editions** (1)
+**Docs/partner-data.html** (1)
 
-- `bundled scenarios` (Editions#editions): page says 77 bundled scenarios; the register has 81
+- `submission` (Docs/partner-data.html#what-to-send): scenario file `submission` is not in the register
 
-### BAD_PLACEMENT (5)
+### ALSO (1)
 
-**Docs** (5)
+**Home** (1)
 
-- `scenario:automotive-urban-canyon`: docs anchor docs/scenario-reference.html#automotive-urban-canyon: anchor #automotive-urban-canyon missing
-- `scenario:maritime-port-approach-coast`: docs anchor docs/scenario-reference.html#maritime-port-approach-coast: anchor #maritime-port-approach-coast missing
-- `scenario:maritime-spoof-position-push`: docs anchor docs/scenario-reference.html#maritime-spoof-position-push: anchor #maritime-spoof-position-push missing
-- `scenario:maritime-strait-jamming`: docs anchor docs/scenario-reference.html#maritime-strait-jamming: anchor #maritime-strait-jamming missing
-- `scenario:rail-tunnel-coast`: docs anchor docs/scenario-reference.html#rail-tunnel-coast: anchor #rail-tunnel-coast missing
-
-### NOT_SHOWN (58)
-
-**Capabilities** (32)
-
-- _clock_ (18):
-  - `clock:class:csac`: on Capabilities#clocks only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Show `CSAC (chip-scale atomic clock)` on Capabilities#clocks, with the Studio scenario that exercises it.
-  - `clock:class:uso`: on Capabilities#clocks only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Show `CSAC (chip-scale atomic clock)` on Capabilities#clocks, with the Studio scenario that exercises it.
-  - `clock:class:dsac`: on Capabilities#clocks only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Show `CSAC (chip-scale atomic clock)` on Capabilities#clocks, with the Studio scenario that exercises it.
-  - `clock:class:tcxo`: on Capabilities#clocks only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Show `CSAC (chip-scale atomic clock)` on Capabilities#clocks, with the Studio scenario that exercises it.
-  - `clock:class:ocxo`: on Capabilities#clocks only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Show `USO (ultra-stable (quartz) oscillator)` on Capabilities#clocks, with the Studio scenario that exercises it.
-  - `clock:preset:ocxo`: on Capabilities#timing only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Show `ocxo preset: Microchip OX-208, 10 MHz` on Capabilities#timing, with the Studio scenario that exercises it.
-  - `clock:preset:csac`: on Capabilities#timing only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Show `csac preset: Microchip SA.45s CSAC, options 001 and 003` on Capabilities#timing, with the Studio scenario that exercises it.
-  - `clock:mask:prtc-b`: not mentioned on Capabilities#timing; shown instead on Docs/scenario-reference.html#kind-telecom-timing, Docs/scenarios.html#scenario-kinds, Docs/telecom-timing.html#itu-t-g8272-072025-prtc-a-and-prtc-b-locked-mode, Missions. **Do:** Show `Primary reference time clock, class B (PRTC-B)` on Capabilities#timing, with the Studio scenario that exercises it.
-  - `clock:mask:t-bc-class-a`: not mentioned on Capabilities#timing; shown instead on Docs/capability-reference.html#matrix, Docs/modelled-rationale.html#modelled-capabilities--rationale, Docs/scenarios.html#scenario-kinds, Docs/telecom-timing.html#not-confirmed-or-not-implemented, Docs/verification-matrix.html#verification-matrix. **Do:** Show `Telecom boundary clock / telecom time slave clock (T-BC/T-TSC), class A` on Capabilities#timing, with the Studio scenario that exercises it.
-  - `clock:mask:t-bc-class-b`: not mentioned on Capabilities#timing; shown instead on Docs/capability-reference.html#matrix, Docs/modelled-rationale.html#modelled-capabilities--rationale, Docs/scenarios.html#scenario-kinds, Docs/telecom-timing.html#not-confirmed-or-not-implemented, Docs/verification-matrix.html#verification-matrix. **Do:** Show `Telecom boundary clock / telecom time slave clock (T-BC/T-TSC), class B` on Capabilities#timing, with the Studio scenario that exercises it.
-  - `clock:mask:t-bc-class-c`: not mentioned on Capabilities#timing; shown instead on Docs/capability-reference.html#matrix, Docs/modelled-rationale.html#modelled-capabilities--rationale, Docs/scenario-reference.html#kind-telecom-timing, Docs/scenarios.html#scenario-kinds, Docs/telecom-timing.html#not-confirmed-or-not-implemented. **Do:** Show `Telecom boundary clock / telecom time slave clock (T-BC/T-TSC), class C` on Capabilities#timing, with the Studio scenario that exercises it.
-  - `clock:mask:t-bc-class-d`: not mentioned on Capabilities#timing; shown instead on Docs/capability-reference.html#matrix, Docs/modelled-rationale.html#modelled-capabilities--rationale, Docs/scenarios.html#scenario-kinds, Docs/telecom-timing.html#not-confirmed-or-not-implemented, Docs/verification-matrix.html#verification-matrix. **Do:** Show `Telecom boundary clock / telecom time slave clock (T-BC/T-TSC), class D` on Capabilities#timing, with the Studio scenario that exercises it.
-  - `clock:mask:g8271-1-point-c`: not mentioned on Capabilities#timing; shown instead on Docs/scenario-reference.html#kind-telecom-timing, Docs/telecom-timing.html#itu-t-g82711-2022-amd-3-052025-network-limits-at-reference-point-c. **Do:** Show `Network limit at reference point C, deployment case 1 (class 4 applications)` on Capabilities#timing, with the Studio scenario that exercises it.
-  - `clock:mask:g8271-1-point-c-enhanced`: not mentioned on Capabilities#timing. **Do:** Show `Enhanced network limit at reference point C, deployment case 1` on Capabilities#timing, with the Studio scenario that exercises it.
-  - `clock:mask:g8271-1-point-c-access`: not mentioned on Capabilities#timing. **Do:** Show `Network limit at reference point C with the PRTC in the access network` on Capabilities#timing, with the Studio scenario that exercises it.
-  - `clock:model:csac`: on Capabilities#clocks only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Show `csac` on Capabilities#clocks, with the Studio scenario that exercises it.
-  - `clock:model:optical-lattice`: not mentioned on Capabilities#clocks; shown instead on Docs/capability-map.html#core-pnt-where-kshana-actually-plays, Docs/provenance.html#provenance--every-parameter-traceable-to-a-published-source, Docs/quantum-models.html#what-is-modelled, Docs/scenario-reference.html#kind-quantum-time-transfer, Docs/scenarios.html#scenario-kinds. **Do:** Show `optical-lattice` on Capabilities#clocks, with the Studio scenario that exercises it.
-  - `clock:model:ultrastable-optical`: not mentioned on Capabilities#clocks. **Do:** Show `ultrastable-optical` on Capabilities#clocks, with the Studio scenario that exercises it.
-- _kind_ (9):
-  - `kind:lunar-integrity`: on Capabilities#atlas only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Add a card for `lunar-integrity` to Capabilities#atlas with its one-line description, its tier and a Run link to the Studio (shown today on Docs/architecture.html#4-dispatch-cli-and-bindings, Docs/changelog.html#added-3).
-  - `kind:hybrid`: on Capabilities#atlas only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Add a card for `hybrid` to Capabilities#atlas with its one-line description, its tier and a Run link to the Studio (shown today on Docs/architecture.html#1-module-structure, Docs/changelog.html#added-1).
-  - `kind:gnss-sim`: on Capabilities#atlas only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Add a card for `gnss-sim` to Capabilities#atlas with its one-line description, its tier and a Run link to the Studio (shown today on Docs/architecture.html#4-dispatch-cli-and-bindings, Docs/capability-map.html#core-pnt-where-kshana-actually-plays).
-  - `kind:sweep`: on Capabilities#atlas only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Add a card for `sweep` to Capabilities#atlas with its one-line description, its tier and a Run link to the Studio (shown today on Docs/architecture.html#1-module-structure, Docs/changelog.html#added-5).
-  - `kind:sweep-nd`: on Capabilities#atlas only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Add a card for `sweep-nd` to Capabilities#atlas with its one-line description, its tier and a Run link to the Studio (shown today on Docs/architecture.html#4-dispatch-cli-and-bindings, Docs/capability-reference.html#matrix).
-  - `kind:gravity-map`: on Capabilities#atlas only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Add a card for `gravity-map` to Capabilities#atlas with its one-line description, its tier and a Run link to the Studio (shown today on Docs/architecture.html#1a-astrodynamics-fusion--alt-pnt-layers, Docs/changelog.html#added-18).
-  - `kind:mars-pnt`: on Capabilities#atlas only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Add a card for `mars-pnt` to Capabilities#atlas with its one-line description, its tier and a Run link to the Studio (shown today on Docs/architecture.html#4-dispatch-cli-and-bindings, Docs/capability-map.html#broader-space-systems-domains-out-of-scope-today).
-  - `kind:telecom-timing`: on Capabilities#atlas only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Add a card for `telecom-timing` to Capabilities#atlas with its one-line description, its tier and a Run link to the Studio (shown today on Docs/capability-map.html#core-pnt-where-kshana-actually-plays, Docs/capability-reference.html#matrix).
-  - `kind:slot-timing`: on Capabilities#atlas only inside attributes or data (a tooltip, search index or link), never as visible text. **Do:** Add a card for `slot-timing` to Capabilities#atlas with its one-line description, its tier and a Run link to the Studio (shown today on Docs/capability-reference.html#matrix, Docs/changelog.html#added).
-- _scenario_ (5):
-  - `scenario:automotive-urban-canyon`: not mentioned on Capabilities#atlas. **Do:** Add `automotive-urban-canyon` as a node on the Capabilities#atlas map with a Run link.
-  - `scenario:maritime-port-approach-coast`: not mentioned on Capabilities#atlas. **Do:** Add `maritime-port-approach-coast` as a node on the Capabilities#atlas map with a Run link.
-  - `scenario:maritime-spoof-position-push`: not mentioned on Capabilities#atlas. **Do:** Add `maritime-spoof-position-push` as a node on the Capabilities#atlas map with a Run link.
-  - `scenario:maritime-strait-jamming`: not mentioned on Capabilities#atlas. **Do:** Add `maritime-strait-jamming` as a node on the Capabilities#atlas map with a Run link.
-  - `scenario:rail-tunnel-coast`: not mentioned on Capabilities#atlas. **Do:** Add `rail-tunnel-coast` as a node on the Capabilities#atlas map with a Run link.
-
-**Developers** (10)
-
-- _cli_ (9):
-  - `cli:kinds`: not mentioned on Developers#ways; shown instead on Docs/rust.html#usage--cli. **Do:** List `kshana kinds` in the Developers#ways table (what it does, one copyable command).
-  - `cli:kinds--json`: not mentioned on Developers#ways. **Do:** List `kshana kinds --json` in the Developers#ways table (what it does, one copyable command).
-  - `cli:example`: not mentioned on Developers#ways; shown instead on Docs/changelog.html#added-1, Docs/rust.html#usage--cli, Docs/slot-timing.html#slot-timing. **Do:** List `kshana example` in the Developers#ways table (what it does, one copyable command).
-  - `cli:--help`: not mentioned on Developers#ways; shown instead on Docs/changelog.html#fixed-1. **Do:** List `--help` in the Developers#ways table (what it does, one copyable command).
-  - `cli:--study-name`: not mentioned on Developers#ways; shown instead on Docs/changelog.html#fixed-1. **Do:** List `--study-name` in the Developers#ways table (what it does, one copyable command).
-  - `cli:--export-sp3`: not mentioned on Developers#ways; shown instead on Docs/capability-map.html#broader-space-systems-domains-out-of-scope-today, Docs/changelog.html#added-18, Docs/overview.html#usage, Docs/tutorial-first-orbit.html#where-are-the-satellites-the-payoff, Docs/validation.html#geometry--gnss-availability-from-orbits. **Do:** List `--export-sp3` in the Developers#ways table (what it does, one copyable command).
-  - `cli:--export-omm`: not mentioned on Developers#ways; shown instead on Docs/changelog.html#added-18, Docs/overview.html#usage, Docs/standards.html#formats-the-engine-speaks. **Do:** List `--export-omm` in the Developers#ways table (what it does, one copyable command).
-  - `cli:--export-oem`: not mentioned on Developers#ways; shown instead on Docs/capability-map.html#core-pnt-where-kshana-actually-plays, Docs/changelog.html#added-13, Docs/overview.html#usage. **Do:** List `--export-oem` in the Developers#ways table (what it does, one copyable command).
-  - `cli:--eop`: not mentioned on Developers#ways; shown instead on Docs/capability-map.html#core-pnt-where-kshana-actually-plays, Docs/changelog.html#added-12, Docs/glossary.html#orbits--cislunar, Docs/overview.html#usage. **Do:** List `--eop` in the Developers#ways table (what it does, one copyable command).
-- _export_ (1):
-  - `export:kif`: not mentioned on Developers#ways; shown instead on Capabilities, Docs/architecture.html#1c-integrity-gnss-deep-space-lunar--mission-layers, Docs/capability-map.html#ecosystem--readiness-tracked-honestly-not-a-code-capability, Docs/capability-reference.html#cards, Docs/changelog.html#added-4. **Do:** List `Kshana Interchange Format (KIF) envelope` in the Developers#ways table (what it does, one copyable command).
-
-**Docs** (15)
-
-- _binding_ (14):
-  - `binding:rust.without_figure_tiers`: not mentioned on Docs#rust.html#usage--library. **Do:** Name `kshana::api::without_figure_tiers` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.list_scenario_kinds`: not mentioned on Docs#rust.html#usage--library; shown instead on Developers, Docs/architecture.html#typed-dispatch-and-the-structured-api, Docs/changelog.html#changed-1, Docs/mcp.html#tools, Docs/overview.html#documentation. **Do:** Name `kshana::api::list_scenario_kinds` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.list_scenario_kinds_json`: not mentioned on Docs#rust.html#usage--library; shown instead on Docs/architecture.html#typed-dispatch-and-the-structured-api. **Do:** Name `kshana::api::list_scenario_kinds_json` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.scenarios_reference_md`: not mentioned on Docs#rust.html#usage--library. **Do:** Name `kshana::api::scenarios_reference_md` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.validate_scenario`: not mentioned on Docs#rust.html#usage--library; shown instead on Developers, Docs/architecture.html#7-bindings, Docs/changelog.html#added-15, Docs/mcp.html#tools, Docs/overview.html#ai-agents-mcp. **Do:** Name `kshana::api::validate_scenario` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.export_sp3`: not mentioned on Docs#rust.html#usage--library; shown instead on Developers, Docs/architecture.html#7-bindings, Docs/capability-map.html#broader-space-systems-domains-out-of-scope-today, Docs/changelog.html#added-20, Docs/mcp.html#tools. **Do:** Name `kshana::api::export_sp3` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.auto_export_sp3`: not mentioned on Docs#rust.html#usage--library; shown instead on Docs/changelog.html#added-20. **Do:** Name `kshana::api::auto_export_sp3` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.export_omm`: not mentioned on Docs#rust.html#usage--library; shown instead on Developers, Docs/architecture.html#7-bindings, Docs/changelog.html#added-18, Docs/mcp.html#tools, Docs/npm.html#usage. **Do:** Name `kshana::api::export_omm` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.auto_export_omm`: not mentioned on Docs#rust.html#usage--library; shown instead on Docs/changelog.html#added-18. **Do:** Name `kshana::api::auto_export_omm` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.export_oem`: not mentioned on Docs#rust.html#usage--library; shown instead on Developers, Docs/architecture.html#7-bindings, Docs/capability-map.html#broader-space-systems-domains-out-of-scope-today, Docs/changelog.html#added-13, Docs/mcp.html#tools. **Do:** Name `kshana::api::export_oem` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.auto_export_oem`: not mentioned on Docs#rust.html#usage--library. **Do:** Name `kshana::api::auto_export_oem` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.inject_eop`: not mentioned on Docs#rust.html#usage--library. **Do:** Name `kshana::api::inject_eop` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.with_study_meta`: not mentioned on Docs#rust.html#usage--library. **Do:** Name `kshana::api::with_study_meta` on Docs#rust.html#usage--library with a one-line description.
-  - `binding:rust.run_scenario`: not mentioned on Docs#rust.html#usage--library; shown instead on Developers, Docs/architecture.html#1c-integrity-gnss-deep-space-lunar--mission-layers, Docs/changelog.html#added-15, Docs/mcp.html#tools, Docs/overview.html#ai-agents-mcp. **Do:** Name `kshana::api::run_scenario` on Docs#rust.html#usage--library with a one-line description.
-- _export_ (1):
-  - `export:ccsds-tdm`: not mentioned on Docs#rust.html#usage--library; shown instead on Docs/architecture.html#1c-integrity-gnss-deep-space-lunar--mission-layers, Docs/glossary.html#standards-formats--organisations, Docs/overview.html#documentation, Docs/provenance.html#6-validation-datasets, Docs/roadmap.html#p3--interoperability--standards-depth. **Do:** List `CCSDS Tracking Data Message (TDM)` in the Developers#rust.html#usage--library table (what it does, one copyable command).
-
-**Editions** (1)
-
-- _pro_ (1):
-  - `pro:mbse-programme-tooling`: not mentioned on Editions#pro; shown instead on Docs/capability-reference.html#matrix, Docs/overview.html#support--professional-services, Docs/validation.html#standards-conformance--interchange-formats-link-budget--integrity-external-oracle-checks. **Do:** State this offer on Editions#pro in the words of its public source, with a contact button.
-
-### PRO_LINK (18)
-
-**Capabilities** (18)
-
-- `kind:clock`: pro:calibrated-clock-twin extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:lunar-time-offset`: pro:calibrated-clock-twin extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:timetransfer`: pro:calibrated-clock-twin extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:quantum-time-transfer`: pro:calibrated-clock-twin extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:sweep`: pro:ranked-trade-study extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:sweep-nd`: pro:ranked-trade-study extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:combined-altpnt`: pro:ranked-trade-study extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:impairment-eval`: study:modelled-resilience-study extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:quantum-trade`: pro:ranked-trade-study extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:lunar-time-budget`: pro:calibrated-clock-twin extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:hybrid-optical-rf`: pro:ranked-trade-study extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:conflict-resilience`: pro:ranked-trade-study extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:telecom-timing`: pro:calibrated-clock-twin extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `kind:slot-timing`: pro:calibrated-clock-twin extends this capability, but Capabilities#atlas never mentions Pro or a study
-- `clock:preset:ocxo`: pro:calibrated-clock-twin extends this capability, but Capabilities#timing never mentions Pro or a study
-- `clock:preset:rubidium`: pro:calibrated-clock-twin extends this capability, but Capabilities#timing never mentions Pro or a study
-- `clock:preset:caesium`: pro:calibrated-clock-twin extends this capability, but Capabilities#timing never mentions Pro or a study
-- `clock:preset:csac`: pro:calibrated-clock-twin extends this capability, but Capabilities#timing never mentions Pro or a study
-
-### OTHER_SECTION (6)
-
-**Capabilities** (1)
-
-- `body:sun`: shown on Capabilities but not in #journey (found in Capabilities#explorer)
-
-**Developers** (5)
-
-- `cli:--version`: shown on Developers but not in #ways (found in Developers#install)
-- `export:table.csv`: shown on Developers but not in #ways (found in Developers#mcp)
-- `export:sp3`: shown on Developers but not in #ways (found in Developers#mcp)
-- `export:omm`: shown on Developers but not in #ways (found in Developers#mcp)
-- `export:oem`: shown on Developers but not in #ways (found in Developers#mcp)
-
-### WEAK (9)
-
-**Capabilities** (9)
-
-- `kind:clock`: only as an ordinary word in prose on Capabilities#atlas (an ambiguous identifier needs code styling or an exact label)
-- `kind:inertial`: only as an ordinary word in prose on Capabilities#atlas (an ambiguous identifier needs code styling or an exact label)
-- `kind:orbit`: only as an ordinary word in prose on Capabilities#atlas (an ambiguous identifier needs code styling or an exact label)
-- `kind:integrity`: only as an ordinary word in prose on Capabilities#atlas (an ambiguous identifier needs code styling or an exact label)
-- `kind:fusion`: only as an ordinary word in prose on Capabilities#atlas (an ambiguous identifier needs code styling or an exact label)
-- `kind:jamming`: only as an ordinary word in prose on Capabilities#atlas (an ambiguous identifier needs code styling or an exact label)
-- `kind:spoof`: only as an ordinary word in prose on Capabilities#atlas (an ambiguous identifier needs code styling or an exact label)
-- `kind:pvt`: only as an ordinary word in prose on Capabilities#atlas (an ambiguous identifier needs code styling or an exact label)
-- `clock:preset:caesium`: only as an ordinary word in prose on Capabilities#timing (an ambiguous identifier needs code styling or an exact label)
-
-### ALSO (24)
-
-**Capabilities** (17)
-
-- `kind:clock`: secondary placement Capabilities#clocks: not shown there
-- `kind:lunar-integrity`: secondary placement Capabilities#journey: not shown there
-- `kind:lunar-joint-od-clock`: secondary placement Capabilities#journey: not shown there
-- `kind:lunar-frame-realisation`: secondary placement Capabilities#journey: not shown there
-- `kind:lunar-differential-pnt`: secondary placement Capabilities#journey: not shown there
-- `kind:lunar-interop-export`: secondary placement Capabilities#journey: not shown there
-- `kind:mars-pnt`: secondary placement Capabilities#journey: not shown there
-- `kind:lunar-time-budget`: secondary placement Capabilities#timing: not shown there
-- `kind:lunar-time-budget`: secondary placement Capabilities#journey: not shown there
-- `kind:cislunar-observability`: secondary placement Capabilities#journey: not shown there
-- `kind:lunar-attack-surface`: secondary placement Capabilities#journey: not shown there
-- `kind:lunar-vlbi-fim`: secondary placement Capabilities#journey: not shown there
-- `kind:lunar-frame-campaign`: secondary placement Capabilities#journey: not shown there
-- `kind:lunar-llr-datum`: secondary placement Capabilities#journey: not shown there
-- `kind:cislunar-arc-recovery`: secondary placement Capabilities#journey: not shown there
-- `kind:telecom-timing`: secondary placement Capabilities#timing: not shown there
-- `kind:slot-timing`: secondary placement Capabilities#timing: not shown there
-
-**Home** (2)
-
-- `kind:jamming`: secondary placement Home#jam: not shown there
-- `pro:mbse-programme-tooling`: secondary placement Home#pro-band: not shown there
-
-**Missions** (5)
-
-- `scenario:automotive-urban-canyon`: secondary placement Missions#sectors: not shown there
-- `scenario:maritime-port-approach-coast`: secondary placement Missions#sectors: not shown there
-- `scenario:maritime-spoof-position-push`: secondary placement Missions#sectors: not shown there
-- `scenario:maritime-strait-jamming`: secondary placement Missions#sectors: not shown there
-- `scenario:rail-tunnel-coast`: secondary placement Missions#sectors: not shown there
+- `pro:calibrated-clock-twin`: secondary placement Home#pro-band: not shown there
 
 <!-- END GENERATED -->
