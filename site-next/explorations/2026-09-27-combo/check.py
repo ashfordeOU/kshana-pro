@@ -265,8 +265,8 @@ def run_checks(override=None):
     # 5 no stand-ins ---------------------------------------------------------------------------
     bad = []
     for p, t in site.items():
-        # capability text and ledger rows quoted verbatim from the repository (its own wording)
-        scan = re.sub(r'<div class="cx-body"><p>.*?</p>|<dl class="lg-body">.*?</dl>|<summary><span class="st st-\w">\w+</span><span class="lg-req">.*?</span>', " ", t, flags=re.S)
+        # capability text and ledger rows quoted verbatim from the repository (its own wording), including the evidence page's JSON copy of the matrix rows (id kpage)
+        scan = re.sub(r'<div class="cx-body"><p>.*?</p>|<dl class="lg-body">.*?</dl>|<summary><span class="st st-\w">\w+</span><span class="lg-req">.*?</span>|<script type="application/json" id="kpage">.*?</script>', " ", t, flags=re.S)
         if re.search(r"illustrative", re.sub(r"<[^>]+>", " ", scan), re.I) or re.search(r'class="[^"]*\billus\b', scan) or re.search(r'aria-label="[^"]*illustrative', scan, re.I):
             bad.append((p, "Illustrative"))
         for m in re.finditer(r"<canvas\b[^>]*>", t):
@@ -547,11 +547,12 @@ def run_checks(override=None):
     # 17 engine version ---------------------------------------------------------------------------
     import gzip
     bad, nver = [], 0
-    # The one remaining allowance, by published file and by its exact wording (not a phrase-wide exemption): CAPABILITY.md's
-    # dated revision line for 0.38.0. It is a true historical record of what the engine was on that date, so it keeps the
+    # The remaining allowances, by published file and by its exact wording (not a phrase-wide exemption): CAPABILITY.md's
+    # dated revision lines for 0.38.0 and 0.39.0. They are a true historical record of what the engine was on that date, so each keeps the
     # version it states; every other 0.38.0 statement in the docs has been restated at the current version.
     HISTORIC = [
         (r"^(docs/capability-map\.html|llms-full\.txt)$", r"2026-10-19: engine 0\.38\.0, 87 kinds \(new in 0\.38\.0"),
+        (r"^(docs/capability-map\.html|llms-full\.txt)$", r"2026-10-22: engine 0\.39\.0, 87 kinds, no new kind"),
     ]
     for p in PUB:
         if p.endswith(TEXT_EXT): t = get(p)

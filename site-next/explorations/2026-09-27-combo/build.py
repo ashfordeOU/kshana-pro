@@ -373,9 +373,9 @@ GROUPS = [
     ("Integrity and ARAIM", "--itg", ["integrity", "araim-reference-check"]),
     ("Alternative PNT and fusion", "--nav", ["gravity-map", "terrain-nav", "terrain-slam", "combined-altpnt", "inertial", "gnss-ins", "ins-trn-coast", "fusion", "hybrid", "hybrid-ukf", "hybrid-optical-rf", "optical-atmosphere"]),
     ("Clocks and timing", "--tim", ["clock", "sweep", "slot-timing", "telecom-timing", "timetransfer", "time-transfer-budget", "holdover-test"]),
-    ("Orbits and mission analysis", "--orb", ["gnss-ssv", "orbit", "ephemeris", "oem-interop", "passes", "launch-window", "reentry", "eo-coverage", "attitude-budget", "space-packet", "space-weather", "link-budget", "aperture-duty-cycle", "constellation-design", "acm-link", "aocs", "ascent-losses", "contact-schedule", "entry-heating", "eo-radiometry"]),
+    ("Orbits and mission analysis", "--orb", ["gnss-ssv", "orbit", "ephemeris", "oem-interop", "passes", "launch-window", "reentry", "eo-coverage", "attitude-budget", "space-packet", "space-weather", "link-budget", "aperture-duty-cycle", "mission-thread", "constellation-design", "acm-link", "aocs", "ascent-losses", "contact-schedule", "entry-heating", "eo-radiometry"]),
     ("Low Earth orbit (LEO) PNT", "--nav", ["leo-signal", "leo-pass", "leo-navmsg", "leo-pvt", "leo-ppp", "ntn-positioning", "leo-pnt-chain"]),
-    ("Lunar and cislunar", "--spf", ["lunar-infrastructure", "lunar-integrity", "lunar-time-offset", "lunar-vlbi", "lunar-joint-od-clock", "lunar-frame-realisation", "moonlight-service-volume", "lunar-differential-pnt", "lunar-station-coverage", "lunar-interop-export", "lunar-time-budget", "cislunar-observability", "lunar-attack-surface", "realtime-frame-eop", "lunar-jamming", "lunar-vlbi-fim", "lunar-frame-campaign", "lunar-llr-datum", "lunar-beacon", "earth-gnss-lunar", "cislunar-arc-recovery"]),
+    ("Lunar and cislunar", "--spf", ["lunar-infrastructure", "lunar-integrity", "lunar-time-offset", "lunar-vlbi", "lunar-joint-od-clock", "lunar-frame-realisation", "moonlight-service-volume", "lunar-differential-pnt", "lunar-station-coverage", "lunar-orbit-rendezvous", "lunar-descent", "lunar-surface", "lunar-ascent", "lunar-interop-export", "lunar-time-budget", "cislunar-observability", "lunar-attack-surface", "realtime-frame-eop", "lunar-jamming", "lunar-vlbi-fim", "lunar-frame-campaign", "lunar-llr-datum", "lunar-beacon", "earth-gnss-lunar", "cislunar-arc-recovery"]),
     ("Mars and the solar system", "--int", ["mars-pnt", "body-pnt", "solar-system"]),
     ("Quantum sensors and trade studies", "--spf", ["quantum-anomaly-detect", "quantum-gnss-free-nav", "quantum-time-transfer", "quantum-trade", "conflict-resilience", "sweep-nd"]),
     ("Campaigns", "--itg", ["campaign"]),
@@ -1098,7 +1098,10 @@ def repro_stamp():
 
 def cli_reference():
     main_rs = read("src/main.rs")
-    usage = re.search(r'const USAGE: &str = "(.*?)";', main_rs, re.S).group(1)
+    # Since 0.40 the usage text is a catalogue message (main-usage), not a const in main.rs: take the binary's own English
+    # --help output, from the engine tree's release binary (the one every recorder runs).
+    _bin = os.path.join(os.path.expanduser(os.environ.get("KSHANA_ENGINE_TREE") or REPO), "target", "release", "kshana")
+    usage = subprocess.run([_bin, "--help"], capture_output=True, text=True, check=True, env={**os.environ, "KSHANA_LANG": "en", "LANG": "C", "LC_ALL": "C"}).stdout.rstrip("\n")
     lines = [re.sub(r"^(usage|\s+or):\s*", "", l).strip() for l in usage.split("\n")]
     outs = []
     for ext in re.findall(r'with_extension\("([a-z.]+)"\)', main_rs):
@@ -2357,6 +2360,34 @@ NEW039_STATIC = {
     "benchmark.html": ("modelled", "kshana-bench: the bars that were not met, stated",
         "The benchmark page now lists every bar that was not met, as the results file records them, and says that no bar is loosened. Every score is MODELLED, and a score describes a log or a corpus, never a product.", None),
 }
+NEW040 = [
+    (None, "docs/mission-thread.html", "studio/mission-thread/index.html", "Mission thread view"),
+    (None, "docs/mission-thread-lunar.html", None, None),
+    (None, "docs/interference-map.html", None, None),
+    (None, "docs/clock-log-formats.html", None, None),
+    (None, "docs/partner-data.html", None, None),
+    (None, "docs/verification-matrix.html", None, None),
+    (None, "docs/i18n.html", None, None),
+    (None, "benchmark.html", None, None),
+]
+NEW040_STATIC = {
+    "docs/mission-thread.html": ("modelled", "An Artemis-class mission thread: the navigation and timing error budget from launch to entry",
+        "The mission-thread kind chains phases (launch and ascent, rendezvous in low Earth orbit, trans-lunar injection and cruise, the lunar phases, entry) and carries the position and velocity covariance from each phase into the next, with the handover rules, the frame and timescale conversions, the margin against stated requirements and the weakest link each written as budget rows. The shipped example follows the sequence of a public concept-of-operations slide deck with illustrative numbers over 11 phases. The cislunar propagation was compared with the public Artemis I trajectory against a bar fixed before the run and did not meet it; the miss is stated and pinned.", "the Artemis I comparison missed its bar (45.3 km against 5 km); the row stays MODELLED"),
+    "docs/mission-thread-lunar.html": ("modelled", "The lunar segment: rendezvous, descent, surface and ascent",
+        "Four scenario kinds, each also a phase of the mission thread: relative navigation to docking in lunar orbit, the landing-dispersion budget at a south-polar site, positioning and timing availability by site and season, and the ascent back to the rendezvous orbit. The propagator met its bar against a reconstructed lunar-orbiter trajectory and did not meet it against the CAPSTONE near-rectilinear halo orbit; both results are stated and the miss is pinned.", "pre-registered bars; one met, one not met, none loosened"),
+    "docs/interference-map.html": ("modelled", "An estimated emitter region from ADS-B or AIS reports",
+        "Where a source of degraded position reports can be, as regions at 50, 90 and 95 per cent with a centroid and its uncertainty ellipse, never a bare point, and sessions in time. Calibrated on synthetic data only; the comparison with the Jammertest 2025 transmitter sites was pre-registered, run once, and not assessable for either source because the open data holds too few scheduled sessions. Neutral wording and aggregate output only.", "pre-registered; both sources not assessable, so nothing is claimed"),
+    "docs/clock-log-formats.html": ("modelled", "Measured clock logs, and a holdover driven by a fitted series",
+        "Read a measured clock log in eight formats (RINEX clock, TimeLab, TICC, linuxptp, chrony) into one phase series for the clock and telecom-timing kinds, and fit the noise of a measured series to drive a holdover. Compared with allantools on public data against pre-registered bars: several bars were missed on the first run and the remaining misses are pinned, not loosened.", "bars pre-registered; misses stated and pinned"),
+    "docs/partner-data.html": ("none", "Data partners: which rows measured data could promote",
+        "Which modelled ledger rows measured data from a partner could promote, the formats accepted, and how a submission is checked, scored against a pre-registered bar and credited. A new command checks the format and metadata of a submission and reads its data with the engine's own readers; it scores nothing and validates nothing.", None),
+    "docs/verification-matrix.html": ("none", "An evidence label on every figure and table a run writes",
+        "Each result file, chart and table a run writes now says which tier it rests on (validated, modelled or partner, the weakest of its rows) and names the verification-matrix rows behind it, read from the matrix and not typed. The Studio shows the same label beside each result. No claim changed: the ledger has {{TOTAL}} rows, {{VAL}} validated, and no row was promoted.", None),
+    "docs/i18n.html": ("none", "Seventeen languages beside English",
+        "The command line, the reports, the documentation pages and the Studio are available in seventeen languages beside English. The translations are machine translations that no native speaker has reviewed: English is the reference, machine files stay in English, and each translated page says so. Verdict words, evidence tiers and the advisory statement are kept in every language.", None),
+    "benchmark.html": ("modelled", "kshana-bench: the 0.40 re-campaign",
+        "Four pre-registered comparisons were run once after sign-off and met their bars, and every score is modelled. Three bars that were not met earlier stay not met; nothing in this release closes them and no bar is loosened.", None),
+}
 # The "New in" section of the Capabilities and Home pages is the current minor release's: its table, heading and lede.
 # KSHANA_NEW_SECTION=0.36 builds the 0.36 section before Cargo.toml carries 0.36.
 NEW_SECTIONS = {
@@ -2372,6 +2403,9 @@ NEW_SECTIONS = {
     "0.39": (NEW039, NEW039_STATIC, "Every kind, every command, and the benchmark's misses.",
              "No new engine feature: the results are those of 0.38.0. The documentation now has a page for every scenario kind and a list of every command and every surface, and the benchmark page states each bar that was not met. The command line also exits quietly when its output pipe closes. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software.",
              "every kind, every command, and the benchmark's misses"),
+    "0.40": (NEW040, NEW040_STATIC, "An Artemis-class mission thread, an evidence label on every figure, and seventeen languages.",
+             "Chain the phases of a lunar mission into one navigation and timing error budget, estimate where a source of degraded position reports can be, read measured clock logs, see the evidence tier on every figure a run writes, and use the command line, reports and Studio in seventeen languages. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software, not type-approved navigation equipment: the operator remains responsible.",
+             "a mission thread, an evidence label on every figure, and seventeen languages"),
     "0.38": (NEW038, NEW038_STATIC, "A neutral referee, a holdover test, more inputs and GNSS beyond the constellation.",
              "Score a receiver log against a published jamming-test plan, measure a holdover test against public ITU-T masks, read more receivers' and sensors' logs, open the files of an interference observatory without anyone telling you why a cell is red, and see what GNSS offers a spacecraft in a high orbit, on the way to the Moon and in lunar orbit. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software, not type-approved navigation equipment: the operator stays responsible. Nothing here transmits or synthesises a radio waveform.",
              "a neutral referee, a holdover test, more inputs and GNSS beyond the constellation"),
