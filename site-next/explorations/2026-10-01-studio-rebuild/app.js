@@ -2005,8 +2005,14 @@ function loadKindModules() {
     try { const t = JSON.parse(await S.engine.call("kind_modules")); return t && typeof t === "object" ? t : {}; } catch { return {}; }
   }));
 }
+// The shared ledger at the site root, so a translated page gets /<lang>/data/verification-matrix.json (the build keeps that copy); a Studio
+// served on its own, without the site root, falls back to its own data/ copy (byte-identical, English).
+async function fetchMatrix() {
+  try { const r = await fetchData("/data/verification-matrix.json"); if (r.ok) return r; } catch { /* no site root */ }
+  return fetch("data/verification-matrix.json");
+}
 function loadMatrix() {
-  if (!matrixPromise) matrixPromise = fetchData("data/verification-matrix.json").then((x) => (x.ok ? x.json() : null)).catch(() => null);
+  if (!matrixPromise) matrixPromise = fetchMatrix().then((x) => (x.ok ? x.json() : null)).catch(() => null);
   return matrixPromise;
 }
 // The scenario's header comment, as paragraphs.
