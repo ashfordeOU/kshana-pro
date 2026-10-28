@@ -71,7 +71,7 @@ Navigation (a browser check, run against a served build, not part of the rules a
                                          http://127.0.0.1:8847, a preview that serves clean URLs:
                                          python3 ../../features/serve.py . 8847
 
-Mutation self-test: python3 check.py --mutate  (each named check must go red once, then green).
+Mutation self-test: python3 check.py --mutate  (each named check must go red once, then green; --only "5 stand-ins" runs just the cases whose name contains the text).
 """
 import glob, html, json, os, re, subprocess, sys
 from html.parser import HTMLParser
@@ -95,6 +95,31 @@ SITE_PAGES = ["index.html", "missions.html", "capabilities.html", "evidence.html
 PUB = [l.strip() for l in open(os.path.join(HERE, "PUBLISH.txt")) if l.strip()]
 STUDIO = json.load(open(os.path.join(HERE, "src", "data", "brand.json"), encoding="utf-8"))["studio"]
 PUBSET = set(PUB)
+# The all-caps tier, verdict and status tokens of the i18n token list (TOKENS in kshana tools/i18n-lang.mjs, 26 words).
+# Inside the evidence page's kpage JSON blob (the engine's ledger text, quoted verbatim) these are the only caps words
+# rule 5 lets through.
+KPAGE_TOKENS = ["NOT CORROBORATED", "NOT MET", "VALIDATED", "MODELLED", "PARTNER", "EXPLORATORY", "MET", "PREDICTION", "CORROBORATED",
+                "REFUSED", "DEGRADED", "DEFICIENT", "OBSERVED", "LOST", "MISMATCH", "VERIFIED", "CONSISTENT", "INCONSISTENT",
+                "ILLUSTRATIVE", "PUBLIC", "REPRESENTATIVE", "WORKSHOP", "MIXED", "MEASURED", "NEEDS INPUT", "GREEN"]
+_KPAGE_TOKEN_RE = re.compile(r"(?<![A-Za-z_])(?:" + "|".join(re.escape(x) for x in sorted(KPAGE_TOKENS, key=len, reverse=True)) + r")(?![A-Za-z_])")  # case-sensitive
+
+
+def kpage_text(blob):
+    """The text of a kpage JSON blob that rule 5 scans: every string in it, with the exact caps tokens removed."""
+    try:
+        strings = []
+        def walk(v):
+            if isinstance(v, str): strings.append(v)
+            elif isinstance(v, dict):
+                for k, x in v.items(): strings.append(k); walk(x)
+            elif isinstance(v, list):
+                for x in v: walk(x)
+        walk(json.loads(blob))
+        text = "\n".join(strings)
+    except ValueError:
+        text = blob  # not JSON: scan it as it stands
+    return _KPAGE_TOKEN_RE.sub(" ", text)
+
 TEXT_EXT = (".html", ".js", ".mjs", ".css", ".json", ".txt", ".svg", ".md")
 # The Studio's own list of what it can open (build.py writes it from the Studio's tools_links.mjs):
 # scenario -> {"tabs": the views that run has, "best": the view that reproduces it}.
@@ -265,8 +290,13 @@ def run_checks(override=None):
     # 5 no stand-ins ---------------------------------------------------------------------------
     bad = []
     for p, t in site.items():
-        # capability text and ledger rows quoted verbatim from the repository (its own wording), including the evidence page's JSON copy of the matrix rows (id kpage)
+        # capability text and ledger rows quoted verbatim from the repository (its own wording) are not scanned.
+        # The evidence page's JSON copy of the matrix rows (id kpage) is scanned too, minus only the caps tokens of
+        # the i18n token list (KPAGE_TOKENS): anything else it says (a lowercase or capitalised "illustrative", a
+        # .illus class, an aria-label) still fails.
+        blobs = re.findall(r'<script type="application/json" id="kpage">(.*?)</script>', t, flags=re.S)
         scan = re.sub(r'<div class="cx-body"><p>.*?</p>|<dl class="lg-body">.*?</dl>|<summary><span class="st st-\w">\w+</span><span class="lg-req">.*?</span>|<script type="application/json" id="kpage">.*?</script>', " ", t, flags=re.S)
+        scan += " " + " ".join(kpage_text(b) for b in blobs)
         if re.search(r"illustrative", re.sub(r"<[^>]+>", " ", scan), re.I) or re.search(r'class="[^"]*\billus\b', scan) or re.search(r'aria-label="[^"]*illustrative', scan, re.I):
             bad.append((p, "Illustrative"))
         for m in re.finditer(r"<canvas\b[^>]*>", t):
@@ -798,6 +828,9 @@ if __name__ == "__main__":
         cases = {
             "27 every class has a rule": {"index.html": idx.replace("</main>", '<p class="zz-unstyled-class">x</p></main>', 1)},
             "5 stand-ins": {"index.html": idx.replace("</main>", '<p class="illus">Illustrative</p></main>', 1)},
+            # inside the kpage blob only the i18n caps tokens may stand: a capitalised "Illustrative" there must go red
+            "5 stand-ins (a non-token word inside the kpage blob)": {"evidence.html": rd("evidence.html").replace('{"matrix":{', '{"note":"Illustrative figures","matrix":{', 1)},
+            "5 stand-ins (a lowercase word inside the kpage blob)": {"evidence.html": rd("evidence.html").replace('{"matrix":{', '{"note":"an illustrative relay set","matrix":{', 1)},
             "6 provenance": {"index.html": re.sub(r'<figcaption class="prov">.*?</figcaption>', "", idx, count=1, flags=re.S)},
             "11 install drift": {"index.html": idx.replace('data-copy="pip install kshana"', 'data-copy="pip install kshana-engine"', 1)},
             "3 forbidden names": {"index.html": idx.replace("</main>", "<p>Aperio</p></main>", 1)},
@@ -845,13 +878,20 @@ if __name__ == "__main__":
             "17 engine version (a docs part of llms-full.txt)": {"llms-full.txt": rd("llms-full.txt").replace("URL: https://kshana.dev/docs/glossary\n", "URL: https://kshana.dev/docs/glossary\nRuns on Kshana 0.1.0.\n", 1)},
         }
         ok = True
+        only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else ""  # --mutate --only "5 stand-ins": just the cases whose name contains it
         for name, ov in cases.items():
+            if only and only not in name: continue
             f, _ = run_checks(ov)
             red = any(n == name.split(" (")[0] for n, _ in f)
             if idx in ov.values() or any(v == rd(k) for k, v in ov.items()):
                 red = False; name += " [the mutation changed nothing]"
             print(f"mutation {name}: {'RED (good)' if red else 'STAYED GREEN (bad)'}")
             ok &= red
+        # the other half: a caps token of the i18n list inside the kpage blob must stay green
+        f, _ = run_checks({"evidence.html": rd("evidence.html").replace('{"matrix":{', '{"note":"The relay set is ILLUSTRATIVE; NOT MET, VERIFIED","matrix":{', 1)})
+        tok_ok = not any(n == "5 stand-ins" for n, _ in f)
+        print(f"kpage blob with caps tokens only (ILLUSTRATIVE, NOT MET, VERIFIED): {'GREEN (good)' if tok_ok else 'WENT RED (bad)'}")
+        ok &= tok_ok
         f, st = run_checks()
         print(f"unmutated: {'green' if not f else 'red'}")
         sys.exit(0 if ok and not f else 1)
