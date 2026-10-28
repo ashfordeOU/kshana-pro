@@ -19,6 +19,8 @@
  11  install drift        every rendered install command equals channels.json; the version shown
                           is Cargo.toml's; every README carries the same base commands
  12  publish list         PUBLISH.txt matches the files on disk and stays under Pages' limits (1 GB, 100 MB a file; --preview adds the preview host's)
+ 12b deploy size         the REAL deploy tree (web/ with this build laid over it, the engine package, every language tree, built as pages.yml builds
+                          it) measured by kshana's tools/i18n.mjs size stays under 500 MB
  13  coverage             every `cover:` link in COVERAGE.md resolves to a published page and anchor
  14  studio name          the app is named only by the one constant in src/data/brand.json: no
                           visible "playground" on any site or docs page (URLs and code excepted),
@@ -70,6 +72,8 @@ Navigation (a browser check, run against a served build, not part of the rules a
   python3 check.py --nav [base-url]      runs ../../features/check_nav.mjs; base-url defaults to
                                          http://127.0.0.1:8847, a preview that serves clean URLs:
                                          python3 ../../features/serve.py . 8847
+
+Rule 12b measures the REAL deploy tree (see deploy_size): python3 check.py --deploy-tree=DIR measures an already built tree; --selftest-12b tests the rule.
 
 Mutation self-test: python3 check.py --mutate  (each named check must go red once, then green; --only "5 stand-ins" runs just the cases whose name contains the text).
 """
@@ -216,6 +220,225 @@ def link_base(rel, text):
 def rd(rel):
     with open(os.path.join(HERE, rel), encoding="utf-8", errors="replace") as f:
         return f.read()
+
+
+# ---- Rule 12b: the size of the REAL deploy tree ---------------------------------------------------------------------
+# This used to project the size (the published pages' size plus 17 times a per-language figure from the pages' HTML), which
+# left out the language data copies, the engine package and everything else the deploy adds, and drifted from the real
+# tree. Now the deploy is built the way .github/workflows/pages.yml builds it and measured by kshana's own accounting
+# (tools/i18n.mjs size, the step that gates the deploy): the committed web/ of the checkout with this build laid over it,
+# (the Studio is the committed web/studio: the port reads the Studio source folder, not this build's studio/), the engine package staged as web/build.sh stages it (pkg/ and studio/pkg/, the scenarios), then every step of the
+# workflow's translation step that changes the tree's bytes. KSHANA_DEPLOY_TREE (or --deploy-tree DIR) measures an
+# already built deploy tree instead (the workflow's `site/`). The cap is 500 MB, the same number as the workflow's.
+DEPLOY_CAP_MB = 500
+WEB_REPO = os.path.expanduser(os.environ.get("KSHANA_WEB_REPO") or REPO)
+# the tools/i18n.mjs commands of pages.yml's translation step, and whether this measurement runs them (a step that does not
+# change the bytes of the tree, such as verify, is listed as False; share-engine is run when the workflow runs it). A step the workflow adds that is not listed here fails the rule.
+DEPLOY_STEPS = {"images": True, "langs": True, "apply": True, "sitemaps": True, "english": True, "size": True, "share-engine": "when the workflow runs it", "catalogues": "when the workflow runs it", "verify": False}
+# web/'s own excludes when pages.yml stages the deploy tree (the same patterns, tar syntax)
+DEPLOY_EXCLUDES = ["*.test.mjs", "smoke.mjs", "build.sh", "./README.md", "./tools", "./PORT-MANIFEST.json"]
+_size_cache = {}
+
+
+class DeploySizeError(Exception):
+    pass
+
+
+def kshana_tool():
+    tool = os.path.join(REPO, "tools", "i18n.mjs")
+    if not os.path.isfile(tool): raise DeploySizeError(f"{tool} not found: set KSHANA_REPO to a kshana checkout with the i18n tools")
+    return tool
+
+
+def pages_workflow_steps(repo=None):
+    """The `node tools/i18n.mjs <command>` commands of pages.yml's translation step, in order."""
+    wf = os.path.join(repo or REPO, ".github", "workflows", "pages.yml")
+    if not os.path.isfile(wf): raise DeploySizeError(f"{wf} not found: cannot tell how the deploy tree is built")
+    text = open(wf, encoding="utf-8").read()
+    i = text.find("Translations")
+    if i < 0: raise DeploySizeError("pages.yml has no translation step")
+    step = text[i:text.find("- name:", i + 10) if text.find("- name:", i + 10) > 0 else len(text)]
+    return re.findall(r"node tools/i18n\.mjs ([a-z][a-z-]*)", step)
+
+
+def find_wasm_pkg():
+    """The wasm-pack package build.sh stages: KSHANA_WASM_PKG, else web/pkg of the engine tree or the checkout."""
+    cands = [os.environ.get("KSHANA_WASM_PKG"), os.path.join(os.environ.get("KSHANA_ENGINE_TREE") or "", "web", "pkg") if os.environ.get("KSHANA_ENGINE_TREE") else None, os.path.join(WEB_REPO, "web", "pkg"), os.path.join(REPO, "web", "pkg")]
+    for c in cands:
+        if c and os.path.isfile(os.path.join(os.path.expanduser(c), "kshana_bg.wasm")) and os.path.isfile(os.path.join(os.path.expanduser(c), "kshana.js")): return os.path.expanduser(c)
+    raise DeploySizeError("no built engine package (kshana_bg.wasm): run web/build.sh in the kshana checkout or set KSHANA_WASM_PKG; the deploy size cannot be measured without it")
+
+
+def _run(cmd, **kw):
+    r = subprocess.run(cmd, capture_output=True, text=True, **kw)
+    if r.returncode != 0: raise DeploySizeError(f"{' '.join(cmd[:4])} ... failed ({r.returncode}): {(r.stderr or r.stdout).strip()[-600:]}")
+    return r.stdout
+
+
+def measure_deploy_tree(tree, cap_mb=DEPLOY_CAP_MB, tool=None):
+    """kshana's size accounting of a deploy tree: the dict `tools/i18n.mjs size --json` prints (total bytes, English, language trees, by directory and class, engine counted)."""
+    r = subprocess.run(["node", tool or kshana_tool(), "size", "--tree", tree, "--dist", os.path.join(tree, ".no-dist"), "--cap", str(cap_mb), "--json"], capture_output=True, text=True)
+    lines = [l for l in r.stdout.splitlines() if l.startswith("{")]
+    if not lines: raise DeploySizeError(f"size gave no figure: {(r.stderr or r.stdout).strip()[-400:]}")
+    out = json.loads(lines[-1])
+    if not out.get("engine"): raise DeploySizeError("the tree has no pkg/kshana_bg.wasm, so it is not the deploy tree and the figure would leave out the engine")
+    return out
+
+
+def stage_deploy_tree(dest):
+    """Build the deploy tree into dest the way pages.yml does, for the committed web/ with this build's published files laid over it."""
+    import shutil, tarfile, fnmatch
+    tool = kshana_tool()
+    steps = pages_workflow_steps()
+    unknown = [c for c in steps if c not in DEPLOY_STEPS]
+    if unknown: raise DeploySizeError(f"pages.yml runs tools/i18n.mjs {', '.join(unknown)}, which rule 12b does not know: add it to DEPLOY_STEPS (does it change the tree's bytes?)")
+    missing = [c for c, runs in DEPLOY_STEPS.items() if runs is True and c not in steps]
+    if missing: raise DeploySizeError(f"pages.yml no longer runs tools/i18n.mjs {', '.join(missing)}: update DEPLOY_STEPS so the measurement follows the workflow")
+    pkg = find_wasm_pkg()
+    web = os.path.join(WEB_REPO, "web")
+    os.makedirs(dest, exist_ok=True)
+    if os.path.isdir(web):
+        ex = [a for e in DEPLOY_EXCLUDES for a in ("--exclude", e)]
+        _run(["bash", "-c", 'set -o pipefail; tar -C "$1" "${@:3}" -cf - . | tar -C "$2" -xf -', "_", web, dest, *ex])
+    # this build's site files laid over the committed ones. Not studio/ or playground/: the Studio that ships is the Studio source folder
+    # ported into web/studio (web/tools/port_site.py reads it, not this build), and this build's own studio/ is the preview host's
+    # packed copy (recorded/pack-NN.json.gz), which the deploy never carries.
+    for rel in PUB:
+        if rel.startswith(("studio/", "playground/")): continue
+        src = os.path.join(HERE, rel)
+        if os.path.exists(src):
+            os.makedirs(os.path.dirname(os.path.join(dest, rel)) or dest, exist_ok=True)
+            shutil.copyfile(src, os.path.join(dest, rel))
+    # web/build.sh: web/pkg (the wasm-pack package plus the npm README), web/studio/pkg (its four files), web/scenarios
+    for d, names in (("pkg", None), (os.path.join("studio", "pkg"), ("kshana.js", "kshana_bg.wasm", "package.json", "LICENSE"))):
+        os.makedirs(os.path.join(dest, d), exist_ok=True)
+        for n in (names or [n for n in os.listdir(pkg) if os.path.isfile(os.path.join(pkg, n))]):
+            if os.path.isfile(os.path.join(pkg, n)): shutil.copyfile(os.path.join(pkg, n), os.path.join(dest, d, n))
+    if os.path.isfile(os.path.join(REPO, "README.npm.md")): shutil.copyfile(os.path.join(REPO, "README.npm.md"), os.path.join(dest, "pkg", "README.md"))
+    sc = os.path.join(REPO, "scenarios")
+    if os.path.isdir(sc):
+        os.makedirs(os.path.join(dest, "scenarios"), exist_ok=True)
+        for n in os.listdir(sc):
+            if n.endswith(".toml"): shutil.copyfile(os.path.join(sc, n), os.path.join(dest, "scenarios", n))
+    # pages.yml's translation step
+    root = os.path.join(REPO, "i18n")
+    _run(["node", tool, "images", "--tree", dest])
+    langs = _run(["node", tool, "langs", "--min", "0.25", "--root", root]).strip()
+    if langs:
+        lc = langs.split(",")
+        _run(["node", tool, "apply", *lc, "--src", dest, "--out", dest, "--langs", langs, "--root", root])
+        fonts = [l for l in lc if l in ("ja", "zh-Hans")]
+        if fonts:
+            ft = os.path.join(REPO, "tools", "i18n-fonts.py")
+            _run([sys.executable, ft, "--tree", dest, *fonts])
+        _run(["node", tool, "sitemaps", "--tree", dest])
+    _run(["node", tool, "english", "--src", dest, "--langs", langs, "--root", root])
+    if "catalogues" in steps: _run(["node", tool, "catalogues", "--tree", dest, "--langs", langs, "--root", root])
+    if "share-engine" in steps: _run(["node", tool, "share-engine", "--tree", dest])
+    return dest, langs
+
+
+def _stat_key(paths):
+    import hashlib
+    h = hashlib.sha256()
+    for base in paths:
+        if os.path.isfile(base): items = [base]
+        else: items = [os.path.join(d, f) for d, _, fs in os.walk(base) for f in fs] if os.path.isdir(base) else []
+        for f in sorted(items):
+            try: st = os.stat(f)
+            except OSError: continue
+            h.update(f"{f}\0{st.st_size}\0{st.st_mtime_ns}\n".encode())
+    return h.hexdigest()
+
+
+def deploy_size(deploy_tree=None, cap_mb=DEPLOY_CAP_MB):
+    """(figure, how): the measured size of the deploy tree. A built stage is cached under .build by the stat of everything it reads."""
+    if "tree" in _size_cache and not deploy_tree: return _size_cache["tree"]
+    if "err" in _size_cache and not deploy_tree: raise _size_cache["err"]
+    try:
+        return _deploy_size(deploy_tree, cap_mb)
+    except DeploySizeError as e:
+        if not deploy_tree: _size_cache["err"] = e
+        raise
+
+
+def _deploy_size(deploy_tree, cap_mb):
+    tree = deploy_tree or os.environ.get("KSHANA_DEPLOY_TREE")
+    if tree:
+        res = (measure_deploy_tree(os.path.expanduser(tree), cap_mb), f"the built tree {tree}")
+    else:
+        pkg = find_wasm_pkg()
+        key = _stat_key([os.path.join(HERE, p) for p in PUB] + [os.path.join(WEB_REPO, "web"), os.path.join(REPO, "i18n"), os.path.join(REPO, "scenarios"), pkg, os.path.join(REPO, ".github", "workflows", "pages.yml")] + sorted(glob.glob(os.path.join(REPO, "tools", "i18n*"))))
+        cache = os.path.join(HERE, ".build", "deploy-size.json")
+        try: hit = json.load(open(cache)) if os.path.isfile(cache) else None
+        except ValueError: hit = None
+        if hit and hit.get("key") == key and hit.get("cap") == cap_mb: res = (hit["figure"], hit["how"] + " (cached: nothing it reads has changed)")
+        else:
+            import tempfile, shutil
+            tmp = tempfile.mkdtemp(prefix="deploy-size-")
+            try:
+                print("12b: building the deploy tree to measure it (pages.yml's steps; a few minutes, cached afterwards) ...", flush=True)
+                _, langs = stage_deploy_tree(tmp)
+                fig = measure_deploy_tree(tmp, cap_mb)
+                how = f"the deploy tree built from web/ + this build + the engine package with {len(langs.split(',')) if langs else 0} language trees"
+                os.makedirs(os.path.dirname(cache), exist_ok=True)
+                json.dump({"key": key, "cap": cap_mb, "figure": fig, "how": how}, open(cache, "w"))
+                res = (fig, how)
+            finally:
+                shutil.rmtree(tmp, ignore_errors=True)
+    if not deploy_tree: _size_cache["tree"] = res
+    return res
+
+
+def deploy_size_verdict(figure, cap_mb=DEPLOY_CAP_MB):
+    """The rule's verdict on a measured figure: a list of failures (empty when the whole deploy tree is under the cap)."""
+    mb = lambda n: f"{n / 1e6:.1f} MB"
+    if figure["total"] > cap_mb * 1e6:
+        top = sorted(figure["byTop"].items(), key=lambda kv: -kv[1])[:3]
+        return [f"the deploy tree is {mb(figure['total'])} ({mb(figure['english'])} English, {mb(figure['languages'])} in {len(figure['langs'])} language trees), over the {cap_mb} MB cap; largest: " + ", ".join(f"{k} {mb(v)}" for k, v in top)]
+    return []
+
+
+def deploy_size_selftest():
+    """Self-test of rule 12b (python3 check.py --selftest-12b): the accounting counts the engine and the language trees, fails over the cap,
+    refuses a tree without the engine, and the workflow-drift guard fires on a step it does not know."""
+    import tempfile, shutil
+    tool = kshana_tool()
+    tmp = tempfile.mkdtemp(prefix="deploy-size-test-")
+    ok = True
+    def check(name, cond):
+        nonlocal ok
+        print(f"  {'ok  ' if cond else 'FAIL'} {name}"); ok &= bool(cond)
+    def put(rel, n):
+        p = os.path.join(tmp, rel); os.makedirs(os.path.dirname(p), exist_ok=True); open(p, "wb").write(b"x" * n)
+    try:
+        for rel, n in (("index.html", 1000), ("docs/a.html", 2000), ("pkg/kshana_bg.wasm", 50000), ("studio/pkg/kshana_bg.wasm", 50000), ("de/index.html", 1500), ("de/data/x.json", 500), ("ja/index.html", 1600)): put(rel, n)
+        f = measure_deploy_tree(tmp, 1, tool)
+        check("total is every file, the engine included twice when it is staged twice", f["total"] == 1000 + 2000 + 50000 + 50000 + 1500 + 500 + 1600)
+        check("language trees are counted apart from English", f["languages"] == 3600 and f["english"] == 103000 and sorted(f["langs"]) == ["de", "ja"])
+        check("under the cap: no failure", deploy_size_verdict(f, 1) == [])
+        put("pkg/kshana_bg.wasm", 50000 + 1_000_000)
+        g = measure_deploy_tree(tmp, 1, tool)
+        check("a bigger engine package moves the figure by exactly its growth (it cannot be left out)", g["total"] - f["total"] == 1_000_000)
+        check("over the cap: a failure naming the largest entries", len(deploy_size_verdict(g, 1)) == 1 and "pkg" in deploy_size_verdict(g, 1)[0])
+        check("the same figure passes against a higher cap", deploy_size_verdict(g, 500) == [])
+        os.remove(os.path.join(tmp, "pkg", "kshana_bg.wasm"))
+        try: measure_deploy_tree(tmp, 500, tool); refused = False
+        except DeploySizeError: refused = True
+        check("a tree without pkg/kshana_bg.wasm is refused, not measured", refused)
+        # the guard that keeps the staging in step with the workflow
+        fake = os.path.join(tmp, "repo", ".github", "workflows"); os.makedirs(fake)
+        open(os.path.join(fake, "pages.yml"), "w").write("steps:\n  - name: Translations (x)\n    run: |\n      node tools/i18n.mjs images --tree site\n      node tools/i18n.mjs squash --tree site\n      node tools/i18n.mjs size --tree site\n  - name: Upload\n")
+        steps = pages_workflow_steps(os.path.join(tmp, "repo"))
+        check("the workflow's translation steps are read in order", steps == ["images", "squash", "size"])
+        check("a workflow step this measurement does not know is detected", [c for c in steps if c not in DEPLOY_STEPS] == ["squash"])
+        real = pages_workflow_steps()
+        check("the real pages.yml only runs steps the measurement knows", all(c in DEPLOY_STEPS for c in real))
+        check("and every step that changes bytes is run by the real workflow", all(c in real for c, runs in DEPLOY_STEPS.items() if runs is True))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    print("12b self-test: " + ("passed" if ok else "FAILED"))
+    return ok
 
 
 def run_checks(override=None):
@@ -479,19 +702,16 @@ def run_checks(override=None):
     if "--preview" in sys.argv: bad += pv
     elif pv: print("note (not gating; kshana.dev deploys on Pages): " + "; ".join(pv) + ". Run with --preview to gate on these.")
     if bad: fails.append(("12 publish list", bad))
-    # 12b translations (design i18n v2, section 10): the 17 language trees are generated at deploy time by kshana's
-    # tools/i18n.mjs (apply) from the English pages with every inlined image shared (assets/img), so a language tree is
-    # about the pages' HTML without their inlined images (4 KB or more). The whole deploy tree, English and 17 languages,
-    # stays under 500 MB: the Pages limit is 1 GB and the cap is the room we keep.
-    img_re = re.compile(r"""(?:\s(?:src|href|xlink:href|poster)=(["'])data:image/[a-z+]+(?:;[a-z0-9-]+=[a-z0-9-]+)*(?:;base64)?,.*?\1|url\((["']?)data:image/[a-z+]+(?:;[a-z0-9-]+=[a-z0-9-]+)*(?:;base64)?,.*?\2\))""", re.S)
-    per_lang = 0
-    for p in PUB:
-        if p.endswith(".html") and not p.startswith(("studio/", "playground/", "assets/")) and os.path.exists(os.path.join(HERE, p)):
-            h = open(os.path.join(HERE, p), encoding="utf-8").read()
-            per_lang += len(h.encode("utf-8")) - sum(len(m.group(0).encode("utf-8")) for m in img_re.finditer(h) if len(m.group(0)) >= 4096)
-    projected = total + 17 * per_lang
-    if projected > 500e6: fails.append(("12b translated size", [f"projected {projected / 1e6:.0f} MB with 17 language trees ({per_lang / 1e6:.1f} MB each), over the 500 MB cap"]))
-    else: print(f"note: projected deploy size with 17 language trees: {projected / 1e6:.0f} MB ({per_lang / 1e6:.1f} MB each), cap 500 MB")
+    # 12b deploy size (design i18n v2, section 10): the real deploy tree, built as pages.yml builds it (English, the language
+    # trees, the engine package) and measured by kshana's own `tools/i18n.mjs size`; the whole tree stays under 500 MB (the
+    # Pages limit is 1 GB and the cap is the room we keep). See deploy_size() above; --selftest-12b tests the rule.
+    try:
+        fig, how = deploy_size(deploy_tree=next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--deploy-tree=")), None))
+        v = deploy_size_verdict(fig)
+        if v: fails.append(("12b deploy size", v))
+        else: print(f"note: 12b deploy tree {fig['total'] / 1e6:.1f} MB of {DEPLOY_CAP_MB} MB ({fig['english'] / 1e6:.1f} MB English incl. the engine package, {fig['languages'] / 1e6:.1f} MB in {len(fig['langs'])} language trees), {how}")
+    except DeploySizeError as e:
+        fails.append(("12b deploy size", [f"cannot measure the deploy tree: {e}"]))
     # 13 coverage ------------------------------------------------------------------------------
     bad = []
     for link in re.findall(r"`cover:([^`]+)`", open(os.path.join(HERE, "COVERAGE.md"), encoding="utf-8").read()):
@@ -823,6 +1043,8 @@ if __name__ == "__main__":
         base = rest[0] if rest and not rest[0].startswith("-") else "http://127.0.0.1:8847"
         nav = os.path.normpath(os.path.join(HERE, "..", "..", "features", "check_nav.mjs"))
         sys.exit(subprocess.run(["node", nav, base] + [a for a in rest if a != base]).returncode)
+    if "--selftest-12b" in sys.argv:
+        sys.exit(0 if deploy_size_selftest() else 1)
     if "--mutate" in sys.argv:
         idx = rd("index.html")
         cases = {
