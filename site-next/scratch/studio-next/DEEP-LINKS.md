@@ -296,6 +296,7 @@ These three views show files the native command-line engine wrote (the browser b
 | `mars-pnt-surface` | `index.html?scenario=mars-pnt-surface&tab=animation` | `index.html?scenario=mars-pnt-surface&tab=report` | `index.html?scenario=mars-pnt-surface&tab=exports` | none apply |
 | `mars-pnt-transfer` | `index.html?scenario=mars-pnt-transfer&tab=animation` | `index.html?scenario=mars-pnt-transfer&tab=report` | `index.html?scenario=mars-pnt-transfer&tab=exports` | none apply |
 | `lunar-station-coverage-terrain` | no time axis | `index.html?scenario=lunar-station-coverage-terrain&tab=report` | `index.html?scenario=lunar-station-coverage-terrain&tab=exports` | none apply |
+| `mission-thread-short` | no time axis | `index.html?scenario=mission-thread-short&tab=report` | `index.html?scenario=mission-thread-short&tab=exports` | none apply |
 | `l-band-waterfall-jamming` | `index.html?scenario=l-band-waterfall-jamming&tab=animation` | `index.html?scenario=l-band-waterfall-jamming&tab=report` | `index.html?scenario=l-band-waterfall-jamming&tab=exports` | sigmf |
 | `multi-band-jamming-waterfall` | `index.html?scenario=multi-band-jamming-waterfall&tab=animation` | `index.html?scenario=multi-band-jamming-waterfall&tab=report` | `index.html?scenario=multi-band-jamming-waterfall&tab=exports` | none apply |
 | `leo-resilience-js-margin` | `index.html?scenario=leo-resilience-js-margin&tab=animation` | `index.html?scenario=leo-resilience-js-margin&tab=report` | `index.html?scenario=leo-resilience-js-margin&tab=exports` | none apply |
@@ -361,4 +362,4 @@ These three views show files the native command-line engine wrote (the browser b
 | `celeste-iod-fused-pvt` (optional preset) | `index.html?scenario=celeste-iod-fused-pvt&tab=animation` | `index.html?scenario=celeste-iod-fused-pvt&tab=report` | `index.html?scenario=celeste-iod-fused-pvt&tab=exports` | none apply |
 | `celeste-iod-end-to-end` (optional preset) | `index.html?scenario=celeste-iod-end-to-end&tab=animation` | `index.html?scenario=celeste-iod-end-to-end&tab=report` | `index.html?scenario=celeste-iod-end-to-end&tab=exports` | czml, geojson, kml, stk |
 
-Counts: 182 scenarios with a recorded run (5 in the optional preset folder), 62 with a capability view, 89 with an animation, 182 with an engine report, 58 with at least one interoperability export.
+Counts: 183 scenarios with a recorded run (5 in the optional preset folder), 62 with a capability view, 89 with an animation, 183 with an engine report, 58 with at least one interoperability export.

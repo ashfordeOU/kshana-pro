@@ -3129,6 +3129,30 @@
   "exports": []
  },
  {
+  "file": "mission-thread-short.toml",
+  "name": "mission-thread-short",
+  "title": "Short mission thread, launch to entry",
+  "domain": "Moon, cislunar & Mars",
+  "group": "bundled",
+  "kind": "mission-thread",
+  "runs": "browser",
+  "links": {
+   "best": "index.html?scenario=mission-thread-short&tab=overview",
+   "report": "index.html?scenario=mission-thread-short&tab=report",
+   "exports": "index.html?scenario=mission-thread-short&tab=exports"
+  },
+  "dir": "",
+  "tabs": [
+   "overview",
+   "timeseries",
+   "report",
+   "exports",
+   "json"
+  ],
+  "preferred": "overview",
+  "exports": []
+ },
+ {
   "file": "l-band-waterfall-jamming.toml",
   "name": "l-band-waterfall-jamming",
   "title": "L-band waterfall under jamming",
