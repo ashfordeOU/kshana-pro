@@ -48,8 +48,14 @@ SCRATCH = os.path.join(HERE, ".build")
 os.makedirs(SCRATCH, exist_ok=True)
 
 
+# The engine checkout (REPO) fixes the engine commit every recording is stamped with. The site's own data files
+# under web/ (capability cards, verification ledger) are documents of the kshana tree that carries the port: they
+# may be committed after the engine commit, so KSHANA_WEB_REPO (default: REPO) names the checkout they are read from.
+WEB_REPO = os.path.expanduser(os.environ.get("KSHANA_WEB_REPO") or REPO)
+
+
 def read(p):
-    with open(os.path.join(REPO, p), encoding="utf-8") as f:
+    with open(os.path.join(WEB_REPO if p.startswith("web/") else REPO, p), encoding="utf-8") as f:
         return f.read()
 
 
@@ -3250,7 +3256,7 @@ for _name, _from in (("capabilities.json", "web/capabilities.json"), ("verificat
                      ("card-matrix-map.json", "web/data/card-matrix-map.json"), ("oracle-references.json", "web/data/oracle-references.json"),
                      ("standards-matrix-map.json", "web/data/standards-matrix-map.json")):
     assert os.path.exists(os.path.join(PG_OUT, "data", _name)), f"the Studio no longer reads data/{_name}"
-    shutil.copyfile(os.path.join(REPO, _from), os.path.join(PG_OUT, "data", _name))
+    shutil.copyfile(os.path.join(WEB_REPO, _from), os.path.join(PG_OUT, "data", _name))
 _pg_matrix = json.load(open(os.path.join(PG_OUT, "data", "verification-matrix.json"), encoding="utf-8"))["summary"]
 assert _pg_matrix["total"] == summ["total"] and _pg_matrix["validated"] == summ["validated"], "the Studio's ledger is not the site's"
 json.dump({"version": version, "studio": STUDIO, "channels": channels}, open(os.path.join(PG_OUT, "channels.json"), "w"), ensure_ascii=False, indent=1)
