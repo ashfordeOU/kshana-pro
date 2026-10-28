@@ -37,7 +37,7 @@ import { fieldIndex, findFields, scenarioCount, filterControls } from "./lib/fin
 import { plainMeaning, plainDuration, headerParagraphs, taskWords } from "./lib/meaning.mjs";
 import { rankInputs, splitInputs, inputLabel, fieldName, VISIBLE_INPUTS } from "./lib/inputs.mjs";
 import { parseState, buildSearch, isNewEntry, persistentExtras, tabFromLink, viewUrl, chooseView, VIEW_KEY } from "./lib/urlstate.mjs";
-import { kindsOfToml, kindOfToml, rowsForKind, evidenceMix } from "./lib/areas.mjs";
+import { kindsOfToml, kindOfToml, rowsForKind, evidenceMix, restoreMatchFields } from "./lib/areas.mjs";
 import { spellOut } from "./lib/abbr.mjs";
 import { GUIDED_KNOBS } from "./lib/guided.mjs";
 await ready(); // the page's first catalogue is loaded before text is built
@@ -2012,7 +2012,13 @@ async function fetchMatrix() {
   return fetch("data/verification-matrix.json");
 }
 function loadMatrix() {
-  if (!matrixPromise) matrixPromise = fetchMatrix().then((x) => (x.ok ? x.json() : null)).catch(() => null);
+  if (!matrixPromise) matrixPromise = fetchMatrix().then(async (x) => {
+    if (!x.ok) return null;
+    const ledger = await x.json();
+    // a language copy: which rows belong to a kind is decided on the English module and test names (the translated prose is for reading)
+    if (/^\/[a-z]{2,3}(-[A-Za-z0-9]+)?\/data\//.test(new URL(x.url).pathname)) { try { restoreMatchFields(ledger, await (await fetch("/data/verification-matrix.json")).json()); } catch { /* the translated rows as they are */ } }
+    return ledger;
+  }).catch(() => null);
   return matrixPromise;
 }
 // The scenario's header comment, as paragraphs.
