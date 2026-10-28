@@ -64,7 +64,7 @@ for (const f of ["geometry/geometry.js", "lib/geometry-url.mjs", "lib/skyline-ed
   ok([...js.matchAll(/\bfetch\s*\(([^)]*)\)/g)].every((m) => /^(RECORDED_FILE|SCENARIO_FILE)$/.test(m[1].trim())) && !/XMLHttpRequest|WebSocket|EventSource|sendBeacon|import\s*\(/.test(js), "lunar/lunar.js: fetches only the kind's two fixed files");
   ok(/export const SCENARIO_FILE = "scenarios\/lunar-station-coverage\.toml";/.test(lib) && /export const RECORDED_FILE = "recorded\/lunar-station-coverage\.json";/.test(lib), "the two fixed files are literal same-origin paths");
   for (const f of ["lunar/index.html", "lunar/lunar.js", "lunar/lunar.css"]) ok(!/nova\s*moon|\bESA\b|European Space Agency|Moonlight/i.test(read(f)), `${f}: generic names only`);
-  ok(html.includes('<base href="../">') && /<b>MODELLED\.<\/b> <b>Under the stated public assumptions, not a statement about the performance of any real system\.<\/b> <b>Not affiliated with or endorsed by any agency\.<\/b>/.test(html), "lunar/index.html resolves from the Studio folder and carries the honesty block");
+  ok(html.includes('<base href="../">') && /<b>MODELLED\.<\/b> <b[^>]*>Under the stated public assumptions, not a statement about the performance of any real system\.<\/b> <b[^>]*>Not affiliated with or endorsed by any agency\.<\/b>/.test(html), "lunar/index.html resolves from the Studio folder and carries the honesty block");
 }
 ok(read("geometry/index.html").includes('<base href="../">') && read("geometry/index.html").includes("Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.") && /representative sky, not the sky of that date/i.test(read("geometry/index.html")), "geometry/index.html resolves from the Studio folder and carries the advisory statement and the representative-sky notice");
 
@@ -107,7 +107,7 @@ ok(/mailto:contact@ashforde\.org/.test(read("index.html")), "Pro call to action 
 // 5. catalogue numbers
 const files = readdirSync(here + "scenarios").filter((f) => f.endsWith(".toml"));
 const catalog = read("lib/catalog.mjs");
-const listed = [...catalog.matchAll(/^\s*\["([a-z0-9.-]+\.toml)",/gm)].map((m) => m[1]);
+const listed = [...catalog.matchAll(/^\s*row\("([a-z0-9.-]+\.toml)",/gm)].map((m) => m[1]);
 ok(listed.length === files.length, `library lists ${listed.length}, disk has ${files.length}`);
 ok(parity.includes(`all ${files.length} bundled files`), `PARITY states the file count (${files.length})`);
 
