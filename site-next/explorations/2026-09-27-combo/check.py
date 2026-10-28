@@ -234,7 +234,7 @@ DEPLOY_CAP_MB = 500
 WEB_REPO = os.path.expanduser(os.environ.get("KSHANA_WEB_REPO") or REPO)
 # the tools/i18n.mjs commands of pages.yml's translation step, and whether this measurement runs them (a step that does not
 # change the bytes of the tree, such as verify, is listed as False; share-engine is run when the workflow runs it). A step the workflow adds that is not listed here fails the rule.
-DEPLOY_STEPS = {"images": True, "langs": True, "apply": True, "sitemaps": True, "english": True, "size": True, "share-engine": "when the workflow runs it", "catalogues": "when the workflow runs it", "verify": False}
+DEPLOY_STEPS = {"images": True, "langs": True, "apply": True, "sitemaps": True, "english": True, "size": True, "share-engine": "when the workflow runs it", "catalogues": "when the workflow runs it", "prune-data": "when the workflow runs it", "verify": False}
 # web/'s own excludes when pages.yml stages the deploy tree (the same patterns, tar syntax)
 DEPLOY_EXCLUDES = ["*.test.mjs", "smoke.mjs", "build.sh", "./README.md", "./tools", "./PORT-MANIFEST.json"]
 _size_cache = {}
@@ -333,8 +333,10 @@ def stage_deploy_tree(dest):
             _run([sys.executable, ft, "--tree", dest, *fonts])
         _run(["node", tool, "sitemaps", "--tree", dest])
     _run(["node", tool, "english", "--src", dest, "--langs", langs, "--root", root])
-    if "catalogues" in steps: _run(["node", tool, "catalogues", "--tree", dest, "--langs", langs, "--root", root])
     if "share-engine" in steps: _run(["node", tool, "share-engine", "--tree", dest])
+    # the run-time catalogues ship (only the five files the browser fetches, comments stripped) and the language data copies no page requests do not
+    if "prune-data" in steps and langs: _run(["node", tool, "prune-data", "--tree", dest, "--langs", langs, "--spec", os.path.join(REPO, "i18n", "data-spec.json")])
+    if "catalogues" in steps: _run(["node", tool, "catalogues", "--tree", dest, "--langs", langs, "--root", root])
     return dest, langs
 
 
