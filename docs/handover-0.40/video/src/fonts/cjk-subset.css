@@ -1,0 +1,3 @@
+/* Subsets of Noto Sans JP and Noto Sans SC (SIL Open Font License), only the characters of the two advisory lines on screen; fetched from Google Fonts with text=. */
+@font-face { font-family: 'Noto Sans JP'; font-style: normal; font-weight: 500; src: url(files/notosansjp-subset.woff2) format('woff2'); }
+@font-face { font-family: 'Noto Sans SC'; font-style: normal; font-weight: 500; src: url(files/notosanssc-subset.woff2) format('woff2'); }

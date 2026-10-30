@@ -1,0 +1,36 @@
+🛰️ A navigation error budget from launch to entry. Every number labelled, and the misses shown as misses.
+
+Kshana 0.40 is out. It chains the navigation and timing budget of a whole mission, phase by phase, and stamps every figure and table it writes with the evidence it rests on. Every number in the video is engine output committed at the v0.40.0 release tag.
+
+🌍➡️🌕 Mission thread: an Artemis-class example over 11 phases, Earth and lunar segments, from ascent to entry, with stated handover rules, a margin against each stated limit and the weakest link named (the lunar descent: its stated limit is only 1.21 times its peak error). Every number is MODELLED and the inputs are illustrative. 92 scenario kinds in all.
+
+We checked the propagators against public trajectories, with bars fixed before each run:
+→ Cislunar arc against the public Artemis I trajectory, 72 h: NOT MET. 45.3 km against a 5 km bar, 0.25 m/s against 0.05 m/s. The cause is small impulsive events in the reference that the model does not include.
+→ Lunar orbit against the public CAPSTONE orbit, one revolution: NOT MET. 136.8 km against 25 km.
+→ Lunar orbit against the public LRO trajectory, 24 h: met. 33 m against 500 m.
+No bar was loosened, and the rows stay MODELLED.
+
+What else is new:
+✅ Evidence labels. Every result file, chart and CSV table carries its tier and the ids of the ledger rows behind it, read from the ledger, not typed. A test fails if a figure has none.
+✅ Measured clock logs in 8 formats, and a fitted series that can drive a holdover. The fit misses F1(a) on five of six records and F2 on one. Both stay MODELLED.
+✅ "kshana partner check": checks the format of a data-partner submission. It scores nothing and validates nothing.
+✅ An estimated emitter region from ADS-B or AIS reports: a region and an ellipse, never a point. On a synthetic session, 176 km² at 50 %, 761 km² at 95 %, and a 16.3 by 15.0 km ellipse. Compared once with the Jammertest 2025 transmitter sites: NOT ASSESSABLE, with too few scheduled sessions in the open data.
+✅ kshana-bench re-campaign: A3, D3, R3 and R4 met. A2 (AUC 0.766 against 0.80), D1 and R1 are still NOT MET.
+✅ The site, the Studio and the engine's text in 17 languages beside English. They are machine translations that no native speaker has reviewed, and English is the reference.
+
+The evidence ledger now holds 401 rows: 176 checked against independent external references, 221 labelled openly as modelled, 4 awaiting partner data. No row was promoted.
+
+Kshana (क्षण, Sanskrit for "the precise instant") is open source (AGPL-3.0) and runs in your browser.
+
+👉 Mission analysts, timing labs and GNSS resilience teams: run the thread with your own phases and limits, and tell me where the weakest link disagrees with yours. If you hold measured clock or IMU data for a MODELLED row, partner check is the first step. I read every comment.
+
+💬 Would you rather see a budget that meets every bar, or one that shows where it misses?
+
+🔗 Try it: https://kshana.dev
+💻 Code: https://github.com/ashfordeOU/kshana
+🚀 Kshana Pro: https://kshana.dev/editions.html
+📄 Cite: DOI 10.5281/zenodo.20528627
+
+Every mission-thread number is modelled, with illustrative inputs; public trajectories are used only as comparison references. Emitter-region figures come from synthetic reports. Not affiliated with or endorsed by any space agency, test organiser or partner. Machine translations, English is the reference. Advisory software, not type-approved navigation equipment.
+
+#GNSS #PNT #ResilientPNT #Cislunar #Moon #MissionDesign #SpaceTech #Timing #GNSSjamming #Navigation #OpenSource #Rust #i18n
