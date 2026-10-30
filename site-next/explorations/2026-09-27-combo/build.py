@@ -3268,8 +3268,12 @@ for _page in ("index.html", os.path.join("advanced", "index.html")):  # the Simp
         continue
     _pg = open(os.path.join(PG_OUT, _page), encoding="utf-8").read()
     _pg = re.sub(r"<title>[^<]*</title>", f"<title>{esc(STUDIO)}</title>", _pg, count=1)
-    _pg = re.sub(r"(data-studio-name>)[^<]*(<)", lambda m: m.group(1) + esc(STUDIO) + m.group(2), _pg)
-    _pg = re.sub(r"(data-studio-short>)[^<]*(<)", lambda m: m.group(1) + esc(re.sub(r"^Kshana\s+", "", STUDIO)) + m.group(2), _pg)
+    # Element text only: (?!&quot;) keeps the pattern out of a data-l10n-tags map, where the same opening tag is followed by
+    # &quot;,&quot;c&quot;:&quot;</span>; matching there wrote the name over the closing tag and the Studio showed
+    # "Studioundefined" (0.40.0).
+    _pg = re.sub(r'(data-studio-name>)(?:(?!&quot;)[^<])*(<)', lambda m: m.group(1) + esc(STUDIO) + m.group(2), _pg)
+    _pg = re.sub(r'(data-studio-short>)(?:(?!&quot;)[^<])*(<)', lambda m: m.group(1) + esc(re.sub(r"^Kshana\s+", "", STUDIO)) + m.group(2), _pg)
+    assert not re.search(r'data-l10n-tags="[^"]*data-studio-(?:name|short)>(?!&quot;)', _pg), "a Studio name was written into a data-l10n-tags map"
     # Links the Studio's source carries to the old single-page kshana.dev: on this site the validation
     # ledger is on the evidence page, and the embed's "Open in" link opens this Studio itself.
     _pg = _pg.replace('href="https://kshana.dev/#ledger"', 'href="../evidence.html#ledger"')
