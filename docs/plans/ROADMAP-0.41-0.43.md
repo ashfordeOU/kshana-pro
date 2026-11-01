@@ -1,278 +1,382 @@
 # Kshana roadmap: 0.41 to 0.43
 
 > **Status: not started. Nothing here begins (no code, branches or sessions) until the owner gives an explicit go,
-> workstream by workstream.** Every workstream can start on its own; dependencies are stated.
+> workstream by workstream.** Owner-run activities already under way (the 2 November Product Hunt launch, J1) are the
+> only exception. Precondition met: the kshana.dev site-audit fixes are live (0.40).
 
-Private planning document (kshana-pro). Revision 2: rewritten after an independent audit (§15 lists what changed).
-Public material stays neutral: no company names, no actors or intent.
+Private planning document (kshana-pro). **Revision 3**, after two independent audits against both repositories and
+GitHub. §17 lists what each audit changed. Public material stays neutral: no company names, no actors or intent.
 
 ## 0. How to read this
 
-- **Sizes:** S = days, M = 1–2 weeks, L = 3–6 weeks for one workstream. Nothing larger than M is started as one item:
-  L items are split into named sub-items.
-- **Exists** cells cite the file that proves it; **Missing** is only what no file shows. Paths starting `src/` or
-  `docs/` are in the public engine repo; `pro:` means kshana-pro.
-- **Done-test:** every item carries a measurable acceptance test or a pre-registered bar.
-- New capabilities start MODELLED, with the bar fixed before reference data is examined. Partner data is labelled
-  PARTNER. A commercial relationship never changes a verdict.
+- **IDs:** every item has an ID. §16 schedules every ID or marks it Gate (waits on an owner/external decision) or
+  Parked (deliberately not done).
+- **Sizes:** S = days, M = 1–2 weeks. Nothing larger than M exists here: larger work is split into named sub-items.
+- **Exists** cells cite the file that proves it. Paths starting `src/`, `docs/`, `xval/` or `web/` are in the public
+  engine repo; `pro:` is kshana-pro.
+- **Done** = the measurable acceptance test or the pre-registered bar.
+- Rules carried from every release: new capabilities start MODELLED, with the bar fixed before reference data is
+  examined; partner data is labelled PARTNER (or PARTNER-input for partner-supplied inputs); no bar is ever loosened;
+  misses stay published; a commercial relationship never changes a verdict.
 
-## 1. Position and goals
+## 1. Position, goals, KPIs
 
-Kshana is the neutral, open referee and planning layer for PNT resilience. It is not a cheaper RF simulator. The moat is:
+Kshana is the neutral, open referee and planning layer for PNT resilience, not a cheaper RF simulator. The moat:
 
-- the honesty ledger (every figure labelled, misses published);
-- reproducibility (scenario, seed and engine version → the same bits);
-- signed evidence;
-- reach across every surface (browser, CLI, packages, MCP).
+- **The honesty ledger:** every figure is labelled, and misses are published.
+- **Reproducibility:** the same scenario, seed and engine version give the same bits.
+- **Signed evidence.**
+- **Reach across every surface.**
 
-Full strategy: `pro:docs/strategy/2026-10-18-kshana-standard-strategy.md`. Move 9 of that memo (governance) is still open.
+Strategy memo: `pro:docs/strategy/2026-10-18-kshana-standard-strategy.md`. Its move 9 (governance) is open; see I.
+
+**Focus rule ("do not spread", from the memo):** new work goes to interference monitoring (B), the integration layer (A),
+flight-dynamics exchange (C) and timing (G). The other families are **maintained** (§1c).
 
 ### 1a. Competitive map
 
-| Category | Examples (class) | Kshana's stance |
-| --- | --- | --- |
-| RF / constellation simulators (hardware) | Lab signal generators | Complement: Kshana scores what their receivers do and models the operational consequence; import their scenario and log files (A2) |
-| Interference-monitoring networks | Fixed-station and crowd networks | Complement: referee, planner, labelled data, consequence (B) |
-| Flight-dynamics and astrodynamics tools | GMAT, Orekit, STK, Basilisk, TMPL-class | Complement: independent cross-check, exchange formats (C) |
-| Open receivers and SDR stacks | GNSS-SDR, RTKLIB | Integrate: readers and plugins exist; scoring on top |
-| Resilience frameworks and consultancies | Assessment frameworks | Supply the evidence layer: compliance mapping, self-assessment (G4) |
+| Category | Kshana's stance |
+| --- | --- |
+| RF / constellation simulators (hardware) | Complement: import their scenario and motion files (A2b), score receivers under test, model the operational consequence |
+| Interference-monitoring networks | Complement: referee, planner, labelled data, consequence (B) |
+| Flight-dynamics / astrodynamics tools (GMAT, Orekit, STK, Basilisk, TMPL-class) | Complement: independent cross-check, exchange formats (C) |
+| Open receivers / SDR (GNSS-SDR, RTKLIB, gLAB) | Integrate and score (A2b, D) |
+| Resilience frameworks and consultancies | Supply the evidence layer (G4) |
 
-### 1b. Dominance KPIs (measured at each release)
+### 1b. KPIs (measured at each release)
 
-| KPI | Now (0.40) | Target by 0.43 |
+| KPI | 0.40 | Target 0.43 |
 | --- | --- | --- |
-| Verified integrations ("Works with Kshana", A7) | 0 | 10 |
-| Scored public datasets (bench and referee) | Jammertest, TEXBAT and a few others | +5 |
-| Ledger rows promoted (MODELLED → VALIDATED or PARTNER) | 176 VALIDATED | +25 |
+| Verified integrations (A7, with written consent to list: H8) | 0 | 10 |
+| Scored public datasets | Read from bench manifests at 0.41 | +5 |
+| Ledger rows promoted to VALIDATED or PARTNER | 176 VALIDATED | +25 |
 | Paying design partners | 0 | 3 |
-| Citations / external papers using Kshana | Read from Zenodo and Google Scholar at each release | +10 |
+| External citations / papers | Read from Zenodo and Scholar at 0.41 | +10 |
+
+### 1c. Families: focus vs maintained
+
+- **Focus:** interference and spoofing, receiver trust, timing/holdover, integrity, CCSDS/SPICE exchange, lunar
+  navigation service.
+- **Maintained (bug fixes, ledger hygiene, no new scope unless a partner asks):**
+  - LEO PNT (7 kinds);
+  - optical (2);
+  - AOCS, EO, entry, launch;
+  - Mars and solar system;
+  - quantum (the cold-atom error terms stay internal: VM-8112313d);
+  - alternative PNT (follow-ons listed in D, Parked).
 
 ## 2. Workstream A: plug-and-play integration layer ("Kshana Connect")
 
-**Goal:** a company connects with configuration only: no special development by us or them, now or later.
+**Goal:** any company connects with configuration only. That means no special development by us or them, now or later.
 
-**Definition of done (testable):**
+**Definition of done:**
 
-- There is one named **reference integration per customer shape** (§3), each replayed from a public dataset.
-- An integration passes when all of these hold:
+- There is one named **reference integration per customer shape** (§3), replayed from public data.
+- An integration passes when:
   - `kshana connect check` is green;
-  - an engineer outside the project completes it from the docs alone in **≤ 4 hours**;
-  - **zero code changes** are needed in either repo.
+  - an engineer outside the project completes it from the docs alone in ≤ 4 hours;
+  - **zero code changes** are needed in either repo;
+  - the same integration works through every surface (CLI, Python, WASM, MCP).
 - CI repeats every reference integration at every release.
 
-| # | Item | Exists (cited) | Missing | Size | Done-test |
+| ID | Item | Exists (cited) | Missing | Size | Done |
 | --- | --- | --- | --- | --- | --- |
-| A1 | **Canonical schema `kshana.obs/1`** for everything a station or system produces: PVT, C/N0 and AGC per signal, clock offset, spectrum summaries, alarms, IQ references, OSNMA status, site/antenna/receiver metadata, **and the partner-input fields** (antenna patterns, device sheets, bus constraints) so E2–E5 never fork it | Internal structs per reader; `kshana.partner-submission/1` (`docs/PARTNER-DATA.md`) | Versioned JSON Schema, validator `kshana connect validate`, schema docs, semver and deprecation policy | M | Every A2 reader's output validates; schema published under a permissive licence (A10) |
-| A2a | **Mapping file `connect.toml`**: CSV/JSON/Parquet/HDF5 columns → schema fields, units, time base; no code | — | All | M | Three unrelated vendor CSVs map with no code |
-| A2b | **Receiver and timing readers (delta only)** | RINEX, UBX, SBF, NovAtel, RTCM, NMEA, SigMF, ANTEX, SP3, CCSDS, SPICE; linuxptp (ptp4l, phc2sys, ts2phc) and chrony (`docs/CLOCK-LOG-FORMATS.md`) | White Rabbit and ntpd logs; Trimble/Leica logs; RF-simulator scenario and motion files (import/export) | M | Each reader round-trips its test vector |
-| A2c | **Industry feeds**, in owner-ranked order (top five for 0.41) | ADS-B/AIS reports (`src/interference_map/`) | Aviation: ASTERIX CAT021/023, ARINC 424/429, GNSS-RFI report formats, NOTAM. Maritime: NMEA 2000, IEC 61162-450. Rail: ETCS/ERTMS position reports. Automotive: CAN/DBC, ROS bag, ASAM OpenSCENARIO. Power grid: IEEE C37.118 (PMU time quality), IEC 61850-9-3. Telecom/5G: G.8275 profiles, O-RAN M-plane sync alarms, SyncE ESMC. Finance: RTS 25 clock-traceability reports. Handsets: 3GPP LPP | L (split by industry) | Each feed has a public sample and a passing replay |
-| A3a | **Live ingest, core** | Live NMEA over stdin/TCP/UDP (`src/live_io.rs`); MQTT publish only, no TLS (`src/telemetry/mqtt.rs`) | MQTT subscribe with TLS; WebSocket; file-drop watch; all into `kshana.obs/1` with time alignment | M | 100 stations × 1 Hz sustained on the reference box; replay from a stored stream |
-| A3b | **Live ingest, scale** | — | Kafka and NATS; back-pressure; load-test harness | M | 1,000 stations × 1 Hz; latency budget met (K3) |
-| A4 | **Outputs and alerts** | JSON/CSV/HTML reports, Prometheus, OTLP, Grafana (`deploy/grafana`), syslog CEF/LEEF and MQTT publish (`src/telemetry/`), CZML/KML/GeoJSON/STK/SigMF | Signed webhooks; CAP alerts; SNMP traps; stable `kshana.result/1` schema; scorecard export for insurers and regulators | M | Each sink receives a test alert end to end |
-| A5a | **Service API** | OpenAPI 3.1 served by Pro (`pro:src/serve/openapi.rs`, `pro:docs/SERVICE.md`) | Generated clients (Python, TypeScript, Go, Java); a versioning and deprecation policy across all surfaces; gRPC for high-rate streams | M | Clients generated in CI and tested against the service |
-| A5b | **C ABI** as a **separate crate `kshana-capi`** (the core keeps `#![forbid(unsafe_code)]`, `src/lib.rs`; this guarantee stays and is restated in SECURITY.md) | — | cbindgen header, safety review, examples for C/C++/Go/Java/MATLAB/LabVIEW | M | Fuzzed FFI boundary; examples build in CI |
-| A6 | **Deployment kits** | Docker images (reference build, MCP); air-gapped compose stack (`pro:deploy/docker-compose.sovereign.yml`, `pro:deploy/DEPLOY.md`); Signal K, OpenCPN, ROS 2, GNSS-SDR integrations | **Helm chart (none exists)**; Compose for "engine + ingest + service + Grafana"; signed multi-arch images; hardware sizing guide | M | Install on a clean cluster and air-gapped host from docs only |
-| A7a | **Conformance kit, files** | `kshana partner check` (format of partner submissions) | Test vectors and replay corpus per adapter; `kshana connect check` for file integrations | M | Run by CI on every reference integration |
-| A7b | **Conformance kit, live** (after A3) | — | Live checks: latency, ordering, reconnect | S | As A7a for live paths |
-| A8 | **Integration guides**, one per customer shape, each with a public-data worked example; translated as the docs are (L5) | Surface, MCP and deploy docs | The guides | M | Each guide is the script of a reference integration |
-| A9 | **Integration security** | Bearer-token auth (`--api-token-file`, `pro:docs/SERVICE.md`; not user management) | OIDC, per-tenant isolation, audit log, data retention, PII-free crowd ingest by default | M | Pen test (K2) passes |
-| A10 | **Licensing for integrators** | AGPL-3.0 + commercial licence | Schemas, conformance vectors and generated clients under MIT or CC-BY-4.0 (as was done for the bench spec); a one-page **integrator licensing FAQ** (file/network separation vs linking) | S | Counsel-reviewed FAQ published |
-| A11 | **Adapter registry and community adapters** | — | Out-of-tree adapter interface (mapping file, or a WASM/Python plug-in), registry, CONTRIBUTING rules, review checklist | M | First external adapter merged into the registry without engine changes |
+| A1 | **Schemas**: `kshana.obs/1` (station/system observations, alarms, IQ refs, OSNMA, site/antenna/receiver metadata, partner-input fields for E2–E5) and **scenario-schema versioning** (version field, migration tool `kshana scenario migrate`, deprecation window) | Readers share one `Timeline` (`docs/MACHINE-INPUTS.md`); result envelope with `schema_version` and a compatibility contract (`docs/SCHEMA.md`); partner submissions are TOML (`docs/PARTNER-DATA.md`) | JSON Schema for obs/1; validator `kshana connect validate`; scenario versioning and migrator; change policy | M | Every reader's output validates; old scenarios migrate; schemas published under A10 |
+| A2a | **Mapping file `connect.toml`** (CSV/JSON/Parquet/HDF5 → schema; units; time base) | — | All | M | Three unrelated vendor CSVs map with no code |
+| A2b | **Receiver, timing and test-bench formats (delta)** | RINEX, UBX, SBF, NovAtel, RTCM3, NMEA, SigMF, ANTEX, SP3, CCSDS, SPICE; linuxptp and chrony (`docs/CLOCK-LOG-FORMATS.md`); motion/test-bench **export** (`src/interop/testbench.rs`) | White Rabbit, ntpd; Trimble/Leica; RF-simulator scenario and motion **import**; RINEX 4.00 observations tested (`ROADMAP.md`) | M | Each reader round-trips its vector |
+| A2c1–8 | **Industry feeds**, one ID per industry, owner ranks the top five for 0.41 | ADS-B/AIS reports (`src/interference_map/`) | A2c1 aviation (ASTERIX CAT021/023, ARINC 424/429, GNSS-RFI reports aligned with the aviation incident-report form, NOTAM); A2c2 maritime (NMEA 2000, IEC 61162-450); A2c3 rail (ETCS/ERTMS position reports); A2c4 automotive (CAN/DBC, ROS bag, ASAM OpenSCENARIO); A2c5 power grid (IEEE C37.118, IEC 61850-9-3); A2c6 telecom/5G (G.8275 profiles, O-RAN M-plane sync alarms, SyncE ESMC); A2c7 finance (RTS 25 clock-traceability report); A2c8 handsets and home (3GPP LPP; Home Assistant and NTP-appliance exporters) | S–M each | Each feed: public sample + passing replay |
+| A3a | **Live ingest, core** | Live NMEA stdin/TCP/UDP (`src/live_io.rs`); `receiver-trust live` follows a file, serial, `--listen`; `iq monitor --follow` (growing SigMF); MQTT publish without TLS (`src/telemetry/mqtt.rs`) | MQTT subscribe with TLS; WebSocket; generic directory watch; all into obs/1 with time alignment | M | 100 stations × 1 Hz on the reference box; stored-stream replay |
+| A3b | **Live ingest, scale** | — | Kafka, NATS, back-pressure, load-test harness | M | 1,000 stations × 1 Hz within K3 |
+| A4 | **Outputs and alerts** | Reports (JSON/CSV/HTML); Prometheus, OTLP (feature-gated, off by default, no TLS), syslog CEF/LEEF, MQTT (`src/telemetry/`): **receiver-trust stream only**; Grafana (`deploy/grafana`); CZML/KML/GeoJSON/STK/SigMF exports | Telemetry for **all** scenario results and B-stream alerts; OTLP TLS and default-on build; signed webhooks; CAP; SNMP traps; scorecard export for insurers/regulators | M | Every sink receives a test alert end to end, over TLS |
+| A5a | **Service API and clients** | OpenAPI 3.1 in Pro (`pro:src/serve/openapi.rs`) | Generated clients (Python, TypeScript, Go, Java); cross-surface versioning policy; gRPC for streams | M | Clients generated and tested in CI against the service (needs F1) |
+| A5b | **C ABI** as a separate crate `kshana-capi` (the core keeps `#![forbid(unsafe_code)]`, `src/lib.rs`; restated in SECURITY.md) | — | cbindgen header, safety review, examples (C/C++/Go/Java/MATLAB/LabVIEW) | M | FFI fuzzed; examples build in CI |
+| A6 | **Deployment kits** | Docker images; signed SLSA-attested multi-arch images (`.github/workflows/reference-image.yml`, `mcp-publish.yml`); air-gapped compose (`pro:deploy/docker-compose.sovereign.yml`); Signal K, OpenCPN, ROS 2, GNSS-SDR | **Helm chart (none exists)**; Compose "engine + ingest + service + Grafana"; sizing guide | M | Clean-cluster and air-gapped installs from docs only |
+| A7a | **Conformance kit, files** | `kshana partner check` (partner-submission format only) | Vectors and replay corpus per adapter; `kshana connect check`; surface-parity check | M | CI runs every reference integration |
+| A7b | **Conformance kit, live** | — | Latency, ordering, reconnect checks | S | As A7a for live paths |
+| A8a / A8b | **Integration guides**, one per customer shape; A8a for shapes whose items ship by 0.42, A8b for test-event and port/airport shapes (need B4, B6) | Surface, MCP, deploy docs | Guides, translated per K8 | M + S | Each guide is the script of its reference integration |
+| A9 | **Integration security** | Bearer token (`--api-token-file`, `pro:docs/SERVICE.md`) | OIDC, tenant isolation, audit log, retention, PII-free crowd ingest | M | Pen test (K2) passes |
+| A10 | **Licensing for integrators**: schemas, vectors and clients under MIT or CC-BY-4.0; integrator licensing FAQ (file/network separation vs linking) | Licence split still a draft (`docs/drafts/LICENSES-SPLIT.md`; `bench/SPEC.md` pending) | Decision and FAQ | S | **Gate: owner + counsel** |
+| A11 | **Adapter registry and community adapters**, built on the existing seam | `ExternalPack` (`src/api.rs`) and `PackRegistry` (`src/registry.rs`): Rust, compile-time only | Runtime plug-ins (mapping file; WASM or Python), registry, CONTRIBUTING rules, integration-request and adapter-submission issue templates, CLA/DCO decision | M | First external adapter merged with no engine change (**CLA/DCO: Gate**) |
+| A12 | **Surface parity backlog** | `docs/SURFACES.md` | Emitter regions and OSNMA on MCP; Connect commands on Python/WASM/MCP/Studio | S | Parity check in A7a green |
 
-**Order:** A1 → A2a, A7a, A10 → A2b/A2c, A4, A5a → A3a → A7b, A6, A9 → A3b, A5b, A11.
+**Order:** A1 → A2a, A7a, A10, A12 → A2b, A2c (top five), A4, A5a → A3a → A7b, A6, A9, A8a → A3b, A5b, A11, A8b.
 
 ## 3. Reference integrations (one per customer shape)
 
-| Shape | Reference integration (public data) | Uses |
+| Shape | Reference integration (public data) | Needs |
 | --- | --- | --- |
-| Interference-monitoring network (SJAWS-class) | Station logs replayed from Jammertest; referee scorecard, area trust state, alerts to Grafana and a webhook | A1–A4, B2, B5 |
-| Flight-dynamics house (KinetX / IM class, TMPL-class users) | Public trajectory exchanged as CCSDS OEM/OPM and SPK; difference report | C1, C7 |
-| Port / airport / telecom / grid operator | Timing log (ptp4l/chrony) and a scheduled jamming event; holdover consequence and CAP alert | A2b, A4, B6, G1 |
-| Receiver / antenna / clock vendor | Vendor log on a public test campaign; bench track and "Works with Kshana" listing | A7, E6 |
-| Hardware partner | Antenna pattern or device sheet driving a study, labelled PARTNER-input | E2–E5 |
-| Test event / programme | Pre-registered scoring of a campaign; signed evidence pack | B2, B4 |
-| Tooling / AI ecosystem | MCP and generated clients in a notebook | A5a |
+| Interference-monitoring network (SJAWS-class) | Station logs replayed from Jammertest; referee scorecard, area trust, alerts to Grafana and webhook | A1–A4, B2, B5 |
+| Flight-dynamics house (KinetX / IM, TMPL-class users) | Public trajectory as OEM/OPM/SPK loaded **in GMAT, Orekit and STK themselves**; difference report | C1, C7 |
+| Port, airport, telecom, grid operator | ptp4l/chrony log + scheduled jamming; holdover consequence; CAP alert | A2b, A4, B6, G1 |
+| Receiver / antenna / clock vendor | Vendor log on a public campaign; bench track; listing | A7, E6 |
+| Test lab / RF-simulator house | Simulator scenario imported, receiver scored, evidence pack | A2b, E8 |
+| Hardware partner | Antenna pattern or device sheet driving a study (PARTNER-input) | E2–E5 |
+| Test event / programme | Pre-registered scoring of a campaign; signed pack | B2, B4 |
+| Tooling / AI ecosystem | MCP + generated clients in a notebook | A5a |
 
-## 4. Workstream B: interference-monitoring networks (SJAWS-adjacent)
+## 4. Workstream B: interference-monitoring networks
 
 Detail: `0.41-BACKLOG.md` §1.
 
-| # | Item | Size | Depends on | Done-test / bar |
+| ID | Item | Size | Depends | Done |
 | --- | --- | --- | --- | --- |
-| B1 | Monitoring-network planner (detection and location-accuracy maps, station count and placement); its Pareto front uses the existing Pro optimiser | M (+S for Pro Pareto) | — | Reproduces the published geometry and accuracy of a public multi-station TDOA campaign within a pre-registered bound |
-| B2 | Location metrics in the referee (error, confidence-region coverage, time to locate) | M | — | Metrics match hand-computed values on a synthetic truth set |
-| B3 | Fixed-station emitter locator (C/N0 + AGC power-difference, TDOA with IQ) | M + M | A1, A2a | **Pre-registration filed before Jammertest 2026 data is published (dated gate)** |
-| B4 | Jam / spoof / meaconing / natural benchmark | M + M | — | Bars set in advance per class; results published met or not |
-| B5 | Area trust state from several reference stations | M | A1, A3a | Alert latency ≤ 5 s end to end (K3) on replay |
-| B6 | Port and airport scenario pack | M | — | Consequence figures reproduce from scenario and seed |
-| B7 | Synthetic labelled data packs (IQ and logs) | M | — | Same seed, same file; labels exact |
-| B8 | Environmental baseline (expected natural degradation per site and time) | S | — | Compared with documented event days |
+| B1a | Planner: detection and location-accuracy maps, station count and placement | M | — | Reproduces a published multi-station TDOA campaign's geometry within a pre-registered bound |
+| B1b | Planner Pareto front with a **cost model** (the optimiser has none today, `pro:docs/DESIGN-OPTIMISER.md`) | S | B1a, F1 | Front includes station-cost axis; reproducible |
+| B2 | Referee location metrics (error, region coverage, time to locate) | M | — | Matches hand-computed values on a synthetic truth set |
+| B3a | Emitter locator, power-difference (C/N0 + AGC) | M | A1, A2a | Pre-registered bar |
+| B3b | Emitter locator, TDOA from IQ snapshots | M | B3a | Pre-registered bar |
+| B3-gate | **Pre-registration before the reference positions are seen**: check whether Jammertest 2026 transmitter positions are already published; if yes, pre-register against the next campaign instead | — | — | **Gate (dated at go)** |
+| B4a | Benchmark: jam / spoof / meaconing classes (TEXBAT, OAKBAT, Jammertest) | M | — | Bars set in advance |
+| B4b | Benchmark: natural confounders (scintillation, solar bursts, multipath, obstruction) | M | B4a | Bars set in advance |
+| B5 | Area trust state from several reference stations | M | A1, A3a | Alert latency ≤ 5 s end to end on replay (K3) |
+| B6 | Port and airport scenario pack | M | — | Consequences reproduce from scenario and seed |
+| B7 | Synthetic labelled data packs (IQ, logs) | M | — | Same seed, same file; exact labels |
+| B8 | Environmental baseline per site and time | S | — | Compared with documented event days |
 | B9 | Two-way data with the maritime trust score | M | A3a, A4 | Round trip on replay |
+| B10 | IQ signal breadth for receiver-test partners: E5b, E6, B2a, B3I, L1C, GLONASS CDMA (`docs/design/iq-notes/signals.md`) | M | — | Codes checked against the ICDs |
 
 ## 5. Workstream C: navigation and flight-dynamics tools
 
-| # | Item | Exists (cited) | Missing | Size |
-| --- | --- | --- | --- | --- |
-| C1 | Exchange formats (delta) | OPM/OMM/OCM KVN+XML (`src/odm.rs`), AEM/APM (`src/adm.rs`), SPK types 9/13/3/21 (`src/spk_writer.rs`), TDM read/write (`src/ccsds_tdm.rs`), OEM checked with GMAT/Orekit/STK, Orekit round trip (`docs/INTEROP.md`) | CDM; SPICE CK; round-trip tests with GMAT and STK | S |
-| C2 | Lunar orientation check against the NASA SVS Moon phase and libration tables (the ledger cites NASA SVS only) | DE440 lunar orientation | Comparison, pre-registered bars, ledger row | S |
-| C3 | Close the cislunar misses: manoeuvre-aware second run (draft awaits the owner), NRHO force model | Artemis I, CAPSTONE comparisons (NOT MET) | As stated | M |
-| C4 | Real tracking data (DSN passes) | TRK-2-18 reader, Mars ramped Doppler | Joint comparison (partner) | M, gate |
-| C5 | Optical navigation and small-body gravity, or a partner study first | B-plane, light-time | Measurement models | M + M |
-| C6 | Lander navigation against flown data | Descent/surface/ascent kinds (MODELLED) | Partner data | M, gate |
-| C7 | Thin adapters and notebooks for GMAT, Orekit, Basilisk, TMPL-class libraries | MCP, Python, Rust | Adapters | M |
+| ID | Item | Exists (cited) | Missing | Size | Done |
+| --- | --- | --- | --- | --- | --- |
+| C1 | **Exchange formats**: correct the overstated claim and close it | OPM/OMM/OCM (`src/odm.rs`), AEM/APM (`src/adm.rs`), SPK writer (`src/spk_writer.rs`), TDM (`src/ccsds_tdm.rs`), Orekit round trip (`docs/INTEROP.md`). **OEM is checked against the spec and an independent parser only; never loaded into GMAT or STK** (`docs/INTEROP.md:243`, VM-81fb8429) | Load-tests in GMAT and STK (and CesiumJS for CZML); CDM; SPICE CK; OCM PERT/OD blocks; **rename ledger row VM-81fb8429** to what was checked | M | Files open in GMAT 2025a and STK; row title matches evidence |
+| C2 | Lunar orientation vs NASA SVS Moon phase and libration tables; the new row cites NASA SVS | DE440 lunar orientation | Comparison, bars, row | S | Pre-registered bars |
+| C3 | Artemis I manoeuvre-aware second run (pre-registration draft `docs/mission-thread/PREREGISTRATION-C2-DRAFT.md`) and NRHO force model for CAPSTONE | Both NOT MET | As stated | M | New pre-registered runs |
+| C4 | Real DSN tracking comparison | TRK-2-18 reader, Mars ramped Doppler | Partner data | M | **Gate: partner** |
+| C5a / C5b | Optical-navigation measurement model / small-body gravity (or partner study first) | B-plane, light time | Models | M + M | Bars set in advance |
+| C6 | Lander navigation vs flown data | Descent/surface/ascent (MODELLED) | Partner data | M | **Gate: partner** |
+| C7 | Adapters/notebooks for GMAT, Orekit, Basilisk, TMPL-class | MCP, Python, Rust | Adapters | M | Reference integration (§3) passes |
+| C8 | LunaNet AFS message layer and closed-loop decodability vs a lab or flight receiver | Codes and coding VALIDATED | Receiver comparison | M | **Gate: partner** |
+| C9 | OD and frames follow-ons (`ROADMAP.md`): gravity above degree 70; OD light time, Earth rotation, sequential filter for range-rate and az/el; selenocentric transform and family continuation; carrier phase + clock tight coupling; gLAB parity | Listed in ROADMAP.md | As listed | S–M each (C9a–e) | Each against its existing oracle |
 
-## 6. Workstream D: close the open evidence gaps
+## 6. Workstream D: open evidence gaps (each stays NOT MET until a new pre-registered run meets it)
 
-No bar is loosened; each stays NOT MET until a new pre-registered run meets it.
-
-| Gap (0.40) | Path | Where |
-| --- | --- | --- |
-| Artemis I (45.3 km vs 5 km), CAPSTONE (136.8 km vs 25 km) | Manoeuvre-aware run; NRHO force model | C3 |
-| Clock-log F1(a), F2, D2 | Better noise identification; measured holdover vs one predicted from its own earlier data | D, M |
-| Emitter region NOT ASSESSABLE | Fixed stations, Jammertest 2026 | B3 |
-| kshana-bench A2, D1, R1 | Stronger baselines; re-run R1; second OOD track for task (d) | D, M |
-| Service volume S1–S5, S7 | Resolve the two GLONASS reference angles; held-out reception campaign | D, M |
-| Lunar geodesy (3 bars) | Measured lunar quantities or partner data | D, gate |
-| LunaNet AFS (one printed column) | Recheck at the specification's next issue | D, S |
-| W57 leftovers | Almanac-HDOP scorer, pin TEXBAT hash, Studio view for C3 | D, S |
+| ID | Gap | Path | Size |
+| --- | --- | --- | --- |
+| D1 | Artemis I, CAPSTONE | C3 | — |
+| D2 | Clock-log F1(a), F2, D2 | Noise identification; measured vs self-predicted holdover | M |
+| D3 | Emitter region NOT ASSESSABLE | B3 | — |
+| D4 | kshana-bench A2, D1, R1; task (b) baseline re-run; task (a) event-level metrics; second OOD track for task (d) | Baselines, re-runs | M |
+| D5 | Space-user service volume S1–S5, S7 | GLONASS reference angles; held-out reception campaign | M |
+| D6 | Lunar infrastructure C3/Q3/G3 (orbit determination, carrier phase, geodesy; `xval/lunar-infra/RESULTS-v2.md`); post-hoc C3 sweep (`pro:docs/handover-0.40/.../W57-H2-handover.md`) | Partner/measured data; sweep | M, Gate |
+| D7 | LunaNet AFS printed column | Recheck at spec's next issue | S |
+| D8a / D8b | IQ layer NOT MET rows (D8a: tracking and C/N0 rows; D8b: timing and campaign rows): VM-77d4bf93, VM-56e6f4f4, VM-f5e2ce4e, VM-e6a6348d, VM-bdfec2e4, VM-35b27a4f, VM-59bb0091, VM-6254a75d, VM-c9318c63 | IQ re-campaign with pre-registered bars | M + M |
+| D9 | Alternative PNT: real-EGM2008 one-hour run 3106 m vs < 500 m (VM-6a54cfeb) | Full EGM2008 / crustal magnetic map / map-error Monte Carlo / SLAM / EIGEN loader | Parked (maintained family) |
+| D10 | UTC(k) prospective round 3 (VM-cce187eb), needs monthly issues to ~468 | Scheduled scoring | S, **Gate: date ~early 2027** |
+| D11 | DE440 Sun/Moon bar (`xval/propagator-de440-orekit/`) | Re-run with fixed frame chain | S |
+| D12 | Transfer optimiser (VM-c80a768c); LEO Doppler positioning (VM-c4520dfd) | Re-run / parked per §1c | S each |
+| D13 | Campaign Monte Carlo 183/200 (VM-badb561f); campaign optimise round 1 (VM-5664a533) | Re-run | S |
+| D14 | Lunar frame datum (VM-55f1a043); spectrum bands (VM-23e52907) | Re-run | S each |
+| D15 | ARAIM reproduction 4 of 12 NOT MET (`docs/INTEGRITY.md`) | Reference reconciliation | M |
+| D16 | Lunar reference-station prediction "not yet scored" (`docs/VALIDATION.md`) | Watch; score when data arrives | S, Gate |
+| D17 | Defect D11c (fusion flicker bound) open; D12 fixed in engine but `pro:docs/defects/D12.md` still "open" | Fix D11c; close D12 doc | S |
+| D18 | W57 leftovers: almanac-HDOP scorer; pin TEXBAT hash | Small fixes | S |
 
 ## 7. Workstream E: partners and partner areas
 
 **Rules:**
 
-- The four PARTNER rows (bus engineering, RF payload and antenna hardware, quantum payload hardware, flight-hardware
-  product assurance; `docs/VERIFICATION-MATRIX.md`) stay "Not provided". The interfaces below let a partner's own data
-  drive studies.
-- That data is labelled **PARTNER-input**. No row changes label because an interface exists.
+- The four PARTNER rows stay "Not provided" (`docs/VERIFICATION-MATRIX.md`): bus engineering, RF payload and antenna
+  hardware, quantum payload hardware, and flight-hardware product assurance.
+- The interfaces below let a partner's own data drive studies, labelled **PARTNER-input**. No row changes label
+  because an interface exists.
 
-| # | Partner area | Exists | Interface (no development for the partner) | Size |
-| --- | --- | --- | --- | --- |
-| E1 | Data partners (9 MODELLED rows; holdover floors first) | Partner kit (`docs/PARTNER-DATA.md`), `kshana partner check` | Data agreement template, signed upload, pre-registration form, scoring report | M |
-| E2 | RF payload and antenna | ANTEX reader, CRPA model, link budgets | Measured-pattern CSV and **CST/HFSS pattern export import**, CRPA array file, payload tables (EIRP, G/T, masks) | M |
-| E3 | Quantum payload | Quantum sensor/clock models, clock twin | Device performance sheet (bias stability, Allan profile, bandwidth, sensitivities) | S |
-| E4 | Spacecraft bus | Mission thread | Navigation-relevant bus constraints from **SysML v2 / Capella** exports | S |
-| E5 | Flight-hardware product assurance | Pro traceability (CSV, ReqIF, SysML v2), dossier | PA evidence links by requirement id (**ECSS-Q / Polarion ids**), no copying of their data | S |
-| E6 | Clock and receiver vendors | Clock twin, receiver trust, readers | Datasheet import; vendor bench track; listing via A7 | M |
-| E7 | **Partner programme and certification** | Outreach drafts (not sent), timing-partner shortlist | Partner page; tiers (data, technology, channel) with entry criteria; certification lifecycle: apply → conformance kit → publish → **recertify every minor release** → revoke on failure; fees in F6; badge says "format conformance, not performance"; conflict-of-interest line on any scorecard of a commercial partner | S |
+| ID | Partner area | Exists | Interface | Size | Done |
+| --- | --- | --- | --- | --- | --- |
+| E1 | Data partners (9 MODELLED rows; holdover floors first) | Partner kit, `kshana partner check` | Data agreement, signed upload, pre-registration form, scoring report | M | First submission scored end to end |
+| E2 | RF payload and antenna | ANTEX, CRPA model | Measured-pattern CSV, CST/HFSS export import, CRPA array file, payload tables | M | A vendor pattern drives a study |
+| E3 | Quantum payload | Clock twin, quantum models | Device performance sheet | S | Sheet drives clock twin |
+| E4 | Spacecraft bus | Mission thread | SysML v2 / Capella export of navigation-relevant constraints | S | Constraint file drives a thread |
+| E5 | Flight-hardware product assurance | Pro traceability (CSV, ReqIF, SysML v2), dossier | PA evidence links by requirement id (ECSS-Q / Polarion); **ReqIF export validated against the ReqIF schema** (`pro:docs/MBSE.md`) | S | ReqIF validates; links resolve |
+| E6 | Clock and receiver vendors | Clock twin, receiver trust | Datasheet import; vendor bench track | M | Listing via A7 |
+| E7 | Programme and certification | Outreach drafts; timing shortlist (`pro:commercial/partners/`) | Partner page; tiers with entry criteria; lifecycle (apply → conformance → publish → recertify each minor → revoke); badge "format conformance, not performance"; conflict-of-interest line | S | **Gate: owner sends outreach** |
+| E8 | **Test labs and RF-simulator houses** | Commitments R1–R9 (`pro:main:commercial/partners/RECEIVER-TEST-PARTNER-REQUIREMENTS.md`) | Track R1–R9 here; simulator import (A2b); evidence pack per test | M | R1–R9 each met or re-scoped |
+| E9 | Other partner shapes: uncrewed-aircraft navigation (export-gated), positioning-chip makers (`BASEBAND-KSHANA-BRIEF.md`), certification bodies, insurers, cloud marketplaces | Briefs | One-page integration path each (via §3) | S | **Gate: owner** |
 
 ## 8. Workstream F: Kshana Pro
 
-| # | Item | Status (cited) | Size / gate |
-| --- | --- | --- | --- |
-| F1 | Release readiness: re-pin to the published engine, `--locked`, signed licence token end to end (`pro:docs/PRO-POWER.md` §7) | Not done | S |
-| F2 | Connect in Pro: A-layer service with tenancy, audit log, SLA metrics | Missing | M + M (after A) |
-| F3 | Hosted / on-prem platform: multi-tenant jobs, saved studies, team sharing | Missing | M + M |
-| F4 | Pack B (timing study): a draft export questionnaire exists (`pro:legal/EXPORT-CONTROL-DETERMINATION.md`); next step: counsel completes the determination | Gate: counsel | — |
-| F5 | Pack C (subscription, CI guide) | Partial | M |
-| F6 | Commercial: templates exist (DPA, NDA, SLA/SOW drafts, `pro:legal/`); gates are counsel review, pricing (`pro:docs/strategy/PRICING-PROPOSAL.md`), trademark, payment go-live; **connector packaging and pricing** | Gate: owner/counsel | — |
+| ID | Item | Status (cited) | Size | Done |
+| --- | --- | --- | --- | --- |
+| F1a | **Port Pro from engine `=0.32.0` to 0.40** (`pro:Cargo.toml`; PRO-POWER §7 still says a 75-kind path build) | Not done | M | Pro builds `--locked` on published 0.40; all Pro tests green |
+| F1b | Release build and signed licence token end to end; release-smoke script (WIP on `pro/backlog-0.36`) | Not done | S | Signed token verified in CI |
+| F2a | Service hardening: TLS in the binary, streaming, cancellation/timeout, priority, HA (no single-directory lock), backup (`pro:docs/SERVICE.md` limits) | Missing | M | Load and failover tests pass |
+| F2b | Connect in Pro: tenancy, audit log, SLA metrics (after A) | Missing | M | Tenant isolation test |
+| F3a | Hosted / on-prem platform: multi-tenant jobs, saved studies, sharing | Missing | M | Pilot tenant runs a study |
+| F3b | **Hosted trial sandbox** (the engine hosts no endpoint today) | Missing | S | Public trial with quotas |
+| F3c | **Structured study intake** that runs the pack (`POST /study` only acknowledges today, `pro:src/serve/study_intake.rs`; the site uses a mailto) | Partial | S | A request produces a queued study and an instrumented J metric |
+| F4 | Pack B; export-control: questionnaire draft (`pro:legal/EXPORT-CONTROL-DETERMINATION.md`); **PR #14 factual correction** (jammer-waveform IQ export, in-memory spoofer) and branch `legal/classification-pack-iq` held for counsel | Gate | — | **Gate: counsel** |
+| F5 | Pack C (subscription, CI guide) | Partial | M | First subscriber flow end to end |
+| F6 | Commercial: templates exist (DPA, NDA, SLA/SOW drafts, `pro:legal/`); **the MSA does not exist** (`COUNSEL-REVIEW-PACKAGE.md` §4.7); pricing; trademark; payment go-live checklist (`pro:commercial/GO-LIVE-CHECKLIST.md`, open boxes); connector packaging and pricing | Gate | — | **Gate: owner + counsel** |
+| F7 | **Signed dossier**: the mission dossier, ledger and manifest are unsigned today (`pro:docs/MISSION-DOSSIER.md`), against the "signed evidence" moat | Missing | S | Signature verifies offline |
+| F8 | Pro feature limits: uncertainty with correlated inputs; spectrum coexistence beyond current bands (L2C, antenna pattern, other systems); dossier PDF with Unicode fonts (translated customers); fix the stale STK note in `pro:src/connectors/mod.rs` | Missing | S–M each (F8a–d) | Each with a test |
+| F9 | Grants programme (`pro` PR #27) | Draft | — | **Gate: owner** |
 
 ## 9. Workstream G: missing domain features
 
-| # | Item | Exists | Missing (delta) | Size |
-| --- | --- | --- | --- | --- |
-| G1 | Network timing resilience | `telecom-timing` kind, G.8273.2 T-BC/T-TSC (`docs/TELECOM-TIMING.md`) | Multi-hop PTP/White Rabbit distribution, failover, holdover across a network | M |
-| G2 | Time-transfer authentication (NTS, PTP auth TLV), spoofed-time detection | — | All; attaches to G1 | M (after G1) |
-| G3 | Outage cost and ROI | ROI layer (`src/frugal.rs`) | Operational-impact model reusing it | S |
-| G4 | Guided self-assessment mapped to resilience frameworks | Compliance report (`docs/compliance/`) | Questionnaire | M |
-| G5 | Fleet and route risk dashboards | Interference maps | Route scoring and dashboards | M |
-| G6 | Gap-remediation planner (weakest link → ranked mitigations) | Mission thread weakest link | Planner | M |
-| G7 | Underwater acoustic PNT | — | Parked | — |
+| ID | Item | Exists | Missing (delta) | Size | Done |
+| --- | --- | --- | --- | --- | --- |
+| G1a | Telecom timing completeness | `telecom-timing` kind (`docs/TELECOM-TIMING.md`) | G.8273.2 Tables 7-6/7-7/7-10, relative time error, class D, 100-sample PTP filter | M | Against the recommendation's tables |
+| G1b | Network timing: multi-hop PTP/White Rabbit, failover, holdover across a network | — | All | M | Bars set in advance |
+| G2 | Time-transfer authentication (NTS, PTP auth TLV), spoofed-time detection | — | All (after G1b) | M | Detection bars |
+| G3 | Outage cost / ROI | `src/frugal.rs` | Operational-impact model | S | Worked example reproduces |
+| G4 | Self-assessment questionnaire on the compliance mapping; resolve the open compliance items (`docs/compliance/dhs-rpcf-test-profiles.md`, `docs/compliance/imo-circ-1575.md`) | Compliance report | Questionnaire; open tests | M | Each open test met, re-scoped or kept NOT MET |
+| G5 | Fleet and route risk dashboards | `kshana route-exposure` (`docs/INTERFERENCE-MAP.md`) | Fleet view and dashboards | S | Dashboard from a public day |
+| G6 | Gap-remediation planner (weakest link → ranked mitigations) | Mission-thread weakest link | Planner | M | Worked example |
+| G7 | Underwater acoustic PNT | — | — | — | Parked |
+| G8 | 3GPP LPP integrity study | — | Study | M | Bars set in advance |
 
-## 10. Workstream H: quality, platform, i18n
+## 10. Workstream H: quality, platform, i18n, site
 
-| # | Item | Size |
-| --- | --- | --- |
-| H1 | SonarCloud new-code coverage ≥ 80% (about 810 lines; CLI paths first, by in-process tests) | M |
-| H2 | CI: shard the suite; the release `verify` keeps CI's settings and limits (fixed in 0.40; keep it tested) | S |
-| H3 | Studio English strings on translated pages; native-speaker review programme; one-pass rendering | M |
-| H4 | CHANGELOG correction (RUSTSEC-2026-0387, MSRV 1.88 under 0.40.0); README MCP table cells | S |
-| H5 | Translated READMEs regenerated at each release | S |
-| H6 | Release dry-run before every tag | S |
-| H7 | The 0.40 browser audit (every page × 18 languages × widths) as a CI job | M |
-| H8 | A CI check that no company name appears in the public repository or the "Works with Kshana" list without recorded written consent | S |
+| ID | Item | Size | Done |
+| --- | --- | --- | --- |
+| H1 | SonarCloud new-code coverage ≥ 80% (~810 lines; CLI paths via in-process tests) | M | Gate green |
+| H2 | CI sharding; keep release `verify` aligned with CI (fixed in 0.40); triage the 8 open Dependabot PRs (#85–#100) | S | CI ≤ 2 h; PRs merged or closed |
+| H3 | i18n: English strings on translated Studio pages; **whole-sentence messages for gendered languages** (promised for 0.41, `pro:docs/plans/0.40-INTEGRATION-BRIEF.md`); leftover Rust-built English words (W55); native-speaker review programme; one-pass rendering | M | No fragment-assembled sentence; review sign-offs per language |
+| H4 | CHANGELOG (RUSTSEC-2026-0387, MSRV 1.88 under 0.40.0); README MCP table cells; `docs/SURFACES.md` drift (Studio views now exist) | S | Docs tests green |
+| H5 | Translated READMEs regenerated each release | S | Release job |
+| H6 | Release dry-run before every tag; republish and verify the 0.40.0 arm64 images | S | Dry-run job; images verified |
+| H7 | The 0.40 browser audit (every page × 18 languages × widths) as a CI job | M | Job green |
+| H8 | CI check: no company name in the public repo or the integration list without recorded consent | S | Job green |
+| H9 | Studio gaps: maritime-trust field, self-report strip, Jammertest Tools card and notebook, clock logs; **bring your own logs into Studio** | M | Each view ships with a test |
+| H10 | Issue #36 (macOS oracle failures); W55 SBOM verdict re-run against the final lock; CI labfit follow-up tests | S | Closed |
 
-## 11. Workstream K: adoption readiness (non-functional)
+## 11. Workstream K: adoption readiness
 
-| # | Item | Size |
-| --- | --- | --- |
-| K1 | **Support and LTS:** a 1.0 stability criterion; an LTS branch with a 12-month patch window (SECURITY.md now supports only the latest release) | S + ongoing |
-| K2 | **Security:** IEC 62443-4-1 process readiness, ISO 27001 readiness for the hosted service, pen test of the service, TLS on all ingest and sinks, signed adapters | M |
-| K3 | **Real-time targets:** alert latency ≤ 5 s end to end (B5); ingest throughput per A3a/A3b; a load-test harness in CI | S |
-| K4 | **Observability of Kshana itself:** metrics and traces for ingest and the job service | S |
-| K5 | **Accessibility:** WCAG 2.2 AA audit and fixes for Studio and the site | M |
-| K6 | **Data protection:** GDPR DPIA template for crowd and partner data; per-tenant data residency | S |
-| K7 | **Export control** classification for Connect, the C ABI and the air-gapped bundle (not only Pack B) | Gate: counsel |
-| K8 | **Documentation:** docs versioned per release; translation plan for Connect guides | S |
+| ID | Item | Size | Done |
+| --- | --- | --- | --- |
+| K1 | 1.0 stability criterion; LTS branch with a 12-month patch window (SECURITY.md is latest-only) | S | Policy published |
+| K2 | Security: IEC 62443-4-1 process readiness; ISO 27001 readiness for hosted; pen test; TLS everywhere; signed adapters; **PyPI Trusted Publishing** (attestations are off under token auth, `.github/workflows/publish.yml`) | M | Pen test passed; attestations on |
+| K3a / K3b | Real-time targets: load-test harness (with A3a) / alert latency ≤ 5 s (with B5) and 1,000 stations (with A3b) | S + S | Harness in CI |
+| K4 | Observability of Kshana itself (ingest, job service) | S | Dashboards exist |
+| K5 | WCAG 2.2 AA audit and fixes (Studio, site) | M | Audit report, fixes merged |
+| K6 | GDPR DPIA template; per-tenant data residency | S | Template published |
+| K7 | Export classification for Connect, C ABI, air-gapped bundle | — | **Gate: counsel** |
+| K8 | Docs versioned per release; translation plan for Connect guides | S | Versioned docs live |
+| K9 | **Procurement pack**: security questionnaire answers, published SBOM and VEX, vulnerability-response SLA, LTS terms, company fact sheet, export statement per artifact | M | Pack published |
 
 ## 12. Workstream I: research, standards, governance (owner-gated)
 
-- JOSS tools paper (author decisions, external co-author).
-- AI/ML impairment-evaluation testbed paper, IEEE/ION PLANS 2027.
-- ION GNSS+ and ENC submissions.
-- **Standards bodies** where Connect formats and the referee could become reference material: RTCM SC-134, EUROCAE WG-62, ITU-T Q13/15.
-- Governance: TSC charter, oracle registry, licence split.
+| ID | Item |
+| --- | --- |
+| I1 | JOSS tools paper (author decisions, external co-author) |
+| I2 | AI/ML impairment-evaluation testbed paper (IEEE/ION PLANS 2027) |
+| I3 | ION GNSS+ and ENC submissions |
+| I4 | Standards bodies: RTCM SC-134, EUROCAE WG-62, ITU-T Q13/15, **IEEE P1952** |
+| I5 | Governance: TSC charter, oracle registry, licence split (links A10), CLA/DCO (links A11) |
+| I6 | Upstream contributions: fixtures to SigMF and ION repositories; a Zenodo DOI per bench result |
 
 ## 13. Workstream J: market and launch
 
-**Metrics per release:**
-
-- Studio sessions;
-- installs across crates.io, PyPI and npm;
-- GitHub stars;
-- studies requested;
-- verified integrations;
-- design-partner conversations.
-
-**Items:**
-
-- Product Hunt (2 November): first comment, replies, Show HN, r/GNSS, r/rust.
-- Listings: MCP registry publish (owner variable), winget moderation.
-- "Request a study" call to action live; partner page (E7).
-- Pack A outreach to the first paying design partner; Jammertest scoring presence; the browser course for universities.
+| ID | Item | Done |
+| --- | --- | --- |
+| J1 | Product Hunt (2 November, owner-run): first comment, replies; Show HN, r/GNSS, r/rust | Launch done; replies answered |
+| J2 | Metrics per release: Studio sessions, installs (crates.io, PyPI, npm), stars, studies requested (F3c instrument), verified integrations, design-partner conversations | Metrics table each release |
+| J3 | Listings: MCP registry (owner variable), winget moderation, OpenCPN catalogue PR (`packaging/channels.json`) | Listed |
+| J4 | Publish a **neutral public roadmap** (`ROADMAP.md` does not reflect 0.41–0.43) | Public file updated |
+| J5 | Pack A outreach (first paying design partner); Jammertest scoring presence; browser course for universities | **Gate: owner** |
+| J6 | Correct the outreach material: the flight-dynamics fit document claims OEM exchange with GMAT/STK as VALIDATED (see C1) | Corrected copies issued |
 
 ## 14. Owner gates
 
 1. Go per workstream.
-2. Ranking of the A2c top five industries for 0.41.
-3. Partner outreach and data agreements; any contact with a named company or test-event organiser; written consent before any company appears on a public list.
-4. Pricing, trademark, counsel reviews (licensing FAQ, export control, DPA), payment go-live.
-5. Draft C2 (Artemis I manoeuvre-aware run).
-6. Research authorship and governance.
+2. Ranking of the A2c top five.
+3. A10 licence decision and FAQ; A11 CLA/DCO.
+4. B3 pre-registration timing (check Jammertest 2026 publication first).
+5. Partner outreach, data agreements, consent before any public listing (E7, E9, J5).
+6. Pricing, MSA, trademark, counsel reviews, payment go-live, export control (F4, F6, K7, F9).
+7. The Artemis I manoeuvre-aware pre-registration (C3).
+8. Research authorship and governance (I).
 
-## 15. Sequencing
+## 15. Pre-start checklist for any go
 
-| Release | Contents |
+When the owner says go on a workstream:
+
+1. Re-read this plan.
+2. Re-verify every Exists cell it touches.
+3. File the pre-registrations before any data is examined.
+4. Branch from current main.
+5. Commit as Ashforde OÜ, with no attribution lines, neutral public wording and no force-push.
+
+## 16. Schedule (every ID appears once)
+
+| Release | IDs |
 | --- | --- |
-| **0.41** | A1, A2a, A2b, A2c (top five), A4, A5a, A7a, A10; B1, B2, B3 pre-registration filed; C1, C2; H1, H2, H4; K1, K3 |
-| **0.42** | A3a, A6, A7b, A8, A9, A11; B3, B5, B7, B8; C3, C7; E1–E7; G1, G3; K2, K4, K6, K8 |
-| **0.43** | A3b, A5b; B4, B6, B9; C4–C6; D remaining; F2, F3; G2, G4–G6; H3, H7; K5 |
+| **0.41** | F1a, F1b; A1, A2a, A2b, A2c (top five), A4, A5a, A7a, A12; B1a, B1b, B2, B3-gate filed, B8; C1, C2; D11, D17, D18; H1, H2, H4, H6, H8, H10; K1, K3a, K8; J2, J3, J4, J6 |
+| **0.42** | A3a, A6, A7b, A8a, A9; B3a, B3b, B5, B7, B10; C3, C7, C9a–c; D1 (with C3), D2, D3 (with B3), D4, D8a, D13, D14; E1–E6, E8; G1a, G1b, G3, G5; H3, H5, H9; K2, K3b, K4, K6, K9 |
+| **0.43** | A2c (remaining), A3b, A5b, A8b, A11; B4a, B4b, B6, B9; C5a, C5b, C9d–e; D5, D7, D8b, D12, D15; F2a, F2b, F3a, F3b, F3c, F5, F7, F8a–d; G2, G4, G6, G8; H7; K5 |
+| **Gate** | A10, B3-gate decision, C4, C6, C8, D6, D10 (~early 2027), D16, E7, E9, F4, F6, F9, I1–I6, J5, K7 |
+| **Parked** | D9, G7 |
+| **Owner-run, under way** | J1 |
 
-## 16. What the audit changed (revision 1 → 2)
+## 17. What the audits changed
 
-- **Corrected "Exists" cells, each now cited:**
-  - CCSDS OPM/OMM/OCM/AEM/APM and SPK writing exist, so C1 shrinks to S;
-  - linuxptp and chrony readers;
-  - syslog CEF/LEEF and MQTT output;
-  - live NMEA input;
-  - Pro's OpenAPI;
-  - the air-gapped stack;
-  - token authentication;
-  - the telecom-timing kind;
-  - the ROI layer;
-  - the existing legal templates.
-- **Removed:** the false "Helm references" claim.
-- **C ABI:** now a separate crate, so the core's no-unsafe guarantee stands.
+**Audit 1 (revision 1 → 2):**
+
+- Cited Exists cells (CCSDS ODM/ADM/SPK/TDM, linuxptp/chrony, syslog/MQTT, live NMEA, Pro OpenAPI, air-gapped stack,
+  token auth, telecom-timing, ROI, legal templates).
+- Removed the false Helm claim.
+- C ABI as a separate crate.
+- New items: integrator licensing; a testable plug-and-play definition of done with reference integrations; industry
+  adapters; adapter registry.
+- New sections: positioning, competitive map and KPIs; adoption readiness (K).
+- Partners: PARTNER-input labelling, partner-tool links and certification.
+- Ordering fixes.
+
+**Audit 2 (revision 2 → 3):**
+
+- **Exists cells corrected:**
+  - OEM was never loaded into GMAT/STK (C1, J6);
+  - bench licence pending (A10 is now a gate);
+  - `ExternalPack`/`PackRegistry` exist (A11 builds on them);
+  - signed multi-arch images and the result envelope exist;
+  - telemetry carries the receiver-trust stream only;
+  - OTLP is off by default and has no TLS;
+  - file following, motion export and route scoring exist;
+  - readers share `Timeline`.
+- **F1 resized:** a 0.32 → 0.40 port, scheduled first.
+- **New D rows:**
+  - the IQ NOT MET rows;
+  - alternative PNT (parked);
+  - UTC(k) round 3;
+  - DE440 Sun/Moon;
+  - transfer optimiser, LEO Doppler;
+  - campaign Monte Carlo and optimise;
+  - lunar frame datum, spectrum bands;
+  - ARAIM 4/12;
+  - lunar reference station;
+  - D11c/D12;
+  - W57 corrected to W58 lunar-infrastructure leftovers.
 - **New items:**
-  - integrator licensing (A10);
-  - a testable plug-and-play definition of done, with reference integrations;
-  - industry adapters (aviation, maritime, rail, automotive, grid, telecom, finance, handsets, academia);
-  - an adapter registry (A11).
-- **New sections:** positioning, the competitive map and dominance KPIs (§1a, §1b); adoption readiness (K: LTS, security, latency, accessibility, data protection, export control, docs).
-- **Partner areas:** PARTNER-input labelling, partner-tool links (CST/HFSS, SysML v2/Capella, ECSS-Q/Polarion), and a certification lifecycle.
-- **Ordering fixes:**
-  - conformance split into file and live parts;
-  - the B3 pre-registration dated before Jammertest 2026;
-  - partner fields placed in A1;
-  - G2 after G1;
-  - L items split.
-- **Also added:** acceptance tests on every item; market metrics; standards bodies; NASA SVS cited directly for C2.
+  - telecom-timing tables (G1a);
+  - compliance open tests (G4);
+  - OD and frames follow-ons (C9);
+  - IQ signal breadth (B10);
+  - LunaNet receiver comparison (C8);
+  - surface parity (A12);
+  - scenario-schema versioning (A1);
+  - procurement pack (K9);
+  - hosted trial and structured study intake (F3b, F3c);
+  - signed dossier (F7);
+  - Pro limits (F2a, F8);
+  - MSA missing (F6);
+  - PR #14 export correction (F4);
+  - grants (F9);
+  - test-lab partners R1–R9 (E8) and other partner shapes (E9);
+  - IEEE P1952 and upstream contributions (I);
+  - gendered-language messages (H3);
+  - Studio gaps and bring-your-own-logs (H9);
+  - Dependabot triage, issue #36, SBOM re-run (H2, H10);
+  - PyPI Trusted Publishing (K2);
+  - arm64 image republish (H6);
+  - a public roadmap (J4);
+  - the cost model for the planner (B1b).
+- **Consistency:**
+  - every ID scheduled, gated or parked;
+  - K3 split to follow its dependencies;
+  - F1 before A5a/B1b;
+  - guides split by shape;
+  - L/M+M items split;
+  - every table has a Done column;
+  - gate names fixed;
+  - the launch marked owner-run;
+  - the precondition carried.
