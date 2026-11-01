@@ -231,10 +231,11 @@ Detail: `0.41-BACKLOG.md` §1.
 | --- | --- | --- | --- |
 | H1 | SonarCloud new-code coverage ≥ 80% (~810 lines; CLI paths via in-process tests) | M | Gate green |
 | H2 | CI sharding; keep release `verify` aligned with CI (fixed in 0.40); triage the 8 open Dependabot PRs (#85–#100) | S | CI ≤ 2 h; PRs merged or closed |
-| H3 | i18n: English strings on translated Studio pages; **whole-sentence messages for gendered languages** (promised for 0.41, `pro:docs/plans/0.40-INTEGRATION-BRIEF.md`); leftover Rust-built English words (W55); native-speaker review programme; one-pass rendering | M | No fragment-assembled sentence; review sign-offs per language |
+| H3a | i18n 0.40 leftovers: the English strings left on translated Studio pages (area cards, evidence legend, chart captions); leftover Rust-built English words (W55) | S | No English string on a translated page in the H7 audit |
+| H3b | i18n: **whole-sentence messages for gendered languages** (promised for 0.41, `pro:docs/plans/0.40-INTEGRATION-BRIEF.md`); native-speaker review programme; one-pass rendering | M | No fragment-assembled sentence; review sign-offs per language |
 | H4 | CHANGELOG (RUSTSEC-2026-0387, MSRV 1.88 under 0.40.0); README MCP table cells; `docs/SURFACES.md` drift (Studio views now exist) | S | Docs tests green |
 | H5 | Translated READMEs regenerated each release | S | Release job |
-| H6 | Release dry-run before every tag; republish and verify the 0.40.0 arm64 images | S | Dry-run job; images verified |
+| H6 | 0.40.0 release leftovers: the MCP server ghcr image (cancelled at the tag workflow's 90-minute limit, run 41201309954), and the two jobs it blocked (MCP registry entry, channel parity); build arm64 on a native arm64 runner instead of QEMU so an image fits well inside the limit; republish and verify the 0.40.0 images (needs the owner to re-tag, or ship as 0.41.0 images); release dry-run before every tag | S | Both images and the registry entry published and verified; channel parity green; image job < 60 min |
 | H7 | The 0.40 browser audit (every page × 18 languages × widths) as a CI job | M | Job green |
 | H8 | CI check: no company name in the public repo or the integration list without recorded consent | S | Job green |
 | H9 | Studio gaps: maritime-trust field, self-report strip, Jammertest Tools card and notebook, clock logs; **bring your own logs into Studio** | M | Each view ships with a test |
@@ -271,7 +272,7 @@ Detail: `0.41-BACKLOG.md` §1.
 | --- | --- | --- |
 | J1 | Product Hunt (2 November, owner-run): first comment, replies; Show HN, r/GNSS, r/rust | Launch done; replies answered |
 | J2 | Metrics per release: Studio sessions, installs (crates.io, PyPI, npm), stars, studies requested (F3c instrument), verified integrations, design-partner conversations | Metrics table each release |
-| J3 | Listings: MCP registry (owner variable), winget moderation, OpenCPN catalogue PR (`packaging/channels.json`) | Listed |
+| J3 | Listings: MCP registry (owner variable), winget moderation (the 0.40.0 pull request is open; the tag's workflow still fails on the duplicate, fixed on main), OpenCPN catalogue PR (`packaging/channels.json`) | Listed |
 | J4 | Publish a **neutral public roadmap** (`ROADMAP.md` does not reflect 0.41–0.43) | Public file updated |
 | J5 | Pack A outreach (first paying design partner); Jammertest scoring presence; browser course for universities | **Gate: owner** |
 | J6 | Correct the outreach material: the flight-dynamics fit document claims OEM exchange with GMAT/STK as VALIDATED (see C1) | Corrected copies issued |
@@ -301,8 +302,8 @@ When the owner says go on a workstream:
 
 | Release | IDs |
 | --- | --- |
-| **0.41** | F1a, F1b; A1, A2a, A2b, A2c (top five), A4, A5a, A7a, A12; B1a, B1b, B2, B3-gate filed, B8; C1, C2; D11, D17, D18; H1, H2, H4, H6, H8, H10; K1, K3a, K8; J2, J3, J4, J6 |
-| **0.42** | A3a, A6, A7b, A8a, A9; B3a, B3b, B5, B7, B10; C3, C7, C9a–c; D1 (with C3), D2, D3 (with B3), D4, D8a, D13, D14; E1–E6, E8; G1a, G1b, G3, G5; H3, H5, H9; K2, K3b, K4, K6, K9 |
+| **0.41** | F1a, F1b; A1, A2a, A2b, A2c (top five), A4, A5a, A7a, A12; B1a, B1b, B2, B3-gate filed, B8; C1, C2; D11, D17, D18; H1, H2, H3a, H3b, H4, H5, H6, H8, H10; K1, K3a, K8; J2, J3, J4, J6 |
+| **0.42** | A3a, A6, A7b, A8a, A9; B3a, B3b, B5, B7, B10; C3, C7, C9a–c; D1 (with C3), D2, D3 (with B3), D4, D8a, D13, D14; E1–E6, E8; G1a, G1b, G3, G5; H9; K2, K3b, K4, K6, K9 |
 | **0.43** | A2c (remaining), A3b, A5b, A8b, A11; B4a, B4b, B6, B9; C5a, C5b, C9d–e; D5, D7, D8b, D12, D15; F2a, F2b, F3a, F3b, F3c, F5, F7, F8a–d; G2, G4, G6, G8; H7; K5 |
 | **Gate** | A10, B3-gate decision, C4, C6, C8, D6, D10 (~early 2027), D16, E7, E9, F4, F6, F9, I1–I6, J5, K7 |
 | **Parked** | D9, G7 |
@@ -380,3 +381,10 @@ When the owner says go on a workstream:
   - gate names fixed;
   - the launch marked owner-run;
   - the precondition carried.
+
+**After the 0.40.0 release (owner instruction: every 0.40 leftover goes in 0.41):**
+
+- H6 widened to the MCP server image, the MCP registry entry and channel parity that the release did not publish, plus native arm64 builds.
+- H3 split: H3a (Studio English strings and W55 leftovers) and H3b (gendered-language messages, already promised for 0.41) both in 0.41.
+- H5 (translated READMEs at each release) moved to 0.41.
+- J3 notes the open winget pull request.
