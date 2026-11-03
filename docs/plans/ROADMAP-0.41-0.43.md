@@ -4,7 +4,7 @@
 > workstream by workstream.** Owner-run activities already under way (the 2 November Product Hunt launch, J1) are the
 > only exception. Precondition met: the kshana.dev site-audit fixes are live (0.40).
 
-Private planning document (kshana-pro). **Revision 3**, after two independent audits against both repositories and
+Private planning document (kshana-pro). **Revision 4** (3 November 2026: workstreams L, native install, and M, space RF surveillance), after two independent audits against both repositories and
 GitHub. §17 lists what each audit changed. Public material stays neutral: no company names, no actors or intent.
 
 ## 0. How to read this
@@ -42,6 +42,8 @@ flight-dynamics exchange (C) and timing (G). The other families are **maintained
 | Flight-dynamics / astrodynamics tools (GMAT, Orekit, STK, Basilisk, TMPL-class) | Complement: independent cross-check, exchange formats (C) |
 | Open receivers / SDR (GNSS-SDR, RTKLIB, gLAB) | Integrate and score (A2b, D) |
 | Resilience frameworks and consultancies | Supply the evidence layer (G4) |
+| Space RF surveillance and tip-and-cue constellations | Complement: accuracy model, revisit/reaction referee, target maintenance validated on public AIS, timing budget (M) |
+| Desktop GNSS tools (receiver vendor utilities, SDR suites) | Complement: one signed app that scores any receiver live and replays bit-for-bit (L) |
 
 ### 1b. KPIs (measured at each release)
 
@@ -277,6 +279,68 @@ Detail: `0.41-BACKLOG.md` §1.
 | J5 | Pack A outreach (first paying design partner); Jammertest scoring presence; browser course for universities | **Gate: owner** |
 | J6 | Correct the outreach material: the flight-dynamics fit document claims OEM exchange with GMAT/STK as VALIDATED (see C1) | Corrected copies issued |
 
+## 13a. Workstream L: native install (Kshana Desktop and Kshana Station)
+
+**Goal:** Kshana installs on a Mac, Windows or Linux machine (Mac first), is signed and notarized as Ashforde OÜ, and connects to the sensors the browser cannot reach. What runs in kshana.dev stays the free entry; the installed app adds live hardware, long runs and the Pro features. Nothing here forks the engine: the app links the same Rust crate, and the window reuses the Studio front end (`web/studio/`), so there is one engine and one UI.
+
+**What the browser cannot do today, and the installed app will** (from `docs/SURFACES.md`, "Why the N/A cells are N/A"):
+
+| Capability | Today | Why not in the browser |
+| --- | --- | --- |
+| `receiver-trust live` as a running process: serial/USB NMEA (`--serial`, read only), TCP, UDP, followed file, `--gate`, `--listen` | CLI only (`src/live_io.rs`, `open_serial`) | A page cannot hold a socket or a serial port open for others (Web Serial is Chromium-only and per-tab) |
+| Trust telemetry from a running stream (Prometheus scrape, syslog CEF/LEEF, MQTT, OTLP) | CLI (`src/telemetry/`) | A page cannot serve a scrape endpoint or hold a broker connection |
+| GNSS IQ: `iq scene/acquire/track/monitor --follow`, `extract/convert/decimate` | CLI, Python, MCP (bounded) | Recordings are gigabytes; WASM has no IQ functions |
+| Training NMEA streamed to TCP/UDP, Signal K and OpenCPN feeds, ROS 2, GNSS-SDR relay | CLI, `integrations/` | Consumers of a running process |
+| Clock logs from the machine itself (linuxptp `ptp4l`/`phc2sys`, chrony) | Files only (`docs/CLOCK-LOG-FORMATS.md`) | A page cannot read the system's PTP/chrony state |
+| Long campaigns, Monte Carlo, Pro optimiser and service | CLI, Pro (`pro:src/serve/`) | Single-threaded WASM, tab memory limits, licence |
+
+**Shapes (one engine, three deliverables):**
+
+1. **Kshana Desktop**: a windowed app (Tauri 2: Rust backend is the engine itself, the webview shows the Studio UI) with a Devices panel, live views, local files of any size, and Pro unlocked by the signed licence token (F1b).
+2. **`kshana` and `kshana-mcp` binaries, signed**: the five targets already built per release (`.github/workflows/release.yml`, matrix `aarch64-apple-darwin`, `x86_64-apple-darwin`, `x86_64-pc-windows-msvc`, two Linux) become signed/notarized, with a Homebrew cask/formula, winget, Scoop, `.deb`/`.rpm` (MCP already ships via `brew install ashfordeOU/tap/kshana-mcp`, Scoop and winget: `packaging/channels.json`).
+3. **Kshana Station**: a headless service (launchd, systemd, Windows service) on a site computer wired to receivers, SDRs and clocks. It publishes `kshana.obs/1` (A1) and alerts (A4), is managed from Desktop or remotely (A9), and is the node of a monitoring network (B1, B3, B5). The existing marine reference build (`deploy/reference-build/`) is its first, container-only form.
+
+| ID | Item | Exists (cited) | Missing | Size | Done |
+| --- | --- | --- | --- | --- | --- |
+| L1 | **macOS signing and notarization of the CLI and MCP binaries** (Developer ID Application + Installer certificates, hardened runtime, `notarytool` with an App Store Connect API key in CI, stapled `.pkg`; universal arm64+x86_64) and a Homebrew **formula/cask** for `kshana` | Unsigned macOS binaries per release; MCP tap | Signing step, secrets, universal build, `kshana` tap entry | S | `spctl --assess` passes on a clean Mac; `brew install` works; Gatekeeper shows Ashforde OÜ |
+| L2a | **Kshana Desktop for macOS, core**: Tauri 2 shell, Studio UI in the webview, engine calls native (no WASM), open/save any file size, long runs off the UI thread, signed + notarized `.dmg`, signed auto-update (ed25519) | Studio UI (`web/studio/`), engine crate | The shell, update channel, file bridge | M | Every Studio view renders natively; a 1 GB IQ file opens; update verifies its signature; notarized |
+| L2b | **Kshana Desktop: Devices panel** (lists serial/USB ports, network feeds and SDRs; start/stop `receiver-trust live`, telemetry, IQ capture; read-only by default; `--configure` stays refused) | `open_serial`, live sources, gate, telemetry encoders | UI, device discovery, permissions prompts | M | A USB receiver streams to the Maritime trust view within 60 s of plugging in, from the docs alone |
+| L3 | **Kshana Station service** (launchd/systemd/Windows service; config file; local-only API by default, TLS + token for remote per A9; obs/1 out; health endpoint; log rotation) | Reference build (container), `--listen`, telemetry | Native service packaging, obs/1 producer, remote management | M | Station runs 7 days unattended on macOS and Linux arm64 (Raspberry Pi class) with no data loss on replay comparison |
+| L4a | **Device connectors, receivers**: live UBX (u-blox) and SBF (Septentrio) binary over USB/serial, NovAtel, NTRIP client (RTCM3 in), C/N0 + AGC + jamming indicators per epoch (feeds B3a) | UBX/SBF/NovAtel/RTCM3 **log** readers (A2b) | Live framing, NTRIP, AGC/jam fields into obs/1 | M | Live and replayed runs of the same recorded bytes give identical results (bit-for-bit) |
+| L4b | **Device connectors, SDR**: live IQ capture to SigMF via SoapySDR (RTL-SDR, HackRF, Airspy, LimeSDR, USRP) feeding `iq monitor` | `iq monitor --follow` on a growing SigMF file | Capture, ring buffer, gain/frequency control (receive only) | M | A 30-minute capture at 4 MS/s with no dropped samples on the reference Mac and Pi |
+| L4c | **Device connectors, time and traffic**: live linuxptp/chrony state, PPS on Linux, local ADS-B (readsb/dump1090 JSON) and AIS (AIS-catcher) feeds into the emitter region and the maritime trust score | Clock-log and ADS-B/AIS **file** readers (`src/interference_map/adsb.rs`) | Live readers | S | Each feed shows live and matches its replay |
+| L5 | **Windows**: signed MSI/MSIX, winget, Windows service for Station, USB-serial on inbox drivers | Unsigned Windows binary, MCP on winget/Scoop | Signing (Azure Artifact Signing if Ashforde validates as an EU organisation; otherwise an OV certificate from a CA, valid ~460 days since March 2026), installer | M | SmartScreen-clean install on a fresh Windows 11; service survives reboot |
+| L6 | **Linux**: AppImage, `.deb`/`.rpm`, systemd unit, udev rules for SDRs, `dialout` guidance, arm64 | Unsigned binaries (x86-64, arm64) | Packages, signed repo | S | Installs and runs on Ubuntu LTS, Fedora and Raspberry Pi OS |
+| L7 | **Air-gapped install bundle** (all installers, SBOM, checksums, signatures, offline licence) | Air-gapped compose (`pro:deploy/docker-compose.sovereign.yml`) | Desktop/Station bundle | S | Installs with no network; signatures verify offline |
+| L8 | **Hardware-in-the-loop evidence**: a bench of one u-blox F9-class receiver, one RTL-SDR v4, one PTP-capable NIC; nightly replay-equals-live test; ledger rows for the live paths | Replay engine, ledger | Bench, CI runner on the bench, rows | S | Live-path rows filed MODELLED with a pre-registered equality bar, then VALIDATED when it holds 30 nights |
+| L9 | **Mac App Store edition** (optional, later): sandboxed build with device entitlements | — | Sandbox audit; serial/USB entitlement check (unverified in this plan; prototype first) | S | Gate: owner, after L2 |
+
+**Rules:** read-only to hardware by default (the receiver is never configured without an explicit, logged opt-in that stays out of the free build); local-only network binding by default; no telemetry from the app itself; every installer signed, with SBOM and checksums (K2, K9); Pro features unlock by token in the same binary, so there is one download.
+
+**Open checks before L2 starts:** SDR driver licences (SoapySDR core is Boost; backends such as librtlsdr, libhackrf and UHD are GPL family, so they are loaded as separate plugins, never linked into the commercial build: counsel to confirm); macOS entitlements for serial/USB under the hardened runtime (prototype on a clean Mac); export classification of a desktop that geolocates emitters (K7).
+
+## 13b. Workstream M: space-based RF surveillance, tip-and-cue and target maintenance
+
+**Why:** a smallsat maker has published a two-layer maritime concept: a wide-area RF survey satellite detects suspicious emissions and cues an optical satellite to confirm the vessel, and a "Target Information Maintenance" step keeps re-observing the target so the camera points where the ship *will* be ([vendor article](https://space-inventor.com/news/hunting-dark-ships-in-the-baltic-sea/)). Published figures, all from simulation at 550 km sun-synchronous over the Baltic: revisit 20 min with 16 RF satellites (10 min with 32), full Baltic refresh about 39 min (18 min), RF-to-optical reaction about 15 min with 16 optical satellites (7 min with 32), target speed 16 to 22 kn. Not stated: geolocation method or accuracy, signal classes, optical resolution, flight results. Those gaps are exactly where an independent model and referee helps.
+
+**Kshana's role:** the independent planner, accuracy model and referee for such a system, plus the PNT/timing layer it depends on. It does not build satellites or classify imagery. The strongest tie to Kshana's core: in the Baltic, the "suspicious RF" includes GNSS jammers, which Kshana already models and locates on the ground.
+
+**Exists:** passive TDOA/FDOA geolocation with moving receivers and its Cramér–Rao bound (`src/geolocation.rs`, MODELLED); orbit propagation and constellations (`src/propagator.rs`, `src/constellation.rs`, `src/leo_pass.rs`); Kalman filtering (`src/kalman.rs`); ADS-B and AIS readers and the emitter region (`src/interference_map/`); the maritime trust score; the IQ layer.
+
+| ID | Item | Missing | Size | Done |
+| --- | --- | --- | --- | --- |
+| M1 | **Space RF geolocation accuracy**: single-satellite Doppler over a pass, formation TDOA/FDOA (2 to 3 satellites), multi-pass fusion; error ellipses over an area of interest per emitter class (AIS VHF, marine radar S/X band, GNSS L1 jammer, satellite-phone L band) | Space receiver geometry on top of `geolocation.rs`; emitter classes; maps | M | CRLB maps reproduce a published space-based geolocation case within a pre-registered bound |
+| M2 | **Revisit and tip-and-cue latency**: given planes, satellites, altitude, swath/field of regard and agility, the distribution of revisit and RF-to-optical reaction time over an area | Access/swath model, cueing logic, scenario kind `tip-and-cue` | M | Reproduces the vendor's published Baltic figures (revisit, refresh, reaction) within bars fixed before running; result labelled a cross-check of vendor simulation, not VALIDATED |
+| M3 | **Target information maintenance**: track filter from sparse RF fixes (constant velocity and manoeuvring models), prediction error growth with latency, probability the vessel is inside the optical footprint at image time, required pointing | Vessel motion models, capture probability | M | **VALIDATED against public AIS**: on held-out Danish Maritime Authority historical AIS tracks ([DMA AIS data](https://www.dma.dk/safety-at-sea/navigational-information/ais-data)), predicted position after 7, 15 and 39 min meets a pre-registered error bar |
+| M4 | **Dark vessels and AIS integrity**: an RF fix with no matching AIS (dark), AIS position inconsistent with the RF fix (spoofed), identity jumps and gaps | Association logic over the existing AIS reader and trust score | S | Scored on a synthetic truth set with known dark and spoofed cases; confusion matrix published |
+| M5 | **GNSS jammers seen from orbit**: detectability and location of L1 jammers from LEO (power, FDOA), and a **space + ground hybrid** with fixed stations (B3a, L3) | Space-side link budget for jammers; hybrid estimator | M | Hybrid beats either layer alone on a synthetic Baltic scenario; bar pre-registered |
+| M6 | **Timing for the space layer**: inter-satellite clock sync and orbit knowledge needed for a target TDOA/FDOA accuracy, and holdover when the satellites' own GNSS is degraded | Budget built on the timing and holdover kinds | S | Budget table per accuracy class; MODELLED |
+| M7 | **Synthetic RF from orbit**: IQ scenes with orbital Doppler and path loss for AIS (GMSK), pulsed marine radar and jammers, exact labels, for classifier training | Signals (with B10), orbital channel | M | Same seed, same file; labels exact |
+| M8 | **Exchange and referee**: detections and cues in via Connect (A2a); outputs as CZML/KML, CCSDS OEM, obs/1; referee metrics (detection latency, location error, capture rate) per B2 | Mappings, metrics for cue chains | S | A partner's detection CSV maps with no code and is scored |
+| M9 | **Pro pack: maritime tip-and-cue study**: constellation trade (pairs per plane vs revisit, reaction and capture rate), with the design optimiser (B1b cost axis) | Pack on top of M1 to M3 | S | Study reproduces from scenario and seed |
+
+**Guardrails:** public repository wording stays neutral ("space RF survey", "optical cue", no company or programme names, no actors or intent); vendor figures are labelled as the vendor's simulation, and Kshana's own results start MODELLED; dual-use: export classification before any partner delivery (K7); outreach to the vendor is the owner's call (gate).
+
 ## 14. Owner gates
 
 1. Go per workstream.
@@ -287,6 +351,8 @@ Detail: `0.41-BACKLOG.md` §1.
 6. Pricing, MSA, trademark, counsel reviews, payment go-live, export control (F4, F6, K7, F9).
 7. The Artemis I manoeuvre-aware pre-registration (C3).
 8. Research authorship and governance (I).
+9. **Native install (L):** Apple Developer ID certificates and an App Store Connect API key stored as CI secrets; the Windows signing route (Azure Artifact Signing organisation validation, or an OV certificate); counsel on SDR driver licences; whether to pursue the Mac App Store (L9).
+10. **Space surveillance (M):** outreach to the vendor, data access, export classification (K7) before any delivery.
 
 ## 15. Pre-start checklist for any go
 
@@ -302,10 +368,10 @@ When the owner says go on a workstream:
 
 | Release | IDs |
 | --- | --- |
-| **0.41** | F1a, F1b; A1, A2a, A2b, A2c (top five), A4, A5a, A7a, A12; B1a, B1b, B2, B3-gate filed, B8; C1, C2; D11, D17, D18; H1, H2, H3a, H3b, H4, H5, H6, H8, H10; K1, K3a, K8; J2, J3, J4, J6 |
-| **0.42** | A3a, A6, A7b, A8a, A9; B3a, B3b, B5, B7, B10; C3, C7, C9a–c; D1 (with C3), D2, D3 (with B3), D4, D8a, D13, D14; E1–E6, E8; G1a, G1b, G3, G5; H9; K2, K3b, K4, K6, K9 |
-| **0.43** | A2c (remaining), A3b, A5b, A8b, A11; B4a, B4b, B6, B9; C5a, C5b, C9d–e; D5, D7, D8b, D12, D15; F2a, F2b, F3a, F3b, F3c, F5, F7, F8a–d; G2, G4, G6, G8; H7; K5 |
-| **Gate** | A10, B3-gate decision, C4, C6, C8, D6, D10 (~early 2027), D16, E7, E9, F4, F6, F9, I1–I6, J5, K7 |
+| **0.41** | L1; F1a, F1b; A1, A2a, A2b, A2c (top five), A4, A5a, A7a, A12; B1a, B1b, B2, B3-gate filed, B8; C1, C2; D11, D17, D18; H1, H2, H3a, H3b, H4, H5, H6, H8, H10; K1, K3a, K8; J2, J3, J4, J6 |
+| **0.42** | L2a, L2b, L3, L4a, L4c, L8; M2, M3, M1, M6; A3a, A6, A7b, A8a, A9; B3a, B3b, B5, B7, B10; C3, C7, C9a–c; D1 (with C3), D2, D3 (with B3), D4, D8a, D13, D14; E1–E6, E8; G1a, G1b, G3, G5; H9; K2, K3b, K4, K6, K9 |
+| **0.43** | L4b, L5, L6, L7; M4, M5, M7, M8, M9; A2c (remaining), A3b, A5b, A8b, A11; B4a, B4b, B6, B9; C5a, C5b, C9d–e; D5, D7, D8b, D12, D15; F2a, F2b, F3a, F3b, F3c, F5, F7, F8a–d; G2, G4, G6, G8; H7; K5 |
+| **Gate** | L9, A10, B3-gate decision, C4, C6, C8, D6, D10 (~early 2027), D16, E7, E9, F4, F6, F9, I1–I6, J5, K7 |
 | **Parked** | D9, G7 |
 | **Owner-run, under way** | J1 |
 
@@ -388,3 +454,9 @@ When the owner says go on a workstream:
 - H3 split: H3a (Studio English strings and W55 leftovers) and H3b (gendered-language messages, already promised for 0.41) both in 0.41.
 - H5 (translated READMEs at each release) moved to 0.41.
 - J3 notes the open winget pull request.
+
+**After the owner's request of 3 November 2026 (native install; the published space RF tip-and-cue concept):**
+
+- New workstream L (§13a): signed and notarized macOS first (L1 in 0.41), Kshana Desktop on Tauri reusing the Studio UI, Kshana Station as the network node for B, live receiver/SDR/clock/traffic connectors, Windows and Linux in 0.43, hardware-in-the-loop evidence.
+- New workstream M (§13b): space RF geolocation accuracy, revisit and tip-and-cue latency (cross-checking the vendor's published figures), target maintenance validated on public Danish AIS, dark-vessel and AIS-integrity logic, GNSS jammers from orbit with a space + ground hybrid, timing budget, synthetic RF, exchange and a Pro study.
+- Gates 9 and 10 added; competitive map extended; every new ID scheduled.
