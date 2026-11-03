@@ -359,7 +359,7 @@ Detail: `0.41-BACKLOG.md` §1.
 7. The Artemis I manoeuvre-aware pre-registration (C3).
 8. Research authorship and governance (I).
 9. **Native install (L):** Apple Developer ID certificates and an App Store Connect API key stored as CI secrets; the Windows signing route (Azure Artifact Signing organisation validation, or an OV certificate); counsel on SDR driver licences; whether to pursue the Mac App Store (L9).
-10. **Space surveillance (M):** outreach to the vendor **after the 0.41 release** (owner decision, 3 November 2026), presenting M1 to M4 and M6 as shipped and M5, M7 to M9 as the plan; data access; export classification (K7) before any delivery.
+10. **Space surveillance (M):** outreach to the vendor **after the 0.41 release** (owner decision, 3 November 2026), presenting all of M (M1 to M9) as shipped in 0.41; data access; export classification (K7) before any delivery.
 
 ## 15. Pre-start checklist for any go
 
@@ -375,29 +375,37 @@ When the owner says go on a workstream:
 
 | Release | IDs |
 | --- | --- |
-| **0.41** | L1; M1, M2, M3, M4, M6; F1a, F1b; A1, A2a, A2b, A2c (top five), A4, A5a, A7a, A12; B1a, B1b, B2, B3-gate filed, B8; C1, C2; D11, D17, D18; H1, H2, H3a, H3b, H4, H5, H6, H8, H10, H11; K1, K3a, K8; J2, J3, J4, J6 |
-| **0.42** | L2a, L2b, L3, L4a, L4c, L4e, L8, L10a, L10b, L10c; A3a, A6, A7b, A8a, A9; B3a, B3b, B5, B7, B10; C3, C7, C9a–c; D1 (with C3), D2, D3 (with B3), D4, D8a, D13, D14; E1–E6, E8; G1a, G1b, G3, G5; H9; K2, K3b, K4, K6, K9 |
-| **0.43** | L4b, L4d, L5, L6, L7, L11; M5, M7, M8, M9; A2c (remaining), A3b, A5b, A8b, A11; B4a, B4b, B6, B9; C5a, C5b, C9d–e; D5, D7, D8b, D12, D15; F2a, F2b, F3a, F3b, F3c, F5, F7, F8a–d; G2, G4, G6, G8; H7; K5 |
+| **0.41** | L1, L4a, L4c, L4e, L8, L10a, L10b, L10c, L4b, L4d, L11; M1, M2, M3, M4, M6, M5, M7, M8, M9; F1a, F1b, F2a, F2b, F3a, F3b, F3c, F5, F7, F8a–d; A1, A2a, A2b, A2c (all; the top five first), A4, A5a, A7a, A12, A3a, A6, A7b, A8a, A9, A3b, A5b, A8b, A11; B1a, B1b, B2, B3-gate filed, B8, B3a (once Jammertest 2026 data is published), B3b (after B3a), B5, B7, B10, B4a, B4b, B6, B9; C1, C2, C3 (after gate 7), C7, C9a–e, C5a, C5b; D11, D17, D18, D1 (with C3), D2, D3 (with B3), D4, D8a, D13, D14, D5, D7, D8b, D12, D15; E1–E6, E8; G1a, G1b, G3, G5, G2, G4, G6, G8; H1, H2, H3a, H3b, H4, H5, H6, H8, H10, H11, H9, H7; K1, K3a, K8, K2, K3b, K4, K6, K9, K5; J2, J3, J4, J6 |
+| **0.42 (app releases)** | L2a, L2b, L3, L5, L6, L7 |
+| **0.43** | — (kept for anything 0.41 or 0.42 has to move) |
 | **Gate** | L9, A10, B3-gate decision, C4, C6, C8, D6, D10 (~early 2027), D16, E7, E9, F4, F6, F9, I1–I6, J5, K7 |
 | **Parked** | D9, G7 |
 | **Owner-run, under way** | J1 |
 
 ## 16a. 0.41: build order and release checklist
 
-0.41 holds 43 IDs. Built in this order, each phase on its own branch from main, merged when green:
+**Scope (owner decision, 3 November 2026):** 0.41 carries every scheduled item except the app releases (Kshana Desktop L2a/L2b, the Station service L3, the Windows and Linux installers L5/L6 and the offline bundle L7), which become 0.42. Owner-gated and parked items stay where they are. That is 113 IDs: 39 S, 64 M and 10 sub-items or docs. By this plan's own sizes (S = days, M = 1–2 weeks) it is the largest release so far, so it is built in phases, each merged to main when green, with no public release until the checklist passes.
 
-| Phase | IDs | Why first |
+| Phase | IDs | Why here |
 | --- | --- | --- |
-| 0. Owner | Go; rank the A2c top five (gate 2); confirm B3 pre-registration timing (gate 4) | Nothing starts without it |
-| 1. Foundations | F1a, F1b, H2, H10, H11, A1 | Pro on 0.40, a clean dependency and release base, and the obs/1 schema everything else writes to |
-| 2. Pre-registrations (before any data) | Bars for B1a, B2, B8, C2, D11, M1, M2 (vendor figures as a cross-check), M3 (held-out Danish AIS), M4 (synthetic truth set); B3-gate filed | No bar is set after seeing data |
-| 3. Kshana Connect and networks | A2a, A2b, A2c, A4, A5a, A7a, A12, B1a, B1b, B2, B8 | The plug-and-play layer and the SJAWS-adjacent planner and referee |
-| 4. Evidence and space | C1, C2, D11, D17, D18, M1, M2, M3, M4, M6 | Corrected exchange claims; the Space Inventor pitch set |
-| 5. Quality, i18n, docs | H1, H3a, H3b, H4, H5, H6, H8, K1, K3a, K8 | Coverage gate, translations, CHANGELOG/README fixes, the 0.40 leftovers (MCP image, registry, parity, native arm64) |
-| 6. Signing | L1 | Signed and notarized macOS binaries and the Homebrew formula ride the release itself |
-| 7. Release | J2, J3, J4, J6, then the checklist below | — |
+| 0. Owner | Go; rank the A2c top five (gate 2); B3 timing (gate 4); C3 pre-registration (gate 7); buy the L8 bench (one u-blox F9-class receiver, one RTL-SDR v4, one PTP-capable NIC) | Decisions and hardware the build waits on |
+| 1. Foundations | F1a, F1b, H2, H10, H11, A1, K1, L10a, L10b | Pro on 0.40, clean dependencies and release path, the obs/1 schema, all cores and bounded memory before anything heavy is built on them |
+| 2. Pre-registrations (before any data) | Bars for every evidence item in this release: B1a, B2, B3a, B4a, B5, B8, C2, C3, C5a, C7, D1–D8, D11–D15, D17, D18, M1, M2, M3, M4, M5, L8 | No bar is set after seeing data |
+| 3. Kshana Connect | A2a, A2b, A2c (top five first, then the rest), A3a, A3b, A4, A5a, A5b, A6, A7a, A7b, A8a, A8b, A9, A11, A12 | The plug-and-play layer everything below plugs into |
+| 4. Sensors and compute | L4a, L4b, L4c, L4d, L4e, L11, L10c, L8 | Live receivers, SDR, clocks, traffic and more sensors from the CLI; sensor plug-ins; benchmarks and sizing; the bench proves live equals replay |
+| 5. Monitoring networks (SJAWS-adjacent) | B1a, B1b, B2, B3-gate filed, B3a, B3b, B4a, B4b, B5, B6, B7, B8, B9, B10 | Planner, referee, locator, benchmark, area trust, port pack, synthetic data, two-way data, IQ breadth |
+| 6. Space RF surveillance | M1, M2, M3, M4, M5, M6, M7, M8, M9 | The Space Inventor set, all of it shipped before outreach |
+| 7. Flight dynamics and evidence | C1, C2, C3 (after gate 7), C5a, C5b, C7, C9a–e; D1–D5, D7, D8a, D8b, D11–D15, D17, D18 | Exchange formats, lunar and Artemis runs, the open NOT MET rows re-run |
+| 8. Partners | E1–E6, E8 | Kits and scoring are built here; each row completes when a partner's data arrives (outreach stays gated) |
+| 9. Pro | F2a, F2b, F3a, F3b, F3c, F5, F7, F8a–d | Service hardening, trials, study intake, signed dossier, limits |
+| 10. Domain features | G1a, G1b, G2, G3, G4, G5, G6, G8 | Telecom timing, ROI, compliance and the rest of G |
+| 11. Quality, adoption, docs | H1, H3a, H3b, H4, H5, H6, H7, H8, H9; K2, K3a, K3b, K4, K5, K6, K8, K9 | Coverage gate, translations, the browser audit as CI, Studio gaps, security, procurement pack, versioned docs |
+| 12. Signing | L1 | Signed and notarized macOS binaries and the Homebrew formula ride the release |
+| 13. Release | J2, J3, J4, J6, then the checklist below | — |
 
-**If time runs short, cut in this order (each moves to 0.42 whole):** M4, A12, H3b, B8, A5a. Everything else is either a pitch-set item, a fix to a published claim, or a 0.40 leftover.
+**Items that depend on others outside the team:** B3a/B3b need the Jammertest 2026 publication; C3/D1 need gate 7; E1–E6/E8 complete only with partner data; L8 needs the bench hardware. If one of these is not ready when everything else is, it moves to 0.41.x rather than holding the release.
+
+**If time runs short, cut in this order (each moves to 0.42 whole):** M4, A12, H3b, B8, A5a, then G2–G8, F3a, K5. The Space Inventor pitch set (M1–M3, M6), the Connect core (A1–A4, A7a), fixes to published claims (C1, J6, H4) and the 0.40 leftovers (H6) are never cut.
 
 **Release checklist (0.41.0):**
 
@@ -406,7 +414,7 @@ When the owner says go on a workstream:
 3. Crate under the 10 MiB gate; `cargo fmt`, clippy and the full suite green on the release commit; a Release **dry run** green.
 4. Capability dossier v0.41 built from the tag and republished to its living copy (`docs/capability/README.md` steps); site and Studio translations rebuilt.
 5. Owner pushes tag `v0.41.0` (the owner does tags). Then: every channel serves 0.41.0 (parity job), the macOS binaries pass `spctl --assess`, the site deploys from the tag.
-6. After the release: public roadmap updated (J4); corrected outreach copies issued (J6); **Space Inventor outreach** with M1 to M4 and M6 shipped and M5, M7 to M9 as the plan (gate 10).
+6. After the release: public roadmap updated (J4); corrected outreach copies issued (J6); **Space Inventor outreach** with all of M shipped (gate 10).
 
 **Owner actions already done:** Apple signing secrets (7) added and proven. **Still to do:** none blocking 0.41 beyond the go and gates 2 and 4. Windows signing (L5) is 0.43, so Azure validation can start any time before then. Renew both Apple certificates before **1 February 2027** (the monthly check fails 30 days ahead).
 
@@ -496,5 +504,6 @@ When the owner says go on a workstream:
 - New workstream M (§13b): space RF geolocation accuracy, revisit and tip-and-cue latency (cross-checking the vendor's published figures), target maintenance validated on public Danish AIS, dark-vessel and AIS-integrity logic, GNSS jammers from orbit with a space + ground hybrid, timing budget, synthetic RF, exchange and a Pro study.
 - Gates 9 and 10 added; competitive map extended; every new ID scheduled.
 - Owner decision: approach the vendor after 0.41, so M1, M2, M3, M4 and M6 move into 0.41 (the accuracy model, revisit and reaction cross-check, target maintenance validated on public AIS, dark-vessel and AIS-integrity logic, timing budget); M5, M7 to M9 stay in 0.43 as the presented plan. Windows signing route: Azure Artifact Signing first, an OV certificate on a cloud signing service as fallback. SDR drivers: none bundled; SoapySDR (Boost) loads the user-installed driver at run time.
+- Owner decision (3 November 2026): 0.41 carries everything except the app releases (L2a, L2b, L3, L5, L6, L7 → 0.42); 113 IDs in 13 phases (§16a); 0.43 kept empty for anything that has to move.
 - 0.41 completeness pass (3 November 2026): H11 added (release hardening learned from the Grasp release: newest-tag guard, no masked publish failures, registry waits for npm/PyPI); H2 updated with the current Dependabot PRs and alerts; L1 records the proven signing secrets and the 1 February 2027 certificate expiry; J1 marked launched; §16a adds the 0.41 build order, cut order and release checklist.
 - Same day, on the owner's question about CPU, RAM and sensors: L10a (all cores, same bytes for 1 and N threads), L10b (bounded memory, streaming, resource governor, 7-day soak), L10c (speed benchmarks and a Station sizing table), L4d (IMU, NMEA 2000/CAN, ROS 2, GPSDO/TICC, PPS, odometry, scintillation monitors live), L4e (one time base, latency calibration, hot-plug, watchdog), L11 (sensor plug-in kit).
