@@ -323,7 +323,7 @@ Detail: `0.41-BACKLOG.md` §1.
 
 **Rules:** results never depend on the machine: the same inputs give the same bytes on any core count or platform (L10a), and live runs equal their replay (L8). Read-only to hardware by default (the receiver is never configured without an explicit, logged opt-in that stays out of the free build); local-only network binding by default; no telemetry from the app itself; every installer signed, with SBOM and checksums (K2, K9); Pro features unlock by token in the same binary, so there is one download.
 
-**Open checks before L2 starts:** SDR driver licences (SoapySDR core is Boost; backends such as librtlsdr, libhackrf and UHD are GPL family, so they are loaded as separate plugins, never linked into the commercial build: counsel to confirm); macOS entitlements for serial/USB under the hardened runtime (prototype on a clean Mac); export classification of a desktop that geolocates emitters (K7).
+**Open checks before L2 starts:** SDR drivers are never bundled: Kshana links only SoapySDR (Boost licence, no notice needed in binaries) and loads the driver the user installed (Homebrew, apt, the vendor installer) at run time, so no GPL code ships in either build (counsel to confirm once); macOS entitlements for serial/USB under the hardened runtime (prototype on a clean Mac); export classification of a desktop that geolocates emitters (K7).
 
 ## 13b. Workstream M: space-based RF surveillance, tip-and-cue and target maintenance
 
@@ -358,7 +358,7 @@ Detail: `0.41-BACKLOG.md` §1.
 7. The Artemis I manoeuvre-aware pre-registration (C3).
 8. Research authorship and governance (I).
 9. **Native install (L):** Apple Developer ID certificates and an App Store Connect API key stored as CI secrets; the Windows signing route (Azure Artifact Signing organisation validation, or an OV certificate); counsel on SDR driver licences; whether to pursue the Mac App Store (L9).
-10. **Space surveillance (M):** outreach to the vendor, data access, export classification (K7) before any delivery.
+10. **Space surveillance (M):** outreach to the vendor **after the 0.41 release** (owner decision, 3 November 2026), presenting M1 to M4 and M6 as shipped and M5, M7 to M9 as the plan; data access; export classification (K7) before any delivery.
 
 ## 15. Pre-start checklist for any go
 
@@ -374,9 +374,9 @@ When the owner says go on a workstream:
 
 | Release | IDs |
 | --- | --- |
-| **0.41** | L1; F1a, F1b; A1, A2a, A2b, A2c (top five), A4, A5a, A7a, A12; B1a, B1b, B2, B3-gate filed, B8; C1, C2; D11, D17, D18; H1, H2, H3a, H3b, H4, H5, H6, H8, H10; K1, K3a, K8; J2, J3, J4, J6 |
-| **0.42** | L2a, L2b, L3, L4a, L4c, L4e, L8, L10a, L10b, L10c; M2, M3, M1, M6; A3a, A6, A7b, A8a, A9; B3a, B3b, B5, B7, B10; C3, C7, C9a–c; D1 (with C3), D2, D3 (with B3), D4, D8a, D13, D14; E1–E6, E8; G1a, G1b, G3, G5; H9; K2, K3b, K4, K6, K9 |
-| **0.43** | L4b, L4d, L5, L6, L7, L11; M4, M5, M7, M8, M9; A2c (remaining), A3b, A5b, A8b, A11; B4a, B4b, B6, B9; C5a, C5b, C9d–e; D5, D7, D8b, D12, D15; F2a, F2b, F3a, F3b, F3c, F5, F7, F8a–d; G2, G4, G6, G8; H7; K5 |
+| **0.41** | L1; M1, M2, M3, M4, M6; F1a, F1b; A1, A2a, A2b, A2c (top five), A4, A5a, A7a, A12; B1a, B1b, B2, B3-gate filed, B8; C1, C2; D11, D17, D18; H1, H2, H3a, H3b, H4, H5, H6, H8, H10; K1, K3a, K8; J2, J3, J4, J6 |
+| **0.42** | L2a, L2b, L3, L4a, L4c, L4e, L8, L10a, L10b, L10c; A3a, A6, A7b, A8a, A9; B3a, B3b, B5, B7, B10; C3, C7, C9a–c; D1 (with C3), D2, D3 (with B3), D4, D8a, D13, D14; E1–E6, E8; G1a, G1b, G3, G5; H9; K2, K3b, K4, K6, K9 |
+| **0.43** | L4b, L4d, L5, L6, L7, L11; M5, M7, M8, M9; A2c (remaining), A3b, A5b, A8b, A11; B4a, B4b, B6, B9; C5a, C5b, C9d–e; D5, D7, D8b, D12, D15; F2a, F2b, F3a, F3b, F3c, F5, F7, F8a–d; G2, G4, G6, G8; H7; K5 |
 | **Gate** | L9, A10, B3-gate decision, C4, C6, C8, D6, D10 (~early 2027), D16, E7, E9, F4, F6, F9, I1–I6, J5, K7 |
 | **Parked** | D9, G7 |
 | **Owner-run, under way** | J1 |
@@ -466,4 +466,5 @@ When the owner says go on a workstream:
 - New workstream L (§13a): signed and notarized macOS first (L1 in 0.41), Kshana Desktop on Tauri reusing the Studio UI, Kshana Station as the network node for B, live receiver/SDR/clock/traffic connectors, Windows and Linux in 0.43, hardware-in-the-loop evidence.
 - New workstream M (§13b): space RF geolocation accuracy, revisit and tip-and-cue latency (cross-checking the vendor's published figures), target maintenance validated on public Danish AIS, dark-vessel and AIS-integrity logic, GNSS jammers from orbit with a space + ground hybrid, timing budget, synthetic RF, exchange and a Pro study.
 - Gates 9 and 10 added; competitive map extended; every new ID scheduled.
+- Owner decision: approach the vendor after 0.41, so M1, M2, M3, M4 and M6 move into 0.41 (the accuracy model, revisit and reaction cross-check, target maintenance validated on public AIS, dark-vessel and AIS-integrity logic, timing budget); M5, M7 to M9 stay in 0.43 as the presented plan. Windows signing route: Azure Artifact Signing first, an OV certificate on a cloud signing service as fallback. SDR drivers: none bundled; SoapySDR (Boost) loads the user-installed driver at run time.
 - Same day, on the owner's question about CPU, RAM and sensors: L10a (all cores, same bytes for 1 and N threads), L10b (bounded memory, streaming, resource governor, 7-day soak), L10c (speed benchmarks and a Station sizing table), L4d (IMU, NMEA 2000/CAN, ROS 2, GPSDO/TICC, PPS, odometry, scintillation monitors live), L4e (one time base, latency calibration, hot-plug, watchdog), L11 (sensor plug-in kit).
