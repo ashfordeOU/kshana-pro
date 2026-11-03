@@ -364,9 +364,9 @@ Detail: `0.41-BACKLOG.md` §1.
 6. Pricing, MSA, trademark, counsel reviews, payment go-live, export control (F4, F6, K7, F9).
 7. The Artemis I manoeuvre-aware pre-registration (C3).
 8. Research authorship and governance (I).
-11. **Editions (F10a):** sign the open-versus-Pro matrix for 0.41 before phase 9.
 9. **Native install (L):** Apple Developer ID certificates and an App Store Connect API key stored as CI secrets; the Windows signing route (Azure Artifact Signing organisation validation, or an OV certificate); counsel on SDR driver licences; whether to pursue the Mac App Store (L9).
 10. **Space surveillance (M):** outreach to the vendor **after the 0.41 release** (owner decision, 3 November 2026), presenting all of M (M1 to M9) as shipped in 0.41; data access; export classification (K7) before any delivery.
+11. **Editions (F10a):** sign the open-versus-Pro matrix for 0.41 before phase 9.
 
 ### Owner decisions at the 0.41 go (3 November 2026)
 
