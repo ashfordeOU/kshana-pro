@@ -86,7 +86,7 @@ footer{padding-block:24px 48px;border-top:1px solid var(--line);font-size:13px;c
 </header>
 
 <nav class="bar" aria-label="Sections"><div class="wrap">
-  <a href="#scale">Scale</a><a href="#fit">Arksa fit</a><a href="#plans">Plans</a><a href="#editions">Layers</a><a href="#pro">Pro</a><a href="#models">Models</a><a href="#register">Register</a><a href="#build">0.41 build</a><a href="#novelty">Novelty</a><a href="#decisions">Decisions</a>
+  <a href="#scale">Scale</a><a href="#fit">Arksa fit</a><a href="#strategy">Strategy</a><a href="#plans">Plans</a><a href="#editions">Layers</a><a href="#pro">Pro</a><a href="#models">Models</a><a href="#register">Register</a><a href="#build">0.41 build</a><a href="#novelty">Novelty</a><a href="#decisions">Decisions</a>
 </div></nav>
 
 <main class="wrap">
@@ -116,6 +116,38 @@ footer{padding-block:24px 48px;border-top:1px solid var(--line);font-size:13px;c
     <div class="col"><h3>Kshana Pro</h3><ul><li>Private overlay, signed licence tokens</li><li>Tier follows the Arksa plan; Arksa issues the token</li><li>Also sold standalone outside space</li></ul></div>
     <div class="col"><h3>Arksa + Kshana Core</h3><ul><li>The operating system for space missions</li><li>Kshana Core: methods that never ship, reached only as an Ashforde service</li><li>Kshana Pro becomes the PNT pillar of Arksa Ops and of mission design</li><li>One checkout and issuer for both products</li></ul></div>
   </div>
+</section>
+
+<section id="strategy">
+  <span class="eyebrow">Strategy · internal goal</span>
+  <h2>Make Kshana the PNT engine nobody can ignore</h2>
+  <p class="thesis">The goal is to own PNT assurance: Kshana becomes the reference that receivers, networks and missions are measured against. Arksa owns everything Kshana is, and the parts that make the lead hard to copy never leave Ashforde.</p>
+  <div class="grid2">
+    <div class="model"><h3>1. Be the reference</h3><p>Open formats (<code>kshana.obs/1</code>, mapping files) and a conformance kit others can run. Signed, pre-registered scorecards with sealed holdouts and the Jammertest referee. When a receiver maker or a network operator wants to show what their system does, Kshana's scorecard is the evidence they reach for.</p></div>
+    <div class="model"><h3>2. Breadth no one else has in one engine</h3><p>Receivers, interference, timing, the signal layer, LEO PNT, space RF, lunar and integrity in one verified engine: 92 kinds and 401 verification rows today. 0.41 adds monitoring networks, surveillance of space RF from orbit, and feeds from five industries (maritime, telecom, grid, aviation, finance).</p></div>
+    <div class="model"><h3>3. Own the physics</h3><p>Native models replace third-party tables, in this order: ionosphere, clocks and holdover, troposphere, receivers and interference. Each is pre-registered, scored against an external oracle and listed in the model register. One physics source serves Kshana and Arksa. Misses are published, which is what makes the passes credible.</p></div>
+    <div class="model"><h3>4. Proof that becomes a habit</h3><p>Signed, verifiable verdicts and audit packs mapped to NIST IR 8323 and the timing standards. Once operators, insurers and auditors file Kshana verdicts as evidence, switching away means re-proving everything.</p></div>
+    <div class="model"><h3>5. A moat that learns</h3><p>Core methods are held as trade secrets and run only as Ashforde's service. Joint fleet calibration, cross-layer cueing and threat-aware planning get better with every Station and Arksa mission (opt-in, under contract). The threat library is refreshed monthly. Competitors can copy the open engine, not the Core.</p></div>
+    <div class="model"><h3>6. Distribution for free, payment for jobs</h3><p>AGPL, 19 languages, free in every Arksa plan, free Desktop and one free Station. Pro and Enterprise are sold by the job they do (fleets, ledger, forecasts, scorecards), and Core is reached through Arksa. Patents are filed before anything ships in Pro.</p></div>
+  </div>
+  <div class="phases">
+    <div class="phase"><span class="n">Nov</span><div><h3>Foundations of the lead</h3><p>Register slice (20 models), Core guard, Core interface, licence note. Then patent counsel by 30 November.</p></div><span class="pill done">Mostly done</span></div>
+    <div class="phase"><span class="n">Dec</span><div><h3>0.41 engine</h3><p>Kshana Connect, sensors, monitoring networks, space RF, re-runs of the open NOT MET rows; first ionosphere head-to-head with Arksa.</p></div><span class="pill prog">Building</span></div>
+    <div class="phase"><span class="n">Jan</span><div><h3>0.41.x apps and Pro on sale</h3><p>Desktop, Station, signed installers; Pro switched on once gate 12 (payments) is signed; Arksa moves to engine 0.41.</p></div><span class="pill plan">Planned</span></div>
+    <div class="phase"><span class="n">2027</span><div><h3>Evidence in public</h3><p>Jammertest 2027 blind runs, published scorecards, conformance adopters, native models in the order above, filings for P1 and P2, then 1.0 with long-term support.</p></div><span class="pill plan">Planned</span></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>How we will know it is working</th><th>Today</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Verification rows passed against an external oracle</td><td class="num">176 of 401</td><td>Rising each release; misses published</td></tr>
+      <tr><td>Native models in the register, scored</td><td class="num">11 validated of 20 listed</td><td>Ionosphere and clocks native and scored in 2027</td></tr>
+      <tr><td>Receivers or systems with a signed Kshana scorecard</td><td class="num">0</td><td>First external ones after 0.41</td></tr>
+      <tr><td>Third parties running the conformance kit</td><td class="num">0</td><td>First adopters after 0.41</td></tr>
+      <tr><td>Paying customers (Pro or through Arksa)</td><td class="num">0</td><td>After gate 12 and Arksa's pilots, Q1 2027</td></tr>
+      <tr><td>Patent filings</td><td class="num">0</td><td>P1 and P2 per counsel</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">"Own the market" and "un-ignorable" are internal goals (D-K14). Public copy compares on facts and never says "dominate" or "certified". Targets are plans, not results: Kshana is pre-revenue with no customers yet.</p>
 </section>
 
 <section id="plans">
