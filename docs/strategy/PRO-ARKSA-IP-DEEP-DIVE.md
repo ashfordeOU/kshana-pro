@@ -72,7 +72,7 @@ record: the PNT assurance ledger.** That is the thing that does not exist in PNT
 | Timing owner | How long will we hold, and how sure are we | **Predictive assurance**: the twin's predicted time-to-breach per site, recalibrated against what each site actually does, with an alarm before the budget is breached | Pro |
 | Mission and network planner (Arksa) | What is exposed, and what is the cheapest fix | **Threat-aware planning**: routes, station placement, satellite operations and holdover schedules optimised against the forecast threat field and each receiver's measured vulnerability | Pro and Enterprise inside Arksa |
 | Anyone without a GNSS specialist | Keep me current | **Threat library subscription**: signed monthly detector calibrations and scenarios from public datasets and incidents | Annual subscription: the renewal engine |
-| Receiver and antenna makers, integrators, buyers | Independent proof under attack | **Certified referee scorecards** with sealed holdouts | Per test or per product line |
+| Receiver and antenna makers, integrators, buyers | Independent proof under attack | **Signed, pre-registered referee scorecards** with sealed holdouts | Per test or per product line |
 | OEM | Embed Kshana in a closed product | Commercial engine licence | Royalty or flat |
 
 Free stays free: every reader and format, mapping files, the conformance kit, schemas, all kinds,
@@ -144,7 +144,7 @@ Open-engine pre-registrations stay public as today.
 | P3 | **Joint self-calibration and localisation across heterogeneous receivers**: each receiver's AGC and C/N0 response is estimated together with the interference source positions from co-observation and sky geometry, so mixed fleets need no lab calibration | Improves the accuracy of a physical localisation from existing receivers | Published methods avoid calibration or assume one receiver type; joint estimation across vendors was not found |
 | P4 | **Cross-layer cueing**: a detection in one layer (orbit, ground Stations, aircraft and ship reports) re-tasks another (raises a Station's IQ capture rate, schedules a pass, narrows a search region), optimising the sensors' resources | Controls sensor tasking and data capture | Space-to-ground cueing for GNSS interference with receiver-side capture control was not found (the Space Inventor tip-and-cue concerns their own satellites, so keep the claims ground-side and multi-layer) |
 | P5 | **Threat-aware mission and route planning**: routes, satellite operations and holdover schedules optimised against a forecast interference field and each receiver's measured vulnerability profile from the referee | Controls a vehicle's route or a spacecraft's operations | Planning around forecast PNT threat with receiver-specific vulnerability was not found; strongest inside Arksa |
-| P6 | **Sealed-holdout certification**: test vectors committed by hash before a device is submitted, revealed after scoring, with signed scorecards | Weak alone (close to a business method); combine with P1 | Supporting claim, not a lead |
+| P6 | **Sealed-holdout scoring**: test vectors committed by hash before a device is submitted, revealed after scoring, with signed scorecards | Weak alone (close to a business method); combine with P1 | Supporting claim, not a lead |
 
 ### What to do, in order
 
@@ -162,7 +162,7 @@ Open-engine pre-registrations stay public as today.
 ## 7. Changes to the 0.41 plan this implies
 
 - **F10a** becomes the matrix in section 4 (one Station free, then per Station; adapters free;
-  Pro = fleet, assurance ledger, predictive assurance, threat library, certified scorecards,
+  Pro = fleet, assurance ledger, predictive assurance, threat library, signed, pre-registered scorecards,
   cost planner; Enterprise = high availability, single sign-on, audit, multi-tenant, air-gapped).
 - **F10g** reuses Arksa's plans, checkout and issuer; no second merchant.
 - **New:** F10h threat library subscription; F10i compliance evidence packs; **P1 to P5 built only
