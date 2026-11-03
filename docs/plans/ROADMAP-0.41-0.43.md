@@ -232,7 +232,7 @@ Detail: `0.41-BACKLOG.md` §1.
 | ID | Item | Size | Done |
 | --- | --- | --- | --- |
 | H1 | SonarCloud new-code coverage ≥ 80% (~810 lines; CLI paths via in-process tests) | M | Gate green |
-| H2 | CI sharding; keep release `verify` aligned with CI (fixed in 0.40); triage the 8 open Dependabot PRs (#85–#100) | S | CI ≤ 2 h; PRs merged or closed |
+| H2 | CI sharding; keep release `verify` aligned with CI (fixed in 0.40); triage the 8 open Dependabot PRs (#85, #86, #93, #96, #97, #98, #99, #100) and the 3 open Dependabot alerts (2 moderate, 1 low, reported on push on 3 November 2026) | S | CI ≤ 2 h; PRs merged or closed; no open alert without a recorded decision |
 | H3a | i18n 0.40 leftovers: the English strings left on translated Studio pages (area cards, evidence legend, chart captions); leftover Rust-built English words (W55) | S | No English string on a translated page in the H7 audit |
 | H3b | i18n: **whole-sentence messages for gendered languages** (promised for 0.41, `pro:docs/plans/0.40-INTEGRATION-BRIEF.md`); native-speaker review programme; one-pass rendering | M | No fragment-assembled sentence; review sign-offs per language |
 | H4 | CHANGELOG (RUSTSEC-2026-0387, MSRV 1.88 under 0.40.0); README MCP table cells; `docs/SURFACES.md` drift (Studio views now exist) | S | Docs tests green |
@@ -242,6 +242,7 @@ Detail: `0.41-BACKLOG.md` §1.
 | H8 | CI check: no company name in the public repo or the integration list without recorded consent | S | Job green |
 | H9 | Studio gaps: maritime-trust field, self-report strip, Jammertest Tools card and notebook, clock logs; **bring your own logs into Studio** | M | Each view ships with a test |
 | H10 | Issue #36 (macOS oracle failures); W55 SBOM verdict re-run against the final lock; CI labfit follow-up tests | S | Closed |
+| H11 | **Release hardening from the Grasp release lessons (2 November 2026)**: (a) only the newest version tag may move "latest" targets (ghcr `:latest`, the MCP registry, the site deploy, the GitHub "Latest" badge); a re-pushed older tag publishes nothing; (b) no masked failure on the publish path: audit the 14 `continue-on-error` / `\|\| true` / warning-only steps in `release.yml`, `publish.yml`, `mcp-*.yml` and `wheels.yml` and keep only the deliberate ones (the ARM install smoke), each labelled; (c) the MCP registry step waits until npm and PyPI serve the version | S | A dry run re-pushing an older tag publishes nothing; every remaining masked step carries a reason comment; registry step green on first try at 0.41.0 |
 
 ## 11. Workstream K: adoption readiness
 
@@ -272,7 +273,7 @@ Detail: `0.41-BACKLOG.md` §1.
 
 | ID | Item | Done |
 | --- | --- | --- |
-| J1 | Product Hunt (2 November, owner-run): first comment, replies; Show HN, r/GNSS, r/rust | Launch done; replies answered |
+| J1 | Product Hunt (launched 2 November 2026, owner-run): replies; Show HN, r/GNSS, r/rust; launch numbers into J2 | Replies answered; numbers recorded |
 | J2 | Metrics per release: Studio sessions, installs (crates.io, PyPI, npm), stars, studies requested (F3c instrument), verified integrations, design-partner conversations | Metrics table each release |
 | J3 | Listings: MCP registry (owner variable), winget moderation (the 0.40.0 pull request is open; the tag's workflow still fails on the duplicate, fixed on main), OpenCPN catalogue PR (`packaging/channels.json`) | Listed |
 | J4 | Publish a **neutral public roadmap** (`ROADMAP.md` does not reflect 0.41–0.43) | Public file updated |
@@ -302,7 +303,7 @@ Detail: `0.41-BACKLOG.md` §1.
 
 | ID | Item | Exists (cited) | Missing | Size | Done |
 | --- | --- | --- | --- | --- | --- |
-| L1 | **macOS signing and notarization of the CLI and MCP binaries** (Developer ID Application + Installer certificates, hardened runtime, `notarytool` in CI (Apple ID + app-specific password, as the owner's other macOS products use; repository secrets `APPLE_CERTIFICATE(_PASSWORD)`, `APPLE_INSTALLER_CERTIFICATE(_PASSWORD)`, `APPLE_ID`, `APPLE_APP_PASSWORD`, `APPLE_TEAM_ID`), stapled `.pkg`; universal arm64+x86_64) and a Homebrew **formula/cask** for `kshana` | Unsigned macOS binaries per release; MCP tap | Signing step, secrets, universal build, `kshana` tap entry | S | `spctl --assess` passes on a clean Mac; `brew install` works; Gatekeeper shows Ashforde OÜ |
+| L1 | **macOS signing and notarization of the CLI and MCP binaries** (secrets in place and proven by `.github/workflows/apple-signing-check.yml`, run 41660245575, scheduled monthly; both certificates expire **1 February 2027**) (Developer ID Application + Installer certificates, hardened runtime, `notarytool` in CI (Apple ID + app-specific password, as the owner's other macOS products use; repository secrets `APPLE_CERTIFICATE(_PASSWORD)`, `APPLE_INSTALLER_CERTIFICATE(_PASSWORD)`, `APPLE_ID`, `APPLE_APP_PASSWORD`, `APPLE_TEAM_ID`), stapled `.pkg`; universal arm64+x86_64) and a Homebrew **formula/cask** for `kshana` | Unsigned macOS binaries per release; MCP tap | Signing step, secrets, universal build, `kshana` tap entry | S | `spctl --assess` passes on a clean Mac; `brew install` works; Gatekeeper shows Ashforde OÜ |
 | L2a | **Kshana Desktop for macOS, core**: Tauri 2 shell, Studio UI in the webview, engine calls native (no WASM), open/save any file size, long runs off the UI thread, signed + notarized `.dmg`, signed auto-update (ed25519) | Studio UI (`web/studio/`), engine crate | The shell, update channel, file bridge | M | Every Studio view renders natively; a 1 GB IQ file opens; update verifies its signature; notarized |
 | L2b | **Kshana Desktop: Devices panel** (lists serial/USB ports, network feeds and SDRs; start/stop `receiver-trust live`, telemetry, IQ capture; read-only by default; `--configure` stays refused) | `open_serial`, live sources, gate, telemetry encoders | UI, device discovery, permissions prompts | M | A USB receiver streams to the Maritime trust view within 60 s of plugging in, from the docs alone |
 | L3 | **Kshana Station service** (launchd/systemd/Windows service; config file; local-only API by default, TLS + token for remote per A9; obs/1 out; health endpoint; log rotation) | Reference build (container), `--listen`, telemetry | Native service packaging, obs/1 producer, remote management | M | Station runs 7 days unattended on macOS and Linux arm64 (Raspberry Pi class) with no data loss on replay comparison |
@@ -374,12 +375,40 @@ When the owner says go on a workstream:
 
 | Release | IDs |
 | --- | --- |
-| **0.41** | L1; M1, M2, M3, M4, M6; F1a, F1b; A1, A2a, A2b, A2c (top five), A4, A5a, A7a, A12; B1a, B1b, B2, B3-gate filed, B8; C1, C2; D11, D17, D18; H1, H2, H3a, H3b, H4, H5, H6, H8, H10; K1, K3a, K8; J2, J3, J4, J6 |
+| **0.41** | L1; M1, M2, M3, M4, M6; F1a, F1b; A1, A2a, A2b, A2c (top five), A4, A5a, A7a, A12; B1a, B1b, B2, B3-gate filed, B8; C1, C2; D11, D17, D18; H1, H2, H3a, H3b, H4, H5, H6, H8, H10, H11; K1, K3a, K8; J2, J3, J4, J6 |
 | **0.42** | L2a, L2b, L3, L4a, L4c, L4e, L8, L10a, L10b, L10c; A3a, A6, A7b, A8a, A9; B3a, B3b, B5, B7, B10; C3, C7, C9a–c; D1 (with C3), D2, D3 (with B3), D4, D8a, D13, D14; E1–E6, E8; G1a, G1b, G3, G5; H9; K2, K3b, K4, K6, K9 |
 | **0.43** | L4b, L4d, L5, L6, L7, L11; M5, M7, M8, M9; A2c (remaining), A3b, A5b, A8b, A11; B4a, B4b, B6, B9; C5a, C5b, C9d–e; D5, D7, D8b, D12, D15; F2a, F2b, F3a, F3b, F3c, F5, F7, F8a–d; G2, G4, G6, G8; H7; K5 |
 | **Gate** | L9, A10, B3-gate decision, C4, C6, C8, D6, D10 (~early 2027), D16, E7, E9, F4, F6, F9, I1–I6, J5, K7 |
 | **Parked** | D9, G7 |
 | **Owner-run, under way** | J1 |
+
+## 16a. 0.41: build order and release checklist
+
+0.41 holds 43 IDs. Built in this order, each phase on its own branch from main, merged when green:
+
+| Phase | IDs | Why first |
+| --- | --- | --- |
+| 0. Owner | Go; rank the A2c top five (gate 2); confirm B3 pre-registration timing (gate 4) | Nothing starts without it |
+| 1. Foundations | F1a, F1b, H2, H10, H11, A1 | Pro on 0.40, a clean dependency and release base, and the obs/1 schema everything else writes to |
+| 2. Pre-registrations (before any data) | Bars for B1a, B2, B8, C2, D11, M1, M2 (vendor figures as a cross-check), M3 (held-out Danish AIS), M4 (synthetic truth set); B3-gate filed | No bar is set after seeing data |
+| 3. Kshana Connect and networks | A2a, A2b, A2c, A4, A5a, A7a, A12, B1a, B1b, B2, B8 | The plug-and-play layer and the SJAWS-adjacent planner and referee |
+| 4. Evidence and space | C1, C2, D11, D17, D18, M1, M2, M3, M4, M6 | Corrected exchange claims; the Space Inventor pitch set |
+| 5. Quality, i18n, docs | H1, H3a, H3b, H4, H5, H6, H8, K1, K3a, K8 | Coverage gate, translations, CHANGELOG/README fixes, the 0.40 leftovers (MCP image, registry, parity, native arm64) |
+| 6. Signing | L1 | Signed and notarized macOS binaries and the Homebrew formula ride the release itself |
+| 7. Release | J2, J3, J4, J6, then the checklist below | — |
+
+**If time runs short, cut in this order (each moves to 0.42 whole):** M4, A12, H3b, B8, A5a. Everything else is either a pitch-set item, a fix to a published claim, or a 0.40 leftover.
+
+**Release checklist (0.41.0):**
+
+1. Every 0.41 ID meets its Done column; the ledger rows it adds are labelled; misses are published.
+2. CHANGELOG `[0.41.0]` written (it becomes the GitHub release notes); README tables regenerated; translated READMEs regenerated (H5); `packaging/channels.json` and the parity script updated for the signed macOS binaries and the Homebrew formula.
+3. Crate under the 10 MiB gate; `cargo fmt`, clippy and the full suite green on the release commit; a Release **dry run** green.
+4. Capability dossier v0.41 built from the tag and republished to its living copy (`docs/capability/README.md` steps); site and Studio translations rebuilt.
+5. Owner pushes tag `v0.41.0` (the owner does tags). Then: every channel serves 0.41.0 (parity job), the macOS binaries pass `spctl --assess`, the site deploys from the tag.
+6. After the release: public roadmap updated (J4); corrected outreach copies issued (J6); **Space Inventor outreach** with M1 to M4 and M6 shipped and M5, M7 to M9 as the plan (gate 10).
+
+**Owner actions already done:** Apple signing secrets (7) added and proven. **Still to do:** none blocking 0.41 beyond the go and gates 2 and 4. Windows signing (L5) is 0.43, so Azure validation can start any time before then. Renew both Apple certificates before **1 February 2027** (the monthly check fails 30 days ahead).
 
 ## 17. What the audits changed
 
@@ -467,4 +496,5 @@ When the owner says go on a workstream:
 - New workstream M (§13b): space RF geolocation accuracy, revisit and tip-and-cue latency (cross-checking the vendor's published figures), target maintenance validated on public Danish AIS, dark-vessel and AIS-integrity logic, GNSS jammers from orbit with a space + ground hybrid, timing budget, synthetic RF, exchange and a Pro study.
 - Gates 9 and 10 added; competitive map extended; every new ID scheduled.
 - Owner decision: approach the vendor after 0.41, so M1, M2, M3, M4 and M6 move into 0.41 (the accuracy model, revisit and reaction cross-check, target maintenance validated on public AIS, dark-vessel and AIS-integrity logic, timing budget); M5, M7 to M9 stay in 0.43 as the presented plan. Windows signing route: Azure Artifact Signing first, an OV certificate on a cloud signing service as fallback. SDR drivers: none bundled; SoapySDR (Boost) loads the user-installed driver at run time.
+- 0.41 completeness pass (3 November 2026): H11 added (release hardening learned from the Grasp release: newest-tag guard, no masked publish failures, registry waits for npm/PyPI); H2 updated with the current Dependabot PRs and alerts; L1 records the proven signing secrets and the 1 February 2027 certificate expiry; J1 marked launched; §16a adds the 0.41 build order, cut order and release checklist.
 - Same day, on the owner's question about CPU, RAM and sensors: L10a (all cores, same bytes for 1 and N threads), L10b (bounded memory, streaming, resource governor, 7-day soak), L10c (speed benchmarks and a Station sizing table), L4d (IMU, NMEA 2000/CAN, ROS 2, GPSDO/TICC, PPS, odometry, scintillation monitors live), L4e (one time base, latency calibration, hot-plug, watchdog), L11 (sensor plug-in kit).
