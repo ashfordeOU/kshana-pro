@@ -120,6 +120,7 @@ fn oracle_str(o: OracleKind) -> &'static str {
         OracleKind::ExternalDataset => "ExternalDataset",
         OracleKind::ReferenceImpl => "ReferenceImpl",
         OracleKind::InternalConsistency => "InternalConsistency",
+        OracleKind::IntegrationRun => "IntegrationRun",
         OracleKind::NoneKind => "None",
     }
 }

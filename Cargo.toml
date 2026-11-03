@@ -2,7 +2,7 @@
 name = "kshana-pro"
 version = "0.2.0"
 edition = "2021"
-rust-version = "1.85"  # the open engine's floor since 0.28.0
+rust-version = "1.88"  # the open engine's floor since 0.40.0
 description = "Kshana Pro — proprietary overlay on the open Kshana PNT-resilience engine"
 authors = ["Chakshu Baweja <contact@ashforde.org>"]
 license-file = "LICENSE"
@@ -54,7 +54,7 @@ default = []
 #
 # The open core from crates.io, pinned exactly: Pro 0.2.0 is built and its showcases
 # recorded on this release.
-kshana = "=0.34.1"
+kshana = "=0.40.0"
 
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.
