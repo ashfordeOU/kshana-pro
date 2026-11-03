@@ -143,7 +143,7 @@ Detail: `0.41-BACKLOG.md` §1.
 | --- | --- | --- | --- | --- | --- |
 | C1 | **Exchange formats**: correct the overstated claim and close it | OPM/OMM/OCM (`src/odm.rs`), AEM/APM (`src/adm.rs`), SPK writer (`src/spk_writer.rs`), TDM (`src/ccsds_tdm.rs`), Orekit round trip (`docs/INTEROP.md`). **OEM is checked against the spec and an independent parser only; never loaded into GMAT or STK** (`docs/INTEROP.md:243`, VM-81fb8429) | Load-tests in GMAT and STK (and CesiumJS for CZML); CDM; SPICE CK; OCM PERT/OD blocks; **rename ledger row VM-81fb8429** to what was checked | M | Files open in GMAT 2025a and STK; row title matches evidence |
 | C2 | Lunar orientation vs NASA SVS Moon phase and libration tables; the new row cites NASA SVS | DE440 lunar orientation | Comparison, bars, row | S | Pre-registered bars |
-| C3 | Artemis I manoeuvre-aware second run (pre-registration draft `docs/mission-thread/PREREGISTRATION-C2-DRAFT.md`) and NRHO force model for CAPSTONE | Both NOT MET | As stated | M | New pre-registered runs |
+| C3 | Artemis I manoeuvre-aware second run (pre-registration `docs/mission-thread/PREREGISTRATION-C2.md`, signed 3 November 2026) and NRHO force model for CAPSTONE | Both NOT MET | As stated | M | New pre-registered runs |
 | C4 | Real DSN tracking comparison | TRK-2-18 reader, Mars ramped Doppler | Partner data | M | **Gate: partner** |
 | C5a / C5b | Optical-navigation measurement model / small-body gravity (or partner study first) | B-plane, light time | Models | M + M | Bars set in advance |
 | C6 | Lander navigation vs flown data | Descent/surface/ascent (MODELLED) | Partner data | M | **Gate: partner** |
@@ -360,6 +360,14 @@ Detail: `0.41-BACKLOG.md` §1.
 8. Research authorship and governance (I).
 9. **Native install (L):** Apple Developer ID certificates and an App Store Connect API key stored as CI secrets; the Windows signing route (Azure Artifact Signing organisation validation, or an OV certificate); counsel on SDR driver licences; whether to pursue the Mac App Store (L9).
 10. **Space surveillance (M):** outreach to the vendor **after the 0.41 release** (owner decision, 3 November 2026), presenting all of M (M1 to M9) as shipped in 0.41; data access; export classification (K7) before any delivery.
+
+### Owner decisions at the 0.41 go (3 November 2026)
+
+- **Go for 0.41** given.
+- **Gate 2, A2c order:** maritime (A2c2), telecom/5G (A2c6), power grid (A2c5), aviation (A2c1), finance (A2c7) first; then rail, automotive, handsets.
+- **Gate 4, B3 timing:** the Jammertest 2026 test catalogue and plan were published in May 2026 (jammertest.no, NPRA GitHub), positions included, so by the B3-gate rule the locator's bar is pre-registered against **Jammertest 2027**; the 2026 positions are not opened by anyone on this row. B3a/B3b are built in 0.41 (MODELLED) and scored when the 2027 campaign publishes.
+- **Gate 7, C3:** pre-registration C2 signed off with the draft's bars (2 km, 0.01 m/s, per window), W1 and W2, no second reference, solar radiation pressure unmodelled; committed alone as `docs/mission-thread/PREREGISTRATION-C2.md` (public commit d264d1165).
+- **L8 bench:** not bought now. All connectors are built and tested on recorded data in 0.41; the hardware-in-the-loop part of L8 moves to 0.41.x.
 
 ## 15. Pre-start checklist for any go
 
