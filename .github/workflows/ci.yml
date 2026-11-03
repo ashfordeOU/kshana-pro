@@ -44,3 +44,7 @@ jobs:
       # debug and the release binary and requires identical reports (scripts/release-smoke.sh).
       - name: Release smoke
         run: scripts/release-smoke.sh
+      # D-K11 layer guard: Kshana Core never ships, so no manifest, lockfile, vendored path or
+      # built binary of this crate may name it (scripts/core-guard.sh).
+      - name: Core guard
+        run: scripts/core-guard.sh
