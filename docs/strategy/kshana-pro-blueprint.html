@@ -1,0 +1,239 @@
+<title>Kshana Pro Blueprint</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column with a sticky section bar; tables scroll in their own frames; status shown as pills. */
+:root{
+  --bg:#F4F6F7; --surface:#FFFFFF; --fg:#13202B; --muted:#56656F; --line:#D5DDE2;
+  --accent:#B85F0E; --accent-soft:#F6E7D7; --teal:#1C6B73; --teal-soft:#DDEFF0;
+  --ok:#2F7A3E; --ok-soft:#E1F1E4; --warn:#9A6A00; --warn-soft:#F7EDCF; --plan:#56656F; --plan-soft:#E7ECEF;
+  --conf:#8E2A2A; --conf-soft:#F6E1E1;
+  --display:"Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --body:"Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E161C; --surface:#141F27; --fg:#E4ECF0; --muted:#97A7B1; --line:#25343E;
+  --accent:#E8963F; --accent-soft:#3A2814; --teal:#5DBBC3; --teal-soft:#123036;
+  --ok:#6CC27E; --ok-soft:#173022; --warn:#E2B54A; --warn-soft:#352B10; --plan:#97A7B1; --plan-soft:#1E2B33;
+  --conf:#E58C8C; --conf-soft:#3A1A1A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E161C; --surface:#141F27; --fg:#E4ECF0; --muted:#97A7B1; --line:#25343E;
+  --accent:#E8963F; --accent-soft:#3A2814; --teal:#5DBBC3; --teal-soft:#123036;
+  --ok:#6CC27E; --ok-soft:#173022; --warn:#E2B54A; --warn-soft:#352B10; --plan:#97A7B1; --plan-soft:#1E2B33;
+  --conf:#E58C8C; --conf-soft:#3A1A1A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.6 var(--body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{padding-block:40px 24px;display:grid;gap:14px}
+.conf{display:inline-flex;gap:8px;align-items:center;width:fit-content;font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--conf);background:var(--conf-soft);padding:7px 10px;border-radius:4px}
+h1{font:400 clamp(38px,6vw,60px)/1.02 var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.lede{max-width:66ch;color:var(--muted);margin:0;font-size:16px}
+nav.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-block:1px solid var(--line)}
+nav.bar .wrap{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+nav.bar a{flex:none;font:500 13px/1 var(--body);color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:999px}
+nav.bar a:hover,nav.bar a:focus-visible{color:var(--fg);background:var(--plan-soft);outline:none}
+main{display:grid;gap:56px;padding-block:40px 80px}
+section{display:grid;gap:18px;scroll-margin-top:70px}
+.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+h2{font:400 clamp(28px,4vw,38px)/1.1 var(--display);margin:0;text-wrap:balance}
+h3{font:600 16px/1.3 var(--body);margin:0}
+p{margin:0;max-width:68ch}
+.muted{color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.stat{background:var(--surface);padding:16px 18px;display:grid;gap:4px;min-width:0}
+.stat b{font:500 26px/1.1 var(--mono);font-variant-numeric:tabular-nums;color:var(--fg)}
+.stat span{font-size:13px;color:var(--muted)}
+.stat.k b{color:var(--teal)} .stat.a b{color:var(--accent)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--line)}
+th{font:600 12px/1.3 var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font:500 11px/1 var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:5px 8px;border-radius:999px;white-space:nowrap}
+.done{color:var(--ok);background:var(--ok-soft)} .prog{color:var(--warn);background:var(--warn-soft)} .plan{color:var(--plan);background:var(--plan-soft)}
+.free{color:var(--teal);background:var(--teal-soft)} .pro{color:var(--accent);background:var(--accent-soft)} .ent{color:var(--fg);background:var(--plan-soft)} .cf{color:var(--conf);background:var(--conf-soft)}
+.cols3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.col{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:grid;gap:10px;align-content:start;min-width:0}
+.col h3{display:flex;gap:10px;align-items:center}
+.col ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px}
+.thesis{border-left:3px solid var(--accent);padding:4px 0 4px 18px;font:400 22px/1.35 var(--display);max-width:60ch}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.model{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:grid;gap:6px;min-width:0}
+.model h3{font-size:15px}
+.model p{font-size:14px;color:var(--muted)}
+.phase{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.phase:last-child{border-bottom:none}
+.phase .n{font:500 13px/1.6 var(--mono);color:var(--muted)}
+.phase p{font-size:14px;color:var(--muted)}
+.phases{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px 18px}
+.note{font-size:13px;color:var(--muted)}
+.callout{background:var(--conf-soft);color:var(--fg);border-radius:8px;padding:16px 18px;display:grid;gap:8px}
+.callout b{color:var(--conf)}
+code{font:13px var(--mono);background:var(--plan-soft);padding:1px 5px;border-radius:4px}
+footer{padding-block:24px 48px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+@media (max-width:820px){.cols3,.grid2{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<header class="top wrap">
+  <span class="conf">Confidential · Ashforde OÜ · contains unfiled invention material</span>
+  <h1>Kshana Pro Blueprint</h1>
+  <p class="lede">What Kshana is, what Pro sells and to whom, how Kshana sits inside Arksa, what 0.41 builds, and which ideas may be patentable. Status as of 3 November 2026.</p>
+</header>
+
+<nav class="bar" aria-label="Sections"><div class="wrap">
+  <a href="#scale">Scale</a><a href="#fit">Arksa fit</a><a href="#plans">Plans</a><a href="#editions">Editions</a><a href="#pro">Pro</a><a href="#models">Models</a><a href="#build">0.41 build</a><a href="#novelty">Novelty</a><a href="#decisions">Decisions</a>
+</div></nav>
+
+<main class="wrap">
+
+<section id="scale">
+  <span class="eyebrow">Where it stands</span>
+  <h2>One of the broadest PNT engines anywhere, open and verified</h2>
+  <div class="stats">
+    <div class="stat k"><b>451k</b><span>lines of Rust, open engine</span></div>
+    <div class="stat k"><b>92</b><span>scenario kinds</span></div>
+    <div class="stat k"><b>401</b><span>verification-matrix rows</span></div>
+    <div class="stat k"><b>~4,350</b><span>library tests plus integration files (3,790 + 566)</span></div>
+    <div class="stat"><b>19</b><span>languages</span></div>
+    <div class="stat"><b>194</b><span>bundled scenarios</span></div>
+    <div class="stat a"><b>72k</b><span>lines of Rust, Kshana Pro</span></div>
+    <div class="stat a"><b>530k</b><span>lines of TypeScript, Arksa</span></div>
+  </div>
+  <p class="note">Measured on the repositories on 3 November 2026. Kshana 0.40.0 is published; 0.41 is being built.</p>
+</section>
+
+<section id="fit">
+  <span class="eyebrow">How the products fit</span>
+  <h2>Arksa models PNT through Kshana</h2>
+  <p class="thesis">Nobody in PNT sells assurance you can prove. Kshana has the parts; Arksa has the missions, the operations line and the front door.</p>
+  <div class="cols3">
+    <div class="col"><h3>Open Kshana</h3><ul><li>AGPL, or commercial from Ashforde OÜ</li><li>Free inside every Arksa plan (WebAssembly, hash-pinned)</li><li>All readers, all kinds, all evidence</li></ul></div>
+    <div class="col"><h3>Kshana Pro</h3><ul><li>Private overlay, signed licence tokens</li><li>Tier follows the Arksa plan; Arksa issues the token</li><li>Also sold standalone outside space</li></ul></div>
+    <div class="col"><h3>Arksa</h3><ul><li>The operating system for space missions</li><li>Kshana Pro becomes the PNT pillar of Arksa Ops and of mission design</li><li>One checkout and issuer for both products</li></ul></div>
+  </div>
+</section>
+
+<section id="plans">
+  <span class="eyebrow">Plans</span>
+  <h2>Arksa plans and the Kshana tier each includes</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Arksa plan</th><th>Price (Arksa catalogue)</th><th>Kshana inside</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Viewer, Trial, Student</td><td class="num">—</td><td><span class="pill free">Open Kshana</span></td><td>No Pro tier</td></tr>
+      <tr><td>Academic</td><td class="num">from $1,500/yr (labs)</td><td><span class="pill pro">Pro</span></td><td>Proposed; founder confirms</td></tr>
+      <tr><td>Pro</td><td class="num">$199–249/mo</td><td><span class="pill pro">Pro</span></td><td>Resilience studies</td></tr>
+      <tr><td>Team</td><td class="num">$499–599/seat/mo</td><td><span class="pill pro">Pro</span></td><td>Minimum 3 seats</td></tr>
+      <tr><td>Mission</td><td class="num">from $60,000/yr</td><td><span class="pill ent">Enterprise</span></td><td>Adds design optimiser and uncertainty</td></tr>
+      <tr><td>Sovereign</td><td class="num">from $150,000/yr</td><td><span class="pill ent">Enterprise</span></td><td>Customer hardware, offline licence</td></tr>
+      <tr><td>Arksa Ops (beta)</td><td class="num">$500/satellite/mo</td><td><span class="pill pro">PNT pillar (proposed)</span></td><td>Spaceborne receiver interference and timing assurance</td></tr>
+      <tr><td>Kshana Pro standalone</td><td class="num">gate 12</td><td><span class="pill pro">Pro</span> <span class="pill ent">Enterprise</span></td><td>Per Station a year, through Arksa's checkout</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Arksa prices from its plans catalogue. Kshana standalone prices stay placeholders until gate 12 (provider, prices, bank account, VAT advice).</p>
+</section>
+
+<section id="editions">
+  <span class="eyebrow">Editions</span>
+  <h2>Free spreads it, Pro is what teams pay for</h2>
+  <div class="cols3">
+    <div class="col"><h3><span class="pill free">Free</span></h3><ul><li>Every reader and format, mapping files, conformance kit, schemas</li><li>All 92 kinds and their evidence</li><li>Single-site detection and alerts</li><li>Free Desktop and one Station</li></ul></div>
+    <div class="col"><h3><span class="pill pro">Pro</span></h3><ul><li>Station fleet (2 or more)</li><li>The assurance ledger: signed, verifiable verdicts</li><li>Predictive timing assurance</li><li>Threat library subscription</li><li>Certified referee scorecards</li><li>Planner with cost</li></ul></div>
+    <div class="col"><h3><span class="pill ent">Enterprise</span></h3><ul><li>High availability service</li><li>Single sign-on, roles, audit, retention</li><li>Multi-tenant</li><li>Air-gapped bundle with support</li><li>Unlimited Stations</li></ul></div>
+  </div>
+  <p class="note">Never paywalled: safety-relevant detection, file formats, and published evidence.</p>
+</section>
+
+<section id="pro">
+  <span class="eyebrow">Pro</span>
+  <h2>The PNT assurance ledger, sold by the job it does</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Who pays</th><th>Their question</th><th>What Pro gives</th><th>Charged</th></tr></thead>
+    <tbody>
+      <tr><td>Operations manager</td><td>Twelve sites, one view, alerts, a monthly report</td><td>Station fleet, area trust, alert routing, history, SLA reports</td><td>Per Station a year; per satellite in Arksa Ops</td></tr>
+      <tr><td>Head of resilience or risk</td><td>Prove what happened and that we detect it</td><td>Signed, third-party-verifiable verdicts; audit packs mapped to NIST IR 8323 and timing standards; insurer scorecards</td><td>Pro core; Enterprise for audit</td></tr>
+      <tr><td>Timing owner</td><td>How long will we hold, and how sure are we</td><td>Predicted time to breach per site, recalibrated on what each site does</td><td>Pro</td></tr>
+      <tr><td>Mission or network planner</td><td>What is exposed, and the cheapest fix</td><td>Threat-aware planning of routes, stations, satellite operations and holdover</td><td>Pro and Enterprise in Arksa</td></tr>
+      <tr><td>Team without a GNSS specialist</td><td>Keep me current</td><td>Signed monthly threat library: calibrations and scenarios</td><td>Annual subscription</td></tr>
+      <tr><td>Receiver makers and buyers</td><td>Independent proof under attack</td><td>Certified scorecards with sealed holdouts</td><td>Per test or product line</td></tr>
+      <tr><td>OEM</td><td>Embed Kshana in a closed product</td><td>Commercial engine licence</td><td>Royalty or flat fee</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="models">
+  <span class="eyebrow">Models</span>
+  <h2>What the engine models</h2>
+  <div class="grid2">
+    <div class="model"><h3>Receivers and trust</h3><p>Receiver logs from NMEA, UBX, SBF, NovAtel, RTCM3, RINEX 2–4, Android and GNSS-SDR; trust scoring, self-reports, sky geometry and DOP; Kshana Connect maps any other log with no code.</p></div>
+    <div class="model"><h3>Interference</h3><p>Jamming with CRPA antennas, terrain shadowing, acquisition hysteresis and front-end quantisation; spoofing and its detection; emitter regions from ADS-B and AIS; the Jammertest referee.</p></div>
+    <div class="model"><h3>Timing</h3><p>Clocks, holdover and Allan statistics; telecom timing masks; measured logs from RINEX clock, TICC, TimeLab, linuxptp, chrony, ntpd and White Rabbit.</p></div>
+    <div class="model"><h3>Signal layer (IQ)</h3><p>Scene synthesis, acquisition, tracking loops, sweeps, front ends, lab fits from IQ, campaigns and live monitoring of growing recordings.</p></div>
+    <div class="model"><h3>LEO PNT and space RF</h3><p>LEO fusion, PPP and navigation messages; in 0.41, geolocation from orbit, revisit and tip-and-cue latency, AIS-validated target maintenance, dark-vessel integrity and jammers seen from orbit.</p></div>
+    <div class="model"><h3>Lunar and deep space</h3><p>Lunar frames and datum, LunaNet service volume, laser ranging, station observability, CR3BP families, Artemis I and CAPSTONE cross-checks against public ephemerides.</p></div>
+    <div class="model"><h3>Integrity and navigation</h3><p>ARAIM reproduction, hybrid integrity, inertial and terrain, gravity and combined alternative PNT, sky and skyline geometry.</p></div>
+    <div class="model"><h3>Evidence</h3><p>401 verification rows with status and oracle; pre-registered bars before data; signed evidence packs; identical bytes on 1 and N cores and across platforms.</p></div>
+  </div>
+</section>
+
+<section id="build">
+  <span class="eyebrow">Improvements</span>
+  <h2>The 0.41 build, phase by phase</h2>
+  <div class="phases">
+    <div class="phase"><span class="n">1</span><div><h3>Foundations</h3><p>Release hardening, stability policy, obs/1 schema, all cores with identical bytes, memory governor, Pro on engine 0.40 with a signed-token release test.</p></div><span class="pill done">Done</span></div>
+    <div class="phase"><span class="n">2</span><div><h3>Pre-registrations</h3><p>34 bars fixed before any data, signed 3 November.</p></div><span class="pill done">Signed</span></div>
+    <div class="phase"><span class="n">3</span><div><h3>Kshana Connect</h3><p>Done: mapping files, conformance kit, ntpd, White Rabbit, RINEX 4. Next: maritime, telecom, grid, aviation and finance feeds, outputs, service API, live ingest.</p></div><span class="pill prog">In progress</span></div>
+    <div class="phase"><span class="n">4</span><div><h3>Sensors and compute</h3><p>Live receivers, SDR, clocks and traffic; sensor plug-ins; benchmarks and sizing.</p></div><span class="pill plan">Planned</span></div>
+    <div class="phase"><span class="n">5</span><div><h3>Monitoring networks</h3><p>Planner, referee, locator, benchmark, area trust, environmental baseline.</p></div><span class="pill plan">Planned</span></div>
+    <div class="phase"><span class="n">6</span><div><h3>Space RF surveillance</h3><p>M1–M9, all shipped before any outreach.</p></div><span class="pill plan">Planned</span></div>
+    <div class="phase"><span class="n">7–8</span><div><h3>Flight dynamics, evidence, partners</h3><p>Re-runs of open NOT MET rows, lunar and Artemis runs, partner kits.</p></div><span class="pill plan">Planned</span></div>
+    <div class="phase"><span class="n">9</span><div><h3>Pro and licensing</h3><p>Edition matrix, licence v2, offline activation and revocation, issuing, payments through Arksa, the assurance ledger and threat library.</p></div><span class="pill plan">Planned</span></div>
+    <div class="phase"><span class="n">10–11</span><div><h3>Domain features, quality and docs</h3><p>Telecom timing, ROI, compliance; coverage gate, translations, security, procurement pack.</p></div><span class="pill plan">Planned</span></div>
+    <div class="phase"><span class="n">12–14</span><div><h3>Apps, signing, release</h3><p>Desktop, Station, installers (Mac first), notarisation and Windows signing, then release. Apps may follow as 0.41.x.</p></div><span class="pill plan">Planned</span></div>
+  </div>
+  <p class="note">Estimate: engine release in about 5–6 weeks; Desktop, Station and signed installers as 0.41.x about 2–3 weeks later.</p>
+</section>
+
+<section id="novelty">
+  <span class="eyebrow">Novelty</span>
+  <h2>Candidate inventions for a patent attorney</h2>
+  <div class="callout">
+    <p><b>Do not share outside Ashforde.</b> Europe requires absolute novelty: anything published, including a shared link, a deck or a post, can become prior art against Ashforde's own filing. Patented methods live only in Kshana Pro and Arksa, never in the AGPL engine.</p>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>#</th><th>Candidate</th><th>Technical effect</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="num">P1</td><td><h3>Verifiable PNT verdict</h3><span class="muted">A signed record binding raw observation bytes, engine build, configuration and verdict; anyone re-executes on any platform and must get the identical verdict, with the differing step located if not.</span></td><td>Reproducible control of an assurance decision across hardware</td><td><span class="pill cf">To search</span></td></tr>
+      <tr><td class="num">P2</td><td><h3>Predictive time to breach</h3><span class="muted">Clock and receiver twins predict each site's holdover budget, recalibrate online from the site's own behaviour with a coverage guarantee, and switch source or alarm before the breach.</span></td><td>Controls the timing source and the alarm</td><td><span class="pill cf">To search</span></td></tr>
+      <tr><td class="num">P3</td><td><h3>Joint self-calibration and localisation</h3><span class="muted">Each receiver's AGC and C/N0 response estimated together with interference source positions, so mixed fleets need no lab calibration.</span></td><td>More accurate physical localisation from existing receivers</td><td><span class="pill cf">To search</span></td></tr>
+      <tr><td class="num">P4</td><td><h3>Cross-layer cueing</h3><span class="muted">A detection in orbit, on the ground or from aircraft and ships re-tasks another layer: capture rate, pass scheduling, search region.</span></td><td>Controls sensor tasking and data capture</td><td><span class="pill cf">To search</span></td></tr>
+      <tr><td class="num">P5</td><td><h3>Threat-aware planning</h3><span class="muted">Routes, satellite operations and holdover schedules optimised against a forecast interference field and each receiver's measured vulnerability.</span></td><td>Controls a route or a spacecraft's operations</td><td><span class="pill cf">To search</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Not candidates: crowdsourced C/N0 and AGC localisation and power-difference localisation already have prior art. Methods in the 34 published pre-registrations are public from 3 November 2026; a US filing on them remains possible until 3 November 2027. From now on, Pro pre-registrations are published as a hash only.</p>
+</section>
+
+<section id="decisions">
+  <span class="eyebrow">Decisions</span>
+  <h2>What is open, and what happens by default</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Item</th><th>Decision</th><th>Default if no answer</th></tr></thead>
+    <tbody>
+      <tr><td>D-K1, D-K2</td><td>Assurance-ledger positioning and the edition matrix</td><td>Adopted 10 November</td></tr>
+      <tr><td>D-K3</td><td>Kshana Pro sold through Arksa's checkout and issuer</td><td>Yes; SKU spec drafted by 17 November</td></tr>
+      <tr><td>D-K4</td><td>Internal licence note, Kshana to Arksa</td><td>Drafted; founder signs</td></tr>
+      <tr><td>D-K5</td><td>Arksa moves from engine 0.29 to 0.41</td><td>At the 0.41 release</td></tr>
+      <tr><td>D-K6, D-K10</td><td>Licence token v2 and one tier manifest for both products</td><td>In Kshana phase 9</td></tr>
+      <tr><td>D-K7</td><td>No Pro method detail in public; engage patent counsel</td><td>In force now; counsel by 30 November</td></tr>
+      <tr><td>D-K8</td><td>What Arksa builds on 0.41, in order</td><td>Engine, Ops PNT pillar, threat-aware planning, operator data, Pro tools</td></tr>
+      <tr><td>Gate 12</td><td>Payment provider, prices, bank account, VAT advice</td><td>Payments stay built and switched off</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Discussion with Arksa's Alpha: VCprep <code>records/ops/ARKSA_KSHANA_DISCUSSION.md</code>, ledger item <code>kshana-11032249-7d74</code>. Full analysis: Kshana Pro <code>docs/strategy/PRO-ARKSA-IP-DEEP-DIVE.md</code>.</p>
+</section>
+
+</main>
+<footer class="wrap">Ashforde OÜ · internal · 3 November 2026. Figures measured from the repositories; patent points need a European patent attorney before anything is filed or published.</footer>
