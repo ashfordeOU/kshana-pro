@@ -5,6 +5,27 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Open engine 0.40.0 (F1a).** The `kshana` pin moves from `=0.34.1` to the published `=0.40.0`
+  (crates.io) with its lockfile, and `rust-version` to the engine's 1.88. One overlay source line:
+  `benefits::oracle_str` names the engine's new `IntegrationRun` oracle kind. What moved, each
+  traced to an engine change:
+  - The broadband jammer Q went from 1 to its textbook 2 in engine 0.36 (effective C/N0 up to
+    3.01 dB higher under broadband jamming, every jamming threshold 3.01 dB higher). In the
+    `campaign-baseline` pack the jamming phase now ends at 30.6 dB-Hz (was 27.7, all 8
+    satellites still tracking), and availability falls below one half at -20 dBW, so that
+    watch's requirement band moves from [-30, -25] to [-25, -20] dBW. `docs/CAMPAIGN-WATCH.md`
+    and the open engine's `docs/CAMPAIGNS.md` carry the new numbers.
+  - The engine's `run_scenario` now appends a `figure_tiers` block that a registry-built pack
+    does not, so `tests/open_engine_reachable.rs` compares the registry path with the engine's
+    untiered run (the Pro dispatcher still matches the full document). Scenario files whose data
+    stays in the engine repository and is not in the published crate (the LOLA crop and the
+    DE440s Moon kernel) fall through to the next file of their kind; all 92 kinds are proven.
+  - The paper reports were regenerated with `emit_paper_artifacts`: five HTML files change only
+    in their engine-version footer (checked by substitution); the frame-EOP figure gains the
+    engine's evidence footer (16 px taller); the cislunar observability table's numerically zero
+    eigenvalue at the rank-2 epoch moves from -6.8e-24 to -1.0e-23, which moves its CSV digest
+    in the report. No other published number moved.
+
 - **Open engine 0.34.1.** The `kshana` pin moves from `=0.34.0` to the published `=0.34.1`
   (crates.io) with its lockfile; no overlay source needed changing. The version-stamped paper
   reports under `papers/` (and `papers/realtime-frame-eop/fig2_frame_eop.svg`) were

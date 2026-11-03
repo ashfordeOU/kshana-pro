@@ -153,8 +153,33 @@ fn every_open_kind_runs_through_pro_and_matches_the_open_engine() {
             ));
             continue;
         };
-        // The first file of the kind (file-name order) is the one proven.
-        let (file, src) = &files[0];
+        // The first file of the kind (file-name order) whose data ships with the engine is the one
+        // proven: a few scenario files name data that stays in the engine repository and is not
+        // in the published crate (an "os error 2" from the open engine), and those fall through
+        // to the next file of the kind. A kind with no runnable file still fails.
+        let mut chosen = None;
+        let mut missing = Vec::new();
+        for (file, src) in files {
+            match kshana::api::run_scenario(src) {
+                Err(e)
+                    if e.to_string().contains("os error 2") && meta.name != "lunar-llr-datum" =>
+                {
+                    missing.push(format!("{file}: {e}"));
+                }
+                _ => {
+                    chosen = Some((file, src));
+                    break;
+                }
+            }
+        }
+        let Some((file, src)) = chosen else {
+            failures.push(format!(
+                "{}: no scenario file of this kind runs on the published engine ({})",
+                meta.name,
+                missing.join("; ")
+            ));
+            continue;
+        };
         // The lunar laser-ranging slice ships with the engine repository but not with the
         // published crate. When the engine comes from crates.io, run the same scenario on
         // the copy of that slice vendored here (tests/fixtures/lunar_llr, from the v0.29.0
@@ -205,7 +230,20 @@ fn every_open_kind_runs_through_pro_and_matches_the_open_engine() {
             ));
             continue;
         }
-        if via_registry.json != open.json {
+        // The registry runs the pack itself; the engine's `run_scenario` then appends the
+        // `figure_tiers` block (engine 0.40). So the registry path is compared with the
+        // engine's untiered run, and the dispatcher above with the full document.
+        let open_untiered = match kshana::api::run_toml_untiered(src) {
+            Ok(o) => o,
+            Err(e) => {
+                failures.push(format!(
+                    "{} ({file}): open engine (untiered) failed: {e}",
+                    meta.name
+                ));
+                continue;
+            }
+        };
+        if via_registry.json != open_untiered.json {
             failures.push(format!(
                 "{} ({file}): the open ∪ Pro registry's result differs from the open engine's",
                 meta.name

@@ -145,7 +145,7 @@ previous phase's last grid value by up to one grid step of drift.
 
 On the bundled mission these read exactly the stand-alone numbers (tested): the spoofing
 phase lasts the spoof run's detection time, 370 s; the jamming phase ends at the mean
-C/N0 of the stand-alone jamming run's satellites at its latest epoch, 27.7 dB-Hz; the
+C/N0 of the stand-alone jamming run's satellites at its latest epoch, 30.6 dB-Hz; the
 time error at the end of holdover is the value the campaign's timeline holds at 3360 s.
 
 A sweep crossing is read along the first axis, at the first value of every other axis,

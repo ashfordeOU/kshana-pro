@@ -310,8 +310,10 @@ fn campaign_figures_equal_the_stand_alone_numbers() {
     assert!((got - mean).abs() < 1e-9, "{got} vs stand-alone {mean}");
     assert_eq!(
         format!("{got:.1}"),
-        "27.7",
-        "docs/CAMPAIGNS.md states 27.7 dB-Hz"
+        // 30.6 since engine 0.36's textbook jammer Q (2 for broadband, was 1), which raised
+        // effective C/N0 under broadband jamming by up to 3.01 dB (27.7 before).
+        "30.6",
+        "docs/CAMPAIGNS.md states 30.6 dB-Hz"
     );
 
     // The time error at the end of holdover is the value the campaign's own timeline

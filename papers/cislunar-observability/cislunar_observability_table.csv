@@ -3,7 +3,7 @@
 # provenance: rank/lambda_min/lambda_max/condition = Validated (finite-difference-validated core, SRIF-cross-checked); the constellation geometry is Modelled
 epoch_index,arc_time,n_rows,rank,lambda_min,lambda_max,condition
 0,0.000000e0,3,0,0.000000e0,0.000000e0,inf
-1,2.608696e-3,6,2,-6.805568e-24,4.531130e-3,1.373718e0
+1,2.608696e-3,6,2,-1.039987e-23,4.531130e-3,1.373718e0
 2,5.217391e-3,9,4,1.127152e-8,9.038080e-3,8.018508e5
 3,7.826087e-3,12,4,4.529413e-8,1.352763e-2,2.986618e5
 4,1.043478e-2,15,4,1.137438e-7,1.800765e-2,1.583177e5

@@ -39,7 +39,7 @@ metric = "campaign.phase.jamming.end.cn0_dbhz"
 direction = "higher"
 tolerance = { abs = 0.1 }
 requirement = "watched >= 25 dB-Hz"
-note = "docs/CAMPAIGNS.md: C/N0 falls to 27.7 dB-Hz against the 25 dB-Hz tracking floor, all 8 satellites still tracking."
+note = "docs/CAMPAIGNS.md: C/N0 falls to 30.6 dB-Hz against the 25 dB-Hz tracking floor, all 8 satellites still tracking (27.7 before engine 0.36 set the broadband jammer Q to its textbook 2)."
 
 [[watch]]
 name = "satellites tracking at the end of the jamming phase"
@@ -106,5 +106,5 @@ metric = "availability"
 crossing = { below = 0.5 }
 direction = "higher"
 tolerance = { abs = 0.0 }
-requirement = "watched >= -30 dBW and watched <= -25 dBW"
-note = "docs/CAMPAIGNS.md: availability falls from 1 to 0 between -30 and -25 dBW."
+requirement = "watched >= -25 dBW and watched <= -20 dBW"
+note = "docs/CAMPAIGNS.md: availability falls from 1 to 0 between -25 and -20 dBW (between -30 and -25 before engine 0.36 set the broadband jammer Q to its textbook 2, which raises every jamming threshold by 3.01 dB)."
