@@ -616,7 +616,7 @@ fn a_design_whose_planes_do_not_divide_its_total_is_never_run() {
     assert_eq!(v["space"]["grid_size"], 1152);
     for e in v["evaluated"].as_array().unwrap() {
         let k = key_of(&e["variables"]);
-        assert!(k.0 % k.1 == 0 && k.2 < k.1, "{k:?} was run");
+        assert!(k.0.is_multiple_of(k.1) && k.2 < k.1, "{k:?} was run");
     }
     // Engine runs: one per feasible design plus the reference, and nothing else.
     assert_eq!(v["reproducibility"]["engine_runs"], 609);

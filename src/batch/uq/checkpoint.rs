@@ -369,7 +369,7 @@ mod tests {
             index,
             // Values with no short decimal form: they must read back bit for bit.
             inputs: vec![0.1 + 0.2, 1.0 / 3.0 * index as f64],
-            seed: (index % 2 == 0).then_some(42 + index as u64),
+            seed: index.is_multiple_of(2).then_some(42 + index as u64),
             scalars: vec![Some(92.124_475_034_844_01), None],
             series: vec![Some(vec![1.5e-20, f64::NAN, -3.0]), None],
             result_sha256: Some("00ff".into()),

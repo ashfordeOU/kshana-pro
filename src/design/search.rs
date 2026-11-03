@@ -414,7 +414,7 @@ mod tests {
     #[test]
     fn a_budget_that_covers_the_space_runs_every_feasible_design_once() {
         let (levels, ordered) = toy();
-        let feasible = |d: &[usize]| (d[0] + d[1]) % 2 == 0;
+        let feasible = |d: &[usize]| (d[0] + d[1]).is_multiple_of(2);
         let mut all = Vec::new();
         for a in 0..6 {
             for b in 0..6 {

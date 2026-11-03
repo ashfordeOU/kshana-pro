@@ -598,7 +598,7 @@ impl Space {
             };
             let total = num(w.total) as u64;
             let planes = num(w.planes) as u64;
-            if planes == 0 || total == 0 || total % planes != 0 {
+            if planes == 0 || total == 0 || !total.is_multiple_of(planes) {
                 return false;
             }
             match w.phasing {
