@@ -177,3 +177,15 @@ Open-engine pre-registrations stay public as today.
 3. Sign the internal licence note (Kshana to Arksa, commercial edition).
 4. Engage patent counsel; hash-only pre-registration for Pro methods from today.
 5. Whether Arksa will become a separate company, so assignment is planned rather than rushed.
+
+## Addendum, 3 November 2026: decisions with Arksa's Alpha (round 2)
+
+These supersede the sections above where they differ (VCprep `records/ops/ARKSA_KSHANA_DISCUSSION.md`, D-K11 to D-K14).
+
+- **Three layers.** Open (AGPL), Pro (sold, runs on customer machines), Core (Kshana + Arksa only, never shipped, never unlocked by a token).
+- **Placement.** P1 verifiable verdict and P2 predictive time to breach stay in Core until filed, then ship in Pro. P3 joint self-calibration, P4 cross-layer cueing and P5 threat-aware planning stay in Core as trade secrets.
+- **kshana-core.** Private repository owned by the Kshana seat. It is reached as an authenticated service by Arksa's server and Ashforde's hosted service. It is never linked into the Pro build (CI check), never compiled to WebAssembly, the desktop sidecar or the CLI, and never written by Arksa teams.
+- **Sovereign.** By default through an Ashforde-hosted endpoint. On-premises Core only under a founder-approved contract: confidentiality, no reverse engineering, audit rights, a signed server image only, no source.
+- **Model register.** Generated from the verification matrix into `register_slice.json`; Core entries appear by id and SHA-256 only. First 20 entries by 10 November.
+- **One physics source.** A pre-registered head-to-head decides it. Order: ionosphere, then clock and holdover, then troposphere, then receiver and interference propagation.
+- **Wording.** "Own the market" is an internal goal. Public copy compares on facts, with no "certified".
