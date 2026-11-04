@@ -64,3 +64,59 @@ Q4 2027. One builder seat sets the pace; the dates move if the seat count change
 - Data and models with unclear licences go into the register flagged, and are replaced by native models.
 - Never "certified"; never "dominate" in public; no defence positioning (civil and commercial first).
 - No method in open Kshana or Pro without a layer check (D-K11): a method is Core until counsel decides.
+
+## 5. Work breakdown (founder, 4 Nov 2026: "plan it all and achieve it all")
+
+Each item gets a pre-registration (bars before data), code, an oracle test, a matrix row and a register
+entry. Release slots are proposed. Items marked "→ 0.41" are folded into the current release where they
+fit a 0.41 phase, so research starts now and not only after December.
+
+| ID | Item | Oracle (external) | Slot |
+|---|---|---|---|
+| R1.1 | RTCM3 SSR messages (orbit, clock, code and phase bias, URA) decoded into obs/1 corrections | Published SSR stream samples decoded by an independent open decoder | → 0.41 (A2b) |
+| R1.2 | Galileo HAS message decoding and corrections | HAS ICD example vectors; independent decoder output | 0.42 |
+| R1.3 | Observable-specific biases (Bias-SINEX) applied in PPP | IGS/CODE OSB products; station coordinates at IGS weekly solution | 0.42 |
+| R1.4 | Ocean and solid-Earth loading (BLQ) in PPP | Published loading-service displacements for IGS stations | 0.42 |
+| R1.5 | PPP with integer ambiguity resolution | IGS weekly coordinates, pre-registered cm bars, time to fix | 0.42 |
+| R1.6 | PPP-RTK with QZSS CLAS | Published CLAS test data and reference positions | 0.43 |
+| R2.1 | SBAS L1 message decoding and protection levels | Published SBAS message archives and the providers' PL reports | 0.42 |
+| R2.2 | SBAS DFMC (L1/L5) | Published DFMC test messages | 0.43 |
+| R2.3 | GBAS approach service protection levels | Published GBAS performance results | 0.43 |
+| R2.4 | RNP containment and PBN alerting | Published RNP specifications, worked examples | 0.43 |
+| R2.5 | Rail and automotive integrity frameworks | Published integrity-risk allocations | 0.44 |
+| R3.1 | Ionosphere head-to-head with Arksa (one physics source, D-K13) | Pre-registered shared cases, GIM truth | → 0.41 (pre-registration) |
+| R3.2 | NeQuick-G complete | Published reference-implementation test vectors | 0.42 |
+| R3.3 | Native ionosphere model | GIMs and held-out station TEC | 0.42–0.43 |
+| R3.4 | GPT3/VMF3-class troposphere | Published grid outputs; IGS zenith delay products | 0.42 |
+| R3.5 | Native troposphere model | IGS zenith delay, held-out stations | 0.43 |
+| R3.6 | Real-time TEC from Station fleets | GIMs; held-out stations | 0.43 (Pro) |
+| R3.7 | Scintillation now-casting | Measured S4 and σφ records, held-out | 0.43 |
+| R4.1 | Vector tracking and deep coupling at the IQ layer | Independent baseband generator; tracking-loss thresholds vs published | 0.43 |
+| R4.2 | Multipath and NLOS models, 3D-mapping-aided GNSS | Open urban datasets (licence first) | 0.43 |
+| R4.3 | Signal quality monitoring metrics | Published SQM thresholds and evil-waveform cases | 0.42 |
+| R4.4 | CRPA beamforming and null steering | Published array results | 0.43 |
+| R5.1 | Spoofing and meaconing detection on every usable public dataset | Dataset ground truth, pre-registered ROC bars | 0.42 |
+| R5.2 | Interference propagation over terrain and to aircraft | Published propagation-model reference values | 0.42 |
+| R5.3 | Chimera-style authentication (when published) | Specification vectors | Later |
+| R6.1 | Common-view time transfer (CGGTTS) | Published CGGTTS files (format checksum) and BIPM results | → 0.41 (A2b) |
+| R6.2 | PPP time transfer | Published time-link results | 0.42 |
+| R6.3 | PTP, NTP and White Rabbit validated | Published logs with independent reference | 0.42 |
+| R6.4 | Ensemble time scale | Published algorithm examples | 0.43 |
+| R7.1 | eLoran (with additional secondary factors) | Published eLoran accuracy trials | 0.43 |
+| R7.2 | R-Mode validated | Published R-Mode testbed results | 0.43 |
+| R7.3 | DME/DME positioning | Published DME/DME performance | 0.43 |
+| R7.4 | LEO signals of opportunity (Doppler positioning) | Published Doppler positioning results | 0.42 |
+| R7.5 | 5G positioning reference signals | Published 3GPP evaluation results | 0.43 |
+| R7.6 | Indoor UWB, BLE and Wi-Fi RTT | Open indoor datasets (licence first) | 0.44 |
+| R7.7 | Magnetic-anomaly navigation | Open flight datasets (licence first) | 0.44 |
+| R7.8 | Vision and lidar odometry | Open datasets with commercial-use licences only | 0.44 |
+| R8.1 | Factor-graph smoother | Independent solver on the same problems | 0.43 |
+| R8.2 | Multi-sensor integrity | Published multi-sensor PL results | 0.44 |
+| R9.x | Space and lunar re-runs and measured data | As in 0.41 C/D rows | 0.41–0.43 |
+| R10.x | Sector packs (one per sector) | Each sector's published standard | 0.41 onwards |
+| R11.x | Open benchmark, sealed holdouts, blind challenges | Holdout scorers | Ongoing |
+| R12.x | Core research P1–P5 | Private pre-registrations (hash-only) | 0.42 onwards (needs kshana-core) |
+
+Execution order: 0.41 phases stay the spine. R1.1, R6.1 and R3.1 start now inside Phase 3.
+After 0.41 the order is D-K13 first (R3 → R6 holdover → R3.4/R3.5 → R4/R5), then R1, R2, R7 and R8 by Arksa's priority (asked of Alpha).
+A row is VALIDATED only with its oracle. Anything whose oracle data has an unclear licence waits as NOT ASSESSABLE.
