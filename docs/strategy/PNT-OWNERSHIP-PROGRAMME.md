@@ -159,3 +159,9 @@ programme runs on Kshana's own capacity.
 
 Revised order after 0.41: R3.1 freeze and neutral scorer → R6 holdover and the time-scale source → R9 → R5 →
 R3.3/R3.4 → R1 → R8. R2, R4, R7 and R10 run alongside, as standalone market items.
+
+**R3.1 frozen:** VCprep `records/ops/kshana/R3_1_IONO_HEAD_TO_HEAD_FROZEN.md` at commit 180dad6 (4 Nov 2026).
+- 8 blind 2025 windows chosen by rule from GFZ Kp.
+- 62 truth files hashed: 8 CODE GIMs, 8 COSMIC-2 days and 46 station, broadcast and bias files.
+- Two inputs were missing at freeze and are not scored.
+- Next: the neutral scorer, `tools/iono_h2h/score.py` in VCprep.
