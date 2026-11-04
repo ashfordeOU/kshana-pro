@@ -120,3 +120,42 @@ fit a 0.41 phase, so research starts now and not only after December.
 Execution order: 0.41 phases stay the spine. R1.1, R6.1 and R3.1 start now inside Phase 3.
 After 0.41 the order is D-K13 first (R3 → R6 holdover → R3.4/R3.5 → R4/R5), then R1, R2, R7 and R8 by Arksa's priority (asked of Alpha).
 A row is VALIDATED only with its oracle. Anything whose oracle data has an unclear licence waits as NOT ASSESSABLE.
+
+## 6. Alpha's decisions (4 Nov 2026; VCprep ledger alpha-11040001-8cbf, alpha-11040328-3a75)
+
+**Programme approved as written, after 0.41, with the D-K13 order first.**
+
+One-source head-to-heads beyond the ionosphere (D-K13 rule):
+
+| Track | Overlap with Arksa | Rule |
+|---|---|---|
+| R3 troposphere | Arksa's link budgets (tropospheric and rain attenuation) | One troposphere source. The PNT delay and the link attenuation may differ, but they share meteorology inputs |
+| R6 time scales | Arksa's TT/TAI/UTC/GPST conversions and leap seconds | Exactly one source for time-scale conversion and leap-second tables across both products |
+| R9 space and lunar | Arksa's OD and deep-space ranging | Kshana owns the receiver and PNT side; Arksa owns flight dynamics and OD. Interface: measurements in, states out |
+| R5 interference | Arksa's RF interference (C/I, EPFD) | Shared emitter and propagation models |
+| R8 fusion | Arksa's OD estimators | Shared estimator core where the maths is the same |
+
+Arksa Ops priorities: R9 > R5 > R6 > R3 > R1 > R8. R2, R4, R7 and R10 serve Kshana's standalone markets and
+carry no Arksa priority.
+
+Layers:
+- R12 stays Core.
+- Real-time TEC from Arksa fleets (R3.6) is Core, because it needs Arksa's fleet data.
+- Multi-sensor integrity (R8.2) is Pro after filing, if it is novel.
+- The R7 frontier items (quantum sensors, MagNav) are research only, with no public claims until validated.
+
+Honesty: the targets in §3 stay internal plans; public numbers are only those achieved, with a date. The
+programme runs on Kshana's own capacity.
+
+**R3.1 ionosphere head-to-head: rules agreed, with four additions.**
+1. Frozen in VCprep before either side runs: the windows rule, seed, truth-file SHA-256s and metrics. The sha
+   is recorded in both repositories.
+2. Each product runs its own model, and one neutral, deterministic scoring script in VCprep `tools/` scores
+   both outputs in one schema.
+3. The CODE GIM (AIUB) and COSMIC-2 (UCAR) terms are recorded per D-DATA-1. If either is unclear, it is dropped
+   before the run, and the record says so.
+4. If Arksa's model wins, Kshana gets it only as a Core service call (it is a patent candidate) until counsel
+   decides. If Kshana's wins, Arksa calls it through the pinned engine.
+
+Revised order after 0.41: R3.1 freeze and neutral scorer → R6 holdover and the time-scale source → R9 → R5 →
+R3.3/R3.4 → R1 → R8. R2, R4, R7 and R10 run alongside, as standalone market items.
