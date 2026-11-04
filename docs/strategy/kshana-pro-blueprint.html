@@ -86,7 +86,7 @@ footer{padding-block:24px 48px;border-top:1px solid var(--line);font-size:13px;c
 </header>
 
 <nav class="bar" aria-label="Sections"><div class="wrap">
-  <a href="#scale">Scale</a><a href="#fit">Arksa fit</a><a href="#strategy">Dominance plan</a><a href="#plans">Plans</a><a href="#editions">Layers</a><a href="#pro">Pro</a><a href="#models">Models</a><a href="#register">Register</a><a href="#build">0.41 build</a><a href="#novelty">Novelty</a><a href="#decisions">Decisions</a>
+  <a href="#scale">Scale</a><a href="#fit">Arksa fit</a><a href="#strategy">Dominance plan</a><a href="#plans">Plans</a><a href="#editions">Layers</a><a href="#pro">Pro</a><a href="#models">Models</a><a href="#register">Register</a><a href="#research">Research</a><a href="#build">0.41 build</a><a href="#novelty">Novelty</a><a href="#decisions">Decisions</a>
 </div></nav>
 
 <main class="wrap">
@@ -228,6 +228,44 @@ footer{padding-block:24px 48px;border-top:1px solid var(--line);font-size:13px;c
     <div class="phase"><span class="n">4</span><div><h3>Receiver and interference propagation</h3><p>The register audit may reorder this list where a licence is unclean.</p></div><span class="pill plan">Planned</span></div>
   </div>
   <p class="note">Third-party models and data in use today enter the register with their licence; unclean ones are flagged for a native replacement. Core models are pre-registered privately, with a hash-only public commitment.</p>
+</section>
+
+<section id="research">
+  <span class="eyebrow">Research programme · internal</span>
+  <h2>More physics, more research: cover every part of navigation and PNT</h2>
+  <p class="thesis">Twelve research tracks take Kshana from broad to complete. Every new model is pre-registered, scored against an external reference and entered in the model register. Misses are published.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Area</th><th>Today</th><th>Gap to close</th><th>Track</th></tr></thead>
+    <tbody>
+      <tr><td>Timing and clocks</td><td><span class="pill done">Strong</span></td><td>Time transfer, PTP/NTP/White Rabbit validation, time-scale ensembles</td><td>R6</td></tr>
+      <tr><td>Orbits, frames, Earth orientation, gravity</td><td><span class="pill done">Strong</span></td><td>GNSS precise orbit and clock determination</td><td>R1</td></tr>
+      <tr><td>Lunar, cislunar, deep space</td><td><span class="pill done">Strong</span></td><td>Measured-data validation</td><td>R9</td></tr>
+      <tr><td>Interference and receiver trust</td><td><span class="pill prog">Partial</span></td><td>Spoofing on public datasets, signal quality monitoring, CRPA</td><td>R4, R5</td></tr>
+      <tr><td>Ionosphere</td><td><span class="pill prog">Partial</span></td><td>Native 3D model, full NeQuick-G, real-time TEC from Stations</td><td>R3</td></tr>
+      <tr><td>Troposphere</td><td><span class="pill prog">Partial</span></td><td>VMF3/GPT3-class mapping, native model</td><td>R3</td></tr>
+      <tr><td>Precise positioning</td><td><span class="pill prog">Partial</span></td><td>PPP-AR, PPP-RTK, SSR (RTCM, Galileo HAS, QZSS), biases, phase centres</td><td>R1</td></tr>
+      <tr><td>Augmentation and integrity</td><td><span class="pill prog">Partial</span></td><td>GBAS, SBAS DFMC, RNP/PBN, rail and automotive integrity</td><td>R2</td></tr>
+      <tr><td>Receiver signal processing</td><td><span class="pill prog">Partial</span></td><td>Vector tracking, deep coupling, multipath, NLOS, 3D-mapping-aided GNSS</td><td>R4</td></tr>
+      <tr><td>Sensor fusion</td><td><span class="pill prog">Partial</span></td><td>Factor-graph smoother, multi-sensor integrity</td><td>R8</td></tr>
+      <tr><td>Alternative PNT</td><td><span class="pill prog">Partial</span></td><td>eLoran, R-Mode validation, vision and lidar, indoor UWB/BLE/Wi-Fi</td><td>R7</td></tr>
+      <tr><td>Sectors</td><td><span class="pill prog">Partial</span></td><td>Aviation, maritime, rail, automotive, UAV, surveying, agriculture, timing packs</td><td>R10</td></tr>
+    </tbody>
+  </table></div>
+  <div class="grid2">
+    <div class="model"><h3>R1–R3 · Positioning, integrity, atmosphere</h3><p>PPP-AR and PPP-RTK with SSR streams; SBAS, GBAS and aviation integrity; native ionosphere and troposphere, space weather and real-time TEC from Station fleets.</p></div>
+    <div class="model"><h3>R4–R5 · Receivers and interference</h3><p>Vector tracking, multipath, NLOS and 3D-mapping-aided GNSS, signal quality monitoring and CRPA. Spoofing validated on every usable public dataset, authentication, and interference propagation over terrain and to aircraft.</p></div>
+    <div class="model"><h3>R6–R8 · Timing, alternative PNT, fusion</h3><p>Time transfer and ensemble time scales; eLoran, R-Mode, DME, LEO signals of opportunity, 5G, indoor, magnetic and gravity, vision and lidar, quantum; a factor-graph smoother with multi-sensor integrity.</p></div>
+    <div class="model"><h3>R9–R12 · Space, sectors, evidence, Core</h3><p>GNSS from GEO to cislunar on measured data, lunar and deep space; ten sector packs; open benchmarks with sealed holdouts and blind challenges; Core research (P1–P5, fleet learning, threat forecasting) kept as trade secret.</p></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Target (proposed)</th><th>Today</th><th>0.42 (Q1 2027)</th><th>0.43 (Q2 2027)</th><th>1.0 (Q4 2027)</th></tr></thead>
+    <tbody>
+      <tr><td>Verification rows</td><td class="num">401</td><td class="num">460</td><td class="num">520</td><td class="num">600+</td></tr>
+      <tr><td>Validated against an external oracle</td><td class="num">176</td><td class="num">220</td><td class="num">270</td><td class="num">350+</td></tr>
+      <tr><td>Areas with no rows yet (GBAS, eLoran, vector tracking, factor graph, indoor)</td><td class="num">5</td><td class="num">3</td><td class="num">0</td><td class="num">0</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">First-pass audit from the verification matrix, 3 November 2026; the model-register audit refines it. Targets are proposals, not results, and the dates assume one builder seat. The ionosphere → clocks → troposphere → receivers order agreed with Alpha comes first. Full plan: Kshana Pro <code>docs/strategy/PNT-OWNERSHIP-PROGRAMME.md</code>.</p>
 </section>
 
 <section id="build">
