@@ -49,3 +49,4 @@ Cargo.lock.orig
 *.sigmf-meta
 **/cells/*.json
 !tests/fixtures/lab_campaign_synthetic/**
+__pycache__/

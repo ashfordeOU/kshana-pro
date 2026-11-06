@@ -169,7 +169,7 @@ fn both_clients_drive_a_running_server() {
         );
         std::fs::write(&script, shim).unwrap();
         let out = Command::new("python3")
-            .arg("-I")
+            .args(["-I", "-B"])
             .arg(&script)
             .arg(format!("http://{}", srv.local_addr()))
             .args([&key, &viewer])
