@@ -35,7 +35,8 @@ fn param_doc(name: &str) -> Value {
     json!({"name": name, "in": "path", "required": true, "description": desc, "schema": schema})
 }
 
-fn operation_id(method: &str, template: &str) -> String {
+/// The OpenAPI operationId of a route (`GET /jobs/{id}` → `get_jobs_id`).
+pub fn operation_id(method: &str, template: &str) -> String {
     let mut s = method.to_ascii_lowercase();
     for seg in template.split('/').filter(|s| !s.is_empty()) {
         let seg = seg.trim_start_matches('{').trim_end_matches('}');

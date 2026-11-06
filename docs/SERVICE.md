@@ -409,3 +409,24 @@ removed line. Day files older than `--audit-retention-days` (default 400) are de
 deletion is logged. If the log cannot be written, the request is answered 503 rather than served
 unrecorded.
 
+## Clients
+
+`clients/python/kshana_pro_client.py` (Python 3.9+, standard library only) and
+`clients/typescript/kshana_pro_client.ts` (anything with `fetch`: Node 18+, Deno, browsers) are generated
+from the route table by `kshana-pro clients --out clients`, so every route has a method. Method names
+are the OpenAPI operation ids: `post_jobs`, `get_jobs_id_result` in Python, and `postJobs`,
+`getJobsIdResult` in TypeScript. Both send the API key or OIDC token as a bearer credential, raise
+`KshanaProError` (status and decoded body) on anything other than 2xx, and add `wait_job` / `waitJob`.
+
+```python
+from kshana_pro_client import KshanaProClient
+c = KshanaProClient("http://127.0.0.1:8088", token=os.environ["KSHANA_PRO_KEY"])
+job = c.post_jobs({"op": "run", "request": {"scenario": open("scenario.toml").read()}})
+c.wait_job(job["job_id"])
+result = c.get_jobs_id_result(job["job_id"])
+```
+
+`tests/service_clients.rs` checks that the committed clients are what the generator makes today, and
+drives both against a running server. Each one submits a job, waits for it, reads the result and an
+artefact, and gets 403 for a reader's submission and 401 without a key.
+

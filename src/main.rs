@@ -26,6 +26,7 @@ fn usage() -> &'static str {
        kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
        kshana-pro serve [--addr <host:port>] [--data-dir <dir>] [--workers <n>] [--api-token-file <path>] [--keys-file <keys.toml>] [--oidc <oidc.toml>] [--audit-retention-days <n>] [--license <token>] [--dev]   Host the HTTP service; --data-dir adds the on-premises job service (jobs, ledger, job board, audit log)\n\
+       kshana-pro clients --out <dir>                                Write the generated service clients: <dir>/python/kshana_pro_client.py and <dir>/typescript/kshana_pro_client.ts\n\
        kshana-pro keys <add --file <keys.toml> --id <id> --tenant <t> --role <reader|submitter|admin> | revoke --file <keys.toml> --id <id> | list --file <keys.toml>>   Manage the service's API keys (a new key is printed once; the file keeps only its hash)\n\
        kshana-pro ci --pack <manifest.toml> [--baseline <ci.json>] [--thresholds <spec>] [--utc <iso>] [--customer <name>] [--out <report.html>] [--json <ci.json>] [--history <history.jsonl>] [--trend <trend.html>] [--exact] [--license <token>] [--dev]   Run a Pack C scenario-subscription CI, with campaign watch (Pro)\n\
        kshana-pro ci history verify <history.jsonl>                  Verify a campaign-watch history chain (Pro)\n\
@@ -176,6 +177,7 @@ fn main() -> ExitCode {
         },
         Some("serve") => serve_cmd(&args),
         Some("keys") => keys_cmd(&args),
+        Some("clients") => clients_cmd(&args),
         // Pack C scenario-subscription CI: run a versioned scenario pack, score it,
         // optionally gate it against a stored baseline, and emit a branded report
         // (Pro-tier entitlement; --dev bypasses enforcement for local use).
@@ -206,6 +208,37 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
     }
+}
+
+/// `kshana-pro clients --out <dir>`: write the Python and TypeScript service clients, generated
+/// from the route table (`kshana_pro::serve::clients`).
+fn clients_cmd(args: &[String]) -> ExitCode {
+    let Some(out) = flag(args, "--out") else {
+        eprintln!("usage: kshana-pro clients --out <dir>");
+        return ExitCode::from(2);
+    };
+    let out = std::path::Path::new(&out);
+    for (sub, file, text) in [
+        (
+            "python",
+            "kshana_pro_client.py",
+            kshana_pro::serve::clients::python(),
+        ),
+        (
+            "typescript",
+            "kshana_pro_client.ts",
+            kshana_pro::serve::clients::typescript(),
+        ),
+    ] {
+        let dir = out.join(sub);
+        if let Err(e) =
+            std::fs::create_dir_all(&dir).and_then(|()| std::fs::write(dir.join(file), text))
+        {
+            eprintln!("error: {}: {e}", dir.display());
+            return ExitCode::FAILURE;
+        }
+    }
+    ExitCode::SUCCESS
 }
 
 /// `kshana-pro keys add|revoke|list --file <keys.toml> ...`: manage the service's API keys.
