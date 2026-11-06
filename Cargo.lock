@@ -261,6 +261,7 @@ dependencies = [
  "hybrid-array",
  "num-traits",
  "rand_core 0.10.1",
+ "serdect",
  "subtle",
  "zeroize",
 ]
@@ -786,10 +787,12 @@ dependencies = [
 name = "kshana-pro"
 version = "0.2.0"
 dependencies = [
+ "crypto-bigint",
  "ed25519-dalek",
  "hex",
  "kshana",
  "lopdf",
+ "p256",
  "printpdf",
  "rand 0.8.6",
  "rand_chacha 0.3.1",
@@ -1330,6 +1333,16 @@ version = "0.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf41e0cfaf7226dca15e8197172c295a782857fcb97fad1808a166870dee75a3"
 dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "serdect"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "66cf8fedced2fcf12406bcb34223dffb92eaf34908ede12fed414c82b7f00b3e"
+dependencies = [
+ "base16ct",
  "serde",
 ]
 

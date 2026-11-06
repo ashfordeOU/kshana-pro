@@ -351,9 +351,10 @@ times, the attempts and links to the result and the artefacts.
   keep-alive and no streaming. A client polls `GET /jobs/<id>`.
 - **One entitlement for the whole process.** Every caller is served at the tier of the
   process's licence; there is no per-user tier.
-- **A bearer token is not user management.** It is one shared secret for every caller,
-  with no users, roles, expiry or audit of who called. Put per-user authentication in
-  the site's own gateway.
+- **Keys and tokens, not a user directory.** Callers are named API keys (`--keys-file`) or
+  OIDC tokens from the site's identity provider (`--oidc`), each with a role and a tenant;
+  see "Access control and audit" below. The single `--api-token-file` token still works
+  and acts as an admin key. Users, groups and expiry live in the identity provider.
 - **No transport encryption inside the binary.** The server speaks plain HTTP. Put it
   behind the site's own reverse proxy for TLS. A browser cannot add the bearer header to
   a page load, so the job board needs the proxy to add it when a token is set.
@@ -365,3 +366,46 @@ times, the attempts and links to the result and the artefacts.
   for it. There is no priority between queued jobs: first in, first out.
 - **No retention.** Jobs are kept until an operator deletes their directories; deleting
   a delivered job's directory makes `GET /ledger/verify` report it as a mismatch.
+
+## Access control and audit
+
+Design: `docs/design/A9-INTEGRATION-SECURITY.md`.
+
+| Role | May call |
+|---|---|
+| `reader` | every GET route: version, kinds, OpenAPI, the job board, job lists, status, results, artefacts |
+| `submitter` | also `POST /run`, `POST /study`, `POST /jobs` |
+| `admin` | also `/ledger`, `/ledger/verify` and `/audit/verify`, but only with tenant `*` (or `default`): these span every tenant |
+
+**API keys.** `kshana-pro keys add --file keys.toml --id site-a-ingest --tenant site-a --role submitter`
+prints a new key once. The file keeps only its SHA-256. `keys revoke` and `keys list` manage the file;
+the server reads it at start (`--keys-file keys.toml`). A key of tenant `*` must be an admin; it sees
+every tenant's jobs.
+
+**OIDC.** `--oidc oidc.toml` accepts JWTs from the site's identity provider, verified offline against
+a JWKS file next to the config (replace the file to rotate keys; it is re-read when it changes):
+
+```toml
+issuer = "https://idp.example/realms/ops"
+audience = "kshana-pro"
+jwks_file = "jwks.json"
+role_claim = "kshana_role"     # "reader" | "submitter" | "admin", or an array (the highest wins)
+tenant_claim = "kshana_tenant"
+# id_claim = "sub"; leeway_s = 60
+```
+
+ES256 and RS256 (a modulus of 2048 bits or more) are accepted; `none` and the HMAC algorithms are
+refused. A token without the role or tenant claim is refused, and an OIDC token never gets tenant `*`.
+
+**Tenants.** A job belongs to the tenant that submitted it. Another tenant's job answers 404 on every
+route, exactly as a job that does not exist, and never appears in a list or on the board. The same
+request from two tenants makes two jobs. Jobs stored before tenants existed belong to `default`.
+
+**Audit log.** With a data directory, every request except `GET /health` adds one line to
+`<data-dir>/audit/YYYY-MM-DD.jsonl` (UTC): time, caller id, tenant, role, source, method, route template,
+job id, status and duration. A key, a token, a body, a query string or a client address is never written.
+Each line holds the SHA-256 of the line before, so `GET /audit/verify` names the first edited or
+removed line. Day files older than `--audit-retention-days` (default 400) are deleted at start, and each
+deletion is logged. If the log cannot be written, the request is answered 503 rather than served
+unrecorded.
+

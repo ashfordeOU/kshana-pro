@@ -33,8 +33,11 @@
 //! loop.
 
 pub mod api;
+pub mod audit;
+pub mod auth;
 pub mod delivery;
 pub mod jobs;
+pub mod oidc;
 pub mod openapi;
 pub mod ops;
 pub mod study_intake;
@@ -400,6 +403,12 @@ pub struct ServeConfig {
     /// When set, every route except `/health` needs `Authorization: Bearer <token>`.
     /// Only its SHA-256 is kept once the server starts.
     pub api_token: Option<String>,
+    /// Named API keys (`--keys-file`, roadmap A9).
+    pub keys: Option<auth::KeysFile>,
+    /// OIDC bearer tokens, verified offline (`--oidc <oidc.toml>`).
+    pub oidc: Option<PathBuf>,
+    /// Days of audit log kept (whole day files; default 400). Only with a data directory.
+    pub audit_retention_days: u32,
     /// Re-queue jobs left queued or running by an earlier process (default true). A
     /// test switches it off to prove that recovery is what finishes those jobs.
     #[doc(hidden)]
@@ -415,6 +424,9 @@ impl ServeConfig {
             data_dir: None,
             workers: 1,
             api_token: None,
+            keys: None,
+            oidc: None,
+            audit_retention_days: 400,
             recover_on_start: true,
         }
     }
@@ -499,10 +511,23 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
         }
         None => (None, None, 0),
     };
-    let service = Arc::new(api::Service::new(
+    let mut authn = auth::Authenticator::new(config.api_token.as_deref(), config.keys.as_ref());
+    if let Some(p) = &config.oidc {
+        authn = authn.with_oidc(oidc::Verifier::from_file(p).map_err(std::io::Error::other)?);
+    }
+    let audit = match &config.data_dir {
+        Some(dir) => {
+            let log = audit::AuditLog::open(dir)?;
+            log.prune(config.audit_retention_days, now_unix())?;
+            Some(log)
+        }
+        None => None,
+    };
+    let service = Arc::new(api::Service::with_auth(
         config.entitlement.clone(),
         jobs,
-        config.api_token.as_deref(),
+        authn,
+        audit,
     ));
 
     eprintln!(
@@ -523,7 +548,30 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
         );
     }
     if service.has_token() {
-        eprintln!("access token: required on every route except /health");
+        let mut how = Vec::new();
+        if config.api_token.is_some() {
+            how.push("the access token".to_string());
+        }
+        if let Some(k) = &config.keys {
+            how.push(format!(
+                "{} API key(s)",
+                k.keys.iter().filter(|k| !k.revoked).count()
+            ));
+        }
+        if config.oidc.is_some() {
+            how.push("OIDC tokens".to_string());
+        }
+        eprintln!(
+            "credentials: {} required on every route except /health",
+            how.join(", ")
+        );
+    }
+    if let Some(log) = service.audit() {
+        eprintln!(
+            "audit log: {} ({} days kept)",
+            log.dir().display(),
+            config.audit_retention_days
+        );
     }
 
     let stop = Arc::new(AtomicBool::new(false));

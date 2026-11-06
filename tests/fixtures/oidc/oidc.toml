@@ -1,0 +1,5 @@
+issuer = "https://idp.example/realms/ops"
+audience = "kshana-pro"
+jwks_file = "jwks.json"
+role_claim = "kshana_role"
+tenant_claim = "kshana_tenant"

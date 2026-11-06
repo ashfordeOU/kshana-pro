@@ -763,7 +763,10 @@ fn the_access_token_guards_every_route_but_health_and_never_leaks() {
 
     drop(child); // kills the server and reaps it, so its stderr reaches end of file
     log.push_str(&reader.join().unwrap());
-    assert!(log.contains("access token: required"), "{log}");
+    assert!(
+        log.contains("credentials: the access token required"),
+        "{log}"
+    );
     assert!(
         log.contains("succeeded"),
         "the job log line is captured: {log}"

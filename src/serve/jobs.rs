@@ -83,6 +83,10 @@ pub struct ArtefactEntry {
 pub struct JobStatus {
     pub job_id: String,
     pub op: String,
+    /// The tenant that submitted it (roadmap A9). Jobs stored before tenants existed read
+    /// as the default tenant.
+    #[serde(default = "default_tenant")]
+    pub tenant: String,
     /// The scenario kind, when the operation runs one scenario (`run`, `dossier`).
     #[serde(default)]
     pub kind: Option<String>,
@@ -117,6 +121,10 @@ pub struct JobStatus {
     /// statement), copied verbatim when the result carries one.
     #[serde(default)]
     pub label: Option<String>,
+}
+
+fn default_tenant() -> String {
+    super::auth::DEFAULT_TENANT.to_string()
 }
 
 /// The engine's evidence tier at the start of a result label (`VALIDATED`, `MODELLED`
@@ -207,9 +215,21 @@ pub fn canonical_json(v: &serde_json::Value) -> String {
 /// The job identifier: SHA-256 over a fixed prefix, the operation name and the
 /// canonical request, as 64 lower-case hexadecimal characters.
 pub fn job_id(op: &str, request: &serde_json::Value) -> String {
+    tenant_job_id(super::auth::DEFAULT_TENANT, op, request)
+}
+
+/// The job identifier within a tenant. The default tenant's identifiers are the ones jobs
+/// had before tenants existed; any other tenant's name is hashed in as well, so two
+/// tenants submitting the same request get two jobs.
+pub fn tenant_job_id(tenant: &str, op: &str, request: &serde_json::Value) -> String {
     let mut h = Sha256::new();
     h.update(JOB_ID_DOMAIN.as_bytes());
     h.update(b"\n");
+    if tenant != super::auth::DEFAULT_TENANT {
+        h.update(b"tenant:");
+        h.update(tenant.as_bytes());
+        h.update(b"\n");
+    }
     h.update(op.as_bytes());
     h.update(b"\n");
     h.update(canonical_json(request).as_bytes());
@@ -296,7 +316,18 @@ impl JobStore {
         request: &serde_json::Value,
         kind: Option<String>,
     ) -> io::Result<(JobStatus, bool)> {
-        let id = job_id(op, request);
+        self.submit_for(super::auth::DEFAULT_TENANT, op, request, kind)
+    }
+
+    /// [`submit`](Self::submit) for a tenant.
+    pub fn submit_for(
+        &self,
+        tenant: &str,
+        op: &str,
+        request: &serde_json::Value,
+        kind: Option<String>,
+    ) -> io::Result<(JobStatus, bool)> {
+        let id = tenant_job_id(tenant, op, request);
         let _guard = self.create_lock.lock().unwrap_or_else(|p| p.into_inner());
         if let Some(existing) = self.status(&id)? {
             return Ok((existing, false));
@@ -310,6 +341,7 @@ impl JobStore {
         let status = JobStatus {
             job_id: id,
             op: op.to_string(),
+            tenant: tenant.to_string(),
             kind,
             state: JobState::Queued,
             seq: self.next_seq.fetch_add(1, Ordering::SeqCst),

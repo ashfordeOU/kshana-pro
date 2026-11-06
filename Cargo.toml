@@ -71,6 +71,10 @@ rand_chacha = "0.3"
 sha2 = "0.10"
 ed25519-dalek = { version = "2", default-features = false, features = ["std", "zeroize"] }
 hex = "0.4"
+# OIDC token verification (src/serve/oidc.rs): ES256 and RS256. Both are already in the
+# dependency tree through the engine, so they add no crate.
+p256 = { version = "0.14", default-features = false, features = ["ecdsa"] }
+crypto-bigint = { version = "0.7", default-features = false, features = ["alloc"] }
 # Pure-Rust PDF export of the branded study report (src/report_pdf.rs). Default
 # features off: we render from primitives (built-in standard-14 fonts, lines,
 # rectangles, text) and need NONE of the heavy optional layers (html/svg/images/

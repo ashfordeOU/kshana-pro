@@ -1,6 +1,7 @@
 # A9: integration security for the Pro service
 
-Status: design, 6 Nov 2026. Roadmap item A9 (`docs/plans/ROADMAP-0.41-0.43.md`): OIDC, tenant isolation,
+Status: decisions 1 to 5 built on 6 Nov 2026 (`src/serve/{auth,oidc,audit}.rs`; tests `service_security`,
+`service_oidc`); the rest as noted. Roadmap item A9 (`docs/plans/ROADMAP-0.41-0.43.md`): OIDC, tenant isolation,
 audit log, retention, PII-free crowd ingest. Done when the K2 pen test passes.
 
 ## What exists
@@ -35,9 +36,9 @@ not user management").
    carries the SHA-256 of the previous line (the first line of a day chains to the last line of the day before),
    so a deleted or edited line breaks the chain. `GET /audit/verify` (admin) checks it. Refused requests (401,
    403) are logged with principal `-`.
-5. **Retention.** `--audit-retention-days N` (default 400, so a year plus a margin) deletes whole day files older
-   than N days at start-up and daily. `--job-retention-days N` (default: off) deletes finished jobs older than N
-   days, and records each deletion in the audit log.
+5. **Retention.** `--audit-retention-days N` (default 400, so a year plus a margin) deletes whole day files
+   older than N days when the server starts, and logs each deletion. Built. Still planned: pruning while the
+   server runs (today a restart prunes), and `--job-retention-days` for finished jobs.
 6. **PII-free crowd ingest.** Not part of this service step. It belongs with the crowd-sourced interference map,
    which already hashes aircraft and vessel ids and never stores them. A9 adds only the rule that the service
    never logs a client address.
@@ -53,6 +54,7 @@ planned. The K2 pen test runs on the finished service.
 - **OIDC:** tokens signed by a test key in the JWKS pass. Tampered, expired, not-yet-valid, wrong issuer, wrong
   audience, unknown key, `alg: none` and HS256 tokens are refused. RS256 and ES256 are both checked against
   vectors from an independent implementation (Python `cryptography`) committed as fixtures.
-- **Tenants:** a job of tenant A is 404 to tenant B on every job route, and the job list never shows it.
+- **Tenants:** a job of tenant A is 404 to tenant B on every job route, and neither the job list nor the
+  board shows it.
 - **Audit:** every request writes one line. Editing or deleting any line makes verification fail at that line.
   The log never contains a token, a body or an address.

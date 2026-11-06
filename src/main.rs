@@ -25,7 +25,8 @@ fn usage() -> &'static str {
        kshana-pro version                                            Overlay + engine info\n\
        kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
-       kshana-pro serve [--addr <host:port>] [--data-dir <dir>] [--workers <n>] [--api-token-file <path>] [--license <token>] [--dev]   Host the HTTP service; --data-dir adds the on-premises job service (jobs, ledger, job board)\n\
+       kshana-pro serve [--addr <host:port>] [--data-dir <dir>] [--workers <n>] [--api-token-file <path>] [--keys-file <keys.toml>] [--oidc <oidc.toml>] [--audit-retention-days <n>] [--license <token>] [--dev]   Host the HTTP service; --data-dir adds the on-premises job service (jobs, ledger, job board, audit log)\n\
+       kshana-pro keys <add --file <keys.toml> --id <id> --tenant <t> --role <reader|submitter|admin> | revoke --file <keys.toml> --id <id> | list --file <keys.toml>>   Manage the service's API keys (a new key is printed once; the file keeps only its hash)\n\
        kshana-pro ci --pack <manifest.toml> [--baseline <ci.json>] [--thresholds <spec>] [--utc <iso>] [--customer <name>] [--out <report.html>] [--json <ci.json>] [--history <history.jsonl>] [--trend <trend.html>] [--exact] [--license <token>] [--dev]   Run a Pack C scenario-subscription CI, with campaign watch (Pro)\n\
        kshana-pro ci history verify <history.jsonl>                  Verify a campaign-watch history chain (Pro)\n\
        kshana-pro ci diff <old ci.json> <new ci.json> [--json <out>]  List every figure that moved between two CI reports (Pro)\n\
@@ -174,6 +175,7 @@ fn main() -> ExitCode {
             }
         },
         Some("serve") => serve_cmd(&args),
+        Some("keys") => keys_cmd(&args),
         // Pack C scenario-subscription CI: run a versioned scenario pack, score it,
         // optionally gate it against a stored baseline, and emit a branded report
         // (Pro-tier entitlement; --dev bypasses enforcement for local use).
@@ -203,6 +205,109 @@ fn main() -> ExitCode {
             println!("{}", usage());
             ExitCode::SUCCESS
         }
+    }
+}
+
+/// `kshana-pro keys add|revoke|list --file <keys.toml> ...`: manage the service's API keys.
+/// A new key is printed once on standard output; the file keeps only its SHA-256.
+fn keys_cmd(args: &[String]) -> ExitCode {
+    use kshana_pro::serve::auth::{is_name, new_key, KeysFile, Role, ALL_TENANTS};
+    let usage = || {
+        eprintln!("usage: kshana-pro keys <add --file <keys.toml> --id <id> --tenant <t> --role <reader|submitter|admin> | revoke --file <keys.toml> --id <id> | list --file <keys.toml>>");
+        ExitCode::from(2)
+    };
+    let Some(file) = flag(args, "--file") else {
+        return usage();
+    };
+    let mut keys = match std::fs::read_to_string(&file) {
+        Ok(t) => match KeysFile::parse(&t) {
+            Ok(k) => k,
+            Err(e) => {
+                eprintln!("error: {file}: {e}");
+                return ExitCode::FAILURE;
+            }
+        },
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => KeysFile::default(),
+        Err(e) => {
+            eprintln!("error: {file}: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+    let save = |k: &KeysFile| -> ExitCode {
+        let text = format!(
+            "# Kshana Pro service API keys. Only SHA-256 hashes are stored; manage with `kshana-pro keys`.\n{}",
+            k.to_toml()
+        );
+        match std::fs::write(&file, text) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(e) => {
+                eprintln!("error: {file}: {e}");
+                ExitCode::FAILURE
+            }
+        }
+    };
+    match args.get(2).map(String::as_str) {
+        Some("add") => {
+            let (Some(id), Some(tenant), Some(role)) = (
+                flag(args, "--id"),
+                flag(args, "--tenant"),
+                flag(args, "--role"),
+            ) else {
+                return usage();
+            };
+            let role = match role.as_str() {
+                "reader" => Role::Reader,
+                "submitter" => Role::Submitter,
+                "admin" => Role::Admin,
+                _ => return usage(),
+            };
+            if !is_name(&tenant) && tenant != ALL_TENANTS {
+                return usage();
+            }
+            if keys.keys.iter().any(|k| k.id == id) {
+                eprintln!("error: a key with id '{id}' exists; revoke it or pick another id");
+                return ExitCode::FAILURE;
+            }
+            let (key, entry) = new_key(&id, &tenant, role);
+            keys.keys.push(entry);
+            if let Err(e) = KeysFile::parse(&keys.to_toml()) {
+                eprintln!("error: {e}");
+                return ExitCode::FAILURE;
+            }
+            let rc = save(&keys);
+            if rc == ExitCode::SUCCESS {
+                println!("{key}");
+                eprintln!(
+                    "key '{id}' ({}, tenant {tenant}) added to {file}; it is shown only now",
+                    role.as_str()
+                );
+            }
+            rc
+        }
+        Some("revoke") => {
+            let Some(id) = flag(args, "--id") else {
+                return usage();
+            };
+            let Some(k) = keys.keys.iter_mut().find(|k| k.id == id) else {
+                eprintln!("error: no key '{id}' in {file}");
+                return ExitCode::FAILURE;
+            };
+            k.revoked = true;
+            save(&keys)
+        }
+        Some("list") => {
+            for k in &keys.keys {
+                println!(
+                    "{}\t{}\t{}\t{}",
+                    k.id,
+                    k.tenant,
+                    k.role.as_str(),
+                    if k.revoked { "revoked" } else { "active" }
+                );
+            }
+            ExitCode::SUCCESS
+        }
+        _ => usage(),
     }
 }
 
@@ -264,6 +369,30 @@ fn serve_cmd(args: &[String]) -> ExitCode {
             Err(e) => {
                 eprintln!("error: could not read the token file {path}: {}", e.kind());
                 return ExitCode::FAILURE;
+            }
+        }
+    }
+    if let Some(path) = flag(args, "--keys-file") {
+        match std::fs::read_to_string(&path)
+            .map_err(|e| e.kind().to_string())
+            .and_then(|t| kshana_pro::serve::auth::KeysFile::parse(&t))
+        {
+            Ok(k) => config.keys = Some(k),
+            Err(e) => {
+                eprintln!("error: {path}: {e}");
+                return ExitCode::FAILURE;
+            }
+        }
+    }
+    config.oidc = flag(args, "--oidc").map(std::path::PathBuf::from);
+    if let Some(d) = flag(args, "--audit-retention-days") {
+        match d.parse::<u32>() {
+            Ok(n) if n >= 1 => config.audit_retention_days = n,
+            _ => {
+                eprintln!(
+                    "error: --audit-retention-days must be a whole number of days, at least 1"
+                );
+                return ExitCode::from(2);
             }
         }
     }
