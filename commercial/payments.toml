@@ -1,0 +1,54 @@
+# PROPRIETARY — Kshana Pro overlay. Internal commercial record. Not part of the open-source engine.
+#
+# Payments and paywall (roadmap F10g). THE switch is `enabled`: false until owner gate 12
+# is cleared (merchant of record chosen, prices set, business bank account open, VAT
+# treatment confirmed by the accountant). With it false: the webhook service refuses to
+# start, no checkout and no price is shown anywhere, and nothing calls out.
+#
+# Prices and provider IDs stay PLACEHOLDER until the owner sets them; `mode = "live"` is
+# refused while any of them is PLACEHOLDER. Secrets are never in this file: it names the
+# files that hold them, outside the repository. See docs/PAYMENTS.md.
+
+enabled = false
+provider = "paddle"          # or "lemonsqueezy": the owner's choice (gate 12)
+mode = "test"                # the provider's sandbox; "live" only after gate 12
+webhook_secret_file = "/etc/kshana-payments/webhook-secret"
+signing_key_file = "/etc/kshana-payments/signing-key"
+data_dir = "/var/lib/kshana-payments"
+signature_tolerance_secs = 300
+
+[checkout]
+paddle_client_token = "PLACEHOLDER"
+site_checkout_url = "PLACEHOLDER"
+lemonsqueezy_store = "PLACEHOLDER"
+
+# Editions follow the 0.41 edition matrix (signed 7 November 2026). Seats are the
+# quantity bought at checkout.
+[[editions]]
+id = "pro-annual"
+name = "Kshana Pro (annual)"
+tier = "pro"
+products = ["cli", "desktop"]
+days = 365
+price = "PLACEHOLDER"
+provider_price_id = "PLACEHOLDER"
+
+[[editions]]
+id = "pro-station-fleet-annual"
+name = "Kshana Pro: Station fleet (annual)"
+tier = "pro"
+products = ["station", "desktop"]
+days = 365
+# Stations per licence: the owner sets this with the prices (0 = not set).
+stations = 0
+price = "PLACEHOLDER"
+provider_price_id = "PLACEHOLDER"
+
+[[editions]]
+id = "enterprise-annual"
+name = "Kshana Enterprise (annual)"
+tier = "enterprise"
+products = ["cli", "desktop", "station", "service"]
+days = 365
+price = "PLACEHOLDER"
+provider_price_id = "PLACEHOLDER"

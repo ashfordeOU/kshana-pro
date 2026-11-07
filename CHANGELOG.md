@@ -5,6 +5,29 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Licensing for 0.41 (F10b, F10c, F10d, F10f).** Licence token v2: products (cli, desktop,
+  station, service), seats, Stations, optional machine binding (salted hash of the hardware ID,
+  `license machine-id`), key ID with several trusted keys for rotation and retired keys refused,
+  not-before; v1 tokens verify unchanged. Offline activation (`license activate|status|
+  deactivate`) into a per-user store, warnings at 30 and 7 days, a 14-day grace period, signed
+  revocation lists that arrive with updates and cannot be rolled back, and an opt-in online
+  refresh that is off by default. Vendor issuing: a hash-chained issuance register with trials,
+  renewals, revocations and reminders (`license trial|renew|revoke|revocations build|reminders|
+  register verify`), and the key custody and rotation procedure (`docs/LICENSING-KEYS.md`). Every
+  Pro kind and command now has an explicit tier, enforced by a test; the 0.41 edition matrix adds
+  `pro-station-fleet`, `pro-service-ha`, `pro-desktop` and `pro-signed-dossier`. Without
+  `--license`, commands use the activated token. `docs/LICENSING.md`, `tests/licensing.rs`.
+- **Payments and paywall, off (F10g).** `kshana-pro payments check|checkout|serve`: Paddle and Lemon
+  Squeezy webhooks verified by their published HMAC schemes issue, renew and revoke tokens through
+  the register and rewrite the revocation list; forged, stale, replayed and out-of-order deliveries
+  are refused. `commercial/payments.toml` keeps `enabled = false` and every price `PLACEHOLDER`;
+  live mode is refused until the owner sets them (gate 12). No outbound network call in any state.
+  `docs/PAYMENTS.md`, `tests/payments.rs`.
+- **Signed dossier (F7).** `kshana-pro dossier keygen|sign|verify`: every file under a dossier (or
+  any delivery directory) under one Ed25519 signature; verification is offline and needs no
+  licence, and `scripts/verify-dossier-signature.py` checks it without Kshana.
+  `tests/signed_dossier.rs`.
+
 - **Open engine 0.40.0 (F1a).** The `kshana` pin moves from `=0.34.1` to the published `=0.40.0`
   (crates.io) with its lockfile, and `rust-version` to the engine's 1.88. One overlay source line:
   `benefits::oracle_str` names the engine's new `IntegrationRun` oracle kind. What moved, each

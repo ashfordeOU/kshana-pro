@@ -18,6 +18,8 @@ OUT="${RELEASE_SMOKE_DIR:-target/release-smoke}"
 rm -rf "$OUT"; mkdir -p "$OUT"
 
 export KSHANA_PRO_SIGNING_KEY=$SEED
+# An empty licence store, so no token activated on this machine is picked up.
+export KSHANA_PRO_HOME="$OUT/licence-store"
 # The public key comes from the debug binary built without a key (it only reads the seed).
 cargo build --locked --bin kshana-pro
 PUB=$(target/debug/kshana-pro license pubkey)

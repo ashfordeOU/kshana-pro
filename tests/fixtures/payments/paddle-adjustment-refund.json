@@ -1,0 +1,1 @@
+{"event_id":"evt_01test0000000000000000004","event_type":"adjustment.updated","occurred_at":"{{OCCURRED}}","notification_id":"ntf_01test0000000000000000004","data":{"id":"adj_01test0000000000000000001","action":"refund","type":"full","status":"approved","transaction_id":"txn_01test0000000000000000001","subscription_id":"sub_01test0000000000000000001","reason":"customer request"}}

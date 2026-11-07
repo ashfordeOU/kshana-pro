@@ -1,0 +1,1 @@
+{"meta":{"event_name":"subscription_payment_success","test_mode":true},"data":{"type":"subscription-invoices","id":"5001","attributes":{"store_id":1,"subscription_id":7001,"billing_reason":"renewal","status":"paid","created_at":"{{OCCURRED}}","updated_at":"{{OCCURRED}}","test_mode":true}}}

@@ -1,0 +1,1 @@
+{"event_id":"evt_01test0000000000000000003","event_type":"subscription.canceled","occurred_at":"{{OCCURRED}}","notification_id":"ntf_01test0000000000000000003","data":{"id":"sub_01test0000000000000000001","status":"canceled","customer_id":"ctm_01test0000000000000000001","canceled_at":"{{OCCURRED}}"}}

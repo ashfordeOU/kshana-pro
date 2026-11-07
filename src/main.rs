@@ -5,11 +5,15 @@
 //! binary) and the licensing mechanics (issue / verify tokens; `--license` enforces
 //! tier entitlements on Pro packs).
 
+mod dossier_cmd;
+mod license_cmd;
+mod payments_cmd;
+
 use std::process::ExitCode;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use kshana_pro::connectors::{self, GateOp};
-use kshana_pro::license::{self, Entitlement, LicenseClaims, Tier};
+use kshana_pro::license::{self, Entitlement, Tier};
 
 fn usage() -> &'static str {
     "kshana-pro — proprietary overlay on the open Kshana engine\n\
@@ -38,10 +42,10 @@ fn usage() -> &'static str {
        kshana-pro uncertainty <study.toml> --out <dir> [--resume] [--max-runs <n>] [--threads <n>] [--license <token>] [--dev]   Uncertainty and sensitivity of any open scenario, with stop and resume (Enterprise)\n\
        kshana-pro coexist <study.toml> --out <dir> [--license <token>] [--dev]   Whole signal plans and constellations against the open global navigation satellite system (GNSS) signals, both directions (Enterprise; `kshana-pro coexist` for details)\n\
        kshana-pro mission <build|check> ... [--license <token>] [--dev]   Requirements to runs to verification matrix to a PDF dossier, and its re-check (Enterprise; `kshana-pro mission` for details)\n\
-       kshana-pro license issue --tier <t> --licensee <name> [--days <n>]\n\
-       kshana-pro license verify <token>\n\
-       kshana-pro license keygen                       New vendor key pair (vendor only)\n\
-       kshana-pro license pubkey                       Public key for $KSHANA_PRO_SIGNING_KEY (vendor only)\n\
+       kshana-pro license <verify|activate|status|deactivate|machine-id|revocations|refresh> ...   Licence on this machine (offline; `kshana-pro license` for details)\n\
+       kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
+       kshana-pro payments <check|checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled = false (vendor side)\n\
+       kshana-pro license <keygen|pubkey|issue|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
      \n\
      --sample (any command): every page of every document written also carries the mark\n\
      \"SAMPLE: illustrative programme on public data, not a real mission\"; use it for\n\
@@ -49,7 +53,8 @@ fn usage() -> &'static str {
      \n\
      Tiers: evaluation | pro | enterprise. `run` is FAIL-CLOSED: with no --license it\n\
      enforces Evaluation tier (open scenarios + the free seam-check only). --license\n\
-     <token> enforces that token's tier; --dev disables enforcement (debug builds only;\n\
+     <token> enforces that token's tier; without it, a token activated with `license\n\
+     activate` is used; --dev disables enforcement (debug builds only;\n\
      a release build refuses it). Open (non-pro) scenarios are always free. Tokens are\n\
      Ed25519-signed: `license issue` signs with $KSHANA_PRO_SIGNING_KEY (vendor only);\n\
      a build verifies with the public key compiled in from $KSHANA_PRO_LICENSE_PUBKEY.\n\
@@ -202,7 +207,9 @@ fn main() -> ExitCode {
                 ExitCode::FAILURE
             }
         }
-        Some("license") => license_cmd(&args[1..]),
+        Some("license") => license_cmd::run(&args[1..]),
+        Some("payments") => payments_cmd::run(&args[1..]),
+        Some("dossier") => dossier_cmd::run(&args[1..]),
         _ => {
             println!("{}", usage());
             ExitCode::SUCCESS
@@ -358,19 +365,16 @@ fn serve_cmd(args: &[String]) -> ExitCode {
         }
     } else {
         match flag(args, "--license") {
-            Some(tok) => match verify_token(&tok, now_unix()) {
-                Ok(e) => e,
-                Err(e) => {
-                    eprintln!("error: license invalid: {e}");
-                    return ExitCode::FAILURE;
+            Some(tok) => {
+                match license_cmd::verify_token_for(&tok, now_unix(), license::Product::Service) {
+                    Ok(e) => e,
+                    Err(e) => {
+                        eprintln!("error: license invalid: {e}");
+                        return ExitCode::FAILURE;
+                    }
                 }
-            },
-            None => {
-                eprintln!(
-                    "[no license — serving at Evaluation tier; use --license <token> or --dev]"
-                );
-                Entitlement::evaluation()
             }
+            None => license_cmd::stored_or_evaluation(now_unix(), license::Product::Service),
         }
     };
     // The on-premises job service: --data-dir turns it on; --workers sizes the pool;
@@ -466,10 +470,7 @@ fn ci_cmd(args: &[String]) -> ExitCode {
                         return Err(ExitCode::FAILURE);
                     }
                 },
-                None => {
-                    eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
-                    Entitlement::evaluation()
-                }
+                None => license_cmd::stored_or_evaluation(now, license::Product::Cli),
             }
         };
         if let Err(e) = kshana_pro::license::ensure_ci_entitled(&ent, now) {
@@ -785,10 +786,7 @@ fn mbse_cmd(args: &[String]) -> ExitCode {
                     return ExitCode::FAILURE;
                 }
             },
-            None => {
-                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
-                Entitlement::evaluation()
-            }
+            None => license_cmd::stored_or_evaluation(now, license::Product::Cli),
         }
     };
     if let Err(e) = license::ensure_mbse_entitled(&ent, now) {
@@ -860,10 +858,7 @@ fn lab_report_cmd(args: &[String]) -> ExitCode {
                     return ExitCode::FAILURE;
                 }
             },
-            None => {
-                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
-                Entitlement::evaluation()
-            }
+            None => license_cmd::stored_or_evaluation(now, license::Product::Cli),
         }
     };
     if let Err(e) = license::ensure_dossier_entitled(&ent, now) {
@@ -950,10 +945,7 @@ fn study_cmd(args: &[String]) -> ExitCode {
                     return ExitCode::FAILURE;
                 }
             },
-            None => {
-                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
-                Entitlement::evaluation()
-            }
+            None => license_cmd::stored_or_evaluation(now, license::Product::Cli),
         }
     };
     if let Err(e) = license::ensure_dossier_entitled(&ent, now) {
@@ -1035,10 +1027,7 @@ fn mission_cmd(args: &[String]) -> ExitCode {
                     return ExitCode::FAILURE;
                 }
             },
-            None => {
-                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
-                Entitlement::evaluation()
-            }
+            None => license_cmd::stored_or_evaluation(now, license::Product::Cli),
         }
     };
     if let Err(e) = kshana_pro::mission::ensure_entitled(&ent, now) {
@@ -1133,10 +1122,7 @@ fn design_cmd(args: &[String]) -> ExitCode {
                     return ExitCode::FAILURE;
                 }
             },
-            None => {
-                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
-                Entitlement::evaluation()
-            }
+            None => license_cmd::stored_or_evaluation(now, license::Product::Cli),
         }
     };
     let feature = kshana_pro::design::KIND;
@@ -1218,10 +1204,7 @@ fn coexist_cmd(args: &[String]) -> ExitCode {
                     return ExitCode::FAILURE;
                 }
             },
-            None => {
-                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
-                Entitlement::evaluation()
-            }
+            None => license_cmd::stored_or_evaluation(now, license::Product::Cli),
         }
     };
     let feature = kshana_pro::spectrum_coexistence::KIND;
@@ -1351,10 +1334,7 @@ fn uncertainty_cmd(args: &[String]) -> ExitCode {
                     return ExitCode::FAILURE;
                 }
             },
-            None => {
-                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
-                Entitlement::evaluation()
-            }
+            None => license_cmd::stored_or_evaluation(now, license::Product::Cli),
         }
     };
     let feature = kshana_pro::batch::uq::FEATURE;
@@ -1478,6 +1458,15 @@ fn utc_iso8601_now() -> String {
     format!("{year:04}-{month:02}-{day:02}T{hour:02}:{min:02}:{sec:02}Z")
 }
 
+/// A Unix time as a UTC ISO-8601 date and time (`2026-06-23T14:05:09Z`).
+fn utc_from_unix(secs: i64) -> String {
+    let days = secs.div_euclid(86_400);
+    let tod = secs.rem_euclid(86_400);
+    let (hour, min, sec) = (tod / 3600, (tod % 3600) / 60, tod % 60);
+    let (year, month, day) = civil_from_days(days);
+    format!("{year:04}-{month:02}-{day:02}T{hour:02}:{min:02}:{sec:02}Z")
+}
+
 /// Convert days since the Unix epoch (1970-01-01) to a proleptic-Gregorian
 /// (year, month, day). Howard Hinnant's well-known `civil_from_days` algorithm.
 fn civil_from_days(z: i64) -> (i64, u32, u32) {
@@ -1502,27 +1491,8 @@ const DEV_BUILD: bool = cfg!(debug_assertions);
 #[cfg(debug_assertions)]
 const DEMO_SEED: [u8; license::KEY_LEN] = *b"kshana-pro-demo-key-debug-only!!";
 
-/// The public key tokens are verified against: the one compiled in from
-/// `KSHANA_PRO_LICENSE_PUBKEY`, or in a debug build without one, the demo key.
-fn verifying_key() -> Result<[u8; license::KEY_LEN], kshana::api::KshanaError> {
-    if let Some(k) = license::embedded_public_key() {
-        return k;
-    }
-    #[cfg(debug_assertions)]
-    {
-        eprintln!("[warning] debug build without KSHANA_PRO_LICENSE_PUBKEY: verifying against the DEMO key");
-        Ok(license::public_key_for(&DEMO_SEED))
-    }
-    #[cfg(not(debug_assertions))]
-    Err(kshana::api::KshanaError::Unsupported(
-        "this build has no licence public key (build with KSHANA_PRO_LICENSE_PUBKEY set), \
-         so it cannot verify tokens; without --license it runs at Evaluation tier"
-            .into(),
-    ))
-}
-
 fn verify_token(token: &str, now: i64) -> Result<Entitlement, kshana::api::KshanaError> {
-    license::verify(&verifying_key()?, token, now)
+    license_cmd::verify_token_for(token, now, license::Product::Cli)
 }
 
 /// The vendor's private-key seed, for `license issue`: from `KSHANA_PRO_SIGNING_KEY`
@@ -1584,10 +1554,11 @@ fn run_file(path: &str, license_token: Option<String>, dev_mode: bool) -> ExitCo
                     return ExitCode::FAILURE;
                 }
             },
-            None => {
-                eprintln!("[no license — Evaluation tier; use --license <token> or --dev]");
-                kshana_pro::registry::run_gated(&src, &Entitlement::evaluation(), now)
-            }
+            None => kshana_pro::registry::run_gated(
+                &src,
+                &license_cmd::stored_or_evaluation(now, license::Product::Cli),
+                now,
+            ),
         }
     };
 
@@ -1617,125 +1588,6 @@ fn list_kinds() {
             license::feature_min_tier(m.name).as_str(),
             m.description
         );
-    }
-}
-
-fn license_cmd(args: &[String]) -> ExitCode {
-    match args.first().map(String::as_str) {
-        Some("issue") => {
-            let tier = match flag(args, "--tier").map(|t| Tier::parse(&t)) {
-                Some(Ok(t)) => t,
-                Some(Err(e)) => {
-                    eprintln!("error: {e}");
-                    return ExitCode::FAILURE;
-                }
-                None => {
-                    eprintln!("error: license issue needs --tier <evaluation|pro|enterprise>");
-                    return ExitCode::FAILURE;
-                }
-            };
-            let licensee = flag(args, "--licensee").unwrap_or_else(|| "unnamed".to_string());
-            let days: i64 = flag(args, "--days")
-                .and_then(|d| d.parse().ok())
-                .unwrap_or(0);
-            let expires_unix = if days > 0 {
-                match days
-                    .checked_mul(86_400)
-                    .and_then(|s| now_unix().checked_add(s))
-                {
-                    Some(e) => e,
-                    None => {
-                        eprintln!("error: --days too large (expiry timestamp overflows)");
-                        return ExitCode::FAILURE;
-                    }
-                }
-            } else {
-                0
-            };
-            let claims = LicenseClaims {
-                licensee,
-                tier: tier.as_str().to_string(),
-                expires_unix,
-                features: Vec::new(),
-            };
-            let seed = match signing_seed() {
-                Ok(k) => k,
-                Err(e) => {
-                    eprintln!("error: {e}");
-                    return ExitCode::FAILURE;
-                }
-            };
-            match license::issue(&seed, &claims) {
-                Ok(tok) => {
-                    eprintln!(
-                        "[issued {} license for '{}'{}]",
-                        tier.as_str(),
-                        claims.licensee,
-                        if expires_unix > 0 {
-                            format!(" (expires in {days}d)")
-                        } else {
-                            " (perpetual)".into()
-                        },
-                    );
-                    println!("{tok}");
-                    ExitCode::SUCCESS
-                }
-                Err(e) => {
-                    eprintln!("error: {e}");
-                    ExitCode::FAILURE
-                }
-            }
-        }
-        Some("verify") => match args.get(1) {
-            Some(tok) => match verify_token(tok, now_unix()) {
-                Ok(ent) => {
-                    print_entitlement(&ent);
-                    ExitCode::SUCCESS
-                }
-                Err(e) => {
-                    eprintln!("error: {e}");
-                    ExitCode::FAILURE
-                }
-            },
-            None => {
-                eprintln!("error: license verify needs a <token>");
-                ExitCode::FAILURE
-            }
-        },
-        Some("keygen") => {
-            // A fresh vendor key pair. The private key goes to the secret store as
-            // KSHANA_PRO_SIGNING_KEY; the public key is baked into customer builds as
-            // KSHANA_PRO_LICENSE_PUBKEY. Re-keying invalidates every token issued before.
-            use rand::RngCore;
-            let mut seed = [0u8; license::KEY_LEN];
-            rand::rngs::OsRng.fill_bytes(&mut seed);
-            eprintln!("[new key pair: keep the private key secret; it is shown once]");
-            println!("KSHANA_PRO_SIGNING_KEY={}", hex::encode(seed));
-            println!(
-                "KSHANA_PRO_LICENSE_PUBKEY={}",
-                hex::encode(license::public_key_for(&seed))
-            );
-            ExitCode::SUCCESS
-        }
-        Some("pubkey") => {
-            // The public key that verifies tokens signed with KSHANA_PRO_SIGNING_KEY: the
-            // value to build with as KSHANA_PRO_LICENSE_PUBKEY. A public key is public; this
-            // only saves deriving it by hand (scripts/release-smoke.sh uses it).
-            match signing_seed() {
-                Ok(seed) => {
-                    println!("{}", hex::encode(license::public_key_for(&seed)));
-                    ExitCode::SUCCESS
-                }
-                Err(e) => {
-                    eprintln!("error: {e}");
-                    ExitCode::FAILURE
-                }
-            }
-        }
-        _ => {
-            eprintln!("usage: kshana-pro license <issue|verify|keygen|pubkey> ...");
-            ExitCode::FAILURE
-        }
     }
 }
 

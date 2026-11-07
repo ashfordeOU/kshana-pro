@@ -188,8 +188,16 @@ study/bid needs:
 - **Pro power summary** — what each of the six Pro power features (design optimiser,
   uncertainty, mission dossier, campaign watch, spectrum coexistence, job service) does, its inputs and
   outputs, and what is honestly not done: [`docs/PRO-POWER.md`](docs/PRO-POWER.md).
-- **`license`** (PR7) — the tier mechanics: Ed25519-signed tokens (public key only in the build), fail-closed Evaluation
-  default, per-`kind` tier mapping.
+- **`license`** (PR7, F10b–F10f) — the tier mechanics: Ed25519-signed tokens (public key only in the build), fail-closed Evaluation
+  default, an explicit tier for every Pro kind and command (a test enforces it); token v2
+  (products, seats, Stations, machine binding, key rotation, not-before), offline
+  activation with grace period and signed revocation lists, and the vendor issuance
+  register. See [`docs/LICENSING.md`](docs/LICENSING.md).
+- **`payments`** (F10g) — merchant-of-record webhooks (Paddle, Lemon Squeezy) that issue,
+  renew and revoke tokens, and the paywall; switched off by default, prices
+  `PLACEHOLDER`. See [`docs/PAYMENTS.md`](docs/PAYMENTS.md).
+- **`signed_dossier`** (F7) — `kshana-pro dossier sign|verify`: every file of a dossier
+  under one Ed25519 signature, verified offline.
 
 ### What is NOT built on spec (gated)
 
@@ -263,7 +271,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **thirty-two integration tests** in
+The suite is unit tests across every module plus **thirty-eight integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
@@ -285,6 +293,11 @@ type, the footer and page numbers, nothing fetched; the SAMPLE mark only with
 `--sample`), `readme_counts.rs` (the pack and integration-test counts in this
 README match the registry and the `tests/` directory),
 `changelog_tracks_engine_pin.rs` (the changelog names the pinned open-engine version),
+`licensing.rs` (licence tokens v2, offline activation, grace period, revocation lists
+and the issuance register end to end), `payments.rs` (the payments webhook and paywall
+in test mode: forged, replayed and out-of-order webhooks refused; off by default),
+`signed_dossier.rs` (a signed dossier verified offline, also by an independent Python
+verifier),
 `lab_campaign_load.rs` (the lab-campaign loader verifies cell keys, the DIGEST and the
 schema on a synthetic campaign, and refuses tampered input), and
 `lab_campaign_report.rs` (the lab campaign report traces every printed number to the

@@ -1,0 +1,1 @@
+{"meta":{"event_name":"subscription_created","custom_data":{"licensee":"Grid Timing Lab"},"test_mode":true},"data":{"type":"subscriptions","id":"7001","attributes":{"store_id":1,"order_id":9001,"variant_id":4242,"status":"active","user_email":"buyer@grid.example","created_at":"{{OCCURRED}}","updated_at":"{{OCCURRED}}","test_mode":true}}}
