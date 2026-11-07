@@ -5,6 +5,13 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Spectrum coexistence with other systems (F8b).** `[[other_system]]` entries (signal design and
+  constellation, like plans) add their upper-bound interference to each plan's per cell and victim;
+  the result gives the worst cell of the sum, its verdict and the plan's share. Tested against the
+  closed form (an identical incumbent doubles the ratio, share 0.5). GPS L2C as a victim and a
+  receive-antenna pattern remain gaps: the first waits on an open-engine `leo-signal` model, the
+  second on per-satellite elevations the coverage runs do not give.
+
 - **Unicode in the mission dossier PDF (F8c).** A dossier with text the PDF standard fonts cannot
   show is set in Noto Sans (OFL 1.1, `assets/fonts/`), embedded with a Unicode map so the text is
   searchable; the footer's honesty line stays a built-in-font literal. ASCII dossiers are

@@ -47,6 +47,12 @@ It answers:
 - A verdict per plan and signal against `max_degradation_db`, with the margin.
 - A world map of the upper-bound loss for the plan whose worst loss is largest.
 - A Pareto front over (ranging accuracy, worst loss caused, satellite count).
+- With `[[other_system]]` (roadmap F8b): other systems already in the band, defined
+  like plans. Per plan and victim, their upper-bound interference is added to the
+  plan's in every cell, and the study gives the worst cell of the sum, the verdict
+  against the limit, and the plan's share of the interference there. The other
+  systems are not candidates: they are not ranked and get no verdict of their own
+  beyond their own worst loss.
 
 It does not answer, and refuses to be used for:
 
@@ -161,7 +167,24 @@ inclination_deg = 55.0
 [[plan.satellite]]                  # or explicit element sets, unchanged
 altitude_km = 1000.0
 inclination_deg = 53.0
+
+[[other_system]]                    # optional, zero or more: systems already in the band
+label = "..."                       # the same keys as a [[plan]]; labels are one set
+signal = "generic-l"                # with the plans'
+mask_deg = 10.0
+[[other_system.shell]]
+pattern = "delta"
+total = 96
+planes = 8
+phasing = 1
+altitude_km = 1000.0
+inclination_deg = 55.0
 ```
+
+With other systems the result adds `other_systems` (each one's signal, constellation and
+own worst losses) and, per plan, `with_other_systems`: per victim the worst cell of the
+summed interference, its loss, the plan's share there (`plan_share_at_worst`, 0 to 1) and
+a verdict, and one combined verdict.
 
 Unknown keys at the top level, in `[grid]` or in a plan are refused. A preset signal name is
 looked up by running `leo-signal` over all the open engine's signal presets
@@ -247,13 +270,22 @@ result exactly, and the worst losses to 1e-12 dB.
 - **Open-service signals only**, and only those the open engine models (not GPS L2C).
 - **Smooth spectra.** The open engine's power spectral densities have no spreading-code
   lines; the open `leo-signal` kind states the same limit.
-- **No receive-antenna pattern** at the victim receiver.
+- **No receive-antenna pattern** at the victim receiver: the coverage runs give counts in
+  view, not the elevation of each satellite, so an elevation-dependent gain cannot be
+  applied without changing the bound.
 - **The reverse direction uses the GNSS minimum received power** and takes every satellite
   of a preset as transmitting every signal of its system; it is a most-in-view figure, not
   a power bound. Each victim is reported on its own, not summed (Galileo E5a, E5b and
   AltBOC are one transmission).
-- **No other systems**: other GNSS, other LEO systems and terrestrial services are not in
-  the sum.
+- **Other systems are other satellite systems only**, entered as `[[other_system]]`
+  with a signal design and a constellation, at their maximum powers (an upper bound,
+  like the plan's). The most-in-view counts of the systems are added cell by cell,
+  even when their maxima fall at different epochs, so the sum is a bound too.
+  Terrestrial services, and GNSS systems beyond the open GPS and Galileo presets, are
+  not in the sum.
+- **No GPS L2C victim.** The open `leo-signal` kind has no compatibility model for L2C
+  (the open `spectrum` kind lists its band, not an SSC model into it); it waits on that
+  open-engine model.
 - **Not a coordination filing and not a regulatory finding.**
 
 ## Tests

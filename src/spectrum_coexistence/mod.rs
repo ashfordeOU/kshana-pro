@@ -74,6 +74,7 @@ const STUDY_KEYS: &[&str] = &[
     "limit_source",
     "receiver",
     "plan",
+    "other_system",
     "victims",
     "grid",
 ];
@@ -102,6 +103,9 @@ pub struct Study {
     pub limit_source: String,
     pub receiver: toml::Table,
     pub plans: Vec<Plan>,
+    /// Other systems already in the band (roadmap F8b): their upper-bound interference is
+    /// added to each plan's, per cell and victim. They are not candidates.
+    pub others: Vec<Plan>,
     pub victims: Vec<String>,
     pub grid: Grid,
     /// SHA-256 of the canonical JSON form of the parsed study.
@@ -301,9 +305,33 @@ impl Study {
             .enumerate()
             .map(|(i, p)| Plan::from_table(p, i))
             .collect::<Result<Vec<_>, _>>()?;
-        for (i, p) in plans.iter().enumerate() {
-            if plans[..i].iter().any(|q| q.label == p.label) {
-                return Err(err(format!("plan label {:?} is used twice", p.label)));
+        let other_tables: Vec<&toml::Table> = match t.get("other_system") {
+            Some(toml::Value::Array(a)) => a
+                .iter()
+                .map(|p| {
+                    p.as_table()
+                        .ok_or_else(|| err("each [[other_system]] must be a table"))
+                })
+                .collect::<Result<_, _>>()?,
+            Some(_) => {
+                return Err(err(
+                    "`other_system` must be an array of tables ([[other_system]])",
+                ))
+            }
+            None => vec![],
+        };
+        let others = other_tables
+            .iter()
+            .enumerate()
+            .map(|(i, p)| Plan::from_table(p, plans.len() + i))
+            .collect::<Result<Vec<_>, _>>()?;
+        let all: Vec<&Plan> = plans.iter().chain(&others).collect();
+        for (i, p) in all.iter().enumerate() {
+            if all[..i].iter().any(|q| q.label == p.label) {
+                return Err(err(format!(
+                    "label {:?} is used twice (plans and other systems share one set of labels)",
+                    p.label
+                )));
             }
         }
         let as_json = serde_json::to_value(t).map_err(|e| err(e.to_string()))?;
@@ -314,6 +342,7 @@ impl Study {
             limit_source,
             receiver,
             plans,
+            others,
             victims,
             grid,
             scenario_hash,
@@ -512,8 +541,14 @@ pub fn run(study: &Study) -> Result<Value, KshanaError> {
     let mut gnss_json: Vec<Value> = vec![];
     let mut plans_json: Vec<Value> = vec![];
     let mut pareto_rows: Vec<(String, Option<f64>, Option<f64>, u64)> = vec![];
+    // Per (label, victim): the upper-bound interference-to-noise ratio per cell, for the
+    // sum with the other systems.
+    let mut ratio_grids: BTreeMap<(String, String), Vec<Vec<Option<f64>>>> = BTreeMap::new();
+    let mut others_json: Vec<Value> = vec![];
+    let n_plans = study.plans.len();
 
-    for plan in &study.plans {
+    for (index, plan) in study.plans.iter().chain(&study.others).enumerate() {
+        let is_other = index >= n_plans;
         let label = &plan.label;
         // (1) The plan's signal: SSCs both ways, single-satellite losses, powers.
         let leo = runner.run(
@@ -609,6 +644,19 @@ pub fn run(study: &Study) -> Result<Value, KshanaError> {
                 .ssc_into_gnss_db_per_hz
                 .map(|k| single_ratio(p_ref, k, n0));
             let single_max = single_ref.map(|x| scale_to_power(x, p_ref, p_max));
+            if let Some(r) = single_max {
+                ratio_grids.insert(
+                    (label.clone(), v.clone()),
+                    cov.max_visible
+                        .iter()
+                        .map(|row| {
+                            row.iter()
+                                .map(|&n| (n > 0).then_some(n as f64 * r))
+                                .collect()
+                        })
+                        .collect(),
+                );
+            }
             // The pack's own single-satellite loss at the design's power must reproduce
             // the open run's to within the tolerance, or nothing is reported.
             let consistency = match (sig.received_power_dbw, r.ssc_into_gnss_db_per_hz, r.engine_gnss_loss_db) {
@@ -663,6 +711,27 @@ pub fn run(study: &Study) -> Result<Value, KshanaError> {
                 });
             }
             caused.push(a.json);
+        }
+
+        if is_other {
+            others_json.push(json!({
+                "label": label,
+                "signal": {
+                    "name": sig.name,
+                    "source": sig.source,
+                    "centre_hz": sig.centre_hz,
+                    "max_power_dbw": p_max,
+                    "max_power_basis": p_max_basis,
+                },
+                "constellation": {
+                    "total_satellites": cov.total_satellites,
+                    "mask_deg": plan.mask_deg,
+                    "most_in_view": cov.max_visible.iter().flatten().max().copied().unwrap_or(0),
+                },
+                "caused": caused,
+                "worst_loss_caused_db": worst_caused,
+            }));
+            continue;
         }
 
         // (4): the interference the open GNSS constellations cause to this plan.
@@ -779,6 +848,59 @@ pub fn run(study: &Study) -> Result<Value, KshanaError> {
         }));
     }
 
+    // (F8b) With other systems: per plan and victim, the sum per cell of the plan's and
+    // every other system's upper-bound ratio, its worst cell and the plan's share there.
+    if !study.others.is_empty() {
+        let (lat, lon) = grid_axes.clone().unwrap_or_default();
+        for p in plans_json.iter_mut() {
+            let label = p["label"].as_str().unwrap_or_default().to_string();
+            let mut entries = vec![];
+            for v in &study.victims {
+                let mine = ratio_grids.get(&(label.clone(), v.clone()));
+                let theirs: Vec<&Vec<Vec<Option<f64>>>> = study
+                    .others
+                    .iter()
+                    .filter_map(|o| ratio_grids.get(&(o.label.clone(), v.clone())))
+                    .collect();
+                let mut worst: Option<(usize, usize, f64, f64)> = None;
+                for i in 0..lat.len() {
+                    for j in 0..lon.len() {
+                        let m = mine.and_then(|g| g[i][j]);
+                        let o: Vec<f64> = theirs.iter().filter_map(|g| g[i][j]).collect();
+                        if m.is_none() && o.is_empty() {
+                            continue;
+                        }
+                        let total = m.unwrap_or(0.0) + o.iter().sum::<f64>();
+                        if worst.is_none_or(|w| total > w.2) {
+                            worst = Some((i, j, total, m.unwrap_or(0.0)));
+                        }
+                    }
+                }
+                let reason = (worst.is_none()).then_some(
+                    "no spectral overlap or nothing in view, for the plan and every other system",
+                );
+                let worst_loss = worst.map(|w| loss_db(w.2));
+                entries.push(json!({
+                    "gnss": v,
+                    "worst_loss_db": worst_loss,
+                    "worst_inr_db": worst.map(|w| ratio_db(w.2)),
+                    "worst_cell": worst.map(|w| json!({"lat_deg": lat[w.0], "lon_deg": lon[w.1]})),
+                    "plan_share_at_worst": worst.map(|w| if w.2 > 0.0 { w.3 / w.2 } else { 0.0 }),
+                    "verdict": verdict(worst_loss, reason, limit),
+                }));
+            }
+            let combined = combine_verdicts(
+                &entries,
+                "with the interference this plan and the other systems cause together",
+            );
+            p["with_other_systems"] = json!({
+                "systems": study.others.iter().map(|o| o.label.clone()).collect::<Vec<_>>(),
+                "victims": entries,
+                "verdict": combined,
+            });
+        }
+    }
+
     // (6) The Pareto front of (ranging accuracy, worst loss caused, satellite count).
     let pareto = pareto_json(&pareto_rows);
     let (lat, lon) = grid_axes.unwrap_or_default();
@@ -834,6 +956,7 @@ pub fn run(study: &Study) -> Result<Value, KshanaError> {
         },
         "plans": plans_json,
         "gnss_constellations": gnss_json,
+        "other_systems": others_json,
         "pareto": pareto,
         "figure_tiers": {"figures": figure_tiers()},
         "not_modelled": NOT_MODELLED,
@@ -1001,6 +1124,29 @@ pub fn units() -> Value {
         ("plans[].received[].verdict.margin_db", "dB", "aggregate", "limit minus the worst-cell loss; null when there is no interference"),
         ("plans[].worst_loss_caused_db", "dB", "aggregate", "largest worst-cell upper bound over the victims; null when no victim overlaps or nothing is in view"),
         ("plans[].map_loss_db[][]", "dB", "aggregate", "per cell, the largest upper-bound loss over the overlapping victims, [lat][lon]; null where nothing overlaps or nothing is in view"),
+        ("plans[].with_other_systems.victims[].worst_loss_db", "dB", "aggregate", "upper bound on the victim's C/N0 loss at the worst cell with the plan and every other system in view at their maximum powers: 10 log10(1 + sum of the ratios)"),
+        ("plans[].with_other_systems.victims[].worst_inr_db", "dB", "aggregate", "the summed interference-to-noise ratio at that cell"),
+        ("plans[].with_other_systems.victims[].worst_cell.lat_deg", "deg", "read", "latitude of the worst cell of the sum"),
+        ("plans[].with_other_systems.victims[].worst_cell.lon_deg", "deg", "read", "longitude of the worst cell of the sum"),
+        ("plans[].with_other_systems.victims[].plan_share_at_worst", "1", "aggregate", "the plan's part of the summed ratio at that cell (0 to 1)"),
+        ("plans[].with_other_systems.victims[].verdict.margin_db", "dB", "aggregate", "limit minus the worst-cell loss of the sum"),
+        ("other_systems[].signal.centre_hz", "Hz", "read", "carrier of the other system's signal (leo-signal run)"),
+        ("other_systems[].signal.max_power_dbw", "dBW", "read or input", "received power of each of its satellites for the upper bound"),
+        ("other_systems[].constellation.total_satellites", "count", "read", "satellites in the other system's constellation"),
+        ("other_systems[].constellation.mask_deg", "deg", "input", "elevation mask of the user receiver"),
+        ("other_systems[].constellation.most_in_view", "count", "read", "most of its satellites in view at any cell and epoch"),
+        ("other_systems[].caused[].ssc_db_per_hz", "dB/Hz", "read", "SSC of the other system's signal into the victim"),
+        ("other_systems[].caused[].single_satellite_inr_db", "dB", "aggregate", "interference-to-noise ratio of one of its satellites at the reference power"),
+        ("other_systems[].caused[].single_satellite_loss_db", "dB", "aggregate", "loss from one of its satellites at the reference power"),
+        ("other_systems[].caused[].engine_single_satellite_loss_db", "dB", "read", "the leo-signal run's own single-satellite loss"),
+        ("other_systems[].caused[].worst_loss_db", "dB", "aggregate", "upper bound on the loss from that system alone at its worst cell"),
+        ("other_systems[].caused[].worst_inr_db", "dB", "aggregate", "aggregate ratio at that cell"),
+        ("other_systems[].caused[].worst_mean_case_loss_db", "dB", "aggregate", "largest mean-case loss from that system alone"),
+        ("other_systems[].caused[].worst_cell.lat_deg", "deg", "read", "latitude of its worst cell"),
+        ("other_systems[].caused[].worst_cell.lon_deg", "deg", "read", "longitude of its worst cell"),
+        ("other_systems[].caused[].worst_cell.satellites_in_view", "count", "read", "most of its satellites in view at its worst cell"),
+        ("other_systems[].caused[].verdict.margin_db", "dB", "aggregate", "limit minus that system's own worst-cell loss"),
+        ("other_systems[].worst_loss_caused_db", "dB", "aggregate", "largest worst-cell bound of that system alone over the victims"),
         ("gnss_constellations[].mask_deg", "deg", "input", "elevation mask of the GNSS coverage run (the plan's mask)"),
         ("gnss_constellations[].total_satellites", "count", "read", "satellites in the open GNSS preset"),
         ("gnss_constellations[].most_in_view", "count", "read", "most satellites of the preset in view at any cell and epoch"),

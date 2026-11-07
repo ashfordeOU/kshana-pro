@@ -922,3 +922,69 @@ fn no_file_of_this_track_mentions_the_isolated_workshop_preset() {
         );
     }
 }
+
+// ── F8b. Other systems in the band ──────────────────────────────────────────────────
+
+#[test]
+fn an_identical_other_system_doubles_the_ratio_and_takes_half() {
+    let l = generic_designs()
+        .into_iter()
+        .find(|s| s["name"] == "generic-l")
+        .unwrap();
+    let design = toml_inline(&inline_design(&l, -150.0));
+    let alone = run(&study(&walker_plan("L", &design), ALL, LIMIT));
+    let other = walker_plan("Incumbent", &design)
+        .replace("[[plan]]", "[[other_system]]")
+        .replace("[[plan.shell]]", "[[other_system.shell]]");
+    let both = run(&study(&(walker_plan("L", &design) + &other), ALL, LIMIT));
+    // The other system is not a candidate: one plan, one entry under other_systems.
+    assert_eq!(both["plans"].as_array().unwrap().len(), 1);
+    assert_eq!(both["other_systems"][0]["label"], "Incumbent");
+    assert_eq!(both["summary"]["plans"], 1);
+    // The plan alone is unchanged by the other system's presence.
+    assert_eq!(alone["plans"][0]["caused"], both["plans"][0]["caused"]);
+    let w = &both["plans"][0]["with_other_systems"];
+    assert_eq!(w["systems"][0], "Incumbent");
+    let mut checked = 0;
+    for e in w["victims"].as_array().unwrap() {
+        let solo = entry(&alone, 0, "caused", e["gnss"].as_str().unwrap());
+        let Some(solo_loss) = solo["worst_loss_db"].as_f64() else {
+            assert!(e["worst_loss_db"].is_null());
+            continue;
+        };
+        // Same satellites, same cells: the summed ratio is twice the plan's.
+        let r = 10f64.powf(solo_loss / 10.0) - 1.0;
+        let expected = 10.0 * (1.0 + 2.0 * r).log10();
+        assert!(
+            (e["worst_loss_db"].as_f64().unwrap() - expected).abs() < 1e-9,
+            "{e}"
+        );
+        assert!((e["plan_share_at_worst"].as_f64().unwrap() - 0.5).abs() < 1e-12);
+        assert!(
+            (e["worst_inr_db"].as_f64().unwrap() - (solo["worst_inr_db"].as_f64().unwrap() + DB2))
+                .abs()
+                < 1e-9
+        );
+        checked += 1;
+    }
+    assert!(checked >= 4);
+    // A limit between the plan's own worst loss and the summed one: the plan alone
+    // passes, with the incumbent it does not.
+    let worst_alone = alone["plans"][0]["worst_loss_caused_db"].as_f64().unwrap();
+    let limit = format!(
+        "max_degradation_db = {}\nlimit_source = \"test limit\"",
+        worst_alone + 1e-6
+    );
+    let tight = run(&study(&(walker_plan("L", &design) + &other), ALL, &limit));
+    assert_eq!(tight["plans"][0]["verdict_caused"]["status"], "compatible");
+    assert_eq!(
+        tight["plans"][0]["with_other_systems"]["verdict"]["status"],
+        "not compatible"
+    );
+    // Labels are one set across plans and other systems.
+    let dup = walker_plan("L", &design) + &other.replace("Incumbent", "L");
+    assert!(run_err(&study(&dup, ALL, LIMIT)).contains("used twice"));
+    // Without other systems the result has none and no plan carries the block.
+    assert_eq!(alone["other_systems"].as_array().unwrap().len(), 0);
+    assert!(alone["plans"][0].get("with_other_systems").is_none());
+}
