@@ -150,8 +150,11 @@ fn cancel_queued_and_running_jobs_and_time_limit() {
     let (_, list) = http(a, "GET", "/jobs?state=cancelled", "");
     assert!(list.contains(&slow) && list.contains(&q));
 
-    // Time limit: the same slow work with timeout_secs = 1 fails "timed out".
-    let slow2 = slow_scenario().replace("seed_start = 1", "seed_start = 2");
+    // Time limit: ten times the slow work (tens of seconds even on a fast runner) with
+    // timeout_secs = 1 fails "timed out".
+    let slow2 = slow_scenario()
+        .replace("seed_start = 1", "seed_start = 2")
+        .replace("seed_count = 100", "seed_count = 1000");
     let (st, j) = submit(
         a,
         json!({"op": "run", "request": {"scenario": slow2}, "timeout_secs": 1, "priority": "high"}),
