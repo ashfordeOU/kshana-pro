@@ -299,9 +299,14 @@ builds only; a release build refuses it. For access, write to contact@ashforde.o
 - Charts are drawn only for the paths the programme names. The chart the engine drew
   for each run is kept beside its result and embedded in the HTML page. A column longer
   than 2000 samples is thinned by a constant stride, and the chart says so.
-- The PDF uses the built-in fonts, which show ASCII text: typographic characters in the
-  engine's notes are written out (a Greek sigma as "sigma") and any other character
-  becomes `?`. The HTML and JSON keep the text as it is.
+- A dossier whose text is ASCII uses the PDF built-in fonts; typographic characters in
+  the engine's notes are written out (a Greek sigma as "sigma"). A dossier with text
+  those fonts cannot show (a translated title, requirements in Greek or Cyrillic,
+  accented Latin) is set throughout in Noto Sans, embedded (OFL 1.1,
+  `assets/fonts/`), with a Unicode map so the text can be searched and copied; the
+  footer's honesty line stays in a built-in font. Noto Sans covers Latin, Greek and
+  Cyrillic; other scripts (Chinese, Japanese, Korean, Arabic, Hebrew, Indic) still
+  become `?` in the PDF. The HTML and JSON keep all text as it is.
 - A scenario is run from its own text. A data file a scenario names by relative path is
   not copied into the dossier.
 - The dossier hash, the manifest and the ledger are not signed: they show that the

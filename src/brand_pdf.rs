@@ -52,6 +52,12 @@ const CORMORANT_600: &[u8] =
     include_bytes!("../assets/brand/fonts/CormorantGaramond-600-subset.ttf");
 const CORMORANT_700: &[u8] =
     include_bytes!("../assets/brand/fonts/CormorantGaramond-700-subset.ttf");
+/// Noto Sans (OFL 1.1, `assets/fonts/`): the face for documents whose text the PDF
+/// standard fonts cannot show (roadmap F8c). Latin, Greek and Cyrillic.
+const NOTO_400: &[u8] = include_bytes!("../assets/fonts/NotoSans-Regular.ttf");
+const NOTO_700: &[u8] = include_bytes!("../assets/fonts/NotoSans-Bold.ttf");
+const FONT_ID_NOTO_400: &str = "FKshNotoSans400";
+const FONT_ID_NOTO_700: &str = "FKshNotoSans700";
 const FONT_ID_600: &str = "FAshCormorant600";
 const FONT_ID_700: &str = "FAshCormorant700";
 const GS_PREFIX: &str = "GSash";
@@ -222,8 +228,38 @@ fn ttf(bold: bool) -> &'static Ttf {
     }
 }
 
+fn noto_ttf(bold: bool) -> &'static Ttf {
+    static N400: OnceLock<Ttf> = OnceLock::new();
+    static N700: OnceLock<Ttf> = OnceLock::new();
+    if bold {
+        N700.get_or_init(|| parse_ttf(NOTO_700).expect("the embedded Noto Sans Bold parses"))
+    } else {
+        N400.get_or_init(|| parse_ttf(NOTO_400).expect("the embedded Noto Sans parses"))
+    }
+}
+
+/// The Unicode face ([`NOTO_400`] or bold), for text the standard fonts cannot show.
+pub fn unicode_font(bold: bool) -> PdfFontHandle {
+    PdfFontHandle::External(FontId(
+        if bold {
+            FONT_ID_NOTO_700
+        } else {
+            FONT_ID_NOTO_400
+        }
+        .into(),
+    ))
+}
+
+/// Whether the Unicode face has a glyph for `c`.
+pub fn unicode_covers(c: char) -> bool {
+    noto_ttf(false).cmap.contains_key(&(c as u32))
+}
+
 fn parsed_font(bytes: &[u8], bold: bool, name: &str) -> ParsedFont {
-    let t = ttf(bold);
+    parsed_font_from(ttf(bold), bytes, name)
+}
+
+fn parsed_font_from(t: &Ttf, bytes: &[u8], name: &str) -> ParsedFont {
     let mut f = ParsedFont::with_glyph_data(
         bytes.to_vec(),
         0,
@@ -274,6 +310,26 @@ pub fn save(title: &str, pages: Vec<PdfPage>) -> Result<Vec<u8>, String> {
         FontId(FONT_ID_700.into()),
         printpdf::font::PdfFont::new(parsed_font(CORMORANT_700, true, "CormorantGaramond-Bold")),
     );
+    // The Unicode face is embedded only in a document that uses it, so every other
+    // document keeps its bytes.
+    let uses = |id: &str| {
+        pages.iter().any(|p| {
+            p.ops.iter().any(|op| {
+                matches!(op, Op::SetFont { font: PdfFontHandle::External(FontId(f)), .. } if f == id)
+            })
+        })
+    };
+    for (id, bytes, bold, name) in [
+        (FONT_ID_NOTO_400, NOTO_400, false, "NotoSans-Regular"),
+        (FONT_ID_NOTO_700, NOTO_700, true, "NotoSans-Bold"),
+    ] {
+        if uses(id) {
+            doc.resources.fonts.map.insert(
+                FontId(id.into()),
+                printpdf::font::PdfFont::new(parsed_font_from(noto_ttf(bold), bytes, name)),
+            );
+        }
+    }
     for page in &pages {
         for op in &page.ops {
             if let Op::LoadGraphicsState { gs } = op {

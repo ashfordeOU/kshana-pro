@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Unicode in the mission dossier PDF (F8c).** A dossier with text the PDF standard fonts cannot
+  show is set in Noto Sans (OFL 1.1, `assets/fonts/`), embedded with a Unicode map so the text is
+  searchable; the footer's honesty line stays a built-in-font literal. ASCII dossiers are
+  unchanged (the face is embedded only when used). Latin, Greek and Cyrillic; other scripts are a
+  stated gap.
+
 - **Correlated inputs in the uncertainty study (F8a).** `[[correlation]] inputs = [a, b], rho, source`
   correlates inputs through a Gaussian copula (Cholesky factor of the normal-score correlation
   matrix); marginals stay exact; inconsistent matrices are refused; `src` and `sobol` sensitivity

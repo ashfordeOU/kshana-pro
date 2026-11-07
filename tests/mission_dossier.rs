@@ -1866,3 +1866,46 @@ fn a_ledger_from_another_dossier_fails_the_check() {
         vec!["ledger.json: the last record does not carry this dossier's hash".to_string()]
     );
 }
+
+/// F8c: a dossier with text the standard PDF fonts cannot show (Greek, Cyrillic,
+/// accented Latin) is set in the embedded Unicode face; an ASCII dossier is not.
+#[test]
+fn a_translated_dossier_is_set_in_the_unicode_face() {
+    let title = "Έλεγχος πλοήγησης · Проверка навигации · Vérification";
+    let dir = small_programme(
+        "unicode",
+        &SMALL.replace("title = \"Small\"", &format!("title = \"{title}\"")),
+        "id,text,method,criterion,runs\nR1,\"Η μέση τιμή PDOP δεν υπερβαίνει το 6.\",analysis,fom.median_pdop <= 6,RUN-MARS\n",
+    );
+    let b = build(
+        &dir.join("programme.toml"),
+        &dir.join("out"),
+        &opts(enterprise()),
+    )
+    .expect("the translated programme builds");
+    let pdf = std::fs::read(b.out_dir.join("dossier.pdf")).unwrap();
+    assert!(count(&pdf, b"/BaseFont/NotoSans-Regular") + count(&pdf, b"NotoSans-Regular") >= 1);
+    assert!(count(&pdf, b"/FontFile2") >= 1, "the face is embedded");
+    assert!(
+        count(&pdf, b"/ToUnicode") >= 1,
+        "text extraction maps glyphs back to Unicode"
+    );
+    // The honesty line in the footer stays a plain literal in a standard font.
+    assert!(count(&pdf, b"MODELLED engineering study - not a certification") >= 1);
+    // Extract the text when a PDF text tool is installed, and find the Greek and Cyrillic.
+    if let Ok(out) = Command::new("pdftotext")
+        .arg(b.out_dir.join("dossier.pdf"))
+        .arg("-")
+        .output()
+    {
+        if out.status.success() {
+            let text = String::from_utf8_lossy(&out.stdout);
+            assert!(text.contains("πλοήγησης"), "Greek is extracted");
+            assert!(text.contains("Проверка"), "Cyrillic is extracted");
+            assert!(text.contains("Vérification"));
+        }
+    }
+    // The worked (ASCII) programme does not embed it.
+    let ascii = std::fs::read(shared().out_dir.join("dossier.pdf")).unwrap();
+    assert_eq!(count(&ascii, b"NotoSans"), 0);
+}

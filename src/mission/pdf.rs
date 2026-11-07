@@ -51,12 +51,41 @@ pub struct PdfOutput {
 }
 
 fn mono() -> PdfFontHandle {
+    if crate::report_pdf::unicode_face() {
+        return crate::brand_pdf::unicode_font(false);
+    }
     PdfFontHandle::Builtin(BuiltinFont::Courier)
+}
+
+/// Text as the document can show it. With the standard fonts: [`to_builtin`]. With the
+/// Unicode face (a dossier whose text needs it, F8c): the text as it is, white space
+/// made single-line.
+pub fn ascii(s: &str) -> String {
+    if crate::report_pdf::unicode_face() {
+        return s
+            .chars()
+            .map(|c| {
+                if matches!(c, '\t' | '\n' | '\r') {
+                    ' '
+                } else {
+                    c
+                }
+            })
+            .collect();
+    }
+    to_builtin(s)
+}
+
+/// Whether some text of the dossier is lost by [`to_builtin`] but shown by the Unicode
+/// face: then the PDF is set in that face.
+pub fn needs_unicode(text: &str) -> bool {
+    text.chars()
+        .any(|c| to_builtin(&c.to_string()) == "?" && crate::brand_pdf::unicode_covers(c))
 }
 
 /// Text the built-in fonts can show: ASCII, with the common typographic characters of
 /// the engine's notes written out. Anything else becomes `?`.
-pub fn ascii(s: &str) -> String {
+pub fn to_builtin(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for c in s.chars() {
         match c {
@@ -1103,6 +1132,9 @@ fn page_count(pages: &[Vec<Op>], current: &[Op]) -> usize {
 
 /// Render the dossier as a PDF.
 pub fn render(d: &Dossier) -> Result<PdfOutput, String> {
+    // Text the standard fonts cannot show (a translated title, names and requirements
+    // in Greek or Cyrillic, accented Latin) sets the whole document in the Unicode face.
+    let _face = needs_unicode(&d.to_json()).then(crate::report_pdf::UnicodeFace::on);
     let mut l = Layout::new();
     cover(&mut l, d);
     summary_and_matrix(&mut l, d);
@@ -1118,7 +1150,7 @@ pub fn render(d: &Dossier) -> Result<PdfOutput, String> {
         format!("{} issue {}  |  ", id.reference, id.issue)
     };
     // No parentheses and ASCII only, so the phrase stays one literal in the stream.
-    let footer = ascii(&format!(
+    let footer = to_builtin(&format!(
         "Ashforde OU  |  {}  |  {reference}MODELLED engineering study - not a certification",
         id.classification
     ))
@@ -1132,7 +1164,7 @@ pub fn render(d: &Dossier) -> Result<PdfOutput, String> {
     let pages = l.finish(&footer, &mark);
     debug_assert_eq!(pages.len(), pages_n);
     let n = pages.len();
-    let bytes = crate::brand_pdf::save(&ascii(&id.title), pages)?;
+    let bytes = crate::brand_pdf::save(&to_builtin(&id.title), pages)?;
     Ok(PdfOutput { bytes, pages: n })
 }
 

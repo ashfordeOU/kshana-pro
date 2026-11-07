@@ -98,20 +98,53 @@ pub(crate) fn wrap(text: &str, width_mm: f32, pt: f32) -> Vec<String> {
     lines
 }
 
+thread_local! {
+    static UNICODE_FACE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// While alive, every text face of a document rendered on this thread is the embedded
+/// Unicode face ([`crate::brand_pdf::unicode_font`]) instead of a standard font (roadmap
+/// F8c). Dropping it restores the standard fonts.
+pub(crate) struct UnicodeFace(bool);
+
+impl UnicodeFace {
+    pub(crate) fn on() -> UnicodeFace {
+        UnicodeFace(UNICODE_FACE.with(|f| f.replace(true)))
+    }
+}
+
+impl Drop for UnicodeFace {
+    fn drop(&mut self) {
+        let prev = self.0;
+        UNICODE_FACE.with(|f| f.set(prev));
+    }
+}
+
+/// Whether the Unicode face is on for this thread.
+pub(crate) fn unicode_face() -> bool {
+    UNICODE_FACE.with(|f| f.get())
+}
+
 /// A serif heading vs sans body distinction, mapped to built-in standard-14 fonts.
 pub(crate) fn serif() -> PdfFontHandle {
+    if unicode_face() {
+        return crate::brand_pdf::unicode_font(false);
+    }
     PdfFontHandle::Builtin(BuiltinFont::TimesRoman)
 }
 pub(crate) fn serif_bold() -> PdfFontHandle {
+    if unicode_face() {
+        return crate::brand_pdf::unicode_font(true);
+    }
     PdfFontHandle::Builtin(BuiltinFont::TimesBold)
 }
 /// The text face. The names are historical: every face of an Ashforde document is a
 /// serif, so the former sans-serif body and labels are set in the standard Times too.
 pub(crate) fn sans() -> PdfFontHandle {
-    PdfFontHandle::Builtin(BuiltinFont::TimesRoman)
+    serif()
 }
 pub(crate) fn sans_bold() -> PdfFontHandle {
-    PdfFontHandle::Builtin(BuiltinFont::TimesBold)
+    serif_bold()
 }
 
 /// Incremental, page-aware layout builder. Holds the current page's ops and the
