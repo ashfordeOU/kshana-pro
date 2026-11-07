@@ -93,6 +93,22 @@ pub fn verify_token_for(
     }
 }
 
+/// The `stations` claim of the licence in use (`--license <token>`, else the activated
+/// one): 0 when there is none or it carries none.
+pub fn stations_claim(token: Option<&str>, now: i64, product: Product) -> u32 {
+    let Ok(ring) = keyring() else { return 0 };
+    let o = opts(now, product);
+    match token {
+        Some(t) => license::verify_with(&ring, t, &o)
+            .map(|l| l.claims.stations)
+            .unwrap_or(0),
+        None => store(&[])
+            .map(|s| s.status(&ring, &[], &o))
+            .and_then(|st| st.licence.map(|l| l.claims.stations))
+            .unwrap_or(0),
+    }
+}
+
 /// With no `--license`: the activated token from the store when it is usable, else
 /// Evaluation. Prints one line saying which.
 pub fn stored_or_evaluation(now: i64, product: Product) -> Entitlement {

@@ -38,6 +38,7 @@ pub mod auth;
 pub mod backup;
 pub mod clients;
 pub mod delivery;
+pub mod fleet;
 pub mod ha;
 pub mod jobs;
 pub mod library;
@@ -425,6 +426,8 @@ pub struct ServeConfig {
     pub tls: Option<(PathBuf, PathBuf)>,
     /// The hosted trial sandbox (`--trial`): open, Evaluation tier, quotas ([`trial`]).
     pub trial: Option<trial::TrialConfig>,
+    /// The licence's `stations` claim, for the Station fleet limit ([`fleet`]).
+    pub stations_claim: u32,
     /// Re-queue jobs left queued or running by an earlier process (default true). A
     /// test switches it off to prove that recovery is what finishes those jobs.
     #[doc(hidden)]
@@ -446,6 +449,7 @@ impl ServeConfig {
             ha: None,
             tls: None,
             trial: None,
+            stations_claim: 0,
             recover_on_start: true,
         }
     }
@@ -594,6 +598,7 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
         None => None,
     };
     let mut svc = api::Service::with_auth(config.entitlement.clone(), jobs, authn, audit);
+    svc.stations_claim = config.stations_claim;
     if let (Some(tc), Some(dir)) = (&config.trial, &config.data_dir) {
         svc.trial = Some(trial::Trial::open(dir, tc.clone())?);
         eprintln!(

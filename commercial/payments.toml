@@ -37,7 +37,8 @@ provider_price_id = "PLACEHOLDER"
 id = "pro-station-fleet-annual"
 name = "Kshana Pro: Station fleet (annual)"
 tier = "pro"
-products = ["station", "desktop"]
+# The fleet is managed by the Pro service (kshana-pro serve, /fleet/stations).
+products = ["station", "desktop", "service"]
 days = 365
 # Stations per licence: the owner sets this with the prices (0 = not set).
 stations = 0

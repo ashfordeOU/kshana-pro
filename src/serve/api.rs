@@ -52,6 +52,10 @@ pub enum RouteId {
     ShareRevoke,
     Shared,
     SharedArtefact,
+    FleetRegister,
+    FleetList,
+    FleetHeartbeat,
+    FleetRetire,
 }
 
 /// One route: the method, the path template (OpenAPI form, `{param}` for a segment)
@@ -113,6 +117,10 @@ pub static ROUTES: &[Route] = &[
     Route { method: "POST", path: "/shares/{token}/revoke", id: RouteId::ShareRevoke, role: Some(Role::Submitter), summary: "Revoke a share link of the caller's tenant", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Revoked"), (404, JSON, "No such link in this tenant"), AUTH_401] },
     Route { method: "GET", path: "/shared/{token}", id: RouteId::Shared, role: None, summary: "A shared job's status and result, read-only, no credential (the token is the credential)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Status and result"), (404, JSON, "No such link, or expired or revoked")] },
     Route { method: "GET", path: "/shared/{token}/artefacts/{name}", id: RouteId::SharedArtefact, role: None, summary: "One artefact of a shared job", needs_data_dir: true, greedy_tail: true, request: None, query: &[], responses: &[(200, "application/octet-stream", "The artefact"), (404, JSON, "No such link or artefact")] },
+    Route { method: "POST", path: "/fleet/stations", id: RouteId::FleetRegister, role: Some(Role::Submitter), summary: "Register a Kshana Station {id, name, url?}; more than one needs the pro-station-fleet feature, and the licence's stations claim caps them", needs_data_dir: true, greedy_tail: false, request: Some((JSON, "{\"id\": <plain name>, \"name\": <text>, \"url\": <optional>}")), query: &[], responses: &[(201, JSON, "Registered"), (200, JSON, "Already registered"), (403, JSON, "Past the licence's Station limit"), (422, JSON, "Invalid id or name"), AUTH_401] },
+    Route { method: "GET", path: "/fleet/stations", id: RouteId::FleetList, role: Some(Role::Reader), summary: "The tenant's Stations with their last health report and state (live, stale, registered, retired), and the licence limit", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "The fleet"), AUTH_401] },
+    Route { method: "POST", path: "/fleet/stations/{id}/heartbeat", id: RouteId::FleetHeartbeat, role: Some(Role::Submitter), summary: "A Station's health report (any JSON object)", needs_data_dir: true, greedy_tail: false, request: Some((JSON, "The Station's health")), query: &[], responses: &[(200, JSON, "Recorded"), (404, JSON, "Not registered"), AUTH_401] },
+    Route { method: "POST", path: "/fleet/stations/{id}/retire", id: RouteId::FleetRetire, role: Some(Role::Submitter), summary: "Retire a Station: it stops counting against the limit", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Retired"), (404, JSON, "Not registered"), AUTH_401] },
     Route { method: "GET", path: "/metrics", id: RouteId::Metrics, role: Some(Role::Reader), summary: "Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, "text/plain; version=0.0.4", "Prometheus text exposition"), AUTH_401] },
     Route { method: "GET", path: "/audit/verify", id: RouteId::AuditVerify, role: Some(Role::Admin), summary: "Verify the hash chain of the audit log (admin)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Verification report (verified true or false, first bad line named)"), AUTH_401, AUTH_403] },
 ];
@@ -182,6 +190,8 @@ pub struct Service {
     started: std::time::Instant,
     /// The hosted trial sandbox, when the server runs one ([`super::trial`]).
     pub trial: Option<super::trial::Trial>,
+    /// The licence's `stations` claim ([`super::fleet::limit_for`]).
+    pub stations_claim: u32,
 }
 
 impl Service {
@@ -210,6 +220,7 @@ impl Service {
             requests: Default::default(),
             started: std::time::Instant::now(),
             trial: None,
+            stations_claim: 0,
         }
     }
 
@@ -544,6 +555,70 @@ fn route_request(
                 })),
             )
         }
+        (RouteId::FleetRegister, Some(j)) => {
+            let v: serde_json::Value = match serde_json::from_str(&req.body) {
+                Ok(v) => v,
+                Err(e) => return HttpResponse::error(400, &format!("malformed JSON: {e}")),
+            };
+            let Some(id) = v["id"].as_str().filter(|i| is_safe_name(i) && i.len() <= 64) else {
+                return HttpResponse::error(422, "id is required: a plain name (letters, digits, '.', '_', '-')");
+            };
+            let name = v["name"].as_str().unwrap_or(id).trim();
+            if name.is_empty() || name.len() > 200 {
+                return HttpResponse::error(422, "name must be 1 to 200 characters");
+            }
+            let url = v["url"].as_str().map(str::to_string);
+            let limit = super::fleet::limit_for(&svc.entitlement, svc.stations_claim, now);
+            match super::fleet::register(&j.data_dir, &who.tenant, id, name, url, limit, now) {
+                Ok((s, created)) => HttpResponse::json(
+                    if created { 201 } else { 200 },
+                    serde_json::json!({"station": s, "limit": limit}).to_string(),
+                ),
+                Err(super::fleet::Refused::Limit(n)) => HttpResponse::error(
+                    403,
+                    &if n <= 1 && !svc.entitlement.allows("pro-station-fleet", now) {
+                        "this licence runs one Kshana Station; more than one is the Pro Station fleet (pro-station-fleet)".to_string()
+                    } else {
+                        format!("the licence allows {n} active Stations; retire one or extend the licence")
+                    },
+                ),
+                Err(super::fleet::Refused::Io(e)) => HttpResponse::error(500, &e),
+            }
+        }
+        (RouteId::FleetList, Some(j)) => {
+            let limit = super::fleet::limit_for(&svc.entitlement, svc.stations_claim, now);
+            let all = super::fleet::all(&j.data_dir);
+            let active = all.iter().filter(|s| !s.retired).count();
+            let mine: Vec<serde_json::Value> = all
+                .iter()
+                .filter(|s| who.sees(&s.tenant))
+                .map(|s| {
+                    let mut v = serde_json::to_value(s).unwrap_or_default();
+                    v["state"] = serde_json::json!(super::fleet::state(s, now));
+                    v
+                })
+                .collect();
+            HttpResponse::json(
+                200,
+                json_pretty(&serde_json::json!({"limit": limit, "active": active, "stations": mine})),
+            )
+        }
+        (RouteId::FleetHeartbeat, Some(j)) => {
+            let health: serde_json::Value = match serde_json::from_str(&req.body) {
+                Ok(v @ serde_json::Value::Object(_)) => v,
+                _ => return HttpResponse::error(400, "the health report is a JSON object"),
+            };
+            match super::fleet::heartbeat(&j.data_dir, &who.tenant, &params[0], health, now) {
+                Ok(Some(s)) => HttpResponse::json(200, serde_json::json!({"id": s.id, "state": super::fleet::state(&s, now)}).to_string()),
+                Ok(None) => HttpResponse::error(404, "no such Station in this tenant"),
+                Err(e) => HttpResponse::error(500, &e.to_string()),
+            }
+        }
+        (RouteId::FleetRetire, Some(j)) => match super::fleet::retire(&j.data_dir, &who.tenant, &params[0]) {
+            Ok(true) => HttpResponse::json(200, serde_json::json!({"retired": params[0]}).to_string()),
+            Ok(false) => HttpResponse::error(404, "no such Station in this tenant"),
+            Err(e) => HttpResponse::error(500, &e.to_string()),
+        },
         (RouteId::Metrics, Some(j)) => HttpResponse {
             status: 200,
             content_type: "text/plain; version=0.0.4",
@@ -1250,11 +1325,15 @@ mod tests {
     }
 
     #[test]
-    fn every_route_but_health_needs_a_role() {
+    fn every_route_but_health_and_share_links_needs_a_role() {
+        // A share link's token is its credential (F3a); both of its routes are GET.
         for r in ROUTES {
             assert_eq!(
                 r.role.is_none(),
-                r.id == RouteId::Health,
+                matches!(
+                    r.id,
+                    RouteId::Health | RouteId::Shared | RouteId::SharedArtefact
+                ),
                 "{} {}",
                 r.method,
                 r.path

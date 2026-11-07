@@ -383,6 +383,17 @@ fn serve_cmd(args: &[String]) -> ExitCode {
     // --api-token-file guards every route except /health. The token is read from the
     // file, never from the command line, and is never printed.
     let mut config = kshana_pro::serve::ServeConfig::new(&addr, ent);
+    // The Station fleet limit (L3, F10e): the licence's stations claim; a development
+    // server is not limited.
+    config.stations_claim = if has_flag(args, "--dev") {
+        u32::MAX
+    } else {
+        license_cmd::stations_claim(
+            flag(args, "--license").as_deref(),
+            now_unix(),
+            license::Product::Service,
+        )
+    };
     config.data_dir = flag(args, "--data-dir").map(std::path::PathBuf::from);
     if let Some(w) = flag(args, "--workers") {
         match w.parse::<usize>() {

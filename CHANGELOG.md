@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Station fleet (L3 Pro part, F10e).** `POST /fleet/stations`, `GET /fleet/stations`,
+  `POST /fleet/stations/<id>/heartbeat|retire` on the Pro service: Stations register and report
+  health (live, stale, registered, retired). One Station without `pro-station-fleet`; with it, the
+  licence's `stations` claim caps the active Stations; retiring frees a place. The Station-fleet
+  edition now covers the `service` product. `tests/station_fleet.rs`.
+
 - **Saved studies and share links (F3a).** `POST/GET /library`, `POST /library/<name>/run`: named
   job requests per tenant. `POST /jobs/<id>/share` makes a read-only link (`/shared/<token>`, 1 to
   90 days, token shown once, only its hash stored) that anyone can open without a credential;

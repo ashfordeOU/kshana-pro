@@ -184,6 +184,26 @@ export class KshanaProClient {
     return this.call("GET", `/shared/${encodeURIComponent(token)}/artefacts/${encodeURIComponent(name)}`, undefined, undefined, undefined, false);
   }
 
+  /** POST /fleet/stations: Register a Kshana Station {id, name, url?}; more than one needs the pro-station-fleet feature, and the licence's stations claim caps them. Role: submitter. */
+  postFleetStations(body: unknown): Promise<any> {
+    return this.call("POST", `/fleet/stations`, undefined, JSON.stringify(body), "application/json", false);
+  }
+
+  /** GET /fleet/stations: The tenant's Stations with their last health report and state (live, stale, registered, retired), and the licence limit. Role: reader. */
+  getFleetStations(): Promise<any> {
+    return this.call("GET", `/fleet/stations`, undefined, undefined, undefined, false);
+  }
+
+  /** POST /fleet/stations/{id}/heartbeat: A Station's health report (any JSON object). Role: submitter. */
+  postFleetStationsIdHeartbeat(id: string, body: unknown): Promise<any> {
+    return this.call("POST", `/fleet/stations/${encodeURIComponent(id)}/heartbeat`, undefined, JSON.stringify(body), "application/json", false);
+  }
+
+  /** POST /fleet/stations/{id}/retire: Retire a Station: it stops counting against the limit. Role: submitter. */
+  postFleetStationsIdRetire(id: string): Promise<any> {
+    return this.call("POST", `/fleet/stations/${encodeURIComponent(id)}/retire`, undefined, undefined, undefined, false);
+  }
+
   /** GET /metrics: Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime. Role: reader. */
   getMetrics(): Promise<any> {
     return this.call("GET", `/metrics`, undefined, undefined, undefined, false);

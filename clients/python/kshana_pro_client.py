@@ -166,6 +166,22 @@ class KshanaProClient:
         """GET /shared/{token}/artefacts/{name}: One artefact of a shared job. Role: none (no credential)."""
         return self._call("GET", f"/shared/{_q(token)}/artefacts/{_q(name)}", None, None, None, text=False)
 
+    def post_fleet_stations(self, body):
+        """POST /fleet/stations: Register a Kshana Station {id, name, url?}; more than one needs the pro-station-fleet feature, and the licence's stations claim caps them. Role: submitter."""
+        return self._call("POST", "/fleet/stations", None, json.dumps(body), "application/json", text=False)
+
+    def get_fleet_stations(self):
+        """GET /fleet/stations: The tenant's Stations with their last health report and state (live, stale, registered, retired), and the licence limit. Role: reader."""
+        return self._call("GET", "/fleet/stations", None, None, None, text=False)
+
+    def post_fleet_stations_id_heartbeat(self, id, body):
+        """POST /fleet/stations/{id}/heartbeat: A Station's health report (any JSON object). Role: submitter."""
+        return self._call("POST", f"/fleet/stations/{_q(id)}/heartbeat", None, json.dumps(body), "application/json", text=False)
+
+    def post_fleet_stations_id_retire(self, id):
+        """POST /fleet/stations/{id}/retire: Retire a Station: it stops counting against the limit. Role: submitter."""
+        return self._call("POST", f"/fleet/stations/{_q(id)}/retire", None, None, None, text=False)
+
     def get_metrics(self):
         """GET /metrics: Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime. Role: reader."""
         return self._call("GET", "/metrics", None, None, None, text=False)
