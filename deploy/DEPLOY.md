@@ -179,3 +179,33 @@ curl -s localhost:8088/ledger/verify
 - **Limits:** requests are capped (header 16 KiB, body 1 MiB; 16 MiB for `POST /jobs`)
   as a basic denial-of-service guard. A body above the cap is refused with 413 before
   it is read.
+
+## Linux package and the air-gapped bundle (roadmap L6, L7)
+
+**Debian package.** `scripts/build-deb.sh <kshana-pro binary> <out-dir> [arch]` builds
+`kshana-pro_<version>_<arch>.deb`: the binary in `/usr/bin`, the systemd unit
+`kshana-pro.service` (local-only by default, hardened: a `kshana` system user, read-only
+system, only `/var/lib/kshana-pro` writable), its settings in `/etc/kshana-pro/serve.env`
+(a configuration file, kept on upgrade) and the guides. The post-install step creates the
+user and the directories and says how to activate the licence and start the service. The
+package is unsigned; a signed apt repository is the publisher's step. An `.rpm` is not
+built yet.
+
+**Air-gapped bundle.** `scripts/offline-bundle.sh <kshana-pro binary> <out-dir> [--sign
+<key file> --signer <name>] [--revocations <revocations.txt>] [--deb <package>]` writes a
+directory to carry into a site with no network: the binary, the unit and its settings, the
+guides, the signed revocation list, a CycloneDX bill of materials of the locked build graph
+(`sbom.cdx.json`), `SHA256SUMS`, and with `--sign` an Ed25519 signature over every file
+(`signature.json`, made by `kshana-pro dossier sign`; the signing licence comes from
+`$KSHANA_PRO_VENDOR_LICENSE`). On the site:
+
+```bash
+sha256sum -c SHA256SUMS                                   # or: shasum -a 256 -c SHA256SUMS
+kshana-pro dossier verify . --trust <publisher's bundle public key>   # or scripts/verify-dossier-signature.py
+./install.sh --prefix /opt/kshana --licence token.txt [--service]
+```
+
+`install.sh` checks every file before installing anything, installs the revocation list
+when the bundle carries one, activates the licence offline, and with `--service` installs
+the systemd unit. Without `--sign` the bundle says it is unsigned (`BUNDLE.txt`); the
+publisher's bundle signing key is not yet made (docs/LICENSING-KEYS.md applies to it).

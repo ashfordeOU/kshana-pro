@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Linux package and air-gapped bundle (L6, L7).** `scripts/build-deb.sh` (binary, hardened systemd
+  unit, settings, guides; unsigned) and `scripts/offline-bundle.sh` (binary, unit, guides, revocation
+  list, CycloneDX SBOM from the locked graph via `scripts/sbom.py`, `SHA256SUMS`, an optional Ed25519
+  signature over every file, and an `install.sh` that checks everything before installing and
+  activates a licence offline). `tests/offline_bundle.rs`. No `.rpm` yet; Windows MSI not built here.
+
 - **Station fleet (L3 Pro part, F10e).** `POST /fleet/stations`, `GET /fleet/stations`,
   `POST /fleet/stations/<id>/heartbeat|retire` on the Pro service: Stations register and report
   health (live, stale, registered, retired). One Station without `pro-station-fleet`; with it, the

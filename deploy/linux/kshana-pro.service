@@ -1,0 +1,34 @@
+# Kshana Pro on-premises service (systemd). Installed by the .deb and by the offline
+# bundle's install.sh. The licence is the activated token of the `kshana` user
+# (KSHANA_PRO_HOME below); the data directory holds jobs, the ledger and the audit log.
+[Unit]
+Description=Kshana Pro service
+Documentation=file:///usr/share/doc/kshana-pro/SERVICE.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kshana
+Group=kshana
+Environment=KSHANA_PRO_HOME=/var/lib/kshana-pro/licence
+EnvironmentFile=-/etc/kshana-pro/serve.env
+ExecStart=/usr/bin/kshana-pro serve --addr ${KSHANA_PRO_ADDR} --data-dir /var/lib/kshana-pro/data $KSHANA_PRO_SERVE_ARGS
+Restart=on-failure
+RestartSec=5
+# Hardening: the service needs its data directory and the network, nothing else.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+ReadWritePaths=/var/lib/kshana-pro
+StateDirectory=kshana-pro
+
+[Install]
+WantedBy=multi-user.target
