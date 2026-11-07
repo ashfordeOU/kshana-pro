@@ -45,6 +45,7 @@ pub mod openapi;
 pub mod ops;
 pub mod study_intake;
 pub mod tls;
+pub mod trial;
 pub mod worker;
 
 use std::io::{Read, Write};
@@ -138,6 +139,7 @@ fn reason(status: u16) -> &'static str {
         404 => "Not Found",
         409 => "Conflict",
         413 => "Payload Too Large",
+        429 => "Too Many Requests",
         422 => "Unprocessable Entity",
         500 => "Internal Server Error",
         503 => "Service Unavailable",
@@ -419,6 +421,8 @@ pub struct ServeConfig {
     /// Serve HTTPS with this certificate chain and private key (PEM files) instead of
     /// plain HTTP ([`tls`]).
     pub tls: Option<(PathBuf, PathBuf)>,
+    /// The hosted trial sandbox (`--trial`): open, Evaluation tier, quotas ([`trial`]).
+    pub trial: Option<trial::TrialConfig>,
     /// Re-queue jobs left queued or running by an earlier process (default true). A
     /// test switches it off to prove that recovery is what finishes those jobs.
     #[doc(hidden)]
@@ -439,6 +443,7 @@ impl ServeConfig {
             audit_retention_days: 400,
             ha: None,
             tls: None,
+            trial: None,
             recover_on_start: true,
         }
     }
@@ -534,6 +539,19 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
             )));
         }
     }
+    let mut config = config;
+    if config.trial.is_some() {
+        if config.data_dir.is_none() {
+            return Err(std::io::Error::other("the trial needs a --data-dir"));
+        }
+        if config.api_token.is_some() || config.keys.is_some() || config.oidc.is_some() {
+            return Err(std::io::Error::other(
+                "the trial is open by design: it takes no access token, keys or OIDC",
+            ));
+        }
+        // Whatever licence the server holds, the trial serves the Evaluation tier.
+        config.entitlement = Entitlement::evaluation();
+    }
     let tls = match &config.tls {
         Some((cert, key)) => Some(tls::server_config(cert, key)?),
         None => None,
@@ -573,12 +591,15 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
         }
         None => None,
     };
-    let service = Arc::new(api::Service::with_auth(
-        config.entitlement.clone(),
-        jobs,
-        authn,
-        audit,
-    ));
+    let mut svc = api::Service::with_auth(config.entitlement.clone(), jobs, authn, audit);
+    if let (Some(tc), Some(dir)) = (&config.trial, &config.data_dir) {
+        svc.trial = Some(trial::Trial::open(dir, tc.clone())?);
+        eprintln!(
+            "TRIAL: open to anyone at the Evaluation tier; {} jobs a day per caller, {} s per job, {} requests a minute",
+            tc.jobs_per_day, tc.max_run_secs, tc.requests_per_minute
+        );
+    }
+    let service = Arc::new(svc);
 
     eprintln!(
         "kshana-pro serving on {}://{addr}  (tier: {}, licensee: {})",
@@ -671,7 +692,8 @@ fn accept_loop(
     let active = Arc::new(AtomicUsize::new(0));
     while !stop.load(Ordering::SeqCst) {
         match listener.accept() {
-            Ok((mut s, _)) => {
+            Ok((mut s, peer_addr)) => {
+                let peer = Some(peer_addr.ip());
                 // An accepted socket may inherit the listener's non-blocking mode.
                 let _ = s.set_nonblocking(false);
                 // Shed load when at the connection ceiling (bounds thread/memory use).
@@ -692,7 +714,7 @@ fn accept_loop(
                         Some(cfg) => match rustls::ServerConnection::new(cfg) {
                             Ok(conn) => {
                                 let mut ts = rustls::StreamOwned::new(conn, s);
-                                let r = handle_conn(&mut ts, &svc);
+                                let r = handle_conn(&mut ts, &svc, peer);
                                 ts.conn.send_close_notify();
                                 let _ = ts.flush();
                                 r
@@ -701,7 +723,7 @@ fn accept_loop(
                         },
                         None => {
                             let mut s = s;
-                            handle_conn(&mut s, &svc)
+                            handle_conn(&mut s, &svc, peer)
                         }
                     };
                     if let Err(e) = r {
@@ -757,9 +779,13 @@ pub(crate) fn sse_event(status: &serde_json::Value) -> String {
     format!("event: status\ndata: {status}\n\n")
 }
 
-fn handle_conn<S: Read + Write>(stream: &mut S, service: &api::Service) -> std::io::Result<()> {
+fn handle_conn<S: Read + Write>(
+    stream: &mut S,
+    service: &api::Service,
+    peer: Option<std::net::IpAddr>,
+) -> std::io::Result<()> {
     let mut resp = match read_request_with(&mut *stream, MAX_HEADER_BYTES, body_cap) {
-        Ok((req, auth)) => api::dispatch(service, &req, auth.as_deref(), now_unix()),
+        Ok((req, auth)) => api::dispatch_from(service, &req, auth.as_deref(), now_unix(), peer),
         Err(e) => {
             let status = if e.contains("too large") { 413 } else { 400 };
             HttpResponse::error(status, &e)

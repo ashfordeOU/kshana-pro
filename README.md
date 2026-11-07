@@ -271,7 +271,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **forty integration tests** in
+The suite is unit tests across every module plus **forty-one integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
@@ -299,7 +299,8 @@ in test mode: forged, replayed and out-of-order webhooks refused; off by default
 `signed_dossier.rs` (a signed dossier verified offline, also by an independent Python
 verifier), `service_hardening.rs` (cancellation, time limits, priority, the event stream,
 TLS, failover between two nodes, backup and restore, a concurrent load),
-`pack_c_subscription.rs` (a Pack C subscriber from the purchase webhook to a gated CI run,
+`service_trial.rs` (the open trial sandbox: Evaluation tier, a tenant per caller,
+quotas), `pack_c_subscription.rs` (a Pack C subscriber from the purchase webhook to a gated CI run,
 a renewal and a refund),
 `lab_campaign_load.rs` (the lab-campaign loader verifies cell keys, the DIGEST and the
 schema on a synthetic campaign, and refuses tampered input), and

@@ -166,6 +166,8 @@ pub struct Service {
     /// Requests served, by (tenant, route template, status), for `/metrics`.
     requests: std::sync::Mutex<std::collections::BTreeMap<(String, String, u16), u64>>,
     started: std::time::Instant,
+    /// The hosted trial sandbox, when the server runs one ([`super::trial`]).
+    pub trial: Option<super::trial::Trial>,
 }
 
 impl Service {
@@ -193,6 +195,7 @@ impl Service {
             audit,
             requests: Default::default(),
             started: std::time::Instant::now(),
+            trial: None,
         }
     }
 
@@ -215,13 +218,53 @@ pub fn dispatch(
     authorization: Option<&str>,
     now: i64,
 ) -> HttpResponse {
+    dispatch_from(svc, req, authorization, now, None)
+}
+
+/// [`dispatch`] with the caller's address (the trial sandbox needs it).
+pub fn dispatch_from(
+    svc: &Service,
+    req: &HttpRequest,
+    authorization: Option<&str>,
+    now: i64,
+    peer: Option<std::net::IpAddr>,
+) -> HttpResponse {
     let started = std::time::Instant::now();
     let path = req
         .path
         .split_once('?')
         .map_or(req.path.as_str(), |(p, _)| p);
     let matched = match_route(&req.method, path, svc.jobs.is_some());
-    let principal = svc.auth.authenticate(authorization, now);
+    let principal = match (&svc.trial, peer) {
+        // The trial: every caller is a submitter of its own tenant, keyed by address.
+        (Some(t), Some(ip)) => {
+            if !(req.method == "GET" && path == "/health") {
+                if let Err(r) = t.admit(ip, now) {
+                    return r;
+                }
+            }
+            Ok(Principal {
+                id: "trial".into(),
+                tenant: t.tenant_for(ip),
+                role: Role::Submitter,
+                source: super::auth::Source::Open,
+            })
+        }
+        (Some(_), None) => {
+            return HttpResponse::error(400, "the trial needs the caller's address");
+        }
+        (None, _) => svc.auth.authenticate(authorization, now),
+    };
+    if svc.trial.is_some() {
+        if let Some((r, _)) = &matched {
+            if matches!(r.id, RouteId::Run | RouteId::Study) {
+                return HttpResponse::error(
+                    403,
+                    "the trial runs scenarios as jobs: POST /jobs with {\"op\": \"run\", \"request\": {\"scenario\": ...}}",
+                );
+            }
+        }
+    }
     let resp = route_request(svc, req, matched.as_ref(), &principal, now);
     if !(req.method == "GET" && path == "/health") {
         let tenant = principal
@@ -825,6 +868,17 @@ fn submit(svc: &Service, j: &JobService, who: &Principal, body: &str, now: i64) 
         Ok(p) => p,
         Err(e) => return op_error(e),
     };
+    if let Some(t) = &svc.trial {
+        let cap = t.config.max_run_secs;
+        opts.timeout_secs = Some(opts.timeout_secs.map_or(cap, |x| x.min(cap)));
+        let id = super::jobs::tenant_job_id(&submit_tenant(who), op.name, request);
+        // A resubmitted identical request is the same job and costs nothing.
+        if !matches!(j.store.status(&id), Ok(Some(_))) {
+            if let Err(r) = t.may_submit(j, &who.tenant, now) {
+                return r;
+            }
+        }
+    }
     match enqueue(
         j,
         &submit_tenant(who),

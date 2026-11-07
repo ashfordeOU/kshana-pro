@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Hosted trial sandbox (F3b).** `serve --trial`: open to anyone, Evaluation tier whatever the
+  licence, one tenant per caller (salted hash of the address, never stored), a daily job quota
+  counted from the job store, a capped time limit, a per-minute request limit, a server-wide queue
+  cap; `/run`, `/study` and admin routes closed. Public hosting needs the owner's machine and
+  domain. `tests/service_trial.rs`.
+
 - **Spectrum coexistence with other systems (F8b).** `[[other_system]]` entries (signal design and
   constellation, like plans) add their upper-bound interference to each plan's per cell and victim;
   the result gives the worst cell of the sum, its verdict and the plan's share. Tested against the

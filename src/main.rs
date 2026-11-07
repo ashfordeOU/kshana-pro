@@ -29,7 +29,7 @@ fn usage() -> &'static str {
        kshana-pro version                                            Overlay + engine info\n\
        kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
-       kshana-pro serve [--addr <host:port>] [--data-dir <dir>] [--workers <n>] [--api-token-file <path>] [--keys-file <keys.toml>] [--oidc <oidc.toml>] [--audit-retention-days <n>] [--tls-cert <chain.pem> --tls-key <key.pem>] [--ha-node <name> [--ha-lease-secs <s>]] [--license <token>] [--dev]   Host the HTTP(S) service; --data-dir adds the on-premises job service (jobs, ledger, job board, audit log)\n\
+       kshana-pro serve [--addr <host:port>] [--data-dir <dir>] [--workers <n>] [--api-token-file <path>] [--keys-file <keys.toml>] [--oidc <oidc.toml>] [--audit-retention-days <n>] [--tls-cert <chain.pem> --tls-key <key.pem>] [--ha-node <name> [--ha-lease-secs <s>]] [--trial [--trial-jobs-per-day <n>] [--trial-max-run-secs <s>]] [--license <token>] [--dev]   Host the HTTP(S) service; --data-dir adds the on-premises job service (jobs, ledger, job board, audit log)\n\
        kshana-pro clients --out <dir>                                Write the generated service clients: <dir>/python/kshana_pro_client.py and <dir>/typescript/kshana_pro_client.ts\n\
        kshana-pro keys <add --file <keys.toml> --id <id> --tenant <t> --role <reader|submitter|admin> | revoke --file <keys.toml> --id <id> | list --file <keys.toml>>   Manage the service's API keys (a new key is printed once; the file keeps only its hash)\n\
        kshana-pro ci --pack <manifest.toml> [--baseline <ci.json>] [--thresholds <spec>] [--utc <iso>] [--customer <name>] [--out <report.html>] [--json <ci.json>] [--history <history.jsonl>] [--trend <trend.html>] [--exact] [--license <token>] [--dev]   Run a Pack C scenario-subscription CI, with campaign watch (Pro)\n\
@@ -442,6 +442,34 @@ fn serve_cmd(args: &[String]) -> ExitCode {
             eprintln!("error: --tls-cert and --tls-key go together");
             return ExitCode::from(2);
         }
+    }
+    if has_flag(args, "--trial") {
+        let mut t = kshana_pro::serve::trial::TrialConfig::default();
+        for (name, slot) in [
+            (
+                "--trial-jobs-per-day",
+                &mut t.jobs_per_day as &mut dyn std::any::Any,
+            ),
+            (
+                "--trial-max-run-secs",
+                &mut t.max_run_secs as &mut dyn std::any::Any,
+            ),
+        ] {
+            if let Some(v) = flag(args, name) {
+                let ok = match slot.downcast_mut::<u32>() {
+                    Some(x) => v.parse().map(|n: u32| *x = n).is_ok(),
+                    None => slot
+                        .downcast_mut::<u64>()
+                        .map(|x| v.parse().map(|n: u64| *x = n).is_ok())
+                        .unwrap_or(false),
+                };
+                if !ok {
+                    eprintln!("error: {name} needs a whole number");
+                    return ExitCode::from(2);
+                }
+            }
+        }
+        config.trial = Some(t);
     }
     if let Some(node) = flag(args, "--ha-node") {
         let lease_ms = match flag(args, "--ha-lease-secs").map(|v| v.parse::<f64>()) {

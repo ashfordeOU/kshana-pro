@@ -406,6 +406,28 @@ the copy. To restore, stop the service, put the backup in place of the data dire
 delete `backup-manifest.json`, and start the service: jobs copied while running are
 run again.
 
+## The hosted trial sandbox (roadmap F3b)
+
+`kshana-pro serve --trial --data-dir <dir> [--trial-jobs-per-day <n>]
+[--trial-max-run-secs <s>]` opens the job service to anyone, with no credential, for a
+public trial:
+
+- **Evaluation tier**, whatever licence the server holds: open scenario kinds and the
+  free seam check only.
+- **One tenant per caller**: `trial-` and 16 hexadecimal characters of a salted SHA-256
+  of the caller's address (salt in `<data-dir>/trial-salt`). A caller sees only its own
+  jobs; no address is stored or shown.
+- **Quotas**: 20 new jobs a day per caller (counted from the job store, so a restart
+  does not reset them; resubmitting the same request is free), a time limit of at most
+  60 s per job, 120 requests a minute per address, 100 trial jobs waiting server-wide.
+  Past a quota the answer is 429 (503 when the queue is full) with `Retry-After`.
+- **Closed**: `POST /run` (use `POST /jobs`), `POST /study`, and every admin route.
+- A trial server takes no access token, keys or OIDC; it refuses to start with them.
+
+Run it behind TLS (`--tls-cert`/`--tls-key`) on its own data directory. Behind a reverse
+proxy every caller has the proxy's address, so run it directly, not behind a proxy.
+Hosting it publicly needs a machine and a domain from the owner.
+
 ## Service-level metrics (roadmap F2b)
 
 `GET /metrics` (reader) gives Prometheus text for the caller's tenant (every tenant for
