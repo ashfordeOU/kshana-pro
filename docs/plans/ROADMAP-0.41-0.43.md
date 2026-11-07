@@ -377,6 +377,10 @@ Detail: `0.41-BACKLOG.md` §1.
 - **Gate 4, B3 timing:** the Jammertest 2026 test catalogue and plan were published in May 2026 (jammertest.no, NPRA GitHub), positions included, so by the B3-gate rule the locator's bar is pre-registered against **Jammertest 2027**; the 2026 positions are not opened by anyone on this row. B3a/B3b are built in 0.41 (MODELLED) and scored when the 2027 campaign publishes.
 - **Gate 7, C3:** pre-registration C2 signed off with the draft's bars (2 km, 0.01 m/s, per window), W1 and W2, no second reference, solar radiation pressure unmodelled; committed alone as `docs/mission-thread/PREREGISTRATION-C2.md` (public commit d264d1165).
 - **L8 bench:** not bought now. All connectors are built and tested on recorded data in 0.41; the hardware-in-the-loop part of L8 moves to 0.41.x.
+- **F10a, edition matrix (7 November 2026):** signed as drafted. Open: the engine, device connectors, schemas, live readers and the free Desktop. Pro: Station fleet management (more than one Station), the planner Pareto front with cost (B1b), signed, pre-registered referee scorecards, the space tip-and-cue study (M9), industry adapters beyond the top five, the HA service, studies and signed dossiers.
+- **Build order (7 November 2026):** "all together all at once". Phase 5, the PNT physics tracks and the apps, licensing and payments (phases 9 and 12) are built in parallel. The phases stay as the plan's structure, and each track merges to main when green.
+- **B7 attack classes (7 November 2026):** synthetic jamming and spoofing IQ is built in the private Pro overlay only, licence-gated, never in the open engine; the owner states that counsel has approved it for export control. The open engine's hardware-safety rule is unchanged.
+- **Arksa (7 November 2026):** Kshana stays a separate product; Arksa embeds the engine for its PNT and space-weather parts under the commercial licence.
 
 ## 15. Pre-start checklist for any go
 
