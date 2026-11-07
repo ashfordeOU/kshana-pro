@@ -40,6 +40,7 @@ pub mod clients;
 pub mod delivery;
 pub mod ha;
 pub mod jobs;
+pub mod library;
 pub mod oidc;
 pub mod openapi;
 pub mod ops;
@@ -138,6 +139,7 @@ fn reason(status: u16) -> &'static str {
         403 => "Forbidden",
         404 => "Not Found",
         409 => "Conflict",
+        201 => "Created",
         413 => "Payload Too Large",
         429 => "Too Many Requests",
         422 => "Unprocessable Entity",

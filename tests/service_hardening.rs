@@ -371,14 +371,14 @@ fn tls_in_the_binary() {
     );
     assert_eq!(String::from_utf8_lossy(&out.stdout), "ok\n");
     let out = curl(
-        &[
-            "--cacert",
-            dir.join("ca.pem").to_str().unwrap(),
-            "--tlsv1.3",
-        ],
+        &["--cacert", dir.join("ca.pem").to_str().unwrap()],
         format!("https://{a}/version"),
     );
-    assert!(String::from_utf8_lossy(&out.stdout).contains("kshana-pro"));
+    assert!(
+        String::from_utf8_lossy(&out.stdout).contains("kshana-pro"),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
     // Without the CA the certificate is not trusted; plain HTTP gets no answer.
     assert!(!curl(&[], format!("https://{a}/health")).status.success());
     let plain = curl(&[], format!("http://{a}/health"));

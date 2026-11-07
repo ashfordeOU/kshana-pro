@@ -45,6 +45,13 @@ pub enum RouteId {
     LedgerVerify,
     AuditVerify,
     Metrics,
+    LibrarySave,
+    LibraryList,
+    LibraryRun,
+    JobShare,
+    ShareRevoke,
+    Shared,
+    SharedArtefact,
 }
 
 /// One route: the method, the path template (OpenAPI form, `{param}` for a segment)
@@ -99,6 +106,13 @@ pub static ROUTES: &[Route] = &[
     Route { method: "GET", path: "/jobs/{id}/events", id: RouteId::JobEvents, role: Some(Role::Reader), summary: "Server-sent events: the job's status each time it changes, until it finishes (at most 1 hour)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, "text/event-stream", "One `status` event per change, then the stream ends"), (400, JSON, "Bad identifier"), (404, JSON, "No such job"), AUTH_401] },
     Route { method: "GET", path: "/ledger", id: RouteId::Ledger, role: Some(Role::Admin), summary: "The hash-chained delivery ledger as stored", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Ledger document"), AUTH_401] },
     Route { method: "GET", path: "/ledger/verify", id: RouteId::LedgerVerify, role: Some(Role::Admin), summary: "Verify the ledger chain and every delivered job's stored files", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Verification report (verified true or false, first bad record named)"), AUTH_401] },
+    Route { method: "POST", path: "/library", id: RouteId::LibrarySave, role: Some(Role::Submitter), summary: "Save a named study (a job request) in the caller's tenant: {name, op, request}", needs_data_dir: true, greedy_tail: false, request: Some((JSON, "{\"name\": <plain name>, \"op\": <operation>, \"request\": <operation request>}")), query: &[], responses: &[(201, JSON, "Saved"), (200, JSON, "Replaced"), (400, JSON, "Malformed"), (403, JSON, "The entitlement does not allow it"), (422, JSON, "Invalid name, operation or request"), AUTH_401] },
+    Route { method: "GET", path: "/library", id: RouteId::LibraryList, role: Some(Role::Reader), summary: "The caller's saved studies", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Saved studies"), AUTH_401] },
+    Route { method: "POST", path: "/library/{name}/run", id: RouteId::LibraryRun, role: Some(Role::Submitter), summary: "Run a saved study as a job (the same request is the same job)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(202, JSON, "Queued"), (200, JSON, "The job already exists"), (404, JSON, "No such saved study"), AUTH_401] },
+    Route { method: "POST", path: "/jobs/{id}/share", id: RouteId::JobShare, role: Some(Role::Submitter), summary: "Make a read-only share link for a succeeded job: {\"days\": 1 to 90, default 30}; the token is shown once", needs_data_dir: true, greedy_tail: false, request: Some((JSON, "Optional {\"days\": n}")), query: &[], responses: &[(201, JSON, "The token and the link"), (404, JSON, "No such job"), (409, JSON, "Not succeeded"), AUTH_401] },
+    Route { method: "POST", path: "/shares/{token}/revoke", id: RouteId::ShareRevoke, role: Some(Role::Submitter), summary: "Revoke a share link of the caller's tenant", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Revoked"), (404, JSON, "No such link in this tenant"), AUTH_401] },
+    Route { method: "GET", path: "/shared/{token}", id: RouteId::Shared, role: None, summary: "A shared job's status and result, read-only, no credential (the token is the credential)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Status and result"), (404, JSON, "No such link, or expired or revoked")] },
+    Route { method: "GET", path: "/shared/{token}/artefacts/{name}", id: RouteId::SharedArtefact, role: None, summary: "One artefact of a shared job", needs_data_dir: true, greedy_tail: true, request: None, query: &[], responses: &[(200, "application/octet-stream", "The artefact"), (404, JSON, "No such link or artefact")] },
     Route { method: "GET", path: "/metrics", id: RouteId::Metrics, role: Some(Role::Reader), summary: "Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, "text/plain; version=0.0.4", "Prometheus text exposition"), AUTH_401] },
     Route { method: "GET", path: "/audit/verify", id: RouteId::AuditVerify, role: Some(Role::Admin), summary: "Verify the hash chain of the audit log (admin)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Verification report (verified true or false, first bad line named)"), AUTH_401, AUTH_403] },
 ];
@@ -329,9 +343,18 @@ fn route_request(
         None => (req.path.as_str(), ""),
     };
     let is_health = req.method == "GET" && path == "/health";
+    // A route with no role (a share link) is public: the token in its path is the
+    // credential. Its caller is a principal that sees no tenant.
+    let is_public = matched.is_some_and(|(r, _)| r.role.is_none() && r.id != RouteId::Health);
     let who = match principal {
         Ok(p) => p.clone(),
         Err(_) if is_health => Principal::open(),
+        Err(_) if is_public => Principal {
+            id: "-".into(),
+            tenant: "-".into(),
+            role: Role::Reader,
+            source: super::auth::Source::Open,
+        },
         Err(_) => {
             let mut r = HttpResponse::error(
                 401,
@@ -432,6 +455,95 @@ fn route_request(
                 "the ledger and the audit log span every tenant: they need an admin of tenant '*' (or the default tenant)",
             )
         }
+        (RouteId::LibrarySave, Some(j)) => library_save(svc, j, &who, &req.body, now),
+        (RouteId::LibraryList, Some(j)) => HttpResponse::json(
+            200,
+            json_pretty(&serde_json::json!({
+                "studies": super::library::list(&j.data_dir, &who.tenant),
+            })),
+        ),
+        (RouteId::LibraryRun, Some(j)) => {
+            let Some(s) = super::library::get(&j.data_dir, &who.tenant, &params[0])
+                .filter(|_| is_safe_name(&params[0]))
+            else {
+                return HttpResponse::error(404, "no such saved study in this tenant");
+            };
+            let body = serde_json::json!({"op": s.op, "request": s.request}).to_string();
+            submit(svc, j, &who, &body, now)
+        }
+        (RouteId::JobShare, Some(j)) => with_job(j, &who, &params[0], |s| {
+            if s.state != super::jobs::JobState::Succeeded {
+                return not_ready(s);
+            }
+            let days = match serde_json::from_str::<serde_json::Value>(&req.body) {
+                _ if req.body.trim().is_empty() => 30,
+                Ok(v) => match v.get("days").map(|d| d.as_i64()) {
+                    None => 30,
+                    Some(Some(d)) if (1..=90).contains(&d) => d,
+                    Some(_) => return HttpResponse::error(422, "days must be 1 to 90"),
+                },
+                Err(e) => return HttpResponse::error(400, &format!("malformed JSON: {e}")),
+            };
+            let share = super::library::Share {
+                job_id: s.job_id.clone(),
+                tenant: s.tenant.clone(),
+                created_unix: now,
+                expires_unix: now + days * 86_400,
+                by: who.id.clone(),
+                revoked: false,
+            };
+            match super::library::share(&j.data_dir, &share) {
+                Ok(token) => HttpResponse::json(
+                    201,
+                    serde_json::json!({
+                        "token": token,
+                        "link": format!("/shared/{token}"),
+                        "expires_unix": share.expires_unix,
+                        "note": "the token is shown once; anyone holding it can read this job's result until it expires or is revoked",
+                    })
+                    .to_string(),
+                ),
+                Err(e) => HttpResponse::error(500, &format!("cannot store the link: {e}")),
+            }
+        }),
+        (RouteId::ShareRevoke, Some(j)) => match super::library::revoke(&j.data_dir, &params[0], &who.tenant) {
+            Ok(true) => HttpResponse::json(200, serde_json::json!({"revoked": true}).to_string()),
+            Ok(false) => HttpResponse::error(404, "no such link in this tenant"),
+            Err(e) => HttpResponse::error(500, &e.to_string()),
+        },
+        (RouteId::Shared | RouteId::SharedArtefact, Some(j)) => {
+            let Some(sh) = super::library::resolve(&j.data_dir, &params[0], now) else {
+                return HttpResponse::error(404, "no such link, or it has expired or been revoked");
+            };
+            let Ok(Some(s)) = j.store.status(&sh.job_id) else {
+                return HttpResponse::error(404, "the shared job no longer exists");
+            };
+            if route.id == RouteId::SharedArtefact {
+                if !is_safe_name(&params[1]) {
+                    return HttpResponse::error(400, "an artefact name is a plain file name");
+                }
+                return artefact(j, &s, &params[1]);
+            }
+            let result = j
+                .store
+                .read_result(&s.job_id)
+                .ok()
+                .and_then(|r| serde_json::from_str::<serde_json::Value>(&r).ok());
+            HttpResponse::json(
+                200,
+                json_pretty(&serde_json::json!({
+                    "job_id": s.job_id,
+                    "op": s.op,
+                    "kind": s.kind,
+                    "state": s.state.as_str(),
+                    "label": s.label,
+                    "finished_utc": s.finished_utc,
+                    "artefacts": s.artefacts.iter().map(|a| format!("/shared/{}/artefacts/{}", params[0], a.name)).collect::<Vec<_>>(),
+                    "shared_until_unix": sh.expires_unix,
+                    "result": result,
+                })),
+            )
+        }
         (RouteId::Metrics, Some(j)) => HttpResponse {
             status: 200,
             content_type: "text/plain; version=0.0.4",
@@ -455,6 +567,58 @@ fn route_request(
         ),
         // A data-directory route cannot match without one (served_routes filters it).
         (_, None) => super::handle(req, &svc.entitlement, now),
+    }
+}
+
+fn json_pretty(v: &serde_json::Value) -> String {
+    serde_json::to_string_pretty(v).unwrap_or_default()
+}
+
+/// `POST /library`: validate a named job request against the entitlement and save it.
+fn library_save(
+    svc: &Service,
+    j: &JobService,
+    who: &Principal,
+    body: &str,
+    now: i64,
+) -> HttpResponse {
+    let v: serde_json::Value = match serde_json::from_str(body) {
+        Ok(v) => v,
+        Err(e) => return HttpResponse::error(400, &format!("malformed JSON: {e}")),
+    };
+    let Some(name) = v["name"]
+        .as_str()
+        .filter(|n| is_safe_name(n) && n.len() <= 64)
+    else {
+        return HttpResponse::error(
+            422,
+            "name is required: a plain name of letters, digits, '.', '_' and '-' (at most 64)",
+        );
+    };
+    let Some(op) = v["op"].as_str().and_then(ops::find) else {
+        return HttpResponse::error(422, "op must name an operation");
+    };
+    let request = v["request"].clone();
+    if request.is_null() {
+        return HttpResponse::error(422, "request is required");
+    }
+    if let Err(e) = (op.prepare)(&request, &svc.entitlement, now) {
+        return op_error(e);
+    }
+    let (_, utc) = super::jobs::now_stamp();
+    let s = super::library::SavedStudy {
+        name: name.to_string(),
+        op: op.name.to_string(),
+        request,
+        saved_utc: utc,
+        saved_by: who.id.clone(),
+    };
+    match super::library::save(&j.data_dir, &who.tenant, &s) {
+        Ok(replaced) => HttpResponse::json(
+            if replaced { 200 } else { 201 },
+            serde_json::json!({"name": s.name, "op": s.op, "replaced": replaced, "run": format!("/library/{}/run", s.name)}).to_string(),
+        ),
+        Err(e) => HttpResponse::error(500, &format!("cannot save: {e}")),
     }
 }
 

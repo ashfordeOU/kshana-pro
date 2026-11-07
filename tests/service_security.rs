@@ -309,3 +309,130 @@ fn metrics_are_tenant_scoped() {
     assert!(ops.body.contains("kshana_runs_jobs 1"));
     srv.stop();
 }
+
+/// F3a: saved studies are per tenant; a share link serves one succeeded job read-only
+/// to anyone with the token, until it is revoked; a token is never a key.
+#[test]
+fn saved_studies_and_share_links() {
+    let k = keys();
+    let data = fresh_dir("library");
+    let mut cfg = ServeConfig::new(
+        "127.0.0.1:0",
+        Entitlement {
+            licensee: "test".into(),
+            tier: Tier::Enterprise,
+            expires_unix: 0,
+            features: vec![],
+        },
+    );
+    cfg.data_dir = Some(data.clone());
+    cfg.keys = Some(k.file.clone());
+    let srv = serve::start(cfg).unwrap();
+    let addr = srv.local_addr();
+    let save = json!({"name": "pilot-link", "op": "run", "request": {"scenario": fixture("link-budget.toml")}}).to_string();
+    // Readers cannot save; submitters can; a bad name is refused.
+    assert_eq!(
+        http(addr, "POST", "/library", &save, Some(&k.a_read)).status,
+        403
+    );
+    let r = http(addr, "POST", "/library", &save, Some(&k.a_sub));
+    assert_eq!(r.status, 201, "{}", r.body);
+    assert_eq!(
+        http(addr, "POST", "/library", &save, Some(&k.a_sub)).status,
+        200,
+        "replaced"
+    );
+    let bad = json!({"name": "../x", "op": "run", "request": {}}).to_string();
+    assert_eq!(
+        http(addr, "POST", "/library", &bad, Some(&k.a_sub)).status,
+        422
+    );
+    // Per tenant: site-b does not see or run site-a's study.
+    let l = http(addr, "GET", "/library", "", Some(&k.a_read)).json();
+    assert_eq!(l["studies"][0]["name"], "pilot-link");
+    let l = http(addr, "GET", "/library", "", Some(&k.b_sub)).json();
+    assert_eq!(l["studies"].as_array().unwrap().len(), 0);
+    assert_eq!(
+        http(addr, "POST", "/library/pilot-link/run", "", Some(&k.b_sub)).status,
+        404
+    );
+    // The pilot tenant runs its saved study.
+    let r = http(addr, "POST", "/library/pilot-link/run", "", Some(&k.a_sub));
+    assert_eq!(r.status, 202, "{}", r.body);
+    let id = r.json()["job_id"].as_str().unwrap().to_string();
+    wait(addr, &id, &k.a_sub);
+
+    // Share it. Another tenant cannot share it (it answers as absent).
+    assert_eq!(
+        http(
+            addr,
+            "POST",
+            &format!("/jobs/{id}/share"),
+            "",
+            Some(&k.b_sub)
+        )
+        .status,
+        404
+    );
+    let r = http(
+        addr,
+        "POST",
+        &format!("/jobs/{id}/share"),
+        "{\"days\": 7}",
+        Some(&k.a_sub),
+    );
+    assert_eq!(r.status, 201, "{}", r.body);
+    let token = r.json()["token"].as_str().unwrap().to_string();
+    // Anyone with the link reads it, with no credential.
+    let s = http(addr, "GET", &format!("/shared/{token}"), "", None);
+    assert_eq!(s.status, 200, "{}", s.body);
+    let v = s.json();
+    assert_eq!(v["job_id"], id.as_str());
+    assert!(v["result"].is_object());
+    assert!(
+        !s.body.contains("site-a"),
+        "the share does not name the tenant"
+    );
+    // The token is not a credential for anything else, and a near-miss is not a link.
+    assert_eq!(http(addr, "GET", "/jobs", "", Some(&token)).status, 401);
+    let mut wrong = token.clone();
+    wrong.replace_range(10..11, if &token[10..11] == "a" { "b" } else { "a" });
+    assert_eq!(
+        http(addr, "GET", &format!("/shared/{wrong}"), "", None).status,
+        404
+    );
+    // Only the token's hash is stored.
+    let stored: Vec<String> = std::fs::read_dir(data.join("shares"))
+        .unwrap()
+        .map(|e| std::fs::read_to_string(e.unwrap().path()).unwrap())
+        .collect();
+    assert!(stored.iter().all(|t| !t.contains(&token)));
+    // Another tenant cannot revoke it; the owner can, and the link stops.
+    assert_eq!(
+        http(
+            addr,
+            "POST",
+            &format!("/shares/{token}/revoke"),
+            "",
+            Some(&k.b_sub)
+        )
+        .status,
+        404
+    );
+    assert_eq!(
+        http(
+            addr,
+            "POST",
+            &format!("/shares/{token}/revoke"),
+            "",
+            Some(&k.a_sub)
+        )
+        .status,
+        200
+    );
+    assert_eq!(
+        http(addr, "GET", &format!("/shared/{token}"), "", None).status,
+        404
+    );
+    srv.stop();
+}

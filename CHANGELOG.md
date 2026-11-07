@@ -5,6 +5,11 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Saved studies and share links (F3a).** `POST/GET /library`, `POST /library/<name>/run`: named
+  job requests per tenant. `POST /jobs/<id>/share` makes a read-only link (`/shared/<token>`, 1 to
+  90 days, token shown once, only its hash stored) that anyone can open without a credential;
+  `POST /shares/<token>/revoke`. Clients regenerated.
+
 - **Hosted trial sandbox (F3b).** `serve --trial`: open to anyone, Evaluation tier whatever the
   licence, one tenant per caller (salted hash of the address, never stored), a daily job quota
   counted from the job store, a capped time limit, a per-minute request limit, a server-wide queue

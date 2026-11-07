@@ -406,6 +406,24 @@ the copy. To restore, stop the service, put the backup in place of the data dire
 delete `backup-manifest.json`, and start the service: jobs copied while running are
 run again.
 
+## Saved studies and share links (roadmap F3a)
+
+| Route | Role | What |
+|---|---|---|
+| `POST /library` | submitter | Save `{name, op, request}` in the caller's tenant (checked against the licence first); the same name replaces it |
+| `GET /library` | reader | The tenant's saved studies |
+| `POST /library/<name>/run` | submitter | Run it as a job (the same request is the same job, so it is not run twice) |
+| `POST /jobs/<id>/share` | submitter | A read-only link to a succeeded job, `{"days": 1..90}` (default 30); the token is shown once |
+| `GET /shared/<token>` | none | The job's status, label and result, for anyone holding the token |
+| `GET /shared/<token>/artefacts/<name>` | none | One artefact of it |
+| `POST /shares/<token>/revoke` | submitter | Revoke a link of the caller's tenant |
+
+Saved studies live in `<data-dir>/library/<tenant>/`; a share stores only the SHA-256
+of its token (`<data-dir>/shares/`). A share link does not name the tenant and is not a
+credential for any other route. The platform side (multi-tenant jobs, saved studies,
+sharing) is built and tested with a test tenant; a pilot customer running a study on it
+waits on the owner's pilot.
+
 ## The hosted trial sandbox (roadmap F3b)
 
 `kshana-pro serve --trial --data-dir <dir> [--trial-jobs-per-day <n>]

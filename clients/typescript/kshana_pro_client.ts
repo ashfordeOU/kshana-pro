@@ -149,6 +149,41 @@ export class KshanaProClient {
     return this.call("GET", `/ledger/verify`, undefined, undefined, undefined, false);
   }
 
+  /** POST /library: Save a named study (a job request) in the caller's tenant: {name, op, request}. Role: submitter. */
+  postLibrary(body: unknown): Promise<any> {
+    return this.call("POST", `/library`, undefined, JSON.stringify(body), "application/json", false);
+  }
+
+  /** GET /library: The caller's saved studies. Role: reader. */
+  getLibrary(): Promise<any> {
+    return this.call("GET", `/library`, undefined, undefined, undefined, false);
+  }
+
+  /** POST /library/{name}/run: Run a saved study as a job (the same request is the same job). Role: submitter. */
+  postLibraryNameRun(name: string): Promise<any> {
+    return this.call("POST", `/library/${encodeURIComponent(name)}/run`, undefined, undefined, undefined, false);
+  }
+
+  /** POST /jobs/{id}/share: Make a read-only share link for a succeeded job: {"days": 1 to 90, default 30}; the token is shown once. Role: submitter. */
+  postJobsIdShare(id: string, body: unknown): Promise<any> {
+    return this.call("POST", `/jobs/${encodeURIComponent(id)}/share`, undefined, JSON.stringify(body), "application/json", false);
+  }
+
+  /** POST /shares/{token}/revoke: Revoke a share link of the caller's tenant. Role: submitter. */
+  postSharesTokenRevoke(token: string): Promise<any> {
+    return this.call("POST", `/shares/${encodeURIComponent(token)}/revoke`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /shared/{token}: A shared job's status and result, read-only, no credential (the token is the credential). Role: none (no credential). */
+  getSharedToken(token: string): Promise<any> {
+    return this.call("GET", `/shared/${encodeURIComponent(token)}`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /shared/{token}/artefacts/{name}: One artefact of a shared job. Role: none (no credential). */
+  getSharedTokenArtefactsName(token: string, name: string): Promise<any> {
+    return this.call("GET", `/shared/${encodeURIComponent(token)}/artefacts/${encodeURIComponent(name)}`, undefined, undefined, undefined, false);
+  }
+
   /** GET /metrics: Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime. Role: reader. */
   getMetrics(): Promise<any> {
     return this.call("GET", `/metrics`, undefined, undefined, undefined, false);

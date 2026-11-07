@@ -138,6 +138,34 @@ class KshanaProClient:
         """GET /ledger/verify: Verify the ledger chain and every delivered job's stored files. Role: admin."""
         return self._call("GET", "/ledger/verify", None, None, None, text=False)
 
+    def post_library(self, body):
+        """POST /library: Save a named study (a job request) in the caller's tenant: {name, op, request}. Role: submitter."""
+        return self._call("POST", "/library", None, json.dumps(body), "application/json", text=False)
+
+    def get_library(self):
+        """GET /library: The caller's saved studies. Role: reader."""
+        return self._call("GET", "/library", None, None, None, text=False)
+
+    def post_library_name_run(self, name):
+        """POST /library/{name}/run: Run a saved study as a job (the same request is the same job). Role: submitter."""
+        return self._call("POST", f"/library/{_q(name)}/run", None, None, None, text=False)
+
+    def post_jobs_id_share(self, id, body):
+        """POST /jobs/{id}/share: Make a read-only share link for a succeeded job: {'days': 1 to 90, default 30}; the token is shown once. Role: submitter."""
+        return self._call("POST", f"/jobs/{_q(id)}/share", None, json.dumps(body), "application/json", text=False)
+
+    def post_shares_token_revoke(self, token):
+        """POST /shares/{token}/revoke: Revoke a share link of the caller's tenant. Role: submitter."""
+        return self._call("POST", f"/shares/{_q(token)}/revoke", None, None, None, text=False)
+
+    def get_shared_token(self, token):
+        """GET /shared/{token}: A shared job's status and result, read-only, no credential (the token is the credential). Role: none (no credential)."""
+        return self._call("GET", f"/shared/{_q(token)}", None, None, None, text=False)
+
+    def get_shared_token_artefacts_name(self, token, name):
+        """GET /shared/{token}/artefacts/{name}: One artefact of a shared job. Role: none (no credential)."""
+        return self._call("GET", f"/shared/{_q(token)}/artefacts/{_q(name)}", None, None, None, text=False)
+
     def get_metrics(self):
         """GET /metrics: Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime. Role: reader."""
         return self._call("GET", "/metrics", None, None, None, text=False)
