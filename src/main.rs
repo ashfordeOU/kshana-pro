@@ -29,7 +29,7 @@ fn usage() -> &'static str {
        kshana-pro version                                            Overlay + engine info\n\
        kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
-       kshana-pro serve [--addr <host:port>] [--data-dir <dir>] [--workers <n>] [--api-token-file <path>] [--keys-file <keys.toml>] [--oidc <oidc.toml>] [--audit-retention-days <n>] [--license <token>] [--dev]   Host the HTTP service; --data-dir adds the on-premises job service (jobs, ledger, job board, audit log)\n\
+       kshana-pro serve [--addr <host:port>] [--data-dir <dir>] [--workers <n>] [--api-token-file <path>] [--keys-file <keys.toml>] [--oidc <oidc.toml>] [--audit-retention-days <n>] [--tls-cert <chain.pem> --tls-key <key.pem>] [--ha-node <name> [--ha-lease-secs <s>]] [--license <token>] [--dev]   Host the HTTP(S) service; --data-dir adds the on-premises job service (jobs, ledger, job board, audit log)\n\
        kshana-pro clients --out <dir>                                Write the generated service clients: <dir>/python/kshana_pro_client.py and <dir>/typescript/kshana_pro_client.ts\n\
        kshana-pro keys <add --file <keys.toml> --id <id> --tenant <t> --role <reader|submitter|admin> | revoke --file <keys.toml> --id <id> | list --file <keys.toml>>   Manage the service's API keys (a new key is printed once; the file keeps only its hash)\n\
        kshana-pro ci --pack <manifest.toml> [--baseline <ci.json>] [--thresholds <spec>] [--utc <iso>] [--customer <name>] [--out <report.html>] [--json <ci.json>] [--history <history.jsonl>] [--trend <trend.html>] [--exact] [--license <token>] [--dev]   Run a Pack C scenario-subscription CI, with campaign watch (Pro)\n\
@@ -43,6 +43,7 @@ fn usage() -> &'static str {
        kshana-pro coexist <study.toml> --out <dir> [--license <token>] [--dev]   Whole signal plans and constellations against the open global navigation satellite system (GNSS) signals, both directions (Enterprise; `kshana-pro coexist` for details)\n\
        kshana-pro mission <build|check> ... [--license <token>] [--dev]   Requirements to runs to verification matrix to a PDF dossier, and its re-check (Enterprise; `kshana-pro mission` for details)\n\
        kshana-pro license <verify|activate|status|deactivate|machine-id|revocations|refresh> ...   Licence on this machine (offline; `kshana-pro license` for details)\n\
+       kshana-pro backup <create --data-dir <dir> --out <backup-dir> | verify <backup-dir>>   Back up a service data directory while it runs; check a backup offline\n\
        kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
        kshana-pro payments <check|checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled = false (vendor side)\n\
        kshana-pro license <keygen|pubkey|issue|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
@@ -210,6 +211,7 @@ fn main() -> ExitCode {
         Some("license") => license_cmd::run(&args[1..]),
         Some("payments") => payments_cmd::run(&args[1..]),
         Some("dossier") => dossier_cmd::run(&args[1..]),
+        Some("backup") => backup_cmd(&args[1..]),
         _ => {
             println!("{}", usage());
             ExitCode::SUCCESS
@@ -429,6 +431,31 @@ fn serve_cmd(args: &[String]) -> ExitCode {
                 eprintln!(
                     "error: --audit-retention-days must be a whole number of days, at least 1"
                 );
+                return ExitCode::from(2);
+            }
+        }
+    }
+    match (flag(args, "--tls-cert"), flag(args, "--tls-key")) {
+        (Some(c), Some(k)) => config.tls = Some((c.into(), k.into())),
+        (None, None) => {}
+        _ => {
+            eprintln!("error: --tls-cert and --tls-key go together");
+            return ExitCode::from(2);
+        }
+    }
+    if let Some(node) = flag(args, "--ha-node") {
+        let lease_ms = match flag(args, "--ha-lease-secs").map(|v| v.parse::<f64>()) {
+            None => 30_000,
+            Some(Ok(v)) if v > 0.0 => (v * 1000.0) as u64,
+            _ => {
+                eprintln!("error: --ha-lease-secs must be a positive number of seconds");
+                return ExitCode::from(2);
+            }
+        };
+        match kshana_pro::serve::ha::HaConfig::new(&node, lease_ms) {
+            Ok(h) => config.ha = Some(h),
+            Err(e) => {
+                eprintln!("error: --ha-node: {e}");
                 return ExitCode::from(2);
             }
         }
@@ -1588,6 +1615,67 @@ fn list_kinds() {
             license::feature_min_tier(m.name).as_str(),
             m.description
         );
+    }
+}
+
+/// `backup create|verify` (roadmap F2a).
+fn backup_cmd(args: &[String]) -> ExitCode {
+    use kshana_pro::serve::backup;
+    match args.first().map(String::as_str) {
+        Some("create") => {
+            let (Some(d), Some(o)) = (flag(args, "--data-dir"), flag(args, "--out")) else {
+                eprintln!("usage: kshana-pro backup create --data-dir <dir> --out <backup-dir>");
+                return ExitCode::from(2);
+            };
+            match backup::create(d.as_ref(), o.as_ref(), &utc_iso8601_now()) {
+                Ok(m) => {
+                    println!("backup of {d} written to {o}: {} file(s)", m.files.len());
+                    ExitCode::SUCCESS
+                }
+                Err(e) => {
+                    eprintln!("error: {e}");
+                    ExitCode::FAILURE
+                }
+            }
+        }
+        Some("verify") => {
+            let Some(dir) = args.get(1) else {
+                eprintln!("usage: kshana-pro backup verify <backup-dir>");
+                return ExitCode::from(2);
+            };
+            match backup::verify(dir.as_ref()) {
+                Ok(r) => {
+                    println!(
+                        "{} file(s); ledger {} ({} delivered job(s))",
+                        r.files,
+                        if r.ledger_verified {
+                            "verified"
+                        } else {
+                            "NOT verified"
+                        },
+                        r.delivered_jobs
+                    );
+                    for p in &r.problems {
+                        println!("problem: {p}");
+                    }
+                    if r.passed() {
+                        println!("VERIFIED");
+                        ExitCode::SUCCESS
+                    } else {
+                        println!("NOT VERIFIED");
+                        ExitCode::FAILURE
+                    }
+                }
+                Err(e) => {
+                    eprintln!("error: {e}");
+                    ExitCode::FAILURE
+                }
+            }
+        }
+        _ => {
+            eprintln!("usage: kshana-pro backup <create|verify> ...");
+            ExitCode::from(2)
+        }
     }
 }
 

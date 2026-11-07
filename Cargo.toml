@@ -75,6 +75,9 @@ hex = "0.4"
 # dependency tree through the engine, so they add no crate.
 p256 = { version = "0.14", default-features = false, features = ["ecdsa"] }
 crypto-bigint = { version = "0.7", default-features = false, features = ["alloc"] }
+# TLS inside the service binary (roadmap F2a: `serve --tls-cert/--tls-key`). The ring
+# provider (no C++ or CMake toolchain), TLS 1.2 and 1.3 only; PEM parsing is rustls's own.
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
 # Pure-Rust PDF export of the branded study report (src/report_pdf.rs). Default
 # features off: we render from primitives (built-in standard-14 fonts, lines,
 # rectangles, text) and need NONE of the heavy optional layers (html/svg/images/

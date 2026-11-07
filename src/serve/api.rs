@@ -18,7 +18,7 @@ use std::sync::Arc;
 
 use super::audit::AuditLog;
 use super::auth::{Authenticator, Principal, Refusal, Role};
-use super::jobs::{is_job_id, is_safe_name, JobStatus};
+use super::jobs::{is_job_id, is_safe_name, JobStatus, Priority, SubmitOptions};
 use super::ops::{self, OpError};
 use super::worker::JobService;
 use super::{HttpRequest, HttpResponse};
@@ -39,9 +39,12 @@ pub enum RouteId {
     JobStatus,
     JobResult,
     JobArtefact,
+    JobCancel,
+    JobEvents,
     Ledger,
     LedgerVerify,
     AuditVerify,
+    Metrics,
 }
 
 /// One route: the method, the path template (OpenAPI form, `{param}` for a segment)
@@ -88,12 +91,15 @@ pub static ROUTES: &[Route] = &[
     Route { method: "GET", path: "/", id: RouteId::Board, role: Some(Role::Reader), summary: "Job board: a self-contained page listing the jobs", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, HTML, "The job board page"), AUTH_401] },
     Route { method: "GET", path: "/openapi.json", id: RouteId::OpenApi, role: Some(Role::Reader), summary: "This OpenAPI 3.1 document, generated from the route table", needs_data_dir: false, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "OpenAPI document"), AUTH_401] },
     Route { method: "POST", path: "/jobs", id: RouteId::JobsSubmit, role: Some(Role::Submitter), summary: "Submit a job: {op, request}. The same request always gives the same job", needs_data_dir: true, greedy_tail: false, request: Some((JSON, "{\"op\": <operation name>, \"request\": <operation request>}")), query: &[], responses: &[(202, JSON, "Queued (a new job)"), (200, JSON, "The job already exists; nothing new is run"), (400, JSON, "Malformed JSON"), (403, JSON, "The entitlement does not allow it; nothing is queued"), (413, JSON, "Body above the cap"), (422, JSON, "Unknown operation or invalid request"), AUTH_401] },
-    Route { method: "GET", path: "/jobs", id: RouteId::JobsList, role: Some(Role::Reader), summary: "List jobs, newest first", needs_data_dir: true, greedy_tail: false, request: None, query: &[("limit", "Maximum jobs returned (1 to 1000, default 50)"), ("state", "Only jobs in this state: queued, running, succeeded or failed")], responses: &[(200, JSON, "Job list"), (400, JSON, "Bad query parameter"), AUTH_401] },
+    Route { method: "GET", path: "/jobs", id: RouteId::JobsList, role: Some(Role::Reader), summary: "List jobs, newest first", needs_data_dir: true, greedy_tail: false, request: None, query: &[("limit", "Maximum jobs returned (1 to 1000, default 50)"), ("state", "Only jobs in this state: queued, running, succeeded, failed or cancelled")], responses: &[(200, JSON, "Job list"), (400, JSON, "Bad query parameter"), AUTH_401] },
     Route { method: "GET", path: "/jobs/{id}", id: RouteId::JobStatus, role: Some(Role::Reader), summary: "One job's status, with server-clock times and the error text of a failed job", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Job status"), (400, JSON, "Not a 64-character hexadecimal identifier"), (404, JSON, "No such job"), AUTH_401] },
     Route { method: "GET", path: "/jobs/{id}/result", id: RouteId::JobResult, role: Some(Role::Reader), summary: "The result document of a succeeded job, byte for byte as stored", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Result document"), (400, JSON, "Bad identifier"), (404, JSON, "No such job"), (409, JSON, "Not finished, or failed"), AUTH_401] },
     Route { method: "GET", path: "/jobs/{id}/artefacts/{name}", id: RouteId::JobArtefact, role: Some(Role::Reader), summary: "One named artefact of a succeeded job", needs_data_dir: true, greedy_tail: true, request: None, query: &[], responses: &[(200, "application/octet-stream", "The artefact (media type from its extension)"), (400, JSON, "Bad identifier or artefact name"), (404, JSON, "No such job or artefact"), (409, JSON, "Not finished, or failed"), AUTH_401] },
+    Route { method: "POST", path: "/jobs/{id}/cancel", id: RouteId::JobCancel, role: Some(Role::Submitter), summary: "Cancel a queued or running job (a running job stops at once; its output is never stored)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(202, JSON, "Cancelled, or cancellation requested for a running job"), (400, JSON, "Bad identifier"), (404, JSON, "No such job"), (409, JSON, "Already finished"), AUTH_401] },
+    Route { method: "GET", path: "/jobs/{id}/events", id: RouteId::JobEvents, role: Some(Role::Reader), summary: "Server-sent events: the job's status each time it changes, until it finishes (at most 1 hour)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, "text/event-stream", "One `status` event per change, then the stream ends"), (400, JSON, "Bad identifier"), (404, JSON, "No such job"), AUTH_401] },
     Route { method: "GET", path: "/ledger", id: RouteId::Ledger, role: Some(Role::Admin), summary: "The hash-chained delivery ledger as stored", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Ledger document"), AUTH_401] },
     Route { method: "GET", path: "/ledger/verify", id: RouteId::LedgerVerify, role: Some(Role::Admin), summary: "Verify the ledger chain and every delivered job's stored files", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Verification report (verified true or false, first bad record named)"), AUTH_401] },
+    Route { method: "GET", path: "/metrics", id: RouteId::Metrics, role: Some(Role::Reader), summary: "Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, "text/plain; version=0.0.4", "Prometheus text exposition"), AUTH_401] },
     Route { method: "GET", path: "/audit/verify", id: RouteId::AuditVerify, role: Some(Role::Admin), summary: "Verify the hash chain of the audit log (admin)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Verification report (verified true or false, first bad line named)"), AUTH_401, AUTH_403] },
 ];
 
@@ -157,6 +163,9 @@ pub struct Service {
     pub jobs: Option<Arc<JobService>>,
     auth: Authenticator,
     audit: Option<AuditLog>,
+    /// Requests served, by (tenant, route template, status), for `/metrics`.
+    requests: std::sync::Mutex<std::collections::BTreeMap<(String, String, u16), u64>>,
+    started: std::time::Instant,
 }
 
 impl Service {
@@ -182,6 +191,8 @@ impl Service {
             jobs,
             auth,
             audit,
+            requests: Default::default(),
+            started: std::time::Instant::now(),
         }
     }
 
@@ -212,6 +223,18 @@ pub fn dispatch(
     let matched = match_route(&req.method, path, svc.jobs.is_some());
     let principal = svc.auth.authenticate(authorization, now);
     let resp = route_request(svc, req, matched.as_ref(), &principal, now);
+    if !(req.method == "GET" && path == "/health") {
+        let tenant = principal
+            .as_ref()
+            .map_or("-", |p| p.tenant.as_str())
+            .to_string();
+        let route = matched.as_ref().map_or("-", |(r, _)| r.path).to_string();
+        *svc.requests
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .entry((tenant, route, resp.status))
+            .or_default() += 1;
+    }
     if let (Some(log), false) = (&svc.audit, req.method == "GET" && path == "/health") {
         let (who, tenant, role, source) = match &principal {
             Ok(p) => (
@@ -323,6 +346,37 @@ fn route_request(
             }
             with_job(j, &who, &params[0], |s| artefact(j, s, &params[1]))
         }
+        (RouteId::JobCancel, Some(j)) => with_job(j, &who, &params[0], |s| {
+            match j.cancel(&s.job_id, &who.id) {
+                Ok(st) => HttpResponse::json(
+                    202,
+                    serde_json::json!({
+                        "job_id": st.job_id,
+                        "state": st.state.as_str(),
+                        "cancel": if st.state == super::jobs::JobState::Cancelled { "done" } else { "requested" },
+                    })
+                    .to_string(),
+                ),
+                Err(super::worker::CancelError::Finished(state)) => HttpResponse::error(
+                    409,
+                    &format!("the job has already finished ({})", state.as_str()),
+                ),
+                Err(super::worker::CancelError::NotFound) => HttpResponse::error(404, "no such job"),
+                Err(super::worker::CancelError::Io(e)) => HttpResponse::error(500, &e),
+            }
+        }),
+        (RouteId::JobEvents, Some(j)) => with_job(j, &who, &params[0], |s| {
+            // The body is the first event; the connection handler keeps the stream
+            // open and writes one event per change (super::stream_job_events).
+            let mut r = HttpResponse {
+                status: 200,
+                content_type: "text/event-stream",
+                body: super::sse_event(&status_json(s)),
+                headers: Vec::new(),
+            };
+            r.headers.push((super::STREAM_HEADER, s.job_id.clone()));
+            r
+        }),
         (RouteId::Ledger | RouteId::LedgerVerify | RouteId::AuditVerify, Some(_))
             if !operator(&who) =>
         {
@@ -331,6 +385,12 @@ fn route_request(
                 "the ledger and the audit log span every tenant: they need an admin of tenant '*' (or the default tenant)",
             )
         }
+        (RouteId::Metrics, Some(j)) => HttpResponse {
+            status: 200,
+            content_type: "text/plain; version=0.0.4",
+            body: metrics(svc, j, &who),
+            headers: Vec::new(),
+        },
         (RouteId::AuditVerify, Some(_)) => match svc.audit() {
             Some(log) => HttpResponse::json(
                 200,
@@ -351,8 +411,117 @@ fn route_request(
     }
 }
 
+/// A quantile of sorted values (nearest rank).
+fn quantile(sorted: &[i64], q: f64) -> i64 {
+    if sorted.is_empty() {
+        return 0;
+    }
+    let i = ((q * sorted.len() as f64).ceil() as usize).clamp(1, sorted.len()) - 1;
+    sorted[i]
+}
+
+/// Escape a Prometheus label value.
+fn label(v: &str) -> String {
+    v.replace('\\', "\\\\")
+        .replace('"', "\\\"")
+        .replace('\n', "\\n")
+}
+
+/// `GET /metrics` (roadmap F2b): service-level figures per tenant, from the job store
+/// (the truth) and the request counters of this process.
+fn metrics(svc: &Service, j: &JobService, who: &Principal) -> String {
+    use std::collections::BTreeMap;
+    use std::fmt::Write;
+    let jobs: Vec<JobStatus> = j
+        .store
+        .list()
+        .into_iter()
+        .filter(|s| who.sees(&s.tenant))
+        .collect();
+    let mut out = String::new();
+    let _ = writeln!(
+        out,
+        "# HELP kshana_jobs Jobs by tenant and state.\n# TYPE kshana_jobs gauge"
+    );
+    let mut by: BTreeMap<(&str, &str), u64> = BTreeMap::new();
+    for s in &jobs {
+        *by.entry((s.tenant.as_str(), s.state.as_str())).or_default() += 1;
+    }
+    for ((t, st), n) in &by {
+        let _ = writeln!(
+            out,
+            "kshana_jobs{{tenant=\"{}\",state=\"{st}\"}} {n}",
+            label(t)
+        );
+    }
+    let _ = writeln!(out, "# HELP kshana_queue_length Jobs waiting in this process's queue.\n# TYPE kshana_queue_length gauge\nkshana_queue_length {}", if who.tenant == super::auth::ALL_TENANTS || who.tenant == super::auth::DEFAULT_TENANT { j.queue.len() } else { 0 });
+    // Queue wait (submitted to started) and run time (started to finished), seconds,
+    // over every finished job, per tenant.
+    let mut wait: BTreeMap<&str, Vec<i64>> = BTreeMap::new();
+    let mut run: BTreeMap<&str, Vec<i64>> = BTreeMap::new();
+    for s in jobs.iter().filter(|s| s.state.is_finished()) {
+        if let (Some(st), Some(fi)) = (s.started_unix, s.finished_unix) {
+            wait.entry(&s.tenant)
+                .or_default()
+                .push(st - s.submitted_unix);
+            run.entry(&s.tenant).or_default().push(fi - st);
+        }
+    }
+    for (name, help, map) in [
+        (
+            "kshana_job_queue_wait_seconds",
+            "Seconds from submission to start, finished jobs.",
+            &mut wait,
+        ),
+        (
+            "kshana_job_run_seconds",
+            "Seconds from start to finish, finished jobs.",
+            &mut run,
+        ),
+    ] {
+        let _ = writeln!(out, "# HELP {name} {help}\n# TYPE {name} summary");
+        for (t, v) in map.iter_mut() {
+            v.sort_unstable();
+            for q in [0.5, 0.95, 0.99] {
+                let _ = writeln!(
+                    out,
+                    "{name}{{tenant=\"{}\",quantile=\"{q}\"}} {}",
+                    label(t),
+                    quantile(v, q)
+                );
+            }
+            let _ = writeln!(
+                out,
+                "{name}_sum{{tenant=\"{}\"}} {}",
+                label(t),
+                v.iter().sum::<i64>()
+            );
+            let _ = writeln!(out, "{name}_count{{tenant=\"{}\"}} {}", label(t), v.len());
+        }
+    }
+    let _ = writeln!(out, "# HELP kshana_http_requests_total Requests served by this process, by tenant, route and status.\n# TYPE kshana_http_requests_total counter");
+    for ((t, r, st), n) in svc
+        .requests
+        .lock()
+        .unwrap_or_else(|p| p.into_inner())
+        .iter()
+    {
+        if who.sees(t) {
+            let _ = writeln!(
+                out,
+                "kshana_http_requests_total{{tenant=\"{}\",route=\"{}\",status=\"{st}\"}} {n}",
+                label(t),
+                label(r)
+            );
+        }
+    }
+    let _ = writeln!(out, "# HELP kshana_uptime_seconds Seconds since this process started serving.\n# TYPE kshana_uptime_seconds gauge\nkshana_uptime_seconds {}", svc.started.elapsed().as_secs());
+    let _ = writeln!(out, "# HELP kshana_runs_jobs 1 when this process runs jobs (it holds the lease, or has no high availability).\n# TYPE kshana_runs_jobs gauge\nkshana_runs_jobs {}", u8::from(j.active.load(std::sync::atomic::Ordering::SeqCst)));
+    out
+}
+
 /// A job's status document with links to its result and artefacts.
-fn status_json(s: &JobStatus) -> serde_json::Value {
+pub(crate) fn status_json(s: &JobStatus) -> serde_json::Value {
     let mut v = serde_json::to_value(s).unwrap_or_default();
     let base = format!("/jobs/{}", s.job_id);
     let mut links = serde_json::json!({ "status": base });
@@ -484,13 +653,14 @@ fn enqueue(
     op: &str,
     request: &serde_json::Value,
     kind: Option<String>,
+    opts: SubmitOptions,
 ) -> Result<(JobStatus, bool), HttpResponse> {
     let (status, created) = j
         .store
-        .submit_for(tenant, op, request, kind)
+        .submit_with(tenant, op, request, kind, opts)
         .map_err(|e| HttpResponse::error(500, &format!("cannot store the job: {e}")))?;
-    if created {
-        j.queue.push(&status.job_id);
+    if created && j.active.load(std::sync::atomic::Ordering::SeqCst) {
+        j.queue.push_with(&status.job_id, status.priority);
     }
     Ok((status, created))
 }
@@ -512,11 +682,34 @@ fn submit(svc: &Service, j: &JobService, who: &Principal, body: &str, now: i64) 
             "the body must be a JSON object {\"op\": ..., \"request\": ...}",
         );
     };
-    if let Some(extra) = obj.keys().find(|k| *k != "op" && *k != "request") {
+    if let Some(extra) = obj
+        .keys()
+        .find(|k| !["op", "request", "priority", "timeout_secs"].contains(&k.as_str()))
+    {
         return HttpResponse::error(
             422,
-            &format!("unknown field '{extra}' (expected op and request)"),
+            &format!("unknown field '{extra}' (expected op, request, priority, timeout_secs)"),
         );
+    }
+    let mut opts = SubmitOptions::default();
+    if let Some(p) = obj.get("priority") {
+        match p.as_str().and_then(Priority::parse) {
+            Some(p) => opts.priority = p,
+            None => return HttpResponse::error(422, "priority must be high, normal or low"),
+        }
+    }
+    if let Some(t) = obj.get("timeout_secs") {
+        match t.as_u64() {
+            Some(t) if (1..=super::worker::MAX_TIMEOUT_SECS).contains(&t) => {
+                opts.timeout_secs = Some(t)
+            }
+            _ => {
+                return HttpResponse::error(
+                    422,
+                    "timeout_secs must be an integer from 1 to 604800 (one week)",
+                )
+            }
+        }
     }
     let Some(op_name) = obj.get("op").and_then(|v| v.as_str()) else {
         return HttpResponse::error(422, "op is required and must be a string");
@@ -538,7 +731,14 @@ fn submit(svc: &Service, j: &JobService, who: &Principal, body: &str, now: i64) 
         Ok(p) => p,
         Err(e) => return op_error(e),
     };
-    match enqueue(j, &submit_tenant(who), op.name, request, prepared.kind) {
+    match enqueue(
+        j,
+        &submit_tenant(who),
+        op.name,
+        request,
+        prepared.kind,
+        opts,
+    ) {
         Ok((status, created)) => HttpResponse::json(
             if created { 202 } else { 200 },
             serde_json::json!({
@@ -566,10 +766,10 @@ fn list(j: &JobService, who: &Principal, query: &str) -> HttpResponse {
                 _ => return HttpResponse::error(400, "limit must be an integer from 1 to 1000"),
             },
             "state" => {
-                if !["queued", "running", "succeeded", "failed"].contains(&v) {
+                if !["queued", "running", "succeeded", "failed", "cancelled"].contains(&v) {
                     return HttpResponse::error(
                         400,
-                        "state must be queued, running, succeeded or failed",
+                        "state must be queued, running, succeeded, failed or cancelled",
                     );
                 }
                 state = Some(v.to_string());
@@ -595,7 +795,7 @@ pub fn jobs_page(
         .collect();
     let total = all.len();
     let mut counts = serde_json::Map::new();
-    for st in ["queued", "running", "succeeded", "failed"] {
+    for st in ["queued", "running", "succeeded", "failed", "cancelled"] {
         let n = all.iter().filter(|s| s.state.as_str() == st).count();
         counts.insert(st.to_string(), serde_json::json!(n));
     }
@@ -686,7 +886,14 @@ fn study_with_job(
         Ok(p) => p,
         Err(e) => return op_error(e),
     };
-    match enqueue(j, &submit_tenant(who), op.name, &request, prepared.kind) {
+    match enqueue(
+        j,
+        &submit_tenant(who),
+        op.name,
+        &request,
+        prepared.kind,
+        SubmitOptions::default(),
+    ) {
         Ok((status, _)) => {
             body["job_id"] = serde_json::json!(status.job_id);
             body["job_state"] = serde_json::json!(status.state.as_str());

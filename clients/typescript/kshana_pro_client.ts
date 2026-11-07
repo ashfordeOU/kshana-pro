@@ -129,6 +129,16 @@ export class KshanaProClient {
     return this.call("GET", `/jobs/${encodeURIComponent(id)}/artefacts/${encodeURIComponent(name)}`, undefined, undefined, undefined, true);
   }
 
+  /** POST /jobs/{id}/cancel: Cancel a queued or running job (a running job stops at once; its output is never stored). Role: submitter. */
+  postJobsIdCancel(id: string): Promise<any> {
+    return this.call("POST", `/jobs/${encodeURIComponent(id)}/cancel`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /jobs/{id}/events: Server-sent events: the job's status each time it changes, until it finishes (at most 1 hour). Role: reader. */
+  getJobsIdEvents(id: string): Promise<any> {
+    return this.call("GET", `/jobs/${encodeURIComponent(id)}/events`, undefined, undefined, undefined, false);
+  }
+
   /** GET /ledger: The hash-chained delivery ledger as stored. Role: admin. */
   getLedger(): Promise<any> {
     return this.call("GET", `/ledger`, undefined, undefined, undefined, false);
@@ -137,6 +147,11 @@ export class KshanaProClient {
   /** GET /ledger/verify: Verify the ledger chain and every delivered job's stored files. Role: admin. */
   getLedgerVerify(): Promise<any> {
     return this.call("GET", `/ledger/verify`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /metrics: Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime. Role: reader. */
+  getMetrics(): Promise<any> {
+    return this.call("GET", `/metrics`, undefined, undefined, undefined, false);
   }
 
   /** GET /audit/verify: Verify the hash chain of the audit log (admin). Role: admin. */

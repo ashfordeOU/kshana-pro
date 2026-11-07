@@ -49,8 +49,10 @@ pub enum JobState {
     Running,
     /// Finished; `result.json` and the artefacts are on disk.
     Succeeded,
-    /// Finished with an error; the error text is in the status.
+    /// Finished with an error (or its time limit); the error text is in the status.
     Failed,
+    /// Cancelled by a caller before it finished (`POST /jobs/<id>/cancel`).
+    Cancelled,
 }
 
 impl JobState {
@@ -61,11 +63,15 @@ impl JobState {
             JobState::Running => "running",
             JobState::Succeeded => "succeeded",
             JobState::Failed => "failed",
+            JobState::Cancelled => "cancelled",
         }
     }
     /// True once the job can no longer change.
     pub fn is_finished(self) -> bool {
-        matches!(self, JobState::Succeeded | JobState::Failed)
+        matches!(
+            self,
+            JobState::Succeeded | JobState::Failed | JobState::Cancelled
+        )
     }
 }
 
@@ -121,6 +127,57 @@ pub struct JobStatus {
     /// statement), copied verbatim when the result carries one.
     #[serde(default)]
     pub label: Option<String>,
+    /// Queue priority (roadmap F2a): `high`, `normal` or `low`. Jobs stored before
+    /// priorities existed read as `normal`.
+    #[serde(default)]
+    pub priority: Priority,
+    /// Time limit of one run, seconds; past it the job fails with "timed out".
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub timeout_secs: Option<u64>,
+}
+
+/// Queue priority. Within a priority, first in, first out.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Priority {
+    High,
+    #[default]
+    Normal,
+    Low,
+}
+
+impl Priority {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Priority::High => "high",
+            Priority::Normal => "normal",
+            Priority::Low => "low",
+        }
+    }
+    pub fn parse(s: &str) -> Option<Priority> {
+        match s {
+            "high" => Some(Priority::High),
+            "normal" => Some(Priority::Normal),
+            "low" => Some(Priority::Low),
+            _ => None,
+        }
+    }
+    /// Index into the queue's lanes (0 is served first).
+    pub fn lane(self) -> usize {
+        match self {
+            Priority::High => 0,
+            Priority::Normal => 1,
+            Priority::Low => 2,
+        }
+    }
+}
+
+/// How a job is run, chosen at submission. Not part of the job's identity: the same
+/// request submitted again with other options is the same job.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct SubmitOptions {
+    pub priority: Priority,
+    pub timeout_secs: Option<u64>,
 }
 
 fn default_tenant() -> String {
@@ -327,6 +384,18 @@ impl JobStore {
         request: &serde_json::Value,
         kind: Option<String>,
     ) -> io::Result<(JobStatus, bool)> {
+        self.submit_with(tenant, op, request, kind, SubmitOptions::default())
+    }
+
+    /// [`submit_for`](Self::submit_for) with a priority and a time limit.
+    pub fn submit_with(
+        &self,
+        tenant: &str,
+        op: &str,
+        request: &serde_json::Value,
+        kind: Option<String>,
+        opts: SubmitOptions,
+    ) -> io::Result<(JobStatus, bool)> {
         let id = tenant_job_id(tenant, op, request);
         let _guard = self.create_lock.lock().unwrap_or_else(|p| p.into_inner());
         if let Some(existing) = self.status(&id)? {
@@ -356,6 +425,8 @@ impl JobStore {
             result_sha256: None,
             artefacts: Vec::new(),
             label: None,
+            priority: opts.priority,
+            timeout_secs: opts.timeout_secs,
         };
         // status.json last: a directory without it is an incomplete submission and is
         // ignored by every reader.

@@ -246,3 +246,66 @@ fn an_open_server_still_answers_as_before_and_audits() {
     assert!(report.verified);
     assert_eq!(report.lines, 2);
 }
+
+/// SLA metrics (roadmap F2b): `GET /metrics` in the Prometheus text format, scoped to
+/// the caller's tenant; an operator sees every tenant.
+#[test]
+fn metrics_are_tenant_scoped() {
+    let k = keys();
+    let data = fresh_dir("metrics");
+    let mut cfg = ServeConfig::new(
+        "127.0.0.1:0",
+        Entitlement {
+            licensee: "test".into(),
+            tier: Tier::Enterprise,
+            expires_unix: 0,
+            features: vec![],
+        },
+    );
+    cfg.data_dir = Some(data);
+    cfg.keys = Some(k.file.clone());
+    let srv = serve::start(cfg).unwrap();
+    let addr = srv.local_addr();
+    for (key, f) in [(&k.a_sub, "link-budget.toml"), (&k.b_sub, "ephemeris.toml")] {
+        let r = http(
+            addr,
+            "POST",
+            "/jobs",
+            &json!({"op": "run", "request": {"scenario": fixture(f)}}).to_string(),
+            Some(key),
+        );
+        assert_eq!(r.status, 202, "{}", r.body);
+        wait(addr, r.json()["job_id"].as_str().unwrap(), key);
+    }
+    assert_eq!(http(addr, "GET", "/metrics", "", None).status, 401);
+    let a = http(addr, "GET", "/metrics", "", Some(&k.a_read));
+    assert_eq!(a.status, 200);
+    assert!(
+        a.body
+            .contains("kshana_jobs{tenant=\"site-a\",state=\"succeeded\"} 1"),
+        "{}",
+        a.body
+    );
+    assert!(
+        !a.body.contains("site-b"),
+        "tenant a sees tenant b:\n{}",
+        a.body
+    );
+    assert!(a
+        .body
+        .contains("kshana_job_run_seconds_count{tenant=\"site-a\"} 1"));
+    assert!(a.body.contains("# TYPE kshana_http_requests_total counter"));
+    assert!(
+        a.body.contains("route=\"/jobs\",status=\"202\"} 1"),
+        "{}",
+        a.body
+    );
+    let ops = http(addr, "GET", "/metrics", "", Some(&k.ops));
+    assert!(
+        ops.body.contains("site-a") && ops.body.contains("site-b"),
+        "{}",
+        ops.body
+    );
+    assert!(ops.body.contains("kshana_runs_jobs 1"));
+    srv.stop();
+}

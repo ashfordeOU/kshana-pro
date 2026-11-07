@@ -5,6 +5,17 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Service hardening and SLA metrics (F2a, F2b).** `serve --tls-cert/--tls-key` serves HTTPS
+  from the binary (rustls, ring provider). `POST /jobs` takes `priority` (high, normal, low) and
+  `timeout_secs`; `POST /jobs/<id>/cancel` cancels a queued or running job (new state
+  `cancelled`); `GET /jobs/<id>/events` streams status changes as server-sent events. High
+  availability: `--ha-node` nodes share one data directory, one holds a lease and runs jobs, a
+  standby takes over when it expires (Enterprise, `pro-service-ha`); each node has its own audit
+  log. `kshana-pro backup create|verify` copies a data directory while it serves and checks the
+  copy. `GET /metrics`: Prometheus text per tenant (jobs by state, queue wait and run time
+  quantiles, requests by route and status). Clients regenerated; the TypeScript client test imports
+  an `.mts` copy so Node reads it as an ES module on every machine. `tests/service_hardening.rs`.
+
 - **Licensing for 0.41 (F10b, F10c, F10d, F10f).** Licence token v2: products (cli, desktop,
   station, service), seats, Stations, optional machine binding (salted hash of the hardware ID,
   `license machine-id`), key ID with several trusted keys for rotation and retired keys refused,

@@ -35,13 +35,16 @@
 pub mod api;
 pub mod audit;
 pub mod auth;
+pub mod backup;
 pub mod clients;
 pub mod delivery;
+pub mod ha;
 pub mod jobs;
 pub mod oidc;
 pub mod openapi;
 pub mod ops;
 pub mod study_intake;
+pub mod tls;
 pub mod worker;
 
 use std::io::{Read, Write};
@@ -410,6 +413,12 @@ pub struct ServeConfig {
     pub oidc: Option<PathBuf>,
     /// Days of audit log kept (whole day files; default 400). Only with a data directory.
     pub audit_retention_days: u32,
+    /// High availability (`--ha-node`): several nodes on one shared data directory, one
+    /// running jobs at a time ([`ha`]). Needs the `pro-service-ha` feature.
+    pub ha: Option<ha::HaConfig>,
+    /// Serve HTTPS with this certificate chain and private key (PEM files) instead of
+    /// plain HTTP ([`tls`]).
+    pub tls: Option<(PathBuf, PathBuf)>,
     /// Re-queue jobs left queued or running by an earlier process (default true). A
     /// test switches it off to prove that recovery is what finishes those jobs.
     #[doc(hidden)]
@@ -428,6 +437,8 @@ impl ServeConfig {
             keys: None,
             oidc: None,
             audit_retention_days: 400,
+            ha: None,
+            tls: None,
             recover_on_start: true,
         }
     }
@@ -440,6 +451,7 @@ pub struct ServerHandle {
     accept: Option<JoinHandle<()>>,
     pool: Option<worker::WorkerPool>,
     service: Arc<api::Service>,
+    ha: Option<ha::HaNode>,
 }
 
 impl ServerHandle {
@@ -469,7 +481,20 @@ impl ServerHandle {
         Ok(())
     }
 
+    /// Stop as a failed node would: stop serving and running jobs at once and leave the
+    /// high-availability lease to expire (failover tests).
+    #[doc(hidden)]
+    pub fn abandon(mut self) {
+        if let Some(h) = self.ha.take() {
+            h.stop(false);
+        }
+        self.shutdown();
+    }
+
     fn shutdown(&mut self) {
+        if let Some(h) = self.ha.take() {
+            h.stop(true);
+        }
         self.stop.store(true, Ordering::SeqCst);
         if let Some(h) = self.accept.take() {
             let _ = h.join();
@@ -496,13 +521,34 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
     let addr = listener.local_addr()?;
     listener.set_nonblocking(true)?;
 
+    if config.ha.is_some() {
+        if config.data_dir.is_none() {
+            return Err(std::io::Error::other(
+                "high availability needs a shared --data-dir",
+            ));
+        }
+        if !config.entitlement.allows("pro-service-ha", now_unix()) {
+            return Err(std::io::Error::other(format!(
+                "high availability requires the '{}' tier (or the 'pro-service-ha' feature on the licence)",
+                crate::license::feature_min_tier("pro-service-ha").as_str()
+            )));
+        }
+    }
+    let tls = match &config.tls {
+        Some((cert, key)) => Some(tls::server_config(cert, key)?),
+        None => None,
+    };
     let (jobs, pool, recovered) = match &config.data_dir {
         Some(dir) => {
             let svc = Arc::new(worker::JobService::open(
                 dir.clone(),
                 config.entitlement.clone(),
             )?);
-            let recovered = if config.recover_on_start {
+            if config.ha.is_some() {
+                // A node runs jobs only once it holds the lease.
+                svc.active.store(false, Ordering::SeqCst);
+            }
+            let recovered = if config.recover_on_start && config.ha.is_none() {
                 svc.recover()
             } else {
                 0
@@ -518,7 +564,10 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
     }
     let audit = match &config.data_dir {
         Some(dir) => {
-            let log = audit::AuditLog::open(dir)?;
+            let log = match &config.ha {
+                Some(h) => audit::AuditLog::open_dir(dir.join("audit").join(&h.node))?,
+                None => audit::AuditLog::open(dir)?,
+            };
             log.prune(config.audit_retention_days, now_unix())?;
             Some(log)
         }
@@ -532,7 +581,12 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
     ));
 
     eprintln!(
-        "kshana-pro serving on http://{addr}  (tier: {}, licensee: {})",
+        "kshana-pro serving on {}://{addr}  (tier: {}, licensee: {})",
+        if config.tls.is_some() {
+            "https"
+        } else {
+            "http"
+        },
         config.entitlement.tier.as_str(),
         config.entitlement.licensee
     );
@@ -581,7 +635,17 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
         let service = service.clone();
         std::thread::Builder::new()
             .name("kshana-accept".into())
-            .spawn(move || accept_loop(listener, service, stop))?
+            .spawn(move || accept_loop(listener, service, stop, tls))?
+    };
+    let ha = match (&config.ha, &service.jobs) {
+        (Some(h), Some(j)) => {
+            eprintln!(
+                "high availability: node {}, lease {} ms, shared data directory",
+                h.node, h.lease_ms
+            );
+            Some(ha::HaNode::start(h.clone(), j.clone()))
+        }
+        _ => None,
     };
     Ok(ServerHandle {
         addr,
@@ -589,6 +653,7 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
         accept: Some(accept),
         pool,
         service,
+        ha,
     })
 }
 
@@ -597,7 +662,12 @@ pub fn serve_with(config: ServeConfig) -> std::io::Result<()> {
     start(config)?.wait()
 }
 
-fn accept_loop(listener: TcpListener, service: Arc<api::Service>, stop: Arc<AtomicBool>) {
+fn accept_loop(
+    listener: TcpListener,
+    service: Arc<api::Service>,
+    stop: Arc<AtomicBool>,
+    tls: Option<Arc<rustls::ServerConfig>>,
+) {
     let active = Arc::new(AtomicUsize::new(0));
     while !stop.load(Ordering::SeqCst) {
         match listener.accept() {
@@ -613,9 +683,28 @@ fn accept_loop(listener: TcpListener, service: Arc<api::Service>, stop: Arc<Atom
                 active.fetch_add(1, Ordering::Relaxed);
                 let svc = service.clone();
                 let active = active.clone();
+                let tls = tls.clone();
                 std::thread::spawn(move || {
                     let _guard = ConnGuard(active); // decrements on exit, even on panic
-                    if let Err(e) = handle_conn(s, &svc) {
+                    let _ = s.set_read_timeout(Some(Duration::from_secs(IO_TIMEOUT_SECS)));
+                    let _ = s.set_write_timeout(Some(Duration::from_secs(IO_TIMEOUT_SECS)));
+                    let r = match tls {
+                        Some(cfg) => match rustls::ServerConnection::new(cfg) {
+                            Ok(conn) => {
+                                let mut ts = rustls::StreamOwned::new(conn, s);
+                                let r = handle_conn(&mut ts, &svc);
+                                ts.conn.send_close_notify();
+                                let _ = ts.flush();
+                                r
+                            }
+                            Err(e) => Err(std::io::Error::other(e)),
+                        },
+                        None => {
+                            let mut s = s;
+                            handle_conn(&mut s, &svc)
+                        }
+                    };
+                    if let Err(e) = r {
                         eprintln!("connection error: {e}");
                     }
                 });
@@ -657,19 +746,78 @@ pub fn healthcheck(addr: &str) -> bool {
     }
 }
 
-fn handle_conn(mut stream: TcpStream, service: &api::Service) -> std::io::Result<()> {
-    // Bound slow clients: a read/write that stalls past the timeout fails the conn.
-    stream.set_read_timeout(Some(Duration::from_secs(IO_TIMEOUT_SECS)))?;
-    stream.set_write_timeout(Some(Duration::from_secs(IO_TIMEOUT_SECS)))?;
-    let resp = match read_request_with(&mut stream, MAX_HEADER_BYTES, body_cap) {
+/// Internal response header that turns a response into a server-sent event stream for
+/// the job it names; it is never sent to the client.
+pub(crate) const STREAM_HEADER: &str = "X-Kshana-Stream-Job";
+/// The longest an event stream stays open.
+pub const STREAM_MAX_SECS: u64 = 3600;
+
+/// One server-sent event carrying a job status.
+pub(crate) fn sse_event(status: &serde_json::Value) -> String {
+    format!("event: status\ndata: {status}\n\n")
+}
+
+fn handle_conn<S: Read + Write>(stream: &mut S, service: &api::Service) -> std::io::Result<()> {
+    let mut resp = match read_request_with(&mut *stream, MAX_HEADER_BYTES, body_cap) {
         Ok((req, auth)) => api::dispatch(service, &req, auth.as_deref(), now_unix()),
         Err(e) => {
             let status = if e.contains("too large") { 413 } else { 400 };
             HttpResponse::error(status, &e)
         }
     };
-    stream.write_all(&resp.to_bytes())?;
-    stream.flush()
+    let stream_job = resp
+        .headers
+        .iter()
+        .position(|(k, _)| *k == STREAM_HEADER)
+        .map(|i| resp.headers.remove(i).1);
+    match (stream_job, service.jobs.as_ref()) {
+        (Some(id), Some(jobs)) => stream_job_events(stream, &resp, jobs, &id),
+        _ => {
+            stream.write_all(&resp.to_bytes())?;
+            stream.flush()
+        }
+    }
+}
+
+/// Write a server-sent event stream: the first event (in `first.body`), then one event
+/// each time the job's status changes, until it finishes or [`STREAM_MAX_SECS`] pass. A
+/// comment line every 15 s keeps proxies from closing an idle stream.
+fn stream_job_events<S: Write>(
+    stream: &mut S,
+    first: &HttpResponse,
+    jobs: &worker::JobService,
+    id: &str,
+) -> std::io::Result<()> {
+    write!(
+        stream,
+        "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-cache\r\nConnection: close\r\n\r\n{}",
+        first.body
+    )?;
+    stream.flush()?;
+    let start = std::time::Instant::now();
+    let mut last = first.body.clone();
+    let mut last_write = std::time::Instant::now();
+    while start.elapsed() < Duration::from_secs(STREAM_MAX_SECS) {
+        std::thread::sleep(Duration::from_millis(200));
+        let Ok(Some(st)) = jobs.store.status(id) else {
+            break;
+        };
+        let ev = sse_event(&api::status_json(&st));
+        if ev != last {
+            stream.write_all(ev.as_bytes())?;
+            stream.flush()?;
+            last = ev;
+            last_write = std::time::Instant::now();
+        } else if last_write.elapsed() >= Duration::from_secs(15) {
+            stream.write_all(b": keep-alive\n\n")?;
+            stream.flush()?;
+            last_write = std::time::Instant::now();
+        }
+        if st.state.is_finished() {
+            break;
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]

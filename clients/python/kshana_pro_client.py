@@ -122,6 +122,14 @@ class KshanaProClient:
         """GET /jobs/{id}/artefacts/{name}: One named artefact of a succeeded job. Role: reader."""
         return self._call("GET", f"/jobs/{_q(id)}/artefacts/{_q(name)}", None, None, None, text=True)
 
+    def post_jobs_id_cancel(self, id):
+        """POST /jobs/{id}/cancel: Cancel a queued or running job (a running job stops at once; its output is never stored). Role: submitter."""
+        return self._call("POST", f"/jobs/{_q(id)}/cancel", None, None, None, text=False)
+
+    def get_jobs_id_events(self, id):
+        """GET /jobs/{id}/events: Server-sent events: the job's status each time it changes, until it finishes (at most 1 hour). Role: reader."""
+        return self._call("GET", f"/jobs/{_q(id)}/events", None, None, None, text=False)
+
     def get_ledger(self):
         """GET /ledger: The hash-chained delivery ledger as stored. Role: admin."""
         return self._call("GET", "/ledger", None, None, None, text=False)
@@ -129,6 +137,10 @@ class KshanaProClient:
     def get_ledger_verify(self):
         """GET /ledger/verify: Verify the ledger chain and every delivered job's stored files. Role: admin."""
         return self._call("GET", "/ledger/verify", None, None, None, text=False)
+
+    def get_metrics(self):
+        """GET /metrics: Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime. Role: reader."""
+        return self._call("GET", "/metrics", None, None, None, text=False)
 
     def get_audit_verify(self):
         """GET /audit/verify: Verify the hash chain of the audit log (admin). Role: admin."""

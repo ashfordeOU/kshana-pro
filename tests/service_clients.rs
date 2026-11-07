@@ -199,7 +199,15 @@ fn both_clients_drive_a_running_server() {
         std::fs::create_dir_all(&dir).unwrap();
         let srv = serve::start(base_cfg(&dir)).unwrap();
         let script = dir.join("drive.mts");
-        let client = root().join("clients/typescript/kshana_pro_client.ts");
+        // A `.mts` copy is always an ES module. The committed `.ts` is read as CommonJS
+        // when the nearest package.json above it lacks "type": "module" (seen on the CI
+        // runner), and then its exports are not found.
+        let client = dir.join("kshana_pro_client.mts");
+        std::fs::copy(
+            root().join("clients/typescript/kshana_pro_client.ts"),
+            &client,
+        )
+        .unwrap();
         std::fs::write(
             &script,
             TS_SCRIPT.replace("CLIENT", &client.display().to_string()),

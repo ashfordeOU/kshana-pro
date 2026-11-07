@@ -98,7 +98,12 @@ fn digest(line: &str) -> String {
 impl AuditLog {
     /// Open (creating when absent) `<data_dir>/audit`, continuing the chain from the last line.
     pub fn open(data_dir: &Path) -> io::Result<AuditLog> {
-        let dir = data_dir.join("audit");
+        AuditLog::open_dir(data_dir.join("audit"))
+    }
+
+    /// Open (creating when absent) an audit log in `dir` (one per node when several
+    /// nodes share a data directory, [`super::ha`]).
+    pub fn open_dir(dir: std::path::PathBuf) -> io::Result<AuditLog> {
         fs::create_dir_all(&dir)?;
         let last = day_files(&dir)
             .last()

@@ -348,24 +348,72 @@ times, the attempts and links to the result and the artefacts.
 ## Limitations
 
 - **One request per connection.** Every response closes the connection; there is no
-  keep-alive and no streaming. A client polls `GET /jobs/<id>`.
+  keep-alive. A client polls `GET /jobs/<id>` or follows `GET /jobs/<id>/events`.
 - **One entitlement for the whole process.** Every caller is served at the tier of the
   process's licence; there is no per-user tier.
 - **Keys and tokens, not a user directory.** Callers are named API keys (`--keys-file`) or
   OIDC tokens from the site's identity provider (`--oidc`), each with a role and a tenant;
   see "Access control and audit" below. The single `--api-token-file` token still works
   and acts as an admin key. Users, groups and expiry live in the identity provider.
-- **No transport encryption inside the binary.** The server speaks plain HTTP. Put it
-  behind the site's own reverse proxy for TLS. A browser cannot add the bearer header to
-  a page load, so the job board needs the proxy to add it when a token is set.
-- **A job store is not a backup.** The data directory is the only copy of the results
-  and the ledger; back it up (`deploy/DEPLOY.md` shows how).
-- **One server per data directory.** Two processes on the same directory would each run
-  the queued jobs; nothing locks the directory.
-- **No cancellation and no time limit.** A running job runs to completion; a stop waits
-  for it. There is no priority between queued jobs: first in, first out.
+- **TLS needs the operator's key pair.** `--tls-cert`/`--tls-key` take PEM files (the
+  chain and its private key); the server neither requests nor renews them. Without them it speaks plain
+  HTTP for a reverse proxy in front. A browser cannot add the bearer header to a page
+  load, so the job board needs the proxy to add it when a token is set.
+- **A job store is not a backup.** Use `kshana-pro backup create` (below) on a schedule.
+- **Cancelling abandons the run, it does not interrupt the engine.** A cancelled or
+  timed-out job is finished at once and its output is never stored, but the engine
+  computation it started keeps its thread until it ends on its own. Many cancelled
+  long runs at once therefore still use processor time until they finish.
+- **High availability is one active node.** Several nodes serve the API; one runs jobs.
+  See "High availability" for what the shared storage must provide and the pause case.
 - **No retention.** Jobs are kept until an operator deletes their directories; deleting
   a delivered job's directory makes `GET /ledger/verify` report it as a mismatch.
+
+## Hardening (roadmap F2a)
+
+| What | How |
+|---|---|
+| TLS in the binary | `serve --tls-cert <chain.pem> --tls-key <key.pem>`: TLS 1.3 and 1.2, forward-secret suites only (rustls with the ring provider) |
+| Streaming | `GET /jobs/<id>/events`: server-sent events, one `status` event per change until the job finishes (at most one hour; a comment line every 15 s keeps proxies open) |
+| Cancellation | `POST /jobs/<id>/cancel` (submitter): a queued job is `cancelled` at once; a running one stops within 50 ms; a finished one answers 409 |
+| Time limit | `"timeout_secs": n` in the `POST /jobs` body (1 s to one week): past it the job is `failed` with "timed out" |
+| Priority | `"priority": "high" \| "normal" \| "low"` in the `POST /jobs` body: three first-in, first-out lanes, high served first. Neither option changes the job's identifier |
+| High availability | `serve --ha-node <name> [--ha-lease-secs <s>]` on two or more machines with one shared `--data-dir` (Enterprise, `pro-service-ha`) |
+| Backup | `kshana-pro backup create --data-dir <dir> --out <new dir>` while serving; `kshana-pro backup verify <dir>` offline |
+
+### High availability
+
+Every node serves the API; the node holding the lease (`<data-dir>/ha/lease.json`)
+runs jobs. It renews the lease every third of the lease time (default lease 30 s). A
+standby that finds the lease expired takes it, queues every job left queued or running
+(the failed node's running job runs again, with `attempts` 2), and runs the queue from
+then on. A job submitted through a standby is stored on the shared disk and run by the
+holder within a third of the lease time. A clean stop gives the lease up at once. Each
+node keeps its own audit log, `audit/<node>/`. `kshana_runs_jobs` in `/metrics` says
+which node is active.
+
+The shared directory must provide exclusive file creation and atomic rename (a local
+disk, NFS version 3 or later, SMB). A holder that is paused for longer than the lease,
+for example cut off from the shared storage, may finish the job it was running after a
+standby has started the same job again; choose a lease well above any expected pause.
+
+### Backup and restore
+
+`backup create` copies the ledger first, then the jobs and the audit logs, so every
+delivery in the copied ledger finds its files; it writes `backup-manifest.json` with
+every file's SHA-256. `backup verify` recomputes each hash and runs the ledger check on
+the copy. To restore, stop the service, put the backup in place of the data directory,
+delete `backup-manifest.json`, and start the service: jobs copied while running are
+run again.
+
+## Service-level metrics (roadmap F2b)
+
+`GET /metrics` (reader) gives Prometheus text for the caller's tenant (every tenant for
+an operator): `kshana_jobs{tenant,state}`, `kshana_job_queue_wait_seconds` and
+`kshana_job_run_seconds` (median, 95th and 99th percentile, sum, count, per tenant,
+over finished jobs), `kshana_http_requests_total{tenant,route,status}`,
+`kshana_queue_length`, `kshana_uptime_seconds`, `kshana_runs_jobs`. Job figures come
+from the store; request counts are this process's since it started.
 
 ## Access control and audit
 
