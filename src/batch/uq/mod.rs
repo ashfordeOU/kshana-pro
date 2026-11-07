@@ -83,6 +83,65 @@ pub struct StudySpec {
     pub sensitivity: SensitivitySpec,
     #[serde(default)]
     pub run: RunSpec,
+    /// Rank correlations between pairs of inputs (roadmap F8a), as a Gaussian copula.
+    #[serde(default, rename = "correlation")]
+    pub correlations: Vec<CorrelationSpec>,
+}
+
+/// A correlation between two inputs (`[[correlation]]`).
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct CorrelationSpec {
+    /// The two input names.
+    pub inputs: Vec<String>,
+    /// The correlation of the two inputs' normal scores (Gaussian copula), in (-1, 1).
+    pub rho: f64,
+    /// Where the correlation comes from. Required, as for an input.
+    pub source: Option<String>,
+}
+
+/// A validated correlation.
+#[derive(Debug, Clone)]
+pub struct Correlation {
+    pub a: usize,
+    pub b: usize,
+    pub rho: f64,
+    pub source: String,
+    pub assumed: bool,
+}
+
+/// Lower-triangular Cholesky factor of a symmetric matrix; `None` when it is not
+/// positive definite.
+pub fn cholesky(m: &[Vec<f64>]) -> Option<Vec<Vec<f64>>> {
+    let n = m.len();
+    let mut l = vec![vec![0.0; n]; n];
+    for i in 0..n {
+        for j in 0..=i {
+            let s: f64 = (0..j).map(|k| l[i][k] * l[j][k]).sum();
+            if i == j {
+                let d = m[i][i] - s;
+                if d <= 1e-12 || !d.is_finite() {
+                    return None;
+                }
+                l[i][j] = d.sqrt();
+            } else {
+                l[i][j] = (m[i][j] - s) / l[j][j];
+            }
+        }
+    }
+    Some(l)
+}
+
+/// Map one row of the unit design through the Gaussian copula: normal scores, the
+/// Cholesky factor, back to the unit interval. Each column's marginal stays uniform.
+pub fn correlate_row(u: &[f64], l: &[Vec<f64>]) -> Vec<f64> {
+    let z: Vec<f64> = u.iter().map(|&x| dist::normal_inverse_cdf(x)).collect();
+    (0..u.len())
+        .map(|i| {
+            let zi: f64 = (0..=i).map(|k| l[i][k] * z[k]).sum();
+            kshana::lambda::normal_cdf_accurate(zi).clamp(f64::MIN_POSITIVE, 1.0 - f64::EPSILON)
+        })
+        .collect()
 }
 
 /// One uncertain input.
@@ -255,6 +314,9 @@ pub struct Plan {
     pub seed_key: String,
     pub keep_samples: bool,
     pub sensitivity: Sensitivity,
+    /// Correlated input pairs and the copula's Cholesky factor (none: independent).
+    pub correlations: Vec<Correlation>,
+    pub copula: Option<Vec<Vec<f64>>>,
 }
 
 fn check_name(what: &str, name: &str) -> Result<(), String> {
@@ -507,6 +569,63 @@ impl Plan {
         if let Some(0) = spec.run.threads {
             return Err("run `threads` must be at least 1".into());
         }
+        // Correlated inputs (F8a).
+        let mut correlations = Vec::new();
+        for c in &spec.correlations {
+            let at = |e: &str| format!("correlation {:?}: {e}", c.inputs);
+            if c.inputs.len() != 2 || c.inputs[0] == c.inputs[1] {
+                return Err(at("`inputs` names two different inputs"));
+            }
+            let idx = |n: &str| inputs.iter().position(|i| i.name == n);
+            let (Some(a), Some(b)) = (idx(&c.inputs[0]), idx(&c.inputs[1])) else {
+                return Err(at("names an input that is not declared"));
+            };
+            if !(c.rho.is_finite() && c.rho > -1.0 && c.rho < 1.0) {
+                return Err(at("`rho` must be strictly between -1 and 1"));
+            }
+            let source = c.source.as_deref().map(str::trim).unwrap_or("");
+            if source.is_empty() {
+                return Err(at(
+                    "`source` is required: say where this correlation comes from, or write \"assumed\"",
+                ));
+            }
+            let (a, b) = (a.min(b), a.max(b));
+            if correlations
+                .iter()
+                .any(|x: &Correlation| x.a == a && x.b == b)
+            {
+                return Err(at("this pair is correlated twice"));
+            }
+            correlations.push(Correlation {
+                a,
+                b,
+                rho: c.rho,
+                source: source.to_string(),
+                assumed: is_assumed(source),
+            });
+        }
+        let copula = if correlations.is_empty() {
+            None
+        } else {
+            if sensitivity != Sensitivity::None {
+                return Err(format!(
+                    "sensitivity method \"{}\" assumes independent inputs; with [[correlation]] use \"none\" (the spread and the bands are still computed)",
+                    sensitivity.as_str()
+                ));
+            }
+            let k = inputs.len();
+            let mut m = vec![vec![0.0; k]; k];
+            for (i, row) in m.iter_mut().enumerate() {
+                row[i] = 1.0;
+            }
+            for c in &correlations {
+                m[c.a][c.b] = c.rho;
+                m[c.b][c.a] = c.rho;
+            }
+            Some(cholesky(&m).ok_or(
+                "the correlations are not consistent with each other (the correlation matrix is not positive definite)",
+            )?)
+        };
         let runs = match sensitivity {
             Sensitivity::Sobol => spec.sampling.n.checked_mul(inputs.len() + 2),
             _ => Some(spec.sampling.n),
@@ -531,6 +650,8 @@ impl Plan {
             seed_key: spec.sampling.seed_key.clone(),
             keep_samples: spec.sampling.keep_samples,
             sensitivity,
+            correlations,
+            copula,
         })
     }
 
@@ -552,10 +673,15 @@ impl Plan {
     /// changed seed.
     pub fn jobs(&self, base_seed: Option<u64>) -> Result<Vec<Job>, String> {
         let k = self.inputs.len();
-        let unit_rows = match self.sensitivity {
+        let mut unit_rows = match self.sensitivity {
             Sensitivity::Sobol => sampling::saltelli_unit_rows(self.method, self.n, k, self.seed),
             _ => sampling::unit_sample(self.method, self.n, k, self.seed, Matrix::A),
         };
+        if let Some(l) = &self.copula {
+            for u in unit_rows.iter_mut() {
+                *u = correlate_row(u, l);
+            }
+        }
         unit_rows
             .into_iter()
             .enumerate()
@@ -657,6 +783,21 @@ pub fn study_tier(base: Option<&str>) -> &'static str {
 
 // ─── Hashing ───────────────────────────────────────────────────────────────────────
 
+/// The correlations as the canonical study and the result list them.
+pub fn correlations_json(plan: &Plan) -> Value {
+    json!(plan
+        .correlations
+        .iter()
+        .map(|c| json!({
+            "inputs": [plan.inputs[c.a].name, plan.inputs[c.b].name],
+            "rho": c.rho,
+            "model": "gaussian copula (correlation of normal scores)",
+            "source": c.source,
+            "source_class": if c.assumed { "ASSUMED" } else { "STATED" },
+        }))
+        .collect::<Vec<_>>())
+}
+
 /// SHA-256 of `bytes`, in hexadecimal.
 pub fn sha256_hex(bytes: &[u8]) -> String {
     let mut h = Sha256::new();
@@ -698,6 +839,12 @@ pub fn canonical_study(plan: &Plan, base: &toml::Value) -> Result<String, String
         },
         "sensitivity": {"method": plan.sensitivity.as_str()},
     });
+    let mut doc = doc;
+    // Only a study with correlations carries the key, so the hash of every study
+    // written before correlations existed is unchanged.
+    if !plan.correlations.is_empty() {
+        doc["correlations"] = correlations_json(plan);
+    }
     serde_json::to_string(&doc).map_err(|e| e.to_string())
 }
 
@@ -1299,6 +1446,12 @@ pub fn analyse(
         SIBLING_UNIT,
         "input",
         "the input's value in the base scenario",
+    );
+    units.add(
+        "correlations[].rho",
+        "1",
+        "input",
+        "correlation of the two inputs' normal scores (Gaussian copula), as the study states it",
     );
     for (f, what) in [
         ("mean", "mean"),
@@ -2018,6 +2171,7 @@ pub fn analyse(
             "result_sha256": info.result_sha256,
         },
         "inputs": inputs_json,
+        "correlations": correlations_json(plan),
         "output_order": plan.output_order,
         "sampling": {
             "method": plan.method.as_str(),
@@ -2111,6 +2265,22 @@ pub fn analyse(
     }
     if !assumed.is_empty() {
         summary += &format!(" | ASSUMED inputs: {}", assumed.join(", "));
+    }
+    if !plan.correlations.is_empty() {
+        let pairs: Vec<String> = plan
+            .correlations
+            .iter()
+            .map(|c| {
+                format!(
+                    "{}~{} rho {}{}",
+                    plan.inputs[c.a].name,
+                    plan.inputs[c.b].name,
+                    c.rho,
+                    if c.assumed { " (ASSUMED)" } else { "" }
+                )
+            })
+            .collect();
+        summary += &format!(" | correlated inputs: {}", pairs.join(", "));
     }
     summary += " | MODELLED";
 
@@ -2238,6 +2408,7 @@ method = "sobol"
             with(""),
             with("[sensitivity]\nmethod = \"src\"\n"),
             with("[sensitivity]\nmethod = \"sobol\"\n"),
+            with("[[correlation]]\ninputs = [\"eirp\", \"losses\"]\nrho = 0.5\nsource = \"assumed\"\n"),
             clock.to_string(),
         ] {
             let run = run_study(&study, &RunOptions::default()).expect("the study runs");
@@ -2468,5 +2639,125 @@ method = "sobol"
             assert_eq!(jobs[3 * n + j].seed, Some(100 + j as u64)); // A_B^(1)
         }
         assert!(plan.jobs(Some(u64::MAX - 3)).is_err());
+    }
+
+    // ---- F8a: correlated inputs ----
+
+    fn pearson(x: &[f64], y: &[f64]) -> f64 {
+        let n = x.len() as f64;
+        let (mx, my) = (x.iter().sum::<f64>() / n, y.iter().sum::<f64>() / n);
+        let sxy: f64 = x.iter().zip(y).map(|(a, b)| (a - mx) * (b - my)).sum();
+        let sxx: f64 = x.iter().map(|a| (a - mx).powi(2)).sum();
+        let syy: f64 = y.iter().map(|b| (b - my).powi(2)).sum();
+        sxy / (sxx * syy).sqrt()
+    }
+
+    #[test]
+    fn correlated_inputs_follow_the_stated_correlation_and_keep_their_marginals() {
+        let text = with(
+            "[[correlation]]\ninputs = [\"eirp\", \"losses\"]\nrho = 0.8\nsource = \"assumed\"\n",
+        )
+        .replace("n = 64", "n = 20000")
+        .replace(
+            "dist = \"uniform\"\nmin = 2.0\nmax = 4.0",
+            "dist = \"normal\"\nmean = 3.0\nstd = 0.5",
+        );
+        let spec: StudySpec = toml::from_str(&text).expect("parses");
+        let plan = Plan::from_spec(&spec).expect("valid");
+        let jobs = plan.jobs(None).unwrap();
+        let x: Vec<f64> = jobs.iter().map(|j| j.inputs[0]).collect();
+        let y: Vec<f64> = jobs.iter().map(|j| j.inputs[1]).collect();
+        // For two normal marginals the copula correlation is the Pearson correlation.
+        let r = pearson(&x, &y);
+        assert!((r - 0.8).abs() < 0.01, "r = {r}");
+        let mean = |v: &[f64]| v.iter().sum::<f64>() / v.len() as f64;
+        let sd = |v: &[f64]| {
+            let m = mean(v);
+            (v.iter().map(|a| (a - m).powi(2)).sum::<f64>() / (v.len() - 1) as f64).sqrt()
+        };
+        assert!((mean(&x) - 55.0).abs() < 0.02 && (sd(&x) - 1.0).abs() < 0.02);
+        assert!((mean(&y) - 3.0).abs() < 0.01 && (sd(&y) - 0.5).abs() < 0.01);
+        // Without the correlation the same design is (nearly) uncorrelated.
+        let spec: StudySpec = toml::from_str(&text.replace("rho = 0.8", "rho = 0.0")).unwrap();
+        let jobs = Plan::from_spec(&spec).unwrap().jobs(None).unwrap();
+        let x: Vec<f64> = jobs.iter().map(|j| j.inputs[0]).collect();
+        let y: Vec<f64> = jobs.iter().map(|j| j.inputs[1]).collect();
+        assert!(pearson(&x, &y).abs() < 0.03);
+    }
+
+    #[test]
+    fn a_uniform_marginal_stays_uniform_under_correlation() {
+        let spec: StudySpec = toml::from_str(
+            &with("[[correlation]]\ninputs = [\"losses\", \"eirp\"]\nrho = -0.6\nsource = \"design note\"\n")
+                .replace("n = 64", "n = 20000"),
+        )
+        .unwrap();
+        let jobs = Plan::from_spec(&spec).unwrap().jobs(None).unwrap();
+        let y: Vec<f64> = jobs.iter().map(|j| j.inputs[1]).collect();
+        assert!(y.iter().all(|v| (2.0..=4.0).contains(v)));
+        // Ten equal bins of U(2, 4) each hold close to a tenth.
+        for b in 0..10 {
+            let lo = 2.0 + 0.2 * b as f64;
+            let frac =
+                y.iter().filter(|v| **v >= lo && **v < lo + 0.2).count() as f64 / y.len() as f64;
+            assert!((frac - 0.1).abs() < 0.01, "bin {b}: {frac}");
+        }
+        let x: Vec<f64> = jobs.iter().map(|j| j.inputs[0]).collect();
+        assert!(pearson(&x, &y) < -0.5);
+    }
+
+    #[test]
+    fn correlation_errors_are_refused() {
+        let plan = |extra: &str| {
+            let spec: StudySpec = toml::from_str(&with(extra)).expect("parses");
+            Plan::from_spec(&spec)
+        };
+        let c = |a: &str, b: &str, rho: &str, src: &str| {
+            format!("[[correlation]]\ninputs = [\"{a}\", \"{b}\"]\nrho = {rho}\n{src}\n")
+        };
+        assert!(plan(&c("eirp", "nope", "0.5", "source = \"x\""))
+            .unwrap_err()
+            .contains("not declared"));
+        assert!(plan(&c("eirp", "eirp", "0.5", "source = \"x\"")).is_err());
+        assert!(plan(&c("eirp", "losses", "1.0", "source = \"x\""))
+            .unwrap_err()
+            .contains("strictly"));
+        assert!(plan(&c("eirp", "losses", "0.5", ""))
+            .unwrap_err()
+            .contains("source"));
+        let twice = c("eirp", "losses", "0.5", "source = \"x\"")
+            + &c("losses", "eirp", "0.4", "source = \"x\"");
+        assert!(plan(&twice).unwrap_err().contains("twice"));
+        let sobol =
+            c("eirp", "losses", "0.5", "source = \"x\"") + "[sensitivity]\nmethod = \"sobol\"\n";
+        assert!(plan(&sobol).unwrap_err().contains("independent inputs"));
+        // Three pairwise correlations that cannot hold together.
+        let three = LINK.to_string()
+            + "\n[[input]]\nname = \"g\"\nkey = \"g_over_t_db\"\ndist = \"normal\"\nmean = 53.0\nstd = 1.0\nsource = \"assumed\"\n"
+            + &c("eirp", "losses", "0.9", "source = \"x\"")
+            + &c("eirp", "g", "0.9", "source = \"x\"")
+            + &c("losses", "g", "-0.9", "source = \"x\"");
+        let spec: StudySpec = toml::from_str(&three).expect("parses");
+        assert!(Plan::from_spec(&spec)
+            .unwrap_err()
+            .contains("positive definite"));
+    }
+
+    #[test]
+    fn a_study_without_correlations_keeps_its_hash_form() {
+        let spec: StudySpec = toml::from_str(LINK).unwrap();
+        let plan = Plan::from_spec(&spec).unwrap();
+        let base: toml::Value = toml::from_str(&spec.base_scenario).unwrap();
+        assert!(!canonical_study(&plan, &base)
+            .unwrap()
+            .contains("correlations"));
+        let spec: StudySpec = toml::from_str(&with(
+            "[[correlation]]\ninputs = [\"eirp\", \"losses\"]\nrho = 0.3\nsource = \"assumed\"\n",
+        ))
+        .unwrap();
+        let plan = Plan::from_spec(&spec).unwrap();
+        assert!(canonical_study(&plan, &base)
+            .unwrap()
+            .contains("\"correlations\""));
     }
 }

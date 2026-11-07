@@ -207,8 +207,28 @@ inverse distribution function. Each input has its own random stream, derived fro
 study `seed`, so the design is a pure function of `(seed, method, n, number of inputs)`
 and adding an input leaves the columns of the others unchanged.
 
-**Inputs are sampled independently of each other.** Correlation between inputs is not
-modelled (see Limitations).
+**Correlated inputs** (roadmap F8a). By default inputs are independent. A
+`[[correlation]]` table correlates two of them:
+
+```toml
+[[correlation]]
+inputs = ["eirp", "losses"]
+rho = 0.7
+source = "assumed: amplifier drive and pointing loss share a thermal cause"
+```
+
+`rho` is the correlation of the two inputs' normal scores (a Gaussian copula): each
+row of the unit design is turned into normal scores, multiplied by the Cholesky factor
+of the correlation matrix, and turned back into the unit interval before each input's
+inverse distribution function. Each input keeps its stated distribution exactly; for
+two normal inputs `rho` is their ordinary correlation, and for other shapes the
+ordinary correlation is a little smaller in magnitude. Every pair names a `source`, as
+an input does; an assumed one is printed as ASSUMED in the summary. Correlations that
+cannot hold together (a matrix that is not positive definite) are refused. With
+correlations, the Latin hypercube's even coverage applies to the normal scores before
+mixing, not to each input after it, and the sensitivity methods (`src`, `sobol`) are
+refused, since both assume independent inputs; the spread, the limit probability and
+the bands are computed as usual.
 
 ## 3. What is computed
 
@@ -552,10 +572,13 @@ anything runs. For access, write to contact@ashforde.org.
 
 ## Limitations
 
-- **Independent inputs only.** Every input is sampled independently of the others.
-  Correlation between inputs is not modelled. Two inputs that move together in reality
-  are treated as unrelated, which can widen or narrow a spread and shifts variance
-  between their indices.
+- **Correlation is pairwise and Gaussian.** `[[correlation]]` sets the correlation of
+  normal scores between pairs of inputs (a Gaussian copula). Tail dependence beyond a
+  Gaussian copula, and correlations that change with the operating point, are not
+  modelled. A pair with no `[[correlation]]` is independent.
+- **No sensitivity indices for correlated inputs.** The regression ranking and the
+  Sobol' indices assume independent inputs, so a study with correlations is refused
+  unless `sensitivity.method` is `none`.
 - **The result is conditional on the stated distributions.** The study cannot check that
   an input really is normal with that standard deviation. An input whose `source` is
   `assumed` is printed as ASSUMED everywhere, so that a reader cannot miss it.

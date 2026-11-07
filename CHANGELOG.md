@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Correlated inputs in the uncertainty study (F8a).** `[[correlation]] inputs = [a, b], rho, source`
+  correlates inputs through a Gaussian copula (Cholesky factor of the normal-score correlation
+  matrix); marginals stay exact; inconsistent matrices are refused; `src` and `sobol` sensitivity
+  are refused with correlations (both assume independence). The result lists the correlations and
+  the summary flags assumed ones; a study without correlations keeps its hash.
+
 - **Study funnel, Pack C subscription, STK note (F3c, F5, F8d).** Every `POST /study` with a data
   directory is recorded in `studies.jsonl`; `/metrics` adds `kshana_study_requests_total` by outcome
   and `kshana_study_dossiers` by job state. Pack C: the `pack-c-ci-monthly` edition (price
