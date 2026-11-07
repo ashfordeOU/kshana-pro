@@ -5,6 +5,11 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Free-build check (F10e).** `scripts/free-build-check.sh` fails on any binary carrying a Pro
+  marker (the crate name, a Pro kind or feature name, the proprietary notice); a test runs it on the
+  Pro binary, where it must fail. The free Kshana Desktop built from the open repository's patch
+  passes it (no marker). The systemd settings file is `serve.conf` (`*.env` stays ignored).
+
 - **Linux package and air-gapped bundle (L6, L7).** `scripts/build-deb.sh` (binary, hardened systemd
   unit, settings, guides; unsigned) and `scripts/offline-bundle.sh` (binary, unit, guides, revocation
   list, CycloneDX SBOM from the locked graph via `scripts/sbom.py`, `SHA256SUMS`, an optional Ed25519

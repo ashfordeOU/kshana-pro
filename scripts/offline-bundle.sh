@@ -39,7 +39,7 @@ cd "$(dirname "$0")/.."
 VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n 1)
 mkdir -p "$OUT"/{bin,deploy,docs,licence}
 install -m 0755 "$BIN" "$OUT/bin/kshana-pro"
-cp deploy/linux/kshana-pro.service deploy/linux/serve.env "$OUT/deploy/"
+cp deploy/linux/kshana-pro.service deploy/linux/serve.conf "$OUT/deploy/"
 cp docs/LICENSING.md docs/SERVICE.md "$OUT/docs/"
 [ -z "$REVS" ] || cp "$REVS" "$OUT/licence/revocations.txt"
 if [ -n "$DEB" ]; then mkdir -p "$OUT/packages"; cp "$DEB" "$OUT/packages/"; fi
@@ -76,7 +76,7 @@ if [ -n "$LICENCE" ]; then
 fi
 if [ "$SERVICE" = 1 ]; then
   install -D -m 0644 "$HERE/deploy/kshana-pro.service" /etc/systemd/system/kshana-pro.service
-  install -D -m 0644 "$HERE/deploy/serve.env" /etc/kshana-pro/serve.env
+  install -D -m 0644 "$HERE/deploy/serve.conf" /etc/kshana-pro/serve.conf
   sed -i "s#/usr/bin/kshana-pro#$PREFIX/bin/kshana-pro#" /etc/systemd/system/kshana-pro.service
   getent passwd kshana >/dev/null || useradd --system --home /var/lib/kshana-pro --shell /usr/sbin/nologin kshana
   install -d -o kshana -g kshana -m 0750 /var/lib/kshana-pro /var/lib/kshana-pro/data /var/lib/kshana-pro/licence

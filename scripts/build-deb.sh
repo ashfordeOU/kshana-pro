@@ -15,7 +15,7 @@ ROOT=$(mktemp -d)
 trap 'rm -rf "$ROOT"' EXIT
 install -D -m 0755 "$BIN" "$ROOT/usr/bin/kshana-pro"
 install -D -m 0644 deploy/linux/kshana-pro.service "$ROOT/lib/systemd/system/kshana-pro.service"
-install -D -m 0644 deploy/linux/serve.env "$ROOT/etc/kshana-pro/serve.env"
+install -D -m 0644 deploy/linux/serve.conf "$ROOT/etc/kshana-pro/serve.conf"
 for d in SERVICE.md LICENSING.md; do install -D -m 0644 "docs/$d" "$ROOT/usr/share/doc/kshana-pro/$d"; done
 install -D -m 0644 LICENSE "$ROOT/usr/share/doc/kshana-pro/copyright"
 mkdir -p "$ROOT/DEBIAN"
@@ -32,7 +32,7 @@ Description: Kshana Pro: PNT resilience studies, job service and Station fleet
  The proprietary Pro edition of the Kshana engine: the command line, the on-premises
  job service (systemd unit kshana-pro) and the licence tools. Needs a licence token.
 CONTROL
-echo "/etc/kshana-pro/serve.env" > "$ROOT/DEBIAN/conffiles"
+echo "/etc/kshana-pro/serve.conf" > "$ROOT/DEBIAN/conffiles"
 cat > "$ROOT/DEBIAN/postinst" <<'POST'
 #!/bin/sh
 set -e

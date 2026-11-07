@@ -185,7 +185,7 @@ curl -s localhost:8088/ledger/verify
 **Debian package.** `scripts/build-deb.sh <kshana-pro binary> <out-dir> [arch]` builds
 `kshana-pro_<version>_<arch>.deb`: the binary in `/usr/bin`, the systemd unit
 `kshana-pro.service` (local-only by default, hardened: a `kshana` system user, read-only
-system, only `/var/lib/kshana-pro` writable), its settings in `/etc/kshana-pro/serve.env`
+system, only `/var/lib/kshana-pro` writable), its settings in `/etc/kshana-pro/serve.conf`
 (a configuration file, kept on upgrade) and the guides. The post-install step creates the
 user and the directories and says how to activate the licence and start the service. The
 package is unsigned; a signed apt repository is the publisher's step. An `.rpm` is not

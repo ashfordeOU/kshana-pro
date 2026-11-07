@@ -191,7 +191,7 @@ fn debian_package_holds_the_binary_the_unit_and_the_settings() {
     for f in [
         "./usr/bin/kshana-pro",
         "./lib/systemd/system/kshana-pro.service",
-        "./etc/kshana-pro/serve.env",
+        "./etc/kshana-pro/serve.conf",
         "./usr/share/doc/kshana-pro/SERVICE.md",
     ] {
         assert!(list.contains(f), "{f} missing:\n{list}");

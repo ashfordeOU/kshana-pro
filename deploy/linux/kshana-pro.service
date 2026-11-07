@@ -12,7 +12,7 @@ Type=simple
 User=kshana
 Group=kshana
 Environment=KSHANA_PRO_HOME=/var/lib/kshana-pro/licence
-EnvironmentFile=-/etc/kshana-pro/serve.env
+EnvironmentFile=-/etc/kshana-pro/serve.conf
 ExecStart=/usr/bin/kshana-pro serve --addr ${KSHANA_PRO_ADDR} --data-dir /var/lib/kshana-pro/data $KSHANA_PRO_SERVE_ARGS
 Restart=on-failure
 RestartSec=5
