@@ -1,0 +1,1028 @@
+From 81f0e38d16ba58a9f7f43427073e860091f61d55 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ashforde=20O=C3=9C?= <ashfordegithub@cbaweja.org>
+Date: Sat, 7 Nov 2026 18:12:46 +0000
+Subject: [PATCH] feat(desktop): live devices (L2b): the trust page scores a
+ receiver live in Kshana Desktop
+
+The app reads a receiver's NMEA 0183 output read only, from a serial or
+USB port, a TCP stream (tcp:<host>:<port>) or a growing file (file:<path>),
+and keeps the latest 1.5 MiB of sentences. The trust page's new panel,
+shown only in the Desktop, scores that excerpt with the native engine
+every five seconds and draws it in the view.
+
+- apps/desktop/src-tauri/src/devices.rs: port listing (Linux by-id and
+  tty names, macOS cu.*, Windows SERIALCOMM), capture thread, rolling
+  excerpt, status, stop; serial speed set with stty when chosen.
+- bridge.rs: receiver_trust_replay and assess_vessel_log run natively.
+- web/studio/lib/devices.mjs: the command client, the native engine for
+  the page and the re-score loop (no overlap, unchanged excerpts skipped).
+- Tests: devices.rs (ring, sources, file and TCP capture), the native
+  scorer against the engine on the demo log, devices.test.mjs (CI step).
+- README, SURFACES row and the English catalogue entries.
+---
+ .github/workflows/ci.yml              |   2 +
+ apps/desktop/README.md                |  27 +-
+ apps/desktop/src-tauri/src/bridge.rs  |  40 ++-
+ apps/desktop/src-tauri/src/devices.rs | 443 ++++++++++++++++++++++++++
+ apps/desktop/src-tauri/src/lib.rs     |  37 ++-
+ docs/SURFACES.md                      |   2 +-
+ i18n/en/studio-js.ftl                 |  45 +++
+ web/studio/lib/devices.mjs            |  79 +++++
+ web/studio/lib/devices.test.mjs       |  85 +++++
+ web/studio/trust/trust.js             |  65 +++-
+ 10 files changed, 815 insertions(+), 10 deletions(-)
+ create mode 100644 apps/desktop/src-tauri/src/devices.rs
+ create mode 100644 web/studio/lib/devices.mjs
+ create mode 100644 web/studio/lib/devices.test.mjs
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 7ed160f..b05781d 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -484,6 +484,8 @@ jobs:
+         run: node web/studio/lib/engine.test.mjs
+       - name: Test the Kshana Desktop engine client (native runs, WebAssembly tools)
+         run: node web/studio/lib/desktop.test.mjs
++      - name: Test the Kshana Desktop live device client (excerpt loop, native scorer)
++        run: node web/studio/lib/devices.test.mjs
+       - name: Test the A/B compare logic
+         run: node web/studio/lib/compare.test.mjs
+       - name: Test the chart-hover logic
+diff --git a/apps/desktop/README.md b/apps/desktop/README.md
+index ddcca52..26b6a90 100644
+--- a/apps/desktop/README.md
++++ b/apps/desktop/README.md
+@@ -12,6 +12,27 @@ What runs where:
+ | Scenario runs, charts, tables, the localised summary (`run`, `run_all`, `summary`, `chart_svg`, `table_csv`, `run_human`), the kind list, the bundled examples, the CCSDS and SP3 exports | Native (`src-tauri/src/bridge.rs`, the same engine calls as `src/wasm.rs`) |
+ | The tool pages (receiver trust, telemetry, evidence packs, the sky geometry and the rest) | The WebAssembly engine, in the same window, as on the web |
+ | Large files (`file_info`, `read_range`, `iq_probe`) | Native: an IQ recording of any size is probed and read in blocks, never whole |
++| The receiver-trust scorers (`receiver_trust_replay`, `assess_vessel_log`) | Native, so the trust page's live device panel scores without the WebAssembly package |
++| Live devices (`devices_list`, `device_start`, `device_status`, `device_excerpt`, `device_stop`) | Native (`src-tauri/src/devices.rs`), read only |
++
++## Live devices
++
++The trust page shows a "Score a receiver live" panel in the Desktop (and only there). It
++reads a receiver's NMEA 0183 output from:
++
++| Source | Written as |
++|---|---|
++| A serial or USB port (Linux `/dev/serial/by-id/*`, `/dev/ttyACM*`, `/dev/ttyUSB*`; macOS `/dev/cu.*`; Windows `COMn`) | The port's path, picked from the list; the speed is set with `stty` on Linux and macOS when one is chosen, and left as the port has it otherwise (on Windows, set it in the port's properties) |
++| A TCP stream (a receiver's NMEA port, a multiplexer, a serial-to-network bridge) | `tcp:<host>:<port>` |
++| A file that is still being written (a logger's output) | `file:<path>` |
++
++Every source is opened for reading only; nothing is written to the device or sent
++anywhere. The app keeps the latest 1.5 MiB of sentences (lines starting with `$` or `!`;
++about an hour at one fix a second) and the page scores that excerpt with the native
++engine every five seconds, with the session settings above it, and shows it in the view.
++The score calibrates on the excerpt's first five minutes, so once the window rolls the
++calibration moves with it. One device is read at a time. Advisory only: the operator
++remains responsible for the navigation of the vessel.
+ 
+ A run is off the window's thread; cancelling returns at once (the native run finishes in
+ the background and its answer is dropped).
+@@ -36,5 +57,7 @@ cargo install tauri-cli --version "^2" --locked     # once, for the bundles
+   publisher's accounts; the release plan ships the engine first and the signed apps as a
+   following patch release.
+ - **Signed automatic updates.** Not configured: the update key is the publisher's to make.
+-- **Devices panel** (serial and USB receivers, network feeds, SDRs) and the IQ view of a
+-  large recording in the page: the native commands exist; the page for them does not yet.
++- **SDRs and binary receiver protocols** in the devices panel (it reads NMEA 0183 text),
++  and the IQ view of a large recording in the page: the native commands for files exist;
++  the page for them does not yet.
++- **Serial speed on Windows** is not set by the app.
+diff --git a/apps/desktop/src-tauri/src/bridge.rs b/apps/desktop/src-tauri/src/bridge.rs
+index 17d19bc..a3b1efd 100644
+--- a/apps/desktop/src-tauri/src/bridge.rs
++++ b/apps/desktop/src-tauri/src/bridge.rs
+@@ -4,9 +4,10 @@
+ //! `src/wasm.rs` (same engine call, same return shape), so a page cannot tell the two
+ //! apart except by speed and by the size of what it can open.
+ //!
+-//! The other Studio functions (the tool pages: receiver trust, telemetry, evidence and
+-//! the rest) stay on the WebAssembly engine in the same window; `NATIVE_FNS` is the list
+-//! the page routes here.
++//! The receiver-trust scorers (`receiver_trust_replay`, `assess_vessel_log`) run here
++//! too, so the trust page's live device panel scores natively. The other Studio
++//! functions (the tool pages: telemetry, evidence and the rest) stay on the WebAssembly
++//! engine in the same window; `NATIVE_FNS` is the list the page routes here.
+ 
+ use serde_json::{json, Value};
+ 
+@@ -27,6 +28,8 @@ pub const NATIVE_FNS: &[&str] = &[
+     "export_oem",
+     "list_examples",
+     "get_example",
++    "receiver_trust_replay",
++    "assess_vessel_log",
+     "version",
+ ];
+ 
+@@ -80,6 +83,19 @@ pub fn call(name: &str, args: &[Value]) -> Result<Value, String> {
+             kshana::surface::list_examples(k).map(|v| json!(v.to_string()))
+         }
+         "get_example" => kshana::surface::get_example(s(args, 0)?).map(|t| json!(t)),
++        "receiver_trust_replay" => kshana::surface::assess_vessel_excerpt(
++            s(args, 0)?,
++            s(args, 1)?.as_bytes(),
++            kshana::surface::MAX_INPUT_BYTES,
++        )
++        .and_then(|r| serde_json::to_string(&r).map_err(|e| e.to_string()))
++        .map(|j| json!(j)),
++        "assess_vessel_log" => kshana::surface::assess_vessel_log_json(
++            s(args, 0)?,
++            s(args, 1)?.as_bytes(),
++            kshana::surface::MAX_INPUT_BYTES,
++        )
++        .map(|j| json!(j)),
+         "version" => Ok(json!(env!("CARGO_PKG_VERSION"))),
+         other => Err(format!(
+             "{other} is not a native engine function of this build"
+@@ -213,10 +229,28 @@ mod tests {
+             assert!(call(f, &[]).is_ok(), "{f}");
+         }
+         assert!(call("receiver_trust", &[]).is_err());
++        assert!(call("receiver_trust_replay", &[json!("")]).is_err());
+         assert!(call("run", &[json!("kind = \"no-such-kind\"")]).is_err());
+         assert!(call("run", &[]).is_err());
+     }
+ 
++    #[test]
++    fn the_trust_page_demo_log_is_scored_natively_as_by_the_webassembly_engine() {
++        let session = include_str!("../../../../web/studio/trust/demo/session.toml");
++        let nmea = include_str!("../../../../web/studio/trust/demo/tallinn-helsinki.nmea");
++        let v = call("receiver_trust_replay", &[json!(session), json!(nmea)]).unwrap();
++        let rep: Value = serde_json::from_str(v.as_str().unwrap()).unwrap();
++        let direct = kshana::surface::assess_vessel_excerpt(
++            session,
++            nmea.as_bytes(),
++            kshana::surface::MAX_INPUT_BYTES,
++        )
++        .unwrap();
++        assert_eq!(rep, serde_json::to_value(&direct).unwrap());
++        assert!(rep["epochs"].as_array().unwrap().len() > 300);
++        assert!(NATIVE_FNS.contains(&"receiver_trust_replay"));
++    }
++
+     #[test]
+     fn a_large_recording_is_probed_without_reading_it_whole() {
+         // A sparse 1 GiB file of ci16 zeros, then a known block at the start.
+diff --git a/apps/desktop/src-tauri/src/devices.rs b/apps/desktop/src-tauri/src/devices.rs
+new file mode 100644
+index 0000000..eb7240c
+--- /dev/null
++++ b/apps/desktop/src-tauri/src/devices.rs
+@@ -0,0 +1,443 @@
++// SPDX-License-Identifier: AGPL-3.0-only
++//! Live devices (L2b): read a receiver's NMEA 0183 output from a serial port, a TCP
++//! stream or a growing file, and keep the latest sentences as an excerpt that the trust
++//! page scores with the native engine every few seconds.
++//!
++//! Read only. Nothing is written to the device or the network: a serial port and a file
++//! are opened for reading, a TCP source is connected to and read. One capture runs at a
++//! time. The excerpt is a rolling window of whole sentences (lines that start with `$`
++//! or `!`), at most [`MAX_EXCERPT_BYTES`]; once the window rolls, the oldest sentences
++//! leave it and the score starts its calibration again on what remains.
++
++use std::collections::VecDeque;
++use std::io::{BufRead, BufReader, ErrorKind, Read};
++use std::sync::atomic::{AtomicBool, Ordering};
++use std::sync::{Arc, Mutex};
++use std::time::{Duration, SystemTime, UNIX_EPOCH};
++
++use serde_json::{json, Value};
++
++/// The largest excerpt kept (below the 2 MiB the trust page's scorer takes).
++pub const MAX_EXCERPT_BYTES: usize = 1536 * 1024;
++/// The longest line kept; a longer line is not NMEA 0183 and is counted as other data.
++const MAX_LINE: usize = 512;
++/// The serial speeds the Desktop sets.
++pub const BAUDS: &[u32] = &[4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800];
++
++/// The serial ports this computer shows now, most likely receivers first.
++pub fn list() -> Vec<Value> {
++    let mut out: Vec<Value> = Vec::new();
++    let mut push = |path: String, label: String| {
++        if !out.iter().any(|v| v["path"] == path.as_str()) {
++            out.push(json!({"path": path, "label": label}));
++        }
++    };
++    #[cfg(target_os = "linux")]
++    {
++        // Stable names first: /dev/serial/by-id/<maker>_<product>-if00 -> ../../ttyACM0.
++        if let Ok(rd) = std::fs::read_dir("/dev/serial/by-id") {
++            let mut v: Vec<_> = rd.flatten().map(|e| e.path()).collect();
++            v.sort();
++            for p in v {
++                let name = p.file_name().map(|n| n.to_string_lossy().to_string());
++                push(p.to_string_lossy().to_string(), name.unwrap_or_default());
++            }
++        }
++        list_dev(&["ttyACM", "ttyUSB", "ttyAMA", "rfcomm"], &mut push);
++    }
++    #[cfg(target_os = "macos")]
++    list_dev(
++        &[
++            "cu.usbmodem",
++            "cu.usbserial",
++            "cu.SLAB",
++            "cu.wchusbserial",
++            "cu.",
++        ],
++        &mut push,
++    );
++    #[cfg(windows)]
++    {
++        // The ports Windows has mapped (the registry's SERIALCOMM key), without opening any.
++        let q = std::process::Command::new("reg")
++            .args(["query", r"HKLM\HARDWARE\DEVICEMAP\SERIALCOMM"])
++            .output();
++        if let Ok(o) = q {
++            for l in String::from_utf8_lossy(&o.stdout).lines() {
++                let f: Vec<&str> = l.split_whitespace().collect();
++                if let [dev, "REG_SZ", com] = f[..] {
++                    push(com.to_string(), format!("{com} ({dev})"));
++                }
++            }
++        }
++    }
++    out
++}
++
++#[cfg(unix)]
++fn list_dev(prefixes: &[&str], push: &mut impl FnMut(String, String)) {
++    let Ok(rd) = std::fs::read_dir("/dev") else {
++        return;
++    };
++    let mut names: Vec<String> = rd
++        .flatten()
++        .map(|e| e.file_name().to_string_lossy().to_string())
++        .collect();
++    names.sort();
++    for pre in prefixes {
++        for n in names.iter().filter(|n| n.starts_with(pre)) {
++            push(format!("/dev/{n}"), n.clone());
++        }
++    }
++}
++
++/// What a capture has seen.
++#[derive(Default)]
++struct Ring {
++    lines: VecDeque<String>,
++    bytes: usize,
++    sentences: u64,
++    other_lines: u64,
++    rolled: u64,
++    last_unix_ms: Option<u64>,
++    error: Option<String>,
++    running: bool,
++}
++
++impl Ring {
++    fn push_line(&mut self, raw: &[u8]) {
++        let s = String::from_utf8_lossy(raw);
++        let line = s.trim_matches(|c: char| c == '\r' || c == '\n' || c == '\0' || c == ' ');
++        if line.is_empty() {
++            return;
++        }
++        if line.len() > MAX_LINE || !(line.starts_with('$') || line.starts_with('!')) {
++            self.other_lines += 1;
++            return;
++        }
++        self.bytes += line.len() + 1;
++        self.lines.push_back(line.to_string());
++        self.sentences += 1;
++        self.last_unix_ms = Some(now_ms());
++        while self.bytes > MAX_EXCERPT_BYTES {
++            match self.lines.pop_front() {
++                Some(old) => {
++                    self.bytes -= old.len() + 1;
++                    self.rolled += 1;
++                }
++                None => break,
++            }
++        }
++    }
++}
++
++fn now_ms() -> u64 {
++    SystemTime::now()
++        .duration_since(UNIX_EPOCH)
++        .map(|d| d.as_millis() as u64)
++        .unwrap_or(0)
++}
++
++struct Capture {
++    source: String,
++    started_unix_ms: u64,
++    ring: Arc<Mutex<Ring>>,
++    stop: Arc<AtomicBool>,
++}
++
++static CURRENT: Mutex<Option<Capture>> = Mutex::new(None);
++
++/// How a source is read.
++enum Kind {
++    Tcp(String),
++    Serial(String),
++    File(String),
++}
++
++fn kind_of(source: &str) -> Result<Kind, String> {
++    let s = source.trim();
++    if s.is_empty() {
++        return Err("no source: give a serial port, tcp:<host>:<port> or file:<path>".into());
++    }
++    if let Some(a) = s.strip_prefix("tcp:") {
++        let a = a.trim_start_matches("//");
++        if !a.contains(':') {
++            return Err(format!("{s}: a TCP source is tcp:<host>:<port>"));
++        }
++        return Ok(Kind::Tcp(a.to_string()));
++    }
++    if let Some(p) = s.strip_prefix("file:") {
++        return Ok(Kind::File(p.to_string()));
++    }
++    Ok(Kind::Serial(s.to_string()))
++}
++
++/// Set a serial port's speed with the system's own tool (`stty` on Linux and macOS).
++/// On Windows the speed is the one set in the port's properties.
++fn set_speed(path: &str, baud: u32) -> Result<(), String> {
++    if !BAUDS.contains(&baud) {
++        return Err(format!(
++            "{baud} is not a serial speed the Desktop sets ({BAUDS:?})"
++        ));
++    }
++    #[cfg(unix)]
++    {
++        let flag = if cfg!(target_os = "macos") {
++            "-f"
++        } else {
++            "-F"
++        };
++        let st = std::process::Command::new("stty")
++            .args([flag, path, &baud.to_string(), "raw", "-echo"])
++            .status()
++            .map_err(|e| format!("stty: {e}"))?;
++        if !st.success() {
++            return Err(format!("{path}: the speed could not be set to {baud}"));
++        }
++    }
++    #[cfg(not(unix))]
++    let _ = path;
++    Ok(())
++}
++
++/// Start reading `source` (stopping any capture already running). `baud` sets a serial
++/// port's speed first; `None` leaves it as it is.
++pub fn start(source: &str, baud: Option<u32>) -> Result<Value, String> {
++    stop();
++    let kind = kind_of(source)?;
++    let reader: Box<dyn Read + Send> = match &kind {
++        Kind::Tcp(addr) => {
++            use std::net::ToSocketAddrs;
++            let sa = addr
++                .to_socket_addrs()
++                .map_err(|e| format!("{addr}: {e}"))?
++                .next()
++                .ok_or_else(|| format!("{addr}: no address"))?;
++            let s = std::net::TcpStream::connect_timeout(&sa, Duration::from_secs(5))
++                .map_err(|e| format!("{addr}: {e}"))?;
++            s.set_read_timeout(Some(Duration::from_millis(300)))
++                .map_err(|e| e.to_string())?;
++            Box::new(s)
++        }
++        Kind::Serial(p) => {
++            if let Some(b) = baud {
++                set_speed(p, b)?;
++            }
++            #[cfg(windows)]
++            let p = if p.starts_with(r"\\") {
++                p.clone()
++            } else {
++                format!(r"\\.\{p}")
++            };
++            Box::new(std::fs::File::open(p.as_str()).map_err(|e| format!("{p}: {e}"))?)
++        }
++        Kind::File(p) => Box::new(std::fs::File::open(p).map_err(|e| format!("{p}: {e}"))?),
++    };
++    let follow = matches!(kind, Kind::File(_));
++    let ring = Arc::new(Mutex::new(Ring {
++        running: true,
++        ..Ring::default()
++    }));
++    let stop_flag = Arc::new(AtomicBool::new(false));
++    let (r2, s2) = (ring.clone(), stop_flag.clone());
++    std::thread::Builder::new()
++        .name("kshana-device".into())
++        .spawn(move || read_loop(reader, follow, &r2, &s2))
++        .map_err(|e| e.to_string())?;
++    let cap = Capture {
++        source: source.trim().to_string(),
++        started_unix_ms: now_ms(),
++        ring,
++        stop: stop_flag,
++    };
++    *CURRENT.lock().unwrap_or_else(|p| p.into_inner()) = Some(cap);
++    Ok(status())
++}
++
++fn read_loop(r: Box<dyn Read + Send>, follow: bool, ring: &Mutex<Ring>, stop: &AtomicBool) {
++    let mut br = BufReader::with_capacity(64 * 1024, r);
++    let mut buf = Vec::with_capacity(MAX_LINE);
++    let lock = || ring.lock().unwrap_or_else(|p| p.into_inner());
++    while !stop.load(Ordering::Relaxed) {
++        // On a timeout, read_until keeps what it read in `buf`; the line goes on next time.
++        match br.read_until(b'\n', &mut buf) {
++            Ok(0) => {
++                if !follow {
++                    lock().error = Some("the source closed".into());
++                    break;
++                }
++                // A growing file: wait for more.
++                std::thread::sleep(Duration::from_millis(200));
++            }
++            Ok(_) if buf.ends_with(b"\n") => {
++                lock().push_line(&buf);
++                buf.clear();
++            }
++            Ok(_) => {
++                if buf.len() > 64 * 1024 {
++                    lock().other_lines += 1;
++                    buf.clear();
++                }
++            }
++            Err(e) if matches!(e.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
++            Err(e) if e.kind() == ErrorKind::Interrupted => {}
++            Err(e) => {
++                lock().error = Some(e.to_string());
++                break;
++            }
++        }
++    }
++    lock().running = false;
++}
++
++/// The running capture's state, or `{"running": false}`.
++pub fn status() -> Value {
++    let cur = CURRENT.lock().unwrap_or_else(|p| p.into_inner());
++    let Some(c) = cur.as_ref() else {
++        return json!({"running": false, "source": null});
++    };
++    let r = c.ring.lock().unwrap_or_else(|p| p.into_inner());
++    json!({
++        "running": r.running,
++        "source": c.source,
++        "started_unix_ms": c.started_unix_ms,
++        "sentences": r.sentences,
++        "excerpt_sentences": r.lines.len(),
++        "excerpt_bytes": r.bytes,
++        "rolled": r.rolled,
++        "other_lines": r.other_lines,
++        "last_unix_ms": r.last_unix_ms,
++        "error": r.error,
++    })
++}
++
++/// The excerpt as NMEA text, with `seq` (the sentences seen so far) so a caller can skip
++/// scoring an excerpt it has already scored.
++pub fn excerpt() -> Value {
++    let cur = CURRENT.lock().unwrap_or_else(|p| p.into_inner());
++    let Some(c) = cur.as_ref() else {
++        return json!({"seq": 0, "text": "", "sentences": 0});
++    };
++    let r = c.ring.lock().unwrap_or_else(|p| p.into_inner());
++    let mut text = String::with_capacity(r.bytes);
++    for l in &r.lines {
++        text.push_str(l);
++        text.push('\n');
++    }
++    json!({"seq": r.sentences, "text": text, "sentences": r.lines.len()})
++}
++
++/// Stop the capture. A serial read that is waiting for data ends when the next byte
++/// arrives or the port closes; its data is no longer kept.
++pub fn stop() -> Value {
++    let old = CURRENT.lock().unwrap_or_else(|p| p.into_inner()).take();
++    match old {
++        Some(c) => {
++            c.stop.store(true, Ordering::Relaxed);
++            json!({"stopped": c.source})
++        }
++        None => json!({"stopped": null}),
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use std::io::Write;
++
++    fn wait_for(seq: u64) -> Value {
++        for _ in 0..100 {
++            let e = excerpt();
++            if e["seq"].as_u64().unwrap_or(0) >= seq {
++                return e;
++            }
++            std::thread::sleep(Duration::from_millis(50));
++        }
++        excerpt()
++    }
++
++    #[test]
++    fn the_ring_keeps_sentences_only_and_rolls_at_its_limit() {
++        let mut r = Ring::default();
++        r.push_line(b"$GPGGA,1*00\r\n");
++        r.push_line(b"garbage\r\n");
++        r.push_line(b"!AIVDM,1*00\n");
++        r.push_line(b"\r\n");
++        assert_eq!(r.lines.len(), 2);
++        assert_eq!(r.other_lines, 1);
++        let long = format!("$GPXXX,{}", "1".repeat(400));
++        for _ in 0..(MAX_EXCERPT_BYTES / 400 + 10) {
++            r.push_line(long.as_bytes());
++        }
++        assert!(r.bytes <= MAX_EXCERPT_BYTES);
++        assert!(r.rolled > 0);
++        assert_eq!(r.bytes, r.lines.iter().map(|l| l.len() + 1).sum::<usize>());
++    }
++
++    #[test]
++    fn sources_are_parsed_and_bad_ones_refused() {
++        assert!(
++            matches!(kind_of("tcp:127.0.0.1:10110"), Ok(Kind::Tcp(a)) if a == "127.0.0.1:10110")
++        );
++        assert!(
++            matches!(kind_of("tcp://gps.local:2947"), Ok(Kind::Tcp(a)) if a == "gps.local:2947")
++        );
++        assert!(matches!(kind_of("/dev/ttyACM0"), Ok(Kind::Serial(_))));
++        assert!(matches!(kind_of("file:/tmp/x.nmea"), Ok(Kind::File(_))));
++        assert!(kind_of("tcp:nohost").is_err());
++        assert!(kind_of("  ").is_err());
++        assert!(set_speed("/dev/null", 1234).is_err());
++        let _ = list(); // lists whatever this machine has; never fails
++    }
++
++    // One test drives the single global capture, so the file and TCP cases run in order.
++    #[test]
++    fn a_growing_file_and_a_tcp_stream_are_captured_read_only() {
++        let p =
++            std::env::temp_dir().join(format!("kshana-desktop-dev-{}.nmea", std::process::id()));
++        let mut f = std::fs::File::create(&p).unwrap();
++        writeln!(f, "$GPRMC,000001,A*00\r").unwrap();
++        writeln!(f, "not nmea").unwrap();
++        f.flush().unwrap();
++        let src = format!("file:{}", p.display());
++        let st = start(&src, None).unwrap();
++        assert_eq!(st["running"], true);
++        assert_eq!(wait_for(1)["seq"], 1);
++        // The file grows: the capture follows it, and a line split across writes is whole.
++        write!(f, "$GPRMC,0000").unwrap();
++        f.flush().unwrap();
++        std::thread::sleep(Duration::from_millis(300));
++        writeln!(f, "02,A*00").unwrap();
++        f.flush().unwrap();
++        let e = wait_for(2);
++        assert_eq!(e["text"], "$GPRMC,000001,A*00\n$GPRMC,000002,A*00\n");
++        assert_eq!(status()["other_lines"], 1);
++        assert_eq!(stop()["stopped"], src.as_str());
++        assert_eq!(status()["running"], false);
++        // A TCP source (a receiver's or a multiplexer's NMEA port).
++        let l = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
++        let addr = l.local_addr().unwrap();
++        let srv = std::thread::spawn(move || {
++            let (mut s, _) = l.accept().unwrap();
++            for i in 0..5 {
++                writeln!(s, "$GPGGA,{i}*00\r").unwrap();
++            }
++            std::thread::sleep(Duration::from_millis(200));
++        });
++        start(&format!("tcp:{addr}"), None).unwrap();
++        assert_eq!(wait_for(5)["sentences"], 5);
++        srv.join().unwrap();
++        for _ in 0..50 {
++            if status()["running"] == false {
++                break;
++            }
++            std::thread::sleep(Duration::from_millis(50));
++        }
++        let st = status();
++        assert_eq!(st["running"], false);
++        assert_eq!(st["error"], "the source closed");
++        stop();
++        assert!(start("tcp:127.0.0.1:1", None).is_err());
++        std::fs::remove_file(&p).unwrap();
++    }
++}
+diff --git a/apps/desktop/src-tauri/src/lib.rs b/apps/desktop/src-tauri/src/lib.rs
+index 17fdbde..99fb62c 100644
+--- a/apps/desktop/src-tauri/src/lib.rs
++++ b/apps/desktop/src-tauri/src/lib.rs
+@@ -3,6 +3,7 @@
+ //! engine's runs executed natively ([`bridge`]) off the window's thread.
+ 
+ pub mod bridge;
++pub mod devices;
+ 
+ use serde_json::Value;
+ 
+@@ -39,6 +40,35 @@ async fn iq_probe(path: String, format: String, probe: u64) -> Result<Value, Str
+         .map_err(|e| e.to_string())?
+ }
+ 
++/// The serial ports this computer shows (live devices, read only).
++#[tauri::command]
++fn devices_list() -> Vec<Value> {
++    devices::list()
++}
++
++/// Start reading a receiver: a serial port, `tcp:<host>:<port>` or `file:<path>`.
++#[tauri::command]
++async fn device_start(source: String, baud: Option<u32>) -> Result<Value, String> {
++    tauri::async_runtime::spawn_blocking(move || devices::start(&source, baud))
++        .await
++        .map_err(|e| e.to_string())?
++}
++
++#[tauri::command]
++fn device_status() -> Value {
++    devices::status()
++}
++
++#[tauri::command]
++fn device_excerpt() -> Value {
++    devices::excerpt()
++}
++
++#[tauri::command]
++fn device_stop() -> Value {
++    devices::stop()
++}
++
+ /// Start the application.
+ pub fn run() {
+     tauri::Builder::default()
+@@ -47,7 +77,12 @@ pub fn run() {
+             engine_native_fns,
+             file_info,
+             read_range,
+-            iq_probe
++            iq_probe,
++            devices_list,
++            device_start,
++            device_status,
++            device_excerpt,
++            device_stop
+         ])
+         .run(tauri::generate_context!())
+         .expect("Kshana Desktop could not start");
+diff --git a/docs/SURFACES.md b/docs/SURFACES.md
+index b987d4f..82d5b30 100644
+--- a/docs/SURFACES.md
++++ b/docs/SURFACES.md
+@@ -12,7 +12,7 @@ actions that run the CLI), **Notebook** (`notebooks/`), **Studio** (the Kshana S
+ 
+ | Capability | CLI | Rust | Python | WASM | MCP | Plugin | JetBrains | Notebook | Studio |
+ |---|---|---|---|---|---|---|---|---|---|
+-| Kshana Desktop (0.41, L2a): the Studio in a native window; runs, charts, tables, the kind list, the examples and the CCSDS/SP3 exports run natively, the tool pages keep the WebAssembly engine, and a recording of any size is probed and read in blocks (`apps/desktop/`, unsigned builds) | **N/A** (an application) | `kshana::api` (the bridge calls it) | **N/A** | the tool pages in the window | **N/A** | **N/A** | **N/A** | **N/A** | the whole Studio, in the window |
++| Kshana Desktop (0.41, L2a): the Studio in a native window; runs, charts, tables, the kind list, the examples and the CCSDS/SP3 exports run natively, the tool pages keep the WebAssembly engine, a recording of any size is probed and read in blocks, and (L2b) the trust page scores a live receiver read only from a serial port, a TCP stream or a growing file (`apps/desktop/`, unsigned builds) | **N/A** (an application) | `kshana::api` (the bridge calls it) | **N/A** | the tool pages in the window | **N/A** | **N/A** | **N/A** | **N/A** | the whole Studio, in the window |
+ | Vessel receiver-trust, batch log (0-100 score, reasons) | `receiver-trust` | `receiver_trust::assess::assess_vessel_log` | `receiver_trust`, `assess_vessel_log` | `receiver_trust`, `assess_vessel_log` | `assess_receiver_log`, `assess_vessel_log` | `/kshana-assess-receiver`, skill `vessel-receiver-trust` | Assess Receiver Trust | `vessel-trust-and-training` | Maritime trust page |
+ | Receiver-trust on a bounded stream excerpt (scores, states, reasons; no gate) | `receiver-trust live` | `receiver_trust::assess::assess_stream_excerpt` | `receiver_trust_replay` | `receiver_trust_replay` | `assess_vessel_stream` | same | Assess Receiver Stream (a stored log) | `vessel-trust-and-training` | Maritime trust page |
+ | Satellite geometry and deduction classes (0.36: `geometry` good/degraded/unknown with reasons and DOP, a `label` good/fair/poor always reported, the `geometry` monitor (nothing unless the geometry is poor, then up to 15 points; listed last in `monitors_run` when it decided, so the verdict's monitor count includes geometry), a `class` on every deduction, `geometry_model`, `geometry_summary`) | `receiver-trust`, `receiver-trust live` (in the result JSON and every JSON line; the CSV, SVG, one-line verdict and `$PKSHT` carry a geometry deduction like any other and are otherwise unchanged) | `receiver_trust::geometry`, on `EpochTrust`, `Deduction` and `EpochReport` | `receiver_trust`, `assess_vessel_log`, `receiver_trust_replay` (in the returned dicts) | the same three (in the returned JSON) | `assess_receiver_log`, `assess_vessel_log`, `assess_vessel_stream` (in the reply; a vessel log's reply keeps `geometry_model` and `geometry_summary`); `trust_telemetry` renders it | same, skills `vessel-receiver-trust`, `trust-telemetry` | the actions above print the CLI output, which carries it | `vessel-trust-and-training` (in the result it loads) | **pending**: the Maritime trust page does not show it yet (fields listed in `docs/MARITIME-TRUST.md`, Studio view item 6) |
+diff --git a/i18n/en/studio-js.ftl b/i18n/en/studio-js.ftl
+index bde625b..25f65c4 100644
+--- a/i18n/en/studio-js.ftl
++++ b/i18n/en/studio-js.ftl
+@@ -13083,6 +13083,51 @@ js-trust-legend-underline = underline: geometry also costing points
+ # 2026-10-01-studio-rebuild/trust/trust.js:549
+ js-trust-legend-untrusted = Untrusted
+ 
++# web/studio/trust/trust.js:170
++js-trust-live-baud = Speed (baud)
++
++# web/studio/trust/trust.js:171
++js-trust-live-baud-asis = speed as set
++
++# web/studio/trust/trust.js:141
++js-trust-live-error = The device stopped: { $reason }.
++
++# web/studio/trust/trust.js:155
++js-trust-live-label = Live from { $source }, scored natively every few seconds. Advisory only: the operator remains responsible for the navigation of the vessel.
++
++# web/studio/trust/trust.js:148
++js-trust-live-no-source = Choose a port, or type tcp:<host>:<port> or file:<path>.
++
++# web/studio/trust/trust.js:185
++js-trust-live-note = Kshana Desktop reads the receiver's NMEA 0183 output from a serial port, a TCP stream or a growing file, read only, and scores its latest sentences with the settings above every few seconds. Nothing is sent to the device or anywhere else. The excerpt is the latest 1.5 MiB of sentences (about an hour at one fix a second), and the score calibrates on its first five minutes.
++
++# web/studio/trust/trust.js:177
++js-trust-live-pick = Choose a port…
++
++# web/studio/trust/trust.js:168
++js-trust-live-port = Serial port
++
++# web/studio/trust/trust.js:144
++js-trust-live-reading = Reading { $source }: { $sentences } sentences, { $kept } in the excerpt being scored, { $other } other lines.
++
++# web/studio/trust/trust.js:172
++js-trust-live-refresh = Refresh ports
++
++# web/studio/trust/trust.js:169
++js-trust-live-source = Source
++
++# web/studio/trust/trust.js:173
++js-trust-live-start = Start scoring live
++
++# web/studio/trust/trust.js:174
++js-trust-live-stop = Stop
++
++# web/studio/trust/trust.js:142
++js-trust-live-stopped = Not reading a device.
++
++# web/studio/trust/trust.js:184
++js-trust-live-title = Score a receiver live
++
+ # 2026-10-01-studio-rebuild/trust/trust.js:753
+ js-trust-marks-cleared = Marks cleared.
+ 
+diff --git a/web/studio/lib/devices.mjs b/web/studio/lib/devices.mjs
+new file mode 100644
+index 0000000..7570125
+--- /dev/null
++++ b/web/studio/lib/devices.mjs
+@@ -0,0 +1,79 @@
++// SPDX-License-Identifier: AGPL-3.0-only
++// Live devices in Kshana Desktop (apps/desktop, L2b): the trust page's client for the app's
++// device commands and the loop that re-scores a receiver's latest sentences. The app reads
++// the receiver (a serial port, a TCP stream or a growing file) read only; this module only
++// asks it for the excerpt and hands it to the native scorer. Outside the Desktop there is
++// no invoke function and the panel is not shown.
++
++/** The app's device commands, over the Desktop's invoke function. */
++export function deviceApi(invoke) {
++  return {
++    list: () => invoke("devices_list"),
++    start: (source, baud) => invoke("device_start", { source, baud: baud ? Number(baud) : null }),
++    status: () => invoke("device_status"),
++    excerpt: () => invoke("device_excerpt"),
++    stop: () => invoke("device_stop"),
++  };
++}
++
++/** The native engine as a trust page uses one (`available`, `version`, `has`, `call`). */
++export async function nativeEngine(invoke) {
++  const fns = new Set(await invoke("engine_native_fns"));
++  const version = fns.has("version") ? await invoke("engine_call", { name: "version", args: [] }) : null;
++  return {
++    available: true,
++    version,
++    has: (fn) => fns.has(fn),
++    call: (fn, ...args) => invoke("engine_call", { name: fn, args }),
++    error: null,
++  };
++}
++
++/** The serial speeds the app sets (devices.rs BAUDS); "" leaves the port's speed as it is. */
++export const BAUDS = ["", "4800", "9600", "19200", "38400", "57600", "115200", "230400", "460800"];
++
++/**
++ * Score the excerpt every `everyMs` while it grows. `score(text, ex)` is awaited; a tick
++ * never overlaps the one before, and an excerpt already scored (same `seq`) is skipped.
++ * `onStatus(status)` gets the capture state each tick. Returns `{ stop, tick }`.
++ */
++export function liveLoop({ api, score, onStatus = () => {}, everyMs = 5000, setTimer = setTimeout, clearTimer = clearTimeout }) {
++  let last = -1;
++  let timer = null;
++  let stopped = false;
++  let busy = null;
++  const tick = async () => {
++    if (busy) return busy;
++    busy = (async () => {
++      const ex = await api.excerpt();
++      const st = await api.status();
++      onStatus(st);
++      if (ex && ex.seq !== last && ex.sentences > 0) {
++        last = ex.seq;
++        await score(ex.text, ex);
++      }
++      return st;
++    })();
++    try { return await busy; } finally { busy = null; }
++  };
++  const loop = async () => {
++    if (stopped) return;
++    try { await tick(); } catch (e) { onStatus({ running: false, error: String(e && e.message ? e.message : e) }); }
++    if (!stopped) timer = setTimer(loop, everyMs);
++  };
++  timer = setTimer(loop, 0);
++  return {
++    tick,
++    stop() { stopped = true; if (timer != null) clearTimer(timer); timer = null; },
++  };
++}
++
++/** A one-line, unlocalised summary of a capture state's counters, for the status line's variables. */
++export function counters(st) {
++  return {
++    sentences: Number(st && st.sentences) || 0,
++    kept: Number(st && st.excerpt_sentences) || 0,
++    other: Number(st && st.other_lines) || 0,
++    ageS: st && st.last_unix_ms ? Math.max(0, Math.round((Date.now() - st.last_unix_ms) / 1000)) : null,
++  };
++}
+diff --git a/web/studio/lib/devices.test.mjs b/web/studio/lib/devices.test.mjs
+new file mode 100644
+index 0000000..08265de
+--- /dev/null
++++ b/web/studio/lib/devices.test.mjs
+@@ -0,0 +1,85 @@
++// SPDX-License-Identifier: AGPL-3.0-only
++// Tests for the live device client (devices.mjs) against a fake Desktop invoke.
++// Run with `node web/studio/lib/devices.test.mjs`.
++import assert from "node:assert/strict";
++import { deviceApi, nativeEngine, liveLoop, counters, BAUDS } from "./devices.mjs";
++
++const calls = [];
++let seq = 0;
++let text = "";
++const invoke = async (cmd, args) => {
++  calls.push([cmd, args]);
++  switch (cmd) {
++    case "devices_list": return [{ path: "/dev/ttyACM0", label: "ttyACM0" }];
++    case "device_start": return { running: true, source: args.source };
++    case "device_status": return { running: true, sentences: seq, excerpt_sentences: seq, other_lines: 1, last_unix_ms: Date.now() };
++    case "device_excerpt": return { seq, text, sentences: seq };
++    case "device_stop": return { stopped: "x" };
++    case "engine_native_fns": return ["version", "receiver_trust_replay"];
++    case "engine_call": return args.name === "version" ? "0.41.0" : `scored:${args.args[1]}`;
++    default: throw new Error(`unknown command ${cmd}`);
++  }
++};
++
++// The commands and their arguments.
++const api = deviceApi(invoke);
++assert.deepEqual(await api.list(), [{ path: "/dev/ttyACM0", label: "ttyACM0" }]);
++await api.start("tcp:127.0.0.1:10110", "");
++assert.deepEqual(calls.at(-1), ["device_start", { source: "tcp:127.0.0.1:10110", baud: null }]);
++await api.start("/dev/ttyUSB0", "4800");
++assert.deepEqual(calls.at(-1), ["device_start", { source: "/dev/ttyUSB0", baud: 4800 }]);
++assert.equal(BAUDS[0], "");
++assert.ok(BAUDS.includes("4800") && BAUDS.includes("115200"));
++
++// The native engine as the trust page uses it.
++const eng = await nativeEngine(invoke);
++assert.equal(eng.available, true);
++assert.equal(eng.version, "0.41.0");
++assert.equal(eng.has("receiver_trust_replay"), true);
++assert.equal(eng.has("receiver_trust"), false);
++assert.equal(await eng.call("receiver_trust_replay", "[platform]", "$GPGGA"), "scored:$GPGGA");
++
++// The loop: scores a grown excerpt once, skips an unchanged one, never overlaps, stops.
++const timers = [];
++const setTimer = (fn) => { timers.push(fn); return timers.length; };
++const cleared = [];
++const scored = [];
++const statuses = [];
++let gate = null;
++const loop = liveLoop({
++  api, everyMs: 5000, setTimer, clearTimer: (id) => cleared.push(id),
++  onStatus: (s) => statuses.push(s),
++  score: async (t) => { scored.push(t); if (gate) await gate; },
++});
++// Nothing captured yet: no score.
++await timers.shift()();
++assert.deepEqual(scored, []);
++seq = 2; text = "$A\n$B\n";
++await timers.shift()();
++assert.deepEqual(scored, ["$A\n$B\n"]);
++// Unchanged: skipped.
++await timers.shift()();
++assert.equal(scored.length, 1);
++// A slow score: a second tick while it runs joins it instead of scoring again.
++seq = 3; text = "$A\n$B\n$C\n";
++let open;
++gate = new Promise((r) => { open = r; });
++const a = loop.tick();
++const b = loop.tick();
++open();
++await Promise.all([a, b]);
++assert.equal(scored.length, 2);
++assert.ok(statuses.length >= 4);
++loop.stop();
++assert.equal(cleared.length, 1);
++// A tick that fails reports a stopped state instead of throwing, and the loop goes on.
++timers.length = 0;
++const bad = liveLoop({ api: { status: async () => { throw new Error("gone"); }, excerpt: async () => ({}) }, score: async () => {}, setTimer, clearTimer: () => {}, onStatus: (s) => statuses.push(s) });
++await timers.shift()();
++assert.deepEqual(statuses.at(-1), { running: false, error: "gone" });
++assert.equal(timers.length, 1);
++bad.stop();
++
++assert.deepEqual(counters({ sentences: 10, excerpt_sentences: 8, other_lines: 2, last_unix_ms: null }), { sentences: 10, kept: 8, other: 2, ageS: null });
++assert.deepEqual(counters(null), { sentences: 0, kept: 0, other: 0, ageS: null });
++console.log("devices.mjs: OK");
+diff --git a/web/studio/trust/trust.js b/web/studio/trust/trust.js
+index 9d8a4d2..9d440f2 100644
+--- a/web/studio/trust/trust.js
++++ b/web/studio/trust/trust.js
+@@ -17,6 +17,8 @@ import { skyMarkup, skyDescribe } from "../lib/skydraw.mjs";
+ import { ensureSkyCss } from "../lib/skypage.mjs";
+ import { vesselPath, rayEnd, ringPx } from "../lib/replay.mjs";
+ import { parseSvgMarkup, sanitizeSvg } from "../lib/svgsafe.mjs";
++import { desktopInvoke } from "../lib/desktop.mjs";
++import { deviceApi, nativeEngine, liveLoop, counters, BAUDS } from "../lib/devices.mjs";
+ await ready(); // the page's first catalogue is loaded before text is built
+ 
+ const $ = (id) => document.getElementById(id);
+@@ -100,13 +102,13 @@ async function openFiles(files) {
+ 
+ // ---------- score an NMEA log with the engine (in this browser) ----------
+ function scoreStatus(msg, err) { const s = $("mt-score-status"); s.textContent = msg; s.classList.toggle("err", !!err); }
+-async function scoreHere(nmea, nmeaName, truthText, label) {
++async function scoreHere(nmea, nmeaName, truthText, label, engine) {
+   try {
+     const session = $("mt-session").value;
+     if (!session.trim()) { scoreStatus(t("js-trust-err-session-empty", "The session settings are empty. They declare the vessel ({ $setting }).", { setting: "[platform] kind = \"vessel\"" }), true); return; }
+     if (nmea.length > 2 * 1024 * 1024) { scoreStatus(t("js-trust-err-score-too-large", "{ $name }: larger than 2 MiB. The in-browser scorer takes an excerpt (the { $command } command takes a whole log); open an excerpt that holds the five-minute calibration window.", { name: nmeaName, command: "kshana receiver-trust" }), true); return; }
+-    scoreStatus(t("js-trust-scoring", "Starting the engine and scoring…"));
+-    const eng = await getEngine();
++    if (!engine) scoreStatus(t("js-trust-scoring", "Starting the engine and scoring…"));
++    const eng = engine || await getEngine();
+     if (!eng.available) { scoreStatus(t("js-trust-err-engine-start-open", "The engine could not start here ({ $reason }). Opening result files above still works.", { reason: eng.error }), true); return; }
+     if (!eng.has("receiver_trust_replay")) { scoreStatus(t("js-trust-err-engine-no-scorer", "This engine build (version { $version }) has no log scorer; it predates this page. The command is { $command }.", { version: eng.version, command: "kshana receiver-trust" }), true); return; }
+     const rep = JSON.parse(await eng.call("receiver_trust_replay", session, nmea));
+@@ -132,6 +134,62 @@ async function scoreFile(f) {
+   await scoreHere(await f.text(), f.name, null);
+ }
+ 
++// ---------- live device (Kshana Desktop only: the app reads the receiver, read only) ----------
++let live = null;
++function liveStatus(msg, err) { const s = $("mt-live-status"); s.textContent = msg; s.classList.toggle("err", !!err); }
++function liveShow(st) {
++  if (st.error) { liveStatus(t("js-trust-live-error", "The device stopped: { $reason }.", { reason: st.error }), true); return; }
++  if (!st.running) { liveStatus(t("js-trust-live-stopped", "Not reading a device.")); return; }
++  const c = counters(st);
++  liveStatus(t("js-trust-live-reading", "Reading { $source }: { $sentences } sentences, { $kept } in the excerpt being scored, { $other } other lines.", { source: st.source, sentences: c.sentences.toLocaleString(), kept: c.kept.toLocaleString(), other: c.other.toLocaleString() }));
++}
++async function liveStart(invoke, api, source, baud) {
++  await liveStop(api);
++  if (!source) { liveStatus(t("js-trust-live-no-source", "Choose a port, or type tcp:<host>:<port> or file:<path>."), true); return; }
++  try {
++    const eng = await nativeEngine(invoke);
++    liveShow(await api.start(source, baud));
++    const name = source.split(/[\\/]/).pop() || source;
++    live = liveLoop({
++      api, everyMs: 5000, onStatus: liveShow,
++      score: (text) => scoreHere(text, name, null, t("js-trust-live-label", "Live from { $source }, scored natively every few seconds. Advisory only: the operator remains responsible for the navigation of the vessel.", { source }), eng),
++    });
++  } catch (e) { liveStatus(t("js-trust-live-error", "The device stopped: { $reason }.", { reason: e && e.message ? e.message : e }), true); }
++}
++function liveStop(api) {
++  if (live) { live.stop(); live = null; }
++  return api.stop().then(() => liveShow({ running: false }), () => {});
++}
++async function wireLive() {
++  const invoke = desktopInvoke();
++  if (!invoke) return; // the panel exists only in Kshana Desktop
++  const api = deviceApi(invoke);
++  const anchor = $("mt-score-status").closest("section");
++  const sel = el("select", { id: "mt-live-port", class: "mt-chip", "aria-label": t("js-trust-live-port", "Serial port") });
++  const src = el("input", { id: "mt-live-src", class: "mt-chip", type: "text", spellcheck: "false", placeholder: "tcp:192.168.1.20:10110", "aria-label": t("js-trust-live-source", "Source") });
++  const baud = el("select", { id: "mt-live-baud", class: "mt-chip", "aria-label": t("js-trust-live-baud", "Speed (baud)") },
++    BAUDS.map((b) => el("option", { value: b }, b || t("js-trust-live-baud-asis", "speed as set"))));
++  const refresh = el("button", { type: "button", class: "mt-chip" }, t("js-trust-live-refresh", "Refresh ports"));
++  const go = el("button", { type: "button", class: "mt-demo", id: "mt-live-start" }, t("js-trust-live-start", "Start scoring live"));
++  const halt = el("button", { type: "button", class: "mt-chip", id: "mt-live-stop" }, t("js-trust-live-stop", "Stop"));
++  const fill = async () => {
++    const ports = await api.list().catch(() => []);
++    sel.replaceChildren(el("option", { value: "" }, t("js-trust-live-pick", "Choose a port…")), ...ports.map((p) => el("option", { value: p.path }, p.label || p.path)));
++  };
++  sel.addEventListener("change", () => { if (sel.value) src.value = sel.value; });
++  refresh.addEventListener("click", fill);
++  go.addEventListener("click", () => liveStart(invoke, api, src.value.trim(), baud.value));
++  halt.addEventListener("click", () => liveStop(api));
++  const card = el("section", { class: "card mt-load", "aria-labelledby": "mt-live-h" },
++    el("div", { class: "card-head" }, el("h2", { id: "mt-live-h", class: "h3" }, t("js-trust-live-title", "Score a receiver live")),
++      el("p", { class: "card-note" }, t("js-trust-live-note", "Kshana Desktop reads the receiver's NMEA 0183 output from a serial port, a TCP stream or a growing file, read only, and scores its latest sentences with the settings above every few seconds. Nothing is sent to the device or anywhere else. The excerpt is the latest 1.5 MiB of sentences (about an hour at one fix a second), and the score calibrates on its first five minutes."))),
++    el("div", { class: "mt-drop" }, sel, src, baud, refresh, go, halt),
++    el("p", { class: "mt-status", id: "mt-live-status", role: "status", "aria-live": "polite" }));
++  anchor.after(card);
++  liveShow(await api.status().catch(() => ({ running: false })));
++  await fill();
++}
++
+ // ---------- generic receiver-trust run (engine receiver_trust, log inline) ----------
+ function genStatus(msg, err) { const s = $("mt-gen-status"); s.textContent = msg; s.classList.toggle("err", !!err); }
+ function saveAs(name, text, mime) {
+@@ -825,6 +883,7 @@ function applyFilterVisual() {
+ function wire() {
+   fetch("trust/demo/session.toml").then((r) => (r.ok ? r.text() : "")).then((t) => { if (!$("mt-session").value) $("mt-session").value = t; }).catch(() => {});
+   $("mt-score-demo").addEventListener("click", scoreDemo);
++  wireLive();
+   wireGenFormats();
+   $("mt-gen-demo").addEventListener("click", genDemo);
+   $("mt-gen-file").addEventListener("change", (e) => { genFile(e.target.files[0]); e.target.value = ""; });
+-- 
+2.43.0
+
