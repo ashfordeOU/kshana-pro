@@ -2188,8 +2188,8 @@ STATIC_BLOCKS = {"{{LEDGER}}": ledger_block, "{{LEDGER_SUMMARY}}": ledger_summar
 # stops the build here and names the recorder to re-run. {{BUILD}} is that commit.
 HEAD_FULL = subprocess.run(["git", "-C", REPO, "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
 # The build id shown on the pages: the first seven characters of the commit, the same fixed length
-# every recorder in src/tools stores. (git's own --short grows with the repository: acd1c51 became
-# acd1c51b on 2026-09-30 and made every recording look stale.)
+# every recorder in src/tools stores. (git's own --short grows with the repository: 382619f became
+# 382619f2 on 2026-09-30 and made every recording look stale.)
 HEAD = HEAD_FULL[:7]
 
 

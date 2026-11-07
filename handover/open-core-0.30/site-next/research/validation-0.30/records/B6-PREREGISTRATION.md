@@ -1,7 +1,7 @@
 # B6 pre-registration (written before any oracle comparison was run)
 
 Written 2026-10-01T03:30Z by the B6 batch agent, branch `feat/val-b6` (off `feat/validation-uplift`
-f394b5ba), worktree `~/Code/kshana-wt-val-b6`. Nothing below has been compared against an oracle
+3ed491b5), worktree `~/Code/kshana-wt-val-b6`. Nothing below has been compared against an oracle
 yet. Tolerances are the plan's (`VALIDATION-0.30-PLAN.md`, B6); where the plan left an operational
 detail open, the choice is fixed here, before the first comparison. Any later change is a new
 comparison, disclosed in the row record, and cannot promote the row.

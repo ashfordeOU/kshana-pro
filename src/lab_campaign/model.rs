@@ -1,7 +1,7 @@
 //! Serde mirror types of the engine's lab-replay results.
 //!
 //! The contract is the public `kshana` lab-replay campaign (0.34.0), as implemented on branch
-//! `kshana` 0.34.0 (crates.io; developed on `feat/034-campaign`, PR #46, last head `51ba4787`): `src/iq/campaign/{runner,score,report}.rs`. Every struct
+//! `kshana` 0.34.0 (crates.io; developed on `feat/034-campaign`, PR #46, last head `f7198be9`): `src/iq/campaign/{runner,score,report}.rs`. Every struct
 //! rejects unknown fields, and every document's `schema` string is checked against the lists
 //! below. A change in the engine's output therefore fails loudly here instead of being misread.
 //! Re-pin to the released engine at 0.34.0.

@@ -1,7 +1,7 @@
 # Kshana GNSS IQ layer — validation summary (release 0.32.0)
 
 *Generic, reusable partner brief. Grounded only in the public `ashfordeOU/kshana` repository at tag
-**`v0.32.0`** (commit `f570219e`, released 2026-10-05; `pip install kshana==0.32.0`). File paths below
+**`v0.32.0`** (commit `e647b1e7`, released 2026-10-05; `pip install kshana==0.32.0`). File paths below
 are in that tree (sources: `CHANGELOG.md`, `docs/design/GNSS-IQ-PLAN.md`, `docs/VERIFICATION-MATRIX.md`,
 `kshana.pyi`, and the tests named below). Marks: **[BUILT]** code ships in 0.32.0 · **[TESTED]** checked in the 0.32.0 test
 suite against an independent reference (ICD table, closed form, third-party program, or injected
@@ -35,7 +35,7 @@ no transmit path.
   1 152 computed LNAV fields differ by one LSB because gps-sdr-sim truncates where IS-GPS-200 needs
   rounding — pinned as a finding that runs in CI; the strict all-fields test is `#[ignore]`d with the
   gap. The ledger row exists ("GPS L1 C/A cross-generator conformance") and is **MODELLED** because the
-  pre-registered bit-exact bar (`f88f2969`) failed on those fields; promotion is [PLANNED].
+  pre-registered bit-exact bar (`45ba9543`) failed on those fields; promotion is [PLANNED].
   RTKLIB decodes the same encoder's integers 608/608 (`tests/gps_lnav_rtklib_integer_oracle.rs`).
 - **Receiver vs closed forms** — `tests/iq_receiver.rs` (16 tests) [TESTED]: FFT vs direct DFT to 1e-9;
   empirical P<sub>fa</sub> and P<sub>d</sub> vs square-law / Marcum-Q within 4 binomial σ; loop B<sub>n</sub> vs

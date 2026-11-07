@@ -138,7 +138,7 @@ Smaller items, all in the generated list below:
 
 <!-- BEGIN GENERATED: check_features.py --gaps -->
 
-_Checked site `explorations/2026-09-27-combo` and Studio `explorations/2026-09-27-playground` against 450 register rows (engine v0.28.0 at 479d308)._
+_Checked site `explorations/2026-09-27-combo` and Studio `explorations/2026-09-27-playground` against 450 register rows (engine v0.28.0 at 8213963)._
 
 | Class | Count |
 |---|---:|

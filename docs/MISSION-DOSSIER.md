@@ -259,7 +259,7 @@ shasum -a 256 mars-orbit-pnt.result.json     # compare with the dossier's Result
 This was run for the five open runs of the worked example
 (`tests/mission_dossier.rs::the_free_engine_reproduces_every_open_run`, on macOS arm64,
 open engine 0.28.0 at the commit PROVENANCE.md names, and again for Kshana Pro 0.2.0
-with open engine 0.29.0, the release tree `38feb76`):
+with open engine 0.29.0, the release tree `5f6f1ee`):
 
 - with a release build of the open engine, all five result files, and the five
   `report.json` files, are byte-identical to the dossier's (on both engines);

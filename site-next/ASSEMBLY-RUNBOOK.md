@@ -37,7 +37,7 @@ The site draws two kinds of numbers:
 
 A package built from a commit that is NOT the site's engine checkout leaves the two kinds
 on different engines. That is the state on 2026-09-30: the Studio runs the corrected package
-(`feat/wasm-parity` 1541f66) and the site's recorders ran `feat/docs-v29` acd1c51. One
+(`feat/wasm-parity` 4fb3791) and the site's recorders ran `feat/docs-v29` 382619f. One
 figure differs today because of it: the Missions card `leo-navmsg-fit-interval-trade` shows
 1.6 mm and 40.3 mm (worst range error at 60 s and 900 s fit); the corrected engine, and so
 the Studio, gives 1.8 mm and 46.6 mm. `scratch/assembly/compare_results.py` lists every such
@@ -211,7 +211,7 @@ No trailers, no push.
 ## What is still to do after this runbook's first run (2026-09-30)
 
 - Move the site to the final engine tree (step 5). Until then the site's native-engine
-  figures are from `feat/docs-v29` acd1c51 and the Studio runs `feat/wasm-parity` 1541f66.
+  figures are from `feat/docs-v29` 382619f and the Studio runs `feat/wasm-parity` 4fb3791.
 - Version 0.29.0: a package of that version, then steps 1 to 5.
 - The port was rehearsed with the site as built from `feat/docs-v29`; the final port builds
   the site from the worktree it ports into (`PORT-RUNBOOK.md`, section 0), which needs step 5

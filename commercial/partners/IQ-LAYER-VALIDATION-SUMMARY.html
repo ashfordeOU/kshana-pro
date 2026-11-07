@@ -35,7 +35,7 @@ th { color: var(--ink2); font-weight: 600; }
 <body><main>
 <h1>Kshana GNSS IQ layer — validation summary (release 0.32.0)</h1>
 <p><em>Generic, reusable partner brief. Grounded only in the public <code>ashfordeOU/kshana</code> repository at tag
-</em><em><code>v0.32.0</code></em><em> (commit <code>f570219e</code>, released 2026-10-05; <code>pip install kshana==0.32.0</code>). File paths below
+</em><em><code>v0.32.0</code></em><em> (commit <code>e647b1e7</code>, released 2026-10-05; <code>pip install kshana==0.32.0</code>). File paths below
 are in that tree (sources: <code>CHANGELOG.md</code>, <code>docs/design/GNSS-IQ-PLAN.md</code>, <code>docs/VERIFICATION-MATRIX.md</code>,
 <code>kshana.pyi</code>, and the tests named below). Marks: </em><em><span class="mark built">BUILT</span></em><em> code ships in 0.32.0 · </em><em><span class="mark tested">TESTED</span></em><em> checked in the 0.32.0 test
 suite against an independent reference (ICD table, closed form, third-party program, or injected
@@ -111,7 +111,7 @@ no transmit path.</p>
   1 152 computed LNAV fields differ by one LSB because gps-sdr-sim truncates where IS-GPS-200 needs
   rounding — pinned as a finding that runs in CI; the strict all-fields test is <code>#[ignore]</code>d with the
   gap. The ledger row exists ("GPS L1 C/A cross-generator conformance") and is <strong>MODELLED</strong> because the
-  pre-registered bit-exact bar (<code>f88f2969</code>) failed on those fields; promotion is <span class="mark planned">PLANNED</span>.
+  pre-registered bit-exact bar (<code>45ba9543</code>) failed on those fields; promotion is <span class="mark planned">PLANNED</span>.
   RTKLIB decodes the same encoder's integers 608/608 (<code>tests/gps_lnav_rtklib_integer_oracle.rs</code>).</li>
 <li><strong>Receiver vs closed forms</strong> — <code>tests/iq_receiver.rs</code> (16 tests) <span class="mark tested">TESTED</span>: FFT vs direct DFT to 1e-9;
   empirical P<sub>fa</sub> and P<sub>d</sub> vs square-law / Marcum-Q within 4 binomial σ; loop B<sub>n</sub> vs

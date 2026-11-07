@@ -8,7 +8,7 @@ a direct run of the open engine.
 ## Scenario files copied from the open engine
 
 Copied unchanged from `scenarios/` of the open Kshana repository at commit
-`da55ae630b16dc93dc81119627b2445396782e3d` (the 75-kind engine this branch builds
+`39afbd712df32c0252f82763358f19c91f725d0f` (the 75-kind engine this branch builds
 against; it reports version 0.28.0). Each is one of the engine's own public examples and
 uses public data only.
 

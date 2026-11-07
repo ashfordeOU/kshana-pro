@@ -2,9 +2,9 @@
 
 **Status:** ANALYSIS ONLY — nothing here is built yet. For coordinator + founder review.
 **Against:** `RECEIVER-TEST-PARTNER-REQUIREMENTS.md` (R1–R9 and the binding no-synthesis line).
-**Baseline:** public `kshana` tag `v0.32.0` (`f570219e`) plus open public PRs **#34** (MCP IQ tools,
-head `a477eec`), **#35** (IQ ledger rows, head `bb7edf8`), **#38** (`iq track` acquisition default,
-head `d5d6708`). Private overlay: this repo at `main` (engine pin `=0.32.0`).
+**Baseline:** public `kshana` tag `v0.32.0` (`e647b1e7`) plus open public PRs **#34** (MCP IQ tools,
+head `a68eaf9`), **#35** (IQ ledger rows, head `08461c5`), **#38** (`iq track` acquisition default,
+head `d8bf5be`). Private overlay: this repo at `main` (engine pin `=0.32.0`).
 Paths are in the public repo at `v0.32.0` unless marked *pro:* or *PR #n*.
 
 **Legend.** Status: **HAVE** (built, usable from CLI/Python) · **PARTIAL** · **GAP**.
@@ -427,16 +427,16 @@ branch, not only the PR descriptions. Public `kshana` heads used:
 
 | Ref | Head | Content |
 |---|---|---|
-| `main` | `2ef6541` | 0.32.0 + #34 (MCP IQ tools, merged `11b39f6`), #35, #37, #39 (`18e860a`), #40 (D3, `1b6e826`), #41 (`564e937`), #42 (`2ef6541`) |
-| PR #38 | `79ff31e` | auto hand-off ≈ 4 ms (D4 documented); MCP IQ tools are on `main` via #34 |
-| PR #40 | merged (`1b6e826`) | integer scene output scaled to the integer range (D3) |
-| PR #43 | `18d3b42` | lab-recording formats, multi-stream, `.sdrx` (B9.1, B9.2) |
-| PR #44 | `15107fa` (critic: merge) | front-end flags applied in `iq track` / `iq sweep` (D1) |
-| PR #45 | `e992038` | track engine: loop-design TOML, epoch stream, lock state machine (contains #38) |
-| PR #46 / branch `feat/034-campaign` | `ee032df6` (later `2a5233af`) | test conditions, campaign runner on the track session, scorer, `data_class` required |
-| kshana PR #51 | `48643b8e` | public signal matrix, D8–D10 findings (holds until after 0.33.0) |
-| branch `feat/034-iq-monitors` | `f1ba332` | IQ-path monitors, Rust library only (WIP) |
-| kshana-pro PR 17 | `32b0908`; re-pin on `136b47a` | Pro lab campaign report (L1–L6), Mac CI green; pins once to the final engine |
+| `main` | `096d07d` | 0.32.0 + #34 (MCP IQ tools, merged `b6d31a1`), #35, #37, #39 (`a02c136`), #40 (D3, `409eb45`), #41 (`c5747cc`), #42 (`096d07d`) |
+| PR #38 | `48d382c` | auto hand-off ≈ 4 ms (D4 documented); MCP IQ tools are on `main` via #34 |
+| PR #40 | merged (`409eb45`) | integer scene output scaled to the integer range (D3) |
+| PR #43 | `b515174` | lab-recording formats, multi-stream, `.sdrx` (B9.1, B9.2) |
+| PR #44 | `1c00e94` (critic: merge) | front-end flags applied in `iq track` / `iq sweep` (D1) |
+| PR #45 | `3a82a8e` | track engine: loop-design TOML, epoch stream, lock state machine (contains #38) |
+| PR #46 / branch `feat/034-campaign` | `aea8284a` (later `13c84c9f`) | test conditions, campaign runner on the track session, scorer, `data_class` required |
+| kshana PR #51 | `4d4d9b87` | public signal matrix, D8–D10 findings (holds until after 0.33.0) |
+| branch `feat/034-iq-monitors` | `85ce5e1` | IQ-path monitors, Rust library only (WIP) |
+| kshana-pro PR 17 | `5039fe0`; re-pin on `a0853a8` | Pro lab campaign report (L1–L6), Mac CI green; pins once to the final engine |
 
 States: **merged** · **open** (PR open) · **branch** (pushed, no PR) · **not started**.
 Owners follow the coordinator's routing of 2026-10-07.
@@ -446,22 +446,22 @@ Owners follow the coordinator's routing of 2026-10-07.
 | R | Deliverable | Where @ sha | State | Owner | Remaining gap (concrete) |
 |---|---|---|---|---|---|
 | R1 long multi-sat IQ | scene generator, 11 signals, streamed | `main` (0.31/0.32) | merged | — | B1.1 per-signal scene→acquire→track tests; B1.2 multi-signal/multi-constellation scenes; B1.5 dynamics/clock/per-sat C/N0 on CLI; B1.7 composites/new codes: **not started** |
-| | integer output scaling (B1.4 / D3) | PR #40 (merged, `1b6e826`) | merged | W5 | clipping count is free text, not written into SigMF meta (routed to W5 after D7) |
-| | data fidelity (B1.3 / D2) | PR #48 @ fee6f3d | open | W5 | `--data` still puts 50 bit/s on pilots and on Galileo/BeiDou |
+| | integer output scaling (B1.4 / D3) | PR #40 (merged, `409eb45`) | merged | W5 | clipping count is free text, not written into SigMF meta (routed to W5 after D7) |
+| | data fidelity (B1.3 / D2) | PR #48 @ fb27f6f | open | W5 | `--data` still puts 50 bit/s on pilots and on Galileo/BeiDou |
 | R2 channel in IQ | iono, tropo, Cornell scintillation, multipath, land-mobile, NLOS | `main` | merged (MODELLED) | — | B2.1 measured-scintillation check, B2.2 N-reflector, B2.3 per-satellite carrier, B2.4 broadcast-scene channel kwargs, B2.5 land-mobile spectrum: **not started** |
-| R3 loops visible + changeable | loop-design TOML (`kshana.loop-design/1`, every `LoopConfig` field), overrides recorded, design hash in outputs (B3.1) | PR #45 @ a60ad59 | open | W1 | design hash fixed: canonical key-sorted JSON, pinned by a test (default design `0773c7ee…94ff`, @ e992038); the default design changes again with the `fll_assist` change |
+| R3 loops visible + changeable | loop-design TOML (`kshana.loop-design/1`, every `LoopConfig` field), overrides recorded, design hash in outputs (B3.1) | PR #45 @ 50a494e | open | W1 | design hash fixed: canonical key-sorted JSON, pinned by a test (default design `0773c7ee…94ff`, @ 3a82a8e); the default design changes again with the `fll_assist` change |
 | | full per-epoch export `kshana.track-epoch/1` (csv/jsonl/184-byte binary) + events + summary (B3.2) | PR #45 | open | W1 | — |
 | | lock state machine PULL_IN/LOCKED/LOST/REACQ/RETIRED, false-lock alias check, re-acquisition (B3.3) | PR #45 | open | W1 | — |
-| | tiered hand-off (B3.7 / D4) | PR #38 @ 79ff31e | open | W1 | see D4 |
+| | tiered hand-off (B3.7 / D4) | PR #38 @ 48d382c | open | W1 | see D4 |
 | | Python: `iq_track(design=…)`, `iq_loop_designs`, `iq_read_epochs`; MCP `iq_track` with design/epochs | PR #45 | open | W1 | **no Python or MCP `iq_sweep`**; no front-end options on Python/MCP `iq_track` (0.34, W1) |
 | | acquisition grid export / fine Doppler (B3.4), multi-correlator / VE-VL taps (B3.5), GNSS-SDR oracle row for `iq::track` (B3.8), vector/EKF (B3.9) | — | **not started** | — | B3.5 also blocks the SQM pair monitor (below) |
-| R4 response to jammers/spoofers (receive side) | front end in `track`/`sweep` (B4.1 / D1) | PR #44 @ 15107fa | open | W5 | CLI only (Python/MCP: W1, 0.34) |
-| | IQ-path monitors: power/AGC, PSD excess, kurtosis, pulses, C/N0 CUSUM, SQM delta/ratio, lock (B4.2) | branch `feat/034-iq-monitors` @ f1ba332 | branch (WIP) | W8 | **Rust library only**: no CLI/Python/MCP; not fed by the campaign; no time-to-detect / false-alarm scoring; `cn0.rs:20` refers to a `kshana iq monitor` command that does not exist; SQM pair test gets no extra taps (needs B3.5); no closed-form Pfa for PSD excess and SQM thresholds; blanking duty / excised bins / notch frequency and acquisition multi-peak alarm not wired |
+| R4 response to jammers/spoofers (receive side) | front end in `track`/`sweep` (B4.1 / D1) | PR #44 @ 1c00e94 | open | W5 | CLI only (Python/MCP: W1, 0.34) |
+| | IQ-path monitors: power/AGC, PSD excess, kurtosis, pulses, C/N0 CUSUM, SQM delta/ratio, lock (B4.2) | branch `feat/034-iq-monitors` @ 85ce5e1 | branch (WIP) | W8 | **Rust library only**: no CLI/Python/MCP; not fed by the campaign; no time-to-detect / false-alarm scoring; `cn0.rs:20` refers to a `kshana iq monitor` command that does not exist; SQM pair test gets no extra taps (needs B3.5); no closed-form Pfa for PSD excess and SQM thresholds; blanking duty / excised bins / notch frequency and acquisition multi-peak alarm not wired |
 | | detection ROC report (B4.3) | — | not started | — | needs scored monitors |
-| R5 recordings × designs, overnight | campaign runner `kshana iq campaign` (cells, resume, `runs.jsonl`, `hashes.json`, DIGEST), Python `iq_campaign*`, MCP `iq_campaign` + `iq_campaign_status` (B5.1, B5.2) | branch `feat/034-campaign` @ ee032df6 (PR #46) | open | W7 | now scores on the track session (PR #45's lock machine); epochs per cell via `run.epochs` (csv/jsonl/bin, hashed into the cell); `--dry-run` prints counts, not keys; the last re-acquisition fixes (`fll_assist`, time-based window) arrive with W1's change |
+| R5 recordings × designs, overnight | campaign runner `kshana iq campaign` (cells, resume, `runs.jsonl`, `hashes.json`, DIGEST), Python `iq_campaign*`, MCP `iq_campaign` + `iq_campaign_status` (B5.1, B5.2) | branch `feat/034-campaign` @ aea8284a (PR #46) | open | W7 | now scores on the track session (PR #45's lock machine); epochs per cell via `run.epochs` (csv/jsonl/bin, hashed into the cell); `--dry-run` prints counts, not keys; the last re-acquisition fixes (`fll_assist`, time-based window) arrive with W1's change |
 | | Pro overnight orchestration + campaign watch (B5.3 / L8) | — | not started | W3 | waits for 0.34.0 |
 | R6 large recordings | streaming epoch sink, bounded memory (B6.1) | PR #45 | open | W1 | — |
-| | multi-GB streamed **reading** test (1 GiB, VmHWM < 64 MB, `#[ignore]`) | PR #43 @ 18d3b42 | open | W8 | — |
+| | multi-GB streamed **reading** test (1 GiB, VmHWM < 64 MB, `#[ignore]`) | PR #43 @ b515174 | open | W8 | — |
 | | per-channel parallel tracking (B6.2); GB-scale **tracking/campaign** perf test (B6.3) | — | **not started** | — | tracking was 0.56× real time for 8 channels (§2) |
 | | Python file-path / NumPy APIs (B6.4); MCP long-job contract (B6.5) | partly: MCP `iq_campaign` is incremental within a sample budget | branch (WIP) | W7 | B6.4 not started |
 | R7 calibration with stated error | `iq labfit` on receiver logs | `main` | merged (MODELLED) | — | **B7.1 labfit from IQ campaign timelines: not started**; B7.2 real-data study: blocked on NDA and counsel item N6; B7.3 log-format breadth: not started |
@@ -474,14 +474,14 @@ Owners follow the coordinator's routing of 2026-10-07.
 
 | D | Fix | Where @ sha | State | Owner | Note |
 |---|---|---|---|---|---|
-| D1 front-end flags ignored by `track`/`sweep` | applied to acquisition and tracking passes; byte-identical to `iq frontend` then `track` | PR #44 @ 15107fa | open | W5 | CLI fixed; Python/MCP `iq_track` have no front-end option (W1, 0.34) |
-| D2 `--data` bits on pilots / wrong symbol rate | per-signal symbol timing; pilots and unmodelled signals refuse data | PR #48 @ fee6f3d | open | W5 | stacked on #44 |
-| D3 integer scene output ≈ ±1, clipping unreported | scaled to ¼ full scale (ci8 31.75 LSB, ci16 8191.75 LSB, 2-bit thresholds at 1σ); clipping reported | PR #40 (merged, `1b6e826`) | merged | W5 | clipping not in SigMF meta (W5, after D7) |
-| D4 tiered codes get one acquisition period | rule stated and pinned per signal family (4 periods for 1 ms codes; 1 full tiered period for L5-I 10 ms, E1-C 100 ms, L2C 1.5 s) | PR #38 @ 79ff31e | open | W1 | **documented, not changed** for tiered codes; whether a 1.5 s L2C hand-off is acceptable is a design decision still open |
+| D1 front-end flags ignored by `track`/`sweep` | applied to acquisition and tracking passes; byte-identical to `iq frontend` then `track` | PR #44 @ 1c00e94 | open | W5 | CLI fixed; Python/MCP `iq_track` have no front-end option (W1, 0.34) |
+| D2 `--data` bits on pilots / wrong symbol rate | per-signal symbol timing; pilots and unmodelled signals refuse data | PR #48 @ fb27f6f | open | W5 | stacked on #44 |
+| D3 integer scene output ≈ ±1, clipping unreported | scaled to ¼ full scale (ci8 31.75 LSB, ci16 8191.75 LSB, 2-bit thresholds at 1σ); clipping reported | PR #40 (merged, `409eb45`) | merged | W5 | clipping not in SigMF meta (W5, after D7) |
+| D4 tiered codes get one acquisition period | rule stated and pinned per signal family (4 periods for 1 ms codes; 1 full tiered period for L5-I 10 ms, E1-C 100 ms, L2C 1.5 s) | PR #38 @ 48d382c | open | W1 | **documented, not changed** for tiered codes; whether a 1.5 s L2C hand-off is acceptable is a design decision still open |
 | D5 jammer Q table vs `SPECTRUM.md` | decision (a2): CW/narrowband Q 1.5 → 1.0 in 0.33; broadband 2.0 and the lunar re-tune in 0.34 | branch `fix/iq-d5-jammer-q` (WIP) | branch | W5 | the campaign scorer's MODELLED curve reads Q from `jamming::q_factor` (single source), so the fix flows through |
 | D6 absent PRNs cross threshold on noise-free 2-bit input | recorded as a pinned finding | `main` (#35) | merged (finding) | — | CFAR option (B3.4) not started |
-| D7 GLONASS FDMA offset in acquisition | `SampleSpec::baseband_hz(carrier)` used by acquisition and tracking | PR #50 @ 8655d92 | open | W5 | GLONASS `sat_id` (u32 wrap) is a documented 0.33 limitation; 0.34 plan: slot-number id plus a signed `freq_channel` field |
-| D8 default acquisition step 2/(3T) vs FLL pull-in ±1/(4T): Galileo E1-B/C false-lock at ±1/(2T) | none yet | `tests/iq_signal_matrix.rs`, kshana PR #51 @ 48643b8e (ignored tests `galileo_e1b`, `galileo_e1c`) | finding; fix not started | W1 | residual +83.3 Hz tracked at +125.02 Hz; M2M4 ≈40.2 dB-Hz; E1-C secondary agreement 51.87 %; the zero-residual control passes |
+| D7 GLONASS FDMA offset in acquisition | `SampleSpec::baseband_hz(carrier)` used by acquisition and tracking | PR #50 @ 2c4c038 | open | W5 | GLONASS `sat_id` (u32 wrap) is a documented 0.33 limitation; 0.34 plan: slot-number id plus a signed `freq_channel` field |
+| D8 default acquisition step 2/(3T) vs FLL pull-in ±1/(4T): Galileo E1-B/C false-lock at ±1/(2T) | none yet | `tests/iq_signal_matrix.rs`, kshana PR #51 @ 4d4d9b87 (ignored tests `galileo_e1b`, `galileo_e1c`) | finding; fix not started | W1 | residual +83.3 Hz tracked at +125.02 Hz; M2M4 ≈40.2 dB-Hz; E1-C secondary agreement 51.87 %; the zero-residual control passes |
 | D9 L2C CM (20 ms) cannot hold lock with the default loop (Bn·T 0.3 PLL / 0.2 FLL) | none yet | PR #51 (ignored test `gps_l2c`) | finding; fix not started | W1 | PLI −0.084, Doppler −99.71 Hz, M2M4 15.77 dB-Hz |
 | D10 B1C C/N0 below nominal | none yet | PR #51 (ignored test `beidou_b1c`) | finding; cause not established | W1 | NWPR 42.55 dB-Hz (−2.45), M2M4 43.68 (−1.32); lock, code and Doppler pass |
 

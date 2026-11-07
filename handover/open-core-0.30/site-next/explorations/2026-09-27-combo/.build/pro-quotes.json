@@ -3,7 +3,7 @@
   "checkout": "~/Code/kshana-wt-pro-public",
   "file": "docs/PRO.md",
   "branch": "feat/pro-public-text",
-  "commit": "7f5e3e39c74954769a9b7ff342100a01c23b8f5d"
+  "commit": "e3f2a74bfc8daa7a8d003d420d6ea683f27c7e1d"
  },
  "quotes": [
   "Open Kshana runs one scenario and tells you what it gives. Kshana Pro answers the questions a programme asks next, over the same engine and the same scenario files: which design to fly, how sure the answer is, and whether the mission meets its requirements in a form a review board can check.",

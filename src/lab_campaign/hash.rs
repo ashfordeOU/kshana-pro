@@ -2,7 +2,7 @@
 //!
 //! Canonical JSON is `serde_json`'s compact form of a `serde_json::Value`, with object keys
 //! sorted (this crate graph does not enable `preserve_order`) and shortest round-trip floats,
-//! matching the engine's `iq::campaign::hash` (public `kshana` 0.34.0 on crates.io; developed on `feat/034-campaign`, last head `51ba4787`).
+//! matching the engine's `iq::campaign::hash` (public `kshana` 0.34.0 on crates.io; developed on `feat/034-campaign`, last head `f7198be9`).
 //! The cell key is `runner::cell_key` and the DIGEST is `report::build` on that branch. Once the
 //! engine is published at 0.34.0 and pinned here, these call the engine's own functions.
 

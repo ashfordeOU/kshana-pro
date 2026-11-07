@@ -19,7 +19,7 @@ WITH_DATA=1 bash ~/Code/kshana-pro/handover/open-core-0.30/restore.sh
 | Restored path | From | Contents |
 |---|---|---|
 | `~/Code/kshana` | public GitHub clone | the open repository, `main` = v0.29.3 or later |
-| `~/Code/kshana` branch `feat/validation-uplift`, worktree `~/Code/kshana-wt-validation` | `bundles/feat-validation-uplift-7737bedc.bundle` | the 0.30 validation work: 42 commits on top of `38feb769`, 93 VALIDATED (unpushed on purpose; the open repo is public and keeps only `main`) |
+| `~/Code/kshana` branch `feat/validation-uplift`, worktree `~/Code/kshana-wt-validation` | `bundles/feat-validation-uplift-eb933e17.bundle` | the 0.30 validation work: 42 commits on top of `5f6f1ee6`, 93 VALIDATED (unpushed on purpose; the open repo is public and keeps only `main`) |
 | `~/Code/kshana-site-next/GOAL.md`, `HANDOVER.md` | `site-next/` | the live tracker and the site and Studio handover |
 | `~/Code/kshana-site-next/research/` | `site-next/research/` | `VALIDATION-0.30-PLAN.md`, `VALIDATION-UPLIFT.md`, the 55 promotion records and pre-registrations, the Studio UX baseline |
 | `~/Code/kshana-site-next/explorations/2026-10-01-studio-rebuild` | `site-next/explorations/` | the Studio source (Simple and Advanced views) |

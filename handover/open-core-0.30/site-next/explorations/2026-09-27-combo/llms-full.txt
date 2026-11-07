@@ -26,9 +26,9 @@ Event log · campaign-jam-spoof-holdover-integrityReal events
 
 Where every trace comes from
 
-Campaign: Engine v0.29.3, build dce3723 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
+Campaign: Engine v0.29.3, build eedcb94 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
 
-Orbits: Engine v0.29.3, build dce3723 · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
+Orbits: Engine v0.29.3, build eedcb94 · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
 
 The console, the three cards and the log replay one chained run of 6 phases and 18 member runs on its 10 s grid (T+01:16:10 of mission time). The orbits are the 102 satellites of GPS, Galileo, BeiDou and GLONASS from the constellation run, each recovered as a circular two-body orbit from the engine's ground track (worst residual 0.0034°), radii compressed for display. Links are drawn to satellites above the constellation run's 10° mask (25° in the integrity-alarm phase, the campaign's reacquisition mask), dimmed by its jamming and cut in holdover. Earth: NASA Blue Marble and Black Marble. Kshana Studio replays the chained run in your browser; the engine's own report and the command reproduce each run.
 
@@ -142,7 +142,7 @@ NominalJammingSpoofingHoldoverIntegrity alarmRecovery
 
 T+00:00:00 → T+01:16:10 mission time · the chained run, not three runs side by sidePL = protection level · AL = alert limit · INS = inertial navigation system
 
-Engine v0.29.3, build dce3723 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
+Engine v0.29.3, build eedcb94 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
 
 02Capabilities
 
@@ -198,7 +198,7 @@ Integrity
 
 Protection levels (PL) from receiver autonomous integrity monitoring (RAIM) and its advanced form (ARAIM), checked against the alert limit: here, the chained mission's integrity-alarm phase. Hatched bars are epochs where no protection level could be formed.
 
-Engine v0.29.3, build dce3723 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
+Engine v0.29.3, build eedcb94 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
 
 Telecom
 
@@ -364,9 +364,9 @@ A spoofer pushes the clock at 0.1 ns/s. The RF (radio-frequency) detector alarms
 
 The jammer goes to 10 dBW and every satellite is lost. The clock free-runs from the 37.0 ns the spoofer left and crosses its 50 ns guard at T+00:35:40; the inertial error reaches 24.3 km.
 
-Campaign: Engine v0.29.3, build dce3723 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
+Campaign: Engine v0.29.3, build eedcb94 · campaign-jam-spoof-holdover-integrity.toml · seed 20260928Open in Kshana StudioReportJSONTOML
 
-Orbits: Engine v0.29.3, build dce3723 · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
+Orbits: Engine v0.29.3, build eedcb94 · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
 
 Open core, Kshana Pro, custom study
 ## Free for everyone. Pro when the answer has to stand up in a review.
@@ -947,7 +947,7 @@ Orbit view
 
 engine v0.29.3t = 0 sReal engine run, replayed
 
-Engine v0.29.3, build dce3723 · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
+Engine v0.29.3, build eedcb94 · constellation-multi-gnss-coverage.toml · deterministic, no seedOpen in Kshana StudioReportJSONTOML
 
 Orbits: re-propagated from the run's own elements and checked against the engine's ground tracks. Planets: NASA imagery.
 
@@ -2185,7 +2185,7 @@ One square per compared vector, coloured by its position error.
 
 oracle · AIAA 2006-6753 verification vectorsHow it was checked
 
-Engine v0.29.3, build dce3723 · tests/sgp4_verification.rs · deterministic, no seedOpen in Kshana Studio: the same propagator, orbit-sgp4-gps.toml · seed 17
+Engine v0.29.3, build eedcb94 · tests/sgp4_verification.rs · deterministic, no seedOpen in Kshana Studio: the same propagator, orbit-sgp4-gps.toml · seed 17
 
 171 of 171 RAIM (receiver autonomous integrity monitoring) threshold cases match SciPy inside the band. Seed 7.
 
@@ -2201,7 +2201,7 @@ One square per SciPy case, grouped by kernel.
 
 oracle · SciPyHow it was checked
 
-Engine v0.29.3, build dce3723 · tests/raim_reference.rs · deterministic, no seedOpen in Kshana Studio: the kernel at work, integrity-raim.toml · seed 7
+Engine v0.29.3, build eedcb94 · tests/raim_reference.rs · deterministic, no seedOpen in Kshana Studio: the kernel at work, integrity-raim.toml · seed 7
 
 Numerical (Cowell) orbit propagation against Orekit over a 24-hour arc: worst difference 0.08 m in force tiers 1 to 5.
 
@@ -2217,7 +2217,7 @@ Position difference against time, per force tier.
 
 oracle · Orekit 12.2How it was checked
 
-Engine v0.29.3, build dce3723 · tests/numerical_cowell_propagator_reference.rs · deterministic, no seedNo Kshana Studio view: this comparison runs as an engine test.
+Engine v0.29.3, build eedcb94 · tests/numerical_cowell_propagator_reference.rs · deterministic, no seedNo Kshana Studio view: this comparison runs as an engine test.
 
 Orbits · millimetres to metresValidated
 
@@ -2231,7 +2231,7 @@ Each residual on a logarithmic scale from a millimetre to twenty metres.
 
 oracle · ESA precise ephemerides, the lunar orbiter's reconstructed trajectory, Orekit 12.2, AIAA vectorsHow it was checked
 
-Engine v0.29.3 · docs/AGENCY-ORBIT-VALIDATION.md residual tables, with the two propagator checks recomputed at build dce3723 · deterministic, no seedNo Kshana Studio view: precise orbit determination runs as engine tests.
+Engine v0.29.3 · docs/AGENCY-ORBIT-VALIDATION.md residual tables, with the two propagator checks recomputed at build eedcb94 · deterministic, no seedNo Kshana Studio view: precise orbit determination runs as engine tests.
 
 Clocks · stabilityValidated
 
@@ -2245,7 +2245,7 @@ Four deviations against averaging time, with the published values as rings.
 
 oracle · NIST SP 1065How it was checked
 
-Engine v0.29.3, build dce3723 · tests/allan_nist_sp1065_1000point.rs · deterministic, no seedOpen in Kshana Studio: the estimators on a clock, clock-holdover.toml · seed 42
+Engine v0.29.3, build eedcb94 · tests/allan_nist_sp1065_1000point.rs · deterministic, no seedOpen in Kshana Studio: the estimators on a clock, clock-holdover.toml · seed 42
 
 Holdover prediction on a measured caesium clock record: predicted over measured between 0.84 and 1.03, inside the pre-set factor of 1.5.
 
@@ -2261,7 +2261,7 @@ Measured and predicted time error against coast time, and the ratio window.
 
 oracle · measured caesium recordHow it was checked
 
-Engine v0.29.3, build dce3723 · tests/slot_timing_cs5071a_holdout.rs · deterministic, no seedOpen in Kshana Studio: the same inversion, slot-timing-ocxo-leo.toml · deterministic
+Engine v0.29.3, build eedcb94 · tests/slot_timing_cs5071a_holdout.rs · deterministic, no seedOpen in Kshana Studio: the same inversion, slot-timing-ocxo-leo.toml · deterministic
 
 02Verification matrix
 
@@ -5790,7 +5790,7 @@ Terminal · kshana v0.29.3 Recorded run
 
 ```
 
-A recorded command-line session, engine v0.29.3 (build dce3723):
+A recorded command-line session, engine v0.29.3 (build eedcb94):
 
 - $ kshana --version: kshana 0.29.3
 
@@ -17577,7 +17577,7 @@ The "~95 % line coverage" on the README badge, the README CI (continuous integra
 
 Measured |  95.35 % — 55,970 of 58,697 lines |
 
-Commit |  db796dd (engine 0.29.0, the v0.29.0 tag) |
+Commit |  fb73817 (engine 0.29.0, the v0.29.0 tag) |
 
 Run |  GitHub Actions, ci.yml job coverage, run 36809850252, 2026-10-01 |
 
@@ -17611,7 +17611,7 @@ then update the table above and the six surfaces in the same commit; the doc-syn
 
 ## History#
 
-The figure has been re-measured, not re-typed: 95.63 % on commit b1d350d (engine 0.27.2 + unreleased, run 35934579709, 2026-09-24, 37,697 of 39,419 lines, published as ~96 %), revised to 95.35 % on 0.29.0 (above), which rounds to ~95 %: the code grew by 19,278 measured lines and the new lines are covered slightly less than the old ones; 95.85 % at v0.17.0 (commit 1daa012, 2026-06-14, published as ~96 %), and ~97 % in two earlier release notes (CHANGELOG.md, left as history). paper/kshana-technical-report.md said "near 97 %" until it was brought to this record; it is now the sixth surface the test pins.
+The figure has been re-measured, not re-typed: 95.63 % on commit 7b4617c (engine 0.27.2 + unreleased, run 35934579709, 2026-09-24, 37,697 of 39,419 lines, published as ~96 %), revised to 95.35 % on 0.29.0 (above), which rounds to ~95 %: the code grew by 19,278 measured lines and the new lines are covered slightly less than the old ones; 95.85 % at v0.17.0 (commit 1daa012, 2026-06-14, published as ~96 %), and ~97 % in two earlier release notes (CHANGELOG.md, left as history). paper/kshana-technical-report.md said "near 97 %" until it was brought to this record; it is now the sixth surface the test pins.
 
 ========================================================================
 URL: https://kshana.dev/docs/slot-timing
@@ -21825,7 +21825,7 @@ A patch release on 0.29.0: the measured coverage figure, the project's name line
 
 ### Revisions to published numbers#
 
-- Line coverage: ~96 % → ~95 %. The coverage job re-measured the released 0.29.0 code (commit db796dd, CI run 36809850252, 2026-10-01): 95.35 %, 55,970 of 58,697 lines of src/. The published figure was 95.63 % (37,697 of 39,419 lines), measured on b1d350d before 0.28.0; it rounded to ~96 %. The new figure rounds to ~95 %, so every surface tests/coverage_figure_doc_sync.rs pins moves together: docs/COVERAGE.md, the README badge, Evidence line and CI table, the crates.io, PyPI and npm badges, the technical report and the kshana.dev coverage page. The 85 % floor is unchanged.
+- Line coverage: ~96 % → ~95 %. The coverage job re-measured the released 0.29.0 code (commit fb73817, CI run 36809850252, 2026-10-01): 95.35 %, 55,970 of 58,697 lines of src/. The published figure was 95.63 % (37,697 of 39,419 lines), measured on 7b4617c before 0.28.0; it rounded to ~96 %. The new figure rounds to ~95 %, so every surface tests/coverage_figure_doc_sync.rs pins moves together: docs/COVERAGE.md, the README badge, Evidence line and CI table, the crates.io, PyPI and npm badges, the technical report and the kshana.dev coverage page. The 85 % floor is unchanged.
 
 ### Added#
 
@@ -22492,7 +22492,7 @@ The glossary explains what a result file says. docs/GLOSSARY.md gains plain-lang
 Abbreviations are spelled out at first use in every hand-written public doc. The README and 24 files under docs/ had several hundred abbreviations used before, or without, their expansion; each is now expanded where it first appears in that file. The three generated files (docs/VERIFICATION-MATRIX.md, docs/MODELLED-RATIONALE.md, docs/SCENARIOS.md) are left alone: they are written from src/verification.rs and api::list_scenario_kinds(), so their wording has to change at the source.
 
 -
-Line coverage has a measurement of record. docs/COVERAGE.md records 95.63 % (37,697 of 39,419 lines) from the CI coverage job on b1d350d, and tests/coverage_figure_doc_sync.rs pins the five public "~96%" surfaces to it — the one headline number that was hand-maintained, and had already moved once unnoticed.
+Line coverage has a measurement of record. docs/COVERAGE.md records 95.63 % (37,697 of 39,419 lines) from the CI coverage job on 7b4617c, and tests/coverage_figure_doc_sync.rs pins the five public "~96%" surfaces to it — the one headline number that was hand-maintained, and had already moved once unnoticed.
 
 -
 New doc-sync gates for surfaces nothing read. tests/readme_code_fences_doc_sync.rs checks every import { … } from "kshana" in a JavaScript fence against the WebAssembly exports, and pins README.crates.md's Rust example byte-for-byte to a copy the test binary compiles. tests/security_md_doc_sync.rs fails if src/lib.rs loses #![forbid(unsafe_code)] or SECURITY.md stops stating it. tests/no_overclaims.rs now also scans web/README.md and the three registry READMEs, and every standard on the site must state its proof explicitly.
@@ -22589,23 +22589,23 @@ The superseded SHAs, for anyone holding a reference to one:
 
 old |  subject |
 
-9733177 |  docs(changelog): disclose the authorship rewrite and the two dangling crate sha1s |
+e850f03 |  docs(changelog): disclose the authorship rewrite and the two dangling crate sha1s |
 
-5d16ea8 |  fix(docs): the engine-flow diagram said 6 figures of merit; the engine scores 7 |
+8e1f636 |  fix(docs): the engine-flow diagram said 6 figures of merit; the engine scores 7 |
 
-148d31d |  fix(test): two more cross-platform pins, and two wrong assumptions of my own |
+d0c5a70 |  fix(test): two more cross-platform pins, and two wrong assumptions of my own |
 
-a3a2667 |  feat(web): surface the lunar cluster on the site — seven capability cards |
+8ce58ca |  feat(web): surface the lunar cluster on the site — seven capability cards |
 
-1e8bec6 |  docs(lunar): document 42 public fields and ratchet the ceiling down to 985 |
+a152284 |  docs(lunar): document 42 public fields and ratchet the ceiling down to 985 |
 
-7bba514 |  chore(release): v0.27.0 |
+2cfa462 |  chore(release): v0.27.0 |
 
-3154548 |  test(docs): guard the distribution diagram, the last unguarded one |
+0eeaf8a |  test(docs): guard the distribution diagram, the last unguarded one |
 
-7864142 |  chore(release): v0.27.1 |
+4547e0d |  chore(release): v0.27.1 |
 
-The v0.27.0 and v0.27.1 tags were deliberately NOT moved. They still point at 7bba514 and 7864142, the exact commits whose trees produced the artefacts now live on crates.io, npm, PyPI, ghcr.io and the MCP registry. A crate's .cargo_vcs_info.json records the sha1 it was packaged from, registries are immutable, and the SLSA build-provenance attestation on the v0.27.1 release assets is bound to that commit. Moving the tags would have left every one of those published artefacts pointing at a commit that no longer exists. Leaving them keeps the old commits reachable and every published provenance chain resolving, at the cost of two tags that are no longer ancestors of main — which is why this release exists: v0.27.2 gives main a tag of its own, packaged from a commit that is on it.
+The v0.27.0 and v0.27.1 tags were deliberately NOT moved. They still point at 2cfa462 and 4547e0d, the exact commits whose trees produced the artefacts now live on crates.io, npm, PyPI, ghcr.io and the MCP registry. A crate's .cargo_vcs_info.json records the sha1 it was packaged from, registries are immutable, and the SLSA build-provenance attestation on the v0.27.1 release assets is bound to that commit. Moving the tags would have left every one of those published artefacts pointing at a commit that no longer exists. Leaving them keeps the old commits reachable and every published provenance chain resolving, at the cost of two tags that are no longer ancestors of main — which is why this release exists: v0.27.2 gives main a tag of its own, packaged from a commit that is on it.
 
 This is the second disclosed rewrite of this history; the first, on 2026-09-21, canonicalised authorship and is recorded in the 0.27.0 notes with its own two dangling crate sha1s. A rewrite is disclosed here every time, because a repository that sells verifiable provenance cannot quietly move the ground under a published artefact.
 
@@ -22666,15 +22666,15 @@ Commit authorship across the whole history is now a single identity, and two pub
 
 No content changed. The rewrite touched author and committer headers only, and that is checkable rather than asserted: the tree of every tag and every branch is bit-identical to what it was before. v0.26.0 still resolves to tree 92284e9420605568f1bfabb78cd95d383b40f3e2, exactly as it did.
 
-What it cost. A commit's name is a hash over its tree, its parents and its author headers, so changing an ancestor renames every descendant. The v0.26.0 release commit was dce2dbf7700788cf6de46260c14673c0e5347360 and is now d4921f3025569e00e425e1747d0acfc261e96e18. Two artifacts recorded the old name at publish time and cannot be corrected, because a published registry version is immutable by design:
+What it cost. A commit's name is a hash over its tree, its parents and its author headers, so changing an ancestor renames every descendant. The v0.26.0 release commit was ef74e95e755715c34c514ad216204eb3b260021a and is now ef74e95e755715c34c514ad216204eb3b260021a. Two artifacts recorded the old name at publish time and cannot be corrected, because a published registry version is immutable by design:
 
-- kshana 0.26.0 on crates.io — .cargo_vcs_info.json records dce2dbf…
+- kshana 0.26.0 on crates.io — .cargo_vcs_info.json records ef74e95…
 
 - kshana-mcp 0.26.0 on crates.io — the same sha1, path_in_vcs: mcp/kshana-mcp
 
 Nothing else is affected. The npm package records no gitHead, and the PyPI distribution records no commit at all; both were checked rather than assumed.
 
-There is no repair that makes dce2dbf… name the rewritten commit: that string is the old ancestry, and the only way it resolves is to keep the pre-rewrite history published, which would restore the authorship the rewrite removed. Provenance for 0.26.0 therefore runs through the tag rather than through the recorded sha1 — and the tag delivers the identical bytes the crate was built from. The next release records a valid commit with no action needed.
+There is no repair that makes ef74e95… name the rewritten commit: that string is the old ancestry, and the only way it resolves is to keep the pre-rewrite history published, which would restore the authorship the rewrite removed. Provenance for 0.26.0 therefore runs through the tag rather than through the recorded sha1 — and the tag delivers the identical bytes the crate was built from. The next release records a valid commit with no action needed.
 
 ### Fixed#
 

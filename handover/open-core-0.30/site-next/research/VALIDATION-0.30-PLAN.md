@@ -10,7 +10,7 @@ written below. The expected outcome, allowing for the high-risk rows the study n
 ## State at the start
 
 - Branch `feat/validation-uplift` in `~/Code/kshana-wt-validation`, cut from `feat/integration-bc`
-  (38feb769). Wave-0 policy commit **f394b5ba**: the promotion rule is written in `docs/VALIDATION.md`
+  (5f6f1ee6). Wave-0 policy commit **3ed491b5**: the promotion rule is written in `docs/VALIDATION.md`
   ("The promotion rule"), and every VALIDATED row declares its oracle kind in
   `validated_oracle_basis()` in `src/verification.rs`, enforced by unit tests there and by
   `tests/verification_rows_declare_an_oracle_basis.rs`.

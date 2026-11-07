@@ -107,7 +107,7 @@ fn write_pack(dir: &Path, body: &str) {
 // 1 ---------------------------------------------------------------------------------
 
 /// A manifest with no watch tables runs exactly as it did at the branch point: the
-/// committed fixture is the `ci.json` the branch-point binary (feat/pro-power 26d069a)
+/// committed fixture is the `ci.json` the branch-point binary (feat/pro-power 0a8ddea)
 /// wrote for the resilience-baseline pack with the same `--utc`, re-recorded on open
 /// engine 0.30.0 (whose ARAIM revision moved `mean_hpl_m` and `mean_vpl_m`; the pack hash
 /// and every other metric are unchanged). The fixture was recorded on Linux x86-64.

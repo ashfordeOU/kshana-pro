@@ -28,7 +28,7 @@ from it.
 | Python | 3.13 works (`build.py` ran to its gates in ~1.4 s: 42 charts from 25 recordings, 27 SVG renders) |
 | Playwright + Chromium | OK **only with** `executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome"`; Playwright 1.63 asks for a headless shell that is not installed |
 | `features/check_nav.mjs` | **Will not launch as written**: it calls `chromium.launch({ channel: "chrome" })` (Google Chrome, macOS). Needs an `executablePath` override on Linux |
-| Engine release build, recorders, Studio re-record, full `build.py`, `check.py`, port | **Rehearsed end to end on 2026-10-07** at public `bd05a276` (`main` + the `server.json` fix of public PR #37), in another session whose policy allows the release build: every step green after the fixes folded into the steps below. See "Rehearsal record" at the end |
+| Engine release build, recorders, Studio re-record, full `build.py`, `check.py`, port | **Rehearsed end to end on 2026-10-07** at public `4bfdbf09` (`main` + the `server.json` fix of public PR #37), in another session whose policy allows the release build: every step green after the fixes folded into the steps below. See "Rehearsal record" at the end |
 | `build.py` gate 1 | Refuses on public `main` today: `server.json image ghcr.io/ashfordeou/kshana-mcp:0.31.0 is not tagged 0.32.0`. **`mcp/kshana-mcp/server.json` must carry the bump version before building** |
 | `build.py` gate 2 | `recorded runs are not from the site's engine checkout … re-run:` the seven recorders below (they were recorded at a pre-squash commit not on `main`, so they must be re-run from the bump commit) |
 | `build.py` gate 3 | `recorded runs are engine 0.31.0, the site is 0.32.0` (Studio recordings and package) |
@@ -219,10 +219,10 @@ so the next re-port starts from this release's recordings.
   (override with `KSHANA_PRO_SHOWCASE` / `KSHANA_PRO_TEXT_REPO`); it is not in the
   recorder gate list, so it only matters if the Pro page changes.
 
-## Rehearsal record (2026-10-07, 0.32.0 at public `bd05a276`, nothing committed to `web/`)
+## Rehearsal record (2026-10-07, 0.32.0 at public `4bfdbf09`, nothing committed to `web/`)
 
 A full pass in a cloud container, at the 0.32.0 version public `main` already carries, to make
-release day a pure re-run. T was public `bd05a276` (`main` + public PR #37) plus one local commit,
+release day a pure re-run. T was public `4bfdbf09` (`main` + public PR #37) plus one local commit,
 never pushed, that bumped the docs prose of section 4 to 0.32.0 and regenerated the README images.
 
 | Step | Seconds | Result |

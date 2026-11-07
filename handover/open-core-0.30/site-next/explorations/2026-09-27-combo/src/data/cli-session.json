@@ -2,7 +2,7 @@
  "recorded": "2026-10-01",
  "engine": {
   "version": "0.29.3",
-  "commit": "dce3723",
+  "commit": "eedcb94",
   "tree": "feat/release-0.29.3",
   "binary": "target/release/kshana"
  },

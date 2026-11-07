@@ -1,7 +1,7 @@
 # B3 pre-registration (written before any oracle comparison was run)
 
 Written 2026-10-01T03:24Z by the B3 batch agent, branch `feat/val-b3` (off `feat/validation-uplift`
-f394b5ba). Nothing below has been compared against an oracle yet. Every tolerance is the plan's
+3ed491b5). Nothing below has been compared against an oracle yet. Every tolerance is the plan's
 (`VALIDATION-0.30-PLAN.md`, B3), and where the plan left an operational detail open, the choice is
 fixed here, before the first comparison. Any later change is a new comparison and is disclosed as
 such in the row record; it cannot promote the row.

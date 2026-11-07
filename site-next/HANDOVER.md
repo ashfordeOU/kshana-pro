@@ -89,8 +89,8 @@ The founder set this on 2026-09-27: "deliver the artefact but also the entire re
 
 | Thing | Path |
 |---|---|
-| Public engine repo (main, local, NOT pushed past 479d308 on origin) | `~/Code/kshana` (main = 4ca95f5: three dead links repointed) |
-| Private Pro repo | `~/Code/kshana-pro` (head 42cc273 before the MBSE build) |
+| Public engine repo (main, local, NOT pushed past 8213963 on origin) | `~/Code/kshana` (main = 78324a7: three dead links repointed) |
+| Private Pro repo | `~/Code/kshana-pro` (head 28a1956 before the MBSE build) |
 | Site project (not a git repo; back up with tar) | `~/Code/kshana-site-next` |
 | The site being built | `explorations/2026-09-27-combo/` (`src/` pages, css, js, data, tools; `build.py`; `check.py`; output is written in place) |
 | Studio source | `explorations/2026-09-30-studio-next/` since the swap of 2026-09-30 (named in `combo/src/data/sources.json`: `studio`; `combo/playground/` is a build copy with the recordings packed). The previous Studio `explorations/2026-09-27-playground/` is untouched, the fallback. Package swaps and re-recording: `ASSEMBLY-RUNBOOK.md` |
@@ -105,14 +105,14 @@ The founder set this on 2026-09-27: "deliver the artefact but also the entire re
 ### Worktrees / branches (in `~/Code/`, all from the kshana repo)
 
 Merge lineage:
-- aab844f (phase 0 scenarios)
-- → `feat/integration-a` **df0329d**: batch A (spectrum, solarsystem, constellations, campaigns) + main 4ca95f5. Verified by the parent.
-- → `feat/integration-bc` (from df0329d): batch B (animation 26b4be5, reports 033e43c, interop 50c1af2) and batch C (leo-signal 9f44f5b, leo-link 219d5d6, leo-navmsg 43da08a, leo-fusion 743da63) → verticals 1959e3d → final verify 5488153. CI-fix agent commits after that; head was da55ae6 at writing.
-- Docs branches (all from da55ae6): `feat/docs-core`, `docs-validation`, `docs-timing`, `docs-newengine`, `docs-leo`, `docs-tutorials`, `readme-design` → to be merged into `feat/docs-v29` (created from the then-current integration-bc head) by the docs workflow.
+- ad2d339 (phase 0 scenarios)
+- → `feat/integration-a` **39d5f8b**: batch A (spectrum, solarsystem, constellations, campaigns) + main 78324a7. Verified by the parent.
+- → `feat/integration-bc` (from 39d5f8b): batch B (animation 24a76bf, reports 861e21d, interop 0404b94) and batch C (leo-signal 45560ea, leo-link 9de6649, leo-navmsg 92588b5, leo-fusion 8ee144a) → verticals 646e8c9 → final verify 4e8c8b4. CI-fix agent commits after that; head was 39afbd7 at writing.
+- Docs branches (all from 39afbd7): `feat/docs-core`, `docs-validation`, `docs-timing`, `docs-newengine`, `docs-leo`, `docs-tutorials`, `readme-design` → to be merged into `feat/docs-v29` (created from the then-current integration-bc head) by the docs workflow.
 - Old per-feature worktrees (`kshana-wt-spectrum`, `-solarsystem`, `-constellations`, `-campaigns`, `-animation`, `-reports`, `-interop`, `-leo-*`) are merged. Keep them until release, then remove them with `git worktree remove`.
 - `~/Code/kshana-wt-k` (branch aperio-k) belongs to other work: leave it alone.
 
-**Engine counts at 5488153** (recount with the binary; never quote from memory):
+**Engine counts at 4e8c8b4** (recount with the binary; never quote from memory):
 - 75 kinds
 - 138 scenario files + 1 suite; 132 bundled; the 6 repo-only files are lunar-llr-datum and the 5 Celeste scenarios
 - 223 matrix rows: 83 VALIDATED / 136 MODELLED / 4 PARTNER

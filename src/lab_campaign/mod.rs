@@ -1,7 +1,7 @@
 //! # Lab campaign results (input side of the Pro lab campaign report)
 //!
 //! Reads the output directory of the engine's `kshana iq campaign` (0.34.0 "Lab replay";
-//! implemented in public `kshana` 0.34.0 (crates.io; developed on `feat/034-campaign`, PR #46, last head `51ba4787`): `campaign.json`,
+//! implemented in public `kshana` 0.34.0 (crates.io; developed on `feat/034-campaign`, PR #46, last head `f7198be9`): `campaign.json`,
 //! `cells/<key>.json`, `scorecard.json`, `DIGEST`.
 //! It checks the directory before anything is rendered. The report re-renders these
 //! numbers and never recomputes a metric. The engine is the source of every figure.

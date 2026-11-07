@@ -1,6 +1,6 @@
 # Validation uplift: can the 83/223 count go higher?
 
-Research date 2026-09-30. Scope: the 136 MODELLED rows of the Kshana verification matrix (`src/verification.rs` in `~/Code/kshana-wt-integration-bc`, commit 38feb769). Read-only research: no repository was changed. Row ids M001-M136 number the MODELLED rows in matrix order; the matrix row number is given beside each.
+Research date 2026-09-30. Scope: the 136 MODELLED rows of the Kshana verification matrix (`src/verification.rs` in `~/Code/kshana-wt-integration-bc`, commit 5f6f1ee6). Read-only research: no repository was changed. Row ids M001-M136 number the MODELLED rows in matrix order; the matrix row number is given beside each.
 
 ## Summary
 

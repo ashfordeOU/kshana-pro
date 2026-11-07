@@ -9,7 +9,7 @@ stand-alone scenario). `tests/uncertainty.rs` checks the SHA-256 (Secure Hash Al
 own copy, and checks that every study's base scenario parses to the same content as its
 engine file.
 
-- Open engine repository commit: `da55ae630b16dc93dc81119627b2445396782e3d`
+- Open engine repository commit: `39afbd712df32c0252f82763358f19c91f725d0f`
   (2026-09-29, branch `feat/pro-engine-base`, version 0.28.0 with 75 scenario kinds;
   the working tree was clean when the files were copied).
 - Copied on 2026-09-30.

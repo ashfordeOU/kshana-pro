@@ -182,7 +182,7 @@ own bullet so parallel work merges cleanly.
   same sections and the same summary sentences, from one shared builder, with the curves as
   tables. Table headers stay with their rows, and a subheading never ends a page. Two renders
   are byte-identical apart from printpdf's random trailer `/ID`.
-  **Aligned to the engine's real output** (public `kshana` 0.34.0, developed on `feat/034-campaign`, PR #46, last head `51ba4787`; the
+  **Aligned to the engine's real output** (public `kshana` 0.34.0, developed on `feat/034-campaign`, PR #46, last head `f7198be9`; the
   provisional markers are gone):
   - the mirror types are the engine's own structs: `kshana.campaign-plan/1`, cells with
     hand-off and lock source, and `kshana.campaign-scorecard/1`;
@@ -196,21 +196,21 @@ own bullet so parallel work merges cleanly.
   - epoch files a cell names are checked for presence, size and SHA-256.
 
   Re-pin when the engine's default design changes and at 0.34.0.
-- **Open engine 0.32.0** (PR 5, merge `586517f`; `68c64c1`). The `kshana` pin moves from
+- **Open engine 0.32.0** (PR 5, merge `2b73738`; `25618f0`). The `kshana` pin moves from
   `=0.29.0` to the published `=0.32.0` (crates.io) with its lockfile; the engine changes
   since 0.29.0 are additive and no overlay source needed changing. The six version-stamped
   papers under `papers/` (report HTML/PDF and figures) and the D1.4 MRD block were
   regenerated. The campaign-watch branch-point fixture was re-recorded: the 0.30.0 ARAIM
   revision moved `mean_hpl_m` and `mean_vpl_m`, and 0.32.0 writes the same values as
   0.30.0. Supersedes the unmerged `claude/pro-030` branch.
-- **Campaign-watch fixture compares metrics within 8 ulp** (PR 5; `c3c20c1`, note
-  corrected in `c99d0e7`). The check compared `ci.json` byte for byte, and the macOS
+- **Campaign-watch fixture compares metrics within 8 ulp** (PR 5; `b9e9c5b`, note
+  corrected in `42fc83c`). The check compared `ci.json` byte for byte, and the macOS
   arm64 runner rounds the ARAIM sums 1–2 ulp away from Linux x86-64 (`mean_tropo_m` 2 ulp,
   `mean_vpl_m` 1 ulp), so one platform always failed. Every field, key, metric order and
   line count stays exact; each metric may differ by at most 8 ulp, far below any engine
   revision.
 - **D1.4 MRD: the fusion row's evidence class is read from the engine** (PR 6, merge
-  `db2210a`; `c28e71a`). On engine 0.32.0 the "GNSS/INS sensor fusion" verification row is
+  `4d01525`; `1dea7f4`). On engine 0.32.0 the "GNSS/INS sensor fusion" verification row is
   `ExternalDataset` / VALIDATED (the loosely coupled EKF against NaveGo on a real IMU/GNSS
   drive, GNSS present throughout), but the generated footnote still called it MODELLED.
   The footnote now takes the row's live status (`mrd::FUSION_ROW`), and two tests pin it
@@ -223,13 +223,13 @@ own bullet so parallel work merges cleanly.
   `catthehacker/ubuntu:act-latest` image plus rsync and rustup with the pinned 1.93.0
   toolchain, for arm64 and amd64 (amd64 build verified; arm64 not yet). The stale
   `.rerun-snapshot-*.sh` copies were removed and are now ignored.
-- **GNSS IQ layer partner deliverables** (PR 7, merge `78ab489`; `220675d`, `dbc8c81`,
-  `4c7b6e2`). An executed GNSS IQ notebook against the published kshana 0.32.0 wheel
+- **GNSS IQ layer partner deliverables** (PR 7, merge `1f68744`; `6ab5a50`, `a53e125`,
+  `0a2c517`). An executed GNSS IQ notebook against the published kshana 0.32.0 wheel
   (`examples/iq-notebook/`, with its builder and pinned requirements), and a one-page IQ
   layer validation summary for partners (`commercial/partners/`, Markdown and printable
   HTML with its renderer). The summary records the gps-sdr-sim ledger row as MODELLED by
   pre-registration and carries the hand-off caveat under its limits.
-- **Handover** (PR 8, merge `1ca4c90`; `ba27e95`, and `eee0fc9` in PR 5). The post-0.32
+- **Handover** (PR 8, merge `2f502f4`; `9ada836`, and `97cbb0d` in PR 5). The post-0.32
   handover records the 0.32.0 Pro refresh, the partner deliverables, the account
   migration and recovery, and the session roster.
 - **Changelog guard.** `tests/changelog_tracks_engine_pin.rs` fails unless this file names
@@ -259,7 +259,7 @@ entry below):
   registered seal (unaltered) and a seal watermark; `--sample` marks public samples
   "SAMPLE: illustrative programme on public data, not a real mission".
 - **Open engine 0.29.0.** The development pin moves from the 0.28.0-reporting integration
-  tree (`da55ae6`) to the 0.29.0 release tree (`feat/integration-bc` `38feb76`, 75
+  tree (`39afbd7`) to the 0.29.0 release tree (`feat/integration-bc` `5f6f1ee`, 75
   scenario kinds): `kshana = { path = "../kshana-wt-pro-engine", version = "0.29" }`.
   After the crates.io publish the pin becomes `kshana = "0.29.0"`. No overlay source
   needed changing to compile.
@@ -345,7 +345,7 @@ entry below):
     trend and diff there gains the label. The branch-point compatibility test now allows
     exactly the one added label line. The design, uncertainty and coexistence showcases
     were run again and are byte-identical. The service showcase was recorded again at
-    90b09f7 because its served job board showed the old `ci` text: every job result and
+    205379d because its served job board showed the old `ci` text: every job result and
     artefact is byte-identical; the time stamps, the ledger hashes over them (ledger
     SHA-256 `6a155762ab945c3f…` → `bea4419a2d02cb1b…`) and the board text changed.
 
@@ -375,7 +375,7 @@ entry below):
   reachable through Pro. DEVELOPMENT PIN, not a release pin.** On branch `feat/pro-power`
   the `kshana` dependency points by path at a dedicated, read-only engine worktree
   (`../kshana-wt-pro-engine`, branch `feat/pro-engine-base` of the open repository, commit
-  `da55ae6`). That engine adds twelve kinds to the published 0.28.0: `spectrum`,
+  `39afbd7`). That engine adds twelve kinds to the published 0.28.0: `spectrum`,
   `solar-system`, `body-pnt`, `constellation-design`, `campaign`, `leo-signal`,
   `leo-pass`, `leo-navmsg`, `leo-pvt`, `leo-ppp`, `ntn-positioning` and `leo-pnt-chain`
   (spectrum and waterfall, the solar system and positioning around any body,

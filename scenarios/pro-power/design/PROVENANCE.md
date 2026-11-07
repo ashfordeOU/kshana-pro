@@ -7,7 +7,7 @@ optional low-Earth-orbit preset files.
 ## Files copied from the open engine
 
 Open engine repository, branch `feat/pro-engine-base`, commit
-`da55ae630b16dc93dc81119627b2445396782e3d`
+`39afbd712df32c0252f82763358f19c91f725d0f`
 (`git -C ../kshana-wt-pro-engine rev-parse HEAD`). The copies in `engine/` are byte for
 byte the engine's files; `tests/design_optimise.rs` checks each SHA-256 below and, when
 the engine checkout is present, compares the bytes.

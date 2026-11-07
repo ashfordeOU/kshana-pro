@@ -206,9 +206,9 @@ every scenario gives the same result as on 0.29.0.</p>
 <h3 id="revisions-to-published-numbers">Revisions to published numbers<a class="anchor" href="#revisions-to-published-numbers" aria-label="Link to this section">#</a></h3>
 <ul>
 <li><strong>Line coverage: ~96 % → ~95 %.</strong> The coverage job re-measured the released 0.29.0
-code (commit <code>db796dd</code>, CI run 36809850252, 2026-10-01): <strong>95.35 %</strong>, 55,970 of 58,697
+code (commit <code>fb73817</code>, CI run 36809850252, 2026-10-01): <strong>95.35 %</strong>, 55,970 of 58,697
 lines of <code>src/</code>. The published figure was 95.63 % (37,697 of 39,419 lines), measured on
-<code>b1d350d</code> before 0.28.0; it rounded to ~96 %. The new figure rounds to ~95 %, so every
+<code>7b4617c</code> before 0.28.0; it rounded to ~96 %. The new figure rounds to ~95 %, so every
 surface <code>tests/coverage_figure_doc_sync.rs</code> pins moves together: <code>docs/COVERAGE.md</code>, the
 README badge, Evidence line and CI table, the crates.io, PyPI and npm badges, the
 technical report and the kshana.dev coverage page. The 85 % floor is unchanged.</li>
@@ -2067,7 +2067,7 @@ The three generated files (<code>docs/VERIFICATION-MATRIX.md</code>, <code>docs/
 <code>api::list_scenario_kinds()</code>, so their wording has to change at the source.</p>
 </li>
 <li><p><strong>Line coverage has a measurement of record.</strong> <code>docs/COVERAGE.md</code> records 95.63 %
-(37,697 of 39,419 lines) from the CI <code>coverage</code> job on <code>b1d350d</code>, and
+(37,697 of 39,419 lines) from the CI <code>coverage</code> job on <code>7b4617c</code>, and
 <code>tests/coverage_figure_doc_sync.rs</code> pins the five public &quot;~96%&quot; surfaces to it — the
 one headline number that was hand-maintained, and had already moved once unnoticed.</p>
 </li>
@@ -2275,40 +2275,40 @@ apart from the three workflow files this release changes.</p>
 <th>subject</th>
 </tr>
 </thead><tbody><tr>
-<td><code>9733177</code></td>
+<td><code>e850f03</code></td>
 <td>docs(changelog): disclose the authorship rewrite and the two dangling crate sha1s</td>
 </tr>
 <tr>
-<td><code>5d16ea8</code></td>
+<td><code>8e1f636</code></td>
 <td>fix(docs): the engine-flow diagram said 6 figures of merit; the engine scores 7</td>
 </tr>
 <tr>
-<td><code>148d31d</code></td>
+<td><code>d0c5a70</code></td>
 <td>fix(test): two more cross-platform pins, and two wrong assumptions of my own</td>
 </tr>
 <tr>
-<td><code>a3a2667</code></td>
+<td><code>8ce58ca</code></td>
 <td>feat(web): surface the lunar cluster on the site — seven capability cards</td>
 </tr>
 <tr>
-<td><code>1e8bec6</code></td>
+<td><code>a152284</code></td>
 <td>docs(lunar): document 42 public fields and ratchet the ceiling down to 985</td>
 </tr>
 <tr>
-<td><code>7bba514</code></td>
+<td><code>2cfa462</code></td>
 <td>chore(release): v0.27.0</td>
 </tr>
 <tr>
-<td><code>3154548</code></td>
+<td><code>0eeaf8a</code></td>
 <td>test(docs): guard the distribution diagram, the last unguarded one</td>
 </tr>
 <tr>
-<td><code>7864142</code></td>
+<td><code>4547e0d</code></td>
 <td>chore(release): v0.27.1</td>
 </tr>
 </tbody></table></div>
 <p><strong>The v0.27.0 and v0.27.1 tags were deliberately NOT moved.</strong> They still point
-at <code>7bba514</code> and <code>7864142</code>, the exact commits whose trees produced the
+at <code>2cfa462</code> and <code>4547e0d</code>, the exact commits whose trees produced the
 artefacts now live on crates.io, npm, PyPI, ghcr.io and the MCP registry. A
 crate&#39;s <code>.cargo_vcs_info.json</code> records the sha1 it was packaged from, registries
 are immutable, and the SLSA build-provenance attestation on the v0.27.1 release
@@ -2483,17 +2483,17 @@ bit-identical to what it was before. <code>v0.26.0</code> still resolves to tree
 <code>92284e9420605568f1bfabb78cd95d383b40f3e2</code>, exactly as it did.</p>
 <p><strong>What it cost.</strong> A commit&#39;s name is a hash over its tree, its parents and its author
 headers, so changing an ancestor renames every descendant. The <code>v0.26.0</code> release
-commit was <code>dce2dbf7700788cf6de46260c14673c0e5347360</code> and is now
-<code>d4921f3025569e00e425e1747d0acfc261e96e18</code>. Two artifacts recorded the old name at
+commit was <code>ef74e95e755715c34c514ad216204eb3b260021a</code> and is now
+<code>ef74e95e755715c34c514ad216204eb3b260021a</code>. Two artifacts recorded the old name at
 publish time and cannot be corrected, because a published registry version is
 immutable by design:</p>
 <ul>
-<li><code>kshana</code> 0.26.0 on crates.io — <code>.cargo_vcs_info.json</code> records <code>dce2dbf…</code></li>
+<li><code>kshana</code> 0.26.0 on crates.io — <code>.cargo_vcs_info.json</code> records <code>ef74e95…</code></li>
 <li><code>kshana-mcp</code> 0.26.0 on crates.io — the same sha1, <code>path_in_vcs: mcp/kshana-mcp</code></li>
 </ul>
 <p>Nothing else is affected. The npm package records no <code>gitHead</code>, and the PyPI
 distribution records no commit at all; both were checked rather than assumed.</p>
-<p>There is no repair that makes <code>dce2dbf…</code> name the rewritten commit: that string <em>is</em>
+<p>There is no repair that makes <code>ef74e95…</code> name the rewritten commit: that string <em>is</em>
 the old ancestry, and the only way it resolves is to keep the pre-rewrite history
 published, which would restore the authorship the rewrite removed. Provenance for
 0.26.0 therefore runs through the tag rather than through the recorded sha1 — and the

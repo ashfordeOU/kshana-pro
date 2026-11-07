@@ -16,8 +16,8 @@ and the final commit has not been through the full gate). After the go it takes 
 
 | Thing | Path |
 | --- | --- |
-| Release branch | `feat/release-prep`, worktree `~/Code/kshana-wt-release` (from `feat/docs-v29` acd1c51) |
-| Main checkout (push from here: it holds the push hooks' contract) | `~/Code/kshana`, branch `main`, 2 commits ahead of `origin/main` 479d308 |
+| Release branch | `feat/release-prep`, worktree `~/Code/kshana-wt-release` (from `feat/docs-v29` 382619f) |
+| Main checkout (push from here: it holds the push hooks' contract) | `~/Code/kshana`, branch `main`, 2 commits ahead of `origin/main` 8213963 |
 | Scratch (logs, scripts, artefacts) | `~/Code/kshana-site-next/scratch/release/` |
 | Dry-run results table | `scratch/release/dryrun-results.tsv`, logs in `scratch/release/logs/` |
 | Tag message, ready | `scratch/release/TAG_MESSAGE.txt` |
@@ -71,7 +71,7 @@ These are owned by other agents or the parent. Each must be true before step G1.
 | # | Condition | How to check |
 | --- | --- | --- |
 | P1 | `feat/integration-bc` has passed its full gate | the CI-fix agent's report; re-run `scripts/check-doc-coverage.sh` (expect `985 (ceiling: 985)`) and the prescreen yourself |
-| P2 | `feat/mcp-newkinds` (c2510ee at writing) is verified and merged into `feat/integration-bc` | `git -C ~/Code/kshana log --oneline feat/integration-bc..feat/mcp-newkinds` prints nothing |
+| P2 | `feat/mcp-newkinds` (95e124e at writing) is verified and merged into `feat/integration-bc` | `git -C ~/Code/kshana log --oneline feat/integration-bc..feat/mcp-newkinds` prints nothing |
 | P3 | `feat/wasm-parity` is verified and merged, or the founder accepts the known gap (42 of 137 scenarios byte-identical in the browser build at the time of writing) | the wasm-parity agent's report |
 | P4 | The new site is ported into `~/Code/kshana/web/` (phase 5). **`pages.yml` builds kshana.dev from `web/` in the tag with `web/build.sh`. If the port is not in the tag, the release redeploys the OLD site with the new engine.** | `ls ~/Code/kshana/web`; the web tests; see the two traps in section 10 |
 | P5 | Any public Pro text (`feat/pro-public-text`) is approved by the founder and merged | the parent |
@@ -106,8 +106,8 @@ Run every command from `~/Code/kshana` unless the step says otherwise. Use
 cd ~/Code/kshana
 git status --short                       # expect: nothing (untracked .ci-native etc. are excluded)
 git fetch origin
-git rev-parse origin/main                # expect: 479d3080afa9311f4b47e45dfd1a4df7afb335f6
-git log --oneline origin/main..main      # expect: the 2 local commits (aab844f, 4ca95f5)
+git rev-parse origin/main                # expect: 82139630632883b9df25f002c122a5f2d5304c56
+git log --oneline origin/main..main      # expect: the 2 local commits (ad2d339, 78324a7)
 git remote -v                            # expect: ONLY origin = github.com/ashfordeOU/kshana (no private remote)
 git branch backup/main-pre-0.29.0 main   # a name for the old tip, so a rollback needs no reset
 ```
@@ -125,7 +125,7 @@ git -c user.name=ashfordeOU -c user.email=236818772+ashfordeOU@users.noreply.git
 ```
 
 - Expect: a clean merge (main's two commits are already inside integration-bc through
-  `feat/integration-a` df0329d).
+  `feat/integration-a` 39d5f8b).
 - Verify: `git log --oneline -1`; `git diff --stat feat/integration-bc main` prints nothing.
 - Rollback (not pushed yet): `git revert -m 1 <merge sha>`.
 
@@ -149,7 +149,7 @@ cd ~/Code/kshana-wt-release2
 # CHANGELOG: the reference copy of the [0.29.0] entry is feat/release-prep's file
 # (also saved as ~/Code/kshana-site-next/scratch/release/CHANGELOG-reference.md):
 git show feat/release-prep:CHANGELOG.md | sed -n '/^## \[0.29.0\]/,/^## \[0.28.0\]/p' | sed '$d' > ~/Code/kshana-site-next/scratch/release/entry-0.29.0.md
-git diff acd1c51 main -- CHANGELOG.md        # what main's [Unreleased] gained since the entry was written
+git diff 382619f main -- CHANGELOG.md        # what main's [Unreleased] gained since the entry was written
 # In CHANGELOG.md: replace everything from "## [Unreleased]" up to "## [0.28.0]" with
 #   "## [Unreleased]" + a blank line + entry-0.29.0.md,
 # then move each bullet the diff above shows into the entry by hand (new MCP tools under
@@ -549,7 +549,7 @@ runner and have no local counterpart beyond "the tool is installed at the pinned
 
 One at a time, `CARGO_BUILD_JOBS=3`, load average 180 to 490 throughout. No network
 publish. The raw table is `scratch/release/dryrun-results.tsv` (name, exit code, seconds,
-command); each log is `scratch/release/logs/<name>.log`. Branch head at the runs: 29e0f20
+command); each log is `scratch/release/logs/<name>.log`. Branch head at the runs: 4aa0b3d
 (the two later commits change CHANGELOG wording only).
 
 ### The artefacts
@@ -608,7 +608,7 @@ commit anyway and the CI-fix agent is running the same code through the full gat
 images and the CHANGELOG):
 
 - `cargo clippy --all-targets -- -D warnings`
-- `cargo test --all` (the whole suite; about 223 test binaries, 3 228 tests at 5488153)
+- `cargo test --all` (the whole suite; about 223 test binaries, 3 228 tests at 4e8c8b4)
 - `cargo tarpaulin` (coverage), the minimum-supported-compiler build
   (`RUSTUP_TOOLCHAIN=1.85.0 cargo build --all --locked`), `cargo build -p kshana --lib
   --target wasm32-unknown-unknown` as its own step (the wasm-pack build above compiled
@@ -634,7 +634,7 @@ images and the CHANGELOG):
 | B1 | The founder's go has not been given | rule | founder |
 | B2 | `main` does not contain the engine yet: `feat/integration-bc` is not merged, and its full gate result is not in hand | pending | CI-fix agent, parent |
 | B3 | The redesigned site is not in `web/` (phase 5). A release today redeploys the old site | pending | parent |
-| B4 | `feat/mcp-newkinds` (c2510ee) and `feat/wasm-parity` are not merged; each will conflict with or precede the version bump | pending | their agents, parent |
+| B4 | `feat/mcp-newkinds` (95e124e) and `feat/wasm-parity` are not merged; each will conflict with or precede the version bump | pending | their agents, parent |
 | B5 | The full local gate has not run on the release commit, so there is no push receipt | pending | step G3 |
 | B6 | `cargo publish --dry-run` for `kshana-mcp` cannot pass before `kshana 0.29.0` is on crates.io (stand-in with a patch passed) | not mirrorable | by design |
 | B7 | The Docker image build was not mirrored (daemon down). The image builds only in the Release run, 27 min, after crates.io is already public | not mirrored | start Docker Desktop and run the section 8 command before the go |

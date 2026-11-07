@@ -4,8 +4,8 @@ Local-runner pass, 2026-09-30 to 2026-10-01. Nothing was pushed, tagged, publish
 dispatched on GitHub. Everything here re-runs with one script:
 `~/Code/kshana-site-next/scratch/actlocal/rerun.sh <commit>` (section 6).
 
-**Release candidate tested: `feat/integration-bc` at `db796dde`** (it contains both fix
-commits from `feat/ci-local-fixes`, section 2). An earlier full pass ran on `38feb769`
+**Release candidate tested: `feat/integration-bc` at `fb738176`** (it contains both fix
+commits from `feat/ci-local-fixes`, section 2). An earlier full pass ran on `5f6f1ee6`
 (section 7); it found the two defects.
 
 **How:** act 0.2.88 with Docker Desktop 29.2.1 (VM: 14 CPUs, 7.65 GiB). The act image is
@@ -19,11 +19,11 @@ this Mac by default; the rows marked **amd64** ran `linux/amd64` (x86-64) under 
 are x86-64. `BINARYEN_CORES=4` is passed to every act job (GitHub's ubuntu runners have
 4 vCPUs; see section 5). `CARGO_BUILD_JOBS=4` while the receipt gate ran beside it.
 
-The full arm64 `cargo test --all` (`ci.yml check`) was **not** rerun on `db796dde`: the
+The full arm64 `cargo test --all` (`ci.yml check`) was **not** rerun on `fb738176`: the
 receipt gate (`scripts/gate.sh`) runs that suite on the same commit, and the parent asked
-for it to be skipped. It ran green under act on `38feb76` plus the fixes (section 7).
+for it to be skipped. It ran green under act on `5f6f1ee` plus the fixes (section 7).
 
-## 1. Results on `db796dde`
+## 1. Results on `fb738176`
 
 Exit 0 = green. Seconds are wall-clock on this machine, sharing the CPU with the gate.
 
@@ -31,7 +31,7 @@ Exit 0 = green. Seconds are wall-clock on this machine, sharing the CPU with the
 
 | Job | How run | Exit | Seconds | Notes |
 | --- | --- | --- | --- | --- |
-| check | not rerun (see above) | | | covered by `scripts/gate.sh` on `db796dde`; green under act on `38feb76`+fixes in 6438 s |
+| check | not rerun (see above) | | | covered by `scripts/gate.sh` on `fb738176`; green under act on `5f6f1ee`+fixes in 6438 s |
 | package | act, arm64 | 0 | 36 | `cargo package --locked`, verification build |
 | msrv | act, arm64 | 0 | 50 | "declared rust-version=1.85, active rustc=1.85.0" |
 | deny | act, arm64 | 0 | 14 | `--all-features` |
@@ -94,7 +94,7 @@ figures: `cross_platform_golden`, `golden`, `determinism`, `sgp4_verification`,
 portable-maths unit pins. `derive.py` builds the list from the checkout, so a new
 `*_doc_sync` file joins automatically.
 
-### Other checks (`db796dde`)
+### Other checks (`fb738176`)
 
 | Check | Result |
 | --- | --- |
@@ -103,11 +103,11 @@ portable-maths unit pins. `derive.py` builds the list from the checkout, so a ne
 | Third-party actions pinned | every `uses:` is a full commit SHA except `dtolnay/rust-toolchain@1.93.0` (21) and `@1.85.0` (1). Deliberate: `scripts/check-toolchain.sh` requires that ref to equal the toolchain channel, and the action reads the toolchain from it. A SHA pin would need a matching guard change; left as is |
 | Secrets the jobs name | `CARGO_REGISTRY_TOKEN`, `NPM_TOKEN`, `PYPI_API_TOKEN`, `JETBRAINS_MARKETPLACE_TOKEN`, `SONAR_TOKEN`, `GITHUB_TOKEN` (built in), variable `MCP_REGISTRY_PUBLISH`; plus the optional `JETBRAINS_CERTIFICATE_CHAIN`, `JETBRAINS_PRIVATE_KEY`, `JETBRAINS_PRIVATE_KEY_PASSWORD` (unset: the Marketplace signs). All named as present in RELEASE-RUNBOOK.md section 10. No secret value was read |
 
-## 2. Fix commits on `feat/ci-local-fixes` (both merged into `db796dde`)
+## 2. Fix commits on `feat/ci-local-fixes` (both merged into `fb738176`)
 
-Worktree `~/Code/kshana-wt-cifix`, branched from `feat/integration-bc` at 38feb769.
+Worktree `~/Code/kshana-wt-cifix`, branched from `feat/integration-bc` at 5f6f1ee6.
 
-1. **`5a41d6b6` fix(guard): the attribution scan refuses a tree it cannot read.**
+1. **`d8890fb4` fix(guard): the attribution scan refuses a tree it cannot read.**
    `scripts/check-no-attribution.sh` ended both scans in `|| true`, which also swallowed
    git's own failure. Measured: a directory with a planted marker and no repository
    printed "OK: clean" and exited 0. Under act that is what a worktree gives (its `.git`
@@ -115,7 +115,7 @@ Worktree `~/Code/kshana-wt-cifix`, branched from `feat/integration-bc` at 38feb7
    the guard blind. Now no repository or a shallow clone fails, and `git grep`'s exit
    status is read (1 = clean, above 1 = failure). A planted marker still exits 1; the real
    tree exits 0; every workflow caller already uses `fetch-depth: 0`.
-2. **`6ef9de01` fix(ledger): link only paths whose spelling exists exactly; drop a dead link.**
+2. **`aaec0ac5` fix(ledger): link only paths whose spelling exists exactly; drop a dead link.**
    **This would have turned GitHub's `check` job and the Release `verify` job red.**
    `web/data/verification-matrix.json` carried `src/SOLAR_SYSTEM.rs`: the generator turned
    the constant `SOLAR_SYSTEM` in a `module` field into a candidate path, and on the
@@ -154,7 +154,7 @@ workflow's own text.
 ## 4. x86-64 versus arm64
 
 - **Ran on x86-64 Linux:** `xarch-pins` (every byte and figure pin), the full Release
-  `verify` (`cargo test --all`, green on `db796dde` in 6024 s and on `38feb76`+fixes in 7480 s),
+  `verify` (`cargo test --all`, green on `fb738176` in 6024 s and on `5f6f1ee`+fixes in 7480 s),
   the manylinux wheel (built twice byte-identically, installed, tested), the MCP image.
 - **Tests that pin bytes differing between arm64 and x86-64: none found.** Every pin suite
   gave the same verdict on linux/arm64, linux/amd64 and macOS arm64, on both trees. The one
@@ -171,8 +171,8 @@ workflow's own text.
 
 ## 5. Notes for the GitHub runs
 
-- `wasm-opt` under act with 14 visible CPUs ran 27 min (38feb76) and was stopped after
-  48 min and 11 CPU-hours (db796dde); with `BINARYEN_CORES=4`, as on a 4-vCPU GitHub
+- `wasm-opt` under act with 14 visible CPUs ran 27 min (5f6f1ee) and was stopped after
+  48 min and 11 CPU-hours (fb738176); with `BINARYEN_CORES=4`, as on a 4-vCPU GitHub
   runner, the whole pages build took 250 s. Binaryen's Linux release is a static musl
   build, whose allocator degrades badly with many threads. GitHub's past pages runs take
   about 4 minutes, so the 30-minute cap is not at risk there; it only matters on a
@@ -204,24 +204,24 @@ Time on a quiet machine: about 1 hour with `QUICK=1`; add about 2 hours for `che
 2 hours for the emulated x86-64 `verify` and several for `coverage`. If the receipt gate
 already covers `check` on that commit, run
 `ONLY="<everything but ci-check and ci-coverage>"` as this pass did
-(`scratch/actlocal/batch-db796dde.sh` is that list).
+(`scratch/actlocal/batch-fb738176.sh` is that list).
 
-## 7. The earlier pass on `38feb769` (found the two defects)
+## 7. The earlier pass on `5f6f1ee6` (found the two defects)
 
 | Job | How run | Exit | Seconds | Tree |
 | --- | --- | --- | --- | --- |
-| ci check (full) | act, arm64 | 0 | 6438 | 38feb76+fixes: every step; `cargo test --all` 1 h 45 min, 224 binaries + doc-tests, 3,238 passed, 0 failed, 19 ignored |
-| release verify (full) | act, **amd64** | 0 | 7480 | 38feb76+fixes: all 7 steps on x86-64 |
-| xarch-pins | act, amd64 | **1** | 1884 | 38feb76 unfixed: `verification_artifacts_doc_sync` 2 of 8 failed (fix 2) |
-| xarch-pins | act, amd64 | 0 | 1373 | 38feb76+fixes |
-| deny, mcp-deny, package, msrv, wasm-registry, mcp-check, public-standalone, test-wasm-bindings | act, arm64 | 0 each | 15 to 166 | 38feb76 |
-| reproducibility-matrix ubuntu / macOS | act / native | 0 / 0 | 758 / 732 | 38feb76 |
-| pages build, release build, publish gates, npm-build, jetbrains build | act, arm64 | 0 each | 1638 / 194 / 19 / 1492 / 178 | 38feb76 (release build +fixes) |
-| manylinux x86-64, macOS wheels, macOS binaries, MCP image both arches, MCP registry validate | native | 0 each | | 38feb76 |
+| ci check (full) | act, arm64 | 0 | 6438 | 5f6f1ee+fixes: every step; `cargo test --all` 1 h 45 min, 224 binaries + doc-tests, 3,238 passed, 0 failed, 19 ignored |
+| release verify (full) | act, **amd64** | 0 | 7480 | 5f6f1ee+fixes: all 7 steps on x86-64 |
+| xarch-pins | act, amd64 | **1** | 1884 | 5f6f1ee unfixed: `verification_artifacts_doc_sync` 2 of 8 failed (fix 2) |
+| xarch-pins | act, amd64 | 0 | 1373 | 5f6f1ee+fixes |
+| deny, mcp-deny, package, msrv, wasm-registry, mcp-check, public-standalone, test-wasm-bindings | act, arm64 | 0 each | 15 to 166 | 5f6f1ee |
+| reproducibility-matrix ubuntu / macOS | act / native | 0 / 0 | 758 / 732 | 5f6f1ee |
+| pages build, release build, publish gates, npm-build, jetbrains build | act, arm64 | 0 each | 1638 / 194 / 19 / 1492 / 178 | 5f6f1ee (release build +fixes) |
+| manylinux x86-64, macOS wheels, macOS binaries, MCP image both arches, MCP registry validate | native | 0 each | | 5f6f1ee |
 
-Logs of the unfixed failures: `scratch/actlocal/logs/xarch-pins-amd64.38feb76-unfixed.log`,
-`ci-check.38feb76-unfixed-partial.log`, `ci-coverage.oom-attempt1.log`. Raw tables:
-`results-38feb76-final.tsv`, `history-38feb76.tsv`.
+Logs of the unfixed failures: `scratch/actlocal/logs/xarch-pins-amd64.5f6f1ee-unfixed.log`,
+`ci-check.5f6f1ee-unfixed-partial.log`, `ci-coverage.oom-attempt1.log`. Raw tables:
+`results-5f6f1ee-final.tsv`, `history-5f6f1ee.tsv`.
 
 ## 8. Disk used
 

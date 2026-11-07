@@ -1,7 +1,7 @@
 # B2 pre-registration (written before any oracle comparison was run)
 
 Written 2026-10-01T03:28Z by the B2 batch agent, branch `feat/val-b2` (worktree
-`~/Code/kshana-wt-val-b2`, cut from `feat/validation-uplift` f394b5ba). Every tolerance is the
+`~/Code/kshana-wt-val-b2`, cut from `feat/validation-uplift` 3ed491b5). Every tolerance is the
 plan's (`VALIDATION-0.30-PLAN.md`, B2, fixed 2026-09-30). Where the plan left an operational
 detail open it is fixed here, before the first comparison. A later change is a new comparison,
 disclosed as such in the row record, and cannot promote the row.

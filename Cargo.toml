@@ -50,7 +50,7 @@ default = []
 # positioning, navigation and timing chain). Until 0.29.0 is on crates.io the overlay
 # builds against a dedicated, read-only engine worktree by path:
 # `../kshana-wt-pro-engine`, branch `feat/pro-engine-base` of the open repository,
-# fast-forwarded to the 0.29.0 release tree (feat/integration-bc 38feb76).
+# fast-forwarded to the 0.29.0 release tree (feat/integration-bc 5f6f1ee).
 #
 # The open core from crates.io, pinned exactly: Pro 0.2.0 is built and its showcases
 # recorded on this release.

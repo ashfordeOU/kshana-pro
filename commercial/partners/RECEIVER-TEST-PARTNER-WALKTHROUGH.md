@@ -13,10 +13,10 @@ synthetic (Appendix A), and each command ran on the engine branch that ships it:
 | Label | Engine source the command was run on | Ships in |
 |---|---|---|
 | **0.32.0** | released `v0.32.0` behaviour, present on every branch below | released |
-| **0.33.0** | public PR #44 @ `15107fa` (front end in `track`/`sweep`). PR #38 (≈4 ms auto acquisition default) is *not* in its base | 0.33.0 |
-| **0.34.0-formats** | public PR #43 @ `18d3b42` (4/12-bit, `cu8`, multi-stream, `.sdrx`); only the multi-stream path was run here | 0.34.0 |
-| **0.34.0-track** | public PR #45 @ `a60ad59` (loop-design file, epochs/events/summary, re-acquisition) | 0.34.0 |
-| **0.34.0-campaign** | public `feat/034-campaign` @ `da95b9c` (`iq campaign`, scorecard, DIGEST) | 0.34.0 |
+| **0.33.0** | public PR #44 @ `1c00e94` (front end in `track`/`sweep`). PR #38 (≈4 ms auto acquisition default) is *not* in its base | 0.33.0 |
+| **0.34.0-formats** | public PR #43 @ `b515174` (4/12-bit, `cu8`, multi-stream, `.sdrx`); only the multi-stream path was run here | 0.34.0 |
+| **0.34.0-track** | public PR #45 @ `50a494e` (loop-design file, epochs/events/summary, re-acquisition) | 0.34.0 |
+| **0.34.0-campaign** | public `feat/034-campaign` @ `bb8ff75` (`iq campaign`, scorecard, DIGEST) | 0.34.0 |
 | **Pro** | this repo, PR 17 `pro/lab-campaign-report-plan` (`kshana-pro lab-report`) | Pro release on engine 0.34.0 |
 
 No step needs network access. No step synthesises a jammer or spoofer waveform. The only stimulus is
@@ -80,7 +80,7 @@ expected one.
 - Multi-channel SigMF.
 - ION GNSS SDR `.sdrx` recordings.
 
-Dry run of the multi-stream case on PR #43 @ 18d3b42. The test file was a 3 s two-stream file,
+Dry run of the multi-stream case on PR #43 @ b515174. The test file was a 3 s two-stream file,
 `two-ant.bin`: stream 0 was noise only, and stream 1 was the first 3 s of `lab-run-017`,
 sample-interleaved `ci16_le` with no header.
 
@@ -186,7 +186,7 @@ Size for 20 s × 3 channels at 1 ms: about 17 MB as JSONL, 4.6 MB as `--epochs-f
 
 On the dry-run capture the events show every channel LOCKED at 1.2 s and LOST at 8.2 s. That is
 0.2 s of loss dwell after the 8.0 s gap onset, which is correct. After that the channel goes into
-re-acquisition. **Known issue at a60ad59:** see §8 items 2–3.
+re-acquisition. **Known issue at 50a494e:** see §8 items 2–3.
 
 ## 5. Run the campaign: recordings × front ends × designs — **0.34.0-campaign**
 
@@ -307,19 +307,19 @@ The report does not recompute pass/fail; it prints the engine's.
 Each one is reported to the engine owner. None of them blocks the sequence.
 
 1. **The campaign and `iq track` disagree on re-acquisition.** This is `feat/034-campaign` @
-   da95b9c. The campaign's own lock state has no REACQ state. A channel that loses lock in a
-   long outage can stay lost (PRN 11, raw/baseline above). Public PR #46 @ d696bc46 has since moved
+   bb8ff75. The campaign's own lock state has no REACQ state. A channel that loses lock in a
+   long outage can stay lost (PRN 11, raw/baseline above). Public PR #46 @ 2b7102b1 has since moved
    the campaign runner onto the track engine's session (`lock_source = "track-session"`); this
    walkthrough has not been re-run on it yet. Cells, keys and the DIGEST change with that move, so
    re-run a campaign rather than mixing old and new cells.
-2. **`--reacquire` gives up too early by default.** This is PR #45 @ a60ad59. With the default
+2. **`--reacquire` gives up too early by default.** This is PR #45 @ 50a494e. With the default
    `max_reacq_attempts = 3`, every channel uses its three attempts within about 0.1 s of the
    loss and is RETIRED. It does not come back when the signal returns at 10 s. The workaround is
    a design with `[design.lock] max_reacq_attempts = 200`. With that, all three re-acquire at
    10.03 s and are LOCKED at 11.2 s. A time budget or back-off has been proposed upstream.
-3. **The summary disagrees with the events.** This is PR #45 @ a60ad59. In the case in item 2,
+3. **The summary disagrees with the events.** This is PR #45 @ 50a494e. In the case in item 2,
    `final_state` reads REACQ while the events end in RETIRED. Trust `events-*.jsonl`.
-4. **Front end plus a coarse quantiser needs a longer acquisition.** This is PR #44 @ 15107fa,
+4. **Front end plus a coarse quantiser needs a longer acquisition.** This is PR #44 @ 1c00e94,
    whose base predates PR #38. With `--notch --bits 2`, the 1 ms acquisition missed PRN 3
    (statistic 32.70 against threshold 35.86). `--acq-coherent 4` finds it. PR #38 makes about
    4 ms the default for 1 ms codes, so after both merge the flag should not be needed. Re-check

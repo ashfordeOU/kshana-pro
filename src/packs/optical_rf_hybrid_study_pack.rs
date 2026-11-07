@@ -1456,7 +1456,7 @@ mod tests {
     /// climatology: mean single-site ≈ 69 %, three-station ≈ 98 %, four-station ≈ 99 %,
     /// five-station correlated ≈ 99.5 %.
     ///
-    /// These bands moved. Until the open core's `7761e0a`, `default_network()` carried
+    /// These bands moved. Until the open core's `806a481`, `default_network()` carried
     /// illustrative per-site numbers giving ≈ 53 % / 90 % / 95 % / 96 %, and this test
     /// pinned them. That commit re-based the per-site clear-sky fractions on a published
     /// external dataset (Cavazzani et al. 2011, GOES12 clear-night fractions, MNRAS;

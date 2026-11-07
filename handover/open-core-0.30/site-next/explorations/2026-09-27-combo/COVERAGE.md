@@ -74,7 +74,7 @@ the Studio folder `src/data/sources.json` names, after `node tools_native.mjs`; 
 
 ## Feature gaps worth building in the engine (proposals; not shown as existing)
 
-1. ~~Maritime scenarios~~ and 2. ~~road and rail scenarios~~: shipped in Kshana commit aab844f (`maritime-strait-jamming`, `maritime-spoof-position-push`, `maritime-port-approach-coast`, `automotive-urban-canyon`, `rail-tunnel-coast`), recorded in the Studio and shown on Missions, Capabilities and the docs. Not yet pushed to GitHub, so their docs cards say "Not yet on GitHub" instead of linking.
+1. ~~Maritime scenarios~~ and 2. ~~road and rail scenarios~~: shipped in Kshana commit ad2d339 (`maritime-strait-jamming`, `maritime-spoof-position-push`, `maritime-port-approach-coast`, `automotive-urban-canyon`, `rail-tunnel-coast`), recorded in the Studio and shown on Missions, Capabilities and the docs. Not yet pushed to GitHub, so their docs cards say "Not yet on GitHub" instead of linking.
 3. **A geostationary user file.** The orbit kind supports any user orbit (see `orbit-molniya`), but no GEO file ships.
 4. **Sector time-accuracy presets** for grids and finance, with sources.
 5. **GLONASS, BeiDou and Galileo E6 signal models.** Ephemerides are parsed; the signals are not modelled.

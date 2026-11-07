@@ -1,7 +1,7 @@
 # Provenance: campaign-baseline
 
 The subscription pack for campaigns. Every scenario file comes from the open Kshana engine
-repository at commit `da55ae630b16dc93dc81119627b2445396782e3d` (branch `feat/pro-engine-base`, the integrated 75-kind
+repository at commit `39afbd712df32c0252f82763358f19c91f725d0f` (branch `feat/pro-engine-base`, the integrated 75-kind
 engine this overlay builds against). A file marked "copied verbatim" is byte-identical to
 the open file; the SHA-256 below is of the file in this directory.
 

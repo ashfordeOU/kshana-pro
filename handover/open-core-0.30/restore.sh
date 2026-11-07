@@ -21,7 +21,7 @@ fi
 git -C "$CODE/kshana" fetch -q origin
 
 echo "== 2. Validation branch from the bundle (unpushed on purpose: the open repo is public)"
-B="$HERE/bundles/feat-validation-uplift-7737bedc.bundle"
+B="$HERE/bundles/feat-validation-uplift-eb933e17.bundle"
 git -C "$CODE/kshana" bundle verify "$B" >/dev/null
 git -C "$CODE/kshana" fetch -q "$B" feat/validation-uplift:feat/validation-uplift 2>/dev/null \
   || echo "   (branch feat/validation-uplift already present; left as it is)"
