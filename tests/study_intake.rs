@@ -151,3 +151,79 @@ fn study_route_gates_below_pro_tier_with_403() {
         resp.body
     );
 }
+
+/// F3c: a structured study request produces a queued dossier job and is counted in the
+/// study funnel (`studies.jsonl`, `kshana_study_requests_total`, `kshana_study_dossiers`).
+#[test]
+fn study_request_queues_a_dossier_and_is_counted() {
+    use std::io::{Read, Write};
+    let dir = std::path::Path::new(env!("CARGO_TARGET_TMPDIR"))
+        .join(format!("study_intake_funnel-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let mut cfg = kshana_pro::serve::ServeConfig::new("127.0.0.1:0", pro());
+    cfg.data_dir = Some(dir.clone());
+    let srv = kshana_pro::serve::start(cfg).unwrap();
+    let a = srv.local_addr();
+    let http = |method: &str, path: &str, body: &str| {
+        let mut s = std::net::TcpStream::connect(a).unwrap();
+        write!(
+            s,
+            "{method} {path} HTTP/1.1\r\nHost: x\r\nContent-Length: {}\r\n\r\n{body}",
+            body.len()
+        )
+        .unwrap();
+        let mut out = String::new();
+        s.read_to_string(&mut out).unwrap();
+        let st: u16 = out[9..12].parse().unwrap();
+        (st, out.split_once("\r\n\r\n").unwrap().1.to_string())
+    };
+    let scenario = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("scenarios/quantum-systematics-sr.toml"),
+    )
+    .unwrap();
+    let req = json!({
+        "pack": "pro-quantum-systematics",
+        "customer": "Pilot Lab",
+        "prepared_for": "Timing team",
+        "inputs": {"scenario": scenario},
+    });
+    let (st, body) = http("POST", "/study", &req.to_string());
+    assert_eq!(st, 200, "{body}");
+    let v: serde_json::Value = serde_json::from_str(&body).unwrap();
+    let job = v["job_id"].as_str().unwrap().to_string();
+    let t = std::time::Instant::now();
+    loop {
+        let (_, b) = http("GET", &format!("/jobs/{job}"), "");
+        if b.contains("\"succeeded\"") {
+            break;
+        }
+        assert!(!b.contains("\"failed\""), "{b}");
+        assert!(t.elapsed() < std::time::Duration::from_secs(120), "{b}");
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+    // An invalid request is counted too.
+    let (st, _) = http(
+        "POST",
+        "/study",
+        &json!({"pack": "no-such-pack", "customer": "x", "inputs": {}}).to_string(),
+    );
+    assert_eq!(st, 400);
+    let (_, m) = http("GET", "/metrics", "");
+    assert!(
+        m.contains("kshana_study_requests_total{tenant=\"default\",outcome=\"queued\"} 1"),
+        "{m}"
+    );
+    assert!(
+        m.contains("kshana_study_requests_total{tenant=\"default\",outcome=\"invalid\"} 1"),
+        "{m}"
+    );
+    assert!(
+        m.contains("kshana_study_dossiers{tenant=\"default\",state=\"succeeded\"} 1"),
+        "{m}"
+    );
+    let log = std::fs::read_to_string(dir.join("studies.jsonl")).unwrap();
+    assert_eq!(log.lines().count(), 2);
+    assert!(log.contains("\"pack\":\"pro-quantum-systematics\""));
+    srv.stop();
+}

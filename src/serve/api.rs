@@ -321,7 +321,11 @@ fn route_request(
             super::handle(req, &svc.entitlement, now)
         }
         (RouteId::Study, None) => super::handle(req, &svc.entitlement, now),
-        (RouteId::Study, Some(j)) => study_with_job(svc, j, &who, req, now),
+        (RouteId::Study, Some(j)) => {
+            let r = study_with_job(svc, j, &who, req, now);
+            record_study(j, &who, req, &r, now);
+            r
+        }
         (RouteId::OpenApi, _) => HttpResponse::json(
             200,
             serde_json::to_string_pretty(&super::openapi::document(
@@ -409,6 +413,60 @@ fn route_request(
         // A data-directory route cannot match without one (served_routes filters it).
         (_, None) => super::handle(req, &svc.entitlement, now),
     }
+}
+
+/// One line of `<data-dir>/studies.jsonl`: the study funnel (roadmap F3c, the J metric
+/// "study requests"). Written for every `POST /study` with a data directory.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct StudyRecord {
+    pub t: i64,
+    pub tenant: String,
+    pub outcome: String,
+    #[serde(default)]
+    pub study_id: Option<String>,
+    #[serde(default)]
+    pub pack: Option<String>,
+    #[serde(default)]
+    pub job_id: Option<String>,
+}
+
+fn record_study(j: &JobService, who: &Principal, req: &HttpRequest, r: &HttpResponse, now: i64) {
+    use std::io::Write;
+    let body: serde_json::Value = serde_json::from_str(&r.body).unwrap_or_default();
+    let outcome = match r.status {
+        200 if body["job_id"].is_string() => "queued",
+        200 => "acknowledged",
+        400 | 422 => "invalid",
+        403 => "forbidden",
+        _ => "error",
+    };
+    let pack = serde_json::from_str::<serde_json::Value>(&req.body)
+        .ok()
+        .and_then(|v| v["pack"].as_str().map(str::to_string));
+    let rec = StudyRecord {
+        t: now,
+        tenant: submit_tenant(who),
+        outcome: outcome.into(),
+        study_id: body["study_id"].as_str().map(str::to_string),
+        pack,
+        job_id: body["job_id"].as_str().map(str::to_string),
+    };
+    if let Ok(mut f) = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(j.data_dir.join("studies.jsonl"))
+    {
+        let _ = writeln!(f, "{}", serde_json::to_string(&rec).unwrap_or_default());
+    }
+}
+
+/// Every study record of the data directory.
+pub fn study_records(j: &JobService) -> Vec<StudyRecord> {
+    std::fs::read_to_string(j.data_dir.join("studies.jsonl"))
+        .unwrap_or_default()
+        .lines()
+        .filter_map(|l| serde_json::from_str(l).ok())
+        .collect()
 }
 
 /// A quantile of sorted values (nearest rank).
@@ -514,6 +572,42 @@ fn metrics(svc: &Service, j: &JobService, who: &Principal) -> String {
                 label(r)
             );
         }
+    }
+    // The study funnel (F3c): requests by outcome, and the state of each queued study's
+    // dossier job.
+    let studies: Vec<StudyRecord> = study_records(j)
+        .into_iter()
+        .filter(|r| who.sees(&r.tenant))
+        .collect();
+    let _ = writeln!(out, "# HELP kshana_study_requests_total Study requests received, by tenant and outcome (queued, acknowledged, invalid, forbidden, error).\n# TYPE kshana_study_requests_total counter");
+    let mut by: BTreeMap<(&str, &str), u64> = BTreeMap::new();
+    for r in &studies {
+        *by.entry((r.tenant.as_str(), r.outcome.as_str()))
+            .or_default() += 1;
+    }
+    for ((t, o), n) in &by {
+        let _ = writeln!(
+            out,
+            "kshana_study_requests_total{{tenant=\"{}\",outcome=\"{o}\"}} {n}",
+            label(t)
+        );
+    }
+    let _ = writeln!(out, "# HELP kshana_study_dossiers Dossier jobs queued by study requests, by tenant and job state.\n# TYPE kshana_study_dossiers gauge");
+    let mut by: BTreeMap<(String, &str), u64> = BTreeMap::new();
+    let mut seen = std::collections::BTreeSet::new();
+    for r in &studies {
+        if let Some(id) = r.job_id.as_deref().filter(|id| seen.insert(id.to_string())) {
+            if let Ok(Some(st)) = j.store.status(id) {
+                *by.entry((r.tenant.clone(), st.state.as_str())).or_default() += 1;
+            }
+        }
+    }
+    for ((t, st), n) in &by {
+        let _ = writeln!(
+            out,
+            "kshana_study_dossiers{{tenant=\"{}\",state=\"{st}\"}} {n}",
+            label(t)
+        );
     }
     let _ = writeln!(out, "# HELP kshana_uptime_seconds Seconds since this process started serving.\n# TYPE kshana_uptime_seconds gauge\nkshana_uptime_seconds {}", svc.started.elapsed().as_secs());
     let _ = writeln!(out, "# HELP kshana_runs_jobs 1 when this process runs jobs (it holds the lease, or has no high availability).\n# TYPE kshana_runs_jobs gauge\nkshana_runs_jobs {}", u8::from(j.active.load(std::sync::atomic::Ordering::SeqCst)));

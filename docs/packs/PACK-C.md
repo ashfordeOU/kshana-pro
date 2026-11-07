@@ -90,6 +90,9 @@ across regenerations from the same inputs.
 
 ## Start a subscription
 
+Running it in your pipeline (token, GitHub Actions and GitLab CI jobs, renewals):
+[PACK-C-CI.md](PACK-C-CI.md).
+
 Contact **[contact@ashforde.org](mailto:contact@ashforde.org)** · [ashforde.org](https://ashforde.org).
 Pack C is delivered under a commercial engagement (Pro tier). Pack scope, cadence, and
 pricing are set per engagement — see the rate card (figures provided on request).

@@ -3,11 +3,14 @@
 //! # Enterprise integration (PR21) — connectors & CI hooks
 //!
 //! Adapters that move Kshana outputs into the formats enterprise space-ops tools
-//! ingest, plus a CI gate. The open core already emits the agency-standard CCSDS
-//! OEM/OMM and SP3 (which GMAT and Orekit read), so the Pro value-add here is:
+//! ingest, plus a CI gate. The open core emits the agency-standard CCSDS OEM/OMM and
+//! SP3 (which GMAT and Orekit read) and, since 0.29, STK `.e` files itself
+//! (`kshana::interop::stk`, the open `--export stk` of any scene). What is here:
 //!
-//!  * **STK `.e`** — STK's native ephemeris format (not in the open core), in the
-//!    J2000/GCRS frame, metres & seconds.
+//!  * **STK `.e` from an `ephemeris` result** — the Pro command `kshana-pro export
+//!    --format stk` writes one `.e` file straight from an open `ephemeris` result
+//!    (J2000/GCRS, kilometres and seconds). It predates the open exporter and is kept
+//!    for the scripts that call it; new work can use the open `--export stk`.
 //!  * **CSV** — a universal flat export of the ephemeris state series (Excel,
 //!    pandas, BI tools, custom GMAT/Orekit loaders).
 //!  * **CI gate** — run any scenario, extract a metric, compare against a threshold,
@@ -306,5 +309,13 @@ mod tests {
         assert!(!GateOp::Lt.passes(f64::NAN, 2.0), "NaN never passes");
         assert_eq!(GateOp::parse("<=").unwrap(), GateOp::Le);
         assert!(GateOp::parse("bogus").is_err());
+    }
+
+    #[test]
+    fn open_core_has_its_own_stk_exporter() {
+        // F8d: the note above says the open engine writes STK `.e` itself. If the open
+        // exporter is ever removed, this stops compiling and the note must change.
+        let f: fn(&str) -> String = kshana::interop::stk::file_part;
+        assert!(!f("sat-1").is_empty());
     }
 }

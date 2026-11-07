@@ -52,3 +52,14 @@ products = ["cli", "desktop", "station", "service"]
 days = 365
 price = "PLACEHOLDER"
 provider_price_id = "PLACEHOLDER"
+
+# Pack C, the scenario-subscription CI (roadmap F5): a monthly subscription; each
+# renewal payment renews the token by 31 days, cancellation revokes it at the end.
+[[editions]]
+id = "pack-c-ci-monthly"
+name = "Kshana Pack C: scenario-subscription CI (monthly)"
+tier = "pro"
+products = ["cli"]
+days = 31
+price = "PLACEHOLDER"
+provider_price_id = "PLACEHOLDER"

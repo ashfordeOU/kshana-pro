@@ -5,6 +5,14 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Study funnel, Pack C subscription, STK note (F3c, F5, F8d).** Every `POST /study` with a data
+  directory is recorded in `studies.jsonl`; `/metrics` adds `kshana_study_requests_total` by outcome
+  and `kshana_study_dossiers` by job state. Pack C: the `pack-c-ci-monthly` edition (price
+  `PLACEHOLDER`), the subscriber guide `docs/packs/PACK-C-CI.md` with GitHub Actions and GitLab CI
+  jobs (`examples/ci/`), and `tests/pack_c_subscription.rs` (purchase webhook, gated CI runs,
+  renewal, refund). The connectors note no longer says STK `.e` is missing from the open core
+  (it has `kshana::interop::stk` since 0.29); a test guards that.
+
 - **Service hardening and SLA metrics (F2a, F2b).** `serve --tls-cert/--tls-key` serves HTTPS
   from the binary (rustls, ring provider). `POST /jobs` takes `priority` (high, normal, low) and
   `timeout_secs`; `POST /jobs/<id>/cancel` cancels a queued or running job (new state

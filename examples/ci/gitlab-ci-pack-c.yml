@@ -1,0 +1,18 @@
+# PROPRIETARY — Kshana Pro overlay. Example for Pack C subscribers (docs/packs/PACK-C-CI.md).
+# CI/CD variables: KSHANA_PRO_LICENSE (masked), KSHANA_PRO_URL.
+kshana-pack-c:
+  image: debian:stable-slim
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq curl ca-certificates
+    - curl -fsSL "$KSHANA_PRO_URL" -o kshana-pro && chmod +x kshana-pro
+  script:
+    - mkdir -p kshana-ci
+    - BASE=""; [ -f kshana-ci/baseline.json ] && BASE="--baseline kshana-ci/baseline.json"
+    - ./kshana-pro ci --pack kshana/pack.toml $BASE --license "$KSHANA_PRO_LICENSE" --json kshana-ci/ci.json --out kshana-ci/report.html
+    - cp kshana-ci/ci.json kshana-ci/baseline.json
+  cache:
+    key: kshana-pack-c-$CI_COMMIT_REF_SLUG
+    paths: [kshana-ci/baseline.json]
+  artifacts:
+    when: always
+    paths: [kshana-ci/]

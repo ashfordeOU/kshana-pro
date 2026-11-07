@@ -1,0 +1,49 @@
+# PROPRIETARY — Kshana Pro overlay. Example for Pack C subscribers (docs/packs/PACK-C-CI.md).
+#
+# Runs your Pack C scenario pack on every push and pull request, gates on the last green
+# baseline, and keeps the report. Needs two repository secrets:
+#   KSHANA_PRO_LICENSE  the token from your subscription e-mail
+#   KSHANA_PRO_URL      where your organisation keeps the Kshana Pro binary you were
+#                       delivered (an internal artefact store); or vendor the binary.
+name: Kshana Pack C
+on: [push, pull_request]
+jobs:
+  pack-c:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch the Kshana Pro binary
+        run: |
+          curl -fsSL "$KSHANA_PRO_URL" -o kshana-pro && chmod +x kshana-pro
+        env:
+          KSHANA_PRO_URL: ${{ secrets.KSHANA_PRO_URL }}
+      - name: Restore the last green baseline
+        uses: actions/cache/restore@v4
+        with:
+          path: kshana-ci/baseline.json
+          key: kshana-pack-c-baseline-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: kshana-pack-c-baseline-${{ github.ref_name }}-
+      - name: Run the pack
+        run: |
+          mkdir -p kshana-ci
+          BASE=""; [ -f kshana-ci/baseline.json ] && BASE="--baseline kshana-ci/baseline.json"
+          ./kshana-pro ci --pack kshana/pack.toml $BASE \
+            --license "$KSHANA_PRO_LICENSE" \
+            --json kshana-ci/ci.json --out kshana-ci/report.html \
+            --history kshana-ci/history.jsonl
+        env:
+          KSHANA_PRO_LICENSE: ${{ secrets.KSHANA_PRO_LICENSE }}
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kshana-pack-c
+          path: kshana-ci/
+      - name: Save this run as the next baseline (green runs on the default branch only)
+        if: success() && github.ref_name == github.event.repository.default_branch
+        run: cp kshana-ci/ci.json kshana-ci/baseline.json
+      - if: success() && github.ref_name == github.event.repository.default_branch
+        uses: actions/cache/save@v4
+        with:
+          path: kshana-ci/baseline.json
+          key: kshana-pack-c-baseline-${{ github.ref_name }}-${{ github.run_id }}
