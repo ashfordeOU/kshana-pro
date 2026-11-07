@@ -1,4 +1,4 @@
-From 81f0e38d16ba58a9f7f43427073e860091f61d55 Mon Sep 17 00:00:00 2001
+From ae20169c5bd0a85c369a523b50f9af86cafe9ae4 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ashforde=20O=C3=9C?= <ashfordegithub@cbaweja.org>
 Date: Sat, 7 Nov 2026 18:12:46 +0000
 Subject: [PATCH] feat(desktop): live devices (L2b): the trust page scores a
@@ -678,7 +678,7 @@ index 17fdbde..99fb62c 100644
          .run(tauri::generate_context!())
          .expect("Kshana Desktop could not start");
 diff --git a/docs/SURFACES.md b/docs/SURFACES.md
-index b987d4f..82d5b30 100644
+index 65bfb65..a0a6813 100644
 --- a/docs/SURFACES.md
 +++ b/docs/SURFACES.md
 @@ -12,7 +12,7 @@ actions that run the CLI), **Notebook** (`notebooks/`), **Studio** (the Kshana S
