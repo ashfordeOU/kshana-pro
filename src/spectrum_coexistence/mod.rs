@@ -44,16 +44,12 @@ pub const KIND: &str = "pro-spectrum-coexistence";
 pub const SCHEMA_VERSION: &str = "1";
 
 /// The open-service GNSS signals a study may name as victims: exactly the signals the
-/// open `leo-signal` kind carries a compatibility model for. There is no way to define
-/// another victim, and no encrypted or authorised-service signal is among them.
-pub const OPEN_VICTIMS: &[&str] = &[
-    "gps-l1ca",
-    "galileo-e1",
-    "gps-l5",
-    "galileo-e5a",
-    "galileo-e5b",
-    "galileo-e5-altboc",
-];
+/// open `leo-signal` kind carries a compatibility model for, read from the engine
+/// (`kshana::leo_signal::GNSS_VICTIM_NAMES`), so a victim the engine adds (GPS L2C in the
+/// open engine after 0.40) is available with the engine pin that carries it. There is no
+/// way to define another victim, and a test refuses any encrypted or authorised-service
+/// signal name in the list.
+pub const OPEN_VICTIMS: &[&str] = kshana::leo_signal::GNSS_VICTIM_NAMES;
 
 /// Table names that mark an adversarial analysis. A study containing any of them, at
 /// any depth, is refused.
@@ -1223,5 +1219,26 @@ mod tests {
             }
             assert!(u.get(p).is_some(), "no units row for {p}");
         }
+    }
+
+    #[test]
+    fn victims_are_the_engines_open_service_signals() {
+        assert!(!OPEN_VICTIMS.is_empty());
+        for v in OPEN_VICTIMS {
+            let l = v.to_ascii_lowercase();
+            for bad in [
+                "p(y)", "py", "m-code", "mcode", "prs", "-p", "authoris", "encrypt",
+            ] {
+                assert!(
+                    !l.contains(bad),
+                    "{v} looks like an authorised-service signal"
+                );
+            }
+            assert!(
+                l.starts_with("gps-") || l.starts_with("galileo-"),
+                "{v}: no GNSS preset for its system"
+            );
+        }
+        assert_eq!(victim_system("gps-l2c").0, "GPS");
     }
 }

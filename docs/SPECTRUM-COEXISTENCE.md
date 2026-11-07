@@ -63,9 +63,10 @@ It does not answer, and refuses to be used for:
   them; they are not copied through.
 - Any victim other than the open-service signals the open engine carries a compatibility
   model for: `gps-l1ca`, `galileo-e1`, `gps-l5`, `galileo-e5a`, `galileo-e5b` and
-  `galileo-e5-altboc`. There is no way to define another victim. GPS L2C is not among
-  them: the open `leo-signal` kind has no compatibility model for it, so a study naming
-  it is refused rather than answered from a guess.
+  `galileo-e5-altboc` with engine 0.40 (the list is read from the engine, so a victim
+  the engine adds, such as GPS L2C, follows the engine pin). There is no way to define
+  another victim; a signal the pinned engine has no compatibility model for is refused
+  rather than answered from a guess.
 - A coordination filing or a regulatory finding.
 
 ## Method
@@ -283,9 +284,10 @@ result exactly, and the worst losses to 1e-12 dB.
   even when their maxima fall at different epochs, so the sum is a bound too.
   Terrestrial services, and GNSS systems beyond the open GPS and Galileo presets, are
   not in the sum.
-- **No GPS L2C victim.** The open `leo-signal` kind has no compatibility model for L2C
-  (the open `spectrum` kind lists its band, not an SSC model into it); it waits on that
-  open-engine model.
+- **GPS L2C arrives with the engine.** The victims are the open engine's own list
+  (`kshana::leo_signal::GNSS_VICTIM_NAMES`). The engine 0.40 this build pins has no L2C
+  compatibility model; the open engine has added one (MODELLED), so `gps-l2c` becomes a
+  victim with the engine release that carries it, with no change here.
 - **Not a coordination filing and not a regulatory finding.**
 
 ## Tests

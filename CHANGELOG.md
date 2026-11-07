@@ -5,6 +5,10 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Coexistence victims follow the engine (F8b).** The victim list is the open engine's own
+  `leo_signal::GNSS_VICTIM_NAMES`, so GPS L2C (added in the open engine after 0.40, MODELLED) becomes
+  a victim with the engine pin that carries it; a test refuses any authorised-service signal name.
+
 - **Kshana Desktop Pro (F10e, L2a Pro build).** `apps/desktop-pro`: the free Desktop's shell and
   command names with the Pro overlay; Pro kinds run under the `desktop` licence; a licence page
   (status, offline activation, machine ID, removal) and an Upgrade offer only while payments are
