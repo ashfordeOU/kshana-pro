@@ -1,0 +1,1440 @@
+From 28fb0490b2aa1b1cb1dac0ffa52ebff697a5af8f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ashforde=20O=C3=9C?= <ashfordegithub@cbaweja.org>
+Date: Sat, 7 Nov 2026 17:54:52 +0000
+Subject: [PATCH] Kshana Station (L3): the headless receiver service
+
+kshana station run|check|service <station.toml>. Every configured receiver stream (TCP,
+serial or USB device, file) is read as it arrives into kshana.obs/1 files through the live
+reader obs live uses, so a connection's epochs are a replay's, bit for bit. Files rotate by
+size, each starting with the source's header; old files are pruned. A stream that ends is
+opened again every second, the gap counted and never filled. A local status port
+(GET /health, GET /status; another address needs a bearer token) and an optional fleet
+report over HTTP. service prints a systemd unit, a launchd property list or a Windows
+start-up task. Read only: nothing is written to a receiver.
+
+Tests over real sockets: a recorded NMEA log served twice (reconnection, files equal to the
+replay, obs check on every file), rotation and pruning, the token-guarded status port, the
+fleet report with its bearer token, service files and configuration errors. Messages in
+the catalogue; machine text in the allowances with reasons.
+---
+ docs/COMMANDS.md                     |   1 +
+ docs/STATION.md                      |  82 ++++
+ docs/SURFACES.md                     |   1 +
+ examples/station/station.toml        |  34 ++
+ i18n/en/engine.ftl                   |  24 +
+ src/lib.rs                           |   2 +
+ src/main.rs                          |   2 +
+ src/station.rs                       | 710 +++++++++++++++++++++++++++
+ tests/fixtures/i18n/allow.json       |   4 +
+ tests/fixtures/i18n/manual.json      | 125 +++++
+ tests/fixtures/i18n/sinks-allow.json |   4 +
+ tests/station_service.rs             | 303 ++++++++++++
+ 12 files changed, 1292 insertions(+)
+ create mode 100644 docs/STATION.md
+ create mode 100644 examples/station/station.toml
+ create mode 100644 src/station.rs
+ create mode 100644 tests/station_service.rs
+
+diff --git a/docs/COMMANDS.md b/docs/COMMANDS.md
+index be95fbb..3fcd0bb 100644
+--- a/docs/COMMANDS.md
++++ b/docs/COMMANDS.md
+@@ -34,6 +34,7 @@ usage of all of them, and each subcommand's own `--help` lists its flags. The ex
+ | `kshana bench-speed [--repeats <n>] [--json <out>] [--baseline <old.json>]` | times the live paths and prints the station sizing table; with a baseline, fails on a slowdown over 10 % | `kshana bench-speed --quick` | [Sizing](SIZING.md) |
+ | `kshana data-pack <out-dir> [--seed <n>] [--logs <n>] [--iq <n>]` | writes a synthetic labelled data pack (NMEA logs with spoofing labels, IQ scenes with natural impairments), the same bytes for the same seed | `kshana data-pack pack --seed 1 --logs 2 --iq 4 --iq-seconds 0.5` | [Data packs](DATA-PACKS.md) |
+ | `kshana area-trust <stations.json>` | one trust state for an area from several reference stations' states, per second, with alerts (JSON Lines) | `kshana area-trust stations.json` | [Area trust](AREA-TRUST.md) |
++| `kshana station run <station.toml>`, `station check <station.toml>`, `station service <systemd\|launchd\|windows> <station.toml>` | runs a Kshana Station: every configured receiver stream as `kshana.obs/1` files (the epochs a replay gives), rotated, with a local status port and an optional fleet report; `check` validates the configuration, `service` prints what installs it as a service | `kshana station check examples/station/station.toml` | [Station](STATION.md) |
+ | `kshana connect map <input> --mapping <connect.toml> --station <station.toml>` | maps any CSV, TSV, JSON or JSON Lines export to a `kshana.obs/1` file through a mapping file, with no code | `kshana connect map examples/connect/timing-monitor.csv --mapping examples/connect/timing-monitor.connect.toml --station examples/obs/station.toml` | [Connect](CONNECT.md) |
+ | `kshana connect check <vector.toml\|dir> [--bless]` | runs Connect conformance vectors (input, mapping or reader, expected obs/1 output) and fails on any byte difference, naming the first differing line | `kshana connect check conformance/connect` | [Connect](CONNECT.md) |
+ | `kshana connect watch <dir> --mapping <connect.toml> --station <station.toml> [--suffix <.csv>] [--interval <s>] [--once]` | follows a directory of growing or rotating logs and prints new `kshana.obs/1` records as JSON lines, reading the files as one continuous log | `kshana connect watch logs/ --mapping examples/connect/android-raw.connect.toml --station examples/obs/station.toml --once` | [Connect](CONNECT.md) |
+diff --git a/docs/STATION.md b/docs/STATION.md
+new file mode 100644
+index 0000000..81e28f9
+--- /dev/null
++++ b/docs/STATION.md
+@@ -0,0 +1,82 @@
++# Kshana Station
++
++A Kshana Station is a computer on a site wired to receivers. `kshana station run` reads each
++receiver's stream as it arrives and keeps it as `kshana.obs/1` observation files
++([OBS-SCHEMA.md](OBS-SCHEMA.md)), reports its state on a local port, and runs unattended as a
++system service. It only reads: nothing is ever written to a receiver.
++
++Abbreviations used on this page, in full:
++
++| Abbreviation | Meaning |
++|---|---|
++| HTTP | HyperText Transfer Protocol |
++| JSON | JavaScript Object Notation |
++| MiB | mebibyte (1,048,576 bytes) |
++| NMEA | National Marine Electronics Association (its sentence format) |
++| TCP | Transmission Control Protocol |
++| TLS | Transport Layer Security |
++| UBX | the u-blox binary protocol |
++| USB | Universal Serial Bus |
++
++## Commands
++
++```bash
++kshana station check <station.toml>                       # validate a configuration
++kshana station run <station.toml>                         # run until stopped
++kshana station service <systemd|launchd|windows> <station.toml>   # print what installs it as a service
++```
++
++## Configuration
++
++See [`examples/station/station.toml`](../examples/station/station.toml).
++
++| Table | Key | Meaning |
++|---|---|---|
++| `[station]` | `id`, position, antenna | the `kshana.obs/1` station block written into every file's header |
++| `[[source]]` | `name` | letters, digits, `-` and `_`; names the source's directory |
++| | `input` | `tcp:host:port`, or a file or device path (a serial port: set its speed first) |
++| | `format` | any `kshana obs live` format: `ubx`, `sbf`, `nmea`, `rtcm3`, `novatel`, `gnss-sdr`, ... |
++| | `reconnect` | open the stream again when it ends (default true) |
++| `[output]` | `dir` | where the files go, relative to the configuration file |
++| | `rotate_mb` | start a new file past this size (default 64 MiB) |
++| | `keep` | files kept per source (default 48); the oldest go first |
++| `[http]` | `listen` | the status port (default `127.0.0.1:8470`, local only) |
++| | `token_file` | required for any other address; every request but `/health` then needs `Authorization: Bearer <token>` |
++| `[fleet]` | `url`, `token_file`, `interval_s` | post the status to a fleet manager every `interval_s` seconds (default 30), `http://` only |
++
++## What it writes
++
++`<dir>/<source>/<sequence>.obs.jsonl`. Every file starts with the source's header record, so
++each is a valid observation file on its own (`kshana obs check` passes on each). The epochs of
++a connection are the epochs a replay of the same bytes gives (`kshana obs convert`), bit for
++bit, from the same live reader `kshana obs live` uses. A stream that ends or fails is opened
++again every second; the time without input is counted as a gap and never filled, and each new
++connection starts a new file.
++
++## Status
++
++`GET /health` answers `ok`. `GET /status` answers `kshana.station-status/1`: the station, the
++engine version, uptime, and per source whether it is connected, its connections and gaps,
++bytes and epochs read, when the last epoch arrived, the last error and the current file; and
++the last fleet report's outcome.
++
++## As a service
++
++`kshana station service <system> <station.toml>` prints, for the configuration's absolute path
++and this program's path:
++
++- **systemd** (Linux): a unit; save it as `/etc/systemd/system/kshana-station.service`, then
++  `systemctl enable --now kshana-station`. It restarts on failure and after a reboot; it is in
++  the `dialout` group for serial ports.
++- **launchd** (macOS): a property list; save it as
++  `/Library/LaunchDaemons/dev.kshana.station.plist`, then
++  `launchctl bootstrap system /Library/LaunchDaemons/dev.kshana.station.plist`.
++- **windows**: a `schtasks` command that runs the Station at start-up as the system account, so
++  it comes back after a reboot.
++
++## Limits
++
++- The fleet report is plain HTTP; across a network put a TLS tunnel in front of it.
++- A source blocked on a device read stops only with the process.
++- One Station is open. Managing several from one place (fleet management) is part of
++  Kshana Pro.
+diff --git a/docs/SURFACES.md b/docs/SURFACES.md
+index b987d4f..65bfb65 100644
+--- a/docs/SURFACES.md
++++ b/docs/SURFACES.md
+@@ -21,6 +21,7 @@ actions that run the CLI), **Notebook** (`notebooks/`), **Studio** (the Kshana S
+ | Jammertest as a referee (0.38): the published NPRA catalogue and transmission plan read as scheduled truth (`import`), a receiver log scored against it per test (`score`: detection latency, missed, false alarms, time to recover; MODELLED) | `jammertest import`, `jammertest score` | `jammertest::plan`, `jammertest::score`, `surface::jammertest_import_json`, `surface::jammertest_score_json` | `jammertest_import`, `jammertest_score` | `jammertest_import`, `jammertest_score` | `jammertest_import`, `jammertest_score` | `/kshana-jammertest`, skill `jammertest` | **N/A** (needs the plan files and a log on disk; run it from a terminal) | **N/A** (no notebook yet) | **pending**: a Tools card for the command line (the Studio strip and views are WS-A's) |
+ | Referee location metrics (0.41, B2): where a network said an emitter was, scored against truth (error, region coverage and size, time to first location, time to locate, false locations per hour); checked against an independent oracle | `jammertest locate-score` | `jammertest::location`, `surface::referee_location_score_json`, `geodesic::distance_m` | `referee_location_score` | `referee_location_score` | `referee_location_score` | N/A | N/A | N/A | N/A |
+ | Area trust (0.41, B5): one state for an area from several reference stations (`UNKNOWN`, `TRUSTED`, `DEGRADED`, `UNTRUSTED`), per second, with the stale rule, hysteresis and alerts; checked against an independent oracle | `area-trust` | `area_trust::timeline`, `area_trust::timeline_jsonl` | `area_trust_timeline` | `area_trust_timeline` | N/A | N/A | N/A | N/A | N/A |
++| Kshana Station (0.41, L3): the headless receiver service (receiver streams to rotated `kshana.obs/1` files, local status port, fleet report, service files for systemd, launchd and Windows) | `station run`, `station check`, `station service` | `station::start`, `station::load`, `station::service_text` | **N/A** (a running service) | **N/A** | **N/A** | **N/A** | **N/A** | **N/A** | **N/A** |
+ | Signed Jammertest score pack (`jammertest score --key`: the receiver-trust evidence pack with the scorecard and the schedule inside `config.json`) | `jammertest score --key <keyfile> --out <dir>` | `jammertest::score_pack` | **N/A** (signing key) | **N/A** (signing key) | **N/A** (signing key: use `create_evidence_pack` on a window, or the command line) | **N/A** | **N/A** | **N/A** | **N/A** (a signing key does not belong in a page); Tools: Command line card |
+ | Receiver self-report (0.38): UBX-NAV-STATUS `spoofDetState` and UBX-SEC-SIG read into `self_report` on each epoch, and the `receiver_self_report` comparison (both / receiver-only / Kshana-only / neither) in the result; raises no alarm and changes no score | `receiver-trust` (in the result JSON; `jammertest score`) | `receiver_trust::ReceiverSelfReport`, `monitors::SelfReportEpoch`, `monitors::SelfReportSummary` | `receiver_trust`, `assess_receiver_log` (in the returned dicts) | `receiver_trust` (in the returned JSON) | `assess_receiver_log` (in the reply) | `/kshana-assess-receiver` | the actions above print the CLI output, which carries it | **N/A** | **pending**: the Trust page strip (WS-A; the field is `epochs[].self_report`) |
+ | Septentrio SBF log format (0.38, read only: PVTGeodetic, MeasEpoch, RFStatus) | `receiver-trust` with `[log] format = "sbf"` | `receiver_trust::ingest::read_sbf`, `LogFormat::Sbf` | `receiver_trust`, `assess_receiver_log` (`format = "sbf"`, log as `base64`) | the same | `assess_receiver_log` (`base64`) | `/kshana-assess-receiver` | the actions above | **N/A** | **N/A** (binary log upload not offered on the Trust page in 0.38) |
+diff --git a/examples/station/station.toml b/examples/station/station.toml
+new file mode 100644
+index 0000000..1df2549
+--- /dev/null
++++ b/examples/station/station.toml
+@@ -0,0 +1,34 @@
++# An example Kshana Station configuration (docs/STATION.md):
++#   kshana station check examples/station/station.toml
++#   kshana station run examples/station/station.toml
++[station]
++id = "example-station-1"
++lat_deg = 59.4400
++lon_deg = 24.7500
++height_m = 30.0
++
++# A receiver streaming u-blox UBX on a TCP port (most receivers and ser2net offer one).
++[[source]]
++name = "gnss-1"
++input = "tcp:127.0.0.1:9000"
++format = "ubx"
++
++# A receiver on a USB serial port, NMEA (set the speed first: stty -F /dev/ttyACM0 9600).
++# [[source]]
++# name = "nmea-1"
++# input = "/dev/ttyACM0"
++# format = "nmea"
++
++[output]
++dir = "station-data"       # one directory per source, relative to this file
++rotate_mb = 64
++keep = 48
++
++[http]
++listen = "127.0.0.1:8470"  # local only; another address needs token_file
++
++# Report to a fleet manager (for example the Pro service's /fleet/stations/<id>/heartbeat).
++# [fleet]
++# url = "http://10.0.0.2:8088/fleet/stations/example-station-1/heartbeat"
++# token_file = "fleet-token"
++# interval_s = 30
+diff --git a/i18n/en/engine.ftl b/i18n/en/engine.ftl
+index 4b664db..ecd9b67 100644
+--- a/i18n/en/engine.ftl
++++ b/i18n/en/engine.ftl
+@@ -11599,3 +11599,27 @@ engine-area-trust-usage = usage: kshana area-trust <stations.json>
+ engine-e-area-trust-stations = not a kshana.area-stations/1 document: { $e }
+ 
+ engine-e-area-trust-epoch-order = station { $id }: epochs must be finite and in time order
++
++## src/station.rs
++
++engine-station-usage = usage: kshana station run <station.toml> | check <station.toml> | service <systemd|launchd|windows> <station.toml>
++
++engine-e-station-config = { $path }: not a Kshana Station configuration: { $e }
++
++engine-e-station-no-source = a Station needs at least one [[source]]
++
++engine-e-station-source-name = source { $name }: a source name is letters, digits, '-' and '_' (at most 64), used once
++
++engine-e-station-output = output.rotate_mb must be a positive number and output.keep at least 1
++
++engine-e-station-listen = http.listen { $addr } is not an address and port
++
++engine-e-station-remote-http = http.listen { $addr } is not a loopback address: set http.token_file to serve other machines
++
++engine-e-station-fleet-url = fleet.url must be an http:// address (put a TLS tunnel in front for https) and fleet.interval_s at least 1
++
++engine-e-station-service-system = unknown service system { $system } (systemd, launchd, windows)
++
++engine-station-check-ok = { $path }: Station { $id } with { $n } sources, writing to { $dir }
++
++engine-station-started = Kshana Station { $id }: { $n } sources, status on http://{ $addr }/status
+diff --git a/src/lib.rs b/src/lib.rs
+index fd1bfd5..1cf9d18 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -375,6 +375,8 @@ pub mod srp_boxwing;
+ pub mod srp_shadow;
+ pub mod ssv;
+ pub mod standards_pack;
++/// Kshana Station: the headless receiver service (roadmap L3).
++pub mod station;
+ pub mod study;
+ pub mod suite;
+ pub mod surface;
+diff --git a/src/main.rs b/src/main.rs
+index d7d13da..d139b79 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -1197,6 +1197,8 @@ fn main_in_language(args: Vec<String>) -> ExitCode {
+         Some("data-pack") => Some(kshana::data_pack::run),
+         // `kshana area-trust <stations.json>`: one area state from several stations (src/area_trust.rs).
+         Some("area-trust") => Some(kshana::area_trust::run),
++        // `kshana station run|check|service <station.toml>`: the headless receiver service (src/station.rs).
++        Some("station") => Some(kshana::station::run),
+         _ => None,
+     };
+     if let Some(run) = live_cmd {
+diff --git a/src/station.rs b/src/station.rs
+new file mode 100644
+index 0000000..3fe1697
+--- /dev/null
++++ b/src/station.rs
+@@ -0,0 +1,710 @@
++// SPDX-License-Identifier: AGPL-3.0-only
++//! Kshana Station (roadmap L3): a headless service on a site computer wired to receivers.
++//!
++//! `kshana station run <station.toml>` reads every configured receiver stream as it arrives
++//! (a TCP port, a serial or USB device, a file), turns each into `kshana.obs/1` records with
++//! [`crate::obs_live::LiveObs`] (the same epochs a replay of the recorded bytes gives), and
++//! writes them to rotated files, one directory per source. It reports its state on a local
++//! HTTP port (`GET /health`, `GET /status`) and, when configured, sends that state to a fleet
++//! manager. It reads receivers only: nothing is ever written to a device.
++//!
++//! * **Rotation.** A source's file is closed past `output.rotate_mb` and a new one begins with
++//!   the source's header record, so every file is a valid observation file on its own; the oldest
++//!   files past `output.keep` are deleted.
++//! * **Reconnection.** A stream that ends or fails is opened again every second; the time without
++//!   input is counted as a gap (never filled) and each new connection starts a new file.
++//! * **Local only by default.** The status port listens on the loopback address; another address
++//!   needs `http.token_file`, and then every request but `/health` needs `Authorization: Bearer`.
++//! * `kshana station check <station.toml>` validates a configuration; `kshana station service
++//!   <systemd|launchd|windows> <station.toml>` prints what installs it as a service.
++
++use crate::obs::{Record, Station as ObsStation};
++use serde::Deserialize;
++use serde_json::{json, Value};
++use std::collections::BTreeMap;
++use std::io::{Read, Write};
++use std::net::{SocketAddr, TcpListener, TcpStream};
++use std::path::{Path, PathBuf};
++use std::sync::atomic::{AtomicBool, Ordering};
++use std::sync::{Arc, Mutex};
++use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
++
++/// A Station's configuration file.
++#[derive(Clone, Debug, Deserialize)]
++#[serde(deny_unknown_fields)]
++pub struct Config {
++    /// The station the observations come from (the `kshana.obs/1` station block).
++    pub station: ObsStation,
++    /// The receiver streams.
++    #[serde(rename = "source")]
++    pub sources: Vec<Source>,
++    /// Where the observation files go.
++    pub output: Output,
++    /// The status port.
++    #[serde(default)]
++    pub http: Http,
++    /// A fleet manager to report to.
++    #[serde(default)]
++    pub fleet: Option<Fleet>,
++}
++
++/// One receiver stream.
++#[derive(Clone, Debug, Deserialize)]
++#[serde(deny_unknown_fields)]
++pub struct Source {
++    /// A short name: letters, digits, `-` and `_`; it names the source's directory.
++    pub name: String,
++    /// `tcp:host:port`, or a file or device path (a serial port: set its speed first).
++    pub input: String,
++    /// A `kshana obs live` format (`ubx`, `sbf`, `nmea`, `rtcm3`, `novatel`, ...).
++    pub format: String,
++    /// Open the stream again when it ends (default true).
++    #[serde(default = "yes")]
++    pub reconnect: bool,
++}
++
++fn yes() -> bool {
++    true
++}
++
++/// Output settings.
++#[derive(Clone, Debug, Deserialize)]
++#[serde(deny_unknown_fields)]
++pub struct Output {
++    /// The directory of the observation files (relative to the configuration file).
++    pub dir: PathBuf,
++    /// Start a new file past this many MiB (default 64).
++    #[serde(default = "default_rotate")]
++    pub rotate_mb: f64,
++    /// Keep this many files per source (default 48).
++    #[serde(default = "default_keep")]
++    pub keep: usize,
++}
++
++fn default_rotate() -> f64 {
++    64.0
++}
++fn default_keep() -> usize {
++    48
++}
++
++/// The status port.
++#[derive(Clone, Debug, Deserialize)]
++#[serde(deny_unknown_fields)]
++pub struct Http {
++    /// The address to listen on (default `127.0.0.1:8470`).
++    #[serde(default = "default_listen")]
++    pub listen: String,
++    /// A file holding the bearer token required off the loopback address.
++    #[serde(default)]
++    pub token_file: Option<PathBuf>,
++}
++
++impl Default for Http {
++    fn default() -> Self {
++        Http {
++            listen: default_listen(),
++            token_file: None,
++        }
++    }
++}
++
++fn default_listen() -> String {
++    "127.0.0.1:8470".into()
++}
++
++/// A fleet manager the Station reports to.
++#[derive(Clone, Debug, Deserialize)]
++#[serde(deny_unknown_fields)]
++pub struct Fleet {
++    /// `http://host:port/path` the status is posted to.
++    pub url: String,
++    /// A file holding the bearer token the manager expects.
++    #[serde(default)]
++    pub token_file: Option<PathBuf>,
++    /// Seconds between reports (default 30).
++    #[serde(default = "default_interval")]
++    pub interval_s: f64,
++}
++
++fn default_interval() -> f64 {
++    30.0
++}
++
++fn name_ok(s: &str) -> bool {
++    !s.is_empty()
++        && s.len() <= 64
++        && s.bytes()
++            .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
++}
++
++/// Read and check a configuration file; relative paths are taken from its directory.
++pub fn load(path: &Path) -> Result<Config, String> {
++    let text = std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
++    let mut c: Config = toml::from_str(&text).map_err(|e| {
++        crate::terr!(
++            "e-station-config",
++            path = path.display().to_string(),
++            e = e.to_string()
++        )
++    })?;
++    let base = path.parent().unwrap_or(Path::new("."));
++    if c.output.dir.is_relative() {
++        c.output.dir = base.join(&c.output.dir);
++    }
++    if let Some(t) = c.http.token_file.as_mut() {
++        if t.is_relative() {
++            *t = base.join(&*t);
++        }
++    }
++    if let Some(t) = c.fleet.as_mut().and_then(|f| f.token_file.as_mut()) {
++        if t.is_relative() {
++            *t = base.join(&*t);
++        }
++    }
++    check(&c)?;
++    Ok(c)
++}
++
++/// Check a configuration.
++pub fn check(c: &Config) -> Result<(), String> {
++    if c.sources.is_empty() {
++        return Err(crate::terr!("e-station-no-source"));
++    }
++    for (i, s) in c.sources.iter().enumerate() {
++        if !name_ok(&s.name) || c.sources[..i].iter().any(|o| o.name == s.name) {
++            return Err(crate::terr!("e-station-source-name", name = s.name.clone()));
++        }
++        crate::obs_live::LiveObs::new(&s.format, &c.station)?;
++    }
++    if !(c.output.rotate_mb > 0.0 && c.output.rotate_mb.is_finite()) || c.output.keep == 0 {
++        return Err(crate::terr!("e-station-output"));
++    }
++    let addr: SocketAddr = c
++        .http
++        .listen
++        .parse()
++        .map_err(|_| crate::terr!("e-station-listen", addr = c.http.listen.clone()))?;
++    if !addr.ip().is_loopback() && c.http.token_file.is_none() {
++        return Err(crate::terr!(
++            "e-station-remote-http",
++            addr = c.http.listen.clone()
++        ));
++    }
++    if let Some(f) = &c.fleet {
++        if !(f.url.starts_with("http://") && f.interval_s >= 1.0 && f.interval_s.is_finite()) {
++            return Err(crate::terr!("e-station-fleet-url"));
++        }
++    }
++    Ok(())
++}
++
++/// The state of one source.
++#[derive(Clone, Debug, Default)]
++struct SourceState {
++    connected: bool,
++    connections: u64,
++    gaps: u64,
++    bytes: u64,
++    epochs: u64,
++    last_epoch_unix: Option<f64>,
++    last_error: Option<String>,
++    file: Option<String>,
++    files_written: u64,
++}
++
++fn now_unix() -> f64 {
++    SystemTime::now()
++        .duration_since(UNIX_EPOCH)
++        .map(|d| d.as_secs_f64())
++        .unwrap_or(0.0)
++}
++
++/// The rotated observation files of one source.
++struct Rotator {
++    dir: PathBuf,
++    rotate_bytes: u64,
++    keep: usize,
++    header: Option<Record>,
++    file: Option<(std::fs::File, u64, PathBuf)>,
++    seq: u64,
++}
++
++impl Rotator {
++    fn new(dir: PathBuf, rotate_mb: f64, keep: usize) -> std::io::Result<Rotator> {
++        std::fs::create_dir_all(&dir)?;
++        let seq = std::fs::read_dir(&dir)?
++            .filter_map(Result::ok)
++            .filter_map(|e| {
++                e.file_name()
++                    .to_string_lossy()
++                    .strip_suffix(".obs.jsonl")
++                    .and_then(|s| s.parse::<u64>().ok())
++            })
++            .max()
++            .unwrap_or(0);
++        Ok(Rotator {
++            dir,
++            rotate_bytes: (rotate_mb * 1024.0 * 1024.0) as u64,
++            keep,
++            header: None,
++            file: None,
++            seq,
++        })
++    }
++
++    /// Close the current file; the next record starts a new one.
++    fn close(&mut self) {
++        self.file = None;
++    }
++
++    fn open_next(&mut self) -> Result<(), String> {
++        self.seq += 1;
++        let p = self.dir.join(format!("{:08}.obs.jsonl", self.seq));
++        let f = std::fs::File::create(&p).map_err(|e| format!("{}: {e}", p.display()))?;
++        self.file = Some((f, 0, p));
++        if let Some(h) = self.header.clone() {
++            self.write_raw(&[h])?;
++        }
++        // Keep the newest `keep` files.
++        let mut all: Vec<PathBuf> = std::fs::read_dir(&self.dir)
++            .map_err(|e| e.to_string())?
++            .filter_map(Result::ok)
++            .map(|e| e.path())
++            .filter(|p| p.to_string_lossy().ends_with(".obs.jsonl"))
++            .collect();
++        all.sort();
++        while all.len() > self.keep {
++            let _ = std::fs::remove_file(all.remove(0));
++        }
++        Ok(())
++    }
++
++    fn write_raw(&mut self, recs: &[Record]) -> Result<(), String> {
++        let text = crate::obs::to_jsonl(recs)?;
++        let (f, n, p) = self.file.as_mut().expect("a file is open");
++        f.write_all(text.as_bytes())
++            .and_then(|()| f.flush())
++            .map_err(|e| format!("{}: {e}", p.display()))?;
++        *n += text.len() as u64;
++        Ok(())
++    }
++
++    /// Write records; returns the file written to.
++    fn write(&mut self, recs: Vec<Record>) -> Result<Option<String>, String> {
++        if recs.is_empty() {
++            return Ok(None);
++        }
++        let mut body = Vec::new();
++        for r in recs {
++            if matches!(r, Record::Header(_)) {
++                // A new connection's header starts a new file.
++                self.header = Some(r);
++                self.close();
++            } else {
++                body.push(r);
++            }
++        }
++        if self.file.is_none() {
++            self.open_next()?;
++        } else if self
++            .file
++            .as_ref()
++            .is_some_and(|(_, n, _)| *n >= self.rotate_bytes)
++        {
++            self.close();
++            self.open_next()?;
++        }
++        if !body.is_empty() {
++            self.write_raw(&body)?;
++        }
++        Ok(self.file.as_ref().map(|(_, _, p)| p.display().to_string()))
++    }
++}
++
++fn open_input(input: &str) -> std::io::Result<Box<dyn Read + Send>> {
++    if let Some(addr) = input.strip_prefix("tcp:") {
++        let s = TcpStream::connect(addr)?;
++        s.set_read_timeout(Some(Duration::from_secs(1)))?;
++        Ok(Box::new(s))
++    } else {
++        Ok(Box::new(std::fs::File::open(input)?))
++    }
++}
++
++/// A running Station.
++pub struct Handle {
++    stop: Arc<AtomicBool>,
++    state: Arc<Mutex<BTreeMap<String, SourceState>>>,
++    config: Config,
++    started: Instant,
++    /// The status port's address.
++    pub http_addr: SocketAddr,
++    fleet_last: Arc<Mutex<Option<Value>>>,
++}
++
++impl Handle {
++    /// The status document (`GET /status`).
++    pub fn status(&self) -> Value {
++        status_doc(&self.config, &self.state, self.started, &self.fleet_last)
++    }
++
++    /// Ask every thread to stop (a source blocked on a device read stops with the process).
++    pub fn stop(&self) {
++        self.stop.store(true, Ordering::SeqCst);
++    }
++}
++
++fn status_doc(
++    config: &Config,
++    state: &Mutex<BTreeMap<String, SourceState>>,
++    started: Instant,
++    fleet_last: &Mutex<Option<Value>>,
++) -> Value {
++    let st = state.lock().unwrap_or_else(|p| p.into_inner());
++    let sources: Vec<Value> = config
++        .sources
++        .iter()
++        .map(|s| {
++            let x = st.get(&s.name).cloned().unwrap_or_default();
++            json!({
++                "name": s.name, "input": s.input, "format": s.format,
++                "connected": x.connected, "connections": x.connections, "gaps": x.gaps,
++                "bytes": x.bytes, "epochs": x.epochs, "last_epoch_unix": x.last_epoch_unix,
++                "last_error": x.last_error, "file": x.file, "files_written": x.files_written,
++            })
++        })
++        .collect();
++    json!({
++        "schema": "kshana.station-status/1",
++        "station": config.station.id,
++        "engine_version": env!("CARGO_PKG_VERSION"),
++        "uptime_s": started.elapsed().as_secs_f64(),
++        "time_unix": now_unix(),
++        "sources": sources,
++        "fleet": *fleet_last.lock().unwrap_or_else(|p| p.into_inner()),
++    })
++}
++
++fn source_loop(
++    src: Source,
++    station: ObsStation,
++    out: &Output,
++    stop: Arc<AtomicBool>,
++    state: Arc<Mutex<BTreeMap<String, SourceState>>>,
++) {
++    let set = |f: &dyn Fn(&mut SourceState)| {
++        let mut st = state.lock().unwrap_or_else(|p| p.into_inner());
++        f(st.entry(src.name.clone()).or_default());
++    };
++    let mut rot = match Rotator::new(out.dir.join(&src.name), out.rotate_mb, out.keep) {
++        Ok(r) => r,
++        Err(e) => {
++            set(&|s| s.last_error = Some(e.to_string()));
++            return;
++        }
++    };
++    let mut first = true;
++    while !stop.load(Ordering::SeqCst) {
++        let input = match open_input(&src.input) {
++            Ok(i) => i,
++            Err(e) => {
++                set(&|s| s.last_error = Some(e.to_string()));
++                if !src.reconnect {
++                    return;
++                }
++                std::thread::sleep(Duration::from_secs(1));
++                continue;
++            }
++        };
++        if !first {
++            set(&|s| s.gaps += 1);
++        }
++        first = false;
++        set(&|s| {
++            s.connected = true;
++            s.connections += 1;
++        });
++        let mut live = match crate::obs_live::LiveObs::new(&src.format, &station) {
++            Ok(l) => l,
++            Err(e) => {
++                set(&|s| s.last_error = Some(e.clone()));
++                return;
++            }
++        };
++        let mut input = input;
++        let mut buf = vec![0u8; 64 * 1024];
++        let write = |recs: Vec<Record>, rot: &mut Rotator| -> Result<(), String> {
++            let epochs = recs
++                .iter()
++                .filter(|r| matches!(r, Record::Epoch(_)))
++                .count() as u64;
++            let had_header = recs.iter().any(|r| matches!(r, Record::Header(_)));
++            let file = rot.write(recs)?;
++            set(&|s| {
++                s.epochs += epochs;
++                if epochs > 0 {
++                    s.last_epoch_unix = Some(now_unix());
++                }
++                if let Some(f) = &file {
++                    s.file = Some(f.clone());
++                }
++                if had_header {
++                    s.files_written += 1;
++                }
++            });
++            Ok(())
++        };
++        loop {
++            if stop.load(Ordering::SeqCst) {
++                break;
++            }
++            match input.read(&mut buf) {
++                Ok(0) => break,
++                Ok(n) => {
++                    set(&|s| s.bytes += n as u64);
++                    match live.push(&buf[..n]) {
++                        Ok(recs) => {
++                            if let Err(e) = write(recs, &mut rot) {
++                                set(&|s| s.last_error = Some(e.clone()));
++                            }
++                        }
++                        Err(e) => set(&|s| s.last_error = Some(e.clone())),
++                    }
++                }
++                Err(e)
++                    if matches!(
++                        e.kind(),
++                        std::io::ErrorKind::WouldBlock
++                            | std::io::ErrorKind::TimedOut
++                            | std::io::ErrorKind::Interrupted
++                    ) => {}
++                Err(e) => {
++                    set(&|s| s.last_error = Some(e.to_string()));
++                    break;
++                }
++            }
++        }
++        if let Ok(recs) = live.flush() {
++            let _ = write(recs, &mut rot);
++        }
++        rot.close();
++        set(&|s| s.connected = false);
++        if !src.reconnect {
++            return;
++        }
++        std::thread::sleep(Duration::from_secs(1));
++    }
++}
++
++fn read_token(p: &Option<PathBuf>) -> Result<Option<String>, String> {
++    match p {
++        None => Ok(None),
++        Some(p) => std::fs::read_to_string(p)
++            .map(|t| Some(t.trim().to_string()))
++            .map_err(|e| format!("{}: {e}", p.display())),
++    }
++}
++
++fn http_reply(s: &mut TcpStream, code: u16, ctype: &str, body: &str) {
++    let reason = match code {
++        200 => "OK",
++        401 => "Unauthorized",
++        _ => "Not Found",
++    };
++    let _ = write!(
++        s,
++        "HTTP/1.1 {code} {reason}\r\nContent-Type: {ctype}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
++        body.len()
++    );
++}
++
++/// Post `body` to an `http://` URL with an optional bearer token; returns the status code.
++fn post(url: &str, token: Option<&str>, body: &str) -> Result<u16, String> {
++    let rest = url.strip_prefix("http://").ok_or("http:// only")?;
++    let (host, path) = rest
++        .split_once('/')
++        .map_or((rest, "/".to_string()), |(h, p)| (h, format!("/{p}")));
++    let mut s = TcpStream::connect(host).map_err(|e| e.to_string())?;
++    s.set_read_timeout(Some(Duration::from_secs(10)))
++        .map_err(|e| e.to_string())?;
++    let auth = token
++        .map(|t| format!("Authorization: Bearer {t}\r\n"))
++        .unwrap_or_default();
++    write!(
++        s,
++        "POST {path} HTTP/1.1\r\nHost: {host}\r\nContent-Type: application/json\r\n{auth}Content-Length: {}\r\nConnection: close\r\n\r\n{body}",
++        body.len()
++    )
++    .map_err(|e| e.to_string())?;
++    let mut head = [0u8; 12];
++    s.read_exact(&mut head).map_err(|e| e.to_string())?;
++    String::from_utf8_lossy(&head[9..12])
++        .parse()
++        .map_err(|_| "bad reply".to_string())
++}
++
++/// Start a Station; returns at once.
++pub fn start(config: Config) -> Result<Handle, String> {
++    check(&config)?;
++    let http_token = read_token(&config.http.token_file)?;
++    let stop = Arc::new(AtomicBool::new(false));
++    let state = Arc::new(Mutex::new(BTreeMap::new()));
++    let fleet_last = Arc::new(Mutex::new(None));
++    let started = Instant::now();
++    for src in config.sources.clone() {
++        let (station, out, stop, state) = (
++            config.station.clone(),
++            config.output.clone(),
++            stop.clone(),
++            state.clone(),
++        );
++        std::thread::spawn(move || source_loop(src, station, &out, stop, state));
++    }
++    let listener = TcpListener::bind(&config.http.listen)
++        .map_err(|e| format!("{}: {e}", config.http.listen))?;
++    listener.set_nonblocking(true).map_err(|e| e.to_string())?;
++    let http_addr = listener.local_addr().map_err(|e| e.to_string())?;
++    {
++        let (cfg, stop, state, fl) = (
++            config.clone(),
++            stop.clone(),
++            state.clone(),
++            fleet_last.clone(),
++        );
++        std::thread::spawn(move || {
++            while !stop.load(Ordering::SeqCst) {
++                let Ok((mut s, _)) = listener.accept() else {
++                    std::thread::sleep(Duration::from_millis(20));
++                    continue;
++                };
++                let _ = s.set_nonblocking(false);
++                let _ = s.set_read_timeout(Some(Duration::from_secs(5)));
++                let mut buf = vec![0u8; 8192];
++                let n = s.read(&mut buf).unwrap_or(0);
++                let head = String::from_utf8_lossy(&buf[..n]).to_string();
++                let line = head.lines().next().unwrap_or("");
++                let authorised = http_token.as_deref().is_none_or(|t| {
++                    head.lines().any(|l| {
++                        l.split_once(':').is_some_and(|(k, v)| {
++                            k.eq_ignore_ascii_case("authorization")
++                                && v.trim() == format!("Bearer {t}")
++                        })
++                    })
++                });
++                if line.starts_with("GET /health ") {
++                    http_reply(&mut s, 200, "text/plain", "ok\n");
++                } else if !authorised {
++                    http_reply(
++                        &mut s,
++                        401,
++                        "application/json",
++                        "{\"error\":\"unauthorised\"}",
++                    );
++                } else if line.starts_with("GET /status ") {
++                    let doc = status_doc(&cfg, &state, started, &fl);
++                    http_reply(&mut s, 200, "application/json", &doc.to_string());
++                } else {
++                    http_reply(&mut s, 404, "application/json", "{\"error\":\"not found\"}");
++                }
++            }
++        });
++    }
++    if let Some(f) = config.fleet.clone() {
++        let token = read_token(&f.token_file)?;
++        let (cfg, stop, state, fl) = (
++            config.clone(),
++            stop.clone(),
++            state.clone(),
++            fleet_last.clone(),
++        );
++        std::thread::spawn(move || {
++            while !stop.load(Ordering::SeqCst) {
++                let doc = status_doc(&cfg, &state, started, &fl);
++                let result = post(&f.url, token.as_deref(), &doc.to_string());
++                *fl.lock().unwrap_or_else(|p| p.into_inner()) = Some(json!({
++                    "url": f.url,
++                    "time_unix": now_unix(),
++                    "status": result.as_ref().ok(),
++                    "error": result.err(),
++                }));
++                let until = Instant::now() + Duration::from_secs_f64(f.interval_s);
++                while Instant::now() < until && !stop.load(Ordering::SeqCst) {
++                    std::thread::sleep(Duration::from_millis(50));
++                }
++            }
++        });
++    }
++    Ok(Handle {
++        stop,
++        state,
++        config,
++        started,
++        http_addr,
++        fleet_last,
++    })
++}
++
++/// What installs a Station as a service on `system`, for the configuration at `config`
++/// run by the program at `program`.
++pub fn service_text(system: &str, config: &Path, program: &Path) -> Result<String, String> {
++    let (c, p) = (config.display(), program.display());
++    Ok(match system {
++        "systemd" => format!(
++            "[Unit]\nDescription=Kshana Station\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nExecStart={p} station run {c}\nRestart=always\nRestartSec=5\nNoNewPrivileges=yes\nProtectSystem=strict\nReadWritePaths=/var/lib/kshana-station\nSupplementaryGroups=dialout\n\n[Install]\nWantedBy=multi-user.target\n"
++        ),
++        "launchd" => format!(
++            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n  <key>Label</key><string>dev.kshana.station</string>\n  <key>ProgramArguments</key>\n  <array><string>{p}</string><string>station</string><string>run</string><string>{c}</string></array>\n  <key>RunAtLoad</key><true/>\n  <key>KeepAlive</key><true/>\n</dict>\n</plist>\n"
++        ),
++        "windows" => format!(
++            "schtasks /Create /TN \"Kshana Station\" /SC ONSTART /RU SYSTEM /RL HIGHEST /F /TR \"\\\"{p}\\\" station run \\\"{c}\\\"\"\n"
++        ),
++        other => return Err(crate::terr!("e-station-service-system", system = other.to_string())),
++    })
++}
++
++/// `kshana station <run|check|service> ...`.
++pub fn run(args: &[String]) -> Result<(), String> {
++    match args {
++        [cmd, path] if cmd == "check" => {
++            let c = load(Path::new(path))?;
++            println!(
++                "{}",
++                crate::t!(
++                    "station-check-ok",
++                    path = path.clone(),
++                    id = c.station.id.clone(),
++                    n = c.sources.len(),
++                    dir = c.output.dir.display().to_string()
++                )
++            );
++            Ok(())
++        }
++        [cmd, path] if cmd == "run" => {
++            let c = load(Path::new(path))?;
++            let n = c.sources.len();
++            let id = c.station.id.clone();
++            let h = start(c)?;
++            eprintln!(
++                "{}",
++                crate::t!(
++                    "station-started",
++                    id = id,
++                    n = n,
++                    addr = h.http_addr.to_string()
++                )
++            );
++            loop {
++                std::thread::sleep(Duration::from_secs(3600));
++            }
++        }
++        [cmd, system, path] if cmd == "service" => {
++            let abs = std::fs::canonicalize(path).map_err(|e| format!("{path}: {e}"))?;
++            load(&abs)?;
++            let exe = std::env::current_exe().map_err(|e| e.to_string())?;
++            print!("{}", service_text(system, &abs, &exe)?);
++            Ok(())
++        }
++        _ => Err(crate::t!("station-usage")),
++    }
++}
+diff --git a/tests/fixtures/i18n/allow.json b/tests/fixtures/i18n/allow.json
+index 26db4e2..78eb4af 100644
+--- a/tests/fixtures/i18n/allow.json
++++ b/tests/fixtures/i18n/allow.json
+@@ -1532,6 +1532,10 @@
+   "src/wasm.rs": {
+    "count": 11,
+    "reason": "unreviewed: machine-document prose, data or not yet converted (see docs/design/i18n-migration.md)"
++  },
++  "src/station.rs": {
++   "count": 25,
++   "reason": "machine-document: HTTP/1.1 request and reply lines, the systemd unit, launchd property list and schtasks templates, JSON bodies of the status port, and `<path>: <operating-system error>` forms; every message for a person goes through the catalogue (station-*, e-station-*)"
+   }
+  }
+ }
+diff --git a/tests/fixtures/i18n/manual.json b/tests/fixtures/i18n/manual.json
+index 73f8de3..2909352 100644
+--- a/tests/fixtures/i18n/manual.json
++++ b/tests/fixtures/i18n/manual.json
+@@ -14102,5 +14102,130 @@
+     "var": "need"
+    }
+   ]
++ },
++ {
++  "id": "station-usage",
++  "error": false,
++  "parts": [
++   "usage: kshana station run <station.toml> | check <station.toml> | service <systemd|launchd|windows> <station.toml>"
++  ]
++ },
++ {
++  "id": "e-station-config",
++  "error": true,
++  "parts": [
++   {
++    "var": "path"
++   },
++   ": not a Kshana Station configuration: ",
++   {
++    "var": "e"
++   }
++  ]
++ },
++ {
++  "id": "e-station-no-source",
++  "error": true,
++  "parts": [
++   "a Station needs at least one [[source]]"
++  ]
++ },
++ {
++  "id": "e-station-source-name",
++  "error": true,
++  "parts": [
++   "source ",
++   {
++    "var": "name"
++   },
++   ": a source name is letters, digits, '-' and '_' (at most 64), used once"
++  ]
++ },
++ {
++  "id": "e-station-output",
++  "error": true,
++  "parts": [
++   "output.rotate_mb must be a positive number and output.keep at least 1"
++  ]
++ },
++ {
++  "id": "e-station-listen",
++  "error": true,
++  "parts": [
++   "http.listen ",
++   {
++    "var": "addr"
++   },
++   " is not an address and port"
++  ]
++ },
++ {
++  "id": "e-station-remote-http",
++  "error": true,
++  "parts": [
++   "http.listen ",
++   {
++    "var": "addr"
++   },
++   " is not a loopback address: set http.token_file to serve other machines"
++  ]
++ },
++ {
++  "id": "e-station-fleet-url",
++  "error": true,
++  "parts": [
++   "fleet.url must be an http:// address (put a TLS tunnel in front for https) and fleet.interval_s at least 1"
++  ]
++ },
++ {
++  "id": "e-station-service-system",
++  "error": true,
++  "parts": [
++   "unknown service system ",
++   {
++    "var": "system"
++   },
++   " (systemd, launchd, windows)"
++  ]
++ },
++ {
++  "id": "station-check-ok",
++  "error": false,
++  "parts": [
++   {
++    "var": "path"
++   },
++   ": Station ",
++   {
++    "var": "id"
++   },
++   " with ",
++   {
++    "var": "n"
++   },
++   " sources, writing to ",
++   {
++    "var": "dir"
++   }
++  ]
++ },
++ {
++  "id": "station-started",
++  "error": false,
++  "parts": [
++   "Kshana Station ",
++   {
++    "var": "id"
++   },
++   ": ",
++   {
++    "var": "n"
++   },
++   " sources, status on http://",
++   {
++    "var": "addr"
++   },
++   "/status"
++  ]
+  }
+ ]
+diff --git a/tests/fixtures/i18n/sinks-allow.json b/tests/fixtures/i18n/sinks-allow.json
+index 3f137a6..06f2333 100644
+--- a/tests/fixtures/i18n/sinks-allow.json
++++ b/tests/fixtures/i18n/sinks-allow.json
+@@ -112,6 +112,10 @@
+   "src/verification.rs": {
+    "count": 4,
+    "reason": "machine-document: rows of the verification matrix (claims, oracles, notes); stays English in every language (docs/i18n.md)"
++  },
++  "src/station.rs": {
++   "count": 4,
++   "reason": "machine-document: the HTTP/1.1 lines written to the status port and the fleet report, and the service templates; no human-facing sentence"
+   }
+  }
+ }
+diff --git a/tests/station_service.rs b/tests/station_service.rs
+new file mode 100644
+index 0000000..162485d
+--- /dev/null
++++ b/tests/station_service.rs
+@@ -0,0 +1,303 @@
++// SPDX-License-Identifier: AGPL-3.0-only
++//! Kshana Station (roadmap L3), over real sockets: a recorded receiver log served on a TCP
++//! port twice (the Station reconnects), the observation files equal to a replay of the same
++//! bytes, rotation into files that each check as `kshana.obs/1`, the status port (local by
++//! default, a token off the loopback address), the fleet report, and the service files.
++
++use kshana::obs::Record;
++use kshana::station::{self, Config};
++use std::io::{Read, Write};
++use std::net::TcpListener;
++use std::path::{Path, PathBuf};
++use std::sync::atomic::{AtomicU64, Ordering};
++use std::time::{Duration, Instant};
++
++fn root() -> &'static Path {
++    Path::new(env!("CARGO_MANIFEST_DIR"))
++}
++
++fn tmp(tag: &str) -> PathBuf {
++    static N: AtomicU64 = AtomicU64::new(0);
++    let d = std::env::temp_dir().join(format!(
++        "kshana-station-{tag}-{}-{}",
++        std::process::id(),
++        N.fetch_add(1, Ordering::SeqCst)
++    ));
++    let _ = std::fs::remove_dir_all(&d);
++    std::fs::create_dir_all(&d).unwrap();
++    d
++}
++
++fn log_bytes() -> Vec<u8> {
++    std::fs::read(root().join("examples/receiver-trust/illustrative-jamming.nmea")).unwrap()
++}
++
++fn station_block() -> String {
++    std::fs::read_to_string(root().join("examples/obs/station.toml"))
++        .unwrap()
++        .lines()
++        .filter(|l| !l.starts_with('#'))
++        .collect::<Vec<_>>()
++        .join("\n")
++}
++
++/// A receiver on a TCP port: serves the log `times` times, in small chunks, then stops.
++fn receiver(times: usize) -> String {
++    let l = TcpListener::bind("127.0.0.1:0").unwrap();
++    let addr = l.local_addr().unwrap().to_string();
++    let bytes = log_bytes();
++    std::thread::spawn(move || {
++        for _ in 0..times {
++            let (mut s, _) = l.accept().unwrap();
++            for c in bytes.chunks(700) {
++                if s.write_all(c).is_err() {
++                    break;
++                }
++                std::thread::sleep(Duration::from_millis(2));
++            }
++        }
++    });
++    addr
++}
++
++fn config(dir: &Path, addr: &str, extra: &str) -> Config {
++    write_config(dir, addr, extra);
++    let text = std::fs::read_to_string(dir.join("station.toml")).unwrap()
++        + "\n[http]\nlisten = \"127.0.0.1:0\"\n";
++    std::fs::write(dir.join("station.toml"), text).unwrap();
++    station::load(&dir.join("station.toml")).unwrap()
++}
++
++/// The configuration file without an [http] table (a test adds its own).
++fn write_config(dir: &Path, addr: &str, extra: &str) {
++    let text = format!(
++        "[station]\n{}\n\n[[source]]\nname = \"gnss-1\"\ninput = \"tcp:{addr}\"\nformat = \"nmea\"\n\n[output]\ndir = \"obs\"\n{extra}",
++        station_block()
++    );
++    std::fs::write(dir.join("station.toml"), text).unwrap();
++}
++
++fn epochs_of(text: &str) -> Vec<String> {
++    text.lines()
++        .filter(|l| !l.is_empty())
++        .filter(|l| !l.contains("\"type\":\"header\"") && !l.contains("\"record\":\"header\""))
++        .filter(|l| serde_json::from_str::<serde_json::Value>(l).is_ok())
++        .map(str::to_string)
++        .collect()
++}
++
++fn get(addr: std::net::SocketAddr, path: &str, token: Option<&str>) -> (u16, String) {
++    let mut s = std::net::TcpStream::connect(addr).unwrap();
++    let auth = token
++        .map(|t| format!("Authorization: Bearer {t}\r\n"))
++        .unwrap_or_default();
++    write!(s, "GET {path} HTTP/1.1\r\nHost: x\r\n{auth}\r\n").unwrap();
++    let mut out = String::new();
++    s.read_to_string(&mut out).unwrap();
++    (
++        out[9..12].parse().unwrap(),
++        out.split_once("\r\n\r\n")
++            .map(|x| x.1.to_string())
++            .unwrap_or_default(),
++    )
++}
++
++fn wait_for(h: &station::Handle, f: impl Fn(&serde_json::Value) -> bool) -> serde_json::Value {
++    let t = Instant::now();
++    loop {
++        let s = h.status();
++        if f(&s) {
++            return s;
++        }
++        assert!(
++            t.elapsed() < Duration::from_secs(30),
++            "status never reached: {s}"
++        );
++        std::thread::sleep(Duration::from_millis(50));
++    }
++}
++
++#[test]
++fn a_station_records_a_receiver_as_a_replay_would_and_reconnects() {
++    let dir = tmp("record");
++    let addr = receiver(2);
++    let h = station::start(config(&dir, &addr, "")).unwrap();
++    let s = wait_for(&h, |s| {
++        s["sources"][0]["connections"] == 2 && s["sources"][0]["connected"] == false
++    });
++    h.stop();
++    assert_eq!(s["sources"][0]["gaps"], 1, "{s}");
++    assert_eq!(s["station"], "example-station-1");
++
++    // Each connection's file holds exactly the epochs a replay of the same bytes gives.
++    let station: kshana::obs::Station = toml::from_str(&station_block()).unwrap();
++    let replay =
++        kshana::obs::to_jsonl(&kshana::obs::from_log("nmea", &log_bytes(), &station).unwrap())
++            .unwrap();
++    let want = epochs_of(&replay);
++    assert!(!want.is_empty());
++    let mut files: Vec<PathBuf> = std::fs::read_dir(dir.join("obs/gnss-1"))
++        .unwrap()
++        .map(|e| e.unwrap().path())
++        .collect();
++    files.sort();
++    assert_eq!(files.len(), 2, "one file per connection: {files:?}");
++    for f in &files {
++        let text = std::fs::read_to_string(f).unwrap();
++        assert_eq!(epochs_of(&text), want, "{}", f.display());
++        kshana::obs::check(&text).unwrap();
++    }
++    // The status counts the epochs of both connections.
++    let n_epochs = kshana::obs::from_log("nmea", &log_bytes(), &station)
++        .unwrap()
++        .iter()
++        .filter(|r| matches!(r, Record::Epoch(_)))
++        .count() as u64;
++    assert_eq!(s["sources"][0]["epochs"].as_u64().unwrap(), 2 * n_epochs);
++}
++
++#[test]
++fn files_rotate_and_each_one_is_a_valid_observation_file() {
++    let dir = tmp("rotate");
++    let addr = receiver(1);
++    let h = station::start(config(&dir, &addr, "rotate_mb = 0.002\nkeep = 1000\n")).unwrap();
++    wait_for(&h, |s| {
++        s["sources"][0]["connections"] == 1 && s["sources"][0]["connected"] == false
++    });
++    h.stop();
++    let files: Vec<PathBuf> = std::fs::read_dir(dir.join("obs/gnss-1"))
++        .unwrap()
++        .map(|e| e.unwrap().path())
++        .collect();
++    assert!(files.len() >= 3, "rotation made {} files", files.len());
++    let mut total = 0;
++    for f in &files {
++        let text = std::fs::read_to_string(f).unwrap();
++        let (_, rep) = kshana::obs::check(&text).unwrap();
++        total += serde_json::to_value(&rep).unwrap()["epochs"]
++            .as_u64()
++            .unwrap_or(0);
++    }
++    assert!(total > 0);
++    // keep = 2: only the two newest remain.
++    let dir2 = tmp("keep");
++    let addr = receiver(1);
++    let h = station::start(config(&dir2, &addr, "rotate_mb = 0.002\nkeep = 2\n")).unwrap();
++    wait_for(&h, |s| {
++        s["sources"][0]["connections"] == 1 && s["sources"][0]["connected"] == false
++    });
++    h.stop();
++    assert_eq!(
++        std::fs::read_dir(dir2.join("obs/gnss-1")).unwrap().count(),
++        2
++    );
++}
++
++#[test]
++fn the_status_port_is_local_and_a_token_guards_it_elsewhere_and_the_fleet_hears_it() {
++    let dir = tmp("http");
++    // Off the loopback address without a token: refused.
++    let addr = receiver(1);
++    let text = {
++        write_config(&dir, &addr, "");
++        std::fs::read_to_string(dir.join("station.toml")).unwrap()
++    };
++    std::fs::write(
++        dir.join("remote.toml"),
++        text.clone() + "\n[http]\nlisten = \"0.0.0.0:0\"\n",
++    )
++    .unwrap();
++    assert!(station::load(&dir.join("remote.toml"))
++        .unwrap_err()
++        .contains("loopback"));
++
++    // A fleet manager on a local port records the reports.
++    let fleet = TcpListener::bind("127.0.0.1:0").unwrap();
++    let furl = format!(
++        "http://{}/fleet/stations/example-station-1/heartbeat",
++        fleet.local_addr().unwrap()
++    );
++    let (tx, rx) = std::sync::mpsc::channel();
++    std::thread::spawn(move || {
++        let (mut s, _) = fleet.accept().unwrap();
++        let mut buf = vec![0u8; 65536];
++        let mut got = Vec::new();
++        let t = Instant::now();
++        while t.elapsed() < Duration::from_secs(5) {
++            let n = s.read(&mut buf).unwrap_or(0);
++            got.extend_from_slice(&buf[..n]);
++            let txt = String::from_utf8_lossy(&got).to_string();
++            if let Some((h, b)) = txt.split_once("\r\n\r\n") {
++                let len: usize = h
++                    .lines()
++                    .find_map(|l| l.strip_prefix("Content-Length: "))
++                    .and_then(|v| v.trim().parse().ok())
++                    .unwrap_or(0);
++                if b.len() >= len {
++                    s.write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\n{}")
++                        .unwrap();
++                    tx.send(txt).unwrap();
++                    return;
++                }
++            }
++        }
++    });
++    std::fs::write(dir.join("token"), "s3cret-test-token\n").unwrap();
++    std::fs::write(dir.join("fleet-token"), "fleet-test-token\n").unwrap();
++    std::fs::write(
++        dir.join("guarded.toml"),
++        text + &format!("\n[http]\nlisten = \"127.0.0.1:0\"\ntoken_file = \"token\"\n\n[fleet]\nurl = \"{furl}\"\ntoken_file = \"fleet-token\"\ninterval_s = 1\n"),
++    )
++    .unwrap();
++    let h = station::start(station::load(&dir.join("guarded.toml")).unwrap()).unwrap();
++    assert_eq!(get(h.http_addr, "/health", None).0, 200);
++    assert_eq!(get(h.http_addr, "/status", None).0, 401);
++    let (code, body) = get(h.http_addr, "/status", Some("s3cret-test-token"));
++    assert_eq!(code, 200);
++    let v: serde_json::Value = serde_json::from_str(&body).unwrap();
++    assert_eq!(v["schema"], "kshana.station-status/1");
++    let report = rx
++        .recv_timeout(Duration::from_secs(10))
++        .expect("the fleet heard nothing");
++    assert!(report.starts_with("POST /fleet/stations/example-station-1/heartbeat HTTP/1.1"));
++    assert!(report.contains("Authorization: Bearer fleet-test-token"));
++    assert!(report.contains("kshana.station-status/1"));
++    h.stop();
++}
++
++#[test]
++fn service_files_and_configuration_errors() {
++    let (c, p) = (
++        Path::new("/etc/kshana/station.toml"),
++        Path::new("/usr/local/bin/kshana"),
++    );
++    let unit = station::service_text("systemd", c, p).unwrap();
++    assert!(unit.contains("ExecStart=/usr/local/bin/kshana station run /etc/kshana/station.toml"));
++    assert!(unit.contains("Restart=always"));
++    let plist = station::service_text("launchd", c, p).unwrap();
++    assert!(plist.contains("<string>station</string>") && plist.contains("KeepAlive"));
++    let win = station::service_text("windows", c, p).unwrap();
++    assert!(win.contains("/SC ONSTART") && win.contains("station run"));
++    assert!(station::service_text("upstart", c, p).is_err());
++
++    let dir = tmp("errors");
++    let bad = |body: &str| {
++        std::fs::write(
++            dir.join("s.toml"),
++            format!("[station]\n{}\n{body}", station_block()),
++        )
++        .unwrap();
++        station::load(&dir.join("s.toml")).unwrap_err()
++    };
++    assert!(bad("[output]\ndir = \"o\"\n").contains("source"));
++    assert!(bad(
++        "[[source]]\nname = \"a b\"\ninput = \"x\"\nformat = \"nmea\"\n[output]\ndir = \"o\"\n"
++    )
++    .contains("source"));
++    assert!(bad(
++        "[[source]]\nname = \"a\"\ninput = \"x\"\nformat = \"nope\"\n[output]\ndir = \"o\"\n"
++    )
++    .contains("nope"));
++    assert!(bad("[[source]]\nname = \"a\"\ninput = \"x\"\nformat = \"nmea\"\n[output]\ndir = \"o\"\nrotate_mb = 0\n").contains("rotate_mb"));
++    assert!(bad("[[source]]\nname = \"a\"\ninput = \"x\"\nformat = \"nmea\"\n[output]\ndir = \"o\"\n[fleet]\nurl = \"https://x\"\n").contains("http://"));
++}
+-- 
+2.43.0
+
