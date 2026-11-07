@@ -1,0 +1,37 @@
+name: Desktop Pro
+# Kshana Desktop Pro (apps/desktop-pro): format, clippy and the bridge and licence tests.
+# The frontend is staged from the open repository when it carries the Desktop client;
+# otherwise a placeholder page, which is enough to compile and test the native side.
+on:
+  push:
+    branches: [main]
+    paths: ["apps/desktop-pro/**", "src/license/**", "src/registry.rs", "commercial/payments.toml", ".github/workflows/desktop-pro.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop-pro:
+    runs-on: [self-hosted, macos, arm64, kshana-pro]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.93.0
+        with:
+          components: rustfmt, clippy
+      - name: Stage the frontend
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/ashfordeOU/kshana open-repo || true
+          if [ -f open-repo/web/studio/lib/desktop.mjs ]; then
+            apps/desktop-pro/build-frontend.sh "$PWD/open-repo"
+          else
+            echo "the open repository has no Desktop client yet: placeholder frontend"
+            mkdir -p apps/desktop-pro/dist && cp -r apps/desktop-pro/pro apps/desktop-pro/dist/pro
+            echo '<!doctype html><meta charset="utf-8"><title>Kshana Desktop Pro</title>' > apps/desktop-pro/dist/index.html
+          fi
+      - name: Format
+        run: cargo fmt --manifest-path apps/desktop-pro/src-tauri/Cargo.toml -- --check
+      - name: Clippy
+        run: cargo clippy --manifest-path apps/desktop-pro/src-tauri/Cargo.toml --all-targets -- -D warnings
+      - name: Test
+        run: cargo test --manifest-path apps/desktop-pro/src-tauri/Cargo.toml

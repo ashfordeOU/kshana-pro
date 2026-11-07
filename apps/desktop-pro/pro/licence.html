@@ -1,0 +1,47 @@
+<!doctype html>
+<!-- PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kshana Desktop Pro: licence</title>
+<link rel="stylesheet" href="../studio/tokens.css">
+<link rel="stylesheet" href="../studio/theme.css">
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 32px; max-width: 760px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .card { border: 1px solid #d9d3c7; border-radius: 12px; padding: 18px 20px; margin: 16px 0; }
+  dl { display: grid; grid-template-columns: 9em 1fr; gap: 6px 12px; margin: 0; }
+  dt { color: #6b645a; }
+  textarea { width: 100%; min-height: 90px; font-family: ui-monospace, monospace; font-size: 12px; }
+  button { padding: 8px 16px; border-radius: 999px; border: 1px solid #1f2430; background: #1f2430; color: #fff; cursor: pointer; }
+  button.secondary { background: transparent; color: #1f2430; }
+  .warn { color: #8a6d00; }
+  .err { color: #b3261e; }
+  a { color: inherit; }
+</style>
+</head>
+<body>
+<p><a href="../studio/index.html">← Studio</a></p>
+<h1>Licence</h1>
+<p>Kshana Desktop Pro checks its licence on this machine. Nothing is sent anywhere.</p>
+<div class="card">
+  <dl id="status"><dt>State</dt><dd>reading…</dd></dl>
+  <p id="warning" class="warn" hidden></p>
+</div>
+<div class="card">
+  <h2>Activate a licence</h2>
+  <p>Paste the token from your licence e-mail, or from your administrator.</p>
+  <textarea id="token" spellcheck="false" autocomplete="off"></textarea>
+  <p><button id="activate">Activate</button> <button id="deactivate" class="secondary">Remove this licence</button></p>
+  <p id="result"></p>
+  <p>For a licence bound to this machine, send this machine's ID: <code id="mid">…</code></p>
+</div>
+<div class="card" id="upgrade" hidden>
+  <h2>Upgrade</h2>
+  <p id="offer"></p>
+  <p><a id="checkout" href="#" target="_blank" rel="noopener">Open the checkout</a></p>
+</div>
+<script type="module" src="licence.mjs"></script>
+</body>
+</html>

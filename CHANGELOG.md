@@ -5,6 +5,11 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Kshana Desktop Pro (F10e, L2a Pro build).** `apps/desktop-pro`: the free Desktop's shell and
+  command names with the Pro overlay; Pro kinds run under the `desktop` licence; a licence page
+  (status, offline activation, machine ID, removal) and an Upgrade offer only while payments are
+  on. Its own workflow (`desktop-pro.yml`). Unsigned.
+
 - **Free-build check (F10e).** `scripts/free-build-check.sh` fails on any binary carrying a Pro
   marker (the crate name, a Pro kind or feature name, the proprietary notice); a test runs it on the
   Pro binary, where it must fail. The free Kshana Desktop built from the open repository's patch
