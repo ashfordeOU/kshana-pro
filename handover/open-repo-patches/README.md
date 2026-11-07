@@ -12,6 +12,7 @@ git push origin main
 
 | Patch | Item | What |
 |---|---|---|
+| L2-icons/0001 | L2a fix | `apps/desktop/src-tauri/icons/icon.ico` (16–256 px) and `icon.icns`, made from `icon.png`, listed in `tauri.conf.json` `bundle.icon`: the Windows job of `desktop.yml` failed in tauri-build without `icon.ico`. Base: open main 362d2a0 |
 | L2b-devices/0001 | L2b | Live devices in Kshana Desktop: `apps/desktop/src-tauri/src/devices.rs` (port listing, read-only capture from a serial port, `tcp:<host>:<port>` or `file:<path>`, a rolling 1.5 MiB excerpt of NMEA sentences), `receiver_trust_replay` and `assess_vessel_log` in the native bridge, `web/studio/lib/devices.mjs` (+ node test and its CI step), a Desktop-only "Score a receiver live" panel on the trust page, English `studio-js.ftl` entries, README and `docs/SURFACES.md`. No engine (`src/`) change. Base: open main c8a3f7c |
 | L3-station/0001 | L3 | Kshana Station: `src/station.rs` (`kshana station run|check|service`), `tests/station_service.rs`, `docs/STATION.md`, `examples/station/station.toml`, catalogue messages (`engine.ftl`, `manual.json`), allowances with reasons (`allow.json` 25, `sinks-allow.json` 4: HTTP lines, service templates, JSON bodies), `docs/COMMANDS.md` and `docs/SURFACES.md` rows. Base: open main 912fe04 |
 | 0001 | L2a | Kshana Desktop (applied as a13bd6a): `apps/desktop` (Tauri 2), native runs through `src-tauri/src/bridge.rs`, `web/studio/lib/desktop.mjs` (+ node test and its CI step), a `desktop` workflow for Linux, macOS and Windows bundles (unsigned), a `docs/SURFACES.md` row |
