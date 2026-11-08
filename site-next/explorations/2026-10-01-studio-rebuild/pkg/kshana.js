@@ -36,6 +36,34 @@ export function animate_scenario(toml, format, fps, duration_s, width) {
 }
 
 /**
+ * One trust state for an area from several reference stations (row B5; `kshana area-trust`):
+ * `stations_json` is a `kshana.area-stations/1` document. Returns the timeline as JSON Lines, the
+ * same bytes as the command line and Python give.
+ * @param {string} stations_json
+ * @returns {string}
+ */
+export function area_trust_timeline(stations_json) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(stations_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.area_trust_timeline(ptr0, len0);
+        var ptr2 = ret[0];
+        var len2 = ret[1];
+        if (ret[3]) {
+            ptr2 = 0; len2 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
  * Assess a vessel's NMEA 0183 log as a batch run: `session_toml` (`[platform] kind =
  * "vessel"`, no `[log]` needed) and the log text. Returns the result document as JSON, the
  * same as `kshana receiver-trust` writes to `result.json`. Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
@@ -239,6 +267,40 @@ export function compliance_report(runs_json) {
 }
 
 /**
+ * Kshana Connect in memory (`kshana connect map`): apply a `kshana.connect/1` mapping (TOML text)
+ * to a log's text for a station (TOML text) and return the `kshana.obs/1` records as JSON-lines
+ * text. Nothing is uploaded.
+ * @param {string} mapping
+ * @param {string} station
+ * @param {string} text
+ * @returns {string}
+ */
+export function connect_map(mapping, station, text) {
+    let deferred5_0;
+    let deferred5_1;
+    try {
+        const ptr0 = passStringToWasm0(mapping, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(station, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ret = wasm.connect_map(ptr0, len0, ptr1, len1, ptr2, len2);
+        var ptr4 = ret[0];
+        var len4 = ret[1];
+        if (ret[3]) {
+            ptr4 = 0; len4 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred5_0 = ptr4;
+        deferred5_1 = len4;
+        return getStringFromWasm0(ptr4, len4);
+    } finally {
+        wasm.__wbindgen_free(deferred5_0, deferred5_1, 1);
+    }
+}
+
+/**
  * Decode a permalink token back into the scenario TOML; returns an empty string if the
  * token is not valid Base64 or not valid UTF-8.
  * @param {string} token
@@ -276,6 +338,33 @@ export function encode_permalink(toml) {
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * The environmental baseline (row B8; `kshana env-baseline`): `site_hours_json` is a JSON list of
+ * site-hours. Returns JSON text, the same bytes as the command line and Python give.
+ * @param {string} site_hours_json
+ * @returns {string}
+ */
+export function env_baseline(site_hours_json) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(site_hours_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.env_baseline(ptr0, len0);
+        var ptr2 = ret[0];
+        var len2 = ret[1];
+        if (ret[3]) {
+            ptr2 = 0; len2 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
 }
 
@@ -1129,6 +1218,37 @@ export function osnma_verify(input_base64, format, start_gst, merkle_root_hex, p
 }
 
 /**
+ * The monitoring-network planner (row B1a; `kshana planner`): `kind` is `map` or `place` and
+ * `spec_json` a `kshana.planner/1` document. Returns JSON text, the same bytes as the command line and
+ * Python give.
+ * @param {string} kind
+ * @param {string} spec_json
+ * @returns {string}
+ */
+export function planner(kind, spec_json) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(kind, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(spec_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.planner(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+    }
+}
+
+/**
  * Assess a real receiver log described by a `receiver-trust` scenario (TOML text). The
  * browser has no file system, so the log (and any navigation file) must be inline as
  * `text` or `base64`. Returns a JSON object `{json, csv, svg, summary}`.
@@ -1179,6 +1299,37 @@ export function receiver_trust_replay(session_toml, nmea) {
         const ptr1 = passStringToWasm0(nmea, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len1 = WASM_VECTOR_LEN;
         const ret = wasm.receiver_trust_replay(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+    }
+}
+
+/**
+ * The referee's location metrics (row B2; `kshana jammertest locate-score`): `truth_json` is a
+ * `kshana.referee-location-truth/1` file and `reports_json` a `kshana.referee-location-reports/1`
+ * file. Returns the score as JSON text, the same bytes as the command line and Python give.
+ * @param {string} truth_json
+ * @param {string} reports_json
+ * @returns {string}
+ */
+export function referee_location_score(truth_json, reports_json) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(truth_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(reports_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.referee_location_score(ptr0, len0, ptr1, len1);
         var ptr3 = ret[0];
         var len3 = ret[1];
         if (ret[3]) {

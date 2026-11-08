@@ -216,6 +216,24 @@ PUBLIC_EDITION_SOURCES = [
 
 # Plain-word descriptions of the command-line options (main.rs has no per-flag help text).
 CLI_DESC = {
+    "version": "Subcommand of kshana scenario: print the scenario schema version this engine reads.",
+    "scenario": "State a scenario file's schema version and upgrade older files to it (kshana scenario migrate, kshana scenario version).",
+    "obs": "Write a receiver log as a kshana.obs/1 observation file, from a file or a stream as it arrives, and check such a file.",
+    "ntrip": "Fetch a correction stream from a caster of the Networked Transport of correction messages over Internet Protocol, unchanged, and count the frames that arrive intact.",
+    "device": "Run a device file's test vectors, and decode a binary sensor described by a kshana.device/1 file into JSON Lines (JavaScript Object Notation, one record a line).",
+    "planner": "Monitoring-network planner: per site cell, the detection probabilities and the time-difference-of-arrival location bound; choose stations from candidates. Modelled.",
+    "station": "Run a Kshana Station: every configured receiver stream recorded as kshana.obs/1 files, rotated, with a status page; check its file; write a service definition for the system's service manager.",
+    "connect": "Map any comma- or tab-separated, JavaScript Object Notation or JSON Lines export to a kshana.obs/1 file through a mapping file, with no code; also from a watched folder or a message stream.",
+    "convert": "Subcommand of kshana obs: write a receiver log as a kshana.obs/1 observation file.",
+    "check": "Subcommand of kshana obs: check a kshana.obs/1 observation file.",
+    "watch": "Subcommand of kshana connect: follow a folder of growing or rotating logs and print new kshana.obs/1 records.",
+    "adapters": "Subcommand of kshana connect: list the readers a mapping file can use.",
+    "nats": "Subcommand of kshana connect: subscribe to a subject on a NATS message server and print kshana.obs/1 records.",
+    "ws": "Subcommand of kshana connect: read rows streamed over a WebSocket and print kshana.obs/1 records.",
+    "mqtt": "Subcommand of kshana connect: subscribe to a topic on a Message Queuing Telemetry Transport broker and print kshana.obs/1 records.",
+    "map": "Subcommand of kshana connect: map an export to a kshana.obs/1 file through a mapping file.",
+    "memory": "Subcommand of kshana connect: measure the memory a long mapping run holds, for its load test.",
+    "migrate": "Subcommand of kshana scenario: upgrade an older scenario file to the current schema version.",
     "jammertest": "Read the published Jammertest test plan as scheduled truth and score a receiver log against it, test by test.",
     "bench": "Score a kshana-bench submission against its truth file and render result files as the static leaderboard.",
     "spec": "Check the LunaNet augmented forward signal implementation against the specification's printed tables and worked examples.",
@@ -758,6 +776,11 @@ def enum_bindings(repo: str, abbr) -> list[dict]:
 
 
 API_WORDS = {
+    "env_baseline": "Compute the environmental baseline of a list of site-hours, the same bytes as the command line.",
+    "planner": "Run the monitoring-network planner (map or place) on a kshana.planner/1 document, the same bytes as the command line.",
+    "area_trust_timeline": "One trust state for an area from several reference stations: the timeline of a kshana.area-stations/1 document, the same bytes as the command line.",
+    "referee_location_score": "Score location reports against the referee's location truth file, the same bytes as the command line.",
+    "connect_map": "Apply a kshana.connect/1 mapping to a log's text for a station and return the kshana.obs/1 records, in memory.",
     "run": "Run a scenario and return the result JSON.",
     "run_full": "Run a scenario and return the result JSON, the summary and the chart together.",
     "run_typed": "Run a scenario and return a typed result object.",

@@ -17,6 +17,7 @@
 "DE" = "JPL Development Ephemeris"
 "EPM" = "Ephemerides of Planets and the Moon (Institute of Applied Astronomy, Russian Academy of Sciences)"
 "IEEE" = "Institute of Electrical and Electronics Engineers"
+"NATS" = "the NATS messaging system (a product name)"
 "ILRS" = "International Laser Ranging Service"
 "INPOP" = "Intégration Numérique Planétaire de l'Observatoire de Paris ephemeris"
 "J2000" = "the J2000.0 reference epoch and frame"
@@ -1384,3 +1385,42 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "validation:the-cislunar-mean-state-propagation-against-the-public-artem" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:interference-source-region-a-feasible-emitter-region-from-ai" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "binding:wasm.interference_emitter_regions" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }
+"kind:tip-and-cue" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenarios.html#tip-and-cue" }
+"scenario:tip-and-cue-baltic-m2" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#tip-and-cue-baltic-m2" }
+"scenario:tip-and-cue-short" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#tip-and-cue-short" }
+
+# Placed 2026-11-08 at the 93-kind rebuild (engine 3ff14e6a3): features that landed on the open main
+# after the 0.40.0 site build. CLI rows marked 'sub' are subcommands the register reads as commands
+# (gen_features scans nested match arms): obs convert/check, connect watch/adapters/nats/ws/mqtt/map/memory,
+# scenario version/migrate. Best-guess placements, for review.
+"cli:convert" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:check" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:watch" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:adapters" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:nats" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:ws" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:mqtt" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:map" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:memory" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:version" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:migrate" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:scenario" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:obs" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:ntrip" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:device" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:planner" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:station" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:connect" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"mcp-tool:referee_location_score" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:interference_emitter_regions" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:connect_map" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"binding:python.env_baseline" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }
+"binding:python.planner" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }
+"binding:python.area_trust_timeline" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }
+"binding:python.referee_location_score" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }
+"binding:python.connect_map" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }
+"binding:wasm.connect_map" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }
+"binding:wasm.referee_location_score" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }
+"binding:wasm.env_baseline" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }
+"binding:wasm.planner" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }
+"binding:wasm.area_trust_timeline" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }

@@ -100,7 +100,8 @@ export type ScenarioKind =
 | "optical-atmosphere"
 | "holdover-test"
 | "gnss-ssv"
-| "mission-thread";
+| "mission-thread"
+| "tip-and-cue";
 
 /** The failure category `error_kind` returns (`""` on success). */
 export type ErrorKind = "invalid_input" | "non_convergence" | "unsupported" | "io_error";
@@ -174,6 +175,13 @@ export interface RunAllOutput {
 export function animate_scenario(toml: string, format: string, fps: number, duration_s: number, width: number): string;
 
 /**
+ * One trust state for an area from several reference stations (row B5; `kshana area-trust`):
+ * `stations_json` is a `kshana.area-stations/1` document. Returns the timeline as JSON Lines, the
+ * same bytes as the command line and Python give.
+ */
+export function area_trust_timeline(stations_json: string): string;
+
+/**
  * Assess a vessel's NMEA 0183 log as a batch run: `session_toml` (`[platform] kind =
  * "vessel"`, no `[log]` needed) and the log text. Returns the result document as JSON, the
  * same as `kshana receiver-trust` writes to `result.json`. Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
@@ -225,6 +233,13 @@ export function compliance_mapping(sources: boolean): string;
 export function compliance_report(runs_json: string): string;
 
 /**
+ * Kshana Connect in memory (`kshana connect map`): apply a `kshana.connect/1` mapping (TOML text)
+ * to a log's text for a station (TOML text) and return the `kshana.obs/1` records as JSON-lines
+ * text. Nothing is uploaded.
+ */
+export function connect_map(mapping: string, station: string, text: string): string;
+
+/**
  * Decode a permalink token back into the scenario TOML; returns an empty string if the
  * token is not valid Base64 or not valid UTF-8.
  */
@@ -234,6 +249,12 @@ export function decode_permalink(token: string): string;
  * Encode a scenario TOML into a URL-safe permalink token for a `?s=` query parameter.
  */
 export function encode_permalink(toml: string): string;
+
+/**
+ * The environmental baseline (row B8; `kshana env-baseline`): `site_hours_json` is a JSON list of
+ * site-hours. Returns JSON text, the same bytes as the command line and Python give.
+ */
+export function env_baseline(site_hours_json: string): string;
 
 /**
  * Why a scenario fails, as a JSON object string `{"kind", "code", "message"}` (`message` in `lang`,
@@ -447,6 +468,13 @@ export function nmea_training(toml: string, seed: number): string;
 export function osnma_verify(input_base64: string, format: string, start_gst: number | null | undefined, merkle_root_hex: string, public_keys: string[], reference_time?: number | null, max_time_error?: number | null): string;
 
 /**
+ * The monitoring-network planner (row B1a; `kshana planner`): `kind` is `map` or `place` and
+ * `spec_json` a `kshana.planner/1` document. Returns JSON text, the same bytes as the command line and
+ * Python give.
+ */
+export function planner(kind: string, spec_json: string): string;
+
+/**
  * Assess a real receiver log described by a `receiver-trust` scenario (TOML text). The
  * browser has no file system, so the log (and any navigation file) must be inline as
  * `text` or `base64`. Returns a JSON object `{json, csv, svg, summary}`.
@@ -465,6 +493,13 @@ export function receiver_trust(toml: string): string;
  * socket is opened and the gate is not applied (both are command-line only). Advisory software, not type-approved navigation equipment (IEC 61108, IEC 61162): the operator remains responsible for the navigation of the vessel.
  */
 export function receiver_trust_replay(session_toml: string, nmea: string): string;
+
+/**
+ * The referee's location metrics (row B2; `kshana jammertest locate-score`): `truth_json` is a
+ * `kshana.referee-location-truth/1` file and `reports_json` a `kshana.referee-location-reports/1`
+ * file. Returns the score as JSON text, the same bytes as the command line and Python give.
+ */
+export function referee_location_score(truth_json: string, reports_json: string): string;
 
 /**
  * Use `ftl` (the text of `i18n/<lang>/engine.ftl`) as the catalogue of language `tag`. The WebAssembly
@@ -620,6 +655,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
     readonly animate_scenario: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number, number];
+    readonly area_trust_timeline: (a: number, b: number) => [number, number, number, number];
     readonly assess_vessel_log: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly bench_export: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly bench_leaderboard: (a: number, b: number) => [number, number, number, number];
@@ -627,8 +663,10 @@ export interface InitOutput {
     readonly chart_svg: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly compliance_mapping: (a: number) => [number, number];
     readonly compliance_report: (a: number, b: number) => [number, number, number, number];
+    readonly connect_map: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number, number];
     readonly decode_permalink: (a: number, b: number) => [number, number];
     readonly encode_permalink: (a: number, b: number) => [number, number];
+    readonly env_baseline: (a: number, b: number) => [number, number, number, number];
     readonly error_info: (a: number, b: number, c: number, d: number) => [number, number];
     readonly error_kind: (a: number, b: number, c: number, d: number) => [number, number];
     readonly evidence_attach_timestamp: (a: number, b: number, c: number, d: number, e: number) => [number, number, number, number];
@@ -656,8 +694,10 @@ export interface InitOutput {
     readonly lunanet_afs_generate: (a: number, b: number) => [number, number, number, number];
     readonly nmea_training: (a: number, b: number, c: number) => [number, number, number, number];
     readonly osnma_verify: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => [number, number, number, number];
+    readonly planner: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly receiver_trust: (a: number, b: number) => [number, number, number, number];
     readonly receiver_trust_replay: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly referee_location_score: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly register_catalogue: (a: number, b: number, c: number, d: number) => [number, number];
     readonly route_exposure: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => [number, number, number, number];
     readonly run: (a: number, b: number, c: number, d: number) => [number, number, number, number];
