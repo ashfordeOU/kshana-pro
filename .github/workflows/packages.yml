@@ -7,7 +7,7 @@ name: Packages
 #        a service start, GET /health, a stop and a silent uninstall (scripts/test-msi.ps1).
 #   rpm: the RPM test of tests/offline_bundle.rs on a machine with rpmbuild.
 #
-# Signing is not part of this workflow: it waits for the publisher's certificate.
+# Signing is not part of this workflow: it waits for the publisher's code-signing key.
 on:
   workflow_dispatch:
 permissions:

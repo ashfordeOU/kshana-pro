@@ -13,7 +13,7 @@
      language). They are kept on upgrade and on uninstall. The service is not started by
      the installer: activate a licence first, then Start-Service kshana-pro.
 
-     Unsigned: code signing waits for the publisher's certificate. -->
+     Unsigned: code signing waits for the publisher's code-signing key. -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Name="Kshana Pro"
            Manufacturer="Ashforde OÜ"

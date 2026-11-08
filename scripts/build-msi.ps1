@@ -6,7 +6,7 @@
 #
 # Writes <Out>\kshana-pro-<version>-x64.msi and prints its path. The MSI version is the
 # crate version without a pre-release part (Windows Installer versions are numeric). The
-# package is unsigned; signing waits for the publisher's certificate.
+# package is unsigned; signing waits for the publisher's code-signing key.
 param(
   [Parameter(Mandatory = $true)][string]$Binary,
   [Parameter(Mandatory = $true)][string]$Out

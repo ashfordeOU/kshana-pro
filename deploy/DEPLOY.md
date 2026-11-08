@@ -219,7 +219,7 @@ Start-Service kshana-pro
 ```
 
 A start error is written to `%ProgramData%\kshana-pro\service.log`. The MSI is unsigned
-(SmartScreen warns); code signing waits for the publisher's certificate.
+(SmartScreen warns); code signing waits for the publisher's code-signing key.
 `scripts/test-msi.ps1` checks an MSI on a disposable machine: silent install, the service
 as registered, the access lists, start, `GET /health`, stop, silent uninstall. The
 `Packages` workflow (`.github/workflows/packages.yml`, started by hand) runs it on a

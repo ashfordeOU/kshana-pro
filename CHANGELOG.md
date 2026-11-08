@@ -5,6 +5,10 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **macOS signing and notarisation checklist** (`docs/MACOS-NOTARISATION.md`), for both Desktop
+  builds: the Apple accounts, the configuration, the build secrets Tauri 2 reads, and how to check
+  a signed and notarised `.app` and `.dmg`. Nothing is signed yet; no Apple account exists.
+
 - **Service licence activation, checked end to end.** `tests/offline_bundle.rs` activates a
   `service` token into the licence folder beside `serve.conf` and starts `serve --config` with
   no `KSHANA_PRO_HOME` of its own: it serves at the token's tier, and at Evaluation without the
