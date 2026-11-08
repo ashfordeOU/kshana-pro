@@ -188,8 +188,17 @@ curl -s localhost:8088/ledger/verify
 system, only `/var/lib/kshana-pro` writable), its settings in `/etc/kshana-pro/serve.conf`
 (a configuration file, kept on upgrade) and the guides. The post-install step creates the
 user and the directories and says how to activate the licence and start the service. The
-package is unsigned; a signed apt repository is the publisher's step. An `.rpm` is not
-built yet.
+package is unsigned; a signed apt repository is the publisher's step.
+
+**RPM package.** `scripts/build-rpm.sh <kshana-pro binary> <out-dir> [arch]` (needs
+`rpmbuild`; `arch` is `x86_64` or `aarch64`) builds `kshana-pro-<version>-1.<arch>.rpm`
+with the same files: the binary, the unit in `/usr/lib/systemd/system`, the settings as a
+`%config(noreplace)` file, the guides and the licence text. It creates the `kshana` system
+user before the files land, owns `/var/lib/kshana-pro` and its `data/` and `licence/`
+directories (mode 0750), stops the service on removal and restarts it on upgrade. A
+pre-release version (`0.41.0-rc.1`) becomes `0.41.0~rc.1`, which RPM orders before
+`0.41.0`. The package is unsigned; a signed dnf or zypper repository is the publisher's
+step.
 
 **Air-gapped bundle.** `scripts/offline-bundle.sh <kshana-pro binary> <out-dir> [--sign
 <key file> --signer <name>] [--revocations <revocations.txt>] [--deb <package>]` writes a

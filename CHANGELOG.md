@@ -5,6 +5,11 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **RPM package (L6).** `scripts/build-rpm.sh` builds `kshana-pro-<version>-1.<arch>.rpm` with
+  the Debian package's files: the settings kept on upgrade, the `kshana` user made before install,
+  the state directories owned by it, the service stopped on removal and restarted on upgrade.
+  Unsigned. `tests/offline_bundle.rs` checks it where `rpmbuild` is installed.
+
 - **Coexistence victims follow the engine (F8b).** The victim list is the open engine's own
   `leo_signal::GNSS_VICTIM_NAMES`, so GPS L2C (added in the open engine after 0.40, MODELLED) becomes
   a victim with the engine pin that carries it; a test refuses any authorised-service signal name.
@@ -23,7 +28,7 @@ own bullet so parallel work merges cleanly.
   unit, settings, guides; unsigned) and `scripts/offline-bundle.sh` (binary, unit, guides, revocation
   list, CycloneDX SBOM from the locked graph via `scripts/sbom.py`, `SHA256SUMS`, an optional Ed25519
   signature over every file, and an `install.sh` that checks everything before installing and
-  activates a licence offline). `tests/offline_bundle.rs`. No `.rpm` yet; Windows MSI not built here.
+  activates a licence offline). `tests/offline_bundle.rs`. Windows MSI not built here.
 
 - **Station fleet (L3 Pro part, F10e).** `POST /fleet/stations`, `GET /fleet/stations`,
   `POST /fleet/stations/<id>/heartbeat|retire` on the Pro service: Stations register and report

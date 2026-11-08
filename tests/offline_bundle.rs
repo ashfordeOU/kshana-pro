@@ -211,3 +211,52 @@ fn debian_package_holds_the_binary_the_unit_and_the_settings() {
         .unwrap();
     assert!(!String::from_utf8_lossy(&conf.stdout).trim().is_empty());
 }
+
+#[test]
+fn rpm_package_holds_the_same_files_and_keeps_the_settings_on_upgrade() {
+    if Command::new("rpmbuild").arg("--version").output().is_err() {
+        eprintln!("skipped: rpmbuild is not installed");
+        return;
+    }
+    let work = tmp("rpm");
+    let o = Command::new(root().join("scripts/build-rpm.sh"))
+        .arg(bin())
+        .arg(&work)
+        .arg("x86_64")
+        .output()
+        .unwrap();
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    let rpm = String::from_utf8_lossy(&o.stdout).trim().to_string();
+    assert!(rpm.ends_with(".x86_64.rpm"), "{rpm}");
+    let q = |args: &[&str]| {
+        let o = Command::new("rpm").args(args).arg(&rpm).output().unwrap();
+        assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+        String::from_utf8_lossy(&o.stdout).to_string()
+    };
+    let list = q(&["-qlp"]);
+    for f in [
+        "/usr/bin/kshana-pro",
+        "/usr/lib/systemd/system/kshana-pro.service",
+        "/etc/kshana-pro/serve.conf",
+        "/usr/share/doc/kshana-pro/SERVICE.md",
+        "/var/lib/kshana-pro/licence",
+    ] {
+        assert!(list.lines().any(|l| l == f), "{f} missing:\n{list}");
+    }
+    // The settings are a configuration file kept on upgrade, as in the Debian package.
+    assert_eq!(q(&["-qpc"]).trim(), "/etc/kshana-pro/serve.conf");
+    let info = q(&["-qip"]);
+    assert!(info.contains("Name        : kshana-pro"), "{info}");
+    let version = env!("CARGO_PKG_VERSION").replace('-', "~");
+    assert!(info.contains(&format!("Version     : {version}")), "{info}");
+    // The service user is made before the files land, and the state directories are its own.
+    let scripts = q(&["-qp", "--scripts"]);
+    assert!(scripts.contains("useradd --system"), "{scripts}");
+    let long = q(&["-qlvp"]);
+    assert!(
+        long.lines()
+            .any(|l| l.contains("kshana   kshana") && l.ends_with("/var/lib/kshana-pro/licence")),
+        "{long}"
+    );
+    let _ = std::fs::remove_dir_all(&work);
+}
