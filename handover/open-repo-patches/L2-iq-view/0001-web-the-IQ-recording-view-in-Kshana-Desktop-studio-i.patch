@@ -1,0 +1,1742 @@
+From 8efbe2776097ecfd0b7d7076acc625380a49887e Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Sun, 8 Nov 2026 04:38:38 +0000
+Subject: [PATCH] web: the IQ recording view in Kshana Desktop (studio/iq/),
+ ported from the Studio source
+
+A recording of any size read from disk in pieces through the app's read-only commands
+(read_range, iq_probe): power and a waterfall over the whole file, the spectrum at a cursor,
+played through. lib/iqview.mjs decodes ci8, cu8, ci16 and cf32, reads SigMF metadata and
+computes a Hann-windowed Welch spectrum whose bins sum to the signal power. Read only: the
+page has no control that writes a file, transmits or makes a signal. Outside the Desktop it
+says it needs the Desktop; the tools hub links it from the IQ row in the Desktop only.
+
+Ported from kshana-pro site/desktop-studio 71cac75; the site part is unchanged (8d10cf7).
+port_site.py and site.test.mjs list studio/iq/index.html with the other Studio views;
+i18n/en/studio-js.ftl regenerated with tools/i18n.mjs jsx (36 messages); a CI step runs
+iqview.test.mjs.
+---
+ .github/workflows/ci.yml       |   2 +
+ i18n/en/studio-js.ftl          | 496 ++++++++++++++++++++-------------
+ web/PORT-MANIFEST.json         |   9 +-
+ web/site.test.mjs              |   2 +-
+ web/studio/iq/index.html       |  49 ++++
+ web/studio/iq/iq.css           |  27 ++
+ web/studio/iq/iq.js            | 272 ++++++++++++++++++
+ web/studio/lib/iqview.mjs      | 157 +++++++++++
+ web/studio/lib/iqview.test.mjs |  90 ++++++
+ web/studio/tools/tools.js      |   5 +-
+ web/tools/port_site.py         |   2 +-
+ 11 files changed, 912 insertions(+), 199 deletions(-)
+ create mode 100644 web/studio/iq/index.html
+ create mode 100644 web/studio/iq/iq.css
+ create mode 100644 web/studio/iq/iq.js
+ create mode 100644 web/studio/lib/iqview.mjs
+ create mode 100644 web/studio/lib/iqview.test.mjs
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 710395a82..d46815e6f 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -489,6 +489,8 @@ jobs:
+         run: node web/studio/lib/desktop.test.mjs
+       - name: Test the Kshana Desktop live device client (excerpt loop, native scorer)
+         run: node web/studio/lib/devices.test.mjs
++      - name: Test the Kshana Desktop IQ recording view (decoding, SigMF, spectrum)
++        run: node web/studio/lib/iqview.test.mjs
+       - name: Test the A/B compare logic
+         run: node web/studio/lib/compare.test.mjs
+       - name: Test the chart-hover logic
+diff --git a/i18n/en/studio-js.ftl b/i18n/en/studio-js.ftl
+index a2985f7f5..15e3bf019 100644
+--- a/i18n/en/studio-js.ftl
++++ b/i18n/en/studio-js.ftl
+@@ -5112,6 +5112,111 @@ js-interf-withheld = withheld (fewer than 5)
+ # 2026-10-01-studio-rebuild/interference/interference.js:214
+ js-interf-written-by = written by Kshana { $version }
+ 
++# 2026-10-01-studio-rebuild/iq/iq.js:72
++js-iq-centre = Centre frequency (Hz)
++
++# 2026-10-01-studio-rebuild/iq/iq.js:80
++js-iq-cursor = Time in the recording
++
++# 2026-10-01-studio-rebuild/iq/iq.js:124
++js-iq-err-datatype = the recording's datatype { $datatype } is not one this page reads (ci8, cu8, ci16_le, cf32_le)
++
++# 2026-10-01-studio-rebuild/iq/iq.js:115
++js-iq-err-no-path = Type the path of a recording.
++
++# 2026-10-01-studio-rebuild/iq/iq.js:141
++js-iq-err-open = { $path }: could not be read ({ $reason }).
++
++# 2026-10-01-studio-rebuild/iq/iq.js:133
++js-iq-err-rate = the sample rate must be a positive number of hertz
++
++# 2026-10-01-studio-rebuild/iq/iq.js:138
++js-iq-err-short = the recording holds fewer than { $n } samples
++
++# 2026-10-01-studio-rebuild/iq/iq.js:153
++js-iq-fact-centre = Centre, span
++
++# 2026-10-01-studio-rebuild/iq/iq.js:152
++js-iq-fact-duration = Duration
++
++# 2026-10-01-studio-rebuild/iq/iq.js:149
++js-iq-fact-file = File
++
++# 2026-10-01-studio-rebuild/iq/iq.js:155
++js-iq-fact-peak = Peak magnitude there
++
++# 2026-10-01-studio-rebuild/iq/iq.js:154
++js-iq-fact-power = Power of the first { $n } samples
++
++# 2026-10-01-studio-rebuild/iq/iq.js:151
++js-iq-fact-samples = Samples
++
++# 2026-10-01-studio-rebuild/iq/iq.js:150
++js-iq-fact-size = Size
++
++# 2026-10-01-studio-rebuild/iq/iq.js:70
++js-iq-format = Sample format
++
++# 2026-10-01-studio-rebuild/iq/iq.js:47
++js-iq-h1 = Look through an IQ recording
++
++# 2026-10-01-studio-rebuild/iq/iq.js:46
++js-iq-kicker = Kshana Desktop
++
++# 2026-10-01-studio-rebuild/iq/iq.js:48
++js-iq-lede = Open a recording of received GNSS samples of any size from disk: its power over the whole file, a waterfall, and the spectrum at any moment, which you can play through. The file is read in pieces and never changed. This page only reads recordings: it sends nothing to any radio and makes no signal.
++
++# 2026-10-01-studio-rebuild/iq/iq.js:54
++js-iq-needs-desktop = This page reads recordings from disk, so it opens in Kshana Desktop, the Studio as a native application. In a browser, the command line reads recordings: kshana iq --help.
++
++# 2026-10-01-studio-rebuild/iq/iq.js:73
++js-iq-open = Open
++
++# 2026-10-01-studio-rebuild/iq/iq.js:66
++js-iq-open-h = Recording
++
++# 2026-10-01-studio-rebuild/iq/iq.js:117
++js-iq-opening = Opening…
++
++# 2026-10-01-studio-rebuild/iq/iq.js:78
++js-iq-over-h = The whole recording
++
++# 2026-10-01-studio-rebuild/iq/iq.js:79
++js-iq-over-note = Power (dB full scale) and a waterfall from samples read at evenly spaced places through the file. Click or use the arrow keys to move the cursor.
++
++# 2026-10-01-studio-rebuild/iq/iq.js:68
++js-iq-path = File path (a .sigmf-data, or raw samples)
++
++# 2026-10-01-studio-rebuild/iq/iq.js:256
++js-iq-pause = Pause
++
++# 2026-10-01-studio-rebuild/iq/iq.js:82
++js-iq-play = Play through
++
++# 2026-10-01-studio-rebuild/iq/iq.js:71
++js-iq-rate = Sample rate (Hz)
++
++# 2026-10-01-studio-rebuild/iq/iq.js:175
++js-iq-read = Read { $n } places through { $duration } of recording, { $chunk } samples at each.
++
++# 2026-10-01-studio-rebuild/iq/iq.js:171
++js-iq-reading = Reading the recording: { $done } of { $all } places.
++
++# 2026-10-01-studio-rebuild/iq/iq.js:74
++js-iq-sigmf-note = A SigMF recording fills the format, rate and frequency from its .sigmf-meta file. Raw samples need them typed in.
++
++# 2026-10-01-studio-rebuild/iq/iq.js:239
++js-iq-spec-aria = Spectrum at { $time }, { $lo } to { $hi } dB full scale per bin
++
++# 2026-10-01-studio-rebuild/iq/iq.js:84
++js-iq-spec-h = Spectrum at the cursor
++
++# 2026-10-01-studio-rebuild/iq/iq.js:250
++js-iq-spec-note = { $segs } Hann-windowed segments of { $nfft } samples ({ $res } per bin), averaged. Bins sum to the power of the samples read.
++
++# 2026-10-01-studio-rebuild/iq/iq.js:35
++js-iq-title = IQ recording
++
+ # 2026-10-01-studio-rebuild/lib/kinds.mjs:440
+ js-kind-axis-3-d-position-error-m = 3-D position error (m)
+ 
+@@ -11452,230 +11557,230 @@ js-t35data-sample-telemetry-leef = Syslog in LEEF for the demo run
+ # 2026-10-01-studio-rebuild/lib/tools35-data.mjs:88
+ js-t35data-sample-telemetry-metrics = Prometheus metrics for the demo run
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:359
++# 2026-10-01-studio-rebuild/tools/tools.js:362
+ js-tools-ai-group-engine = Install the engine and its libraries
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:359
++# 2026-10-01-studio-rebuild/tools/tools.js:362
+ js-tools-ai-group-integrations = Marine, plugin and dashboard integrations
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:359
++# 2026-10-01-studio-rebuild/tools/tools.js:362
+ js-tools-ai-group-mcp = Install the MCP server for your assistant
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:354
++# 2026-10-01-studio-rebuild/tools/tools.js:357
+ js-tools-ai-heading = Use Kshana from your AI assistant
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:362
++# 2026-10-01-studio-rebuild/tools/tools.js:365
+ js-tools-ai-install-mcp = Install the MCP server
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:354
++# 2026-10-01-studio-rebuild/tools/tools.js:357
+ js-tools-ai-intro = The Kshana MCP server lets an AI assistant run the engine instead of guessing numbers. It runs on your computer; nothing is sent to Kshana. Pick the way that suits your tool.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:392
++# 2026-10-01-studio-rebuild/tools/tools.js:395
+ js-tools-ai-load-failed = The install options did not load ({ $reason }). See the documentation for the MCP server.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:397
++# 2026-10-01-studio-rebuild/tools/tools.js:400
+ js-tools-ai-mcp-docs = MCP server documentation
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:361
++# 2026-10-01-studio-rebuild/tools/tools.js:364
+ js-tools-ai-more-ways = More ways to install
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:391
++# 2026-10-01-studio-rebuild/tools/tools.js:394
+ js-tools-ai-none-listed = No install options are listed in this build.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:362
++# 2026-10-01-studio-rebuild/tools/tools.js:365
+ js-tools-ai-other-ways = Other ways to install Kshana
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:397
++# 2026-10-01-studio-rebuild/tools/tools.js:400
+ js-tools-ai-read-agent-guide = Read the agent guide
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:397
++# 2026-10-01-studio-rebuild/tools/tools.js:400
+ js-tools-ai-rule = The rule for every answer: the assistant runs the engine, and reports what a tool returned with its unit and its evidence tier (validated against an external oracle, or modelled), the scenario, the seed and the engine version, so the run can be repeated. A result's own caveats stay with it. The MCP server reads and writes no files outside one opt-in folder.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:393
++# 2026-10-01-studio-rebuild/tools/tools.js:396
+ js-tools-ai-what-to-ask = What to ask, and which tool answers
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:397
++# 2026-10-01-studio-rebuild/tools/tools.js:400
+ js-tools-ai-where-reachable = Where each capability is reachable
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:216
++# 2026-10-01-studio-rebuild/tools/tools.js:219
+ js-tools-bench-files-written =
+     { $n ->
+         [one] { $n } file written to your browser's memory
+        *[other] { $n } files written to your browser's memory
+     }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:216
++# 2026-10-01-studio-rebuild/tools/tools.js:219
+ js-tools-bench-note = Motion and labelled event intervals only. Download them to load into a laboratory simulator.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:233
++# 2026-10-01-studio-rebuild/tools/tools.js:236
+ js-tools-bench-wrong-kind = { $name } is a { $kind } scenario. A vehicle trajectory exists for the { $kinds } kinds; other kinds say why they have none.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:246
++# 2026-10-01-studio-rebuild/tools/tools.js:249
+ js-tools-building-report = Building the report…
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:440
++# 2026-10-01-studio-rebuild/tools/tools.js:443
+ js-tools-choose-catalogue-first = Choose the catalogue JSON first.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:319
++# 2026-10-01-studio-rebuild/tools/tools.js:322
+ js-tools-choose-file-first = Choose a file first.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:484
++# 2026-10-01-studio-rebuild/tools/tools.js:487
+ js-tools-choose-imu-log = Choose a stationary IMU log first.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:140
++# 2026-10-01-studio-rebuild/tools/tools.js:143
+ js-tools-choose-pack-first = Choose the pack's files first.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:175
++# 2026-10-01-studio-rebuild/tools/tools.js:178
+ js-tools-choose-pack-first-above = Choose the pack's files first (above).
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:441
++# 2026-10-01-studio-rebuild/tools/tools.js:444
+ js-tools-choose-plan-file = Choose at least one plan file.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:468
++# 2026-10-01-studio-rebuild/tools/tools.js:471
+ js-tools-choose-receiver-log = Choose the receiver log first.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:243
++# 2026-10-01-studio-rebuild/tools/tools.js:246
+ js-tools-choose-result-first = Choose at least one result file (*.result.json) first.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:232
++# 2026-10-01-studio-rebuild/tools/tools.js:235
+ js-tools-choose-scenario-first = Choose a scenario first.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:177
++# 2026-10-01-studio-rebuild/tools/tools.js:180
+ js-tools-choose-tsr-first = Choose the timestamp response (.tsr) first.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:190
++# 2026-10-01-studio-rebuild/tools/tools.js:193
+ js-tools-chosen = Chosen
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:160
++# 2026-10-01-studio-rebuild/tools/tools.js:163
+ js-tools-col-check = Check
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:160
++# 2026-10-01-studio-rebuild/tools/tools.js:163
+ js-tools-col-detail = Detail
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:447
++# 2026-10-01-studio-rebuild/tools/tools.js:450
+ js-tools-col-first-monitors = First monitors
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:261
++# 2026-10-01-studio-rebuild/tools/tools.js:264
+ js-tools-col-gap-that-stays = Gap that stays
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:306
++# 2026-10-01-studio-rebuild/tools/tools.js:309
+ js-tools-col-last-auth-tag = Last authenticated tag (Galileo System Time)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:447
++# 2026-10-01-studio-rebuild/tools/tools.js:450
+ js-tools-col-latency = Latency, s
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:447
++# 2026-10-01-studio-rebuild/tools/tools.js:450
+ js-tools-col-name = Name
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:447
++# 2026-10-01-studio-rebuild/tools/tools.js:450
+ js-tools-col-outcome = Outcome
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:394
++# 2026-10-01-studio-rebuild/tools/tools.js:397
+ js-tools-col-question = Question
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:447
++# 2026-10-01-studio-rebuild/tools/tools.js:450
+ js-tools-col-recovered = Recovered
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:261
++# 2026-10-01-studio-rebuild/tools/tools.js:264
+ js-tools-col-reference = Reference
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:160
++# 2026-10-01-studio-rebuild/tools/tools.js:163
+ js-tools-col-result = Result
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:261
++# 2026-10-01-studio-rebuild/tools/tools.js:264
+ js-tools-col-row = Row
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:306
++# 2026-10-01-studio-rebuild/tools/tools.js:309
+ js-tools-col-satellite = Satellite
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:447
++# 2026-10-01-studio-rebuild/tools/tools.js:450
+ js-tools-col-slot = Slot, s
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:306
++# 2026-10-01-studio-rebuild/tools/tools.js:309
+ js-tools-col-status = Status
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:306
++# 2026-10-01-studio-rebuild/tools/tools.js:309
+ js-tools-col-tags = Tags
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:447
++# 2026-10-01-studio-rebuild/tools/tools.js:450
+ js-tools-col-test = Test
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:261
++# 2026-10-01-studio-rebuild/tools/tools.js:264
+ js-tools-col-these-runs = These runs
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:394
++# 2026-10-01-studio-rebuild/tools/tools.js:397
+ js-tools-col-tool = Tool
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:261
++# 2026-10-01-studio-rebuild/tools/tools.js:264
+ js-tools-col-what-is-missing = What is missing
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:261
++# 2026-10-01-studio-rebuild/tools/tools.js:264
+ js-tools-col-what-it-asks = What it asks
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:306
++# 2026-10-01-studio-rebuild/tools/tools.js:309
+ js-tools-col-why-not-auth = Why not authenticated
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:103
++# 2026-10-01-studio-rebuild/tools/tools.js:106
+ js-tools-copied = Copied
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:102
++# 2026-10-01-studio-rebuild/tools/tools.js:105
+ js-tools-copy = Copy
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:102
++# 2026-10-01-studio-rebuild/tools/tools.js:105
+ js-tools-copy-command-aria = Copy: { $cmd }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:366
++# 2026-10-01-studio-rebuild/tools/tools.js:369
+ js-tools-copy-labelled-aria = Copy { $label }: { $text }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:49
++# 2026-10-01-studio-rebuild/tools/tools.js:50
+ js-tools-did-not-work = That did not work
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:384
++# 2026-10-01-studio-rebuild/tools/tools.js:387
+ js-tools-documentation = Documentation
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:220
++# 2026-10-01-studio-rebuild/tools/tools.js:223
+ js-tools-download = Download
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:225
++# 2026-10-01-studio-rebuild/tools/tools.js:228
+ js-tools-download-all-zip = Download all (zip)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:460
++# 2026-10-01-studio-rebuild/tools/tools.js:463
+ js-tools-download-events-toml = Download the events (TOML)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:277
++# 2026-10-01-studio-rebuild/tools/tools.js:280
+ js-tools-download-md = Download (Markdown)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:267
++# 2026-10-01-studio-rebuild/tools/tools.js:270
+ js-tools-download-report-json = Download the report (JSON)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:266
++# 2026-10-01-studio-rebuild/tools/tools.js:269
+ js-tools-download-report-md = Download the report (Markdown)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:474
++# 2026-10-01-studio-rebuild/tools/tools.js:477
+ js-tools-download-scorecard-json = Download the scorecard (JSON)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:492
++# 2026-10-01-studio-rebuild/tools/tools.js:495
+ js-tools-download-table-toml = Download the table (TOML)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:183
++# 2026-10-01-studio-rebuild/tools/tools.js:186
+ js-tools-download-updated-pack = Download the updated pack (zip)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:493
++# 2026-10-01-studio-rebuild/tools/tools.js:496
+ js-tools-download-whole-report-json = Download the whole report (JSON)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:45
++# 2026-10-01-studio-rebuild/tools/tools.js:46
+ js-tools-engine-lacks-error = This engine build (version { $version }) has no { $need }, so it cannot run this here yet. The recorded results and the command line still work.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:43
++# 2026-10-01-studio-rebuild/tools/tools.js:44
+ js-tools-engine-lacks-status = This engine build (version { $version }) has no { $need }: it predates the version this tool needs. The command-line equivalent is in the Command line tab.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:41
++# 2026-10-01-studio-rebuild/tools/tools.js:42
+ js-tools-engine-running = The engine (version { $version }) is running in this browser. Nothing is uploaded.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:39
++# 2026-10-01-studio-rebuild/tools/tools.js:40
+ js-tools-engine-starting = Starting the engine in this browser…
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:40
++# 2026-10-01-studio-rebuild/tools/tools.js:41
+ js-tools-engine-unavailable = The engine could not start here ({ $reason }). Opening files works; running the tools needs WebAssembly.
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:91
+@@ -11684,52 +11789,52 @@ js-tools-epoch-format = Use YYYY-MM-DDTHH:MM:SS, with an optional Z (UTC).
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:94
+ js-tools-epoch-not-real = That is not a real UTC instant between the years 2000 and 2099.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:166
++# 2026-10-01-studio-rebuild/tools/tools.js:169
+ js-tools-every-check = Every check
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:169
++# 2026-10-01-studio-rebuild/tools/tools.js:172
+ js-tools-evidence-disclaimer = An evidence pack is a technical record of what the engine computed from a stated log under stated settings. It is not a legal opinion, a finding of fact about any event or a certification. A pass says the record is unchanged.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:132
++# 2026-10-01-studio-rebuild/tools/tools.js:135
+ js-tools-example-pack = Synthetic example pack
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:134
++# 2026-10-01-studio-rebuild/tools/tools.js:137
+ js-tools-example-pack-note = A synthetic pack made by the engine's command line from the demo ferry log with a demonstration key. The key is filled in below; a real signer's key comes from the signer by another route.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:132
++# 2026-10-01-studio-rebuild/tools/tools.js:135
+ js-tools-example-pack-tampered = Example pack with one byte of epochs.json changed
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:284
++# 2026-10-01-studio-rebuild/tools/tools.js:287
+ js-tools-example-runs = Synthetic example runs
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:134
++# 2026-10-01-studio-rebuild/tools/tools.js:137
+ js-tools-example-tampered-note = One byte of a file in the pack has been changed after signing. Verify it: the check names the file.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:213
++# 2026-10-01-studio-rebuild/tools/tools.js:216
+ js-tools-exporting = Exporting…
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:322
++# 2026-10-01-studio-rebuild/tools/tools.js:325
+ js-tools-field-whole-number = { $field } must be a whole number
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:63
+ js-tools-file-not-chosen = { $file } is not among the chosen files
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:53
++# 2026-10-01-studio-rebuild/tools/tools.js:54
+ js-tools-file-too-large = { $name } is larger than 64 MiB
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:282
++# 2026-10-01-studio-rebuild/tools/tools.js:285
+ js-tools-files-selected = { $label }: { $files }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:157
++# 2026-10-01-studio-rebuild/tools/tools.js:160
+ js-tools-fingerprint-not-pinned = Signer fingerprint: { $fingerprint } (not pinned: the key the pack names itself)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:157
++# 2026-10-01-studio-rebuild/tools/tools.js:160
+ js-tools-fingerprint-pinned = Signer fingerprint: { $fingerprint } (pinned)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:488
++# 2026-10-01-studio-rebuild/tools/tools.js:491
+ js-tools-fitting = Fitting…
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:260
++# 2026-10-01-studio-rebuild/tools/tools.js:263
+ js-tools-framework-summary = { $name }: { $evidenced } evidenced, { $partly } partly, { $notEvidenced } not evidenced, { $outOfScope } out of scope
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:131
+@@ -11753,163 +11858,166 @@ js-tools-gst-none = none
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:183
+ js-tools-gst-text = week { $week }, { $tow } s
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:90
++# 2026-10-01-studio-rebuild/tools/tools.js:91
+ js-tools-how-to-run = How to run it
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:502
++# 2026-10-01-studio-rebuild/tools/tools.js:505
+ js-tools-imu-file-too-large = { $name } is larger than 32 MiB; open an excerpt.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:486
++# 2026-10-01-studio-rebuild/tools/tools.js:489
+ js-tools-imu-mean-not-number = The specific force at rest is not a number (0 for a horizontal axis, about 9.80665 for the vertical one).
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:494
++# 2026-10-01-studio-rebuild/tools/tools.js:497
+ js-tools-imu-notice = { $evidence }: the estimator is checked on synthetic white-noise logs with known coefficients, not against an external oracle. The table names the log's SHA-256 ({ $sha }…).
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:505
++# 2026-10-01-studio-rebuild/tools/tools.js:508
+ js-tools-imu-selected = { $name } ({ $size }), read here, never uploaded.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:461
++# 2026-10-01-studio-rebuild/tools/tools.js:93
++js-tools-iq-desktop = In Kshana Desktop: look through a recording
++
++# 2026-10-01-studio-rebuild/tools/tools.js:464
+ js-tools-jt-events-count = { $n } scheduled event(s)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:461
++# 2026-10-01-studio-rebuild/tools/tools.js:464
+ js-tools-jt-events-note = as scheduled truth: planned slots, not recorded on-air times. Not RF: { $nonRf }; outside the log: { $outside }; unknown ids: { $unknown }.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:449
++# 2026-10-01-studio-rebuild/tools/tools.js:452
+ js-tools-jt-guard-hold = Guard { $guard } s, recovery hold { $hold } s.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:449
++# 2026-10-01-studio-rebuild/tools/tools.js:452
+ js-tools-jt-guard-hold-overlap = Guard { $guard } s, recovery hold { $hold } s. The calibration baseline overlapped a scheduled slot.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:456
++# 2026-10-01-studio-rebuild/tools/tools.js:459
+ js-tools-jt-import-needs-start = Import needs the log's first epoch in UTC (ISO 8601), because the plan is in local time.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:433
++# 2026-10-01-studio-rebuild/tools/tools.js:436
+ js-tools-jt-sel-catalogue = catalogue { $name }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:433
++# 2026-10-01-studio-rebuild/tools/tools.js:436
+ js-tools-jt-sel-log = log { $name } ({ $size })
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:433
++# 2026-10-01-studio-rebuild/tools/tools.js:436
+ js-tools-jt-sel-no-catalogue = no catalogue
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:433
++# 2026-10-01-studio-rebuild/tools/tools.js:436
+ js-tools-jt-sel-no-log = no log
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:433
++# 2026-10-01-studio-rebuild/tools/tools.js:436
+ js-tools-jt-sel-no-plan = no plan
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:433
++# 2026-10-01-studio-rebuild/tools/tools.js:436
+ js-tools-jt-sel-plans = { $n } plan file(s)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:448
++# 2026-10-01-studio-rebuild/tools/tools.js:451
+ js-tools-jt-slot-range = { $from } to { $to }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:443
++# 2026-10-01-studio-rebuild/tools/tools.js:446
+ js-tools-jt-what-area = The test area
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:443
++# 2026-10-01-studio-rebuild/tools/tools.js:446
+ js-tools-jt-what-guard = The guard
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:443
++# 2026-10-01-studio-rebuild/tools/tools.js:446
+ js-tools-jt-what-hold = The recovery hold
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:443
++# 2026-10-01-studio-rebuild/tools/tools.js:446
+ js-tools-jt-what-offset = The offset from UTC
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:443
++# 2026-10-01-studio-rebuild/tools/tools.js:446
+ js-tools-jt-what-year = The plan year
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:377
++# 2026-10-01-studio-rebuild/tools/tools.js:380
+ js-tools-label-command = command
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:378
++# 2026-10-01-studio-rebuild/tools/tools.js:381
+ js-tools-label-pinned-command = pinned command
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:380
++# 2026-10-01-studio-rebuild/tools/tools.js:383
+ js-tools-label-settings-example = settings example { $n }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:108
++# 2026-10-01-studio-rebuild/tools/tools.js:111
+ js-tools-loading = Loading…
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:244
++# 2026-10-01-studio-rebuild/tools/tools.js:247
+ js-tools-max-runs = At most { $max } runs.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:324
++# 2026-10-01-studio-rebuild/tools/tools.js:327
+ js-tools-merkle-root-format = The Merkle root is 64 hex digits.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:438
++# 2026-10-01-studio-rebuild/tools/tools.js:441
+ js-tools-must-be-number = { $what } must be a number
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:439
++# 2026-10-01-studio-rebuild/tools/tools.js:442
+ js-tools-must-be-whole-zero = { $what } must be a whole number, 0 for "not given"
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:448
++# 2026-10-01-studio-rebuild/tools/tools.js:451
+ js-tools-na = n/a
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:376
++# 2026-10-01-studio-rebuild/tools/tools.js:379
+ js-tools-needs = Needs: { $requires }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:448
++# 2026-10-01-studio-rebuild/tools/tools.js:451
+ js-tools-no = no
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:448
++# 2026-10-01-studio-rebuild/tools/tools.js:451
+ js-tools-none = none
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:338
++# 2026-10-01-studio-rebuild/tools/tools.js:341
+ js-tools-none-in-build = none in this build
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:90
++# 2026-10-01-studio-rebuild/tools/tools.js:91
+ js-tools-not-in-browser = Not in a browser.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:294
++# 2026-10-01-studio-rebuild/tools/tools.js:297
+ js-tools-not-osnma = Not an OSNMA result
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:258
++# 2026-10-01-studio-rebuild/tools/tools.js:261
+ js-tools-not-used = Not used: { $item }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:168
++# 2026-10-01-studio-rebuild/tools/tools.js:171
+ js-tools-notes = Notes
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:382
++# 2026-10-01-studio-rebuild/tools/tools.js:385
+ js-tools-open = Open
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:299
++# 2026-10-01-studio-rebuild/tools/tools.js:302
+ js-tools-osnma-advisory = Advisory: this is analysis and monitoring output and not type-approved navigation equipment. The authentication status reported here is not a navigation integrity service and must not be the sole basis for any navigation or safety decision.
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:176
+ js-tools-osnma-authenticated = Authenticated
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:306
++# 2026-10-01-studio-rebuild/tools/tools.js:309
+ js-tools-osnma-caption = Authentication status per satellite
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:340
++# 2026-10-01-studio-rebuild/tools/tools.js:343
+ js-tools-osnma-demo-note = The throwaway public key is filled in; press Verify to run the verifier here, or show the recorded result.
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:180
+ js-tools-osnma-discarded = Discarded
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:310
++# 2026-10-01-studio-rebuild/tools/tools.js:313
+ js-tools-osnma-events = What the verifier saw
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:336
++# 2026-10-01-studio-rebuild/tools/tools.js:339
+ js-tools-osnma-examples-missing = the synthetic examples are not in this build yet
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:177
+ js-tools-osnma-failed = Failed
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:303
++# 2026-10-01-studio-rebuild/tools/tools.js:306
+ js-tools-osnma-nma-alert = NMA status { $status }; the system raised an alert message.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:303
++# 2026-10-01-studio-rebuild/tools/tools.js:306
+ js-tools-osnma-nma-status = NMA status { $status }.
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:186
+ js-tools-osnma-not-json = This is not the JSON of kshana osnma verify --json (it needs overall and satellites).
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:300
++# 2026-10-01-studio-rebuild/tools/tools.js:303
+ js-tools-osnma-overall = Overall: { $status }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:302
++# 2026-10-01-studio-rebuild/tools/tools.js:305
+ js-tools-osnma-pages-read =
+     { $n ->
+         [one] { $n } page read.
+@@ -11919,94 +12027,94 @@ js-tools-osnma-pages-read =
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:179
+ js-tools-osnma-pending = Pending
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:344
++# 2026-10-01-studio-rebuild/tools/tools.js:347
+ js-tools-osnma-recorded-failed = the recorded result did not load
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:344
++# 2026-10-01-studio-rebuild/tools/tools.js:347
+ js-tools-osnma-recorded-result = Recorded result of kshana osnma verify --json for { $file }.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:308
++# 2026-10-01-studio-rebuild/tools/tools.js:311
+ js-tools-osnma-tag-counts = { $authenticated } auth, { $failed } failed, { $pending } pending, { $discarded } discarded
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:304
++# 2026-10-01-studio-rebuild/tools/tools.js:307
+ js-tools-osnma-tag-totals =
+     { $n ->
+         [one] { $n } tag: { $authenticated } authenticated, { $failed } failed, { $pending } pending, { $discarded } discarded.
+        *[other] { $n } tags: { $authenticated } authenticated, { $failed } failed, { $pending } pending, { $discarded } discarded.
+     }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:313
++# 2026-10-01-studio-rebuild/tools/tools.js:316
+ js-tools-osnma-time-caveat = Time: every check is relative to the time stamps of the pages given to the verifier, which here come from the data itself and give no protection against replayed old data. Authentication says the data came from the system; it says nothing about the signal it arrived on or the quality of the fix.
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:178
+ js-tools-osnma-unavailable = Unavailable
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:296
++# 2026-10-01-studio-rebuild/tools/tools.js:299
+ js-tools-osnma-word-authenticated = At least one satellite is authenticated and none failed
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:296
++# 2026-10-01-studio-rebuild/tools/tools.js:299
+ js-tools-osnma-word-failed = A check on some satellite's data failed
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:296
++# 2026-10-01-studio-rebuild/tools/tools.js:299
+ js-tools-osnma-word-unavailable = No satellite is authenticated
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:122
++# 2026-10-01-studio-rebuild/tools/tools.js:125
+ js-tools-pack-selected = { $label }: { $files } ({ $size })
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:378
++# 2026-10-01-studio-rebuild/tools/tools.js:381
+ js-tools-pinned-to-release = Pinned to this release:
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:221
++# 2026-10-01-studio-rebuild/tools/tools.js:224
+ js-tools-preview = Preview
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:72
+ js-tools-public-key-format = A public key is 64 hex digits (32 bytes). Nothing else is accepted.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:113
++# 2026-10-01-studio-rebuild/tools/tools.js:116
+ js-tools-read-documentation = Read the documentation
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:458
++# 2026-10-01-studio-rebuild/tools/tools.js:461
+ js-tools-reading-plan = Reading the plan…
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:42
+ js-tools-refused-file-name = refused file name: { $name }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:410
++# 2026-10-01-studio-rebuild/tools/tools.js:413
+ js-tools-run = Run
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:255
++# 2026-10-01-studio-rebuild/tools/tools.js:258
+ js-tools-runs-read =
+     { $n ->
+         [one] { $n } run read: { $runs }
+        *[other] { $n } runs read: { $runs }
+     }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:254
++# 2026-10-01-studio-rebuild/tools/tools.js:257
+ js-tools-runs-read-engine =
+     { $n ->
+         [one] { $n } run read, by engine { $engine }: { $runs }
+        *[other] { $n } runs read, by engine { $engine }: { $runs }
+     }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:110
++# 2026-10-01-studio-rebuild/tools/tools.js:113
+ js-tools-sample-load-failed = The sample did not load ({ $reason }).
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:109
++# 2026-10-01-studio-rebuild/tools/tools.js:112
+ js-tools-sample-note = A real output of the command, recorded from the engine on the synthetic demo run. Not a measurement of anything.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:107
++# 2026-10-01-studio-rebuild/tools/tools.js:110
+ js-tools-sample-output = Sample output: { $label }
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:206
++# 2026-10-01-studio-rebuild/tools/tools.js:209
+ js-tools-scenario-list-failed = The scenario list did not load
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:470
++# 2026-10-01-studio-rebuild/tools/tools.js:473
+ js-tools-scoring = Scoring…
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:103
++# 2026-10-01-studio-rebuild/tools/tools.js:106
+ js-tools-select-and-copy = Select and copy
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:380
++# 2026-10-01-studio-rebuild/tools/tools.js:383
+ js-tools-settings-example = Settings example { $n }:
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:139
+@@ -12033,82 +12141,82 @@ js-tools-status-partly-label = Runs support evidence for part of this row
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:140
+ js-tools-status-partly-short = Partly
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:62
++# 2026-10-01-studio-rebuild/tools/tools.js:63
+ js-tools-tab-ai = AI assistant
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:62
++# 2026-10-01-studio-rebuild/tools/tools.js:63
+ js-tools-tab-bench = Test bench
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:62
++# 2026-10-01-studio-rebuild/tools/tools.js:63
+ js-tools-tab-cli = Command line
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:62
++# 2026-10-01-studio-rebuild/tools/tools.js:63
+ js-tools-tab-compliance = Compliance
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:62
++# 2026-10-01-studio-rebuild/tools/tools.js:63
+ js-tools-tab-evidence = Evidence packs
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:62
++# 2026-10-01-studio-rebuild/tools/tools.js:63
+ js-tools-tab-imufit = IMU fit
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:62
++# 2026-10-01-studio-rebuild/tools/tools.js:63
+ js-tools-tab-jammertest = Jammertest
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:62
++# 2026-10-01-studio-rebuild/tools/tools.js:63
+ js-tools-tab-osnma = OSNMA
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:425
++# 2026-10-01-studio-rebuild/tools/tools.js:428
+ js-tools-tele-all-events = One syslog event per epoch (default: one per band change)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:406
++# 2026-10-01-studio-rebuild/tools/tools.js:409
+ js-tools-tele-file-aria = Result or JSON-lines file
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:407
++# 2026-10-01-studio-rebuild/tools/tools.js:410
+ js-tools-tele-fmt-cef = Syslog, CEF
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:407
++# 2026-10-01-studio-rebuild/tools/tools.js:410
+ js-tools-tele-fmt-leef = Syslog, LEEF
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:407
++# 2026-10-01-studio-rebuild/tools/tools.js:410
+ js-tools-tele-fmt-mqtt = MQTT, Home Assistant discovery (topic, tab, payload)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:407
++# 2026-10-01-studio-rebuild/tools/tools.js:410
+ js-tools-tele-fmt-otlp = OpenTelemetry (OTLP JSON)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:407
++# 2026-10-01-studio-rebuild/tools/tools.js:410
+ js-tools-tele-fmt-prometheus = Prometheus metrics
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:407
++# 2026-10-01-studio-rebuild/tools/tools.js:410
+ js-tools-tele-format-aria = Format
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:424
++# 2026-10-01-studio-rebuild/tools/tools.js:427
+ js-tools-tele-host = Host
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:408
++# 2026-10-01-studio-rebuild/tools/tools.js:411
+ js-tools-tele-host-aria = Host name written into syslog events
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:425
++# 2026-10-01-studio-rebuild/tools/tools.js:428
+ js-tools-tele-include-position = Include the reported position (off by default)
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:405
++# 2026-10-01-studio-rebuild/tools/tools.js:408
+ js-tools-tele-intro = Turn a result file (session.result.json) or the live JSON lines into one of the formats, in this browser. Needs an engine build that has the telemetry export (0.35 and later with the export); the commands above work everywhere.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:426
++# 2026-10-01-studio-rebuild/tools/tools.js:429
+ js-tools-tele-note = Syslog lines carry no time stamp here (the page reads no clock); the command-line tool stamps them. Prometheus gives the final state. MQTT gives one line per message, the topic then a tab then the payload; nothing is published from here. The text is the same the command prints.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:404
++# 2026-10-01-studio-rebuild/tools/tools.js:407
+ js-tools-tele-run-here = Run it here
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:334
++# 2026-10-01-studio-rebuild/tools/tools.js:337
+ js-tools-that-file-too-large = That file is larger than 64 MiB.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:182
++# 2026-10-01-studio-rebuild/tools/tools.js:185
+ js-tools-token-attached = Token attached
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:182
++# 2026-10-01-studio-rebuild/tools/tools.js:185
+ js-tools-token-attached-note = The updated pack is below. The timestamp authority's signature was NOT checked here: run openssl ts -verify.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:312
++# 2026-10-01-studio-rebuild/tools/tools.js:315
+ js-tools-trust-monitor-sentence = Trust-monitor sentence: { $sentence }
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:48
+@@ -12117,7 +12225,7 @@ js-tools-two-files-same-name = two files are named { $name }
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:214
+ js-tools-ubx-bad-crc = { $n } pages failed their CRC.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:311
++# 2026-10-01-studio-rebuild/tools/tools.js:314
+ js-tools-ubx-file = The UBX file
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:212
+@@ -12135,10 +12243,10 @@ js-tools-ubx-time-conflicts = { $n } pages had a time that conflicted with its n
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:215
+ js-tools-ubx-unstamped = { $n } pages could not be placed in time.
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:233
++# 2026-10-01-studio-rebuild/tools/tools.js:236
+ js-tools-unknown = unknown
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:257
++# 2026-10-01-studio-rebuild/tools/tools.js:260
+ js-tools-unused-scenarios = Scenario files with no matching result were not used: { $files }.
+ 
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:81
+@@ -12159,16 +12267,16 @@ js-tools-verdict-verified-text = The pack is unchanged and signed by the key you
+ # 2026-10-01-studio-rebuild/lib/tools35.mjs:79
+ js-tools-verdict-verified-title = Verified
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:149
++# 2026-10-01-studio-rebuild/tools/tools.js:152
+ js-tools-verifying = Verifying…
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:158
++# 2026-10-01-studio-rebuild/tools/tools.js:161
+ js-tools-what-failed = What failed
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:99
++# 2026-10-01-studio-rebuild/tools/tools.js:102
+ js-tools-why-not-browser = Why not in a browser:
+ 
+-# 2026-10-01-studio-rebuild/tools/tools.js:448
++# 2026-10-01-studio-rebuild/tools/tools.js:451
+ js-tools-yes = yes
+ 
+ # 2026-10-01-studio-rebuild/training/training.js:355
+diff --git a/web/PORT-MANIFEST.json b/web/PORT-MANIFEST.json
+index a514f6197..cdf1c4e25 100644
+--- a/web/PORT-MANIFEST.json
++++ b/web/PORT-MANIFEST.json
+@@ -8,7 +8,7 @@
+    "dirty": false
+   },
+   "studio": {
+-   "revision": "7bd2909b8fff9eea3cf93a3ac413b55bb1bf53ab",
++   "revision": "71cac75302e87aaa43dcbc9ee7dc98e6eb17d748",
+    "dirty": false
+   }
+  },
+@@ -369,6 +369,9 @@
+   "studio/interference/index.html": "db76beb956a5eb006a1f9bdf514c3dd7f79d7234066d8340cf7ce8565c57e52e",
+   "studio/interference/interference.css": "2a8bf536492f7e02af522049867701394b527f97d418e7881c442998b392dde9",
+   "studio/interference/interference.js": "6065cd8fcc7be8540add8a229341086dd297515808725264437acb742392462c",
++  "studio/iq/index.html": "8c48e8d2f6c448af05a7afa7bc1d162a35cc762a97295f5a8b6354efcb071c17",
++  "studio/iq/iq.css": "13088df03e35f75200e9186cdd1c1555f38e47d51b54b53b2995a0695c3f5ffc",
++  "studio/iq/iq.js": "e4655b0e94f591253377d3b9a05a068f426df153d2ffef3a8b5f9f595052501d",
+   "studio/lib/abbr.mjs": "8ca6b7f96f7be8074407f7dfdbd5e568a0eff66a0514c6f133e1d0dd79fea123",
+   "studio/lib/abbr.test.mjs": "0b54959a8c3f39029a0fa118eaffca45ba42555603a44eb8402149d40de53402",
+   "studio/lib/areas.mjs": "32e9ff352f7c82883e457227741bf8dafcc1b1b2faf73911f78786745f7ff404",
+@@ -416,6 +419,8 @@
+   "studio/lib/inputs.test.mjs": "a863c9326f206d873dc542cc3bc7bad8bd269d89c63dfb2ed00114262f48ab30",
+   "studio/lib/interference.mjs": "8337644be0edf751e172c62700971b9135adcfff10654470f8b86fb6898236a5",
+   "studio/lib/interference.test.mjs": "e6964b2f7064eba22f5d6a983642a14bc1449a9030d8122f1ea0fa979cef5863",
++  "studio/lib/iqview.mjs": "f86b960792c20c0594b3efbf65d35836395b7d8aa7f0782c56067a62abcb5578",
++  "studio/lib/iqview.test.mjs": "079b74b3db65dbcff25fd3d5c040028ac6f6eb22b88fb2b692feca7ec17abd72",
+   "studio/lib/jammertest-card.mjs": "5034fee73ceba3f82b8f8c71942b3f43648f1b1631732423eddae8772758775d",
+   "studio/lib/jammertest-card.test.mjs": "f78f7e4790de7167fd65fefe8d20b8605879086a60c57ea16f9e45d2db7d8540",
+   "studio/lib/kinds.mjs": "17604fa4a4ff592914017d8210a5421704f51179c16020f1c106c660e2ee5414",
+@@ -1108,7 +1113,7 @@
+   "studio/tools/samples/telemetry-leef.txt": "94ea5b5181a7a573920a7c08177e863c8defb3532cfbcb3df7a4cdaf1ca93ada",
+   "studio/tools/samples/telemetry-metrics.txt": "016b17aabc8dd83bd6bf801a9accd3962cf92934e4a2d5aab55215c1df89d177",
+   "studio/tools/tools.css": "93070eed6995530c62b3de055d0c117c4d16bcd393c6114bb39183a60eac1a53",
+-  "studio/tools/tools.js": "aef8acdd941939e81c1cafd4a6e53f9934ae079553644128f3d5ba032ee5fe28",
++  "studio/tools/tools.js": "533d89f5dbc7e85367224f89e94e2db2373fb1f406a1dcefe2f4633198275298",
+   "studio/training/demo/coastal-drag-off.instructor.json": "6f18345141c4753d512084fee4aa8c794a867ac33f850589142c289526f67d8f",
+   "studio/training/demo/combined-event.instructor.json": "7f48354ee0430af7f6fe2834a439830529899fb9297bef584395e04b1eb3b7a0",
+   "studio/training/demo/fjord-natural-degradation.instructor.json": "86e866b5cbd61f8bd3c97ff0b9c8fcf1dce63e023d1be0a655bf3866d1fb593b",
+diff --git a/web/site.test.mjs b/web/site.test.mjs
+index 68a2ba2d5..59309c05e 100644
+--- a/web/site.test.mjs
++++ b/web/site.test.mjs
+@@ -32,7 +32,7 @@ const MOVED = Object.keys(JSON.parse(text("tools/legacy-urls.json")).redirects.p
+ // The Studio's Advanced view (the full dashboard) is a second page of the Studio app: a view of
+ // /studio/, noindex, so it is not a page of the site map either. Its <base href="../"> makes its
+ // relative addresses resolve from the Studio's own folder.
+-const VIEWS = ["studio/advanced/index.html", "studio/trust/index.html", "studio/interference/index.html", "studio/training/index.html", "studio/tools/index.html", "studio/geometry/index.html", "studio/lunar/index.html", "studio/replay/index.html", "studio/optical/index.html", "studio/holdover/index.html", "studio/observatory/index.html", "studio/ssv/index.html", "studio/lunar-infra/index.html", "studio/mission-thread/index.html"];
++const VIEWS = ["studio/advanced/index.html", "studio/trust/index.html", "studio/interference/index.html", "studio/training/index.html", "studio/tools/index.html", "studio/geometry/index.html", "studio/lunar/index.html", "studio/replay/index.html", "studio/optical/index.html", "studio/holdover/index.html", "studio/observatory/index.html", "studio/ssv/index.html", "studio/lunar-infra/index.html", "studio/mission-thread/index.html", "studio/iq/index.html"];
+ const pages = ported.filter((rel) => isPage(rel) && rel !== NOT_FOUND && !MOVED.includes(rel) && !VIEWS.includes(rel));
+ const indexed = pages;
+ for (const rel of MOVED) {
+diff --git a/web/studio/iq/index.html b/web/studio/iq/index.html
+new file mode 100644
+index 000000000..39db4df4c
+--- /dev/null
++++ b/web/studio/iq/index.html
+@@ -0,0 +1,49 @@
++<!doctype html>
++<html lang="en">
++<head>
++<script>window.kshanaL10nReady=new Promise(function(r){window.kshanaL10nResolve=r})</script>
++<meta charset="utf-8">
++<!-- IQ recording view: a page of the Studio, in Kshana Desktop only. Every relative address resolves from the Studio's own folder. The app reads a recording from disk in pieces (read_range, iq_probe); the page measures and draws them. It reads received samples only: it has no control that writes, transmits or makes a signal. -->
++<base href="../">
++<meta name="viewport" content="width=device-width, initial-scale=1">
++<meta name="robots" content="noindex">
++<title>Kshana Studio</title>
++<meta name="description" content="In Kshana Desktop: open a GNSS IQ recording of any size from disk and see its power over time, a waterfall and the spectrum at any moment, played through the file. Read only.">
++<meta name="color-scheme" content="light dark">
++<link rel="icon" href="data:,">
++<link href="../fonts/geist-geist-mono-unbounded.css" rel="stylesheet">
++<link rel="stylesheet" href="tokens.css">
++<link rel="stylesheet" href="theme.css">
++<link rel="stylesheet" href="app.css">
++<link rel="stylesheet" href="studio.css">
++<link rel="stylesheet" href="iq/iq.css">
++<link rel="modulepreload" href="lib/iqview.mjs">
++<script>
++  // Apply a remembered theme before first paint (per-viewer convenience only).
++  try { const q = new URLSearchParams(location.search).get("theme"); const t = q || localStorage.getItem("kshana-theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}
++</script>
++</head>
++<body>
++<svg width="0" height="0" style="position:absolute" aria-hidden="true">
++  <symbol id="i-theme" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4z" fill="currentColor"/></symbol>
++  <symbol id="i-play" viewBox="0 0 16 16"><path d="M4.5 2.8v10.4a.6.6 0 0 0 .9.5l8.1-5.2a.6.6 0 0 0 0-1L5.4 2.3a.6.6 0 0 0-.9.5z" fill="currentColor"/></symbol>
++  <symbol id="i-pause" viewBox="0 0 16 16"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor"/></symbol>
++  <symbol id="i-arrow" viewBox="0 0 16 16"><path d="M3 8h9m0 0L8.5 4.5M12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
++</svg>
++<a class="skip" href="#main" data-l10n="studio-geometry-skip-to-the-view">Skip to the view</a>
++<header class="bar" id="bar">
++  <a class="brand" href="/" aria-label="Kshana home" data-l10n-attr="aria-label:studio-geometry-kshana-home"><span aria-hidden="true" style="display:inline-block;width:34px;height:34px;flex:none;margin:-5px -3px -5px -5px;background:var(--ink);-webkit-mask:url(assets/brand/kshana-mark-mask.png) center/contain no-repeat;mask:url(assets/brand/kshana-mark-mask.png) center/contain no-repeat"></span><span data-l10n-rich="seg-ac17942f6859" data-l10n-tags="{&quot;s1&quot;:{&quot;o&quot;:&quot;<span class=\&quot;brand-tag\&quot;>&quot;,&quot;c&quot;:&quot;</span>&quot;}}">Kshana <span class="brand-tag">Studio</span></span></a>
++  <nav class="crumb" aria-label="Where you are" data-l10n-attr="aria-label:studio-where-you-are"><span id="iq-crumb">IQ recording</span></nav>
++  <div class="bar-right">
++    <a class="view-switch" href="./" title="Back to the Studio" data-l10n-attr="title:studio-geometry-back-to-the-studio"><svg class="ic flip" aria-hidden="true"><use href="#i-arrow"/></svg><span class="lbl" data-l10n-rich="seg-334caeae9fba">Studio</span></a>
++    <button class="icon-btn" id="btn-theme" type="button" aria-label="Switch between light and dark" title="Switch between light and dark" data-l10n-attr="aria-label:studio-theme;title:studio-theme"><svg aria-hidden="true"><use href="#i-theme"/></svg></button>
++  </div>
++</header>
++
++<main id="main" tabindex="-1">
++<div class="wrap iq" id="iq-root"></div>
++</main>
++<script type="module" src="iq/iq.js"></script>
++<script type="module" src="lib/l10n-boot.mjs"></script>
++</body>
++</html>
+diff --git a/web/studio/iq/iq.css b/web/studio/iq/iq.css
+new file mode 100644
+index 000000000..c8b2f6c57
+--- /dev/null
++++ b/web/studio/iq/iq.css
+@@ -0,0 +1,27 @@
++/* SPDX-License-Identifier: AGPL-3.0-only */
++/* IQ recording view (Kshana Desktop): layout only; colours come from tokens.css and theme.css. */
++.iq{display:flex;flex-direction:column;gap:16px;padding-block:20px 40px}
++.iq-card{display:flex;flex-direction:column;gap:12px}
++.iq-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;align-items:end}
++.iq-form label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2)}
++.iq-form .iq-wide{grid-column:1/-1}
++.iq-in{min-height:40px;padding:0 10px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;min-width:0}
++.iq-btn{min-height:40px;padding:0 18px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);font-weight:600}
++.iq-note{margin:0;font-size:13px;color:var(--ink-2)}
++.iq-status{margin:0;font-size:13.5px}
++.iq-status.err{color:var(--b-unt,#c0392b)}
++.iq-facts{display:grid;grid-template-columns:max-content 1fr;gap:4px 16px;margin:0;font-size:13.5px}
++.iq-facts dt{color:var(--ink-2)}
++.iq-facts dd{margin:0;font-family:var(--f-mono);overflow-wrap:anywhere}
++.iq-over,.iq-spec{width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2)}
++.iq-over{cursor:crosshair}
++.iq-over:focus-visible{outline:2px solid var(--tim,currentColor);outline-offset:2px}
++.iq-svg{display:block;width:100%;height:auto}
++.iq-over .iq-svg{aspect-ratio:960/250}
++.iq-spec .iq-svg{aspect-ratio:960/220}
++.iq-pow,.iq-psd{fill:none;stroke:var(--ink);stroke-width:1.4;vector-effect:non-scaling-stroke}
++.iq-cur{stroke:var(--tim,#e67e22);stroke-width:2;vector-effect:non-scaling-stroke}
++.iq-axis{font:500 11px var(--f-mono);fill:var(--ink-2)}
++.iq-transport{display:flex;align-items:center;gap:12px}
++.iq-time{font-family:var(--f-mono);font-size:13px;color:var(--ink-2)}
++.iq-open{min-height:40px;padding:0 22px;border-radius:999px;font-weight:600}
+diff --git a/web/studio/iq/iq.js b/web/studio/iq/iq.js
+new file mode 100644
+index 000000000..d2064ac1f
+--- /dev/null
++++ b/web/studio/iq/iq.js
+@@ -0,0 +1,272 @@
++// SPDX-License-Identifier: AGPL-3.0-only
++// IQ recording view (Kshana Desktop only): the DOM layer. The app reads the recording from disk
++// in pieces through its read-only commands (file_info, read_range, iq_probe); lib/iqview.mjs
++// decodes and measures them. Read only: this page has no control that writes a file, sends
++// anything to a radio, or makes a signal. Outside the Desktop it says what it needs.
++import { t, ready } from "../lib/t.mjs";
++import { desktopInvoke } from "../lib/desktop.mjs";
++import {
++  FORMATS, bytesPerSample, parseSigmfMeta, sigmfMetaPath, fromBase64, decode, meanPowerDb,
++  welch, db, binFrequencies, overviewOffsets, clock,
++} from "../lib/iqview.mjs";
++await ready();
++
++const $ = (id) => document.getElementById(id);
++const NS = "http://www.w3.org/2000/svg";
++function el(tag, attrs, ...kids) {
++  const n = document.createElement(tag);
++  for (const [k, v] of Object.entries(attrs || {})) { if (v != null) n.setAttribute(k, v); }
++  for (const k of kids.flat()) if (k != null) n.append(k.nodeType ? k : document.createTextNode(String(k)));
++  return n;
++}
++function sv(tag, attrs) {
++  const n = document.createElementNS(NS, tag);
++  for (const [k, v] of Object.entries(attrs || {})) n.setAttribute(k, v);
++  return n;
++}
++const fmtNum = (x, d = 0) => (x == null || !Number.isFinite(x) ? "–" : x.toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: d }));
++const fmtBytes = (b) => (b >= 2 ** 30 ? `${fmtNum(b / 2 ** 30, 2)} GiB` : b >= 2 ** 20 ? `${fmtNum(b / 2 ** 20, 1)} MiB` : `${fmtNum(b)} B`);
++const fmtHz = (f) => (f == null ? "–" : Math.abs(f) >= 1e6 ? `${fmtNum(f / 1e6, 4)} MHz` : `${fmtNum(f / 1e3, 3)} kHz`);
++
++// The overview: POINTS places spread over the file, CHUNK samples read at each (power and a waterfall row).
++const POINTS = 240, CHUNK = 8192, ROW_NFFT = 256, SPEC_NFFT = 1024, SPEC_SEGS = 64;
++const S = { invoke: null, path: "", format: "ci16", fs: 0, centre: 0, total: 0, rows: [], power: [], offsets: [], cursor: 0, playing: false, timer: 0, gen: 0 };
++
++document.title = `${t("js-iq-title", "IQ recording")} · Kshana Studio`;
++$("iq-crumb").textContent = t("js-iq-title", "IQ recording");
++$("btn-theme").addEventListener("click", () => {
++  const root = document.documentElement;
++  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
++  root.dataset.theme = dark ? "light" : "dark";
++  try { localStorage.setItem("kshana-theme", root.dataset.theme); } catch (e) { /* storage blocked */ }
++});
++
++const root = $("iq-root");
++root.append(
++  el("p", { class: "kicker" }, el("i", { style: "--c:var(--nav)" }), t("js-iq-kicker", "Kshana Desktop")),
++  el("h1", {}, t("js-iq-h1", "Look through an IQ recording")),
++  el("p", { class: "lede" }, t("js-iq-lede", "Open a recording of received GNSS samples of any size from disk: its power over the whole file, a waterfall, and the spectrum at any moment, which you can play through. The file is read in pieces and never changed. This page only reads recordings: it sends nothing to any radio and makes no signal.")),
++);
++
++S.invoke = desktopInvoke();
++if (!S.invoke) {
++  root.append(el("section", { class: "card iq-card" },
++    el("p", {}, t("js-iq-needs-desktop", "This page reads recordings from disk, so it opens in Kshana Desktop, the Studio as a native application. In a browser, the command line reads recordings: kshana iq --help."))));
++} else {
++  buildDesktop();
++}
++
++function status(msg, err) { const s = $("iq-status"); s.textContent = msg; s.classList.toggle("err", !!err); }
++
++function buildDesktop() {
++  const fmt = el("select", { id: "iq-format", class: "iq-in" }, Object.keys(FORMATS).map((f) => el("option", { value: f }, f)));
++  fmt.value = S.format;
++  root.append(
++    el("section", { class: "card iq-card", "aria-labelledby": "iq-open-h" },
++      el("h2", { id: "iq-open-h", class: "h3" }, t("js-iq-open-h", "Recording")),
++      el("div", { class: "iq-form" },
++        el("label", { class: "iq-wide" }, el("span", {}, t("js-iq-path", "File path (a .sigmf-data, or raw samples)")),
++          el("input", { id: "iq-path", class: "iq-in", type: "text", spellcheck: "false", placeholder: "/data/capture.sigmf-data" })),
++        el("label", {}, el("span", {}, t("js-iq-format", "Sample format")), fmt),
++        el("label", {}, el("span", {}, t("js-iq-rate", "Sample rate (Hz)")), el("input", { id: "iq-rate", class: "iq-in", type: "number", min: "1", step: "any", value: "4000000" })),
++        el("label", {}, el("span", {}, t("js-iq-centre", "Centre frequency (Hz)")), el("input", { id: "iq-centre", class: "iq-in", type: "number", step: "any", value: "1575420000" })),
++        el("button", { id: "iq-open", type: "button", class: "btn-primary iq-open" }, t("js-iq-open", "Open"))),
++      el("p", { class: "iq-note" }, t("js-iq-sigmf-note", "A SigMF recording fills the format, rate and frequency from its .sigmf-meta file. Raw samples need them typed in.")),
++      el("p", { id: "iq-status", class: "iq-status", role: "status", "aria-live": "polite" }),
++      el("dl", { id: "iq-facts", class: "iq-facts", hidden: "" })),
++    el("section", { class: "card iq-card", id: "iq-view", "aria-labelledby": "iq-over-h", hidden: "" },
++      el("h2", { id: "iq-over-h", class: "h3" }, t("js-iq-over-h", "The whole recording")),
++      el("p", { class: "iq-note" }, t("js-iq-over-note", "Power (dB full scale) and a waterfall from samples read at evenly spaced places through the file. Click or use the arrow keys to move the cursor.")),
++      el("div", { id: "iq-over", class: "iq-over", tabindex: "0", role: "slider", "aria-label": t("js-iq-cursor", "Time in the recording"), "aria-valuemin": "0" }),
++      el("div", { class: "iq-transport" },
++        el("button", { id: "iq-play", type: "button", class: "iq-btn" }, t("js-iq-play", "Play through")),
++        el("span", { id: "iq-time", class: "iq-time" })),
++      el("h2", { class: "h3" }, t("js-iq-spec-h", "Spectrum at the cursor")),
++      el("div", { id: "iq-spec", class: "iq-spec" }),
++      el("p", { id: "iq-spec-note", class: "iq-note" })),
++  );
++  fmt.addEventListener("change", () => { S.format = fmt.value; });
++  $("iq-open").addEventListener("click", open);
++  $("iq-path").addEventListener("keydown", (e) => { if (e.key === "Enter") open(); });
++  $("iq-play").addEventListener("click", () => (S.playing ? stop() : play()));
++  const over = $("iq-over");
++  over.addEventListener("click", (e) => {
++    const r = over.getBoundingClientRect();
++    setCursor(Math.round(((e.clientX - r.left) / r.width) * (S.offsets.length - 1)));
++  });
++  over.addEventListener("keydown", (e) => {
++    const step = { ArrowRight: 1, ArrowLeft: -1, PageUp: 10, PageDown: -10 }[e.key];
++    if (step) { e.preventDefault(); setCursor(S.cursor + step); }
++    else if (e.key === "Home") setCursor(0);
++    else if (e.key === "End") setCursor(S.offsets.length - 1);
++  });
++}
++
++async function readSamples(offsetSamples, n) {
++  const bps = bytesPerSample(S.format);
++  const r = await S.invoke("read_range", { path: S.path, offset: offsetSamples * bps, len: n * bps });
++  return decode(fromBase64(r.base64), S.format);
++}
++
++async function open() {
++  stop();
++  const gen = ++S.gen;
++  const path = $("iq-path").value.trim();
++  if (!path) { status(t("js-iq-err-no-path", "Type the path of a recording."), true); return; }
++  try {
++    status(t("js-iq-opening", "Opening…"));
++    const metaPath = sigmfMetaPath(path);
++    let dataPath = path;
++    if (metaPath) {
++      dataPath = metaPath.replace(/\.sigmf-meta$/i, ".sigmf-data");
++      const m = await S.invoke("read_range", { path: metaPath, offset: 0, len: 1 << 20 });
++      const meta = parseSigmfMeta(new TextDecoder().decode(fromBase64(m.base64)));
++      if (!meta.format) throw new Error(t("js-iq-err-datatype", "the recording's datatype { $datatype } is not one this page reads (ci8, cu8, ci16_le, cf32_le)", { datatype: String(meta.datatype) }));
++      $("iq-format").value = meta.format;
++      if (meta.sampleRateHz) $("iq-rate").value = String(meta.sampleRateHz);
++      if (meta.centreHz != null) $("iq-centre").value = String(meta.centreHz);
++    }
++    S.path = dataPath;
++    S.format = $("iq-format").value;
++    S.fs = Number($("iq-rate").value);
++    S.centre = Number($("iq-centre").value) || 0;
++    if (!(S.fs > 0)) throw new Error(t("js-iq-err-rate", "the sample rate must be a positive number of hertz"));
++    const probe = await S.invoke("iq_probe", { path: S.path, format: S.format, probe: 1 << 20 });
++    if (gen !== S.gen) return;
++    S.total = probe.samples;
++    showFacts(probe);
++    if (S.total < ROW_NFFT) throw new Error(t("js-iq-err-short", "the recording holds fewer than { $n } samples", { n: ROW_NFFT }));
++    await overview(gen);
++  } catch (e) {
++    if (gen === S.gen) status(t("js-iq-err-open", "{ $path }: could not be read ({ $reason }).", { path, reason: e && e.message ? e.message : String(e) }), true);
++  }
++}
++
++function showFacts(p) {
++  const dl = $("iq-facts");
++  const row = (k, v) => [el("dt", {}, k), el("dd", {}, v)];
++  dl.replaceChildren(
++    ...row(t("js-iq-fact-file", "File"), S.path),
++    ...row(t("js-iq-fact-size", "Size"), fmtBytes(p.bytes)),
++    ...row(t("js-iq-fact-samples", "Samples"), `${fmtNum(p.samples)} (${S.format})`),
++    ...row(t("js-iq-fact-duration", "Duration"), clock(p.samples / S.fs)),
++    ...row(t("js-iq-fact-centre", "Centre, span"), `${fmtHz(S.centre)}, ${fmtHz(S.fs)}`),
++    ...row(t("js-iq-fact-power", "Power of the first { $n } samples", { n: fmtNum(p.probed_samples) }), p.mean_power_dbfs == null ? "–" : `${fmtNum(p.mean_power_dbfs, 1)} dBFS`),
++    ...row(t("js-iq-fact-peak", "Peak magnitude there"), `${fmtNum(p.peak_magnitude, 3)} FS`),
++  );
++  dl.hidden = false;
++}
++
++async function overview(gen) {
++  S.offsets = overviewOffsets(S.total, POINTS, Math.min(CHUNK, S.total));
++  S.rows = [];
++  S.power = [];
++  $("iq-view").hidden = false;
++  for (let i = 0; i < S.offsets.length; i++) {
++    if (gen !== S.gen) return;
++    const iq = await readSamples(S.offsets[i], Math.min(CHUNK, S.total));
++    S.power.push(meanPowerDb(iq));
++    S.rows.push(welch(iq, ROW_NFFT).bins);
++    if (i % 24 === 0 || i === S.offsets.length - 1) {
++      status(t("js-iq-reading", "Reading the recording: { $done } of { $all } places.", { done: i + 1, all: S.offsets.length }));
++      drawOverview();
++    }
++  }
++  status(t("js-iq-read", "Read { $n } places through { $duration } of recording, { $chunk } samples at each.", { n: S.offsets.length, duration: clock(S.total / S.fs), chunk: fmtNum(Math.min(CHUNK, S.total)) }));
++  $("iq-over").setAttribute("aria-valuemax", String(S.offsets.length - 1));
++  await setCursor(0);
++}
++
++function drawOverview() {
++  const box = $("iq-over");
++  const W = 960, PH = 90, WH = 160, n = Math.max(S.offsets.length, 2);
++  const svg = sv("svg", { viewBox: `0 0 ${W} ${PH + WH}`, class: "iq-svg", "aria-hidden": "true", preserveAspectRatio: "none" });
++  const ps = S.power.filter((p) => p != null);
++  const lo = ps.length ? Math.min(...ps) - 1 : -60, hi = ps.length ? Math.max(...ps) + 1 : 0;
++  const x = (i) => (i / (n - 1)) * W, y = (p) => PH - 6 - ((p - lo) / Math.max(1e-9, hi - lo)) * (PH - 16);
++  svg.append(sv("polyline", { class: "iq-pow", points: S.power.map((p, i) => (p == null ? "" : `${x(i).toFixed(1)},${y(p).toFixed(1)}`)).join(" ") }));
++  const lab = sv("text", { x: "4", y: "12", class: "iq-axis" });
++  lab.textContent = `${fmtNum(hi, 0)} dBFS`;
++  const lab2 = sv("text", { x: "4", y: String(PH - 8), class: "iq-axis" });
++  lab2.textContent = `${fmtNum(lo, 0)} dBFS`;
++  svg.append(lab, lab2);
++  // Waterfall: one column per place, frequency upwards, drawn into a canvas image.
++  if (S.rows.length) {
++    const c = document.createElement("canvas");
++    c.width = S.offsets.length;
++    c.height = ROW_NFFT;
++    const g = c.getContext("2d"), img = g.createImageData(c.width, c.height);
++    const all = S.rows.flatMap((r) => Array.from(r, (v) => db(v)));
++    const sorted = all.slice().sort((a, b) => a - b);
++    const flo = sorted[Math.floor(sorted.length * 0.05)], fhi = sorted[sorted.length - 1];
++    S.rows.forEach((r, col) => {
++      for (let k = 0; k < ROW_NFFT; k++) {
++        const v = Math.min(1, Math.max(0, (db(r[k]) - flo) / Math.max(1e-9, fhi - flo)));
++        const o = 4 * ((ROW_NFFT - 1 - k) * c.width + col);
++        img.data[o] = Math.round(20 + 235 * v * v); img.data[o + 1] = Math.round(30 + 200 * v); img.data[o + 2] = Math.round(90 + 120 * (1 - v)); img.data[o + 3] = 255;
++      }
++    });
++    g.putImageData(img, 0, 0);
++    svg.append(sv("image", { href: c.toDataURL(), x: "0", y: String(PH), width: String(W), height: String(WH), preserveAspectRatio: "none" }));
++  }
++  const cx = x(S.cursor);
++  svg.append(sv("line", { class: "iq-cur", x1: cx, x2: cx, y1: "0", y2: String(PH + WH) }));
++  box.replaceChildren(svg);
++}
++
++async function setCursor(i) {
++  if (!S.offsets.length) return;
++  S.cursor = Math.max(0, Math.min(S.offsets.length - 1, i));
++  const at = S.offsets[S.cursor] / S.fs;
++  $("iq-over").setAttribute("aria-valuenow", String(S.cursor));
++  $("iq-over").setAttribute("aria-valuetext", clock(at));
++  $("iq-time").textContent = `${clock(at)} / ${clock(S.total / S.fs)}`;
++  drawOverview();
++  const gen = S.gen;
++  const n = Math.min(SPEC_NFFT * SPEC_SEGS, S.total - S.offsets[S.cursor]);
++  const iq = await readSamples(S.offsets[S.cursor], n);
++  if (gen !== S.gen) return;
++  drawSpectrum(welch(iq, SPEC_NFFT));
++}
++
++function drawSpectrum({ bins, segments }) {
++  const box = $("iq-spec");
++  if (!segments) { box.replaceChildren(); return; }
++  const W = 960, H = 220, f = binFrequencies(SPEC_NFFT, S.fs, S.centre);
++  const d = Array.from(bins, (v) => db(v));
++  const lo = Math.min(...d), hi = Math.max(...d) + 3;
++  const x = (k) => (k / (SPEC_NFFT - 1)) * W, y = (v) => H - 18 - ((v - lo) / Math.max(1e-9, hi - lo)) * (H - 30);
++  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, class: "iq-svg", role: "img", "aria-label": t("js-iq-spec-aria", "Spectrum at { $time }, { $lo } to { $hi } dB full scale per bin", { time: clock(S.offsets[S.cursor] / S.fs), lo: fmtNum(lo, 0), hi: fmtNum(hi, 0) }), preserveAspectRatio: "none" });
++  svg.append(sv("polyline", { class: "iq-psd", points: d.map((v, k) => `${x(k).toFixed(1)},${y(v).toFixed(1)}`).join(" ") }));
++  for (const [k, anchor] of [[0, "start"], [SPEC_NFFT / 2, "middle"], [SPEC_NFFT - 1, "end"]]) {
++    const tx = sv("text", { x: String(x(k)), y: String(H - 4), "text-anchor": anchor, class: "iq-axis" });
++    tx.textContent = fmtHz(f[k]);
++    svg.append(tx);
++  }
++  const top = sv("text", { x: "4", y: "12", class: "iq-axis" });
++  top.textContent = `${fmtNum(hi, 0)} dBFS/bin`;
++  svg.append(top);
++  box.replaceChildren(svg);
++  $("iq-spec-note").textContent = t("js-iq-spec-note", "{ $segs } Hann-windowed segments of { $nfft } samples ({ $res } per bin), averaged. Bins sum to the power of the samples read.", { segs: segments, nfft: SPEC_NFFT, res: fmtHz(S.fs / SPEC_NFFT) });
++}
++
++function play() {
++  if (!S.offsets.length) return;
++  S.playing = true;
++  $("iq-play").textContent = t("js-iq-pause", "Pause");
++  if (S.cursor >= S.offsets.length - 1) S.cursor = -1;
++  const step = async () => {
++    if (!S.playing) return;
++    await setCursor(S.cursor + 1);
++    if (S.cursor >= S.offsets.length - 1) { stop(); return; }
++    S.timer = setTimeout(step, 250);
++  };
++  step();
++}
++
++function stop() {
++  S.playing = false;
++  clearTimeout(S.timer);
++  const b = $("iq-play");
++  if (b) b.textContent = t("js-iq-play", "Play through");
++}
+diff --git a/web/studio/lib/iqview.mjs b/web/studio/lib/iqview.mjs
+new file mode 100644
+index 000000000..4eb3db09a
+--- /dev/null
++++ b/web/studio/lib/iqview.mjs
+@@ -0,0 +1,157 @@
++// SPDX-License-Identifier: AGPL-3.0-only
++// IQ recordings in Kshana Desktop: the arithmetic of the recording view (iq/), with no DOM.
++// The app reads the file from disk in pieces (read_range, iq_probe in apps/desktop); this
++// module decodes those pieces and measures them. It only reads received samples: nothing
++// here makes, changes or sends a signal.
++
++/** The sample formats the app reads (the same as its iq_probe), with bytes per complex sample. */
++export const FORMATS = { ci8: 2, cu8: 2, ci16: 4, cf32: 8 };
++
++/** Bytes per complex sample of `format`, or 0 when the format is not one of FORMATS. */
++export function bytesPerSample(format) {
++  return FORMATS[format] || 0;
++}
++
++/** Our format for a SigMF `core:datatype`, or null (big-endian and real-valued data are not read). */
++export function sigmfFormat(datatype) {
++  return { ci8: "ci8", cu8: "cu8", ci16_le: "ci16", cf32_le: "cf32" }[String(datatype || "").toLowerCase()] || null;
++}
++
++/** The settings a SigMF metadata file gives: `{format, sampleRateHz, centreHz, datatype}`; throws on text that is not SigMF. */
++export function parseSigmfMeta(text) {
++  let m;
++  try { m = JSON.parse(text); } catch (e) { throw new Error("not JSON"); }
++  const g = m && m.global;
++  if (!g || typeof g !== "object") throw new Error("no \"global\" object");
++  const datatype = g["core:datatype"];
++  const cap = Array.isArray(m.captures) && m.captures.length ? m.captures[0] : {};
++  const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
++  return { datatype: datatype || null, format: sigmfFormat(datatype), sampleRateHz: num(g["core:sample_rate"]), centreHz: num(cap["core:frequency"]) };
++}
++
++/** The `.sigmf-meta` file beside a `.sigmf-data` (or the same path for a `.sigmf-meta`), else null. */
++export function sigmfMetaPath(path) {
++  const p = String(path || "");
++  if (/\.sigmf-meta$/i.test(p)) return p;
++  if (/\.sigmf-data$/i.test(p)) return p.replace(/\.sigmf-data$/i, ".sigmf-meta");
++  return null;
++}
++
++/** Bytes from the app's base64 answer. */
++export function fromBase64(b64) {
++  const s = atob(b64 || "");
++  const out = new Uint8Array(s.length);
++  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
++  return out;
++}
++
++/** Interleaved I, Q (full scale 1) from the raw bytes of `format`; a trailing partial sample is dropped. */
++export function decode(bytes, format) {
++  const bps = bytesPerSample(format);
++  if (!bps) throw new Error(`unknown sample format ${format}`);
++  const n = Math.floor(bytes.length / bps);
++  const out = new Float32Array(2 * n);
++  const dv = new DataView(bytes.buffer, bytes.byteOffset, n * bps);
++  for (let k = 0; k < n; k++) {
++    const o = k * bps;
++    let i, q;
++    if (format === "ci8") { i = dv.getInt8(o) / 128; q = dv.getInt8(o + 1) / 128; }
++    else if (format === "cu8") { i = (dv.getUint8(o) - 127.5) / 128; q = (dv.getUint8(o + 1) - 127.5) / 128; }
++    else if (format === "ci16") { i = dv.getInt16(o, true) / 32768; q = dv.getInt16(o + 2, true) / 32768; }
++    else { i = dv.getFloat32(o, true); q = dv.getFloat32(o + 4, true); }
++    out[2 * k] = i;
++    out[2 * k + 1] = q;
++  }
++  return out;
++}
++
++/** Mean power of interleaved samples in dB full scale, or null for none (or all zero). */
++export function meanPowerDb(iq) {
++  const n = iq.length >> 1;
++  if (!n) return null;
++  let p = 0;
++  for (let k = 0; k < iq.length; k++) p += iq[k] * iq[k];
++  return p > 0 ? 10 * Math.log10(p / n) : null;
++}
++
++/** In-place radix-2 FFT of `re`, `im` (length a power of two). */
++export function fft(re, im) {
++  const n = re.length;
++  if (n & (n - 1)) throw new Error("the FFT length must be a power of two");
++  for (let i = 1, j = 0; i < n; i++) {
++    let bit = n >> 1;
++    for (; j & bit; bit >>= 1) j ^= bit;
++    j ^= bit;
++    if (i < j) { [re[i], re[j]] = [re[j], re[i]]; [im[i], im[j]] = [im[j], im[i]]; }
++  }
++  for (let len = 2; len <= n; len <<= 1) {
++    const ang = (-2 * Math.PI) / len;
++    const wr = Math.cos(ang), wi = Math.sin(ang);
++    for (let i = 0; i < n; i += len) {
++      let cr = 1, ci = 0;
++      for (let k = 0; k < len / 2; k++) {
++        const a = i + k, b = a + len / 2;
++        const tr = re[b] * cr - im[b] * ci, ti = re[b] * ci + im[b] * cr;
++        re[b] = re[a] - tr; im[b] = im[a] - ti;
++        re[a] += tr; im[a] += ti;
++        const nr = cr * wr - ci * wi;
++        ci = cr * wi + ci * wr;
++        cr = nr;
++      }
++    }
++  }
++}
++
++/**
++ * Power spectrum of interleaved samples: Hann-windowed segments of `nfft` (a power of two),
++ * not overlapping, averaged. Returns `{bins, segments}`: `bins` (length nfft, linear power,
++ * zero frequency in the middle) sum to the mean power of the segments, so 10·log10 of a bin
++ * is dB full scale in that bin. `segments` is 0 when there are fewer than nfft samples.
++ */
++export function welch(iq, nfft) {
++  const n = iq.length >> 1;
++  const segs = Math.floor(n / nfft);
++  const acc = new Float64Array(nfft);
++  if (!segs) return { bins: acc, segments: 0 };
++  const w = new Float64Array(nfft);
++  let w2 = 0;
++  for (let k = 0; k < nfft; k++) { w[k] = 0.5 - 0.5 * Math.cos((2 * Math.PI * k) / nfft); w2 += w[k] * w[k]; }
++  const re = new Float64Array(nfft), im = new Float64Array(nfft);
++  for (let s = 0; s < segs; s++) {
++    for (let k = 0; k < nfft; k++) { const o = 2 * (s * nfft + k); re[k] = iq[o] * w[k]; im[k] = iq[o + 1] * w[k]; }
++    fft(re, im);
++    for (let k = 0; k < nfft; k++) acc[(k + nfft / 2) % nfft] += re[k] * re[k] + im[k] * im[k];
++  }
++  const scale = 1 / (segs * nfft * w2);
++  for (let k = 0; k < nfft; k++) acc[k] *= scale;
++  return { bins: acc, segments: segs };
++}
++
++/** dB of linear power, floored at `floor` dB (no -Infinity in a drawing). */
++export function db(p, floor = -160) {
++  return p > 0 ? Math.max(floor, 10 * Math.log10(p)) : floor;
++}
++
++/** The frequency of each of `nfft` shifted bins, Hz (centre plus offset). */
++export function binFrequencies(nfft, sampleRateHz, centreHz = 0) {
++  const out = new Float64Array(nfft);
++  for (let k = 0; k < nfft; k++) out[k] = centreHz + ((k - nfft / 2) * sampleRateHz) / nfft;
++  return out;
++}
++
++/** `points` sample offsets spread evenly over a recording of `total` samples, each leaving room for `chunk` samples. */
++export function overviewOffsets(total, points, chunk) {
++  const last = Math.max(0, total - chunk);
++  if (points <= 1 || last === 0) return [0];
++  const out = [];
++  for (let i = 0; i < points; i++) out.push(Math.round((i * last) / (points - 1)));
++  return [...new Set(out)];
++}
++
++/** Seconds as h:mm:ss.s (or m:ss.s under an hour). */
++export function clock(s) {
++  if (!Number.isFinite(s) || s < 0) return "–";
++  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
++  const ss = sec.toFixed(1).padStart(4, "0");
++  return h ? `${h}:${String(m).padStart(2, "0")}:${ss}` : `${m}:${ss}`;
++}
+diff --git a/web/studio/lib/iqview.test.mjs b/web/studio/lib/iqview.test.mjs
+new file mode 100644
+index 000000000..1cf32ef8e
+--- /dev/null
++++ b/web/studio/lib/iqview.test.mjs
+@@ -0,0 +1,90 @@
++// SPDX-License-Identifier: AGPL-3.0-only
++// Tests for the IQ recording view's arithmetic (iqview.mjs). Run with `node web/studio/lib/iqview.test.mjs`.
++import assert from "node:assert/strict";
++import {
++  FORMATS, bytesPerSample, sigmfFormat, parseSigmfMeta, sigmfMetaPath, fromBase64, decode,
++  meanPowerDb, fft, welch, db, binFrequencies, overviewOffsets, clock,
++} from "./iqview.mjs";
++
++const near = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} vs ${b}`);
++
++// Formats: the app's iq_probe set, and SigMF's names for them.
++assert.deepEqual(FORMATS, { ci8: 2, cu8: 2, ci16: 4, cf32: 8 });
++assert.equal(bytesPerSample("ci16"), 4);
++assert.equal(bytesPerSample("ri16"), 0);
++assert.equal(sigmfFormat("ci16_le"), "ci16");
++assert.equal(sigmfFormat("cf32_le"), "cf32");
++assert.equal(sigmfFormat("ci16_be"), null);
++assert.equal(sigmfFormat("rf32_le"), null);
++
++// SigMF metadata: datatype, rate and the first capture's frequency.
++const meta = parseSigmfMeta(JSON.stringify({ global: { "core:datatype": "ci16_le", "core:sample_rate": 4e6 }, captures: [{ "core:sample_start": 0, "core:frequency": 1575.42e6 }], annotations: [] }));
++assert.deepEqual(meta, { datatype: "ci16_le", format: "ci16", sampleRateHz: 4e6, centreHz: 1575.42e6 });
++assert.equal(parseSigmfMeta('{"global":{}}').format, null);
++assert.throws(() => parseSigmfMeta("x"), /not JSON/);
++assert.throws(() => parseSigmfMeta("{}"), /global/);
++assert.equal(sigmfMetaPath("/r/a.sigmf-data"), "/r/a.sigmf-meta");
++assert.equal(sigmfMetaPath("C:\\r\\a.SIGMF-META"), "C:\\r\\a.SIGMF-META");
++assert.equal(sigmfMetaPath("/r/a.ci16"), null);
++
++// Decoding, as the app's iq_probe scales: ci16 0.5 FS is 16384.
++const raw = new Uint8Array(8);
++new DataView(raw.buffer).setInt16(0, 16384, true);
++new DataView(raw.buffer).setInt16(2, -16384, true);
++const d = decode(raw, "ci16");
++assert.equal(d.length, 4);
++assert.deepEqual([...d.slice(0, 2)], [0.5, -0.5]);
++assert.deepEqual([...decode(new Uint8Array([128, 127, 0, 255]), "cu8")].map((x) => +x.toFixed(4)), [0.0039, -0.0039, -0.9961, 0.9961]);
++assert.deepEqual([...decode(new Uint8Array([64, 192, 1]), "ci8")], [0.5, -0.5]); // trailing byte dropped
++const f32 = new Uint8Array(8);
++new DataView(f32.buffer).setFloat32(0, 0.25, true);
++new DataView(f32.buffer).setFloat32(4, -1, true);
++assert.deepEqual([...decode(f32, "cf32")], [0.25, -1]);
++assert.throws(() => decode(raw, "xx"), /unknown sample format/);
++assert.deepEqual([...fromBase64(Buffer.from([1, 2, 255]).toString("base64"))], [1, 2, 255]);
++
++// Power: I = 0.5 FS, Q = 0 is -6.02 dBFS (the same figure the app's probe test checks).
++near(meanPowerDb(new Float32Array([0.5, 0, 0.5, 0])), -6.0206, 1e-3, "power");
++assert.equal(meanPowerDb(new Float32Array(4)), null);
++assert.equal(meanPowerDb(new Float32Array(0)), null);
++
++// FFT: a complex tone lands in its bin.
++{
++  const n = 16, re = new Float64Array(n), im = new Float64Array(n);
++  for (let k = 0; k < n; k++) { re[k] = Math.cos((2 * Math.PI * 3 * k) / n); im[k] = Math.sin((2 * Math.PI * 3 * k) / n); }
++  fft(re, im);
++  near(re[3], n, 1e-9, "tone bin");
++  for (let k = 0; k < n; k++) if (k !== 3) near(Math.hypot(re[k], im[k]), 0, 1e-9, `bin ${k}`);
++  assert.throws(() => fft(new Float64Array(6), new Float64Array(6)), /power of two/);
++}
++
++// Welch: the bins sum to the mean power; a tone at +fs/8 peaks at its frequency.
++{
++  const nfft = 256, segs = 8, fs = 2.048e6, centre = 1575.42e6, amp = 0.25;
++  const iq = new Float32Array(2 * nfft * segs);
++  for (let k = 0; k < nfft * segs; k++) {
++    const ph = (2 * Math.PI * (fs / 8) * k) / fs;
++    iq[2 * k] = amp * Math.cos(ph);
++    iq[2 * k + 1] = amp * Math.sin(ph);
++  }
++  const { bins, segments } = welch(iq, nfft);
++  assert.equal(segments, segs);
++  const total = bins.reduce((a, b) => a + b, 0);
++  near(10 * Math.log10(total), 20 * Math.log10(amp), 1e-6, "Parseval");
++  const peak = bins.indexOf(Math.max(...bins));
++  const freqs = binFrequencies(nfft, fs, centre);
++  near(freqs[peak], centre + fs / 8, fs / nfft / 2, "peak frequency");
++  near(freqs[nfft / 2], centre, 1e-6, "centre bin");
++  assert.equal(welch(new Float32Array(10), nfft).segments, 0);
++}
++assert.equal(db(0), -160);
++near(db(0.01), -20, 1e-12, "db");
++
++// Overview offsets: evenly spread, room for the last chunk, none repeated.
++assert.deepEqual(overviewOffsets(1000, 5, 100), [0, 225, 450, 675, 900]);
++assert.deepEqual(overviewOffsets(50, 5, 100), [0]);
++assert.deepEqual(overviewOffsets(103, 5, 100), [0, 1, 2, 3]);
++assert.equal(clock(3725.25), "1:02:05.3");
++assert.equal(clock(65.04), "1:05.0");
++assert.equal(clock(-1), "–");
++console.log("iqview.mjs: OK");
+diff --git a/web/studio/tools/tools.js b/web/studio/tools/tools.js
+index a957a9eb5..abf7f8ea6 100644
+--- a/web/studio/tools/tools.js
++++ b/web/studio/tools/tools.js
+@@ -8,6 +8,7 @@ import { imuRows } from "../lib/imufit-card.mjs";
+ import { readScorecard, summaryRows as jtRows, assessability } from "../lib/jammertest-card.mjs";
+ import { PAGES, FEATURES, CLI_CARDS, AI_QUESTIONS, docsHref } from "../lib/tools35-data.mjs";
+ import { zip } from "../lib/zip.mjs";
++import { desktopInvoke } from "../lib/desktop.mjs";
+ import { exampleFileUrl, packFilesJson, packProblems, parsePublicKey, verdictView, checkEpoch, benchEntries, scenarioKind, BENCH_KINDS, complianceRuns, MAX_COMPLIANCE_RUNS, toBase64, complianceView, statusInfo, osnmaView, OSNMA_STATUS, gstText, ubxLines } from "../lib/tools35.mjs";
+ await ready(); // the page's first catalogue is loaded before text is built
+ 
+@@ -87,7 +88,9 @@ function coverage() {
+   for (const f of FEATURES) {
+     const studio = f.studio.length
+       ? el("ul", { class: "tl-list" }, f.studio.map(([pid, what]) => el("li", {}, el("a", { href: PAGES[pid].href }, PAGES[pid].label), `: ${what}.`)))
+-      : el("span", { class: "tl-no" }, t("js-tools-not-in-browser", "Not in a browser."), " ", el("a", { href: "tools/#" + (f.card === "marine" || f.card === "telemetry" || f.card === "iq" ? "cli" : "cli") }, t("js-tools-how-to-run", "How to run it")), `. ${f.why}`);
++      : el("span", { class: "tl-no" }, t("js-tools-not-in-browser", "Not in a browser."), " ", el("a", { href: "tools/#" + (f.card === "marine" || f.card === "telemetry" || f.card === "iq" ? "cli" : "cli") }, t("js-tools-how-to-run", "How to run it")), `. ${f.why}`,
++        // Kshana Desktop reads recordings from disk: there, the IQ row links to the recording view.
++        f.card === "iq" && desktopInvoke() ? [" ", el("a", { href: "iq/" }, t("js-tools-iq-desktop", "In Kshana Desktop: look through a recording"))] : null);
+     body.append(el("tr", {}, el("td", {}, f.name), el("td", {}, studio), el("td", {}, el("code", {}, f.cli))));
+   }
+ }
+diff --git a/web/tools/port_site.py b/web/tools/port_site.py
+index a58b18a54..8a43fba49 100644
+--- a/web/tools/port_site.py
++++ b/web/tools/port_site.py
+@@ -95,7 +95,7 @@ STUDIO_SKIP_DIRS = {"REVIEW"}
+ # engine's own package and a pinned Natural Earth file) and the Optical PNT view (optical/: the same; it reads the two optical-atmosphere recordings).
+ # 0.40 adds the Mission thread view (mission-thread/: the same; it reads recorded/mission-thread-artemis-class.json).
+ # The Holdover test view (holdover/: the same; it reads the two holdover-test recordings and the record in the scenario text).
+-STUDIO_PAGES = ("index.html", "advanced/index.html", "trust/index.html", "interference/index.html", "training/index.html", "tools/index.html", "geometry/index.html", "lunar/index.html", "replay/index.html", "optical/index.html", "holdover/index.html", "observatory/index.html", "ssv/index.html", "lunar-infra/index.html", "mission-thread/index.html")
++STUDIO_PAGES = ("index.html", "advanced/index.html", "trust/index.html", "interference/index.html", "training/index.html", "tools/index.html", "geometry/index.html", "lunar/index.html", "replay/index.html", "optical/index.html", "holdover/index.html", "observatory/index.html", "ssv/index.html", "lunar-infra/index.html", "mission-thread/index.html", "iq/index.html")
+ STUDIO_SKIP_RE = re.compile(r"^(tools_.*\.mjs|.*\.d\.ts|\..*)$")
+ 
+ TEXT_EXT = (".html", ".css", ".js", ".mjs", ".json", ".txt", ".xml", ".svg", ".toml", ".md")
+-- 
+2.43.0
+
