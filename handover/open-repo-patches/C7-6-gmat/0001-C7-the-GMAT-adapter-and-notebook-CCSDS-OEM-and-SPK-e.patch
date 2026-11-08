@@ -1,0 +1,533 @@
+From a52f6f642e6be625d836a6fac0d03de31a800aea Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Sun, 8 Nov 2026 15:45:50 +0000
+Subject: [PATCH] C7: the GMAT adapter and notebook (CCSDS-OEM and SPK
+ ephemeris propagators, GmatConsole), written without running GMAT; its own
+ workflow job with continue-on-error, GMAT R2026a pinned by SHA-256 and
+ cached; RESULTS says GMAT is not done until the job is green
+
+---
+ .github/workflows/flight-dynamics.yml         |  53 ++++++
+ .../c7-flight-dynamics-adapters/RESULTS.md    |  13 +-
+ integrations/flight-dynamics/README.md        |   2 +-
+ integrations/flight-dynamics/gmat.ipynb       | 154 ++++++++++++++++++
+ integrations/flight-dynamics/gmat.md          |  80 +++++++++
+ integrations/flight-dynamics/gmat_reader.py   | 152 +++++++++++++++++
+ .../flight-dynamics/requirements-gmat.txt     |   3 +
+ 7 files changed, 453 insertions(+), 4 deletions(-)
+ create mode 100644 integrations/flight-dynamics/gmat.ipynb
+ create mode 100644 integrations/flight-dynamics/gmat.md
+ create mode 100644 integrations/flight-dynamics/gmat_reader.py
+ create mode 100644 integrations/flight-dynamics/requirements-gmat.txt
+
+diff --git a/.github/workflows/flight-dynamics.yml b/.github/workflows/flight-dynamics.yml
+index f04bfec33..18f2e9157 100644
+--- a/.github/workflows/flight-dynamics.yml
++++ b/.github/workflows/flight-dynamics.yml
+@@ -108,3 +108,56 @@ jobs:
+           name: flight-dynamics-${{ matrix.tool }}
+           path: ${{ runner.temp }}/fd
+           if-no-files-found: warn
++  gmat:
++    # GMAT R2026a reads the OEM and the SPK through its ephemeris propagators. The adapter was
++    # written without running GMAT, so this job may fail while it is fixed from these logs; it
++    # does not fail the workflow, and C7 does not count GMAT done until it is green.
++    needs: write
++    runs-on: ubuntu-22.04
++    timeout-minutes: 60
++    continue-on-error: true
++    env:
++      GMAT_TARBALL_SHA256: fe124b4a606b2e3b704a6fbb1c37b87598d5df0d18cb661c304b5f60074a7754
++      GMAT_URL: https://sourceforge.net/projects/gmat/files/GMAT/GMAT-R2026a/gmat-ubuntu-x64-R2026a.tar.gz/download
++    steps:
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
++      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
++        with:
++          name: fd-inputs
++          path: fd-inputs
++      - name: Cache GMAT R2026a (keyed on the tarball's SHA-256)
++        id: gmat-cache
++        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
++        with:
++          path: ~/gmat
++          key: gmat-R2026a-fe124b4a606b2e3b704a6fbb1c37b87598d5df0d18cb661c304b5f60074a7754
++      - name: Fetch GMAT R2026a and check its SHA-256
++        if: steps.gmat-cache.outputs.cache-hit != 'true'
++        run: |
++          set -euo pipefail
++          curl -sSfL --retry 4 -o "$RUNNER_TEMP/gmat.tar.gz" "$GMAT_URL"
++          echo "$GMAT_TARBALL_SHA256  $RUNNER_TEMP/gmat.tar.gz" | sha256sum -c -
++          mkdir -p ~/gmat
++          tar xzf "$RUNNER_TEMP/gmat.tar.gz" -C ~/gmat
++          rm "$RUNNER_TEMP/gmat.tar.gz"
++      - name: GMAT's runtime libraries
++        run: sudo apt-get update && sudo apt-get install -y libgfortran5 libgomp1
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
++        with:
++          python-version: "3.12"
++      - name: Install the wheel and the adapter's requirements
++        run: |
++          pip install --no-index --find-links fd-inputs/dist kshana
++          pip install -r integrations/flight-dynamics/requirements-gmat.txt
++      - name: Run the GMAT notebook top to bottom
++        env:
++          GMAT_ROOT: /home/runner/gmat/GMAT/R2026a
++          KSHANA_FD_CLI_DIR: ${{ github.workspace }}/fd-inputs/cli
++          KSHANA_FD_OUT: ${{ runner.temp }}/fd
++        run: python integrations/flight-dynamics/run_notebooks.py gmat
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        if: always()
++        with:
++          name: flight-dynamics-gmat
++          path: ${{ runner.temp }}/fd
++          if-no-files-found: warn
+diff --git a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+index 88d352d7f..58bb21b36 100644
+--- a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
++++ b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+@@ -56,6 +56,13 @@ run uploads its difference report.
+ 
+ ## GMAT
+ 
+-Not done. The adapter needs GMAT R2026a, a 401,664,992-byte tarball (SHA-256
+-`fe124b4a606b2e3b704a6fbb1c37b87598d5df0d18cb661c304b5f60074a7754`). The session that wrote the other
+-adapters could not run GMAT's binaries.
++**Not done.** The adapter (`integrations/flight-dynamics/gmat_reader.py`, `gmat.ipynb`) and its
++workflow job `gmat` are in place. The job uses GMAT R2026a, from a 401,664,992-byte tarball pinned by
++SHA-256 `fe124b4a606b2e3b704a6fbb1c37b87598d5df0d18cb661c304b5f60074a7754` and cached. GMAT loads the
++OEM through its `CCSDS-OEM` propagator and the SPK through its `SPK` propagator, steps through each
++file at the node spacing, and reports every state; the report compares them as for an evaluating
++tool.
++
++The adapter was written from GMAT's documentation and samples without running GMAT: the session
++that wrote it was not allowed to execute GMAT's binaries. The job runs with continue-on-error and is
++fixed from its logs. GMAT counts as done only when that job is green.
+diff --git a/integrations/flight-dynamics/README.md b/integrations/flight-dynamics/README.md
+index f583b3629..1b0edd48e 100644
+--- a/integrations/flight-dynamics/README.md
++++ b/integrations/flight-dynamics/README.md
+@@ -13,7 +13,7 @@ bar: the data either comes through or it does not.
+ | Orekit 13.1.9 (orekit_jpype 13.1.9.0) | [`orekit_reader.py`](orekit_reader.py) | [`orekit.ipynb`](orekit.ipynb) ([`.md`](orekit.md)) | OEM, OPM | `flight-dynamics.yml`, job `tool (orekit)` |
+ | Basilisk 2.12.2 (`bsk`), through the SPICE Toolkit it ships (`pyswice`) | [`basilisk_reader.py`](basilisk_reader.py) | [`basilisk.ipynb`](basilisk.ipynb) ([`.md`](basilisk.md)) | SPK | `flight-dynamics.yml`, job `tool (basilisk)` |
+ | ANISE 0.10.6 (the fourth, file-based tool: its own kernel reader, not SPICE) | [`anise_reader.py`](anise_reader.py) | [`anise.ipynb`](anise.ipynb) ([`.md`](anise.md)) | SPK, OEM | `flight-dynamics.yml`, job `tool (anise)` |
+-| GMAT | to come | | OEM, SPK | |
++| GMAT R2026a (not yet run: written without running GMAT, its CI job is the first test) | [`gmat_reader.py`](gmat_reader.py) | [`gmat.ipynb`](gmat.ipynb) ([`.md`](gmat.md)) | OEM, SPK | `flight-dynamics.yml`, job `gmat` (continue-on-error until green) |
+ 
+ [`kshana_fd.py`](kshana_fd.py) holds what every tool shares: writing the three files through the
+ Python binding (their SHA-256 must be the pinned ones, and the command line's bytes when
+diff --git a/integrations/flight-dynamics/gmat.ipynb b/integrations/flight-dynamics/gmat.ipynb
+new file mode 100644
+index 000000000..15456b193
+--- /dev/null
++++ b/integrations/flight-dynamics/gmat.ipynb
+@@ -0,0 +1,154 @@
++{
++ "cells": [
++  {
++   "cell_type": "markdown",
++   "id": "7ecda2b9",
++   "metadata": {},
++   "source": [
++    "<!-- SPDX-License-Identifier: AGPL-3.0-only -->\n",
++    "<!--\n",
++    "This Markdown file is the diff-reviewable mirror of integrations/flight-dynamics/gmat.ipynb.\n",
++    "Regenerate the notebook with jupytext:\n",
++    "\n",
++    "  jupytext --to notebook integrations/flight-dynamics/gmat.md\n",
++    "\n",
++    "Needs GMAT R2026a (GMAT_ROOT names the installation) and spiceypy for the reference.\n",
++    ".github/workflows/flight-dynamics.yml runs it in its own job, gmat.\n",
++    "-->\n",
++    "\n",
++    "# Kshana to GMAT: an OEM and an SPK read back by GMAT's ephemeris propagators\n",
++    "\n",
++    "Kshana writes the CAPSTONE states of the mission thread (4,321 states, Moon-centred, ICRF, TDB) as\n",
++    "an OEM and an SPK. GMAT loads each into a spacecraft through its `CCSDS-OEM` and `SPK` ephemeris\n",
++    "propagators, steps through the file at the node spacing, and reports every state. The states GMAT\n",
++    "reports are compared with the written states, and with SPICE's own evaluation of Kshana's SPK. This\n",
++    "is the GMAT part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`)."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "9d2fe00b",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "import os, sys, tempfile\n",
++    "from pathlib import Path\n",
++    "\n",
++    "# The adapters sit next to this notebook (integrations/flight-dynamics/ in a clone).\n",
++    "here = Path.cwd()\n",
++    "FD = next(d for p in [here, *here.parents] for d in [p, p / \"integrations\" / \"flight-dynamics\"]\n",
++    "          if (d / \"kshana_fd.py\").exists())\n",
++    "sys.path.insert(0, str(FD))\n",
++    "import kshana_fd as fd\n",
++    "import gmat_reader as gm\n",
++    "\n",
++    "OUT = Path(os.environ.get(\"KSHANA_FD_OUT\", tempfile.mkdtemp(prefix=\"kshana-fd-\")))\n",
++    "files = fd.write_files(OUT / \"files\")\n",
++    "written = fd.written_states(files[\"oem\"])\n",
++    "ets = [fd.et_of_label(e) for e in written.epochs]\n",
++    "print(\"GMAT\", gm.gmat_root())"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "60db5826",
++   "metadata": {},
++   "source": [
++    "The reference: the SPICE Toolkit evaluating Kshana's SPK at the node epochs."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "dc95959a",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "import spiceypy\n",
++    "\n",
++    "spiceypy.furnsh(str(files[\"spk\"]))\n",
++    "spice = [[float(x) for x in spiceypy.spkezr(\"-1176\", e, \"J2000\", \"NONE\", \"301\")[0]] for e in ets]\n",
++    "spiceypy.kclear()"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "9ef1a1d9",
++   "metadata": {},
++   "source": [
++    "GMAT runs the script: both spacecraft, every step."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "252c0523",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "oem_report, spk_report, log = gm.run(files[\"oem\"], files[\"spk\"], OUT / \"gmat\", written.epochs[0], len(ets))\n",
++    "print(log[-2000:])"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "a3c1987a",
++   "metadata": {},
++   "source": [
++    "What GMAT reported, against what was written:"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "a97ebe1f",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "rows = []\n",
++    "for fmt, path, how in [(\"oem\", oem_report, \"CCSDS-OEM propagator, LunaICRF\"),\n",
++    "                       (\"spk\", spk_report, \"SPK propagator, LunaJ2000 (MJ2000Eq)\")]:\n",
++    "    g_ets, g_states, g_texts = gm.read_report(path)\n",
++    "    print(fmt, len(g_states), \"states reported\")\n",
++    "    n = min(len(g_states), len(ets))\n",
++    "    ok, worst_dt = gm.epochs_equal(g_texts[:n], ets[:n])\n",
++    "    w = fd.Written(written.epochs[:n], written.text[:n])\n",
++    "    c = fd.evaluated_compare(\"GMAT\", fmt, w, g_states[:n], ok, spice[:n], how=how)\n",
++    "    c.notes.append(f\"{len(g_states)} of {len(ets)} states reported; epochs within {worst_dt:.3g} s of the written ones\")\n",
++    "    rows.append(c)\n",
++    "    print(c.row())"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "22f3d648",
++   "metadata": {},
++   "source": [
++    "## The difference report"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "3f0668d1",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "md = fd.report(rows, OUT)\n",
++    "print(md)\n",
++    "assert all(len(gm.read_report(p)[1]) == len(ets) for p in (oem_report, spk_report)), \"GMAT did not report every state\"\n",
++    "assert all(c.carried for c in rows), md"
++   ]
++  }
++ ],
++ "metadata": {
++  "jupytext": {
++   "cell_metadata_filter": "-all",
++   "main_language": "python",
++   "notebook_metadata_filter": "-all"
++  }
++ },
++ "nbformat": 4,
++ "nbformat_minor": 5
++}
+diff --git a/integrations/flight-dynamics/gmat.md b/integrations/flight-dynamics/gmat.md
+new file mode 100644
+index 000000000..69113c841
+--- /dev/null
++++ b/integrations/flight-dynamics/gmat.md
+@@ -0,0 +1,80 @@
++<!-- SPDX-License-Identifier: AGPL-3.0-only -->
++<!--
++This Markdown file is the diff-reviewable mirror of integrations/flight-dynamics/gmat.ipynb.
++Regenerate the notebook with jupytext:
++
++  jupytext --to notebook integrations/flight-dynamics/gmat.md
++
++Needs GMAT R2026a (GMAT_ROOT names the installation) and spiceypy for the reference.
++.github/workflows/flight-dynamics.yml runs it in its own job, gmat.
++-->
++
++# Kshana to GMAT: an OEM and an SPK read back by GMAT's ephemeris propagators
++
++Kshana writes the CAPSTONE states of the mission thread (4,321 states, Moon-centred, ICRF, TDB) as
++an OEM and an SPK. GMAT loads each into a spacecraft through its `CCSDS-OEM` and `SPK` ephemeris
++propagators, steps through the file at the node spacing, and reports every state. The states GMAT
++reports are compared with the written states, and with SPICE's own evaluation of Kshana's SPK. This
++is the GMAT part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`).
++
++```python
++import os, sys, tempfile
++from pathlib import Path
++
++# The adapters sit next to this notebook (integrations/flight-dynamics/ in a clone).
++here = Path.cwd()
++FD = next(d for p in [here, *here.parents] for d in [p, p / "integrations" / "flight-dynamics"]
++          if (d / "kshana_fd.py").exists())
++sys.path.insert(0, str(FD))
++import kshana_fd as fd
++import gmat_reader as gm
++
++OUT = Path(os.environ.get("KSHANA_FD_OUT", tempfile.mkdtemp(prefix="kshana-fd-")))
++files = fd.write_files(OUT / "files")
++written = fd.written_states(files["oem"])
++ets = [fd.et_of_label(e) for e in written.epochs]
++print("GMAT", gm.gmat_root())
++```
++
++The reference: the SPICE Toolkit evaluating Kshana's SPK at the node epochs.
++
++```python
++import spiceypy
++
++spiceypy.furnsh(str(files["spk"]))
++spice = [[float(x) for x in spiceypy.spkezr("-1176", e, "J2000", "NONE", "301")[0]] for e in ets]
++spiceypy.kclear()
++```
++
++GMAT runs the script: both spacecraft, every step.
++
++```python
++oem_report, spk_report, log = gm.run(files["oem"], files["spk"], OUT / "gmat", written.epochs[0], len(ets))
++print(log[-2000:])
++```
++
++What GMAT reported, against what was written:
++
++```python
++rows = []
++for fmt, path, how in [("oem", oem_report, "CCSDS-OEM propagator, LunaICRF"),
++                       ("spk", spk_report, "SPK propagator, LunaJ2000 (MJ2000Eq)")]:
++    g_ets, g_states, g_texts = gm.read_report(path)
++    print(fmt, len(g_states), "states reported")
++    n = min(len(g_states), len(ets))
++    ok, worst_dt = gm.epochs_equal(g_texts[:n], ets[:n])
++    w = fd.Written(written.epochs[:n], written.text[:n])
++    c = fd.evaluated_compare("GMAT", fmt, w, g_states[:n], ok, spice[:n], how=how)
++    c.notes.append(f"{len(g_states)} of {len(ets)} states reported; epochs within {worst_dt:.3g} s of the written ones")
++    rows.append(c)
++    print(c.row())
++```
++
++## The difference report
++
++```python
++md = fd.report(rows, OUT)
++print(md)
++assert all(len(gm.read_report(p)[1]) == len(ets) for p in (oem_report, spk_report)), "GMAT did not report every state"
++assert all(c.carried for c in rows), md
++```
+diff --git a/integrations/flight-dynamics/gmat_reader.py b/integrations/flight-dynamics/gmat_reader.py
+new file mode 100644
+index 000000000..cc05f62c7
+--- /dev/null
++++ b/integrations/flight-dynamics/gmat_reader.py
+@@ -0,0 +1,152 @@
++# SPDX-License-Identifier: AGPL-3.0-only
++"""GMAT adapter for the flight-dynamics reference integration (roadmap C7).
++
++GMAT reads a trajectory through its ephemeris propagators: `CCSDS-OEM` for an OEM (interpolated
++with Lagrange polynomials) and `SPK` for a SPICE kernel. This adapter writes a GMAT script that
++loads Kshana's OEM and SPK into two spacecraft. GMAT steps each one through the file at 600 s,
++which is the trajectory's own node spacing, starting at the file's first epoch. At every step GMAT
++reports the epoch (`TDBModJulian`) and the Moon-centred state, at 16 significant digits:
++
++- the OEM in a Moon-centred ICRF frame (its `REF_FRAME` is ICRF);
++- the SPK in a Moon-centred MJ2000Eq frame. The kernel's frame code is 1 (J2000), which GMAT
++  reads as MJ2000Eq, so no frame-bias rotation is applied to the stored states.
++
++The script runs in GMAT's console program, `GmatConsole --run <script>`, in GMAT's `bin`
++directory. `GMAT_ROOT` names the installation, the directory that holds `bin/`.
++
++GMAT reports its states rather than handing back the file's records. So the comparison is the one
++for an evaluating tool (`kshana_fd.evaluated_compare`). The report's 16 digits and GMAT's own epoch
++arithmetic are part of what is compared.
++
++Written without running GMAT in the session that wrote it. The workflow job that runs it is the
++first test.
++"""
++from __future__ import annotations
++
++import os
++import subprocess
++from pathlib import Path
++
++#: GMAT's modified Julian date is JD - 2430000.0, so J2000 (JD 2451545.0) is MJD 21545.0.
++GMAT_MJD_J2000 = 21545.0
++
++SCRIPT = """
++Create Spacecraft OemSat;
++OemSat.EphemerisName = '{oem}';
++
++Create Spacecraft SpkSat;
++SpkSat.NAIFId = {naif};
++SpkSat.OrbitSpiceKernelName = {{'{bsp}'}};
++SpkSat.DateFormat = TDBGregorian;
++SpkSat.Epoch = '{start_gregorian}';
++
++Create Propagator OemProp;
++OemProp.Type = 'CCSDS-OEM';
++OemProp.StepSize = {step};
++
++Create Propagator SpkProp;
++SpkProp.Type = SPK;
++SpkProp.StepSize = {step};
++SpkProp.CentralBody = Luna;
++SpkProp.StartEpoch = FromSpacecraft;
++
++Create CoordinateSystem LunaICRF;
++LunaICRF.Origin = Luna;
++LunaICRF.Axes = ICRF;
++
++Create CoordinateSystem LunaJ2000;
++LunaJ2000.Origin = Luna;
++LunaJ2000.Axes = MJ2000Eq;
++
++Create ReportFile OemReport;
++OemReport.Filename = '{out}/gmat_oem.txt';
++OemReport.Precision = 16;
++OemReport.WriteHeaders = false;
++
++Create ReportFile SpkReport;
++SpkReport.Filename = '{out}/gmat_spk.txt';
++SpkReport.Precision = 16;
++SpkReport.WriteHeaders = false;
++
++Create Variable k;
++
++BeginMissionSequence;
++
++Report OemReport OemSat.TDBModJulian OemSat.LunaICRF.X OemSat.LunaICRF.Y OemSat.LunaICRF.Z OemSat.LunaICRF.VX OemSat.LunaICRF.VY OemSat.LunaICRF.VZ;
++For k = 1:{steps};
++   Propagate OemProp(OemSat);
++   Report OemReport OemSat.TDBModJulian OemSat.LunaICRF.X OemSat.LunaICRF.Y OemSat.LunaICRF.Z OemSat.LunaICRF.VX OemSat.LunaICRF.VY OemSat.LunaICRF.VZ;
++EndFor;
++
++Report SpkReport SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
++For k = 1:{steps};
++   Propagate SpkProp(SpkSat);
++   Report SpkReport SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
++EndFor;
++"""
++
++MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
++
++
++def gmat_root() -> Path:
++    """The GMAT installation named by GMAT_ROOT."""
++    root = os.environ.get("GMAT_ROOT")
++    if not root:
++        raise RuntimeError("GMAT_ROOT is not set: it names the GMAT installation (the directory with bin/)")
++    return Path(root)
++
++
++def gregorian(label: str) -> str:
++    """`2023-03-01T00:00:00.0000` as GMAT's `01 Mar 2023 00:00:00.000`."""
++    date, time = label.split("T")
++    y, m, d = date.split("-")
++    hh, mm, ss = time.split(":")
++    return f"{int(d):02d} {MONTHS[int(m) - 1]} {y} {hh}:{mm}:{float(ss):06.3f}"
++
++
++def run(oem: Path, bsp: Path, out: Path, first_label: str, n: int, naif: int = -1176,
++        step_s: float = 600.0) -> tuple[Path, Path, str]:
++    """Write and run the GMAT script. Returns (OEM report, SPK report, GMAT's console output)."""
++    out.mkdir(parents=True, exist_ok=True)
++    script = out / "kshana_c7.script"
++    script.write_text(SCRIPT.format(
++        oem=Path(oem).resolve(), bsp=Path(bsp).resolve(), out=out.resolve(), naif=naif,
++        start_gregorian=gregorian(first_label), step=step_s, steps=n - 1,
++    ))
++    bin_dir = gmat_root() / "bin"
++    p = subprocess.run(["./GmatConsole", "--run", str(script.resolve())], cwd=bin_dir,
++                       capture_output=True, text=True, timeout=3600)
++    log = p.stdout + p.stderr
++    (out / "gmat_console.log").write_text(log)
++    if p.returncode != 0:
++        raise RuntimeError(f"GmatConsole exited with {p.returncode}:\n{log[-4000:]}")
++    return out / "gmat_oem.txt", out / "gmat_spk.txt", log
++
++
++def read_report(path: Path) -> tuple[list[float], list[list[float]], list[str]]:
++    """A GMAT report written by `run`: (epochs as TDB seconds past J2000, states, epoch texts)."""
++    ets, states, texts = [], [], []
++    for line in Path(path).read_text().splitlines():
++        f = line.split()
++        if len(f) != 7:
++            continue
++        texts.append(f[0])
++        ets.append((float(f[0]) - GMAT_MJD_J2000) * 86400.0)
++        states.append([float(x) for x in f[1:]])
++    return ets, states, texts
++
++
++def epochs_equal(texts: list[str], want_ets: list[float]) -> tuple[list[bool], float]:
++    """Each reported epoch against the written one, to the precision of the report: equal when the
++    written epoch, as a GMAT MJD, is within one unit of the last digit GMAT printed (the printed
++    value is itself the rounding of a double). Also returns the largest difference in seconds."""
++    from decimal import Decimal
++
++    ok, worst = [], 0.0
++    for t, e in zip(texts, want_ets):
++        got = Decimal(t)
++        want = Decimal(repr(e)) / Decimal(86400) + Decimal(repr(GMAT_MJD_J2000))
++        unit = Decimal(1).scaleb(got.as_tuple().exponent)
++        ok.append(abs(got - want) <= unit)
++        worst = max(worst, float(abs(got - want)) * 86400.0)
++    return ok, worst
+diff --git a/integrations/flight-dynamics/requirements-gmat.txt b/integrations/flight-dynamics/requirements-gmat.txt
+new file mode 100644
+index 000000000..414432637
+--- /dev/null
++++ b/integrations/flight-dynamics/requirements-gmat.txt
+@@ -0,0 +1,3 @@
++# The GMAT adapter (gmat_reader.py) and its notebook; GMAT R2026a itself is installed by the
++# workflow from its pinned tarball. spiceypy evaluates the same kernel as the reference.
++spiceypy==8.3.0
+-- 
+2.43.0
+
