@@ -268,12 +268,87 @@
 "WPM" = "weighted product model"
 "WSM" = "weighted sum model"
 
+"NMEA" = "National Marine Electronics Association (its sentence format)"
+"GGA" = "the NMEA fix-data sentence"
+"RMC" = "the NMEA recommended-minimum sentence"
+"GSV" = "the NMEA satellites-in-view sentence"
+"GSA" = "the NMEA dilution-of-precision and active-satellites sentence"
+"VTG" = "the NMEA course and speed over ground sentence"
+"ZDA" = "the NMEA time and date sentence"
+"HDT" = "the NMEA true heading sentence"
+"VBW" = "the NMEA dual ground and water speed sentence"
+"VHW" = "the NMEA water speed and heading sentence"
+"GNS" = "the NMEA satellite-navigation fix-data sentence"
+"MRP" = "modified Rodrigues parameters"
+"LNAV" = "the GPS legacy navigation message"
+"CNAV" = "the GPS civil navigation message"
+"ACM" = "adaptive coding and modulation"
+"ETSI" = "European Telecommunications Standards Institute"
+"EN" = "European Standard"
+"FFT" = "fast Fourier transform"
+"NIC" = "navigation integrity category"
+"IMO" = "International Maritime Organization"
+"MSC" = "Maritime Safety Committee (of the IMO)"
+"LOLA" = "Lunar Orbiter Laser Altimeter"
+"MIT" = "the MIT licence (Massachusetts Institute of Technology)"
+"NPRA" = "Norwegian Public Roads Administration"
+"DAF" = "Double precision Array File (SPICE)"
+"NDM" = "Navigation Data Message (CCSDS)"
+"XML" = "Extensible Markup Language"
+"LSIS" = "LunaNet signal-in-space"
+"BCH" = "Bose-Chaudhuri-Hocquenghem (code)"
+"TLM" = "the telemetry word of a GPS subframe"
+"HOW" = "the handover word of a GPS subframe"
+"ASCII" = "American Standard Code for Information Interchange"
+"AIS" = "Automatic Identification System"
+"TCP" = "Transmission Control Protocol"
+"UDP" = "User Datagram Protocol"
+"ELFO" = "elliptical lunar frozen orbit"
+"US76" = "the 1976 U.S. Standard Atmosphere"
+"MEKF" = "multiplicative extended Kalman filter"
+"UBX" = "the u-blox binary protocol"
+"DSP" = "digital signal processing"
+"FIR" = "finite impulse response"
+"EASA" = "European Union Aviation Safety Agency"
+"LNIS" = "LunaNet Interoperability Specification"
+"ECDSA" = "Elliptic Curve Digital Signature Algorithm"
+"YAML" = "YAML Ain't Markup Language"
+"ERFA" = "Essential Routines for Fundamental Astronomy"
+"WGS84" = "World Geodetic System 1984"
+"OPM" = "Orbit Parameter Message (CCSDS)"
+"ITRF93" = "International Terrestrial Reference Frame 1993"
+"FID" = "frame identifier"
+"LDPC" = "low-density parity-check"
+"RTCA" = "RTCA, Inc. (formerly the Radio Technical Commission for Aeronautics)"
+"TAPR" = "Tucson Amateur Packet Radio"
+"BDS" = "BeiDou Navigation Satellite System"
+"LRO" = "Lunar Reconnaissance Orbiter"
+"PTTI" = "Precise Time and Time Interval"
+"QR" = "Quick Response (code)"
+"EPU" = "estimated position uncertainty"
+"HTTP" = "HyperText Transfer Protocol"
+"OTLP" = "OpenTelemetry Protocol"
+"CMS" = "Cryptographic Message Syntax"
+"FLL" = "frequency-locked loop"
+"NCO" = "numerically controlled oscillator"
+"RTCM" = "Radio Technical Commission for Maritime Services"
+"MSM7" = "RTCM multiple signal message, type 7"
+"MQTT" = "the MQTT messaging protocol"
+"TICC" = "time interval counter (the TAPR TICC board)"
+"IOV" = "in-orbit validation"
+"NRL" = "Naval Research Laboratory"
+"PDS" = "Planetary Data System"
+"PLI" = "phase lock indicator"
+"SISE" = "signal-in-space error"
+
 [abbreviations_ignore]
 # Upper-case fragments that are not abbreviations (maths symbols, part of a formula), or whose expansion
 # the public sources do not give (left visible as warnings instead of guessed).
-tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021", "RE", "DELTA", "STAR", "EPH", "KP16", "KRAC", "LU22", "APOL"]
+tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021", "RE", "DELTA", "STAR", "EPH", "KP16", "KRAC", "LU22", "APOL", "II", "III", "B1C", "B1I", "B3I", "L1C", "L1OF", "L2OF", "L1CD", "L1CO", "L1CP", "DOP853", "OEM7", "RANGE", "GL0660B", "STR09", "PKSHT", "SB1", "BENCH", "SPEC", "FILE", "OF", "USE"]
 # RE: the Earth radius symbol in a formula; DELTA, STAR: Walker pattern keywords; EPH, KP16, KRAC,
 # LU22, APOL: RINEX-4-style record names, quoted as written.
+# II, III: Roman numerals; B1C ... L1CP: signal names; DOP853: an integrator; OEM7, RANGE: a receiver and its log;
+# GL0660B, STR09: model names; PKSHT, SB1: message identifiers; BENCH, SPEC, FILE, OF, USE: words in upper case.
 
 [site_tokens]
 # Identifiers the site may print that are neither features nor found in the engine repository.
@@ -1392,9 +1467,9 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "validation:the-cislunar-mean-state-propagation-against-the-public-artem" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:interference-source-region-a-feasible-emitter-region-from-ai" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "binding:wasm.interference_emitter_regions" = { page = "Docs", section = "surfaces.html#where-each-capability-is-reachable", studio = "none", docs = "docs/surfaces.html#where-each-capability-is-reachable" }
-"kind:tip-and-cue" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenarios.html#tip-and-cue" }
-"scenario:tip-and-cue-baltic-m2" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#tip-and-cue-baltic-m2" }
-"scenario:tip-and-cue-short" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#tip-and-cue-short" }
+"kind:tip-and-cue" = { page = "Capabilities", section = "atlas", studio = "tip-and-cue-short", docs = "docs/scenarios.html#tip-and-cue" }
+"scenario:tip-and-cue-baltic-m2" = { page = "Capabilities", section = "atlas", studio = "tip-and-cue-baltic-m2", docs = "docs/scenario-reference.html#tip-and-cue-baltic-m2" }
+"scenario:tip-and-cue-short" = { page = "Capabilities", section = "atlas", studio = "tip-and-cue-short", docs = "docs/scenario-reference.html#tip-and-cue-short" }
 
 # Placed 2026-11-08 at the 93-kind rebuild (engine 3ff14e6a3): features that landed on the open main
 # after the 0.40.0 site build, best-guess placements, for review. The obs, connect and scenario
