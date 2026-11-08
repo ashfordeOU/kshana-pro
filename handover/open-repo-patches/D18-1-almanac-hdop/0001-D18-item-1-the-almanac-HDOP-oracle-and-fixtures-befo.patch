@@ -1,0 +1,873 @@
+From 363afde66234c632764457f355a6fe52dbe03af3 Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Sun, 8 Nov 2026 14:31:31 +0000
+Subject: [PATCH 1/2] D18 item 1: the almanac-HDOP oracle and fixtures, before
+ the engine code: the U.S. Coast Guard YUMA almanac of 7 November 2026
+ (unchanged, NOTICE with URL, date and SHA-256), 20 stated points, the
+ independent numpy oracle (IS-GPS-200 almanac equations, geodetic ENU HDOP)
+ and its output, and 12 hand-written reports with their expected flags
+
+---
+ tests/fixtures/gps_almanac/NOTICE.md         |   9 +
+ tests/fixtures/gps_almanac/yuma_2026_311.alm | 480 +++++++++++++++++++
+ xval/almanac-hdop/expected.json              | 166 +++++++
+ xval/almanac-hdop/flag_fixture.json          |  18 +
+ xval/almanac-hdop/oracle.py                  | 109 +++++
+ xval/almanac-hdop/points.json                |  28 ++
+ 6 files changed, 810 insertions(+)
+ create mode 100644 tests/fixtures/gps_almanac/NOTICE.md
+ create mode 100644 tests/fixtures/gps_almanac/yuma_2026_311.alm
+ create mode 100644 xval/almanac-hdop/expected.json
+ create mode 100644 xval/almanac-hdop/flag_fixture.json
+ create mode 100644 xval/almanac-hdop/oracle.py
+ create mode 100644 xval/almanac-hdop/points.json
+
+diff --git a/tests/fixtures/gps_almanac/NOTICE.md b/tests/fixtures/gps_almanac/NOTICE.md
+new file mode 100644
+index 000000000..6146abc25
+--- /dev/null
++++ b/tests/fixtures/gps_almanac/NOTICE.md
+@@ -0,0 +1,9 @@
++<!-- SPDX-License-Identifier: AGPL-3.0-only -->
++# GPS almanac fixture
++
++`yuma_2026_311.alm`: the GPS almanac of 7 November 2026 (day 311) in the YUMA format, published by the U.S.
++Coast Guard Navigation Center at
++<https://www.navcen.uscg.gov/sites/default/files/gps/almanac/2026/Yuma/311.alm>, retrieved 8 November 2026.
++19,008 bytes, SHA-256 `6baa60d1021281e93b6e1ef5cafbb1d909c0640d8bcbc4d97a0479f13ec9b8ad`. Week 396 (modulo 1024; GPS
++week 2444), 32 satellites, all healthy. A U.S. Government work, kept unchanged. Used by `tests/almanac_hdop.rs` and
++`xval/almanac-hdop/` (D18, item 1).
+diff --git a/tests/fixtures/gps_almanac/yuma_2026_311.alm b/tests/fixtures/gps_almanac/yuma_2026_311.alm
+new file mode 100644
+index 000000000..1e2e0ba24
+--- /dev/null
++++ b/tests/fixtures/gps_almanac/yuma_2026_311.alm
+@@ -0,0 +1,480 @@
++******** Week 396 almanac for PRN-01 ********
++ID:                         01
++Health:                     000
++Eccentricity:               0.2197265625E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9556784198
++Rate of Right Ascen(r/s):  -0.8331775623E-008
++SQRT(A)  (m 1/2):           5153.678223
++Right Ascen at Week(rad):  -0.1376093493E+001
++Argument of Perigee(rad):   0.148023903
++Mean Anom(rad):            -0.2892618134E+001
++Af0(s):                     0.1306533813E-003
++Af1(s/s):                  -0.7275957614E-011
++week:                        396
++
++******** Week 396 almanac for PRN-02 ********
++ID:                         02
++Health:                     000
++Eccentricity:               0.1729345322E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9603103227
++Rate of Right Ascen(r/s):  -0.8263201338E-008
++SQRT(A)  (m 1/2):           5153.633301
++Right Ascen at Week(rad):  -0.1537651706E+001
++Argument of Perigee(rad):  -0.680666524
++Mean Anom(rad):            -0.1629854962E+001
++Af0(s):                     0.2088546753E-003
++Af1(s/s):                   0.7275957614E-011
++week:                        396
++
++******** Week 396 almanac for PRN-03 ********
++ID:                         03
++Health:                     000
++Eccentricity:               0.6834030151E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9964487529
++Rate of Right Ascen(r/s):  -0.7406022776E-008
++SQRT(A)  (m 1/2):           5153.673828
++Right Ascen at Week(rad):  -0.3795789770E+000
++Argument of Perigee(rad):   1.296547452
++Mean Anom(rad):             0.1156361606E+001
++Af0(s):                     0.1688003540E-003
++Af1(s/s):                  -0.1818989404E-010
++week:                        396
++
++******** Week 396 almanac for PRN-04 ********
++ID:                         04
++Health:                     000
++Eccentricity:               0.4092693329E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9735169386
++Rate of Right Ascen(r/s):  -0.7600316584E-008
++SQRT(A)  (m 1/2):           5153.598145
++Right Ascen at Week(rad):   0.6860227234E+000
++Argument of Perigee(rad):  -2.898220385
++Mean Anom(rad):            -0.2050594883E+001
++Af0(s):                     0.6484985352E-004
++Af1(s/s):                   0.0000000000E+000
++week:                        396
++
++******** Week 396 almanac for PRN-05 ********
++ID:                         05
++Health:                     000
++Eccentricity:               0.5171298981E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9826728864
++Rate of Right Ascen(r/s):  -0.7588887536E-008
++SQRT(A)  (m 1/2):           5153.552734
++Right Ascen at Week(rad):  -0.4426377214E+000
++Argument of Perigee(rad):   1.512897915
++Mean Anom(rad):            -0.1501379202E+001
++Af0(s):                    -0.2374649048E-003
++Af1(s/s):                   0.0000000000E+000
++week:                        396
++
++******** Week 396 almanac for PRN-06 ********
++ID:                         06
++Health:                     000
++Eccentricity:               0.3996372223E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9843087331
++Rate of Right Ascen(r/s):  -0.8046049436E-008
++SQRT(A)  (m 1/2):           5153.740723
++Right Ascen at Week(rad):  -0.1418525514E+001
++Argument of Perigee(rad):  -0.570237884
++Mean Anom(rad):             0.2489694262E+001
++Af0(s):                    -0.4587173462E-003
++Af1(s/s):                   0.1455191523E-010
++week:                        396
++
++******** Week 396 almanac for PRN-07 ********
++ID:                         07
++Health:                     000
++Eccentricity:               0.2104711533E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9509446510
++Rate of Right Ascen(r/s):  -0.8068907531E-008
++SQRT(A)  (m 1/2):           5153.676758
++Right Ascen at Week(rad):   0.1692637320E+001
++Argument of Perigee(rad):  -1.940474836
++Mean Anom(rad):             0.1667702642E+001
++Af0(s):                    -0.2393722534E-003
++Af1(s/s):                  -0.3637978807E-011
++week:                        396
++
++******** Week 396 almanac for PRN-08 ********
++ID:                         08
++Health:                     000
++Eccentricity:               0.1223897934E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9406142491
++Rate of Right Ascen(r/s):  -0.8034620388E-008
++SQRT(A)  (m 1/2):           5153.529785
++Right Ascen at Week(rad):  -0.2549361845E+001
++Argument of Perigee(rad):   0.563430095
++Mean Anom(rad):            -0.1872186850E+001
++Af0(s):                     0.2927780151E-003
++Af1(s/s):                  -0.1091393642E-010
++week:                        396
++
++******** Week 396 almanac for PRN-09 ********
++ID:                         09
++Health:                     000
++Eccentricity:               0.3845691681E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9679562582
++Rate of Right Ascen(r/s):  -0.7634603726E-008
++SQRT(A)  (m 1/2):           5153.589844
++Right Ascen at Week(rad):   0.6201109845E+000
++Argument of Perigee(rad):   2.101706853
++Mean Anom(rad):            -0.1247055973E+001
++Af0(s):                     0.6284713745E-003
++Af1(s/s):                  -0.1091393642E-010
++week:                        396
++
++******** Week 396 almanac for PRN-10 ********
++ID:                         10
++Health:                     000
++Eccentricity:               0.1170778275E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9959274392
++Rate of Right Ascen(r/s):  -0.7394593729E-008
++SQRT(A)  (m 1/2):           5153.616699
++Right Ascen at Week(rad):  -0.3820934172E+000
++Argument of Perigee(rad):  -2.246398392
++Mean Anom(rad):             0.2772936174E+000
++Af0(s):                    -0.4901885986E-003
++Af1(s/s):                   0.1091393642E-010
++week:                        396
++
++******** Week 396 almanac for PRN-11 ********
++ID:                         11
++Health:                     000
++Eccentricity:               0.2767562866E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9612331081
++Rate of Right Ascen(r/s):  -0.8263201338E-008
++SQRT(A)  (m 1/2):           5153.646973
++Right Ascen at Week(rad):  -0.1405303169E+001
++Argument of Perigee(rad):  -2.250929178
++Mean Anom(rad):            -0.2618461013E+001
++Af0(s):                    -0.1525878906E-003
++Af1(s/s):                   0.1091393642E-010
++week:                        396
++
++******** Week 396 almanac for PRN-12 ********
++ID:                         12
++Health:                     000
++Eccentricity:               0.9015083313E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9587523735
++Rate of Right Ascen(r/s):  -0.7646032774E-008
++SQRT(A)  (m 1/2):           5152.883789
++Right Ascen at Week(rad):   0.2812102119E+001
++Argument of Perigee(rad):   1.624321620
++Mean Anom(rad):             0.1089027115E+001
++Af0(s):                    -0.5970001221E-003
++Af1(s/s):                   0.0000000000E+000
++week:                        396
++
++******** Week 396 almanac for PRN-13 ********
++ID:                         13
++Health:                     000
++Eccentricity:               0.2533435822E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9592796794
++Rate of Right Ascen(r/s):  -0.7657461821E-008
++SQRT(A)  (m 1/2):           5153.719238
++Right Ascen at Week(rad):   0.2703883819E+001
++Argument of Perigee(rad):   1.778437255
++Mean Anom(rad):             0.8657463993E+000
++Af0(s):                     0.4663467407E-003
++Af1(s/s):                   0.3637978807E-011
++week:                        396
++
++******** Week 396 almanac for PRN-14 ********
++ID:                         14
++Health:                     000
++Eccentricity:               0.7639408112E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9420403719
++Rate of Right Ascen(r/s):  -0.7783181344E-008
++SQRT(A)  (m 1/2):           5153.609863
++Right Ascen at Week(rad):   0.2753489522E+001
++Argument of Perigee(rad):  -2.671205834
++Mean Anom(rad):             0.8545418980E+000
++Af0(s):                     0.7467269897E-003
++Af1(s/s):                   0.0000000000E+000
++week:                        396
++
++******** Week 396 almanac for PRN-15 ********
++ID:                         15
++Health:                     000
++Eccentricity:               0.1697635651E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9462947717
++Rate of Right Ascen(r/s):  -0.7783181344E-008
++SQRT(A)  (m 1/2):           5153.533203
++Right Ascen at Week(rad):   0.4701018198E+000
++Argument of Perigee(rad):   1.580202445
++Mean Anom(rad):            -0.2878644528E+001
++Af0(s):                     0.4587173462E-003
++Af1(s/s):                   0.3637978807E-011
++week:                        396
++
++******** Week 396 almanac for PRN-16 ********
++ID:                         16
++Health:                     000
++Eccentricity:               0.1551008224E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9577876434
++Rate of Right Ascen(r/s):  -0.7646032774E-008
++SQRT(A)  (m 1/2):           5153.719727
++Right Ascen at Week(rad):   0.2828683792E+001
++Argument of Perigee(rad):   0.956843361
++Mean Anom(rad):            -0.8034138240E+000
++Af0(s):                     0.3643035889E-003
++Af1(s/s):                   0.7275957614E-011
++week:                        396
++
++******** Week 396 almanac for PRN-17 ********
++ID:                         17
++Health:                     000
++Eccentricity:               0.1263856888E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9560559229
++Rate of Right Ascen(r/s):  -0.7931758961E-008
++SQRT(A)  (m 1/2):           5153.694824
++Right Ascen at Week(rad):  -0.2440881015E+001
++Argument of Perigee(rad):  -1.052032187
++Mean Anom(rad):            -0.1868784828E+001
++Af0(s):                    -0.2174377441E-003
++Af1(s/s):                  -0.3637978807E-011
++week:                        396
++
++******** Week 396 almanac for PRN-18 ********
++ID:                         18
++Health:                     000
++Eccentricity:               0.6636142731E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9692865072
++Rate of Right Ascen(r/s):  -0.8194627053E-008
++SQRT(A)  (m 1/2):           5153.688477
++Right Ascen at Week(rad):  -0.1427150037E+001
++Argument of Perigee(rad):  -2.799907047
++Mean Anom(rad):             0.2495611098E+001
++Af0(s):                    -0.2136230469E-003
++Af1(s/s):                   0.7275957614E-011
++week:                        396
++
++******** Week 396 almanac for PRN-19 ********
++ID:                         19
++Health:                     000
++Eccentricity:               0.1187944412E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9551271455
++Rate of Right Ascen(r/s):  -0.7977475151E-008
++SQRT(A)  (m 1/2):           5153.559082
++Right Ascen at Week(rad):  -0.2397214245E+001
++Argument of Perigee(rad):   3.083545562
++Mean Anom(rad):            -0.1875549923E+000
++Af0(s):                     0.7038116455E-003
++Af1(s/s):                   0.0000000000E+000
++week:                        396
++
++******** Week 396 almanac for PRN-20 ********
++ID:                         20
++Health:                     000
++Eccentricity:               0.1918315887E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9633003868
++Rate of Right Ascen(r/s):  -0.7657461821E-008
++SQRT(A)  (m 1/2):           5153.591797
++Right Ascen at Week(rad):   0.6244316721E+000
++Argument of Perigee(rad):  -1.616246500
++Mean Anom(rad):             0.7071299396E+000
++Af0(s):                     0.3194808960E-003
++Af1(s/s):                   0.3637978807E-011
++week:                        396
++
++******** Week 396 almanac for PRN-21 ********
++ID:                         21
++Health:                     000
++Eccentricity:               0.9994506836E-003
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9658290583
++Rate of Right Ascen(r/s):  -0.7714607059E-008
++SQRT(A)  (m 1/2):           5153.617676
++Right Ascen at Week(rad):  -0.3808871300E+000
++Argument of Perigee(rad):  -0.302670214
++Mean Anom(rad):             0.7830840845E+000
++Af0(s):                     0.3137588501E-003
++Af1(s/s):                  -0.1091393642E-010
++week:                        396
++
++******** Week 396 almanac for PRN-22 ********
++ID:                         22
++Health:                     000
++Eccentricity:               0.1132059097E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9572783138
++Rate of Right Ascen(r/s):  -0.7600316584E-008
++SQRT(A)  (m 1/2):           5153.666504
++Right Ascen at Week(rad):   0.2832088436E+001
++Argument of Perigee(rad):  -0.946007375
++Mean Anom(rad):            -0.1259521814E+001
++Af0(s):                     0.1230239868E-003
++Af1(s/s):                   0.7275957614E-011
++week:                        396
++
++******** Week 396 almanac for PRN-23 ********
++ID:                         23
++Health:                     000
++Eccentricity:               0.6924152374E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9907802146
++Rate of Right Ascen(r/s):  -0.7463168014E-008
++SQRT(A)  (m 1/2):           5153.568359
++Right Ascen at Week(rad):  -0.4153889645E+000
++Argument of Perigee(rad):  -2.687040740
++Mean Anom(rad):             0.1244903681E+001
++Af0(s):                     0.7057189941E-003
++Af1(s/s):                   0.3637978807E-011
++week:                        396
++
++******** Week 396 almanac for PRN-24 ********
++ID:                         24
++Health:                     000
++Eccentricity:               0.1906442642E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9351554347
++Rate of Right Ascen(r/s):  -0.8217485148E-008
++SQRT(A)  (m 1/2):           5153.648438
++Right Ascen at Week(rad):   0.1579546684E+001
++Argument of Perigee(rad):   1.201935741
++Mean Anom(rad):             0.2650888453E+001
++Af0(s):                     0.2851486206E-003
++Af1(s/s):                   0.1455191523E-010
++week:                        396
++
++******** Week 396 almanac for PRN-25 ********
++ID:                         25
++Health:                     000
++Eccentricity:               0.1190710068E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9471276753
++Rate of Right Ascen(r/s):  -0.7748894201E-008
++SQRT(A)  (m 1/2):           5153.713867
++Right Ascen at Week(rad):   0.2715491290E+001
++Argument of Perigee(rad):   0.992212180
++Mean Anom(rad):             0.1127186011E+001
++Af0(s):                     0.3709793091E-003
++Af1(s/s):                  -0.3637978807E-011
++week:                        396
++
++******** Week 396 almanac for PRN-26 ********
++ID:                         26
++Health:                     000
++Eccentricity:               0.1177597046E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9278330732
++Rate of Right Ascen(r/s):  -0.7966046104E-008
++SQRT(A)  (m 1/2):           5153.579102
++Right Ascen at Week(rad):   0.2636270695E+001
++Argument of Perigee(rad):   0.756874959
++Mean Anom(rad):             0.4349636979E-001
++Af0(s):                    -0.3938674927E-003
++Af1(s/s):                   0.0000000000E+000
++week:                        396
++
++******** Week 396 almanac for PRN-27 ********
++ID:                         27
++Health:                     000
++Eccentricity:               0.1467227936E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9496922995
++Rate of Right Ascen(r/s):  -0.7966046104E-008
++SQRT(A)  (m 1/2):           5153.630371
++Right Ascen at Week(rad):  -0.2515184333E+001
++Argument of Perigee(rad):   0.906709604
++Mean Anom(rad):            -0.1661492192E+001
++Af0(s):                     0.0000000000E+000
++Af1(s/s):                   0.0000000000E+000
++week:                        396
++
++******** Week 396 almanac for PRN-28 ********
++ID:                         28
++Health:                     000
++Eccentricity:               0.4892349243E-003
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9618143430
++Rate of Right Ascen(r/s):  -0.7943188009E-008
++SQRT(A)  (m 1/2):           5153.630859
++Right Ascen at Week(rad):   0.1669703258E+001
++Argument of Perigee(rad):   0.014152246
++Mean Anom(rad):             0.2093575931E+001
++Af0(s):                    -0.3623962402E-003
++Af1(s/s):                   0.1091393642E-010
++week:                        396
++
++******** Week 396 almanac for PRN-29 ********
++ID:                         29
++Health:                     000
++Eccentricity:               0.3592967987E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9587583656
++Rate of Right Ascen(r/s):  -0.7954617056E-008
++SQRT(A)  (m 1/2):           5153.590820
++Right Ascen at Week(rad):  -0.2423459323E+001
++Argument of Perigee(rad):   2.900885002
++Mean Anom(rad):            -0.1977507963E+001
++Af0(s):                    -0.2088546753E-003
++Af1(s/s):                   0.7275957614E-011
++week:                        396
++
++******** Week 396 almanac for PRN-30 ********
++ID:                         30
++Health:                     000
++Eccentricity:               0.8214950562E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9362879439
++Rate of Right Ascen(r/s):  -0.8228914196E-008
++SQRT(A)  (m 1/2):           5153.549805
++Right Ascen at Week(rad):   0.1679912695E+001
++Argument of Perigee(rad):  -2.256231449
++Mean Anom(rad):             0.1462991857E+001
++Af0(s):                     0.4186630249E-003
++Af1(s/s):                   0.1091393642E-010
++week:                        396
++
++******** Week 396 almanac for PRN-31 ********
++ID:                         31
++Health:                     000
++Eccentricity:               0.1119136810E-001
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9546178159
++Rate of Right Ascen(r/s):  -0.8000333246E-008
++SQRT(A)  (m 1/2):           5153.608887
++Right Ascen at Week(rad):   0.1717936768E+001
++Argument of Perigee(rad):   1.040922062
++Mean Anom(rad):             0.6016346802E+000
++Af0(s):                    -0.1058578491E-003
++Af1(s/s):                   0.3637978807E-011
++week:                        396
++
++******** Week 396 almanac for PRN-32 ********
++ID:                         32
++Health:                     000
++Eccentricity:               0.9768486023E-002
++Time of Applicability(s):  147456.0000
++Orbital Inclination(rad):   0.9708444564
++Rate of Right Ascen(r/s):  -0.7577458489E-008
++SQRT(A)  (m 1/2):           5153.573242
++Right Ascen at Week(rad):   0.6379461327E+000
++Argument of Perigee(rad):  -1.969985241
++Mean Anom(rad):            -0.1094114419E+001
++Af0(s):                     0.3528594971E-003
++Af1(s/s):                   0.1818989404E-010
++week:                        396
++
+diff --git a/xval/almanac-hdop/expected.json b/xval/almanac-hdop/expected.json
+new file mode 100644
+index 000000000..8277f9ec5
+--- /dev/null
++++ b/xval/almanac-hdop/expected.json
+@@ -0,0 +1,166 @@
++{
++ "week": 2444,
++ "numpy": "2.4.6",
++ "results": [
++  {
++   "gps_s": 1478339072.0,
++   "lat_deg": 0.0,
++   "lon_deg": 0.0,
++   "h_m": 0.0,
++   "satellites": 13,
++   "hdop": 0.6911524756932873
++  },
++  {
++   "gps_s": 1478339072.0,
++   "lat_deg": 59.437,
++   "lon_deg": 24.7536,
++   "h_m": 10000.0,
++   "satellites": 12,
++   "hdop": 0.8048808663439151
++  },
++  {
++   "gps_s": 1478342672.0,
++   "lat_deg": 60.1699,
++   "lon_deg": 24.9384,
++   "h_m": 11000.0,
++   "satellites": 12,
++   "hdop": 0.7581196245344504
++  },
++  {
++   "gps_s": 1478300000.0,
++   "lat_deg": 69.6492,
++   "lon_deg": 18.9553,
++   "h_m": 9000.0,
++   "satellites": 13,
++   "hdop": 0.6965534804546696
++  },
++  {
++   "gps_s": 1478250000.0,
++   "lat_deg": 78.2232,
++   "lon_deg": 15.6267,
++   "h_m": 500.0,
++   "satellites": 12,
++   "hdop": 0.7038312747104619
++  },
++  {
++   "gps_s": 1478400000.0,
++   "lat_deg": -33.8688,
++   "lon_deg": 151.2093,
++   "h_m": 12000.0,
++   "satellites": 10,
++   "hdop": 1.0779871595250303
++  },
++  {
++   "gps_s": 1478450000.0,
++   "lat_deg": 35.6762,
++   "lon_deg": 139.6503,
++   "h_m": 3000.0,
++   "satellites": 9,
++   "hdop": 1.1002142577951475
++  },
++  {
++   "gps_s": 1478200000.0,
++   "lat_deg": 40.7128,
++   "lon_deg": -74.006,
++   "h_m": 10500.0,
++   "satellites": 9,
++   "hdop": 0.9248504051995816
++  },
++  {
++   "gps_s": 1478150000.0,
++   "lat_deg": -54.8019,
++   "lon_deg": -68.303,
++   "h_m": 0.0,
++   "satellites": 12,
++   "hdop": 0.7334431579167231
++  },
++  {
++   "gps_s": 1478500000.0,
++   "lat_deg": 89.5,
++   "lon_deg": 0.0,
++   "h_m": 11000.0,
++   "satellites": 11,
++   "hdop": 0.7175428332057608
++  },
++  {
++   "gps_s": 1478555000.0,
++   "lat_deg": -89.5,
++   "lon_deg": 45.0,
++   "h_m": 2800.0,
++   "satellites": 11,
++   "hdop": 0.7354343354923308
++  },
++  {
++   "gps_s": 1478100000.0,
++   "lat_deg": 1.3521,
++   "lon_deg": 103.8198,
++   "h_m": 0.0,
++   "satellites": 12,
++   "hdop": 0.7274395151353531
++  },
++  {
++   "gps_s": 1478339072.0,
++   "lat_deg": 55.6761,
++   "lon_deg": 12.5683,
++   "h_m": 37000.0,
++   "satellites": 10,
++   "hdop": 0.8669653506872593
++  },
++  {
++   "gps_s": 1478339672.5,
++   "lat_deg": 54.352,
++   "lon_deg": 18.6466,
++   "h_m": 10668.0,
++   "satellites": 11,
++   "hdop": 0.84997343409514
++  },
++  {
++   "gps_s": 1478600000.0,
++   "lat_deg": 45.0,
++   "lon_deg": 179.9,
++   "h_m": 10000.0,
++   "satellites": 11,
++   "hdop": 0.8070651525198183
++  },
++  {
++   "gps_s": 1478610000.0,
++   "lat_deg": -45.0,
++   "lon_deg": -179.9,
++   "h_m": 10000.0,
++   "satellites": 9,
++   "hdop": 0.9914683457362249
++  },
++  {
++   "gps_s": 1478050000.0,
++   "lat_deg": 30.0,
++   "lon_deg": 31.0,
++   "h_m": 0.0,
++   "satellites": 10,
++   "hdop": 0.8518105203124653
++  },
++  {
++   "gps_s": 1478339072.0,
++   "lat_deg": -1.2921,
++   "lon_deg": 36.8219,
++   "h_m": 1795.0,
++   "satellites": 12,
++   "hdop": 0.7141892113299185
++  },
++  {
++   "gps_s": 1478380000.0,
++   "lat_deg": 64.1466,
++   "lon_deg": -21.9426,
++   "h_m": 0.0,
++   "satellites": 12,
++   "hdop": 0.6941000196764832
++  },
++  {
++   "gps_s": 1478420000.0,
++   "lat_deg": 21.3069,
++   "lon_deg": -157.8583,
++   "h_m": 9000.0,
++   "satellites": 11,
++   "hdop": 0.7445307318226835
++  }
++ ]
++}
+diff --git a/xval/almanac-hdop/flag_fixture.json b/xval/almanac-hdop/flag_fixture.json
+new file mode 100644
+index 000000000..89fa81d43
+--- /dev/null
++++ b/xval/almanac-hdop/flag_fixture.json
+@@ -0,0 +1,18 @@
++{
++  "_comment": "D18 acceptance 3: 12 hand-written reports at oracle points (index into points.json), with the expected flag stated by hand. Parameters: mask 5 deg, UERE 5 m, multiple 3, so a report is flagged when EPU > 3 * 2 * HDOP * 5 m = 30 * HDOP m. HDOPs from expected.json. null = not scored.",
++  "params": {"mask_deg": 5.0, "uere_m": 5.0, "multiple": 3.0},
++  "reports": [
++    {"point": 0,  "nacp": 11, "flagged": false, "why": "3 m < 30 * 0.6912 = 20.7 m"},
++    {"point": 0,  "nacp": 10, "flagged": false, "why": "10 m < 20.7 m"},
++    {"point": 0,  "nacp": 9,  "flagged": true,  "why": "30 m > 20.7 m"},
++    {"point": 5,  "nacp": 9,  "flagged": false, "why": "30 m < 30 * 1.0780 = 32.3 m"},
++    {"point": 5,  "nacp": 8,  "flagged": true,  "why": "92.6 m > 32.3 m"},
++    {"point": 1,  "nacp": 0,  "flagged": null,  "why": "NACp 0: no bound, not scored"},
++    {"point": 1,  "nacp": 12, "flagged": null,  "why": "no NACp 12: not scored"},
++    {"point": 6,  "nacp": 9,  "flagged": false, "why": "30 m < 30 * 1.1002 = 33.0 m"},
++    {"point": 9,  "nacp": 9,  "flagged": true,  "why": "30 m > 30 * 0.7175 = 21.5 m"},
++    {"point": 13, "nacp": 9,  "flagged": true,  "why": "30 m > 30 * 0.8500 = 25.5 m"},
++    {"point": 15, "nacp": 9,  "flagged": true,  "why": "30 m > 30 * 0.9915 = 29.74 m"},
++    {"point": 7,  "nacp": 7,  "flagged": true,  "why": "185.2 m > 30 * 0.9249 = 27.7 m"}
++  ]
++}
+diff --git a/xval/almanac-hdop/oracle.py b/xval/almanac-hdop/oracle.py
+new file mode 100644
+index 000000000..52f7505b7
+--- /dev/null
++++ b/xval/almanac-hdop/oracle.py
+@@ -0,0 +1,109 @@
++# SPDX-License-Identifier: AGPL-3.0-only
++"""Independent oracle for D18 acceptance 1: HDOP from a YUMA almanac, written with numpy and no
++code shared with src/interference_map/almanac_hdop.rs.
++
++    python3 xval/almanac-hdop/oracle.py > xval/almanac-hdop/expected.json
++
++Reads points.json (the stated epochs, positions, almanac and mask), propagates every healthy
++satellite with the almanac equations of IS-GPS-200 (Table 20-IV without the harmonic
++corrections, the almanac's toa as the reference time), forms the four-state geometry in the
++geodetic east-north-up frame and writes HDOP = sqrt(Q_ee + Q_nn) with Q = inv(H^T H).
++"""
++import json
++import sys
++from pathlib import Path
++
++import numpy as np
++
++HERE = Path(__file__).resolve().parent
++REPO = HERE.parents[1]
++
++MU = 3.986005e14  # IS-GPS-200, m^3/s^2
++OMEGA_E = 7.2921151467e-5  # IS-GPS-200, rad/s
++A_WGS = 6378137.0
++F_WGS = 1.0 / 298.257223563
++WEEK = 604800.0
++
++
++def read_yuma(path):
++    sats, cur = [], {}
++    for line in Path(path).read_text().splitlines():
++        if line.startswith("****"):
++            if cur:
++                sats.append(cur)
++            cur = {}
++        elif ":" in line:
++            k, v = line.split(":", 1)
++            cur[k.strip()] = float(v)
++    if cur:
++        sats.append(cur)
++    return sats
++
++
++def full_week(week_mod, hint):
++    # The week congruent to week_mod modulo 1024 nearest to hint.
++    cands = [w for w in range(hint - 1024, hint + 1025) if w % 1024 == week_mod % 1024]
++    return min(cands, key=lambda w: abs(w - hint))
++
++
++def sat_ecef(s, t_gps, week):
++    a = s["SQRT(A)  (m 1/2)"] ** 2
++    e = s["Eccentricity"]
++    toa = s["Time of Applicability(s)"]
++    tk = t_gps - (week * WEEK + toa)
++    n = np.sqrt(MU / a**3)
++    m = s["Mean Anom(rad)"] + n * tk
++    ek = m
++    for _ in range(60):
++        ek = ek - (ek - e * np.sin(ek) - m) / (1 - e * np.cos(ek))
++    nu = np.arctan2(np.sqrt(1 - e * e) * np.sin(ek), np.cos(ek) - e)
++    u = nu + s["Argument of Perigee(rad)"]
++    r = a * (1 - e * np.cos(ek))
++    xp, yp = r * np.cos(u), r * np.sin(u)
++    om = s["Right Ascen at Week(rad)"] + (s["Rate of Right Ascen(r/s)"] - OMEGA_E) * tk - OMEGA_E * toa
++    i = s["Orbital Inclination(rad)"]
++    return np.array([xp * np.cos(om) - yp * np.cos(i) * np.sin(om),
++                     xp * np.sin(om) + yp * np.cos(i) * np.cos(om),
++                     yp * np.sin(i)])
++
++
++def hdop(sats, week, t_gps, lat_deg, lon_deg, h, mask_deg):
++    lat, lon = np.radians(lat_deg), np.radians(lon_deg)
++    e2 = F_WGS * (2 - F_WGS)
++    nrad = A_WGS / np.sqrt(1 - e2 * np.sin(lat) ** 2)
++    user = np.array([(nrad + h) * np.cos(lat) * np.cos(lon),
++                     (nrad + h) * np.cos(lat) * np.sin(lon),
++                     (nrad * (1 - e2) + h) * np.sin(lat)])
++    enu = np.array([[-np.sin(lon), np.cos(lon), 0.0],
++                    [-np.sin(lat) * np.cos(lon), -np.sin(lat) * np.sin(lon), np.cos(lat)],
++                    [np.cos(lat) * np.cos(lon), np.cos(lat) * np.sin(lon), np.sin(lat)]])
++    rows = []
++    for s in sats:
++        if int(s["Health"]) != 0:
++            continue
++        d = sat_ecef(s, t_gps, week) - user
++        los = enu @ (d / np.linalg.norm(d))
++        if np.degrees(np.arcsin(np.clip(los[2], -1, 1))) < mask_deg:
++            continue
++        rows.append([-los[0], -los[1], -los[2], 1.0])
++    if len(rows) < 4:
++        return len(rows), None
++    hm = np.array(rows)
++    q = np.linalg.inv(hm.T @ hm)
++    return len(rows), float(np.sqrt(q[0, 0] + q[1, 1]))
++
++
++def main():
++    cfg = json.loads((HERE / "points.json").read_text())
++    sats = read_yuma(REPO / cfg["almanac"])
++    week = full_week(int(sats[0]["week"]), cfg["week_hint"])
++    out = []
++    for p in cfg["points"]:
++        n, h = hdop(sats, week, p["gps_s"], p["lat_deg"], p["lon_deg"], p["h_m"], cfg["mask_deg"])
++        out.append({**p, "satellites": n, "hdop": h})
++    json.dump({"week": week, "numpy": np.__version__, "results": out}, sys.stdout, indent=1)
++    sys.stdout.write("\n")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/xval/almanac-hdop/points.json b/xval/almanac-hdop/points.json
+new file mode 100644
+index 000000000..4b384250b
+--- /dev/null
++++ b/xval/almanac-hdop/points.json
+@@ -0,0 +1,28 @@
++{
++  "_comment": "D18 acceptance 1: 20 stated epochs and positions for the almanac-HDOP check. Times are GPS seconds since 1980-01-06T00:00:00 GPS time, around the almanac's time of applicability (week 2444, toa 233472 s); heights above the WGS-84 ellipsoid; mask 5 degrees above the geodetic horizon.",
++  "almanac": "tests/fixtures/gps_almanac/yuma_2026_311.alm",
++  "week_hint": 2444,
++  "mask_deg": 5.0,
++  "points": [
++    {"gps_s": 1478339072.0, "lat_deg": 0.0, "lon_deg": 0.0, "h_m": 0.0},
++    {"gps_s": 1478339072.0, "lat_deg": 59.4370, "lon_deg": 24.7536, "h_m": 10000.0},
++    {"gps_s": 1478342672.0, "lat_deg": 60.1699, "lon_deg": 24.9384, "h_m": 11000.0},
++    {"gps_s": 1478300000.0, "lat_deg": 69.6492, "lon_deg": 18.9553, "h_m": 9000.0},
++    {"gps_s": 1478250000.0, "lat_deg": 78.2232, "lon_deg": 15.6267, "h_m": 500.0},
++    {"gps_s": 1478400000.0, "lat_deg": -33.8688, "lon_deg": 151.2093, "h_m": 12000.0},
++    {"gps_s": 1478450000.0, "lat_deg": 35.6762, "lon_deg": 139.6503, "h_m": 3000.0},
++    {"gps_s": 1478200000.0, "lat_deg": 40.7128, "lon_deg": -74.0060, "h_m": 10500.0},
++    {"gps_s": 1478150000.0, "lat_deg": -54.8019, "lon_deg": -68.3030, "h_m": 0.0},
++    {"gps_s": 1478500000.0, "lat_deg": 89.5, "lon_deg": 0.0, "h_m": 11000.0},
++    {"gps_s": 1478555000.0, "lat_deg": -89.5, "lon_deg": 45.0, "h_m": 2800.0},
++    {"gps_s": 1478100000.0, "lat_deg": 1.3521, "lon_deg": 103.8198, "h_m": 0.0},
++    {"gps_s": 1478339072.0, "lat_deg": 55.6761, "lon_deg": 12.5683, "h_m": 37000.0},
++    {"gps_s": 1478339672.5, "lat_deg": 54.3520, "lon_deg": 18.6466, "h_m": 10668.0},
++    {"gps_s": 1478600000.0, "lat_deg": 45.0, "lon_deg": 179.9, "h_m": 10000.0},
++    {"gps_s": 1478610000.0, "lat_deg": -45.0, "lon_deg": -179.9, "h_m": 10000.0},
++    {"gps_s": 1478050000.0, "lat_deg": 30.0, "lon_deg": 31.0, "h_m": 0.0},
++    {"gps_s": 1478339072.0, "lat_deg": -1.2921, "lon_deg": 36.8219, "h_m": 1795.0},
++    {"gps_s": 1478380000.0, "lat_deg": 64.1466, "lon_deg": -21.9426, "h_m": 0.0},
++    {"gps_s": 1478420000.0, "lat_deg": 21.3069, "lon_deg": -157.8583, "h_m": 9000.0}
++  ]
++}
+-- 
+2.43.0
+
