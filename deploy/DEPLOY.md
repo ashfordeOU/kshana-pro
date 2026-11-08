@@ -200,6 +200,36 @@ pre-release version (`0.41.0-rc.1`) becomes `0.41.0~rc.1`, which RPM orders befo
 `0.41.0`. The package is unsigned; a signed dnf or zypper repository is the publisher's
 step.
 
+**Windows installer.** `scripts/build-msi.ps1 -Binary <kshana-pro.exe> -Out <dir>` (WiX
+Toolset v4: `dotnet tool install --global wix --version 4.0.5`) builds
+`kshana-pro-<version>-x64.msi` from `deploy/windows/kshana-pro.wxs`. It installs
+`kshana-pro.exe` in `Program Files\Kshana Pro` and on the system `PATH`, and registers the
+`kshana-pro` Windows service: automatic start, the `LocalService` account, running
+`kshana-pro serve --windows-service --config %ProgramData%\kshana-pro\serve.conf`. The
+settings (`deploy/windows/serve.conf`: the address, `data` and `licence` folders beside it,
+further `serve` options), the job data and the licence store are under
+`%ProgramData%\kshana-pro`, with an access list of SYSTEM, Administrators and the service
+account only, and are kept on upgrade and on uninstall. The installer does not start the
+service. Activate a licence, then start it, in an elevated PowerShell:
+
+```powershell
+$env:KSHANA_PRO_HOME = "$env:ProgramData\kshana-pro\licence"
+kshana-pro license activate --file token.txt
+Start-Service kshana-pro
+```
+
+A start error is written to `%ProgramData%\kshana-pro\service.log`. The MSI is unsigned
+(SmartScreen warns); code signing waits for the publisher's certificate.
+`scripts/test-msi.ps1` checks an MSI on a disposable machine: silent install, the service
+as registered, the access lists, start, `GET /health`, stop, silent uninstall. The
+`Packages` workflow (`.github/workflows/packages.yml`, started by hand) runs it on a
+`windows-2022` runner, and the RPM test on `ubuntu-22.04`.
+
+**Not yet installed on a real system.** Neither the RPM nor the MSI has been installed on
+a real Fedora, RHEL, openSUSE or Windows machine. The RPM has been built and inspected with
+`rpm`. The MSI is checked only by the `Packages` workflow on a disposable runner. This line
+stays until a real installation of each has been done.
+
 **Air-gapped bundle.** `scripts/offline-bundle.sh <kshana-pro binary> <out-dir> [--sign
 <key file> --signer <name>] [--revocations <revocations.txt>] [--deb <package>]` writes a
 directory to carry into a site with no network: the binary, the unit and its settings, the

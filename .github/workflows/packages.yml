@@ -1,0 +1,55 @@
+name: Packages
+# The installers that the self-hosted macOS runner cannot check (roadmap L5, L6), run by
+# hand only: Windows minutes are billed at twice the Linux rate on this private repository.
+#
+#   msi: build kshana-pro.exe and the unsigned MSI (deploy/windows/kshana-pro.wxs, WiX v4),
+#        then a silent install, the service as registered, the data folders' access list,
+#        a service start, GET /health, a stop and a silent uninstall (scripts/test-msi.ps1).
+#   rpm: the RPM test of tests/offline_bundle.rs on a machine with rpmbuild.
+#
+# Signing is not part of this workflow: it waits for the publisher's certificate.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  msi:
+    runs-on: windows-2022
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # master; the toolchain is the `toolchain` input below
+        with:
+          toolchain: 1.93.0
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+      - name: Build kshana-pro (release)
+        run: cargo build --release --locked --bin kshana-pro
+      - name: Install WiX Toolset v4
+        run: dotnet tool install --global wix --version 4.0.5
+      - name: Build the MSI (unsigned)
+        shell: pwsh
+        run: ./scripts/build-msi.ps1 -Binary target/release/kshana-pro.exe -Out dist
+      - name: Install, start, check and uninstall
+        shell: pwsh
+        run: ./scripts/test-msi.ps1 -Msi (Get-ChildItem dist/*.msi | Select-Object -First 1).FullName
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: kshana-pro-msi-unsigned
+          path: |
+            dist/*.msi
+            msi-*.log
+          if-no-files-found: warn
+  rpm:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # master; the toolchain is the `toolchain` input below
+        with:
+          toolchain: 1.93.0
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+      - name: rpmbuild
+        run: sudo apt-get update && sudo apt-get install -y rpm
+      - name: The package tests (the RPM, the Debian package, the bundle, serve --config)
+        run: cargo test --locked --test offline_bundle

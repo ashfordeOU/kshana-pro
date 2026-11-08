@@ -46,6 +46,8 @@ kshana-pro serve --addr 127.0.0.1:8088 --data-dir /var/lib/kshana-pro --workers 
 | `--workers <n>` | Worker threads for jobs, 1 to 64 (default 1). |
 | `--api-token-file <path>` | Every route except `GET /health` then needs `Authorization: Bearer <token>`. The file holds the token on one line. |
 | `--license <token>` | The entitlement the whole process serves at (a development build also accepts `--dev`). |
+| `--config <serve.conf>` | Read the service settings file (`KSHANA_PRO_ADDR`, `KSHANA_PRO_DATA_DIR`, `KSHANA_PRO_HOME`, `KSHANA_PRO_SERVE_ARGS`; the format systemd reads as `EnvironmentFile`). Relative paths are taken from the file's folder; options on the command line win; an unknown setting is refused. |
+| `--windows-service` | Windows only: run under the Service Control Manager (the MSI's `kshana-pro` service, deploy/DEPLOY.md). Stop finishes running jobs and keeps queued ones on disk. |
 
 At start the server prints the address it bound, the routes it serves, and how many
 unfinished jobs it queued again. It never prints the access token.

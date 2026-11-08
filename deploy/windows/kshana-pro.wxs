@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
+
+     The Windows installer of Kshana Pro (roadmap L5): WiX Toolset v4, built by
+     scripts/build-msi.ps1 (wix build -arch x64 -d Version=… -d Binary=… -d Root=…).
+
+     Installs kshana-pro.exe in Program Files and on the system PATH, and registers the
+     `kshana-pro` Windows service (automatic start, the LocalService account) that runs
+     `kshana-pro serve` in its Windows service mode, with the settings in
+     %ProgramData%\kshana-pro\serve.conf. The settings file, the job data and the licence
+     store are under %ProgramData%\kshana-pro, readable only by SYSTEM, Administrators and
+     the service account (an SDDL access list, so it does not depend on the system's
+     language). They are kept on upgrade and on uninstall. The service is not started by
+     the installer: activate a licence first, then Start-Service kshana-pro.
+
+     Unsigned: code signing waits for the publisher's certificate. -->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Kshana Pro"
+           Manufacturer="Ashforde OÜ"
+           Version="$(var.Version)"
+           UpgradeCode="6FE30761-96B2-4D0D-9C43-3E7E4ACF40F6"
+           Scope="perMachine"
+           Compressed="yes"
+           InstallerVersion="500">
+    <SummaryInformation Description="Kshana Pro: PNT resilience studies, job service and Station fleet" />
+    <MajorUpgrade DowngradeErrorMessage="A newer Kshana Pro is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Kshana Pro" />
+    </StandardDirectory>
+    <StandardDirectory Id="CommonAppDataFolder">
+      <Directory Id="DATAROOT" Name="kshana-pro">
+        <Directory Id="DATADIR" Name="data" />
+        <Directory Id="LICENCEDIR" Name="licence" />
+      </Directory>
+    </StandardDirectory>
+
+    <!-- The program, the service and the PATH entry: removed on uninstall. -->
+    <Component Id="Service" Directory="INSTALLFOLDER">
+      <File Id="KshanaProExe" Source="$(var.Binary)" Name="kshana-pro.exe" KeyPath="yes" />
+      <ServiceInstall Id="KshanaProService"
+                      Name="kshana-pro"
+                      DisplayName="Kshana Pro service"
+                      Description="The Kshana Pro on-premises job service. Settings: %ProgramData%\kshana-pro\serve.conf"
+                      Type="ownProcess"
+                      Start="auto"
+                      ErrorControl="normal"
+                      Account="NT AUTHORITY\LocalService"
+                      Arguments="serve --windows-service --config &quot;[CommonAppDataFolder]kshana-pro\serve.conf&quot;"
+                      Vital="yes" />
+      <ServiceControl Id="KshanaProServiceControl" Name="kshana-pro" Stop="both" Remove="uninstall" Wait="yes" />
+      <Environment Id="KshanaProPath" Name="PATH" Value="[INSTALLFOLDER]" Part="last" Action="set" System="yes" Permanent="no" />
+    </Component>
+    <Component Id="Docs" Directory="INSTALLFOLDER">
+      <File Id="ServiceGuide" Source="$(var.Root)\docs\SERVICE.md" Name="SERVICE.md" KeyPath="yes" />
+      <File Id="LicensingGuide" Source="$(var.Root)\docs\LICENSING.md" Name="LICENSING.md" />
+      <File Id="LicenceText" Source="$(var.Root)\LICENSE" Name="LICENSE.txt" />
+    </Component>
+
+    <!-- The settings, the job data and the licence store: kept on upgrade and uninstall.
+         D:PAI = a protected list that its folders inherit; SY SYSTEM and BA Administrators
+         full control, LS the LocalService account modify (0x1301bf). -->
+    <Component Id="Settings" Directory="DATAROOT" Permanent="yes" NeverOverwrite="yes">
+      <File Id="ServeConf" Source="$(var.Root)\deploy\windows\serve.conf" Name="serve.conf" KeyPath="yes" />
+    </Component>
+    <Component Id="DataFolders" Directory="DATAROOT" Guid="FC75D7F7-1344-4455-BEE4-968BA3229478" Permanent="yes" KeyPath="yes">
+      <CreateFolder>
+        <PermissionEx Sddl="D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1301bf;;;LS)" />
+      </CreateFolder>
+      <CreateFolder Directory="DATADIR">
+        <PermissionEx Sddl="D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1301bf;;;LS)" />
+      </CreateFolder>
+      <CreateFolder Directory="LICENCEDIR">
+        <PermissionEx Sddl="D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1301bf;;;LS)" />
+      </CreateFolder>
+    </Component>
+
+    <Feature Id="Main" Title="Kshana Pro" Level="1">
+      <ComponentRef Id="Service" />
+      <ComponentRef Id="Docs" />
+      <ComponentRef Id="Settings" />
+      <ComponentRef Id="DataFolders" />
+    </Feature>
+  </Package>
+</Wix>

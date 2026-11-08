@@ -260,3 +260,70 @@ fn rpm_package_holds_the_same_files_and_keeps_the_settings_on_upgrade() {
     );
     let _ = std::fs::remove_dir_all(&work);
 }
+
+/// `serve --config`: the service settings file (the one the Windows service reads, and the
+/// Linux unit's environment file) is served from, relative paths are taken from its folder,
+/// a misspelt setting is refused, and `--windows-service` is refused off Windows.
+#[test]
+fn serve_reads_its_settings_file_and_the_windows_mode_is_windows_only() {
+    use std::io::{Read, Write};
+    let work = tmp("conf");
+    let port = std::net::TcpListener::bind("127.0.0.1:0")
+        .unwrap()
+        .local_addr()
+        .unwrap()
+        .port();
+    let conf = work.join("serve.conf");
+    std::fs::write(
+        &conf,
+        format!(
+            "# test\nKSHANA_PRO_ADDR=127.0.0.1:{port}\nKSHANA_PRO_DATA_DIR=data\nKSHANA_PRO_HOME=licence\nKSHANA_PRO_SERVE_ARGS=--workers 1\n"
+        ),
+    )
+    .unwrap();
+    let mut child = Command::new(bin())
+        .args(["serve", "--config", conf.to_str().unwrap()])
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .spawn()
+        .unwrap();
+    let mut body = String::new();
+    for _ in 0..100 {
+        if let Ok(mut s) = std::net::TcpStream::connect(("127.0.0.1", port)) {
+            write!(
+                s,
+                "GET /health HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n"
+            )
+            .unwrap();
+            s.read_to_string(&mut body).unwrap();
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+    let _ = child.kill();
+    let _ = child.wait();
+    assert!(body.starts_with("HTTP/1.1 200"), "{body}");
+    // The job store went where the file said, relative to the file.
+    assert!(
+        work.join("data").is_dir(),
+        "no data directory beside serve.conf"
+    );
+
+    std::fs::write(&conf, "KSHANA_PRO_ADRR=127.0.0.1:1\n").unwrap();
+    let o = Command::new(bin())
+        .args(["serve", "--config", conf.to_str().unwrap()])
+        .output()
+        .unwrap();
+    assert_eq!(o.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&o.stderr).contains("unknown setting KSHANA_PRO_ADRR"));
+
+    if !cfg!(windows) {
+        let o = Command::new(bin())
+            .args(["serve", "--addr", "127.0.0.1:0", "--windows-service"])
+            .output()
+            .unwrap();
+        assert_eq!(o.status.code(), Some(2));
+        assert!(String::from_utf8_lossy(&o.stderr).contains("only on Windows"));
+    }
+    let _ = std::fs::remove_dir_all(&work);
+}

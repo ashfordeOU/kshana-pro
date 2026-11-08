@@ -89,6 +89,10 @@ rustls = { version = "0.23", default-features = false, features = ["ring", "std"
 # anchor that the committed-artifact tests actually compare.
 printpdf = { version = "0.9.1", default-features = false }
 
+# The Windows service (src/serve/winsvc.rs, the MSI's kshana-pro service): Windows only.
+[target.'cfg(windows)'.dependencies]
+windows-service = "0.8"
+
 [dev-dependencies]
 # Reads the PDFs back in the branding tests (tests/ashforde_brand.rs). Already in the
 # graph as printpdf's own PDF layer, with the same features, so nothing new is built.

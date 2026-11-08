@@ -5,6 +5,17 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Windows installer and service (L5).** `deploy/windows/kshana-pro.wxs` (WiX v4) and
+  `scripts/build-msi.ps1`: an unsigned MSI that registers `kshana-pro` as a Windows service
+  (LocalService, automatic start) with its settings, data and licence store under
+  `%ProgramData%\kshana-pro` (SYSTEM, Administrators and the service account only; kept on
+  upgrade and uninstall). `serve --windows-service` runs under the Service Control Manager
+  (`src/serve/winsvc.rs`, the `windows-service` crate on Windows only); `serve --config
+  <serve.conf>` reads the systemd settings file format (`src/serve/conf.rs`). The
+  hand-started `Packages` workflow builds the MSI and installs, starts, checks and removes it
+  on windows-2022 (`scripts/test-msi.ps1`), and runs the RPM test on ubuntu-22.04.
+  Neither package has been installed on a real Windows or RPM-based machine yet.
+
 - **RPM package (L6).** `scripts/build-rpm.sh` builds `kshana-pro-<version>-1.<arch>.rpm` with
   the Debian package's files: the settings kept on upgrade, the `kshana` user made before install,
   the state directories owned by it, the service stopped on removal and restarted on upgrade.
@@ -28,7 +39,7 @@ own bullet so parallel work merges cleanly.
   unit, settings, guides; unsigned) and `scripts/offline-bundle.sh` (binary, unit, guides, revocation
   list, CycloneDX SBOM from the locked graph via `scripts/sbom.py`, `SHA256SUMS`, an optional Ed25519
   signature over every file, and an `install.sh` that checks everything before installing and
-  activates a licence offline). `tests/offline_bundle.rs`. Windows MSI not built here.
+  activates a licence offline). `tests/offline_bundle.rs`.
 
 - **Station fleet (L3 Pro part, F10e).** `POST /fleet/stations`, `GET /fleet/stations`,
   `POST /fleet/stations/<id>/heartbeat|retire` on the Pro service: Stations register and report

@@ -37,6 +37,7 @@ pub mod audit;
 pub mod auth;
 pub mod backup;
 pub mod clients;
+pub mod conf;
 pub mod delivery;
 pub mod fleet;
 pub mod ha;
@@ -48,6 +49,8 @@ pub mod ops;
 pub mod study_intake;
 pub mod tls;
 pub mod trial;
+#[cfg(windows)]
+pub mod winsvc;
 pub mod worker;
 
 use std::io::{Read, Write};

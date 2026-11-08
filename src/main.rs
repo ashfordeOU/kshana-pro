@@ -354,6 +354,30 @@ fn keys_cmd(args: &[String]) -> ExitCode {
 }
 
 fn serve_cmd(args: &[String]) -> ExitCode {
+    // --config <serve.conf>: the settings file systemd reads, for a service manager
+    // without environment files (the Windows service). The command line wins over it.
+    let mut args = args.to_vec();
+    if let Some(path) = flag(&args, "--config") {
+        let p = std::path::Path::new(&path);
+        let dir = p.parent().unwrap_or(std::path::Path::new("."));
+        let st = std::fs::read_to_string(p)
+            .map_err(|e| format!("could not read {path}: {}", e.kind()))
+            .and_then(|t| kshana_pro::serve::conf::parse(&t, dir, &args));
+        match st {
+            Ok(st) => {
+                if let Some(h) = st.licence_home {
+                    // Read by the licence store below; nothing else runs yet.
+                    std::env::set_var("KSHANA_PRO_HOME", h);
+                }
+                args.extend(st.args);
+            }
+            Err(e) => {
+                eprintln!("error: --config {path}: {e}");
+                return ExitCode::from(2);
+            }
+        }
+    }
+    let args = &args[..];
     let addr = flag(args, "--addr").unwrap_or_else(|| "127.0.0.1:8088".to_string());
     // The service runs at a fixed entitlement: a token sets the tier; --dev =
     // Enterprise (everything) for local use; otherwise Evaluation (open + free only).
@@ -499,6 +523,9 @@ fn serve_cmd(args: &[String]) -> ExitCode {
             }
         }
     }
+    if has_flag(args, "--windows-service") {
+        return windows_service_run(config, &addr, flag(args, "--config"));
+    }
     match kshana_pro::serve::serve_with(config) {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => {
@@ -506,6 +533,38 @@ fn serve_cmd(args: &[String]) -> ExitCode {
             ExitCode::FAILURE
         }
     }
+}
+
+/// `serve --windows-service`: run under the Windows Service Control Manager (the MSI's
+/// `kshana-pro` service). Elsewhere the flag is refused.
+#[cfg(windows)]
+fn windows_service_run(
+    config: kshana_pro::serve::ServeConfig,
+    addr: &str,
+    conf: Option<String>,
+) -> ExitCode {
+    // A service has no console: errors go to service.log beside the settings file.
+    let log = conf
+        .as_deref()
+        .and_then(|c| std::path::Path::new(c).parent())
+        .map(|d| d.join("service.log"));
+    match kshana_pro::serve::winsvc::run(config, log) {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => {
+            eprintln!("error: the Windows service on {addr}: {e}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+#[cfg(not(windows))]
+fn windows_service_run(
+    _config: kshana_pro::serve::ServeConfig,
+    _addr: &str,
+    _conf: Option<String>,
+) -> ExitCode {
+    eprintln!("error: --windows-service runs only on Windows (here, use systemd: deploy/linux/kshana-pro.service)");
+    ExitCode::from(2)
 }
 
 /// `ci` — Pack C scenario-subscription CI. Parse a versioned scenario pack, enforce
