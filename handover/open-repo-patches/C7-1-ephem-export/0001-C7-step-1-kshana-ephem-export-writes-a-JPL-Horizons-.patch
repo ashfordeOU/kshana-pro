@@ -1,0 +1,1865 @@
+From 7d42081de3ba3f83d205a1318b7e67a01cd0d22e Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Sun, 8 Nov 2026 13:00:15 +0000
+Subject: [PATCH] C7 step 1: kshana ephem-export writes a JPL Horizons state
+ table as a CCSDS OEM, a CCSDS OPM or an SPK kernel (type 13 or 9) and reads
+ it back
+
+src/ephem_export.rs reads a Horizons vector table (KM-S, TDB; object, centre, NAIF ids,
+frame and request time from the header) and writes the OEM 2.0 (every state), the OPM 3.0
+(one state) or an SPK segment through spk_writer. Values and epochs are copied, not
+computed: doubles in shortest round-trip form, calendar epochs as written, SPK epochs as
+exact TDB seconds past J2000; ICRF is SPK frame code 1. read_back compares every state
+read back by the engine's own readers (OEM data lines and parse_oem, OpmMessage::parse,
+the SPK's stored nodes and its interpolation at each node).
+
+On the CAPSTONE fixture (4,321 states) every state reads back with the same bits from the
+OEM and the SPK, and the OPM's state too; no epoch differs. Checked once outside the repo
+with CSPICE N0067 (spiceypy): the SPK's records and epochs are the same bits, spkezr at the
+nodes within 1.5e-11 km.
+
+Surfaces: CLI ephem-export, surface::ephem_export, Python, WebAssembly and the MCP tool
+ephem_export (53 tools). Every surface writes the same bytes: the SHA-256 of the three
+CAPSTONE files are pinned in tests/fixtures/capstone_horizons/ephem_export.sha256 and
+checked by tests/ephem_export_capstone.rs, the Python binding test and the MCP round trip.
+ReadSegment::nodes exposes a type 9/13 segment's stored epochs and states.
+
+Docs: docs/FLIGHT-DYNAMICS-EXPORT.md, COMMANDS and SURFACES rows, the README and MCP
+README tool tables, CHANGELOG. i18n: the new engine messages and the usage line, with
+their templates; allowances for the CCSDS keywords and the report's JSON keys.
+---
+ CHANGELOG.md                                  |   5 +
+ README.md                                     |   5 +-
+ docs/COMMANDS.md                              |   1 +
+ docs/FLIGHT-DYNAMICS-EXPORT.md                |  84 +++
+ docs/SURFACES.md                              |   2 +
+ i18n/en/engine.ftl                            |  37 +
+ kshana.pyi                                    |  17 +
+ mcp/kshana-mcp/README.md                      |   1 +
+ mcp/kshana-mcp/src/marine.rs                  |  47 ++
+ mcp/kshana-mcp/src/server.rs                  |   4 +-
+ mcp/kshana-mcp/tests/round_trip.rs            |  49 ++
+ packaging/mcp/SUBMITTING.md                   |   2 +-
+ src/ephem_export.rs                           | 675 ++++++++++++++++++
+ src/lib.rs                                    |   1 +
+ src/main.rs                                   | 113 +++
+ src/python.rs                                 |  31 +
+ src/spk_writer.rs                             |   6 +
+ src/surface.rs                                |  44 ++
+ src/wasm.rs                                   |  29 +
+ tests/cli_help_lists_subcommands.rs           |   1 +
+ tests/ephem_export_capstone.rs                |  97 +++
+ .../capstone_horizons/ephem_export.sha256     |   3 +
+ tests/fixtures/i18n/allow.json                |  12 +-
+ tests/fixtures/i18n/corpus.json               | 177 +++++
+ tests/fixtures/i18n/manual.json               |   2 +-
+ tests/python/test_bindings.py                 |  19 +
+ 26 files changed, 1454 insertions(+), 10 deletions(-)
+ create mode 100644 docs/FLIGHT-DYNAMICS-EXPORT.md
+ create mode 100644 src/ephem_export.rs
+ create mode 100644 tests/ephem_export_capstone.rs
+ create mode 100644 tests/fixtures/capstone_horizons/ephem_export.sha256
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index c05759d7a..a9aec133e 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -11,6 +11,11 @@ breaking changes are called out explicitly.
+ 
+ ### Added
+ 
++- `kshana ephem-export` (Python, WebAssembly and MCP `ephem_export`; `kshana::ephem_export`): a JPL Horizons state table
++  written as a CCSDS OEM 2.0, a CCSDS OPM 3.0 or an SPK kernel of type 13 or 9, then read back with the engine's own readers
++  (C7, step 1; `docs/FLIGHT-DYNAMICS-EXPORT.md`). Values and epochs are copied, not computed: on the mission thread's
++  CAPSTONE table all 4,321 states read back with the same bits from the OEM and the SPK, and from the SPICE Toolkit's
++  reading of the SPK too. Every surface writes the same bytes (pinned SHA-256).
+ - RTCM SSR reader (`kshana::rtcm_ssr`) reads the IGS SSR format (RTCM 4076): orbit, clock, combined, high-rate clock, code
+   bias, phase bias with yaw and URA for GPS, GLONASS, Galileo, QZSS, BeiDou and SBAS, and the global ionosphere (201). Every
+   field of the 11 messages in pyrtcm 1.2.0's public IGS sample stream matches the values pyrtcm records; the message kinds
+diff --git a/README.md b/README.md
+index 39eb155f2..944b1bcaa 100644
+--- a/README.md
++++ b/README.md
+@@ -1342,7 +1342,7 @@ parts fit.
+ ## AI assistant
+ 
+ [`kshana-mcp`](mcp/kshana-mcp/) is an MCP server: your assistant runs the actual engine and
+-reads back its JSON, instead of guessing the maths. Each of its 52 tools is a thin wrapper
++reads back its JSON, instead of guessing the maths. Each of its 53 tools is a thin wrapper
+ over a public function of the `kshana` library, so no simulation logic lives in the server.
+ 
+ ### Install the MCP server
+@@ -1387,7 +1387,7 @@ Per-client set-up is in [`docs/integrations.md`](docs/integrations.md). The serv
+ in the official MCP registry as `io.github.ashfordeOU/kshana-mcp`.
+ 
+ <details>
+-<summary>The 52 tools</summary>
++<summary>The 53 tools</summary>
+ 
+ <br>
+ 
+@@ -1415,6 +1415,7 @@ in the official MCP registry as `io.github.ashfordeOU/kshana-mcp`.
+ | `export_omm` | Export an `orbit` scenario's elements as a CCSDS (Consultative Committee for Space Data Systems) 502.0-B-2 OMM (Orbit Mean-elements Message) catalogue |
+ | `export_oem` | Export an `orbit` scenario's state series as CCSDS OEM (Orbit Ephemeris Message) 2.0 ephemeris — the TEME (true equator, mean equinox) position *and*  |
+ | `export_table_csv` | Run a scenario and return its reproducibility table as CSV (comma-separated values) — the byte-stable table the CLI (command-line interface) writes as `<scenario>.table.csv` |
++| `ephem_export` | Write a JPL Horizons state table (the CAPSTONE or Artemis I states of the mission thread) as a CCSDS OEM, a CCSDS OPM or an SPK kernel of type 13 or 9 for flight-dynamics tools, and read it back state for state (`kshana ephem-export`) |
+ | `export_test_bench` | A scenario's vehicle motion and events for a laboratory GNSS simulator (`kshana bench-export`) |
+ 
+ **Receiver and vessel trust**
+diff --git a/docs/COMMANDS.md b/docs/COMMANDS.md
+index bc0ff9dc4..36c44b951 100644
+--- a/docs/COMMANDS.md
++++ b/docs/COMMANDS.md
+@@ -16,6 +16,7 @@ usage of all of them, and each subcommand's own `--help` lists its flags. The ex
+ | `kshana jammertest import`, `score`, `locate-score` | reads the published Jammertest plan and scores a log against it; `locate-score` scores reported emitter locations against truth (row B2) | `kshana jammertest score --help` | [Jammertest](JAMMERTEST.md) |
+ | `kshana trust-telemetry` | the trust stream as Prometheus, CEF, LEEF, OTLP or MQTT messages, and CAP 1.2 alerts written to a directory or posted to a signed webhook | `kshana trust-telemetry --result session.result.json --print-metrics` | [Trust telemetry](TRUST-TELEMETRY.md) |
+ | `kshana imu-fit <imu.csv>` | fits hybrid sensor parameters off a stationary IMU log | `kshana imu-fit still.csv --axis x --expected-mean 0 --id bench-imu` | [Machine inputs](MACHINE-INPUTS.md) |
++| `kshana ephem-export <horizons.txt>` | writes a JPL Horizons state table as a CCSDS OEM or OPM or an SPK kernel for flight-dynamics tools, and reads it back | `kshana ephem-export capstone.txt --format spk --out capstone.bsp` | [Flight-dynamics export](FLIGHT-DYNAMICS-EXPORT.md) |
+ | `kshana nmea-scenario <scenario>` | writes synthetic bridge NMEA with scripted jamming and spoofing, and an instructor log | `kshana nmea-scenario scenarios/training/coastal-drag-off.toml --out drag.nmea` | [NMEA training](NMEA-TRAINING.md) |
+ | `kshana interference-map adsb`, `ais`, `daily`, `sensitivity`, `fetch-land`, `record` | builds interference maps and the observatory's daily product from aircraft and ship reports (`record`: from a local receiver, live) | `examples/interference-map/regenerate.sh` | [Interference map](INTERFERENCE-MAP.md), [observatory](observatory/METHOD.md) |
+ | `kshana route-exposure` | how much of a route crosses degraded cells | `kshana route-exposure --route examples/interference-map/input/route-adsb.geojson --map examples/interference-map/output/` | [Interference map](INTERFERENCE-MAP.md) |
+diff --git a/docs/FLIGHT-DYNAMICS-EXPORT.md b/docs/FLIGHT-DYNAMICS-EXPORT.md
+new file mode 100644
+index 000000000..e19671aec
+--- /dev/null
++++ b/docs/FLIGHT-DYNAMICS-EXPORT.md
+@@ -0,0 +1,84 @@
++<!-- SPDX-License-Identifier: AGPL-3.0-only -->
++# Flight-dynamics export: a trajectory as OEM, OPM and SPK
++
++`kshana ephem-export` writes a tabulated trajectory as one of the files flight-dynamics tools load:
++
++| Format | What is written | Read by, for example |
++|---|---|---|
++| `oem` | CCSDS Orbit Ephemeris Message 2.0, KVN: one segment with every state | Orekit, GMAT, STK |
++| `opm` | CCSDS Orbit Parameter Message 3.0, KVN: one state (`--index`, default the first) | Orekit, GMAT |
++| `spk` | NAIF SPICE SPK kernel, type 13 (Hermite, default) or type 9 (Lagrange), one segment | SPICE and the tools built on it (Basilisk, GMAT) |
++
++This is step 1 of roadmap item C7 (adapters and notebooks for flight-dynamics tools;
++[pre-registration](design/evidence/c7-flight-dynamics-adapters/PREREGISTRATION.md)). The adapters and
++notebooks that load these files into the tools themselves are the later steps.
++
++## Input
++
++A JPL Horizons vector table as Horizons writes it: `Output type: GEOMETRIC cartesian states`,
++`Output format: 2` (position and velocity), `Output units: KM-S`, a TDB time scale, and the CSV form
++between `$$SOE` and `$$EOE` (Julian date, calendar date, X, Y, Z, VX, VY, VZ). The object, the centre
++and their NAIF ids (`Target body name: CAPSTONE (spacecraft) (-1176)`, `Center body name: Moon (301)`),
++the frame (`Reference frame : ICRF`) and the request time come from the table's header. A table in
++other units or another time scale is refused, not converted.
++
++The mission thread's CAPSTONE table is in the repository:
++`tests/fixtures/capstone_horizons/capstone_2023-03_moon_icrf.txt` (4,321 states, 1 to 31 March 2023,
++every 10 minutes, Moon-centred, ICRF).
++
++## Use
++
++```sh
++kshana ephem-export capstone.txt --format oem --out capstone.oem
++kshana ephem-export capstone.txt --format opm --index 0 --out capstone.opm
++kshana ephem-export capstone.txt --format spk --spk-type 13 --degree 7 --out capstone.bsp
++```
++
++Options: `--out` (default: the input path with `.oem`, `.opm` or `.bsp`), `--index` (OPM),
++`--spk-type 13|9` and `--degree` (SPK; odd for type 13), `--creation-date` and `--object-id` (OEM
++and OPM headers). The command writes the file and prints a JSON report: the table's object, centre,
++NAIF ids, frame, time scale, number of states and span, the file's size and SHA-256, and `read_back`.
++
++The same function is `ephem_export` in Python, in WebAssembly and as an MCP tool, and
++`kshana::ephem_export` in Rust. Python, WebAssembly and MCP return the file in the report (`content`,
++with `encoding` `utf-8`, or `base64` for the SPK). Every surface writes the same bytes; the SHA-256 of
++the three CAPSTONE files are pinned in `tests/fixtures/capstone_horizons/ephem_export.sha256` and
++checked through the command line, Python and MCP.
++
++## What is written
++
++The values are copied, not computed.
++
++- **OEM and OPM.** Each double is written in its shortest round-trip decimal form. A reader that
++  parses the text as IEEE doubles gets back the bits the table gave. Epochs are the table's calendar
++  epochs, copied as written (`2023-03-01T00:10:00.0000`), with `TIME_SYSTEM = TDB`. `REF_FRAME` is
++  the table's frame (`ICRF`), `CENTER_NAME` its centre (`MOON`), `OBJECT_ID` the NAIF id unless
++  `--object-id` gives one, and `CREATION_DATE` the request time in the table's header unless
++  `--creation-date` gives one (never the wall clock, so the same table gives the same file).
++- **SPK.** One segment: target and centre from the NAIF ids, the states as stored doubles, the
++  epochs as TDB seconds past J2000 computed exactly from the calendar labels. ICRF is frame code 1
++  (`J2000`), the code SPICE kernels of ICRF-referred ephemerides use; no rotation is applied. The
++  kernel is laid out as the SPICE Toolkit's own writer lays it out
++  ([`src/spk_writer.rs`](../src/spk_writer.rs)).
++
++## The read-back
++
++After writing, the engine reads the file back with its own readers and compares every state with the
++one written (`read_back`): `identical` counts the states whose six values have the same bits, the
++largest position and velocity differences, and the epochs that read back differently. For the SPK it
++also evaluates the interpolated state at each node epoch.
++
++On the CAPSTONE table: all 4,321 states read back identical from the OEM and the SPK, and the OPM's
++one state too; no epoch differs. The SPK's interpolated state at the nodes is within 2.1e-11 km and
++5.6e-15 km/s of the stored state (rounding in the Hermite arithmetic). Read with the SPICE Toolkit
++(CSPICE N0067 through spiceypy), the SPK's stored records and epochs are the same bits, and `spkezr`
++at the nodes is within 1.5e-11 km and 5.0e-15 km/s.
++
++## Limits
++
++- One object per file. One Horizons table in, one segment out.
++- Horizons vector tables only, in km and km/s on TDB. Other state tables are not read yet.
++- The OEM carries no covariance and no interpolation hint (`INTERPOLATION` is not written); the
++  reading tool chooses its own interpolation.
++- The frame is written as the table names it. ICRF is not rotated to EME2000 for tools that only
++  accept EME2000; the C7 adapters state what each tool accepts.
+diff --git a/docs/SURFACES.md b/docs/SURFACES.md
+index 7eb26ead6..1386ddb36 100644
+--- a/docs/SURFACES.md
++++ b/docs/SURFACES.md
+@@ -34,6 +34,7 @@ actions that run the CLI), **Notebook** (`notebooks/`), **Studio** (the Kshana S
+ | Trust telemetry (Prometheus, syslog CEF/LEEF, OTLP; 0.38: `format = "mqtt"`, Home Assistant discovery and state lines; `--mqtt-tcp` publishes from the CLI) | `trust-telemetry` | `telemetry` | `trust_telemetry` | `trust_telemetry` (text out; no socket) | `trust_telemetry` | `/kshana-trust-telemetry`, skill `trust-telemetry` | Render Trust Telemetry (a stored result) | `vessel-trust-and-training` | Tools: Telemetry card (Command line tab; formats only, no sockets) |
+ | Machine and sensor inputs (0.38): `receiver-trust` formats `rtklib-pos`, `novatel`, `gnss-sdr`, and `[log.imu]` (`csv`, `euroc`, `ros2-csv`) | `receiver-trust` (scenario `[log] format`) | `receiver_trust::machines` | `receiver_trust`, `assess_receiver_log` (inline) | `receiver_trust` (inline) | `assess_receiver_log` (inline text/base64; a `path` is refused) | `/kshana-assess-receiver` | Assess Receiver Trust | `vessel-trust-and-training` | **N/A** (Studio's Trust page reads the formats it lists; new formats follow with its next port) |
+ | IMU log to hybrid/fusion sensor parameters (`[accel_classical]` table from a stationary log, Allan fit) | `imu-fit` | `surface::imu_fit`, `receiver_trust::machines::imu_fit` | `imu_fit` | `imu_fit` | `fit_imu_log` | `/kshana-fit-imu` | **N/A** (no IDE action yet) | **N/A** | **N/A** (Studio's scenario editor takes the pasted table) |
++| Flight-dynamics export (0.41, C7): a JPL Horizons state table written as a CCSDS OEM, a CCSDS OPM or an SPK kernel (type 13 or 9), then read back state for state (docs/FLIGHT-DYNAMICS-EXPORT.md) | `ephem-export` | `ephem_export`, `surface::ephem_export` | `ephem_export` | `ephem_export` | `ephem_export` | same | **N/A** (no IDE action; the command line covers it) | **pending** (the C7 notebooks) | **N/A** (no Studio card; the browser has the WASM function) |
+ | ROS 2 node, GNSS-SDR UDP relay, `trust-telemetry --mqtt-tcp` (`integrations/ros2`, `integrations/gnss-sdr`) | processes | **N/A** | **N/A** | **N/A** | **N/A** | **N/A** | **N/A** | **N/A** | **N/A** (long-running processes and sockets; text forms: `trust_telemetry` with `mqtt`) |
+ | Galileo OSNMA verification of I/NAV pages or a UBX stream (`docs/OSNMA.md`) | `osnma verify` | `osnma::cli::verify_report`, `surface::osnma_verify` | `osnma_verify` | `osnma_verify` | **N/A** (a long raw receiver stream suits the CLI and Python; an agent tool would add a large-input surface for no benefit) | **N/A** (plugin commands run over the MCP server, which has no OSNMA tool for the reason in the MCP cell; run `kshana osnma verify`) | **N/A** (the result means nothing without a trusted Merkle root or public key obtained from the ICD by another route and, for freshness, an independent reference time; a right-click action has nowhere to take them, and an unpinned default would read as verification; run `kshana osnma verify`) | **N/A** (a stream in, a JSON report out; no notebook) | Tools: OSNMA |
+ | Training NMEA with an instructor log | `nmea-scenario` | `nmea_synth::generate_from_toml` | `nmea_training` | `nmea_training` | `generate_training_nmea` | `/kshana-training-scenario`, skill `training-nmea-scenario` | Generate Training NMEA | `vessel-trust-and-training` | Training debrief page |
+@@ -143,6 +144,7 @@ last column. JetBrains actions run the command line, so an **N/A** there states
+ | `receiver-trust live` | excerpt: `receiver_trust_replay` | excerpt: `receiver_trust_replay` | excerpt: `assess_vessel_stream` | excerpt | Assess Receiver Stream (a stored log, `--file`) | | Maritime trust page (excerpt); Command line card for the process | A running process; the excerpt has no socket and no gate (N/A above) |
+ | `trust-telemetry` | `trust_telemetry` | `trust_telemetry` | `trust_telemetry` | `/kshana-trust-telemetry` | Render Trust Telemetry (a stored result) | `vessel-trust-and-training` | Tools: Telemetry card (Command line tab; formats only, no sockets) | Text only on every surface, no socket; the running exporters are a process (see above) |
+ | `imu-fit <imu.csv>` | `imu_fit` | `imu_fit` | `fit_imu_log` | `/kshana-fit-imu` | N/A | | — | Text in, JSON out; MODELLED |
++| `ephem-export <horizons.txt>` | `ephem_export` | `ephem_export` | `ephem_export` | N/A (see above) | N/A (see above) | | — | Text in, JSON out; the SPK comes back as base64. The same bytes from every surface (tests/fixtures/capstone_horizons/ephem_export.sha256) |
+ | `osnma verify <pages\|vectors.csv\|stream.ubx>` | `osnma_verify` | `osnma_verify` | N/A (see above) | N/A (see above) | N/A (see above) | | Tools: OSNMA | Same JSON as `--json`, with the advisory in its `advisory` field; the file read becomes bytes in memory. Authentication status only: not a navigation integrity service, and no anti-spoofing performance claim |
+ | `receiver-trust evidence` (create a pack) | `evidence_create` | N/A | `create_evidence_pack` | `/kshana-evidence-pack` | Create Evidence Pack | `vessel-trust-and-training` | Tools: Command line card (no signing key in a page) | No signing key in a browser |
+ | `jammertest import`, `jammertest score` | `jammertest_import`, `jammertest_score` | `jammertest_import`, `jammertest_score` | `jammertest_import`, `jammertest_score` | `/kshana-jammertest` | **N/A** (terminal; needs files) | | **pending**: Tools: Command line card | Plan and catalogue are given as text; the signed pack (`--key`) is command line only (signing key) |
+diff --git a/i18n/en/engine.ftl b/i18n/en/engine.ftl
+index df8a5efad..61564f5b4 100644
+--- a/i18n/en/engine.ftl
++++ b/i18n/en/engine.ftl
+@@ -1963,6 +1963,36 @@ engine-e-eo-payload-half-fov-too-large = half_fov too large: { $e }
+ 
+ engine-eo-payload-eo-coverage-km-fov-km = eo-coverage: { $altitude_km } km, ±{ $half_fov_deg }° FOV -> { $v3 } km swath, { $gsd } m nadir GSD, access to { $v5 } km off-nadir; node spacing { $v6 } km ({ $v7 }) (MODELLED)
+ 
++## src/ephem_export.rs
++
++engine-e-ephem-export-unknown-format = unknown export format `{ $o }`: use `oem`, `opm` or `spk`
++
++engine-e-ephem-export-horizons-row-fields = Horizons table line { $line }: { $f } fields, expected the Julian date, the calendar date and six state values
++
++engine-e-ephem-export-horizons-bad-date = Horizons table line { $line }: the calendar date is not `A.D. YYYY-Mon-DD HH:MM:SS.ffff`
++
++engine-e-ephem-export-horizons-bad-number = Horizons table line { $line }: `{ $v }` is not a finite number
++
++engine-e-ephem-export-horizons-no-table = not a Horizons vector table: no `$$SOE` to `$$EOE` block
++
++engine-e-ephem-export-horizons-empty = the Horizons table has no rows
++
++engine-e-ephem-export-horizons-units = the Horizons table is in `{ $u }` units: request `KM-S`
++
++engine-e-ephem-export-horizons-time-scale = the Horizons table's time scale is `{ $t }`: request TDB
++
++engine-e-ephem-export-horizons-header = the Horizons table's header has no `{ $k }` line
++
++engine-e-ephem-export-no-creation-date = no creation date: the table's header has none, so give one (`--creation-date YYYY-MM-DDTHH:MM:SS`)
++
++engine-e-ephem-export-opm-index = state { $i } is out of range: the table has { $total } states
++
++engine-e-ephem-export-spk-type = the SPK export writes type 13 or type 9
++
++engine-e-ephem-export-read-back-count = { $w } states written, { $r } read back
++
++engine-e-ephem-export-read-back-value = the written file has a state that does not read back
++
+ ## src/ephem_provider.rs
+ 
+ engine-ephem-provider-earth-moon-barycentre-from-split = Earth-Moon barycentre from { $table }, split by the Montenbruck & Gill lunar series precessed to J2000
+@@ -5785,6 +5815,12 @@ engine-main-error-unknown-imu-fit-option = error: unknown imu-fit option { $x }
+ 
+ engine-main-error-imu-fit-needs-an = error: imu-fit needs an IMU log path
+ 
++engine-main-error-option-needs-whole = error: { $a } needs a whole number
++
++engine-main-error-unknown-ephem-export-option = error: unknown ephem-export option { $x }
++
++engine-main-error-ephem-export-needs-a = error: ephem-export needs the path of a Horizons vector table
++
+ engine-main-error-needs-value-2 = error: { $args } needs a value
+ 
+ engine-main-error-epoch = error: --epoch: { $e }
+@@ -10293,6 +10329,7 @@ engine-main-usage =
+     { "   " }or: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }or: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }or: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }or: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }or: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }or: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }or: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/kshana.pyi b/kshana.pyi
+index b77c2c339..794c71769 100644
+--- a/kshana.pyi
++++ b/kshana.pyi
+@@ -619,6 +619,23 @@ def trust_telemetry(
+     ``unix_nano`` is the export time of the ``"otlp"`` payload. Syslog lines carry no timestamp.
+     Raises ``ValueError`` on an unknown format or an input with no epoch."""
+ 
++def ephem_export(
++    table: str,
++    format: str = "oem",
++    index: int = 0,
++    spk_type: int = 13,
++    degree: int = 7,
++    creation_date: Optional[str] = None,
++    object_id: Optional[str] = None,
++) -> str:
++    """Write a JPL Horizons vector table (``table``, the text) as a CCSDS OEM (``format="oem"``), a
++    CCSDS OPM of the state at ``index`` (``"opm"``) or an SPK kernel of type ``spk_type`` 13 or 9
++    and odd ``degree`` (``"spk"``), and read it back with the engine's readers
++    (``kshana ephem-export``, docs/FLIGHT-DYNAMICS-EXPORT.md). Returns JSON text: the table's
++    object, centre, frame, time scale and span; the file (``encoding`` ``"utf-8"`` or
++    ``"base64"``, ``content``, ``sha256``); and ``read_back``. Raises ``ValueError`` on a table it
++    cannot read."""
++
+ def imu_fit(
+     log: str,
+     format: str = "csv",
+diff --git a/mcp/kshana-mcp/README.md b/mcp/kshana-mcp/README.md
+index adb57a294..04d9a4ffd 100644
+--- a/mcp/kshana-mcp/README.md
++++ b/mcp/kshana-mcp/README.md
+@@ -72,6 +72,7 @@ figures of merit with their provenance and their VALIDATED or MODELLED label.
+ | `compliance_mapping` | The static mapping tables (or, with `sources`, the source documents they cite with versions and URLs) as Markdown, led by the same statement. Needs no runs. |
+ | `trust_telemetry` | A trust stream (JSON lines) or `receiver-trust` result rendered as Prometheus text, CEF or LEEF syslog lines, an OTLP JSON payload or Home Assistant MQTT discovery and state lines, with the `kshana trust-telemetry` encoders. Text in the reply: nothing is sent or served and no clock is read. Advisory only. |
+ | `fit_imu_log` | Accelerometer and gyro parameters of the `hybrid` and `fusion` scenarios fitted from a stationary IMU log (CSV or EuRoC) by Allan deviation, with a ready-to-paste `[accel_classical]` table and the log's SHA-256 (`kshana imu-fit`). Text in, JSON out; MODELLED. |
++| `ephem_export` | A JPL Horizons state table written as a CCSDS OEM, a CCSDS OPM or an SPK kernel of type 13 or 9, for flight-dynamics tools, and read back state for state (`kshana ephem-export`). Text in, JSON out (the SPK as base64). |
+ | `list_standards_packs` | The standards packs (`kshana standards-pack list`): scored scenario sets for the DHS Resilient PNT framework test profiles (levels 1 to 4), IMO MSC.1/Circ.1575 and ICAO Doc 9849 Appendix F. |
+ | `run_standards_pack` | One pack run against its bars stated before the run (`kshana standards-pack run`): each test `MET`, `NOT MET` or `NEEDS INPUT`, with measured and expected values; give the report to `compliance_report` to see the rows. MODELLED; rates no product. |
+ | `lunanet_afs_check` | The LunaNet Augmented Forward Signal checked against LNIS V5 AD1 Volume A (LSIS-AFS V1.0, 29 January 2025): `spec` (the implementation against the document's printed code tables and worked examples), `symbols` (a symbol stream: sync pattern, SB1, FID, TOI continuity) or `generate` (a test stream). LDPC and CRC-24Q of subframes 2 to 4 are not verified; no signal is written. |
+diff --git a/mcp/kshana-mcp/src/marine.rs b/mcp/kshana-mcp/src/marine.rs
+index 71cde4861..7d2e05f0c 100644
+--- a/mcp/kshana-mcp/src/marine.rs
++++ b/mcp/kshana-mcp/src/marine.rs
+@@ -291,6 +291,33 @@ pub struct FitImuRequest {
+     pub id: Option<String>,
+ }
+ 
++/// Parameters for [`KshanaServer::ephem_export`].
++#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
++pub struct EphemExportRequest {
++    /// A JPL Horizons vector table as text: `Output type: GEOMETRIC cartesian states`, position
++    /// and velocity, units `KM-S`, time scale TDB, the CSV form between `$$SOE` and `$$EOE`.
++    pub table: String,
++    /// `oem` (default), `opm` or `spk`.
++    #[serde(default)]
++    pub format: Option<String>,
++    /// OPM: the index of the state to write (default 0, the first).
++    #[serde(default)]
++    pub index: Option<usize>,
++    /// SPK: the type, 13 (Hermite, default) or 9 (Lagrange).
++    #[serde(default)]
++    pub spk_type: Option<u32>,
++    /// SPK: the polynomial degree (default 7; odd for type 13).
++    #[serde(default)]
++    pub degree: Option<usize>,
++    /// `CREATION_DATE` of the OEM and OPM, `YYYY-MM-DDTHH:MM:SS` (default: the request time in
++    /// the table's header).
++    #[serde(default)]
++    pub creation_date: Option<String>,
++    /// `OBJECT_ID` of the OEM and OPM (default: the object's NAIF id).
++    #[serde(default)]
++    pub object_id: Option<String>,
++}
++
+ /// Parameters for [`KshanaServer::run_standards_pack`].
+ #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+ pub struct StandardsPackRequest {
+@@ -941,6 +968,26 @@ impl KshanaServer {
+         Ok(CallToolResult::success(vec![ContentBlock::text(text)]))
+     }
+ 
++    #[tool(
++        description = "Write a JPL Horizons vector table (for example the CAPSTONE or Artemis I states of the mission thread) as a file flight-dynamics tools load (`kshana ephem-export`, docs/FLIGHT-DYNAMICS-EXPORT.md): a CCSDS OEM 2.0 of every state (`format` `oem`), a CCSDS OPM 3.0 of one state (`opm`, `index`), or a NAIF SPK kernel of type 13 or 9 (`spk`). The values are copied, not computed: the OEM and OPM write each double in shortest round-trip form and the SPK stores the same doubles, with the table's own epochs (TDB), object, centre and frame (ICRF, frame code 1 in the SPK). Returns JSON: the table's object, centre, NAIF ids, frame, time scale, number of states and span; the file (`suffix`, `bytes`, `sha256`, `encoding` `utf-8` or `base64` for the SPK, `content`); and `read_back`, the engine reading the file back and comparing every state with the one written (`identical` of `states`, the largest differences, and for the SPK the interpolated state at each node). Nothing is written to disk."
++    )]
++    fn ephem_export(
++        &self,
++        Parameters(r): Parameters<EphemExportRequest>,
++    ) -> Result<CallToolResult, McpError> {
++        let o = kshana::ephem_export::ExportOptions::from_parts(
++            r.format.as_deref().unwrap_or("oem"),
++            r.index.unwrap_or(0),
++            r.spk_type.unwrap_or(13),
++            r.degree.unwrap_or(7),
++            r.creation_date,
++            r.object_id,
++        )
++        .map_err(bad)?;
++        let text = surface::ephem_export(&r.table, &o, MAX_UPLOAD_BYTES).map_err(bad)?;
++        Ok(CallToolResult::success(vec![ContentBlock::text(text)]))
++    }
++
+     #[tool(
+         description = "List the standards packs (`kshana standards-pack list`): scored scenario sets for the DHS Resilient PNT framework test profiles, IMO MSC.1/Circ.1575 and ICAO Doc 9849 Appendix F, each with the bars it states before the run and the compliance rows it supports evidence for. Needs no input. A pack measures modelled scenarios against stated bars; it rates no product. Evidence tier: MODELLED."
+     )]
+diff --git a/mcp/kshana-mcp/src/server.rs b/mcp/kshana-mcp/src/server.rs
+index 792005497..b68252072 100644
+--- a/mcp/kshana-mcp/src/server.rs
++++ b/mcp/kshana-mcp/src/server.rs
+@@ -24,8 +24,8 @@
+ //!
+ //! The maritime-trust, training-NMEA, interference-map and compliance-mapping tools
+ //! (`assess_vessel_stream`, `generate_training_nmea`, `build_interference_map`,
+-//! `route_exposure`, `trust_telemetry`, `fit_imu_log`, `compliance_report`, `compliance_mapping`,
+-//! `score_benchmark`, `render_leaderboard`,
++//! `route_exposure`, `trust_telemetry`, `fit_imu_log`, `ephem_export`, `compliance_report`,
++//! `compliance_mapping`, `score_benchmark`, `render_leaderboard`,
+ //! `export_test_bench`) are in
+ //! [`crate::marine`].
+ //!
+diff --git a/mcp/kshana-mcp/tests/round_trip.rs b/mcp/kshana-mcp/tests/round_trip.rs
+index 02312eda7..669e8a22d 100644
+--- a/mcp/kshana-mcp/tests/round_trip.rs
++++ b/mcp/kshana-mcp/tests/round_trip.rs
+@@ -96,6 +96,7 @@ async fn serves_exactly_the_expected_tool_set() {
+         "route_exposure",
+         "trust_telemetry",
+         "fit_imu_log",
++        "ephem_export",
+         "compliance_report",
+         "compliance_mapping",
+         "list_standards_packs",
+@@ -1604,3 +1605,51 @@ async fn sky_geometry_answers_a_request_and_describes_a_preset() {
+     assert!(err.to_string().contains("exactly one"), "{err}");
+     client.cancel().await.ok();
+ }
++
++/// C7: the CAPSTONE Horizons table written as an SPK and as an OEM reads back state for state,
++/// with the bytes the command line writes.
++#[tokio::test]
++async fn ephem_export_writes_the_capstone_table_and_reads_it_back() {
++    let table = std::fs::read_to_string(
++        Path::new(env!("CARGO_MANIFEST_DIR"))
++            .join("../../tests/fixtures/capstone_horizons/capstone_2023-03_moon_icrf.txt"),
++    )
++    .expect("the CAPSTONE Horizons fixture");
++    let client = connect().await;
++    for (format, encoding) in [("spk", "base64"), ("oem", "utf-8")] {
++        let res = client
++            .call_tool(call(
++                "ephem_export",
++                serde_json::json!({ "table": table, "format": format }),
++            ))
++            .await
++            .expect("call ephem_export");
++        let v: serde_json::Value = serde_json::from_str(&first_text(&res)).expect("JSON reply");
++        assert_eq!(v["encoding"], encoding);
++        assert_eq!(v["object_naif"], -1176);
++        assert_eq!(v["read_back"]["states"], 4321);
++        assert_eq!(v["read_back"]["identical"], 4321, "{format}");
++        assert_eq!(v["read_back"]["epoch_mismatches"], 0);
++        // The same bytes as the command line and Python (tests/ephem_export_capstone.rs).
++        let pinned = std::fs::read_to_string(
++            Path::new(env!("CARGO_MANIFEST_DIR"))
++                .join("../../tests/fixtures/capstone_horizons/ephem_export.sha256"),
++        )
++        .expect("the pinned digests");
++        let want = pinned
++            .lines()
++            .find(|l| l.ends_with(&format!("  {format}")))
++            .and_then(|l| l.split_whitespace().next())
++            .expect("a digest for the format");
++        assert_eq!(v["sha256"], want, "{format}");
++    }
++    let err = client
++        .call_tool(call(
++            "ephem_export",
++            serde_json::json!({ "table": "no table", "format": "oem" }),
++        ))
++        .await
++        .expect_err("a text with no table must be refused");
++    assert!(err.to_string().contains("SOE"), "{err}");
++    client.cancel().await.ok();
++}
+diff --git a/packaging/mcp/SUBMITTING.md b/packaging/mcp/SUBMITTING.md
+index 4633fc836..c870bfcd5 100644
+--- a/packaging/mcp/SUBMITTING.md
++++ b/packaging/mcp/SUBMITTING.md
+@@ -65,7 +65,7 @@ without a submission.
+    `npx -y kshana-mcp@<version>`. It has no build or container section.
+ 3. Publish it as a repository / local listing. **Do not click Deploy and do not choose a hosted
+    option:** nothing of Kshana is hosted, the server runs on the user's own computer, and the listing
+-   must keep saying so. Check the tools list shows 52 tools and add
++   must keep saying so. Check the tools list shows 53 tools and add
+    the advisory sentence above to the description. When the release version changes, the version in
+    `smithery.yaml` changes with it (the version-sync check covers it).
+ 
+diff --git a/src/ephem_export.rs b/src/ephem_export.rs
+new file mode 100644
+index 000000000..08821f2eb
+--- /dev/null
++++ b/src/ephem_export.rs
+@@ -0,0 +1,675 @@
++// SPDX-License-Identifier: AGPL-3.0-only
++//! Export of a tabulated trajectory to the files flight-dynamics tools read: a CCSDS Orbit
++//! Ephemeris Message (OEM, KVN), a CCSDS Orbit Parameter Message (OPM, KVN) and a NAIF SPICE
++//! SPK kernel of type 13 (Hermite interpolation, unequal steps) or type 9 (Lagrange).
++//!
++//! The input is a JPL Horizons vector table (`Output type: GEOMETRIC cartesian states`,
++//! `Output format: 2`, `Output units: KM-S`, the CSV form between `$$SOE` and `$$EOE`), as used
++//! by the mission thread (`tests/fixtures/capstone_horizons/`). The target, the centre and their
++//! NAIF ids, the reference frame and the time scale (`TDB`) are read from the table's header.
++//!
++//! The states are written exactly as read: the OEM and OPM carry every value in shortest
++//! round-trip decimal form, so a reader that parses them as IEEE doubles gets back the same bits
++//! the table gave; the SPK stores the same doubles, so the records read back bit for bit. The
++//! epochs are the table's calendar epochs on its own scale (TDB), copied as written, and in the
++//! SPK the TDB seconds past J2000 of those labels ([`crate::spk_writer::et_from_label`]).
++//!
++//! Frames: Horizons' `ICRF` is written as `ICRF` in the OEM and OPM. In the SPK it is frame code 1
++//! (`J2000`), the code SPICE kernels of ICRF-referred ephemerides use; no rotation is applied.
++//!
++//! Determinism: `CREATION_DATE` is the request time printed in the table's header (Horizons
++//! writes it in its banner line), or a value the caller gives; never the wall clock.
++
++use crate::spk_writer::{et_from_label, InterpolatedSpk, SpkFile, SpkSegment, SpkType};
++
++/// A trajectory read from a state table: one object about one centre, on one time scale.
++#[derive(Clone, Debug, PartialEq)]
++pub struct StateTable {
++    /// Object name (`CAPSTONE`).
++    pub object_name: String,
++    /// NAIF id of the object (`-1176`).
++    pub object_naif: i32,
++    /// Centre name in CCSDS spelling (`MOON`).
++    pub center_name: String,
++    /// NAIF id of the centre (`301`).
++    pub center_naif: i32,
++    /// Reference frame as the table names it (`ICRF`).
++    pub ref_frame: String,
++    /// Time scale of the epochs (`TDB`).
++    pub time_system: String,
++    /// Creation date for the message headers, `YYYY-MM-DDTHH:MM:SS`, if the table carries one.
++    pub creation_date: Option<String>,
++    /// Epochs as calendar labels `YYYY-MM-DDTHH:MM:SS[.f]` on [`StateTable::time_system`].
++    pub epochs: Vec<String>,
++    /// States at the epochs: x, y, z (km), vx, vy, vz (km/s).
++    pub states: Vec<[f64; 6]>,
++}
++
++/// The output format of [`export`].
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum ExportFormat {
++    /// CCSDS OEM 2.0, KVN.
++    Oem,
++    /// CCSDS OPM 3.0, KVN: one state, chosen by index.
++    Opm,
++    /// NAIF SPK, type 13 or 9.
++    Spk,
++}
++
++impl ExportFormat {
++    /// Parse `oem`, `opm` or `spk`.
++    pub fn parse(s: &str) -> Result<Self, String> {
++        match s.trim().to_ascii_lowercase().as_str() {
++            "oem" => Ok(Self::Oem),
++            "opm" => Ok(Self::Opm),
++            "spk" | "bsp" => Ok(Self::Spk),
++            o => Err(crate::terr!("e-ephem-export-unknown-format", o = o)),
++        }
++    }
++}
++
++/// Settings of [`export`].
++#[derive(Clone, Debug, PartialEq)]
++pub struct ExportOptions {
++    /// Output format.
++    pub format: ExportFormat,
++    /// OPM: the index of the state to write (0 = the first).
++    pub index: usize,
++    /// SPK: the interpolation type (type 13 or type 9).
++    pub spk_type: SpkType,
++    /// SPK: the polynomial degree (odd for type 13).
++    pub degree: usize,
++    /// `CREATION_DATE` for the OEM and OPM, overriding the table's own.
++    pub creation_date: Option<String>,
++    /// `OBJECT_ID` for the OEM and OPM; the NAIF id when not given.
++    pub object_id: Option<String>,
++}
++
++impl Default for ExportOptions {
++    fn default() -> Self {
++        Self {
++            format: ExportFormat::Oem,
++            index: 0,
++            spk_type: SpkType::Hermite13,
++            degree: 7,
++            creation_date: None,
++            object_id: None,
++        }
++    }
++}
++
++impl ExportOptions {
++    /// Options from plain values, as the CLI, Python, WebAssembly and MCP pass them: `format`
++    /// `oem`, `opm` or `spk`; `spk_type` 13 or 9.
++    pub fn from_parts(
++        format: &str,
++        index: usize,
++        spk_type: u32,
++        degree: usize,
++        creation_date: Option<String>,
++        object_id: Option<String>,
++    ) -> Result<Self, String> {
++        let spk_type = match spk_type {
++            13 => SpkType::Hermite13,
++            9 => SpkType::Lagrange9,
++            _ => return Err(crate::terr!("e-ephem-export-spk-type")),
++        };
++        Ok(Self {
++            format: ExportFormat::parse(format)?,
++            index,
++            spk_type,
++            degree,
++            creation_date: creation_date.filter(|s| !s.is_empty()),
++            object_id: object_id.filter(|s| !s.is_empty()),
++        })
++    }
++
++    /// The file suffix of the format (`oem`, `opm`, `bsp`).
++    pub fn suffix(&self) -> &'static str {
++        match self.format {
++            ExportFormat::Oem => "oem",
++            ExportFormat::Opm => "opm",
++            ExportFormat::Spk => "bsp",
++        }
++    }
++}
++
++/// The CCSDS name of a Horizons body name, upper case (`Moon` -> `MOON`, `Earth-Moon Barycenter`
++/// -> `EARTH-MOON BARYCENTER`).
++fn ccsds_body(name: &str) -> String {
++    name.trim().to_ascii_uppercase()
++}
++
++/// Split `Name (kind) (id)` into the name and the last parenthesised integer.
++fn name_and_id(v: &str) -> Option<(String, i32)> {
++    let v = v.split('{').next().unwrap_or(v).trim();
++    let open = v.rfind('(')?;
++    let close = v[open..].find(')')? + open;
++    let id: i32 = v[open + 1..close].trim().parse().ok()?;
++    let mut name = v[..open].trim().to_string();
++    // Drop a kind such as "(spacecraft)" left before the id.
++    if let Some(o) = name.rfind('(') {
++        if name.ends_with(')') {
++            name = name[..o].trim().to_string();
++        }
++    }
++    Some((name, id))
++}
++
++const MONTHS: [&str; 12] = [
++    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
++];
++
++fn month_number(m: &str) -> Option<u32> {
++    MONTHS.iter().position(|x| *x == m).map(|i| i as u32 + 1)
++}
++
++/// `A.D. 2023-Mar-01 00:10:00.0000` -> `2023-03-01T00:10:00.0000`.
++fn horizons_calendar(s: &str) -> Option<String> {
++    let s = s.trim();
++    let s = s.strip_prefix("A.D.").unwrap_or(s).trim();
++    let (date, time) = s.split_once(' ')?;
++    let mut d = date.split('-');
++    let (y, m, day) = (d.next()?, d.next()?, d.next()?);
++    let year: i32 = y.parse().ok()?;
++    let month = month_number(m)?;
++    let day: u32 = day.parse().ok()?;
++    let time = time.trim();
++    if time.split(':').count() != 3 {
++        return None;
++    }
++    Some(format!("{year:04}-{month:02}-{day:02}T{time}"))
++}
++
++/// The request time of the banner line `Ephemeris / API_USER Tue Oct 13 12:40:10 2026 Pasadena`.
++fn banner_date(line: &str) -> Option<String> {
++    let f: Vec<&str> = line.split_whitespace().collect();
++    let i = f.iter().position(|w| month_number(w).is_some())?;
++    let month = month_number(f[i])?;
++    let day: u32 = f.get(i + 1)?.parse().ok()?;
++    let time = *f.get(i + 2)?;
++    let year: i32 = f.get(i + 3)?.parse().ok()?;
++    if time.split(':').count() != 3 {
++        return None;
++    }
++    Some(format!("{year:04}-{month:02}-{day:02}T{time}"))
++}
++
++/// Read a JPL Horizons vector table (CSV form, position and velocity, km and km/s).
++pub fn parse_horizons_vectors(text: &str) -> Result<StateTable, String> {
++    let mut object: Option<(String, i32)> = None;
++    let mut centre: Option<(String, i32)> = None;
++    let mut frame: Option<String> = None;
++    let mut units: Option<String> = None;
++    let mut creation_date = None;
++    let mut time_system: Option<String> = None;
++    let mut epochs = Vec::new();
++    let mut states = Vec::new();
++    let mut in_data = false;
++    let mut ended = false;
++    for (n, raw) in text.lines().enumerate() {
++        let line = raw.trim();
++        if line == "$$SOE" {
++            in_data = true;
++            continue;
++        }
++        if line == "$$EOE" {
++            ended = true;
++            break;
++        }
++        if !in_data {
++            if let Some((k, v)) = line.split_once(':') {
++                let v = v.trim();
++                match k.trim() {
++                    "Target body name" => object = name_and_id(v),
++                    "Center body name" => centre = name_and_id(v),
++                    "Reference frame" => frame = Some(v.to_string()),
++                    "Output units" => units = Some(v.to_string()),
++                    "Start time" => {
++                        time_system = v.split_whitespace().last().map(str::to_string);
++                    }
++                    _ => {}
++                }
++            }
++            if line.starts_with("Ephemeris /") && creation_date.is_none() {
++                creation_date = banner_date(line);
++            }
++            continue;
++        }
++        if line.is_empty() {
++            continue;
++        }
++        let f: Vec<&str> = line
++            .split(',')
++            .map(str::trim)
++            .filter(|s| !s.is_empty())
++            .collect();
++        if f.len() < 8 {
++            return Err(crate::terr!(
++                "e-ephem-export-horizons-row-fields",
++                line = n + 1,
++                f = f.len()
++            ));
++        }
++        let epoch = horizons_calendar(f[1])
++            .ok_or_else(|| crate::terr!("e-ephem-export-horizons-bad-date", line = n + 1))?;
++        let mut st = [0.0f64; 6];
++        for (x, v) in st.iter_mut().zip(&f[2..8]) {
++            *x = v
++                .parse::<f64>()
++                .ok()
++                .filter(|x| x.is_finite())
++                .ok_or_else(|| {
++                    crate::terr!("e-ephem-export-horizons-bad-number", line = n + 1, v = v)
++                })?;
++        }
++        epochs.push(epoch);
++        states.push(st);
++    }
++    if !in_data || !ended {
++        return Err(crate::terr!("e-ephem-export-horizons-no-table"));
++    }
++    if states.is_empty() {
++        return Err(crate::terr!("e-ephem-export-horizons-empty"));
++    }
++    if units.as_deref() != Some("KM-S") {
++        return Err(crate::terr!(
++            "e-ephem-export-horizons-units",
++            u = units.unwrap_or_default()
++        ));
++    }
++    let time_system = time_system.unwrap_or_default();
++    if time_system != "TDB" {
++        return Err(crate::terr!(
++            "e-ephem-export-horizons-time-scale",
++            t = time_system
++        ));
++    }
++    let (object_name, object_naif) = object
++        .ok_or_else(|| crate::terr!("e-ephem-export-horizons-header", k = "Target body name"))?;
++    let (centre_name, center_naif) = centre
++        .ok_or_else(|| crate::terr!("e-ephem-export-horizons-header", k = "Center body name"))?;
++    let ref_frame = frame
++        .ok_or_else(|| crate::terr!("e-ephem-export-horizons-header", k = "Reference frame"))?;
++    Ok(StateTable {
++        object_name: ccsds_body(&object_name),
++        object_naif,
++        center_name: ccsds_body(&centre_name),
++        center_naif,
++        ref_frame: ref_frame.to_ascii_uppercase(),
++        time_system,
++        creation_date,
++        epochs,
++        states,
++    })
++}
++
++/// Shortest round-trip decimal of a double.
++fn num(x: f64) -> String {
++    format!("{x:?}")
++}
++
++fn header_fields(t: &StateTable, o: &ExportOptions) -> Result<(String, String), String> {
++    let created = o
++        .creation_date
++        .clone()
++        .or_else(|| t.creation_date.clone())
++        .ok_or_else(|| crate::terr!("e-ephem-export-no-creation-date"))?;
++    let id = o
++        .object_id
++        .clone()
++        .unwrap_or_else(|| t.object_naif.to_string());
++    Ok((created, id))
++}
++
++/// The table as a CCSDS OEM 2.0 message (KVN): one segment, every state, shortest round-trip
++/// values.
++pub fn to_oem(t: &StateTable, o: &ExportOptions) -> Result<String, String> {
++    let (created, id) = header_fields(t, o)?;
++    let (first, last) = (&t.epochs[0], &t.epochs[t.epochs.len() - 1]);
++    let mut out = String::new();
++    for (k, v) in [
++        ("CCSDS_OEM_VERS", "2.0"),
++        ("CREATION_DATE", created.as_str()),
++        ("ORIGINATOR", "KSHANA"),
++    ] {
++        out.push_str(&format!("{k} = {v}\n"));
++    }
++    out.push_str("\nMETA_START\n");
++    for (k, v) in [
++        ("OBJECT_NAME", t.object_name.as_str()),
++        ("OBJECT_ID", id.as_str()),
++        ("CENTER_NAME", t.center_name.as_str()),
++        ("REF_FRAME", t.ref_frame.as_str()),
++        ("TIME_SYSTEM", t.time_system.as_str()),
++        ("START_TIME", first.as_str()),
++        ("STOP_TIME", last.as_str()),
++    ] {
++        out.push_str(&format!("{k} = {v}\n"));
++    }
++    out.push_str("META_STOP\n\n");
++    for (e, s) in t.epochs.iter().zip(&t.states) {
++        out.push_str(e);
++        for v in s {
++            out.push(' ');
++            out.push_str(&num(*v));
++        }
++        out.push('\n');
++    }
++    Ok(out)
++}
++
++/// One state of the table as a CCSDS OPM 3.0 message (KVN).
++pub fn to_opm(t: &StateTable, o: &ExportOptions) -> Result<String, String> {
++    use crate::odm::{OdmHeader, OpmMessage, Section};
++    let (created, id) = header_fields(t, o)?;
++    let s = t.states.get(o.index).ok_or_else(|| {
++        crate::terr!(
++            "e-ephem-export-opm-index",
++            i = o.index,
++            total = t.states.len()
++        )
++    })?;
++    let mut metadata = Section::new();
++    metadata
++        .set("OBJECT_NAME", t.object_name.clone())
++        .set("OBJECT_ID", id)
++        .set("CENTER_NAME", t.center_name.clone())
++        .set("REF_FRAME", t.ref_frame.clone())
++        .set("TIME_SYSTEM", t.time_system.clone());
++    let mut state = Section::new();
++    state.set("EPOCH", t.epochs[o.index].clone());
++    for (k, v) in ["X", "Y", "Z", "X_DOT", "Y_DOT", "Z_DOT"].iter().zip(s) {
++        state.set_num(k, *v);
++    }
++    OpmMessage {
++        header: OdmHeader {
++            version: "3.0".to_string(),
++            comments: vec![],
++            classification: None,
++            creation_date: created,
++            originator: "KSHANA".to_string(),
++            message_id: None,
++        },
++        metadata,
++        state,
++        keplerian: None,
++        spacecraft: None,
++        covariance: None,
++        maneuvers: vec![],
++        user: None,
++    }
++    .to_kvn()
++}
++
++/// The NAIF frame code of a table's frame (ICRF and J2000 are both code 1).
++fn spk_frame(name: &str) -> Result<i32, String> {
++    match name.trim().to_ascii_uppercase().as_str() {
++        "ICRF" => Ok(1),
++        other => crate::spk_writer::frame_code(other),
++    }
++}
++
++/// The table as an SPK segment.
++pub fn to_spk_segment(t: &StateTable, o: &ExportOptions) -> Result<SpkSegment, String> {
++    let epochs = t
++        .epochs
++        .iter()
++        .map(|e| et_from_label(e, &t.time_system))
++        .collect::<Result<Vec<f64>, String>>()?;
++    let seg = SpkSegment {
++        target: t.object_naif,
++        centre: t.center_naif,
++        frame: spk_frame(&t.ref_frame)?,
++        kind: o.spk_type,
++        degree: o.degree,
++        start: epochs[0],
++        end: epochs[epochs.len() - 1],
++        name: t.object_name.chars().take(40).collect(),
++        epochs,
++        states: t.states.clone(),
++        records: vec![],
++        init: 0.0,
++        intlen: 0.0,
++    };
++    seg.validate()?;
++    Ok(seg)
++}
++
++/// The table as an SPK kernel (bytes).
++pub fn to_spk(t: &StateTable, o: &ExportOptions) -> Result<Vec<u8>, String> {
++    if !matches!(o.spk_type, SpkType::Hermite13 | SpkType::Lagrange9) {
++        return Err(crate::terr!("e-ephem-export-spk-type"));
++    }
++    SpkFile {
++        ifname: format!("KSHANA {}", t.object_name),
++        ncomch: 0,
++        comments: vec![],
++        segments: vec![to_spk_segment(t, o)?],
++    }
++    .to_bytes()
++}
++
++/// Write the table in the chosen format.
++pub fn export(t: &StateTable, o: &ExportOptions) -> Result<Vec<u8>, String> {
++    match o.format {
++        ExportFormat::Oem => to_oem(t, o).map(String::into_bytes),
++        ExportFormat::Opm => to_opm(t, o).map(String::into_bytes),
++        ExportFormat::Spk => to_spk(t, o),
++    }
++}
++
++/// The comparison of a written file, read back by Kshana's own readers, with the states written.
++#[derive(Clone, Debug, PartialEq, serde::Serialize)]
++pub struct ReadBack {
++    /// States compared.
++    pub states: usize,
++    /// States whose six values read back with the same bits as written.
++    pub identical: usize,
++    /// Largest position difference, km.
++    pub max_position_km: f64,
++    /// Largest velocity difference, km/s.
++    pub max_velocity_km_s: f64,
++    /// Epochs that read back differently (as seconds past J2000 on the table's scale).
++    pub epoch_mismatches: usize,
++    /// SPK only: largest position difference of the interpolated state at the node epochs, km.
++    pub interpolated_max_position_km: Option<f64>,
++    /// SPK only: largest velocity difference of the interpolated state at the node epochs, km/s.
++    pub interpolated_max_velocity_km_s: Option<f64>,
++}
++
++fn compare(written: &[[f64; 6]], read: &[[f64; 6]], rb: &mut ReadBack) -> Result<(), String> {
++    if written.len() != read.len() {
++        return Err(crate::terr!(
++            "e-ephem-export-read-back-count",
++            w = written.len(),
++            r = read.len()
++        ));
++    }
++    for (w, r) in written.iter().zip(read) {
++        rb.states += 1;
++        if w.iter().zip(r).all(|(a, b)| a.to_bits() == b.to_bits()) {
++            rb.identical += 1;
++        }
++        let dp = ((w[0] - r[0]).powi(2) + (w[1] - r[1]).powi(2) + (w[2] - r[2]).powi(2)).sqrt();
++        let dv = ((w[3] - r[3]).powi(2) + (w[4] - r[4]).powi(2) + (w[5] - r[5]).powi(2)).sqrt();
++        rb.max_position_km = rb.max_position_km.max(dp);
++        rb.max_velocity_km_s = rb.max_velocity_km_s.max(dv);
++    }
++    Ok(())
++}
++
++fn data_line_state(f: &[&str]) -> Result<[f64; 6], String> {
++    let mut s = [0.0f64; 6];
++    for (k, x) in s.iter_mut().enumerate() {
++        *x = f
++            .get(k + 1)
++            .and_then(|v| v.parse().ok())
++            .ok_or_else(|| crate::terr!("e-ephem-export-read-back-value"))?;
++    }
++    Ok(s)
++}
++
++/// Read a file written by [`export`] back with Kshana's own readers and compare it with the
++/// table: the OEM's data lines, the OPM's state vector, or the SPK's stored records and its
++/// interpolated state at each node epoch.
++pub fn read_back(t: &StateTable, o: &ExportOptions, bytes: &[u8]) -> Result<ReadBack, String> {
++    let mut rb = ReadBack {
++        states: 0,
++        identical: 0,
++        max_position_km: 0.0,
++        max_velocity_km_s: 0.0,
++        epoch_mismatches: 0,
++        interpolated_max_position_km: None,
++        interpolated_max_velocity_km_s: None,
++    };
++    let et = |e: &str| et_from_label(e, &t.time_system);
++    match o.format {
++        ExportFormat::Oem => {
++            let text = std::str::from_utf8(bytes).map_err(|e| e.to_string())?;
++            // The ephemeris lines of the single segment: every line after META_STOP.
++            let mut after = false;
++            let mut read = Vec::new();
++            for line in text.lines().map(str::trim) {
++                if line == "META_STOP" {
++                    after = true;
++                    continue;
++                }
++                if !after || line.is_empty() {
++                    continue;
++                }
++                let f: Vec<&str> = line.split_whitespace().collect();
++                let i = read.len();
++                if t.epochs.get(i).map(|e| et(e)).transpose()? != Some(et(f[0])?) {
++                    rb.epoch_mismatches += 1;
++                }
++                read.push(data_line_state(&f)?);
++            }
++            // The standard reader must accept the message too.
++            crate::oem::parse_oem(text)?;
++            compare(&t.states, &read, &mut rb)?;
++        }
++        ExportFormat::Opm => {
++            let text = std::str::from_utf8(bytes).map_err(|e| e.to_string())?;
++            let m = crate::odm::OpmMessage::parse(text)?;
++            let mut s = [0.0; 6];
++            for (k, key) in ["X", "Y", "Z", "X_DOT", "Y_DOT", "Z_DOT"]
++                .iter()
++                .enumerate()
++            {
++                s[k] = m
++                    .state
++                    .num(key)?
++                    .ok_or_else(|| crate::terr!("e-ephem-export-read-back-value"))?;
++            }
++            let epoch = m.state.get("EPOCH").unwrap_or_default();
++            if et(epoch)? != et(&t.epochs[o.index])? {
++                rb.epoch_mismatches += 1;
++            }
++            compare(&t.states[o.index..=o.index], &[s], &mut rb)?;
++        }
++        ExportFormat::Spk => {
++            let spk = InterpolatedSpk::from_bytes(bytes.to_vec())?;
++            let seg = spk
++                .segments
++                .first()
++                .ok_or_else(|| crate::terr!("e-ephem-export-read-back-value"))?;
++            let (epochs, states) = seg.nodes();
++            for (e, w) in t.epochs.iter().zip(epochs) {
++                if et(e)?.to_bits() != w.to_bits() {
++                    rb.epoch_mismatches += 1;
++                }
++            }
++            compare(&t.states, states, &mut rb)?;
++            let (mut dp, mut dv) = (0.0f64, 0.0f64);
++            for (e, w) in epochs.iter().zip(&t.states) {
++                let r = seg.eval(*e)?;
++                dp = dp.max(
++                    ((w[0] - r[0]).powi(2) + (w[1] - r[1]).powi(2) + (w[2] - r[2]).powi(2)).sqrt(),
++                );
++                dv = dv.max(
++                    ((w[3] - r[3]).powi(2) + (w[4] - r[4]).powi(2) + (w[5] - r[5]).powi(2)).sqrt(),
++                );
++            }
++            rb.interpolated_max_position_km = Some(dp);
++            rb.interpolated_max_velocity_km_s = Some(dv);
++        }
++    }
++    Ok(rb)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    const MINI: &str = "\
++*******************************************************************************
++Ephemeris / API_USER Tue Oct 13 12:40:10 2026 Pasadena, USA      / Horizons
++*******************************************************************************
++Target body name: CAPSTONE (spacecraft) (-1176)   {source: CAPSTONE_merged}
++Center body name: Moon (301)                      {source: DE441}
++Start time      : A.D. 2023-Mar-01 00:00:00.0000 TDB
++Output units    : KM-S
++Reference frame : ICRF
++$$SOE
++2460004.500000000, A.D. 2023-Mar-01 00:00:00.0000, -1.402011259977861E+04,  4.024696708925668E+04, -4.996668907537949E+04,  5.201177298757925E-02,  7.385192463128488E-02, -1.177596557968113E-01,
++2460004.506944444, A.D. 2023-Mar-01 00:10:00.0000, -1.398884709586641E+04,  4.029116013845026E+04, -5.003711588458747E+04,  5.220637688183555E-02,  7.345842555313939E-02, -1.169964925191028E-01,
++2460004.513888889, A.D. 2023-Mar-01 00:20:00.0000, -1.395746518279873E+04,  4.033511742223808E+04, -5.010708500682608E+04,  5.239980438227978E-02,  7.306603806604131E-02, -1.162340313623057E-01,
++2460004.520833333, A.D. 2023-Mar-01 00:30:00.0000, -1.392596756484404E+04,  4.037883960419606E+04, -5.017659686120268E+04,  5.259206071479885E-02,  7.267475093671012E-02, -1.154722651456734E-01,
++$$EOE
++";
++
++    #[test]
++    fn reads_the_header_and_the_rows() {
++        let t = parse_horizons_vectors(MINI).unwrap();
++        assert_eq!(t.object_name, "CAPSTONE");
++        assert_eq!(t.object_naif, -1176);
++        assert_eq!(t.center_name, "MOON");
++        assert_eq!(t.center_naif, 301);
++        assert_eq!(t.ref_frame, "ICRF");
++        assert_eq!(t.time_system, "TDB");
++        assert_eq!(t.creation_date.as_deref(), Some("2026-10-13T12:40:10"));
++        assert_eq!(t.epochs[1], "2023-03-01T00:10:00.0000");
++        assert_eq!(t.states[0][0], -1.402011259977861E+04);
++        assert_eq!(t.states.len(), 4);
++    }
++
++    #[test]
++    fn every_format_reads_back_bit_for_bit() {
++        let t = parse_horizons_vectors(MINI).unwrap();
++        for format in [ExportFormat::Oem, ExportFormat::Opm, ExportFormat::Spk] {
++            let o = ExportOptions {
++                format,
++                degree: 3,
++                index: 2,
++                ..ExportOptions::default()
++            };
++            let bytes = export(&t, &o).unwrap();
++            let rb = read_back(&t, &o, &bytes).unwrap();
++            assert_eq!(rb.identical, rb.states, "{format:?}: {rb:?}");
++            assert_eq!(rb.epoch_mismatches, 0, "{format:?}");
++            assert_eq!(rb.max_position_km, 0.0);
++        }
++    }
++
++    #[test]
++    fn refuses_what_it_cannot_carry() {
++        assert!(parse_horizons_vectors("no table").is_err());
++        assert!(parse_horizons_vectors(&MINI.replace("KM-S", "AU-D")).is_err());
++        assert!(parse_horizons_vectors(&MINI.replace(" TDB\n", " UT\n")).is_err());
++        assert!(ExportFormat::parse("sp3").is_err());
++        let t = parse_horizons_vectors(MINI).unwrap();
++        let o = ExportOptions {
++            format: ExportFormat::Opm,
++            index: 9,
++            ..ExportOptions::default()
++        };
++        assert!(export(&t, &o).is_err());
++        let o = ExportOptions {
++            format: ExportFormat::Spk,
++            degree: 4,
++            ..ExportOptions::default()
++        };
++        assert!(export(&t, &o).is_err(), "type 13 needs an odd degree");
++    }
++}
+diff --git a/src/lib.rs b/src/lib.rs
+index 90424be02..62ce8e5b8 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -143,6 +143,7 @@ pub mod eop;
+ /// Least-squares plus autoregressive Earth-orientation prediction with the zonal tides removed.
+ pub mod eop_ls_ar;
+ pub mod ephem;
++pub mod ephem_export;
+ pub mod ephem_provider;
+ pub mod ephemeris;
+ pub mod estimator;
+diff --git a/src/main.rs b/src/main.rs
+index fa5879db3..91454c811 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -1133,6 +1133,11 @@ fn main_in_language(args: Vec<String>) -> ExitCode {
+     if args.get(1).map(String::as_str) == Some("trust-telemetry") {
+         return ExitCode::from(kshana::telemetry::cli::run(&args[2..]) as u8);
+     }
++    // `kshana ephem-export <horizons.txt> --format oem|opm|spk` writes a trajectory for
++    // flight-dynamics tools (src/ephem_export.rs, docs/FLIGHT-DYNAMICS-EXPORT.md).
++    if args.get(1).map(String::as_str) == Some("ephem-export") {
++        return run_ephem_export_cli(&args[2..]);
++    }
+     // `kshana imu-fit <imu.csv>` fits hybrid/fusion sensor parameters from a stationary IMU log.
+     if args.get(1).map(String::as_str) == Some("imu-fit") {
+         return run_imu_fit_cli(&args[2..]);
+@@ -2320,6 +2325,114 @@ fn stamp_study_generated(json: &str, stamp: &str) -> String {
+ /// write the test-bench files (`<base>.motion.csv`, `.nmea`, `.events.csv`, ...). The
+ /// default base is the scenario path without its extension; the default epoch is
+ /// 2024-01-01T00:00:00Z.
++/// `kshana ephem-export <horizons.txt> --format oem|opm|spk [--out <file>] [--index <n>]
++/// [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]`:
++/// write the file (default: the input path with the format's suffix) and print the report of
++/// the export and its read-back as JSON, without the file's content.
++fn run_ephem_export_cli(args: &[String]) -> ExitCode {
++    let (mut path, mut out, mut format) = (None, None, "oem".to_string());
++    let (mut index, mut spk_type, mut degree) = (0usize, 13u32, 7usize);
++    let (mut created, mut object_id) = (None, None);
++    let mut i = 0;
++    while i < args.len() {
++        let a = args[i].as_str();
++        let needs = matches!(
++            a,
++            "--format"
++                | "--out"
++                | "--index"
++                | "--spk-type"
++                | "--degree"
++                | "--creation-date"
++                | "--object-id"
++        );
++        if needs && i + 1 >= args.len() {
++            eprintln!("{}", kshana::t!("main-error-needs-value", a = a));
++            return ExitCode::from(2);
++        }
++        let v = args.get(i + 1).cloned().unwrap_or_default();
++        let whole = |x: &str| x.parse::<usize>().ok();
++        match a {
++            "--format" => format = v,
++            "--out" => out = Some(PathBuf::from(v)),
++            "--creation-date" => created = Some(v),
++            "--object-id" => object_id = Some(v),
++            "--index" | "--spk-type" | "--degree" => {
++                let Some(n) = whole(&v) else {
++                    eprintln!("{}", kshana::t!("main-error-option-needs-whole", a = a));
++                    return ExitCode::from(2);
++                };
++                match a {
++                    "--index" => index = n,
++                    "--degree" => degree = n,
++                    _ => spk_type = n as u32,
++                }
++            }
++            x if x.starts_with("--") => {
++                eprintln!(
++                    "{}",
++                    kshana::t!("main-error-unknown-ephem-export-option", x = x)
++                );
++                return ExitCode::from(2);
++            }
++            x => path = Some(PathBuf::from(x)),
++        }
++        i += if needs { 2 } else { 1 };
++    }
++    let Some(path) = path else {
++        eprintln!("{}", kshana::t!("main-error-ephem-export-needs-a"));
++        return ExitCode::from(2);
++    };
++    let options = match kshana::ephem_export::ExportOptions::from_parts(
++        &format, index, spk_type, degree, created, object_id,
++    ) {
++        Ok(o) => o,
++        Err(e) => {
++            eprintln!("{}", kshana::t!("main-fail", e = e));
++            return ExitCode::from(2);
++        }
++    };
++    let text = match std::fs::read_to_string(&path) {
++        Ok(t) => t,
++        Err(e) => {
++            eprintln!(
++                "{}",
++                kshana::t!("main-error-cannot-read-2", path = path.display(), e = e)
++            );
++            return ExitCode::from(1);
++        }
++    };
++    let report =
++        match kshana::surface::ephem_export(&text, &options, kshana::surface::MAX_INPUT_BYTES) {
++            Ok(r) => r,
++            Err(e) => {
++                eprintln!("{}", kshana::t!("main-fail", e = e));
++                return ExitCode::from(1);
++            }
++        };
++    let mut v: serde_json::Value = serde_json::from_str(&report).unwrap_or_default();
++    let content = v["content"].as_str().unwrap_or_default().to_string();
++    let bytes = if v["encoding"] == "base64" {
++        kshana::permalink::base64_decode(&content).unwrap_or_default()
++    } else {
++        content.into_bytes()
++    };
++    let out = out.unwrap_or_else(|| path.with_extension(options.suffix()));
++    if let Err(e) = std::fs::write(&out, &bytes) {
++        eprintln!(
++            "{}",
++            kshana::t!("main-error-cannot-write-10", out = out.display(), e = e)
++        );
++        return ExitCode::from(1);
++    }
++    if let Some(o) = v.as_object_mut() {
++        o.remove("content");
++        o.insert("path".into(), serde_json::json!(out.display().to_string()));
++    }
++    println!("{}", serde_json::to_string_pretty(&v).unwrap_or_default());
++    ExitCode::SUCCESS
++}
++
+ /// `kshana imu-fit`: print the `[accel_classical]` table (or `--json` the whole report).
+ fn run_imu_fit_cli(args: &[String]) -> ExitCode {
+     let (mut path, mut format, mut axis, mut id) = (
+diff --git a/src/python.rs b/src/python.rs
+index 9c759b621..765f26dfa 100644
+--- a/src/python.rs
++++ b/src/python.rs
+@@ -2405,6 +2405,36 @@ fn imu_fit(log: &str, format: &str, axis: &str, expected_mean: f64, id: &str) ->
+     .map_err(PyValueError::new_err)
+ }
+ 
++/// Write a JPL Horizons vector table (`table`, the text) as a CCSDS OEM (`format="oem"`), a CCSDS
++/// OPM of the state at `index` (`"opm"`) or an SPK kernel of type `spk_type` 13 or 9 and odd
++/// `degree` (`"spk"`), and read it back with the engine's readers (`kshana ephem-export`,
++/// docs/FLIGHT-DYNAMICS-EXPORT.md). Returns JSON text: the table's object, centre, frame, time
++/// scale and span; the file (`encoding` `"utf-8"` or `"base64"`, `content`, `sha256`); and
++/// `read_back`. Raises `ValueError` on a table it cannot read.
++#[pyfunction]
++#[pyo3(signature = (table, format="oem", index=0, spk_type=13, degree=7, creation_date=None, object_id=None))]
++fn ephem_export(
++    table: &str,
++    format: &str,
++    index: usize,
++    spk_type: u32,
++    degree: usize,
++    creation_date: Option<String>,
++    object_id: Option<String>,
++) -> PyResult<String> {
++    let o = crate::ephem_export::ExportOptions::from_parts(
++        format,
++        index,
++        spk_type,
++        degree,
++        creation_date,
++        object_id,
++    )
++    .map_err(PyValueError::new_err)?;
++    crate::surface::ephem_export(table, &o, crate::surface::MAX_INPUT_BYTES)
++        .map_err(PyValueError::new_err)
++}
++
+ /// Share of a route (GeoJSON LineString or `lat,lon` CSV text) through degraded cells of
+ /// one or more interference maps (the `geojson` of [`interference_map`]), optionally limited
+ /// to `date_from`..`date_to` (`YYYY-MM-DD`). Returns the report as JSON text. Cells not
+@@ -2588,6 +2618,7 @@ fn kshana(m: &Bound<'_, PyModule>) -> PyResult<()> {
+     m.add_function(wrap_pyfunction!(osnma_verify, m)?)?;
+     m.add_function(wrap_pyfunction!(trust_telemetry, m)?)?;
+     m.add_function(wrap_pyfunction!(imu_fit, m)?)?;
++    m.add_function(wrap_pyfunction!(ephem_export, m)?)?;
+     m.add_function(wrap_pyfunction!(route_exposure, m)?)?;
+     m.add_function(wrap_pyfunction!(nmea_training, m)?)?;
+     m.add_function(wrap_pyfunction!(iq_scene, m)?)?;
+diff --git a/src/spk_writer.rs b/src/spk_writer.rs
+index f3c6f74f1..f31f16f54 100644
+--- a/src/spk_writer.rs
++++ b/src/spk_writer.rs
+@@ -774,6 +774,12 @@ fn hermite(x: &[f64], y: &[f64], t: f64) -> (f64, f64) {
+ }
+ 
+ impl ReadSegment {
++    /// Types 9 and 13: the node epochs and the states stored at them, as read (empty for types
++    /// 3 and 21).
++    pub fn nodes(&self) -> (&[f64], &[[f64; 6]]) {
++        (&self.epochs, &self.states)
++    }
++
+     /// The 0-based index of the first node of the window used at `et`, as the SPICE reader
+     /// selects it (directory group, last epoch strictly before `et`, nearest node for an odd
+     /// window with ties going to the later node).
+diff --git a/src/surface.rs b/src/surface.rs
+index 9eb6eef8e..fb8d989fa 100644
+--- a/src/surface.rs
++++ b/src/surface.rs
+@@ -1114,6 +1114,50 @@ pub fn imu_fit(
+     })
+ }
+ 
++/// Write a JPL Horizons vector table as a CCSDS OEM, a CCSDS OPM or an SPK kernel
++/// (`kshana ephem-export`, docs/FLIGHT-DYNAMICS-EXPORT.md), then read the file back with the
++/// engine's own readers. Returns JSON: the table's `object`, `center`, NAIF ids, `ref_frame`,
++/// `time_system`, `states`, `start` and `stop`; the file (`suffix`, `bytes`, `sha256`,
++/// `encoding` `utf-8` or `base64`, `content`); and `read_back`, the comparison of the states read
++/// back with the states written. The values are copied, not computed: every state reads back
++/// with the bits it was read with.
++pub fn ephem_export(
++    text: &str,
++    options: &crate::ephem_export::ExportOptions,
++    max_bytes: usize,
++) -> Result<String, String> {
++    crate::i18n::in_english_or_localised_error(|| {
++        use crate::ephem_export::{export, parse_horizons_vectors, read_back};
++        cap("state table", text, max_bytes)?;
++        let t = parse_horizons_vectors(text)?;
++        let bytes = export(&t, options)?;
++        let rb = read_back(&t, options, &bytes)?;
++        let sha = crate::advanced_report::sha256_hex(&bytes);
++        let (encoding, content) = match String::from_utf8(bytes.clone()) {
++            Ok(s) if options.format != crate::ephem_export::ExportFormat::Spk => ("utf-8", s),
++            _ => ("base64", crate::permalink::base64_encode(&bytes)),
++        };
++        serde_json::to_string_pretty(&json!({
++            "object": t.object_name,
++            "object_naif": t.object_naif,
++            "center": t.center_name,
++            "center_naif": t.center_naif,
++            "ref_frame": t.ref_frame,
++            "time_system": t.time_system,
++            "states": t.states.len(),
++            "start": t.epochs[0],
++            "stop": t.epochs[t.epochs.len() - 1],
++            "suffix": options.suffix(),
++            "bytes": bytes.len(),
++            "sha256": sha,
++            "encoding": encoding,
++            "content": content,
++            "read_back": rb,
++        }))
++        .map_err(|e| e.to_string())
++    })
++}
++
+ /// What the input of [`trust_telemetry`] is.
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+ pub enum TelemetryInput {
+diff --git a/src/wasm.rs b/src/wasm.rs
+index cb75ae4c0..df5d4d589 100644
+--- a/src/wasm.rs
++++ b/src/wasm.rs
+@@ -833,6 +833,35 @@ pub fn imu_fit(
+     .map_err(|e| JsValue::from_str(&e))
+ }
+ 
++/// Write a JPL Horizons vector table as a CCSDS OEM (`format` `"oem"`), a CCSDS OPM of the state
++/// at `index` (`"opm"`) or an SPK kernel of type `spk_type` 13 or 9 and odd `degree` (`"spk"`),
++/// and read it back with the engine's readers (`kshana ephem-export`,
++/// docs/FLIGHT-DYNAMICS-EXPORT.md). An empty `creation_date` or `object_id` takes the table's
++/// own. Returns JSON: the table's object, centre, frame, time scale and span; the file
++/// (`encoding` `"utf-8"` or `"base64"`, `content`, `sha256`); and `read_back`.
++#[wasm_bindgen]
++pub fn ephem_export(
++    table: &str,
++    format: &str,
++    index: u32,
++    spk_type: u32,
++    degree: u32,
++    creation_date: &str,
++    object_id: &str,
++) -> Result<String, JsValue> {
++    let err = |e: String| JsValue::from_str(&e);
++    let o = crate::ephem_export::ExportOptions::from_parts(
++        format,
++        index as usize,
++        spk_type,
++        degree as usize,
++        Some(creation_date.to_string()),
++        Some(object_id.to_string()),
++    )
++    .map_err(err)?;
++    crate::surface::ephem_export(table, &o, crate::surface::MAX_INPUT_BYTES).map_err(err)
++}
++
+ /// Check Galileo OSNMA authentication of I/NAV pages, in memory, with the verifier
+ /// `kshana osnma verify` runs. Advisory: this is analysis and monitoring output and not
+ /// type-approved navigation equipment. The authentication status reported here is not a
+diff --git a/tests/cli_help_lists_subcommands.rs b/tests/cli_help_lists_subcommands.rs
+index 14f1b57de..6ea9809e3 100644
+--- a/tests/cli_help_lists_subcommands.rs
++++ b/tests/cli_help_lists_subcommands.rs
+@@ -15,6 +15,7 @@ fn the_top_level_usage_names_every_subcommand() {
+         "receiver-trust evidence",
+         "evidence <keygen|verify|attach-timestamp>",
+         "trust-telemetry",
++        "ephem-export",
+         "osnma verify",
+         "nmea-scenario",
+         "interference-map",
+diff --git a/tests/ephem_export_capstone.rs b/tests/ephem_export_capstone.rs
+new file mode 100644
+index 000000000..71bd526b2
+--- /dev/null
++++ b/tests/ephem_export_capstone.rs
+@@ -0,0 +1,97 @@
++// SPDX-License-Identifier: AGPL-3.0-only
++//! C7 (docs/design/evidence/c7-flight-dynamics-adapters/PREREGISTRATION.md), step 1: the CAPSTONE
++//! JPL Horizons states of the mission thread written by `kshana ephem-export` as OEM, OPM and SPK.
++//!
++//! PIN-SCOPE:    the command writes each file; the engine's readers read every state back with the
++//!               bits it was written with and every epoch unchanged; the files' SHA-256 equal those in
++//!               tests/fixtures/capstone_horizons/ephem_export.sha256, the same digests the Python
++//!               and MCP surfaces are held to (tests/python/test_bindings.py, mcp round_trip)
++//! PIN-EXCLUDES: reading by the external tools (the C7 adapters and notebooks), and whether the
++//!               Horizons states are right
++
++use std::process::Command;
++
++fn fixture(name: &str) -> std::path::PathBuf {
++    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
++        .join("tests/fixtures/capstone_horizons")
++        .join(name)
++}
++
++fn pinned(format: &str) -> String {
++    std::fs::read_to_string(fixture("ephem_export.sha256"))
++        .unwrap()
++        .lines()
++        .find(|l| l.ends_with(&format!("  {format}")))
++        .unwrap()
++        .split_whitespace()
++        .next()
++        .unwrap()
++        .to_string()
++}
++
++#[test]
++fn the_command_writes_each_format_and_every_state_reads_back_unchanged() {
++    let dir = std::env::temp_dir().join(format!("kshana-ephem-export-{}", std::process::id()));
++    std::fs::create_dir_all(&dir).unwrap();
++    for format in ["oem", "opm", "spk"] {
++        let out = dir.join(format!("capstone.{format}"));
++        let run = Command::new(env!("CARGO_BIN_EXE_kshana"))
++            .arg("ephem-export")
++            .arg(fixture("capstone_2023-03_moon_icrf.txt"))
++            .args(["--format", format, "--out"])
++            .arg(&out)
++            .output()
++            .unwrap();
++        assert!(
++            run.status.success(),
++            "{format}: {}",
++            String::from_utf8_lossy(&run.stderr)
++        );
++        let v: serde_json::Value = serde_json::from_slice(&run.stdout).unwrap();
++        let states = if format == "opm" { 1 } else { 4321 };
++        assert_eq!(v["states"], 4321);
++        assert_eq!(v["read_back"]["states"], states, "{format}");
++        assert_eq!(v["read_back"]["identical"], states, "{format}");
++        assert_eq!(v["read_back"]["epoch_mismatches"], 0, "{format}");
++        assert_eq!(v["read_back"]["max_position_km"], 0.0, "{format}");
++        assert_eq!(v["object"], "CAPSTONE");
++        assert_eq!(v["center_naif"], 301);
++        let bytes = std::fs::read(&out).unwrap();
++        assert_eq!(
++            kshana::advanced_report::sha256_hex(&bytes),
++            pinned(format),
++            "{format}"
++        );
++        assert_eq!(v["sha256"], pinned(format));
++        if format == "spk" {
++            // The Hermite interpolation at a node is the node's state to rounding.
++            assert!(
++                v["read_back"]["interpolated_max_position_km"]
++                    .as_f64()
++                    .unwrap()
++                    < 1e-9
++            );
++        }
++    }
++    std::fs::remove_dir_all(&dir).ok();
++}
++
++#[test]
++fn the_oem_carries_the_tables_header() {
++    let text = std::fs::read_to_string(fixture("capstone_2023-03_moon_icrf.txt")).unwrap();
++    let t = kshana::ephem_export::parse_horizons_vectors(&text).unwrap();
++    let oem = kshana::ephem_export::to_oem(&t, &Default::default()).unwrap();
++    for want in [
++        "OBJECT_NAME = CAPSTONE",
++        "OBJECT_ID = -1176",
++        "CENTER_NAME = MOON",
++        "REF_FRAME = ICRF",
++        "TIME_SYSTEM = TDB",
++        "START_TIME = 2023-03-01T00:00:00.0000",
++        "STOP_TIME = 2023-03-31T00:00:00.0000",
++    ] {
++        assert!(oem.contains(want), "{want}");
++    }
++    let parsed = kshana::oem::parse_oem(&oem).unwrap();
++    assert_eq!(parsed.segments[0].states.len(), 4321);
++}
+diff --git a/tests/fixtures/capstone_horizons/ephem_export.sha256 b/tests/fixtures/capstone_horizons/ephem_export.sha256
+new file mode 100644
+index 000000000..d9fa74dab
+--- /dev/null
++++ b/tests/fixtures/capstone_horizons/ephem_export.sha256
+@@ -0,0 +1,3 @@
++f67668f889a1d63731adf870c52380529a7a307a2d10f6c7018944f5ddc75a6f  oem
++66cc1068da65cf58174b94cbc59295a80b709defdeff909fd8e6d23b9212699e  opm
++6b60134c946ebee767fcda397a8f937f675e4e55c56ba5058e90f4ed7aa49064  spk
+diff --git a/tests/fixtures/i18n/allow.json b/tests/fixtures/i18n/allow.json
+index 1398a5a20..46b2af0ca 100644
+--- a/tests/fixtures/i18n/allow.json
++++ b/tests/fixtures/i18n/allow.json
+@@ -1074,8 +1074,8 @@
+    "reason": "unreviewed: machine-document prose, data or not yet converted (see docs/design/i18n-migration.md)"
+   },
+   "src/main.rs": {
+-   "count": 70,
+-   "reason": "unreviewed: machine-document prose, data or not yet converted (see docs/design/i18n-migration.md); clock-live prints its error text as given; the sensor-live command name; the device and bench-speed command names; the data-pack, area-trust and env-baseline command names"
++   "count": 71,
++   "reason": "unreviewed: machine-document prose, data or not yet converted (see docs/design/i18n-migration.md); clock-live prints its error text as given; the sensor-live command name; the device and bench-speed command names; the data-pack, area-trust and env-baseline command names; the ephem-export command name"
+   },
+   "src/mars_pnt.rs": {
+    "count": 31,
+@@ -1478,8 +1478,8 @@
+    "reason": "identifier and data: FoM keys, JSON key, the page's CSS; the HTML text is in the catalogue"
+   },
+   "src/surface.rs": {
+-   "count": 31,
+-   "reason": "unreviewed: machine-document prose, data or not yet converted (see docs/design/i18n-migration.md); the truth_json and reports_json input names in the size-cap error"
++   "count": 37,
++   "reason": "unreviewed: machine-document prose, data or not yet converted (see docs/design/i18n-migration.md); the truth_json and reports_json input names in the size-cap error; the ephem_export report JSON keys and the state-table input name in the size-cap error"
+   },
+   "src/sweep.rs": {
+    "count": 13,
+@@ -1564,6 +1564,10 @@
+   "src/station.rs": {
+    "count": 25,
+    "reason": "machine-document: HTTP/1.1 request and reply lines, the systemd unit, launchd property list and schtasks templates, JSON bodies of the status port, and `<path>: <operating-system error>` forms; every message for a person goes through the catalogue (station-*, e-station-*)"
++  },
++  "src/ephem_export.rs": {
++   "count": 15,
++   "reason": "CCSDS OEM and OPM keywords of the written messages (machine document)"
+   }
+  }
+ }
+diff --git a/tests/fixtures/i18n/corpus.json b/tests/fixtures/i18n/corpus.json
+index e4a0a2f7f..6633ae75a 100644
+--- a/tests/fixtures/i18n/corpus.json
++++ b/tests/fixtures/i18n/corpus.json
+@@ -42465,5 +42465,182 @@
+   "parts": [
+    "result: not ready; fix the errors above"
+   ]
++ },
++ {
++  "id": "e-ephem-export-unknown-format",
++  "error": true,
++  "parts": [
++   "unknown export format `",
++   {
++    "var": "o"
++   },
++   "`: use `oem`, `opm` or `spk`"
++  ]
++ },
++ {
++  "id": "e-ephem-export-horizons-row-fields",
++  "error": true,
++  "parts": [
++   "Horizons table line ",
++   {
++    "var": "line"
++   },
++   ": ",
++   {
++    "var": "f"
++   },
++   " fields, expected the Julian date, the calendar date and six state values"
++  ]
++ },
++ {
++  "id": "e-ephem-export-horizons-bad-date",
++  "error": true,
++  "parts": [
++   "Horizons table line ",
++   {
++    "var": "line"
++   },
++   ": the calendar date is not `A.D. YYYY-Mon-DD HH:MM:SS.ffff`"
++  ]
++ },
++ {
++  "id": "e-ephem-export-horizons-bad-number",
++  "error": true,
++  "parts": [
++   "Horizons table line ",
++   {
++    "var": "line"
++   },
++   ": `",
++   {
++    "var": "v"
++   },
++   "` is not a finite number"
++  ]
++ },
++ {
++  "id": "e-ephem-export-horizons-no-table",
++  "error": true,
++  "parts": [
++   "not a Horizons vector table: no `$$SOE` to `$$EOE` block"
++  ]
++ },
++ {
++  "id": "e-ephem-export-horizons-empty",
++  "error": true,
++  "parts": [
++   "the Horizons table has no rows"
++  ]
++ },
++ {
++  "id": "e-ephem-export-horizons-units",
++  "error": true,
++  "parts": [
++   "the Horizons table is in `",
++   {
++    "var": "u"
++   },
++   "` units: request `KM-S`"
++  ]
++ },
++ {
++  "id": "e-ephem-export-horizons-time-scale",
++  "error": true,
++  "parts": [
++   "the Horizons table's time scale is `",
++   {
++    "var": "t"
++   },
++   "`: request TDB"
++  ]
++ },
++ {
++  "id": "e-ephem-export-horizons-header",
++  "error": true,
++  "parts": [
++   "the Horizons table's header has no `",
++   {
++    "var": "k"
++   },
++   "` line"
++  ]
++ },
++ {
++  "id": "e-ephem-export-no-creation-date",
++  "error": true,
++  "parts": [
++   "no creation date: the table's header has none, so give one (`--creation-date YYYY-MM-DDTHH:MM:SS`)"
++  ]
++ },
++ {
++  "id": "e-ephem-export-opm-index",
++  "error": true,
++  "parts": [
++   "state ",
++   {
++    "var": "i"
++   },
++   " is out of range: the table has ",
++   {
++    "var": "total"
++   },
++   " states"
++  ]
++ },
++ {
++  "id": "e-ephem-export-spk-type",
++  "error": true,
++  "parts": [
++   "the SPK export writes type 13 or type 9"
++  ]
++ },
++ {
++  "id": "e-ephem-export-read-back-count",
++  "error": true,
++  "parts": [
++   {
++    "var": "w"
++   },
++   " states written, ",
++   {
++    "var": "r"
++   },
++   " read back"
++  ]
++ },
++ {
++  "id": "e-ephem-export-read-back-value",
++  "error": true,
++  "parts": [
++   "the written file has a state that does not read back"
++  ]
++ },
++ {
++  "id": "main-error-option-needs-whole",
++  "error": false,
++  "parts": [
++   "error: ",
++   {
++    "var": "a"
++   },
++   " needs a whole number"
++  ]
++ },
++ {
++  "id": "main-error-unknown-ephem-export-option",
++  "error": false,
++  "parts": [
++   "error: unknown ephem-export option ",
++   {
++    "var": "x"
++   }
++  ]
++ },
++ {
++  "id": "main-error-ephem-export-needs-a",
++  "error": false,
++  "parts": [
++   "error: ephem-export needs the path of a Horizons vector table"
++  ]
+  }
+ ]
+diff --git a/tests/fixtures/i18n/manual.json b/tests/fixtures/i18n/manual.json
+index 25da5dbb4..b6e752ed6 100644
+--- a/tests/fixtures/i18n/manual.json
++++ b/tests/fixtures/i18n/manual.json
+@@ -10074,7 +10074,7 @@
+   "id": "main-usage",
+   "error": false,
+   "parts": [
+-   "usage: kshana <scenario.toml> [--study-name <s>] [--eop <finals2000A>] [--export-sp3 <out.sp3>] [--export-omm <out.omm>] [--export-oem <out.oem>] [--export <czml|kml|geojson|stk|sigmf|all|list>]... [--import-route <route.geojson>]\n   or: kshana <scenario.toml> --animate <svg|html|frames|all> [--animate-fps <n>] [--animate-duration <s>]\n   or: kshana --study <suite.toml>\n   or: kshana --validate <scenario.toml>\n   or: kshana receiver-trust <scenario.toml>\n   or: kshana receiver-trust live <session.toml> [--stdin | --file <path> [--follow] | --tcp <host:port> | --udp <port>] [--gate] (kshana receiver-trust live --help)\n   or: kshana receiver-trust evidence <scenario.toml> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)\n   or: kshana evidence <keygen|verify|attach-timestamp> ... (kshana evidence --help)\n   or: kshana jammertest <import|score> ... (kshana jammertest --help)\n   or: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)\n   or: kshana trust-telemetry [options] (kshana trust-telemetry --help)\n   or: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]\n   or: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)\n   or: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)\n   or: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]\n   or: kshana bench <spec|truth|cases|score|baseline|seal|reveal-check|manifest|verify-manifest|validate|leaderboard> ... (kshana bench --help)\n   or: kshana bench-export <scenario.toml> [--out <base>] [--epoch <YYYY-MM-DDTHH:MM:SS>]\n   or: kshana compliance-report [--out <base>] <result.json>... | --mapping | --sources\n   or: kshana lunanet-afs-check <spec [--json] [--strict]|symbols <file> [--max-sp-errors <n>] [--json]|generate --frames <n> [--toi0 <t>] --out <file>>\n   or: kshana standards-pack <list|run <id> [--json] [--out <base>]|rows <id>|tests <id>>\n   or: kshana partner check <submission.toml> [--json]\n   or: kshana scenario <migrate <scenario.toml> [--in-place] | version>\n   or: kshana obs <convert <log> --format <format> --station <station.toml> [--out <file>] | check <file.obs.jsonl> [--json]>\n   or: kshana connect <map <input> --mapping <connect.toml> --station <station.toml> [--out <file.obs.jsonl>] | check <vector.toml|dir> [--bless] | watch <dir> --mapping <connect.toml> --station <station.toml> [--suffix <.csv>] [--interval <s>] [--once] | mqtt <host:port> --topic <filter> --mapping <connect.toml> --station <station.toml> [--header <row>] [--qos 0|1] [--user <name> --password-env <VAR>] [--client-id <id>] [--max-messages <n>] [--per-topic] | nats <host:port> --subject <s> --mapping <connect.toml> --station <station.toml> [--header <row>] [--per-topic] [--user <name> --password-env <VAR> | --token-env <VAR>] [--max-messages <n>] | ws <ws://host:port/path> --mapping <connect.toml> --station <station.toml> [--header <row>] [--max-messages <n>] | check-live <vector.toml|dir> [--json] | load-test [--stations <n>] [--rate <Hz>] [--seconds <s>] [--via memory|mqtt] [--json] | adapters <list|check> [<dir>] [--json]>\n   or: kshana osnma verify <pages|vectors.csv|stream.ubx> [--merkle-root <hex>] [--public-key <id:type:hex>] [--reference-time <gst-s>] [--json] (kshana osnma --help)\n   or: kshana iq <scene|acquire|track|sweep|labfit|campaign|conditions|frontend|monitor|inventory|info|extract|convert|decimate> ... (kshana iq --help)\n   or: kshana sky <request.json|request.toml> | --site <lat,lon[,h]> --systems <a,b,...> [--time <s>] [--mask <deg>] [--skyline-preset <name>] [--uere <m>] [--monte-carlo <n> --seed <s>] [--svg] (kshana sky --help)\n   or: kshana skyline --preset <name> [--json] | --presets | --profile <skyline.json|toml>\n   or: kshana kinds [--json]\n   or: kshana example [<name>]\n   or: kshana --help | --version"
++   "usage: kshana <scenario.toml> [--study-name <s>] [--eop <finals2000A>] [--export-sp3 <out.sp3>] [--export-omm <out.omm>] [--export-oem <out.oem>] [--export <czml|kml|geojson|stk|sigmf|all|list>]... [--import-route <route.geojson>]\n   or: kshana <scenario.toml> --animate <svg|html|frames|all> [--animate-fps <n>] [--animate-duration <s>]\n   or: kshana --study <suite.toml>\n   or: kshana --validate <scenario.toml>\n   or: kshana receiver-trust <scenario.toml>\n   or: kshana receiver-trust live <session.toml> [--stdin | --file <path> [--follow] | --tcp <host:port> | --udp <port>] [--gate] (kshana receiver-trust live --help)\n   or: kshana receiver-trust evidence <scenario.toml> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)\n   or: kshana evidence <keygen|verify|attach-timestamp> ... (kshana evidence --help)\n   or: kshana jammertest <import|score> ... (kshana jammertest --help)\n   or: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)\n   or: kshana trust-telemetry [options] (kshana trust-telemetry --help)\n   or: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]\n   or: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]\n   or: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)\n   or: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)\n   or: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]\n   or: kshana bench <spec|truth|cases|score|baseline|seal|reveal-check|manifest|verify-manifest|validate|leaderboard> ... (kshana bench --help)\n   or: kshana bench-export <scenario.toml> [--out <base>] [--epoch <YYYY-MM-DDTHH:MM:SS>]\n   or: kshana compliance-report [--out <base>] <result.json>... | --mapping | --sources\n   or: kshana lunanet-afs-check <spec [--json] [--strict]|symbols <file> [--max-sp-errors <n>] [--json]|generate --frames <n> [--toi0 <t>] --out <file>>\n   or: kshana standards-pack <list|run <id> [--json] [--out <base>]|rows <id>|tests <id>>\n   or: kshana partner check <submission.toml> [--json]\n   or: kshana scenario <migrate <scenario.toml> [--in-place] | version>\n   or: kshana obs <convert <log> --format <format> --station <station.toml> [--out <file>] | check <file.obs.jsonl> [--json]>\n   or: kshana connect <map <input> --mapping <connect.toml> --station <station.toml> [--out <file.obs.jsonl>] | check <vector.toml|dir> [--bless] | watch <dir> --mapping <connect.toml> --station <station.toml> [--suffix <.csv>] [--interval <s>] [--once] | mqtt <host:port> --topic <filter> --mapping <connect.toml> --station <station.toml> [--header <row>] [--qos 0|1] [--user <name> --password-env <VAR>] [--client-id <id>] [--max-messages <n>] [--per-topic] | nats <host:port> --subject <s> --mapping <connect.toml> --station <station.toml> [--header <row>] [--per-topic] [--user <name> --password-env <VAR> | --token-env <VAR>] [--max-messages <n>] | ws <ws://host:port/path> --mapping <connect.toml> --station <station.toml> [--header <row>] [--max-messages <n>] | check-live <vector.toml|dir> [--json] | load-test [--stations <n>] [--rate <Hz>] [--seconds <s>] [--via memory|mqtt] [--json] | adapters <list|check> [<dir>] [--json]>\n   or: kshana osnma verify <pages|vectors.csv|stream.ubx> [--merkle-root <hex>] [--public-key <id:type:hex>] [--reference-time <gst-s>] [--json] (kshana osnma --help)\n   or: kshana iq <scene|acquire|track|sweep|labfit|campaign|conditions|frontend|monitor|inventory|info|extract|convert|decimate> ... (kshana iq --help)\n   or: kshana sky <request.json|request.toml> | --site <lat,lon[,h]> --systems <a,b,...> [--time <s>] [--mask <deg>] [--skyline-preset <name>] [--uere <m>] [--monte-carlo <n> --seed <s>] [--svg] (kshana sky --help)\n   or: kshana skyline --preset <name> [--json] | --presets | --profile <skyline.json|toml>\n   or: kshana kinds [--json]\n   or: kshana example [<name>]\n   or: kshana --help | --version"
+   ]
+  },
+  {
+diff --git a/tests/python/test_bindings.py b/tests/python/test_bindings.py
+index 54b9437e5..aaf249c24 100644
+--- a/tests/python/test_bindings.py
++++ b/tests/python/test_bindings.py
+@@ -896,3 +896,22 @@ def test_referee_location_score_gives_the_command_line_bytes():
+     text = kshana.referee_location_score(truth, reports)
+     want = open(os.path.join(d, "score_v1.sha256")).read().strip()
+     assert hashlib.sha256(text.encode()).hexdigest() == want
++
++
++def test_ephem_export_gives_the_command_line_bytes():
++    """C7: the CAPSTONE Horizons table written through Python is the command line's bytes, and
++    every state reads back unchanged."""
++    import base64
++    import hashlib
++
++    d = REPO / "tests" / "fixtures" / "capstone_horizons"
++    table = (d / "capstone_2023-03_moon_icrf.txt").read_text()
++    pinned = dict(reversed(l.split()) for l in (d / "ephem_export.sha256").read_text().splitlines())
++    for fmt in ("oem", "opm", "spk"):
++        v = json.loads(kshana.ephem_export(table, fmt))
++        raw = base64.b64decode(v["content"]) if v["encoding"] == "base64" else v["content"].encode()
++        assert hashlib.sha256(raw).hexdigest() == pinned[fmt] == v["sha256"]
++        assert v["read_back"]["identical"] == v["read_back"]["states"]
++        assert v["read_back"]["epoch_mismatches"] == 0
++    with pytest.raises(ValueError):
++        kshana.ephem_export("no table")
+-- 
+2.43.0
+
