@@ -1390,20 +1390,21 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "scenario:tip-and-cue-short" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#tip-and-cue-short" }
 
 # Placed 2026-11-08 at the 93-kind rebuild (engine 3ff14e6a3): features that landed on the open main
-# after the 0.40.0 site build. CLI rows marked 'sub' are subcommands the register reads as commands
-# (gen_features scans nested match arms): obs convert/check, connect watch/adapters/nats/ws/mqtt/map/memory,
-# scenario version/migrate. Best-guess placements, for review.
-"cli:convert" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
-"cli:check" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
-"cli:watch" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
-"cli:adapters" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
-"cli:nats" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
-"cli:ws" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
-"cli:mqtt" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
-"cli:map" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
-"cli:memory" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
-"cli:version" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
-"cli:migrate" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+# after the 0.40.0 site build, best-guess placements, for review. The obs, connect and scenario
+# subcommands are registered under their parent (gen_features.py enum_cli).
+"cli:obs-convert" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:obs-check" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:connect-check" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:connect-check-live" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:connect-watch" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:connect-adapters" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:connect-nats" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:connect-ws" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:connect-mqtt" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:connect-map" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:connect-load-test" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
+"cli:scenario-version" = { page = "Docs", section = "surfaces.html#every-command-line-subcommand-and-who-covers-it", studio = "none", docs = "docs/surfaces.html#every-command-line-subcommand-and-who-covers-it" }
+"cli:scenario-migrate" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
 "cli:scenario" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
 "cli:obs" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }
 "cli:ntrip" = { page = "Docs", section = "commands.html#every-command", studio = "none", docs = "docs/commands.html#every-command" }

@@ -216,7 +216,7 @@ PUBLIC_EDITION_SOURCES = [
 
 # Plain-word descriptions of the command-line options (main.rs has no per-flag help text).
 CLI_DESC = {
-    "version": "Subcommand of kshana scenario: print the scenario schema version this engine reads.",
+    "scenario version": "Print the scenario schema version this engine reads.",
     "scenario": "State a scenario file's schema version and upgrade older files to it (kshana scenario migrate, kshana scenario version).",
     "obs": "Write a receiver log as a kshana.obs/1 observation file, from a file or a stream as it arrives, and check such a file.",
     "ntrip": "Fetch a correction stream from a caster of the Networked Transport of correction messages over Internet Protocol, unchanged, and count the frames that arrive intact.",
@@ -224,16 +224,18 @@ CLI_DESC = {
     "planner": "Monitoring-network planner: per site cell, the detection probabilities and the time-difference-of-arrival location bound; choose stations from candidates. Modelled.",
     "station": "Run a Kshana Station: every configured receiver stream recorded as kshana.obs/1 files, rotated, with a status page; check its file; write a service definition for the system's service manager.",
     "connect": "Map any comma- or tab-separated, JavaScript Object Notation or JSON Lines export to a kshana.obs/1 file through a mapping file, with no code; also from a watched folder or a message stream.",
-    "convert": "Subcommand of kshana obs: write a receiver log as a kshana.obs/1 observation file.",
-    "check": "Subcommand of kshana obs: check a kshana.obs/1 observation file.",
-    "watch": "Subcommand of kshana connect: follow a folder of growing or rotating logs and print new kshana.obs/1 records.",
-    "adapters": "Subcommand of kshana connect: list the readers a mapping file can use.",
-    "nats": "Subcommand of kshana connect: subscribe to a subject on a NATS message server and print kshana.obs/1 records.",
-    "ws": "Subcommand of kshana connect: read rows streamed over a WebSocket and print kshana.obs/1 records.",
-    "mqtt": "Subcommand of kshana connect: subscribe to a topic on a Message Queuing Telemetry Transport broker and print kshana.obs/1 records.",
-    "map": "Subcommand of kshana connect: map an export to a kshana.obs/1 file through a mapping file.",
-    "memory": "Subcommand of kshana connect: measure the memory a long mapping run holds, for its load test.",
-    "migrate": "Subcommand of kshana scenario: upgrade an older scenario file to the current schema version.",
+    "obs convert": "Write a receiver log as a kshana.obs/1 observation file.",
+    "obs check": "Check a kshana.obs/1 observation file.",
+    "connect load-test": "Load-test the mapping path: many simulated stations at a set rate, in memory or through a message broker, with the throughput and memory it reaches.",
+    "connect check": "Run Connect conformance vectors (input, mapping or reader, expected kshana.obs/1 output) and fail on any byte difference.",
+    "connect check-live": "Replay the Connect conformance vectors over a Message Queuing Telemetry Transport broker (with a forced reconnection), a WebSocket and the folder watch, and check order, holding, reconnection and latency.",
+    "connect watch": "Follow a folder of growing or rotating logs and print new kshana.obs/1 records.",
+    "connect adapters": "List the readers a mapping file can use.",
+    "connect nats": "Subscribe to a subject on a NATS message server and print kshana.obs/1 records.",
+    "connect ws": "Read rows streamed over a WebSocket and print kshana.obs/1 records.",
+    "connect mqtt": "Subscribe to a topic on a Message Queuing Telemetry Transport broker and print kshana.obs/1 records.",
+    "connect map": "Map an export to a kshana.obs/1 file through a mapping file.",
+    "scenario migrate": "Upgrade an older scenario file to the current schema version.",
     "jammertest": "Read the published Jammertest test plan as scheduled truth and score a receiver log against it, test by test.",
     "bench": "Score a kshana-bench submission against its truth file and render result files as the static leaderboard.",
     "spec": "Check the LunaNet augmented forward signal implementation against the specification's printed tables and worked examples.",
@@ -623,8 +625,43 @@ def enum_cli(repo: str, abbr) -> tuple[list[dict], list[str]]:
                         identifiers=["kshana <scenario.toml>"],
                         probes=[["phrase", "kshana <scenario>.toml"], ["phrase", "kshana <scenario.toml>"], ["regex", r"kshana\s+(scenarios/)?[a-z0-9-]+\.toml"]]))
     seen_sub = set()
-    for m in re.finditer(r'Some\("([a-z]+)"\)', src):
+    # A word matched inside run_<parent>_cli (or run_<parent>_load_test) is a subcommand of the
+    # top-level command <parent> (0.40+: `kshana obs convert`, `kshana connect watch`, `kshana
+    # scenario migrate`), so it is registered as `kshana <parent> <word>`, not as a command of its
+    # own. The words with a hand-made probe below (live, spec, symbols, generate) keep their rows.
+    fns = [(f.start(), f.group(1)) for f in re.finditer(r"^(?:pub\s+)?fn\s+([a-z_0-9]+)", src, re.M)]
+    top = {w.group(1) for w in re.finditer(r'Some\("([a-z]+)"\)', src)
+           if [n for p, n in fns if p < w.start()][-1:] == ["main_in_language"]}
+    def enclosing(pos):
+        enc = [n for p, n in fns if p < pos][-1:]
+        return enc[0] if enc else ""
+    def parent_of(pos):
+        pm = re.match(r"^run_([a-z_]+?)_cli$", enclosing(pos))
+        par = pm.group(1).replace("_", "-") if pm else None
+        return par if par in top else None
+    for m in re.finditer(r'Some\("([a-z][a-z-]*)"\)', src):
         sub = m.group(1)
+        fn_name = enclosing(m.start())
+        par = None if sub in ("live", "spec", "symbols", "generate") else parent_of(m.start())
+        # A word in a helper of a subcommand (run_connect_load_test's `--via memory`) is an option
+        # value, not a command; a hyphenated word is a command only inside a subcommand parser.
+        if not par and (("-" in sub) or (fn_name.startswith("run_") and not fn_name.endswith("_cli") and fn_name != "run_lunanet_afs_cli")):
+            pm = re.match(r"^run_([a-z_]+?)_", fn_name)
+            if fn_name.startswith("run_") and pm and pm.group(1).replace("_", "-") in top:
+                continue
+            if "-" in sub:
+                continue
+        if par:
+            key = f"{par} {sub}"
+            if key in seen_sub:
+                continue
+            seen_sub.add(key)
+            ln = src[: m.start()].count("\n") + 1
+            rows.append(feature(id=f"cli:{par}-{sub}", category="cli", subtype="subcommand", name=f"kshana {key}",
+                                description=CLI_DESC.get(key, "NO DESCRIPTION: add one to CLI_DESC"),
+                                source=f"src/main.rs:{ln}", identifiers=[f"kshana {key}"],
+                                probes=[["regex", rf"kshana\s+{par}\s+{sub}\b"], ["regex", rf"(?<![\w-]){par}\s+{sub}\b"]]))
+            continue
         if sub in seen_sub:  # a word matched in two places (0.35: `evidence` is also a `receiver-trust` action)
             continue
         seen_sub.add(sub)

@@ -1,6 +1,6 @@
 {
  "generated_by": "features/gen_features.py",
- "generated_at": "2026-11-08T10:02:41Z",
+ "generated_at": "2026-11-08T10:40:28Z",
  "engine": {
   "repo": "/workspace/kshana-T",
   "version": "0.40.0",
@@ -10,7 +10,7 @@
  "counts": {
   "kind": 93,
   "scenario": 196,
-  "cli": 67,
+  "cli": 69,
   "mcp-tool": 52,
   "binding": 179,
   "export": 16,
@@ -21,7 +21,7 @@
   "pro": 15,
   "study": 5
  },
- "total": 1089,
+ "total": 1091,
  "unplaced": [],
  "stale_placements": [],
  "warnings": [
@@ -11173,21 +11173,25 @@
    "unexpanded_abbreviations": []
   },
   {
-   "id": "cli:convert",
+   "id": "cli:obs-convert",
    "category": "cli",
    "subtype": "subcommand",
-   "name": "kshana convert",
-   "description": "Subcommand of kshana obs: write a receiver log as a kshana.obs/1 observation file.",
+   "name": "kshana obs convert",
+   "description": "Write a receiver log as a kshana.obs/1 observation file.",
    "source": "src/main.rs:37",
    "edition": "Free core",
    "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
    "identifiers": [
-    "kshana convert"
+    "kshana obs convert"
    ],
    "probes": [
     [
      "regex",
-     "kshana\\s+convert\\b"
+     "kshana\\s+obs\\s+convert\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])obs\\s+convert\\b"
     ]
    ],
    "claim": "",
@@ -11231,21 +11235,25 @@
    ]
   },
   {
-   "id": "cli:check",
+   "id": "cli:obs-check",
    "category": "cli",
    "subtype": "subcommand",
-   "name": "kshana check",
-   "description": "Subcommand of kshana obs: check a kshana.obs/1 observation file.",
+   "name": "kshana obs check",
+   "description": "Check a kshana.obs/1 observation file.",
    "source": "src/main.rs:115",
    "edition": "Free core",
    "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
    "identifiers": [
-    "kshana check"
+    "kshana obs check"
    ],
    "probes": [
     [
      "regex",
-     "kshana\\s+check\\b"
+     "kshana\\s+obs\\s+check\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])obs\\s+check\\b"
     ]
    ],
    "claim": "",
@@ -11259,21 +11267,57 @@
    "unexpanded_abbreviations": []
   },
   {
-   "id": "cli:watch",
+   "id": "cli:connect-check",
    "category": "cli",
    "subtype": "subcommand",
-   "name": "kshana watch",
-   "description": "Subcommand of kshana connect: follow a folder of growing or rotating logs and print new kshana.obs/1 records.",
+   "name": "kshana connect check",
+   "description": "Run Connect conformance vectors (input, mapping or reader, expected kshana.obs/1 output) and fail on any byte difference.",
+   "source": "src/main.rs:166",
+   "edition": "Free core",
+   "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "kshana connect check"
+   ],
+   "probes": [
+    [
+     "regex",
+     "kshana\\s+connect\\s+check\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])connect\\s+check\\b"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "Docs",
+   "section": "commands.html#every-command",
+   "studio": "none",
+   "docs": "docs/commands.html#every-command",
+   "also": [],
+   "placed": true,
+   "unexpanded_abbreviations": []
+  },
+  {
+   "id": "cli:connect-watch",
+   "category": "cli",
+   "subtype": "subcommand",
+   "name": "kshana connect watch",
+   "description": "Follow a folder of growing or rotating logs and print new kshana.obs/1 records.",
    "source": "src/main.rs:223",
    "edition": "Free core",
    "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
    "identifiers": [
-    "kshana watch"
+    "kshana connect watch"
    ],
    "probes": [
     [
      "regex",
-     "kshana\\s+watch\\b"
+     "kshana\\s+connect\\s+watch\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])connect\\s+watch\\b"
     ]
    ],
    "claim": "",
@@ -11287,21 +11331,25 @@
    "unexpanded_abbreviations": []
   },
   {
-   "id": "cli:adapters",
+   "id": "cli:connect-adapters",
    "category": "cli",
    "subtype": "subcommand",
-   "name": "kshana adapters",
-   "description": "Subcommand of kshana connect: list the readers a mapping file can use.",
+   "name": "kshana connect adapters",
+   "description": "List the readers a mapping file can use.",
    "source": "src/main.rs:226",
    "edition": "Free core",
    "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
    "identifiers": [
-    "kshana adapters"
+    "kshana connect adapters"
    ],
    "probes": [
     [
      "regex",
-     "kshana\\s+adapters\\b"
+     "kshana\\s+connect\\s+adapters\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])connect\\s+adapters\\b"
     ]
    ],
    "claim": "",
@@ -11315,21 +11363,89 @@
    "unexpanded_abbreviations": []
   },
   {
-   "id": "cli:nats",
+   "id": "cli:connect-load-test",
    "category": "cli",
    "subtype": "subcommand",
-   "name": "kshana nats",
-   "description": "Subcommand of kshana connect: subscribe to a subject on a NATS message server and print kshana.obs/1 records.",
+   "name": "kshana connect load-test",
+   "description": "Load-test the mapping path: many simulated stations at a set rate, in memory or through a message broker, with the throughput and memory it reaches.",
+   "source": "src/main.rs:237",
+   "edition": "Free core",
+   "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "kshana connect load-test"
+   ],
+   "probes": [
+    [
+     "regex",
+     "kshana\\s+connect\\s+load-test\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])connect\\s+load-test\\b"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "Docs",
+   "section": "commands.html#every-command",
+   "studio": "none",
+   "docs": "docs/commands.html#every-command",
+   "also": [],
+   "placed": true,
+   "unexpanded_abbreviations": []
+  },
+  {
+   "id": "cli:connect-check-live",
+   "category": "cli",
+   "subtype": "subcommand",
+   "name": "kshana connect check-live",
+   "description": "Replay the Connect conformance vectors over a Message Queuing Telemetry Transport broker (with a forced reconnection), a WebSocket and the folder watch, and check order, holding, reconnection and latency.",
+   "source": "src/main.rs:240",
+   "edition": "Free core",
+   "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
+   "identifiers": [
+    "kshana connect check-live"
+   ],
+   "probes": [
+    [
+     "regex",
+     "kshana\\s+connect\\s+check-live\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])connect\\s+check-live\\b"
+    ]
+   ],
+   "claim": "",
+   "facts": {},
+   "page": "Docs",
+   "section": "commands.html#every-command",
+   "studio": "none",
+   "docs": "docs/commands.html#every-command",
+   "also": [],
+   "placed": true,
+   "unexpanded_abbreviations": []
+  },
+  {
+   "id": "cli:connect-nats",
+   "category": "cli",
+   "subtype": "subcommand",
+   "name": "kshana connect nats",
+   "description": "Subscribe to a subject on a NATS message server and print kshana.obs/1 records.",
    "source": "src/main.rs:247",
    "edition": "Free core",
    "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
    "identifiers": [
-    "kshana nats"
+    "kshana connect nats"
    ],
    "probes": [
     [
      "regex",
-     "kshana\\s+nats\\b"
+     "kshana\\s+connect\\s+nats\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])connect\\s+nats\\b"
     ]
    ],
    "claim": "",
@@ -11343,21 +11459,25 @@
    "unexpanded_abbreviations": []
   },
   {
-   "id": "cli:ws",
+   "id": "cli:connect-ws",
    "category": "cli",
    "subtype": "subcommand",
-   "name": "kshana ws",
-   "description": "Subcommand of kshana connect: read rows streamed over a WebSocket and print kshana.obs/1 records.",
+   "name": "kshana connect ws",
+   "description": "Read rows streamed over a WebSocket and print kshana.obs/1 records.",
    "source": "src/main.rs:250",
    "edition": "Free core",
    "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
    "identifiers": [
-    "kshana ws"
+    "kshana connect ws"
    ],
    "probes": [
     [
      "regex",
-     "kshana\\s+ws\\b"
+     "kshana\\s+connect\\s+ws\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])connect\\s+ws\\b"
     ]
    ],
    "claim": "",
@@ -11371,21 +11491,25 @@
    "unexpanded_abbreviations": []
   },
   {
-   "id": "cli:mqtt",
+   "id": "cli:connect-mqtt",
    "category": "cli",
    "subtype": "subcommand",
-   "name": "kshana mqtt",
-   "description": "Subcommand of kshana connect: subscribe to a topic on a Message Queuing Telemetry Transport broker and print kshana.obs/1 records.",
+   "name": "kshana connect mqtt",
+   "description": "Subscribe to a topic on a Message Queuing Telemetry Transport broker and print kshana.obs/1 records.",
    "source": "src/main.rs:253",
    "edition": "Free core",
    "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
    "identifiers": [
-    "kshana mqtt"
+    "kshana connect mqtt"
    ],
    "probes": [
     [
      "regex",
-     "kshana\\s+mqtt\\b"
+     "kshana\\s+connect\\s+mqtt\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])connect\\s+mqtt\\b"
     ]
    ],
    "claim": "",
@@ -11399,21 +11523,25 @@
    "unexpanded_abbreviations": []
   },
   {
-   "id": "cli:map",
+   "id": "cli:connect-map",
    "category": "cli",
    "subtype": "subcommand",
-   "name": "kshana map",
-   "description": "Subcommand of kshana connect: map an export to a kshana.obs/1 file through a mapping file.",
+   "name": "kshana connect map",
+   "description": "Map an export to a kshana.obs/1 file through a mapping file.",
    "source": "src/main.rs:256",
    "edition": "Free core",
    "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
    "identifiers": [
-    "kshana map"
+    "kshana connect map"
    ],
    "probes": [
     [
      "regex",
-     "kshana\\s+map\\b"
+     "kshana\\s+connect\\s+map\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])connect\\s+map\\b"
     ]
    ],
    "claim": "",
@@ -11427,77 +11555,57 @@
    "unexpanded_abbreviations": []
   },
   {
-   "id": "cli:memory",
+   "id": "cli:scenario-version",
    "category": "cli",
    "subtype": "subcommand",
-   "name": "kshana memory",
-   "description": "Subcommand of kshana connect: measure the memory a long mapping run holds, for its load test.",
-   "source": "src/main.rs:372",
-   "edition": "Free core",
-   "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
-   "identifiers": [
-    "kshana memory"
-   ],
-   "probes": [
-    [
-     "regex",
-     "kshana\\s+memory\\b"
-    ]
-   ],
-   "claim": "",
-   "facts": {},
-   "page": "Docs",
-   "section": "commands.html#every-command",
-   "studio": "none",
-   "docs": "docs/commands.html#every-command",
-   "also": [],
-   "placed": true,
-   "unexpanded_abbreviations": []
-  },
-  {
-   "id": "cli:version",
-   "category": "cli",
-   "subtype": "subcommand",
-   "name": "kshana version",
-   "description": "Subcommand of kshana scenario: print the scenario schema version this engine reads.",
+   "name": "kshana scenario version",
+   "description": "Print the scenario schema version this engine reads.",
    "source": "src/main.rs:943",
    "edition": "Free core",
    "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
    "identifiers": [
-    "kshana version"
+    "kshana scenario version"
    ],
    "probes": [
     [
      "regex",
-     "kshana\\s+version\\b"
+     "kshana\\s+scenario\\s+version\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])scenario\\s+version\\b"
     ]
    ],
    "claim": "",
    "facts": {},
    "page": "Docs",
-   "section": "commands.html#every-command",
+   "section": "surfaces.html#every-command-line-subcommand-and-who-covers-it",
    "studio": "none",
-   "docs": "docs/commands.html#every-command",
+   "docs": "docs/surfaces.html#every-command-line-subcommand-and-who-covers-it",
    "also": [],
    "placed": true,
    "unexpanded_abbreviations": []
   },
   {
-   "id": "cli:migrate",
+   "id": "cli:scenario-migrate",
    "category": "cli",
    "subtype": "subcommand",
-   "name": "kshana migrate",
-   "description": "Subcommand of kshana scenario: upgrade an older scenario file to the current schema version.",
+   "name": "kshana scenario migrate",
+   "description": "Upgrade an older scenario file to the current schema version.",
    "source": "src/main.rs:947",
    "edition": "Free core",
    "edition_source": "README.md:1485 “…no feature gate” · README.md:1554 “The open engine is complete and usable on its own.”",
    "identifiers": [
-    "kshana migrate"
+    "kshana scenario migrate"
    ],
    "probes": [
     [
      "regex",
-     "kshana\\s+migrate\\b"
+     "kshana\\s+scenario\\s+migrate\\b"
+    ],
+    [
+     "regex",
+     "(?<![\\w-])scenario\\s+migrate\\b"
     ]
    ],
    "claim": "",
