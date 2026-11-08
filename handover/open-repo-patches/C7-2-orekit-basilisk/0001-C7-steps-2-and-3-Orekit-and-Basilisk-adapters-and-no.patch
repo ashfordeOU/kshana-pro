@@ -1,0 +1,1305 @@
+From 5305827f80630f27cebadc1a553ae98b9c434d7a Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Sun, 8 Nov 2026 13:23:36 +0000
+Subject: [PATCH] C7 steps 2 and 3: Orekit and Basilisk adapters and notebooks
+ read back the trajectory Kshana writes, with a difference report and a CI
+ workflow
+
+integrations/flight-dynamics/: kshana_fd.py (writes the OEM, OPM and SPK through the
+Python binding, checks the pinned SHA-256 and, with KSHANA_FD_CLI_DIR, the command line's
+bytes; reads back what was written; the difference report), orekit_reader.py (Orekit's
+OemParser and OpmParser through orekit_jpype 13.1.9.0, orekit-data at a pinned commit),
+basilisk_reader.py (Basilisk 2.12.2's own SPICE, pyswice: dafgda_c records and spkezr_c
+at the nodes), the two notebooks (.md mirror and .ipynb) and run_notebooks.py.
+
+Results on the CAPSTONE table: Orekit carries the OEM (4,321 states) and the OPM: every
+value is Orekit's km-to-m conversion of the written double, every epoch the written one;
+the report names Orekit as rounding further than the digits written (that conversion is a
+second rounding, at most 1 ulp; worst 2.83 half-units of the last digit). Basilisk reads
+the SPK's 25,926 stored values and 4,321 epochs with the written bits; spkezr_c at the
+nodes within 1.5e-11 km.
+
+.github/workflows/flight-dynamics.yml: one job builds the command line, runs
+`kshana connect check`, writes the files and builds the wheel; a matrix job runs each
+tool's notebook top to bottom and uploads its report. web/smoke.mjs checks that the
+WebAssembly ephem_export gives the pinned bytes.
+---
+ .github/workflows/flight-dynamics.yml         | 110 +++++++++
+ CHANGELOG.md                                  |   6 +
+ docs/FLIGHT-DYNAMICS-EXPORT.md                |   3 +-
+ docs/SURFACES.md                              |   2 +-
+ integrations/flight-dynamics/README.md        |  72 ++++++
+ integrations/flight-dynamics/basilisk.ipynb   | 149 ++++++++++++
+ integrations/flight-dynamics/basilisk.md      |  75 ++++++
+ .../flight-dynamics/basilisk_reader.py        |  73 ++++++
+ integrations/flight-dynamics/kshana_fd.py     | 225 ++++++++++++++++++
+ integrations/flight-dynamics/orekit.ipynb     | 151 ++++++++++++
+ integrations/flight-dynamics/orekit.md        |  77 ++++++
+ integrations/flight-dynamics/orekit_reader.py | 110 +++++++++
+ .../flight-dynamics/requirements-basilisk.txt |   2 +
+ .../flight-dynamics/requirements-orekit.txt   |   3 +
+ integrations/flight-dynamics/run_notebooks.py |  33 +++
+ notebooks/README.md                           |   2 +
+ web/smoke.mjs                                 |  21 +-
+ 17 files changed, 1111 insertions(+), 3 deletions(-)
+ create mode 100644 .github/workflows/flight-dynamics.yml
+ create mode 100644 integrations/flight-dynamics/README.md
+ create mode 100644 integrations/flight-dynamics/basilisk.ipynb
+ create mode 100644 integrations/flight-dynamics/basilisk.md
+ create mode 100644 integrations/flight-dynamics/basilisk_reader.py
+ create mode 100644 integrations/flight-dynamics/kshana_fd.py
+ create mode 100644 integrations/flight-dynamics/orekit.ipynb
+ create mode 100644 integrations/flight-dynamics/orekit.md
+ create mode 100644 integrations/flight-dynamics/orekit_reader.py
+ create mode 100644 integrations/flight-dynamics/requirements-basilisk.txt
+ create mode 100644 integrations/flight-dynamics/requirements-orekit.txt
+ create mode 100644 integrations/flight-dynamics/run_notebooks.py
+
+diff --git a/.github/workflows/flight-dynamics.yml b/.github/workflows/flight-dynamics.yml
+new file mode 100644
+index 000000000..b2d60f3b9
+--- /dev/null
++++ b/.github/workflows/flight-dynamics.yml
+@@ -0,0 +1,110 @@
++name: Flight dynamics
++# The flight-dynamics reference integration (roadmap C7,
++# docs/design/evidence/c7-flight-dynamics-adapters/PREREGISTRATION.md): Kshana writes the
++# mission thread's CAPSTONE states as OEM, OPM and SPK (`kshana ephem-export`), each tool's
++# adapter loads the files into the tool and the notebook compares every state read back with
++# the state written (integrations/flight-dynamics/). The command line and the Python binding
++# must write the same bytes; `kshana connect check` must stay green.
++on:
++  push:
++    branches: [main]
++    paths:
++      - "src/ephem_export.rs"
++      - "src/spk_writer.rs"
++      - "src/oem.rs"
++      - "src/odm.rs"
++      - "src/surface.rs"
++      - "src/python.rs"
++      - "tests/fixtures/capstone_horizons/**"
++      - "integrations/flight-dynamics/**"
++      - ".github/workflows/flight-dynamics.yml"
++  pull_request:
++    paths:
++      - "src/ephem_export.rs"
++      - "src/spk_writer.rs"
++      - "src/oem.rs"
++      - "src/odm.rs"
++      - "src/surface.rs"
++      - "src/python.rs"
++      - "tests/fixtures/capstone_horizons/**"
++      - "integrations/flight-dynamics/**"
++      - ".github/workflows/flight-dynamics.yml"
++  workflow_dispatch:
++permissions:
++  contents: read
++jobs:
++  write:
++    # The command line writes the three files and `kshana connect check` runs; the wheel is built
++    # once for the tool jobs.
++    runs-on: ubuntu-22.04
++    timeout-minutes: 60
++    steps:
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
++      - uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # master; the toolchain is the `toolchain` input below
++        with:
++          toolchain: 1.93.0
++      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
++      - name: Build the command line
++        run: cargo build --release --locked --bin kshana
++      - name: kshana connect check
++        run: ./target/release/kshana connect check conformance/connect
++      - name: Write the files with the command line
++        run: |
++          set -euo pipefail
++          mkdir -p cli
++          t=tests/fixtures/capstone_horizons/capstone_2023-03_moon_icrf.txt
++          for f in oem opm spk; do
++            s=$f; [ "$f" = spk ] && s=bsp
++            ./target/release/kshana ephem-export "$t" --format "$f" --out "cli/capstone_2023-03_moon_icrf.$s"
++          done
++      - name: Build the Python wheel
++        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1
++        with:
++          command: build
++          args: --features python --out dist
++          manylinux: 2_28
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: fd-inputs
++          path: |
++            cli/
++            dist/
++  tool:
++    # Each tool's notebook, top to bottom: the adapter loads the files into the tool and the
++    # difference report compares every state read back with the state written.
++    needs: write
++    runs-on: ubuntu-22.04
++    timeout-minutes: 30
++    strategy:
++      fail-fast: false
++      matrix:
++        tool: [orekit, basilisk]
++    steps:
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
++      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
++        with:
++          name: fd-inputs
++          path: fd-inputs
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
++        with:
++          python-version: "3.12"
++      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
++        if: matrix.tool == 'orekit'
++        with:
++          distribution: temurin
++          java-version: "21"
++      - name: Install the wheel and the adapter's requirements
++        run: |
++          pip install --no-index --find-links fd-inputs/dist kshana
++          pip install -r integrations/flight-dynamics/requirements-${{ matrix.tool }}.txt
++      - name: Run the notebook top to bottom
++        env:
++          KSHANA_FD_CLI_DIR: ${{ github.workspace }}/fd-inputs/cli
++          KSHANA_FD_OUT: ${{ runner.temp }}/fd
++        run: python integrations/flight-dynamics/run_notebooks.py ${{ matrix.tool }}
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        if: always()
++        with:
++          name: flight-dynamics-${{ matrix.tool }}
++          path: ${{ runner.temp }}/fd
++          if-no-files-found: warn
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index a9aec133e..0fb695953 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -16,6 +16,12 @@ breaking changes are called out explicitly.
+   (C7, step 1; `docs/FLIGHT-DYNAMICS-EXPORT.md`). Values and epochs are copied, not computed: on the mission thread's
+   CAPSTONE table all 4,321 states read back with the same bits from the OEM and the SPK, and from the SPICE Toolkit's
+   reading of the SPK too. Every surface writes the same bytes (pinned SHA-256).
++- `integrations/flight-dynamics/`: the C7 adapters and notebooks, Orekit and Basilisk first. Orekit 13.1.9 reads the CAPSTONE OEM and
++  OPM Kshana wrote with its own CCSDS parsers; every value it holds is its own kilometre-to-metre conversion of the written
++  double and every epoch is the written one (4,321 states). The difference report names Orekit as rounding further than
++  the digits written: that conversion is a second rounding of at most one ulp. The `flight-dynamics` workflow runs the
++  notebooks, checks that the command line and Python write the same bytes, and runs `kshana connect check`. Basilisk
++  2.12.2, through the SPICE Toolkit it ships, reads the SPK's 4,321 stored records and epochs with the written bits.
+ - RTCM SSR reader (`kshana::rtcm_ssr`) reads the IGS SSR format (RTCM 4076): orbit, clock, combined, high-rate clock, code
+   bias, phase bias with yaw and URA for GPS, GLONASS, Galileo, QZSS, BeiDou and SBAS, and the global ionosphere (201). Every
+   field of the 11 messages in pyrtcm 1.2.0's public IGS sample stream matches the values pyrtcm records; the message kinds
+diff --git a/docs/FLIGHT-DYNAMICS-EXPORT.md b/docs/FLIGHT-DYNAMICS-EXPORT.md
+index e19671aec..f6b17a7eb 100644
+--- a/docs/FLIGHT-DYNAMICS-EXPORT.md
++++ b/docs/FLIGHT-DYNAMICS-EXPORT.md
+@@ -11,7 +11,8 @@
+ 
+ This is step 1 of roadmap item C7 (adapters and notebooks for flight-dynamics tools;
+ [pre-registration](design/evidence/c7-flight-dynamics-adapters/PREREGISTRATION.md)). The adapters and
+-notebooks that load these files into the tools themselves are the later steps.
++notebooks that load these files into the tools themselves are in
++[`integrations/flight-dynamics/`](../integrations/flight-dynamics/README.md): Orekit and Basilisk so far.
+ 
+ ## Input
+ 
+diff --git a/docs/SURFACES.md b/docs/SURFACES.md
+index 1386ddb36..5c654294a 100644
+--- a/docs/SURFACES.md
++++ b/docs/SURFACES.md
+@@ -34,7 +34,7 @@ actions that run the CLI), **Notebook** (`notebooks/`), **Studio** (the Kshana S
+ | Trust telemetry (Prometheus, syslog CEF/LEEF, OTLP; 0.38: `format = "mqtt"`, Home Assistant discovery and state lines; `--mqtt-tcp` publishes from the CLI) | `trust-telemetry` | `telemetry` | `trust_telemetry` | `trust_telemetry` (text out; no socket) | `trust_telemetry` | `/kshana-trust-telemetry`, skill `trust-telemetry` | Render Trust Telemetry (a stored result) | `vessel-trust-and-training` | Tools: Telemetry card (Command line tab; formats only, no sockets) |
+ | Machine and sensor inputs (0.38): `receiver-trust` formats `rtklib-pos`, `novatel`, `gnss-sdr`, and `[log.imu]` (`csv`, `euroc`, `ros2-csv`) | `receiver-trust` (scenario `[log] format`) | `receiver_trust::machines` | `receiver_trust`, `assess_receiver_log` (inline) | `receiver_trust` (inline) | `assess_receiver_log` (inline text/base64; a `path` is refused) | `/kshana-assess-receiver` | Assess Receiver Trust | `vessel-trust-and-training` | **N/A** (Studio's Trust page reads the formats it lists; new formats follow with its next port) |
+ | IMU log to hybrid/fusion sensor parameters (`[accel_classical]` table from a stationary log, Allan fit) | `imu-fit` | `surface::imu_fit`, `receiver_trust::machines::imu_fit` | `imu_fit` | `imu_fit` | `fit_imu_log` | `/kshana-fit-imu` | **N/A** (no IDE action yet) | **N/A** | **N/A** (Studio's scenario editor takes the pasted table) |
+-| Flight-dynamics export (0.41, C7): a JPL Horizons state table written as a CCSDS OEM, a CCSDS OPM or an SPK kernel (type 13 or 9), then read back state for state (docs/FLIGHT-DYNAMICS-EXPORT.md) | `ephem-export` | `ephem_export`, `surface::ephem_export` | `ephem_export` | `ephem_export` | `ephem_export` | same | **N/A** (no IDE action; the command line covers it) | **pending** (the C7 notebooks) | **N/A** (no Studio card; the browser has the WASM function) |
++| Flight-dynamics export (0.41, C7): a JPL Horizons state table written as a CCSDS OEM, a CCSDS OPM or an SPK kernel (type 13 or 9), then read back state for state (docs/FLIGHT-DYNAMICS-EXPORT.md) | `ephem-export` | `ephem_export`, `surface::ephem_export` | `ephem_export` | `ephem_export` | `ephem_export` | same | **N/A** (no IDE action; the command line covers it) | `integrations/flight-dynamics/`: `orekit.ipynb` (Orekit reads the OEM and OPM back), `basilisk.ipynb` (Basilisk's SPICE reads the SPK back) | **N/A** (no Studio card; the browser has the WASM function) |
+ | ROS 2 node, GNSS-SDR UDP relay, `trust-telemetry --mqtt-tcp` (`integrations/ros2`, `integrations/gnss-sdr`) | processes | **N/A** | **N/A** | **N/A** | **N/A** | **N/A** | **N/A** | **N/A** | **N/A** (long-running processes and sockets; text forms: `trust_telemetry` with `mqtt`) |
+ | Galileo OSNMA verification of I/NAV pages or a UBX stream (`docs/OSNMA.md`) | `osnma verify` | `osnma::cli::verify_report`, `surface::osnma_verify` | `osnma_verify` | `osnma_verify` | **N/A** (a long raw receiver stream suits the CLI and Python; an agent tool would add a large-input surface for no benefit) | **N/A** (plugin commands run over the MCP server, which has no OSNMA tool for the reason in the MCP cell; run `kshana osnma verify`) | **N/A** (the result means nothing without a trusted Merkle root or public key obtained from the ICD by another route and, for freshness, an independent reference time; a right-click action has nowhere to take them, and an unpinned default would read as verification; run `kshana osnma verify`) | **N/A** (a stream in, a JSON report out; no notebook) | Tools: OSNMA |
+ | Training NMEA with an instructor log | `nmea-scenario` | `nmea_synth::generate_from_toml` | `nmea_training` | `nmea_training` | `generate_training_nmea` | `/kshana-training-scenario`, skill `training-nmea-scenario` | Generate Training NMEA | `vessel-trust-and-training` | Training debrief page |
+diff --git a/integrations/flight-dynamics/README.md b/integrations/flight-dynamics/README.md
+new file mode 100644
+index 000000000..c2eadc877
+--- /dev/null
++++ b/integrations/flight-dynamics/README.md
+@@ -0,0 +1,72 @@
++<!-- SPDX-License-Identifier: AGPL-3.0-only -->
++# Flight-dynamics tools: Kshana's trajectories read back by the tools themselves
++
++Roadmap item C7. Kshana writes a trajectory as a CCSDS OEM, a CCSDS OPM or a SPICE SPK kernel
++(`kshana ephem-export`, [docs/FLIGHT-DYNAMICS-EXPORT.md](../../docs/FLIGHT-DYNAMICS-EXPORT.md)). For each tool,
++an adapter here loads those files into the tool, and a notebook compares every state the tool reads
++back with the state written. The test is
++[pre-registered](../../docs/design/evidence/c7-flight-dynamics-adapters/PREREGISTRATION.md) with no
++bar: the data either comes through or it does not.
++
++| Tool | Adapter | Notebook | Reads | CI |
++|---|---|---|---|---|
++| Orekit 13.1.9 (orekit_jpype 13.1.9.0) | [`orekit_reader.py`](orekit_reader.py) | [`orekit.ipynb`](orekit.ipynb) ([`.md`](orekit.md)) | OEM, OPM | `flight-dynamics.yml`, job `tool (orekit)` |
++| Basilisk 2.12.2 (`bsk`), through the SPICE Toolkit it ships (`pyswice`) | [`basilisk_reader.py`](basilisk_reader.py) | [`basilisk.ipynb`](basilisk.ipynb) ([`.md`](basilisk.md)) | SPK | `flight-dynamics.yml`, job `tool (basilisk)` |
++| GMAT | to come | | OEM, SPK | |
++| A fourth open tool, file-based | to come | | | |
++
++[`kshana_fd.py`](kshana_fd.py) holds what every tool shares: writing the three files through the
++Python binding (their SHA-256 must be the pinned ones, and the command line's bytes when
++`KSHANA_FD_CLI_DIR` names its output), reading back what was written, and the difference report.
++
++## The difference report
++
++For every file a tool reads, value by value:
++
++- **Values with the written bits.** For a tool that holds the file's units (km, km/s).
++- **Values equal to the tool's own conversion.** A tool that holds other units must hold exactly its
++  own conversion of the written double. Orekit holds metres, so each value must be the written
++  kilometre value times 1000.0.
++- **Epochs equal.** Each epoch the tool holds equals the written TDB label.
++- **Worst error in half-units of the last digit written,** and in ulps from the correctly rounded
++  value. Above 1 half-unit, the report names the tool as one that rounds further than the digits
++  written.
++
++A file is **carried** when every value is the written double, or the tool's own conversion of it,
++and every epoch is the written one.
++
++## Results
++
++Orekit, run locally with orekit-data at commit `2d6edc91`:
++
++| File | States | Values equal to Orekit's conversion | Epochs equal | Worst, half-units of the last digit written | Worst, ulps from the correctly rounded value |
++|---|---|---|---|---|---|
++| OEM | 4,321 | 25,926 of 25,926 | 4,321 of 4,321 | 2.83 | 1 |
++| OPM | 1 | 6 of 6 | 1 of 1 | 1.56 | 1 |
++
++Orekit carries both files. It rounds further than the digits written: it parses each kilometre
++value to the written double, then multiplies by 1000 into metres, which is a second rounding of at
++most one ulp. 6,727 of the 25,926 metre values are one ulp from the correctly rounded metre value
++for that reason.
++
++Basilisk, run locally:
++
++| File | States | Values with the written bits | Epochs equal | Evaluated at the nodes (`spkezr_c`) |
++|---|---|---|---|---|
++| SPK, type 13 | 4,321 | 25,926 of 25,926 | 4,321 of 4,321 | within 1.5e-11 km and 5e-15 km/s of the stored state |
++
++Basilisk's SPICE reads the segment as written: target -1176, centre 301, frame 1 (J2000), type 13.
++Every stored record and epoch has the written bits.
++
++## Run
++
++```sh
++pip install kshana -r integrations/flight-dynamics/requirements-orekit.txt   # Java 17 or later
++python integrations/flight-dynamics/run_notebooks.py orekit
++pip install -r integrations/flight-dynamics/requirements-basilisk.txt
++python integrations/flight-dynamics/run_notebooks.py basilisk
++```
++
++`OREKIT_DATA` names an orekit-data directory or zip. Without it, the adapter fetches orekit-data at
++the pinned commit once, into `~/.cache/kshana-fd`. `KSHANA_FD_OUT` names the directory for the
++written files and the report.
+diff --git a/integrations/flight-dynamics/basilisk.ipynb b/integrations/flight-dynamics/basilisk.ipynb
+new file mode 100644
+index 000000000..308e8658b
+--- /dev/null
++++ b/integrations/flight-dynamics/basilisk.ipynb
+@@ -0,0 +1,149 @@
++{
++ "cells": [
++  {
++   "cell_type": "markdown",
++   "id": "32df2bc0",
++   "metadata": {},
++   "source": [
++    "<!-- SPDX-License-Identifier: AGPL-3.0-only -->\n",
++    "<!--\n",
++    "This Markdown file is the diff-reviewable mirror of integrations/flight-dynamics/basilisk.ipynb.\n",
++    "Regenerate the notebook with jupytext:\n",
++    "\n",
++    "  jupytext --to notebook integrations/flight-dynamics/basilisk.md\n",
++    "\n",
++    "Needs requirements-basilisk.txt; reads nothing from the network.\n",
++    ".github/workflows/flight-dynamics.yml runs it top to bottom.\n",
++    "-->\n",
++    "\n",
++    "# Kshana to Basilisk: an SPK kernel read back record for record\n",
++    "\n",
++    "Kshana writes the CAPSTONE states of the mission thread (JPL Horizons, Moon-centred, ICRF, TDB,\n",
++    "4,321 states every 10 minutes in March 2023) as an SPK kernel of type 13. Basilisk reads kernels\n",
++    "through the SPICE Toolkit it builds and ships; here Basilisk's `pyswice` loads the kernel, reads its\n",
++    "stored records and epochs, and evaluates it at each node. This is the Basilisk part of roadmap item\n",
++    "C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`); it says nothing about whether Kshana's and Basilisk's\n",
++    "propagation agree."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "64cac042",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "import os, sys, tempfile\n",
++    "from pathlib import Path\n",
++    "\n",
++    "# The adapters sit next to this notebook (integrations/flight-dynamics/ in a clone).\n",
++    "here = Path.cwd()\n",
++    "FD = next(d for p in [here, *here.parents] for d in [p, p / \"integrations\" / \"flight-dynamics\"]\n",
++    "          if (d / \"kshana_fd.py\").exists())\n",
++    "sys.path.insert(0, str(FD))\n",
++    "import kshana_fd as fd\n",
++    "import basilisk_reader as bsk\n",
++    "\n",
++    "OUT = Path(os.environ.get(\"KSHANA_FD_OUT\", tempfile.mkdtemp(prefix=\"kshana-fd-\")))\n",
++    "files = fd.write_files(OUT / \"files\")\n",
++    "written = fd.written_states(files[\"oem\"])  # the same states, as text, for the comparison\n",
++    "print(\"bsk\", bsk.version(), files[\"spk\"])"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "81b20908",
++   "metadata": {},
++   "source": [
++    "Basilisk's SPICE reads the kernel: the segment summary, the 4,321 stored states and epochs, and the\n",
++    "state `spkezr_c` evaluates at each node epoch."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "46ef832e",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "summary, records, epochs, evaluated = bsk.read_spk(files[\"spk\"], len(written.epochs))\n",
++    "print(summary)\n",
++    "assert (summary[\"target\"], summary[\"centre\"], summary[\"frame\"], summary[\"type\"]) == (-1176, 301, 1, 13)"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "abcf2aaf",
++   "metadata": {},
++   "source": [
++    "The stored records must be the written doubles, bit for bit, and the stored epochs the TDB seconds\n",
++    "past J2000 of the written labels."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "8e750190",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "want_epochs = [fd.et_of_label(e) for e in written.epochs]\n",
++    "spk = fd.records_compare(\"Basilisk\", written, records, epochs, want_epochs, how=\"pyswice dafgda_c\")\n",
++    "spk.row()"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "6178c414",
++   "metadata": {},
++   "source": [
++    "At a node, the Hermite interpolation returns the stored state up to the rounding of its own\n",
++    "arithmetic:"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "cc00cec3",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "dp = max(max(abs(a - b) for a, b in zip(e[:3], w[:3])) for e, w in zip(evaluated, written.values))\n",
++    "dv = max(max(abs(a - b) for a, b in zip(e[3:], w[3:])) for e, w in zip(evaluated, written.values))\n",
++    "spk.notes.append(f\"spkezr_c at the nodes: within {dp:.2g} km and {dv:.2g} km/s of the stored state\")\n",
++    "print(spk.notes[-1])\n",
++    "assert dp < 1e-9 and dv < 1e-12"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "91705025",
++   "metadata": {},
++   "source": [
++    "## The difference report"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "e5818ffa",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "md = fd.report([spk], OUT)\n",
++    "print(md)\n",
++    "assert spk.carried and not spk.rounds_further, md\n",
++    "assert spk.same_bits == spk.values == 6 * 4321"
++   ]
++  }
++ ],
++ "metadata": {
++  "jupytext": {
++   "cell_metadata_filter": "-all",
++   "main_language": "python",
++   "notebook_metadata_filter": "-all"
++  }
++ },
++ "nbformat": 4,
++ "nbformat_minor": 5
++}
+diff --git a/integrations/flight-dynamics/basilisk.md b/integrations/flight-dynamics/basilisk.md
+new file mode 100644
+index 000000000..f2a6701e2
+--- /dev/null
++++ b/integrations/flight-dynamics/basilisk.md
+@@ -0,0 +1,75 @@
++<!-- SPDX-License-Identifier: AGPL-3.0-only -->
++<!--
++This Markdown file is the diff-reviewable mirror of integrations/flight-dynamics/basilisk.ipynb.
++Regenerate the notebook with jupytext:
++
++  jupytext --to notebook integrations/flight-dynamics/basilisk.md
++
++Needs requirements-basilisk.txt; reads nothing from the network.
++.github/workflows/flight-dynamics.yml runs it top to bottom.
++-->
++
++# Kshana to Basilisk: an SPK kernel read back record for record
++
++Kshana writes the CAPSTONE states of the mission thread (JPL Horizons, Moon-centred, ICRF, TDB,
++4,321 states every 10 minutes in March 2023) as an SPK kernel of type 13. Basilisk reads kernels
++through the SPICE Toolkit it builds and ships; here Basilisk's `pyswice` loads the kernel, reads its
++stored records and epochs, and evaluates it at each node. This is the Basilisk part of roadmap item
++C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`); it says nothing about whether Kshana's and Basilisk's
++propagation agree.
++
++```python
++import os, sys, tempfile
++from pathlib import Path
++
++# The adapters sit next to this notebook (integrations/flight-dynamics/ in a clone).
++here = Path.cwd()
++FD = next(d for p in [here, *here.parents] for d in [p, p / "integrations" / "flight-dynamics"]
++          if (d / "kshana_fd.py").exists())
++sys.path.insert(0, str(FD))
++import kshana_fd as fd
++import basilisk_reader as bsk
++
++OUT = Path(os.environ.get("KSHANA_FD_OUT", tempfile.mkdtemp(prefix="kshana-fd-")))
++files = fd.write_files(OUT / "files")
++written = fd.written_states(files["oem"])  # the same states, as text, for the comparison
++print("bsk", bsk.version(), files["spk"])
++```
++
++Basilisk's SPICE reads the kernel: the segment summary, the 4,321 stored states and epochs, and the
++state `spkezr_c` evaluates at each node epoch.
++
++```python
++summary, records, epochs, evaluated = bsk.read_spk(files["spk"], len(written.epochs))
++print(summary)
++assert (summary["target"], summary["centre"], summary["frame"], summary["type"]) == (-1176, 301, 1, 13)
++```
++
++The stored records must be the written doubles, bit for bit, and the stored epochs the TDB seconds
++past J2000 of the written labels.
++
++```python
++want_epochs = [fd.et_of_label(e) for e in written.epochs]
++spk = fd.records_compare("Basilisk", written, records, epochs, want_epochs, how="pyswice dafgda_c")
++spk.row()
++```
++
++At a node, the Hermite interpolation returns the stored state up to the rounding of its own
++arithmetic:
++
++```python
++dp = max(max(abs(a - b) for a, b in zip(e[:3], w[:3])) for e, w in zip(evaluated, written.values))
++dv = max(max(abs(a - b) for a, b in zip(e[3:], w[3:])) for e, w in zip(evaluated, written.values))
++spk.notes.append(f"spkezr_c at the nodes: within {dp:.2g} km and {dv:.2g} km/s of the stored state")
++print(spk.notes[-1])
++assert dp < 1e-9 and dv < 1e-12
++```
++
++## The difference report
++
++```python
++md = fd.report([spk], OUT)
++print(md)
++assert spk.carried and not spk.rounds_further, md
++assert spk.same_bits == spk.values == 6 * 4321
++```
+diff --git a/integrations/flight-dynamics/basilisk_reader.py b/integrations/flight-dynamics/basilisk_reader.py
+new file mode 100644
+index 000000000..803dcfeed
+--- /dev/null
++++ b/integrations/flight-dynamics/basilisk_reader.py
+@@ -0,0 +1,73 @@
++# SPDX-License-Identifier: AGPL-3.0-only
++"""Basilisk adapter for the flight-dynamics reference integration (roadmap C7).
++
++Basilisk reads trajectories through SPICE: its `spiceInterface` simulation module loads SPK kernels
++with the SPICE Toolkit that Basilisk builds and ships, and `pyswice` is Basilisk's Python wrapper of
++that same toolkit. This adapter loads a Kshana SPK with Basilisk's `pyswice` and returns:
++
++- the segment's summary (target, centre, frame, type, addresses) as SPICE reads it;
++- the stored records (x, y, z in km, vx, vy, vz in km/s) and epochs (TDB seconds past J2000), read
++  with `dafgda_c`, to be compared bit for bit with what was written;
++- the state `spkezr_c` returns at each node epoch, Basilisk's SPICE evaluating the kernel.
++
++Basilisk does not read OEM or OPM files.
++"""
++from __future__ import annotations
++
++import os
++
++
++def version() -> str:
++    """The Basilisk (bsk) release."""
++    from importlib.metadata import version as v
++
++    return v("bsk")
++
++
++def read_spk(path: str | os.PathLike, n: int):
++    """Read the first segment of an SPK with Basilisk's SPICE. Returns (summary, records, epochs,
++    evaluated states at the epochs)."""
++    from Basilisk.topLevelModules import pyswice as ps
++
++    path = str(path)
++    ps.furnsh_c(path)
++    try:
++        h = ps.new_spiceIntArray(1)
++        ps.dafopr_c(path, h)
++        handle = ps.spiceIntArray_getitem(h, 0)
++        ps.dafbfs_c(handle)
++        found = ps.new_spiceBoolArray(1)
++        ps.daffna_c(found)
++        summ = ps.new_doubleArray(5)
++        ps.dafgs_c(summ)
++        dc = ps.new_doubleArray(2)
++        ic = ps.new_spiceIntArray(6)
++        ps.dafus_c(summ, 2, 6, dc, ic)
++        ics = [ps.spiceIntArray_getitem(ic, i) for i in range(6)]
++        summary = {
++            "start_et": ps.doubleArray_getitem(dc, 0),
++            "end_et": ps.doubleArray_getitem(dc, 1),
++            "target": ics[0],
++            "centre": ics[1],
++            "frame": ics[2],
++            "type": ics[3],
++            "first_address": ics[4],
++            "last_address": ics[5],
++        }
++        # Types 9 and 13 store the N states, then the N epochs.
++        first = ics[4]
++        data = ps.new_doubleArray(7 * n)
++        ps.dafgda_c(handle, first, first + 7 * n - 1, data)
++        words = [ps.doubleArray_getitem(data, i) for i in range(7 * n)]
++        ps.dafcls_c(handle)
++        records = [words[6 * i: 6 * i + 6] for i in range(n)]
++        epochs = words[6 * n: 7 * n]
++        st = ps.new_doubleArray(6)
++        lt = ps.new_doubleArray(1)
++        evaluated = []
++        for et in epochs:
++            ps.spkezr_c(str(summary["target"]), et, "J2000", "NONE", str(summary["centre"]), st, lt)
++            evaluated.append([ps.doubleArray_getitem(st, j) for j in range(6)])
++        return summary, records, epochs, evaluated
++    finally:
++        ps.unload_c(path)
+diff --git a/integrations/flight-dynamics/kshana_fd.py b/integrations/flight-dynamics/kshana_fd.py
+new file mode 100644
+index 000000000..03962179f
+--- /dev/null
++++ b/integrations/flight-dynamics/kshana_fd.py
+@@ -0,0 +1,225 @@
++# SPDX-License-Identifier: AGPL-3.0-only
++"""The flight-dynamics reference integration (roadmap C7): Kshana writes a trajectory as OEM, OPM
++and SPK, a tool reads the files back, and this module compares what the tool read with what was
++written.
++
++The comparison follows docs/design/evidence/c7-flight-dynamics-adapters/PREREGISTRATION.md: every
++state the tool reads back must equal the state written to the precision the format carries. For a
++text format that is the digits written. Kshana writes each double in shortest round-trip form, so a
++reader that parses the text as an IEEE double gets the written bits back; a tool that then converts
++units (Orekit holds metres, the OEM carries kilometres) is checked against its own conversion of the
++written value, and the report names it as a tool that rounds further than the digits written. For
++SPK the stored records must be the same bits.
++
++Used by the notebooks next to this file; nothing here needs a tool installed.
++"""
++from __future__ import annotations
++
++import base64
++import json
++import math
++import os
++from dataclasses import dataclass, field
++from decimal import Decimal, getcontext
++from pathlib import Path
++
++getcontext().prec = 60
++
++HERE = Path(__file__).resolve().parent
++REPO = HERE.parents[1]
++CAPSTONE = REPO / "tests" / "fixtures" / "capstone_horizons" / "capstone_2023-03_moon_icrf.txt"
++PINNED = REPO / "tests" / "fixtures" / "capstone_horizons" / "ephem_export.sha256"
++FORMATS = ("oem", "opm", "spk")
++SUFFIX = {"oem": "oem", "opm": "opm", "spk": "bsp"}
++
++
++def write_files(out_dir: str | os.PathLike, table: Path = CAPSTONE) -> dict[str, Path]:
++    """Write the table as OEM, OPM and SPK through the Python binding (`kshana.ephem_export`) and
++    return the paths. Each file's SHA-256 must be the one the command line, Python and MCP are held
++    to (tests/fixtures/capstone_horizons/ephem_export.sha256) when the table is the CAPSTONE one.
++    When KSHANA_FD_CLI_DIR names a directory the command line wrote the same files into, each file
++    must be byte for byte the command line's."""
++    import hashlib
++
++    import kshana
++
++    out = Path(out_dir)
++    out.mkdir(parents=True, exist_ok=True)
++    pinned = dict(reversed(line.split()) for line in PINNED.read_text().splitlines())
++    cli_dir = os.environ.get("KSHANA_FD_CLI_DIR")
++    paths = {}
++    text = Path(table).read_text()
++    for fmt in FORMATS:
++        rep = json.loads(kshana.ephem_export(text, fmt))
++        raw = base64.b64decode(rep["content"]) if rep["encoding"] == "base64" else rep["content"].encode()
++        rb = rep["read_back"]
++        assert rb["identical"] == rb["states"] and rb["epoch_mismatches"] == 0, (fmt, rb)
++        if Path(table) == CAPSTONE:
++            assert hashlib.sha256(raw).hexdigest() == pinned[fmt], f"{fmt}: not the pinned bytes"
++        p = out / f"{Path(table).stem}.{SUFFIX[fmt]}"
++        p.write_bytes(raw)
++        if cli_dir:
++            cli = Path(cli_dir) / p.name
++            assert cli.read_bytes() == raw, f"{fmt}: the command line wrote other bytes ({cli})"
++        paths[fmt] = p
++    return paths
++
++
++@dataclass
++class Written:
++    """The states as written: the calendar epoch label (TDB) and the six values as text."""
++
++    epochs: list[str]
++    text: list[list[str]]
++
++    @property
++    def values(self) -> list[list[float]]:
++        return [[float(t) for t in row] for row in self.text]
++
++
++def written_states(path: str | os.PathLike) -> Written:
++    """The epochs and values as written in a Kshana OEM (every data line) or OPM (the state)."""
++    text = Path(path).read_text()
++    if "CCSDS_OPM_VERS" in text:
++        kv = {}
++        for line in text.splitlines():
++            if "=" in line:
++                k, v = line.split("=", 1)
++                kv[k.strip()] = v.strip()
++        keys = ["X", "Y", "Z", "X_DOT", "Y_DOT", "Z_DOT"]
++        return Written([kv["EPOCH"]], [[kv[k] for k in keys]])
++    body = text.split("META_STOP", 1)[1]
++    epochs, rows = [], []
++    for line in body.splitlines():
++        f = line.split()
++        if len(f) == 7:
++            epochs.append(f[0])
++            rows.append(f[1:])
++    return Written(epochs, rows)
++
++
++def half_unit(t: str) -> Decimal:
++    """Half a unit in the last digit written."""
++    return Decimal(1).scaleb(Decimal(t).as_tuple().exponent) / 2
++
++
++@dataclass
++class Comparison:
++    """One tool's reading of one file, compared value by value with what was written."""
++
++    tool: str
++    fmt: str
++    how: str
++    states: int = 0
++    values: int = 0
++    same_bits: int | None = 0
++    tool_conversion_exact: int = 0
++    correctly_rounded: int = 0
++    worst_half_units: float = 0.0
++    worst_ulps: float = 0.0
++    epochs_equal: int = 0
++    notes: list[str] = field(default_factory=list)
++
++    @property
++    def carried(self) -> bool:
++        """Every value is the written double, or the tool's own conversion of it, and every epoch
++        is the written one."""
++        return (
++            self.states > 0
++            and self.tool_conversion_exact == self.values
++            and self.epochs_equal == self.states
++        )
++
++    @property
++    def within_digits(self) -> bool:
++        """Every value is the written double, or within half a unit of the last digit written."""
++        return self.states > 0 and (self.same_bits == self.values or self.worst_half_units <= 1.0)
++
++    @property
++    def rounds_further(self) -> bool:
++        """The tool's own representation moves a value past the digits written."""
++        return not self.within_digits
++
++    def row(self) -> dict:
++        d = {k: v for k, v in self.__dict__.items() if k != "notes"}
++        d.update(carried=self.carried, within_digits=self.within_digits,
++                 rounds_further=self.rounds_further, notes=self.notes)
++        return d
++
++
++def compare(tool: str, fmt: str, written: Written, read: list[list[float]], epochs_equal: list[bool],
++            scale: float = 1.0, how: str = "") -> Comparison:
++    """Compare a tool's values (`read`, in the tool's units: the written value times `scale`) and
++    its epoch checks with what was written."""
++    c = Comparison(tool, fmt, how)
++    if len(read) != len(written.text):
++        c.notes.append(f"{len(read)} states read, {len(written.text)} written")
++        return c
++    for row_t, row_r in zip(written.text, read):
++        c.states += 1
++        for t, r in zip(row_t, row_r):
++            c.values += 1
++            w = float(t)
++            if scale == 1.0:
++                c.same_bits += r == w
++            c.tool_conversion_exact += r == w * scale
++            exact = Decimal(t) * Decimal(repr(scale))
++            c.correctly_rounded += r == float(exact)
++            err = abs(Decimal(r) - exact)
++            c.worst_half_units = max(c.worst_half_units, float(err / (half_unit(t) * Decimal(repr(scale)))))
++            cr = float(exact)  # the correctly rounded double of the written value in tool units
++            c.worst_ulps = max(c.worst_ulps, abs(r - cr) / math.ulp(cr))
++    if scale != 1.0:
++        c.same_bits = None  # the tool holds other units; its conversion is checked instead
++    c.epochs_equal = sum(1 for e in epochs_equal if e)
++    return c
++
++
++def records_compare(tool: str, written: Written, records: list[list[float]], epochs: list[float],
++                    want_epochs: list[float], how: str = "") -> Comparison:
++    """An SPK's stored records (km, km/s) and epochs (TDB seconds past J2000) as a tool reads them,
++    compared bit for bit with the written states."""
++    c = compare(tool, "spk", written, records, [a == b for a, b in zip(epochs, want_epochs)], how=how)
++    return c
++
++
++def et_of_label(label: str) -> float:
++    """TDB seconds past J2000 of a TDB calendar label `YYYY-MM-DDTHH:MM:SS[.f]`, computed exactly."""
++    import datetime as dt
++
++    date, time = label.split("T")
++    y, m, d = (int(x) for x in date.split("-"))
++    hh, mm, ss = time.split(":")
++    days = (dt.date(y, m, d) - dt.date(2000, 1, 1)).days
++    whole = days * 86400 + int(hh) * 3600 + int(mm) * 60 - 43200
++    return float(whole) + float(ss)
++
++
++def report(comparisons: list[Comparison], out_dir: str | os.PathLike | None = None) -> str:
++    """The difference report as Markdown (and JSON beside it when `out_dir` is given)."""
++    lines = [
++        "| Tool | File | Read with | States | Values with the written bits | Values equal to the tool's own conversion | Epochs equal | Worst, half-units of the last digit written | Worst, ulps from the correctly rounded value | Result |",
++        "|---|---|---|---|---|---|---|---|---|---|",
++    ]
++    for c in comparisons:
++        bits = "n/a (other units)" if c.same_bits is None else f"{c.same_bits} of {c.values}"
++        if not c.carried:
++            result = "FAIL: " + ("; ".join(c.notes) or "a value or an epoch differs")
++        elif c.rounds_further:
++            result = "carried; the tool rounds further than the digits written"
++        else:
++            result = "carried, to the digits written"
++        lines.append(
++            f"| {c.tool} | {c.fmt} | {c.how} | {c.states} | {bits} | "
++            f"{c.tool_conversion_exact} of {c.values} | {c.epochs_equal} of {c.states} | "
++            f"{c.worst_half_units:.3g} | {c.worst_ulps:.3g} | {result} |"
++        )
++    md = "\n".join(lines) + "\n"
++    if out_dir:
++        out = Path(out_dir)
++        out.mkdir(parents=True, exist_ok=True)
++        tools = sorted({c.tool for c in comparisons})
++        stem = "difference-report-" + "-".join(t.lower() for t in tools)
++        (out / f"{stem}.md").write_text(md)
++        (out / f"{stem}.json").write_text(json.dumps([c.row() for c in comparisons], indent=1) + "\n")
++    return md
+diff --git a/integrations/flight-dynamics/orekit.ipynb b/integrations/flight-dynamics/orekit.ipynb
+new file mode 100644
+index 000000000..0b2f69f81
+--- /dev/null
++++ b/integrations/flight-dynamics/orekit.ipynb
+@@ -0,0 +1,151 @@
++{
++ "cells": [
++  {
++   "cell_type": "markdown",
++   "id": "3f755fc0",
++   "metadata": {},
++   "source": [
++    "<!-- SPDX-License-Identifier: AGPL-3.0-only -->\n",
++    "<!--\n",
++    "This Markdown file is the diff-reviewable mirror of integrations/flight-dynamics/orekit.ipynb.\n",
++    "Regenerate the notebook with jupytext:\n",
++    "\n",
++    "  jupytext --to notebook integrations/flight-dynamics/orekit.md\n",
++    "\n",
++    "Needs Java 17 or later and requirements-orekit.txt; fetches orekit-data at a pinned commit once.\n",
++    ".github/workflows/flight-dynamics.yml runs it top to bottom.\n",
++    "-->\n",
++    "\n",
++    "# Kshana to Orekit: a trajectory read back state for state\n",
++    "\n",
++    "Kshana writes the CAPSTONE states of the mission thread (JPL Horizons, Moon-centred, ICRF, TDB,\n",
++    "4,321 states every 10 minutes in March 2023) as a CCSDS OEM and OPM. Orekit reads them with its own\n",
++    "CCSDS parsers, and every state Orekit holds is compared with the state written. This is the Orekit\n",
++    "part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`); it says nothing about whether Kshana's\n",
++    "and Orekit's propagation agree."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "5133958f",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "import json, os, sys, tempfile\n",
++    "from pathlib import Path\n",
++    "\n",
++    "# The adapters sit next to this notebook (integrations/flight-dynamics/ in a clone).\n",
++    "here = Path.cwd()\n",
++    "FD = next(d for p in [here, *here.parents] for d in [p, p / \"integrations\" / \"flight-dynamics\"]\n",
++    "          if (d / \"kshana_fd.py\").exists())\n",
++    "sys.path.insert(0, str(FD))\n",
++    "import kshana_fd as fd\n",
++    "import orekit_reader as ok\n",
++    "\n",
++    "OUT = Path(os.environ.get(\"KSHANA_FD_OUT\", tempfile.mkdtemp(prefix=\"kshana-fd-\")))\n",
++    "files = fd.write_files(OUT / \"files\")\n",
++    "{k: str(v) for k, v in files.items()}"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "ed23ab07",
++   "metadata": {},
++   "source": [
++    "The OEM as written: the header from the Horizons table, then one line per state with every value\n",
++    "in shortest round-trip form."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "574090d7",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "print(\"\".join(Path(files[\"oem\"]).read_text().splitlines(keepends=True)[:16]))"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "59c6a209",
++   "metadata": {},
++   "source": [
++    "Orekit reads the OEM. It holds metres and metres per second, so each value it holds is the written\n",
++    "kilometre value times 1000."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "5e5b9d74",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "written = fd.written_states(files[\"oem\"])\n",
++    "states, epochs_ok, meta = ok.read_oem(files[\"oem\"], written.epochs)\n",
++    "print(\"orekit_jpype\", ok.version(), meta)\n",
++    "oem = fd.compare(\"Orekit\", \"oem\", written, states, epochs_ok, scale=1000.0, how=\"OemParser\")\n",
++    "oem.row()"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "2e5084f7",
++   "metadata": {},
++   "source": [
++    "And the OPM, one state:"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "9b499c48",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "written_opm = fd.written_states(files[\"opm\"])\n",
++    "state, epoch_ok = ok.read_opm(files[\"opm\"], written_opm.epochs)\n",
++    "opm = fd.compare(\"Orekit\", \"opm\", written_opm, state, epoch_ok, scale=1000.0, how=\"OpmParser\")\n",
++    "opm.row()"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "2d6fb977",
++   "metadata": {},
++   "source": [
++    "## The difference report\n",
++    "\n",
++    "`carried` means every value Orekit holds is its own conversion of the written double and every\n",
++    "epoch is the written one. The report also says whether Orekit rounds further than the digits\n",
++    "written: converting kilometres to metres is a second rounding, at most one unit in the last place\n",
++    "of the metre value."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "2c23c613",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "md = fd.report([oem, opm], OUT)\n",
++    "print(md)\n",
++    "assert oem.carried and opm.carried, md\n",
++    "assert oem.states == 4321 and oem.epochs_equal == 4321\n",
++    "assert oem.worst_ulps <= 1.0 and opm.worst_ulps <= 1.0, \"Orekit's conversion moved a value more than one ulp\""
++   ]
++  }
++ ],
++ "metadata": {
++  "jupytext": {
++   "cell_metadata_filter": "-all",
++   "main_language": "python",
++   "notebook_metadata_filter": "-all"
++  }
++ },
++ "nbformat": 4,
++ "nbformat_minor": 5
++}
+diff --git a/integrations/flight-dynamics/orekit.md b/integrations/flight-dynamics/orekit.md
+new file mode 100644
+index 000000000..35e4b0984
+--- /dev/null
++++ b/integrations/flight-dynamics/orekit.md
+@@ -0,0 +1,77 @@
++<!-- SPDX-License-Identifier: AGPL-3.0-only -->
++<!--
++This Markdown file is the diff-reviewable mirror of integrations/flight-dynamics/orekit.ipynb.
++Regenerate the notebook with jupytext:
++
++  jupytext --to notebook integrations/flight-dynamics/orekit.md
++
++Needs Java 17 or later and requirements-orekit.txt; fetches orekit-data at a pinned commit once.
++.github/workflows/flight-dynamics.yml runs it top to bottom.
++-->
++
++# Kshana to Orekit: a trajectory read back state for state
++
++Kshana writes the CAPSTONE states of the mission thread (JPL Horizons, Moon-centred, ICRF, TDB,
++4,321 states every 10 minutes in March 2023) as a CCSDS OEM and OPM. Orekit reads them with its own
++CCSDS parsers, and every state Orekit holds is compared with the state written. This is the Orekit
++part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`); it says nothing about whether Kshana's
++and Orekit's propagation agree.
++
++```python
++import json, os, sys, tempfile
++from pathlib import Path
++
++# The adapters sit next to this notebook (integrations/flight-dynamics/ in a clone).
++here = Path.cwd()
++FD = next(d for p in [here, *here.parents] for d in [p, p / "integrations" / "flight-dynamics"]
++          if (d / "kshana_fd.py").exists())
++sys.path.insert(0, str(FD))
++import kshana_fd as fd
++import orekit_reader as ok
++
++OUT = Path(os.environ.get("KSHANA_FD_OUT", tempfile.mkdtemp(prefix="kshana-fd-")))
++files = fd.write_files(OUT / "files")
++{k: str(v) for k, v in files.items()}
++```
++
++The OEM as written: the header from the Horizons table, then one line per state with every value
++in shortest round-trip form.
++
++```python
++print("".join(Path(files["oem"]).read_text().splitlines(keepends=True)[:16]))
++```
++
++Orekit reads the OEM. It holds metres and metres per second, so each value it holds is the written
++kilometre value times 1000.
++
++```python
++written = fd.written_states(files["oem"])
++states, epochs_ok, meta = ok.read_oem(files["oem"], written.epochs)
++print("orekit_jpype", ok.version(), meta)
++oem = fd.compare("Orekit", "oem", written, states, epochs_ok, scale=1000.0, how="OemParser")
++oem.row()
++```
++
++And the OPM, one state:
++
++```python
++written_opm = fd.written_states(files["opm"])
++state, epoch_ok = ok.read_opm(files["opm"], written_opm.epochs)
++opm = fd.compare("Orekit", "opm", written_opm, state, epoch_ok, scale=1000.0, how="OpmParser")
++opm.row()
++```
++
++## The difference report
++
++`carried` means every value Orekit holds is its own conversion of the written double and every
++epoch is the written one. The report also says whether Orekit rounds further than the digits
++written: converting kilometres to metres is a second rounding, at most one unit in the last place
++of the metre value.
++
++```python
++md = fd.report([oem, opm], OUT)
++print(md)
++assert oem.carried and opm.carried, md
++assert oem.states == 4321 and oem.epochs_equal == 4321
++assert oem.worst_ulps <= 1.0 and opm.worst_ulps <= 1.0, "Orekit's conversion moved a value more than one ulp"
++```
+diff --git a/integrations/flight-dynamics/orekit_reader.py b/integrations/flight-dynamics/orekit_reader.py
+new file mode 100644
+index 000000000..7ad695b0a
+--- /dev/null
++++ b/integrations/flight-dynamics/orekit_reader.py
+@@ -0,0 +1,110 @@
++# SPDX-License-Identifier: AGPL-3.0-only
++"""Orekit adapter for the flight-dynamics reference integration (roadmap C7).
++
++Loads a Kshana OEM or OPM into Orekit (through orekit_jpype, the Orekit project's Python wrapper)
++with Orekit's own CCSDS parsers, and returns the states and epochs as Orekit holds them: positions
++in metres, velocities in metres per second, dates as Orekit `AbsoluteDate`s compared with the
++written TDB labels. Orekit does not read SPK kernels; the SPK goes to the SPICE-based tools.
++
++Orekit data (the frames, time scales and planetary ephemerides the parsers need for an ICRF frame
++centred on the Moon) is the orekit-data repository at a pinned commit, fetched once into a cache
++directory, or the directory or zip named by OREKIT_DATA.
++"""
++from __future__ import annotations
++
++import os
++import urllib.request
++from pathlib import Path
++
++#: orekit-data at a fixed commit ("Updated to November 2026"), so a run reads the same data.
++OREKIT_DATA_COMMIT = "2d6edc9118983d95c51303df05db16ada90b7ee2"
++OREKIT_DATA_URL = (
++    "https://gitlab.orekit.org/orekit/orekit-data/-/archive/{c}/orekit-data-{c}.zip"
++)
++
++_vm = None
++
++
++def orekit_data() -> Path:
++    """The orekit-data zip or directory: OREKIT_DATA, or the pinned commit downloaded once into
++    ~/.cache/kshana-fd (or KSHANA_FD_CACHE)."""
++    given = os.environ.get("OREKIT_DATA")
++    if given:
++        return Path(given)
++    cache = Path(os.environ.get("KSHANA_FD_CACHE", Path.home() / ".cache" / "kshana-fd"))
++    cache.mkdir(parents=True, exist_ok=True)
++    z = cache / f"orekit-data-{OREKIT_DATA_COMMIT}.zip"
++    if not z.exists():
++        tmp = z.with_suffix(".part")
++        with urllib.request.urlopen(OREKIT_DATA_URL.format(c=OREKIT_DATA_COMMIT)) as r:
++            tmp.write_bytes(r.read())
++        tmp.rename(z)
++    return z
++
++
++def start() -> None:
++    """Start the JVM and load the Orekit data (once)."""
++    global _vm
++    if _vm is not None:
++        return
++    import orekit_jpype
++
++    _vm = orekit_jpype.initVM()
++    from orekit_jpype.pyhelpers import setup_orekit_data
++
++    data = orekit_data()
++    if data.is_dir():
++        setup_orekit_data(dirs=str(data), from_pip_library=False)
++    else:
++        setup_orekit_data(filenames=str(data), from_pip_library=False)
++
++
++def version() -> str:
++    """The orekit_jpype release, which names the Orekit release it wraps (13.1.9.0: Orekit 13.1.9)."""
++    from importlib.metadata import version as v
++
++    return v("orekit_jpype")
++
++
++def _dates_equal(dates, labels) -> list[bool]:
++    from org.orekit.time import AbsoluteDate, TimeScalesFactory
++
++    tdb = TimeScalesFactory.getTDB()
++    return [d.durationFrom(AbsoluteDate(lab, tdb)) == 0.0 for d, lab in zip(dates, labels)]
++
++
++def read_oem(path: str | os.PathLike, labels: list[str]):
++    """Parse an OEM with Orekit's `OemParser`. Returns (states in m and m/s, epoch checks against
++    `labels`, metadata as Orekit read it)."""
++    start()
++    from org.orekit.data import DataSource
++    from org.orekit.files.ccsds.ndm import ParserBuilder
++
++    oem = ParserBuilder().buildOemParser().parseMessage(DataSource(str(path)))
++    seg = oem.getSegments().get(0)
++    md = seg.getMetadata()
++    states, dates = [], []
++    for line in seg.getData().getEphemeridesDataLines():
++        p, v = line.getPosition(), line.getVelocity()
++        states.append([p.getX(), p.getY(), p.getZ(), v.getX(), v.getY(), v.getZ()])
++        dates.append(line.getDate())
++    meta = {
++        "object": str(md.getObjectName()),
++        "center": str(md.getCenter().getName()),
++        "frame": str(md.getReferenceFrame().getName()),
++        "time_system": str(md.getTimeSystem()),
++    }
++    return states, _dates_equal(dates, labels), meta
++
++
++def read_opm(path: str | os.PathLike, labels: list[str]):
++    """Parse an OPM with Orekit's `OpmParser`. Returns (the state in m and m/s, the epoch check)."""
++    start()
++    from org.orekit.data import DataSource
++    from org.orekit.files.ccsds.ndm import ParserBuilder
++
++    opm = ParserBuilder().buildOpmParser().parseMessage(DataSource(str(path)))
++    pv = opm.getData().getStateVectorBlock().toTimeStampedPVCoordinates()
++    p, v = pv.getPosition(), pv.getVelocity()
++    state = [p.getX(), p.getY(), p.getZ(), v.getX(), v.getY(), v.getZ()]
++    return [state], _dates_equal([pv.getDate()], labels)
+diff --git a/integrations/flight-dynamics/requirements-basilisk.txt b/integrations/flight-dynamics/requirements-basilisk.txt
+new file mode 100644
+index 000000000..af05d734e
+--- /dev/null
++++ b/integrations/flight-dynamics/requirements-basilisk.txt
+@@ -0,0 +1,2 @@
++# The Basilisk adapter (basilisk_reader.py) and its notebook. Exact version.
++bsk==2.12.2
+diff --git a/integrations/flight-dynamics/requirements-orekit.txt b/integrations/flight-dynamics/requirements-orekit.txt
+new file mode 100644
+index 000000000..754df1bc6
+--- /dev/null
++++ b/integrations/flight-dynamics/requirements-orekit.txt
+@@ -0,0 +1,3 @@
++# The Orekit adapter (orekit_reader.py) and its notebook. Exact versions; Java 17 or later on PATH.
++orekit_jpype==13.1.9.0
++jpype1==1.7.1
+diff --git a/integrations/flight-dynamics/run_notebooks.py b/integrations/flight-dynamics/run_notebooks.py
+new file mode 100644
+index 000000000..621483f9e
+--- /dev/null
++++ b/integrations/flight-dynamics/run_notebooks.py
+@@ -0,0 +1,33 @@
++# SPDX-License-Identifier: AGPL-3.0-only
++"""Run the code cells of the flight-dynamics notebooks top to bottom, as CI does.
++
++    python integrations/flight-dynamics/run_notebooks.py orekit [gmat ...]
++
++Each notebook runs in this directory, with KSHANA_FD_OUT (default: a temporary directory) for the
++files it writes and the difference report. A failing assertion fails the run.
++"""
++import json
++import os
++import sys
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++
++
++def run(name: str) -> None:
++    nb = json.loads((HERE / f"{name}.ipynb").read_text())
++    md = (HERE / f"{name}.md").read_text()
++    code = ["".join(c["source"]) for c in nb["cells"] if c["cell_type"] == "code"]
++    for i, src in enumerate(code):
++        assert src.strip() in md, f"{name}.ipynb cell {i} is not in {name}.md: regenerate it with jupytext"
++    os.chdir(HERE)
++    env: dict = {"__name__": "__notebook__"}
++    for i, src in enumerate(code):
++        print(f"--- {name} [cell {i}]", flush=True)
++        exec(compile(src, f"{name}[cell {i}]", "exec"), env)
++
++
++if __name__ == "__main__":
++    for n in sys.argv[1:] or ["orekit"]:
++        run(n)
++    print("notebooks: OK")
+diff --git a/notebooks/README.md b/notebooks/README.md
+index 65ae31cd8..f3498841a 100644
+--- a/notebooks/README.md
++++ b/notebooks/README.md
+@@ -15,6 +15,8 @@ clone.
+ | `geometry.ipynb` | which satellites a site sees under a skyline (a street, a container terminal), their dilution of precision and error ellipse, a dated sky from element sets, a seeded Monte Carlo against the covariance, and the skyplot (MODELLED; REPRESENTATIVE presets) | [`.md`](geometry.md) |
+ | `optical-atmosphere.ipynb` | an optical timing link through clouds and turbulence: per-site availability, site diversity, enhancement techniques and the outage-to-holdover coupling, on the two bundled scenarios (MODELLED; ILLUSTRATIVE sites) | [`.md`](optical-atmosphere.md) |
+ 
++**Flight-dynamics tools.** [`integrations/flight-dynamics/`](../integrations/flight-dynamics/README.md) holds the notebooks in which a flight-dynamics tool (Orekit and Basilisk so far) reads back a trajectory Kshana wrote. They need the tool installed and its data, so they live there and not here.
++
+ **Course.** [`course/`](course/README.md) holds six short teaching notebooks (jamming, spoofing, holdover, integrity, OSNMA, interference map), each with exercises.
+ 
+ The training stream and the trust score are advisory, not type-approved navigation equipment;
+diff --git a/web/smoke.mjs b/web/smoke.mjs
+index f001a422b..5b702e0db 100644
+--- a/web/smoke.mjs
++++ b/web/smoke.mjs
+@@ -2,7 +2,7 @@
+ // Headless smoke test for the WebAssembly bindings: load the wasm-pack (--target
+ // web) module in Node, run a clock scenario, and assert the JSON parses and the
+ // version is non-empty. Run in CI by the `test-wasm-bindings` job after a build.
+-import init, { run, run_typed, scenario_kinds, error_kind, list_kinds, chart_svg, version, nmea_training, receiver_trust_replay, assess_vessel_log, interference_map, route_exposure, bench_export, compliance_report, compliance_mapping, list_examples, get_example, export_formats, export_scenario, import_route, animate_scenario, export_sp3, trust_telemetry, osnma_verify, iq_signals, iq_run_short, referee_location_score, area_trust_timeline, planner, env_baseline } from "./pkg/kshana.js";
++import init, { run, run_typed, scenario_kinds, error_kind, list_kinds, chart_svg, version, nmea_training, receiver_trust_replay, assess_vessel_log, interference_map, route_exposure, bench_export, compliance_report, compliance_mapping, list_examples, get_example, export_formats, export_scenario, import_route, animate_scenario, export_sp3, trust_telemetry, osnma_verify, iq_signals, iq_run_short, referee_location_score, area_trust_timeline, planner, env_baseline, ephem_export } from "./pkg/kshana.js";
+ import { readFile } from "node:fs/promises";
+ import { gunzipSync } from "node:zlib";
+ import { createHash } from "node:crypto";
+@@ -396,3 +396,22 @@ console.log(
+   }
+   console.log("env_baseline: the command line's bytes");
+ }
++
++// C7: the CAPSTONE Horizons table written as OEM, OPM and SPK gives the command line's bytes
++// (tests/fixtures/capstone_horizons/ephem_export.sha256), and every state reads back.
++{
++  const fx = (name) => new URL(`../tests/fixtures/capstone_horizons/${name}`, import.meta.url);
++  const table = await readFile(fx("capstone_2023-03_moon_icrf.txt"), "utf8");
++  const pinned = Object.fromEntries((await readFile(fx("ephem_export.sha256"), "utf8"))
++    .trim().split("\n").map((l) => l.split(/\s+/).reverse()));
++  for (const fmt of ["oem", "opm", "spk"]) {
++    const r = JSON.parse(ephem_export(table, fmt, 0, 13, 7, "", ""));
++    const bytes = r.encoding === "base64" ? Buffer.from(r.content, "base64") : Buffer.from(r.content, "utf8");
++    const sha = createHash("sha256").update(bytes).digest("hex");
++    if (sha !== pinned[fmt] || r.read_back.identical !== r.read_back.states) {
++      console.error(`ephem_export ${fmt}: ${sha} (pinned ${pinned[fmt]}), read back ${JSON.stringify(r.read_back)}`);
++      process.exit(1);
++    }
++  }
++  console.log("ephem_export: the command line's bytes, every state read back");
++}
+-- 
+2.43.0
+
