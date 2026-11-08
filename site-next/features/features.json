@@ -1,10 +1,10 @@
 {
  "generated_by": "features/gen_features.py",
- "generated_at": "2026-11-08T18:39:51Z",
+ "generated_at": "2026-11-08T19:26:10Z",
  "engine": {
   "repo": "/workspace/kshana-T",
   "version": "0.40.0",
-  "git_head": "7d7bfe5e7",
+  "git_head": "667bea534",
   "worktree_dirty": false
  },
  "counts": {
@@ -17,19 +17,19 @@
   "clock": 39,
   "band": 8,
   "body": 18,
-  "validation": 401,
+  "validation": 405,
   "pro": 15,
   "study": 5
  },
- "total": 1098,
+ "total": 1102,
  "unplaced": [],
  "stale_placements": [],
  "warnings": [
-  "pro:calibrated-clock-twin: public quote found on branch apps/phase11-quality only, not yet in kshana-T/web/index.html",
-  "pro:evidence-pack: public quote found on branch apps/phase11-quality only, not yet in kshana-T/web/index.html",
-  "study:modelled-resilience-study: public quote found on branch apps/phase11-quality only, not yet in kshana-T/web/index.html",
-  "study:export-controlled-work: public quote found on branch apps/phase11-quality only, not yet in kshana-T/web/index.html",
-  "pro:commercial-licence: public quote found on branch apps/phase11-quality only, not yet in kshana-T/web/index.html"
+  "pro:calibrated-clock-twin: public quote found on branch apps/matrix-renumber only, not yet in kshana-T/web/index.html",
+  "pro:evidence-pack: public quote found on branch apps/matrix-renumber only, not yet in kshana-T/web/index.html",
+  "study:modelled-resilience-study: public quote found on branch apps/matrix-renumber only, not yet in kshana-T/web/index.html",
+  "study:export-controlled-work: public quote found on branch apps/matrix-renumber only, not yet in kshana-T/web/index.html",
+  "pro:commercial-licence: public quote found on branch apps/matrix-renumber only, not yet in kshana-T/web/index.html"
  ],
  "features": [
   {
@@ -16431,7 +16431,7 @@
    "claim": "",
    "facts": {},
    "page": "Docs",
-   "section": "flight-dynamics-export.html#use",
+   "section": "capability-reference.html#matrix",
    "studio": "none",
    "docs": "docs/flight-dynamics-export.html#use",
    "also": [],
@@ -19093,7 +19093,7 @@
    "claim": "",
    "facts": {},
    "page": "Docs",
-   "section": "flight-dynamics-export.html#use",
+   "section": "capability-reference.html#matrix",
    "studio": "none",
    "docs": "docs/flight-dynamics-export.html#use",
    "also": [],
@@ -34838,12 +34838,132 @@
    "unexpanded_abbreviations": []
   },
   {
+   "id": "validation:write-a-jpl-horizons-state-table-as-a-ccsds-oem-a-ccsds-opm-",
+   "category": "validation",
+   "subtype": "verification-matrix row (MODELLED)",
+   "name": "Write a JPL Horizons state table as a CCSDS OEM, a CCSDS OPM or an SPK kernel, and read it back",
+   "description": "kshana ephem-export (and ephemexport in Python, WebAssembly and Model Context Protocol (MCP)): a Jet Propulsion Laboratory (JPL) Horizons vector table is written as a Consultative Committee for Space Data Systems (CCSDS) Orbit Ephemeris Message (OEM) 2.0, an Orbit Parameter Message (CCSDS) (OPM) 3.0 or an SPICE kernel (SPK) of type 13 or 9 (frame code 1, International Celestial Reference Frame (ICRF)).",
+   "source": "src/verification.rs:4122",
+   "edition": "Free core",
+   "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
+   "identifiers": [],
+   "probes": [
+    [
+     "exact",
+     "Write a JPL Horizons state table as a CCSDS OEM, a CCSDS OPM or an SPK kernel, and read it back"
+    ]
+   ],
+   "claim": "",
+   "facts": {
+    "status": "MODELLED",
+    "module": "ephem_export",
+    "oracle": "The engine's own reader on the files it wrote (same codebase). The C7 reference integration has no bar: Orekit 13.1.9 and Basilisk 2.12.2's SPICE read the files back exactly (Orekit's km to m conversion named as rounding further), and ANISE 0.10.6 evaluates the SPK no further from the written states than SPICE does; GMAT is not done until its CI job is green. A one-off check outside the repository found the SPK byte for byte equal to the kernel SPICE's spkw13 writes from the same states. Carries data only; says nothing about any propagation"
+   },
+   "page": "Evidence",
+   "section": "ledger",
+   "studio": "none",
+   "docs": "docs/verification-matrix.html",
+   "also": [],
+   "placed": true,
+   "unexpanded_abbreviations": []
+  },
+  {
+   "id": "validation:optical-navigation-measurement-model-apparent-direction-pinh",
+   "category": "validation",
+   "subtype": "verification-matrix row (MODELLED)",
+   "name": "Optical-navigation measurement model: apparent direction, pinhole projection with distortion, and partials",
+   "description": "opnav::measure: the apparent direction of a body centre (converged Newtonian light time and stellar aberration, the NASA's navigation and ancillary information system (SPICE) CN+S correction) or of a catalogue star (aberration only), projected through a pinhole camera with Brown-Conrady…",
+   "source": "src/verification.rs:4132",
+   "edition": "Free core",
+   "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
+   "identifiers": [],
+   "probes": [
+    [
+     "exact",
+     "Optical-navigation measurement model: apparent direction, pinhole projection with distortion, and partials"
+    ]
+   ],
+   "claim": "",
+   "facts": {
+    "status": "MODELLED",
+    "module": "opnav",
+    "oracle": "SPICE (spiceypy 8.3.0, CSPICE N0067) and OpenCV 5.0.0, under bars pre-registered in docs/design/evidence/c5a-optical-navigation-model/: O1 body directions within 0.0016 mas of SPICE CN+S (bar 1 mas), O2 stars within 3e-8 mas, O3 projection within 1.3e-11 px of OpenCV, O4 end to end within 3.8e-8 px (bar 1e-4 px), O6 additivity: MET. O5 NOT MET: 258 of 432 partial elements differ from central differences at the registered 1 m and 1 mm/s steps by more than 1e-6 relative (the largest elements agree to about 1e-7 to 1e-9; a no-bar diagnostic at 1 km and 1 m/s cuts the worst relative difference from 1.0 to 8e-4, pointing to difference round-off, not proven). WHAT IS NOT CHECKED: image processing, the body's figure or phase, attitude error, any real camera"
+   },
+   "page": "Evidence",
+   "section": "ledger",
+   "studio": "none",
+   "docs": "docs/verification-matrix.html",
+   "also": [],
+   "placed": true,
+   "unexpanded_abbreviations": []
+  },
+  {
+   "id": "validation:capstone-nrho-propagation-with-de440-third-bodies-and-one-ra",
+   "category": "validation",
+   "subtype": "verification-matrix row (MODELLED)",
+   "name": "CAPSTONE NRHO propagation with DE440 third bodies and one radiation-pressure parameter",
+   "description": "c3force::C3Model: the A2 lunar force model with the Sun and Earth from a JPL Development Ephemeris 440 (DE440) kernel plus Venus and the Jupiter system barycentre as point masses (M1), and optionally cannonball radiation pressure k = Cr A/m with Earth and Moon conical…",
+   "source": "src/verification.rs:4142",
+   "edition": "Free core",
+   "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
+   "identifiers": [],
+   "probes": [
+    [
+     "exact",
+     "CAPSTONE NRHO propagation with DE440 third bodies and one radiation-pressure parameter"
+    ]
+   ],
+   "claim": "",
+   "facts": {
+    "status": "MODELLED",
+    "module": "c3_force",
+    "oracle": "JPL Horizons reconstruction of CAPSTONE (-1176), under bars pre-registered in docs/design/evidence/c3-capstone-nrho-force-model/. C3-R MET on A2's window W0 (21.66 km end position, 4.24 km periapsis; bars 25 and 10 km). C3-H NOT MET on the held-out windows E, H1, H2 (end position 37.25, 36.23, 49.65 km; periapsis met). C3-S NOT MET (k fitted on E: H1 12.92 km met, H2 57.13 km). A2 is not met on re-run. The reconstruction is the reference, not truth"
+   },
+   "page": "Evidence",
+   "section": "ledger",
+   "studio": "none",
+   "docs": "docs/verification-matrix.html",
+   "also": [],
+   "placed": true,
+   "unexpanded_abbreviations": []
+  },
+  {
+   "id": "validation:impulsive-steps-in-the-cislunar-coast-and-the-c2-step-detect",
+   "category": "validation",
+   "subtype": "verification-matrix row (MODELLED)",
+   "name": "Impulsive steps in the cislunar coast and the C2 step detector",
+   "description": "The tli-and-cruise phase's optional impulses list (ts from the phase start, dvmps in Geocentric Celestial Reference Frame (GCRF)) adds each step to the mean state, shortening a step to land on it; without impulses every output is unchanged. missionthread::impulses::detect flags…",
+   "source": "src/verification.rs:4152",
+   "edition": "Free core",
+   "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
+   "identifiers": [],
+   "probes": [
+    [
+     "exact",
+     "Impulsive steps in the cislunar coast and the C2 step detector"
+    ]
+   ],
+   "claim": "",
+   "facts": {
+    "status": "MODELLED",
+    "module": "mission_thread::impulses",
+    "oracle": "JPL Horizons reconstruction of Artemis I (-1023), under bars pre-registered in docs/mission-thread/PREREGISTRATION-C2.md: NOT MET on W1 (17.3 km against 2 km; 0.0177 m/s against 0.01 m/s); W2 not run (the published burn times leave 42.8 h, not 72 h). A diagnostic after the verdict shows four of the five steps in the reconstruction carry position jumps no velocity step within one hour can produce. The impulse support itself is checked on synthetic data only"
+   },
+   "page": "Evidence",
+   "section": "ledger",
+   "studio": "none",
+   "docs": "docs/verification-matrix.html",
+   "also": [],
+   "placed": true,
+   "unexpanded_abbreviations": []
+  },
+  {
    "id": "validation:rtklib-pos-solution-reader-for-receiver-trust",
    "category": "validation",
    "subtype": "verification-matrix row (MODELLED)",
    "name": "RTKLIB .pos solution reader for receiver-trust",
    "description": "Reads an an open-source real-time kinematic positioning library (RTKLIB) solution file (calendar or Global Positioning System (GPS) week/Time of Week (TOW) time, latitude/longitude or Earth-centred, Earth-fixed (ECEF) position, satellites used) into the receiver-trust timeline (receivertrust::machines::rtklib).",
-   "source": "src/verification.rs:4122",
+   "source": "src/verification.rs:4162",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
    "identifiers": [],
@@ -34873,7 +34993,7 @@
    "subtype": "verification-matrix row (MODELLED)",
    "name": "NovAtel OEM7 ASCII and binary logs (BESTPOS, RANGE, RXSTATUS) for receiver-trust",
    "description": "Reads bestpos (position), RANGE (C/No per signal) and rxstatus (the receiver's jammer flag, as the epoch's self-report) from American Standard Code for Information Interchange (ASCII) and binary OEM7 logs, CRC-checked, read-only (receivertrust::machines::novatel).",
-   "source": "src/verification.rs:4132",
+   "source": "src/verification.rs:4172",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
    "identifiers": [],
@@ -34903,7 +35023,7 @@
    "subtype": "verification-matrix row (MODELLED)",
    "name": "RTCM 3 MSM4 and MSM7 carrier-to-noise reader for receiver-trust",
    "description": "Reads the C/noise density (N0) of every signal cell of Radio Technical Commission for Maritime Services (RTCM) 3 6 bits, dB-Hz (MSM4) and RTCM multiple signal message, type 7 (MSM7) messages (GPS, glonass, Galileo, satellite-based augmentation system (SBAS), Japan's Quasi-Zenith Satellite System (QZSS), BeiDou, NavIC) from a frame stream, 24-bit cyclic redundancy check (Qualcomm polynomial) (CRC-24Q) checked (receivertrust::machines::rtcm3).",
-   "source": "src/verification.rs:4142",
+   "source": "src/verification.rs:4182",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
    "identifiers": [],
@@ -34933,7 +35053,7 @@
    "subtype": "verification-matrix row (MODELLED)",
    "name": "GNSS-SDR monitor adapter for receiver-trust",
    "description": "Reads GNSS-SDR Monitor (GnssSynchro) and PVT-monitor messages, relayed to JavaScript Object Notation (JSON) lines with the proto field names, into per-channel C/noise density (N0), fix, satellites used, horizontal dilution of precision (HDOP) and sky (receivertrust::machines::gnsssdr; integrations/gnss-sdr/relay.py).",
-   "source": "src/verification.rs:4152",
+   "source": "src/verification.rs:4192",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
    "identifiers": [],
@@ -34963,7 +35083,7 @@
    "subtype": "verification-matrix row (MODELLED)",
    "name": "IMU log ingest, gyro heading input and Allan fit of hybrid sensor parameters",
    "description": "Reads an inertial measurement unit (IMU) CSV (documented columns, or the EuRoC layout); integrates the yaw rate into the heading the heading-course monitor reads ([log.imu]); and fits the accelerometer and gyro noise parameters of the hybrid and fusion scenarios from…",
-   "source": "src/verification.rs:4162",
+   "source": "src/verification.rs:4202",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
    "identifiers": [],
@@ -34993,7 +35113,7 @@
    "subtype": "verification-matrix row (MODELLED)",
    "name": "Home Assistant MQTT discovery and state exporter for trust telemetry",
    "description": "A JavaScript Object Notation (JSON) state document and Home Assistant the MQTT messaging protocol (MQTT) discovery messages for the trust stream, printed as text on every surface and published over MQTT 3.1.1 QoS 0 by the CLI (telemetry::mqtt; trust-telemetry --mqtt-tcp, --print-mqtt, format mqtt).",
-   "source": "src/verification.rs:4172",
+   "source": "src/verification.rs:4212",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
    "identifiers": [],
@@ -35023,7 +35143,7 @@
    "subtype": "verification-matrix row (MODELLED)",
    "name": "ROS 2 receiver-trust package and gnss_lib_py bridge",
    "description": "A ROS-free bridge that writes fix and satellite messages as National Marine Electronics Association (its sentence format) (NMEA) and scores them through the Python binding (integrations/ros2/kshanatrust), and a gnsslibpy NavData to receiver-trust bridge through the rtklib-pos format…",
-   "source": "src/verification.rs:4182",
+   "source": "src/verification.rs:4222",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
    "identifiers": [],
@@ -35053,9 +35173,9 @@
    "subtype": "edition offer",
    "name": "Calibrated clock digital twin",
    "description": "A digital twin of a clock calibrated to the device's published Allan-deviation budget (the standard measure of clock stability).",
-   "source": "web/index.html:759 (branch apps/phase11-quality e3f2a74b)",
+   "source": "web/index.html:759 (branch apps/matrix-renumber e3f2a74b)",
    "edition": "Pro",
-   "edition_source": "web/index.html:759 (branch apps/phase11-quality e3f2a74b) “clock digital twins calibrated to a device's published Allan budget”",
+   "edition_source": "web/index.html:759 (branch apps/matrix-renumber e3f2a74b) “clock digital twins calibrated to a device's published Allan budget”",
    "identifiers": [],
    "probes": [
     [
@@ -35135,9 +35255,9 @@
    "subtype": "edition offer",
    "name": "Audit-grade, reproducible evidence pack",
    "description": "The evidence a review or procurement board asks for, packaged so every figure can be reproduced.",
-   "source": "web/index.html:760 (branch apps/phase11-quality e3f2a74b)",
+   "source": "web/index.html:760 (branch apps/matrix-renumber e3f2a74b)",
    "edition": "Pro",
-   "edition_source": "web/index.html:760 (branch apps/phase11-quality e3f2a74b) “audit-grade, reproducible evidence packs”",
+   "edition_source": "web/index.html:760 (branch apps/matrix-renumber e3f2a74b) “audit-grade, reproducible evidence packs”",
    "identifiers": [],
    "probes": [
     [
@@ -35526,9 +35646,9 @@
    "subtype": "edition offer",
    "name": "Modelled PNT-resilience study (for example an optimism-gap audit)",
    "description": "A bespoke, modelled positioning, navigation and timing (PNT) resilience study, reproducible from scenario, seed and engine version, every figure labelled; not a certification.",
-   "source": "web/index.html:773 (branch apps/phase11-quality e3f2a74b)",
+   "source": "web/index.html:773 (branch apps/matrix-renumber e3f2a74b)",
    "edition": "Custom study",
-   "edition_source": "web/index.html:773 (branch apps/phase11-quality e3f2a74b) “PNT-resilience study — e.g. an optimism-gap audit — reproducible from scenario + seed + engine version”",
+   "edition_source": "web/index.html:773 (branch apps/matrix-renumber e3f2a74b) “PNT-resilience study — e.g. an optimism-gap audit — reproducible from scenario + seed + engine version”",
    "identifiers": [],
    "probes": [
     [
@@ -35588,9 +35708,9 @@
    "subtype": "edition offer",
    "name": "Export-controlled resilience work under clearance and NDA",
    "description": "Export-controlled resilience work delivered under the appropriate clearance and non-disclosure agreement (NDA).",
-   "source": "web/index.html:766 (branch apps/phase11-quality e3f2a74b)",
+   "source": "web/index.html:766 (branch apps/matrix-renumber e3f2a74b)",
    "edition": "Custom study",
-   "edition_source": "web/index.html:766 (branch apps/phase11-quality e3f2a74b) “export-controlled resilience work delivered under the appropriate clearance and NDA”",
+   "edition_source": "web/index.html:766 (branch apps/matrix-renumber e3f2a74b) “export-controlled resilience work delivered under the appropriate clearance and NDA”",
    "identifiers": [],
    "probes": [
     [
@@ -35699,9 +35819,9 @@
    "subtype": "edition offer",
    "name": "Commercial licence of the open core (dual licence, not Pro)",
    "description": "The same open-core code under a commercial licence for closed or proprietary integration without Affero General Public License (AGPL) obligations. Listed beside Pro because buyers ask for it there, but the public source ties it to the open core.",
-   "source": "web/index.html:751 (branch apps/phase11-quality e3f2a74b)",
+   "source": "web/index.html:751 (branch apps/matrix-renumber e3f2a74b)",
    "edition": "Free core",
-   "edition_source": "web/index.html:751 (branch apps/phase11-quality e3f2a74b) “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”",
+   "edition_source": "web/index.html:751 (branch apps/matrix-renumber e3f2a74b) “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”",
    "identifiers": [],
    "probes": [
     [

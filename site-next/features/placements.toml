@@ -344,11 +344,12 @@
 [abbreviations_ignore]
 # Upper-case fragments that are not abbreviations (maths symbols, part of a formula), or whose expansion
 # the public sources do not give (left visible as warnings instead of guessed).
-tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021", "RE", "DELTA", "STAR", "EPH", "KP16", "KRAC", "LU22", "APOL", "II", "III", "B1C", "B1I", "B3I", "L1C", "L1OF", "L2OF", "L1CD", "L1CO", "L1CP", "DOP853", "OEM7", "RANGE", "GL0660B", "STR09", "PKSHT", "SB1", "BENCH", "SPEC", "FILE", "OF", "USE"]
+tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021", "RE", "DELTA", "STAR", "EPH", "KP16", "KRAC", "LU22", "APOL", "II", "III", "B1C", "B1I", "B3I", "L1C", "L1OF", "L2OF", "L1CD", "L1CO", "L1CP", "DOP853", "OEM7", "RANGE", "GL0660B", "STR09", "PKSHT", "SB1", "BENCH", "SPEC", "FILE", "OF", "USE", "CN"]
 # RE: the Earth radius symbol in a formula; DELTA, STAR: Walker pattern keywords; EPH, KP16, KRAC,
 # LU22, APOL: RINEX-4-style record names, quoted as written.
 # II, III: Roman numerals; B1C ... L1CP: signal names; DOP853: an integrator; OEM7, RANGE: a receiver and its log;
 # GL0660B, STR09: model names; PKSHT, SB1: message identifiers; BENCH, SPEC, FILE, OF, USE: words in upper case.
+# CN: SPICE's converged-Newtonian aberration-correction flag (CN+S), quoted as written.
 
 [site_tokens]
 # Identifiers the site may print that are neither features nor found in the engine repository.
@@ -664,6 +665,10 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "validation:deep-space-radiometric-light-time-solver" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:broadcast-ephemeris-satellite-position-multi-gnss-rinex" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:sp3-precise-ephemeris-interpolation" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:write-a-jpl-horizons-state-table-as-a-ccsds-oem-a-ccsds-opm-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:optical-navigation-measurement-model-apparent-direction-pinh" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:capstone-nrho-propagation-with-de440-third-bodies-and-one-ra" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:impulsive-steps-in-the-cislunar-coast-and-the-c2-step-detect" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:strapdown-ins-mechanization" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:gravity-field-functional-synthesis-gravity-aided-gnss-free-n" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:lambert-two-body-transfer-solver" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
@@ -1370,7 +1375,7 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "binding:python.lunanet_afs_check_symbols" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
 "binding:python.lunanet_afs_generate" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
 "binding:python.imu_fit" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/python-api.html#surface" }
-"binding:python.ephem_export" = { page = "Docs", section = "flight-dynamics-export.html#use", studio = "none", docs = "docs/flight-dynamics-export.html#use" }
+"binding:python.ephem_export" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/flight-dynamics-export.html#use" }
 "binding:wasm.lunanet_afs_check_spec" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
 "binding:wasm.lunanet_afs_check_symbols" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
 "binding:wasm.lunanet_afs_generate" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
@@ -1381,7 +1386,7 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "binding:wasm.jammertest_import" = { page = "Docs", section = "agents.html#which-tool-for-which-question", studio = "none", docs = "docs/npm.html#usage" }
 "binding:wasm.jammertest_score" = { page = "Docs", section = "agents.html#which-tool-for-which-question", studio = "none", docs = "docs/npm.html#usage" }
 "binding:wasm.imu_fit" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
-"binding:wasm.ephem_export" = { page = "Docs", section = "flight-dynamics-export.html#use", studio = "none", docs = "docs/flight-dynamics-export.html#use" }
+"binding:wasm.ephem_export" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/flight-dynamics-export.html#use" }
 "validation:optical-link-margin-against-time-one-seeded-realisation-of-a" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:clock-log-formats-linuxptp-ptp4l-phc2sys-ts2phc-and-chrony-t" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:holdover-test-scored-from-an-operator-supplied-time-error-re" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }

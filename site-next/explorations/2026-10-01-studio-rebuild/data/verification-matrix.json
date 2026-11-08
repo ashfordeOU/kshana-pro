@@ -4,9 +4,9 @@
   "repo_blob_base": "https://github.com/AshfordeOU/kshana/blob/main/",
   "summary": {
     "validated": 176,
-    "modelled": 221,
+    "modelled": 225,
     "partner_owned": 4,
-    "total": 401
+    "total": 405
   },
   "rows": [
     {
@@ -4385,7 +4385,7 @@
       "capability": "iq::campaign::detect and the campaign runner: an optional [monitors] table runs the IQ monitors on every cell in the runner's single pass. The power and spectral monitors see the samples after each front-end chain; the C/N0, SQM and lock monitors see each tracked channel's loop updates. Each alarm is scored against the stated events: detected or missed per (event, alarm kind, channel), time to detect, and false alarms outside the events over their exposure. Each test's closed-form false-alarm figure is stated: power per block (exact Gamma tail), spectral excess per block (approximation), kurtosis (one-sided Gaussian), pulses (binomial ceiling), SQM per averaged update (2Q(k) = Q(1/2, k^2/2), new), and the C/N0 CUSUM's ARL0 (Siegmund). Without the table, cells, keys and digests are unchanged. No interference waveform is synthesised",
       "status": "MODELLED",
       "oracle_kind": "InternalConsistency",
-      "oracle": "The monitors' own closed forms on Kshana's own GPS L1 C/A scenes (noise and legitimate signals; attenuation events of the satellites' own signals), against bars pre-registered in docs/design/MONITORS-IN-CAMPAIGN.md (56322c99). FINDING: M1, M2 and M4 met. M3 met on detection (18 of 18 attenuations, P_md 0) and NOT MET on its timing clause: the median time to detect is 1.001 s against 2 x ARL1 samples = 0.433 s. The CUSUM sees one estimate per 1 s window, so the sample-count bound is below one sample. Internal consistency only: no real receiver or recorded interference is checked",
+      "oracle": "The monitors' own closed forms on Kshana's own GPS L1 C/A scenes (noise and legitimate signals; attenuation events of the satellites' own signals), against bars pre-registered in docs/design/MONITORS-IN-CAMPAIGN.md (56322c99). FINDING: M1, M2 and M4 met. M3 met on detection (18 of 18 attenuations, P_md 0) and NOT MET on its timing clause: the median time to detect is 1.001 s against 2 x ARL1 samples = 0.433 s. The CUSUM sees one estimate per 1 s window, so the sample-count bound is below one sample. RE-RUN 0.41 (D8b row 8, docs/design/evidence/d8b-iq-timing-campaign-rerun/, 3dcbaace9): with the campaign's automatic C/N0 stride set to one NWPR window (0.020 s), M3 stays NOT MET on its timing clause, as stated before the run: 18 of 18 detected on seen and fresh seeds, median time to detect 0.221 s and 0.201 s against 0.0068 s and 0.0064 s; M1, M2 and M4 unchanged. The miss is structural (the 1 s sliding estimator's delay); a further attempt needs a new pre-registration. Internal consistency only: no real receiver or recorded interference is checked",
       "module": "iq::campaign (detect, runner, spec); iq::monitor (stats::gaussian_two_sided_pfa, sqm)",
       "tests": "tests/iq_campaign_monitors.rs: m1_power_test_false_alarm_rate_matches_the_closed_form (73 of 5900 blocks against the 99 % binomial interval [40, 80] of P_fa 0.01), m2_sqm_false_alarm_fraction_is_within_a_factor_of_2_of_2q_k (delta 0.0160, ratio 0.0131 against 0.01), m4_cn0_false_alarms_stay_within_the_poisson_bound_of_arl0 (0 against 0), the_monitors_table_parses_and_validates; m3_every_attenuation_is_detected_within_twice_the_arl1 (strict, ignored with the gap); iq::campaign::detect tests; iq::monitor::stats tests (gaussian_two_sided_tail_matches_known_values); tests/iq_campaign.rs (the pinned digests are unchanged without the table)",
       "module_links": [
@@ -4407,7 +4407,7 @@
       "capability": "iq::campaign::detect (windows, roc) and iq::campaign::report::rocs: each cell of a campaign with monitors keeps, per alarm kind and channel, the maximum of the monitor's own test statistic over each stated event window (positive) and over tiled roc_window_s windows outside the events (negative). The statistics are the block-power departure, the PSD excess, the kurtosis z, the SQM |z| of the averaged metric, and the C/N0 CUSUM. The report pools them by kind into an empirical window-level ROC with its AUC and the operating point at the configured threshold, written as roc.json (kshana.campaign-roc/1) and a Detection ROC section of report.html. A campaign without monitors writes neither",
       "status": "MODELLED",
       "oracle_kind": "InternalConsistency",
-      "oracle": "Synthetic campaigns from Kshana's own GPS L1 C/A scenes (attenuations of the satellites' own signals), against bars pre-registered in docs/design/DETECTION-ROC.md (04981059). FINDING: R2 met (chance level with nothing to detect). R1 NOT MET: cn0_drop AUC 0.7855 against 0.95, because every negative window after an event inherits the CUSUM's decay from the detection (all 18 post-event negatives reach 81 or more; all 18 pre-event ones stay at 0). Internal consistency only: no real receiver or recorded interference is checked",
+      "oracle": "Synthetic campaigns from Kshana's own GPS L1 C/A scenes (attenuations of the satellites' own signals), against bars pre-registered in docs/design/DETECTION-ROC.md (04981059). FINDING: R2 met (chance level with nothing to detect). R1 NOT MET: cn0_drop AUC 0.7855 against 0.95, because every negative window after an event inherits the CUSUM's decay from the detection (all 18 post-event negatives reach 81 or more; all 18 pre-event ones stay at 0). RE-RUN 0.41 (D8b row 9, f09660907): R1 MET on re-run with the CUSUM restarted at each scored window's start ([monitors] roc_restart, default on): AUC 1.0000 on seen seeds 300-305 and on fresh seeds 100300-100305; R2 still at chance; the control (restart off) reproduces 0.7855. The seen-seed outcome was largely known in advance (disclosed). Internal consistency only: no real receiver or recorded interference is checked",
       "module": "iq::campaign (detect, report, runner); iq::monitor::spectral (kurtosis_reference)",
       "tests": "tests/iq_campaign_roc.rs: r2_with_nothing_to_detect_the_roc_sits_at_chance (AUC cn0_drop 0.500, sqm_delta 0.566, power_drop 0.639 on stated events that attenuate nothing); r1_the_cn0_drop_roc_separates_6_db_attenuations (strict, ignored with the gap); iq::campaign::detect tests (the_roc_of_separated_and_of_identical_samples, windows_tile_the_time_outside_the_events)",
       "module_links": [
@@ -8802,7 +8802,7 @@
       "capability": "iq::acq::ca_cfar and ca_cfar_cells (opt-in): a cell of an acquisition grid is compared with the mean of reference cells of its Doppler row (guard and stride lags, wrapping round the period), at a factor alpha set from the closed-form CA-CFAR false-alarm probability for M non-coherent blocks (ca_cfar_pfa, ca_cfar_alpha). The sample-power detector stays the default and every existing output is unchanged.",
       "status": "MODELLED",
       "oracle_kind": "InternalConsistency",
-      "oracle": "Closed form, under bars pre-registered at 8af30331 (docs/design/evidence/acq-cfar/). The CA-CFAR false-alarm probability for Gamma(M) cells, against Monte Carlo of the exact model: 18 of 18 cases within 3 binomial sigma. On every cell of iq::acq searches (GPS L1 C/A, 2.5 MS/s, 210 000 cells each) at a design 1 %: 0.977 % and 0.969 % on Gaussian noise and 1.006 % and 0.999 % on 2-bit quantised noise (M = 1 and 4; bar plus or minus 20 %); decisions unchanged when the input is scaled. NOT MET (finding F1): on a noise-free 2-bit signal the detection and its cell are right, but 1.28 % of the off-peak cells of the peak's row (bar 1 %) exceed the threshold, at the code's deterministic correlation sidelobes. WHAT IS NOT CHECKED: other CFAR variants, two-dimensional windows, band-limited front ends, field data.",
+      "oracle": "Closed form, under bars pre-registered at 8af30331 (docs/design/evidence/acq-cfar/). The CA-CFAR false-alarm probability for Gamma(M) cells, against Monte Carlo of the exact model: 18 of 18 cases within 3 binomial sigma. On every cell of iq::acq searches (GPS L1 C/A, 2.5 MS/s, 210 000 cells each) at a design 1 %: 0.977 % and 0.969 % on Gaussian noise and 1.006 % and 0.999 % on 2-bit quantised noise (M = 1 and 4; bar plus or minus 20 %); decisions unchanged when the input is scaled. NOT MET (finding F1): on a noise-free 2-bit signal the detection and its cell are right, but 1.28 % of the off-peak cells of the peak's row (bar 1 %) exceed the threshold, at the code's deterministic correlation sidelobes. RE-RUN 0.41 (D8a row 3, 1059c34e8): MET on re-run with the opt-in row reference set (CfarConfig::with_reference: reference cells every stride-th lag round the whole Doppler row): 0 of 2495 off-peak cells above on the registered signal and 3, 4, 0 and 0 on four fresh signals (bar 1 %), all detected in the right bin; C2/C3 0.969 to 1.033 % on seen and fresh seeds; the 16-cell window stays the default and its control reproduces 0.40. One candidate tried, on development PRNs 2-6 (disclosed). WHAT IS NOT CHECKED: other CFAR variants, two-dimensional windows, band-limited front ends, field data.",
       "module": "iq::acq (CfarConfig, ca_cfar, ca_cfar_cells, ca_cfar_pfa, ca_cfar_alpha)",
       "tests": "tests/iq_acq_cfar.rs (c1_closed_form_matches_monte_carlo_of_the_exact_model, c2_false_alarm_rate_on_gaussian_noise, c3_false_alarm_rate_on_two_bit_noise, c5_decisions_do_not_depend_on_the_input_scale; c4_noise_free_two_bit_signal_verdict_is_the_recorded_one, the registered verdict asserted as recorded, finding F1, pinned by finding_noise_free_sidelobes_exceed_the_cfar_rate); iq::acq unit test ca_cfar_closed_form_reduces_to_the_textbook_case_and_inverts",
       "module_links": [
@@ -9053,7 +9053,7 @@
       "capability": "The jamming kind's optional [acquisition] section (a satellite is acquired at or above an acquisition threshold after a re-acquisition delay and held while at or above the tracking threshold) and [front_end] section (the AGC reading 10 log10(1 + J/N) and the ADC's Gaussian-input quantiser loss taken off every link, flagged as not valid for non-Gaussian jammers).",
       "status": "MODELLED",
       "oracle_kind": "ReferenceImpl",
-      "oracle": "An independent Python recomputation of every acquisition flag (xval/jamming-acq-agc/hysteresis.py) from the engine's per-epoch effective C/N0, an independent numpy Monte Carlo of the quantiser loss (xval/jamming-acq-agc/quantiser_mc.py, its own optimum-step search, 2^22 samples), and the IQ layer's AGC loop. Bars pre-registered at 2ca31ee1, with a supplementary run set at 2ef7427a. MET: additivity (all 150 scenario results byte-identical without the sections); every flag equal on the supplementary runs (1824 links, 732 of them showing the hysteresis); monotone in the threshold; the quantiser loss within 0.0007 dB of the Monte Carlo at 1 to 4 bits (bar 0.02 dB); the AGC reading within 0.012 dB of the AGC loop (bar 0.05 dB). NOT MET: the registered hysteresis runs (jamming-demo at 10 to 30 dBW) were uninformative, with every link lost, and their H2 and H4 are met only trivially. Finding: with a CW jammer a 1-bit ADC loses about 5 dB more than the Gaussian figure the engine applies, and flags as not valid. WHAT IS NOT CHECKED: the acquisition search itself, AGC dynamics in time, any receiver hardware. Recomputations of the same model, not an external oracle; the row stays MODELLED.",
+      "oracle": "An independent Python recomputation of every acquisition flag (xval/jamming-acq-agc/hysteresis.py) from the engine's per-epoch effective C/N0, an independent numpy Monte Carlo of the quantiser loss (xval/jamming-acq-agc/quantiser_mc.py, its own optimum-step search, 2^22 samples), and the IQ layer's AGC loop. Bars pre-registered at 2ca31ee1, with a supplementary run set at 2ef7427a. MET: additivity (all 150 scenario results byte-identical without the sections); every flag equal on the supplementary runs (1824 links, 732 of them showing the hysteresis); monotone in the threshold; the quantiser loss within 0.0007 dB of the Monte Carlo at 1 to 4 bits (bar 0.02 dB); the AGC reading within 0.012 dB of the AGC loop (bar 0.05 dB). NOT MET: the registered hysteresis runs (jamming-demo at 10 to 30 dBW) were uninformative, with every link lost, and their H2 and H4 are met only trivially. RE-RUN 0.41 (D8b row 7, 0ea0da3df): MET on re-run on a 12-power ladder fixed from the scenario file before any engine run (-34 to -21 dBW): 2614 of 5472 link-epochs in the informative 25-32 dB-Hz band (bar 10 %); H2 and H4 hold; all 5472 flags agree with hysteresis.py, 2626 showing the hysteresis; no engine change. Disclosed: the ladder rule was written after supplement 1 had shown where the thresholds lie. Finding: with a CW jammer a 1-bit ADC loses about 5 dB more than the Gaussian figure the engine applies, and flags as not valid. WHAT IS NOT CHECKED: the acquisition search itself, AGC dynamics in time, any receiver hardware. Recomputations of the same model, not an external oracle; the row stays MODELLED.",
       "module": "jamming_rx (AcquisitionCfg, AcqState, FrontEndCfg, front_end); jamming (run_jamming_sky); iq::frontend::quant (optimum_step_sigma)",
       "tests": "tests/jamming_acq_agc.rs (h1_g1_units_only_with_their_section, h2_no_hysteresis_is_no_hysteresis, h2s_no_hysteresis_is_no_hysteresis_on_the_supplementary_runs, h3_flags_match_the_independent_recomputation, h3s_flags_match_the_independent_recomputation_on_the_supplementary_runs, h4_monotone_in_the_acquisition_threshold, h4s_monotone_in_the_acquisition_threshold_on_the_supplementary_runs, g2_quantiser_loss_matches_the_independent_monte_carlo, g3_agc_reading_matches_the_iq_layer_agc_loop), against xval/jamming-acq-agc/expected_hysteresis.json, expected_hysteresis_s1.json and expected_quantiser.json",
       "module_links": [
@@ -9075,7 +9075,7 @@
       "capability": "iq::track's opt-in carrier.fll_pull_in_max_s (the fll_pull_in_max_s field of iq::track::LoopConfig): under fll_assist = pull-in, the FLL hands over to the PLL after a fixed pull-in time whatever the PLI, with a matching return dwell until the PLI first reaches fll_off_pli.",
       "status": "MODELLED",
       "oracle_kind": "InternalConsistency",
-      "oracle": "Internal consistency against injected truth: a synthetic data-free GPS L1 C/A source (PRN 13, 1500 Hz, 4.1 MHz, 8 s, ten noise seeds) whose carrier phase is known, under bars pre-registered at 8aceabcb (docs/design/evidence/fll-handover-floor/). MET: the control (the uncapped default never hands over in 9 of 10 seeds at 33 dB-Hz); additivity (default hash and the existing tracking tests unchanged); pull-in of a 100 Hz-off hand-off at 45 dB-Hz. NOT MET: with a 1.0 s cap, hand-over and hold in every run (16 of 20 at 33 dB-Hz, 8 of 20 at 31 dB-Hz; the rest cycle between forced hand-overs and the FLL's return) and phase jitter within 25 % of the PLL alone (10.8 against 6.1 degrees at 33 dB-Hz). WHAT IS NOT CHECKED: data bits, other signals and sample rates, field recordings. The default is unchanged; the row stays MODELLED.",
+      "oracle": "Internal consistency against injected truth: a synthetic data-free GPS L1 C/A source (PRN 13, 1500 Hz, 4.1 MHz, 8 s, ten noise seeds) whose carrier phase is known, under bars pre-registered at 8aceabcb (docs/design/evidence/fll-handover-floor/). MET: the control (the uncapped default never hands over in 9 of 10 seeds at 33 dB-Hz); additivity (default hash and the existing tracking tests unchanged); pull-in of a 100 Hz-off hand-off at 45 dB-Hz. NOT MET: with a 1.0 s cap, hand-over and hold in every run (16 of 20 at 33 dB-Hz, 8 of 20 at 31 dB-Hz; the rest cycle between forced hand-overs and the FLL's return) and phase jitter within 25 % of the PLL alone (10.8 against 6.1 degrees at 33 dB-Hz). RE-RUN 0.41 (D8a row 4, 74ba62787): with the opt-in carrier.fll_handover_mean_s (the PLL seeded at the mean NCO Doppler of the pull-in's last 0.5 s), still NOT MET: at 33 dB-Hz hand-over and hold 20 of 20 on seen and fresh seeds with jitter within 1 % of the PLL alone (this half met), but at 31 dB-Hz 15 of 20 seen and 6 of 20 fresh, jitter ratio 1.8 and 2.8. Development seeds 1001-1010 recorded, nothing tuned on them. WHAT IS NOT CHECKED: data bits, other signals and sample rates, field recordings. The default is unchanged; the row stays MODELLED.",
       "module": "iq::track (LoopConfig, FllGate, design); iq::track::channel (the FLL gate)",
       "tests": "tests/iq_fll_handover_floor.rs (registered_bars_give_the_recorded_verdict, d1_the_key_is_part_of_the_hash_only_when_set, d4_the_capped_design_pulls_in_a_100_hz_handoff_error), on tests/fixtures/fll_handover_floor/results.csv",
       "module_links": [
@@ -9088,6 +9088,106 @@
         {
           "path": "tests/iq_fll_handover_floor.rs",
           "url": "https://github.com/AshfordeOU/kshana/blob/main/tests/iq_fll_handover_floor.rs"
+        }
+      ],
+      "fixture": null
+    },
+    {
+      "requirement": "Write a JPL Horizons state table as a CCSDS OEM, a CCSDS OPM or an SPK kernel, and read it back",
+      "capability": "kshana ephem-export (and ephem_export in Python, WebAssembly and MCP): a JPL Horizons vector table is written as a CCSDS OEM 2.0, an OPM 3.0 or an SPK of type 13 or 9 (frame code 1, ICRF). Values and epochs are copied, not computed, and the engine reads the written file back and reports the comparison",
+      "status": "MODELLED",
+      "oracle_kind": "ReferenceImpl",
+      "oracle": "The engine's own reader on the files it wrote (same codebase). The C7 reference integration has no bar: Orekit 13.1.9 and Basilisk 2.12.2's SPICE read the files back exactly (Orekit's km to m conversion named as rounding further), and ANISE 0.10.6 evaluates the SPK no further from the written states than SPICE does; GMAT is not done until its CI job is green. A one-off check outside the repository found the SPK byte for byte equal to the kernel SPICE's spkw13 writes from the same states. Carries data only; says nothing about any propagation",
+      "module": "ephem_export",
+      "tests": "tests/ephem_export_capstone.rs (4321 of 4321 CAPSTONE states read back with the same bits from the OEM and the SPK; the SHA-256 of each file pinned through the CLI); the flight-dynamics workflow (integrations/flight-dynamics/: Orekit, Basilisk and ANISE notebooks; docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md)",
+      "module_links": [
+        {
+          "path": "src/ephem_export.rs",
+          "url": "https://github.com/AshfordeOU/kshana/blob/main/src/ephem_export.rs"
+        }
+      ],
+      "test_links": [
+        {
+          "path": "tests/ephem_export_capstone.rs",
+          "url": "https://github.com/AshfordeOU/kshana/blob/main/tests/ephem_export_capstone.rs"
+        }
+      ],
+      "fixture": null
+    },
+    {
+      "requirement": "Optical-navigation measurement model: apparent direction, pinhole projection with distortion, and partials",
+      "capability": "opnav::measure: the apparent direction of a body centre (converged Newtonian light time and stellar aberration, the SPICE CN+S correction) or of a catalogue star (aberration only), projected through a pinhole camera with Brown-Conrady distortion in the OpenCV projectPoints convention at a given attitude quaternion, with the partials of the pixel with respect to the spacecraft position and velocity",
+      "status": "MODELLED",
+      "oracle_kind": "ExternalDataset",
+      "oracle": "SPICE (spiceypy 8.3.0, CSPICE N0067) and OpenCV 5.0.0, under bars pre-registered in docs/design/evidence/c5a-optical-navigation-model/: O1 body directions within 0.0016 mas of SPICE CN+S (bar 1 mas), O2 stars within 3e-8 mas, O3 projection within 1.3e-11 px of OpenCV, O4 end to end within 3.8e-8 px (bar 1e-4 px), O6 additivity: MET. O5 NOT MET: 258 of 432 partial elements differ from central differences at the registered 1 m and 1 mm/s steps by more than 1e-6 relative (the largest elements agree to about 1e-7 to 1e-9; a no-bar diagnostic at 1 km and 1 m/s cuts the worst relative difference from 1.0 to 8e-4, pointing to difference round-off, not proven). WHAT IS NOT CHECKED: image processing, the body's figure or phase, attitude error, any real camera",
+      "module": "opnav",
+      "tests": "tests/c5a_opnav.rs (36 measurements against the committed SPICE and OpenCV oracle output; the recorded verdicts asserted, the O5 miss included)",
+      "module_links": [
+        {
+          "path": "src/opnav.rs",
+          "url": "https://github.com/AshfordeOU/kshana/blob/main/src/opnav.rs"
+        }
+      ],
+      "test_links": [
+        {
+          "path": "tests/c5a_opnav.rs",
+          "url": "https://github.com/AshfordeOU/kshana/blob/main/tests/c5a_opnav.rs"
+        }
+      ],
+      "fixture": {
+        "path": "tests/fixtures/c5a_opnav",
+        "url": "https://github.com/AshfordeOU/kshana/blob/main/tests/fixtures/c5a_opnav",
+        "notice_url": "https://github.com/AshfordeOU/kshana/blob/main/tests/fixtures/c5a_opnav/NOTICE.md"
+      }
+    },
+    {
+      "requirement": "CAPSTONE NRHO propagation with DE440 third bodies and one radiation-pressure parameter",
+      "capability": "c3_force::C3Model: the A2 lunar force model with the Sun and Earth from a DE440 kernel plus Venus and the Jupiter system barycentre as point masses (M1), and optionally cannonball radiation pressure k = Cr A/m with Earth and Moon conical shadows (M2). With no kernel and no radiation pressure it is the A2 model bit for bit",
+      "status": "MODELLED",
+      "oracle_kind": "ExternalDataset",
+      "oracle": "JPL Horizons reconstruction of CAPSTONE (-1176), under bars pre-registered in docs/design/evidence/c3-capstone-nrho-force-model/. C3-R MET on A2's window W0 (21.66 km end position, 4.24 km periapsis; bars 25 and 10 km). C3-H NOT MET on the held-out windows E, H1, H2 (end position 37.25, 36.23, 49.65 km; periapsis met). C3-S NOT MET (k fitted on E: H1 12.92 km met, H2 57.13 km). A2 is not met on re-run. The reconstruction is the reference, not truth",
+      "module": "c3_force",
+      "tests": "tests/c3_force.rs (kernel off equals A2 bit for bit; radiation term against its closed form and zero in both umbrae; the control on W0, gated); tests/c3_verdicts.rs (the recorded verdicts, misses included)",
+      "module_links": [
+        {
+          "path": "src/c3_force.rs",
+          "url": "https://github.com/AshfordeOU/kshana/blob/main/src/c3_force.rs"
+        }
+      ],
+      "test_links": [
+        {
+          "path": "tests/c3_force.rs",
+          "url": "https://github.com/AshfordeOU/kshana/blob/main/tests/c3_force.rs"
+        },
+        {
+          "path": "tests/c3_verdicts.rs",
+          "url": "https://github.com/AshfordeOU/kshana/blob/main/tests/c3_verdicts.rs"
+        }
+      ],
+      "fixture": null
+    },
+    {
+      "requirement": "Impulsive steps in the cislunar coast and the C2 step detector",
+      "capability": "The tli-and-cruise phase's optional impulses list (t_s from the phase start, dv_mps in GCRF) adds each step to the mean state, shortening a step to land on it; without impulses every output is unchanged. mission_thread::impulses::detect flags hours whose one-hour velocity residual exceeds 0.01 m/s and gives one impulse per event hour at its midpoint",
+      "status": "MODELLED",
+      "oracle_kind": "ExternalDataset",
+      "oracle": "JPL Horizons reconstruction of Artemis I (-1023), under bars pre-registered in docs/mission-thread/PREREGISTRATION-C2.md: NOT MET on W1 (17.3 km against 2 km; 0.0177 m/s against 0.01 m/s); W2 not run (the published burn times leave 42.8 h, not 72 h). A diagnostic after the verdict shows four of the five steps in the reconstruction carry position jumps no velocity step within one hour can produce. The impulse support itself is checked on synthetic data only",
+      "module": "mission_thread::impulses",
+      "tests": "tests/mission_thread_c2_impulses.rs (synthetic only: start impulse equals a changed start velocity bit for bit; a mid-phase impulse equals stopping, adding and continuing; two known mid-hour steps recovered; malformed tables refused); tests/mission_thread_c2_verdict.rs (the recorded verdict, the miss included)",
+      "module_links": [
+        {
+          "path": "src/mission_thread/impulses.rs",
+          "url": "https://github.com/AshfordeOU/kshana/blob/main/src/mission_thread/impulses.rs"
+        }
+      ],
+      "test_links": [
+        {
+          "path": "tests/mission_thread_c2_impulses.rs",
+          "url": "https://github.com/AshfordeOU/kshana/blob/main/tests/mission_thread_c2_impulses.rs"
+        },
+        {
+          "path": "tests/mission_thread_c2_verdict.rs",
+          "url": "https://github.com/AshfordeOU/kshana/blob/main/tests/mission_thread_c2_verdict.rs"
         }
       ],
       "fixture": null
