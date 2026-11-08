@@ -81,7 +81,7 @@ if [ "$SERVICE" = 1 ]; then
   getent passwd kshana >/dev/null || useradd --system --home /var/lib/kshana-pro --shell /usr/sbin/nologin kshana
   install -d -o kshana -g kshana -m 0750 /var/lib/kshana-pro /var/lib/kshana-pro/data /var/lib/kshana-pro/licence
   systemctl daemon-reload
-  echo "service installed: activate the licence as the kshana user, then systemctl enable --now kshana-pro"
+  echo "service installed: activate the licence as the kshana user (sudo -u kshana KSHANA_PRO_HOME=/var/lib/kshana-pro/licence $PREFIX/bin/kshana-pro license activate --product service --file <token.txt>), then systemctl enable --now kshana-pro"
 fi
 INSTALL
 chmod 0755 "$OUT/install.sh"

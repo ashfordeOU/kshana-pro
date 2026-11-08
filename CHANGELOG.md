@@ -5,6 +5,14 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Service licence activation, checked end to end.** `tests/offline_bundle.rs` activates a
+  `service` token into the licence folder beside `serve.conf` and starts `serve --config` with
+  no `KSHANA_PRO_HOME` of its own: it serves at the token's tier, and at Evaluation without the
+  `KSHANA_PRO_HOME` line. It found that the documented step (`license activate --file`) checks
+  the `cli` product, so a service-only token was refused: the Windows steps in DEPLOY.md, the
+  `.deb` and `.rpm` post-install messages and the offline bundle's message now say
+  `--product service`, and docs/LICENSING.md says why.
+
 - **Windows installer and service (L5).** `deploy/windows/kshana-pro.wxs` (WiX v4) and
   `scripts/build-msi.ps1`: an unsigned MSI that registers `kshana-pro` as a Windows service
   (LocalService, automatic start) with its settings, data and licence store under

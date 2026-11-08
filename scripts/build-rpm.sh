@@ -65,7 +65,7 @@ exit 0
 %post
 if command -v systemctl >/dev/null 2>&1; then systemctl daemon-reload || true; fi
 if [ "\$1" -eq 1 ]; then
-  echo "kshana-pro installed. Activate a licence: sudo -u kshana KSHANA_PRO_HOME=/var/lib/kshana-pro/licence kshana-pro license activate --file <token.txt>"
+  echo "kshana-pro installed. Activate a licence: sudo -u kshana KSHANA_PRO_HOME=/var/lib/kshana-pro/licence kshana-pro license activate --product service --file <token.txt>"
   echo "Then: sudo systemctl enable --now kshana-pro"
 fi
 

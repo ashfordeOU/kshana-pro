@@ -72,6 +72,7 @@ Nothing here needs a network.
 ```bash
 kshana-pro license machine-id              # only for a machine-bound token: send this hash
 kshana-pro license activate <token>        # or --file licence.txt; verified, then stored
+                                           # (checked for the cli product; for the service, add --product service)
 kshana-pro license status                  # state, tier, expiry, products, warnings
 kshana-pro license revocations install revocations.txt   # comes with each update
 ```

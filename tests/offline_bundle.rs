@@ -327,3 +327,127 @@ fn serve_reads_its_settings_file_and_the_windows_mode_is_windows_only() {
     }
     let _ = std::fs::remove_dir_all(&work);
 }
+
+/// The service's licence, as the Windows steps in deploy/DEPLOY.md set it up: an
+/// administrator activates a `service` token into the licence folder beside serve.conf,
+/// and the service, started with `serve --config` (no KSHANA_PRO_HOME in its own
+/// environment), serves at that token's tier because serve.conf names the folder.
+#[test]
+fn a_licence_activated_beside_serve_conf_is_the_one_the_service_serves() {
+    if !cfg!(debug_assertions) || option_env!("KSHANA_PRO_LICENSE_PUBKEY").is_some() {
+        return; // activates a demo-key token: debug builds without a licence key
+    }
+    use std::io::{Read, Write};
+    let work = tmp("svc-licence");
+    let empty_home = work.join("user-home"); // no stray per-user licence store
+    std::fs::create_dir_all(&empty_home).unwrap();
+    let cmd = |args: &[&str]| {
+        let mut c = Command::new(bin());
+        c.args(args)
+            .env_remove("KSHANA_PRO_HOME")
+            .env_remove("KSHANA_PRO_SIGNING_KEY")
+            .env("HOME", &empty_home)
+            .env("XDG_CONFIG_HOME", &empty_home)
+            .env("APPDATA", &empty_home);
+        c
+    };
+    let tok = cmd(&[
+        "license",
+        "issue",
+        "--tier",
+        "enterprise",
+        "--licensee",
+        "Service Site",
+        "--days",
+        "30",
+        "--product",
+        "service",
+    ])
+    .output()
+    .unwrap();
+    assert!(
+        tok.status.success(),
+        "{}",
+        String::from_utf8_lossy(&tok.stderr)
+    );
+    std::fs::write(
+        work.join("token.txt"),
+        String::from_utf8_lossy(&tok.stdout).trim(),
+    )
+    .unwrap();
+    let licence = work.join("licence");
+    let token_file = work.join("token.txt");
+    // Activation checks the cli product unless told otherwise, so a service-only token
+    // needs --product service (the steps in DEPLOY.md and the packages' messages say so).
+    let plain = cmd(&[
+        "license",
+        "activate",
+        "--file",
+        token_file.to_str().unwrap(),
+    ])
+    .env("KSHANA_PRO_HOME", &licence)
+    .output()
+    .unwrap();
+    assert!(!plain.status.success());
+    assert!(String::from_utf8_lossy(&plain.stderr).contains("does not cover cli"));
+    // The activation the steps give.
+    let a = cmd(&[
+        "license",
+        "activate",
+        "--file",
+        token_file.to_str().unwrap(),
+        "--product",
+        "service",
+    ])
+    .env("KSHANA_PRO_HOME", &licence)
+    .output()
+    .unwrap();
+    assert!(
+        a.status.success(),
+        "{}{}",
+        String::from_utf8_lossy(&a.stdout),
+        String::from_utf8_lossy(&a.stderr)
+    );
+
+    let tier_of = |conf_extra: &str| -> String {
+        let port = std::net::TcpListener::bind("127.0.0.1:0")
+            .unwrap()
+            .local_addr()
+            .unwrap()
+            .port();
+        let conf = work.join("serve.conf");
+        std::fs::write(
+            &conf,
+            format!("KSHANA_PRO_ADDR=127.0.0.1:{port}\nKSHANA_PRO_DATA_DIR=data\n{conf_extra}"),
+        )
+        .unwrap();
+        let mut child = cmd(&["serve", "--config", conf.to_str().unwrap()])
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+            .unwrap();
+        let mut body = String::new();
+        for _ in 0..100 {
+            if let Ok(mut s) = std::net::TcpStream::connect(("127.0.0.1", port)) {
+                write!(
+                    s,
+                    "GET /version HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n"
+                )
+                .unwrap();
+                s.read_to_string(&mut body).unwrap();
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(100));
+        }
+        let _ = child.kill();
+        let _ = child.wait();
+        let json = body.split("\r\n\r\n").nth(1).unwrap_or("");
+        let v: serde_json::Value = serde_json::from_str(json).unwrap_or_default();
+        v["tier"].as_str().unwrap_or("").to_string()
+    };
+    // serve.conf names the folder (relative to itself): the activated tier.
+    assert_eq!(tier_of("KSHANA_PRO_HOME=licence\n"), "enterprise");
+    // Without that line the service does not find it: Evaluation.
+    assert_eq!(tier_of(""), "evaluation");
+    let _ = std::fs::remove_dir_all(&work);
+}

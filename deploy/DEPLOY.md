@@ -214,7 +214,7 @@ service. Activate a licence, then start it, in an elevated PowerShell:
 
 ```powershell
 $env:KSHANA_PRO_HOME = "$env:ProgramData\kshana-pro\licence"
-kshana-pro license activate --file token.txt
+kshana-pro license activate --product service --file token.txt
 Start-Service kshana-pro
 ```
 
