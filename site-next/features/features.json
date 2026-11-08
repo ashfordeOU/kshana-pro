@@ -1,10 +1,10 @@
 {
  "generated_by": "features/gen_features.py",
- "generated_at": "2026-11-08T19:26:10Z",
+ "generated_at": "2026-11-08T19:45:00Z",
  "engine": {
   "repo": "/workspace/kshana-T",
   "version": "0.40.0",
-  "git_head": "667bea534",
+  "git_head": "09d61455a",
   "worktree_dirty": false
  },
  "counts": {
@@ -25,11 +25,11 @@
  "unplaced": [],
  "stale_placements": [],
  "warnings": [
-  "pro:calibrated-clock-twin: public quote found on branch apps/matrix-renumber only, not yet in kshana-T/web/index.html",
-  "pro:evidence-pack: public quote found on branch apps/matrix-renumber only, not yet in kshana-T/web/index.html",
-  "study:modelled-resilience-study: public quote found on branch apps/matrix-renumber only, not yet in kshana-T/web/index.html",
-  "study:export-controlled-work: public quote found on branch apps/matrix-renumber only, not yet in kshana-T/web/index.html",
-  "pro:commercial-licence: public quote found on branch apps/matrix-renumber only, not yet in kshana-T/web/index.html"
+  "pro:calibrated-clock-twin: public quote found on branch apps/matrix-renumber-2 only, not yet in kshana-T/web/index.html",
+  "pro:evidence-pack: public quote found on branch apps/matrix-renumber-2 only, not yet in kshana-T/web/index.html",
+  "study:modelled-resilience-study: public quote found on branch apps/matrix-renumber-2 only, not yet in kshana-T/web/index.html",
+  "study:export-controlled-work: public quote found on branch apps/matrix-renumber-2 only, not yet in kshana-T/web/index.html",
+  "pro:commercial-licence: public quote found on branch apps/matrix-renumber-2 only, not yet in kshana-T/web/index.html"
  ],
  "features": [
   {
@@ -35173,9 +35173,9 @@
    "subtype": "edition offer",
    "name": "Calibrated clock digital twin",
    "description": "A digital twin of a clock calibrated to the device's published Allan-deviation budget (the standard measure of clock stability).",
-   "source": "web/index.html:759 (branch apps/matrix-renumber e3f2a74b)",
+   "source": "web/index.html:759 (branch apps/matrix-renumber-2 e3f2a74b)",
    "edition": "Pro",
-   "edition_source": "web/index.html:759 (branch apps/matrix-renumber e3f2a74b) “clock digital twins calibrated to a device's published Allan budget”",
+   "edition_source": "web/index.html:759 (branch apps/matrix-renumber-2 e3f2a74b) “clock digital twins calibrated to a device's published Allan budget”",
    "identifiers": [],
    "probes": [
     [
@@ -35255,9 +35255,9 @@
    "subtype": "edition offer",
    "name": "Audit-grade, reproducible evidence pack",
    "description": "The evidence a review or procurement board asks for, packaged so every figure can be reproduced.",
-   "source": "web/index.html:760 (branch apps/matrix-renumber e3f2a74b)",
+   "source": "web/index.html:760 (branch apps/matrix-renumber-2 e3f2a74b)",
    "edition": "Pro",
-   "edition_source": "web/index.html:760 (branch apps/matrix-renumber e3f2a74b) “audit-grade, reproducible evidence packs”",
+   "edition_source": "web/index.html:760 (branch apps/matrix-renumber-2 e3f2a74b) “audit-grade, reproducible evidence packs”",
    "identifiers": [],
    "probes": [
     [
@@ -35646,9 +35646,9 @@
    "subtype": "edition offer",
    "name": "Modelled PNT-resilience study (for example an optimism-gap audit)",
    "description": "A bespoke, modelled positioning, navigation and timing (PNT) resilience study, reproducible from scenario, seed and engine version, every figure labelled; not a certification.",
-   "source": "web/index.html:773 (branch apps/matrix-renumber e3f2a74b)",
+   "source": "web/index.html:773 (branch apps/matrix-renumber-2 e3f2a74b)",
    "edition": "Custom study",
-   "edition_source": "web/index.html:773 (branch apps/matrix-renumber e3f2a74b) “PNT-resilience study — e.g. an optimism-gap audit — reproducible from scenario + seed + engine version”",
+   "edition_source": "web/index.html:773 (branch apps/matrix-renumber-2 e3f2a74b) “PNT-resilience study — e.g. an optimism-gap audit — reproducible from scenario + seed + engine version”",
    "identifiers": [],
    "probes": [
     [
@@ -35708,9 +35708,9 @@
    "subtype": "edition offer",
    "name": "Export-controlled resilience work under clearance and NDA",
    "description": "Export-controlled resilience work delivered under the appropriate clearance and non-disclosure agreement (NDA).",
-   "source": "web/index.html:766 (branch apps/matrix-renumber e3f2a74b)",
+   "source": "web/index.html:766 (branch apps/matrix-renumber-2 e3f2a74b)",
    "edition": "Custom study",
-   "edition_source": "web/index.html:766 (branch apps/matrix-renumber e3f2a74b) “export-controlled resilience work delivered under the appropriate clearance and NDA”",
+   "edition_source": "web/index.html:766 (branch apps/matrix-renumber-2 e3f2a74b) “export-controlled resilience work delivered under the appropriate clearance and NDA”",
    "identifiers": [],
    "probes": [
     [
@@ -35819,9 +35819,9 @@
    "subtype": "edition offer",
    "name": "Commercial licence of the open core (dual licence, not Pro)",
    "description": "The same open-core code under a commercial licence for closed or proprietary integration without Affero General Public License (AGPL) obligations. Listed beside Pro because buyers ask for it there, but the public source ties it to the open core.",
-   "source": "web/index.html:751 (branch apps/matrix-renumber e3f2a74b)",
+   "source": "web/index.html:751 (branch apps/matrix-renumber-2 e3f2a74b)",
    "edition": "Free core",
-   "edition_source": "web/index.html:751 (branch apps/matrix-renumber e3f2a74b) “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”",
+   "edition_source": "web/index.html:751 (branch apps/matrix-renumber-2 e3f2a74b) “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”",
    "identifiers": [],
    "probes": [
     [
