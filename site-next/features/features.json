@@ -1,10 +1,10 @@
 {
  "generated_by": "features/gen_features.py",
- "generated_at": "2026-11-08T19:45:00Z",
+ "generated_at": "2026-11-08T21:20:04Z",
  "engine": {
   "repo": "/workspace/kshana-T",
   "version": "0.40.0",
-  "git_head": "09d61455a",
+  "git_head": "884e343f7",
   "worktree_dirty": false
  },
  "counts": {
@@ -25,11 +25,11 @@
  "unplaced": [],
  "stale_placements": [],
  "warnings": [
-  "pro:calibrated-clock-twin: public quote found on branch apps/matrix-renumber-2 only, not yet in kshana-T/web/index.html",
-  "pro:evidence-pack: public quote found on branch apps/matrix-renumber-2 only, not yet in kshana-T/web/index.html",
-  "study:modelled-resilience-study: public quote found on branch apps/matrix-renumber-2 only, not yet in kshana-T/web/index.html",
-  "study:export-controlled-work: public quote found on branch apps/matrix-renumber-2 only, not yet in kshana-T/web/index.html",
-  "pro:commercial-licence: public quote found on branch apps/matrix-renumber-2 only, not yet in kshana-T/web/index.html"
+  "pro:calibrated-clock-twin: public quote found on branch apps/d8-rows56-port only, not yet in kshana-T/web/index.html",
+  "pro:evidence-pack: public quote found on branch apps/d8-rows56-port only, not yet in kshana-T/web/index.html",
+  "study:modelled-resilience-study: public quote found on branch apps/d8-rows56-port only, not yet in kshana-T/web/index.html",
+  "study:export-controlled-work: public quote found on branch apps/d8-rows56-port only, not yet in kshana-T/web/index.html",
+  "pro:commercial-licence: public quote found on branch apps/d8-rows56-port only, not yet in kshana-T/web/index.html"
  ],
  "features": [
   {
@@ -28456,7 +28456,7 @@
    "facts": {
     "status": "MODELLED",
     "module": "iq::labfit (campaign, cn0, iqfit, iqreport, schema, mod); iq::cli::labfit",
-    "oracle": "Synthetic parameter recovery on Kshana's own GPS L1 C/A scenes with a known C/N0 profile imposed from the section 3.1 formula, tracked and scored by kshana iq campaign, against bars pre-registered in docs/design/LABFIT-FROM-IQ.md (section 5.1, amended 2026-10-12 in 4ca3ef3, section 13). The campaigns' C/N0 estimator (M2M4) was fixed in fa388b82, pushed before the first bar evaluation (committed together with the fit code, not alone), after one disclosed diagnostic tracking run. FINDING on the 18-event bar campaign: (c) PASS; (a') NOT MET, delta_eff error -1.097 dB against 0.5 dB (still -0.89 dB on bins at 38 dB-Hz and above); (b') NOT MET, 0 of 50 campaigns cover the truth (error -1.189 +/- 0.093 dB, interval about 0.3 dB); (d) NOT MET, closed form 2.20 dB below the direct J/S at loss, about the fitted drop dwell times the ramp rate (2.09 dB); the original Q clauses of (a) and (b) are NOT MET because Q is not identifiable. FOLLOW-UP (bars pre-registered in 99e7c599, docs/design/evidence/labfit-followup/RESULTS.md): on a stepped-J/S campaign delta_eff is recovered within +0.185 dB (S1 MET: the ramp error is estimator lag); (d) as written on it is met by the tracking-loop model (0.45 dB) but not the empirical one (6.42 dB), so S2 is NOT MET; on a fresh ramp campaign (d) with the fitted drop dwell times each event's ramp rate added is within 1 dB for both models (R1 MET), and (a') and (d) as written miss again (-1.25 dB; 2.32 and 9.47 dB). The method is checked, not any receiver: it cannot be VALIDATED from synthetic data"
+    "oracle": "Synthetic parameter recovery on Kshana's own GPS L1 C/A scenes with a known C/N0 profile imposed from the section 3.1 formula, tracked and scored by kshana iq campaign, against bars pre-registered in docs/design/LABFIT-FROM-IQ.md (section 5.1, amended 2026-10-12 in 4ca3ef3, section 13). The campaigns' C/N0 estimator (M2M4) was fixed in fa388b82, pushed before the first bar evaluation (committed together with the fit code, not alone), after one disclosed diagnostic tracking run. FINDING on the 18-event bar campaign: (c) PASS; (a') NOT MET, delta_eff error -1.097 dB against 0.5 dB (still -0.89 dB on bins at 38 dB-Hz and above); (b') NOT MET, 0 of 50 campaigns cover the truth (error -1.189 +/- 0.093 dB, interval about 0.3 dB); (d) NOT MET, closed form 2.20 dB below the direct J/S at loss, about the fitted drop dwell times the ramp rate (2.09 dB); the original Q clauses of (a) and (b) are NOT MET because Q is not identifiable. FOLLOW-UP (bars pre-registered in 99e7c599, docs/design/evidence/labfit-followup/RESULTS.md): on a stepped-J/S campaign delta_eff is recovered within +0.185 dB (S1 MET: the ramp error is estimator lag); (d) as written on it is met by the tracking-loop model (0.45 dB) but not the empirical one (6.42 dB), so S2 is NOT MET; on a fresh ramp campaign (d) with the fitted drop dwell times each event's ramp rate added is within 1 dB for both models (R1 MET), and (a') and (d) as written miss again (-1.25 dB; 2.32 and 9.47 dB). RE-RUN 0.41 (D8a row 6, 61b389998, docs/design/evidence/d8a-iq-tracking-cn0-rerun/): with the fit modelling each bin 0.5 s earlier along the profile ([campaign_fit] cn0_lag_s), still NOT MET: (a') +0.5015 dB seen (bar 0.5) and +0.399 dB fresh; (b') 0 of 50 on seen and fresh seeds, now +0.45 to +0.47 dB with every interval above the truth (the 0.5 s lag overshoots); (c) met on seen seeds, missed on fresh (time-to-loss coverage 1.000 against a bar of at most 0.98); (d) 2.19 dB seen, 0.32 dB fresh. The controls (lag 0) reproduced before scoring (disclosed). A different lag would need a new pre-registration. The method is checked, not any receiver: it cannot be VALIDATED from synthetic data"
    },
    "page": "Evidence",
    "section": "ledger",
@@ -34407,7 +34407,7 @@
    "facts": {
     "status": "MODELLED",
     "module": "iq::track::boc (BocKind, BocTracking, BumpJump, boc11_dll_scale); iq::track::channel (the bump-jump taps and Channel::bump_jumps)",
-    "oracle": "Internal consistency against injected truth and closed forms, under bars pre-registered at 700d95df (docs/design/evidence/boc-bump-jump/). A BeiDou B1C data signal (PRN 19, 5 MS/s) generated by iq::scene: with the option off a side-peak start stays false-locked at the predicted ±(0.5 + d/4) chip (measured ±0.549); with it on, one jump towards the main peak at 0.08 s and a late-window RMS of 0.0008 chip at 45 dB-Hz and 0.0048 chip at 35 dB-Hz; no jump from the main peak at 35, 40 and 45 dB-Hz over 4 s; the scaled EMLP slope 0.94 to 0.99 on the sampled signal (unscaled 3.6 to 3.8). The bump-jump detector alone, on correlator triples with the exact BOC(1,1) noise covariance, made no false jump in 100 000 updates at 25 to 45 dB-Hz and detected 1000 of 1000 side-peak starts at 35 dB-Hz. NOT MET (finding F1): the pre-registered unit-test grid for the scaling includes offsets outside the discriminators' linear range, where the scaled readings miss the offset by up to 48 %. WHAT IS NOT CHECKED: field IQ, band-limited front ends, composite MBOC/QMBOC replicas, and any external receiver."
+    "oracle": "Internal consistency against injected truth and closed forms, under bars pre-registered at 700d95df (docs/design/evidence/boc-bump-jump/). A BeiDou B1C data signal (PRN 19, 5 MS/s) generated by iq::scene: with the option off a side-peak start stays false-locked at the predicted ±(0.5 + d/4) chip (measured ±0.549); with it on, one jump towards the main peak at 0.08 s and a late-window RMS of 0.0008 chip at 45 dB-Hz and 0.0048 chip at 35 dB-Hz; no jump from the main peak at 35, 40 and 45 dB-Hz over 4 s; the scaled EMLP slope 0.94 to 0.99 on the sampled signal (unscaled 3.6 to 3.8). The bump-jump detector alone, on correlator triples with the exact BOC(1,1) noise covariance, made no false jump in 100 000 updates at 25 to 45 dB-Hz and detected 1000 of 1000 side-peak starts at 35 dB-Hz. NOT MET (finding F1): the pre-registered unit-test grid for the scaling includes offsets outside the discriminators' linear range, where the scaled readings miss the offset by up to 48 %. RE-RUN 0.41 (D8a row 5, 19c6b3518): MET on re-run with the opt-in exact inverse of each discriminator on the ideal BOC(1,1) peak (the linear scaling stays the default; every existing output unchanged): all 27 grid points within 10 % (worst 4.6e-15, by construction, stated in advance); sampled-signal slopes 0.995 to 1.011 (linear 0.938 to 0.994); B1, B2, B3 and B5 hold on registered and fresh seeds. WHAT IS NOT CHECKED: field IQ, band-limited front ends, composite MBOC/QMBOC replicas, and any external receiver."
    },
    "page": "Evidence",
    "section": "ledger",
@@ -35173,9 +35173,9 @@
    "subtype": "edition offer",
    "name": "Calibrated clock digital twin",
    "description": "A digital twin of a clock calibrated to the device's published Allan-deviation budget (the standard measure of clock stability).",
-   "source": "web/index.html:759 (branch apps/matrix-renumber-2 e3f2a74b)",
+   "source": "web/index.html:759 (branch apps/d8-rows56-port e3f2a74b)",
    "edition": "Pro",
-   "edition_source": "web/index.html:759 (branch apps/matrix-renumber-2 e3f2a74b) “clock digital twins calibrated to a device's published Allan budget”",
+   "edition_source": "web/index.html:759 (branch apps/d8-rows56-port e3f2a74b) “clock digital twins calibrated to a device's published Allan budget”",
    "identifiers": [],
    "probes": [
     [
@@ -35255,9 +35255,9 @@
    "subtype": "edition offer",
    "name": "Audit-grade, reproducible evidence pack",
    "description": "The evidence a review or procurement board asks for, packaged so every figure can be reproduced.",
-   "source": "web/index.html:760 (branch apps/matrix-renumber-2 e3f2a74b)",
+   "source": "web/index.html:760 (branch apps/d8-rows56-port e3f2a74b)",
    "edition": "Pro",
-   "edition_source": "web/index.html:760 (branch apps/matrix-renumber-2 e3f2a74b) “audit-grade, reproducible evidence packs”",
+   "edition_source": "web/index.html:760 (branch apps/d8-rows56-port e3f2a74b) “audit-grade, reproducible evidence packs”",
    "identifiers": [],
    "probes": [
     [
@@ -35646,9 +35646,9 @@
    "subtype": "edition offer",
    "name": "Modelled PNT-resilience study (for example an optimism-gap audit)",
    "description": "A bespoke, modelled positioning, navigation and timing (PNT) resilience study, reproducible from scenario, seed and engine version, every figure labelled; not a certification.",
-   "source": "web/index.html:773 (branch apps/matrix-renumber-2 e3f2a74b)",
+   "source": "web/index.html:773 (branch apps/d8-rows56-port e3f2a74b)",
    "edition": "Custom study",
-   "edition_source": "web/index.html:773 (branch apps/matrix-renumber-2 e3f2a74b) “PNT-resilience study — e.g. an optimism-gap audit — reproducible from scenario + seed + engine version”",
+   "edition_source": "web/index.html:773 (branch apps/d8-rows56-port e3f2a74b) “PNT-resilience study — e.g. an optimism-gap audit — reproducible from scenario + seed + engine version”",
    "identifiers": [],
    "probes": [
     [
@@ -35708,9 +35708,9 @@
    "subtype": "edition offer",
    "name": "Export-controlled resilience work under clearance and NDA",
    "description": "Export-controlled resilience work delivered under the appropriate clearance and non-disclosure agreement (NDA).",
-   "source": "web/index.html:766 (branch apps/matrix-renumber-2 e3f2a74b)",
+   "source": "web/index.html:766 (branch apps/d8-rows56-port e3f2a74b)",
    "edition": "Custom study",
-   "edition_source": "web/index.html:766 (branch apps/matrix-renumber-2 e3f2a74b) “export-controlled resilience work delivered under the appropriate clearance and NDA”",
+   "edition_source": "web/index.html:766 (branch apps/d8-rows56-port e3f2a74b) “export-controlled resilience work delivered under the appropriate clearance and NDA”",
    "identifiers": [],
    "probes": [
     [
@@ -35819,9 +35819,9 @@
    "subtype": "edition offer",
    "name": "Commercial licence of the open core (dual licence, not Pro)",
    "description": "The same open-core code under a commercial licence for closed or proprietary integration without Affero General Public License (AGPL) obligations. Listed beside Pro because buyers ask for it there, but the public source ties it to the open core.",
-   "source": "web/index.html:751 (branch apps/matrix-renumber-2 e3f2a74b)",
+   "source": "web/index.html:751 (branch apps/d8-rows56-port e3f2a74b)",
    "edition": "Free core",
-   "edition_source": "web/index.html:751 (branch apps/matrix-renumber-2 e3f2a74b) “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”",
+   "edition_source": "web/index.html:751 (branch apps/d8-rows56-port e3f2a74b) “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”",
    "identifiers": [],
    "probes": [
     [
