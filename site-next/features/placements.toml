@@ -1270,10 +1270,15 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "cli:--axis" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
 "cli:--id" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
 "cli:--expected-mean" = { page = "Developers", section = "ways", studio = "none", docs = "docs/rust.html#usage--cli" }
+"cli:--index" = { page = "Developers", section = "ways", studio = "none", docs = "docs/flight-dynamics-export.html#use" }
+"cli:--degree" = { page = "Developers", section = "ways", studio = "none", docs = "docs/flight-dynamics-export.html#use" }
+"cli:--creation-date" = { page = "Developers", section = "ways", studio = "none", docs = "docs/flight-dynamics-export.html#use" }
+"cli:--object-id" = { page = "Developers", section = "ways", studio = "none", docs = "docs/flight-dynamics-export.html#use" }
 "mcp-tool:jammertest_import" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
 "mcp-tool:jammertest_score" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
 "mcp-tool:create_round_trip_pack" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
 "mcp-tool:fit_imu_log" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
+"mcp-tool:ephem_export" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
 "mcp-tool:list_standards_packs" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
 "mcp-tool:run_standards_pack" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
 "mcp-tool:lunanet_afs_check" = { page = "Developers", section = "mcp", studio = "none", docs = "docs/mcp.html#tools" }
@@ -1290,6 +1295,7 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "binding:python.lunanet_afs_check_symbols" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
 "binding:python.lunanet_afs_generate" = { page = "Docs", section = "python-api.html#surface", studio = "none", docs = "docs/python-api.html#surface" }
 "binding:python.imu_fit" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/python-api.html#surface" }
+"binding:python.ephem_export" = { page = "Docs", section = "flight-dynamics-export.html#use", studio = "none", docs = "docs/flight-dynamics-export.html#use" }
 "binding:wasm.lunanet_afs_check_spec" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
 "binding:wasm.lunanet_afs_check_symbols" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
 "binding:wasm.lunanet_afs_generate" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
@@ -1300,6 +1306,7 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "binding:wasm.jammertest_import" = { page = "Docs", section = "agents.html#which-tool-for-which-question", studio = "none", docs = "docs/npm.html#usage" }
 "binding:wasm.jammertest_score" = { page = "Docs", section = "agents.html#which-tool-for-which-question", studio = "none", docs = "docs/npm.html#usage" }
 "binding:wasm.imu_fit" = { page = "Docs", section = "capability-reference.html#matrix", studio = "none", docs = "docs/npm.html#usage" }
+"binding:wasm.ephem_export" = { page = "Docs", section = "flight-dynamics-export.html#use", studio = "none", docs = "docs/flight-dynamics-export.html#use" }
 "validation:optical-link-margin-against-time-one-seeded-realisation-of-a" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:clock-log-formats-linuxptp-ptp4l-phc2sys-ts2phc-and-chrony-t" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:holdover-test-scored-from-an-operator-supplied-time-error-re" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }

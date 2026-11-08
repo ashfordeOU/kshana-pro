@@ -257,6 +257,16 @@ export function encode_permalink(toml: string): string;
 export function env_baseline(site_hours_json: string): string;
 
 /**
+ * Write a JPL Horizons vector table as a CCSDS OEM (`format` `"oem"`), a CCSDS OPM of the state
+ * at `index` (`"opm"`) or an SPK kernel of type `spk_type` 13 or 9 and odd `degree` (`"spk"`),
+ * and read it back with the engine's readers (`kshana ephem-export`,
+ * docs/FLIGHT-DYNAMICS-EXPORT.md). An empty `creation_date` or `object_id` takes the table's
+ * own. Returns JSON: the table's object, centre, frame, time scale and span; the file
+ * (`encoding` `"utf-8"` or `"base64"`, `content`, `sha256`); and `read_back`.
+ */
+export function ephem_export(table: string, format: string, index: number, spk_type: number, degree: number, creation_date: string, object_id: string): string;
+
+/**
  * Why a scenario fails, as a JSON object string `{"kind", "code", "message"}` (`message` in `lang`,
  * `code` the same in every language, null when the message has none); empty when it runs.
  */
@@ -667,6 +677,7 @@ export interface InitOutput {
     readonly decode_permalink: (a: number, b: number) => [number, number];
     readonly encode_permalink: (a: number, b: number) => [number, number];
     readonly env_baseline: (a: number, b: number) => [number, number, number, number];
+    readonly ephem_export: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => [number, number, number, number];
     readonly error_info: (a: number, b: number, c: number, d: number) => [number, number];
     readonly error_kind: (a: number, b: number, c: number, d: number) => [number, number];
     readonly evidence_attach_timestamp: (a: number, b: number, c: number, d: number, e: number) => [number, number, number, number];

@@ -127,7 +127,9 @@ const index = { engine_version: version, ...(engineCommit ? { engine_commit: eng
 const celIndex = { ...index, runs: {} };
 if (only.length) for (const [ix, p] of [[index, "native/index.json"], [celIndex, "celeste/native/index.json"]]) { try { Object.assign(ix.runs, JSON.parse(readFileSync(here + p, "utf8")).runs); } catch { /* first run */ } }
 let next = 0, done = 0;
-const keepRun = new Set((process.env.KSHANA_NATIVE_FULL || "lunar-llr-datum").split(",").filter(Boolean));
+// The scenarios the browser build cannot run (they read repository data files): their whole native run is kept, and the
+// Studio shows it as a recorded run. Leaving one out here makes tools_record count it "not runnable".
+const keepRun = new Set((process.env.KSHANA_NATIVE_FULL || "lunar-llr-datum,lunar-station-coverage-terrain,lunar-station-geodesy-baseline,lunar-station-geodesy-with-station").split(",").filter(Boolean));
 async function worker() {
   while (next < jobs.length) {
     const j = jobs[next++];

@@ -369,6 +369,49 @@ export function env_baseline(site_hours_json) {
 }
 
 /**
+ * Write a JPL Horizons vector table as a CCSDS OEM (`format` `"oem"`), a CCSDS OPM of the state
+ * at `index` (`"opm"`) or an SPK kernel of type `spk_type` 13 or 9 and odd `degree` (`"spk"`),
+ * and read it back with the engine's readers (`kshana ephem-export`,
+ * docs/FLIGHT-DYNAMICS-EXPORT.md). An empty `creation_date` or `object_id` takes the table's
+ * own. Returns JSON: the table's object, centre, frame, time scale and span; the file
+ * (`encoding` `"utf-8"` or `"base64"`, `content`, `sha256`); and `read_back`.
+ * @param {string} table
+ * @param {string} format
+ * @param {number} index
+ * @param {number} spk_type
+ * @param {number} degree
+ * @param {string} creation_date
+ * @param {string} object_id
+ * @returns {string}
+ */
+export function ephem_export(table, format, index, spk_type, degree, creation_date, object_id) {
+    let deferred6_0;
+    let deferred6_1;
+    try {
+        const ptr0 = passStringToWasm0(table, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(format, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(creation_date, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(object_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ret = wasm.ephem_export(ptr0, len0, ptr1, len1, index, spk_type, degree, ptr2, len2, ptr3, len3);
+        var ptr5 = ret[0];
+        var len5 = ret[1];
+        if (ret[3]) {
+            ptr5 = 0; len5 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred6_0 = ptr5;
+        deferred6_1 = len5;
+        return getStringFromWasm0(ptr5, len5);
+    } finally {
+        wasm.__wbindgen_free(deferred6_0, deferred6_1, 1);
+    }
+}
+
+/**
  * Why a scenario fails, as a JSON object string `{"kind", "code", "message"}` (`message` in `lang`,
  * `code` the same in every language, null when the message has none); empty when it runs.
  * @param {string} toml
