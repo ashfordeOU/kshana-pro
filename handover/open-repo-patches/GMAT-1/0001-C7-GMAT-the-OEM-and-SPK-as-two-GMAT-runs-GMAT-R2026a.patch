@@ -1,0 +1,531 @@
+From c9995cea4dd1506f7cef062efd73bcd2bf000fe9 Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Sun, 8 Nov 2026 23:17:14 +0000
+Subject: [PATCH] C7 GMAT: the OEM and SPK as two GMAT runs; GMAT R2026a
+ refuses OEM 2.0 outside its TESTING mode
+
+The gmat job's first run (Flight dynamics run 42501092081, at 150df8d41) stopped the mission at the
+first propagation of Kshana's OEM: "Usage of CCSDS OEM v2 ephemeris data file is only allowed for
+running in TESTING mode". The adapter does not turn that mode on. gmat_reader.py now writes one
+script per file (run_oem, run_spk), so the OEM's outcome cannot stop the SPK leg. The notebook gives
+GMAT the OEM as written and accepts exactly two outcomes, the OEM carried or that refusal, which the
+report then states. The SPK leg is compared as before.
+
+RESULTS (C7), the flight-dynamics README, the workflow comment and docs/FLIGHT-DYNAMICS-EXPORT.md's
+OEM row record the refusal. Whether GMAT reads an OEM of version 1.0 is not tested: Kshana does not
+write one.
+---
+ .github/workflows/flight-dynamics.yml         |   3 +-
+ docs/FLIGHT-DYNAMICS-EXPORT.md                |   2 +-
+ .../c7-flight-dynamics-adapters/RESULTS.md    |  25 +++-
+ integrations/flight-dynamics/README.md        |   2 +-
+ integrations/flight-dynamics/gmat.ipynb       |  69 +++++++---
+ integrations/flight-dynamics/gmat.md          |  37 ++++--
+ integrations/flight-dynamics/gmat_reader.py   | 121 ++++++++++++------
+ 7 files changed, 180 insertions(+), 79 deletions(-)
+
+diff --git a/.github/workflows/flight-dynamics.yml b/.github/workflows/flight-dynamics.yml
+index 18f2e9157..e14d0ef43 100644
+--- a/.github/workflows/flight-dynamics.yml
++++ b/.github/workflows/flight-dynamics.yml
+@@ -109,7 +109,8 @@ jobs:
+           path: ${{ runner.temp }}/fd
+           if-no-files-found: warn
+   gmat:
+-    # GMAT R2026a reads the OEM and the SPK through its ephemeris propagators. The adapter was
++    # GMAT R2026a reads the SPK through its SPK propagator; it refuses the OEM (version 2.0) outside
++    # its TESTING mode, which the notebook checks and does not turn on. The adapter was
+     # written without running GMAT, so this job may fail while it is fixed from these logs; it
+     # does not fail the workflow, and C7 does not count GMAT done until it is green.
+     needs: write
+diff --git a/docs/FLIGHT-DYNAMICS-EXPORT.md b/docs/FLIGHT-DYNAMICS-EXPORT.md
+index 52ba18433..e936cafea 100644
+--- a/docs/FLIGHT-DYNAMICS-EXPORT.md
++++ b/docs/FLIGHT-DYNAMICS-EXPORT.md
+@@ -5,7 +5,7 @@
+ 
+ | Format | What is written | Read by, for example |
+ |---|---|---|
+-| `oem` | CCSDS Orbit Ephemeris Message 2.0, KVN: one segment with every state | Orekit, GMAT, STK |
++| `oem` | CCSDS Orbit Ephemeris Message 2.0, KVN: one segment with every state | Orekit, STK (GMAT R2026a reads OEM 2.0 only in its TESTING mode) |
+ | `opm` | CCSDS Orbit Parameter Message 3.0, KVN: one state (`--index`, default the first) | Orekit, GMAT |
+ | `spk` | NAIF SPICE SPK kernel, type 13 (Hermite, default) or type 9 (Lagrange), one segment | SPICE and the tools built on it (Basilisk, GMAT) |
+ 
+diff --git a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+index 58bb21b36..a72af1fa7 100644
+--- a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
++++ b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+@@ -27,7 +27,7 @@ the Python binding's.
+ | Basilisk 2.12.2 | SPK | the SPICE Toolkit it ships (`pyswice`): stored records and epochs | **carried, to the digits written**: 25,926 of 25,926 values and 4,321 of 4,321 epochs with the written bits. `spkezr_c` at the nodes within 1.5e-11 km and 5e-15 km/s of the stored state. |
+ | ANISE 0.10.6 | SPK | its own reader, evaluated at the nodes (ET) | **carried** (evaluated, not read): within 1.46e-11 km and 4.94e-15 km/s of the written state; SPICE on the same kernel 1.46e-11 km and 4.97e-15 km/s. |
+ | ANISE 0.10.6 | OEM | converted by ANISE to a type 9 kernel, evaluated at the nodes (TDB) | **carried** (evaluated, not read): within 1.46e-11 km and 1.11e-16 km/s. |
+-| GMAT | OEM, SPK | | **not done**: see below |
++| GMAT | SPK (the OEM is refused: R2026a reads OEM 2.0 only in its TESTING mode) | | **not done**: see below |
+ 
+ These numbers are from local runs on 8 November 2026. The workflow runs the same notebooks; each
+ run uploads its difference report.
+@@ -58,11 +58,24 @@ run uploads its difference report.
+ 
+ **Not done.** The adapter (`integrations/flight-dynamics/gmat_reader.py`, `gmat.ipynb`) and its
+ workflow job `gmat` are in place. The job uses GMAT R2026a, from a 401,664,992-byte tarball pinned by
+-SHA-256 `fe124b4a606b2e3b704a6fbb1c37b87598d5df0d18cb661c304b5f60074a7754` and cached. GMAT loads the
+-OEM through its `CCSDS-OEM` propagator and the SPK through its `SPK` propagator, steps through each
+-file at the node spacing, and reports every state; the report compares them as for an evaluating
+-tool.
++SHA-256 `fe124b4a606b2e3b704a6fbb1c37b87598d5df0d18cb661c304b5f60074a7754` and cached. GMAT reads the
++SPK through its `SPK` propagator, steps through the file at the node spacing, and reports every
++state; the report compares them as for an evaluating tool.
++
++**The OEM: GMAT R2026a, as shipped, does not read an OEM of version 2.0.** In the job's first run
++(Flight dynamics run 42501092081, at open commit 150df8d41), GMAT loaded its kernels and stopped the
++mission at the first propagation of the OEM:
++
++    Utility Exception: Error: Usage of CCSDS OEM v2 ephemeris data file is only allowed for running in TESTING mode.
++
++Kshana writes `CCSDS_OEM_VERS = 2.0`. Turning on GMAT's TESTING mode would no longer test GMAT as
++shipped, so the adapter does not. It now runs the OEM and the SPK as two GMAT scripts. The OEM leg
++still gives GMAT the OEM as written, and the notebook accepts two outcomes for it: the OEM carried,
++or exactly this refusal, which the report then states. Any other failure fails the notebook, and a
++GMAT that reads the file is compared in full. Whether GMAT reads Kshana's states from an OEM of
++version 1.0 is not tested: Kshana does not write one.
+ 
+ The adapter was written from GMAT's documentation and samples without running GMAT: the session
+ that wrote it was not allowed to execute GMAT's binaries. The job runs with continue-on-error and is
+-fixed from its logs. GMAT counts as done only when that job is green.
++fixed from its logs. The SPK leg has not run yet; it comes after the OEM leg, which stopped the first
++run. GMAT counts as done only when that job is green.
+diff --git a/integrations/flight-dynamics/README.md b/integrations/flight-dynamics/README.md
+index 1b0edd48e..653615d19 100644
+--- a/integrations/flight-dynamics/README.md
++++ b/integrations/flight-dynamics/README.md
+@@ -13,7 +13,7 @@ bar: the data either comes through or it does not.
+ | Orekit 13.1.9 (orekit_jpype 13.1.9.0) | [`orekit_reader.py`](orekit_reader.py) | [`orekit.ipynb`](orekit.ipynb) ([`.md`](orekit.md)) | OEM, OPM | `flight-dynamics.yml`, job `tool (orekit)` |
+ | Basilisk 2.12.2 (`bsk`), through the SPICE Toolkit it ships (`pyswice`) | [`basilisk_reader.py`](basilisk_reader.py) | [`basilisk.ipynb`](basilisk.ipynb) ([`.md`](basilisk.md)) | SPK | `flight-dynamics.yml`, job `tool (basilisk)` |
+ | ANISE 0.10.6 (the fourth, file-based tool: its own kernel reader, not SPICE) | [`anise_reader.py`](anise_reader.py) | [`anise.ipynb`](anise.ipynb) ([`.md`](anise.md)) | SPK, OEM | `flight-dynamics.yml`, job `tool (anise)` |
+-| GMAT R2026a (not yet run: written without running GMAT, its CI job is the first test) | [`gmat_reader.py`](gmat_reader.py) | [`gmat.ipynb`](gmat.ipynb) ([`.md`](gmat.md)) | OEM, SPK | `flight-dynamics.yml`, job `gmat` (continue-on-error until green) |
++| GMAT R2026a (written without running GMAT; its CI job is the test, and the SPK leg has not run yet) | [`gmat_reader.py`](gmat_reader.py) | [`gmat.ipynb`](gmat.ipynb) ([`.md`](gmat.md)) | SPK. The OEM is refused: R2026a reads an OEM of version 2.0 only in its TESTING mode | `flight-dynamics.yml`, job `gmat` (continue-on-error until green) |
+ 
+ [`kshana_fd.py`](kshana_fd.py) holds what every tool shares: writing the three files through the
+ Python binding (their SHA-256 must be the pinned ones, and the command line's bytes when
+diff --git a/integrations/flight-dynamics/gmat.ipynb b/integrations/flight-dynamics/gmat.ipynb
+index 15456b193..766550e00 100644
+--- a/integrations/flight-dynamics/gmat.ipynb
++++ b/integrations/flight-dynamics/gmat.ipynb
+@@ -2,7 +2,7 @@
+  "cells": [
+   {
+    "cell_type": "markdown",
+-   "id": "7ecda2b9",
++   "id": "b8533002",
+    "metadata": {},
+    "source": [
+     "<!-- SPDX-License-Identifier: AGPL-3.0-only -->\n",
+@@ -20,15 +20,19 @@
+     "\n",
+     "Kshana writes the CAPSTONE states of the mission thread (4,321 states, Moon-centred, ICRF, TDB) as\n",
+     "an OEM and an SPK. GMAT loads each into a spacecraft through its `CCSDS-OEM` and `SPK` ephemeris\n",
+-    "propagators, steps through the file at the node spacing, and reports every state. The states GMAT\n",
+-    "reports are compared with the written states, and with SPICE's own evaluation of Kshana's SPK. This\n",
+-    "is the GMAT part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`)."
++    "propagators, in two separate runs, steps through the file at the node spacing, and reports every\n",
++    "state. The states GMAT reports are compared with the written states, and with SPICE's own evaluation\n",
++    "of Kshana's SPK. This is the GMAT part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`).\n",
++    "\n",
++    "GMAT R2026a as shipped refuses an OEM of version 2.0, the version Kshana writes: its `CCSDS-OEM`\n",
++    "propagator accepts one only in GMAT's TESTING mode. The notebook does not turn that mode on. It\n",
++    "gives GMAT the OEM as written and accepts two outcomes: the OEM carried, or that refusal."
+    ]
+   },
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "9d2fe00b",
++   "id": "a5cd996d",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -52,7 +56,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "60db5826",
++   "id": "0d84fe9d",
+    "metadata": {},
+    "source": [
+     "The reference: the SPICE Toolkit evaluating Kshana's SPK at the node epochs."
+@@ -61,7 +65,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "dc95959a",
++   "id": "4912cea3",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -74,26 +78,47 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "9ef1a1d9",
++   "id": "af9f06b9",
++   "metadata": {},
++   "source": [
++    "GMAT runs the SPK script, every step."
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "id": "d42ad154",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "spk_report, spk_log = gm.run_spk(files[\"spk\"], OUT / \"gmat\", written.epochs[0], len(ets))\n",
++    "print(spk_log[-2000:])"
++   ]
++  },
++  {
++   "cell_type": "markdown",
++   "id": "6ceaf96c",
+    "metadata": {},
+    "source": [
+-    "GMAT runs the script: both spacecraft, every step."
++    "GMAT runs the OEM script on the OEM as written. `oem_report` is `None` when GMAT refuses the file\n",
++    "with `gm.OEM_V2_REFUSAL`."
+    ]
+   },
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "252c0523",
++   "id": "dc499cb4",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "oem_report, spk_report, log = gm.run(files[\"oem\"], files[\"spk\"], OUT / \"gmat\", written.epochs[0], len(ets))\n",
+-    "print(log[-2000:])"
++    "oem_report, oem_log = gm.run_oem(files[\"oem\"], OUT / \"gmat\", len(ets))\n",
++    "oem_refused = oem_report is None\n",
++    "print(\"OEM refused by GMAT:\" if oem_refused else \"OEM run by GMAT:\", oem_log[-2000:])"
+    ]
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "a3c1987a",
++   "id": "a3f73d92",
+    "metadata": {},
+    "source": [
+     "What GMAT reported, against what was written:"
+@@ -102,13 +127,15 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "a97ebe1f",
++   "id": "f1922cf3",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+     "rows = []\n",
+-    "for fmt, path, how in [(\"oem\", oem_report, \"CCSDS-OEM propagator, LunaICRF\"),\n",
+-    "                       (\"spk\", spk_report, \"SPK propagator, LunaJ2000 (MJ2000Eq)\")]:\n",
++    "legs = [(\"spk\", spk_report, \"SPK propagator, LunaJ2000 (MJ2000Eq)\")]\n",
++    "if not oem_refused:\n",
++    "    legs.append((\"oem\", oem_report, \"CCSDS-OEM propagator, LunaICRF\"))\n",
++    "for fmt, path, how in legs:\n",
+     "    g_ets, g_states, g_texts = gm.read_report(path)\n",
+     "    print(fmt, len(g_states), \"states reported\")\n",
+     "    n = min(len(g_states), len(ets))\n",
+@@ -122,7 +149,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "22f3d648",
++   "id": "f4d1127a",
+    "metadata": {},
+    "source": [
+     "## The difference report"
+@@ -131,13 +158,17 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "3f0668d1",
++   "id": "0c8c7b11",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+     "md = fd.report(rows, OUT)\n",
++    "if oem_refused:\n",
++    "    note = f\"GMAT OEM: not run. GMAT R2026a refuses CCSDS_OEM_VERS = 2.0 outside its TESTING mode: {gm.OEM_V2_REFUSAL}\"\n",
++    "    md += \"\\n\" + note + \"\\n\"\n",
++    "    (OUT / \"gmat\" / \"oem_refused.txt\").write_text(note + \"\\n\")\n",
+     "print(md)\n",
+-    "assert all(len(gm.read_report(p)[1]) == len(ets) for p in (oem_report, spk_report)), \"GMAT did not report every state\"\n",
++    "assert all(len(gm.read_report(p)[1]) == len(ets) for _, p, _ in legs), \"GMAT did not report every state\"\n",
+     "assert all(c.carried for c in rows), md"
+    ]
+   }
+diff --git a/integrations/flight-dynamics/gmat.md b/integrations/flight-dynamics/gmat.md
+index 69113c841..13de75cf0 100644
+--- a/integrations/flight-dynamics/gmat.md
++++ b/integrations/flight-dynamics/gmat.md
+@@ -13,9 +13,13 @@ Needs GMAT R2026a (GMAT_ROOT names the installation) and spiceypy for the refere
+ 
+ Kshana writes the CAPSTONE states of the mission thread (4,321 states, Moon-centred, ICRF, TDB) as
+ an OEM and an SPK. GMAT loads each into a spacecraft through its `CCSDS-OEM` and `SPK` ephemeris
+-propagators, steps through the file at the node spacing, and reports every state. The states GMAT
+-reports are compared with the written states, and with SPICE's own evaluation of Kshana's SPK. This
+-is the GMAT part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`).
++propagators, in two separate runs, steps through the file at the node spacing, and reports every
++state. The states GMAT reports are compared with the written states, and with SPICE's own evaluation
++of Kshana's SPK. This is the GMAT part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`).
++
++GMAT R2026a as shipped refuses an OEM of version 2.0, the version Kshana writes: its `CCSDS-OEM`
++propagator accepts one only in GMAT's TESTING mode. The notebook does not turn that mode on. It
++gives GMAT the OEM as written and accepts two outcomes: the OEM carried, or that refusal.
+ 
+ ```python
+ import os, sys, tempfile
+@@ -46,19 +50,30 @@ spice = [[float(x) for x in spiceypy.spkezr("-1176", e, "J2000", "NONE", "301")[
+ spiceypy.kclear()
+ ```
+ 
+-GMAT runs the script: both spacecraft, every step.
++GMAT runs the SPK script, every step.
++
++```python
++spk_report, spk_log = gm.run_spk(files["spk"], OUT / "gmat", written.epochs[0], len(ets))
++print(spk_log[-2000:])
++```
++
++GMAT runs the OEM script on the OEM as written. `oem_report` is `None` when GMAT refuses the file
++with `gm.OEM_V2_REFUSAL`.
+ 
+ ```python
+-oem_report, spk_report, log = gm.run(files["oem"], files["spk"], OUT / "gmat", written.epochs[0], len(ets))
+-print(log[-2000:])
++oem_report, oem_log = gm.run_oem(files["oem"], OUT / "gmat", len(ets))
++oem_refused = oem_report is None
++print("OEM refused by GMAT:" if oem_refused else "OEM run by GMAT:", oem_log[-2000:])
+ ```
+ 
+ What GMAT reported, against what was written:
+ 
+ ```python
+ rows = []
+-for fmt, path, how in [("oem", oem_report, "CCSDS-OEM propagator, LunaICRF"),
+-                       ("spk", spk_report, "SPK propagator, LunaJ2000 (MJ2000Eq)")]:
++legs = [("spk", spk_report, "SPK propagator, LunaJ2000 (MJ2000Eq)")]
++if not oem_refused:
++    legs.append(("oem", oem_report, "CCSDS-OEM propagator, LunaICRF"))
++for fmt, path, how in legs:
+     g_ets, g_states, g_texts = gm.read_report(path)
+     print(fmt, len(g_states), "states reported")
+     n = min(len(g_states), len(ets))
+@@ -74,7 +89,11 @@ for fmt, path, how in [("oem", oem_report, "CCSDS-OEM propagator, LunaICRF"),
+ 
+ ```python
+ md = fd.report(rows, OUT)
++if oem_refused:
++    note = f"GMAT OEM: not run. GMAT R2026a refuses CCSDS_OEM_VERS = 2.0 outside its TESTING mode: {gm.OEM_V2_REFUSAL}"
++    md += "\n" + note + "\n"
++    (OUT / "gmat" / "oem_refused.txt").write_text(note + "\n")
+ print(md)
+-assert all(len(gm.read_report(p)[1]) == len(ets) for p in (oem_report, spk_report)), "GMAT did not report every state"
++assert all(len(gm.read_report(p)[1]) == len(ets) for _, p, _ in legs), "GMAT did not report every state"
+ assert all(c.carried for c in rows), md
+ ```
+diff --git a/integrations/flight-dynamics/gmat_reader.py b/integrations/flight-dynamics/gmat_reader.py
+index cc05f62c7..8060c8d86 100644
+--- a/integrations/flight-dynamics/gmat_reader.py
++++ b/integrations/flight-dynamics/gmat_reader.py
+@@ -2,24 +2,32 @@
+ """GMAT adapter for the flight-dynamics reference integration (roadmap C7).
+ 
+ GMAT reads a trajectory through its ephemeris propagators: `CCSDS-OEM` for an OEM (interpolated
+-with Lagrange polynomials) and `SPK` for a SPICE kernel. This adapter writes a GMAT script that
+-loads Kshana's OEM and SPK into two spacecraft. GMAT steps each one through the file at 600 s,
+-which is the trajectory's own node spacing, starting at the file's first epoch. At every step GMAT
+-reports the epoch (`TDBModJulian`) and the Moon-centred state, at 16 significant digits:
++with Lagrange polynomials) and `SPK` for a SPICE kernel. This adapter writes one GMAT script per
++file, so that one leg's failure cannot stop the other. In each, a spacecraft loads Kshana's file and
++GMAT steps it through the file at 600 s, which is the trajectory's own node spacing, starting at the
++file's first epoch. At every step GMAT reports the epoch (`TDBModJulian`) and the Moon-centred state,
++at 16 significant digits:
+ 
+ - the OEM in a Moon-centred ICRF frame (its `REF_FRAME` is ICRF);
+ - the SPK in a Moon-centred MJ2000Eq frame. The kernel's frame code is 1 (J2000), which GMAT
+   reads as MJ2000Eq, so no frame-bias rotation is applied to the stored states.
+ 
+-The script runs in GMAT's console program, `GmatConsole --run <script>`, in GMAT's `bin`
++GMAT R2026a, as shipped, refuses an OEM of version 2.0 (`CCSDS_OEM_VERS = 2.0`, the version Kshana
++writes): its `CCSDS-OEM` propagator stops the mission with `OEM_V2_REFUSAL` unless GMAT runs in its
++TESTING mode. The adapter does not turn that mode on, since GMAT would then no longer be the tool as
++shipped. `run_oem` returns GMAT's outcome either way, and the notebook accepts exactly two: the OEM
++carried, or that refusal.
++
++Each script runs in GMAT's console program, `GmatConsole --run <script>`, in GMAT's `bin`
+ directory. `GMAT_ROOT` names the installation, the directory that holds `bin/`.
+ 
+ GMAT reports its states rather than handing back the file's records. So the comparison is the one
+ for an evaluating tool (`kshana_fd.evaluated_compare`). The report's 16 digits and GMAT's own epoch
+ arithmetic are part of what is compared.
+ 
+-Written without running GMAT in the session that wrote it. The workflow job that runs it is the
+-first test.
++Written without running GMAT in the session that wrote it; GMAT's binaries run only in the workflow
++job, whose logs drive the fixes. The first run reached the OEM leg and stopped there with
++OEM_V2_REFUSAL, before the SPK leg; the SPK leg's first run is the next job.
+ """
+ from __future__ import annotations
+ 
+@@ -30,39 +38,51 @@ from pathlib import Path
+ #: GMAT's modified Julian date is JD - 2430000.0, so J2000 (JD 2451545.0) is MJD 21545.0.
+ GMAT_MJD_J2000 = 21545.0
+ 
+-SCRIPT = """
++OEM_SCRIPT = """
+ Create Spacecraft OemSat;
+ OemSat.EphemerisName = '{oem}';
+ 
++Create Propagator OemProp;
++OemProp.Type = 'CCSDS-OEM';
++OemProp.StepSize = {step};
++
++Create CoordinateSystem LunaICRF;
++LunaICRF.Origin = Luna;
++LunaICRF.Axes = ICRF;
++
++Create ReportFile OemReport;
++OemReport.Filename = '{out}/gmat_oem.txt';
++OemReport.Precision = 16;
++OemReport.WriteHeaders = false;
++
++Create Variable k;
++
++BeginMissionSequence;
++
++Report OemReport OemSat.TDBModJulian OemSat.LunaICRF.X OemSat.LunaICRF.Y OemSat.LunaICRF.Z OemSat.LunaICRF.VX OemSat.LunaICRF.VY OemSat.LunaICRF.VZ;
++For k = 1:{steps};
++   Propagate OemProp(OemSat);
++   Report OemReport OemSat.TDBModJulian OemSat.LunaICRF.X OemSat.LunaICRF.Y OemSat.LunaICRF.Z OemSat.LunaICRF.VX OemSat.LunaICRF.VY OemSat.LunaICRF.VZ;
++EndFor;
++"""
++
++SPK_SCRIPT = """
+ Create Spacecraft SpkSat;
+ SpkSat.NAIFId = {naif};
+ SpkSat.OrbitSpiceKernelName = {{'{bsp}'}};
+ SpkSat.DateFormat = TDBGregorian;
+ SpkSat.Epoch = '{start_gregorian}';
+ 
+-Create Propagator OemProp;
+-OemProp.Type = 'CCSDS-OEM';
+-OemProp.StepSize = {step};
+-
+ Create Propagator SpkProp;
+ SpkProp.Type = SPK;
+ SpkProp.StepSize = {step};
+ SpkProp.CentralBody = Luna;
+ SpkProp.StartEpoch = FromSpacecraft;
+ 
+-Create CoordinateSystem LunaICRF;
+-LunaICRF.Origin = Luna;
+-LunaICRF.Axes = ICRF;
+-
+ Create CoordinateSystem LunaJ2000;
+ LunaJ2000.Origin = Luna;
+ LunaJ2000.Axes = MJ2000Eq;
+ 
+-Create ReportFile OemReport;
+-OemReport.Filename = '{out}/gmat_oem.txt';
+-OemReport.Precision = 16;
+-OemReport.WriteHeaders = false;
+-
+ Create ReportFile SpkReport;
+ SpkReport.Filename = '{out}/gmat_spk.txt';
+ SpkReport.Precision = 16;
+@@ -72,12 +92,6 @@ Create Variable k;
+ 
+ BeginMissionSequence;
+ 
+-Report OemReport OemSat.TDBModJulian OemSat.LunaICRF.X OemSat.LunaICRF.Y OemSat.LunaICRF.Z OemSat.LunaICRF.VX OemSat.LunaICRF.VY OemSat.LunaICRF.VZ;
+-For k = 1:{steps};
+-   Propagate OemProp(OemSat);
+-   Report OemReport OemSat.TDBModJulian OemSat.LunaICRF.X OemSat.LunaICRF.Y OemSat.LunaICRF.Z OemSat.LunaICRF.VX OemSat.LunaICRF.VY OemSat.LunaICRF.VZ;
+-EndFor;
+-
+ Report SpkReport SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
+ For k = 1:{steps};
+    Propagate SpkProp(SpkSat);
+@@ -85,6 +99,10 @@ For k = 1:{steps};
+ EndFor;
+ """
+ 
++#: What GMAT R2026a prints when its `CCSDS-OEM` propagator is given an OEM of version 2.0 outside
++#: its TESTING mode (first CI run of the `gmat` job, at open commit 150df8d41).
++OEM_V2_REFUSAL = "Usage of CCSDS OEM v2 ephemeris data file is only allowed for running in TESTING mode"
++
+ MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+ 
+ 
+@@ -104,23 +122,42 @@ def gregorian(label: str) -> str:
+     return f"{int(d):02d} {MONTHS[int(m) - 1]} {y} {hh}:{mm}:{float(ss):06.3f}"
+ 
+ 
+-def run(oem: Path, bsp: Path, out: Path, first_label: str, n: int, naif: int = -1176,
+-        step_s: float = 600.0) -> tuple[Path, Path, str]:
+-    """Write and run the GMAT script. Returns (OEM report, SPK report, GMAT's console output)."""
+-    out.mkdir(parents=True, exist_ok=True)
+-    script = out / "kshana_c7.script"
+-    script.write_text(SCRIPT.format(
+-        oem=Path(oem).resolve(), bsp=Path(bsp).resolve(), out=out.resolve(), naif=naif,
+-        start_gregorian=gregorian(first_label), step=step_s, steps=n - 1,
+-    ))
+-    bin_dir = gmat_root() / "bin"
+-    p = subprocess.run(["./GmatConsole", "--run", str(script.resolve())], cwd=bin_dir,
++def _console(script: Path, log_name: str) -> tuple[int, str]:
++    """Run one script in GmatConsole; returns (exit code, console output), the output also saved."""
++    p = subprocess.run(["./GmatConsole", "--run", str(script.resolve())], cwd=gmat_root() / "bin",
+                        capture_output=True, text=True, timeout=3600)
+     log = p.stdout + p.stderr
+-    (out / "gmat_console.log").write_text(log)
+-    if p.returncode != 0:
+-        raise RuntimeError(f"GmatConsole exited with {p.returncode}:\n{log[-4000:]}")
+-    return out / "gmat_oem.txt", out / "gmat_spk.txt", log
++    (script.parent / log_name).write_text(log)
++    return p.returncode, log
++
++
++def run_spk(bsp: Path, out: Path, first_label: str, n: int, naif: int = -1176,
++            step_s: float = 600.0) -> tuple[Path, str]:
++    """GMAT's SPK propagator through Kshana's kernel. Returns (report, console output); raises if
++    GMAT fails."""
++    out.mkdir(parents=True, exist_ok=True)
++    script = out / "kshana_c7_spk.script"
++    script.write_text(SPK_SCRIPT.format(bsp=Path(bsp).resolve(), out=out.resolve(), naif=naif,
++                                        start_gregorian=gregorian(first_label), step=step_s, steps=n - 1))
++    code, log = _console(script, "gmat_console_spk.log")
++    if code != 0:
++        raise RuntimeError(f"GmatConsole exited with {code} on the SPK script:\n{log[-4000:]}")
++    return out / "gmat_spk.txt", log
++
++
++def run_oem(oem: Path, out: Path, n: int, step_s: float = 600.0) -> tuple[Path | None, str]:
++    """GMAT's CCSDS-OEM propagator through Kshana's OEM, as written. Returns (report, console output)
++    when GMAT runs it, and (None, console output) when GMAT refuses the file with OEM_V2_REFUSAL.
++    Any other failure raises."""
++    out.mkdir(parents=True, exist_ok=True)
++    script = out / "kshana_c7_oem.script"
++    script.write_text(OEM_SCRIPT.format(oem=Path(oem).resolve(), out=out.resolve(), step=step_s, steps=n - 1))
++    code, log = _console(script, "gmat_console_oem.log")
++    if code == 0:
++        return out / "gmat_oem.txt", log
++    if OEM_V2_REFUSAL in log:
++        return None, log
++    raise RuntimeError(f"GmatConsole exited with {code} on the OEM script:\n{log[-4000:]}")
+ 
+ 
+ def read_report(path: Path) -> tuple[list[float], list[list[float]], list[str]]:
+-- 
+2.43.0
+
