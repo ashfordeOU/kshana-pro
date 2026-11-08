@@ -9,13 +9,15 @@ import { dirname } from "node:path";
 import { SCENARIOS, DOMAINS, NOT_IN_BROWSER, RECORDED_NATIVELY, registerGroup, dirOf, domainOf } from "./lib/catalog.mjs";
 import { capabilityView, capabilityTabs, kindOfRun, resultTabs, preferredTab } from "./lib/kinds.mjs";
 import * as G from "./lib/stages.mjs";
+import { gunzipSync } from "node:zlib";
 
 const here = new URL(".", import.meta.url).pathname;
 const args = process.argv.slice(2);
 const opt = (n, d) => { const i = args.indexOf(n); return i < 0 ? d : args[i + 1]; };
 const OUT = opt("--out", here + "../../scratch/studio-next/DEEP-LINKS.md");
 const JSON_OUT = opt("--json", here + "../../scratch/studio-next/links.json");
-const read = (f) => JSON.parse(readFileSync(here + f, "utf8"));
+// A recording may be gzip (recorded/<name>.json.gz, tools_record.mjs); other files are plain.
+const read = (f) => { const b = readFileSync(here + f); return JSON.parse((b[0] === 0x1f && b[1] === 0x8b ? gunzipSync(b) : b).toString("utf8")); };
 
 const nat = { "": read("native/index.json") };
 const rec = { "": read("recorded/index.json") };

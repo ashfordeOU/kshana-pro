@@ -24,7 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.dirname(HERE)
 PAGE = os.path.join(SRC, "pages", "missions.html")
 sys.path.insert(0, HERE)
-from _sources import engine_tree, studio_dir  # noqa: E402  (src/data/sources.json: the one engine checkout)
+from _sources import engine_tree, studio_dir, read_recorded, recorded_names  # noqa: E402  (src/data/sources.json: the one engine checkout)
 REPO = engine_tree()
 PG_REC = os.path.join(studio_dir(), "recorded")
 PG_LIB = os.path.join(studio_dir(), "scenarios")  # the Studio's library (read only)
@@ -312,7 +312,7 @@ EXTRA = {"leo": LEO, "searoad": SEAROAD}
 
 
 def build():
-    rec = {os.path.basename(p)[:-5] for p in os.listdir(PG_REC) if p.endswith(".json")} - {"index"}
+    rec = recorded_names(PG_REC)
     assert rec, "the Studio has no recordings"
     tabs, panels = [], []
     for i, s in enumerate(SECTORS):

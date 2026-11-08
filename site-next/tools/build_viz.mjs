@@ -7,6 +7,7 @@
 // static SVG with the playground's own renderer, so the page shows it before any script runs.
 import fs from "node:fs";
 import path from "node:path";
+import zlib from "node:zlib";
 import { pathToFileURL } from "node:url";
 
 const [pgDir, outFile, reqFile, landFile] = process.argv.slice(2);
@@ -16,9 +17,10 @@ const recDir = path.join(pgDir, "recorded");
 const cache = new Map();
 function rec(file) {
   if (cache.has(file)) return cache.get(file);
-  const p = path.join(recDir, `${file}.json`);
-  if (!fs.existsSync(p)) throw new Error(`no recording for ${file}`);
-  const a = JSON.parse(fs.readFileSync(p, "utf8"));
+  // recorded/<name>.json.gz (gzip, since the Studio's tools_record.mjs compresses them), or the plain .json of an older Studio.
+  const gz = path.join(recDir, `${file}.json.gz`), plain = path.join(recDir, `${file}.json`);
+  if (!fs.existsSync(gz) && !fs.existsSync(plain)) throw new Error(`no recording for ${file}`);
+  const a = JSON.parse(fs.existsSync(gz) ? zlib.gunzipSync(fs.readFileSync(gz)).toString("utf8") : fs.readFileSync(plain, "utf8"));
   const r = typeof a.json === "string" ? JSON.parse(a.json) : a.json;
   const out = { a, r };
   cache.set(file, out);
@@ -152,7 +154,7 @@ line("sec-mars", "mars-pnt-lmo", "timeseries");
 line("sec-rail-nearest", "terrain-slam", "timeseries");
 // Maritime and road/rail sectors, once their scenarios are committed and recorded.
 for (const [id, f] of [["sec-maritime", "maritime-strait-jamming"], ["sec-automotive", "automotive-urban-canyon"]]) {
-  if (fs.existsSync(path.join(recDir, `${f}.json`))) line(id, f, "timeseries");
+  if (fs.existsSync(path.join(recDir, `${f}.json.gz`)) || fs.existsSync(path.join(recDir, `${f}.json`))) line(id, f, "timeseries");
 }
 line("sec-maritime-nearest", "imu-deadreckoning", "timeseries");
 // Capabilities: clocks, timing wall, journey.

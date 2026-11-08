@@ -2488,8 +2488,18 @@ SCALARS = {"{{VER}}": version, "{{KINDS}}": str(len(kinds)), "{{BUILD}}": esc(HE
            "{{STUDIO}}": esc(STUDIO), "{{STUDIO_CTA}}": esc(STUDIO_CTA), "{{STUDIO_OPEN}}": esc(STUDIO_OPEN)}
 SCALARS["{{NPUBS}}"] = str(len(PUBS))  # papers live on arXiv (src/data/publications.json)
 
+def _read_recorded(folder, name):
+    """A Studio recording: recorded/<name>.json.gz (gzip, the Studio's tools_record.mjs), else an older Studio's plain .json."""
+    import gzip
+    gz = os.path.join(folder, name + ".json.gz")
+    if os.path.exists(gz):
+        with gzip.open(gz, "rt", encoding="utf-8") as fh:
+            return json.load(fh)
+    return json.load(open(os.path.join(folder, name + ".json"), encoding="utf-8"))
+
+
 def _orbit_extract(f):
-    rec = json.load(open(os.path.join(PG_SRC, "recorded", f + ".json")))
+    rec = _read_recorded(os.path.join(PG_SRC, "recorded"), f)
     j = json.loads(rec["json"]) if isinstance(rec["json"], str) else rec["json"]
     return {"geometry": {k: v for k, v in j["geometry"].items() if not isinstance(v, (list, dict))}, "toml": rec["toml"]}
 

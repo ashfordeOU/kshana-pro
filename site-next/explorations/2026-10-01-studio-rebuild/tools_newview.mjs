@@ -93,14 +93,15 @@ w(`lib/${id}.test.mjs`, `// SPDX-License-Identifier: AGPL-3.0-only
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
+import { gunzipSync } from "node:zlib";
 import { KIND, SCENARIOS, readView, scalarRows, factRows } from "./${id}.mjs";
 
 const here = new URL("../", import.meta.url).pathname;
-const load = (id) => JSON.parse(readFileSync(here + \`recorded/\${id}.json\`, "utf8"));
+const load = (id) => JSON.parse(gunzipSync(readFileSync(here + \`recorded/\${id}.json.gz\`)).toString("utf8"));
 
 test("every scenario of the page has a recorded result of the page's kind, read without invention", () => {
   for (const sc of SCENARIOS) {
-    assert.ok(existsSync(here + \`recorded/\${sc.id}.json\`), \`\${sc.id} is recorded\`);
+    assert.ok(existsSync(here + \`recorded/\${sc.id}.json.gz\`), \`\${sc.id} is recorded\`);
     const doc = load(sc.id), raw = JSON.parse(doc.json), { model, error } = readView(doc);
     assert.equal(error, undefined, sc.id); assert.equal(raw.kind, KIND);
     assert.ok(model.rows.length > 0);
@@ -123,8 +124,10 @@ test("scalars and list sizes are listed, and nothing deeper than two levels", ()
 // ---- page script and styles
 w(`${id}/${id}.js`, `// SPDX-License-Identifier: AGPL-3.0-only
 // ${title}: the DOM layer. What is read and drawn is in lib/${id}.mjs. The page fetches only this folder's own recorded results
-// (recorded/<scenario>.json); nothing leaves the page.
+// (recorded/<scenario>.json.gz, gzip, through its index: lib/packs.mjs); nothing leaves the page.
 import { SCENARIOS, readView, chartsOf, factRows } from "../lib/${id}.mjs";
+import { createPackReader } from "../lib/packs.mjs";
+const RECORDED = createPackReader();
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -138,9 +141,9 @@ async function open(id) {
   $("${P}-blurb").textContent = sc.blurb;
   setStatus(\`Opening \${sc.title}…\`);
   try {
-    const r = await fetch(\`recorded/\${sc.id}.json\`);
-    if (!r.ok) throw new Error("the recorded result did not load");
-    const { model: m, error } = readView(await r.json());
+    const rec = await RECORDED.run("recorded/", sc.id);
+    if (!rec) throw new Error("the recorded result did not load");
+    const { model: m, error } = readView(rec);
     if (error) throw new Error(error);
     if (current !== sc.id) return;
     draw(m);

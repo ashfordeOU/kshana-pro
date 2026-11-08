@@ -32,7 +32,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.dirname(HERE)
 OUT = os.path.join(SRC, "js", "evidence-data.mjs")
 sys.path.insert(0, HERE)
-from _sources import engine_tree, studio_dir  # noqa: E402  (src/data/sources.json: the one engine checkout)
+from _sources import engine_tree, studio_dir, read_recorded, recorded_names  # noqa: E402  (src/data/sources.json: the one engine checkout)
 TREE = engine_tree()
 BUILD = os.path.expanduser(os.environ.get("KSHANA_PROBE_BUILD") or os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(SRC))), "scratch", "evidence-probe"))
 
@@ -225,7 +225,7 @@ STUDIO_RUNS = {"sgp4": "orbit-sgp4-gps", "raim": "integrity-raim", "clock": "clo
 
 
 def studio_run(f):
-    r = json.load(open(os.path.join(PG_REC, f + ".json"), encoding="utf-8"))
+    r = read_recorded(PG_REC, f)
     m = re.search(r"^\s*seed\s*=\s*(\d+)", r["toml"], re.M)
     return {"file": f, "engine_version": r["engine_version"], "seed": int(m.group(1)) if m else None}
 

@@ -39,7 +39,7 @@ import hashlib, json, math, os, re, shutil, subprocess, sys, tempfile, tomllib
 HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
-from _sources import engine_tree, studio_dir  # noqa: E402  (src/data/sources.json: the one engine checkout)
+from _sources import engine_tree, studio_dir, read_recorded, recorded_names  # noqa: E402  (src/data/sources.json: the one engine checkout)
 WT = engine_tree()
 ENGINE = os.path.join(WT, "target", "release", "kshana")
 STUDIO_REC = os.path.join(studio_dir(), "recorded")
@@ -157,7 +157,7 @@ def spectrum():
 
 # ------------------------------------------------------------------ Studio recordings (six ways, integrity, coasting)
 def rec(name):
-    d = json.load(open(os.path.join(STUDIO_REC, name + ".json")))
+    d = read_recorded(STUDIO_REC, name)
     j = json.loads(d["json"]) if isinstance(d["json"], str) else d["json"]
     m = re.search(r"^\s*seed\s*=\s*(\d+)", d["toml"], re.M)
     seed = j.get("seed", int(m.group(1)) if m else None)

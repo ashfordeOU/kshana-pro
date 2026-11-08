@@ -8,6 +8,7 @@
 // 7. the native engine's recordings cover every scenario, and the optional group is self-contained.
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { gunzipSync } from "node:zlib";
 const here = new URL(".", import.meta.url).pathname;
 const read = (f) => readFileSync(here + f, "utf8");
 let fails = 0;
@@ -62,7 +63,7 @@ for (const f of ["geometry/geometry.js", "lib/geometry-url.mjs", "lib/skyline-ed
   const js = read("lunar/lunar.js"), lib = read("lib/lunar-station.mjs"), html = read("lunar/index.html");
   ok(!/\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource|sendBeacon|import\s*\(/.test(lib), "lib/lunar-station.mjs: makes no request");
   ok([...js.matchAll(/\bfetch\s*\(([^)]*)\)/g)].every((m) => /^(RECORDED_FILE|SCENARIO_FILE)$/.test(m[1].trim())) && !/XMLHttpRequest|WebSocket|EventSource|sendBeacon|import\s*\(/.test(js), "lunar/lunar.js: fetches only the kind's two fixed files");
-  ok(/export const SCENARIO_FILE = "scenarios\/lunar-station-coverage\.toml";/.test(lib) && /export const RECORDED_FILE = "recorded\/lunar-station-coverage\.json";/.test(lib), "the two fixed files are literal same-origin paths");
+  ok(/export const SCENARIO_FILE = "scenarios\/lunar-station-coverage\.toml";/.test(lib) && /export const RECORDED_FILE = "recorded\/lunar-station-coverage\.json\.gz";/.test(lib), "the two fixed files are literal same-origin paths");
   for (const f of ["lunar/index.html", "lunar/lunar.js", "lunar/lunar.css"]) ok(!/nova\s*moon|\bESA\b|European Space Agency|Moonlight/i.test(read(f)), `${f}: generic names only`);
   ok(html.includes('<base href="../">') && /<b>MODELLED\.<\/b> <b[^>]*>Under the stated public assumptions, not a statement about the performance of any real system\.<\/b> <b[^>]*>Not affiliated with or endorsed by any agency\.<\/b>/.test(html), "lunar/index.html resolves from the Studio folder and carries the honesty block");
 }
@@ -129,7 +130,7 @@ ok(JSON.parse(read("native/index.json")).engine_version === pkgVersion, `the nat
   else if (!stamped) console.log("note: recordings carry no matching engine_commit (required by --final)");
 }
 ok(parity.includes(`${runnable} of ${files.length} scenarios`), `PARITY states recorded coverage (${runnable} of ${files.length})`);
-for (const [f, r] of Object.entries(idx.runs)) if (!r.error) { const rec = JSON.parse(read("recorded/" + r.file)); ok(rec.toml === read("scenarios/" + f), `recorded ${f} matches the bundled scenario text`); }
+for (const [f, r] of Object.entries(idx.runs)) if (!r.error) { const rec = JSON.parse((() => { const b = readFileSync(here + "recorded/" + r.file); return (b[0] === 0x1f && b[1] === 0x8b ? gunzipSync(b) : b).toString("utf8"); })()); ok(rec.toml === read("scenarios/" + f), `recorded ${f} matches the bundled scenario text`); }
 
 ok(Object.entries(idx.runs).filter(([, r]) => r.source === "native").every(([f]) => /RECORDED_NATIVELY = \[[^\]]*"/.test(catalog) && catalog.includes(`"${f}"`)), "a natively recorded run is listed as such");
 

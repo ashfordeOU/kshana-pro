@@ -10,9 +10,11 @@ import { SCENARIOS, DOMAINS, registerGroup, dirOf } from "./lib/catalog.mjs";
 import { plainMeaning, taskWords } from "./lib/meaning.mjs";
 import { spellOut } from "./lib/abbr.mjs";
 import { kindsOfToml, rowsForKind, evidenceMix, validatedShare, previewOf } from "./lib/areas.mjs";
+import { gunzipSync } from "node:zlib";
 
 const here = new URL(".", import.meta.url).pathname;
-const readJson = (f) => JSON.parse(readFileSync(here + f, "utf8"));
+// A recording may be gzip (recorded/<name>.json.gz, tools_record.mjs); other files are plain.
+const readJson = (f) => { const b = readFileSync(here + f); return JSON.parse((b[0] === 0x1f && b[1] === 0x8b ? gunzipSync(b) : b).toString("utf8")); };
 const matrix = readJson("data/verification-matrix.json");
 const rows = matrix.rows;
 

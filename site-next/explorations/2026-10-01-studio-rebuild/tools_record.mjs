@@ -1,10 +1,15 @@
 // Records REAL engine outputs (kshana WASM, run under Node) for the Studio's offline fallback.
-// Run: node tools_record.mjs [names...]   (writes recorded/*.json + recorded/index.json, and
+// Run: node tools_record.mjs [names...]   (writes recorded/*.json.gz + recorded/index.json, and
 // celeste/recorded/ for the optional group when the celeste/ folder is present).
 // A scenario the browser build cannot run is taken from native/<name>.json when tools_native.mjs
 // has recorded its whole run there; its index entry then says source "native".
-import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
-import { gunzipSync } from "node:zlib";
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync, unlinkSync } from "node:fs";
+import { gunzipSync, gzipSync } from "node:zlib";
+// Each recording is gzip-compressed (level 9, no timestamp: the same run gives the same bytes); the
+// index names the .json.gz file and the Studio reads it through lib/packs.mjs, as it reads native/.
+const gz = (rec) => gzipSync(Buffer.from(JSON.stringify(rec), "utf8"), { level: 9 });
+// The plain recorded/<name>.json of an earlier layout goes when its .json.gz is written.
+const dropPlain = (path) => { if (existsSync(path)) unlinkSync(path); };
 const here = new URL(".", import.meta.url).pathname;
 const m = await import(here + "pkg/kshana.js");
 m.initSync({ module: readFileSync(here + "pkg/kshana_bg.wasm") });
@@ -28,6 +33,7 @@ for (const g of groups) {
   for (const f of readdirSync(here + g.dir).filter((x) => x.endsWith(".toml") && (!only.length || only.includes(x))).sort()) {
     const toml = readFileSync(here + g.dir + "/" + f, "utf8");
     const name = f.replace(/\.toml$/, ".json");
+    const out = name + ".gz";
     let all;
     const t0 = performance.now();
     try { all = JSON.parse(m.run_all(toml)); }
@@ -38,8 +44,9 @@ for (const g of groups) {
       try { nat = JSON.parse(gunzipSync(readFileSync(here + g.native + "/" + name + ".gz")).toString("utf8")); } catch { /* none */ }
       if (nat && nat.json && nat.toml === toml) {
         const rec = { engine_version: nat.engine_version, source: "native", platform: nat.platform, command: nat.command, file: f, toml, summary: nat.summary, json: nat.json, svg: nat.svg || "", csv: nat.csv || null, exports: {} };
-        writeFileSync(here + g.out + "/" + name, JSON.stringify(rec));
-        index.runs[f] = { file: name, bytes: JSON.stringify(rec).length, source: "native", browser_error: error };
+        writeFileSync(here + g.out + "/" + out, gz(rec));
+        dropPlain(here + g.out + "/" + name);
+        index.runs[f] = { file: out, bytes: JSON.stringify(rec).length, source: "native", browser_error: error };
         native++;
       } else { index.runs[f] = { error }; failed++; }
       continue;
@@ -50,8 +57,9 @@ for (const g of groups) {
       try { const t = fn(toml); if (t && t.trim()) exports[k] = t.length <= EXPORT_CAP ? t : null; } catch { /* kind yields no such export */ }
     }
     const rec = { engine_version: m.version(), file: f, toml, summary: all.summary, json: all.json, svg: all.svg, csv: all.csv || null, exports };
-    writeFileSync(here + g.out + "/" + name, JSON.stringify(rec));
-    index.runs[f] = { file: name, bytes: JSON.stringify(rec).length, ms };
+    writeFileSync(here + g.out + "/" + out, gz(rec));
+    dropPlain(here + g.out + "/" + name);
+    index.runs[f] = { file: out, bytes: JSON.stringify(rec).length, ms };
     total++;
   }
   index.runs = Object.fromEntries(Object.entries(index.runs).sort(([a], [b]) => a.localeCompare(b)));
