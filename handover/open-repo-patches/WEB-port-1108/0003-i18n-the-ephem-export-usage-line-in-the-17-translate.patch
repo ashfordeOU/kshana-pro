@@ -1,0 +1,235 @@
+From f890a426a73f7af64b62774b4277dcffd701b5d9 Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Sun, 8 Nov 2026 17:43:34 +0000
+Subject: [PATCH 3/4] i18n: the ephem-export usage line in the 17 translated
+ engine-main-usage messages (C7-1 added it to the English message only, so
+ tools/i18n.mjs check failed on every language: string-literal placeables
+ differ)
+
+---
+ i18n/cs/engine.ftl      | 1 +
+ i18n/da/engine.ftl      | 1 +
+ i18n/de/engine.ftl      | 1 +
+ i18n/es/engine.ftl      | 1 +
+ i18n/et/engine.ftl      | 1 +
+ i18n/fi/engine.ftl      | 1 +
+ i18n/fr/engine.ftl      | 1 +
+ i18n/ja/engine.ftl      | 1 +
+ i18n/nb/engine.ftl      | 1 +
+ i18n/nl/engine.ftl      | 1 +
+ i18n/pl/engine.ftl      | 1 +
+ i18n/pt-BR/engine.ftl   | 1 +
+ i18n/pt-PT/engine.ftl   | 1 +
+ i18n/ru/engine.ftl      | 1 +
+ i18n/sv/engine.ftl      | 1 +
+ i18n/uk/engine.ftl      | 1 +
+ i18n/zh-Hans/engine.ftl | 1 +
+ 17 files changed, 17 insertions(+)
+
+diff --git a/i18n/cs/engine.ftl b/i18n/cs/engine.ftl
+index 9c8f867ed..fb94ed0ad 100644
+--- a/i18n/cs/engine.ftl
++++ b/i18n/cs/engine.ftl
+@@ -10552,6 +10552,7 @@ engine-main-usage =
+     { "   " }nebo: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }nebo: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }nebo: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }nebo: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }nebo: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }nebo: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }nebo: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/da/engine.ftl b/i18n/da/engine.ftl
+index 7afeb45e2..6f8caa12f 100644
+--- a/i18n/da/engine.ftl
++++ b/i18n/da/engine.ftl
+@@ -10546,6 +10546,7 @@ engine-main-usage =
+     { "   " }eller: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }eller: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }eller: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }eller: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }eller: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }eller: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }eller: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/de/engine.ftl b/i18n/de/engine.ftl
+index 01d9f122f..f1a1c7e0b 100644
+--- a/i18n/de/engine.ftl
++++ b/i18n/de/engine.ftl
+@@ -10564,6 +10564,7 @@ engine-main-usage =
+     { "   " }oder: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }oder: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }oder: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }oder: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }oder: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }oder: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }oder: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/es/engine.ftl b/i18n/es/engine.ftl
+index 2bbf2ba0b..b85c3f6c7 100644
+--- a/i18n/es/engine.ftl
++++ b/i18n/es/engine.ftl
+@@ -10764,6 +10764,7 @@ engine-main-usage =
+     { "   " }o: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }o: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }o: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }o: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }o: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }o: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }o: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/et/engine.ftl b/i18n/et/engine.ftl
+index f01d8d0b4..3a5b9e145 100644
+--- a/i18n/et/engine.ftl
++++ b/i18n/et/engine.ftl
+@@ -10546,6 +10546,7 @@ engine-main-usage =
+     { "   " }või: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }või: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }või: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }või: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }või: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }või: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }või: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/fi/engine.ftl b/i18n/fi/engine.ftl
+index 0ec817a4e..0f252ada8 100644
+--- a/i18n/fi/engine.ftl
++++ b/i18n/fi/engine.ftl
+@@ -10288,6 +10288,7 @@ engine-main-usage =
+     { "   " }tai: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }tai: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }tai: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }tai: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }tai: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }tai: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }tai: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/fr/engine.ftl b/i18n/fr/engine.ftl
+index 392b79d6b..2426c94a1 100644
+--- a/i18n/fr/engine.ftl
++++ b/i18n/fr/engine.ftl
+@@ -10694,6 +10694,7 @@ engine-main-usage =
+     { "   " }ou : kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }ou : kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }ou : kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }ou : kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }ou : kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }ou : kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }ou : kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/ja/engine.ftl b/i18n/ja/engine.ftl
+index 7f941f6b2..398b6411b 100644
+--- a/i18n/ja/engine.ftl
++++ b/i18n/ja/engine.ftl
+@@ -9762,6 +9762,7 @@ engine-main-usage =
+     { "   " }または：kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }または：kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }または：kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }または：kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }または：kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }または：kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }または：kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/nb/engine.ftl b/i18n/nb/engine.ftl
+index 2b5cfb4b9..7babe5783 100644
+--- a/i18n/nb/engine.ftl
++++ b/i18n/nb/engine.ftl
+@@ -10513,6 +10513,7 @@ engine-main-usage =
+     { "   " }eller: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }eller: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }eller: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }eller: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }eller: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }eller: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }eller: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/nl/engine.ftl b/i18n/nl/engine.ftl
+index 330c1e5a9..6824a7de2 100644
+--- a/i18n/nl/engine.ftl
++++ b/i18n/nl/engine.ftl
+@@ -10585,6 +10585,7 @@ engine-main-usage =
+     { "   " }of: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }of: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }of: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }of: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }of: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }of: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }of: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/pl/engine.ftl b/i18n/pl/engine.ftl
+index 40d209325..5d850d253 100644
+--- a/i18n/pl/engine.ftl
++++ b/i18n/pl/engine.ftl
+@@ -10724,6 +10724,7 @@ engine-main-usage =
+     { "   " }lub: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }lub: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }lub: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }lub: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }lub: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }lub: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }lub: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/pt-BR/engine.ftl b/i18n/pt-BR/engine.ftl
+index 1453a0c13..2462c04c6 100644
+--- a/i18n/pt-BR/engine.ftl
++++ b/i18n/pt-BR/engine.ftl
+@@ -10806,6 +10806,7 @@ engine-main-usage =
+     { "   " }ou: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }ou: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }ou: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }ou: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }ou: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }ou: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }ou: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/pt-PT/engine.ftl b/i18n/pt-PT/engine.ftl
+index 553029ddb..a1e4f7683 100644
+--- a/i18n/pt-PT/engine.ftl
++++ b/i18n/pt-PT/engine.ftl
+@@ -10806,6 +10806,7 @@ engine-main-usage =
+     { "   " }ou: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }ou: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }ou: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }ou: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }ou: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }ou: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }ou: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/ru/engine.ftl b/i18n/ru/engine.ftl
+index 48a09468b..d96de8f97 100644
+--- a/i18n/ru/engine.ftl
++++ b/i18n/ru/engine.ftl
+@@ -10769,6 +10769,7 @@ engine-main-usage =
+     { "   " }или: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }или: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }или: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }или: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }или: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }или: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }или: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/sv/engine.ftl b/i18n/sv/engine.ftl
+index 30e93cfff..cdfe78f7b 100644
+--- a/i18n/sv/engine.ftl
++++ b/i18n/sv/engine.ftl
+@@ -10431,6 +10431,7 @@ engine-main-usage =
+     { "   " }eller: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }eller: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }eller: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }eller: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }eller: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }eller: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }eller: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/uk/engine.ftl b/i18n/uk/engine.ftl
+index a425addc6..2dc642ee8 100644
+--- a/i18n/uk/engine.ftl
++++ b/i18n/uk/engine.ftl
+@@ -10699,6 +10699,7 @@ engine-main-usage =
+     { "   " }або: kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }або: kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }або: kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }або: kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }або: kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }або: kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }або: kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+diff --git a/i18n/zh-Hans/engine.ftl b/i18n/zh-Hans/engine.ftl
+index a1b242621..10336c9a1 100644
+--- a/i18n/zh-Hans/engine.ftl
++++ b/i18n/zh-Hans/engine.ftl
+@@ -9829,6 +9829,7 @@ engine-main-usage =
+     { "   " }或：kshana evidence round-trip <scenario.toml> --scenario <bench-scenario> --conditions <file> --from <t0> --to <t1> --key <keyfile> --out <dir> (kshana evidence --help)
+     { "   " }或：kshana trust-telemetry [options] (kshana trust-telemetry --help)
+     { "   " }或：kshana imu-fit <imu.csv> [--format csv|euroc] [--axis x|y|z] [--expected-mean <m/s2>] [--id <name>] [--json]
++    { "   " }或：kshana ephem-export <horizons.txt> [--format oem|opm|spk] [--out <file>] [--index <n>] [--spk-type 13|9] [--degree <n>] [--creation-date <YYYY-MM-DDTHH:MM:SS>] [--object-id <id>]
+     { "   " }或：kshana nmea-scenario <scenario.toml> [--out <file.nmea>] [--tcp <addr>|--udp <addr>] (kshana nmea-scenario --help)
+     { "   " }或：kshana interference-map <adsb|ais|fetch-land> ... (kshana interference-map --help)
+     { "   " }或：kshana route-exposure --route <route> --map <map.geojson|dir> [--from <date>] [--to <date>]
+-- 
+2.43.0
+
