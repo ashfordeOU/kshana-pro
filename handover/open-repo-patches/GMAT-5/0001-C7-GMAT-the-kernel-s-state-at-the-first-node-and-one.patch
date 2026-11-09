@@ -1,0 +1,394 @@
+From 56679c0038249cdc1a721fcb7be3014f318adf11 Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Mon, 9 Nov 2026 03:14:36 +0000
+Subject: [PATCH] C7 GMAT: the kernel's state at the first node, and one Moon
+ for GMAT
+
+The gmat job's fourth run (Flight dynamics run 42549642686, at b099de4ea) reported every SPK state,
+with two adapter faults. The first row was GMAT's default spacecraft state: GMAT loads an ephemeris
+propagator's state only when it propagates, and the first report came first. The spacecraft now
+takes one 1e-12 s step (SpkPropInit) before it. From the second row on, positions were tens of
+metres off with velocities within about 1e-8 km/s: GMAT reads the spacecraft relative to the Earth
+through the Moon of its planetary SPK and subtracts the Moon of its own DE405 reader. GMAT's solar
+system now reads NAIF's de440s.bsp through SPICE (GMAT_PLANETARY_SPK), fetched by the workflow with
+its SHA-256 checked and cached, so that both Moons come from one ephemeris.
+
+The notebook writes gmat/spk_differences.csv (per node: epoch offset in seconds, GMAT minus written)
+and states the first, interior and last nodes' differences in the report. RESULTS (C7) records the
+run. The rule is unchanged.
+---
+ .github/workflows/flight-dynamics.yml         | 18 +++++++
+ .../c7-flight-dynamics-adapters/RESULTS.md    | 22 ++++++++
+ integrations/flight-dynamics/gmat.ipynb       | 40 ++++++++++-----
+ integrations/flight-dynamics/gmat.md          | 16 +++++-
+ integrations/flight-dynamics/gmat_reader.py   | 51 +++++++++++++++++--
+ 5 files changed, 128 insertions(+), 19 deletions(-)
+
+diff --git a/.github/workflows/flight-dynamics.yml b/.github/workflows/flight-dynamics.yml
+index e14d0ef43..726dd04e0 100644
+--- a/.github/workflows/flight-dynamics.yml
++++ b/.github/workflows/flight-dynamics.yml
+@@ -120,6 +120,8 @@ jobs:
+     env:
+       GMAT_TARBALL_SHA256: fe124b4a606b2e3b704a6fbb1c37b87598d5df0d18cb661c304b5f60074a7754
+       GMAT_URL: https://sourceforge.net/projects/gmat/files/GMAT/GMAT-R2026a/gmat-ubuntu-x64-R2026a.tar.gz/download
++      DE440S_SHA256: c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2
++      DE440S_URL: https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de440s.bsp
+     steps:
+       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+@@ -141,6 +143,21 @@ jobs:
+           mkdir -p ~/gmat
+           tar xzf "$RUNNER_TEMP/gmat.tar.gz" -C ~/gmat
+           rm "$RUNNER_TEMP/gmat.tar.gz"
++      - name: Cache NAIF's de440s.bsp (keyed on its SHA-256)
++        id: de440s-cache
++        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
++        with:
++          path: ~/naif
++          key: de440s-c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2
++      - name: Fetch de440s.bsp and check its SHA-256
++        # GMAT's solar system reads it through SPICE, so that its Moon and the Moon in its SPK chain
++        # come from one ephemeris (integrations/flight-dynamics/gmat_reader.py, planetary_lines).
++        if: steps.de440s-cache.outputs.cache-hit != 'true'
++        run: |
++          set -euo pipefail
++          mkdir -p ~/naif
++          curl -sSfL --retry 4 -o ~/naif/de440s.bsp "$DE440S_URL"
++          echo "$DE440S_SHA256  $HOME/naif/de440s.bsp" | sha256sum -c -
+       - name: GMAT's runtime libraries
+         run: sudo apt-get update && sudo apt-get install -y libgfortran5 libgomp1
+       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+@@ -153,6 +170,7 @@ jobs:
+       - name: Run the GMAT notebook top to bottom
+         env:
+           GMAT_ROOT: /home/runner/gmat/GMAT/R2026a
++          GMAT_PLANETARY_SPK: /home/runner/naif/de440s.bsp
+           KSHANA_FD_CLI_DIR: ${{ github.workspace }}/fd-inputs/cli
+           KSHANA_FD_OUT: ${{ runner.temp }}/fd
+         run: python integrations/flight-dynamics/run_notebooks.py gmat
+diff --git a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+index 264e4378f..fa7f1c2ef 100644
+--- a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
++++ b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+@@ -100,6 +100,28 @@ That node's epoch is then about 2 µs from the written one, and the report state
+ the rule (every epoch the written one, no state further than SPICE's), that node is not carried; this
+ is recorded as a GMAT time-representation finding, and the rule is not loosened.
+ 
++**The fourth run: every state reported, two adapter faults found.** The fourth run (Flight dynamics
++run 42549642686, at open commit b099de4ea) ran the SPK leg end to end: 4,321 of 4,321 states, 4,290
++epochs equal within the printed unit, the last node −1.73e-6 s, the others within 1.15e-6 s. Two
++faults in the adapter showed in the states:
++
++- The first row was GMAT's default spacecraft state, not the kernel's: the first report ran before
++  any propagation, and GMAT loads an ephemeris propagator's state only when it propagates. That row
++  alone made the worst difference 3.97e5 km and 7.24 km/s. The spacecraft now takes one 1e-12 s
++  step before the first report.
++- From the second row on, GMAT's positions were tens of metres from the written ones (node 1: +29.5,
++  +4.9, −13.7 m; node 2000: −50.3, −8.8, +24.3 m), with velocities within about 1e-8 km/s. GMAT reads
++  the spacecraft relative to the Earth, through the Moon of the planetary SPK it loads
++  (DE405AllPlanets.bsp), and subtracts the Moon of its own solar-system source (its DE405 reader);
++  the frame bias between ICRF and J2000 does not match the offsets. GMAT's solar system now reads
++  NAIF's de440s.bsp (SHA-256 `c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2`,
++  fetched and cached by the workflow) through SPICE, so that both Moons come from one ephemeris. If
++  the offsets remain, they are recorded as a GMAT finding with the per-node table, and the rule is
++  not changed.
++
++The notebook writes the per-node differences (epoch offset in seconds, GMAT minus written in km and
++km/s) to `gmat/spk_differences.csv` in the job's artifact.
++
+ **The comparison through GMAT's report.** GMAT's states reach the notebook only through a text report
+ of at most 16 significant digits, and a double needs 17. A stand-in that returns SPICE's own states,
+ equal to SPICE in every value at 16 digits, fails the evaluating-tool rule as first written
+diff --git a/integrations/flight-dynamics/gmat.ipynb b/integrations/flight-dynamics/gmat.ipynb
+index 0fc30f619..7d4b725ca 100644
+--- a/integrations/flight-dynamics/gmat.ipynb
++++ b/integrations/flight-dynamics/gmat.ipynb
+@@ -2,7 +2,7 @@
+  "cells": [
+   {
+    "cell_type": "markdown",
+-   "id": "b99ef8d6",
++   "id": "515c683b",
+    "metadata": {},
+    "source": [
+     "<!-- SPDX-License-Identifier: AGPL-3.0-only -->\n",
+@@ -33,7 +33,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "065ee10c",
++   "id": "41455daa",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -57,7 +57,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "ccd62177",
++   "id": "4502a715",
+    "metadata": {},
+    "source": [
+     "The reference: the SPICE Toolkit evaluating Kshana's SPK at the node epochs."
+@@ -66,7 +66,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "c6ff1155",
++   "id": "decdb6e8",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -79,26 +79,31 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "f7a4cb76",
++   "id": "f1f585b4",
+    "metadata": {},
+    "source": [
+-    "GMAT runs the SPK script, every step."
++    "GMAT runs the SPK script, every step. `GMAT_PLANETARY_SPK` names a planetary SPK (the workflow\n",
++    "gives NAIF's de440s.bsp); GMAT's solar system then reads it through SPICE, so that the Moon GMAT\n",
++    "subtracts and the Moon in its SPK chain are the same."
+    ]
+   },
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "549f7687",
++   "id": "b53d4c5e",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "spk_report, spk_log = gm.run_spk(files[\"spk\"], OUT / \"gmat\", written.epochs[0], ets[0], len(ets))\n",
++    "planetary = os.environ.get(\"GMAT_PLANETARY_SPK\")  # NAIF's de440s.bsp in the workflow\n",
++    "spk_report, spk_log = gm.run_spk(files[\"spk\"], OUT / \"gmat\", written.epochs[0], ets[0], len(ets),\n",
++    "                                 planetary_spk=Path(planetary) if planetary else None)\n",
++    "print(\"GMAT's planetary source:\", planetary or \"GMAT's default\")\n",
+     "print(spk_log[-2000:])"
+    ]
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "101f121a",
++   "id": "198e4557",
+    "metadata": {},
+    "source": [
+     "GMAT runs the OEM script on the OEM as written. `oem_report` is `None` when GMAT refuses the file\n",
+@@ -108,7 +113,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "7c5961c0",
++   "id": "8ceee2ea",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -119,7 +124,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "ac146df4",
++   "id": "1a14643a",
+    "metadata": {},
+    "source": [
+     "What GMAT reported, against what was written:"
+@@ -128,7 +133,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "28733a84",
++   "id": "2b25c33b",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -142,10 +147,17 @@
+     "    n = min(len(g_states), len(ets))\n",
+     "    ok, worst_dt = gm.epochs_equal(g_texts[:n], ets[:n])\n",
+     "    w = fd.Written(written.epochs[:n], written.text[:n])\n",
++    "    gm.write_differences(OUT / \"gmat\" / f\"{fmt}_differences.csv\", g_texts[:n], g_states[:n], ets[:n], w.values[:n])\n",
+     "    c = fd.evaluated_compare(\"GMAT\", fmt, w, g_states[:n], ok, spice[:n], how=how,\n",
+     "                             readout_digits=gm.REPORT_DIGITS)\n",
+     "    c.notes.append(f\"{len(g_states)} of {len(ets)} states reported; epochs within {worst_dt:.3g} s of the written ones\")\n",
+     "    if fmt == \"spk\" and n == len(ets):\n",
++    "        import math\n",
++    "        dr = [math.dist(g[:3], v[:3]) for g, v in zip(g_states, w.values)]\n",
++    "        dv = [math.dist(g[3:], v[3:]) for g, v in zip(g_states, w.values)]\n",
++    "        c.notes.append(f\"GMAT minus written: first node {dr[0]:.3g} km, {dv[0]:.3g} km/s; interior nodes up to \"\n",
++    "                       f\"{max(dr[1:-1]):.3g} km, {max(dv[1:-1]):.3g} km/s; last node {dr[-1]:.3g} km, {dv[-1]:.3g} km/s \"\n",
++    "                       f\"(per node: gmat/spk_differences.csv)\")\n",
+     "        off = gm.epoch_offsets(g_texts[:n], ets[:n])\n",
+     "        c.notes.append(f\"last node asked for {gm.LAST_NODE_MARGIN_S:g} s before the kernel's end: its epoch \"\n",
+     "                       f\"offset {off[-1]:.3g} s; the other nodes within {max(abs(x) for x in off[:-1]):.3g} s\")\n",
+@@ -155,7 +167,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "946e9eba",
++   "id": "8b4ec228",
+    "metadata": {},
+    "source": [
+     "## The difference report"
+@@ -164,7 +176,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "ed8dc776",
++   "id": "1fa74c56",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+diff --git a/integrations/flight-dynamics/gmat.md b/integrations/flight-dynamics/gmat.md
+index 3ed433b9e..8fd5a8f7d 100644
+--- a/integrations/flight-dynamics/gmat.md
++++ b/integrations/flight-dynamics/gmat.md
+@@ -51,10 +51,15 @@ spice = [[float(x) for x in spiceypy.spkezr("-1176", e, "J2000", "NONE", "301")[
+ spiceypy.kclear()
+ ```
+ 
+-GMAT runs the SPK script, every step.
++GMAT runs the SPK script, every step. `GMAT_PLANETARY_SPK` names a planetary SPK (the workflow
++gives NAIF's de440s.bsp); GMAT's solar system then reads it through SPICE, so that the Moon GMAT
++subtracts and the Moon in its SPK chain are the same.
+ 
+ ```python
+-spk_report, spk_log = gm.run_spk(files["spk"], OUT / "gmat", written.epochs[0], ets[0], len(ets))
++planetary = os.environ.get("GMAT_PLANETARY_SPK")  # NAIF's de440s.bsp in the workflow
++spk_report, spk_log = gm.run_spk(files["spk"], OUT / "gmat", written.epochs[0], ets[0], len(ets),
++                                 planetary_spk=Path(planetary) if planetary else None)
++print("GMAT's planetary source:", planetary or "GMAT's default")
+ print(spk_log[-2000:])
+ ```
+ 
+@@ -80,10 +85,17 @@ for fmt, path, how in legs:
+     n = min(len(g_states), len(ets))
+     ok, worst_dt = gm.epochs_equal(g_texts[:n], ets[:n])
+     w = fd.Written(written.epochs[:n], written.text[:n])
++    gm.write_differences(OUT / "gmat" / f"{fmt}_differences.csv", g_texts[:n], g_states[:n], ets[:n], w.values[:n])
+     c = fd.evaluated_compare("GMAT", fmt, w, g_states[:n], ok, spice[:n], how=how,
+                              readout_digits=gm.REPORT_DIGITS)
+     c.notes.append(f"{len(g_states)} of {len(ets)} states reported; epochs within {worst_dt:.3g} s of the written ones")
+     if fmt == "spk" and n == len(ets):
++        import math
++        dr = [math.dist(g[:3], v[:3]) for g, v in zip(g_states, w.values)]
++        dv = [math.dist(g[3:], v[3:]) for g, v in zip(g_states, w.values)]
++        c.notes.append(f"GMAT minus written: first node {dr[0]:.3g} km, {dv[0]:.3g} km/s; interior nodes up to "
++                       f"{max(dr[1:-1]):.3g} km, {max(dv[1:-1]):.3g} km/s; last node {dr[-1]:.3g} km, {dv[-1]:.3g} km/s "
++                       f"(per node: gmat/spk_differences.csv)")
+         off = gm.epoch_offsets(g_texts[:n], ets[:n])
+         c.notes.append(f"last node asked for {gm.LAST_NODE_MARGIN_S:g} s before the kernel's end: its epoch "
+                        f"offset {off[-1]:.3g} s; the other nodes within {max(abs(x) for x in off[:-1]):.3g} s")
+diff --git a/integrations/flight-dynamics/gmat_reader.py b/integrations/flight-dynamics/gmat_reader.py
+index 16617d2f2..b8d9250d9 100644
+--- a/integrations/flight-dynamics/gmat_reader.py
++++ b/integrations/flight-dynamics/gmat_reader.py
+@@ -12,7 +12,10 @@ end. The second run of the job, stepping by elapsed time, ended 3.2e-9 day past
+ coverage and GMAT halted. The last node is asked for LAST_NODE_MARGIN_S before the kernel's
+ coverage end (read with SPICE), through a propagator whose step is LAST_STEP_SHORT_S short, so that
+ GMAT never steps past the kernel (the third run, stopping at the end itself, still landed past it);
+-the report states that node's epoch offset like every other. At every step GMAT reports the epoch (`TDBModJulian`) and the Moon-centred state,
++the report states that node's epoch offset like every other. Before the first report the
++spacecraft takes one INIT_STEP_S step, so that GMAT holds the kernel's state rather than its default
++one. With `planetary_spk` (NAIF's de440s), GMAT's solar system is read through SPICE, so that its
++Moon and the Moon in its SPK chain agree. At every step GMAT reports the epoch (`TDBModJulian`) and the Moon-centred state,
+ at 16 significant digits:
+ 
+ - the OEM in a Moon-centred ICRF frame (its `REF_FRAME` is ICRF);
+@@ -77,7 +80,7 @@ For k = 1:{steps};
+ EndFor;
+ """
+ 
+-SPK_SCRIPT = """
++SPK_SCRIPT = """{planetary}
+ Create Spacecraft SpkSat;
+ SpkSat.NAIFId = {naif};
+ SpkSat.OrbitSpiceKernelName = {{'{bsp}'}};
+@@ -90,6 +93,12 @@ SpkProp.StepSize = {step};
+ SpkProp.CentralBody = Luna;
+ SpkProp.StartEpoch = FromSpacecraft;
+ 
++Create Propagator SpkPropInit;
++SpkPropInit.Type = SPK;
++SpkPropInit.StepSize = {init_step};
++SpkPropInit.CentralBody = Luna;
++SpkPropInit.StartEpoch = FromSpacecraft;
++
+ Create Propagator SpkPropLast;
+ SpkPropLast.Type = SPK;
+ SpkPropLast.StepSize = {last_step};
+@@ -109,6 +118,7 @@ Create Variable k t;
+ 
+ BeginMissionSequence;
+ 
++Propagate SpkPropInit(SpkSat);
+ Report SpkReport SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
+ For k = 1:{inner_steps};
+    t = {mjd0} + k * {step_days};
+@@ -130,6 +140,12 @@ LAST_NODE_MARGIN_S = 2e-6
+ #: seconds differ from 600 TDB seconds by at most about 2e-7 s here.
+ LAST_STEP_SHORT_S = 1e-6
+ 
++#: The one step taken before the first report, in seconds. Until a spacecraft on an ephemeris
++#: propagator is propagated, GMAT holds its default state, not the kernel's: the fourth run of the
++#: job (at open commit b099de4ea) reported that default state as the first node. A step this short
++#: loads the kernel's state at the first node and moves it by about 2e-12 km at most.
++INIT_STEP_S = 1e-12
++
+ #: Significant digits of GMAT's reports: ReportFile's largest Precision. The comparison prints
+ #: SPICE's evaluation at the same precision (NAMING.md, the 8-9 November amendment).
+ REPORT_DIGITS = 16
+@@ -194,8 +210,19 @@ def _console(script: Path, log_name: str) -> tuple[int, str]:
+     return p.returncode, log
+ 
+ 
++def planetary_lines(planetary_spk: Path | None) -> str:
++    """GMAT's solar system read through SPICE from `planetary_spk`, so that GMAT's Moon and the Moon
++    in its SPK chain (it reads the spacecraft relative to the Earth) come from one ephemeris. None
++    leaves GMAT's default source (its own DE405 reader), with which the fourth run of the job showed
++    tens of metres between the two Moons."""
++    if planetary_spk is None:
++        return ""
++    return (f"\nSolarSystem.EphemerisSource = 'SPICE';\n"
++            f"SolarSystem.SPKFilename = '{Path(planetary_spk).resolve()}';\n")
++
++
+ def run_spk(bsp: Path, out: Path, first_label: str, first_et: float, n: int, naif: int = -1176,
+-            step_s: float = 600.0) -> tuple[Path, str]:
++            step_s: float = 600.0, planetary_spk: Path | None = None) -> tuple[Path, str]:
+     """GMAT's SPK propagator through Kshana's kernel. Returns (report, console output); raises if
+     GMAT fails."""
+     out.mkdir(parents=True, exist_ok=True)
+@@ -204,6 +231,7 @@ def run_spk(bsp: Path, out: Path, first_label: str, first_et: float, n: int, nai
+     script.write_text(SPK_SCRIPT.format(bsp=Path(bsp).resolve(), out=out.resolve(), naif=naif,
+                                         start_gregorian=gregorian(first_label), step=step_s, inner_steps=n - 2,
+                                         mjd_last=repr(last_node_mjd(end_et)), last_step=repr(step_s - LAST_STEP_SHORT_S),
++                                        planetary=planetary_lines(planetary_spk), init_step=repr(INIT_STEP_S),
+                                         mjd0=repr(tdb_mjd(first_et)), step_days=repr(step_s / 86400.0),
+                                         digits=REPORT_DIGITS))
+     code, log = _console(script, "gmat_console_spk.log")
+@@ -264,3 +292,20 @@ def epoch_offsets(texts: list[str], want_ets: list[float]) -> list[float]:
+ 
+     return [float((Decimal(t) - (Decimal(repr(e)) / Decimal(86400) + Decimal(repr(GMAT_MJD_J2000))))
+                   * Decimal(86400)) for t, e in zip(texts, want_ets)]
++
++
++def write_differences(path: Path, texts: list[str], got: list[list[float]], want_ets: list[float],
++                      want: list[list[float]]) -> None:
++    """One CSV row per node: the reported epoch minus the written one (s), the state difference
++    (GMAT minus written, km and km/s) and both position norms, so that a gross difference shows its
++    pattern (an origin, a frame rotation, a time shift) in the artifact."""
++    import csv
++    import math
++
++    off = epoch_offsets(texts, want_ets)
++    with open(path, "w", newline="") as f:
++        out = csv.writer(f)
++        out.writerow(["node", "epoch_offset_s", "dx", "dy", "dz", "dvx", "dvy", "dvz", "r_gmat_km", "r_written_km"])
++        for i, (g, w) in enumerate(zip(got, want)):
++            d = [a - b for a, b in zip(g, w)]
++            out.writerow([i, repr(off[i]), *map(repr, d), repr(math.hypot(*g[:3])), repr(math.hypot(*w[:3]))])
+-- 
+2.43.0
+
