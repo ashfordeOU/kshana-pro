@@ -1,0 +1,261 @@
+From 883878c7b7a39e1392bb64bcf7c824a15922a3a1 Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Mon, 9 Nov 2026 04:06:30 +0000
+Subject: [PATCH] C7 GMAT: read the SPK out in Luna-centred ICRF axes
+
+The gmat job's fifth run (Flight dynamics run 42555506824, at fec594dd1) left a constant rotation
+between GMAT's states and the written ones: omega = (-7.85, +43.72, -0.62) mas, |omega| = 44.4 mas,
+fitted as d = omega x r over 4,321 nodes, residual at most 0.31 m after it. The states were read out
+in GMAT's MJ2000Eq axes; Kshana's states are ICRF, and the kernel's J2000 frame code is ICRF to
+SPICE. The compared report is now in a Luna-centred frame with GMAT's ICRF axes (LunaSpkICRF). The
+MJ2000Eq readout stays beside it, not compared (gmat_spk_mj2000eq.txt and its differences CSV).
+RESULTS (C7) records the run and the fit. The rule is unchanged.
+---
+ .../c7-flight-dynamics-adapters/RESULTS.md    | 13 ++++++++
+ integrations/flight-dynamics/gmat.ipynb       | 31 +++++++++++--------
+ integrations/flight-dynamics/gmat.md          |  7 ++++-
+ integrations/flight-dynamics/gmat_reader.py   | 25 ++++++++++++---
+ 4 files changed, 57 insertions(+), 19 deletions(-)
+
+diff --git a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+index fa7f1c2ef..23b0846f2 100644
+--- a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
++++ b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+@@ -122,6 +122,19 @@ faults in the adapter showed in the states:
+ The notebook writes the per-node differences (epoch offset in seconds, GMAT minus written in km and
+ km/s) to `gmat/spk_differences.csv` in the job's artifact.
+ 
++**The fifth run: a constant rotation of the readout axes.** The fifth run (Flight dynamics run
++42555506824, at open commit fec594dd1) reported the kernel's state at the first node, and with one
++Moon the worst position difference fell from 85 m to 14.5 m, velocities within 0.32 mm/s. What was
++left is a constant rotation: a least-squares fit of d = ω × r over all 4,321 nodes gives
++ω = (−7.85, +43.72, −0.62) mas, |ω| = 44.4 mas, stable over 5-day chunks; with it removed the
++position residual is at most 0.31 m (RMS 0.15 m), the radial differences at most 0.7 mm. The IAU
++2006 frame bias (about 23 mas) removes only part of it. The states had been read out in GMAT's
++MJ2000Eq axes, while Kshana's states are ICRF (the kernel's frame code is J2000, which SPICE treats
++as ICRF). The SPK is now reported in a Luna-centred frame with GMAT's ICRF axes, the like-for-like
++readout, and still also in MJ2000Eq (`gmat_spk_mj2000eq.txt`, `spk_mj2000eq_differences.csv`, not
++compared). If a rotation remains in the ICRF readout, it is recorded as a GMAT frame finding with
++this fit, and the rule is not changed.
++
+ **The comparison through GMAT's report.** GMAT's states reach the notebook only through a text report
+ of at most 16 significant digits, and a double needs 17. A stand-in that returns SPICE's own states,
+ equal to SPICE in every value at 16 digits, fails the evaluating-tool rule as first written
+diff --git a/integrations/flight-dynamics/gmat.ipynb b/integrations/flight-dynamics/gmat.ipynb
+index 7d4b725ca..355f70b51 100644
+--- a/integrations/flight-dynamics/gmat.ipynb
++++ b/integrations/flight-dynamics/gmat.ipynb
+@@ -2,7 +2,7 @@
+  "cells": [
+   {
+    "cell_type": "markdown",
+-   "id": "515c683b",
++   "id": "e3b42aa3",
+    "metadata": {},
+    "source": [
+     "<!-- SPDX-License-Identifier: AGPL-3.0-only -->\n",
+@@ -33,7 +33,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "41455daa",
++   "id": "59e09059",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -57,7 +57,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "4502a715",
++   "id": "2f00e1a7",
+    "metadata": {},
+    "source": [
+     "The reference: the SPICE Toolkit evaluating Kshana's SPK at the node epochs."
+@@ -66,7 +66,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "decdb6e8",
++   "id": "3d9ea52d",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -79,7 +79,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "f1f585b4",
++   "id": "3ae8a82d",
+    "metadata": {},
+    "source": [
+     "GMAT runs the SPK script, every step. `GMAT_PLANETARY_SPK` names a planetary SPK (the workflow\n",
+@@ -90,7 +90,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "b53d4c5e",
++   "id": "2f764cce",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -103,7 +103,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "198e4557",
++   "id": "c0c2246c",
+    "metadata": {},
+    "source": [
+     "GMAT runs the OEM script on the OEM as written. `oem_report` is `None` when GMAT refuses the file\n",
+@@ -113,7 +113,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "8ceee2ea",
++   "id": "18b2ad51",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -124,7 +124,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "1a14643a",
++   "id": "4d8e52f4",
+    "metadata": {},
+    "source": [
+     "What GMAT reported, against what was written:"
+@@ -133,12 +133,12 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "2b25c33b",
++   "id": "5131a566",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+     "rows = []\n",
+-    "legs = [(\"spk\", spk_report, \"SPK propagator, LunaJ2000 (MJ2000Eq)\")]\n",
++    "legs = [(\"spk\", spk_report, \"SPK propagator, Luna-centred ICRF axes\")]\n",
+     "if not oem_refused:\n",
+     "    legs.append((\"oem\", oem_report, \"CCSDS-OEM propagator, LunaICRF\"))\n",
+     "for fmt, path, how in legs:\n",
+@@ -148,6 +148,11 @@
+     "    ok, worst_dt = gm.epochs_equal(g_texts[:n], ets[:n])\n",
+     "    w = fd.Written(written.epochs[:n], written.text[:n])\n",
+     "    gm.write_differences(OUT / \"gmat\" / f\"{fmt}_differences.csv\", g_texts[:n], g_states[:n], ets[:n], w.values[:n])\n",
++    "    if fmt == \"spk\":\n",
++    "        # The same states in GMAT's MJ2000Eq axes: kept beside the comparison, not compared.\n",
++    "        m_ets, m_states, m_texts = gm.read_report(OUT / \"gmat\" / \"gmat_spk_mj2000eq.txt\")\n",
++    "        m = min(len(m_states), len(ets))\n",
++    "        gm.write_differences(OUT / \"gmat\" / \"spk_mj2000eq_differences.csv\", m_texts[:m], m_states[:m], ets[:m], w.values[:m])\n",
+     "    c = fd.evaluated_compare(\"GMAT\", fmt, w, g_states[:n], ok, spice[:n], how=how,\n",
+     "                             readout_digits=gm.REPORT_DIGITS)\n",
+     "    c.notes.append(f\"{len(g_states)} of {len(ets)} states reported; epochs within {worst_dt:.3g} s of the written ones\")\n",
+@@ -167,7 +172,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "8b4ec228",
++   "id": "e8cf07a9",
+    "metadata": {},
+    "source": [
+     "## The difference report"
+@@ -176,7 +181,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "1fa74c56",
++   "id": "bff636c2",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+diff --git a/integrations/flight-dynamics/gmat.md b/integrations/flight-dynamics/gmat.md
+index 8fd5a8f7d..2295571a0 100644
+--- a/integrations/flight-dynamics/gmat.md
++++ b/integrations/flight-dynamics/gmat.md
+@@ -76,7 +76,7 @@ What GMAT reported, against what was written:
+ 
+ ```python
+ rows = []
+-legs = [("spk", spk_report, "SPK propagator, LunaJ2000 (MJ2000Eq)")]
++legs = [("spk", spk_report, "SPK propagator, Luna-centred ICRF axes")]
+ if not oem_refused:
+     legs.append(("oem", oem_report, "CCSDS-OEM propagator, LunaICRF"))
+ for fmt, path, how in legs:
+@@ -86,6 +86,11 @@ for fmt, path, how in legs:
+     ok, worst_dt = gm.epochs_equal(g_texts[:n], ets[:n])
+     w = fd.Written(written.epochs[:n], written.text[:n])
+     gm.write_differences(OUT / "gmat" / f"{fmt}_differences.csv", g_texts[:n], g_states[:n], ets[:n], w.values[:n])
++    if fmt == "spk":
++        # The same states in GMAT's MJ2000Eq axes: kept beside the comparison, not compared.
++        m_ets, m_states, m_texts = gm.read_report(OUT / "gmat" / "gmat_spk_mj2000eq.txt")
++        m = min(len(m_states), len(ets))
++        gm.write_differences(OUT / "gmat" / "spk_mj2000eq_differences.csv", m_texts[:m], m_states[:m], ets[:m], w.values[:m])
+     c = fd.evaluated_compare("GMAT", fmt, w, g_states[:n], ok, spice[:n], how=how,
+                              readout_digits=gm.REPORT_DIGITS)
+     c.notes.append(f"{len(g_states)} of {len(ets)} states reported; epochs within {worst_dt:.3g} s of the written ones")
+diff --git a/integrations/flight-dynamics/gmat_reader.py b/integrations/flight-dynamics/gmat_reader.py
+index b8d9250d9..541c071f6 100644
+--- a/integrations/flight-dynamics/gmat_reader.py
++++ b/integrations/flight-dynamics/gmat_reader.py
+@@ -19,8 +19,11 @@ Moon and the Moon in its SPK chain agree. At every step GMAT reports the epoch (
+ at 16 significant digits:
+ 
+ - the OEM in a Moon-centred ICRF frame (its `REF_FRAME` is ICRF);
+-- the SPK in a Moon-centred MJ2000Eq frame. The kernel's frame code is 1 (J2000), which GMAT
+-  reads as MJ2000Eq, so no frame-bias rotation is applied to the stored states.
++- the SPK in a Moon-centred ICRF frame (GMAT's `ICRF` axes). The kernel's frame code is 1, J2000,
++  which SPICE treats as ICRF, and Kshana's states are ICRF. The fifth run of the job reported the SPK
++  in GMAT's MJ2000Eq axes and differed from the written states by a constant rotation of about
++  44 mas; the SPK is also still reported in MJ2000Eq, to `gmat_spk_mj2000eq.txt`, which is not
++  compared but kept beside the comparison.
+ 
+ GMAT R2026a, as shipped, refuses an OEM of version 2.0 (`CCSDS_OEM_VERS = 2.0`, the version Kshana
+ writes): its `CCSDS-OEM` propagator stops the mission with `OEM_V2_REFUSAL` unless GMAT runs in its
+@@ -105,6 +108,10 @@ SpkPropLast.StepSize = {last_step};
+ SpkPropLast.CentralBody = Luna;
+ SpkPropLast.StartEpoch = FromSpacecraft;
+ 
++Create CoordinateSystem LunaSpkICRF;
++LunaSpkICRF.Origin = Luna;
++LunaSpkICRF.Axes = ICRF;
++
+ Create CoordinateSystem LunaJ2000;
+ LunaJ2000.Origin = Luna;
+ LunaJ2000.Axes = MJ2000Eq;
+@@ -114,19 +121,27 @@ SpkReport.Filename = '{out}/gmat_spk.txt';
+ SpkReport.Precision = {digits};
+ SpkReport.WriteHeaders = false;
+ 
++Create ReportFile SpkReportMJ2000Eq;
++SpkReportMJ2000Eq.Filename = '{out}/gmat_spk_mj2000eq.txt';
++SpkReportMJ2000Eq.Precision = {digits};
++SpkReportMJ2000Eq.WriteHeaders = false;
++
+ Create Variable k t;
+ 
+ BeginMissionSequence;
+ 
+ Propagate SpkPropInit(SpkSat);
+-Report SpkReport SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
++Report SpkReport SpkSat.TDBModJulian SpkSat.LunaSpkICRF.X SpkSat.LunaSpkICRF.Y SpkSat.LunaSpkICRF.Z SpkSat.LunaSpkICRF.VX SpkSat.LunaSpkICRF.VY SpkSat.LunaSpkICRF.VZ;
++Report SpkReportMJ2000Eq SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
+ For k = 1:{inner_steps};
+    t = {mjd0} + k * {step_days};
+    Propagate SpkProp(SpkSat) {{SpkSat.TDBModJulian = t}};
+-   Report SpkReport SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
++   Report SpkReport SpkSat.TDBModJulian SpkSat.LunaSpkICRF.X SpkSat.LunaSpkICRF.Y SpkSat.LunaSpkICRF.Z SpkSat.LunaSpkICRF.VX SpkSat.LunaSpkICRF.VY SpkSat.LunaSpkICRF.VZ;
++   Report SpkReportMJ2000Eq SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
+ EndFor;
+ Propagate SpkPropLast(SpkSat) {{SpkSat.TDBModJulian = {mjd_last}}};
+-Report SpkReport SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
++Report SpkReport SpkSat.TDBModJulian SpkSat.LunaSpkICRF.X SpkSat.LunaSpkICRF.Y SpkSat.LunaSpkICRF.Z SpkSat.LunaSpkICRF.VX SpkSat.LunaSpkICRF.VY SpkSat.LunaSpkICRF.VZ;
++Report SpkReportMJ2000Eq SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
+ """
+ 
+ #: How far before the kernel's coverage end GMAT is asked for the last node, in seconds. GMAT's
+-- 
+2.43.0
+
