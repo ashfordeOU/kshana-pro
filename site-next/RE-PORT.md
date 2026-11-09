@@ -217,7 +217,10 @@ so the next re-port starts from this release's recordings.
 - `features/check_nav.mjs` reads `KSHANA_CHROME` (in a cloud container: `/opt/pw-browsers/chromium`,
   with `KSHANA_PLAYWRIGHT=/opt/node-tools/node_modules`). Its `--deadline S` (default 5400 s; a full run here takes about 65 min, 1,326 tasks at about 3 s) ends a
   stalled run in a partial report that names the tasks not run, and every tab and browser close is
-  time-boxed. The `scratch/assembly/*.mjs` browser checks still assume macOS Chrome.
+  time-boxed. In a cloud container, six workers contend: the full run on 2026-11-09 (1,326 tasks, 32 min)
+  gave 30 BAD, every one a timeout or a target still loading, and every one passed when its page was
+  re-run with `--jobs 1` (twice). Re-run a BAD page alone with `--jobs 1` before treating it as real. The
+  `scratch/assembly/*.mjs` browser checks still assume macOS Chrome.
 - `pro-power.json`'s public-text checkout should take an environment override, like `_sources.py`.
 - `gen_pro_power.py` reads `~/Code/kshana-site-next/scratch/pro` and `~/Code/kshana-pro/...`
   (override with `KSHANA_PRO_SHOWCASE` / `KSHANA_PRO_TEXT_REPO`); it is not in the
