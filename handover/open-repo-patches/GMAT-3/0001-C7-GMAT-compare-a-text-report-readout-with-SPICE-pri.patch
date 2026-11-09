@@ -1,0 +1,328 @@
+From 24f64da9fe9b4f901c81ff33f8f18e6333a0ef8a Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Mon, 9 Nov 2026 01:19:34 +0000
+Subject: [PATCH] C7 GMAT: compare a text-report readout with SPICE printed at
+ the same precision
+
+NAMING.md records the 8-9 November amendment, written before any real GMAT SPK comparison was seen:
+for a tool whose only readout is a fixed-precision text report, its states are compared with
+SPICE's evaluation of the same kernel printed at the same precision, so both pass through the same
+readout; the bar is unchanged. Reason: a stand-in returning SPICE's own states fails the rule as
+first written through GMAT's 16-digit report (2.18e-11 km against 1.46e-11 km). It applies to GMAT
+only; Orekit, Basilisk and ANISE keep the full-double comparison.
+
+kshana_fd.evaluated_compare takes readout_digits (default None, the full-double comparison);
+gmat_reader.REPORT_DIGITS = 16 sets both the scripts' ReportFile precision and the comparison.
+RESULTS (C7) records the amendment and keeps a full-precision GMAT readout as future work.
+---
+ .../c7-flight-dynamics-adapters/NAMING.md     |  2 ++
+ .../c7-flight-dynamics-adapters/RESULTS.md    | 10 +++++++
+ integrations/flight-dynamics/README.md        |  5 +++-
+ integrations/flight-dynamics/gmat.ipynb       | 30 ++++++++++---------
+ integrations/flight-dynamics/gmat.md          |  6 ++--
+ integrations/flight-dynamics/gmat_reader.py   | 19 ++++++++----
+ integrations/flight-dynamics/kshana_fd.py     | 18 +++++++++--
+ 7 files changed, 65 insertions(+), 25 deletions(-)
+
+diff --git a/docs/design/evidence/c7-flight-dynamics-adapters/NAMING.md b/docs/design/evidence/c7-flight-dynamics-adapters/NAMING.md
+index 6e4445922..f0c6afd3a 100644
+--- a/docs/design/evidence/c7-flight-dynamics-adapters/NAMING.md
++++ b/docs/design/evidence/c7-flight-dynamics-adapters/NAMING.md
+@@ -21,3 +21,5 @@ Recorded before the fourth tool's adapter is written, as the sign-off of 3 Novem
+ ## How criterion 3 is read for a tool that evaluates a kernel
+ 
+ 8 November 2026: some tools evaluate an SPK and do not hand back its stored records (ANISE's Python API). For those, the file is carried when every epoch is the written one and no state at a node epoch is further from the written state than SPICE's own evaluation of the same kernel is. Rule set by the apps session, confirmed by the seat on 8 November. Nothing was pre-registered for evaluating tools.
++
++8-9 November 2026 amendment, before any real GMAT SPK comparison was seen: for a tool whose only readout is a fixed-precision text report, its states are compared with SPICE's evaluation of the same kernel printed at the same precision, so both pass through the same readout. The bar is unchanged. The reason: GMAT's report prints at most 16 significant digits, and a stand-in that returns SPICE's own states, equal to SPICE in all 25,926 values at 16 digits, fails the unamended rule (2.18e-11 km against SPICE's 1.46e-11 km), so the rule as first written could not be met by any tool read through that report. It applies to GMAT only today; Orekit, Basilisk and ANISE keep the full-double comparison. Amendment by the seat, written by the apps session.
+diff --git a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+index 107c0ede9..baec00947 100644
+--- a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
++++ b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+@@ -87,3 +87,13 @@ elapsed time in A.1 seconds; the kernel's nodes are TDB, and over 30 days the TD
+ moves them about 0.28 ms apart. The script now stops each step at the next node's TDB epoch
+ (`TDBModJulian` stop condition) instead of stepping by elapsed time. The comparison and its bar are
+ unchanged.
++
++**The comparison through GMAT's report.** GMAT's states reach the notebook only through a text report
++of at most 16 significant digits, and a double needs 17. A stand-in that returns SPICE's own states,
++equal to SPICE in every value at 16 digits, fails the evaluating-tool rule as first written
++(2.18e-11 km against SPICE's 1.46e-11 km). By the 8-9 November amendment in NAMING.md, written before
++any real GMAT SPK comparison was seen, GMAT's states are compared with SPICE's evaluation printed at
++the same 16 digits; the bar is unchanged, and Orekit, Basilisk and ANISE keep the full-double
++comparison. Future work: read GMAT's states at full precision instead, for example from an ephemeris
++file GMAT writes (an SPK read back by SPICE at the nodes), which would need no amendment but puts
++GMAT's own writer in the path.
+diff --git a/integrations/flight-dynamics/README.md b/integrations/flight-dynamics/README.md
+index 653615d19..f4704abb2 100644
+--- a/integrations/flight-dynamics/README.md
++++ b/integrations/flight-dynamics/README.md
+@@ -39,7 +39,10 @@ Some tools evaluate a kernel and do not hand back its stored records (ANISE's Py
+ those, the states at the node epochs are compared with the written states, beside SPICE's own
+ evaluation of Kshana's SPK of the same states. The file is carried when every epoch is the written
+ one and no state is further from the written one than SPICE's evaluation is. The report marks these
+-rows "evaluated, not read".
++rows "evaluated, not read". For a tool whose only readout is a fixed-precision text report (GMAT,
++16 significant digits), SPICE's evaluation is printed at the same precision before the comparison,
++so both pass through the same readout ([NAMING.md](../../docs/design/evidence/c7-flight-dynamics-adapters/NAMING.md),
++the 8-9 November amendment).
+ 
+ ## Results
+ 
+diff --git a/integrations/flight-dynamics/gmat.ipynb b/integrations/flight-dynamics/gmat.ipynb
+index 1c2f5d20b..0a15f1b26 100644
+--- a/integrations/flight-dynamics/gmat.ipynb
++++ b/integrations/flight-dynamics/gmat.ipynb
+@@ -2,7 +2,7 @@
+  "cells": [
+   {
+    "cell_type": "markdown",
+-   "id": "86c21269",
++   "id": "e0be9609",
+    "metadata": {},
+    "source": [
+     "<!-- SPDX-License-Identifier: AGPL-3.0-only -->\n",
+@@ -22,7 +22,8 @@
+     "an OEM and an SPK. GMAT loads each into a spacecraft through its `CCSDS-OEM` and `SPK` ephemeris\n",
+     "propagators, in two separate runs, steps through the file at the node spacing, and reports every\n",
+     "state. The states GMAT reports are compared with the written states, and with SPICE's own evaluation\n",
+-    "of Kshana's SPK. This is the GMAT part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`).\n",
++    "of Kshana's SPK printed at the report's 16 digits, so that both pass through the same readout\n",
++    "(NAMING.md, the 8-9 November amendment). This is the GMAT part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`).\n",
+     "\n",
+     "GMAT R2026a as shipped refuses an OEM of version 2.0, the version Kshana writes: its `CCSDS-OEM`\n",
+     "propagator accepts one only in GMAT's TESTING mode. The notebook does not turn that mode on. It\n",
+@@ -32,7 +33,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "07a38de6",
++   "id": "7c7d3d0c",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -56,7 +57,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "2de2cf3a",
++   "id": "120f01e4",
+    "metadata": {},
+    "source": [
+     "The reference: the SPICE Toolkit evaluating Kshana's SPK at the node epochs."
+@@ -65,7 +66,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "2faf4d6c",
++   "id": "7baa9a5c",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -78,7 +79,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "bae2240c",
++   "id": "64369b3e",
+    "metadata": {},
+    "source": [
+     "GMAT runs the SPK script, every step."
+@@ -87,7 +88,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "84219354",
++   "id": "d03fa191",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -97,7 +98,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "3a08c7dd",
++   "id": "13001081",
+    "metadata": {},
+    "source": [
+     "GMAT runs the OEM script on the OEM as written. `oem_report` is `None` when GMAT refuses the file\n",
+@@ -107,7 +108,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "81072206",
++   "id": "72f27aab",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -118,7 +119,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "138743f2",
++   "id": "14925b9a",
+    "metadata": {},
+    "source": [
+     "What GMAT reported, against what was written:"
+@@ -127,7 +128,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "2874b7f6",
++   "id": "36baedab",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -141,7 +142,8 @@
+     "    n = min(len(g_states), len(ets))\n",
+     "    ok, worst_dt = gm.epochs_equal(g_texts[:n], ets[:n])\n",
+     "    w = fd.Written(written.epochs[:n], written.text[:n])\n",
+-    "    c = fd.evaluated_compare(\"GMAT\", fmt, w, g_states[:n], ok, spice[:n], how=how)\n",
++    "    c = fd.evaluated_compare(\"GMAT\", fmt, w, g_states[:n], ok, spice[:n], how=how,\n",
++    "                             readout_digits=gm.REPORT_DIGITS)\n",
+     "    c.notes.append(f\"{len(g_states)} of {len(ets)} states reported; epochs within {worst_dt:.3g} s of the written ones\")\n",
+     "    rows.append(c)\n",
+     "    print(c.row())"
+@@ -149,7 +151,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "c91366bb",
++   "id": "48a1038d",
+    "metadata": {},
+    "source": [
+     "## The difference report"
+@@ -158,7 +160,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "4fbc8c7f",
++   "id": "e6002904",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+diff --git a/integrations/flight-dynamics/gmat.md b/integrations/flight-dynamics/gmat.md
+index 662a3b9ac..7ce26d942 100644
+--- a/integrations/flight-dynamics/gmat.md
++++ b/integrations/flight-dynamics/gmat.md
+@@ -15,7 +15,8 @@ Kshana writes the CAPSTONE states of the mission thread (4,321 states, Moon-cent
+ an OEM and an SPK. GMAT loads each into a spacecraft through its `CCSDS-OEM` and `SPK` ephemeris
+ propagators, in two separate runs, steps through the file at the node spacing, and reports every
+ state. The states GMAT reports are compared with the written states, and with SPICE's own evaluation
+-of Kshana's SPK. This is the GMAT part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`).
++of Kshana's SPK printed at the report's 16 digits, so that both pass through the same readout
++(NAMING.md, the 8-9 November amendment). This is the GMAT part of roadmap item C7 (`docs/FLIGHT-DYNAMICS-EXPORT.md`).
+ 
+ GMAT R2026a as shipped refuses an OEM of version 2.0, the version Kshana writes: its `CCSDS-OEM`
+ propagator accepts one only in GMAT's TESTING mode. The notebook does not turn that mode on. It
+@@ -79,7 +80,8 @@ for fmt, path, how in legs:
+     n = min(len(g_states), len(ets))
+     ok, worst_dt = gm.epochs_equal(g_texts[:n], ets[:n])
+     w = fd.Written(written.epochs[:n], written.text[:n])
+-    c = fd.evaluated_compare("GMAT", fmt, w, g_states[:n], ok, spice[:n], how=how)
++    c = fd.evaluated_compare("GMAT", fmt, w, g_states[:n], ok, spice[:n], how=how,
++                             readout_digits=gm.REPORT_DIGITS)
+     c.notes.append(f"{len(g_states)} of {len(ets)} states reported; epochs within {worst_dt:.3g} s of the written ones")
+     rows.append(c)
+     print(c.row())
+diff --git a/integrations/flight-dynamics/gmat_reader.py b/integrations/flight-dynamics/gmat_reader.py
+index 241ebb6a1..bd86ef5f3 100644
+--- a/integrations/flight-dynamics/gmat_reader.py
++++ b/integrations/flight-dynamics/gmat_reader.py
+@@ -26,8 +26,9 @@ Each script runs in GMAT's console program, `GmatConsole --run <script>`, in GMA
+ directory. `GMAT_ROOT` names the installation, the directory that holds `bin/`.
+ 
+ GMAT reports its states rather than handing back the file's records. So the comparison is the one
+-for an evaluating tool (`kshana_fd.evaluated_compare`). The report's 16 digits and GMAT's own epoch
+-arithmetic are part of what is compared.
++for an evaluating tool (`kshana_fd.evaluated_compare`), with SPICE's evaluation printed at the
++report's 16 digits so that both pass through the same readout (NAMING.md, the 8-9 November
++amendment). GMAT's own epoch arithmetic is part of what is compared.
+ 
+ Written without running GMAT in the session that wrote it; GMAT's binaries run only in the workflow
+ job, whose logs drive the fixes. The first run reached the OEM leg and stopped there with
+@@ -57,7 +58,7 @@ LunaICRF.Axes = ICRF;
+ 
+ Create ReportFile OemReport;
+ OemReport.Filename = '{out}/gmat_oem.txt';
+-OemReport.Precision = 16;
++OemReport.Precision = {digits};
+ OemReport.WriteHeaders = false;
+ 
+ Create Variable k t;
+@@ -91,7 +92,7 @@ LunaJ2000.Axes = MJ2000Eq;
+ 
+ Create ReportFile SpkReport;
+ SpkReport.Filename = '{out}/gmat_spk.txt';
+-SpkReport.Precision = 16;
++SpkReport.Precision = {digits};
+ SpkReport.WriteHeaders = false;
+ 
+ Create Variable k t;
+@@ -106,6 +107,10 @@ For k = 1:{steps};
+ EndFor;
+ """
+ 
++#: Significant digits of GMAT's reports: ReportFile's largest Precision. The comparison prints
++#: SPICE's evaluation at the same precision (NAMING.md, the 8-9 November amendment).
++REPORT_DIGITS = 16
++
+ #: What GMAT R2026a prints when its `CCSDS-OEM` propagator is given an OEM of version 2.0 outside
+ #: its TESTING mode (first CI run of the `gmat` job, at open commit 150df8d41).
+ OEM_V2_REFUSAL = "Usage of CCSDS OEM v2 ephemeris data file is only allowed for running in TESTING mode"
+@@ -153,7 +158,8 @@ def run_spk(bsp: Path, out: Path, first_label: str, first_et: float, n: int, nai
+     script = out / "kshana_c7_spk.script"
+     script.write_text(SPK_SCRIPT.format(bsp=Path(bsp).resolve(), out=out.resolve(), naif=naif,
+                                         start_gregorian=gregorian(first_label), step=step_s, steps=n - 1,
+-                                        mjd0=repr(tdb_mjd(first_et)), step_days=repr(step_s / 86400.0)))
++                                        mjd0=repr(tdb_mjd(first_et)), step_days=repr(step_s / 86400.0),
++                                        digits=REPORT_DIGITS))
+     code, log = _console(script, "gmat_console_spk.log")
+     if code != 0:
+         raise RuntimeError(f"GmatConsole exited with {code} on the SPK script:\n{log[-4000:]}")
+@@ -167,7 +173,8 @@ def run_oem(oem: Path, out: Path, first_et: float, n: int, step_s: float = 600.0
+     out.mkdir(parents=True, exist_ok=True)
+     script = out / "kshana_c7_oem.script"
+     script.write_text(OEM_SCRIPT.format(oem=Path(oem).resolve(), out=out.resolve(), step=step_s, steps=n - 1,
+-                                        mjd0=repr(tdb_mjd(first_et)), step_days=repr(step_s / 86400.0)))
++                                        mjd0=repr(tdb_mjd(first_et)), step_days=repr(step_s / 86400.0),
++                                        digits=REPORT_DIGITS))
+     code, log = _console(script, "gmat_console_oem.log")
+     if code == 0:
+         return out / "gmat_oem.txt", log
+diff --git a/integrations/flight-dynamics/kshana_fd.py b/integrations/flight-dynamics/kshana_fd.py
+index 871505ce2..39d15c750 100644
+--- a/integrations/flight-dynamics/kshana_fd.py
++++ b/integrations/flight-dynamics/kshana_fd.py
+@@ -199,13 +199,27 @@ def records_compare(tool: str, written: Written, records: list[list[float]], epo
+     return c
+ 
+ 
++def printed(rows: list[list[float]], digits: int) -> list[list[float]]:
++    """Each value as a text report printing `digits` significant digits would give it back."""
++    return [[float(f"{x:.{digits}g}") for x in r] for r in rows]
++
++
+ def evaluated_compare(tool: str, fmt: str, written: Written, evaluated: list[list[float]],
+-                      epochs_equal: list[bool], spice: list[list[float]], how: str = "") -> Comparison:
++                      epochs_equal: list[bool], spice: list[list[float]], how: str = "",
++                      readout_digits: int | None = None) -> Comparison:
+     """A tool that evaluates a kernel at the node epochs (it does not hand back the stored
+     records): its states compared with the written ones, beside SPICE's own evaluation (`spice`) of
+-    Kshana's SPK of the same states at the same epochs."""
++    Kshana's SPK of the same states at the same epochs.
++
++    `readout_digits`: for a tool whose only readout is a text report at that many significant
++    digits (GMAT, 16), SPICE's evaluation is printed at the same precision before the comparison,
++    so both pass through the same readout (NAMING.md, the 8-9 November amendment). None, the
++    default, keeps the full-double comparison."""
+     c = compare(tool, fmt, written, evaluated, epochs_equal, how=how)
+     c.evaluated = True
++    if readout_digits is not None:
++        spice = printed(spice, readout_digits)
++        c.notes.append(f"SPICE's evaluation printed at {readout_digits} significant digits, as the tool's report is")
+ 
+     def worst(rows: list[list[float]]) -> tuple[float, float]:
+         dp = max(max(abs(a - b) for a, b in zip(r[:3], w[:3])) for r, w in zip(rows, written.values))
+-- 
+2.43.0
+
