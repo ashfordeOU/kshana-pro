@@ -376,8 +376,10 @@ tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021",
 # `static` and `vessel` are values of `[platform] kind` in a receiver-trust session file, not scenario kinds;
 # the four are the nmea-scenario library (scenarios/training/*.toml, run by `kshana nmea-scenario`, not
 # `kshana <scenario.toml>`), listed in docs/NMEA-TRAINING.md.
-ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "events", "bench-session", "static", "vessel", "open-sea-jamming", "coastal-drag-off", "port-approach-time-spoof", "combined-event", "fjord-natural-degradation", "lab", "holdover-test"]
+ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "events", "bench-session", "static", "vessel", "open-sea-jamming", "coastal-drag-off", "port-approach-time-spoof", "combined-event", "fjord-natural-degradation", "lab", "holdover-test", "connect", "station", "vector", "adapter"]
 # 0.38: `lab.toml` (docs/EVIDENCE-PACKS.md, the --lab-attestation file) and `holdover-test.toml` (docs/TIMING-HIL.md, a shell example) are file names a reader types, not registered scenarios.
+# 0.41: `connect.toml`, `station.toml`, `vector.toml` and `adapter.toml` are the Kshana Connect mapping, station, conformance-vector and
+# adapter-manifest files a reader types in docs/CONNECT.md, docs/ADAPTERS.md and docs/COMMANDS.md, not scenarios.
 
 [placements]
 # ---- kind ----

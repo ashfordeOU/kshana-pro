@@ -9,7 +9,8 @@
 //                              and never written into the Studio; index.json carries the PUBLIC key, which is
 //                              what a verifier pins), plus index.json {files, tamper, public_key}
 //   tools/examples/compliance/ two small synthetic scenario results and their scenario files + index.json
-//   tools/samples/            recorded real CLI output shown on the CLI cards (telemetry, IQ command list)
+//   tools/samples/            recorded real CLI output shown on the CLI cards (telemetry, IQ command list,
+//                              Kshana Connect's conformance check and adapter registry)
 // OSNMA samples are not made here: they come from the engine repo's examples/osnma/ (see tools_osnma_examples.mjs).
 import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, copyFileSync, readFileSync, writeFileSync, mkdirSync, readdirSync, rmSync } from "node:fs";
@@ -59,5 +60,8 @@ writeFileSync(join(sm, "telemetry-cef.txt"), run(["trust-telemetry", "--result",
 writeFileSync(join(sm, "telemetry-leef.txt"), run(["trust-telemetry", "--result", "session.result.json", "--print-syslog", "--format", "leef"], work));
 const iq = spawnSync(bin, ["iq", "--help"], { encoding: "utf8" });
 writeFileSync(join(sm, "iq-help.txt"), (iq.stdout || "") + (iq.stderr || ""));
+// Kshana Connect: the conformance set and the adapter registry, as the repository holds them.
+writeFileSync(join(sm, "connect-check.txt"), run(["connect", "check", "conformance/connect"], repo));
+writeFileSync(join(sm, "connect-adapters.txt"), run(["connect", "adapters", "list", "adapters"], repo));
 rmSync(work, { recursive: true, force: true });
 console.log(`kshana ${version}: evidence ok=${verdict.ok}; wrote tools/examples/{evidence,compliance} and tools/samples`);

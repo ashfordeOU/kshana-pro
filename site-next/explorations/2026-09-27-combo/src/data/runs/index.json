@@ -1,8 +1,8 @@
 {
  "engine": {
   "version": "0.40.0",
-  "commit": "62a2fa7",
-  "tree": "apps/studio-lunar",
+  "commit": "77ee2bc",
+  "tree": "apps/connect-card",
   "dirty": false,
   "kinds": 93
  },
