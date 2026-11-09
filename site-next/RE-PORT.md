@@ -123,14 +123,7 @@ module tests from Node's spec reporter; off a terminal (`node --test` writes TAP
 
 ```sh
 cd $C
-python3 src/tools/record_runs.py
-# gen_capabilities compares with assets/runs/, which build.py copies from src/data/runs/ later; mirror that copy now:
-python3 -c "
-import json,os,shutil
-for n in json.load(open('src/data/runs/index.json'))['runs']:
-    d=os.path.join('assets','runs',n); os.makedirs(d,exist_ok=True)
-    shutil.copyfile(f'src/data/runs/{n}/scenario.toml',f'{d}/{n}.toml.txt')
-    for f in ('result.json','report.html'): shutil.copyfile(f'src/data/runs/{n}/{f}',f'{d}/{f}')"
+python3 src/tools/record_runs.py   # gen_capabilities compares the runs it reuses with src/data/runs/ itself
 for t in gen_waterfall gen_capabilities gen_missions_runs record_cli_session gen_evidence_data gen_publications; do
   python3 src/tools/$t.py || break
 done
@@ -221,10 +214,10 @@ so the next re-port starts from this release's recordings.
 
 ## Known gaps to close (not done here)
 
-- `features/check_nav.mjs` now reads `KSHANA_CHROME`; the `scratch/assembly/*.mjs` browser checks
-  still assume macOS Chrome.
-- `gen_capabilities.py` should compare with `src/data/runs/` (the source) rather than `assets/runs/`
-  (a build output), which would make the mirror step in section 3 unnecessary.
+- `features/check_nav.mjs` reads `KSHANA_CHROME` (in a cloud container: `/opt/pw-browsers/chromium`,
+  with `KSHANA_PLAYWRIGHT=/opt/node-tools/node_modules`). Its `--deadline S` (default 5400 s; a full run here takes about 65 min, 1,326 tasks at about 3 s) ends a
+  stalled run in a partial report that names the tasks not run, and every tab and browser close is
+  time-boxed. The `scratch/assembly/*.mjs` browser checks still assume macOS Chrome.
 - `pro-power.json`'s public-text checkout should take an environment override, like `_sources.py`.
 - `gen_pro_power.py` reads `~/Code/kshana-site-next/scratch/pro` and `~/Code/kshana-pro/...`
   (override with `KSHANA_PRO_SHOWCASE` / `KSHANA_PRO_TEXT_REPO`); it is not in the

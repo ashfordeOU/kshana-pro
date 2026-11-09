@@ -51,6 +51,13 @@ REUSED = {  # published by another page: link, never copy
     "constellation-multi-gnss-coverage": "assets/runs/constellation-multi-gnss-coverage/",
     "campaign-jam-spoof-holdover-integrity": "assets/runs/campaign-jam-spoof-holdover-integrity/",
 }
+def source_of(published: str) -> str:
+    """Where a reused run's files come from: build.py copies src/data/runs/<name>/ to assets/runs/<name>/
+    (so the comparison reads the source, and needs no copy made first); assets/waterfall/ is written by
+    gen_waterfall.py itself."""
+    return "src/data/runs/" + published[len("assets/runs/"):] if published.startswith("assets/runs/") else published
+
+
 REPORTED = set()  # the host allows 255 published files and the site is at the limit: no per-run reports here
 RUNS = ["l-band-waterfall-jamming", "solar-system-tour", "europa-surface-pnt", "mars-orbit-pnt",
         "constellation-multi-gnss-coverage", "leo-pnt-mega-shell", "lunar-relay-constellation",
@@ -82,9 +89,9 @@ def run(name):
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     if name in REUSED:
-        pub = os.path.join(SITE, REUSED[name], "result.json")
+        pub = os.path.join(SITE, source_of(REUSED[name]), "result.json")
         if not os.path.exists(pub) or open(pub, "rb").read() != res_raw:
-            sys.exit(f"{name}: the copy published at {REUSED[name]} differs from a fresh run; re-run its owner's generator first")
+            sys.exit(f"{name}: the run at {source_of(REUSED[name])} differs from a fresh run; re-run its owner's generator first")
     toml = raw.decode("utf-8")
     t = tomllib.loads(toml)
     res = json.loads(res_raw)

@@ -17,9 +17,12 @@
 //
 // Usage (needs a served build):
 //   python3 features/serve.py explorations/2026-09-27-combo 8847 &      (a preview that serves clean URLs)
-//   node features/check_nav.mjs [base-url] [--only phone|desktop] [--page /evidence] [--jobs N] [--verbose]
+//   node features/check_nav.mjs [base-url] [--only phone|desktop] [--page /evidence] [--jobs N] [--deadline S] [--verbose]
 //   python3 explorations/2026-09-27-combo/check.py --nav [base-url]     (same thing, from the site check)
-// base-url defaults to http://127.0.0.1:8847. Exit 1 if any link is BAD. Playwright is loaded from
+// base-url defaults to http://127.0.0.1:8847. Exit 1 if any link is BAD, or if the run is incomplete:
+// --deadline S (default 5400 s; 0 for none) stops handing out tasks after S seconds and reports the tasks not
+// run, so a stalled browser ends in a partial report rather than a hang. Every step outside a task
+// (opening or closing a tab, closing the browser) is time-boxed as well. Playwright is loaded from
 // this tree's node_modules if present, else from $KSHANA_PLAYWRIGHT (a node_modules directory), else
 // from promo/2026-10-01-video/node_modules. It drives the installed Chrome (channel "chrome").
 import { createRequire } from "node:module";
@@ -40,9 +43,14 @@ const { chromium, devices } = await loadPlaywright();
 const args = process.argv.slice(2);
 const opt = (k) => { const i = args.indexOf(k); return i >= 0 ? args.splice(i, 2)[1] : null; };
 const flag = (k) => { const i = args.indexOf(k); if (i >= 0) { args.splice(i, 1); return true; } return false; };
-const ONLY = opt("--only"), ONE_RAW = opt("--page"), JOBS = Number(opt("--jobs") || 6), VERBOSE = flag("--verbose");
+const ONLY = opt("--only"), ONE_RAW = opt("--page"), JOBS = Number(opt("--jobs") || 6), DEADLINE_S = Number(opt("--deadline") || 5400), VERBOSE = flag("--verbose");
 const BASE = (args[0] || "http://127.0.0.1:8847").replace(/\/$/, "");
 const TASK_MS = 90000;
+const STARTED = Date.now();
+const pastDeadline = () => DEADLINE_S > 0 && Date.now() - STARTED > DEADLINE_S * 1000;
+// A promise that gives up after ms (its timer does not keep the process alive).
+const within = (pr, ms, what) => { let timer; return Promise.race([pr, new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(`${what}: no answer in ${ms / 1000} s`)), ms); timer.unref?.(); })]).finally(() => clearTimeout(timer)); };
+let notRun = 0, done = 0, total = 0;
 // One key per page whatever the spelling: "/", "/index.html" -> "/index"; "/evidence.html", "/evidence" -> "/evidence"; "/docs/" -> "/docs/index".
 const key = (p) => { try { p = decodeURI(p); } catch { /* as is */ } if (p.endsWith("/")) p += "index"; return p.replace(/\.html$/, ""); };
 const isPage = (p) => !p.startsWith("/studio/") && !p.startsWith("/playground/") && (/\.html$/.test(p) || p.endsWith("/") || !/\.[a-z0-9]+$/i.test(p.split("/").pop()));
@@ -185,26 +193,31 @@ async function pageLink(p, name, from, target) {
   log(y === 0, `${name} ${pageUrl[from]} page link -> ${target} y=${y}`);
 }
 
-// n workers, each with one tab; a task that throws or hangs gets a new tab and one retry.
+// n workers, each with one tab; a task that throws or hangs gets a new tab and one retry. Opening
+// and closing tabs is time-boxed; past the deadline no new task starts and the rest count as not run.
 async function pool(ctx, tasks, n) {
   let i = 0;
+  total += tasks.length;
+  const fresh = async () => within(ctx.newPage(), 30000, "open a tab");
+  const drop = async (p) => { if (p) await within(p.close(), 10000, "close a tab").catch(() => {}); };
   await Promise.all(Array.from({ length: Math.min(n, tasks.length) }, async () => {
-    let p = await ctx.newPage();
-    while (i < tasks.length) {
+    let p = await fresh().catch((e) => { log(false, `error: ${String(e)}`); return null; });
+    while (p && i < tasks.length) {
+      if (pastDeadline()) { notRun += tasks.length - i; i = tasks.length; break; }
       const t = tasks[i++];
       for (let attempt = 0; attempt < 2; attempt++) {
-        let timer;
         try {
-          await Promise.race([t(p), new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(`no result in ${TASK_MS / 1000} s`)), TASK_MS); })]);
-          clearTimeout(timer); break;
+          await within(t(p), TASK_MS, "task");
+          break;
         } catch (e) {
-          clearTimeout(timer);
-          await p.close().catch(() => {}); p = await ctx.newPage();
-          if (attempt) log(false, `error: ${t.label}: ${String(e).split("\n")[0]}`);
+          await drop(p);
+          p = await fresh().catch((e2) => { log(false, `error: ${t.label}: ${String(e2)}`); return null; });
+          if (attempt || !p) { log(false, `error: ${t.label}: ${String(e).split("\n")[0]}`); break; }
         }
       }
+      if (++done % 50 === 0) console.log(`progress: ${done} of ${total} tasks, ${Math.round((Date.now() - STARTED) / 1000)} s`);
     }
-    await p.close().catch(() => {});
+    await drop(p);
   }));
 }
 
@@ -235,11 +248,12 @@ for (const [name, opts] of VIEWPORTS) {
   for (const [t, h, from] of cross.values()) tasks.push(Object.assign((p) => crossPage(p, name, t, h, from), { label: `${name} ${t}${h}` }));
   for (const [t, from] of targets.values()) tasks.push(Object.assign((p) => pageLink(p, name, from, t), { label: `${name} -> ${t}` }));
   await pool(ctx, tasks, JOBS);
-  await ctx.close();
+  await within(ctx.close(), 30000, "close the browser context").catch((e) => console.log(`note: ${e}`));
 }
-await browser.close();
+await within(browser.close(), 30000, "close the browser").catch((e) => console.log(`note: ${e}`));
 const summary = VIEWPORTS.map(([n]) => { const r = results.filter((x) => x.line.startsWith(n + " ")); return `${n}: ${r.filter((x) => !x.ok).length} BAD of ${r.length}`; }).join(" · ");
 const other = results.filter((x) => !x.ok && !VIEWPORTS.some(([n]) => x.line.startsWith(n + " "))).length;
 const bad = results.filter((x) => !x.ok).length;
-console.log(`${bad ? "FAILED" : "OK"}: ${summary}${other ? ` · ${other} discovery or browser errors` : ""}`);
-process.exit(bad ? 1 : 0);
+const incomplete = notRun ? ` · INCOMPLETE: ${notRun} of ${total} tasks not run (deadline ${DEADLINE_S} s)` : "";
+console.log(`${bad ? "FAILED" : notRun ? "INCOMPLETE" : "OK"}: ${summary}${other ? ` · ${other} discovery or browser errors` : ""}${incomplete}`);
+process.exit(bad || notRun ? 1 : 0);
