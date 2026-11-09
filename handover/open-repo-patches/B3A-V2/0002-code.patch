@@ -1,0 +1,908 @@
+From 366c05f0b1b035ab55d76c9966c61451719d392c Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Mon, 9 Nov 2026 13:07:26 +0000
+Subject: [PATCH] B3a v2 code: session-level shadowing, by readings V1 to V15
+
+src/locate_pd.rs: PowerDifferenceParams::preregistered_v2 (10 km buffer, tau = 1, sigma_meas_db 2,
+session_shadowing, report_share 0.5) and method id kshana-locate/power-difference/v2. session_stations
+(V2 to V4: the mean of v1's per-epoch estimate over the epochs a station reports in, the
+more-than-half rule, sigma_tot^2 = sigma_sh^2 + sigma_meas^2/n), session_loglik (V5: one term per
+station, P0 profiled with weights 1/sigma_tot^2; None when fewer than 3 stations report, V7),
+timeline_v2 (V10), the domain statement in v2's method block (V9), and gate_row scoring a session
+that is not located against the method (V7). preregistered_v1, TEMPER_V1 and v1's outputs are
+unchanged; the v1 test reproduces its recorded gate rows. Unit tests: v2 parameters keep v1 as
+recorded, the more-than-half rule and sigma_tot, not located with fewer than 3 reporting stations,
+noiseless data from the locator's own model located in the source's cell, the timeline.
+
+examples/locate_pd_gate.rs: dev2 (seeds 3001-3200), gate2 (seeds 4001-5000), json2 and answer2.
+oracle.py: a v2 mode; it agrees with the engine on development seeds 3001-3005 (regions equal,
+centroids within 5e-10 m). Its V15 run on gate-input seeds 4001-4020 comes after the gate run.
+
+Development run (V13, implementation checks only, nothing selected; kept in dev-v2.json.gz): seeds
+3001-3200 give S1 0.905, S2 0.288, S3 1.50, with 8 sessions not located and 66 redraws. No gate seed
+has been drawn.
+---
+ examples/locate_pd_gate.rs                   |  60 ++-
+ src/locate_pd.rs                             | 419 ++++++++++++++++++-
+ xval/locator-power-difference/dev-v2.json.gz | Bin 0 -> 7904 bytes
+ xval/locator-power-difference/oracle.py      |  60 ++-
+ 4 files changed, 518 insertions(+), 21 deletions(-)
+ create mode 100644 xval/locator-power-difference/dev-v2.json.gz
+
+diff --git a/examples/locate_pd_gate.rs b/examples/locate_pd_gate.rs
+index 0cf77d9c6..4847adcfc 100644
+--- a/examples/locate_pd_gate.rs
++++ b/examples/locate_pd_gate.rs
+@@ -6,6 +6,12 @@
+ //! cargo run --release --example locate_pd_gate -- gate           # seeds 1001-2000 at TEMPER_V1
+ //! cargo run --release --example locate_pd_gate -- json SEED      # one seed's input (for oracle.py)
+ //! cargo run --release --example locate_pd_gate -- answer SEED    # the engine's answer for that seed
++//!
++//! Version 2 (readings V1 to V15), with `preregistered_v2`:
++//! cargo run --release --example locate_pd_gate -- dev2           # seeds 3001-3200 (implementation checks, V13)
++//! cargo run --release --example locate_pd_gate -- gate2          # seeds 4001-5000, run once (V14)
++//! cargo run --release --example locate_pd_gate -- json2 SEED     # one seed's input (for oracle.py --v2)
++//! cargo run --release --example locate_pd_gate -- answer2 SEED   # the engine's v2 answer for that seed
+ //! ```
+ //! Output is JSON on stdout.
+ 
+@@ -15,8 +21,7 @@ use kshana::locate_pd::{
+ };
+ use serde_json::json;
+ 
+-fn run(seeds: Vec<u64>, tempers: Vec<f64>) -> Vec<GateRow> {
+-    let p = PowerDifferenceParams::preregistered_v1();
++fn run(p: &PowerDifferenceParams, seeds: Vec<u64>, tempers: Vec<f64>) -> Vec<GateRow> {
+     let threads = std::thread::available_parallelism().map_or(1, |n| n.get());
+     let chunks: Vec<Vec<u64>> = (0..threads)
+         .map(|t| seeds.iter().copied().skip(t).step_by(threads).collect())
+@@ -41,6 +46,27 @@ fn run(seeds: Vec<u64>, tempers: Vec<f64>) -> Vec<GateRow> {
+     rows
+ }
+ 
++/// Version 2's rows: v1's fields and whether the session was located (V7).
++fn rows_json_v2(rows: &[GateRow]) -> serde_json::Value {
++    json!(rows
++        .iter()
++        .map(|r| json!({"seed": r.seed, "covered": r.covered, "area_share": r.area_share,
++            "centroid_err_km": r.centroid_err_km, "nn_spacing_km": r.nn_spacing_km, "redraws": r.redraws,
++            "located": r.located}))
++        .collect::<Vec<_>>())
++}
++
++/// A version 2 run's summary (V12): S1 to S3, redraws and sessions not located.
++fn summary_v2(set: &str, seeds: [u64; 2], rows: &[GateRow]) -> serde_json::Value {
++    let p = PowerDifferenceParams::preregistered_v2();
++    let (s1, s2, s3) = gate_summary(rows, 0);
++    json!({"set": set, "seeds": seeds, "method": p.to_json(),
++        "S1_coverage": s1, "S2_median_area_share": s2, "S3_centroid_ratio": s3,
++        "redraws": rows.iter().map(|r| r.redraws).sum::<u32>(),
++        "not_located": rows.iter().filter(|r| !r.located).count(),
++        "rows": rows_json_v2(rows)})
++}
++
+ fn rows_json(rows: &[GateRow]) -> serde_json::Value {
+     json!(rows
+         .iter()
+@@ -54,7 +80,7 @@ fn main() {
+     let p = PowerDifferenceParams::preregistered_v1();
+     let out = match a.first().map(String::as_str) {
+         Some("dev") => {
+-            let rows = run((1..=200).collect(), TEMPER_CANDIDATES.to_vec());
++            let rows = run(&p, (1..=200).collect(), TEMPER_CANDIDATES.to_vec());
+             let summary: Vec<_> = TEMPER_CANDIDATES
+                 .iter()
+                 .enumerate()
+@@ -66,7 +92,7 @@ fn main() {
+             json!({"set": "dev", "seeds": [1, 200], "summary": summary, "rows": rows_json(&rows)})
+         }
+         Some("gate") => {
+-            let rows = run((1001..=2000).collect(), vec![TEMPER_V1]);
++            let rows = run(&p, (1001..=2000).collect(), vec![TEMPER_V1]);
+             let (s1, s2, s3) = gate_summary(&rows, 0);
+             json!({"set": "gate", "seeds": [1001, 2000], "temper": TEMPER_V1,
+                 "S1_coverage": s1, "S2_median_area_share": s2, "S3_centroid_ratio": s3,
+@@ -74,8 +100,32 @@ fn main() {
+         }
+         Some("json") => synth_json(&p, a[1].parse().expect("seed")),
+         Some("answer") => synth_answer_json(&p, a[1].parse().expect("seed")),
++        Some("dev2") => {
++            let q = PowerDifferenceParams::preregistered_v2();
++            summary_v2(
++                "dev2",
++                [3001, 3200],
++                &run(&q, (3001..=3200).collect(), vec![q.temper]),
++            )
++        }
++        Some("gate2") => {
++            let q = PowerDifferenceParams::preregistered_v2();
++            summary_v2(
++                "gate2",
++                [4001, 5000],
++                &run(&q, (4001..=5000).collect(), vec![q.temper]),
++            )
++        }
++        Some("json2") => synth_json(
++            &PowerDifferenceParams::preregistered_v2(),
++            a[1].parse().expect("seed"),
++        ),
++        Some("answer2") => synth_answer_json(
++            &PowerDifferenceParams::preregistered_v2(),
++            a[1].parse().expect("seed"),
++        ),
+         _ => {
+-            eprintln!("usage: locate_pd_gate dev|gate|json SEED|answer SEED");
++            eprintln!("usage: locate_pd_gate dev|gate|json SEED|answer SEED|dev2|gate2|json2 SEED|answer2 SEED");
+             std::process::exit(2);
+         }
+     };
+diff --git a/src/locate_pd.rs b/src/locate_pd.rs
+index 018875409..d6b877335 100644
+--- a/src/locate_pd.rs
++++ b/src/locate_pd.rs
+@@ -8,6 +8,10 @@
+ //! the path-loss exponent and source height marginalised and censored terms for stations that see
+ //! nothing gives a posterior on a grid around the network. MODELLED: checked on synthetic networks
+ //! only until a public multi-station campaign with blind transmitter positions is scored.
++//!
++//! Version 2 (`PREREGISTRATION-v2.md`, readings V1 to V15 in the same README): each station's power
++//! is averaged over the session, with one shadowing term per station (`σ_tot² = σ_sh² + σ_meas²/n`),
++//! no tempering and a domain of the hull buffered by 10 km. Version 1 is kept as it was recorded.
+ 
+ use rand::{Rng, SeedableRng};
+ use rand_chacha::ChaCha8Rng;
+@@ -18,6 +22,11 @@ use crate::portable_math::PortableFloat;
+ 
+ /// Method identifier written into every output.
+ pub const METHOD_ID: &str = "kshana-locate/power-difference/v1";
++/// Method identifier of version 2 (V1).
++pub const METHOD_ID_V2: &str = "kshana-locate/power-difference/v2";
++/// The scope statement of version 2 (V9): what the locator does with a source beyond its domain.
++pub const OUTSIDE_STATEMENT_V2: &str =
++    "A source beyond this domain is outside the network and is not located.";
+ /// The tempering exponent, chosen on the development seeds (R9) before the gate was run.
+ pub const TEMPER_V1: f64 = 1.0 / 60.0;
+ 
+@@ -60,6 +69,12 @@ pub struct PowerDifferenceParams {
+     pub levels: Vec<f64>,
+     /// Timeline step, s.
+     pub timeline_s: f64,
++    /// Measurement noise of one epoch's power estimate, dB (v2, V4; unused by v1).
++    pub sigma_meas_db: f64,
++    /// Model the shadowing once per session (v2) rather than per epoch (v1).
++    pub session_shadowing: bool,
++    /// A station reports in a session when it reports in more than this share of its epochs (v2, V3).
++    pub report_share: f64,
+ }
+ 
+ impl PowerDifferenceParams {
+@@ -84,13 +99,38 @@ impl PowerDifferenceParams {
+             temper: TEMPER_V1,
+             levels: vec![0.5, 0.9, 0.95],
+             timeline_s: 60.0,
++            sigma_meas_db: 0.0,
++            session_shadowing: false,
++            report_share: 0.0,
++        }
++    }
++
++    /// The pre-registered version 2 parameters (V1): v1's with a 10 km buffer, τ = 1, σ_meas = 2 dB,
++    /// session-level shadowing and the more-than-half reporting rule.
++    pub fn preregistered_v2() -> Self {
++        Self {
++            buffer_km: 10.0,
++            temper: 1.0,
++            sigma_meas_db: 2.0,
++            session_shadowing: true,
++            report_share: 0.5,
++            ..Self::preregistered_v1()
++        }
++    }
++
++    /// The method identifier of these parameters.
++    pub fn method_id(&self) -> &'static str {
++        if self.session_shadowing {
++            METHOD_ID_V2
++        } else {
++            METHOD_ID
+         }
+     }
+ 
+     /// The parameters as JSON, for the method block of every output.
+     pub fn to_json(&self) -> Value {
+-        json!({
+-            "method": METHOD_ID,
++        let mut v = json!({
++            "method": self.method_id(),
+             "signal_dbw": self.signal_dbw, "chip_rate_hz": self.chip_rate_hz, "q": self.q,
+             "gate_db": self.gate_db, "sigma_cn0_db": self.sigma_cn0_db, "sigma_agc_db": self.sigma_agc_db,
+             "sigma_sh_db": self.sigma_sh_db, "nlos_db": self.nlos_db, "n_set": self.n_set,
+@@ -98,7 +138,18 @@ impl PowerDifferenceParams {
+             "max_cells": self.max_cells, "min_reporting": self.min_reporting,
+             "session_gap_s": self.session_gap_s, "temper": self.temper, "levels": self.levels,
+             "timeline_s": self.timeline_s,
+-        })
++        });
++        // Version 2's fields and its domain statement (V1, V9); version 1's block is as it was.
++        if self.session_shadowing {
++            v["sigma_meas_db"] = json!(self.sigma_meas_db);
++            v["session_shadowing"] = json!(true);
++            v["report_share"] = json!(self.report_share);
++            v["domain"] = json!({
++                "rule": format!("the stations' convex hull buffered by {} km", self.buffer_km),
++                "outside": OUTSIDE_STATEMENT_V2,
++            });
++        }
++        v
+     }
+ }
+ 
+@@ -465,6 +516,119 @@ pub fn summed_loglik_from_power(
+     total
+ }
+ 
++/// Why a version 2 session is not located (V7).
++pub const NOT_LOCATED_V2: &str =
++    "not located: fewer than 3 stations report in more than half the session";
++
++/// Version 2's per-station session summary (V2 to V4): the mean power over the epochs the station
++/// reports in (`None` when it is censored) and its `σ_tot`, dB.
++pub fn session_stations(
++    p: &PowerDifferenceParams,
++    st: &[Station],
++    epochs: &[Epoch],
++) -> Vec<(Option<f64>, f64)> {
++    let e = epochs.len();
++    st.iter()
++        .enumerate()
++        .map(|(i, s)| {
++            let js: Vec<f64> = epochs
++                .iter()
++                .filter_map(|ep| station_j(p, s, &ep.obs[i]))
++                .collect();
++            let reporting = js.len() as f64 > p.report_share * e as f64;
++            let n = if reporting { js.len() } else { e.max(1) } as f64;
++            let sig =
++                (p.sigma_sh_db * p.sigma_sh_db + p.sigma_meas_db * p.sigma_meas_db / n).sqrt();
++            let mean = if reporting {
++                Some(js.iter().sum::<f64>() / js.len() as f64)
++            } else {
++                None
++            };
++            (mean, sig)
++        })
++        .collect()
++}
++
++/// Version 2's session log-likelihood per cell and hypothesis (`[c * K + k]`, see [`hypotheses`]):
++/// one term per station (V5). `None` when fewer than `min_reporting` stations report in the session
++/// (V7).
++pub fn session_loglik(
++    p: &PowerDifferenceParams,
++    st: &[Station],
++    g: &Grid,
++    epochs: &[Epoch],
++) -> Option<Vec<f64>> {
++    let est = session_stations(p, st, epochs);
++    if est.iter().filter(|(m, _)| m.is_some()).count() < p.min_reporting {
++        return None;
++    }
++    let geo = Geometry::new(p, g, st);
++    let jmin: Vec<f64> = st.iter().map(|s| j_min(p, s)).collect();
++    let k_n = p.n_set.len();
++    let kk = geo.n_h * k_n;
++    let mut out = vec![0.0; g.centres.len() * kk];
++    for c in 0..g.centres.len() {
++        for hk in 0..geo.n_h {
++            let base = (c * geo.n_h + hk) * geo.n_st;
++            for (nk, &n) in p.n_set.iter().enumerate() {
++                // P0 profiled: the weighted mean over reporting stations, weights 1/σ_tot² (V5).
++                let (mut sw, mut swr) = (0.0, 0.0);
++                for i in 0..geo.n_st {
++                    if let (Some(ji), sig) = est[i] {
++                        let w = 1.0 / (sig * sig);
++                        let r = ji + 10.0 * n * geo.logd[base + i] - st[i].gain_dbi
++                            + geo.loss[base + i];
++                        sw += w;
++                        swr += w * r;
++                    }
++                }
++                let p0 = swr / sw;
++                let mut ll = 0.0;
++                for i in 0..geo.n_st {
++                    let (m, sig) = est[i];
++                    let pred =
++                        p0 - 10.0 * n * geo.logd[base + i] + st[i].gain_dbi - geo.loss[base + i];
++                    match m {
++                        Some(ji) => {
++                            let z = (ji - pred) / sig;
++                            ll += -0.5 * z * z;
++                        }
++                        None => ll += log_phi_cdf((jmin[i] - pred) / sig),
++                    }
++                }
++                out[c * kk + hk * k_n + nk] = ll;
++            }
++        }
++    }
++    Some(out)
++}
++
++/// Version 2's timeline (V10): for the end of each `timeline_s` step from the session start, the
++/// location from the epochs up to then, or `None` while it is not located (V7).
++pub fn timeline_v2(
++    p: &PowerDifferenceParams,
++    st: &[Station],
++    g: &Grid,
++    epochs: &[Epoch],
++) -> Vec<(f64, Option<Location>)> {
++    let Some(t0) = epochs.first().map(|e| e.t_s) else {
++        return Vec::new();
++    };
++    let t_last = epochs.last().map_or(t0, |e| e.t_s);
++    let mut out = Vec::new();
++    let mut k = 1.0;
++    loop {
++        let t_end = t0 + k * p.timeline_s;
++        let upto = epochs.iter().take_while(|e| e.t_s < t_end).count();
++        let loc = session_loglik(p, st, g, &epochs[..upto]).map(|ll| locate(p, g, &ll));
++        out.push((t_end, loc));
++        if t_end > t_last {
++            return out;
++        }
++        k += 1.0;
++    }
++}
++
+ /// Sessions (R8): index ranges of epochs with at least `min_reporting` reporting stations.
+ pub fn sessions(
+     p: &PowerDifferenceParams,
+@@ -781,6 +945,8 @@ pub struct GateRow {
+     pub nn_spacing_km: f64,
+     /// Redraws.
+     pub redraws: u32,
++    /// Whether the session was located (always true for v1; false for a v2 session under V7).
++    pub located: bool,
+ }
+ 
+ /// Score one synthetic seed for each tempering exponent in `tempers` (the summed log-likelihood
+@@ -789,7 +955,11 @@ pub fn gate_row(p: &PowerDifferenceParams, seed: u64, tempers: &[f64]) -> GateRo
+     let s = synth_session(p, seed);
+     let g = grid(p, &s.stations);
+     let (a, b) = sessions(p, &s.stations, &s.epochs)[0];
+-    let summed = summed_loglik(p, &s.stations, &g, &s.epochs[a..b]);
++    let summed = if p.session_shadowing {
++        session_loglik(p, &s.stations, &g, &s.epochs[a..b])
++    } else {
++        Some(summed_loglik(p, &s.stations, &g, &s.epochs[a..b]))
++    };
+     let truth_cell = g
+         .centres
+         .iter()
+@@ -806,6 +976,29 @@ pub fn gate_row(p: &PowerDifferenceParams, seed: u64, tempers: &[f64]) -> GateRo
+         .position(|&l| l == 0.95)
+         .unwrap_or(p.levels.len() - 1);
+     let (mut covered, mut area_share, mut err) = (Vec::new(), Vec::new(), Vec::new());
++    // Not located (V7): not covered, the whole domain, and the error from the domain's area centroid.
++    let Some(summed) = summed else {
++        let nc = g.centres.len() as f64;
++        let (cx, cy) = g
++            .centres
++            .iter()
++            .fold((0.0, 0.0), |acc, c| (acc.0 + c.0, acc.1 + c.1));
++        let (cx, cy) = (cx / nc, cy / nc);
++        for _ in tempers {
++            covered.push(false);
++            area_share.push(1.0);
++            err.push(((cx - s.source.0).powi(2) + (cy - s.source.1).powi(2)).sqrt());
++        }
++        return GateRow {
++            seed,
++            covered,
++            area_share,
++            centroid_err_km: err,
++            nn_spacing_km: nn_spacing(&s.stations),
++            redraws: s.redraws,
++            located: false,
++        };
++    };
+     for &t in tempers {
+         let mut q = p.clone();
+         q.temper = t;
+@@ -817,12 +1010,24 @@ pub fn gate_row(p: &PowerDifferenceParams, seed: u64, tempers: &[f64]) -> GateRo
+             ((loc.centroid.0 - s.source.0).powi(2) + (loc.centroid.1 - s.source.1).powi(2)).sqrt(),
+         );
+     }
+-    let nn: Vec<f64> = s
+-        .stations
++    GateRow {
++        seed,
++        covered,
++        area_share,
++        centroid_err_km: err,
++        nn_spacing_km: nn_spacing(&s.stations),
++        redraws: s.redraws,
++        located: true,
++    }
++}
++
++/// The median nearest-neighbour spacing of the stations, km (R13).
++fn nn_spacing(stations: &[Station]) -> f64 {
++    let nn: Vec<f64> = stations
+         .iter()
+         .enumerate()
+         .map(|(i, a)| {
+-            s.stations
++            stations
+                 .iter()
+                 .enumerate()
+                 .filter(|(j, _)| *j != i)
+@@ -832,14 +1037,7 @@ pub fn gate_row(p: &PowerDifferenceParams, seed: u64, tempers: &[f64]) -> GateRo
+                 .fold(f64::INFINITY, f64::min)
+         })
+         .collect();
+-    GateRow {
+-        seed,
+-        covered,
+-        area_share,
+-        centroid_err_km: err,
+-        nn_spacing_km: median(nn),
+-        redraws: s.redraws,
+-    }
++    median(nn)
+ }
+ 
+ /// The tempering candidates of R9.
+@@ -881,6 +1079,23 @@ pub fn synth_answer_json(p: &PowerDifferenceParams, seed: u64) -> Value {
+     let s = synth_session(p, seed);
+     let g = grid(p, &s.stations);
+     let (a, b) = sessions(p, &s.stations, &s.epochs)[0];
++    if p.session_shadowing {
++        // Version 2: the method block (with the domain statement, V9) is in every output.
++        return match session_loglik(p, &s.stations, &g, &s.epochs[a..b]) {
++            Some(ll) => {
++                let loc = locate(p, &g, &ll);
++                json!({
++                    "seed": seed, "method": p.to_json(), "cell_km": g.cell_km, "n_cells": g.centres.len(),
++                    "session": [a, b],
++                    "regions": loc.regions, "centroid": [loc.centroid.0, loc.centroid.1],
++                })
++            }
++            None => json!({
++                "seed": seed, "method": p.to_json(), "cell_km": g.cell_km, "n_cells": g.centres.len(),
++                "session": [a, b], "located": false, "reason": NOT_LOCATED_V2,
++            }),
++        };
++    }
+     let summed = summed_loglik(p, &s.stations, &g, &s.epochs[a..b]);
+     let loc = locate(p, &g, &summed);
+     json!({
+@@ -950,4 +1165,178 @@ mod tests {
+         let p = PowerDifferenceParams::preregistered_v1();
+         assert_eq!(synth_session(&p, 7), synth_session(&p, 7));
+     }
++
++    fn station_at(x: f64, y: f64) -> Station {
++        Station {
++            east_km: x,
++            north_km: y,
++            antenna_h_m: 10.0,
++            c_nom_dbhz: 45.0,
++            kappa_db: None,
++            noise_dbw: -130.0,
++            gain_dbi: 0.0,
++        }
++    }
++
++    /// Epochs whose drops give exactly the powers `j` (dBW) at every epoch; `None` reports nothing.
++    fn epochs_from_powers(p: &PowerDifferenceParams, j: &[Option<f64>], n: usize) -> Vec<Epoch> {
++        (0..n)
++            .map(|k| Epoch {
++                t_s: k as f64,
++                obs: j
++                    .iter()
++                    .map(|ji| Obs {
++                        drop_db: Some(match ji {
++                            Some(v) => {
++                                45.0 - crate::jamming::effective_cn0_dbhz(
++                                    45.0,
++                                    v - p.signal_dbw,
++                                    p.q,
++                                    p.chip_rate_hz,
++                                )
++                            }
++                            None => 0.0,
++                        }),
++                        dagc: None,
++                    })
++                    .collect(),
++            })
++            .collect()
++    }
++
++    #[test]
++    fn v2_parameters_keep_v1_as_recorded() {
++        let (v1, v2) = (
++            PowerDifferenceParams::preregistered_v1(),
++            PowerDifferenceParams::preregistered_v2(),
++        );
++        assert_eq!(v1.method_id(), METHOD_ID);
++        assert_eq!(v2.method_id(), METHOD_ID_V2);
++        assert_eq!(
++            (v2.buffer_km, v2.temper, v2.sigma_meas_db),
++            (10.0, 1.0, 2.0)
++        );
++        assert!(v2.session_shadowing && v2.report_share == 0.5);
++        // v1's method block has no v2 key; v2's carries the domain statement (V9).
++        assert!(
++            v1.to_json().get("domain").is_none() && v1.to_json().get("sigma_meas_db").is_none()
++        );
++        assert_eq!(v2.to_json()["domain"]["outside"], OUTSIDE_STATEMENT_V2);
++    }
++
++    #[test]
++    fn v2_more_than_half_rule_and_session_sigma() {
++        let p = PowerDifferenceParams::preregistered_v2();
++        let st = vec![station_at(0.0, 0.0)];
++        let on = epochs_from_powers(&p, &[Some(-110.0)], 1);
++        let off = epochs_from_powers(&p, &[None], 1);
++        // 16 of 30 epochs report: reporting, n = 16. 15 of 30: censored, n = 30 (V3, V4).
++        let mix = |k: usize| -> Vec<Epoch> {
++            (0..30)
++                .map(|i| Epoch {
++                    t_s: i as f64,
++                    obs: if i < k {
++                        on[0].obs.clone()
++                    } else {
++                        off[0].obs.clone()
++                    },
++                })
++                .collect()
++        };
++        let a = session_stations(&p, &st, &mix(16))[0];
++        assert!((a.0.unwrap_or(f64::NAN) + 110.0).abs() < 1e-9);
++        assert!((a.1 - (36.0f64 + 4.0 / 16.0).sqrt()).abs() < 1e-12);
++        let b = session_stations(&p, &st, &mix(15))[0];
++        assert!(b.0.is_none());
++        assert!((b.1 - (36.0f64 + 4.0 / 30.0).sqrt()).abs() < 1e-12);
++    }
++
++    #[test]
++    fn v2_not_located_with_fewer_than_three_reporting_stations() {
++        let p = PowerDifferenceParams::preregistered_v2();
++        let st: Vec<Station> = (0..4).map(|i| station_at(i as f64 * 3.0, 0.0)).collect();
++        let g = grid(&p, &st);
++        let e = epochs_from_powers(&p, &[Some(-110.0), Some(-112.0), None, None], 30);
++        assert!(session_loglik(&p, &st, &g, &e).is_none());
++        let e = epochs_from_powers(&p, &[Some(-110.0), Some(-112.0), Some(-115.0), None], 30);
++        assert!(session_loglik(&p, &st, &g, &e).is_some());
++    }
++
++    #[test]
++    fn v2_noiseless_data_from_its_own_model_is_located() {
++        // Data drawn from the locator's own model, without noise: the posterior mode is the
++        // source's cell and the 95% region holds it.
++        let p = PowerDifferenceParams::preregistered_v2();
++        let st: Vec<Station> = [
++            (0.0, 0.0),
++            (10.0, 0.0),
++            (0.0, 10.0),
++            (10.0, 10.0),
++            (5.0, 2.0),
++            (2.0, 7.0),
++        ]
++        .iter()
++        .map(|&(x, y)| station_at(x, y))
++        .collect();
++        let (src, h, n, p0) = ((6.0, 4.0), 2.0, 2.5, -20.0);
++        let j: Vec<Option<f64>> = st
++            .iter()
++            .map(|s| {
++                let (dx, dy) = ((src.0 - s.east_km) * 1000.0, (src.1 - s.north_km) * 1000.0);
++                let dz = h - s.antenna_h_m;
++                let d: f64 = (dx * dx + dy * dy + dz * dz).sqrt();
++                let horiz_km = (dx * dx + dy * dy).sqrt() / 1000.0;
++                let los = if horiz_km > los_reach_km(s.antenna_h_m, h) {
++                    p.nlos_db
++                } else {
++                    0.0
++                };
++                Some(p0 - 10.0 * n * d.log10() - los)
++            })
++            .collect();
++        let g = grid(&p, &st);
++        let e = epochs_from_powers(&p, &j, 30);
++        let ll = session_loglik(&p, &st, &g, &e).expect("located");
++        let loc = locate(&p, &g, &ll);
++        let truth = g
++            .centres
++            .iter()
++            .enumerate()
++            .map(|(k, c)| (k, (c.0 - src.0).powi(2) + (c.1 - src.1).powi(2)))
++            .fold((0, f64::INFINITY), |a, x| if x.1 < a.1 { x } else { a })
++            .0;
++        let mode = (0..loc.posterior.len()).fold(0, |a, k| {
++            if loc.posterior[k] > loc.posterior[a] {
++                k
++            } else {
++                a
++            }
++        });
++        let dm = ((g.centres[mode].0 - src.0).powi(2) + (g.centres[mode].1 - src.1).powi(2)).sqrt();
++        assert!(dm <= g.cell_km, "mode {dm} km from the source");
++        assert!(loc.regions[2].binary_search(&truth).is_ok());
++    }
++
++    #[test]
++    fn v2_timeline_steps_through_the_session() {
++        let p = PowerDifferenceParams::preregistered_v2();
++        let st: Vec<Station> = (0..4)
++            .map(|i| station_at(i as f64 * 3.0, (i % 2) as f64 * 3.0))
++            .collect();
++        let g = grid(&p, &st);
++        let mut e = epochs_from_powers(
++            &p,
++            &[Some(-110.0), Some(-112.0), Some(-115.0), Some(-118.0)],
++            150,
++        );
++        for (k, ep) in e.iter_mut().enumerate() {
++            ep.t_s = k as f64;
++        }
++        let tl = timeline_v2(&p, &st, &g, &e);
++        assert_eq!(
++            tl.iter().map(|x| x.0).collect::<Vec<_>>(),
++            vec![60.0, 120.0, 180.0]
++        );
++        assert!(tl.iter().all(|x| x.1.is_some()));
++    }
+ }
+diff --git a/xval/locator-power-difference/dev-v2.json.gz b/xval/locator-power-difference/dev-v2.json.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..90a314d90691d2b3e9b3289ca06e0a2a3fe2ff45
+GIT binary patch
+literal 7904
+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
+KgZ)9cg8%^VDP_t4
+
+literal 0
+HcmV?d00001
+
+diff --git a/xval/locator-power-difference/oracle.py b/xval/locator-power-difference/oracle.py
+index 3943dd17d..c2e5d00f4 100644
+--- a/xval/locator-power-difference/oracle.py
++++ b/xval/locator-power-difference/oracle.py
+@@ -6,6 +6,10 @@ library only; shares no code with the engine.
+ 
+ INPUT is `locate_pd_gate json SEED`, ANSWER is `locate_pd_gate answer SEED`. Prints whether the
+ grid, the 50/90/95 % region cells and the centroid (within 1 m) agree.
++
++Version 2 (readings V2 to V7, V15): when the input's parameters carry `session_shadowing`, give it
++`json2 SEED` and `answer2 SEED`. It recomputes the per-station session means, the more-than-half
++rule, sigma_tot, the weighted P0 and the not-located case on its own.
+ """
+ import json
+ import math
+@@ -57,6 +61,54 @@ def norm_logcdf(z):
+     return -0.5 * z * z - 0.5 * math.log(2 * math.pi) - math.log(-z)
+ 
+ 
++def epoch_powers(P, st, e, j_drop, wc, wa):
++    """One epoch's power estimate per station (readings 2 to 4); None where it does not report."""
++    js = []
++    for i, s in enumerate(st):
++        dr, ag = e["drop_db"][i], e["dagc"][i]
++        if dr is None or dr < P["gate_db"]:
++            js.append(None)
++            continue
++        jc = j_drop(s["c_nom_dbhz"], dr)
++        if s["kappa_db"] is not None and ag is not None and ag * s["kappa_db"] > 0:
++            ja = s["noise_dbw"] + 10 * math.log10(max(10 ** (ag * s["kappa_db"] / 10) - 1, 1e-300))
++            jc = (jc * wc + ja * wa) / (wc + wa)
++        js.append(jc)
++    return js
++
++
++def v2_loglik(P, st, epochs, geo, gain, jmin, j_drop, wc, wa):
++    """Version 2's session log-likelihood per (h, n) hypothesis and cell (V2 to V7), or None when
++    fewer than min_reporting stations report in more than half of the session."""
++    per = [epoch_powers(P, st, e, j_drop, wc, wa) for e in epochs]
++    E = len(per)
++    jbar, sig = [], []
++    for i in range(len(st)):
++        vals = [row[i] for row in per if row[i] is not None]
++        reporting = len(vals) > P["report_share"] * E
++        n = len(vals) if reporting else max(E, 1)
++        sig.append(math.sqrt(P["sigma_sh_db"] ** 2 + P["sigma_meas_db"] ** 2 / n))
++        jbar.append(sum(vals) / len(vals) if reporting else None)
++    rep = np.array([x is not None for x in jbar])
++    if rep.sum() < P["min_reporting"]:
++        return None
++    jv = np.array([x if x is not None else 0.0 for x in jbar])
++    sg = np.array(sig)
++    w = np.where(rep, 1 / sg ** 2, 0.0)
++    terms = []
++    for logd, loss in geo:
++        for n in P["n_set"]:
++            r = jv[None, :] + 10 * n * logd - gain[None, :] + loss
++            p0 = (r * w[None, :]).sum(axis=1) / w.sum()
++            pred = p0[:, None] - 10 * n * logd + gain[None, :] - loss
++            z = (jv[None, :] - pred) / sg[None, :]
++            ll = np.where(rep[None, :], -0.5 * z * z, 0.0).sum(axis=1)
++            zc = (jmin[None, :] - pred) / sg[None, :]
++            ll += np.where(rep[None, :], 0.0, np.vectorize(norm_logcdf)(zc)).sum(axis=1)
++            terms.append(ll)
++    return np.array(terms)
++
++
+ def main(inp, ans):
+     d = json.load(open(inp))
+     a = json.load(open(ans))
+@@ -99,7 +151,13 @@ def main(inp, ans):
+         loss = np.where(horiz > reach[None, :], P["nlos_db"], 0.0)
+         geo.append((np.log10(dist), loss))
+     s_sh = P["sigma_sh_db"]
+-    for e in d["epochs"][lo:hi]:
++    if P.get("session_shadowing"):
++        total = v2_loglik(P, st, d["epochs"][lo:hi], geo, gain, jmin, j_drop, wc, wa)
++        if total is None:
++            agree = a.get("located") is False and len(cen) == a["n_cells"]
++            print(json.dumps({"seed": d["seed"], "located": False, "agree": bool(agree)}))
++            return
++    for e in ([] if P.get("session_shadowing") else d["epochs"][lo:hi]):
+         js = []
+         for i, s in enumerate(st):
+             dr, ag = e["drop_db"][i], e["dagc"][i]
+-- 
+2.43.0
+
