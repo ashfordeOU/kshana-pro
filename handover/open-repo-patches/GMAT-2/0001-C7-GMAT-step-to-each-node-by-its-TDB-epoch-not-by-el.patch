@@ -1,0 +1,292 @@
+From ece34aafff5ba345fce2a8e988014dfe264cbbed Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Mon, 9 Nov 2026 01:17:23 +0000
+Subject: [PATCH] C7 GMAT: step to each node by its TDB epoch, not by elapsed
+ time
+
+The gmat job's second run (Flight dynamics run 42534549174, at bec4ae298) halted on the SPK leg's
+last step, 3.2e-9 day (about 0.28 ms) past the kernel's coverage: GMAT counts elapsed time in A.1
+seconds, the kernel's nodes are TDB, and over the file's 30 days the TDB-TT periodic term moves the
+two about 0.28 ms apart. Both scripts now stop each step at the next node's TDB modified Julian date
+(t = mjd0 + k * 600 / 86400, a TDBModJulian stop condition). The comparison and its bar are
+unchanged. RESULTS (C7) records the run.
+---
+ .../c7-flight-dynamics-adapters/RESULTS.md    | 12 +++++--
+ integrations/flight-dynamics/gmat.ipynb       | 28 +++++++--------
+ integrations/flight-dynamics/gmat.md          |  4 +--
+ integrations/flight-dynamics/gmat_reader.py   | 36 +++++++++++++------
+ 4 files changed, 52 insertions(+), 28 deletions(-)
+
+diff --git a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+index a72af1fa7..107c0ede9 100644
+--- a/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
++++ b/docs/design/evidence/c7-flight-dynamics-adapters/RESULTS.md
+@@ -77,5 +77,13 @@ version 1.0 is not tested: Kshana does not write one.
+ 
+ The adapter was written from GMAT's documentation and samples without running GMAT: the session
+ that wrote it was not allowed to execute GMAT's binaries. The job runs with continue-on-error and is
+-fixed from its logs. The SPK leg has not run yet; it comes after the OEM leg, which stopped the first
+-run. GMAT counts as done only when that job is green.
++fixed from its logs. GMAT counts as done only when that job is green.
++
++**The SPK: stepping by elapsed time runs past the kernel.** The job's second run (Flight dynamics run
++42534549174, at open commit bec4ae298) loaded the kernel and stepped 4,320 times by 600 s, then
++halted on the last step: the requested epoch, A.1 modified Julian 30034.49962788203, was 3.2e-9 day
++(about 0.28 ms) past the kernel's coverage, which GMAT gave as ending at 30034.4996278788. GMAT counts
++elapsed time in A.1 seconds; the kernel's nodes are TDB, and over 30 days the TDB−TT periodic term
++moves them about 0.28 ms apart. The script now stops each step at the next node's TDB epoch
++(`TDBModJulian` stop condition) instead of stepping by elapsed time. The comparison and its bar are
++unchanged.
+diff --git a/integrations/flight-dynamics/gmat.ipynb b/integrations/flight-dynamics/gmat.ipynb
+index 766550e00..1c2f5d20b 100644
+--- a/integrations/flight-dynamics/gmat.ipynb
++++ b/integrations/flight-dynamics/gmat.ipynb
+@@ -2,7 +2,7 @@
+  "cells": [
+   {
+    "cell_type": "markdown",
+-   "id": "b8533002",
++   "id": "86c21269",
+    "metadata": {},
+    "source": [
+     "<!-- SPDX-License-Identifier: AGPL-3.0-only -->\n",
+@@ -32,7 +32,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "a5cd996d",
++   "id": "07a38de6",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -56,7 +56,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "0d84fe9d",
++   "id": "2de2cf3a",
+    "metadata": {},
+    "source": [
+     "The reference: the SPICE Toolkit evaluating Kshana's SPK at the node epochs."
+@@ -65,7 +65,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "4912cea3",
++   "id": "2faf4d6c",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -78,7 +78,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "af9f06b9",
++   "id": "bae2240c",
+    "metadata": {},
+    "source": [
+     "GMAT runs the SPK script, every step."
+@@ -87,17 +87,17 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "d42ad154",
++   "id": "84219354",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "spk_report, spk_log = gm.run_spk(files[\"spk\"], OUT / \"gmat\", written.epochs[0], len(ets))\n",
++    "spk_report, spk_log = gm.run_spk(files[\"spk\"], OUT / \"gmat\", written.epochs[0], ets[0], len(ets))\n",
+     "print(spk_log[-2000:])"
+    ]
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "6ceaf96c",
++   "id": "3a08c7dd",
+    "metadata": {},
+    "source": [
+     "GMAT runs the OEM script on the OEM as written. `oem_report` is `None` when GMAT refuses the file\n",
+@@ -107,18 +107,18 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "dc499cb4",
++   "id": "81072206",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "oem_report, oem_log = gm.run_oem(files[\"oem\"], OUT / \"gmat\", len(ets))\n",
++    "oem_report, oem_log = gm.run_oem(files[\"oem\"], OUT / \"gmat\", ets[0], len(ets))\n",
+     "oem_refused = oem_report is None\n",
+     "print(\"OEM refused by GMAT:\" if oem_refused else \"OEM run by GMAT:\", oem_log[-2000:])"
+    ]
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "a3f73d92",
++   "id": "138743f2",
+    "metadata": {},
+    "source": [
+     "What GMAT reported, against what was written:"
+@@ -127,7 +127,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "f1922cf3",
++   "id": "2874b7f6",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+@@ -149,7 +149,7 @@
+   },
+   {
+    "cell_type": "markdown",
+-   "id": "f4d1127a",
++   "id": "c91366bb",
+    "metadata": {},
+    "source": [
+     "## The difference report"
+@@ -158,7 +158,7 @@
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "0c8c7b11",
++   "id": "4fbc8c7f",
+    "metadata": {},
+    "outputs": [],
+    "source": [
+diff --git a/integrations/flight-dynamics/gmat.md b/integrations/flight-dynamics/gmat.md
+index 13de75cf0..662a3b9ac 100644
+--- a/integrations/flight-dynamics/gmat.md
++++ b/integrations/flight-dynamics/gmat.md
+@@ -53,7 +53,7 @@ spiceypy.kclear()
+ GMAT runs the SPK script, every step.
+ 
+ ```python
+-spk_report, spk_log = gm.run_spk(files["spk"], OUT / "gmat", written.epochs[0], len(ets))
++spk_report, spk_log = gm.run_spk(files["spk"], OUT / "gmat", written.epochs[0], ets[0], len(ets))
+ print(spk_log[-2000:])
+ ```
+ 
+@@ -61,7 +61,7 @@ GMAT runs the OEM script on the OEM as written. `oem_report` is `None` when GMAT
+ with `gm.OEM_V2_REFUSAL`.
+ 
+ ```python
+-oem_report, oem_log = gm.run_oem(files["oem"], OUT / "gmat", len(ets))
++oem_report, oem_log = gm.run_oem(files["oem"], OUT / "gmat", ets[0], len(ets))
+ oem_refused = oem_report is None
+ print("OEM refused by GMAT:" if oem_refused else "OEM run by GMAT:", oem_log[-2000:])
+ ```
+diff --git a/integrations/flight-dynamics/gmat_reader.py b/integrations/flight-dynamics/gmat_reader.py
+index 8060c8d86..241ebb6a1 100644
+--- a/integrations/flight-dynamics/gmat_reader.py
++++ b/integrations/flight-dynamics/gmat_reader.py
+@@ -5,7 +5,11 @@ GMAT reads a trajectory through its ephemeris propagators: `CCSDS-OEM` for an OE
+ with Lagrange polynomials) and `SPK` for a SPICE kernel. This adapter writes one GMAT script per
+ file, so that one leg's failure cannot stop the other. In each, a spacecraft loads Kshana's file and
+ GMAT steps it through the file at 600 s, which is the trajectory's own node spacing, starting at the
+-file's first epoch. At every step GMAT reports the epoch (`TDBModJulian`) and the Moon-centred state,
++file's first epoch. Each step stops at the next node's TDB epoch (a `TDBModJulian` stop condition),
++not after a fixed elapsed time: GMAT counts elapsed time in A.1 seconds, and over the file's 30 days
++the TDB−TT periodic term drifts 600 A.1 seconds away from 600 TDB seconds, by about 0.28 ms by the
++end. The second run of the job, stepping by elapsed time, ended 3.2e-9 day past the kernel's
++coverage and GMAT halted. At every step GMAT reports the epoch (`TDBModJulian`) and the Moon-centred state,
+ at 16 significant digits:
+ 
+ - the OEM in a Moon-centred ICRF frame (its `REF_FRAME` is ICRF);
+@@ -27,7 +31,8 @@ arithmetic are part of what is compared.
+ 
+ Written without running GMAT in the session that wrote it; GMAT's binaries run only in the workflow
+ job, whose logs drive the fixes. The first run reached the OEM leg and stopped there with
+-OEM_V2_REFUSAL, before the SPK leg; the SPK leg's first run is the next job.
++OEM_V2_REFUSAL, before the SPK leg. The second ran the SPK leg to its last step, which stepped
++past the kernel's coverage (see above); the epoch stop condition is the fix, tested by the next job.
+ """
+ from __future__ import annotations
+ 
+@@ -55,13 +60,14 @@ OemReport.Filename = '{out}/gmat_oem.txt';
+ OemReport.Precision = 16;
+ OemReport.WriteHeaders = false;
+ 
+-Create Variable k;
++Create Variable k t;
+ 
+ BeginMissionSequence;
+ 
+ Report OemReport OemSat.TDBModJulian OemSat.LunaICRF.X OemSat.LunaICRF.Y OemSat.LunaICRF.Z OemSat.LunaICRF.VX OemSat.LunaICRF.VY OemSat.LunaICRF.VZ;
+ For k = 1:{steps};
+-   Propagate OemProp(OemSat);
++   t = {mjd0} + k * {step_days};
++   Propagate OemProp(OemSat) {{OemSat.TDBModJulian = t}};
+    Report OemReport OemSat.TDBModJulian OemSat.LunaICRF.X OemSat.LunaICRF.Y OemSat.LunaICRF.Z OemSat.LunaICRF.VX OemSat.LunaICRF.VY OemSat.LunaICRF.VZ;
+ EndFor;
+ """
+@@ -88,13 +94,14 @@ SpkReport.Filename = '{out}/gmat_spk.txt';
+ SpkReport.Precision = 16;
+ SpkReport.WriteHeaders = false;
+ 
+-Create Variable k;
++Create Variable k t;
+ 
+ BeginMissionSequence;
+ 
+ Report SpkReport SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
+ For k = 1:{steps};
+-   Propagate SpkProp(SpkSat);
++   t = {mjd0} + k * {step_days};
++   Propagate SpkProp(SpkSat) {{SpkSat.TDBModJulian = t}};
+    Report SpkReport SpkSat.TDBModJulian SpkSat.LunaJ2000.X SpkSat.LunaJ2000.Y SpkSat.LunaJ2000.Z SpkSat.LunaJ2000.VX SpkSat.LunaJ2000.VY SpkSat.LunaJ2000.VZ;
+ EndFor;
+ """
+@@ -122,6 +129,13 @@ def gregorian(label: str) -> str:
+     return f"{int(d):02d} {MONTHS[int(m) - 1]} {y} {hh}:{mm}:{float(ss):06.3f}"
+ 
+ 
++def tdb_mjd(et: float) -> float:
++    """TDB seconds past J2000 as GMAT's TDB modified Julian date, rounded once."""
++    from decimal import Decimal
++
++    return float(Decimal(repr(et)) / Decimal(86400) + Decimal(repr(GMAT_MJD_J2000)))
++
++
+ def _console(script: Path, log_name: str) -> tuple[int, str]:
+     """Run one script in GmatConsole; returns (exit code, console output), the output also saved."""
+     p = subprocess.run(["./GmatConsole", "--run", str(script.resolve())], cwd=gmat_root() / "bin",
+@@ -131,27 +145,29 @@ def _console(script: Path, log_name: str) -> tuple[int, str]:
+     return p.returncode, log
+ 
+ 
+-def run_spk(bsp: Path, out: Path, first_label: str, n: int, naif: int = -1176,
++def run_spk(bsp: Path, out: Path, first_label: str, first_et: float, n: int, naif: int = -1176,
+             step_s: float = 600.0) -> tuple[Path, str]:
+     """GMAT's SPK propagator through Kshana's kernel. Returns (report, console output); raises if
+     GMAT fails."""
+     out.mkdir(parents=True, exist_ok=True)
+     script = out / "kshana_c7_spk.script"
+     script.write_text(SPK_SCRIPT.format(bsp=Path(bsp).resolve(), out=out.resolve(), naif=naif,
+-                                        start_gregorian=gregorian(first_label), step=step_s, steps=n - 1))
++                                        start_gregorian=gregorian(first_label), step=step_s, steps=n - 1,
++                                        mjd0=repr(tdb_mjd(first_et)), step_days=repr(step_s / 86400.0)))
+     code, log = _console(script, "gmat_console_spk.log")
+     if code != 0:
+         raise RuntimeError(f"GmatConsole exited with {code} on the SPK script:\n{log[-4000:]}")
+     return out / "gmat_spk.txt", log
+ 
+ 
+-def run_oem(oem: Path, out: Path, n: int, step_s: float = 600.0) -> tuple[Path | None, str]:
++def run_oem(oem: Path, out: Path, first_et: float, n: int, step_s: float = 600.0) -> tuple[Path | None, str]:
+     """GMAT's CCSDS-OEM propagator through Kshana's OEM, as written. Returns (report, console output)
+     when GMAT runs it, and (None, console output) when GMAT refuses the file with OEM_V2_REFUSAL.
+     Any other failure raises."""
+     out.mkdir(parents=True, exist_ok=True)
+     script = out / "kshana_c7_oem.script"
+-    script.write_text(OEM_SCRIPT.format(oem=Path(oem).resolve(), out=out.resolve(), step=step_s, steps=n - 1))
++    script.write_text(OEM_SCRIPT.format(oem=Path(oem).resolve(), out=out.resolve(), step=step_s, steps=n - 1,
++                                        mjd0=repr(tdb_mjd(first_et)), step_days=repr(step_s / 86400.0)))
+     code, log = _console(script, "gmat_console_oem.log")
+     if code == 0:
+         return out / "gmat_oem.txt", log
+-- 
+2.43.0
+
