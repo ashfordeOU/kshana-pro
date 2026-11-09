@@ -1,10 +1,10 @@
 {
  "generated_by": "features/gen_features.py",
- "generated_at": "2026-11-08T21:20:04Z",
+ "generated_at": "2026-11-09T05:02:36Z",
  "engine": {
   "repo": "/workspace/kshana-T",
   "version": "0.40.0",
-  "git_head": "884e343f7",
+  "git_head": "62a2fa71d",
   "worktree_dirty": false
  },
  "counts": {
@@ -25,11 +25,11 @@
  "unplaced": [],
  "stale_placements": [],
  "warnings": [
-  "pro:calibrated-clock-twin: public quote found on branch apps/d8-rows56-port only, not yet in kshana-T/web/index.html",
-  "pro:evidence-pack: public quote found on branch apps/d8-rows56-port only, not yet in kshana-T/web/index.html",
-  "study:modelled-resilience-study: public quote found on branch apps/d8-rows56-port only, not yet in kshana-T/web/index.html",
-  "study:export-controlled-work: public quote found on branch apps/d8-rows56-port only, not yet in kshana-T/web/index.html",
-  "pro:commercial-licence: public quote found on branch apps/d8-rows56-port only, not yet in kshana-T/web/index.html"
+  "pro:calibrated-clock-twin: public quote found on branch apps/studio-lunar only, not yet in kshana-T/web/index.html",
+  "pro:evidence-pack: public quote found on branch apps/studio-lunar only, not yet in kshana-T/web/index.html",
+  "study:modelled-resilience-study: public quote found on branch apps/studio-lunar only, not yet in kshana-T/web/index.html",
+  "study:export-controlled-work: public quote found on branch apps/studio-lunar only, not yet in kshana-T/web/index.html",
+  "pro:commercial-licence: public quote found on branch apps/studio-lunar only, not yet in kshana-T/web/index.html"
  ],
  "features": [
   {
@@ -2257,7 +2257,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "lunar-ascent",
    "docs": "docs/scenarios.html#lunar-ascent",
    "also": [],
    "placed": true,
@@ -2309,7 +2309,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "lunar-surface",
    "docs": "docs/scenarios.html#lunar-surface",
    "also": [],
    "placed": true,
@@ -2377,7 +2377,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "lunar-descent",
    "docs": "docs/scenarios.html#lunar-descent",
    "also": [],
    "placed": true,
@@ -2438,7 +2438,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "lunar-orbit-rendezvous",
    "docs": "docs/scenarios.html#lunar-orbit-rendezvous",
    "also": [],
    "placed": true,
@@ -4186,7 +4186,7 @@
    "category": "kind",
    "subtype": "scenario kind",
    "name": "entry-heating",
-   "description": "3-DoF point-mass atmospheric entry over a rotating spherical Earth or Mars (ballistic or lifting at constant bank), fourth-order Runge-Kutta (RK4), through the 1976 U.S. Standard Atmosphere (US76), an exponential or the Mars atmosphere, with Sutton-Graves stagnation-point convective heating (NASA TR…",
+   "description": "3-DoF point-mass atmospheric entry over a rotating spherical Earth or Mars (ballistic or lifting at constant bank), fourth-order Runge-Kutta (RK4), through the 1976 U.S. Standard Atmosphere (US76), an exponential or the Mars atmosphere, with Sutton-Graves stagnation-point convective heating (NASA Technical Report (TR)…",
    "source": "src/api.rs:1234 · kshana kinds --json",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
@@ -4235,9 +4235,7 @@
    "docs": "docs/scenarios.html#entry-heating",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "TR"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "kind:eo-radiometry",
@@ -4343,7 +4341,7 @@
    "category": "kind",
    "subtype": "scenario kind",
    "name": "time-transfer-budget",
-   "description": "Two-way satellite time and frequency transfer between two stations through a geostationary relay: the two-way equation solved for TA - TB with every non-reciprocal term (station equipment delays, Ku-band ionosphere, transponder, Sagnac), a…",
+   "description": "Two-way satellite time and frequency transfer between two stations through a geostationary relay: the two-way equation solved for station A's time scale (TA) - station B's time scale (TB) with every non-reciprocal term (station equipment delays, Ku-band ionosphere, transponder, Sagnac), a…",
    "source": "src/api.rs:1237 · kshana kinds --json",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
@@ -4390,10 +4388,7 @@
    "docs": "docs/scenarios.html#time-transfer-budget",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "TA",
-    "TB"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "kind:optical-atmosphere",
@@ -4568,7 +4563,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "mission-thread-short",
    "docs": "docs/scenarios.html#mission-thread",
    "also": [],
    "placed": true,
@@ -5340,7 +5335,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "clock-fitted-log",
    "docs": "docs/scenario-reference.html#clock-fitted-log",
    "also": [],
    "placed": true,
@@ -5439,7 +5434,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "clock-measured-log",
    "docs": "docs/scenario-reference.html#clock-measured-log",
    "also": [],
    "placed": true,
@@ -8112,7 +8107,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "lunar-ascent",
    "docs": "docs/scenario-reference.html#lunar-ascent",
    "also": [],
    "placed": true,
@@ -8244,7 +8239,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "lunar-descent",
    "docs": "docs/scenario-reference.html#lunar-descent",
    "also": [],
    "placed": true,
@@ -8380,9 +8375,7 @@
    "docs": "docs/scenario-reference.html#lunar-infrastructure-carrier-phase",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "QUICK"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "scenario:lunar-infrastructure-frame-coestimation",
@@ -8708,7 +8701,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "lunar-orbit-rendezvous-elfo",
    "docs": "docs/scenario-reference.html#lunar-orbit-rendezvous-elfo",
    "also": [],
    "placed": true,
@@ -8741,7 +8734,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "lunar-orbit-rendezvous",
    "docs": "docs/scenario-reference.html#lunar-orbit-rendezvous",
    "also": [],
    "placed": true,
@@ -8807,7 +8800,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "lunar-station-coverage-public-sources",
    "docs": "docs/scenario-reference.html#lunar-station-coverage-public-sources",
    "also": [],
    "placed": true,
@@ -8972,7 +8965,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "lunar-station-time-lab",
    "docs": "docs/scenario-reference.html#lunar-station-time-lab",
    "also": [],
    "placed": true,
@@ -9038,7 +9031,7 @@
    },
    "page": "Capabilities",
    "section": "atlas",
-   "studio": "none",
+   "studio": "lunar-surface",
    "docs": "docs/scenario-reference.html#lunar-surface",
    "also": [],
    "placed": true,
@@ -10872,7 +10865,7 @@
    "category": "scenario",
    "subtype": "bundled scenario",
    "name": "time-transfer-budget",
-   "description": "Two-way satellite time and frequency transfer (TWSTFT) between two illustrative stations, one in central Europe and one in eastern North America, through a geostationary relay at 10 deg W. The run solves the two-way equation for TA - TB…",
+   "description": "Two-way satellite time and frequency transfer (TWSTFT) between two illustrative stations, one in central Europe and one in eastern North America, through a geostationary relay at 10 deg W. The run solves the two-way equation for station A's time scale (TA) - station B's time scale (TB)…",
    "source": "scenarios/time-transfer-budget.toml:1",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
@@ -10898,10 +10891,7 @@
    "docs": "docs/scenario-reference.html#time-transfer-budget",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "TA",
-    "TB"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "scenario:timetransfer",
@@ -12867,10 +12857,7 @@
    "docs": "docs/test-bench.html#1-export",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "MM",
-    "SS"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "cli:--svg",
@@ -23050,9 +23037,7 @@
    "docs": "docs/verification-matrix.html",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "NAV"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "validation:frequency-stability-characterisation",
@@ -23389,7 +23374,7 @@
    "category": "validation",
    "subtype": "verification-matrix row (VALIDATED)",
    "name": "Box-wing and ECOM2 solar radiation pressure, with partials (opt-in)",
-   "description": "Non-cannonball solar radiation pressure (SRP): a box-wing flat-plate model (Vallado eq. 8-44; single-sided body panels, sun-pointing wings) with the Galileo full operational capability (FOC), in-orbit validation (IOV) and IOV end-of-life tables of the GSC satellite metadata, in nominal Global Navigation Satellite System (GNSS) yaw steering, with…",
+   "description": "Non-cannonball solar radiation pressure (SRP): a box-wing flat-plate model (Vallado eq. 8-44; single-sided body panels, sun-pointing wings) with the Galileo full operational capability (FOC), in-orbit validation (IOV) and IOV end-of-life tables of the European GNSS Service Centre (GSC) satellite metadata, in nominal Global Navigation Satellite System (GNSS) yaw steering, with…",
    "source": "src/verification.rs:293",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
@@ -23412,9 +23397,7 @@
    "docs": "docs/verification-matrix.html",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "GSC"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "validation:solar-limb-darkened-srp-shadow-opt-in",
@@ -23811,7 +23794,7 @@
    "category": "validation",
    "subtype": "verification-matrix row (VALIDATED)",
    "name": "Planetary gravity fields from PDS SHADR tables",
-   "description": "Read Planetary Data System (PDS) SHADR spherical-harmonic tables (fromshadr, on SphericalHarmonicField in src/gravitypds.rs: unit conversion, C00 = 1 supplied, completeness and normalisation checks) and evaluate the body-fixed gravity of Mars GMM-3 (d/o 120) and…",
+   "description": "Read Planetary Data System (PDS) Spherical Harmonic ASCII Data Record (SHADR) spherical-harmonic tables (fromshadr, on SphericalHarmonicField in src/gravitypds.rs: unit conversion, C00 = 1 supplied, completeness and normalisation checks) and evaluate the body-fixed gravity of Mars GMM-3 (d/o 120) and…",
    "source": "src/verification.rs:433",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
@@ -23834,9 +23817,7 @@
    "docs": "docs/verification-matrix.html",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "SHADR"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "validation:attach-a-published-gravity-field-to-a-body",
@@ -24016,9 +23997,7 @@
    "docs": "docs/verification-matrix.html",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "NAV"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "validation:ionex-global-ionosphere-map-reader-and-interpolation-on-a-re",
@@ -24175,7 +24154,7 @@
    "category": "validation",
    "subtype": "verification-matrix row (VALIDATED)",
    "name": "RINEX 4 navigation file reading",
-   "description": "Receiver Independent Exchange Format (RINEX) 4.00-4.02 navigation files: > EPH records of Global Positioning System (GPS) the GPS legacy navigation message (LNAV), Galileo I/NAV and F/NAV, BeiDou D1/D2 and Japan's Quasi-Zenith Satellite System (QZSS) LNAV decoded into the broadcast-ephemeris type; the GPS civil navigation message (CNAV), CNV1-3, frequency-division multiple access (FDMA), satellite-based augmentation system (SBAS), STO, Earth-orientation parameters (EOP) and Institute of Navigation (ION) records skipped to the next record…",
+   "description": "Receiver Independent Exchange Format (RINEX) 4.00-4.02 navigation files: > EPH records of Global Positioning System (GPS) the GPS legacy navigation message (LNAV), Galileo I/NAV and F/NAV, BeiDou D1/D2 and Japan's Quasi-Zenith Satellite System (QZSS) LNAV decoded into the broadcast-ephemeris type; the GPS civil navigation message (CNAV), CNV1-3, frequency-division multiple access (FDMA), satellite-based augmentation system (SBAS), system time offset (STO), Earth-orientation parameters (EOP) and Institute of Navigation (ION) records skipped to the next record…",
    "source": "src/verification.rs:553",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
@@ -24198,10 +24177,7 @@
    "docs": "docs/verification-matrix.html",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "NAV",
-    "STO"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "validation:rinex-4-observation-file-reading",
@@ -26668,7 +26644,7 @@
    "category": "validation",
    "subtype": "verification-matrix row (VALIDATED)",
    "name": "CCSDS Space Packet secondary header, packet error control and segmentation",
-   "description": "Consultative Committee for Space Data Systems (CCSDS) 133.0-B-2 Space Packet extensions beside the primary header: a secondary header carrying a CCSDS 301.0-B time code (CUC or CDS, explicit or implicit P-field) and ancillary data, the CRC-16 packet error control field, segmentation of…",
+   "description": "Consultative Committee for Space Data Systems (CCSDS) 133.0-B-2 Space Packet extensions beside the primary header: a secondary header carrying a CCSDS 301.0-B time code (CUC or CCSDS day segmented time code (CDS), explicit or implicit P-field) and ancillary data, the CRC-16 packet error control field, segmentation of…",
    "source": "src/verification.rs:1384",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
@@ -26691,10 +26667,7 @@
    "docs": "docs/verification-matrix.html",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "CDS",
-    "CUC"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "validation:spice-spk-export-types-9-and-13",
@@ -29101,7 +29074,7 @@
    "category": "validation",
    "subtype": "verification-matrix row (MODELLED)",
    "name": "Stagnation-point convective entry heating (Sutton-Graves) on a 3-DoF entry",
-   "description": "Stagnation-point convective heat flux q = k sqrt(rho/Rn) V^3 with the Sutton-Graves constants for Earth air and the Mars atmosphere (NASA TR R-376, 1971), its peak and the integrated heat load along a 3-DoF entry, ballistic or lifting at…",
+   "description": "Stagnation-point convective heat flux q = k sqrt(rho/Rn) V^3 with the Sutton-Graves constants for Earth air and the Mars atmosphere (NASA Technical Report (TR) R-376, 1971), its peak and the integrated heat load along a 3-DoF entry, ballistic or lifting at…",
    "source": "src/verification.rs:2197",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
@@ -29124,9 +29097,7 @@
    "docs": "docs/verification-matrix.html",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "TR"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "validation:electro-optical-imager-radiometry-mtf-relative-edge-response",
@@ -29193,7 +29164,7 @@
    "category": "validation",
    "subtype": "verification-matrix row (MODELLED)",
    "name": "TWSTFT two-way equation, uncertainty budget and link stability with flicker and diurnal non-reciprocity",
-   "description": "The two-way satellite time and frequency transfer (TWSTFT) two-way equation solved for TA - TB with station transmit and receive delays, the Ku-band ionospheric up/down asymmetry, the transponder delay difference and the Sagnac terms, against its exact forward model; a quadrature…",
+   "description": "The two-way satellite time and frequency transfer (TWSTFT) two-way equation solved for station A's time scale (TA) - station B's time scale (TB) with station transmit and receive delays, the Ku-band ionospheric up/down asymmetry, the transponder delay difference and the Sagnac terms, against its exact forward model; a quadrature…",
    "source": "src/verification.rs:2227",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
@@ -29216,10 +29187,7 @@
    "docs": "docs/verification-matrix.html",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "TA",
-    "TB"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "validation:optical-slant-path-atmosphere-numerics-rytov-variance-scinti",
@@ -31506,7 +31474,7 @@
    "category": "validation",
    "subtype": "verification-matrix row (MODELLED)",
    "name": "ITU-T frequency-synchronisation wander-generation masks (G.811, G.812, G.8262, G.8262.1)",
-   "description": "Seven constant-temperature maximum time interval error (MTIE) and time deviation (TDEV) wander-generation masks for the telecom-timing kind: G.811 (09/1997) PRC (autonomous), G.812 (06/2004) Types I, II and III, G.8262 (10/2024) EEC Options 1 and 2 and G.8262.1 (11/2025) eEEC (locked…",
+   "description": "Seven constant-temperature maximum time interval error (MTIE) and time deviation (TDEV) wander-generation masks for the telecom-timing kind: G.811 (09/1997) PRC (autonomous), G.812 (06/2004) Types I, II and III, G.8262 (10/2024) Synchronous Ethernet equipment clock (EEC) Options 1 and 2 and G.8262.1 (11/2025) eEEC (locked…",
    "source": "src/verification.rs:3000",
    "edition": "Free core",
    "edition_source": "README.md:1486 “…no feature gate” · README.md:1555 “The open engine is complete and usable on its own.”",
@@ -31529,10 +31497,7 @@
    "docs": "docs/verification-matrix.html",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "EEC",
-    "PRC"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "validation:clock-log-formats-rinex-clock-timelab-ascii-tapr-ticc-read-t",
@@ -31562,10 +31527,7 @@
    "docs": "docs/verification-matrix.html",
    "also": [],
    "placed": true,
-   "unexpanded_abbreviations": [
-    "AR",
-    "AS"
-   ]
+   "unexpanded_abbreviations": []
   },
   {
    "id": "validation:clock-log-formats-linuxptp-ptp4l-phc2sys-ts2phc-and-chrony-t",
@@ -35173,9 +35135,9 @@
    "subtype": "edition offer",
    "name": "Calibrated clock digital twin",
    "description": "A digital twin of a clock calibrated to the device's published Allan-deviation budget (the standard measure of clock stability).",
-   "source": "web/index.html:759 (branch apps/d8-rows56-port e3f2a74b)",
+   "source": "web/index.html:759 (branch apps/studio-lunar e3f2a74b)",
    "edition": "Pro",
-   "edition_source": "web/index.html:759 (branch apps/d8-rows56-port e3f2a74b) “clock digital twins calibrated to a device's published Allan budget”",
+   "edition_source": "web/index.html:759 (branch apps/studio-lunar e3f2a74b) “clock digital twins calibrated to a device's published Allan budget”",
    "identifiers": [],
    "probes": [
     [
@@ -35255,9 +35217,9 @@
    "subtype": "edition offer",
    "name": "Audit-grade, reproducible evidence pack",
    "description": "The evidence a review or procurement board asks for, packaged so every figure can be reproduced.",
-   "source": "web/index.html:760 (branch apps/d8-rows56-port e3f2a74b)",
+   "source": "web/index.html:760 (branch apps/studio-lunar e3f2a74b)",
    "edition": "Pro",
-   "edition_source": "web/index.html:760 (branch apps/d8-rows56-port e3f2a74b) “audit-grade, reproducible evidence packs”",
+   "edition_source": "web/index.html:760 (branch apps/studio-lunar e3f2a74b) “audit-grade, reproducible evidence packs”",
    "identifiers": [],
    "probes": [
     [
@@ -35646,9 +35608,9 @@
    "subtype": "edition offer",
    "name": "Modelled PNT-resilience study (for example an optimism-gap audit)",
    "description": "A bespoke, modelled positioning, navigation and timing (PNT) resilience study, reproducible from scenario, seed and engine version, every figure labelled; not a certification.",
-   "source": "web/index.html:773 (branch apps/d8-rows56-port e3f2a74b)",
+   "source": "web/index.html:773 (branch apps/studio-lunar e3f2a74b)",
    "edition": "Custom study",
-   "edition_source": "web/index.html:773 (branch apps/d8-rows56-port e3f2a74b) “PNT-resilience study — e.g. an optimism-gap audit — reproducible from scenario + seed + engine version”",
+   "edition_source": "web/index.html:773 (branch apps/studio-lunar e3f2a74b) “PNT-resilience study — e.g. an optimism-gap audit — reproducible from scenario + seed + engine version”",
    "identifiers": [],
    "probes": [
     [
@@ -35708,9 +35670,9 @@
    "subtype": "edition offer",
    "name": "Export-controlled resilience work under clearance and NDA",
    "description": "Export-controlled resilience work delivered under the appropriate clearance and non-disclosure agreement (NDA).",
-   "source": "web/index.html:766 (branch apps/d8-rows56-port e3f2a74b)",
+   "source": "web/index.html:766 (branch apps/studio-lunar e3f2a74b)",
    "edition": "Custom study",
-   "edition_source": "web/index.html:766 (branch apps/d8-rows56-port e3f2a74b) “export-controlled resilience work delivered under the appropriate clearance and NDA”",
+   "edition_source": "web/index.html:766 (branch apps/studio-lunar e3f2a74b) “export-controlled resilience work delivered under the appropriate clearance and NDA”",
    "identifiers": [],
    "probes": [
     [
@@ -35819,9 +35781,9 @@
    "subtype": "edition offer",
    "name": "Commercial licence of the open core (dual licence, not Pro)",
    "description": "The same open-core code under a commercial licence for closed or proprietary integration without Affero General Public License (AGPL) obligations. Listed beside Pro because buyers ask for it there, but the public source ties it to the open core.",
-   "source": "web/index.html:751 (branch apps/d8-rows56-port e3f2a74b)",
+   "source": "web/index.html:751 (branch apps/studio-lunar e3f2a74b)",
    "edition": "Free core",
-   "edition_source": "web/index.html:751 (branch apps/d8-rows56-port e3f2a74b) “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”",
+   "edition_source": "web/index.html:751 (branch apps/studio-lunar e3f2a74b) “free under the AGPL-3.0 (or a commercial licence for closed/proprietary use)”",
    "identifiers": [],
    "probes": [
     [

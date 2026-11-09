@@ -14,6 +14,16 @@
 [abbreviations]
 # Extra expansions used when descriptions are written in plain words (docs/GLOSSARY.md is read first).
 "BSP" = "binary SPICE kernel file"
+"TR" = "Technical Report"
+"GSC" = "European GNSS Service Centre"
+"SHADR" = "Spherical Harmonic ASCII Data Record"
+"STO" = "system time offset"
+"CDS" = "CCSDS day segmented time code"
+"CUC" = "CCSDS unsegmented time code"
+"EEC" = "Synchronous Ethernet equipment clock"
+"PRC" = "primary reference clock"
+"TA" = "station A's time scale"
+"TB" = "station B's time scale"
 "DE" = "JPL Development Ephemeris"
 "EPM" = "Ephemerides of Planets and the Moon (Institute of Applied Astronomy, Russian Academy of Sciences)"
 "IEEE" = "Institute of Electrical and Electronics Engineers"
@@ -344,12 +354,14 @@
 [abbreviations_ignore]
 # Upper-case fragments that are not abbreviations (maths symbols, part of a formula), or whose expansion
 # the public sources do not give (left visible as warnings instead of guessed).
-tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021", "RE", "DELTA", "STAR", "EPH", "KP16", "KRAC", "LU22", "APOL", "II", "III", "B1C", "B1I", "B3I", "L1C", "L1OF", "L2OF", "L1CD", "L1CO", "L1CP", "DOP853", "OEM7", "RANGE", "GL0660B", "STR09", "PKSHT", "SB1", "BENCH", "SPEC", "FILE", "OF", "USE", "CN"]
+tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021", "RE", "DELTA", "STAR", "EPH", "KP16", "KRAC", "LU22", "APOL", "II", "III", "B1C", "B1I", "B3I", "L1C", "L1OF", "L2OF", "L1CD", "L1CO", "L1CP", "DOP853", "OEM7", "RANGE", "GL0660B", "STR09", "PKSHT", "SB1", "BENCH", "SPEC", "FILE", "OF", "USE", "CN", "QUICK", "MM", "SS", "NAV", "AR", "AS"]
 # RE: the Earth radius symbol in a formula; DELTA, STAR: Walker pattern keywords; EPH, KP16, KRAC,
 # LU22, APOL: RINEX-4-style record names, quoted as written.
 # II, III: Roman numerals; B1C ... L1CP: signal names; DOP853: an integrator; OEM7, RANGE: a receiver and its log;
 # GL0660B, STR09: model names; PKSHT, SB1: message identifiers; BENCH, SPEC, FILE, OF, USE: words in upper case.
 # CN: SPICE's converged-Newtonian aberration-correction flag (CN+S), quoted as written.
+# QUICK: a scenario label in upper case; MM, SS: fields of a date format (YYYY-MM-DDTHH:MM:SS);
+# NAV: part of the message names I/NAV, F/NAV and RINEX's NAV; AR, AS: RINEX clock record types, quoted as written.
 
 [site_tokens]
 # Identifiers the site may print that are neither features nor found in the engine repository.
@@ -1189,12 +1201,12 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "validation:sky-geometry-functions-visibility-dop-covariance-error-ellip" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "scenario:lunar-station-geodesy-baseline" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-station-geodesy-baseline" }
 "scenario:lunar-station-geodesy-with-station" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-station-geodesy-with-station" }
-"scenario:lunar-station-time-lab" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-station-time-lab" }
+"scenario:lunar-station-time-lab" = { page = "Capabilities", section = "atlas", studio = "lunar-station-time-lab", docs = "docs/scenario-reference.html#lunar-station-time-lab" }
 "validation:lunar-station-time-laboratory-minirafs-holdover-against-ltc" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:lunar-reference-station-geodesy-added-retroreflector-and-vlb" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "kind:lunar-station-coverage" = { page = "Capabilities", section = "atlas", studio = "lunar-station-coverage", docs = "docs/scenarios.html#lunar-station-coverage" }
 "scenario:lunar-station-coverage" = { page = "Capabilities", section = "atlas", studio = "lunar-station-coverage", docs = "docs/scenario-reference.html#lunar-station-coverage" }
-"scenario:lunar-station-coverage-public-sources" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-station-coverage-public-sources" }
+"scenario:lunar-station-coverage-public-sources" = { page = "Capabilities", section = "atlas", studio = "lunar-station-coverage-public-sources", docs = "docs/scenario-reference.html#lunar-station-coverage-public-sources" }
 "validation:lunar-reference-station-coverage-and-accuracy-map" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 
 # 0.36 and 0.37 additions (W52): kinds, scenarios, clock masks, bindings and ledger rows the register gained.
@@ -1425,20 +1437,20 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "validation:onboard-gnss-navigation-filter-for-high-orbit-and-lunar-tran" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:relative-navigation-of-a-multi-spacecraft-formation-in-a-hig" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 # 0.40.0 rows: the lunar mission phases, the mission thread, clock-log scenarios, data-partner check, i18n and 0.40 bindings, and the matching ledger rows
-"kind:lunar-ascent" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenarios.html#lunar-ascent" }
-"kind:lunar-surface" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenarios.html#lunar-surface" }
-"kind:lunar-descent" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenarios.html#lunar-descent" }
-"kind:lunar-orbit-rendezvous" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenarios.html#lunar-orbit-rendezvous" }
-"kind:mission-thread" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenarios.html#mission-thread" }
-"scenario:clock-fitted-log" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#clock-fitted-log" }
-"scenario:clock-measured-log" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#clock-measured-log" }
-"scenario:lunar-ascent" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-ascent" }
+"kind:lunar-ascent" = { page = "Capabilities", section = "atlas", studio = "lunar-ascent", docs = "docs/scenarios.html#lunar-ascent" }
+"kind:lunar-surface" = { page = "Capabilities", section = "atlas", studio = "lunar-surface", docs = "docs/scenarios.html#lunar-surface" }
+"kind:lunar-descent" = { page = "Capabilities", section = "atlas", studio = "lunar-descent", docs = "docs/scenarios.html#lunar-descent" }
+"kind:lunar-orbit-rendezvous" = { page = "Capabilities", section = "atlas", studio = "lunar-orbit-rendezvous", docs = "docs/scenarios.html#lunar-orbit-rendezvous" }
+"kind:mission-thread" = { page = "Capabilities", section = "atlas", studio = "mission-thread-short", docs = "docs/scenarios.html#mission-thread" }
+"scenario:clock-fitted-log" = { page = "Capabilities", section = "atlas", studio = "clock-fitted-log", docs = "docs/scenario-reference.html#clock-fitted-log" }
+"scenario:clock-measured-log" = { page = "Capabilities", section = "atlas", studio = "clock-measured-log", docs = "docs/scenario-reference.html#clock-measured-log" }
+"scenario:lunar-ascent" = { page = "Capabilities", section = "atlas", studio = "lunar-ascent", docs = "docs/scenario-reference.html#lunar-ascent" }
 "scenario:lunar-descent-lola" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-descent-lola" }
-"scenario:lunar-descent" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-descent" }
-"scenario:lunar-orbit-rendezvous-elfo" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-orbit-rendezvous-elfo" }
-"scenario:lunar-orbit-rendezvous" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-orbit-rendezvous" }
+"scenario:lunar-descent" = { page = "Capabilities", section = "atlas", studio = "lunar-descent", docs = "docs/scenario-reference.html#lunar-descent" }
+"scenario:lunar-orbit-rendezvous-elfo" = { page = "Capabilities", section = "atlas", studio = "lunar-orbit-rendezvous-elfo", docs = "docs/scenario-reference.html#lunar-orbit-rendezvous-elfo" }
+"scenario:lunar-orbit-rendezvous" = { page = "Capabilities", section = "atlas", studio = "lunar-orbit-rendezvous", docs = "docs/scenario-reference.html#lunar-orbit-rendezvous" }
 "scenario:lunar-surface-terrain" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-surface-terrain" }
-"scenario:lunar-surface" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#lunar-surface" }
+"scenario:lunar-surface" = { page = "Capabilities", section = "atlas", studio = "lunar-surface", docs = "docs/scenario-reference.html#lunar-surface" }
 "scenario:mission-thread-artemis-class" = { page = "Capabilities", section = "atlas", studio = "none", docs = "docs/scenario-reference.html#mission-thread-artemis-class" }
 "scenario:mission-thread-short" = { page = "Capabilities", section = "atlas", studio = "mission-thread-short", docs = "docs/scenario-reference.html#mission-thread-short" }
 "cli:partner" = { page = "Developers", section = "ways", studio = "none", docs = "docs/partner-data.html" }
