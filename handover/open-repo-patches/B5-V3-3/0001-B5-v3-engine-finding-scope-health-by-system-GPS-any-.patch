@@ -1,0 +1,118 @@
+From 72f7eff55e3d687fa5181df96d903da09a3646f2 Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Tue, 10 Nov 2026 23:07:18 +0000
+Subject: [PATCH] B5 v3 engine finding, scope: health by system (GPS any bit,
+ QZSS all but the L1C/A-only bit, Galileo and BeiDou not read yet)
+
+The first version of the health fix read any non-zero health as unhealthy, which dropped QZSS J01 (health 1, the
+L1C/A-only flag) in orbit::tests::constellation_from_a_real_broadcast_file_has_one_propagator_per_satellite.
+record_unhealthy now follows the published convention: GPS health != 0 (IS-GPS-200); QZSS (health & 0xFE) != 0,
+as RTKLIB's rinex.c masks it; Galileo and BeiDou not read, as before, since their bits are per signal (reading X2,
+amended). Unit test qzss_health_lsb_alone_is_not_unhealthy.
+---
+ src/pvt.rs                | 47 +++++++++++++++++++++++++++++++++++++--
+ xval/area-trust/README.md | 13 ++++++++++-
+ 2 files changed, 57 insertions(+), 3 deletions(-)
+
+diff --git a/src/pvt.rs b/src/pvt.rs
+index 502764c57..6494853c3 100644
+--- a/src/pvt.rs
++++ b/src/pvt.rs
+@@ -317,9 +317,27 @@ pub fn klobuchar_from_nav_header(text: &str) -> Option<KlobucharCoeffs> {
+     })
+ }
+ 
++/// Whether a broadcast record's health field marks the satellite unhealthy for the
++/// single-point solve (B5 v3 reading X2):
++/// - GPS: any non-zero value of the six-bit health (IS-GPS-200, 20.3.3.3.1.4: 0 means
++///   all signals OK).
++/// - QZSS: any bit but the least significant. That bit is the L1C/A-only flag, as
++///   RTKLIB's `rinex.c` reads it (it masks QZSS health with `0xFE`).
++/// - Galileo and BeiDou: never, for now. Their health bits are per signal (Galileo
++///   E1-B, E5a and E5b health and data-validity bits; BeiDou `SatH1` with its own
++///   signal flags), so the right mask depends on the signals a solve combines; that
++///   rule is left to a separate change.
++fn record_unhealthy(e: &RinexEphemeris) -> bool {
++    match e.system {
++        'G' => e.sv_health != 0.0,
++        'J' => (e.sv_health as i64) & 0xFE != 0,
++        _ => false,
++    }
++}
++
+ /// Select the broadcast ephemeris record for satellite `system`/`prn` whose
+ /// reference time `Toe` is closest to the GPS time-of-week `tow_s`, within the
+-/// fit interval [`MAX_EPH_AGE_S`]. Records whose `sv_health` is not 0 are never
++/// fit interval [`MAX_EPH_AGE_S`]. Records marked unhealthy (see `record_unhealthy`) are never
+ /// selected: a satellite with no healthy record inside the window gives `None`
+ /// and is left out of the fix (B5 v3 engine finding,
+ /// `docs/design/evidence/b5-area-trust/ENGINE-FINDING-HEALTH.md`). Week rollover
+@@ -332,7 +350,7 @@ pub fn select_ephemeris(
+ ) -> Option<&RinexEphemeris> {
+     let mut best: Option<(&RinexEphemeris, f64)> = None;
+     for e in ephs {
+-        if e.system != system || e.prn != prn || e.sv_health != 0.0 {
++        if e.system != system || e.prn != prn || record_unhealthy(e) {
+             continue;
+         }
+         let mut d = (e.toe - tow_s).abs();
+@@ -1479,6 +1497,31 @@ G01 2023 01 01 00 00 00 4.567890123456D-04 1.136868377216D-12 0.000000000000D+00
+         assert!(select_ephemeris(&[sick], 'G', 1, 174_600.0).is_none());
+     }
+ 
++    #[test]
++    fn qzss_health_lsb_alone_is_not_unhealthy() {
++        // X2: QZSS health 1 (only the L1C/A flag) keeps the record; 2 (another bit) drops it.
++        // GPS health 1 drops it. Galileo and BeiDou health is not read here yet.
++        let base = parse_nav(NAV_SAMPLE).unwrap()[0];
++        let mut j = base;
++        j.system = 'J';
++        j.toe = 172_800.0;
++        j.sv_health = 1.0;
++        assert!(!record_unhealthy(&j));
++        assert!(select_ephemeris(&[j], 'J', j.prn, 172_800.0).is_some());
++        j.sv_health = 2.0;
++        assert!(record_unhealthy(&j));
++        assert!(select_ephemeris(&[j], 'J', j.prn, 172_800.0).is_none());
++        let mut g = base;
++        g.sv_health = 1.0;
++        assert!(record_unhealthy(&g));
++        for sys in ['E', 'C'] {
++            let mut x = base;
++            x.system = sys;
++            x.sv_health = 7.0;
++            assert!(!record_unhealthy(&x));
++        }
++    }
++
+     #[test]
+     fn select_ephemeris_rejects_outside_fit_window() {
+         let base = parse_nav(NAV_SAMPLE).unwrap()[0];
+diff --git a/xval/area-trust/README.md b/xval/area-trust/README.md
+index c0b5bb026..d449eb67c 100644
+--- a/xval/area-trust/README.md
++++ b/xval/area-trust/README.md
+@@ -255,8 +255,19 @@ X1. **Diagnosis (step 1).**
+       on its own.
+ X2. **Engine finding: satellite health (coordinator's answer, 10 November).**
+     - `pvt::select_ephemeris` ignored `sv_health`. That is a fault whatever the algorithm.
+-    - It now skips records with `sv_health ≠ 0`. A satellite with no healthy record within `MAX_EPH_AGE_S` is dropped
++    - It now skips records marked unhealthy. A satellite with no healthy record within `MAX_EPH_AGE_S` is dropped
+       for that epoch. This is on by default, with no option to turn it off.
++    - **What "unhealthy" means, per system (amended 10 November, after the coordinator's test run).**
++      - **GPS:** any non-zero health value. IS-GPS-200 defines 0 as "all signals OK".
++      - **QZSS:** any bit but the least significant, `(health & 0xFE) ≠ 0`. That bit is the L1C/A-only flag;
++        RTKLIB's `rinex.c` applies the same mask. The first version of the fix read any non-zero QZSS value as
++        unhealthy, and so dropped J01 (health 1) from `BRDM00DLR_R_20130010000_01D_MN.rnx` in
++        `orbit::tests::constellation_from_a_real_broadcast_file_has_one_propagator_per_satellite`. That was a scope
++        error in the fix, not a value to re-pin.
++      - **Galileo and BeiDou:** not read, as before the fix. Their health bits are per signal (Galileo E1-B, E5a and
++        E5b health and data-validity bits; BeiDou `SatH1` with its signal flags). The right mask depends on the
++        signals a solve combines, so that rule is left to a separate change. B5 uses GPS only, so this does not
++        affect B5.
+     - Every pinned value the fix moves is listed, old and new, in
+       `docs/design/evidence/b5-area-trust/ENGINE-FINDING-HEALTH.md`. Results already scored stay published as
+       recorded, each with a dated note pointing to the finding.
+-- 
+2.43.0
+
