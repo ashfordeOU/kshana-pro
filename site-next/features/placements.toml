@@ -350,11 +350,13 @@
 "PDS" = "Planetary Data System"
 "PLI" = "phase lock indicator"
 "SISE" = "signal-in-space error"
+"TDOA" = "time difference of arrival"
+"DRMS" = "distance root mean square"
 
 [abbreviations_ignore]
 # Upper-case fragments that are not abbreviations (maths symbols, part of a formula), or whose expansion
 # the public sources do not give (left visible as warnings instead of guessed).
-tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021", "RE", "DELTA", "STAR", "EPH", "KP16", "KRAC", "LU22", "APOL", "II", "III", "B1C", "B1I", "B3I", "L1C", "L1OF", "L2OF", "L1CD", "L1CO", "L1CP", "DOP853", "OEM7", "RANGE", "GL0660B", "STR09", "PKSHT", "SB1", "BENCH", "SPEC", "FILE", "OF", "USE", "CN", "QUICK", "MM", "SS", "NAV", "AR", "AS"]
+tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021", "RE", "DELTA", "STAR", "EPH", "KP16", "KRAC", "LU22", "APOL", "II", "III", "B1C", "B1I", "B3I", "L1C", "L1OF", "L2OF", "L1CD", "L1CO", "L1CP", "DOP853", "OEM7", "RANGE", "GL0660B", "STR09", "PKSHT", "SB1", "BENCH", "SPEC", "FILE", "OF", "USE", "CN", "QUICK", "MM", "SS", "NAV", "AR", "AS", "DARK", "GAP"]
 # RE: the Earth radius symbol in a formula; DELTA, STAR: Walker pattern keywords; EPH, KP16, KRAC,
 # LU22, APOL: RINEX-4-style record names, quoted as written.
 # II, III: Roman numerals; B1C ... L1CP: signal names; DOP853: an integrator; OEM7, RANGE: a receiver and its log;
@@ -362,6 +364,7 @@ tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021",
 # CN: SPICE's converged-Newtonian aberration-correction flag (CN+S), quoted as written.
 # QUICK: a scenario label in upper case; MM, SS: fields of a date format (YYYY-MM-DDTHH:MM:SS);
 # NAV: part of the message names I/NAV, F/NAV and RINEX's NAV; AR, AS: RINEX clock record types, quoted as written.
+# DARK, GAP: verdict names of the dark-vessel decision, quoted as written.
 
 [site_tokens]
 # Identifiers the site may print that are neither features nor found in the engine repository.
@@ -998,6 +1001,13 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "validation:maximum-doppler-a-static-user-sees-from-a-leo-or-meo-orbit" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:a-leo-pnt-pass-and-its-per-band-link-budget-against-the-meo-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:named-leo-pnt-system-presets-with-stated-sources-and-a-syste" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:space-rf-geolocation-bounds-for-a-surface-emitter-seen-from-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:dark-vessel-and-ais-integrity-decisions-from-rf-fixes-agains" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:interference-source-location-from-orbit-from-a-ground-networ" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:monitoring-network-planner-detection-and-tdoa-location-accur" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:area-trust-state-from-several-reference-stations" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:interference-source-location-from-power-differences-across-f" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:texbat-spoofing-detection-benchmark-per-window-baseline-iq-s" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:low-energy-positioning-time-to-first-fix-and-energy-per-fix-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:global-average-signal-in-space-range-error-weights-for-any-o" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:galileo-icd-broadcast-ephemeris-user-algorithm-as-the-base-o" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
