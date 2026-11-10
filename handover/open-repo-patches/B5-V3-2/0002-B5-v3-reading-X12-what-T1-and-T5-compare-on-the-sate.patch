@@ -1,0 +1,30 @@
+From 66ac6cdbc6dc28c70efdc17f333612f0d78bd007 Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Tue, 10 Nov 2026 22:37:44 +0000
+Subject: [PATCH 2/2] B5 v3 reading X12: what T1 and T5 compare on the
+ satellite-fault replays (discrete bytes; horizontal errors within 1e-6 m; no
+ near-threshold or tied epochs), before any v3 engine code
+
+---
+ xval/area-trust/README.md | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/xval/area-trust/README.md b/xval/area-trust/README.md
+index 534fe4a11..c0b5bb026 100644
+--- a/xval/area-trust/README.md
++++ b/xval/area-trust/README.md
+@@ -330,3 +330,11 @@ X11. **Scoring once.**
+      - T1 to T5 are scored once, after the oracle, the engine code and the T4 selection are committed, and recorded in
+        `RESULTS-v3.md` as MET or NOT MET.
+      - A miss is pinned by a test. v1 and v2 stay published, and a v3 MET does not undo their NOT MET.
++X12. **What T1 and T5 compare on the satellite-fault replays (written with the oracle, before any v3 engine code).**
++     - `oracle_v3.py`'s default output holds only discrete fields: the flagged satellite, the station states, the
++       loss-of-lock flags and the area timeline. T1 and T5 compare these byte for byte.
++     - The horizontal errors before and after the screen (`--detail`) come from two independent iterative solves, so
++       their last bits can differ. T1 compares them within 1 × 10⁻⁶ m, and a missing fix must be missing in both.
++     - Ties in X4's median |residual| are exact equalities of floating-point values. The replays are drawn so that
++       no two candidates tie and no horizontal error lies within 1 × 10⁻⁶ m of its `H_s`. The generator checks both
++       and redraws the epoch otherwise, and says how many it redrew.
+-- 
+2.43.0
+
