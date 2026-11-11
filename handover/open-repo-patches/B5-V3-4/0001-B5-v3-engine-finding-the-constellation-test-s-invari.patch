@@ -1,0 +1,155 @@
+From 4e013e7caf4bff3bbbcc15338bb3340434ffd69f Mon Sep 17 00:00:00 2001
+From: ashfordeOU <236818772+ashfordeOU@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 01:36:31 +0000
+Subject: [PATCH] B5 v3 engine finding: the constellation test's invariant
+ under the health rule, and ENGINE-FINDING-HEALTH.md
+
+orbit::tests::constellation_from_a_real_broadcast_file_has_one_propagator_per_satellite now expects every satellite
+with at least one healthy record in the file (pvt::record_unhealthy, now crate-visible) and asserts G04 absent from
+BRDC00WRD (its only record has health 63) and J01 present in BRDM00DLR. ENGINE-FINDING-HEALTH.md records the fault,
+the per-system rule, the QZSS scope decision, the tests run (lib 3 871 plus 83 files; 4 282 passed) and the one moved
+expectation (BRDC00WRD: G01 to G32, now without G04). RESULTS-v2.md gets a dated note; its scored T4 stays as recorded.
+---
+ .../b5-area-trust/ENGINE-FINDING-HEALTH.md    | 65 +++++++++++++++++++
+ .../evidence/b5-area-trust/RESULTS-v2.md      |  7 ++
+ src/orbit.rs                                  | 13 +++-
+ src/pvt.rs                                    |  2 +-
+ 4 files changed, 84 insertions(+), 3 deletions(-)
+ create mode 100644 docs/design/evidence/b5-area-trust/ENGINE-FINDING-HEALTH.md
+
+diff --git a/docs/design/evidence/b5-area-trust/ENGINE-FINDING-HEALTH.md b/docs/design/evidence/b5-area-trust/ENGINE-FINDING-HEALTH.md
+new file mode 100644
+index 000000000..ed8de2e92
+--- /dev/null
++++ b/docs/design/evidence/b5-area-trust/ENGINE-FINDING-HEALTH.md
+@@ -0,0 +1,65 @@
++<!-- SPDX-License-Identifier: AGPL-3.0-only -->
++# Engine finding: broadcast records marked unhealthy were used (B5 v3, 10 November 2026)
++
++## What was wrong
++
++`pvt::select_ephemeris` chose, for each satellite, the broadcast record whose `Toe` is nearest the epoch, within
++`MAX_EPH_AGE_S`, whatever its health field said. A record a satellite broadcast as unhealthy therefore entered
++every single-point fix that saw the satellite.
++
++B5 v3's diagnosis (`xval/area-trust/README.md`, reading X1; `xval/area-trust/v3_diagnosis.json.gz`) found it on v2's
++scored T4 data:
++- At 10:27 on 2025-07-27 and 07-28, G11 broadcast a record marked unhealthy (health 63). The engine chose it over a
++  healthy record 60 s farther away, with residuals of up to about 1 900 km at all four stations.
++- On 2025-07-31, G14's records were marked unhealthy (health 63) from 10:44 to 14:44 and were used.
++- Each station's fix used a satellite whose record is marked unhealthy in 119 to 264 of its scored epochs.
++
++## The fix
++
++`select_ephemeris` now skips records that `record_unhealthy` marks, and a satellite with no healthy record within
++`MAX_EPH_AGE_S` is left out of the epoch. The rule is on by default, with no option to turn it off. Per system:
++
++| System | Unhealthy when | Source |
++|---|---|---|
++| GPS | health ≠ 0 | IS-GPS-200: 0 means all signals OK |
++| QZSS | `(health & 0xFE) ≠ 0` | the least significant bit is the L1C/A-only flag; RTKLIB's `rinex.c` applies the same mask |
++| Galileo, BeiDou | not read (unchanged) | their health bits are per signal, so the mask depends on the signals a solve combines; left to a separate change |
++
++**The QZSS scope decision.** The first version of the fix read any non-zero health as unhealthy. That dropped QZSS
++J01 (health 1, the L1C/A-only flag) from `BRDM00DLR_R_20130010000_01D_MN.rnx`. It was a scope error in the fix, not a
++value to re-pin, and the QZSS rule above replaced it.
++
++Unit tests: `pvt::tests::select_ephemeris_skips_unhealthy_records` and
++`pvt::tests::qzss_health_lsb_alone_is_not_unhealthy`.
++
++## What was run, and what moved
++
++The coordinator ran the tests in release mode, built from `ws/b5-v3`:
++- **Tests run:** the library's unit tests (3 871), plus the 83 test files that reach broadcast ephemerides. Those
++  are the files that use `assemble_epoch`, `select_ephemeris`, RAIM, `receiver_trust`, `area_trust`, `parse_nav`,
++  `pvt` or navigation fixtures.
++- **Result:** 4 282 passed. One expectation moved, and it is a correct change.
++- **Not run here:** the remaining test files (about 550) do not reach broadcast ephemerides. CI runs them on merge.
++
++**The one moved expectation.** `orbit::tests::constellation_from_a_real_broadcast_file_has_one_propagator_per_satellite`
++builds a constellation from `BRDC00WRD_R_20181330000_01D_GN.rnx`:
++
++| | Satellites |
++|---|---|
++| Before | G01 to G32 (32) |
++| After | G01 to G03 and G05 to G32 (31): G04 is left out |
++
++The file's only G04 record (2018-05-13 00:00) has health 63. The test's invariant was "every satellite the parser
++decodes is represented", which predates the health rule. It now reads "every satellite with at least one healthy
++record in the file is represented". The test computes that set from the parsed records with the same per-system
++rule, and asserts that G04 is absent from BRDC00WRD and that J01 is present in BRDM00DLR.
++
++No other pinned value moved.
++
++## Results already scored
++
++Scored results stay published as recorded:
++- **B5 v2 (`RESULTS-v2.md`):** its T4 was scored with the engine before this fix, and the diagnosis shows that
++  records marked unhealthy entered it. `RESULTS-v2.md` carries a dated note pointing here.
++- **B5 v1:** v1's T4 (Madrid) was not re-run under the fix.
++- **B5 v3:** its T4 runs with the fix (reading X10).
+diff --git a/docs/design/evidence/b5-area-trust/RESULTS-v2.md b/docs/design/evidence/b5-area-trust/RESULTS-v2.md
+index d1561a10b..695f68fbb 100644
+--- a/docs/design/evidence/b5-area-trust/RESULTS-v2.md
++++ b/docs/design/evidence/b5-area-trust/RESULTS-v2.md
+@@ -112,3 +112,10 @@ Epochs are 30 s. AGC, the jamming indicator, the clock monitor and OSNMA are not
+ - Any further change to the rule or to the position monitor, for example screening satellites the broadcast data
+   marks unhealthy or alarms common to every station of an area, would need a new pre-registration and a new
+   fortnight.
++
++## Note (10 November 2026): an engine finding after scoring
++
++B5 v3's diagnosis found that the engine used broadcast records marked unhealthy: G11 on 07-27 and 07-28, and G14 on
++07-31. These are among the T4 alerts above. The engine now skips such records
++(`ENGINE-FINDING-HEALTH.md`). The T4 result above was scored before the fix and stays as recorded. It was not
++re-scored.
+diff --git a/src/orbit.rs b/src/orbit.rs
+index 6c4a2071c..6dbc4a854 100644
+--- a/src/orbit.rs
++++ b/src/orbit.rs
+@@ -2049,11 +2049,14 @@ G01 2023 01 01 00 00 00 4.567890123456D-04 1.136868377216D-12 0.000000000000D+00
+                 built,
+                 keys.len()
+             );
+-            // No satellite the parsers decode is lost on the way: every distinct
+-            // (system, PRN) in the file is still represented exactly once.
++            // No usable satellite is lost on the way: every distinct (system, PRN)
++            // with at least one healthy record in the file (the per-system rule of
++            // `pvt::record_unhealthy`, B5 v3 reading X2) is represented exactly once.
++            // A satellite whose every record is marked unhealthy is left out.
+             let mut parsed: Vec<(char, u8)> = crate::rinex::parse_nav(text)
+                 .expect("nav parses")
+                 .iter()
++                .filter(|e| !crate::pvt::record_unhealthy(e))
+                 .map(|e| (e.system, e.prn))
+                 .collect();
+             parsed.extend(
+@@ -2065,6 +2068,12 @@ G01 2023 01 01 00 00 00 4.567890123456D-04 1.136868377216D-12 0.000000000000D+00
+             parsed.sort_unstable();
+             parsed.dedup();
+             assert_eq!(keys, parsed, "{name}: satellite set changed");
++            // BRDC00WRD's only G04 record has health 63, so G04 is left out; BRDM00DLR's
++            // QZSS J01 has health 1, the L1C/A-only flag, so it stays.
++            match name {
++                "BRDC00WRD" => assert!(!keys.contains(&('G', 4)), "{name}: G04 is unhealthy"),
++                _ => assert!(keys.contains(&('J', 1)), "{name}: J01 is kept"),
++            }
+         }
+     }
+ 
+diff --git a/src/pvt.rs b/src/pvt.rs
+index 6494853c3..d505cdd90 100644
+--- a/src/pvt.rs
++++ b/src/pvt.rs
+@@ -327,7 +327,7 @@ pub fn klobuchar_from_nav_header(text: &str) -> Option<KlobucharCoeffs> {
+ ///   E1-B, E5a and E5b health and data-validity bits; BeiDou `SatH1` with its own
+ ///   signal flags), so the right mask depends on the signals a solve combines; that
+ ///   rule is left to a separate change.
+-fn record_unhealthy(e: &RinexEphemeris) -> bool {
++pub(crate) fn record_unhealthy(e: &RinexEphemeris) -> bool {
+     match e.system {
+         'G' => e.sv_health != 0.0,
+         'J' => (e.sv_health as i64) & 0xFE != 0,
+-- 
+2.43.0
+
