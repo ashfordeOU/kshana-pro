@@ -5,6 +5,11 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Built on engine 0.41.0** (was 0.40.0): `kshana = "=0.41.0"` in the overlay and in Desktop
+  Pro, whose engine-version constant follows. No Pro code changed; the overlay builds `--locked`
+  and its tests pass on the published 0.41.0 crate. The Desktop Pro lockfile also gains
+  `windows-service`, which the overlay has needed since the Windows service (L5).
+
 - **macOS signing and notarisation checklist** (`docs/MACOS-NOTARISATION.md`), for both Desktop
   builds: the Apple accounts, the configuration, the build secrets Tauri 2 reads, and how to check
   a signed and notarised `.app` and `.dmg`. Nothing is signed yet; no Apple account exists.
