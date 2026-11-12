@@ -379,10 +379,12 @@ tokens = ["AA", "CXX", "TOLPL", "TWO", "LL", "MOONPA", "MOONPADE440", "EPM2021",
 # `static` and `vessel` are values of `[platform] kind` in a receiver-trust session file, not scenario kinds;
 # the four are the nmea-scenario library (scenarios/training/*.toml, run by `kshana nmea-scenario`, not
 # `kshana <scenario.toml>`), listed in docs/NMEA-TRAINING.md.
-ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "events", "bench-session", "static", "vessel", "open-sea-jamming", "coastal-drag-off", "port-approach-time-spoof", "combined-event", "fjord-natural-degradation", "lab", "holdover-test", "connect", "station", "vector", "adapter"]
+ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "events", "bench-session", "static", "vessel", "open-sea-jamming", "coastal-drag-off", "port-approach-time-spoof", "combined-event", "fjord-natural-degradation", "lab", "holdover-test", "connect", "station", "vector", "adapter", "device", "cap"]
 # 0.38: `lab.toml` (docs/EVIDENCE-PACKS.md, the --lab-attestation file) and `holdover-test.toml` (docs/TIMING-HIL.md, a shell example) are file names a reader types, not registered scenarios.
 # 0.41: `connect.toml`, `station.toml`, `vector.toml` and `adapter.toml` are the Kshana Connect mapping, station, conformance-vector and
 # adapter-manifest files a reader types in docs/CONNECT.md, docs/ADAPTERS.md and docs/COMMANDS.md, not scenarios.
+# 0.41.0: `device.toml` (docs/COMMANDS.md, a kshana.device/1 sensor file) and `cap.toml` (docs/TRUST-TELEMETRY.md, the --cap-config
+# alert configuration) are file names a reader types, not scenarios.
 
 [placements]
 # ---- kind ----
@@ -1007,6 +1009,7 @@ ignore = ["request", "campaign", "s", "generic-c-band", "--data", "session", "ev
 "validation:monitoring-network-planner-detection-and-tdoa-location-accur" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:area-trust-state-from-several-reference-stations" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:interference-source-location-from-power-differences-across-f" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
+"validation:interference-source-location-by-time-difference-of-arrival-a" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:texbat-spoofing-detection-benchmark-per-window-baseline-iq-s" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:low-energy-positioning-time-to-first-fix-and-energy-per-fix-" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }
 "validation:global-average-signal-in-space-range-error-weights-for-any-o" = { page = "Evidence", section = "ledger", studio = "none", docs = "docs/verification-matrix.html" }

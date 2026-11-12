@@ -2394,6 +2394,25 @@ NEW040_STATIC = {
     "benchmark.html": ("modelled", "kshana-bench: the 0.40 re-campaign",
         "Four pre-registered comparisons were run once after sign-off and met their bars, and every score is modelled. Three bars that were not met earlier stay not met; nothing in this release closes them and no bar is loosened.", None),
 }
+NEW041 = [
+    (None, "docs/verification-matrix.html", None, None),
+    (None, "docs/connect.html", None, None),
+    (None, "docs/station.html", None, None),
+    (None, "docs/flight-dynamics-export.html", None, None),
+    (None, "docs/kind-tip-and-cue.html", None, None),
+]
+NEW041_STATIC = {
+    "docs/verification-matrix.html": ("none", "Every signed 0.41 evidence row, scored once and published as it came out",
+        "Area trust from several stations, a monitoring-network planner, dark-vessel and AIS-integrity decisions, two jammer locators and the rest were each scored once against bars fixed before the data. Some met their bars and more did not: area trust v3 meets its false-alert bar on 26 days of IGS data but misses fault detection on synthetic data, the planner's placement search meets its bar, both jammer locators miss their synthetic gates, and on the ten TEXBAT spoofing recordings the power-and-distortion score meets its bar (AUC 0.7410 against 0.70) while the baseline IQ score misses it (0.6941). Every miss is pinned by a test and no bar was loosened.", None),
+    "docs/connect.html": ("modelled", "Kshana Connect: live inputs from mapping files",
+        "Map a CSV, JSON, MQTT, NATS or WebSocket feed onto one observation schema with a mapping file, watch a directory, or read an NTRIP caster, and record what arrives for replay.", None),
+    "docs/station.html": ("modelled", "Kshana Station: a headless receiver service",
+        "Run the receiver-trust monitors as a service on a reference station, with CAP 1.2 alerts and signed webhooks, and combine several stations into one area trust state.", None),
+    "docs/flight-dynamics-export.html": ("modelled", "Flight-dynamics export: OEM, OPM and SPK",
+        "Write a JPL Horizons state table as a CCSDS OEM or OPM or an SPK kernel and read it back; Orekit, Basilisk and ANISE read the files with the written values.", None),
+    "docs/kind-tip-and-cue.html": ("modelled", "Tip and cue: revisit and latency from RF and optical layers",
+        "A new scenario kind: a radio-frequency layer tips, an optical layer is cued, and the run gives the revisit and the latency over an area. Its cross-check against published simulation figures is not consistent with them.", None),
+}
 # The "New in" section of the Capabilities and Home pages is the current minor release's: its table, heading and lede.
 # KSHANA_NEW_SECTION=0.36 builds the 0.36 section before Cargo.toml carries 0.36.
 NEW_SECTIONS = {
@@ -2412,6 +2431,9 @@ NEW_SECTIONS = {
     "0.40": (NEW040, NEW040_STATIC, "An Artemis-class mission thread, an evidence label on every figure, and seventeen languages.",
              "Chain the phases of a lunar mission into one navigation and timing error budget, estimate where a source of degraded position reports can be, read measured clock logs, see the evidence tier on every figure a run writes, and use the command line, reports and Studio in seventeen languages. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software, not type-approved navigation equipment: the operator remains responsible.",
              "a mission thread, an evidence label on every figure, and seventeen languages"),
+    "0.41": (NEW041, NEW041_STATIC, "Live inputs, area trust, and every 0.41 result as it came out.",
+             "Bring live feeds into one observation schema, run the receiver-trust monitors as a station service, combine stations into an area trust state, plan a monitoring network, export to flight-dynamics tools, and read every evidence row signed for this release scored once, misses included.",
+             "live inputs, area trust, and every 0.41 result as it came out"),
     "0.38": (NEW038, NEW038_STATIC, "A neutral referee, a holdover test, more inputs and GNSS beyond the constellation.",
              "Score a receiver log against a published jamming-test plan, measure a holdover test against public ITU-T masks, read more receivers' and sensors' logs, open the files of an interference observatory without anyone telling you why a cell is red, and see what GNSS offers a spacecraft in a high orbit, on the way to the Moon and in lunar orbit. Every capability carries the label the ledger holds for it, and a label names only what was checked. Advisory software, not type-approved navigation equipment: the operator stays responsible. Nothing here transmits or synthesises a radio waveform.",
              "a neutral referee, a holdover test, more inputs and GNSS beyond the constellation"),

@@ -140,6 +140,7 @@ VERSION_HISTORY = [
     ("docs/search-docs.json", "drawn at engine 0.22.0", "the same sentence in the docs search index"),
     ("data/search.json", "drawn at engine 0.22.0", "the same sentence in the site search index"),
     ("docs/capability-map.html", "engine 0.35.0, 75 kinds", "the dated 2026-10-10 revision line of docs/CAPABILITY.md, kept as the history of the kind count"),
+    ("docs/capability-map.html", "engine 0.40.0, 92 kinds", "the dated 2026-10-29 revision line of docs/CAPABILITY.md, kept as the history of the kind count"),
     ("docs/tutorials.html", "kshana 0.35.0 printed", "docs/tutorials/README.md says the table is one dated run (2026-10-10), not pinned by tests, and to rerun for the current value"),
     ("docs/mcp-install.html", "0.0.1", "the Continue client's own configuration-file version in its example snippet, not the engine's"),
 ]
