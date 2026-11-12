@@ -543,7 +543,8 @@ fn the_result_carries_no_jammer_or_spoofing_field() {
 #[test]
 fn a_victim_outside_the_open_list_is_refused() {
     let plans = one_sat_plan("L", "\"generic-l\"");
-    for v in ["gps-l2c", "gps-p", "galileo-prs", "gps-m-code", "my-signal"] {
+    // GPS L2C is open since engine 0.41 (a preset and a GNSS victim), so it is no longer refused.
+    for v in ["gps-p", "galileo-prs", "gps-m-code", "my-signal"] {
         let msg = run_err(&study(&plans, &[v], LIMIT));
         assert!(
             msg.contains("refused") && msg.contains("gps-l1ca"),

@@ -23,6 +23,7 @@ pub const LEO_SIGNAL_PRESET_FILES: &[&str] = &[
     "centispace",
     "generic-c-band",
     "generic-bands",
+    "gps-l2c",
 ];
 
 /// The keys a `[[plan]]` table may carry.
