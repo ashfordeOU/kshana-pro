@@ -766,9 +766,9 @@ dependencies = [
 
 [[package]]
 name = "kshana"
-version = "0.40.0"
+version = "0.41.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "023674565b2f91c4d88abfd9bbea6862ae8487905a364453aad62665d591ba2c"
+checksum = "47ea31a58f56fa4d1150a126e7770bc4e778fbf9fcc76ab8679b137615dbd57e"
 dependencies = [
  "aes",
  "cmac",

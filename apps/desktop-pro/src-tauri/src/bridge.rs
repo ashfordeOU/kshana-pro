@@ -31,7 +31,7 @@ pub const NATIVE_FNS: &[&str] = &[
 
 /// The version of the embedded open engine (the `kshana` pin); a test checks it against
 /// the engine's own result documents.
-pub const ENGINE_VERSION: &str = "0.40.0";
+pub const ENGINE_VERSION: &str = "0.41.0";
 
 /// The keys this build verifies licences with: those compiled in, or in a debug build
 /// without any, the demo key of the Pro debug builds.
