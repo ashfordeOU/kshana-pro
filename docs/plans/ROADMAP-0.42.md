@@ -143,6 +143,21 @@ built only from public data.
 | T3 | Audit export for MiFID II RTS 25 traceability and NIST IR 8323 profiles | Pro | S | Template; sample report |
 | T4 | Timing scorecards for grandmasters and PTP networks under spoofing scenarios (with E3) | Pro | M | One public sample |
 
+### U. Desktop apps look like apps (owner, 13 November 2026: "go with A plus C palette and D as Pro home")
+
+Design canvas: claude.ai/artifact/XekCZay7m5Gcmy6pdM9MD9 (concepts A, C, D chosen; B kept as the reference for
+the Pro fleet screen). Same Studio tokens (ground, surfaces, the six domain colours, Bricolage Grotesque, Geist,
+Geist Mono); the change is structure: an app frame, not a scrolling web page.
+
+| ID | Item | Edition | Effort | Done when |
+|---|---|---|---|---|
+| U1 | **App shell (concept A)**: sidebar (Home, Runs, Scenario library, Devices, Evidence packs, Files; Pro section), document tabs in the title bar, centre view switch (map, timeline, table, JSON) with a result strip, inspector (inputs, result, export, the reproduce command), status bar (engine, devices, cores, edition, offline) | Open (free Desktop) | L | Every Studio scenario opens in a tab and runs natively; the shell is used only inside the Desktop apps, the website stays as it is |
+| U2 | **Command palette and run history (concept C)**: ⌘K for scenarios and actions (run, compare two runs, export an evidence pack, connect a receiver), Pro actions tagged; Runs table with compare | Open | M | Keyboard-only run, compare and export work; Pro actions open the upgrade screen in the free app |
+| U3 | **Desktop Pro home and licence (concept D)**: "What do you need to prove today?" with the four jobs (forensics, timing assurance, scorecard, study), recent work, licence panel (edition, seats, Stations, renewal, checked offline); replaces the plain licence page | Pro | M | Pro home opens first in Desktop Pro; licence states (none, active, expiring, expired, revoked) all drawn and tested |
+| U4 | **Desktop wording**: the apps never say "runs in your browser"; they say what runs natively and offline | Open | S | Copy check in CI for the Desktop frontend |
+| U5 | **Free-to-Pro upgrade screen** in the free Desktop (what Pro adds, link to the editions page; no checkout until S5) | Open | S | Reached from every Pro-tagged item |
+| U6 | **Pro fleet screen (concept B)** on the U1 shell, after U1 to U3 | Pro | M | Built on the Station fleet service |
+
 ### Q. Quality and platform (carried from 0.41)
 
 | ID | Item | Effort | Done when |
@@ -192,7 +207,7 @@ built only from public data.
 | 1. Connect everything | I1–I12 (connectors are independent and run in parallel) | 22 Jan 2027 |
 | 2. Evidence products | E1–E3 first, then E4–E7, with V2 before E1 is claimed | 5 Feb 2027 |
 | 3. Timing and fusion | T1–T4, F1, F3–F8 | 12 Feb 2027 |
-| 4. Platform | Q1–Q6, Q8 | 12 Feb 2027 |
+| 4. Platform and Desktop design | Q1–Q6, Q8; U1–U6 | 12 Feb 2027 |
 | 5. Release 0.42 | Code freeze, release checklist, parity, signed Desktop and Desktop Pro | **26 Feb 2027** |
 | Evidence V1–V7 | Scheduled one by one as each pre-registration is signed; never on the release's critical path | Rolling |
 
