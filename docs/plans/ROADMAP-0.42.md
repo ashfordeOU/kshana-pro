@@ -1,0 +1,249 @@
+# Kshana 0.42: plan (draft for the owner's sign-off)
+
+Status: **PROPOSED, 13 November 2026.** Nothing here is started except Phase 0 items the owner
+already ordered. Every date is an estimate. Every evidence claim follows the pre-registration rule:
+readings and oracle before code, scored once, misses published, bars never loosened.
+
+Inputs: the 0.41 roadmap (`ROADMAP-0.41-0.43.md`) and its leftovers; three research passes run on
+13 November 2026 (Kshana and Pro inventory; the commercial PNT market; defence, agencies and space);
+the owner's instructions of 13 November 2026: plan 0.42 to cover every gap, fit every segment,
+connect inside and beside every system, and **build the connector parts in the open edition and the
+main things in Pro, so customers pay**. The page version of the research is the artifact
+"Kshana 0.42 and Pro Plan" (claude.ai/artifact/Vd8UHHR5Sf1CbbzJUWx2S1, private).
+
+---
+
+## 0. The idea in one paragraph
+
+Hardware vendors sell boxes; data vendors sell maps. Nobody sells **neutral, verifiable evidence**
+that ties a real interference event to what a receiver or clock did and what it did to operations.
+Insurers, regulators, ANSPs, monitoring programmes, receiver makers and timing owners all need that
+evidence. 0.42 makes Kshana the layer that **plugs into every system** (open, free, so it spreads)
+and turns what flows through it into **decisions and evidence people pay for** (Pro and Enterprise).
+
+Kshana stays civil and commercial-first; defence is a dual-use route. Kshana is pre-revenue, with no
+customers; nothing in this plan says otherwise.
+
+---
+
+## 1. The edition rule for 0.42 (amends the F10a matrix of 7 November 2026)
+
+**Owner, 13 November 2026:** "build pro connector parts in free and main things in pro as we said
+we wanna make them pay".
+
+| Edition | What goes there | Why |
+|---|---|---|
+| **Open (AGPL, free)** | Every **reader, writer, protocol client, format exporter, schema, SDK and conformance kit**; one Station; single-run analysis; verifying any signed evidence pack; safety-relevant detection | Adoption: Kshana must connect to everything for free. A connector alone gives a customer data, not a decision |
+| **Pro (licence token)** | The **products that turn data into decisions and evidence**: forensics, scorecards, threat library content, fleet timing assurance, multi-source trust, fusion across sites, studies, signed dossiers, alert routing policies, more than one Station | This is what buyers pay for (research, §3) |
+| **Enterprise** | Running it at scale inside an organisation: HA service, SSO (OIDC, SAML), SCIM, audit log, multi-tenant, air-gapped support, retention policies, SLA | Large buyers pay for operations, not features |
+
+**Amendment to F10a:** "industry adapters beyond the top five" moves from Pro to **Open**. Every
+other F10a line stands. **Owner gate K1** confirms this amendment.
+
+**Line kept from the blueprint:** safety-relevant detection, file formats and published evidence are
+never paywalled. A free user can always detect, read, write and verify; a paying user gets the
+analysis, the evidence products, the fleet and the operations.
+
+**How the line is drawn in code:** connectors live in the open crate (`kshana::connect_*`, readers
+and writers under `src/`, SDKs under `sdk/`); Pro consumes them through the existing seam and adds
+products under `kshana-pro/src/`. A CI check in Pro fails if a Pro module re-implements a reader or
+writer that exists in the open crate (one implementation of every format).
+
+---
+
+## 2. Fit by segment: what each buyer gets free, and what they pay for
+
+| Segment | Free (Open) gets them in | They pay for (Pro / Enterprise) | Main 0.42 items |
+|---|---|---|---|
+| Maritime: owners, P&I clubs, adjusters, flag and port states | AIS and NMEA 0183/2000 readers, Signal K, OpenCPN, IEC 61162-450, single-vessel interference check | **Incident forensics pack** (claims-grade, signed), **AIS and position integrity scoring** across fleets and areas, retainers | I1, I6, E1, E5 |
+| Aviation: airlines, ANSPs, Eurocontrol | ASTERIX CAT021 (have) plus CAT010/048/062, ADS-B NIC/NACp feeds, OpenSky reader, GeoJSON/OGC layers for EFBs | **Forensics** for flights, **validated common picture** for an FIR, spoofing **training scenarios**, risk layers via API | I1, I5, E1, E2, F1 |
+| Telecom, grid, finance, data centres | linuxptp, chrony, PPS, TICC, ntpd, White Rabbit, CGGTTS (have); PTP management, SNMP from grandmasters, C37.118 (have), IEC 61850 sampled-value timing, OPC UA, Prometheus | **Timing assurance**: holdover and time-to-breach for every clock, fleet view, audit export for MiFID II RTS 25 and NIST IR 8323 | I2, I7, T1–T4 |
+| Receiver and chipset makers, anti-jam startups | UBX, SBF, NovAtel, Javad, Unicore, SBP, RTCM MSM, RINEX 2–4, Android raw (have), SigMF, GNSS-SDR | **Resilience test campaign and referee scorecard** mapped to IEEE P1952 and the DHS levels; **threat scenario library** | I3, I4, E2, E3 |
+| Simulator makers and test ranges | Scenario export to Skydel, SimGEN/PosApp, R&S, LabSat, gps-sdr-sim | **Threat library licence** (OEM), **Jammertest scoring** service | I4, E2, G4 |
+| Monitoring authorities (EU, UK, ANSPs, coast guards, MoDs) | Station (one), Connect, MQTT/NATS/Kafka, STIX/TAXII export, CAP alerts (have) | **Fusion across sites**, area trust console, geolocation (once a locator meets its gate), evidence for joint investigation, HA and multi-tenant (Enterprise) | I5, I7, F1, F2, V1 |
+| Drones, robotics, automotive | MAVLink (PX4, ArduPilot), ROS 2 (have), U-space/UTM GeoJSON layers, OSNMA verification (have) | **Pre-flight interference risk** with evidence, fleet health | I6, F1 |
+| LEO PNT operators (Xona, TrustPoint, Iridium) | Signal presets as published, open accuracy and coverage kinds | **Independent user-side verification** studies; **multi-source trust** | E4, F3 |
+| Space operators and lunar teams | CCSDS OEM/OPM/OMM/TDM/ADM, SPK, STK, SP3, GMAT/Orekit/Basilisk/ANISE (have); Yamcs, OpenMCT, COSMOS telemetry bridges | **Mission dossier**, lunar studies, **spaceborne receiver interference** assurance (Arksa Ops pillar) | I8, E4, F4 |
+| Insurers and auditors | Free verifier for any signed pack | **Scorecards**, forensics, framework evidence packs | E1, E3, E6 |
+| Agencies and research groups | Everything open, Python, notebooks | Studies, trade studies, signed dossiers; grant consortia | G2, G3 |
+
+---
+
+## 3. Workstreams
+
+Effort: S (days), M (one to three weeks), L (more). Every item has an acceptance test; nothing is
+"done" until its test is green in CI on Linux, macOS and Windows unless stated.
+
+### S. Sell what is built (Phase 0, before 0.42)
+
+| ID | Item | Edition | Effort | Done when |
+|---|---|---|---|---|
+| S1 | Pro release on engine 0.41 (Pro 0.3.0): tag, release smoke test (finishes F1b), changelog | Pro | S | Tag pushed; smoke test verifies a signed token on the released binary |
+| S2 | Signed and notarised Desktop Pro (self-hosted Mac runner), same checks as the open Desktop release | Pro | S | `codesign`, `spctl`, `stapler` pass; `.dmg` attached to a private Pro release. **Gate K2** (Apple secrets in kshana-pro) |
+| S3 | Checkout end to end in the provider's test mode: checkout, verified webhook, token issued, app unlocks, refund revokes; forged, replayed, out-of-order webhooks refused | Pro | M | CI test in test mode green. **Gate K3** (provider and test account) |
+| S4 | Price list and editions page; Sovereign stays "Contact us" in public; prices from gate K4 | Pro | S | Page live; switch still off until K4 |
+| S5 | Payments live | Pro | S | **Gate K4**: provider, prices, bank account, VAT advice |
+| S6 | Hosted trial (F3b) deployed: 14-day trial tokens only, rate-limited, no customer data kept | Pro | M | Trial token issued and expires; abuse limits tested |
+| S7 | Licence signing key custody checked against docs/LICENSING-KEYS.md (offline, backup, rotation drill) | Pro | S | Owner confirms custody; rotation drill run on a test key |
+
+### I. Interconnect: inside and beside every system (all Open)
+
+Rule: one implementation per format or protocol, in the open crate, each with conformance vectors
+and a round-trip test. Readers never configure hardware unless the user opts in (logged).
+
+| ID | Area | Items | Effort | Done when |
+|---|---|---|---|---|
+| I1 | **Maritime and aviation data** | NMEA 0183 AIVDM/AIVDO and NMEA 2000 (via canboat JSON); IEC 61162-450 UDP; ASTERIX CAT010, CAT048, CAT062 (CAT021 exists); ADS-B NIC/NACp from OpenSky and Beast/SBS; ICAO NOTAM interference notices (text to structured) | M | Each reader passes published or recorded vectors; one Signal K and one OpenSky end-to-end demo |
+| I2 | **Timing systems** | PTP management (IEEE 1588 TLVs, linuxptp pmc); SNMP polling and traps for grandmasters (generic MIB plus Meinberg, Microchip TimeProvider, Oscilloquartz where MIBs are public); IEC 61850-9-2 sampled-value timing quality; NTP (ntpq/ntpd) (have chrony); ITU-T G.8275.x profile reports | M | Readers tested on captured traffic; MTIE and holdover runs from each source |
+| I3 | **Receivers** | u-blox UBX (NAV-PVT, NAV-SAT, MON-RF, NAV-TIMEGPS, SEC-SIG), Septentrio SBF (via existing sbf-tools), NovAtel OEM binary logs, Javad GREIS, Unicore, Swift SBP, RTCM 3 MSM observations, RINEX 2.11 (3 and 4 exist) | M | Each with recorded logs from public datasets; trust verdicts identical across formats for the same epoch set |
+| I4 | **SDR, IQ and simulators** | SigMF read and write; SoapySDR capture (user-installed drivers); scenario export to Safran Skydel, Spirent SimGEN/PosApp, R&S, LabSat and gps-sdr-sim formats where the formats are public or documented to licensees | M–L | Export round trip where a reader exists; a published scenario reproduced in one simulator by a partner (G4) |
+| I5 | **Ops, IT and security systems** | Prometheus/OpenMetrics exporter; OpenTelemetry; syslog (RFC 5424) and CEF; Kafka in and out (A2 remainder); SNMP traps out; Splunk HEC, Elastic, generic webhooks (have) with templates for ServiceNow, PagerDuty, Opsgenie, Slack, Teams; STIX 2.1 objects and a TAXII 2.1 client for sharing interference indicators; CAP (have) | M | Each output validated against its schema or a reference collector; one Grafana dashboard per segment |
+| I6 | **Drones, robotics, GIS** | MAVLink (GPS_RAW_INT, GPS_STATUS, GPS2) for PX4 and ArduPilot logs and live; ROS 2 (have); GeoJSON, KML, CZML (Cesium), OGC API Features and Tiles; U-space/UTM interference layer as GeoJSON | M | Layers open in QGIS and Cesium; MAVLink tested on public flight logs |
+| I7 | **Industrial and grid control** | OPC UA client and server (read-only by default); Modbus TCP read; DNP3 read for timing alarms where public specs allow | M | Tested against open-source servers (open62541, pymodbus) |
+| I8 | **Space operations** | CCSDS ADM and OMM where missing; SP3 write; CCSDS Space Packet and XTCE for telemetry; Yamcs, OpenMCT and OpenC3 COSMOS bridges | M | Round trip via Orekit or Yamcs in CI |
+| I9 | **SDKs and languages** (A5b remainder) | Java (JNI or REST), .NET/C#, MATLAB (MEX over the C ABI), LabVIEW (via the C ABI), Julia; C, C++, Python, Go, TypeScript exist | M | Each SDK runs the same three conformance scenarios with identical bytes |
+| I10 | **Deploy anywhere** | Helm chart and Kubernetes operator; Terraform module; Docker (have); Raspberry Pi and ARM edge image for Station; cloud marketplace listings (AWS, Azure) after Pro launch | M | Station installs and reports on a Pi and on Kubernetes in CI |
+| I11 | **Agents and APIs** | MCP (53 tools, have) gains the new readers; OpenAPI 3.1 (Pro service) published for the open endpoints too | S | MCP tool list and OpenAPI validated in CI |
+| I12 | **Connect conformance kit v2** | Every connector in I1–I11 ships vectors in the kit; `kshana connect check-live` covers them | S | Kit lists every connector; a third party can run it offline |
+
+### E. Evidence products (Pro): what people pay for
+
+Each product has a pre-registered quality bar before it is claimed in public, and a public sample
+built only from public data.
+
+| ID | Product | Buyer | Effort | Done when |
+|---|---|---|---|---|
+| E1 | **Incident forensics pack**: for a vessel or flight and a time window, whether there was jamming or spoofing, where, how strong, how the receiver and AIS or ADS-B track behaved, with a signed, re-runnable report and chain of custody | P&I clubs, insurers, adjusters, flag states, owners, airlines, ANSPs | M | Public sample on one public event; pre-registered detection bars met on a labelled set (V2); report verifies offline with the free verifier |
+| E2 | **Threat scenario library** (F10h): curated real events (Baltic, Hormuz, Red Sea, Jammertest, TEXBAT) as reproducible scenarios, monthly updates, exports via I4 | Receiver makers, simulator users, crew training, test ranges | M | First 12 scenarios with provenance and licence notes; subscription feed signed |
+| E3 | **Referee scorecards and receiver resilience test report** (F10a scorecards): campaigns mapped to IEEE P1952 and the DHS resilience levels; described as test evidence only | Receiver and chipset makers, integrators, buyers comparing vendors | M | Scorecard format frozen; one campaign run on public data and published as a sample |
+| E4 | **Independent verification studies** for new PNT services (LEO, OSNMA, lunar): user-side coverage, accuracy and integrity with pre-registered bars | Xona, TrustPoint, Iridium users, Moonlight and lunar teams, agencies | S per study | Study template; one public sample on published signal data |
+| E5 | **AIS and position integrity scoring** at fleet and area scale (builds on M4) | Ports, coastal states, charterers, sanctions teams | M | Scoring API; M4 position-offset bar re-run as a new pre-registration (V3) |
+| E6 | **Framework evidence packs** (F10i): mapped to EASA SIB 2022-02R4, NIST IR 8323, DHS RPCF, IMO CL 5037, MiFID II RTS 25, EU Space Act and NIS 2 duties. Wording: "mapped to" only | Operators preparing audits | S | Six existing mappings extended; template per framework |
+| E7 | **Insurer scorecard**: a periodic, signed exposure summary for a fleet or route | Insurers, brokers | S (after E1, E5) | Template and one sample |
+
+### F. Fusion and decisions (Pro and Enterprise)
+
+| ID | Item | Edition | Effort | Done when |
+|---|---|---|---|---|
+| F1 | **Area console**: fuse Stations, receivers and third-party feeds (customer-supplied HawkEye 360, Spire, SkAI or national network data) into an area trust picture with event timelines | Pro (multi-tenant: Enterprise) | L | Two-site demo from public data; HA failover tested |
+| F2 | **Interference geolocation** in the console, using a locator only after it meets its gate (V1); until then the console shows detections and areas, never positions | Pro | (V1) | Locator meets its pre-registered gate |
+| F3 | **Multi-source trust**: choose which source to trust second by second (GNSS, OSNMA, LEO, eLoran, PTP, holdover) with evidence | Pro | L | Pre-registered switching bars (V4) on recorded data |
+| F4 | **Spaceborne receiver interference assurance** (Arksa Ops pillar): exposure of a spacecraft's GNSS receiver along its orbit | Pro | M | Study on public interference maps and TLEs |
+| F5 | **Alert policy engine**: who is told what, when, through which I5 output; quiet hours, escalation, de-duplication | Pro | S | Policies tested; free edition keeps raw alerts |
+| F6 | **Signed planned items from F10a**: planner Pareto front with cost (B1b), space tip-and-cue study (M9), Station fleet (have), HA (have) | Pro | M | B1b and M9 pass their tests |
+| F7 | **Synthetic attack IQ** (B7), licence-gated, within counsel's export approval (owner, 7 Nov) | Pro | M | Gate K6 confirmed; generator behind the licence; never in the open crate |
+| F8 | **Enterprise operations**: SSO (OIDC, SAML), SCIM, audit log export, retention, tenant isolation tests | Enterprise | M | Each with tests; tenant isolation test green |
+
+### T. Timing assurance (Pro; Kshana's best-validated family)
+
+| ID | Item | Edition | Effort | Done when |
+|---|---|---|---|---|
+| T1 | Holdover and **time-to-breach** for every clock in a mixed-vendor fleet, from I2 sources | Pro | M | Prediction bars pre-registered (V5) and scored on recorded holdover runs |
+| T2 | Fleet view in the Station console and Grafana; per-clock evidence history | Pro | S | Demo on recorded data |
+| T3 | Audit export for MiFID II RTS 25 traceability and NIST IR 8323 profiles | Pro | S | Template; sample report |
+| T4 | Timing scorecards for grandmasters and PTP networks under spoofing scenarios (with E3) | Pro | M | One public sample |
+
+### Q. Quality and platform (carried from 0.41)
+
+| ID | Item | Effort | Done when |
+|---|---|---|---|
+| Q1 | Windows: signing route (Azure Artifact Signing first; OV certificate on a cloud signing service as fallback), MSI run (L5) | M | Signed MSI installs on windows-2022 in CI. **Gate K5** (Windows signing account, runner billing) |
+| Q2 | Linux packages installed and tested on Ubuntu, Fedora, Raspberry Pi OS (L6) | S | Install tests green |
+| Q3 | Coverage job under four hours without dropping any test (split into shards and merge the reports) | M | Two consecutive runs under 4 h; line floor unchanged |
+| Q4 | Galileo and BeiDou health bits read in the broadcast-health rule | S | Tests on real navigation files |
+| Q5 | Arksa moves to engine 0.41 (D-K5), with Alpha | M | Arksa CI green on the pinned 0.41 package |
+| Q6 | Public roadmap (J4), neutral wording, no Pro method detail | S | `ROADMAP.md` updated |
+| Q7 | Pro planning docs corrected: Apple account exists and signing works (open repo, 12 Nov) | S | MACOS-NOTARISATION.md and the 0.41 roadmap line updated |
+| Q8 | Homebrew, Scoop and winget at 0.42 (noreply identity fixed in d1c954408) | S | Parity shows all three |
+| Q9 | Release readiness: the i18n and pages checks run before Auto-tag (so a release cannot ship with a red site check, as happened at 0.41.0) | S | Auto-tag waits on the i18n workflow too |
+
+### V. Evidence rows (each pre-registered and signed before any data)
+
+| ID | Row | Note |
+|---|---|---|
+| V1 | Locator successor (B3c): matched correlation refinement and a σ that includes it; periodic-waveform handling; bounded solver step. Gate on synthetic data, then Jammertest 2027 real data as already pre-registered for B3a/B3b | Unlocks F2 |
+| V2 | E1 forensics detection bars on a labelled set (public events plus synthetic) | Before E1 is claimed |
+| V3 | M4 position-offset bar, new method | v3 miss stays published |
+| V4 | Multi-source switching bars | Before F3 is claimed |
+| V5 | Holdover time-to-breach prediction bars on recorded clocks | Before T1 is claimed |
+| V6 | E5 v3 spoofing benchmark and B5 v4 area trust, only where a new method is written down first | Misses stay published |
+| V7 | C2 and C3 Artemis rows: re-scope or close with a written reason | No silent drop |
+
+### G. Go-to-market and funding (owner-led; drafts by the Kshana seat)
+
+| ID | Item | Route | Timing |
+|---|---|---|---|
+| G1 | First paying design partner for E1 or E3 (Pack A, gate J5) | Direct | Dec–Jan |
+| G2 | ESA BIC Estonia application (≈€60k) and FutureNAV call for ideas | ESA | From Nov 2026 |
+| G3 | Consortium for Horizon Europe CL5-2027-06-D6-11 (PNT resilience and e-conspicuity, €5–7M, closes 7 Oct 2027) | EU | Partner search from Jan |
+| G4 | One simulator OEM (licence E2 scenarios through I4 exports) and one LEO operator (E4) | Direct | Q1 2027 |
+| G5 | Two Baltic pilots: an ANSP and a maritime authority (E1, E5, F1) | National tenders / pilots | Q1 2027 |
+| G6 | One P&I club or average adjuster conversation (E1, E7) | Direct | Q1 2027 |
+| G7 | EDF 2027 SME call and NATO DIANA: only after the legal checks in K7 | EU / NATO | 2027 |
+| G8 | Eurocontrol and EU interference-monitoring subcontracts (watch tenders; offer F1 analytics) | Tender / subcontract | Rolling |
+
+---
+
+## 4. Phases and dates (estimates)
+
+| Phase | Content | Target |
+|---|---|---|
+| 0. Paid launch (0.41.x, Pro 0.3.0) | S1–S7, Q7, Q9 | 18 Dec 2026 (S5 when K4 clears) |
+| 1. Connect everything | I1–I12 (connectors are independent and run in parallel) | 22 Jan 2027 |
+| 2. Evidence products | E1–E3 first, then E4–E7, with V2 before E1 is claimed | 5 Feb 2027 |
+| 3. Timing and fusion | T1–T4, F1, F3–F8 | 12 Feb 2027 |
+| 4. Platform | Q1–Q6, Q8 | 12 Feb 2027 |
+| 5. Release 0.42 | Code freeze, release checklist, parity, signed Desktop and Desktop Pro | **26 Feb 2027** |
+| Evidence V1–V7 | Scheduled one by one as each pre-registration is signed; never on the release's critical path | Rolling |
+
+If the owner wants one release as in 0.41, Phases 1 to 4 run in parallel and merge to main when
+green (build order "all together" of 7 November still applies).
+
+---
+
+## 5. Owner gates
+
+| Gate | Decision | Default if no answer |
+|---|---|---|
+| K1 | Confirm the 0.42 edition rule (all connectors open; products in Pro; operations in Enterprise), amending F10a | Apply it to new connectors; leave existing code as is until confirmed |
+| K2 | Apple secrets into kshana-pro (steps given 12 Nov) | Desktop Pro stays unsigned |
+| K3 | Payment provider (Paddle recommended) and a test account | Checkout stays untested |
+| K4 | Prices (June proposal as a starting list), bank account, VAT advice | Payments stay off |
+| K5 | Windows signing account and runner billing | Windows builds stay unsigned and unrun |
+| K6 | B7 attack IQ export position (counsel's approval stands as stated 7 Nov) | B7 not built |
+| K7 | Legal checks: EDF third-country-control test with an individual non-EU shareholder; NAVISP eligibility via the Estonian Space Office; whether to form an Indian entity for iDEX and IN-SPACe | No EDF, NAVISP or Indian bids |
+| K8 | Lead product: E1 forensics (recommended) or E3 scorecards | E1 first |
+| K9 | Sign this plan and its dates | Phase 0 only |
+
+---
+
+## 6. KPIs for 0.42 (measured at release)
+
+| KPI | 0.41 | Target 0.42 |
+|---|---|---|
+| Connectors with conformance vectors | ~25 (est.; count at Phase 1 start) | +40 |
+| Systems demonstrated end to end (Signal K, OpenSky, Grafana, Yamcs, QGIS, PX4, a grandmaster, a simulator) | 4 (est.) | 12 |
+| Pro products sellable with a public sample | 0 | 4 (E1, E2, E3, T1) |
+| Paying customers or design partners | 0 | 1–3 |
+| Rows promoted to VALIDATED or PARTNER | 176 | +10, only through signed pre-registrations |
+| Signed, notarised downloads | Desktop (macOS) | Desktop and Desktop Pro (macOS); Windows if K5 clears |
+
+---
+
+## 7. What stays out of 0.42
+
+- Avionics or maritime type-approval work, and any claim beyond test evidence.
+- Galileo PRS, US SBIR, UK iX and ESA Celeste routes (eligibility, research of 13 Nov).
+- Reverse-engineering closed vendor formats; only public or licensee-documented formats.
+- Anything that configures or transmits on a radio without an explicit, logged opt-in.
+- Defence-only products; Kshana stays civil and commercial-first.
+
+---
+
+## 8. Sources
+
+Internal: `ROADMAP-0.41-0.43.md`; `docs/strategy/PRO-ARKSA-IP-DEEP-DIVE.md`;
+`docs/strategy/PRICING-PROPOSAL.md`; `docs/gtm/ICP-AND-TARGET-LIST.md`; `src/license/mod.rs`;
+open engine `docs/CAPABILITY.md`, `docs/CONNECT.md`, `CHANGELOG.md` [0.41.0].
+External figures and links: the research page (artifact Vd8UHHR5Sf1CbbzJUWx2S1) and
+`records/ops/kshana/plan-0.42/` in VCprep.
