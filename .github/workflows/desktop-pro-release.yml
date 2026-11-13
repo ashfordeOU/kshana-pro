@@ -16,6 +16,11 @@ on:
         required: true
         default: v0.41.0
         type: string
+      frontend_ref:
+        description: "Optional open-repository branch or tag to take the Studio frontend from instead (test builds, e.g. main). Leave empty for a release."
+        required: false
+        default: ""
+        type: string
 permissions:
   contents: write # a private draft release holds the signed disk image
 concurrency:
@@ -28,6 +33,7 @@ jobs:
     timeout-minutes: 120
     env:
       OPEN_TAG: ${{ inputs.open_tag }}
+      FRONTEND_REF: ${{ inputs.frontend_ref }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@1.93.0
@@ -40,11 +46,17 @@ jobs:
           pin="$(grep -E '^kshana = "=' apps/desktop-pro/src-tauri/Cargo.toml | sed -E 's/.*"=([^"]+)".*/\1/')"
           [ "v$pin" = "$OPEN_TAG" ] || { echo "::error::Desktop Pro pins kshana $pin, the open tag is $OPEN_TAG"; exit 1; }
           echo "VERSION=$(python3 -c 'import json;print(json.load(open("apps/desktop-pro/src-tauri/tauri.conf.json"))["version"])')" >> "$GITHUB_ENV"
-      - name: Stage the frontend from the open repository at the tag
+      - name: Stage the frontend from the open repository at the tag (or the test ref)
         run: |
           set -euo pipefail
+          REF="${FRONTEND_REF:-$OPEN_TAG}"
+          printf '%s' "$REF" | grep -Eq '^[A-Za-z0-9._/-]+$' || { echo "::error::'$REF' is not a branch or tag name"; exit 1; }
           rm -rf open-repo
-          git clone --depth 1 --branch "$OPEN_TAG" https://github.com/ashfordeOU/kshana open-repo
+          git clone --depth 1 --branch "$REF" https://github.com/ashfordeOU/kshana open-repo
+          SUFFIX=""
+          if [ -n "$FRONTEND_REF" ]; then SUFFIX="-ui-$(git -C open-repo rev-parse --short=9 HEAD)"; fi
+          echo "frontend: kshana $REF at $(git -C open-repo rev-parse HEAD)"
+          echo "SUFFIX=$SUFFIX" >> "$GITHUB_ENV"
           apps/desktop-pro/build-frontend.sh "$PWD/open-repo"
       - name: Import the Developer ID Application identity into a temporary keychain
         env:
@@ -107,7 +119,7 @@ jobs:
           xcrun stapler validate "$DMG"
           spctl --assess --type open --context context:primary-signature --verbose=2 "$DMG"
           OUT="$RUNNER_TEMP/out"; rm -rf "$OUT"; mkdir -p "$OUT"
-          NAME="Kshana-Desktop-Pro-${VERSION}-engine-${OPEN_TAG#v}-macos-universal.dmg"
+          NAME="Kshana-Desktop-Pro-${VERSION}-engine-${OPEN_TAG#v}${SUFFIX}-macos-universal.dmg"
           cp "$DMG" "$OUT/$NAME"
           (cd "$OUT" && shasum -a 256 "$NAME" > "$NAME.sha256" && cat "$NAME.sha256")
           echo "OUT=$OUT" >> "$GITHUB_ENV"
@@ -120,11 +132,11 @@ jobs:
           # Actions storage. A draft release is visible only to people with access to this private repository.
           KEEP="$HOME/kshana-releases/desktop-pro"; mkdir -p "$KEEP"; cp "$OUT"/* "$KEEP"/
           echo "copy on this Mac: $KEEP"
-          TAG="desktop-pro-${VERSION}-engine-${OPEN_TAG#v}"
+          TAG="desktop-pro-${VERSION}-engine-${OPEN_TAG#v}${SUFFIX}"
           if command -v gh >/dev/null 2>&1; then
             gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
               || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft --target "$GITHUB_SHA" \
-                   --title "Kshana Desktop Pro ${VERSION} (engine ${OPEN_TAG}), macOS, signed and notarised" \
+                   --title "Kshana Desktop Pro ${VERSION} (engine ${OPEN_TAG}${SUFFIX}), macOS, signed and notarised" \
                    --notes "Private draft. Built by the Desktop Pro release workflow, run ${GITHUB_RUN_ID}."
             gh release upload "$TAG" "$OUT"/* --repo "$GITHUB_REPOSITORY" --clobber
             echo "draft release: $TAG"
