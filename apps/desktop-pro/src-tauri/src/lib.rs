@@ -1,6 +1,6 @@
 // PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //! Kshana Desktop Pro: the Studio in a native window with the Pro overlay, unlocked by
-//! the Desktop licence; a licence page at `pro/licence.html`.
+//! the Desktop licence; the Pro home and licence screen in `pro/desktop/` (0.42 U3).
 
 pub mod bridge;
 

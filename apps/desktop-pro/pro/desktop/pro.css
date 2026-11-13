@@ -1,0 +1,106 @@
+/* PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
+   Kshana Desktop Pro: the Pro home and licence screen (0.42 U3, concept D). On the open
+   Desktop shell it adds to shell.css and uses the same tokens (../tokens.css: ground,
+   surfaces, ink, the domain colours; Bricolage Grotesque, Geist, Geist Mono). The Pro
+   accent is the shell's --pro (#9C7DFF in the dark theme). The block at the end gives the
+   standalone page (home.html, used when the staged open tag has no shell) the shell's base. */
+:root{--pro:var(--spf);--pro-ok:var(--itg);--pro-warn:var(--nav);--pro-bad:var(--int)}
+
+/* ---------- sidebar and status bar ---------- */
+.brand .pro-tag{margin-left:-2px}
+.nav-item .soon{margin-left:auto;font:10px var(--f-mono);letter-spacing:.06em;color:var(--ink-3)}
+.nav-item .lic-dot{margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
+.lic-dot.ok{background:var(--pro-ok)} .lic-dot.warn{background:var(--pro-warn)} .lic-dot.bad{background:var(--pro-bad)}
+.pro-edition{border-color:color-mix(in srgb,var(--pro) 35%,var(--line));background:linear-gradient(135deg,color-mix(in srgb,var(--pro) 9%,var(--surface)),var(--surface))}
+.pro-edition b{color:var(--ink)}
+
+/* ---------- Pro home ---------- */
+.pro-page{max-width:1240px}
+.pro-home{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}
+.pro-main{min-width:0}
+.pro-side{position:sticky;top:0;display:flex;flex-direction:column;gap:12px}
+.pro-page h1{font:700 30px/1.1 var(--f-display);letter-spacing:-.015em}
+.jobs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.job{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:16px 18px;text-align:left;display:flex;flex-direction:column;gap:6px;color:var(--ink);min-height:118px;transition:border-color .15s,background .15s}
+.job:hover{border-color:color-mix(in srgb,var(--pro) 55%,var(--line-2));background:color-mix(in srgb,var(--pro) 5%,var(--surface))}
+.job b{font:600 15px var(--f-display)}
+.job .job-text{color:var(--ink-2);font-size:12.5px}
+.job .job-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.job .job-top svg.i{width:20px;height:20px;color:var(--pro)}
+.job.coming .job-top svg.i{color:var(--ink-3)}
+.job .job-kinds{font-size:11px;color:var(--ink-3);margin-top:auto}
+.state-chip{font:10px var(--f-mono);letter-spacing:.06em;border:1px solid currentColor;border-radius:6px;padding:1px 6px;color:var(--ink-3);white-space:nowrap}
+.state-chip.ok{color:var(--pro-ok)} .state-chip.warn{color:var(--pro-warn)} .state-chip.bad{color:var(--pro-bad)}
+.product h3 .state-chip{margin-left:auto}
+.product h3 svg.i{color:var(--pro)}
+
+/* ---------- licence ---------- */
+.lic-card{gap:10px}
+.pro-page .lic-card .lic-head h2{margin:0;font:600 15px var(--f-display)}
+.lic-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lic-badge{font:10.5px var(--f-mono);letter-spacing:.07em;border-radius:6px;padding:2px 8px;border:1px solid currentColor;color:var(--ink-3)}
+.lic-badge.ok{color:var(--pro-ok);background:color-mix(in srgb,var(--pro-ok) 10%,transparent)}
+.lic-badge.warn{color:var(--pro-warn);background:color-mix(in srgb,var(--pro-warn) 10%,transparent)}
+.lic-badge.bad{color:var(--pro-bad);background:color-mix(in srgb,var(--pro-bad) 10%,transparent)}
+.lic-headline{margin:0;color:var(--ink);font-size:13px}
+.lic-rows{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:7px 14px;margin:2px 0 0;font-size:12.5px}
+.lic-rows dt{color:var(--ink-3);font:11px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;padding-top:2px}
+.lic-rows dd{margin:0;color:var(--ink);overflow-wrap:anywhere}
+.lic-rows dd.mono{font:11.5px var(--f-mono);color:var(--ink-2)}
+.lic-warning{margin:0;padding:8px 10px;border-radius:8px;border-left:3px solid var(--ink-3);background:var(--surface-2);color:var(--ink-2);font-size:12.5px}
+.lic-warning.warn{border-left-color:var(--pro-warn)} .lic-warning.bad{border-left-color:var(--pro-bad)}
+.lic-grid{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:16px;align-items:start}
+.lic-actions{display:flex;flex-direction:column;gap:12px;min-width:0}
+.pro-page .lic-actions .card h2{margin:0;font:600 15px var(--f-display)}
+.lic-actions textarea{width:100%;font:12px var(--f-mono);background:var(--bg);color:var(--ink);border:1px solid var(--line-2);border-radius:var(--r,8px);padding:8px 10px;resize:vertical}
+.lic-result{margin:0;min-height:1.2em;font-size:12.5px;color:var(--ink-2)}
+.lic-result.ok{color:var(--pro-ok)} .lic-result.bad{color:var(--pro-bad)}
+.btn.danger{color:var(--pro-bad);border-color:color-mix(in srgb,var(--pro-bad) 45%,var(--line-2))}
+label.btn{cursor:pointer}
+label.btn[aria-disabled="true"]{opacity:.5;cursor:default;pointer-events:none}
+
+@media (max-width:1100px){
+  .pro-home{grid-template-columns:minmax(0,1fr)}
+  .pro-side{position:static;order:-1}
+  .lic-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:640px){.jobs{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- standalone page (no open shell in the staged tag) ---------- */
+body.pro-standalone{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 var(--f-text);-webkit-font-smoothing:antialiased;overflow:auto;height:auto}
+.pro-standalone *{box-sizing:border-box}
+.pro-standalone button,.pro-standalone input,.pro-standalone textarea{font:inherit;color:inherit}
+.pro-standalone button{cursor:pointer}
+.pro-standalone :focus-visible{outline:2px solid var(--tim);outline-offset:2px;border-radius:6px}
+.pro-standalone [hidden]{display:none !important}
+.pro-standalone .mono{font-family:var(--f-mono)}
+.pro-standalone .vh{position:absolute !important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.pro-standalone svg.i{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pro-standalone .top{display:flex;align-items:center;gap:14px;height:48px;padding:0 20px;background:var(--bg-2);border-bottom:1px solid var(--line)}
+.pro-standalone .top b{font:700 17px var(--f-display)}
+.pro-standalone .top nav{display:flex;gap:4px;margin-left:16px}
+.pro-standalone .top nav a{padding:6px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none}
+.pro-standalone .top nav a[aria-current="page"]{background:var(--surface-2);color:var(--ink)}
+.pro-standalone .grow{flex:1}
+.pro-standalone a{color:var(--ink-2)}
+.pro-standalone .page{padding:28px 32px 40px;margin:0 auto;width:100%}
+.pro-standalone .page h1{margin:0 0 6px}
+.pro-standalone .page h2{margin:28px 0 10px;font:600 15px var(--f-display)}
+.pro-standalone .lede{margin:0 0 20px;color:var(--ink-2);font-size:14px;max-width:70ch}
+.pro-standalone .kicker{font:10.5px var(--f-mono);letter-spacing:.08em;color:var(--ink-3);margin:0 0 8px;text-transform:uppercase}
+.pro-standalone .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.pro-standalone .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.pro-standalone .card h3{margin:0;font:600 14px var(--f-display);display:flex;align-items:center;gap:8px}
+.pro-standalone .card p{margin:0;color:var(--ink-2)}
+.pro-standalone .btn{height:30px;padding:0 14px;border-radius:8px;border:1px solid var(--line-2);background:var(--surface);display:inline-flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap;color:var(--ink);text-decoration:none}
+.pro-standalone .btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+.pro-standalone .btn:disabled{opacity:.5;cursor:default}
+.pro-standalone .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pro-standalone .linkish{border:0;background:none;padding:0;color:var(--ink);font-weight:500;font-size:12.5px;text-align:left;text-decoration:underline;text-underline-offset:3px}
+.pro-standalone .empty{color:var(--ink-3);padding:18px;border:1px dashed var(--line-2);border-radius:12px;margin:0}
+.pro-standalone .copyline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pro-standalone .copyline code{font:12px var(--f-mono);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;overflow-wrap:anywhere}
+.pro-standalone .pro-tag{font:10.5px var(--f-mono);color:var(--pro);border:1px solid color-mix(in srgb,var(--pro) 50%,transparent);border-radius:6px;padding:1px 6px;letter-spacing:.04em}
+.pro-standalone .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
+.pro-standalone .toast.on{opacity:1}
+.pro-standalone .top button{border:0;background:none;color:var(--ink-2);padding:6px}

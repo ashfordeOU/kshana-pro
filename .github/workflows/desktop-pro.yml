@@ -1,5 +1,6 @@
 name: Desktop Pro
-# Kshana Desktop Pro (apps/desktop-pro): format, clippy and the bridge and licence tests.
+# Kshana Desktop Pro (apps/desktop-pro): the Pro home tests (node), format, clippy and the bridge
+# and licence tests.
 # The frontend is staged from the open repository when it carries the Desktop client;
 # otherwise a placeholder page, which is enough to compile and test the native side.
 on:
@@ -27,8 +28,13 @@ jobs:
           else
             echo "the open repository has no Desktop client yet: placeholder frontend"
             mkdir -p apps/desktop-pro/dist && cp -r apps/desktop-pro/pro apps/desktop-pro/dist/pro
-            echo '<!doctype html><meta charset="utf-8"><title>Kshana Desktop Pro</title>' > apps/desktop-pro/dist/index.html
+            echo '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=pro/home.html"><title>Kshana Desktop Pro</title>' > apps/desktop-pro/dist/index.html
           fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Pro home and licence screen (node tests)
+        run: node --test apps/desktop-pro/pro/desktop/*.test.mjs
       - name: Format
         run: cargo fmt --manifest-path apps/desktop-pro/src-tauri/Cargo.toml -- --check
       - name: Clippy

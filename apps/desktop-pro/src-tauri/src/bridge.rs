@@ -99,6 +99,11 @@ pub fn status_json(st: &Status) -> Value {
         "expires_unix": l.map(|l| l.claims.expires_unix),
         "products": l.map(kshana_pro::license::activation::products_covered),
         "seats": l.map(|l| l.claims.seats),
+        // The licence's own tier (the entitlement above falls to Evaluation once it lapses),
+        // the Stations it allows and whether it is bound to one machine: for the Pro home.
+        "licence_tier": l.map(|l| l.claims.tier.clone()),
+        "stations": l.map(|l| l.claims.stations),
+        "machine_bound": l.map(|l| l.claims.machine.is_some()),
         "token_id": l.map(|l| l.token_id.clone()),
         "warning": st.warning,
     })
@@ -237,6 +242,10 @@ mod tests {
         let s = activate_in(&st, &token(&["desktop"], "pro"), t).unwrap();
         assert_eq!(s["tier"], "pro");
         assert_eq!(s["licensee"], "Desk Lab");
+        assert_eq!(s["licence_tier"], "pro");
+        assert_eq!(s["seats"], 2);
+        assert_eq!(s["stations"], 0);
+        assert_eq!(s["machine_bound"], false);
         let ent = status_in(&st, t).entitlement;
         let out = call("run", &[json!(PRO_SCENARIO)], &ent, t).unwrap();
         assert!(out.as_str().unwrap().contains("MODELLED"));

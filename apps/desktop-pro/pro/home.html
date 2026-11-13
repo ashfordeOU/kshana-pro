@@ -1,0 +1,32 @@
+<!doctype html>
+<!-- PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE. -->
+<!-- Kshana Desktop Pro, standalone home and licence (0.42 U3): the first page when the staged open
+     tag has no Desktop shell (apps/desktop/shell). With the shell, the same Pro home and licence
+     screen are drawn inside it by desktop/overlay.mjs. #licence opens the licence screen. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Kshana Desktop Pro</title>
+<script src="desktop/boot.js"></script>
+<link rel="stylesheet" href="../fonts/bricolage-grotesque-geist-geist-mono.css">
+<link rel="stylesheet" href="../studio/tokens.css">
+<link rel="stylesheet" href="desktop/pro.css">
+</head>
+<body class="pro-standalone">
+<header class="top">
+  <b>Kshana</b><span class="pro-tag">PRO</span>
+  <nav aria-label="Main">
+    <a href="#" id="nav-home">Home</a>
+    <a href="#licence" id="nav-licence">Licence</a>
+    <a href="../studio/index.html">Studio</a>
+  </nav>
+  <span class="grow"></span>
+  <button type="button" id="btn-theme" aria-label="Switch between light and dark" title="Switch between light and dark"></button>
+</header>
+<main id="view" tabindex="-1"></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="desktop/standalone.mjs"></script>
+</body>
+</html>
