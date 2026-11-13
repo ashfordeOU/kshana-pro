@@ -7,12 +7,12 @@
 :root{--pro:var(--spf);--pro-ok:var(--itg);--pro-warn:var(--nav);--pro-bad:var(--int)}
 
 /* ---------- sidebar and status bar ---------- */
-.brand .pro-tag{margin-left:-2px}
+.brand .pro-tag,.brand .ext-tag{margin-left:-2px}
 .nav-item .soon{margin-left:auto;font:10px var(--f-mono);letter-spacing:.06em;color:var(--ink-3)}
 .nav-item .lic-dot{margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
 .lic-dot.ok{background:var(--pro-ok)} .lic-dot.warn{background:var(--pro-warn)} .lic-dot.bad{background:var(--pro-bad)}
-.pro-edition{border-color:color-mix(in srgb,var(--pro) 35%,var(--line));background:linear-gradient(135deg,color-mix(in srgb,var(--pro) 9%,var(--surface)),var(--surface))}
-.pro-edition b{color:var(--ink)}
+.pro-edition,.ext-edition{border-color:color-mix(in srgb,var(--pro) 35%,var(--line));background:linear-gradient(135deg,color-mix(in srgb,var(--pro) 9%,var(--surface)),var(--surface))}
+.pro-edition b,.ext-edition b{color:var(--ink)}
 
 /* ---------- Pro home ---------- */
 .pro-page{max-width:1240px}

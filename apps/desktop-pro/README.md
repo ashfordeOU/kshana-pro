@@ -16,7 +16,12 @@ in (roadmap F10e). A separate download: the free build carries no Pro code
   the Pro home ("What do you need to prove today?": the four jobs, the session's recent runs,
   the Pro products, the licence card). The licence screen is a Pro page in the shell; the
   sidebar, status bar and ⌘K / Ctrl+K palette carry the Pro entries and the licence read from
-  the app. Without the shell (an older open tag) the window opens `pro/home.html`, the same
+  the app. A shell with the open extension API (`window.KshanaShell`, the open
+  `apps/desktop/README.md` "Extending the shell") gets these parts through it
+  (`pro/desktop/hook.mjs`: a registered home that replaces the shell's home and upgrade
+  views, a licence view, a sidebar section, a palette group, status items and the edition);
+  an older shell without the API gets them by its markup, re-applied after each render
+  (`overlay.mjs`). Without the shell (an older open tag) the window opens `pro/home.html`, the same
   home and licence screen on their own. The licence comes only from the app's commands
   (`licence_status`, `licence_activate`, `licence_deactivate`, `licence_machine_id`,
   `upgrade_offer`, `engine_call list_kinds`); a licence file is read in the page and activated

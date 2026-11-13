@@ -2,7 +2,11 @@
 // Kshana Desktop Pro on the open Desktop shell (0.42 U3). The open shell (the open
 // repository's apps/desktop/shell, staged as studio/desktop/) is used unchanged; the Pro
 // build adds this module and pro.css to the staged copy of its index.html
-// (apps/desktop-pro/build-frontend.sh). It then:
+// (apps/desktop-pro/build-frontend.sh).
+//
+// A shell with the extension API (window.KshanaShell, announced by "kshana-shell-ready")
+// gets the Pro parts through it (hook.mjs). For an older shell without it, this module keeps
+// its first way, below: it reads the shell's markup and re-applies after each render. Both:
 //   - turns the shell's Home into the Pro home (concept D), keeping the shell's own recent
 //     runs table and scenario grid inside it, so the runs shown are the session's real runs;
 //   - adds the licence screen as a Pro page in the centre view;
@@ -10,11 +14,12 @@
 //     status bar with the licence actually read from the app;
 //   - adds Pro rows to the ⌘K / Ctrl+K palette (mouse and arrow keys);
 //   - shows the Pro home where the free shell shows its upgrade screen.
-// The shell rebuilds its regions on every render; a MutationObserver re-applies the Pro
-// parts each time. Nothing here changes how the shell runs scenarios.
+// On an older shell, which rebuilds its regions on every render, a MutationObserver re-applies
+// the Pro parts each time. Nothing here changes how the shell runs scenarios.
 import { appInvoke, licenceApi } from "./api.mjs";
 import { proActions, actionMatches, palStep } from "./model.mjs";
 import { h, ic, createProState, proHome, licenceScreen } from "./ui.mjs";
+import { SIDE, toneColor, canAttach, attachToShell } from "./hook.mjs";
 
 const $ = (id) => document.getElementById(id);
 const api = licenceApi(appInvoke());
@@ -101,13 +106,6 @@ function paintView(force) {
 }
 
 // ------------------------------------------------------------------ sidebar and status bar
-const SIDE = [
-  { id: "forensics", icon: "forensics", label: "Incident forensics" },
-  { id: "timing", icon: "timing", label: "Timing assurance" },
-  { id: "scorecard", icon: "scorecards", label: "Scorecards" },
-  { id: "study", icon: "dossiers", label: "Studies" },
-  { id: "fleet", icon: "fleet", label: "Station fleet", coming: true },
-];
 function decorateSidebar(force) {
   const nav$ = $("sidebar");
   if (!nav$) return;
@@ -150,7 +148,7 @@ function decorateStatus(force) {
   if (!grow) return;
   const after = [];
   for (let n = grow.nextElementSibling; n; n = n.nextElementSibling) if (n.classList.contains("st")) after.push(n);
-  const tone = { ok: "var(--itg)", warn: "var(--nav)", bad: "var(--int)", none: "var(--ink-3)" }[S.view.tone];
+  const tone = toneColor(S.view.tone);
   const ed = h("span", { class: "st", "data-pro": "1" }, h("span", { class: "dot", style: `--c:${tone}` }), S.read ? S.view.statusText : "Reading the licence…");
   const chk = h("span", { class: "st", "data-pro": "1", text: S.view.state === "unavailable" ? "Licence not read" : "Licence checked on this machine" });
   if (after[0]) after[0].replaceWith(ed); else grow.after(ed);
@@ -240,6 +238,7 @@ function leaveOnShellNav(e) {
   R.route = null;
 }
 
+// The markup path, for a shell without the extension API.
 function start() {
   if (!$("app") || !$("view") || !$("sidebar")) return false;
   document.documentElement.dataset.edition = "pro";
@@ -258,4 +257,28 @@ function start() {
   setInterval(refresh, 10 * 60 * 1000); // a licence can lapse while the window is open
   return true;
 }
-start();
+
+// ------------------------------------------------------------------ which way
+let mode = null;
+function startHook(shell) {
+  if (mode || !canAttach(shell)) return false;
+  const pro = attachToShell(shell, { S, api });
+  if (!pro) return false;
+  mode = "hook";
+  document.documentElement.dataset.edition = "pro";
+  document.documentElement.dataset.proOverlay = "hook";
+  pro.refresh();
+  setInterval(pro.refresh, 10 * 60 * 1000); // a licence can lapse while the window is open
+  return true;
+}
+function startMarkup() {
+  if (mode) return;
+  if (start()) { mode = "markup"; document.documentElement.dataset.proOverlay = "markup"; }
+}
+if (!startHook(globalThis.KshanaShell)) {
+  // A shell that loads after this module announces itself; one that ran before it and did not
+  // (an older shell) has no API, so the markup path starts once the page's scripts have run.
+  addEventListener("kshana-shell-ready", (e) => startHook(e.detail), { once: true });
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startMarkup, { once: true });
+  else startMarkup();
+}
