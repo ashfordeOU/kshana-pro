@@ -37,6 +37,20 @@ we wanna make them pay".
 | **Pro (licence token)** | The **products that turn data into decisions and evidence**: forensics, scorecards, threat library content, fleet timing assurance, multi-source trust, fusion across sites, studies, signed dossiers, alert routing policies, more than one Station | This is what buyers pay for (research, §3) |
 | **Enterprise** | Running it at scale inside an organisation: HA service, SSO (OIDC, SAML), SCIM, audit log, multi-tenant, air-gapped support, retention policies, SLA | Large buyers pay for operations, not features |
 
+### 1a. Fourth tier: Arksa-exclusive (owner, 14 November 2026)
+
+Owner: Kshana Pro parts that make Arksa powerful must not be public or sold to anyone; they are scoped so they strengthen Arksa, not anyone who uses Kshana. Decisions: every item in the Kshana-in-Arksa report gets its own build row (register: claude.ai/artifact/RTiCstDuuNopBKgh7b9FgN §13, 273 rows); space-mission jobs are Arksa-exclusive; the lunar packs are Arksa-exclusive; the referee (E4) engine is Arksa-exclusive while its signed reports may be sold.
+
+| Tier | Rule | Examples |
+|---|---|---|
+| **Open** | As above | formats, connectors, reference models, lunar time library, threat-scenario library |
+| **Pro (sold to anyone)** | Products for markets that do not compete with Arksa | maritime/aviation forensics (E1), insurer evaluations, telecom/finance timing (T1–T3 ground), receiver scorecards (E3), trade study, uncertainty, batch, scenario CI, twin |
+| **Arksa-exclusive Pro** | Any job that designs, proves, approves or operates a spacecraft. Private code; unlocked only by an `arksa` entitlement claim that only Arksa's issuer signs; never runs under a standalone Pro token; never shipped in Desktop Pro on a customer device (runs server-side or in contracted Arksa Sovereign installs) | F4 spaceborne interference exposure; E4 referee engine (space part); T1 for spacecraft clocks; PNT and time passport; covariance quality; threat-aware planning; anomaly attribution; lunar packs (time budget, beacon placement, observability, signal security, lunar OED); pro-mbse, pro-design-optimise, pro-spectrum-coexistence, pro-optical-rf-hybrid, pro-realtime-frame-eop; mission dossier, ECSS VCD, GSN, SysML/ReqIF, NAV-DT twin and NAVEX codec, MRD; M-workstream space RF survey |
+| **Core** | Never shipped; Arksa servers only; patent before disclosure | P1–P5; constellation-as-sensor (B6) |
+| **Enterprise** | As above (operations) | SSO, SCIM, audit, HA |
+
+Build items this adds: token claim `arksa` and refusal test (a standalone Pro token cannot run an Arksa-exclusive kind); signed tier manifest (D-K10) listing kinds per tier; Desktop Pro build excludes Arksa-exclusive and Core code (binary symbol check in CI); Arksa MCP catalogue exposes Arksa-exclusive kinds, the public Kshana MCP does not. Anything already published stays public.
+
 **Amendment to F10a:** "industry adapters beyond the top five" moves from Pro to **Open**. Every
 other F10a line stands. **Owner gate K1** confirms this amendment.
 
