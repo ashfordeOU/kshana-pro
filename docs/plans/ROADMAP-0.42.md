@@ -158,6 +158,47 @@ Geist Mono); the change is structure: an app frame, not a scrolling web page.
 | U5 | **Free-to-Pro upgrade screen** in the free Desktop (what Pro adds, link to the editions page; no checkout until S5) | Open | S | Reached from every Pro-tagged item |
 | U6 | **Pro fleet screen (concept B)** on the U1 shell, after U1 to U3 | Pro | M | Built on the Station fleet service |
 
+**Status 14 Nov:** U1, U2 and U5 on kshana main (f52f4e10c); extension hook `window.KshanaShell` (66a537b60); U3 on kshana-pro main (7c008b33, hook path 7c2c7512); signed test build ui-88321a33b given to the owner. U4 open: the classic Studio tool pages inside the app still say "runs in your browser".
+
+#### U, continued: the instrument (owner, 13–14 Nov: "we keep all"; look and real-world maps added)
+
+Vision: claude.ai/artifact/K3KuWpfUwjX2isPouDjhbM. Look and maps: claude.ai/artifact/DZwzwqAzPrhrwLjHqY3j4N. Edition rule as in section 1: connectors, formats and SDK open; evidence and decision products Pro; operations Enterprise.
+
+**In 0.42**
+
+| ID | Item | Edition | Effort | Done when |
+|---|---|---|---|---|
+| U7 | **Time cursor and linked views**: one clock across map, sky plot, plots, inspector and log; range select narrows every view; bookmarks; J/K/L, space, M keys | Open | L | Scrubbing 24 h of 1 Hz data at 60 fps in a Playwright frame test; every view follows the cursor |
+| U8 | **Runs kept on disk and project files** (`.kshana` folder: scenarios, data links, runs, notebooks, layouts); search, tags, pins, notes | Open | M | Close and reopen restores tabs, runs and selection; recipe replay gives bit-identical results |
+| U9 | **Drop anything in**: RINEX, UBX, NMEA, SP3, clock logs, IQ, folders; format detective shows format, span, constellations and gaps before loading | Open | M | Every format the engine reads opens by drag and drop; unknown files get a clear message |
+| U10 | **Code mirror console**: every GUI action writes its Python or CLI line; "copy the script that makes this" on every figure | Open | M | Pasting the console history into Python reproduces the session's runs |
+| U11 | **Explain this number** for headline results: model, inputs with hashes, assumptions, sensitivity, evidence class and oracle | Open | L | Available on every result that has a capability row; links to the method page |
+| U12 | **Markers and delta markers** on all plots, with readouts in the inspector | Open | S | Keyboard and mouse; markers show on the map at the same instant |
+| U13 | **Figure export** in journal styles (IEEE, ION, AIAA) as SVG, PDF, PNG | Open | S | Exported figures match the on-screen data exactly |
+| U14 | **Look**: colour roles (domain, evidence, constellation, trust scale), symbol set (12 symbols), Geist Mono numbers with units and uncertainty, Comfortable and Compact density | Open | M | Visual regression screenshots per view; colour-blind check passes |
+| U15 | **2D map on the time cursor**: Night ops and Chart styles, Natural Earth offline base, scale bar and projection always shown | Open | L | Opens with no network; map, plots and sky plot agree at every instant |
+| U16 | **Sky plot with trails**, masks and per-satellite health colours | Open | S | Matches engine geometry at sampled epochs |
+| U17 | **Ship and aircraft connectors** (AIS and ADS-B files; reported vs estimated tracks) | Open | M | Public sample files load; licence of each sample checked |
+| U18 | **Shell in 18 languages**, same i18n checks as the Studio | Open | M | i18n check covers apps/desktop/shell |
+| U19 | **Signed evidence packs** and **incident replay v1** on the map (reported vs estimated, trust shading, forensics pack) | Pro | L | V2 bars met before E1 is claimed; pack verifies with the public verifier |
+
+**In 0.43** (planned; not committed for 0.42)
+
+| ID | Item | Edition |
+|---|---|---|
+| U20 | Dockable panes, saved layouts per job, pop-out windows, presentation and focus modes | Open |
+| U21 | Sweep studio (two-axis sweeps, Monte Carlo on all cores, failure map, open any cell as a run) | Open |
+| U22 | Run diff (recipe and results aligned on one time axis) | Open |
+| U23 | Embedded Python console bound to the project; lab notebook with PDF, HTML and Jupyter export; cite button | Open |
+| U24 | Globe with orbits, stations and coverage; imagery and terrain; offline region packs; follow mode; Bridge (red) mode | Open |
+| U25 | Spectrum and waterfall for IQ; Allan deviation, TIE/MTIE and Stanford plots | Open |
+| U26 | Live AIS and ADS-B connectors | Open |
+| U27 | Station fleet (U6), receiver scorecards, review mode, report builder, area trust on the map | Pro |
+| U28 | Team library, single sign-on, roles, audit log, always-on watch walls | Enterprise |
+| U29 | Course mode, paper reproduction kits, assistant (planned) | Open |
+
+Map building blocks (proposed): MapLibre GL (BSD-3), deck.gl (MIT), CesiumJS (Apache-2.0) with our own terrain and imagery sources, PMTiles offline packs; positions always from the engine. Data-source licences (AIS, ADS-B, imagery) are checked before anything ships.
+
 ### Q. Quality and platform (carried from 0.41)
 
 | ID | Item | Effort | Done when |
