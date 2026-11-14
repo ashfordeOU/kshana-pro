@@ -104,15 +104,18 @@ thread_local! {
 
 /// While alive, every text face of a document rendered on this thread is the embedded
 /// Unicode face ([`crate::brand_pdf::unicode_font`]) instead of a standard font (roadmap
-/// F8c). Dropping it restores the standard fonts.
+/// F8c). Dropping it restores the standard fonts. Used by the mission dossier only.
+#[cfg(feature = "arksa")]
 pub(crate) struct UnicodeFace(bool);
 
+#[cfg(feature = "arksa")]
 impl UnicodeFace {
     pub(crate) fn on() -> UnicodeFace {
         UnicodeFace(UNICODE_FACE.with(|f| f.replace(true)))
     }
 }
 
+#[cfg(feature = "arksa")]
 impl Drop for UnicodeFace {
     fn drop(&mut self) {
         let prev = self.0;

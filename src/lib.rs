@@ -34,16 +34,23 @@ pub mod batch;
 pub mod benefits;
 pub mod brand_pdf;
 pub mod connectors;
+pub mod criterion;
+#[cfg(feature = "arksa")]
 pub mod design;
 pub mod lab_campaign;
 pub mod license;
+#[cfg(feature = "arksa")]
 pub mod lunar_oed;
+#[cfg(feature = "arksa")]
 pub mod mbse;
+#[cfg(feature = "arksa")]
 pub mod mission;
+#[cfg(feature = "arksa")]
 pub mod mrd;
 pub mod pack_c;
 pub mod packs;
 pub mod payments;
+pub mod pdf_text;
 pub mod premium;
 pub mod pro_study;
 pub mod registry;
@@ -56,9 +63,11 @@ pub mod report_pack_c;
 pub mod report_pdf;
 pub mod serve;
 pub mod signed_dossier;
+#[cfg(feature = "arksa")]
 pub mod spectrum_coexistence;
 pub mod study_dossier;
 pub mod study_ledger;
+pub mod units;
 mod util;
 
 // Value layers — gated stubs (seam guards only; no proprietary capability is built

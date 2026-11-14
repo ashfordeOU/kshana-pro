@@ -95,6 +95,15 @@ jobs:
           cargo tauri --version 2>/dev/null || cargo install tauri-cli --version "^2" --locked
           cd apps/desktop-pro/src-tauri
           cargo tauri build --target universal-apple-darwin --bundles app,dmg
+      # Roadmap 0.42 X4: before the disk image is signed and kept, the whole app bundle (binary
+      # and resources) must carry no Arksa-exclusive or Core name, and the binary must be
+      # stripped. A match is printed by term ID only (protect/private-terms.txt).
+      - name: Arksa and Core symbol check on the app bundle (X4)
+        run: |
+          set -euo pipefail
+          B=apps/desktop-pro/src-tauri/target/universal-apple-darwin/release/bundle
+          APP="$(ls -d "$B"/macos/*.app | head -1)"
+          scripts/protect/symbol-check.sh --require-stripped "$APP"
       - name: Check the app; sign, notarise and staple the disk image; check it
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}

@@ -54,3 +54,36 @@ When payments go live (F10g, owner gate 12), the webhook service issues tokens w
 person. It gets its own key pair, added to the builds as a second trusted key. If the
 service is compromised, only that key is retired; tokens issued by hand are unaffected.
 Its private key is held in the service's secret store, never in a repository.
+
+## 5. The Arksa issuer key (roadmap 0.42 X1)
+
+Tokens carrying the `arksa` claim unlock the Arksa-exclusive kinds (docs/PROTECTION.md).
+Only Arksa's issuer signs them, with a key pair of its own, kept apart from the Pro
+licence key:
+
+* The private key is created and kept like the primary (section 1: offline, encrypted
+  drive, two backups), by Arksa's issuer, never by the Pro vendor's issuing process, the
+  payments service or continuous integration, and never in a repository.
+* Its public key goes only into builds made with the `arksa` feature (Arksa servers and
+  contracted Arksa Sovereign installs), through `KSHANA_PRO_ARKSA_ISSUER_PUBKEY` at build
+  time. Default builds, the packages and Desktop Pro have no Arksa issuer slot filled, so
+  they refuse every token that carries the claim.
+* Tokens are made with `license::issue_arksa`. A token carrying the claim verifies only
+  under this key; a Pro key cannot grant it.
+* Rotation and exposure follow section 3: add the new key to the builds, reissue, retire the
+  old key ID (the retired list applies to the issuer keys as well).
+* The repository holds only a placeholder public key (`PLACEHOLDER_ARKSA_ISSUER_PUBKEY`), a
+  test key whose private half is in the tests. A release build never trusts it.
+
+## 6. The tier manifest key (roadmap 0.42 X2)
+
+The signed tier manifest (`commercial/tier-manifest.json`) states the edition of every Pro
+kind; each build verifies it at start-up.
+
+* A separate Ed25519 key pair, kept like the primary (section 1). Sign the manifest on the
+  offline machine whenever it changes (Ed25519 over the exact file bytes, hex).
+* A release build sets `KSHANA_PRO_TIER_MANIFEST_PUBKEY` (the public key) and
+  `KSHANA_PRO_TIER_MANIFEST_SIG` (the signature of the manifest being built).
+* The committed signature is made with a test key (public half
+  `PLACEHOLDER_MANIFEST_PUBKEY`, private half only in `tests/tier_manifest.rs`); it serves
+  development and continuous integration only.

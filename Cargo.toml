@@ -19,6 +19,11 @@ path = "src/main.rs"
 
 [features]
 default = []
+# Arksa-exclusive kinds and commands (roadmap 0.42, section 1a; docs/PROTECTION.md). OFF by
+# default: the default build, every release package and Desktop Pro compile WITHOUT them, and
+# scripts/protect/symbol-check.sh fails a release binary that carries any of their names. Only
+# server-side Arksa builds and contracted Arksa Sovereign installs enable it.
+arksa = []
 
 [dependencies]
 # The open AGPL-3.0-only engine, consumed as a dependency — NEVER forked. Pro is a
@@ -111,3 +116,10 @@ lopdf = { version = "0.39", default-features = false, features = ["time"] }
 # A number for a customer or a publication comes from a release build.
 [profile.dev.package.kshana]
 opt-level = 3
+
+# Release builds carry no symbol table and no debug information (roadmap 0.42 X4): a shipped
+# binary names no function of the overlay. The binary check (scripts/protect/symbol-check.sh)
+# still scans strings, because stripping does not remove string literals or panic paths.
+[profile.release]
+strip = "symbols"
+debug = false

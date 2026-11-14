@@ -5,6 +5,19 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Arksa-exclusive tier and its protection (roadmap 0.42, X1, X2, X4, X5; docs/PROTECTION.md).**
+  Licence tokens gain an optional `arksa` claim, honoured only under a separate Arksa issuer key
+  slot (old tokens verify unchanged). Every Pro kind and feature has an edition tier
+  (open-seam, pro, arksa, core) in a signed tier manifest (`commercial/tier-manifest.json`,
+  verified at start-up; unknown kinds refused; Arksa-exclusive entries by hash only). The nine
+  Arksa-exclusive kinds and the `mbse`, `design`, `coexist`, `mission`, `navdt`, `spacestream` and
+  `mrd` commands compile only with the new cargo feature `arksa` (off by default) and refuse any
+  token without the claim, with a message that names no method. Release builds are stripped;
+  `scripts/protect/symbol-check.sh` fails CI, Desktop Pro and package builds that carry an
+  Arksa-exclusive or Core name; `scripts/protect/open-leak-gate.sh` and the "Open-repository leak
+  gate" workflow scan the open repository for private terms (reported by ID only). The Pack C
+  criterion grammar and unit parser moved to `src/criterion.rs` and `src/units.rs`.
+
 - **Built on engine 0.41.0** (was 0.40.0): `kshana = "=0.41.0"` in the overlay and in Desktop
   Pro, whose engine-version constant follows. No Pro code changed; the overlay builds `--locked`
   and its tests pass on the published 0.41.0 crate. The Desktop Pro lockfile also gains

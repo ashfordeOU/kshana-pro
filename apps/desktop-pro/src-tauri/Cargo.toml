@@ -23,6 +23,8 @@ path = "src/main.rs"
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
+# Default features only: Desktop Pro never carries the Arksa-exclusive kinds (feature `arksa`
+# stays off; docs/PROTECTION.md). scripts/protect/symbol-check.sh checks the built app.
 kshana-pro = { path = "../../.." }
 kshana = "=0.41.0"
 tauri = { version = "2", features = [] }
@@ -35,3 +37,8 @@ custom-protocol = ["tauri/custom-protocol"]
 
 [profile.dev.package.kshana]
 opt-level = 3
+
+# Stripped release builds (roadmap 0.42 X4): no symbol table, no debug information.
+[profile.release]
+strip = "symbols"
+debug = false

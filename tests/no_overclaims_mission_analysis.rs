@@ -8,6 +8,9 @@
 //! invariants: a violation fails the pipeline. They check *classification/labelling*
 //! only — they never fabricate validation.
 
+// Arksa-exclusive (docs/PROTECTION.md): runs only in a build with the `arksa` feature.
+#![cfg(feature = "arksa")]
+
 use kshana::verification::{OracleKind, VerificationStatus};
 use kshana_pro::benefits::{benefits_case, fom_provenance, FomSpec};
 use kshana_pro::mrd::{mrd_table, resolve_verification, Availability, FomSource};

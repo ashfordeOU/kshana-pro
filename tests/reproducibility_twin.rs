@@ -12,6 +12,9 @@
 //!   determinism**; their byte-identical cross-platform reproduction rests on the
 //!   open core's reproducibility invariant (its own `cross_platform_golden` suite).
 
+// Arksa-exclusive (docs/PROTECTION.md): runs only in a build with the `arksa` feature.
+#![cfg(feature = "arksa")]
+
 use kshana_pro::connectors::spacestream::{golden_messages, SpaceStreamMessage};
 use kshana_pro::report::{build_report, GateCheck};
 use kshana_pro::twin::navdt::run_navdt_bundle;

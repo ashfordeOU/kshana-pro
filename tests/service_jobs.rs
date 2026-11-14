@@ -36,6 +36,7 @@ fn enterprise() -> Entitlement {
         tier: Tier::Enterprise,
         expires_unix: 0,
         features: vec![],
+        arksa: false,
     }
 }
 
@@ -45,6 +46,7 @@ fn evaluation_named() -> Entitlement {
         tier: Tier::Evaluation,
         expires_unix: 0,
         features: vec![],
+        arksa: false,
     }
 }
 

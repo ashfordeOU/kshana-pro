@@ -97,6 +97,12 @@ nineteen registered in [`src/registry.rs`](src/registry.rs), with their tiers, c
 `cargo run -- kinds`. `tests/readme_counts.rs` fails the build if the pack count written
 here stops matching the registry.
 
+**Editions (roadmap 0.42, section 1a).** Nine of the nineteen are **Arksa-exclusive**: they
+compile only with the cargo feature `arksa` (off by default, so the default build, every
+package and Desktop Pro carry none of them) and run only under a licence token with the
+`arksa` claim from Arksa's issuer. The edition of every kind is in a signed tier manifest
+verified at start-up. Details, checks and what remains: [docs/PROTECTION.md](docs/PROTECTION.md).
+
 | Pack (`kind`) | Layer | What it does | Min tier | State |
 |---------------|-------|--------------|----------|-------|
 | `pro-seam-check` | P0 | Smallest real `ExternalPack` — exercises the whole overlay contract end-to-end | Evaluation (free) | ✅ built + tested |
@@ -271,7 +277,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **forty-four integration tests** in
+The suite is unit tests across every module plus **forty-seven integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,

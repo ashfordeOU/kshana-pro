@@ -334,7 +334,7 @@ impl StudyPdf {
             self.pages.push(Vec::new());
         }
         let mark = crate::brand_pdf::PdfMark::new(
-            crate::mission::pdf::ascii(title),
+            crate::pdf_text::ascii(title),
             crate::brand_pdf::content_id(&self.pages),
         );
         let pages = crate::brand_pdf::dress(self.pages, footer, &mark, brand::sample());

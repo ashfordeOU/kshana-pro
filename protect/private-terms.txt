@@ -1,0 +1,118 @@
+# PRIVATE: Kshana Pro, Arksa-exclusive and Core term list (roadmap 0.42, X4 and X5).
+# Never copy this file, or any line of it, into the open repository, a public issue, a
+# public log or a public page. The checks report a match by term ID (the first 12 hex
+# characters of the SHA-256 of the term), never by the term itself.
+#
+# One term per line, matched as a fixed string, case-sensitive. Sections:
+#   [arksa]          Arksa-exclusive names. Checked in every shipped binary and bundle (X4,
+#                    scripts/protect/symbol-check.sh) and in the open repository (X5).
+#   [core]           Kshana Core names. Same checks as [arksa].
+#   [arksa-pending]  Arksa-exclusive names whose code is still compiled into the default
+#                    build because a sold Pro product uses it (moves out with X3; see
+#                    docs/PROTECTION.md). Checked in the open repository only, until then.
+#   [pro]            Pro module names and method terms. Checked in the open repository only
+#                    (a Pro binary carries them by design).
+
+[arksa]
+pro-mbse
+pro-design-optimise
+pro-spectrum-coexistence
+pro-lunar-signal-security
+pro-beacon-placement
+pro-lunar-time-budget-study
+pro-cislunar-observability-study
+pro-optical-rf-hybrid-study
+pro-realtime-frame-eop-study
+pro-mission-dossier
+pro-navdt
+pro-spacestream
+pro-mrd
+MbseScenario
+DesignOptimiseScenario
+SpectrumCoexistenceScenario
+LunarSignalSecurityScenario
+BeaconPlacementScenario
+LunarTimeBudgetStudyScenario
+CislunarObservabilityStudyScenario
+OpticalRfHybridStudyScenario
+RealtimeFrameEopStudyScenario
+kshana-pro-mission-dossier-manifest
+src/mbse/
+src/mission/
+src/design/
+src/spectrum_coexistence/
+src/lunar_oed.rs
+src/mrd.rs
+src/connectors/spacestream.rs
+mbse_pack
+design_optimise_pack
+spectrum_coexistence_pack
+lunar_signal_security_pack
+beacon_placement_pack
+lunar_time_budget_study_pack
+cislunar_observability_study_pack
+optical_rf_hybrid_study_pack
+realtime_frame_eop_study_pack
+kshana_pro::mbse
+kshana_pro::mission
+kshana_pro::design
+kshana_pro::spectrum_coexistence
+kshana_pro::lunar_oed
+kshana_pro::mrd
+SpaceStreamMessage
+lunar_oed
+spacestream
+
+[core]
+kshana-core
+kshana_core
+
+[arksa-pending]
+NavDtBundle
+run_navdt_bundle
+src/twin/navdt.rs
+GsnArgument
+src/suite/gsn.rs
+src/suite/vcd.rs
+
+[pro]
+kshana_pro
+PROPRIETARY — Kshana Pro
+pro-seam-check
+pro-trade-study
+pro-batch
+pro-scenario-ci
+pro-signed-dossier
+pro-study-dossier
+pro-station-fleet
+pro-service-ha
+pro-desktop
+pro-beacon-dop
+pro-surface-beacon-dop-study
+pro-conflict-resilience-study
+pro-quantum-systematics
+pro-optimism-gap-audit
+pro-twin
+pro-uncertainty
+TwinScenario
+TradeStudyScenario
+BatchScenario
+UncertaintyScenario
+SeamCheckPack
+OptimismGapAuditScenario
+QuantumSystematicsScenario
+BeaconDopScenario
+SurfaceBeaconDopStudyScenario
+ConflictResilienceStudyScenario
+LicenseClaims
+KSHANA_PRO_
+study_dossier
+signed_dossier
+study_ledger
+report_pack_a
+report_pack_c
+lab_campaign
+detector_intake
+brand_pdf
+report_brand
+tier-manifest

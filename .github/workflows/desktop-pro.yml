@@ -6,7 +6,7 @@ name: Desktop Pro
 on:
   push:
     branches: [main]
-    paths: ["apps/desktop-pro/**", "src/license/**", "src/registry.rs", "commercial/payments.toml", ".github/workflows/desktop-pro.yml"]
+    paths: ["apps/desktop-pro/**", "src/**", "Cargo.toml", "commercial/payments.toml", "commercial/tier-manifest.json*", "protect/**", "scripts/protect/**", ".github/workflows/desktop-pro.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -41,3 +41,11 @@ jobs:
         run: cargo clippy --manifest-path apps/desktop-pro/src-tauri/Cargo.toml --all-targets -- -D warnings
       - name: Test
         run: cargo test --manifest-path apps/desktop-pro/src-tauri/Cargo.toml
+      # Roadmap 0.42 X4: Desktop Pro ships to customer devices, so its release build must carry
+      # no Arksa-exclusive or Core name (the overlay is linked with default features only) and
+      # must be stripped. A match is printed by term ID only (protect/private-terms.txt).
+      - name: Release build and Arksa/Core symbol check (X4)
+        run: |
+          set -euo pipefail
+          cargo build --release --manifest-path apps/desktop-pro/src-tauri/Cargo.toml
+          scripts/protect/symbol-check.sh --require-stripped apps/desktop-pro/src-tauri/target/release/kshana-pro-desktop

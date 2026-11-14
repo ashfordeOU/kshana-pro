@@ -40,6 +40,7 @@ fn start(d: &Path, t: TrialConfig) -> ServerHandle {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: false,
         },
     );
     cfg.data_dir = Some(d.to_path_buf());

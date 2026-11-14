@@ -168,7 +168,7 @@ pub fn produced_with() -> String {
     format!(
         "Produced with Kshana Pro {} on the open Kshana engine v{}",
         crate::version(),
-        crate::design::engine_version()
+        engine_version()
     )
 }
 
@@ -471,6 +471,26 @@ pub fn modelled_banner_html(detail: &str) -> String {
         body = FONT_BODY,
         detail = xml(detail),
     )
+}
+
+/// The version the embedded open engine reports.
+pub fn engine_version() -> String {
+    static VERSION: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    VERSION
+        .get_or_init(|| {
+            // The smallest open run that states its engine version.
+            let probe = "kind = \"clock\"\nseed = 1\nthreshold_ns = 20.0\n[time]\nstep_s = 10.0\nduration_s = 20.0\n[gnss]\nwindows = [ { t0 = 0.0, t1 = 20.0, state = \"nominal\" } ]\n[clock_quantum]\nid = \"probe\"\nprovenance = \"version probe\"\ny0 = 0.0\nq_wf = 1.0e-20\nq_rw = 0.0\n[clock_classical]\nid = \"probe\"\nprovenance = \"version probe\"\ny0 = 0.0\nq_wf = 1.0e-20\nq_rw = 0.0\n";
+            kshana::api::run_scenario(probe)
+                .ok()
+                .and_then(|o| serde_json::from_str::<serde_json::Value>(&o.json).ok())
+                .and_then(|v| {
+                    v.get("engine_version")
+                        .and_then(|e| e.as_str())
+                        .map(str::to_string)
+                })
+                .unwrap_or_else(|| "(unreported)".to_string())
+        })
+        .clone()
 }
 
 #[cfg(test)]

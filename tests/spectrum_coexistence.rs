@@ -7,6 +7,9 @@
 //! typed in, except the four coefficients the open document states for the public Xona
 //! Pulsar X5 signal (test 2), which are the published cross-check of what is read.
 
+// Arksa-exclusive (docs/PROTECTION.md): runs only in a build with the `arksa` feature.
+#![cfg(feature = "arksa")]
+
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -592,7 +595,11 @@ fn the_licence_gate_refuses_evaluation_and_runs_with_dev() {
     let src = study(&one_sat_plan("L", "\"generic-l\""), &["gps-l5"], LIMIT);
     let eval = Entitlement::evaluation();
     let e = kshana_pro::registry::run_gated(&src, &eval, 0).unwrap_err();
-    assert!(e.to_string().contains("requires the"), "{e}");
+    assert!(
+        e.to_string()
+            .contains(kshana_pro::license::tiers::NOT_IN_THIS_EDITION),
+        "{e}"
+    );
 
     let dir = tmp("licence");
     let study_path = dir.join("study.toml");
@@ -609,7 +616,8 @@ fn the_licence_gate_refuses_evaluation_and_runs_with_dev() {
         .output()
         .unwrap();
     assert!(!no.status.success());
-    assert!(String::from_utf8_lossy(&no.stderr).contains("requires the"));
+    assert!(String::from_utf8_lossy(&no.stderr)
+        .contains(kshana_pro::license::tiers::NOT_IN_THIS_EDITION));
     assert!(
         !out_dir.exists(),
         "nothing is written without an entitlement"

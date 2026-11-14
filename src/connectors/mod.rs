@@ -19,6 +19,8 @@
 use kshana::api::KshanaError;
 
 /// SpaceStream — the versioned, aggregated-metrics-only NAVEX→NAV-DT interface (A09).
+// Arksa-exclusive (docs/PROTECTION.md): compiled only with the `arksa` feature.
+#[cfg(feature = "arksa")]
 pub mod spacestream;
 
 /// The subset of an open `ephemeris` result sample the connectors need. Unknown

@@ -20,6 +20,7 @@ fn enterprise() -> Entitlement {
         tier: Tier::Enterprise,
         expires_unix: 0,
         features: vec![],
+        arksa: false,
     }
 }
 

@@ -8,6 +8,9 @@
 //! design re-run stand-alone, the link-budget front against the closed form, and the
 //! search kernel against an analytic problem with a known front.
 
+// Arksa-exclusive (docs/PROTECTION.md): runs only in a build with the `arksa` feature.
+#![cfg(feature = "arksa")]
+
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -824,10 +827,12 @@ fn the_binary_refuses_the_study_without_a_licence_and_runs_it_with_dev() {
     let out = bin().arg("run").arg(&path).output().unwrap();
     assert!(!out.status.success());
     let err = String::from_utf8_lossy(&out.stderr);
+    // Arksa-exclusive (roadmap 0.42 X1): the refusal names no kind and no method.
     assert!(
-        err.contains("'pro-design-optimise' requires the 'enterprise' tier; current license tier is 'evaluation'"),
+        err.contains(kshana_pro::license::tiers::NOT_IN_THIS_EDITION),
         "{err}"
     );
+    assert!(!err.contains("design-optimise"), "{err}");
     assert!(!err.contains("licensee"), "{err}");
     assert!(
         !err.contains("no license)"),
@@ -858,7 +863,10 @@ fn the_binary_refuses_the_study_without_a_licence_and_runs_it_with_dev() {
         .unwrap();
     assert!(!out.status.success());
     let err = String::from_utf8_lossy(&out.stderr);
-    assert!(err.contains("requires the 'enterprise' tier"), "{err}");
+    assert!(
+        err.contains(kshana_pro::license::tiers::NOT_IN_THIS_EDITION),
+        "{err}"
+    );
     assert!(!err.contains("no license)"), "{err}");
     assert!(!d.join("design.result.json").exists());
 

@@ -694,7 +694,7 @@ impl ConflictResilienceStudyScenario {
                 "mc_vs_closed_form_max_residual": tagged(json!(m.mc_closed_form_max_residual), Tag::Validated),
                 "inverse_variance_fuse_identity_residual": tagged(json!(m.fuse_identity_residual), Tag::Validated),
                 "copula_rho0_vs_independent_residual": tagged(json!(m.copula_rho0_residual), Tag::Validated),
-                "note": "The conflict-resilience FOM has no separate oracle-registration seam in the registry; per the repo's established pattern (see optical_rf_hybrid_study_pack) the Validated oracle residuals are surfaced here in the result document.",
+                "note": "The conflict-resilience FOM has no separate oracle-registration seam in the registry; per the repo's established pattern for study packs the Validated oracle residuals are surfaced here in the result document.",
             },
             "per_vector_survival": {
                 "reference_intensity": m.reference_intensity,

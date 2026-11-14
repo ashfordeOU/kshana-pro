@@ -120,6 +120,7 @@ fn roles_tenants_and_the_audit_log() {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: false,
         },
     );
     cfg.data_dir = Some(data.clone());
@@ -260,6 +261,7 @@ fn metrics_are_tenant_scoped() {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: false,
         },
     );
     cfg.data_dir = Some(data);
@@ -323,6 +325,7 @@ fn saved_studies_and_share_links() {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: false,
         },
     );
     cfg.data_dir = Some(data.clone());

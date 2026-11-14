@@ -11,6 +11,9 @@
 //! could silently diverge. If anyone edits the table without regenerating the doc,
 //! or hand-edits the generated block, this fails.
 
+// Arksa-exclusive (docs/PROTECTION.md): runs only in a build with the `arksa` feature.
+#![cfg(feature = "arksa")]
+
 const DOC: &str = include_str!("../docs/tenders/cross-tender/D1.4-mrd-fom-mapping.md");
 
 const BEGIN: &str = "<!-- BEGIN GENERATED: `kshana-pro mrd` -->";
@@ -34,7 +37,7 @@ fn committed_d1_4_doc_matches_the_generated_table() {
         embedded,
         generated.trim(),
         "The D1.4 MRD deliverable has drifted from `kshana-pro mrd` output. \
-         Regenerate it:\n  cargo run -q -- mrd\nthen re-embed the output between \
+         Regenerate it:\n  cargo run -q --features arksa -- mrd --dev\nthen re-embed the output between \
          the `BEGIN GENERATED` / `END GENERATED` markers in \
          docs/tenders/cross-tender/D1.4-mrd-fom-mapping.md"
     );

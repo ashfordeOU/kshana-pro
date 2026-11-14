@@ -45,6 +45,7 @@ pub fn run(args: &[String]) -> ExitCode {
                     tier: license::Tier::Enterprise,
                     expires_unix: 0,
                     features: vec![],
+                    arksa: true,
                 }
             } else {
                 match flag(args, "--license") {

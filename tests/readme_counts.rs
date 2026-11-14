@@ -79,9 +79,19 @@ fn claims(phrase: &str) -> Vec<usize> {
     claims_in(README, phrase)
 }
 
+/// The number of Pro kinds of every edition (the manifest lists them all, the Arksa-exclusive
+/// ones by hash).
+fn registered_kinds() -> usize {
+    kshana_pro::license::tiers::manifest()
+        .expect("the tier manifest verifies")
+        .kind_count()
+}
+
 #[test]
 fn readme_pro_pack_count_matches_the_registry() {
-    let registered = kshana_pro::registry::pro_kinds().len();
+    // Every Pro kind of every edition, from the signed tier manifest: a default build does
+    // not contain the Arksa-exclusive kinds (docs/PROTECTION.md) but still counts them.
+    let registered = registered_kinds();
     let found = claims("Pro packs");
     assert!(
         found.len() >= 2,
@@ -111,7 +121,9 @@ fn readme_pro_pack_count_matches_the_registry() {
 
 #[test]
 fn architecture_doc_pro_pack_count_matches_the_registry() {
-    let registered = kshana_pro::registry::pro_kinds().len();
+    // Every Pro kind of every edition, from the signed tier manifest: a default build does
+    // not contain the Arksa-exclusive kinds (docs/PROTECTION.md) but still counts them.
+    let registered = registered_kinds();
     let found = claims_in(ARCHITECTURE, "Pro packs");
     assert!(
         !found.is_empty(),

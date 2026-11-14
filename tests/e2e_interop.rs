@@ -10,6 +10,9 @@
 //! whole pipeline is reproducible. Nothing here is contrived — each stage consumes
 //! the real output of the prior stage.
 
+// Arksa-exclusive (docs/PROTECTION.md): runs only in a build with the `arksa` feature.
+#![cfg(feature = "arksa")]
+
 use kshana::api::run_scenario;
 use kshana_pro::benefits::{benefits_case, FomSpec};
 use kshana_pro::connectors::spacestream::{LinkSummary, SpaceStreamMessage};

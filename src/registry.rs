@@ -14,18 +14,27 @@ use serde::de::DeserializeOwned;
 
 use crate::packs::batch_pack::BatchScenario;
 use crate::packs::beacon_dop_pack::{BeaconDopScenario, SurfaceBeaconDopStudyScenario};
+#[cfg(feature = "arksa")]
 use crate::packs::beacon_placement_pack::BeaconPlacementScenario;
+#[cfg(feature = "arksa")]
 use crate::packs::cislunar_observability_study_pack::CislunarObservabilityStudyScenario;
 use crate::packs::conflict_resilience_study_pack::ConflictResilienceStudyScenario;
+#[cfg(feature = "arksa")]
 use crate::packs::design_optimise_pack::DesignOptimiseScenario;
+#[cfg(feature = "arksa")]
 use crate::packs::lunar_signal_security_pack::LunarSignalSecurityScenario;
+#[cfg(feature = "arksa")]
 use crate::packs::lunar_time_budget_study_pack::LunarTimeBudgetStudyScenario;
+#[cfg(feature = "arksa")]
 use crate::packs::mbse_pack::MbseScenario;
+#[cfg(feature = "arksa")]
 use crate::packs::optical_rf_hybrid_study_pack::OpticalRfHybridStudyScenario;
 use crate::packs::optimism_gap_audit::OptimismGapAuditScenario;
 use crate::packs::quantum_systematics_pack::QuantumSystematicsScenario;
+#[cfg(feature = "arksa")]
 use crate::packs::realtime_frame_eop_study_pack::RealtimeFrameEopStudyScenario;
 use crate::packs::seam_check::SeamCheckPack;
+#[cfg(feature = "arksa")]
 use crate::packs::spectrum_coexistence_pack::SpectrumCoexistenceScenario;
 use crate::packs::trade_study_pack::TradeStudyScenario;
 use crate::packs::twin_pack::TwinScenario;
@@ -70,30 +79,39 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         TradeStudyScenario::KIND => Some(parse::<TradeStudyScenario>(kind, src)),
         BatchScenario::KIND => Some(parse::<BatchScenario>(kind, src)),
         QuantumSystematicsScenario::KIND => Some(parse::<QuantumSystematicsScenario>(kind, src)),
+        #[cfg(feature = "arksa")]
         MbseScenario::KIND => Some(parse::<MbseScenario>(kind, src)),
         OptimismGapAuditScenario::KIND => Some(parse::<OptimismGapAuditScenario>(kind, src)),
+        #[cfg(feature = "arksa")]
         DesignOptimiseScenario::KIND => Some(parse::<DesignOptimiseScenario>(kind, src)),
+        #[cfg(feature = "arksa")]
         LunarSignalSecurityScenario::KIND => Some(parse::<LunarSignalSecurityScenario>(kind, src)),
         BeaconDopScenario::KIND => Some(parse::<BeaconDopScenario>(kind, src)),
         SurfaceBeaconDopStudyScenario::KIND => {
             Some(parse::<SurfaceBeaconDopStudyScenario>(kind, src))
         }
+        #[cfg(feature = "arksa")]
         BeaconPlacementScenario::KIND => Some(parse::<BeaconPlacementScenario>(kind, src)),
+        #[cfg(feature = "arksa")]
         LunarTimeBudgetStudyScenario::KIND => {
             Some(parse::<LunarTimeBudgetStudyScenario>(kind, src))
         }
+        #[cfg(feature = "arksa")]
         RealtimeFrameEopStudyScenario::KIND => {
             Some(parse::<RealtimeFrameEopStudyScenario>(kind, src))
         }
+        #[cfg(feature = "arksa")]
         OpticalRfHybridStudyScenario::KIND => {
             Some(parse::<OpticalRfHybridStudyScenario>(kind, src))
         }
+        #[cfg(feature = "arksa")]
         CislunarObservabilityStudyScenario::KIND => {
             Some(parse::<CislunarObservabilityStudyScenario>(kind, src))
         }
         ConflictResilienceStudyScenario::KIND => {
             Some(parse::<ConflictResilienceStudyScenario>(kind, src))
         }
+        #[cfg(feature = "arksa")]
         SpectrumCoexistenceScenario::KIND => Some(parse::<SpectrumCoexistenceScenario>(kind, src)),
         _ => None,
     }
@@ -103,27 +121,33 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
 /// [`kshana::api::list_scenario_kinds`]. The union of the two is the full set of
 /// kinds a Pro build can run.
 pub fn pro_kinds() -> Vec<ScenarioMeta> {
-    vec![
+    #[allow(unused_mut)]
+    let mut kinds = vec![
         SeamCheckPack::meta_static(),
         TwinScenario::meta_static(),
         UncertaintyScenario::meta_static(),
         TradeStudyScenario::meta_static(),
         BatchScenario::meta_static(),
         QuantumSystematicsScenario::meta_static(),
-        MbseScenario::meta_static(),
         OptimismGapAuditScenario::meta_static(),
-        DesignOptimiseScenario::meta_static(),
-        LunarSignalSecurityScenario::meta_static(),
         BeaconDopScenario::meta_static(),
         SurfaceBeaconDopStudyScenario::meta_static(),
+        ConflictResilienceStudyScenario::meta_static(),
+    ];
+    // Arksa-exclusive kinds (docs/PROTECTION.md): compiled only with the `arksa` feature.
+    #[cfg(feature = "arksa")]
+    kinds.extend([
+        MbseScenario::meta_static(),
+        DesignOptimiseScenario::meta_static(),
+        LunarSignalSecurityScenario::meta_static(),
         BeaconPlacementScenario::meta_static(),
         LunarTimeBudgetStudyScenario::meta_static(),
         RealtimeFrameEopStudyScenario::meta_static(),
         OpticalRfHybridStudyScenario::meta_static(),
         CislunarObservabilityStudyScenario::meta_static(),
-        ConflictResilienceStudyScenario::meta_static(),
         SpectrumCoexistenceScenario::meta_static(),
-    ]
+    ]);
+    kinds
 }
 
 /// Every kind a Pro build can run, as one JSON document (`kshana-pro kinds --json`).
@@ -141,6 +165,9 @@ pub fn kinds_json() -> String {
             serde_json::json!({
                 "name": m.name,
                 "min_tier": crate::license::feature_min_tier(m.name).as_str(),
+                "edition": crate::license::tiers::compiled_edition(m.name)
+                    .map(|e| e.as_str())
+                    .unwrap_or("unknown"),
                 "description": m.description,
                 "required_fields": m.required_fields,
                 "optional_fields": m.optional_fields,
@@ -171,9 +198,15 @@ pub fn run(src: &str) -> Result<RunOutput, KshanaError> {
         Some(kind) if kind.starts_with(PRO_KIND_PREFIX) => match build_pro_pack(&kind, src) {
             Some(Ok(pack)) => pack.run(),
             Some(Err(e)) => Err(e),
-            None => Err(KshanaError::Unsupported(format!(
-                "'{kind}' carries the {PRO_KIND_PREFIX} prefix but is not a registered Pro pack"
-            ))),
+            None => match crate::license::tiers::edition_of(&kind) {
+                // An Arksa-exclusive or Core kind: neither named nor described.
+                Some(e) if e.is_hidden() => Err(KshanaError::Unsupported(
+                    crate::license::tiers::NOT_IN_THIS_EDITION.into(),
+                )),
+                _ => Err(KshanaError::Unsupported(format!(
+                    "'{kind}' carries the {PRO_KIND_PREFIX} prefix but is not a registered Pro pack"
+                ))),
+            },
         },
         // Open scenario (or no/unknown non-Pro kind) → the open engine, unchanged.
         _ => run_scenario(src),
@@ -189,19 +222,11 @@ pub fn run_gated(
     now_unix: i64,
 ) -> Result<RunOutput, KshanaError> {
     if let Some(kind) = peek_kind(src) {
-        if kind.starts_with(PRO_KIND_PREFIX) && !entitlement.allows(&kind, now_unix) {
+        if kind.starts_with(PRO_KIND_PREFIX) {
             // Do NOT echo the licensee name here — this message can reach an HTTP
-            // 403 body seen by an unauthorised caller.
-            return Err(KshanaError::Unsupported(format!(
-                "'{kind}' requires the '{}' tier; current license tier is '{}'{}",
-                crate::license::feature_min_tier(&kind).as_str(),
-                entitlement.tier.as_str(),
-                if entitlement.is_expired(now_unix) {
-                    " (and it has expired)"
-                } else {
-                    ""
-                },
-            )));
+            // 403 body seen by an unauthorised caller. An Arksa-exclusive kind is refused
+            // with a message that names no kind and no method (license::check).
+            crate::license::check(entitlement, &kind, now_unix)?;
         }
     }
     run(src)
@@ -265,8 +290,7 @@ where
 /// [`kshana::registry::PackRegistry`].
 ///
 /// It starts from every open built-in
-/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each of the 17
-/// Pro packs through the public [`ExternalPack::register_into`] seam. The union is
+/// ([`kshana::registry::PackRegistry::with_builtins`]) and then drives each Pro pack through the public [`ExternalPack::register_into`] seam. The union is
 /// therefore assembled entirely through stable public API: the open half is the open
 /// core's own table (never re-listed here, so it cannot drift), and the Pro half is
 /// each pack registering its own factory. The result builds — and, via the returned
@@ -283,18 +307,27 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     TradeStudyScenario::register_into(&mut reg);
     BatchScenario::register_into(&mut reg);
     QuantumSystematicsScenario::register_into(&mut reg);
+    #[cfg(feature = "arksa")]
     MbseScenario::register_into(&mut reg);
     OptimismGapAuditScenario::register_into(&mut reg);
+    #[cfg(feature = "arksa")]
     DesignOptimiseScenario::register_into(&mut reg);
+    #[cfg(feature = "arksa")]
     LunarSignalSecurityScenario::register_into(&mut reg);
     BeaconDopScenario::register_into(&mut reg);
     SurfaceBeaconDopStudyScenario::register_into(&mut reg);
+    #[cfg(feature = "arksa")]
     BeaconPlacementScenario::register_into(&mut reg);
+    #[cfg(feature = "arksa")]
     LunarTimeBudgetStudyScenario::register_into(&mut reg);
+    #[cfg(feature = "arksa")]
     RealtimeFrameEopStudyScenario::register_into(&mut reg);
+    #[cfg(feature = "arksa")]
     OpticalRfHybridStudyScenario::register_into(&mut reg);
+    #[cfg(feature = "arksa")]
     CislunarObservabilityStudyScenario::register_into(&mut reg);
     ConflictResilienceStudyScenario::register_into(&mut reg);
+    #[cfg(feature = "arksa")]
     SpectrumCoexistenceScenario::register_into(&mut reg);
     reg
 }
@@ -370,6 +403,7 @@ mod tests {
             tier: Tier::Pro,
             expires_unix: 0,
             features: vec![],
+            arksa: false,
         };
         // pro-batch is Enterprise-only → denied for a Pro license, fails closed
         // BEFORE any (expensive) run.
@@ -558,6 +592,7 @@ q_rw = 0.0
                  bbr_coeff_300k = -2.35e-14\n\
                  temperature_k = 295.0\n"
             }
+            #[cfg(feature = "arksa")]
             MbseScenario::KIND => {
                 r#"kind = "pro-mbse"
 title = "test srd"
@@ -584,6 +619,7 @@ lower_is_better = true
                  n_perms = 20\n\
                  perm_seed = 7\n"
             }
+            #[cfg(feature = "arksa")]
             DesignOptimiseScenario::KIND => {
                 // A six-design link-budget study: the closed-form kind keeps it fast.
                 r#"kind = "pro-design-optimise"
@@ -625,6 +661,7 @@ sense = "min"
 variable = "eirp_dbw"
 "#
             }
+            #[cfg(feature = "arksa")]
             LunarSignalSecurityScenario::KIND => "kind = \"pro-lunar-signal-security\"\n",
             BeaconDopScenario::KIND => {
                 // Tiny sweep (a single high-latitude band, small fleet, few epochs and
@@ -650,6 +687,7 @@ variable = "eirp_dbw"
                  map_n_lon = 2\n\
                  n_epochs = 1\n"
             }
+            #[cfg(feature = "arksa")]
             BeaconPlacementScenario::KIND => {
                 // 1×1 user grid, 2×2 candidate grid, one epoch, one beacon — the headline
                 // default runs the full terrain-aware optimizer over a dense grid.
@@ -661,6 +699,7 @@ variable = "eirp_dbw"
                  n_epochs = 1\n\
                  k_beacons = 1\n"
             }
+            #[cfg(feature = "arksa")]
             LunarTimeBudgetStudyScenario::KIND => {
                 // A tiny τ grid (1 s .. 1000 s, 2 points/decade) — the headline default
                 // sweeps 1 s .. 1e7 s at 8 points/decade. Still assembles the real
@@ -671,17 +710,20 @@ variable = "eirp_dbw"
                  tau_max_s = 1000.0\n\
                  points_per_decade = 2\n"
             }
+            #[cfg(feature = "arksa")]
             RealtimeFrameEopStudyScenario::KIND => {
                 // Just the final floor + a 1-day horizon over the bundled real fixture —
                 // the headline default runs 1/2/3-day horizons.
                 "kind = \"pro-realtime-frame-eop-study\"\n\
                  horizons_days = [1]\n"
             }
+            #[cfg(feature = "arksa")]
             OpticalRfHybridStudyScenario::KIND => {
                 // The default is already O(1) (single link budgets + a 5-site availability),
                 // so the tiny config is just the kind line — all cited defaults, fast.
                 "kind = \"pro-optical-rf-hybrid-study\"\n"
             }
+            #[cfg(feature = "arksa")]
             CislunarObservabilityStudyScenario::KIND => {
                 // Two DROs (chief + one reference), a short 4-epoch range+range-rate arc at
                 // reduced integration resolution — the headline default differential-corrects
@@ -704,6 +746,7 @@ variable = "eirp_dbw"
                  trials = 300\n\
                  sensitivity_samples = 100\n"
             }
+            #[cfg(feature = "arksa")]
             SpectrumCoexistenceScenario::KIND => {
                 // One satellite, a coarse grid and a short span: the real study through
                 // two open kinds, fast enough for a unit test.

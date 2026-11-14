@@ -147,6 +147,7 @@ fn both_clients_drive_a_running_server() {
                 tier: Tier::Enterprise,
                 expires_unix: 0,
                 features: vec![],
+                arksa: false,
             },
         );
         cfg.data_dir = Some(dir.to_path_buf());

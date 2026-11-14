@@ -38,7 +38,7 @@
 
 use serde::Serialize;
 
-use super::units::{parse_unit, Unit};
+use crate::units::{parse_unit, Unit};
 
 /// A comparison operator.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]

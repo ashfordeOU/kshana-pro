@@ -15,17 +15,26 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use kshana_pro::connectors::{self, GateOp};
 use kshana_pro::license::{self, Entitlement, Tier};
 
-fn usage() -> &'static str {
-    "kshana-pro — proprietary overlay on the open Kshana engine\n\
+const USAGE_HEAD: &str = "kshana-pro — proprietary overlay on the open Kshana engine\n\
      \n\
      USAGE:\n\
        kshana-pro run <scenario.toml> [--license <token>] [--dev]   Run open OR Pro scenario\n\
        kshana-pro kinds [--json]                                     List kinds + their tier (--json: machine-readable, with counts)\n\
-       kshana-pro mrd                                                Emit the machine-checked D1.4 MRD FoM-mapping (Markdown)\n\
-       kshana-pro benefits [--json|--svg]                            Benefit-vs-baseline reference table (A02, D1.1)\n\
-       kshana-pro report <scenario.toml> [--subject <s>] [--format md|json|html|svg] [--pdf <out.pdf>]   Consolidated report (A11)\n\
+";
+
+/// Usage lines of the Arksa-exclusive commands (feature `arksa` only).
+#[cfg(feature = "arksa")]
+const USAGE_ARKSA: &str = "kshana-pro mrd                                                Emit the machine-checked D1.4 MRD FoM-mapping (Markdown)\n\
        kshana-pro navdt <scenario.toml> [--subject <s>]              NAV-DT deterministic twin bundle, JSON (A10)\n\
        kshana-pro spacestream [--schema]                             SpaceStream codec goldens / ICD schema (A09)\n\
+       kshana-pro mbse <import|trace|vcrm|sysml|impact|pack> ... [--license <token>] [--dev]   Requirements, traceability, VCRM, SysML v2, change impact, evidence pack (Pro; `kshana-pro mbse` for details)\n\
+       kshana-pro design <study.toml> --out <dir> [--threads <n>] [--license <token>] [--dev]   Pareto front of a design space over any open kind (Enterprise; `kshana-pro design` for details)\n\
+       kshana-pro coexist <study.toml> --out <dir> [--license <token>] [--dev]   Whole signal plans and constellations against the open global navigation satellite system (GNSS) signals, both directions (Enterprise; `kshana-pro coexist` for details)\n\
+       kshana-pro mission <build|check> ... [--license <token>] [--dev]   Requirements to runs to verification matrix to a PDF dossier, and its re-check (Enterprise; `kshana-pro mission` for details)\n\
+";
+
+const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                            Benefit-vs-baseline reference table (A02, D1.1)\n\
+       kshana-pro report <scenario.toml> [--subject <s>] [--format md|json|html|svg] [--pdf <out.pdf>]   Consolidated report (A11)\n\
        kshana-pro version                                            Overlay + engine info\n\
        kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
@@ -37,11 +46,7 @@ fn usage() -> &'static str {
        kshana-pro ci diff <old ci.json> <new ci.json> [--json <out>]  List every figure that moved between two CI reports (Pro)\n\
        kshana-pro lab-report <campaign-out-dir> --data-class <synthetic|client-confidential> --html <out.html> [--pdf <out.pdf>] [--client <name>] [--doc-id <id>] [--utc <iso>] [--allow-incomplete] [--license <token>] [--dev]   Branded lab campaign report from `kshana iq campaign` output (Pro)\n\
        kshana-pro study --dossier <scenario.toml> --out <dir> [--utc <iso>] [--license <token>] [--dev]   Reproducible study dossier, HTML + JSON (Pro)\n\
-       kshana-pro mbse <import|trace|vcrm|sysml|impact|pack> ... [--license <token>] [--dev]   Requirements, traceability, VCRM, SysML v2, change impact, evidence pack (Pro; `kshana-pro mbse` for details)\n\
-       kshana-pro design <study.toml> --out <dir> [--threads <n>] [--license <token>] [--dev]   Pareto front of a design space over any open kind (Enterprise; `kshana-pro design` for details)\n\
        kshana-pro uncertainty <study.toml> --out <dir> [--resume] [--max-runs <n>] [--threads <n>] [--license <token>] [--dev]   Uncertainty and sensitivity of any open scenario, with stop and resume (Enterprise)\n\
-       kshana-pro coexist <study.toml> --out <dir> [--license <token>] [--dev]   Whole signal plans and constellations against the open global navigation satellite system (GNSS) signals, both directions (Enterprise; `kshana-pro coexist` for details)\n\
-       kshana-pro mission <build|check> ... [--license <token>] [--dev]   Requirements to runs to verification matrix to a PDF dossier, and its re-check (Enterprise; `kshana-pro mission` for details)\n\
        kshana-pro license <verify|activate|status|deactivate|machine-id|revocations|refresh> ...   Licence on this machine (offline; `kshana-pro license` for details)\n\
        kshana-pro backup <create --data-dir <dir> --out <backup-dir> | verify <backup-dir>>   Back up a service data directory while it runs; check a backup offline\n\
        kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
@@ -59,10 +64,24 @@ fn usage() -> &'static str {
      a release build refuses it). Open (non-pro) scenarios are always free. Tokens are\n\
      Ed25519-signed: `license issue` signs with $KSHANA_PRO_SIGNING_KEY (vendor only);\n\
      a build verifies with the public key compiled in from $KSHANA_PRO_LICENSE_PUBKEY.\n\
-     Debug builds fall back to a DEMO key pair that release builds do not contain."
+     Debug builds fall back to a DEMO key pair that release builds do not contain.";
+
+fn usage() -> String {
+    #[allow(unused_mut)]
+    let mut s = String::from(USAGE_HEAD);
+    #[cfg(feature = "arksa")]
+    s.push_str(USAGE_ARKSA);
+    s.push_str(USAGE_TAIL);
+    s
 }
 
 fn main() -> ExitCode {
+    // The signed tier manifest (roadmap 0.42 X2) must verify and agree with this build
+    // before anything runs: it decides the edition of every Pro kind.
+    if let Err(e) = license::tiers::startup_check() {
+        eprintln!("error: {e}");
+        return ExitCode::FAILURE;
+    }
     let mut args: Vec<String> = std::env::args().skip(1).collect();
     // `--sample`, accepted by every command: each page of every document this run writes
     // also carries the SAMPLE mark, so a public sample can never be taken for a customer
@@ -99,7 +118,11 @@ fn main() -> ExitCode {
         // demonstrator like `kinds`/`version`, not a Pro analysis pack). The committed
         // deliverable doc is this exact output; `tests/mrd_deliverable_in_sync.rs`
         // asserts the two never drift apart.
+        #[cfg(feature = "arksa")]
         Some("mrd") => {
+            if let Err(code) = arksa_feature(&args, "pro-mrd") {
+                return code;
+            }
             print!("{}", kshana_pro::mrd::to_markdown());
             ExitCode::SUCCESS
         }
@@ -125,11 +148,16 @@ fn main() -> ExitCode {
         // Consolidated performance/resilience report over a scenario (A11).
         Some("report") => report_cmd(&args),
         // NAV-DT deterministic twin bundle over a scenario (A10).
+        #[cfg(feature = "arksa")]
         Some("navdt") => navdt_cmd(&args),
         // SpaceStream NAVEX→NAV-DT codec: golden messages (the codec, demonstrated +
         // reproducible) or the ICD JSON schema (A09).
+        #[cfg(feature = "arksa")]
         Some("spacestream") => {
             use kshana_pro::connectors::spacestream;
+            if let Err(code) = arksa_feature(&args, "pro-spacestream") {
+                return code;
+            }
             if has_flag(&args, "--schema") {
                 println!("{}", spacestream::json_schema());
             } else {
@@ -152,6 +180,7 @@ fn main() -> ExitCode {
         }
         // Spectrum coexistence: whole signal plans and constellations against the open
         // GNSS signals (feature `pro-spectrum-coexistence`).
+        #[cfg(feature = "arksa")]
         Some("coexist") => coexist_cmd(&args[1..]),
         Some("version") => {
             println!(
@@ -163,6 +192,7 @@ fn main() -> ExitCode {
         }
         // Design optimiser: a design space over any open kind -> the Pareto front, its
         // knee and the place of a reference design (feature `pro-design-optimise`).
+        #[cfg(feature = "arksa")]
         Some("design") => design_cmd(&args[1..]),
         Some("export") => match args.get(1) {
             Some(path) => export_cmd(path, flag(&args, "--format")),
@@ -195,10 +225,12 @@ fn main() -> ExitCode {
         // MBSE and programme tooling over the open engine's own outputs: requirements
         // import, traceability, the verification cross-reference matrix, SysML v2
         // export, change impact and the evidence pack (feature `pro-mbse`).
+        #[cfg(feature = "arksa")]
         Some("mbse") => mbse_cmd(&args[1..]),
         // Mission dossier: one programme (requirements and scenarios of any kind) to
         // runs, a verification cross-reference matrix and a branded PDF, in one command
         // (feature `pro-mission-dossier`).
+        #[cfg(feature = "arksa")]
         Some("mission") => mission_cmd(&args[1..]),
         Some("healthcheck") => {
             let addr = flag(&args, "--addr").unwrap_or_else(|| "127.0.0.1:8088".to_string());
@@ -388,6 +420,7 @@ fn serve_cmd(args: &[String]) -> ExitCode {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: true,
         }
     } else {
         match flag(args, "--license") {
@@ -585,6 +618,7 @@ fn ci_cmd(args: &[String]) -> ExitCode {
                 tier: Tier::Enterprise,
                 expires_unix: 0,
                 features: vec![],
+                arksa: true,
             }
         } else {
             match flag(args, "--license") {
@@ -885,6 +919,7 @@ fn ci_cmd(args: &[String]) -> ExitCode {
     }
 }
 
+#[cfg(feature = "arksa")]
 /// `mbse <command>` — resolve the entitlement exactly as `ci` and `study` do (`--dev`
 /// in a debug build = full; else a token enforces its tier; else Evaluation), require
 /// the `pro-mbse` feature, then run the command.
@@ -901,6 +936,7 @@ fn mbse_cmd(args: &[String]) -> ExitCode {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: true,
         }
     } else {
         match flag(args, "--license") {
@@ -973,6 +1009,7 @@ fn lab_report_cmd(args: &[String]) -> ExitCode {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: true,
         }
     } else {
         match flag(args, "--license") {
@@ -1060,6 +1097,7 @@ fn study_cmd(args: &[String]) -> ExitCode {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: true,
         }
     } else {
         match flag(args, "--license") {
@@ -1125,6 +1163,7 @@ fn study_cmd(args: &[String]) -> ExitCode {
     ExitCode::SUCCESS
 }
 
+#[cfg(feature = "arksa")]
 /// `mission <command>` — resolve the entitlement exactly as `mbse` does (`--dev` in a
 /// debug build = full; else a token enforces its tier; else Evaluation), require the
 /// `pro-mission-dossier` feature, then run the command. A Pro kind inside a programme
@@ -1142,6 +1181,7 @@ fn mission_cmd(args: &[String]) -> ExitCode {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: true,
         }
     } else {
         match flag(args, "--license") {
@@ -1166,6 +1206,32 @@ fn mission_cmd(args: &[String]) -> ExitCode {
             ExitCode::FAILURE
         }
     }
+}
+
+/// Resolve the entitlement as `mbse` does (`--dev` in a debug build = full; else a
+/// `--license` token; else the activated licence or Evaluation) and require the
+/// Arksa-exclusive `feature` (roadmap 0.42 X1). The refusal names no method.
+#[cfg(feature = "arksa")]
+fn arksa_feature(args: &[String], feature: &str) -> Result<(), ExitCode> {
+    let now = now_unix();
+    if has_flag(args, "--dev") {
+        eprintln!("[DEV MODE — entitlement enforcement DISABLED (not for distribution)]");
+        return Ok(());
+    }
+    let ent = match flag(args, "--license") {
+        Some(tok) => match verify_token(&tok, now) {
+            Ok(e) => e,
+            Err(e) => {
+                eprintln!("error: license invalid: {e}");
+                return Err(ExitCode::FAILURE);
+            }
+        },
+        None => license_cmd::stored_or_evaluation(now, license::Product::Cli),
+    };
+    license::check(&ent, feature, now).map_err(|e| {
+        eprintln!("error: {e}");
+        ExitCode::FAILURE
+    })
 }
 
 /// Parse a `--thresholds` spec into [`Thresholds`](kshana_pro::pack_c::Thresholds).
@@ -1222,6 +1288,7 @@ fn run_to_json(path: &str) -> Result<String, String> {
         .map(|o| o.json)
         .map_err(|e| format!("{e}"))
 }
+#[cfg(feature = "arksa")]
 /// `design <study.toml> --out <dir>` — run a design study and write its result, chart,
 /// report and the front's scenario files.
 fn design_cmd(args: &[String]) -> ExitCode {
@@ -1237,6 +1304,7 @@ fn design_cmd(args: &[String]) -> ExitCode {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: true,
         }
     } else {
         match flag(args, "--license") {
@@ -1250,13 +1318,8 @@ fn design_cmd(args: &[String]) -> ExitCode {
             None => license_cmd::stored_or_evaluation(now, license::Product::Cli),
         }
     };
-    let feature = kshana_pro::design::KIND;
-    if !ent.allows(feature, now) {
-        eprintln!(
-            "error: the design optimiser requires the '{}' tier (or the '{feature}' feature on the licence); current license tier is '{}'",
-            license::feature_min_tier(feature).as_str(),
-            ent.tier.as_str()
-        );
+    if let Err(e) = license::check(&ent, kshana_pro::design::KIND, now) {
+        eprintln!("error: {e}");
         return ExitCode::FAILURE;
     }
     match kshana_pro::design::cli::run(args) {
@@ -1303,6 +1366,7 @@ fn export_cmd(path: &str, format: Option<String>) -> ExitCode {
     }
 }
 
+#[cfg(feature = "arksa")]
 /// `coexist <study.toml> --out <dir>` — resolve the entitlement exactly as `mbse` does
 /// (`--dev` in a debug build = full; else a token enforces its tier; else Evaluation),
 /// require the `pro-spectrum-coexistence` feature, then run the study.
@@ -1319,6 +1383,7 @@ fn coexist_cmd(args: &[String]) -> ExitCode {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: true,
         }
     } else {
         match flag(args, "--license") {
@@ -1332,13 +1397,8 @@ fn coexist_cmd(args: &[String]) -> ExitCode {
             None => license_cmd::stored_or_evaluation(now, license::Product::Cli),
         }
     };
-    let feature = kshana_pro::spectrum_coexistence::KIND;
-    if !ent.allows(feature, now) {
-        eprintln!(
-            "error: spectrum coexistence requires the '{}' tier (or the '{feature}' feature on the licence); current tier is '{}'",
-            license::feature_min_tier(feature).as_str(),
-            ent.tier.as_str()
-        );
+    if let Err(e) = license::check(&ent, kshana_pro::spectrum_coexistence::KIND, now) {
+        eprintln!("error: {e}");
         return ExitCode::FAILURE;
     }
     match kshana_pro::spectrum_coexistence::cli::run(args) {
@@ -1404,6 +1464,7 @@ fn report_cmd(args: &[String]) -> ExitCode {
     }
 }
 
+#[cfg(feature = "arksa")]
 /// NAV-DT deterministic twin bundle over a scenario (A10).
 fn navdt_cmd(args: &[String]) -> ExitCode {
     let path = match args.get(1) {
@@ -1420,6 +1481,9 @@ fn navdt_cmd(args: &[String]) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
+    if let Err(code) = arksa_feature(args, "pro-navdt") {
+        return code;
+    }
     let subject = flag(args, "--subject").unwrap_or_else(|| "quantum".to_string());
     match kshana_pro::twin::navdt::run_navdt_bundle(&src, &subject) {
         Ok(b) => {
@@ -1449,6 +1513,7 @@ fn uncertainty_cmd(args: &[String]) -> ExitCode {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: true,
         }
     } else {
         match flag(args, "--license") {

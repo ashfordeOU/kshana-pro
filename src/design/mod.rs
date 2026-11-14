@@ -27,7 +27,6 @@ pub mod search;
 pub mod space;
 
 use std::collections::BTreeMap;
-use std::sync::OnceLock;
 
 use kshana::api::KshanaError;
 use kshana::mcda::Objective;
@@ -379,25 +378,7 @@ pub struct Outcome {
     pub summary: String,
 }
 
-/// The version the embedded open engine reports.
-pub fn engine_version() -> String {
-    static VERSION: OnceLock<String> = OnceLock::new();
-    VERSION
-        .get_or_init(|| {
-            // The smallest open run that states its engine version.
-            let probe = "kind = \"clock\"\nseed = 1\nthreshold_ns = 20.0\n[time]\nstep_s = 10.0\nduration_s = 20.0\n[gnss]\nwindows = [ { t0 = 0.0, t1 = 20.0, state = \"nominal\" } ]\n[clock_quantum]\nid = \"probe\"\nprovenance = \"version probe\"\ny0 = 0.0\nq_wf = 1.0e-20\nq_rw = 0.0\n[clock_classical]\nid = \"probe\"\nprovenance = \"version probe\"\ny0 = 0.0\nq_wf = 1.0e-20\nq_rw = 0.0\n";
-            kshana::api::run_scenario(probe)
-                .ok()
-                .and_then(|o| serde_json::from_str::<Value>(&o.json).ok())
-                .and_then(|v| {
-                    v.get("engine_version")
-                        .and_then(|e| e.as_str())
-                        .map(str::to_string)
-                })
-                .unwrap_or_else(|| "(unreported)".to_string())
-        })
-        .clone()
-}
+pub use crate::report_brand::engine_version;
 
 fn tier_rank(tag: &str) -> u8 {
     match tag {

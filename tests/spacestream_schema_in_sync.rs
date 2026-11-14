@@ -7,6 +7,9 @@
 //! cannot drift from the codec it documents. The schema is static structural JSON
 //! (no result floats), so a byte-identical guard is safe across platforms.
 
+// Arksa-exclusive (docs/PROTECTION.md): runs only in a build with the `arksa` feature.
+#![cfg(feature = "arksa")]
+
 const ICD: &str = include_str!("../docs/tenders/13494-ai-payload-pnt/SpaceStream-ICD.md");
 
 const BEGIN: &str = "<!-- BEGIN GENERATED: `kshana-pro spacestream --schema` -->";
@@ -36,7 +39,7 @@ fn icd_embedded_schema_matches_the_codec() {
         embedded,
         generated.trim(),
         "The SpaceStream ICD's embedded schema has drifted from the codec. \
-         Regenerate it:\n  cargo run -q -- spacestream --schema\nthen re-embed the \
+         Regenerate it:\n  cargo run -q --features arksa -- spacestream --schema --dev\nthen re-embed the \
          output (inside the ```json fences) between the BEGIN/END GENERATED markers in \
          docs/tenders/13494-ai-payload-pnt/SpaceStream-ICD.md"
     );

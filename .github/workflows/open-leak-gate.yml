@@ -1,0 +1,34 @@
+name: Open-repository leak gate
+# Roadmap 0.42 X5. Runs in this PRIVATE repository against the OPEN repository
+# (https://github.com/ashfordeOU/kshana, branch main), read-only: an anonymous shallow clone,
+# no token, nothing pushed. It fails when the open repository carries a Pro, Arksa-exclusive
+# or Core module name or method term from protect/private-terms.txt that is not in the
+# accepted baseline (protect/open-leak-baseline.txt: text published before the gate).
+# Matches are printed as "<open path>  term <ID>"; the terms themselves never reach the log.
+#
+# Triggers: a schedule (the open repository cannot trigger a private workflow without a
+# token there; wiring a repository_dispatch from the open repository's pushes is a later,
+# owner-approved step, docs/PROTECTION.md), changes to the term list or the gate, and by hand.
+on:
+  schedule:
+    - cron: "17 * * * *"
+  push:
+    branches: [main]
+    paths: ["protect/**", "scripts/protect/**", ".github/workflows/open-leak-gate.yml"]
+  repository_dispatch:
+    types: [open-repo-push]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: open-leak-gate
+  cancel-in-progress: true
+jobs:
+  leak-gate:
+    # Self-hosted for the same reason as CI (hosted minutes are billing-blocked; ci.yml).
+    runs-on: [self-hosted, macos, arm64, kshana-pro]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan the open repository for private terms
+        run: scripts/protect/open-leak-gate.sh --url https://github.com/ashfordeOU/kshana --ref main

@@ -9,6 +9,9 @@
 //! SysML v2 export and its grammar-subset check, change impact and the evidence pack,
 //! plus the licence gate of the binary.
 
+// Arksa-exclusive (docs/PROTECTION.md): runs only in a build with the `arksa` feature.
+#![cfg(feature = "arksa")]
+
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -893,9 +896,11 @@ fn the_mbse_commands_are_licence_gated() {
     // No licence: Evaluation tier, refused.
     let denied = bin().args(["mbse", "vcrm", trs]).output().unwrap();
     assert!(!denied.status.success());
-    assert!(String::from_utf8_lossy(&denied.stderr).contains("requires the 'enterprise' tier"));
-    // A Pro-tier token does not carry the feature; an Enterprise one does. Tokens are
-    // signed with the debug demo key, which only debug builds accept.
+    assert!(String::from_utf8_lossy(&denied.stderr)
+        .contains(kshana_pro::license::tiers::NOT_IN_THIS_EDITION));
+    // No standalone token carries the feature (roadmap 0.42 X1), not even Enterprise; an
+    // Arksa-entitled one does. Tokens are signed with the debug demo key and the placeholder
+    // Arksa issuer test key, which only debug builds accept.
     let issue = |tier: &str| {
         let out = bin()
             .args([
@@ -929,7 +934,23 @@ fn the_mbse_commands_are_licence_gated() {
         .output()
         .unwrap();
     assert!(!refused.status.success());
-    let ent = issue("enterprise");
+    let enterprise = issue("enterprise");
+    let refused = bin()
+        .args(["mbse", "vcrm", trs, "--license", &enterprise])
+        .output()
+        .unwrap();
+    assert!(!refused.status.success());
+    // The placeholder Arksa issuer test key (tests/arksa_entitlement.rs).
+    let ent = kshana_pro::license::issue_arksa(
+        b"arksa-issuer-test-key-not-real!!",
+        &kshana_pro::license::LicenseClaims {
+            licensee: "mbse-test".into(),
+            tier: "pro".into(),
+            products: vec!["cli".into()],
+            ..Default::default()
+        },
+    )
+    .unwrap();
     let allowed = bin()
         .args(["mbse", "vcrm", trs, "--license", &ent])
         .output()

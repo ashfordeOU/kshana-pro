@@ -113,13 +113,19 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-trade-study" => Tier::Pro,
         "pro-quantum-systematics" => Tier::Pro,
         "pro-optimism-gap-audit" => Tier::Pro,
+        #[cfg(feature = "arksa")]
         "pro-lunar-signal-security" => Tier::Pro,
         "pro-beacon-dop" => Tier::Pro,
         "pro-surface-beacon-dop-study" => Tier::Pro,
+        #[cfg(feature = "arksa")]
         "pro-beacon-placement" => Tier::Pro,
+        #[cfg(feature = "arksa")]
         "pro-lunar-time-budget-study" => Tier::Pro,
+        #[cfg(feature = "arksa")]
         "pro-realtime-frame-eop-study" => Tier::Pro,
+        #[cfg(feature = "arksa")]
         "pro-optical-rf-hybrid-study" => Tier::Pro,
+        #[cfg(feature = "arksa")]
         "pro-cislunar-observability-study" => Tier::Pro,
         "pro-conflict-resilience-study" => Tier::Pro,
         "pro-scenario-ci" => Tier::Pro,
@@ -127,12 +133,23 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // Signed dossiers (F7): part of "studies and signed dossiers" in the 0.41
         // edition matrix.
         "pro-signed-dossier" => Tier::Pro,
+        #[cfg(feature = "arksa")]
         "pro-mbse" => Tier::Enterprise,
         "pro-batch" => Tier::Enterprise,
         "pro-uncertainty" => Tier::Enterprise,
+        #[cfg(feature = "arksa")]
         "pro-design-optimise" => Tier::Enterprise,
+        #[cfg(feature = "arksa")]
         "pro-spectrum-coexistence" => Tier::Enterprise,
+        #[cfg(feature = "arksa")]
         "pro-mission-dossier" => Tier::Enterprise,
+        // Arksa-exclusive commands (the edition gate decides; the licence tier is informational).
+        #[cfg(feature = "arksa")]
+        "pro-navdt" => Tier::Pro,
+        #[cfg(feature = "arksa")]
+        "pro-spacestream" => Tier::Pro,
+        #[cfg(feature = "arksa")]
+        "pro-mrd" => Tier::Pro,
         // 0.41 edition matrix (F10a): Pro features that are not scenario kinds.
         // More than one Kshana Station under one management (fleet).
         "pro-station-fleet" => Tier::Pro,
@@ -146,19 +163,55 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
 
 /// Pro features gated by a command rather than a scenario kind. Each must have an
 /// explicit tier ([`explicit_tier`]); the coverage test checks it.
+/// The Arksa-exclusive command features are in [`tiers::ARKSA_FEATURES`] (compiled only
+/// with the `arksa` feature); [`pro_command_features`] lists both.
 pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-scenario-ci",
     "pro-study-dossier",
     "pro-signed-dossier",
-    "pro-mbse",
     "pro-uncertainty",
-    "pro-design-optimise",
-    "pro-spectrum-coexistence",
-    "pro-mission-dossier",
     "pro-station-fleet",
     "pro-service-ha",
     "pro-desktop",
 ];
+
+/// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and the Arksa-exclusive
+/// ones compiled in.
+pub fn pro_command_features() -> Vec<&'static str> {
+    PRO_COMMAND_FEATURES
+        .iter()
+        .chain(tiers::ARKSA_FEATURES)
+        .copied()
+        .collect()
+}
+
+/// Whether `ent` may run the Pro kind or feature `kind` at `now_unix`; the error says
+/// why not. An Arksa-exclusive or Core kind is refused with [`tiers::NOT_IN_THIS_EDITION`],
+/// which names no kind and no method; a kind the tier manifest does not list is refused
+/// as unknown; any other kind with the licence tier it needs.
+pub fn check(ent: &Entitlement, kind: &str, now_unix: i64) -> Result<(), KshanaError> {
+    if ent.allows(kind, now_unix) {
+        return Ok(());
+    }
+    match tiers::edition_of(kind) {
+        Some(tiers::Edition::Arksa | tiers::Edition::Core) => {
+            Err(KshanaError::Unsupported(tiers::NOT_IN_THIS_EDITION.into()))
+        }
+        None => Err(KshanaError::Unsupported(format!(
+            "'{kind}' carries the pro- prefix but is not a registered Pro pack"
+        ))),
+        Some(_) => Err(KshanaError::Unsupported(format!(
+            "'{kind}' requires the '{}' tier; current license tier is '{}'{}",
+            feature_min_tier(kind).as_str(),
+            ent.tier.as_str(),
+            if ent.is_expired(now_unix) {
+                " (and it has expired)"
+            } else {
+                ""
+            },
+        ))),
+    }
+}
 
 /// Gate the Pack C (scenario-subscription CI) feature: succeed when `ent` permits
 /// the `pro-scenario-ci` feature at `now_unix`, else return an [`Unsupported`]
@@ -194,19 +247,13 @@ pub fn ensure_dossier_entitled(ent: &Entitlement, now_unix: i64) -> Result<(), K
 
 /// Gate the MBSE and programme tooling (`kshana-pro mbse ...`): succeed when `ent`
 /// permits the `pro-mbse` feature at `now_unix`, else return an [`Unsupported`] error
-/// naming the tier the feature requires. It is the same feature id as the `pro-mbse`
-/// scenario pack, so one entitlement covers both.
+/// ([`check`]). It is the same feature id as the `pro-mbse` scenario pack, so one
+/// entitlement covers both. Arksa-exclusive.
 ///
 /// [`Unsupported`]: KshanaError::Unsupported
+#[cfg(feature = "arksa")]
 pub fn ensure_mbse_entitled(ent: &Entitlement, now_unix: i64) -> Result<(), KshanaError> {
-    if ent.allows("pro-mbse", now_unix) {
-        Ok(())
-    } else {
-        Err(KshanaError::Unsupported(format!(
-            "the MBSE tooling requires the '{}' tier (or the 'pro-mbse' feature on the licence)",
-            feature_min_tier("pro-mbse").as_str()
-        )))
-    }
+    check(ent, "pro-mbse", now_unix)
 }
 
 /// The signed claims carried by a license token.
@@ -255,8 +302,17 @@ pub struct LicenseClaims {
     /// Unix seconds when the token was issued (informational).
     #[serde(default, skip_serializing_if = "is_zero_i64")]
     pub issued_unix: i64,
+    /// The Arksa entitlement (roadmap 0.42 X1): unlocks the Arksa-exclusive kinds. Honoured
+    /// only when the token is signed by an Arksa issuer key ([`Keyring::add_arksa_issuer`]);
+    /// a token that carries it under any other key is refused outright. Absent (false) on
+    /// every token issued before it existed, which verify as before.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub arksa: bool,
 }
 
+fn is_false(v: &bool) -> bool {
+    !*v
+}
 fn is_zero_u8(v: &u8) -> bool {
     *v == 0
 }
@@ -274,6 +330,9 @@ pub struct Entitlement {
     pub tier: Tier,
     pub expires_unix: i64,
     pub features: Vec<String>,
+    /// Holds a verified `arksa` claim from Arksa's issuer: the only way to run an
+    /// Arksa-exclusive kind ([`tiers`]).
+    pub arksa: bool,
 }
 
 impl Entitlement {
@@ -284,6 +343,7 @@ impl Entitlement {
             tier: Tier::Evaluation,
             expires_unix: 0,
             features: Vec::new(),
+            arksa: false,
         }
     }
 
@@ -294,12 +354,23 @@ impl Entitlement {
     /// Whether this entitlement permits running `kind` at `now_unix`. Expired
     /// licenses permit nothing. Open (non-`pro-`) kinds are always free and are not
     /// gated here (Pro embeds the open AGPL-3.0 engine).
+    ///
+    /// The edition tier comes from the signed tier manifest ([`tiers`]): a `pro-` kind it
+    /// does not list is refused; an Arksa-exclusive kind needs the `arksa` entitlement
+    /// (no licence tier and no `features` grant unlocks it); a Core kind never runs.
     pub fn allows(&self, kind: &str, now_unix: i64) -> bool {
         if !kind.starts_with("pro-") {
             return true; // open features are free
         }
+        let edition = match tiers::edition_of(kind) {
+            None | Some(tiers::Edition::Core) => return false,
+            Some(e) => e,
+        };
         if self.is_expired(now_unix) {
             return false;
+        }
+        if edition == tiers::Edition::Arksa {
+            return self.arksa;
         }
         if self.features.iter().any(|f| f == kind) {
             return true; // explicitly granted
@@ -412,6 +483,9 @@ pub fn token_id(token: &str, claims: &LicenseClaims) -> String {
 pub struct Keyring {
     active: Vec<(String, [u8; KEY_LEN])>,
     retired: Vec<String>,
+    /// Arksa issuer keys (roadmap 0.42 X1): the only keys whose tokens may carry the
+    /// `arksa` claim. Kept apart from `active`, so a Pro key can never grant it.
+    arksa: Vec<(String, [u8; KEY_LEN])>,
 }
 
 impl Keyring {
@@ -428,6 +502,24 @@ impl Keyring {
         if !self.active.iter().any(|(k, _)| *k == kid) {
             self.active.push((kid, public_key));
         }
+    }
+
+    /// Add an Arksa issuer key: tokens it signs carry the `arksa` claim (a duplicate is
+    /// ignored). Its tokens verify only through this slot, never as Pro keys.
+    pub fn add_arksa_issuer(&mut self, public_key: [u8; KEY_LEN]) {
+        let kid = key_id(&public_key);
+        if !self.arksa.iter().any(|(k, _)| *k == kid) {
+            self.arksa.push((kid, public_key));
+        }
+    }
+
+    /// IDs of the Arksa issuer keys (not retired).
+    pub fn arksa_issuer_ids(&self) -> Vec<String> {
+        self.arksa
+            .iter()
+            .filter(|(k, _)| !self.is_retired(k))
+            .map(|(k, _)| k.clone())
+            .collect()
     }
 
     /// Retire a key by its ID: tokens it signed stop verifying.
@@ -451,10 +543,19 @@ impl Keyring {
 
     /// The keyring compiled into this build: `KSHANA_PRO_LICENSE_PUBKEY` (one key, or
     /// several separated by commas) and `KSHANA_PRO_LICENSE_RETIRED` (key IDs or
-    /// public keys, comma separated). `None` when the build has no key.
+    /// public keys, comma separated). `None` when the build has no key. A build with the
+    /// `arksa` feature also takes the Arksa issuer slot, `KSHANA_PRO_ARKSA_ISSUER_PUBKEY`
+    /// ([`embedded_arksa_issuers`]); a default build has no Arksa issuer, so it accepts no
+    /// token carrying the `arksa` claim.
     pub fn embedded() -> Option<Result<Keyring, KshanaError>> {
         let keys = option_env!("KSHANA_PRO_LICENSE_PUBKEY").filter(|s| !s.trim().is_empty())?;
-        Some(Keyring::parse_keys(keys).map(|mut ring| {
+        let ring = Keyring::parse_keys(keys).and_then(|mut ring| {
+            for k in embedded_arksa_issuers()? {
+                ring.add_arksa_issuer(k);
+            }
+            Ok(ring)
+        });
+        Some(ring.map(|mut ring| {
             for r in option_env!("KSHANA_PRO_LICENSE_RETIRED")
                 .unwrap_or("")
                 .split(',')
@@ -489,15 +590,18 @@ impl Keyring {
         &self.retired
     }
 
-    fn candidates(&self, kid: Option<&str>) -> Result<Vec<(&str, &[u8; KEY_LEN])>, KshanaError> {
+    fn candidates_in<'a>(
+        &self,
+        set: &'a [(String, [u8; KEY_LEN])],
+        kid: Option<&str>,
+    ) -> Result<Vec<(&'a str, &'a [u8; KEY_LEN])>, KshanaError> {
         if let Some(kid) = kid {
             if self.is_retired(kid) {
                 return Err(KshanaError::InvalidInput(format!(
                     "license signed by retired key {kid}; ask the vendor for a token signed by a current key"
                 )));
             }
-            let found: Vec<_> = self
-                .active
+            let found: Vec<_> = set
                 .iter()
                 .filter(|(k, _)| k.eq_ignore_ascii_case(kid))
                 .map(|(k, pk)| (k.as_str(), pk))
@@ -509,8 +613,7 @@ impl Keyring {
             }
             Ok(found)
         } else {
-            Ok(self
-                .active
+            Ok(set
                 .iter()
                 .filter(|(k, _)| !self.is_retired(k))
                 .map(|(k, pk)| (k.as_str(), pk))
@@ -579,8 +682,20 @@ pub(crate) fn check_signature(
     payload: &[u8],
     sig: &[u8; 64],
 ) -> Result<String, KshanaError> {
+    check_signature_in(ring, false, kid, payload, sig)
+}
+
+/// [`check_signature`] against the Pro keys (`arksa` false) or the Arksa issuer keys.
+fn check_signature_in(
+    ring: &Keyring,
+    arksa: bool,
+    kid: Option<&str>,
+    payload: &[u8],
+    sig: &[u8; 64],
+) -> Result<String, KshanaError> {
     let sig = Signature::from_bytes(sig);
-    for (id, pk) in ring.candidates(kid)? {
+    let set = if arksa { &ring.arksa } else { &ring.active };
+    for (id, pk) in ring.candidates_in(set, kid)? {
         let Ok(key) = VerifyingKey::from_bytes(pk) else {
             continue;
         };
@@ -606,7 +721,16 @@ pub fn verify_with(
     // claims are trusted only after the signature verifies under that key.
     let unverified: LicenseClaims = serde_json::from_slice(&payload)
         .map_err(|e| KshanaError::InvalidInput(format!("invalid license claims: {e}")))?;
-    let kid = check_signature(ring, unverified.kid.as_deref(), &payload, &sig)?;
+    // A token carrying the `arksa` claim verifies only under an Arksa issuer key; any
+    // other token only under a Pro key. So a Pro key cannot grant the claim, and adding
+    // the claim to a Pro token breaks its signature.
+    let kid = check_signature_in(
+        ring,
+        unverified.arksa,
+        unverified.kid.as_deref(),
+        &payload,
+        &sig,
+    )?;
     let claims = unverified;
     let tier = Tier::parse(&claims.tier)?;
     if claims.v > 2 {
@@ -644,6 +768,7 @@ pub fn verify_with(
         tier,
         expires_unix: claims.expires_unix,
         features: claims.features.clone(),
+        arksa: claims.arksa,
     };
     if !opts.allow_expired && entitlement.is_expired(opts.now_unix) {
         return Err(KshanaError::InvalidInput(format!(
@@ -688,6 +813,40 @@ pub fn issue_v2(seed: &[u8; KEY_LEN], claims: &LicenseClaims) -> Result<String, 
     issue(seed, &c)
 }
 
+/// Issue a v2 token carrying the `arksa` claim, signed with an Arksa issuer `seed`
+/// (roadmap 0.42 X1). Only Arksa's issuer holds such a seed; a build trusts its public
+/// key through the Arksa issuer slot ([`Keyring::add_arksa_issuer`]).
+pub fn issue_arksa(seed: &[u8; KEY_LEN], claims: &LicenseClaims) -> Result<String, KshanaError> {
+    let mut c = claims.clone();
+    c.arksa = true;
+    issue_v2(seed, &c)
+}
+
+/// The Arksa issuer public keys compiled into this build: `KSHANA_PRO_ARKSA_ISSUER_PUBKEY`
+/// (64 hex characters, or several separated by commas), read only by a build with the
+/// `arksa` feature. Empty when unset and in every default build.
+pub fn embedded_arksa_issuers() -> Result<Vec<[u8; KEY_LEN]>, KshanaError> {
+    #[cfg(feature = "arksa")]
+    {
+        option_env!("KSHANA_PRO_ARKSA_ISSUER_PUBKEY")
+            .unwrap_or("")
+            .split(|c: char| c == ',' || c.is_whitespace())
+            .filter(|s| !s.is_empty())
+            .map(parse_key_hex)
+            .collect()
+    }
+    #[cfg(not(feature = "arksa"))]
+    Ok(Vec::new())
+}
+
+/// Public half of the placeholder Arksa issuer key: a test key whose private half exists
+/// only in the tests (`tests/arksa_entitlement.rs`). A debug build with the `arksa` feature
+/// and no `KSHANA_PRO_ARKSA_ISSUER_PUBKEY` trusts it, for local runs; a release build never
+/// does. The real Arksa issuer key is set at build time (docs/LICENSING-KEYS.md, section 5).
+#[cfg(feature = "arksa")]
+pub const PLACEHOLDER_ARKSA_ISSUER_PUBKEY: &str =
+    "da2d8a4d79a5b8a2faefad9f4283f8e299f1450aca0ea20492f3e4dbbc6030bb";
+
 /// A fresh random token ID (`kt_` and 24 hex characters).
 pub fn new_token_id() -> String {
     use rand::RngCore;
@@ -700,6 +859,7 @@ pub mod activation;
 pub mod machine;
 pub mod register;
 pub mod revocation;
+pub mod tiers;
 
 #[cfg(test)]
 mod tests {
@@ -783,6 +943,7 @@ mod tests {
             tier: Tier::Pro,
             expires_unix: 0,
             features: vec![],
+            arksa: false,
         };
         assert!(pro.allows("pro-twin", 0)); // Pro feature
         assert!(pro.allows("pro-trade-study", 0));
@@ -795,6 +956,7 @@ mod tests {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: false,
         };
         assert!(ent.allows("pro-batch", 0)); // Enterprise unlocks scale
 
@@ -810,6 +972,7 @@ mod tests {
             tier: Tier::Pro,
             expires_unix: 0,
             features: vec!["pro-batch".into()],
+            arksa: false,
         };
         assert!(
             ent.allows("pro-batch", 0),
@@ -824,6 +987,7 @@ mod tests {
             tier: Tier::Enterprise,
             expires_unix: 100,
             features: vec![],
+            arksa: false,
         };
         assert!(!ent.allows("pro-twin", 200)); // expired
         assert!(ent.allows("ephemeris", 200)); // open still free
@@ -837,6 +1001,7 @@ mod tests {
             tier: Tier::Pro,
             expires_unix: 0,
             features: vec![],
+            arksa: false,
         };
         assert!(!pro.allows("pro-mystery", 0));
     }
@@ -859,6 +1024,7 @@ mod tests {
             tier: Tier::Pro,
             expires_unix: 0,
             features: vec![],
+            arksa: false,
         };
         assert!(ensure_ci_entitled(&pro, 0).is_ok());
 
@@ -873,6 +1039,7 @@ mod tests {
             tier: Tier::Pro,
             expires_unix: 100,
             features: vec![],
+            arksa: false,
         };
         assert!(ensure_ci_entitled(&expired, 200).is_err());
     }
@@ -1051,7 +1218,7 @@ mod tests {
         let mut missing: Vec<String> = crate::registry::pro_kinds()
             .iter()
             .map(|m| m.name.to_string())
-            .chain(PRO_COMMAND_FEATURES.iter().map(|s| s.to_string()))
+            .chain(pro_command_features().iter().map(|s| s.to_string()))
             .filter(|k| explicit_tier(k).is_none())
             .collect();
         missing.sort();

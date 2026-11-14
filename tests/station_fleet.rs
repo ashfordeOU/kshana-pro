@@ -23,6 +23,7 @@ fn start(tag: &str, tier: Tier, stations: u32) -> ServerHandle {
             tier,
             expires_unix: 0,
             features: vec![],
+            arksa: false,
         },
     );
     cfg.data_dir = Some(d);
@@ -157,6 +158,7 @@ fn a_station_goes_stale_without_heartbeats() {
         tier: Tier::Pro,
         expires_unix: 0,
         features: vec![],
+        arksa: false,
     };
     assert_eq!(fleet::limit_for(&pro, 0, 0), 1);
     assert_eq!(fleet::limit_for(&pro, 12, 0), 12);

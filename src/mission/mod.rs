@@ -57,14 +57,8 @@ fn err(msg: impl Into<String>) -> KshanaError {
 /// feature at `now_unix` (the Enterprise tier carries it; a licence can also grant it by
 /// name), else return an `Unsupported` error naming the tier.
 pub fn ensure_entitled(ent: &Entitlement, now_unix: i64) -> Result<(), KshanaError> {
-    if ent.allows(FEATURE, now_unix) {
-        Ok(())
-    } else {
-        Err(KshanaError::Unsupported(format!(
-            "the mission dossier requires the '{}' tier (or the '{FEATURE}' feature on the licence)",
-            crate::license::feature_min_tier(FEATURE).as_str()
-        )))
-    }
+    // Arksa-exclusive: the refusal names no method (license::check).
+    crate::license::check(ent, FEATURE, now_unix)
 }
 
 /// How a dossier is built.

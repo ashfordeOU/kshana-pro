@@ -45,7 +45,15 @@ pub fn keyring() -> Result<Keyring, KshanaError> {
     }
     #[cfg(debug_assertions)]
     {
-        Ok(Keyring::single(license::public_key_for(&crate::DEMO_SEED)))
+        #[allow(unused_mut)]
+        let mut ring = Keyring::single(license::public_key_for(&crate::DEMO_SEED));
+        // A debug build with the `arksa` feature also trusts the placeholder Arksa issuer
+        // (a test key); a release build never does.
+        #[cfg(feature = "arksa")]
+        ring.add_arksa_issuer(license::parse_key_hex(
+            license::PLACEHOLDER_ARKSA_ISSUER_PUBKEY,
+        )?);
+        Ok(ring)
     }
     #[cfg(not(debug_assertions))]
     Err(KshanaError::Unsupported(

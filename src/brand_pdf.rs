@@ -997,7 +997,7 @@ pub fn dress(pages: Vec<Vec<Op>>, footer: &str, mark: &PdfMark, sample: bool) ->
                     2.4,
                     rgb(brand::INK),
                 );
-                let kind = crate::mission::pdf::ascii(&mark.kind);
+                let kind = crate::pdf_text::ascii(&mark.kind);
                 let w = text_width_mm(kind.chars().count(), 8.5) * 0.9;
                 text(
                     &mut ops,
@@ -1049,7 +1049,7 @@ pub fn dress(pages: Vec<Vec<Op>>, footer: &str, mark: &PdfMark, sample: bool) ->
             let label = format!(
                 "|  {}   |   {}   |   page {} of {}",
                 footer_rest(footer),
-                crate::mission::pdf::ascii(&mark.doc_id),
+                crate::pdf_text::ascii(&mark.doc_id),
                 i + 1,
                 n
             );

@@ -15,7 +15,7 @@
 //! requirement = "watched <= 70 ns"                   # optional absolute criterion
 //! ```
 //!
-//! `metric` is a result path in the grammar of [`crate::mbse::criterion`] (aggregates
+//! `metric` is a result path in the grammar of [`crate::criterion`] (aggregates
 //! included, so `max(timeline.channels.time_error_ns.values[])` works), a named campaign
 //! figure from [`crate::pack_c::campaign`], or, with `crossing`, the name of a sweep
 //! metric. `requirement` is a criterion evaluated against the entry's result document,
@@ -29,8 +29,8 @@
 //! unit mismatch) is *not verified* and fails the gate too; a figure with no declared
 //! direction is informational and never regresses.
 
-use crate::mbse::criterion::{self, Operand, UnitLookup, Verdict};
-use crate::mbse::units::parse_unit;
+use crate::criterion::{self, Operand, UnitLookup, Verdict};
+use crate::units::parse_unit;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 

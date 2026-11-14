@@ -1,0 +1,171 @@
+{
+  "format": "kshana-pro-tier-manifest",
+  "version": 1,
+  "entries": [
+    {
+      "kind": "pro-seam-check",
+      "type": "kind",
+      "tier": "open-seam"
+    },
+    {
+      "kind": "pro-desktop",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-scenario-ci",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-service-ha",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-signed-dossier",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-station-fleet",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-study-dossier",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-uncertainty",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-batch",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-beacon-dop",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-conflict-resilience-study",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-optimism-gap-audit",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-quantum-systematics",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-surface-beacon-dop-study",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-trade-study",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-twin",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-uncertainty",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind_sha256": "17fbdf8fab325a9aafa27ee63d5fbd4b16492792b86c386959d5c8e591b34667",
+      "type": "feature",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "2302247b261f2d2e82c5e2cba3f64a35f5839bc8d90615ab83424dbc2855059f",
+      "type": "feature",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "4ddf8f80413304e353c1ba9ca8ff9b8cfe268c7eed082b62b0ad0ee8e3366f6a",
+      "type": "feature",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "64f0b0f231578148fae073eecde0e2ba064170c1ea55a5795b3e22c82d244b78",
+      "type": "feature",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "e36e88f761e240e2d6a40ff582ff45121918e6bbf10cc7c342024e9fcbe9ed60",
+      "type": "feature",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "f52968cb2703f58be986d2370c7bc262cd2335919f0a454b2a35d63ecce02213",
+      "type": "feature",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "fb4c10297445d385975d2f9797c3932a8dc62be33248c6840112c5308081d984",
+      "type": "feature",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "3b296fd95f942821e84fcd2c81589d780888057d8f072f0d09d6b3bbc8a0a2be",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "64f0b0f231578148fae073eecde0e2ba064170c1ea55a5795b3e22c82d244b78",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "847c1921f266f745dc49f1a577a867f83c5f761497817caa123ea5733e43e98a",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "a45f6206d4e4d8e74ed429220b926d0a9f874d0389c1343b0c42d2871d347609",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "a849e2191cd7cf76f7d387b404547667f3f17a2f9f195a8bfa8deb3df15d2875",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "c0df40881e489d6234e90a098ef19717f6c947bc24e5d498101fe5dde7a7a555",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "cd7e35ae0d77db5dc91e7ce5b81c0425c5d7c94120b816ebdf134ce30b5fde9b",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "e36e88f761e240e2d6a40ff582ff45121918e6bbf10cc7c342024e9fcbe9ed60",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "fb4c10297445d385975d2f9797c3932a8dc62be33248c6840112c5308081d984",
+      "type": "kind",
+      "tier": "arksa"
+    }
+  ]
+}

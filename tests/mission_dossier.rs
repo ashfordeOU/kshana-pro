@@ -9,6 +9,9 @@
 //! read here from a direct `kshana::api::run_scenario` call on the same scenario file,
 //! so a verdict in the dossier is checked against the engine, not against a copy.
 
+// Arksa-exclusive (docs/PROTECTION.md): runs only in a build with the `arksa` feature.
+#![cfg(feature = "arksa")]
+
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -56,6 +59,7 @@ fn enterprise() -> Entitlement {
         tier: Tier::Enterprise,
         expires_unix: 0,
         features: vec![],
+        arksa: true,
     }
 }
 
@@ -1210,7 +1214,7 @@ fn the_command_and_each_pro_kind_are_gated_by_the_licence() {
     let e = build(&programme, &out, &opts(Entitlement::evaluation())).unwrap_err();
     assert!(
         e.to_string()
-            .contains("the mission dossier requires the 'enterprise' tier"),
+            .contains(kshana_pro::license::tiers::NOT_IN_THIS_EDITION),
         "{e}"
     );
     assert!(!out.exists());
@@ -1222,6 +1226,7 @@ fn the_command_and_each_pro_kind_are_gated_by_the_licence() {
         tier,
         expires_unix: 0,
         features: vec![kshana_pro::mission::FEATURE.to_string()],
+        arksa: true,
     };
     let out = tmp("gate-kind");
     let e = build(&programme, &out, &opts(by_name(Tier::Evaluation)))
@@ -1294,7 +1299,7 @@ fn the_command_and_each_pro_kind_are_gated_by_the_licence() {
         .unwrap();
     assert!(!refused.status.success());
     assert!(String::from_utf8_lossy(&refused.stderr)
-        .contains("the mission dossier requires the 'enterprise' tier"));
+        .contains(kshana_pro::license::tiers::NOT_IN_THIS_EDITION));
     assert!(!out.exists());
     let checked = bin()
         .args(["mission", "check"])

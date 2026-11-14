@@ -876,6 +876,7 @@ mod tests {
             tier: Tier::Enterprise,
             expires_unix: 0,
             features: vec![],
+            arksa: false,
         }
     }
 

@@ -14,7 +14,7 @@ use kshana_pro::registry;
 /// from `kind` alone; the rest use the repository's own example scenarios.
 fn examples() -> Vec<(&'static str, String)> {
     let bare = |k: &'static str| (k, format!("kind = \"{k}\"\n"));
-    vec![
+    let all = vec![
         bare("pro-seam-check"),
         (
             "pro-twin",
@@ -65,7 +65,12 @@ fn examples() -> Vec<(&'static str, String)> {
             include_str!("../scenarios/pro-power/coexistence/generic-walker-coexistence.toml")
                 .to_string(),
         ),
-    ]
+    ];
+    // A default build has no Arksa-exclusive kinds (docs/PROTECTION.md): check the kinds
+    // this build registers.
+    all.into_iter()
+        .filter(|(k, _)| registry::is_pro_kind(k))
+        .collect()
 }
 
 /// The label check the open engine's own tests apply, made strict: the top-level `label`
@@ -148,6 +153,7 @@ fn ci_report_history_trend_and_diff_are_labelled_modelled() {
 
 /// `mbse`: trace links, the verification cross-reference matrix, change impact and the
 /// evidence pack.
+#[cfg(feature = "arksa")]
 #[test]
 fn mbse_outputs_are_labelled_modelled() {
     use kshana_pro::mbse::trace::{vcrm, Trace};

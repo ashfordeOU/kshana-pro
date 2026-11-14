@@ -15,6 +15,7 @@ fn pro() -> Entitlement {
         tier: Tier::Pro,
         expires_unix: 0,
         features: vec![],
+        arksa: false,
     }
 }
 

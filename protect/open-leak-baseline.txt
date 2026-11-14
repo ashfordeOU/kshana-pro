@@ -1,0 +1,10 @@
+# Open-repository matches accepted by the leak gate (roadmap 0.42 X5): text published
+# before the gate existed, which stays public. <path><TAB><term ID>. Regenerate only
+# with scripts/protect/open-leak-gate.sh --write-baseline after the owner checks it.
+# Open repository HEAD when written: 88321a33b6c33a0700dd40a016f92ba479764ebb
+web/capabilities.html	3d8b6b3eb595
+web/capabilities.html	5ba5e962c508
+web/data/series.json	5ba5e962c508
+web/editions.html	3d8b6b3eb595
+web/editions.html	5ba5e962c508
+web/index.html	3d8b6b3eb595

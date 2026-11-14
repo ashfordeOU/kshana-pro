@@ -799,7 +799,7 @@ fn evaluate_requirement(
     unit: Option<&str>,
     source: &str,
 ) -> RequirementOutcome {
-    use crate::mbse::criterion;
+    use crate::criterion;
     use crate::pack_c::watch::{DocUnits, WATCHED};
     let c = match criterion::parse(req) {
         Ok(c) => c,

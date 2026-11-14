@@ -14,7 +14,9 @@ use kshana::api::KshanaError;
 // outputs (docs/MBSE.md). The margins generator below predates it and is what the
 // `pro-mbse` scenario pack runs.
 pub mod cli;
-pub mod criterion;
+// The result-path criterion grammar and the unit parser are shared with Pack C, so they
+// live outside this module (crate::criterion, crate::units) and are re-exported here.
+pub use crate::criterion;
 pub mod evidence;
 pub mod impact;
 pub mod pack;
@@ -22,7 +24,7 @@ pub mod reqif;
 pub mod requirements;
 pub mod sysml;
 pub mod trace;
-pub mod units;
+pub use crate::units;
 pub mod xml;
 
 /// One requirement with its verification status.
