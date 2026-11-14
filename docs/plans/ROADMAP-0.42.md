@@ -180,6 +180,7 @@ Vision: claude.ai/artifact/K3KuWpfUwjX2isPouDjhbM. Look and maps: claude.ai/arti
 | U16 | **Sky plot with trails**, masks and per-satellite health colours | Open | S | Matches engine geometry at sampled epochs |
 | U17 | **Ship and aircraft connectors** (AIS and ADS-B files; reported vs estimated tracks) | Open | M | Public sample files load; licence of each sample checked |
 | U18 | **Shell in 18 languages**, same i18n checks as the Studio | Open | M | i18n check covers apps/desktop/shell |
+| U30 | **Interactive charts, 2D and 3D** (owner, 14 Nov: "not just visual but interactable, checking values, zoomable, 2D, 3D and everything possible"): hover values with units, pinned readouts, delta markers, wheel/box/axis zoom, pan, linked axes and brushing, legend toggles, CSV/SVG/PNG export; line, scatter/Stanford, bar, heatmap, sky, log–log ADEV/MTIE, spectrum/waterfall; 3D trajectory, scatter with ellipsoids, surface, orbit camera, picking; every chart follows the time cursor | Open | L | 1M-point line ≥ 30 fps, 100k at 60 fps; unit tests for decimation, zoom maths, hit-testing, exports; every result view uses it |
 | U19 | **Signed evidence packs** and **incident replay v1** on the map (reported vs estimated, trust shading, forensics pack) | Pro | L | V2 bars met before E1 is claimed; pack verifies with the public verifier |
 
 **Moved into 0.42 by the owner on 14 Nov** (were planned for 0.43)
