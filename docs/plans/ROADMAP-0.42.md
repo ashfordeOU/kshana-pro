@@ -66,6 +66,65 @@ Owner: manage Arksa-KPro, Pro and Public well; hide the methods in Pro and KPro;
 | X7 | Trade-secret register and patent-before-disclosure rule (P1, P2, P5, B6 filings; P4 secret) | Register exists; no disclosure before filing date |
 | X8 | Marketing rule: outcome names only for "In Arksa" capabilities; no method, equation, parameter or diagram before filing | Copy check in CI for site and docs |
 
+### 1c. Commercial plan: editions, prices, licences, protection (owner, 14 November 2026: "plan it all for me")
+
+All prices are **proposals for the owner to approve (gate K4)**; nothing is public until then. USD to match Arksa's price list (FACTS.md); excl. VAT.
+
+**Payment models**
+| What | Model | Proposed price |
+|---|---|---|
+| Kshana Pro, individual | Subscription, monthly or yearly | $290/month or $2,900/year |
+| Kshana Pro, team (min 3 seats) | Yearly per seat | $4,900/seat/year |
+| Kshana Enterprise (SSO, HA, audit, 25 seats) | Yearly | from $45,000/year |
+| Kshana Pro, academic | Yearly per seat; teaching free | $490/seat/year |
+| Evidence pack: incident forensics | One-time per incident | $4,900 standard; $14,900 claim-grade with expert review |
+| Evidence pack: receiver scorecard | One-time per receiver per campaign | $12,000 |
+| Evidence pack: timing audit (RTS 25, G.8272) | Yearly per site | $5,900/site/year |
+| Evidence pack: insurer qualifying-system evaluation | One-time per system | $24,000 |
+| Evidence pack: framework mapping (EASA, NIST, NIS 2) | One-time | $3,900 |
+| Qualification support package (per standard) | One-time + yearly updates | $9,900 + $2,500/year |
+| Kshana Sovereign (on-site, air-gapped) | Yearly site licence; perpetual only if a government requires it (≈3× yearly + 20%/year maintenance) | from $90,000/year; "Contact us" in public |
+| Arksa | Existing list (FACTS.md): Pro $249/mo; Team $599/seat/mo ($499 yearly); Mission $60k+/yr; Operations $500/satellite/mo; Academic labs $1.5k/yr; Sovereign "Contact us" (internal $150k+/yr, air-gapped from $250k) | unchanged |
+
+No one-time "buy forever" for Kshana Pro: without renewal there is no way to stop a cracked or leaked copy.
+
+**Arksa-KPro inside Arksa's plans** (never sold standalone)
+| Arksa plan | Arksa-KPro jobs included |
+|---|---|
+| Pro | Design studies: MBSE, design optimiser, spectrum coexistence, optical/RF hybrid, frame/EOP, lunar studies |
+| Team | + mission dossier, ECSS evidence (VCD, GSN), MRD, NAV-DT twin |
+| Mission | + PNT and time passport, covariance quality (Space Act), referee engine, space-receiver threat scenarios |
+| Operations ($/satellite) | + spaceborne interference exposure per pass, time-to-breach for onboard and ground clocks, anomaly attribution, threat-aware planning |
+| Sovereign | All of the above on the customer's own servers under contract (Core verdicts included; escrow; no inspection rights) |
+| Academic | Design studies only, watermarked "academic" |
+
+**Licence mechanics**
+- C1 Subscription tokens valid 35 days, renewed automatically online; 30-day offline grace; seat bound to the machine ID; revocation list checked at renewal.
+- C2 Yearly prepaid offline tokens (term + 30 days) for air-gapped Pro and Sovereign; renewal by signed file.
+- C3 Pro split by secrecy: methods that are patented or acceptable to be studied run on the device; trade-secret Pro methods run on a hosted Kshana Pro service (signed results only, inputs in, verdict out), with a monthly compute allowance per subscription.
+- C4 Every signed result carries an invisible licence-holder mark (watermark) so leaked reports can be traced.
+- C5 Terms: no reverse engineering, no benchmarking publication without consent, export and sanctions clauses, liability cap 12 months' fees, "not for safety-of-life use".
+
+**Payments and invoices**
+- C6 Self-serve (Pro individual, team, academic, evidence packs under $5k): merchant of record handles VAT worldwide (Paddle recommended; gate K3; Stripe stays deferred by the owner).
+- C7 Contracts (Enterprise, Sovereign, Arksa Mission/Operations, large evidence packs, QSP): one-page order form, invoice, bank transfer, net 14/30.
+- C8 Licence issuing tied to payment webhooks (S3), refunds revoke (S3 tests).
+
+**Distribution**
+- Kshana Desktop (free): direct signed download for macOS (done), Windows (K5), Linux; Mac App Store and TestFlight optional later (owner: "App Store we will handle in a bit").
+- Kshana Desktop Pro: direct signed download only (store rules would force in-app purchase).
+- Arksa: Arksa cloud, plus Sovereign installs; Arksa-KPro never on a device.
+
+**Build items and order**
+| ID | Item | When |
+|---|---|---|
+| C1–C2 | Token lifetime, renewal, grace, revocation, seat binding | 0.42 phase 0 (with S1) |
+| C3 | Hosted Kshana Pro service for secret methods (reuses S6 hosted trial) | 0.42 phase 1 |
+| C4 | Result watermark | 0.42 phase 1 |
+| C5 | Terms and order form (counsel review) | before first paid sale |
+| C6–C8 | Checkout and issuing (S3–S5) | when K3 and K4 clear |
+| C9 | Private price sheet for sales, then public price page (Sovereign "Contact us") | after K4 |
+
 **Amendment to F10a:** "industry adapters beyond the top five" moves from Pro to **Open**. Every
 other F10a line stands. **Owner gate K1** confirms this amendment.
 
