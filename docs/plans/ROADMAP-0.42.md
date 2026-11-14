@@ -182,7 +182,7 @@ Vision: claude.ai/artifact/K3KuWpfUwjX2isPouDjhbM. Look and maps: claude.ai/arti
 | U18 | **Shell in 18 languages**, same i18n checks as the Studio | Open | M | i18n check covers apps/desktop/shell |
 | U19 | **Signed evidence packs** and **incident replay v1** on the map (reported vs estimated, trust shading, forensics pack) | Pro | L | V2 bars met before E1 is claimed; pack verifies with the public verifier |
 
-**In 0.43** (planned; not committed for 0.42)
+**Moved into 0.42 by the owner on 14 Nov** (were planned for 0.43)
 
 | ID | Item | Edition |
 |---|---|---|
@@ -239,6 +239,16 @@ Map building blocks (proposed): MapLibre GL (BSD-3), deck.gl (MIT), CesiumJS (Ap
 | G8 | Eurocontrol and EU interference-monitoring subcontracts (watch tenders; offer F1 analytics) | Tender / subcontract | Rolling |
 
 ---
+
+## 3a. Owner decision, 14 November 2026: 0.42 carries everything
+
+Owner: "Release everything in 0.42. 0.43 or anything else gets built and delivered in 0.42."
+
+- No 0.43 is planned. U20–U29 (listed above as 0.43) move into 0.42, with every other workstream in this plan (S, I, E, F, T, U, Q). This is the same rule as the 0.41 decision of 3 November.
+- Phases 1 to 4 run in parallel ("all together"), each item on its own branch, merged to main when its acceptance test is green.
+- The owner's go for the 0.42 release is given; the release ships when the release checklist and every acceptance test pass. Items blocked only by an owner gate (K3–K8) ship switched off or in test mode, and are named as such in the changelog.
+- Evidence rows V1–V7 are still never on the critical path: a product claim waits for its bar; the code ships.
+- Items that need outside parties (G1–G8, partner data, hardware) are not "built" by the team; their software side ships, and the outside step stays on the owner's list.
 
 ## 4. Phases and dates (estimates)
 
