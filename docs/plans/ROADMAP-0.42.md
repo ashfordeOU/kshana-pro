@@ -51,6 +51,21 @@ Owner: Kshana Pro parts that make Arksa powerful must not be public or sold to a
 
 Build items this adds: token claim `arksa` and refusal test (a standalone Pro token cannot run an Arksa-exclusive kind); signed tier manifest (D-K10) listing kinds per tier; Desktop Pro build excludes Arksa-exclusive and Core code (binary symbol check in CI); Arksa MCP catalogue exposes Arksa-exclusive kinds, the public Kshana MCP does not. Anything already published stays public.
 
+### 1b. Protection of Arksa-KPro and Core (owner, 14 November 2026)
+
+Owner: manage Arksa-KPro, Pro and Public well; hide the methods in Pro and KPro; no way for anyone to extract them; Kshana Pro may say some high-end things are in Arksa without details. Rule follows where code runs: only code that never ships stays secret.
+
+| ID | Item | Done when |
+|---|---|---|
+| X1 | `arksa` entitlement claim in licence tokens; only Arksa's issuer key signs it; every Arksa-exclusive kind refuses without it | Test: a standalone Pro token is refused for each Arksa-exclusive kind |
+| X2 | Signed tier manifest (D-K10) naming every kind's tier | Manifest verified at start; unknown kinds refused |
+| X3 | Arksa-exclusive and Core code moved out of shipped crates into a server-only module (proposed separate private repo `arksa-kpro`, owner to approve) | Desktop Pro and public packages build without it |
+| X4 | CI symbol check on every Desktop Pro and Pro release binary: no Arksa-exclusive or Core symbols, strings or files; stripped release builds | CI red if any appear |
+| X5 | Leak gate run from the private repo against the open repo on every open-repo push: no Pro, KPro or Core module names, method terms or files | Gate in Pro CI; term list kept private |
+| X6 | Results-only service API for Arksa-exclusive kinds: verdict, evidence class, signature; intermediates withheld; per-tenant query budgets; probing alerts; watermarked outputs; access log | Tests for each |
+| X7 | Trade-secret register and patent-before-disclosure rule (P1, P2, P5, B6 filings; P4 secret) | Register exists; no disclosure before filing date |
+| X8 | Marketing rule: outcome names only for "In Arksa" capabilities; no method, equation, parameter or diagram before filing | Copy check in CI for site and docs |
+
 **Amendment to F10a:** "industry adapters beyond the top five" moves from Pro to **Open**. Every
 other F10a line stands. **Owner gate K1** confirms this amendment.
 
