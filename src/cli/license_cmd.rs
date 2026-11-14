@@ -6,14 +6,14 @@
 
 use std::process::ExitCode;
 
-use kshana::api::KshanaError;
-use kshana_pro::license::activation::{self, CurlFetcher, State, Store};
-use kshana_pro::license::register::Register;
-use kshana_pro::license::{
+use crate::license::activation::{self, CurlFetcher, State, Store};
+use crate::license::register::Register;
+use crate::license::{
     self, machine, Entitlement, Keyring, LicenseClaims, Product, Tier, VerifyOptions,
 };
+use kshana::api::KshanaError;
 
-use crate::{flag, has_flag, now_unix, print_entitlement, signing_seed};
+use super::{flag, has_flag, now_unix, print_entitlement, signing_seed};
 
 const USAGE: &str = "usage: kshana-pro license <command>\n\
   customer:\n\
@@ -45,14 +45,11 @@ pub fn keyring() -> Result<Keyring, KshanaError> {
     }
     #[cfg(debug_assertions)]
     {
-        #[allow(unused_mut)]
-        let mut ring = Keyring::single(license::public_key_for(&crate::DEMO_SEED));
-        // A debug build with the `arksa` feature also trusts the placeholder Arksa issuer
-        // (a test key); a release build never does.
-        #[cfg(feature = "arksa")]
-        ring.add_arksa_issuer(license::parse_key_hex(
-            license::PLACEHOLDER_ARKSA_ISSUER_PUBKEY,
-        )?);
+        let mut ring = Keyring::single(license::public_key_for(&super::DEMO_SEED));
+        // The issuer keys of a registered server-side extension (none in Kshana Pro).
+        for k in license::embedded_arksa_issuers()? {
+            ring.add_arksa_issuer(k);
+        }
         Ok(ring)
     }
     #[cfg(not(debug_assertions))]
@@ -406,7 +403,7 @@ fn status(args: &[String]) -> Result<(), KshanaError> {
             if l.claims.expires_unix == 0 {
                 "never (perpetual)".into()
             } else {
-                crate::utc_from_unix(l.claims.expires_unix)
+                super::utc_from_unix(l.claims.expires_unix)
             }
         );
         println!("products:  {}", activation::products_covered(l).join(", "));
@@ -503,7 +500,7 @@ fn trial(args: &[String]) -> Result<(), KshanaError> {
     eprintln!(
         "[trial for '{}' until {} — register line {}, token {}]",
         e.licensee,
-        crate::utc_from_unix(e.expires_unix),
+        super::utc_from_unix(e.expires_unix),
         e.seq,
         e.token_id
     );
@@ -522,7 +519,7 @@ fn renew(args: &[String]) -> Result<(), KshanaError> {
     eprintln!(
         "[renewed {id} as {} until {}]",
         e.token_id,
-        crate::utc_from_unix(e.expires_unix)
+        super::utc_from_unix(e.expires_unix)
     );
     println!("{tok}");
     Ok(())
@@ -570,7 +567,7 @@ fn reminders(args: &[String]) -> Result<(), KshanaError> {
             e.token_id,
             e.tier,
             e.licensee,
-            crate::utc_from_unix(e.expires_unix)
+            super::utc_from_unix(e.expires_unix)
         );
     }
     Ok(())

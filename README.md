@@ -93,15 +93,18 @@ on spec)**.
 
 Each runs on public data; the tier shown is the licence required to *run* it (see
 [Licensing](#build--run)). The table covers the framework packs; the full list of the
-nineteen registered in [`src/registry.rs`](src/registry.rs), with their tiers, comes from
+nineteen registered in the signed tier manifest (`commercial/tier-manifest.json`): the eight
+this crate contains are in [`src/registry.rs`](src/registry.rs), listed with their tiers by
 `cargo run -- kinds`. `tests/readme_counts.rs` fails the build if the pack count written
 here stops matching the registry.
 
-**Editions (roadmap 0.42, section 1a).** Nine of the nineteen are **Arksa-exclusive**: they
-compile only with the cargo feature `arksa` (off by default, so the default build, every
-package and Desktop Pro carry none of them) and run only under a licence token with the
-`arksa` claim from Arksa's issuer. The edition of every kind is in a signed tier manifest
-verified at start-up. Details, checks and what remains: [docs/PROTECTION.md](docs/PROTECTION.md).
+**Editions (roadmap 0.42, section 1a; X3 done).** Eleven of the nineteen are
+**Arksa-exclusive**, and so are the `mbse`, `design`, `coexist`, `mission`, `navdt`,
+`spacestream` and `mrd` commands: their code is no longer in this repository. It moved to the
+private server-side crate (Arksa servers only), which depends on this one and registers
+through `kshana_pro::extension`; this crate keeps their manifest entries by hash and refuses
+them with a neutral message. The edition of every kind is in a signed tier manifest verified
+at start-up. Details, checks and what remains: [docs/PROTECTION.md](docs/PROTECTION.md).
 
 | Pack (`kind`) | Layer | What it does | Min tier | State |
 |---------------|-------|--------------|----------|-------|
@@ -110,12 +113,9 @@ verified at start-up. Details, checks and what remains: [docs/PROTECTION.md](doc
 | `pro-quantum-systematics` | L1 | Optical-clock systematic frequency-shift budget (BBR, gravitational redshift, Zeeman, extras) + uncertainty floor — formulas built, species coefficients are *cited inputs*, never baked in | Pro | ✅ framework demonstrator |
 | `pro-trade-study` | L3 | Runs architecture variants through the embedded open engine, ranks them on a figure of merit, and stress-tests the winner with an **8-method MCDA concordance panel** (WSM/WPM/WASPAS/MOORA/TOPSIS/VIKOR/PROMETHEE II + COPRAS; Kendall-τ concordance + rank-reversal count, folded into the ECSS Annex L / NASA-SE-6.8 reports); emits an audit-grade evidence pack with reproducible scenario hashes | Pro | ✅ framework demonstrator (licensed SKU gated) |
 | `pro-optimism-gap-audit` | Pack A | The in- vs out-of-distribution **optimism-gap audit** packaged as a sold study: ingests a customer detector through the open-core eval testbed, scores the ID→OOD degradation, and emits the branded Pack A report (`report_pack_a` + `packs::detector_intake`) | Pro | ✅ built + tested |
-| `pro-mbse` | L3 | ECSS/MBSE artifact generator: requirements → margins table + traceability CSV + ReqIF-lite XML (DOORS/Polarion-importable) | Enterprise | ✅ framework demonstrator (product SKU gated) |
 | `pro-batch` | scale | Parallel Monte-Carlo runner: fans one base scenario across many seeds concurrently, aggregates a figure of merit (mean/std/min/max/p05/p95) | Enterprise | ✅ built + tested |
 | `pro-scenario-ci` | Pack C | The **scenario-subscription CI** product (run via `kshana-pro ci`): a manifest of scenarios + metric thresholds gated against a rolling baseline (the JSON output doubles as the next run's baseline), emitting the branded Pack C regression report (`pack_c::{manifest,metrics,gate,run}` + `report_pack_c`). **Campaign watch**: `[[watch]]` tables name the figures that matter (result paths, aggregates, named campaign figures, sweep crossings), what worse means for each and optional unit-checked requirements; a Monte Carlo figure is gated by a Welch t-test on the mean and an F-test on the spread; `--history` keeps a hash-chained history (`ci history verify`), `--trend` draws it, `--exact` reports every changed member result, `ci diff` lists what moved. Five subscription packs in `scenarios/packs/`. See [`docs/CAMPAIGN-WATCH.md`](docs/CAMPAIGN-WATCH.md) | Pro | ✅ built + tested |
-| `pro-design-optimise` | L3 | **Design optimiser** (`kshana-pro design`): a design space over a base scenario of any open kind, Walker and result constraints, two or three objectives; returns the Pareto front, its knee and the place of a reference design. Exhaustive when the space fits the budget, seeded NSGA-II (non-dominated sorting genetic algorithm II) otherwise, labelled "best found in N runs"; every front design is exported as a plain open scenario the free engine re-runs to the same result. See [`docs/DESIGN-OPTIMISER.md`](docs/DESIGN-OPTIMISER.md) | Enterprise | ✅ built + tested |
 | `pro-uncertainty` | scale | **Uncertainty and sensitivity** (`kshana-pro uncertainty`): stated input distributions over any open scenario; per output the mean, spread, percentiles with a bootstrap interval, the probability of meeting a limit (Wilson interval), time-series bands, and Sobol' or standardised-regression sensitivity; seeded, thread-count independent, stop and resume. See [`docs/UNCERTAINTY.md`](docs/UNCERTAINTY.md) | Enterprise | ✅ built + tested |
-| `pro-spectrum-coexistence` | L3 | **Spectrum coexistence** (`kshana-pro coexist`): whole candidate signal plans (a signal design plus a constellation) against every open-service global navigation satellite system (GNSS) signal the open engine models, in both directions, over a worldwide grid, with a verdict per plan and signal against the limit the study states (no limit is built in); a MODELLED upper bound read from open `leo-signal` and `constellation-design` runs; refuses any jammer, spoofer, attack or threat table. See [`docs/SPECTRUM-COEXISTENCE.md`](docs/SPECTRUM-COEXISTENCE.md) | Enterprise | ✅ built + tested |
 
 ### Layer attach points & gates
 
@@ -124,44 +124,36 @@ verified at start-up. Details, checks and what remains: [docs/PROTECTION.md](doc
 | P0 | `packs::seam_check`, `registry` | `ExternalPack` | on-spec | ✅ built + tested |
 | L1 | `twin`, `premium`, `packs::{twin,quantum_systematics}_pack` | `kshana::models::ClockModel`/`ErrorModel` + `allan` | `twin::customer_instance_gated` (NDA partner + contract) | ✅ frameworks built; customer instance gated |
 | L2 | `resilience` | `kshana::models::ErrorModel` / `ExternalPack` | export clearance + customer | 🔒 fail-closed stub (legal wall) |
-| L3 | `suite`, `mbse`, `packs::{trade_study,mbse}_pack` | `ExternalPack` + `kshana::api::run_scenario` | `suite::product_gated` (productised SKU) | ✅ frameworks built; SKU gated |
+| L3 | `suite`, `packs::trade_study_pack` | `ExternalPack` + `kshana::api::run_scenario` | `suite::product_gated` (productised SKU) | ✅ frameworks built; SKU gated |
 
 ### Supporting modules (built)
 
 Beyond the packs, the overlay ships the deliverable and deployment surface a
 study/bid needs:
 
-- **L3 assurance stack** (`suite::{decision,multi_method,gsn,vcd,provenance,gate,vv_dossier}`)
+- **L3 assurance stack** (`suite::{decision,multi_method,provenance,gate,vv_dossier}`)
   — the trade study upgraded from a single figure of merit to a defensible, agency-shaped
   decision: an **8-method MCDA concordance panel** (Kendall-τ agreement + rank-reversal
-  count), a **GSN** claim–argument–evidence assurance argument (GSN Community Standard
-  v3), an **ECSS VCD** verification-control matrix (ECSS-E-ST-10-02C), a **W3C-PROV**
-  tamper-evident provenance record, a **fail-closed** multi-criteria assurance gate, and
-  the capstone agency **V&V credibility dossier**.
+  count), a **W3C-PROV** tamper-evident provenance record, a **fail-closed** multi-criteria
+  assurance gate, and the capstone agency **V&V credibility dossier**. (The GSN argument and
+  the VCD moved to the Arksa server crate with X3.)
 - **L1 twin depth** (`twin::{holdover_uq,presets,optical_systematics}`) — holdover-UQ
   **MTIE(τ)-mask compliance** over the validated `kshana::allan::mtie` estimator (with a
   conservative ±kσ band), a named clock **device-preset** library, and the optical-lattice
   **systematic-shift** budget.
-- **`twin::navdt`** (A10) — NAV-DT performance/resilience twin: runs the open-core
-  spine end-to-end and assembles one hash-stamped, label-honest bundle.
-- **`report`** (A11) — one renderer (Markdown / HTML / SVG / JSON) over the NAV-DT
-  bundle + trade-study evidence + RF-impairment evaluation, MODELLED/VALIDATED labels
-  carried through.
+- **`report`** (A11) — one renderer (Markdown / HTML / SVG / JSON) over the figures of
+  merit of one open run + trade-study evidence + RF-impairment evaluation,
+  MODELLED/VALIDATED labels carried through.
 - **`pro_study` · `study_ledger` · `report_pdf` / `report_brand` / `report_pack_a` /
   `report_pack_c`** — the study → delivery pipeline. `pro_study` composes one branded
   cover + a single MODELLED banner + N pack sections (with the `report_brand` furniture);
   `report_pdf` renders a pure-Rust PDF; `study_ledger` appends a hash-chained,
   tamper-evident delivery record (request → run → delivered; `verify()` catches any
   alteration); `report_pack_a` / `report_pack_c` render the Pack A / Pack C study faces.
-- **`mrd`** (A03 / D1.4) — machine-checked Mission-Requirements skeleton mapping each
-  PNT requirement to the tender's figure-of-merit vocabulary. Each row resolves to the
-  verification evidence that *binds* it, not the strongest in its chain; a follow-on row
-  must claim no field and no oracle, and no row may credit a pass-through field as a
-  computation.
 - **`benefits`** (A02 / D1.1) — benefit-vs-baseline ratio engine over the trade-study
   core, with dual MODELLED/VALIDATED provenance labels and no auto-upgrade to VALIDATED.
-- **`connectors`** (PR21) — STK `.e` (km, J2000/GCRS) + universal CSV exporters, the
-  SpaceStream NAV-DT metrics codec, and a CI metric gate (dot-path metric, non-zero exit).
+- **`connectors`** (PR21) — STK `.e` (km, J2000/GCRS) + universal CSV exporters and a CI
+  metric gate (dot-path metric, non-zero exit).
 - **`serve`** (PR22) — a dependency-light, std-only blocking HTTP/1.1 service
   (`GET /health` · `/version` · `/kinds`; `POST /run` · `POST /study`) for on-prem /
   air-gapped / sovereign / hosted deployment, entitlement-gated and **fail-closed**
@@ -172,25 +164,6 @@ study/bid needs:
   (`GET /ledger/verify`), unfinished jobs queued again after a restart, an OpenAPI
   document generated from the route table, a job board page and an optional bearer
   token (`--api-token-file`). See [`docs/SERVICE.md`](docs/SERVICE.md).
-- **`mbse`** — model-based systems engineering (MBSE) and programme tooling over the
-  open engine's own outputs (`kshana-pro mbse import|trace|vcrm|sysml|impact|pack`):
-  requirements imported from comma-separated values (CSV), a documented subset of the
-  Requirements Interchange Format (ReqIF) and Systems Modeling Language v2 (SysML v2)
-  text, each with a machine-checkable acceptance criterion over `result.json` fields
-  with units; evaluation against real runs, unit-checked against the field-units
-  schema; a verification cross-reference matrix (VCRM) whose evidence is each run's
-  `scenario_hash`, `seed`, `engine_version` and the field paths and values read, with
-  a MODELLED or PARTNER basis flagged; a SysML v2 export checked against the grammar
-  subset it uses; change impact between two traces or two scenario files; and an
-  offline HTML plus JSON evidence pack. See [`docs/MBSE.md`](docs/MBSE.md).
-- **`mission`** — the **mission dossier** (`kshana-pro mission build|check`, licence
-  feature `pro-mission-dossier`, Enterprise tier): one programme file (requirements in CSV,
-  ReqIF or SysML v2, scenarios of any kind, an optional trade, sign-off rows) becomes one
-  dossier: every scenario run, every requirement checked against the runs, a verification
-  matrix, figures, `dossier.pdf` / `.html` / `.json`, the evidence pack, a manifest and a
-  hash-chained ledger; `mission check` re-hashes a delivered dossier and, with `--rerun`,
-  runs every scenario again. It is a command, not a scenario kind, so it is not in the
-  pack count. See [`docs/MISSION-DOSSIER.md`](docs/MISSION-DOSSIER.md).
 - **Pro power summary** — what each of the six Pro power features (design optimiser,
   uncertainty, mission dossier, campaign watch, spectrum coexistence, job service) does, its inputs and
   outputs, and what is honestly not done: [`docs/PRO-POWER.md`](docs/PRO-POWER.md).
@@ -211,8 +184,8 @@ study/bid needs:
   for NDA characterisation data; `twin::customer_instance_gated` guards it.
 - All of **L2 resilience** — real threat data is export-controlled; the module stays a
   fail-closed seam guard until the export assessment clears.
-- The productised **ECSS/MBSE SKU** — the `pro-mbse` framework runs today; packaging it
-  as a sold, supported deliverable is demand-gated via `suite::product_gated`.
+- The productised **ECSS/MBSE SKU** — the MBSE framework is Arksa-exclusive since X3 and
+  is not in this crate.
 
 No gated *capability* is built on spec — only the *frameworks* (runnable on public
 data) and the L2 guard.
@@ -277,20 +250,17 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **forty-seven integration tests** in
+The suite is unit tests across every module plus **thirty-eight integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
-and must give the open engine's result byte for byte),
-`e2e_interop.rs` (end-to-end), `reproducibility_twin.rs` (deterministic twin),
-`no_overclaims_mission_analysis.rs` (honesty guard), the study/report/pack path
+and must give the open engine's result byte for byte), the study/report/pack path
 (`pro_study.rs`, `report_cover.rs`, `report_pdf.rs`, `study_ledger.rs`,
 `study_intake.rs`, `pack_c.rs`, `optimism_gap_scenarios.rs`, `study_dossier.rs`),
-`mbse.rs` (the MBSE commands over real open-engine runs), the six Pro power features
-(`design_optimise.rs`, `uncertainty.rs`, `mission_dossier.rs`, `campaign_watch.rs`,
-`spectrum_coexistence.rs`, `service_jobs.rs`, each checked against independent
-open-engine runs, closed forms or real sockets), the
-four `*_in_sync.rs` guards (each committed deliverable matches its generator output, so
+the Pro power features that stay in this crate (`uncertainty.rs`, `campaign_watch.rs`,
+`service_jobs.rs`, each checked against independent open-engine runs, closed forms or
+real sockets; the design optimiser, mission dossier and spectrum coexistence tests moved
+with their code), the `*_in_sync.rs` guards (each committed deliverable matches its generator output, so
 docs never drift), `modelled_label.rs` (every Pro kind's result and every command's
 result document carries a top-level `label` that starts with MODELLED, the open engine's
 own form), `ashforde_brand.rs` and `ashforde_sample.rs` (every document is an Ashforde
@@ -340,7 +310,7 @@ cargo run -- run scenarios/batch-clock-mc.toml --license "$TOK"  # DENIED (Enter
 
 Tiers: **Evaluation** (free `pro-seam-check`) → **Pro** (`pro-twin`,
 `pro-trade-study`, `pro-quantum-systematics`, `pro-optimism-gap-audit`,
-`pro-scenario-ci`) → **Enterprise** (+ `pro-mbse`, `pro-batch`). Tokens are
+`pro-scenario-ci`) → **Enterprise** (+ `pro-batch`, `pro-uncertainty`). Tokens are
 Ed25519-signed: `license issue` signs with `$KSHANA_PRO_SIGNING_KEY` (vendor only),
 and a build verifies with the public key compiled in from `$KSHANA_PRO_LICENSE_PUBKEY`
 (`license keygen` makes the pair). Debug builds fall back to a demo key pair so the
@@ -361,19 +331,14 @@ cargo run -- gate ../kshana/scenarios/ephemeris.toml --metric samples.0.alt_km -
 
 **Deliverable & deployment subcommands.** Beyond `run` / `export` / `gate`, the
 overlay exposes the study-deliverable and service surface (full list: `kshana-pro`
-with no args, or see [`src/main.rs`](src/main.rs) `usage()`):
+with no args, or see [`src/cli/mod.rs`](src/cli/mod.rs) `usage()`):
 
 ```bash
 cargo run -- study --dossier scenarios/dossier-holdover-csac.toml --out out/ --dev  # study dossier: HTML + JSON technical note (Pro)
-cargo run -- mbse vcrm tests/fixtures/mbse/trace.toml --dev    # MBSE: verification cross-reference matrix over real runs (Enterprise, `pro-mbse`)
-cargo run -- mbse pack tests/fixtures/mbse/trace.toml --out out/ --dev  # MBSE evidence pack: HTML + JSON
-cargo run -- navdt scenarios/twin-csac.toml                 # A10 NAV-DT twin bundle (JSON)
 cargo run -- report scenarios/trade-clock.toml --format html # A11 consolidated report (md|json|html|svg)
 cargo run -- report scenarios/trade-clock.toml --pdf out.pdf # A11 pure-Rust PDF export (report_pdf)
 cargo run -- ci --pack <manifest.toml> --baseline ci.json --out report.html --json ci.json  # Pack C scenario-CI regression gate (Pro)
-cargo run -- mrd                                            # A03/D1.4 machine-checked MRD FoM-mapping (Markdown)
 cargo run -- benefits --json                                # A02/D1.1 benefit-vs-baseline table (dual provenance labels)
-cargo run -- spacestream --schema                           # A09 SpaceStream codec goldens / ICD schema
 cargo run -- serve --addr 127.0.0.1:8088                    # PR22 HTTP service — GET /health /version /kinds · POST /run /study, entitlement-gated
 ```
 
@@ -402,32 +367,20 @@ The Pro packs (runnable examples in [`scenarios/`](scenarios)):
   architecture by timing holdover; emits the ranked evidence pack (`evidence_pack_markdown`).
 - `scenarios/quantum-systematics-sr.toml` — `pro-quantum-systematics`: an Sr optical-clock
   systematic-shift budget (coefficients supplied in the scenario, never baked in).
-- `scenarios/mbse-srd.toml` — `pro-mbse`: a requirements set rendered to a margins table +
-  traceability CSV + ReqIF-lite XML.
 - `scenarios/batch-clock-mc.toml` — `pro-batch`: a Monte-Carlo ensemble of a clock scenario
   across many seeds (Enterprise tier).
 - `scenarios/dossier-holdover-csac.toml` — `study --dossier`: an open `clock` scenario
   with a `[dossier]` block; the chip-scale atomic clock's holdover through a 110-minute
   GNSS denial, written up as a study dossier.
-- `scenarios/pro-power/design/*.toml` — `kshana-pro design`: five worked design studies
-  (a lunar navigation constellation over the whole Moon and over the south polar cap, a
-  low-Earth-orbit positioning shell, a Mars shell, a link budget), with provenance.
 - `scenarios/pro-power/uncertainty/uq-*.toml` — `kshana-pro uncertainty`: five worked
   studies (link margin, clock holdover over seeds and over an uncertain noise level, the
   low-Earth-orbit positioning chain with regression and with Sobol' sensitivity).
-- `scenarios/pro-power/mission/programme.toml` — `kshana-pro mission build`: a
-  twelve-requirement programme over five scenarios and a lunar relay trade.
 - `scenarios/packs/*/pack.toml` — `kshana-pro ci`: five campaign-watch subscription packs
   (low Earth orbit, constellations, spectrum, campaigns, the solar system), each with a
   `PROVENANCE.md`; `scenarios/pro-power/watch-demo/` holds a six-revision demonstration
   sequence and its script `run-demo.sh`.
-- `scenarios/pro-power/coexistence/generic-walker-coexistence.toml` — `kshana-pro coexist`:
-  four plans on the open engine's generic designs against all six open-service signals,
-  with an illustrative limit.
 - `tests/fixtures/service/*.toml` — public open-engine scenarios, with provenance, that the
   job service's acceptance test submits through `POST /jobs`.
-- `scenarios/spacestream-*.json` — SpaceStream NAV-DT metrics fixtures (nominal / jamming /
-  spoof-time / degraded) for the connector / `spacestream` path.
 
 ## Deployment
 

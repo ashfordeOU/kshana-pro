@@ -6,10 +6,10 @@
 use std::path::Path;
 use std::process::ExitCode;
 
-use kshana_pro::license::{self, Entitlement, Product, KEY_LEN};
-use kshana_pro::signed_dossier;
+use crate::license::{self, Entitlement, Product, KEY_LEN};
+use crate::signed_dossier;
 
-use crate::{flag, has_flag, license_cmd, now_unix, utc_iso8601_now};
+use super::{flag, has_flag, license_cmd, now_unix, utc_iso8601_now};
 
 const USAGE: &str = "usage: kshana-pro dossier <command>\n\
     keygen                                         New dossier signing key pair (keep the private key secret)\n\

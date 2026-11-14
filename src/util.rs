@@ -7,7 +7,7 @@ use kshana::api::KshanaError;
 
 /// Walk a dot-path (`a.b.c`) into a JSON value, returning a finite number if present.
 /// A numeric path segment indexes into an array (`samples.0.alt_km`).
-pub(crate) fn dot_path_number(root: &serde_json::Value, path: &str) -> Option<f64> {
+pub fn dot_path_number(root: &serde_json::Value, path: &str) -> Option<f64> {
     let mut cur = root;
     for key in path.split('.') {
         cur = match key.parse::<usize>() {

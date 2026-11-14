@@ -6,8 +6,8 @@
 //! of merit (back-compatible) or, when `criteria` are supplied, runs a full
 //! multi-criteria decision (WSM + optional AHP weights + Pareto + sensitivity) and
 //! emits the assurance layer: a W3C-PROV evidence pack with a Merkle root, an ECSS
-//! Annex L / NASA §6.8 trade report, a GSN argument, an ECSS Verification Control
-//! Document, an ISO 16290 TRL table, and a fail-closed assurance gate.
+//! Annex L / NASA §6.8 trade report, an ISO 16290 TRL table, and a fail-closed
+//! assurance gate.
 
 use std::collections::BTreeMap;
 
@@ -20,7 +20,7 @@ pub const TRADE_LABEL: &str = "MODELLED - a trade study over open-engine simulat
 
 use crate::suite::decision::{TradeCriterion, Weighting};
 use crate::suite::{
-    evidence_pack_markdown, gate, gsn, reports, run_trade_study, vcd, GateThresholds, TradeReport,
+    evidence_pack_markdown, gate, reports, run_trade_study, GateThresholds, TradeReport,
     TradeSpace, TrlLevel, Variant,
 };
 
@@ -99,7 +99,7 @@ impl TradeStudyScenario {
     pub fn meta_static() -> ScenarioMeta {
         ScenarioMeta {
             name: Self::KIND,
-            description: "Kshana Pro L3: run architecture variants through the open engine, then either rank on a figure of merit or run a full multi-criteria decision (WSM + AHP weights + Pareto + sensitivity) and emit the assurance layer — W3C-PROV evidence pack with a Merkle root, ECSS Annex L / NASA §6.8 trade report, GSN argument, ECSS Verification Control Document, ISO 16290 TRL table, and a fail-closed gate. All Modelled; standards implemented structurally. The licensed Pro SKU (full ECSS/MBSE) is demand-gated.",
+            description: "Kshana Pro L3: run architecture variants through the open engine, then either rank on a figure of merit or run a full multi-criteria decision (WSM + AHP weights + Pareto + sensitivity) and emit the assurance layer — W3C-PROV evidence pack with a Merkle root, ECSS Annex L / NASA §6.8 trade report, ISO 16290 TRL table, and a fail-closed gate. All Modelled; standards implemented structurally.",
             required_fields: &["title", "variant"],
             optional_fields: &["metric", "lower_better", "criterion", "ahp", "trl", "min_trl"],
         }
@@ -180,8 +180,6 @@ impl Scenario for TradeStudyScenario {
 
         // Assurance artifacts (multi-criteria mode produces the full set).
         let prov = crate::suite::provenance::build_provenance(&report);
-        let gsn_arg = gsn::build_argument(&report, min_trl);
-        let vcd_doc = vcd::build_vcd(&report);
         let verdict = gate::assurance_gate(&report);
         let trl_rows = reports::trl_assessment(&report, min_trl);
 
@@ -206,12 +204,10 @@ impl Scenario for TradeStudyScenario {
             })).collect::<Vec<_>>(),
             "decision": report.decision,
             "provenance": prov,
-            "gsn": gsn_arg,
-            "vcd": vcd_doc,
             "trl": trl_rows,
             "gate": verdict,
             "evidence_pack_markdown": evidence_md,
-            "assurance_pack_markdown": assurance_pack_markdown(&report, &prov, &gsn_arg, &vcd_doc, &verdict, min_trl),
+            "assurance_pack_markdown": assurance_pack_markdown(&report, &prov, &verdict, min_trl),
         })
         .to_string();
 
@@ -253,8 +249,6 @@ impl Scenario for TradeStudyScenario {
 fn assurance_pack_markdown(
     report: &TradeReport,
     prov: &crate::suite::DecisionProvenance,
-    gsn_arg: &gsn::GsnArgument,
-    vcd_doc: &vcd::Vcd,
     verdict: &gate::GateVerdict,
     min_trl: u8,
 ) -> String {
@@ -266,8 +260,6 @@ fn assurance_pack_markdown(
         md.push_str(&reports::nasa_se_68_markdown(report));
         md.push_str("\n---\n\n");
         md.push_str(&reports::trl_markdown(report, min_trl));
-        md.push_str(&gsn_arg.markdown());
-        md.push_str(&vcd_doc.markdown());
         md.push_str(&verdict.markdown());
     }
     // The evidence pack already carries the provenance; reference its root here too.
@@ -455,15 +447,14 @@ mod tests {
         assert_eq!(v["multi_criteria"], true);
         assert!(v["decision"].is_object(), "decision block present");
         assert!(v["provenance"]["merkle_root"].is_string());
-        assert!(v["gsn"]["nodes"].is_array());
-        assert!(v["vcd"]["items"].is_array());
+        assert!(v.get("gsn").is_none() && v.get("vcd").is_none());
         assert!(v["gate"]["outcome"].is_string());
         // The combined assurance pack carries every section.
         let pack_md = v["assurance_pack_markdown"].as_str().unwrap();
         assert!(pack_md.contains("Annex L"));
         assert!(pack_md.contains("§6.8"));
-        assert!(pack_md.contains("GSN"));
-        assert!(pack_md.contains("Verification Control Document"));
+        assert!(!pack_md.contains("GSN"));
+        assert!(!pack_md.contains("Verification Control Document"));
         assert!(pack_md.contains("Assurance gate"));
         assert!(pack_md.contains("Merkle root"));
     }

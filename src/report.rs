@@ -2,7 +2,7 @@
 //
 //! # Consolidated performance/resilience report (A11)
 //!
-//! One renderer over the NAV-DT twin bundle ([`crate::twin::navdt`]), the trade-study
+//! One renderer over the figures of merit of one open run ([`FomSummary`]), the trade-study
 //! evidence ([`crate::suite::run_with_evidence`]), the RF-impairment evaluation
 //! scores (the open [`kshana::impairment_eval`] testbed), an RTM compliance/margin
 //! table, and the open verification-matrix status counts. It emits the consolidated
@@ -23,7 +23,75 @@ use serde::Serialize;
 
 use crate::connectors::GateOp;
 use crate::report_brand as brand;
-use crate::twin::navdt::{bundle_from_json, NavDtBundle};
+
+/// One labelled figure of merit read from the open result.
+#[derive(Debug, Clone, Serialize)]
+pub struct LabeledFom {
+    /// The field name in the result (the last segment of `key`).
+    pub name: String,
+    /// The dot path of the figure in the result JSON.
+    pub key: String,
+    pub value: Option<f64>,
+    /// `MODELLED` / `VALIDATED` / `PARTNER`, from the open verification matrix.
+    pub label: String,
+    pub oracle: String,
+}
+
+/// Every numeric figure of merit the open run reports for one subject
+/// (`<subject>.fom.*`), each with its verification label, in key order.
+#[derive(Debug, Clone, Serialize)]
+pub struct FomSummary {
+    /// The open engine version stamped in the result.
+    pub engine_version: String,
+    /// The open engine's reproducible scenario hash (`None` if the run produced none).
+    pub scenario_hash: Option<String>,
+    pub foms: Vec<LabeledFom>,
+}
+
+impl FomSummary {
+    /// Read the summary from an open result JSON.
+    pub fn from_result(json: &serde_json::Value, subject: &str) -> FomSummary {
+        let mut foms = Vec::new();
+        if let Some(obj) = json
+            .get(subject)
+            .and_then(|s| s.get("fom"))
+            .and_then(|f| f.as_object())
+        {
+            for (leaf, v) in obj {
+                let Some(value) = v.as_f64().filter(|x| x.is_finite()) else {
+                    continue;
+                };
+                let key = format!("{subject}.fom.{leaf}");
+                let (status, oracle) = crate::benefits::fom_provenance(&key);
+                foms.push(LabeledFom {
+                    name: leaf.clone(),
+                    key,
+                    value: Some(value),
+                    label: status.tag().into(),
+                    oracle: format!("{oracle:?}"),
+                });
+            }
+        }
+        foms.sort_by(|a, b| a.key.cmp(&b.key));
+        FomSummary {
+            engine_version: json
+                .get("engine_version")
+                .and_then(|v| v.as_str())
+                .unwrap_or("unknown")
+                .to_string(),
+            scenario_hash: json
+                .get("scenario_hash")
+                .and_then(|h| h.as_str())
+                .map(String::from),
+            foms,
+        }
+    }
+
+    /// Every figure, in order.
+    pub fn all_foms(&self) -> Vec<&LabeledFom> {
+        self.foms.iter().collect()
+    }
+}
 
 /// Verification-matrix status counts (live from the open core).
 #[derive(Debug, Clone, Serialize)]
@@ -110,7 +178,7 @@ impl RtmRow {
 /// One CI metric-threshold check over a report FoM.
 #[derive(Debug, Clone)]
 pub struct GateCheck {
-    /// FoM key or human name to look up in the bundle (e.g. `"availability"`).
+    /// FoM key or field name to look up in the figures (e.g. `"availability"`).
     pub metric: String,
     pub op: GateOp,
     pub threshold: f64,
@@ -186,7 +254,8 @@ pub struct ConsolidatedReport {
     /// The honesty label, [`REPORT_LABEL`], in the open engine's `label` form.
     pub label: &'static str,
     pub title: String,
-    pub bundle: NavDtBundle,
+    /// The figures of merit of the run.
+    pub figures: FomSummary,
     /// Resilience-vs-time series `[t_s, |error|]` extracted from the open run.
     pub resilience_series: Vec<[f64; 2]>,
     /// Spec threshold for the resilience curve, if the scenario had one.
@@ -208,9 +277,9 @@ pub struct ConsolidatedReport {
 /// The honesty label every consolidated report carries in its JSON evidence pack.
 pub const REPORT_LABEL: &str = "MODELLED - a consolidated report over one open-engine run: every figure is simulation output, and each figure of merit carries its own tier from the open engine's verification matrix. It is an engineering study, not flight or in-orbit validation and not a certification.";
 
-/// The validation-tier tag (`VALIDATED` / `MODELLED` / `PARTIAL`) for a bundle FoM,
+/// The validation-tier tag (`VALIDATED` / `MODELLED` / `PARTIAL`) for a reported FoM,
 /// sourced from the open core's single source of truth
-/// [`kshana::fom_label::tier_for`]. The bundle keys are `"{subject}.fom.{leaf}"`;
+/// [`kshana::fom_label::tier_for`]. The keys are `"{subject}.fom.{leaf}"`;
 /// the leaf is the FoM field name `tier_for` expects. Returns `None` when the core
 /// does not recognise the name — the renderer then omits the tag rather than
 /// inventing a tier.
@@ -222,8 +291,8 @@ fn fom_tier_tag(key: &str) -> Option<&'static str> {
 /// The standard caveat set every consolidated artifact must carry.
 fn default_caveats() -> Vec<String> {
     vec![
-        "Kshana provides ONE work-package component (the performance/resilience spine) of a \
-         partner-led NAV-DT — not the whole twin."
+        "Kshana provides ONE work-package component (the performance/resilience figures) of a \
+         wider study — not the whole system."
             .into(),
         "Figures are MODELLED (simulation) unless tied to an external-validation island \
          (SGP4/Allan/IGS/frames/Mars-DE440)."
@@ -247,7 +316,7 @@ pub fn build_report(
     let out = run_scenario(scenario_toml)?;
     let json: serde_json::Value = serde_json::from_str(&out.json)
         .map_err(|e| KshanaError::InvalidInput(format!("result JSON did not parse: {e}")))?;
-    let bundle = bundle_from_json(&json, subject);
+    let figures = FomSummary::from_result(&json, subject);
 
     // Resilience-vs-time series from the subject's error series, if present.
     let mut resilience_series = Vec::new();
@@ -270,7 +339,7 @@ pub fn build_report(
     Ok(ConsolidatedReport {
         label: REPORT_LABEL,
         title: title.into(),
-        bundle,
+        figures,
         resilience_series,
         threshold,
         matrix: matrix_counts(),
@@ -317,7 +386,7 @@ impl ConsolidatedReport {
         let mut failures = Vec::new();
         for c in checks {
             let found = self
-                .bundle
+                .figures
                 .all_foms()
                 .into_iter()
                 .find(|f| f.key == c.metric || f.name == c.metric);
@@ -350,7 +419,7 @@ impl ConsolidatedReport {
     }
 
     /// The inline validation-tier tag (`VALIDATED` / `MODELLED` / `PARTIAL`) for a
-    /// bundle FoM by key, sourced from the open core's single source of truth
+    /// reported FoM by key, sourced from the open core's single source of truth
     /// ([`kshana::fom_label::tier_for`] via [`fom_tier_tag`]). Returns `None` when
     /// the core does not recognise the FoM name. Re-exported so the PDF face
     /// ([`crate::report_pdf`]) renders the exact same tier as the HTML face — never
@@ -395,7 +464,7 @@ impl ConsolidatedReport {
             "_Kshana Pro v{} consolidated performance/resilience report. Scenario hash \
              `{}`; report fingerprint `{}`._\n\n",
             crate::version(),
-            self.bundle.scenario_hash.as_deref().unwrap_or("—"),
+            self.figures.scenario_hash.as_deref().unwrap_or("—"),
             self.fingerprint()
         ));
 
@@ -403,7 +472,7 @@ impl ConsolidatedReport {
         md.push_str(
             "| FoM | Value | Tier | Label | Oracle |\n|-----|-------|------|-------|--------|\n",
         );
-        for f in self.bundle.all_foms() {
+        for f in self.figures.all_foms() {
             md.push_str(&format!(
                 "| {} | {} | {} | {} | {} |\n",
                 f.name,
@@ -488,7 +557,7 @@ impl ConsolidatedReport {
                 format!(
                     "Kshana Pro v{} · open engine v{}",
                     crate::version(),
-                    self.bundle.engine_version
+                    self.figures.engine_version
                 )
             })
     }
@@ -503,8 +572,8 @@ impl ConsolidatedReport {
                 format!(
                     "This study reports the modelled performance and resilience of the \
                      Kshana performance/resilience spine over the supplied scenario. \
-                     Kshana provides ONE work-package component of a partner-led NAV-DT, \
-                     not the whole twin. {} of the {} verification rows are externally \
+                     Kshana provides ONE work-package component of a wider study, \
+                     not the whole system. {} of the {} verification rows are externally \
                      validated; the remainder are MODELLED (simulation) figures. The \
                      results are an engineering study, not a certification.",
                     self.matrix.validated,
@@ -585,7 +654,7 @@ impl ConsolidatedReport {
         let p = self.provenance.clone().unwrap_or_default();
         let dash = "&mdash;".to_string();
         let hashes = if p.scenario_hashes.is_empty() {
-            self.bundle.scenario_hash.clone().unwrap_or_default()
+            self.figures.scenario_hash.clone().unwrap_or_default()
         } else {
             p.scenario_hashes.join(", ")
         };
@@ -638,7 +707,7 @@ impl ConsolidatedReport {
     /// next to its value (sourced from [`kshana::fom_label::tier_for`]).
     fn fom_table_html(&self) -> String {
         let mut rows = String::new();
-        for f in self.bundle.all_foms() {
+        for f in self.figures.all_foms() {
             let val = f
                 .value
                 .map(|v| format!("{v:.4}"))
@@ -852,7 +921,7 @@ mod tests {
     }
 
     fn report() -> ConsolidatedReport {
-        build_report("NAV-DT demo", &clock_scenario(), "quantum").unwrap()
+        build_report("Resilience demo", &clock_scenario(), "quantum").unwrap()
     }
 
     #[test]
@@ -883,7 +952,7 @@ mod tests {
     #[test]
     fn report_has_fom_summary_resilience_series_and_caveats() {
         let r = report();
-        assert!(!r.bundle.all_foms().is_empty());
+        assert!(!r.figures.all_foms().is_empty());
         assert!(
             !r.resilience_series.is_empty(),
             "resilience series populated from the run"

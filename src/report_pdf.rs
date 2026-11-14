@@ -40,18 +40,18 @@ use crate::report_brand as brand;
 use crate::report_pack_a::PackAReport;
 
 // --- A4 page geometry (mm) ---------------------------------------------------
-pub(crate) const PAGE_W_MM: f32 = 210.0;
-pub(crate) const PAGE_H_MM: f32 = 297.0;
-pub(crate) const MARGIN_MM: f32 = 20.0;
-pub(crate) const CONTENT_W_MM: f32 = PAGE_W_MM - 2.0 * MARGIN_MM;
-pub(crate) const TOP_Y_MM: f32 = PAGE_H_MM - MARGIN_MM;
-pub(crate) const BOTTOM_Y_MM: f32 = MARGIN_MM + 6.0; // leave room above the footer
+pub const PAGE_W_MM: f32 = 210.0;
+pub const PAGE_H_MM: f32 = 297.0;
+pub const MARGIN_MM: f32 = 20.0;
+pub const CONTENT_W_MM: f32 = PAGE_W_MM - 2.0 * MARGIN_MM;
+pub const TOP_Y_MM: f32 = PAGE_H_MM - MARGIN_MM;
+pub const BOTTOM_Y_MM: f32 = MARGIN_MM + 6.0; // leave room above the footer
 
 // 1 mm = 72/25.4 pt.
-pub(crate) const MM_PER_PT: f32 = 25.4 / 72.0;
+pub const MM_PER_PT: f32 = 25.4 / 72.0;
 
 /// A brand colour as a printpdf RGB fill/stroke colour (parses `#rrggbb`).
-pub(crate) fn rgb(hex: &str) -> Color {
+pub fn rgb(hex: &str) -> Color {
     let h = hex.trim_start_matches('#');
     let parse =
         |i: usize| -> f32 { u8::from_str_radix(&h[i..i + 2], 16).unwrap_or(0) as f32 / 255.0 };
@@ -67,13 +67,13 @@ pub(crate) fn rgb(hex: &str) -> Color {
 /// face. The standard-14 metrics are not exposed by printpdf for built-in fonts,
 /// so we use a conservative average advance (~0.52 em) to wrap text. This keeps
 /// layout deterministic without any font-file or glyph-metric dependency.
-pub(crate) fn text_width_mm(n: usize, pt: f32) -> f32 {
+pub fn text_width_mm(n: usize, pt: f32) -> f32 {
     let em_mm = pt * MM_PER_PT;
     n as f32 * em_mm * 0.52
 }
 
 /// Greedy word-wrap to a column `width_mm` wide at point size `pt`.
-pub(crate) fn wrap(text: &str, width_mm: f32, pt: f32) -> Vec<String> {
+pub fn wrap(text: &str, width_mm: f32, pt: f32) -> Vec<String> {
     let mut lines = Vec::new();
     let mut cur = String::new();
     for word in text.split_whitespace() {
@@ -104,18 +104,16 @@ thread_local! {
 
 /// While alive, every text face of a document rendered on this thread is the embedded
 /// Unicode face ([`crate::brand_pdf::unicode_font`]) instead of a standard font (roadmap
-/// F8c). Dropping it restores the standard fonts. Used by the mission dossier only.
-#[cfg(feature = "arksa")]
-pub(crate) struct UnicodeFace(bool);
+/// F8c). Dropping it restores the standard fonts. For an extension crate's documents.
+pub struct UnicodeFace(bool);
 
-#[cfg(feature = "arksa")]
 impl UnicodeFace {
-    pub(crate) fn on() -> UnicodeFace {
+    /// Turn the Unicode face on for this thread until the guard is dropped.
+    pub fn on() -> UnicodeFace {
         UnicodeFace(UNICODE_FACE.with(|f| f.replace(true)))
     }
 }
 
-#[cfg(feature = "arksa")]
 impl Drop for UnicodeFace {
     fn drop(&mut self) {
         let prev = self.0;
@@ -124,18 +122,18 @@ impl Drop for UnicodeFace {
 }
 
 /// Whether the Unicode face is on for this thread.
-pub(crate) fn unicode_face() -> bool {
+pub fn unicode_face() -> bool {
     UNICODE_FACE.with(|f| f.get())
 }
 
 /// A serif heading vs sans body distinction, mapped to built-in standard-14 fonts.
-pub(crate) fn serif() -> PdfFontHandle {
+pub fn serif() -> PdfFontHandle {
     if unicode_face() {
         return crate::brand_pdf::unicode_font(false);
     }
     PdfFontHandle::Builtin(BuiltinFont::TimesRoman)
 }
-pub(crate) fn serif_bold() -> PdfFontHandle {
+pub fn serif_bold() -> PdfFontHandle {
     if unicode_face() {
         return crate::brand_pdf::unicode_font(true);
     }
@@ -143,24 +141,30 @@ pub(crate) fn serif_bold() -> PdfFontHandle {
 }
 /// The text face. The names are historical: every face of an Ashforde document is a
 /// serif, so the former sans-serif body and labels are set in the standard Times too.
-pub(crate) fn sans() -> PdfFontHandle {
+pub fn sans() -> PdfFontHandle {
     serif()
 }
-pub(crate) fn sans_bold() -> PdfFontHandle {
+pub fn sans_bold() -> PdfFontHandle {
     serif_bold()
 }
 
 /// Incremental, page-aware layout builder. Holds the current page's ops and the
 /// cursor (in mm from the page bottom-left), flushing to a new page when the
 /// cursor would cross the bottom margin.
-pub(crate) struct Layout {
-    pub(crate) pages: Vec<Vec<Op>>,
-    pub(crate) ops: Vec<Op>,
-    pub(crate) y_mm: f32,
+pub struct Layout {
+    pub pages: Vec<Vec<Op>>,
+    pub ops: Vec<Op>,
+    pub y_mm: f32,
+}
+
+impl Default for Layout {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Layout {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Layout {
             pages: Vec::new(),
             ops: Vec::new(),
@@ -169,7 +173,7 @@ impl Layout {
     }
 
     /// Start a fresh page, resetting the cursor to the top margin.
-    pub(crate) fn new_page(&mut self) {
+    pub fn new_page(&mut self) {
         if !self.ops.is_empty() {
             let done = std::mem::take(&mut self.ops);
             self.pages.push(done);
@@ -178,14 +182,14 @@ impl Layout {
     }
 
     /// Ensure `need_mm` of vertical space remains; break to a new page if not.
-    pub(crate) fn ensure(&mut self, need_mm: f32) {
+    pub fn ensure(&mut self, need_mm: f32) {
         if self.y_mm - need_mm < BOTTOM_Y_MM {
             self.new_page();
         }
     }
 
     /// Advance the cursor down by `mm`.
-    pub(crate) fn advance(&mut self, mm: f32) {
+    pub fn advance(&mut self, mm: f32) {
         self.y_mm -= mm;
     }
 
@@ -195,7 +199,7 @@ impl Layout {
     /// as a clipping path (`re W n`) whatever paint mode it is given, so a rectangle
     /// drawn that way painted nothing and clipped everything after it on the page to
     /// its own area.
-    pub(crate) fn fill_rect(&mut self, x_mm: f32, y_mm: f32, w_mm: f32, h_mm: f32, col: Color) {
+    pub fn fill_rect(&mut self, x_mm: f32, y_mm: f32, w_mm: f32, h_mm: f32, col: Color) {
         let corner = |x: f32, y: f32| LinePoint {
             p: Point::new(Mm(x), Mm(y)),
             bezier: false,
@@ -218,7 +222,7 @@ impl Layout {
     }
 
     /// A horizontal rule (brass accent) across the content column at the cursor.
-    pub(crate) fn rule(&mut self, col: Color, thickness_pt: f32) {
+    pub fn rule(&mut self, col: Color, thickness_pt: f32) {
         let y = self.y_mm;
         self.ops.push(Op::SetOutlineColor { col });
         self.ops.push(Op::SetOutlineThickness {
@@ -243,14 +247,7 @@ impl Layout {
 
     /// Draw a single line of text at `(x_mm, self.y_mm)` in the given font/size/colour.
     /// Does NOT advance the cursor (caller controls line spacing).
-    pub(crate) fn text_at(
-        &mut self,
-        x_mm: f32,
-        text: &str,
-        font: PdfFontHandle,
-        pt: f32,
-        col: Color,
-    ) {
+    pub fn text_at(&mut self, x_mm: f32, text: &str, font: PdfFontHandle, pt: f32, col: Color) {
         self.ops.push(Op::StartTextSection);
         self.ops.push(Op::SetTextCursor {
             pos: Point::new(Mm(x_mm), Mm(self.y_mm)),
@@ -266,14 +263,7 @@ impl Layout {
     /// A wrapped paragraph across the full content column (left margin to right
     /// margin), advancing the cursor and breaking pages as needed. `lh_mm` is the
     /// line height.
-    pub(crate) fn paragraph(
-        &mut self,
-        text: &str,
-        font: PdfFontHandle,
-        pt: f32,
-        lh_mm: f32,
-        col: Color,
-    ) {
+    pub fn paragraph(&mut self, text: &str, font: PdfFontHandle, pt: f32, lh_mm: f32, col: Color) {
         for line in wrap(text, CONTENT_W_MM, pt) {
             self.ensure(lh_mm);
             self.text_at(MARGIN_MM, &line, font.clone(), pt, col.clone());
@@ -282,7 +272,7 @@ impl Layout {
     }
 
     /// A section heading (serif bold, brass) with a thin brass underline rule.
-    pub(crate) fn heading(&mut self, title: &str) {
+    pub fn heading(&mut self, title: &str) {
         self.ensure(14.0);
         self.advance(4.0);
         self.text_at(MARGIN_MM, title, serif_bold(), 15.0, rgb(brand::BRASS));
@@ -293,7 +283,7 @@ impl Layout {
 
     /// The cover lockup across the top of the first page ([`crate::brand_pdf`]); the
     /// cursor moves below it.
-    pub(crate) fn cover_lockup(&mut self) {
+    pub fn cover_lockup(&mut self) {
         self.ops.extend(crate::brand_pdf::cover_lockup_ops(
             "Quantitative PNT Resilience",
         ));
@@ -304,7 +294,7 @@ impl Layout {
     /// furniture ([`crate::brand_pdf::dress`]): watermark, running header, the footer
     /// line `footer` with the document id and page number, and the SAMPLE mark when
     /// [`brand::sample`] is on.
-    pub(crate) fn finish(mut self, footer: &str, mark: &crate::brand_pdf::PdfMark) -> Vec<PdfPage> {
+    pub fn finish(mut self, footer: &str, mark: &crate::brand_pdf::PdfMark) -> Vec<PdfPage> {
         if !self.ops.is_empty() {
             let done = std::mem::take(&mut self.ops);
             self.pages.push(done);
@@ -316,7 +306,7 @@ impl Layout {
     }
 
     /// The content id of the pages drawn so far ([`crate::brand_pdf::content_id`]).
-    pub(crate) fn content_id(&self) -> String {
+    pub fn content_id(&self) -> String {
         let mut all = self.pages.clone();
         all.push(self.ops.clone());
         crate::brand_pdf::content_id(&all)
@@ -385,7 +375,7 @@ pub fn to_pdf(report: &ConsolidatedReport) -> Result<Vec<u8>, String> {
     l.heading("Provenance & Traceability");
     let prov = report.provenance.clone().unwrap_or_default();
     let hashes = if prov.scenario_hashes.is_empty() {
-        report.bundle.scenario_hash.clone().unwrap_or_default()
+        report.figures.scenario_hash.clone().unwrap_or_default()
     } else {
         prov.scenario_hashes.join(", ")
     };
@@ -463,7 +453,7 @@ pub fn to_pdf(report: &ConsolidatedReport) -> Result<Vec<u8>, String> {
     l.advance(5.0);
     l.rule(rgb(brand::BRASS_MUTED), 0.4);
     l.advance(4.0);
-    for f in report.bundle.all_foms() {
+    for f in report.figures.all_foms() {
         l.ensure(5.5);
         let val = f
             .value

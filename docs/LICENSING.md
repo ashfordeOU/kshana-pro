@@ -1,7 +1,7 @@
 # Licensing: tokens, activation, issuing
 
 How a Kshana Pro licence is made, carried, checked and withdrawn (roadmap F10b, F10c,
-F10d, F10f). The code is `src/license/` (library) and `src/license_cmd.rs` (the
+F10d, F10f). The code is `src/license/` (library) and `src/cli/license_cmd.rs` (the
 `kshana-pro license` commands). The signing key procedure is in
 [LICENSING-KEYS.md](LICENSING-KEYS.md).
 

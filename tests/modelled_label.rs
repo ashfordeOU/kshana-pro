@@ -14,7 +14,9 @@ use kshana_pro::registry;
 /// from `kind` alone; the rest use the repository's own example scenarios.
 fn examples() -> Vec<(&'static str, String)> {
     let bare = |k: &'static str| (k, format!("kind = \"{k}\"\n"));
-    let all = vec![
+    // The Arksa-exclusive kinds are not in this crate (docs/PROTECTION.md); their label
+    // checks live in the server-side crate with their code.
+    vec![
         bare("pro-seam-check"),
         (
             "pro-twin",
@@ -38,39 +40,13 @@ fn examples() -> Vec<(&'static str, String)> {
             include_str!("../scenarios/quantum-systematics-sr.toml").to_string(),
         ),
         (
-            "pro-mbse",
-            include_str!("../scenarios/mbse-srd.toml").to_string(),
-        ),
-        (
             "pro-optimism-gap-audit",
             "kind = \"pro-optimism-gap-audit\"\nn_per_class = 100\nseverities = [0.3, 0.6]\n\
              seeds = [1, 2]\nn_perms = 50\n"
                 .to_string(),
         ),
-        (
-            "pro-design-optimise",
-            include_str!("../scenarios/pro-power/design/link-budget-trade.toml").to_string(),
-        ),
-        bare("pro-lunar-signal-security"),
-        bare("pro-beacon-dop"),
-        bare("pro-surface-beacon-dop-study"),
-        bare("pro-beacon-placement"),
-        bare("pro-lunar-time-budget-study"),
-        bare("pro-realtime-frame-eop-study"),
-        bare("pro-optical-rf-hybrid-study"),
-        bare("pro-cislunar-observability-study"),
         bare("pro-conflict-resilience-study"),
-        (
-            "pro-spectrum-coexistence",
-            include_str!("../scenarios/pro-power/coexistence/generic-walker-coexistence.toml")
-                .to_string(),
-        ),
-    ];
-    // A default build has no Arksa-exclusive kinds (docs/PROTECTION.md): check the kinds
-    // this build registers.
-    all.into_iter()
-        .filter(|(k, _)| registry::is_pro_kind(k))
-        .collect()
+    ]
 }
 
 /// The label check the open engine's own tests apply, made strict: the top-level `label`
@@ -149,23 +125,6 @@ fn ci_report_history_trend_and_diff_are_labelled_modelled() {
     old.as_object_mut().unwrap().remove("label");
     let back = CiReport::from_json(&old.to_string()).expect("an unlabelled report reads back");
     assert_eq!(back.label, report.label);
-}
-
-/// `mbse`: trace links, the verification cross-reference matrix, change impact and the
-/// evidence pack.
-#[cfg(feature = "arksa")]
-#[test]
-fn mbse_outputs_are_labelled_modelled() {
-    use kshana_pro::mbse::trace::{vcrm, Trace};
-    use kshana_pro::mbse::{impact, pack};
-    let fx = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/mbse");
-    let old = Trace::load(&fx.join("trace.toml")).unwrap();
-    let new = Trace::load(&fx.join("trace-retuned.toml")).unwrap();
-    let v = vcrm(&old);
-    assert_label("mbse trace", &v.links_json().to_string());
-    assert_label("mbse vcrm", &v.to_json());
-    assert_label("mbse impact", &impact::compare(&old, &new).to_json());
-    assert_label("mbse pack", &pack::build(&old, None).to_json());
 }
 
 /// `report --format json`: the consolidated report's evidence JSON.

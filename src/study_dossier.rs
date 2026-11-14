@@ -32,12 +32,12 @@
 //!    (RPCF) v2.0, and core-function readings offered for later mapping to IEEE
 //!    P1952. Both are labelled **tentative, simulation-derived, not a certified
 //!    level** in the data and on the page.
-//! 6. **Assurance artefacts** — a Goal Structuring Notation (GSN) argument, an
-//!    ECSS-style Verification Control Document (VCD) and a W3C-PROV provenance record
-//!    with a Merkle root, all built from the existing L3 types
-//!    ([`crate::suite::gsn`], [`crate::suite::vcd`], the open core's
+//! 6. **Assurance artefacts** — a plain list of the study's own checks
+//!    (reproducibility, tier labelling, sensitivity, time-error budget, framework
+//!    label), each with its evidence and status, and a W3C-PROV provenance record
+//!    with a Merkle root (the open core's
 //!    [`kshana::assurance::provenance::ProvRecord`]). For a `pro-trade-study`
-//!    scenario the trade's own gate, GSN, VCD and provenance are appended unchanged.
+//!    scenario the trade's own gate and provenance are appended unchanged.
 //!
 //! ## Reproducibility
 //!
@@ -60,9 +60,7 @@ use kshana::fom_label::{tier_for, ValidationTier};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-use crate::suite::gsn::{GsnArgument, GsnNodeKind};
 use crate::suite::provenance::DecisionProvenance;
-use crate::suite::vcd::{Vcd, VcdItem, VcdStatus, VerificationMethod};
 use crate::twin::holdover_uq::{HoldoverInputs, HoldoverMask, MtieMask};
 use crate::util::dot_path_number;
 
@@ -343,10 +341,39 @@ pub struct FrameworkMapping {
 pub struct TradeAppendix {
     pub winner: Option<String>,
     pub gate_markdown: String,
-    pub gsn_markdown: String,
-    pub vcd_markdown: String,
     pub provenance_markdown: String,
     pub merkle_root: String,
+}
+
+/// The status of one study check.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum CheckStatus {
+    Pass,
+    Fail,
+    Open,
+    NotApplicable,
+}
+
+impl CheckStatus {
+    /// The label shown on the page.
+    pub fn label(self) -> &'static str {
+        match self {
+            CheckStatus::Pass => "Pass",
+            CheckStatus::Fail => "Fail",
+            CheckStatus::Open => "Open",
+            CheckStatus::NotApplicable => "N/A",
+        }
+    }
+}
+
+/// One check the study makes of its own result.
+#[derive(Debug, Clone, Serialize)]
+pub struct StudyCheck {
+    pub id: String,
+    pub check: String,
+    pub evidence: String,
+    pub status: CheckStatus,
+    pub note: String,
 }
 
 /// Section 5.5 — assurance artefacts.
@@ -354,8 +381,8 @@ pub struct TradeAppendix {
 pub struct Assurance {
     pub determinism_runs: usize,
     pub determinism_identical: bool,
-    pub gsn: GsnArgument,
-    pub vcd: Vcd,
+    /// The study's own checks, each with its evidence and status.
+    pub checks: Vec<StudyCheck>,
     pub provenance: DecisionProvenance,
     pub trade: Option<TradeAppendix>,
 }
@@ -676,20 +703,6 @@ fn reference_documents(has_timing: bool, has_trade: bool) -> Vec<RefDoc> {
         },
         RefDoc {
             id: "RD-4".into(),
-            title: "ECSS-E-ST-10-02C Rev.1, Space engineering: Verification (1 February 2018)".into(),
-            issuer: "European Cooperation for Space Standardization".into(),
-            source: "https://ecss.nl/standard/ecss-e-st-10-02c-rev-1-verification-1-february-2018/".into(),
-            used_for: "Structure of the Verification Control Document (methods: test, analysis, review of design, inspection)".into(),
-        },
-        RefDoc {
-            id: "RD-5".into(),
-            title: "Goal Structuring Notation Community Standard, Version 3".into(),
-            issuer: "Safety-Critical Systems Club, Assurance Case Working Group (SCSC-141C)".into(),
-            source: "https://scsc.uk/gsn".into(),
-            used_for: "Structure of the assurance argument (goal, strategy, solution, context, assumption, justification)".into(),
-        },
-        RefDoc {
-            id: "RD-6".into(),
             title: "PROV-DM: The PROV Data Model, W3C Recommendation (30 April 2013)".into(),
             issuer: "World Wide Web Consortium".into(),
             source: "https://www.w3.org/TR/prov-dm/".into(),
@@ -698,7 +711,7 @@ fn reference_documents(has_timing: bool, has_trade: bool) -> Vec<RefDoc> {
     ];
     if has_timing {
         docs.push(RefDoc {
-            id: "RD-7".into(),
+            id: "RD-5".into(),
             title: "ITU-T G.8272, Timing characteristics of primary reference time clocks".into(),
             issuer:
                 "International Telecommunication Union, Telecommunication Standardization Sector"
@@ -709,7 +722,7 @@ fn reference_documents(has_timing: bool, has_trade: bool) -> Vec<RefDoc> {
                     .into(),
         });
         docs.push(RefDoc {
-            id: "RD-8".into(),
+            id: "RD-6".into(),
             title:
                 "ITU-T G.8272.1, Timing characteristics of enhanced primary reference time clocks"
                     .into(),
@@ -724,7 +737,7 @@ fn reference_documents(has_timing: bool, has_trade: bool) -> Vec<RefDoc> {
     }
     if has_trade {
         docs.push(RefDoc {
-            id: "RD-9".into(),
+            id: "RD-7".into(),
             title: "ECSS-E-ST-10C, Space engineering: System engineering general requirements (Annex L, trade-off report)".into(),
             issuer: "European Cooperation for Space Standardization".into(),
             source: "https://ecss.nl/".into(),
@@ -1108,183 +1121,65 @@ fn build_assurance(
     determinism_identical: bool,
     trade: Option<TradeAppendix>,
 ) -> Assurance {
-    let mut g = GsnArgument {
-        nodes: Vec::new(),
-        links: Vec::new(),
-    };
-    g.node(
-        "G1",
-        GsnNodeKind::Goal,
-        format!(
-            "The figures reported in '{}' are reproducible, honestly tiered, and their sensitivity to the key inputs is stated.",
-            ident.title
-        ),
-    );
-    g.node(
-        "C1",
-        GsnNodeKind::Context,
-        format!(
-            "Scenario kind '{}', open engine {}, Kshana Pro {}, input SHA-256 {}.",
-            ident.scenario_kind, ident.engine_version, ident.pro_version, ident.input_sha256
-        ),
-    );
-    g.in_context_of("G1", "C1");
-    g.node(
-        "A1",
-        GsnNodeKind::Assumption,
-        "The scenario inputs represent the system under study; no measured-device or field data is used.".into(),
-    );
-    g.in_context_of("G1", "A1");
-    g.node(
-        "S1",
-        GsnNodeKind::Strategy,
-        "Argue over reproducibility, tier labelling, sensitivity and (for timing scenarios) the time-error budget.".into(),
-    );
-    g.supported_by("G1", "S1");
-    g.node(
-        "G2",
-        GsnNodeKind::Goal,
-        "The baseline result is reproducible from scenario, seed and engine version.".into(),
-    );
-    g.supported_by("S1", "G2");
-    g.node(
-        "Sn1",
-        GsnNodeKind::Solution,
-        format!(
-            "Baseline run twice in process: identical = {determinism_identical}; engine scenario hash {}.",
-            ident.scenario_hash.as_deref().unwrap_or("(not reported by this kind)")
-        ),
-    );
-    g.supported_by("G2", "Sn1");
-    g.node(
-        "G3",
-        GsnNodeKind::Goal,
-        "Every reported figure carries the tier the open verification matrix grants it.".into(),
-    );
-    g.supported_by("S1", "G3");
-    g.node(
-        "Sn2",
-        GsnNodeKind::Solution,
-        format!(
-            "Tier table: {} VALIDATED, {} MODELLED, {} PARTIAL of {} figures.",
-            split.validated, split.modelled, split.partial, split.total
-        ),
-    );
-    g.supported_by("G3", "Sn2");
-    g.node(
-        "G4",
-        GsnNodeKind::Goal,
-        "The sensitivity of each figure to the key inputs is stated.".into(),
-    );
-    g.supported_by("S1", "G4");
-    if sens.cases.is_empty() {
-        g.node(
-            "A2",
-            GsnNodeKind::Assumption,
-            "No sweep parameters were declared or defaulted for this kind; sensitivity is not established.".into(),
-        );
-        g.in_context_of("G4", "A2");
-    } else {
-        g.node(
-            "Sn3",
-            GsnNodeKind::Solution,
-            format!(
-                "One-at-a-time sweep: {} cases, {} failed.",
-                sens.cases.len(),
-                sens.cases.iter().filter(|c| c.error.is_some()).count()
-            ),
-        );
-        g.supported_by("G4", "Sn3");
-    }
-    if let Some(t) = timing {
-        g.node(
-            "G5",
-            GsnNodeKind::Goal,
-            "The clock's coast is compared with the scenario time-error budget over the denied window.".into(),
-        );
-        g.supported_by("S1", "G5");
-        g.node(
-            "Sn4",
-            GsnNodeKind::Solution,
-            format!(
-                "Holdover band (k = {}) within budget over the interval: {}; MTIE within budget: {}.",
-                t.k, t.budget.holds_over_interval, t.budget.mtie_compliant
-            ),
-        );
-        g.supported_by("G5", "Sn4");
-    }
-    g.node(
-        "J1",
-        GsnNodeKind::Justification,
-        format!("Framework readings are behavioural and per function: {FRAMEWORK_LABEL}."),
-    );
-    g.in_context_of("S1", "J1");
-
     let mut items = vec![
-        VcdItem {
-            req_id: "REQ-DOS-010".into(),
-            requirement: "The baseline result shall be reproducible from scenario, seed and engine version.".into(),
-            method: VerificationMethod::Test,
+        StudyCheck {
+            id: "CHK-010".into(),
+            check: "The baseline result shall be reproducible from scenario, seed and engine version.".into(),
             evidence: "baseline run twice in process, results compared".into(),
-            status: if determinism_identical { VcdStatus::Pass } else { VcdStatus::Fail },
+            status: if determinism_identical { CheckStatus::Pass } else { CheckStatus::Fail },
             note: format!("identical = {determinism_identical}"),
         },
-        VcdItem {
-            req_id: "REQ-DOS-020".into(),
-            requirement: "Every reported figure shall carry a VALIDATED or MODELLED tier from the open verification matrix.".into(),
-            method: VerificationMethod::Inspection,
+        StudyCheck {
+            id: "CHK-020".into(),
+            check: "Every reported figure shall carry a VALIDATED or MODELLED tier from the open verification matrix.".into(),
             evidence: format!("{} of {} figures tiered", figures.len(), split.total),
-            status: if figures.is_empty() { VcdStatus::Open } else { VcdStatus::Pass },
+            status: if figures.is_empty() { CheckStatus::Open } else { CheckStatus::Pass },
             note: "a figure with no owning row is labelled MODELLED".into(),
         },
-        VcdItem {
-            req_id: "REQ-DOS-030".into(),
-            requirement: "The one-at-a-time sensitivity sweep shall complete without failed runs.".into(),
-            method: VerificationMethod::Analysis,
+        StudyCheck {
+            id: "CHK-030".into(),
+            check: "The one-at-a-time sensitivity sweep shall complete without failed runs.".into(),
             evidence: format!("{} cases", sens.cases.len()),
             status: if sens.cases.is_empty() {
-                VcdStatus::Open
+                CheckStatus::Open
             } else if sens.cases.iter().any(|c| c.error.is_some()) {
-                VcdStatus::Fail
+                CheckStatus::Fail
             } else {
-                VcdStatus::Pass
+                CheckStatus::Pass
             },
             note: if sens.cases.is_empty() { "no sweep declared".into() } else { "same seed for every case".into() },
         },
     ];
     items.push(match timing {
-        Some(t) => VcdItem {
-            req_id: "REQ-DOS-040".into(),
-            requirement: "The clock shall hold the scenario time-error budget over the denied window (conservative band).".into(),
-            method: VerificationMethod::Analysis,
+        Some(t) => StudyCheck {
+            id: "CHK-040".into(),
+            check: "The clock shall hold the scenario time-error budget over the denied window (conservative band).".into(),
             evidence: format!(
                 "envelope {:.3e} s vs budget {:.3e} s",
                 t.budget.envelope_at_interval_s, t.budget.threshold_s
             ),
             status: if t.interval_s.is_none() {
-                VcdStatus::NotApplicable
+                CheckStatus::NotApplicable
             } else if t.budget.holds_over_interval {
-                VcdStatus::Pass
+                CheckStatus::Pass
             } else {
-                VcdStatus::Fail
+                CheckStatus::Fail
             },
             note: "MODELLED holdover band".into(),
         },
-        None => VcdItem {
-            req_id: "REQ-DOS-040".into(),
-            requirement: "The clock shall hold the scenario time-error budget over the denied window (conservative band).".into(),
-            method: VerificationMethod::Analysis,
+        None => StudyCheck {
+            id: "CHK-040".into(),
+            check: "The clock shall hold the scenario time-error budget over the denied window (conservative band).".into(),
             evidence: "not a clock scenario".into(),
-            status: VcdStatus::NotApplicable,
+            status: CheckStatus::NotApplicable,
             note: "no timing section".into(),
         },
     });
-    items.push(VcdItem {
-        req_id: "REQ-DOS-050".into(),
-        requirement: "Every framework reading shall be labelled tentative, simulation-derived and not a certified level.".into(),
-        method: VerificationMethod::Inspection,
+    items.push(StudyCheck {
+        id: "CHK-050".into(),
+        check: "Every framework reading shall be labelled tentative, simulation-derived and not a certified level.".into(),
         evidence: FRAMEWORK_LABEL.into(),
-        status: VcdStatus::Pass,
+        status: CheckStatus::Pass,
         note: "carried in the data and on the page".into(),
     });
 
@@ -1333,8 +1228,7 @@ fn build_assurance(
     Assurance {
         determinism_runs: 2,
         determinism_identical,
-        gsn: g,
-        vcd: Vcd { items },
+        checks: items,
         provenance: DecisionProvenance {
             record,
             merkle_root,
@@ -1345,7 +1239,7 @@ fn build_assurance(
 
 fn trade_appendix(run_src: &str) -> Result<Option<TradeAppendix>, KshanaError> {
     use crate::packs::trade_study_pack::TradeStudyScenario;
-    use crate::suite::{gate::assurance_gate, gsn::build_argument, provenance::build_provenance};
+    use crate::suite::{gate::assurance_gate, provenance::build_provenance};
     let scenario: TradeStudyScenario = toml::from_str(run_src)
         .map_err(|e| invalid(format!("invalid pro-trade-study scenario: {e}")))?;
     let report = crate::suite::run_trade_study(&scenario.trade_space())?;
@@ -1353,8 +1247,6 @@ fn trade_appendix(run_src: &str) -> Result<Option<TradeAppendix>, KshanaError> {
     Ok(Some(TradeAppendix {
         winner: report.winner.clone(),
         gate_markdown: assurance_gate(&report).markdown(),
-        gsn_markdown: build_argument(&report, report.gate.min_trl).markdown(),
-        vcd_markdown: crate::suite::vcd::build_vcd(&report).markdown(),
         provenance_markdown: prov.markdown(),
         merkle_root: prov.merkle_root,
     }))
@@ -1519,13 +1411,13 @@ pub fn build(src: &str, opts: &DossierOptions) -> Result<StudyDossier, KshanaErr
         "M3. Each figure's tier is read from the open verification matrix through kshana::fom_label::tier_for. A figure with no owning row is labelled MODELLED.".into(),
         "M4. One-at-a-time sensitivity sweep, as described in section 5.2.".into(),
         "M5. Framework mapping: the during-threat behaviour of the run is compared with the level definitions of RD-1 Table 1. Requirements a simulation cannot verify are recorded as not assessed.".into(),
-        "M6. Assurance artefacts: a GSN argument (RD-5), a VCD (RD-4) and a W3C-PROV record (RD-6) whose Merkle root binds the input, the baseline and every sweep case.".into(),
+        "M6. Assurance artefacts: the study's own checks with their evidence and status, and a W3C-PROV record (RD-4) whose Merkle root binds the input, the baseline and every sweep case.".into(),
     ];
     if timing.is_some() {
         method.push("M7. Timing: the subject clock's parameters feed the Pro holdover uncertainty band x(t) = x0 + y0·t + ½·D·t² ± k·σ(t). The in-spec coast, the margin over the denied window, and the MTIE of the band (checked against each limit as a constant ceiling) are reported for the scenario budget and for the published clock classes.".into());
     }
     if has_trade {
-        method.push("M8. The trade study's own assurance gate, GSN, VCD and provenance are appended unchanged (Appendix A).".into());
+        method.push("M8. The trade study's own assurance gate and provenance are appended unchanged (Appendix A).".into());
     }
 
     let mut limitations = vec![
@@ -1852,40 +1744,19 @@ impl StudyDossier {
         h.push_str(&format!("<p class=\"muted\">{}</p>\n", esc(&fm.p1952_note)));
 
         let a = &b.assurance;
-        h.push_str("<h3>5.5 Assurance artefacts</h3>\n<p><strong>Goal Structuring Notation argument</strong> (RD-5)</p>\n<div class=\"table-wrap\"><table>\n<tr><th>Node</th><th>Type</th><th>Statement</th><th>Supported by</th><th>In context of</th></tr>\n");
-        for n in &a.gsn.nodes {
-            let links = |kind: crate::suite::gsn::GsnLinkKind| -> String {
-                a.gsn
-                    .links
-                    .iter()
-                    .filter(|l| l.from == n.id && l.kind == kind)
-                    .map(|l| l.to.clone())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            };
+        h.push_str("<h3>5.5 Assurance artefacts</h3>\n<p><strong>Study checks</strong> (identifiers are generated locally for this dossier)</p>\n<div class=\"table-wrap\"><table>\n<tr><th>Check</th><th>Text</th><th>Evidence</th><th>Status</th><th>Note</th></tr>\n");
+        for it in &a.checks {
             h.push_str(&format!(
-                "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>\n",
-                esc(&n.id),
-                n.kind.tag(),
-                esc(&n.statement),
-                links(crate::suite::gsn::GsnLinkKind::SupportedBy),
-                links(crate::suite::gsn::GsnLinkKind::InContextOf)
-            ));
-        }
-        h.push_str("</table></div>\n<p><strong>Verification Control Document</strong> (RD-4 structure; requirement identifiers are generated locally for this dossier)</p>\n<div class=\"table-wrap\"><table>\n<tr><th>Requirement</th><th>Text</th><th>Method</th><th>Evidence</th><th>Status</th><th>Note</th></tr>\n");
-        for it in &a.vcd.items {
-            h.push_str(&format!(
-                "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td class=\"{}\">{}</td><td>{}</td></tr>\n",
-                esc(&it.req_id),
-                esc(&it.requirement),
-                it.method.label(),
+                "<tr><td>{}</td><td>{}</td><td>{}</td><td class=\"{}\">{}</td><td>{}</td></tr>\n",
+                esc(&it.id),
+                esc(&it.check),
                 esc(&it.evidence),
                 it.status.label().replace('/', ""),
                 it.status.label(),
                 esc(&it.note)
             ));
         }
-        h.push_str("</table></div>\n<p><strong>W3C-PROV provenance</strong> (RD-6)</p>\n");
+        h.push_str("</table></div>\n<p><strong>W3C-PROV provenance</strong> (RD-4)</p>\n");
         h.push_str(&format!(
             "<p>Engine: <code>{}</code>. {} content hashes bound. Merkle root <code>{}</code>.</p>\n",
             esc(&a.provenance.record.engine_commit),
@@ -1907,12 +1778,7 @@ impl StudyDossier {
                 esc(t.winner.as_deref().unwrap_or("(none)")),
                 esc(&t.merkle_root)
             ));
-            for md in [
-                &t.gate_markdown,
-                &t.gsn_markdown,
-                &t.vcd_markdown,
-                &t.provenance_markdown,
-            ] {
+            for md in [&t.gate_markdown, &t.provenance_markdown] {
                 h.push_str(&format!("<pre>{}</pre>\n", esc(md)));
             }
         }
@@ -1931,7 +1797,6 @@ impl StudyDossier {
             ("ePRTC", "enhanced primary reference time clock"),
             ("ESA", "European Space Agency"),
             ("GNSS", "Global Navigation Satellite System"),
-            ("GSN", "Goal Structuring Notation"),
             ("IEEE", "Institute of Electrical and Electronics Engineers"),
             (
                 "ITU-T",
@@ -1948,7 +1813,6 @@ impl StudyDossier {
                 "TOML",
                 "Tom's Obvious Minimal Language (the scenario file format)",
             ),
-            ("VCD", "Verification Control Document"),
             ("W3C", "World Wide Web Consortium"),
         ] {
             h.push_str(&format!("<li><strong>{k}</strong>: {}</li>\n", esc(v)));

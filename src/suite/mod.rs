@@ -17,9 +17,8 @@
 //! a [`kshana::mcda::wsm::DecisionMatrix`] over variants × criteria, optional
 //! AHP-derived weights with the `CR < 0.10` gate, a Pareto front, and a weight-
 //! sensitivity pass. On top of the decision the suite emits a tamper-evident
-//! [W3C-PROV record][provenance], a [GSN][gsn] claim–argument–evidence structure, an
-//! [ECSS Verification Control Document][vcd], [ECSS Annex L / NASA §6.8 reports][reports],
-//! and a multi-criteria [assurance gate][gate].
+//! [W3C-PROV record][provenance], [ECSS Annex L / NASA §6.8 reports][reports], a plain
+//! verification summary ([`vv_dossier`]) and a multi-criteria [assurance gate][gate].
 //!
 //! ## Honesty scope (load-bearing)
 //!
@@ -41,11 +40,9 @@
 
 pub mod decision;
 pub mod gate;
-pub mod gsn;
 pub mod multi_method;
 pub mod provenance;
 pub mod reports;
-pub mod vcd;
 pub mod vv_dossier;
 
 use std::collections::BTreeMap;

@@ -32,19 +32,19 @@ jobs:
       # The formatter is a hard gate: the crate must stay `cargo fmt --all` clean.
       - name: Format
         run: cargo fmt --all -- --check
+      # Roadmap 0.42 X3: the Arksa-exclusive code moved to a private server-side crate that
+      # depends on this one. No [arksa] or [core] term of protect/private-terms.txt and no
+      # name of that crate may appear in this repository's source, manifests or lockfiles
+      # (printed by term ID only).
+      - name: Arksa source guard (X3)
+        run: scripts/protect/source-guard.sh
       - name: Clippy
         run: cargo clippy --all-targets -- -D warnings
-      # The Arksa-exclusive kinds (roadmap 0.42, section 1a) compile only with the `arksa`
-      # feature; lint and test that build too (docs/PROTECTION.md).
-      - name: Clippy (arksa feature)
-        run: cargo clippy --all-targets --features arksa -- -D warnings
       # Cargo.lock pins the exact kshana (public open-core) rev, so the git
       # dependency resolves reproducibly. --locked fails the build if the lockfile
       # is out of date rather than silently updating it.
       - name: Test
         run: cargo test --all --locked
-      - name: Test (arksa feature)
-        run: cargo test --all --locked --features arksa
       # PRO-14: a release build and a signed licence token, which the debug tests above never
       # exercise. Builds with a CI-only key, issues a Pro token, runs one Pro pack with the
       # debug and the release binary and requires identical reports (scripts/release-smoke.sh).
@@ -54,8 +54,8 @@ jobs:
       # built binary of this crate may name it (scripts/core-guard.sh).
       - name: Core guard
         run: scripts/core-guard.sh
-      # Roadmap 0.42 X4: the default release binary (built by the release smoke above, no
-      # `arksa` feature) carries no Arksa-exclusive or Core name and is stripped. The terms are
-      # in protect/private-terms.txt; a match is printed by term ID only.
+      # Roadmap 0.42 X4: the release binary (built by the release smoke above) carries no
+      # Arksa-exclusive or Core name and is stripped. The terms are in
+      # protect/private-terms.txt; a match is printed by term ID only.
       - name: Arksa and Core symbol check (X4)
         run: scripts/protect/symbol-check.sh --require-stripped target/release/kshana-pro

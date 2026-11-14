@@ -64,16 +64,17 @@ licence key:
 * The private key is created and kept like the primary (section 1: offline, encrypted
   drive, two backups), by Arksa's issuer, never by the Pro vendor's issuing process, the
   payments service or continuous integration, and never in a repository.
-* Its public key goes only into builds made with the `arksa` feature (Arksa servers and
-  contracted Arksa Sovereign installs), through `KSHANA_PRO_ARKSA_ISSUER_PUBKEY` at build
-  time. Default builds, the packages and Desktop Pro have no Arksa issuer slot filled, so
-  they refuse every token that carries the claim.
+* Its public key goes only into the Arksa server build (`arksa-kpro`: Arksa servers and
+  contracted Arksa Sovereign installs), through `KSHANA_PRO_ARKSA_ISSUER_PUBKEY` at that
+  build's time; it registers the key with Kshana Pro through the extension hook. Kshana Pro
+  builds, the packages and Desktop Pro have no Arksa issuer, so they refuse every token that
+  carries the claim.
 * Tokens are made with `license::issue_arksa`. A token carrying the claim verifies only
   under this key; a Pro key cannot grant it.
 * Rotation and exposure follow section 3: add the new key to the builds, reissue, retire the
   old key ID (the retired list applies to the issuer keys as well).
-* The repository holds only a placeholder public key (`PLACEHOLDER_ARKSA_ISSUER_PUBKEY`), a
-  test key whose private half is in the tests. A release build never trusts it.
+* arksa-kpro holds only a placeholder public key (`PLACEHOLDER_ARKSA_ISSUER_PUBKEY`), a test
+  key whose private half is in its tests. A release build never trusts it.
 
 ## 6. The tier manifest key (roadmap 0.42 X2)
 

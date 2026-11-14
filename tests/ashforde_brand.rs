@@ -21,7 +21,7 @@ fn report() -> ConsolidatedReport {
         [gnss]\nwindows = [ { t0 = 0.0, t1 = 600.0, state = \"nominal\" }, { t0 = 600.0, t1 = 7200.0, state = \"denied\" } ]\n\
         [clock_quantum]\nid = \"optical-sr-lattice\"\nprovenance = \"demo\"\ny0 = 5.0e-17\nq_wf = 1.0e-30\nq_rw = 0.0\n\
         [clock_classical]\nid = \"csac-sa45s\"\nprovenance = \"demo\"\ny0 = 5.0e-10\nq_wf = 9.0e-20\nq_rw = 0.0\n";
-    build_report("Quantum Clock NAV-DT Resilience Study", scenario, "quantum")
+    build_report("Quantum Clock Resilience Study", scenario, "quantum")
         .unwrap()
         .with_cover(StudyCover {
             subtitle: Some("Performance & Resilience Study".into()),
@@ -193,7 +193,7 @@ fn the_extracted_text_keeps_the_report_and_adds_only_branding() {
         .collect();
     let all = text.join("\n");
     for must in [
-        "Quantum Clock NAV-DT Resilience Study",
+        "Quantum Clock Resilience Study",
         "Performance & Resilience Study",
         "MODELLED RESULTS - simulation figures, not flight/in-orbit validated.",
         "Executive Summary",

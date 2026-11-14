@@ -5,6 +5,21 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Arksa-exclusive code moved out (roadmap 0.42 X3; docs/PROTECTION.md, section 6).** The
+  eleven Arksa-exclusive kinds (the nine of section 1a plus the two lunar surface beacon
+  studies, `pro-beacon-dop` and `pro-surface-beacon-dop-study`), the `mbse`, `design`,
+  `coexist`, `mission`, `navdt`, `spacestream` and `mrd` commands, the NAV-DT twin bundle and
+  the GSN and VCD generators moved to the private server-side crate, with their tests,
+  fixtures, scenarios and docs. The cargo feature `arksa` is removed. A registration hook
+  (`kshana_pro::extension`) lets that crate add its kinds, commands and issuer keys; the
+  command line moved into the library (`kshana_pro::cli`) so its server binary runs the same
+  commands. The signed tier manifest is regenerated (18 `arksa` entries by hash). Pro products
+  changed: the trade study drops its GSN and VCD output; the credibility dossier counts gate
+  checks instead; the study dossier lists its own checks in place of the GSN argument and VCD;
+  the consolidated report lists every figure of merit of the run (`figures`, was `bundle`). A
+  new CI guard (`scripts/protect/source-guard.sh`) fails if an Arksa-exclusive term or the
+  server-side crate's name appears in this repository's source.
+
 - **Arksa-exclusive tier and its protection (roadmap 0.42, X1, X2, X4, X5; docs/PROTECTION.md).**
   Licence tokens gain an optional `arksa` claim, honoured only under a separate Arksa issuer key
   slot (old tokens verify unchanged). Every Pro kind and feature has an edition tier

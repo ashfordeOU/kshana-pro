@@ -42,7 +42,7 @@ fn clock_scenario() -> String {
 /// non-optional MODELLED banner, and the literal "not a certification" disclaimer.
 #[test]
 fn branded_cover_carries_title_brand_and_non_optional_honesty() {
-    let title = "Quantum Clock NAV-DT Resilience Study";
+    let title = "Quantum Clock Resilience Study";
     let r = build_report(title, &clock_scenario(), "quantum").unwrap();
     let html = r.to_html();
 

@@ -15,17 +15,17 @@ tier manifest (section 3):
 | Tier | Runs for | Kinds and features in this repository |
 |---|---|---|
 | `open-seam` | anyone, no licence | `pro-seam-check` |
-| `pro` | a Pro licence at the licence tier `license::explicit_tier` names (Evaluation, Pro, Enterprise; unchanged) | `pro-twin`, `pro-trade-study`, `pro-uncertainty`, `pro-batch`, `pro-quantum-systematics`, `pro-optimism-gap-audit`, `pro-beacon-dop`, `pro-surface-beacon-dop-study`, `pro-conflict-resilience-study`; features `pro-scenario-ci`, `pro-study-dossier`, `pro-signed-dossier`, `pro-uncertainty`, `pro-station-fleet`, `pro-service-ha`, `pro-desktop` |
-| `arksa` | only a token with the `arksa` claim, signed by Arksa's issuer | kinds `pro-mbse`, `pro-design-optimise`, `pro-spectrum-coexistence`, `pro-lunar-signal-security`, `pro-beacon-placement`, `pro-lunar-time-budget-study`, `pro-cislunar-observability-study`, `pro-optical-rf-hybrid-study`, `pro-realtime-frame-eop-study`; features (commands) `pro-mbse` (`mbse`: SysML v2, ReqIF, VCRM), `pro-design-optimise` (`design`), `pro-spectrum-coexistence` (`coexist`), `pro-mission-dossier` (`mission`), `pro-navdt` (`navdt`), `pro-spacestream` (`spacestream` codec), `pro-mrd` (`mrd`) |
+| `pro` | a Pro licence at the licence tier `license::explicit_tier` names (Evaluation, Pro, Enterprise; unchanged) | `pro-twin`, `pro-trade-study`, `pro-uncertainty`, `pro-batch`, `pro-quantum-systematics`, `pro-optimism-gap-audit`, `pro-conflict-resilience-study`; features `pro-scenario-ci`, `pro-study-dossier`, `pro-signed-dossier`, `pro-uncertainty`, `pro-station-fleet`, `pro-service-ha`, `pro-desktop` |
+| `arksa` | only a token with the `arksa` claim, signed by Arksa's issuer | kinds `pro-mbse`, `pro-design-optimise`, `pro-spectrum-coexistence`, `pro-lunar-signal-security`, `pro-beacon-placement`, `pro-lunar-time-budget-study`, `pro-cislunar-observability-study`, `pro-optical-rf-hybrid-study`, `pro-realtime-frame-eop-study`, `pro-beacon-dop`, `pro-surface-beacon-dop-study`; features (commands) `pro-mbse` (`mbse`: SysML v2, ReqIF, VCRM), `pro-design-optimise` (`design`), `pro-spectrum-coexistence` (`coexist`), `pro-mission-dossier` (`mission`), `pro-navdt` (`navdt`), `pro-spacestream` (`spacestream` codec), `pro-mrd` (`mrd`). Since X3 none of their code is in this repository: it is in `ashfordeOU/arksa-kpro` (section 6) |
 | `core` | nobody: Core never ships from this crate | none here (P1 to P5 and B6 live only on Arksa servers) |
 
-Code: `src/license/tiers.rs` (`Edition`, `ARKSA_KINDS`, `ARKSA_FEATURES`, `compiled_edition`).
-`kshana-pro kinds --json` now also prints each Pro kind's `edition`.
+Code: `src/license/tiers.rs` (`Edition`, `ARKSA_ENTRIES` (the hidden entries by hash),
+`compiled_edition`) and `src/extension.rs` (the registration hook). `kshana-pro kinds --json`
+prints each Pro kind's `edition`.
 
-Open questions for the owner: `pro-beacon-dop` and `pro-surface-beacon-dop-study` are lunar
-surface beacon studies; section 1a lists "lunar packs (time budget, beacon placement,
-observability, signal security, lunar OED)" and not these two, so they stay `pro` until the
-owner decides. No M-workstream (space RF survey) code exists in this repository yet.
+Owner decision, 14 November 2026: the lunar surface beacon studies `pro-beacon-dop` and
+`pro-surface-beacon-dop-study` are Arksa-exclusive too (they were `pro` before). No
+M-workstream (space RF survey) code exists in either repository yet.
 
 ## 2. X1: the `arksa` entitlement claim
 
@@ -38,13 +38,13 @@ owner decides. No M-workstream (space RF survey) code exists in this repository 
   cannot grant the claim, adding the claim to a Pro token breaks its signature, and removing
   it from an Arksa token breaks it too (the token's key is then unknown to the Pro set).
   Retired key IDs apply to both sets.
-* **Key slot.** `KSHANA_PRO_ARKSA_ISSUER_PUBKEY` (64 hex characters, or several separated by
-  commas) at build time, read only by a build with the `arksa` feature
-  (`license::embedded_arksa_issuers`). A default build has no Arksa issuer at all, so it
-  refuses every token that carries the claim. The placeholder
-  `license::PLACEHOLDER_ARKSA_ISSUER_PUBKEY` is a TEST key: its private half exists only in
-  `tests/arksa_entitlement.rs`; a debug build with the `arksa` feature and no key set trusts
-  it for local runs; a release build never does. No private key is in the repository.
+* **Key slot.** The Arksa issuer keys come only from a registered extension
+  (`license::embedded_arksa_issuers` returns `extension::issuer_keys()`). Kshana Pro on its
+  own has no Arksa issuer at all, so it refuses every token that carries the claim. The
+  arksa-kpro crate reads `KSHANA_PRO_ARKSA_ISSUER_PUBKEY` (64 hex characters, or several
+  separated by commas) at its build time; with none set, its debug build trusts the
+  placeholder TEST key `arksa_kpro::PLACEHOLDER_ARKSA_ISSUER_PUBKEY` (private half only in
+  the tests) and its release build trusts none. No private key is in either repository.
 * **Issuing.** `license::issue_arksa(seed, claims)` sets the claim and signs a v2 token. Only
   Arksa's issuer holds such a seed (docs/LICENSING-KEYS.md, section 5). The vendor CLI does
   not issue Arksa tokens.
@@ -53,16 +53,21 @@ owner decides. No M-workstream (space RF survey) code exists in this repository 
   grant unlocks it. A Core kind never runs. A `pro-` kind the manifest does not list is
   refused. `license::check` gives the error: for an Arksa-exclusive or Core kind always the
   same neutral text, "this capability is not available under this licence; it is provided
-  only within Arksa", which names no kind and no method. `registry::run_gated`, the `mbse`,
-  `mission`, `design`, `coexist`, `navdt`, `spacestream` and `mrd` commands, the service and
+  only within Arksa", which names no kind and no method. `registry::run_gated`, the Arksa commands
+  (through `cli::require_feature` or the module's own gate, in arksa-kpro), the service and
   Desktop Pro (both through `run_gated`) all go through it. Pro kinds behave as before.
 
-Tests: `tests/arksa_entitlement.rs` (old tokens verify without the claim; the issuer slot
-only; a Pro key cannot grant it; tampered claims, key IDs, tier, expiry and licensee fail; a
-retired issuer key is refused; a standalone Pro token at Enterprise tier that even names
-every Arksa-exclusive id in `features` is refused for each of them with the neutral message;
-an Arksa-entitled token runs each of the nine kinds; an expired one runs none; a default
-build refuses them by hash), plus the unit tests in `src/license`.
+Tests: `tests/arksa_entitlement.rs` here (old tokens verify without the claim; the issuer
+slot only; a Pro key cannot grant it; tampered claims, key IDs, tier, expiry and licensee
+fail; a retired issuer key is refused; this crate contains no Arksa-exclusive kind and
+refuses each of them by hash with the neutral message, for a standalone Enterprise token
+naming every Arksa id in `features`, for Evaluation and even for an Arksa token; it trusts no
+Arksa issuer of its own; the names are read from the term list at run time, so the test
+source names none), plus the unit tests in `src/license`. In arksa-kpro,
+`tests/arksa_entitlement.rs` checks the hook: exactly the eleven kinds and seven features are
+added and all are in the manifest at `arksa`; a standalone Pro token is refused for each,
+neutrally; an Arksa token runs each kind through `run_gated`; an expired one runs none; the
+server binary refuses at Evaluation and lists the Arksa commands.
 
 ## 3. X2: the signed tier manifest
 
@@ -76,7 +81,8 @@ build refuses them by hash), plus the unit tests in `src/license`.
   the service included): the signature must verify, the form must hold (names only in open
   tiers, hashes only in hidden ones, no entry twice, known tiers and types), and the manifest
   must agree with the code (every compiled kind and feature listed at the tier the code
-  gives; every listed name compiled in). Library users (Desktop Pro) verify the signature
+  gives; every listed name compiled in; every kind and feature a registered extension adds
+  listed at `arksa`, by hash). Library users (Desktop Pro) verify the signature
   and form on the first gate check. A manifest that fails makes every Pro kind refuse. Kinds
   it does not list are refused.
 * **Keys.** The committed signature is made with a TEST key (private half only in
@@ -85,11 +91,13 @@ build refuses them by hash), plus the unit tests in `src/license`.
   `KSHANA_PRO_TIER_MANIFEST_PUBKEY` and `KSHANA_PRO_TIER_MANIFEST_SIG` at build time
   (docs/LICENSING-KEYS.md, section 6).
 * **Regenerate** after adding, removing or re-tiering a kind:
-  `KSHANA_PRO_REGEN_TIER_MANIFEST=1 cargo test --features arksa --test tier_manifest`.
-  CI fails while the committed file or signature is stale.
+  `KSHANA_PRO_REGEN_TIER_MANIFEST=1 cargo test --test tier_manifest`. The hidden entries
+  come from `tiers::ARKSA_ENTRIES` (hash and type); this crate does not know their names.
+  CI fails while the committed file or signature is stale. Regenerated on 14 November 2026
+  for X3 with the test key: 33 entries, 18 at `arksa` (11 kinds, 7 features).
 * **Limit.** The manifest is embedded at compile time. Its signature catches an edit between
   the vendor and the build; it does not stop someone who patches a built binary. That is why
-  the Arksa-exclusive code is not in shipped binaries at all (section 4).
+  the Arksa-exclusive code is not in this repository at all (sections 4 and 6).
 
 Tests: `tests/tier_manifest.rs` (the placeholder is the test key; the committed manifest is
 what the code implies; the signature is current; start-up check; counts; a tampered manifest,
@@ -98,24 +106,15 @@ for Enterprise) and `src/license/tiers.rs`.
 
 ## 4. X4: shipped builds carry no Arksa-exclusive or Core code
 
-* **Cargo feature `arksa`, off by default.** With it off, these are not compiled at all: the
-  nine Arksa-exclusive packs; the modules `mbse`, `design`, `mission`, `spectrum_coexistence`,
-  `lunar_oed`, `mrd` and `connectors::spacestream`; the commands `mbse`, `design`, `coexist`,
-  `mission`, `navdt`, `spacestream`, `mrd`; their usage lines and tier entries. The default
-  build, the release packages and Desktop Pro (which links the overlay with default features)
-  build without them. To keep the Pro products whole, three shared helpers moved out of the
-  gated modules: the result-path criterion grammar and unit parser (`src/criterion.rs`,
-  `src/units.rs`, used by Pack C) and the PDF text helper (`src/pdf_text.rs`); the engine
-  version probe moved to `report_brand`. The gated modules re-export them. Older pages
-  (docs/MBSE.md, docs/MISSION-DOSSIER.md, docs/DESIGN-OPTIMISER.md,
-  docs/SPECTRUM-COEXISTENCE.md) show `cargo run -- <command>`; these commands now need
-  `cargo run --features arksa -- <command>`.
-* **Still in the default build (moves with X3).** `twin::navdt` (the consolidated report and
-  the trade study are built on its bundle) and `suite::gsn` / `suite::vcd` (the Pro study
-  dossier writes a GSN argument and a VCD). Their command (`navdt`) is gated; the code is not.
-  Removing them means splitting the report and the study dossier, which changes sold Pro
-  products; it needs the owner's decision. Their names are in the `[arksa-pending]` section
-  of the term list: checked in the open repository now, in binaries once X3 lands.
+* **Not in this crate (since X3).** The nine Arksa-exclusive packs of section 1a, the two
+  lunar surface beacon studies, the modules `mbse`, `design`, `mission`,
+  `spectrum_coexistence`, `lunar_oed`, `mrd`, `connectors::spacestream`, `twin::navdt`,
+  `suite::gsn`, `suite::vcd` and the commands `mbse`, `design`, `coexist`, `mission`,
+  `navdt`, `spacestream`, `mrd` live in `ashfordeOU/arksa-kpro` (section 6). The cargo
+  feature `arksa` is gone. The release packages and Desktop Pro cannot contain that code: it
+  is not in their dependency graph. Shared helpers stay here: the criterion grammar and unit
+  parser (`src/criterion.rs`, `src/units.rs`), the PDF text helper (`src/pdf_text.rs`), the
+  report PDF layout (`report_pdf`, now public for the extension) and `util::dot_path_number`.
 * **Stripped release builds.** `[profile.release] strip = "symbols"`, `debug = false` in this
   crate and in `apps/desktop-pro/src-tauri`. Stripping removes the symbol table, not string
   literals or panic paths, so the check below scans strings too.
@@ -129,8 +128,10 @@ for Enterprise) and `src/license/tiers.rs`.
   clippy and the tests of the `arksa` build); Desktop Pro (`desktop-pro.yml`, a release build
   of the app binary); the signed Desktop Pro release (`desktop-pro-release.yml`, the whole
   `.app` before the disk image is signed); the Windows package (`packages.yml`).
-  `tests/protect_scripts.rs` checks that the default binary passes and that a binary built
-  with `arksa` FAILS, so the term list keeps matching the code.
+  `tests/protect_scripts.rs` checks that this crate's binary passes and that a file
+  carrying a term fails. (Before X3 it also checked that an `arksa` build failed; that build
+  no longer exists here. Keeping the term list in step with the moved code is now an
+  arksa-kpro task, section 7.)
 * **Run locally:** `cargo build --release --bin kshana-pro && scripts/protect/symbol-check.sh
   --require-stripped target/release/kshana-pro`.
 
@@ -150,61 +151,78 @@ for Enterprise) and `src/license/tiers.rs`.
   touched), and it is an owner step.
 * The term list lives only here. Never copy it, or a line of it, to a public place.
 
-## 6. X3: plan (repository created; nothing moved yet)
+## 6. X3: the move to `ashfordeOU/arksa-kpro` (done 14 November 2026)
 
-The owner created the private repository `ashfordeOU/arksa-kpro` (14 November 2026). This task
-did not move code there; the move is the next step.
+**Dependency direction (fixed):** `arksa-kpro` depends on `kshana-pro` (a git dependency
+pinned to one commit) and on `kshana` (the open engine, the same exact version). Never the
+reverse. `scripts/protect/source-guard.sh` (CI step "Arksa source guard (X3)") fails when any
+`[arksa]` or `[core]` term of `protect/private-terms.txt`, or the server-side crate's name,
+appears in a tracked source file, manifest, lockfile, test, fixture, scenario or the Desktop
+Pro app (documentation is out of scope; output by term ID only).
 
-**Dependency direction (fixed):** `arksa-kpro` depends on `kshana-pro` (for the
-`ExternalPack` seam, `license`, `registry`, `report_pdf`, `report_brand`, `brand_pdf`,
-`pdf_text`, `criterion`, `units`) and on `kshana` (the open engine). Never the reverse:
-`kshana-pro` and `kshana` must not name `arksa-kpro` in any manifest, lockfile or source, and
-the `[arksa]` terms plus a guard like `scripts/core-guard.sh` will check it.
+**Moved** (copied to arksa-kpro, deleted here): the eleven Arksa-exclusive packs (the nine of
+section 1a plus `pro-beacon-dop` and `pro-surface-beacon-dop-study`, owner decision);
+`src/mbse/` (`criterion` and `units` stay here), `src/design/`, `src/mission/`,
+`src/spectrum_coexistence/`, `src/lunar_oed.rs`, `src/mrd.rs`,
+`src/connectors/spacestream.rs`; `src/twin/navdt.rs`, `src/suite/gsn.rs`, `src/suite/vcd.rs`
+(owner decision); the seven commands; the tests `design_optimise`, `mbse`, `mission_dossier`,
+`spectrum_coexistence`, `mrd_deliverable_in_sync`, `no_overclaims_mission_analysis`,
+`spacestream_schema_in_sync`, `e2e_interop`, `reproducibility_twin`, the `with_arksa` half of
+`arksa_entitlement` and the `mbse` test of `modelled_label`; `tests/fixtures/mbse/`,
+`scenarios/mbse-srd.toml`, `scenarios/pro-power/{design,coexistence,mission}/`,
+`scenarios/spacestream-*.json`; `docs/MBSE.md`, `docs/MISSION-DOSSIER.md`,
+`docs/DESIGN-OPTIMISER.md`, `docs/SPECTRUM-COEXISTENCE.md`,
+`docs/tenders/cross-tender/D1.4-mrd-fom-mapping.md`,
+`docs/tenders/13494-ai-payload-pnt/SpaceStream-ICD.md`. The committed study outputs the moved
+pack tests compare against (`papers/{cislunar-observability,lunar-time-budget,optical-rf-hybrid,realtime-frame-eop,surface-beacon-dop}/`)
+were copied; the copies here were left in place (owner to decide, section 7).
 
-**Move to `arksa-kpro`, as a crate of its own:**
+**What Kshana Pro products changed** (owner decision: they keep working without the moved
+code, with honest, neutral content):
 
-* Packs: `src/packs/mbse_pack.rs`, `design_optimise_pack.rs`, `spectrum_coexistence_pack.rs`,
-  `lunar_signal_security_pack.rs`, `beacon_placement_pack.rs`,
-  `lunar_time_budget_study_pack.rs`, `cislunar_observability_study_pack.rs`,
-  `optical_rf_hybrid_study_pack.rs`, `realtime_frame_eop_study_pack.rs`.
-* Modules: `src/mbse/` (less `criterion` and `units`, which stay in `kshana-pro`),
-  `src/design/`, `src/mission/`, `src/spectrum_coexistence/`, `src/lunar_oed.rs`,
-  `src/mrd.rs`, `src/connectors/spacestream.rs`.
-* Commands now in `src/main.rs` under `#[cfg(feature = "arksa")]`: `mbse_cmd`, `mission_cmd`,
-  `design_cmd`, `coexist_cmd`, `navdt_cmd`, `arksa_feature`, the `mrd` and `spacestream` arms
-  and `USAGE_ARKSA` (an `arksa-kpro` binary, or a server entry point there).
-* Tests: `tests/design_optimise.rs`, `mbse.rs`, `mission_dossier.rs`,
-  `spectrum_coexistence.rs`, `mrd_deliverable_in_sync.rs`, `no_overclaims_mission_analysis.rs`,
-  `spacestream_schema_in_sync.rs`, `e2e_interop.rs`, `reproducibility_twin.rs`, the
-  `with_arksa` half of `arksa_entitlement.rs`, the `mbse` test of `modelled_label.rs`.
-* Fixtures, scenarios and docs: `tests/fixtures/mbse/`, `scenarios/mbse-srd.toml`,
-  `scenarios/pro-power/{design,coexistence,mission}/`, `scenarios/spacestream-*.json`,
-  `docs/MBSE.md`, `docs/MISSION-DOSSIER.md`, `docs/DESIGN-OPTIMISER.md`,
-  `docs/SPECTRUM-COEXISTENCE.md`, `docs/tenders/cross-tender/D1.4-mrd-fom-mapping.md`,
-  `docs/tenders/13494-ai-payload-pnt/SpaceStream-ICD.md`.
-* Later (after the owner decides what the sold Pro report and study dossier keep):
-  `src/twin/navdt.rs`, `src/suite/gsn.rs`, `src/suite/vcd.rs`; then their names move from
-  `[arksa-pending]` to `[arksa]`.
+* `pro-trade-study`: the result no longer has the `gsn` and `vcd` fields, and the assurance
+  pack Markdown no longer has the GSN and VCD sections. Gate, provenance, TRL table, ECSS
+  Annex L and NASA §6.8 reports are unchanged.
+* `suite::vv_dossier` (the credibility dossier): the GSN top goal and the VCD coverage are
+  replaced by the count of assurance-gate checks closed (`checks_total`, `checks_closed`,
+  `checks_all_closed`); the M&S Management factor and `evidence_complete` use that count.
+* Study dossier (`kshana-pro study --dossier`): section 5.5 has a plain table of the study's
+  own checks (`assurance.checks`, ids `CHK-010` to `CHK-050`, with evidence and status), in
+  place of the GSN argument and the VCD; the trade appendix carries the gate and provenance
+  only; the reference documents drop the GSN standard and the ECSS verification standard and
+  are renumbered (W3C PROV is RD-4).
+* Consolidated report (`kshana-pro report`): its figures-of-merit table is now every numeric
+  figure the open run reports under `<subject>.fom`, each with its label and oracle
+  (`report::FomSummary`, JSON field `figures`, was `bundle`); the NAV-DT wording is gone.
 
-**Stays in `kshana-pro`:** the `arksa` claim, the Arksa issuer slot and `license::check`;
-the tier manifest with its hashed entries (so Pro builds still refuse the names); the
-symbol check, the leak gate and the term list.
+**The hook.** `src/extension.rs`: an extension crate calls `extension::register` once with
+its kinds (metadata, recorded tier, parser, registry factory), command features, commands and
+Arksa issuer keys. The dispatcher (`registry::run`, `run_gated`, `pro_kinds`, `pro_registry`,
+`kinds_json`), the licence code (`explicit_tier`, `pro_command_features`,
+`embedded_arksa_issuers`), the tier code (`compiled_edition`, `startup_check`) and the command
+line (`cli::main_with_args`, usage, dispatch) consult it. The `kshana-pro` binary is now a
+thin `main` over the library's `cli` module, so the arksa-kpro binary runs the same command
+line (`arksa-kpro serve`, `run`, every Pro command, plus the Arksa ones). Registering grants
+nothing: every extension id must be at `arksa` in the signed manifest, and runs still need the
+claim.
 
-**Steps:** (1) create the crate in `arksa-kpro` with the files above, registering its packs
-through `ExternalPack::register_into` into `kshana_pro::registry::pro_registry()` and running
-them through `kshana_pro::registry::run_gated` (or a dispatcher there that calls
-`license::check` first); (2) give `kshana-pro` a registration hook so the server binary can
-add the Arksa packs (today the dispatcher's match table is internal); (3) delete the files
-and the `arksa` feature from `kshana-pro`; (4) the Arksa server build links `arksa-kpro`;
-Desktop Pro and the packages cannot contain it because it is not in their dependency graph;
-(5) Core stays in the private `kshana-core`, Arksa servers only.
+**Stays here:** the `arksa` claim, the issuer slot and `license::check`; the tier manifest with
+its hashed entries; the symbol check, the source guard, the leak gate and the term list.
 
 ## 7. What remains: X6, X7, X8 (not started)
 
 * **X6, results-only service API for Arksa-exclusive kinds.** Verdict, evidence class and
   signature out; intermediates withheld; per-tenant query budgets; probing alerts (many
   near-identical queries); watermarked outputs; an access log. Runs on Arksa servers, with
-  tests for each. Needs X3 (the kinds live in the server-only crate) and the service design.
+  tests for each. X3 is done: `arksa-kpro serve` today is the full Pro service with the Arksa
+  kinds added, and returns their full results; X6 wraps that in arksa-kpro.
+* **Term list and the moved code.** The symbol check can no longer prove here that the term
+  list matches the Arksa code (that build is gone). arksa-kpro should run
+  `symbol-check.sh` on its own release binary and require it to FAIL (it needs this
+  repository's term list, so a CI checkout of kshana-pro at the pinned rev).
+* **Committed study outputs.** `papers/{cislunar-observability,lunar-time-budget,optical-rf-hybrid,realtime-frame-eop,surface-beacon-dop}/`
+  are the published outputs of moved packs and were left here; whether to remove them is the
+  owner's call (anything already public stays public).
 * **X7, trade-secret register and patent-before-disclosure rule.** A register (private) of
   each secret method with its owner, date and status; P1, P2, P5 and B6 filed before any
   disclosure, P4 kept secret. Needs the owner and counsel; no code.
@@ -215,11 +233,10 @@ Desktop Pro and the packages cannot contain it because it is not in their depend
 
 ## 8. Honest limits
 
-* Source protection is that this repository is private. A build with the `arksa` feature
-  contains the Arksa-exclusive code; it is for Arksa servers and contracted Arksa Sovereign
-  installs only, never a customer device.
+* Source protection is that both repositories are private. An `arksa-kpro` build contains
+  the Arksa-exclusive code; it is for Arksa servers and contracted Arksa Sovereign installs
+  only, never a customer device.
 * Hashed manifest entries hide names from a casual reader, not from someone who guesses
   them: a short name can be checked against its hash.
-* The binary check finds the listed terms only. A new Arksa-exclusive module must add its
-  names to `protect/private-terms.txt` (and `tests/protect_scripts.rs` fails when the
-  `arksa` build no longer matches any term).
+* The binary check and the source guard find the listed terms only. A new Arksa-exclusive
+  module must add its names to `protect/private-terms.txt`.

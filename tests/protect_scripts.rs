@@ -2,9 +2,12 @@
 //
 //! The protection scripts (roadmap 0.42 X4 and X5) checked on real inputs:
 //!
-//! * `scripts/protect/symbol-check.sh` passes on the binary of a default build and FAILS on
-//!   the binary of a build with the `arksa` feature, so the term list keeps matching what
-//!   the Arksa-exclusive code puts in a binary;
+//! * `scripts/protect/symbol-check.sh` passes on this crate's binary and fails on a file
+//!   that carries a private term (the Arksa-exclusive code is no longer in this crate; the
+//!   server-side crate's own CI checks that its binary DOES carry the terms, so the list
+//!   keeps matching that code);
+//! * `scripts/protect/source-guard.sh` passes on this repository and fails when an
+//!   Arksa-exclusive term or the server-side crate's name comes back into the source;
 //! * `scripts/protect/open-leak-gate.sh` fails on a repository that carries a private term
 //!   and passes on one that does not, and never prints the term itself.
 
@@ -54,15 +57,7 @@ fn terms(section: &str) -> Vec<String> {
 fn symbol_check_matches_the_build() {
     let bin = env!("CARGO_BIN_EXE_kshana-pro");
     let (ok, out) = run("scripts/protect/symbol-check.sh", &[bin]);
-    if cfg!(feature = "arksa") {
-        assert!(
-            !ok,
-            "a build with the arksa feature must fail the check, or the term list no longer matches the code:\n{out}"
-        );
-        assert!(out.contains("FAIL"), "{out}");
-    } else {
-        assert!(ok, "the default build carries a private term:\n{out}");
-    }
+    assert!(ok, "the Kshana Pro binary carries a private term:\n{out}");
     // Never prints a term.
     for t in terms("arksa").iter().chain(&terms("core")) {
         assert!(
@@ -193,4 +188,55 @@ fn the_committed_baseline_holds_ids_not_terms() {
             "baseline entries carry a term ID, never a term: {line}"
         );
     }
+}
+
+#[test]
+fn source_guard_passes_here_and_fails_on_a_planted_term_or_the_crate_name() {
+    let (ok, out) = run("scripts/protect/source-guard.sh", &[]);
+    assert!(
+        ok,
+        "this repository's source carries an Arksa-exclusive term:\n{out}"
+    );
+
+    let repo = tempdir("source-guard");
+    git(&repo, &["init", "-q"]);
+    std::fs::create_dir_all(repo.join("src")).unwrap();
+    std::fs::write(repo.join("src/lib.rs"), "pub fn f() {}\n").unwrap();
+    git(&repo, &["add", "."]);
+    git(&repo, &["commit", "-q", "-m", "init"]);
+    let dir = repo.to_string_lossy().to_string();
+    let (ok, out) = run("scripts/protect/source-guard.sh", &["--dir", &dir]);
+    assert!(ok, "a clean repository passes:\n{out}");
+
+    // An Arksa-exclusive term in a source file fails, and is reported by ID only.
+    let ark = &terms("arksa")[0];
+    std::fs::write(
+        repo.join("src/lib.rs"),
+        format!("// {ark}\npub fn f() {{}}\n"),
+    )
+    .unwrap();
+    git(&repo, &["commit", "-q", "-am", "term"]);
+    let (ok, out) = run("scripts/protect/source-guard.sh", &["--dir", &dir]);
+    assert!(!ok, "{out}");
+    assert!(out.contains("src/lib.rs"), "{out}");
+    assert!(
+        !out.contains(ark.as_str()),
+        "the guard printed a private term"
+    );
+
+    // A dependency on the server-side crate fails too (its name is built here so this
+    // source does not carry it).
+    let name = format!("{}-{}", "arksa", "kpro");
+    std::fs::write(repo.join("src/lib.rs"), "pub fn f() {}\n").unwrap();
+    std::fs::write(
+        repo.join("Cargo.toml"),
+        format!("[dependencies]\n{name} = {{ path = \"../x\" }}\n"),
+    )
+    .unwrap();
+    git(&repo, &["add", "."]);
+    git(&repo, &["commit", "-q", "-m", "dep"]);
+    let (ok, out) = run("scripts/protect/source-guard.sh", &["--dir", &dir]);
+    assert!(!ok, "{out}");
+    assert!(out.contains("Cargo.toml"), "{out}");
+    let _ = std::fs::remove_dir_all(&repo);
 }

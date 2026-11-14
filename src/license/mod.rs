@@ -113,43 +113,14 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-trade-study" => Tier::Pro,
         "pro-quantum-systematics" => Tier::Pro,
         "pro-optimism-gap-audit" => Tier::Pro,
-        #[cfg(feature = "arksa")]
-        "pro-lunar-signal-security" => Tier::Pro,
-        "pro-beacon-dop" => Tier::Pro,
-        "pro-surface-beacon-dop-study" => Tier::Pro,
-        #[cfg(feature = "arksa")]
-        "pro-beacon-placement" => Tier::Pro,
-        #[cfg(feature = "arksa")]
-        "pro-lunar-time-budget-study" => Tier::Pro,
-        #[cfg(feature = "arksa")]
-        "pro-realtime-frame-eop-study" => Tier::Pro,
-        #[cfg(feature = "arksa")]
-        "pro-optical-rf-hybrid-study" => Tier::Pro,
-        #[cfg(feature = "arksa")]
-        "pro-cislunar-observability-study" => Tier::Pro,
         "pro-conflict-resilience-study" => Tier::Pro,
         "pro-scenario-ci" => Tier::Pro,
         "pro-study-dossier" => Tier::Pro,
         // Signed dossiers (F7): part of "studies and signed dossiers" in the 0.41
         // edition matrix.
         "pro-signed-dossier" => Tier::Pro,
-        #[cfg(feature = "arksa")]
-        "pro-mbse" => Tier::Enterprise,
         "pro-batch" => Tier::Enterprise,
         "pro-uncertainty" => Tier::Enterprise,
-        #[cfg(feature = "arksa")]
-        "pro-design-optimise" => Tier::Enterprise,
-        #[cfg(feature = "arksa")]
-        "pro-spectrum-coexistence" => Tier::Enterprise,
-        #[cfg(feature = "arksa")]
-        "pro-mission-dossier" => Tier::Enterprise,
-        // Arksa-exclusive commands (the edition gate decides; the licence tier is informational).
-        #[cfg(feature = "arksa")]
-        "pro-navdt" => Tier::Pro,
-        #[cfg(feature = "arksa")]
-        "pro-spacestream" => Tier::Pro,
-        #[cfg(feature = "arksa")]
-        "pro-mrd" => Tier::Pro,
         // 0.41 edition matrix (F10a): Pro features that are not scenario kinds.
         // More than one Kshana Station under one management (fleet).
         "pro-station-fleet" => Tier::Pro,
@@ -157,14 +128,16 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-service-ha" => Tier::Enterprise,
         // Kshana Desktop's Pro build (separate download, F10e).
         "pro-desktop" => Tier::Pro,
-        _ => return None,
+        // A kind or feature of a registered server-side extension (crate::extension): the
+        // edition gate decides; the recorded tier is informational.
+        other => return crate::extension::min_tier(other),
     })
 }
 
 /// Pro features gated by a command rather than a scenario kind. Each must have an
 /// explicit tier ([`explicit_tier`]); the coverage test checks it.
-/// The Arksa-exclusive command features are in [`tiers::ARKSA_FEATURES`] (compiled only
-/// with the `arksa` feature); [`pro_command_features`] lists both.
+/// A registered server-side extension adds its own ([`crate::extension`]);
+/// [`pro_command_features`] lists both.
 pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-scenario-ci",
     "pro-study-dossier",
@@ -175,13 +148,13 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-desktop",
 ];
 
-/// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and the Arksa-exclusive
-/// ones compiled in.
+/// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered
+/// extension.
 pub fn pro_command_features() -> Vec<&'static str> {
     PRO_COMMAND_FEATURES
         .iter()
-        .chain(tiers::ARKSA_FEATURES)
         .copied()
+        .chain(crate::extension::features().iter().map(|f| f.id))
         .collect()
 }
 
@@ -243,17 +216,6 @@ pub fn ensure_dossier_entitled(ent: &Entitlement, now_unix: i64) -> Result<(), K
             feature_min_tier("pro-study-dossier").as_str()
         )))
     }
-}
-
-/// Gate the MBSE and programme tooling (`kshana-pro mbse ...`): succeed when `ent`
-/// permits the `pro-mbse` feature at `now_unix`, else return an [`Unsupported`] error
-/// ([`check`]). It is the same feature id as the `pro-mbse` scenario pack, so one
-/// entitlement covers both. Arksa-exclusive.
-///
-/// [`Unsupported`]: KshanaError::Unsupported
-#[cfg(feature = "arksa")]
-pub fn ensure_mbse_entitled(ent: &Entitlement, now_unix: i64) -> Result<(), KshanaError> {
-    check(ent, "pro-mbse", now_unix)
 }
 
 /// The signed claims carried by a license token.
@@ -822,30 +784,12 @@ pub fn issue_arksa(seed: &[u8; KEY_LEN], claims: &LicenseClaims) -> Result<Strin
     issue_v2(seed, &c)
 }
 
-/// The Arksa issuer public keys compiled into this build: `KSHANA_PRO_ARKSA_ISSUER_PUBKEY`
-/// (64 hex characters, or several separated by commas), read only by a build with the
-/// `arksa` feature. Empty when unset and in every default build.
+/// The Arksa issuer public keys this process trusts: those a registered server-side
+/// extension supplies ([`crate::extension::Extension::issuer_keys`]). Empty in every
+/// Kshana Pro build, which therefore accepts no token carrying the claim.
 pub fn embedded_arksa_issuers() -> Result<Vec<[u8; KEY_LEN]>, KshanaError> {
-    #[cfg(feature = "arksa")]
-    {
-        option_env!("KSHANA_PRO_ARKSA_ISSUER_PUBKEY")
-            .unwrap_or("")
-            .split(|c: char| c == ',' || c.is_whitespace())
-            .filter(|s| !s.is_empty())
-            .map(parse_key_hex)
-            .collect()
-    }
-    #[cfg(not(feature = "arksa"))]
-    Ok(Vec::new())
+    Ok(crate::extension::issuer_keys())
 }
-
-/// Public half of the placeholder Arksa issuer key: a test key whose private half exists
-/// only in the tests (`tests/arksa_entitlement.rs`). A debug build with the `arksa` feature
-/// and no `KSHANA_PRO_ARKSA_ISSUER_PUBKEY` trusts it, for local runs; a release build never
-/// does. The real Arksa issuer key is set at build time (docs/LICENSING-KEYS.md, section 5).
-#[cfg(feature = "arksa")]
-pub const PLACEHOLDER_ARKSA_ISSUER_PUBKEY: &str =
-    "da2d8a4d79a5b8a2faefad9f4283f8e299f1450aca0ea20492f3e4dbbc6030bb";
 
 /// A fresh random token ID (`kt_` and 24 hex characters).
 pub fn new_token_id() -> String {

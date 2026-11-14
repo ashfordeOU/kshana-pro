@@ -16,8 +16,7 @@
 //!
 //! It pulls the concrete evidence already produced elsewhere in the suite — the
 //! fail-closed [assurance gate][super::gate] verdict, the W3C-PROV + Merkle root
-//! ([provenance][super::provenance]), the [GSN][super::gsn] top goal, the
-//! [ECSS VCD][super::vcd] coverage, the open core's
+//! ([provenance][super::provenance]), the count of gate checks closed, the open core's
 //! [`kshana::verification`] Validated/Modelled split, and the L1 twin validation
 //! reports — and binds them into structured data plus a markdown dossier.
 //!
@@ -46,9 +45,7 @@
 use kshana::verification::{summarize, verification_matrix, MatrixSummary};
 
 use super::gate::{assurance_gate, GateOutcome, GateVerdict};
-use super::gsn::build_argument;
 use super::provenance::build_provenance;
-use super::vcd::{build_vcd, Vcd, VcdStatus};
 use super::TradeReport;
 use crate::twin::ValidationReport;
 
@@ -268,16 +265,12 @@ pub struct ComposedEvidence {
     pub merkle_root: String,
     /// `true` iff the root is 64-hex and recomputes identically (tamper-evidence holds).
     pub merkle_stable: bool,
-    /// The GSN top-goal statement (the claim the argument supports).
-    pub gsn_top_goal: String,
-    /// The ECSS Verification Control Document.
-    pub vcd: Vcd,
-    /// VCD line-item count.
-    pub vcd_total: usize,
-    /// VCD items closed Pass/N-A.
-    pub vcd_closed: usize,
-    /// `true` iff every VCD item is closed.
-    pub vcd_all_closed: bool,
+    /// Number of assurance-gate checks.
+    pub checks_total: usize,
+    /// Gate checks that passed.
+    pub checks_closed: usize,
+    /// `true` iff there is at least one check and every one passed.
+    pub checks_all_closed: bool,
     /// Open-core verification-matrix Validated/Modelled/Partner split.
     pub matrix: MatrixSummary,
     /// L1 twin reproduction evidence.
@@ -297,7 +290,7 @@ pub struct CredibilityDossier {
     pub context_of_use: ContextOfUse,
     pub evidence: ComposedEvidence,
     /// `true` only when every load-bearing piece of evidence is present and passing
-    /// (gate PASS, decision present, Merkle stable, VCD closed, a passing twin). Any
+    /// (gate PASS, decision present, Merkle stable, every gate check closed, a passing twin). Any
     /// gap flips this false — fail-closed.
     pub evidence_complete: bool,
     /// The overall credibility statement (never exceeds the weakest assessed factor).
@@ -305,7 +298,7 @@ pub struct CredibilityDossier {
 }
 
 /// Build the agency V&V credibility dossier for a completed trade study, folding in
-/// the L1 twin validation evidence. Composes the gate, provenance, GSN, VCD and the
+/// the L1 twin validation evidence. Composes the gate, provenance, the gate-check count and the
 /// open-core verification matrix; scores the NASA-STD-7009B CAS honestly (firewall
 /// caps enforced); and states the ASME V&V 40 context of use with the credibility gap.
 ///
@@ -328,20 +321,9 @@ pub fn build_dossier(
         && merkle_root.chars().all(|c| c.is_ascii_hexdigit())
         && merkle_root == p2.merkle_root;
 
-    let gsn = build_argument(report, report.gate.min_trl);
-    let gsn_top_goal = gsn
-        .get("G1")
-        .map(|n| n.statement.clone())
-        .unwrap_or_else(|| "(no GSN top goal — argument could not be built)".to_string());
-
-    let vcd = build_vcd(report);
-    let vcd_total = vcd.items.len();
-    let vcd_closed = vcd
-        .items
-        .iter()
-        .filter(|i| matches!(i.status, VcdStatus::Pass | VcdStatus::NotApplicable))
-        .count();
-    let vcd_all_closed = vcd.all_closed();
+    let checks_total = gate.criteria.len();
+    let checks_closed = gate.criteria.iter().filter(|c| c.passed).count();
+    let checks_all_closed = checks_total > 0 && checks_closed == checks_total;
 
     let matrix = summarize(&verification_matrix());
 
@@ -363,11 +345,9 @@ pub fn build_dossier(
         gate,
         merkle_root,
         merkle_stable,
-        gsn_top_goal,
-        vcd,
-        vcd_total,
-        vcd_closed,
-        vcd_all_closed,
+        checks_total,
+        checks_closed,
+        checks_all_closed,
         matrix,
         twin_validations: twin_validations.to_vec(),
     };
@@ -539,7 +519,7 @@ pub fn build_dossier(
     });
 
     // M&S Management — configuration control & process discipline.
-    let management_level = if merkle_stable && vcd_total > 0 {
+    let management_level = if merkle_stable && checks_total > 0 {
         3
     } else if merkle_stable {
         2
@@ -554,8 +534,8 @@ pub fn build_dossier(
         evidence: format!(
             "Tamper-evident W3C-PROV record with a SHA-256 Merkle root, reproducible open-core \
              scenario hashes, a version-pinned dependency graph (Cargo.lock), a fail-closed \
-             assurance gate, and an ECSS VCD ({} of {} items closed).",
-            vcd_closed, vcd_total
+             assurance gate ({} of {} checks closed).",
+            checks_closed, checks_total
         ),
         rationale:
             "Achieved: the M&S is under reproducible configuration control with tamper-evident \
@@ -594,7 +574,7 @@ pub fn build_dossier(
         .collect();
 
     let evidence_complete =
-        has_decision && gate_passed && merkle_stable && vcd_all_closed && twin_passed;
+        has_decision && gate_passed && merkle_stable && checks_all_closed && twin_passed;
 
     // ── ASME V&V 40 context of use ─────────────────────────────────────────────
     let qoi = if has_decision {
@@ -771,10 +751,9 @@ impl CredibilityDossier {
             "- **Provenance (W3C-PROV) Merkle root:** `{}` (stable / tamper-evident: {})\n",
             ev.merkle_root, ev.merkle_stable
         ));
-        md.push_str(&format!("- **GSN top goal:** {}\n", ev.gsn_top_goal));
         md.push_str(&format!(
-            "- **ECSS VCD coverage:** {} of {} requirement items closed ({} all-closed)\n",
-            ev.vcd_closed, ev.vcd_total, ev.vcd_all_closed
+            "- **Gate checks:** {} of {} closed (all closed: {})\n",
+            ev.checks_closed, ev.checks_total, ev.checks_all_closed
         ));
         md.push_str(&format!(
             "- **Open-core verification matrix:** {} of {} rows externally Validated, {} \
@@ -808,13 +787,12 @@ impl CredibilityDossier {
         }
         md.push('\n');
 
-        // Embed the underlying gate + VCD tables for the reviewer to drill into.
+        // Embed the underlying gate table for the reviewer to drill into.
         md.push_str(&ev.gate.markdown());
-        md.push_str(&ev.vcd.markdown());
 
         md.push_str(
-            "\n_This dossier composes the suite's own evidence (gate, W3C-PROV+Merkle, GSN, \
-             ECSS VCD) and the open core's verification matrix into a single credibility \
+            "\n_This dossier composes the suite's own evidence (gate, W3C-PROV+Merkle) \
+             and the open core's verification matrix into a single credibility \
              picture. It is deliberately scrupulous about its own honesty: Validation is \
              firewall-capped because the composed capability has no measured-device/flight \
              data, Use History is low because the system is new, and People Qualification is \
@@ -1082,8 +1060,8 @@ mod tests {
         assert!(md.contains("not") && md.contains("accreditation"));
         // Composed evidence present.
         assert!(md.contains("Merkle root"));
-        assert!(md.contains("GSN top goal"));
-        assert!(md.contains("Verification Control Document"));
+        assert!(md.contains("Gate checks"));
+        assert!(!md.contains("GSN") && !md.contains("Verification Control Document"));
         assert!(md.contains("verification matrix"));
         assert!(md.contains("Assurance gate"));
         // The eight factor names all render.

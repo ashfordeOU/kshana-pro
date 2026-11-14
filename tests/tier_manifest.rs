@@ -8,10 +8,10 @@
 //! nowhere else; its public half is `tiers::PLACEHOLDER_MANIFEST_PUBKEY`. A release signs
 //! with the vendor's offline manifest key instead (docs/LICENSING-KEYS.md, section 6).
 //!
-//! Regenerate after adding, removing or re-tiering a kind (needs the `arksa` feature, the
-//! only build that knows every name):
+//! Regenerate after adding, removing or re-tiering a kind (the hidden entries come from
+//! `tiers::ARKSA_ENTRIES`, by hash; this crate does not know their names):
 //!
-//!     KSHANA_PRO_REGEN_TIER_MANIFEST=1 cargo test --features arksa --test tier_manifest
+//!     KSHANA_PRO_REGEN_TIER_MANIFEST=1 cargo test --test tier_manifest
 
 use ed25519_dalek::{Signer, SigningKey};
 use kshana_pro::license::tiers::{self, Edition, ManifestDoc, ManifestEntry};
@@ -49,7 +49,6 @@ fn placeholder_manifest_key_is_the_test_key() {
     assert_eq!(hex::encode(test_key()), tiers::PLACEHOLDER_MANIFEST_PUBKEY);
 }
 
-#[cfg(feature = "arksa")]
 #[test]
 fn committed_manifest_is_the_one_the_code_implies() {
     let want = tiers::manifest_text(&tiers::manifest_from_code());
@@ -92,13 +91,13 @@ fn embedded_manifest_verifies_at_start_up_and_matches_this_build() {
         .iter()
         .map(|k| k.name)
         .chain(license::pro_command_features())
-        .filter(|k| !tiers::ARKSA_KINDS.contains(k) && !tiers::ARKSA_FEATURES.contains(k))
         .collect();
     compiled.sort();
     compiled.dedup();
     assert_eq!(named, compiled);
-    // The hidden tier is present in every build (by hash), so a default build refuses the
-    // Arksa-exclusive kinds by name without containing the names.
+    // The hidden tier is present (by hash), so this crate refuses the Arksa-exclusive kinds
+    // by name without containing the names.
+    assert_eq!(m.count_in(Edition::Arksa), tiers::ARKSA_ENTRIES.len());
     assert!(m.count_in(Edition::Arksa) > 0);
     // Every entry of the hidden tiers is a hash, never a name.
     for e in &m.doc().entries {
@@ -115,7 +114,8 @@ fn manifest_kind_count_is_every_registry_kind_of_every_edition() {
     assert_eq!(m.kind_count(), pro_kinds + tiers_missing_from_this_build());
 }
 
-/// Arksa-exclusive kinds this build does not contain (all of them in a default build).
+/// Arksa-exclusive kinds this crate does not contain (all of them: their code is in the
+/// server-side extension crate).
 fn tiers_missing_from_this_build() -> usize {
     let m = tiers::manifest().unwrap();
     let hidden_kinds = m
@@ -124,7 +124,14 @@ fn tiers_missing_from_this_build() -> usize {
         .iter()
         .filter(|e| e.entry_type == "kind" && e.kind_sha256.is_some())
         .count();
-    hidden_kinds - tiers::ARKSA_KINDS.len()
+    assert_eq!(
+        hidden_kinds,
+        tiers::ARKSA_ENTRIES
+            .iter()
+            .filter(|(_, ty)| *ty == "kind")
+            .count()
+    );
+    hidden_kinds
 }
 
 #[test]

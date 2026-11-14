@@ -13,29 +13,10 @@ use kshana::api::{run_scenario, ExternalPack, KshanaError, RunOutput, ScenarioMe
 use serde::de::DeserializeOwned;
 
 use crate::packs::batch_pack::BatchScenario;
-use crate::packs::beacon_dop_pack::{BeaconDopScenario, SurfaceBeaconDopStudyScenario};
-#[cfg(feature = "arksa")]
-use crate::packs::beacon_placement_pack::BeaconPlacementScenario;
-#[cfg(feature = "arksa")]
-use crate::packs::cislunar_observability_study_pack::CislunarObservabilityStudyScenario;
 use crate::packs::conflict_resilience_study_pack::ConflictResilienceStudyScenario;
-#[cfg(feature = "arksa")]
-use crate::packs::design_optimise_pack::DesignOptimiseScenario;
-#[cfg(feature = "arksa")]
-use crate::packs::lunar_signal_security_pack::LunarSignalSecurityScenario;
-#[cfg(feature = "arksa")]
-use crate::packs::lunar_time_budget_study_pack::LunarTimeBudgetStudyScenario;
-#[cfg(feature = "arksa")]
-use crate::packs::mbse_pack::MbseScenario;
-#[cfg(feature = "arksa")]
-use crate::packs::optical_rf_hybrid_study_pack::OpticalRfHybridStudyScenario;
 use crate::packs::optimism_gap_audit::OptimismGapAuditScenario;
 use crate::packs::quantum_systematics_pack::QuantumSystematicsScenario;
-#[cfg(feature = "arksa")]
-use crate::packs::realtime_frame_eop_study_pack::RealtimeFrameEopStudyScenario;
 use crate::packs::seam_check::SeamCheckPack;
-#[cfg(feature = "arksa")]
-use crate::packs::spectrum_coexistence_pack::SpectrumCoexistenceScenario;
 use crate::packs::trade_study_pack::TradeStudyScenario;
 use crate::packs::twin_pack::TwinScenario;
 use crate::packs::uncertainty_pack::UncertaintyScenario;
@@ -79,41 +60,12 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         TradeStudyScenario::KIND => Some(parse::<TradeStudyScenario>(kind, src)),
         BatchScenario::KIND => Some(parse::<BatchScenario>(kind, src)),
         QuantumSystematicsScenario::KIND => Some(parse::<QuantumSystematicsScenario>(kind, src)),
-        #[cfg(feature = "arksa")]
-        MbseScenario::KIND => Some(parse::<MbseScenario>(kind, src)),
         OptimismGapAuditScenario::KIND => Some(parse::<OptimismGapAuditScenario>(kind, src)),
-        #[cfg(feature = "arksa")]
-        DesignOptimiseScenario::KIND => Some(parse::<DesignOptimiseScenario>(kind, src)),
-        #[cfg(feature = "arksa")]
-        LunarSignalSecurityScenario::KIND => Some(parse::<LunarSignalSecurityScenario>(kind, src)),
-        BeaconDopScenario::KIND => Some(parse::<BeaconDopScenario>(kind, src)),
-        SurfaceBeaconDopStudyScenario::KIND => {
-            Some(parse::<SurfaceBeaconDopStudyScenario>(kind, src))
-        }
-        #[cfg(feature = "arksa")]
-        BeaconPlacementScenario::KIND => Some(parse::<BeaconPlacementScenario>(kind, src)),
-        #[cfg(feature = "arksa")]
-        LunarTimeBudgetStudyScenario::KIND => {
-            Some(parse::<LunarTimeBudgetStudyScenario>(kind, src))
-        }
-        #[cfg(feature = "arksa")]
-        RealtimeFrameEopStudyScenario::KIND => {
-            Some(parse::<RealtimeFrameEopStudyScenario>(kind, src))
-        }
-        #[cfg(feature = "arksa")]
-        OpticalRfHybridStudyScenario::KIND => {
-            Some(parse::<OpticalRfHybridStudyScenario>(kind, src))
-        }
-        #[cfg(feature = "arksa")]
-        CislunarObservabilityStudyScenario::KIND => {
-            Some(parse::<CislunarObservabilityStudyScenario>(kind, src))
-        }
         ConflictResilienceStudyScenario::KIND => {
             Some(parse::<ConflictResilienceStudyScenario>(kind, src))
         }
-        #[cfg(feature = "arksa")]
-        SpectrumCoexistenceScenario::KIND => Some(parse::<SpectrumCoexistenceScenario>(kind, src)),
-        _ => None,
+        // A kind of a registered server-side extension (crate::extension), if any.
+        _ => crate::extension::build(kind, src),
     }
 }
 
@@ -121,8 +73,14 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
 /// [`kshana::api::list_scenario_kinds`]. The union of the two is the full set of
 /// kinds a Pro build can run.
 pub fn pro_kinds() -> Vec<ScenarioMeta> {
-    #[allow(unused_mut)]
-    let mut kinds = vec![
+    let mut kinds = builtin_pro_kinds();
+    kinds.extend(crate::extension::kinds().iter().map(|k| k.meta.clone()));
+    kinds
+}
+
+/// The Pro kinds this crate itself contains (without any registered extension).
+pub fn builtin_pro_kinds() -> Vec<ScenarioMeta> {
+    vec![
         SeamCheckPack::meta_static(),
         TwinScenario::meta_static(),
         UncertaintyScenario::meta_static(),
@@ -130,24 +88,8 @@ pub fn pro_kinds() -> Vec<ScenarioMeta> {
         BatchScenario::meta_static(),
         QuantumSystematicsScenario::meta_static(),
         OptimismGapAuditScenario::meta_static(),
-        BeaconDopScenario::meta_static(),
-        SurfaceBeaconDopStudyScenario::meta_static(),
         ConflictResilienceStudyScenario::meta_static(),
-    ];
-    // Arksa-exclusive kinds (docs/PROTECTION.md): compiled only with the `arksa` feature.
-    #[cfg(feature = "arksa")]
-    kinds.extend([
-        MbseScenario::meta_static(),
-        DesignOptimiseScenario::meta_static(),
-        LunarSignalSecurityScenario::meta_static(),
-        BeaconPlacementScenario::meta_static(),
-        LunarTimeBudgetStudyScenario::meta_static(),
-        RealtimeFrameEopStudyScenario::meta_static(),
-        OpticalRfHybridStudyScenario::meta_static(),
-        CislunarObservabilityStudyScenario::meta_static(),
-        SpectrumCoexistenceScenario::meta_static(),
-    ]);
-    kinds
+    ]
 }
 
 /// Every kind a Pro build can run, as one JSON document (`kshana-pro kinds --json`).
@@ -307,28 +249,11 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     TradeStudyScenario::register_into(&mut reg);
     BatchScenario::register_into(&mut reg);
     QuantumSystematicsScenario::register_into(&mut reg);
-    #[cfg(feature = "arksa")]
-    MbseScenario::register_into(&mut reg);
     OptimismGapAuditScenario::register_into(&mut reg);
-    #[cfg(feature = "arksa")]
-    DesignOptimiseScenario::register_into(&mut reg);
-    #[cfg(feature = "arksa")]
-    LunarSignalSecurityScenario::register_into(&mut reg);
-    BeaconDopScenario::register_into(&mut reg);
-    SurfaceBeaconDopStudyScenario::register_into(&mut reg);
-    #[cfg(feature = "arksa")]
-    BeaconPlacementScenario::register_into(&mut reg);
-    #[cfg(feature = "arksa")]
-    LunarTimeBudgetStudyScenario::register_into(&mut reg);
-    #[cfg(feature = "arksa")]
-    RealtimeFrameEopStudyScenario::register_into(&mut reg);
-    #[cfg(feature = "arksa")]
-    OpticalRfHybridStudyScenario::register_into(&mut reg);
-    #[cfg(feature = "arksa")]
-    CislunarObservabilityStudyScenario::register_into(&mut reg);
     ConflictResilienceStudyScenario::register_into(&mut reg);
-    #[cfg(feature = "arksa")]
-    SpectrumCoexistenceScenario::register_into(&mut reg);
+    for k in crate::extension::kinds() {
+        (k.register_into)(&mut reg);
+    }
     reg
 }
 
@@ -592,19 +517,6 @@ q_rw = 0.0
                  bbr_coeff_300k = -2.35e-14\n\
                  temperature_k = 295.0\n"
             }
-            #[cfg(feature = "arksa")]
-            MbseScenario::KIND => {
-                r#"kind = "pro-mbse"
-title = "test srd"
-
-[[requirement]]
-id = "SYS-001"
-text = "mass <= 12 kg"
-target = 12.0
-achieved = 10.5
-lower_is_better = true
-"#
-            }
             OptimismGapAuditScenario::KIND => {
                 // A tiny, fast config (the published baseline is 400/class × 5 seeds
                 // × 1000 perms — far too heavy for a unit test). Still exercises the
@@ -619,123 +531,6 @@ lower_is_better = true
                  n_perms = 20\n\
                  perm_seed = 7\n"
             }
-            #[cfg(feature = "arksa")]
-            DesignOptimiseScenario::KIND => {
-                // A six-design link-budget study: the closed-form kind keeps it fast.
-                r#"kind = "pro-design-optimise"
-title = "test design study"
-seed = 1
-base_scenario = """
-kind = "link-budget"
-band = "x"
-eirp_dbw = 55.0
-g_over_t_db = 53.0
-range_km = 2000.0
-data_rate_bps = 1.0e6
-other_losses_db = 3.0
-required_eb_n0_db = 4.5
-"""
-
-[[variable]]
-name = "eirp_dbw"
-key = "eirp_dbw"
-type = "real"
-min = 40.0
-max = 50.0
-step = 5.0
-
-[[variable]]
-name = "data_rate_bps"
-key = "data_rate_bps"
-type = "choice"
-values = [1.0e6, 1.0e7]
-
-[[objective]]
-name = "margin_db"
-sense = "max"
-path = "margin_db"
-
-[[objective]]
-name = "eirp_dbw"
-sense = "min"
-variable = "eirp_dbw"
-"#
-            }
-            #[cfg(feature = "arksa")]
-            LunarSignalSecurityScenario::KIND => "kind = \"pro-lunar-signal-security\"\n",
-            BeaconDopScenario::KIND => {
-                // Tiny sweep (a single high-latitude band, small fleet, few epochs and
-                // bootstrap resamples): the headline default reproduces the paper's full
-                // sweep and is far too heavy for a unit test.
-                "kind = \"pro-beacon-dop\"\n\
-                 lat_min_deg = -85.0\n\
-                 lat_max_deg = -85.0\n\
-                 lat_step_deg = 1.0\n\
-                 n_fleet = 4\n\
-                 headline_beacons = 3\n\
-                 max_beacons = 4\n\
-                 n_epochs = 1\n\
-                 bootstrap_resamples = 8\n"
-            }
-            SurfaceBeaconDopStudyScenario::KIND => {
-                // Tiny N-sweep + coarse GDOP map; the headline default is a heavy study.
-                "kind = \"pro-surface-beacon-dop-study\"\n\
-                 n_min = 3\n\
-                 n_max = 4\n\
-                 map_n_relays = 3\n\
-                 map_n_lat = 2\n\
-                 map_n_lon = 2\n\
-                 n_epochs = 1\n"
-            }
-            #[cfg(feature = "arksa")]
-            BeaconPlacementScenario::KIND => {
-                // 1×1 user grid, 2×2 candidate grid, one epoch, one beacon — the headline
-                // default runs the full terrain-aware optimizer over a dense grid.
-                "kind = \"pro-beacon-placement\"\n\
-                 user_n_lat = 1\n\
-                 user_n_lon = 1\n\
-                 cand_n_lat = 2\n\
-                 cand_n_lon = 2\n\
-                 n_epochs = 1\n\
-                 k_beacons = 1\n"
-            }
-            #[cfg(feature = "arksa")]
-            LunarTimeBudgetStudyScenario::KIND => {
-                // A tiny τ grid (1 s .. 1000 s, 2 points/decade) — the headline default
-                // sweeps 1 s .. 1e7 s at 8 points/decade. Still assembles the real
-                // 7-term budget through the open engine.
-                "kind = \"pro-lunar-time-budget-study\"\n\
-                 clock = \"passive-h-maser\"\n\
-                 tau_min_s = 1.0\n\
-                 tau_max_s = 1000.0\n\
-                 points_per_decade = 2\n"
-            }
-            #[cfg(feature = "arksa")]
-            RealtimeFrameEopStudyScenario::KIND => {
-                // Just the final floor + a 1-day horizon over the bundled real fixture —
-                // the headline default runs 1/2/3-day horizons.
-                "kind = \"pro-realtime-frame-eop-study\"\n\
-                 horizons_days = [1]\n"
-            }
-            #[cfg(feature = "arksa")]
-            OpticalRfHybridStudyScenario::KIND => {
-                // The default is already O(1) (single link budgets + a 5-site availability),
-                // so the tiny config is just the kind line — all cited defaults, fast.
-                "kind = \"pro-optical-rf-hybrid-study\"\n"
-            }
-            #[cfg(feature = "arksa")]
-            CislunarObservabilityStudyScenario::KIND => {
-                // Two DROs (chief + one reference), a short 4-epoch range+range-rate arc at
-                // reduced integration resolution — the headline default differential-corrects
-                // four DROs over a 24-epoch range-only arc, far too heavy for a unit test.
-                "kind = \"pro-cislunar-observability-study\"\n\
-                 perilune_km = [20000.0, 32000.0]\n\
-                 ref_phase_frac = [0.0, 0.25]\n\
-                 arc = 0.05\n\
-                 epochs = 4\n\
-                 steps = 800\n\
-                 with_range_rate = true\n"
-            }
             ConflictResilienceStudyScenario::KIND => {
                 // A tiny Monte-Carlo (few trials / samples, coarse intensity grid) over the
                 // sourced four-layer baseline; the headline default runs 4000 trials / 2000
@@ -745,31 +540,6 @@ variable = "eirp_dbw"
                  rho_values = [0.0, 0.8]\n\
                  trials = 300\n\
                  sensitivity_samples = 100\n"
-            }
-            #[cfg(feature = "arksa")]
-            SpectrumCoexistenceScenario::KIND => {
-                // One satellite, a coarse grid and a short span: the real study through
-                // two open kinds, fast enough for a unit test.
-                r#"kind = "pro-spectrum-coexistence"
-title = "registry test"
-max_degradation_db = 1.0
-limit_source = "test limit"
-victims = ["gps-l5"]
-
-[grid]
-grid_step_deg = 45.0
-duration_s = 600.0
-step_s = 300.0
-
-[[plan]]
-label = "one"
-signal = "generic-l"
-mask_deg = 10.0
-
-[[plan.satellite]]
-altitude_km = 1000.0
-inclination_deg = 53.0
-"#
             }
             other => panic!("no test source defined for Pro kind '{other}'"),
         }

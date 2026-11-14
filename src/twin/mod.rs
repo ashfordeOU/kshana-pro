@@ -37,9 +37,6 @@
 //! the estimator removes while synced — see [`holdover_uq`]). The 2-parameter path is
 //! preserved unchanged (it is the `q_rw = 0` special case).
 
-/// NAV-DT performance/resilience twin pipeline (A10) — the canonical bundle output.
-pub mod navdt;
-
 /// Holdover uncertainty-quantification pack (L1 item 3) — wraps the open
 /// [`kshana::holdover`] coast physics into a banded prediction + in-spec coast time.
 pub mod holdover_uq;

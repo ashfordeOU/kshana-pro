@@ -7,11 +7,11 @@
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use kshana_pro::payments::paywall::{self, Paywall};
-use kshana_pro::payments::webhook::Issuer;
-use kshana_pro::payments::{server, PaymentsConfig};
+use crate::payments::paywall::{self, Paywall};
+use crate::payments::webhook::Issuer;
+use crate::payments::{server, PaymentsConfig};
 
-use crate::flag;
+use super::flag;
 
 const USAGE: &str = "usage: kshana-pro payments <command> --config <payments.toml>\n\
     check                                       Validate; list what is still PLACEHOLDER\n\

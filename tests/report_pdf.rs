@@ -50,7 +50,7 @@ fn clock_scenario() -> String {
 /// A report carrying a cover + provenance — the customer-facing surface.
 fn report() -> ConsolidatedReport {
     build_report(
-        "Quantum Clock NAV-DT Resilience Study",
+        "Quantum Clock Resilience Study",
         &clock_scenario(),
         "quantum",
     )

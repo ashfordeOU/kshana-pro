@@ -33,20 +33,12 @@ pub use kshana;
 pub mod batch;
 pub mod benefits;
 pub mod brand_pdf;
+pub mod cli;
 pub mod connectors;
 pub mod criterion;
-#[cfg(feature = "arksa")]
-pub mod design;
+pub mod extension;
 pub mod lab_campaign;
 pub mod license;
-#[cfg(feature = "arksa")]
-pub mod lunar_oed;
-#[cfg(feature = "arksa")]
-pub mod mbse;
-#[cfg(feature = "arksa")]
-pub mod mission;
-#[cfg(feature = "arksa")]
-pub mod mrd;
 pub mod pack_c;
 pub mod packs;
 pub mod payments;
@@ -63,12 +55,12 @@ pub mod report_pack_c;
 pub mod report_pdf;
 pub mod serve;
 pub mod signed_dossier;
-#[cfg(feature = "arksa")]
-pub mod spectrum_coexistence;
 pub mod study_dossier;
 pub mod study_ledger;
 pub mod units;
-mod util;
+// Shared helpers; public so a server-side extension crate can reuse them (not a stable API).
+#[doc(hidden)]
+pub mod util;
 
 // Value layers — gated stubs (seam guards only; no proprietary capability is built
 // on spec, per the open-core discipline in docs/OVERLAY-ARCHITECTURE.md).

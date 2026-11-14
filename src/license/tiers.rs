@@ -21,8 +21,9 @@
 //! The manifest is embedded at compile time, so its signature guards the file between
 //! the vendor and the build (an edit to the repository copy without the signing key is
 //! caught at start-up and in CI). It is not a defence against someone who patches a
-//! built binary; the defence there is that Arksa-exclusive code is not in the binary at
-//! all (cargo feature `arksa`, off by default; see docs/PROTECTION.md).
+//! built binary; the defence there is that Arksa-exclusive code is not in this crate at
+//! all: it lives in a separate private crate that registers it through
+//! [`crate::extension`] on Arksa servers only (docs/PROTECTION.md).
 
 use std::sync::OnceLock;
 
@@ -75,37 +76,85 @@ impl Edition {
 pub const NOT_IN_THIS_EDITION: &str =
     "this capability is not available under this licence; it is provided only within Arksa";
 
-/// Arksa-exclusive scenario kinds compiled into this build (feature `arksa` only; empty
-/// otherwise, so the names are not in a default build).
-#[cfg(feature = "arksa")]
-pub const ARKSA_KINDS: &[&str] = &[
-    "pro-mbse",
-    "pro-design-optimise",
-    "pro-spectrum-coexistence",
-    "pro-lunar-signal-security",
-    "pro-beacon-placement",
-    "pro-lunar-time-budget-study",
-    "pro-cislunar-observability-study",
-    "pro-optical-rf-hybrid-study",
-    "pro-realtime-frame-eop-study",
+/// The hidden-tier entries of the manifest, by the SHA-256 of their name and their type
+/// (`kind` or `feature`), all at the `arksa` tier. This crate does not contain their code
+/// or their names; a server-side extension registers them ([`crate::extension`]), and
+/// [`startup_check`] then requires each registered id to be one of these. The manifest is
+/// regenerated from this list and the code (`tests/tier_manifest.rs`).
+pub const ARKSA_ENTRIES: &[(&str, &str)] = &[
+    (
+        "17fbdf8fab325a9aafa27ee63d5fbd4b16492792b86c386959d5c8e591b34667",
+        "feature",
+    ),
+    (
+        "2302247b261f2d2e82c5e2cba3f64a35f5839bc8d90615ab83424dbc2855059f",
+        "feature",
+    ),
+    (
+        "4ddf8f80413304e353c1ba9ca8ff9b8cfe268c7eed082b62b0ad0ee8e3366f6a",
+        "feature",
+    ),
+    (
+        "64f0b0f231578148fae073eecde0e2ba064170c1ea55a5795b3e22c82d244b78",
+        "feature",
+    ),
+    (
+        "e36e88f761e240e2d6a40ff582ff45121918e6bbf10cc7c342024e9fcbe9ed60",
+        "feature",
+    ),
+    (
+        "f52968cb2703f58be986d2370c7bc262cd2335919f0a454b2a35d63ecce02213",
+        "feature",
+    ),
+    (
+        "fb4c10297445d385975d2f9797c3932a8dc62be33248c6840112c5308081d984",
+        "feature",
+    ),
+    (
+        "3b296fd95f942821e84fcd2c81589d780888057d8f072f0d09d6b3bbc8a0a2be",
+        "kind",
+    ),
+    (
+        "406cd104a2b12b29aa7e3a65a039d6b7487698d7722bcc0c4c2195183a869190",
+        "kind",
+    ),
+    (
+        "64f0b0f231578148fae073eecde0e2ba064170c1ea55a5795b3e22c82d244b78",
+        "kind",
+    ),
+    (
+        "7e052860f533fe43e38025c9ec766ed16dc6576c449361dece09159c964dfa5d",
+        "kind",
+    ),
+    (
+        "847c1921f266f745dc49f1a577a867f83c5f761497817caa123ea5733e43e98a",
+        "kind",
+    ),
+    (
+        "a45f6206d4e4d8e74ed429220b926d0a9f874d0389c1343b0c42d2871d347609",
+        "kind",
+    ),
+    (
+        "a849e2191cd7cf76f7d387b404547667f3f17a2f9f195a8bfa8deb3df15d2875",
+        "kind",
+    ),
+    (
+        "c0df40881e489d6234e90a098ef19717f6c947bc24e5d498101fe5dde7a7a555",
+        "kind",
+    ),
+    (
+        "cd7e35ae0d77db5dc91e7ce5b81c0425c5d7c94120b816ebdf134ce30b5fde9b",
+        "kind",
+    ),
+    (
+        "e36e88f761e240e2d6a40ff582ff45121918e6bbf10cc7c342024e9fcbe9ed60",
+        "kind",
+    ),
+    (
+        "fb4c10297445d385975d2f9797c3932a8dc62be33248c6840112c5308081d984",
+        "kind",
+    ),
 ];
-#[cfg(not(feature = "arksa"))]
-pub const ARKSA_KINDS: &[&str] = &[];
-
-/// Arksa-exclusive command features compiled into this build (feature `arksa` only). The
-/// commands `mbse`, `design` and `coexist` share the feature id of their scenario kind.
-#[cfg(feature = "arksa")]
-pub const ARKSA_FEATURES: &[&str] = &[
-    "pro-mbse",
-    "pro-design-optimise",
-    "pro-spectrum-coexistence",
-    "pro-mission-dossier",
-    "pro-navdt",
-    "pro-spacestream",
-    "pro-mrd",
-];
-#[cfg(not(feature = "arksa"))]
-pub const ARKSA_FEATURES: &[&str] = &[];
 
 /// The edition this build's code gives a Pro kind or feature, or `None` when the build
 /// does not contain it.
@@ -113,7 +162,7 @@ pub fn compiled_edition(id: &str) -> Option<Edition> {
     if id == "pro-seam-check" {
         return Some(Edition::OpenSeam);
     }
-    if ARKSA_KINDS.contains(&id) || ARKSA_FEATURES.contains(&id) {
+    if crate::extension::owns(id) {
         return Some(Edition::Arksa);
     }
     let is_kind = crate::registry::pro_kinds().iter().any(|m| m.name == id);
@@ -319,7 +368,6 @@ pub fn startup_check() -> Result<(), KshanaError> {
         .iter()
         .map(|k| k.name)
         .chain(super::pro_command_features())
-        .chain(ARKSA_FEATURES.iter().copied())
         .collect();
     for id in &compiled {
         let want = compiled_edition(id);
@@ -343,10 +391,10 @@ pub fn startup_check() -> Result<(), KshanaError> {
     Ok(())
 }
 
-/// The manifest document this build's code implies (every kind and feature it knows, at
-/// the tier the code gives). In a default build the hidden entries are not known, so this
-/// is complete only in a build with the `arksa` feature, which is where the manifest is
-/// regenerated (`tests/tier_manifest.rs`).
+/// The manifest document this crate implies: every kind and feature it contains, at the
+/// tier the code gives, plus the hidden entries of [`ARKSA_ENTRIES`] by hash. A registered
+/// extension's ids are not added by name (they are hidden; [`startup_check`] matches
+/// them against the hashes). The manifest is regenerated from this (`tests/tier_manifest.rs`).
 pub fn manifest_from_code() -> ManifestDoc {
     let mut entries: Vec<ManifestEntry> = Vec::new();
     let mut push = |id: &str, ty: &str| {
@@ -372,14 +420,19 @@ pub fn manifest_from_code() -> ManifestDoc {
             entries.push(e);
         }
     };
-    for k in crate::registry::pro_kinds() {
+    for k in crate::registry::builtin_pro_kinds() {
         push(k.name, "kind");
     }
-    for f in super::pro_command_features()
-        .into_iter()
-        .chain(ARKSA_FEATURES.iter().copied())
-    {
+    for f in super::PRO_COMMAND_FEATURES {
         push(f, "feature");
+    }
+    for (hash, ty) in ARKSA_ENTRIES {
+        entries.push(ManifestEntry {
+            kind: None,
+            kind_sha256: Some((*hash).into()),
+            entry_type: (*ty).into(),
+            tier: Edition::Arksa.as_str().into(),
+        });
     }
     entries.sort_by(|a, b| {
         let key = |e: &ManifestEntry| {

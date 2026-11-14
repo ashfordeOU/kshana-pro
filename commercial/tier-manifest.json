@@ -48,11 +48,6 @@
       "tier": "pro"
     },
     {
-      "kind": "pro-beacon-dop",
-      "type": "kind",
-      "tier": "pro"
-    },
-    {
       "kind": "pro-conflict-resilience-study",
       "type": "kind",
       "tier": "pro"
@@ -64,11 +59,6 @@
     },
     {
       "kind": "pro-quantum-systematics",
-      "type": "kind",
-      "tier": "pro"
-    },
-    {
-      "kind": "pro-surface-beacon-dop-study",
       "type": "kind",
       "tier": "pro"
     },
@@ -128,7 +118,17 @@
       "tier": "arksa"
     },
     {
+      "kind_sha256": "406cd104a2b12b29aa7e3a65a039d6b7487698d7722bcc0c4c2195183a869190",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
       "kind_sha256": "64f0b0f231578148fae073eecde0e2ba064170c1ea55a5795b3e22c82d244b78",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "7e052860f533fe43e38025c9ec766ed16dc6576c449361dece09159c964dfa5d",
       "type": "kind",
       "tier": "arksa"
     },

@@ -5,11 +5,10 @@
 #
 # One term per line, matched as a fixed string, case-sensitive. Sections:
 #   [arksa]          Arksa-exclusive names. Checked in every shipped binary and bundle (X4,
-#                    scripts/protect/symbol-check.sh) and in the open repository (X5).
+#                    scripts/protect/symbol-check.sh), in the open repository (X5) and in
+#                    this repository's own source (X3, scripts/protect/source-guard.sh): the
+#                    code moved to the private server-side crate and must not come back.
 #   [core]           Kshana Core names. Same checks as [arksa].
-#   [arksa-pending]  Arksa-exclusive names whose code is still compiled into the default
-#                    build because a sold Pro product uses it (moves out with X3; see
-#                    docs/PROTECTION.md). Checked in the open repository only, until then.
 #   [pro]            Pro module names and method terms. Checked in the open repository only
 #                    (a Pro binary carries them by design).
 
@@ -62,18 +61,23 @@ kshana_pro::mrd
 SpaceStreamMessage
 lunar_oed
 spacestream
-
-[core]
-kshana-core
-kshana_core
-
-[arksa-pending]
+pro-beacon-dop
+pro-surface-beacon-dop-study
+BeaconDopScenario
+SurfaceBeaconDopStudyScenario
+beacon_dop_pack
 NavDtBundle
 run_navdt_bundle
 src/twin/navdt.rs
 GsnArgument
+GsnNodeKind
+VcdItem
 src/suite/gsn.rs
 src/suite/vcd.rs
+
+[core]
+kshana-core
+kshana_core
 
 [pro]
 kshana_pro
@@ -87,8 +91,6 @@ pro-study-dossier
 pro-station-fleet
 pro-service-ha
 pro-desktop
-pro-beacon-dop
-pro-surface-beacon-dop-study
 pro-conflict-resilience-study
 pro-quantum-systematics
 pro-optimism-gap-audit
@@ -101,8 +103,6 @@ UncertaintyScenario
 SeamCheckPack
 OptimismGapAuditScenario
 QuantumSystematicsScenario
-BeaconDopScenario
-SurfaceBeaconDopStudyScenario
 ConflictResilienceStudyScenario
 LicenseClaims
 KSHANA_PRO_
