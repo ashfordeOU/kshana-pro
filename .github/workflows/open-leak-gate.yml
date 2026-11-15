@@ -32,3 +32,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Scan the open repository for private terms
         run: scripts/protect/open-leak-gate.sh --url https://github.com/ashfordeOU/kshana --ref main
+      # Roadmap 0.42 X8: "In Arksa" claims in the open repository name only the four allowed
+      # outcomes, with no private term near them (findings by term ID only).
+      - name: X8 "In Arksa" copy check (open repository)
+        run: |
+          work="$(mktemp -d)"; trap 'rm -rf "$work"' EXIT
+          GIT_TERMINAL_PROMPT=0 git -c credential.helper= clone --quiet --depth 1 --branch main -- https://github.com/ashfordeOU/kshana "$work/open"
+          python3 scripts/protect/arksa-copy-check.py --scope open --dir "$work/open"

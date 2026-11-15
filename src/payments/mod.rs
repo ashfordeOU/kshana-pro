@@ -11,12 +11,16 @@
 //! **One switch**, `enabled` in `payments.toml`, false by default
 //! (`commercial/payments.toml`). Off: the webhook service refuses to start, every
 //! delivery is answered 404, and the paywall returns [`paywall::Paywall::Off`] so no
-//! checkout and no price is shown. This module makes no outbound network call in any
-//! state; the test `payments_code_makes_no_outbound_connection` checks the sources.
+//! checkout and no price is shown. With Stripe off too, this module makes no outbound
+//! network call; the test `payments_code_makes_no_outbound_connection` checks the sources.
 //!
 //! **Prices** stay `PLACEHOLDER` until the owner sets them; live mode is refused while
 //! any price or provider ID is `PLACEHOLDER` (owner gate 12: provider, prices, bank
 //! account, VAT confirmation).
+//!
+//! **Stripe** is built in and off (`[stripe] enabled = false`; owner, 15 November 2026:
+//! invoice only for now). Its checkout call is the one outbound call in this module
+//! ([`stripe_transport`]), reachable only with the Stripe switch on ([`stripe`]).
 //!
 //! **Vendor side only.** The webhook service holds a signing key, so it runs at the
 //! vendor, never in a customer build or service (`docs/PAYMENTS.md`).
@@ -25,6 +29,8 @@ pub mod config;
 pub mod paywall;
 pub mod provider;
 pub mod server;
+pub mod stripe;
+pub mod stripe_transport;
 pub mod webhook;
 
 pub use config::{PaymentsConfig, Provider, PLACEHOLDER};

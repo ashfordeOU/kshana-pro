@@ -17,6 +17,18 @@ signing_key_file = "/etc/kshana-payments/signing-key"
 data_dir = "/var/lib/kshana-payments"
 signature_tolerance_secs = 300
 
+# Stripe, built in and OFF (owner, 15 November 2026: invoice only for now; Stripe fully built
+# for activation at any time). With enabled = false: no checkout session is created, the
+# /webhooks/stripe endpoint answers 404 and no Stripe key is read. Keys come from the
+# environment only, never from a file: STRIPE_SECRET_KEY (sk_test_… / sk_live_…) and
+# STRIPE_WEBHOOK_SECRET (whsec_…). Each edition takes `stripe_price_id` (PLACEHOLDER until
+# the Stripe account exists) and optionally `stripe_mode = "payment"` for a one-time sale.
+[stripe]
+enabled = false
+success_url = ""
+cancel_url = ""
+signature_tolerance_secs = 300
+
 [checkout]
 paddle_client_token = "PLACEHOLDER"
 site_checkout_url = "PLACEHOLDER"

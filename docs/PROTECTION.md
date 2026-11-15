@@ -175,7 +175,10 @@ section 1a plus `pro-beacon-dop` and `pro-surface-beacon-dop-study`, owner decis
 `docs/tenders/cross-tender/D1.4-mrd-fom-mapping.md`,
 `docs/tenders/13494-ai-payload-pnt/SpaceStream-ICD.md`. The committed study outputs the moved
 pack tests compare against (`papers/{cislunar-observability,lunar-time-budget,optical-rf-hybrid,realtime-frame-eop,surface-beacon-dop}/`)
-were copied; the copies here were left in place (owner to decide, section 7).
+were copied. The copies here were removed on 15 November 2026 (owner decision; every file was
+checked byte for byte against the private Arksa repository first), and their titles and file
+names were added to the `[pro]` section of the term list so the leak gate catches them in the
+open repository. Two of their headings were already public and are left out of the list.
 
 **What Kshana Pro products changed** (owner decision: they keep working without the moved
 code, with honest, neutral content):
@@ -220,16 +223,18 @@ its hashed entries; the symbol check, the source guard, the leak gate and the te
   list matches the Arksa code (that build is gone). arksa-kpro should run
   `symbol-check.sh` on its own release binary and require it to FAIL (it needs this
   repository's term list, so a CI checkout of kshana-pro at the pinned rev).
-* **Committed study outputs.** `papers/{cislunar-observability,lunar-time-budget,optical-rf-hybrid,realtime-frame-eop,surface-beacon-dop}/`
-  are the published outputs of moved packs and were left here; whether to remove them is the
-  owner's call (anything already public stays public).
+* **Committed study outputs.** Removed on 15 November 2026 (section 6).
 * **X7, trade-secret register and patent-before-disclosure rule.** A register (private) of
   each secret method with its owner, date and status; P1, P2, P5 and B6 filed before any
   disclosure, P4 kept secret. Needs the owner and counsel; no code.
-* **X8, marketing rule in CI.** A copy check over the site and docs (open repository and
-  site sources) that fails on method names, equations, parameters or diagrams of "In Arksa"
-  capabilities before their filing date; outcome names only. It can reuse the term list and
-  the leak gate's reporting by ID; it needs the owner's list of allowed outcome names.
+* **X8, marketing rule in CI (done, 15 November 2026).** `scripts/protect/arksa-copy-check.py`
+  allows "in Arksa" claims only for the four outcome names the owner approved (Mission
+  navigation digital twin; Lunar navigation and timing assurance; Independent interference
+  referee reports; Spaceborne GNSS receiver interference assurance) and fails on any other
+  claim and on any term of the private list within 300 characters of a claim. Scopes: `kpro`
+  (this repository's docs and marketing; `ci.yml`), `open` (the open repository;
+  `open-leak-gate.yml`), `site` (a website source tree). Findings print term IDs only. Tests:
+  `tests/copy_check.rs`.
 
 ## 8. Honest limits
 

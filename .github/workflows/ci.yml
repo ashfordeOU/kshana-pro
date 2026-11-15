@@ -38,6 +38,10 @@ jobs:
       # (printed by term ID only).
       - name: Arksa source guard (X3)
         run: scripts/protect/source-guard.sh
+      # Roadmap 0.42 X8: "In Arksa" claims in this repository's marketing and docs name only
+      # the four allowed outcomes (owner, 15 November 2026), with no private term near them.
+      - name: X8 "In Arksa" copy check
+        run: python3 scripts/protect/arksa-copy-check.py --scope kpro
       - name: Clippy
         run: cargo clippy --all-targets -- -D warnings
       # Cargo.lock pins the exact kshana (public open-core) rev, so the git

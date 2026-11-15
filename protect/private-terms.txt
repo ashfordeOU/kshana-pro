@@ -116,3 +116,28 @@ detector_intake
 brand_pdf
 report_brand
 tier-manifest
+# Titles and file names of the five Arksa-exclusive study outputs removed from this
+# repository on 15 November 2026 (owner decision; the originals stay in the private Arksa
+# repository). Two of their headings were already public before this date and are left out
+# on purpose: adding them would fail the gate on text that stays public.
+Cislunar constellation observability over a tracking arc
+Cislunar Observability (L52-L54)
+LTC Time-Error Budget
+A User-Level Error Budget for Realizing
+Optical + RF Hybrid PNT
+Real-time lunar frame / EOP, a data-forward decomposition
+Data-Forward Frame/EOP Decomposition
+Surface-Beacon-DOP Study
+cislunar_observability_table
+fig1_cislunar_observability
+fig1_ltc_budget
+lunar_time_budget.csv
+optical_rf_precision
+optical_availability.csv
+fig1_optical_rf_hybrid
+realtime_frame_eop.csv
+fig2_frame_eop
+fig1_two_roads
+lunar_dop_summary
+fig1_beacon_before_after
+fig1_gdop_vs_n

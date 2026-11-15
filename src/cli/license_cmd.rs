@@ -7,6 +7,7 @@
 use std::process::ExitCode;
 
 use crate::license::activation::{self, CurlFetcher, State, Store};
+use crate::license::lifecycle::{Delivery, LicenceService};
 use crate::license::register::Register;
 use crate::license::{
     self, machine, Entitlement, Keyring, LicenseClaims, Product, Tier, VerifyOptions,
@@ -28,6 +29,11 @@ const USAGE: &str = "usage: kshana-pro license <command>\n\
     keygen | pubkey                         New key pair | public key and key ID of $KSHANA_PRO_SIGNING_KEY\n\
     issue --tier <t> --licensee <n> [--days <n>] [--product <p,..>] [--seats <n>] [--stations <n>]\n\
           [--machine <hash>] [--not-before <unix>] [--feature <kind,..>] [--register <file>] [--note <s>] [--v1]\n\
+    issue-invoice --licensee <n> --tier <t> --invoice <ref> --data <dir> (--term-days <n> | --until <unix>)\n\
+          [--product <p,..>] [--seats <n>] [--stations <n>] [--feature <kind,..>] [--offline]\n\
+                                            Licence for an invoiced customer (C7): online 35-day tokens renewed\n\
+                                            automatically until the term end, or --offline one token for the term (C2)\n\
+    extend-invoice --licence <root id> --until <unix> --invoice <ref> --data <dir>   A new invoice paid: extend the term\n\
     trial --licensee <n> --product <p,..> --register <file>       30-day Pro trial\n\
     renew <token-id> --days <n> --register <file>\n\
     revoke <token-id> --reason <s> --register <file>\n\
@@ -125,7 +131,7 @@ pub fn stored_or_evaluation(now: i64, product: Product) -> Entitlement {
         eprintln!("[no license — Evaluation tier; use --license <token>, `kshana-pro license activate`, or --dev]");
         return Entitlement::evaluation();
     }
-    let st = store.status(&ring, &[], &opts(now, product));
+    let (st, _) = store.status_guarded(&ring, &[], &opts(now, product));
     match &st.state {
         State::Active | State::Expiring { .. } | State::Grace { .. } => {
             eprintln!(
@@ -216,6 +222,8 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("revocations") => revocations(rest),
         Some("refresh") => refresh(rest),
         Some("trial") => trial(rest),
+        Some("issue-invoice") => issue_invoice(rest),
+        Some("extend-invoice") => extend_invoice(rest),
         Some("renew") => renew(rest),
         Some("revoke") => revoke(rest),
         Some("reminders") => reminders(rest),
@@ -299,6 +307,92 @@ fn issue(args: &[String]) -> Result<(), KshanaError> {
     Ok(())
 }
 
+fn data_service(args: &[String]) -> Result<LicenceService, KshanaError> {
+    let dir = flag(args, "--data").ok_or_else(|| {
+        KshanaError::InvalidInput("needs --data <dir> (the register and ledger)".into())
+    })?;
+    Ok(LicenceService::open(
+        signing_seed()?,
+        &[],
+        std::path::Path::new(&dir),
+    ))
+}
+
+fn issue_invoice(args: &[String]) -> Result<(), KshanaError> {
+    let tier = Tier::parse(&flag(args, "--tier").ok_or_else(|| {
+        KshanaError::InvalidInput("issue-invoice needs --tier <pro|enterprise>".into())
+    })?)?;
+    let licensee = flag(args, "--licensee")
+        .ok_or_else(|| KshanaError::InvalidInput("issue-invoice needs --licensee".into()))?;
+    let invoice = flag(args, "--invoice")
+        .ok_or_else(|| KshanaError::InvalidInput("issue-invoice needs --invoice <ref>".into()))?;
+    let now = now_unix();
+    let until = match (
+        num_arg::<i64>(args, "--until")?,
+        num_arg::<i64>(args, "--term-days")?,
+    ) {
+        (Some(u), None) => u,
+        (None, Some(d)) if d > 0 && d <= 3660 => now + d * 86_400,
+        _ => {
+            return Err(KshanaError::InvalidInput(
+                "give --term-days <1..3660> or --until <unix>".into(),
+            ))
+        }
+    };
+    let mut products = list_arg(args, "--product");
+    if products.is_empty() {
+        products = vec!["cli".into(), "desktop".into()];
+    }
+    let claims = LicenseClaims {
+        licensee,
+        tier: tier.as_str().into(),
+        products,
+        features: list_arg(args, "--feature"),
+        seats: num_arg(args, "--seats")?.unwrap_or(1),
+        stations: num_arg(args, "--stations")?.unwrap_or(0),
+        ..Default::default()
+    };
+    let delivery = if has_flag(args, "--offline") {
+        Delivery::Offline
+    } else {
+        Delivery::Online
+    };
+    let i = data_service(args)?.open_licence(
+        &claims,
+        delivery,
+        until,
+        &format!("invoice:{invoice}"),
+        &format!("invoice {invoice}"),
+        now,
+    )?;
+    eprintln!(
+        "[licence {} for '{}' paid through {until} ({}); first token expires {}]",
+        i.root,
+        claims.licensee,
+        if delivery == Delivery::Offline {
+            "offline, one token for the term"
+        } else {
+            "online, 35-day tokens renewed automatically"
+        },
+        i.expires_unix
+    );
+    println!("{}", i.token);
+    Ok(())
+}
+
+fn extend_invoice(args: &[String]) -> Result<(), KshanaError> {
+    let root = flag(args, "--licence").ok_or_else(|| {
+        KshanaError::InvalidInput("extend-invoice needs --licence <root id>".into())
+    })?;
+    let until: i64 = num_arg(args, "--until")?
+        .ok_or_else(|| KshanaError::InvalidInput("extend-invoice needs --until <unix>".into()))?;
+    let invoice = flag(args, "--invoice")
+        .ok_or_else(|| KshanaError::InvalidInput("extend-invoice needs --invoice <ref>".into()))?;
+    let p = data_service(args)?.extend(&root, until)?;
+    println!("licence {root} paid through {p} (invoice {invoice})");
+    Ok(())
+}
+
 fn verify(args: &[String]) -> Result<(), KshanaError> {
     let tok = args
         .first()
@@ -374,7 +468,7 @@ fn status(args: &[String]) -> Result<(), KshanaError> {
     let ring = keyring()?;
     let product = product_arg(args, Product::Cli)?;
     let now = now_unix();
-    let st = store.status(&ring, &[], &opts(now, product));
+    let (st, _) = store.status_guarded(&ring, &[], &opts(now, product));
     let lic = st.licence.as_ref();
     let revs = store.revocations(&ring).map(|l| l.sequence);
     if has_flag(args, "--json") {

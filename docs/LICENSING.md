@@ -85,10 +85,15 @@ activated token.
 
 | State | When | Runs at |
 |---|---|---|
-| `active` | Valid, more than 30 days left, or perpetual | The token's tier |
-| `expiring` | 30 days or less left. Warned at 30 days ("Renew soon") and 7 days ("Renew now") | The token's tier |
-| `grace` | Expired less than 14 days ago | The token's tier, with a warning |
-| `expired` | Expired 14 days ago or more | Evaluation |
+| `active` | Valid, more than 14 days left, or perpetual | The token's tier |
+| `expiring` | 14 days or less left. Warned at 14 days ("Renew soon"), 7 days ("Renew now") and 1 day ("Renew now (last day)") | The token's tier |
+| `grace` | Expired (or ended by the licence server) less than 30 days ago: the renewal window. Pro is locked; a renewal unlocks it without a new download | Evaluation, with a daily warning |
+| `expired` | Expired 30 days ago or more (the Pro pack is deleted) | Evaluation |
+
+Owner, 15 November 2026 (roadmap 0.42 C1): subscription tokens last 35 days and the app
+renews them automatically while the subscription is active; the 30-day period after expiry
+is a renewal window only, with no Pro use. Details, the automatic check and the Pro pack:
+docs/PRO-PACKS.md.
 | `revoked` | On an installed revocation list | Evaluation |
 | `invalid` | Wrong product, machine, unknown or retired key, not yet valid, damaged | Evaluation |
 
