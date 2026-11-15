@@ -1,0 +1,395 @@
+{
+  "format": "kshana-pro-ais-integrity/1",
+  "method_id": "kshana-pro/ais-integrity/v1",
+  "stage2_method": "kshana-pro/m4-offset/v4",
+  "stage2_params": {
+    "m": 3,
+    "g_pair": 13.816,
+    "b": true
+  },
+  "stage2_note": "Offset candidate from the stage-2 parallel-track test. Its pre-registered bars (V3, V3b) were NOT MET, with a high false-alarm rate on synthetic scenes: a candidate is a lead for review, not a class.",
+  "open_engine": "kshana 0.41.0",
+  "label": "REPORTED AIS positions; RF fixes as supplied (MEASURED or MODELLED, as the supplier states); MODELLED classes: each class describes the consistency of the data supplied under rules fixed before the run, never intent. An engineering record, not a legal opinion, not a finding of fact and not a certification.",
+  "validation_status": "V3 (the M4 position-offset bar with the stage-2 method, pre-registered 15 November 2026): see docs/evidence/v3-m4-offset-successor/RESULTS.md. Scored on synthetic scenes only (MODELLED); no real AIS or RF data has been scored.",
+  "title": "AIS and position integrity: public sample (synthetic)",
+  "inputs": [
+    {
+      "role": "ais",
+      "path": "ais.csv",
+      "sha256": "864fee4fed49083051b90d5182f8dc72ab07d8656d9fedd482809ceaffb3a861",
+      "records": 22072
+    },
+    {
+      "role": "rf",
+      "path": "rf.csv",
+      "sha256": "fa4fdee523e46c8edbc1acc8a5559e75dc6cb265afd11923daa0de191bc9bd0c",
+      "records": 14587
+    }
+  ],
+  "rf_cross_check": true,
+  "totals": {
+    "identities": 12,
+    "ais_reports": 22072,
+    "rf_fixes": 14587,
+    "rf_fixes_no_matching_ais": 14433
+  },
+  "groups": [
+    {
+      "group": "all",
+      "name": "all identities",
+      "vessels": 12,
+      "counts": {
+        "GAP": 2,
+        "IDENTITY-DUPLICATE": 1,
+        "NORMAL": 9,
+        "POSITION-OFFSET": 0
+      },
+      "offset_candidates": 9,
+      "integrity_score": 0.75,
+      "integrity_score_ci95": [
+        0.42814153812181155,
+        0.9451393554720073
+      ],
+      "rf_fixes_no_matching_ais": 14433
+    },
+    {
+      "group": "fleet",
+      "name": "Fleet A",
+      "vessels": 6,
+      "counts": {
+        "GAP": 0,
+        "IDENTITY-DUPLICATE": 0,
+        "NORMAL": 6,
+        "POSITION-OFFSET": 0
+      },
+      "offset_candidates": 6,
+      "integrity_score": 1.0,
+      "integrity_score_ci95": [
+        0.5407418735601004,
+        1.0
+      ],
+      "not_seen": 0
+    },
+    {
+      "group": "fleet",
+      "name": "Fleet B",
+      "vessels": 6,
+      "counts": {
+        "GAP": 2,
+        "IDENTITY-DUPLICATE": 1,
+        "NORMAL": 3,
+        "POSITION-OFFSET": 0
+      },
+      "offset_candidates": 3,
+      "integrity_score": 0.5,
+      "integrity_score_ci95": [
+        0.11811724875702506,
+        0.8818827512429748
+      ],
+      "not_seen": 0
+    },
+    {
+      "group": "area",
+      "name": "West",
+      "vessels": 5,
+      "counts": {
+        "GAP": 2,
+        "IDENTITY-DUPLICATE": 1,
+        "NORMAL": 2,
+        "POSITION-OFFSET": 0
+      },
+      "offset_candidates": 2,
+      "integrity_score": 0.4,
+      "integrity_score_ci95": [
+        0.052744950526316836,
+        0.8533672003653268
+      ],
+      "rf_fixes_no_matching_ais": 6725
+    },
+    {
+      "group": "area",
+      "name": "East",
+      "vessels": 10,
+      "counts": {
+        "GAP": 1,
+        "IDENTITY-DUPLICATE": 1,
+        "NORMAL": 8,
+        "POSITION-OFFSET": 0
+      },
+      "offset_candidates": 8,
+      "integrity_score": 0.8,
+      "integrity_score_ci95": [
+        0.4439045376923604,
+        0.9747892736731667
+      ],
+      "rf_fixes_no_matching_ais": 6855
+    }
+  ],
+  "vessels": [
+    {
+      "id": 200000000,
+      "class": "NORMAL",
+      "decided_by": "stage-1",
+      "reason": "No inconsistency found by the checks that decide classes; offset candidate for review: a persistent RF track runs parallel at 39.9 km from t = 8530 s (6 RF epochs over 13020 s).",
+      "reports": 1730,
+      "offset_candidate": {
+        "id": 200000000,
+        "onset_s": 8530,
+        "offset_en_m": [
+          39846.956342903024,
+          -2749.071931636998
+        ],
+        "offset_m": 39941.67405453274,
+        "support": 6,
+        "span_s": 13020
+      },
+      "fleets": [
+        "Fleet A"
+      ],
+      "areas": [
+        "West"
+      ]
+    },
+    {
+      "id": 200000002,
+      "class": "GAP",
+      "decided_by": "stage-1",
+      "reason": "AIS silent for more than 600 s between consecutive reports.",
+      "reports": 1521,
+      "fleets": [
+        "Fleet B"
+      ],
+      "areas": [
+        "West"
+      ]
+    },
+    {
+      "id": 200000003,
+      "class": "NORMAL",
+      "decided_by": "stage-1",
+      "reason": "No inconsistency found by the checks that decide classes; offset candidate for review: a persistent RF track runs parallel at 36.7 km from t = 3100 s (7 RF epochs over 16160 s).",
+      "reports": 1708,
+      "offset_candidate": {
+        "id": 200000003,
+        "onset_s": 3100,
+        "offset_en_m": [
+          -32712.080860495036,
+          16716.4304843354
+        ],
+        "offset_m": 36735.803820811976,
+        "support": 7,
+        "span_s": 16160
+      },
+      "fleets": [
+        "Fleet A"
+      ],
+      "areas": [
+        "East"
+      ]
+    },
+    {
+      "id": 200000004,
+      "class": "NORMAL",
+      "decided_by": "stage-1",
+      "reason": "No inconsistency found by the checks that decide classes; offset candidate for review: a persistent RF track runs parallel at 54.3 km from t = 11170 s (5 RF epochs over 10410 s).",
+      "reports": 1741,
+      "offset_candidate": {
+        "id": 200000004,
+        "onset_s": 11170,
+        "offset_en_m": [
+          -24936.737737264433,
+          -48196.71975461948
+        ],
+        "offset_m": 54265.68606479085,
+        "support": 5,
+        "span_s": 10410
+      },
+      "fleets": [
+        "Fleet A"
+      ],
+      "areas": [
+        "East"
+      ]
+    },
+    {
+      "id": 200000005,
+      "class": "NORMAL",
+      "decided_by": "stage-1",
+      "reason": "No inconsistency found by the checks that decide classes; offset candidate for review: a persistent RF track runs parallel at 42.2 km from t = 13870 s (4 RF epochs over 7650 s).",
+      "reports": 1739,
+      "offset_candidate": {
+        "id": 200000005,
+        "onset_s": 13870,
+        "offset_en_m": [
+          24761.793714923228,
+          34186.313027168726
+        ],
+        "offset_m": 42211.97017875353,
+        "support": 4,
+        "span_s": 7650
+      },
+      "fleets": [
+        "Fleet A"
+      ],
+      "areas": [
+        "East"
+      ]
+    },
+    {
+      "id": 200000006,
+      "class": "NORMAL",
+      "decided_by": "stage-1",
+      "reason": "No inconsistency found by the checks that decide classes; offset candidate for review: a persistent RF track runs parallel at 49.7 km from t = 5780 s (7 RF epochs over 15810 s).",
+      "reports": 1731,
+      "offset_candidate": {
+        "id": 200000006,
+        "onset_s": 5780,
+        "offset_en_m": [
+          -49737.36435771055,
+          -874.8042183990063
+        ],
+        "offset_m": 49745.05699737598,
+        "support": 7,
+        "span_s": 15810
+      },
+      "fleets": [
+        "Fleet A"
+      ],
+      "areas": [
+        "East"
+      ]
+    },
+    {
+      "id": 200000007,
+      "class": "NORMAL",
+      "decided_by": "stage-1",
+      "reason": "No inconsistency found by the checks that decide classes; offset candidate for review: a persistent RF track runs parallel at 46.5 km from t = 5810 s (7 RF epochs over 15780 s).",
+      "reports": 1724,
+      "offset_candidate": {
+        "id": 200000007,
+        "onset_s": 5810,
+        "offset_en_m": [
+          -30184.04596976738,
+          35338.00658828341
+        ],
+        "offset_m": 46474.20080796003,
+        "support": 7,
+        "span_s": 15780
+      },
+      "fleets": [
+        "Fleet A"
+      ],
+      "areas": [
+        "East"
+      ]
+    },
+    {
+      "id": 200000012,
+      "class": "GAP",
+      "decided_by": "stage-1",
+      "reason": "AIS silent for more than 600 s between consecutive reports.",
+      "reports": 1500,
+      "fleets": [
+        "Fleet B"
+      ],
+      "areas": [
+        "West",
+        "East"
+      ]
+    },
+    {
+      "id": 200000047,
+      "class": "NORMAL",
+      "decided_by": "stage-1",
+      "reason": "No inconsistency found by the checks that decide classes; offset candidate for review: a persistent RF track runs parallel at 56.7 km from t = 390 s (6 RF epochs over 18880 s).",
+      "reports": 1746,
+      "offset_candidate": {
+        "id": 200000047,
+        "onset_s": 390,
+        "offset_en_m": [
+          51235.142013261226,
+          -24326.998184310894
+        ],
+        "offset_m": 56717.2162379159,
+        "support": 6,
+        "span_s": 18880
+      },
+      "fleets": [
+        "Fleet B"
+      ],
+      "areas": [
+        "East"
+      ]
+    },
+    {
+      "id": 200000062,
+      "class": "IDENTITY-DUPLICATE",
+      "decided_by": "stage-1",
+      "reason": "Consecutive reports of this identity imply more than 70 kn: two transmitters on one identity, or corrupted positions.",
+      "reports": 3455,
+      "fleets": [
+        "Fleet B"
+      ],
+      "areas": [
+        "West",
+        "East"
+      ]
+    },
+    {
+      "id": 200000066,
+      "class": "NORMAL",
+      "decided_by": "stage-1",
+      "reason": "No inconsistency found by the checks that decide classes; offset candidate for review: a persistent RF track runs parallel at 40.5 km from t = 390 s (8 RF epochs over 21160 s).",
+      "reports": 1728,
+      "offset_candidate": {
+        "id": 200000066,
+        "onset_s": 390,
+        "offset_en_m": [
+          -39713.91966892072,
+          -8092.968725480152
+        ],
+        "offset_m": 40530.13148585984,
+        "support": 8,
+        "span_s": 21160
+      },
+      "fleets": [
+        "Fleet B"
+      ],
+      "areas": [
+        "East"
+      ]
+    },
+    {
+      "id": 200000078,
+      "class": "NORMAL",
+      "decided_by": "stage-1",
+      "reason": "No inconsistency found by the checks that decide classes; offset candidate for review: a persistent RF track runs parallel at 23.0 km from t = 5780 s (7 RF epochs over 15810 s).",
+      "reports": 1749,
+      "offset_candidate": {
+        "id": 200000078,
+        "onset_s": 5780,
+        "offset_en_m": [
+          -11317.036564222431,
+          -20055.009357020692
+        ],
+        "offset_m": 23027.781415197926,
+        "support": 7,
+        "span_s": 15810
+      },
+      "fleets": [
+        "Fleet B"
+      ],
+      "areas": [
+        "West",
+        "East"
+      ]
+    }
+  ],
+  "limits": [
+    "Stage 1's RF access prediction is the open engine's M2 survey layer over a 6 h window; RF fixes from another sensor need that sensor's access model, which is not built.",
+    "RF fixes carry no identity; association is by position and time only.",
+    "Classes describe data consistency, never intent; a gap or an offset has ordinary causes.",
+    "The bars (V3) were scored on synthetic scenes; no real AIS or RF data has been scored.",
+    "No class B AIS, satellite AIS reception effects or slot collisions are modelled."
+  ]
+}

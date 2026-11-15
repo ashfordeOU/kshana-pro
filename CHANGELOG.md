@@ -5,6 +5,32 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Evidence products (roadmap 0.42 E4, E5, E6, E7; V3, V6; docs/EVIDENCE-PRODUCTS.md).**
+  E5 AIS and position integrity scoring: kind `pro-ais-integrity`, `kshana-pro integrity
+  score|verify`; per identity the open M4 v3 decision (gaps, identity in two places, AIS
+  inconsistent with RF fixes, RF fixes with no matching AIS), integrity scores per fleet and per
+  area with exact 95 % intervals, signed. V3 (the M4 position-offset bar with a new stage-2
+  parallel-track method) pre-registered before code and seeds (5b3ded07) and **missed** on seeds
+  5000-5009 (offset recall 0.861/0.879/0.871/0.871 at 5/10/20/50 km, FA 0.132); the corrected V3b,
+  pre-registered before its code (8a6bf4d8), **missed** on seeds 6000-6009 (0.829/0.857/0.829/0.896,
+  FA 0.072); both published; stage-2 hits are offset candidates only and never change a class. E4
+  PNT service verification studies, user side: kind `pro-pnt-verification`, `kshana-pro
+  verify-service run|template|verify`; LEO coverage and geometry from a published design through
+  the open `leo-pvt` polar mode, OSNMA tamper detection through the open verifier, bars from a
+  pre-registration whose SHA-256 is checked; public sample (Xona Pulsar published design, OSNMA
+  synthetic stream) pre-registered and **3 of 6 bars met** (S1, S2 coverage and S5a tamper
+  detection 0.68 missed), published; lunar and spacecraft studies are Arksa-exclusive and not
+  built here. E6 framework evidence packs: feature `pro-framework-pack`, `kshana-pro frameworks
+  list|show|pack|verify`; seven templates (EASA SIB 2022-02R4, NIST IR 8323r1, DHS RPCF, IMO
+  CL 5037 as a draft pending its text, MiFID II RTS 25, EU Space Act proposal, NIS 2), "mapped to"
+  only, signed evidence verified before it is mapped. E7 insurer scorecard: feature
+  `pro-insurer-scorecard`, `kshana-pro exposure run|verify`; periodic signed exposure summary of a
+  fleet or route from signed E1 and E5 evidence, no new detection. V6: E5 v3 spoofing benchmark
+  not scored (no blind data; method written down for a future data set) and B5 v4 not registered
+  (no method meets T2 as defined), recorded in docs/evidence/v6-spoofing-and-area-trust/. All new
+  kinds and features at `pro` in the regenerated signed tier manifest; samples signed with demo
+  keys under report-templates/samples/.
+
 - **Fusion and operations (roadmap 0.42 F1, F2, F3, F5, F6; V4; docs/FUSION-AND-OPERATIONS.md).**
   F1 area console: kind `pro-area-picture`, feature `pro-area-console`, `kshana-pro area picture`
   and the Station console pages `GET /area/console` and `/area/picture`; Stations, receivers and

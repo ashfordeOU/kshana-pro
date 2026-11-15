@@ -21,7 +21,7 @@ construction*; Pro adds the value that must stay closed.
         │  │ L1 twin          │      │ docs/tenders/  13503·13494·   │    │
         │  │ L2 resilience 🔒 │      │   lunar  (bid evidence, decks)│    │
         │  │ L3 suite (gated) │      │ papers/        (arXiv-track)  │    │
-        │  │ + 27 Pro packs   │      │ docs/gtm · docs/strategy      │    │
+        │  │ + 29 Pro packs   │      │ docs/gtm · docs/strategy      │    │
         │  │   via ExternalPack│     │ legal/  (licence·NDA·export·  │    │
         │  │   / ErrorModel   │      │   BIPR·trademark)             │    │
         │  └────────┬─────────┘      │ docs/kshana-architecture.html │    │
@@ -81,7 +81,7 @@ won tenders and revenue. The map:
 
 ## Status — what is built vs gated
 
-The overlay is well past its P0 seam: **twenty-seven Pro packs** (plus the **Pack C**
+The overlay is well past its P0 seam: **twenty-nine Pro packs** (plus the **Pack C**
 scenario-CI subscription product) are built and tested on public data across the
 P0 / L1 / L3 value layers, plus the deliverable and deployment modules listed below. What stays **gated** is never a *framework* — it is the
 *instance* that needs private data, export clearance, or a signed customer: a real
@@ -93,13 +93,13 @@ on spec)**.
 
 Each runs on public data; the tier shown is the licence required to *run* it (see
 [Licensing](#build--run)). The table covers the framework packs; the full list of the
-twenty-seven registered in the signed tier manifest (`commercial/tier-manifest.json`): the fifteen
+twenty-nine registered in the signed tier manifest (`commercial/tier-manifest.json`): the seventeen
 this crate contains are in [`src/registry.rs`](src/registry.rs), incident forensics
 (`pro-incident-forensics`, roadmap 0.42 E1) arrives as a Pro pack, all listed with their tiers by
 `cargo run -- kinds`. `tests/readme_counts.rs` fails the build if the pack count written
 here stops matching the registry.
 
-**Editions (roadmap 0.42, section 1a; X3 done).** Eleven of the twenty-seven are
+**Editions (roadmap 0.42, section 1a; X3 done).** Eleven of the twenty-nine are
 **Arksa-exclusive**, and so are the `mbse`, `design`, `coexist`, `mission`, `navdt`,
 `spacestream` and `mrd` commands: their code is no longer in this repository. It moved to the
 private server-side crate (Arksa servers only), which depends on this one and registers
@@ -123,7 +123,11 @@ at start-up. Details, checks and what remains: [docs/PROTECTION.md](docs/PROTECT
 | `pro-area-picture` | F | **Area console** (`kshana-pro area picture`, feature `pro-area-console`; Station console page `GET /area/console`): fuses Kshana Stations, receivers and customer-supplied third-party feeds into one area trust picture per monitored area through the open engine's pre-registered area rule, with event timelines (sources, basis, corroboration) and wide-area events across areas; tenancy hooks (more than one tenant in one console is Enterprise); HA failover tested. **F2: detections and areas only, never emitter positions** (a hard switch with no "on" value, until the locator successor meets its gate on the blind JammerTest 2027 run). Two-site demo on a synthetic analogue of published Baltic events. See [`docs/FUSION-AND-OPERATIONS.md`](docs/FUSION-AND-OPERATIONS.md) | Pro (multi-tenant: Enterprise) | ✅ built + tested; MODELLED |
 | `pro-multi-source-trust` | F | **Multi-source trust** (`kshana-pro trust`): chooses epoch by epoch among GNSS, OSNMA-authenticated Galileo, LEO, eLoran, PTP and holdover under a rule fixed before the code (exclusion, cross-group consistency votes, protection levels, holdover with class noise and drift bound, hysteresis), with a hash-chained evidence record of every choice that verifies for free. Switching bars pre-registered as V4 and **met on all three data sets** (recorded IGS clocks with modelled sources and injected faults, and a synthetic set); no real multi-source recording scored. See [`docs/evidence/v4-multi-source-switching/`](docs/evidence/v4-multi-source-switching/) | Pro | ✅ built + tested; V4 met |
 | `pro-planner-front` | F6 / B1b | **Planner Pareto front with cost**: every network of `m_min` to `m_max` stations from the open planner's candidates, capital plus years of running cost against the open planner's objective, exact (exhaustive) front, best per `m` equal to the open planner's own placement, cheapest network meeting a target. MODELLED (free-space maps) | Pro | ✅ built + tested; MODELLED |
+| `pro-ais-integrity` | E5 | **AIS and position integrity scoring** (`kshana-pro integrity score`): per AIS identity, gaps, one identity in two places, and AIS positions inconsistent with independent RF fixes (open M4 v3 decision); integrity scores per fleet and per area with exact 95 % intervals; RF fixes with no matching AIS per area; signed. The pre-registered stage-2 offset test (V3, then V3b) **missed both times and is published**; its hits are listed as offset candidates and never change a class. Describes data consistency, never intent. See [`docs/EVIDENCE-PRODUCTS.md`](docs/EVIDENCE-PRODUCTS.md) | Pro | ✅ built + tested; V3, V3b missed; MODELLED |
+| `pro-pnt-verification` | E4 | **Independent verification study of a new PNT service, user side** (`kshana-pro verify-service`): coverage and geometry accuracy of a LEO service from its published design (alone and with GNSS), OSNMA authentication integrity under seeded tampering; bars from a named pre-registration whose SHA-256 is checked at run time; signed. Public sample (Xona Pulsar published design, OSNMA synthetic stream): 3 of 6 bars met, published. Ground users only; lunar and spacecraft studies are not in this crate | Pro | ✅ built + tested; sample does not pass; MODELLED |
 | `pro-uncertainty` | scale | **Uncertainty and sensitivity** (`kshana-pro uncertainty`): stated input distributions over any open scenario; per output the mean, spread, percentiles with a bootstrap interval, the probability of meeting a limit (Wilson interval), time-series bands, and Sobol' or standardised-regression sensitivity; seeded, thread-count independent, stop and resume. See [`docs/UNCERTAINTY.md`](docs/UNCERTAINTY.md) | Enterprise | ✅ built + tested |
+
+**Framework evidence packs (roadmap 0.42 E6; feature `pro-framework-pack`, `kshana-pro frameworks pack`)** and **insurer scorecard (E7; feature `pro-insurer-scorecard`, `kshana-pro exposure run`).** Seven framework templates (EASA SIB 2022-02R4, NIST IR 8323r1, DHS RPCF, IMO Circular Letter No. 5037 as a draft until its text is read, MiFID II RTS 25, the EU Space Act proposal, NIS 2) map signed Kshana Pro evidence to each duty, "mapped to" only, with the gap; the exposure summary counts signed forensics and integrity evidence for a fleet or route over a period, adds no detection, and is signed. Samples under `report-templates/samples/`. See [`docs/EVIDENCE-PRODUCTS.md`](docs/EVIDENCE-PRODUCTS.md).
 
 **Alert policy engine (roadmap 0.42 F5; feature `pro-alert-policy`, `kshana-pro alerts route`).**
 Routes decide who is told what, when and through which of the open engine's I5 outputs, with quiet
@@ -265,7 +269,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **fifty-one integration tests** in
+The suite is unit tests across every module plus **fifty-three integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,

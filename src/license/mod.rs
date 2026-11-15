@@ -153,6 +153,14 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-alert-policy" => Tier::Pro,
         // Planner Pareto front with cost (0.41 B1b, signed planned item of 0.42 F6).
         "pro-planner-front" => Tier::Pro,
+        // AIS and position integrity scoring at fleet and area scale (roadmap 0.42 E5).
+        "pro-ais-integrity" => Tier::Pro,
+        // Independent verification studies of new PNT services, user side (roadmap 0.42 E4).
+        "pro-pnt-verification" => Tier::Pro,
+        // Framework evidence packs (roadmap 0.42 E6).
+        "pro-framework-pack" => Tier::Pro,
+        // Insurer scorecard: periodic signed exposure summary (roadmap 0.42 E7).
+        "pro-insurer-scorecard" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -176,6 +184,8 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-threat-library",
     "pro-area-console",
     "pro-alert-policy",
+    "pro-framework-pack",
+    "pro-insurer-scorecard",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

@@ -10,7 +10,6 @@
 //! * Without either: the recorded results are checked against the pre-registered bars and the
 //!   committed verdicts, and determinism (V3-G5) is checked on one development seed.
 
-
 use kshana::m4_dark_vessel::{generate, Label};
 use kshana::m4_logic::{decide, decided_classes, metrics, M4Params};
 use kshana_pro::integrity::offset_v4::{self, Params, GRID};
@@ -62,7 +61,12 @@ fn v3b_development_run_on_seeds_60_to_69() {
         eprintln!("skipped: set KSHANA_PRO_V3B_DEV=1 for the V3b development run");
         return;
     }
-    dev_run(60..70, &offset_v4::GRID_B, "V3b_dev.json", "2026-11-15_V3b_PREREGISTRATION.md");
+    dev_run(
+        60..70,
+        &offset_v4::GRID_B,
+        "V3b_dev.json",
+        "2026-11-15_V3b_PREREGISTRATION.md",
+    );
 }
 
 fn dev_run(seeds: std::ops::Range<u64>, grid: &[Params], file: &str, prereg: &str) {
@@ -199,4 +203,37 @@ fn v3b_scored_run_on_seeds_6000_to_6009() {
         serde_json::to_string_pretty(&doc).unwrap() + "\n",
     )
     .unwrap();
+}
+
+/// V3-G5: the same seed decided twice gives the same classes (both methods), and stage 2 never
+/// touches a class other than NORMAL.
+#[test]
+fn v3_g5_determinism_on_a_development_seed() {
+    let grid = [offset_v4::V3_CHOSEN, offset_v4::V3B_CHOSEN];
+    let scene = generate(50);
+    let d1 = decide(&scene, &M4Params::v3());
+    let a = offset_v4::stage2_grid(&scene.ais, &scene.rf, &d1.class, &grid);
+    let b = offset_v4::stage2_grid(&scene.ais, &scene.rf, &d1.class, &grid);
+    assert_eq!(a, b);
+    for c in &a {
+        for (id, l) in c {
+            let s1 = d1.class[id];
+            assert!(*l == s1 || (s1 == Label::Normal && *l == Label::PositionOffset));
+        }
+    }
+}
+
+/// The recorded scored runs agree with the pre-registered bars: V3 and V3b NOT MET, missing
+/// V3-B4 and V3-G1, with the guards V3-G2 to V3-G4 met.
+#[test]
+fn v3_and_v3b_recorded_verdicts() {
+    for f in ["results.json", "V3b_results.json"] {
+        let d: Value =
+            serde_json::from_str(&std::fs::read_to_string(format!("{DIR}/{f}")).unwrap()).unwrap();
+        let b = bars(&d["metrics"]);
+        assert_eq!(b, [false, false, true, true, true], "{f}");
+        assert_eq!(d["met"], false, "{f}");
+        assert_eq!(d["bars"]["V3-B4"], false);
+        assert_eq!(d["bars"]["V3-G1"], false);
+    }
 }

@@ -1,0 +1,125 @@
+{
+  "format": "kshana-pro-exposure-summary/1",
+  "title": "Insurer scorecard: public sample (synthetic evidence)",
+  "insured": "Sample fleet A (synthetic)",
+  "subject": "fleet",
+  "period_start_utc": "2026-04-01T00:00:00Z",
+  "period_end_utc": "2026-09-30T23:59:59Z",
+  "statement": "A summary of the signed evidence supplied for the period, copied and counted without new detection. Each source keeps its own label and validation status. Not an underwriting recommendation, a rating, premium advice or a finding of fact; classes and findings describe the consistency of data, never intent.",
+  "totals": {
+    "incidents": 3,
+    "jamming_indicated": 1,
+    "spoofing_indicated": 1,
+    "high_confidence_findings": 0,
+    "time_under_findings_h": 0.3636111111111111,
+    "sources_rejected": 0
+  },
+  "incidents": [
+    {
+      "incident_id": "SAMPLE-0",
+      "title": "open-sea-jamming (synthetic training scenario)",
+      "subject_id": "MV Sample 0",
+      "start_utc": "2026-05-14T06:03:20Z",
+      "end_utc": "2026-05-14T06:20:00Z",
+      "variant": "standard",
+      "status": "final",
+      "jamming": "indicated",
+      "jamming_confidence": "medium",
+      "spoofing": "not-indicated",
+      "spoofing_confidence": null,
+      "findings": 1,
+      "findings_supported": 0,
+      "finding_categories": {
+        "jamming": 1
+      },
+      "time_under_findings_s": 454.0,
+      "validation_status": "The method's pre-registered detection bars on a labelled set (roadmap V2: public events plus synthetic) are not yet met. The method has been exercised on the open engine's synthetic training scenarios only; no detection rate, false-alarm rate or accuracy is claimed for real incidents.",
+      "source": {
+        "path": "/workspace/kpro-evidence/examples/insurer-exposure/../../report-templates/samples/insurer-exposure-public/forensics/0-open-sea-jamming",
+        "signer": "Kshana Pro sample (demo key)",
+        "signature_valid": true,
+        "signer_trusted": true,
+        "problems": []
+      }
+    },
+    {
+      "incident_id": "SAMPLE-1",
+      "title": "coastal-drag-off (synthetic training scenario)",
+      "subject_id": "MV Sample 1",
+      "start_utc": "2026-06-03T14:33:20Z",
+      "end_utc": "2026-06-03T14:55:00Z",
+      "variant": "standard",
+      "status": "final",
+      "jamming": "not-indicated",
+      "jamming_confidence": null,
+      "spoofing": "indicated",
+      "spoofing_confidence": "medium",
+      "findings": 1,
+      "findings_supported": 0,
+      "finding_categories": {
+        "spoofing": 1
+      },
+      "time_under_findings_s": 778.0,
+      "validation_status": "The method's pre-registered detection bars on a labelled set (roadmap V2: public events plus synthetic) are not yet met. The method has been exercised on the open engine's synthetic training scenarios only; no detection rate, false-alarm rate or accuracy is claimed for real incidents.",
+      "source": {
+        "path": "/workspace/kpro-evidence/examples/insurer-exposure/../../report-templates/samples/insurer-exposure-public/forensics/1-coastal-drag-off",
+        "signer": "Kshana Pro sample (demo key)",
+        "signature_valid": true,
+        "signer_trusted": true,
+        "problems": []
+      }
+    },
+    {
+      "incident_id": "SAMPLE-2",
+      "title": "fjord-natural-degradation (synthetic training scenario)",
+      "subject_id": "MV Sample 2",
+      "start_utc": "2026-08-03T09:03:20Z",
+      "end_utc": "2026-08-03T09:20:00Z",
+      "variant": "standard",
+      "status": "final",
+      "jamming": "not-indicated",
+      "jamming_confidence": null,
+      "spoofing": "not-indicated",
+      "spoofing_confidence": null,
+      "findings": 1,
+      "findings_supported": 0,
+      "finding_categories": {
+        "degradation-not-attributed": 1
+      },
+      "time_under_findings_s": 77.0,
+      "validation_status": "The method's pre-registered detection bars on a labelled set (roadmap V2: public events plus synthetic) are not yet met. The method has been exercised on the open engine's synthetic training scenarios only; no detection rate, false-alarm rate or accuracy is claimed for real incidents.",
+      "source": {
+        "path": "/workspace/kpro-evidence/examples/insurer-exposure/../../report-templates/samples/insurer-exposure-public/forensics/2-fjord-natural-degradation",
+        "signer": "Kshana Pro sample (demo key)",
+        "signature_valid": true,
+        "signer_trusted": true,
+        "problems": []
+      }
+    }
+  ],
+  "integrity": {
+    "group": "Fleet A",
+    "vessels": 6,
+    "counts": {
+      "GAP": 0,
+      "IDENTITY-DUPLICATE": 0,
+      "NORMAL": 6,
+      "POSITION-OFFSET": 0
+    },
+    "integrity_score": 1.0,
+    "integrity_score_ci95": [
+      0.5407418735601004,
+      1.0
+    ],
+    "rf_fixes_no_matching_ais": null,
+    "validation_status": "V3 (the M4 position-offset bar with the stage-2 method, pre-registered 15 November 2026): see docs/evidence/v3-m4-offset-successor/RESULTS.md. Scored on synthetic scenes only (MODELLED); no real AIS or RF data has been scored.",
+    "source": {
+      "path": "/workspace/kpro-evidence/examples/insurer-exposure/../../report-templates/samples/ais-integrity-public",
+      "signer": "Kshana Pro sample (demo key)",
+      "signature_valid": true,
+      "signer_trusted": true,
+      "problems": []
+    }
+  },
+  "rejected": []
+}

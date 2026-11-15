@@ -1,0 +1,7196 @@
+{
+  "format": "kshana-pro-forensic-report/1",
+  "method_id": "kshana-pro/incident-forensics/v1",
+  "variant": "standard",
+  "status": "final",
+  "label": "MEASURED receiver observables, REPORTED broadcast positions and statements, MODELLED findings: each finding is the method's assessment of the data supplied, under thresholds fixed before the run. It is an engineering record, not a legal opinion, not a finding of fact and not a certification.",
+  "validation_status": "The method's pre-registered detection bars on a labelled set (roadmap V2: public events plus synthetic) are not yet met. The method has been exercised on the open engine's synthetic training scenarios only; no detection rate, false-alarm rate or accuracy is claimed for real incidents.",
+  "incident": {
+    "id": "SAMPLE-1",
+    "title": "coastal-drag-off (synthetic training scenario)",
+    "subject": "vessel",
+    "subject_id": "MV Sample 1",
+    "start_utc": "2026-06-03T14:33:20Z",
+    "end_utc": "2026-06-03T14:55:00Z",
+    "area": null,
+    "reported": null,
+    "requested_by": null
+  },
+  "generated_utc": "2026-11-15T16:00:00Z",
+  "engine": {
+    "kshana_pro": "0.2.0",
+    "open_engine": "0.41.0",
+    "method_id": "kshana-pro/incident-forensics/v1",
+    "method_params_sha256": "41b472d1834d3eb8450a367b4965350538573ba0675f1a36411747e4602c3d9e"
+  },
+  "method": {
+    "static_calibration_s": 60.0,
+    "vessel_calibration_s": 180.0,
+    "cn0_drop_db": 6.0,
+    "sats_lost": 4,
+    "position_jump_m": 50.0,
+    "vessel_max_speed_kn": 30.0,
+    "vessel_max_accel_mps2": 0.3,
+    "vessel_max_turn_rate_dps": 3.0,
+    "vessel_antenna_height_m": 15.0,
+    "merge_gap_s": 30.0,
+    "min_episode_s": 10.0,
+    "strong_episode_s": 30.0,
+    "breadth_drop_db": 6.0,
+    "breadth_min_share": 0.6,
+    "obstruction_elev_margin_deg": 10.0,
+    "corroboration_window_s": 900.0,
+    "ais_max_speed_kn": 50.0,
+    "ais_jump_min_m": 500.0,
+    "ais_jump_max_dt_s": 900.0,
+    "ais_circle_turn_deg": 300.0,
+    "ais_circle_min_reports": 10,
+    "ais_circle_max_span_s": 3600.0,
+    "ais_same_pos_round_deg": 0.0001,
+    "ais_same_pos_window_s": 300.0,
+    "ais_same_pos_min_vessels": 3,
+    "adsb_nic_min": 7,
+    "adsb_nacp_min": 8,
+    "adsb_max_speed_kn": 900.0,
+    "adsb_jump_min_m": 5000.0,
+    "baseline_pad_s": 1800.0,
+    "area_margin_m": 5000.0,
+    "claim_min_coverage": 0.9
+  },
+  "inputs": [
+    {
+      "role": "receiver-log",
+      "label": "Bridge GNSS",
+      "file": "bridge.nmea",
+      "sha256": "d0fd49f50c8c7f99648fb5c678a2890f86a5e6f89184877e0e160448c1e16cb5",
+      "bytes": 1648899,
+      "data_class": "measured",
+      "first_utc": "2026-06-03T14:30:00Z",
+      "last_utc": "2026-06-03T14:55:00Z",
+      "window_coverage": 1.0,
+      "largest_gap_s": 1.0
+    }
+  ],
+  "verdict": {
+    "jamming": {
+      "status": "not-indicated",
+      "findings": []
+    },
+    "spoofing": {
+      "status": "indicated",
+      "confidence": "medium",
+      "findings": [
+        "F1"
+      ]
+    },
+    "sentence": "SAMPLE-1 2026-06-03T14:33:20Z to 2026-06-03T14:55:00Z: Jamming is not indicated by the data supplied; spoofing is indicated (medium confidence; F1)."
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "category": "spoofing",
+      "source": "Bridge GNSS",
+      "source_kind": "receiver",
+      "data_class": "measured",
+      "inference_class": "modelled",
+      "onset": {
+        "earliest_utc": "2026-06-03T14:37:00Z",
+        "latest_utc": "2026-06-03T14:37:01Z",
+        "uncertainty_s": 1.0,
+        "basis": "last clean epoch before the episode to its first alarmed epoch"
+      },
+      "end": {
+        "earliest_utc": "2026-06-03T14:49:59Z",
+        "latest_utc": "2026-06-03T14:50:00Z",
+        "uncertainty_s": 1.0,
+        "basis": "last alarmed epoch to the first clean epoch after it"
+      },
+      "duration_s": 778.0,
+      "indicators": [
+        "kinematic",
+        "heading-course",
+        "speed-log",
+        "cn0-spread",
+        "cn0-rise"
+      ],
+      "magnitude": {
+        "baseline_satellites_tracked": 31.0,
+        "breadth_share": 0.06,
+        "elevation_bias_deg": 31.1,
+        "min_satellites_tracked": 29.0,
+        "peak_cn0_drop_db": 0.2
+      },
+      "position_at_onset": {
+        "lat": 51.01328,
+        "lon": 1.43452,
+        "class": "measured",
+        "note": "the receiver's own fix at the last clean epoch before the episode"
+      },
+      "confidence": {
+        "level": "medium",
+        "points": 3,
+        "reasons": [
+          "sustained for 778 s (at least 30 s)",
+          "5 independent monitors of the attributed kind",
+          "a position, time or authentication monitor fired, not only C/N0 shape",
+          "no independent source shows a compatible effect at that time"
+        ]
+      },
+      "corroborated_by": [],
+      "supported": false,
+      "about_subject": true,
+      "evidence": [
+        {
+          "class": "measured",
+          "statement": "Bridge GNSS: the receiver's own observables (cn0, fix) in the episode",
+          "input_sha256": "d0fd49f50c8c7f99648fb5c678a2890f86a5e6f89184877e0e160448c1e16cb5"
+        },
+        {
+          "class": "modelled",
+          "statement": "the open engine's receiver-trust monitors (kinematic, heading-course, speed-log, cn0-spread, cn0-rise) at the method's thresholds, attributed by kshana-pro/incident-forensics/v1"
+        }
+      ],
+      "statement": "Spoofing-like manipulation in Bridge GNSS (measured) from between 2026-06-03T14:37:00Z and 2026-06-03T14:37:01Z for 778 s; indicators: kinematic, heading-course, speed-log, cn0-spread, cn0-rise; confidence medium."
+    }
+  ],
+  "receivers": [
+    {
+      "label": "Bridge GNSS",
+      "role": "subject",
+      "platform": "vessel",
+      "format": "nmea",
+      "input_sha256": "d0fd49f50c8c7f99648fb5c678a2890f86a5e6f89184877e0e160448c1e16cb5",
+      "epochs": 1501,
+      "start_utc": "2026-06-03T14:30:00Z",
+      "calibration_end_utc": "2026-06-03T14:33:00Z",
+      "observables": [
+        "cn0",
+        "fix",
+        "marine"
+      ],
+      "monitors_run": [
+        "cn0-drop",
+        "loss-of-lock",
+        "kinematic",
+        "heading-course",
+        "speed-log",
+        "sea-level",
+        "cn0-spread",
+        "cn0-rise",
+        "time-consistency",
+        "geometry"
+      ],
+      "nominal_epochs": 540,
+      "degraded_epochs": 2,
+      "untrusted_epochs": 779,
+      "transients": 0,
+      "episodes_outside_window": 0,
+      "engine_verdict": "first alarm at 421.0 s; untrusted for 779 and degraded for 2 of 1321 epochs after calibration; trust score lowest 0.0, final 98.0",
+      "engine_label": "MEASURED log, MODELLED assessment: the observables are the receiver's own; the monitors and their thresholds are the engine's and the scenario's, and a stated prediction is compared with the log, not fitted to it"
+    }
+  ],
+  "area_activity": [],
+  "area": {
+    "class": "modelled",
+    "affected_observers": 1,
+    "unaffected_observers_inside": 0,
+    "centroid": [
+      51.01328,
+      1.43452
+    ],
+    "radius_m": 5000.0,
+    "bbox": [
+      50.96831,
+      51.05824,
+      1.36304,
+      1.50599
+    ],
+    "points": [
+      [
+        51.01328,
+        1.43452
+      ]
+    ],
+    "note": "MODELLED: the extent of the observers (receivers, vessels, aircraft) that showed an effect, at their last clean position, plus a margin. It is not an emitter location. The real affected area may be larger (where nobody observed) or smaller (the margin), and unaffected observers inside the box weigh against a single wide-area source."
+  },
+  "tracks": [
+    {
+      "source": "Bridge GNSS",
+      "class": "measured",
+      "points": [
+        {
+          "utc": "2026-06-03T14:30:00Z",
+          "lat": 51.0,
+          "lon": 1.40001,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:02Z",
+          "lat": 51.00006,
+          "lon": 1.40019,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:04Z",
+          "lat": 51.00012,
+          "lon": 1.40036,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:06Z",
+          "lat": 51.00018,
+          "lon": 1.40051,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:08Z",
+          "lat": 51.00026,
+          "lon": 1.40068,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:10Z",
+          "lat": 51.00032,
+          "lon": 1.40082,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:12Z",
+          "lat": 51.00038,
+          "lon": 1.401,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:14Z",
+          "lat": 51.00045,
+          "lon": 1.40117,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:16Z",
+          "lat": 51.00052,
+          "lon": 1.40135,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:18Z",
+          "lat": 51.00058,
+          "lon": 1.40147,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:20Z",
+          "lat": 51.00064,
+          "lon": 1.40165,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:22Z",
+          "lat": 51.00071,
+          "lon": 1.40179,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:24Z",
+          "lat": 51.00077,
+          "lon": 1.40195,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:26Z",
+          "lat": 51.00084,
+          "lon": 1.40213,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:28Z",
+          "lat": 51.00091,
+          "lon": 1.4023,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:30Z",
+          "lat": 51.00097,
+          "lon": 1.40248,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:32Z",
+          "lat": 51.00104,
+          "lon": 1.40265,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:34Z",
+          "lat": 51.00109,
+          "lon": 1.40281,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:36Z",
+          "lat": 51.00116,
+          "lon": 1.40297,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:38Z",
+          "lat": 51.00122,
+          "lon": 1.40311,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:40Z",
+          "lat": 51.00128,
+          "lon": 1.40327,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:42Z",
+          "lat": 51.00135,
+          "lon": 1.40344,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:44Z",
+          "lat": 51.00142,
+          "lon": 1.40359,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:46Z",
+          "lat": 51.00148,
+          "lon": 1.40375,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:48Z",
+          "lat": 51.00154,
+          "lon": 1.40391,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:50Z",
+          "lat": 51.00159,
+          "lon": 1.40408,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:52Z",
+          "lat": 51.00165,
+          "lon": 1.40425,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:54Z",
+          "lat": 51.00171,
+          "lon": 1.40441,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:56Z",
+          "lat": 51.00177,
+          "lon": 1.40459,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:30:58Z",
+          "lat": 51.00184,
+          "lon": 1.40475,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:00Z",
+          "lat": 51.0019,
+          "lon": 1.40492,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:02Z",
+          "lat": 51.00197,
+          "lon": 1.40509,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:04Z",
+          "lat": 51.00204,
+          "lon": 1.40526,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:06Z",
+          "lat": 51.00211,
+          "lon": 1.40543,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:08Z",
+          "lat": 51.00217,
+          "lon": 1.40556,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:10Z",
+          "lat": 51.00224,
+          "lon": 1.40573,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:12Z",
+          "lat": 51.0023,
+          "lon": 1.40589,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:14Z",
+          "lat": 51.00235,
+          "lon": 1.40606,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:16Z",
+          "lat": 51.00241,
+          "lon": 1.40623,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:18Z",
+          "lat": 51.00247,
+          "lon": 1.4064,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:20Z",
+          "lat": 51.00253,
+          "lon": 1.40655,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:22Z",
+          "lat": 51.0026,
+          "lon": 1.40672,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:24Z",
+          "lat": 51.00267,
+          "lon": 1.40688,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:26Z",
+          "lat": 51.00274,
+          "lon": 1.40707,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:28Z",
+          "lat": 51.0028,
+          "lon": 1.40721,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:30Z",
+          "lat": 51.00286,
+          "lon": 1.40737,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:32Z",
+          "lat": 51.00291,
+          "lon": 1.40754,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:34Z",
+          "lat": 51.00297,
+          "lon": 1.40771,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:36Z",
+          "lat": 51.00304,
+          "lon": 1.40789,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:38Z",
+          "lat": 51.0031,
+          "lon": 1.40808,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:40Z",
+          "lat": 51.00316,
+          "lon": 1.40825,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:42Z",
+          "lat": 51.00323,
+          "lon": 1.40843,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:44Z",
+          "lat": 51.00329,
+          "lon": 1.40858,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:46Z",
+          "lat": 51.00335,
+          "lon": 1.40875,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:48Z",
+          "lat": 51.00342,
+          "lon": 1.40892,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:50Z",
+          "lat": 51.00348,
+          "lon": 1.40909,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:52Z",
+          "lat": 51.00354,
+          "lon": 1.40927,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:54Z",
+          "lat": 51.0036,
+          "lon": 1.40944,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:56Z",
+          "lat": 51.00367,
+          "lon": 1.4096,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:31:58Z",
+          "lat": 51.00373,
+          "lon": 1.40975,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:00Z",
+          "lat": 51.00379,
+          "lon": 1.40992,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:02Z",
+          "lat": 51.00385,
+          "lon": 1.41007,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:04Z",
+          "lat": 51.0039,
+          "lon": 1.41024,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:06Z",
+          "lat": 51.00397,
+          "lon": 1.4104,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:08Z",
+          "lat": 51.00404,
+          "lon": 1.41058,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:10Z",
+          "lat": 51.00409,
+          "lon": 1.41075,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:12Z",
+          "lat": 51.00415,
+          "lon": 1.41089,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:14Z",
+          "lat": 51.00422,
+          "lon": 1.41105,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:16Z",
+          "lat": 51.00429,
+          "lon": 1.41122,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:18Z",
+          "lat": 51.00435,
+          "lon": 1.41138,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:20Z",
+          "lat": 51.00442,
+          "lon": 1.41154,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:22Z",
+          "lat": 51.00448,
+          "lon": 1.4117,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:24Z",
+          "lat": 51.00454,
+          "lon": 1.41186,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:26Z",
+          "lat": 51.0046,
+          "lon": 1.41202,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:28Z",
+          "lat": 51.00467,
+          "lon": 1.41217,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:30Z",
+          "lat": 51.00474,
+          "lon": 1.41234,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:32Z",
+          "lat": 51.00481,
+          "lon": 1.41251,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:34Z",
+          "lat": 51.00488,
+          "lon": 1.41267,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:36Z",
+          "lat": 51.00495,
+          "lon": 1.41283,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:38Z",
+          "lat": 51.00501,
+          "lon": 1.41299,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:40Z",
+          "lat": 51.00507,
+          "lon": 1.41316,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:42Z",
+          "lat": 51.00513,
+          "lon": 1.41332,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:44Z",
+          "lat": 51.00519,
+          "lon": 1.41349,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:46Z",
+          "lat": 51.00525,
+          "lon": 1.41365,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:48Z",
+          "lat": 51.00531,
+          "lon": 1.41382,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:50Z",
+          "lat": 51.00538,
+          "lon": 1.41398,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:52Z",
+          "lat": 51.00545,
+          "lon": 1.41414,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:54Z",
+          "lat": 51.00552,
+          "lon": 1.41431,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:56Z",
+          "lat": 51.00559,
+          "lon": 1.41447,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:32:58Z",
+          "lat": 51.00565,
+          "lon": 1.41463,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:00Z",
+          "lat": 51.0057,
+          "lon": 1.41482,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:02Z",
+          "lat": 51.00576,
+          "lon": 1.41497,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:04Z",
+          "lat": 51.00582,
+          "lon": 1.41515,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:06Z",
+          "lat": 51.00589,
+          "lon": 1.4153,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:08Z",
+          "lat": 51.00595,
+          "lon": 1.41547,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:10Z",
+          "lat": 51.00601,
+          "lon": 1.41564,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:12Z",
+          "lat": 51.00608,
+          "lon": 1.4158,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:14Z",
+          "lat": 51.00614,
+          "lon": 1.41597,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:16Z",
+          "lat": 51.0062,
+          "lon": 1.41614,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:18Z",
+          "lat": 51.00627,
+          "lon": 1.4163,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:20Z",
+          "lat": 51.00633,
+          "lon": 1.41644,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:22Z",
+          "lat": 51.00639,
+          "lon": 1.41659,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:24Z",
+          "lat": 51.00646,
+          "lon": 1.41678,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:26Z",
+          "lat": 51.00653,
+          "lon": 1.41695,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:28Z",
+          "lat": 51.00658,
+          "lon": 1.41711,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:30Z",
+          "lat": 51.00664,
+          "lon": 1.41728,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:32Z",
+          "lat": 51.0067,
+          "lon": 1.41746,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:34Z",
+          "lat": 51.00676,
+          "lon": 1.41762,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:36Z",
+          "lat": 51.00682,
+          "lon": 1.41777,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:38Z",
+          "lat": 51.00688,
+          "lon": 1.41793,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:40Z",
+          "lat": 51.00695,
+          "lon": 1.41811,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:42Z",
+          "lat": 51.00702,
+          "lon": 1.41828,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:44Z",
+          "lat": 51.00709,
+          "lon": 1.41844,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:46Z",
+          "lat": 51.00715,
+          "lon": 1.41861,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:48Z",
+          "lat": 51.0072,
+          "lon": 1.41878,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:50Z",
+          "lat": 51.00727,
+          "lon": 1.41895,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:52Z",
+          "lat": 51.00733,
+          "lon": 1.41911,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:54Z",
+          "lat": 51.00739,
+          "lon": 1.41927,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:56Z",
+          "lat": 51.00745,
+          "lon": 1.41944,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:33:58Z",
+          "lat": 51.00751,
+          "lon": 1.41959,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:00Z",
+          "lat": 51.00758,
+          "lon": 1.41975,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:02Z",
+          "lat": 51.00764,
+          "lon": 1.41991,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:04Z",
+          "lat": 51.0077,
+          "lon": 1.42008,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:06Z",
+          "lat": 51.00776,
+          "lon": 1.42024,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:08Z",
+          "lat": 51.00783,
+          "lon": 1.42038,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:10Z",
+          "lat": 51.00789,
+          "lon": 1.42055,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:12Z",
+          "lat": 51.00796,
+          "lon": 1.4207,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:14Z",
+          "lat": 51.00803,
+          "lon": 1.42086,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:16Z",
+          "lat": 51.0081,
+          "lon": 1.42103,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:18Z",
+          "lat": 51.00816,
+          "lon": 1.42121,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:20Z",
+          "lat": 51.00822,
+          "lon": 1.42136,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:22Z",
+          "lat": 51.00828,
+          "lon": 1.42152,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:24Z",
+          "lat": 51.00834,
+          "lon": 1.42168,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:26Z",
+          "lat": 51.00841,
+          "lon": 1.42185,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:28Z",
+          "lat": 51.00848,
+          "lon": 1.42201,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:30Z",
+          "lat": 51.00855,
+          "lon": 1.42217,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:32Z",
+          "lat": 51.00861,
+          "lon": 1.42234,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:34Z",
+          "lat": 51.00868,
+          "lon": 1.42249,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:36Z",
+          "lat": 51.00875,
+          "lon": 1.42264,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:38Z",
+          "lat": 51.00882,
+          "lon": 1.4228,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:40Z",
+          "lat": 51.00888,
+          "lon": 1.42297,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:42Z",
+          "lat": 51.00895,
+          "lon": 1.42313,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:44Z",
+          "lat": 51.00901,
+          "lon": 1.42329,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:46Z",
+          "lat": 51.00906,
+          "lon": 1.42346,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:48Z",
+          "lat": 51.00912,
+          "lon": 1.42363,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:50Z",
+          "lat": 51.00918,
+          "lon": 1.42378,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:52Z",
+          "lat": 51.00924,
+          "lon": 1.42396,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:54Z",
+          "lat": 51.0093,
+          "lon": 1.42411,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:56Z",
+          "lat": 51.00937,
+          "lon": 1.42427,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:34:58Z",
+          "lat": 51.00942,
+          "lon": 1.42443,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:00Z",
+          "lat": 51.00948,
+          "lon": 1.42461,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:02Z",
+          "lat": 51.00953,
+          "lon": 1.4248,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:04Z",
+          "lat": 51.0096,
+          "lon": 1.42498,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:06Z",
+          "lat": 51.00967,
+          "lon": 1.42515,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:08Z",
+          "lat": 51.00974,
+          "lon": 1.42533,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:10Z",
+          "lat": 51.0098,
+          "lon": 1.42551,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:12Z",
+          "lat": 51.00987,
+          "lon": 1.42567,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:14Z",
+          "lat": 51.00993,
+          "lon": 1.42583,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:16Z",
+          "lat": 51.00999,
+          "lon": 1.426,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:18Z",
+          "lat": 51.01004,
+          "lon": 1.42617,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:20Z",
+          "lat": 51.01011,
+          "lon": 1.42632,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:22Z",
+          "lat": 51.01018,
+          "lon": 1.42648,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:24Z",
+          "lat": 51.01025,
+          "lon": 1.42666,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:26Z",
+          "lat": 51.01031,
+          "lon": 1.42683,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:28Z",
+          "lat": 51.01037,
+          "lon": 1.42699,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:30Z",
+          "lat": 51.01043,
+          "lon": 1.42715,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:32Z",
+          "lat": 51.0105,
+          "lon": 1.4273,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:34Z",
+          "lat": 51.01056,
+          "lon": 1.42746,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:36Z",
+          "lat": 51.01062,
+          "lon": 1.42762,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:38Z",
+          "lat": 51.01068,
+          "lon": 1.42778,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:40Z",
+          "lat": 51.01074,
+          "lon": 1.42795,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:42Z",
+          "lat": 51.01081,
+          "lon": 1.42811,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:44Z",
+          "lat": 51.01087,
+          "lon": 1.42829,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:46Z",
+          "lat": 51.01094,
+          "lon": 1.42845,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:48Z",
+          "lat": 51.011,
+          "lon": 1.42861,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:50Z",
+          "lat": 51.01106,
+          "lon": 1.42877,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:52Z",
+          "lat": 51.01113,
+          "lon": 1.42894,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:54Z",
+          "lat": 51.01118,
+          "lon": 1.42911,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:56Z",
+          "lat": 51.01125,
+          "lon": 1.42926,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:35:58Z",
+          "lat": 51.01131,
+          "lon": 1.42943,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:00Z",
+          "lat": 51.01137,
+          "lon": 1.42958,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:02Z",
+          "lat": 51.01144,
+          "lon": 1.42974,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:04Z",
+          "lat": 51.01149,
+          "lon": 1.42991,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:06Z",
+          "lat": 51.01155,
+          "lon": 1.43008,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:08Z",
+          "lat": 51.01162,
+          "lon": 1.43023,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:10Z",
+          "lat": 51.01168,
+          "lon": 1.4304,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:12Z",
+          "lat": 51.01174,
+          "lon": 1.43057,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:14Z",
+          "lat": 51.0118,
+          "lon": 1.43074,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:16Z",
+          "lat": 51.01187,
+          "lon": 1.43089,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:18Z",
+          "lat": 51.01194,
+          "lon": 1.43105,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:20Z",
+          "lat": 51.012,
+          "lon": 1.43121,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:22Z",
+          "lat": 51.01206,
+          "lon": 1.43137,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:24Z",
+          "lat": 51.01213,
+          "lon": 1.43154,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:26Z",
+          "lat": 51.01219,
+          "lon": 1.4317,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:28Z",
+          "lat": 51.01225,
+          "lon": 1.43187,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:30Z",
+          "lat": 51.01232,
+          "lon": 1.43202,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:32Z",
+          "lat": 51.01237,
+          "lon": 1.43219,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:34Z",
+          "lat": 51.01243,
+          "lon": 1.43236,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:36Z",
+          "lat": 51.01249,
+          "lon": 1.43253,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:38Z",
+          "lat": 51.01256,
+          "lon": 1.43269,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:40Z",
+          "lat": 51.01262,
+          "lon": 1.43286,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:42Z",
+          "lat": 51.01269,
+          "lon": 1.43301,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:44Z",
+          "lat": 51.01275,
+          "lon": 1.43318,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:46Z",
+          "lat": 51.01281,
+          "lon": 1.43335,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:48Z",
+          "lat": 51.01289,
+          "lon": 1.43352,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:50Z",
+          "lat": 51.01295,
+          "lon": 1.43372,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:52Z",
+          "lat": 51.01302,
+          "lon": 1.43387,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:54Z",
+          "lat": 51.01308,
+          "lon": 1.43403,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:56Z",
+          "lat": 51.01315,
+          "lon": 1.4342,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:36:58Z",
+          "lat": 51.01322,
+          "lon": 1.43435,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:37:00Z",
+          "lat": 51.01328,
+          "lon": 1.43452,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:37:01Z",
+          "lat": 51.01332,
+          "lon": 1.4346,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:02Z",
+          "lat": 51.01335,
+          "lon": 1.43468,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:03Z",
+          "lat": 51.01338,
+          "lon": 1.43476,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:04Z",
+          "lat": 51.01341,
+          "lon": 1.43483,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:05Z",
+          "lat": 51.01344,
+          "lon": 1.43492,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:06Z",
+          "lat": 51.01348,
+          "lon": 1.43499,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:07Z",
+          "lat": 51.01351,
+          "lon": 1.43507,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:08Z",
+          "lat": 51.01354,
+          "lon": 1.43515,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:09Z",
+          "lat": 51.01358,
+          "lon": 1.43524,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:10Z",
+          "lat": 51.01362,
+          "lon": 1.43531,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:11Z",
+          "lat": 51.01366,
+          "lon": 1.43539,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:12Z",
+          "lat": 51.0137,
+          "lon": 1.43547,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:13Z",
+          "lat": 51.01374,
+          "lon": 1.43554,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:14Z",
+          "lat": 51.01378,
+          "lon": 1.43563,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:15Z",
+          "lat": 51.01381,
+          "lon": 1.4357,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:16Z",
+          "lat": 51.01385,
+          "lon": 1.43577,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:17Z",
+          "lat": 51.01388,
+          "lon": 1.43585,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:18Z",
+          "lat": 51.01392,
+          "lon": 1.43592,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:19Z",
+          "lat": 51.01397,
+          "lon": 1.436,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:20Z",
+          "lat": 51.01401,
+          "lon": 1.43606,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:21Z",
+          "lat": 51.01405,
+          "lon": 1.43614,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:22Z",
+          "lat": 51.01409,
+          "lon": 1.43622,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:23Z",
+          "lat": 51.01414,
+          "lon": 1.4363,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:24Z",
+          "lat": 51.01418,
+          "lon": 1.43636,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:25Z",
+          "lat": 51.01422,
+          "lon": 1.43644,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:26Z",
+          "lat": 51.01426,
+          "lon": 1.4365,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:27Z",
+          "lat": 51.0143,
+          "lon": 1.43658,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:28Z",
+          "lat": 51.01435,
+          "lon": 1.43664,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:29Z",
+          "lat": 51.01439,
+          "lon": 1.43672,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:30Z",
+          "lat": 51.01444,
+          "lon": 1.4368,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:31Z",
+          "lat": 51.01449,
+          "lon": 1.43687,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:32Z",
+          "lat": 51.01454,
+          "lon": 1.43693,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:33Z",
+          "lat": 51.01458,
+          "lon": 1.437,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:34Z",
+          "lat": 51.01463,
+          "lon": 1.43706,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:35Z",
+          "lat": 51.01468,
+          "lon": 1.43713,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:36Z",
+          "lat": 51.01473,
+          "lon": 1.43719,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:37Z",
+          "lat": 51.01478,
+          "lon": 1.43726,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:38Z",
+          "lat": 51.01483,
+          "lon": 1.43733,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:39Z",
+          "lat": 51.01488,
+          "lon": 1.43739,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:40Z",
+          "lat": 51.01492,
+          "lon": 1.43746,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:41Z",
+          "lat": 51.01497,
+          "lon": 1.43753,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:42Z",
+          "lat": 51.01502,
+          "lon": 1.43759,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:43Z",
+          "lat": 51.01507,
+          "lon": 1.43766,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:44Z",
+          "lat": 51.01513,
+          "lon": 1.43772,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:45Z",
+          "lat": 51.01517,
+          "lon": 1.43778,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:46Z",
+          "lat": 51.01522,
+          "lon": 1.43785,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:47Z",
+          "lat": 51.01528,
+          "lon": 1.43791,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:48Z",
+          "lat": 51.01533,
+          "lon": 1.43797,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:49Z",
+          "lat": 51.01539,
+          "lon": 1.43803,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:50Z",
+          "lat": 51.01546,
+          "lon": 1.43809,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:51Z",
+          "lat": 51.01552,
+          "lon": 1.43814,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:52Z",
+          "lat": 51.01557,
+          "lon": 1.43822,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:53Z",
+          "lat": 51.01562,
+          "lon": 1.43829,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:54Z",
+          "lat": 51.01568,
+          "lon": 1.43836,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:55Z",
+          "lat": 51.01574,
+          "lon": 1.43841,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:56Z",
+          "lat": 51.01578,
+          "lon": 1.43846,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:57Z",
+          "lat": 51.01584,
+          "lon": 1.43852,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:58Z",
+          "lat": 51.01589,
+          "lon": 1.43857,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:37:59Z",
+          "lat": 51.01594,
+          "lon": 1.43863,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:00Z",
+          "lat": 51.016,
+          "lon": 1.43868,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:01Z",
+          "lat": 51.01605,
+          "lon": 1.43874,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:02Z",
+          "lat": 51.01611,
+          "lon": 1.43879,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:03Z",
+          "lat": 51.01617,
+          "lon": 1.43886,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:04Z",
+          "lat": 51.01622,
+          "lon": 1.43892,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:05Z",
+          "lat": 51.01628,
+          "lon": 1.43899,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:06Z",
+          "lat": 51.01634,
+          "lon": 1.43904,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:07Z",
+          "lat": 51.0164,
+          "lon": 1.43909,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:08Z",
+          "lat": 51.01645,
+          "lon": 1.43915,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:09Z",
+          "lat": 51.0165,
+          "lon": 1.43921,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:10Z",
+          "lat": 51.01657,
+          "lon": 1.43926,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:11Z",
+          "lat": 51.01662,
+          "lon": 1.43932,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:12Z",
+          "lat": 51.01668,
+          "lon": 1.43937,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:13Z",
+          "lat": 51.01674,
+          "lon": 1.43943,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:14Z",
+          "lat": 51.0168,
+          "lon": 1.43947,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:15Z",
+          "lat": 51.01686,
+          "lon": 1.43953,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:16Z",
+          "lat": 51.01693,
+          "lon": 1.43959,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:17Z",
+          "lat": 51.01699,
+          "lon": 1.43964,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:18Z",
+          "lat": 51.01705,
+          "lon": 1.4397,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:19Z",
+          "lat": 51.01712,
+          "lon": 1.43976,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:20Z",
+          "lat": 51.01717,
+          "lon": 1.43981,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:21Z",
+          "lat": 51.01724,
+          "lon": 1.43986,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:22Z",
+          "lat": 51.0173,
+          "lon": 1.43992,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:23Z",
+          "lat": 51.01737,
+          "lon": 1.43997,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:24Z",
+          "lat": 51.01743,
+          "lon": 1.44003,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:25Z",
+          "lat": 51.0175,
+          "lon": 1.44008,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:26Z",
+          "lat": 51.01757,
+          "lon": 1.44012,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:27Z",
+          "lat": 51.01763,
+          "lon": 1.44017,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:28Z",
+          "lat": 51.0177,
+          "lon": 1.44021,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:29Z",
+          "lat": 51.01776,
+          "lon": 1.44026,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:30Z",
+          "lat": 51.01783,
+          "lon": 1.44032,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:31Z",
+          "lat": 51.0179,
+          "lon": 1.44038,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:32Z",
+          "lat": 51.01797,
+          "lon": 1.44042,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:33Z",
+          "lat": 51.01804,
+          "lon": 1.44048,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:34Z",
+          "lat": 51.0181,
+          "lon": 1.44052,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:35Z",
+          "lat": 51.01818,
+          "lon": 1.44056,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:36Z",
+          "lat": 51.01824,
+          "lon": 1.44063,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:37Z",
+          "lat": 51.01831,
+          "lon": 1.44067,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:38Z",
+          "lat": 51.01838,
+          "lon": 1.44074,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:39Z",
+          "lat": 51.01845,
+          "lon": 1.4408,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:40Z",
+          "lat": 51.01851,
+          "lon": 1.44083,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:41Z",
+          "lat": 51.01857,
+          "lon": 1.44088,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:42Z",
+          "lat": 51.01864,
+          "lon": 1.44092,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:43Z",
+          "lat": 51.0187,
+          "lon": 1.44098,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:44Z",
+          "lat": 51.01877,
+          "lon": 1.44102,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:45Z",
+          "lat": 51.01884,
+          "lon": 1.44107,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:46Z",
+          "lat": 51.01891,
+          "lon": 1.44113,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:47Z",
+          "lat": 51.01897,
+          "lon": 1.44116,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:48Z",
+          "lat": 51.01904,
+          "lon": 1.44122,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:49Z",
+          "lat": 51.01911,
+          "lon": 1.44126,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:50Z",
+          "lat": 51.01918,
+          "lon": 1.44131,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:51Z",
+          "lat": 51.01925,
+          "lon": 1.44135,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:52Z",
+          "lat": 51.01932,
+          "lon": 1.4414,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:53Z",
+          "lat": 51.0194,
+          "lon": 1.44144,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:54Z",
+          "lat": 51.01947,
+          "lon": 1.44148,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:55Z",
+          "lat": 51.01954,
+          "lon": 1.44154,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:56Z",
+          "lat": 51.01962,
+          "lon": 1.44161,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:57Z",
+          "lat": 51.0197,
+          "lon": 1.44165,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:58Z",
+          "lat": 51.01975,
+          "lon": 1.44171,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:38:59Z",
+          "lat": 51.01983,
+          "lon": 1.44174,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:00Z",
+          "lat": 51.0199,
+          "lon": 1.4418,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:01Z",
+          "lat": 51.01998,
+          "lon": 1.44185,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:02Z",
+          "lat": 51.02005,
+          "lon": 1.4419,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:03Z",
+          "lat": 51.02012,
+          "lon": 1.44195,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:04Z",
+          "lat": 51.02019,
+          "lon": 1.442,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:05Z",
+          "lat": 51.02026,
+          "lon": 1.44204,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:06Z",
+          "lat": 51.02033,
+          "lon": 1.44208,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:07Z",
+          "lat": 51.0204,
+          "lon": 1.44212,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:08Z",
+          "lat": 51.02048,
+          "lon": 1.44216,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:09Z",
+          "lat": 51.02056,
+          "lon": 1.44221,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:10Z",
+          "lat": 51.02064,
+          "lon": 1.44226,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:11Z",
+          "lat": 51.0207,
+          "lon": 1.4423,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:12Z",
+          "lat": 51.02076,
+          "lon": 1.44233,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:13Z",
+          "lat": 51.02084,
+          "lon": 1.44237,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:14Z",
+          "lat": 51.02092,
+          "lon": 1.4424,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:15Z",
+          "lat": 51.02099,
+          "lon": 1.44245,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:16Z",
+          "lat": 51.02106,
+          "lon": 1.4425,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:17Z",
+          "lat": 51.02113,
+          "lon": 1.44253,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:18Z",
+          "lat": 51.02121,
+          "lon": 1.44257,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:19Z",
+          "lat": 51.02128,
+          "lon": 1.44261,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:20Z",
+          "lat": 51.02134,
+          "lon": 1.44265,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:21Z",
+          "lat": 51.02142,
+          "lon": 1.44269,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:22Z",
+          "lat": 51.02149,
+          "lon": 1.44273,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:23Z",
+          "lat": 51.02156,
+          "lon": 1.44277,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:24Z",
+          "lat": 51.02163,
+          "lon": 1.4428,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:25Z",
+          "lat": 51.02171,
+          "lon": 1.44286,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:26Z",
+          "lat": 51.02178,
+          "lon": 1.44292,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:27Z",
+          "lat": 51.02186,
+          "lon": 1.44295,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:28Z",
+          "lat": 51.02194,
+          "lon": 1.44299,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:29Z",
+          "lat": 51.02201,
+          "lon": 1.44304,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:30Z",
+          "lat": 51.02208,
+          "lon": 1.44308,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:31Z",
+          "lat": 51.02216,
+          "lon": 1.44313,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:32Z",
+          "lat": 51.02223,
+          "lon": 1.44318,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:33Z",
+          "lat": 51.02232,
+          "lon": 1.44322,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:34Z",
+          "lat": 51.02239,
+          "lon": 1.44328,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:35Z",
+          "lat": 51.02247,
+          "lon": 1.44333,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:36Z",
+          "lat": 51.02255,
+          "lon": 1.44335,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:37Z",
+          "lat": 51.02263,
+          "lon": 1.44338,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:38Z",
+          "lat": 51.0227,
+          "lon": 1.44343,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:39Z",
+          "lat": 51.02279,
+          "lon": 1.44346,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:40Z",
+          "lat": 51.02287,
+          "lon": 1.44353,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:41Z",
+          "lat": 51.02295,
+          "lon": 1.44356,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:42Z",
+          "lat": 51.02303,
+          "lon": 1.44359,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:43Z",
+          "lat": 51.02312,
+          "lon": 1.44363,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:44Z",
+          "lat": 51.0232,
+          "lon": 1.44368,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:45Z",
+          "lat": 51.02326,
+          "lon": 1.44372,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:46Z",
+          "lat": 51.02333,
+          "lon": 1.44377,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:47Z",
+          "lat": 51.02341,
+          "lon": 1.4438,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:48Z",
+          "lat": 51.02349,
+          "lon": 1.44386,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:49Z",
+          "lat": 51.02357,
+          "lon": 1.4439,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:50Z",
+          "lat": 51.02365,
+          "lon": 1.44392,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:51Z",
+          "lat": 51.02373,
+          "lon": 1.44397,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:52Z",
+          "lat": 51.02381,
+          "lon": 1.44402,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:53Z",
+          "lat": 51.02387,
+          "lon": 1.44406,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:54Z",
+          "lat": 51.02394,
+          "lon": 1.44409,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:55Z",
+          "lat": 51.02402,
+          "lon": 1.44412,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:56Z",
+          "lat": 51.0241,
+          "lon": 1.44415,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:57Z",
+          "lat": 51.02418,
+          "lon": 1.4442,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:58Z",
+          "lat": 51.02425,
+          "lon": 1.44423,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:39:59Z",
+          "lat": 51.02433,
+          "lon": 1.44429,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:00Z",
+          "lat": 51.0244,
+          "lon": 1.44434,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:01Z",
+          "lat": 51.02448,
+          "lon": 1.44438,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:02Z",
+          "lat": 51.02456,
+          "lon": 1.44442,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:03Z",
+          "lat": 51.02464,
+          "lon": 1.44444,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:04Z",
+          "lat": 51.02472,
+          "lon": 1.44448,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:05Z",
+          "lat": 51.02479,
+          "lon": 1.44453,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:06Z",
+          "lat": 51.02487,
+          "lon": 1.44456,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:07Z",
+          "lat": 51.02494,
+          "lon": 1.44461,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:08Z",
+          "lat": 51.02502,
+          "lon": 1.44466,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:09Z",
+          "lat": 51.02511,
+          "lon": 1.4447,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:10Z",
+          "lat": 51.02518,
+          "lon": 1.44475,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:11Z",
+          "lat": 51.02526,
+          "lon": 1.44478,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:12Z",
+          "lat": 51.02535,
+          "lon": 1.44482,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:13Z",
+          "lat": 51.02542,
+          "lon": 1.44487,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:14Z",
+          "lat": 51.02551,
+          "lon": 1.44491,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:15Z",
+          "lat": 51.02558,
+          "lon": 1.44497,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:16Z",
+          "lat": 51.02564,
+          "lon": 1.44501,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:17Z",
+          "lat": 51.02573,
+          "lon": 1.44505,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:18Z",
+          "lat": 51.02581,
+          "lon": 1.4451,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:19Z",
+          "lat": 51.02587,
+          "lon": 1.44513,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:20Z",
+          "lat": 51.02594,
+          "lon": 1.44517,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:21Z",
+          "lat": 51.02602,
+          "lon": 1.44521,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:22Z",
+          "lat": 51.02611,
+          "lon": 1.44525,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:23Z",
+          "lat": 51.02617,
+          "lon": 1.4453,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:24Z",
+          "lat": 51.02626,
+          "lon": 1.44535,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:25Z",
+          "lat": 51.02633,
+          "lon": 1.44538,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:26Z",
+          "lat": 51.0264,
+          "lon": 1.44543,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:27Z",
+          "lat": 51.02648,
+          "lon": 1.44547,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:28Z",
+          "lat": 51.02656,
+          "lon": 1.44551,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:29Z",
+          "lat": 51.02663,
+          "lon": 1.44553,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:30Z",
+          "lat": 51.02669,
+          "lon": 1.44557,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:31Z",
+          "lat": 51.02676,
+          "lon": 1.44561,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:32Z",
+          "lat": 51.02685,
+          "lon": 1.44565,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:33Z",
+          "lat": 51.02693,
+          "lon": 1.44568,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:34Z",
+          "lat": 51.02701,
+          "lon": 1.44572,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:35Z",
+          "lat": 51.02708,
+          "lon": 1.44578,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:36Z",
+          "lat": 51.02715,
+          "lon": 1.44583,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:37Z",
+          "lat": 51.02724,
+          "lon": 1.44586,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:38Z",
+          "lat": 51.02732,
+          "lon": 1.44591,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:39Z",
+          "lat": 51.02738,
+          "lon": 1.44596,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:40Z",
+          "lat": 51.02745,
+          "lon": 1.446,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:41Z",
+          "lat": 51.02753,
+          "lon": 1.44603,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:42Z",
+          "lat": 51.02762,
+          "lon": 1.44607,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:43Z",
+          "lat": 51.02769,
+          "lon": 1.44611,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:44Z",
+          "lat": 51.02777,
+          "lon": 1.44616,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:45Z",
+          "lat": 51.02785,
+          "lon": 1.44621,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:46Z",
+          "lat": 51.02792,
+          "lon": 1.44626,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:47Z",
+          "lat": 51.02799,
+          "lon": 1.44631,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:48Z",
+          "lat": 51.02807,
+          "lon": 1.44635,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:49Z",
+          "lat": 51.02814,
+          "lon": 1.4464,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:50Z",
+          "lat": 51.02821,
+          "lon": 1.44646,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:51Z",
+          "lat": 51.0283,
+          "lon": 1.4465,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:52Z",
+          "lat": 51.02837,
+          "lon": 1.44655,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:53Z",
+          "lat": 51.02843,
+          "lon": 1.4466,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:54Z",
+          "lat": 51.0285,
+          "lon": 1.44664,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:55Z",
+          "lat": 51.02858,
+          "lon": 1.44667,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:56Z",
+          "lat": 51.02865,
+          "lon": 1.44672,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:57Z",
+          "lat": 51.02872,
+          "lon": 1.44676,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:58Z",
+          "lat": 51.02878,
+          "lon": 1.4468,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:40:59Z",
+          "lat": 51.02886,
+          "lon": 1.44685,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:00Z",
+          "lat": 51.02893,
+          "lon": 1.4469,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:01Z",
+          "lat": 51.029,
+          "lon": 1.44696,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:02Z",
+          "lat": 51.02907,
+          "lon": 1.447,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:03Z",
+          "lat": 51.02914,
+          "lon": 1.44705,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:04Z",
+          "lat": 51.02921,
+          "lon": 1.44709,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:05Z",
+          "lat": 51.02928,
+          "lon": 1.44714,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:06Z",
+          "lat": 51.02934,
+          "lon": 1.44718,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:07Z",
+          "lat": 51.02941,
+          "lon": 1.44723,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:08Z",
+          "lat": 51.02948,
+          "lon": 1.44728,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:09Z",
+          "lat": 51.02955,
+          "lon": 1.44732,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:10Z",
+          "lat": 51.02963,
+          "lon": 1.44737,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:11Z",
+          "lat": 51.02969,
+          "lon": 1.44741,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:12Z",
+          "lat": 51.02976,
+          "lon": 1.44746,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:13Z",
+          "lat": 51.02983,
+          "lon": 1.4475,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:14Z",
+          "lat": 51.0299,
+          "lon": 1.44753,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:15Z",
+          "lat": 51.02996,
+          "lon": 1.44758,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:16Z",
+          "lat": 51.03004,
+          "lon": 1.44762,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:17Z",
+          "lat": 51.03011,
+          "lon": 1.44768,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:18Z",
+          "lat": 51.03019,
+          "lon": 1.44773,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:19Z",
+          "lat": 51.03024,
+          "lon": 1.44778,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:20Z",
+          "lat": 51.03032,
+          "lon": 1.44781,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:21Z",
+          "lat": 51.03037,
+          "lon": 1.44786,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:22Z",
+          "lat": 51.03045,
+          "lon": 1.44789,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:23Z",
+          "lat": 51.03052,
+          "lon": 1.44793,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:24Z",
+          "lat": 51.03059,
+          "lon": 1.44796,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:25Z",
+          "lat": 51.03065,
+          "lon": 1.44803,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:26Z",
+          "lat": 51.03071,
+          "lon": 1.44808,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:27Z",
+          "lat": 51.03078,
+          "lon": 1.44813,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:28Z",
+          "lat": 51.03085,
+          "lon": 1.44819,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:29Z",
+          "lat": 51.03092,
+          "lon": 1.44824,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:30Z",
+          "lat": 51.03098,
+          "lon": 1.44829,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:31Z",
+          "lat": 51.03105,
+          "lon": 1.44834,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:32Z",
+          "lat": 51.03111,
+          "lon": 1.44839,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:33Z",
+          "lat": 51.03117,
+          "lon": 1.44843,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:34Z",
+          "lat": 51.03124,
+          "lon": 1.4485,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:35Z",
+          "lat": 51.0313,
+          "lon": 1.44857,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:36Z",
+          "lat": 51.03136,
+          "lon": 1.44861,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:37Z",
+          "lat": 51.03142,
+          "lon": 1.44867,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:38Z",
+          "lat": 51.03148,
+          "lon": 1.44872,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:39Z",
+          "lat": 51.03154,
+          "lon": 1.44878,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:40Z",
+          "lat": 51.0316,
+          "lon": 1.44882,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:41Z",
+          "lat": 51.03166,
+          "lon": 1.44888,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:42Z",
+          "lat": 51.03173,
+          "lon": 1.44895,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:43Z",
+          "lat": 51.0318,
+          "lon": 1.44901,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:44Z",
+          "lat": 51.03186,
+          "lon": 1.44906,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:45Z",
+          "lat": 51.03192,
+          "lon": 1.44912,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:46Z",
+          "lat": 51.03199,
+          "lon": 1.44917,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:47Z",
+          "lat": 51.03205,
+          "lon": 1.44923,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:48Z",
+          "lat": 51.03212,
+          "lon": 1.4493,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:49Z",
+          "lat": 51.03218,
+          "lon": 1.44936,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:50Z",
+          "lat": 51.03224,
+          "lon": 1.44942,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:51Z",
+          "lat": 51.0323,
+          "lon": 1.44948,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:52Z",
+          "lat": 51.03235,
+          "lon": 1.44953,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:53Z",
+          "lat": 51.03241,
+          "lon": 1.44959,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:54Z",
+          "lat": 51.03248,
+          "lon": 1.44965,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:55Z",
+          "lat": 51.03253,
+          "lon": 1.44971,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:56Z",
+          "lat": 51.03258,
+          "lon": 1.44976,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:57Z",
+          "lat": 51.03263,
+          "lon": 1.44983,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:58Z",
+          "lat": 51.03269,
+          "lon": 1.44986,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:41:59Z",
+          "lat": 51.03275,
+          "lon": 1.44993,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:00Z",
+          "lat": 51.0328,
+          "lon": 1.45001,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:01Z",
+          "lat": 51.03286,
+          "lon": 1.45006,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:02Z",
+          "lat": 51.03292,
+          "lon": 1.45012,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:03Z",
+          "lat": 51.03297,
+          "lon": 1.45017,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:04Z",
+          "lat": 51.03303,
+          "lon": 1.45022,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:05Z",
+          "lat": 51.03309,
+          "lon": 1.45028,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:06Z",
+          "lat": 51.03315,
+          "lon": 1.45033,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:07Z",
+          "lat": 51.03319,
+          "lon": 1.45039,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:08Z",
+          "lat": 51.03324,
+          "lon": 1.45046,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:09Z",
+          "lat": 51.0333,
+          "lon": 1.45051,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:10Z",
+          "lat": 51.03336,
+          "lon": 1.45056,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:11Z",
+          "lat": 51.03341,
+          "lon": 1.45062,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:12Z",
+          "lat": 51.03346,
+          "lon": 1.45069,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:13Z",
+          "lat": 51.03352,
+          "lon": 1.45076,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:14Z",
+          "lat": 51.03358,
+          "lon": 1.45082,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:15Z",
+          "lat": 51.03363,
+          "lon": 1.45089,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:16Z",
+          "lat": 51.03369,
+          "lon": 1.45095,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:17Z",
+          "lat": 51.03373,
+          "lon": 1.45101,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:18Z",
+          "lat": 51.03377,
+          "lon": 1.45107,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:19Z",
+          "lat": 51.03383,
+          "lon": 1.45113,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:20Z",
+          "lat": 51.03389,
+          "lon": 1.4512,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:21Z",
+          "lat": 51.03393,
+          "lon": 1.45127,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:22Z",
+          "lat": 51.03398,
+          "lon": 1.45133,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:23Z",
+          "lat": 51.03403,
+          "lon": 1.45141,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:24Z",
+          "lat": 51.03407,
+          "lon": 1.45149,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:25Z",
+          "lat": 51.03413,
+          "lon": 1.45157,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:26Z",
+          "lat": 51.03417,
+          "lon": 1.45164,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:27Z",
+          "lat": 51.03422,
+          "lon": 1.45172,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:28Z",
+          "lat": 51.03425,
+          "lon": 1.45179,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:29Z",
+          "lat": 51.03431,
+          "lon": 1.45186,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:30Z",
+          "lat": 51.03436,
+          "lon": 1.45193,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:31Z",
+          "lat": 51.03441,
+          "lon": 1.452,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:32Z",
+          "lat": 51.03445,
+          "lon": 1.45207,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:33Z",
+          "lat": 51.03449,
+          "lon": 1.45214,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:34Z",
+          "lat": 51.03453,
+          "lon": 1.45221,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:35Z",
+          "lat": 51.03458,
+          "lon": 1.45229,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:36Z",
+          "lat": 51.03462,
+          "lon": 1.45235,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:37Z",
+          "lat": 51.03466,
+          "lon": 1.45241,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:38Z",
+          "lat": 51.03469,
+          "lon": 1.4525,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:39Z",
+          "lat": 51.03475,
+          "lon": 1.45257,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:40Z",
+          "lat": 51.03479,
+          "lon": 1.45265,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:41Z",
+          "lat": 51.03483,
+          "lon": 1.45272,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:42Z",
+          "lat": 51.03487,
+          "lon": 1.4528,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:43Z",
+          "lat": 51.03491,
+          "lon": 1.45286,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:44Z",
+          "lat": 51.03496,
+          "lon": 1.45294,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:45Z",
+          "lat": 51.035,
+          "lon": 1.45301,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:46Z",
+          "lat": 51.03504,
+          "lon": 1.45309,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:47Z",
+          "lat": 51.03508,
+          "lon": 1.45317,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:48Z",
+          "lat": 51.03512,
+          "lon": 1.45325,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:49Z",
+          "lat": 51.03514,
+          "lon": 1.45333,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:50Z",
+          "lat": 51.03519,
+          "lon": 1.45339,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:51Z",
+          "lat": 51.03521,
+          "lon": 1.45347,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:52Z",
+          "lat": 51.03525,
+          "lon": 1.45355,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:53Z",
+          "lat": 51.03528,
+          "lon": 1.45363,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:54Z",
+          "lat": 51.0353,
+          "lon": 1.45371,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:55Z",
+          "lat": 51.03533,
+          "lon": 1.45378,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:56Z",
+          "lat": 51.03536,
+          "lon": 1.45387,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:57Z",
+          "lat": 51.03539,
+          "lon": 1.45395,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:58Z",
+          "lat": 51.03542,
+          "lon": 1.45404,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:42:59Z",
+          "lat": 51.03546,
+          "lon": 1.45413,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:00Z",
+          "lat": 51.03549,
+          "lon": 1.45421,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:01Z",
+          "lat": 51.03552,
+          "lon": 1.45429,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:02Z",
+          "lat": 51.03556,
+          "lon": 1.45439,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:03Z",
+          "lat": 51.03558,
+          "lon": 1.45447,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:04Z",
+          "lat": 51.03561,
+          "lon": 1.45456,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:05Z",
+          "lat": 51.03565,
+          "lon": 1.45465,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:06Z",
+          "lat": 51.03569,
+          "lon": 1.45474,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:07Z",
+          "lat": 51.03573,
+          "lon": 1.45483,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:08Z",
+          "lat": 51.03575,
+          "lon": 1.4549,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:09Z",
+          "lat": 51.03577,
+          "lon": 1.45499,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:10Z",
+          "lat": 51.03581,
+          "lon": 1.45506,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:11Z",
+          "lat": 51.03582,
+          "lon": 1.45513,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:12Z",
+          "lat": 51.03587,
+          "lon": 1.45521,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:13Z",
+          "lat": 51.0359,
+          "lon": 1.45528,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:14Z",
+          "lat": 51.03594,
+          "lon": 1.45536,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:15Z",
+          "lat": 51.03598,
+          "lon": 1.45545,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:16Z",
+          "lat": 51.03601,
+          "lon": 1.45553,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:17Z",
+          "lat": 51.03604,
+          "lon": 1.45561,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:18Z",
+          "lat": 51.03607,
+          "lon": 1.4557,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:19Z",
+          "lat": 51.03611,
+          "lon": 1.45577,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:20Z",
+          "lat": 51.03614,
+          "lon": 1.45585,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:21Z",
+          "lat": 51.03616,
+          "lon": 1.45592,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:22Z",
+          "lat": 51.0362,
+          "lon": 1.45601,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:23Z",
+          "lat": 51.03623,
+          "lon": 1.4561,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:24Z",
+          "lat": 51.03627,
+          "lon": 1.45617,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:25Z",
+          "lat": 51.03629,
+          "lon": 1.45624,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:26Z",
+          "lat": 51.03633,
+          "lon": 1.45633,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:27Z",
+          "lat": 51.03638,
+          "lon": 1.45642,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:28Z",
+          "lat": 51.03639,
+          "lon": 1.45651,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:29Z",
+          "lat": 51.03642,
+          "lon": 1.45659,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:30Z",
+          "lat": 51.03645,
+          "lon": 1.45668,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:31Z",
+          "lat": 51.03649,
+          "lon": 1.45676,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:32Z",
+          "lat": 51.03651,
+          "lon": 1.45684,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:33Z",
+          "lat": 51.03655,
+          "lon": 1.45692,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:34Z",
+          "lat": 51.03658,
+          "lon": 1.45702,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:35Z",
+          "lat": 51.03661,
+          "lon": 1.45709,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:36Z",
+          "lat": 51.03664,
+          "lon": 1.45718,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:37Z",
+          "lat": 51.03666,
+          "lon": 1.45727,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:38Z",
+          "lat": 51.03671,
+          "lon": 1.45735,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:39Z",
+          "lat": 51.03674,
+          "lon": 1.45745,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:40Z",
+          "lat": 51.03676,
+          "lon": 1.45753,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:41Z",
+          "lat": 51.03679,
+          "lon": 1.45761,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:42Z",
+          "lat": 51.03683,
+          "lon": 1.45769,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:43Z",
+          "lat": 51.03685,
+          "lon": 1.45777,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:44Z",
+          "lat": 51.03687,
+          "lon": 1.45784,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:45Z",
+          "lat": 51.03692,
+          "lon": 1.4579,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:46Z",
+          "lat": 51.03695,
+          "lon": 1.45797,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:47Z",
+          "lat": 51.03698,
+          "lon": 1.45806,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:48Z",
+          "lat": 51.03701,
+          "lon": 1.45814,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:49Z",
+          "lat": 51.03705,
+          "lon": 1.45822,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:50Z",
+          "lat": 51.03709,
+          "lon": 1.4583,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:51Z",
+          "lat": 51.03712,
+          "lon": 1.45836,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:52Z",
+          "lat": 51.03714,
+          "lon": 1.45844,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:53Z",
+          "lat": 51.03718,
+          "lon": 1.45853,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:54Z",
+          "lat": 51.03722,
+          "lon": 1.45862,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:55Z",
+          "lat": 51.03725,
+          "lon": 1.4587,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:56Z",
+          "lat": 51.03728,
+          "lon": 1.45879,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:57Z",
+          "lat": 51.03732,
+          "lon": 1.45886,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:58Z",
+          "lat": 51.03736,
+          "lon": 1.45893,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:43:59Z",
+          "lat": 51.0374,
+          "lon": 1.45901,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:00Z",
+          "lat": 51.03742,
+          "lon": 1.45909,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:01Z",
+          "lat": 51.03745,
+          "lon": 1.45919,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:02Z",
+          "lat": 51.03747,
+          "lon": 1.45927,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:03Z",
+          "lat": 51.03751,
+          "lon": 1.45935,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:04Z",
+          "lat": 51.03754,
+          "lon": 1.45944,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:05Z",
+          "lat": 51.03757,
+          "lon": 1.45953,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:06Z",
+          "lat": 51.03759,
+          "lon": 1.4596,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:07Z",
+          "lat": 51.03762,
+          "lon": 1.45969,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:08Z",
+          "lat": 51.03766,
+          "lon": 1.45978,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:09Z",
+          "lat": 51.03769,
+          "lon": 1.45986,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:10Z",
+          "lat": 51.03772,
+          "lon": 1.45994,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:11Z",
+          "lat": 51.03776,
+          "lon": 1.46002,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:12Z",
+          "lat": 51.03778,
+          "lon": 1.46011,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:13Z",
+          "lat": 51.03781,
+          "lon": 1.46021,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:14Z",
+          "lat": 51.03784,
+          "lon": 1.4603,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:15Z",
+          "lat": 51.03787,
+          "lon": 1.46038,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:16Z",
+          "lat": 51.0379,
+          "lon": 1.46046,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:17Z",
+          "lat": 51.03795,
+          "lon": 1.46055,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:18Z",
+          "lat": 51.03797,
+          "lon": 1.46063,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:19Z",
+          "lat": 51.03799,
+          "lon": 1.4607,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:20Z",
+          "lat": 51.03801,
+          "lon": 1.46079,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:21Z",
+          "lat": 51.03806,
+          "lon": 1.46088,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:22Z",
+          "lat": 51.03808,
+          "lon": 1.46096,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:23Z",
+          "lat": 51.03812,
+          "lon": 1.46104,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:24Z",
+          "lat": 51.03814,
+          "lon": 1.46112,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:25Z",
+          "lat": 51.03818,
+          "lon": 1.4612,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:26Z",
+          "lat": 51.0382,
+          "lon": 1.4613,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:27Z",
+          "lat": 51.03824,
+          "lon": 1.46138,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:28Z",
+          "lat": 51.03827,
+          "lon": 1.46146,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:29Z",
+          "lat": 51.0383,
+          "lon": 1.46154,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:30Z",
+          "lat": 51.03834,
+          "lon": 1.46162,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:31Z",
+          "lat": 51.03836,
+          "lon": 1.46172,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:32Z",
+          "lat": 51.03839,
+          "lon": 1.46179,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:33Z",
+          "lat": 51.03843,
+          "lon": 1.46187,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:34Z",
+          "lat": 51.03847,
+          "lon": 1.46194,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:35Z",
+          "lat": 51.03851,
+          "lon": 1.462,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:36Z",
+          "lat": 51.03853,
+          "lon": 1.46208,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:37Z",
+          "lat": 51.03856,
+          "lon": 1.46216,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:38Z",
+          "lat": 51.0386,
+          "lon": 1.46226,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:39Z",
+          "lat": 51.03863,
+          "lon": 1.46234,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:40Z",
+          "lat": 51.03867,
+          "lon": 1.46241,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:41Z",
+          "lat": 51.0387,
+          "lon": 1.46251,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:42Z",
+          "lat": 51.03873,
+          "lon": 1.46259,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:43Z",
+          "lat": 51.03877,
+          "lon": 1.46267,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:44Z",
+          "lat": 51.0388,
+          "lon": 1.46275,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:45Z",
+          "lat": 51.03884,
+          "lon": 1.46284,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:46Z",
+          "lat": 51.03888,
+          "lon": 1.46292,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:47Z",
+          "lat": 51.03891,
+          "lon": 1.46301,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:48Z",
+          "lat": 51.03895,
+          "lon": 1.46308,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:49Z",
+          "lat": 51.03899,
+          "lon": 1.46317,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:50Z",
+          "lat": 51.03902,
+          "lon": 1.46325,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:51Z",
+          "lat": 51.03905,
+          "lon": 1.46333,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:52Z",
+          "lat": 51.03908,
+          "lon": 1.46341,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:53Z",
+          "lat": 51.03911,
+          "lon": 1.4635,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:54Z",
+          "lat": 51.03914,
+          "lon": 1.46357,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:55Z",
+          "lat": 51.03917,
+          "lon": 1.46366,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:56Z",
+          "lat": 51.0392,
+          "lon": 1.46375,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:57Z",
+          "lat": 51.03923,
+          "lon": 1.46383,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:58Z",
+          "lat": 51.03926,
+          "lon": 1.46391,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:44:59Z",
+          "lat": 51.03929,
+          "lon": 1.46399,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:00Z",
+          "lat": 51.03932,
+          "lon": 1.46409,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:01Z",
+          "lat": 51.03935,
+          "lon": 1.46418,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:02Z",
+          "lat": 51.03939,
+          "lon": 1.46427,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:03Z",
+          "lat": 51.03941,
+          "lon": 1.46434,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:04Z",
+          "lat": 51.03944,
+          "lon": 1.46441,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:05Z",
+          "lat": 51.03948,
+          "lon": 1.46451,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:06Z",
+          "lat": 51.0395,
+          "lon": 1.4646,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:07Z",
+          "lat": 51.03954,
+          "lon": 1.46467,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:08Z",
+          "lat": 51.03956,
+          "lon": 1.46477,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:09Z",
+          "lat": 51.03959,
+          "lon": 1.46484,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:10Z",
+          "lat": 51.03963,
+          "lon": 1.46494,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:11Z",
+          "lat": 51.03967,
+          "lon": 1.46502,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:12Z",
+          "lat": 51.03969,
+          "lon": 1.46509,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:13Z",
+          "lat": 51.03972,
+          "lon": 1.46517,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:14Z",
+          "lat": 51.03976,
+          "lon": 1.46524,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:15Z",
+          "lat": 51.03979,
+          "lon": 1.46533,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:16Z",
+          "lat": 51.03981,
+          "lon": 1.46543,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:17Z",
+          "lat": 51.03985,
+          "lon": 1.4655,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:18Z",
+          "lat": 51.03988,
+          "lon": 1.46558,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:19Z",
+          "lat": 51.03991,
+          "lon": 1.46566,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:20Z",
+          "lat": 51.03993,
+          "lon": 1.46573,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:21Z",
+          "lat": 51.03996,
+          "lon": 1.46579,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:22Z",
+          "lat": 51.04,
+          "lon": 1.46586,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:23Z",
+          "lat": 51.04003,
+          "lon": 1.46593,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:24Z",
+          "lat": 51.04007,
+          "lon": 1.466,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:25Z",
+          "lat": 51.0401,
+          "lon": 1.46609,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:26Z",
+          "lat": 51.04014,
+          "lon": 1.46616,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:27Z",
+          "lat": 51.04016,
+          "lon": 1.46624,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:28Z",
+          "lat": 51.0402,
+          "lon": 1.46633,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:29Z",
+          "lat": 51.04022,
+          "lon": 1.46641,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:30Z",
+          "lat": 51.04025,
+          "lon": 1.46649,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:31Z",
+          "lat": 51.04029,
+          "lon": 1.46658,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:32Z",
+          "lat": 51.04033,
+          "lon": 1.46667,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:33Z",
+          "lat": 51.04037,
+          "lon": 1.46676,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:34Z",
+          "lat": 51.0404,
+          "lon": 1.46684,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:35Z",
+          "lat": 51.04041,
+          "lon": 1.46692,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:36Z",
+          "lat": 51.04044,
+          "lon": 1.46701,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:37Z",
+          "lat": 51.04048,
+          "lon": 1.46709,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:38Z",
+          "lat": 51.04052,
+          "lon": 1.46717,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:39Z",
+          "lat": 51.04055,
+          "lon": 1.46724,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:40Z",
+          "lat": 51.04058,
+          "lon": 1.46732,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:41Z",
+          "lat": 51.04062,
+          "lon": 1.46738,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:42Z",
+          "lat": 51.04064,
+          "lon": 1.46747,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:43Z",
+          "lat": 51.04067,
+          "lon": 1.46756,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:44Z",
+          "lat": 51.04071,
+          "lon": 1.46765,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:45Z",
+          "lat": 51.04072,
+          "lon": 1.46773,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:46Z",
+          "lat": 51.04075,
+          "lon": 1.46782,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:47Z",
+          "lat": 51.04078,
+          "lon": 1.46791,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:48Z",
+          "lat": 51.0408,
+          "lon": 1.46799,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:49Z",
+          "lat": 51.04084,
+          "lon": 1.46808,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:50Z",
+          "lat": 51.04086,
+          "lon": 1.46815,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:51Z",
+          "lat": 51.04091,
+          "lon": 1.46823,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:52Z",
+          "lat": 51.04094,
+          "lon": 1.46834,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:53Z",
+          "lat": 51.04097,
+          "lon": 1.46842,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:54Z",
+          "lat": 51.04099,
+          "lon": 1.46851,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:55Z",
+          "lat": 51.04103,
+          "lon": 1.46859,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:56Z",
+          "lat": 51.04107,
+          "lon": 1.46867,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:57Z",
+          "lat": 51.0411,
+          "lon": 1.46873,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:58Z",
+          "lat": 51.04113,
+          "lon": 1.46881,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:45:59Z",
+          "lat": 51.04116,
+          "lon": 1.4689,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:00Z",
+          "lat": 51.0412,
+          "lon": 1.46898,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:01Z",
+          "lat": 51.04123,
+          "lon": 1.46907,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:02Z",
+          "lat": 51.04126,
+          "lon": 1.46916,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:03Z",
+          "lat": 51.0413,
+          "lon": 1.46924,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:04Z",
+          "lat": 51.04133,
+          "lon": 1.4693,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:05Z",
+          "lat": 51.04135,
+          "lon": 1.4694,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:06Z",
+          "lat": 51.0414,
+          "lon": 1.46948,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:07Z",
+          "lat": 51.04143,
+          "lon": 1.46956,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:08Z",
+          "lat": 51.04146,
+          "lon": 1.46963,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:09Z",
+          "lat": 51.04149,
+          "lon": 1.4697,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:10Z",
+          "lat": 51.04153,
+          "lon": 1.46978,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:11Z",
+          "lat": 51.04156,
+          "lon": 1.46988,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:12Z",
+          "lat": 51.0416,
+          "lon": 1.46998,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:13Z",
+          "lat": 51.04162,
+          "lon": 1.47007,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:14Z",
+          "lat": 51.04165,
+          "lon": 1.47014,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:15Z",
+          "lat": 51.0417,
+          "lon": 1.47022,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:16Z",
+          "lat": 51.04173,
+          "lon": 1.4703,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:17Z",
+          "lat": 51.04175,
+          "lon": 1.47039,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:18Z",
+          "lat": 51.04178,
+          "lon": 1.47048,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:19Z",
+          "lat": 51.04181,
+          "lon": 1.47057,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:20Z",
+          "lat": 51.04184,
+          "lon": 1.47066,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:21Z",
+          "lat": 51.04188,
+          "lon": 1.47074,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:22Z",
+          "lat": 51.0419,
+          "lon": 1.47082,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:23Z",
+          "lat": 51.04192,
+          "lon": 1.47091,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:24Z",
+          "lat": 51.04194,
+          "lon": 1.47101,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:25Z",
+          "lat": 51.04198,
+          "lon": 1.47109,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:26Z",
+          "lat": 51.042,
+          "lon": 1.47117,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:27Z",
+          "lat": 51.04203,
+          "lon": 1.47125,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:28Z",
+          "lat": 51.04206,
+          "lon": 1.47134,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:29Z",
+          "lat": 51.04209,
+          "lon": 1.47141,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:30Z",
+          "lat": 51.04213,
+          "lon": 1.47149,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:31Z",
+          "lat": 51.04216,
+          "lon": 1.47159,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:32Z",
+          "lat": 51.04221,
+          "lon": 1.47167,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:33Z",
+          "lat": 51.04223,
+          "lon": 1.47174,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:34Z",
+          "lat": 51.04226,
+          "lon": 1.47183,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:35Z",
+          "lat": 51.0423,
+          "lon": 1.47188,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:36Z",
+          "lat": 51.04234,
+          "lon": 1.47196,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:37Z",
+          "lat": 51.04237,
+          "lon": 1.47204,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:38Z",
+          "lat": 51.0424,
+          "lon": 1.47213,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:39Z",
+          "lat": 51.04242,
+          "lon": 1.47222,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:40Z",
+          "lat": 51.04245,
+          "lon": 1.47231,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:41Z",
+          "lat": 51.04248,
+          "lon": 1.47239,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:42Z",
+          "lat": 51.04252,
+          "lon": 1.47247,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:43Z",
+          "lat": 51.04255,
+          "lon": 1.47254,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:44Z",
+          "lat": 51.04258,
+          "lon": 1.47263,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:45Z",
+          "lat": 51.04261,
+          "lon": 1.47272,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:46Z",
+          "lat": 51.04264,
+          "lon": 1.47279,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:47Z",
+          "lat": 51.04267,
+          "lon": 1.47287,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:48Z",
+          "lat": 51.0427,
+          "lon": 1.47295,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:49Z",
+          "lat": 51.04272,
+          "lon": 1.47304,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:50Z",
+          "lat": 51.04275,
+          "lon": 1.47312,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:51Z",
+          "lat": 51.04278,
+          "lon": 1.47322,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:52Z",
+          "lat": 51.0428,
+          "lon": 1.4733,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:53Z",
+          "lat": 51.04284,
+          "lon": 1.47337,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:54Z",
+          "lat": 51.04287,
+          "lon": 1.47345,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:55Z",
+          "lat": 51.0429,
+          "lon": 1.47352,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:56Z",
+          "lat": 51.04293,
+          "lon": 1.47361,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:57Z",
+          "lat": 51.04297,
+          "lon": 1.47369,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:58Z",
+          "lat": 51.043,
+          "lon": 1.47377,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:46:59Z",
+          "lat": 51.04303,
+          "lon": 1.47385,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:00Z",
+          "lat": 51.04307,
+          "lon": 1.47395,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:01Z",
+          "lat": 51.04311,
+          "lon": 1.474,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:02Z",
+          "lat": 51.04313,
+          "lon": 1.4741,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:03Z",
+          "lat": 51.04316,
+          "lon": 1.47418,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:04Z",
+          "lat": 51.0432,
+          "lon": 1.47428,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:05Z",
+          "lat": 51.04323,
+          "lon": 1.47435,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:06Z",
+          "lat": 51.04326,
+          "lon": 1.47442,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:07Z",
+          "lat": 51.04328,
+          "lon": 1.47451,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:08Z",
+          "lat": 51.04332,
+          "lon": 1.47458,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:09Z",
+          "lat": 51.04335,
+          "lon": 1.47465,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:10Z",
+          "lat": 51.04338,
+          "lon": 1.47472,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:11Z",
+          "lat": 51.0434,
+          "lon": 1.47481,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:12Z",
+          "lat": 51.04344,
+          "lon": 1.4749,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:13Z",
+          "lat": 51.04347,
+          "lon": 1.47499,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:14Z",
+          "lat": 51.0435,
+          "lon": 1.47506,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:15Z",
+          "lat": 51.04353,
+          "lon": 1.47516,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:16Z",
+          "lat": 51.04356,
+          "lon": 1.47525,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:17Z",
+          "lat": 51.0436,
+          "lon": 1.47533,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:18Z",
+          "lat": 51.04362,
+          "lon": 1.47542,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:19Z",
+          "lat": 51.04366,
+          "lon": 1.47549,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:20Z",
+          "lat": 51.04369,
+          "lon": 1.47559,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:21Z",
+          "lat": 51.04372,
+          "lon": 1.47568,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:22Z",
+          "lat": 51.04375,
+          "lon": 1.47575,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:23Z",
+          "lat": 51.04378,
+          "lon": 1.47585,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:24Z",
+          "lat": 51.04383,
+          "lon": 1.47593,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:25Z",
+          "lat": 51.04387,
+          "lon": 1.47601,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:26Z",
+          "lat": 51.04391,
+          "lon": 1.47609,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:27Z",
+          "lat": 51.04394,
+          "lon": 1.47616,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:28Z",
+          "lat": 51.04396,
+          "lon": 1.47624,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:29Z",
+          "lat": 51.04399,
+          "lon": 1.47632,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:30Z",
+          "lat": 51.04402,
+          "lon": 1.47641,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:31Z",
+          "lat": 51.04406,
+          "lon": 1.47649,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:32Z",
+          "lat": 51.0441,
+          "lon": 1.47655,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:33Z",
+          "lat": 51.04413,
+          "lon": 1.47664,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:34Z",
+          "lat": 51.04415,
+          "lon": 1.47671,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:35Z",
+          "lat": 51.0442,
+          "lon": 1.4768,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:36Z",
+          "lat": 51.04424,
+          "lon": 1.47688,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:37Z",
+          "lat": 51.04427,
+          "lon": 1.47697,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:38Z",
+          "lat": 51.0443,
+          "lon": 1.47704,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:39Z",
+          "lat": 51.04433,
+          "lon": 1.47713,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:40Z",
+          "lat": 51.04436,
+          "lon": 1.47721,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:41Z",
+          "lat": 51.04438,
+          "lon": 1.47729,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:42Z",
+          "lat": 51.04441,
+          "lon": 1.47737,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:43Z",
+          "lat": 51.04444,
+          "lon": 1.47745,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:44Z",
+          "lat": 51.04446,
+          "lon": 1.47754,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:45Z",
+          "lat": 51.0445,
+          "lon": 1.47761,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:46Z",
+          "lat": 51.04454,
+          "lon": 1.4777,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:47Z",
+          "lat": 51.04457,
+          "lon": 1.47776,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:48Z",
+          "lat": 51.04461,
+          "lon": 1.47784,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:49Z",
+          "lat": 51.04463,
+          "lon": 1.47795,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:50Z",
+          "lat": 51.04466,
+          "lon": 1.47804,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:51Z",
+          "lat": 51.0447,
+          "lon": 1.47813,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:52Z",
+          "lat": 51.04473,
+          "lon": 1.4782,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:53Z",
+          "lat": 51.04475,
+          "lon": 1.4783,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:54Z",
+          "lat": 51.04481,
+          "lon": 1.47837,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:55Z",
+          "lat": 51.04484,
+          "lon": 1.47846,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:56Z",
+          "lat": 51.04487,
+          "lon": 1.47854,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:57Z",
+          "lat": 51.0449,
+          "lon": 1.47863,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:58Z",
+          "lat": 51.04492,
+          "lon": 1.47872,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:47:59Z",
+          "lat": 51.04496,
+          "lon": 1.4788,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:00Z",
+          "lat": 51.045,
+          "lon": 1.47889,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:01Z",
+          "lat": 51.04503,
+          "lon": 1.47898,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:02Z",
+          "lat": 51.04505,
+          "lon": 1.47906,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:03Z",
+          "lat": 51.04508,
+          "lon": 1.47914,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:04Z",
+          "lat": 51.0451,
+          "lon": 1.47923,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:05Z",
+          "lat": 51.04514,
+          "lon": 1.47931,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:06Z",
+          "lat": 51.04517,
+          "lon": 1.47939,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:07Z",
+          "lat": 51.04521,
+          "lon": 1.47948,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:08Z",
+          "lat": 51.04526,
+          "lon": 1.47956,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:09Z",
+          "lat": 51.04528,
+          "lon": 1.47967,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:10Z",
+          "lat": 51.04532,
+          "lon": 1.47975,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:11Z",
+          "lat": 51.04535,
+          "lon": 1.47981,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:12Z",
+          "lat": 51.04538,
+          "lon": 1.4799,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:13Z",
+          "lat": 51.04542,
+          "lon": 1.47997,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:14Z",
+          "lat": 51.04545,
+          "lon": 1.48005,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:15Z",
+          "lat": 51.04548,
+          "lon": 1.48012,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:16Z",
+          "lat": 51.04552,
+          "lon": 1.4802,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:17Z",
+          "lat": 51.04554,
+          "lon": 1.48027,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:18Z",
+          "lat": 51.04558,
+          "lon": 1.48036,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:19Z",
+          "lat": 51.04561,
+          "lon": 1.48041,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:20Z",
+          "lat": 51.04565,
+          "lon": 1.4805,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:21Z",
+          "lat": 51.04568,
+          "lon": 1.48057,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:22Z",
+          "lat": 51.04571,
+          "lon": 1.48066,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:23Z",
+          "lat": 51.04575,
+          "lon": 1.48074,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:24Z",
+          "lat": 51.04577,
+          "lon": 1.48081,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:25Z",
+          "lat": 51.0458,
+          "lon": 1.48088,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:26Z",
+          "lat": 51.04583,
+          "lon": 1.48097,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:27Z",
+          "lat": 51.04587,
+          "lon": 1.48104,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:28Z",
+          "lat": 51.0459,
+          "lon": 1.4811,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:29Z",
+          "lat": 51.04592,
+          "lon": 1.48118,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:30Z",
+          "lat": 51.04596,
+          "lon": 1.48126,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:31Z",
+          "lat": 51.04599,
+          "lon": 1.48135,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:32Z",
+          "lat": 51.04602,
+          "lon": 1.48141,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:33Z",
+          "lat": 51.04605,
+          "lon": 1.48151,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:34Z",
+          "lat": 51.04608,
+          "lon": 1.4816,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:35Z",
+          "lat": 51.0461,
+          "lon": 1.48169,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:36Z",
+          "lat": 51.04614,
+          "lon": 1.48177,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:37Z",
+          "lat": 51.04617,
+          "lon": 1.48186,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:38Z",
+          "lat": 51.0462,
+          "lon": 1.48194,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:39Z",
+          "lat": 51.04623,
+          "lon": 1.48202,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:40Z",
+          "lat": 51.04626,
+          "lon": 1.48212,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:41Z",
+          "lat": 51.04628,
+          "lon": 1.4822,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:42Z",
+          "lat": 51.04631,
+          "lon": 1.48229,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:43Z",
+          "lat": 51.04634,
+          "lon": 1.48238,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:44Z",
+          "lat": 51.04638,
+          "lon": 1.48245,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:45Z",
+          "lat": 51.04641,
+          "lon": 1.48252,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:46Z",
+          "lat": 51.04644,
+          "lon": 1.48261,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:47Z",
+          "lat": 51.04648,
+          "lon": 1.48268,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:48Z",
+          "lat": 51.0465,
+          "lon": 1.48276,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:49Z",
+          "lat": 51.04652,
+          "lon": 1.48284,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:50Z",
+          "lat": 51.04656,
+          "lon": 1.48291,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:51Z",
+          "lat": 51.04658,
+          "lon": 1.483,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:52Z",
+          "lat": 51.0466,
+          "lon": 1.48308,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:53Z",
+          "lat": 51.04662,
+          "lon": 1.48318,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:54Z",
+          "lat": 51.04665,
+          "lon": 1.48326,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:55Z",
+          "lat": 51.04668,
+          "lon": 1.48335,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:56Z",
+          "lat": 51.04671,
+          "lon": 1.48344,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:57Z",
+          "lat": 51.04674,
+          "lon": 1.48353,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:58Z",
+          "lat": 51.04677,
+          "lon": 1.4836,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:48:59Z",
+          "lat": 51.04679,
+          "lon": 1.48369,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:00Z",
+          "lat": 51.03591,
+          "lon": 1.49375,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:01Z",
+          "lat": 51.03594,
+          "lon": 1.49383,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:02Z",
+          "lat": 51.03597,
+          "lon": 1.4939,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:03Z",
+          "lat": 51.036,
+          "lon": 1.49398,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:04Z",
+          "lat": 51.03602,
+          "lon": 1.49404,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:05Z",
+          "lat": 51.03606,
+          "lon": 1.49414,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:06Z",
+          "lat": 51.0361,
+          "lon": 1.49422,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:07Z",
+          "lat": 51.03613,
+          "lon": 1.4943,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:08Z",
+          "lat": 51.03617,
+          "lon": 1.4944,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:09Z",
+          "lat": 51.0362,
+          "lon": 1.4945,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:10Z",
+          "lat": 51.03621,
+          "lon": 1.49459,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:11Z",
+          "lat": 51.03626,
+          "lon": 1.49468,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:12Z",
+          "lat": 51.03629,
+          "lon": 1.49477,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:13Z",
+          "lat": 51.03631,
+          "lon": 1.49485,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:14Z",
+          "lat": 51.03635,
+          "lon": 1.49493,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:15Z",
+          "lat": 51.03639,
+          "lon": 1.495,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:16Z",
+          "lat": 51.03642,
+          "lon": 1.49508,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:17Z",
+          "lat": 51.03646,
+          "lon": 1.49517,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:18Z",
+          "lat": 51.0365,
+          "lon": 1.49526,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:19Z",
+          "lat": 51.03654,
+          "lon": 1.49534,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:20Z",
+          "lat": 51.03657,
+          "lon": 1.49542,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:21Z",
+          "lat": 51.0366,
+          "lon": 1.49548,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:22Z",
+          "lat": 51.03663,
+          "lon": 1.49557,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:23Z",
+          "lat": 51.03666,
+          "lon": 1.49565,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:24Z",
+          "lat": 51.0367,
+          "lon": 1.49573,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:25Z",
+          "lat": 51.03672,
+          "lon": 1.49581,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:26Z",
+          "lat": 51.03675,
+          "lon": 1.49587,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:27Z",
+          "lat": 51.03678,
+          "lon": 1.49595,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:28Z",
+          "lat": 51.03682,
+          "lon": 1.49604,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:29Z",
+          "lat": 51.03685,
+          "lon": 1.49612,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:30Z",
+          "lat": 51.03689,
+          "lon": 1.49622,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:31Z",
+          "lat": 51.03692,
+          "lon": 1.49631,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:32Z",
+          "lat": 51.03695,
+          "lon": 1.49638,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:33Z",
+          "lat": 51.03697,
+          "lon": 1.49644,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:34Z",
+          "lat": 51.03699,
+          "lon": 1.49653,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:35Z",
+          "lat": 51.03703,
+          "lon": 1.49661,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:36Z",
+          "lat": 51.03707,
+          "lon": 1.4967,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:37Z",
+          "lat": 51.0371,
+          "lon": 1.49678,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:38Z",
+          "lat": 51.03713,
+          "lon": 1.49686,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:39Z",
+          "lat": 51.03715,
+          "lon": 1.49692,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:40Z",
+          "lat": 51.03718,
+          "lon": 1.49701,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:41Z",
+          "lat": 51.03721,
+          "lon": 1.49711,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:42Z",
+          "lat": 51.03724,
+          "lon": 1.49721,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:43Z",
+          "lat": 51.03726,
+          "lon": 1.4973,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:44Z",
+          "lat": 51.03729,
+          "lon": 1.49737,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:45Z",
+          "lat": 51.03732,
+          "lon": 1.49747,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:46Z",
+          "lat": 51.03734,
+          "lon": 1.49755,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:47Z",
+          "lat": 51.03738,
+          "lon": 1.49762,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:48Z",
+          "lat": 51.0374,
+          "lon": 1.49772,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:49Z",
+          "lat": 51.03743,
+          "lon": 1.4978,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:50Z",
+          "lat": 51.03746,
+          "lon": 1.4979,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:51Z",
+          "lat": 51.03748,
+          "lon": 1.49797,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:52Z",
+          "lat": 51.03751,
+          "lon": 1.49803,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:53Z",
+          "lat": 51.03754,
+          "lon": 1.49811,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:54Z",
+          "lat": 51.03758,
+          "lon": 1.49819,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:55Z",
+          "lat": 51.03763,
+          "lon": 1.49828,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:56Z",
+          "lat": 51.03765,
+          "lon": 1.49835,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:57Z",
+          "lat": 51.03769,
+          "lon": 1.49843,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:58Z",
+          "lat": 51.03771,
+          "lon": 1.49851,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:49:59Z",
+          "lat": 51.03775,
+          "lon": 1.49862,
+          "flagged": true
+        },
+        {
+          "utc": "2026-06-03T14:50:00Z",
+          "lat": 51.03779,
+          "lon": 1.49869,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:02Z",
+          "lat": 51.03788,
+          "lon": 1.49885,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:04Z",
+          "lat": 51.03795,
+          "lon": 1.49902,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:06Z",
+          "lat": 51.038,
+          "lon": 1.49919,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:08Z",
+          "lat": 51.03806,
+          "lon": 1.49935,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:10Z",
+          "lat": 51.03813,
+          "lon": 1.49956,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:12Z",
+          "lat": 51.0382,
+          "lon": 1.49975,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:14Z",
+          "lat": 51.03827,
+          "lon": 1.49991,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:16Z",
+          "lat": 51.03834,
+          "lon": 1.50009,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:18Z",
+          "lat": 51.03842,
+          "lon": 1.50026,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:20Z",
+          "lat": 51.03847,
+          "lon": 1.50042,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:22Z",
+          "lat": 51.03853,
+          "lon": 1.50057,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:24Z",
+          "lat": 51.0386,
+          "lon": 1.5007,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:26Z",
+          "lat": 51.03867,
+          "lon": 1.50086,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:28Z",
+          "lat": 51.03871,
+          "lon": 1.50101,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:30Z",
+          "lat": 51.03878,
+          "lon": 1.50119,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:32Z",
+          "lat": 51.03884,
+          "lon": 1.50136,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:34Z",
+          "lat": 51.03891,
+          "lon": 1.50152,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:36Z",
+          "lat": 51.03897,
+          "lon": 1.50171,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:38Z",
+          "lat": 51.03904,
+          "lon": 1.50184,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:40Z",
+          "lat": 51.03911,
+          "lon": 1.502,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:42Z",
+          "lat": 51.03918,
+          "lon": 1.50215,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:44Z",
+          "lat": 51.03924,
+          "lon": 1.50232,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:46Z",
+          "lat": 51.0393,
+          "lon": 1.5025,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:48Z",
+          "lat": 51.03936,
+          "lon": 1.5027,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:50Z",
+          "lat": 51.03942,
+          "lon": 1.50289,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:52Z",
+          "lat": 51.03946,
+          "lon": 1.50305,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:54Z",
+          "lat": 51.03953,
+          "lon": 1.5032,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:56Z",
+          "lat": 51.03959,
+          "lon": 1.50335,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:50:58Z",
+          "lat": 51.03966,
+          "lon": 1.50351,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:00Z",
+          "lat": 51.03971,
+          "lon": 1.50368,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:02Z",
+          "lat": 51.03977,
+          "lon": 1.50384,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:04Z",
+          "lat": 51.03983,
+          "lon": 1.504,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:06Z",
+          "lat": 51.03989,
+          "lon": 1.50416,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:08Z",
+          "lat": 51.03996,
+          "lon": 1.50433,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:10Z",
+          "lat": 51.04003,
+          "lon": 1.50451,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:12Z",
+          "lat": 51.04009,
+          "lon": 1.50467,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:14Z",
+          "lat": 51.04015,
+          "lon": 1.50484,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:16Z",
+          "lat": 51.04023,
+          "lon": 1.50501,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:18Z",
+          "lat": 51.04029,
+          "lon": 1.50516,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:20Z",
+          "lat": 51.04035,
+          "lon": 1.50534,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:22Z",
+          "lat": 51.04042,
+          "lon": 1.5055,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:24Z",
+          "lat": 51.04048,
+          "lon": 1.50565,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:26Z",
+          "lat": 51.04054,
+          "lon": 1.50579,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:28Z",
+          "lat": 51.04061,
+          "lon": 1.50595,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:30Z",
+          "lat": 51.04068,
+          "lon": 1.50612,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:32Z",
+          "lat": 51.04074,
+          "lon": 1.50628,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:34Z",
+          "lat": 51.0408,
+          "lon": 1.50645,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:36Z",
+          "lat": 51.04087,
+          "lon": 1.50662,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:38Z",
+          "lat": 51.04093,
+          "lon": 1.50676,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:40Z",
+          "lat": 51.04101,
+          "lon": 1.50692,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:42Z",
+          "lat": 51.04108,
+          "lon": 1.50709,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:44Z",
+          "lat": 51.04115,
+          "lon": 1.50725,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:46Z",
+          "lat": 51.0412,
+          "lon": 1.50743,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:48Z",
+          "lat": 51.04126,
+          "lon": 1.50759,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:50Z",
+          "lat": 51.04132,
+          "lon": 1.50778,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:52Z",
+          "lat": 51.04138,
+          "lon": 1.50794,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:54Z",
+          "lat": 51.04143,
+          "lon": 1.5081,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:56Z",
+          "lat": 51.0415,
+          "lon": 1.50828,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:51:58Z",
+          "lat": 51.04156,
+          "lon": 1.50845,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:00Z",
+          "lat": 51.04162,
+          "lon": 1.50861,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:02Z",
+          "lat": 51.04168,
+          "lon": 1.50876,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:04Z",
+          "lat": 51.04174,
+          "lon": 1.50892,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:06Z",
+          "lat": 51.04181,
+          "lon": 1.50909,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:08Z",
+          "lat": 51.04187,
+          "lon": 1.50926,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:10Z",
+          "lat": 51.04193,
+          "lon": 1.50943,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:12Z",
+          "lat": 51.04198,
+          "lon": 1.50959,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:14Z",
+          "lat": 51.04203,
+          "lon": 1.50975,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:16Z",
+          "lat": 51.04209,
+          "lon": 1.50992,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:18Z",
+          "lat": 51.04215,
+          "lon": 1.51009,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:20Z",
+          "lat": 51.04221,
+          "lon": 1.51026,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:22Z",
+          "lat": 51.04227,
+          "lon": 1.51043,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:24Z",
+          "lat": 51.04233,
+          "lon": 1.51061,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:26Z",
+          "lat": 51.04239,
+          "lon": 1.51078,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:28Z",
+          "lat": 51.04247,
+          "lon": 1.51093,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:30Z",
+          "lat": 51.04253,
+          "lon": 1.51108,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:32Z",
+          "lat": 51.04259,
+          "lon": 1.51127,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:34Z",
+          "lat": 51.04267,
+          "lon": 1.51142,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:36Z",
+          "lat": 51.04273,
+          "lon": 1.5116,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:38Z",
+          "lat": 51.04279,
+          "lon": 1.51176,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:40Z",
+          "lat": 51.04285,
+          "lon": 1.51192,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:42Z",
+          "lat": 51.04289,
+          "lon": 1.51208,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:44Z",
+          "lat": 51.04296,
+          "lon": 1.51225,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:46Z",
+          "lat": 51.04302,
+          "lon": 1.51243,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:48Z",
+          "lat": 51.04309,
+          "lon": 1.51258,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:50Z",
+          "lat": 51.04315,
+          "lon": 1.51275,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:52Z",
+          "lat": 51.04322,
+          "lon": 1.51291,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:54Z",
+          "lat": 51.04327,
+          "lon": 1.51308,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:56Z",
+          "lat": 51.04333,
+          "lon": 1.51324,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:52:58Z",
+          "lat": 51.0434,
+          "lon": 1.51339,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:00Z",
+          "lat": 51.04347,
+          "lon": 1.51357,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:02Z",
+          "lat": 51.04352,
+          "lon": 1.51372,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:04Z",
+          "lat": 51.04359,
+          "lon": 1.51389,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:06Z",
+          "lat": 51.04364,
+          "lon": 1.51406,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:08Z",
+          "lat": 51.04371,
+          "lon": 1.51421,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:10Z",
+          "lat": 51.04378,
+          "lon": 1.51437,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:12Z",
+          "lat": 51.04384,
+          "lon": 1.51453,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:14Z",
+          "lat": 51.04391,
+          "lon": 1.5147,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:16Z",
+          "lat": 51.04397,
+          "lon": 1.51487,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:18Z",
+          "lat": 51.04403,
+          "lon": 1.51501,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:20Z",
+          "lat": 51.0441,
+          "lon": 1.51516,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:22Z",
+          "lat": 51.04418,
+          "lon": 1.51532,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:24Z",
+          "lat": 51.04426,
+          "lon": 1.51549,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:26Z",
+          "lat": 51.04432,
+          "lon": 1.51564,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:28Z",
+          "lat": 51.04438,
+          "lon": 1.51579,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:30Z",
+          "lat": 51.04445,
+          "lon": 1.51596,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:32Z",
+          "lat": 51.04452,
+          "lon": 1.51613,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:34Z",
+          "lat": 51.04457,
+          "lon": 1.51631,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:36Z",
+          "lat": 51.04463,
+          "lon": 1.51647,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:38Z",
+          "lat": 51.0447,
+          "lon": 1.51664,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:40Z",
+          "lat": 51.04475,
+          "lon": 1.51682,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:42Z",
+          "lat": 51.04481,
+          "lon": 1.51698,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:44Z",
+          "lat": 51.04486,
+          "lon": 1.51715,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:46Z",
+          "lat": 51.04493,
+          "lon": 1.51733,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:48Z",
+          "lat": 51.04499,
+          "lon": 1.51748,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:50Z",
+          "lat": 51.04504,
+          "lon": 1.51767,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:52Z",
+          "lat": 51.04509,
+          "lon": 1.51784,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:54Z",
+          "lat": 51.04516,
+          "lon": 1.51801,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:56Z",
+          "lat": 51.04522,
+          "lon": 1.51817,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:53:58Z",
+          "lat": 51.04528,
+          "lon": 1.51833,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:00Z",
+          "lat": 51.04535,
+          "lon": 1.5185,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:02Z",
+          "lat": 51.04542,
+          "lon": 1.51868,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:04Z",
+          "lat": 51.04548,
+          "lon": 1.51885,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:06Z",
+          "lat": 51.04554,
+          "lon": 1.519,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:08Z",
+          "lat": 51.04561,
+          "lon": 1.51917,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:10Z",
+          "lat": 51.04567,
+          "lon": 1.51933,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:12Z",
+          "lat": 51.04574,
+          "lon": 1.51949,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:14Z",
+          "lat": 51.0458,
+          "lon": 1.51967,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:16Z",
+          "lat": 51.04587,
+          "lon": 1.51981,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:18Z",
+          "lat": 51.04593,
+          "lon": 1.52,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:20Z",
+          "lat": 51.046,
+          "lon": 1.52016,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:22Z",
+          "lat": 51.04606,
+          "lon": 1.52033,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:24Z",
+          "lat": 51.04614,
+          "lon": 1.5205,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:26Z",
+          "lat": 51.0462,
+          "lon": 1.52065,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:28Z",
+          "lat": 51.04626,
+          "lon": 1.52081,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:30Z",
+          "lat": 51.04632,
+          "lon": 1.52098,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:32Z",
+          "lat": 51.0464,
+          "lon": 1.52115,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:34Z",
+          "lat": 51.04646,
+          "lon": 1.52132,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:36Z",
+          "lat": 51.04653,
+          "lon": 1.52148,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:38Z",
+          "lat": 51.04659,
+          "lon": 1.52165,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:40Z",
+          "lat": 51.04666,
+          "lon": 1.52181,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:42Z",
+          "lat": 51.04671,
+          "lon": 1.52199,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:44Z",
+          "lat": 51.04677,
+          "lon": 1.52217,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:46Z",
+          "lat": 51.04683,
+          "lon": 1.52234,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:48Z",
+          "lat": 51.04689,
+          "lon": 1.52252,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:50Z",
+          "lat": 51.04696,
+          "lon": 1.52267,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:52Z",
+          "lat": 51.04702,
+          "lon": 1.52285,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:54Z",
+          "lat": 51.04709,
+          "lon": 1.52301,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:56Z",
+          "lat": 51.04715,
+          "lon": 1.52317,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:54:58Z",
+          "lat": 51.04722,
+          "lon": 1.52332,
+          "flagged": false
+        },
+        {
+          "utc": "2026-06-03T14:55:00Z",
+          "lat": 51.04728,
+          "lon": 1.52349,
+          "flagged": false
+        }
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "utc": "2026-06-03T14:33:20Z",
+      "kind": "window",
+      "class": "stated",
+      "text": "incident window opens"
+    },
+    {
+      "utc": "2026-06-03T14:37:01Z",
+      "kind": "onset",
+      "class": "modelled",
+      "text": "spoofing begins (Bridge GNSS, measured)",
+      "finding": "F1"
+    },
+    {
+      "utc": "2026-06-03T14:49:59Z",
+      "kind": "end",
+      "class": "modelled",
+      "text": "spoofing last seen (Bridge GNSS)",
+      "finding": "F1"
+    },
+    {
+      "utc": "2026-06-03T14:55:00Z",
+      "kind": "window",
+      "class": "stated",
+      "text": "incident window closes"
+    }
+  ],
+  "statements": [],
+  "checklist": [
+    {
+      "id": "C1",
+      "item": "Every input file is hashed (SHA-256) in the report",
+      "required_for": "both",
+      "result": "pass",
+      "detail": "1 file(s)"
+    },
+    {
+      "id": "C2",
+      "item": "Every receiver log states absolute time (UTC), so it can be placed in the window",
+      "required_for": "both",
+      "result": "pass",
+      "detail": "all receiver logs carry UTC"
+    },
+    {
+      "id": "C3",
+      "item": "Every input covers at least 90 % of the incident window",
+      "required_for": "claim-grade",
+      "result": "pass",
+      "detail": "all inputs cover the window"
+    },
+    {
+      "id": "C4",
+      "item": "Each receiver's baseline (calibration window) ends before the incident window opens",
+      "required_for": "claim-grade",
+      "result": "pass",
+      "detail": "every baseline precedes the window"
+    },
+    {
+      "id": "C5",
+      "item": "A chain-of-custody record for every input (who sent it, when, how)",
+      "required_for": "claim-grade",
+      "result": "fail",
+      "detail": "no record for: Bridge GNSS"
+    },
+    {
+      "id": "C6",
+      "item": "Hashes stated by the senders match the files received",
+      "required_for": "both",
+      "result": "pass",
+      "detail": "no mismatch"
+    },
+    {
+      "id": "C7",
+      "item": "At least two independent sources with data in the window",
+      "required_for": "claim-grade",
+      "result": "fail",
+      "detail": "1 source(s) with data in the window"
+    },
+    {
+      "id": "C8",
+      "item": "Every attributed finding is corroborated by an independent source (high confidence)",
+      "required_for": "claim-grade",
+      "result": "fail",
+      "detail": "indicative only (not corroborated): F1; the report states them, claim-grade does not rest on them"
+    },
+    {
+      "id": "C9",
+      "item": "An open-engine evidence pack for every receiver log, inside the signed bundle",
+      "required_for": "claim-grade",
+      "result": "pending",
+      "detail": "written with the bundle"
+    },
+    {
+      "id": "C10",
+      "item": "Expert review completed and signed by a named reviewer",
+      "required_for": "claim-grade",
+      "result": "pass",
+      "detail": "not required for the standard pack"
+    }
+  ],
+  "expert_review": {
+    "required": false,
+    "status": "not-required",
+    "reviewer_name": null,
+    "qualification": null,
+    "organisation": null,
+    "independence_statement": null,
+    "decision": null,
+    "statement": null,
+    "reviewed_utc": null,
+    "how_to_complete": "The reviewer runs `kshana-pro forensics review <bundle> --reviewer <name> --qualification <text> --organisation <text> --independence <text> --decision <concur|concur-with-reservations|do-not-concur> --statement-file <file> --key-file <reviewer key>`; the issuer then re-signs the bundle."
+  },
+  "limits": [
+    "The method's pre-registered detection bars on a labelled set (roadmap V2: public events plus synthetic) are not yet met. The method has been exercised on the open engine's synthetic training scenarios only; no detection rate, false-alarm rate or accuracy is claimed for real incidents.",
+    "Findings rest only on the files listed under Inputs. Data that was not supplied (other receivers, radar, VHF, the crew's observations) may change them.",
+    "Receiver-log times are as the receiver stated them; a spoofed receiver can state a false time, which the time-consistency monitor tests only against the log's own sequence.",
+    "AIS and ADS-B positions are broadcasts by the vessels and aircraft themselves (REPORTED): under spoofing they show the false position, and their absence can have causes other than interference (coverage, equipment, switch-off).",
+    "The affected area is the extent of the observers that showed an effect. No emitter location is estimated here.",
+    "Confidence levels follow the stated points rule; they are not probabilities."
+  ],
+  "reproduce": {
+    "recipe": "recipe.toml",
+    "command": "kshana-pro forensics run recipe.toml --out <new folder> --utc 2026-11-15T16:00:00Z --key-file <issuer key> --signer <issuer>",
+    "note": "Run from the bundle folder with the same kshana-pro, open engine and method versions: report.json, every CSV, GeoJSON and HTML file and each evidence pack's data files come out byte-identical. The PDF differs only in its trailer /ID."
+  }
+}

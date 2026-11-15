@@ -52,10 +52,26 @@ pub struct Params {
 
 /// The development grid of the pre-registration.
 pub const GRID: [Params; 4] = [
-    Params { m: 2, g_pair: 13.816, b: false },
-    Params { m: 2, g_pair: 18.421, b: false },
-    Params { m: 3, g_pair: 13.816, b: false },
-    Params { m: 3, g_pair: 18.421, b: false },
+    Params {
+        m: 2,
+        g_pair: 13.816,
+        b: false,
+    },
+    Params {
+        m: 2,
+        g_pair: 18.421,
+        b: false,
+    },
+    Params {
+        m: 3,
+        g_pair: 13.816,
+        b: false,
+    },
+    Params {
+        m: 3,
+        g_pair: 18.421,
+        b: false,
+    },
 ];
 
 /// The pair chosen on development seeds 50 to 59 (`docs/evidence/v3-m4-offset-successor/dev.json`):
@@ -78,10 +94,26 @@ pub const V3B_CHOSEN: Params = Params {
 
 /// The V3b development grid (seeds 60 to 69).
 pub const GRID_B: [Params; 4] = [
-    Params { m: 2, g_pair: 13.816, b: true },
-    Params { m: 2, g_pair: 18.421, b: true },
-    Params { m: 3, g_pair: 13.816, b: true },
-    Params { m: 3, g_pair: 18.421, b: true },
+    Params {
+        m: 2,
+        g_pair: 13.816,
+        b: true,
+    },
+    Params {
+        m: 2,
+        g_pair: 18.421,
+        b: true,
+    },
+    Params {
+        m: 3,
+        g_pair: 13.816,
+        b: true,
+    },
+    Params {
+        m: 3,
+        g_pair: 18.421,
+        b: true,
+    },
 ];
 
 /// One identity's offset finding.
@@ -127,7 +159,12 @@ pub struct Track {
 
 impl Track {
     fn new(id: u64, rep: Vec<(u32, f64, f64)>) -> Self {
-        let mut b = [f64::INFINITY, f64::NEG_INFINITY, f64::INFINITY, f64::NEG_INFINITY];
+        let mut b = [
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+        ];
         for r in &rep {
             b[0] = b[0].min(r.1);
             b[1] = b[1].max(r.1);

@@ -1,0 +1,28 @@
+# E5 public sample: synthetic data from the open M4 generator (development seed 50; a subset of
+# twelve identities and the RF fixes near them). Not real vessels.
+kind = "pro-ais-integrity"
+title = "AIS and position integrity: public sample (synthetic)"
+ais = "ais.csv"
+rf = "rf.csv"
+
+[[fleet]]
+name = "Fleet A"
+ids = [200000000, 200000003, 200000004, 200000005, 200000006, 200000007]
+
+[[fleet]]
+name = "Fleet B"
+ids = [200000047, 200000066, 200000078, 200000002, 200000012, 200000062]
+
+[[area]]
+name = "West"
+lat_min = 54.850
+lat_max = 64.200
+lon_min = 16.328
+lon_max = 19.616
+
+[[area]]
+name = "East"
+lat_min = 54.850
+lat_max = 64.200
+lon_min = 19.616
+lon_max = 22.904

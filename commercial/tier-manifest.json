@@ -23,6 +23,16 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-framework-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-insurer-scorecard",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-scenario-ci",
       "type": "feature",
       "tier": "pro"
@@ -68,6 +78,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-ais-integrity",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-area-picture",
       "type": "kind",
       "tier": "pro"
@@ -99,6 +114,11 @@
     },
     {
       "kind": "pro-planner-front",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-pnt-verification",
       "type": "kind",
       "tier": "pro"
     },

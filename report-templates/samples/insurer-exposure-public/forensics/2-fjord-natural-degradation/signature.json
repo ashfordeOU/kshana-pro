@@ -1,0 +1,14 @@
+{
+  "format": "kshana-dossier-signature/1",
+  "signer": "Kshana Pro sample (demo key)",
+  "utc": "2026-11-15T16:00:00Z",
+  "public_key": "1129c3b66643cb0d186a6989c7842a460edfe55791b56fefc62355fc57a8c84d",
+  "key_id": "9d745a61570b256f",
+  "files": [
+    {
+      "path": "report.json",
+      "sha256": "f4a4271197879bca9d29ac50a36c9356223e3bab87bcd89e6cd72f4efef585e4"
+    }
+  ],
+  "signature": "cdc95756e84fd93b59a90aacc41b3130e23b6b08f25a51f9fffefe8dc29a0453222d8151e8ed0d4b9dbef69fa78f6f2388afd5ea809563f63356916be30b2001"
+}

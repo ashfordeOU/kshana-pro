@@ -1,0 +1,67 @@
+{
+  "format": "kshana-pro-framework-template/1",
+  "id": "nis2",
+  "title": "EU NIS 2 Directive: Article 21 measures and Article 23 reporting",
+  "source": {
+    "title": "Directive (EU) 2022/2555 (NIS 2 Directive)",
+    "version": "OJ L 333, 27.12.2022",
+    "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2555",
+    "checked": "As recorded by the open engine's mapping: Article 21 letters read from a summary matching the published text; confirm against the page before citing a letter in a filing."
+  },
+  "duties": [
+    {
+      "id": "nis2-21a",
+      "reference": "Article 21(2)(a)",
+      "duty": "Policies on risk analysis and information system security, including dependence on PNT and time.",
+      "mapped_to": [
+        "kshana-pro-timing-audit/1",
+        "kshana-pro-pnt-verification/1"
+      ],
+      "gap": "Policies are the entity's own."
+    },
+    {
+      "id": "nis2-21b",
+      "reference": "Article 21(2)(b)",
+      "duty": "Incident handling.",
+      "mapped_to": [
+        "kshana-pro-forensic-report/1",
+        "kshana-pro-trust-evidence/1",
+        "kshana-pro-area-picture/1"
+      ],
+      "gap": "Incident handling procedures are the entity's own."
+    },
+    {
+      "id": "nis2-21c",
+      "reference": "Article 21(2)(c)",
+      "duty": "Business continuity, backup management and crisis management (holdover and alternative sources for time and position).",
+      "mapped_to": [
+        "kshana-pro-timing-scorecard/1",
+        "kshana-pro-trust-evidence/1",
+        "kshana-pro-timing-audit/1"
+      ],
+      "gap": "Crisis management is the entity's own."
+    },
+    {
+      "id": "nis2-21f",
+      "reference": "Article 21(2)(f)",
+      "duty": "Policies and procedures to assess the effectiveness of risk-management measures.",
+      "mapped_to": [
+        "kshana-pro-receiver-scorecard/1",
+        "kshana-pro-timing-scorecard/1",
+        "kshana-pro-pnt-verification/1"
+      ],
+      "gap": "Assessment of non-PNT measures is outside Kshana."
+    },
+    {
+      "id": "nis2-23",
+      "reference": "Article 23",
+      "duty": "Report significant incidents to the CSIRT or competent authority within the set deadlines.",
+      "mapped_to": [
+        "kshana-pro-forensic-report/1",
+        "kshana-pro-exposure-summary/1"
+      ],
+      "gap": "The notification is the entity's act; Kshana supplies the signed technical record."
+    }
+  ],
+  "wording": "Each duty below is mapped to the Kshana evidence products whose signed output can be put before the operator's assessor for it, and lists what Kshana does not provide. The pack is an aid for preparing an audit. It does not state, and must not be read as stating, that any system or operator meets the framework; that judgement belongs to the operator, its assessor and its authority."
+}

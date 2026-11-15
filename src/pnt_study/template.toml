@@ -1,0 +1,50 @@
+# Kshana Pro: independent verification study of a new PNT service (E4), user side.
+# 1. Write the pre-registration (bars, data, process) and commit it before anything runs.
+# 2. Put its path and SHA-256 below; the run refuses a file that does not match.
+# 3. Copy the bars from the pre-registration into [[bar]] tables, unchanged.
+# Ground and user-side studies only. MODELLED.
+kind = "pro-pnt-verification"
+title = "Independent user-side verification of <service>"
+service = "<service name and the design or release studied>"
+service_source = "<the public source of the design: paper, ICD, filing>"
+pre_registration = "<path to the dated pre-registration>"
+pre_registration_sha256 = "<its SHA-256>"
+
+[geometry]
+duration_s = 86400.0
+step_s = 600.0
+lat_step_deg = 10.0
+lon_step_deg = 45.0
+mask_deg = 10.0
+pdop_threshold = 6.0
+assumed_uere_m = [0.5, 1.0]
+
+[[geometry.gnss]]
+name = "GPS"
+preset = "gps-baseline"
+
+[[geometry.leo]]
+name = "<LEO service>"
+
+[[geometry.leo.shell]]
+total = 0
+planes = 0
+phasing = 1
+altitude_km = 0.0
+inclination_deg = 0.0
+
+# Optional: authentication integrity (Galileo OSNMA pages in the open plain page format).
+# [integrity]
+# pages = "<pages file>"
+# public_key = "<file with ID:TYPE:HEX>"
+# flips = 200
+# seed = 1
+# provenance = "<where the pages come from>"
+
+[[bar]]
+id = "S1"
+quantity = "leo-availability"   # leo-availability, leo-median-hdop, gnss-availability, fused-availability, osnma-tamper-detection, osnma-clean-failures
+lat_min = 0.0
+lat_max = 60.0
+op = "ge"
+value = 0.99
