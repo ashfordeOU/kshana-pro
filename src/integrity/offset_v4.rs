@@ -44,14 +44,18 @@ pub struct Params {
     pub m: usize,
     /// Pairwise consistency gate (chi-square, 2 degrees of freedom).
     pub g_pair: f64,
+    /// The V3b corrections (`2026-11-15_V3b_PREREGISTRATION.md`): support never includes a fix
+    /// consistent with the AIS position, and the final support uses the gate `G` around the
+    /// refined offset. `false` is V3 as registered.
+    pub b: bool,
 }
 
 /// The development grid of the pre-registration.
 pub const GRID: [Params; 4] = [
-    Params { m: 2, g_pair: 13.816 },
-    Params { m: 2, g_pair: 18.421 },
-    Params { m: 3, g_pair: 13.816 },
-    Params { m: 3, g_pair: 18.421 },
+    Params { m: 2, g_pair: 13.816, b: false },
+    Params { m: 2, g_pair: 18.421, b: false },
+    Params { m: 3, g_pair: 13.816, b: false },
+    Params { m: 3, g_pair: 18.421, b: false },
 ];
 
 /// The pair chosen on development seeds 50 to 59 (`docs/evidence/v3-m4-offset-successor/dev.json`):
@@ -60,7 +64,16 @@ pub const GRID: [Params; 4] = [
 pub const V3_CHOSEN: Params = Params {
     m: 3,
     g_pair: 13.816,
+    b: false,
 };
+
+/// The V3b development grid (seeds 60 to 69).
+pub const GRID_B: [Params; 4] = [
+    Params { m: 2, g_pair: 13.816, b: true },
+    Params { m: 2, g_pair: 18.421, b: true },
+    Params { m: 3, g_pair: 13.816, b: true },
+    Params { m: 3, g_pair: 18.421, b: true },
+];
 
 /// One identity's offset finding.
 #[derive(Clone, Debug, PartialEq, Serialize)]
@@ -239,12 +252,19 @@ fn d2(a: (f64, f64), b: (f64, f64)) -> f64 {
 
 /// The support of offset `o` from epoch `from` on: per epoch, its candidate closest to `o`
 /// when within the pairwise gate (step 4). Returns (epoch index, candidate).
-fn support(epochs: &[Vec<Cand>], from: usize, o: (f64, f64), g_pair: f64) -> Vec<(usize, Cand)> {
-    let lim = g_pair * 2.0 * SIGMA_M * SIGMA_M;
+fn support(
+    epochs: &[Vec<Cand>],
+    from: usize,
+    o: (f64, f64),
+    lim: f64,
+    exclude_zero: bool,
+) -> Vec<(usize, Cand)> {
+    let zero = GATE * SIGMA_M * SIGMA_M;
     let mut out = Vec::new();
     for (i, e) in epochs.iter().enumerate().skip(from) {
         let best = e
             .iter()
+            .filter(|c| !exclude_zero || c.1 .0 * c.1 .0 + c.1 .1 * c.1 .1 > zero)
             .min_by(|a, b| d2(a.1, o).total_cmp(&d2(b.1, o)))
             .copied();
         if let Some(c) = best {
@@ -273,12 +293,14 @@ fn test_track(epochs: &[Vec<Cand>], p: Params) -> Option<(u32, (f64, f64), usize
             if c.1 .0 * c.1 .0 + c.1 .1 * c.1 .1 < r_min2 {
                 continue;
             }
-            let s0 = support(epochs, ec, c.1, p.g_pair);
+            let pair = p.g_pair * 2.0 * s2;
+            let s0 = support(epochs, ec, c.1, pair, p.b);
             if s0.is_empty() {
                 continue;
             }
             let o_hat = mean(&s0);
-            let s = support(epochs, ec, o_hat, p.g_pair);
+            let fin = if p.b { GATE * s2 } else { pair };
+            let s = support(epochs, ec, o_hat, fin, p.b);
             if s.len() < p.m {
                 continue;
             }

@@ -53,10 +53,24 @@ fn v3_development_run_on_seeds_50_to_59() {
         eprintln!("skipped: set KSHANA_PRO_V3_DEV=1 for the development run");
         return;
     }
+    dev_run(50..60, &GRID, "dev.json", "2026-11-15_PREREGISTRATION.md");
+}
+
+#[test]
+fn v3b_development_run_on_seeds_60_to_69() {
+    if std::env::var_os("KSHANA_PRO_V3B_DEV").is_none() {
+        eprintln!("skipped: set KSHANA_PRO_V3B_DEV=1 for the V3b development run");
+        return;
+    }
+    dev_run(60..70, &offset_v4::GRID_B, "V3b_dev.json", "2026-11-15_V3b_PREREGISTRATION.md");
+}
+
+fn dev_run(seeds: std::ops::Range<u64>, grid: &[Params], file: &str, prereg: &str) {
+    let label = format!("{} to {}", seeds.start, seeds.end - 1);
     let mut base_all = Vec::new();
-    let mut per_all: Vec<Vec<Row>> = vec![Vec::new(); GRID.len()];
-    for seed in 50..60u64 {
-        let (b, per) = rows_for(seed, &GRID);
+    let mut per_all: Vec<Vec<Row>> = vec![Vec::new(); grid.len()];
+    for seed in seeds {
+        let (b, per) = rows_for(seed, grid);
         base_all.extend(b);
         for (g, r) in per.into_iter().enumerate() {
             per_all[g].extend(r);
@@ -64,7 +78,7 @@ fn v3_development_run_on_seeds_50_to_59() {
         eprintln!("seed {seed} done");
     }
     let mut table = Vec::new();
-    for (g, p) in GRID.iter().enumerate() {
+    for (g, p) in grid.iter().enumerate() {
         let m = metrics(&per_all[g]);
         let (k, n) = recall_ge5(&m);
         table.push(json!({
@@ -75,12 +89,12 @@ fn v3_development_run_on_seeds_50_to_59() {
         }));
     }
     // The pre-registered rule: highest recall at d >= 5 km subject to FA <= 0.005; ties to the
-    // smaller m, then the smaller g_pair (GRID is in that order); none eligible: lowest FA.
-    let eligible: Vec<usize> = (0..GRID.len())
+    // smaller m, then the smaller g_pair (the grid is in that order); none eligible: lowest FA.
+    let eligible: Vec<usize> = (0..grid.len())
         .filter(|&g| table[g]["false_alarm"].as_f64().unwrap() <= 0.005)
         .collect();
     let chosen = if eligible.is_empty() {
-        (0..GRID.len())
+        (0..grid.len())
             .min_by(|&a, &b| {
                 table[a]["false_alarm"]
                     .as_f64()
@@ -98,22 +112,18 @@ fn v3_development_run_on_seeds_50_to_59() {
         best
     };
     let doc = json!({
-        "pre_registration": "2026-11-15_PREREGISTRATION.md",
-        "seeds": "50 to 59",
+        "pre_registration": prereg,
+        "seeds": label,
         "stage1_open_v3": metrics(&base_all),
         "grid": table,
         "eligible": eligible,
-        "chosen": {"m": GRID[chosen].m, "g_pair": GRID[chosen].g_pair},
+        "chosen": {"m": grid[chosen].m, "g_pair": grid[chosen].g_pair},
     });
     std::fs::write(
-        format!("{DIR}/dev.json"),
+        format!("{DIR}/{file}"),
         serde_json::to_string_pretty(&doc).unwrap() + "\n",
     )
     .unwrap();
-    eprintln!(
-        "{}",
-        serde_json::to_string_pretty(&doc["chosen"]).unwrap()
-    );
 }
 
 fn run_scored(seeds: std::ops::Range<u64>, p: Params) -> (Value, Value) {
