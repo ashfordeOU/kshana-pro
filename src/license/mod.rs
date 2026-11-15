@@ -141,6 +141,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-threat-library" => Tier::Pro,
         // Receiver resilience scorecards and test reports (roadmap 0.42 E3).
         "pro-receiver-scorecard" => Tier::Pro,
+        // Timing scorecards under spoofing scenarios (roadmap 0.42 T4).
+        "pro-timing-scorecard" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
