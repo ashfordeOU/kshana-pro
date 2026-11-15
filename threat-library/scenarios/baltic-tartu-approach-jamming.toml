@@ -1,0 +1,75 @@
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "baltic-tartu-approach-jamming"
+version = 1
+title = "Tartu, Estonia: GNSS interference at an airport without a non-GNSS approach"
+family = "baltic"
+threat = ["jamming"]
+domain = "aviation"
+period = "April to May 2024 (as reported)"
+summary = """
+In late April 2024 an airline paused its flights to Tartu, Estonia, for about a month, saying \
+that GPS interference prevented approaches at an airport whose approach relied on GNSS. The \
+analogue is a fixed GNSS receiver at the airport (a ground reference, not an aircraft) that \
+sees repeated strong interference, so the event can be replayed on a static test bench."""
+
+[provenance]
+class = "operator-statement"
+parameter_basis = """
+Representative values, not read off any recording: two interference episodes of 6 and 8 \
+minutes with C/N0 reductions of 25 and 35 dB on a static receiver. The published statements \
+give no signal levels; the values were chosen so that the second episode denies the fix."""
+verify_before_use = "Check the operator's statement and the Estonian authorities' notices for the dates; the analogue does not model an aircraft approach."
+
+[[provenance.source]]
+title = "Company release on pausing Helsinki to Tartu flights because of GPS interference"
+publisher = "Finnair"
+date = "2024-04-29"
+citation = "Finnair company release, 29 April 2024 (Finnair newsroom)"
+says = "The airline said it would pause its Tartu flights for about a month because GPS interference prevented approaches that rely on GPS signals at Tartu airport."
+
+[[provenance.source]]
+title = "Safety Information Bulletin 2022-02 and its revisions: Global Navigation Satellite System outage and alterations leading to navigation / surveillance degradation"
+publisher = "European Union Aviation Safety Agency (EASA)"
+date = "2022 onwards"
+url = "https://ad.easa.europa.eu/"
+says = "EASA describes GNSS interference in the Baltic region and the need for non-GNSS alternatives for approaches."
+
+[licence]
+source_terms = "Public statements; cited, not copied. No measurement data is used."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence. The analogue is generated with the open engine (AGPL-3.0)."
+
+[analogue.scenario]
+name = "baltic-tartu-approach-jamming"
+description = "Fixed GNSS receiver at an airport with two interference episodes (analogue)."
+trainer_note = "A static receiver: the C/N0 drop and the lost fix are the signs; the position does not move."
+seed = 2404
+start_utc = "2024-04-27T09:00:00Z"
+duration_s = 1800
+rate_hz = 1
+
+[analogue.vessel]
+lat_deg = 58.3075
+lon_deg = 26.6904
+speed_kn = 0
+heading_deg = 0
+
+[[analogue.event]]
+kind = "jamming"
+label = "Interference episode 1"
+start_s = 360
+duration_s = 360
+ramp_s = 60
+recovery_s = 60
+cn0_drop_db = 25
+
+[[analogue.event]]
+kind = "jamming"
+label = "Interference episode 2"
+start_s = 1080
+duration_s = 480
+ramp_s = 60
+recovery_s = 60
+cn0_drop_db = 35

@@ -1,0 +1,78 @@
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "jammertest-position-spoofing"
+version = 1
+title = "JammerTest, Andøya: position spoofing of a moving receiver at sea"
+family = "jammertest"
+threat = ["spoofing"]
+domain = "maritime"
+period = "JammerTest editions 2022 onwards"
+summary = """
+JammerTest plans include position spoofing tests in which a counterfeit signal moves the \
+position a receiver reports. The analogue is a boat off Bleik whose fix is pulled 2 km away \
+at a matched (not raised) signal level, which leaves the C/N0 pattern looking genuine."""
+
+[provenance]
+class = "published-test-campaign"
+parameter_basis = """
+Representative values, not read off the test plan or any recording: a 2 km drag-off over 6 \
+minutes, genuine C/N0 pattern kept. Real plan items differ: take the spoofed trajectory and the \
+times from the published plan for the edition you replay."""
+verify_before_use = "Use the published test plan and the organisers' official log for event times."
+
+[[provenance.source]]
+title = "JammerTest: test plans and information"
+publisher = "JammerTest organisers (Norwegian authorities and partners)"
+date = "2022 onwards"
+url = "https://jammertest.no/"
+says = "The test plans list position spoofing tests among the spoofing groups, with scheduled times."
+
+[[provenance.source]]
+title = "JammerTest 2024 dataset"
+publisher = "Zenodo"
+date = "2025"
+citation = "DOI 10.5281/zenodo.15910563 (GPL-3.0-or-later)"
+says = "Receiver recordings and logs from the 2024 edition, including spoofing tests."
+
+[licence]
+source_terms = "The JammerTest 2024 dataset is published under GPL-3.0-or-later; test plans are the organisers' documents. Neither is copied here."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence. The analogue is generated with the open engine (AGPL-3.0)."
+
+[replay]
+dataset = "JammerTest 2024 (or the edition you attended)"
+fetch = "DOI 10.5281/zenodo.15910563 for the 2024 dataset; test plans from https://jammertest.no/"
+format = "u-blox UBX and other receiver logs, as the dataset lists them"
+how = "Extract the dataset yourself; score a log of a spoofing test with `kshana jammertest` or in a receiver scorecard campaign with events from the plan."
+events_from = "The organisers' published test plan and official log; never from this file."
+
+[analogue.scenario]
+name = "jammertest-position-spoofing"
+description = "Boat off Bleik with a matched-power position drag-off (analogue)."
+trainer_note = "Subtle: C/N0 keeps its genuine pattern; the fix disagrees with the gyro and log."
+seed = 2210
+start_utc = "2024-09-11T10:00:00Z"
+duration_s = 1500
+rate_hz = 1
+
+[analogue.vessel]
+lat_deg = 69.30
+lon_deg = 15.90
+speed_kn = 8
+
+[[analogue.waypoint]]
+lat_deg = 69.34
+lon_deg = 16.05
+speed_kn = 8
+
+[[analogue.event]]
+kind = "drag-off"
+label = "Position spoofing"
+start_s = 360
+duration_s = 600
+ramp_s = 360
+recovery_s = 0
+final_offset_m = 2000
+relative_bearing_deg = 45
+max_accel_mps2 = 0.2

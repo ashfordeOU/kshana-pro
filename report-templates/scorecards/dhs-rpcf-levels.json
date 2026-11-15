@@ -1,0 +1,10 @@
+{
+  "framework": "Resilient PNT Conformance Framework, U.S. Department of Homeland Security, Science and Technology Directorate (version 1.0, 2020, and later versions)",
+  "wording": "Kshana summarises each resilience level in one line and maps test results to it as evidence. The published framework is the authority for what each level means; it also covers design aspects (for example source diversity and verification architecture) that a test campaign does not show.",
+  "levels": [
+    {"level": 1, "summary": "Recovers after the threat is removed", "test": "Every event: correct output again within bars.max_recovery_s of the event end, held for bars.recovery_hold_s."},
+    {"level": 2, "summary": "Recovers, and gives no misleading output without warning during the threat", "test": "Level 1, and no epoch from onset to recovery with a fix farther than bars.misleading_error_m (or a time farther than bars.misleading_time_error_s) from the truth while the receiver gives no warning (its own flag; the monitor's alarm only when bars.monitor_counts_as_warning). Needs a truth track."},
+    {"level": 3, "summary": "Level 2, and keeps its output within a stated bound during the threat", "test": "Level 2, every fix during the threat within bars.bounded_error_m and bars.bounded_time_error_s, and a fix at least bars.bounded_min_availability of the threat epochs."},
+    {"level": 4, "summary": "Level 3, and keeps full performance during the threat", "test": "Level 3, every fix during the threat within bars.full_error_m, and a fix at least bars.full_min_availability of the threat epochs."}
+  ]
+}

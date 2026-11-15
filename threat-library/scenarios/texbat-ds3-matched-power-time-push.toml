@@ -1,0 +1,84 @@
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "texbat-ds3-matched-power-time-push"
+version = 1
+title = "TEXBAT ds3: matched-power time push on a static receiver"
+family = "texbat"
+threat = ["spoofing", "time-spoofing"]
+domain = "timing"
+period = "Recorded for the Texas Spoofing Test Battery, published 2012"
+summary = """
+The Texas Spoofing Test Battery (TEXBAT) is a set of recorded live-sky GPS L1 spoofing \
+scenarios published by the University of Texas Radionavigation Laboratory as a common test \
+set for spoofing defences. Its static matched-power time push (ds3) captures the receiver at \
+nearly the authentic signal power and then drags its time. The analogue is a slow time push on \
+a grandmaster (timing profile) and a time spoof on a static receiver's NMEA (analogue)."""
+
+[provenance]
+class = "published-dataset"
+parameter_basis = """
+Representative values, not read off the recordings: a push at 20 ns/s to 2 microseconds for \
+the timing profile, and a 1 s UTC offset over 3 minutes for the NMEA analogue. TEXBAT's own \
+push profile and power advantage are given in its description; use those when you replay \
+the recording."""
+verify_before_use = "Check the scenario number against the TEXBAT description before use; the open engine's TEXBAT benchmark counts spoofing windows from 110 s as its own pre-registered convention, not a published onset."
+
+[[provenance.source]]
+title = "The Texas Spoofing Test Battery: Toward a Standard for Evaluating GPS Signal Authentication Techniques"
+publisher = "T. E. Humphreys, J. A. Bhatti, D. P. Shepard and K. D. Wesson, Proceedings of ION GNSS 2012"
+date = "2012-09"
+citation = "Proc. ION GNSS 2012, Institute of Navigation"
+says = "Describes the TEXBAT recordings: two clean and the spoofing scenarios, including static matched-power time and position pushes."
+
+[[provenance.source]]
+title = "TEXBAT data distribution"
+publisher = "University of Texas Radionavigation Laboratory"
+date = "2012 onwards"
+url = "https://radionavlab.ae.utexas.edu/"
+says = "The laboratory distributes the recordings to users under its own terms."
+
+[licence]
+source_terms = "TEXBAT recordings are distributed by the University of Texas Radionavigation Laboratory under its own terms. They are never copied, sampled or re-hosted here."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence. The analogue is generated with the open engine (AGPL-3.0)."
+
+[replay]
+dataset = "TEXBAT ds3"
+fetch = "From the University of Texas Radionavigation Laboratory, under its terms"
+files = ["ds3.bin"]
+format = "complex int16 IQ recording, 25 Msps (as the open engine's TEXBAT benchmark reads it)"
+how = "Replay the recording through your RF playback equipment into the receiver under test and record its log, then score that log in a receiver scorecard campaign; or run the open engine's `kshana bench texbat-windows` on the file, which checks its pinned SHA-256 and writes scores only."
+events_from = "The TEXBAT description for ds3; never from this file."
+
+[timing]
+kind = "time-push"
+start_s = 0
+duration_s = 3600
+rate_s_per_s = 20e-9
+max_offset_s = 2e-6
+scope = "one-receiver"
+
+[analogue.scenario]
+name = "texbat-ds3-matched-power-time-push"
+description = "Static receiver with a slow time spoof, genuine C/N0 pattern kept (analogue)."
+trainer_note = "Subtle: no power change; the reported UTC creeps ahead."
+seed = 1203
+start_utc = "2012-06-01T18:00:00Z"
+duration_s = 1500
+rate_hz = 1
+
+[analogue.vessel]
+lat_deg = 30.2880
+lon_deg = -97.7360
+speed_kn = 0
+heading_deg = 0
+
+[[analogue.event]]
+kind = "time-spoof"
+label = "Matched-power time push"
+start_s = 420
+duration_s = 600
+ramp_s = 180
+recovery_s = 0
+offset_s = 1

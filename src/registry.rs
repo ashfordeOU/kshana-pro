@@ -21,6 +21,8 @@ use crate::packs::timing_holdover_pack::TimingHoldoverScenario;
 use crate::packs::trade_study_pack::TradeStudyScenario;
 use crate::packs::twin_pack::TwinScenario;
 use crate::packs::uncertainty_pack::UncertaintyScenario;
+use crate::scorecards::Campaign as ScorecardCampaign;
+use crate::threat_library::ThreatRunScenario;
 
 /// Prefix every Pro-only scenario kind carries. The dispatcher routes on it, and
 /// it makes Pro kinds visually unmistakable in a scenario file and in logs.
@@ -66,6 +68,8 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
             Some(parse::<ConflictResilienceStudyScenario>(kind, src))
         }
         TimingHoldoverScenario::KIND => Some(parse::<TimingHoldoverScenario>(kind, src)),
+        ThreatRunScenario::KIND => Some(parse::<ThreatRunScenario>(kind, src)),
+        crate::scorecards::KIND => Some(parse::<ScorecardCampaign>(kind, src)),
         // A kind of a registered server-side extension (crate::extension), if any.
         _ => crate::extension::build(kind, src),
     }
@@ -98,6 +102,8 @@ pub fn builtin_pro_kinds() -> Vec<ScenarioMeta> {
         OptimismGapAuditScenario::meta_static(),
         ConflictResilienceStudyScenario::meta_static(),
         TimingHoldoverScenario::meta_static(),
+        ThreatRunScenario::meta_static(),
+        ScorecardCampaign::meta_static(),
     ]
 }
 
@@ -266,6 +272,8 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     OptimismGapAuditScenario::register_into(&mut reg);
     ConflictResilienceStudyScenario::register_into(&mut reg);
     TimingHoldoverScenario::register_into(&mut reg);
+    ThreatRunScenario::register_into(&mut reg);
+    ScorecardCampaign::register_into(&mut reg);
     for k in crate::extension::kinds() {
         (k.register_into)(&mut reg);
     }

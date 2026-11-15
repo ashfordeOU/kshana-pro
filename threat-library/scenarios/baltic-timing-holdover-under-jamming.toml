@@ -1,0 +1,48 @@
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "baltic-timing-holdover-under-jamming"
+version = 1
+title = "Baltic coast: a GNSS-disciplined grandmaster forced into holdover by wide-area jamming"
+family = "baltic"
+threat = ["jamming"]
+domain = "timing"
+period = "2023 to 2025 (recurring, as reported)"
+summary = """
+Wide-area jamming of the kind reported over the eastern Baltic denies GNSS to every receiver \
+of a coastal site for hours. A GNSS-disciplined grandmaster then runs on its own oscillator. \
+The timing profile is a six-hour denial: no counterfeit time, only holdover, scored with the \
+holdover model of the timing assurance products."""
+
+[provenance]
+class = "official-notice"
+parameter_basis = """
+Representative value, not read off any recording: a six-hour denial reaching every receiver of \
+the site. The notices report recurring interference lasting hours; they give no figure for a \
+timing site."""
+verify_before_use = "Check the notices for the area and dates of interest."
+
+[[provenance.source]]
+title = "Safety Information Bulletin 2022-02 and its revisions: Global Navigation Satellite System outage and alterations leading to navigation / surveillance degradation"
+publisher = "European Union Aviation Safety Agency (EASA)"
+date = "2022 onwards"
+url = "https://ad.easa.europa.eu/"
+says = "EASA describes GNSS outages in the Baltic Sea region, among others."
+
+[[provenance.source]]
+title = "GPSJAM daily GNSS interference map"
+publisher = "gpsjam.org"
+date = "2022 onwards"
+url = "https://gpsjam.org/"
+says = "Daily maps from aircraft ADS-B accuracy reports show interference areas over the eastern Baltic persisting through whole days."
+
+[licence]
+source_terms = "Public notices and web pages of the publishers; cited, not copied. No measurement data is used."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence."
+
+[timing]
+kind = "denial"
+start_s = 0
+duration_s = 21600
+scope = "all-receivers"

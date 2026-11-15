@@ -55,10 +55,12 @@ pub mod report_lab_campaign_pdf;
 pub mod report_pack_a;
 pub mod report_pack_c;
 pub mod report_pdf;
+pub mod scorecards;
 pub mod serve;
 pub mod signed_dossier;
 pub mod study_dossier;
 pub mod study_ledger;
+pub mod threat_library;
 pub mod units;
 // Shared helpers; public so a server-side extension crate can reuse them (not a stable API).
 #[doc(hidden)]

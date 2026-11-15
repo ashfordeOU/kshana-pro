@@ -1,0 +1,70 @@
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "hormuz-meaconing-delay"
+version = 1
+title = "Strait of Hormuz: re-broadcast (meaconing-like) delay of position and time"
+family = "hormuz"
+threat = ["meaconing"]
+domain = "maritime"
+period = "June 2025 (as reported)"
+summary = """
+Among the effects the 2025 advisories describe are positions that lag or jump. A re-broadcast \
+of genuine signals (meaconing) produces exactly that: the receiver reports where it was some \
+time ago, and its time lags. The analogue is a replay delay that grows to 20 s and then ends."""
+
+[provenance]
+class = "official-notice"
+parameter_basis = """
+Representative values, not read off any recording: a delay growing to 20 s over 2 minutes, held \
+6 minutes, position and time both delayed. The advisories do not identify meaconing as such; \
+this scenario is the meaconing class of the effects they describe."""
+verify_before_use = "Treat as a class of effect, not a reconstruction of a reported incident."
+
+[[provenance.source]]
+title = "MSCI advisories: Persian Gulf, Strait of Hormuz, Gulf of Oman"
+publisher = "U.S. Maritime Administration (MARAD), Maritime Security Communications with Industry"
+date = "2019 onwards"
+url = "https://www.maritime.dot.gov/msci-advisories"
+says = "The advisories warn of GPS interference and spoofing affecting vessels in the region."
+
+[[provenance.source]]
+title = "JMIC advisory notes on electronic interference in the Strait of Hormuz and the Arabian Gulf"
+publisher = "Joint Maritime Information Center (JMIC), published through UKMTO"
+date = "2025-06"
+url = "https://www.ukmto.org/"
+says = "The advisory notes reported electronic interference affecting vessel positions in the area."
+
+[licence]
+source_terms = "Public advisories; cited, not copied. No measurement or AIS data is used."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence. The analogue is generated with the open engine (AGPL-3.0)."
+
+[analogue.scenario]
+name = "hormuz-meaconing-delay"
+description = "Inbound transit with a re-broadcast delay of position and time (analogue)."
+trainer_note = "Position lags the gyro and log by the delay; ZDA time lags the bridge clock."
+seed = 2507
+start_utc = "2025-06-20T21:00:00Z"
+duration_s = 1500
+rate_hz = 1
+
+[analogue.vessel]
+lat_deg = 26.25
+lon_deg = 56.70
+speed_kn = 13
+
+[[analogue.waypoint]]
+lat_deg = 26.50
+lon_deg = 56.30
+speed_kn = 13
+
+[[analogue.event]]
+kind = "replay-delay"
+label = "Re-broadcast delay"
+start_s = 400
+duration_s = 480
+ramp_s = 120
+recovery_s = 0
+delay_s = 20
+affect_time = true

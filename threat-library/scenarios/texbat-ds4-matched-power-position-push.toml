@@ -1,0 +1,75 @@
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "texbat-ds4-matched-power-position-push"
+version = 1
+title = "TEXBAT ds4: matched-power position push on a static receiver"
+family = "texbat"
+threat = ["spoofing"]
+domain = "land-static"
+period = "Recorded for the Texas Spoofing Test Battery, published 2012"
+summary = """
+TEXBAT's static matched-power position push (ds4) captures a static receiver at nearly the \
+authentic power and then moves its reported position. The analogue moves a static receiver's \
+fix away by 600 m at a matched level, so the C/N0 pattern stays genuine."""
+
+[provenance]
+class = "published-dataset"
+parameter_basis = """
+Representative values, not read off the recordings: a 600 m drag-off over 5 minutes with the \
+genuine C/N0 pattern kept. TEXBAT's own push profile and power advantage are given in its \
+description; use those when you replay the recording."""
+verify_before_use = "Check the scenario number against the TEXBAT description before use."
+
+[[provenance.source]]
+title = "The Texas Spoofing Test Battery: Toward a Standard for Evaluating GPS Signal Authentication Techniques"
+publisher = "T. E. Humphreys, J. A. Bhatti, D. P. Shepard and K. D. Wesson, Proceedings of ION GNSS 2012"
+date = "2012-09"
+citation = "Proc. ION GNSS 2012, Institute of Navigation"
+says = "Describes the TEXBAT recordings, including static matched-power time and position pushes."
+
+[[provenance.source]]
+title = "TEXBAT data distribution"
+publisher = "University of Texas Radionavigation Laboratory"
+date = "2012 onwards"
+url = "https://radionavlab.ae.utexas.edu/"
+says = "The laboratory distributes the recordings to users under its own terms."
+
+[licence]
+source_terms = "TEXBAT recordings are distributed by the University of Texas Radionavigation Laboratory under its own terms. They are never copied, sampled or re-hosted here."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence. The analogue is generated with the open engine (AGPL-3.0)."
+
+[replay]
+dataset = "TEXBAT ds4"
+fetch = "From the University of Texas Radionavigation Laboratory, under its terms"
+files = ["ds4.bin"]
+format = "complex int16 IQ recording, 25 Msps (as the open engine's TEXBAT benchmark reads it)"
+how = "Replay the recording through your RF playback equipment into the receiver under test and record its log, then score that log in a receiver scorecard campaign."
+events_from = "The TEXBAT description for ds4; never from this file."
+
+[analogue.scenario]
+name = "texbat-ds4-matched-power-position-push"
+description = "Static receiver with a matched-power position push (analogue)."
+trainer_note = "Subtle: no power change; a static receiver's fix starts to move."
+seed = 1204
+start_utc = "2012-06-01T19:00:00Z"
+duration_s = 1500
+rate_hz = 1
+
+[analogue.vessel]
+lat_deg = 30.2880
+lon_deg = -97.7360
+speed_kn = 0
+heading_deg = 0
+
+[[analogue.event]]
+kind = "drag-off"
+label = "Matched-power position push"
+start_s = 420
+duration_s = 600
+ramp_s = 300
+recovery_s = 0
+final_offset_m = 600
+bearing_deg = 30
+max_accel_mps2 = 0.2
