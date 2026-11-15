@@ -143,6 +143,16 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-receiver-scorecard" => Tier::Pro,
         // Timing scorecards under spoofing scenarios (roadmap 0.42 T4).
         "pro-timing-scorecard" => Tier::Pro,
+        // Multi-source trust (roadmap 0.42 F3): the selector kind and `kshana-pro trust run`.
+        "pro-multi-source-trust" => Tier::Pro,
+        // Area console (roadmap 0.42 F1, F2): the picture kind and the console command and
+        // service page. More than one tenant in one console is Enterprise (area::multi_tenant_allowed).
+        "pro-area-picture" => Tier::Pro,
+        "pro-area-console" => Tier::Pro,
+        // Alert policy engine (roadmap 0.42 F5); raw alerts stay free.
+        "pro-alert-policy" => Tier::Pro,
+        // Planner Pareto front with cost (0.41 B1b, signed planned item of 0.42 F6).
+        "pro-planner-front" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -164,6 +174,8 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-timing-fleet",
     "pro-timing-audit",
     "pro-threat-library",
+    "pro-area-console",
+    "pro-alert-policy",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

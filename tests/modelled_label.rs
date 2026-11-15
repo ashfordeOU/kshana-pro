@@ -67,6 +67,21 @@ fn examples() -> Vec<(&'static str, String)> {
              grandmasters = [\"gm-fra-1\"]\nscenarios = [\"baltic-timing-holdover-under-jamming\"]\n"
                 .to_string(),
         ),
+        (
+            "pro-multi-source-trust",
+            format!(
+                "kind = \"pro-multi-source-trust\"\ninput = \"examples/multi-source/sources.csv\"\n{}",
+                include_str!("../examples/multi-source/config.toml")
+            ),
+        ),
+        (
+            "pro-area-picture",
+            "kind = \"pro-area-picture\"\nconsole = \"examples/area-console/console.toml\"\n".to_string(),
+        ),
+        (
+            "pro-planner-front",
+            include_str!("../examples/planner-front/front.toml").to_string(),
+        ),
     ]
 }
 

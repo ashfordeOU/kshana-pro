@@ -30,6 +30,8 @@
 // is unambiguous that Pro *embeds* (does not reimplement) the open core.
 pub use kshana;
 
+pub mod alerts;
+pub mod area;
 pub mod batch;
 pub mod benefits;
 pub mod brand_pdf;
@@ -40,10 +42,12 @@ pub mod extension;
 pub mod forensics;
 pub mod lab_campaign;
 pub mod license;
+pub mod multi_source;
 pub mod pack_c;
 pub mod packs;
 pub mod payments;
 pub mod pdf_text;
+pub mod planner_front;
 pub mod premium;
 pub mod pro_study;
 pub mod propack;

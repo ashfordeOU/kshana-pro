@@ -12,6 +12,8 @@ use std::marker::PhantomData;
 use kshana::api::{run_scenario, ExternalPack, KshanaError, RunOutput, ScenarioMeta};
 use serde::de::DeserializeOwned;
 
+use crate::area::AreaPictureScenario;
+use crate::multi_source::MultiSourceScenario;
 use crate::packs::batch_pack::BatchScenario;
 use crate::packs::conflict_resilience_study_pack::ConflictResilienceStudyScenario;
 use crate::packs::optimism_gap_audit::OptimismGapAuditScenario;
@@ -21,6 +23,7 @@ use crate::packs::timing_holdover_pack::TimingHoldoverScenario;
 use crate::packs::trade_study_pack::TradeStudyScenario;
 use crate::packs::twin_pack::TwinScenario;
 use crate::packs::uncertainty_pack::UncertaintyScenario;
+use crate::planner_front::PlannerFrontScenario;
 use crate::scorecards::Campaign as ScorecardCampaign;
 use crate::threat_library::ThreatRunScenario;
 use crate::timing::scorecard::TimingScorecardSpec;
@@ -72,6 +75,9 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         ThreatRunScenario::KIND => Some(parse::<ThreatRunScenario>(kind, src)),
         crate::scorecards::KIND => Some(parse::<ScorecardCampaign>(kind, src)),
         crate::timing::scorecard::KIND => Some(parse::<TimingScorecardSpec>(kind, src)),
+        MultiSourceScenario::KIND => Some(parse::<MultiSourceScenario>(kind, src)),
+        AreaPictureScenario::KIND => Some(parse::<AreaPictureScenario>(kind, src)),
+        PlannerFrontScenario::KIND => Some(parse::<PlannerFrontScenario>(kind, src)),
         // A kind of a registered server-side extension (crate::extension), if any.
         _ => crate::extension::build(kind, src),
     }
@@ -107,6 +113,9 @@ pub fn builtin_pro_kinds() -> Vec<ScenarioMeta> {
         ThreatRunScenario::meta_static(),
         ScorecardCampaign::meta_static(),
         TimingScorecardSpec::meta_static(),
+        MultiSourceScenario::meta_static(),
+        AreaPictureScenario::meta_static(),
+        PlannerFrontScenario::meta_static(),
     ]
 }
 
@@ -278,6 +287,9 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     ThreatRunScenario::register_into(&mut reg);
     ScorecardCampaign::register_into(&mut reg);
     TimingScorecardSpec::register_into(&mut reg);
+    MultiSourceScenario::register_into(&mut reg);
+    AreaPictureScenario::register_into(&mut reg);
+    PlannerFrontScenario::register_into(&mut reg);
     for k in crate::extension::kinds() {
         (k.register_into)(&mut reg);
     }
@@ -585,6 +597,16 @@ q_rw = 0.0
                 "kind = \"pro-timing-scorecard\"\ntitle = \"t\"\nfleet = \"examples/timing-fleet/fleet.toml\"\n\
                  grandmasters = [\"gm-ldn-1\"]\nscenarios = [\"jammertest-time-spoofing\"]\n"
             }
+            MultiSourceScenario::KIND => {
+                concat!(
+                    "kind = \"pro-multi-source-trust\"\ninput = \"examples/multi-source/sources.csv\"\n",
+                    include_str!("../examples/multi-source/config.toml")
+                )
+            }
+            AreaPictureScenario::KIND => {
+                "kind = \"pro-area-picture\"\nconsole = \"examples/area-console/console.toml\"\n"
+            }
+            PlannerFrontScenario::KIND => include_str!("../examples/planner-front/front.toml"),
             other => panic!("no test source defined for Pro kind '{other}'"),
         }
     }
