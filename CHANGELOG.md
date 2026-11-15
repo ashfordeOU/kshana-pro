@@ -5,6 +5,7 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **macOS signing status corrected (roadmap 0.42 Q7).** docs/MACOS-NOTARISATION.md said no Apple account existed; the account, both Developer ID certificates and the secrets exist, the signing check and the signed, notarised and stapled Desktop Pro release workflow ran green on 13 November 2026.
 - **Evidence products (roadmap 0.42 E4, E5, E6, E7; V3, V6; docs/EVIDENCE-PRODUCTS.md).**
   E5 AIS and position integrity scoring: kind `pro-ais-integrity`, `kshana-pro integrity
   score|verify`; per identity the open M4 v3 decision (gaps, identity in two places, AIS
