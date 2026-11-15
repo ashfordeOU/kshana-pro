@@ -289,7 +289,18 @@ pub struct LicenseClaims {
     /// every token issued before it existed, which verify as before.
     #[serde(default, skip_serializing_if = "is_false")]
     pub arksa: bool,
+    /// A hosted trial token (roadmap S6): lasts at most [`TRIAL_TOKEN_MAX_DAYS`] from issue;
+    /// a token carrying it with a longer life, or no issue time, is refused.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub trial: bool,
+    /// The licence holder was vetted by the vendor (roadmap F7, owner gate K6): required,
+    /// with the `pro-attack-iq` feature, before synthetic attack IQ can be generated.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub vetted_buyer: bool,
 }
+
+/// The longest a trial token may last, in days (roadmap S6).
+pub const TRIAL_TOKEN_MAX_DAYS: i64 = 14;
 
 fn is_false(v: &bool) -> bool {
     !*v
@@ -748,6 +759,17 @@ pub fn verify_with(
     )?;
     let claims = unverified;
     let tier = Tier::parse(&claims.tier)?;
+    if claims.trial {
+        let from = claims.issued_unix.max(claims.not_before_unix);
+        if claims.issued_unix == 0
+            || claims.expires_unix == 0
+            || claims.expires_unix - from > TRIAL_TOKEN_MAX_DAYS * 86_400
+        {
+            return Err(KshanaError::InvalidInput(format!(
+                "trial token lasts longer than {TRIAL_TOKEN_MAX_DAYS} days or has no issue time"
+            )));
+        }
+    }
     if claims.v > 2 {
         return Err(KshanaError::InvalidInput(format!(
             "license claims version {} is newer than this build reads (2)",

@@ -41,6 +41,7 @@ pub mod conf;
 pub mod delivery;
 pub mod fleet;
 pub mod ha;
+pub mod hosted;
 pub mod jobs;
 pub mod library;
 pub mod oidc;
@@ -431,6 +432,11 @@ pub struct ServeConfig {
     pub trial: Option<trial::TrialConfig>,
     /// The licence's `stations` claim, for the Station fleet limit ([`fleet`]).
     pub stations_claim: u32,
+    /// Signs the hosted trial's 14-day trial tokens (`--trial-tokens`, roadmap S6); `None`:
+    /// `POST /trial/token` is closed.
+    pub trial_signer: Option<crate::license::signer::SharedSigner>,
+    /// The hosted results-only service for secret methods (`--hosted`, roadmap C3).
+    pub hosted: Option<HostedSetup>,
     /// Re-queue jobs left queued or running by an earlier process (default true). A
     /// test switches it off to prove that recovery is what finishes those jobs.
     #[doc(hidden)]
@@ -453,9 +459,19 @@ impl ServeConfig {
             tls: None,
             trial: None,
             stations_claim: 0,
+            trial_signer: None,
+            hosted: None,
             recover_on_start: true,
         }
     }
+}
+
+/// What the hosted service (C3) needs: its configuration, the result signer and the
+/// watermark key.
+pub struct HostedSetup {
+    pub config: hosted::HostedConfig,
+    pub signer: crate::license::signer::SharedSigner,
+    pub watermark_key: [u8; 32],
 }
 
 /// A running server, returned by [`start`].
@@ -561,6 +577,23 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
         // Whatever licence the server holds, the trial serves the Evaluation tier.
         config.entitlement = Entitlement::evaluation();
     }
+    if config.hosted.is_some() {
+        if config.data_dir.is_none() {
+            return Err(std::io::Error::other(
+                "the hosted service needs a --data-dir",
+            ));
+        }
+        if config.trial.is_some() {
+            return Err(std::io::Error::other(
+                "the hosted service and the open trial cannot run in one server",
+            ));
+        }
+        if config.api_token.is_none() && config.keys.is_none() && config.oidc.is_none() {
+            return Err(std::io::Error::other(
+                "the hosted service needs subscribers' credentials (--keys-file or --oidc)",
+            ));
+        }
+    }
     let tls = match &config.tls {
         Some((cert, key)) => Some(tls::server_config(cert, key)?),
         None => None,
@@ -603,11 +636,21 @@ pub fn start(config: ServeConfig) -> std::io::Result<ServerHandle> {
     let mut svc = api::Service::with_auth(config.entitlement.clone(), jobs, authn, audit);
     svc.stations_claim = config.stations_claim;
     if let (Some(tc), Some(dir)) = (&config.trial, &config.data_dir) {
-        svc.trial = Some(trial::Trial::open(dir, tc.clone())?);
+        let mut t = trial::Trial::open(dir, tc.clone())?;
+        t.signer = config.trial_signer.clone();
+        svc.trial = Some(t);
         eprintln!(
             "TRIAL: open to anyone at the Evaluation tier; {} jobs a day per caller, {} s per job, {} requests a minute",
             tc.jobs_per_day, tc.max_run_secs, tc.requests_per_minute
         );
+    }
+    if let (Some(h), Some(dir)) = (config.hosted.take(), &config.data_dir) {
+        let n = h.config.subscriptions.len();
+        svc.hosted = Some(
+            hosted::Hosted::open(dir, h.config, h.signer, h.watermark_key)
+                .map_err(std::io::Error::other)?,
+        );
+        eprintln!("HOSTED: results-only service for {n} subscription(s) at /v1/verdict");
     }
     let service = Arc::new(svc);
 

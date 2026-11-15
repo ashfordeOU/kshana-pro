@@ -32,7 +32,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro version                                            Overlay + engine info\n\
        kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
-       kshana-pro serve [--addr <host:port>] [--data-dir <dir>] [--workers <n>] [--api-token-file <path>] [--keys-file <keys.toml>] [--oidc <oidc.toml>] [--audit-retention-days <n>] [--tls-cert <chain.pem> --tls-key <key.pem>] [--ha-node <name> [--ha-lease-secs <s>]] [--trial [--trial-jobs-per-day <n>] [--trial-max-run-secs <s>]] [--license <token>] [--dev]   Host the HTTP(S) service; --data-dir adds the on-premises job service (jobs, ledger, job board, audit log)\n\
+       kshana-pro serve [--addr <host:port>] [--data-dir <dir>] [--workers <n>] [--api-token-file <path>] [--keys-file <keys.toml>] [--oidc <oidc.toml>] [--audit-retention-days <n>] [--tls-cert <chain.pem> --tls-key <key.pem>] [--ha-node <name> [--ha-lease-secs <s>]] [--trial [--trial-jobs-per-day <n>] [--trial-max-run-secs <s>] [--trial-tokens]] [--hosted <hosted.toml>] [--license <token>] [--dev]   Host the HTTP(S) service; --data-dir adds the on-premises job service (jobs, ledger, job board, audit log)\n\
        kshana-pro clients --out <dir>                                Write the generated service clients: <dir>/python/kshana_pro_client.py and <dir>/typescript/kshana_pro_client.ts\n\
        kshana-pro keys <add --file <keys.toml> --id <id> --tenant <t> --role <reader|submitter|admin> | revoke --file <keys.toml> --id <id> | list --file <keys.toml>>   Manage the service's API keys (a new key is printed once; the file keeps only its hash)\n\
        kshana-pro ci --pack <manifest.toml> [--baseline <ci.json>] [--thresholds <spec>] [--utc <iso>] [--customer <name>] [--out <report.html>] [--json <ci.json>] [--history <history.jsonl>] [--trend <trend.html>] [--exact] [--license <token>] [--dev]   Run a Pack C scenario-subscription CI, with campaign watch (Pro)\n\
@@ -525,6 +525,35 @@ fn serve_cmd(args: &[String]) -> ExitCode {
             }
         }
         config.trial = Some(t);
+        if has_flag(args, "--trial-tokens") {
+            // S6: 14-day trial tokens, signed by the configured licence signer.
+            match signer() {
+                Ok(sg) => config.trial_signer = Some(sg),
+                Err(e) => {
+                    eprintln!("error: --trial-tokens: {e}");
+                    return ExitCode::from(2);
+                }
+            }
+        }
+    }
+    if let Some(p) = flag(args, "--hosted") {
+        // C3: the hosted results-only service for secret methods.
+        let setup = crate::serve::hosted::HostedConfig::from_file(std::path::Path::new(&p))
+            .map_err(kshana::api::KshanaError::InvalidInput)
+            .and_then(|c| {
+                Ok(crate::serve::HostedSetup {
+                    config: c,
+                    signer: signer()?,
+                    watermark_key: crate::watermark::key_from_env()?,
+                })
+            });
+        match setup {
+            Ok(s) => config.hosted = Some(s),
+            Err(e) => {
+                eprintln!("error: --hosted: {e}");
+                return ExitCode::from(2);
+            }
+        }
     }
     if let Some(node) = flag(args, "--ha-node") {
         let lease_ms = match flag(args, "--ha-lease-secs").map(|v| v.parse::<f64>()) {

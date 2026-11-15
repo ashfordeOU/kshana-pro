@@ -196,6 +196,8 @@ pub struct Service {
     pub trial: Option<super::trial::Trial>,
     /// The licence's `stations` claim ([`super::fleet::limit_for`]).
     pub stations_claim: u32,
+    /// The hosted results-only service for secret methods (C3, [`super::hosted`]).
+    pub hosted: Option<super::hosted::Hosted>,
 }
 
 impl Service {
@@ -225,6 +227,7 @@ impl Service {
             started: std::time::Instant::now(),
             trial: None,
             stations_claim: 0,
+            hosted: None,
         }
     }
 
@@ -294,7 +297,25 @@ pub fn dispatch_from(
             }
         }
     }
-    let resp = route_request(svc, req, matched.as_ref(), &principal, now);
+    if let (Some(t), Some(j)) = (&svc.trial, &svc.jobs) {
+        // S6: trial jobs do not outlive their retention.
+        t.purge(j, now);
+    }
+    let resp = match (&svc.trial, peer) {
+        (Some(t), Some(ip)) if path == "/trial/token" => {
+            if req.method == "POST" {
+                t.issue_token(ip, &req.body, now)
+            } else {
+                HttpResponse::error(405, "POST /trial/token")
+            }
+        }
+        _ => match &svc.hosted {
+            Some(h) if path == "/v1/verdict" || path.starts_with("/v1/verdict/") => {
+                h.dispatch(svc, req, path, &principal, now)
+            }
+            _ => route_request(svc, req, matched.as_ref(), &principal, now),
+        },
+    };
     if !(req.method == "GET" && path == "/health") {
         let tenant = principal
             .as_ref()
@@ -1133,17 +1154,24 @@ fn submit(svc: &Service, j: &JobService, who: &Principal, body: &str, now: i64) 
         prepared.kind,
         opts,
     ) {
-        Ok((status, created)) => HttpResponse::json(
-            if created { 202 } else { 200 },
-            serde_json::json!({
-                "job_id": status.job_id,
-                "op": status.op,
-                "state": status.state.as_str(),
-                "created": created,
-                "links": { "status": format!("/jobs/{}", status.job_id) },
-            })
-            .to_string(),
-        ),
+        Ok((status, created)) => {
+            if let (Some(t), true) = (&svc.trial, created) {
+                if let Err(e) = t.record_job(&who.tenant, now) {
+                    return HttpResponse::error(503, &format!("trial store: {e}"));
+                }
+            }
+            HttpResponse::json(
+                if created { 202 } else { 200 },
+                serde_json::json!({
+                    "job_id": status.job_id,
+                    "op": status.op,
+                    "state": status.state.as_str(),
+                    "created": created,
+                    "links": { "status": format!("/jobs/{}", status.job_id) },
+                })
+                .to_string(),
+            )
+        }
         Err(r) => r,
     }
 }

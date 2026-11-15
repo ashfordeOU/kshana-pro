@@ -37,7 +37,10 @@ struct Fake {
     calls: Arc<AtomicUsize>,
 }
 
-fn read_request(s: &mut TcpStream) -> Option<(String, Vec<(String, String)>, Vec<u8>)> {
+/// Request line, lower-cased headers, body.
+type Request = (String, Vec<(String, String)>, Vec<u8>);
+
+fn read_request(s: &mut TcpStream) -> Option<Request> {
     let mut r = BufReader::new(s.try_clone().ok()?);
     let mut line = String::new();
     r.read_line(&mut line).ok()?;
