@@ -251,6 +251,36 @@ impl Register {
         )
     }
 
+    /// Issue a token that follows `renews` with new claims (a 35-day renewal, a
+    /// device-bound seat token; roadmap 0.42 C1) and record it as a renewal. A revoked
+    /// `renews` is refused.
+    pub fn reissue(
+        &self,
+        seed: &[u8; KEY_LEN],
+        claims: &LicenseClaims,
+        renews: &str,
+        source: &str,
+        note: &str,
+        now: i64,
+    ) -> Result<(String, Entry), KshanaError> {
+        if self.is_revoked(renews)? {
+            return Err(KshanaError::InvalidInput(format!(
+                "{renews} is revoked; issue a new licence instead"
+            )));
+        }
+        self.issue_action(
+            seed,
+            claims,
+            How {
+                action: Action::Renew,
+                renews: Some(renews.to_string()),
+                source,
+                note,
+            },
+            now,
+        )
+    }
+
     /// Issue a 30-day Pro trial token for `products` and record it. One trial per
     /// licensee: a second is refused.
     pub fn trial(

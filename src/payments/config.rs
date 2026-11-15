@@ -20,6 +20,8 @@ pub enum Provider {
     Paddle,
     #[serde(rename = "lemonsqueezy")]
     LemonSqueezy,
+    /// Stripe: configured in `[stripe]`, never as the `provider` above.
+    Stripe,
 }
 
 impl Provider {
@@ -27,12 +29,14 @@ impl Provider {
         match self {
             Provider::Paddle => "paddle",
             Provider::LemonSqueezy => "lemonsqueezy",
+            Provider::Stripe => "stripe",
         }
     }
     pub fn parse(s: &str) -> Option<Provider> {
         match s {
             "paddle" => Some(Provider::Paddle),
             "lemonsqueezy" | "lemon-squeezy" => Some(Provider::LemonSqueezy),
+            "stripe" => Some(Provider::Stripe),
             _ => None,
         }
     }
@@ -66,6 +70,46 @@ pub struct Edition {
     /// Stations the licence allows (0: not set).
     #[serde(default)]
     pub stations: u32,
+    /// Stripe's price ID (`price_…`). `PLACEHOLDER` until the Stripe account exists.
+    #[serde(default = "placeholder")]
+    pub stripe_price_id: String,
+    /// Stripe checkout mode: `subscription` (default) or `payment` (one-time).
+    #[serde(default)]
+    pub stripe_mode: Option<String>,
+}
+
+fn placeholder() -> String {
+    PLACEHOLDER.to_string()
+}
+
+/// `[stripe]`: built in, off by default (owner, 15 November 2026). Keys come from the
+/// environment only (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`), never from a file.
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct StripeConfig {
+    /// The Stripe switch. Off: no checkout session, `/webhooks/stripe` answers 404.
+    #[serde(default)]
+    pub enabled: bool,
+    /// Where Stripe sends the buyer after paying.
+    #[serde(default)]
+    pub success_url: String,
+    /// Where Stripe sends the buyer who cancels.
+    #[serde(default)]
+    pub cancel_url: String,
+    /// How old a signed timestamp may be, seconds (Stripe's default 300).
+    #[serde(default = "default_tolerance")]
+    pub signature_tolerance_secs: i64,
+}
+
+impl Default for StripeConfig {
+    fn default() -> Self {
+        StripeConfig {
+            enabled: false,
+            success_url: String::new(),
+            cancel_url: String::new(),
+            signature_tolerance_secs: default_tolerance(),
+        }
+    }
 }
 
 /// `[checkout]`: how the paywall opens a checkout.
@@ -108,6 +152,8 @@ pub struct PaymentsConfig {
     pub checkout: Checkout,
     #[serde(default)]
     pub editions: Vec<Edition>,
+    #[serde(default)]
+    pub stripe: StripeConfig,
 }
 
 fn default_tolerance() -> i64 {
@@ -134,6 +180,47 @@ impl PaymentsConfig {
     /// Structural checks, and the live-mode gate: live mode needs every price and
     /// provider ID set (no `PLACEHOLDER` anywhere).
     pub fn check(&self) -> Result<(), KshanaError> {
+        if self.provider == Provider::Stripe {
+            return Err(KshanaError::InvalidInput(
+                "payments.toml: Stripe is set up in [stripe], not as the provider".into(),
+            ));
+        }
+        if self.stripe.enabled {
+            for (k, v) in [
+                ("success_url", &self.stripe.success_url),
+                ("cancel_url", &self.stripe.cancel_url),
+            ] {
+                if !v.starts_with("https://") {
+                    return Err(KshanaError::InvalidInput(format!(
+                        "payments.toml: [stripe] {k} must be an https:// URL"
+                    )));
+                }
+            }
+            for e in &self.editions {
+                if let Some(m) = &e.stripe_mode {
+                    if m != "subscription" && m != "payment" {
+                        return Err(KshanaError::InvalidInput(format!(
+                            "payments.toml: edition '{}' stripe_mode must be subscription or payment",
+                            e.id
+                        )));
+                    }
+                }
+            }
+            if self.mode == Mode::Live {
+                let open: Vec<String> = self
+                    .editions
+                    .iter()
+                    .filter(|e| e.stripe_price_id.trim() == PLACEHOLDER)
+                    .map(|e| format!("{}.stripe_price_id", e.id))
+                    .collect();
+                if !open.is_empty() {
+                    return Err(KshanaError::InvalidInput(format!(
+                        "payments.toml: Stripe live mode needs every Stripe price ID set; still PLACEHOLDER: {}",
+                        open.join(", ")
+                    )));
+                }
+            }
+        }
         let mut ids = std::collections::BTreeSet::new();
         for e in &self.editions {
             if !ids.insert(e.id.as_str()) {

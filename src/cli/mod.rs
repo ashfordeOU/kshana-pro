@@ -7,6 +7,7 @@
 
 mod dossier_cmd;
 mod license_cmd;
+mod packs_cmd;
 mod payments_cmd;
 
 use std::process::ExitCode;
@@ -39,8 +40,9 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro license <verify|activate|status|deactivate|machine-id|revocations|refresh> ...   Licence on this machine (offline; `kshana-pro license` for details)\n\
        kshana-pro backup <create --data-dir <dir> --out <backup-dir> | verify <backup-dir>>   Back up a service data directory while it runs; check a backup offline\n\
        kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
-       kshana-pro payments <check|checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled = false (vendor side)\n\
-       kshana-pro license <keygen|pubkey|issue|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
+       kshana-pro payments <check|checkout|stripe-checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled and payments.stripe.enabled are false (vendor side)\n\
+       kshana-pro packs <build|issue|serve|trace|install|status> ...   Pro pack delivery (C10; `kshana-pro packs` for details)\n\
+       kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
      \n\
      --sample (any command): every page of every document written also carries the mark\n\
      \"SAMPLE: illustrative programme on public data, not a real mission\"; use it for\n\
@@ -86,6 +88,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "healthcheck",
     "license",
     "payments",
+    "packs",
     "dossier",
     "backup",
 ];
@@ -203,6 +206,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         }
         Some("license") => license_cmd::run(&args[1..]),
         Some("payments") => payments_cmd::run(&args[1..]),
+        Some("packs") => packs_cmd::run(&args[1..]),
         Some("dossier") => dossier_cmd::run(&args[1..]),
         Some("backup") => backup_cmd(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.

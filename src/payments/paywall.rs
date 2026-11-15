@@ -90,6 +90,13 @@ pub fn checkout(
                 encode(email)
             )
         }
+        // Refused by `PaymentsConfig::check`; the Stripe checkout is a session created
+        // server side (`payments::stripe::create_checkout_session`).
+        Provider::Stripe => {
+            return Err(KshanaError::Unsupported(
+                "Stripe checkout is created with `kshana-pro payments stripe-checkout`".into(),
+            ))
+        }
     };
     Ok(Paywall::Checkout {
         provider: cfg.provider,

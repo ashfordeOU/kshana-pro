@@ -1,7 +1,0 @@
-# kshana-pro optical/RF hybrid study (L51) — P5 Table 1: ranging/timing precision
-# scenario_hash=69b31f6566a5 optical_footprint_m=7.002353e2 detected_photons=1.010818e9 rf_cn0_dbhz=4.495845e1
-# provenance: all magnitudes Modelled (link-budget + DLL inputs); the CRLB and fusion FORMS are Validated closed forms (see oracle residuals in report)
-modality,ranging_sigma_m,timing_sigma_s,provenance
-rf,8.279280e-1,2.761670e-9,Modelled
-optical,2.357351e-7,1.572655e-15,Modelled
-hybrid,2.357351e-7,1.572655e-15,Modelled

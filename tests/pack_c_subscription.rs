@@ -133,8 +133,8 @@ fn first_subscriber_flow() {
     let renewed = renewed["token"].as_str().unwrap().to_string();
     assert!(ci(&[], &renewed).status.success());
 
-    // 4. Refund of the first payment: the first token is revoked; once the runner has
-    // the revocation list, the pipeline refuses it.
+    // 4. Refund of the first payment: the licence is revoked; once the runner has the
+    // revocation list, the pipeline refuses its tokens.
     let t2 = t1 + 60;
     let b = body(
         "paddle-adjustment-refund.json",
@@ -161,8 +161,10 @@ fn first_subscriber_flow() {
         "{}",
         String::from_utf8_lossy(&o3.stderr)
     );
+    // Owner, 15 November 2026 (roadmap 0.42 C1): a refund ends the licence, so every token
+    // of it is revoked, the renewal included (no copy keeps working).
     assert!(
-        ci(&[], &renewed).status.success(),
-        "the renewed token is not revoked"
+        !ci(&[], &renewed).status.success(),
+        "the renewed token of a refunded licence is revoked too"
     );
 }

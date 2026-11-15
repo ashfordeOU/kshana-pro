@@ -165,6 +165,9 @@ pub fn compiled_edition(id: &str) -> Option<Edition> {
     if crate::extension::owns(id) {
         return Some(Edition::Arksa);
     }
+    if crate::extension::pack_owns(id) {
+        return Some(Edition::Pro);
+    }
     let is_kind = crate::registry::pro_kinds().iter().any(|m| m.name == id);
     if is_kind || super::pro_command_features().contains(&id) {
         return Some(Edition::Pro);
@@ -355,7 +358,13 @@ pub fn manifest() -> Result<&'static TierManifest, KshanaError> {
 /// The edition the verified manifest gives `id`; `None` when the manifest does not list
 /// it or does not verify (both refuse the kind).
 pub fn edition_of(id: &str) -> Option<Edition> {
-    manifest().ok().and_then(|m| m.edition_of(id))
+    let m = manifest().ok()?;
+    m.edition_of(id).or_else(|| {
+        // A kind of a loaded Pro pack (roadmap 0.42 C10): the pack's own signed manifest
+        // lists it, and registration refused any id the tier manifest names at another
+        // tier, so it is at `pro`. Only while the tier manifest itself verifies.
+        crate::extension::pack_owns(id).then_some(Edition::Pro)
+    })
 }
 
 /// The start-up check: the manifest verifies, and it agrees with the code of this build

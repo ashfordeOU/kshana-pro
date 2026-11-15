@@ -97,3 +97,38 @@ Delivery to the buyer: each token is written to `<data_dir>/outbox/<token-id>.js
 * **E-mail sending** from the outbox, and the site's pricing page and checkout page
   (Paddle opens its checkout from a script on that page), are built when the provider
   is chosen.
+
+
+## Stripe, built in and off (owner, 15 November 2026)
+
+Invoice only for now; Stripe is fully built and switched off until the owner activates it.
+
+* **Switch:** `[stripe] enabled = false` in `commercial/payments.toml`. Off: no checkout
+  session is created (the transport is never called), `/webhooks/stripe` answers 404, no
+  Stripe key is read. It is independent of the merchant-of-record switch `enabled`.
+* **Keys from the environment only:** `STRIPE_SECRET_KEY` (checkout; `sk_test_` in test
+  mode, `sk_live_` or a restricted key in live mode; a key of the other mode is refused) and
+  `STRIPE_WEBHOOK_SECRET` (`whsec_`). Each edition takes `stripe_price_id` and optionally
+  `stripe_mode = "payment"` for a one-time sale; live mode needs every Stripe price ID set.
+* **Checkout:** `kshana-pro payments stripe-checkout --edition <id> --seats <n> --licensee <name>
+  --email <addr>` creates a Checkout Session (edition, licensee and quantity in its metadata; an
+  idempotency key per buyer, edition and hour) and prints its URL. The call goes through
+  `curl` with the key on standard input; it is the only outbound call in `src/payments`
+  (`stripe_transport.rs`).
+* **Webhook:** `POST /webhooks/stripe`, `Stripe-Signature` verified with HMAC-SHA256 over
+  `<t>.<body>` against every `v1` value, a 300 s timestamp tolerance; replayed event ids,
+  older events for the same order or subscription, forged and stale deliveries are refused.
+  `checkout.session.completed` (paid) opens a licence (idempotent per order: a second
+  delivery of the same session issues nothing); `invoice.paid` for a subscription cycle pays
+  it on and issues a fresh token; `customer.subscription.deleted` or `.updated` to canceled,
+  unpaid or incomplete_expired, a full `charge.refunded` and `charge.dispute.created` revoke
+  the whole licence and rewrite the signed revocation list.
+* **Tokens (C1):** every purchase, from any provider, now opens a licence in the ledger
+  (`licences.json` beside the register): its tokens last 35 days (or the term, when
+  shorter) and the app renews them through the automatic licence check
+  (docs/PRO-PACKS.md). A refund, chargeback or subscription end revokes every token of the
+  licence, the device tokens included.
+* **Invoices:** `kshana-pro license issue-invoice` and `extend-invoice` (docs/PRO-PACKS.md,
+  section 5).
+
+Tests: `tests/stripe_payments.rs` (synthetic events signed with a test secret).

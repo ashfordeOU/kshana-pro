@@ -384,6 +384,7 @@ fn switch_off_means_no_checkout_no_listener_no_delivery() {
         paths: kshana_pro::payments::webhook::Paths {
             dir: dir.join("data"),
         },
+        stripe_secret: None,
     };
     let body = fixture("paddle-transaction-completed.json", T0);
     let o = issuer.handle(
@@ -434,9 +435,14 @@ fn switch_off_means_no_checkout_no_listener_no_delivery() {
 fn payments_code_makes_no_outbound_connection() {
     // The payments module only listens; it never opens a connection or runs a program
     // (the provider calls in). A source check, so a later change cannot add one quietly.
+    // One exception, Stripe's checkout call (`stripe_transport.rs`), reachable only with
+    // `[stripe] enabled` (tests/stripe_payments.rs checks the switch refuses first).
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/payments");
     for f in std::fs::read_dir(&dir).unwrap() {
         let p = f.unwrap().path();
+        if p.file_name().is_some_and(|n| n == "stripe_transport.rs") {
+            continue;
+        }
         let src = std::fs::read_to_string(&p).unwrap();
         for bad in [
             "TcpStream::connect",

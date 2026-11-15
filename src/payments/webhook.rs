@@ -21,6 +21,7 @@ use kshana::api::KshanaError;
 
 use super::config::{PaymentsConfig, Provider};
 use super::provider::{self, Action, Event};
+use crate::license::lifecycle::{Delivery, LicenceService};
 use crate::license::register::Register;
 use crate::license::{LicenseClaims, KEY_LEN};
 
@@ -45,6 +46,9 @@ pub struct State {
     /// Token ID to the buyer's e-mail address, for renewal deliveries.
     #[serde(default)]
     pub emails: BTreeMap<String, String>,
+    /// Other names of an order (Stripe: payment intent, invoice, session) to the order.
+    #[serde(default)]
+    pub aliases: BTreeMap<String, String>,
 }
 
 /// A delivery's answer.
@@ -95,20 +99,52 @@ impl Paths {
 /// Everything a delivery needs, loaded once at start.
 pub struct Issuer {
     pub config: PaymentsConfig,
+    /// The merchant of record's webhook secret (empty while `enabled` is false).
     pub secret: String,
     pub seed: [u8; KEY_LEN],
     pub paths: Paths,
+    /// Stripe's webhook endpoint secret, from `STRIPE_WEBHOOK_SECRET`; only read when
+    /// `[stripe] enabled` is true.
+    pub stripe_secret: Option<String>,
 }
 
 impl Issuer {
     /// Load secrets and paths. Refused when payments are off.
     pub fn open(config: PaymentsConfig, base: &Path) -> Result<Issuer, KshanaError> {
-        if !config.enabled {
+        Issuer::open_with_env(config, base, &|k| std::env::var(k).ok())
+    }
+
+    /// [`Issuer::open`] reading Stripe's webhook secret through `env`.
+    pub fn open_with_env(
+        config: PaymentsConfig,
+        base: &Path,
+        env: &dyn Fn(&str) -> Option<String>,
+    ) -> Result<Issuer, KshanaError> {
+        if !config.enabled && !config.stripe.enabled {
             return Err(KshanaError::Unsupported(
-                "payments are off (payments.enabled = false)".into(),
+                "payments are off (payments.enabled = false, payments.stripe.enabled = false)"
+                    .into(),
             ));
         }
-        let secret = config.webhook_secret(base)?;
+        let secret = if config.enabled {
+            config.webhook_secret(base)?
+        } else {
+            String::new()
+        };
+        let stripe_secret = if config.stripe.enabled {
+            let s = env(super::stripe::ENV_WEBHOOK_SECRET)
+                .map(|s| s.trim().to_string())
+                .filter(|s| s.starts_with("whsec_"))
+                .ok_or_else(|| {
+                    KshanaError::InvalidInput(format!(
+                        "Stripe is on but {} (whsec_…) is not set",
+                        super::stripe::ENV_WEBHOOK_SECRET
+                    ))
+                })?;
+            Some(s)
+        } else {
+            None
+        };
         let seed = config.signing_seed(base)?;
         let dir = config.data_dir(base);
         std::fs::create_dir_all(&dir).map_err(|e| {
@@ -119,6 +155,7 @@ impl Issuer {
             secret,
             seed,
             paths: Paths { dir },
+            stripe_secret,
         })
     }
 
@@ -145,13 +182,27 @@ impl Issuer {
         body: &[u8],
         now: i64,
     ) -> Outcome {
-        if !self.config.enabled {
-            return Outcome::new(404, "payments are off");
-        }
-        if provider != self.config.provider {
-            return Outcome::new(404, "no webhook for this provider");
+        if provider == Provider::Stripe {
+            if !self.config.stripe.enabled || self.stripe_secret.is_none() {
+                return Outcome::new(404, "Stripe is off");
+            }
+        } else {
+            if !self.config.enabled {
+                return Outcome::new(404, "payments are off");
+            }
+            if provider != self.config.provider {
+                return Outcome::new(404, "no webhook for this provider");
+            }
         }
         let verified = match provider {
+            Provider::Stripe => super::stripe::verify(
+                header,
+                body,
+                self.stripe_secret.as_deref().unwrap_or(""),
+                now,
+                self.config.stripe.signature_tolerance_secs,
+            )
+            .map(|_| ()),
             Provider::Paddle => provider::verify_paddle(
                 header,
                 body,
@@ -169,6 +220,7 @@ impl Issuer {
         let ev = match provider {
             Provider::Paddle => provider::decode_paddle(body),
             Provider::LemonSqueezy => provider::decode_lemonsqueezy(body),
+            Provider::Stripe => super::stripe::decode(body),
         };
         let ev = match ev {
             Ok(e) => e,
@@ -189,6 +241,13 @@ impl Issuer {
                         ev.occurred_unix
                     ),
                 );
+            }
+        }
+        if provider == Provider::Stripe {
+            if let Action::Purchase { order_id, .. } = &ev.action {
+                for a in super::stripe::aliases(body) {
+                    st.aliases.entry(a).or_insert_with(|| order_id.clone());
+                }
             }
         }
         let out = match self.act(&ev, &mut st, now) {
@@ -224,7 +283,11 @@ impl Issuer {
                 if st.orders.contains_key(order_id) {
                     return Ok(Outcome::new(200, "order already issued"));
                 }
-                let Some(ed) = self.config.edition_by_price(price_id) else {
+                let ed = match price_id.strip_prefix("edition:") {
+                    Some(id) => self.config.edition(id),
+                    None => self.config.edition_by_price(price_id),
+                };
+                let Some(ed) = ed else {
                     return Ok(Outcome::new(
                         200,
                         format!("ignored: price {price_id} is not a Kshana edition"),
@@ -240,21 +303,29 @@ impl Issuer {
                 let claims = LicenseClaims {
                     licensee: name,
                     tier: ed.tier.clone(),
-                    expires_unix: now + ed.days * 86_400,
                     products: ed.products.clone(),
                     seats: *quantity,
                     stations: ed.stations,
                     ..Default::default()
                 };
-                let (token, entry) = reg
-                    .issue(
-                        &self.seed,
+                // C1: the licence is paid for the edition's term; its tokens last 35 days
+                // (or the term, when shorter) and the app renews them online.
+                let issued = self
+                    .licences()
+                    .open_licence(
                         &claims,
+                        Delivery::Online,
+                        now + ed.days * 86_400,
                         &source,
                         &format!("order {order_id}; edition {}", ed.id),
                         now,
                     )
                     .map_err(fail)?;
+                let token = issued.token;
+                let entry = reg
+                    .find(&issued.token_id)
+                    .map_err(fail)?
+                    .ok_or_else(|| Outcome::new(500, "issued token missing from the register"))?;
                 st.orders.insert(order_id.clone(), entry.token_id.clone());
                 st.emails.insert(entry.token_id.clone(), email.clone());
                 if let Some(sub) = subscription_id {
@@ -308,9 +379,33 @@ impl Issuer {
                     .and_then(|e| self.config.edition(e))
                     .map(|e| e.days)
                     .unwrap_or(365);
-                let (token, entry) = reg
-                    .renew(&self.seed, &tid, days, &source, now)
-                    .map_err(|e| Outcome::new(409, e.to_string()))?;
+                let svc = self.licences();
+                let (token, entry) = match svc.ledger.root_of(&tid).map_err(fail)? {
+                    // C1: the payment moves the paid-through date; a fresh token follows.
+                    Some(root) => {
+                        let paid = svc
+                            .ledger
+                            .load()
+                            .map_err(fail)?
+                            .get(&root)
+                            .map(|r| r.paid_through_unix)
+                            .unwrap_or(now);
+                        svc.extend(&root, paid.max(now) + days * 86_400)
+                            .map_err(|e| Outcome::new(409, e.to_string()))?;
+                        let i = svc
+                            .reissue_unbound(&root, &source, now)
+                            .map_err(|e| Outcome::new(409, e.to_string()))?;
+                        let e = reg
+                            .find(&i.token_id)
+                            .map_err(fail)?
+                            .ok_or_else(|| Outcome::new(500, "renewed token missing"))?;
+                        (i.token, e)
+                    }
+                    // A token issued before the ledger existed.
+                    None => reg
+                        .renew(&self.seed, &tid, days, &source, now)
+                        .map_err(|e| Outcome::new(409, e.to_string()))?,
+                };
                 st.subscriptions
                     .insert(subscription_id.clone(), entry.token_id.clone());
                 st.orders.insert(order_id.clone(), entry.token_id.clone());
@@ -332,7 +427,8 @@ impl Issuer {
                 self.revoke(&reg, &tid, "subscription ended", &source, now)
             }
             Action::Refund { order_id } => {
-                let Some(tid) = st.orders.get(order_id).cloned() else {
+                let order = st.aliases.get(order_id).unwrap_or(order_id);
+                let Some(tid) = st.orders.get(order).cloned() else {
                     return Err(Outcome::new(
                         409,
                         format!("order {order_id} not seen yet; retry later"),
@@ -352,12 +448,25 @@ impl Issuer {
         now: i64,
     ) -> Result<Outcome, Outcome> {
         let fail = |e: KshanaError| Outcome::new(500, e.to_string());
-        reg.revoke(tid, why, source, now).map_err(fail)?;
-        let list = reg.revocation_list(&self.seed, &[], now).map_err(fail)?;
+        let svc = self.licences();
+        // The whole licence: the token this order issued, its renewals and every
+        // device-bound seat token (C1), so no copy keeps working.
+        let list = match svc.ledger.root_of(tid).map_err(fail)? {
+            Some(root) => svc.revoke(&root, why, source, now).map_err(fail)?,
+            None => {
+                reg.revoke(tid, why, source, now).map_err(fail)?;
+                reg.revocation_list(&self.seed, &[], now).map_err(fail)?
+            }
+        };
         write_atomic(&self.paths.revocations(), &list).map_err(fail)?;
         let mut o = Outcome::new(200, format!("revoked {tid} ({why})"));
         o.revoked = Some(tid.to_string());
         Ok(o)
+    }
+
+    /// The licence service over this issuer's register and ledger.
+    pub fn licences(&self) -> LicenceService {
+        LicenceService::open(self.seed, &[], &self.paths.dir)
     }
 
     /// Write a delivery for the buyer to the outbox. Sending it (e-mail) is the

@@ -155,6 +155,7 @@ pub fn pro_command_features() -> Vec<&'static str> {
         .iter()
         .copied()
         .chain(crate::extension::features().iter().map(|f| f.id))
+        .chain(crate::extension::pack_features().iter().map(|f| f.id))
         .collect()
 }
 
@@ -800,7 +801,10 @@ pub fn new_token_id() -> String {
 }
 
 pub mod activation;
+pub mod clock;
+pub mod lifecycle;
 pub mod machine;
+pub mod online;
 pub mod register;
 pub mod revocation;
 pub mod tiers;

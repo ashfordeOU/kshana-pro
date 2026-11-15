@@ -57,15 +57,15 @@ fn trial_renewal_and_revocation_from_the_register() {
     assert_eq!(entry.action, Some(Action::Trial));
     assert_eq!(entry.expires_unix, T0 + 30 * DAY);
     let st = store.activate(&ring, &trial, &desktop_at(T0)).unwrap();
-    // A 30-day trial sits inside the 30-day warning window from its first day.
-    assert_eq!(st.state, State::Expiring { days_left: 30 });
+    // A 30-day trial starts active: the first warning comes 14 days before expiry.
+    assert_eq!(st.state, State::Active);
     assert_eq!(st.entitlement.tier, Tier::Pro);
     // One trial per licensee.
     assert!(reg
         .trial(&SEED, "harbour pilots ltd", &["desktop".into()], T0)
         .is_err());
 
-    // Day 25: warned (30-day window), still Pro.
+    // Day 25: warned (7-day warning), still Pro.
     let st = store.status(&ring, &[], &desktop_at(T0 + 25 * DAY));
     assert_eq!(st.state, State::Expiring { days_left: 5 });
     assert!(st.warning.unwrap().contains("Renew now"));
@@ -148,25 +148,29 @@ fn grace_period_then_evaluation() {
 
     let at = |d: i64| store.status(&ring, &[], &desktop_at(T0 + d));
     assert_eq!(
-        store.status(&ring, &[], &desktop_at(T0 - 31 * DAY)).state,
+        store.status(&ring, &[], &desktop_at(T0 - 15 * DAY)).state,
         State::Active
     );
-    assert_eq!(
-        store.status(&ring, &[], &desktop_at(T0 - 20 * DAY)).state,
-        State::Expiring { days_left: 20 }
-    );
+    let w = store.status(&ring, &[], &desktop_at(T0 - 10 * DAY));
+    assert_eq!(w.state, State::Expiring { days_left: 10 });
+    assert!(w.warning.unwrap().contains("Renew soon"));
+    let w = store.status(&ring, &[], &desktop_at(T0 - DAY + 1));
+    assert_eq!(w.state, State::Expiring { days_left: 1 });
+    assert!(w.warning.unwrap().contains("last day"));
+    // Owner correction (15 November 2026): the 30-day window after expiry gives no Pro
+    // use; it is a window to renew in.
     let g = at(DAY);
-    assert_eq!(g.state, State::Grace { days_left: 13 });
-    assert_eq!(g.entitlement.tier, Tier::Enterprise);
-    assert!(g.entitlement.allows("pro-batch", T0 + DAY));
-    assert!(g.warning.unwrap().contains("grace"));
-    assert_eq!(at(14 * DAY - 1).state, State::Grace { days_left: 1 });
-    let e = at(14 * DAY);
+    assert_eq!(g.state, State::Grace { days_left: 29 });
+    assert_eq!(g.entitlement.tier, Tier::Evaluation);
+    assert!(!g.entitlement.allows("pro-batch", T0 + DAY));
+    assert!(g.warning.unwrap().contains("renew within"));
+    assert_eq!(at(30 * DAY - 1).state, State::Grace { days_left: 1 });
+    let e = at(30 * DAY);
     assert_eq!(e.state, State::Expired);
     assert_eq!(e.entitlement.tier, Tier::Evaluation);
-    // An expired token beyond grace is not activated.
+    // An expired token beyond the window is not activated.
     assert!(store
-        .activate(&ring, &tok, &desktop_at(T0 + 15 * DAY))
+        .activate(&ring, &tok, &desktop_at(T0 + 31 * DAY))
         .is_err());
 }
 

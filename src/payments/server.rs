@@ -1,6 +1,7 @@
 // PROPRIETARY — Kshana Pro overlay. Not part of the open-source engine. See LICENSE.
 //
 //! The webhook listener: `POST /webhooks/paddle`, `POST /webhooks/lemonsqueezy`,
+//! `POST /webhooks/stripe` (only with `[stripe] enabled`),
 //! `GET /health`. Blocking, standard library only, like the Pro service; the raw body
 //! is kept as bytes because the signature is over the exact bytes sent. TLS is
 //! terminated in front of it (a reverse proxy), as for the Pro service.
@@ -98,6 +99,12 @@ pub fn route(issuer: &Issuer, req: &RawRequest, now: i64) -> Outcome {
         ("POST", "/webhooks/paddle") => issuer.handle(
             Provider::Paddle,
             req.header("Paddle-Signature"),
+            &req.body,
+            now,
+        ),
+        ("POST", "/webhooks/stripe") => issuer.handle(
+            Provider::Stripe,
+            req.header("Stripe-Signature"),
             &req.body,
             now,
         ),

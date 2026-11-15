@@ -85,6 +85,7 @@ pub fn status_in(store: &Store, at: i64) -> Status {
             licence: None,
             entitlement: Entitlement::evaluation(),
             warning: Some(e),
+            pro_ends_unix: 0,
         },
     }
 }

@@ -8,9 +8,12 @@
 //!   arrives on paper, a USB stick or by e-mail to another machine).
 //! * **Revocation** arrives with updates: a signed list ([`super::revocation`]) is
 //!   installed from the update or by hand; a revoked token stops at that point.
-//! * **Expiry**: warnings 30 and 7 days ahead; after expiry a 14-day grace period
-//!   keeps the licence working with a warning; then the build falls back to the
-//!   Evaluation tier.
+//! * **Expiry** (roadmap 0.42 C1, owner 15 November 2026): warnings 14, 7 and 1 days
+//!   ahead. At expiry Pro stops (Evaluation tier). A 30-day renewal window follows, with
+//!   a warning every day, in which a renewal unlocks Pro again without a new download;
+//!   it gives no Pro use (owner correction, 15 November 2026).
+//! * **Clock rollback**: [`Store::status_guarded`] keeps the latest time seen
+//!   ([`super::clock`]); a clock set back is reported and the later time is used.
 //! * **Online refresh** is opt-in and off by default: only when the store's
 //!   `refresh.toml` says `enabled = true` does [`refresh`] fetch a newer revocation
 //!   list and a renewed token from the vendor URL. Nothing else in Kshana phones home.
@@ -27,10 +30,10 @@ use kshana::api::KshanaError;
 use super::revocation::{self, RevocationList};
 use super::{verify_with, Entitlement, Keyring, Licence, Product, VerifyOptions};
 
-/// Days of grace after expiry.
-pub const GRACE_DAYS: i64 = 14;
-/// Days before expiry at which the first and second warnings start.
-pub const WARN_DAYS: [i64; 2] = [30, 7];
+/// Days of grace after expiry (C1: 30-day offline grace).
+pub const GRACE_DAYS: i64 = 30;
+/// Days before expiry at which the warnings start: the first, the second and the last.
+pub const WARN_DAYS: [i64; 3] = [14, 7, 1];
 const DAY: i64 = 86_400;
 
 /// Where a licence stands.
@@ -38,11 +41,11 @@ const DAY: i64 = 86_400;
 pub enum State {
     /// No token activated: Evaluation tier.
     NoLicence,
-    /// Valid, more than 30 days left (or perpetual).
+    /// Valid, more than 14 days left (or perpetual).
     Active,
-    /// Valid, expiring within 30 days.
+    /// Valid, expiring within 14 days.
     Expiring { days_left: i64 },
-    /// Expired, within the grace period: still works.
+    /// Expired, within the 30-day renewal window: Evaluation tier, renewal unlocks it.
     Grace { days_left: i64 },
     /// Expired beyond the grace period: Evaluation tier.
     Expired,
@@ -73,11 +76,15 @@ pub struct Status {
     pub state: State,
     /// The verified licence, when the signature held.
     pub licence: Option<Licence>,
-    /// What the build runs at: the licence's entitlement while active, expiring or in
-    /// grace, else Evaluation.
+    /// What the build runs at: the licence's entitlement while active or expiring, else
+    /// Evaluation (also in the renewal window).
     pub entitlement: Entitlement,
     /// A message for the user (expiry warning, grace, revocation, why invalid).
     pub warning: Option<String>,
+    /// When Pro use ends (Unix seconds): the token's expiry, or the time the licence
+    /// server said the licence ended. 0: perpetual or no licence. The 30-day renewal window
+    /// runs from here (the Pro pack is deleted at its end).
+    pub pro_ends_unix: i64,
 }
 
 /// Evaluate `token` at `opts.now_unix` against `ring` and the revocation lists (the
@@ -89,6 +96,7 @@ pub fn evaluate(
     opts: &VerifyOptions<'_>,
 ) -> Status {
     let eval = |state: State, licence: Option<Licence>, warning: Option<String>| Status {
+        pro_ends_unix: licence.as_ref().map(|l| l.claims.expires_unix).unwrap_or(0),
         state,
         licence,
         entitlement: Entitlement::evaluation(),
@@ -125,6 +133,7 @@ pub fn evaluate(
     let now = opts.now_unix;
     if exp == 0 || now < exp - WARN_DAYS[0] * DAY {
         return Status {
+            pro_ends_unix: exp,
             state: State::Active,
             entitlement: lic.entitlement.clone(),
             licence: Some(lic),
@@ -133,12 +142,15 @@ pub fn evaluate(
     }
     if now < exp {
         let days_left = (exp - now + DAY - 1) / DAY;
-        let level = if days_left <= WARN_DAYS[1] {
+        let level = if days_left <= WARN_DAYS[2] {
+            "Renew now (last day)"
+        } else if days_left <= WARN_DAYS[1] {
             "Renew now"
         } else {
             "Renew soon"
         };
         return Status {
+            pro_ends_unix: exp,
             state: State::Expiring { days_left },
             entitlement: lic.entitlement.clone(),
             warning: Some(format!(
@@ -149,17 +161,17 @@ pub fn evaluate(
     }
     let grace_end = exp + GRACE_DAYS * DAY;
     if now < grace_end {
+        // Owner, 15 November 2026: the grace period is a renewal window only. Pro stops at
+        // expiry (Evaluation tier); the Pro pack stays on disk, locked, so a renewal
+        // brings it back without a download; at the window's end it is deleted.
         let days_left = (grace_end - now + DAY - 1) / DAY;
-        let mut ent = lic.entitlement.clone();
-        ent.expires_unix = grace_end;
-        return Status {
-            state: State::Grace { days_left },
-            entitlement: ent,
-            warning: Some(format!(
-                "the licence has expired; it keeps working for a {GRACE_DAYS}-day grace period ({days_left} day(s) left). Renew to keep Pro features"
+        return eval(
+            State::Grace { days_left },
+            Some(lic),
+            Some(format!(
+                "the licence has expired and Pro is locked; renew within {days_left} day(s) to unlock it again without a new download (the {GRACE_DAYS}-day renewal window)"
             )),
-            licence: Some(lic),
-        };
+        );
     }
     eval(
         State::Expired,
@@ -169,6 +181,37 @@ pub fn evaluate(
                 .into(),
         ),
     )
+}
+
+/// The licence server said the licence ended at `ended_unix` (a signed answer,
+/// [`super::online`]): from then on Pro is locked, the 30-day renewal window runs from
+/// `ended_unix`, then the licence counts as expired.
+pub fn apply_end(st: Status, ended_unix: i64, now: i64) -> Status {
+    let usable = matches!(st.state, State::Active | State::Expiring { .. });
+    if !usable || now < ended_unix {
+        return st;
+    }
+    let grace_end = ended_unix + GRACE_DAYS * DAY;
+    let (state, warning) = if now < grace_end {
+        let days_left = (grace_end - now + DAY - 1) / DAY;
+        (
+            State::Grace { days_left },
+            format!("the subscription has ended and Pro is locked; renew within {days_left} day(s) to unlock it again without a new download"),
+        )
+    } else {
+        (
+            State::Expired,
+            "the subscription has ended and the renewal window is over; running at Evaluation tier"
+                .into(),
+        )
+    };
+    Status {
+        state,
+        licence: st.licence,
+        entitlement: Entitlement::evaluation(),
+        warning: Some(warning),
+        pro_ends_unix: ended_unix,
+    }
 }
 
 /// The licence store directory.
@@ -310,7 +353,37 @@ impl Store {
     ) -> Status {
         let mut lists: Vec<RevocationList> = extra.to_vec();
         lists.extend(self.revocations(ring));
-        evaluate(ring, self.token().as_deref(), &lists, opts)
+        let st = evaluate(ring, self.token().as_deref(), &lists, opts);
+        match super::online::ended_record(self, ring) {
+            Some(r) => apply_end(st, r.ended_unix.unwrap_or(r.server_unix), opts.now_unix),
+            None => st,
+        }
+    }
+
+    /// [`Store::status`] with the clock guard: the latest time seen is kept in the store
+    /// (`clock.json`); when the clock has been set back, the status is taken at the later
+    /// time and the warning says so.
+    pub fn status_guarded(
+        &self,
+        ring: &Keyring,
+        extra: &[RevocationList],
+        opts: &VerifyOptions<'_>,
+    ) -> (Status, super::clock::ClockCheck) {
+        let c = super::clock::ClockGuard::in_dir(&self.dir).check(opts.now_unix);
+        let at = VerifyOptions {
+            now_unix: c.effective_unix,
+            product: opts.product,
+            machine: opts.machine,
+            allow_expired: opts.allow_expired,
+        };
+        let mut st = self.status(ring, extra, &at);
+        if let Some(w) = super::clock::ClockGuard::warning(&c) {
+            st.warning = Some(match st.warning.take() {
+                Some(prev) => format!("{w}; {prev}"),
+                None => w,
+            });
+        }
+        (st, c)
     }
 
     /// The refresh settings (off when the file is absent).

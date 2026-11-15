@@ -75,6 +75,12 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
 pub fn pro_kinds() -> Vec<ScenarioMeta> {
     let mut kinds = builtin_pro_kinds();
     kinds.extend(crate::extension::kinds().iter().map(|k| k.meta.clone()));
+    // The kinds of a loaded Pro pack (crate::propack), if any.
+    kinds.extend(
+        crate::extension::pack_kinds()
+            .iter()
+            .map(|k| k.meta.clone()),
+    );
     kinds
 }
 
@@ -252,6 +258,9 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     OptimismGapAuditScenario::register_into(&mut reg);
     ConflictResilienceStudyScenario::register_into(&mut reg);
     for k in crate::extension::kinds() {
+        (k.register_into)(&mut reg);
+    }
+    for k in crate::extension::pack_kinds() {
         (k.register_into)(&mut reg);
     }
     reg
