@@ -50,6 +50,23 @@ fn examples() -> Vec<(&'static str, String)> {
             "pro-timing-holdover",
             include_str!("../scenarios/timing-holdover-inline.toml").to_string(),
         ),
+        (
+            "pro-threat-scenario",
+            "kind = \"pro-threat-scenario\"\nscenario = \"texbat-ds4-matched-power-position-push\"\n"
+                .to_string(),
+        ),
+        (
+            "pro-receiver-scorecard",
+            "kind = \"pro-receiver-scorecard\"\ntitle = \"t\"\n[receiver]\nmaker = \"m\"\nmodel = \"x\"\n\
+             [campaign]\nid = \"c\"\n[[case]]\nid = \"a\"\nlibrary = \"jammertest-stepped-power-jamming\"\n"
+                .to_string(),
+        ),
+        (
+            "pro-timing-scorecard",
+            "kind = \"pro-timing-scorecard\"\ntitle = \"t\"\nfleet = \"examples/timing-fleet/fleet.toml\"\n\
+             grandmasters = [\"gm-fra-1\"]\nscenarios = [\"baltic-timing-holdover-under-jamming\"]\n"
+                .to_string(),
+        ),
     ]
 }
 

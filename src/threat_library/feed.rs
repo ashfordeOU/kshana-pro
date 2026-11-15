@@ -243,14 +243,17 @@ pub fn verify(
         match std::fs::read(dir.join(&e.path)) {
             Ok(b) => {
                 if hex::encode(Sha256::digest(&b)) != e.sha256 {
-                    v.problems.push(format!("{}: hash differs from {MANIFEST}", e.path));
+                    v.problems
+                        .push(format!("{}: hash differs from {MANIFEST}", e.path));
                 }
                 match std::str::from_utf8(&b)
                     .map_err(|e| KshanaError::InvalidInput(e.to_string()))
                     .and_then(ThreatScenario::parse)
                 {
                     Ok(s) if s.id == e.id && s.version == e.version => {}
-                    Ok(_) => v.problems.push(format!("{}: id or version differs", e.path)),
+                    Ok(_) => v
+                        .problems
+                        .push(format!("{}: id or version differs", e.path)),
                     Err(err) => v.problems.push(format!("{}: {err}", e.path)),
                 }
             }
@@ -270,7 +273,8 @@ pub fn verify(
         let want = hex::encode(Sha256::digest(p));
         let pm: Option<FeedManifest> = serde_json::from_slice(p).ok();
         match (&m.previous, pm) {
-            (Some(prev), Some(pm)) if prev.manifest_sha256 == want && prev.edition == pm.edition => {}
+            (Some(prev), Some(pm))
+                if prev.manifest_sha256 == want && prev.edition == pm.edition => {}
             _ => v
                 .problems
                 .push("the feed does not follow the previous edition given".into()),

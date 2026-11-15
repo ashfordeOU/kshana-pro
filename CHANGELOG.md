@@ -5,6 +5,27 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Threat scenario library (roadmap 0.42 E2; docs/THREAT-LIBRARY.md).** New kind
+  `pro-threat-scenario`, feature `pro-threat-library`, command `kshana-pro threats
+  list|show|export|feed`. Twelve curated events (Baltic, Hormuz, Red Sea, JammerTest, TEXBAT) in
+  `threat-library/scenarios/`, each with sources, parameter basis, licence notes and no source
+  data (validator and feed verifier refuse redistribution); reproducible analogues (open NMEA
+  generator, open receiver-trust monitors) and timing profiles; exports through the open I4
+  test-bench writers; a signed, chained monthly feed that verifies for free.
+- **Receiver resilience scorecards and test report (roadmap 0.42 E3; docs/RECEIVER-SCORECARDS.md).**
+  New kind `pro-receiver-scorecard`, command `kshana-pro scorecard run|verify`. Campaigns of
+  library analogues or receiver logs with stated events and optional I4 truth; detection,
+  availability, error, misleading output without warning, recovery; levels mapped to the DHS
+  framework and topics to the IEEE P1952 draft as test evidence; frozen format
+  `kshana-pro-receiver-scorecard/1`; signed report. Public sample pre-registered before scoring:
+  E3-B1 met, E3-B2 (a) missed (meaconing hides position error when truth is aligned by the
+  receiver's own time; kilometre distances differ by 0.4 %) and published, E3-B2 (b) and E3-B3 met.
+- **Timing scorecards under spoofing scenarios (roadmap 0.42 T4).** New kind
+  `pro-timing-scorecard`, command `kshana-pro timing scorecard`: grandmasters and their PTP
+  network under library timing profiles, detection against the T1 holdover envelope or a site
+  cross-check, delivered error and holdover per clock and limit, levels via E3. Public sample on
+  the demo fleet pre-registered; T4-B1..B3 met. All three kinds listed at `pro` in the
+  regenerated signed tier manifest.
 - **Incident forensics, the lead Pro product (roadmap 0.42 E1, owner decision K8;
   docs/INCIDENT-FORENSICS.md).** New Pro pack kind `pro-incident-forensics` and command
   `kshana-pro forensics run|review|verify|pack-payload`. For an incident (window, area, subject)

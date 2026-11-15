@@ -1,0 +1,48 @@
+# Public sample of the timing scorecard (roadmap 0.42, T4): the demo timing fleet
+# (examples/timing-fleet: two REAL public IGS rubidium clocks, the rest SYNTHETIC) under the
+# threat library's three timing scenarios. Detector pre-registered in
+# docs/evidence/t4-timing-scorecard/2026-11-15_PREREGISTRATION.md before the first scoring.
+#
+#   kshana-pro timing scorecard examples/timing-scorecard/request.toml --out <dir> --signer <name> --key-file <key>
+kind = "pro-timing-scorecard"
+title = "Public sample: demo timing fleet under threat library timing scenarios"
+fleet = "../timing-fleet/fleet.toml"
+grandmasters = ["gm-ldn-1", "gm-fra-1"]
+scenarios = [
+  "jammertest-time-spoofing",
+  "texbat-ds3-matched-power-time-push",
+  "baltic-timing-holdover-under-jamming",
+]
+fixed_utc = "2026-11-15T13:30:00Z"
+
+[detector]
+k_sigma = 3.0
+floor_s = 20e-9
+cross_check = true
+full_fraction = 0.1
+
+# FRA has a second independent reference (both IGS public clocks).
+[[pairs]]
+a = "gm-fra-1"
+b = "ref-fra-0"
+
+# The PTP and NTP network behind each grandmaster.
+[[network]]
+clock = "bc-ldn-2"
+upstream = "gm-ldn-1"
+
+[[network]]
+clock = "srv-ldn-3"
+upstream = "bc-ldn-2"
+
+[[network]]
+clock = "pps-ldn-5"
+upstream = "gm-ldn-1"
+
+[[network]]
+clock = "wr-fra-2"
+upstream = "gm-fra-1"
+
+[[network]]
+clock = "ntp-fra-4"
+upstream = "wr-fra-2"

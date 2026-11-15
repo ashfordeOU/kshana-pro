@@ -133,7 +133,10 @@ pub fn analogue(s: &ThreatScenario) -> Result<Option<Analogue>, KshanaError> {
 
 /// The summary of an analogue run.
 pub fn summarise(s: &ThreatScenario, an: &Analogue) -> AnalogueRun {
-    let a = s.analogue.as_ref().expect("an analogue run has an analogue");
+    let a = s
+        .analogue
+        .as_ref()
+        .expect("an analogue run has an analogue");
     let nmea = an.nmea();
     let events = an
         .result
@@ -174,7 +177,8 @@ pub fn run_analogue(s: &ThreatScenario) -> Result<Option<AnalogueRun>, KshanaErr
 
 /// The events of a run as CSV.
 pub fn events_csv(r: &AnalogueRun) -> String {
-    let mut out = String::from("label,kind,injected,onset_s,end_s,outcome,latency_s,first_monitors\n");
+    let mut out =
+        String::from("label,kind,injected,onset_s,end_s,outcome,latency_s,first_monitors\n");
     for e in &r.events {
         out.push_str(&format!(
             "{},{},{},{:.1},{:.1},{},{},{}\n",
@@ -204,7 +208,10 @@ fn ned_to_ecef(lat: f64, lon: f64, v: [f64; 3]) -> [f64; 3] {
 
 /// The analogue's true motion and its events as an I4 test-bench trajectory.
 pub fn trajectory(s: &ThreatScenario, an: &Analogue) -> Result<Trajectory, KshanaError> {
-    let a = s.analogue.as_ref().expect("an analogue run has an analogue");
+    let a = s
+        .analogue
+        .as_ref()
+        .expect("an analogue run has an analogue");
     let epoch = UtcEpoch::parse_iso(&a.scenario.start_utc)
         .map_err(|e| KshanaError::InvalidInput(format!("start_utc: {e}")))?;
     let h = a.receiver.antenna_height_m;
@@ -253,8 +260,9 @@ pub fn trajectory(s: &ThreatScenario, an: &Analogue) -> Result<Trajectory, Kshan
         .collect();
     Ok(Trajectory {
         kind: "pro-threat-scenario".into(),
-        scenario_hash: hex::encode(Sha256::digest(super::source_of(&s.id).unwrap_or("").as_bytes()))
-            [..12]
+        scenario_hash: hex::encode(Sha256::digest(
+            super::source_of(&s.id).unwrap_or("").as_bytes(),
+        ))[..12]
             .to_string(),
         epoch,
         note: format!(
@@ -365,9 +373,9 @@ pub fn write(s: &ThreatScenario, out: &Path) -> Result<Vec<String>, KshanaError>
         written.push(rel.to_string());
         Ok(())
     };
-    let src = super::source_of(&s.id).map(str::to_string).unwrap_or_else(|| {
-        toml::to_string(s).unwrap_or_default()
-    });
+    let src = super::source_of(&s.id)
+        .map(str::to_string)
+        .unwrap_or_else(|| toml::to_string(s).unwrap_or_default());
     put("scenario.toml", src.as_bytes())?;
     put("PROVENANCE.txt", provenance_text(s).as_bytes())?;
     if let Some(an) = analogue(s)? {
@@ -377,7 +385,9 @@ pub fn write(s: &ThreatScenario, out: &Path) -> Result<Vec<String>, KshanaError>
         let run = summarise(s, &an);
         put(
             "analogue/monitors.json",
-            (serde_json::to_string_pretty(&run).map_err(|e| KshanaError::InvalidInput(e.to_string()))? + "\n")
+            (serde_json::to_string_pretty(&run)
+                .map_err(|e| KshanaError::InvalidInput(e.to_string()))?
+                + "\n")
                 .as_bytes(),
         )?;
         let t = trajectory(s, &an)?;

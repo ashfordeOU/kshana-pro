@@ -373,7 +373,9 @@ impl ThreatScenario {
             return Err("a scenario cites at least one source".into());
         }
         for s in &self.provenance.sources {
-            if s.title.trim().is_empty() || s.publisher.trim().is_empty() || s.says.trim().is_empty()
+            if s.title.trim().is_empty()
+                || s.publisher.trim().is_empty()
+                || s.says.trim().is_empty()
             {
                 return Err("every source has a title, a publisher and what it says".into());
             }
@@ -389,8 +391,7 @@ impl ThreatScenario {
         }
         if self.licence.redistributed {
             return Err(
-                "the library never redistributes source data (licence.redistributed = true)"
-                    .into(),
+                "the library never redistributes source data (licence.redistributed = true)".into(),
             );
         }
         if self.licence.source_terms.trim().is_empty()
@@ -418,7 +419,9 @@ impl ThreatScenario {
             }
             a.validate().map_err(|e| format!("analogue: {e}"))?;
         }
-        let text = toml::to_string(self).unwrap_or_default().to_ascii_lowercase();
+        let text = toml::to_string(self)
+            .unwrap_or_default()
+            .to_ascii_lowercase();
         for w in FORBIDDEN_WORDS {
             if text.contains(w) {
                 return Err(format!("the scenario text uses '{w}'"));
@@ -524,6 +527,7 @@ impl Scenario for ThreatRunScenario {
         };
         let doc = serde_json::json!({
             "format": "kshana-pro-threat-run/1",
+            "kind": KIND,
             "label": LABEL,
             "edition": EDITION,
             "scenario": s,

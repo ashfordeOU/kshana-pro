@@ -574,6 +574,17 @@ q_rw = 0.0
             TimingHoldoverScenario::KIND => {
                 include_str!("../scenarios/timing-holdover-inline.toml")
             }
+            ThreatRunScenario::KIND => {
+                "kind = \"pro-threat-scenario\"\nscenario = \"jammertest-stepped-power-jamming\"\n"
+            }
+            crate::scorecards::KIND => {
+                "kind = \"pro-receiver-scorecard\"\ntitle = \"t\"\n[receiver]\nmaker = \"m\"\nmodel = \"x\"\n\
+                 [campaign]\nid = \"c\"\n[[case]]\nid = \"a\"\nlibrary = \"texbat-ds4-matched-power-position-push\"\n"
+            }
+            crate::timing::scorecard::KIND => {
+                "kind = \"pro-timing-scorecard\"\ntitle = \"t\"\nfleet = \"examples/timing-fleet/fleet.toml\"\n\
+                 grandmasters = [\"gm-ldn-1\"]\nscenarios = [\"jammertest-time-spoofing\"]\n"
+            }
             other => panic!("no test source defined for Pro kind '{other}'"),
         }
     }

@@ -106,7 +106,7 @@ export function licenceView(status, now, error = "") {
 export const JOBS = [
   { id: "forensics", icon: "forensics", title: "Investigate an incident", text: "A vessel or flight and a time window, to a signed forensics pack.", match: /^pro-incident-forensics$/ },
   { id: "timing", icon: "timing", title: "Check timing assurance", text: "Holdover and time to breach for every clock in the fleet.", match: /timing-assurance|holdover-fleet/ },
-  { id: "scorecard", icon: "scorecards", title: "Score a receiver", text: "A test campaign and a referee scorecard, pre-registered.", match: /scorecard/ },
+  { id: "scorecard", icon: "scorecards", title: "Score a receiver", text: "A test campaign and a referee scorecard, pre-registered.", match: /^pro-(receiver|timing)-scorecard$/ },
   { id: "study", icon: "dossiers", title: "Write a study", text: "A trade study or mission study from a scenario file, run under this licence.", match: /study|trade/ },
 ];
 /** Further Pro products: drawn as entries with their own state. */
@@ -135,7 +135,9 @@ export function jobsModel(kinds, unlocked) {
     const serving = known ? kinds.filter((k) => j.match.test(k)) : [];
     // The study kinds ship in this build (registry::pro_kinds); incident forensics
     // (pro-incident-forensics) is in the build's tier manifest and arrives as a Pro pack.
-    const buildHas = j.id === "study" || j.id === "forensics";
+    // Receiver and timing scorecards (pro-receiver-scorecard, pro-timing-scorecard) ship in
+    // this build too (roadmap 0.42 E3, T4).
+    const buildHas = j.id === "study" || j.id === "forensics" || j.id === "scorecard";
     const state = serving.length ? "ready" : !unlocked && buildHas ? "locked" : "coming";
     return { id: j.id, icon: j.icon, title: j.title, text: j.text, state, kinds: serving };
   });

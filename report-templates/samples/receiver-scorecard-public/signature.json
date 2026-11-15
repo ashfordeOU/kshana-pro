@@ -1,0 +1,38 @@
+{
+  "format": "kshana-dossier-signature/1",
+  "signer": "Kshana Pro sample (demo key)",
+  "utc": "2026-11-15T14:00:00Z",
+  "public_key": "d127eb1d24f77b8940a4eb06c7db904adec1e32b89b783e351f237b91b1184ab",
+  "key_id": "240f650833791e6f",
+  "files": [
+    {
+      "path": "README.txt",
+      "sha256": "b257872aaf6dba68b6769f68c0bb2e88a63f6f1274d0db10176aee8c43377cc5"
+    },
+    {
+      "path": "campaign.toml",
+      "sha256": "5a505c7410e8b7168ef0f3a77c6429f1056b7e1b64158fd101f5663668e68fb3"
+    },
+    {
+      "path": "cases.csv",
+      "sha256": "35ce84db293b9fcb6149f5a80c6ec5ff43e758fd1716757467bf0972d3bef00e"
+    },
+    {
+      "path": "mapping/dhs-rpcf-levels.json",
+      "sha256": "49f01686b005fd96655fe5a4ac3fd192784e6dbbdf9edaf58beeb059d0669622"
+    },
+    {
+      "path": "mapping/ieee-p1952-draft.json",
+      "sha256": "6070e126f6de29188666872b5df073e228777759645a1ef3a9f75ae95c1cacde"
+    },
+    {
+      "path": "receiver-scorecard.json",
+      "sha256": "99b8ac979f4ffb25af876c6ea97a3110a334a1584867962808ea0db7ad1d501b"
+    },
+    {
+      "path": "report.html",
+      "sha256": "cad0737b4a19f4ec72bb89e4a2229afd6b19f30d8da912c494051dd504cbe176"
+    }
+  ],
+  "signature": "accf1ba1f11f936661729dcfb69376b6cc7d164bcb70afd211e5798cf78afab888afef6fc86524a0e59dda103609e4cab51a739be16afa35bb4afaa9ea579f0c"
+}

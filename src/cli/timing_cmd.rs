@@ -18,6 +18,7 @@ pub const USAGE: &str = "usage: kshana-pro timing <command>\n\
     console <fleet.toml> [--evidence <dir>] --out <page.html> [--license <token>] [--dev]   The fleet page with each clock's evidence history (Pro)\n\
     metrics <fleet.toml> [--out <file.prom>] [--license <token>] [--dev]   The fleet in the Prometheus text format, for the Grafana dashboard (Pro)\n\
     history verify <dir>                                                     Check every clock's evidence chain (no licence needed)\n\
+    scorecard <request.toml> --out <dir> --signer <name> --key-file <file> [--utc <iso>] [--license <token>] [--dev]   Timing scorecard under threat library spoofing scenarios, signed (Pro, T4); verify with `kshana-pro dossier verify` (free)\n\
     audit <fleet.toml> --profile <rts25-traceability|nist-ir-8323-profile> --out <dir> --signer <name> --key-file <file> [--evidence <dir>] [--operator <operator.toml>] [--utc <iso>] [--license <token>] [--dev]   Signed audit report mapped to the profile (Pro); verify with `kshana-pro dossier verify` (free)";
 
 fn fail(msg: impl std::fmt::Display) -> ExitCode {
@@ -123,6 +124,7 @@ pub fn run(args: &[String]) -> ExitCode {
                 ExitCode::SUCCESS
             }
         }
+        (Some("scorecard"), Some(path)) => scorecard_cmd(args, &path),
         (Some(cmd @ ("assess" | "console" | "metrics" | "audit")), Some(path)) => {
             let feature = match cmd {
                 "assess" => timing::KIND,
@@ -269,4 +271,45 @@ fn audit_cmd(
         }
         Err(e) => fail(e),
     }
+}
+
+fn scorecard_cmd(args: &[String], path: &str) -> ExitCode {
+    use crate::timing::scorecard::{self, TimingScorecardSpec};
+    if let Err(e) = gate(args, scorecard::KIND) {
+        return fail(e);
+    }
+    let (Some(out), Some(signer), Some(kf)) = (
+        flag(args, "--out"),
+        flag(args, "--signer"),
+        flag(args, "--key-file"),
+    ) else {
+        return fail("scorecard needs --out, --signer and --key-file");
+    };
+    let seed = match super::forensics_cmd::read_seed(&kf) {
+        Ok(s) => s,
+        Err(e) => return fail(e),
+    };
+    let (spec, src) = match TimingScorecardSpec::from_file(Path::new(path)) {
+        Ok(x) => x,
+        Err(e) => return fail(e),
+    };
+    let s = match scorecard::score(&spec, &src) {
+        Ok(s) => s,
+        Err(e) => return fail(e),
+    };
+    let out = Path::new(&out);
+    if let Err(e) = scorecard::write_dir(out, &s, &src) {
+        return fail(e);
+    }
+    let utc = flag(args, "--utc").unwrap_or_else(utc_iso8601_now);
+    if let Err(e) = crate::signed_dossier::sign(out, &seed, &signer, &utc) {
+        return fail(e);
+    }
+    eprintln!(
+        "[timing scorecard] {} grandmaster-scenario pairs; highest level supported: {}; signed in {}",
+        s.results.len(),
+        s.levels.highest_supported,
+        out.display()
+    );
+    ExitCode::SUCCESS
 }

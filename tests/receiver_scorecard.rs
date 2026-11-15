@@ -5,6 +5,7 @@
 
 use std::path::{Path, PathBuf};
 
+use kshana_pro::scorecards::levels::Verdict;
 use kshana_pro::scorecards::{self, Campaign};
 
 fn root() -> PathBuf {
@@ -12,7 +13,8 @@ fn root() -> PathBuf {
 }
 
 fn tmp(name: &str) -> PathBuf {
-    let d = Path::new(env!("CARGO_TARGET_TMPDIR")).join(format!("e3-{name}-{}", std::process::id()));
+    let d =
+        Path::new(env!("CARGO_TARGET_TMPDIR")).join(format!("e3-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&d);
     std::fs::create_dir_all(&d).unwrap();
     d
@@ -21,7 +23,10 @@ fn tmp(name: &str) -> PathBuf {
 /// Generate a training scenario's NMEA and its truth as an I4 motion CSV into `dir`.
 fn training_case(name: &str, dir: &Path) -> String {
     use kshana::interop::testbench::{MotionSample, Trajectory};
-    let text = std::fs::read_to_string(root().join(format!("tests/fixtures/forensics/training/{name}.toml"))).unwrap();
+    let text = std::fs::read_to_string(
+        root().join(format!("tests/fixtures/forensics/training/{name}.toml")),
+    )
+    .unwrap();
     let mut scn = kshana::nmea_synth::TrainingScenario::parse(&text).unwrap();
     scn.output.log_interval_s = 1.0;
     let g = kshana::nmea_synth::generate(&scn).unwrap();
@@ -31,8 +36,22 @@ fn training_case(name: &str, dir: &Path) -> String {
         .track
         .iter()
         .map(|r| {
-            let gd = kshana::frames::Geodetic { lat_rad: r.true_lat_deg.to_radians(), lon_rad: r.true_lon_deg.to_radians(), alt_m: 0.0 };
-            MotionSample { t_s: r.t_s, lat_deg: r.true_lat_deg, lon_deg: r.true_lon_deg, h_m: 0.0, ecef_m: kshana::frames::geodetic_to_ecef(gd), v_ecef_m_s: [0.0; 3], heading_deg: 0.0, pitch_deg: 0.0, roll_deg: 0.0 }
+            let gd = kshana::frames::Geodetic {
+                lat_rad: r.true_lat_deg.to_radians(),
+                lon_rad: r.true_lon_deg.to_radians(),
+                alt_m: 0.0,
+            };
+            MotionSample {
+                t_s: r.t_s,
+                lat_deg: r.true_lat_deg,
+                lon_deg: r.true_lon_deg,
+                h_m: 0.0,
+                ecef_m: kshana::frames::geodetic_to_ecef(gd),
+                v_ecef_m_s: [0.0; 3],
+                heading_deg: 0.0,
+                pitch_deg: 0.0,
+                roll_deg: 0.0,
+            }
         })
         .collect();
     let t = Trajectory {
@@ -43,7 +62,11 @@ fn training_case(name: &str, dir: &Path) -> String {
         samples,
         events: vec![],
     };
-    std::fs::write(dir.join(format!("{name}.motion.csv")), kshana::interop::testbench::write_motion_csv(&t)).unwrap();
+    std::fs::write(
+        dir.join(format!("{name}.motion.csv")),
+        kshana::interop::testbench::write_motion_csv(&t),
+    )
+    .unwrap();
     let mut ev = String::new();
     for e in &scn.events {
         ev.push_str(&format!(
@@ -71,13 +94,329 @@ fn dev_campaign(dir: &Path) -> String {
     )
 }
 
-#[test]
-fn explore_dev() {
+fn dev_score() -> scorecards::Scorecard {
     let d = tmp("dev");
     let src = dev_campaign(&d);
     std::fs::write(d.join("campaign.toml"), &src).unwrap();
     let (c, src) = Campaign::from_file(&d.join("campaign.toml")).unwrap();
-    let s = scorecards::score(&c, &src).unwrap();
-    println!("{}", serde_json::to_string_pretty(&s.cases).unwrap());
-    println!("{:?}", s.levels);
+    scorecards::score(&c, &src).unwrap()
+}
+
+#[test]
+fn a_campaign_scores_detection_error_misleading_output_recovery_and_levels() {
+    let s = dev_score();
+    let by = |id: &str| s.cases.iter().find(|c| c.id == id).unwrap();
+    // A drag-off: the receiver keeps a valid, wrong fix with no warning of its own, so level 2
+    // is not met; the open monitor alarms through it, so nothing is left unmonitored.
+    let drag = by("drag");
+    assert_eq!(drag.truth, "motion-csv");
+    assert!(drag.max_error_m.unwrap() > 1000.0);
+    assert!(drag.misleading.unwarned_epochs.unwrap() > 100);
+    assert_eq!(drag.misleading.unmonitored_epochs, Some(0));
+    assert_eq!(drag.levels.l1, Verdict::Met);
+    assert_eq!(drag.levels.l2, Verdict::NotMet);
+    // Jamming: the fix is mostly lost (no wrong output), so level 2 holds and level 3 does not.
+    let jam = by("jam");
+    assert!(jam.fix_availability.unwrap() < 0.5);
+    assert_eq!(jam.misleading.unwarned_epochs, Some(0));
+    assert_eq!(
+        (jam.levels.l2, jam.levels.l3),
+        (Verdict::Met, Verdict::NotMet)
+    );
+    // Without truth, error, misleading output and levels 2 to 4 are not assessed.
+    let nt = by("jam-no-truth");
+    assert_eq!(nt.truth, "none");
+    assert_eq!(nt.max_error_m, None);
+    assert_eq!(nt.misleading.unwarned_epochs, None);
+    assert_eq!(nt.levels.l2, Verdict::NotAssessed);
+    assert_eq!(s.levels.highest_supported, 1);
+    assert!(s.limits.iter().any(|l| l.contains("not assessed")));
+}
+
+#[test]
+fn the_scorecard_format_is_frozen() {
+    let s = dev_score();
+    let v = serde_json::to_value(&s).unwrap();
+    let keys: Vec<&str> = v.as_object().unwrap().keys().map(String::as_str).collect();
+    let mut want: Vec<&str> = scorecards::SCORECARD_FIELDS.to_vec();
+    let mut got = keys.clone();
+    got.sort();
+    want.sort();
+    assert_eq!(
+        got,
+        want,
+        "top-level fields of {} changed: that is a new format",
+        scorecards::FORMAT
+    );
+    let c = v["cases"][0].as_object().unwrap();
+    let mut got: Vec<&str> = c.keys().map(String::as_str).collect();
+    let mut want: Vec<&str> = scorecards::CASE_FIELDS.to_vec();
+    got.sort();
+    want.sort();
+    assert_eq!(got, want, "case fields changed: that is a new format");
+    assert_eq!(scorecards::FORMAT, "kshana-pro-receiver-scorecard/1");
+}
+
+#[test]
+fn campaigns_are_validated_before_scoring() {
+    let base = "kind = \"pro-receiver-scorecard\"\ntitle = \"t\"\n[receiver]\nmaker = \"m\"\nmodel = \"x\"\n[campaign]\nid = \"c\"\n";
+    let log_no_events =
+        format!("{base}[[case]]\nid = \"a\"\n[case.log]\nformat = \"nmea\"\npath = \"x.nmea\"\n");
+    assert!(Campaign::parse(&log_no_events)
+        .unwrap_err()
+        .to_string()
+        .contains("states its events"));
+    let twice = format!("{base}[[case]]\nid = \"a\"\nlibrary = \"hormuz-meaconing-delay\"\n[[case]]\nid = \"a\"\nlibrary = \"hormuz-meaconing-delay\"\n");
+    assert!(Campaign::parse(&twice).is_err());
+    let bad_bars = format!("{base}[bars]\nfull_error_m = 900.0\n[[case]]\nid = \"a\"\nlibrary = \"hormuz-meaconing-delay\"\n");
+    assert!(Campaign::parse(&bad_bars).is_err());
+    assert!(Campaign::parse(base).is_err());
+    let unknown = format!("{base}[[case]]\nid = \"a\"\nlibrary = \"no-such-scenario\"\n");
+    let c = Campaign::parse(&unknown).unwrap();
+    assert!(scorecards::score(&c, &unknown).is_err());
+}
+
+#[test]
+fn the_kind_is_licence_gated_at_pro_and_listed_in_the_tier_manifest() {
+    use kshana_pro::license::{self, tiers, Entitlement, Tier};
+    let ent = |tier| Entitlement {
+        licensee: "t".into(),
+        tier,
+        expires_unix: 0,
+        features: vec![],
+        arksa: false,
+    };
+    assert!(license::check(&ent(Tier::Evaluation), scorecards::KIND, 0).is_err());
+    assert!(license::check(&ent(Tier::Pro), scorecards::KIND, 0).is_ok());
+    assert_eq!(
+        tiers::edition_of(scorecards::KIND),
+        Some(tiers::Edition::Pro)
+    );
+    assert!(kshana_pro::registry::is_pro_kind(scorecards::KIND));
+}
+
+#[test]
+fn reports_are_signed_verify_for_free_and_say_mapped_to_only() {
+    let s = dev_score();
+    let out = tmp("report").join("r");
+    scorecards::report::write_dir(&out, &s, "campaign").unwrap();
+    let seed = [7u8; 32];
+    kshana_pro::signed_dossier::sign(&out, &seed, "Test lab", "2026-11-15T00:00:00Z").unwrap();
+    let pk = kshana_pro::license::public_key_for(&seed);
+    assert!(kshana_pro::signed_dossier::verify(&out, &[pk])
+        .unwrap()
+        .passed());
+    let html = std::fs::read_to_string(out.join("report.html"))
+        .unwrap()
+        .to_ascii_lowercase();
+    for w in ["compliant", "conformant", "certified", "conforms"] {
+        assert!(!html.contains(w), "the report says '{w}'");
+    }
+    assert!(html.contains("test evidence"));
+    // A one-byte change is caught.
+    let p = out.join("cases.csv");
+    let mut t = std::fs::read_to_string(&p).unwrap();
+    t.push(' ');
+    std::fs::write(&p, t).unwrap();
+    assert!(!kshana_pro::signed_dossier::verify(&out, &[pk])
+        .unwrap()
+        .passed());
+    // A non-empty directory is refused.
+    assert!(scorecards::report::write_dir(&out, &s, "campaign").is_err());
+}
+
+#[test]
+fn the_engine_pin_in_scorecards_matches_cargo_toml() {
+    let cargo = std::fs::read_to_string(root().join("Cargo.toml")).unwrap();
+    assert!(cargo.contains(&format!("kshana = \"={}\"", scorecards::OPEN_ENGINE_PIN)));
+}
+
+// ---------------------------------------------------------------------------------------
+// The public sample campaign (pre-registered in docs/evidence/e3-receiver-scorecard/).
+// ---------------------------------------------------------------------------------------
+
+const SAMPLE_UTC: &str = "2026-11-15T14:00:00Z";
+const SAMPLE_SIGNER: &str = "Kshana Pro sample (demo key)";
+
+fn sample() -> (scorecards::Scorecard, String) {
+    let (c, src) =
+        Campaign::from_file(&root().join("examples/scorecards/public-analogue-campaign.toml"))
+            .unwrap();
+    (scorecards::score(&c, &src).unwrap(), src)
+}
+
+fn sample_dir() -> PathBuf {
+    root().join("report-templates/samples/receiver-scorecard-public")
+}
+
+/// E3-B1: byte-identical scorings; the published sample is this build's scorecard and
+/// verifies with its published demo key. Regenerate with KSHANA_PRO_REGEN_E3_SAMPLE=<key file>.
+#[test]
+fn e3_b1_the_sample_is_reproducible_and_verifies_with_its_published_demo_key() {
+    let (a, src) = sample();
+    let (b, _) = sample();
+    let ja = serde_json::to_string_pretty(&a).unwrap() + "\n";
+    assert_eq!(ja, serde_json::to_string_pretty(&b).unwrap() + "\n");
+    let dir = sample_dir();
+    if let Some(kf) = std::env::var_os("KSHANA_PRO_REGEN_E3_SAMPLE") {
+        let hex = std::fs::read_to_string(kf).unwrap();
+        let seed = kshana_pro::license::parse_key_hex(hex.trim()).unwrap();
+        let _ = std::fs::remove_dir_all(&dir);
+        scorecards::report::write_dir(&dir, &a, &src).unwrap();
+        kshana_pro::signed_dossier::sign(&dir, &seed, SAMPLE_SIGNER, SAMPLE_UTC).unwrap();
+        std::fs::write(
+            root().join("report-templates/samples/receiver-scorecard-public.demo-public-key.txt"),
+            hex::encode(kshana_pro::license::public_key_for(&seed)) + "\n",
+        )
+        .unwrap();
+    }
+    assert_eq!(
+        std::fs::read_to_string(dir.join("receiver-scorecard.json")).unwrap(),
+        ja,
+        "the sample is stale; regenerate it"
+    );
+    let key = std::fs::read_to_string(
+        root().join("report-templates/samples/receiver-scorecard-public.demo-public-key.txt"),
+    )
+    .unwrap();
+    let pk = kshana_pro::license::parse_key_hex(key.trim()).unwrap();
+    let v = kshana_pro::signed_dossier::verify(&dir, &[pk]).unwrap();
+    assert!(v.passed(), "{:?}", v.problems);
+    let tmpd = tmp("sample-tamper").join("s");
+    copy_dir(&dir, &tmpd);
+    let p = tmpd.join("report.html");
+    let mut t = std::fs::read(&p).unwrap();
+    t[100] ^= 1;
+    std::fs::write(&p, t).unwrap();
+    assert!(!kshana_pro::signed_dossier::verify(&tmpd, &[pk])
+        .unwrap()
+        .passed());
+}
+
+fn copy_dir(from: &Path, to: &Path) {
+    std::fs::create_dir_all(to).unwrap();
+    for e in std::fs::read_dir(from).unwrap() {
+        let e = e.unwrap();
+        let p = e.path();
+        if p.is_dir() {
+            copy_dir(&p, &to.join(e.file_name()));
+        } else {
+            std::fs::copy(&p, to.join(e.file_name())).unwrap();
+        }
+    }
+}
+
+/// E3-B2: the instructor log (the generator's own truth-versus-reported rows) gives the same
+/// errors and misleading counts by a different route. Published outcome (RESULTS.md): part (a)
+/// MISSED on five events: on the meaconing case the scorecard aligns truth by the receiver's own
+/// (delayed) epoch time and so sees 6.4 m where the generator's true-time error is 136 m; on the
+/// four drag-offs of 0.6 to 8 km the two distance computations differ by up to 0.4 %. Part (b)
+/// met (worst difference 1 epoch).
+const E3_B2A_MET: bool = false;
+const E3_B2B_MET: bool = true;
+
+#[test]
+fn e3_b2_the_independent_oracle_is_as_published() {
+    let (s, _) = sample();
+    let (mut a_ok, mut b_ok) = (true, true);
+    let (mut worst_abs, mut worst_rel) = (0.0f64, 0.0f64);
+    let mut worst_count = 0i64;
+    let mut misses: Vec<String> = Vec::new();
+    for c in &s.cases {
+        let id = c.source.strip_prefix("library:").unwrap();
+        let sc = kshana_pro::threat_library::get(id).unwrap();
+        let an = kshana_pro::threat_library::export::analogue(&sc)
+            .unwrap()
+            .unwrap();
+        let rows = &an.log().track;
+        let end_log = rows.last().unwrap().t_s;
+        for (k, e) in c.events.iter().enumerate() {
+            let in_w = rows
+                .iter()
+                .filter(|r| r.t_s >= e.onset_s && r.t_s <= e.end_s && r.fix_valid);
+            let max = in_w
+                .filter_map(|r| r.position_error_m)
+                .fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v))));
+            match (max, e.max_error_m) {
+                (Some(o), Some(g)) => {
+                    let d = (o - g).abs();
+                    if d > 1.0 {
+                        misses.push(format!("{}/{}", c.id, e.label));
+                        if !c.id.contains("meaconing") {
+                            worst_rel = worst_rel.max(d / o);
+                        }
+                    }
+                    worst_abs = worst_abs.max(d);
+                    if d > 1.0 {
+                        a_ok = false;
+                    }
+                }
+                (None, None) => {}
+                _ => a_ok = false,
+            }
+            let next = c
+                .events
+                .get(k + 1)
+                .map(|n| n.onset_s)
+                .unwrap_or(f64::INFINITY);
+            let stop = match (e.recovered, e.recovery_s) {
+                (Some(true), Some(r)) => e.end_s + r,
+                _ => next.min(end_log + 1.0),
+            };
+            let n = rows
+                .iter()
+                .filter(|r| r.t_s >= e.onset_s && r.t_s < stop && r.fix_valid)
+                .filter(|r| {
+                    r.position_error_m.is_some_and(|d| d > 50.0) || r.time_offset_s.abs() > 0.5
+                })
+                .count() as i64;
+            let g = e.misleading_unwarned.unwrap() as i64;
+            worst_count = worst_count.max((n - g).abs());
+            if (n - g).abs() > 2 {
+                b_ok = false;
+            }
+        }
+    }
+    eprintln!("E3-B2: worst |max error| difference {worst_abs:.2} m ({:.3} %), worst misleading-count difference {worst_count}", worst_rel * 100.0);
+    assert_eq!(
+        (a_ok, b_ok),
+        (E3_B2A_MET, E3_B2B_MET),
+        "the oracle outcome changed; re-publish"
+    );
+    assert_eq!(
+        misses,
+        [
+            "hormuz-displacement/Position displaced",
+            "hormuz-meaconing/Re-broadcast delay",
+            "red-sea-jam-then-drag/Counterfeit fix after re-acquisition",
+            "jammertest-position/Position spoofing",
+            "texbat-ds4-analogue/Matched-power position push",
+        ]
+    );
+    assert!(
+        worst_rel < 0.005,
+        "a drag-off difference beyond the published 0.4 %"
+    );
+}
+
+/// E3-B3: over the spoofing-class events, unmonitored misleading epochs are at most half the
+/// unwarned ones. The published outcome (RESULTS.md) is E3_B3_MET.
+const E3_B3_MET: bool = true;
+
+#[test]
+fn e3_b3_what_the_open_monitor_adds_is_as_published() {
+    let (s, _) = sample();
+    let (mut unwarned, mut unmonitored) = (0usize, 0usize);
+    for c in &s.cases {
+        for e in c.events.iter().filter(|e| e.kind == "spoofing") {
+            unwarned += e.misleading_unwarned.unwrap();
+            unmonitored += e.misleading_unmonitored.unwrap();
+        }
+    }
+    assert_eq!(
+        (unwarned, unmonitored),
+        (4091, 1696),
+        "the scored quantities changed; re-publish"
+    );
+    assert_eq!(2 * unmonitored <= unwarned, E3_B3_MET);
 }

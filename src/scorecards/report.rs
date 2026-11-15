@@ -19,11 +19,13 @@ fn esc(s: &str) -> String {
 }
 
 fn opt(v: Option<f64>, unit: &str) -> String {
-    v.map(|x| format!("{x} {unit}")).unwrap_or_else(|| "–".into())
+    v.map(|x| format!("{x} {unit}"))
+        .unwrap_or_else(|| "–".into())
 }
 
 fn optn(v: Option<usize>) -> String {
-    v.map(|x| x.to_string()).unwrap_or_else(|| "not assessed".into())
+    v.map(|x| x.to_string())
+        .unwrap_or_else(|| "not assessed".into())
 }
 
 /// A one-line SVG badge.
@@ -133,7 +135,10 @@ pub fn html(s: &Scorecard) -> String {
             l.cases_not_assessed
         ));
     }
-    h.push_str(&format!("</table><p><small>{}</small></p>", esc(&s.levels.framework)));
+    h.push_str(&format!(
+        "</table><p><small>{}</small></p>",
+        esc(&s.levels.framework)
+    ));
     // Cases.
     h.push_str("<h2>Cases</h2><table><tr><th>Case</th><th>Source</th><th>Truth</th><th>Fix availability under threat</th><th>Max error</th><th>Max time error</th><th>Misleading without warning (receiver / with monitor)</th><th>Longest recovery</th><th>L1 · L2 · L3 · L4</th></tr>");
     for c in &s.cases {
@@ -203,7 +208,7 @@ pub fn html(s: &Scorecard) -> String {
     h.push_str("</table>");
     // P1952.
     h.push_str(&format!(
-        "<h2>Mapped to the IEEE P1952 draft topics</h2><p>{}</p><p><small>{} {}</small></p><table><tr><th>Topic</th><th>Summary</th><th>Evidence in scorecard.json</th></tr>",
+        "<h2>Mapped to the IEEE P1952 draft topics</h2><p>{}</p><p><small>{} {}</small></p><table><tr><th>Topic</th><th>Summary</th><th>Evidence in receiver-scorecard.json</th></tr>",
         esc(&s.p1952.wording),
         esc(&s.p1952.standard),
         esc(&s.p1952.status)
@@ -248,7 +253,9 @@ pub fn html(s: &Scorecard) -> String {
     for l in &s.limits {
         h.push_str(&format!("<li>{}</li>", esc(l)));
     }
-    h.push_str("</ul><h2>Inputs</h2><table><tr><th>Case</th><th>Log SHA-256</th><th>Epochs</th></tr>");
+    h.push_str(
+        "</ul><h2>Inputs</h2><table><tr><th>Case</th><th>Log SHA-256</th><th>Epochs</th></tr>",
+    );
     for c in &s.cases {
         h.push_str(&format!(
             "<tr><td>{}</td><td><code>{}</code></td><td>{}</td></tr>",
@@ -261,7 +268,7 @@ pub fn html(s: &Scorecard) -> String {
     h
 }
 
-/// Write the report directory (new or empty): `scorecard.json`, `report.html`,
+/// Write the report directory (new or empty): `receiver-scorecard.json`, `report.html`,
 /// `campaign.toml`, `cases.csv`, `mapping/ieee-p1952-draft.json`,
 /// `mapping/dhs-rpcf-levels.json` and `README.txt`. Signing is a separate step.
 pub fn write_dir(out: &Path, s: &Scorecard, campaign_src: &str) -> Result<(), KshanaError> {
@@ -273,8 +280,9 @@ pub fn write_dir(out: &Path, s: &Scorecard, campaign_src: &str) -> Result<(), Ks
         )));
     }
     std::fs::create_dir_all(out.join("mapping")).map_err(io)?;
-    let json = serde_json::to_string_pretty(s).map_err(|e| KshanaError::InvalidInput(e.to_string()))?;
-    std::fs::write(out.join("scorecard.json"), json + "\n").map_err(io)?;
+    let json =
+        serde_json::to_string_pretty(s).map_err(|e| KshanaError::InvalidInput(e.to_string()))?;
+    std::fs::write(out.join("receiver-scorecard.json"), json + "\n").map_err(io)?;
     std::fs::write(out.join("report.html"), html(s)).map_err(io)?;
     std::fs::write(out.join("campaign.toml"), campaign_src).map_err(io)?;
     std::fs::write(out.join("cases.csv"), cases_csv(s)).map_err(io)?;
@@ -284,7 +292,7 @@ pub fn write_dir(out: &Path, s: &Scorecard, campaign_src: &str) -> Result<(), Ks
         out.join("README.txt"),
         format!(
             "Receiver resilience test report ({}), campaign {}.\n\n{}\n\n\
-             scorecard.json   the scorecard (frozen format {})\n\
+             receiver-scorecard.json   the scorecard (frozen format {})\n\
              report.html      the readable test report\n\
              campaign.toml    the campaign file as run (its SHA-256 is in the scorecard)\n\
              cases.csv        one row per event\n\

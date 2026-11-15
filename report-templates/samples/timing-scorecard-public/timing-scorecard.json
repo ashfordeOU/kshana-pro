@@ -1,0 +1,748 @@
+{
+  "format": "kshana-pro-timing-scorecard/1",
+  "kind": "pro-timing-scorecard",
+  "method": "kshana-pro/timing-scorecard/v1",
+  "label": "MODELLED - grandmaster and network time error under threat library timing profiles, from each clock's T1 holdover model; detection against the model's envelope; prediction bars pre-registered as V5 and as its successor V5b both NOT passed: the time to breach is not a validated claim. Test evidence for the scenarios run; not a certification.",
+  "title": "Public sample: demo timing fleet under threat library timing scenarios",
+  "fixed_utc": "2026-11-15T13:30:00Z",
+  "detector": {
+    "k_sigma": 3.0,
+    "floor_s": 2e-8,
+    "cross_check": true,
+    "full_fraction": 0.1
+  },
+  "spec_sha256": "ca4455ba0373f9e51147fbc2ff981b517e18adc05fd17e9adf2383498c57b488",
+  "fleet_title": "Demo timing fleet",
+  "threat_library": "2026-11",
+  "results": [
+    {
+      "grandmaster": "gm-ldn-1",
+      "scenario": "jammertest-time-spoofing",
+      "scenario_title": "JammerTest, Andøya: time spoofing of a timing receiver",
+      "profile": {
+        "kind": "time-push",
+        "start_s": 0.0,
+        "duration_s": 3600.0,
+        "rate_s_per_s": 5e-8,
+        "max_offset_s": 0.00001,
+        "step_s": null,
+        "scope": "all-receivers"
+      },
+      "detected_by": "own-envelope",
+      "detection_s": 1.0,
+      "offset_at_detection_s": 5e-8,
+      "envelope_s": 2.0233366690474277e-8,
+      "cross_check_threshold_s": null,
+      "clocks": [
+        {
+          "clock": "gm-ldn-1",
+          "role": "grandmaster",
+          "position": "grandmaster",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 0.0,
+          "max_error_before_detection_s": 0.0,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": 2377.0,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 1.6309871398557147e-7,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "not-met",
+            "l4": "not-met"
+          }
+        },
+        {
+          "clock": "bc-ldn-2",
+          "role": "boundary",
+          "position": "downstream (via gm-ldn-1 > bc-ldn-2)",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 2.8910303928836144e-11,
+          "max_error_before_detection_s": 2.8910303928836144e-11,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": 2376.0,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 1.631276242895003e-7,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "not-met",
+            "l4": "not-met"
+          }
+        },
+        {
+          "clock": "pps-ldn-5",
+          "role": "server",
+          "position": "downstream (via gm-ldn-1 > pps-ldn-5)",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 9.85496183206107e-9,
+          "max_error_before_detection_s": 9.85496183206107e-9,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": 2038.0,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 1.7295367581763253e-7,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "not-met",
+            "l4": "not-met"
+          }
+        },
+        {
+          "clock": "srv-ldn-3",
+          "role": "server",
+          "position": "downstream (via gm-ldn-1 > bc-ldn-2 > srv-ldn-3)",
+          "tightest_limit": "RTS 25 HFT style (user-set)",
+          "tightest_limit_s": 0.0001,
+          "own_offset_s": 1.203836385185185e-7,
+          "max_error_before_detection_s": 1.203836385185185e-7,
+          "breached_before_detection": {
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 2.8348235250409e-7,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "met"
+          }
+        }
+      ],
+      "levels": {
+        "l1": "met",
+        "l2": "met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "grandmaster": "gm-fra-1",
+      "scenario": "jammertest-time-spoofing",
+      "scenario_title": "JammerTest, Andøya: time spoofing of a timing receiver",
+      "profile": {
+        "kind": "time-push",
+        "start_s": 0.0,
+        "duration_s": 3600.0,
+        "rate_s_per_s": 5e-8,
+        "max_offset_s": 0.00001,
+        "step_s": null,
+        "scope": "all-receivers"
+      },
+      "detected_by": "own-envelope",
+      "detection_s": 1.0,
+      "offset_at_detection_s": 5e-8,
+      "envelope_s": 2.0003144967618606e-8,
+      "cross_check_threshold_s": null,
+      "clocks": [
+        {
+          "clock": "gm-fra-1",
+          "role": "reference (real data)",
+          "position": "grandmaster",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 0.0,
+          "max_error_before_detection_s": 0.0,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": null,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 5.019402706080962e-8,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "not-met"
+          }
+        },
+        {
+          "clock": "ntp-fra-4",
+          "role": "client",
+          "position": "downstream (via gm-fra-1 > wr-fra-2 > ntp-fra-4)",
+          "tightest_limit": "RTS 25 HFT style (user-set)",
+          "tightest_limit_s": 0.0001,
+          "own_offset_s": 7.035548148148144e-7,
+          "max_error_before_detection_s": 7.035548148148144e-7,
+          "breached_before_detection": {
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 7.53748841875624e-7,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "met"
+          }
+        },
+        {
+          "clock": "wr-fra-2",
+          "role": "boundary",
+          "position": "downstream (via gm-fra-1 > wr-fra-2)",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 5.869262865090397e-13,
+          "max_error_before_detection_s": 5.869262865090397e-13,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": null,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 5.0194613987096125e-8,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "not-met"
+          }
+        }
+      ],
+      "levels": {
+        "l1": "met",
+        "l2": "met",
+        "l3": "met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "grandmaster": "gm-ldn-1",
+      "scenario": "texbat-ds3-matched-power-time-push",
+      "scenario_title": "TEXBAT ds3: matched-power time push on a static receiver",
+      "profile": {
+        "kind": "time-push",
+        "start_s": 0.0,
+        "duration_s": 3600.0,
+        "rate_s_per_s": 2e-8,
+        "max_offset_s": 2e-6,
+        "step_s": null,
+        "scope": "one-receiver"
+      },
+      "detected_by": "own-envelope",
+      "detection_s": 2.0,
+      "offset_at_detection_s": 4e-8,
+      "envelope_s": 2.0254303758197758e-8,
+      "cross_check_threshold_s": null,
+      "clocks": [
+        {
+          "clock": "gm-ldn-1",
+          "role": "grandmaster",
+          "position": "grandmaster",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 0.0,
+          "max_error_before_detection_s": 2e-8,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": 2670.0,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 1.5305228827044354e-7,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "not-met",
+            "l4": "not-met"
+          }
+        },
+        {
+          "clock": "bc-ldn-2",
+          "role": "boundary",
+          "position": "downstream (via gm-ldn-1 > bc-ldn-2)",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 2.8910303928836144e-11,
+          "max_error_before_detection_s": 2.0028910303928836e-8,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": 2669.0,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 1.5308119857437238e-7,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "not-met",
+            "l4": "not-met"
+          }
+        },
+        {
+          "clock": "pps-ldn-5",
+          "role": "server",
+          "position": "downstream (via gm-ldn-1 > pps-ldn-5)",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 9.85496183206107e-9,
+          "max_error_before_detection_s": 2.985496183206107e-8,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": 2382.0,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 1.629072501025046e-7,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "not-met",
+            "l4": "not-met"
+          }
+        },
+        {
+          "clock": "srv-ldn-3",
+          "role": "server",
+          "position": "downstream (via gm-ldn-1 > bc-ldn-2 > srv-ldn-3)",
+          "tightest_limit": "RTS 25 HFT style (user-set)",
+          "tightest_limit_s": 0.0001,
+          "own_offset_s": 1.203836385185185e-7,
+          "max_error_before_detection_s": 1.403836385185185e-7,
+          "breached_before_detection": {
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 2.7343592678896205e-7,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "met"
+          }
+        }
+      ],
+      "levels": {
+        "l1": "met",
+        "l2": "met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "grandmaster": "gm-fra-1",
+      "scenario": "texbat-ds3-matched-power-time-push",
+      "scenario_title": "TEXBAT ds3: matched-power time push on a static receiver",
+      "profile": {
+        "kind": "time-push",
+        "start_s": 0.0,
+        "duration_s": 3600.0,
+        "rate_s_per_s": 2e-8,
+        "max_offset_s": 2e-6,
+        "step_s": null,
+        "scope": "one-receiver"
+      },
+      "detected_by": "own-envelope",
+      "detection_s": 2.0,
+      "offset_at_detection_s": 4e-8,
+      "envelope_s": 2.0004446659019137e-8,
+      "cross_check_threshold_s": 2.085569447555654e-8,
+      "clocks": [
+        {
+          "clock": "gm-fra-1",
+          "role": "reference (real data)",
+          "position": "grandmaster",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 0.0,
+          "max_error_before_detection_s": 2e-8,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": null,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 4.019397988972439e-8,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "not-met"
+          }
+        },
+        {
+          "clock": "ntp-fra-4",
+          "role": "client",
+          "position": "downstream (via gm-fra-1 > wr-fra-2 > ntp-fra-4)",
+          "tightest_limit": "RTS 25 HFT style (user-set)",
+          "tightest_limit_s": 0.0001,
+          "own_offset_s": 7.035548148148144e-7,
+          "max_error_before_detection_s": 7.235548148148144e-7,
+          "breached_before_detection": {
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 7.437487947045388e-7,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "met"
+          }
+        },
+        {
+          "clock": "wr-fra-2",
+          "role": "boundary",
+          "position": "downstream (via gm-fra-1 > wr-fra-2)",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 5.869262865090397e-13,
+          "max_error_before_detection_s": 2.000058692628651e-8,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": null,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 4.01945668160109e-8,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "not-met"
+          }
+        }
+      ],
+      "levels": {
+        "l1": "met",
+        "l2": "met",
+        "l3": "met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "grandmaster": "gm-ldn-1",
+      "scenario": "baltic-timing-holdover-under-jamming",
+      "scenario_title": "Baltic coast: a GNSS-disciplined grandmaster forced into holdover by wide-area jamming",
+      "profile": {
+        "kind": "denial",
+        "start_s": 0.0,
+        "duration_s": 21600.0,
+        "rate_s_per_s": null,
+        "max_offset_s": null,
+        "step_s": null,
+        "scope": "all-receivers"
+      },
+      "detected_by": "loss-of-signal",
+      "detection_s": 0.0,
+      "offset_at_detection_s": 0.0,
+      "envelope_s": 2.021106759951533e-8,
+      "cross_check_threshold_s": null,
+      "clocks": [
+        {
+          "clock": "gm-ldn-1",
+          "role": "grandmaster",
+          "position": "grandmaster",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 0.0,
+          "max_error_before_detection_s": 0.0,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": 2831.76,
+            "PRTC-A style (user-set)": 11774.160000000002,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 3.7338752464863944e-6,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "not-met",
+            "l4": "not-met"
+          }
+        },
+        {
+          "clock": "bc-ldn-2",
+          "role": "boundary",
+          "position": "downstream (via gm-ldn-1 > bc-ldn-2)",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 2.8910303928836144e-11,
+          "max_error_before_detection_s": 2.8910303928836144e-11,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": 2831.76,
+            "PRTC-A style (user-set)": 11774.160000000002,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 3.7338463361824654e-6,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "not-met",
+            "l4": "not-met"
+          }
+        },
+        {
+          "clock": "pps-ldn-5",
+          "role": "server",
+          "position": "downstream (via gm-ldn-1 > pps-ldn-5)",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 9.85496183206107e-9,
+          "max_error_before_detection_s": 9.85496183206107e-9,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": 2906.28,
+            "PRTC-A style (user-set)": 11823.84,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 3.7240202846543335e-6,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "not-met",
+            "l4": "not-met"
+          }
+        },
+        {
+          "clock": "srv-ldn-3",
+          "role": "server",
+          "position": "downstream (via gm-ldn-1 > bc-ldn-2 > srv-ldn-3)",
+          "tightest_limit": "RTS 25 HFT style (user-set)",
+          "tightest_limit_s": 0.0001,
+          "own_offset_s": 1.203836385185185e-7,
+          "max_error_before_detection_s": 1.203836385185185e-7,
+          "breached_before_detection": {
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 3.6134916079678757e-6,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "met"
+          }
+        }
+      ],
+      "levels": {
+        "l1": "met",
+        "l2": "met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "grandmaster": "gm-fra-1",
+      "scenario": "baltic-timing-holdover-under-jamming",
+      "scenario_title": "Baltic coast: a GNSS-disciplined grandmaster forced into holdover by wide-area jamming",
+      "profile": {
+        "kind": "denial",
+        "start_s": 0.0,
+        "duration_s": 21600.0,
+        "rate_s_per_s": null,
+        "max_offset_s": null,
+        "step_s": null,
+        "scope": "all-receivers"
+      },
+      "detected_by": "loss-of-signal",
+      "detection_s": 0.0,
+      "offset_at_detection_s": 0.0,
+      "envelope_s": 2.00001224744164e-8,
+      "cross_check_threshold_s": null,
+      "clocks": [
+        {
+          "clock": "gm-fra-1",
+          "role": "reference (real data)",
+          "position": "grandmaster",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 0.0,
+          "max_error_before_detection_s": 0.0,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": null,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 1.5788282965229381e-9,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "met"
+          }
+        },
+        {
+          "clock": "ntp-fra-4",
+          "role": "client",
+          "position": "downstream (via gm-fra-1 > wr-fra-2 > ntp-fra-4)",
+          "tightest_limit": "RTS 25 HFT style (user-set)",
+          "tightest_limit_s": 0.0001,
+          "own_offset_s": 7.035548148148144e-7,
+          "max_error_before_detection_s": 7.035548148148144e-7,
+          "breached_before_detection": {
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 7.049535627763931e-7,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "met"
+          }
+        },
+        {
+          "clock": "wr-fra-2",
+          "role": "boundary",
+          "position": "downstream (via gm-fra-1 > wr-fra-2)",
+          "tightest_limit": "Internal 100 ns (user-set)",
+          "tightest_limit_s": 1e-7,
+          "own_offset_s": 5.869262865090397e-13,
+          "max_error_before_detection_s": 5.869262865090397e-13,
+          "breached_before_detection": {
+            "Internal 100 ns (user-set)": false,
+            "PRTC-A style (user-set)": false,
+            "RTS 25 HFT style (user-set)": false
+          },
+          "holdover_warning_s": {
+            "Internal 100 ns (user-set)": null,
+            "PRTC-A style (user-set)": null,
+            "RTS 25 HFT style (user-set)": null
+          },
+          "error_95_at_end_s": 1.5782413702364291e-9,
+          "levels": {
+            "l1": "met",
+            "l2": "met",
+            "l3": "met",
+            "l4": "met"
+          }
+        }
+      ],
+      "levels": {
+        "l1": "met",
+        "l2": "met",
+        "l3": "met",
+        "l4": "met"
+      }
+    }
+  ],
+  "levels": {
+    "framework": "DHS Resilient PNT Conformance Framework (resilience levels 1 to 4), as summarised by Kshana",
+    "wording": "Test evidence mapped to the framework's resilience levels under the bars stated before scoring. It is not a statement that the equipment meets the framework or any standard; the reader applies the framework.",
+    "levels": [
+      {
+        "level": 1,
+        "summary": "Recovers after the threat is removed",
+        "evidence": "supported",
+        "cases_met": 6,
+        "cases_not_met": 0,
+        "cases_not_assessed": 0
+      },
+      {
+        "level": 2,
+        "summary": "Recovers, and gives no misleading output without warning during the threat",
+        "evidence": "supported",
+        "cases_met": 6,
+        "cases_not_met": 0,
+        "cases_not_assessed": 0
+      },
+      {
+        "level": 3,
+        "summary": "Level 2, and keeps its output within a stated bound during the threat",
+        "evidence": "not supported",
+        "cases_met": 3,
+        "cases_not_met": 3,
+        "cases_not_assessed": 0
+      },
+      {
+        "level": 4,
+        "summary": "Level 3, and keeps full performance during the threat",
+        "evidence": "not supported",
+        "cases_met": 1,
+        "cases_not_met": 5,
+        "cases_not_assessed": 0
+      }
+    ],
+    "highest_supported": 2
+  },
+  "limits": [
+    "The oscillator path is each clock's T1 holdover prediction (mean and envelope), not a recorded run under attack; the T1 time to breach is not a validated claim (V5 and V5b missed).",
+    "Level 1 assumes the clock re-locks to genuine signals once the threat is removed and its alarm is acted on; a modelled run cannot show the re-lock.",
+    "Downstream clocks receive the grandmaster's error plus their own present servo offset; path asymmetry and packet delay variation are not modelled.",
+    "Timing profiles are representative of published descriptions (threat library), not read off any recording."
+  ]
+}

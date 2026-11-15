@@ -30,7 +30,7 @@ fn fail(msg: impl std::fmt::Display) -> ExitCode {
     ExitCode::FAILURE
 }
 
-fn read_seed(path: &str) -> Result<[u8; KEY_LEN], String> {
+pub(super) fn read_seed(path: &str) -> Result<[u8; KEY_LEN], String> {
     std::fs::read_to_string(path)
         .map_err(|e| format!("{path}: {e}"))
         .and_then(|s| {
@@ -44,7 +44,7 @@ fn read_seed(path: &str) -> Result<[u8; KEY_LEN], String> {
         })
 }
 
-fn keys(args: &[String], name: &str) -> Result<Vec<[u8; KEY_LEN]>, String> {
+pub(super) fn keys(args: &[String], name: &str) -> Result<Vec<[u8; KEY_LEN]>, String> {
     flag(args, name)
         .unwrap_or_default()
         .split(',')

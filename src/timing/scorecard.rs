@@ -215,6 +215,7 @@ pub struct ScenarioResult {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct TimingScorecard {
     pub format: &'static str,
+    pub kind: &'static str,
     pub method: &'static str,
     pub label: String,
     pub title: String,
@@ -480,6 +481,7 @@ pub fn score(spec: &TimingScorecardSpec, src: &str) -> Result<TimingScorecard, K
     let levels = levels::map(&results.iter().map(|r| r.levels.clone()).collect::<Vec<_>>());
     Ok(TimingScorecard {
         format: FORMAT,
+        kind: KIND,
         method: METHOD_ID,
         label: label(),
         title: spec.title.clone(),
@@ -561,7 +563,9 @@ pub fn html(s: &TimingScorecard) -> String {
             let hw: Vec<String> = c
                 .holdover_warning_s
                 .iter()
-                .filter_map(|(k, v)| v.map(|t| format!("{} after {}", esc(k), super::fleet::human_duration(Some(t)))))
+                .filter_map(|(k, v)| {
+                    v.map(|t| format!("{} after {}", esc(k), super::fleet::human_duration(Some(t))))
+                })
                 .collect();
             h.push_str(&format!(
                 "<tr><td>{} · {}</td><td>{}<br><small>{}</small></td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>",
@@ -609,7 +613,8 @@ pub fn write_dir(out: &Path, s: &TimingScorecard, src: &str) -> Result<(), Kshan
         )));
     }
     std::fs::create_dir_all(out).map_err(io)?;
-    let json = serde_json::to_string_pretty(s).map_err(|e| KshanaError::InvalidInput(e.to_string()))?;
+    let json =
+        serde_json::to_string_pretty(s).map_err(|e| KshanaError::InvalidInput(e.to_string()))?;
     std::fs::write(out.join("timing-scorecard.json"), json + "\n").map_err(io)?;
     std::fs::write(out.join("report.html"), html(s)).map_err(io)?;
     std::fs::write(out.join("request.toml"), src).map_err(io)?;

@@ -50,14 +50,15 @@ pub const FORMAT: &str = "kshana-pro-receiver-scorecard/1";
 pub const METHOD_ID: &str = "kshana-pro/receiver-scorecard/v1";
 
 /// The honesty label of every scorecard.
-pub const LABEL: &str = "MEASURED from the receiver's own log (fix, flags, C/N0), MODELLED \
-monitor verdicts of the open receiver-trust engine, scored under bars stated before scoring. \
-Test evidence for the cases run, under the conditions stated; not a statement about cases not \
-run, and not a certification.";
+pub const LABEL: &str = "MODELLED verdicts of the open receiver-trust engine and of this \
+scorecard, from MEASURED receiver logs (fix, flags, C/N0), scored under bars stated before \
+scoring. Test evidence for the cases run, under the conditions stated; not a statement about \
+cases not run, and not a certification.";
 
 /// The top-level fields of a scorecard, in order (frozen for [`FORMAT`]).
-pub const SCORECARD_FIELDS: [&str; 14] = [
+pub const SCORECARD_FIELDS: [&str; 15] = [
     "format",
+    "kind",
     "method",
     "label",
     "campaign",
@@ -479,6 +480,7 @@ pub struct P1952 {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Scorecard {
     pub format: &'static str,
+    pub kind: &'static str,
     pub method: &'static str,
     pub label: &'static str,
     pub campaign: CampaignInfo,
@@ -499,9 +501,11 @@ pub struct Scorecard {
 pub const OPEN_ENGINE_PIN: &str = "0.41.0";
 
 /// The P1952 draft mapping template.
-pub const P1952_TEMPLATE: &str = include_str!("../../report-templates/scorecards/ieee-p1952-draft.json");
+pub const P1952_TEMPLATE: &str =
+    include_str!("../../report-templates/scorecards/ieee-p1952-draft.json");
 /// The DHS levels template (wording and sources).
-pub const DHS_TEMPLATE: &str = include_str!("../../report-templates/scorecards/dhs-rpcf-levels.json");
+pub const DHS_TEMPLATE: &str =
+    include_str!("../../report-templates/scorecards/dhs-rpcf-levels.json");
 
 fn round(v: f64, dp: i32) -> f64 {
     let k = 10f64.powi(dp);
@@ -660,7 +664,12 @@ fn load_case(c: &Campaign, cs: &CaseSpec) -> Result<Loaded, KshanaError> {
         vessel,
         events,
         calibration_s: cal,
-        truth_kind: if truth.is_some() { "motion-csv" } else { "none" }.into(),
+        truth_kind: if truth.is_some() {
+            "motion-csv"
+        } else {
+            "none"
+        }
+        .into(),
         truth,
     })
 }
@@ -685,7 +694,12 @@ fn trust_scenario(l: &Loaded) -> Result<ReceiverTrustScenario, KshanaError> {
 
 fn truth_at(truth: &[(f64, TruthAt)], t: f64) -> Option<TruthAt> {
     let i = truth.partition_point(|(ts, _)| *ts < t);
-    let pick = |k: usize| truth.get(k).filter(|(ts, _)| (ts - t).abs() <= 1.0).map(|x| x.1);
+    let pick = |k: usize| {
+        truth
+            .get(k)
+            .filter(|(ts, _)| (ts - t).abs() <= 1.0)
+            .map(|x| x.1)
+    };
     match (i.checked_sub(1).and_then(pick), pick(i)) {
         (Some(a), Some(b)) => {
             let (ta, tb) = (truth[i - 1].0, truth[i].0);
@@ -737,9 +751,9 @@ fn epochs_of(l: &Loaded, tl: &Timeline, res: &ReceiverTrustResult) -> Vec<Ep> {
         .iter()
         .map(|e| {
             let key = (e.t_s * 1000.0).round() as i64;
-            let (alarm, calibrating, mflag) = alarm_at.get(&key).copied().unwrap_or((false, false, false));
-            let flag = mflag
-                || e.self_report.as_ref().is_some_and(|s| s.flagged());
+            let (alarm, calibrating, mflag) =
+                alarm_at.get(&key).copied().unwrap_or((false, false, false));
+            let flag = mflag || e.self_report.as_ref().is_some_and(|s| s.flagged());
             let tr = l.truth.as_deref().and_then(|t| truth_at(t, e.t_s));
             let err_m = match (e.fix, tr) {
                 (Some(f), Some(t)) => Some(haversine_m(f.lat_deg, f.lon_deg, t.lat, t.lon)),
@@ -769,7 +783,8 @@ fn wrong(e: &Ep, b: &Bars, has_truth: bool) -> Option<bool> {
     }
     Some(
         e.err_m.is_some_and(|d| d > b.misleading_error_m)
-            || e.time_err_s.is_some_and(|d| d.abs() > b.misleading_time_error_s),
+            || e.time_err_s
+                .is_some_and(|d| d.abs() > b.misleading_time_error_s),
     )
 }
 
@@ -798,7 +813,10 @@ fn score_case(c: &Campaign, cs: &CaseSpec) -> Result<CaseResult, KshanaError> {
         let in_w: Vec<&Ep> = eps.iter().filter(|e| e.t >= onset && e.t <= end).collect();
         let fix_n = in_w.iter().filter(|e| e.fix).count();
         let errs: Vec<f64> = in_w.iter().filter_map(|e| e.err_m).collect();
-        let terrs: Vec<f64> = in_w.iter().filter_map(|e| e.time_err_s.map(f64::abs)).collect();
+        let terrs: Vec<f64> = in_w
+            .iter()
+            .filter_map(|e| e.time_err_s.map(f64::abs))
+            .collect();
         let flag_lat = eps
             .iter()
             .find(|e| e.t >= onset && e.t <= end && e.flag)
@@ -813,7 +831,10 @@ fn score_case(c: &Campaign, cs: &CaseSpec) -> Result<CaseResult, KshanaError> {
             }
         };
         let mut recovery = None;
-        let after: Vec<&Ep> = eps.iter().filter(|e| e.t >= end && e.t < next_onset).collect();
+        let after: Vec<&Ep> = eps
+            .iter()
+            .filter(|e| e.t >= end && e.t < next_onset)
+            .collect();
         let mut i = 0;
         while i < after.len() {
             if ok_after(after[i]) {
@@ -839,7 +860,9 @@ fn score_case(c: &Campaign, cs: &CaseSpec) -> Result<CaseResult, KshanaError> {
             Some(recovery.is_some())
         };
         // Wrong output without warning from onset to recovery (or the next event).
-        let stop = recovery.map(|r| end + r).unwrap_or(next_onset.min(end_log + 1.0));
+        let stop = recovery
+            .map(|r| end + r)
+            .unwrap_or(next_onset.min(end_log + 1.0));
         let span: Vec<&Ep> = eps.iter().filter(|e| e.t >= onset && e.t < stop).collect();
         let count = |monitored: bool| -> Option<usize> {
             if !has_truth {
@@ -848,7 +871,7 @@ fn score_case(c: &Campaign, cs: &CaseSpec) -> Result<CaseResult, KshanaError> {
             Some(
                 span.iter()
                     .filter(|e| wrong(e, b, true) == Some(true))
-                    .filter(|e| !e.flag && !(monitored && e.alarm))
+                    .filter(|e| !(e.flag || monitored && e.alarm))
                     .count(),
             )
         };
@@ -881,7 +904,10 @@ fn score_case(c: &Campaign, cs: &CaseSpec) -> Result<CaseResult, KshanaError> {
         .filter(|e| !e.calibrating && e.t >= l.calibration_s)
         .filter(|e| {
             !windows.iter().zip(&events).any(|((a, z), ev)| {
-                let until = z + ev.recovery_s.unwrap_or(b.max_recovery_s).max(b.max_recovery_s);
+                let until = z + ev
+                    .recovery_s
+                    .unwrap_or(b.max_recovery_s)
+                    .max(b.max_recovery_s);
                 e.t >= a - 10.0 && e.t <= until
             })
         })
@@ -896,9 +922,15 @@ fn score_case(c: &Campaign, cs: &CaseSpec) -> Result<CaseResult, KshanaError> {
     let w_fix: usize = events.iter().map(|e| e.window_fix_epochs).sum();
     let availability = (w_n > 0).then(|| round(w_fix as f64 / w_n as f64, 3));
     let max_err = events.iter().filter_map(|e| e.max_error_m).reduce(f64::max);
-    let max_terr = events.iter().filter_map(|e| e.max_time_error_s).reduce(f64::max);
+    let max_terr = events
+        .iter()
+        .filter_map(|e| e.max_time_error_s)
+        .reduce(f64::max);
     let sum_opt = |f: &dyn Fn(&EventResult) -> Option<usize>| -> Option<usize> {
-        events.iter().map(f).try_fold(0usize, |a, v| v.map(|x| a + x))
+        events
+            .iter()
+            .map(f)
+            .try_fold(0usize, |a, v| v.map(|x| a + x))
     };
     let mis = Misleading {
         unwarned_epochs: sum_opt(&|e| e.misleading_unwarned),
@@ -914,7 +946,8 @@ fn score_case(c: &Campaign, cs: &CaseSpec) -> Result<CaseResult, KshanaError> {
                 other => other,
             })
             .collect();
-        r.iter().fold(Verdict::Met, |a, v| a.and(Verdict::from_bool(*v)))
+        r.iter()
+            .fold(Verdict::Met, |a, v| a.and(Verdict::from_bool(*v)))
     };
     let no_misleading = Verdict::from_bool(
         if b.monitor_counts_as_warning {
@@ -933,8 +966,16 @@ fn score_case(c: &Campaign, cs: &CaseSpec) -> Result<CaseResult, KshanaError> {
         let a_ok = availability.is_some_and(|a| a >= avail);
         Verdict::from_bool(Some(e_ok && t_ok && a_ok))
     };
-    let bounded = within(b.bounded_error_m, b.bounded_time_error_s, b.bounded_min_availability);
-    let full = within(b.full_error_m, b.misleading_time_error_s, b.full_min_availability);
+    let bounded = within(
+        b.bounded_error_m,
+        b.bounded_time_error_s,
+        b.bounded_min_availability,
+    );
+    let full = within(
+        b.full_error_m,
+        b.misleading_time_error_s,
+        b.full_min_availability,
+    );
     Ok(CaseResult {
         id: cs.id.clone(),
         title: l.title,
@@ -977,16 +1018,34 @@ pub fn score(c: &Campaign, src: &str) -> Result<Scorecard, KshanaError> {
     let levels = levels::map(&cases.iter().map(|c| c.levels.clone()).collect::<Vec<_>>());
     let all_events: Vec<&EventResult> = cases.iter().flat_map(|c| &c.events).collect();
     let sum_opt = |f: &dyn Fn(&CaseResult) -> Option<usize>| -> Option<usize> {
-        cases.iter().map(f).try_fold(0usize, |a, v| v.map(|x| a + x))
+        cases
+            .iter()
+            .map(f)
+            .try_fold(0usize, |a, v| v.map(|x| a + x))
     };
     let totals = Totals {
         cases: cases.len(),
         events: all_events.len(),
-        monitor_detected: all_events.iter().filter(|e| e.monitor_outcome == "detected").count(),
-        monitor_late: all_events.iter().filter(|e| e.monitor_outcome == "late").count(),
-        monitor_missed: all_events.iter().filter(|e| e.monitor_outcome == "missed").count(),
-        receiver_flagged: all_events.iter().filter(|e| e.receiver_flag_latency_s.is_some()).count(),
-        recovered: all_events.iter().filter(|e| e.recovered == Some(true)).count(),
+        monitor_detected: all_events
+            .iter()
+            .filter(|e| e.monitor_outcome == "detected")
+            .count(),
+        monitor_late: all_events
+            .iter()
+            .filter(|e| e.monitor_outcome == "late")
+            .count(),
+        monitor_missed: all_events
+            .iter()
+            .filter(|e| e.monitor_outcome == "missed")
+            .count(),
+        receiver_flagged: all_events
+            .iter()
+            .filter(|e| e.receiver_flag_latency_s.is_some())
+            .count(),
+        recovered: all_events
+            .iter()
+            .filter(|e| e.recovered == Some(true))
+            .count(),
         misleading_unwarned_epochs: sum_opt(&|c| c.misleading.unwarned_epochs),
         misleading_unmonitored_epochs: sum_opt(&|c| c.misleading.unmonitored_epochs),
     };
@@ -1006,6 +1065,7 @@ pub fn score(c: &Campaign, src: &str) -> Result<Scorecard, KshanaError> {
     }
     Ok(Scorecard {
         format: FORMAT,
+        kind: KIND,
         method: METHOD_ID,
         label: LABEL,
         campaign: c.campaign.clone(),

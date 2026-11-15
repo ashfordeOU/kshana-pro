@@ -51,8 +51,14 @@ impl Verdict {
 /// The four levels, as summarised here.
 pub const LEVELS: [(u8, &str); 4] = [
     (1, "Recovers after the threat is removed"),
-    (2, "Recovers, and gives no misleading output without warning during the threat"),
-    (3, "Level 2, and keeps its output within a stated bound during the threat"),
+    (
+        2,
+        "Recovers, and gives no misleading output without warning during the threat",
+    ),
+    (
+        3,
+        "Level 2, and keeps its output within a stated bound during the threat",
+    ),
     (4, "Level 3, and keeps full performance during the threat"),
 ];
 
@@ -67,7 +73,12 @@ pub struct CaseLevels {
 
 impl CaseLevels {
     /// From the four criteria, each standing alone; each level includes the ones below it.
-    pub fn from_criteria(recover: Verdict, no_misleading: Verdict, bounded: Verdict, full: Verdict) -> Self {
+    pub fn from_criteria(
+        recover: Verdict,
+        no_misleading: Verdict,
+        bounded: Verdict,
+        full: Verdict,
+    ) -> Self {
         let l1 = recover;
         let l2 = l1.and(no_misleading);
         let l3 = l2.and(bounded);
@@ -111,7 +122,8 @@ pub const FRAMEWORK: &str =
     "DHS Resilient PNT Conformance Framework (resilience levels 1 to 4), as summarised by Kshana";
 
 /// The wording rule written into every mapping.
-pub const WORDING: &str = "Test evidence mapped to the framework's resilience levels under the bars \
+pub const WORDING: &str =
+    "Test evidence mapped to the framework's resilience levels under the bars \
 stated before scoring. It is not a statement that the equipment meets the framework or any \
 standard; the reader applies the framework.";
 
@@ -166,7 +178,10 @@ mod tests {
     #[test]
     fn levels_nest_and_a_gap_stops_the_chain() {
         let c = CaseLevels::from_criteria(Met, NotAssessed, Met, Met);
-        assert_eq!((c.l1, c.l2, c.l3, c.l4), (Met, NotAssessed, NotAssessed, NotAssessed));
+        assert_eq!(
+            (c.l1, c.l2, c.l3, c.l4),
+            (Met, NotAssessed, NotAssessed, NotAssessed)
+        );
         let d = CaseLevels::from_criteria(Met, Met, NotMet, Met);
         assert_eq!(d.l4, NotMet);
         let m = map(&[CaseLevels::from_criteria(Met, Met, Met, NotMet), d.clone()]);
