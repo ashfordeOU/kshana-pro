@@ -154,6 +154,18 @@ pub const ARKSA_ENTRIES: &[(&str, &str)] = &[
         "fb4c10297445d385975d2f9797c3932a8dc62be33248c6840112c5308081d984",
         "kind",
     ),
+    (
+        "3dd23d8da9ae741dfc55a56b065d6bf330c20eeeac1ec846dd94760dc26a5a58",
+        "kind",
+    ),
+    (
+        "3dd23d8da9ae741dfc55a56b065d6bf330c20eeeac1ec846dd94760dc26a5a58",
+        "feature",
+    ),
+    (
+        "e38ac47b6775739c7a123902edfb7deef71b1fb391f67c9d2b73b2f7ecc3b778",
+        "kind",
+    ),
 ];
 
 /// Pro kinds this build knows but registers only when a verified Pro pack that provides them

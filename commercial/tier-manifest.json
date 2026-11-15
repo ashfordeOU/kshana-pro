@@ -208,6 +208,11 @@
       "tier": "arksa"
     },
     {
+      "kind_sha256": "3dd23d8da9ae741dfc55a56b065d6bf330c20eeeac1ec846dd94760dc26a5a58",
+      "type": "feature",
+      "tier": "arksa"
+    },
+    {
       "kind_sha256": "4ddf8f80413304e353c1ba9ca8ff9b8cfe268c7eed082b62b0ad0ee8e3366f6a",
       "type": "feature",
       "tier": "arksa"
@@ -234,6 +239,11 @@
     },
     {
       "kind_sha256": "3b296fd95f942821e84fcd2c81589d780888057d8f072f0d09d6b3bbc8a0a2be",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "3dd23d8da9ae741dfc55a56b065d6bf330c20eeeac1ec846dd94760dc26a5a58",
       "type": "kind",
       "tier": "arksa"
     },
@@ -279,6 +289,11 @@
     },
     {
       "kind_sha256": "e36e88f761e240e2d6a40ff582ff45121918e6bbf10cc7c342024e9fcbe9ed60",
+      "type": "kind",
+      "tier": "arksa"
+    },
+    {
+      "kind_sha256": "e38ac47b6775739c7a123902edfb7deef71b1fb391f67c9d2b73b2f7ecc3b778",
       "type": "kind",
       "tier": "arksa"
     },

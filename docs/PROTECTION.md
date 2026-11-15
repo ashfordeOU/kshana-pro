@@ -94,7 +94,7 @@ server binary refuses at Evaluation and lists the Arksa commands.
   `KSHANA_PRO_REGEN_TIER_MANIFEST=1 cargo test --test tier_manifest`. The hidden entries
   come from `tiers::ARKSA_ENTRIES` (hash and type); this crate does not know their names.
   CI fails while the committed file or signature is stale. Regenerated on 14 November 2026
-  for X3 with the test key: 33 entries, 18 at `arksa` (11 kinds, 7 features).
+  for X3 with the test key: 33 entries, 18 at `arksa` (11 kinds, 7 features). Regenerated on 15 November 2026 with two more Arksa-exclusive kinds and one feature (roadmap 0.42 F4 and M9, built in the private Arksa repository): 21 entries at `arksa`.
 * **Limit.** The manifest is embedded at compile time. Its signature catches an edit between
   the vendor and the build; it does not stop someone who patches a built binary. That is why
   the Arksa-exclusive code is not in this repository at all (sections 4 and 6).
