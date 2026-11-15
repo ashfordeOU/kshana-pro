@@ -186,6 +186,14 @@ class KshanaProClient:
         """GET /metrics: Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime. Role: reader."""
         return self._call("GET", "/metrics", None, None, None, text=False)
 
+    def get_timing_fleet(self):
+        """GET /timing/fleet: The timing fleet page (roadmap 0.42 T2): every clock of the tenant's fleet (<data-dir>/timing/<tenant>/fleet.toml) with its time to breach and evidence history; needs the pro-timing-fleet feature. Role: reader."""
+        return self._call("GET", "/timing/fleet", None, None, None, text=False)
+
+    def get_timing_metrics(self):
+        """GET /timing/metrics: The tenant's timing fleet in the Prometheus text format, for the Grafana dashboard deploy/grafana/kshana-pro-timing-fleet.json; needs the pro-timing-fleet feature. Role: reader."""
+        return self._call("GET", "/timing/metrics", None, None, None, text=False)
+
     def get_audit_verify(self):
         """GET /audit/verify: Verify the hash chain of the audit log (admin). Role: admin."""
         return self._call("GET", "/audit/verify", None, None, None, text=False)

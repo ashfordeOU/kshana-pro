@@ -56,6 +56,8 @@ pub enum RouteId {
     FleetList,
     FleetHeartbeat,
     FleetRetire,
+    TimingFleet,
+    TimingMetrics,
 }
 
 /// One route: the method, the path template (OpenAPI form, `{param}` for a segment)
@@ -122,6 +124,8 @@ pub static ROUTES: &[Route] = &[
     Route { method: "POST", path: "/fleet/stations/{id}/heartbeat", id: RouteId::FleetHeartbeat, role: Some(Role::Submitter), summary: "A Station's health report (any JSON object)", needs_data_dir: true, greedy_tail: false, request: Some((JSON, "The Station's health")), query: &[], responses: &[(200, JSON, "Recorded"), (404, JSON, "Not registered"), AUTH_401] },
     Route { method: "POST", path: "/fleet/stations/{id}/retire", id: RouteId::FleetRetire, role: Some(Role::Submitter), summary: "Retire a Station: it stops counting against the limit", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Retired"), (404, JSON, "Not registered"), AUTH_401] },
     Route { method: "GET", path: "/metrics", id: RouteId::Metrics, role: Some(Role::Reader), summary: "Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, "text/plain; version=0.0.4", "Prometheus text exposition"), AUTH_401] },
+    Route { method: "GET", path: "/timing/fleet", id: RouteId::TimingFleet, role: Some(Role::Reader), summary: "The timing fleet page (roadmap 0.42 T2): every clock of the tenant's fleet (<data-dir>/timing/<tenant>/fleet.toml) with its time to breach and evidence history; needs the pro-timing-fleet feature", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, HTML, "The fleet page"), (403, JSON, "The entitlement does not include pro-timing-fleet"), (404, JSON, "No fleet configured for this tenant"), (422, JSON, "The fleet file or a clock's log is invalid"), AUTH_401] },
+    Route { method: "GET", path: "/timing/metrics", id: RouteId::TimingMetrics, role: Some(Role::Reader), summary: "The tenant's timing fleet in the Prometheus text format, for the Grafana dashboard deploy/grafana/kshana-pro-timing-fleet.json; needs the pro-timing-fleet feature", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, "text/plain; version=0.0.4", "Prometheus text exposition"), (403, JSON, "The entitlement does not include pro-timing-fleet"), (404, JSON, "No fleet configured for this tenant"), (422, JSON, "The fleet file or a clock's log is invalid"), AUTH_401] },
     Route { method: "GET", path: "/audit/verify", id: RouteId::AuditVerify, role: Some(Role::Admin), summary: "Verify the hash chain of the audit log (admin)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Verification report (verified true or false, first bad line named)"), AUTH_401, AUTH_403] },
 ];
 
@@ -584,6 +588,9 @@ fn route_request(
                 ),
                 Err(super::fleet::Refused::Io(e)) => HttpResponse::error(500, &e),
             }
+        }
+        (RouteId::TimingFleet | RouteId::TimingMetrics, Some(j)) => {
+            timing_route(svc, &j.data_dir, &who.tenant, route.id == RouteId::TimingFleet, now)
         }
         (RouteId::FleetList, Some(j)) => {
             let limit = super::fleet::limit_for(&svc.entitlement, svc.stations_claim, now);
@@ -1287,6 +1294,63 @@ fn study_with_job(
             HttpResponse::json(200, body.to_string())
         }
         Err(r) => r,
+    }
+}
+
+/// `GET /timing/fleet` and `GET /timing/metrics` (roadmap 0.42 T2): the tenant's fleet file
+/// `<data-dir>/timing/<tenant>/fleet.toml` (log paths relative to it), assessed on each request;
+/// the evidence history is read from `<data-dir>/timing/<tenant>/evidence/` (written by
+/// `kshana-pro timing assess --evidence`). Reading only: a request never appends evidence.
+fn timing_route(
+    svc: &Service,
+    data_dir: &std::path::Path,
+    tenant: &str,
+    page: bool,
+    now: i64,
+) -> HttpResponse {
+    if let Err(e) = crate::license::check(&svc.entitlement, crate::timing::FLEET_FEATURE, now) {
+        return HttpResponse::error(403, &e.to_string());
+    }
+    let t = if tenant == super::auth::ALL_TENANTS {
+        "_all"
+    } else {
+        tenant
+    };
+    let dir = data_dir.join("timing").join(t);
+    let file = dir.join("fleet.toml");
+    let Ok(text) = std::fs::read_to_string(&file) else {
+        return HttpResponse::error(404, "no timing fleet is configured for this tenant (timing/<tenant>/fleet.toml in the data directory)");
+    };
+    let mut spec = match crate::timing::fleet::FleetSpec::parse(&text) {
+        Ok(s) => s,
+        Err(e) => return HttpResponse::error(422, &e.to_string()),
+    };
+    spec.resolve_paths(&dir);
+    let a = match crate::timing::fleet::assess(&spec) {
+        Ok(a) => a,
+        Err(e) => return HttpResponse::error(422, &e.to_string()),
+    };
+    if !page {
+        return HttpResponse {
+            status: 200,
+            content_type: "text/plain; version=0.0.4",
+            body: crate::timing::metrics::exposition(&a),
+            headers: Vec::new(),
+        };
+    }
+    let ev = dir.join("evidence");
+    let mut hist = Vec::new();
+    for c in &a.clocks {
+        match crate::timing::evidence::read(&ev, &c.id) {
+            Ok(h) => hist.push((c.id.clone(), h)),
+            Err(e) => return HttpResponse::error(422, &e.to_string()),
+        }
+    }
+    HttpResponse {
+        status: 200,
+        content_type: "text/html; charset=utf-8",
+        body: crate::timing::console::page(&a, &hist, &format!("served at unix {now}")),
+        headers: Vec::new(),
     }
 }
 

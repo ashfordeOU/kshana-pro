@@ -15,6 +15,7 @@ pub mod optimism_gap_audit;
 pub mod quantum_systematics_pack;
 pub mod seam_check;
 pub mod study_pdf;
+pub mod timing_holdover_pack;
 pub mod trade_study_pack;
 pub mod twin_pack;
 pub mod uncertainty_pack;

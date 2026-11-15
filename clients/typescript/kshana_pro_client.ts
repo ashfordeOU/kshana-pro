@@ -209,6 +209,16 @@ export class KshanaProClient {
     return this.call("GET", `/metrics`, undefined, undefined, undefined, false);
   }
 
+  /** GET /timing/fleet: The timing fleet page (roadmap 0.42 T2): every clock of the tenant's fleet (<data-dir>/timing/<tenant>/fleet.toml) with its time to breach and evidence history; needs the pro-timing-fleet feature. Role: reader. */
+  getTimingFleet(): Promise<any> {
+    return this.call("GET", `/timing/fleet`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /timing/metrics: The tenant's timing fleet in the Prometheus text format, for the Grafana dashboard deploy/grafana/kshana-pro-timing-fleet.json; needs the pro-timing-fleet feature. Role: reader. */
+  getTimingMetrics(): Promise<any> {
+    return this.call("GET", `/timing/metrics`, undefined, undefined, undefined, false);
+  }
+
   /** GET /audit/verify: Verify the hash chain of the audit log (admin). Role: admin. */
   getAuditVerify(): Promise<any> {
     return this.call("GET", `/audit/verify`, undefined, undefined, undefined, false);

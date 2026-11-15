@@ -23,6 +23,21 @@ own bullet so parallel work merges cleanly.
   only from a verified Pro pack (`ForensicsActivator`); Desktop Pro loads it at start and its
   Pro home shows the forensics job. Every report states that the V2 detection bars are not yet
   met.
+- **Timing assurance (roadmap 0.42 T1, T2, T3; evidence row V5; docs/TIMING-ASSURANCE.md).**
+  New kind `pro-timing-holdover`: holdover model and time to breach of operator-set limits for
+  every clock of a mixed-vendor fleet, each read through the open engine's clock-log readers
+  (TICC, TimeLab, RINEX clock, CGGTTS, linuxptp, chrony, ntpd, White Rabbit, PPS); servo records
+  take a stated class or datasheet prior. New features `pro-timing-fleet` (hash-chained
+  per-clock evidence history, the fleet page at `GET /timing/fleet` and `GET /timing/metrics` in
+  the service, `deploy/grafana/kshana-pro-timing-fleet.json`) and `pro-timing-audit` (signed
+  reports mapped to MiFID II RTS 25 traceability and the NIST IR 8323 profile; verified with the
+  free `dossier verify`). `kshana-pro timing <assess|console|metrics|history|audit>`. V5 was
+  pre-registered before the code and scored on eleven real IGS rubidium clocks and a synthetic
+  fleet: **missed** (published in `docs/evidence/v5-holdover-time-to-breach/`). The successor
+  predictor (Kalman-filter handover state, now used by the fleet assessment) was pre-registered as
+  V5b before it was written and scored on IGS data V5 did not use: synthetic bars all passed, real
+  data missed B1 (0.894 against 0.90) and B5; published beside V5. T1 is not claimed. Tier
+  manifest regenerated; service clients regenerated.
 
 - **Arksa-exclusive code moved out (roadmap 0.42 X3; docs/PROTECTION.md, section 6).** The
   eleven Arksa-exclusive kinds (the nine of section 1a plus the two lunar surface beacon
