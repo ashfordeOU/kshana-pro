@@ -154,6 +154,22 @@ fn lab_schema(path: &Path, head: &[u8]) -> Option<String> {
         .map(|s| (*s).to_owned())
 }
 
+/// The one place JSON Lines that are not campaign output may live: the timing-assurance sample
+/// report's per-clock evidence history (roadmap 0.42 T2), built from public IGS clocks and
+/// labelled synthetic logs of the demo fleet. Every line there must carry the timing evidence
+/// format, or the file is judged as campaign output like any other `*.jsonl`.
+const TIMING_HISTORY_DIR: &str = "report-templates/samples/timing-audit-rts25/history/";
+const TIMING_HISTORY_FORMAT: &str = "\"format\":\"kshana-pro-timing-evidence/1\"";
+
+fn is_timing_evidence_history(rel: &str) -> bool {
+    rel.starts_with(TIMING_HISTORY_DIR)
+        && rel.ends_with(".jsonl")
+        && fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join(rel)).is_ok_and(|t| {
+            t.lines()
+                .all(|l| l.trim().is_empty() || l.contains(TIMING_HISTORY_FORMAT))
+        })
+}
+
 /// Whether `rel` (a path relative to the repository root, `/`-separated) names a campaign
 /// output by itself.
 fn is_output_by_name(rel: &str) -> bool {
@@ -161,7 +177,7 @@ fn is_output_by_name(rel: &str) -> bool {
     let base = p.file_name().and_then(|n| n.to_str()).unwrap_or("");
     p.components().any(|c| c.as_os_str() == "epochs")
         || OUTPUT_NAMES.contains(&base)
-        || ext(p) == "jsonl"
+        || (ext(p) == "jsonl" && !is_timing_evidence_history(rel))
 }
 
 /// Judge one file. `rel` is relative to the repository root, `in_fixture` says whether it lies
