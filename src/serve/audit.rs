@@ -230,6 +230,85 @@ pub fn verify(dir: &Path) -> Report {
     }
 }
 
+/// The number of day files of `dir` older than day number `cutoff` (what a prune at that
+/// cutoff would delete).
+pub fn day_files_before(dir: &Path, cutoff: i64) -> usize {
+    let limit = day_name(cutoff);
+    day_files(dir)
+        .iter()
+        .filter_map(|p| p.file_name().and_then(|n| n.to_str()).map(str::to_string))
+        .filter(|n| n.as_str() < limit.as_str())
+        .count()
+}
+
+/// The Enterprise feature of `GET /audit/export` (roadmap 0.42 F8).
+pub const EXPORT_FEATURE: &str = "pro-audit-export";
+/// The export document's format tag.
+pub const EXPORT_FORMAT: &str = "kshana-pro-audit-export/1";
+
+/// True for `YYYY-MM-DD`.
+pub fn is_day(s: &str) -> bool {
+    let b = s.as_bytes();
+    b.len() == 10
+        && b[4] == b'-'
+        && b[7] == b'-'
+        && b.iter()
+            .enumerate()
+            .all(|(i, c)| i == 4 || i == 7 || c.is_ascii_digit())
+}
+
+/// The audit lines of the days `from..=to` (inclusive, `YYYY-MM-DD`; `None`: unbounded)
+/// whose tenant `sees` accepts, for a SIEM: each line exactly as stored (so its `prev` can be
+/// checked against the line before it in the full log), the chain report of the whole log,
+/// and the SHA-256 of the exported lines joined with newlines.
+pub fn export(
+    dir: &Path,
+    from: Option<&str>,
+    to: Option<&str>,
+    sees: &dyn Fn(&str) -> bool,
+) -> serde_json::Value {
+    let mut lines: Vec<serde_json::Value> = Vec::new();
+    let mut raw = String::new();
+    for p in day_files(dir) {
+        let Some(day) = p
+            .file_name()
+            .and_then(|n| n.to_str())
+            .map(|n| n[..10].to_string())
+        else {
+            continue;
+        };
+        if from.is_some_and(|f| day.as_str() < f) || to.is_some_and(|t| day.as_str() > t) {
+            continue;
+        }
+        let Ok(text) = fs::read_to_string(&p) else {
+            continue;
+        };
+        for l in text.lines() {
+            let Ok(e) = serde_json::from_str::<Entry>(l) else {
+                continue;
+            };
+            // Server events (tenant "-") belong to the operator's view only.
+            if !sees(&e.tenant) {
+                continue;
+            }
+            raw.push_str(l);
+            raw.push('\n');
+            let mut v = serde_json::to_value(&e).unwrap_or_default();
+            v["sha256"] = serde_json::json!(digest(l));
+            lines.push(v);
+        }
+    }
+    serde_json::json!({
+        "format": EXPORT_FORMAT,
+        "from": from,
+        "to": to,
+        "chain": verify(dir),
+        "count": lines.len(),
+        "lines_sha256": hex::encode(Sha256::digest(raw.as_bytes())),
+        "lines": lines,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

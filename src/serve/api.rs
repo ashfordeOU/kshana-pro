@@ -60,6 +60,14 @@ pub enum RouteId {
     TimingMetrics,
     AreaConsole,
     AreaPicture,
+    TimingAssessment,
+    Whoami,
+    AuditExport,
+    RetentionShow,
+    RetentionApply,
+    WallPage,
+    WallState,
+    Scim,
 }
 
 /// One route: the method, the path template (OpenAPI form, `{param}` for a segment)
@@ -88,6 +96,12 @@ pub struct Route {
 const JSON: &str = "application/json";
 const TEXT: &str = "text/plain";
 const HTML: &str = "text/html";
+const SCIM: &str = "application/scim+json";
+const SCIM_403: (u16, &str, &str) = (
+    403,
+    SCIM,
+    "Below admin, an operator key of every tenant, or the entitlement does not include pro-scim",
+);
 
 const AUTH_401: (u16, &str, &str) = (
     401,
@@ -131,6 +145,25 @@ pub static ROUTES: &[Route] = &[
     Route { method: "GET", path: "/area/console", id: RouteId::AreaConsole, role: Some(Role::Reader), summary: "The area console page (roadmap 0.42 F1): the tenant's area trust picture (<data-dir>/area/<tenant>/console.toml) with event timelines and wide-area events; detections and areas only, never emitter positions (F2); needs the pro-area-console feature", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, HTML, "The console page"), (403, JSON, "The entitlement does not include pro-area-console, or the console has several tenants and the licence is not Enterprise"), (404, JSON, "No console configured for this tenant"), (422, JSON, "The console file or a source is invalid"), AUTH_401] },
     Route { method: "GET", path: "/area/picture", id: RouteId::AreaPicture, role: Some(Role::Reader), summary: "The tenant's area trust picture as JSON (kshana-pro-area-picture/1); no emitter positions; needs the pro-area-console feature", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "The picture"), (403, JSON, "The entitlement does not include pro-area-console, or the console has several tenants and the licence is not Enterprise"), (404, JSON, "No console configured for this tenant"), (422, JSON, "The console file or a source is invalid"), AUTH_401] },
     Route { method: "GET", path: "/audit/verify", id: RouteId::AuditVerify, role: Some(Role::Admin), summary: "Verify the hash chain of the audit log (admin)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Verification report (verified true or false, first bad line named)"), AUTH_401, AUTH_403] },
+    Route { method: "GET", path: "/timing/assessment", id: RouteId::TimingAssessment, role: Some(Role::Reader), summary: "The tenant's timing fleet assessment as JSON (every clock's status, predictions and limit breaches), for the Desktop Pro timing job; needs the pro-timing-fleet feature", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "The fleet assessment"), (403, JSON, "The entitlement does not include pro-timing-fleet"), (404, JSON, "No fleet configured for this tenant"), (422, JSON, "The fleet file or a clock's log is invalid"), AUTH_401] },
+    Route { method: "GET", path: "/whoami", id: RouteId::Whoami, role: Some(Role::Reader), summary: "The caller as the server sees it: id, tenant, role, credential source, and the serving edition with its Enterprise features (roadmap 0.42 U28)", needs_data_dir: false, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "The principal"), AUTH_401] },
+    Route { method: "GET", path: "/audit/export", id: RouteId::AuditExport, role: Some(Role::Admin), summary: "Export the audit log for a SIEM (roadmap 0.42 F8): the lines of the days since..until of the caller's tenant (every tenant and the server's own events for an operator), each as stored with its SHA-256, and the chain report; needs the Enterprise feature pro-audit-export", needs_data_dir: true, greedy_tail: false, request: None, query: &[("since", "First day, YYYY-MM-DD (default: the oldest kept)"), ("until", "Last day, YYYY-MM-DD (default: the newest)")], responses: &[(200, JSON, "kshana-pro-audit-export/1"), (400, JSON, "Bad day"), (403, JSON, "Below admin, or the entitlement does not include pro-audit-export"), (404, JSON, "This server keeps no audit log"), AUTH_401] },
+    Route { method: "GET", path: "/retention", id: RouteId::RetentionShow, role: Some(Role::Admin), summary: "The retention policy (retention.toml in the data directory) and what applying it now would delete for the caller's tenant (every tenant for an operator); needs the Enterprise feature pro-retention", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Policy and dry run"), (403, JSON, "The entitlement does not include pro-retention"), (404, JSON, "No retention policy"), (422, JSON, "The policy is invalid"), AUTH_401, AUTH_403] },
+    Route { method: "POST", path: "/retention/apply", id: RouteId::RetentionApply, role: Some(Role::Admin), summary: "Apply the retention policy (an operator only): finished jobs past their tenant's period (never a delivered job), expired share links, and audit days past audit_days; needs the Enterprise feature pro-retention", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "What was deleted"), (403, JSON, "Not an operator, or the entitlement does not include pro-retention"), (404, JSON, "No retention policy"), (422, JSON, "The policy is invalid"), AUTH_401, AUTH_403] },
+    Route { method: "GET", path: "/wall", id: RouteId::WallPage, role: Some(Role::Reader), summary: "The always-on watch wall page of the caller's tenant (roadmap 0.42 U28): Station fleet, area trust, timing fleet and jobs; no script, reloads every 30 s; needs the Enterprise feature pro-watch-wall", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, HTML, "The wall page"), (403, JSON, "The entitlement does not include pro-watch-wall"), AUTH_401] },
+    Route { method: "GET", path: "/wall/state", id: RouteId::WallState, role: Some(Role::Reader), summary: "The watch wall of the caller's tenant as JSON (kshana-pro-watch-wall/1); needs the Enterprise feature pro-watch-wall", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "The wall"), (403, JSON, "The entitlement does not include pro-watch-wall"), AUTH_401] },
+    Route { method: "GET", path: "/scim/v2/ServiceProviderConfig", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0 service provider configuration (roadmap 0.42 F8); needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, SCIM, "Configuration"), SCIM_403, AUTH_401] },
+    Route { method: "GET", path: "/scim/v2/Users", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: the tenant's provisioned users (filter=userName eq \"name\"); needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, SCIM, "ListResponse"), (400, SCIM, "Unsupported filter"), SCIM_403, AUTH_401] },
+    Route { method: "POST", path: "/scim/v2/Users", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: provision a user; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: Some((SCIM, "SCIM User")), query: &[], responses: &[(201, SCIM, "Created"), (400, SCIM, "Invalid user"), (409, SCIM, "userName exists"), SCIM_403, AUTH_401] },
+    Route { method: "GET", path: "/scim/v2/Users/{id}", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: one user; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, SCIM, "The user"), (404, SCIM, "No such user in this tenant"), SCIM_403, AUTH_401] },
+    Route { method: "PUT", path: "/scim/v2/Users/{id}", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: replace a user; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: Some((SCIM, "SCIM User")), query: &[], responses: &[(200, SCIM, "Replaced"), (400, SCIM, "Invalid user"), (404, SCIM, "No such user"), SCIM_403, AUTH_401] },
+    Route { method: "PATCH", path: "/scim/v2/Users/{id}", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: change a user (replace active, displayName, userName); a deactivated user is refused at its next request; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: Some((SCIM, "SCIM PatchOp")), query: &[], responses: &[(200, SCIM, "Changed"), (400, SCIM, "Unsupported operation"), (404, SCIM, "No such user"), SCIM_403, AUTH_401] },
+    Route { method: "DELETE", path: "/scim/v2/Users/{id}", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: delete a user; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(204, SCIM, "Deleted"), (404, SCIM, "No such user"), SCIM_403, AUTH_401] },
+    Route { method: "GET", path: "/scim/v2/Groups", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: the tenant's groups (kshana-admin, kshana-submitter and kshana-reader grant roles); needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, SCIM, "ListResponse"), SCIM_403, AUTH_401] },
+    Route { method: "POST", path: "/scim/v2/Groups", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: create a group; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: Some((SCIM, "SCIM Group")), query: &[], responses: &[(201, SCIM, "Created"), (400, SCIM, "Invalid group"), SCIM_403, AUTH_401] },
+    Route { method: "GET", path: "/scim/v2/Groups/{id}", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: one group; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, SCIM, "The group"), (404, SCIM, "No such group"), SCIM_403, AUTH_401] },
+    Route { method: "PATCH", path: "/scim/v2/Groups/{id}", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: add or remove members, rename; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: Some((SCIM, "SCIM PatchOp")), query: &[], responses: &[(200, SCIM, "Changed"), (400, SCIM, "Unsupported operation"), (404, SCIM, "No such group"), SCIM_403, AUTH_401] },
+    Route { method: "DELETE", path: "/scim/v2/Groups/{id}", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: delete a group; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(204, SCIM, "Deleted"), (404, SCIM, "No such group"), SCIM_403, AUTH_401] },
 ];
 
 /// The routes served with or without a data directory.
@@ -405,6 +438,15 @@ fn route_request(
             return r;
         }
     };
+    // SCIM (roadmap 0.42 F8): a deprovisioned or deactivated person is refused, and a
+    // provisioned person's role is the one its groups grant.
+    let who = match svc.jobs.as_deref() {
+        Some(j) if !is_public => match super::scim::admit(&j.data_dir, who) {
+            Ok(p) => p,
+            Err(e) => return HttpResponse::error(401, &e),
+        },
+        _ => who,
+    };
     if let Some((route, _)) = matched {
         if route.role.is_some_and(|need| who.role < need) {
             return HttpResponse::error(
@@ -676,7 +718,124 @@ fn route_request(
             serde_json::to_string_pretty(&j.ledger.verify(&j.store)).unwrap_or_default(),
         ),
         // A data-directory route cannot match without one (served_routes filters it).
+        (RouteId::Whoami, _) => HttpResponse::json(
+            200,
+            json_pretty(&serde_json::json!({
+                "id": who.id, "tenant": who.tenant, "role": who.role.as_str(), "source": who.source.as_str(),
+                "edition": svc.entitlement.tier.as_str(),
+                "enterprise": ENTERPRISE_FEATURES.iter().filter(|f| svc.entitlement.allows(f, now)).collect::<Vec<_>>(),
+            })),
+        ),
+        (RouteId::TimingAssessment, Some(j)) => timing_assessment(svc, &j.data_dir, &who.tenant, now),
+        (RouteId::AuditExport, Some(_)) => {
+            if let Err(e) = crate::license::check(&svc.entitlement, super::audit::EXPORT_FEATURE, now) {
+                return HttpResponse::error(403, &e.to_string());
+            }
+            let Some(log) = svc.audit() else {
+                return HttpResponse::error(404, "this server keeps no audit log");
+            };
+            let (mut from, mut to) = (None, None);
+            for (k, v) in query.split('&').filter_map(|kv| kv.split_once('=')) {
+                match k {
+                    "since" | "until" if super::audit::is_day(v) => {
+                        if k == "since" { from = Some(v.to_string()) } else { to = Some(v.to_string()) }
+                    }
+                    "since" | "until" => return HttpResponse::error(400, &format!("{k} is a day, YYYY-MM-DD")),
+                    _ => return HttpResponse::error(400, &format!("unknown query parameter '{k}'")),
+                }
+            }
+            let op = operator(&who);
+            let sees = |t: &str| if op { true } else { t == who.tenant };
+            HttpResponse::json(
+                200,
+                json_pretty(&super::audit::export(log.dir(), from.as_deref(), to.as_deref(), &sees)),
+            )
+        }
+        (RouteId::RetentionShow | RouteId::RetentionApply, Some(j)) => {
+            if let Err(e) = crate::license::check(&svc.entitlement, super::retention::FEATURE, now) {
+                return HttpResponse::error(403, &e.to_string());
+            }
+            let apply = route.id == RouteId::RetentionApply;
+            let op = operator(&who);
+            if apply && !op {
+                return HttpResponse::error(403, "applying the retention policy needs an operator (an admin of every tenant)");
+            }
+            let policy = match super::retention::Policy::load(&j.data_dir) {
+                Ok(Some(p)) => p,
+                Ok(None) => return HttpResponse::error(404, "no retention policy (retention.toml in the data directory)"),
+                Err(e) => return HttpResponse::error(422, &e),
+            };
+            let sees = |t: &str| who.sees(t) || op;
+            match super::retention::run(j, svc.audit(), &policy, &sees, op, apply, now) {
+                Ok(r) => HttpResponse::json(200, json_pretty(&serde_json::json!({"policy": policy, "report": r}))),
+                Err(e) => HttpResponse::error(500, &e.to_string()),
+            }
+        }
+        (RouteId::WallPage | RouteId::WallState, Some(j)) => {
+            if let Err(e) = crate::license::check(&svc.entitlement, super::wall::FEATURE, now) {
+                return HttpResponse::error(403, &e.to_string());
+            }
+            let st = super::wall::state(j, &svc.entitlement, svc.stations_claim, &who, now);
+            if route.id == RouteId::WallState {
+                HttpResponse::json(200, json_pretty(&st))
+            } else {
+                HttpResponse {
+                    status: 200,
+                    content_type: "text/html; charset=utf-8",
+                    body: super::wall::page(&st),
+                    headers: Vec::new(),
+                }
+            }
+        }
+        (RouteId::Scim, Some(j)) => {
+            if let Err(e) = crate::license::check(&svc.entitlement, super::scim::FEATURE, now) {
+                return super::scim::error(403, &e.to_string());
+            }
+            let rest = path.strip_prefix("/scim/v2").unwrap_or("");
+            super::scim::handle(&j.data_dir, &who, &req.method, rest, query, &req.body, now)
+        }
         (_, None) => super::handle(req, &svc.entitlement, now),
+    }
+}
+
+/// The Enterprise operations features (roadmap 0.42 F8, U28) that `GET /whoami` reports.
+pub const ENTERPRISE_FEATURES: &[&str] = &[
+    super::scim::FEATURE,
+    super::audit::EXPORT_FEATURE,
+    super::retention::FEATURE,
+    super::wall::FEATURE,
+];
+
+/// `GET /timing/assessment`: the tenant's fleet assessment as JSON.
+fn timing_assessment(
+    svc: &Service,
+    data_dir: &std::path::Path,
+    tenant: &str,
+    now: i64,
+) -> HttpResponse {
+    if let Err(e) = crate::license::check(&svc.entitlement, crate::timing::FLEET_FEATURE, now) {
+        return HttpResponse::error(403, &e.to_string());
+    }
+    let t = if tenant == super::auth::ALL_TENANTS {
+        "_all"
+    } else {
+        tenant
+    };
+    let dir = data_dir.join("timing").join(t);
+    let Ok(text) = std::fs::read_to_string(dir.join("fleet.toml")) else {
+        return HttpResponse::error(404, "no timing fleet is configured for this tenant (timing/<tenant>/fleet.toml in the data directory)");
+    };
+    let mut spec = match crate::timing::fleet::FleetSpec::parse(&text) {
+        Ok(s) => s,
+        Err(e) => return HttpResponse::error(422, &e.to_string()),
+    };
+    spec.resolve_paths(&dir);
+    match crate::timing::fleet::assess(&spec) {
+        Ok(a) => HttpResponse::json(
+            200,
+            serde_json::to_string_pretty(&a).unwrap_or_default() + "\n",
+        ),
+        Err(e) => HttpResponse::error(422, &e.to_string()),
     }
 }
 
