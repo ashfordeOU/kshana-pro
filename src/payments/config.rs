@@ -294,6 +294,15 @@ impl PaymentsConfig {
         read_secret(&resolve(base, &self.webhook_secret_file), "webhook secret")
     }
 
+    /// The licence signer for the webhook issuer (key custody S7-a): AWS KMS when
+    /// `KSHANA_PRO_SIGNER=kms` (cargo feature `kms`), else the seed in the signing key file.
+    pub fn signer(&self, base: &Path) -> Result<crate::license::signer::SharedSigner, KshanaError> {
+        if std::env::var("KSHANA_PRO_SIGNER").is_ok_and(|v| v.trim().eq_ignore_ascii_case("kms")) {
+            return crate::license::signer::from_env(None);
+        }
+        Ok(std::sync::Arc::new(self.signing_seed(base)?))
+    }
+
     /// The payments signing seed, read from its file.
     pub fn signing_seed(&self, base: &Path) -> Result<[u8; crate::license::KEY_LEN], KshanaError> {
         crate::license::parse_key_hex(&read_secret(

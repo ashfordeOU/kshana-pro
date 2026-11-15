@@ -20,7 +20,7 @@ use kshana::api::KshanaError;
 use sha2::{Digest, Sha256};
 
 use super::revocation::{self, RevocationList};
-use super::{issue_v2, key_id, public_key_for, LicenseClaims, Tier, KEY_LEN};
+use super::{issue_v2, LicenseClaims, Tier};
 
 /// Days in a trial token.
 pub const TRIAL_DAYS: i64 = 30;
@@ -191,7 +191,7 @@ impl Register {
 
     fn issue_action(
         &self,
-        seed: &[u8; KEY_LEN],
+        seed: &dyn super::LicenceSigner,
         claims: &LicenseClaims,
         how: How<'_>,
         now: i64,
@@ -232,7 +232,7 @@ impl Register {
     /// Issue a token and record it.
     pub fn issue(
         &self,
-        seed: &[u8; KEY_LEN],
+        seed: &dyn super::LicenceSigner,
         claims: &LicenseClaims,
         source: &str,
         note: &str,
@@ -256,7 +256,7 @@ impl Register {
     /// `renews` is refused.
     pub fn reissue(
         &self,
-        seed: &[u8; KEY_LEN],
+        seed: &dyn super::LicenceSigner,
         claims: &LicenseClaims,
         renews: &str,
         source: &str,
@@ -285,7 +285,7 @@ impl Register {
     /// licensee: a second is refused.
     pub fn trial(
         &self,
-        seed: &[u8; KEY_LEN],
+        seed: &dyn super::LicenceSigner,
         licensee: &str,
         products: &[String],
         now: i64,
@@ -328,7 +328,7 @@ impl Register {
     /// later of now and the old expiry. A revoked token is not renewed.
     pub fn renew(
         &self,
-        seed: &[u8; KEY_LEN],
+        seed: &dyn super::LicenceSigner,
         token_id: &str,
         days: i64,
         source: &str,
@@ -406,7 +406,7 @@ impl Register {
     /// sequence is the register length, which only grows.
     pub fn revocation_list(
         &self,
-        seed: &[u8; KEY_LEN],
+        seed: &dyn super::LicenceSigner,
         retired_kids: &[String],
         now: i64,
     ) -> Result<String, KshanaError> {
@@ -419,7 +419,7 @@ impl Register {
             .collect();
         revoked.sort();
         revoked.dedup();
-        let own = key_id(&public_key_for(seed));
+        let own = seed.kid()?;
         if retired_kids.iter().any(|k| k.eq_ignore_ascii_case(&own)) {
             return Err(KshanaError::InvalidInput(
                 "a list cannot retire the key that signs it".into(),

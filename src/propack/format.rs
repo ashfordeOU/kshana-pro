@@ -32,10 +32,10 @@ use ring::hkdf;
 use ring::rand::{SecureRandom, SystemRandom};
 use sha2::{Digest, Sha256};
 
-use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
+use ed25519_dalek::{Signature, VerifyingKey};
 use kshana::api::KshanaError;
 
-use crate::license::{key_id, public_key_for, KEY_LEN};
+use crate::license::{key_id, KEY_LEN};
 
 /// The file's first eight bytes.
 pub const MAGIC: &[u8; 8] = b"KSPPACK1";
@@ -414,7 +414,7 @@ pub fn seal(
     base: &Container,
     input: &SealInput<'_>,
     master: &[u8; 32],
-    signing_seed: &[u8; KEY_LEN],
+    signer: &dyn crate::license::LicenceSigner,
 ) -> Result<(Vec<u8>, PackManifest), KshanaError> {
     if !valid_pack_id(input.pack_id) {
         return Err(bad("pack id must be 1 to 64 of a-z, 0-9 and -"));
@@ -474,11 +474,10 @@ pub fn seal(
         provides: input.provides.clone(),
         watermark_id: wm.mark[..32].to_string(),
         apple_team_id: input.apple_team_id.clone(),
-        kid: key_id(&public_key_for(signing_seed)),
+        kid: signer.kid()?,
     };
     let json = serde_json::to_vec(&manifest).map_err(|e| bad(e.to_string()))?;
-    let sig = SigningKey::from_bytes(signing_seed).sign(&json);
-    let signed = format!("{}.{}", hex::encode(&json), hex::encode(sig.to_bytes()));
+    let signed = crate::license::signer::sign_document(signer, &json)?;
     let key = content_key(
         &licence_secret(master, input.token_id),
         &manifest,

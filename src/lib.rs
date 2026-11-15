@@ -32,6 +32,7 @@ pub use kshana;
 
 pub mod alerts;
 pub mod area;
+pub mod attack_iq;
 pub mod batch;
 pub mod benefits;
 pub mod brand_pdf;
@@ -59,6 +60,7 @@ pub mod report_lab_campaign_pdf;
 pub mod report_pack_a;
 pub mod report_pack_c;
 pub mod report_pdf;
+pub mod results_only;
 pub mod scorecards;
 pub mod serve;
 pub mod signed_dossier;
@@ -69,6 +71,7 @@ pub mod units;
 // Shared helpers; public so a server-side extension crate can reuse them (not a stable API).
 #[doc(hidden)]
 pub mod util;
+pub mod watermark;
 
 // Value layers — gated stubs (seam guards only; no proprietary capability is built
 // on spec, per the open-core discipline in docs/OVERLAY-ARCHITECTURE.md).

@@ -17,6 +17,46 @@ revocation list (roadmap F10d). The token format and commands are in
 * Continuous integration uses a throwaway key (`scripts/release-smoke.sh`) that signs
   nothing that ships.
 
+### 1a. Signing through AWS KMS (key custody S7-a)
+
+The owner's decision (ROADMAP-0.42 §1e, S7): the **root** key stays offline as above; the
+day-to-day **issuing** key lives in AWS KMS and cannot be exported. Every vendor signing
+path (licence tokens, `issue-invoice`, renewals, online check answers, revocation lists, the
+payments webhook issuer and Pro packs) goes through one interface (`license::LicenceSigner`,
+`src/license/signer.rs`) with two back ends:
+
+* `KSHANA_PRO_SIGNER=seed` (the default): the raw seed in `KSHANA_PRO_SIGNING_KEY`. The root
+  on the offline machine, the tests and the release smoke test use it.
+* `KSHANA_PRO_SIGNER=kms` (a build with `--features kms`; `src/license/kms.rs`): the KMS key
+  in `KSHANA_PRO_KMS_KEY_ID` (key ID, ARN or `alias/...`), region `KSHANA_PRO_KMS_REGION`
+  (or `AWS_REGION`), credentials from `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and
+  `AWS_SESSION_TOKEN` read at each call. The key must be `ECC_NIST_EDWARDS25519` with key
+  usage `SIGN_VERIFY`; signing uses `ED25519_SHA_512` with `MessageType: RAW` (at most 4096
+  bytes per document), so the 64-byte signature is the same pure Ed25519 a seed gives and
+  every verifier accepts it unchanged. `KSHANA_PRO_KMS_EXPECT_KID` pins the expected key ID;
+  each signature is checked against the key's public half before it is used. Requests are
+  signed with SigV4 (ring and sha2) over rustls; no AWS SDK and no new crate. Pro packs pick
+  their own key with `KSHANA_PRO_PACK_SIGNER=kms` and `KSHANA_PRO_PACK_KMS_KEY_ID`.
+* Tests: `tests/licence_kms.rs` runs a fake KMS endpoint that checks every request's SigV4
+  signature and proves a token signed through KMS equals, byte for byte, the token the same
+  key signs as a seed (CI step "KMS signer (S7-a)").
+* Credentials from an EC2 or ECS instance role are not fetched by Kshana itself: export
+  them into the environment (for example through the platform's credential process) before
+  starting the issuer. No key material or credential is in this repository.
+
+### 1b. Only the root retires keys (key custody S7-b)
+
+Release builds name the root key ID(s) at build time: `KSHANA_PRO_ROOT_KID=<root kid>` (key
+IDs or public keys, comma separated; two during a root rotation). Such a build accepts a
+revocation list that retires any key only when a root signed it; a list from the issuing
+key may revoke tokens and nothing else, and one that names a retired key is refused whole.
+No list may retire the key that signed it. `license revocations build --retire` refuses to
+sign with a key that is not in `KSHANA_PRO_ROOT_KID` when that variable is set, and warns
+when it is not. A build without a root keeps the earlier rule (any trusted key). The release
+smoke test (`scripts/release-smoke.sh`) checks both cases on the release binary and runs the
+rotation drill on throwaway keys: a root-signed list retires the issuing key and its token
+stops working.
+
 ## 2. Backup
 
 * Two backups: an encrypted drive in a second location, and a paper copy of the 64 hex

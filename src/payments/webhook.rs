@@ -23,7 +23,7 @@ use super::config::{PaymentsConfig, Provider};
 use super::provider::{self, Action, Event};
 use crate::license::lifecycle::{Delivery, LicenceService};
 use crate::license::register::Register;
-use crate::license::{LicenseClaims, KEY_LEN};
+use crate::license::LicenseClaims;
 
 /// The service's memory between deliveries (`webhook-state.json`).
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
@@ -101,7 +101,8 @@ pub struct Issuer {
     pub config: PaymentsConfig,
     /// The merchant of record's webhook secret (empty while `enabled` is false).
     pub secret: String,
-    pub seed: [u8; KEY_LEN],
+    /// The licence signer (a seed file or AWS KMS, key custody S7-a).
+    pub signer: crate::license::signer::SharedSigner,
     pub paths: Paths,
     /// Stripe's webhook endpoint secret, from `STRIPE_WEBHOOK_SECRET`; only read when
     /// `[stripe] enabled` is true.
@@ -145,7 +146,7 @@ impl Issuer {
         } else {
             None
         };
-        let seed = config.signing_seed(base)?;
+        let signer = config.signer(base)?;
         let dir = config.data_dir(base);
         std::fs::create_dir_all(&dir).map_err(|e| {
             KshanaError::InvalidInput(format!("could not create {}: {e}", dir.display()))
@@ -153,7 +154,7 @@ impl Issuer {
         Ok(Issuer {
             config,
             secret,
-            seed,
+            signer,
             paths: Paths { dir },
             stripe_secret,
         })
@@ -312,6 +313,7 @@ impl Issuer {
                 // (or the term, when shorter) and the app renews them online.
                 let issued = self
                     .licences()
+                    .map_err(fail)?
                     .open_licence(
                         &claims,
                         Delivery::Online,
@@ -379,7 +381,7 @@ impl Issuer {
                     .and_then(|e| self.config.edition(e))
                     .map(|e| e.days)
                     .unwrap_or(365);
-                let svc = self.licences();
+                let svc = self.licences().map_err(fail)?;
                 let (token, entry) = match svc.ledger.root_of(&tid).map_err(fail)? {
                     // C1: the payment moves the paid-through date; a fresh token follows.
                     Some(root) => {
@@ -403,7 +405,7 @@ impl Issuer {
                     }
                     // A token issued before the ledger existed.
                     None => reg
-                        .renew(&self.seed, &tid, days, &source, now)
+                        .renew(self.signer.as_ref(), &tid, days, &source, now)
                         .map_err(|e| Outcome::new(409, e.to_string()))?,
                 };
                 st.subscriptions
@@ -448,14 +450,15 @@ impl Issuer {
         now: i64,
     ) -> Result<Outcome, Outcome> {
         let fail = |e: KshanaError| Outcome::new(500, e.to_string());
-        let svc = self.licences();
+        let svc = self.licences().map_err(fail)?;
         // The whole licence: the token this order issued, its renewals and every
         // device-bound seat token (C1), so no copy keeps working.
         let list = match svc.ledger.root_of(tid).map_err(fail)? {
             Some(root) => svc.revoke(&root, why, source, now).map_err(fail)?,
             None => {
                 reg.revoke(tid, why, source, now).map_err(fail)?;
-                reg.revocation_list(&self.seed, &[], now).map_err(fail)?
+                reg.revocation_list(self.signer.as_ref(), &[], now)
+                    .map_err(fail)?
             }
         };
         write_atomic(&self.paths.revocations(), &list).map_err(fail)?;
@@ -465,8 +468,8 @@ impl Issuer {
     }
 
     /// The licence service over this issuer's register and ledger.
-    pub fn licences(&self) -> LicenceService {
-        LicenceService::open(self.seed, &[], &self.paths.dir)
+    pub fn licences(&self) -> Result<LicenceService, KshanaError> {
+        LicenceService::open_with_signer(self.signer.clone(), &[], &self.paths.dir)
     }
 
     /// Write a delivery for the buyer to the outbox. Sending it (e-mail) is the

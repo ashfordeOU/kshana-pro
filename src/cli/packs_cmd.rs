@@ -9,7 +9,7 @@ use std::process::ExitCode;
 
 use kshana::api::KshanaError;
 
-use super::{flag, now_unix, signing_seed};
+use super::{flag, now_unix, signer};
 use crate::license::lifecycle::LicenceService;
 use crate::license::{self, KEY_LEN};
 use crate::propack::issuer::{Catalog, PackIssuer};
@@ -41,11 +41,13 @@ fn need(args: &[String], name: &str) -> Result<String, KshanaError> {
 
 fn issuer(args: &[String]) -> Result<(LicenceService, PackIssuer), KshanaError> {
     let data = PathBuf::from(need(args, "--data")?);
-    let licences = LicenceService::open(signing_seed()?, &[], &data);
-    let packs = PackIssuer::new(
+    let licences = LicenceService::open_with_signer(signer()?, &[], &data)?;
+    let pack_signer =
+        license::signer::pack_signer_from_env(env_key("KSHANA_PRO_PACK_SIGNING_KEY"))?;
+    let packs = PackIssuer::with_signer(
         Catalog::open(need(args, "--catalog")?),
         env_key("KSHANA_PRO_PACK_MASTER_SECRET")?,
-        env_key("KSHANA_PRO_PACK_SIGNING_KEY")?,
+        pack_signer,
     );
     Ok((licences, packs))
 }

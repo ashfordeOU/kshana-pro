@@ -7,6 +7,7 @@
 
 mod alerts_cmd;
 mod area_cmd;
+mod attack_iq_cmd;
 mod dossier_cmd;
 mod forensics_cmd;
 mod license_cmd;
@@ -35,7 +36,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro version                                            Overlay + engine info\n\
        kshana-pro export <scenario.toml> --format <stk|csv>          Export ephemeris (STK .e / CSV)\n\
        kshana-pro gate <scenario.toml> --metric <path> --op <lt|le|gt|ge> --threshold <v>\n\
-       kshana-pro serve [--addr <host:port>] [--data-dir <dir>] [--workers <n>] [--api-token-file <path>] [--keys-file <keys.toml>] [--oidc <oidc.toml>] [--audit-retention-days <n>] [--tls-cert <chain.pem> --tls-key <key.pem>] [--ha-node <name> [--ha-lease-secs <s>]] [--trial [--trial-jobs-per-day <n>] [--trial-max-run-secs <s>]] [--license <token>] [--dev]   Host the HTTP(S) service; --data-dir adds the on-premises job service (jobs, ledger, job board, audit log)\n\
+       kshana-pro serve [--addr <host:port>] [--data-dir <dir>] [--workers <n>] [--api-token-file <path>] [--keys-file <keys.toml>] [--oidc <oidc.toml>] [--audit-retention-days <n>] [--tls-cert <chain.pem> --tls-key <key.pem>] [--ha-node <name> [--ha-lease-secs <s>]] [--trial [--trial-jobs-per-day <n>] [--trial-max-run-secs <s>] [--trial-tokens]] [--hosted <hosted.toml>] [--license <token>] [--dev]   Host the HTTP(S) service; --data-dir adds the on-premises job service (jobs, ledger, job board, audit log)\n\
        kshana-pro clients --out <dir>                                Write the generated service clients: <dir>/python/kshana_pro_client.py and <dir>/typescript/kshana_pro_client.ts\n\
        kshana-pro keys <add --file <keys.toml> --id <id> --tenant <t> --role <reader|submitter|admin> | revoke --file <keys.toml> --id <id> | list --file <keys.toml>>   Manage the service's API keys (a new key is printed once; the file keeps only its hash)\n\
        kshana-pro ci --pack <manifest.toml> [--baseline <ci.json>] [--thresholds <spec>] [--utc <iso>] [--customer <name>] [--out <report.html>] [--json <ci.json>] [--history <history.jsonl>] [--trend <trend.html>] [--exact] [--license <token>] [--dev]   Run a Pack C scenario-subscription CI, with campaign watch (Pro)\n\
@@ -49,6 +50,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
        kshana-pro forensics <run|review|verify|pack-payload> ...   Incident forensics (E1, Pro pack): signed, reproducible forensic report; review and verify (free; `kshana-pro forensics` for details)\n\
        kshana-pro scorecard <run|verify> ...   Receiver resilience scorecard and signed test report (E3, Pro); verify (free; `kshana-pro scorecard` for details)\n\
+       kshana-pro attack-iq <generate|attestation-template|trace> ...   Synthetic attack IQ files for shielded labs and authorised ranges (F7): vetted buyers only, attestation first, files only, watermarked and logged\n\
        kshana-pro threats <list|show|export|feed> ...   Threat scenario library (E2): provenance, analogue, test-bench exports, signed monthly feed (Pro; list and feed verify free)\n\
        kshana-pro payments <check|checkout|stripe-checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled and payments.stripe.enabled are false (vendor side)\n\
        kshana-pro packs <build|issue|serve|trace|install|status> ...   Pro pack delivery (C10; `kshana-pro packs` for details)\n\
@@ -109,6 +111,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "timing",
     "scorecard",
     "threats",
+    "attack-iq",
     "trust",
     "area",
     "alerts",
@@ -234,6 +237,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("timing") => timing_cmd::run(&args[1..]),
         Some("scorecard") => scorecard_cmd::run(&args[1..]),
         Some("threats") => threats_cmd::run(&args[1..]),
+        Some("attack-iq") => attack_iq_cmd::run(&args[1..]),
         Some("trust") => trust_cmd::run(&args[1..]),
         Some("area") => area_cmd::run(&args[1..]),
         Some("alerts") => alerts_cmd::run(&args[1..]),
@@ -537,6 +541,35 @@ fn serve_cmd(args: &[String]) -> ExitCode {
             }
         }
         config.trial = Some(t);
+        if has_flag(args, "--trial-tokens") {
+            // S6: 14-day trial tokens, signed by the configured licence signer.
+            match signer() {
+                Ok(sg) => config.trial_signer = Some(sg),
+                Err(e) => {
+                    eprintln!("error: --trial-tokens: {e}");
+                    return ExitCode::from(2);
+                }
+            }
+        }
+    }
+    if let Some(p) = flag(args, "--hosted") {
+        // C3: the hosted results-only service for secret methods.
+        let setup = crate::serve::hosted::HostedConfig::from_file(std::path::Path::new(&p))
+            .map_err(kshana::api::KshanaError::InvalidInput)
+            .and_then(|c| {
+                Ok(crate::serve::HostedSetup {
+                    config: c,
+                    signer: signer()?,
+                    watermark_key: crate::watermark::key_from_env()?,
+                })
+            });
+        match setup {
+            Ok(s) => config.hosted = Some(s),
+            Err(e) => {
+                eprintln!("error: --hosted: {e}");
+                return ExitCode::from(2);
+            }
+        }
     }
     if let Some(node) = flag(args, "--ha-node") {
         let lease_ms = match flag(args, "--ha-lease-secs").map(|v| v.parse::<f64>()) {
@@ -1487,24 +1520,17 @@ pub fn require_feature(args: &[String], feature: &str) -> Result<Entitlement, Ex
     Ok(ent)
 }
 
-/// The vendor's private-key seed, for `license issue`: from `KSHANA_PRO_SIGNING_KEY`
-/// (64 hex characters, kept in the vendor's secret store), or in a debug build, the
-/// demo seed. Customers never need it.
-fn signing_seed() -> Result<[u8; license::KEY_LEN], kshana::api::KshanaError> {
-    match std::env::var("KSHANA_PRO_SIGNING_KEY") {
-        Ok(s) if !s.trim().is_empty() => license::parse_key_hex(&s),
-        _ => {
-            #[cfg(debug_assertions)]
-            {
-                eprintln!("[warning] KSHANA_PRO_SIGNING_KEY not set: signing with the DEMO key (debug builds only)");
-                Ok(DEMO_SEED)
-            }
-            #[cfg(not(debug_assertions))]
-            Err(kshana::api::KshanaError::InvalidInput(
-                "set KSHANA_PRO_SIGNING_KEY to the vendor signing key".into(),
-            ))
-        }
-    }
+/// The vendor's licence signer, for `license issue` and the other vendor commands (key
+/// custody S7-a, [`license::signer::from_env`]): `KSHANA_PRO_SIGNER=seed` (default) takes
+/// the seed from `KSHANA_PRO_SIGNING_KEY` (64 hex characters, kept in the vendor's secret
+/// store; a debug build without it uses the demo seed); `KSHANA_PRO_SIGNER=kms` signs
+/// through AWS KMS (a build with the `kms` feature). Customers never need it.
+fn signer() -> Result<license::signer::SharedSigner, kshana::api::KshanaError> {
+    #[cfg(debug_assertions)]
+    let demo = Some(DEMO_SEED);
+    #[cfg(not(debug_assertions))]
+    let demo = None;
+    license::signer::from_env(demo)
 }
 
 fn run_file(path: &str, license_token: Option<String>, dev_mode: bool) -> ExitCode {
