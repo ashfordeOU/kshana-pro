@@ -1,0 +1,127 @@
+{
+  "format": "kshana-pro-framework-pack/1",
+  "framework": "nist-ir-8323r1",
+  "title": "NIST IR 8323r1 Foundational PNT Profile",
+  "template_status": null,
+  "source": {
+    "title": "Foundational PNT Profile: Applying the Cybersecurity Framework for the Responsible Use of PNT Services",
+    "version": "NIST IR 8323r1, January 2023",
+    "url": "https://nvlpubs.nist.gov/nistpubs/ir/2023/NIST.IR.8323r1.pdf",
+    "checked": "As recorded by the open engine's mapping: Profile tables 3 to 25 read for the subcategories cited; identifiers follow the Profile's tables (Cybersecurity Framework 1.1)."
+  },
+  "wording": "Each duty below is mapped to the Kshana evidence products whose signed output can be put before the operator's assessor for it, and lists what Kshana does not provide. The pack is an aid for preparing an audit. It does not state, and must not be read as stating, that any system or operator meets the framework; that judgement belongs to the operator, its assessor and its authority.",
+  "evidence": [
+    {
+      "path": "../receiver-scorecard-public",
+      "format": "kshana-pro-receiver-scorecard/1",
+      "product": "Receiver resilience scorecard (E3)",
+      "main_file": "receiver-scorecard.json",
+      "signer": "Kshana Pro sample (demo key)",
+      "signature_valid": true,
+      "signer_trusted": true,
+      "problems": []
+    },
+    {
+      "path": "../ais-integrity-public",
+      "format": "kshana-pro-ais-integrity/1",
+      "product": "AIS and position integrity scoring (E5)",
+      "main_file": "integrity-score.json",
+      "signer": "Kshana Pro sample (demo key)",
+      "signature_valid": true,
+      "signer_trusted": true,
+      "problems": []
+    },
+    {
+      "path": "../timing-audit-rts25",
+      "format": "kshana-pro-timing-audit/1",
+      "product": "Timing audit report (T3)",
+      "main_file": "report.json",
+      "signer": "Kshana Pro sample (demo key)",
+      "signature_valid": true,
+      "signer_trusted": true,
+      "problems": []
+    },
+    {
+      "path": "../pnt-verification-public",
+      "format": "kshana-pro-pnt-verification/1",
+      "product": "PNT service verification study (E4)",
+      "main_file": "verification-study.json",
+      "signer": "Kshana Pro sample (demo key)",
+      "signature_valid": true,
+      "signer_trusted": true,
+      "problems": []
+    }
+  ],
+  "duties": [
+    {
+      "id": "nist-id",
+      "reference": "Identify (ID.AM, ID.RA)",
+      "duty": "Inventory the systems that depend on PNT and assess the risk of losing or corrupting PNT data.",
+      "status": "evidence mapped",
+      "mapped_evidence": [
+        "Timing audit report (T3) (../timing-audit-rts25)",
+        "PNT service verification study (E4) (../pnt-verification-public)"
+      ],
+      "mapped_products_not_supplied": [],
+      "gap": "Asset inventory and risk acceptance are the organisation's own."
+    },
+    {
+      "id": "nist-pr",
+      "reference": "Protect (PR.DS, PR.IP)",
+      "duty": "Protect PNT data integrity and plan for diverse sources and holdover.",
+      "status": "evidence mapped",
+      "mapped_evidence": [
+        "Timing audit report (T3) (../timing-audit-rts25)"
+      ],
+      "mapped_products_not_supplied": [
+        "Multi-source trust evidence (F3)"
+      ],
+      "gap": "Physical antenna protection and network security controls are not assessed."
+    },
+    {
+      "id": "nist-de",
+      "reference": "Detect (DE.AE, DE.CM)",
+      "duty": "Detect anomalous PNT data and monitor sources continuously.",
+      "status": "evidence mapped",
+      "mapped_evidence": [
+        "Receiver resilience scorecard (E3) (../receiver-scorecard-public)",
+        "AIS and position integrity scoring (E5) (../ais-integrity-public)"
+      ],
+      "mapped_products_not_supplied": [
+        "Multi-source trust evidence (F3)",
+        "Area trust picture (F1)"
+      ],
+      "gap": "Detection performance holds only in the scope of each product's pre-registered bars."
+    },
+    {
+      "id": "nist-rs",
+      "reference": "Respond (RS.AN, RS.CO)",
+      "duty": "Analyse PNT incidents and communicate them.",
+      "status": "no evidence supplied",
+      "mapped_evidence": [],
+      "mapped_products_not_supplied": [
+        "Incident forensics report (E1)",
+        "Insurer exposure summary (E7)"
+      ],
+      "gap": "Response plans and communication duties are the organisation's own."
+    },
+    {
+      "id": "nist-rc",
+      "reference": "Recover (RC.RP)",
+      "duty": "Recover PNT-dependent services and record lessons learned.",
+      "status": "evidence mapped",
+      "mapped_evidence": [
+        "Timing audit report (T3) (../timing-audit-rts25)"
+      ],
+      "mapped_products_not_supplied": [
+        "Timing scorecard (T4)"
+      ],
+      "gap": "Recovery execution is the organisation's own."
+    }
+  ],
+  "counts": [
+    4,
+    1,
+    0
+  ]
+}

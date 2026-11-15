@@ -1,0 +1,43 @@
+{
+  "format": "kshana-pro-framework-template/1",
+  "id": "mifid2-rts25",
+  "title": "MiFID II RTS 25: business clock synchronisation",
+  "source": {
+    "title": "Commission Delegated Regulation (EU) 2017/574 (RTS 25) supplementing Directive 2014/65/EU",
+    "version": "OJ L 87, 31.3.2017",
+    "url": "https://eur-lex.europa.eu/eli/reg_del/2017/574/oj",
+    "checked": "Provisions as in the Pro timing-audit template report-templates/timing/rts25-traceability.json (Articles 1 to 4 and the Annex)."
+  },
+  "duties": [
+    {
+      "id": "rts25-1",
+      "reference": "Article 1",
+      "duty": "Synchronise business clocks to UTC as issued by a listed timing centre or disseminated by satellite, accounting for offsets.",
+      "mapped_to": [
+        "kshana-pro-timing-audit/1",
+        "kshana-pro-trust-evidence/1"
+      ],
+      "gap": "The operator names its UTC source."
+    },
+    {
+      "id": "rts25-2",
+      "reference": "Articles 2 and 3, Annex",
+      "duty": "Keep divergence from UTC and timestamp granularity within the level for the trading activity.",
+      "mapped_to": [
+        "kshana-pro-timing-audit/1",
+        "kshana-pro-timing-scorecard/1"
+      ],
+      "gap": "Choosing the applicable level is the operator's."
+    },
+    {
+      "id": "rts25-3",
+      "reference": "Article 4",
+      "duty": "Establish a system of traceability to UTC, documenting design, functioning and specification, and review it at least yearly.",
+      "mapped_to": [
+        "kshana-pro-timing-audit/1"
+      ],
+      "gap": "Yearly review sign-off is the operator's."
+    }
+  ],
+  "wording": "Each duty below is mapped to the Kshana evidence products whose signed output can be put before the operator's assessor for it, and lists what Kshana does not provide. The pack is an aid for preparing an audit. It does not state, and must not be read as stating, that any system or operator meets the framework; that judgement belongs to the operator, its assessor and its authority."
+}

@@ -1,0 +1,53 @@
+{
+  "format": "kshana-pro-framework-template/1",
+  "id": "eu-space-act",
+  "title": "EU Space Act (Commission proposal): resilience, cybersecurity and incident duties",
+  "status": "proposal",
+  "source": {
+    "title": "Proposal for a Regulation on the safety, resilience and sustainability of space activities in the Union (EU Space Act)",
+    "version": "Commission proposal COM(2025) 335, June 2025 (not adopted; the text may change)",
+    "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52025PC0335",
+    "checked": "The proposal's text was not read in full in this work; duties are paraphrased at topic level and must be checked against the adopted text before a pack is sent."
+  },
+  "duties": [
+    {
+      "id": "spa-1",
+      "reference": "Resilience and cybersecurity risk management (topic)",
+      "duty": "Assess and manage risks to the space service, including to the ground segment and the users' PNT and timing.",
+      "mapped_to": [
+        "kshana-pro-timing-audit/1",
+        "kshana-pro-trust-evidence/1",
+        "kshana-pro-pnt-verification/1"
+      ],
+      "gap": "Spacecraft design and operation are not covered by Kshana Pro."
+    },
+    {
+      "id": "spa-2",
+      "reference": "Incident notification (topic)",
+      "duty": "Notify significant incidents and keep records of them.",
+      "mapped_to": [
+        "kshana-pro-forensic-report/1",
+        "kshana-pro-exposure-summary/1"
+      ],
+      "gap": "The notification is the operator's act."
+    },
+    {
+      "id": "spa-3",
+      "reference": "Service continuity (topic)",
+      "duty": "Plan for continuity of service, including timing and positioning of ground infrastructure.",
+      "mapped_to": [
+        "kshana-pro-timing-scorecard/1",
+        "kshana-pro-timing-audit/1"
+      ],
+      "gap": "Business continuity plans are the operator's own."
+    },
+    {
+      "id": "spa-4",
+      "reference": "Collision avoidance and space safety (topic)",
+      "duty": "Space safety duties for spacecraft operators.",
+      "mapped_to": [],
+      "gap": "Not covered by Kshana Pro."
+    }
+  ],
+  "wording": "Each duty below is mapped to the Kshana evidence products whose signed output can be put before the operator's assessor for it, and lists what Kshana does not provide. The pack is an aid for preparing an audit. It does not state, and must not be read as stating, that any system or operator meets the framework; that judgement belongs to the operator, its assessor and its authority."
+}

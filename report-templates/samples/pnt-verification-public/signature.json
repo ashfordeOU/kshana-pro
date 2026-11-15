@@ -1,0 +1,22 @@
+{
+  "format": "kshana-dossier-signature/1",
+  "signer": "Kshana Pro sample (demo key)",
+  "utc": "2026-11-15T16:00:00Z",
+  "public_key": "1129c3b66643cb0d186a6989c7842a460edfe55791b56fefc62355fc57a8c84d",
+  "key_id": "9d745a61570b256f",
+  "files": [
+    {
+      "path": "report.html",
+      "sha256": "57d88f6403981ca8048f6ec51f16e679d2adbbaed8d646cc6b22112bb5649f63"
+    },
+    {
+      "path": "study.toml",
+      "sha256": "61a621db4d144378a04e5fcdb96c7426b1c029ca602a209c867a2b8daa43bee3"
+    },
+    {
+      "path": "verification-study.json",
+      "sha256": "2b8f70c746a858e58b6932e0432d682ac16ab75270ef3e6cfb9e7dd700f20d38"
+    }
+  ],
+  "signature": "75f2776f3e6328e34977c53d96bd7bf4ca581722637b5c29aeef2bff6c364a297fa1528da1a3d6a9518609b58ea02591e55bcd4afffae593078cc53894a7e108"
+}

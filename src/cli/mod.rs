@@ -9,6 +9,7 @@ mod alerts_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
 mod dossier_cmd;
+mod evidence_cmd;
 mod forensics_cmd;
 mod license_cmd;
 mod packs_cmd;
@@ -58,6 +59,10 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
        kshana-pro area picture <console.toml> ...   Area console (F1): fuse Stations, receivers and customer feeds into an area trust picture with event timelines; never emitter positions (Pro)\n\
        kshana-pro alerts <route|raw> ...   Alert policy engine (F5): routes, quiet hours, escalation, de-duplication to I5 outputs (Pro); raw alerts free\n\
+       kshana-pro integrity <score|verify> ...   AIS and position integrity scoring at fleet and area scale (E5, Pro); verify free\n\
+       kshana-pro verify-service <run|template|verify> ...   Pre-registered user-side verification study of a new PNT service (E4, Pro); template and verify free\n\
+       kshana-pro frameworks <list|show|pack|verify> ...   Framework evidence packs: signed evidence mapped to EASA, NIST, DHS, IMO, RTS 25, EU Space Act, NIS 2 duties (E6, Pro; list, show, verify free)\n\
+       kshana-pro exposure <run|verify> ...   Insurer scorecard: periodic signed exposure summary of a fleet or route (E7, Pro); verify free\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
      \n\
      --sample (any command): every page of every document written also carries the mark\n\
@@ -115,6 +120,10 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "trust",
     "area",
     "alerts",
+    "integrity",
+    "verify-service",
+    "frameworks",
+    "exposure",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -241,6 +250,10 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("trust") => trust_cmd::run(&args[1..]),
         Some("area") => area_cmd::run(&args[1..]),
         Some("alerts") => alerts_cmd::run(&args[1..]),
+        Some("integrity") => evidence_cmd::integrity(&args[1..]),
+        Some("verify-service") => evidence_cmd::verify_service(&args[1..]),
+        Some("frameworks") => evidence_cmd::frameworks(&args[1..]),
+        Some("exposure") => evidence_cmd::exposure(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()

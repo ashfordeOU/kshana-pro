@@ -1,0 +1,15 @@
+# E7 public sample: an exposure summary for a sample fleet over Q2 and Q3 2026.
+# Every input is synthetic: three of the open engine's training scenarios analysed by the E1
+# method, and the E5 public sample scoring (synthetic M4 data). No real vessel or incident.
+title = "Insurer scorecard: public sample (synthetic evidence)"
+insured = "Sample fleet A (synthetic)"
+subject = "fleet"
+period_start_utc = "2026-04-01T00:00:00Z"
+period_end_utc = "2026-09-30T23:59:59Z"
+forensics = [
+    "../../report-templates/samples/insurer-exposure-public/forensics/0-open-sea-jamming",
+    "../../report-templates/samples/insurer-exposure-public/forensics/1-coastal-drag-off",
+    "../../report-templates/samples/insurer-exposure-public/forensics/2-fjord-natural-degradation",
+]
+integrity = "../../report-templates/samples/ais-integrity-public"
+integrity_group = "Fleet A"

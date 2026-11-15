@@ -1,0 +1,809 @@
+{
+  "kind": "pro-pnt-verification",
+  "format": "kshana-pro-pnt-verification/1",
+  "method_id": "kshana-pro/pnt-verification/v1",
+  "open_engine": "kshana 0.41.0",
+  "label": "MODELLED: coverage and geometry from the service's published design through the open engine; integrity at protocol level on the data named; bars written down before the run. A study states what the model shows under those bars; it does not approve a service, rate it fit for any use, or say anything about equipment in the field.",
+  "title": "Independent user-side verification study: Xona Pulsar (published design) and Galileo OSNMA (protocol level)",
+  "service": "Xona Pulsar, published design: 258 satellites, 18 planes, about 1080 km, 53 and 97 degrees (most not launched); Galileo OSNMA at protocol level",
+  "service_source": "Leclere, Marathe and Reid, ION GNSS+ 2025, arXiv 2509.19551; Galileo OSNMA SIS ICD through the open engine's verifier",
+  "pre_registration": "../../docs/evidence/e4-pnt-verification/2026-11-15_PREREGISTRATION.md",
+  "pre_registration_sha256": "0215b7a67ba4319301b03ca11cb8359c5ea21671ecb53f9b70777a86991f9876",
+  "geometry_config": {
+    "duration_s": 86400.0,
+    "step_s": 600.0,
+    "lat_step_deg": 10.0,
+    "lon_step_deg": 45.0,
+    "mask_deg": 10.0,
+    "pdop_threshold": 6.0,
+    "gnss": [
+      {
+        "name": "GPS",
+        "preset": "gps-baseline"
+      },
+      {
+        "name": "Galileo",
+        "preset": "galileo"
+      }
+    ],
+    "leo": [
+      {
+        "name": "Pulsar",
+        "shell": [
+          {
+            "total": 192,
+            "planes": 12,
+            "phasing": 1,
+            "altitude_km": 1080.0,
+            "inclination_deg": 53.0
+          },
+          {
+            "total": 66,
+            "planes": 6,
+            "phasing": 1,
+            "altitude_km": 1080.0,
+            "inclination_deg": 97.0
+          }
+        ]
+      }
+    ],
+    "assumed_uere_m": [
+      0.5,
+      1.0
+    ]
+  },
+  "geometry": [
+    {
+      "lat_deg": 0.0,
+      "gnss": {
+        "mean_in_view": 15.831034482758621,
+        "median_pdop": 1.3522676076923266,
+        "median_hdop": 0.653241496527527,
+        "median_vdop": 1.1844185891686367,
+        "availability": 1.0
+      },
+      "leo": {
+        "mean_in_view": 7.771551724137931,
+        "median_pdop": 3.012550151949777,
+        "median_hdop": 0.9761099286460477,
+        "median_vdop": 2.776826576640978,
+        "availability": 0.971551724137931
+      },
+      "fused": {
+        "mean_in_view": 23.60258620689655,
+        "median_pdop": 1.140427742609909,
+        "median_hdop": 0.5115648903842447,
+        "median_vdop": 1.0161725765057263,
+        "availability": 1.0
+      },
+      "leo_h95_m_assumed": [
+        0.9761099286460477,
+        1.9522198572920955
+      ]
+    },
+    {
+      "lat_deg": 10.0,
+      "gnss": {
+        "mean_in_view": 15.361206896551725,
+        "median_pdop": 1.3678437769804335,
+        "median_hdop": 0.6680306395507785,
+        "median_vdop": 1.1905600856522884,
+        "availability": 1.0
+      },
+      "leo": {
+        "mean_in_view": 7.922413793103448,
+        "median_pdop": 2.366998402948972,
+        "median_hdop": 0.9310008445716864,
+        "median_vdop": 2.1694401675248267,
+        "availability": 0.9689655172413794
+      },
+      "fused": {
+        "mean_in_view": 23.283620689655173,
+        "median_pdop": 1.1189372787030778,
+        "median_hdop": 0.5180914258511993,
+        "median_vdop": 0.9873747446482722,
+        "availability": 1.0
+      },
+      "leo_h95_m_assumed": [
+        0.9310008445716864,
+        1.8620016891433728
+      ]
+    },
+    {
+      "lat_deg": 20.0,
+      "gnss": {
+        "mean_in_view": 14.27155172413793,
+        "median_pdop": 1.4603830466680943,
+        "median_hdop": 0.7206677174039745,
+        "median_vdop": 1.2632253489269956,
+        "availability": 1.0
+      },
+      "leo": {
+        "mean_in_view": 8.633620689655173,
+        "median_pdop": 2.299754100279702,
+        "median_hdop": 0.8778619306284747,
+        "median_vdop": 2.1203561851822004,
+        "availability": 1.0
+      },
+      "fused": {
+        "mean_in_view": 22.905172413793103,
+        "median_pdop": 1.1471453924666646,
+        "median_hdop": 0.5298583055715287,
+        "median_vdop": 1.0137172186906862,
+        "availability": 1.0
+      },
+      "leo_h95_m_assumed": [
+        0.8778619306284747,
+        1.7557238612569495
+      ]
+    },
+    {
+      "lat_deg": 30.0,
+      "gnss": {
+        "mean_in_view": 13.809482758620689,
+        "median_pdop": 1.468333171893236,
+        "median_hdop": 0.7681377243379106,
+        "median_vdop": 1.2574764882613199,
+        "availability": 1.0
+      },
+      "leo": {
+        "mean_in_view": 10.680172413793104,
+        "median_pdop": 1.9504240981957714,
+        "median_hdop": 0.7436407342283637,
+        "median_vdop": 1.8000804323725959,
+        "availability": 1.0
+      },
+      "fused": {
+        "mean_in_view": 24.489655172413794,
+        "median_pdop": 1.0909289896421304,
+        "median_hdop": 0.5165438461013165,
+        "median_vdop": 0.9610932716382663,
+        "availability": 1.0
+      },
+      "leo_h95_m_assumed": [
+        0.7436407342283637,
+        1.4872814684567275
+      ]
+    },
+    {
+      "lat_deg": 40.0,
+      "gnss": {
+        "mean_in_view": 13.699137931034484,
+        "median_pdop": 1.4411542172291958,
+        "median_hdop": 0.7757380995752399,
+        "median_vdop": 1.211852210054498,
+        "availability": 1.0
+      },
+      "leo": {
+        "mean_in_view": 12.693965517241379,
+        "median_pdop": 1.928321101511914,
+        "median_hdop": 0.737854449615237,
+        "median_vdop": 1.7703386686788256,
+        "availability": 0.9991379310344828
+      },
+      "fused": {
+        "mean_in_view": 26.393103448275863,
+        "median_pdop": 1.0573013721643938,
+        "median_hdop": 0.5043483581093091,
+        "median_vdop": 0.9267592364309025,
+        "availability": 1.0
+      },
+      "leo_h95_m_assumed": [
+        0.737854449615237,
+        1.475708899230474
+      ]
+    },
+    {
+      "lat_deg": 50.0,
+      "gnss": {
+        "mean_in_view": 13.905172413793103,
+        "median_pdop": 1.4069027286180469,
+        "median_hdop": 0.7753624513821049,
+        "median_vdop": 1.1727737130577252,
+        "availability": 1.0
+      },
+      "leo": {
+        "mean_in_view": 12.446551724137931,
+        "median_pdop": 1.9304157676046043,
+        "median_hdop": 0.8123218176366347,
+        "median_vdop": 1.7604707638889048,
+        "availability": 0.9948275862068966
+      },
+      "fused": {
+        "mean_in_view": 26.351724137931033,
+        "median_pdop": 1.0160338229967096,
+        "median_hdop": 0.5282500757773793,
+        "median_vdop": 0.8716901627612246,
+        "availability": 1.0
+      },
+      "leo_h95_m_assumed": [
+        0.8123218176366347,
+        1.6246436352732694
+      ]
+    },
+    {
+      "lat_deg": 60.0,
+      "gnss": {
+        "mean_in_view": 15.190517241379311,
+        "median_pdop": 1.361408476648179,
+        "median_hdop": 0.7072371570632483,
+        "median_vdop": 1.1602518324161446,
+        "availability": 1.0
+      },
+      "leo": {
+        "mean_in_view": 11.45,
+        "median_pdop": 2.050388616554118,
+        "median_hdop": 0.734952355718145,
+        "median_vdop": 1.909152114949882,
+        "availability": 1.0
+      },
+      "fused": {
+        "mean_in_view": 26.64051724137931,
+        "median_pdop": 1.0690211329264852,
+        "median_hdop": 0.49604213083550475,
+        "median_vdop": 0.9498752782344441,
+        "availability": 1.0
+      },
+      "leo_h95_m_assumed": [
+        0.734952355718145,
+        1.46990471143629
+      ]
+    },
+    {
+      "lat_deg": 70.0,
+      "gnss": {
+        "mean_in_view": 16.030172413793103,
+        "median_pdop": 1.4787939915427142,
+        "median_hdop": 0.6601926488536454,
+        "median_vdop": 1.3214349288247447,
+        "availability": 1.0
+      },
+      "leo": {
+        "mean_in_view": 9.193103448275862,
+        "median_pdop": 2.2369029611177504,
+        "median_hdop": 0.8715344803569263,
+        "median_vdop": 2.036807777703878,
+        "availability": 0.9603448275862069
+      },
+      "fused": {
+        "mean_in_view": 25.223275862068967,
+        "median_pdop": 1.1273594467945884,
+        "median_hdop": 0.4875422234105149,
+        "median_vdop": 1.0145989644732039,
+        "availability": 1.0
+      },
+      "leo_h95_m_assumed": [
+        0.8715344803569263,
+        1.7430689607138525
+      ]
+    },
+    {
+      "lat_deg": 80.0,
+      "gnss": {
+        "mean_in_view": 16.364655172413794,
+        "median_pdop": 1.5881811297119701,
+        "median_hdop": 0.6230382553973802,
+        "median_vdop": 1.4615112348239576,
+        "availability": 1.0
+      },
+      "leo": {
+        "mean_in_view": 7.498275862068965,
+        "median_pdop": 5.41344134890741,
+        "median_hdop": 1.8977783264996022,
+        "median_vdop": 3.8027512314918344,
+        "availability": 0.5991379310344828
+      },
+      "fused": {
+        "mean_in_view": 23.86293103448276,
+        "median_pdop": 1.3171340410223737,
+        "median_hdop": 0.5335606858770197,
+        "median_vdop": 1.2039743051368332,
+        "availability": 1.0
+      },
+      "leo_h95_m_assumed": [
+        1.8977783264996022,
+        3.7955566529992044
+      ]
+    },
+    {
+      "lat_deg": 89.9,
+      "gnss": {
+        "mean_in_view": 16.475,
+        "median_pdop": 1.6311160295507596,
+        "median_hdop": 0.6008242996195023,
+        "median_vdop": 1.5205448452852224,
+        "availability": 1.0
+      },
+      "leo": {
+        "mean_in_view": 7.981034482758621,
+        "median_pdop": 6.121350847800941,
+        "median_hdop": 1.960042937868384,
+        "median_vdop": 5.798803228420089,
+        "availability": 0.0
+      },
+      "fused": {
+        "mean_in_view": 24.45603448275862,
+        "median_pdop": 1.3487907632840372,
+        "median_hdop": 0.5042096492759418,
+        "median_vdop": 1.2518698855025787,
+        "availability": 1.0
+      },
+      "leo_h95_m_assumed": [
+        1.960042937868384,
+        3.920085875736768
+      ]
+    }
+  ],
+  "integrity": {
+    "provenance": "Synthetic OSNMA pages of the open engine's sample (examples/osnma/pages-good.txt, commit 69a181bbe): not a recording of any signal; throwaway key.",
+    "pages_sha256": "7c73ae65a6bc28f7772fce4b9315cc937598cf67ced2e4ecb4534d211de16c8c",
+    "pages": 720,
+    "clean_overall": "authenticated",
+    "clean_failed_satellites": 0,
+    "flips": 200,
+    "detected": 136,
+    "detection_share": 0.68,
+    "undetected": [
+      [
+        2,
+        755136035,
+        3,
+        96
+      ],
+      [
+        2,
+        755136033,
+        2,
+        52
+      ],
+      [
+        5,
+        755136099,
+        5,
+        65
+      ],
+      [
+        5,
+        755136121,
+        1,
+        44
+      ],
+      [
+        5,
+        755136067,
+        4,
+        115
+      ],
+      [
+        2,
+        755136061,
+        1,
+        25
+      ],
+      [
+        5,
+        755136091,
+        1,
+        125
+      ],
+      [
+        5,
+        755136123,
+        2,
+        67
+      ],
+      [
+        5,
+        755136099,
+        5,
+        7
+      ],
+      [
+        5,
+        755136575,
+        3,
+        11
+      ],
+      [
+        5,
+        755136061,
+        1,
+        120
+      ],
+      [
+        2,
+        755136067,
+        4,
+        15
+      ],
+      [
+        2,
+        755136129,
+        5,
+        6
+      ],
+      [
+        5,
+        755136061,
+        1,
+        80
+      ],
+      [
+        5,
+        755136241,
+        1,
+        7
+      ],
+      [
+        5,
+        755136067,
+        4,
+        97
+      ],
+      [
+        2,
+        755136213,
+        2,
+        7
+      ],
+      [
+        2,
+        755136421,
+        1,
+        10
+      ],
+      [
+        2,
+        755136031,
+        1,
+        65
+      ],
+      [
+        2,
+        755136037,
+        4,
+        91
+      ],
+      [
+        2,
+        755136001,
+        1,
+        84
+      ],
+      [
+        5,
+        755136513,
+        2,
+        15
+      ],
+      [
+        2,
+        755136307,
+        4,
+        7
+      ],
+      [
+        2,
+        755136033,
+        2,
+        125
+      ],
+      [
+        2,
+        755136097,
+        4,
+        57
+      ],
+      [
+        2,
+        755136397,
+        4,
+        6
+      ],
+      [
+        5,
+        755136061,
+        1,
+        111
+      ],
+      [
+        5,
+        755136001,
+        1,
+        83
+      ],
+      [
+        5,
+        755136031,
+        1,
+        13
+      ],
+      [
+        2,
+        755136157,
+        4,
+        12
+      ],
+      [
+        5,
+        755136157,
+        4,
+        24
+      ],
+      [
+        5,
+        755136395,
+        3,
+        6
+      ],
+      [
+        2,
+        755136155,
+        3,
+        79
+      ],
+      [
+        2,
+        755136039,
+        5,
+        19
+      ],
+      [
+        2,
+        755136037,
+        4,
+        84
+      ],
+      [
+        2,
+        755136031,
+        1,
+        55
+      ],
+      [
+        2,
+        755136005,
+        3,
+        46
+      ],
+      [
+        2,
+        755136003,
+        2,
+        61
+      ],
+      [
+        5,
+        755136211,
+        1,
+        12
+      ],
+      [
+        2,
+        755136159,
+        5,
+        71
+      ],
+      [
+        5,
+        755136093,
+        2,
+        50
+      ],
+      [
+        5,
+        755136247,
+        4,
+        7
+      ],
+      [
+        2,
+        755136157,
+        4,
+        102
+      ],
+      [
+        5,
+        755136039,
+        5,
+        20
+      ],
+      [
+        5,
+        755136005,
+        3,
+        104
+      ],
+      [
+        2,
+        755136159,
+        5,
+        51
+      ],
+      [
+        5,
+        755136063,
+        2,
+        120
+      ],
+      [
+        5,
+        755136033,
+        2,
+        13
+      ],
+      [
+        5,
+        755136099,
+        5,
+        66
+      ],
+      [
+        2,
+        755136151,
+        1,
+        101
+      ],
+      [
+        5,
+        755136093,
+        2,
+        35
+      ],
+      [
+        2,
+        755136005,
+        3,
+        126
+      ],
+      [
+        5,
+        755136007,
+        4,
+        112
+      ],
+      [
+        5,
+        755136123,
+        2,
+        17
+      ],
+      [
+        5,
+        755136123,
+        2,
+        12
+      ],
+      [
+        5,
+        755136095,
+        3,
+        37
+      ],
+      [
+        5,
+        755136547,
+        4,
+        14
+      ],
+      [
+        5,
+        755136009,
+        5,
+        21
+      ],
+      [
+        2,
+        755136159,
+        5,
+        63
+      ],
+      [
+        2,
+        755136427,
+        4,
+        9
+      ],
+      [
+        5,
+        755136127,
+        4,
+        83
+      ],
+      [
+        5,
+        755136037,
+        4,
+        34
+      ],
+      [
+        2,
+        755136007,
+        4,
+        89
+      ],
+      [
+        5,
+        755136093,
+        2,
+        117
+      ]
+    ]
+  },
+  "bars": [
+    {
+      "id": "E4-S1",
+      "quantity": "leo-availability",
+      "op": "ge",
+      "value": 0.99,
+      "lat_range": [
+        0.0,
+        60.0
+      ],
+      "worst": 0.9689655172413794,
+      "worst_lat_deg": 10.0,
+      "met": false
+    },
+    {
+      "id": "E4-S2",
+      "quantity": "leo-availability",
+      "op": "ge",
+      "value": 0.99,
+      "lat_range": [
+        70.0,
+        90.0
+      ],
+      "worst": 0.0,
+      "worst_lat_deg": 89.9,
+      "met": false
+    },
+    {
+      "id": "E4-S3",
+      "quantity": "leo-median-hdop",
+      "op": "le",
+      "value": 2.0,
+      "lat_range": [
+        0.0,
+        90.0
+      ],
+      "worst": 1.960042937868384,
+      "worst_lat_deg": 89.9,
+      "met": true
+    },
+    {
+      "id": "E4-S4",
+      "quantity": "fused-availability",
+      "op": "ge",
+      "value": 0.999,
+      "lat_range": [
+        0.0,
+        90.0
+      ],
+      "worst": 1.0,
+      "worst_lat_deg": 0.0,
+      "met": true
+    },
+    {
+      "id": "E4-S5a",
+      "quantity": "osnma-tamper-detection",
+      "op": "ge",
+      "value": 0.99,
+      "lat_range": null,
+      "worst": 0.68,
+      "worst_lat_deg": null,
+      "met": false
+    },
+    {
+      "id": "E4-S5b",
+      "quantity": "osnma-clean-failures",
+      "op": "le",
+      "value": 0.0,
+      "lat_range": null,
+      "worst": 0.0,
+      "worst_lat_deg": null,
+      "met": true
+    }
+  ],
+  "passed": false,
+  "scope": "Ground and user-side study (users on or near the Earth's surface). Lunar studies and studies of spacecraft are not part of this product."
+}

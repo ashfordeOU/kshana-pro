@@ -157,6 +157,14 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-alert-policy" => Tier::Pro,
         // Planner Pareto front with cost (0.41 B1b, signed planned item of 0.42 F6).
         "pro-planner-front" => Tier::Pro,
+        // AIS and position integrity scoring at fleet and area scale (roadmap 0.42 E5).
+        "pro-ais-integrity" => Tier::Pro,
+        // Independent verification studies of new PNT services, user side (roadmap 0.42 E4).
+        "pro-pnt-verification" => Tier::Pro,
+        // Framework evidence packs (roadmap 0.42 E6).
+        "pro-framework-pack" => Tier::Pro,
+        // Insurer scorecard: periodic signed exposure summary (roadmap 0.42 E7).
+        "pro-insurer-scorecard" => Tier::Pro,
         // Desktop Pro (roadmap 0.42 U19): incident replay on the map and signed evidence
         // packs of the Desktop's runs, reviews and reports. Verifying a pack stays free.
         "pro-incident-replay" => Tier::Pro,
@@ -191,6 +199,8 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-attack-iq",
     "pro-area-console",
     "pro-alert-policy",
+    "pro-framework-pack",
+    "pro-insurer-scorecard",
     "pro-incident-replay",
     "pro-signed-pack",
     "pro-scim",
