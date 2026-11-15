@@ -539,6 +539,37 @@ removed line. Day files older than `--audit-retention-days` (default 400) are de
 deletion is logged. If the log cannot be written, the request is answered 503 rather than served
 unrecorded.
 
+## Enterprise operations (roadmap 0.42 F8, U28)
+
+Each is an Enterprise feature of the signed tier manifest; a Pro licence gets 403.
+
+* **Single sign-on and SCIM (`pro-scim`).** OIDC sign-in is as above (`--oidc`). An identity
+  provider provisions people per tenant at `/scim/v2/Users` and `/scim/v2/Groups` (RFC 7643/7644
+  subset: create, list with `filter=userName eq "x"`, get, replace, PATCH `active`,
+  `displayName`, `userName`, group members, delete; `ServiceProviderConfig`), with an admin
+  credential of that tenant. Once a tenant has any provisioned user, an OIDC caller of the
+  tenant is served only when its id is the `userName` of an active user, with the role its
+  groups grant (`kshana-admin`, `kshana-submitter`, `kshana-reader`; none: reader). A person
+  deactivated or deleted in the identity provider is refused at the next request. API keys are
+  not affected. **SAML is not built**: no well-reviewed SAML crate is in `Cargo.lock`; an
+  organisation on SAML only puts an OIDC bridge of its identity provider in front.
+* **Audit log export (`pro-audit-export`).** `GET /audit/export?since=YYYY-MM-DD&until=...`:
+  the caller's tenant's lines (every tenant and the server's own events for an operator), each
+  as stored with its SHA-256, the SHA-256 of the exported lines and the chain report.
+* **Retention (`pro-retention`).** `<data-dir>/retention.toml` (`[default] jobs_days`,
+  `audit_days`; `[tenant.<name>] jobs_days`). `GET /retention` shows what applying it would
+  delete; `POST /retention/apply` (an operator) deletes finished jobs past their period
+  (never a job the delivery ledger records as delivered), expired or revoked share links and
+  old audit days (each deletion an audit line).
+* **Watch walls (`pro-watch-wall`).** `GET /wall` (a page with no script that reloads every
+  30 s) and `GET /wall/state` (JSON): the tenant's Stations, area trust, timing fleet and jobs.
+* **Tenant isolation.** `tests/tenant_isolation.rs` gives one tenant one of everything and calls
+  every route of the route table as another tenant's admin with the first tenant's
+  identifiers: nothing of the first tenant is shown, nothing is changed, and every route that
+  names its resources answers as for one that does not exist.
+* `GET /whoami` (the caller, the serving edition and its Enterprise features) and
+  `GET /timing/assessment` (the timing fleet as JSON) serve the Desktop Pro views.
+
 ## Clients
 
 `clients/python/kshana_pro_client.py` (Python 3.9+, standard library only) and

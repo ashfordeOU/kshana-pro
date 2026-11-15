@@ -41,5 +41,19 @@ cargo build --manifest-path apps/desktop-pro/src-tauri/Cargo.toml
 (cd apps/desktop-pro/src-tauri && cargo tauri build)    # unsigned bundles
 ```
 
+- **Pro work views** (0.42 U6, U19, U27, U28; `pro/desktop/work.mjs`, a "PRO WORK" sidebar
+  section and palette group through the shell's extension API): Station fleet (concept B, from
+  the Pro service's `/fleet/stations`), incident replay on the map (an E1 pack opened through
+  `pro_incident_replay`: verified first, estimated vs reported tracks on one time cursor, trust
+  shading from the pack's findings; J/K/L keys), review mode and report builder (signed with this
+  device's evidence key through `pro_sign_files`; anyone verifies with `kshana-pro dossier
+  verify` or `scripts/verify-dossier-signature.py`, no licence), receiver scorecards and
+  multi-source trust (from the session's runs), area trust and the timing fleet (from the
+  service), sign-in with an SSO token or API key (`pro_service_connect`; the app keeps the
+  credential in an owner-only file and the page never sees it again), and, for Enterprise, the
+  team library, the audit log and the watch wall. The app's `pro_` functions live in the Pro
+  crate (`src/desktop/`, tested in `tests/desktop_pro.rs`); the bridge forwards them. Models
+  and a render smoke test: `node --test apps/desktop-pro/pro/desktop/*.test.mjs`.
+
 Not done: signing and notarisation (the publisher's Apple and Windows accounts); the
 Devices panel (L2b) comes with the free Desktop.

@@ -5,6 +5,26 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Desktop Pro work and Enterprise operations (0.42 U6, U19, U27, U28, F8; V2 scored).**
+  Enterprise service operations: SCIM 2.0 users and groups per tenant (`/scim/v2/...`), tied to
+  single sign-on: once a tenant has provisioned people, an OIDC caller is served only while
+  provisioned and active, with the role its `kshana-*` groups grant; audit log export for a SIEM
+  (`GET /audit/export?since&until`, per tenant, every line with its SHA-256 and the chain
+  report); retention policies (`retention.toml`; `GET /retention` dry run, `POST
+  /retention/apply` by an operator; delivered jobs are never deleted); always-on watch walls
+  (`GET /wall`, `GET /wall/state`); `GET /whoami`; `GET /timing/assessment`. Each is an
+  Enterprise feature in the signed tier manifest (`pro-scim`, `pro-audit-export`,
+  `pro-retention`, `pro-watch-wall`). `tests/tenant_isolation.rs` calls every route of the route
+  table as another tenant's admin aimed at one tenant's identifiers: green. SAML is not built
+  (no reviewed SAML crate in Cargo.lock). Desktop Pro: `kshana_pro::desktop` (incident replay
+  document, signed packs with a device evidence key, free pack verification, the service
+  connection with the credential kept out of the page), forwarded by the app's bridge; the
+  work views on the shell: Station fleet (concept B), incident replay on the map (estimated
+  vs reported, trust shading), review mode, report builder, receiver scorecards, area trust,
+  timing fleet (T2) and multi-source trust (F3) jobs on the Pro home, SSO sign-in, team
+  library, audit log, watch wall. V2 (E1 detection bars) pre-registered (e5a3369b) and scored
+  once on a synthetic labelled set: 10 of 11 bars met, B3 cross-attribution missed (4/24),
+  public-event part empty; E1 stays unclaimed.
 - **Pro 0.3.0 release preparation (roadmap S1; not tagged).** Pro 0.3.0 is prepared on the
   current engine pin, engine 0.41.0. The release smoke test (`scripts/release-smoke.sh`,
   finishes F1b) now also checks, on the built release binary, that a tampered token is
