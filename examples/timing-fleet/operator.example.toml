@@ -1,0 +1,7 @@
+# Operator statements for the sample audit report (illustrative; a real operator writes its own).
+organisation = "Example operator (sample)"
+utc_source = "Sample: two GNSS-disciplined grandmasters per site; UTC as disseminated by GPS, offset accounted for by the receivers."
+traceability_chain = "Sample: GNSS -> grandmaster (PTP) -> boundary clock -> server NIC hardware clock -> application timestamp; each hop's offset is logged (see the records)."
+timestamp_point = "Sample: the receiving NIC's hardware timestamp at the trading gateway."
+review = "Sample: not yet reviewed (illustration)."
+activity = "high-frequency"

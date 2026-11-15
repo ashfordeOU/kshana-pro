@@ -1,0 +1,889 @@
+{
+  "format": "kshana-pro-timing-fleet/1",
+  "kind": "pro-timing-holdover",
+  "label": "MODELLED - holdover predictions from each clock's own record (or a stated prior for a servo record) under a three-term clock noise model; prediction bars pre-registered as V5 and as its successor V5b both NOT passed: the time to breach is not a validated claim.",
+  "title": "Demo timing fleet",
+  "fleet": "demo-ldn-fra",
+  "window_s": 172800.0,
+  "horizon_s": 172800.0,
+  "limits": [
+    {
+      "name": "RTS 25 HFT style (user-set)",
+      "value_s": 0.0001
+    },
+    {
+      "name": "PRTC-A style (user-set)",
+      "value_s": 1.1e-6
+    },
+    {
+      "name": "Internal 100 ns (user-set)",
+      "value_s": 1e-7
+    }
+  ],
+  "clocks": [
+    {
+      "id": "gm-fra-1",
+      "site": "FRA",
+      "vendor": "IGS public data",
+      "model": "GPS G03 (rubidium)",
+      "role": "reference (real data)",
+      "source_format": "timelab",
+      "record": "free-running",
+      "noise_source": "measured",
+      "prior": null,
+      "n_used": 1152,
+      "tau0_s": 300.0,
+      "span_s": 345300.0,
+      "handover_s": 345300.0,
+      "record_sha256": "9a93d46497108db5a162e28973b95e9988815e4579b58b2d4ff260742749d508",
+      "max_abs_phase_s": 0.0006766852148734,
+      "holdover": {
+        "phase_s": 0.000675219725973431,
+        "freq": -4.33589647381548e-12,
+        "drift_per_s": -3.859746548016062e-19,
+        "var_phase": 8.333314080683952e-28,
+        "var_freq": 3.4041099690963596e-28,
+        "var_drift": 6.1066460948549636e-37,
+        "window_s": 172800.0,
+        "n_window": 577,
+        "residual_rms_s": 2.2560231318401011e-10,
+        "noise": {
+          "r_s2": 8.333333333333333e-28,
+          "q_wf": 1.0969724061472663e-24,
+          "q_rw": 1.015064673704989e-31
+        },
+        "noise_source": "measured",
+        "adev_points": [
+          [
+            300.0,
+            5.680674161379556e-14
+          ],
+          [
+            600.0,
+            4.103720106315129e-14
+          ],
+          [
+            1200.0,
+            2.987292386011231e-14
+          ],
+          [
+            2400.0,
+            2.96624393998361e-14
+          ],
+          [
+            4800.0,
+            3.9622593930874365e-14
+          ],
+          [
+            9600.0,
+            4.6314272880816093e-14
+          ],
+          [
+            19200.0,
+            2.4891643157868254e-14
+          ]
+        ],
+        "method": "kalman",
+        "cov": [
+          [
+            8.333314080683952e-28,
+            2.471457387617785e-31,
+            1.4579882885296237e-36
+          ],
+          [
+            2.4714573876177852e-31,
+            3.4041099690963596e-28,
+            2.0081885662586186e-33
+          ],
+          [
+            1.4579882885296242e-36,
+            2.008188566258619e-33,
+            6.1066460948549636e-37
+          ]
+        ]
+      },
+      "predictions": [
+        {
+          "u_s": 600.0,
+          "mean_s": -6.947543786428913e-14,
+          "sigma_s": 2.8080160011201283e-11
+        },
+        {
+          "u_s": 3600.0,
+          "mean_s": -2.5011157631144083e-12,
+          "sigma_s": 1.0029354577738355e-10
+        },
+        {
+          "u_s": 14400.0,
+          "mean_s": -4.001785220983053e-11,
+          "sigma_s": 4.471879350442184e-10
+        },
+        {
+          "u_s": 43200.0,
+          "mean_s": -3.601606698884748e-10,
+          "sigma_s": 2.0258738669654356e-9
+        },
+        {
+          "u_s": 86400.0,
+          "mean_s": -1.4406426795538993e-9,
+          "sigma_s": 5.853335640254018e-9
+        },
+        {
+          "u_s": 172800.0,
+          "mean_s": -5.762570718215597e-9,
+          "sigma_s": 1.8204899167822602e-8
+        }
+      ],
+      "breaches": [
+        {
+          "name": "RTS 25 HFT style (user-set)",
+          "value_s": 0.0001,
+          "t_warn_s": null,
+          "t_50_s": null
+        },
+        {
+          "name": "PRTC-A style (user-set)",
+          "value_s": 1.1e-6,
+          "t_warn_s": null,
+          "t_50_s": null
+        },
+        {
+          "name": "Internal 100 ns (user-set)",
+          "value_s": 1e-7,
+          "t_warn_s": null,
+          "t_50_s": null
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "ref-fra-0",
+      "site": "FRA",
+      "vendor": "IGS public data",
+      "model": "GPS G25 (rubidium)",
+      "role": "reference (real data)",
+      "source_format": "timelab",
+      "record": "free-running",
+      "noise_source": "measured",
+      "prior": null,
+      "n_used": 1152,
+      "tau0_s": 300.0,
+      "span_s": 345300.0,
+      "handover_s": 345300.0,
+      "record_sha256": "68fb4179ad1c5577da64e286ed2e09104bd24471d38d92e1bc0fa4cb0064065c",
+      "max_abs_phase_s": 0.0004723239750094,
+      "holdover": {
+        "phase_s": 0.0004717093231095532,
+        "freq": -1.829080372720254e-12,
+        "drift_per_s": 1.926242938389791e-19,
+        "var_phase": 8.333303267519999e-28,
+        "var_freq": 1.746334900136634e-28,
+        "var_drift": 2.4615971396639818e-37,
+        "window_s": 172800.0,
+        "n_window": 577,
+        "residual_rms_s": 1.7452965430047655e-10,
+        "noise": {
+          "r_s2": 8.333333333333333e-28,
+          "q_wf": 7.1620852581215335e-25,
+          "q_rw": 4.0464729161693193e-32
+        },
+        "noise_source": "measured",
+        "adev_points": [
+          [
+            300.0,
+            4.5270899032423264e-14
+          ],
+          [
+            600.0,
+            3.2395810453939775e-14
+          ],
+          [
+            1200.0,
+            2.45869312900358e-14
+          ],
+          [
+            2400.0,
+            2.3745938694070128e-14
+          ],
+          [
+            4800.0,
+            3.048926382460336e-14
+          ],
+          [
+            9600.0,
+            3.2927654265834145e-14
+          ],
+          [
+            19200.0,
+            1.594552816945288e-14
+          ]
+        ],
+        "method": "kalman",
+        "cov": [
+          [
+            8.333303267519999e-28,
+            1.96114380450654e-31,
+            1.1632482825484976e-36
+          ],
+          [
+            1.96114380450654e-31,
+            1.746334900136634e-28,
+            1.0358348371345387e-33
+          ],
+          [
+            1.1632482825484979e-36,
+            1.035834837134539e-33,
+            2.4615971396639818e-37
+          ]
+        ]
+      },
+      "predictions": [
+        {
+          "u_s": 600.0,
+          "mean_s": 3.4672372891016235e-14,
+          "sigma_s": 2.2265225143956938e-11
+        },
+        {
+          "u_s": 3600.0,
+          "mean_s": 1.2482054240765847e-12,
+          "sigma_s": 7.436111578103883e-11
+        },
+        {
+          "u_s": 14400.0,
+          "mean_s": 1.9971286785225355e-11,
+          "sigma_s": 3.042041737003735e-10
+        },
+        {
+          "u_s": 43200.0,
+          "mean_s": 1.797415810670282e-10,
+          "sigma_s": 1.3199002286945528e-9
+        },
+        {
+          "u_s": 86400.0,
+          "mean_s": 7.189663242681128e-10,
+          "sigma_s": 3.763309061872887e-9
+        },
+        {
+          "u_s": 172800.0,
+          "mean_s": 2.875865297072451e-9,
+          "sigma_s": 1.1625358452190337e-8
+        }
+      ],
+      "breaches": [
+        {
+          "name": "RTS 25 HFT style (user-set)",
+          "value_s": 0.0001,
+          "t_warn_s": null,
+          "t_50_s": null
+        },
+        {
+          "name": "PRTC-A style (user-set)",
+          "value_s": 1.1e-6,
+          "t_warn_s": null,
+          "t_50_s": null
+        },
+        {
+          "name": "Internal 100 ns (user-set)",
+          "value_s": 1e-7,
+          "t_warn_s": null,
+          "t_50_s": null
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "gm-ldn-1",
+      "site": "LDN",
+      "vendor": "Vendor A",
+      "model": "GM-R (rubidium)",
+      "role": "grandmaster",
+      "source_format": "ticc",
+      "record": "free-running",
+      "noise_source": "measured",
+      "prior": null,
+      "n_used": 10800,
+      "tau0_s": 1.0,
+      "span_s": 10799.0,
+      "handover_s": 10799.0,
+      "record_sha256": "e77fc64d84c71656eb4f834d33452f0a3c0ea1519e227e259aec9907a8c7d73f",
+      "max_abs_phase_s": 1.76945e-7,
+      "holdover": {
+        "phase_s": -1.7694253074857533e-7,
+        "freq": -2.6167085387115204e-11,
+        "drift_per_s": -3.921831968193886e-15,
+        "var_phase": 1.4801274291855335e-21,
+        "var_freq": 1.629324454584167e-23,
+        "var_drift": 2.266748893518381e-29,
+        "window_s": 10799.0,
+        "n_window": 10800,
+        "residual_rms_s": 1.396534558901119e-8,
+        "noise": {
+          "r_s2": 3.469820522499432e-21,
+          "q_wf": 1.0405436000841258e-21,
+          "q_rw": 2.417553835218007e-25
+        },
+        "noise_source": "measured",
+        "adev_points": [
+          [
+            1.0,
+            1.085580183617056e-10
+          ],
+          [
+            2.0,
+            5.683061943848027e-11
+          ],
+          [
+            4.0,
+            2.989002071903136e-11
+          ],
+          [
+            8.0,
+            1.6948241315818775e-11
+          ],
+          [
+            16.0,
+            1.018595489701914e-11
+          ],
+          [
+            32.0,
+            6.4750808481700725e-12
+          ],
+          [
+            64.0,
+            4.9204408330864975e-12
+          ],
+          [
+            128.0,
+            4.8506526632064596e-12
+          ],
+          [
+            256.0,
+            5.8396451899342545e-12
+          ],
+          [
+            512.0,
+            7.307508584405358e-12
+          ],
+          [
+            1024.0,
+            9.311654144536842e-12
+          ]
+        ],
+        "method": "kalman",
+        "cov": [
+          [
+            1.4801274291855335e-21,
+            2.2070908107330328e-23,
+            2.0565001370019724e-27
+          ],
+          [
+            2.2070908107330333e-23,
+            1.629324454584167e-23,
+            1.5181550064811991e-27
+          ],
+          [
+            2.0565001370019724e-27,
+            1.5181550064811991e-27,
+            2.266748893518381e-29
+          ]
+        ]
+      },
+      "predictions": [
+        {
+          "u_s": 600.0,
+          "mean_s": -7.059297542748996e-10,
+          "sigma_s": 4.999080446517421e-9
+        },
+        {
+          "u_s": 3600.0,
+          "mean_s": -2.5413471153896382e-8,
+          "sigma_s": 7.069317230751415e-8
+        },
+        {
+          "u_s": 14400.0,
+          "mean_s": -4.066155384623421e-7,
+          "sigma_s": 7.015830958510799e-7
+        },
+        {
+          "u_s": 43200.0,
+          "mean_s": -3.6595398461610788e-6,
+          "sigma_s": 5.136791704293315e-6
+        },
+        {
+          "u_s": 86400.0,
+          "mean_s": -0.000014638159384644315,
+          "sigma_s": 0.000019205887472351667
+        },
+        {
+          "u_s": 172800.0,
+          "mean_s": -0.00005855263753857726,
+          "sigma_s": 0.00007400514762221208
+        }
+      ],
+      "breaches": [
+        {
+          "name": "RTS 25 HFT style (user-set)",
+          "value_s": 0.0001,
+          "t_warn_s": 127949.76000000001,
+          "t_50_s": null
+        },
+        {
+          "name": "PRTC-A style (user-set)",
+          "value_s": 1.1e-6,
+          "t_warn_s": 11776.320000000002,
+          "t_50_s": 20822.4
+        },
+        {
+          "name": "Internal 100 ns (user-set)",
+          "value_s": 1e-7,
+          "t_warn_s": 2833.92,
+          "t_50_s": 5417.280000000001
+        }
+      ],
+      "status": "act"
+    },
+    {
+      "id": "bc-ldn-2",
+      "site": "LDN",
+      "vendor": "Vendor B",
+      "model": "BC-O (OCXO)",
+      "role": "boundary",
+      "source_format": "ptp4l",
+      "record": "disciplined",
+      "noise_source": "prior",
+      "prior": "class:ocxo",
+      "n_used": 2698,
+      "tau0_s": 16.0,
+      "span_s": 43152.0,
+      "handover_s": 43152.0,
+      "record_sha256": "30aaf6bd23a37b2863d3145b7bdf74751e1ff56dde77a3c1772f8078d224877c",
+      "max_abs_phase_s": 3.4e-8,
+      "holdover": {
+        "phase_s": 2.8910303928836144e-11,
+        "freq": 0.0,
+        "drift_per_s": 0.0,
+        "var_phase": 6.517380237163221e-17,
+        "var_freq": 0.0,
+        "var_drift": 0.0,
+        "window_s": 43152.0,
+        "n_window": 2698,
+        "residual_rms_s": 8.073029318145216e-9,
+        "noise": {
+          "r_s2": 6.517380237163221e-17,
+          "q_wf": 2.4999999999999998e-23,
+          "q_rw": 7.499999999999999e-27
+        },
+        "noise_source": "prior",
+        "adev_points": [],
+        "method": "prior",
+        "cov": null
+      },
+      "predictions": [
+        {
+          "u_s": 600.0,
+          "mean_s": 2.8910303928836144e-11,
+          "sigma_s": 1.3028415610055458e-8
+        },
+        {
+          "u_s": 3600.0,
+          "mean_s": 2.8910303928836144e-11,
+          "sigma_s": 4.056118727411548e-8
+        },
+        {
+          "u_s": 14400.0,
+          "mean_s": 2.8910303928836144e-11,
+          "sigma_s": 1.7310628104787216e-7
+        },
+        {
+          "u_s": 43200.0,
+          "mean_s": 2.8910303928836144e-11,
+          "sigma_s": 6.348357267877085e-7
+        },
+        {
+          "u_s": 86400.0,
+          "mean_s": 2.8910303928836144e-11,
+          "sigma_s": 1.5549559727561686e-6
+        },
+        {
+          "u_s": 172800.0,
+          "mean_s": 2.8910303928836144e-11,
+          "sigma_s": 4.015081865420193e-6
+        }
+      ],
+      "breaches": [
+        {
+          "name": "RTS 25 HFT style (user-set)",
+          "value_s": 0.0001,
+          "t_warn_s": null,
+          "t_50_s": null
+        },
+        {
+          "name": "PRTC-A style (user-set)",
+          "value_s": 1.1e-6,
+          "t_warn_s": 39136.0,
+          "t_50_s": 89552.0
+        },
+        {
+          "name": "Internal 100 ns (user-set)",
+          "value_s": 1e-7,
+          "t_warn_s": 4560.0,
+          "t_50_s": 12544.0
+        }
+      ],
+      "status": "act"
+    },
+    {
+      "id": "srv-ldn-3",
+      "site": "LDN",
+      "vendor": "Vendor C",
+      "model": "Server (TCXO)",
+      "role": "server",
+      "source_format": "chrony-tracking",
+      "record": "disciplined",
+      "noise_source": "prior",
+      "prior": "class:tcxo",
+      "n_used": 675,
+      "tau0_s": 64.0,
+      "span_s": 43136.0,
+      "handover_s": 43136.0,
+      "record_sha256": "21b56e8dc1773fbd9261767a3b2b55eab523f963361e89ec14c845f4081e15b8",
+      "max_abs_phase_s": 6.643e-6,
+      "holdover": {
+        "phase_s": 1.203836385185185e-7,
+        "freq": 0.0,
+        "drift_per_s": 0.0,
+        "var_phase": 3.949648144623922e-12,
+        "var_freq": 0.0,
+        "var_drift": 0.0,
+        "window_s": 43136.0,
+        "n_window": 675,
+        "residual_rms_s": 1.9873721706373778e-6,
+        "noise": {
+          "r_s2": 3.949648144623922e-12,
+          "q_wf": 4.0000000000000004e-20,
+          "q_rw": 1.2e-23
+        },
+        "noise_source": "prior",
+        "adev_points": [],
+        "method": "prior",
+        "cov": null
+      },
+      "predictions": [
+        {
+          "u_s": 600.0,
+          "mean_s": 1.203836385185185e-7,
+          "sigma_s": 2.821754855240926e-6
+        },
+        {
+          "u_s": 3600.0,
+          "mean_s": 1.203836385185185e-7,
+          "sigma_s": 3.212825321590329e-6
+        },
+        {
+          "u_s": 14400.0,
+          "mean_s": 1.203836385185185e-7,
+          "sigma_s": 7.458064387903494e-6
+        },
+        {
+          "u_s": 43200.0,
+          "mean_s": 1.203836385185185e-7,
+          "sigma_s": 0.000025542073945023455
+        },
+        {
+          "u_s": 86400.0,
+          "mean_s": 1.203836385185185e-7,
+          "sigma_s": 0.000062256195746162
+        },
+        {
+          "u_s": 172800.0,
+          "mean_s": 1.203836385185185e-7,
+          "sigma_s": 0.00016062126739093432
+        }
+      ],
+      "breaches": [
+        {
+          "name": "RTS 25 HFT style (user-set)",
+          "value_s": 0.0001,
+          "t_warn_s": 74368.0,
+          "t_50_s": 163200.0
+        }
+      ],
+      "status": "watch"
+    },
+    {
+      "id": "wr-fra-2",
+      "site": "FRA",
+      "vendor": "Vendor D",
+      "model": "WR node (OCXO)",
+      "role": "boundary",
+      "source_format": "wr-stat",
+      "record": "disciplined",
+      "noise_source": "prior",
+      "prior": "class:ocxo",
+      "n_used": 719,
+      "tau0_s": 10.0,
+      "span_s": 7180.0,
+      "handover_s": 7180.0,
+      "record_sha256": "8e77ae1e236005f7fcfd5f3dc438350c95cafcb9d009aed49a793bb4af15dcd5",
+      "max_abs_phase_s": 1.22e-10,
+      "holdover": {
+        "phase_s": 5.869262865090397e-13,
+        "freq": 0.0,
+        "drift_per_s": 0.0,
+        "var_phase": 1.510641110177007e-21,
+        "var_freq": 0.0,
+        "var_drift": 0.0,
+        "window_s": 7180.0,
+        "n_window": 719,
+        "residual_rms_s": 3.886696682501745e-11,
+        "noise": {
+          "r_s2": 1.510641110177007e-21,
+          "q_wf": 2.4999999999999998e-23,
+          "q_rw": 7.499999999999999e-27
+        },
+        "noise_source": "prior",
+        "adev_points": [],
+        "method": "prior",
+        "cov": null
+      },
+      "predictions": [
+        {
+          "u_s": 600.0,
+          "mean_s": 5.869262865090397e-13,
+          "sigma_s": 2.649768813333439e-9
+        },
+        {
+          "u_s": 3600.0,
+          "mean_s": 5.869262865090397e-13,
+          "sigma_s": 1.8692515791899432e-8
+        },
+        {
+          "u_s": 14400.0,
+          "mean_s": 5.869262865090397e-13,
+          "sigma_s": 1.0577408485471877e-7
+        },
+        {
+          "u_s": 43200.0,
+          "mean_s": 5.869262865090397e-13,
+          "sigma_s": 4.848303920665674e-7
+        },
+        {
+          "u_s": 86400.0,
+          "mean_s": 5.869262865090397e-13,
+          "sigma_s": 1.3215352992719639e-6
+        },
+        {
+          "u_s": 172800.0,
+          "mean_s": 5.869262865090397e-13,
+          "sigma_s": 3.6654526732483548e-6
+        }
+      ],
+      "breaches": [
+        {
+          "name": "RTS 25 HFT style (user-set)",
+          "value_s": 0.0001,
+          "t_warn_s": null,
+          "t_50_s": null
+        },
+        {
+          "name": "PRTC-A style (user-set)",
+          "value_s": 1.1e-6,
+          "t_warn_s": 47850.0,
+          "t_50_s": 99750.0
+        },
+        {
+          "name": "Internal 100 ns (user-set)",
+          "value_s": 1e-7,
+          "t_warn_s": 8230.0,
+          "t_50_s": 18510.0
+        }
+      ],
+      "status": "act"
+    },
+    {
+      "id": "ntp-fra-4",
+      "site": "FRA",
+      "vendor": "Vendor E",
+      "model": "NTP client (TCXO)",
+      "role": "client",
+      "source_format": "ntp-loopstats",
+      "record": "disciplined",
+      "noise_source": "prior",
+      "prior": "class:tcxo",
+      "n_used": 1350,
+      "tau0_s": 64.0,
+      "span_s": 86336.0,
+      "handover_s": 86336.0,
+      "record_sha256": "67aca40237176325306b9771c953667ce6797fa996b29625dfe1fa452da40691",
+      "max_abs_phase_s": 0.000182696,
+      "holdover": {
+        "phase_s": 7.035548148148144e-7,
+        "freq": 0.0,
+        "drift_per_s": 0.0,
+        "var_phase": 2.392410481004776e-9,
+        "var_freq": 0.0,
+        "var_drift": 0.0,
+        "window_s": 86336.0,
+        "n_window": 1350,
+        "residual_rms_s": 0.00004891227331667151,
+        "noise": {
+          "r_s2": 2.392410481004776e-9,
+          "q_wf": 4.0000000000000004e-20,
+          "q_rw": 1.2e-23
+        },
+        "noise_source": "prior",
+        "adev_points": [],
+        "method": "prior",
+        "cov": null
+      },
+      "predictions": [
+        {
+          "u_s": 600.0,
+          "mean_s": 7.035548148148144e-7,
+          "sigma_s": 0.00006917330535702585
+        },
+        {
+          "u_s": 3600.0,
+          "mean_s": 7.035548148148144e-7,
+          "sigma_s": 0.00006920609362082214
+        },
+        {
+          "u_s": 14400.0,
+          "mean_s": 7.035548148148144e-7,
+          "sigma_s": 0.00006977374937554034
+        },
+        {
+          "u_s": 43200.0,
+          "mean_s": 7.035548148148144e-7,
+          "sigma_s": 0.00007584065277415554
+        },
+        {
+          "u_s": 86400.0,
+          "mean_s": 7.035548148148144e-7,
+          "sigma_s": 0.00009971307436244983
+        },
+        {
+          "u_s": 172800.0,
+          "mean_s": 7.035548148148144e-7,
+          "sigma_s": 0.00018903936019045649
+        }
+      ],
+      "breaches": [
+        {
+          "name": "RTS 25 HFT style (user-set)",
+          "value_s": 0.0001,
+          "t_warn_s": 64.0,
+          "t_50_s": 138368.0
+        }
+      ],
+      "status": "act"
+    },
+    {
+      "id": "pps-ldn-5",
+      "site": "LDN",
+      "vendor": "Vendor F",
+      "model": "Host on PPS (TCXO)",
+      "role": "server",
+      "source_format": "pps-assert",
+      "record": "disciplined",
+      "noise_source": "prior",
+      "prior": "class:tcxo",
+      "n_used": 1703,
+      "tau0_s": 1.0,
+      "span_s": 1702.0,
+      "handover_s": 1702.0,
+      "record_sha256": "29192a0947d865bd39692ac952c18e731bb0453b7fd9a77194bd0b9790e757d4",
+      "max_abs_phase_s": 1.01e-6,
+      "holdover": {
+        "phase_s": 9.85496183206107e-9,
+        "freq": 0.0,
+        "drift_per_s": 0.0,
+        "var_phase": 9.096760821126458e-14,
+        "var_freq": 0.0,
+        "var_drift": 0.0,
+        "window_s": 1702.0,
+        "n_window": 1703,
+        "residual_rms_s": 3.0160836893439245e-7,
+        "noise": {
+          "r_s2": 9.096760821126458e-14,
+          "q_wf": 4.0000000000000004e-20,
+          "q_rw": 1.2e-23
+        },
+        "noise_source": "prior",
+        "adev_points": [],
+        "method": "prior",
+        "cov": null
+      },
+      "predictions": [
+        {
+          "u_s": 600.0,
+          "mean_s": 9.85496183206107e-9,
+          "sigma_s": 4.3044460393536906e-7
+        },
+        {
+          "u_s": 3600.0,
+          "mean_s": 9.85496183206107e-9,
+          "sigma_s": 6.761948530314634e-7
+        },
+        {
+          "u_s": 14400.0,
+          "mean_s": 9.85496183206107e-9,
+          "sigma_s": 3.680085246556381e-6
+        },
+        {
+          "u_s": 43200.0,
+          "mean_s": 9.85496183206107e-9,
+          "sigma_s": 0.000018314452136657468
+        },
+        {
+          "u_s": 86400.0,
+          "mean_s": 9.85496183206107e-9,
+          "sigma_s": 0.00005129398068598694
+        },
+        {
+          "u_s": 172800.0,
+          "mean_s": 9.85496183206107e-9,
+          "sigma_s": 0.0001443720811126872
+        }
+      ],
+      "breaches": [
+        {
+          "name": "RTS 25 HFT style (user-set)",
+          "value_s": 0.0001,
+          "t_warn_s": 86097.6,
+          "t_50_s": null
+        },
+        {
+          "name": "PRTC-A style (user-set)",
+          "value_s": 1.1e-6,
+          "t_warn_s": 2738.88,
+          "t_50_s": 7992.000000000001
+        },
+        {
+          "name": "Internal 100 ns (user-set)",
+          "value_s": 1e-7,
+          "t_warn_s": 8.64,
+          "t_50_s": 8.64
+        }
+      ],
+      "status": "act"
+    }
+  ],
+  "order": [
+    "pps-ldn-5",
+    "ntp-fra-4",
+    "gm-ldn-1",
+    "bc-ldn-2",
+    "wr-fra-2",
+    "srv-ldn-3",
+    "gm-fra-1",
+    "ref-fra-0"
+  ],
+  "counts": {
+    "clocks": 8,
+    "ok": 2,
+    "watch": 1,
+    "act": 5,
+    "breached": 0
+  }
+}

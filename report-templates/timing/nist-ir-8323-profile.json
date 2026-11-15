@@ -1,0 +1,51 @@
+{
+  "format": "kshana-pro-timing-audit-template/1",
+  "id": "nist-ir-8323-profile",
+  "title": "Timing evidence mapped to the NIST IR 8323 PNT profile",
+  "framework": "NIST IR 8323 Rev. 1, Foundational PNT Profile: Applying the Cybersecurity Framework for the Responsible Use of Positioning, Navigation, and Timing (PNT) Services (2023), Cybersecurity Framework 1.1 subcategories",
+  "wording": "Each item below is mapped to a Cybersecurity Framework subcategory as the profile applies it to timing users, and lists the evidence this report carries for it. The profile is voluntary guidance; the report gives evidence an assessor may use and does not state that any profile target is met.",
+  "items": [
+    {
+      "ref": "ID.AM-1",
+      "topic": "Inventory of PNT-dependent devices",
+      "summary": "Physical devices and systems that use or provide time are inventoried.",
+      "evidence": ["fleet.inventory"],
+      "operator": "Confirm the inventory is complete for the scope of the assessment."
+    },
+    {
+      "ref": "ID.RA-1",
+      "topic": "Vulnerabilities of the timing sources",
+      "summary": "Asset vulnerabilities are identified and documented: here, how long each clock holds its limit without its reference.",
+      "evidence": ["clock.holdover"],
+      "operator": "Record the reference-loss causes considered (jamming, spoofing, network failure, outage)."
+    },
+    {
+      "ref": "DE.CM-1",
+      "topic": "Monitoring of the timing sources",
+      "summary": "The timing sources are monitored to detect potential cybersecurity events: each clock has a measured record from its own I2 source.",
+      "evidence": ["clock.records", "clock.divergence"],
+      "operator": "State how often each record is collected and who reviews it."
+    },
+    {
+      "ref": "DE.AE-5",
+      "topic": "Alert thresholds",
+      "summary": "Incident alert thresholds are established: each limit is a stated value and each clock has a warning time against it.",
+      "evidence": ["fleet.limits", "clock.holdover"],
+      "operator": "Confirm the limits match the operator's requirements."
+    },
+    {
+      "ref": "DE.AE-3",
+      "topic": "Event data collected",
+      "summary": "Event data are collected and kept: the per-clock evidence history is hash-chained and the report is signed.",
+      "evidence": ["evidence.history", "report.signature"],
+      "operator": "State the retention period of the evidence history."
+    },
+    {
+      "ref": "RC.RP-1",
+      "topic": "Recovery planning",
+      "summary": "A recovery plan is executed during or after an event: the time to breach bounds how long a clock may run on holdover before the plan must act.",
+      "evidence": ["clock.holdover"],
+      "operator": "Name the recovery action and its expected duration for each clock whose warning time is within the horizon."
+    }
+  ]
+}

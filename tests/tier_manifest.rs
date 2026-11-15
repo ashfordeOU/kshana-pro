@@ -91,6 +91,8 @@ fn embedded_manifest_verifies_at_start_up_and_matches_this_build() {
         .iter()
         .map(|k| k.name)
         .chain(license::pro_command_features())
+        // Kinds delivered in a Pro pack (C10): listed, registered when the pack loads.
+        .chain(tiers::PACK_DELIVERED_KINDS.iter().copied())
         .collect();
     compiled.sort();
     compiled.dedup();
@@ -111,7 +113,10 @@ fn embedded_manifest_verifies_at_start_up_and_matches_this_build() {
 fn manifest_kind_count_is_every_registry_kind_of_every_edition() {
     let m = tiers::manifest().unwrap();
     let pro_kinds = kshana_pro::registry::pro_kinds().len();
-    assert_eq!(m.kind_count(), pro_kinds + tiers_missing_from_this_build());
+    assert_eq!(
+        m.kind_count(),
+        pro_kinds + tiers::PACK_DELIVERED_KINDS.len() + tiers_missing_from_this_build()
+    );
 }
 
 /// Arksa-exclusive kinds this crate does not contain (all of them: their code is in the

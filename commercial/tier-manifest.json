@@ -38,6 +38,16 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-timing-audit",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-fleet",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-uncertainty",
       "type": "feature",
       "tier": "pro"
@@ -53,12 +63,22 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-incident-forensics",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-optimism-gap-audit",
       "type": "kind",
       "tier": "pro"
     },
     {
       "kind": "pro-quantum-systematics",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-holdover",
       "type": "kind",
       "tier": "pro"
     },

@@ -156,11 +156,19 @@ pub const ARKSA_ENTRIES: &[(&str, &str)] = &[
     ),
 ];
 
+/// Pro kinds this build knows but registers only when a verified Pro pack that provides them
+/// is loaded (roadmap 0.42 C10): they are listed at the `pro` edition in the manifest, and
+/// refused with a "comes in a Pro pack" message until the pack is loaded.
+pub const PACK_DELIVERED_KINDS: &[&str] = &[crate::forensics::KIND];
+
 /// The edition this build's code gives a Pro kind or feature, or `None` when the build
 /// does not contain it.
 pub fn compiled_edition(id: &str) -> Option<Edition> {
     if id == "pro-seam-check" {
         return Some(Edition::OpenSeam);
+    }
+    if PACK_DELIVERED_KINDS.contains(&id) {
+        return Some(Edition::Pro);
     }
     if crate::extension::owns(id) {
         return Some(Edition::Arksa);
@@ -377,6 +385,7 @@ pub fn startup_check() -> Result<(), KshanaError> {
         .iter()
         .map(|k| k.name)
         .chain(super::pro_command_features())
+        .chain(PACK_DELIVERED_KINDS.iter().copied())
         .collect();
     for id in &compiled {
         let want = compiled_edition(id);
@@ -431,6 +440,9 @@ pub fn manifest_from_code() -> ManifestDoc {
     };
     for k in crate::registry::builtin_pro_kinds() {
         push(k.name, "kind");
+    }
+    for k in PACK_DELIVERED_KINDS {
+        push(k, "kind");
     }
     for f in super::PRO_COMMAND_FEATURES {
         push(f, "feature");

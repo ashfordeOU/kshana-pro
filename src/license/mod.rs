@@ -119,6 +119,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // Signed dossiers (F7): part of "studies and signed dossiers" in the 0.41
         // edition matrix.
         "pro-signed-dossier" => Tier::Pro,
+        // Incident forensics (E1, 0.42): a Pro pack kind (crate::forensics), sold to anyone.
+        "pro-incident-forensics" => Tier::Pro,
         "pro-batch" => Tier::Enterprise,
         "pro-uncertainty" => Tier::Enterprise,
         // 0.41 edition matrix (F10a): Pro features that are not scenario kinds.
@@ -128,6 +130,11 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-service-ha" => Tier::Enterprise,
         // Kshana Desktop's Pro build (separate download, F10e).
         "pro-desktop" => Tier::Pro,
+        // Timing assurance (roadmap 0.42 T): the fleet holdover kind, the fleet page with
+        // its evidence history and metrics, and the signed audit export.
+        "pro-timing-holdover" => Tier::Pro,
+        "pro-timing-fleet" => Tier::Pro,
+        "pro-timing-audit" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -146,6 +153,8 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-station-fleet",
     "pro-service-ha",
     "pro-desktop",
+    "pro-timing-fleet",
+    "pro-timing-audit",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

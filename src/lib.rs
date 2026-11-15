@@ -37,6 +37,7 @@ pub mod cli;
 pub mod connectors;
 pub mod criterion;
 pub mod extension;
+pub mod forensics;
 pub mod lab_campaign;
 pub mod license;
 pub mod pack_c;
@@ -67,6 +68,7 @@ pub mod util;
 // on spec, per the open-core discipline in docs/OVERLAY-ARCHITECTURE.md).
 pub mod resilience;
 pub mod suite;
+pub mod timing;
 pub mod twin;
 
 /// The version of this Pro overlay crate (distinct from the embedded open engine).

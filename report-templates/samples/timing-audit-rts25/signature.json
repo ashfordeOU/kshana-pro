@@ -1,0 +1,62 @@
+{
+  "format": "kshana-dossier-signature/1",
+  "signer": "Kshana Pro sample (demo key)",
+  "utc": "2026-11-15T09:30:00Z",
+  "public_key": "cbeec3b391895ffa70cb4a2ff99db928ee9db93953bb0a038331dfd2176beebe",
+  "key_id": "e4aaac1cc0a77bde",
+  "files": [
+    {
+      "path": "README.txt",
+      "sha256": "2b369b28cd014861e1eee149ec531cb69e1a08e84e176742104f5dfa5a0133e7"
+    },
+    {
+      "path": "fleet-assessment.json",
+      "sha256": "3f2c881768a117104a5f9e014c5a98bc404ea5e913d249399374dedb7b74e87b"
+    },
+    {
+      "path": "history/bc-ldn-2.jsonl",
+      "sha256": "b11b8c0902cc0ad60b4d1df6a030049394377eec1ea1c8fecac56349c2646ee7"
+    },
+    {
+      "path": "history/gm-fra-1.jsonl",
+      "sha256": "795f1cc8eec7908dba121a441fff5f67609d5a7a9f0fae1d289de29bf653cf86"
+    },
+    {
+      "path": "history/gm-ldn-1.jsonl",
+      "sha256": "7fa4b857beada9124032f3f850113ecf6a8ae924cbb2bf4641d49cdb0bbec2c2"
+    },
+    {
+      "path": "history/ntp-fra-4.jsonl",
+      "sha256": "aee983d0fffd189535de5c8b75ce7e73ca49bdb39daa956ea39c8e39170ee5f7"
+    },
+    {
+      "path": "history/pps-ldn-5.jsonl",
+      "sha256": "99117895b27a8b29a114ed576591b389b3f072d307bc9b74d31e7174d0dea44d"
+    },
+    {
+      "path": "history/ref-fra-0.jsonl",
+      "sha256": "7424509e220a18bb23b06b50d4047c041425585e228419ed96fbcf173e26d56f"
+    },
+    {
+      "path": "history/srv-ldn-3.jsonl",
+      "sha256": "7f5735d122a0c6b7cb6db8ab0dcdb758b7d4ce86f9b9f3781234e170a39171ff"
+    },
+    {
+      "path": "history/wr-fra-2.jsonl",
+      "sha256": "a085765fc490a32e4b544cfe706d7ec0f05b3254acd48f1375ceef32634cb069"
+    },
+    {
+      "path": "report.html",
+      "sha256": "64000c8e748ebf46e83cc7ccc2aa8784f572164cc4f1f4b40f145f90661b4dfa"
+    },
+    {
+      "path": "report.json",
+      "sha256": "58f2ffd09127381ab2436f15481d58d41dd107d3ceabccfc57a0dfa1f2ea05b8"
+    },
+    {
+      "path": "template.json",
+      "sha256": "f7576724802c0fd79f4a8581e9323f79e14ec81dbbafc0fc03d32de0313d5027"
+    }
+  ],
+  "signature": "61e9c327fd0540dd5945cc2be064e4a924843d25c8277c396f141b4730e1fe4e0b9c1462cf6a2c1bd1338664f2cd772476ef06d98143c0203df1ca926fd35d08"
+}

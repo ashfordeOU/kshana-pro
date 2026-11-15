@@ -1,0 +1,594 @@
+{
+  "format": "kshana-pro-timing-audit/1",
+  "label": "MODELLED - holdover predictions from each clock's own record (or a stated prior for a servo record) under a three-term clock noise model; prediction bars pre-registered as V5 and as its successor V5b both NOT passed: the time to breach is not a validated claim.",
+  "profile": "rts25-traceability",
+  "title": "Clock synchronisation evidence mapped to MiFID II RTS 25",
+  "framework": "Commission Delegated Regulation (EU) 2017/574 (RTS 25), supplementing Directive 2014/65/EU (MiFID II) on the level of accuracy of business clocks",
+  "wording": "Each item below is mapped to a provision of the Regulation and lists the evidence this report carries for it. The mapping is an aid for the operator and its assessor. The report does not state, and must not be read as stating, that any system meets the Regulation; that judgement is the operator's and its competent authority's.",
+  "utc": "2026-11-15T09:30:00Z",
+  "fleet": "demo-ldn-fra",
+  "organisation": "Example operator (sample)",
+  "items": [
+    {
+      "ref": "Article 1",
+      "topic": "Reference time",
+      "summary": "Business clocks are synchronised to UTC as issued by a timing centre listed in the BIPM Annual Report on Time Activities, or as disseminated by a satellite system, with offsets accounted for.",
+      "mapped_evidence": [
+        "operator.utc_source",
+        "fleet.inventory",
+        "clock.records"
+      ],
+      "operator_action": "Name the UTC source of each grandmaster (UTC(k) laboratory or GNSS) and how its offset from UTC is accounted for."
+    },
+    {
+      "ref": "Articles 2 and 3, Annex",
+      "topic": "Level of accuracy",
+      "summary": "The maximum divergence from UTC and the timestamp granularity depend on the trading activity: trading venue operators (Article 2, Annex Table 1) and their members or participants (Article 3, Annex Table 2).",
+      "mapped_evidence": [
+        "clock.divergence"
+      ],
+      "operator_action": "State the trading activity each clock serves; confirm the recorded offset is against UTC (or a reference traceable to it)."
+    },
+    {
+      "ref": "Article 4",
+      "topic": "Traceability to UTC",
+      "summary": "A system of traceability to UTC is established, documenting the system design, functioning and specifications, identifying the exact point at which a timestamp is applied, and reviewed at least once a year.",
+      "mapped_evidence": [
+        "operator.traceability_chain",
+        "operator.timestamp_point",
+        "operator.review",
+        "evidence.history",
+        "report.signature"
+      ],
+      "operator_action": "Describe the chain from the UTC source to each timestamping point, the point where the timestamp is applied, and the date of the last yearly review."
+    },
+    {
+      "ref": "Article 4 (continuity)",
+      "topic": "Holdover and time to breach",
+      "summary": "Not a provision text: the operator's own evidence that each clock stays within its divergence limit if its reference is lost, used to plan the response before the limit is reached.",
+      "mapped_evidence": [
+        "clock.holdover"
+      ],
+      "operator_action": "State the response when a clock's warning time is shorter than the time needed to restore its reference."
+    }
+  ],
+  "evidence": [
+    {
+      "key": "operator.utc_source",
+      "title": "UTC source (operator)",
+      "columns": [
+        "Statement"
+      ],
+      "rows": [
+        [
+          "Sample: two GNSS-disciplined grandmasters per site; UTC as disseminated by GPS, offset accounted for by the receivers."
+        ]
+      ]
+    },
+    {
+      "key": "fleet.inventory",
+      "title": "Clock inventory",
+      "columns": [
+        "Clock",
+        "Site",
+        "Vendor",
+        "Model",
+        "Role",
+        "Source"
+      ],
+      "rows": [
+        [
+          "gm-fra-1",
+          "FRA",
+          "IGS public data",
+          "GPS G03 (rubidium)",
+          "reference (real data)",
+          "timelab"
+        ],
+        [
+          "ref-fra-0",
+          "FRA",
+          "IGS public data",
+          "GPS G25 (rubidium)",
+          "reference (real data)",
+          "timelab"
+        ],
+        [
+          "gm-ldn-1",
+          "LDN",
+          "Vendor A",
+          "GM-R (rubidium)",
+          "grandmaster",
+          "ticc"
+        ],
+        [
+          "bc-ldn-2",
+          "LDN",
+          "Vendor B",
+          "BC-O (OCXO)",
+          "boundary",
+          "ptp4l"
+        ],
+        [
+          "srv-ldn-3",
+          "LDN",
+          "Vendor C",
+          "Server (TCXO)",
+          "server",
+          "chrony-tracking"
+        ],
+        [
+          "wr-fra-2",
+          "FRA",
+          "Vendor D",
+          "WR node (OCXO)",
+          "boundary",
+          "wr-stat"
+        ],
+        [
+          "ntp-fra-4",
+          "FRA",
+          "Vendor E",
+          "NTP client (TCXO)",
+          "client",
+          "ntp-loopstats"
+        ],
+        [
+          "pps-ldn-5",
+          "LDN",
+          "Vendor F",
+          "Host on PPS (TCXO)",
+          "server",
+          "pps-assert"
+        ]
+      ]
+    },
+    {
+      "key": "clock.records",
+      "title": "Measured records",
+      "columns": [
+        "Clock",
+        "Format",
+        "Record",
+        "Samples",
+        "Interval",
+        "Span",
+        "SHA-256 of the samples"
+      ],
+      "rows": [
+        [
+          "gm-fra-1",
+          "timelab",
+          "free-running",
+          "1152",
+          "300 s",
+          "4.0 d",
+          "9a93d46497108db5a162e28973b95e9988815e4579b58b2d4ff260742749d508"
+        ],
+        [
+          "ref-fra-0",
+          "timelab",
+          "free-running",
+          "1152",
+          "300 s",
+          "4.0 d",
+          "68fb4179ad1c5577da64e286ed2e09104bd24471d38d92e1bc0fa4cb0064065c"
+        ],
+        [
+          "gm-ldn-1",
+          "ticc",
+          "free-running",
+          "10800",
+          "1 s",
+          "3.0 h",
+          "e77fc64d84c71656eb4f834d33452f0a3c0ea1519e227e259aec9907a8c7d73f"
+        ],
+        [
+          "bc-ldn-2",
+          "ptp4l",
+          "disciplined",
+          "2698",
+          "16 s",
+          "12.0 h",
+          "30aaf6bd23a37b2863d3145b7bdf74751e1ff56dde77a3c1772f8078d224877c"
+        ],
+        [
+          "srv-ldn-3",
+          "chrony-tracking",
+          "disciplined",
+          "675",
+          "64 s",
+          "12.0 h",
+          "21b56e8dc1773fbd9261767a3b2b55eab523f963361e89ec14c845f4081e15b8"
+        ],
+        [
+          "wr-fra-2",
+          "wr-stat",
+          "disciplined",
+          "719",
+          "10 s",
+          "120 min",
+          "8e77ae1e236005f7fcfd5f3dc438350c95cafcb9d009aed49a793bb4af15dcd5"
+        ],
+        [
+          "ntp-fra-4",
+          "ntp-loopstats",
+          "disciplined",
+          "1350",
+          "64 s",
+          "24.0 h",
+          "67aca40237176325306b9771c953667ce6797fa996b29625dfe1fa452da40691"
+        ],
+        [
+          "pps-ldn-5",
+          "pps-assert",
+          "disciplined",
+          "1703",
+          "1 s",
+          "28 min",
+          "29192a0947d865bd39692ac952c18e731bb0453b7fd9a77194bd0b9790e757d4"
+        ]
+      ]
+    },
+    {
+      "key": "clock.divergence",
+      "title": "Recorded divergence against the RTS 25 limit for activity 'high-frequency'",
+      "columns": [
+        "Clock",
+        "What was recorded",
+        "Largest divergence",
+        "Limit",
+        "Outcome"
+      ],
+      "rows": [
+        [
+          "gm-fra-1",
+          "free-running record against a reference",
+          "—",
+          "—",
+          "not assessed"
+        ],
+        [
+          "ref-fra-0",
+          "free-running record against a reference",
+          "—",
+          "—",
+          "not assessed"
+        ],
+        [
+          "gm-ldn-1",
+          "free-running record against a reference",
+          "—",
+          "—",
+          "not assessed"
+        ],
+        [
+          "bc-ldn-2",
+          "offset as recorded by ptp4l",
+          "34.00 ns",
+          "100.000 µs",
+          "within limit"
+        ],
+        [
+          "srv-ldn-3",
+          "offset as recorded by chrony-tracking",
+          "6.643 µs",
+          "100.000 µs",
+          "within limit"
+        ],
+        [
+          "wr-fra-2",
+          "offset as recorded by wr-stat",
+          "122.0 ps",
+          "100.000 µs",
+          "within limit"
+        ],
+        [
+          "ntp-fra-4",
+          "offset as recorded by ntp-loopstats",
+          "182.696 µs",
+          "100.000 µs",
+          "beyond limit"
+        ],
+        [
+          "pps-ldn-5",
+          "offset as recorded by pps-assert",
+          "1.010 µs",
+          "100.000 µs",
+          "within limit"
+        ]
+      ]
+    },
+    {
+      "key": "operator.traceability_chain",
+      "title": "Traceability chain (operator)",
+      "columns": [
+        "Statement"
+      ],
+      "rows": [
+        [
+          "Sample: GNSS -> grandmaster (PTP) -> boundary clock -> server NIC hardware clock -> application timestamp; each hop's offset is logged (see the records)."
+        ]
+      ]
+    },
+    {
+      "key": "operator.timestamp_point",
+      "title": "Point where the timestamp is applied (operator)",
+      "columns": [
+        "Statement"
+      ],
+      "rows": [
+        [
+          "Sample: the receiving NIC's hardware timestamp at the trading gateway."
+        ]
+      ]
+    },
+    {
+      "key": "operator.review",
+      "title": "Last yearly review (operator)",
+      "columns": [
+        "Statement"
+      ],
+      "rows": [
+        [
+          "Sample: not yet reviewed (illustration)."
+        ]
+      ]
+    },
+    {
+      "key": "evidence.history",
+      "title": "Per-clock evidence history",
+      "columns": [
+        "Clock",
+        "Entries",
+        "First",
+        "Last",
+        "Chain"
+      ],
+      "rows": [
+        [
+          "gm-fra-1",
+          "2",
+          "2026-11-14T09:00:00Z",
+          "2026-11-15T09:00:00Z",
+          "chain intact"
+        ],
+        [
+          "ref-fra-0",
+          "2",
+          "2026-11-14T09:00:00Z",
+          "2026-11-15T09:00:00Z",
+          "chain intact"
+        ],
+        [
+          "gm-ldn-1",
+          "2",
+          "2026-11-14T09:00:00Z",
+          "2026-11-15T09:00:00Z",
+          "chain intact"
+        ],
+        [
+          "bc-ldn-2",
+          "2",
+          "2026-11-14T09:00:00Z",
+          "2026-11-15T09:00:00Z",
+          "chain intact"
+        ],
+        [
+          "srv-ldn-3",
+          "2",
+          "2026-11-14T09:00:00Z",
+          "2026-11-15T09:00:00Z",
+          "chain intact"
+        ],
+        [
+          "wr-fra-2",
+          "2",
+          "2026-11-14T09:00:00Z",
+          "2026-11-15T09:00:00Z",
+          "chain intact"
+        ],
+        [
+          "ntp-fra-4",
+          "2",
+          "2026-11-14T09:00:00Z",
+          "2026-11-15T09:00:00Z",
+          "chain intact"
+        ],
+        [
+          "pps-ldn-5",
+          "2",
+          "2026-11-14T09:00:00Z",
+          "2026-11-15T09:00:00Z",
+          "chain intact"
+        ]
+      ]
+    },
+    {
+      "key": "report.signature",
+      "title": "Signature",
+      "columns": [
+        "Statement"
+      ],
+      "rows": [
+        [
+          "Every file of this report is listed with its SHA-256 in signature.json and signed with Ed25519; check it with `kshana-pro dossier verify <dir> --trust <public key>` (free, offline) or scripts/verify-dossier-signature.py."
+        ]
+      ]
+    },
+    {
+      "key": "clock.holdover",
+      "title": "Holdover time to breach (horizon 2.0 d; prediction bars pre-registered as V5 and as its successor V5b both NOT passed: the time to breach is not a validated claim)",
+      "columns": [
+        "Clock",
+        "Limit",
+        "Value",
+        "Warning (5 %)",
+        "Median (50 %)",
+        "Noise"
+      ],
+      "rows": [
+        [
+          "gm-fra-1",
+          "RTS 25 HFT style (user-set)",
+          "100.000 µs",
+          "beyond horizon",
+          "beyond horizon",
+          "measured"
+        ],
+        [
+          "gm-fra-1",
+          "PRTC-A style (user-set)",
+          "1.100 µs",
+          "beyond horizon",
+          "beyond horizon",
+          "measured"
+        ],
+        [
+          "gm-fra-1",
+          "Internal 100 ns (user-set)",
+          "100.00 ns",
+          "beyond horizon",
+          "beyond horizon",
+          "measured"
+        ],
+        [
+          "ref-fra-0",
+          "RTS 25 HFT style (user-set)",
+          "100.000 µs",
+          "beyond horizon",
+          "beyond horizon",
+          "measured"
+        ],
+        [
+          "ref-fra-0",
+          "PRTC-A style (user-set)",
+          "1.100 µs",
+          "beyond horizon",
+          "beyond horizon",
+          "measured"
+        ],
+        [
+          "ref-fra-0",
+          "Internal 100 ns (user-set)",
+          "100.00 ns",
+          "beyond horizon",
+          "beyond horizon",
+          "measured"
+        ],
+        [
+          "gm-ldn-1",
+          "RTS 25 HFT style (user-set)",
+          "100.000 µs",
+          "35.5 h",
+          "beyond horizon",
+          "measured"
+        ],
+        [
+          "gm-ldn-1",
+          "PRTC-A style (user-set)",
+          "1.100 µs",
+          "3.3 h",
+          "5.8 h",
+          "measured"
+        ],
+        [
+          "gm-ldn-1",
+          "Internal 100 ns (user-set)",
+          "100.00 ns",
+          "47 min",
+          "90 min",
+          "measured"
+        ],
+        [
+          "bc-ldn-2",
+          "RTS 25 HFT style (user-set)",
+          "100.000 µs",
+          "beyond horizon",
+          "beyond horizon",
+          "prior (class:ocxo)"
+        ],
+        [
+          "bc-ldn-2",
+          "PRTC-A style (user-set)",
+          "1.100 µs",
+          "10.9 h",
+          "24.9 h",
+          "prior (class:ocxo)"
+        ],
+        [
+          "bc-ldn-2",
+          "Internal 100 ns (user-set)",
+          "100.00 ns",
+          "76 min",
+          "3.5 h",
+          "prior (class:ocxo)"
+        ],
+        [
+          "srv-ldn-3",
+          "RTS 25 HFT style (user-set)",
+          "100.000 µs",
+          "20.7 h",
+          "45.3 h",
+          "prior (class:tcxo)"
+        ],
+        [
+          "wr-fra-2",
+          "RTS 25 HFT style (user-set)",
+          "100.000 µs",
+          "beyond horizon",
+          "beyond horizon",
+          "prior (class:ocxo)"
+        ],
+        [
+          "wr-fra-2",
+          "PRTC-A style (user-set)",
+          "1.100 µs",
+          "13.3 h",
+          "27.7 h",
+          "prior (class:ocxo)"
+        ],
+        [
+          "wr-fra-2",
+          "Internal 100 ns (user-set)",
+          "100.00 ns",
+          "2.3 h",
+          "5.1 h",
+          "prior (class:ocxo)"
+        ],
+        [
+          "ntp-fra-4",
+          "RTS 25 HFT style (user-set)",
+          "100.000 µs",
+          "64 s",
+          "38.4 h",
+          "prior (class:tcxo)"
+        ],
+        [
+          "pps-ldn-5",
+          "RTS 25 HFT style (user-set)",
+          "100.000 µs",
+          "23.9 h",
+          "beyond horizon",
+          "prior (class:tcxo)"
+        ],
+        [
+          "pps-ldn-5",
+          "PRTC-A style (user-set)",
+          "1.100 µs",
+          "46 min",
+          "2.2 h",
+          "prior (class:tcxo)"
+        ],
+        [
+          "pps-ldn-5",
+          "Internal 100 ns (user-set)",
+          "100.00 ns",
+          "9 s",
+          "9 s",
+          "prior (class:tcxo)"
+        ]
+      ]
+    }
+  ]
+}

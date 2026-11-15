@@ -1,0 +1,37 @@
+{
+  "format": "kshana-pro-timing-audit-template/1",
+  "id": "rts25-traceability",
+  "title": "Clock synchronisation evidence mapped to MiFID II RTS 25",
+  "framework": "Commission Delegated Regulation (EU) 2017/574 (RTS 25), supplementing Directive 2014/65/EU (MiFID II) on the level of accuracy of business clocks",
+  "wording": "Each item below is mapped to a provision of the Regulation and lists the evidence this report carries for it. The mapping is an aid for the operator and its assessor. The report does not state, and must not be read as stating, that any system meets the Regulation; that judgement is the operator's and its competent authority's.",
+  "items": [
+    {
+      "ref": "Article 1",
+      "topic": "Reference time",
+      "summary": "Business clocks are synchronised to UTC as issued by a timing centre listed in the BIPM Annual Report on Time Activities, or as disseminated by a satellite system, with offsets accounted for.",
+      "evidence": ["operator.utc_source", "fleet.inventory", "clock.records"],
+      "operator": "Name the UTC source of each grandmaster (UTC(k) laboratory or GNSS) and how its offset from UTC is accounted for."
+    },
+    {
+      "ref": "Articles 2 and 3, Annex",
+      "topic": "Level of accuracy",
+      "summary": "The maximum divergence from UTC and the timestamp granularity depend on the trading activity: trading venue operators (Article 2, Annex Table 1) and their members or participants (Article 3, Annex Table 2).",
+      "evidence": ["clock.divergence"],
+      "operator": "State the trading activity each clock serves; confirm the recorded offset is against UTC (or a reference traceable to it)."
+    },
+    {
+      "ref": "Article 4",
+      "topic": "Traceability to UTC",
+      "summary": "A system of traceability to UTC is established, documenting the system design, functioning and specifications, identifying the exact point at which a timestamp is applied, and reviewed at least once a year.",
+      "evidence": ["operator.traceability_chain", "operator.timestamp_point", "operator.review", "evidence.history", "report.signature"],
+      "operator": "Describe the chain from the UTC source to each timestamping point, the point where the timestamp is applied, and the date of the last yearly review."
+    },
+    {
+      "ref": "Article 4 (continuity)",
+      "topic": "Holdover and time to breach",
+      "summary": "Not a provision text: the operator's own evidence that each clock stays within its divergence limit if its reference is lost, used to plan the response before the limit is reached.",
+      "evidence": ["clock.holdover"],
+      "operator": "State the response when a clock's warning time is shorter than the time needed to restore its reference."
+    }
+  ]
+}

@@ -110,6 +110,17 @@ pub fn status_json(st: &Status) -> Value {
     })
 }
 
+/// Load the installed Pro packs this build hosts (incident forensics, roadmap 0.42 E1) from
+/// the licence store's folder (`<store>/pro-packs`), under the current licence. Called once
+/// at start; a missing or refused pack leaves its kind unregistered, and the Pro home shows
+/// the job as locked or coming.
+pub fn load_packs(at: i64) -> Result<bool, String> {
+    let dir = Store::default_dir().ok_or("no licence store directory (set KSHANA_PRO_HOME)")?;
+    let st = status_in(&Store::open(dir.clone()), at);
+    let device = machine().unwrap_or_default();
+    kshana_pro::forensics::load_installed(&dir, &st, &device, at).map_err(|e| e.to_string())
+}
+
 /// Activate `token` in `store` for this machine's Desktop.
 pub fn activate_in(store: &Store, token: &str, at: i64) -> Result<Value, String> {
     let ring = keyring()?;
