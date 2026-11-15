@@ -205,3 +205,79 @@ class KshanaProClient:
     def get_audit_verify(self):
         """GET /audit/verify: Verify the hash chain of the audit log (admin). Role: admin."""
         return self._call("GET", "/audit/verify", None, None, None, text=False)
+
+    def get_timing_assessment(self):
+        """GET /timing/assessment: The tenant's timing fleet assessment as JSON (every clock's status, predictions and limit breaches), for the Desktop Pro timing job; needs the pro-timing-fleet feature. Role: reader."""
+        return self._call("GET", "/timing/assessment", None, None, None, text=False)
+
+    def get_whoami(self):
+        """GET /whoami: The caller as the server sees it: id, tenant, role, credential source, and the serving edition with its Enterprise features (roadmap 0.42 U28). Role: reader."""
+        return self._call("GET", "/whoami", None, None, None, text=False)
+
+    def get_audit_export(self, since=None, until=None):
+        """GET /audit/export: Export the audit log for a SIEM (roadmap 0.42 F8): the lines of the days since..until of the caller's tenant (every tenant and the server's own events for an operator), each as stored with its SHA-256, and the chain report; needs the Enterprise feature pro-audit-export. Role: admin."""
+        return self._call("GET", "/audit/export", {"since": since, "until": until}, None, None, text=False)
+
+    def get_retention(self):
+        """GET /retention: The retention policy (retention.toml in the data directory) and what applying it now would delete for the caller's tenant (every tenant for an operator); needs the Enterprise feature pro-retention. Role: admin."""
+        return self._call("GET", "/retention", None, None, None, text=False)
+
+    def post_retention_apply(self):
+        """POST /retention/apply: Apply the retention policy (an operator only): finished jobs past their tenant's period (never a delivered job), expired share links, and audit days past audit_days; needs the Enterprise feature pro-retention. Role: admin."""
+        return self._call("POST", "/retention/apply", None, None, None, text=False)
+
+    def get_wall(self):
+        """GET /wall: The always-on watch wall page of the caller's tenant (roadmap 0.42 U28): Station fleet, area trust, timing fleet and jobs; no script, reloads every 30 s; needs the Enterprise feature pro-watch-wall. Role: reader."""
+        return self._call("GET", "/wall", None, None, None, text=False)
+
+    def get_wall_state(self):
+        """GET /wall/state: The watch wall of the caller's tenant as JSON (kshana-pro-watch-wall/1); needs the Enterprise feature pro-watch-wall. Role: reader."""
+        return self._call("GET", "/wall/state", None, None, None, text=False)
+
+    def get_scim_v2_ServiceProviderConfig(self):
+        """GET /scim/v2/ServiceProviderConfig: SCIM 2.0 service provider configuration (roadmap 0.42 F8); needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("GET", "/scim/v2/ServiceProviderConfig", None, None, None, text=False)
+
+    def get_scim_v2_Users(self):
+        """GET /scim/v2/Users: SCIM 2.0: the tenant's provisioned users (filter=userName eq 'name'); needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("GET", "/scim/v2/Users", None, None, None, text=False)
+
+    def post_scim_v2_Users(self, text):
+        """POST /scim/v2/Users: SCIM 2.0: provision a user; needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("POST", "/scim/v2/Users", None, text, "text/plain", text=False)
+
+    def get_scim_v2_Users_id(self, id):
+        """GET /scim/v2/Users/{id}: SCIM 2.0: one user; needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("GET", f"/scim/v2/Users/{_q(id)}", None, None, None, text=False)
+
+    def put_scim_v2_Users_id(self, id, text):
+        """PUT /scim/v2/Users/{id}: SCIM 2.0: replace a user; needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("PUT", f"/scim/v2/Users/{_q(id)}", None, text, "text/plain", text=False)
+
+    def patch_scim_v2_Users_id(self, id, text):
+        """PATCH /scim/v2/Users/{id}: SCIM 2.0: change a user (replace active, displayName, userName); a deactivated user is refused at its next request; needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("PATCH", f"/scim/v2/Users/{_q(id)}", None, text, "text/plain", text=False)
+
+    def delete_scim_v2_Users_id(self, id):
+        """DELETE /scim/v2/Users/{id}: SCIM 2.0: delete a user; needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("DELETE", f"/scim/v2/Users/{_q(id)}", None, None, None, text=False)
+
+    def get_scim_v2_Groups(self):
+        """GET /scim/v2/Groups: SCIM 2.0: the tenant's groups (kshana-admin, kshana-submitter and kshana-reader grant roles); needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("GET", "/scim/v2/Groups", None, None, None, text=False)
+
+    def post_scim_v2_Groups(self, text):
+        """POST /scim/v2/Groups: SCIM 2.0: create a group; needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("POST", "/scim/v2/Groups", None, text, "text/plain", text=False)
+
+    def get_scim_v2_Groups_id(self, id):
+        """GET /scim/v2/Groups/{id}: SCIM 2.0: one group; needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("GET", f"/scim/v2/Groups/{_q(id)}", None, None, None, text=False)
+
+    def patch_scim_v2_Groups_id(self, id, text):
+        """PATCH /scim/v2/Groups/{id}: SCIM 2.0: add or remove members, rename; needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("PATCH", f"/scim/v2/Groups/{_q(id)}", None, text, "text/plain", text=False)
+
+    def delete_scim_v2_Groups_id(self, id):
+        """DELETE /scim/v2/Groups/{id}: SCIM 2.0: delete a group; needs the Enterprise feature pro-scim. Role: admin."""
+        return self._call("DELETE", f"/scim/v2/Groups/{_q(id)}", None, None, None, text=False)

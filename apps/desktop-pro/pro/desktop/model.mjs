@@ -108,11 +108,15 @@ export const JOBS = [
   { id: "timing", icon: "timing", title: "Check timing assurance", text: "Holdover and time to breach for every clock in the fleet.", match: /timing-assurance|holdover-fleet/ },
   { id: "scorecard", icon: "scorecards", title: "Score a receiver", text: "A test campaign and a referee scorecard, pre-registered.", match: /^pro-(receiver|timing)-scorecard$/ },
   { id: "study", icon: "dossiers", title: "Write a study", text: "A trade study or mission study from a scenario file, run under this licence.", match: /study|trade/ },
+  // Timing fleet (0.42 T2): every clock of the organisation's fleet, read from the Pro service.
+  { id: "timing-fleet", icon: "timing", title: "Watch the timing fleet", text: "Every clock's status and time to its first limit warning, from your Kshana Pro service.", view: "pro-timing" },
+  // Multi-source trust (0.42 F3): which time source to trust second by second, with evidence.
+  { id: "trust", icon: "timing", title: "Choose a trusted time source", text: "GNSS, OSNMA, LEO, PTP, eLoran and holdover, chosen second by second with the evidence of every switch.", match: /^pro-multi-source-trust$/ },
 ];
 /** Further Pro products: drawn as entries with their own state. */
 export const PRODUCTS = [
-  { id: "evidence", icon: "evidence", title: "Evidence packs", text: "Every run exports a pack with the SHA-256 of each file. Signed packs come later in Desktop Pro.", state: "available" },
-  { id: "fleet", icon: "fleet", title: "Station fleet", text: "Many receivers and timing stations side by side, with trust scores and alarms.", state: "coming" },
+  { id: "evidence", icon: "evidence", title: "Signed evidence packs", text: "Reviews, reports and exports signed with this device's evidence key; anyone verifies them without a licence. Incident packs open and replay on the map.", state: "available", view: "pro-replay" },
+  { id: "fleet", icon: "fleet", title: "Station fleet", text: "Many receivers and timing stations side by side, with trust, alarms and positions, from your Kshana Pro service.", state: "available", view: "pro-fleet" },
 ];
 
 /** The Pro kinds in a `list_kinds` answer (a JSON string or an array of {name}). */
@@ -132,12 +136,14 @@ export function proKinds(listKinds) {
 export function jobsModel(kinds, unlocked) {
   const known = Array.isArray(kinds);
   return JOBS.map((j) => {
+    if (j.view) return { id: j.id, icon: j.icon, title: j.title, text: j.text, state: unlocked ? "ready" : "locked", kinds: [], view: j.view };
     const serving = known ? kinds.filter((k) => j.match.test(k)) : [];
     // The study kinds ship in this build (registry::pro_kinds); incident forensics
     // (pro-incident-forensics) is in the build's tier manifest and arrives as a Pro pack.
     // Receiver and timing scorecards (pro-receiver-scorecard, pro-timing-scorecard) ship in
     // this build too (roadmap 0.42 E3, T4).
-    const buildHas = j.id === "study" || j.id === "forensics" || j.id === "scorecard";
+    // Multi-source trust (pro-multi-source-trust, 0.42 F3) ships in this build too.
+    const buildHas = j.id === "study" || j.id === "forensics" || j.id === "scorecard" || j.id === "trust";
     const state = serving.length ? "ready" : !unlocked && buildHas ? "locked" : "coming";
     return { id: j.id, icon: j.icon, title: j.title, text: j.text, state, kinds: serving };
   });

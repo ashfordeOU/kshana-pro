@@ -165,6 +165,16 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-framework-pack" => Tier::Pro,
         // Insurer scorecard: periodic signed exposure summary (roadmap 0.42 E7).
         "pro-insurer-scorecard" => Tier::Pro,
+        // Desktop Pro (roadmap 0.42 U19): incident replay on the map and signed evidence
+        // packs of the Desktop's runs, reviews and reports. Verifying a pack stays free.
+        "pro-incident-replay" => Tier::Pro,
+        "pro-signed-pack" => Tier::Pro,
+        // Enterprise operations (roadmap 0.42 F8, U28): SCIM provisioning, audit log export,
+        // retention policies and always-on watch walls.
+        "pro-scim" => Tier::Enterprise,
+        "pro-audit-export" => Tier::Enterprise,
+        "pro-retention" => Tier::Enterprise,
+        "pro-watch-wall" => Tier::Enterprise,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -191,6 +201,12 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-alert-policy",
     "pro-framework-pack",
     "pro-insurer-scorecard",
+    "pro-incident-replay",
+    "pro-signed-pack",
+    "pro-scim",
+    "pro-audit-export",
+    "pro-retention",
+    "pro-watch-wall",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

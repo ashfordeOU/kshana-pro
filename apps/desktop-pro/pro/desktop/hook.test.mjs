@@ -75,7 +75,7 @@ test("hook: the sidebar section, the licence item follows the licence", async ()
   assert.equal(sec.heading, "PRO");
   let items = resolve(sec.items);
   assert.deepEqual(items.map((i) => i.label), [...SIDE.map((s) => s.label), "Licence"]);
-  assert.equal(items.find((i) => i.id === "fleet").badge, "SOON");
+  assert.equal(items.find((i) => i.id === "fleet").badge, null);
   const lic = items.at(-1);
   assert.equal(lic.view, VIEWS.licence);
   assert.equal(lic.badge.title, "NOT READ", "before the licence is read it is never shown as Pro");
@@ -85,11 +85,11 @@ test("hook: the sidebar section, the licence item follows the licence", async ()
   items = resolve(sec.items);
   assert.equal(items.at(-1).badge.title, "ACTIVE");
   assert.equal(items.at(-1).badge.dot, toneColor("ok"));
-  // A job opens the Pro home; a product to come says so.
+  // A job opens the Pro home; without the app's Pro functions the fleet says how to use it.
   items.find((i) => i.id === "forensics").onSelect();
   items.find((i) => i.id === "fleet").onSelect();
   assert.deepEqual(calls.shown, ["home", "home"]);
-  assert.match(calls.toasts.at(-1), /Station fleet: coming/);
+  assert.match(calls.toasts.at(-1), /Station fleet: sign in/);
 });
 
 test("hook: the palette group holds the Pro actions and opens the licence screen", async () => {

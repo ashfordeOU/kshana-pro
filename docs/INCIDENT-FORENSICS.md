@@ -132,8 +132,10 @@ mismatch and missing kind refused, licence tier gate after loading.
 
 ## 7. Gaps against the roadmap bar
 
-* **V2 not met.** No pre-registered detection bars have been run on a labelled set of public
-  events plus synthetic; the training scenarios are a development set. Every report says so.
+* **V2 not met** (scored once on 15 Nov 2026, `docs/evidence/v2-forensics-detection/`). On the
+  pre-registered synthetic labelled set ten of eleven bars pass; B3 (cross-attribution) misses:
+  4 of 12 moderate-jamming cases are also indicated as spoofing. The public-event part was empty
+  and is not scored. E1 stays unclaimed; every report keeps its V2 limit.
 * **No public sample on a public event yet.** Needs openly licensed data of a documented
   public interference event (receiver logs or ADS-B/AIS); JammerTest only through the open
   engine's existing download path, never committed.

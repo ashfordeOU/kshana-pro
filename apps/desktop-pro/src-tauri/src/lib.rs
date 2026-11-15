@@ -17,9 +17,16 @@ fn now() -> i64 {
 async fn engine_call(name: String, args: Vec<Value>) -> Result<Value, String> {
     tauri::async_runtime::spawn_blocking(move || {
         let t = now();
-        let ent = bridge::store()
-            .map(|s| bridge::status_in(&s, t).entitlement)
-            .unwrap_or_else(|_| kshana_pro::license::Entitlement::evaluation());
+        let status = bridge::store().map(|s| bridge::status_in(&s, t)).ok();
+        let token = status
+            .as_ref()
+            .and_then(|s| s.licence.as_ref().map(|l| l.token_id.clone()));
+        let ent = status
+            .map(|s| s.entitlement)
+            .unwrap_or_else(kshana_pro::license::Entitlement::evaluation);
+        if name.starts_with("pro_") {
+            return bridge::call_pro(&name, &args, &ent, token.as_deref(), t);
+        }
         bridge::call(&name, &args, &ent, t)
     })
     .await
