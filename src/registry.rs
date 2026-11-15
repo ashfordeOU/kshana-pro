@@ -78,6 +78,8 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         MultiSourceScenario::KIND => Some(parse::<MultiSourceScenario>(kind, src)),
         AreaPictureScenario::KIND => Some(parse::<AreaPictureScenario>(kind, src)),
         PlannerFrontScenario::KIND => Some(parse::<PlannerFrontScenario>(kind, src)),
+        crate::integrity::KIND => Some(parse::<crate::integrity::IntegrityScenario>(kind, src)),
+        crate::pnt_study::KIND => Some(parse::<crate::pnt_study::StudySpec>(kind, src)),
         // A kind of a registered server-side extension (crate::extension), if any.
         _ => crate::extension::build(kind, src),
     }
@@ -116,6 +118,8 @@ pub fn builtin_pro_kinds() -> Vec<ScenarioMeta> {
         MultiSourceScenario::meta_static(),
         AreaPictureScenario::meta_static(),
         PlannerFrontScenario::meta_static(),
+        crate::integrity::IntegrityScenario::meta_static(),
+        crate::pnt_study::StudySpec::meta_static(),
     ]
 }
 
@@ -290,6 +294,8 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     MultiSourceScenario::register_into(&mut reg);
     AreaPictureScenario::register_into(&mut reg);
     PlannerFrontScenario::register_into(&mut reg);
+    crate::integrity::IntegrityScenario::register_into(&mut reg);
+    crate::pnt_study::StudySpec::register_into(&mut reg);
     for k in crate::extension::kinds() {
         (k.register_into)(&mut reg);
     }
@@ -607,6 +613,17 @@ q_rw = 0.0
                 "kind = \"pro-area-picture\"\nconsole = \"examples/area-console/console.toml\"\n"
             }
             PlannerFrontScenario::KIND => include_str!("../examples/planner-front/front.toml"),
+            crate::integrity::KIND => {
+                "kind = \"pro-ais-integrity\"\nais = \"examples/ais-integrity/ais.csv\"\n"
+            }
+            crate::pnt_study::KIND => {
+                "kind = \"pro-pnt-verification\"\ntitle = \"t\"\nservice = \"s\"\nservice_source = \"x\"\n\
+                 pre_registration = \"docs/evidence/e4-pnt-verification/2026-11-15_PREREGISTRATION.md\"\n\
+                 pre_registration_sha256 = \"0215b7a67ba4319301b03ca11cb8359c5ea21671ecb53f9b70777a86991f9876\"\n\
+                 [integrity]\npages = \"examples/pnt-verification/pages-good.txt\"\n\
+                 public_key = \"examples/pnt-verification/public-key.txt\"\nflips = 2\nseed = 1\nprovenance = \"p\"\n\
+                 [[bar]]\nid = \"b\"\nquantity = \"osnma-clean-failures\"\nop = \"le\"\nvalue = 0.0\n"
+            }
             other => panic!("no test source defined for Pro kind '{other}'"),
         }
     }

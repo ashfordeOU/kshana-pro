@@ -1,0 +1,63 @@
+{
+  "format": "kshana-pro-framework-template/1",
+  "id": "easa-sib-2022-02r4",
+  "title": "EASA Safety Information Bulletin 2022-02R4: GNSS outage and alterations",
+  "source": {
+    "title": "Global Navigation Satellite System Outage and Alterations Leading to Communication / Navigation / Surveillance Degradation",
+    "version": "EASA SIB 2022-02R4, issued 3 July 2026, corrected 22 July 2026 (informational, not mandatory)",
+    "url": "https://ad.easa.europa.eu/ad/2022-02R4",
+    "checked": "As recorded by the open engine's mapping (sources read 2026-10-09/10): revision 4 read in full; the bulletin does not number its recommendations, so duties are cited by the heading they fall under and paraphrased."
+  },
+  "duties": [
+    {
+      "id": "easa-1",
+      "reference": "Recommendations to air operators: awareness and procedures",
+      "duty": "Brief crews on GNSS jamming and spoofing, their symptoms and the affected areas, and keep procedures for operating with GNSS degraded.",
+      "mapped_to": [
+        "kshana-pro-forensic-report/1",
+        "kshana-pro-area-picture/1"
+      ],
+      "gap": "Crew training records and operating procedures are the operator's own."
+    },
+    {
+      "id": "easa-2",
+      "reference": "Recommendations to air operators: reporting",
+      "duty": "Report GNSS interference events through the occurrence-reporting system, with what was observed.",
+      "mapped_to": [
+        "kshana-pro-forensic-report/1"
+      ],
+      "gap": "Filing the occurrence report is the operator's act; Kshana supplies the signed technical record to attach."
+    },
+    {
+      "id": "easa-3",
+      "reference": "Recommendations to air operators: cross-checking position",
+      "duty": "Cross-check aircraft position with independent means when GNSS is suspect, and be aware that spoofing can corrupt time and position-dependent systems.",
+      "mapped_to": [
+        "kshana-pro-receiver-scorecard/1",
+        "kshana-pro-trust-evidence/1"
+      ],
+      "gap": "Aircraft system behaviour on board is not assessed; scorecards cover receivers tested in a campaign."
+    },
+    {
+      "id": "easa-4",
+      "reference": "Recommendations to air navigation service providers and authorities",
+      "duty": "Monitor and publish GNSS interference information (for example by NOTAM) and keep conventional navigation aids available as back-up.",
+      "mapped_to": [
+        "kshana-pro-area-picture/1",
+        "kshana-pro-forensic-report/1"
+      ],
+      "gap": "Publication (NOTAM) and maintaining navigation aids are outside Kshana."
+    },
+    {
+      "id": "easa-5",
+      "reference": "Recommendations to manufacturers",
+      "duty": "Assess equipment behaviour under jamming and spoofing and inform operators of the effects.",
+      "mapped_to": [
+        "kshana-pro-receiver-scorecard/1",
+        "kshana-pro-pnt-verification/1"
+      ],
+      "gap": "Type design and approval are outside Kshana; scorecards are test evidence only."
+    }
+  ],
+  "wording": "Each duty below is mapped to the Kshana evidence products whose signed output can be put before the operator's assessor for it, and lists what Kshana does not provide. The pack is an aid for preparing an audit. It does not state, and must not be read as stating, that any system or operator meets the framework; that judgement belongs to the operator, its assessor and its authority."
+}

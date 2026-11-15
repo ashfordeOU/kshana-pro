@@ -145,7 +145,15 @@ test("jobs: ready only with a kind that serves them; coming otherwise; locked wi
   const fx = Object.fromEntries(jobsModel(["pro-incident-forensics"], true).map((j) => [j.id, j]));
   assert.equal(fx.forensics.state, "ready");
   assert.deepEqual(fx.forensics.kinds, ["pro-incident-forensics"]);
-  assert.equal(jobsModel(null, false).length, 4);
+  assert.equal(jobsModel(null, false).length, 6);
+  // The timing fleet (T2) opens its view; ready with a licence, locked without.
+  const tf = Object.fromEntries(jobsModel([], true).map((j) => [j.id, j]));
+  assert.equal(tf["timing-fleet"].state, "ready");
+  assert.equal(tf["timing-fleet"].view, "pro-timing");
+  assert.equal(locked["timing-fleet"], "locked");
+  // Multi-source trust (F3) is a kind of this build: ready when the licence runs it.
+  assert.equal(locked.trust, "locked");
+  assert.equal(Object.fromEntries(jobsModel(["pro-multi-source-trust"], true).map((j) => [j.id, j.state])).trust, "ready");
 });
 
 test("palette: Pro actions, matching, remove only with a licence", () => {

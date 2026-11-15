@@ -5,15 +5,16 @@
 // path for older shells. Registration touches no DOM: every node is made in a render or a
 // function the shell calls, so attachToShell is tested in node (hook.test.mjs) with a fake shell.
 import { proActions } from "./model.mjs";
-import { ic, proHome, licenceScreen } from "./ui.mjs";
+import { h, ic, proHome, licenceScreen } from "./ui.mjs";
+import { registerWork } from "./work.mjs";
 
-/** The Pro items of the sidebar: four jobs on the Pro home, one product still to come. */
+/** The Pro items of the sidebar: four jobs on the Pro home, and the Station fleet screen (0.42 U6). */
 export const SIDE = [
   { id: "forensics", icon: "forensics", label: "Incident forensics" },
   { id: "timing", icon: "timing", label: "Timing assurance" },
   { id: "scorecard", icon: "scorecards", label: "Scorecards" },
   { id: "study", icon: "dossiers", label: "Studies" },
-  { id: "fleet", icon: "fleet", label: "Station fleet", coming: true },
+  { id: "fleet", icon: "fleet", label: "Station fleet", view: "pro-fleet" },
 ];
 /** The colour of a licence tone, as the shell's tokens name it. */
 export const toneColor = (tone) => ({ ok: "var(--itg)", warn: "var(--nav)", bad: "var(--int)" })[tone] || "var(--ink-3)";
@@ -38,7 +39,7 @@ export const redrawLicence = (fresh, stamp, drawnStamp) => !!fresh || stamp !== 
  * items and the edition to `shell`. `S` is createProState(api) (ui.mjs). Returns
  * { refresh, nav, detach }: refresh reads the licence again and redraws.
  */
-export function attachToShell(shell, { S, api, doc = globalThis.document, later = (fn) => (globalThis.requestAnimationFrame || setTimeout)(fn) }) {
+export function attachToShell(shell, { S, api, papi = null, doc = globalThis.document, later = (fn) => (globalThis.requestAnimationFrame || setTimeout)(fn) }) {
   if (!canAttach(shell)) return null;
   const byId = (id) => (doc ? doc.getElementById(id) : null);
   let stamp = 0, drawnStamp = -1;
@@ -55,7 +56,11 @@ export function attachToShell(shell, { S, api, doc = globalThis.document, later 
     api, toast, copy,
     licence: () => shell.show(VIEWS.licence),
     evidence: () => shell.show("evidence"),
-    job: (j) => { shell.show("files"); toast(`${j.title}: open a scenario file of a Pro kind (${j.kinds[0]}); it runs under this licence.`); },
+    job: (j) => {
+      if (j.view && papi) { shell.show(j.view); return; }
+      shell.show("files"); toast(`${j.title}: open a scenario file of a Pro kind (${j.kinds[0]}); it runs under this licence.`);
+    },
+    view: papi ? (v) => shell.show(v) : null,
   };
   const readText = () => (S.read ? S.view.statusText : "Reading the licence…");
   const off = [];
@@ -88,10 +93,11 @@ export function attachToShell(shell, { S, api, doc = globalThis.document, later 
     heading: "PRO",
     items: () => [
       ...SIDE.map((p) => ({
-        id: p.id, label: p.label, icon: p.icon, badge: p.coming ? "SOON" : null,
+        id: p.id, label: p.label, icon: p.icon, badge: null,
         onSelect: () => {
+          if (p.view && papi) { shell.show(p.view); return; }
           shell.show("home");
-          if (p.coming) { toast(`${p.label}: coming in a later Desktop Pro release.`); return; }
+          if (p.view) { toast(`${p.label}: sign in to a Kshana Pro service to use it.`); return; }
           later(() => { const card = doc && doc.querySelector(`[data-job="${p.id}"]`); if (card) card.focus(); });
         },
       })),
@@ -121,10 +127,14 @@ export function attachToShell(shell, { S, api, doc = globalThis.document, later 
     action: { label: S.view.unlocked ? "Manage licence →" : "Activate a licence →", onSelect: () => shell.show(VIEWS.licence) },
   }));
 
+  // The Pro work views (0.42 U6, U19, U27, U28), when the app's Pro functions are there.
+  const work = papi ? registerWork(shell, { h, ic, S, papi, later }) : null;
+  if (work) off.push(...work.off);
+
   const detach = () => {
     for (const f of off) if (typeof f === "function") f();
     shell.setStatusItems("right", null);
     shell.setEdition(null);
   };
-  return { refresh, nav, detach, execPro };
+  return { refresh, nav, detach, execPro, work };
 }

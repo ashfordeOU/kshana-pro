@@ -1,0 +1,92 @@
+# E4 public sample (pre-registered 15 November 2026). Every number is the pre-registration's.
+kind = "pro-pnt-verification"
+title = "Independent user-side verification study: Xona Pulsar (published design) and Galileo OSNMA (protocol level)"
+service = "Xona Pulsar, published design: 258 satellites, 18 planes, about 1080 km, 53 and 97 degrees (most not launched); Galileo OSNMA at protocol level"
+service_source = "Leclere, Marathe and Reid, ION GNSS+ 2025, arXiv 2509.19551; Galileo OSNMA SIS ICD through the open engine's verifier"
+pre_registration = "../../docs/evidence/e4-pnt-verification/2026-11-15_PREREGISTRATION.md"
+pre_registration_sha256 = "0215b7a67ba4319301b03ca11cb8359c5ea21671ecb53f9b70777a86991f9876"
+
+[geometry]
+duration_s = 86400.0
+step_s = 600.0
+lat_step_deg = 10.0
+lon_step_deg = 45.0
+mask_deg = 10.0
+pdop_threshold = 6.0
+assumed_uere_m = [0.5, 1.0]
+
+[[geometry.gnss]]
+name = "GPS"
+preset = "gps-baseline"
+
+[[geometry.gnss]]
+name = "Galileo"
+preset = "galileo"
+
+[[geometry.leo]]
+name = "Pulsar"
+
+[[geometry.leo.shell]]
+total = 192
+planes = 12
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 53.0
+
+[[geometry.leo.shell]]
+total = 66
+planes = 6
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 97.0
+
+[integrity]
+pages = "pages-good.txt"
+public_key = "public-key.txt"
+flips = 200
+seed = 4242
+provenance = "Synthetic OSNMA pages of the open engine's sample (examples/osnma/pages-good.txt, commit 69a181bbe): not a recording of any signal; throwaway key."
+
+[[bar]]
+id = "E4-S1"
+quantity = "leo-availability"
+lat_min = 0.0
+lat_max = 60.0
+op = "ge"
+value = 0.99
+
+[[bar]]
+id = "E4-S2"
+quantity = "leo-availability"
+lat_min = 70.0
+lat_max = 90.0
+op = "ge"
+value = 0.99
+
+[[bar]]
+id = "E4-S3"
+quantity = "leo-median-hdop"
+lat_min = 0.0
+lat_max = 90.0
+op = "le"
+value = 2.0
+
+[[bar]]
+id = "E4-S4"
+quantity = "fused-availability"
+lat_min = 0.0
+lat_max = 90.0
+op = "ge"
+value = 0.999
+
+[[bar]]
+id = "E4-S5a"
+quantity = "osnma-tamper-detection"
+op = "ge"
+value = 0.99
+
+[[bar]]
+id = "E4-S5b"
+quantity = "osnma-clean-failures"
+op = "le"
+value = 0.0

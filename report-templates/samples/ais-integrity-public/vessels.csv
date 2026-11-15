@@ -1,0 +1,13 @@
+id,class,decided_by,reports,offset_candidate_km,offset_candidate_onset_s,fleets,areas
+200000000,NORMAL,stage-1,1730,39.942,8530,Fleet A,West
+200000002,GAP,stage-1,1521,,,Fleet B,West
+200000003,NORMAL,stage-1,1708,36.736,3100,Fleet A,East
+200000004,NORMAL,stage-1,1741,54.266,11170,Fleet A,East
+200000005,NORMAL,stage-1,1739,42.212,13870,Fleet A,East
+200000006,NORMAL,stage-1,1731,49.745,5780,Fleet A,East
+200000007,NORMAL,stage-1,1724,46.474,5810,Fleet A,East
+200000012,GAP,stage-1,1500,,,Fleet B,West;East
+200000047,NORMAL,stage-1,1746,56.717,390,Fleet B,East
+200000062,IDENTITY-DUPLICATE,stage-1,3455,,,Fleet B,West;East
+200000066,NORMAL,stage-1,1728,40.530,390,Fleet B,East
+200000078,NORMAL,stage-1,1749,23.028,5780,Fleet B,West;East

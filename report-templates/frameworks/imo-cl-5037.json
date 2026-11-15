@@ -1,0 +1,54 @@
+{
+  "format": "kshana-pro-framework-template/1",
+  "id": "imo-cl-5037",
+  "title": "IMO Circular Letter No. 5037 (maritime GNSS interference): draft pending the source",
+  "status": "draft-pending-source",
+  "source": {
+    "title": "IMO Circular Letter No. 5037",
+    "version": "as named in roadmap 0.42 E6",
+    "url": "https://www.imo.org/en/OurWork/Circulars",
+    "checked": "The text of Circular Letter No. 5037 was NOT read in this work. Until it is, the duties below follow the open engine's IMO rows (MSC.1/Circ.1644, A.1046(27), MSC.401(95)); replace them with the circular's own topics after reading it, before any pack is sent."
+  },
+  "duties": [
+    {
+      "id": "imo-1",
+      "reference": "MSC.1/Circ.1644 (pending CL 5037)",
+      "duty": "Report GNSS interference experienced at sea to the relevant authorities, with time, position and effects.",
+      "mapped_to": [
+        "kshana-pro-forensic-report/1",
+        "kshana-pro-ais-integrity/1"
+      ],
+      "gap": "The report itself is the master's or company's act."
+    },
+    {
+      "id": "imo-2",
+      "reference": "MSC.1/Circ.1644 (pending CL 5037)",
+      "duty": "Be aware of the effects of interference on shipborne systems and keep alternative means of position fixing.",
+      "mapped_to": [
+        "kshana-pro-receiver-scorecard/1",
+        "kshana-pro-trust-evidence/1"
+      ],
+      "gap": "Bridge procedures and crew training are the company's own."
+    },
+    {
+      "id": "imo-3",
+      "reference": "A.1046(27) (pending CL 5037)",
+      "duty": "Use radionavigation information with integrity indications and verify it.",
+      "mapped_to": [
+        "kshana-pro-ais-integrity/1",
+        "kshana-pro-pnt-verification/1"
+      ],
+      "gap": "Shipborne equipment approval is outside Kshana."
+    },
+    {
+      "id": "imo-4",
+      "reference": "MSC.401(95) (pending CL 5037)",
+      "duty": "Multi-system receivers detect and indicate degraded or unreliable positions.",
+      "mapped_to": [
+        "kshana-pro-receiver-scorecard/1"
+      ],
+      "gap": "Type approval is outside Kshana; scorecards are test evidence only."
+    }
+  ],
+  "wording": "Each duty below is mapped to the Kshana evidence products whose signed output can be put before the operator's assessor for it, and lists what Kshana does not provide. The pack is an aid for preparing an audit. It does not state, and must not be read as stating, that any system or operator meets the framework; that judgement belongs to the operator, its assessor and its authority."
+}

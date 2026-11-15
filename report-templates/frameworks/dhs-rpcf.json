@@ -1,0 +1,66 @@
+{
+  "format": "kshana-pro-framework-template/1",
+  "id": "dhs-rpcf",
+  "title": "US DHS Resilient PNT Conformance Framework (resilience levels)",
+  "source": {
+    "title": "Resilient Positioning, Navigation, and Timing (PNT) Conformance Framework",
+    "version": "Version 2.0, 26 April 2022",
+    "url": "https://www.dhs.gov/sites/default/files/2022-05/22_0531_st_resilient_pnt_conformance_framework_v2.0.pdf",
+    "checked": "As recorded by the open engine's mapping: document read in full."
+  },
+  "duties": [
+    {
+      "id": "rpcf-l1",
+      "reference": "Level 1",
+      "duty": "Recover to normal performance after the threat is removed.",
+      "mapped_to": [
+        "kshana-pro-receiver-scorecard/1",
+        "kshana-pro-timing-scorecard/1"
+      ],
+      "gap": "Kshana scorecards report test evidence for a level; they do not grant one."
+    },
+    {
+      "id": "rpcf-l2",
+      "reference": "Level 2",
+      "duty": "Level 1, and bound or flag hazardous outputs during the threat.",
+      "mapped_to": [
+        "kshana-pro-receiver-scorecard/1",
+        "kshana-pro-timing-scorecard/1",
+        "kshana-pro-trust-evidence/1"
+      ],
+      "gap": "As above."
+    },
+    {
+      "id": "rpcf-l3",
+      "reference": "Level 3",
+      "duty": "Level 2, and keep providing outputs within stated bounds during the threat.",
+      "mapped_to": [
+        "kshana-pro-receiver-scorecard/1",
+        "kshana-pro-timing-scorecard/1",
+        "kshana-pro-trust-evidence/1"
+      ],
+      "gap": "As above."
+    },
+    {
+      "id": "rpcf-l4",
+      "reference": "Level 4",
+      "duty": "Level 3, and keep full performance during the threat.",
+      "mapped_to": [
+        "kshana-pro-receiver-scorecard/1",
+        "kshana-pro-timing-scorecard/1"
+      ],
+      "gap": "As above."
+    },
+    {
+      "id": "rpcf-arch",
+      "reference": "Architecture expectations (diversity, verification, recovery)",
+      "duty": "Use diverse, cross-checked sources and verify PNT data before use.",
+      "mapped_to": [
+        "kshana-pro-trust-evidence/1",
+        "kshana-pro-pnt-verification/1"
+      ],
+      "gap": "Design reviews of the equipment are outside Kshana."
+    }
+  ],
+  "wording": "Each duty below is mapped to the Kshana evidence products whose signed output can be put before the operator's assessor for it, and lists what Kshana does not provide. The pack is an aid for preparing an audit. It does not state, and must not be read as stating, that any system or operator meets the framework; that judgement belongs to the operator, its assessor and its authority."
+}

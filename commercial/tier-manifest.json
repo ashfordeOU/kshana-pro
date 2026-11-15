@@ -23,12 +23,42 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-audit-export",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-desktop",
       "type": "feature",
       "tier": "pro"
     },
     {
+      "kind": "pro-framework-pack",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-incident-replay",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-insurer-scorecard",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-retention",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-scenario-ci",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-scim",
       "type": "feature",
       "tier": "pro"
     },
@@ -39,6 +69,11 @@
     },
     {
       "kind": "pro-signed-dossier",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-signed-pack",
       "type": "feature",
       "tier": "pro"
     },
@@ -73,6 +108,16 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-watch-wall",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-ais-integrity",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-area-picture",
       "type": "kind",
       "tier": "pro"
@@ -104,6 +149,11 @@
     },
     {
       "kind": "pro-planner-front",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-pnt-verification",
       "type": "kind",
       "tier": "pro"
     },

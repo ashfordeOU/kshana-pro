@@ -5,6 +5,52 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Evidence products (roadmap 0.42 E4, E5, E6, E7; V3, V6; docs/EVIDENCE-PRODUCTS.md).**
+  E5 AIS and position integrity scoring: kind `pro-ais-integrity`, `kshana-pro integrity
+  score|verify`; per identity the open M4 v3 decision (gaps, identity in two places, AIS
+  inconsistent with RF fixes, RF fixes with no matching AIS), integrity scores per fleet and per
+  area with exact 95 % intervals, signed. V3 (the M4 position-offset bar with a new stage-2
+  parallel-track method) pre-registered before code and seeds (5b3ded07) and **missed** on seeds
+  5000-5009 (offset recall 0.861/0.879/0.871/0.871 at 5/10/20/50 km, FA 0.132); the corrected V3b,
+  pre-registered before its code (8a6bf4d8), **missed** on seeds 6000-6009 (0.829/0.857/0.829/0.896,
+  FA 0.072); both published; stage-2 hits are offset candidates only and never change a class. E4
+  PNT service verification studies, user side: kind `pro-pnt-verification`, `kshana-pro
+  verify-service run|template|verify`; LEO coverage and geometry from a published design through
+  the open `leo-pvt` polar mode, OSNMA tamper detection through the open verifier, bars from a
+  pre-registration whose SHA-256 is checked; public sample (Xona Pulsar published design, OSNMA
+  synthetic stream) pre-registered and **3 of 6 bars met** (S1, S2 coverage and S5a tamper
+  detection 0.68 missed), published; lunar and spacecraft studies are Arksa-exclusive and not
+  built here. E6 framework evidence packs: feature `pro-framework-pack`, `kshana-pro frameworks
+  list|show|pack|verify`; seven templates (EASA SIB 2022-02R4, NIST IR 8323r1, DHS RPCF, IMO
+  CL 5037 as a draft pending its text, MiFID II RTS 25, EU Space Act proposal, NIS 2), "mapped to"
+  only, signed evidence verified before it is mapped. E7 insurer scorecard: feature
+  `pro-insurer-scorecard`, `kshana-pro exposure run|verify`; periodic signed exposure summary of a
+  fleet or route from signed E1 and E5 evidence, no new detection. V6: E5 v3 spoofing benchmark
+  not scored (no blind data; method written down for a future data set) and B5 v4 not registered
+  (no method meets T2 as defined), recorded in docs/evidence/v6-spoofing-and-area-trust/. All new
+  kinds and features at `pro` in the regenerated signed tier manifest; samples signed with demo
+  keys under report-templates/samples/.
+
+- **Desktop Pro work and Enterprise operations (0.42 U6, U19, U27, U28, F8; V2 scored).**
+  Enterprise service operations: SCIM 2.0 users and groups per tenant (`/scim/v2/...`), tied to
+  single sign-on: once a tenant has provisioned people, an OIDC caller is served only while
+  provisioned and active, with the role its `kshana-*` groups grant; audit log export for a SIEM
+  (`GET /audit/export?since&until`, per tenant, every line with its SHA-256 and the chain
+  report); retention policies (`retention.toml`; `GET /retention` dry run, `POST
+  /retention/apply` by an operator; delivered jobs are never deleted); always-on watch walls
+  (`GET /wall`, `GET /wall/state`); `GET /whoami`; `GET /timing/assessment`. Each is an
+  Enterprise feature in the signed tier manifest (`pro-scim`, `pro-audit-export`,
+  `pro-retention`, `pro-watch-wall`). `tests/tenant_isolation.rs` calls every route of the route
+  table as another tenant's admin aimed at one tenant's identifiers: green. SAML is not built
+  (no reviewed SAML crate in Cargo.lock). Desktop Pro: `kshana_pro::desktop` (incident replay
+  document, signed packs with a device evidence key, free pack verification, the service
+  connection with the credential kept out of the page), forwarded by the app's bridge; the
+  work views on the shell: Station fleet (concept B), incident replay on the map (estimated
+  vs reported, trust shading), review mode, report builder, receiver scorecards, area trust,
+  timing fleet (T2) and multi-source trust (F3) jobs on the Pro home, SSO sign-in, team
+  library, audit log, watch wall. V2 (E1 detection bars) pre-registered (e5a3369b) and scored
+  once on a synthetic labelled set: 10 of 11 bars met, B3 cross-attribution missed (4/24),
+  public-event part empty; E1 stays unclaimed.
 - **Pro 0.3.0 release preparation (roadmap S1; not tagged).** Pro 0.3.0 is prepared on the
   current engine pin, engine 0.41.0. The release smoke test (`scripts/release-smoke.sh`,
   finishes F1b) now also checks, on the built release binary, that a tampered token is

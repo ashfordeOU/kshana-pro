@@ -233,4 +233,99 @@ export class KshanaProClient {
   getAuditVerify(): Promise<any> {
     return this.call("GET", `/audit/verify`, undefined, undefined, undefined, false);
   }
+
+  /** GET /timing/assessment: The tenant's timing fleet assessment as JSON (every clock's status, predictions and limit breaches), for the Desktop Pro timing job; needs the pro-timing-fleet feature. Role: reader. */
+  getTimingAssessment(): Promise<any> {
+    return this.call("GET", `/timing/assessment`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /whoami: The caller as the server sees it: id, tenant, role, credential source, and the serving edition with its Enterprise features (roadmap 0.42 U28). Role: reader. */
+  getWhoami(): Promise<any> {
+    return this.call("GET", `/whoami`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /audit/export: Export the audit log for a SIEM (roadmap 0.42 F8): the lines of the days since..until of the caller's tenant (every tenant and the server's own events for an operator), each as stored with its SHA-256, and the chain report; needs the Enterprise feature pro-audit-export. Role: admin. */
+  getAuditExport(query: { since?: string | number; until?: string | number } = {}): Promise<any> {
+    return this.call("GET", `/audit/export`, query, undefined, undefined, false);
+  }
+
+  /** GET /retention: The retention policy (retention.toml in the data directory) and what applying it now would delete for the caller's tenant (every tenant for an operator); needs the Enterprise feature pro-retention. Role: admin. */
+  getRetention(): Promise<any> {
+    return this.call("GET", `/retention`, undefined, undefined, undefined, false);
+  }
+
+  /** POST /retention/apply: Apply the retention policy (an operator only): finished jobs past their tenant's period (never a delivered job), expired share links, and audit days past audit_days; needs the Enterprise feature pro-retention. Role: admin. */
+  postRetentionApply(): Promise<any> {
+    return this.call("POST", `/retention/apply`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /wall: The always-on watch wall page of the caller's tenant (roadmap 0.42 U28): Station fleet, area trust, timing fleet and jobs; no script, reloads every 30 s; needs the Enterprise feature pro-watch-wall. Role: reader. */
+  getWall(): Promise<any> {
+    return this.call("GET", `/wall`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /wall/state: The watch wall of the caller's tenant as JSON (kshana-pro-watch-wall/1); needs the Enterprise feature pro-watch-wall. Role: reader. */
+  getWallState(): Promise<any> {
+    return this.call("GET", `/wall/state`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /scim/v2/ServiceProviderConfig: SCIM 2.0 service provider configuration (roadmap 0.42 F8); needs the Enterprise feature pro-scim. Role: admin. */
+  getScimV2ServiceProviderConfig(): Promise<any> {
+    return this.call("GET", `/scim/v2/ServiceProviderConfig`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /scim/v2/Users: SCIM 2.0: the tenant's provisioned users (filter=userName eq "name"); needs the Enterprise feature pro-scim. Role: admin. */
+  getScimV2Users(): Promise<any> {
+    return this.call("GET", `/scim/v2/Users`, undefined, undefined, undefined, false);
+  }
+
+  /** POST /scim/v2/Users: SCIM 2.0: provision a user; needs the Enterprise feature pro-scim. Role: admin. */
+  postScimV2Users(text: string): Promise<any> {
+    return this.call("POST", `/scim/v2/Users`, undefined, text, "text/plain", false);
+  }
+
+  /** GET /scim/v2/Users/{id}: SCIM 2.0: one user; needs the Enterprise feature pro-scim. Role: admin. */
+  getScimV2UsersId(id: string): Promise<any> {
+    return this.call("GET", `/scim/v2/Users/${encodeURIComponent(id)}`, undefined, undefined, undefined, false);
+  }
+
+  /** PUT /scim/v2/Users/{id}: SCIM 2.0: replace a user; needs the Enterprise feature pro-scim. Role: admin. */
+  putScimV2UsersId(id: string, text: string): Promise<any> {
+    return this.call("PUT", `/scim/v2/Users/${encodeURIComponent(id)}`, undefined, text, "text/plain", false);
+  }
+
+  /** PATCH /scim/v2/Users/{id}: SCIM 2.0: change a user (replace active, displayName, userName); a deactivated user is refused at its next request; needs the Enterprise feature pro-scim. Role: admin. */
+  patchScimV2UsersId(id: string, text: string): Promise<any> {
+    return this.call("PATCH", `/scim/v2/Users/${encodeURIComponent(id)}`, undefined, text, "text/plain", false);
+  }
+
+  /** DELETE /scim/v2/Users/{id}: SCIM 2.0: delete a user; needs the Enterprise feature pro-scim. Role: admin. */
+  deleteScimV2UsersId(id: string): Promise<any> {
+    return this.call("DELETE", `/scim/v2/Users/${encodeURIComponent(id)}`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /scim/v2/Groups: SCIM 2.0: the tenant's groups (kshana-admin, kshana-submitter and kshana-reader grant roles); needs the Enterprise feature pro-scim. Role: admin. */
+  getScimV2Groups(): Promise<any> {
+    return this.call("GET", `/scim/v2/Groups`, undefined, undefined, undefined, false);
+  }
+
+  /** POST /scim/v2/Groups: SCIM 2.0: create a group; needs the Enterprise feature pro-scim. Role: admin. */
+  postScimV2Groups(text: string): Promise<any> {
+    return this.call("POST", `/scim/v2/Groups`, undefined, text, "text/plain", false);
+  }
+
+  /** GET /scim/v2/Groups/{id}: SCIM 2.0: one group; needs the Enterprise feature pro-scim. Role: admin. */
+  getScimV2GroupsId(id: string): Promise<any> {
+    return this.call("GET", `/scim/v2/Groups/${encodeURIComponent(id)}`, undefined, undefined, undefined, false);
+  }
+
+  /** PATCH /scim/v2/Groups/{id}: SCIM 2.0: add or remove members, rename; needs the Enterprise feature pro-scim. Role: admin. */
+  patchScimV2GroupsId(id: string, text: string): Promise<any> {
+    return this.call("PATCH", `/scim/v2/Groups/${encodeURIComponent(id)}`, undefined, text, "text/plain", false);
+  }
+
+  /** DELETE /scim/v2/Groups/{id}: SCIM 2.0: delete a group; needs the Enterprise feature pro-scim. Role: admin. */
+  deleteScimV2GroupsId(id: string): Promise<any> {
+    return this.call("DELETE", `/scim/v2/Groups/${encodeURIComponent(id)}`, undefined, undefined, undefined, false);
+  }
 }

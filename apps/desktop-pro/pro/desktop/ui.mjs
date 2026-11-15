@@ -89,7 +89,8 @@ export function proHome(S, nav, adopt = {}) {
   const product = (p) => h("div", { class: "card product" },
     h("h3", {}, ic(p.icon), p.title, h("span", { class: `state-chip ${p.state === "available" ? "ok" : "none"}`, text: p.state === "available" ? "IN THIS BUILD" : "COMING" })),
     h("p", { text: p.text }),
-    p.id === "evidence" && nav.evidence ? h("button", { class: "linkish", type: "button", onclick: () => nav.evidence() }, "Open the evidence packs →") : null);
+    p.view && nav.view ? h("button", { class: "linkish", type: "button", onclick: () => nav.view(p.view) }, p.id === "evidence" ? "Open a pack →" : `Open the ${p.title.toLowerCase()} →`)
+      : p.id === "evidence" && nav.evidence ? h("button", { class: "linkish", type: "button", onclick: () => nav.evidence() }, "Open the evidence packs →") : null);
 
   const recent = adopt.recent && adopt.recent.length ? adopt.recent
     : [h("p", { class: "empty", text: adopt.shell ? "No runs yet this session. Open a scenario below, or press ⌘K / Ctrl+K." : "Runs appear here in the Desktop shell. This build's open Studio has no shell yet: open the Studio to run a scenario." })];

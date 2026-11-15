@@ -47,9 +47,12 @@ pub mod library;
 pub mod oidc;
 pub mod openapi;
 pub mod ops;
+pub mod retention;
+pub mod scim;
 pub mod study_intake;
 pub mod tls;
 pub mod trial;
+pub mod wall;
 #[cfg(windows)]
 pub mod winsvc;
 pub mod worker;
