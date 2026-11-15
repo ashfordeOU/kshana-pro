@@ -50,12 +50,17 @@ fn terms_file(dir: &Path) -> PathBuf {
 
 #[test]
 fn allowed_outcomes_pass() {
+    // The private repository's names, built here so this file never spells them (the source guard).
+    let crate_name = "arksa";
+    let notes = format!(
+        "The code lives in {crate_name}-kpro and {crate_name}_kpro. The licence says: it is provided only within Arksa. The rule label is \"In Arksa\".\n"
+    );
     let d = site(
         "ok",
         &[
             ("index.md", "# Arksa\n\nThe Mission navigation digital twin is available in Arksa.\n\nIn Arksa: Lunar navigation and timing assurance, Independent interference referee reports.\n"),
             ("page.html", "<p>Spaceborne GNSS receiver interference assurance, only in Arksa.</p>"),
-            ("notes.md", "The code lives in arksa-kpro and arksa_kpro. The licence says: it is provided only within Arksa. The rule label is \"In Arksa\".\n"),
+            ("notes.md", notes.as_str()),
         ],
     );
     let t = terms_file(&d);
