@@ -5,6 +5,46 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Pro 0.3.0 release preparation (roadmap S1; not tagged).** Pro 0.3.0 is prepared on the
+  current engine pin, engine 0.41.0. The release smoke test (`scripts/release-smoke.sh`,
+  finishes F1b) now also checks, on the built release binary, that a tampered token is
+  refused and that only the root key retires keys (S7-b), and runs the key rotation drill on
+  throwaway keys; it honours `CARGO_TARGET_DIR`. At the founder's go: set the crate version to
+  0.3.0, regenerate the committed samples that print it (`report-templates/samples/receiver-scorecard-public/`),
+  rename this section to `[0.3.0]`, run the smoke test, tag `v0.3.0`. No tag is pushed and
+  nothing is published by this change.
+- **Licence key custody: KMS signer and root-only key retirement (S7-a, S7-b;
+  docs/LICENSING-KEYS.md 1a, 1b).** One signer interface (`license::LicenceSigner`) for
+  tokens, `issue-invoice`, renewals, online check answers, revocation lists, the payments
+  webhook issuer and Pro packs: a raw seed (offline root, tests) or AWS KMS
+  (`ECC_NIST_EDWARDS25519`, `ED25519_SHA_512`, `MessageType: RAW`) behind the cargo feature
+  `kms`, selected with `KSHANA_PRO_SIGNER=kms`; SigV4 with ring and sha2 over rustls, no new
+  crate, no secret in the repository. A token signed through KMS equals the seed-signed token
+  byte for byte (tested against a fake KMS endpoint). Builds told `KSHANA_PRO_ROOT_KID` accept
+  key retirement only from the root; the issuing key may revoke tokens only.
+- **Results-only service API and hosted service for secret methods (0.42 X6, C3), result
+  watermark (C4).** `results_only` gateway: verdict from a closed set, evidence class, input
+  hash, signed envelope, per-licensee watermark; intermediates withheld; per-tenant monthly
+  query and compute budgets; probing alerts and blocking; chained access log without input
+  values. `serve --hosted <hosted.toml>` serves it to subscription tenants at `/v1/verdict`.
+  No Arksa kind or method is in this crate; a server-side extension registers its kinds.
+- **Hosted trial (S6).** `serve --trial --trial-tokens` signs 14-day Pro trial tokens
+  (`trial` claim; builds refuse a longer one), one per caller every 30 days, 200 a day; asks
+  for nothing but an optional machine hash. Trial jobs are deleted an hour after they finish;
+  the daily quota is counted from salted hashes only.
+- **Trade-secret register and patent-before-disclosure check (0.42 X7).**
+  `protect/trade-secret-register.toml` (P1, P2, P3, P5, B6 to file; P4 secret); the copy
+  check fails on any disclosure term of an item before its filing date, by item and term ID.
+- **Editions page and private price sheet (S4, C9).** `commercial/tools/prices.py` builds
+  `commercial/editions/editions.html` (public price switch off: no prices; Kshana Sovereign
+  "Contact us") and `commercial/sales/PRICE-SHEET.md` (private, every approved §1c price; refused
+  in public trees) from `commercial/prices.toml`.
+- **Synthetic attack IQ with guardrails (0.42 F7, owner gate K6; docs/ATTACK-IQ.md).**
+  `kshana-pro attack-iq generate|attestation-template|trace`, feature `pro-attack-iq`
+  (Enterprise tier unless named on the licence) and licence claim `vetted_buyer`; lab or
+  test-range attestation valid today; files only; sample-level watermark and chained
+  generation log per licensee. Listed at `pro` in the regenerated signed tier manifest.
+
 - **Threat scenario library (roadmap 0.42 E2; docs/THREAT-LIBRARY.md).** New kind
   `pro-threat-scenario`, feature `pro-threat-library`, command `kshana-pro threats
   list|show|export|feed`. Twelve curated events (Baltic, Hormuz, Red Sea, JammerTest, TEXBAT) in

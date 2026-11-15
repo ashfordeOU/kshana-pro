@@ -44,6 +44,17 @@ jobs:
         run: python3 scripts/protect/arksa-copy-check.py --scope kpro
       - name: Clippy
         run: cargo clippy --all-targets -- -D warnings
+      # Key custody S7-a: the AWS KMS signer, built and tested against a fake KMS endpoint.
+      - name: KMS signer (S7-a)
+        run: |
+          cargo clippy --all-targets --features kms -- -D warnings
+          cargo test --locked --features kms --test licence_kms --lib license::
+      # Roadmap S4 and C9: the editions page and the private price sheet are current, and no
+      # public tree carries a private price.
+      - name: Price list (S4, C9)
+        run: |
+          python3 commercial/tools/prices.py build --check
+          python3 commercial/tools/prices.py scan-public site-next commercial/editions
       # Cargo.lock pins the exact kshana (public open-core) rev, so the git
       # dependency resolves reproducibly. --locked fails the build if the lockfile
       # is out of date rather than silently updating it.

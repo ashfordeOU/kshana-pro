@@ -255,7 +255,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **forty-nine integration tests** in
+The suite is unit tests across every module plus **fifty-three integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
@@ -284,7 +284,14 @@ TLS, failover between two nodes, backup and restore, a concurrent load),
 `offline_bundle.rs` (the air-gapped bundle signed, checked and installed offline; the
 Debian package), `station_fleet.rs` (the Pro Station fleet: one Station without the fleet feature, the
 licence's Station count with it), `service_trial.rs` (the open trial sandbox: Evaluation tier, a tenant per caller,
-quotas), `pack_c_subscription.rs` (a Pack C subscriber from the purchase webhook to a gated CI run,
+quotas, 14-day trial tokens, trial jobs deleted after their retention),
+`licence_kms.rs` (licence, revocation-list and pack signing through AWS KMS against a fake
+KMS endpoint, byte for byte equal to the seed signer; runs with `--features kms`),
+`hosted_service.rs` (the results-only API and the hosted service for secret methods: signed
+verdicts only, watermark, monthly allowances, probing alerts, chained access log),
+`price_list.rs` (the editions page with the public price switch off and the private price
+sheet), `attack_iq.rs` (synthetic attack IQ guardrails: licence, vetted buyer, attestation,
+files only, watermark and log), `pack_c_subscription.rs` (a Pack C subscriber from the purchase webhook to a gated CI run,
 a renewal and a refund),
 `lab_campaign_load.rs` (the lab-campaign loader verifies cell keys, the DIGEST and the
 schema on a synthetic campaign, and refuses tampered input), and
