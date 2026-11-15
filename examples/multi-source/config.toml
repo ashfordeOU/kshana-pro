@@ -1,0 +1,30 @@
+# Multi-source trust demo (roadmap 0.42 F3): the V4 pre-registered source levels. Run:
+#   kshana-pro trust run examples/multi-source/config.toml --input examples/multi-source/sources.csv --out trust-out
+clock_class = "rafs"
+tau0_s = 1.0
+
+[[source]]
+id = "osnma"
+group = "gnss"
+sigma_ns = 15.0
+authenticates_group = true
+
+[[source]]
+id = "gnss"
+group = "gnss"
+sigma_ns = 15.0
+
+[[source]]
+id = "leo"
+group = "leo"
+sigma_ns = 40.0
+
+[[source]]
+id = "ptp"
+group = "ptp"
+sigma_ns = 50.0
+
+[[source]]
+id = "eloran"
+group = "eloran"
+sigma_ns = 60.0

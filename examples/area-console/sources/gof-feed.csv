@@ -1,0 +1,4 @@
+# SYNTHETIC: examples/area-console/generate.py; a MODELLED analogue, not a measurement.
+t_start_s,t_end_s,kind,confidence,lat_deg,lon_deg
+1794615060,1794615840,jamming,0.8,,
+1794617700,1794617760,interference,0.3,,
