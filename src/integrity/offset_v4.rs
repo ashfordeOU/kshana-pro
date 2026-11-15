@@ -67,6 +67,15 @@ pub const V3_CHOSEN: Params = Params {
     b: false,
 };
 
+/// The V3b pair chosen on development seeds 60 to 69 (`V3b_dev.json`): no pair had FA <= 0.005
+/// (the lowest was 0.075, at m = 3 and 13.816), so by the pre-registered rule the lowest-FA pair
+/// is taken and the miss is expected.
+pub const V3B_CHOSEN: Params = Params {
+    m: 3,
+    g_pair: 13.816,
+    b: true,
+};
+
 /// The V3b development grid (seeds 60 to 69).
 pub const GRID_B: [Params; 4] = [
     Params { m: 2, g_pair: 13.816, b: true },

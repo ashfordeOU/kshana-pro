@@ -175,3 +175,28 @@ fn v3_scored_run_on_seeds_5000_to_5009() {
     )
     .unwrap();
 }
+
+#[test]
+fn v3b_scored_run_on_seeds_6000_to_6009() {
+    if std::env::var_os("KSHANA_PRO_V3B_SCORE").is_none() {
+        eprintln!("skipped: set KSHANA_PRO_V3B_SCORE=1 for the one V3b scored run");
+        return;
+    }
+    let p = offset_v4::V3B_CHOSEN;
+    let (base, m) = run_scored(6000..6010, p);
+    let b = bars(&m);
+    let doc = json!({
+        "pre_registration": "2026-11-15_V3b_PREREGISTRATION.md",
+        "seeds": "6000 to 6009",
+        "params": {"m": p.m, "g_pair": p.g_pair, "b": p.b},
+        "stage1_open_v3": base,
+        "metrics": m,
+        "bars": {"V3-B4": b[0], "V3-G1": b[1], "V3-G2": b[2], "V3-G3": b[3], "V3-G4": b[4]},
+        "met": b.iter().all(|x| *x),
+    });
+    std::fs::write(
+        format!("{DIR}/V3b_results.json"),
+        serde_json::to_string_pretty(&doc).unwrap() + "\n",
+    )
+    .unwrap();
+}
