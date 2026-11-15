@@ -365,7 +365,7 @@ Detail: `0.41-BACKLOG.md` §1.
 6. Pricing, MSA, trademark, counsel reviews, payment go-live, export control (F4, F6, K7, F9).
 7. The Artemis I manoeuvre-aware pre-registration (C3).
 8. Research authorship and governance (I).
-9. **Native install (L):** Apple Developer ID certificates and an App Store Connect API key stored as CI secrets; the Windows signing route (Azure Artifact Signing organisation validation, or an OV certificate); counsel on SDR driver licences; whether to pursue the Mac App Store (L9).
+9. **Native install (L):** ~~Apple Developer ID certificates stored as CI secrets~~ done (12–13 Nov 2026: secrets proven by apple-signing-check, Desktop Pro signed, notarised and stapled by desktop-pro-release; Mac App Store not pursued, owner decision 15 Nov); an App Store Connect API key is not needed; the Windows signing route (Azure Artifact Signing organisation validation, or an OV certificate); counsel on SDR driver licences; whether to pursue the Mac App Store (L9).
 10. **Space surveillance (M):** outreach to the vendor **after the 0.41 release** (owner decision, 3 November 2026), presenting all of M (M1 to M9) as shipped in 0.41; data access; export classification (K7) before any delivery.
 11. **Editions (F10a):** sign the open-versus-Pro matrix for 0.41 before phase 9.
 12. **Payments (F10g):** choose the merchant of record, set the prices, open the business bank account (payouts), and have the accountant confirm VAT treatment; then switch payments to live mode. Until then everything is built and tested in test mode and stays off.
