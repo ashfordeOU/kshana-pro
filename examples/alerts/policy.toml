@@ -1,0 +1,46 @@
+# Alert policy demo (roadmap 0.42 F5). Run:
+#   kshana-pro alerts route examples/alerts/policy.toml --alerts examples/alerts/alerts.csv --acks examples/alerts/acks.csv
+# Raw alerts stay free: kshana-pro alerts raw examples/alerts/alerts.csv
+format = "kshana-pro-alert-policy/1"
+timezone_offset_min = 120   # local time for quiet hours (EET)
+dedup_window_s = 600
+
+[[recipient]]
+id = "ops-oncall"
+outputs = ["pagerduty"]
+
+[[recipient]]
+id = "noc-channel"
+outputs = ["slack"]
+
+[[recipient]]
+id = "duty-manager"
+outputs = ["teams", "webhook"]
+
+[[recipient]]
+id = "siem"
+outputs = ["syslog"]
+
+# Untrusted areas and timing holdover go to the on-call engineer at any hour.
+[[route]]
+name = "critical-oncall"
+kinds = ["area-untrusted", "timing-holdover", "timing-no-output"]
+min_severity = "critical"
+notify = ["ops-oncall", "noc-channel"]
+escalate = [{ after_s = 900, notify = ["duty-manager"] }]
+stop = false
+
+# Degraded areas and source switches go to the NOC channel, held overnight.
+[[route]]
+name = "noc-warnings"
+kinds = ["area-degraded", "timing-source-switch"]
+min_severity = "warning"
+notify = ["noc-channel"]
+quiet_hours = { start = "22:00", end = "07:00", allow = "critical" }
+dedup_key = ["kind", "area"]
+stop = false
+
+# Everything is mirrored to the SIEM.
+[[route]]
+name = "siem-mirror"
+notify = ["siem"]

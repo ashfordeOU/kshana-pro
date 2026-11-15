@@ -1,0 +1,44 @@
+# Planner Pareto front with cost (0.41 B1b; 0.42 F6). Illustrative candidate sites and costs, not
+# real sites or prices. Run from the repository root:
+#   kshana-pro run examples/planner-front/front.toml
+kind = "pro-planner-front"
+title = "Monitoring network: cost against coverage (illustrative)"
+planner = "examples/planner-front/planner.json"
+currency = "EUR"
+years = 5
+m_min = 3
+m_max = 6
+target_objective = 0.95
+
+# One cost per candidate, in candidate order: rooftop sites (even) are cheaper to install,
+# mast sites (odd) cheaper to run.
+[[cost]]
+capex = 18000
+opex_per_year = 2400
+[[cost]]
+capex = 26000
+opex_per_year = 1500
+[[cost]]
+capex = 18000
+opex_per_year = 2400
+[[cost]]
+capex = 26000
+opex_per_year = 1500
+[[cost]]
+capex = 18000
+opex_per_year = 2400
+[[cost]]
+capex = 26000
+opex_per_year = 1500
+[[cost]]
+capex = 18000
+opex_per_year = 2400
+[[cost]]
+capex = 26000
+opex_per_year = 1500
+[[cost]]
+capex = 21000
+opex_per_year = 3000
+[[cost]]
+capex = 30000
+opex_per_year = 1200

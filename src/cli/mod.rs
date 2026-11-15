@@ -5,6 +5,8 @@
 //! binary) and the licensing mechanics (issue / verify tokens; `--license` enforces
 //! tier entitlements on Pro packs).
 
+mod alerts_cmd;
+mod area_cmd;
 mod dossier_cmd;
 mod forensics_cmd;
 mod license_cmd;
@@ -13,6 +15,7 @@ mod payments_cmd;
 mod scorecard_cmd;
 mod threats_cmd;
 mod timing_cmd;
+mod trust_cmd;
 
 use std::process::ExitCode;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -50,6 +53,9 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro payments <check|checkout|stripe-checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled and payments.stripe.enabled are false (vendor side)\n\
        kshana-pro packs <build|issue|serve|trace|install|status> ...   Pro pack delivery (C10; `kshana-pro packs` for details)\n\
        kshana-pro timing <assess|console|metrics|history|audit> ...   Timing assurance: holdover and time to breach per clock, fleet page, metrics, signed audit report (Pro; `kshana-pro timing` for details)\n\
+       kshana-pro trust <run|verify> ...   Multi-source trust (F3): choose epoch by epoch among GNSS, OSNMA, LEO, eLoran, PTP and holdover, with hash-chained evidence (Pro; verify free)\n\
+       kshana-pro area picture <console.toml> ...   Area console (F1): fuse Stations, receivers and customer feeds into an area trust picture with event timelines; never emitter positions (Pro)\n\
+       kshana-pro alerts <route|raw> ...   Alert policy engine (F5): routes, quiet hours, escalation, de-duplication to I5 outputs (Pro); raw alerts free\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
      \n\
      --sample (any command): every page of every document written also carries the mark\n\
@@ -103,6 +109,9 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "timing",
     "scorecard",
     "threats",
+    "trust",
+    "area",
+    "alerts",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -225,6 +234,9 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("timing") => timing_cmd::run(&args[1..]),
         Some("scorecard") => scorecard_cmd::run(&args[1..]),
         Some("threats") => threats_cmd::run(&args[1..]),
+        Some("trust") => trust_cmd::run(&args[1..]),
+        Some("area") => area_cmd::run(&args[1..]),
+        Some("alerts") => alerts_cmd::run(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()

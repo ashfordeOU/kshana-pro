@@ -219,6 +219,16 @@ export class KshanaProClient {
     return this.call("GET", `/timing/metrics`, undefined, undefined, undefined, false);
   }
 
+  /** GET /area/console: The area console page (roadmap 0.42 F1): the tenant's area trust picture (<data-dir>/area/<tenant>/console.toml) with event timelines and wide-area events; detections and areas only, never emitter positions (F2); needs the pro-area-console feature. Role: reader. */
+  getAreaConsole(): Promise<any> {
+    return this.call("GET", `/area/console`, undefined, undefined, undefined, false);
+  }
+
+  /** GET /area/picture: The tenant's area trust picture as JSON (kshana-pro-area-picture/1); no emitter positions; needs the pro-area-console feature. Role: reader. */
+  getAreaPicture(): Promise<any> {
+    return this.call("GET", `/area/picture`, undefined, undefined, undefined, false);
+  }
+
   /** GET /audit/verify: Verify the hash chain of the audit log (admin). Role: admin. */
   getAuditVerify(): Promise<any> {
     return this.call("GET", `/audit/verify`, undefined, undefined, undefined, false);

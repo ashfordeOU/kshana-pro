@@ -5,6 +5,25 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Fusion and operations (roadmap 0.42 F1, F2, F3, F5, F6; V4; docs/FUSION-AND-OPERATIONS.md).**
+  F1 area console: kind `pro-area-picture`, feature `pro-area-console`, `kshana-pro area picture`
+  and the Station console pages `GET /area/console` and `/area/picture`; Stations, receivers and
+  customer-supplied feeds fused per area through the open area rule, event timelines with
+  sources, basis and corroboration, wide-area events; tenant filter, more than one tenant needs
+  Enterprise; HA failover tested; two-site demo on a synthetic analogue of published Baltic
+  events (`examples/area-console/`). F2: detections and areas only; emitter positions are a hard
+  switch with no "on" value (feed estimates validated, discarded and counted), until the
+  locator successor meets its gate on the blind JammerTest 2027 run. F3 multi-source trust:
+  kind `pro-multi-source-trust`, `kshana-pro trust run|verify` (verify free); V4 switching bars
+  pre-registered before the code (8cf2b77b) and **met on D-R1, D-R2 (recorded IGS clocks,
+  modelled sources, injected faults) and D-S (synthetic)**. F5 alert policy engine: feature
+  `pro-alert-policy`, `kshana-pro alerts route|raw`; routes, quiet hours, escalation,
+  de-duplication to I5 outputs; raw alerts stay free. F6: planner Pareto front with cost (B1b),
+  kind `pro-planner-front`; Station fleet and HA checked (unchanged). The space tip-and-cue
+  study (M9) is not built here: it is M-workstream space RF survey work, Arksa-exclusive under
+  the owner's rule of 14 November 2026. All new kinds and features at `pro` in the regenerated
+  signed tier manifest.
+
 - **Threat scenario library (roadmap 0.42 E2; docs/THREAT-LIBRARY.md).** New kind
   `pro-threat-scenario`, feature `pro-threat-library`, command `kshana-pro threats
   list|show|export|feed`. Twelve curated events (Baltic, Hormuz, Red Sea, JammerTest, TEXBAT) in

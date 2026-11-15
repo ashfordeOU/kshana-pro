@@ -58,6 +58,8 @@ pub enum RouteId {
     FleetRetire,
     TimingFleet,
     TimingMetrics,
+    AreaConsole,
+    AreaPicture,
 }
 
 /// One route: the method, the path template (OpenAPI form, `{param}` for a segment)
@@ -126,6 +128,8 @@ pub static ROUTES: &[Route] = &[
     Route { method: "GET", path: "/metrics", id: RouteId::Metrics, role: Some(Role::Reader), summary: "Service-level metrics in the Prometheus text format, for the caller's tenant (every tenant for an operator): jobs by state, queue wait and run time, requests by route and status, uptime", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, "text/plain; version=0.0.4", "Prometheus text exposition"), AUTH_401] },
     Route { method: "GET", path: "/timing/fleet", id: RouteId::TimingFleet, role: Some(Role::Reader), summary: "The timing fleet page (roadmap 0.42 T2): every clock of the tenant's fleet (<data-dir>/timing/<tenant>/fleet.toml) with its time to breach and evidence history; needs the pro-timing-fleet feature", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, HTML, "The fleet page"), (403, JSON, "The entitlement does not include pro-timing-fleet"), (404, JSON, "No fleet configured for this tenant"), (422, JSON, "The fleet file or a clock's log is invalid"), AUTH_401] },
     Route { method: "GET", path: "/timing/metrics", id: RouteId::TimingMetrics, role: Some(Role::Reader), summary: "The tenant's timing fleet in the Prometheus text format, for the Grafana dashboard deploy/grafana/kshana-pro-timing-fleet.json; needs the pro-timing-fleet feature", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, "text/plain; version=0.0.4", "Prometheus text exposition"), (403, JSON, "The entitlement does not include pro-timing-fleet"), (404, JSON, "No fleet configured for this tenant"), (422, JSON, "The fleet file or a clock's log is invalid"), AUTH_401] },
+    Route { method: "GET", path: "/area/console", id: RouteId::AreaConsole, role: Some(Role::Reader), summary: "The area console page (roadmap 0.42 F1): the tenant's area trust picture (<data-dir>/area/<tenant>/console.toml) with event timelines and wide-area events; detections and areas only, never emitter positions (F2); needs the pro-area-console feature", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, HTML, "The console page"), (403, JSON, "The entitlement does not include pro-area-console, or the console has several tenants and the licence is not Enterprise"), (404, JSON, "No console configured for this tenant"), (422, JSON, "The console file or a source is invalid"), AUTH_401] },
+    Route { method: "GET", path: "/area/picture", id: RouteId::AreaPicture, role: Some(Role::Reader), summary: "The tenant's area trust picture as JSON (kshana-pro-area-picture/1); no emitter positions; needs the pro-area-console feature", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "The picture"), (403, JSON, "The entitlement does not include pro-area-console, or the console has several tenants and the licence is not Enterprise"), (404, JSON, "No console configured for this tenant"), (422, JSON, "The console file or a source is invalid"), AUTH_401] },
     Route { method: "GET", path: "/audit/verify", id: RouteId::AuditVerify, role: Some(Role::Admin), summary: "Verify the hash chain of the audit log (admin)", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "Verification report (verified true or false, first bad line named)"), AUTH_401, AUTH_403] },
 ];
 
@@ -588,6 +592,9 @@ fn route_request(
                 ),
                 Err(super::fleet::Refused::Io(e)) => HttpResponse::error(500, &e),
             }
+        }
+        (RouteId::AreaConsole | RouteId::AreaPicture, Some(j)) => {
+            area_route(svc, &j.data_dir, &who.tenant, route.id == RouteId::AreaConsole, now)
         }
         (RouteId::TimingFleet | RouteId::TimingMetrics, Some(j)) => {
             timing_route(svc, &j.data_dir, &who.tenant, route.id == RouteId::TimingFleet, now)
@@ -1351,6 +1358,45 @@ fn timing_route(
         content_type: "text/html; charset=utf-8",
         body: crate::timing::console::page(&a, &hist, &format!("served at unix {now}")),
         headers: Vec::new(),
+    }
+}
+
+fn area_route(
+    svc: &Service,
+    data_dir: &std::path::Path,
+    tenant: &str,
+    page: bool,
+    now: i64,
+) -> HttpResponse {
+    if let Err(e) = crate::license::check(&svc.entitlement, crate::area::FEATURE, now) {
+        return HttpResponse::error(403, &e.to_string());
+    }
+    let t = if tenant == super::auth::ALL_TENANTS {
+        "_all"
+    } else {
+        tenant
+    };
+    let file = data_dir.join("area").join(t).join("console.toml");
+    if !file.is_file() {
+        return HttpResponse::error(404, "no area console is configured for this tenant (area/<tenant>/console.toml in the data directory)");
+    }
+    let inputs = match crate::area::Inputs::load(&file) {
+        Ok(i) => i,
+        Err(e) => return HttpResponse::error(422, &e),
+    };
+    if inputs.spec.tenants().len() > 1 && !crate::area::multi_tenant_allowed(&svc.entitlement) {
+        return HttpResponse::error(403, "this console has several tenants; more than one tenant in one console needs an Enterprise licence");
+    }
+    let p = crate::area::picture(&inputs);
+    if page {
+        HttpResponse {
+            status: 200,
+            content_type: "text/html; charset=utf-8",
+            body: crate::area::page(&p, ""),
+            headers: Vec::new(),
+        }
+    } else {
+        HttpResponse::json(200, p.to_json())
     }
 }
 

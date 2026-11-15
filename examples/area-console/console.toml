@@ -1,0 +1,72 @@
+# Two-site area console demo (roadmap 0.42 F1). SYNTHETIC inputs, a MODELLED analogue of the
+# published Baltic jamming descriptions (see generate.py). Run:
+#   kshana-pro area picture examples/area-console/console.toml --out area.html --json area.json
+format = "kshana-pro-area-console/1"
+title = "Baltic demo: two monitored areas (synthetic analogue)"
+
+[[area]]
+id = "gulf-of-finland"
+name = "Gulf of Finland approaches"
+rule = "v2"
+
+[[area]]
+id = "tartu-approach"
+name = "Tartu approach"
+rule = "v2"
+
+[[source]]
+id = "gof-st-1"
+kind = "station"
+area = "gulf-of-finland"
+file = "sources/gof-st-1.csv"
+
+[[source]]
+id = "gof-st-2"
+kind = "station"
+area = "gulf-of-finland"
+file = "sources/gof-st-2.csv"
+
+[[source]]
+id = "gof-st-3"
+kind = "station"
+area = "gulf-of-finland"
+file = "sources/gof-st-3.csv"
+
+[[source]]
+id = "gof-rx-1"
+kind = "receiver"
+area = "gulf-of-finland"
+file = "sources/gof-rx-1.csv"
+
+[[source]]
+id = "gof-feed"
+kind = "feed"
+area = "gulf-of-finland"
+file = "sources/gof-feed.csv"
+provider = "customer-supplied RF monitoring feed (demo, synthetic)"
+min_confidence = 0.5
+
+[[source]]
+id = "tartu-st-1"
+kind = "station"
+area = "tartu-approach"
+file = "sources/tartu-st-1.csv"
+
+[[source]]
+id = "tartu-st-2"
+kind = "station"
+area = "tartu-approach"
+file = "sources/tartu-st-2.csv"
+
+[[source]]
+id = "tartu-st-3"
+kind = "station"
+area = "tartu-approach"
+file = "sources/tartu-st-3.csv"
+
+[[source]]
+id = "tartu-feed"
+kind = "feed"
+area = "tartu-approach"
+file = "sources/tartu-feed.csv"
+provider = "customer-supplied national network feed (demo, synthetic)"
