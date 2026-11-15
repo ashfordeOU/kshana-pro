@@ -17,6 +17,7 @@
 // On an older shell, which rebuilds its regions on every render, a MutationObserver re-applies
 // the Pro parts each time. Nothing here changes how the shell runs scenarios.
 import { appInvoke, licenceApi } from "./api.mjs";
+import { proApi } from "./service.mjs";
 import { proActions, actionMatches, palStep } from "./model.mjs";
 import { h, ic, createProState, proHome, licenceScreen } from "./ui.mjs";
 import { SIDE, toneColor, canAttach, attachToShell } from "./hook.mjs";
@@ -262,7 +263,7 @@ function start() {
 let mode = null;
 function startHook(shell) {
   if (mode || !canAttach(shell)) return false;
-  const pro = attachToShell(shell, { S, api });
+  const pro = attachToShell(shell, { S, api, papi: proApi(appInvoke()) });
   if (!pro) return false;
   mode = "hook";
   document.documentElement.dataset.edition = "pro";

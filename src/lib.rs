@@ -39,6 +39,7 @@ pub mod brand_pdf;
 pub mod cli;
 pub mod connectors;
 pub mod criterion;
+pub mod desktop;
 pub mod extension;
 pub mod forensics;
 pub mod lab_campaign;

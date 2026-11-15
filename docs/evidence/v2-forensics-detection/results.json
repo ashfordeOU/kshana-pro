@@ -1,0 +1,1391 @@
+{
+  "adsb_cases": [
+    {
+      "case": "B00",
+      "drop": {
+        "aircraft": 3,
+        "from_report": 20,
+        "reports": 15
+      },
+      "jamming_indicated": true,
+      "positive": true,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B01",
+      "drop": {
+        "aircraft": 4,
+        "from_report": 12,
+        "reports": 12
+      },
+      "jamming_indicated": true,
+      "positive": true,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B02",
+      "drop": {
+        "aircraft": 1,
+        "from_report": 14,
+        "reports": 8
+      },
+      "jamming_indicated": true,
+      "positive": true,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B03",
+      "drop": {
+        "aircraft": 3,
+        "from_report": 20,
+        "reports": 10
+      },
+      "jamming_indicated": true,
+      "positive": true,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B04",
+      "drop": {
+        "aircraft": 3,
+        "from_report": 12,
+        "reports": 9
+      },
+      "jamming_indicated": true,
+      "positive": true,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B05",
+      "drop": {
+        "aircraft": 4,
+        "from_report": 16,
+        "reports": 14
+      },
+      "jamming_indicated": true,
+      "positive": true,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B06",
+      "drop": {
+        "aircraft": 4,
+        "from_report": 17,
+        "reports": 10
+      },
+      "jamming_indicated": true,
+      "positive": true,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B07",
+      "drop": {
+        "aircraft": 3,
+        "from_report": 16,
+        "reports": 9
+      },
+      "jamming_indicated": true,
+      "positive": true,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B08",
+      "drop": {
+        "aircraft": 1,
+        "from_report": 19,
+        "reports": 6
+      },
+      "jamming_indicated": true,
+      "positive": true,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B09",
+      "drop": {
+        "aircraft": 2,
+        "from_report": 17,
+        "reports": 14
+      },
+      "jamming_indicated": true,
+      "positive": true,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B10",
+      "drop": {
+        "aircraft": 0,
+        "from_report": 0,
+        "reports": 0
+      },
+      "jamming_indicated": false,
+      "positive": false,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B11",
+      "drop": {
+        "aircraft": 0,
+        "from_report": 0,
+        "reports": 0
+      },
+      "jamming_indicated": false,
+      "positive": false,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B12",
+      "drop": {
+        "aircraft": 0,
+        "from_report": 0,
+        "reports": 0
+      },
+      "jamming_indicated": false,
+      "positive": false,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B13",
+      "drop": {
+        "aircraft": 0,
+        "from_report": 0,
+        "reports": 0
+      },
+      "jamming_indicated": false,
+      "positive": false,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B14",
+      "drop": {
+        "aircraft": 0,
+        "from_report": 0,
+        "reports": 0
+      },
+      "jamming_indicated": false,
+      "positive": false,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B15",
+      "drop": {
+        "aircraft": 0,
+        "from_report": 0,
+        "reports": 0
+      },
+      "jamming_indicated": false,
+      "positive": false,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B16",
+      "drop": {
+        "aircraft": 0,
+        "from_report": 0,
+        "reports": 0
+      },
+      "jamming_indicated": false,
+      "positive": false,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B17",
+      "drop": {
+        "aircraft": 0,
+        "from_report": 0,
+        "reports": 0
+      },
+      "jamming_indicated": false,
+      "positive": false,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B18",
+      "drop": {
+        "aircraft": 0,
+        "from_report": 0,
+        "reports": 0
+      },
+      "jamming_indicated": false,
+      "positive": false,
+      "spoofing_indicated": false
+    },
+    {
+      "case": "B19",
+      "drop": {
+        "aircraft": 0,
+        "from_report": 0,
+        "reports": 0
+      },
+      "jamming_indicated": false,
+      "positive": false,
+      "spoofing_indicated": false
+    }
+  ],
+  "ais_cases": [
+    {
+      "case": "A00",
+      "jamming_indicated": false,
+      "positive": true,
+      "spoof": {
+        "from_report": 24,
+        "kind": "jump",
+        "km": 5.978
+      },
+      "spoofing_indicated": true
+    },
+    {
+      "case": "A01",
+      "jamming_indicated": false,
+      "positive": true,
+      "spoof": {
+        "kind": "circle",
+        "radius_km": 0.811
+      },
+      "spoofing_indicated": true
+    },
+    {
+      "case": "A02",
+      "jamming_indicated": false,
+      "positive": true,
+      "spoof": {
+        "from_report": 24,
+        "kind": "jump",
+        "km": 9.265
+      },
+      "spoofing_indicated": true
+    },
+    {
+      "case": "A03",
+      "jamming_indicated": false,
+      "positive": true,
+      "spoof": {
+        "kind": "circle",
+        "radius_km": 0.532
+      },
+      "spoofing_indicated": true
+    },
+    {
+      "case": "A04",
+      "jamming_indicated": false,
+      "positive": true,
+      "spoof": {
+        "from_report": 27,
+        "kind": "jump",
+        "km": 4.924
+      },
+      "spoofing_indicated": true
+    },
+    {
+      "case": "A05",
+      "jamming_indicated": false,
+      "positive": true,
+      "spoof": {
+        "kind": "circle",
+        "radius_km": 1.718
+      },
+      "spoofing_indicated": true
+    },
+    {
+      "case": "A06",
+      "jamming_indicated": false,
+      "positive": true,
+      "spoof": {
+        "from_report": 36,
+        "kind": "jump",
+        "km": 13.809
+      },
+      "spoofing_indicated": true
+    },
+    {
+      "case": "A07",
+      "jamming_indicated": false,
+      "positive": true,
+      "spoof": {
+        "kind": "circle",
+        "radius_km": 1.172
+      },
+      "spoofing_indicated": true
+    },
+    {
+      "case": "A08",
+      "jamming_indicated": false,
+      "positive": true,
+      "spoof": {
+        "from_report": 32,
+        "kind": "jump",
+        "km": 12.734
+      },
+      "spoofing_indicated": true
+    },
+    {
+      "case": "A09",
+      "jamming_indicated": false,
+      "positive": true,
+      "spoof": {
+        "kind": "circle",
+        "radius_km": 0.536
+      },
+      "spoofing_indicated": true
+    },
+    {
+      "case": "A10",
+      "jamming_indicated": false,
+      "positive": false,
+      "spoof": {},
+      "spoofing_indicated": false
+    },
+    {
+      "case": "A11",
+      "jamming_indicated": false,
+      "positive": false,
+      "spoof": {},
+      "spoofing_indicated": false
+    },
+    {
+      "case": "A12",
+      "jamming_indicated": false,
+      "positive": false,
+      "spoof": {},
+      "spoofing_indicated": false
+    },
+    {
+      "case": "A13",
+      "jamming_indicated": false,
+      "positive": false,
+      "spoof": {},
+      "spoofing_indicated": false
+    },
+    {
+      "case": "A14",
+      "jamming_indicated": false,
+      "positive": false,
+      "spoof": {},
+      "spoofing_indicated": false
+    },
+    {
+      "case": "A15",
+      "jamming_indicated": false,
+      "positive": false,
+      "spoof": {},
+      "spoofing_indicated": false
+    },
+    {
+      "case": "A16",
+      "jamming_indicated": false,
+      "positive": false,
+      "spoof": {},
+      "spoofing_indicated": false
+    },
+    {
+      "case": "A17",
+      "jamming_indicated": false,
+      "positive": false,
+      "spoof": {},
+      "spoofing_indicated": false
+    },
+    {
+      "case": "A18",
+      "jamming_indicated": false,
+      "positive": false,
+      "spoof": {},
+      "spoofing_indicated": false
+    },
+    {
+      "case": "A19",
+      "jamming_indicated": false,
+      "positive": false,
+      "spoof": {},
+      "spoofing_indicated": false
+    }
+  ],
+  "bars": {
+    "B1": {
+      "count": 24,
+      "of": 24,
+      "pass": true,
+      "rule": "injected category indicated in >= 22 of 24 positives"
+    },
+    "B1j": {
+      "count": 12,
+      "of": 12,
+      "pass": true,
+      "rule": "jamming indicated in >= 10 of 12 jamming cases"
+    },
+    "B1s": {
+      "count": 12,
+      "of": 12,
+      "pass": true,
+      "rule": "spoofing indicated in >= 10 of 12 spoofing cases"
+    },
+    "B2": {
+      "count": 0,
+      "of": 24,
+      "pass": true,
+      "rule": "jamming or spoofing indicated in <= 1 of 24 negatives"
+    },
+    "B3": {
+      "count": 4,
+      "of": 24,
+      "pass": false,
+      "rule": "the other category indicated in <= 2 of 24 positives"
+    },
+    "B4": {
+      "count": 24,
+      "of": 24,
+      "pass": true,
+      "rule": "onset in [start, start + ramp + 60 s] in >= 90 % of detected positives"
+    },
+    "B5": {
+      "count": 0,
+      "of": 48,
+      "pass": true,
+      "rule": "no high-confidence finding in any receiver-only case"
+    },
+    "B6_fp": {
+      "count": 0,
+      "of": 10,
+      "pass": true,
+      "rule": "AIS: spoofing indicated in <= 1 of 10 negatives"
+    },
+    "B6_tp": {
+      "count": 10,
+      "of": 10,
+      "pass": true,
+      "rule": "AIS: spoofing indicated in >= 9 of 10 positives"
+    },
+    "B7_fp": {
+      "count": 0,
+      "of": 10,
+      "pass": true,
+      "rule": "ADS-B: jamming indicated in <= 1 of 10 negatives"
+    },
+    "B7_tp": {
+      "count": 10,
+      "of": 10,
+      "pass": true,
+      "rule": "ADS-B: jamming indicated in >= 9 of 10 positives"
+    }
+  },
+  "data_class": "SYNTHETIC",
+  "e1_claimed": false,
+  "format": "kshana-pro-v2-results/1",
+  "method": "kshana-pro/incident-forensics/v1",
+  "preregistration": "2026-11-15_PREREGISTRATION.md (commit e5a3369b)",
+  "public_event_part": "not scored: empty at registration (no openly licensed public-event data)",
+  "receiver_cases": [
+    {
+      "case": "S00",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 30.306,
+        "duration_s": 319,
+        "kind": "jamming",
+        "ramp_s": 80,
+        "start_s": 317
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 333.0,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 59.021,
+        "lon": 22.471,
+        "speed_kn": 16.791
+      }
+    },
+    {
+      "case": "S01",
+      "class": "spoofing",
+      "event": {
+        "bearing_deg": 348.853,
+        "counterfeit_cn0_dbhz": 45.329,
+        "duration_s": 793,
+        "final_offset_m": 614.041,
+        "kind": "drag-off",
+        "ramp_s": 182,
+        "start_s": 349
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 350.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 51.74,
+        "lon": 20.087,
+        "speed_kn": 12.571
+      }
+    },
+    {
+      "case": "S02",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 52.123,
+        "lon": 7.313,
+        "speed_kn": 18.945
+      }
+    },
+    {
+      "case": "S03",
+      "class": "confounder",
+      "event": {
+        "duration_s": 537,
+        "kind": "natural-degradation",
+        "preset": "fjord",
+        "start_s": 440
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 58.981,
+        "lon": 9.984,
+        "speed_kn": 19.608
+      }
+    },
+    {
+      "case": "S04",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 24.914,
+        "duration_s": 494,
+        "kind": "jamming",
+        "ramp_s": 43,
+        "start_s": 454
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 465.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 61.397,
+        "lon": 9.515,
+        "speed_kn": 14.15
+      }
+    },
+    {
+      "case": "S05",
+      "class": "spoofing",
+      "event": {
+        "duration_s": 481,
+        "kind": "time-spoof",
+        "offset_s": 23.656,
+        "ramp_s": 168,
+        "start_s": 426
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 443.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 55.551,
+        "lon": 0.849,
+        "speed_kn": 19.929
+      }
+    },
+    {
+      "case": "S06",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 56.412,
+        "lon": 0.526,
+        "speed_kn": 14.393
+      }
+    },
+    {
+      "case": "S07",
+      "class": "confounder",
+      "event": {
+        "duration_s": 546,
+        "kind": "natural-degradation",
+        "preset": "container-terminal",
+        "start_s": 338
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 57.153,
+        "lon": 7.113,
+        "speed_kn": 11.986
+      }
+    },
+    {
+      "case": "S08",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 27.889,
+        "duration_s": 387,
+        "kind": "jamming",
+        "ramp_s": 120,
+        "start_s": 300
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 326.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 51.12,
+        "lon": 6.622,
+        "speed_kn": 7.439
+      }
+    },
+    {
+      "case": "S09",
+      "class": "spoofing",
+      "event": {
+        "bearing_deg": 16.045,
+        "counterfeit_cn0_dbhz": 47.849,
+        "duration_s": 743,
+        "final_offset_m": 1689.816,
+        "kind": "drag-off",
+        "ramp_s": 140,
+        "start_s": 383
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 384.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 57.454,
+        "lon": 16.648,
+        "speed_kn": 16.903
+      }
+    },
+    {
+      "case": "S10",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 57.237,
+        "lon": 4.451,
+        "speed_kn": 12.076
+      }
+    },
+    {
+      "case": "S11",
+      "class": "confounder",
+      "event": {
+        "duration_s": 418,
+        "kind": "natural-degradation",
+        "preset": "fjord",
+        "start_s": 359
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 56.37,
+        "lon": -1.054,
+        "speed_kn": 17.71
+      }
+    },
+    {
+      "case": "S12",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 29.506,
+        "duration_s": 463,
+        "kind": "jamming",
+        "ramp_s": 56,
+        "start_s": 466
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 478.0,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 55.181,
+        "lon": -3.332,
+        "speed_kn": 19.163
+      }
+    },
+    {
+      "case": "S13",
+      "class": "spoofing",
+      "event": {
+        "duration_s": 651,
+        "kind": "time-spoof",
+        "offset_s": 8.384,
+        "ramp_s": 69,
+        "start_s": 277
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 287.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 60.721,
+        "lon": 9.198,
+        "speed_kn": 18.03
+      }
+    },
+    {
+      "case": "S14",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 55.598,
+        "lon": 9.489,
+        "speed_kn": 8.47
+      }
+    },
+    {
+      "case": "S15",
+      "class": "confounder",
+      "event": {
+        "duration_s": 535,
+        "kind": "natural-degradation",
+        "preset": "container-terminal",
+        "start_s": 365
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 58.607,
+        "lon": 4.883,
+        "speed_kn": 14.755
+      }
+    },
+    {
+      "case": "S16",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 33.492,
+        "duration_s": 501,
+        "kind": "jamming",
+        "ramp_s": 55,
+        "start_s": 424
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 434.0,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 52.857,
+        "lon": 5.248,
+        "speed_kn": 16.325
+      }
+    },
+    {
+      "case": "S17",
+      "class": "spoofing",
+      "event": {
+        "bearing_deg": 220.73,
+        "counterfeit_cn0_dbhz": 46.216,
+        "duration_s": 762,
+        "final_offset_m": 1426.433,
+        "kind": "drag-off",
+        "ramp_s": 322,
+        "start_s": 360
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 361.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 54.371,
+        "lon": 14.038,
+        "speed_kn": 11.645
+      }
+    },
+    {
+      "case": "S18",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 52.983,
+        "lon": 5.036,
+        "speed_kn": 9.4
+      }
+    },
+    {
+      "case": "S19",
+      "class": "confounder",
+      "event": {
+        "duration_s": 503,
+        "kind": "natural-degradation",
+        "preset": "fjord",
+        "start_s": 475
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 57.477,
+        "lon": 14.314,
+        "speed_kn": 19.721
+      }
+    },
+    {
+      "case": "S20",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 36.353,
+        "duration_s": 360,
+        "kind": "jamming",
+        "ramp_s": 62,
+        "start_s": 314
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 325.0,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 61.0,
+        "lon": 3.621,
+        "speed_kn": 12.466
+      }
+    },
+    {
+      "case": "S21",
+      "class": "spoofing",
+      "event": {
+        "duration_s": 669,
+        "kind": "time-spoof",
+        "offset_s": 42.72,
+        "ramp_s": 75,
+        "start_s": 428
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 433.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 54.619,
+        "lon": -4.296,
+        "speed_kn": 13.68
+      }
+    },
+    {
+      "case": "S22",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 60.425,
+        "lon": -1.833,
+        "speed_kn": 6.781
+      }
+    },
+    {
+      "case": "S23",
+      "class": "confounder",
+      "event": {
+        "duration_s": 618,
+        "kind": "natural-degradation",
+        "preset": "container-terminal",
+        "start_s": 272
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 61.676,
+        "lon": 21.624,
+        "speed_kn": 7.567
+      }
+    },
+    {
+      "case": "S24",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 38.62,
+        "duration_s": 565,
+        "kind": "jamming",
+        "ramp_s": 90,
+        "start_s": 384
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 398.0,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 51.502,
+        "lon": 1.69,
+        "speed_kn": 15.347
+      }
+    },
+    {
+      "case": "S25",
+      "class": "spoofing",
+      "event": {
+        "bearing_deg": 125.034,
+        "counterfeit_cn0_dbhz": 46.882,
+        "duration_s": 663,
+        "final_offset_m": 1894.786,
+        "kind": "drag-off",
+        "ramp_s": 264,
+        "start_s": 261
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 262.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 55.398,
+        "lon": 21.354,
+        "speed_kn": 16.758
+      }
+    },
+    {
+      "case": "S26",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 57.193,
+        "lon": -4.054,
+        "speed_kn": 10.549
+      }
+    },
+    {
+      "case": "S27",
+      "class": "confounder",
+      "event": {
+        "duration_s": 310,
+        "kind": "natural-degradation",
+        "preset": "fjord",
+        "start_s": 319
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 51.051,
+        "lon": -4.751,
+        "speed_kn": 12.808
+      }
+    },
+    {
+      "case": "S28",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 20.607,
+        "duration_s": 570,
+        "kind": "jamming",
+        "ramp_s": 102,
+        "start_s": 333
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 363.0,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 50.15,
+        "lon": 11.612,
+        "speed_kn": 14.229
+      }
+    },
+    {
+      "case": "S29",
+      "class": "spoofing",
+      "event": {
+        "duration_s": 681,
+        "kind": "time-spoof",
+        "offset_s": 51.45,
+        "ramp_s": 166,
+        "start_s": 426
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 440.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 52.966,
+        "lon": 4.565,
+        "speed_kn": 9.272
+      }
+    },
+    {
+      "case": "S30",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 56.465,
+        "lon": 12.216,
+        "speed_kn": 9.85
+      }
+    },
+    {
+      "case": "S31",
+      "class": "confounder",
+      "event": {
+        "duration_s": 408,
+        "kind": "natural-degradation",
+        "preset": "container-terminal",
+        "start_s": 477
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 51.608,
+        "lon": 10.345,
+        "speed_kn": 18.438
+      }
+    },
+    {
+      "case": "S32",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 25.571,
+        "duration_s": 390,
+        "kind": "jamming",
+        "ramp_s": 41,
+        "start_s": 352
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 362.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 52.832,
+        "lon": 17.528,
+        "speed_kn": 14.893
+      }
+    },
+    {
+      "case": "S33",
+      "class": "spoofing",
+      "event": {
+        "bearing_deg": 309.273,
+        "counterfeit_cn0_dbhz": 44.989,
+        "duration_s": 541,
+        "final_offset_m": 1226.062,
+        "kind": "drag-off",
+        "ramp_s": 355,
+        "start_s": 438
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 439.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 56.827,
+        "lon": 9.463,
+        "speed_kn": 8.892
+      }
+    },
+    {
+      "case": "S34",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 59.069,
+        "lon": 16.83,
+        "speed_kn": 9.631
+      }
+    },
+    {
+      "case": "S35",
+      "class": "confounder",
+      "event": {
+        "duration_s": 493,
+        "kind": "natural-degradation",
+        "preset": "fjord",
+        "start_s": 492
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 51.925,
+        "lon": 14.096,
+        "speed_kn": 19.352
+      }
+    },
+    {
+      "case": "S36",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 36.49,
+        "duration_s": 301,
+        "kind": "jamming",
+        "ramp_s": 38,
+        "start_s": 423
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 430.0,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 58.846,
+        "lon": -2.628,
+        "speed_kn": 13.56
+      }
+    },
+    {
+      "case": "S37",
+      "class": "spoofing",
+      "event": {
+        "duration_s": 604,
+        "kind": "time-spoof",
+        "offset_s": 18.29,
+        "ramp_s": 112,
+        "start_s": 338
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 356.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 60.994,
+        "lon": 9.779,
+        "speed_kn": 16.526
+      }
+    },
+    {
+      "case": "S38",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 53.509,
+        "lon": 9.393,
+        "speed_kn": 10.247
+      }
+    },
+    {
+      "case": "S39",
+      "class": "confounder",
+      "event": {
+        "duration_s": 482,
+        "kind": "natural-degradation",
+        "preset": "container-terminal",
+        "start_s": 331
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 57.549,
+        "lon": -3.198,
+        "speed_kn": 7.908
+      }
+    },
+    {
+      "case": "S40",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 25.46,
+        "duration_s": 475,
+        "kind": "jamming",
+        "ramp_s": 117,
+        "start_s": 392
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 419.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 59.054,
+        "lon": 22.019,
+        "speed_kn": 11.767
+      }
+    },
+    {
+      "case": "S41",
+      "class": "spoofing",
+      "event": {
+        "bearing_deg": 44.645,
+        "counterfeit_cn0_dbhz": 45.656,
+        "duration_s": 614,
+        "final_offset_m": 1220.341,
+        "kind": "drag-off",
+        "ramp_s": 199,
+        "start_s": 303
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 304.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 58.28,
+        "lon": 1.869,
+        "speed_kn": 9.032
+      }
+    },
+    {
+      "case": "S42",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 58.758,
+        "lon": 20.828,
+        "speed_kn": 18.892
+      }
+    },
+    {
+      "case": "S43",
+      "class": "confounder",
+      "event": {
+        "duration_s": 365,
+        "kind": "natural-degradation",
+        "preset": "fjord",
+        "start_s": 440
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 61.669,
+        "lon": -2.626,
+        "speed_kn": 6.381
+      }
+    },
+    {
+      "case": "S44",
+      "class": "jamming",
+      "event": {
+        "cn0_drop_db": 38.772,
+        "duration_s": 298,
+        "kind": "jamming",
+        "ramp_s": 64,
+        "start_s": 474
+      },
+      "high_confidence": false,
+      "jamming_indicated": true,
+      "onset_ok": true,
+      "onset_s": 485.0,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 61.415,
+        "lon": 10.32,
+        "speed_kn": 18.809
+      }
+    },
+    {
+      "case": "S45",
+      "class": "spoofing",
+      "event": {
+        "duration_s": 641,
+        "kind": "time-spoof",
+        "offset_s": 28.3,
+        "ramp_s": 62,
+        "start_s": 445
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "onset_ok": true,
+      "onset_s": 455.0,
+      "spoofing_indicated": true,
+      "start": {
+        "lat": 58.17,
+        "lon": -1.363,
+        "speed_kn": 9.789
+      }
+    },
+    {
+      "case": "S46",
+      "class": "clean",
+      "event": {
+        "kind": "none"
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 58.361,
+        "lon": 1.062,
+        "speed_kn": 14.72
+      }
+    },
+    {
+      "case": "S47",
+      "class": "confounder",
+      "event": {
+        "duration_s": 351,
+        "kind": "natural-degradation",
+        "preset": "container-terminal",
+        "start_s": 315
+      },
+      "high_confidence": false,
+      "jamming_indicated": false,
+      "spoofing_indicated": false,
+      "start": {
+        "lat": 60.827,
+        "lon": 8.983,
+        "speed_kn": 8.862
+      }
+    }
+  ],
+  "seed": 20261115,
+  "synthetic_bars_all_pass": false
+}

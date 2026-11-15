@@ -192,6 +192,25 @@ pub fn call(name: &str, args: &[Value], ent: &Entitlement, at: i64) -> Result<Va
     }
 }
 
+/// The Desktop Pro functions beyond the engine (`engine_call` names starting `pro_`): incident
+/// replay, signed packs, pack verification and the service connection (0.42 U6, U19, U27,
+/// U28), all in `kshana_pro::desktop`, with the licence store's directory as their home.
+pub fn call_pro(
+    name: &str,
+    args: &[Value],
+    ent: &Entitlement,
+    token_id: Option<&str>,
+    at: i64,
+) -> Result<Value, String> {
+    let home = kshana_pro::license::activation::Store::default_dir()
+        .ok_or_else(|| "no licence store directory (set KSHANA_PRO_HOME)".to_string())?;
+    kshana_pro::desktop::call(name, args, ent, token_id, at, &home).unwrap_or_else(|| {
+        Err(format!(
+            "{name} is not a Desktop Pro function of this build"
+        ))
+    })
+}
+
 /// What "Upgrade" offers: nothing while payments are off in this build (no checkout, no
 /// network), else the checkout for `edition`.
 pub fn upgrade_offer(edition: &str, licensee: &str, email: &str) -> Value {
