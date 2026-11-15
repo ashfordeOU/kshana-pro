@@ -13,6 +13,8 @@
 #                    (a Pro binary carries them by design).
 
 [arksa]
+pro-spaceborne-rx-exposure
+pro-space-tip-cue-study
 pro-mbse
 pro-design-optimise
 pro-spectrum-coexistence
