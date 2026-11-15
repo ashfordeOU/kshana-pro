@@ -380,7 +380,7 @@ fn switch_off_means_no_checkout_no_listener_no_delivery() {
     let issuer = Issuer {
         config: cfg,
         secret: SECRET.into(),
-        seed: SEED,
+        signer: std::sync::Arc::new(SEED),
         paths: kshana_pro::payments::webhook::Paths {
             dir: dir.join("data"),
         },

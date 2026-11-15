@@ -22,7 +22,7 @@
 //! not stop someone who has the *source* from removing the check. The protection
 //! for the source is that this repository is private and never published.
 
-use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
+use ed25519_dalek::{Signature, SigningKey, VerifyingKey};
 use kshana::api::KshanaError;
 
 /// Length of an Ed25519 private-key seed and of a public key, in bytes.
@@ -361,15 +361,13 @@ impl Entitlement {
 }
 
 /// Sign claims into a license token with the vendor's private-key `seed`.
-pub fn issue(seed: &[u8; KEY_LEN], claims: &LicenseClaims) -> Result<String, KshanaError> {
+///
+/// `signer` is any [`LicenceSigner`]: a raw seed (`&[u8; 32]`) or, with the `kms` feature,
+/// an AWS KMS key (`kms::KmsSigner`). The token bytes are the same either way.
+pub fn issue(signer: &dyn LicenceSigner, claims: &LicenseClaims) -> Result<String, KshanaError> {
     let payload = serde_json::to_vec(claims)
         .map_err(|e| KshanaError::InvalidInput(format!("could not serialise claims: {e}")))?;
-    let sig = SigningKey::from_bytes(seed).sign(&payload);
-    Ok(format!(
-        "{}.{}",
-        hex::encode(&payload),
-        hex::encode(sig.to_bytes())
-    ))
+    signer::sign_document(signer, &payload)
 }
 
 /// Verify a token against the vendor `public_key` at `now_unix`, returning the
@@ -467,9 +465,33 @@ pub struct Keyring {
     /// Arksa issuer keys (roadmap 0.42 X1): the only keys whose tokens may carry the
     /// `arksa` claim. Kept apart from `active`, so a Pro key can never grant it.
     arksa: Vec<(String, [u8; KEY_LEN])>,
+    /// Root key IDs (key custody S7-b, `KSHANA_PRO_ROOT_KID`): only a revocation list
+    /// signed by a root may retire keys. Empty: no root is configured (builds before S7-b).
+    roots: Vec<String>,
 }
 
 impl Keyring {
+    /// Declare `kid` a root key: only lists it signs may retire keys
+    /// ([`revocation::verify`]). Several roots may be set during a root rotation.
+    pub fn add_root(&mut self, kid: &str) {
+        let kid = kid.trim().to_ascii_lowercase();
+        if !kid.is_empty() && !self.roots.contains(&kid) {
+            self.roots.push(kid);
+        }
+    }
+
+    /// The root key IDs ([`Keyring::add_root`]).
+    pub fn root_ids(&self) -> &[String] {
+        &self.roots
+    }
+
+    /// Whether `kid` is a root key.
+    pub fn is_root(&self, kid: &str) -> bool {
+        self.roots
+            .iter()
+            .any(|r| r.eq_ignore_ascii_case(kid.trim()))
+    }
+
     /// A keyring holding one key.
     pub fn single(public_key: [u8; KEY_LEN]) -> Keyring {
         let mut k = Keyring::default();
@@ -546,6 +568,18 @@ impl Keyring {
                 match parse_key_hex(r) {
                     Ok(pk) => ring.retire(&key_id(&pk)),
                     Err(_) => ring.retire(r),
+                }
+            }
+            // Key custody S7-b: the root key ID(s), comma separated (key IDs or public keys).
+            for r in option_env!("KSHANA_PRO_ROOT_KID")
+                .unwrap_or("")
+                .split(',')
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+            {
+                match parse_key_hex(r) {
+                    Ok(pk) => ring.add_root(&key_id(&pk)),
+                    Err(_) => ring.add_root(r),
                 }
             }
             ring
@@ -768,7 +802,7 @@ pub fn verify_with(
 
 /// Issue a v2 token: sets `v`, the key ID of `seed`'s public key and, when empty, a
 /// random token ID; requires at least one product and a valid tier.
-pub fn issue_v2(seed: &[u8; KEY_LEN], claims: &LicenseClaims) -> Result<String, KshanaError> {
+pub fn issue_v2(seed: &dyn LicenceSigner, claims: &LicenseClaims) -> Result<String, KshanaError> {
     let mut c = claims.clone();
     Tier::parse(&c.tier)?;
     if c.products.is_empty() {
@@ -787,7 +821,7 @@ pub fn issue_v2(seed: &[u8; KEY_LEN], claims: &LicenseClaims) -> Result<String, 
         }
     }
     c.v = 2;
-    c.kid = Some(key_id(&public_key_for(seed)));
+    c.kid = Some(seed.kid()?);
     if c.id.is_empty() {
         c.id = new_token_id();
     }
@@ -797,7 +831,10 @@ pub fn issue_v2(seed: &[u8; KEY_LEN], claims: &LicenseClaims) -> Result<String, 
 /// Issue a v2 token carrying the `arksa` claim, signed with an Arksa issuer `seed`
 /// (roadmap 0.42 X1). Only Arksa's issuer holds such a seed; a build trusts its public
 /// key through the Arksa issuer slot ([`Keyring::add_arksa_issuer`]).
-pub fn issue_arksa(seed: &[u8; KEY_LEN], claims: &LicenseClaims) -> Result<String, KshanaError> {
+pub fn issue_arksa(
+    seed: &dyn LicenceSigner,
+    claims: &LicenseClaims,
+) -> Result<String, KshanaError> {
     let mut c = claims.clone();
     c.arksa = true;
     issue_v2(seed, &c)
@@ -820,12 +857,17 @@ pub fn new_token_id() -> String {
 
 pub mod activation;
 pub mod clock;
+#[cfg(feature = "kms")]
+pub mod kms;
 pub mod lifecycle;
 pub mod machine;
 pub mod online;
 pub mod register;
 pub mod revocation;
+pub mod signer;
 pub mod tiers;
+
+pub use signer::LicenceSigner;
 
 #[cfg(test)]
 mod tests {

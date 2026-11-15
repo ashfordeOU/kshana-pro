@@ -197,17 +197,26 @@ pub struct IssuedPack {
 pub struct PackIssuer {
     pub catalog: Catalog,
     master: [u8; 32],
-    pack_seed: [u8; KEY_LEN],
+    pack_signer: crate::license::signer::SharedSigner,
 }
 
 impl PackIssuer {
     /// `master` is the pack master secret (from the environment, never in a file in the
     /// repository); `pack_seed` the pack signing key.
     pub fn new(catalog: Catalog, master: [u8; 32], pack_seed: [u8; KEY_LEN]) -> PackIssuer {
+        PackIssuer::with_signer(catalog, master, std::sync::Arc::new(pack_seed))
+    }
+
+    /// A pack issuer signing through any licence signer (a seed or AWS KMS, S7-a).
+    pub fn with_signer(
+        catalog: Catalog,
+        master: [u8; 32],
+        pack_signer: crate::license::signer::SharedSigner,
+    ) -> PackIssuer {
         PackIssuer {
             catalog,
             master,
-            pack_seed,
+            pack_signer,
         }
     }
 
@@ -280,7 +289,7 @@ impl PackIssuer {
                 apple_team_id: entry.apple_team_id.clone(),
             },
             &self.master,
-            &self.pack_seed,
+            self.pack_signer.as_ref(),
         )?;
         Ok(IssuedPack {
             file,

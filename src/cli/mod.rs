@@ -1475,24 +1475,17 @@ pub fn require_feature(args: &[String], feature: &str) -> Result<Entitlement, Ex
     Ok(ent)
 }
 
-/// The vendor's private-key seed, for `license issue`: from `KSHANA_PRO_SIGNING_KEY`
-/// (64 hex characters, kept in the vendor's secret store), or in a debug build, the
-/// demo seed. Customers never need it.
-fn signing_seed() -> Result<[u8; license::KEY_LEN], kshana::api::KshanaError> {
-    match std::env::var("KSHANA_PRO_SIGNING_KEY") {
-        Ok(s) if !s.trim().is_empty() => license::parse_key_hex(&s),
-        _ => {
-            #[cfg(debug_assertions)]
-            {
-                eprintln!("[warning] KSHANA_PRO_SIGNING_KEY not set: signing with the DEMO key (debug builds only)");
-                Ok(DEMO_SEED)
-            }
-            #[cfg(not(debug_assertions))]
-            Err(kshana::api::KshanaError::InvalidInput(
-                "set KSHANA_PRO_SIGNING_KEY to the vendor signing key".into(),
-            ))
-        }
-    }
+/// The vendor's licence signer, for `license issue` and the other vendor commands (key
+/// custody S7-a, [`license::signer::from_env`]): `KSHANA_PRO_SIGNER=seed` (default) takes
+/// the seed from `KSHANA_PRO_SIGNING_KEY` (64 hex characters, kept in the vendor's secret
+/// store; a debug build without it uses the demo seed); `KSHANA_PRO_SIGNER=kms` signs
+/// through AWS KMS (a build with the `kms` feature). Customers never need it.
+fn signer() -> Result<license::signer::SharedSigner, kshana::api::KshanaError> {
+    #[cfg(debug_assertions)]
+    let demo = Some(DEMO_SEED);
+    #[cfg(not(debug_assertions))]
+    let demo = None;
+    license::signer::from_env(demo)
 }
 
 fn run_file(path: &str, license_token: Option<String>, dev_mode: bool) -> ExitCode {
