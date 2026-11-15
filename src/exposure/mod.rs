@@ -150,17 +150,20 @@ pub struct ExposureSummary {
     pub rejected: Vec<SourceCheck>,
 }
 
-fn check(dir: &Path, trust: &[[u8; 32]]) -> SourceCheck {
+/// Verify the source directory `dir`; `named` is its path as the request names it, which is what
+/// the summary records (never the resolved absolute path, so a summary is the same on every machine
+/// and does not disclose local directories).
+fn check(dir: &Path, named: &str, trust: &[[u8; 32]]) -> SourceCheck {
     match crate::signed_dossier::verify(dir, trust) {
         Ok(v) => SourceCheck {
-            path: dir.display().to_string(),
+            path: named.to_string(),
             signer: Some(v.signer.clone()),
             signature_valid: v.signature_ok && v.problems.is_empty(),
             signer_trusted: v.trusted,
             problems: v.problems.clone(),
         },
         Err(e) => SourceCheck {
-            path: dir.display().to_string(),
+            path: named.to_string(),
             signer: None,
             signature_valid: false,
             signer_trusted: None,
@@ -198,7 +201,7 @@ pub fn build(r: &ExposureRequest, trust: &[[u8; 32]]) -> Result<ExposureSummary,
     let mut rejected = Vec::new();
     for f in &r.forensics {
         let dir = r.path(f);
-        let c = check(&dir, trust);
+        let c = check(&dir, f, trust);
         let text = std::fs::read_to_string(dir.join("report.json"))
             .map_err(|e| format!("{}: {e}", dir.display()))?;
         let v: serde_json::Value =
@@ -266,7 +269,7 @@ pub fn build(r: &ExposureRequest, trust: &[[u8; 32]]) -> Result<ExposureSummary,
     let integrity = match &r.integrity {
         Some(d) => {
             let dir = r.path(d);
-            let c = check(&dir, trust);
+            let c = check(&dir, d, trust);
             let text = std::fs::read_to_string(dir.join(crate::integrity::RESULT_FILE))
                 .map_err(|e| format!("{}: {e}", dir.display()))?;
             let v: serde_json::Value =

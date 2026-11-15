@@ -22,14 +22,11 @@
 
 use std::path::PathBuf;
 
-use ed25519_dalek::{Signer, SigningKey};
 use kshana::api::KshanaError;
 
 use super::activation::{evaluate, Store};
 use super::lifecycle::{Delivery, LicenceService, TOKEN_DAYS};
-use super::{
-    check_signature, key_id, public_key_for, split_signed, Keyring, VerifyOptions, KEY_LEN,
-};
+use super::{check_signature, split_signed, Keyring, VerifyOptions};
 
 /// The response format.
 pub const FORMAT: &str = "kshana-licence-check/1";
@@ -71,18 +68,16 @@ pub struct CheckResponse {
     pub kid: String,
 }
 
-fn sign_response(seed: &[u8; KEY_LEN], r: &CheckResponse) -> Result<String, KshanaError> {
+fn sign_response(
+    signer: &dyn super::LicenceSigner,
+    r: &CheckResponse,
+) -> Result<String, KshanaError> {
     let mut r = r.clone();
     r.format = FORMAT.into();
-    r.kid = key_id(&public_key_for(seed));
+    r.kid = signer.kid()?;
     let payload = serde_json::to_vec(&r)
         .map_err(|e| KshanaError::InvalidInput(format!("could not serialise: {e}")))?;
-    let sig = SigningKey::from_bytes(seed).sign(&payload);
-    Ok(format!(
-        "{}.{}",
-        hex::encode(&payload),
-        hex::encode(sig.to_bytes())
-    ))
+    super::signer::sign_document(signer, &payload)
 }
 
 /// Verify a signed answer against `ring`.
@@ -169,7 +164,7 @@ impl LicenceService {
                 resp.token = Some(out.token);
             }
         }
-        sign_response(self.seed(), &resp)
+        sign_response(self.signer(), &resp)
     }
 }
 

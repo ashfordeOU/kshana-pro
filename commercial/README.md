@@ -37,6 +37,10 @@ Language, a configuration file format).
 | 5 | [`export-control/CLASSIFICATION-REQUEST-PACK.md`](export-control/CLASSIFICATION-REQUEST-PACK.md) | Factual software description, candidate control-list entries with reasons, and questions for the authority. **Not a determination.** | Export-control counsel |
 | 6 | [`partners/TIMING-PARTNERS.md`](partners/TIMING-PARTNERS.md) | Researched list of timing laboratories, test houses and national metrology institutes in the European Union and United Kingdom, each with its public contact route and sources. | Founder approval to contact |
 | 6 | [`partners/OUTREACH-DRAFTS.md`](partners/OUTREACH-DRAFTS.md) | Draft emails. **Drafts only; never sent.** | Founder approval |
+| 7 | [`prices.toml`](prices.toml) | The §1c price list the owner approved at gate K4 (15 November 2026), with the public price switch (off). | Owner, to switch the public page on |
+| 7 | [`tools/prices.py`](tools/prices.py) | Builds the editions page and the private price sheet from `prices.toml`; `scan-public` checks a public tree carries no private price. | — |
+| 7 | [`editions/editions.html`](editions/editions.html) | Editions page (S4). Generated; no prices while the switch is off; Sovereign "Contact us". | Owner, K4 public page |
+| 7 | [`sales/PRICE-SHEET.md`](sales/PRICE-SHEET.md) | **Private** sales price sheet (C9). Generated. Never publish. | — |
 
 ## Three findings the founder should see first
 

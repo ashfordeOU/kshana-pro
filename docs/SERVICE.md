@@ -437,16 +437,56 @@ public trial:
 - **One tenant per caller**: `trial-` and 16 hexadecimal characters of a salted SHA-256
   of the caller's address (salt in `<data-dir>/trial-salt`). A caller sees only its own
   jobs; no address is stored or shown.
-- **Quotas**: 20 new jobs a day per caller (counted from the job store, so a restart
-  does not reset them; resubmitting the same request is free), a time limit of at most
+- **Quotas**: 20 new jobs a day per caller (counted in `<data-dir>/trial-usage.json`, salted
+  tenant hashes and counts only, so neither a restart nor the retention below resets them;
+  resubmitting the same request is free), a time limit of at most
   60 s per job, 120 requests a minute per address, 100 trial jobs waiting server-wide.
   Past a quota the answer is 429 (503 when the queue is full) with `Retry-After`.
 - **Closed**: `POST /run` (use `POST /jobs`), `POST /study`, and every admin route.
 - A trial server takes no access token, keys or OIDC; it refuses to start with them.
+- **No customer data kept (roadmap S6)**: a trial job's request, result and artefacts are
+  deleted one hour after it finishes (`TrialConfig::retention_secs`), and a trial job still
+  unfinished a day after submission is deleted too.
+- **14-day trial tokens (roadmap S6)**: with `--trial-tokens` the server signs, through the
+  configured licence signer (`KSHANA_PRO_SIGNER`, a seed or AWS KMS), a Pro trial token on
+  `POST /trial/token` (body empty, or `{"machine": "<64-hex machine hash>"}`; any other field
+  is refused, so no name or e-mail is ever collected). The token carries `trial: true`, tier
+  `pro`, products `cli` and `desktop`, one seat, and lasts 14 days; every build refuses a
+  token marked `trial` that lasts longer or has no issue time. Limits: one token per caller
+  every 30 days and 200 a day server-wide (429 with `Retry-After` past either). The server
+  keeps the caller's salted tenant hash and the time of issue only.
 
 Run it behind TLS (`--tls-cert`/`--tls-key`) on its own data directory. Behind a reverse
 proxy every caller has the proxy's address, so run it directly, not behind a proxy.
 Hosting it publicly needs a machine and a domain from the owner.
+
+## The hosted service for secret methods (roadmap 0.42 C3, X6)
+
+`kshana-pro serve --hosted <hosted.toml> --data-dir <dir> --keys-file <keys.toml>` adds a
+results-only API for methods that never leave the server (`src/serve/hosted.rs`,
+`src/results_only.rs`; the file format is in the module documentation):
+
+- `GET /v1/verdict`: the results-only kinds this server offers and the caller's monthly
+  allowance. `POST /v1/verdict/<kind>` with `{"input": {...}}`: the verdict (one word from
+  the kind's closed set), the evidence class, the input's SHA-256, a query ID and `signed`,
+  the Ed25519-signed envelope that also carries the licence holder's watermark (C4). The
+  method's intermediates are dropped inside the server, never returned, logged or stored.
+- Each subscription is an API-key or OIDC tenant listed in `hosted.toml` with its monthly
+  query and compute-second allowance (429 with `Retry-After` until next month when used up);
+  an unlisted tenant gets 403, an anonymous caller 401. Per-minute limit per tenant (the
+  trial's limiter). A kind the server's licence does not allow answers 404, like an unknown
+  one.
+- Probing: queries that differ only by small numeric changes (same shape after rounding
+  every number to two significant figures) are counted per tenant in a sliding window; an
+  alert is logged at 10 by default and the tenant is refused for the window at 25.
+- `<data-dir>/hosted/results-only-access.log`: one hash-chained line per query (time,
+  tenant, kind, query ID, input hash, verdict or refusal); no input values.
+- The result signer is `KSHANA_PRO_SIGNER` (seed or AWS KMS); the watermark key is
+  `KSHANA_PRO_WATERMARK_KEY`. The hosted service cannot run in the same server as the open
+  trial and needs subscriber credentials.
+- This crate registers no results-only kind of its own: a server-side extension registers
+  its secret methods with `results_only::register_kind`. Verify an answer offline with
+  `results_only::verify_envelope` and the server's public key.
 
 ## Service-level metrics (roadmap F2b)
 

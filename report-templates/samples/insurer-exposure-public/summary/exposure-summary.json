@@ -35,7 +35,7 @@
       "time_under_findings_s": 454.0,
       "validation_status": "The method's pre-registered detection bars on a labelled set (roadmap V2: public events plus synthetic) are not yet met. The method has been exercised on the open engine's synthetic training scenarios only; no detection rate, false-alarm rate or accuracy is claimed for real incidents.",
       "source": {
-        "path": "/workspace/kpro-evidence/examples/insurer-exposure/../../report-templates/samples/insurer-exposure-public/forensics/0-open-sea-jamming",
+        "path": "../../report-templates/samples/insurer-exposure-public/forensics/0-open-sea-jamming",
         "signer": "Kshana Pro sample (demo key)",
         "signature_valid": true,
         "signer_trusted": true,
@@ -62,7 +62,7 @@
       "time_under_findings_s": 778.0,
       "validation_status": "The method's pre-registered detection bars on a labelled set (roadmap V2: public events plus synthetic) are not yet met. The method has been exercised on the open engine's synthetic training scenarios only; no detection rate, false-alarm rate or accuracy is claimed for real incidents.",
       "source": {
-        "path": "/workspace/kpro-evidence/examples/insurer-exposure/../../report-templates/samples/insurer-exposure-public/forensics/1-coastal-drag-off",
+        "path": "../../report-templates/samples/insurer-exposure-public/forensics/1-coastal-drag-off",
         "signer": "Kshana Pro sample (demo key)",
         "signature_valid": true,
         "signer_trusted": true,
@@ -89,7 +89,7 @@
       "time_under_findings_s": 77.0,
       "validation_status": "The method's pre-registered detection bars on a labelled set (roadmap V2: public events plus synthetic) are not yet met. The method has been exercised on the open engine's synthetic training scenarios only; no detection rate, false-alarm rate or accuracy is claimed for real incidents.",
       "source": {
-        "path": "/workspace/kpro-evidence/examples/insurer-exposure/../../report-templates/samples/insurer-exposure-public/forensics/2-fjord-natural-degradation",
+        "path": "../../report-templates/samples/insurer-exposure-public/forensics/2-fjord-natural-degradation",
         "signer": "Kshana Pro sample (demo key)",
         "signature_valid": true,
         "signer_trusted": true,
@@ -114,7 +114,7 @@
     "rf_fixes_no_matching_ais": null,
     "validation_status": "V3 (the M4 position-offset bar with the stage-2 method, pre-registered 15 November 2026): see docs/evidence/v3-m4-offset-successor/RESULTS.md. Scored on synthetic scenes only (MODELLED); no real AIS or RF data has been scored.",
     "source": {
-      "path": "/workspace/kpro-evidence/examples/insurer-exposure/../../report-templates/samples/ais-integrity-public",
+      "path": "../../report-templates/samples/ais-integrity-public",
       "signer": "Kshana Pro sample (demo key)",
       "signature_valid": true,
       "signer_trusted": true,

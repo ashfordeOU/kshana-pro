@@ -15,7 +15,7 @@ tier manifest (section 3):
 | Tier | Runs for | Kinds and features in this repository |
 |---|---|---|
 | `open-seam` | anyone, no licence | `pro-seam-check` |
-| `pro` | a Pro licence at the licence tier `license::explicit_tier` names (Evaluation, Pro, Enterprise; unchanged) | `pro-twin`, `pro-trade-study`, `pro-uncertainty`, `pro-batch`, `pro-quantum-systematics`, `pro-optimism-gap-audit`, `pro-conflict-resilience-study`; features `pro-scenario-ci`, `pro-study-dossier`, `pro-signed-dossier`, `pro-uncertainty`, `pro-station-fleet`, `pro-service-ha`, `pro-desktop` |
+| `pro` | a Pro licence at the licence tier `license::explicit_tier` names (Evaluation, Pro, Enterprise; unchanged) | `pro-twin`, `pro-trade-study`, `pro-uncertainty`, `pro-batch`, `pro-quantum-systematics`, `pro-optimism-gap-audit`, `pro-conflict-resilience-study`; features `pro-scenario-ci`, `pro-study-dossier`, `pro-signed-dossier`, `pro-uncertainty`, `pro-station-fleet`, `pro-service-ha`, `pro-desktop`, `pro-attack-iq` (F7, Enterprise tier unless named on a vetted buyer's licence; docs/ATTACK-IQ.md) |
 | `arksa` | only a token with the `arksa` claim, signed by Arksa's issuer | kinds `pro-mbse`, `pro-design-optimise`, `pro-spectrum-coexistence`, `pro-lunar-signal-security`, `pro-beacon-placement`, `pro-lunar-time-budget-study`, `pro-cislunar-observability-study`, `pro-optical-rf-hybrid-study`, `pro-realtime-frame-eop-study`, `pro-beacon-dop`, `pro-surface-beacon-dop-study`; features (commands) `pro-mbse` (`mbse`: SysML v2, ReqIF, VCRM), `pro-design-optimise` (`design`), `pro-spectrum-coexistence` (`coexist`), `pro-mission-dossier` (`mission`), `pro-navdt` (`navdt`), `pro-spacestream` (`spacestream` codec), `pro-mrd` (`mrd`). Since X3 none of their code is in this repository: it is in `ashfordeOU/arksa-kpro` (section 6) |
 | `core` | nobody: Core never ships from this crate | none here (P1 to P5 and B6 live only on Arksa servers) |
 
@@ -212,21 +212,33 @@ claim.
 **Stays here:** the `arksa` claim, the issuer slot and `license::check`; the tier manifest with
 its hashed entries; the symbol check, the source guard, the leak gate and the term list.
 
-## 7. What remains: X6, X7, X8 (not started)
+## 7. X6, X7, X8 and what remains
 
-* **X6, results-only service API for Arksa-exclusive kinds.** Verdict, evidence class and
-  signature out; intermediates withheld; per-tenant query budgets; probing alerts (many
-  near-identical queries); watermarked outputs; an access log. Runs on Arksa servers, with
-  tests for each. X3 is done: `arksa-kpro serve` today is the full Pro service with the Arksa
-  kinds added, and returns their full results; X6 wraps that in arksa-kpro.
+* **X6, results-only service API (mechanism done, 15 November 2026).** `src/results_only.rs`
+  is a generic gateway: a server-side extension registers each secret kind
+  (`results_only::register_kind`: run, reduce to a verdict, the closed verdict set); a
+  caller gets the verdict, the evidence class, the input hash, a query ID, a per-licensee
+  watermark (`src/watermark.rs`, C4) and an Ed25519 signature through the licence signer;
+  intermediates are dropped inside the gateway; per-tenant query and compute budgets per
+  month, persisted; probing alerts and blocking on near-identical queries; a hash-chained
+  access log with no input values. The hosted service (C3, `src/serve/hosted.rs`,
+  docs/SERVICE.md) serves it over HTTP to subscription tenants. Tests:
+  `tests/hosted_service.rs`. No Arksa kind or method is in this repository: the private
+  server-side crate registers its kinds and decides which run results-only (its task).
 * **Term list and the moved code.** The symbol check can no longer prove here that the term
   list matches the Arksa code (that build is gone). arksa-kpro should run
   `symbol-check.sh` on its own release binary and require it to FAIL (it needs this
   repository's term list, so a CI checkout of kshana-pro at the pinned rev).
 * **Committed study outputs.** Removed on 15 November 2026 (section 6).
-* **X7, trade-secret register and patent-before-disclosure rule.** A register (private) of
-  each secret method with its owner, date and status; P1, P2, P5 and B6 filed before any
-  disclosure, P4 kept secret. Needs the owner and counsel; no code.
+* **X7, trade-secret register and patent-before-disclosure rule (mechanism done, 15
+  November 2026).** `protect/trade-secret-register.toml` (private) lists P1, P2, P3, P5 and
+  B6 as `to-file` and P4 as `secret`, each with its owner, the date recorded and its
+  disclosure terms (term IDs from the private term list, or terms kept only in the
+  register). `scripts/protect/arksa-copy-check.py` now fails, in every scope, on any term of
+  an item that is secret, not yet filed, or filed with a filing date still ahead; output is
+  item ID and term ID only; a malformed register is an error. Tests: `tests/copy_check.rs`.
+  **Owner and counsel:** add each item's method terms when the filing is written, and set
+  `status = "filed"` with `filing_date` once filed. Until then the Core names stand in.
 * **X8, marketing rule in CI (done, 15 November 2026).** `scripts/protect/arksa-copy-check.py`
   allows "in Arksa" claims only for the four outcome names the owner approved (Mission
   navigation digital twin; Lunar navigation and timing assurance; Independent interference

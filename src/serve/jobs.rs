@@ -540,6 +540,15 @@ impl JobStore {
         out
     }
 
+    /// Delete a job: its request, status, result and artefacts (the hosted trial's
+    /// retention, [`super::trial`]). The caller has checked [`is_job_id`].
+    pub fn remove(&self, id: &str) -> io::Result<()> {
+        if !is_job_id(id) {
+            return Err(io::Error::other("not a job id"));
+        }
+        fs::remove_dir_all(self.job_dir(id))
+    }
+
     /// Every job, newest first.
     pub fn list(&self) -> Vec<JobStatus> {
         let mut all = self.list_all();

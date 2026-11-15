@@ -136,7 +136,7 @@ impl Ledger {
 
 /// The vendor's licence service: issue, activate a seat, renew, extend, revoke.
 pub struct LicenceService {
-    seed: [u8; KEY_LEN],
+    signer: super::signer::SharedSigner,
     ring: Keyring,
     pub register: Register,
     pub ledger: Ledger,
@@ -160,12 +160,33 @@ impl LicenceService {
     /// Tokens are verified against `seed`'s own public key plus `extra_keys` (earlier
     /// signing keys still in use).
     pub fn open(seed: [u8; KEY_LEN], extra_keys: &[[u8; KEY_LEN]], dir: &Path) -> LicenceService {
-        let mut ring = Keyring::single(public_key_for(&seed));
+        let pk = public_key_for(&seed);
+        LicenceService::build(std::sync::Arc::new(seed), pk, extra_keys, dir)
+    }
+
+    /// A service signing through any [`super::LicenceSigner`] (a seed or AWS KMS, key
+    /// custody S7-a). Asks the signer for its public key once.
+    pub fn open_with_signer(
+        signer: super::signer::SharedSigner,
+        extra_keys: &[[u8; KEY_LEN]],
+        dir: &Path,
+    ) -> Result<LicenceService, KshanaError> {
+        let pk = signer.public_key()?;
+        Ok(LicenceService::build(signer, pk, extra_keys, dir))
+    }
+
+    fn build(
+        signer: super::signer::SharedSigner,
+        pk: [u8; KEY_LEN],
+        extra_keys: &[[u8; KEY_LEN]],
+        dir: &Path,
+    ) -> LicenceService {
+        let mut ring = Keyring::single(pk);
         for k in extra_keys {
             ring.add(*k);
         }
         LicenceService {
-            seed,
+            signer,
             ring,
             register: Register::open(dir.join("register.jsonl")),
             ledger: Ledger::open(dir.join("licences.json")),
@@ -208,9 +229,9 @@ impl LicenceService {
         template.machine = None;
         template.arksa = false;
         template.expires_unix = Self::expiry_for(delivery, paid_through_unix, now);
-        let (token, entry) = self
-            .register
-            .issue(&self.seed, &template, source, note, now)?;
+        let (token, entry) =
+            self.register
+                .issue(self.signer.as_ref(), &template, source, note, now)?;
         template.expires_unix = 0;
         let mut all = self.ledger.load()?;
         all.insert(
@@ -298,7 +319,7 @@ impl LicenceService {
         c.machine = Some(device.to_string());
         c.expires_unix = Self::expiry_for(rec.delivery, rec.paid_through_unix, now);
         let (token, entry) = self.register.reissue(
-            &self.seed,
+            self.signer.as_ref(),
             &c,
             renews,
             source,
@@ -423,7 +444,7 @@ impl LicenceService {
         let mut c = rec.claims.clone();
         c.expires_unix = Self::expiry_for(rec.delivery, rec.paid_through_unix, now);
         let (token, entry) = self.register.reissue(
-            &self.seed,
+            self.signer.as_ref(),
             &c,
             &last,
             source,
@@ -458,16 +479,18 @@ impl LicenceService {
         }
         rec.revoked = true;
         self.ledger.save(&all)?;
-        self.register.revocation_list(&self.seed, &[], now)
+        self.register
+            .revocation_list(self.signer.as_ref(), &[], now)
     }
 
     /// The current signed revocation list.
     pub fn revocation_list(&self, now: i64) -> Result<String, KshanaError> {
-        self.register.revocation_list(&self.seed, &[], now)
+        self.register
+            .revocation_list(self.signer.as_ref(), &[], now)
     }
 
-    pub(crate) fn seed(&self) -> &[u8; KEY_LEN] {
-        &self.seed
+    pub(crate) fn signer(&self) -> &dyn super::LicenceSigner {
+        self.signer.as_ref()
     }
 
     /// A fresh token for a seat (the automatic check, [`super::online`]).

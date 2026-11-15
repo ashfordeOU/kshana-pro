@@ -14,7 +14,7 @@ use crate::license::{
 };
 use kshana::api::KshanaError;
 
-use super::{flag, has_flag, now_unix, print_entitlement, signing_seed};
+use super::{flag, has_flag, now_unix, print_entitlement, signer};
 
 const USAGE: &str = "usage: kshana-pro license <command>\n\
   customer:\n\
@@ -26,9 +26,10 @@ const USAGE: &str = "usage: kshana-pro license <command>\n\
     revocations install <file>              Install a signed revocation list (from an update)\n\
     refresh                                 Opt-in online refresh (off unless refresh.toml enables it)\n\
   vendor:\n\
-    keygen | pubkey                         New key pair | public key and key ID of $KSHANA_PRO_SIGNING_KEY\n\
+    keygen | pubkey                         New key pair | public key and key ID of the signer\n\
+                                            (KSHANA_PRO_SIGNER=seed with $KSHANA_PRO_SIGNING_KEY, or =kms, S7-a)\n\
     issue --tier <t> --licensee <n> [--days <n>] [--product <p,..>] [--seats <n>] [--stations <n>]\n\
-          [--machine <hash>] [--not-before <unix>] [--feature <kind,..>] [--register <file>] [--note <s>] [--v1]\n\
+          [--machine <hash>] [--not-before <unix>] [--feature <kind,..>] [--vetted-buyer] [--register <file>] [--note <s>] [--v1]\n\
     issue-invoice --licensee <n> --tier <t> --invoice <ref> --data <dir> (--term-days <n> | --until <unix>)\n\
           [--product <p,..>] [--seats <n>] [--stations <n>] [--feature <kind,..>] [--offline]\n\
                                             Licence for an invoiced customer (C7): online 35-day tokens renewed\n\
@@ -37,7 +38,7 @@ const USAGE: &str = "usage: kshana-pro license <command>\n\
     trial --licensee <n> --product <p,..> --register <file>       30-day Pro trial\n\
     renew <token-id> --days <n> --register <file>\n\
     revoke <token-id> --reason <s> --register <file>\n\
-    revocations build --register <file> --out <file> [--retire <kid,..>]\n\
+    revocations build --register <file> --out <file> [--retire <kid,..>]   (--retire: root key only, S7-b)\n\
     reminders --register <file> [--within <days>] [--json]\n\
     register verify <file>\n\
   The store is $KSHANA_PRO_HOME or the per-user configuration directory; --store <dir> overrides.\n\
@@ -114,6 +115,17 @@ pub fn verify_token_for(
             st.warning.unwrap_or_else(|| st.state.as_str().into()),
         )),
     }
+}
+
+/// Verify `token` as [`verify_token_for`] does (revocation lists, state) and return the
+/// whole verified licence (claims included); expired tokens are refused, grace or not.
+pub fn verify_licence_for(
+    token: &str,
+    now: i64,
+    product: Product,
+) -> Result<license::Licence, KshanaError> {
+    verify_token_for(token, now, product)?;
+    license::verify_with(&keyring()?, token, &opts(now, product))
 }
 
 /// The `stations` claim of the licence in use (`--license <token>`, else the activated
@@ -272,7 +284,7 @@ fn issue(args: &[String]) -> Result<(), KshanaError> {
     } else {
         0
     };
-    let seed = signing_seed()?;
+    let seed = signer()?;
     let v1 = has_flag(args, "--v1");
     let mut products = list_arg(args, "--product");
     if products.is_empty() && !v1 {
@@ -288,6 +300,7 @@ fn issue(args: &[String]) -> Result<(), KshanaError> {
         features: list_arg(args, "--feature"),
         products: if v1 { Vec::new() } else { products },
         seats: num_arg(args, "--seats")?.unwrap_or(0),
+        vetted_buyer: has_flag(args, "--vetted-buyer"),
         stations: num_arg(args, "--stations")?.unwrap_or(0),
         machine: flag(args, "--machine"),
         not_before_unix: num_arg(args, "--not-before")?.unwrap_or(0),
@@ -323,11 +336,7 @@ fn data_service(args: &[String]) -> Result<LicenceService, KshanaError> {
     let dir = flag(args, "--data").ok_or_else(|| {
         KshanaError::InvalidInput("needs --data <dir> (the register and ledger)".into())
     })?;
-    Ok(LicenceService::open(
-        signing_seed()?,
-        &[],
-        std::path::Path::new(&dir),
-    ))
+    LicenceService::open_with_signer(signer()?, &[], std::path::Path::new(&dir))
 }
 
 fn issue_invoice(args: &[String]) -> Result<(), KshanaError> {
@@ -433,7 +442,7 @@ fn keygen() -> Result<(), KshanaError> {
 fn pubkey() -> Result<(), KshanaError> {
     // The public key for KSHANA_PRO_SIGNING_KEY (scripts/release-smoke.sh reads the first
     // line); its key ID on stderr.
-    let pk = license::public_key_for(&signing_seed()?);
+    let pk = signer()?.public_key()?;
     println!("{}", hex::encode(pk));
     eprintln!("key id: {}", license::key_id(&pk));
     Ok(())
@@ -566,8 +575,26 @@ fn revocations(args: &[String]) -> Result<(), KshanaError> {
             let reg = register_arg(args)?;
             let out = flag(args, "--out")
                 .ok_or_else(|| KshanaError::InvalidInput("needs --out <file>".into()))?;
-            let text =
-                reg.revocation_list(&signing_seed()?, &list_arg(args, "--retire"), now_unix())?;
+            let retire = list_arg(args, "--retire");
+            let s = signer()?;
+            if !retire.is_empty() {
+                // Key custody S7-b: only the root retires keys. Builds told their root
+                // refuse a list signed by any other key; refuse it here first.
+                let kid = s.kid()?;
+                match std::env::var("KSHANA_PRO_ROOT_KID") {
+                    Ok(roots) if !roots.trim().is_empty() => {
+                        if !roots.split(',').any(|r| r.trim().eq_ignore_ascii_case(&kid)) {
+                            return Err(KshanaError::InvalidInput(format!(
+                                "--retire needs the root key: key {kid} is not in KSHANA_PRO_ROOT_KID"
+                            )));
+                        }
+                    }
+                    _ => eprintln!(
+                        "[warning] KSHANA_PRO_ROOT_KID not set: builds with a root configured accept key retirement only from the root (signing key {kid})"
+                    ),
+                }
+            }
+            let text = reg.revocation_list(s.as_ref(), &retire, now_unix())?;
             std::fs::write(&out, format!("{text}\n"))
                 .map_err(|e| KshanaError::InvalidInput(format!("could not write {out}: {e}")))?;
             println!("wrote {out}");
@@ -602,7 +629,8 @@ fn trial(args: &[String]) -> Result<(), KshanaError> {
     let licensee = flag(args, "--licensee")
         .ok_or_else(|| KshanaError::InvalidInput("trial needs --licensee <name>".into()))?;
     let products = list_arg(args, "--product");
-    let (tok, e) = register_arg(args)?.trial(&signing_seed()?, &licensee, &products, now_unix())?;
+    let (tok, e) =
+        register_arg(args)?.trial(signer()?.as_ref(), &licensee, &products, now_unix())?;
     eprintln!(
         "[trial for '{}' until {} — register line {}, token {}]",
         e.licensee,
@@ -621,7 +649,7 @@ fn renew(args: &[String]) -> Result<(), KshanaError> {
         .ok_or_else(|| KshanaError::InvalidInput("renew needs <token-id>".into()))?;
     let days = num_arg(args, "--days")?
         .ok_or_else(|| KshanaError::InvalidInput("renew needs --days <n>".into()))?;
-    let (tok, e) = register_arg(args)?.renew(&signing_seed()?, id, days, "manual", now_unix())?;
+    let (tok, e) = register_arg(args)?.renew(signer()?.as_ref(), id, days, "manual", now_unix())?;
     eprintln!(
         "[renewed {id} as {} until {}]",
         e.token_id,

@@ -21,6 +21,11 @@ path = "src/main.rs"
 # a private server-side crate that depends on this one and registers through
 # `kshana_pro::extension`. This crate never depends on it (scripts/protect/source-guard.sh).
 
+[features]
+# Licence and pack signing through AWS KMS (key custody S7-a, src/license/kms.rs). Adds no
+# crate: SigV4 uses ring and sha2, the transport rustls, all already dependencies.
+kms = []
+
 [dependencies]
 # The open AGPL-3.0-only engine, consumed as a dependency — NEVER forked. Pro is a
 # strict superset of open Kshana by construction: it embeds the whole engine and

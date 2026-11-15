@@ -325,7 +325,7 @@ fn switch_off_means_no_checkout_call_no_endpoint_no_key_read() {
     let issuer = Issuer {
         config: cfg,
         secret: String::new(),
-        seed: SEED,
+        signer: std::sync::Arc::new(SEED),
         paths: kshana_pro::payments::webhook::Paths {
             dir: dir.join("data"),
         },

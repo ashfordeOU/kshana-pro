@@ -7,7 +7,7 @@
   "files": [
     {
       "path": "exposure-summary.json",
-      "sha256": "44c8d04d93b0b4fc871747bdbb1d406b6f135ee652b578c921ac5491fdfe79b5"
+      "sha256": "ce46819a014886d9610be674b3f6dd0795bc5cd9b031ca7f044a6d2e125eb28f"
     },
     {
       "path": "report.html",
@@ -18,5 +18,5 @@
       "sha256": "ad8639b754bf980bbd4c3e04bac42c66e7a28028518ea962321ad1f814edff82"
     }
   ],
-  "signature": "e29c60dddcf0d65c040b8a89db8236349b4592302ccbcbd2a1495967eeeca17e0e33d56d55d378424ff153c3784b2cbf91a26de5d94901756c5cf4f29bc0a403"
+  "signature": "dae85d0db2404fb0631e85a927482044d8f744381e8fca9ca864d4e197091f19363bd68f0e42d6e1a71e845be43daf7581a109aae8a219f7da97b36f6756cc03"
 }
