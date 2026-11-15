@@ -6,10 +6,13 @@ traceability and to the NIST IR 8323 PNT profile (T3). Code: `src/timing/`; kind
 `pro-timing-holdover`; features `pro-timing-fleet` and `pro-timing-audit`; all at the `pro`
 edition in the signed tier manifest and the `pro` licence tier.
 
-**Evidence status.** The prediction method was pre-registered as evidence row V5 and scored on
-recorded clocks: **V5 missed** (`docs/evidence/v5-holdover-time-to-breach/RESULTS.md`), so
-the time to breach is **not a validated claim** and every result says so in its label. The
-successor method and its own pre-registration (V5b) are in the same folder.
+**Evidence status.** The first prediction method was pre-registered as evidence row V5 and
+scored on recorded clocks: **V5 missed** (`docs/evidence/v5-holdover-time-to-breach/RESULTS.md`).
+Its successor (a Kalman-filter handover state, used by the product) was pre-registered as V5b
+and scored on IGS data V5 did not use: **V5b missed too** (`V5b_RESULTS.md`: all bars passed on
+synthetic clocks; on real rubidium clocks the coverage was 0.894 against 0.90 and the
+false-alarm bar missed). The time to breach is therefore **not a validated claim**, and every
+result says so in its label.
 
 ## T1: a fleet file
 
@@ -55,9 +58,11 @@ handover from the record's end to a chosen time.
 **Two kinds of record.**
 
 * *Free-running* (TICC, TimeLab, RINEX clock, CGGTTS by default): the record shows the
-  oscillator against a better reference. The model is fitted to it: the handover state from a
-  quadratic over the window, the noise (white phase, white frequency, random-walk frequency)
-  from the Allan variance of the residuals.
+  oscillator against a better reference. The model is fitted to it (the V5b predictor): the
+  drift from a quadratic over the window, the noise (white phase, white frequency, random-walk
+  frequency) from the Allan variance of the window with the drift term held fixed, and the
+  handover state with its full covariance from the open engine's three-state clock Kalman
+  filter (`kshana::clock_state::ClockState3`) run over the window.
 * *Disciplined* (linuxptp, chrony, ntpd, White Rabbit, PPS by default): the record is the offset
   left under servo control and does not show the oscillator's free-running noise. The noise
   comes from the stated `class` or `adev_prior`, and the record gives the present offset and
@@ -135,6 +140,8 @@ never says compliant, conformant or certified (a test scans for it). The directo
 * PTP management (`pmc`), SNMP and NTP mode-6 status snapshots: the open engine reads them in its
   `connect` commands on its main branch, which the engine release this crate pins (0.41.0) does
   not carry; they will add status context, not phase records, when the pin moves.
-* The holdover prediction is not validated (V5 missed). Do not present the time to breach as a
-  validated figure until a pre-registered row passes.
+* The holdover prediction is not validated (V5 and V5b missed). Do not present the time to
+  breach as a validated figure until a pre-registered row passes. Candidate next step, to be
+  pre-registered on new data first: orbit-period and flicker-frequency terms for real rubidium
+  clocks, and a restated false-alarm bar with its reason.
 * A PDF rendering of the audit report; the HTML is the deliverable.

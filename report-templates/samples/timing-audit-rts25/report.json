@@ -1,6 +1,6 @@
 {
   "format": "kshana-pro-timing-audit/1",
-  "label": "MODELLED - holdover predictions from each clock's own record (or a stated prior for a servo record) under a three-term clock noise model; prediction bars pre-registered as V5 and NOT passed: the time to breach is not a validated claim.",
+  "label": "MODELLED - holdover predictions from each clock's own record (or a stated prior for a servo record) under a three-term clock noise model; prediction bars pre-registered as V5 and as its successor V5b both NOT passed: the time to breach is not a validated claim.",
   "profile": "rts25-traceability",
   "title": "Clock synchronisation evidence mapped to MiFID II RTS 25",
   "framework": "Commission Delegated Regulation (EU) 2017/574 (RTS 25), supplementing Directive 2014/65/EU (MiFID II) on the level of accuracy of business clocks",
@@ -418,7 +418,7 @@
     },
     {
       "key": "clock.holdover",
-      "title": "Holdover time to breach (horizon 2.0 d; prediction bars pre-registered as V5 and NOT passed: the time to breach is not a validated claim)",
+      "title": "Holdover time to breach (horizon 2.0 d; prediction bars pre-registered as V5 and as its successor V5b both NOT passed: the time to breach is not a validated claim)",
       "columns": [
         "Clock",
         "Limit",
@@ -480,24 +480,24 @@
           "gm-ldn-1",
           "RTS 25 HFT style (user-set)",
           "100.000 µs",
-          "39.8 h",
-          "46.6 h",
+          "35.5 h",
+          "beyond horizon",
           "measured"
         ],
         [
           "gm-ldn-1",
           "PRTC-A style (user-set)",
           "1.100 µs",
-          "2.9 h",
-          "4.9 h",
+          "3.3 h",
+          "5.8 h",
           "measured"
         ],
         [
           "gm-ldn-1",
           "Internal 100 ns (user-set)",
           "100.00 ns",
-          "26 min",
-          "65 min",
+          "47 min",
+          "90 min",
           "measured"
         ],
         [

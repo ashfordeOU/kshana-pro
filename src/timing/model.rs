@@ -90,6 +90,12 @@ fn invert(m: &[Vec<f64>]) -> Option<Vec<Vec<f64>>> {
 /// on relative residuals, every term non-negative: each non-empty subset of the three terms is
 /// solved unconstrained, the subsets with a negative term are dropped, and the lowest cost wins.
 pub fn fit_noise(points: &[(f64, f64)]) -> Noise {
+    fit_noise_with(points, |_| 0.0)
+}
+
+/// [`fit_noise`] with a known, fixed term `offset(tau)` added to the model (the successor
+/// predictor's drift term `D^2 tau^2 / 2`).
+pub fn fit_noise_with(points: &[(f64, f64)], offset: impl Fn(f64) -> f64) -> Noise {
     let pts: Vec<(f64, f64)> = points
         .iter()
         .copied()
@@ -104,7 +110,7 @@ pub fn fit_noise(points: &[(f64, f64)]) -> Noise {
             .map(|(t, v)| {
                 let b = basis(*t);
                 let model = b[0] * p[0] + b[1] * p[1] + b[2] * p[2];
-                ((model - v) / v).powi(2)
+                ((model + offset(*t) - v) / v).powi(2)
             })
             .sum()
     };
@@ -114,7 +120,8 @@ pub fn fit_noise(points: &[(f64, f64)]) -> Noise {
         if idx.len() > pts.len() {
             continue;
         }
-        // Normal equations of the weighted problem: rows b_j(tau_i) / v_i, target 1.
+        // Normal equations of the weighted problem: rows b_j(tau_i) / v_i, target
+        // (v_i - offset_i) / v_i (exactly 1 without an offset).
         let k = idx.len();
         let mut ata = vec![vec![0.0; k]; k];
         let mut aty = vec![0.0; k];
@@ -122,7 +129,7 @@ pub fn fit_noise(points: &[(f64, f64)]) -> Noise {
             let b = basis(*t);
             for (r, &i) in idx.iter().enumerate() {
                 let ai = b[i] / v;
-                aty[r] += ai;
+                aty[r] += ai * ((v - offset(*t)) / v);
                 for (c, &j) in idx.iter().enumerate() {
                     ata[r][c] += ai * b[j] / v;
                 }
@@ -180,10 +187,17 @@ pub struct HoldoverModel {
     /// The noise used for the prediction.
     pub noise: Noise,
     pub noise_source: NoiseSource,
-    /// The Allan points of the residuals the noise was fitted to (`tau` s, deviation); empty
-    /// for a prior.
+    /// The Allan points the noise was fitted to (`tau` s, deviation); empty for a prior.
     pub adev_points: Vec<(f64, f64)>,
+    /// `quadratic` (the V5 predictor), `kalman` (the successor, V5b) or `prior`.
+    pub method: &'static str,
+    /// The full state covariance at the handover (phase, frequency, drift), for `kalman`.
+    pub cov: Option<[[f64; 3]; 3]>,
 }
+
+/// The phase-measurement variance floor of the successor predictor: the rounding of a phase
+/// printed to 1e-13 s.
+pub const R_FLOOR_S2: f64 = 1e-26 / 12.0;
 
 /// One point of a prediction.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize)]
@@ -327,6 +341,85 @@ impl HoldoverModel {
             noise,
             noise_source: NoiseSource::Measured,
             adev_points,
+            method: "quadratic",
+            cov: None,
+        })
+    }
+
+    /// The successor predictor (V5b pre-registration, section 2): the drift from the window's
+    /// quadratic, the noise from the Allan variance of the raw window phase with the drift term
+    /// held fixed, and the handover state and its full covariance from the open engine's
+    /// three-state clock Kalman filter run over the window.
+    pub fn fit_kalman(x: &[f64], tau0: f64, window_s: f64) -> Result<HoldoverModel, String> {
+        let quad = HoldoverModel::fit(x, tau0, window_s)?;
+        let n = quad.n_window;
+        let w = &x[x.len() - n..];
+        let x0 = w[0];
+        let rel: Vec<f64> = w.iter().map(|v| v - x0).collect();
+        let d = quad.drift_per_s;
+        let mut pts = Vec::new();
+        let mut m = 1usize;
+        while m <= n / 8 && n > 2 * m {
+            let dev = kshana::allan::overlapping_adev(&rel, tau0, m);
+            pts.push((m as f64 * tau0, dev));
+            m *= 2;
+        }
+        let avar: Vec<(f64, f64)> = pts.iter().map(|(t, a)| (*t, a * a)).collect();
+        let fitted = fit_noise_with(&avar, |tau| d * d * tau * tau / 2.0);
+        let r_eff = fitted.r_s2.max(R_FLOOR_S2);
+        // Start: a line over the first quarter.
+        let q = (n / 4).max(2);
+        let (mut st, mut stt, mut sx, mut stx) = (0.0, 0.0, 0.0, 0.0);
+        for (i, v) in rel[..q].iter().enumerate() {
+            let t = i as f64 * tau0;
+            st += t;
+            stt += t * t;
+            sx += v;
+            stx += t * v;
+        }
+        let qf = q as f64;
+        let den = qf * stt - st * st;
+        let y0 = if den != 0.0 {
+            (qf * stx - st * sx) / den
+        } else {
+            0.0
+        };
+        let b0 = (sx - y0 * st) / qf;
+        let sdq = (rel[..q]
+            .iter()
+            .enumerate()
+            .map(|(i, v)| (v - b0 - y0 * i as f64 * tau0).powi(2))
+            .sum::<f64>()
+            / (qf - 2.0).max(1.0))
+        .sqrt();
+        let s_x = 10.0 * sdq + r_eff.sqrt();
+        let mut kf = kshana::clock_state::ClockState3::new(fitted.q_wf, fitted.q_rw, 0.0)
+            .with_initial_cov(s_x * s_x, 1e-16, 1e-24);
+        kf.x = [0.0, y0, 0.0];
+        kf.update_phase(rel[0], r_eff);
+        for z in &rel[1..] {
+            kf.predict(tau0);
+            kf.update_phase(*z, r_eff);
+        }
+        let p = kf.covariance();
+        Ok(HoldoverModel {
+            phase_s: x0 + kf.x[0],
+            freq: kf.x[1],
+            drift_per_s: kf.x[2],
+            var_phase: p[0][0],
+            var_freq: p[1][1],
+            var_drift: p[2][2],
+            window_s: quad.window_s,
+            n_window: n,
+            residual_rms_s: quad.residual_rms_s,
+            noise: Noise {
+                r_s2: r_eff,
+                ..fitted
+            },
+            noise_source: NoiseSource::Measured,
+            adev_points: pts,
+            method: "kalman",
+            cov: Some(p),
         })
     }
 
@@ -362,6 +455,8 @@ impl HoldoverModel {
             },
             noise_source: NoiseSource::Prior,
             adev_points: Vec::new(),
+            method: "prior",
+            cov: None,
         })
     }
 
@@ -376,6 +471,19 @@ impl HoldoverModel {
 
     /// The predicted 1-sigma of the holdover time error after `u` s.
     pub fn sigma(&self, u: f64) -> f64 {
+        if let Some(p) = &self.cov {
+            let g = [1.0, u, u * u / 2.0];
+            let mut gpg = 0.0;
+            for i in 0..3 {
+                for j in 0..3 {
+                    gpg += g[i] * p[i][j] * g[j];
+                }
+            }
+            let nz = &self.noise;
+            let v =
+                gpg + kshana::holdover::coast_phase_variance(nz.q_wf, nz.q_rw, 0.0, u) + nz.r_s2;
+            return v.max(0.0).sqrt();
+        }
         let w = self.window_s.max(f64::MIN_POSITIVE);
         let nz = &self.noise;
         let var_b = self.var_freq + nz.q_wf / w + nz.q_rw * w / 3.0;
@@ -593,6 +701,24 @@ mod tests {
         let (wa, fa) = (a.t_warn_s.unwrap(), a.t_50_s.unwrap());
         assert!(wa <= fa);
         assert!(b.t_warn_s.unwrap_or(f64::INFINITY) >= wa);
+    }
+
+    #[test]
+    fn the_kalman_state_tracks_a_random_walk_clock() {
+        let mut rng = SplitMix::new(3);
+        let (q_wf, q_rw) = (2.5e-23, 7.5e-27);
+        let x = synth_clock(&mut rng, 20_000, 10.0, q_wf, q_rw, 0.0, 1e-10, 1e-9);
+        let m = HoldoverModel::fit_kalman(&x, 10.0, 48.0 * 3600.0).unwrap();
+        assert_eq!(m.method, "kalman");
+        // The handover phase is within a few sigma of the last sample, unlike a global fit.
+        let last = *x.last().unwrap();
+        assert!(
+            (m.phase_s - last).abs() < 5.0 * m.sigma(0.0) + 5e-9,
+            "{} {}",
+            m.phase_s,
+            last
+        );
+        assert!(m.sigma(3600.0) > m.sigma(60.0));
     }
 
     #[test]

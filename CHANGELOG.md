@@ -15,8 +15,11 @@ own bullet so parallel work merges cleanly.
   reports mapped to MiFID II RTS 25 traceability and the NIST IR 8323 profile; verified with the
   free `dossier verify`). `kshana-pro timing <assess|console|metrics|history|audit>`. V5 was
   pre-registered before the code and scored on eleven real IGS rubidium clocks and a synthetic
-  fleet: **missed** (published in `docs/evidence/v5-holdover-time-to-breach/`), so T1 is not
-  claimed. Tier manifest regenerated; service clients regenerated.
+  fleet: **missed** (published in `docs/evidence/v5-holdover-time-to-breach/`). The successor
+  predictor (Kalman-filter handover state, now used by the fleet assessment) was pre-registered as
+  V5b before it was written and scored on IGS data V5 did not use: synthetic bars all passed, real
+  data missed B1 (0.894 against 0.90) and B5; published beside V5. T1 is not claimed. Tier
+  manifest regenerated; service clients regenerated.
 
 - **Arksa-exclusive code moved out (roadmap 0.42 X3; docs/PROTECTION.md, section 6).** The
   eleven Arksa-exclusive kinds (the nine of section 1a plus the two lunar surface beacon

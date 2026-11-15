@@ -13,9 +13,10 @@
 //! * **T3** ([`audit`]): a signed audit report mapped to MiFID II RTS 25 traceability or to the
 //!   NIST IR 8323 PNT profile. Feature `pro-timing-audit`. Verifying a report is free.
 //!
-//! The prediction method is pre-registered and scored as evidence row V5
-//! (`docs/evidence/v5-holdover-time-to-breach/`); [`V5_PASSED`] records the published
-//! outcome and every result carries it in its label. Docs: `docs/TIMING-ASSURANCE.md`.
+//! The prediction method is pre-registered and scored as evidence row V5, and its successor
+//! (used by the fleet assessment) as V5b (`docs/evidence/v5-holdover-time-to-breach/`);
+//! [`V5_PASSED`] and [`V5B_PASSED`] record the published outcomes and every result carries
+//! them in its label. Docs: `docs/TIMING-ASSURANCE.md`.
 
 pub mod audit;
 pub mod console;
@@ -35,12 +36,16 @@ pub const AUDIT_FEATURE: &str = "pro-timing-audit";
 /// claimed only when this is true; `tests/timing_v5.rs` keeps it equal to the scored result.
 pub const V5_PASSED: bool = false;
 
+/// Whether the successor predictor's pre-registered bars (V5b, on data V5 did not use) passed
+/// on both data sets (`V5b_RESULTS.md`); `tests/timing_v5.rs` keeps it equal to the scored result.
+pub const V5B_PASSED: bool = false;
+
 /// The V5 status in words, for labels and reports.
 pub fn v5_status() -> &'static str {
-    if V5_PASSED {
-        "prediction bars pre-registered as V5 and passed on recorded clocks"
-    } else {
-        "prediction bars pre-registered as V5 and NOT passed: the time to breach is not a validated claim"
+    match (V5_PASSED, V5B_PASSED) {
+        (true, _) => "prediction bars pre-registered as V5 and passed on recorded clocks",
+        (false, true) => "V5 missed; the successor predictor's pre-registered bars (V5b) passed on recorded clocks",
+        (false, false) => "prediction bars pre-registered as V5 and as its successor V5b both NOT passed: the time to breach is not a validated claim",
     }
 }
 

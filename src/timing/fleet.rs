@@ -340,7 +340,10 @@ pub fn assess_clock(spec: &FleetSpec, c: &ClockSpec) -> Result<ClockAssessment, 
             Some(name),
         )
     } else {
-        (HoldoverModel::fit(x, tau0, window).map_err(bad)?, None)
+        (
+            HoldoverModel::fit_kalman(x, tau0, window).map_err(bad)?,
+            None,
+        )
     };
     let step = tau0.max(horizon / MAX_GRID);
     let mut breaches = Vec::new();

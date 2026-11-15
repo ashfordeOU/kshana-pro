@@ -16,6 +16,11 @@ use kshana_pro::timing::model::{class_noise, synth_clock, HoldoverModel, SplitMi
 
 const RESULTS: &str = "docs/evidence/v5-holdover-time-to-breach/results.json";
 const CLOCKS: &str = include_str!("fixtures/timing_v5_igs/clocks.txt");
+// V5b (`2026-11-15_V5b_PREREGISTRATION.md`): the successor predictor on data V5 did not use.
+const RESULTS_B: &str = "docs/evidence/v5-holdover-time-to-breach/V5b_results.json";
+const CLOCKS_B: &str = include_str!("fixtures/timing_v5b_igs/clocks.txt");
+
+type Fit = fn(&[f64], f64, f64) -> Result<HoldoverModel, String>;
 
 /// One data set's scoring inputs.
 struct DataSet {
@@ -45,10 +50,17 @@ struct Tally {
 }
 
 fn real() -> DataSet {
+    real_from(
+        CLOCKS,
+        "D-R (real, IGS GPS IIF rubidium, emulated holdover)",
+    )
+}
+
+fn real_from(text: &str, name: &'static str) -> DataSet {
     let mut clocks: Vec<(String, Vec<Option<f64>>)> = Vec::new();
     let mut acc = 0i64;
     let mut first = 0.0;
-    for line in CLOCKS.lines() {
+    for line in text.lines() {
         if line.starts_with('#') || line.trim().is_empty() {
             continue;
         }
@@ -75,7 +87,7 @@ fn real() -> DataSet {
     }
     assert_eq!(clocks.len(), 11);
     DataSet {
-        name: "D-R (real, IGS GPS IIF rubidium, emulated holdover)",
+        name,
         tau0: 300.0,
         window_s: 48.0 * 3600.0,
         horizon_s: 48.0 * 3600.0,
@@ -87,10 +99,14 @@ fn real() -> DataSet {
 }
 
 fn synthetic() -> DataSet {
+    synthetic_seed(20261115, "D-S (SYNTHETIC, four classes)")
+}
+
+fn synthetic_seed(seed: u64, name: &'static str) -> DataSet {
     let tau0 = 10.0;
     // Four days spanned: 4 d / tau0 intervals, so 34 561 samples.
     let n = (4.0 * 86_400.0 / tau0) as usize + 1;
-    let mut rng = SplitMix::new(20261115);
+    let mut rng = SplitMix::new(seed);
     let mut clocks = Vec::new();
     for (class, dmax) in [
         ("tcxo", 1e-14),
@@ -107,7 +123,7 @@ fn synthetic() -> DataSet {
         }
     }
     DataSet {
-        name: "D-S (SYNTHETIC, four classes)",
+        name,
         tau0,
         window_s: 48.0 * 3600.0,
         horizon_s: 24.0 * 3600.0,
@@ -118,7 +134,7 @@ fn synthetic() -> DataSet {
     }
 }
 
-fn score(ds: &DataSet) -> (Tally, Vec<(String, Tally)>) {
+fn score(ds: &DataSet, fit: Fit) -> (Tally, Vec<(String, Tally)>) {
     let w = (ds.window_s / ds.tau0).round() as usize;
     let h = (ds.horizon_s / ds.tau0).round() as usize;
     let mut total = Tally::default();
@@ -133,7 +149,7 @@ fn score(ds: &DataSet) -> (Tally, Vec<(String, Tally)>) {
             }
             t.runs += 1;
             let train: Vec<f64> = x[th - w..=th].iter().map(|v| v.unwrap()).collect();
-            let m = HoldoverModel::fit(&train, ds.tau0, ds.window_s).expect("fit");
+            let m = fit(&train, ds.tau0, ds.window_s).expect("fit");
             let te = |k: usize| {
                 let u = k as f64 * ds.tau0;
                 x[th + k].unwrap() - (m.phase_s + m.freq * u)
@@ -231,8 +247,8 @@ fn bars(t: &Tally) -> (Vec<serde_json::Value>, bool) {
     (rows, b1_ok && b2_ok && b3_ok && b4_ok && b5_ok)
 }
 
-fn set_json(ds: &DataSet, per_clock: bool) -> (serde_json::Value, bool) {
-    let (t, per) = score(ds);
+fn set_json(ds: &DataSet, per_clock: bool, fit: Fit) -> (serde_json::Value, bool) {
+    let (t, per) = score(ds, fit);
     let (rows, pass) = bars(&t);
     let mut doc = serde_json::json!({
         "data_set": ds.name,
@@ -266,14 +282,16 @@ fn set_json(ds: &DataSet, per_clock: bool) -> (serde_json::Value, bool) {
     (doc, pass)
 }
 
-#[test]
-fn v5_scored_as_pre_registered_and_published() {
-    let (dr, pr) = set_json(&real(), true);
-    let (ds, ps) = set_json(&synthetic(), true);
+/// Score both data sets with `fit`, print the table, and compare with (or, with
+/// `KSHANA_PRO_REGEN_V5`, write) the committed results file. Returns whether every bar passed.
+fn publish(pre: &str, results: &str, sets: [DataSet; 2], fit: Fit) -> bool {
+    let [a, b] = sets;
+    let (dr, pr) = set_json(&a, true, fit);
+    let (ds, ps) = set_json(&b, true, fit);
     let passed = pr && ps;
     let doc = serde_json::json!({
         "format": "kshana-pro-v5-results/1",
-        "pre_registration": "2026-11-15_PREREGISTRATION.md",
+        "pre_registration": pre,
         "v5_passed": passed,
         "data_sets": [dr, ds],
     });
@@ -294,20 +312,56 @@ fn v5_scored_as_pre_registered_and_published() {
             );
         }
     }
-    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(RESULTS);
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(results);
     if std::env::var_os("KSHANA_PRO_REGEN_V5").is_some() {
         std::fs::write(&path, &text).unwrap();
-        eprintln!("wrote {RESULTS}");
-        return;
+        eprintln!("wrote {results}");
+        return passed;
     }
-    let committed = std::fs::read_to_string(&path).expect("results.json is committed");
+    let committed = std::fs::read_to_string(&path).expect("the results file is committed");
     assert_eq!(
         committed, text,
-        "the published V5 results no longer match the code; regenerate and re-publish"
+        "the published results no longer match the code; regenerate and re-publish"
     );
-    assert_eq!(
-        kshana_pro::timing::V5_PASSED,
-        passed,
-        "timing::V5_PASSED must equal the scored V5 outcome"
+    passed
+}
+
+#[test]
+fn v5_scored_as_pre_registered_and_published() {
+    let passed = publish(
+        "2026-11-15_PREREGISTRATION.md",
+        RESULTS,
+        [real(), synthetic()],
+        HoldoverModel::fit,
     );
+    if std::env::var_os("KSHANA_PRO_REGEN_V5").is_none() {
+        assert_eq!(
+            kshana_pro::timing::V5_PASSED,
+            passed,
+            "timing::V5_PASSED must equal the scored V5 outcome"
+        );
+    }
+}
+
+#[test]
+fn v5b_scored_as_pre_registered_and_published() {
+    let passed = publish(
+        "2026-11-15_V5b_PREREGISTRATION.md",
+        RESULTS_B,
+        [
+            real_from(
+                CLOCKS_B,
+                "D-R2 (real, IGS GPS IIF rubidium 2025-08-17..30, emulated holdover)",
+            ),
+            synthetic_seed(20261116, "D-S2 (SYNTHETIC, four classes, seed 20261116)"),
+        ],
+        HoldoverModel::fit_kalman,
+    );
+    if std::env::var_os("KSHANA_PRO_REGEN_V5").is_none() {
+        assert_eq!(
+            kshana_pro::timing::V5B_PASSED,
+            passed,
+            "timing::V5B_PASSED must equal the scored V5b outcome"
+        );
+    }
 }

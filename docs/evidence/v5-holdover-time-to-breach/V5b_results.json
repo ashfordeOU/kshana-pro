@@ -1,0 +1,475 @@
+{
+  "data_sets": [
+    {
+      "bars": [
+        {
+          "bar": "B1",
+          "metric": "95 % interval coverage",
+          "pass_if": "0.90 to 0.99",
+          "value": 0.8935,
+          "verdict": "MISS"
+        },
+        {
+          "bar": "B2",
+          "metric": "early warning share",
+          "pass_if": ">= 0.90",
+          "value": 0.9501,
+          "verdict": "pass"
+        },
+        {
+          "bar": "B3",
+          "metric": "median T_warn / T_act",
+          "pass_if": ">= 0.20",
+          "value": 0.4387,
+          "verdict": "pass"
+        },
+        {
+          "bar": "B4",
+          "metric": "T_50 within a factor 2",
+          "pass_if": ">= 0.60",
+          "value": 0.8268,
+          "verdict": "pass"
+        },
+        {
+          "bar": "B5",
+          "metric": "false-alarm share",
+          "pass_if": "<= 0.25",
+          "value": 0.4897,
+          "verdict": "MISS"
+        }
+      ],
+      "coverage_points": 1456,
+      "data_set": "D-R2 (real, IGS GPS IIF rubidium 2025-08-17..30, emulated holdover)",
+      "excluded_runs": 12,
+      "pairs_with_breach": 381,
+      "pairs_without_breach": 243,
+      "passes": false,
+      "per_clock": [
+        {
+          "clock": "G03",
+          "coverage": 0.8929,
+          "early_warning": 0.6,
+          "excluded": 12,
+          "false_alarms": 9,
+          "median_warn_ratio": 0.7774,
+          "pairs_with_breach": 15,
+          "pairs_without_breach": 9,
+          "runs": 8,
+          "t50_within_2x": 0.4
+        },
+        {
+          "clock": "G06",
+          "coverage": 0.9571,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 9,
+          "median_warn_ratio": 0.3992,
+          "pairs_with_breach": 51,
+          "pairs_without_breach": 9,
+          "runs": 20,
+          "t50_within_2x": 0.8039
+        },
+        {
+          "clock": "G08",
+          "coverage": 0.9786,
+          "early_warning": 0.9737,
+          "excluded": 0,
+          "false_alarms": 3,
+          "median_warn_ratio": 0.4273,
+          "pairs_with_breach": 38,
+          "pairs_without_breach": 22,
+          "runs": 20,
+          "t50_within_2x": 0.9211
+        },
+        {
+          "clock": "G09",
+          "coverage": 0.9857,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 16,
+          "median_warn_ratio": 0.5147,
+          "pairs_with_breach": 44,
+          "pairs_without_breach": 16,
+          "runs": 20,
+          "t50_within_2x": 0.8636
+        },
+        {
+          "clock": "G10",
+          "coverage": 0.9071,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 4,
+          "median_warn_ratio": 0.4815,
+          "pairs_with_breach": 36,
+          "pairs_without_breach": 24,
+          "runs": 20,
+          "t50_within_2x": 0.8611
+        },
+        {
+          "clock": "G24",
+          "coverage": 0.7929,
+          "early_warning": 0.875,
+          "excluded": 0,
+          "false_alarms": 19,
+          "median_warn_ratio": 0.5011,
+          "pairs_with_breach": 32,
+          "pairs_without_breach": 28,
+          "runs": 20,
+          "t50_within_2x": 0.75
+        },
+        {
+          "clock": "G25",
+          "coverage": 0.65,
+          "early_warning": 0.7931,
+          "excluded": 0,
+          "false_alarms": 8,
+          "median_warn_ratio": 0.6273,
+          "pairs_with_breach": 29,
+          "pairs_without_breach": 31,
+          "runs": 20,
+          "t50_within_2x": 0.7586
+        },
+        {
+          "clock": "G26",
+          "coverage": 0.7643,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 12,
+          "median_warn_ratio": 0.4733,
+          "pairs_with_breach": 48,
+          "pairs_without_breach": 12,
+          "runs": 20,
+          "t50_within_2x": 0.9792
+        },
+        {
+          "clock": "G27",
+          "coverage": 0.9643,
+          "early_warning": 0.9375,
+          "excluded": 0,
+          "false_alarms": 8,
+          "median_warn_ratio": 0.4078,
+          "pairs_with_breach": 32,
+          "pairs_without_breach": 28,
+          "runs": 20,
+          "t50_within_2x": 0.7188
+        },
+        {
+          "clock": "G30",
+          "coverage": 0.9429,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 24,
+          "median_warn_ratio": 0.2886,
+          "pairs_with_breach": 22,
+          "pairs_without_breach": 38,
+          "runs": 20,
+          "t50_within_2x": 0.8182
+        },
+        {
+          "clock": "G32",
+          "coverage": 0.9929,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 7,
+          "median_warn_ratio": 0.3062,
+          "pairs_with_breach": 34,
+          "pairs_without_breach": 26,
+          "runs": 20,
+          "t50_within_2x": 0.8824
+        }
+      ],
+      "runs": 208
+    },
+    {
+      "bars": [
+        {
+          "bar": "B1",
+          "metric": "95 % interval coverage",
+          "pass_if": "0.90 to 0.99",
+          "value": 0.9033,
+          "verdict": "pass"
+        },
+        {
+          "bar": "B2",
+          "metric": "early warning share",
+          "pass_if": ">= 0.90",
+          "value": 0.9153,
+          "verdict": "pass"
+        },
+        {
+          "bar": "B3",
+          "metric": "median T_warn / T_act",
+          "pass_if": ">= 0.20",
+          "value": 0.5561,
+          "verdict": "pass"
+        },
+        {
+          "bar": "B4",
+          "metric": "T_50 within a factor 2",
+          "pass_if": ">= 0.60",
+          "value": 0.8148,
+          "verdict": "pass"
+        },
+        {
+          "bar": "B5",
+          "metric": "false-alarm share",
+          "pass_if": "<= 0.25",
+          "value": 0.1441,
+          "verdict": "pass"
+        }
+      ],
+      "coverage_points": 600,
+      "data_set": "D-S2 (SYNTHETIC, four classes, seed 20261116)",
+      "excluded_runs": 0,
+      "pairs_with_breach": 189,
+      "pairs_without_breach": 111,
+      "passes": true,
+      "per_clock": [
+        {
+          "clock": "tcxo-0",
+          "coverage": 1.0,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.3451,
+          "pairs_with_breach": 10,
+          "pairs_without_breach": 5,
+          "runs": 5,
+          "t50_within_2x": 0.7
+        },
+        {
+          "clock": "tcxo-1",
+          "coverage": 0.8667,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.4785,
+          "pairs_with_breach": 11,
+          "pairs_without_breach": 4,
+          "runs": 5,
+          "t50_within_2x": 0.9091
+        },
+        {
+          "clock": "tcxo-2",
+          "coverage": 1.0,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.8831,
+          "pairs_with_breach": 12,
+          "pairs_without_breach": 3,
+          "runs": 5,
+          "t50_within_2x": 0.8333
+        },
+        {
+          "clock": "tcxo-3",
+          "coverage": 1.0,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.6137,
+          "pairs_with_breach": 10,
+          "pairs_without_breach": 5,
+          "runs": 5,
+          "t50_within_2x": 1.0
+        },
+        {
+          "clock": "tcxo-4",
+          "coverage": 1.0,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.5616,
+          "pairs_with_breach": 10,
+          "pairs_without_breach": 5,
+          "runs": 5,
+          "t50_within_2x": 1.0
+        },
+        {
+          "clock": "ocxo-0",
+          "coverage": 0.8,
+          "early_warning": 0.625,
+          "excluded": 0,
+          "false_alarms": 2,
+          "median_warn_ratio": 0.6863,
+          "pairs_with_breach": 8,
+          "pairs_without_breach": 7,
+          "runs": 5,
+          "t50_within_2x": 0.625
+        },
+        {
+          "clock": "ocxo-1",
+          "coverage": 0.8667,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 3,
+          "median_warn_ratio": 0.4726,
+          "pairs_with_breach": 7,
+          "pairs_without_breach": 8,
+          "runs": 5,
+          "t50_within_2x": 0.8571
+        },
+        {
+          "clock": "ocxo-2",
+          "coverage": 0.9,
+          "early_warning": 0.7143,
+          "excluded": 0,
+          "false_alarms": 1,
+          "median_warn_ratio": 0.8196,
+          "pairs_with_breach": 7,
+          "pairs_without_breach": 8,
+          "runs": 5,
+          "t50_within_2x": 0.8571
+        },
+        {
+          "clock": "ocxo-3",
+          "coverage": 0.9667,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 2,
+          "median_warn_ratio": 0.5425,
+          "pairs_with_breach": 8,
+          "pairs_without_breach": 7,
+          "runs": 5,
+          "t50_within_2x": 1.0
+        },
+        {
+          "clock": "ocxo-4",
+          "coverage": 0.7333,
+          "early_warning": 0.75,
+          "excluded": 0,
+          "false_alarms": 2,
+          "median_warn_ratio": 0.7438,
+          "pairs_with_breach": 8,
+          "pairs_without_breach": 7,
+          "runs": 5,
+          "t50_within_2x": 0.625
+        },
+        {
+          "clock": "rafs-0",
+          "coverage": 0.9333,
+          "early_warning": 0.7778,
+          "excluded": 0,
+          "false_alarms": 1,
+          "median_warn_ratio": 0.5608,
+          "pairs_with_breach": 9,
+          "pairs_without_breach": 6,
+          "runs": 5,
+          "t50_within_2x": 0.7778
+        },
+        {
+          "clock": "rafs-1",
+          "coverage": 1.0,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 2,
+          "median_warn_ratio": 0.3894,
+          "pairs_with_breach": 8,
+          "pairs_without_breach": 7,
+          "runs": 5,
+          "t50_within_2x": 0.875
+        },
+        {
+          "clock": "rafs-2",
+          "coverage": 0.9,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.561,
+          "pairs_with_breach": 10,
+          "pairs_without_breach": 5,
+          "runs": 5,
+          "t50_within_2x": 0.8
+        },
+        {
+          "clock": "rafs-3",
+          "coverage": 0.5333,
+          "early_warning": 0.6,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.8713,
+          "pairs_with_breach": 10,
+          "pairs_without_breach": 5,
+          "runs": 5,
+          "t50_within_2x": 0.6
+        },
+        {
+          "clock": "rafs-4",
+          "coverage": 0.7667,
+          "early_warning": 0.8,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.9087,
+          "pairs_with_breach": 10,
+          "pairs_without_breach": 5,
+          "runs": 5,
+          "t50_within_2x": 0.8
+        },
+        {
+          "clock": "csac-0",
+          "coverage": 1.0,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.2416,
+          "pairs_with_breach": 10,
+          "pairs_without_breach": 5,
+          "runs": 5,
+          "t50_within_2x": 0.5
+        },
+        {
+          "clock": "csac-1",
+          "coverage": 0.9,
+          "early_warning": 0.9091,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.5139,
+          "pairs_with_breach": 11,
+          "pairs_without_breach": 4,
+          "runs": 5,
+          "t50_within_2x": 0.8182
+        },
+        {
+          "clock": "csac-2",
+          "coverage": 0.9333,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.4741,
+          "pairs_with_breach": 10,
+          "pairs_without_breach": 5,
+          "runs": 5,
+          "t50_within_2x": 0.9
+        },
+        {
+          "clock": "csac-3",
+          "coverage": 0.9667,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 0,
+          "median_warn_ratio": 0.5966,
+          "pairs_with_breach": 10,
+          "pairs_without_breach": 5,
+          "runs": 5,
+          "t50_within_2x": 0.8
+        },
+        {
+          "clock": "csac-4",
+          "coverage": 1.0,
+          "early_warning": 1.0,
+          "excluded": 0,
+          "false_alarms": 3,
+          "median_warn_ratio": 0.5803,
+          "pairs_with_breach": 10,
+          "pairs_without_breach": 5,
+          "runs": 5,
+          "t50_within_2x": 1.0
+        }
+      ],
+      "runs": 100
+    }
+  ],
+  "format": "kshana-pro-v5-results/1",
+  "pre_registration": "2026-11-15_V5b_PREREGISTRATION.md",
+  "v5_passed": false
+}
