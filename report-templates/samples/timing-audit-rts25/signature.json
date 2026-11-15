@@ -1,0 +1,62 @@
+{
+  "format": "kshana-dossier-signature/1",
+  "signer": "Kshana Pro sample (demo key)",
+  "utc": "2026-11-15T09:30:00Z",
+  "public_key": "cbeec3b391895ffa70cb4a2ff99db928ee9db93953bb0a038331dfd2176beebe",
+  "key_id": "e4aaac1cc0a77bde",
+  "files": [
+    {
+      "path": "README.txt",
+      "sha256": "2b369b28cd014861e1eee149ec531cb69e1a08e84e176742104f5dfa5a0133e7"
+    },
+    {
+      "path": "fleet-assessment.json",
+      "sha256": "5a60d31cf47610af1b3f703b5e8b2d1276dda36859c58e66b1cbdf2b12aa5cf5"
+    },
+    {
+      "path": "history/bc-ldn-2.jsonl",
+      "sha256": "b11b8c0902cc0ad60b4d1df6a030049394377eec1ea1c8fecac56349c2646ee7"
+    },
+    {
+      "path": "history/gm-fra-1.jsonl",
+      "sha256": "6edf59256842130d98d1faad489aa65fc99cf2d8f78af3ea78bfad1ff5fa9a78"
+    },
+    {
+      "path": "history/gm-ldn-1.jsonl",
+      "sha256": "dc035d02d428aa9f65060567cea116f22581f7d86191e162d6fb5b6e6f5d0b57"
+    },
+    {
+      "path": "history/ntp-fra-4.jsonl",
+      "sha256": "aee983d0fffd189535de5c8b75ce7e73ca49bdb39daa956ea39c8e39170ee5f7"
+    },
+    {
+      "path": "history/pps-ldn-5.jsonl",
+      "sha256": "99117895b27a8b29a114ed576591b389b3f072d307bc9b74d31e7174d0dea44d"
+    },
+    {
+      "path": "history/ref-fra-0.jsonl",
+      "sha256": "12eebc24de948b06b05bad5cbc704d6de733f116edd8dac50f3de771d48f1b4e"
+    },
+    {
+      "path": "history/srv-ldn-3.jsonl",
+      "sha256": "7f5735d122a0c6b7cb6db8ab0dcdb758b7d4ce86f9b9f3781234e170a39171ff"
+    },
+    {
+      "path": "history/wr-fra-2.jsonl",
+      "sha256": "a085765fc490a32e4b544cfe706d7ec0f05b3254acd48f1375ceef32634cb069"
+    },
+    {
+      "path": "report.html",
+      "sha256": "157f9762cac1d5308c646dc663723cc016217e7388f928921b186daf90a3439b"
+    },
+    {
+      "path": "report.json",
+      "sha256": "ef28dfee1352b88dceaf1ac57bad3ad6abb90f1cb7f2a5a2e3a5db811f496aaa"
+    },
+    {
+      "path": "template.json",
+      "sha256": "f7576724802c0fd79f4a8581e9323f79e14ec81dbbafc0fc03d32de0313d5027"
+    }
+  ],
+  "signature": "7418a9ca240d2287a0f570009f091db2a84d3fe47295b915c1fc7587c395a270a72899e861c26cf32b8b4555b6270847439885579c2539c7413eee2d4b05180f"
+}

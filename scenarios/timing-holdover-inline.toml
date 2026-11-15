@@ -1,0 +1,635 @@
+# Timing fleet with inline logs (pro-timing-holdover). SYNTHETIC: written by examples/timing-fleet/generate.py (random.Random(20261115)); not a measurement.
+kind = "pro-timing-holdover"
+title = "Inline demo fleet"
+fleet = "inline-demo"
+window_h = 1
+horizon_h = 4
+
+[[limits]]
+name = "PRTC-A style (user-set)"
+value_s = 1.1e-6
+
+[[limits]]
+name = "Internal 100 ns (user-set)"
+value_s = 100e-9
+
+[[clocks]]
+id = "osc-1"
+vendor = "Vendor A"
+role = "grandmaster"
+[clocks.source]
+format = "timelab"
+text = """
+# tau0 = 10
+# units = ns
+0.000000
+0.998187
+1.971531
+2.969697
+3.960663
+4.946848
+5.949271
+6.933869
+7.946279
+8.963240
+9.933492
+10.924043
+11.918329
+12.938172
+13.958172
+14.953470
+15.957759
+16.951727
+17.938997
+18.903648
+19.917978
+20.903488
+21.952186
+22.934959
+23.981290
+24.979066
+25.979659
+26.983909
+27.982869
+28.996459
+30.015856
+31.022944
+32.018117
+33.019833
+34.005537
+35.024267
+35.993799
+37.003126
+38.016941
+39.038828
+40.059419
+41.053357
+42.067844
+43.094227
+44.103925
+45.103071
+46.097028
+47.081362
+48.081664
+49.076369
+50.068699
+51.074396
+52.069540
+53.071900
+54.071434
+55.065596
+56.079170
+57.064838
+58.093306
+59.098784
+60.076187
+61.071647
+62.062763
+63.068846
+64.066391
+65.047258
+66.051434
+67.033594
+68.039924
+69.015838
+70.011567
+71.002085
+71.987419
+72.990183
+73.962570
+74.945786
+75.935576
+76.906486
+77.911343
+78.880190
+79.820860
+80.818060
+81.803944
+82.772954
+83.738862
+84.711461
+85.694368
+86.678308
+87.675816
+88.648382
+89.607534
+90.618783
+91.615358
+92.582465
+93.562845
+94.534801
+95.492586
+96.464033
+97.445517
+98.438953
+99.440706
+100.421608
+101.402324
+102.359673
+103.368914
+104.375239
+105.343221
+106.307879
+107.294247
+108.268574
+109.257125
+110.221125
+111.178119
+112.157380
+113.129106
+114.075318
+115.031080
+115.988272
+116.952131
+117.916481
+118.870841
+119.819886
+120.761053
+121.732509
+122.697702
+123.672718
+124.625821
+125.573219
+126.524955
+127.489620
+128.456146
+129.399030
+130.365472
+131.333596
+132.310112
+133.272622
+134.233755
+135.206833
+136.175385
+137.136842
+138.100661
+139.053680
+139.979375
+140.943276
+141.889687
+142.833196
+143.772553
+144.691693
+145.649414
+146.567452
+147.483204
+148.430083
+149.367292
+150.303726
+151.275048
+152.220635
+153.155692
+154.098847
+155.034009
+155.983701
+156.917486
+157.852611
+158.798416
+159.735995
+160.680270
+161.618260
+162.551270
+163.464139
+164.405518
+165.330745
+166.246384
+167.180123
+168.104918
+169.048656
+170.001897
+170.931888
+171.877533
+172.805698
+173.743670
+174.708126
+175.655383
+176.605630
+177.565608
+178.500607
+179.410219
+180.342834
+181.267766
+182.218382
+183.142543
+184.094896
+185.064548
+186.009626
+186.935600
+187.889028
+188.831057
+189.775212
+190.745958
+191.692806
+192.618926
+193.546065
+194.492197
+195.456098
+196.402869
+197.364304
+198.293373
+199.233041
+200.170434
+201.141446
+202.087280
+203.029394
+203.977492
+204.925763
+205.854189
+206.816352
+207.734714
+208.668514
+209.588905
+210.559355
+211.484164
+212.420391
+213.358860
+214.332826
+215.282529
+216.224725
+217.149234
+218.122906
+219.055663
+220.011993
+220.991595
+221.960904
+222.943579
+223.902510
+224.842481
+225.743819
+226.680213
+227.602097
+228.528018
+229.473008
+230.422436
+231.349064
+232.294032
+233.245403
+234.163312
+235.111799
+236.057406
+237.028038
+237.957646
+238.898034
+239.822550
+240.735260
+241.655932
+242.605153
+243.544836
+244.474699
+245.440173
+246.378844
+247.323143
+248.285760
+249.229119
+250.176840
+251.131518
+252.086528
+253.020598
+253.954743
+254.889903
+255.815065
+256.761027
+257.691855
+258.639254
+259.579551
+260.506767
+261.423356
+262.352001
+263.284518
+264.220585
+265.157470
+266.078159
+267.013444
+267.950717
+268.887900
+269.838881
+270.791736
+271.739952
+272.680592
+273.654309
+274.606231
+275.559986
+276.533016
+277.495578
+278.420070
+279.363077
+280.312819
+281.257695
+282.228355
+283.157184
+284.123768
+285.076882
+286.048604
+287.000478
+287.948230
+288.910747
+289.861765
+290.830603
+291.811412
+292.755814
+293.696971
+294.662852
+295.593158
+296.559544
+297.518713
+298.438741
+299.393546
+300.334753
+301.289778
+302.244810
+303.219292
+304.167324
+305.098884
+306.025235
+306.937936
+307.886944
+308.824584
+309.767832
+310.718030
+311.671171
+312.601330
+313.568588
+314.542788
+315.476718
+316.438704
+317.368951
+318.309067
+319.232411
+320.209618
+321.154759
+322.112941
+323.053513
+323.979697
+324.956759
+325.926394
+326.867923
+327.835581
+328.786873
+329.751345
+330.711436
+331.670682
+332.624472
+333.586807
+334.573368
+335.542130
+336.527409
+337.492993
+338.467811
+339.416506
+340.408720
+341.379252
+342.331496
+343.299456
+344.269862
+345.246581
+346.217893
+347.178322
+348.159887
+349.117445
+350.100547
+351.071427
+352.054769
+353.025652
+353.969961
+354.909204
+355.855449
+356.795184
+357.753654
+358.697366
+359.633382
+360.605416
+361.550047
+362.456435
+363.391879
+364.338780
+365.277948
+366.231767
+367.156833
+368.089860
+369.042559
+369.970232
+370.883374
+371.814098
+372.745805
+373.699522
+374.633718
+375.562059
+376.495064
+377.432595
+378.367416
+379.307579
+380.259408
+381.208345
+382.114920
+383.045449
+"""
+
+[[clocks]]
+id = "bc-1"
+vendor = "Vendor B"
+role = "boundary"
+class = "ocxo"
+[clocks.source]
+format = "ptp4l"
+text = """
+ptp4l[1000.000]: master offset     12 s2 freq +1200 path delay 500
+ptp4l[1004.000]: master offset     -1 s2 freq +1200 path delay 500
+ptp4l[1008.000]: master offset    -12 s2 freq +1200 path delay 500
+ptp4l[1012.000]: master offset     14 s2 freq +1200 path delay 500
+ptp4l[1016.000]: master offset    -15 s2 freq +1200 path delay 500
+ptp4l[1020.000]: master offset     30 s2 freq +1200 path delay 500
+ptp4l[1024.000]: master offset     11 s2 freq +1200 path delay 500
+ptp4l[1028.000]: master offset      2 s2 freq +1200 path delay 500
+ptp4l[1032.000]: master offset    -11 s2 freq +1200 path delay 500
+ptp4l[1036.000]: master offset     -2 s2 freq +1200 path delay 500
+ptp4l[1040.000]: master offset     30 s2 freq +1200 path delay 500
+ptp4l[1044.000]: master offset     38 s2 freq +1200 path delay 500
+ptp4l[1048.000]: master offset    -24 s2 freq +1200 path delay 500
+ptp4l[1052.000]: master offset     15 s2 freq +1200 path delay 500
+ptp4l[1056.000]: master offset     21 s2 freq +1200 path delay 500
+ptp4l[1060.000]: master offset     15 s2 freq +1200 path delay 500
+ptp4l[1064.000]: master offset     -8 s2 freq +1200 path delay 500
+ptp4l[1068.000]: master offset     15 s2 freq +1200 path delay 500
+ptp4l[1072.000]: master offset      0 s2 freq +1200 path delay 500
+ptp4l[1076.000]: master offset     35 s2 freq +1200 path delay 500
+ptp4l[1080.000]: master offset     -1 s2 freq +1200 path delay 500
+ptp4l[1084.000]: master offset     18 s2 freq +1200 path delay 500
+ptp4l[1088.000]: master offset     -7 s2 freq +1200 path delay 500
+ptp4l[1092.000]: master offset     10 s2 freq +1200 path delay 500
+ptp4l[1096.000]: master offset    -30 s2 freq +1200 path delay 500
+ptp4l[1100.000]: master offset    -30 s2 freq +1200 path delay 500
+ptp4l[1104.000]: master offset    -13 s2 freq +1200 path delay 500
+ptp4l[1108.000]: master offset     32 s2 freq +1200 path delay 500
+ptp4l[1112.000]: master offset     10 s2 freq +1200 path delay 500
+ptp4l[1116.000]: master offset    -25 s2 freq +1200 path delay 500
+ptp4l[1120.000]: master offset      8 s2 freq +1200 path delay 500
+ptp4l[1124.000]: master offset      7 s2 freq +1200 path delay 500
+ptp4l[1128.000]: master offset     28 s2 freq +1200 path delay 500
+ptp4l[1132.000]: master offset    -13 s2 freq +1200 path delay 500
+ptp4l[1136.000]: master offset     15 s2 freq +1200 path delay 500
+ptp4l[1140.000]: master offset      9 s2 freq +1200 path delay 500
+ptp4l[1144.000]: master offset      9 s2 freq +1200 path delay 500
+ptp4l[1148.000]: master offset    -37 s2 freq +1200 path delay 500
+ptp4l[1152.000]: master offset     18 s2 freq +1200 path delay 500
+ptp4l[1156.000]: master offset    -36 s2 freq +1200 path delay 500
+ptp4l[1160.000]: master offset     17 s2 freq +1200 path delay 500
+ptp4l[1164.000]: master offset     16 s2 freq +1200 path delay 500
+ptp4l[1168.000]: master offset     25 s2 freq +1200 path delay 500
+ptp4l[1172.000]: master offset    -14 s2 freq +1200 path delay 500
+ptp4l[1176.000]: master offset     14 s2 freq +1200 path delay 500
+ptp4l[1180.000]: master offset    -21 s2 freq +1200 path delay 500
+ptp4l[1184.000]: master offset     15 s2 freq +1200 path delay 500
+ptp4l[1188.000]: master offset     20 s2 freq +1200 path delay 500
+ptp4l[1192.000]: master offset    -22 s2 freq +1200 path delay 500
+ptp4l[1196.000]: master offset    -11 s2 freq +1200 path delay 500
+ptp4l[1200.000]: master offset    -22 s2 freq +1200 path delay 500
+ptp4l[1204.000]: master offset     19 s2 freq +1200 path delay 500
+ptp4l[1208.000]: master offset    -31 s2 freq +1200 path delay 500
+ptp4l[1212.000]: master offset    -10 s2 freq +1200 path delay 500
+ptp4l[1216.000]: master offset    -10 s2 freq +1200 path delay 500
+ptp4l[1220.000]: master offset     -6 s2 freq +1200 path delay 500
+ptp4l[1224.000]: master offset     -7 s2 freq +1200 path delay 500
+ptp4l[1228.000]: master offset     19 s2 freq +1200 path delay 500
+ptp4l[1232.000]: master offset     31 s2 freq +1200 path delay 500
+ptp4l[1236.000]: master offset     44 s2 freq +1200 path delay 500
+ptp4l[1240.000]: master offset     -3 s2 freq +1200 path delay 500
+ptp4l[1244.000]: master offset     14 s2 freq +1200 path delay 500
+ptp4l[1248.000]: master offset    -21 s2 freq +1200 path delay 500
+ptp4l[1252.000]: master offset      7 s2 freq +1200 path delay 500
+ptp4l[1256.000]: master offset    -17 s2 freq +1200 path delay 500
+ptp4l[1260.000]: master offset      7 s2 freq +1200 path delay 500
+ptp4l[1264.000]: master offset     31 s2 freq +1200 path delay 500
+ptp4l[1268.000]: master offset      6 s2 freq +1200 path delay 500
+ptp4l[1272.000]: master offset    -27 s2 freq +1200 path delay 500
+ptp4l[1276.000]: master offset    -22 s2 freq +1200 path delay 500
+ptp4l[1280.000]: master offset     41 s2 freq +1200 path delay 500
+ptp4l[1284.000]: master offset     26 s2 freq +1200 path delay 500
+ptp4l[1288.000]: master offset      7 s2 freq +1200 path delay 500
+ptp4l[1292.000]: master offset     -4 s2 freq +1200 path delay 500
+ptp4l[1296.000]: master offset     -7 s2 freq +1200 path delay 500
+ptp4l[1300.000]: master offset      1 s2 freq +1200 path delay 500
+ptp4l[1304.000]: master offset     -6 s2 freq +1200 path delay 500
+ptp4l[1308.000]: master offset    -24 s2 freq +1200 path delay 500
+ptp4l[1312.000]: master offset    -12 s2 freq +1200 path delay 500
+ptp4l[1316.000]: master offset    -25 s2 freq +1200 path delay 500
+ptp4l[1320.000]: master offset     15 s2 freq +1200 path delay 500
+ptp4l[1324.000]: master offset     -5 s2 freq +1200 path delay 500
+ptp4l[1328.000]: master offset      5 s2 freq +1200 path delay 500
+ptp4l[1332.000]: master offset    -38 s2 freq +1200 path delay 500
+ptp4l[1336.000]: master offset     10 s2 freq +1200 path delay 500
+ptp4l[1340.000]: master offset     10 s2 freq +1200 path delay 500
+ptp4l[1344.000]: master offset     -1 s2 freq +1200 path delay 500
+ptp4l[1348.000]: master offset     -8 s2 freq +1200 path delay 500
+ptp4l[1352.000]: master offset     15 s2 freq +1200 path delay 500
+ptp4l[1356.000]: master offset     -7 s2 freq +1200 path delay 500
+ptp4l[1360.000]: master offset     15 s2 freq +1200 path delay 500
+ptp4l[1364.000]: master offset     11 s2 freq +1200 path delay 500
+ptp4l[1368.000]: master offset     -8 s2 freq +1200 path delay 500
+ptp4l[1372.000]: master offset    -18 s2 freq +1200 path delay 500
+ptp4l[1376.000]: master offset    -16 s2 freq +1200 path delay 500
+ptp4l[1380.000]: master offset      2 s2 freq +1200 path delay 500
+ptp4l[1384.000]: master offset     44 s2 freq +1200 path delay 500
+ptp4l[1388.000]: master offset     -2 s2 freq +1200 path delay 500
+ptp4l[1392.000]: master offset     11 s2 freq +1200 path delay 500
+ptp4l[1396.000]: master offset     24 s2 freq +1200 path delay 500
+ptp4l[1400.000]: master offset     13 s2 freq +1200 path delay 500
+ptp4l[1404.000]: master offset     14 s2 freq +1200 path delay 500
+ptp4l[1408.000]: master offset     14 s2 freq +1200 path delay 500
+ptp4l[1412.000]: master offset     22 s2 freq +1200 path delay 500
+ptp4l[1416.000]: master offset    -16 s2 freq +1200 path delay 500
+ptp4l[1420.000]: master offset      7 s2 freq +1200 path delay 500
+ptp4l[1424.000]: master offset      4 s2 freq +1200 path delay 500
+ptp4l[1428.000]: master offset     -1 s2 freq +1200 path delay 500
+ptp4l[1432.000]: master offset     13 s2 freq +1200 path delay 500
+ptp4l[1436.000]: master offset    -15 s2 freq +1200 path delay 500
+ptp4l[1440.000]: master offset     13 s2 freq +1200 path delay 500
+ptp4l[1444.000]: master offset     -1 s2 freq +1200 path delay 500
+ptp4l[1448.000]: master offset    -31 s2 freq +1200 path delay 500
+ptp4l[1452.000]: master offset    -35 s2 freq +1200 path delay 500
+ptp4l[1456.000]: master offset     -7 s2 freq +1200 path delay 500
+ptp4l[1460.000]: master offset     -1 s2 freq +1200 path delay 500
+ptp4l[1464.000]: master offset    -22 s2 freq +1200 path delay 500
+ptp4l[1468.000]: master offset      9 s2 freq +1200 path delay 500
+ptp4l[1472.000]: master offset     -4 s2 freq +1200 path delay 500
+ptp4l[1476.000]: master offset      8 s2 freq +1200 path delay 500
+ptp4l[1480.000]: master offset     16 s2 freq +1200 path delay 500
+ptp4l[1484.000]: master offset      4 s2 freq +1200 path delay 500
+ptp4l[1488.000]: master offset    -14 s2 freq +1200 path delay 500
+ptp4l[1492.000]: master offset     21 s2 freq +1200 path delay 500
+ptp4l[1496.000]: master offset     -4 s2 freq +1200 path delay 500
+ptp4l[1500.000]: master offset    -28 s2 freq +1200 path delay 500
+ptp4l[1504.000]: master offset      1 s2 freq +1200 path delay 500
+ptp4l[1508.000]: master offset     58 s2 freq +1200 path delay 500
+ptp4l[1512.000]: master offset     27 s2 freq +1200 path delay 500
+ptp4l[1516.000]: master offset     22 s2 freq +1200 path delay 500
+ptp4l[1520.000]: master offset    -16 s2 freq +1200 path delay 500
+ptp4l[1524.000]: master offset      4 s2 freq +1200 path delay 500
+ptp4l[1528.000]: master offset    -26 s2 freq +1200 path delay 500
+ptp4l[1532.000]: master offset      1 s2 freq +1200 path delay 500
+ptp4l[1536.000]: master offset    -34 s2 freq +1200 path delay 500
+ptp4l[1540.000]: master offset     -8 s2 freq +1200 path delay 500
+ptp4l[1544.000]: master offset      1 s2 freq +1200 path delay 500
+ptp4l[1548.000]: master offset    -18 s2 freq +1200 path delay 500
+ptp4l[1552.000]: master offset     -2 s2 freq +1200 path delay 500
+ptp4l[1556.000]: master offset    -11 s2 freq +1200 path delay 500
+ptp4l[1560.000]: master offset      5 s2 freq +1200 path delay 500
+ptp4l[1564.000]: master offset    -28 s2 freq +1200 path delay 500
+ptp4l[1568.000]: master offset     24 s2 freq +1200 path delay 500
+ptp4l[1572.000]: master offset     41 s2 freq +1200 path delay 500
+ptp4l[1576.000]: master offset    -22 s2 freq +1200 path delay 500
+ptp4l[1580.000]: master offset      1 s2 freq +1200 path delay 500
+ptp4l[1584.000]: master offset    -24 s2 freq +1200 path delay 500
+ptp4l[1588.000]: master offset     30 s2 freq +1200 path delay 500
+ptp4l[1592.000]: master offset     21 s2 freq +1200 path delay 500
+ptp4l[1596.000]: master offset     20 s2 freq +1200 path delay 500
+ptp4l[1600.000]: master offset     14 s2 freq +1200 path delay 500
+ptp4l[1604.000]: master offset      4 s2 freq +1200 path delay 500
+ptp4l[1608.000]: master offset      9 s2 freq +1200 path delay 500
+ptp4l[1612.000]: master offset     -6 s2 freq +1200 path delay 500
+ptp4l[1616.000]: master offset     10 s2 freq +1200 path delay 500
+ptp4l[1620.000]: master offset      1 s2 freq +1200 path delay 500
+ptp4l[1624.000]: master offset      3 s2 freq +1200 path delay 500
+ptp4l[1628.000]: master offset    -18 s2 freq +1200 path delay 500
+ptp4l[1632.000]: master offset    -24 s2 freq +1200 path delay 500
+ptp4l[1636.000]: master offset    -13 s2 freq +1200 path delay 500
+ptp4l[1640.000]: master offset    -30 s2 freq +1200 path delay 500
+ptp4l[1644.000]: master offset    -17 s2 freq +1200 path delay 500
+ptp4l[1648.000]: master offset    -33 s2 freq +1200 path delay 500
+ptp4l[1652.000]: master offset    -22 s2 freq +1200 path delay 500
+ptp4l[1656.000]: master offset     -4 s2 freq +1200 path delay 500
+ptp4l[1660.000]: master offset      5 s2 freq +1200 path delay 500
+ptp4l[1664.000]: master offset      2 s2 freq +1200 path delay 500
+ptp4l[1668.000]: master offset    -12 s2 freq +1200 path delay 500
+ptp4l[1672.000]: master offset      2 s2 freq +1200 path delay 500
+ptp4l[1676.000]: master offset    -33 s2 freq +1200 path delay 500
+ptp4l[1680.000]: master offset     19 s2 freq +1200 path delay 500
+ptp4l[1684.000]: master offset      0 s2 freq +1200 path delay 500
+ptp4l[1688.000]: master offset     -5 s2 freq +1200 path delay 500
+ptp4l[1692.000]: master offset      6 s2 freq +1200 path delay 500
+ptp4l[1696.000]: master offset     11 s2 freq +1200 path delay 500
+ptp4l[1700.000]: master offset    -15 s2 freq +1200 path delay 500
+ptp4l[1704.000]: master offset      3 s2 freq +1200 path delay 500
+ptp4l[1708.000]: master offset     32 s2 freq +1200 path delay 500
+ptp4l[1712.000]: master offset    -28 s2 freq +1200 path delay 500
+ptp4l[1716.000]: master offset    -14 s2 freq +1200 path delay 500
+ptp4l[1720.000]: master offset     18 s2 freq +1200 path delay 500
+ptp4l[1724.000]: master offset     -6 s2 freq +1200 path delay 500
+ptp4l[1728.000]: master offset     24 s2 freq +1200 path delay 500
+ptp4l[1732.000]: master offset    -22 s2 freq +1200 path delay 500
+ptp4l[1736.000]: master offset    -34 s2 freq +1200 path delay 500
+ptp4l[1740.000]: master offset      5 s2 freq +1200 path delay 500
+ptp4l[1744.000]: master offset     -5 s2 freq +1200 path delay 500
+ptp4l[1748.000]: master offset     23 s2 freq +1200 path delay 500
+ptp4l[1752.000]: master offset    -19 s2 freq +1200 path delay 500
+ptp4l[1756.000]: master offset      7 s2 freq +1200 path delay 500
+ptp4l[1760.000]: master offset     -3 s2 freq +1200 path delay 500
+ptp4l[1764.000]: master offset      8 s2 freq +1200 path delay 500
+ptp4l[1768.000]: master offset    -34 s2 freq +1200 path delay 500
+ptp4l[1772.000]: master offset    -14 s2 freq +1200 path delay 500
+ptp4l[1776.000]: master offset      6 s2 freq +1200 path delay 500
+ptp4l[1780.000]: master offset    -33 s2 freq +1200 path delay 500
+ptp4l[1784.000]: master offset     27 s2 freq +1200 path delay 500
+ptp4l[1788.000]: master offset    -37 s2 freq +1200 path delay 500
+ptp4l[1792.000]: master offset    -15 s2 freq +1200 path delay 500
+ptp4l[1796.000]: master offset    -40 s2 freq +1200 path delay 500
+"""

@@ -46,6 +46,10 @@ fn examples() -> Vec<(&'static str, String)> {
                 .to_string(),
         ),
         bare("pro-conflict-resilience-study"),
+        (
+            "pro-timing-holdover",
+            include_str!("../scenarios/timing-holdover-inline.toml").to_string(),
+        ),
     ]
 }
 

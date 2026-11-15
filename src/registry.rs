@@ -17,6 +17,7 @@ use crate::packs::conflict_resilience_study_pack::ConflictResilienceStudyScenari
 use crate::packs::optimism_gap_audit::OptimismGapAuditScenario;
 use crate::packs::quantum_systematics_pack::QuantumSystematicsScenario;
 use crate::packs::seam_check::SeamCheckPack;
+use crate::packs::timing_holdover_pack::TimingHoldoverScenario;
 use crate::packs::trade_study_pack::TradeStudyScenario;
 use crate::packs::twin_pack::TwinScenario;
 use crate::packs::uncertainty_pack::UncertaintyScenario;
@@ -64,6 +65,7 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
         ConflictResilienceStudyScenario::KIND => {
             Some(parse::<ConflictResilienceStudyScenario>(kind, src))
         }
+        TimingHoldoverScenario::KIND => Some(parse::<TimingHoldoverScenario>(kind, src)),
         // A kind of a registered server-side extension (crate::extension), if any.
         _ => crate::extension::build(kind, src),
     }
@@ -95,6 +97,7 @@ pub fn builtin_pro_kinds() -> Vec<ScenarioMeta> {
         QuantumSystematicsScenario::meta_static(),
         OptimismGapAuditScenario::meta_static(),
         ConflictResilienceStudyScenario::meta_static(),
+        TimingHoldoverScenario::meta_static(),
     ]
 }
 
@@ -257,6 +260,7 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     QuantumSystematicsScenario::register_into(&mut reg);
     OptimismGapAuditScenario::register_into(&mut reg);
     ConflictResilienceStudyScenario::register_into(&mut reg);
+    TimingHoldoverScenario::register_into(&mut reg);
     for k in crate::extension::kinds() {
         (k.register_into)(&mut reg);
     }
@@ -549,6 +553,9 @@ q_rw = 0.0
                  rho_values = [0.0, 0.8]\n\
                  trials = 300\n\
                  sensitivity_samples = 100\n"
+            }
+            TimingHoldoverScenario::KIND => {
+                include_str!("../scenarios/timing-holdover-inline.toml")
             }
             other => panic!("no test source defined for Pro kind '{other}'"),
         }
