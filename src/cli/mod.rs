@@ -6,6 +6,7 @@
 //! tier entitlements on Pro packs).
 
 mod dossier_cmd;
+mod forensics_cmd;
 mod license_cmd;
 mod packs_cmd;
 mod payments_cmd;
@@ -40,6 +41,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro license <verify|activate|status|deactivate|machine-id|revocations|refresh> ...   Licence on this machine (offline; `kshana-pro license` for details)\n\
        kshana-pro backup <create --data-dir <dir> --out <backup-dir> | verify <backup-dir>>   Back up a service data directory while it runs; check a backup offline\n\
        kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
+       kshana-pro forensics <run|review|verify|pack-payload> ...   Incident forensics (E1, Pro pack): signed, reproducible forensic report; review and verify (free; `kshana-pro forensics` for details)\n\
        kshana-pro payments <check|checkout|stripe-checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled and payments.stripe.enabled are false (vendor side)\n\
        kshana-pro packs <build|issue|serve|trace|install|status> ...   Pro pack delivery (C10; `kshana-pro packs` for details)\n\
        kshana-pro license <keygen|pubkey|issue|issue-invoice|extend-invoice|trial|renew|revoke|reminders|register> ...   Vendor issuing and the issuance register (vendor only)\n\
@@ -90,6 +92,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "payments",
     "packs",
     "dossier",
+    "forensics",
     "backup",
 ];
 
@@ -208,6 +211,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("payments") => payments_cmd::run(&args[1..]),
         Some("packs") => packs_cmd::run(&args[1..]),
         Some("dossier") => dossier_cmd::run(&args[1..]),
+        Some("forensics") => forensics_cmd::run(&args[1..]),
         Some("backup") => backup_cmd(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {

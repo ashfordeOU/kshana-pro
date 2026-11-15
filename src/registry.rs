@@ -146,6 +146,11 @@ pub fn run(src: &str) -> Result<RunOutput, KshanaError> {
         Some(kind) if kind.starts_with(PRO_KIND_PREFIX) => match build_pro_pack(&kind, src) {
             Some(Ok(pack)) => pack.run(),
             Some(Err(e)) => Err(e),
+            None if crate::license::tiers::PACK_DELIVERED_KINDS.contains(&kind.as_str()) => {
+                Err(KshanaError::Unsupported(format!(
+                    "'{kind}' comes in a Pro pack that is not loaded here: install the pack (`kshana-pro packs install`) and load it"
+                )))
+            }
             None => match crate::license::tiers::edition_of(&kind) {
                 // An Arksa-exclusive or Core kind: neither named nor described.
                 Some(e) if e.is_hidden() => Err(KshanaError::Unsupported(

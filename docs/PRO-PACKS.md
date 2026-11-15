@@ -174,6 +174,15 @@ file are left alone.
   no personal data, clock rollback.
 * `tests/licensing.rs`: warnings at 14, 7, 1 days; the 30-day window gives Evaluation only.
 
+## 8a. Packs in the catalogue
+
+* `pro-forensics` provides `pro-incident-forensics` (incident forensics, roadmap 0.42 E1;
+  docs/INCIDENT-FORENSICS.md). Payload: `kshana-pro forensics pack-payload <dir>` writes
+  `forensics/method.json` (method id and parameter hash), which the host's
+  `forensics::ForensicsActivator` checks before it registers the kind. The kind is listed at
+  `pro` in the tier manifest (`license::tiers::PACK_DELIVERED_KINDS`) and refused until the pack
+  loads. Tests: `tests/forensics_pack.rs`.
+
 ## 9. Not built here
 
 * The native library loading in the Desktop host (dlopen or LoadLibrary behind the

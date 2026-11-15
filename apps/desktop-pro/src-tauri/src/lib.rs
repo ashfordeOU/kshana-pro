@@ -58,6 +58,10 @@ fn upgrade_offer(edition: String) -> Value {
 }
 
 pub fn run() {
+    // Pro packs (incident forensics): verified, decrypted and registered before the first call.
+    if let Err(e) = bridge::load_packs(now()) {
+        eprintln!("[pro packs] {e}");
+    }
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             engine_call,

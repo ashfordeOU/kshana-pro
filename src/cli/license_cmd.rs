@@ -79,6 +79,18 @@ fn opts(now: i64, product: Product) -> VerifyOptions<'static> {
     }
 }
 
+/// The licence status of the store in `dir` (a Desktop app data folder's `licence`), for
+/// loading Pro packs from that app data folder.
+pub fn status_in(
+    dir: &std::path::Path,
+    now: i64,
+    product: Product,
+) -> Result<crate::license::activation::Status, KshanaError> {
+    let ring = keyring()?;
+    let (st, _) = Store::open(dir).status_guarded(&ring, &[], &opts(now, product));
+    Ok(st)
+}
+
 /// Verify a token given with `--license` for `product` at `now`.
 pub fn verify_token_for(
     token: &str,

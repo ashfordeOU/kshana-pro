@@ -101,7 +101,10 @@ pub fn register(ext: Extension) -> Result<(), KshanaError> {
         if !id.starts_with(crate::registry::PRO_KIND_PREFIX) {
             return Err(bad("an id lacks the pro- prefix".into()));
         }
-        if own_kinds.contains(id) || crate::license::PRO_COMMAND_FEATURES.contains(id) {
+        if own_kinds.contains(id)
+            || crate::license::PRO_COMMAND_FEATURES.contains(id)
+            || crate::license::tiers::PACK_DELIVERED_KINDS.contains(id)
+        {
             return Err(bad("an id collides with a Pro kind or feature".into()));
         }
     }
