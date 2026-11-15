@@ -12,6 +12,9 @@
 //!   `pro-timing-fleet`.
 //! * **T3** ([`audit`]): a signed audit report mapped to MiFID II RTS 25 traceability or to the
 //!   NIST IR 8323 PNT profile. Feature `pro-timing-audit`. Verifying a report is free.
+//! * **T4** ([`scorecard`]): timing scorecards for grandmasters and the PTP network behind them
+//!   under threat library timing scenarios, mapped to the resilience levels with the E3 scoring.
+//!   Kind `pro-timing-scorecard`.
 //!
 //! The prediction method is pre-registered and scored as evidence row V5, and its successor
 //! (used by the fleet assessment) as V5b (`docs/evidence/v5-holdover-time-to-breach/`);
@@ -24,6 +27,7 @@ pub mod evidence;
 pub mod fleet;
 pub mod metrics;
 pub mod model;
+pub mod scorecard;
 
 /// The scenario kind of a fleet assessment.
 pub const KIND: &str = "pro-timing-holdover";

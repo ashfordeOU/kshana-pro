@@ -201,10 +201,20 @@ fn the_trial_limits_requests_per_minute_and_refuses_credentials_config() {
         },
     );
     let a = srv.local_addr();
+    // The limit counts per clock minute, so start the burst well inside one: a burst that
+    // straddles the turn of the minute is counted in two windows and nothing is refused.
+    let into_minute = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
+        % 60;
+    if into_minute >= 50 {
+        std::thread::sleep(std::time::Duration::from_secs(61 - into_minute));
+    }
     let codes: Vec<u16> = (0..12)
         .map(|_| http(a, "GET", "/jobs", "", None).0)
         .collect();
-    // Unless the minute turned over during the burst, the 11th and 12th are refused.
+    // Within one minute, the 11th and 12th are refused.
     let refused = codes.iter().filter(|c| **c == 429).count();
     assert!(refused >= 1, "{codes:?}");
     assert!(

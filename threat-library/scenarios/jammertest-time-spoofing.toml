@@ -1,0 +1,81 @@
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "jammertest-time-spoofing"
+version = 1
+title = "JammerTest, Andøya: time spoofing of a timing receiver"
+family = "jammertest"
+threat = ["time-spoofing"]
+domain = "timing"
+period = "JammerTest editions 2022 onwards"
+summary = """
+JammerTest plans include spoofing tests that move the time a receiver reports, which matters \
+to timing receivers and the grandmasters they discipline. The analogue has two parts: a \
+receiver whose reported UTC is stepped ahead while its position stays true, and a timing \
+profile (a slow time push) applied to a grandmaster by the timing scorecards."""
+
+[provenance]
+class = "published-test-campaign"
+parameter_basis = """
+Representative values, not read off the test plan or any recording: the NMEA analogue moves \
+UTC 2 s ahead over 2 minutes; the timing profile pushes a disciplined clock at 50 ns/s to 10 \
+microseconds. Real plan items differ: take them from the published plan."""
+verify_before_use = "Use the published test plan and the organisers' official log for event times."
+
+[[provenance.source]]
+title = "JammerTest: test plans and information"
+publisher = "JammerTest organisers (Norwegian authorities and partners)"
+date = "2022 onwards"
+url = "https://jammertest.no/"
+says = "The test plans list time-related spoofing tests among the spoofing groups, with scheduled times."
+
+[[provenance.source]]
+title = "JammerTest 2024 dataset"
+publisher = "Zenodo"
+date = "2025"
+citation = "DOI 10.5281/zenodo.15910563 (GPL-3.0-or-later)"
+says = "Receiver recordings and logs from the 2024 edition."
+
+[licence]
+source_terms = "The JammerTest 2024 dataset is published under GPL-3.0-or-later; test plans are the organisers' documents. Neither is copied here."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence. The analogue is generated with the open engine (AGPL-3.0)."
+
+[replay]
+dataset = "JammerTest 2024 (or the edition you attended)"
+fetch = "DOI 10.5281/zenodo.15910563 for the 2024 dataset; test plans from https://jammertest.no/"
+format = "u-blox UBX and other receiver logs, as the dataset lists them; timing logs where published"
+how = "Extract the dataset yourself; score a receiver log in a receiver scorecard campaign with events from the plan, or a grandmaster record with `kshana-pro timing scorecard`."
+events_from = "The organisers' published test plan and official log; never from this file."
+
+[timing]
+kind = "time-push"
+start_s = 0
+duration_s = 3600
+rate_s_per_s = 50e-9
+max_offset_s = 10e-6
+scope = "all-receivers"
+
+[analogue.scenario]
+name = "jammertest-time-spoofing"
+description = "Static timing receiver whose UTC is stepped ahead (analogue)."
+trainer_note = "Position stays true; the reported time moves ahead of the reference clock."
+seed = 2211
+start_utc = "2024-09-12T13:00:00Z"
+duration_s = 1500
+rate_hz = 1
+
+[analogue.vessel]
+lat_deg = 69.2760
+lon_deg = 15.9600
+speed_kn = 0
+heading_deg = 0
+
+[[analogue.event]]
+kind = "time-spoof"
+label = "Time spoofing"
+start_s = 420
+duration_s = 600
+ramp_s = 120
+recovery_s = 0
+offset_s = 2

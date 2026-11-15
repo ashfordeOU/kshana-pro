@@ -1,0 +1,79 @@
+# Public sample campaign for the receiver resilience scorecard (roadmap 0.42, E3).
+# Public data only: every case is a threat library scenario's MODELLED analogue, generated
+# by the open engine (AGPL-3.0). The unit under test is the open engine's synthetic NMEA
+# receiver model, not a product. No TEXBAT, JammerTest or other source data is used.
+# Bars and claim bars pre-registered in docs/evidence/e3-receiver-scorecard/2026-11-15_PREREGISTRATION.md
+# before the first scoring of this campaign.
+#
+#   kshana-pro scorecard run examples/scorecards/public-analogue-campaign.toml --out <dir> --signer <name> --key-file <key>
+kind = "pro-receiver-scorecard"
+title = "Public sample: threat library analogues, open-engine NMEA receiver model"
+
+[receiver]
+maker = "Kshana open engine"
+model = "Synthetic NMEA receiver model (kshana::nmea_synth)"
+firmware = "kshana 0.41.0"
+notes = "A modelled receiver, used to show the scorecard on public data. Not a product."
+
+[campaign]
+id = "E3-SAMPLE-2026-11"
+operator = "Kshana Pro (sample)"
+facility = "Desk run on MODELLED analogues of published events"
+dates = "2026-11-15"
+
+[bars]
+fixed_utc = "2026-11-15T13:00:00Z"
+misleading_error_m = 50.0
+misleading_time_error_s = 0.5
+max_recovery_s = 120.0
+recovery_hold_s = 10.0
+bounded_error_m = 500.0
+bounded_time_error_s = 1.0
+bounded_min_availability = 0.5
+full_error_m = 20.0
+full_min_availability = 0.99
+monitor_counts_as_warning = false
+
+[[case]]
+id = "baltic-gof"
+library = "baltic-gulf-of-finland-jamming"
+
+[[case]]
+id = "baltic-tartu"
+library = "baltic-tartu-approach-jamming"
+
+[[case]]
+id = "hormuz-displacement"
+library = "hormuz-position-displacement"
+
+[[case]]
+id = "hormuz-meaconing"
+library = "hormuz-meaconing-delay"
+
+[[case]]
+id = "red-sea-jamming"
+library = "red-sea-bab-el-mandeb-jamming"
+
+[[case]]
+id = "red-sea-jam-then-drag"
+library = "red-sea-jamming-then-drag-off"
+
+[[case]]
+id = "jammertest-steps"
+library = "jammertest-stepped-power-jamming"
+
+[[case]]
+id = "jammertest-position"
+library = "jammertest-position-spoofing"
+
+[[case]]
+id = "jammertest-time"
+library = "jammertest-time-spoofing"
+
+[[case]]
+id = "texbat-ds3-analogue"
+library = "texbat-ds3-matched-power-time-push"
+
+[[case]]
+id = "texbat-ds4-analogue"
+library = "texbat-ds4-matched-power-position-push"

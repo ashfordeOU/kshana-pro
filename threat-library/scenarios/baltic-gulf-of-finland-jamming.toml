@@ -1,0 +1,82 @@
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "baltic-gulf-of-finland-jamming"
+version = 1
+title = "Gulf of Finland: wide-area GNSS jamming on a vessel transit"
+family = "baltic"
+threat = ["jamming"]
+domain = "maritime"
+period = "2023 to 2025 (recurring, as reported)"
+summary = """
+Wide-area GNSS interference over the eastern Baltic and the Gulf of Finland has been reported \
+repeatedly since 2023 by aviation and maritime authorities. Vessels in transit lose satellites \
+and then the fix for minutes at a time, with recovery once they leave the affected area. The \
+scenario is a vessel transit that enters and leaves an area of strong jamming."""
+
+[provenance]
+class = "official-notice"
+parameter_basis = """
+Representative values, not read off any recording: a C/N0 reduction of 30 dB over a 5-minute \
+onset (the vessel closing the area), 10 minutes at full strength, a 3-minute release. Chosen so \
+that the analogue receiver loses the fix, as the notices describe, and recovers after the area."""
+verify_before_use = "Read the current notices for the area and dates of interest; the reported area and intensity change over time."
+
+[[provenance.source]]
+title = "Safety Information Bulletin 2022-02 and its revisions: Global Navigation Satellite System outage and alterations leading to navigation / surveillance degradation"
+publisher = "European Union Aviation Safety Agency (EASA)"
+date = "2022 onwards"
+url = "https://ad.easa.europa.eu/"
+says = "EASA describes GNSS jamming and spoofing affecting aircraft in areas including the Baltic Sea region and recommends operator measures."
+
+[[provenance.source]]
+title = "Notices on GNSS interference in the Gulf of Finland and eastern Finnish airspace"
+publisher = "Traficom, Finnish Transport and Communications Agency"
+date = "2023 to 2024"
+citation = "Traficom public notices and press releases (search the agency's news archive for GNSS / GPS interference)"
+says = "The agency reported GNSS interference affecting aircraft and vessels in the Gulf of Finland area and advised users to be prepared for it."
+
+[[provenance.source]]
+title = "GPSJAM daily GNSS interference map"
+publisher = "gpsjam.org"
+date = "2022 onwards"
+url = "https://gpsjam.org/"
+says = "Daily maps derived from aircraft ADS-B navigation accuracy reports show recurring low-accuracy areas over the eastern Baltic."
+
+[licence]
+source_terms = "Public notices and web pages of the publishers; cited, not copied. No measurement data is used."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence. The analogue is generated with the open engine (AGPL-3.0)."
+
+[analogue.scenario]
+name = "baltic-gulf-of-finland-jamming"
+description = "Vessel transit eastbound in the Gulf of Finland through an area of strong jamming (analogue)."
+trainer_note = "C/N0 falls across all satellites, satellites drop, the fix is lost, then returns after the area."
+seed = 2401
+start_utc = "2024-03-12T06:00:00Z"
+duration_s = 1800
+rate_hz = 1
+
+[analogue.vessel]
+lat_deg = 59.80
+lon_deg = 24.40
+speed_kn = 14
+
+[[analogue.waypoint]]
+lat_deg = 59.86
+lon_deg = 25.20
+speed_kn = 14
+
+[[analogue.waypoint]]
+lat_deg = 59.92
+lon_deg = 25.90
+speed_kn = 14
+
+[[analogue.event]]
+kind = "jamming"
+label = "Wide-area jamming"
+start_s = 420
+duration_s = 900
+ramp_s = 300
+recovery_s = 180
+cn0_drop_db = 30

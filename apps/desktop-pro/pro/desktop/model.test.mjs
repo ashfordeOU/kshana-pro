@@ -137,6 +137,10 @@ test("jobs: ready only with a kind that serves them; coming otherwise; locked wi
   const locked = Object.fromEntries(jobsModel([], false).map((j) => [j.id, j.state]));
   assert.equal(locked.study, "locked");
   assert.equal(locked.forensics, "locked");
+  assert.equal(locked.scorecard, "locked");
+  const sc = Object.fromEntries(jobsModel(["pro-receiver-scorecard", "pro-timing-scorecard"], true).map((j) => [j.id, j]));
+  assert.equal(sc.scorecard.state, "ready");
+  assert.deepEqual(sc.scorecard.kinds, ["pro-receiver-scorecard", "pro-timing-scorecard"]);
   // Incident forensics is ready once its Pro pack is loaded and the licence runs it.
   const fx = Object.fromEntries(jobsModel(["pro-incident-forensics"], true).map((j) => [j.id, j]));
   assert.equal(fx.forensics.state, "ready");

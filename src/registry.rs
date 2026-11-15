@@ -21,6 +21,9 @@ use crate::packs::timing_holdover_pack::TimingHoldoverScenario;
 use crate::packs::trade_study_pack::TradeStudyScenario;
 use crate::packs::twin_pack::TwinScenario;
 use crate::packs::uncertainty_pack::UncertaintyScenario;
+use crate::scorecards::Campaign as ScorecardCampaign;
+use crate::threat_library::ThreatRunScenario;
+use crate::timing::scorecard::TimingScorecardSpec;
 
 /// Prefix every Pro-only scenario kind carries. The dispatcher routes on it, and
 /// it makes Pro kinds visually unmistakable in a scenario file and in logs.
@@ -66,6 +69,9 @@ fn build_pro_pack(kind: &str, src: &str) -> Option<Result<Box<dyn ExternalPack>,
             Some(parse::<ConflictResilienceStudyScenario>(kind, src))
         }
         TimingHoldoverScenario::KIND => Some(parse::<TimingHoldoverScenario>(kind, src)),
+        ThreatRunScenario::KIND => Some(parse::<ThreatRunScenario>(kind, src)),
+        crate::scorecards::KIND => Some(parse::<ScorecardCampaign>(kind, src)),
+        crate::timing::scorecard::KIND => Some(parse::<TimingScorecardSpec>(kind, src)),
         // A kind of a registered server-side extension (crate::extension), if any.
         _ => crate::extension::build(kind, src),
     }
@@ -98,6 +104,9 @@ pub fn builtin_pro_kinds() -> Vec<ScenarioMeta> {
         OptimismGapAuditScenario::meta_static(),
         ConflictResilienceStudyScenario::meta_static(),
         TimingHoldoverScenario::meta_static(),
+        ThreatRunScenario::meta_static(),
+        ScorecardCampaign::meta_static(),
+        TimingScorecardSpec::meta_static(),
     ]
 }
 
@@ -266,6 +275,9 @@ pub fn pro_registry() -> kshana::registry::PackRegistry {
     OptimismGapAuditScenario::register_into(&mut reg);
     ConflictResilienceStudyScenario::register_into(&mut reg);
     TimingHoldoverScenario::register_into(&mut reg);
+    ThreatRunScenario::register_into(&mut reg);
+    ScorecardCampaign::register_into(&mut reg);
+    TimingScorecardSpec::register_into(&mut reg);
     for k in crate::extension::kinds() {
         (k.register_into)(&mut reg);
     }
@@ -561,6 +573,17 @@ q_rw = 0.0
             }
             TimingHoldoverScenario::KIND => {
                 include_str!("../scenarios/timing-holdover-inline.toml")
+            }
+            ThreatRunScenario::KIND => {
+                "kind = \"pro-threat-scenario\"\nscenario = \"jammertest-stepped-power-jamming\"\n"
+            }
+            crate::scorecards::KIND => {
+                "kind = \"pro-receiver-scorecard\"\ntitle = \"t\"\n[receiver]\nmaker = \"m\"\nmodel = \"x\"\n\
+                 [campaign]\nid = \"c\"\n[[case]]\nid = \"a\"\nlibrary = \"texbat-ds4-matched-power-position-push\"\n"
+            }
+            crate::timing::scorecard::KIND => {
+                "kind = \"pro-timing-scorecard\"\ntitle = \"t\"\nfleet = \"examples/timing-fleet/fleet.toml\"\n\
+                 grandmasters = [\"gm-ldn-1\"]\nscenarios = [\"jammertest-time-spoofing\"]\n"
             }
             other => panic!("no test source defined for Pro kind '{other}'"),
         }

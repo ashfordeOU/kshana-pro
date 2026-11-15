@@ -1,0 +1,70 @@
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "red-sea-bab-el-mandeb-jamming"
+version = 1
+title = "Southern Red Sea and Bab el-Mandeb: GNSS jamming on a transit"
+family = "red-sea"
+threat = ["jamming"]
+domain = "maritime"
+period = "2024 to 2025 (as reported)"
+summary = """
+Maritime security advisories for the southern Red Sea and the Bab el-Mandeb have reported GNSS \
+interference affecting vessels in transit. The analogue is a northbound transit with a long \
+jamming episode of moderate strength that degrades but does not always deny the fix."""
+
+[provenance]
+class = "official-notice"
+parameter_basis = """
+Representative values, not read off any recording: a C/N0 reduction of 22 dB with a wide \
+per-satellite spread, 15 minutes at full strength. Chosen so that some satellites stay usable, \
+a partial loss rather than a full denial."""
+verify_before_use = "Read the advisory for the dates of interest."
+
+[[provenance.source]]
+title = "MSCI advisories: Red Sea, Bab el-Mandeb Strait, Gulf of Aden"
+publisher = "U.S. Maritime Administration (MARAD), Maritime Security Communications with Industry"
+date = "2023 onwards"
+url = "https://www.maritime.dot.gov/msci-advisories"
+says = "The advisories for the region list GPS interference among the threats to commercial vessels."
+
+[[provenance.source]]
+title = "JMIC and UKMTO advisory notes for the southern Red Sea"
+publisher = "Joint Maritime Information Center (JMIC), published through UKMTO"
+date = "2024"
+url = "https://www.ukmto.org/"
+says = "The advisory notes reported GNSS interference experienced by vessels in the southern Red Sea."
+
+[licence]
+source_terms = "Public advisories; cited, not copied. No measurement data is used."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence. The analogue is generated with the open engine (AGPL-3.0)."
+
+[analogue.scenario]
+name = "red-sea-bab-el-mandeb-jamming"
+description = "Northbound transit of the Bab el-Mandeb with partial jamming (analogue)."
+trainer_note = "Satellites drop and C/N0 falls unevenly; the fix may hold on fewer satellites."
+seed = 2409
+start_utc = "2024-02-14T11:00:00Z"
+duration_s = 1800
+rate_hz = 1
+
+[analogue.vessel]
+lat_deg = 12.40
+lon_deg = 43.40
+speed_kn = 15
+
+[[analogue.waypoint]]
+lat_deg = 13.10
+lon_deg = 42.90
+speed_kn = 15
+
+[[analogue.event]]
+kind = "jamming"
+label = "Partial jamming"
+start_s = 360
+duration_s = 1080
+ramp_s = 180
+recovery_s = 120
+cn0_drop_db = 22
+spread_db = 9

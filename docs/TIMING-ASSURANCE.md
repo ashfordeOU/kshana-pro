@@ -135,6 +135,22 @@ never says compliant, conformant or certified (a test scans for it). The directo
 `report-templates/samples/timing-audit-rts25/`, signed with a published demo key
 (`report-templates/samples/timing-audit-rts25.demo-public-key.txt`).
 
+## T4: timing scorecards under spoofing scenarios
+
+`kshana-pro timing scorecard <request.toml> --out <dir> --signer <name> --key-file <key>` (kind
+`pro-timing-scorecard`, `src/timing/scorecard.rs`). A request names a T1 fleet file, the
+grandmasters, the threat library timing scenarios (E2 `[timing]`: time push, time step,
+denial), optional site pairs for a cross-check and the `[[network]]` links behind each
+grandmaster, and a detector stated before scoring (`k_sigma` 3, `floor_s` 20 ns, `cross_check`,
+`full_fraction` 0.1). For each grandmaster and scenario: detection when the counterfeit offset
+leaves the T1 holdover envelope (`k sigma(u) + |mean(u)| + floor`), or exceeds the pair's
+combined residual by the same rule where the event reaches one receiver; a denial is seen at
+once. Each clock of the network gets the error delivered before detection (plus its own servo
+offset), per limit breached-before-detection and holdover warning before the threat ends, and
+the levels of the E3 scoring. Public sample: `examples/timing-scorecard/request.toml`,
+pre-registered (`docs/evidence/t4-timing-scorecard/`), all three claim bars met; signed sample
+`report-templates/samples/timing-scorecard-public/`. It inherits T1's unvalidated holdover model.
+
 ## Not done here
 
 * PTP management (`pmc`), SNMP and NTP mode-6 status snapshots: the open engine reads them in its

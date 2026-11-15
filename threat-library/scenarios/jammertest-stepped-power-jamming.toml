@@ -1,0 +1,94 @@
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "jammertest-stepped-power-jamming"
+version = 1
+title = "JammerTest, Andøya: stepped-power jamming of a static receiver"
+family = "jammertest"
+threat = ["jamming"]
+domain = "land-static"
+period = "JammerTest editions 2022 onwards (yearly, Bleik and Andøya, Norway)"
+summary = """
+JammerTest is an organised yearly test week at Bleik and Andøya, Norway, where invited \
+participants test receivers against announced jamming and spoofing under a published test \
+plan. Many plan items step a jammer's power up and down. The analogue is a static receiver \
+under three jamming steps of rising strength."""
+
+[provenance]
+class = "published-test-campaign"
+parameter_basis = """
+Representative values, not read off the test plan or any recording: steps of 12, 24 and 36 dB \
+C/N0 reduction, 4 minutes each with 2-minute gaps. Real plan items differ in power, waveform, \
+band and timing: take those from the published plan for the edition you replay."""
+verify_before_use = "Use the published test plan and the organisers' official log for event times; the plan's slots are scheduled times, not measured on-air times."
+
+[[provenance.source]]
+title = "JammerTest: test plans and information"
+publisher = "JammerTest organisers (Norwegian authorities and partners)"
+date = "2022 onwards"
+url = "https://jammertest.no/"
+says = "The organisers publish a test plan for each edition, listing the jamming and spoofing tests with their types, groups and scheduled times."
+
+[[provenance.source]]
+title = "JammerTest 2024 dataset"
+publisher = "Zenodo"
+date = "2025"
+citation = "DOI 10.5281/zenodo.15910563 (GPL-3.0-or-later)"
+says = "Receiver recordings and logs from the 2024 edition, published under GPL-3.0-or-later."
+
+[licence]
+source_terms = "The JammerTest 2024 dataset is published under GPL-3.0-or-later; test plans are the organisers' documents. Neither is copied here."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence. The analogue is generated with the open engine (AGPL-3.0)."
+
+[replay]
+dataset = "JammerTest 2024 (or the edition you attended)"
+fetch = "DOI 10.5281/zenodo.15910563 for the 2024 dataset; test plans from https://jammertest.no/"
+format = "u-blox UBX and other receiver logs, as the dataset lists them"
+how = "Extract the dataset yourself. Score a receiver log with `kshana jammertest` (open engine) or put it in a receiver scorecard campaign (`kshana-pro scorecard run`) with events taken from the plan."
+events_from = "The organisers' published test plan and official log for the edition; never from this file."
+
+[analogue.scenario]
+name = "jammertest-stepped-power-jamming"
+description = "Static receiver under three jamming steps of rising strength (analogue)."
+trainer_note = "Each step lowers C/N0 further; the last one denies the fix."
+seed = 2209
+start_utc = "2024-09-10T08:00:00Z"
+duration_s = 1800
+rate_hz = 1
+
+[analogue.vessel]
+lat_deg = 69.2750
+lon_deg = 15.9580
+speed_kn = 0
+heading_deg = 0
+
+[[analogue.event]]
+kind = "jamming"
+label = "Step 1 (low)"
+start_s = 300
+duration_s = 240
+ramp_s = 5
+recovery_s = 5
+cn0_drop_db = 12
+spread_db = 3
+
+[[analogue.event]]
+kind = "jamming"
+label = "Step 2 (medium)"
+start_s = 660
+duration_s = 240
+ramp_s = 5
+recovery_s = 5
+cn0_drop_db = 24
+spread_db = 3
+
+[[analogue.event]]
+kind = "jamming"
+label = "Step 3 (high)"
+start_s = 1020
+duration_s = 240
+ramp_s = 5
+recovery_s = 5
+cn0_drop_db = 36
+spread_db = 3

@@ -1,0 +1,81 @@
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "red-sea-jamming-then-drag-off"
+version = 1
+title = "Red Sea: jamming followed by a counterfeit fix"
+family = "red-sea"
+threat = ["jamming", "spoofing"]
+domain = "maritime"
+period = "2024 to 2025 (as reported)"
+summary = """
+The advisories for the region list both GPS interference and spoofing. A common pattern in \
+reports of spoofing is jamming first, so that the receiver re-acquires on the counterfeit \
+signals. The analogue is jamming that denies the fix, then a drag-off on re-acquisition."""
+
+[provenance]
+class = "official-notice"
+parameter_basis = """
+Representative values, not read off any recording: 5 minutes of 32 dB jamming, then a 3 km \
+drag-off over 8 minutes with a uniform raised C/N0. The jam-then-capture sequence is a class of \
+attack, not a reported incident."""
+verify_before_use = "Treat as a class of attack, not a reconstruction of a reported incident."
+
+[[provenance.source]]
+title = "MSCI advisories: Red Sea, Bab el-Mandeb Strait, Gulf of Aden"
+publisher = "U.S. Maritime Administration (MARAD), Maritime Security Communications with Industry"
+date = "2023 onwards"
+url = "https://www.maritime.dot.gov/msci-advisories"
+says = "The advisories list GPS interference and spoofing among the threats to vessels in the region."
+
+[[provenance.source]]
+title = "Safety Information Bulletin 2022-02 and its revisions: Global Navigation Satellite System outage and alterations leading to navigation / surveillance degradation"
+publisher = "European Union Aviation Safety Agency (EASA)"
+date = "2022 onwards"
+url = "https://ad.easa.europa.eu/"
+says = "EASA describes both jamming and spoofing (alteration) of GNSS, including in the Middle East region."
+
+[licence]
+source_terms = "Public advisories; cited, not copied. No measurement data is used."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence. The analogue is generated with the open engine (AGPL-3.0)."
+
+[analogue.scenario]
+name = "red-sea-jamming-then-drag-off"
+description = "Transit with jamming, then a drag-off on re-acquisition (analogue)."
+trainer_note = "The fix is lost, comes back, and then walks away from the gyro and log."
+seed = 2410
+start_utc = "2024-03-02T15:00:00Z"
+duration_s = 1800
+rate_hz = 1
+
+[analogue.vessel]
+lat_deg = 14.20
+lon_deg = 42.30
+speed_kn = 14
+
+[[analogue.waypoint]]
+lat_deg = 15.00
+lon_deg = 41.80
+speed_kn = 14
+
+[[analogue.event]]
+kind = "jamming"
+label = "Jamming before capture"
+start_s = 360
+duration_s = 300
+ramp_s = 30
+recovery_s = 0
+cn0_drop_db = 32
+
+[[analogue.event]]
+kind = "drag-off"
+label = "Counterfeit fix after re-acquisition"
+start_s = 700
+duration_s = 600
+ramp_s = 480
+recovery_s = 0
+final_offset_m = 3000
+relative_bearing_deg = -60
+max_accel_mps2 = 0.2
+counterfeit_cn0_dbhz = 47

@@ -135,6 +135,14 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-timing-holdover" => Tier::Pro,
         "pro-timing-fleet" => Tier::Pro,
         "pro-timing-audit" => Tier::Pro,
+        // Threat scenario library (roadmap 0.42 E2): running a library scenario's analogue,
+        // and the exports and signed feed.
+        "pro-threat-scenario" => Tier::Pro,
+        "pro-threat-library" => Tier::Pro,
+        // Receiver resilience scorecards and test reports (roadmap 0.42 E3).
+        "pro-receiver-scorecard" => Tier::Pro,
+        // Timing scorecards under spoofing scenarios (roadmap 0.42 T4).
+        "pro-timing-scorecard" => Tier::Pro,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -155,6 +163,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-desktop",
     "pro-timing-fleet",
     "pro-timing-audit",
+    "pro-threat-library",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

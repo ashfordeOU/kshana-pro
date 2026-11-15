@@ -38,6 +38,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-threat-library",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-timing-audit",
       "type": "feature",
       "tier": "pro"
@@ -78,7 +83,22 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-receiver-scorecard",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-threat-scenario",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-timing-holdover",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-timing-scorecard",
       "type": "kind",
       "tier": "pro"
     },

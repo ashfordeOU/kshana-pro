@@ -21,7 +21,7 @@ construction*; Pro adds the value that must stay closed.
         │  │ L1 twin          │      │ docs/tenders/  13503·13494·   │    │
         │  │ L2 resilience 🔒 │      │   lunar  (bid evidence, decks)│    │
         │  │ L3 suite (gated) │      │ papers/        (arXiv-track)  │    │
-        │  │ + 21 Pro packs   │      │ docs/gtm · docs/strategy      │    │
+        │  │ + 24 Pro packs   │      │ docs/gtm · docs/strategy      │    │
         │  │   via ExternalPack│     │ legal/  (licence·NDA·export·  │    │
         │  │   / ErrorModel   │      │   BIPR·trademark)             │    │
         │  └────────┬─────────┘      │ docs/kshana-architecture.html │    │
@@ -81,7 +81,7 @@ won tenders and revenue. The map:
 
 ## Status — what is built vs gated
 
-The overlay is well past its P0 seam: **twenty-one Pro packs** (plus the **Pack C**
+The overlay is well past its P0 seam: **twenty-four Pro packs** (plus the **Pack C**
 scenario-CI subscription product) are built and tested on public data across the
 P0 / L1 / L3 value layers, plus the deliverable and deployment modules listed below. What stays **gated** is never a *framework* — it is the
 *instance* that needs private data, export clearance, or a signed customer: a real
@@ -93,13 +93,13 @@ on spec)**.
 
 Each runs on public data; the tier shown is the licence required to *run* it (see
 [Licensing](#build--run)). The table covers the framework packs; the full list of the
-twenty-one registered in the signed tier manifest (`commercial/tier-manifest.json`): the nine
+twenty-four registered in the signed tier manifest (`commercial/tier-manifest.json`): the twelve
 this crate contains are in [`src/registry.rs`](src/registry.rs), incident forensics
 (`pro-incident-forensics`, roadmap 0.42 E1) arrives as a Pro pack, all listed with their tiers by
 `cargo run -- kinds`. `tests/readme_counts.rs` fails the build if the pack count written
 here stops matching the registry.
 
-**Editions (roadmap 0.42, section 1a; X3 done).** Eleven of the twenty-one are
+**Editions (roadmap 0.42, section 1a; X3 done).** Eleven of the twenty-four are
 **Arksa-exclusive**, and so are the `mbse`, `design`, `coexist`, `mission`, `navdt`,
 `spacestream` and `mrd` commands: their code is no longer in this repository. It moved to the
 private server-side crate (Arksa servers only), which depends on this one and registers
@@ -117,6 +117,9 @@ at start-up. Details, checks and what remains: [docs/PROTECTION.md](docs/PROTECT
 | `pro-batch` | scale | Parallel Monte-Carlo runner: fans one base scenario across many seeds concurrently, aggregates a figure of merit (mean/std/min/max/p05/p95) | Enterprise | ✅ built + tested |
 | `pro-scenario-ci` | Pack C | The **scenario-subscription CI** product (run via `kshana-pro ci`): a manifest of scenarios + metric thresholds gated against a rolling baseline (the JSON output doubles as the next run's baseline), emitting the branded Pack C regression report (`pack_c::{manifest,metrics,gate,run}` + `report_pack_c`). **Campaign watch**: `[[watch]]` tables name the figures that matter (result paths, aggregates, named campaign figures, sweep crossings), what worse means for each and optional unit-checked requirements; a Monte Carlo figure is gated by a Welch t-test on the mean and an F-test on the spread; `--history` keeps a hash-chained history (`ci history verify`), `--trend` draws it, `--exact` reports every changed member result, `ci diff` lists what moved. Five subscription packs in `scenarios/packs/`. See [`docs/CAMPAIGN-WATCH.md`](docs/CAMPAIGN-WATCH.md) | Pro | ✅ built + tested |
 | `pro-timing-holdover` | T | **Timing assurance** (`kshana-pro timing`): holdover model and time to breach of operator-set limits for every clock of a mixed-vendor fleet, each read from its own source (TICC, TimeLab, RINEX clock, CGGTTS, linuxptp, chrony, ntpd, White Rabbit, PPS); per-clock hash-chained evidence history, a fleet page in the Station console and a Grafana dashboard (`pro-timing-fleet`), and signed audit reports mapped to MiFID II RTS 25 traceability or the NIST IR 8323 profile (`pro-timing-audit`). Prediction bars pre-registered as V5 and, for the successor predictor, V5b: **both missed and published**, so the time to breach is not a validated claim. See [`docs/TIMING-ASSURANCE.md`](docs/TIMING-ASSURANCE.md) | Pro | ✅ built + tested; V5 and V5b missed |
+| `pro-threat-scenario` | E | **Threat scenario library** (`kshana-pro threats`, feature `pro-threat-library`): twelve curated real events (Baltic, Hormuz, Red Sea, JammerTest, TEXBAT) with provenance and licence notes and **no source data**; each has a reproducible analogue (open NMEA generator, scored by the open receiver-trust monitors) and/or a timing profile; exports through the open I4 test-bench writers; a signed monthly feed that verifies for free. See [`docs/THREAT-LIBRARY.md`](docs/THREAT-LIBRARY.md) | Pro | ✅ built + tested; analogues are MODELLED |
+| `pro-receiver-scorecard` | E | **Receiver resilience scorecard and test report** (`kshana-pro scorecard`): a test campaign (library analogues or the receiver's own logs under stated events, optional I4 truth), scored for detection, availability, error, misleading output without warning and recovery under bars stated before scoring; mapped to the DHS resilience levels and the IEEE P1952 draft topics as test evidence; frozen format `kshana-pro-receiver-scorecard/1`; signed report verifies for free. Public sample pre-registered (E3-B1 met, E3-B2 part (a) **missed and published**, E3-B3 met). See [`docs/RECEIVER-SCORECARDS.md`](docs/RECEIVER-SCORECARDS.md) | Pro | ✅ built + tested; sample published |
+| `pro-timing-scorecard` | T | **Timing scorecards** (`kshana-pro timing scorecard`): grandmasters and the PTP network behind them under threat library timing profiles (time push, step, denial); detection against the T1 holdover envelope or a site cross-check, delivered error per clock and limit, holdover after detection; levels via the E3 scoring. Public sample pre-registered (T4-B1..B3 met); inherits T1's unvalidated holdover model. See [`docs/TIMING-ASSURANCE.md`](docs/TIMING-ASSURANCE.md) | Pro | ✅ built + tested; MODELLED |
 | `pro-uncertainty` | scale | **Uncertainty and sensitivity** (`kshana-pro uncertainty`): stated input distributions over any open scenario; per output the mean, spread, percentiles with a bootstrap interval, the probability of meeting a limit (Wilson interval), time-series bands, and Sobol' or standardised-regression sensitivity; seeded, thread-count independent, stop and resume. See [`docs/UNCERTAINTY.md`](docs/UNCERTAINTY.md) | Enterprise | ✅ built + tested |
 
 ### Layer attach points & gates
@@ -252,7 +255,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **forty-six integration tests** in
+The suite is unit tests across every module plus **forty-nine integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,
