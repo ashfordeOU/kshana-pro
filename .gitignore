@@ -50,3 +50,6 @@ Cargo.lock.orig
 **/cells/*.json
 !tests/fixtures/lab_campaign_synthetic/**
 __pycache__/
+
+# The timing demo fleet keeps real-format clock logs as test inputs (tests/timing_assurance.rs).
+!examples/timing-fleet/logs/*.log
