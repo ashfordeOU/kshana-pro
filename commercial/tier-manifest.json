@@ -53,6 +53,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-incident-forensics",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-optimism-gap-audit",
       "type": "kind",
       "tier": "pro"

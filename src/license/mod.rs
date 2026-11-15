@@ -119,6 +119,8 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // Signed dossiers (F7): part of "studies and signed dossiers" in the 0.41
         // edition matrix.
         "pro-signed-dossier" => Tier::Pro,
+        // Incident forensics (E1, 0.42): a Pro pack kind (crate::forensics), sold to anyone.
+        "pro-incident-forensics" => Tier::Pro,
         "pro-batch" => Tier::Enterprise,
         "pro-uncertainty" => Tier::Enterprise,
         // 0.41 edition matrix (F10a): Pro features that are not scenario kinds.

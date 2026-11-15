@@ -37,6 +37,7 @@ pub mod cli;
 pub mod connectors;
 pub mod criterion;
 pub mod extension;
+pub mod forensics;
 pub mod lab_campaign;
 pub mod license;
 pub mod pack_c;

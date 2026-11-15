@@ -104,7 +104,7 @@ export function licenceView(status, now, error = "") {
  * serve a job in this build; a job with none is drawn as coming, never as available.
  */
 export const JOBS = [
-  { id: "forensics", icon: "forensics", title: "Investigate an incident", text: "A vessel or flight and a time window, to a signed forensics pack.", match: /forensic/ },
+  { id: "forensics", icon: "forensics", title: "Investigate an incident", text: "A vessel or flight and a time window, to a signed forensics pack.", match: /^pro-incident-forensics$/ },
   { id: "timing", icon: "timing", title: "Check timing assurance", text: "Holdover and time to breach for every clock in the fleet.", match: /timing-assurance|holdover-fleet/ },
   { id: "scorecard", icon: "scorecards", title: "Score a receiver", text: "A test campaign and a referee scorecard, pre-registered.", match: /scorecard/ },
   { id: "study", icon: "dossiers", title: "Write a study", text: "A trade study or mission study from a scenario file, run under this licence.", match: /study|trade/ },
@@ -133,7 +133,9 @@ export function jobsModel(kinds, unlocked) {
   const known = Array.isArray(kinds);
   return JOBS.map((j) => {
     const serving = known ? kinds.filter((k) => j.match.test(k)) : [];
-    const buildHas = j.id === "study"; // the study kinds ship in this build (registry::pro_kinds)
+    // The study kinds ship in this build (registry::pro_kinds); incident forensics
+    // (pro-incident-forensics) is in the build's tier manifest and arrives as a Pro pack.
+    const buildHas = j.id === "study" || j.id === "forensics";
     const state = serving.length ? "ready" : !unlocked && buildHas ? "locked" : "coming";
     return { id: j.id, icon: j.icon, title: j.title, text: j.text, state, kinds: serving };
   });

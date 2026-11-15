@@ -5,6 +5,25 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **Incident forensics, the lead Pro product (roadmap 0.42 E1, owner decision K8;
+  docs/INCIDENT-FORENSICS.md).** New Pro pack kind `pro-incident-forensics` and command
+  `kshana-pro forensics run|review|verify|pack-payload`. For an incident (window, area, subject)
+  and its data (receiver and Station logs through the open engine's receiver-trust readers and
+  monitors, AIS and ADS-B in the open interference-map CSV formats, third-party statements) it
+  writes a signed, reproducible bundle: report (JSON, HTML, PDF), findings and timeline (CSV,
+  SVG), affected area and tracks (GeoJSON), every input byte for byte with its SHA-256, a
+  recipe, an open-engine evidence pack per receiver log, and `signature.json`. Each finding is
+  jamming-like, spoofing-like, both, or a degradation not attributed to interference, with
+  MEASURED/REPORTED data and a MODELLED inference, onset and end bounds, a stated confidence
+  rule (high needs an independent source) and its evidence. Standard and claim-grade variants;
+  claim-grade adds a stricter checklist (coverage, baselines, chain of custody, two sources,
+  corroboration, evidence packs) and empty expert review fields that only a named reviewer
+  completes (`forensics review`, signed against the report hash). Verification needs no
+  licence. The kind is listed at `pro` in the signed tier manifest (regenerated) and registers
+  only from a verified Pro pack (`ForensicsActivator`); Desktop Pro loads it at start and its
+  Pro home shows the forensics job. Every report states that the V2 detection bars are not yet
+  met.
+
 - **Arksa-exclusive code moved out (roadmap 0.42 X3; docs/PROTECTION.md, section 6).** The
   eleven Arksa-exclusive kinds (the nine of section 1a plus the two lunar surface beacon
   studies, `pro-beacon-dop` and `pro-surface-beacon-dop-study`), the `mbse`, `design`,
