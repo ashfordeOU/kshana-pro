@@ -8,6 +8,16 @@
       "tier": "open-seam"
     },
     {
+      "kind": "pro-alert-policy",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-area-console",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-attack-iq",
       "type": "feature",
       "tier": "pro"
@@ -63,6 +73,11 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-area-picture",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-batch",
       "type": "kind",
       "tier": "pro"
@@ -78,7 +93,17 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-multi-source-trust",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-optimism-gap-audit",
+      "type": "kind",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-planner-front",
       "type": "kind",
       "tier": "pro"
     },

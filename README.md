@@ -21,7 +21,7 @@ construction*; Pro adds the value that must stay closed.
         │  │ L1 twin          │      │ docs/tenders/  13503·13494·   │    │
         │  │ L2 resilience 🔒 │      │   lunar  (bid evidence, decks)│    │
         │  │ L3 suite (gated) │      │ papers/        (arXiv-track)  │    │
-        │  │ + 24 Pro packs   │      │ docs/gtm · docs/strategy      │    │
+        │  │ + 27 Pro packs   │      │ docs/gtm · docs/strategy      │    │
         │  │   via ExternalPack│     │ legal/  (licence·NDA·export·  │    │
         │  │   / ErrorModel   │      │   BIPR·trademark)             │    │
         │  └────────┬─────────┘      │ docs/kshana-architecture.html │    │
@@ -81,7 +81,7 @@ won tenders and revenue. The map:
 
 ## Status — what is built vs gated
 
-The overlay is well past its P0 seam: **twenty-four Pro packs** (plus the **Pack C**
+The overlay is well past its P0 seam: **twenty-seven Pro packs** (plus the **Pack C**
 scenario-CI subscription product) are built and tested on public data across the
 P0 / L1 / L3 value layers, plus the deliverable and deployment modules listed below. What stays **gated** is never a *framework* — it is the
 *instance* that needs private data, export clearance, or a signed customer: a real
@@ -93,13 +93,13 @@ on spec)**.
 
 Each runs on public data; the tier shown is the licence required to *run* it (see
 [Licensing](#build--run)). The table covers the framework packs; the full list of the
-twenty-four registered in the signed tier manifest (`commercial/tier-manifest.json`): the twelve
+twenty-seven registered in the signed tier manifest (`commercial/tier-manifest.json`): the fifteen
 this crate contains are in [`src/registry.rs`](src/registry.rs), incident forensics
 (`pro-incident-forensics`, roadmap 0.42 E1) arrives as a Pro pack, all listed with their tiers by
 `cargo run -- kinds`. `tests/readme_counts.rs` fails the build if the pack count written
 here stops matching the registry.
 
-**Editions (roadmap 0.42, section 1a; X3 done).** Eleven of the twenty-four are
+**Editions (roadmap 0.42, section 1a; X3 done).** Eleven of the twenty-seven are
 **Arksa-exclusive**, and so are the `mbse`, `design`, `coexist`, `mission`, `navdt`,
 `spacestream` and `mrd` commands: their code is no longer in this repository. It moved to the
 private server-side crate (Arksa servers only), which depends on this one and registers
@@ -120,7 +120,17 @@ at start-up. Details, checks and what remains: [docs/PROTECTION.md](docs/PROTECT
 | `pro-threat-scenario` | E | **Threat scenario library** (`kshana-pro threats`, feature `pro-threat-library`): twelve curated real events (Baltic, Hormuz, Red Sea, JammerTest, TEXBAT) with provenance and licence notes and **no source data**; each has a reproducible analogue (open NMEA generator, scored by the open receiver-trust monitors) and/or a timing profile; exports through the open I4 test-bench writers; a signed monthly feed that verifies for free. See [`docs/THREAT-LIBRARY.md`](docs/THREAT-LIBRARY.md) | Pro | ✅ built + tested; analogues are MODELLED |
 | `pro-receiver-scorecard` | E | **Receiver resilience scorecard and test report** (`kshana-pro scorecard`): a test campaign (library analogues or the receiver's own logs under stated events, optional I4 truth), scored for detection, availability, error, misleading output without warning and recovery under bars stated before scoring; mapped to the DHS resilience levels and the IEEE P1952 draft topics as test evidence; frozen format `kshana-pro-receiver-scorecard/1`; signed report verifies for free. Public sample pre-registered (E3-B1 met, E3-B2 part (a) **missed and published**, E3-B3 met). See [`docs/RECEIVER-SCORECARDS.md`](docs/RECEIVER-SCORECARDS.md) | Pro | ✅ built + tested; sample published |
 | `pro-timing-scorecard` | T | **Timing scorecards** (`kshana-pro timing scorecard`): grandmasters and the PTP network behind them under threat library timing profiles (time push, step, denial); detection against the T1 holdover envelope or a site cross-check, delivered error per clock and limit, holdover after detection; levels via the E3 scoring. Public sample pre-registered (T4-B1..B3 met); inherits T1's unvalidated holdover model. See [`docs/TIMING-ASSURANCE.md`](docs/TIMING-ASSURANCE.md) | Pro | ✅ built + tested; MODELLED |
+| `pro-area-picture` | F | **Area console** (`kshana-pro area picture`, feature `pro-area-console`; Station console page `GET /area/console`): fuses Kshana Stations, receivers and customer-supplied third-party feeds into one area trust picture per monitored area through the open engine's pre-registered area rule, with event timelines (sources, basis, corroboration) and wide-area events across areas; tenancy hooks (more than one tenant in one console is Enterprise); HA failover tested. **F2: detections and areas only, never emitter positions** (a hard switch with no "on" value, until the locator successor meets its gate on the blind JammerTest 2027 run). Two-site demo on a synthetic analogue of published Baltic events. See [`docs/FUSION-AND-OPERATIONS.md`](docs/FUSION-AND-OPERATIONS.md) | Pro (multi-tenant: Enterprise) | ✅ built + tested; MODELLED |
+| `pro-multi-source-trust` | F | **Multi-source trust** (`kshana-pro trust`): chooses epoch by epoch among GNSS, OSNMA-authenticated Galileo, LEO, eLoran, PTP and holdover under a rule fixed before the code (exclusion, cross-group consistency votes, protection levels, holdover with class noise and drift bound, hysteresis), with a hash-chained evidence record of every choice that verifies for free. Switching bars pre-registered as V4 and **met on all three data sets** (recorded IGS clocks with modelled sources and injected faults, and a synthetic set); no real multi-source recording scored. See [`docs/evidence/v4-multi-source-switching/`](docs/evidence/v4-multi-source-switching/) | Pro | ✅ built + tested; V4 met |
+| `pro-planner-front` | F6 / B1b | **Planner Pareto front with cost**: every network of `m_min` to `m_max` stations from the open planner's candidates, capital plus years of running cost against the open planner's objective, exact (exhaustive) front, best per `m` equal to the open planner's own placement, cheapest network meeting a target. MODELLED (free-space maps) | Pro | ✅ built + tested; MODELLED |
 | `pro-uncertainty` | scale | **Uncertainty and sensitivity** (`kshana-pro uncertainty`): stated input distributions over any open scenario; per output the mean, spread, percentiles with a bootstrap interval, the probability of meeting a limit (Wilson interval), time-series bands, and Sobol' or standardised-regression sensitivity; seeded, thread-count independent, stop and resume. See [`docs/UNCERTAINTY.md`](docs/UNCERTAINTY.md) | Enterprise | ✅ built + tested |
+
+**Alert policy engine (roadmap 0.42 F5; feature `pro-alert-policy`, `kshana-pro alerts route`).**
+Routes decide who is told what, when and through which of the open engine's I5 outputs, with quiet
+hours (held into a digest), escalation when nobody acknowledges, and de-duplication that never
+hides a worse alert. It plans and sends nothing itself; the free edition keeps raw alerts
+(`kshana-pro alerts raw`, no licence), and every plan accounts for every input alert. The area
+console and the multi-source selector feed it. See [`docs/FUSION-AND-OPERATIONS.md`](docs/FUSION-AND-OPERATIONS.md).
 
 ### Layer attach points & gates
 
@@ -255,7 +265,7 @@ cargo run -- kinds --json        # the same as JSON, with open_count and pro_cou
 cargo run -- version
 ```
 
-The suite is unit tests across every module plus **fifty-three integration tests** in
+The suite is unit tests across every module plus **fifty-five integration tests** in
 [`tests/`](tests) that prove the contract: `overlay.rs` (superset by construction),
 `open_engine_reachable.rs` (every open kind the embedded engine lists is run from one of
 the engine's own scenario files through the Pro dispatcher and the open ∪ Pro registry,

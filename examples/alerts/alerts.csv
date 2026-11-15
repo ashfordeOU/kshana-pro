@@ -1,0 +1,10 @@
+t_unix,id,source,kind,severity,area,text
+1794615030,gof-1,area-console,area-degraded,warning,gulf-of-finland,gulf-of-finland DEGRADED (network+feed, corroborated)
+1794615060,tartu-1,area-console,area-degraded,warning,tartu-approach,tartu-approach DEGRADED (network+feed, corroborated)
+1794615200,gof-2,area-console,area-degraded,warning,gulf-of-finland,gulf-of-finland DEGRADED again
+1794615400,gof-3,area-console,area-untrusted,critical,gulf-of-finland,gulf-of-finland UNTRUSTED
+1794615500,site-a-switch-1,multi-source-trust,timing-source-switch,warning,site-a,osnma -> leo: current source failed the cross-check
+1794616000,site-a-switch-2,multi-source-trust,timing-holdover,critical,site-a,leo -> holdover: no source qualifies
+1794646800,gof-4,area-console,area-degraded,warning,gulf-of-finland,gulf-of-finland DEGRADED overnight
+1794650400,site-a-switch-3,multi-source-trust,timing-holdover,critical,site-a,ptp -> holdover overnight
+1794600000,info-1,station,station-restart,info,tartu-approach,tartu-st-3 restarted

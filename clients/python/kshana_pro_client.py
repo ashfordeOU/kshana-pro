@@ -194,6 +194,14 @@ class KshanaProClient:
         """GET /timing/metrics: The tenant's timing fleet in the Prometheus text format, for the Grafana dashboard deploy/grafana/kshana-pro-timing-fleet.json; needs the pro-timing-fleet feature. Role: reader."""
         return self._call("GET", "/timing/metrics", None, None, None, text=False)
 
+    def get_area_console(self):
+        """GET /area/console: The area console page (roadmap 0.42 F1): the tenant's area trust picture (<data-dir>/area/<tenant>/console.toml) with event timelines and wide-area events; detections and areas only, never emitter positions (F2); needs the pro-area-console feature. Role: reader."""
+        return self._call("GET", "/area/console", None, None, None, text=False)
+
+    def get_area_picture(self):
+        """GET /area/picture: The tenant's area trust picture as JSON (kshana-pro-area-picture/1); no emitter positions; needs the pro-area-console feature. Role: reader."""
+        return self._call("GET", "/area/picture", None, None, None, text=False)
+
     def get_audit_verify(self):
         """GET /audit/verify: Verify the hash chain of the audit log (admin). Role: admin."""
         return self._call("GET", "/audit/verify", None, None, None, text=False)
