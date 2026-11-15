@@ -214,6 +214,7 @@ pub struct BarOutcome {
 /// A study's result.
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct StudyResult {
+    pub kind: &'static str,
     pub format: &'static str,
     pub method_id: &'static str,
     pub open_engine: String,
@@ -567,6 +568,7 @@ pub fn run_study(s: &StudySpec) -> Result<StudyResult, String> {
     let bars = score_bars(&s.bar, &rows, integ.as_ref())?;
     let passed = bars.iter().all(|b| b.met);
     Ok(StudyResult {
+        kind: KIND,
         format: FORMAT,
         method_id: METHOD_ID,
         open_engine: format!("kshana {OPEN_ENGINE_PIN}"),

@@ -1,4 +1,5 @@
 {
+  "kind": "pro-pnt-verification",
   "format": "kshana-pro-pnt-verification/1",
   "method_id": "kshana-pro/pnt-verification/v1",
   "open_engine": "kshana 0.41.0",

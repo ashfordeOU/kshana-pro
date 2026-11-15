@@ -1,4 +1,5 @@
 {
+  "kind": "pro-ais-integrity",
   "format": "kshana-pro-ais-integrity/1",
   "method_id": "kshana-pro/ais-integrity/v1",
   "stage2_method": "kshana-pro/m4-offset/v4",
@@ -9,7 +10,7 @@
   },
   "stage2_note": "Offset candidate from the stage-2 parallel-track test. Its pre-registered bars (V3, V3b) were NOT MET, with a high false-alarm rate on synthetic scenes: a candidate is a lead for review, not a class.",
   "open_engine": "kshana 0.41.0",
-  "label": "REPORTED AIS positions; RF fixes as supplied (MEASURED or MODELLED, as the supplier states); MODELLED classes: each class describes the consistency of the data supplied under rules fixed before the run, never intent. An engineering record, not a legal opinion, not a finding of fact and not a certification.",
+  "label": "MODELLED classes from REPORTED AIS positions and RF fixes as supplied (MEASURED or MODELLED, as the supplier states): each class describes the consistency of the data supplied under rules fixed before the run, never intent. An engineering record, not a legal opinion, not a finding of fact and not a certification.",
   "validation_status": "V3 (the M4 position-offset bar with the stage-2 method, pre-registered 15 November 2026): see docs/evidence/v3-m4-offset-successor/RESULTS.md. Scored on synthetic scenes only (MODELLED); no real AIS or RF data has been scored.",
   "title": "AIS and position integrity: public sample (synthetic)",
   "inputs": [

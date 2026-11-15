@@ -15,8 +15,8 @@
     },
     {
       "path": "verification-study.json",
-      "sha256": "903980e03533d9251110d64738d51175ffebec40ba659dedd638adb8ab4e31c1"
+      "sha256": "2b8f70c746a858e58b6932e0432d682ac16ab75270ef3e6cfb9e7dd700f20d38"
     }
   ],
-  "signature": "de5f94e6583f318aa70c48e99f76bc308bbaf548cdb63a2fb3d529b3354f37ecf6802beed17a3745573d6d0b9a44269671550bbadad316abb6350aec1adfe00f"
+  "signature": "75f2776f3e6328e34977c53d96bd7bf4ca581722637b5c29aeef2bff6c364a297fa1528da1a3d6a9518609b58ea02591e55bcd4afffae593078cc53894a7e108"
 }

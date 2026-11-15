@@ -55,8 +55,8 @@ pub const OPEN_ENGINE_PIN: &str = "0.41.0";
 pub const RESULT_FILE: &str = "integrity-score.json";
 
 /// The honesty label every output carries.
-pub const LABEL: &str = "REPORTED AIS positions; RF fixes as supplied (MEASURED or MODELLED, as \
-the supplier states); MODELLED classes: each class describes the consistency of the data \
+pub const LABEL: &str = "MODELLED classes from REPORTED AIS positions and RF fixes as supplied \
+(MEASURED or MODELLED, as the supplier states): each class describes the consistency of the data \
 supplied under rules fixed before the run, never intent. An engineering record, not a legal \
 opinion, not a finding of fact and not a certification.";
 
@@ -206,6 +206,7 @@ pub struct GroupScore {
 /// A scoring result.
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct IntegrityScore {
+    pub kind: &'static str,
     pub format: &'static str,
     pub method_id: &'static str,
     pub stage2_method: &'static str,
@@ -501,6 +502,7 @@ pub fn score_streams(
         groups.push(group("area", &ar.name, &rows, None, d));
     }
     IntegrityScore {
+        kind: KIND,
         format: FORMAT,
         method_id: METHOD_ID,
         stage2_method: offset_v4::METHOD_ID,

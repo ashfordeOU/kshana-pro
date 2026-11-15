@@ -7,16 +7,16 @@
   "files": [
     {
       "path": "integrity-score.json",
-      "sha256": "38f659fd1593f6ced577fe6db30409ea795108dc6ab6cbc0e092a8b3d04b9fc7"
+      "sha256": "a3c4cd55be097a9926b1b6faddb5533e991c0fb9f14853785a58ee166429a6c2"
     },
     {
       "path": "report.html",
-      "sha256": "fbaf294094fae8c1313e0f0c8c42946c96e915dfc402738334a32aac5d497d1e"
+      "sha256": "582a1f317a19fd08db7012ba2f6b49ccb05c8758c91f0a6660f74dee8a4ba9bb"
     },
     {
       "path": "vessels.csv",
       "sha256": "8475d1a9a2b6f3647a80c6b560147f99ce8bf90d94c558bc128e355bc42feebf"
     }
   ],
-  "signature": "0fb46697f303342ec4ca0e8be3dc423921936debddf21d113895f3b473d4bff908402922b3ade9dd1ce33e37ae4a3e1dad708b44113eabf93fb570e0f4aa6406"
+  "signature": "8bb1c20efd5272a67c5aae4103a6cbeca3350e7ffb1e24af3b643f91b9edc1a11456b8e5709db8ad5b967120eefd73608c38a0eced3052bc632e67ed51f90902"
 }
