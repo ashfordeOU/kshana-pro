@@ -1,0 +1,138 @@
+# PROPRIETARY — Kshana Pro overlay. Internal commercial record.
+#
+# Kshana price list (roadmap 0.42 §1c), approved by the owner on 15 November 2026 (gate K4:
+# "approved as proposed in §1c, for the private sales sheet (C9); public price page stays
+# off; Sovereign 'Contact us'"). USD, excluding VAT, to match Arksa's price list.
+#
+# commercial/tools/prices.py builds two things from this file and nothing else:
+#   * the editions page (S4), commercial/editions/editions.html: editions and what they
+#     include; prices appear only when [switch] public_prices = true, and Sovereign is
+#     "Contact us" whatever the switch says;
+#   * the private sales price sheet (C9), commercial/sales/PRICE-SHEET.md: every price,
+#     for sales conversations only. Never published.
+# Turning the switch on is the owner's decision (K4 public page). Nothing here is a
+# commitment until an order form is signed.
+
+format = "kshana-price-list/1"
+approved = "2026-11-15"
+approved_by = "owner (gate K4, ROADMAP-0.42 §1e)"
+currency = "USD"
+vat = "excluding VAT"
+
+[switch]
+# OFF: the editions page shows no price at all.
+public_prices = false
+
+[[edition]]
+id = "open"
+name = "Kshana Open"
+audience = "Everyone"
+includes = [
+  "Detection, file formats, readers and writers, connectors and SDKs",
+  "Free verifier for every signed evidence pack",
+  "Kshana Desktop (free), Kshana Station (one site)",
+]
+price = "Free"
+public = true
+
+[[edition]]
+id = "pro-individual"
+name = "Kshana Pro (individual)"
+audience = "One analyst or engineer"
+includes = [
+  "Incident forensics, receiver and timing scorecards, threat scenario library",
+  "Timing assurance (holdover, time-to-breach, audit export)",
+  "Studies and signed dossiers; Kshana Desktop Pro",
+]
+price = "$290/month or $2,900/year"
+model = "Subscription, monthly or yearly"
+public = true
+
+[[edition]]
+id = "pro-team"
+name = "Kshana Pro (team)"
+audience = "Teams of three or more"
+includes = ["Everything in Pro, per seat", "Station fleet under one management"]
+price = "$4,900/seat/year"
+model = "Yearly per seat, minimum 3 seats"
+public = true
+
+[[edition]]
+id = "pro-academic"
+name = "Kshana Pro (academic)"
+audience = "Universities and research institutes"
+includes = ["Everything in Pro for research", "Teaching use free"]
+price = "$490/seat/year"
+model = "Yearly per seat; teaching free"
+public = true
+
+[[edition]]
+id = "enterprise"
+name = "Kshana Enterprise"
+audience = "Operators and authorities"
+includes = ["SSO, high availability, audit export", "25 seats", "Multi-tenant fusion console"]
+price = "from $45,000/year"
+model = "Yearly"
+public = true
+
+[[edition]]
+id = "sovereign"
+name = "Kshana Sovereign"
+audience = "Governments and air-gapped sites"
+includes = ["On-site, air-gapped site licence", "Escrow; offline yearly tokens"]
+price = "from $90,000/year"
+model = "Yearly site licence; perpetual only where a government requires it (about 3x yearly plus 20%/year maintenance)"
+# Sovereign is never priced in public (owner): "Contact us" on every public page.
+public = false
+
+[[product]]
+id = "evidence-forensics"
+name = "Evidence pack: incident forensics"
+price = "$4,900 standard; $14,900 claim-grade with expert review"
+model = "One-time per incident"
+public = true
+
+[[product]]
+id = "evidence-scorecard"
+name = "Evidence pack: receiver scorecard"
+price = "$12,000"
+model = "One-time per receiver per campaign"
+public = true
+
+[[product]]
+id = "evidence-timing"
+name = "Evidence pack: timing audit (RTS 25, G.8272)"
+price = "$5,900/site/year"
+model = "Yearly per site"
+public = true
+
+[[product]]
+id = "evidence-insurer"
+name = "Evidence pack: insurer qualifying-system evaluation"
+price = "$24,000"
+model = "One-time per system"
+public = true
+
+[[product]]
+id = "evidence-framework"
+name = "Evidence pack: framework mapping (EASA, NIST, NIS 2)"
+price = "$3,900"
+model = "One-time"
+public = true
+
+[[product]]
+id = "qsp"
+name = "Qualification support package (per standard)"
+price = "$9,900 + $2,500/year"
+model = "One-time plus yearly updates"
+public = true
+
+[sales]
+# Sales-only notes for the private sheet (C9).
+notes = [
+  "No one-time 'buy forever' licence for Kshana Pro: without renewal a leaked copy cannot be stopped.",
+  "Self-serve (Pro individual, team, academic, evidence packs under $5k) through a merchant of record once gate K3 clears; until then invoice and bank transfer (decision K3).",
+  "Contracts (Enterprise, Sovereign, large evidence packs, QSP): one-page order form, invoice, bank transfer, net 14/30.",
+  "Arksa plans and their included jobs are on Arksa's own list; Arksa-exclusive jobs are never sold standalone.",
+  "Trade-secret methods run only on the hosted Kshana Pro service (results-only), with a monthly allowance per subscription.",
+]
