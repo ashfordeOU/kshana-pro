@@ -143,6 +143,10 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         "pro-receiver-scorecard" => Tier::Pro,
         // Timing scorecards under spoofing scenarios (roadmap 0.42 T4).
         "pro-timing-scorecard" => Tier::Pro,
+        // Synthetic attack IQ files (roadmap 0.42 F7, owner gate K6): Pro edition, but never
+        // by tier below Enterprise: the vendor names the feature on a vetted buyer's licence
+        // (with `vetted_buyer`), and crate::attack_iq checks both.
+        "pro-attack-iq" => Tier::Enterprise,
         // A kind or feature of a registered server-side extension (crate::extension): the
         // edition gate decides; the recorded tier is informational.
         other => return crate::extension::min_tier(other),
@@ -164,6 +168,7 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-timing-fleet",
     "pro-timing-audit",
     "pro-threat-library",
+    "pro-attack-iq",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

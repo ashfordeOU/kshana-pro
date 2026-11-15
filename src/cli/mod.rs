@@ -5,6 +5,7 @@
 //! binary) and the licensing mechanics (issue / verify tokens; `--license` enforces
 //! tier entitlements on Pro packs).
 
+mod attack_iq_cmd;
 mod dossier_cmd;
 mod forensics_cmd;
 mod license_cmd;
@@ -46,6 +47,7 @@ const USAGE_TAIL: &str = "kshana-pro benefits [--json|--svg]                    
        kshana-pro dossier <keygen|sign|verify> ...   Sign a dossier or any delivery directory (Pro); verify one offline (free; `kshana-pro dossier` for details)\n\
        kshana-pro forensics <run|review|verify|pack-payload> ...   Incident forensics (E1, Pro pack): signed, reproducible forensic report; review and verify (free; `kshana-pro forensics` for details)\n\
        kshana-pro scorecard <run|verify> ...   Receiver resilience scorecard and signed test report (E3, Pro); verify (free; `kshana-pro scorecard` for details)\n\
+       kshana-pro attack-iq <generate|attestation-template|trace> ...   Synthetic attack IQ files for shielded labs and authorised ranges (F7): vetted buyers only, attestation first, files only, watermarked and logged\n\
        kshana-pro threats <list|show|export|feed> ...   Threat scenario library (E2): provenance, analogue, test-bench exports, signed monthly feed (Pro; list and feed verify free)\n\
        kshana-pro payments <check|checkout|stripe-checkout|serve> [--config <payments.toml>] ...   Payments and paywall; inert while payments.enabled and payments.stripe.enabled are false (vendor side)\n\
        kshana-pro packs <build|issue|serve|trace|install|status> ...   Pro pack delivery (C10; `kshana-pro packs` for details)\n\
@@ -103,6 +105,7 @@ pub const BUILTIN_COMMANDS: &[&str] = &[
     "timing",
     "scorecard",
     "threats",
+    "attack-iq",
 ];
 
 /// The `kshana-pro` command line over the process arguments.
@@ -225,6 +228,7 @@ pub fn main_with_args(args: Vec<String>) -> ExitCode {
         Some("timing") => timing_cmd::run(&args[1..]),
         Some("scorecard") => scorecard_cmd::run(&args[1..]),
         Some("threats") => threats_cmd::run(&args[1..]),
+        Some("attack-iq") => attack_iq_cmd::run(&args[1..]),
         // A command of a registered server-side extension (crate::extension), if any.
         Some(name) if crate::extension::commands().iter().any(|c| c.name == name) => {
             let c = crate::extension::commands()

@@ -8,6 +8,11 @@
       "tier": "open-seam"
     },
     {
+      "kind": "pro-attack-iq",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-desktop",
       "type": "feature",
       "tier": "pro"

@@ -26,9 +26,10 @@ const USAGE: &str = "usage: kshana-pro license <command>\n\
     revocations install <file>              Install a signed revocation list (from an update)\n\
     refresh                                 Opt-in online refresh (off unless refresh.toml enables it)\n\
   vendor:\n\
-    keygen | pubkey                         New key pair | public key and key ID of $KSHANA_PRO_SIGNING_KEY\n\
+    keygen | pubkey                         New key pair | public key and key ID of the signer\n\
+                                            (KSHANA_PRO_SIGNER=seed with $KSHANA_PRO_SIGNING_KEY, or =kms, S7-a)\n\
     issue --tier <t> --licensee <n> [--days <n>] [--product <p,..>] [--seats <n>] [--stations <n>]\n\
-          [--machine <hash>] [--not-before <unix>] [--feature <kind,..>] [--register <file>] [--note <s>] [--v1]\n\
+          [--machine <hash>] [--not-before <unix>] [--feature <kind,..>] [--vetted-buyer] [--register <file>] [--note <s>] [--v1]\n\
     issue-invoice --licensee <n> --tier <t> --invoice <ref> --data <dir> (--term-days <n> | --until <unix>)\n\
           [--product <p,..>] [--seats <n>] [--stations <n>] [--feature <kind,..>] [--offline]\n\
                                             Licence for an invoiced customer (C7): online 35-day tokens renewed\n\
@@ -37,7 +38,7 @@ const USAGE: &str = "usage: kshana-pro license <command>\n\
     trial --licensee <n> --product <p,..> --register <file>       30-day Pro trial\n\
     renew <token-id> --days <n> --register <file>\n\
     revoke <token-id> --reason <s> --register <file>\n\
-    revocations build --register <file> --out <file> [--retire <kid,..>]\n\
+    revocations build --register <file> --out <file> [--retire <kid,..>]   (--retire: root key only, S7-b)\n\
     reminders --register <file> [--within <days>] [--json]\n\
     register verify <file>\n\
   The store is $KSHANA_PRO_HOME or the per-user configuration directory; --store <dir> overrides.\n\
@@ -114,6 +115,17 @@ pub fn verify_token_for(
             st.warning.unwrap_or_else(|| st.state.as_str().into()),
         )),
     }
+}
+
+/// Verify `token` as [`verify_token_for`] does (revocation lists, state) and return the
+/// whole verified licence (claims included); expired tokens are refused, grace or not.
+pub fn verify_licence_for(
+    token: &str,
+    now: i64,
+    product: Product,
+) -> Result<license::Licence, KshanaError> {
+    verify_token_for(token, now, product)?;
+    license::verify_with(&keyring()?, token, &opts(now, product))
 }
 
 /// The `stations` claim of the licence in use (`--license <token>`, else the activated
@@ -288,6 +300,7 @@ fn issue(args: &[String]) -> Result<(), KshanaError> {
         features: list_arg(args, "--feature"),
         products: if v1 { Vec::new() } else { products },
         seats: num_arg(args, "--seats")?.unwrap_or(0),
+        vetted_buyer: has_flag(args, "--vetted-buyer"),
         stations: num_arg(args, "--stations")?.unwrap_or(0),
         machine: flag(args, "--machine"),
         not_before_unix: num_arg(args, "--not-before")?.unwrap_or(0),
