@@ -1,9 +1,15 @@
 # macOS signing and notarisation for Kshana Desktop: a checklist
 
-Status: **nothing here has been done.** No Apple account or signing identity exists yet. Both
-Desktop builds ship unsigned today, and Gatekeeper warns on first start. This page lists what the
-publisher needs, what goes into the build, and how to check the result, so that the first signed
-release is a sequence of steps rather than research.
+Status (15 November 2026): **done for Kshana Desktop Pro.** The Apple Developer account and both
+Developer ID certificates (Application and Installer, issued to the team in `APPLE_TEAM_ID`, expiring
+1 February 2027) exist, and the signing and notarisation secrets are in this repository.
+`.github/workflows/apple-signing-check.yml` proves them without signing anything (last green run
+13 November 2026), and `.github/workflows/desktop-pro-release.yml` builds the universal `.app`,
+signs it with the hardened runtime, notarises and staples the app and the `.dmg`, and checks both
+with `codesign`, `spctl` and `stapler` (green runs on 13 November 2026; the `.dmg` stays in a private
+draft release, nothing is published). It runs on the owner's self-hosted Mac. The open Kshana
+Desktop's signing is handled in the open repository. The checklist below stays as the reference
+for renewing the certificates and for a new machine.
 
 It covers two applications. Both are Tauri 2 (the lock has `tauri` 2.12.5), and both build `.app`
 and `.dmg` on macOS:

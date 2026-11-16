@@ -29,7 +29,7 @@ payments webhook issuer and Pro packs) goes through one interface (`license::Lic
   on the offline machine, the tests and the release smoke test use it.
 * `KSHANA_PRO_SIGNER=kms` (a build with `--features kms`; `src/license/kms.rs`): the KMS key
   in `KSHANA_PRO_KMS_KEY_ID` (key ID, ARN or `alias/...`), region `KSHANA_PRO_KMS_REGION`
-  (or `AWS_REGION`), credentials from `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and
+  (or `AWS_REGION`; Frankfurt `eu-central-1` when none is set), credentials from `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and
   `AWS_SESSION_TOKEN` read at each call. The key must be `ECC_NIST_EDWARDS25519` with key
   usage `SIGN_VERIFY`; signing uses `ED25519_SHA_512` with `MessageType: RAW` (at most 4096
   bytes per document), so the 64-byte signature is the same pure Ed25519 a seed gives and
@@ -128,3 +128,17 @@ kind; each build verifies it at start-up.
 * The committed signature is made with a test key (public half
   `PLACEHOLDER_MANIFEST_PUBKEY`, private half only in `tests/tier_manifest.rs`); it serves
   development and continuous integration only.
+
+## Owner decisions, 15 November 2026
+
+* **Off until a customer is in sight.** The KMS signer is built and tested but switched off: the
+  default stays `KSHANA_PRO_SIGNER=seed`. Turning it on is configuration only: create the KMS key
+  in Frankfurt, set `KSHANA_PRO_SIGNER=kms` and `KSHANA_PRO_KMS_KEY_ID`, and pin
+  `KSHANA_PRO_KMS_EXPECT_KID`. With no region set, the signer uses `eu-central-1`.
+* **Root key on two offline USB drives only** (A and B). The Arksa issuer key and the tier
+  manifest key are kept on the same two drives as separate encrypted files.
+* **Sealed third-party copy: prepared, not active.** No counsel or notary holds a copy for now.
+  If it is ever switched on, it needs no code: seal a printed copy of the passphrase and the key
+  custody procedure, with written instructions to open it only on the owner's written request or
+  incapacity, and record the holder and date in the private key-custody record.
+
