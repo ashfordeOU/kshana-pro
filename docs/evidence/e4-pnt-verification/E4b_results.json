@@ -1,0 +1,4350 @@
+{
+  "configurations": [
+    {
+      "bars": [
+        {
+          "id": "E4-S1",
+          "lat_range": [
+            0.0,
+            60.0
+          ],
+          "met": false,
+          "op": "ge",
+          "quantity": "leo-availability",
+          "value": 0.99,
+          "worst": 0.9698335644937587,
+          "worst_lat_deg": 10.0
+        },
+        {
+          "id": "E4-S2",
+          "lat_range": [
+            70.0,
+            90.0
+          ],
+          "met": false,
+          "op": "ge",
+          "quantity": "leo-availability",
+          "value": 0.99,
+          "worst": 0.0,
+          "worst_lat_deg": 89.9
+        },
+        {
+          "id": "E4-S3",
+          "lat_range": [
+            0.0,
+            90.0
+          ],
+          "met": true,
+          "op": "le",
+          "quantity": "leo-median-hdop",
+          "value": 2.0,
+          "worst": 1.9600746317665618,
+          "worst_lat_deg": 89.9
+        },
+        {
+          "id": "E4-S4",
+          "lat_range": [
+            0.0,
+            90.0
+          ],
+          "met": true,
+          "op": "ge",
+          "quantity": "fused-availability",
+          "value": 0.999,
+          "worst": 1.0,
+          "worst_lat_deg": 0.0
+        }
+      ],
+      "geometry": [
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 23.541146555709663,
+            "median_hdop": 0.5141070896356603,
+            "median_pdop": 1.1429003042121095,
+            "median_vdop": 1.0161714203530878
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.790279704114656,
+            "median_hdop": 0.6541148921032087,
+            "median_pdop": 1.353158845304823,
+            "median_vdop": 1.1837842990100387
+          },
+          "lat_deg": 0.0,
+          "leo": {
+            "availability": 0.9709893666204346,
+            "mean_in_view": 7.750866851595007,
+            "median_hdop": 0.9880797286571357,
+            "median_pdop": 3.047322584882404,
+            "median_vdop": 2.818436390312864
+          },
+          "leo_h95_m_assumed": [
+            0.9880797286571357,
+            1.9761594573142713
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 23.283749422098936,
+            "median_hdop": 0.519644221049975,
+            "median_pdop": 1.1211880723683167,
+            "median_vdop": 0.9901961798334895
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.338881183541378,
+            "median_hdop": 0.6692424748737545,
+            "median_pdop": 1.371121202991104,
+            "median_vdop": 1.1917884924498563
+          },
+          "lat_deg": 10.0,
+          "leo": {
+            "availability": 0.9698335644937587,
+            "mean_in_view": 7.944868238557559,
+            "median_hdop": 0.9221560534349142,
+            "median_pdop": 2.412164761401854,
+            "median_vdop": 2.1975668099703585
+          },
+          "leo_h95_m_assumed": [
+            0.9221560534349142,
+            1.8443121068698285
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 22.91990291262136,
+            "median_hdop": 0.5295931129429721,
+            "median_pdop": 1.1471255626800616,
+            "median_vdop": 1.0161166967895978
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 14.268030513176145,
+            "median_hdop": 0.7170202323009465,
+            "median_pdop": 1.458536382035971,
+            "median_vdop": 1.2628031154252484
+          },
+          "lat_deg": 20.0,
+          "leo": {
+            "availability": 0.9998844197873324,
+            "mean_in_view": 8.651872399445216,
+            "median_hdop": 0.8772229291918452,
+            "median_pdop": 2.2967607006972535,
+            "median_vdop": 2.113574596541942
+          },
+          "leo_h95_m_assumed": [
+            0.8772229291918452,
+            1.7544458583836904
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 24.515892279241793,
+            "median_hdop": 0.5155333985915069,
+            "median_pdop": 1.0897655654605192,
+            "median_vdop": 0.9596486427345865
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.839170134073047,
+            "median_hdop": 0.7628195042615719,
+            "median_pdop": 1.4658277461074216,
+            "median_vdop": 1.2521049667769848
+          },
+          "lat_deg": 30.0,
+          "leo": {
+            "availability": 1.0,
+            "mean_in_view": 10.676722145168748,
+            "median_hdop": 0.7460251923625385,
+            "median_pdop": 1.9509129430161458,
+            "median_vdop": 1.7994458338689436
+          },
+          "leo_h95_m_assumed": [
+            0.7460251923625385,
+            1.492050384725077
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.41002080443828,
+            "median_hdop": 0.5049086770974087,
+            "median_pdop": 1.057994984292816,
+            "median_vdop": 0.9265674301459976
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.710182616736015,
+            "median_hdop": 0.7747196986374291,
+            "median_pdop": 1.4394056222694869,
+            "median_vdop": 1.2109382933370076
+          },
+          "lat_deg": 40.0,
+          "leo": {
+            "availability": 0.999711049468331,
+            "mean_in_view": 12.699838187702266,
+            "median_hdop": 0.734941485089831,
+            "median_pdop": 1.9432225120735653,
+            "median_vdop": 1.7819140123438104
+          },
+          "leo_h95_m_assumed": [
+            0.734941485089831,
+            1.469882970179662
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.355929264909847,
+            "median_hdop": 0.528794877359203,
+            "median_pdop": 1.0161993710277224,
+            "median_vdop": 0.868720331147111
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.904761904761905,
+            "median_hdop": 0.7733926125378954,
+            "median_pdop": 1.4017246769863165,
+            "median_vdop": 1.1689361742392892
+          },
+          "lat_deg": 50.0,
+          "leo": {
+            "availability": 0.9984396671289875,
+            "mean_in_view": 12.451167360147943,
+            "median_hdop": 0.8113264185877295,
+            "median_pdop": 1.9123790561458405,
+            "median_vdop": 1.7276629965118881
+          },
+          "leo_h95_m_assumed": [
+            0.8113264185877295,
+            1.622652837175459
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.647769301895515,
+            "median_hdop": 0.4955021866708629,
+            "median_pdop": 1.0689695349439952,
+            "median_vdop": 0.9475191492673054
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.193943596856219,
+            "median_hdop": 0.7048054842802864,
+            "median_pdop": 1.3520603472023809,
+            "median_vdop": 1.15293834386355
+          },
+          "lat_deg": 60.0,
+          "leo": {
+            "availability": 1.0,
+            "mean_in_view": 11.453825705039296,
+            "median_hdop": 0.7350722732743846,
+            "median_pdop": 2.035702444692324,
+            "median_vdop": 1.8979901677841682
+          },
+          "leo_h95_m_assumed": [
+            0.7350722732743846,
+            1.4701445465487692
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 25.207004160887656,
+            "median_hdop": 0.4881122450267475,
+            "median_pdop": 1.1286692570355643,
+            "median_vdop": 1.0152400142045641
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.017568192325474,
+            "median_hdop": 0.6597996723910098,
+            "median_pdop": 1.4786019653729934,
+            "median_vdop": 1.320436381413728
+          },
+          "lat_deg": 70.0,
+          "leo": {
+            "availability": 0.9620319001386962,
+            "mean_in_view": 9.189435968562183,
+            "median_hdop": 0.8741307637541446,
+            "median_pdop": 2.2353511121454828,
+            "median_vdop": 2.0350564570677308
+          },
+          "leo_h95_m_assumed": [
+            0.8741307637541446,
+            1.7482615275082891
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 23.865117891816922,
+            "median_hdop": 0.5322262749908683,
+            "median_pdop": 1.3137712688342176,
+            "median_vdop": 1.1985022136981316
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.367602866389273,
+            "median_hdop": 0.6236730035891989,
+            "median_pdop": 1.5823026084457181,
+            "median_vdop": 1.4548454062782525
+          },
+          "lat_deg": 80.0,
+          "leo": {
+            "availability": 0.5991678224687933,
+            "mean_in_view": 7.497515025427647,
+            "median_hdop": 1.9033930803674042,
+            "median_pdop": 5.418090162914696,
+            "median_vdop": 3.8005287219796937
+          },
+          "leo_h95_m_assumed": [
+            1.9033930803674042,
+            3.8067861607348084
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 24.453652334720296,
+            "median_hdop": 0.5031910756964366,
+            "median_pdop": 1.3479119798634942,
+            "median_vdop": 1.2501627670871165
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.473589921405456,
+            "median_hdop": 0.6008066029349939,
+            "median_pdop": 1.6317226764994195,
+            "median_vdop": 1.5163433961533945
+          },
+          "lat_deg": 89.9,
+          "leo": {
+            "availability": 0.0,
+            "mean_in_view": 7.98006241331484,
+            "median_hdop": 1.9600746317665618,
+            "median_pdop": 6.122003614389617,
+            "median_vdop": 5.7993483253215725
+          },
+          "leo_h95_m_assumed": [
+            1.9600746317665618,
+            3.9201492635331237
+          ]
+        }
+      ],
+      "id": "e4-split-delta",
+      "leo": [
+        {
+          "name": "Pulsar",
+          "shell": [
+            {
+              "altitude_km": 1080.0,
+              "inclination_deg": 53.0,
+              "pattern": "delta",
+              "phasing": 1,
+              "planes": 12,
+              "total": 192
+            },
+            {
+              "altitude_km": 1080.0,
+              "inclination_deg": 97.0,
+              "pattern": "delta",
+              "phasing": 1,
+              "planes": 6,
+              "total": 66
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bars": [
+        {
+          "id": "E4-S1",
+          "lat_range": [
+            0.0,
+            60.0
+          ],
+          "met": false,
+          "op": "ge",
+          "quantity": "leo-availability",
+          "value": 0.99,
+          "worst": 0.9897711511789181,
+          "worst_lat_deg": 60.0
+        },
+        {
+          "id": "E4-S2",
+          "lat_range": [
+            70.0,
+            90.0
+          ],
+          "met": false,
+          "op": "ge",
+          "quantity": "leo-availability",
+          "value": 0.99,
+          "worst": 0.3814724919093851,
+          "worst_lat_deg": 80.0
+        },
+        {
+          "id": "E4-S3",
+          "lat_range": [
+            0.0,
+            90.0
+          ],
+          "met": false,
+          "op": "le",
+          "quantity": "leo-median-hdop",
+          "value": 2.0,
+          "worst": 3.2559752043400505,
+          "worst_lat_deg": 89.9
+        },
+        {
+          "id": "E4-S4",
+          "lat_range": [
+            0.0,
+            90.0
+          ],
+          "met": true,
+          "op": "ge",
+          "quantity": "fused-availability",
+          "value": 0.999,
+          "worst": 1.0,
+          "worst_lat_deg": 0.0
+        }
+      ],
+      "geometry": [
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 23.541146555709663,
+            "median_hdop": 0.5113117528838105,
+            "median_pdop": 1.1357831997198926,
+            "median_vdop": 1.0103682324743266
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.790279704114656,
+            "median_hdop": 0.6541148921032087,
+            "median_pdop": 1.353158845304823,
+            "median_vdop": 1.1837842990100387
+          },
+          "lat_deg": 0.0,
+          "leo": {
+            "availability": 0.9919093851132686,
+            "mean_in_view": 7.750866851595007,
+            "median_hdop": 0.9717374402018168,
+            "median_pdop": 2.898325804112938,
+            "median_vdop": 2.670053187063683
+          },
+          "leo_h95_m_assumed": [
+            0.9717374402018168,
+            1.9434748804036337
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 23.283749422098936,
+            "median_hdop": 0.5166504754704229,
+            "median_pdop": 1.117608539160941,
+            "median_vdop": 0.9880990424534044
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.338881183541378,
+            "median_hdop": 0.6692424748737545,
+            "median_pdop": 1.371121202991104,
+            "median_vdop": 1.1917884924498563
+          },
+          "lat_deg": 10.0,
+          "leo": {
+            "availability": 0.991504854368932,
+            "mean_in_view": 7.944868238557559,
+            "median_hdop": 0.9208426136328869,
+            "median_pdop": 2.365001741855046,
+            "median_vdop": 2.153673801393412
+          },
+          "leo_h95_m_assumed": [
+            0.9208426136328869,
+            1.8416852272657738
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 22.91990291262136,
+            "median_hdop": 0.5266627572043622,
+            "median_pdop": 1.1442638288335163,
+            "median_vdop": 1.0128030664468057
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 14.268030513176145,
+            "median_hdop": 0.7170202323009465,
+            "median_pdop": 1.458536382035971,
+            "median_vdop": 1.2628031154252484
+          },
+          "lat_deg": 20.0,
+          "leo": {
+            "availability": 0.9999422098936662,
+            "mean_in_view": 8.651872399445216,
+            "median_hdop": 0.862775093640209,
+            "median_pdop": 2.28794421527048,
+            "median_vdop": 2.1073007718654857
+          },
+          "leo_h95_m_assumed": [
+            0.862775093640209,
+            1.725550187280418
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 24.515892279241793,
+            "median_hdop": 0.5128345570937177,
+            "median_pdop": 1.0864391087722352,
+            "median_vdop": 0.9572075954391435
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.839170134073047,
+            "median_hdop": 0.7628195042615719,
+            "median_pdop": 1.4658277461074216,
+            "median_vdop": 1.2521049667769848
+          },
+          "lat_deg": 30.0,
+          "leo": {
+            "availability": 1.0,
+            "mean_in_view": 10.676722145168748,
+            "median_hdop": 0.7449387867784453,
+            "median_pdop": 1.9335689906873834,
+            "median_vdop": 1.782866451740455
+          },
+          "leo_h95_m_assumed": [
+            0.7449387867784453,
+            1.4898775735568905
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.41002080443828,
+            "median_hdop": 0.5039119768293419,
+            "median_pdop": 1.057335511851495,
+            "median_vdop": 0.9262648314722972
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.710182616736015,
+            "median_hdop": 0.7747196986374291,
+            "median_pdop": 1.4394056222694869,
+            "median_vdop": 1.2109382933370076
+          },
+          "lat_deg": 40.0,
+          "leo": {
+            "availability": 0.9998844197873324,
+            "mean_in_view": 12.699838187702266,
+            "median_hdop": 0.7322905444194489,
+            "median_pdop": 1.9524958804918437,
+            "median_vdop": 1.7912368992103178
+          },
+          "leo_h95_m_assumed": [
+            0.7322905444194489,
+            1.4645810888388977
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.355929264909847,
+            "median_hdop": 0.527417556883991,
+            "median_pdop": 1.0116511016006795,
+            "median_vdop": 0.8637612643790192
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.904761904761905,
+            "median_hdop": 0.7733926125378954,
+            "median_pdop": 1.4017246769863165,
+            "median_vdop": 1.1689361742392892
+          },
+          "lat_deg": 50.0,
+          "leo": {
+            "availability": 0.9957235321312992,
+            "mean_in_view": 12.451167360147943,
+            "median_hdop": 0.8044691248331832,
+            "median_pdop": 1.8116628377422535,
+            "median_vdop": 1.619300807479085
+          },
+          "leo_h95_m_assumed": [
+            0.8044691248331832,
+            1.6089382496663664
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.647769301895515,
+            "median_hdop": 0.5001799270539948,
+            "median_pdop": 1.077124577264523,
+            "median_vdop": 0.9512388964223557
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.193943596856219,
+            "median_hdop": 0.7048054842802864,
+            "median_pdop": 1.3520603472023809,
+            "median_vdop": 1.15293834386355
+          },
+          "lat_deg": 60.0,
+          "leo": {
+            "availability": 0.9897711511789181,
+            "mean_in_view": 11.453825705039296,
+            "median_hdop": 0.761493207229303,
+            "median_pdop": 2.149884900010726,
+            "median_vdop": 1.966917951911934
+          },
+          "leo_h95_m_assumed": [
+            0.761493207229303,
+            1.522986414458606
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 25.207004160887656,
+            "median_hdop": 0.501399194633502,
+            "median_pdop": 1.169184426386435,
+            "median_vdop": 1.0552003266933636
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.017568192325474,
+            "median_hdop": 0.6597996723910098,
+            "median_pdop": 1.4786019653729934,
+            "median_vdop": 1.320436381413728
+          },
+          "lat_deg": 70.0,
+          "leo": {
+            "availability": 0.8653490522422561,
+            "mean_in_view": 9.189435968562183,
+            "median_hdop": 1.0599532546956518,
+            "median_pdop": 3.095078064311908,
+            "median_vdop": 2.8491710817247937
+          },
+          "leo_h95_m_assumed": [
+            1.0599532546956518,
+            2.1199065093913037
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 23.865117891816922,
+            "median_hdop": 0.5372742569077124,
+            "median_pdop": 1.3534894965157973,
+            "median_vdop": 1.243108453253666
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.367602866389273,
+            "median_hdop": 0.6236730035891989,
+            "median_pdop": 1.5823026084457181,
+            "median_vdop": 1.4548454062782525
+          },
+          "lat_deg": 80.0,
+          "leo": {
+            "availability": 0.3814724919093851,
+            "mean_in_view": 7.497515025427647,
+            "median_hdop": 2.719898162757728,
+            "median_pdop": 7.4754372112593845,
+            "median_vdop": 5.464043763663863
+          },
+          "leo_h95_m_assumed": [
+            2.719898162757728,
+            5.439796325515456
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 24.453652334720296,
+            "median_hdop": 0.5208766191920037,
+            "median_pdop": 1.3174992578780271,
+            "median_vdop": 1.2096246979905072
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.473589921405456,
+            "median_hdop": 0.6008066029349939,
+            "median_pdop": 1.6317226764994195,
+            "median_vdop": 1.5163433961533945
+          },
+          "lat_deg": 89.9,
+          "leo": {
+            "availability": 0.8778895053166897,
+            "mean_in_view": 7.98006241331484,
+            "median_hdop": 3.2559752043400505,
+            "median_pdop": 5.322988010539424,
+            "median_vdop": 4.220144876576663
+          },
+          "leo_h95_m_assumed": [
+            3.2559752043400505,
+            6.511950408680101
+          ]
+        }
+      ],
+      "id": "e4-split-star",
+      "leo": [
+        {
+          "name": "Pulsar",
+          "shell": [
+            {
+              "altitude_km": 1080.0,
+              "inclination_deg": 53.0,
+              "pattern": "delta",
+              "phasing": 1,
+              "planes": 12,
+              "total": 192
+            },
+            {
+              "altitude_km": 1080.0,
+              "inclination_deg": 97.0,
+              "pattern": "star",
+              "phasing": 1,
+              "planes": 6,
+              "total": 66
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bars": [
+        {
+          "id": "E4-S1",
+          "lat_range": [
+            0.0,
+            60.0
+          ],
+          "met": false,
+          "op": "ge",
+          "quantity": "leo-availability",
+          "value": 0.99,
+          "worst": 0.8989251040221914,
+          "worst_lat_deg": 0.0
+        },
+        {
+          "id": "E4-S2",
+          "lat_range": [
+            70.0,
+            90.0
+          ],
+          "met": false,
+          "op": "ge",
+          "quantity": "leo-availability",
+          "value": 0.99,
+          "worst": 0.8807790106333796,
+          "worst_lat_deg": 89.9
+        },
+        {
+          "id": "E4-S3",
+          "lat_range": [
+            0.0,
+            90.0
+          ],
+          "met": true,
+          "op": "le",
+          "quantity": "leo-median-hdop",
+          "value": 2.0,
+          "worst": 1.463137542907298,
+          "worst_lat_deg": 89.9
+        },
+        {
+          "id": "E4-S4",
+          "lat_range": [
+            0.0,
+            90.0
+          ],
+          "met": true,
+          "op": "ge",
+          "quantity": "fused-availability",
+          "value": 0.999,
+          "worst": 1.0,
+          "worst_lat_deg": 0.0
+        }
+      ],
+      "geometry": [
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 23.383090614886733,
+            "median_hdop": 0.5196967530767518,
+            "median_pdop": 1.1534964822840383,
+            "median_vdop": 1.0255407280246231
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.790279704114656,
+            "median_hdop": 0.6541148921032087,
+            "median_pdop": 1.353158845304823,
+            "median_vdop": 1.1837842990100387
+          },
+          "lat_deg": 0.0,
+          "leo": {
+            "availability": 0.8989251040221914,
+            "mean_in_view": 7.592810910772076,
+            "median_hdop": 0.9796911901275805,
+            "median_pdop": 3.0354045342377933,
+            "median_vdop": 2.8297161681132517
+          },
+          "leo_h95_m_assumed": [
+            0.9796911901275805,
+            1.959382380255161
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 23.11939435968562,
+            "median_hdop": 0.5243470116911636,
+            "median_pdop": 1.141527607778573,
+            "median_vdop": 1.0095459098953887
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.338881183541378,
+            "median_hdop": 0.6692424748737545,
+            "median_pdop": 1.371121202991104,
+            "median_vdop": 1.1917884924498563
+          },
+          "lat_deg": 10.0,
+          "leo": {
+            "availability": 0.9521497919556172,
+            "mean_in_view": 7.780513176144244,
+            "median_hdop": 0.9654942400049773,
+            "median_pdop": 2.8428874852581716,
+            "median_vdop": 2.6144331204420874
+          },
+          "leo_h95_m_assumed": [
+            0.9654942400049773,
+            1.9309884800099546
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 22.704403606102634,
+            "median_hdop": 0.5360155050055154,
+            "median_pdop": 1.1462293144217623,
+            "median_vdop": 1.0108993698348558
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 14.268030513176145,
+            "median_hdop": 0.7170202323009465,
+            "median_pdop": 1.458536382035971,
+            "median_vdop": 1.2628031154252484
+          },
+          "lat_deg": 20.0,
+          "leo": {
+            "availability": 0.9936430883032825,
+            "mean_in_view": 8.436373092926491,
+            "median_hdop": 0.8984948578187519,
+            "median_pdop": 2.1609275101067924,
+            "median_vdop": 1.951476393107333
+          },
+          "leo_h95_m_assumed": [
+            0.8984948578187519,
+            1.7969897156375039
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 24.132859454461396,
+            "median_hdop": 0.5239720273954915,
+            "median_pdop": 1.1124771081149847,
+            "median_vdop": 0.976316166169684
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.839170134073047,
+            "median_hdop": 0.7628195042615719,
+            "median_pdop": 1.4658277461074216,
+            "median_vdop": 1.2521049667769848
+          },
+          "lat_deg": 30.0,
+          "leo": {
+            "availability": 0.9982662968099861,
+            "mean_in_view": 10.29368932038835,
+            "median_hdop": 0.8231360622739015,
+            "median_pdop": 2.175700375130993,
+            "median_vdop": 1.9993452130990563
+          },
+          "leo_h95_m_assumed": [
+            0.8231360622739015,
+            1.646272124547803
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 25.914066111881645,
+            "median_hdop": 0.5083848212266295,
+            "median_pdop": 1.0625491954145674,
+            "median_vdop": 0.9302557364147697
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.710182616736015,
+            "median_hdop": 0.7747196986374291,
+            "median_pdop": 1.4394056222694869,
+            "median_vdop": 1.2109382933370076
+          },
+          "lat_deg": 40.0,
+          "leo": {
+            "availability": 1.0,
+            "mean_in_view": 12.20388349514563,
+            "median_hdop": 0.7399688101868921,
+            "median_pdop": 1.8878584781791985,
+            "median_vdop": 1.7305019690766892
+          },
+          "leo_h95_m_assumed": [
+            0.7399688101868921,
+            1.4799376203737842
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.13823393435044,
+            "median_hdop": 0.5178203539498796,
+            "median_pdop": 0.9915676968496248,
+            "median_vdop": 0.8438996258216825
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.904761904761905,
+            "median_hdop": 0.7733926125378954,
+            "median_pdop": 1.4017246769863165,
+            "median_vdop": 1.1689361742392892
+          },
+          "lat_deg": 50.0,
+          "leo": {
+            "availability": 1.0,
+            "mean_in_view": 12.233472029588535,
+            "median_hdop": 0.7353221009798118,
+            "median_pdop": 1.5247342301546385,
+            "median_vdop": 1.3337072211714993
+          },
+          "leo_h95_m_assumed": [
+            0.7353221009798118,
+            1.4706442019596235
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 27.138869625520112,
+            "median_hdop": 0.47917068518101846,
+            "median_pdop": 1.045757695385564,
+            "median_vdop": 0.9280698253817254
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.193943596856219,
+            "median_hdop": 0.7048054842802864,
+            "median_pdop": 1.3520603472023809,
+            "median_vdop": 1.15293834386355
+          },
+          "lat_deg": 60.0,
+          "leo": {
+            "availability": 1.0,
+            "mean_in_view": 11.944926028663893,
+            "median_hdop": 0.6760290689711181,
+            "median_pdop": 1.8592771254918965,
+            "median_vdop": 1.7272297313932294
+          },
+          "leo_h95_m_assumed": [
+            0.6760290689711181,
+            1.3520581379422363
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.783229311141934,
+            "median_hdop": 0.4654688935805182,
+            "median_pdop": 1.0817997718038512,
+            "median_vdop": 0.9752566736533541
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.017568192325474,
+            "median_hdop": 0.6597996723910098,
+            "median_pdop": 1.4786019653729934,
+            "median_vdop": 1.320436381413728
+          },
+          "lat_deg": 70.0,
+          "leo": {
+            "availability": 1.0,
+            "mean_in_view": 10.765661118816459,
+            "median_hdop": 0.7225169578618732,
+            "median_pdop": 1.9631564415863343,
+            "median_vdop": 1.8109382893515438
+          },
+          "leo_h95_m_assumed": [
+            0.7225169578618732,
+            1.4450339157237464
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.591828478964402,
+            "median_hdop": 0.48945546055372247,
+            "median_pdop": 1.1443479181867031,
+            "median_vdop": 1.0312606463909204
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.367602866389273,
+            "median_hdop": 0.6236730035891989,
+            "median_pdop": 1.5823026084457181,
+            "median_vdop": 1.4548454062782525
+          },
+          "lat_deg": 80.0,
+          "leo": {
+            "availability": 0.9999422098936662,
+            "mean_in_view": 10.224225612575127,
+            "median_hdop": 0.8739157902001222,
+            "median_pdop": 1.787020362538693,
+            "median_vdop": 1.5506537878988835
+          },
+          "leo_h95_m_assumed": [
+            0.8739157902001222,
+            1.7478315804002444
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 27.354368932038835,
+            "median_hdop": 0.4825173953498155,
+            "median_pdop": 1.3018211255823262,
+            "median_vdop": 1.209323315244515
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.473589921405456,
+            "median_hdop": 0.6008066029349939,
+            "median_pdop": 1.6317226764994195,
+            "median_vdop": 1.5163433961533945
+          },
+          "lat_deg": 89.9,
+          "leo": {
+            "availability": 0.8807790106333796,
+            "mean_in_view": 10.880779010633379,
+            "median_hdop": 1.463137542907298,
+            "median_pdop": 4.702415930187332,
+            "median_vdop": 4.468654458787491
+          },
+          "leo_h95_m_assumed": [
+            1.463137542907298,
+            2.926275085814596
+          ]
+        }
+      ],
+      "id": "preset-split-delta",
+      "leo": [
+        {
+          "name": "Pulsar",
+          "shell": [
+            {
+              "altitude_km": 1080.0,
+              "inclination_deg": 53.0,
+              "pattern": "delta",
+              "phasing": 1,
+              "planes": 12,
+              "total": 168
+            },
+            {
+              "altitude_km": 1080.0,
+              "inclination_deg": 97.0,
+              "pattern": "delta",
+              "phasing": 1,
+              "planes": 6,
+              "total": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bars": [
+        {
+          "id": "E4-S1",
+          "lat_range": [
+            0.0,
+            60.0
+          ],
+          "met": false,
+          "op": "ge",
+          "quantity": "leo-availability",
+          "value": 0.99,
+          "worst": 0.9803513638465094,
+          "worst_lat_deg": 0.0
+        },
+        {
+          "id": "E4-S2",
+          "lat_range": [
+            70.0,
+            90.0
+          ],
+          "met": false,
+          "op": "ge",
+          "quantity": "leo-availability",
+          "value": 0.99,
+          "worst": 0.645920018492834,
+          "worst_lat_deg": 89.9
+        },
+        {
+          "id": "E4-S3",
+          "lat_range": [
+            0.0,
+            90.0
+          ],
+          "met": true,
+          "op": "le",
+          "quantity": "leo-median-hdop",
+          "value": 2.0,
+          "worst": 1.005141697979282,
+          "worst_lat_deg": 0.0
+        },
+        {
+          "id": "E4-S4",
+          "lat_range": [
+            0.0,
+            90.0
+          ],
+          "met": true,
+          "op": "ge",
+          "quantity": "fused-availability",
+          "value": 0.999,
+          "worst": 1.0,
+          "worst_lat_deg": 0.0
+        }
+      ],
+      "geometry": [
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 23.383090614886733,
+            "median_hdop": 0.5160730689738857,
+            "median_pdop": 1.144246024168793,
+            "median_vdop": 1.0178939487075542
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.790279704114656,
+            "median_hdop": 0.6541148921032087,
+            "median_pdop": 1.353158845304823,
+            "median_vdop": 1.1837842990100387
+          },
+          "lat_deg": 0.0,
+          "leo": {
+            "availability": 0.9803513638465094,
+            "mean_in_view": 7.592810910772076,
+            "median_hdop": 1.005141697979282,
+            "median_pdop": 2.9949430813938664,
+            "median_vdop": 2.7355352562354662
+          },
+          "leo_h95_m_assumed": [
+            1.005141697979282,
+            2.010283395958564
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 23.11939435968562,
+            "median_hdop": 0.5192446422811897,
+            "median_pdop": 1.1308211964048223,
+            "median_vdop": 1.0000995606313265
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.338881183541378,
+            "median_hdop": 0.6692424748737545,
+            "median_pdop": 1.371121202991104,
+            "median_vdop": 1.1917884924498563
+          },
+          "lat_deg": 10.0,
+          "leo": {
+            "availability": 0.9830097087378641,
+            "mean_in_view": 7.780513176144244,
+            "median_hdop": 0.9310538543489677,
+            "median_pdop": 2.607770774426211,
+            "median_vdop": 2.384649038762011
+          },
+          "leo_h95_m_assumed": [
+            0.9310538543489677,
+            1.8621077086979354
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 22.704403606102634,
+            "median_hdop": 0.5307078352429916,
+            "median_pdop": 1.141038171752224,
+            "median_vdop": 1.0068498462662545
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 14.268030513176145,
+            "median_hdop": 0.7170202323009465,
+            "median_pdop": 1.458536382035971,
+            "median_vdop": 1.2628031154252484
+          },
+          "lat_deg": 20.0,
+          "leo": {
+            "availability": 0.9934119278779473,
+            "mean_in_view": 8.436373092926491,
+            "median_hdop": 0.8684377364547247,
+            "median_pdop": 2.1182084890435595,
+            "median_vdop": 1.9202483041597378
+          },
+          "leo_h95_m_assumed": [
+            0.8684377364547247,
+            1.7368754729094493
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 24.132859454461396,
+            "median_hdop": 0.5186333473268279,
+            "median_pdop": 1.106020540127738,
+            "median_vdop": 0.972928534138913
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.839170134073047,
+            "median_hdop": 0.7628195042615719,
+            "median_pdop": 1.4658277461074216,
+            "median_vdop": 1.2521049667769848
+          },
+          "lat_deg": 30.0,
+          "leo": {
+            "availability": 0.9984396671289875,
+            "mean_in_view": 10.29368932038835,
+            "median_hdop": 0.8019464377572953,
+            "median_pdop": 2.113085491507509,
+            "median_vdop": 1.9438288578329108
+          },
+          "leo_h95_m_assumed": [
+            0.8019464377572953,
+            1.6038928755145907
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 25.914066111881645,
+            "median_hdop": 0.5058595424774495,
+            "median_pdop": 1.058650347753195,
+            "median_vdop": 0.9273342418433541
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.710182616736015,
+            "median_hdop": 0.7747196986374291,
+            "median_pdop": 1.4394056222694869,
+            "median_vdop": 1.2109382933370076
+          },
+          "lat_deg": 40.0,
+          "leo": {
+            "availability": 1.0,
+            "mean_in_view": 12.20388349514563,
+            "median_hdop": 0.731538395917964,
+            "median_pdop": 1.865876927944219,
+            "median_vdop": 1.7098147854389536
+          },
+          "leo_h95_m_assumed": [
+            0.731538395917964,
+            1.463076791835928
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.13823393435044,
+            "median_hdop": 0.5158607770486575,
+            "median_pdop": 0.9916806411717959,
+            "median_vdop": 0.8447924262241722
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 13.904761904761905,
+            "median_hdop": 0.7733926125378954,
+            "median_pdop": 1.4017246769863165,
+            "median_vdop": 1.1689361742392892
+          },
+          "lat_deg": 50.0,
+          "leo": {
+            "availability": 1.0,
+            "mean_in_view": 12.233472029588535,
+            "median_hdop": 0.7346254052558077,
+            "median_pdop": 1.5372385013751975,
+            "median_vdop": 1.3334600981707694
+          },
+          "leo_h95_m_assumed": [
+            0.7346254052558077,
+            1.4692508105116153
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 27.138869625520112,
+            "median_hdop": 0.48307191131389293,
+            "median_pdop": 1.051281483265567,
+            "median_vdop": 0.9315055002030139
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 15.193943596856219,
+            "median_hdop": 0.7048054842802864,
+            "median_pdop": 1.3520603472023809,
+            "median_vdop": 1.15293834386355
+          },
+          "lat_deg": 60.0,
+          "leo": {
+            "availability": 1.0,
+            "mean_in_view": 11.944926028663893,
+            "median_hdop": 0.696467863561774,
+            "median_pdop": 1.9368781284753476,
+            "median_vdop": 1.7974078147996508
+          },
+          "leo_h95_m_assumed": [
+            0.696467863561774,
+            1.392935727123548
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.783229311141934,
+            "median_hdop": 0.47353713261928776,
+            "median_pdop": 1.102001315197084,
+            "median_vdop": 0.9933528827304083
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.017568192325474,
+            "median_hdop": 0.6597996723910098,
+            "median_pdop": 1.4786019653729934,
+            "median_vdop": 1.320436381413728
+          },
+          "lat_deg": 70.0,
+          "leo": {
+            "availability": 0.9938164586222838,
+            "mean_in_view": 10.765661118816459,
+            "median_hdop": 0.7990893162794872,
+            "median_pdop": 2.420422787786877,
+            "median_vdop": 2.252209836371914
+          },
+          "leo_h95_m_assumed": [
+            0.7990893162794872,
+            1.5981786325589744
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 26.591828478964402,
+            "median_hdop": 0.5034063840785332,
+            "median_pdop": 1.252641467636002,
+            "median_vdop": 1.1470666585611802
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.367602866389273,
+            "median_hdop": 0.6236730035891989,
+            "median_pdop": 1.5823026084457181,
+            "median_vdop": 1.4548454062782525
+          },
+          "lat_deg": 80.0,
+          "leo": {
+            "availability": 0.7821890892279242,
+            "mean_in_view": 10.224225612575127,
+            "median_hdop": 1.0050009403785396,
+            "median_pdop": 3.1017114640140533,
+            "median_vdop": 2.8861319511365178
+          },
+          "leo_h95_m_assumed": [
+            1.0050009403785396,
+            2.010001880757079
+          ]
+        },
+        {
+          "fused": {
+            "availability": 1.0,
+            "mean_in_view": 27.354368932038835,
+            "median_hdop": 0.48526872883488803,
+            "median_pdop": 1.2526369328051747,
+            "median_vdop": 1.1532388636224349
+          },
+          "gnss": {
+            "availability": 1.0,
+            "mean_in_view": 16.473589921405456,
+            "median_hdop": 0.6008066029349939,
+            "median_pdop": 1.6317226764994195,
+            "median_vdop": 1.5163433961533945
+          },
+          "lat_deg": 89.9,
+          "leo": {
+            "availability": 0.645920018492834,
+            "mean_in_view": 10.880779010633379,
+            "median_hdop": 0.9215676784746333,
+            "median_pdop": 2.6039560787993907,
+            "median_vdop": 2.434497358148417
+          },
+          "leo_h95_m_assumed": [
+            0.9215676784746333,
+            1.8431353569492666
+          ]
+        }
+      ],
+      "id": "preset-split-star",
+      "leo": [
+        {
+          "name": "Pulsar",
+          "shell": [
+            {
+              "altitude_km": 1080.0,
+              "inclination_deg": 53.0,
+              "pattern": "delta",
+              "phasing": 1,
+              "planes": 12,
+              "total": 168
+            },
+            {
+              "altitude_km": 1080.0,
+              "inclination_deg": 97.0,
+              "pattern": "star",
+              "phasing": 1,
+              "planes": 6,
+              "total": 90
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "flip_seed": 20261123,
+  "gate_note": "E4-S1 and E4-S2 are not 0.42 gates (owner, 16 Nov 2026); their outcome is published either way.",
+  "geometry_bars": {
+    "E4-S1": {
+      "met_in_all_configurations": false,
+      "per_configuration": [
+        {
+          "configuration": "e4-split-delta",
+          "met": false,
+          "worst": 0.9698335644937587,
+          "worst_lat_deg": 10.0
+        },
+        {
+          "configuration": "e4-split-star",
+          "met": false,
+          "worst": 0.9897711511789181,
+          "worst_lat_deg": 60.0
+        },
+        {
+          "configuration": "preset-split-delta",
+          "met": false,
+          "worst": 0.8989251040221914,
+          "worst_lat_deg": 0.0
+        },
+        {
+          "configuration": "preset-split-star",
+          "met": false,
+          "worst": 0.9803513638465094,
+          "worst_lat_deg": 0.0
+        }
+      ]
+    },
+    "E4-S2": {
+      "met_in_all_configurations": false,
+      "per_configuration": [
+        {
+          "configuration": "e4-split-delta",
+          "met": false,
+          "worst": 0.0,
+          "worst_lat_deg": 89.9
+        },
+        {
+          "configuration": "e4-split-star",
+          "met": false,
+          "worst": 0.3814724919093851,
+          "worst_lat_deg": 80.0
+        },
+        {
+          "configuration": "preset-split-delta",
+          "met": false,
+          "worst": 0.8807790106333796,
+          "worst_lat_deg": 89.9
+        },
+        {
+          "configuration": "preset-split-star",
+          "met": false,
+          "worst": 0.645920018492834,
+          "worst_lat_deg": 89.9
+        }
+      ]
+    },
+    "E4-S3": {
+      "met_in_all_configurations": false,
+      "per_configuration": [
+        {
+          "configuration": "e4-split-delta",
+          "met": true,
+          "worst": 1.9600746317665618,
+          "worst_lat_deg": 89.9
+        },
+        {
+          "configuration": "e4-split-star",
+          "met": false,
+          "worst": 3.2559752043400505,
+          "worst_lat_deg": 89.9
+        },
+        {
+          "configuration": "preset-split-delta",
+          "met": true,
+          "worst": 1.463137542907298,
+          "worst_lat_deg": 89.9
+        },
+        {
+          "configuration": "preset-split-star",
+          "met": true,
+          "worst": 1.005141697979282,
+          "worst_lat_deg": 0.0
+        }
+      ]
+    },
+    "E4-S4": {
+      "met_in_all_configurations": true,
+      "per_configuration": [
+        {
+          "configuration": "e4-split-delta",
+          "met": true,
+          "worst": 1.0,
+          "worst_lat_deg": 0.0
+        },
+        {
+          "configuration": "e4-split-star",
+          "met": true,
+          "worst": 1.0,
+          "worst_lat_deg": 0.0
+        },
+        {
+          "configuration": "preset-split-delta",
+          "met": true,
+          "worst": 1.0,
+          "worst_lat_deg": 0.0
+        },
+        {
+          "configuration": "preset-split-star",
+          "met": true,
+          "worst": 1.0,
+          "worst_lat_deg": 0.0
+        }
+      ]
+    }
+  },
+  "method": "kshana-pro/pnt-verification/v2",
+  "pre_registration": "2026-11-16_E4b_PREREGISTRATION.md",
+  "s5": {
+    "met": false,
+    "streams": [
+      {
+        "clean_authenticated": 24,
+        "clean_failed": [],
+        "detected": 5,
+        "detection_share": 0.025,
+        "eligible_pages": 14750,
+        "file": "16_AUG_2023_GST_05_00_01.csv",
+        "flips": 200,
+        "pages": 46800,
+        "s5_clean_met": true,
+        "s5_tamper_met": false,
+        "stream": "configuration_1",
+        "tree": "Merkle_tree_1",
+        "undetected": [
+          [
+            4,
+            756885351,
+            1,
+            11,
+            8
+          ],
+          [
+            24,
+            756885031,
+            2,
+            61,
+            18
+          ],
+          [
+            15,
+            756885483,
+            4,
+            29,
+            3
+          ],
+          [
+            2,
+            756883503,
+            4,
+            67,
+            69
+          ],
+          [
+            13,
+            756884823,
+            4,
+            69,
+            25
+          ],
+          [
+            11,
+            756883523,
+            3,
+            61,
+            69
+          ],
+          [
+            5,
+            756882141,
+            1,
+            69,
+            115
+          ],
+          [
+            19,
+            756883823,
+            3,
+            85,
+            59
+          ],
+          [
+            8,
+            756885473,
+            3,
+            26,
+            4
+          ],
+          [
+            15,
+            756884335,
+            5,
+            69,
+            42
+          ],
+          [
+            3,
+            756885413,
+            3,
+            118,
+            6
+          ],
+          [
+            21,
+            756883411,
+            2,
+            67,
+            72
+          ],
+          [
+            10,
+            756884721,
+            1,
+            73,
+            29
+          ],
+          [
+            21,
+            756885453,
+            4,
+            68,
+            4
+          ],
+          [
+            24,
+            756884511,
+            1,
+            14,
+            36
+          ],
+          [
+            26,
+            756885301,
+            2,
+            71,
+            9
+          ],
+          [
+            11,
+            756884693,
+            3,
+            72,
+            30
+          ],
+          [
+            11,
+            756884551,
+            2,
+            50,
+            34
+          ],
+          [
+            8,
+            756884845,
+            5,
+            72,
+            25
+          ],
+          [
+            24,
+            756884343,
+            4,
+            50,
+            41
+          ],
+          [
+            24,
+            756884553,
+            4,
+            114,
+            34
+          ],
+          [
+            10,
+            756883413,
+            4,
+            18,
+            72
+          ],
+          [
+            25,
+            756882325,
+            5,
+            70,
+            109
+          ],
+          [
+            7,
+            756884761,
+            2,
+            82,
+            27
+          ],
+          [
+            30,
+            756883435,
+            5,
+            52,
+            72
+          ],
+          [
+            30,
+            756882903,
+            4,
+            9,
+            89
+          ],
+          [
+            12,
+            756885113,
+            3,
+            124,
+            16
+          ],
+          [
+            33,
+            756882601,
+            2,
+            51,
+            99
+          ],
+          [
+            15,
+            756882111,
+            1,
+            9,
+            116
+          ],
+          [
+            33,
+            756883431,
+            1,
+            89,
+            72
+          ],
+          [
+            26,
+            756883581,
+            1,
+            101,
+            67
+          ],
+          [
+            2,
+            756882961,
+            2,
+            6,
+            87
+          ],
+          [
+            4,
+            756884403,
+            4,
+            8,
+            39
+          ],
+          [
+            5,
+            756883251,
+            1,
+            62,
+            78
+          ],
+          [
+            21,
+            756883771,
+            2,
+            41,
+            60
+          ],
+          [
+            36,
+            756882321,
+            1,
+            93,
+            109
+          ],
+          [
+            18,
+            756883893,
+            4,
+            84,
+            56
+          ],
+          [
+            9,
+            756884061,
+            1,
+            15,
+            51
+          ],
+          [
+            5,
+            756884661,
+            1,
+            80,
+            31
+          ],
+          [
+            7,
+            756884871,
+            1,
+            13,
+            24
+          ],
+          [
+            27,
+            756884783,
+            3,
+            105,
+            27
+          ],
+          [
+            21,
+            756883201,
+            2,
+            120,
+            79
+          ],
+          [
+            30,
+            756883371,
+            1,
+            105,
+            74
+          ],
+          [
+            4,
+            756884521,
+            2,
+            109,
+            35
+          ],
+          [
+            2,
+            756883253,
+            3,
+            19,
+            78
+          ],
+          [
+            18,
+            756883113,
+            4,
+            25,
+            82
+          ],
+          [
+            4,
+            756883501,
+            2,
+            8,
+            69
+          ],
+          [
+            2,
+            756884033,
+            3,
+            26,
+            52
+          ],
+          [
+            30,
+            756883051,
+            2,
+            75,
+            84
+          ],
+          [
+            14,
+            756884641,
+            2,
+            17,
+            31
+          ],
+          [
+            12,
+            756885201,
+            1,
+            118,
+            13
+          ],
+          [
+            14,
+            756885473,
+            3,
+            22,
+            4
+          ],
+          [
+            26,
+            756882631,
+            2,
+            21,
+            98
+          ],
+          [
+            15,
+            756883833,
+            4,
+            60,
+            58
+          ],
+          [
+            8,
+            756883891,
+            2,
+            82,
+            56
+          ],
+          [
+            11,
+            756882783,
+            4,
+            99,
+            93
+          ],
+          [
+            2,
+            756882621,
+            1,
+            70,
+            99
+          ],
+          [
+            36,
+            756884193,
+            4,
+            104,
+            46
+          ],
+          [
+            13,
+            756882833,
+            3,
+            69,
+            92
+          ],
+          [
+            27,
+            756882591,
+            1,
+            103,
+            100
+          ],
+          [
+            25,
+            756884931,
+            1,
+            71,
+            22
+          ],
+          [
+            36,
+            756884013,
+            4,
+            23,
+            52
+          ],
+          [
+            3,
+            756884215,
+            5,
+            15,
+            46
+          ],
+          [
+            25,
+            756884331,
+            1,
+            46,
+            42
+          ],
+          [
+            5,
+            756882655,
+            5,
+            62,
+            98
+          ],
+          [
+            24,
+            756884095,
+            5,
+            21,
+            50
+          ],
+          [
+            2,
+            756885233,
+            3,
+            51,
+            12
+          ],
+          [
+            14,
+            756884221,
+            2,
+            12,
+            45
+          ],
+          [
+            21,
+            756882383,
+            3,
+            116,
+            107
+          ],
+          [
+            21,
+            756883713,
+            4,
+            48,
+            62
+          ],
+          [
+            18,
+            756884183,
+            3,
+            114,
+            47
+          ],
+          [
+            11,
+            756884313,
+            4,
+            35,
+            42
+          ],
+          [
+            26,
+            756882471,
+            1,
+            92,
+            104
+          ],
+          [
+            36,
+            756882233,
+            3,
+            98,
+            112
+          ],
+          [
+            15,
+            756883971,
+            1,
+            51,
+            54
+          ],
+          [
+            36,
+            756884913,
+            4,
+            75,
+            22
+          ],
+          [
+            31,
+            756885533,
+            3,
+            103,
+            2
+          ],
+          [
+            18,
+            756885473,
+            3,
+            124,
+            4
+          ],
+          [
+            25,
+            756884063,
+            3,
+            20,
+            51
+          ],
+          [
+            19,
+            756883503,
+            4,
+            99,
+            69
+          ],
+          [
+            30,
+            756883983,
+            4,
+            18,
+            53
+          ],
+          [
+            14,
+            756884063,
+            3,
+            58,
+            51
+          ],
+          [
+            18,
+            756884603,
+            3,
+            91,
+            33
+          ],
+          [
+            9,
+            756882951,
+            1,
+            71,
+            88
+          ],
+          [
+            26,
+            756885145,
+            5,
+            13,
+            15
+          ],
+          [
+            4,
+            756883343,
+            3,
+            113,
+            75
+          ],
+          [
+            9,
+            756885393,
+            4,
+            119,
+            6
+          ],
+          [
+            18,
+            756884541,
+            1,
+            68,
+            35
+          ],
+          [
+            27,
+            756885475,
+            5,
+            64,
+            4
+          ],
+          [
+            21,
+            756882621,
+            1,
+            69,
+            99
+          ],
+          [
+            18,
+            756884693,
+            3,
+            35,
+            30
+          ],
+          [
+            27,
+            756882631,
+            2,
+            99,
+            98
+          ],
+          [
+            4,
+            756882961,
+            2,
+            98,
+            87
+          ],
+          [
+            30,
+            756883401,
+            1,
+            104,
+            73
+          ],
+          [
+            25,
+            756882481,
+            2,
+            65,
+            103
+          ],
+          [
+            30,
+            756884131,
+            2,
+            73,
+            48
+          ],
+          [
+            7,
+            756885333,
+            4,
+            8,
+            8
+          ],
+          [
+            33,
+            756882775,
+            5,
+            31,
+            94
+          ],
+          [
+            33,
+            756885213,
+            4,
+            87,
+            12
+          ],
+          [
+            12,
+            756883405,
+            5,
+            18,
+            73
+          ],
+          [
+            18,
+            756882145,
+            5,
+            20,
+            115
+          ],
+          [
+            15,
+            756884723,
+            3,
+            6,
+            29
+          ],
+          [
+            8,
+            756883111,
+            2,
+            69,
+            82
+          ],
+          [
+            10,
+            756884971,
+            2,
+            40,
+            20
+          ],
+          [
+            19,
+            756884761,
+            2,
+            23,
+            27
+          ],
+          [
+            34,
+            756885213,
+            4,
+            112,
+            12
+          ],
+          [
+            31,
+            756885385,
+            5,
+            34,
+            7
+          ],
+          [
+            19,
+            756883043,
+            3,
+            22,
+            85
+          ],
+          [
+            34,
+            756885353,
+            3,
+            108,
+            8
+          ],
+          [
+            25,
+            756885363,
+            4,
+            41,
+            7
+          ],
+          [
+            19,
+            756885303,
+            4,
+            67,
+            9
+          ],
+          [
+            13,
+            756883313,
+            3,
+            93,
+            76
+          ],
+          [
+            14,
+            756882383,
+            3,
+            84,
+            107
+          ],
+          [
+            5,
+            756883041,
+            1,
+            95,
+            85
+          ],
+          [
+            18,
+            756884631,
+            1,
+            93,
+            32
+          ],
+          [
+            33,
+            756883913,
+            3,
+            62,
+            56
+          ],
+          [
+            34,
+            756883045,
+            5,
+            66,
+            85
+          ],
+          [
+            18,
+            756884101,
+            2,
+            118,
+            49
+          ],
+          [
+            3,
+            756882271,
+            2,
+            19,
+            110
+          ],
+          [
+            4,
+            756885175,
+            5,
+            18,
+            14
+          ],
+          [
+            2,
+            756882513,
+            4,
+            97,
+            102
+          ],
+          [
+            36,
+            756882661,
+            2,
+            29,
+            97
+          ],
+          [
+            19,
+            756883943,
+            3,
+            105,
+            55
+          ],
+          [
+            10,
+            756882713,
+            3,
+            125,
+            96
+          ],
+          [
+            31,
+            756883653,
+            4,
+            54,
+            64
+          ],
+          [
+            12,
+            756885303,
+            4,
+            89,
+            9
+          ],
+          [
+            33,
+            756882955,
+            5,
+            63,
+            88
+          ],
+          [
+            11,
+            756884553,
+            4,
+            29,
+            34
+          ],
+          [
+            24,
+            756882533,
+            3,
+            26,
+            102
+          ],
+          [
+            18,
+            756885513,
+            4,
+            104,
+            2
+          ],
+          [
+            31,
+            756885263,
+            3,
+            88,
+            11
+          ],
+          [
+            8,
+            756882423,
+            4,
+            24,
+            105
+          ],
+          [
+            13,
+            756885413,
+            3,
+            50,
+            6
+          ],
+          [
+            10,
+            756883525,
+            5,
+            50,
+            69
+          ],
+          [
+            21,
+            756882321,
+            1,
+            34,
+            109
+          ],
+          [
+            8,
+            756885051,
+            1,
+            89,
+            18
+          ],
+          [
+            7,
+            756885471,
+            1,
+            67,
+            4
+          ],
+          [
+            31,
+            756882145,
+            5,
+            38,
+            115
+          ],
+          [
+            4,
+            756884991,
+            1,
+            48,
+            20
+          ],
+          [
+            10,
+            756885181,
+            2,
+            84,
+            13
+          ],
+          [
+            31,
+            756883193,
+            3,
+            121,
+            80
+          ],
+          [
+            26,
+            756884341,
+            2,
+            72,
+            41
+          ],
+          [
+            27,
+            756884993,
+            3,
+            77,
+            20
+          ],
+          [
+            27,
+            756883711,
+            2,
+            23,
+            62
+          ],
+          [
+            24,
+            756882331,
+            2,
+            121,
+            108
+          ],
+          [
+            9,
+            756883345,
+            5,
+            12,
+            75
+          ],
+          [
+            31,
+            756884391,
+            1,
+            59,
+            40
+          ],
+          [
+            2,
+            756884695,
+            5,
+            11,
+            30
+          ],
+          [
+            8,
+            756882903,
+            4,
+            54,
+            89
+          ],
+          [
+            9,
+            756882681,
+            1,
+            63,
+            97
+          ],
+          [
+            2,
+            756885205,
+            5,
+            53,
+            13
+          ],
+          [
+            21,
+            756882511,
+            2,
+            41,
+            102
+          ],
+          [
+            11,
+            756882571,
+            2,
+            106,
+            100
+          ],
+          [
+            21,
+            756883833,
+            4,
+            109,
+            58
+          ],
+          [
+            19,
+            756885093,
+            4,
+            26,
+            16
+          ],
+          [
+            21,
+            756885261,
+            1,
+            79,
+            11
+          ],
+          [
+            19,
+            756884935,
+            5,
+            11,
+            22
+          ],
+          [
+            36,
+            756883283,
+            3,
+            79,
+            77
+          ],
+          [
+            24,
+            756884935,
+            5,
+            28,
+            22
+          ],
+          [
+            8,
+            756882741,
+            1,
+            99,
+            95
+          ],
+          [
+            26,
+            756884243,
+            3,
+            122,
+            45
+          ],
+          [
+            9,
+            756883251,
+            1,
+            108,
+            78
+          ],
+          [
+            36,
+            756883231,
+            2,
+            105,
+            78
+          ],
+          [
+            21,
+            756885421,
+            2,
+            24,
+            5
+          ],
+          [
+            15,
+            756884455,
+            5,
+            69,
+            38
+          ],
+          [
+            7,
+            756884513,
+            3,
+            23,
+            36
+          ],
+          [
+            12,
+            756883533,
+            4,
+            62,
+            68
+          ],
+          [
+            5,
+            756883531,
+            2,
+            53,
+            68
+          ],
+          [
+            11,
+            756885361,
+            2,
+            22,
+            7
+          ],
+          [
+            8,
+            756882803,
+            3,
+            76,
+            93
+          ],
+          [
+            25,
+            756884851,
+            2,
+            61,
+            24
+          ],
+          [
+            14,
+            756883583,
+            3,
+            9,
+            67
+          ],
+          [
+            12,
+            756884365,
+            5,
+            60,
+            41
+          ],
+          [
+            27,
+            756883645,
+            5,
+            14,
+            65
+          ],
+          [
+            15,
+            756882623,
+            3,
+            80,
+            99
+          ],
+          [
+            12,
+            756884905,
+            5,
+            38,
+            23
+          ],
+          [
+            19,
+            756885333,
+            4,
+            6,
+            8
+          ],
+          [
+            18,
+            756884313,
+            4,
+            93,
+            42
+          ],
+          [
+            25,
+            756884963,
+            3,
+            61,
+            21
+          ],
+          [
+            7,
+            756884063,
+            3,
+            83,
+            51
+          ],
+          [
+            30,
+            756884151,
+            1,
+            79,
+            48
+          ],
+          [
+            15,
+            756883081,
+            2,
+            103,
+            83
+          ],
+          [
+            33,
+            756883851,
+            1,
+            92,
+            58
+          ],
+          [
+            14,
+            756883915,
+            5,
+            21,
+            56
+          ],
+          [
+            34,
+            756882723,
+            4,
+            81,
+            95
+          ],
+          [
+            13,
+            756884881,
+            2,
+            61,
+            23
+          ],
+          [
+            11,
+            756882423,
+            4,
+            114,
+            105
+          ],
+          [
+            12,
+            756883615,
+            5,
+            45,
+            66
+          ],
+          [
+            10,
+            756885393,
+            4,
+            38,
+            6
+          ],
+          [
+            19,
+            756882363,
+            4,
+            76,
+            107
+          ],
+          [
+            26,
+            756883315,
+            5,
+            10,
+            76
+          ],
+          [
+            2,
+            756885301,
+            2,
+            69,
+            9
+          ],
+          [
+            34,
+            756884031,
+            1,
+            93,
+            52
+          ],
+          [
+            3,
+            756885415,
+            5,
+            20,
+            6
+          ],
+          [
+            3,
+            756884483,
+            3,
+            43,
+            37
+          ]
+        ]
+      },
+      {
+        "clean_authenticated": 25,
+        "clean_failed": [],
+        "detected": 4,
+        "detection_share": 0.02,
+        "eligible_pages": 14750,
+        "file": "27_JUL_2023_GST_00_00_01.csv",
+        "flips": 200,
+        "pages": 46800,
+        "s5_clean_met": true,
+        "s5_tamper_met": false,
+        "stream": "configuration_2",
+        "tree": "Merkle_tree_2",
+        "undetected": [
+          [
+            4,
+            755139351,
+            1,
+            11,
+            8
+          ],
+          [
+            24,
+            755139031,
+            2,
+            61,
+            18
+          ],
+          [
+            15,
+            755139483,
+            4,
+            29,
+            3
+          ],
+          [
+            2,
+            755137503,
+            4,
+            67,
+            69
+          ],
+          [
+            13,
+            755138823,
+            4,
+            69,
+            25
+          ],
+          [
+            11,
+            755137523,
+            3,
+            61,
+            69
+          ],
+          [
+            5,
+            755136141,
+            1,
+            69,
+            115
+          ],
+          [
+            19,
+            755137823,
+            3,
+            85,
+            59
+          ],
+          [
+            8,
+            755139473,
+            3,
+            26,
+            4
+          ],
+          [
+            15,
+            755138335,
+            5,
+            69,
+            42
+          ],
+          [
+            3,
+            755139413,
+            3,
+            118,
+            6
+          ],
+          [
+            21,
+            755137411,
+            2,
+            67,
+            72
+          ],
+          [
+            10,
+            755138721,
+            1,
+            73,
+            29
+          ],
+          [
+            21,
+            755139453,
+            4,
+            68,
+            4
+          ],
+          [
+            24,
+            755138511,
+            1,
+            14,
+            36
+          ],
+          [
+            26,
+            755139301,
+            2,
+            71,
+            9
+          ],
+          [
+            11,
+            755138693,
+            3,
+            72,
+            30
+          ],
+          [
+            11,
+            755138551,
+            2,
+            50,
+            34
+          ],
+          [
+            8,
+            755138845,
+            5,
+            72,
+            25
+          ],
+          [
+            24,
+            755138343,
+            4,
+            50,
+            41
+          ],
+          [
+            24,
+            755138553,
+            4,
+            114,
+            34
+          ],
+          [
+            10,
+            755137413,
+            4,
+            18,
+            72
+          ],
+          [
+            25,
+            755136325,
+            5,
+            70,
+            109
+          ],
+          [
+            7,
+            755138761,
+            2,
+            82,
+            27
+          ],
+          [
+            30,
+            755137435,
+            5,
+            52,
+            72
+          ],
+          [
+            30,
+            755136903,
+            4,
+            9,
+            89
+          ],
+          [
+            12,
+            755139113,
+            3,
+            124,
+            16
+          ],
+          [
+            33,
+            755136601,
+            2,
+            51,
+            99
+          ],
+          [
+            15,
+            755136111,
+            1,
+            9,
+            116
+          ],
+          [
+            33,
+            755137431,
+            1,
+            89,
+            72
+          ],
+          [
+            26,
+            755137581,
+            1,
+            101,
+            67
+          ],
+          [
+            2,
+            755136961,
+            2,
+            6,
+            87
+          ],
+          [
+            4,
+            755138403,
+            4,
+            8,
+            39
+          ],
+          [
+            5,
+            755137251,
+            1,
+            62,
+            78
+          ],
+          [
+            21,
+            755137771,
+            2,
+            41,
+            60
+          ],
+          [
+            36,
+            755136321,
+            1,
+            93,
+            109
+          ],
+          [
+            18,
+            755137893,
+            4,
+            84,
+            56
+          ],
+          [
+            9,
+            755138061,
+            1,
+            15,
+            51
+          ],
+          [
+            14,
+            755137015,
+            5,
+            57,
+            86
+          ],
+          [
+            5,
+            755138661,
+            1,
+            80,
+            31
+          ],
+          [
+            7,
+            755138871,
+            1,
+            13,
+            24
+          ],
+          [
+            27,
+            755138783,
+            3,
+            105,
+            27
+          ],
+          [
+            21,
+            755137201,
+            2,
+            120,
+            79
+          ],
+          [
+            30,
+            755137371,
+            1,
+            105,
+            74
+          ],
+          [
+            4,
+            755138521,
+            2,
+            109,
+            35
+          ],
+          [
+            2,
+            755137253,
+            3,
+            19,
+            78
+          ],
+          [
+            18,
+            755137113,
+            4,
+            25,
+            82
+          ],
+          [
+            4,
+            755137501,
+            2,
+            8,
+            69
+          ],
+          [
+            2,
+            755138033,
+            3,
+            26,
+            52
+          ],
+          [
+            30,
+            755137051,
+            2,
+            75,
+            84
+          ],
+          [
+            14,
+            755138641,
+            2,
+            17,
+            31
+          ],
+          [
+            12,
+            755139201,
+            1,
+            118,
+            13
+          ],
+          [
+            14,
+            755139473,
+            3,
+            22,
+            4
+          ],
+          [
+            26,
+            755136631,
+            2,
+            21,
+            98
+          ],
+          [
+            15,
+            755137833,
+            4,
+            60,
+            58
+          ],
+          [
+            8,
+            755137891,
+            2,
+            82,
+            56
+          ],
+          [
+            11,
+            755136783,
+            4,
+            99,
+            93
+          ],
+          [
+            2,
+            755136621,
+            1,
+            70,
+            99
+          ],
+          [
+            36,
+            755138193,
+            4,
+            104,
+            46
+          ],
+          [
+            13,
+            755136833,
+            3,
+            69,
+            92
+          ],
+          [
+            27,
+            755136591,
+            1,
+            103,
+            100
+          ],
+          [
+            25,
+            755138931,
+            1,
+            71,
+            22
+          ],
+          [
+            36,
+            755138013,
+            4,
+            23,
+            52
+          ],
+          [
+            3,
+            755138215,
+            5,
+            15,
+            46
+          ],
+          [
+            25,
+            755138331,
+            1,
+            46,
+            42
+          ],
+          [
+            5,
+            755136655,
+            5,
+            62,
+            98
+          ],
+          [
+            24,
+            755138095,
+            5,
+            21,
+            50
+          ],
+          [
+            2,
+            755139233,
+            3,
+            51,
+            12
+          ],
+          [
+            14,
+            755138221,
+            2,
+            12,
+            45
+          ],
+          [
+            21,
+            755136383,
+            3,
+            116,
+            107
+          ],
+          [
+            10,
+            755138483,
+            3,
+            122,
+            37
+          ],
+          [
+            21,
+            755137713,
+            4,
+            48,
+            62
+          ],
+          [
+            18,
+            755138183,
+            3,
+            114,
+            47
+          ],
+          [
+            11,
+            755138313,
+            4,
+            35,
+            42
+          ],
+          [
+            26,
+            755136471,
+            1,
+            92,
+            104
+          ],
+          [
+            36,
+            755136233,
+            3,
+            98,
+            112
+          ],
+          [
+            15,
+            755137971,
+            1,
+            51,
+            54
+          ],
+          [
+            36,
+            755138913,
+            4,
+            75,
+            22
+          ],
+          [
+            31,
+            755139533,
+            3,
+            103,
+            2
+          ],
+          [
+            18,
+            755139473,
+            3,
+            124,
+            4
+          ],
+          [
+            25,
+            755138063,
+            3,
+            20,
+            51
+          ],
+          [
+            19,
+            755137503,
+            4,
+            99,
+            69
+          ],
+          [
+            30,
+            755137983,
+            4,
+            18,
+            53
+          ],
+          [
+            14,
+            755138063,
+            3,
+            58,
+            51
+          ],
+          [
+            18,
+            755138603,
+            3,
+            91,
+            33
+          ],
+          [
+            9,
+            755136951,
+            1,
+            71,
+            88
+          ],
+          [
+            26,
+            755139145,
+            5,
+            13,
+            15
+          ],
+          [
+            4,
+            755137343,
+            3,
+            113,
+            75
+          ],
+          [
+            9,
+            755139393,
+            4,
+            119,
+            6
+          ],
+          [
+            18,
+            755138541,
+            1,
+            68,
+            35
+          ],
+          [
+            27,
+            755139475,
+            5,
+            64,
+            4
+          ],
+          [
+            21,
+            755136621,
+            1,
+            69,
+            99
+          ],
+          [
+            18,
+            755138693,
+            3,
+            35,
+            30
+          ],
+          [
+            27,
+            755136631,
+            2,
+            99,
+            98
+          ],
+          [
+            4,
+            755136961,
+            2,
+            98,
+            87
+          ],
+          [
+            30,
+            755137401,
+            1,
+            104,
+            73
+          ],
+          [
+            25,
+            755136481,
+            2,
+            65,
+            103
+          ],
+          [
+            30,
+            755138131,
+            2,
+            73,
+            48
+          ],
+          [
+            7,
+            755139333,
+            4,
+            8,
+            8
+          ],
+          [
+            33,
+            755136775,
+            5,
+            31,
+            94
+          ],
+          [
+            33,
+            755139213,
+            4,
+            87,
+            12
+          ],
+          [
+            12,
+            755137405,
+            5,
+            18,
+            73
+          ],
+          [
+            18,
+            755136145,
+            5,
+            20,
+            115
+          ],
+          [
+            15,
+            755138723,
+            3,
+            6,
+            29
+          ],
+          [
+            8,
+            755137111,
+            2,
+            69,
+            82
+          ],
+          [
+            10,
+            755138971,
+            2,
+            40,
+            20
+          ],
+          [
+            19,
+            755138761,
+            2,
+            23,
+            27
+          ],
+          [
+            34,
+            755139213,
+            4,
+            112,
+            12
+          ],
+          [
+            31,
+            755139385,
+            5,
+            34,
+            7
+          ],
+          [
+            19,
+            755137043,
+            3,
+            22,
+            85
+          ],
+          [
+            34,
+            755139353,
+            3,
+            108,
+            8
+          ],
+          [
+            25,
+            755139363,
+            4,
+            41,
+            7
+          ],
+          [
+            19,
+            755139303,
+            4,
+            67,
+            9
+          ],
+          [
+            13,
+            755137313,
+            3,
+            93,
+            76
+          ],
+          [
+            14,
+            755136383,
+            3,
+            84,
+            107
+          ],
+          [
+            5,
+            755137041,
+            1,
+            95,
+            85
+          ],
+          [
+            18,
+            755138631,
+            1,
+            93,
+            32
+          ],
+          [
+            33,
+            755137913,
+            3,
+            62,
+            56
+          ],
+          [
+            34,
+            755137045,
+            5,
+            66,
+            85
+          ],
+          [
+            18,
+            755138101,
+            2,
+            118,
+            49
+          ],
+          [
+            3,
+            755136271,
+            2,
+            19,
+            110
+          ],
+          [
+            4,
+            755139175,
+            5,
+            18,
+            14
+          ],
+          [
+            2,
+            755136513,
+            4,
+            97,
+            102
+          ],
+          [
+            19,
+            755137943,
+            3,
+            105,
+            55
+          ],
+          [
+            10,
+            755136713,
+            3,
+            125,
+            96
+          ],
+          [
+            31,
+            755137653,
+            4,
+            54,
+            64
+          ],
+          [
+            12,
+            755139303,
+            4,
+            89,
+            9
+          ],
+          [
+            33,
+            755136955,
+            5,
+            63,
+            88
+          ],
+          [
+            11,
+            755138553,
+            4,
+            29,
+            34
+          ],
+          [
+            24,
+            755136533,
+            3,
+            26,
+            102
+          ],
+          [
+            18,
+            755139513,
+            4,
+            104,
+            2
+          ],
+          [
+            31,
+            755139263,
+            3,
+            88,
+            11
+          ],
+          [
+            8,
+            755136423,
+            4,
+            24,
+            105
+          ],
+          [
+            13,
+            755139413,
+            3,
+            50,
+            6
+          ],
+          [
+            10,
+            755137525,
+            5,
+            50,
+            69
+          ],
+          [
+            21,
+            755136321,
+            1,
+            34,
+            109
+          ],
+          [
+            8,
+            755139051,
+            1,
+            89,
+            18
+          ],
+          [
+            7,
+            755139471,
+            1,
+            67,
+            4
+          ],
+          [
+            31,
+            755136145,
+            5,
+            38,
+            115
+          ],
+          [
+            4,
+            755138991,
+            1,
+            48,
+            20
+          ],
+          [
+            10,
+            755139181,
+            2,
+            84,
+            13
+          ],
+          [
+            31,
+            755137193,
+            3,
+            121,
+            80
+          ],
+          [
+            26,
+            755138341,
+            2,
+            72,
+            41
+          ],
+          [
+            27,
+            755138993,
+            3,
+            77,
+            20
+          ],
+          [
+            27,
+            755137711,
+            2,
+            23,
+            62
+          ],
+          [
+            24,
+            755136331,
+            2,
+            121,
+            108
+          ],
+          [
+            9,
+            755137345,
+            5,
+            12,
+            75
+          ],
+          [
+            31,
+            755138391,
+            1,
+            59,
+            40
+          ],
+          [
+            2,
+            755138695,
+            5,
+            11,
+            30
+          ],
+          [
+            8,
+            755136903,
+            4,
+            54,
+            89
+          ],
+          [
+            9,
+            755136681,
+            1,
+            63,
+            97
+          ],
+          [
+            2,
+            755139205,
+            5,
+            53,
+            13
+          ],
+          [
+            21,
+            755136511,
+            2,
+            41,
+            102
+          ],
+          [
+            11,
+            755136571,
+            2,
+            106,
+            100
+          ],
+          [
+            21,
+            755137833,
+            4,
+            109,
+            58
+          ],
+          [
+            19,
+            755139093,
+            4,
+            26,
+            16
+          ],
+          [
+            21,
+            755139261,
+            1,
+            79,
+            11
+          ],
+          [
+            19,
+            755138935,
+            5,
+            11,
+            22
+          ],
+          [
+            24,
+            755138935,
+            5,
+            28,
+            22
+          ],
+          [
+            8,
+            755136741,
+            1,
+            99,
+            95
+          ],
+          [
+            26,
+            755138243,
+            3,
+            122,
+            45
+          ],
+          [
+            9,
+            755137251,
+            1,
+            108,
+            78
+          ],
+          [
+            36,
+            755137231,
+            2,
+            105,
+            78
+          ],
+          [
+            21,
+            755139421,
+            2,
+            24,
+            5
+          ],
+          [
+            15,
+            755138455,
+            5,
+            69,
+            38
+          ],
+          [
+            7,
+            755138513,
+            3,
+            23,
+            36
+          ],
+          [
+            12,
+            755137533,
+            4,
+            62,
+            68
+          ],
+          [
+            5,
+            755137531,
+            2,
+            53,
+            68
+          ],
+          [
+            26,
+            755139083,
+            3,
+            94,
+            17
+          ],
+          [
+            11,
+            755139361,
+            2,
+            22,
+            7
+          ],
+          [
+            8,
+            755136803,
+            3,
+            76,
+            93
+          ],
+          [
+            25,
+            755138851,
+            2,
+            61,
+            24
+          ],
+          [
+            14,
+            755137583,
+            3,
+            9,
+            67
+          ],
+          [
+            12,
+            755138365,
+            5,
+            60,
+            41
+          ],
+          [
+            27,
+            755137645,
+            5,
+            14,
+            65
+          ],
+          [
+            15,
+            755136623,
+            3,
+            80,
+            99
+          ],
+          [
+            12,
+            755138905,
+            5,
+            38,
+            23
+          ],
+          [
+            19,
+            755139333,
+            4,
+            6,
+            8
+          ],
+          [
+            18,
+            755138313,
+            4,
+            93,
+            42
+          ],
+          [
+            25,
+            755138963,
+            3,
+            61,
+            21
+          ],
+          [
+            7,
+            755138063,
+            3,
+            83,
+            51
+          ],
+          [
+            30,
+            755138151,
+            1,
+            79,
+            48
+          ],
+          [
+            15,
+            755137081,
+            2,
+            103,
+            83
+          ],
+          [
+            33,
+            755137851,
+            1,
+            92,
+            58
+          ],
+          [
+            14,
+            755137915,
+            5,
+            21,
+            56
+          ],
+          [
+            34,
+            755136723,
+            4,
+            81,
+            95
+          ],
+          [
+            13,
+            755138881,
+            2,
+            61,
+            23
+          ],
+          [
+            11,
+            755136423,
+            4,
+            114,
+            105
+          ],
+          [
+            12,
+            755137615,
+            5,
+            45,
+            66
+          ],
+          [
+            10,
+            755139393,
+            4,
+            38,
+            6
+          ],
+          [
+            19,
+            755136363,
+            4,
+            76,
+            107
+          ],
+          [
+            26,
+            755137315,
+            5,
+            10,
+            76
+          ],
+          [
+            2,
+            755139301,
+            2,
+            69,
+            9
+          ],
+          [
+            34,
+            755138031,
+            1,
+            93,
+            52
+          ],
+          [
+            3,
+            755139415,
+            5,
+            20,
+            6
+          ],
+          [
+            3,
+            755138483,
+            3,
+            43,
+            37
+          ]
+        ]
+      }
+    ]
+  },
+  "test_vectors_zip_sha256": "ef9b9afc6ef9e1c57393415cf2a1dc80c4035e7c06123907ea0bb97dd3ccf370",
+  "what": "E4b result, scored once: geometry of the published Xona Pulsar design on every admissible configuration (MODELLED), and OSNMA tamper detection on the GSC test vectors held locally (only counts and flip outcomes published)."
+}

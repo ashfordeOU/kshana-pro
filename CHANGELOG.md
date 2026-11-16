@@ -24,6 +24,11 @@ own bullet so parallel work merges cleanly.
   50 km for every pair (0.975 at m = 3), so B4 is not reachable on this generator with a method of
   this kind (docs/evidence/v3-m4-offset-successor/V3c_RESULTS.md). Stage-2 hits stay offset
   candidates only.
+  E4b **missed** (published): pnt-verification v2 on the GSC OSNMA test vectors (configuration_1,
+  configuration_2; seed 20261123): S5 tamper detection 5/200 and 4/200 (bar 0.99; no untampered
+  failure); on the sample stream the same receiver detected 200/200. Geometry on the four
+  admissible Pulsar configurations: S1 and S2 missed (not 0.42 gates, owner 16 Nov), S3 missed on
+  the star-pattern E4 split, S4 met (docs/evidence/e4-pnt-verification/E4b_RESULTS.md).
 - **Evidence products (roadmap 0.42 E4, E5, E6, E7; V3, V6; docs/EVIDENCE-PRODUCTS.md).**
   E5 AIS and position integrity scoring: kind `pro-ais-integrity`, `kshana-pro integrity
   score|verify`; per identity the open M4 v3 decision (gaps, identity in two places, AIS

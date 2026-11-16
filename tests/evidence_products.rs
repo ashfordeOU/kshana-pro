@@ -906,3 +906,30 @@ fn e4b_scored() {
         "E4b_results.json is not reproduced"
     );
 }
+
+/// The recorded E4b result (scored once): S4 met in all four configurations; S1, S2 and S3
+/// missed in at least one; S5 missed on both streams (5 and 4 of 200) with no false failure.
+#[test]
+fn e4b_recorded_verdicts() {
+    let d: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(root().join("docs/evidence/e4-pnt-verification/E4b_results.json"))
+            .unwrap(),
+    )
+    .unwrap();
+    let g = &d["geometry_bars"];
+    assert_eq!(g["E4-S1"]["met_in_all_configurations"], false);
+    assert_eq!(g["E4-S2"]["met_in_all_configurations"], false);
+    assert_eq!(g["E4-S3"]["met_in_all_configurations"], false);
+    assert_eq!(g["E4-S4"]["met_in_all_configurations"], true);
+    assert_eq!(d["s5"]["met"], false);
+    let det: Vec<u64> = d["s5"]["streams"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| s["detected"].as_u64().unwrap())
+        .collect();
+    assert_eq!(det, [5, 4]);
+    for s in d["s5"]["streams"].as_array().unwrap() {
+        assert_eq!(s["s5_clean_met"], true);
+    }
+}
