@@ -453,3 +453,16 @@ fn v3c_g5_g6_determinism_and_stage1_on_a_development_seed() {
     let total: usize = a[0].1.iter().map(|f| f.fixes.len()).sum();
     assert_eq!(total, support.len());
 }
+
+/// The recorded V3c scored run (seeds 7000 to 7009, run once): NOT MET, missing V3-B4 only;
+/// V3-G1 to V3-G4 met.
+#[test]
+fn v3c_recorded_verdict() {
+    let d: Value =
+        serde_json::from_str(&std::fs::read_to_string(format!("{DIR}/V3c_results.json")).unwrap())
+            .unwrap();
+    assert_eq!(bars(&d["metrics"]), [false, true, true, true, true]);
+    assert_eq!(d["met"], false);
+    assert_eq!(d["params"]["m"], 4);
+    assert_eq!(d["params"]["t_span_s"], 1200);
+}

@@ -17,6 +17,13 @@ own bullet so parallel work merges cleanly.
   (V2: 4/24), B1 24/24, B2 1/24, B4 23/24, B5-B7 met
   (docs/evidence/v2-forensics-detection/V2b_RESULTS.md). E1 stays unclaimed until V2P is scored
   and passes; V2's miss stays published.
+  V3c **missed** V3-B4 (published): m4-offset v5 (relative-motion test, persistence,
+  exclusivity) on seeds 7000-7009: offset recall 0.650/0.775/0.796/0.761 at 5/10/20/50 km (bars
+  0.85/0.98/0.98/0.98); false alarms 0.0059 (guard <= 0.01 met; V3b 0.072), DARK, GAP and
+  IDENTITY-DUPLICATE guards met. The development recall ceiling, published first, is below 0.98 at
+  50 km for every pair (0.975 at m = 3), so B4 is not reachable on this generator with a method of
+  this kind (docs/evidence/v3-m4-offset-successor/V3c_RESULTS.md). Stage-2 hits stay offset
+  candidates only.
 - **Evidence products (roadmap 0.42 E4, E5, E6, E7; V3, V6; docs/EVIDENCE-PRODUCTS.md).**
   E5 AIS and position integrity scoring: kind `pro-ais-integrity`, `kshana-pro integrity
   score|verify`; per identity the open M4 v3 decision (gaps, identity in two places, AIS
