@@ -237,3 +237,61 @@ fn v3_and_v3b_recorded_verdicts() {
         assert_eq!(d["bars"]["V3-G1"], false);
     }
 }
+
+// ---------------------------------------------------------------------------------------
+// V3c (2026-11-16_V3c_PREREGISTRATION.md)
+// ---------------------------------------------------------------------------------------
+
+/// V3c: the recall ceiling on development seeds 70 to 79, from the generator's truth only,
+/// published before the method is built. Write with KSHANA_PRO_V3C_CEILING=1.
+#[test]
+fn v3c_recall_ceiling_on_development_seeds_70_to_79() {
+    if std::env::var_os("KSHANA_PRO_V3C_CEILING").is_none() {
+        eprintln!("skipped: set KSHANA_PRO_V3C_CEILING=1 to compute the V3c ceiling");
+        return;
+    }
+    use kshana_pro::integrity::offset_v5;
+    let mut acc: std::collections::BTreeMap<(usize, u32, u32), (usize, usize)> = Default::default();
+    for seed in 70..80 {
+        let scene = generate(seed);
+        for m in offset_v5::M_GRID {
+            for ts in offset_v5::T_SPAN_GRID {
+                for (km, (k, n)) in offset_v5::recall_ceiling(&scene, m, ts) {
+                    let e = acc.entry((m, ts, km)).or_insert((0, 0));
+                    e.0 += k;
+                    e.1 += n;
+                }
+            }
+        }
+        eprintln!("seed {seed} done");
+    }
+    let mut rows = Vec::new();
+    for m in offset_v5::M_GRID {
+        for ts in offset_v5::T_SPAN_GRID {
+            let mut by = serde_json::Map::new();
+            for km in [2u32, 5, 10, 20, 50] {
+                let (k, n) = acc[&(m, ts, km)];
+                by.insert(
+                    km.to_string(),
+                    json!({"reachable": k, "n": n, "ceiling": k as f64 / n as f64}),
+                );
+            }
+            let blocks = [10u32, 20, 50].iter().any(|km| {
+                let (k, n) = acc[&(m, ts, *km)];
+                (k as f64) / (n as f64) < 0.98
+            });
+            rows.push(json!({"m": m, "t_span_s": ts, "by_km": by, "below_0_98_at_10_20_or_50_km": blocks}));
+        }
+    }
+    let doc = json!({
+        "pre_registration": "2026-11-16_V3c_PREREGISTRATION.md",
+        "what": "V3c recall ceiling on development seeds 70 to 79: share of POSITION-OFFSET vessels with at least m post-onset RF fixes of their own (generator truth: rf_owner, onset_s) whose first and last are at least T_span apart. Computed from the generator's truth only, before the V3c method was built.",
+        "seeds": "70 to 79",
+        "ceiling": rows,
+    });
+    std::fs::write(
+        format!("{DIR}/V3c_dev_ceiling.json"),
+        serde_json::to_string_pretty(&doc).unwrap() + "\n",
+    )
+    .unwrap();
+}
