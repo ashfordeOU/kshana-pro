@@ -1,6 +1,6 @@
 # V5c pre-registration: holdover time to breach with orbit-period and flicker terms (roadmap 0.42 T1)
 
-**Status: PROPOSED.** Written on 2026-11-15 (21:40 UTC) and committed alone, before any code of
+**Status: APPROVED by the owner, 16 Nov 2026.** (Was PROPOSED; approval recorded in `docs/evidence/BARS-TO-GREEN-0.42.md` before any new evaluation data were generated or read.) Written on 2026-11-15 (21:40 UTC) and committed alone, before any code of
 the method below exists and before any byte of data set D-R3 has been downloaded or read, and
 before seed D-S3 has been generated. It takes effect on the owner's approval (dated 2026-11-16).
 V5 (`RESULTS.md`) and V5b (`V5b_RESULTS.md`) stay published as missed whatever happens here. A bar

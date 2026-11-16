@@ -1,6 +1,6 @@
 # E4b pre-registration: the public sample study, admissible-design geometry and session-long tamper evidence (roadmap 0.42 E4)
 
-**Status: PROPOSED.** Written on 2026-11-15 (22:00 UTC) and committed alone, before any code of
+**Status: APPROVED by the owner, 16 Nov 2026.** (Was PROPOSED; approval recorded in `docs/evidence/BARS-TO-GREEN-0.42.md` before any new evaluation data were generated or read.) Written on 2026-11-15 (22:00 UTC) and committed alone, before any code of
 the method below exists and before the data of section 3 have been downloaded or opened for this
 study. It takes effect on the owner's approval (dated 2026-11-16). The E4 sample result
 (`RESULTS.md`: S1, S2 and S5a NOT MET) stays published whatever happens here. A bar may be

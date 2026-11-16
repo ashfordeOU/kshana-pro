@@ -1,6 +1,6 @@
 # E3b pre-registration: the independent-oracle bar E3-B2 (a), ellipsoidal error and arrival-time truth (16 November 2026)
 
-**Status: PROPOSED.** Written on 2026-11-15 (22:05 UTC) and committed alone, before any code of
+**Status: APPROVED by the owner, 16 Nov 2026.** (Was PROPOSED; approval recorded in `docs/evidence/BARS-TO-GREEN-0.42.md` before any new evaluation data were generated or read.) Written on 2026-11-15 (22:05 UTC) and committed alone, before any code of
 scorecard v2 exists and before any case of the held-out campaign below is generated. It takes
 effect on the owner's approval (dated 2026-11-16). The E3 sample result (`RESULTS.md`: E3-B2 (a)
 MISSED on 5 of 15 events) stays published whatever happens here. A bar may be tightened, never
