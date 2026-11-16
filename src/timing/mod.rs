@@ -44,9 +44,12 @@ pub const V5_PASSED: bool = false;
 /// on both data sets (`V5b_RESULTS.md`); `tests/timing_v5.rs` keeps it equal to the scored result.
 pub const V5B_PASSED: bool = false;
 
-/// Whether the V5c pre-registered bars passed on D-R3 and D-S3 (`V5c_RESULTS.md`);
-/// `tests/timing_v5.rs` keeps it equal to the scored result once V5c is scored.
-pub const V5C_PASSED: bool = false;
+/// Whether the V5c pre-registered bars passed on D-R3 and D-S3 (`V5c_RESULTS.md`): they did
+/// (scored once, 16 Nov 2026). The fleet assessment still runs the V5b predictor
+/// (`HoldoverModel::fit_kalman`), so [`v5_status`] and the labels are unchanged until the
+/// product is switched to `HoldoverModel::fit_harmonic`. `tests/timing_v5.rs` keeps this equal
+/// to the scored result.
+pub const V5C_PASSED: bool = true;
 
 /// The V5 status in words, for labels and reports.
 pub fn v5_status() -> &'static str {

@@ -29,6 +29,11 @@ own bullet so parallel work merges cleanly.
   failure); on the sample stream the same receiver detected 200/200. Geometry on the four
   admissible Pulsar configurations: S1 and S2 missed (not 0.42 gates, owner 16 Nov), S3 missed on
   the star-pattern E4 split, S4 met (docs/evidence/e4-pnt-verification/E4b_RESULTS.md).
+  V5c **passed** every bar: holdover v3 (`HoldoverModel::fit_harmonic`: orbit-period harmonics
+  P = 43 082 s, k = 1, 2, and a flicker floor) on new IGS final clocks 2025-10-05..18 (D-R3:
+  B1 0.9013, B2 0.9294, B3 0.7131, B4 0.9343, B5 0.1285) and synthetic seed 20261120 (D-S3: all
+  pass) (docs/evidence/v5-holdover-time-to-breach/V5c_RESULTS.md). The fleet assessment still
+  runs the V5b predictor and keeps its "not validated" label until it is switched.
 - **Evidence products (roadmap 0.42 E4, E5, E6, E7; V3, V6; docs/EVIDENCE-PRODUCTS.md).**
   E5 AIS and position integrity scoring: kind `pro-ais-integrity`, `kshana-pro integrity
   score|verify`; per identity the open M4 v3 decision (gaps, identity in two places, AIS
