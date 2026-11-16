@@ -47,6 +47,10 @@ fn bad(m: impl Into<String>) -> KshanaError {
     KshanaError::InvalidInput(m.into())
 }
 
+/// The region used when none is configured: Frankfurt (owner decision, 15 Nov 2026). The KMS
+/// signer stays off until `KSHANA_PRO_SIGNER=kms` is set.
+pub const DEFAULT_REGION: &str = "eu-central-1";
+
 /// AWS credentials (never printed: `Debug` hides the secret).
 #[derive(Clone)]
 pub struct Credentials {
@@ -162,13 +166,14 @@ impl KmsSigner {
     }
 
     /// From `KSHANA_PRO_KMS_KEY_ID`, `KSHANA_PRO_KMS_REGION` (or `AWS_REGION`,
-    /// `AWS_DEFAULT_REGION`) and `KSHANA_PRO_KMS_ENDPOINT`; credentials from the environment.
+    /// `AWS_DEFAULT_REGION`, else [`DEFAULT_REGION`]) and `KSHANA_PRO_KMS_ENDPOINT`;
+    /// credentials from the environment.
     pub fn from_env() -> Result<KmsSigner, KshanaError> {
         let key = std::env::var("KSHANA_PRO_KMS_KEY_ID").unwrap_or_default();
         let region = ["KSHANA_PRO_KMS_REGION", "AWS_REGION", "AWS_DEFAULT_REGION"]
             .iter()
             .find_map(|v| std::env::var(v).ok().filter(|s| !s.trim().is_empty()))
-            .unwrap_or_default();
+            .unwrap_or_else(|| DEFAULT_REGION.to_string());
         let endpoint = std::env::var("KSHANA_PRO_KMS_ENDPOINT").ok();
         KmsSigner::new(
             &key,
