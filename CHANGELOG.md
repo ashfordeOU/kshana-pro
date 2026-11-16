@@ -11,6 +11,12 @@ own bullet so parallel work merges cleanly.
   (seeds 31001-31016, 20 events): E3-B2 (a) 20/20 within 1.0 m (worst 0.2 m), E3-B2 (b) 20/20,
   E3-B3 2,447/7,538, E3-B1 met (docs/evidence/e3-receiver-scorecard/E3b_RESULTS.md). The E3 v1
   miss stays published.
+  V2b **met** on every synthetic bar: incident forensics v2 (`kshana-pro/incident-forensics/v2`:
+  R1 power-consistent signal-shape evidence, R2 no position-domain evidence in jammed epochs) on
+  the new labelled set (seed 20261121, synthesiser seeds 3000-3047): B3 cross-attribution 0/24
+  (V2: 4/24), B1 24/24, B2 1/24, B4 23/24, B5-B7 met
+  (docs/evidence/v2-forensics-detection/V2b_RESULTS.md). E1 stays unclaimed until V2P is scored
+  and passes; V2's miss stays published.
 - **Evidence products (roadmap 0.42 E4, E5, E6, E7; V3, V6; docs/EVIDENCE-PRODUCTS.md).**
   E5 AIS and position integrity scoring: kind `pro-ais-integrity`, `kshana-pro integrity
   score|verify`; per identity the open M4 v3 decision (gaps, identity in two places, AIS
