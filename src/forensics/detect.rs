@@ -436,6 +436,44 @@ const SPOOF_STATE: &[Monitor] = &[
     Monitor::Osnma,
 ];
 
+/// The attribution rules of a method version. The parameters ([`MethodParams::V1`]) are the
+/// same for both; v2 changes only how an epoch counts toward an episode's spoofing-like share.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Rules {
+    /// `kshana-pro/incident-forensics/v1`.
+    V1,
+    /// `kshana-pro/incident-forensics/v2` (V2b pre-registration,
+    /// `docs/evidence/v2-forensics-detection/2026-11-16_V2b_PREREGISTRATION.md`): R1, a
+    /// `cn0-spread` or `cn0-rise` alarm counts only in an epoch with no jamming-family alarm
+    /// and a median tracked C/N0 at most [`V2_MEDIAN_DROP_DB`] below the baseline median;
+    /// R2, in an epoch with a jamming-family alarm the position-domain state monitors do not
+    /// count (`time-consistency`, `osnma` and `sea-level` always count).
+    V2,
+}
+
+/// The method id of method v2.
+pub const METHOD_ID_V2: &str = "kshana-pro/incident-forensics/v2";
+/// R1's power-consistency limit, dB (fixed a priori by the V2b pre-registration).
+pub const V2_MEDIAN_DROP_DB: f64 = 6.0;
+/// R2: the position-domain state monitors that do not count in a jammed epoch under v2.
+const POSITION_DOMAIN: &[Monitor] = &[
+    Monitor::PositionJump,
+    Monitor::Raim,
+    Monitor::Clock,
+    Monitor::Kinematic,
+    Monitor::HeadingCourse,
+    Monitor::SpeedLog,
+];
+
+impl Rules {
+    pub fn method_id(self) -> &'static str {
+        match self {
+            Rules::V1 => METHOD_ID,
+            Rules::V2 => METHOD_ID_V2,
+        }
+    }
+}
+
 fn monitor_name(m: Monitor) -> String {
     serde_json::to_value(m)
         .ok()
@@ -626,6 +664,7 @@ fn analyse_receiver(
     log: &LoadedInput,
     nav: Option<&LoadedInput>,
     p: &MethodParams,
+    rules: Rules,
     w0: f64,
     w1: f64,
     is_subject: bool,
@@ -644,6 +683,25 @@ fn analyse_receiver(
     let abs = |t_s: f64| t0.map(|t| t + t_s);
     let times: Vec<f64> = tl.epochs.iter().filter_map(|e| abs(e.t_s)).collect();
     let breadth = Breadth::new(&tl, cal_s);
+    // v2 (R1): the median C/N0 of the tracked satellites at each epoch, and the baseline
+    // median (the median of those per-epoch medians over the calibration window).
+    let median_cn0: BTreeMap<i64, f64> = tl
+        .epochs
+        .iter()
+        .filter_map(|e| {
+            let mut v: Vec<f64> = e.cn0.iter().map(|s| s.cn0_dbhz).collect();
+            median(&mut v).map(|m| ((e.t_s * 1000.0).round() as i64, m))
+        })
+        .collect();
+    let base_median = {
+        let mut v: Vec<f64> = tl
+            .epochs
+            .iter()
+            .filter(|e| e.t_s < cal_s)
+            .filter_map(|e| median_cn0.get(&((e.t_s * 1000.0).round() as i64)).copied())
+            .collect();
+        median(&mut v)
+    };
     let eps = episodes(&res.epochs, p.merge_gap_s);
     let (mut transients, mut outside) = (0usize, 0usize);
     let mut findings = Vec::new();
@@ -670,6 +728,8 @@ fn analyse_receiver(
         flagged_spans.push((ep.start_s, ep.end_s));
         let mut fired: BTreeSet<Monitor> = BTreeSet::new();
         let (mut jam_n, mut sig_n, mut st_n) = (0usize, 0usize, 0usize);
+        // Epochs each monitor counted toward its family (diagnostic, not part of the verdict).
+        let mut counted: BTreeMap<String, usize> = BTreeMap::new();
         let mut mag: BTreeMap<String, f64> = BTreeMap::new();
         let put_max = |k: &str, v: f64, m: &mut BTreeMap<String, f64>| {
             let e = m.entry(k.to_string()).or_insert(v);
@@ -682,14 +742,51 @@ fn analyse_receiver(
         for &i in &ep.epochs {
             let e = &res.epochs[i];
             fired.extend(e.alarms.iter().copied());
-            if e.alarms.iter().any(|m| JAM.contains(m)) {
+            let jammed = e.alarms.iter().any(|m| JAM.contains(m));
+            if jammed {
                 jam_n += 1;
             }
-            if e.alarms.iter().any(|m| SPOOF_SIGNAL.contains(m)) {
+            let (sig, st) = match rules {
+                Rules::V1 => (
+                    e.alarms.iter().any(|m| SPOOF_SIGNAL.contains(m)),
+                    e.alarms.iter().any(|m| SPOOF_STATE.contains(m)),
+                ),
+                Rules::V2 => {
+                    // R1: signal-shape evidence counts only at unjammed, unlowered power.
+                    let power_ok = !jammed
+                        && match (
+                            median_cn0.get(&((e.t_s * 1000.0).round() as i64)).copied(),
+                            base_median,
+                        ) {
+                            (Some(m), Some(b)) => b - m <= V2_MEDIAN_DROP_DB,
+                            _ => false,
+                        };
+                    let sig = power_ok && e.alarms.iter().any(|m| SPOOF_SIGNAL.contains(m));
+                    // R2: position-domain state evidence does not count in a jammed epoch.
+                    let st = e.alarms.iter().any(|m| {
+                        SPOOF_STATE.contains(m) && !(jammed && POSITION_DOMAIN.contains(m))
+                    });
+                    (sig, st)
+                }
+            };
+            if sig {
                 sig_n += 1;
+                for m in e.alarms.iter().filter(|m| SPOOF_SIGNAL.contains(m)) {
+                    *counted.entry(monitor_name(*m)).or_insert(0) += 1;
+                }
             }
-            if e.alarms.iter().any(|m| SPOOF_STATE.contains(m)) {
+            if st {
                 st_n += 1;
+                for m in e.alarms.iter().filter(|m| SPOOF_STATE.contains(m)) {
+                    if rules == Rules::V1 || !(jammed && POSITION_DOMAIN.contains(m)) {
+                        *counted.entry(monitor_name(*m)).or_insert(0) += 1;
+                    }
+                }
+            }
+            if jammed {
+                for m in e.alarms.iter().filter(|m| JAM.contains(m)) {
+                    *counted.entry(monitor_name(*m)).or_insert(0) += 1;
+                }
             }
             if let Some(d) = e.cn0_drop_db {
                 put_max("peak_cn0_drop_db", round(d, 1), &mut mag);
@@ -713,6 +810,14 @@ fn analyse_receiver(
         }
         if let Some(m) = res.baseline.tracked_median {
             mag.insert("baseline_satellites_tracked".into(), m);
+        }
+        if rules == Rules::V2 {
+            // v2 reports which monitors counted toward each family (V2b section 6).
+            for (k, v) in &counted {
+                mag.insert(format!("v2_counted_{k}_epochs"), *v as f64);
+            }
+            mag.insert("v2_episode_epochs".into(), ep.epochs.len() as f64);
+            mag.insert("v2_spoofing_like_epochs".into(), sig_n.max(st_n) as f64);
         }
         let n = ep.epochs.len().max(1) as f64;
         let spoof_n = sig_n.max(st_n);
@@ -823,8 +928,9 @@ fn analyse_receiver(
                 class: "modelled",
                 statement: format!(
                     "the open engine's receiver-trust monitors ({}) at the method's thresholds, \
-                     attributed by {METHOD_ID}",
-                    indicators.join(", ")
+                     attributed by {}",
+                    indicators.join(", "),
+                    rules.method_id()
                 ),
                 input_sha256: None,
             },
@@ -1051,6 +1157,7 @@ struct TrackAnalysis {
 
 #[allow(clippy::too_many_arguments)]
 fn track_finding(
+    mid: &'static str,
     det: &str,
     category: &'static str,
     source_kind: &'static str,
@@ -1172,7 +1279,7 @@ fn track_finding(
             },
             EvidenceItem {
                 class: "modelled",
-                statement: format!("{what} ({METHOD_ID})"),
+                statement: format!("{what} ({mid})"),
                 input_sha256: None,
             },
         ],
@@ -1214,6 +1321,7 @@ fn subject_track(
 }
 
 fn analyse_ais(
+    mid: &'static str,
     input: &LoadedInput,
     inc: &Incident,
     p: &MethodParams,
@@ -1311,6 +1419,7 @@ fn analyse_ais(
     unaffected.retain(|_| true);
     let mut findings = Vec::new();
     findings.extend(track_finding(
+        mid,
         "ais-position-jump",
         "spoofing",
         "ais",
@@ -1324,6 +1433,7 @@ fn analyse_ais(
         "peak_implied_speed_kn",
     ));
     findings.extend(track_finding(
+        mid,
         "ais-implausible-speed",
         "spoofing",
         "ais",
@@ -1337,6 +1447,7 @@ fn analyse_ais(
         "peak_reported_speed_kn",
     ));
     findings.extend(track_finding(
+        mid,
         "ais-circular-track",
         "spoofing",
         "ais",
@@ -1350,6 +1461,7 @@ fn analyse_ais(
         "peak_turn_deg",
     ));
     findings.extend(track_finding(
+        mid,
         "ais-same-position",
         "spoofing",
         "ais",
@@ -1394,6 +1506,7 @@ fn analyse_ais(
 }
 
 fn analyse_adsb(
+    mid: &'static str,
     input: &LoadedInput,
     inc: &Incident,
     p: &MethodParams,
@@ -1479,6 +1592,7 @@ fn analyse_adsb(
     }
     let mut findings = Vec::new();
     findings.extend(track_finding(
+        mid,
         "adsb-integrity-drop",
         "jamming",
         "adsb",
@@ -1493,6 +1607,7 @@ fn analyse_adsb(
         "peak_epu_bound_m",
     ));
     findings.extend(track_finding(
+        mid,
         "adsb-position-jump",
         "spoofing",
         "adsb",
@@ -1724,6 +1839,24 @@ pub fn analyse_with_inputs(
     scn: &IncidentScenario,
     generated_utc: Option<&str>,
 ) -> Result<(Vec<LoadedInput>, ForensicReport), KshanaError> {
+    analyse_with_rules(scn, generated_utc, Rules::V1)
+}
+
+/// [`analyse`] under the attribution rules of a given method version (v1 is the product's
+/// method; v2 is the V2b pre-registered method).
+pub fn analyse_with_method(
+    scn: &IncidentScenario,
+    generated_utc: Option<&str>,
+    rules: Rules,
+) -> Result<ForensicReport, KshanaError> {
+    Ok(analyse_with_rules(scn, generated_utc, rules)?.1)
+}
+
+fn analyse_with_rules(
+    scn: &IncidentScenario,
+    generated_utc: Option<&str>,
+    rules: Rules,
+) -> Result<(Vec<LoadedInput>, ForensicReport), KshanaError> {
     let p = MethodParams::V1;
     let inc = &scn.incident;
     let bad = |m: String| KshanaError::InvalidInput(m);
@@ -1802,6 +1935,7 @@ pub fn analyse_with_inputs(
             &inputs[li],
             ni.map(|i| &inputs[i]),
             &p,
+            rules,
             w0,
             w1,
             is_subject,
@@ -1818,7 +1952,7 @@ pub fn analyse_with_inputs(
     }
     for t in &scn.ais {
         let li = find(&inputs, InputRole::Ais, &t.label).unwrap_or(0);
-        let (a, times) = analyse_ais(&inputs[li], inc, &p, w0, w1)?;
+        let (a, times) = analyse_ais(rules.method_id(), &inputs[li], inc, &p, w0, w1)?;
         set_coverage(&mut inputs[li].record, &times, w0, w1);
         findings.extend(a.findings);
         tracks.extend(a.track);
@@ -1827,7 +1961,7 @@ pub fn analyse_with_inputs(
     }
     for t in &scn.adsb {
         let li = find(&inputs, InputRole::Adsb, &t.label).unwrap_or(0);
-        let (a, times) = analyse_adsb(&inputs[li], inc, &p, w0, w1)?;
+        let (a, times) = analyse_adsb(rules.method_id(), &inputs[li], inc, &p, w0, w1)?;
         set_coverage(&mut inputs[li].record, &times, w0, w1);
         findings.extend(a.findings);
         tracks.extend(a.track);
@@ -2130,7 +2264,7 @@ location is estimated here."
     }
     let report = ForensicReport {
         format: FORMAT,
-        method_id: METHOD_ID,
+        method_id: rules.method_id(),
         variant: scn.variant,
         status: "final",
         label: LABEL,
@@ -2140,7 +2274,7 @@ location is estimated here."
         engine: EngineInfo {
             kshana_pro: crate::version().to_string(),
             open_engine: kshana::iq::campaign::runner::engine_version().to_string(),
-            method_id: METHOD_ID,
+            method_id: rules.method_id(),
             method_params_sha256: p.sha256(),
         },
         method: p,

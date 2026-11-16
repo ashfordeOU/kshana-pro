@@ -12,7 +12,7 @@
 
 use std::path::{Path, PathBuf};
 
-use kshana_pro::forensics::detect::{analyse, ForensicReport};
+use kshana_pro::forensics::detect::{analyse_with_method, ForensicReport, Rules};
 use kshana_pro::forensics::inputs::{iso, parse_utc};
 use kshana_pro::forensics::IncidentScenario;
 use serde_json::{json, Value};
@@ -49,8 +49,12 @@ impl Rng {
     }
 }
 
-fn tmp() -> PathBuf {
-    let d = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(format!("v2-{}", std::process::id()));
+fn tmp(name: &str) -> PathBuf {
+    let d = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(format!(
+        "v2-{name}-{}-{}",
+        std::process::id(),
+        name.len()
+    ));
     let _ = std::fs::remove_dir_all(&d);
     std::fs::create_dir_all(&d).unwrap();
     d
@@ -77,12 +81,46 @@ fn onset(r: &ForensicReport, cat: &str, t0: f64) -> Option<f64> {
         .reduce(f64::min)
 }
 
-const START_S: f64 = 1_780_272_000.0; // 2026-06-01T00:00:00Z
+/// One run of the labelled-set design: V2's (seed 20261115, synthesiser seeds 1000 + i,
+/// 2026-06/07/08 starts, method v1) or V2b's (seed 20261121, synthesiser seeds 3000 + i,
+/// 2026-09-01 / 10-01 / 10-15 starts, method v2).
+#[derive(Clone, Copy)]
+struct Design {
+    seed: u64,
+    synth_base: u64,
+    receiver_t0: f64,
+    ais_t0: f64,
+    adsb_t0: f64,
+    rules: Rules,
+}
+
+const V2_DESIGN: Design = Design {
+    seed: SEED,
+    synth_base: 1000,
+    receiver_t0: 1_780_272_000.0, // 2026-06-01T00:00:00Z
+    ais_t0: 1_782_864_000.0,      // 2026-07-01T00:00:00Z
+    adsb_t0: 1_785_542_400.0,     // 2026-08-01T00:00:00Z
+    rules: Rules::V1,
+};
+
+/// V2b section 3 (the new labelled set).
+const V2B_DESIGN: Design = Design {
+    seed: 20261121,
+    synth_base: 3000,
+    receiver_t0: 1_788_220_800.0, // 2026-09-01T00:00:00Z
+    ais_t0: 1_790_812_800.0,      // 2026-10-01T00:00:00Z
+    adsb_t0: 1_792_022_400.0,     // 2026-10-15T00:00:00Z
+    rules: Rules::V2,
+};
+
+fn run(scn: &IncidentScenario, d: &Design) -> ForensicReport {
+    analyse_with_method(scn, None, d.rules).unwrap()
+}
 
 /// Section 2.1: one receiver case. Returns its record.
-fn receiver_case(i: usize, rng: &mut Rng, dir: &Path) -> Value {
+fn receiver_case(i: usize, rng: &mut Rng, dir: &Path, d: &Design) -> Value {
     let class = ["jamming", "spoofing", "clean", "confounder"][i % 4];
-    let t0 = START_S + 3.0 * 3600.0 * i as f64;
+    let t0 = d.receiver_t0 + 3.0 * 3600.0 * i as f64;
     let lat = rng.u(50.0, 62.0);
     let lon = rng.u(-5.0, 25.0);
     let kn = rng.u(6.0, 20.0);
@@ -142,7 +180,7 @@ fn receiver_case(i: usize, rng: &mut Rng, dir: &Path) -> Value {
          [vessel]\nlat_deg = {lat:.5}\nlon_deg = {lon:.5}\nspeed_kn = {kn:.3}\n\
          [[waypoint]]\nlat_deg = {wlat:.5}\nlon_deg = {wlon:.5}\nspeed_kn = {kn:.3}\n\
          [environment]\ncurrent_speed_kn = 0.5\ncurrent_set_deg = 180\nmagnetic_variation_deg = 2\n{event}",
-        1000 + i,
+        d.synth_base + i as u64,
         iso(t0)
     );
     let g = kshana::nmea_synth::generate_from_toml(&scn, None).unwrap();
@@ -157,11 +195,10 @@ fn receiver_case(i: usize, rng: &mut Rng, dir: &Path) -> Value {
         iso(t0 + 1200.0)
     );
     std::fs::write(case.join("incident.toml"), inc).unwrap();
-    let r = analyse(
+    let r = run(
         &IncidentScenario::from_file(&case.join("incident.toml")).unwrap(),
-        None,
-    )
-    .unwrap();
+        d,
+    );
     let _ = std::fs::remove_dir_all(&case);
     let jam = indicated(&r, "jamming");
     let spf = indicated(&r, "spoofing");
@@ -177,12 +214,28 @@ fn receiver_case(i: usize, rng: &mut Rng, dir: &Path) -> Value {
         rec["onset_ok"] =
             json!(o.is_some_and(|x| x >= start_s as f64 && x <= (start_s + ramp_s) as f64 + 60.0));
     }
+    if d.rules == Rules::V2 {
+        // V2b section 6: which monitors counted toward each family, per finding.
+        rec["v2_counted"] = json!(r
+            .findings
+            .iter()
+            .map(|f| {
+                let m: serde_json::Map<String, Value> = f
+                    .magnitude
+                    .iter()
+                    .filter(|(k, _)| k.starts_with("v2_"))
+                    .map(|(k, v)| (k.clone(), json!(v)))
+                    .collect();
+                json!({"category": f.category, "counts": m})
+            })
+            .collect::<Vec<_>>());
+    }
     rec
 }
 
 /// Section 2.2, AIS: one case. Returns its record.
-fn ais_case(j: usize, rng: &mut Rng, dir: &Path) -> Value {
-    let t0 = 1_782_864_000.0 + 2.0 * 3600.0 * j as f64; // 2026-07-01T00:00:00Z
+fn ais_case(j: usize, rng: &mut Rng, dir: &Path, d: &Design) -> Value {
+    let t0 = d.ais_t0 + 2.0 * 3600.0 * j as f64;
     let positive = j < 10;
     let mut rows = vec!["timestamp,vessel_id,lat,lon,sog_kn".to_string()];
     let mut detail = json!({});
@@ -228,14 +281,14 @@ fn ais_case(j: usize, rng: &mut Rng, dir: &Path) -> Value {
             rows.push(format!("{},V{v},{lat:.6},{lon:.6},{sog:.1}", iso(t0 + t)));
         }
     }
-    let r = track_incident(dir, &format!("a{j}"), "ais", &rows, t0, t0 + 3600.0);
+    let r = track_incident(dir, &format!("a{j}"), "ais", &rows, t0, t0 + 3600.0, d);
     json!({"case": format!("A{j:02}"), "positive": positive, "spoof": detail,
            "spoofing_indicated": indicated(&r, "spoofing"), "jamming_indicated": indicated(&r, "jamming")})
 }
 
 /// Section 2.2, ADS-B: one case. Returns its record.
-fn adsb_case(k: usize, rng: &mut Rng, dir: &Path) -> Value {
-    let t0 = 1_785_542_400.0 + 2.0 * 3600.0 * k as f64; // 2026-08-01T00:00:00Z
+fn adsb_case(k: usize, rng: &mut Rng, dir: &Path, d: &Design) -> Value {
+    let t0 = d.adsb_t0 + 2.0 * 3600.0 * k as f64;
     let positive = k < 10;
     let (hit, from, len) = if positive {
         (rng.ui(1, 4), rng.ui(10, 20), rng.ui(6, 15))
@@ -256,7 +309,7 @@ fn adsb_case(k: usize, rng: &mut Rng, dir: &Path) -> Value {
             ));
         }
     }
-    let r = track_incident(dir, &format!("b{k}"), "adsb", &rows, t0, t0 + 1200.0);
+    let r = track_incident(dir, &format!("b{k}"), "adsb", &rows, t0, t0 + 1200.0, d);
     json!({"case": format!("B{k:02}"), "positive": positive,
            "drop": {"aircraft": hit, "from_report": from, "reports": len},
            "jamming_indicated": indicated(&r, "jamming"), "spoofing_indicated": indicated(&r, "spoofing")})
@@ -269,6 +322,7 @@ fn track_incident(
     rows: &[String],
     t0: f64,
     t1: f64,
+    d: &Design,
 ) -> ForensicReport {
     let case = dir.join(name);
     std::fs::create_dir_all(&case).unwrap();
@@ -280,11 +334,10 @@ fn track_incident(
         iso(t1 + 1.0)
     );
     std::fs::write(case.join("incident.toml"), inc).unwrap();
-    let r = analyse(
+    let r = run(
         &IncidentScenario::from_file(&case.join("incident.toml")).unwrap(),
-        None,
-    )
-    .unwrap();
+        d,
+    );
     let _ = std::fs::remove_dir_all(&case);
     r
 }
@@ -297,13 +350,15 @@ fn bar(pass: bool, n: usize, of: usize, rule: &str) -> Value {
     json!({"pass": pass, "count": n, "of": of, "rule": rule})
 }
 
-#[test]
-fn v2_labelled_set_scored_once_against_the_preregistered_bars() {
-    let dir = tmp();
-    let mut rng = Rng(SEED);
-    let s: Vec<Value> = (0..48).map(|i| receiver_case(i, &mut rng, &dir)).collect();
-    let a: Vec<Value> = (0..20).map(|j| ais_case(j, &mut rng, &dir)).collect();
-    let b: Vec<Value> = (0..20).map(|k| adsb_case(k, &mut rng, &dir)).collect();
+/// Generate and score the labelled set of a design; returns (bars, all pass, s, a, b).
+fn score_design(d: &Design) -> (Value, bool, Vec<Value>, Vec<Value>, Vec<Value>) {
+    let dir = tmp(&format!("{}-{}", d.seed, d.rules.method_id().len()));
+    let mut rng = Rng(d.seed);
+    let s: Vec<Value> = (0..48)
+        .map(|i| receiver_case(i, &mut rng, &dir, d))
+        .collect();
+    let a: Vec<Value> = (0..20).map(|j| ais_case(j, &mut rng, &dir, d)).collect();
+    let b: Vec<Value> = (0..20).map(|k| adsb_case(k, &mut rng, &dir, d)).collect();
     let _ = std::fs::remove_dir_all(&dir);
 
     let cls = |c: &'static str| move |x: &Value| x["class"] == c;
@@ -367,6 +422,12 @@ fn v2_labelled_set_scored_once_against_the_preregistered_bars() {
         .unwrap()
         .values()
         .all(|b| b["pass"] == true);
+    (bars, all_pass, s, a, b)
+}
+
+#[test]
+fn v2_labelled_set_scored_once_against_the_preregistered_bars() {
+    let (bars, all_pass, s, a, b) = score_design(&V2_DESIGN);
     let doc = json!({
         "format": "kshana-pro-v2-results/1",
         "preregistration": "2026-11-15_PREREGISTRATION.md (commit e5a3369b)",
@@ -394,5 +455,130 @@ fn v2_labelled_set_scored_once_against_the_preregistered_bars() {
         "the V2 run no longer reproduces the committed results"
     );
     // E1 is never claimed from this run: the public-event part is empty.
+    assert_eq!(doc["e1_claimed"], false);
+}
+
+// ---------------------------------------------------------------------------------------
+// V2b (docs/evidence/v2-forensics-detection/2026-11-16_V2b_PREREGISTRATION.md): method v2,
+// power-consistent attribution.
+// ---------------------------------------------------------------------------------------
+
+const V2B_DEV: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/docs/evidence/v2-forensics-detection/V2b_dev.json"
+);
+const V2B_RESULTS: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/docs/evidence/v2-forensics-detection/V2b_results.json"
+);
+
+/// The five training scenarios (development data) under v2: what each indicates.
+fn training_under_v2() -> Vec<Value> {
+    let fix = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/forensics/training"
+    );
+    let mut out = Vec::new();
+    for name in [
+        "open-sea-jamming",
+        "coastal-drag-off",
+        "port-approach-time-spoof",
+        "combined-event",
+        "fjord-natural-degradation",
+    ] {
+        let text = std::fs::read_to_string(format!("{fix}/{name}.toml")).unwrap();
+        let g = kshana::nmea_synth::generate_from_toml(&text, None).unwrap();
+        let v: toml::Value = toml::from_str(&text).unwrap();
+        let t0 = parse_utc(v["scenario"]["start_utc"].as_str().unwrap()).unwrap();
+        let dur = v["scenario"]["duration_s"].as_integer().unwrap() as f64;
+        let dir = tmp(&format!("train-{name}"));
+        std::fs::write(dir.join("bridge.nmea"), g.nmea_text()).unwrap();
+        let inc = format!(
+            "kind = \"pro-incident-forensics\"\n[incident]\nid = \"T-{name}\"\ntitle = \"{name}\"\n\
+             start_utc = \"{}\"\nend_utc = \"{}\"\n\
+             [[receiver]]\nlabel = \"Bridge GNSS\"\npath = \"bridge.nmea\"\nformat = \"nmea\"\nplatform = \"vessel\"\n",
+            iso(t0 + 200.0),
+            iso(t0 + dur),
+        );
+        std::fs::write(dir.join("incident.toml"), inc).unwrap();
+        let scn = IncidentScenario::from_file(&dir.join("incident.toml")).unwrap();
+        let r1 = analyse_with_method(&scn, None, Rules::V1).unwrap();
+        let r2 = analyse_with_method(&scn, None, Rules::V2).unwrap();
+        let _ = std::fs::remove_dir_all(&dir);
+        out.push(json!({
+            "scenario": name,
+            "v1": {"jamming": indicated(&r1, "jamming"), "spoofing": indicated(&r1, "spoofing")},
+            "v2": {"jamming": indicated(&r2, "jamming"), "spoofing": indicated(&r2, "spoofing")},
+            "v2_findings": r2.findings.iter().map(|f| json!({"category": f.category, "onset_s": parse_utc(&f.onset.latest_utc).map(|t| (t - t0).round())})).collect::<Vec<_>>(),
+        }));
+    }
+    out
+}
+
+/// V2b development (allowed; committed before the new set was generated): v2 on V2's
+/// labelled set (development data now) and on the five training scenarios. Write with
+/// KSHANA_PRO_V2B_DEV_WRITE=1.
+#[test]
+fn v2b_dev_v2_on_the_v2_set_and_the_training_scenarios_is_as_published() {
+    let d = Design {
+        rules: Rules::V2,
+        ..V2_DESIGN
+    };
+    let (bars, all_pass, s, _a, _b) = score_design(&d);
+    let doc = json!({
+        "format": "kshana-pro-v2b-dev/1",
+        "what": "V2b development: method kshana-pro/incident-forensics/v2 on V2's labelled set (seed 20261115; development data) and the five training scenarios. Not the scored result.",
+        "method": Rules::V2.method_id(),
+        "v2_set_bars_under_v2": bars,
+        "v2_set_all_pass_under_v2": all_pass,
+        "v2_set_receiver_cases": s,
+        "training": training_under_v2(),
+    });
+    let text = serde_json::to_string_pretty(&doc).unwrap() + "\n";
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&doc["v2_set_bars_under_v2"]).unwrap()
+    );
+    if std::env::var_os("KSHANA_PRO_V2B_DEV_WRITE").is_some() {
+        std::fs::write(V2B_DEV, &text).unwrap();
+    }
+    assert_eq!(
+        std::fs::read_to_string(V2B_DEV).unwrap(),
+        text,
+        "V2b_dev.json is stale"
+    );
+}
+
+/// V2b scored once on the new labelled set (pre-registration section 5). With
+/// KSHANA_PRO_V2B_WRITE=1 the run writes `V2b_results.json`; otherwise it must reproduce it.
+#[test]
+fn v2b_scored_the_new_labelled_set_against_the_unchanged_bars() {
+    let (bars, all_pass, s, a, b) = score_design(&V2B_DESIGN);
+    let doc = json!({
+        "format": "kshana-pro-v2b-results/1",
+        "preregistration": "2026-11-16_V2b_PREREGISTRATION.md (approved by the owner, 16 Nov 2026)",
+        "method": Rules::V2.method_id(),
+        "data_class": "SYNTHETIC",
+        "seed": V2B_DESIGN.seed,
+        "synthesiser_seeds": "3000 + i",
+        "synthetic_bars_all_pass": all_pass,
+        "e1_claimed": false,
+        "e1_note": "E1 needs V2b and the public-event part (V2P) both to pass; V2P is not scored here.",
+        "bars": bars,
+        "receiver_cases": s,
+        "ais_cases": a,
+        "adsb_cases": b,
+    });
+    let text = serde_json::to_string_pretty(&doc).unwrap() + "\n";
+    println!("{}", serde_json::to_string_pretty(&doc["bars"]).unwrap());
+    if std::env::var_os("KSHANA_PRO_V2B_WRITE").is_some() {
+        std::fs::write(V2B_RESULTS, &text).unwrap();
+    }
+    assert_eq!(
+        std::fs::read_to_string(V2B_RESULTS)
+            .expect("V2b_results.json is committed after the one scoring run"),
+        text,
+        "the V2b run no longer reproduces the committed results"
+    );
     assert_eq!(doc["e1_claimed"], false);
 }
