@@ -70,6 +70,9 @@ pub const ADKD0_PIECES: [(u8, usize, usize); 5] = [
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Shell {
+    /// Walker pattern, `delta` or `star`; unset is the open engine's default (delta).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pattern: Option<String>,
     pub total: u32,
     pub planes: u32,
     pub phasing: u32,
@@ -142,6 +145,14 @@ pub struct Bar {
     pub value: f64,
 }
 
+/// One admissible configuration of a LEO design (method v2).
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Configuration {
+    pub id: String,
+    pub leo: Vec<LeoSystem>,
+}
+
 /// A study request.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -157,6 +168,10 @@ pub struct StudySpec {
     pub geometry: Option<Geometry>,
     #[serde(default)]
     pub integrity: Option<Integrity>,
+    /// Method v2 (E4b): the admissible configurations of the LEO design; the geometry is run on
+    /// each (in place of `geometry.leo`) and a geometry bar is met only if met in all.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub configuration: Vec<Configuration>,
     pub bar: Vec<Bar>,
     #[serde(skip)]
     pub base_dir: Option<PathBuf>,
@@ -287,8 +302,13 @@ pub fn polar_scenario(g: &Geometry) -> String {
             x.name, g.mask_deg
         ));
         for sh in &x.shell {
+            if let Some(p) = &sh.pattern {
+                s.push_str(&format!("\n[[system.shell]]\npattern = {p:?}"));
+            } else {
+                s.push_str("\n[[system.shell]]");
+            }
             s.push_str(&format!(
-                "\n[[system.shell]]\ntotal = {}\nplanes = {}\nphasing = {}\naltitude_km = {:?}\ninclination_deg = {:?}\n",
+                "\ntotal = {}\nplanes = {}\nphasing = {}\naltitude_km = {:?}\ninclination_deg = {:?}\n",
                 sh.total, sh.planes, sh.phasing, sh.altitude_km, sh.inclination_deg
             ));
         }
@@ -726,4 +746,54 @@ impl ExternalPack for StudySpec {
     fn register_into(reg: &mut kshana::registry::PackRegistry) {
         reg.register(crate::registry::pro_factory::<Self>(KIND));
     }
+}
+
+/// One configuration's geometry and bar outcomes (method v2).
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct ConfigurationResult {
+    pub id: String,
+    pub leo: Vec<LeoSystem>,
+    pub geometry: Vec<LatRow>,
+    pub bars: Vec<BarOutcome>,
+}
+
+/// Method v2 geometry: the study's pre-registration is checked, then the geometry is run on
+/// every configuration with the study's grid. Only the geometry bars are scored here.
+pub fn run_configurations(s: &StudySpec) -> Result<Vec<ConfigurationResult>, String> {
+    let pr = s.path(&s.pre_registration);
+    let prb = std::fs::read(&pr).map_err(|e| format!("{}: {e}", pr.display()))?;
+    let got = sha_hex(&prb);
+    if got != s.pre_registration_sha256 {
+        return Err(format!(
+            "the pre-registration {} has SHA-256 {got}, not the {} the study names",
+            s.pre_registration, s.pre_registration_sha256
+        ));
+    }
+    let g = s
+        .geometry
+        .as_ref()
+        .ok_or("method v2 needs a geometry block")?;
+    let bars: Vec<Bar> = s
+        .bar
+        .iter()
+        .filter(|b| !b.quantity.starts_with("osnma"))
+        .cloned()
+        .collect();
+    s.configuration
+        .iter()
+        .map(|c| {
+            let gc = Geometry {
+                leo: c.leo.clone(),
+                ..g.clone()
+            };
+            let rows = run_geometry(&gc)?;
+            let bars = score_bars(&bars, &rows, None)?;
+            Ok(ConfigurationResult {
+                id: c.id.clone(),
+                leo: c.leo.clone(),
+                geometry: rows,
+                bars,
+            })
+        })
+        .collect()
 }
