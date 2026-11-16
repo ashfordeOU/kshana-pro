@@ -26,6 +26,8 @@
 //!
 //! Everything here is MODELLED: geometry from published designs, integrity on the data given.
 
+pub mod osnma_v2;
+
 use std::path::{Path, PathBuf};
 
 use kshana::api::{ExternalPack, KshanaError, RunOutput, Scenario, ScenarioMeta};

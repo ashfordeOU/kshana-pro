@@ -565,3 +565,96 @@ fn e7_sample_summary_is_signed_and_counts_come_from_the_evidence() {
     assert_eq!(y.totals.incidents, 0);
     assert!(y.totals.sources_rejected > 0);
 }
+
+// ---------------------------------------------------------------------------------------
+// E4b (docs/evidence/e4-pnt-verification/2026-11-16_E4b_PREREGISTRATION.md)
+// ---------------------------------------------------------------------------------------
+
+use kshana_pro::pnt_study::osnma_v2::{self, Policies};
+
+fn e4b_policy_sets() -> Vec<(&'static str, Policies)> {
+    vec![
+        ("open verifier (E4)", Policies::NONE),
+        (
+            "1 session-long memory",
+            Policies {
+                session_memory: true,
+                hold_until_chain: false,
+                bits_as_received: false,
+            },
+        ),
+        (
+            "1 + 2 hold until the chain verifies",
+            Policies {
+                session_memory: true,
+                hold_until_chain: true,
+                bits_as_received: false,
+            },
+        ),
+        ("1 + 2 + 3 (method v2)", Policies::V2),
+    ]
+}
+
+/// E4b development (allowed; committed before the test vectors were opened): the three
+/// policies on the E4 sample stream with E4's seed 4242, cumulatively, to check the code and
+/// to settle H1 against H2. Write with KSHANA_PRO_E4B_DEV_WRITE=1.
+#[test]
+fn e4b_dev_policies_on_the_e4_sample_stream_are_as_published() {
+    let pages = kshana::osnma::input::parse_pages(
+        &std::fs::read_to_string(root().join("examples/pnt-verification/pages-good.txt")).unwrap(),
+    )
+    .unwrap();
+    let key = kshana::osnma::cli::parse_public_key(
+        std::fs::read_to_string(root().join("examples/pnt-verification/public-key.txt"))
+            .unwrap()
+            .trim(),
+    )
+    .unwrap();
+    let mut rows = Vec::new();
+    for (name, pol) in e4b_policy_sets() {
+        let c =
+            osnma_v2::campaign(&pages, std::slice::from_ref(&key), None, 200, 4242, pol).unwrap();
+        let early = c.undetected.iter().filter(|u| u.4 >= 18).count();
+        let iodnav = c
+            .undetected
+            .iter()
+            .filter(|u| (1..=4).contains(&u.2) && (6..16).contains(&u.3))
+            .count();
+        rows.push(serde_json::json!({
+            "policies": name,
+            "flags": pol,
+            "detected": c.detected, "flips": c.flips, "detection_share": c.detection_share,
+            "undetected_in_first_six_subframes": early,
+            "undetected_iodnav_bits": iodnav,
+            "clean_failed": c.clean_failed,
+            "clean_chain_verified_gst": c.clean_chain_verified_gst,
+            "undetected": c.undetected,
+        }));
+    }
+    // The open-verifier row must reproduce E4's published 136 of 200.
+    assert_eq!(rows[0]["detected"], 136);
+    let doc = serde_json::json!({
+        "what": "E4b development: the E4 sample stream (examples/pnt-verification/pages-good.txt, published) with E4's seed 4242, 200 flips, under the policies of method kshana-pro/pnt-verification/v2 added one at a time. Development data, not the scored result.",
+        "rows": rows,
+    });
+    let text = serde_json::to_string_pretty(&doc).unwrap() + "\n";
+    let p = root().join("docs/evidence/e4-pnt-verification/E4b_dev.json");
+    if std::env::var_os("KSHANA_PRO_E4B_DEV_WRITE").is_some() {
+        std::fs::write(&p, &text).unwrap();
+    }
+    for r in &rows {
+        eprintln!(
+            "{} {} early {} iodnav {} clean {}",
+            r["policies"],
+            r["detected"],
+            r["undetected_in_first_six_subframes"],
+            r["undetected_iodnav_bits"],
+            r["clean_failed"]
+        );
+    }
+    assert_eq!(
+        std::fs::read_to_string(&p).unwrap(),
+        text,
+        "E4b_dev.json is stale"
+    );
+}
