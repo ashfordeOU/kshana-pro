@@ -47,12 +47,12 @@ fn bad(m: impl Into<String>) -> KshanaError {
     KshanaError::InvalidInput(m.into())
 }
 
-/// AWS credentials (never printed: `Debug` hides the secret).
-#[derive(Clone)]
 /// The region used when none is configured: Frankfurt (owner decision, 15 Nov 2026). The KMS
 /// signer stays off until `KSHANA_PRO_SIGNER=kms` is set.
 pub const DEFAULT_REGION: &str = "eu-central-1";
 
+/// AWS credentials (never printed: `Debug` hides the secret).
+#[derive(Clone)]
 pub struct Credentials {
     pub access_key_id: String,
     pub secret_access_key: String,
