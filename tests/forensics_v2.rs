@@ -49,12 +49,13 @@ impl Rng {
     }
 }
 
+/// A fresh directory per call: tests run in parallel and two of them can score the same seed,
+/// so the name carries a per-process counter as well as the process id.
 fn tmp(name: &str) -> PathBuf {
-    let d = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(format!(
-        "v2-{name}-{}-{}",
-        std::process::id(),
-        name.len()
-    ));
+    static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+    let n = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let d = PathBuf::from(env!("CARGO_TARGET_TMPDIR"))
+        .join(format!("v2-{name}-{}-{n}", std::process::id()));
     let _ = std::fs::remove_dir_all(&d);
     std::fs::create_dir_all(&d).unwrap();
     d
