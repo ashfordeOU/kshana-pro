@@ -1,0 +1,1112 @@
+{
+  "format": "kshana-pro-receiver-scorecard/1",
+  "kind": "pro-receiver-scorecard",
+  "method": "kshana-pro/receiver-scorecard/v2",
+  "label": "MODELLED verdicts of the open receiver-trust engine and of this scorecard, from MEASURED receiver logs (fix, flags, C/N0), scored under bars stated before scoring. Test evidence for the cases run, under the conditions stated; not a statement about cases not run, and not a certification.",
+  "campaign": {
+    "id": "E3B-HELDOUT-2026-11",
+    "operator": "Kshana Pro (held-out test)",
+    "facility": "Desk run on MODELLED analogues (new seeds)",
+    "dates": "2026-11-16"
+  },
+  "receiver": {
+    "maker": "Kshana open engine",
+    "model": "Synthetic NMEA receiver model (kshana::nmea_synth)",
+    "firmware": "kshana 0.41.0",
+    "antenna": null,
+    "notes": "A modelled receiver, used to test the scorecard method on held-out synthetic cases. Not a product."
+  },
+  "bars": {
+    "fixed_utc": "2026-11-15T13:00:00Z",
+    "misleading_error_m": 50.0,
+    "misleading_time_error_s": 0.5,
+    "max_recovery_s": 120.0,
+    "recovery_hold_s": 10.0,
+    "bounded_error_m": 500.0,
+    "bounded_time_error_s": 1.0,
+    "bounded_min_availability": 0.5,
+    "full_error_m": 20.0,
+    "full_min_availability": 0.99,
+    "monitor_counts_as_warning": false
+  },
+  "bars_sha256": "0d4403aee6d4938d22fab67614fc4501849daec7ff3a067b79e2f95e2a4694f8",
+  "campaign_sha256": "71e5e9261dc65fc8edd5ba3779c65e9bbb5f9ecaf0b8f009869e3a3f7269fa9d",
+  "engine": {
+    "open_engine": "kshana 0.41.0",
+    "pro": "kshana-pro 0.2.0",
+    "threat_library": "2026-11"
+  },
+  "cases": [
+    {
+      "id": "baltic-gof",
+      "title": "Gulf of Finland: wide-area GNSS jamming on a vessel transit",
+      "source": "library:baltic-gulf-of-finland-jamming",
+      "threat": [
+        "jamming"
+      ],
+      "log_sha256": "31123f1ad3ee9cbe62605ab63568fda8144fa94abd77bf5100349a4cb4792dd7",
+      "epochs": 1801,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Wide-area jamming",
+          "kind": "jamming",
+          "onset_s": 420.0,
+          "end_s": 1500.0,
+          "monitor_outcome": "late",
+          "monitor_latency_s": 61.0,
+          "monitor_first": [
+            "cn0-drop"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 1081,
+          "window_fix_epochs": 293,
+          "max_error_m": 30.8,
+          "p95_error_m": 20.9,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 0,
+          "misleading_unmonitored": 0,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 470,
+        "monitor_false_alarm_epochs": 159,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 4.8
+      },
+      "fix_availability": 0.271,
+      "max_error_m": 30.8,
+      "max_time_error_s": 0.0,
+      "misleading": {
+        "unwarned_epochs": 0,
+        "unmonitored_epochs": 0
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "baltic-tartu",
+      "title": "Tartu, Estonia: GNSS interference at an airport without a non-GNSS approach",
+      "source": "library:baltic-tartu-approach-jamming",
+      "threat": [
+        "jamming"
+      ],
+      "log_sha256": "0455f12bcac9cedacd825a6282fccf0d74034ee8b4b07636f976700fe56762cf",
+      "epochs": 1801,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Interference episode 1",
+          "kind": "jamming",
+          "onset_s": 360.0,
+          "end_s": 780.0,
+          "monitor_outcome": "late",
+          "monitor_latency_s": 15.0,
+          "monitor_first": [
+            "cn0-drop"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 421,
+          "window_fix_epochs": 89,
+          "max_error_m": 18.7,
+          "p95_error_m": 15.6,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 0,
+          "misleading_unmonitored": 0,
+          "recovery_s": 0.0,
+          "recovered": true
+        },
+        {
+          "label": "Interference episode 2",
+          "kind": "jamming",
+          "onset_s": 1080.0,
+          "end_s": 1620.0,
+          "monitor_outcome": "late",
+          "monitor_latency_s": 11.0,
+          "monitor_first": [
+            "cn0-drop"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 541,
+          "window_fix_epochs": 58,
+          "max_error_m": 15.7,
+          "p95_error_m": 14.4,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 0,
+          "misleading_unmonitored": 0,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 459,
+        "monitor_false_alarm_epochs": 0,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 6.2
+      },
+      "fix_availability": 0.153,
+      "max_error_m": 18.7,
+      "max_time_error_s": 0.0,
+      "misleading": {
+        "unwarned_epochs": 0,
+        "unmonitored_epochs": 0
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "hormuz-displacement",
+      "title": "Strait of Hormuz: vessel positions displaced by GNSS interference",
+      "source": "library:hormuz-position-displacement",
+      "threat": [
+        "spoofing"
+      ],
+      "log_sha256": "dbcbf147f8122cc39f3b3f401ce2149ff725a8cc91e62e9533cc156ce3ded399",
+      "epochs": 1801,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Position displaced",
+          "kind": "spoofing",
+          "onset_s": 420.0,
+          "end_s": 1320.0,
+          "monitor_outcome": "detected",
+          "monitor_latency_s": 1.0,
+          "monitor_first": [
+            "cn0-spread",
+            "cn0-rise"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 901,
+          "window_fix_epochs": 901,
+          "max_error_m": 8004.9,
+          "p95_error_m": 8002.9,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 871,
+          "misleading_unmonitored": 0,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 650,
+        "monitor_false_alarm_epochs": 342,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 4.6
+      },
+      "fix_availability": 1.0,
+      "max_error_m": 8004.9,
+      "max_time_error_s": 0.0,
+      "misleading": {
+        "unwarned_epochs": 871,
+        "unmonitored_epochs": 0
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "hormuz-meaconing",
+      "title": "Strait of Hormuz: re-broadcast (meaconing-like) delay of position and time",
+      "source": "library:hormuz-meaconing-delay",
+      "threat": [
+        "meaconing"
+      ],
+      "log_sha256": "b71af81dbb2e81495e84a97a19da0742cc800e65d1d801bfe3e4cbc5b3376eac",
+      "epochs": 1501,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Re-broadcast delay",
+          "kind": "spoofing",
+          "onset_s": 400.0,
+          "end_s": 880.0,
+          "monitor_outcome": "late",
+          "monitor_latency_s": 25.2,
+          "monitor_first": [
+            "kinematic"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 481,
+          "window_fix_epochs": 481,
+          "max_error_m": 137.6,
+          "p95_error_m": 135.9,
+          "max_time_error_s": 20.0,
+          "misleading_unwarned": 468,
+          "misleading_unmonitored": 367,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 770,
+        "monitor_false_alarm_epochs": 0,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 3.8
+      },
+      "fix_availability": 1.0,
+      "max_error_m": 137.6,
+      "max_time_error_s": 20.0,
+      "misleading": {
+        "unwarned_epochs": 468,
+        "unmonitored_epochs": 367
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "red-sea-jamming",
+      "title": "Southern Red Sea and Bab el-Mandeb: GNSS jamming on a transit",
+      "source": "library:red-sea-bab-el-mandeb-jamming",
+      "threat": [
+        "jamming"
+      ],
+      "log_sha256": "4615af43a4d739f87fcc185d8e24d01ed3235a1dc031c657e75e69552d98a5dd",
+      "epochs": 1801,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Partial jamming",
+          "kind": "jamming",
+          "onset_s": 360.0,
+          "end_s": 1560.0,
+          "monitor_outcome": "late",
+          "monitor_latency_s": 46.0,
+          "monitor_first": [
+            "cn0-drop"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 1201,
+          "window_fix_epochs": 259,
+          "max_error_m": 17.1,
+          "p95_error_m": 7.7,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 0,
+          "misleading_unmonitored": 0,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 350,
+        "monitor_false_alarm_epochs": 0,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 4.4
+      },
+      "fix_availability": 0.216,
+      "max_error_m": 17.1,
+      "max_time_error_s": 0.0,
+      "misleading": {
+        "unwarned_epochs": 0,
+        "unmonitored_epochs": 0
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "red-sea-jam-then-drag",
+      "title": "Red Sea: jamming followed by a counterfeit fix",
+      "source": "library:red-sea-jamming-then-drag-off",
+      "threat": [
+        "jamming",
+        "spoofing"
+      ],
+      "log_sha256": "50faa86978bdbd8b633925591bb9bcac636f1eca54f6b2ab4d20d88bdae547f5",
+      "epochs": 1801,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Jamming before capture",
+          "kind": "jamming",
+          "onset_s": 360.0,
+          "end_s": 660.0,
+          "monitor_outcome": "detected",
+          "monitor_latency_s": 6.0,
+          "monitor_first": [
+            "cn0-drop"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 301,
+          "window_fix_epochs": 18,
+          "max_error_m": 7.0,
+          "p95_error_m": 7.0,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 0,
+          "misleading_unmonitored": 0,
+          "recovery_s": 7.0,
+          "recovered": true
+        },
+        {
+          "label": "Counterfeit fix after re-acquisition",
+          "kind": "spoofing",
+          "onset_s": 700.0,
+          "end_s": 1300.0,
+          "monitor_outcome": "detected",
+          "monitor_latency_s": 1.0,
+          "monitor_first": [
+            "cn0-spread",
+            "cn0-rise"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 601,
+          "window_fix_epochs": 601,
+          "max_error_m": 3002.1,
+          "p95_error_m": 3000.8,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 563,
+          "misleading_unmonitored": 0,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 610,
+        "monitor_false_alarm_epochs": 0,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 2.9
+      },
+      "fix_availability": 0.686,
+      "max_error_m": 3002.1,
+      "max_time_error_s": 0.0,
+      "misleading": {
+        "unwarned_epochs": 563,
+        "unmonitored_epochs": 0
+      },
+      "recovery_s": 7.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "jammertest-steps",
+      "title": "JammerTest, Andøya: stepped-power jamming of a static receiver",
+      "source": "library:jammertest-stepped-power-jamming",
+      "threat": [
+        "jamming"
+      ],
+      "log_sha256": "096d03f569bf77797e2d202a52aff8440575905d4ce00a5ef9f09e6dc738b4aa",
+      "epochs": 1801,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Step 1 (low)",
+          "kind": "jamming",
+          "onset_s": 300.0,
+          "end_s": 545.0,
+          "monitor_outcome": "detected",
+          "monitor_latency_s": 3.0,
+          "monitor_first": [
+            "cn0-drop"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 246,
+          "window_fix_epochs": 246,
+          "max_error_m": 5.5,
+          "p95_error_m": 4.9,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 0,
+          "misleading_unmonitored": 0,
+          "recovery_s": 0.0,
+          "recovered": true
+        },
+        {
+          "label": "Step 2 (medium)",
+          "kind": "jamming",
+          "onset_s": 660.0,
+          "end_s": 905.0,
+          "monitor_outcome": "detected",
+          "monitor_latency_s": 2.0,
+          "monitor_first": [
+            "cn0-drop"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 246,
+          "window_fix_epochs": 4,
+          "max_error_m": 1.4,
+          "p95_error_m": 1.4,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 0,
+          "misleading_unmonitored": 0,
+          "recovery_s": 4.0,
+          "recovered": true
+        },
+        {
+          "label": "Step 3 (high)",
+          "kind": "jamming",
+          "onset_s": 1020.0,
+          "end_s": 1265.0,
+          "monitor_outcome": "detected",
+          "monitor_latency_s": 1.0,
+          "monitor_first": [
+            "cn0-drop"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 246,
+          "window_fix_epochs": 3,
+          "max_error_m": 2.8,
+          "p95_error_m": 2.8,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 0,
+          "misleading_unmonitored": 0,
+          "recovery_s": 5.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 585,
+        "monitor_false_alarm_epochs": 0,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 5.5
+      },
+      "fix_availability": 0.343,
+      "max_error_m": 5.5,
+      "max_time_error_s": 0.0,
+      "misleading": {
+        "unwarned_epochs": 0,
+        "unmonitored_epochs": 0
+      },
+      "recovery_s": 5.0,
+      "levels": {
+        "l1": "met",
+        "l2": "met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "jammertest-position",
+      "title": "JammerTest, Andøya: position spoofing of a moving receiver at sea",
+      "source": "library:jammertest-position-spoofing",
+      "threat": [
+        "spoofing"
+      ],
+      "log_sha256": "a11e163a25031e5d2b65c6a274adc6971227a74aac9f6d53b1abe7d01783aa0d",
+      "epochs": 1501,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Position spoofing",
+          "kind": "spoofing",
+          "onset_s": 360.0,
+          "end_s": 960.0,
+          "monitor_outcome": "late",
+          "monitor_latency_s": 19.0,
+          "monitor_first": [
+            "heading-course"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 601,
+          "window_fix_epochs": 601,
+          "max_error_m": 2004.3,
+          "p95_error_m": 2001.0,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 566,
+          "misleading_unmonitored": 248,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 650,
+        "monitor_false_alarm_epochs": 0,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 8.6
+      },
+      "fix_availability": 1.0,
+      "max_error_m": 2004.3,
+      "max_time_error_s": 0.0,
+      "misleading": {
+        "unwarned_epochs": 566,
+        "unmonitored_epochs": 248
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "jammertest-time",
+      "title": "JammerTest, Andøya: time spoofing of a timing receiver",
+      "source": "library:jammertest-time-spoofing",
+      "threat": [
+        "time-spoofing"
+      ],
+      "log_sha256": "4384139e55dfd48999b5f70aa47512fbb601df3dd0bbd64628a0ff662b79d781",
+      "epochs": 1501,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Time spoofing",
+          "kind": "spoofing",
+          "onset_s": 420.0,
+          "end_s": 1020.0,
+          "monitor_outcome": "missed",
+          "monitor_latency_s": null,
+          "monitor_first": [],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 601,
+          "window_fix_epochs": 601,
+          "max_error_m": 5.6,
+          "p95_error_m": 3.7,
+          "max_time_error_s": 2.0,
+          "misleading_unwarned": 569,
+          "misleading_unmonitored": 569,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 650,
+        "monitor_false_alarm_epochs": 0,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 5.8
+      },
+      "fix_availability": 1.0,
+      "max_error_m": 5.6,
+      "max_time_error_s": 2.0,
+      "misleading": {
+        "unwarned_epochs": 569,
+        "unmonitored_epochs": 569
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "texbat-ds3-analogue",
+      "title": "TEXBAT ds3: matched-power time push on a static receiver",
+      "source": "library:texbat-ds3-matched-power-time-push",
+      "threat": [
+        "spoofing",
+        "time-spoofing"
+      ],
+      "log_sha256": "3c961d1d451a9275d1bc12ff8bf8e59df2164c2febcd2e2469bd65eb34ebe5d3",
+      "epochs": 1501,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Matched-power time push",
+          "kind": "spoofing",
+          "onset_s": 420.0,
+          "end_s": 1020.0,
+          "monitor_outcome": "missed",
+          "monitor_latency_s": null,
+          "monitor_first": [],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 601,
+          "window_fix_epochs": 601,
+          "max_error_m": 6.4,
+          "p95_error_m": 5.1,
+          "max_time_error_s": 1.0,
+          "misleading_unwarned": 509,
+          "misleading_unmonitored": 509,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 650,
+        "monitor_false_alarm_epochs": 10,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 5.8
+      },
+      "fix_availability": 1.0,
+      "max_error_m": 6.4,
+      "max_time_error_s": 1.0,
+      "misleading": {
+        "unwarned_epochs": 509,
+        "unmonitored_epochs": 509
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "texbat-ds4-analogue",
+      "title": "TEXBAT ds4: matched-power position push on a static receiver",
+      "source": "library:texbat-ds4-matched-power-position-push",
+      "threat": [
+        "spoofing"
+      ],
+      "log_sha256": "0299246220f4c5f6c5db08e5bacb7045af2bab09545cb9c3c61a9d11dfdcfa00",
+      "epochs": 1501,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Matched-power position push",
+          "kind": "spoofing",
+          "onset_s": 420.0,
+          "end_s": 1020.0,
+          "monitor_outcome": "late",
+          "monitor_latency_s": 54.0,
+          "monitor_first": [
+            "position-jump"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 601,
+          "window_fix_epochs": 601,
+          "max_error_m": 604.1,
+          "p95_error_m": 602.8,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 545,
+          "misleading_unmonitored": 0,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 650,
+        "monitor_false_alarm_epochs": 0,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 3.9
+      },
+      "fix_availability": 1.0,
+      "max_error_m": 604.1,
+      "max_time_error_s": 0.0,
+      "misleading": {
+        "unwarned_epochs": 545,
+        "unmonitored_epochs": 0
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "drag-off-0p5km",
+      "title": "E3b held-out: drag-off to 0.5 km (variant of the Hormuz displacement analogue)",
+      "source": "library:e3b-drag-off-0p5km",
+      "threat": [
+        "spoofing"
+      ],
+      "log_sha256": "05b7ef61c709a16250deaebe44861b643bc84c1bf2e156692fcd10dded44dabc",
+      "epochs": 1801,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Position displaced",
+          "kind": "spoofing",
+          "onset_s": 420.0,
+          "end_s": 1320.0,
+          "monitor_outcome": "detected",
+          "monitor_latency_s": 1.0,
+          "monitor_first": [
+            "cn0-spread",
+            "cn0-rise"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 901,
+          "window_fix_epochs": 901,
+          "max_error_m": 505.7,
+          "p95_error_m": 502.3,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 788,
+          "misleading_unmonitored": 0,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 650,
+        "monitor_false_alarm_epochs": 342,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 4.5
+      },
+      "fix_availability": 1.0,
+      "max_error_m": 505.7,
+      "max_time_error_s": 0.0,
+      "misleading": {
+        "unwarned_epochs": 788,
+        "unmonitored_epochs": 0
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "drag-off-3km",
+      "title": "E3b held-out: drag-off to 3 km (variant of the Hormuz displacement analogue)",
+      "source": "library:e3b-drag-off-3km",
+      "threat": [
+        "spoofing"
+      ],
+      "log_sha256": "c4502163e74842d6a2bfabc8f61c314089ad89a10e25451b5920b4364118361b",
+      "epochs": 1801,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Position displaced",
+          "kind": "spoofing",
+          "onset_s": 420.0,
+          "end_s": 1320.0,
+          "monitor_outcome": "detected",
+          "monitor_latency_s": 1.0,
+          "monitor_first": [
+            "cn0-spread"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 901,
+          "window_fix_epochs": 901,
+          "max_error_m": 3004.2,
+          "p95_error_m": 3002.2,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 852,
+          "misleading_unmonitored": 0,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 650,
+        "monitor_false_alarm_epochs": 342,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 4.0
+      },
+      "fix_availability": 1.0,
+      "max_error_m": 3004.2,
+      "max_time_error_s": 0.0,
+      "misleading": {
+        "unwarned_epochs": 852,
+        "unmonitored_epochs": 0
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "drag-off-12km",
+      "title": "E3b held-out: drag-off to 12 km (variant of the Hormuz displacement analogue)",
+      "source": "library:e3b-drag-off-12km",
+      "threat": [
+        "spoofing"
+      ],
+      "log_sha256": "bf857730cb8088562e81ead906db3689cba68a11097b767049f89b4c8ac5994a",
+      "epochs": 1801,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Position displaced",
+          "kind": "spoofing",
+          "onset_s": 420.0,
+          "end_s": 1320.0,
+          "monitor_outcome": "detected",
+          "monitor_latency_s": 1.0,
+          "monitor_first": [
+            "cn0-spread",
+            "cn0-rise"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 901,
+          "window_fix_epochs": 901,
+          "max_error_m": 12005.6,
+          "p95_error_m": 12003.2,
+          "max_time_error_s": 0.0,
+          "misleading_unwarned": 876,
+          "misleading_unmonitored": 0,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 650,
+        "monitor_false_alarm_epochs": 342,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 5.4
+      },
+      "fix_availability": 1.0,
+      "max_error_m": 12005.6,
+      "max_time_error_s": 0.0,
+      "misleading": {
+        "unwarned_epochs": 876,
+        "unmonitored_epochs": 0
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "meaconing-8s",
+      "title": "E3b held-out: re-broadcast delay growing to 8 s (variant of the Hormuz meaconing analogue)",
+      "source": "library:e3b-meaconing-8s",
+      "threat": [
+        "meaconing"
+      ],
+      "log_sha256": "8cbd680318b1d37ac47433a70bd959eb9e13f298a09406b4a0fed2e2ba297bea",
+      "epochs": 1501,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Re-broadcast delay",
+          "kind": "spoofing",
+          "onset_s": 400.0,
+          "end_s": 880.0,
+          "monitor_outcome": "late",
+          "monitor_latency_s": 40.6,
+          "monitor_first": [
+            "kinematic"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 481,
+          "window_fix_epochs": 481,
+          "max_error_m": 56.2,
+          "p95_error_m": 55.0,
+          "max_time_error_s": 8.0,
+          "misleading_unwarned": 461,
+          "misleading_unmonitored": 395,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 770,
+        "monitor_false_alarm_epochs": 0,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 5.8
+      },
+      "fix_availability": 1.0,
+      "max_error_m": 56.2,
+      "max_time_error_s": 8.0,
+      "misleading": {
+        "unwarned_epochs": 461,
+        "unmonitored_epochs": 395
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    },
+    {
+      "id": "meaconing-30s",
+      "title": "E3b held-out: re-broadcast delay growing to 30 s (variant of the Hormuz meaconing analogue)",
+      "source": "library:e3b-meaconing-30s",
+      "threat": [
+        "meaconing"
+      ],
+      "log_sha256": "1276395be88d639130e303e4c2552bc3e5d10ff17f682d14d7657706932a9b21",
+      "epochs": 1501,
+      "truth": "analogue",
+      "events": [
+        {
+          "label": "Re-broadcast delay",
+          "kind": "spoofing",
+          "onset_s": 400.0,
+          "end_s": 880.0,
+          "monitor_outcome": "late",
+          "monitor_latency_s": 17.8,
+          "monitor_first": [
+            "speed-log"
+          ],
+          "receiver_flag_latency_s": null,
+          "window_epochs": 481,
+          "window_fix_epochs": 481,
+          "max_error_m": 204.6,
+          "p95_error_m": 203.6,
+          "max_time_error_s": 30.0,
+          "misleading_unwarned": 470,
+          "misleading_unmonitored": 359,
+          "recovery_s": 0.0,
+          "recovered": true
+        }
+      ],
+      "clean": {
+        "epochs": 770,
+        "monitor_false_alarm_epochs": 0,
+        "receiver_flag_epochs": 0,
+        "p95_error_m": 4.0
+      },
+      "fix_availability": 1.0,
+      "max_error_m": 204.6,
+      "max_time_error_s": 30.0,
+      "misleading": {
+        "unwarned_epochs": 470,
+        "unmonitored_epochs": 359
+      },
+      "recovery_s": 0.0,
+      "levels": {
+        "l1": "met",
+        "l2": "not-met",
+        "l3": "not-met",
+        "l4": "not-met"
+      }
+    }
+  ],
+  "levels": {
+    "framework": "DHS Resilient PNT Conformance Framework (resilience levels 1 to 4), as summarised by Kshana",
+    "wording": "Test evidence mapped to the framework's resilience levels under the bars stated before scoring. It is not a statement that the equipment meets the framework or any standard; the reader applies the framework.",
+    "levels": [
+      {
+        "level": 1,
+        "summary": "Recovers after the threat is removed",
+        "evidence": "supported",
+        "cases_met": 16,
+        "cases_not_met": 0,
+        "cases_not_assessed": 0
+      },
+      {
+        "level": 2,
+        "summary": "Recovers, and gives no misleading output without warning during the threat",
+        "evidence": "not supported",
+        "cases_met": 4,
+        "cases_not_met": 12,
+        "cases_not_assessed": 0
+      },
+      {
+        "level": 3,
+        "summary": "Level 2, and keeps its output within a stated bound during the threat",
+        "evidence": "not supported",
+        "cases_met": 0,
+        "cases_not_met": 16,
+        "cases_not_assessed": 0
+      },
+      {
+        "level": 4,
+        "summary": "Level 3, and keeps full performance during the threat",
+        "evidence": "not supported",
+        "cases_met": 0,
+        "cases_not_met": 16,
+        "cases_not_assessed": 0
+      }
+    ],
+    "highest_supported": 1
+  },
+  "p1952": {
+    "standard": "IEEE P1952, Standard for Resilient Positioning, Navigation, and Timing (PNT) User Equipment (draft)",
+    "status": "A draft standard under development. Topics are mapped by subject only, with no clause numbers, until the standard is published; the mapping will be revised then.",
+    "wording": "Each topic lists the evidence this scorecard carries for it. The evidence is test evidence for the cases run; it is not a statement that the equipment meets the draft or any published standard.",
+    "topics": [
+      {
+        "topic": "Threat detection",
+        "summary": "Whether and how fast the equipment, or a monitor on its output, recognises that a threat is present.",
+        "evidence": [
+          "cases[].events[].receiver_flag_latency_s",
+          "cases[].events[].monitor_outcome",
+          "cases[].events[].monitor_latency_s",
+          "cases[].clean.receiver_flag_epochs",
+          "cases[].clean.monitor_false_alarm_epochs"
+        ]
+      },
+      {
+        "topic": "Output integrity under threat",
+        "summary": "Whether the equipment gives wrong position or time without warning while a threat is present.",
+        "evidence": [
+          "cases[].misleading.unwarned_epochs",
+          "cases[].misleading.unmonitored_epochs",
+          "cases[].events[].max_error_m",
+          "cases[].events[].max_time_error_s"
+        ]
+      },
+      {
+        "topic": "Continuity under threat",
+        "summary": "How much of the threat period the equipment keeps giving a solution, and how far it degrades.",
+        "evidence": [
+          "cases[].fix_availability",
+          "cases[].events[].p95_error_m"
+        ]
+      },
+      {
+        "topic": "Recovery",
+        "summary": "Whether and how fast the equipment returns to correct output after the threat ends.",
+        "evidence": [
+          "cases[].events[].recovered",
+          "cases[].events[].recovery_s"
+        ]
+      },
+      {
+        "topic": "Resilience levels",
+        "summary": "The level the campaign's evidence supports under the stated bars, case by case.",
+        "evidence": [
+          "cases[].levels",
+          "levels"
+        ]
+      },
+      {
+        "topic": "Test conditions and repeatability",
+        "summary": "What was run, on which inputs, under which bars, by which method version.",
+        "evidence": [
+          "campaign_sha256",
+          "bars_sha256",
+          "cases[].log_sha256",
+          "cases[].source",
+          "engine",
+          "method"
+        ]
+      }
+    ]
+  },
+  "totals": {
+    "cases": 16,
+    "events": 20,
+    "monitor_detected": 9,
+    "monitor_late": 9,
+    "monitor_missed": 2,
+    "receiver_flagged": 0,
+    "recovered": 20,
+    "misleading_unwarned_epochs": 7538,
+    "misleading_unmonitored_epochs": 2447
+  },
+  "limits": [
+    "Only the cases listed were run; nothing is said about other threats, powers, signals or receivers.",
+    "Event windows are the stated times (scheduled or scripted), not measured on-air times.",
+    "Monitor verdicts are the open receiver-trust engine's, on the receiver's log; they are MODELLED.",
+    "Library cases score the open engine's synthetic NMEA receiver model on a MODELLED analogue of a published event; they show the method, not the behaviour of any product.",
+    "Method v2: errors are WGS-84 geodesic distances to the truth at each epoch's arrival time (for an analogue, the time the generator emitted the epoch); log cases carry no host arrival timestamps in this format, so their errors are not scored."
+  ]
+}

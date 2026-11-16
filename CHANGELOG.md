@@ -5,6 +5,12 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **0.42 bars, phase 2 (owner approval 16 Nov 2026; docs/evidence/BARS-TO-GREEN-0.42.md).**
+  E3b **met**: receiver scorecard v2 (`kshana-pro/receiver-scorecard/v2`: WGS-84 geodesic error,
+  truth at each epoch's arrival time, per-case `analogue_seed`) on the held-out synthetic campaign
+  (seeds 31001-31016, 20 events): E3-B2 (a) 20/20 within 1.0 m (worst 0.2 m), E3-B2 (b) 20/20,
+  E3-B3 2,447/7,538, E3-B1 met (docs/evidence/e3-receiver-scorecard/E3b_RESULTS.md). The E3 v1
+  miss stays published.
 - **Evidence products (roadmap 0.42 E4, E5, E6, E7; V3, V6; docs/EVIDENCE-PRODUCTS.md).**
   E5 AIS and position integrity scoring: kind `pro-ais-integrity`, `kshana-pro integrity
   score|verify`; per identity the open M4 v3 decision (gaps, identity in two places, AIS
