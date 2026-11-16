@@ -57,6 +57,14 @@ fn real() -> DataSet {
 }
 
 fn real_from(text: &str, name: &'static str) -> DataSet {
+    let ds = real_from_any(text, name);
+    assert_eq!(ds.clocks.len(), 11);
+    ds
+}
+
+/// [`real_from`] without the eleven-clock check (V5c: a clock missing from the files is
+/// reported and left out).
+fn real_from_any(text: &str, name: &'static str) -> DataSet {
     let mut clocks: Vec<(String, Vec<Option<f64>>)> = Vec::new();
     let mut acc = 0i64;
     let mut first = 0.0;
@@ -85,7 +93,6 @@ fn real_from(text: &str, name: &'static str) -> DataSet {
         acc += d;
         clocks.last_mut().unwrap().1[i] = Some(first + acc as f64 * 1e-13);
     }
-    assert_eq!(clocks.len(), 11);
     DataSet {
         name,
         tau0: 300.0,
@@ -364,4 +371,110 @@ fn v5b_scored_as_pre_registered_and_published() {
             "timing::V5B_PASSED must equal the scored V5b outcome"
         );
     }
+}
+
+// ---------------------------------------------------------------------------------------
+// V5c (`2026-11-16_V5c_PREREGISTRATION.md`): `HoldoverModel::fit_harmonic`.
+// ---------------------------------------------------------------------------------------
+
+const RESULTS_C: &str = "docs/evidence/v5-holdover-time-to-breach/V5c_results.json";
+const DEV_C: &str = "docs/evidence/v5-holdover-time-to-breach/V5c_dev.json";
+const CLOCKS_C: &str = "tests/fixtures/timing_v5c_igs/clocks.txt";
+
+fn repo(p: &str) -> std::path::PathBuf {
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(p)
+}
+
+/// V5c development (allowed; committed before D-R3 was downloaded): the V5c predictor on the
+/// four published data sets D-R, D-R2, D-S and D-S2. Write with KSHANA_PRO_V5C_DEV=1.
+#[test]
+fn v5c_dev_on_the_published_data_sets() {
+    if std::env::var_os("KSHANA_PRO_V5C_DEV").is_none() && !repo(DEV_C).exists() {
+        eprintln!("skipped: V5c_dev.json not written yet (KSHANA_PRO_V5C_DEV=1)");
+        return;
+    }
+    let sets = [
+        real(),
+        real_from(
+            CLOCKS_B,
+            "D-R2 (real, IGS GPS IIF rubidium 2025-08-17..30, emulated holdover)",
+        ),
+        synthetic(),
+        synthetic_seed(20261116, "D-S2 (SYNTHETIC, four classes, seed 20261116)"),
+    ];
+    let rows: Vec<serde_json::Value> = sets
+        .iter()
+        .map(|ds| set_json(ds, true, HoldoverModel::fit_harmonic).0)
+        .collect();
+    let doc = serde_json::json!({
+        "format": "kshana-pro-v5-results/1",
+        "what": "V5c development: kshana-pro/holdover/v3 (HoldoverModel::fit_harmonic) on the four published data sets (development data). Not the scored result.",
+        "pre_registration": "2026-11-16_V5c_PREREGISTRATION.md",
+        "data_sets": rows,
+    });
+    let text = serde_json::to_string_pretty(&doc).unwrap() + "\n";
+    for set in doc["data_sets"].as_array().unwrap() {
+        eprintln!("{}: runs {}", set["data_set"], set["runs"]);
+        for b in set["bars"].as_array().unwrap() {
+            eprintln!("  {} {} {}", b["bar"], b["value"], b["verdict"]);
+        }
+    }
+    if std::env::var_os("KSHANA_PRO_V5C_DEV").is_some() {
+        std::fs::write(repo(DEV_C), &text).unwrap();
+    }
+    assert_eq!(
+        std::fs::read_to_string(repo(DEV_C)).unwrap(),
+        text,
+        "V5c_dev.json is stale"
+    );
+}
+
+/// V5c scored once on D-R3 (IGS final clocks 2025-10-05..18) and D-S3 (seed 20261120). With
+/// KSHANA_PRO_V5C_SCORE=1 the run writes `V5c_results.json`; afterwards it recomputes and
+/// compares on every run, and `timing::V5C_PASSED` must equal the outcome.
+#[test]
+fn v5c_scored_as_pre_registered_and_published() {
+    let write = std::env::var_os("KSHANA_PRO_V5C_SCORE").is_some();
+    if !write && !repo(RESULTS_C).exists() {
+        eprintln!("skipped: V5c not scored yet (KSHANA_PRO_V5C_SCORE=1)");
+        return;
+    }
+    let text_c = std::fs::read_to_string(repo(CLOCKS_C)).expect("the D-R3 fixture");
+    let dr3 = real_from_any(
+        &text_c,
+        "D-R3 (real, IGS GPS IIF rubidium 2025-10-05..18, emulated holdover)",
+    );
+    let names: Vec<String> = dr3.clocks.iter().map(|c| c.0.clone()).collect();
+    let ds3 = synthetic_seed(20261120, "D-S3 (SYNTHETIC, four classes, seed 20261120)");
+    let (a, pa) = set_json(&dr3, true, HoldoverModel::fit_harmonic);
+    let (b, pb) = set_json(&ds3, true, HoldoverModel::fit_harmonic);
+    let passed = pa && pb;
+    let doc = serde_json::json!({
+        "format": "kshana-pro-v5-results/1",
+        "pre_registration": "2026-11-16_V5c_PREREGISTRATION.md",
+        "method": "kshana-pro/holdover/v3",
+        "d_r3_clocks": names,
+        "v5c_passed": passed,
+        "data_sets": [a, b],
+    });
+    let text = serde_json::to_string_pretty(&doc).unwrap() + "\n";
+    for set in doc["data_sets"].as_array().unwrap() {
+        eprintln!(
+            "{}: runs {} (excluded {})",
+            set["data_set"], set["runs"], set["excluded_runs"]
+        );
+        for b in set["bars"].as_array().unwrap() {
+            eprintln!("  {} {} {}", b["bar"], b["value"], b["verdict"]);
+        }
+    }
+    if write {
+        std::fs::write(repo(RESULTS_C), &text).unwrap();
+        return;
+    }
+    assert_eq!(
+        std::fs::read_to_string(repo(RESULTS_C)).unwrap(),
+        text,
+        "the published V5c results no longer match the code"
+    );
+    assert_eq!(kshana_pro::timing::V5C_PASSED, passed);
 }

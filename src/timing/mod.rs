@@ -44,6 +44,10 @@ pub const V5_PASSED: bool = false;
 /// on both data sets (`V5b_RESULTS.md`); `tests/timing_v5.rs` keeps it equal to the scored result.
 pub const V5B_PASSED: bool = false;
 
+/// Whether the V5c pre-registered bars passed on D-R3 and D-S3 (`V5c_RESULTS.md`);
+/// `tests/timing_v5.rs` keeps it equal to the scored result once V5c is scored.
+pub const V5C_PASSED: bool = false;
+
 /// The V5 status in words, for labels and reports.
 pub fn v5_status() -> &'static str {
     match (V5_PASSED, V5B_PASSED) {
