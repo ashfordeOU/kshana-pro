@@ -420,3 +420,123 @@ fn e3_b3_what_the_open_monitor_adds_is_as_published() {
     );
     assert_eq!(2 * unmonitored <= unwarned, E3_B3_MET);
 }
+
+// ---------------------------------------------------------------------------------------
+// E3b (docs/evidence/e3-receiver-scorecard/2026-11-16_E3b_PREREGISTRATION.md): method v2,
+// WGS-84 geodesic error and truth at the arrival time.
+// ---------------------------------------------------------------------------------------
+
+/// One event compared with the independent oracle (the generator's instructor log).
+#[derive(serde::Serialize, Clone, Debug)]
+struct OracleRow {
+    case: String,
+    event: String,
+    scorecard_max_error_m: Option<f64>,
+    generator_max_error_m: Option<f64>,
+    abs_difference_m: Option<f64>,
+    b2a_within_1m: bool,
+    scorecard_misleading_unwarned: Option<usize>,
+    generator_misleading: i64,
+    b2b_within_2: bool,
+    misleading_unmonitored: Option<usize>,
+    spoofing: bool,
+}
+
+fn oracle_rows(c: &Campaign, s: &scorecards::Scorecard) -> Vec<OracleRow> {
+    let mut out = Vec::new();
+    for (cs, cr) in c.cases.iter().zip(&s.cases) {
+        assert_eq!(cs.id, cr.id);
+        let sc = scorecards::case_scenario(c, cs).unwrap().unwrap();
+        let an = kshana_pro::threat_library::export::analogue(&sc)
+            .unwrap()
+            .unwrap();
+        let rows = &an.log().track;
+        let end_log = rows.last().unwrap().t_s;
+        for (k, e) in cr.events.iter().enumerate() {
+            let max = rows
+                .iter()
+                .filter(|r| r.t_s >= e.onset_s && r.t_s <= e.end_s && r.fix_valid)
+                .filter_map(|r| r.position_error_m)
+                .fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v))));
+            let (diff, a_ok) = match (max, e.max_error_m) {
+                (Some(o), Some(g)) => (
+                    Some(((o - g).abs() * 1000.0).round() / 1000.0),
+                    (o - g).abs() <= 1.0,
+                ),
+                (None, None) => (None, true),
+                _ => (None, false),
+            };
+            let next = cr
+                .events
+                .get(k + 1)
+                .map(|n| n.onset_s)
+                .unwrap_or(f64::INFINITY);
+            let stop = match (e.recovered, e.recovery_s) {
+                (Some(true), Some(r)) => e.end_s + r,
+                _ => next.min(end_log + 1.0),
+            };
+            let n = rows
+                .iter()
+                .filter(|r| r.t_s >= e.onset_s && r.t_s < stop && r.fix_valid)
+                .filter(|r| {
+                    r.position_error_m
+                        .is_some_and(|d| d > c.bars.misleading_error_m)
+                        || r.time_offset_s.abs() > c.bars.misleading_time_error_s
+                })
+                .count() as i64;
+            let g = e.misleading_unwarned.map(|v| v as i64);
+            out.push(OracleRow {
+                case: cr.id.clone(),
+                event: e.label.clone(),
+                scorecard_max_error_m: e.max_error_m,
+                generator_max_error_m: max,
+                abs_difference_m: diff,
+                b2a_within_1m: a_ok,
+                scorecard_misleading_unwarned: e.misleading_unwarned,
+                generator_misleading: n,
+                b2b_within_2: g.is_some_and(|g| (n - g).abs() <= 2),
+                misleading_unmonitored: e.misleading_unmonitored,
+                spoofing: e.kind == "spoofing",
+            });
+        }
+    }
+    out
+}
+
+/// E3b development (allowed by the pre-registration, published before the held-out campaign
+/// was generated): the E3 public campaign re-scored with method v2. Write the table with
+/// KSHANA_PRO_E3B_DEV_WRITE=1; afterwards the test keeps it equal to the code.
+#[test]
+fn e3b_dev_the_public_campaign_rescored_with_v2_is_as_published() {
+    let (mut c, _) =
+        Campaign::from_file(&root().join("examples/scorecards/public-analogue-campaign.toml"))
+            .unwrap();
+    c.method = Some(scorecards::METHOD_ID_V2.into());
+    let src =
+        std::fs::read_to_string(root().join("examples/scorecards/public-analogue-campaign.toml"))
+            .unwrap();
+    let s = scorecards::score(&c, &src).unwrap();
+    assert_eq!(s.method, scorecards::METHOD_ID_V2);
+    let rows = oracle_rows(&c, &s);
+    let out = serde_json::json!({
+        "what": "E3b development table: the E3 public campaign (development data) re-scored with kshana-pro/receiver-scorecard/v2, against the generator's instructor log. Not the held-out result.",
+        "method": scorecards::METHOD_ID_V2,
+        "events": rows,
+        "b2a_events_within_1m": rows.iter().filter(|r| r.b2a_within_1m).count(),
+        "b2b_events_within_2": rows.iter().filter(|r| r.b2b_within_2).count(),
+        "n_events": rows.len(),
+    });
+    let text = serde_json::to_string_pretty(&out).unwrap() + "\n";
+    let p = root().join("docs/evidence/e3-receiver-scorecard/E3b_dev.json");
+    if std::env::var_os("KSHANA_PRO_E3B_DEV_WRITE").is_some() {
+        std::fs::write(&p, &text).unwrap();
+    }
+    for r in &rows {
+        eprintln!("{r:?}");
+    }
+    assert_eq!(
+        std::fs::read_to_string(&p).unwrap(),
+        text,
+        "E3b_dev.json is stale"
+    );
+}
