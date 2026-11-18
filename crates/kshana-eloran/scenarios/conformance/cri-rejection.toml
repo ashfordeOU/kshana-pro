@@ -1,0 +1,123 @@
+# CONFORMANCE CASE CONF-CRI-01: Cross-rate interference rejection
+#
+# MODELLED ON the kind of test described in eLoran / Loran-C receiver performance standards
+# (RTCM SC-127 Minimum Performance Standards for eLoran receivers; IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing)). The standards' texts were NOT consulted: stimulus levels and limits are
+# ILLUSTRATIVE and must be confirmed (see `to_confirm`). Synthetic geometry (not real
+# stations) unless stated.
+#
+# PURPOSE  Victim chain conf-A with a second chain conf-B (GRI 67310) at increasing power
+#          (interferer-to-victim ratio); CRI arises by true superposition of both chains.
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 400000
+seed = 4
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 55.0
+lon_deg = 3.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+[[time_refs]]
+id = "UTC(B)"
+offset_ns = -30.0
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 260.0
+seed = 4
+
+[[chains]]
+name = "conf-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+power_kw = 400.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+power_kw = 400.0
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 53.8, lon_deg = 5.5 }
+power_kw = 400.0
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"
+
+[[chains]]
+name = "conf-B"
+gri_us = 67310
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 57.5, lon_deg = 4.0 }
+power_kw = 1000.0
+time_ref = "UTC(B)"
+[[chains.stations]]
+id = "W"
+role = "secondary"
+position = { lat_deg = 54.0, lon_deg = -0.5 }
+power_kw = 1000.0
+emission_delay_us = 15000.0
+time_ref = "UTC(B)"
+
+[conformance]
+id = "CONF-CRI-01"
+title = "Cross-rate interference rejection"
+category = "cri_rejection"
+intent = """Victim-chain ToA and cycle identification unaffected by a stronger cross-rate chain."""
+modelled_on = ["RTCM SC-127 Minimum Performance Standards for eLoran receivers — cross-rate interference (text not consulted)", "IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing) — interference from other Loran-C chains (text not consulted)"]
+to_confirm = ["test procedure and stimulus definitions of the governing standard", "noise definition (bandwidth, field vs voltage reference, atmospheric vs Gaussian)", "pass limits (all limits here are ILLUSTRATIVE)", "interferer GRI(s), levels and timing relation", "whether blanking may be assumed"]
+requirements = ["REQ-RX-CRI"]
+interferers = ["conf-B"]
+
+[[conformance.variations]]
+label = "cri-1MW"
+stimulus = { interferer_power_kw = 1000 }
+set = { "chains[1].stations[0].power_kw" = 1000.0, "chains[1].stations[1].power_kw" = 1000.0 }
+
+[[conformance.variations]]
+label = "cri-10MW"
+stimulus = { interferer_power_kw = 10000 }
+set = { "chains[1].stations[0].power_kw" = 10000.0, "chains[1].stations[1].power_kw" = 10000.0 }
+
+[[conformance.criteria]]
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "toa_rms_ns"
+op = "le"
+limit = 50.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true

@@ -1,0 +1,106 @@
+# CONFORMANCE CASE CONF-DYN-01: Dynamics: ship speed
+#
+# MODELLED ON the kind of test described in eLoran / Loran-C receiver performance standards
+# (RTCM SC-127 Minimum Performance Standards for eLoran receivers; IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing)). The standards' texts were NOT consulted: stimulus levels and limits are
+# ILLUSTRATIVE and must be confirmed (see `to_confirm`). Synthetic geometry (not real
+# stations) unless stated.
+#
+# PURPOSE  Receiver moving north at 15 m/s (about 29 kn). Scored on ToA error vs truth per tracking
+#          window and cycle slips (the batch receiver assumes a constant arrival per window).
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 400000
+seed = 11
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "waypoints"
+points = [
+  { t_s = 0.0, lat_deg = 55.0, lon_deg = 3.0 },
+  { t_s = 3600.0, lat_deg = 55.485612, lon_deg = 3.0 },
+]
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 0.0
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 2600.0
+seed = 11
+
+[[chains]]
+name = "conf-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+power_kw = 400.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+power_kw = 400.0
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 53.8, lon_deg = 5.5 }
+power_kw = 400.0
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"
+
+[conformance]
+id = "CONF-DYN-01"
+title = "Dynamics: ship speed"
+category = "dynamics"
+intent = """Tracking without cycle slips and with bounded ToA error at ship speed."""
+modelled_on = ["RTCM SC-127 Minimum Performance Standards for eLoran receivers — dynamic performance (text not consulted)", "IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing) — performance under ship motion (text not consulted)"]
+to_confirm = ["test procedure and stimulus definitions of the governing standard", "noise definition (bandwidth, field vs voltage reference, atmospheric vs Gaussian)", "pass limits (all limits here are ILLUSTRATIVE)", "speed/acceleration/turn profiles", "whether position-domain accuracy under motion is required"]
+requirements = ["REQ-RX-DYN"]
+
+[[conformance.variations]]
+label = "15mps"
+stimulus = { speed_mps = 15 }
+set = {  }
+
+[[conformance.criteria]]
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "toa_rms_ns"
+op = "le"
+limit = 50.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "cycle_slips"
+op = "eq"
+limit = 0.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true

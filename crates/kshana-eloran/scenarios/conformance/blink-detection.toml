@@ -1,0 +1,100 @@
+# CONFORMANCE CASE CONF-BLK-01: Blink detection
+#
+# MODELLED ON the kind of test described in eLoran / Loran-C receiver performance standards
+# (RTCM SC-127 Minimum Performance Standards for eLoran receivers; IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing)). The standards' texts were NOT consulted: stimulus levels and limits are
+# ILLUSTRATIVE and must be confirmed (see `to_confirm`). Synthetic geometry (not real
+# stations) unless stated.
+#
+# PURPOSE  Station X blinks (pulses 1-2 omitted, the LORAN-C unusable warning) from 0.4 to 0.8 s.
+#          The software receiver has no built-in blink flag: this case scores the group-amplitude
+#          blink detector of campaign::conformance (pulses 1-2 vs 3-8 from Receiver::pulse_timing).
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 400000
+seed = 10
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 55.0
+lon_deg = 3.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 0.0
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 2600.0
+seed = 10
+
+[[chains]]
+name = "conf-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+power_kw = 400.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+faults = [ { type = "blink", from_s = 0.4, to_s = 0.8 } ]
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+power_kw = 400.0
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 53.8, lon_deg = 5.5 }
+power_kw = 400.0
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"
+
+[conformance]
+id = "CONF-BLK-01"
+title = "Blink detection"
+category = "blink_detection"
+intent = """Blinking groups detected; no false blink declarations on normal groups."""
+modelled_on = ["RTCM SC-127 Minimum Performance Standards for eLoran receivers — blink detection / signal integrity (text not consulted)", "IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing) — blink alarm (text not consulted)"]
+to_confirm = ["test procedure and stimulus definitions of the governing standard", "noise definition (bandwidth, field vs voltage reference, atmospheric vs Gaussian)", "pass limits (all limits here are ILLUSTRATIVE)", "blink pattern of the governing signal specification (the simulator omits pulses 1-2)", "required detection time and false-alarm rate"]
+requirements = ["REQ-RX-BLINK"]
+targets = ["conf-A/X"]
+
+[[conformance.variations]]
+label = "snr20"
+stimulus = { snr_nominal_db = 20 }
+set = { "interference[0].rms_uv_m_20khz" = 2600.0 }
+
+[[conformance.variations]]
+label = "snr10"
+stimulus = { snr_nominal_db = 10 }
+set = { "interference[0].rms_uv_m_20khz" = 8221.9 }
+
+[[conformance.criteria]]
+metric = "blink_detection_rate"
+op = "ge"
+limit = 0.9
+illustrative = true
+
+[[conformance.criteria]]
+metric = "blink_false_alarm_rate"
+op = "le"
+limit = 0.05
+illustrative = true

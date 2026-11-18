@@ -1,0 +1,82 @@
+# CONFORMANCE CASE CONF-LDC-02: Data channel decoding (9th pulse)
+#
+# MODELLED ON the kind of test described in eLoran / Loran-C receiver performance standards
+# (RTCM SC-127 Minimum Performance Standards for eLoran receivers). The standards' texts were NOT consulted: stimulus levels and limits are
+# ILLUSTRATIVE and must be confirmed (see `to_confirm`). Synthetic geometry (not real
+# stations) unless stated.
+#
+# PURPOSE  Decode the 9th-pulse data channel (MODELLED format) through the software receiver.
+#          Several seconds of signal are needed: not run in CI.
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 6.0
+fs_hz = 400000
+seed = 9
+output_scale_uv_m = 200000.0
+
+[receiver]
+type = "static"
+lat_deg = 53.5
+lon_deg = 2.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 4.0
+
+[propagation.ground]
+model = "simple"
+
+[[chains]]
+name = "chain-N"
+gri_us = 59900
+# gri_us inside the ldc table is optional (the chain's GRI is used); it is stated here only
+# to show the override, which must equal the chain's gri_us.
+ldc = { scheme = "ninth_pulse", gri_us = 59900, auth_key_hex = "4b5348414e412d4c44432d544553542d4b4559", schedule = [
+  { type = "station_id", chain_id = 2 },
+  { type = "utc_time", tai_minus_utc_s = 37 },
+  { type = "auth", key_id = 1, tag_bytes = 4 },
+] }
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 54.9, lon_deg = -3.3 }
+power_kw = 250.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 57.0, lon_deg = 9.5 }
+power_kw = 250.0
+emission_delay_us = 14000.0
+time_ref = "UTC(A)"
+
+[conformance]
+id = "CONF-LDC-02"
+title = "Data channel decoding (9th pulse)"
+category = "data_channel"
+intent = """Messages decoded with no authentication failures."""
+modelled_on = ["RTCM SC-127 Minimum Performance Standards for eLoran receivers — LORAN data channel decoding (text not consulted)"]
+to_confirm = ["test procedure and stimulus definitions of the governing standard", "noise definition (bandwidth, field vs voltage reference, atmospheric vs Gaussian)", "pass limits (all limits here are ILLUSTRATIVE)", "9th-pulse LDC format (MODELLED, not confirmed)", "message error rate requirement and SNR"]
+requirements = ["REQ-RX-LDC"]
+[conformance.receiver]
+ldc = true
+
+[[conformance.variations]]
+label = "clean"
+stimulus = { noise_uv_m = 0 }
+set = {  }
+
+[[conformance.criteria]]
+metric = "ldc_messages"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "ldc_auth_failures"
+op = "eq"
+limit = 0.0
+illustrative = true

@@ -1,0 +1,118 @@
+# CONFORMANCE CASE CONF-CW-02: CW interference vs frequency offset
+#
+# MODELLED ON the kind of test described in eLoran / Loran-C receiver performance standards
+# (RTCM SC-127 Minimum Performance Standards for eLoran receivers; IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing)). The standards' texts were NOT consulted: stimulus levels and limits are
+# ILLUSTRATIVE and must be confirmed (see `to_confirm`). Synthetic geometry (not real
+# stations) unless stated.
+#
+# PURPOSE  A strong CW tone (50 mV/m) at near-band and out-of-band frequencies; out-of-band
+#          tones are attenuated by the 90-110 kHz front end.
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 400000
+seed = 6
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 55.0
+lon_deg = 3.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 0.0
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 260.0
+seed = 6
+
+[[interference]]
+type = "cw"
+freq_hz = 85000.0
+rms_uv_m = 50000.0
+
+[[chains]]
+name = "conf-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+power_kw = 400.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+power_kw = 400.0
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 53.8, lon_deg = 5.5 }
+power_kw = 400.0
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"
+
+[conformance]
+id = "CONF-CW-02"
+title = "CW interference vs frequency offset"
+category = "cw_rejection"
+intent = """Out-of-band CW rejected by the front end."""
+modelled_on = ["RTCM SC-127 Minimum Performance Standards for eLoran receivers — CW interference (text not consulted)", "IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing) — continuous wave interference (text not consulted)"]
+to_confirm = ["test procedure and stimulus definitions of the governing standard", "noise definition (bandwidth, field vs voltage reference, atmospheric vs Gaussian)", "pass limits (all limits here are ILLUSTRATIVE)", "test frequencies and levels per frequency"]
+requirements = ["REQ-RX-CW"]
+
+[[conformance.variations]]
+label = "cw-70k"
+stimulus = { cw_freq_hz = 70000 }
+set = { "interference[1].freq_hz" = 70000.0 }
+
+[[conformance.variations]]
+label = "cw-85k"
+stimulus = { cw_freq_hz = 85000 }
+set = { "interference[1].freq_hz" = 85000.0 }
+
+[[conformance.variations]]
+label = "cw-112k5"
+stimulus = { cw_freq_hz = 112500 }
+set = { "interference[1].freq_hz" = 112500.0 }
+
+[[conformance.variations]]
+label = "cw-130k"
+stimulus = { cw_freq_hz = 130000 }
+set = { "interference[1].freq_hz" = 130000.0 }
+
+[[conformance.criteria]]
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "toa_rms_ns"
+op = "le"
+limit = 50.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true

@@ -18,7 +18,9 @@
 //! * [`scenario`]: TOML scenarios;
 //! * [`instr`]: bench instrument automation (TCP/serial, role drivers, TAPR TICC, evidence log);
 //! * [`accept`]: calibration wizards and the hardware acceptance suite with RVM output;
-//! * [`calreg`]: the hash-chained calibration register.
+//! * [`calreg`]: the hash-chained calibration register;
+//! * [`field`]: unattended LF recording stations and receiver log importers;
+//! * [`campaign`]: conformance test library and validation campaign runner.
 //!
 //! Evidence labels follow the Kshana convention: a model is VALIDATED only where an
 //! independent external reference backs it (see `docs/VALIDATION.md` of this crate).
@@ -26,8 +28,10 @@
 pub mod accept;
 pub mod antenna;
 pub mod calreg;
+pub mod campaign;
 pub mod chain;
 pub mod dloran;
+pub mod field;
 pub mod geo;
 pub mod gridb;
 pub mod hw;
