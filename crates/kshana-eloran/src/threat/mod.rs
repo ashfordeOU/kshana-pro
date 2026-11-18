@@ -550,14 +550,16 @@ impl DataChannelAttack {
     /// be caught (a wrong-key tag fails; an absent tag leaves the data unauthenticated).
     pub fn check(&self, genuine_key: &[u8]) -> (Vec<AuthCheck>, bool) {
         let rep = self.decode_report();
-        let dec = LdcDecoder {
-            name: "auth-check".into(),
-            codec: forged_codec(),
-            mapper: forged_mapper(),
-            data_pulse: None,
-            stations: None,
-            auth_key: genuine_key.to_vec(),
-        };
+        let mut dec = LdcDecoder::new(&LdcConfig::ninth_pulse(Default::default()))
+            .expect("the 9th-pulse profile compiles")
+            .expect("the 9th-pulse profile modulates")
+            .with_auth_key(genuine_key);
+        // verify_auth uses neither the codec nor the mapper; keep the placeholders explicit
+        dec.name = "auth-check".into();
+        dec.codec = forged_codec();
+        dec.mapper = forged_mapper();
+        dec.data_pulse = None;
+        dec.stations = None;
         let checks = dec.verify_auth(self.station, &rep, self.first_frame);
         let caught = match &self.auth {
             ForgedAuth::Absent => true, // no auth message present → data is unauthenticated

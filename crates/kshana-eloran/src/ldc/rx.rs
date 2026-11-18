@@ -74,6 +74,13 @@ pub struct LdcDecoder {
 }
 
 impl LdcDecoder {
+    /// The same decoder checking authentication tags with `key` (e.g. the genuine key when
+    /// testing forged messages).
+    pub fn with_auth_key(mut self, key: &[u8]) -> LdcDecoder {
+        self.auth_key = key.to_vec();
+        self
+    }
+
     /// Decoder for `cfg` (`None` for no modulation).
     pub fn new(cfg: &LdcConfig) -> Result<Option<LdcDecoder>, String> {
         Ok(cfg.compile()?.map(|c| LdcDecoder {
