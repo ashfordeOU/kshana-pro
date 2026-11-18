@@ -1,0 +1,70 @@
+# Receiver test (S10): cross-rate interference. Chain rx-A (GRI 79800) and a stronger
+# chain rx-B (GRI 67310, 1 MW stations) on separate time references; light noise
+# (≈ 40 dB SNR). Pulses of the two chains overlap at the receiver every few groups.
+# Synthetic geometry (not real stations).
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 1000000
+seed = 11
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 55.0
+lon_deg = 3.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 20.0
+[[time_refs]]
+id = "UTC(B)"
+offset_ns = -30.0
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 260.0
+
+[[chains]]
+name = "rx-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+
+[[chains]]
+name = "rx-B"
+gri_us = 67310
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 57.5, lon_deg = 4.0 }
+power_kw = 1000.0
+time_ref = "UTC(B)"
+[[chains.stations]]
+id = "W"
+role = "secondary"
+position = { lat_deg = 54.0, lon_deg = -0.5 }
+power_kw = 1000.0
+emission_delay_us = 15000.0
+time_ref = "UTC(B)"
