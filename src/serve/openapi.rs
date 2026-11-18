@@ -30,6 +30,10 @@ fn param_doc(name: &str) -> Value {
             "Artefact file name",
             json!({"type": "string", "pattern": "^[A-Za-z0-9_-][A-Za-z0-9._-]{0,127}$"}),
         ),
+        "chain" => (
+            "GRI database entry: an entry id, a GRI (e.g. 9960) or search text",
+            json!({"type": "string", "maxLength": 128}),
+        ),
         _ => ("", json!({"type": "string"})),
     };
     json!({"name": name, "in": "path", "required": true, "description": desc, "schema": schema})
