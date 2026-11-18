@@ -601,7 +601,10 @@ pub fn bench_catalog(query: &str) -> HttpResponse {
                     .unwrap_or(false)
             })
         })
-        .filter(|s| !lf || s.lf_direct() == Some(true))
+        .filter(|s| {
+            use kshana_eloran::bench::catalog::Category as C;
+            !lf || (s.lf_direct() == Some(true) && matches!(s.category, C::Sdr | C::Awg | C::Daq))
+        })
         .map(|s| {
             let mut v = serde_json::to_value(s).unwrap_or_default();
             v["lf_direct"] = serde_json::to_value(s.lf_direct()).unwrap_or_default();

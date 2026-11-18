@@ -173,7 +173,7 @@ catalog = "ettus-usrp-b210"
 role = "gnss_source"
 args = "type=b200"
 [[device]]
-catalog = "leo-bodnar-lbe-1420"
+catalog = "srs-fs725"
 role = "reference"
 [[device]]
 catalog = "tapr-ticc"

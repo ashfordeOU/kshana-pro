@@ -1,1 +1,3051 @@
-[]
+[
+ {
+  "id": "redpitaya-stemlab-125-14",
+  "vendor": "Red Pitaya",
+  "model": "STEMlab 125-14 (original generation)",
+  "category": "awg",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 14,
+   "max_sample_rate_hz": 125000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": 60000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 60000000.0,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 2.0,
+   "max_power_dbm": null,
+   "lf_capable_note": "DC-coupled DAC output, bandwidth DC-60 MHz: can synthesize 90-110 kHz eLoran pulses directly."
+  },
+  "rx": {
+   "channels": 2,
+   "adc_bits": 14,
+   "max_sample_rate_hz": 125000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": 60000000.0,
+   "coupling": "dc",
+   "input_impedance_ohm": 1000000.0,
+   "max_input_vpp": 2.0
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "ethernet"
+  ],
+  "host_api": [
+   "redpitaya-scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Output voltage range listed as ±1 V with 50 Ω load impedance (table does not separate Hi-Z case for original gen). Input range ±1 V (LV jumper) or ±20 V (HV jumper); max_input_vpp given for LV. Input 1 MΩ/10 pF. External trigger on E1 DIO0_P, trigger out DIO0_N. Ref clock input N/A on standard board (10 MHz only on 'ext. clk' HW-mod variant). Daisy chain SATA up to 500 Mb/s. Output slew 2 V/10 ns. No documented device-clock scheduled TX; trigger-based generation only (timestamped_tx left null). SCPI server over TCP documented; port number not stated on the cited page.",
+  "sources": [
+   {
+    "url": "https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/compares/vs.html",
+    "title": "Red Pitaya docs: Product comparison table (Original Gen)",
+    "revision": "readthedocs latest",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/top.html",
+    "title": "Red Pitaya docs: Hardware index (Gen 2 vs Original notes)",
+    "revision": "readthedocs latest",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://redpitaya.readthedocs.io/en/latest/appsFeatures/remoteControl/scpi.html",
+    "title": "Red Pitaya docs: SCPI server",
+    "revision": "readthedocs latest",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": "redpitaya",
+  "idn_patterns": [
+   "redpitaya"
+  ]
+ },
+ {
+  "id": "redpitaya-stemlab-125-14-gen2",
+  "vendor": "Red Pitaya",
+  "model": "STEMlab 125-14 Gen 2 (also PRO Gen 2 / PRO Z7020 Gen 2)",
+  "category": "awg",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 14,
+   "max_sample_rate_hz": 125000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": 60000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 60000000.0,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 2.0,
+   "max_power_dbm": null,
+   "lf_capable_note": "DC-coupled, DC-60 MHz: can synthesize 90-110 kHz pulses directly. ±1 V into 50 Ω, ±2 V into Hi-Z."
+  },
+  "rx": {
+   "channels": 2,
+   "adc_bits": 14,
+   "max_sample_rate_hz": 125000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": 60000000.0,
+   "coupling": "dc",
+   "input_impedance_ohm": 1000000.0,
+   "max_input_vpp": 2.0
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "ethernet"
+  ],
+  "host_api": [
+   "redpitaya-scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Output jitter 20 ps RMS @40 MHz. Base Gen 2: no daisy chain, no external ADC clock. PRO Gen 2 / PRO Z7020 Gen 2: external ADC clock 'Yes', daisy chain over USB-C up to 500 Mb/s; reference-clock input listed N/A. STEMlab 125-14 TI / 65-16 TI variants accept a 1-300 MHz ref via Ext ADC Clk± (E2 pins 23/24). Gen 2 has USB-C power/console (5 V 3 A) and no power-on output glitch. Input range ±1 V LV / ±20 V HV.",
+  "sources": [
+   {
+    "url": "https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/GEN2/compares/vs.html",
+    "title": "Red Pitaya docs: Product comparison table (Gen 2)",
+    "revision": "readthedocs latest",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/125-14/top.html",
+    "title": "Red Pitaya docs: Hardware index (Gen 2 vs Original notes)",
+    "revision": "readthedocs latest",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://redpitaya.readthedocs.io/en/latest/appsFeatures/remoteControl/scpi.html",
+    "title": "Red Pitaya docs: SCPI server",
+    "revision": "readthedocs latest",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": "redpitaya",
+  "idn_patterns": [
+   "redpitaya"
+  ]
+ },
+ {
+  "id": "redpitaya-sdrlab-122-16",
+  "vendor": "Red Pitaya",
+  "model": "SDRlab 122-16",
+  "category": "sdr",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 14,
+   "max_sample_rate_hz": 122880000.0,
+   "freq_min_hz": 300000.0,
+   "freq_max_hz": 60000000.0,
+   "coupling": "ac",
+   "hp_corner_hz": 300000.0,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 0.5,
+   "max_power_dbm": -2,
+   "lf_capable_note": "AC-coupled outputs, bandwidth 300 kHz-60 MHz: 90-110 kHz is below the stated lower band edge. NOT suitable for direct eLoran output."
+  },
+  "rx": {
+   "channels": 2,
+   "adc_bits": 16,
+   "max_sample_rate_hz": 122880000.0,
+   "freq_min_hz": 300000.0,
+   "freq_max_hz": 550000000.0,
+   "coupling": "ac",
+   "input_impedance_ohm": 50,
+   "max_input_vpp": 0.5
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": "Ext. clock variant (SDRlab 122-16 ext. clk) only"
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "ethernet"
+  ],
+  "host_api": [
+   "redpitaya-scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Input bandwidth 300 kHz-550 MHz (undersampling); input full scale 0.5 Vpp / -2 dBm; abs max DC 50 V (AC-coupled), 1 Vpp RF. Output 0.5 Vpp / -2 dBm into 50 Ω; no short-circuit protection. hp_corner_hz set to the stated 300 kHz band edge (exact -3 dB corner not published). 10 MHz ref only on 'ext. clk' model (listed 'Yes'); connector type not captured.",
+  "sources": [
+   {
+    "url": "https://redpitaya.readthedocs.io/en/latest/developerGuide/hardware/ORIG_GEN/compares/vs.html",
+    "title": "Red Pitaya docs: Product comparison table (Original Gen)",
+    "revision": "readthedocs latest",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": "redpitaya",
+  "idn_patterns": [
+   "redpitaya"
+  ]
+ },
+ {
+  "id": "digilent-analog-discovery-2",
+  "vendor": "Digilent",
+  "model": "Analog Discovery 2",
+  "category": "daq",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 14,
+   "max_sample_rate_hz": 100000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": null,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": null,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "DC-coupled op-amp output (AC amplitude ±5 V plus DC offset ±5 V, sum limited to ±5 V): 90-110 kHz is well inside range."
+  },
+  "rx": {
+   "channels": 2,
+   "adc_bits": 14,
+   "max_sample_rate_hz": 100000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": 30000000.0,
+   "coupling": "dc",
+   "input_impedance_ohm": 1000000.0,
+   "max_input_vpp": 50
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2"
+  ],
+  "host_api": [
+   "waveforms-sdk",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Manual summary: scope 1 MΩ, ±25 V, differential, 14-bit, 100 MS/s, 30 MHz+ BW (with BNC adapter); AWG ±5 V, 14-bit, 100 MS/s, 20 MHz+ BW (with BNC adapter). Scope input 1 MΩ||24 pF. AWG output stage AD8067 op-amp; output impedance not specified in the manual (not a 50 Ω source). AWG analog_bw left null: manual gives '20MHz+' only with BNC adapter. Digilent's own spec page (digilent.com) returned HTTP 403, so a university-hosted copy of the vendor manual was used. 20 MHz on-board clock oscillator; no external reference input documented in the cited manual. tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://mil.ufl.edu/3701/DAD/DAD2_ref_manual_ad2_rm.pdf",
+    "title": "Analog Discovery 2 Reference Manual (Digilent DOC#502-321), university-hosted copy",
+    "revision": "Rev. C board, revised 14 Sep 2015",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "manual",
+  "kshana_driver": "digilent",
+  "idn_patterns": []
+ },
+ {
+  "id": "digilent-analog-discovery-3",
+  "vendor": "Digilent",
+  "model": "Analog Discovery 3",
+  "category": "daq",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 14,
+   "max_sample_rate_hz": 125000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": null,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 9000000.0,
+   "output_impedance_ohm": 0,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "DC-coupled (DC voltage function, ±5 V offset range), 9 MHz -3 dB BW: 90-110 kHz generated directly. Drive limited to 30 mA (distortion-free), so into 50 Ω the swing is current-limited."
+  },
+  "rx": {
+   "channels": 2,
+   "adc_bits": 14,
+   "max_sample_rate_hz": 125000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": 9000000.0,
+   "coupling": "dc",
+   "input_impedance_ohm": 1000000.0,
+   "max_input_vpp": 50
+  },
+  "ref_in": {
+   "freqs_hz": [],
+   "connector": "TRIG1 (2x15 MTE header)",
+   "level": "LVCMOS 3.3 V (digital I/O characteristics)"
+  },
+  "ref_out": {
+   "freqs_hz": []
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2"
+  ],
+  "host_api": [
+   "waveforms-sdk",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "AWG output range ±5 V (Hi-Z); output impedance 0 Ω (header) or 0/50 Ω selectable by jumper on BNC adapter, 'not precisely controlled'. AWG BW 9 MHz @-3 dB (flywire), 12 MHz @-3 dB with BNC adapter. DC current drive 30 mA max (40 mA before cutoff); slew 400 V/µs. Scope: ±2.5 V or ±25 V ranges, 1 MΩ||24 pF, DC (header) or DC/AC with BNC adapter (AC cut-off 1.6 Hz); BW 9 MHz header / 30+ MHz BNC. Buffer up to 32,768 samples/channel; record mode ~10 MS/s to RAM. USB-C connector, USB 2.0 data rate. 'Trigger 1 can be used to export or import a reference clock for device synchronization' (frequency not stated, so freqs_hz empty). Digilent's own spec page returned HTTP 403; distributor copy used. tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://assets.testequity.com/te1/Documents/pdf/digilent/Digilent_Analog-Discovery-3-Specifications_1123.pdf",
+    "title": "Digilent Analog Discovery 3 Specifications (distributor-hosted copy)",
+    "revision": "1123 (Nov 2023)",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "digilent",
+  "idn_patterns": []
+ },
+ {
+  "id": "digilent-analog-discovery-pro-3450",
+  "vendor": "Digilent",
+  "model": "Analog Discovery Pro ADP3450 / ADP3250",
+  "category": "daq",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 14,
+   "max_sample_rate_hz": 125000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": null,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 15000000.0,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "DC-coupled (DC voltage function, ±5 V DC offset), 50 Ω BNC output, >15 MHz BW: 90-110 kHz generated directly."
+  },
+  "rx": {
+   "channels": 4,
+   "adc_bits": 14,
+   "max_sample_rate_hz": 125000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": 55000000.0,
+   "coupling": "dc",
+   "input_impedance_ohm": 1000000.0,
+   "max_input_vpp": 50
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2",
+   "ethernet"
+  ],
+  "host_api": [
+   "waveforms-sdk",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "rx.channels: ADP3450 = 4, ADP3250 = 2 (no other differences). Scope AC or DC coupling (AC cut-off 12 Hz), ≥55 MHz BW, 1 MΩ||15 pF, ±25 V. AWG update rate 100 MS/s default, 125 MS/s max; ±5 V open circuit/Hi-Z, ±3.5 V at max current (30 mA); 1 µHz frequency resolution; high-Z when powered off. max_vpp_into_50ohm not specified. Ethernet 10/100/1000; USB 2.0 Type B device port. No 10 MHz reference I/O listed in the spec sheet. tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://assets.testequity.com/te1/Documents/pdf/Digilent_Analog-Discovery-Pro-ADP3450-ADP3250_Specifications_0924.pdf",
+    "title": "Digilent Analog Discovery Pro ADP3450/ADP3250 Specifications (distributor-hosted copy)",
+    "revision": "0924 (Sep 2024)",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "digilent",
+  "idn_patterns": []
+ },
+ {
+  "id": "ettus-usrp-n210",
+  "vendor": "Ettus Research (NI)",
+  "model": "USRP N210 (motherboard)",
+  "category": "sdr",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 16,
+   "max_sample_rate_hz": 400000000.0,
+   "freq_min_hz": null,
+   "freq_max_hz": null,
+   "coupling": null,
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": null,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "Motherboard only; LF capability depends on the daughterboard: with LFTX (DC-30 MHz) 100 kHz is possible; with BasicTX (transformer, 1-250 MHz) it is not. tx.channels=2 counts the dual DAC (one daughterboard slot, real-mode A/B)."
+  },
+  "rx": {
+   "channels": 2,
+   "adc_bits": 14,
+   "max_sample_rate_hz": 100000000.0,
+   "freq_min_hz": null,
+   "freq_max_hz": null,
+   "coupling": null,
+   "input_impedance_ohm": null,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": "0 to 15 dBm (N2xx); square wave preferred, sine acceptable"
+  },
+  "pps_in": true,
+  "pps_out": false,
+  "timestamped_tx": true,
+  "interface": [
+   "ethernet"
+  ],
+  "host_api": [
+   "uhd"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Dual 100 MS/s 14-bit ADC, dual 400 MS/s 16-bit DAC; up to 50 MS/s (8-bit) / 25 MS/s (16-bit) host streaming over Gigabit Ethernet; fixed 100 MHz clock rate. PPS input 3.3 to 5 Vpp square. Frequency accuracy 2.5 ppm TCXO, 0.01 ppm with GPSDO option. MIMO cable shares clock/time between two units. Timed TX via UHD time_spec with set_time_next_pps. Ref/PPS connector type not stated in the captured text.",
+  "sources": [
+   {
+    "url": "https://www.ettus.com/wp-content/uploads/2019/01/07495_Ettus_N200-210_DS_Flyer_HR_1.pdf",
+    "title": "Ettus Research USRP N200/N210 data sheet",
+    "revision": "2019 upload",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://files.ettus.com/manual/page_usrp2.html",
+    "title": "UHD manual: USRP2 and N2x0 series",
+    "revision": "UHD manual (current)",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://files.ettus.com/manual/page_sync.html",
+    "title": "UHD manual: Device synchronization (PPS / time_spec)",
+    "revision": "UHD manual (current)",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://files.ettus.com/manual/page_dboards.html",
+    "title": "UHD manual: Daughterboard application notes (Basic TX and LFTX)",
+    "revision": "UHD manual (current)",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "uhd",
+  "idn_patterns": [
+   "n210"
+  ]
+ },
+ {
+  "id": "ettus-usrp-x310",
+  "vendor": "Ettus Research (NI)",
+  "model": "USRP X310 (motherboard)",
+  "category": "sdr",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 16,
+   "max_sample_rate_hz": 800000000.0,
+   "freq_min_hz": null,
+   "freq_max_hz": null,
+   "coupling": null,
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": null,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "Motherboard only; LF capability depends on daughterboard. LFTX (DC-30 MHz) gives direct 100 kHz output. X310 support for LFTX/BasicTX is per Ettus daughterboard-compatibility KB (kb.ettus.com returned HTTP 403; unverified here)."
+  },
+  "rx": {
+   "channels": 2,
+   "adc_bits": 14,
+   "max_sample_rate_hz": 200000000.0,
+   "freq_min_hz": null,
+   "freq_max_hz": null,
+   "coupling": null,
+   "input_impedance_ohm": null,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0,
+    11520000.0,
+    23040000.0,
+    30720000.0
+   ],
+   "connector": null,
+   "level": "must not exceed +15 dBm; square preferred, sine acceptable"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": true,
+  "pps_out": true,
+  "timestamped_tx": true,
+  "interface": [
+   "ethernet",
+   "pcie"
+  ],
+  "host_api": [
+   "uhd"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Dual SFP+ (1/10 GigE), PCIe x4 (MXI). Master clock 200 MHz or 184.32 MHz. External PPS input and output (PPS 5 Vpp square). External reference input & output (10, 11.52, 23.04, 30.72 MHz); ref_out listed as 10 MHz (output freq for non-10 MHz refs not captured). Internal ref accuracy 2.5 ppm; 20 ppb with GPSDO option. Timed commands and timed sampling in FPGA. Host rate 200 MS/s (16-bit). Two daughterboard slots.",
+  "sources": [
+   {
+    "url": "https://www.ettus.com/wp-content/uploads/2019/01/X300_X310_Spec_Sheet.pdf",
+    "title": "Ettus Research USRP X300/X310 spec sheet",
+    "revision": "2019 upload",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://files.ettus.com/manual/page_usrp_x3x0.html",
+    "title": "UHD manual: USRP X3x0 series",
+    "revision": "UHD manual (current)",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://files.ettus.com/manual/page_sync.html",
+    "title": "UHD manual: Device synchronization (PPS / time_spec)",
+    "revision": "UHD manual (current)",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://files.ettus.com/manual/page_dboards.html",
+    "title": "UHD manual: Daughterboard application notes (Basic TX and LFTX)",
+    "revision": "UHD manual (current)",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "uhd",
+  "idn_patterns": [
+   "x310"
+  ]
+ },
+ {
+  "id": "ettus-lftx",
+  "vendor": "Ettus Research (NI)",
+  "model": "LFTX daughterboard",
+  "category": "sdr",
+  "tx": {
+   "channels": 2,
+   "dac_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": 0,
+   "freq_max_hz": 30000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 33000000.0,
+   "output_impedance_ohm": null,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "Op-amp output from DC to 30 MHz: direct 90-110 kHz output possible (real mode A or B per channel). Best LF option in the USRP family."
+  },
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "uhd"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Product page: 'DC to 30 MHz', two outputs usable independently or as one I/Q pair. UHD manual: no tunable elements or programmable gains; bandwidth 33 MHz real mode (A or B), 66 MHz complex (AB/BA). coupling 'dc' inferred from 'DC to 30 MHz' op-amp design; output impedance and level not published on the pages fetched (kb.ettus.com/LFTX returned HTTP 403). Sample rate/bits come from the host motherboard.",
+  "sources": [
+   {
+    "url": "https://www.ettus.com/all-products/lftx/",
+    "title": "Ettus Research LFTX product page",
+    "revision": null,
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://files.ettus.com/manual/page_dboards.html",
+    "title": "UHD manual: Daughterboard application notes (Basic TX and LFTX)",
+    "revision": "UHD manual (current)",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": "uhd",
+  "idn_patterns": []
+ },
+ {
+  "id": "ettus-basictx",
+  "vendor": "Ettus Research (NI)",
+  "model": "BasicTX daughterboard",
+  "category": "sdr",
+  "tx": {
+   "channels": 2,
+   "dac_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": 1000000.0,
+   "freq_max_hz": 250000000.0,
+   "coupling": "ac",
+   "hp_corner_hz": 1000000.0,
+   "analog_bw_hz": 250000000.0,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "Wideband transformer coupling, 1-250 MHz: cannot pass 90-110 kHz. NOT suitable for eLoran."
+  },
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "uhd"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Two wideband transformers match the dual DAC outputs to 50 Ω SMA; independent or I/Q pair. UHD: bandwidth 250 MHz real mode, 500 MHz complex. hp_corner_hz set to the stated 1 MHz lower operating limit (exact -3 dB point not published).",
+  "sources": [
+   {
+    "url": "https://www.ettus.com/all-products/basictx/",
+    "title": "Ettus Research BasicTX product page",
+    "revision": null,
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://files.ettus.com/manual/page_dboards.html",
+    "title": "UHD manual: Daughterboard application notes (Basic TX and LFTX)",
+    "revision": "UHD manual (current)",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": "uhd",
+  "idn_patterns": []
+ },
+ {
+  "id": "ettus-usrp-b210",
+  "vendor": "Ettus Research (NI)",
+  "model": "USRP B200 / B210",
+  "category": "sdr",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 12,
+   "max_sample_rate_hz": 61440000.0,
+   "freq_min_hz": 70000000.0,
+   "freq_max_hz": 6000000000.0,
+   "coupling": "ac",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 56000000.0,
+   "output_impedance_ohm": null,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": 10,
+   "lf_capable_note": "RF coverage 70 MHz-6 GHz (AD936x RFIC): cannot output 90-110 kHz. NOT suitable for eLoran (GNSS L-band only)."
+  },
+  "rx": {
+   "channels": 2,
+   "adc_bits": 12,
+   "max_sample_rate_hz": 61440000.0,
+   "freq_min_hz": 70000000.0,
+   "freq_max_hz": 6000000000.0,
+   "coupling": "ac",
+   "input_impedance_ohm": null,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": "+15 dBm max"
+  },
+  "pps_in": true,
+  "pps_out": false,
+  "timestamped_tx": true,
+  "interface": [
+   "usb3"
+  ],
+  "host_api": [
+   "uhd"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Channels: B200 1 TX/1 RX, B210 2 TX/2 RX (values above are B210). Up to 56 MHz instantaneous BW (1x1), 30.72 MHz in 2x2. Power output >10 dBm (typ, listed as max_power_dbm). External PPS input J104 1.8-5 V; external 10 MHz input J100 +15 dBm max. Internal GPSDO option (cannot use external 10 MHz while GPSDO fitted). Frequency accuracy ±2.0 ppm; GPSDO TCXO ±75 ppb unlocked, <1 ppb locked. Timed commands in FPGA. tx.coupling 'ac' because the RF chain starts at 70 MHz (implied, not stated). tx/rx coupling 'ac' is inferred from the RF-only frequency range (not stated explicitly).",
+  "sources": [
+   {
+    "url": "https://www.ettus.com/wp-content/uploads/2019/01/b200-b210_spec_sheet.pdf",
+    "title": "Ettus Research USRP B200/B210 spec sheet",
+    "revision": "2019 upload",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://files.ettus.com/manual/page_usrp_b200.html",
+    "title": "UHD manual: USRP B2x0 series",
+    "revision": "UHD manual (current)",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "uhd",
+  "idn_patterns": [
+   "b2"
+  ]
+ },
+ {
+  "id": "greatscottgadgets-hackrf-one",
+  "vendor": "Great Scott Gadgets",
+  "model": "HackRF One",
+  "category": "sdr",
+  "tx": {
+   "channels": 1,
+   "dac_bits": 8,
+   "max_sample_rate_hz": 20000000.0,
+   "freq_min_hz": 1000000.0,
+   "freq_max_hz": 6000000000.0,
+   "coupling": "ac",
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": 15,
+   "lf_capable_note": "Operating frequency 1 MHz-6 GHz: 90-110 kHz is below range. NOT suitable for direct eLoran output."
+  },
+  "rx": {
+   "channels": 1,
+   "adc_bits": 8,
+   "max_sample_rate_hz": 20000000.0,
+   "freq_min_hz": 1000000.0,
+   "freq_max_hz": 6000000000.0,
+   "coupling": "ac",
+   "input_impedance_ohm": 50,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": "SMA (CLKIN)",
+   "level": "3.3 V square wave, high impedance; do not exceed 3.3 V or go below 0 V"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2"
+  ],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Half-duplex; sample rates 2-20 Msps quadrature, 8-bit. Max TX power varies: 1-10 MHz 5-15 dBm; 10-2170 MHz 5-15 dBm; 2170-2740 MHz 13-15 dBm; 2740-4000 MHz 0-5 dBm; 4-6 GHz -10 to 0 dBm. Max RX input -5 dBm. CLKOUT: 3.3 V 10 MHz square into high-Z. Host software: libhackrf/hackrf tools (listed as vendor tooling). No PPS input documented; hardware triggering exists (separate doc page, not captured). tx.coupling 'ac' implied by 1 MHz lower limit. tx/rx coupling 'ac' is inferred from the RF-only frequency range (not stated explicitly).",
+  "sources": [
+   {
+    "url": "https://hackrf.readthedocs.io/en/latest/hackrf_one.html",
+    "title": "HackRF documentation: HackRF One",
+    "revision": "readthedocs latest",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://hackrf.readthedocs.io/en/latest/external_clock_interface.html",
+    "title": "HackRF documentation: External Clock Interface",
+    "revision": "readthedocs latest",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": "soapy",
+  "idn_patterns": []
+ },
+ {
+  "id": "analogdevices-adalm-pluto",
+  "vendor": "Analog Devices",
+  "model": "ADALM-PLUTO",
+  "category": "sdr",
+  "tx": {
+   "channels": 1,
+   "dac_bits": 12,
+   "max_sample_rate_hz": 61440000.0,
+   "freq_min_hz": 325000000.0,
+   "freq_max_hz": 3800000000.0,
+   "coupling": "ac",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 20000000.0,
+   "output_impedance_ohm": null,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "Tuning range 325 MHz-3.8 GHz (AD9363): cannot output 90-110 kHz. NOT suitable for eLoran."
+  },
+  "rx": {
+   "channels": 1,
+   "adc_bits": 12,
+   "max_sample_rate_hz": 61440000.0,
+   "freq_min_hz": 325000000.0,
+   "freq_max_hz": 3800000000.0,
+   "coupling": "ac",
+   "input_impedance_ohm": null,
+   "max_input_vpp": null
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2"
+  ],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Tunable channel BW 200 kHz-20 MHz; output data rates 65.1 kSPS-61.44 MSPS; USB 2.0 streams up to 4 MSPS without drops. Max output power value did not render on the wiki page (null). No external reference/PPS on the cited spec page. Host API: libiio (ADI) not in schema list; recorded as vendor tooling. tx/rx coupling 'ac' is inferred from the RF-only frequency range (not stated explicitly).",
+  "sources": [
+   {
+    "url": "https://wiki.analog.com/university/tools/pluto/devs/specs",
+    "title": "ADALM-PLUTO Detailed Specifications (Analog Devices wiki)",
+    "revision": "approved 09 Feb 2021",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": "soapy",
+  "idn_patterns": []
+ },
+ {
+  "id": "limemicro-limesdr-mini-2-0",
+  "vendor": "Lime Microsystems",
+  "model": "LimeSDR Mini 2.0",
+  "category": "sdr",
+  "tx": {
+   "channels": 1,
+   "dac_bits": 12,
+   "max_sample_rate_hz": 30720000.0,
+   "freq_min_hz": 10000000.0,
+   "freq_max_hz": 2600000000.0,
+   "coupling": "ac",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 30720000.0,
+   "output_impedance_ohm": null,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "Frequency range 10 MHz-2.6 GHz: cannot output 90-110 kHz. NOT suitable for eLoran."
+  },
+  "rx": {
+   "channels": 1,
+   "adc_bits": 12,
+   "max_sample_rate_hz": 30720000.0,
+   "freq_min_hz": 10000000.0,
+   "freq_max_hz": 2600000000.0,
+   "coupling": "ac",
+   "input_impedance_ohm": null,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [],
+   "connector": "U.FL",
+   "level": null
+  },
+  "ref_out": {
+   "freqs_hz": []
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb3"
+  ],
+  "host_api": [
+   "soapy"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "LMS7002M transceiver, full duplex, up to 30.72 MHz instantaneous BW, 12-bit, 30.72 MSPS. 40.00 MHz VCTCXO tunable by on-board DAC. Reference clock input and output connectors (U.FL); accepted frequency not stated on page. Max safe RX input 10 dBm. FTDI FT601 USB 3.0. Software: GNU Radio, WSDR.IO, SoapySDR (vendor page). tx/rx coupling 'ac' is inferred from the RF-only frequency range (not stated explicitly).",
+  "sources": [
+   {
+    "url": "https://limesdr-mini.myriadrf.org/",
+    "title": "LimeSDR Mini v2 documentation (myriadrf)",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": "soapy",
+  "idn_patterns": []
+ },
+ {
+  "id": "nuand-bladerf-2-0-micro",
+  "vendor": "Nuand",
+  "model": "bladeRF 2.0 micro (xA4 / xA9)",
+  "category": "sdr",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 12,
+   "max_sample_rate_hz": 61440000.0,
+   "freq_min_hz": 47000000.0,
+   "freq_max_hz": 6000000000.0,
+   "coupling": "ac",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 56000000.0,
+   "output_impedance_ohm": null,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": 8,
+   "lf_capable_note": "TX tuning range 47 MHz-6 GHz: cannot output 90-110 kHz. NOT suitable for eLoran."
+  },
+  "rx": {
+   "channels": 2,
+   "adc_bits": 12,
+   "max_sample_rate_hz": 61440000.0,
+   "freq_min_hz": 70000000.0,
+   "freq_max_hz": 6000000000.0,
+   "coupling": "ac",
+   "input_impedance_ohm": null,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [],
+   "connector": null,
+   "level": "Taming via 12-bit DAC or ADF4002 PLL (details not on product page)"
+  },
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [
+   "usb3"
+  ],
+  "host_api": [
+   "soapy"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "2x2 MIMO; ADC/DAC 0.521-61.44 MSPS, 12-bit; RF BW filter <0.2-56 MHz; CW output power +8 dBm (typ). Factory-calibrated 38.4 MHz clock. Software: libbladeRF, gr-osmosdr, Pothos via SoapySDR. Ref input frequency/connector and PPS not stated on product page. tx/rx coupling 'ac' is inferred from the RF-only frequency range (not stated explicitly).",
+  "sources": [
+   {
+    "url": "https://www.nuand.com/bladerf-2-0-micro/",
+    "title": "Nuand bladeRF 2.0 micro product page",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": "soapy",
+  "idn_patterns": []
+ },
+ {
+  "id": "keysight-33500b",
+  "vendor": "Keysight",
+  "model": "33500B Series (33509B/33510B/33511B/33512B 20 MHz; 33519B/33520B/33521B/33522B 30 MHz)",
+  "category": "awg",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 16,
+   "max_sample_rate_hz": 250000000.0,
+   "freq_min_hz": 1e-06,
+   "freq_max_hz": 30000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 10,
+   "max_power_dbm": null,
+   "lf_capable_note": "Sine from 1 µHz, DC offset ±5 V into 50 Ω: 90-110 kHz pulses via arb directly."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": "BNC (rear)",
+   "level": "200 mVpp to 5 Vpp, 1 kΩ||20 pF AC-coupled; lock ±20 Hz std (±1 Hz Opt OCX); lock time <2 s"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "lan",
+   "usb2",
+   "gpib"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Channels: 1 or 2 by model. Max sine 20 MHz or 30 MHz by model. Arb sample rate 1 µSa/s-160 MSa/s (20 MHz models) or -250 MSa/s (30 MHz models), 16-bit. Amplitude 1 mVpp-10 Vpp into 50 Ω (20 Vpp open). Isolated BNC outputs (±42 V). Freq accuracy ±(1 ppm + 15 pHz) 1 yr 23±5 °C std; ±0.1 ppm Opt OCX. Ref out 0 dBm (632 mVpp) into 50 Ω. Arb memory 1 MSa/ch (16 MSa Opt MEM). LAN sockets + VXI-11, USB-TMC, GPIB (standard on 33500B). SCPI socket port not stated in datasheet (Keysight convention is 5025; unverified). No device-clock scheduled output documented (trigger-driven), so timestamped_tx left null. tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://www.keysight.com/content/dam/keysight/en/doc/ungate/data-sheets/5992-2572.pdf",
+    "title": "Keysight 33500B and 33600A Series Trueform Waveform Generators Data Sheet",
+    "revision": "5992-2572EN, published 17 Oct 2024",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "scpi_awg",
+  "idn_patterns": [
+   "keysight",
+   "335"
+  ]
+ },
+ {
+  "id": "keysight-33600a",
+  "vendor": "Keysight",
+  "model": "33600A Series (33611A/33612A 80 MHz; 33621A/33622A 120 MHz)",
+  "category": "awg",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 14,
+   "max_sample_rate_hz": 1000000000.0,
+   "freq_min_hz": 1e-06,
+   "freq_max_hz": 120000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 10,
+   "max_power_dbm": null,
+   "lf_capable_note": "Sine from 1 µHz, DC offset: 90-110 kHz directly."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": "BNC (rear)",
+   "level": "200 mVpp to 5 Vpp, 1 kΩ||20 pF AC-coupled; lock ±20 Hz std (±1 Hz Opt OCX)"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "lan",
+   "usb2",
+   "gpib"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Arb sample rate up to 660 MSa/s (80 MHz models) or 1 GSa/s (120 MHz models), 14-bit. Sine max: ≤10 Vpp to 60 MHz, ≤8 Vpp to 80 MHz, ≤4 Vpp to 120 MHz. Arb memory 4 MSa/ch (64 MSa Opt MEM). GPIB optional (3446GPBU) on 33600A. Same reference I/O and accuracy table as 33500B. Socket port not stated in datasheet. tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://www.keysight.com/content/dam/keysight/en/doc/ungate/data-sheets/5992-2572.pdf",
+    "title": "Keysight 33500B and 33600A Series Trueform Waveform Generators Data Sheet",
+    "revision": "5992-2572EN, published 17 Oct 2024",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "scpi_awg",
+  "idn_patterns": [
+   "keysight",
+   "336"
+  ]
+ },
+ {
+  "id": "siglent-sdg2000x",
+  "vendor": "Siglent",
+  "model": "SDG2000X (SDG2042X / SDG2082X / SDG2122X)",
+  "category": "awg",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 16,
+   "max_sample_rate_hz": 1200000000.0,
+   "freq_min_hz": 1e-06,
+   "freq_max_hz": 120000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 120000000.0,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 10,
+   "max_power_dbm": null,
+   "lf_capable_note": "Sine from 1 µHz, DC output ±5 V into 50 Ω: 90-110 kHz directly (TrueArb sample rate 1 µSa/s-75 MSa/s)."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": "≥1.4 Vpp, 5 kΩ AC-coupled"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "lan",
+   "usb2"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Bandwidth 40/80/120 MHz by model. 1.2 GSa/s is 4x interpolation; TrueArb point-by-point 1 µSa/s-75 MSa/s. Amplitude 2 mVpp-20 Vpp HiZ ≤20 MHz, 10 Vpp >20 MHz (halved into 50 Ω). Output impedance 50 Ω (49.5-50.5). Ref out 2-3.3 Vpp HiZ, 50 Ω. Freq stability ±1 ppm (25 °C), aging ±1 ppm 1st year. Interfaces USB host/device (USBTMC), LAN; GPIB optional via USB-GPIB adaptor. analog_bw_hz = top-model bandwidth. tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://siglentna.com/download/2427",
+    "title": "Siglent SDG2000X Series Function/Arbitrary Waveform Generator Data Sheet",
+    "revision": "EN02H",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "scpi_awg",
+  "idn_patterns": [
+   "siglent",
+   "sdg2"
+  ]
+ },
+ {
+  "id": "siglent-sdg6000x",
+  "vendor": "Siglent",
+  "model": "SDG6000X (SDG6022X / SDG6032X / SDG6052X)",
+  "category": "awg",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 16,
+   "max_sample_rate_hz": 2400000000.0,
+   "freq_min_hz": 1e-06,
+   "freq_max_hz": 500000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 500000000.0,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 10,
+   "max_power_dbm": null,
+   "lf_capable_note": "Sine from 1 µHz, DC offset supported: 90-110 kHz directly."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": "≥1.4 Vpp, 5 kΩ AC-coupled; 9.999-10.001 MHz"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "lan",
+   "usb2"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Bandwidth 200/350/500 MHz by model; 2.4 GSa/s with 2x interpolation; TrueArb sample rate 1 µSa/s-300 MSa/s. Sine output range 2 mVpp-20 Vpp HiZ ≤40 MHz (halved into 50 Ω), lower above. Output impedance 49.5-50.5 Ω at 100 kHz; current limit ±200 mA. Freq stability ±1 ppm 25 °C; aging ±1 ppm 1st year. LAN: VXI-11, Socket, Telnet (port not stated). GPIB optional (USB-GPIB adaptor). tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://www.int.siglent.com/u_file/download/25_09_22/SDG6000X_DataSheet_EN02E.pdf",
+    "title": "Siglent SDG6000X Pulse/Arbitrary Waveform Generator Data Sheet",
+    "revision": "EN02E",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "scpi_awg",
+  "idn_patterns": [
+   "siglent",
+   "sdg6"
+  ]
+ },
+ {
+  "id": "rigol-dg1000z",
+  "vendor": "Rigol",
+  "model": "DG1000Z (DG1022Z / DG1032Z / DG1062Z)",
+  "category": "awg",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 14,
+   "max_sample_rate_hz": 200000000.0,
+   "freq_min_hz": 1e-06,
+   "freq_max_hz": 60000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 10,
+   "max_power_dbm": null,
+   "lf_capable_note": "Sine/arb from 1 µHz: 90-110 kHz directly (arb max 10-20 MHz by model)."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": "250 mVpp to 5 Vpp, 1 kΩ AC-coupled; lock ±50 Hz; lock time <2 s"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "lan",
+   "usb2"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Max sine 25/30/60 MHz by model. Amplitude into 50 Ω: ≤10 MHz 1 mVpp-10 Vpp; ≤30 MHz 5 Vpp; ≤60 MHz 2.5 Vpp. Frequency accuracy ±1 ppm (18-28 °C). Jitter ≤5 MHz: 2 ppm + 200 ps. Ref out 3.3 Vpp, 50 Ω AC-coupled. LXI Core 2011; USB-GPIB converter accessory. Datasheet copy hosted by distributor Meilhaus. tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://www.meilhaus.de/cosmoshop/default/articleMedia/dg1022z/de/Datasheet_Rigol_DG1000Z_en.pdf",
+    "title": "Rigol DG1000Z Series Datasheet (distributor-hosted copy)",
+    "revision": "Oct 2016",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "scpi_awg",
+  "idn_patterns": [
+   "rigol",
+   "dg10"
+  ]
+ },
+ {
+  "id": "rigol-dg2000",
+  "vendor": "Rigol",
+  "model": "DG2000 (DG2052 / DG2072 / DG2102)",
+  "category": "awg",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 16,
+   "max_sample_rate_hz": 250000000.0,
+   "freq_min_hz": 1e-06,
+   "freq_max_hz": 100000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 10,
+   "max_power_dbm": null,
+   "lf_capable_note": "Sine/arb from 1 µHz, offset ±5 Vpk ac+dc: 90-110 kHz directly."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": "250 mVpp to 5 Vpp, 1 kΩ AC-coupled; lock ±50 Hz"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "lan",
+   "usb2"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Max sine 50/70/100 MHz by model. Amplitude into 50 Ω: ≤10 MHz 1 mVpp-10 Vpp; ≤30 MHz 5 Vpp; ≤60 MHz 2.5 Vpp; >60 MHz 1 Vpp. Freq accuracy ±(1 ppm + 10 pHz). Ref out 3.3 Vpp, 50 Ω AC-coupled. USB host/device, LAN (LXI Core 2011), USB-GPIB supported. Built-in counter to 240 MHz. tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://www.rigol.com/dam/global/downloads/brochures/en/data-sheet/waveform-generators/DG2000_datasheet_EN.pdf",
+    "title": "Rigol DG2000 Series Datasheet",
+    "revision": "V1.0 (2021-10-26 per product page)",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "scpi_awg",
+  "idn_patterns": [
+   "rigol",
+   "dg20"
+  ]
+ },
+ {
+  "id": "rigol-dg900-pro",
+  "vendor": "Rigol",
+  "model": "DG900 Pro (DG902 Pro / DG912 Pro / DG922 Pro)",
+  "category": "awg",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 16,
+   "max_sample_rate_hz": 1250000000.0,
+   "freq_min_hz": 1e-06,
+   "freq_max_hz": 200000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 10,
+   "max_power_dbm": null,
+   "lf_capable_note": "Sine/arb from 1 µHz, DC offset ±5 Vpk (ac+dc) into 50 Ω: 90-110 kHz directly."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": "100 mVpp to 5 Vpp, 1 kΩ AC-coupled; lock ±100 Hz"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "lan",
+   "usb2"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Max sine 70/150/200 MHz by model. Arb 1 µHz to 30/50/50 MHz; arb sample rate 1 µSa/s-312.5 MSa/s. Amplitude into 50 Ω: ≤50 MHz 10 Vpp; ≤100 MHz 5 Vpp; ≤200 MHz 2 Vpp. Time base ±2 ppm 0-40 °C. Ref out 1.2 Vpp typ into 50 Ω, AC-coupled. LAN 10/100 LXI-C, USB device (TMC), USB host. Powered via USB-C PD 15 V 3 A. tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://www.rigol.com/dam/global/downloads/brochures/en/data-sheet/waveform-generators/DG900Pro_DataSheet_EN.pdf",
+    "title": "Rigol DG900 Pro Series Datasheet",
+    "revision": "DSB15103-1110 (2024-03-14 per product page)",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "scpi_awg",
+  "idn_patterns": [
+   "rigol",
+   "dg9"
+  ]
+ },
+ {
+  "id": "tektronix-afg31000",
+  "vendor": "Tektronix",
+  "model": "AFG31000 Series (AFG31021/22, 31051/52, 31101/02, 31151/52, 31251/52)",
+  "category": "awg",
+  "tx": {
+   "channels": 2,
+   "dac_bits": 14,
+   "max_sample_rate_hz": 2000000000.0,
+   "freq_min_hz": 1e-06,
+   "freq_max_hz": 250000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 10,
+   "max_power_dbm": null,
+   "lf_capable_note": "Sine from 1 µHz, DC offset range into 50 Ω: 90-110 kHz directly."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": "100 mVpp to 5 Vpp, 1 kΩ AC-coupled; lock range 10 MHz ±35 kHz"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "gpib",
+   "ethernet",
+   "usb2"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Sine max 25/50/100/150/250 MHz by model; sample rate 250 MSa/s, 500 MSa/s, 1 GSa/s, 2 GSa/s, 2 GSa/s; 14-bit; 16 Mpts arb. Amplitude into 50 Ω: 1 mVpp-10 Vpp ≤60 MHz (25-100 MHz models); 5 Vpp ≤200 MHz (150/250 MHz models). Offset into 50 Ω ±(5 V - Amp/2) or ±(2.5 Vpk - Amp/2). Freq accuracy ±1e-6 (0-50 °C). Ref out 1.2 Vpp into 50 Ω, AC-coupled. Ch1 external add input 50 Ω DC-10 MHz. Remote: GPIB, Ethernet 10/100/1000, USB 2.0. Datasheet copy hosted by distributor (Rapid). tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://static.rapidonline.com/pdf/85-1967_v1.pdf",
+    "title": "Tektronix AFG31000 Series Datasheet (distributor-hosted copy)",
+    "revision": "75W-61444-3, 7 Oct 2020",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "scpi_awg",
+  "idn_patterns": [
+   "tektronix",
+   "afg31"
+  ]
+ },
+ {
+  "id": "tapr-ticc",
+  "vendor": "TAPR",
+  "model": "TICC timestamping / time interval counter",
+  "category": "tic",
+  "rx": {
+   "channels": 2,
+   "adc_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": null,
+   "freq_max_hz": null,
+   "coupling": "dc",
+   "input_impedance_ohm": 1000000.0,
+   "max_input_vpp": 5
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": "nominally +3 dBm; input operates over a wide amplitude range"
+  },
+  "pps_in": true,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2"
+  ],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": 6e-11,
+   "jitter_rms_s": 1e-10,
+   "freq_accuracy": "set by external 10 MHz reference",
+   "adev_1s": null,
+   "holdover": null
+  },
+  "price_class": "<1k",
+  "notes": "Two-channel timestamping counter, 'better than 60 ps resolution and less than 100 ps typical jitter'; >100 measurements/s. Inputs trigger at about 1.7 V, safe to 5 V, 1 MΩ. Requires an external 10 MHz reference. Arduino Mega 2560 shield; data as serial text over USB. Not a frequency counter. Price US$249 (TAPR store). pps_in=true meaning the channels accept PPS-type edges. Coupling 'dc' inferred from logic-threshold inputs (unverified).",
+  "sources": [
+   {
+    "url": "https://tapr.org/product/tapr-ticc/",
+    "title": "TAPR TICC product page",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": "tic:ticc",
+  "idn_patterns": []
+ },
+ {
+  "id": "keysight-53230a",
+  "vendor": "Keysight",
+  "model": "53230A universal frequency counter/timer (350 MHz)",
+  "category": "counter",
+  "rx": {
+   "channels": 2,
+   "adc_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": 0.001,
+   "freq_max_hz": 350000000.0,
+   "coupling": "dc",
+   "input_impedance_ohm": 1000000.0,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0,
+    5000000.0,
+    1000000.0
+   ],
+   "connector": "BNC (rear)",
+   "level": "100 mVrms to 2.5 Vrms, 1 kΩ AC-coupled; lock ±1 ppm (±0.1 ppm Opt 010)"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "lan",
+   "usb2",
+   "gpib"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": 2e-11,
+   "jitter_rms_s": null,
+   "freq_accuracy": "TCXO: 1-yr aging ±1 ppm; Opt 010 U-OCXO: ±50 ppb/yr",
+   "adev_1s": 1e-09,
+   "holdover": null
+  },
+  "price_class": null,
+  "notes": "Ch1/Ch2 DC-coupled DC (1 mHz)-350 MHz; AC-coupled 10 Hz-350 MHz; selectable 1 MΩ or 50 Ω. Optional Ch3 6 or 15 GHz. 20 ps single-shot TI (53220A 100 ps; 53210A no TI). Timestamp/modulation-domain function on 53230A. adev_1s = TCXO 1 ppb (Opt 010 OCXO 0.01 ppb). Timebase out 10 MHz sine, 0.5 Vrms into 50 Ω. Ext trigger in 1 kΩ TTL; trigger delay 0-3600 s in 1 µs steps. LXI-C/LAN (VXI-11 and sockets), USB, GPIB; socket port not stated in datasheet.",
+  "sources": [
+   {
+    "url": "https://www.keysight.com/content/dam/keysight/en/doc/ungate/data-sheets/5990-6283.pdf",
+    "title": "Keysight 53200A Series RF/Universal Frequency Counter/Timers Data Sheet",
+    "revision": "5990-6283EN, published 11 Feb 2026",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": [
+   "53230"
+  ]
+ },
+ {
+  "id": "srs-sr620",
+  "vendor": "Stanford Research Systems",
+  "model": "SR620 time interval & frequency counter",
+  "category": "tic",
+  "rx": {
+   "channels": 2,
+   "adc_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": null,
+   "freq_max_hz": 1300000000.0,
+   "coupling": null,
+   "input_impedance_ohm": null,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [
+    5000000.0,
+    10000000.0
+   ],
+   "connector": null,
+   "level": "1 V nominal"
+  },
+  "ref_out": {
+   "freqs_hz": []
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "gpib"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": 2.5e-11,
+   "jitter_rms_s": 2.5e-11,
+   "freq_accuracy": "Std TCVCXO aging 1e-6/yr; Opt 01 OCXO 5e-10/day",
+   "adev_1s": 3e-10,
+   "holdover": null
+  },
+  "price_class": "5-20k",
+  "notes": "TI resolution ((25 ps typ [50 ps max])^2 + (0.2 ppb x interval)^2)/N)^1/2 rms; display LSD 4 ps single, 1 ps averaged. TI error <±(500 ps typ [1 ns max] + ...). adev_1s is standard TCVCXO (3e-10 typ); Opt 01 <5e-12. Front-panel REF output (frequency not captured). Interfaces GPIB (IEEE-488.2) and RS-232 (RS-232 not in schema enum). US list $5195 (Opt 01 +$950). 'host_api: scpi' = GPIB command set (SCPI conformance not stated; unverified).",
+  "sources": [
+   {
+    "url": "https://www.thinksrs.com/downloads/pdfs/catalog/SR620c.pdf",
+    "title": "SRS SR620 catalog datasheet",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": [
+   "sr620"
+  ]
+ },
+ {
+  "id": "pendulum-cnt-91",
+  "vendor": "Pendulum Instruments",
+  "model": "CNT-91 timer/counter/analyzer (CNT-91R with Rb timebase)",
+  "category": "counter",
+  "rx": {
+   "channels": 2,
+   "adc_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": 0.002,
+   "freq_max_hz": 400000000.0,
+   "coupling": "dc",
+   "input_impedance_ohm": null,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [
+    1000000.0,
+    5000000.0,
+    10000000.0
+   ],
+   "connector": null,
+   "level": "0.1 to 5 Vrms sine, impedance ≥1 kΩ"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "gpib",
+   "usb2"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": 5e-11,
+   "jitter_rms_s": null,
+   "freq_accuracy": "Std: <5e-7/month, <5e-6/yr; Opt 40/90 OCXO <3e-9/month; CNT-91R Rb <5e-11/month",
+   "adev_1s": null,
+   "holdover": null
+  },
+  "price_class": null,
+  "notes": "Inputs A,B 0.002 Hz-400 MHz (DC-coupled DC-400 MHz, AC 10 Hz-400 MHz); optional Input C to 3/8/15/20 GHz. 50 ps single-shot time resolution; time stamping A/B/C raw data over GPIB/USB only, 'Timestamp Resolution: 35 ps', max 160 MHz. Ref out >1 Vrms sine into 50 Ω. adev_1s depends on timebase option (OCXO opts <1e-10, <1e-11, <5e-12; std not specified) so left null. GPIB in SCPI or 53131/53132-compatible mode; USB 2.0 full speed.",
+  "sources": [
+   {
+    "url": "https://www.marubun.co.jp/wp-content/uploads/2024/10/CNT-91_91R.pdf",
+    "title": "Pendulum CNT-91 & CNT-91R datasheet (distributor-hosted copy)",
+    "revision": "rev.26, 9 Nov 2020",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": [
+   "cnt-91"
+  ]
+ },
+ {
+  "id": "microchip-53100a",
+  "vendor": "Microchip",
+  "model": "53100A phase noise analyzer",
+  "category": "counter",
+  "rx": {
+   "channels": 2,
+   "adc_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": 1000000.0,
+   "freq_max_hz": 200000000.0,
+   "coupling": null,
+   "input_impedance_ohm": 50,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [],
+   "connector": "N(f)",
+   "level": "-5 to +15 dBm; any frequency 1-200 MHz (independent of DUT frequency)"
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2"
+  ],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": null,
+   "jitter_rms_s": null,
+   "freq_accuracy": null,
+   "adev_1s": 7e-15,
+   "holdover": null
+  },
+  "price_class": null,
+  "notes": "Measures phase noise, AM noise, ADEV/MDEV/Hadamard, TDEV-type stats; input and reference 1-200 MHz, -5 to +15 dBm, 50 Ω, N(f) front panel (DUT + reference; single or dual reference for cross-correlation). ADEV floor 7e-15 at 1 s (5e-15 typ), 2e-16 at 1000 s. Offset range 0.001 Hz-1 MHz. Cannot measure 100 kHz LF signals directly (1 MHz minimum); suited to characterising 10 MHz references. Microchip site returned HTTP 403; distributor copy of DS00003430B used. rx.channels=2 counts DUT + reference ports.",
+  "sources": [
+   {
+    "url": "https://www.transcat.ca/media/pdf/microsemi-53100a-datasheet.pdf",
+    "title": "Microchip 53100A Phase Noise Analyzer datasheet (distributor-hosted copy)",
+    "revision": "DS00003430B (2/21)",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "srs-fs725",
+  "vendor": "Stanford Research Systems",
+  "model": "FS725 rubidium frequency standard",
+  "category": "reference",
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0,
+    5000000.0
+   ]
+  },
+  "pps_in": true,
+  "pps_out": true,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": null,
+   "jitter_rms_s": null,
+   "freq_accuracy": "±5e-11 at shipment; aging <5e-11/month; 20-yr aging <5e-9",
+   "adev_1s": 2e-11,
+   "holdover": "72 h Stratum 1 level (1e-11)"
+  },
+  "price_class": "1-5k",
+  "notes": "Built around PRS10. Two 10 MHz and one 5 MHz 50 Ω sine outputs, 0.5 Vrms ±10%; phase noise <-130 dBc/Hz @10 Hz. 1 pps output 10 µs pulse, 2.5 V into 50 Ω (5 V Hi-Z), <1 ns jitter. Locks to external 1 pps (e.g. GPS) with time constant 8 min-18 h. Up to 3 option boards each adding four 10 MHz, one 5 MHz, one 1 pps. RS-232 interface (not in schema enum). US list $3995. Does not output 100 kHz.",
+  "sources": [
+   {
+    "url": "https://www.thinksrs.com/downloads/pdfs/catalog/FS725c.pdf",
+    "title": "SRS FS725 catalog datasheet",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "srs-prs10",
+  "vendor": "Stanford Research Systems",
+  "model": "PRS10 rubidium oscillator module",
+  "category": "reference",
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": true,
+  "pps_out": true,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": 1e-09,
+   "jitter_rms_s": null,
+   "freq_accuracy": "±5e-11 at shipment; aging <5e-11/month, <5e-10/yr",
+   "adev_1s": 2e-11,
+   "holdover": "72 h Stratum 1 level"
+  },
+  "price_class": "1-5k",
+  "notes": "10 MHz sine 0.5 Vrms ±10%; phase noise <-130 dBc/Hz @10 Hz. ADEV <2e-11 (1 s), <1e-11 (10 s), <2e-12 (100 s). 1 pps input time-tag: ±10 ns accuracy, 1 ns resolution (single_shot_resolution_s refers to this); can phase-lock to 1 pps (GPS). 1 pps output set ±10 ns / 1 ns. RS-232 9600 baud 0-5 V levels. +24 VDC, 0.6 A steady. US list $1895.",
+  "sources": [
+   {
+    "url": "https://www.thinksrs.com/downloads/pdfs/catalog/PRS10c.pdf",
+    "title": "SRS PRS10 catalog datasheet",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "microchip-5071a",
+  "vendor": "Microchip (formerly HP/Agilent/Symmetricom)",
+  "model": "5071A cesium primary frequency standard",
+  "category": "reference",
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0,
+    5000000.0,
+    1000000.0,
+    100000.0
+   ]
+  },
+  "pps_in": true,
+  "pps_out": true,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": null,
+   "jitter_rms_s": 1e-09,
+   "freq_accuracy": "±1e-12 standard tube; ±5e-13 Option 001 high-performance tube (Agilent spec)",
+   "adev_1s": null,
+   "holdover": null
+  },
+  "price_class": null,
+  "notes": "Specs from the Agilent-era datasheet (5968-1862EUS, 2000); current Microchip pages returned HTTP 403, so values may differ from current production. Two rear N-type ports each settable to 5 or 10 MHz (>1 Vrms into 50 Ω), plus 1 MHz and 100 kHz BNC outputs (>1 Vrms, 50 Ω). Three 1PPS outputs (≥2.4 V into 50 Ω, 20 µs wide, <5 ns rise, <1 ns rms jitter) and two sync inputs (50 Ω). Flicker floor ≤5e-14 (std) / ≤1e-14 (Opt 001) guaranteed. RS-232C remote. 1-s ADEV is in a chart that did not extract cleanly (null). The 100 kHz sine output is a CW reference, not an eLoran pulse source.",
+  "sources": [
+   {
+    "url": "https://ilrs.gsfc.nasa.gov/docs/timing/HP5071A.pdf",
+    "title": "Agilent 5071A Primary Frequency Standard product overview (NASA ILRS-hosted copy)",
+    "revision": "5968-1862EUS, 10/2000",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "secondary",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "leobodnar-lbe-1420",
+  "vendor": "Leo Bodnar Electronics",
+  "model": "LBE-1420 GPS locked clock source",
+  "category": "reference",
+  "tx": {
+   "channels": 1,
+   "dac_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": 1,
+   "freq_max_hz": 1400000000.0,
+   "coupling": null,
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": 1.65,
+   "max_power_dbm": 11,
+   "lf_capable_note": "Outputs any frequency 1 Hz-1.4 GHz (1 µHz resolution) as a 3.3 V CMOS square wave: can give a GPS-locked 100 kHz square/CW, but no pulse shaping."
+  },
+  "ref_out": {
+   "freqs_hz": []
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2"
+  ],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": null,
+   "jitter_rms_s": null,
+   "freq_accuracy": null,
+   "adev_1s": null,
+   "holdover": null
+  },
+  "gnss": {
+   "constellations": [],
+   "bands": [],
+   "max_channels": null,
+   "remote_api": "NMEA over USB virtual serial port"
+  },
+  "price_class": null,
+  "notes": "Single SMA output, 1.65 V into 50 Ω (3.3 V Hi-Z); output power <400 MHz +11 dBm (+6 dBm low-power mode). Stability 1e-12 at 1000 s. Internal TCXO. Antenna port SMA 3.3 V up to 30 mA (feature list says 50 mA). 'Supports multiple GNSS' - constellations not listed. No PPS output listed in datasheet v1.1. ref_out frequency is user-set (empty list). Leo Bodnar 'Mini GPSDO' not covered (no datasheet retrieved).",
+  "sources": [
+   {
+    "url": "https://leobodnar.com/files/datasheets/LBE-1420-Datasheet-v1.1.pdf",
+    "title": "LBE-1420 GPS Locked Clock Source datasheet",
+    "revision": "v1.1",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "jacksonlabs-fury",
+  "vendor": "Jackson Labs Technologies (VIAVI)",
+  "model": "Secure uPNT Fury GPSDO",
+  "category": "reference",
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": true,
+  "pps_out": true,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "scpi"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": null,
+   "jitter_rms_s": null,
+   "freq_accuracy": "GPS locked: better than ±20 ns UTC offset 1-sigma",
+   "adev_1s": null,
+   "holdover": "better than 7 µs/24 h (8.1e-11/24 h average), DOCXO"
+  },
+  "gnss": {
+   "constellations": [
+    "GPS"
+   ],
+   "bands": [
+    "L1"
+   ],
+   "max_channels": 12,
+   "remote_api": "SCPI-99 over RS-232, 9600-115200 baud"
+  },
+  "price_class": null,
+  "notes": "10 MHz sine +6 dBm ±3 dBm into 50 Ω; 10 MHz CMOS/TTL 3.3 or 5 Vpp square. 1 PPS out 3.3 V TTL/CMOS, <2 ns rise. 1 PPS FailSafe input (TTL/CMOS 3.3/5 V) for external backup. ADEV <1e-11 for tau >0.1 s (feature list). Phase noise <-125 dBc at >10 Hz. 12-channel GPS L1 C/A timing receiver. NMEA output. RS-232 interface (not in schema enum). Values typical at 25 °C after 3 days.",
+  "sources": [
+   {
+    "url": "https://www.viavisolutions.com/en-us/literature/secure-upnt-fury-gpsdo-data-sheets-en.pdf",
+    "title": "VIAVI Secure uPNT Fury GPS Disciplined Oscillator data sheet",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "ublox-zed-f9t-20b",
+  "vendor": "u-blox",
+  "model": "ZED-F9T-20B timing module",
+  "category": "gnss_timing_rx",
+  "pps_in": false,
+  "pps_out": true,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2"
+  ],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": 8e-09,
+   "jitter_rms_s": null,
+   "freq_accuracy": null,
+   "adev_1s": null,
+   "holdover": null
+  },
+  "gnss": {
+   "constellations": [
+    "GPS",
+    "QZSS",
+    "Galileo",
+    "BeiDou",
+    "NavIC"
+   ],
+   "bands": [
+    "L1C/A",
+    "L2C",
+    "L5",
+    "E1B/C",
+    "E5a",
+    "E5b",
+    "B1I",
+    "B1C",
+    "B2a",
+    "B2I"
+   ],
+   "max_channels": null,
+   "remote_api": "UBX binary, NMEA 4.11 (default), RTCM 3.4 over UART/USB/SPI/I2C"
+  },
+  "price_class": null,
+  "notes": "Time pulse accuracy 5 ns (1-sigma) absolute, 2.5 ns differential timing mode; time pulse jitter ±4 ns; time-mark resolution 8 ns (single_shot_resolution_s). Time pulse frequency configurable 0.25 Hz-25 MHz (could output a GNSS-locked 100 kHz square). Only L1+L2 or L1+L5 concurrently. -00B/-10B variants are NRND; -00B adds GLONASS. Interfaces UART x2, USB, SPI, I2C. TCXO.",
+  "sources": [
+   {
+    "url": "https://www.u-blox.com/sites/default/files/documents/ZED-F9T-20B_DataSheet_UBXDOC-963802114-12681.pdf",
+    "title": "ZED-F9T-20B Data sheet",
+    "revision": "UBXDOC-963802114-12681 R04, 28 May 2026",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://www.u-blox.com/en/product/zed-f9t-module",
+    "title": "u-blox ZED-F9T product page",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "septentrio-mosaic-t",
+  "vendor": "Septentrio",
+  "model": "mosaic-T GNSS timing receiver module",
+  "category": "gnss_timing_rx",
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": "Frequency sync input (10 MHz); level not in brochure"
+  },
+  "pps_in": false,
+  "pps_out": true,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2",
+   "ethernet"
+  ],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": null,
+   "jitter_rms_s": null,
+   "freq_accuracy": "xPPS out time precision 5 ns; <1 ns with AtomiChron",
+   "adev_1s": null,
+   "holdover": null
+  },
+  "gnss": {
+   "constellations": [
+    "GPS",
+    "GLONASS",
+    "BeiDou",
+    "Galileo",
+    "QZSS",
+    "NavIC"
+   ],
+   "bands": [
+    "L1C/A",
+    "L1PY",
+    "L2C",
+    "L2PY",
+    "L5",
+    "GLO L1CA",
+    "GLO L2CA",
+    "GLO L3",
+    "B1I",
+    "B1C",
+    "B2a",
+    "B2b",
+    "B2I",
+    "B3",
+    "E1",
+    "E5a",
+    "E5b",
+    "E5 AltBOC",
+    "E6"
+   ],
+   "max_channels": 448,
+   "remote_api": "SBF (Septentrio Binary Format), NMEA 0183 v2.3/3.03/4.0; 4 UART LVTTL up to 4 Mbps, Ethernet, USB"
+  },
+  "price_class": null,
+  "notes": "448 hardware channels. 1 configurable PPS out; 2 event markers (event accuracy <20 ns); frequency sync input 10 MHz. Septentrio site returned HTTP 403; Septentrio brochure (© 2025) hosted by SparkFun used.",
+  "sources": [
+   {
+    "url": "https://docs.sparkfun.com/SparkFun_GNSS_mosaic-T/assets/component_documentation/Septentrio_mosaic-T_LR.pdf",
+    "title": "Septentrio mosaic-T brochure (SparkFun-hosted copy)",
+    "revision": "© 2025",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "spirent-gss7000",
+  "vendor": "Spirent (now Keysight PNT)",
+  "model": "GSS7000 GNSS constellation simulator",
+  "category": "gnss_sim",
+  "tx": {
+   "channels": 256,
+   "dac_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": null,
+   "freq_max_hz": null,
+   "coupling": "ac",
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "L-band GNSS RF only; no LF output."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    1000000.0,
+    5000000.0,
+    10000000.0
+   ],
+   "connector": "BNC",
+   "level": "-5 to +10 dBm, 50 Ω"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": true,
+  "pps_out": true,
+  "timestamped_tx": null,
+  "interface": [
+   "ethernet"
+  ],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "gnss": {
+   "constellations": [
+    "GPS",
+    "GLONASS",
+    "Galileo",
+    "BeiDou",
+    "QZSS",
+    "NavIC",
+    "SBAS"
+   ],
+   "bands": [
+    "L1",
+    "L2",
+    "L5",
+    "E1",
+    "E5",
+    "E6",
+    "B1",
+    "B2",
+    "B3"
+   ],
+   "max_channels": 256,
+   "remote_api": "SimREMOTE ICD commands over Ethernet TCP/IP (port not stated in datasheet)"
+  },
+  "price_class": null,
+  "notes": "Up to 4 channel banks x 64 channels = 256 per chassis. Main/high-level RF ports N-type 50 Ω, AC coupled ±50 V DC. Internal frequency standard out 10.00 MHz +5 dBm nominal. 1PPS IN/OUT and Trigger IN BNC 50 Ω TTL. 1PPS-to-RF alignment <±2 ns. Controller: 2x Ethernet, 4x USB.",
+  "sources": [
+   {
+    "url": "https://www.keysight.com/content/dam/keysight/en/doc/ungate/data-sheets/PNT-GSS7000-GNSS-Constellation-Simulator.pdf",
+    "title": "Keysight (formerly Spirent) PNT GSS7000 GNSS Constellation Simulator data sheet",
+    "revision": "3126-1218.EN, published 7 Sep 2026",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "gnss_sim:spirent",
+  "idn_patterns": []
+ },
+ {
+  "id": "spirent-gss9000",
+  "vendor": "Spirent (now Keysight PNT)",
+  "model": "GSS9000 GNSS constellation simulator",
+  "category": "gnss_sim",
+  "tx": {
+   "channels": null,
+   "dac_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": null,
+   "freq_max_hz": null,
+   "coupling": "ac",
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "L-band GNSS RF only; no LF output."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    1000000.0,
+    5000000.0,
+    10000000.0
+   ],
+   "connector": "BNC",
+   "level": "-5 to +10 dBm, 50 Ω"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": true,
+  "pps_out": true,
+  "timestamped_tx": null,
+  "interface": [
+   "ethernet",
+   "gpib"
+  ],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "gnss": {
+   "constellations": [
+    "GPS",
+    "GLONASS",
+    "Galileo",
+    "BeiDou",
+    "QZSS",
+    "NavIC",
+    "SBAS"
+   ],
+   "bands": [
+    "L1",
+    "L2",
+    "L5",
+    "E1",
+    "E5",
+    "E6",
+    "B1",
+    "B2",
+    "B3"
+   ],
+   "max_channels": null,
+   "remote_api": "Native Ethernet remote control; SimREMOTE (time-stamped commands, 6-DOF trajectory up to 2000 Hz); optional GPIB and SCRAMNet"
+  },
+  "price_class": null,
+  "notes": "Radio cards licensed for 4/8/12/16/32 channels each. External frequency standard in BNC 50 Ω -5 to +10 dBm at 1/5/10 MHz; internal standard out 10.00 MHz +5 dBm. 1PPS IN/OUT, Trigger IN BNC 50 Ω TTL. 1PPS-to-RF alignment <±2 ns. RF ports N-type, AC coupled. Host connects via cabled PCIe. SimREMOTE commands are time-stamped (simulation-time scheduling). Datasheet copy from a Russian distributor mirror.",
+  "sources": [
+   {
+    "url": "https://akmetron.ru/upload/iblock/b1e/4h03zcurezi5w4djivgv2hbociawewzv/GSS9000_Spirent_DataSheet.pdf",
+    "title": "Spirent GSS9000 Datasheet with Product Specification (distributor-hosted copy)",
+    "revision": "MS9000 Issue 6-05, Nov 2023",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "gnss_sim:spirent",
+  "idn_patterns": []
+ },
+ {
+  "id": "rohdeschwarz-smbv100b",
+  "vendor": "Rohde & Schwarz",
+  "model": "R&S SMBV100B vector signal generator (GNSS options)",
+  "category": "gnss_sim",
+  "tx": {
+   "channels": 1,
+   "dac_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": 8000.0,
+   "freq_max_hz": 6000000000.0,
+   "coupling": null,
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": 5,
+   "lf_capable_note": "RF CW from 8 kHz, but I/Q (modulated) mode only from 1 MHz: 100 kHz CW possible (specified level -90 to +5 dBm for 8-100 kHz), eLoran pulses cannot be produced at RF via I/Q. Analog baseband I/Q outputs (50 Ω, 1 Vp EMF, offset <1 mV) could carry a 100 kHz waveform (coupling not stated; unverified)."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": "BNC (REF IN, rear)",
+   "level": "standard 10 MHz; 1-100 MHz variable with SMBVB-K704; 100 MHz / 1 GHz with SMBVB-B3"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [
+   "lan",
+   "gpib",
+   "usb2"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "gnss": {
+   "constellations": [
+    "GPS",
+    "GLONASS",
+    "Galileo",
+    "BeiDou",
+    "QZSS",
+    "SBAS"
+   ],
+   "bands": [],
+   "max_channels": null,
+   "remote_api": "SCPI 1999.5 over Ethernet/LAN 10/100/1000BASE-T, GPIB, USB-TMC, RS-232"
+  },
+  "price_class": null,
+  "notes": "Frequency range 8 kHz-3 GHz or 6 GHz (CW); I/Q mode 1 MHz-3/6 GHz. Specified level 8-100 kHz: -90 to +5 dBm (std), +17 dBm with B32. Ext ref lock range ±100e-6 (10 MHz mode). REF OUT 10 MHz. GNSS bands per GNSS spec document (not retrieved). 1PPS I/O not covered in base spec sheet (null). Socket port not stated.",
+  "sources": [
+   {
+    "url": "https://www.datatec.eu/media/8b/9a/81/1704764965/Rohde_Schwarz-1423.1003_(4).pdf",
+    "title": "R&S SMBV100B Vector Signal Generator Specifications (distributor-hosted copy)",
+    "revision": "Version 10.00, November 2023",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "gnss_sim:rs_smbv",
+  "idn_patterns": [
+   "rohde",
+   "smbv100b"
+  ]
+ },
+ {
+  "id": "rohdeschwarz-smw200a",
+  "vendor": "Rohde & Schwarz",
+  "model": "R&S SMW200A vector signal generator (GNSS options)",
+  "category": "gnss_sim",
+  "tx": {
+   "channels": 2,
+   "dac_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": 100000.0,
+   "freq_max_hz": 67000000000.0,
+   "coupling": null,
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": 3,
+   "lf_capable_note": "RF lower limit 100 kHz (band centre); 90-100 kHz not covered and level limited to +3 dBm PEP below 1 MHz. Not a practical eLoran source."
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": "BNC (REF IN, rear)",
+   "level": "0 to 20 dBm (7-13 dBm recommended), 50 Ω; 10/100 MHz with K703; 1-100 MHz variable with K704"
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [
+   "lan",
+   "gpib"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "gnss": {
+   "constellations": [],
+   "bands": [],
+   "max_channels": null,
+   "remote_api": "SCPI 1999.5 over Ethernet/LAN 10/100/1000BASE-T or GPIB"
+  },
+  "price_class": null,
+  "notes": "RF options 100 kHz to 3/6/7.5/12.75/20/31.8/40/44/56/67 GHz; optional second RF path (tx.channels=2 counts paths). Level 100 kHz-1 MHz: -120 to +3 dBm PEP (3-20 GHz options). Ext ref lock range ±3e-6 (wide) / ±0.3e-6 (narrow). REF OUT 7-14 dBm, 50 Ω. GNSS constellation/band details are in the separate GNSS spec document (not retrieved). 1PPS not covered in base spec (null).",
+  "sources": [
+   {
+    "url": "https://scdn.rohde-schwarz.com/ur/pws/dl_downloads/pdm/cl_brochures_and_datasheets/specifications/3606_8037_22/SMW200A_specs_en_3606-8037-22_v3100.pdf",
+    "title": "R&S SMW200A Vector Signal Generator Specifications",
+    "revision": "Version 31.00, May 2026",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "gnss_sim:rs_smbv",
+  "idn_patterns": [
+   "rohde",
+   "smw200a"
+  ]
+ },
+ {
+  "id": "safran-skydel",
+  "vendor": "Safran (formerly Orolia)",
+  "model": "Skydel GNSS simulation engine (software; runs on SDR hardware)",
+  "category": "gnss_sim",
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "gnss": {
+   "constellations": [
+    "GPS",
+    "GLONASS",
+    "Galileo",
+    "BeiDou",
+    "QZSS",
+    "NavIC",
+    "SBAS",
+    "Xona"
+   ],
+   "bands": [
+    "L1C/A",
+    "L1C",
+    "L1P(Y)",
+    "L2P(Y)",
+    "L2C",
+    "L5",
+    "G1",
+    "G2",
+    "E1",
+    "E5a",
+    "E5b",
+    "E5 AltBOC",
+    "E6",
+    "B1",
+    "B2",
+    "B1C",
+    "B2a",
+    "B3I"
+   ],
+   "max_channels": null,
+   "remote_api": "Python, C#, C++ API (protocol/port not stated in datasheet)"
+  },
+  "price_class": null,
+  "notes": "Software engine; RF outputs depend on the SDR configuration (supported SDR models not named on product page or datasheet). 1000 Hz simulation iteration rate; pseudorange <1 mm, pseudorange rate <1 mm/s, inter-channel bias 0. GPU-accelerated. Windows and Linux. Baseband IQ logging. 10 MHz/PPS sync depends on the SDR (not stated). BroadSim hardware not covered (no spec retrieved).",
+  "sources": [
+   {
+    "url": "https://safran-navigation-timing.com/wp-content/uploads/2024/07/SAFRAN_Skydel_Datasheet_7-17-2024_INT.pdf",
+    "title": "Safran Skydel datasheet (A4)",
+    "revision": "17 Jul 2024",
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://safran-navigation-timing.com/product/skydel-simulation-engine/",
+    "title": "Safran Skydel product page",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "gnss_sim:skydel",
+  "idn_patterns": []
+ },
+ {
+  "id": "racelogic-labsat-3-wideband",
+  "vendor": "Racelogic",
+  "model": "LabSat 3 Wideband record/replay GNSS simulator",
+  "category": "gnss_sim",
+  "tx": {
+   "channels": 3,
+   "dac_bits": 3,
+   "max_sample_rate_hz": 58000000.0,
+   "freq_min_hz": null,
+   "freq_max_hz": null,
+   "coupling": null,
+   "hp_corner_hz": null,
+   "analog_bw_hz": 56000000.0,
+   "output_impedance_ohm": null,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "GNSS L-band record/replay only; no LF output."
+  },
+  "rx": {
+   "channels": 3,
+   "adc_bits": 3,
+   "max_sample_rate_hz": 58000000.0,
+   "freq_min_hz": null,
+   "freq_max_hz": null,
+   "coupling": null,
+   "input_impedance_ohm": null,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": "SMA (REF In)",
+   "level": null
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [
+   "ethernet",
+   "usb2"
+  ],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "gnss": {
+   "constellations": [
+    "GPS",
+    "GLONASS",
+    "Galileo",
+    "BeiDou",
+    "QZSS",
+    "NavIC"
+   ],
+   "bands": [
+    "L1",
+    "L2",
+    "L5",
+    "GLO L1",
+    "GLO L2",
+    "GLO L3",
+    "E1",
+    "E5a",
+    "E5b",
+    "E6",
+    "B1",
+    "B2",
+    "B3",
+    "NavIC S-band"
+   ],
+   "max_channels": null,
+   "remote_api": "Ethernet (RJ45) remote access/control and file transfer (protocol/port not stated)"
+  },
+  "price_class": null,
+  "notes": "Up to 3 RF channels (record/replay blocks); sampling 10.23/30.69/58 MHz; bandwidth 10/30/56 MHz; quantisation 1, 2 or 3 bit per I and Q (dac/adc_bits = per-component). Nominal output -73 dBm/MHz @0 dB attenuation. SMA 'REF In' listed as '10MHz Reference Clock Input / Output'. 1-PPS available on 36-way expansion connector (direction not stated; pps fields null). OCXO ±0.3 ppm first year (TCXO variant ±1 ppm). USB-B for NMEA output. Racelogic site returned HTTP 403; distributor-hosted Racelogic datasheet used. LabSat 4 not covered.",
+  "sources": [
+   {
+    "url": "https://www.navtechgps.com/wp-content/uploads/Labsat3WB_DS.pdf",
+    "title": "Racelogic LabSat 3 Wideband datasheet (distributor-hosted copy)",
+    "revision": "06/2021",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": "gnss_sim:labsat",
+  "idn_patterns": []
+ },
+ {
+  "id": "rigol-dho900",
+  "vendor": "Rigol",
+  "model": "DHO900 (DHO914/DHO914S 125 MHz; DHO924/DHO924S 250 MHz)",
+  "category": "scope",
+  "tx": {
+   "channels": 1,
+   "dac_bits": 14,
+   "max_sample_rate_hz": 156000000.0,
+   "freq_min_hz": 0.002,
+   "freq_max_hz": 25000000.0,
+   "coupling": null,
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "AFG on 'S' models only: sine 2 mHz-25 MHz, arbitrary 2 mHz-10 MHz (16 kpts): 100 kHz possible. Output coupling not stated."
+  },
+  "rx": {
+   "channels": 4,
+   "adc_bits": 12,
+   "max_sample_rate_hz": 1250000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": 250000000.0,
+   "coupling": "dc",
+   "input_impedance_ohm": 1000000.0,
+   "max_input_vpp": null
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2",
+   "lan"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "4 analog channels, 12-bit; 1.25 GSa/s single-channel, 625 MSa/s dual, 312.5 MSa/s all channels. Input coupling DC, AC or GND; 1 MΩ ±1%. AFG (S models): 156 MSa/s, 14-bit, 50 Ω typ; amplitude 2 mV-10 V (≤10 MHz) - load condition not captured; frequency accuracy 100 ppm. USB device & host, LAN, HDMI. No 10 MHz ref listed in captured text.",
+  "sources": [
+   {
+    "url": "https://www.rigol.com/dam/global/downloads/brochures/en/data-sheet/oscilloscopes/DHO900_DataSheet.pdf",
+    "title": "Rigol DHO900 Series Datasheet",
+    "revision": "DSA37105-1110 (2026-07-29 per product page)",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": [
+   "rigol",
+   "dho9"
+  ]
+ },
+ {
+  "id": "siglent-sds2000x-plus",
+  "vendor": "Siglent",
+  "model": "SDS2000X Plus (SDS2102X/2104X/2204X/2354X Plus)",
+  "category": "scope",
+  "rx": {
+   "channels": 4,
+   "adc_bits": 10,
+   "max_sample_rate_hz": 2000000000.0,
+   "freq_min_hz": null,
+   "freq_max_hz": 350000000.0,
+   "coupling": null,
+   "input_impedance_ohm": null,
+   "max_input_vpp": null
+  },
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Low confidence: datasheet PDFs either 404'd or had non-extractable text; values from search-result excerpts of the Siglent EN01D datasheet: 100/200/350 MHz models (500 MHz upgrade for 350 MHz models), 2 or 4 channels plus EXT, 2 GSa/s interleaved / 1 GSa/s non-interleaved, 10-bit acquisition mode (8-bit native), up to 200 Mpts/ch. Input impedance, coupling, interfaces and ref I/O not verified (null). Verify against the datasheet before use.",
+  "sources": [
+   {
+    "url": "https://int.siglent.com/u_file/download/24_07_01/SDS2000X%20Plus_Datasheet_EN01D.pdf",
+    "title": "Siglent SDS2000X Plus Datasheet (via search-result excerpts; download failed)",
+    "revision": "EN01D",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "secondary",
+  "kshana_driver": null,
+  "idn_patterns": [
+   "siglent",
+   "sds2"
+  ]
+ },
+ {
+  "id": "keysight-infiniivision-1000x",
+  "vendor": "Keysight",
+  "model": "InfiniiVision 1000 X-Series (EDUX1052A/G, DSOX1202A/G, DSOX1204A/G)",
+  "category": "scope",
+  "tx": {
+   "channels": 1,
+   "dac_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": 0.1,
+   "freq_max_hz": 20000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": null,
+   "output_impedance_ohm": null,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "WaveGen ('G' models only): sine 0.1 Hz-20 MHz, square/pulse 0.1 Hz-10 MHz, DC: 100 kHz sine/square possible; no arbitrary waveform, so no eLoran pulse shape."
+  },
+  "rx": {
+   "channels": 4,
+   "adc_bits": 8,
+   "max_sample_rate_hz": 2000000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": 200000000.0,
+   "coupling": "dc",
+   "input_impedance_ohm": 1000000.0,
+   "max_input_vpp": null
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb2",
+   "lan"
+  ],
+  "host_api": [
+   "scpi",
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Bandwidth 50 MHz (EDUX) or 70 MHz base, 100/200 MHz options (DSOX). 2 or 4 channels. 2 GSa/s (1 GSa/s EDUX). Input DC or AC (10 Hz cutoff); 1 MΩ ±2% || 16 pF. 8-bit vertical. WaveGen offset ±(5 V - amp/2) into 50 Ω (DC capable). Bode/FRA 10 Hz-20 MHz, 1 mVpp-9 Vpp into 50 Ω. tx.coupling 'dc' from DC waveform availability. No 10 MHz ref I/O listed. tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://www.keysight.com/content/dam/keysight/en/doc/ungate/data-sheets/5992-3484.pdf",
+    "title": "Keysight InfiniiVision 1000 X-Series Oscilloscopes Data Sheet",
+    "revision": "5992-3484EN, published 12 Nov 2024",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": [
+   "keysight",
+   "x1"
+  ]
+ },
+ {
+  "id": "picotech-picoscope-5000d",
+  "vendor": "Pico Technology",
+  "model": "PicoScope 5000D Series (5242D/5442D/5243D/5443D/5244D/5444D, MSO variants)",
+  "category": "scope",
+  "tx": {
+   "channels": 1,
+   "dac_bits": 14,
+   "max_sample_rate_hz": 200000000.0,
+   "freq_min_hz": 0.025,
+   "freq_max_hz": 20000000.0,
+   "coupling": "dc",
+   "hp_corner_hz": null,
+   "analog_bw_hz": 20000000.0,
+   "output_impedance_ohm": 50,
+   "max_vpp_into_50ohm": null,
+   "max_power_dbm": null,
+   "lf_capable_note": "Built-in 14-bit 200 MS/s AWG with DC voltage function, 0.025 Hz-20 MHz, ±2 V: can generate 100 kHz eLoran-like pulses (32 kS buffer)."
+  },
+  "rx": {
+   "channels": 4,
+   "adc_bits": 16,
+   "max_sample_rate_hz": 1000000000.0,
+   "freq_min_hz": 0,
+   "freq_max_hz": 200000000.0,
+   "coupling": "dc",
+   "input_impedance_ohm": 1000000.0,
+   "max_input_vpp": 40
+  },
+  "pps_in": false,
+  "pps_out": false,
+  "timestamped_tx": null,
+  "interface": [
+   "usb3"
+  ],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "FlexRes 8-16 bit: 1 GS/s @8-bit, 500 MS/s @12-bit, 62.5 MS/s @16-bit (rx values: max channels/bits/rate across modes, not simultaneous). Bandwidth 60/100/200 MHz by model (60 MHz in 16-bit mode). Input AC/DC, 1 MΩ ±1% || 14 pF, ranges ±10 mV-±20 V. AWG output ±2 V, 50 Ω ±1% output resistance, AWG buffer 32 kS, >20 MHz BW. Timebase ±50 ppm (60 MHz models) or ±2 ppm (100/200 MHz models). No external reference input listed in the datasheet. SDK (PicoSDK) not in schema enum. tx.coupling 'dc' is inferred from the published DC-offset/DC-function spec (datasheet has no explicit coupling line).",
+  "sources": [
+   {
+    "url": "https://www.picotech.com/download/datasheets/picoscope-5000d-series-data-sheet.pdf",
+    "title": "PicoScope 5000D Series data sheet",
+    "revision": "MM093.en-4",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "ursanav-un-152b",
+  "vendor": "UrsaNav",
+  "model": "UN-152B eLoran timing receiver (1U rack)",
+  "category": "eloran_rx",
+  "rx": {
+   "channels": null,
+   "adc_bits": null,
+   "max_sample_rate_hz": null,
+   "freq_min_hz": null,
+   "freq_max_hz": null,
+   "coupling": null,
+   "input_impedance_ohm": null,
+   "max_input_vpp": null
+  },
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": null
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": true,
+  "pps_out": true,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": null,
+   "jitter_rms_s": null,
+   "freq_accuracy": "Stratum-I frequency (claimed); ETSI EN 300 462-6-1 / ITU G.811",
+   "adev_1s": null,
+   "holdover": "< 5 µs / 24 h"
+  },
+  "price_class": null,
+  "notes": "Max time interval error <50 ns from UTC; <25 ns for 100 s intervals; <100 ns for intervals <1000 s. Timing source 1-3 transmitters with automatic handover. Loran-C, eLoran, Chayka (and per 2025 snapshot WWVB, WWVH, DCF77, R4, MSF). Sensitivity 30-120 dBµV/m; dynamic range 96 dB; Eurofix and 9th/10th pulse LDC. Serial port RS-232 level, 115200 baud, NMEA messaging (not in interface enum); GPIO port; 1 PPS eLoran UTC output; 10 MHz output; 10 MHz and 1PPS inputs. Position: TTFF 30 s, 1 Hz, 10-20 m (95%) differential. Antenna: optional UN-006 E-field or UN-008 H-field. 100-240 VAC, 15 W. ELEGANT GUI (Windows XP/7).",
+  "sources": [
+   {
+    "url": "https://www.ursanav.com/wp-content/uploads/UN-152B.pdf",
+    "title": "UrsaNav UN-152B eLoran Timing Receiver datasheet",
+    "revision": null,
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://ursanav.com/wp2024/wp-content/uploads/2025/05/UN-152A-and-UN-152B-Receivers-Solution-Snapshot.pdf",
+    "title": "UrsaNav UN-152A/UN-152B Receivers Solution Snapshot",
+    "revision": "© 2025",
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "ursanav-un-151",
+  "vendor": "UrsaNav",
+  "model": "UN-151(B) eLoran receiver module (OEM)",
+  "category": "eloran_rx",
+  "ref_in": {
+   "freqs_hz": [
+    10000000.0
+   ],
+   "connector": null,
+   "level": null
+  },
+  "ref_out": {
+   "freqs_hz": [
+    10000000.0
+   ]
+  },
+  "pps_in": true,
+  "pps_out": true,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": null,
+   "jitter_rms_s": null,
+   "freq_accuracy": "ETSI EN 300 462-6-1 / ITU G.811",
+   "adev_1s": null,
+   "holdover": "< 5 µs / 24 h"
+  },
+  "price_class": null,
+  "notes": "Same timing/engine specs as UN-152B (MTIE <50 ns from UTC). Dual serial ports TTL level 115200 baud, NMEA; GPIO; 10 MHz in/out; 1PPS in / 1 PPS eLoran UTC out; optional USB and Ethernet. 100 x 158 x 33 mm, +5 VDC, 14 W, -40 to +65 °C. Optional UN-006 E-field / UN-008 H-field antennas.",
+  "sources": [
+   {
+    "url": "https://www.ursanav.com/wp-content/uploads/UN-151.pdf",
+    "title": "UrsaNav UN-151 eLoran Receiver Module datasheet",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "ursanav-un-008",
+  "vendor": "UrsaNav",
+  "model": "UN-008 H-field antenna",
+  "category": "antenna",
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Listed only as an optional accessory (H-field) for UN-151/UN-152B; heading <1 degree with H-field antenna. No public electrical specifications found.",
+  "sources": [
+   {
+    "url": "https://www.ursanav.com/wp-content/uploads/UN-152B.pdf",
+    "title": "UrsaNav UN-152B eLoran Timing Receiver datasheet",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "ursanav-un-006",
+  "vendor": "UrsaNav",
+  "model": "UN-006 E-field antenna",
+  "category": "antenna",
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Listed only as an optional accessory (E-field) for UN-151/UN-152B; optional cables 5, 15 or 30 m. No public electrical specifications found.",
+  "sources": [
+   {
+    "url": "https://www.ursanav.com/wp-content/uploads/UN-152B.pdf",
+    "title": "UrsaNav UN-152B eLoran Timing Receiver datasheet",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "datasheet",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "reelektronika-loradd-utc",
+  "vendor": "reelektronika",
+  "model": "LORADD-UTC eLoran timing receiver",
+  "category": "eloran_rx",
+  "ref_out": {
+   "freqs_hz": []
+  },
+  "pps_in": null,
+  "pps_out": true,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "timing": {
+   "single_shot_resolution_s": null,
+   "jitter_rms_s": null,
+   "freq_accuracy": "Stratum-1 (1e-11) proven per vendor",
+   "adev_1s": null,
+   "holdover": null
+  },
+  "price_class": null,
+  "notes": "Loran-derived 1 PPS synchronised to UTC; absolute time within 50 ns of UTC using eLoran UTC messages (ITU G.811). OCXO. Provides 'a number of internationally standardised telecommunication frequencies' (not enumerated, so ref_out list empty). Also houses a GPS timing receiver. No detailed datasheet online; product page only.",
+  "sources": [
+   {
+    "url": "https://www.reelektronika.nl/products/loradd-utc-series/",
+    "title": "reelektronika LORADD-UTC series product page",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "reelektronika-loradd-sp",
+  "vendor": "reelektronika",
+  "model": "LORADD-SP eLoran receiver series",
+  "category": "eloran_rx",
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [
+   "vendor-gui"
+  ],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "Navigation receiver: eLoran positions (ASF maps), integrated eLoran/GPS solution, TOA/ECD/signal quality measurements, eLoran heading when stationary. Serial ports, NMEA standard messages plus proprietary messages in NMEA format; Windows software supplied. No numeric specs published on the page.",
+  "sources": [
+   {
+    "url": "https://www.reelektronika.nl/products/eloran-receivers-loradd-sp-series/",
+    "title": "reelektronika LORADD-SP series product page",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "reelektronika-loradd-pp-core",
+  "vendor": "reelektronika",
+  "model": "Loradd++ / core eLoran/Chayka receiver module",
+  "category": "eloran_rx",
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [],
+  "scpi_port": null,
+  "price_class": null,
+  "notes": "60 x 30 x 8 mm; <500 mW at 3.3 V; dual-channel receiver; accepts E-field or H-field antenna signals; dual serial interface; connectable to u-blox GNSS modules. Output formats and timing outputs not published.",
+  "sources": [
+   {
+    "url": "https://www.reelektronika.nl/manuals/Loradd++_flyer.pdf",
+    "title": "reelektronika Loradd++ flyer",
+    "revision": null,
+    "accessed": "2026-11-18"
+   },
+   {
+    "url": "https://www.reelektronika.nl/",
+    "title": "reelektronika home page",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": null,
+  "idn_patterns": []
+ },
+ {
+  "id": "reelektronika-loradd-pp-e",
+  "vendor": "reelektronika",
+  "model": "Loradd++ / E integrated GNSS + eLoran/Chayka receiver (E-field antenna radome)",
+  "category": "eloran_rx",
+  "pps_in": null,
+  "pps_out": null,
+  "timestamped_tx": null,
+  "interface": [],
+  "host_api": [],
+  "scpi_port": null,
+  "gnss": {
+   "constellations": [],
+   "bands": [],
+   "max_channels": null,
+   "remote_api": null
+  },
+  "price_class": null,
+  "notes": "Radome (135 mm high, 85 mm diameter) holds eLoran/Chayka E-field antenna, GNSS antenna, Loradd++ module and u-blox M8T GNSS receiver. Connects via single cable (up to 150 m) and dongle to PC USB port (USB version not stated). <700 mW at 4-16 V. Antenna type: E-field (active, integrated).",
+  "sources": [
+   {
+    "url": "https://www.reelektronika.nl/manuals/Loradd++_flyer.pdf",
+    "title": "reelektronika Loradd++ flyer",
+    "revision": null,
+    "accessed": "2026-11-18"
+   }
+  ],
+  "confidence": "vendor-web",
+  "kshana_driver": null,
+  "idn_patterns": []
+ }
+]

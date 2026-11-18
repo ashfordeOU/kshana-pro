@@ -197,6 +197,10 @@ impl HwSpec {
         match (tx.freq_min_hz, tx.freq_max_hz) {
             (Some(lo), Some(hi)) => Some(lo <= 90e3 && hi >= 110e3),
             (None, Some(hi)) if tx.coupling.as_deref() == Some("dc") => Some(hi >= 110e3),
+            // DC-coupled from DC with no stated upper limit: the sample rate bounds it.
+            (Some(lo), None) if lo <= 90e3 && tx.coupling.as_deref() == Some("dc") => {
+                tx.max_sample_rate_hz.map(|fs| fs >= 2.2 * 110e3)
+            }
             _ => None,
         }
     }
@@ -323,7 +327,7 @@ mod tests {
     #[test]
     fn builtin_catalogue_is_sourced_and_unique() {
         let c = Catalog::builtin();
-        // Every entry must be sourced; the count is checked once the datasheet data lands.
+        assert!(c.len() >= 50, "catalogue has {} entries", c.len());
         for s in c.iter() {
             assert!(!s.sources.is_empty(), "{} has no source", s.id);
             for src in &s.sources {

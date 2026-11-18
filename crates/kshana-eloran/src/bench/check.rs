@@ -483,7 +483,12 @@ pub fn assess(inv: &Inventory, cat: &Catalog) -> Assessment {
             .map(|s| {
                 s.ref_out
                     .as_ref()
-                    .map(|r| r.freqs_hz.len().max(1))
+                    .map(|r| {
+                        r.freqs_hz
+                            .iter()
+                            .filter(|f| (**f - 10e6).abs() < 1.0)
+                            .count()
+                    })
                     .unwrap_or(0)
             })
             .sum::<usize>()
@@ -499,7 +504,7 @@ pub fn assess(inv: &Inventory, cat: &Catalog) -> Assessment {
                 "reference fan-out",
                 Status::Warn,
                 format!(
-                    "{} devices take 10 MHz but the reference publishes {} output(s): add a distribution amplifier or tee only with a buffer (never split a reference passively over long cables)",
+                    "{} devices take 10 MHz but the reference publishes {} 10 MHz output(s): add a distribution amplifier or tee only with a buffer (never split a reference passively over long cables)",
                     consumers.len(),
                     outs
                 ),
@@ -675,6 +680,20 @@ fn check_eloran_source(cx: &mut Ctx, req: &BenchRequirements, d: &InventoryItem,
         );
         return;
     };
+    if !matches!(s.category, Category::Sdr | Category::Awg | Category::Daq) {
+        cx.add(
+            role,
+            &dev,
+            "pulse-shaping source",
+            Status::Warn,
+            format!(
+                "a {} is not a waveform source: check that its output can carry arbitrary eLoran pulses, not only a sine or square ({})",
+                s.category.label(),
+                tx.lf_capable_note.as_deref().unwrap_or("see the catalogue notes")
+            ),
+            Some(s),
+        );
+    }
     // Band: the decisive check.
     let (st, det) = match s.lf_direct() {
         Some(true) => (

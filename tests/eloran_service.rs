@@ -456,3 +456,42 @@ fn live_monitor_route_is_licensed_and_returns_json_or_the_dashboard() {
     );
     assert_eq!(http(addr, "POST", "/eloran/monitor", "").status, 422);
 }
+
+#[test]
+fn bench_routes_catalogue_free_check_licensed() {
+    let srv = start(None, ent(Tier::Evaluation));
+    let addr = srv.local_addr();
+    let r = http(addr, "GET", "/eloran/bench/catalog?lf=1", "");
+    assert_eq!(r.status, 200, "{}", r.body);
+    let v: Value = serde_json::from_str(&r.body).unwrap();
+    assert!(v["count"].as_u64().unwrap() >= 10);
+    assert!(v["entries"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|e| e["lf_direct"] == true));
+    assert_eq!(
+        http(addr, "GET", "/eloran/bench/catalog?x=1", "").status,
+        400
+    );
+    let inv = include_str!("../crates/kshana-eloran/scenarios/bench/redpitaya-lf-bench.toml");
+    assert_eq!(http(addr, "POST", "/eloran/bench/check", inv).status, 403);
+    let srv = start(None, ent(Tier::Enterprise));
+    let addr = srv.local_addr();
+    let r = http(addr, "POST", "/eloran/bench/check", inv);
+    assert_eq!(r.status, 200, "{}", r.body);
+    let v: Value = serde_json::from_str(&r.body).unwrap();
+    assert_eq!(v["assessment"]["ready"], true);
+    assert!(v["wiring_md"].as_str().unwrap().contains("Wiring plan"));
+    assert!(
+        v["twins"]["redpitaya-stemlab-125-14"]["levels"]
+            .as_array()
+            .unwrap()
+            .len()
+            == 4
+    );
+    assert_eq!(
+        http(addr, "POST", "/eloran/bench/check", "not = [valid").status,
+        422
+    );
+}

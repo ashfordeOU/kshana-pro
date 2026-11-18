@@ -1245,7 +1245,14 @@ fn bench_cmd(args: &[String]) -> ExitCode {
                                 .unwrap_or(false)
                         })
                     })
-                    .filter(|s| !lf_only || s.lf_direct() == Some(true))
+                    .filter(|s| {
+                        !lf_only
+                            || (s.lf_direct() == Some(true)
+                                && matches!(
+                                    s.category,
+                                    Category::Sdr | Category::Awg | Category::Daq
+                                ))
+                    })
                     .collect();
                 if args.iter().any(|a| a == "--json") {
                     return serde_json::to_string_pretty(&rows).map_err(|e| e.to_string());

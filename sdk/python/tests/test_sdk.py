@@ -120,3 +120,17 @@ class Integration(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipUnless(BIN, "KSHANA_PRO_BIN not set")
+class Bench(unittest.TestCase):
+    def test_catalogue_check_and_rehearsal(self):
+        e = Eloran(binary=BIN, dev=True)
+        lf = {x["id"] for x in e.bench_catalog(lf_only=True)}
+        self.assertIn("redpitaya-stemlab-125-14", lf)
+        self.assertNotIn("ettus-usrp-b210", lf)
+        inv = ROOT / "crates/kshana-eloran/scenarios/bench/redpitaya-lf-bench.toml"
+        self.assertTrue(e.bench_check(inv)["ready"])
+        with tempfile.TemporaryDirectory() as d:
+            r = e.bench_rehearse(inv, Path(d) / "r.json")
+            self.assertFalse([x for x in r["report"]["results"] if x["verdict"] in ("fail", "error")])

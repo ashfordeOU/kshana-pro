@@ -1,0 +1,35 @@
+# Low-cost LF bench: Red Pitaya as eLoran source and loopback digitiser, an SDR as GNSS
+# generator, a rubidium reference, a TAPR TICC. Catalogue ids: `kshana-pro eloran bench catalog`.
+name = "Red Pitaya LF bench"
+
+[requirements]
+need_gnss = true
+dut_input_vpp = 0.05      # set from the receiver manual's maximum antenna-input level
+
+[[device]]
+catalog = "redpitaya-stemlab-125-14"
+role = "eloran_source"
+host = "192.168.1.50"
+
+[[device]]
+catalog = "redpitaya-stemlab-125-14"
+role = "digitiser"
+name = "redpitaya-in"
+
+[[device]]
+catalog = "ettus-usrp-b210"
+role = "gnss_source"
+args = "type=b200"
+
+[[device]]
+catalog = "srs-fs725"
+role = "reference"
+
+[[device]]
+catalog = "tapr-ticc"
+role = "tic"
+serial = "/dev/ttyACM0"
+
+[[device]]
+catalog = "ursanav-un-152b"
+role = "eloran_rx"
