@@ -23,14 +23,17 @@
 pub mod antenna;
 pub mod chain;
 pub mod geo;
+pub mod hw;
 pub mod interf;
 pub mod io;
 pub mod ldc;
 pub mod prop;
+pub mod replay;
 pub mod rx;
 pub mod scenario;
 pub mod scene;
 pub mod signal;
+pub mod sync;
 pub mod time;
 pub mod timebase;
 pub mod traj;
