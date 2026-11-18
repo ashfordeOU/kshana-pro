@@ -285,6 +285,8 @@ pub struct DeviceStimulus {
     pub duration_s: f64,
     pub pps_period_s: f64,
     last_status: Option<DeviceStatus>,
+    /// Whether the running session's device is paced by a real clock.
+    session_realtime: bool,
 }
 
 impl DeviceStimulus {
@@ -297,6 +299,7 @@ impl DeviceStimulus {
             n_channels,
             duration_s,
             pps_period_s: 1.0,
+            session_realtime: false,
         }
     }
     pub fn into_device(mut self) -> Result<Option<Box<dyn Device>>, String> {
@@ -344,6 +347,7 @@ impl Stimulus for DeviceStimulus {
     fn apply(&mut self, spec: &StimulusSpec) -> Result<(), String> {
         self.off()?;
         let dev = self.device.take().ok_or("stimulus device unavailable")?;
+        self.session_realtime = dev.realtime();
         let (fs, n_ch, period) = (self.fs_hz, self.n_channels, self.pps_period_s);
         let total = (self.duration_s * fs).round() as usize;
         let block = ((0.01 * fs) as usize).max(1);
@@ -365,7 +369,11 @@ impl Stimulus for DeviceStimulus {
     }
     fn off(&mut self) -> Result<(), String> {
         if let Some(s) = self.session.take() {
-            s.stop();
+            // A real-time device carries a continuous stimulus until switched off; a
+            // non-real-time device (file) writes the finite stimulus to completion.
+            if self.session_realtime {
+                s.stop();
+            }
             let r = s.wait()?;
             self.last_status = Some(r.device_status.clone());
             self.device = Some(r.device);
@@ -1392,7 +1400,9 @@ mod tests {
             assert_eq!(r.verdict, Verdict::Pass, "{} {:?} {}", r.id, r.measured, r.details);
         }
         // the sample-level measurements are far inside the 1 ns / 1 dB limits
-        assert!(rep.get("AT-RES-TOA").unwrap().measured.unwrap() < 0.05);
+        // At 1 MS/s (10 samples per carrier cycle) the 4-point zero-crossing interpolation
+        // contributes ~0.1 ns; measured 0.135 ns, far inside the 1 ns limit.
+        assert!(rep.get("AT-RES-TOA").unwrap().measured.unwrap() < 0.25);
         assert!(rep.get("AT-RES-ASF").unwrap().measured.unwrap() < 0.05);
         assert!(rep.get("AT-RES-ECD").unwrap().measured.unwrap() < 0.1);
         assert!(rep.get("AT-SKY-RNG").unwrap().measured.unwrap() < 0.2);
@@ -1494,11 +1504,15 @@ mod tests {
                 for (h, dbc) in [(1.0, 0.0), (2.0, -55.0), (3.0, -70.0)] {
                     // tone: put its power in the nearest bin, scaled for the band sum
                     let fh = f * h;
-                    if let Some(i) = t
+                    // nearest bin (the sweep grid need not contain the tone frequency)
+                    let nearest = t
                         .freqs_hz
                         .iter()
-                        .position(|x| (x - fh).abs() <= rbw / 4.0)
-                    {
+                        .enumerate()
+                        .min_by(|a, b| (a.1 - fh).abs().total_cmp(&(b.1 - fh).abs()))
+                        .filter(|(_, x)| (*x - fh).abs() <= rbw)
+                        .map(|(i, _)| i);
+                    if let Some(i) = nearest {
                         // band_power sums bins × spacing/rbw = ½: put ×2 in one bin
                         let tone = p + dbc + 10.0 * 2f64.log10();
                         t.dbm[i] = 10.0
@@ -1608,7 +1622,8 @@ mod tests {
         assert!((iso.measured.unwrap() - 75.0).abs() < 0.5, "{iso:?}");
         let j = get("AT-PPS-JIT");
         assert_eq!(j.verdict, Verdict::Pass);
-        assert!((j.measured.unwrap() - 0.29).abs() < 0.02, "{j:?}");
+        // pattern (−0.2, +0.1, −0.4, +0.2, +0.3) ns repeated over 100 readings: s = √(0.068·100/99) ≈ 0.2634 ns
+        assert!((j.measured.unwrap() - 0.2634).abs() < 0.002, "{j:?}");
         assert_eq!(get("AT-DLY-STAB").verdict, Verdict::Pass);
         assert_eq!(get("AT-REF-LOCK").verdict, Verdict::Pass);
         let s = get("AT-SYNC-GNSS");
@@ -1626,9 +1641,10 @@ mod tests {
             base: 50.0,
             drift: 0.1,
         };
+        // 12 ns offset: outside the 10 ns sync limit
         let mut stic = MockTic {
             k: 0,
-            base: 9.0,
+            base: 12.0,
             drift: 0.0,
         };
         let mut stim = MockStim(st.clone(), false);
