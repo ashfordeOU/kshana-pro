@@ -550,16 +550,30 @@ impl SyncMonitor {
         if self.buf.len() >= self.min_samples {
             let m = self.buf.iter().sum::<f64>() / self.buf.len() as f64;
             let e = m - self.cfg.target_ns;
-            self.set(AlarmKind::Offset, e.abs() > self.cfg.offset_limit_ns, e, &mut out);
+            self.set(
+                AlarmKind::Offset,
+                e.abs() > self.cfg.offset_limit_ns,
+                e,
+                &mut out,
+            );
         }
-        if self.count % self.stability_every.max(1) as u64 == 0 && self.buf.len() >= 3 {
+        if self
+            .count
+            .is_multiple_of(self.stability_every.max(1) as u64)
+            && self.buf.len() >= 3
+        {
             let x: Vec<f64> = self.buf.iter().copied().collect();
             let worst = tdev_curve(&x, self.cfg.tau0_s)
                 .into_iter()
                 .filter(|p| self.cfg.tdev_max_tau_s.is_none_or(|m| p.tau_s <= m + 1e-9))
                 .map(|p| p.value_ns)
                 .fold(0.0, f64::max);
-            self.set(AlarmKind::Tdev, worst > self.cfg.tdev_limit_ns, worst, &mut out);
+            self.set(
+                AlarmKind::Tdev,
+                worst > self.cfg.tdev_limit_ns,
+                worst,
+                &mut out,
+            );
         }
         out
     }
@@ -611,7 +625,10 @@ mod tests {
         assert_eq!(mtie(&[0.0, 3.0, -1.0, 2.0], 1).unwrap(), 4.0);
         assert_eq!(mtie(&[0.0, 3.0, -1.0, 2.0], 3).unwrap(), 4.0);
         let f = drift_fit(&d, 1.0).unwrap();
-        assert!((f.slope_ns_per_s - 0.02).abs() < 3.0 * f.slope_u_ns_per_s + 1e-4, "{f:?}");
+        assert!(
+            (f.slope_ns_per_s - 0.02).abs() < 3.0 * f.slope_u_ns_per_s + 1e-4,
+            "{f:?}"
+        );
         assert!((f.intercept_ns - 5.0).abs() < 0.15);
         assert!((f.residual_std_ns - 1.0).abs() < 0.05);
     }
@@ -672,8 +689,12 @@ mod tests {
 
     #[test]
     fn csv_series() {
-        let s = TicSeries::from_csv("time,tic\n0,1.0e-9\n1,2.0e-9\n2,3.0e-9\n", None, TicUnit::Seconds)
-            .unwrap();
+        let s = TicSeries::from_csv(
+            "time,tic\n0,1.0e-9\n1,2.0e-9\n2,3.0e-9\n",
+            None,
+            TicUnit::Seconds,
+        )
+        .unwrap();
         assert_eq!(s.readings_ns.len(), 3);
         assert!((s.readings_ns[2] - 3.0).abs() < 1e-9);
     }

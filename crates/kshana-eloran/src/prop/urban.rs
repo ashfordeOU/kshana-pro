@@ -65,11 +65,11 @@
 //! currently uses the geometric bearing (the hook is not wired into synthesis here), so
 //! the bearing distortion is an analysis API only.
 
-use super::ground::GroundConfig;
-use super::{BuildContext, PathKind, PathEffect, PropagationModel, C};
 use super::complex::{Cx, ONE};
+use super::ground::GroundConfig;
 use super::ground::{F0_HZ, N_ATM};
 use super::smooth_earth::GROUP_HALF_BAND_HZ;
+use super::{BuildContext, PathEffect, PathKind, PropagationModel, C};
 use crate::chain::Station;
 use crate::geo::{inverse, Geo};
 use crate::time::Ps;
@@ -193,7 +193,10 @@ impl UrbanModel {
     ) -> Result<UrbanModel, String> {
         for s in &sites {
             if !(s.radius_m > 0.0) {
-                return Err(format!("urban site {:?}: radius_m must be positive", s.name));
+                return Err(format!(
+                    "urban site {:?}: radius_m must be positive",
+                    s.name
+                ));
             }
         }
         for s in &structures {
@@ -365,7 +368,11 @@ mod tests {
         }
     }
     fn ctx() -> BuildContext {
-        BuildContext::new(crate::time::AbsTime::from_utc_iso("2026-01-01T00:00:00Z").unwrap(), 1.0, 0)
+        BuildContext::new(
+            crate::time::AbsTime::from_utc_iso("2026-01-01T00:00:00Z").unwrap(),
+            1.0,
+            0,
+        )
     }
     fn model(extra: &str) -> UrbanModel {
         let cfg: GroundConfig = toml::from_str(&format!(
@@ -393,7 +400,11 @@ mod tests {
         let q = crate::geo::direct(Geo::new(51.0, 0.0), 1.0, 1500.0);
         let b2 = m.base.paths(&station(), &rx(q.lat_deg, q.lon_deg))[0];
         let p2 = m.paths(&station(), &rx(q.lat_deg, q.lon_deg))[0];
-        assert!((p2.asf_ns - b2.asf_ns - 25.0).abs() < 1e-3, "{}", p2.asf_ns - b2.asf_ns);
+        assert!(
+            (p2.asf_ns - b2.asf_ns - 25.0).abs() < 1e-3,
+            "{}",
+            p2.asf_ns - b2.asf_ns
+        );
         // far away only the global offset
         let p3 = m.paths(&station(), &rx(51.2, 0.0))[0];
         let b3 = m.base.paths(&station(), &rx(51.2, 0.0))[0];
@@ -426,8 +437,12 @@ mod tests {
         assert_eq!(m.perturbation(st.position, far).phase_s, 0.0);
         // bearing distortion near the structure, none far away; field changes too
         let near = crate::geo::direct(s, 1.0, 200.0);
-        let e_near = m.bearing_error_rad(&st, &rx(near.lat_deg, near.lon_deg)).to_degrees();
-        let e_far = m.bearing_error_rad(&st, &rx(far.lat_deg, far.lon_deg)).to_degrees();
+        let e_near = m
+            .bearing_error_rad(&st, &rx(near.lat_deg, near.lon_deg))
+            .to_degrees();
+        let e_far = m
+            .bearing_error_rad(&st, &rx(far.lat_deg, far.lon_deg))
+            .to_degrees();
         println!("bearing error near {e_near:.3}°, far {e_far:.3e}°");
         assert!(e_near.abs() > 0.05 && e_near.abs() < 30.0);
         assert!(e_far.abs() < 1e-9);

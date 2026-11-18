@@ -176,8 +176,11 @@ pub fn export_scenario(
         ],
     };
     let mpath = dir.join(format!("{}_manifest.json", cfg.name));
-    std::fs::write(&mpath, serde_json::to_string_pretty(&m).expect("serialisable"))
-        .map_err(|e| format!("{}: {e}", mpath.display()))?;
+    std::fs::write(
+        &mpath,
+        serde_json::to_string_pretty(&m).expect("serialisable"),
+    )
+    .map_err(|e| format!("{}: {e}", mpath.display()))?;
     Ok(m)
 }
 
@@ -288,7 +291,10 @@ position = { lat_deg = 56.0, lon_deg = 0.0 }
         )
         .unwrap();
         assert_eq!(j, m);
-        assert!(j.generator_settings.iter().any(|s| s.contains("51.5000000")));
+        assert!(j
+            .generator_settings
+            .iter()
+            .any(|s| s.contains("51.5000000")));
         std::fs::remove_dir_all(&dir).ok();
     }
 
@@ -338,7 +344,13 @@ position = { lat_deg = 56.0, lon_deg = 0.0 }
         h.join().unwrap();
         assert_eq!(
             log.lock().unwrap().clone(),
-            vec!["TYPE?", "PLAY:FILE /media/scen.ls3w", "PLAY:START:PPS", "STATUS?", "PLAY:STOP"]
+            vec![
+                "TYPE?",
+                "PLAY:FILE /media/scen.ls3w",
+                "PLAY:START:PPS",
+                "STATUS?",
+                "PLAY:STOP"
+            ]
         );
     }
 }

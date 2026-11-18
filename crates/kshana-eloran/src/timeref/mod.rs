@@ -59,6 +59,9 @@ mod tests {
         let m = mjd_from_iso("2026-11-18T12:00:00Z").unwrap();
         assert_eq!(m, 61_362.5);
         assert_eq!(utc_from_mjd(m).iso(), "2026-11-18T12:00:00.000000000Z");
-        assert_eq!(utc_from_mjd(61_359.75).iso(), "2026-11-15T18:00:00.000000000Z");
+        assert_eq!(
+            utc_from_mjd(61_359.75).iso(),
+            "2026-11-15T18:00:00.000000000Z"
+        );
     }
 }

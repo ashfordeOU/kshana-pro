@@ -397,8 +397,13 @@ impl RtReceiver {
                 initial: self.cfg.known_position,
                 ..Default::default()
             };
-            match position_solution(&meas, &self.chains, self.scene_start, &self.cfg.corrections, &pc)
-            {
+            match position_solution(
+                &meas,
+                &self.chains,
+                self.scene_start,
+                &self.cfg.corrections,
+                &pc,
+            ) {
                 Ok(s) => Some(RtFix::Position(s)),
                 Err(_) => self.cfg.known_position.map(|p| {
                     RtFix::Time(time_solution(
@@ -446,8 +451,11 @@ impl RtReceiver {
         let processed = self.cursor;
         let mut locks: Vec<StationLock> = self.locks.values().cloned().collect();
         locks.sort_by(|a, b| {
-            (a.chain.as_str(), a.station.as_str(), a.channel)
-                .cmp(&(b.chain.as_str(), b.station.as_str(), b.channel))
+            (a.chain.as_str(), a.station.as_str(), a.channel).cmp(&(
+                b.chain.as_str(),
+                b.station.as_str(),
+                b.channel,
+            ))
         });
         StatusSnapshot {
             samples_in: self.samples_in,

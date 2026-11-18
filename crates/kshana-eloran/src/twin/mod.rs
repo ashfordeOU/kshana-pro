@@ -158,7 +158,11 @@ pub fn run(cfg: &TwinConfig) -> Result<TwinResult, String> {
     let steps = (cfg.duration_s / cfg.step_s).round() as usize;
     let mut rng = ChaCha8Rng::seed_from_u64(cfg.seed ^ 0x7417_2026);
     let n = cfg.transmitters.len();
-    let mut x: Vec<f64> = cfg.transmitters.iter().map(|t| t.initial_offset_ns).collect();
+    let mut x: Vec<f64> = cfg
+        .transmitters
+        .iter()
+        .map(|t| t.initial_offset_ns)
+        .collect();
     let mut f_rw = vec![0.0f64; n];
     let mut f_ctl = vec![0.0f64; n];
     let mut integ = vec![0.0f64; n];
@@ -179,15 +183,28 @@ pub fn run(cfg: &TwinConfig) -> Result<TwinResult, String> {
                     ClockFault::PhaseStep { at_s, step_ns } => {
                         if t >= *at_s && t - cfg.step_s < *at_s {
                             x[i] += step_ns;
-                            events.push(TwinEvent { t_s: t, transmitter: tx.id.clone(), kind: "fault_phase_step".into(), value_ns: *step_ns });
+                            events.push(TwinEvent {
+                                t_s: t,
+                                transmitter: tx.id.clone(),
+                                kind: "fault_phase_step".into(),
+                                value_ns: *step_ns,
+                            });
                         }
                     }
-                    ClockFault::FrequencyStep { at_s, rate_ns_per_s } => {
+                    ClockFault::FrequencyStep {
+                        at_s,
+                        rate_ns_per_s,
+                    } => {
                         if t >= *at_s {
                             f += rate_ns_per_s;
                         }
                         if t >= *at_s && t - cfg.step_s < *at_s {
-                            events.push(TwinEvent { t_s: t, transmitter: tx.id.clone(), kind: "fault_frequency_step".into(), value_ns: *rate_ns_per_s });
+                            events.push(TwinEvent {
+                                t_s: t,
+                                transmitter: tx.id.clone(),
+                                kind: "fault_frequency_step".into(),
+                                value_ns: *rate_ns_per_s,
+                            });
                         }
                     }
                 }
@@ -199,7 +216,8 @@ pub fn run(cfg: &TwinConfig) -> Result<TwinResult, String> {
             // monitoring
             let mut sum = 0.0;
             for m in &cfg.monitors {
-                let asf = m.asf_diurnal_ns * (std::f64::consts::TAU * t / 86_400.0 + m.asf_phase_rad).sin();
+                let asf = m.asf_diurnal_ns
+                    * (std::f64::consts::TAU * t / 86_400.0 + m.asf_phase_rad).sin();
                 sum += x[i] + asf + m.noise_ns * gauss(&mut rng);
             }
             let est = sum / cfg.monitors.len() as f64;
@@ -213,19 +231,37 @@ pub fn run(cfg: &TwinConfig) -> Result<TwinResult, String> {
                 alarm[i] = true;
                 alarms[i] += 1;
                 alarm_times[i].push(t);
-                events.push(TwinEvent { t_s: t, transmitter: tx.id.clone(), kind: "alarm_ldc_warning".into(), value_ns: est });
+                events.push(TwinEvent {
+                    t_s: t,
+                    transmitter: tx.id.clone(),
+                    kind: "alarm_ldc_warning".into(),
+                    value_ns: est,
+                });
                 // corrective phase step
                 let dphi = -c.phase_correction_on_alarm * est;
                 x[i] += dphi;
-                events.push(TwinEvent { t_s: t, transmitter: tx.id.clone(), kind: "phase_correction".into(), value_ns: dphi });
+                events.push(TwinEvent {
+                    t_s: t,
+                    transmitter: tx.id.clone(),
+                    kind: "phase_correction".into(),
+                    value_ns: dphi,
+                });
                 integ[i] = 0.0;
             } else if alarm[i] && est.abs() <= c.clear_limit_ns {
                 alarm[i] = false;
-                events.push(TwinEvent { t_s: t, transmitter: tx.id.clone(), kind: "alarm_cleared".into(), value_ns: est });
+                events.push(TwinEvent {
+                    t_s: t,
+                    transmitter: tx.id.clone(),
+                    kind: "alarm_cleared".into(),
+                    value_ns: est,
+                });
             }
             // PI frequency steering
             integ[i] += est * cfg.step_s;
-            f_ctl[i] = (-(c.kp * est + c.ki * integ[i])).clamp(-c.max_freq_correction_ns_per_s, c.max_freq_correction_ns_per_s);
+            f_ctl[i] = (-(c.kp * est + c.ki * integ[i])).clamp(
+                -c.max_freq_correction_ns_per_s,
+                c.max_freq_correction_ns_per_s,
+            );
             series[i].push(x[i]);
             if x[i].abs() <= c.service_limit_ns && !alarm[i] {
                 ok_steps[i] += 1;
@@ -245,7 +281,8 @@ pub fn run(cfg: &TwinConfig) -> Result<TwinResult, String> {
                 .iter()
                 .map(|f| {
                     let at = match f {
-                        ClockFault::PhaseStep { at_s, .. } | ClockFault::FrequencyStep { at_s, .. } => *at_s,
+                        ClockFault::PhaseStep { at_s, .. }
+                        | ClockFault::FrequencyStep { at_s, .. } => *at_s,
                     };
                     let tta = alarm_times[i].iter().find(|&&a| a >= at).map(|a| a - at);
                     let k0 = (at / cfg.step_s).ceil() as usize;
@@ -269,7 +306,11 @@ pub fn run(cfg: &TwinConfig) -> Result<TwinResult, String> {
                     if !left {
                         ttc = Some(0.0);
                     }
-                    FaultOutcome { fault_at_s: at, time_to_alarm_s: tta, time_to_correct_s: ttc }
+                    FaultOutcome {
+                        fault_at_s: at,
+                        time_to_alarm_s: tta,
+                        time_to_correct_s: ttc,
+                    }
                 })
                 .collect();
             TransmitterKpi {
@@ -282,8 +323,16 @@ pub fn run(cfg: &TwinConfig) -> Result<TwinResult, String> {
             }
         })
         .collect();
-    events.sort_by(|a, b| a.t_s.partial_cmp(&b.t_s).unwrap_or(std::cmp::Ordering::Equal));
-    Ok(TwinResult { kpis, events, series_ns: series })
+    events.sort_by(|a, b| {
+        a.t_s
+            .partial_cmp(&b.t_s)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+    Ok(TwinResult {
+        kpis,
+        events,
+        series_ns: series,
+    })
 }
 
 #[cfg(test)]
@@ -305,8 +354,18 @@ mod tests {
                 faults: vec![],
             }],
             monitors: vec![
-                TwinMonitor { id: "M1".into(), noise_ns: 3.0, asf_diurnal_ns: 5.0, asf_phase_rad: 0.0 },
-                TwinMonitor { id: "M2".into(), noise_ns: 3.0, asf_diurnal_ns: 5.0, asf_phase_rad: 3.0 },
+                TwinMonitor {
+                    id: "M1".into(),
+                    noise_ns: 3.0,
+                    asf_diurnal_ns: 5.0,
+                    asf_phase_rad: 0.0,
+                },
+                TwinMonitor {
+                    id: "M2".into(),
+                    noise_ns: 3.0,
+                    asf_diurnal_ns: 5.0,
+                    asf_phase_rad: 3.0,
+                },
             ],
             control: ControlConfig::default(),
         }
@@ -325,13 +384,19 @@ mod tests {
     #[test]
     fn phase_step_fault_is_alarmed_and_corrected() {
         let mut c = base();
-        c.transmitters[0].faults.push(ClockFault::PhaseStep { at_s: 3600.0, step_ns: 200.0 });
+        c.transmitters[0].faults.push(ClockFault::PhaseStep {
+            at_s: 3600.0,
+            step_ns: 200.0,
+        });
         let r = run(&c).unwrap();
         let k = &r.kpis[0];
         assert!(k.alarms >= 1);
         let f = &k.faults[0];
         let tta = f.time_to_alarm_s.expect("alarm raised");
-        assert!(tta <= (c.control.alarm_persistence as f64) * c.step_s + c.step_s, "time to alarm {tta}");
+        assert!(
+            tta <= (c.control.alarm_persistence as f64) * c.step_s + c.step_s,
+            "time to alarm {tta}"
+        );
         let ttc = f.time_to_correct_s.expect("corrected");
         assert!(ttc <= 600.0, "time to correct {ttc}");
         assert!(r.events.iter().any(|e| e.kind == "alarm_ldc_warning"));
@@ -341,7 +406,10 @@ mod tests {
     #[test]
     fn frequency_step_is_steered_out() {
         let mut c = base();
-        c.transmitters[0].faults.push(ClockFault::FrequencyStep { at_s: 3600.0, rate_ns_per_s: 0.05 });
+        c.transmitters[0].faults.push(ClockFault::FrequencyStep {
+            at_s: 3600.0,
+            rate_ns_per_s: 0.05,
+        });
         let r = run(&c).unwrap();
         let s = &r.series_ns[0];
         // after the steering loop has converged (last hour) the error is back near zero

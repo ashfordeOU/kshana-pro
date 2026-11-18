@@ -63,7 +63,9 @@ use kshana_eloran::timebase::GnssTime;
 use kshana_eloran::Scenario;
 use serde::{Deserialize, Serialize};
 
-use crate::eloran_gnss::{gps_week_tow, select_ephemerides, to_gnss_trajectory, GnssOptions, L1_HZ};
+use crate::eloran_gnss::{
+    gps_week_tow, select_ephemerides, to_gnss_trajectory, GnssOptions, L1_HZ,
+};
 
 /// The conducted-output policy of the GNSS path.
 pub const GNSS_OUTPUT_POLICY: &str = "OUTPUT POLICY: conducted use only. Connect this GNSS \
@@ -252,10 +254,7 @@ impl ComplexSink for SigmfComplexSink {
             "Kshana Pro hybrid scene, GNSS half, streamed (GPS L1 C/A, Galileo E1-B)".into(),
         );
         global.insert("kshana:output_policy".into(), GNSS_OUTPUT_POLICY.into());
-        global.insert(
-            "kshana:counts_per_unit".into(),
-            self.counts_per_unit.into(),
-        );
+        global.insert("kshana:counts_per_unit".into(), self.counts_per_unit.into());
         if let Some(p) = &plan {
             global.insert("kshana:start_utc".into(), p.start_utc.clone().into());
             global.insert("kshana:gps_week".into(), p.gps_week.into());
@@ -573,7 +572,9 @@ pub fn satellites_in_view(
         }
         for e in select_ephemerides(&ephs, sys, plan.gps_week, plan.start_tow_s) {
             let sat = e.sv_position_ecef(plan.start_tow_s - 0.075);
-            let el = kshana::frames::look_angles(station, sat).el_rad.to_degrees();
+            let el = kshana::frames::look_angles(station, sat)
+                .el_rad
+                .to_degrees();
             if el >= opts.gnss.elevation_mask_deg {
                 out.push((base + e.prn as u32, el));
             }
@@ -770,7 +771,9 @@ mod soapy_tx {
             let lib = Lib::open()?;
             let abi: extern "C" fn() -> *const c_char = lib.sym("SoapySDR_getABIVersion")?;
             // SAFETY: static NUL-terminated string.
-            let v = unsafe { CStr::from_ptr(abi()) }.to_string_lossy().into_owned();
+            let v = unsafe { CStr::from_ptr(abi()) }
+                .to_string_lossy()
+                .into_owned();
             if !v.starts_with("0.8") {
                 return Err(format!("SoapySDR ABI {v} not supported (0.8 required)"));
             }
@@ -849,8 +852,12 @@ mod soapy_tx {
             true
         }
         fn start(&mut self, plan: &StartPlan, fs_hz: f64) -> Result<Option<i64>, String> {
-            let src = CString::new(if self.external_ref { "external" } else { "internal" })
-                .map_err(|e| e.to_string())?;
+            let src = CString::new(if self.external_ref {
+                "external"
+            } else {
+                "internal"
+            })
+            .map_err(|e| e.to_string())?;
             self.check(
                 (self.api.set_clock_source)(self.dev, src.as_ptr()),
                 "setClockSource",
@@ -864,14 +871,18 @@ mod soapy_tx {
                 (self.api.set_freq)(self.dev, TX, 0, self.center_hz, std::ptr::null()),
                 "setFrequency",
             )?;
-            self.check((self.api.set_gain)(self.dev, TX, 0, self.gain_db), "setGain")?;
+            self.check(
+                (self.api.set_gain)(self.dev, TX, 0, self.gain_db),
+                "setGain",
+            )?;
             let fmt = CString::new(match self.format {
                 SoapyComplexFormat::Cf32 => "CF32",
                 SoapyComplexFormat::Cs16 => "CS16",
             })
             .map_err(|e| e.to_string())?;
             let ch = [0usize];
-            self.tx = (self.api.setup)(self.dev, TX, fmt.as_ptr(), ch.as_ptr(), 1, std::ptr::null());
+            self.tx =
+                (self.api.setup)(self.dev, TX, fmt.as_ptr(), ch.as_ptr(), 1, std::ptr::null());
             if self.tx.is_null() {
                 return Err(self.err("setupStream"));
             }
@@ -887,7 +898,10 @@ mod soapy_tx {
                     std::thread::sleep(std::time::Duration::from_millis(1200));
                     let now = (self.api.get_hw_time)(self.dev, std::ptr::null());
                     self.status.pps_aligned = true;
-                    Some((now + 100_000_000).div_euclid(1_000_000_000) * 1_000_000_000 + 1_000_000_000)
+                    Some(
+                        (now + 100_000_000).div_euclid(1_000_000_000) * 1_000_000_000
+                            + 1_000_000_000,
+                    )
                 }
             };
             let (flags, tn) = t.map(|t| (FLAG_HAS_TIME, t)).unwrap_or((0, 0));

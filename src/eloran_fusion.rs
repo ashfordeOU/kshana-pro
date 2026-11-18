@@ -540,8 +540,8 @@ fn gnss_raim(gnss: &[GnssRange], apriori: [f64; 3], cfg: &FusionConfig) -> Optio
         .iter()
         .map(|g| g.range_m - (norm(sub(g.sat_ecef, fix.ecef)) + fix.clock_bias_m))
         .collect();
-    let sigma = (gnss.iter().map(|g| g.sigma_m * g.sigma_m).sum::<f64>() / gnss.len() as f64)
-        .sqrt();
+    let sigma =
+        (gnss.iter().map(|g| g.sigma_m * g.sigma_m).sum::<f64>() / gnss.len() as f64).sqrt();
     snapshot_raim(fix.ecef, &sats, &resid, sigma, cfg.p_fa, cfg.p_md)
 }
 
@@ -659,8 +659,8 @@ impl HybridFilter {
                         // under the satellites, on the ellipsoid
                         let mut m = [0.0; 3];
                         for g in gnss {
-                            for k in 0..3 {
-                                m[k] += g.sat_ecef[k];
+                            for (mk, sk) in m.iter_mut().zip(g.sat_ecef.iter()) {
+                                *mk += sk;
                             }
                         }
                         let n = norm(m);
@@ -714,7 +714,8 @@ impl HybridFilter {
         let g_in: &[GnssRange] = if use_gnss { gnss } else { &[] };
         // height aid when the GNSS cannot carry height and the prior does not
         let height_aid = if g_in.len() < 4 && prior.cov[2][2] > 1e4 {
-            cfg.height_aid.or(Some((to_geo(prior.pos).h_m.max(0.0), 50.0)))
+            cfg.height_aid
+                .or(Some((to_geo(prior.pos).h_m.max(0.0), 50.0)))
         } else {
             None
         };

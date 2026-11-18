@@ -135,7 +135,12 @@ pub struct Problem<'a> {
 
 impl<'a> Problem<'a> {
     /// A problem with the built-in classes, no terrain and no skywave.
-    pub fn new(stations: Vec<Station>, points: Vec<Geo>, map: &'a ConductivityMap, k_factor: f64) -> Problem<'a> {
+    pub fn new(
+        stations: Vec<Station>,
+        points: Vec<Geo>,
+        map: &'a ConductivityMap,
+        k_factor: f64,
+    ) -> Problem<'a> {
         Problem {
             stations,
             points,
@@ -590,7 +595,10 @@ impl<'a> Engine<'a> {
             let runs: Vec<Out> = (0..n)
                 .map(|r| {
                     let mut d = base.clone();
-                    d.terrain = Some((0xA5A5_0000 ^ r as u64 ^ self.cfg.seed, self.cfg.terrain_sd_m));
+                    d.terrain = Some((
+                        0xA5A5_0000 ^ r as u64 ^ self.cfg.seed,
+                        self.cfg.terrain_sd_m,
+                    ));
                     self.evaluate(&d, curves)
                 })
                 .collect();
@@ -653,7 +661,11 @@ mod tests {
     #[test]
     fn zero_uncertainty_reproduces_the_nominal_model() {
         let map = coast();
-        let e = Engine::new(Problem::new(vec![station()], points(), &map, K_LORAN), UncertaintyConfig::zero(5)).unwrap();
+        let e = Engine::new(
+            Problem::new(vec![station()], points(), &map, K_LORAN),
+            UncertaintyConfig::zero(5),
+        )
+        .unwrap();
         let r = e.run().unwrap();
         let gw = Groundwave::new(map.clone(), K_LORAN, 2.0, 0.005, None, "m").unwrap();
         for p in &r.results {
@@ -666,8 +678,18 @@ mod tests {
             let m = gw.correction_exact(station().position, p.point);
             let full = gw.evaluate(station().position, 400.0, p.point, 0.0);
             // ~0.4 % of a ~600 ns ASF from the coarser curve tables used here
-            assert!((p.asf_ns.nominal - m.phase_s * 1e9).abs() < 3.0, "{} vs {}", p.asf_ns.nominal, m.phase_s * 1e9);
-            assert!((p.delay_ns.nominal - full.delay.as_ns()).abs() < 3.5, "{} vs {}", p.delay_ns.nominal, full.delay.as_ns());
+            assert!(
+                (p.asf_ns.nominal - m.phase_s * 1e9).abs() < 3.0,
+                "{} vs {}",
+                p.asf_ns.nominal,
+                m.phase_s * 1e9
+            );
+            assert!(
+                (p.delay_ns.nominal - full.delay.as_ns()).abs() < 3.5,
+                "{} vs {}",
+                p.delay_ns.nominal,
+                full.delay.as_ns()
+            );
             assert!((p.field_dbuv_m.nominal - 20.0 * full.field_uv_m.log10()).abs() < 0.02);
         }
         assert!(r.sensitivity.is_empty());
@@ -702,7 +724,11 @@ mod tests {
         assert_eq!(a, b, "same seed, same result");
         assert_ne!(a.results[0].asf_ns.mean, c.results[0].asf_ns.mean);
         let r = &a.results[0];
-        assert!(r.asf_ns.sd > 1.0, "land σ uncertainty spreads the ASF: {}", r.asf_ns.sd);
+        assert!(
+            r.asf_ns.sd > 1.0,
+            "land σ uncertainty spreads the ASF: {}",
+            r.asf_ns.sd
+        );
         let p = &r.asf_ns.percentiles;
         assert!(p[0].1 <= p[1].1 && p[1].1 <= p[2].1);
         let sky_s = r.sky_delay_us.as_ref().unwrap();
@@ -710,11 +736,22 @@ mod tests {
         // ranking: the land conductivity dominates the groundwave delay; the sky height
         // moves only the skywave
         let top = &a.sensitivity[0];
-        assert!(top.parameter.starts_with("sigma land"), "{:?}", a.sensitivity);
-        let sh = a.sensitivity.iter().find(|s| s.parameter == "sky_height").unwrap();
+        assert!(
+            top.parameter.starts_with("sigma land"),
+            "{:?}",
+            a.sensitivity
+        );
+        let sh = a
+            .sensitivity
+            .iter()
+            .find(|s| s.parameter == "sky_height")
+            .unwrap();
         assert_eq!(sh.delay_ns, 0.0);
         assert!(sh.sky_delay_us > 0.5);
-        assert!(a.sensitivity.windows(2).all(|w| w[0].delay_ns >= w[1].delay_ns));
+        assert!(a
+            .sensitivity
+            .windows(2)
+            .all(|w| w[0].delay_ns >= w[1].delay_ns));
         // JSON round trip of the report
         let j = serde_json::to_string(&a).unwrap();
         let back: UncertaintyReport = serde_json::from_str(&j).unwrap();
@@ -763,13 +800,24 @@ mod tests {
         };
         let z = mk(0.0);
         // identical samples: zero up to floating-point rounding
-        assert!(z.results[0].delay_ns.sd < 1e-9, "{}", z.results[0].delay_ns.sd);
+        assert!(
+            z.results[0].delay_ns.sd < 1e-9,
+            "{}",
+            z.results[0].delay_ns.sd
+        );
         let n = mk(100.0);
-        assert!(n.results[0].delay_ns.sd > 0.01, "{}", n.results[0].delay_ns.sd);
+        assert!(
+            n.results[0].delay_ns.sd > 0.01,
+            "{}",
+            n.results[0].delay_ns.sd
+        );
         assert_eq!(n.sensitivity[0].parameter, "terrain_height");
         assert!(Engine::new(
             Problem::new(vec![station()], points(), &map, K_LORAN),
-            UncertaintyConfig { samples: 0, ..Default::default() }
+            UncertaintyConfig {
+                samples: 0,
+                ..Default::default()
+            }
         )
         .is_err());
     }

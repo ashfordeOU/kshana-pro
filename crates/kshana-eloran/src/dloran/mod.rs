@@ -211,8 +211,10 @@ impl ReferenceStation {
         let mut c = Corrections::default();
         for s in &self.last {
             if s.usable {
-                c.asf_ns
-                    .insert(Corrections::key(&s.chain, &s.station), s.filtered_residual_ns);
+                c.asf_ns.insert(
+                    Corrections::key(&s.chain, &s.station),
+                    s.filtered_residual_ns,
+                );
             }
         }
         c
@@ -284,7 +286,9 @@ impl UserCorrector {
 
     /// The ToA correction (ns) for a station index (its default code), if any.
     pub fn correction_ns(&self, station_index: usize) -> Option<f64> {
-        self.by_code.get(&default_station_code(station_index)).copied()
+        self.by_code
+            .get(&default_station_code(station_index))
+            .copied()
     }
 
     /// Build a [`Corrections`] table for the user's solver: ASF = −correction for every

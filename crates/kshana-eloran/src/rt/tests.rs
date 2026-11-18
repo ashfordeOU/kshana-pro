@@ -1,8 +1,8 @@
 // PROPRIETARY — Kshana Pro.
 use super::*;
 use crate::rx::{self, position_error_m};
-use crate::scene::MemSink;
 use crate::scenario::Scenario;
+use crate::scene::MemSink;
 
 fn scene_static() -> String {
     r#"
@@ -77,7 +77,11 @@ fn simulate(src: &str) -> Sim {
     }
 }
 
-fn stream(sim: &Sim, cfg: RtConfig, block: usize) -> (Vec<RtMeasurement>, Vec<RtSolution>, StatusSnapshot) {
+fn stream(
+    sim: &Sim,
+    cfg: RtConfig,
+    block: usize,
+) -> (Vec<RtMeasurement>, Vec<RtSolution>, StatusSnapshot) {
     let n_ch = sim.sink.channels.len();
     let mut rt = RtReceiver::new(sim.fs, sim.start, &sim.chains, n_ch, cfg).unwrap();
     let total = sim.sink.channels[0].len();
@@ -131,7 +135,11 @@ fn streaming_matches_batch_for_several_block_sizes() {
             &sim.chains,
             sim.start,
         );
-        assert_eq!(sobs.len(), bobs.len(), "block {block}: station count differs");
+        assert_eq!(
+            sobs.len(),
+            bobs.len(),
+            "block {block}: station count differs"
+        );
         let mut worst = 0.0f64;
         for o in &sobs {
             let (bd, bn) = bobs[&(o.chain_index, o.station_index)];
@@ -150,7 +158,11 @@ fn streaming_matches_batch_for_several_block_sizes() {
             worst * 1e9
         );
         // bounded memory: never more than a window of samples buffered
-        assert!(st.buffered_samples < (2.0 * sim.fs) as usize, "block {block}: buffer {}", st.buffered_samples);
+        assert!(
+            st.buffered_samples < (2.0 * sim.fs) as usize,
+            "block {block}: buffer {}",
+            st.buffered_samples
+        );
         // solutions are produced and near truth
         assert!(!sols.is_empty(), "block {block}: no solutions");
         let good = sols.iter().filter_map(|s| match &s.fix {
@@ -317,7 +329,13 @@ time_ref = "UTC(A)"
     let before = y_times.iter().filter(|&&t| t < 2.5).count();
     let after = y_times.iter().filter(|&&t| t > 3.5).count();
     assert_eq!(before, 0, "Y produced {before} measurements while off");
-    assert!(after >= 4, "Y only produced {after} measurements after turning on");
+    assert!(
+        after >= 4,
+        "Y only produced {after} measurements after turning on"
+    );
     // the lock snapshot should list Y with measurements.
-    assert!(st.locks.iter().any(|l| l.station == "Y" && l.measurements > 0));
+    assert!(st
+        .locks
+        .iter()
+        .any(|l| l.station == "Y" && l.measurements > 0));
 }

@@ -246,7 +246,10 @@ impl SrtmTiles {
 
     fn load(&self, key: (i32, i32)) -> Option<Arc<Grid>> {
         let name = hgt_name(key.0, key.1);
-        for cand in [format!("{name}.hgt"), format!("{}.hgt", name.to_lowercase())] {
+        for cand in [
+            format!("{name}.hgt"),
+            format!("{}.hgt", name.to_lowercase()),
+        ] {
             let p = self.dir.join(cand);
             if let Ok(b) = std::fs::read(&p) {
                 return parse_hgt(&b, key.0, key.1).ok().map(Arc::new);
@@ -265,8 +268,8 @@ impl SrtmTiles {
         }
         let t = self.load(key);
         let mut c = self.cache.lock().unwrap_or_else(|e| e.into_inner());
-        if !c.0.contains_key(&key) {
-            c.0.insert(key, t.clone());
+        if let std::collections::hash_map::Entry::Vacant(e) = c.0.entry(key) {
+            e.insert(t.clone());
             c.1.push_back(key);
             while c.1.len() > self.max_tiles {
                 if let Some(old) = c.1.pop_front() {
@@ -289,11 +292,18 @@ impl ElevationSource for SrtmTiles {
         let (fl, fo) = (p.lat_deg.floor(), lon.floor());
         let q = Geo::new(p.lat_deg, lon);
         // a point on a tile's north/east edge is also on the next tile's south/west edge
-        let lat_keys: &[f64] = if p.lat_deg == fl { &[fl, fl - 1.0] } else { &[fl] };
+        let lat_keys: &[f64] = if p.lat_deg == fl {
+            &[fl, fl - 1.0]
+        } else {
+            &[fl]
+        };
         let lon_keys: &[f64] = if lon == fo { &[fo, fo - 1.0] } else { &[fo] };
         for la in lat_keys {
             for lo in lon_keys {
-                if let Some(h) = self.tile((*la as i32, *lo as i32)).and_then(|t| t.sample(q)) {
+                if let Some(h) = self
+                    .tile((*la as i32, *lo as i32))
+                    .and_then(|t| t.sample(q))
+                {
                     return Some(h);
                 }
             }
@@ -605,7 +615,10 @@ mod tests {
         // bilinear midway: (45.15, 6.35) → mean of 13, 14, 23, 24 = 18.5
         assert!((t.height_m(Geo::new(45.15, 6.35)).unwrap() - 18.5).abs() < 1e-9);
         // void at node (2,2): the remaining weights are renormalised
-        assert!(t.height_m(Geo::new(45.2, 6.2)).is_none(), "exactly on the void node");
+        assert!(
+            t.height_m(Geo::new(45.2, 6.2)).is_none(),
+            "exactly on the void node"
+        );
         let h = t.height_m(Geo::new(45.15, 6.15)).unwrap(); // corners 11, 12, 21, void
         assert!((h - (11.0 + 12.0 + 21.0) / 3.0).abs() < 1e-9, "{h}");
         // north-east corner node (shared edge): 10·10 + 10 = 110
@@ -621,14 +634,18 @@ mod tests {
         std::fs::write(dir.join("s01w073.hgt"), synth_hgt(3)).unwrap();
         assert!(dem.source.height_m(Geo::new(-0.5, -72.5)).is_some());
         // standard sizes recognised
-        assert_eq!(parse_hgt(&vec![0u8; 1201 * 1201 * 2], 0, 0).unwrap().nlat, 1201);
+        assert_eq!(
+            parse_hgt(&vec![0u8; 1201 * 1201 * 2], 0, 0).unwrap().nlat,
+            1201
+        );
         assert!(parse_hgt(&[0u8; 7], 0, 0).is_err());
         let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]
     fn asc_and_csv_grids() {
-        let asc = "ncols 3\nnrows 2\nxllcorner 10.0\nyllcorner 50.0\ncellsize 0.5\nNODATA_value -9999\n\
+        let asc =
+            "ncols 3\nnrows 2\nxllcorner 10.0\nyllcorner 50.0\ncellsize 0.5\nNODATA_value -9999\n\
                    1 2 3\n4 5 -9999\n";
         let g = parse_asc(asc).unwrap();
         // cell centres: south row at 50.25 (values 4 5 void), north row at 50.75 (1 2 3)
@@ -686,6 +703,8 @@ mod tests {
         assert_eq!(p.len(), 101);
         assert!((p[50].1 - 305.0).abs() < 1.0, "{}", p[50].1);
         assert!((p[0].1 - 5.0).abs() < 1e-6 && (p[100].1 - 5.0).abs() < 1e-6);
-        assert!((p[100].0 - inverse(Geo::new(0.0, 0.0), Geo::new(1.0, 0.0)).distance_m).abs() < 1e-6);
+        assert!(
+            (p[100].0 - inverse(Geo::new(0.0, 0.0), Geo::new(1.0, 0.0)).distance_m).abs() < 1e-6
+        );
     }
 }

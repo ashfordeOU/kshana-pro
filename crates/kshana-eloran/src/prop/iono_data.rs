@@ -252,7 +252,8 @@ impl IonoData {
         };
         if let Some(f) = &cfg.ionosonde_file {
             let t = std::fs::read_to_string(f).map_err(|e| format!("ionosonde {f}: {e}"))?;
-            let s = parse_csv(&t, &["h_km", "refl_scale"]).map_err(|e| format!("ionosonde {f}: {e}"))?;
+            let s = parse_csv(&t, &["h_km", "refl_scale"])
+                .map_err(|e| format!("ionosonde {f}: {e}"))?;
             d.h_km.0.extend(s[0].0.iter().copied());
             d.refl_scale.0.extend(s[1].0.iter().copied());
         }
@@ -267,7 +268,8 @@ impl IonoData {
         }
         if let Some(f) = &cfg.space_weather_file {
             let t = std::fs::read_to_string(f).map_err(|e| format!("space weather {f}: {e}"))?;
-            let s = parse_csv(&t, &["kp", "f107"]).map_err(|e| format!("space weather {f}: {e}"))?;
+            let s =
+                parse_csv(&t, &["kp", "f107"]).map_err(|e| format!("space weather {f}: {e}"))?;
             d.kp.0.extend(s[0].0.iter().copied());
             d.f107.0.extend(s[1].0.iter().copied());
         }
@@ -317,7 +319,8 @@ impl IonoData {
             .map(|k| (k - h.kp_threshold).max(0.0))
             .unwrap_or(0.0);
         let gm = geomagnetic_lat_deg(mid).abs();
-        let u = ((gm - h.geomag_onset_deg) / (h.geomag_full_deg - h.geomag_onset_deg)).clamp(0.0, 1.0);
+        let u =
+            ((gm - h.geomag_onset_deg) / (h.geomag_full_deg - h.geomag_onset_deg)).clamp(0.0, 1.0);
         let l = u * u * (3.0 - 2.0 * u);
         let dh_km = w_day * h.dh_day_km_per_100sfu * s + h.dh_km_per_kp * e * l;
         let db = w_day * h.day_refl_db_per_100sfu * s + h.refl_db_per_kp * e * l;
@@ -363,7 +366,8 @@ mod tests {
         assert_eq!(s.hold(9.9), Some(1.0));
         assert_eq!(s.hold(10.0), Some(3.0));
         assert_eq!(Series::default().linear(0.0), None);
-        let csv = "time_utc,h_km,refl_scale\n2026-11-18T00:00:00Z,85,\n2026-11-18T01:00:00Z,95,0.5\n";
+        let csv =
+            "time_utc,h_km,refl_scale\n2026-11-18T00:00:00Z,85,\n2026-11-18T01:00:00Z,95,0.5\n";
         let v = parse_csv(csv, &["h_km", "refl_scale"]).unwrap();
         assert_eq!(v[0].0.len(), 2);
         assert_eq!(v[1].0.len(), 1);
@@ -376,8 +380,16 @@ mod tests {
     fn heuristic_modifiers() {
         let d = IonoData::build(&IonoDataConfig {
             space_weather: vec![
-                SpaceWeatherRecord { time_utc: "2026-11-18T00:00:00Z".into(), kp: Some(7.0), f107: Some(170.0) },
-                SpaceWeatherRecord { time_utc: "2026-11-18T03:00:00Z".into(), kp: Some(2.0), f107: Some(70.0) },
+                SpaceWeatherRecord {
+                    time_utc: "2026-11-18T00:00:00Z".into(),
+                    kp: Some(7.0),
+                    f107: Some(170.0),
+                },
+                SpaceWeatherRecord {
+                    time_utc: "2026-11-18T03:00:00Z".into(),
+                    kp: Some(2.0),
+                    f107: Some(70.0),
+                },
             ],
             ..Default::default()
         })
@@ -387,7 +399,11 @@ mod tests {
         let m = d.modifiers(t("2026-11-18T01:00:00Z"), 1.0, polar);
         // Kp held at 7 (e = 3, L = 1), F10.7 interpolated to 136.7 (s = 0.667)
         let s = (170.0 - (100.0 / 3.0) - 70.0) / 100.0;
-        assert!((m.dh_m - 1000.0 * (-3.0 * s - 3.0)).abs() < 1e-6, "{}", m.dh_m);
+        assert!(
+            (m.dh_m - 1000.0 * (-3.0 * s - 3.0)).abs() < 1e-6,
+            "{}",
+            m.dh_m
+        );
         let db = -2.0 * s - 4.5;
         assert!((20.0 * m.refl_scale.log10() - db).abs() < 1e-9);
         assert!((m.fading_depth - 1.45).abs() < 1e-12);
@@ -398,7 +414,11 @@ mod tests {
         let r = d.modifiers(t("2026-11-18T04:00:00Z"), 1.0, polar);
         assert!(r.dh_m.abs() < 1e-9 && (r.refl_scale - 1.0).abs() < 1e-12);
         assert!(IonoData::build(&IonoDataConfig {
-            space_weather: vec![SpaceWeatherRecord { time_utc: "2026-11-18T00:00:00Z".into(), kp: Some(12.0), f107: None }],
+            space_weather: vec![SpaceWeatherRecord {
+                time_utc: "2026-11-18T00:00:00Z".into(),
+                kp: Some(12.0),
+                f107: None
+            }],
             ..Default::default()
         })
         .is_err());
@@ -423,36 +443,76 @@ mod tests {
     #[test]
     fn data_drive_the_ionospheric_model() {
         let start = AbsTime::from_utc_iso("2026-11-18T00:00:00Z").unwrap();
-        let rx = RxState { t_s: 0.0, pos: Geo::new(68.0, 15.0), heading_rad: 0.0, speed_mps: 0.0 };
-        let base = IonoConfig { daylight: Daylight::Night, ..Default::default() };
-        let plain = Ionospheric::with_start(base.clone(), Some(start)).unwrap().paths(&station(), &rx)[0];
+        let rx = RxState {
+            t_s: 0.0,
+            pos: Geo::new(68.0, 15.0),
+            heading_rad: 0.0,
+            speed_mps: 0.0,
+        };
+        let base = IonoConfig {
+            daylight: Daylight::Night,
+            ..Default::default()
+        };
+        let plain = Ionospheric::with_start(base.clone(), Some(start))
+            .unwrap()
+            .paths(&station(), &rx)[0];
         // no data: identical to before
-        let empty = IonoConfig { data: Some(IonoDataConfig::default()), ..base.clone() };
-        let e = Ionospheric::with_start(empty, Some(start)).unwrap().paths(&station(), &rx)[0];
+        let empty = IonoConfig {
+            data: Some(IonoDataConfig::default()),
+            ..base.clone()
+        };
+        let e = Ionospheric::with_start(empty, Some(start))
+            .unwrap()
+            .paths(&station(), &rx)[0];
         assert_eq!(e, plain);
         // measured height 100 km replaces the night 90 km → later skywave; half ‖R‖ → −6 dB
         let dir = std::env::temp_dir().join(format!("kshana-iono-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let f = dir.join("sonde.csv");
-        std::fs::write(&f, "time_utc,h_km,refl_scale\n2026-11-17T00:00:00Z,100,0.5\n").unwrap();
+        std::fs::write(
+            &f,
+            "time_utc,h_km,refl_scale\n2026-11-17T00:00:00Z,100,0.5\n",
+        )
+        .unwrap();
         let c = IonoConfig {
-            data: Some(IonoDataConfig { ionosonde_file: Some(f.to_string_lossy().into()), ..Default::default() }),
+            data: Some(IonoDataConfig {
+                ionosonde_file: Some(f.to_string_lossy().into()),
+                ..Default::default()
+            }),
             ..base.clone()
         };
-        let p = Ionospheric::with_start(c, Some(start)).unwrap().paths(&station(), &rx)[0];
-        assert!(p.delay > plain.delay);
-        let h100 = Ionospheric::with_start(IonoConfig { h_night_km: 100.0, ..base.clone() }, Some(start))
+        let p = Ionospheric::with_start(c, Some(start))
             .unwrap()
             .paths(&station(), &rx)[0];
+        assert!(p.delay > plain.delay);
+        let h100 = Ionospheric::with_start(
+            IonoConfig {
+                h_night_km: 100.0,
+                ..base.clone()
+            },
+            Some(start),
+        )
+        .unwrap()
+        .paths(&station(), &rx)[0];
         assert_eq!(p.delay, h100.delay);
         assert!((20.0 * (p.field_uv_m / h100.field_uv_m).log10() + 6.0206).abs() < 1e-3);
         // a storm deepens the fading (high-latitude path) and lowers the field
-        let fad = Some(FadingConfig { seed: 3, ..Default::default() });
-        let quiet = IonoConfig { fading: fad.clone(), ..base.clone() };
+        let fad = Some(FadingConfig {
+            seed: 3,
+            ..Default::default()
+        });
+        let quiet = IonoConfig {
+            fading: fad.clone(),
+            ..base.clone()
+        };
         let storm = IonoConfig {
             fading: fad,
             data: Some(IonoDataConfig {
-                space_weather: vec![SpaceWeatherRecord { time_utc: "2026-11-18T00:00:00Z".into(), kp: Some(8.0), f107: None }],
+                space_weather: vec![SpaceWeatherRecord {
+                    time_utc: "2026-11-18T00:00:00Z".into(),
+                    kp: Some(8.0),
+                    f107: None,
+                }],
                 ..Default::default()
             }),
             ..base.clone()
@@ -461,7 +521,17 @@ mod tests {
         let ms = Ionospheric::with_start(storm, Some(start)).unwrap();
         let spread = |m: &Ionospheric| {
             let v: Vec<f64> = (0..200)
-                .map(|k| m.paths(&station(), &RxState { t_s: k as f64 * 5.0, ..rx })[0].field_uv_m.ln())
+                .map(|k| {
+                    m.paths(
+                        &station(),
+                        &RxState {
+                            t_s: k as f64 * 5.0,
+                            ..rx
+                        },
+                    )[0]
+                    .field_uv_m
+                    .ln()
+                })
                 .collect();
             let mean = v.iter().sum::<f64>() / v.len() as f64;
             (v.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / v.len() as f64).sqrt()

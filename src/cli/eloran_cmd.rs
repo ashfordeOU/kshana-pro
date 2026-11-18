@@ -321,8 +321,10 @@ fn rx_cmd(args: &[String]) -> ExitCode {
         Err(e) => return fail(e),
     };
     let chains: Vec<_> = sc.chains.iter().map(|c| c.chain.clone()).collect();
-    let mut cfg = RxConfig::default();
-    cfg.output_scale_uv_m = sc.scene.params.output_scale_uv_m;
+    let mut cfg = RxConfig {
+        output_scale_uv_m: sc.scene.params.output_scale_uv_m,
+        ..Default::default()
+    };
     let loops: Vec<usize> = sc
         .outputs
         .iter()
@@ -708,8 +710,11 @@ fn write_json<T: serde::Serialize>(path: &str, v: &T) -> Result<(), String> {
     if let Some(d) = p.parent().filter(|d| !d.as_os_str().is_empty()) {
         std::fs::create_dir_all(d).map_err(|e| format!("{}: {e}", d.display()))?;
     }
-    std::fs::write(p, serde_json::to_string_pretty(v).map_err(|e| e.to_string())?)
-        .map_err(|e| format!("{path}: {e}"))
+    std::fs::write(
+        p,
+        serde_json::to_string_pretty(v).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| format!("{path}: {e}"))
 }
 
 fn done(r: Result<String, String>) -> ExitCode {
@@ -725,13 +730,20 @@ fn done(r: Result<String, String>) -> ExitCode {
 fn num_flag<T: std::str::FromStr>(args: &[String], name: &str) -> Result<Option<T>, String> {
     match flag(args, name) {
         None => Ok(None),
-        Some(v) => v.parse::<T>().map(Some).map_err(|_| format!("{name}: not a valid number")),
+        Some(v) => v
+            .parse::<T>()
+            .map(Some)
+            .map_err(|_| format!("{name}: not a valid number")),
     }
 }
 
 fn awg_cmd(args: &[String]) -> ExitCode {
-    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else { return fail(USAGE) };
-    let Some(out) = flag(args, "--out") else { return fail(USAGE) };
+    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    let Some(out) = flag(args, "--out") else {
+        return fail(USAGE);
+    };
     if let Err(c) = licensed(args) {
         return c;
     }
@@ -747,12 +759,23 @@ fn awg_cmd(args: &[String]) -> ExitCode {
         let seg = kshana_eloran::hw::awg::compile(&sc, &opt)?;
         let n_ch = seg.codes.len();
         let base = PathBuf::from(&out);
-        let mut w = SigmfWriter::create(&base, kshana_eloran::io::Format::Rf32, n_ch, sc.scene.params.fs_hz, serde_json::json!({"awg_segment": true, "scenario_sha256": sc.hash()}))?;
+        let mut w = SigmfWriter::create(
+            &base,
+            kshana_eloran::io::Format::Rf32,
+            n_ch,
+            sc.scene.params.fs_hz,
+            serde_json::json!({"awg_segment": true, "scenario_sha256": sc.hash()}),
+        )?;
         let chans: Vec<Vec<f64>> = (0..n_ch).map(|c| seg.normalised(c)).collect();
         w.write_block(&chans)?;
         w.finish()?;
         write_json(&format!("{out}.awg.json"), &seg.report)?;
-        Ok(format!("awg: {} channel(s), {} samples per channel -> {}.sigmf-data", n_ch, chans.first().map(|c| c.len()).unwrap_or(0), out))
+        Ok(format!(
+            "awg: {} channel(s), {} samples per channel -> {}.sigmf-data",
+            n_ch,
+            chans.first().map(|c| c.len()).unwrap_or(0),
+            out
+        ))
     })())
 }
 
@@ -761,16 +784,28 @@ fn accept_cmd(args: &[String]) -> ExitCode {
     if args.get(1).map(String::as_str) != Some("software") {
         return fail(USAGE);
     }
-    let Some(out) = flag(args, "--out") else { return fail(USAGE) };
+    let Some(out) = flag(args, "--out") else {
+        return fail(USAGE);
+    };
     if let Err(c) = licensed(args) {
         return c;
     }
     done((|| {
-        let cases: Vec<_> = default_suite().into_iter().filter(|c| c.test.software_only()).collect();
+        let cases: Vec<_> = default_suite()
+            .into_iter()
+            .filter(|c| c.test.software_only())
+            .collect();
         let rep = run_suite(&cases, None, &mut Bench::default());
         write_json(&out, &rep)?;
-        let pass = rep.results.iter().filter(|r| format!("{:?}", r.verdict) == "Pass").count();
-        Ok(format!("accept: {pass}/{} software tests passed -> {out}", rep.results.len()))
+        let pass = rep
+            .results
+            .iter()
+            .filter(|r| format!("{:?}", r.verdict) == "Pass")
+            .count();
+        Ok(format!(
+            "accept: {pass}/{} software tests passed -> {out}",
+            rep.results.len()
+        ))
     })())
 }
 
@@ -780,7 +815,9 @@ fn sync_cmd(args: &[String]) -> ExitCode {
     if args.get(1).map(String::as_str) != Some("measure") {
         return fail(USAGE);
     }
-    let (Some(tic), Some(out)) = (flag(args, "--tic"), flag(args, "--out")) else { return fail(USAGE) };
+    let (Some(tic), Some(out)) = (flag(args, "--tic"), flag(args, "--out")) else {
+        return fail(USAGE);
+    };
     if let Err(c) = licensed(args) {
         return c;
     }
@@ -797,7 +834,10 @@ fn sync_cmd(args: &[String]) -> ExitCode {
         }
         let rep = analyse(&series, &cfg)?;
         write_json(&out, &rep)?;
-        Ok(format!("sync: {} readings analysed -> {out}", series.readings_ns.len()))
+        Ok(format!(
+            "sync: {} readings analysed -> {out}",
+            series.readings_ns.len()
+        ))
     })())
 }
 
@@ -807,16 +847,28 @@ fn timeref_cmd(args: &[String]) -> ExitCode {
     if args.get(1).map(String::as_str) != Some("circular-t") {
         return fail(USAGE);
     }
-    let Some(file) = args.get(2).filter(|a| !a.starts_with("--")).cloned() else { return fail(USAGE) };
-    let (Some(labs), Some(start)) = (flag(args, "--labs"), flag(args, "--start")) else { return fail(USAGE) };
+    let Some(file) = args.get(2).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    let (Some(labs), Some(start)) = (flag(args, "--labs"), flag(args, "--start")) else {
+        return fail(USAGE);
+    };
     done((|| {
         let ct = CircularT::parse(&read(&file)?)?;
         let dur = num_flag::<f64>(args, "--duration")?.unwrap_or(86_400.0);
-        let labs: Vec<&str> = labs.split(',').map(str::trim).filter(|s| !s.is_empty()).collect();
-        let models = ct.time_ref_models(&labs, UtcStamp::parse(&start)?, dur, ModelMode::LinearFit)?;
+        let labs: Vec<&str> = labs
+            .split(',')
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .collect();
+        let models =
+            ct.time_ref_models(&labs, UtcStamp::parse(&start)?, dur, ModelMode::LinearFit)?;
         let mut s = String::new();
         for m in &models {
-            s.push_str(&format!("# {} from BIPM Circular T ({} values, fit RMS {:.2} ns)\n", m.lab, m.points_used, m.fit_rms_ns));
+            s.push_str(&format!(
+                "# {} from BIPM Circular T ({} values, fit RMS {:.2} ns)\n",
+                m.lab, m.points_used, m.fit_rms_ns
+            ));
             s.push_str("[[time_refs]]\n");
             s.push_str(&toml::to_string(&m.model).map_err(|e| e.to_string())?);
             s.push('\n');
@@ -827,14 +879,21 @@ fn timeref_cmd(args: &[String]) -> ExitCode {
 
 fn asfgrid_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::prop::asfgrid::{generate, GridSpec};
-    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else { return fail(USAGE) };
-    let (Some(bx), Some(out)) = (flag(args, "--box"), flag(args, "--out")) else { return fail(USAGE) };
+    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    let (Some(bx), Some(out)) = (flag(args, "--box"), flag(args, "--out")) else {
+        return fail(USAGE);
+    };
     if let Err(c) = licensed(args) {
         return c;
     }
     done((|| {
         let sc = load(&path)?;
-        let v: Vec<f64> = bx.split(',').map(|x| x.trim().parse::<f64>().map_err(|_| format!("--box: {x}"))).collect::<Result<_, _>>()?;
+        let v: Vec<f64> = bx
+            .split(',')
+            .map(|x| x.trim().parse::<f64>().map_err(|_| format!("--box: {x}")))
+            .collect::<Result<_, _>>()?;
         if v.len() != 4 {
             return Err("--box needs lat1,lat2,lon1,lon2".into());
         }
@@ -846,26 +905,53 @@ fn asfgrid_cmd(args: &[String]) -> ExitCode {
         .map_err(|e| format!("grid: {e}"))?;
         let ctx = sc.build_context()?;
         let model = kshana_eloran::prop::build(&sc.propagation, &ctx)?;
-        let stations: Vec<_> = sc.chains.iter().flat_map(|c| c.chain.stations.clone()).collect();
-        let grid = generate(model.as_ref(), &stations, &spec, kshana_eloran::prop::ground::K_LORAN)?;
+        let stations: Vec<_> = sc
+            .chains
+            .iter()
+            .flat_map(|c| c.chain.stations.clone())
+            .collect();
+        let grid = generate(
+            model.as_ref(),
+            &stations,
+            &spec,
+            kshana_eloran::prop::ground::K_LORAN,
+        )?;
         std::fs::write(format!("{out}.asf.csv"), grid.to_csv()).map_err(|e| e.to_string())?;
-        std::fs::write(format!("{out}.asf.geojson"), grid.to_geojson_points()).map_err(|e| e.to_string())?;
-        Ok(format!("asfgrid: {} station(s) -> {out}.asf.csv, {out}.asf.geojson", stations.len()))
+        std::fs::write(format!("{out}.asf.geojson"), grid.to_geojson_points())
+            .map_err(|e| e.to_string())?;
+        Ok(format!(
+            "asfgrid: {} station(s) -> {out}.asf.csv, {out}.asf.geojson",
+            stations.len()
+        ))
     })())
 }
 
 fn fidelity_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::valid::fidelity::{compare, CaptureMeta, FidelityConfig, ReferenceSource};
-    let Some(rec) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else { return fail(USAGE) };
-    let (Some(meta), Some(scen), Some(out)) = (flag(args, "--meta"), flag(args, "--scenario"), flag(args, "--out")) else { return fail(USAGE) };
+    let Some(rec) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    let (Some(meta), Some(scen), Some(out)) = (
+        flag(args, "--meta"),
+        flag(args, "--scenario"),
+        flag(args, "--out"),
+    ) else {
+        return fail(USAGE);
+    };
     if let Err(c) = licensed(args) {
         return c;
     }
     done((|| {
         let recording = kshana_eloran::io::read_sigmf(Path::new(&rec), None)?;
-        let meta: CaptureMeta = serde_json::from_str(&read(&meta)?).map_err(|e| format!("capture metadata: {e}"))?;
+        let meta: CaptureMeta =
+            serde_json::from_str(&read(&meta)?).map_err(|e| format!("capture metadata: {e}"))?;
         let sc = load(&scen)?;
-        let rep = compare(&recording, &meta, &ReferenceSource::Scenario(Box::new(sc)), &FidelityConfig::default())?;
+        let rep = compare(
+            &recording,
+            &meta,
+            &ReferenceSource::Scenario(Box::new(sc)),
+            &FidelityConfig::default(),
+        )?;
         write_json(&out, &rep)?;
         Ok(format!("fidelity: report -> {out}"))
     })())
@@ -873,16 +959,26 @@ fn fidelity_cmd(args: &[String]) -> ExitCode {
 
 fn import_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::field::importers::CsvProfile;
-    let Some(log) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else { return fail(USAGE) };
-    let (Some(prof), Some(out)) = (flag(args, "--profile"), flag(args, "--out")) else { return fail(USAGE) };
+    let Some(log) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    let (Some(prof), Some(out)) = (flag(args, "--profile"), flag(args, "--out")) else {
+        return fail(USAGE);
+    };
     if let Err(c) = licensed(args) {
         return c;
     }
     done((|| {
         let p = CsvProfile::from_toml(&read(&prof)?)?;
         let (obs, rep) = p.import(&read(&log)?, &log)?;
-        write_json(&out, &serde_json::json!({ "observations": obs, "report": rep }))?;
-        Ok(format!("import: {} observation record(s) -> {out}", obs.len()))
+        write_json(
+            &out,
+            &serde_json::json!({ "observations": obs, "report": rep }),
+        )?;
+        Ok(format!(
+            "import: {} observation record(s) -> {out}",
+            obs.len()
+        ))
     })())
 }
 
@@ -895,9 +991,15 @@ fn conformance_cmd(args: &[String]) -> ExitCode {
         let lib = load_library(&library_dir())?;
         let mut s = String::new();
         for f in &lib {
-            s.push_str(&format!("{:<28} {:<24} {}\n", f.case.id, f.case.category, f.case.title));
+            s.push_str(&format!(
+                "{:<28} {:<24} {}\n",
+                f.case.id, f.case.category, f.case.title
+            ));
         }
-        s.push_str(&format!("{} case(s); limits are illustrative until confirmed against the cited standards", lib.len()));
+        s.push_str(&format!(
+            "{} case(s); limits are illustrative until confirmed against the cited standards",
+            lib.len()
+        ));
         Ok(s)
     })())
 }
@@ -906,22 +1008,41 @@ fn campaign_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::campaign::runner::{run_campaign, verify_campaign};
     match args.get(1).map(String::as_str) {
         Some("verify") => {
-            let Some(dir) = args.get(2) else { return fail(USAGE) };
+            let Some(dir) = args.get(2) else {
+                return fail(USAGE);
+            };
             done(verify_campaign(Path::new(dir)).map(|m| {
-                format!("campaign {} verified: {} file(s), {} pass, {} fail, {} not evaluated", m.name, m.files.len(), m.pass, m.fail, m.not_evaluated)
+                format!(
+                    "campaign {} verified: {} file(s), {} pass, {} fail, {} not evaluated",
+                    m.name,
+                    m.files.len(),
+                    m.pass,
+                    m.fail,
+                    m.not_evaluated
+                )
             }))
         }
         Some("run") => {
-            let Some(plan) = args.get(2).filter(|a| !a.starts_with("--")).cloned() else { return fail(USAGE) };
-            let Some(out) = flag(args, "--out") else { return fail(USAGE) };
+            let Some(plan) = args.get(2).filter(|a| !a.starts_with("--")).cloned() else {
+                return fail(USAGE);
+            };
+            let Some(out) = flag(args, "--out") else {
+                return fail(USAGE);
+            };
             if let Err(c) = licensed(args) {
                 return c;
             }
             done((|| {
                 let src = read(&plan)?;
-                let dir = Path::new(&plan).parent().map(Path::to_path_buf).unwrap_or_default();
+                let dir = Path::new(&plan)
+                    .parent()
+                    .map(Path::to_path_buf)
+                    .unwrap_or_default();
                 let s = run_campaign(&src, &dir, Path::new(&out))?;
-                Ok(format!("campaign {}: {} pass, {} fail, {} not evaluated -> {out}", s.name, s.pass, s.fail, s.not_evaluated))
+                Ok(format!(
+                    "campaign {}: {} pass, {} fail, {} not evaluated -> {out}",
+                    s.name, s.pass, s.fail, s.not_evaluated
+                ))
             })())
         }
         _ => fail(USAGE),
@@ -944,8 +1065,12 @@ struct PlanFile {
 
 fn plan_cmd(args: &[String]) -> ExitCode {
     use kshana_eloran::plan::{coverage_csv, coverage_geojson, Planner};
-    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else { return fail(USAGE) };
-    let Some(out) = flag(args, "--out") else { return fail(USAGE) };
+    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    let Some(out) = flag(args, "--out") else {
+        return fail(USAGE);
+    };
     if let Err(c) = licensed(args) {
         return c;
     }
@@ -958,29 +1083,58 @@ fn plan_cmd(args: &[String]) -> ExitCode {
         };
         let model = kshana_eloran::prop::build(&pf.propagation, &ctx)?;
         let n = pf.candidates.len();
-        let planner = Planner::new(pf.candidates, pf.area, pf.settings.unwrap_or_default(), model.as_ref())?;
+        let planner = Planner::new(
+            pf.candidates,
+            pf.area,
+            pf.settings.unwrap_or_default(),
+            model.as_ref(),
+        )?;
         let cov = match pf.select {
             Some(m) if m < n => planner.select(m, 5000),
             _ => planner.evaluate(&(0..n).collect::<Vec<_>>()),
         };
-        std::fs::write(format!("{out}.coverage.csv"), coverage_csv(&cov)).map_err(|e| e.to_string())?;
-        std::fs::write(format!("{out}.coverage.geojson"), coverage_geojson(&cov)).map_err(|e| e.to_string())?;
-        write_json(&format!("{out}.plan.json"), &serde_json::json!({"sites": cov.sites, "coverage": cov.coverage, "cost": cov.cost}))?;
-        Ok(format!("plan: sites {:?}, coverage {:.1} %, cost {} -> {out}.*", cov.sites, cov.coverage * 100.0, cov.cost))
+        std::fs::write(format!("{out}.coverage.csv"), coverage_csv(&cov))
+            .map_err(|e| e.to_string())?;
+        std::fs::write(format!("{out}.coverage.geojson"), coverage_geojson(&cov))
+            .map_err(|e| e.to_string())?;
+        write_json(
+            &format!("{out}.plan.json"),
+            &serde_json::json!({"sites": cov.sites, "coverage": cov.coverage, "cost": cov.cost}),
+        )?;
+        Ok(format!(
+            "plan: sites {:?}, coverage {:.1} %, cost {} -> {out}.*",
+            cov.sites,
+            cov.coverage * 100.0,
+            cov.cost
+        ))
     })())
 }
 
 fn twin_cmd(args: &[String]) -> ExitCode {
-    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else { return fail(USAGE) };
-    let Some(out) = flag(args, "--out") else { return fail(USAGE) };
+    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    let Some(out) = flag(args, "--out") else {
+        return fail(USAGE);
+    };
     if let Err(c) = licensed(args) {
         return c;
     }
     done((|| {
-        let cfg: kshana_eloran::twin::TwinConfig = toml::from_str(&read(&path)?).map_err(|e| format!("{path}: {e}"))?;
+        let cfg: kshana_eloran::twin::TwinConfig =
+            toml::from_str(&read(&path)?).map_err(|e| format!("{path}: {e}"))?;
         let r = kshana_eloran::twin::run(&cfg)?;
         write_json(&out, &r)?;
-        let k: Vec<String> = r.kpis.iter().map(|k| format!("{}: max {:.1} ns, avail {:.4}, alarms {}", k.id, k.max_abs_error_ns, k.availability, k.alarms)).collect();
+        let k: Vec<String> = r
+            .kpis
+            .iter()
+            .map(|k| {
+                format!(
+                    "{}: max {:.1} ns, avail {:.4}, alarms {}",
+                    k.id, k.max_abs_error_ns, k.availability, k.alarms
+                )
+            })
+            .collect();
         Ok(format!("twin: {} -> {out}", k.join("; ")))
     })())
 }

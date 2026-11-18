@@ -138,3 +138,36 @@ GRI-database provenance.
 The evidence label, reference, test, tolerance and known limitations of every model and
 capability, and a requirements-coverage summary, are in
 [`crates/kshana-eloran/docs/VALIDATION.md`](../crates/kshana-eloran/docs/VALIDATION.md).
+
+## Bench, validation and system tools (phase 2)
+
+| Command | What it does | Licence |
+|---|---|---|
+| `eloran awg <scenario> --out <base>` | Compile a periodic scenario (static receiver, no time-varying effects) into one repeating segment of whole phase-code cycles for an arbitrary waveform generator; report with segment length and model error | Enterprise |
+| `eloran accept software --out <report.json>` | Software-only acceptance tests: ToA/ECD/ASF 10 ns resolution, SNR range, skywave delay range | Enterprise |
+| `eloran sync measure --tic <csv> --out <report.json>` | eLoran-vs-GNSS sync from time-interval-counter readings: mean offset, TDEV/MTIE, drift, alarms against 10 ns, correction for the calibration file | Enterprise |
+| `eloran timeref circular-t <file> --labs A,B --start <utc>` | `[[time_refs]]` fitted to BIPM Circular T UTC−UTC(k) values | free |
+| `eloran asfgrid <scenario> --box lat1,lat2,lon1,lon2 --res <deg> --out <base>` | ASF per station on a grid with the scenario's ground model (CSV + GeoJSON); importable as an `asf_grid` ground model | Enterprise |
+| `eloran fidelity <recording> --meta <capture.json> --scenario <toml> --out <report.json>` | Recording vs simulation at signal, observable and solution level, with pass/fail per metric | Enterprise |
+| `eloran import <log> --profile <csv-profile.toml> --out <obs.json>` | Receiver log → common observation records (CSV profiles; NMEA, vendor-split and TIC importers are in the library) | Enterprise |
+| `eloran conformance list` | The conformance library (16 cases "modelled on" eLoran/Loran-C receiver standards; limits illustrative until confirmed) | free |
+| `eloran campaign run <plan.toml> --out <dir>` / `verify <dir>` | Pre-registered validation campaign: per-case results, summary, RVM, hash-chained manifest; verify detects any modification | Enterprise / free |
+| `eloran plan <plan.toml> --out <base>` | Network planner: coverage, weighted HDOP, 95 % accuracy, availability under station outages, site selection, CRI risk | Enterprise |
+| `eloran twin <twin.toml> --out <result.json>` | National-network digital twin: transmitter clocks, monitor stations, alarms with LDC warnings, PI steering, KPIs | Enterprise |
+
+Library-only (wire them into lab tooling or a later command):
+
+* **Hardware drivers** behind one `Device` trait: SoapySDR, Ettus UHD (C API), Red Pitaya, Digilent Analog Discovery, generic SCPI/LXI arbitrary waveform generators (editable command profiles), a file device, and a **virtual bench** (latency, clock offset, jitter, quantisation, crosstalk, lock loss, underruns, loopback) for CI. Hardware health aggregation with alarms. Drivers for real devices compile but have not run on hardware.
+* **Instruments** (`instr`): counters, scopes, spectrum analysers, power meters, frequency counters over TCP/serial with editable profiles; TAPR TICC parser; JSON-lines evidence log. **Calibration wizards** (`accept::calibrate`) for simulator delay/gain/linearity and receiver timing with a GUM report; **acceptance suite** (`accept::suite`) with RVM output; **calibration register** (`calreg`) with a hash chain.
+* **GNSS simulator adapters** (`sync`): Skydel, Spirent, R&S SMBV/SMW, LabSat, gps-sdr-sim, each with a configurable command profile to confirm against the vendor manual; GNSS degradation timelines translated per simulator; timing-reference distribution model with cable delays; Circular T importer (`timeref`).
+* **Validation** (`valid`): fidelity comparator, inverse modelling (ASF, conductivity, skywave, transmitter offsets), GRWAVE / P.368 / ASF-survey cross-check harnesses that can promote a model to VALIDATED.
+* **Field** (`field`): unattended LF recording station with chain detection, health and upload manifest; receiver log importers.
+* **Propagation** (`prop`): terrain groundwave (integral equation over SRTM/ASCII DEMs), P.832/GeoJSON conductivity atlases, urban effects, ASF grids, ionosonde/space-weather inputs, Monte Carlo propagation uncertainty.
+* **Receiver and system**: real-time streaming receiver (`rt`), differential eLoran reference station (`dloran`), threat models (`threat`: jamming, spoofing, meaconing, forged data messages — **Enterprise vetted-buyer gating required before exposing them**, as for `attack-iq`), network planner (`plan`), digital twin (`twin`).
+* **kshana-pro**: low-cost GNSS path to an SDR with degradation (`eloran_gnss_sdr`), GNSS time transfer and common view for UTC(k) traceability (`eloran_timexfer`), hybrid eLoran/GNSS fusion with cross-system integrity (`eloran_fusion`), eLoran in multi-source trust (`eloran_trust`).
+
+Signed V&V evidence: a campaign directory (or any run output) can be signed with the existing `kshana-pro dossier sign` and verified offline with `kshana-pro dossier verify`.
+
+CI: `.github/workflows/eloran.yml` runs format, strict clippy (with and without the hardware driver features) and the full engine test suite on every push, and a nightly virtual-bench, acceptance and campaign run.
+
+Planner note: with the default station availability (0.999) and service-availability target (0.999), three stations cannot meet the target at any point (all three must be up: 0.997). Use more stations, or set the targets to the service you are planning.

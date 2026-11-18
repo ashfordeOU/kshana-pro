@@ -342,7 +342,10 @@ impl GrwaveTable {
         });
         for r in &self.rows {
             match (with_sf, r.sf_us) {
-                (true, Some(v)) => s.push_str(&format!("{},{:.4},{:.6}\n", r.distance_km, r.field_dbuv_m, v)),
+                (true, Some(v)) => s.push_str(&format!(
+                    "{},{:.4},{:.6}\n",
+                    r.distance_km, r.field_dbuv_m, v
+                )),
                 (true, None) => s.push_str(&format!("{},{:.4},\n", r.distance_km, r.field_dbuv_m)),
                 _ => s.push_str(&format!("{},{:.4}\n", r.distance_km, r.field_dbuv_m)),
             }
@@ -378,7 +381,11 @@ pub fn smooth_earth_reference(
         // so start the walk at 1 km)
         let start = d_prev.max(1000.0);
         let steps = (((d - start) / 2000.0).ceil() as usize).max(1);
-        let mut ph = if d_prev == 0.0 { total(start).arg() } else { ph_prev };
+        let mut ph = if d_prev == 0.0 {
+            total(start).arg()
+        } else {
+            ph_prev
+        };
         for s in 1..=steps {
             let x = start + (d - start) * s as f64 / steps as f64;
             let mut a = total(x).arg();
@@ -391,9 +398,8 @@ pub fn smooth_earth_reference(
             ph = a;
         }
         let z = total(d);
-        let field = E1_UV_M_PER_SQRT_KW_AT_1KM * power_kw.sqrt() / (d / 1000.0)
-            * se.spreading(d)
-            * z.abs();
+        let field =
+            E1_UV_M_PER_SQRT_KW_AT_1KM * power_kw.sqrt() / (d / 1000.0) * se.spreading(d) * z.abs();
         out[i] = (20.0 * field.log10(), -ph / w * 1e9);
         d_prev = d;
         ph_prev = ph;
@@ -531,7 +537,11 @@ impl Default for GrwaveColumns {
 /// Parse the numeric table of a GRWAVE output text: every line whose tokens up to the
 /// highest configured column are all numbers is a row; other lines (titles, echoes of the
 /// input, headings) are skipped.
-pub fn parse_grwave_output(text: &str, cols: &GrwaveColumns, meta: GrwaveMeta) -> Result<GrwaveTable, String> {
+pub fn parse_grwave_output(
+    text: &str,
+    cols: &GrwaveColumns,
+    meta: GrwaveMeta,
+) -> Result<GrwaveTable, String> {
     let need = cols.distance.max(cols.field).max(cols.sf_us.unwrap_or(0));
     let mut rows = Vec::new();
     for line in text.lines() {
@@ -589,11 +599,18 @@ impl GrwaveRunner {
 
     /// Write the deck, run GRWAVE, keep its output (`grwave_input.txt`,
     /// `grwave_output.txt` in `workdir`) and parse it.
-    pub fn run(&self, meta: &GrwaveMeta, d_min_km: f64, d_max_km: f64, d_step_km: f64) -> Result<RunOutcome, String> {
+    pub fn run(
+        &self,
+        meta: &GrwaveMeta,
+        d_min_km: f64,
+        d_max_km: f64,
+        d_step_km: f64,
+    ) -> Result<RunOutcome, String> {
         let Some(exe) = &self.exe else {
             return Ok(RunOutcome::NotConfigured);
         };
-        std::fs::create_dir_all(&self.workdir).map_err(|e| format!("{}: {e}", self.workdir.display()))?;
+        std::fs::create_dir_all(&self.workdir)
+            .map_err(|e| format!("{}: {e}", self.workdir.display()))?;
         let deck_path = self.workdir.join("grwave_input.txt");
         let deck = grwave_deck(meta, d_min_km, d_max_km, d_step_km);
         std::fs::write(&deck_path, &deck).map_err(|e| format!("{}: {e}", deck_path.display()))?;
@@ -616,7 +633,8 @@ impl GrwaveRunner {
             std::process::Stdio::null()
         } else {
             std::process::Stdio::from(
-                std::fs::File::open(&deck_path).map_err(|e| format!("{}: {e}", deck_path.display()))?,
+                std::fs::File::open(&deck_path)
+                    .map_err(|e| format!("{}: {e}", deck_path.display()))?,
             )
         });
         let out = cmd
@@ -637,7 +655,11 @@ impl GrwaveRunner {
         if m.source.is_empty() {
             m.source = format!("GRWAVE run: {}", exe.display());
         }
-        Ok(RunOutcome::Ran(parse_grwave_output(&text, &self.columns, m)?))
+        Ok(RunOutcome::Ran(parse_grwave_output(
+            &text,
+            &self.columns,
+            m,
+        )?))
     }
 }
 
@@ -788,9 +810,15 @@ pub fn compare_digitised(
 
 /// Groundwave model for digitised P.368-style curves: smooth earth, the row's σ and ε_r
 /// (ε_r from σ when empty), `k_factor`, the file's frequency and power.
-pub fn groundwave_curve_model(k_factor: f64, freq_khz: f64, power_kw: f64) -> impl Fn(&CurveRow) -> Result<f64, String> {
+pub fn groundwave_curve_model(
+    k_factor: f64,
+    freq_khz: f64,
+    power_kw: f64,
+) -> impl Fn(&CurveRow) -> Result<f64, String> {
     move |r: &CurveRow| {
-        let s = r.sigma_s_m.ok_or_else(|| format!("class {}: no sigma_s_m", r.class))?;
+        let s = r
+            .sigma_s_m
+            .ok_or_else(|| format!("class {}: no sigma_s_m", r.class))?;
         let g = Ground {
             sigma: s,
             eps_r: r
@@ -805,7 +833,11 @@ pub fn groundwave_curve_model(k_factor: f64, freq_khz: f64, power_kw: f64) -> im
 /// ([`Ionospheric::p684_field`], one hop) with day weight 1 for class "day", 0 for "night"
 /// (other classes: `default_day_weight`), reflection height interpolated between the
 /// configuration's night and day heights.
-pub fn skywave_curve_model(cfg: IonoConfig, power_kw: f64, default_day_weight: f64) -> Result<impl Fn(&CurveRow) -> Result<f64, String>, String> {
+pub fn skywave_curve_model(
+    cfg: IonoConfig,
+    power_kw: f64,
+    default_day_weight: f64,
+) -> Result<impl Fn(&CurveRow) -> Result<f64, String>, String> {
     let ion = Ionospheric::new(IonoConfig {
         daylight: crate::prop::sky::Daylight::Night,
         ..cfg
@@ -842,8 +874,18 @@ pub struct SurveyPoint {
 pub fn parse_survey_csv(text: &str) -> Result<Vec<SurveyPoint>, String> {
     let (head, rows) = csv_table(text)?;
     let c = |n: &str| col(&head, n).ok_or_else(|| format!("survey CSV: missing column {n}"));
-    let (cla, clo, cst, ca, cu) = (c("lat")?, c("lon")?, c("station")?, c("asf_ns")?, c("uncertainty_ns")?);
-    let (cch, ce, ceu) = (col(&head, "chain"), col(&head, "ecd_us"), col(&head, "ecd_uncertainty_us"));
+    let (cla, clo, cst, ca, cu) = (
+        c("lat")?,
+        c("lon")?,
+        c("station")?,
+        c("asf_ns")?,
+        c("uncertainty_ns")?,
+    );
+    let (cch, ce, ceu) = (
+        col(&head, "chain"),
+        col(&head, "ecd_us"),
+        col(&head, "ecd_uncertainty_us"),
+    );
     rows.iter()
         .map(|(ln, f)| {
             let u = num_at(f, cu, *ln, "uncertainty_ns")?;
@@ -854,7 +896,10 @@ pub fn parse_survey_csv(text: &str) -> Result<Vec<SurveyPoint>, String> {
                 line: *ln,
                 lat_deg: num_at(f, cla, *ln, "lat")?,
                 lon_deg: num_at(f, clo, *ln, "lon")?,
-                chain: cch.and_then(|i| f.get(i)).filter(|s| !s.is_empty()).cloned(),
+                chain: cch
+                    .and_then(|i| f.get(i))
+                    .filter(|s| !s.is_empty())
+                    .cloned(),
                 station: f.get(cst).cloned().unwrap_or_default(),
                 asf_ns: num_at(f, ca, *ln, "asf_ns")?,
                 uncertainty_ns: u,
@@ -938,7 +983,10 @@ pub struct SurveyReport {
     pub pass: bool,
 }
 
-fn find_station<'a>(chains: &'a [Chain], p: &SurveyPoint) -> Result<(&'a Chain, &'a Station), String> {
+fn find_station<'a>(
+    chains: &'a [Chain],
+    p: &SurveyPoint,
+) -> Result<(&'a Chain, &'a Station), String> {
     let (cname, sname) = match (&p.chain, p.station.split_once('/')) {
         (Some(c), _) => (Some(c.as_str()), p.station.as_str()),
         (None, Some((c, s))) => (Some(c), s),
@@ -946,7 +994,10 @@ fn find_station<'a>(chains: &'a [Chain], p: &SurveyPoint) -> Result<(&'a Chain, 
     };
     let mut hits = Vec::new();
     for c in chains {
-        if cname.map(|n| n == c.name || c.name.starts_with(n)).unwrap_or(true) {
+        if cname
+            .map(|n| n == c.name || c.name.starts_with(n))
+            .unwrap_or(true)
+        {
             for s in &c.stations {
                 if s.id == sname || (!s.name.is_empty() && s.name == sname) {
                     hits.push((c, s));
@@ -956,7 +1007,10 @@ fn find_station<'a>(chains: &'a [Chain], p: &SurveyPoint) -> Result<(&'a Chain, 
     }
     match hits.len() {
         1 => Ok(hits[0]),
-        0 => Err(format!("line {}: station {:?} not found", p.line, p.station)),
+        0 => Err(format!(
+            "line {}: station {:?} not found",
+            p.line, p.station
+        )),
         _ => Err(format!(
             "line {}: station {:?} is ambiguous (add a chain column)",
             p.line, p.station
@@ -989,7 +1043,11 @@ pub fn compare_survey(
             heading_rad: 0.0,
             speed_mps: 0.0,
         };
-        let Some(g) = model.paths(st, &rx).into_iter().find(|q| q.kind == PathKind::Ground) else {
+        let Some(g) = model
+            .paths(st, &rx)
+            .into_iter()
+            .find(|q| q.kind == PathKind::Ground)
+        else {
             unmatched.push(format!("line {}: model gave no ground path", p.line));
             continue;
         };
@@ -1021,7 +1079,11 @@ pub fn compare_survey(
     let per_station = keys
         .into_iter()
         .map(|k| {
-            let v: Vec<f64> = out.iter().filter(|r| r.station == k).map(|r| r.residual_ns).collect();
+            let v: Vec<f64> = out
+                .iter()
+                .filter(|r| r.station == k)
+                .map(|r| r.residual_ns)
+                .collect();
             (k, stats(&v))
         })
         .collect();
@@ -1034,12 +1096,17 @@ pub fn compare_survey(
     } else {
         0.0
     };
-    let ecd_ok = points.iter().zip(&out).all(|(p, r)| match (r.ecd_residual_us, p.ecd_uncertainty_us) {
-        (Some(e), u) => {
-            e.abs() <= ((tol.k * u.unwrap_or(0.0)).powi(2) + tol.ecd_model_us.powi(2)).sqrt()
-        }
-        _ => true,
-    });
+    let ecd_ok =
+        points
+            .iter()
+            .zip(&out)
+            .all(|(p, r)| match (r.ecd_residual_us, p.ecd_uncertainty_us) {
+                (Some(e), u) => {
+                    e.abs()
+                        <= ((tol.k * u.unwrap_or(0.0)).powi(2) + tol.ecd_model_us.powi(2)).sqrt()
+                }
+                _ => true,
+            });
     SurveyReport {
         reference: reference.into(),
         model: model.name(),
@@ -1048,7 +1115,11 @@ pub fn compare_survey(
         points: out,
         per_station,
         overall,
-        ecd: if ecd_res.is_empty() { None } else { Some(stats(&ecd_res)) },
+        ecd: if ecd_res.is_empty() {
+            None
+        } else {
+            Some(stats(&ecd_res))
+        },
         reduced_chi2: if n > 0 { chi2 / n as f64 } else { f64::NAN },
         fraction_within: fraction,
         unmatched,
@@ -1088,7 +1159,10 @@ impl SurveyReport {
         LedgerRow::new(
             model,
             reference,
-            &format!("valid::crosscheck::compare_survey ({} points)", self.points.len()),
+            &format!(
+                "valid::crosscheck::compare_survey ({} points)",
+                self.points.len()
+            ),
             &format!(
                 "≥ {:.0} % of points within √(({}·u)² + {} ns²); RMS ≤ {} ns",
                 t.min_fraction * 100.0,
@@ -1124,14 +1198,22 @@ mod tests {
     fn synthetic_table(sigma: f64, eps: f64) -> GrwaveTable {
         let d: Vec<f64> = (1..=20).map(|i| i as f64 * 100.0).collect();
         let m = smooth_earth_reference(100e3, Ground { sigma, eps_r: eps }, K_ITU, 1.0, &d);
-        let mut meta = GrwaveMeta::loran(sigma, eps, "SYNTHETIC: generated by kshana-eloran smooth_earth (k = 4/3), not GRWAVE");
+        let mut meta = GrwaveMeta::loran(
+            sigma,
+            eps,
+            "SYNTHETIC: generated by kshana-eloran smooth_earth (k = 4/3), not GRWAVE",
+        );
         meta.synthetic = true;
         GrwaveTable {
             meta,
             rows: d
                 .iter()
                 .zip(&m)
-                .map(|(d, (f, s))| GrwaveRow { distance_km: *d, field_dbuv_m: *f, sf_us: Some(s / 1e3) })
+                .map(|(d, (f, s))| GrwaveRow {
+                    distance_km: *d,
+                    field_dbuv_m: *f,
+                    sf_us: Some(s / 1e3),
+                })
                 .collect(),
         }
     }
@@ -1139,7 +1221,16 @@ mod tests {
     #[test]
     fn smooth_earth_reference_short_range_and_sf() {
         // 1 kW over sea: ≈ 300 mV/m · (1 km / d) at short range → 109.5 dB(µV/m) at 1 km
-        let m = smooth_earth_reference(100e3, Ground { sigma: 5.0, eps_r: 80.0 }, K_LORAN, 1.0, &[10.0, 1000.0]);
+        let m = smooth_earth_reference(
+            100e3,
+            Ground {
+                sigma: 5.0,
+                eps_r: 80.0,
+            },
+            K_LORAN,
+            1.0,
+            &[10.0, 1000.0],
+        );
         assert!((m[0].0 - (20.0 * 30_000f64.log10())).abs() < 0.5, "{m:?}");
         // the seawater SF at 1000 km is a few µs at most and positive
         assert!(m[1].1 > 500.0 && m[1].1 < 5000.0, "{m:?}");
@@ -1179,7 +1270,14 @@ mod tests {
     fn grwave_deck_parser_and_runner() {
         let meta = GrwaveMeta::loran(5.0, 70.0, "");
         let deck = grwave_deck(&meta, 10.0, 2000.0, 10.0);
-        for k in ["FREQ 0.1\n", "SIGMA 5\n", "EPSLON 70\n", "IPOLRN 1\n", "DMAX 2000\n", "GO\n"] {
+        for k in [
+            "FREQ 0.1\n",
+            "SIGMA 5\n",
+            "EPSLON 70\n",
+            "IPOLRN 1\n",
+            "DMAX 2000\n",
+            "GO\n",
+        ] {
             assert!(deck.contains(k), "{deck}");
         }
         // SYNTHETIC output text in a GRWAVE-like layout (titles, headings, numeric rows)
@@ -1189,14 +1287,25 @@ mod tests {
         assert_eq!(t.rows[1].field_dbuv_m, 83.4);
         assert!(parse_grwave_output("no table", &GrwaveColumns::default(), meta.clone()).is_err());
         let dir = std::env::temp_dir().join(format!("kshana-grwave-test-{}", std::process::id()));
-        let none = GrwaveRunner { exe: None, args: vec![], workdir: dir.clone(), columns: Default::default() };
-        assert_eq!(none.run(&meta, 10.0, 20.0, 10.0).unwrap(), RunOutcome::NotConfigured);
+        let none = GrwaveRunner {
+            exe: None,
+            args: vec![],
+            workdir: dir.clone(),
+            columns: Default::default(),
+        };
+        assert_eq!(
+            none.run(&meta, 10.0, 20.0, 10.0).unwrap(),
+            RunOutcome::NotConfigured
+        );
         #[cfg(unix)]
         {
             // a stand-in "executable" that checks the deck on stdin and prints a table
             let fake = GrwaveRunner {
                 exe: Some("/bin/sh".into()),
-                args: vec!["-c".into(), "grep -q '^GO' && printf 'HDR\\n10 89.5\\n20 83.4\\n'".into()],
+                args: vec![
+                    "-c".into(),
+                    "grep -q '^GO' && printf 'HDR\\n10 89.5\\n20 83.4\\n'".into(),
+                ],
                 workdir: dir.clone(),
                 columns: Default::default(),
             };
@@ -1204,7 +1313,9 @@ mod tests {
                 RunOutcome::Ran(t) => assert_eq!(t.rows.len(), 2),
                 o => panic!("{o:?}"),
             }
-            assert!(dir.join("grwave_input.txt").exists() && dir.join("grwave_output.txt").exists());
+            assert!(
+                dir.join("grwave_input.txt").exists() && dir.join("grwave_output.txt").exists()
+            );
         }
         let _ = std::fs::remove_dir_all(&dir);
     }
@@ -1214,9 +1325,19 @@ mod tests {
         // SYNTHETIC curves from this crate's model for three ground classes
         let model = groundwave_curve_model(K_ITU, 100.0, 1.0);
         let mut rows = Vec::new();
-        for (class, s, e) in [("sea", 5.0, 70.0), ("wet", 0.01, 30.0), ("dry", 0.001, 15.0)] {
+        for (class, s, e) in [
+            ("sea", 5.0, 70.0),
+            ("wet", 0.01, 30.0),
+            ("dry", 0.001, 15.0),
+        ] {
             for d in [50.0, 200.0, 500.0, 1000.0] {
-                let mut r = CurveRow { class: class.into(), sigma_s_m: Some(s), eps_r: Some(e), distance_km: d, field_dbuv_m: 0.0 };
+                let mut r = CurveRow {
+                    class: class.into(),
+                    sigma_s_m: Some(s),
+                    eps_r: Some(e),
+                    distance_km: d,
+                    field_dbuv_m: 0.0,
+                };
                 r.field_dbuv_m = model(&r).unwrap();
                 rows.push(r);
             }
@@ -1247,9 +1368,19 @@ mod tests {
         }
         // skywave model harness on SYNTHETIC night/day points
         let sky = skywave_curve_model(IonoConfig::default(), 1.0, 0.5).unwrap();
-        let r = CurveRow { class: "night".into(), sigma_s_m: None, eps_r: None, distance_km: 1000.0, field_dbuv_m: 0.0 };
+        let r = CurveRow {
+            class: "night".into(),
+            sigma_s_m: None,
+            eps_r: None,
+            distance_km: 1000.0,
+            field_dbuv_m: 0.0,
+        };
         let night = sky(&r).unwrap();
-        let day = sky(&CurveRow { class: "day".into(), ..r.clone() }).unwrap();
+        let day = sky(&CurveRow {
+            class: "day".into(),
+            ..r.clone()
+        })
+        .unwrap();
         assert!(night > day, "night {night} day {day}");
         assert!(DigitisedCurves::parse("# format: other\n").is_err());
     }
@@ -1262,8 +1393,13 @@ mod tests {
              [[stations]]\nid = \"X\"\nrole = \"secondary\"\nposition = { lat_deg = 53.5, lon_deg = 1.5 }\nemission_delay_us = 13000.0\n",
         )
         .unwrap()];
-        let ctx = BuildContext::new(AbsTime::from_utc_iso("2026-11-18T00:00:00Z").unwrap(), 1.0, 0);
-        let se: GroundConfig = toml::from_str("model = \"smooth_earth\"\nsigma_s_m = 0.01").unwrap();
+        let ctx = BuildContext::new(
+            AbsTime::from_utc_iso("2026-11-18T00:00:00Z").unwrap(),
+            1.0,
+            0,
+        );
+        let se: GroundConfig =
+            toml::from_str("model = \"smooth_earth\"\nsigma_s_m = 0.01").unwrap();
         let model = crate::prop::ground::build(&se, &ctx).unwrap();
         // SYNTHETIC survey: the model's own ASF at 12 points plus 10 ns noise
         let mut rng = ChaCha8Rng::seed_from_u64(11);
@@ -1271,30 +1407,76 @@ mod tests {
         let mut text = String::from("# SYNTHETIC survey generated by kshana-eloran tests\nlat,lon,chain,station,asf_ns,uncertainty_ns,source\n");
         for i in 0..12 {
             let st = &c0.stations[i % c0.stations.len()];
-            let pos = Geo::new(st.position.lat_deg + 1.0 + 0.2 * i as f64, st.position.lon_deg + 0.5);
-            let rx = RxState { t_s: 0.0, pos, heading_rad: 0.0, speed_mps: 0.0 };
+            let pos = Geo::new(
+                st.position.lat_deg + 1.0 + 0.2 * i as f64,
+                st.position.lon_deg + 0.5,
+            );
+            let rx = RxState {
+                t_s: 0.0,
+                pos,
+                heading_rad: 0.0,
+                speed_mps: 0.0,
+            };
             let a = model.paths(st, &rx)[0].asf_ns + 10.0 * crate::timebase::gauss(&mut rng);
-            text.push_str(&format!("{},{},{},{},{a:.2},10,synthetic\n", pos.lat_deg, pos.lon_deg, c0.name, st.id));
+            text.push_str(&format!(
+                "{},{},{},{},{a:.2},10,synthetic\n",
+                pos.lat_deg, pos.lon_deg, c0.name, st.id
+            ));
         }
         let pts = parse_survey_csv(&text).unwrap();
         assert_eq!(pts.len(), 12);
-        let rep = compare_survey(&pts, &chains, model.as_ref(), SurveyQuantity::Asf, &Default::default(), "SYNTHETIC");
+        let rep = compare_survey(
+            &pts,
+            &chains,
+            model.as_ref(),
+            SurveyQuantity::Asf,
+            &Default::default(),
+            "SYNTHETIC",
+        );
         assert!(rep.unmatched.is_empty(), "{:?}", rep.unmatched);
         assert!(rep.pass, "{:?}", rep.overall);
-        assert!(rep.reduced_chi2 > 0.3 && rep.reduced_chi2 < 2.5, "{}", rep.reduced_chi2);
+        assert!(
+            rep.reduced_chi2 > 0.3 && rep.reduced_chi2 < 2.5,
+            "{}",
+            rep.reduced_chi2
+        );
         assert_eq!(rep.map_csv().lines().count(), 13);
         assert_eq!(
-            rep.ledger_row("Land ASF", &Reference::synthetic("survey")).label,
+            rep.ledger_row("Land ASF", &Reference::synthetic("survey"))
+                .label,
             super::super::Label::Modelled
         );
         // a PF-only model (ASF = 0) is rejected
         let simple = crate::prop::ground::build(&GroundConfig::default(), &ctx).unwrap();
-        let bad = compare_survey(&pts, &chains, simple.as_ref(), SurveyQuantity::Asf, &Default::default(), "SYNTHETIC");
-        assert!(!bad.pass && bad.overall.mean.abs() > 100.0, "{:?}", bad.overall);
+        let bad = compare_survey(
+            &pts,
+            &chains,
+            simple.as_ref(),
+            SurveyQuantity::Asf,
+            &Default::default(),
+            "SYNTHETIC",
+        );
+        assert!(
+            !bad.pass && bad.overall.mean.abs() > 100.0,
+            "{:?}",
+            bad.overall
+        );
         // unknown station is reported, not fatal
         let mut p2 = pts.clone();
         p2[0].station = "Q".into();
-        assert_eq!(compare_survey(&p2, &chains, model.as_ref(), SurveyQuantity::Asf, &Default::default(), "x").unmatched.len(), 1);
+        assert_eq!(
+            compare_survey(
+                &p2,
+                &chains,
+                model.as_ref(),
+                SurveyQuantity::Asf,
+                &Default::default(),
+                "x"
+            )
+            .unmatched
+            .len(),
+            1
+        );
         assert!(parse_survey_csv("lat,lon,station\n1,2,M\n").is_err());
     }
 }

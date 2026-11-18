@@ -47,7 +47,11 @@ fn spoofer_emits_loran_pulses_and_pulls_time() {
     let mut y = vec![0.0; n];
     p.add(Ps::ZERO, fs, 0, &mut y);
     let tail = n / 2..n;
-    let d: f64 = x[tail.clone()].iter().zip(&y[tail]).map(|(a, b)| (a - b).powi(2)).sum();
+    let d: f64 = x[tail.clone()]
+        .iter()
+        .zip(&y[tail])
+        .map(|(a, b)| (a - b).powi(2))
+        .sum();
     assert!(d > 0.0, "time pull had no effect");
     assert_eq!(s.truth().kind, AttackKind::Spoof);
 }
@@ -65,24 +69,40 @@ fn meaconer_is_a_delayed_copy_of_one_station() {
     let t = m.truth();
     assert_eq!(t.kind, AttackKind::Meacon);
     assert!((t.field_uv_m - 1000.0 * 10f64.powf(6.0 / 20.0)).abs() < 1e-6);
-    assert_eq!(t.target.as_ref().map(|x| x.1.as_str()), Some(chain.stations[1].id.as_str()));
+    assert_eq!(
+        t.target.as_ref().map(|x| x.1.as_str()),
+        Some(chain.stations[1].id.as_str())
+    );
 }
 
 #[test]
 fn forged_data_channel_messages_are_flagged_by_the_auth_check() {
     let genuine = b"genuine-key-0123456789".to_vec();
-    let corr = vec![DloranSpecEntry { station_code: 1, correction_ns: 250.0 }];
+    let corr = vec![DloranSpecEntry {
+        station_code: 1,
+        correction_ns: 250.0,
+    }];
     // wrong key: the tag does not verify with the genuine key
-    let wrong = DataChannelAttack::forged_dloran(7, corr.clone(), ForgedAuth::WrongKey(b"attacker".to_vec()), 0, 100);
+    let wrong = DataChannelAttack::forged_dloran(
+        7,
+        corr.clone(),
+        ForgedAuth::WrongKey(b"attacker".to_vec()),
+        0,
+        100,
+    );
     let (checks, caught) = wrong.check(&genuine);
     assert!(caught);
-    assert!(checks.iter().any(|c| c.verified == Some(false)), "{checks:?}");
+    assert!(
+        checks.iter().any(|c| c.verified == Some(false)),
+        "{checks:?}"
+    );
     // absent authentication: the data is unauthenticated, so it is treated as caught
     let absent = DataChannelAttack::forged_dloran(7, corr.clone(), ForgedAuth::Absent, 0, 100);
     assert!(absent.check(&genuine).1);
     assert!(!absent.decode_report().messages.is_empty());
     // a message set tagged with the genuine key verifies (control: the check is not trivially failing)
-    let control = DataChannelAttack::forged_dloran(7, corr, ForgedAuth::WrongKey(genuine.clone()), 0, 100);
+    let control =
+        DataChannelAttack::forged_dloran(7, corr, ForgedAuth::WrongKey(genuine.clone()), 0, 100);
     let (cc, caught_c) = control.check(&genuine);
     assert!(!caught_c, "{cc:?}");
     assert!(cc.iter().all(|c| c.verified != Some(false)));
@@ -112,10 +132,15 @@ fn meaconing_shifts_the_tracked_toa_and_is_detected() {
     let clean = run(false);
     let attacked = run(true);
     let lim = 100.0;
-    assert!(toa_anomalies(&clean, &chains, start, lim).is_empty(), "false alarm on the clean run");
+    assert!(
+        toa_anomalies(&clean, &chains, start, lim).is_empty(),
+        "false alarm on the clean run"
+    );
     let flagged = toa_anomalies(&attacked, &chains, start, lim);
     assert!(
-        flagged.iter().any(|m| m.station == chains[0].stations[1].id),
+        flagged
+            .iter()
+            .any(|m| m.station == chains[0].stations[1].id),
         "meaconed station not flagged: {:?}",
         station_metrics(&attacked, &chains, start)
             .iter()

@@ -138,12 +138,16 @@ mod tests {
             if f.get(1) == Some(&"BOGUS") {
                 return Some("<msg><status>1</status><error>unknown</error></msg>".into());
             }
-            Some(format!("<msg><status>0</status><state>{state}</state></msg>"))
+            Some(format!(
+                "<msg><status>0</status><state>{state}</state></msg>"
+            ))
         });
         let mut a = SpirentAdapter::new(&addr);
         assert!(a.connect().unwrap().contains("<state>ready"));
-        a.set_start_epoch(&StartEpoch::from_utc_iso("2026-11-18T00:00:00Z", EpochScale::Utc).unwrap())
-            .unwrap();
+        a.set_start_epoch(
+            &StartEpoch::from_utc_iso("2026-11-18T00:00:00Z", EpochScale::Utc).unwrap(),
+        )
+        .unwrap();
         a.load_trajectory(&TrajectoryFile {
             path: "C:\\motion\\rx.nmea".into(),
             format: TrajFormat::Nmea,

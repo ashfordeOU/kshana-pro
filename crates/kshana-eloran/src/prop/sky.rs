@@ -475,7 +475,9 @@ impl Ionospheric {
         let data = match &cfg.data {
             Some(d) => {
                 if start.is_none() {
-                    return Err("skywave: data needs the scene start (BuildContext) or start_utc".into());
+                    return Err(
+                        "skywave: data needs the scene start (BuildContext) or start_utc".into(),
+                    );
                 }
                 Some(super::iono_data::IonoData::build(d)?)
             }

@@ -297,11 +297,7 @@ impl AwgSegment {
 pub trait SegmentPlayer {
     /// Upload `segment` and arm playback: looped when `segment.report.periodic`, once
     /// otherwise; start at `at` (a PPS edge needs the device's trigger input on the PPS).
-    fn play_segment(
-        &mut self,
-        segment: &AwgSegment,
-        at: super::StartTime,
-    ) -> Result<(), String>;
+    fn play_segment(&mut self, segment: &AwgSegment, at: super::StartTime) -> Result<(), String>;
     /// Stop playback and switch the output off.
     fn stop_playback(&mut self) -> Result<(), String>;
 }
@@ -338,10 +334,7 @@ pub fn compile(sc: &Scenario, opt: &AwgOptions) -> Result<AwgSegment, String> {
             ))
         }
         (false, _, NonPeriodic::Refuse) => {
-            return Err(format!(
-                "scene is not periodic: {}",
-                an.reasons.join("; ")
-            ))
+            return Err(format!("scene is not periodic: {}", an.reasons.join("; ")))
         }
     };
     let mut reasons = an.reasons.clone();
@@ -477,7 +470,12 @@ position = {{ lat_deg = 54.0, lon_deg = 1.0 }}
         assert_eq!(r.memory_bytes, 99_800 * 2);
         assert!(r.boundary_max_diff_fs <= 1e-9);
         assert!(r.wrap_step_fs <= r.max_inner_step_fs);
-        assert!(r.max_error_lsb <= 0.5 + 1e-9, "{} (peak {})", r.max_error_lsb, r.peak_abs);
+        assert!(
+            r.max_error_lsb <= 0.5 + 1e-9,
+            "{} (peak {})",
+            r.max_error_lsb,
+            r.peak_abs
+        );
         assert!(r.peak_abs > 0.05 && r.clipped == 0);
         // the segment equals the scene's own output (to quantisation), two periods long
         let mut s2 = sc.clone();
@@ -486,7 +484,10 @@ position = {{ lat_deg = 54.0, lon_deg = 1.0 }}
         s2.build().unwrap().run(&mut sink, &mut vec![]).unwrap();
         let q = seg.normalised(0);
         for (i, v) in sink.channels[0].iter().enumerate() {
-            assert!((q[i % 99_800] - v).abs() <= 0.5 / 32767.0 + 1e-12, "sample {i}");
+            assert!(
+                (q[i % 99_800] - v).abs() <= 0.5 / 32767.0 + 1e-12,
+                "sample {i}"
+            );
         }
         // dither: error up to 1.5 LSB, still repeatable
         let mut o = AwgOptions {
@@ -516,7 +517,7 @@ position = {{ lat_deg = 54.0, lon_deg = 1.0 }}
         let l = 198_600u128 / gcd(198_600, 134_620) * 134_620;
         assert_eq!(a.lcm_us, Some(l));
         assert_eq!(a.period_samples, Some(l)); // 1 MS/s: 1 sample per µs
-        // a sample rate off the µs grid extends the period
+                                               // a sample rate off the µs grid extends the period
         sc.scene.params.fs_hz = 1_000_003.0;
         sc.chains.truncate(1);
         let a = analyse(&sc);

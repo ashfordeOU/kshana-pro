@@ -285,15 +285,15 @@ mod tests {
         assert_eq!(decide_label(true, 100, &tuned).0, Label::Modelled);
         let row = LedgerRow::new("m|x", &ind, "t", "1 dB", "0.3 dB", true, 10);
         let md = row.to_markdown();
-        assert!(md.starts_with("| m\\|x | VALIDATED | ITU-R P.368 Fig. 1 |"), "{md}");
+        assert!(
+            md.starts_with("| m\\|x | VALIDATED | ITU-R P.368 Fig. 1 |"),
+            "{md}"
+        );
         assert_eq!(md.matches(" | ").count(), 5);
     }
 
     #[test]
     fn csv_fields_quotes() {
-        assert_eq!(
-            csv_fields(r#"a, "b,c" ,"d""e""#),
-            vec!["a", "b,c", "d\"e"]
-        );
+        assert_eq!(csv_fields(r#"a, "b,c" ,"d""e""#), vec!["a", "b,c", "d\"e"]);
     }
 }

@@ -157,7 +157,12 @@ fn invert3(m: [[f64; 3]; 3]) -> Option<[[f64; 3]; 3]> {
     let det = m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
         - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
         + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
-    let scale = m.iter().flatten().map(|x| x.abs()).fold(0.0, f64::max).powi(3);
+    let scale = m
+        .iter()
+        .flatten()
+        .map(|x| x.abs())
+        .fold(0.0, f64::max)
+        .powi(3);
     if det.abs() <= 1e-12 * scale.max(1e-300) {
         return None;
     }
@@ -204,8 +209,16 @@ impl<'a> Planner<'a> {
         let nlon = ((area.lon_max - area.lon_min) / area.step_deg).round() as usize + 1;
         for i in 0..nlat {
             for j in 0..nlon {
-                let p = Geo::new(area.lat_min + i as f64 * area.step_deg, area.lon_min + j as f64 * area.step_deg);
-                let rx = RxState { t_s: 0.0, pos: p, heading_rad: 0.0, speed_mps: 0.0 };
+                let p = Geo::new(
+                    area.lat_min + i as f64 * area.step_deg,
+                    area.lon_min + j as f64 * area.step_deg,
+                );
+                let rx = RxState {
+                    t_s: 0.0,
+                    pos: p,
+                    heading_rad: 0.0,
+                    speed_mps: 0.0,
+                };
                 let per: Vec<(f64, f64)> = candidates
                     .iter()
                     .map(|c| {
@@ -222,7 +235,13 @@ impl<'a> Planner<'a> {
                 cache.push((p, per));
             }
         }
-        Ok(Planner { candidates, area, settings, prop, cache })
+        Ok(Planner {
+            candidates,
+            area,
+            settings,
+            prop,
+            cache,
+        })
     }
 
     fn sigma(&self, snr_db: f64) -> f64 {
@@ -249,15 +268,24 @@ impl<'a> Planner<'a> {
         let a = set.station_availability;
         let mut points = Vec::with_capacity(self.cache.len());
         for (p, per) in &self.cache {
-            let snr: Vec<f64> = per.iter().map(|(f, _)| 20.0 * (f / set.noise_uv_m_20k).log10()).collect();
+            let snr: Vec<f64> = per
+                .iter()
+                .map(|(f, _)| 20.0 * (f / set.noise_uv_m_20k).log10())
+                .collect();
             let usable = sites.iter().filter(|&&k| snr[k] >= set.min_snr_db).count();
             let acc = self.accuracy(per, sites);
-            let ok = |idx: &[usize]| self.accuracy(per, idx).is_some_and(|x| x <= set.accuracy_target_m);
+            let ok = |idx: &[usize]| {
+                self.accuracy(per, idx)
+                    .is_some_and(|x| x <= set.accuracy_target_m)
+            };
             let n = sites.len();
             let availability = if n <= 12 {
                 let mut tot = 0.0;
                 for mask in 0u32..(1 << n) {
-                    let up: Vec<usize> = (0..n).filter(|i| mask & (1 << i) != 0).map(|i| sites[i]).collect();
+                    let up: Vec<usize> = (0..n)
+                        .filter(|i| mask & (1 << i) != 0)
+                        .map(|i| sites[i])
+                        .collect();
                     let k = up.len() as i32;
                     let pr = a.powi(k) * (1.0 - a).powi(n as i32 - k);
                     if ok(&up) {
@@ -268,14 +296,20 @@ impl<'a> Planner<'a> {
             } else {
                 let mut tot = if ok(sites) { a.powi(n as i32) } else { 0.0 };
                 for i in 0..n {
-                    let up: Vec<usize> = sites.iter().enumerate().filter(|(j, _)| *j != i).map(|(_, k)| *k).collect();
+                    let up: Vec<usize> = sites
+                        .iter()
+                        .enumerate()
+                        .filter(|(j, _)| *j != i)
+                        .map(|(_, k)| *k)
+                        .collect();
                     if ok(&up) {
                         tot += a.powi(n as i32 - 1) * (1.0 - a);
                     }
                 }
                 tot
             };
-            let covered = acc.is_some_and(|x| x <= set.accuracy_target_m) && availability >= set.availability_target;
+            let covered = acc.is_some_and(|x| x <= set.accuracy_target_m)
+                && availability >= set.availability_target;
             points.push(GridPoint {
                 lat_deg: p.lat_deg,
                 lon_deg: p.lon_deg,
@@ -287,9 +321,13 @@ impl<'a> Planner<'a> {
                 snr_db: snr,
             });
         }
-        let coverage = points.iter().filter(|p| p.covered).count() as f64 / points.len().max(1) as f64;
+        let coverage =
+            points.iter().filter(|p| p.covered).count() as f64 / points.len().max(1) as f64;
         Coverage {
-            sites: sites.iter().map(|&k| self.candidates[k].id.clone()).collect(),
+            sites: sites
+                .iter()
+                .map(|&k| self.candidates[k].id.clone())
+                .collect(),
             points,
             coverage,
             cost: sites.iter().map(|&k| self.candidates[k].cost).sum(),
@@ -302,7 +340,8 @@ impl<'a> Planner<'a> {
         let n = self.candidates.len();
         let m = m.min(n);
         let better = |a: &Coverage, b: &Coverage| {
-            a.coverage > b.coverage + 1e-12 || ((a.coverage - b.coverage).abs() <= 1e-12 && a.cost < b.cost)
+            a.coverage > b.coverage + 1e-12
+                || ((a.coverage - b.coverage).abs() <= 1e-12 && a.cost < b.cost)
         };
         if binom(n, m) <= max_exhaustive as f64 {
             let mut best: Option<Coverage> = None;
@@ -361,8 +400,16 @@ pub fn cri_risk(chains: &[Chain], window_us: f64) -> Vec<(String, f64)> {
         .iter()
         .enumerate()
         .map(|(i, c)| {
-            let others: Vec<CriChain> = cri.iter().enumerate().filter(|(j, _)| *j != i).map(|(_, x)| x.clone()).collect();
-            (c.name.clone(), overlap_fraction_lattice(&cri[i], &others, window_us))
+            let others: Vec<CriChain> = cri
+                .iter()
+                .enumerate()
+                .filter(|(j, _)| *j != i)
+                .map(|(_, x)| x.clone())
+                .collect();
+            (
+                c.name.clone(),
+                overlap_fraction_lattice(&cri[i], &others, window_us),
+            )
         })
         .collect()
 }
@@ -374,7 +421,13 @@ pub fn coverage_csv(c: &Coverage) -> String {
     for p in &c.points {
         s.push_str(&format!(
             "{:.5},{:.5},{},{},{},{:.6},{}\n",
-            p.lat_deg, p.lon_deg, p.usable, o(p.hdop_w_m), o(p.accuracy95_m), p.availability, p.covered
+            p.lat_deg,
+            p.lon_deg,
+            p.usable,
+            o(p.hdop_w_m),
+            o(p.accuracy95_m),
+            p.availability,
+            p.covered
         ));
     }
     s
@@ -403,7 +456,12 @@ mod tests {
     use crate::prop::ground::Simple;
 
     fn cands() -> Vec<Candidate> {
-        let c = |id: &str, lat, lon, cost| Candidate { id: id.into(), position: Geo::new(lat, lon), power_kw: 400.0, cost };
+        let c = |id: &str, lat, lon, cost| Candidate {
+            id: id.into(),
+            position: Geo::new(lat, lon),
+            power_kw: 400.0,
+            cost,
+        };
         vec![
             c("N", 58.0, 3.0, 10.0),
             c("S", 52.0, 3.0, 10.0),
@@ -413,7 +471,13 @@ mod tests {
         ]
     }
     fn area() -> PlanArea {
-        PlanArea { lat_min: 54.0, lat_max: 56.0, lon_min: 2.0, lon_max: 4.0, step_deg: 0.5 }
+        PlanArea {
+            lat_min: 54.0,
+            lat_max: 56.0,
+            lon_min: 2.0,
+            lon_max: 4.0,
+            step_deg: 0.5,
+        }
     }
 
     #[test]
@@ -429,12 +493,27 @@ mod tests {
 
     #[test]
     fn coverage_grows_with_sites_and_selection_prefers_geometry() {
-        let prop = Simple { atten_db_per_1000km: 3.0 };
-        let p = Planner::new(cands(), area(), PlanSettings { accuracy_target_m: 60.0, ..Default::default() }, &prop).unwrap();
+        let prop = Simple {
+            atten_db_per_1000km: 3.0,
+        };
+        let p = Planner::new(
+            cands(),
+            area(),
+            PlanSettings {
+                accuracy_target_m: 60.0,
+                ..Default::default()
+            },
+            &prop,
+        )
+        .unwrap();
         let three = p.evaluate(&[0, 1, 2]);
         let four = p.evaluate(&[0, 1, 2, 3]);
         assert!(four.coverage >= three.coverage);
-        assert!(four.points.iter().zip(&three.points).all(|(a, b)| a.availability >= b.availability - 1e-12));
+        assert!(four
+            .points
+            .iter()
+            .zip(&three.points)
+            .all(|(a, b)| a.availability >= b.availability - 1e-12));
         let best = p.select(3, 1000);
         // the near-collinear cheap site must not displace a geometry-improving site
         assert!(!best.sites.contains(&"NN".to_string()) || best.coverage >= three.coverage);

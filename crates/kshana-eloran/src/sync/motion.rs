@@ -98,8 +98,14 @@ impl MotionSample {
         f.insert("gps_tow".into(), format!("{tow:.3}"));
         f.insert("lat_deg".into(), format!("{:.9}", self.lat_deg));
         f.insert("lon_deg".into(), format!("{:.9}", self.lon_deg));
-        f.insert("lat_rad".into(), format!("{:.12}", self.lat_deg.to_radians()));
-        f.insert("lon_rad".into(), format!("{:.12}", self.lon_deg.to_radians()));
+        f.insert(
+            "lat_rad".into(),
+            format!("{:.12}", self.lat_deg.to_radians()),
+        );
+        f.insert(
+            "lon_rad".into(),
+            format!("{:.12}", self.lon_deg.to_radians()),
+        );
         f.insert("h_m".into(), format!("{:.3}", self.h_m));
         for (k, v) in ["x", "y", "z"].iter().zip(self.ecef_m) {
             f.insert((*k).into(), format!("{v:.3}"));
@@ -174,7 +180,11 @@ mod tests {
         assert!((p[0] - WGS84_A).abs() < 1e-6 && p[1].abs() < 1e-6 && p[2].abs() < 1e-6);
         let p = llh_to_ecef(90.0, 0.0, 0.0);
         assert!((p[2] - 6_356_752.314_245).abs() < 1e-3);
-        for &(la, lo, h) in &[(55.5, -3.25, 10.0), (-33.9, 151.2, 1200.0), (36.0, 128.0, 0.0)] {
+        for &(la, lo, h) in &[
+            (55.5, -3.25, 10.0),
+            (-33.9, 151.2, 1200.0),
+            (36.0, 128.0, 0.0),
+        ] {
             let (a, b, c) = ecef_to_llh(llh_to_ecef(la, lo, h));
             assert!((a - la).abs() < 1e-9 && (b - lo).abs() < 1e-9 && (c - h).abs() < 1e-4);
         }

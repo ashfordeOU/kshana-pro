@@ -131,7 +131,10 @@ impl LoopbackRig for DeviceLoopback<'_> {
             push(r, &mut rx);
         }
         self.device.stop_rx()?;
-        let fs = self.device.sample_rate_hz().ok_or("device not configured")?;
+        let fs = self
+            .device
+            .sample_rate_hz()
+            .ok_or("device not configured")?;
         channels
             .iter()
             .map(|&c| {
@@ -402,14 +405,20 @@ pub fn calibrate_channels(
     let mut details = Vec::new();
     let mut cals = Vec::new();
     for (c, mut lv) in per.into_iter().enumerate() {
-        let sxy: f64 = lv.iter().map(|p| p.commanded_fs * p.received_amplitude).sum();
+        let sxy: f64 = lv
+            .iter()
+            .map(|p| p.commanded_fs * p.received_amplitude)
+            .sum();
         let sxx: f64 = lv.iter().map(|p| p.commanded_fs.powi(2)).sum();
         let gain = sxy / sxx;
         if gain.is_nan() || gain <= 0.0 {
             return Err(format!("channel {c}: no signal received (gain {gain})"));
         }
         for p in lv.iter_mut() {
-            p.deviation_db = 20.0 * (p.received_amplitude / (gain * p.commanded_fs)).abs().log10();
+            p.deviation_db = 20.0
+                * (p.received_amplitude / (gain * p.commanded_fs))
+                    .abs()
+                    .log10();
         }
         let lin = lv.iter().map(|p| p.deviation_db.abs()).fold(0.0, f64::max);
         let dmax = lv.iter().map(|p| p.delay_ns).fold(f64::MIN, f64::max);
@@ -429,8 +438,10 @@ pub fn calibrate_channels(
         cals.push(ChannelCal {
             channel: c,
             delay_ns: top.delay_ns,
-            delay_u_ns: (top.delay_u_ns.powi(2) + o.capture_path_u_ns.powi(2) + o.type_b_u_ns.powi(2))
-                .sqrt(),
+            delay_u_ns: (top.delay_u_ns.powi(2)
+                + o.capture_path_u_ns.powi(2)
+                + o.type_b_u_ns.powi(2))
+            .sqrt(),
             full_scale_dbm,
             full_scale_u_db: lin,
             load_ohm: match &o.units {
@@ -488,7 +499,8 @@ pub fn calibrate_channels(
     for (c, w) in caps.iter().enumerate() {
         let mut opt = o.clone();
         opt.search.expected_delay_ns = 0.0;
-        let (e, _) = measure(w, &opt, path(c)).map_err(|err| format!("verify channel {c}: {err}"))?;
+        let (e, _) =
+            measure(w, &opt, path(c)).map_err(|err| format!("verify channel {c}: {err}"))?;
         res.push(e.delay_ns - path(c));
         res_u.push(e.u_ns);
     }
@@ -573,7 +585,8 @@ impl SimulatorControl for DeviceSimulator {
             let mut truth = Vec::new();
             let r = match &cal {
                 Some(cal) => {
-                    let mut cs = CalibratedSink::from_calibration(DynSink(sink), fs, cal, None, 0.0)?;
+                    let mut cs =
+                        CalibratedSink::from_calibration(DynSink(sink), fs, cal, None, 0.0)?;
                     scene.run(&mut cs, &mut truth)
                 }
                 None => scene.run(sink, &mut truth),
@@ -795,7 +808,11 @@ pub fn calibrate_receiver(
                 .get(s.channel)
                 .ok_or_else(|| format!("calibration has no channel {}", s.channel))?;
             (
-                if s.calibration_applied { 0.0 } else { c.delay_ns },
+                if s.calibration_applied {
+                    0.0
+                } else {
+                    c.delay_ns
+                },
                 c.delay_u_ns,
             )
         }
@@ -1040,7 +1057,11 @@ mod tests {
             rx_channel_of: vec![],
         };
         let r = calibrate_channels(&mut rig, &opts(1)).unwrap();
-        assert!(r.channels[0].linearity_max_dev_db > 0.5, "{:?}", r.channels[0]);
+        assert!(
+            r.channels[0].linearity_max_dev_db > 0.5,
+            "{:?}",
+            r.channels[0]
+        );
         let lv = &r.channels[0].levels;
         assert!(lv[2].deviation_db < lv[0].deviation_db);
     }
@@ -1141,7 +1162,7 @@ position = { lat_deg = 56.0, lon_deg = 0.0 }
             Ok((0..n)
                 .map(|_| {
                     self.k += 1;
-                    self.base_ns + if self.k % 2 == 0 { 1.0 } else { -1.0 }
+                    self.base_ns + if self.k.is_multiple_of(2) { 1.0 } else { -1.0 }
                 })
                 .collect())
         }
@@ -1167,10 +1188,8 @@ position = { lat_deg = 56.0, lon_deg = 0.0 }
             k: 0,
             armed: false,
         };
-        let mut sim = DeviceSimulator::new(
-            Box::new(LoopDev::new(1e6, vec![0.0], vec![1.0], 0.0)),
-            None,
-        );
+        let mut sim =
+            DeviceSimulator::new(Box::new(LoopDev::new(1e6, vec![0.0], vec![1.0], 0.0)), None);
         let setup = ReceiverCalSetup {
             report_id: "RC-0001".into(),
             operator: "op".into(),
@@ -1199,8 +1218,16 @@ position = { lat_deg = 56.0, lon_deg = 0.0 }
             evidence: vec!["tic.jsonl".into()],
         };
         let rep = calibrate_receiver(&mut sim, &mut tic, &setup).unwrap();
-        assert!((rep.receiver_delay_ns - rx_delay).abs() < 1e-6, "{}", rep.receiver_delay_ns);
-        assert!(rep.expanded_u_ns > 2.0 && rep.expanded_u_ns < 3.0, "{}", rep.expanded_u_ns);
+        assert!(
+            (rep.receiver_delay_ns - rx_delay).abs() < 1e-6,
+            "{}",
+            rep.receiver_delay_ns
+        );
+        assert!(
+            rep.expanded_u_ns > 2.0 && rep.expanded_u_ns < 3.0,
+            "{}",
+            rep.expanded_u_ns
+        );
         assert_eq!(rep.readings_ns.len(), 100);
         assert!(rep.result_statement.contains("k = 2"));
         assert_eq!(rep.report_sha256, rep.compute_hash());

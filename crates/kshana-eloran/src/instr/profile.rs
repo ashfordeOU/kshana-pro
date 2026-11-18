@@ -415,7 +415,9 @@ mod tests {
     fn placeholders_fill_and_reject_unknown() {
         let v = [("n", "10".to_string()), ("channel", "2".to_string())];
         assert_eq!(fill(":SAMP {n};CH{channel}", &v).unwrap(), ":SAMP 10;CH2");
-        assert!(fill(":X {nn}", &v).unwrap_err().contains("unknown placeholder"));
+        assert!(fill(":X {nn}", &v)
+            .unwrap_err()
+            .contains("unknown placeholder"));
         assert!(fill(":X {n", &v).is_err());
     }
 
@@ -458,7 +460,10 @@ read = "FETCH?"
 unit = "w"
 "#;
         let p = InstrumentProfile::from_toml(src).unwrap();
-        assert!(matches!(p.transport, TransportConfig::Tcp { port: 5025, .. }));
+        assert!(matches!(
+            p.transport,
+            TransportConfig::Tcp { port: 5025, .. }
+        ));
         assert_eq!(p.power_meter.unwrap().unit, "w");
     }
 }

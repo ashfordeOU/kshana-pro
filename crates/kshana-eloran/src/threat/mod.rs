@@ -29,7 +29,7 @@
 
 use crate::chain::Chain;
 use crate::interf::{Interferer, NOISE_BW_HZ};
-use crate::ldc::hmac::{hmac_sha256, tags_equal};
+use crate::ldc::hmac::hmac_sha256;
 use crate::ldc::modulator::auth_input;
 use crate::ldc::msg::{DloranSpecEntry, Message, MessageSpec, MsgContext};
 use crate::ldc::rx::{AuthCheck, DecodeReport, DecodedMessage, LdcDecoder};
@@ -119,11 +119,17 @@ impl Jammer {
         let (kind, desc) = match self.waveform {
             JamWaveform::Noise => (
                 AttackKind::JammerNoise,
-                format!("wideband noise jammer, {:.0} µV/m in 20 kHz", self.field_uv_m),
+                format!(
+                    "wideband noise jammer, {:.0} µV/m in 20 kHz",
+                    self.field_uv_m
+                ),
             ),
             JamWaveform::Cw { freq_hz } => (
                 AttackKind::JammerCw,
-                format!("CW jammer at {:.0} Hz, {:.0} µV/m", freq_hz, self.field_uv_m),
+                format!(
+                    "CW jammer at {:.0} Hz, {:.0} µV/m",
+                    freq_hz, self.field_uv_m
+                ),
             ),
         };
         AttackTruth {
@@ -209,14 +215,13 @@ fn synth_groups(
     }
     let a_ps = t0.0 as i128;
     let b_ps = a_ps + ((out.len() as f64 / fs * 1e12) as i128) + gri_ps;
-    let gri_s = gri_ps as f64 * 1e-12;
     let extent = signal.envelope.extent_s();
     let k0 = (scene_start + a_ps).div_euclid(gri_ps) - 1;
     let k1 = (scene_start + b_ps).div_euclid(gri_ps) + 1;
     let t0s = t0.as_s();
     let sqrt2 = std::f64::consts::SQRT_2;
     for k in k0..=k1 {
-        let group_start_s = ((k as i128 * gri_ps) - scene_start) as f64 * 1e-12;
+        let group_start_s = ((k * gri_ps) - scene_start) as f64 * 1e-12;
         let pull = base_offset_s + pull_rate_ns_s * 1e-9 * group_start_s;
         let parity = Parity::of_group(k as i64);
         for e in emits {
@@ -632,9 +637,7 @@ pub fn station_metrics(
         }
         let mut pd: Vec<f64> = v
             .iter()
-            .map(|m| {
-                m.toa_s - crate::rx::nominal_emission_s(&chains[ci], si, m.group, start)
-            })
+            .map(|m| m.toa_s - crate::rx::nominal_emission_s(&chains[ci], si, m.group, start))
             .collect();
         let mut sorted = pd.clone();
         sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
@@ -645,8 +648,8 @@ pub fn station_metrics(
             .fold(0.0, f64::max)
             * 1e9;
         let ecd_mean = v.iter().map(|m| m.ecd_us).sum::<f64>() / n as f64;
-        let ecd_var = v.iter().map(|m| (m.ecd_us - ecd_mean).powi(2)).sum::<f64>()
-            / (n.max(1) as f64);
+        let ecd_var =
+            v.iter().map(|m| (m.ecd_us - ecd_mean).powi(2)).sum::<f64>() / (n.max(1) as f64);
         out.push(StationMetrics {
             chain: v[0].chain.clone(),
             station: v[0].station.clone(),

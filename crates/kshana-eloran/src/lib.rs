@@ -25,6 +25,22 @@
 //! Evidence labels follow the Kshana convention: a model is VALIDATED only where an
 //! independent external reference backs it (see `docs/VALIDATION.md` of this crate).
 
+// `!(x > 0.0)` is used deliberately in input validation: unlike `x <= 0.0` it also rejects NaN.
+#![allow(clippy::neg_cmp_op_on_partial_ord)]
+// Style-only lints accepted in this crate (no behavioural effect; kept to avoid churn in
+// tested numerical code): builder-style test set-up, large config enums, explicit index
+// loops in DSP kernels, wide constructors of physical models.
+#![allow(
+    clippy::field_reassign_with_default,
+    clippy::large_enum_variant,
+    clippy::type_complexity,
+    clippy::too_many_arguments,
+    clippy::needless_range_loop,
+    clippy::sliced_string_as_bytes,
+    clippy::nonminimal_bool,
+    clippy::redundant_locals
+)]
+
 pub mod accept;
 pub mod antenna;
 pub mod calreg;
@@ -44,16 +60,16 @@ pub mod prop;
 pub mod replay;
 pub mod rt;
 pub mod rx;
-pub mod threat;
-pub mod twin;
 pub mod scenario;
 pub mod scene;
 pub mod signal;
 pub mod sync;
+pub mod threat;
 pub mod time;
 pub mod timebase;
 pub mod timeref;
 pub mod traj;
+pub mod twin;
 pub mod valid;
 
 pub use scenario::Scenario;

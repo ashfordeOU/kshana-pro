@@ -26,18 +26,20 @@
 //!
 //! Sample values are the scene's output units: ±1.0 is device full scale.
 
-pub mod calib;
-pub mod file;
-pub mod fir;
-#[cfg(all(feature = "soapy", unix))]
-pub mod soapy;
 pub mod awg;
+pub mod calib;
 #[cfg(all(feature = "digilent", unix))]
 pub mod digilent;
+#[cfg(all(any(feature = "uhd", feature = "digilent"), unix))]
+pub mod dl;
+pub mod file;
+pub mod fir;
 pub mod health;
 #[cfg(feature = "redpitaya")]
 pub mod redpitaya;
 pub mod scpi_awg;
+#[cfg(all(feature = "soapy", unix))]
+pub mod soapy;
 #[cfg(all(feature = "uhd", unix))]
 pub mod uhd;
 /// The virtual bench device (`src/hw/virtual.rs`; `virtual` is a reserved word in Rust).

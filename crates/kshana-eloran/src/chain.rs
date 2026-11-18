@@ -111,7 +111,7 @@ pub struct Chain {
 
 impl Chain {
     pub fn validate(&self) -> Result<(), String> {
-        if !(40_000..=99_990).contains(&self.gri_us) || self.gri_us % 10 != 0 {
+        if !(40_000..=99_990).contains(&self.gri_us) || !self.gri_us.is_multiple_of(10) {
             return Err(format!(
                 "chain {}: GRI {} µs must be 40 000 to 99 990 µs in steps of 10 µs",
                 self.name, self.gri_us

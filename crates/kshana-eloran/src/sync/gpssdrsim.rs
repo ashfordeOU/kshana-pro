@@ -45,15 +45,29 @@ pub const MOTION_RATE_HZ: f64 = 10.0;
 pub enum MotionInput {
     None,
     /// `-l lat,lon,hgt`.
-    StaticLlh { lat_deg: f64, lon_deg: f64, h_m: f64 },
+    StaticLlh {
+        lat_deg: f64,
+        lon_deg: f64,
+        h_m: f64,
+    },
     /// `-c x,y,z`.
-    StaticEcef { x: f64, y: f64, z: f64 },
+    StaticEcef {
+        x: f64,
+        y: f64,
+        z: f64,
+    },
     /// `-u file` (ECEF `t,x,y,z`).
-    UserEcef { path: PathBuf },
+    UserEcef {
+        path: PathBuf,
+    },
     /// `-x file` (`t,lat,lon,h`).
-    UserLlh { path: PathBuf },
+    UserLlh {
+        path: PathBuf,
+    },
     /// `-g file` (NMEA GGA).
-    NmeaGga { path: PathBuf },
+    NmeaGga {
+        path: PathBuf,
+    },
 }
 
 /// Which gps-sdr-sim motion option a CSV trajectory file is given with.
@@ -146,7 +160,10 @@ impl GpsSdrSimConfig {
                 lat_deg,
                 lon_deg,
                 h_m,
-            } => a.extend(["-l".into(), format!("{},{},{}", num(*lat_deg), num(*lon_deg), num(*h_m))]),
+            } => a.extend([
+                "-l".into(),
+                format!("{},{},{}", num(*lat_deg), num(*lon_deg), num(*h_m)),
+            ]),
             MotionInput::StaticEcef { x, y, z } => {
                 a.extend(["-c".into(), format!("{},{},{}", num(*x), num(*y), num(*z))])
             }
@@ -192,8 +209,7 @@ impl GpsSdrSimConfig {
     pub fn command_line(&self) -> Result<String, String> {
         let q = |s: &str| {
             if !s.is_empty()
-                && s
-                    .chars()
+                && s.chars()
                     .all(|c| c.is_ascii_alphanumeric() || "-_./,:=+".contains(c))
             {
                 s.to_string()
@@ -224,7 +240,10 @@ pub fn render_user_motion_ecef(samples: &[TrajSample]) -> String {
     let mut s = String::new();
     for p in samples {
         let e = llh_to_ecef(p.lat_deg, p.lon_deg, p.h_m);
-        s.push_str(&format!("{:.1},{:.3},{:.3},{:.3}\n", p.t_s, e[0], e[1], e[2]));
+        s.push_str(&format!(
+            "{:.1},{:.3},{:.3},{:.3}\n",
+            p.t_s, e[0], e[1], e[2]
+        ));
     }
     s
 }
@@ -269,7 +288,11 @@ pub fn render_nmea_gga(samples: &[TrajSample]) -> String {
 }
 
 /// Write a 10 Hz motion file for `sc` in the given form and return the matching input.
-pub fn write_motion(sc: &Scenario, path: &Path, kind: MotionFileKind) -> Result<MotionInput, String> {
+pub fn write_motion(
+    sc: &Scenario,
+    path: &Path,
+    kind: MotionFileKind,
+) -> Result<MotionInput, String> {
     let s = motion_samples(sc)?;
     let (txt, m) = match kind {
         MotionFileKind::Ecef => (
@@ -353,7 +376,8 @@ impl GpsSdrSim {
     /// the scenario. Returns the command line.
     pub fn prepare(&mut self, sc: &Scenario, dir: &Path) -> Result<String, String> {
         std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
-        self.config.motion = write_motion(sc, &dir.join("user_motion_ecef.csv"), MotionFileKind::Ecef)?;
+        self.config.motion =
+            write_motion(sc, &dir.join("user_motion_ecef.csv"), MotionFileKind::Ecef)?;
         self.config.start = Some(UtcStamp::parse(&sc.scene.start_utc)?);
         self.config.duration_s = Some(sc.scene.params.duration_s);
         self.config.command_line()
@@ -546,7 +570,10 @@ position = { lat_deg = 36.0, lon_deg = 129.3 }
         c.fixed_gain = Some(None);
         c.disable_iono = true;
         let a = c.args().unwrap();
-        assert_eq!(a[2..6], ["-l", "35.681298,139.766247,10", "-T", "2026/11/18,12:00:00"]);
+        assert_eq!(
+            a[2..6],
+            ["-l", "35.681298,139.766247,10", "-T", "2026/11/18,12:00:00"]
+        );
         assert!(a.ends_with(&["-i".to_string(), "-p".to_string()]));
         c.iq_bits = 4;
         assert!(c.args().is_err());
@@ -568,7 +595,10 @@ position = { lat_deg = 36.0, lon_deg = 129.3 }
         assert!(llh.starts_with("0.0,35.000000000,139.000000000,50.000\n"));
         let gga = render_nmea_gga(&s);
         let l0 = gga.lines().next().unwrap();
-        assert!(l0.starts_with("$GPGGA,120000.00,3500.00000,N,13900.00000,E,1,12"), "{l0}");
+        assert!(
+            l0.starts_with("$GPGGA,120000.00,3500.00000,N,13900.00000,E,1,12"),
+            "{l0}"
+        );
         let (body, cs) = l0.trim_start_matches('$').split_once('*').unwrap();
         assert_eq!(u8::from_str_radix(cs, 16).unwrap(), nmea_checksum(body));
     }
@@ -579,7 +609,10 @@ position = { lat_deg = 36.0, lon_deg = 129.3 }
         let dir = std::env::temp_dir().join(format!("kshana-gpssdrsim-{}", std::process::id()));
         let mut g = GpsSdrSim::new(GpsSdrSimConfig::default());
         let cl = g.prepare(&sc, &dir).unwrap();
-        assert!(cl.contains("-u ") && cl.contains("user_motion_ecef.csv"), "{cl}");
+        assert!(
+            cl.contains("-u ") && cl.contains("user_motion_ecef.csv"),
+            "{cl}"
+        );
         assert!(cl.contains("-t 2026/11/18,12:00:18 -d 1 "), "{cl}");
         assert!(g.arm(ArmMode::NextPps).unwrap_err().contains("PPS"));
         assert!(g

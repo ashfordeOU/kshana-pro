@@ -109,8 +109,8 @@ fn split_line(line: &str) -> Result<(&str, EntryBody, String, String), String> {
     let i = rest.rfind(",\"prev\":").ok_or("no \"prev\" field")?;
     let body_text = &rest[..i];
     let body: EntryBody = serde_json::from_str(body_text).map_err(|e| format!("body: {e}"))?;
-    let link: Link = serde_json::from_str(&format!("{{{}", &rest[i + 1..]))
-        .map_err(|e| format!("link: {e}"))?;
+    let link: Link =
+        serde_json::from_str(&format!("{{{}", &rest[i + 1..])).map_err(|e| format!("link: {e}"))?;
     Ok((body_text, body, link.prev, link.hash))
 }
 
@@ -235,7 +235,9 @@ impl Register {
                 ));
             }
             if entry_hash(&e_prev, text) != e_hash {
-                problems.push(format!("line {ln}: content does not match its hash (edited)"));
+                problems.push(format!(
+                    "line {ln}: content does not match its hash (edited)"
+                ));
             }
             prev = e_hash;
             n += 1;
@@ -317,7 +319,11 @@ impl Register {
     }
 
     /// Latest entry of a subject (by date, then by register order).
-    pub fn latest(&self, subject_id: &str, quantity: Option<&str>) -> Result<Option<Entry>, String> {
+    pub fn latest(
+        &self,
+        subject_id: &str,
+        quantity: Option<&str>,
+    ) -> Result<Option<Entry>, String> {
         Ok(self.history(subject_id, quantity)?.pop())
     }
 
@@ -344,7 +350,11 @@ impl Register {
         let sxy: f64 = x.iter().zip(&y).map(|(a, b)| (a - mx) * (b - my)).sum();
         let b = sxy / sxx;
         let a = my - b * mx;
-        let ss: f64 = x.iter().zip(&y).map(|(a_, y_)| (y_ - a - b * a_).powi(2)).sum();
+        let ss: f64 = x
+            .iter()
+            .zip(&y)
+            .map(|(a_, y_)| (y_ - a - b * a_).powi(2))
+            .sum();
         let slope_u = (h.len() > 2).then(|| (ss / (n - 2.0) / sxx).sqrt() * 365.25);
         Ok(DriftFit {
             n: h.len(),
@@ -381,10 +391,12 @@ impl Register {
         default_interval_days: Option<u32>,
         today: &str,
     ) -> Result<bool, String> {
-        Ok(match self.due_date(subject_id, quantity, default_interval_days)? {
-            None => self.latest(subject_id, quantity)?.is_none(),
-            Some(d) => day_number(today)? >= day_number(&d)?,
-        })
+        Ok(
+            match self.due_date(subject_id, quantity, default_interval_days)? {
+                None => self.latest(subject_id, quantity)?.is_none(),
+                Some(d) => day_number(today)? >= day_number(&d)?,
+            },
+        )
     }
 }
 
@@ -438,7 +450,10 @@ mod tests {
         assert_eq!((v.entries, v.head.clone()), (4, e.hash.clone()));
         let l = r.latest("RX1", None).unwrap().unwrap();
         assert_eq!(l.body.date, "2026-01-01");
-        assert_eq!(r.history("RX1", Some("receiver_delay_ns")).unwrap().len(), 3);
+        assert_eq!(
+            r.history("RX1", Some("receiver_delay_ns")).unwrap().len(),
+            3
+        );
         let d = r.drift("RX1", "receiver_delay_ns").unwrap();
         assert!((d.slope_per_year - 2.0).abs() < 1e-9, "{d:?}");
         assert!(d.residual_rms < 1e-9);
@@ -459,7 +474,10 @@ mod tests {
     fn verify_detects_edit_deletion_reorder_and_extra_fields() {
         let p = tmp("t");
         let r = Register::open(&p);
-        for (i, d) in ["2025-01-01", "2025-02-01", "2025-03-01"].iter().enumerate() {
+        for (i, d) in ["2025-01-01", "2025-02-01", "2025-03-01"]
+            .iter()
+            .enumerate()
+        {
             r.append(body("RX1", d, i as f64)).unwrap();
         }
         let good = std::fs::read_to_string(&p).unwrap();
@@ -468,21 +486,35 @@ mod tests {
         // edited value
         std::fs::write(&p, good.replace("\"value\":1.0", "\"value\":1.5")).unwrap();
         let v = r.verify().unwrap();
-        assert!(v.problems.iter().any(|m| m.contains("line 2") && m.contains("edited")), "{v:?}");
+        assert!(
+            v.problems
+                .iter()
+                .any(|m| m.contains("line 2") && m.contains("edited")),
+            "{v:?}"
+        );
         // an append to a tampered register is refused
         assert!(r.append(body("RX1", "2025-04-01", 3.0)).is_err());
 
         // deleted middle entry
         std::fs::write(&p, format!("{}\n{}\n", lines[0], lines[2])).unwrap();
         let v = r.verify().unwrap();
-        assert!(v.problems.iter().any(|m| m.contains("line 2") && m.contains("link")), "{v:?}");
+        assert!(
+            v.problems
+                .iter()
+                .any(|m| m.contains("line 2") && m.contains("link")),
+            "{v:?}"
+        );
 
         // reordered
         std::fs::write(&p, format!("{}\n{}\n{}\n", lines[0], lines[2], lines[1])).unwrap();
         assert!(!r.verify().unwrap().ok());
 
         // extra field smuggled into a body
-        std::fs::write(&p, good.replacen("\"notes\":\"\"", "\"notes\":\"\",\"x\":1", 1)).unwrap();
+        std::fs::write(
+            &p,
+            good.replacen("\"notes\":\"\"", "\"notes\":\"\",\"x\":1", 1),
+        )
+        .unwrap();
         assert!(!r.verify().unwrap().ok());
 
         // truncated tail is undetectable by the chain alone: the head hash changes

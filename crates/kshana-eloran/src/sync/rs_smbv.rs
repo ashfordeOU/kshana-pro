@@ -197,8 +197,10 @@ mod tests {
         let mut a = SmbvAdapter::new(&addr);
         assert!(a.connect().unwrap().contains("SMBV100B"));
         assert_eq!(a.status().unwrap().state, GnssSimState::Idle);
-        a.set_start_epoch(&StartEpoch::from_utc_iso("2026-11-18T01:02:03Z", EpochScale::Gpst).unwrap())
-            .unwrap();
+        a.set_start_epoch(
+            &StartEpoch::from_utc_iso("2026-11-18T01:02:03Z", EpochScale::Gpst).unwrap(),
+        )
+        .unwrap();
         a.set_power_offset(Some(Constellation::Galileo), None, -2.0)
             .unwrap();
         let mut f = Fields::new();
@@ -218,11 +220,17 @@ mod tests {
         h.join().unwrap();
         let l = log.lock().unwrap().clone();
         // profile epoch scale (UTC) wins over the caller's
-        assert!(l.contains(&":SOUR1:BB:GNSS:TIME:STAR:TIME 01,02,03".to_string()), "{l:?}");
+        assert!(
+            l.contains(&":SOUR1:BB:GNSS:TIME:STAR:TIME 01,02,03".to_string()),
+            "{l:?}"
+        );
         assert!(l.contains(&":SOUR1:BB:GNSS:SYST:GALileo:POW:OFFS -2.00".to_string()));
         assert!(l.contains(&":SOUR1:BB:GNSS:TRIG:SOUR EXT".to_string()));
         // every setting command is followed by an error-queue check
-        let i = l.iter().position(|c| c == ":SOUR1:BB:GNSS:STAT OFF").unwrap();
+        let i = l
+            .iter()
+            .position(|c| c == ":SOUR1:BB:GNSS:STAT OFF")
+            .unwrap();
         assert_eq!(l[i + 1], "SYST:ERR?");
     }
 }

@@ -208,15 +208,30 @@ impl DigilentDevice {
         let a = &self.api;
         // SAFETY: valid handle; scalar arguments.
         unsafe {
-            self.ok((a.out_enable)(h, ch, NODE_CARRIER, 1), "AnalogOutNodeEnableSet")?;
-            self.ok((a.out_function)(h, ch, NODE_CARRIER, func), "AnalogOutNodeFunctionSet")?;
-            self.ok((a.out_frequency)(h, ch, NODE_CARRIER, freq), "AnalogOutNodeFrequencySet")?;
+            self.ok(
+                (a.out_enable)(h, ch, NODE_CARRIER, 1),
+                "AnalogOutNodeEnableSet",
+            )?;
+            self.ok(
+                (a.out_function)(h, ch, NODE_CARRIER, func),
+                "AnalogOutNodeFunctionSet",
+            )?;
+            self.ok(
+                (a.out_frequency)(h, ch, NODE_CARRIER, freq),
+                "AnalogOutNodeFrequencySet",
+            )?;
             self.ok(
                 (a.out_amplitude)(h, ch, NODE_CARRIER, self.full_scale_v),
                 "AnalogOutNodeAmplitudeSet",
             )?;
-            self.ok((a.out_offset)(h, ch, NODE_CARRIER, 0.0), "AnalogOutNodeOffsetSet")?;
-            self.ok((a.out_trigger_source)(h, ch, Self::trig(at)), "AnalogOutTriggerSourceSet")?;
+            self.ok(
+                (a.out_offset)(h, ch, NODE_CARRIER, 0.0),
+                "AnalogOutNodeOffsetSet",
+            )?;
+            self.ok(
+                (a.out_trigger_source)(h, ch, Self::trig(at)),
+                "AnalogOutTriggerSourceSet",
+            )?;
         }
         Ok(())
     }
@@ -230,7 +245,14 @@ impl DigilentDevice {
                 let (mut free, mut lost, mut corrupt) = (0, 0, 0);
                 // SAFETY: valid out-pointers.
                 let r = unsafe {
-                    (a.out_play_status)(h, c as c_int, NODE_CARRIER, &mut free, &mut lost, &mut corrupt)
+                    (a.out_play_status)(
+                        h,
+                        c as c_int,
+                        NODE_CARRIER,
+                        &mut free,
+                        &mut lost,
+                        &mut corrupt,
+                    )
                 };
                 if r == 0 {
                     return Err(self.err("AnalogOutNodePlayStatus"));
@@ -263,7 +285,12 @@ impl DigilentDevice {
     }
 
     fn begin_play(&mut self) -> Result<(), String> {
-        let n = self.pending.first().map(|p| p.len()).unwrap_or(0).min(self.prefill);
+        let n = self
+            .pending
+            .first()
+            .map(|p| p.len())
+            .unwrap_or(0)
+            .min(self.prefill);
         for c in 0..self.pending.len() {
             let d: Vec<f64> = self.pending[c].drain(..n).collect();
             // SAFETY: `d` holds `n` doubles.
@@ -296,9 +323,8 @@ impl SegmentPlayer for DigilentDevice {
             let ch = c as c_int;
             let (mut lo, mut hi) = (0, 0);
             // SAFETY: valid out-pointers.
-            let r = unsafe {
-                (self.api.out_data_info)(self.hdwf, ch, NODE_CARRIER, &mut lo, &mut hi)
-            };
+            let r =
+                unsafe { (self.api.out_data_info)(self.hdwf, ch, NODE_CARRIER, &mut lo, &mut hi) };
             self.ok(r, "AnalogOutNodeDataInfo")?;
             if n < lo.max(1) as usize || n > hi as usize {
                 return Err(format!(
@@ -315,12 +341,18 @@ impl SegmentPlayer for DigilentDevice {
                     "AnalogOutNodeDataSet",
                 )?;
                 let run = if periodic { 0.0 } else { seg.report.duration_s };
-                self.ok((self.api.out_run_set)(self.hdwf, ch, run), "AnalogOutRunSet")?;
+                self.ok(
+                    (self.api.out_run_set)(self.hdwf, ch, run),
+                    "AnalogOutRunSet",
+                )?;
                 self.ok(
                     (self.api.out_repeat_set)(self.hdwf, ch, if periodic { 0 } else { 1 }),
                     "AnalogOutRepeatSet",
                 )?;
-                self.ok((self.api.out_configure)(self.hdwf, ch, 1), "AnalogOutConfigure")?;
+                self.ok(
+                    (self.api.out_configure)(self.hdwf, ch, 1),
+                    "AnalogOutConfigure",
+                )?;
             }
         }
         self.status.tx_streaming = true;
@@ -422,9 +454,15 @@ impl Device for DigilentDevice {
                 )?;
             }
             self.ok((a.in_mode)(h, ACQMODE_RECORD), "AnalogInAcquisitionModeSet")?;
-            self.ok((a.in_frequency)(h, cfg.sample_rate_hz), "AnalogInFrequencySet")?;
+            self.ok(
+                (a.in_frequency)(h, cfg.sample_rate_hz),
+                "AnalogInFrequencySet",
+            )?;
             self.ok((a.in_record_length)(h, 0.0), "AnalogInRecordLengthSet")?;
-            self.ok((a.in_trigger_source)(h, Self::trig(at)), "AnalogInTriggerSourceSet")?;
+            self.ok(
+                (a.in_trigger_source)(h, Self::trig(at)),
+                "AnalogInTriggerSourceSet",
+            )?;
             self.ok((a.in_configure)(h, 0, 1), "AnalogInConfigure")?;
         }
         self.status.rx_streaming = true;
@@ -443,7 +481,10 @@ impl Device for DigilentDevice {
             let (mut avail, mut lost, mut corrupt) = (0, 0, 0);
             // SAFETY: valid out-pointers.
             unsafe {
-                self.ok((self.api.in_status)(self.hdwf, 1, &mut st), "AnalogInStatus")?;
+                self.ok(
+                    (self.api.in_status)(self.hdwf, 1, &mut st),
+                    "AnalogInStatus",
+                )?;
                 self.ok(
                     (self.api.in_status_record)(self.hdwf, &mut avail, &mut lost, &mut corrupt),
                     "AnalogInStatusRecord",

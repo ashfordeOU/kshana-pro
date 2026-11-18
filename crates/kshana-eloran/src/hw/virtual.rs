@@ -165,8 +165,7 @@ impl VirtualConfig {
                 }
             }
         }
-        if self.dac_bits > 32 || self.adc_bits > 32 || self.dac_bits == 1 || self.adc_bits == 1
-        {
+        if self.dac_bits > 32 || self.adc_bits > 32 || self.dac_bits == 1 || self.adc_bits == 1 {
             return Err("converter bits must be 0 (ideal) or 2..=32".into());
         }
         if !(self.noise_rms >= 0.0) || !(self.jitter_ps_rms >= 0.0) {
@@ -363,7 +362,10 @@ impl VirtualDevice {
     fn periods(&self, fs: f64) -> (f64, f64) {
         let t_free = 1.0 / (fs * (1.0 + self.vc.clock_offset_ppm * 1e-6));
         if self.external() {
-            (1.0 / (fs * (1.0 + self.vc.locked_residual_ppm * 1e-6)), t_free)
+            (
+                1.0 / (fs * (1.0 + self.vc.locked_residual_ppm * 1e-6)),
+                t_free,
+            )
         } else {
             (t_free, t_free)
         }
@@ -777,9 +779,7 @@ pub fn read_exact(device: &mut dyn Device, n: usize) -> Result<Vec<Vec<f64>>, St
 
 #[cfg(test)]
 mod tests {
-    use super::super::calib::{
-        characterise_from_capture, write_calibration_train,
-    };
+    use super::super::calib::{characterise_from_capture, write_calibration_train};
     use super::*;
 
     const FS: f64 = 2e6;
@@ -828,8 +828,8 @@ mod tests {
             let mut d = VirtualDevice::new(VirtualConfig::bench(lat)).unwrap();
             d.configure(&loop_cfg(1, 1, RefSource::External)).unwrap();
             let cap = run_train(&mut d, 1, 20, 1e-3);
-            let e = characterise_from_capture(&cap, FS, &pps(20, 1e-3), &Default::default())
-                .unwrap();
+            let e =
+                characterise_from_capture(&cap, FS, &pps(20, 1e-3), &Default::default()).unwrap();
             assert_eq!(e.n, 20);
             assert!(
                 (e.delay_ns - lat).abs() < 0.2,

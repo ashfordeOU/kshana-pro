@@ -81,9 +81,7 @@ use serde_json::json;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use super::{
-    abs_from_unix_ns, iso_from_unix_ns, sha256_file, unix_ns_from_iso, write_atomic,
-};
+use super::{abs_from_unix_ns, iso_from_unix_ns, sha256_file, unix_ns_from_iso, write_atomic};
 
 /// Format tag of `state.json`.
 pub const STATE_FORMAT: &str = "kshana-eloran-lf-station-state";
@@ -503,7 +501,10 @@ impl HealthAcc {
 }
 
 /// Candidate chains for detection: (id, chain).
-pub fn detection_candidates(cfg: &DetectionConfig, date: &str) -> Result<Vec<(String, Chain)>, String> {
+pub fn detection_candidates(
+    cfg: &DetectionConfig,
+    date: &str,
+) -> Result<Vec<(String, Chain)>, String> {
     let mut db = GriDb::embedded()?;
     if let Some(p) = &cfg.user_db {
         let src = std::fs::read_to_string(p).map_err(|e| format!("{}: {e}", p.display()))?;
@@ -715,7 +716,9 @@ pub fn verify_manifest(dir: &Path, m: &UploadManifest) -> Vec<String> {
     for s in &m.segments {
         for f in &s.files {
             let p = dir.join(&f.path);
-            let ok = std::fs::metadata(&p).map(|md| md.len() == f.bytes).unwrap_or(false)
+            let ok = std::fs::metadata(&p)
+                .map(|md| md.len() == f.bytes)
+                .unwrap_or(false)
                 && sha256_file(&p).map(|h| h == f.sha256).unwrap_or(false);
             if !ok {
                 bad.push(f.path.clone());
@@ -794,7 +797,10 @@ impl Recorder {
         // leftovers of an interrupted segment
         let partial = rec.dir.join("partial");
         let mut leftovers = Vec::new();
-        for e in std::fs::read_dir(&partial).map_err(|e| e.to_string())?.flatten() {
+        for e in std::fs::read_dir(&partial)
+            .map_err(|e| e.to_string())?
+            .flatten()
+        {
             leftovers.push(e.file_name().to_string_lossy().into_owned());
             let _ = std::fs::remove_file(e.path());
         }
@@ -951,11 +957,22 @@ impl Recorder {
         let mut overflows_prev = st0.overflows;
         let res = (|| -> Result<(), String> {
             loop {
-                if stop.load(Ordering::Relaxed) || max_segments.is_some_and(|m| report.segments_written >= m) {
+                if stop.load(Ordering::Relaxed)
+                    || max_segments.is_some_and(|m| report.segments_written >= m)
+                {
                     break;
                 }
-                let seg_start_ns = stream_start_ns + (stream_pos as i128 * 1_000_000_000) / fs as i128;
-                let out = self.record_segment(device, seg_n, seg_start_ns, ts_source, session, &mut overflows_prev, stop)?;
+                let seg_start_ns =
+                    stream_start_ns + (stream_pos as i128 * 1_000_000_000) / fs as i128;
+                let out = self.record_segment(
+                    device,
+                    seg_n,
+                    seg_start_ns,
+                    ts_source,
+                    session,
+                    &mut overflows_prev,
+                    stop,
+                )?;
                 match out {
                     None => {
                         report.end_of_stream = true;
@@ -1128,8 +1145,10 @@ impl Recorder {
         let cfg = &self.cfg;
         let n_an = n_analyse.min(got as usize) as u64;
         patch_meta(&pbase, |m| {
-            m["global"]["core:description"] =
-                json!(format!("Kshana Pro LF recording station {} segment {seq}", cfg.site_id));
+            m["global"]["core:description"] = json!(format!(
+                "Kshana Pro LF recording station {} segment {seq}",
+                cfg.site_id
+            ));
             m["global"]["core:recorder"] = json!("kshana-eloran field::station");
             m["global"]["core:geolocation"] = json!({
                 "type": "Point",
@@ -1206,7 +1225,10 @@ impl Recorder {
         let (mut up_ok, mut up_fail) = (0, 0);
         self.write_manifest()?;
         if self.cfg.upload.command.is_some()
-            && self.state.next_seq.is_multiple_of(self.cfg.upload.every_segments)
+            && self
+                .state
+                .next_seq
+                .is_multiple_of(self.cfg.upload.every_segments)
         {
             match self.run_upload_hook() {
                 Ok(true) => up_ok += 1,
@@ -1259,7 +1281,10 @@ impl Recorder {
                 let _ = std::fs::remove_file(self.dir.join(&f.path));
             }
             self.state.deleted.push((s.seq, s.name.clone(), s.uploaded));
-            self.event("retention_delete", &format!("{} (uploaded {})", s.name, s.uploaded));
+            self.event(
+                "retention_delete",
+                &format!("{} (uploaded {})", s.name, s.uploaded),
+            );
             deleted += 1;
         }
         Ok(deleted)
@@ -1460,15 +1485,22 @@ mod tests {
             assert_eq!(ids, ["8970-great-lakes"], "{:?}", s.detected);
             let d = &s.detected[0];
             assert!(d.stations.iter().filter(|x| x.found).count() >= 3);
-            assert!(d.stations.iter().any(|x| x.snr_db.is_some_and(|v| v > 10.0)));
+            assert!(d
+                .stations
+                .iter()
+                .any(|x| x.snr_db.is_some_and(|v| v > 10.0)));
         }
         // SigMF metadata carries the timestamp and annotation
-        let meta = crate::replay::reader::read_meta(&dir.join(format!("segments/{}", s1.name))).unwrap();
+        let meta =
+            crate::replay::reader::read_meta(&dir.join(format!("segments/{}", s1.name))).unwrap();
         assert_eq!(
             segment_start_ns(&meta),
             Some(start_ns() as i128 + 600_000_000)
         );
-        assert_eq!(meta["annotations"][0]["kshana:chain_id"], "8970-great-lakes");
+        assert_eq!(
+            meta["annotations"][0]["kshana:chain_id"],
+            "8970-great-lakes"
+        );
         assert_eq!(meta["captures"][0]["kshana:pps_aligned"], true);
         // the recording round-trips
         let r = crate::io::read_sigmf(&dir.join(format!("segments/{}", s0.name)), None).unwrap();
@@ -1486,7 +1518,10 @@ mod tests {
         let mut t = std::fs::read_to_string(&p).unwrap();
         t.push(' ');
         std::fs::write(&p, t).unwrap();
-        assert_eq!(verify_manifest(&dir, &m), vec![m.segments[0].files[1].path.clone()]);
+        assert_eq!(
+            verify_manifest(&dir, &m),
+            vec![m.segments[0].files[1].path.clone()]
+        );
 
         // resume: a leftover partial file is discarded, numbering continues
         std::fs::write(dir.join("partial/lfs-test_x.sigmf-data"), b"junk").unwrap();
@@ -1538,7 +1573,11 @@ mod tests {
         assert_eq!(s0.timestamp_source, "host_clock");
         assert_eq!(s0.start_utc, "2026-11-18T00:00:00.000000Z");
         for f in ["clipping", "missing_pps", "overflow", "disk_quota"] {
-            assert!(s0.health.flags.iter().any(|x| x == f), "{f}: {:?}", s0.health);
+            assert!(
+                s0.health.flags.iter().any(|x| x == f),
+                "{f}: {:?}",
+                s0.health
+            );
         }
         let s1 = &rec.state.segments[1];
         assert!(s1.health.flags.iter().any(|x| x == "truncated"));

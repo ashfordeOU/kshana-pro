@@ -202,7 +202,11 @@ impl SpectrumSource for SpectrumAnalyser {
         self.session.query(&w)?;
         let dbm = parse_number_list(&self.session.query(&t)?)?;
         if dbm.len() < 2 {
-            return Err(format!("{}: trace has {} points", self.session.id, dbm.len()));
+            return Err(format!(
+                "{}: trace has {} points",
+                self.session.id,
+                dbm.len()
+            ));
         }
         self.last = Some((start_hz, stop_hz));
         Ok(Trace::uniform(
@@ -319,14 +323,15 @@ mod tests {
             _ => None,
         })
         .unwrap();
-        let log = MeasurementLog::memory()
-            .with_clock(|| "T".into())
-            .shared();
+        let log = MeasurementLog::memory().with_clock(|| "T".into()).shared();
         let p = InstrumentProfile::default_for("tic", Role::TimeIntervalCounter, tcp(&m));
         let mut tic = TimeIntervalCounter::open(&p, Some(log.clone())).unwrap();
         tic.arm_pps().unwrap();
         let r = tic.read_n(2).unwrap();
-        assert!((r[0] - 101.0).abs() < 1e-6 && (r[1] - 102.0).abs() < 1e-6, "{r:?}");
+        assert!(
+            (r[0] - 101.0).abs() < 1e-6 && (r[1] - 102.0).abs() < 1e-6,
+            "{r:?}"
+        );
         tic.cmd.read_block = Some(":FETC:ARR? {n}".into());
         tic.cmd.offset_ns = 100.0;
         let b = tic.read_n(3).unwrap();

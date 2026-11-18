@@ -211,7 +211,10 @@ impl RedPitaya {
         }
         for (c, d) in x.iter().enumerate() {
             let ch = c + 1;
-            let data: Vec<String> = d.iter().map(|v| format!("{:.5}", v.clamp(-1.0, 1.0))).collect();
+            let data: Vec<String> = d
+                .iter()
+                .map(|v| format!("{:.5}", v.clamp(-1.0, 1.0)))
+                .collect();
             self.scpi.send(&format!("OUTPUT{ch}:STATE OFF"))?;
             self.scpi.send(&format!("SOUR{ch}:FUNC ARBITRARY"))?;
             self.scpi
@@ -243,7 +246,12 @@ impl RedPitaya {
     }
 
     fn scpi_acquire(&mut self, n: usize, dec: u32) -> Result<Vec<Vec<f64>>, String> {
-        let nch = self.cfg.as_ref().map(|c| c.rx_channels).unwrap_or(1).clamp(1, 2);
+        let nch = self
+            .cfg
+            .as_ref()
+            .map(|c| c.rx_channels)
+            .unwrap_or(1)
+            .clamp(1, 2);
         let s = &mut self.scpi;
         s.send("ACQ:RST")?;
         s.send(&format!("ACQ:DEC {dec}"))?;
@@ -584,7 +592,7 @@ mod tests {
         cfg.rx_channels = 2;
         rp.configure(&cfg).unwrap();
         rp.start_rx(StartTime::Now).unwrap();
-        let mut got = vec![vec![], vec![]];
+        let mut got: [Vec<f64>; 2] = [vec![], vec![]];
         while got[0].len() < 12 {
             let b = rp.read_rx(12 - got[0].len()).unwrap();
             if b[0].is_empty() {

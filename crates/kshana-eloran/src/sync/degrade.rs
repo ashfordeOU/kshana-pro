@@ -574,7 +574,10 @@ fn group_fields(p: &CommandProfile, g: &Group) -> Fields {
 /// Render the degradation for `profile`. Actions the profile cannot express are listed in
 /// [`CommandSchedule::unsupported`] instead of failing; spoofing intervals are always kept
 /// as [`ScheduleMarker`]s.
-pub fn translate(deg: &GnssDegradation, profile: &CommandProfile) -> Result<CommandSchedule, String> {
+pub fn translate(
+    deg: &GnssDegradation,
+    profile: &CommandProfile,
+) -> Result<CommandSchedule, String> {
     deg.validate()?;
     let mut entries = Vec::new();
     let mut markers = Vec::new();
@@ -620,7 +623,8 @@ pub fn translate(deg: &GnssDegradation, profile: &CommandProfile) -> Result<Comm
                     ));
                 }
             }
-            Action::SatDisable { constellation, prn } | Action::SatEnable { constellation, prn } => {
+            Action::SatDisable { constellation, prn }
+            | Action::SatEnable { constellation, prn } => {
                 let mut f = profile.group_fields(Some(*constellation), None);
                 f.insert("prn".into(), prn.to_string());
                 let (op, w) = if matches!(ta.action, Action::SatDisable { .. }) {
@@ -801,7 +805,10 @@ label = "meaconing"
                 _ => None,
             })
             .collect();
-        assert_eq!(offs, vec![(10.0, 0.0, -6.0), (20.0, -3.0, -6.0), (40.0, -3.0, 0.0)]);
+        assert_eq!(
+            offs,
+            vec![(10.0, 0.0, -6.0), (20.0, -3.0, -6.0), (40.0, -3.0, 0.0)]
+        );
         let s = d.state_at(35.0);
         assert_eq!(
             s.masked,
@@ -813,9 +820,7 @@ label = "meaconing"
         assert!(d.state_at(130.0).outages.is_empty());
         assert_eq!(d.state_at(200.0).jammers, vec![("j1".to_string(), 40.0)]);
         assert_eq!(d.state_at(300.0).spoofing, vec!["meaconing".to_string()]);
-        assert!(
-            (d.effective_offset_db(Constellation::Gps, "L1CA", 25.0) + 9.0).abs() < 1e-12
-        );
+        assert!((d.effective_offset_db(Constellation::Gps, "L1CA", 25.0) + 9.0).abs() < 1e-12);
         assert_eq!(d.effective_offset_db(Constellation::Gps, "L5", 25.0), 0.0);
     }
 
@@ -874,8 +879,14 @@ duration_s = 0.0
     fn translates_for_smbv_with_scpi_names() {
         let s = translate(&deg(), &rs_smbv::default_profile()).unwrap();
         let l = s.all_lines();
-        assert!(l.iter().all(|x| x.starts_with(':') || x.starts_with('*')), "{l:?}");
-        assert!(l.iter().any(|x| x.contains("GPS") && x.contains("-3.00")), "{l:?}");
+        assert!(
+            l.iter().all(|x| x.starts_with(':') || x.starts_with('*')),
+            "{l:?}"
+        );
+        assert!(
+            l.iter().any(|x| x.contains("GPS") && x.contains("-3.00")),
+            "{l:?}"
+        );
         // C/N0 command absent: power offset carries the combined -9 dB at t = 20 s
         assert!(s
             .entries

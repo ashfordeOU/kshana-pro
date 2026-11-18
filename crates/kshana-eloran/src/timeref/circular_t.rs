@@ -404,7 +404,10 @@ EEE  (Not section 1)        9.0       9.0       9.0       9.0       9.0       9.
         let a = &c.labs["AAA"];
         assert_eq!(a.name, "Alpha City");
         assert_eq!(a.utc_minus_utck_ns[5], Some(6.0));
-        assert_eq!((a.u_a_ns, a.u_b_ns, a.u_ns), (Some(0.3), Some(1.5), Some(1.5)));
+        assert_eq!(
+            (a.u_a_ns, a.u_b_ns, a.u_ns),
+            (Some(0.3), Some(1.5), Some(1.5))
+        );
         assert_eq!(c.labs["BBB"].utc_minus_utck_ns[2], None);
         assert_eq!(c.labs["CCC"].name, "");
         assert_eq!(c.labs["CCC"].notes, "(1)");
@@ -429,10 +432,11 @@ EEE  (Not section 1)        9.0       9.0       9.0       9.0       9.0       9.
         assert!((m.model.drift_ns_per_day + 0.2).abs() < 1e-12);
         assert!(m.fit_rms_ns < 1e-9 && !m.extrapolated);
         let late = UtcStamp::parse("2026-12-01T00:00:00Z").unwrap();
-        assert!(c
-            .time_ref_model("AAA", late, 10.0, ModelMode::LinearFit)
-            .unwrap()
-            .extrapolated);
+        assert!(
+            c.time_ref_model("AAA", late, 10.0, ModelMode::LinearFit)
+                .unwrap()
+                .extrapolated
+        );
         assert!(c
             .time_ref_model("DDD", start, 10.0, ModelMode::LinearFit)
             .is_err());

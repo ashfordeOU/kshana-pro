@@ -387,7 +387,11 @@ impl CommandProfile {
     pub fn signal_name(&self, s: Option<&str>) -> String {
         match s {
             None => self.all_name.clone(),
-            Some(s) => self.signals.get(s).cloned().unwrap_or_else(|| s.to_string()),
+            Some(s) => self
+                .signals
+                .get(s)
+                .cloned()
+                .unwrap_or_else(|| s.to_string()),
         }
     }
     /// `t_s`, `t_hms`, `t_tag` fields for a command at scene time `t_s` (`None` =
@@ -845,7 +849,9 @@ impl GnssSimAdapter for ProfileAdapter {
             utc: epoch.utc,
             scale: self.channel.profile.epoch_scale,
         };
-        self.channel.op(ops::SET_START_TIME, &e.fields()).map(|_| ())
+        self.channel
+            .op(ops::SET_START_TIME, &e.fields())
+            .map(|_| ())
     }
     fn load_trajectory(&mut self, traj: &TrajectoryFile) -> Result<(), String> {
         self.channel
@@ -862,9 +868,12 @@ impl GnssSimAdapter for ProfileAdapter {
     }
     fn status(&mut self) -> Result<GnssSimStatus, String> {
         let lines = self.channel.profile.render(ops::STATUS, &Fields::new())?;
-        let q = lines
-            .first()
-            .ok_or_else(|| format!("profile {} has no status command", self.channel.profile.name))?;
+        let q = lines.first().ok_or_else(|| {
+            format!(
+                "profile {} has no status command",
+                self.channel.profile.name
+            )
+        })?;
         let raw = self
             .channel
             .send_raw(q)?
@@ -902,10 +911,7 @@ macro_rules! delegate_profile_adapter {
             fn set_start_epoch(&mut self, e: &$crate::sync::StartEpoch) -> Result<(), String> {
                 self.0.set_start_epoch(e)
             }
-            fn load_trajectory(
-                &mut self,
-                t: &$crate::sync::TrajectoryFile,
-            ) -> Result<(), String> {
+            fn load_trajectory(&mut self, t: &$crate::sync::TrajectoryFile) -> Result<(), String> {
                 self.0.load_trajectory(t)
             }
             fn arm(&mut self, m: $crate::sync::ArmMode) -> Result<(), String> {
@@ -1042,7 +1048,11 @@ state = "armed"
 
     #[test]
     fn adapter_over_both_framings() {
-        for framing in [Framing::Line, Framing::U32BePrefixed, Framing::U32LePrefixed] {
+        for framing in [
+            Framing::Line,
+            Framing::U32BePrefixed,
+            Framing::U32LePrefixed,
+        ] {
             let mut state = "IDLE";
             let (addr, log, h) = mock::serve(framing, move |c| {
                 Some(match c {
@@ -1070,14 +1080,15 @@ state = "armed"
             assert!(err.contains("ERR"), "{err}");
             a.arm(ArmMode::NextPps).unwrap();
             assert_eq!(a.status().unwrap().state, GnssSimState::Armed);
-            assert!(a.load_trajectory(&TrajectoryFile {
-                path: "/x".into(),
-                format: TrajFormat::Nmea,
-                rate_hz: 1.0,
-                samples: 1
-            })
-            .unwrap_err()
-            .contains("no command"));
+            assert!(a
+                .load_trajectory(&TrajectoryFile {
+                    path: "/x".into(),
+                    format: TrajFormat::Nmea,
+                    rate_hz: 1.0,
+                    samples: 1
+                })
+                .unwrap_err()
+                .contains("no command"));
             drop(a);
             h.join().unwrap();
             let l = log.lock().unwrap().clone();

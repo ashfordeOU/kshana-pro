@@ -239,7 +239,10 @@ pub fn source_def(cfg: &EloranTrustConfig) -> SourceDef {
 
 /// The two table columns of the source.
 pub fn columns(cfg: &EloranTrustConfig) -> [String; 2] {
-    [format!("{}_status", cfg.id), format!("{}_offset_ns", cfg.id)]
+    [
+        format!("{}_status", cfg.id),
+        format!("{}_offset_ns", cfg.id),
+    ]
 }
 
 /// The epoch nearest `t` within `tol_s` (epochs sorted by time).

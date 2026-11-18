@@ -163,22 +163,43 @@ fn sha(bytes: &[u8]) -> String {
 }
 
 fn slug(s: &str) -> String {
-    s.chars().map(|c| if c.is_ascii_alphanumeric() || c == '-' { c } else { '_' }).collect()
+    s.chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c == '-' {
+                c
+            } else {
+                '_'
+            }
+        })
+        .collect()
 }
 
 /// Run a campaign whose plan text is `plan_src` (paths resolved against `plan_dir`) and
 /// write the campaign directory `out_dir` (created; must not already contain a manifest).
-pub fn run_campaign(plan_src: &str, plan_dir: &Path, out_dir: &Path) -> Result<CampaignSummary, String> {
+pub fn run_campaign(
+    plan_src: &str,
+    plan_dir: &Path,
+    out_dir: &Path,
+) -> Result<CampaignSummary, String> {
     let plan = CampaignPlan::from_toml(plan_src)?;
     let plan_sha = sha(plan_src.as_bytes());
     if out_dir.join("campaign.json").exists() {
-        return Err(format!("{}: already holds a campaign; use a new directory", out_dir.display()));
+        return Err(format!(
+            "{}: already holds a campaign; use a new directory",
+            out_dir.display()
+        ));
     }
-    std::fs::create_dir_all(out_dir.join("cases")).map_err(|e| format!("{}: {e}", out_dir.display()))?;
-    let mut files: Vec<(String, Vec<u8>)> = vec![("plan.toml".into(), plan_src.as_bytes().to_vec())];
+    std::fs::create_dir_all(out_dir.join("cases"))
+        .map_err(|e| format!("{}: {e}", out_dir.display()))?;
+    let mut files: Vec<(String, Vec<u8>)> =
+        vec![("plan.toml".into(), plan_src.as_bytes().to_vec())];
     let mut results = Vec::new();
     for case in &plan.cases {
-        let path = if case.file.is_absolute() { case.file.clone() } else { plan_dir.join(&case.file) };
+        let path = if case.file.is_absolute() {
+            case.file.clone()
+        } else {
+            plan_dir.join(&case.file)
+        };
         let cf = match ConformanceFile::load(&path) {
             Ok(c) => c,
             Err(e) => {
@@ -222,7 +243,10 @@ pub fn run_campaign(plan_src: &str, plan_dir: &Path, out_dir: &Path) -> Result<C
                     error: Some(e),
                 });
             };
-            let run = match cf.scenario_text(label.as_deref(), &case.set).and_then(|t| simulate(&t)) {
+            let run = match cf
+                .scenario_text(label.as_deref(), &case.set)
+                .and_then(|t| simulate(&t))
+            {
                 Ok(r) => r,
                 Err(e) => {
                     push_err(&mut results, "-", e);
@@ -252,10 +276,18 @@ pub fn run_campaign(plan_src: &str, plan_dir: &Path, out_dir: &Path) -> Result<C
                 let log = ext.logs.get(&vname).or(ext.log.as_ref());
                 let outcome = (|| -> Result<BTreeMap<String, f64>, String> {
                     let log = log.ok_or_else(|| format!("no log for variation {vname}"))?;
-                    let rp = |p: &PathBuf| if p.is_absolute() { p.clone() } else { plan_dir.join(p) };
-                    let prof_txt = std::fs::read_to_string(rp(&ext.profile)).map_err(|e| format!("{}: {e}", ext.profile.display()))?;
+                    let rp = |p: &PathBuf| {
+                        if p.is_absolute() {
+                            p.clone()
+                        } else {
+                            plan_dir.join(p)
+                        }
+                    };
+                    let prof_txt = std::fs::read_to_string(rp(&ext.profile))
+                        .map_err(|e| format!("{}: {e}", ext.profile.display()))?;
                     let prof = CsvProfile::from_toml(&prof_txt)?;
-                    let text = std::fs::read_to_string(rp(log)).map_err(|e| format!("{}: {e}", log.display()))?;
+                    let text = std::fs::read_to_string(rp(log))
+                        .map_err(|e| format!("{}: {e}", log.display()))?;
                     let (obs, _rep) = prof.import(&text, &ext.name)?;
                     evaluate_external(&cf.case, &run, &obs, ext.max_dt_s)
                 })();
@@ -281,13 +313,27 @@ pub fn run_campaign(plan_src: &str, plan_dir: &Path, out_dir: &Path) -> Result<C
     }
     // per-case files
     for r in &results {
-        let name = format!("cases/{}__{}__{}.json", slug(&r.case), slug(&r.variation), slug(&r.receiver));
-        files.push((name, serde_json::to_vec_pretty(r).map_err(|e| e.to_string())?));
+        let name = format!(
+            "cases/{}__{}__{}.json",
+            slug(&r.case),
+            slug(&r.variation),
+            slug(&r.receiver)
+        );
+        files.push((
+            name,
+            serde_json::to_vec_pretty(r).map_err(|e| e.to_string())?,
+        ));
     }
     // summary
-    let mut csv = String::from("case,conformance_id,variation,receiver,verdict,failed_metrics,error\n");
+    let mut csv =
+        String::from("case,conformance_id,variation,receiver,verdict,failed_metrics,error\n");
     for r in &results {
-        let failed: Vec<String> = r.scored.iter().filter(|s| s.verdict == Verdict::Fail).map(|s| s.metric.clone()).collect();
+        let failed: Vec<String> = r
+            .scored
+            .iter()
+            .filter(|s| s.verdict == Verdict::Fail)
+            .map(|s| s.metric.clone())
+            .collect();
         csv.push_str(&format!(
             "{},{},{},{},{:?},{},{}\n",
             r.case,
@@ -296,13 +342,23 @@ pub fn run_campaign(plan_src: &str, plan_dir: &Path, out_dir: &Path) -> Result<C
             r.receiver,
             r.verdict,
             failed.join(";"),
-            r.error.as_deref().unwrap_or("").replace(',', ";").replace('\n', " ")
+            r.error
+                .as_deref()
+                .unwrap_or("")
+                .replace(',', ";")
+                .replace('\n', " ")
         ));
     }
     files.push(("summary.csv".into(), csv.into_bytes()));
     files.push(("rvm.csv".into(), rvm_csv(&results).into_bytes()));
-    let pass = results.iter().filter(|r| r.verdict == Verdict::Pass).count();
-    let fail = results.iter().filter(|r| r.verdict == Verdict::Fail).count();
+    let pass = results
+        .iter()
+        .filter(|r| r.verdict == Verdict::Pass)
+        .count();
+    let fail = results
+        .iter()
+        .filter(|r| r.verdict == Verdict::Fail)
+        .count();
     let ne = results.len() - pass - fail;
     // write files and the hash-chained manifest
     let mut chain = String::new();
@@ -315,7 +371,11 @@ pub fn run_campaign(plan_src: &str, plan_dir: &Path, out_dir: &Path) -> Result<C
         std::fs::write(&full, bytes).map_err(|e| format!("{}: {e}", full.display()))?;
         let h = sha(bytes);
         chain = sha(format!("{chain}{h}").as_bytes());
-        entries.push(ManifestEntry { path: p.clone(), sha256: h, chain: chain.clone() });
+        entries.push(ManifestEntry {
+            path: p.clone(),
+            sha256: h,
+            chain: chain.clone(),
+        });
     }
     let manifest = CampaignManifest {
         format: "kshana-eloran-campaign".into(),
@@ -328,9 +388,19 @@ pub fn run_campaign(plan_src: &str, plan_dir: &Path, out_dir: &Path) -> Result<C
         not_evaluated: ne,
         evidence_label: "MODELLED".into(),
     };
-    std::fs::write(out_dir.join("campaign.json"), serde_json::to_vec_pretty(&manifest).unwrap())
-        .map_err(|e| e.to_string())?;
-    Ok(CampaignSummary { name: plan.name, plan_sha256: plan_sha, results, pass, fail, not_evaluated: ne })
+    std::fs::write(
+        out_dir.join("campaign.json"),
+        serde_json::to_vec_pretty(&manifest).unwrap(),
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(CampaignSummary {
+        name: plan.name,
+        plan_sha256: plan_sha,
+        results,
+        pass,
+        fail,
+        not_evaluated: ne,
+    })
 }
 
 /// Requirement verification matrix: one row per requirement with the cases that cover it and
@@ -344,7 +414,10 @@ pub fn rvm_csv(results: &[CaseResult]) -> String {
     }
     let mut s = String::from("requirement_id,cases,verdict\n");
     for (q, rs) in by {
-        let mut cases: Vec<String> = rs.iter().map(|r| format!("{}/{}/{}", r.case, r.variation, r.receiver)).collect();
+        let mut cases: Vec<String> = rs
+            .iter()
+            .map(|r| format!("{}/{}/{}", r.case, r.variation, r.receiver))
+            .collect();
         cases.dedup();
         let v = if rs.iter().any(|r| r.verdict == Verdict::Fail) {
             "FAIL"
@@ -420,8 +493,15 @@ note = "campaign bar"
         let s = run_campaign(&src, Path::new("."), &dir).unwrap();
         assert!(!s.results.is_empty());
         assert!(s.results.iter().all(|r| r.receiver == "software"));
-        assert!(s.results.iter().all(|r| r.error.is_none()), "{:?}", s.results.iter().map(|r| &r.error).collect::<Vec<_>>());
-        assert!(s.results.iter().any(|r| r.scored.iter().any(|x| x.note == "campaign bar")));
+        assert!(
+            s.results.iter().all(|r| r.error.is_none()),
+            "{:?}",
+            s.results.iter().map(|r| &r.error).collect::<Vec<_>>()
+        );
+        assert!(s
+            .results
+            .iter()
+            .any(|r| r.scored.iter().any(|x| x.note == "campaign bar")));
         assert_eq!(s.pass + s.fail + s.not_evaluated, s.results.len());
         let m = verify_campaign(&dir).unwrap();
         assert_eq!(m.plan_sha256, sha(src.as_bytes()));
@@ -431,7 +511,11 @@ note = "campaign bar"
         // a second run into the same directory is refused
         assert!(run_campaign(&src, Path::new("."), &dir).is_err());
         // tamper with a result file
-        let case_file = m.files.iter().find(|f| f.path.starts_with("cases/")).unwrap();
+        let case_file = m
+            .files
+            .iter()
+            .find(|f| f.path.starts_with("cases/"))
+            .unwrap();
         let p = dir.join(&case_file.path);
         let mut t = std::fs::read_to_string(&p).unwrap();
         t.push(' ');
@@ -445,7 +529,9 @@ note = "campaign bar"
     fn plan_validation_and_missing_files_are_reported() {
         assert!(CampaignPlan::from_toml("name = 'x'\ncases = []").is_err());
         let dup = "name='x'\n[[cases]]\nid='a'\nfile='f'\n[[cases]]\nid='a'\nfile='g'\n";
-        assert!(CampaignPlan::from_toml(dup).unwrap_err().contains("duplicate"));
+        assert!(CampaignPlan::from_toml(dup)
+            .unwrap_err()
+            .contains("duplicate"));
         let missing = "name='x'\n[[cases]]\nid='a'\nfile='does-not-exist.toml'\n";
         let dir = std::env::temp_dir().join(format!("kshana-campaign-miss-{}", std::process::id()));
         std::fs::remove_dir_all(&dir).ok();

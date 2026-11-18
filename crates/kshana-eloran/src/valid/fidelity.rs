@@ -434,7 +434,12 @@ pub struct EnvelopeComparison {
 }
 
 /// Compare two envelopes on the same grid (spacing `1/fs`).
-pub fn compare_envelopes(rec: &[f64], sim: &[f64], fs: f64, max_lag_s: f64) -> (f64, f64, f64, f64) {
+pub fn compare_envelopes(
+    rec: &[f64],
+    sim: &[f64],
+    fs: f64,
+    max_lag_s: f64,
+) -> (f64, f64, f64, f64) {
     let n = rec.len().min(sim.len());
     let ml = ((max_lag_s * fs).round() as i64).min(n as i64 / 2);
     let corr_at = |l: i64| -> (f64, f64, f64, f64) {
@@ -477,7 +482,11 @@ pub fn compare_envelopes(rec: &[f64], sim: &[f64], fs: f64, max_lag_s: f64) -> (
     }
     let gain = if yy > 0.0 { xy / yy } else { 0.0 };
     let res = (xx - 2.0 * gain * xy + gain * gain * yy).max(0.0);
-    let rms_rel = if xx > 0.0 { (res / xx).sqrt() } else { f64::NAN };
+    let rms_rel = if xx > 0.0 {
+        (res / xx).sqrt()
+    } else {
+        f64::NAN
+    };
     (c0, (l as f64 + frac) / fs, 20.0 * gain.log10(), rms_rel)
 }
 
@@ -845,7 +854,12 @@ impl RxRun {
     fn combined(&self, weights: &[(usize, f64)]) -> Vec<f64> {
         let n = self.rx.filtered.first().map(|c| c.len()).unwrap_or(0);
         (0..n)
-            .map(|i| weights.iter().map(|(c, w)| self.rx.filtered[*c][i] * w).sum())
+            .map(|i| {
+                weights
+                    .iter()
+                    .map(|(c, w)| self.rx.filtered[*c][i] * w)
+                    .sum()
+            })
             .collect()
     }
     fn meas(&self, chain: &str, station: &str) -> Vec<&Measurement> {
@@ -953,8 +967,8 @@ pub fn compare_inputs(
             let snr_diff = mean(&|a, b| {
                 let floor = |m: &Measurement| {
                     // clamp noise at the floor so noise-free inputs compare finitely
-                    let noise = (m.field_uv_m / 10f64.powf(m.snr_db / 20.0))
-                        .max(cfg.noise_floor_min_uv_m);
+                    let noise =
+                        (m.field_uv_m / 10f64.powf(m.snr_db / 20.0)).max(cfg.noise_floor_min_uv_m);
                     20.0 * (m.field_uv_m / noise).log10()
                 };
                 floor(a) - floor(b)
@@ -976,7 +990,11 @@ pub fn compare_inputs(
                 found_sim,
                 n_matched: pairs.len(),
                 envelope: None,
-                toa_bias_ns: if pairs.is_empty() { f64::NAN } else { st_t.mean },
+                toa_bias_ns: if pairs.is_empty() {
+                    f64::NAN
+                } else {
+                    st_t.mean
+                },
                 toa_std_ns: if pairs.is_empty() { f64::NAN } else { st_t.std },
                 ecd_diff_us: ecd_diff,
                 snr_diff_db: snr_diff,
@@ -1046,9 +1064,27 @@ pub fn compare_inputs(
                     });
                     for (name, v, unit, t, b) in [
                         ("envelope_corr", c, "", th.envelope_corr_min, Bound::Min),
-                        ("envelope_lag", lag_us, "us", th.envelope_lag_us_max, Bound::MaxAbs),
-                        ("envelope_amp", amp, "dB", th.envelope_amp_db_max, Bound::MaxAbs),
-                        ("envelope_rms_rel", rms, "", th.envelope_rms_rel_max, Bound::MaxAbs),
+                        (
+                            "envelope_lag",
+                            lag_us,
+                            "us",
+                            th.envelope_lag_us_max,
+                            Bound::MaxAbs,
+                        ),
+                        (
+                            "envelope_amp",
+                            amp,
+                            "dB",
+                            th.envelope_amp_db_max,
+                            Bound::MaxAbs,
+                        ),
+                        (
+                            "envelope_rms_rel",
+                            rms,
+                            "",
+                            th.envelope_rms_rel_max,
+                            Bound::MaxAbs,
+                        ),
                     ] {
                         metrics.push(Metric::new(Level::Signal, k.clone(), name, v, unit, t, b));
                     }
@@ -1090,11 +1126,27 @@ pub fn compare_inputs(
         sim: ss,
     };
     for (name, v, t) in [
-        ("band_power_diff", spectrum.band_diff_db, th.band_power_db_max),
+        (
+            "band_power_diff",
+            spectrum.band_diff_db,
+            th.band_power_db_max,
+        ),
         ("oob_power_diff", spectrum.oob_diff_db, th.oob_power_db_max),
-        ("noise_floor_diff", spectrum.noise_floor_diff_db, th.noise_floor_db_max),
+        (
+            "noise_floor_diff",
+            spectrum.noise_floor_diff_db,
+            th.noise_floor_db_max,
+        ),
     ] {
-        metrics.push(Metric::new(Level::Signal, None, name, v, "dB", t, Bound::MaxAbs));
+        metrics.push(Metric::new(
+            Level::Signal,
+            None,
+            name,
+            v,
+            "dB",
+            t,
+            Bound::MaxAbs,
+        ));
     }
 
     // solutions
@@ -1159,7 +1211,13 @@ pub fn compare_inputs(
         )),
     }
     let tsol = |run: &RxRun| {
-        rx::time_solution(&run.out.measurements, chains, rec.start, meta.position, &corr)
+        rx::time_solution(
+            &run.out.measurements,
+            chains,
+            rec.start,
+            meta.position,
+            &corr,
+        )
     };
     let (tr, ts) = (tsol(&r), tsol(&s));
     for (id, v, _) in &tr.by_time_ref {
@@ -1311,7 +1369,10 @@ time_ref = "UTC(A)"
         // JSON round trip
         let back = FidelityReport::from_json(&rep.to_json()).unwrap();
         assert_eq!(back.metrics.len(), rep.metrics.len());
-        assert!(rep.ledger_row("x", &Reference::synthetic("t")).to_markdown().contains("MODELLED"));
+        assert!(rep
+            .ledger_row("x", &Reference::synthetic("t"))
+            .to_markdown()
+            .contains("MODELLED"));
     }
 
     #[test]
@@ -1326,7 +1387,11 @@ time_ref = "UTC(A)"
         assert!((lag - 1.0).abs() < 0.1, "lag {lag}");
         for id in ["M", "X", "Z"] {
             assert!(st(&rep, id).toa_bias_ns.abs() < 2.0);
-            assert!(rep.metric(Some(&format!("fid/{id}")), "toa_bias").unwrap().pass);
+            assert!(
+                rep.metric(Some(&format!("fid/{id}")), "toa_bias")
+                    .unwrap()
+                    .pass
+            );
         }
         assert!(!rep.metric(Some("fid/Y"), "toa_bias").unwrap().pass);
         assert!(!rep.metric(Some("fid/Y"), "envelope_lag").unwrap().pass);
@@ -1399,8 +1464,8 @@ time_ref = "UTC(A)"
             time_refs: vec![],
             seed: 0,
         };
-        let sc = build_matching_scenario(&meta(), &ReferenceSource::GriDb(sel), 400_000, 1e6)
-            .unwrap();
+        let sc =
+            build_matching_scenario(&meta(), &ReferenceSource::GriDb(sel), 400_000, 1e6).unwrap();
         assert!((sc.scene.params.duration_s - 0.4).abs() < 1e-12);
         assert_eq!(sc.scene.params.output_scale_uv_m, 1e6);
         sc.build().unwrap();

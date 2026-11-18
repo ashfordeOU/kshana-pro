@@ -38,7 +38,7 @@ use crate::hw::calib::{
 };
 use crate::hw::{Device, DeviceStatus, StartTime, TxSession};
 use crate::instr::{FrequencySource, PowerSource, SpectrumSource, TicSource};
-use crate::scene::{MemSink, SampleSink};
+use crate::scene::SampleSink;
 use crate::signal::PulseSignal;
 use crate::TruthRecord;
 use serde::{Deserialize, Serialize};
@@ -352,18 +352,23 @@ impl Stimulus for DeviceStimulus {
         let total = (self.duration_s * fs).round() as usize;
         let block = ((0.01 * fs) as usize).max(1);
         let spec = spec.clone();
-        let s = TxSession::start(dev, StartTime::NextPps, 8, move |sink: &mut dyn SampleSink| {
-            let mut n0 = 0;
-            while n0 < total {
-                let n = block.min(total - n0);
-                match sink.write_block(&stimulus_block(&spec, fs, n_ch, n0, n, period)) {
-                    Err(e) if e.contains("stopped") => return Ok(()),
-                    r => r?,
+        let s = TxSession::start(
+            dev,
+            StartTime::NextPps,
+            8,
+            move |sink: &mut dyn SampleSink| {
+                let mut n0 = 0;
+                while n0 < total {
+                    let n = block.min(total - n0);
+                    match sink.write_block(&stimulus_block(&spec, fs, n_ch, n0, n, period)) {
+                        Err(e) if e.contains("stopped") => return Ok(()),
+                        r => r?,
+                    }
+                    n0 += n;
                 }
-                n0 += n;
-            }
-            sink.finish()
-        })?;
+                sink.finish()
+            },
+        )?;
         self.session = Some(s);
         Ok(())
     }
@@ -486,7 +491,11 @@ fn run_kind(kind: &TestKind, b: &mut Bench) -> Result<Outcome, String> {
                 return Err("no levels".into());
             }
             let off = p.iter().zip(levels_dbfs).map(|(a, l)| a - l).sum::<f64>() / p.len() as f64;
-            let dev: Vec<f64> = p.iter().zip(levels_dbfs).map(|(a, l)| a - l - off).collect();
+            let dev: Vec<f64> = p
+                .iter()
+                .zip(levels_dbfs)
+                .map(|(a, l)| a - l - off)
+                .collect();
             let m = dev.iter().map(|d| d.abs()).fold(0.0, f64::max);
             out(
                 m,
@@ -570,9 +579,8 @@ fn run_kind(kind: &TestKind, b: &mut Bench) -> Result<Outcome, String> {
                 }
             }
             // highest bin outside the carrier and harmonic bands
-            let excluded = |f: f64| {
-                (1..=*max_harmonic).any(|h| (f - h as f64 * freq_hz).abs() <= half)
-            };
+            let excluded =
+                |f: f64| (1..=*max_harmonic).any(|h| (f - h as f64 * freq_hz).abs() <= half);
             let spur = t
                 .freqs_hz
                 .iter()
@@ -632,7 +640,10 @@ fn run_kind(kind: &TestKind, b: &mut Bench) -> Result<Outcome, String> {
             let (m, s) = mean_std(&r);
             let pp = r.iter().cloned().fold(f64::MIN, f64::max)
                 - r.iter().cloned().fold(f64::MAX, f64::min);
-            out(s, json!({"tic": tic.id(), "mean_ns": m, "std_ns": s, "pp_ns": pp, "readings_ns": r}))
+            out(
+                s,
+                json!({"tic": tic.id(), "mean_ns": m, "std_ns": s, "pp_ns": pp, "readings_ns": r}),
+            )
         }
         TestKind::DelayStability { n, blocks } => {
             let tic = b.tic.as_deref_mut().ok_or_else(|| missing("TIC"))?;
@@ -653,7 +664,11 @@ fn run_kind(kind: &TestKind, b: &mut Bench) -> Result<Outcome, String> {
             let mx = (nn - 1.0) / 2.0;
             let my = r.iter().sum::<f64>() / nn;
             let sxx: f64 = (0..r.len()).map(|i| (i as f64 - mx).powi(2)).sum();
-            let sxy: f64 = r.iter().enumerate().map(|(i, y)| (i as f64 - mx) * (y - my)).sum();
+            let sxy: f64 = r
+                .iter()
+                .enumerate()
+                .map(|(i, y)| (i as f64 - mx) * (y - my))
+                .sum();
             let slope = if sxx > 0.0 { sxy / sxx } else { 0.0 };
             out(
                 pp,
@@ -662,7 +677,11 @@ fn run_kind(kind: &TestKind, b: &mut Bench) -> Result<Outcome, String> {
             )
         }
         TestKind::ReferenceLock { nominal_hz, gate_s } => {
-            let lock = b.stimulus.as_deref().and_then(|s| s.status()).and_then(|s| s.ref_locked);
+            let lock = b
+                .stimulus
+                .as_deref()
+                .and_then(|s| s.status())
+                .and_then(|s| s.ref_locked);
             let f = match b.freq.as_deref_mut() {
                 Some(fc) => Some(fc.read_hz(*gate_s)?),
                 None => None,
@@ -670,7 +689,9 @@ fn run_kind(kind: &TestKind, b: &mut Bench) -> Result<Outcome, String> {
             let frac = f.map(|f| (f - nominal_hz).abs() / nominal_hz);
             let details = json!({"ref_locked": lock, "frequency_hz": f, "fractional_offset": frac});
             let force = match (lock, frac) {
-                (Some(false), _) => Some((Verdict::Fail, "device reports reference unlocked".into())),
+                (Some(false), _) => {
+                    Some((Verdict::Fail, "device reports reference unlocked".into()))
+                }
                 (None, None) => {
                     return Err(missing("frequency counter and device lock status"));
                 }
@@ -707,7 +728,10 @@ fn run_kind(kind: &TestKind, b: &mut Bench) -> Result<Outcome, String> {
             n,
             expected_offset_ns,
         } => {
-            let tic = b.sync_tic.as_deref_mut().ok_or_else(|| missing("sync TIC"))?;
+            let tic = b
+                .sync_tic
+                .as_deref_mut()
+                .ok_or_else(|| missing("sync TIC"))?;
             tic.arm_pps()?;
             let r = tic.read_n(*n)?;
             let rep = receiver_delay(
@@ -737,9 +761,14 @@ fn run_kind(kind: &TestKind, b: &mut Bench) -> Result<Outcome, String> {
 pub fn run_suite(cases: &[TestCase], select: Option<&[String]>, b: &mut Bench) -> SuiteReport {
     let mut results = Vec::new();
     for c in cases {
-        let selected = select.is_none_or(|s| s.iter().any(|x| *x == c.id));
+        let selected = select.is_none_or(|s| s.contains(&c.id));
         let (measured, details, verdict, message) = if !selected {
-            (None, Value::Null, Verdict::NotRun, "not selected".to_string())
+            (
+                None,
+                Value::Null,
+                Verdict::NotRun,
+                "not selected".to_string(),
+            )
         } else {
             match run_kind(&c.test, b) {
                 Ok(o) => match o.force {
@@ -802,7 +831,13 @@ pub fn run_suite(cases: &[TestCase], select: Option<&[String]>, b: &mut Bench) -
 
 fn sanitize(id: &str) -> String {
     id.chars()
-        .map(|c| if c.is_ascii_alphanumeric() || c == '-' || c == '_' { c } else { '_' })
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c == '-' || c == '_' {
+                c
+            } else {
+                '_'
+            }
+        })
         .collect()
 }
 
@@ -980,23 +1015,28 @@ fn resolution(q: Quantity, step_ns: f64, steps: usize, fs_hz: f64) -> Result<Out
             Quantity::Ecd => (r.ecd_us - r0.ecd_us) * 1e3,
             Quantity::Asf => r.asf_ns - r0.asf_ns,
         };
-        rows.push(json!({"commanded_ns": want, "measured_ns": d, "truth_ns": truth,
-                         "error_ns": d - want}));
+        rows.push(
+            json!({"commanded_ns": want, "measured_ns": d, "truth_ns": truth,
+                         "error_ns": d - want}),
+        );
     }
     out(
         worst,
         json!({"quantity": format!("{q:?}"), "fs_hz": fs_hz, "steps": rows,
-               "method": match q {
-                   Quantity::Ecd => "envelope matched filter (carrier fixed at the standard zero crossing)",
-                   _ => "standard zero crossing, 4-point Lagrange cubic (hw::calib::zero_crossing)",
-               }}),
+        "method": match q {
+            Quantity::Ecd => "envelope matched filter (carrier fixed at the standard zero crossing)",
+            _ => "standard zero crossing, 4-point Lagrange cubic (hw::calib::zero_crossing)",
+        }}),
     )
 }
 
 /// Sine amplitude at the eLoran carrier fitted by least squares over `[t_a, t_b]`.
 fn carrier_amplitude(x: &[f64], fs: f64, t_a: f64, t_b: f64) -> f64 {
     let w = 2.0 * std::f64::consts::PI * PulseSignal::loran_c().carrier_hz;
-    let (a, b) = ((t_a * fs).ceil() as usize, ((t_b * fs).floor() as usize).min(x.len()));
+    let (a, b) = (
+        (t_a * fs).ceil() as usize,
+        ((t_b * fs).floor() as usize).min(x.len()),
+    );
     let (mut ss, mut cc, mut sc, mut xs, mut xc) = (0.0, 0.0, 0.0, 0.0, 0.0);
     for (i, v) in x.iter().enumerate().take(b).skip(a) {
         let (s, c) = (w * i as f64 / fs).sin_cos();
@@ -1036,8 +1076,10 @@ fn snr_range(targets: &[f64], fs_hz: f64) -> Result<Outcome, String> {
         let n20 = ms.sqrt() * TEST_SCALE_UV_M * (20e3 / (fs_hz / 2.0)).sqrt();
         let meas = 20.0 * (sig_rms / n20).log10();
         worst = worst.max((meas - snr).abs());
-        rows.push(json!({"target_db": snr, "measured_db": meas, "truth_db": r.snr_db,
-                         "noise_rms_uv_m_20khz": n20}));
+        rows.push(
+            json!({"target_db": snr, "measured_db": meas, "truth_db": r.snr_db,
+                         "noise_rms_uv_m_20khz": n20}),
+        );
     }
     out(
         worst,
@@ -1241,7 +1283,8 @@ pub fn parse_requirements_csv(text: &str) -> Result<Vec<Requirement>, String> {
         .map(|h| h.to_ascii_lowercase())
         .collect();
     let col = |names: &[&str]| header.iter().position(|h| names.contains(&h.as_str()));
-    let id = col(&["id", "req_id", "requirement_id"]).ok_or("requirements CSV needs an id column")?;
+    let id =
+        col(&["id", "req_id", "requirement_id"]).ok_or("requirements CSV needs an id column")?;
     let tx = col(&["text", "requirement", "description"])
         .ok_or("requirements CSV needs a text column")?;
     let me = col(&["method", "verification_method"]);
@@ -1356,7 +1399,8 @@ fn csv_field(s: &str) -> String {
 
 /// RVM as CSV.
 pub fn rvm_csv(rows: &[RvmRow]) -> String {
-    let mut s = String::from("requirement_id,requirement_text,method,test_ids,results,status,evidence\n");
+    let mut s =
+        String::from("requirement_id,requirement_text,method,test_ids,results,status,evidence\n");
     for r in rows {
         let f = [
             r.requirement_id.clone(),
@@ -1397,7 +1441,14 @@ mod tests {
         assert_eq!(cases.len(), 5);
         let rep = run_suite(&cases, None, &mut Bench::default());
         for r in &rep.results {
-            assert_eq!(r.verdict, Verdict::Pass, "{} {:?} {}", r.id, r.measured, r.details);
+            assert_eq!(
+                r.verdict,
+                Verdict::Pass,
+                "{} {:?} {}",
+                r.id,
+                r.measured,
+                r.details
+            );
         }
         // the sample-level measurements are far inside the 1 ns / 1 dB limits
         // At 1 MS/s (10 samples per carrier cycle) the 4-point zero-crossing interpolation
@@ -1515,8 +1566,8 @@ mod tests {
                     if let Some(i) = nearest {
                         // band_power sums bins × spacing/rbw = ½: put ×2 in one bin
                         let tone = p + dbc + 10.0 * 2f64.log10();
-                        t.dbm[i] = 10.0
-                            * (10f64.powf(tone / 10.0) + 10f64.powf(t.dbm[i] / 10.0)).log10();
+                        t.dbm[i] =
+                            10.0 * (10f64.powf(tone / 10.0) + 10f64.powf(t.dbm[i] / 10.0)).log10();
                     }
                 }
             }
@@ -1696,7 +1747,10 @@ mod tests {
         assert!(s
             .iter()
             .any(|c| c.id == "AT-SYNC-GNSS" && c.limit.max == Some(10.0)));
-        assert_eq!(split_csv_line(r#"a,"b ""q"", c",d"#), vec!["a", "b \"q\", c", "d"]);
+        assert_eq!(
+            split_csv_line(r#"a,"b ""q"", c",d"#),
+            vec!["a", "b \"q\", c", "d"]
+        );
 
         // DeviceStimulus over a file device (non-real-time)
         let d = std::env::temp_dir().join(format!("kshana-stim-{}", std::process::id()));
@@ -1712,8 +1766,11 @@ mod tests {
         .unwrap();
         stim.off().unwrap();
         stim.pps_period_s = 5e-3;
-        stim.apply(&StimulusSpec::PulseTrain { channel: 0, amp: 0.5 })
-            .unwrap();
+        stim.apply(&StimulusSpec::PulseTrain {
+            channel: 0,
+            amp: 0.5,
+        })
+        .unwrap();
         let dev = stim.into_device().unwrap().unwrap();
         assert!(dev.status().samples_tx > 0);
         let blk = stimulus_block(
@@ -1728,7 +1785,10 @@ mod tests {
             10,
             1.0,
         );
-        assert!(blk[0].iter().all(|v| *v == 0.0) && (blk[1][1] - 0.5 * (0.2 * std::f64::consts::PI).sin()).abs() < 1e-12);
+        assert!(
+            blk[0].iter().all(|v| *v == 0.0)
+                && (blk[1][1] - 0.5 * (0.2 * std::f64::consts::PI).sin()).abs() < 1e-12
+        );
         std::fs::remove_dir_all(&d).ok();
     }
 }

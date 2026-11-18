@@ -421,9 +421,16 @@ pub struct TerrainGroundwave {
 }
 
 impl TerrainGroundwave {
-    pub fn new(cfg: TerrainConfig, dem: Dem, map: ConductivityMap) -> Result<TerrainGroundwave, String> {
+    pub fn new(
+        cfg: TerrainConfig,
+        dem: Dem,
+        map: ConductivityMap,
+    ) -> Result<TerrainGroundwave, String> {
         if !(cfg.k_factor > 0.5 && cfg.k_factor < 10.0) {
-            return Err(format!("terrain: k_factor {} out of range (0.5, 10)", cfg.k_factor));
+            return Err(format!(
+                "terrain: k_factor {} out of range (0.5, 10)",
+                cfg.k_factor
+            ));
         }
         if !(cfg.step_m >= 10.0 && cfg.step_m <= 10_000.0) {
             return Err("terrain: step_m must be within 10–10 000 m".into());
@@ -434,7 +441,11 @@ impl TerrainGroundwave {
         if !(cfg.asf_grid_deg > 0.0) || !(cfg.direct_max_km > 0.0) {
             return Err("terrain: asf_grid_deg and direct_max_km must be positive".into());
         }
-        let sigma_scale = cfg.temporal.as_ref().map(|t| t.sigma_scale()).unwrap_or(1.0);
+        let sigma_scale = cfg
+            .temporal
+            .as_ref()
+            .map(|t| t.sigma_scale())
+            .unwrap_or(1.0);
         if sigma_scale.is_nan() || sigma_scale <= 0.0 {
             return Err("terrain: sigma_seasonal_frac makes a conductivity non-positive".into());
         }
@@ -541,7 +552,12 @@ impl TerrainGroundwave {
         let q = self.cfg.asf_grid_deg;
         grid_bilinear(q, rx, |i, j| {
             let key = (tx.lat_deg.to_bits(), tx.lon_deg.to_bits(), i, j);
-            if let Some(c) = self.cache.lock().unwrap_or_else(|e| e.into_inner()).get(&key) {
+            if let Some(c) = self
+                .cache
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .get(&key)
+            {
                 return *c;
             }
             let c = self.correction_exact(tx, Geo::new(i as f64 * q, j as f64 * q));
@@ -560,14 +576,29 @@ impl TerrainGroundwave {
     }
 
     /// Groundwave path with a given correction.
-    pub fn evaluate_with(&self, tx: Geo, power_kw: f64, rx: Geo, t_s: f64, corr: Correction) -> PathEffect {
+    pub fn evaluate_with(
+        &self,
+        tx: Geo,
+        power_kw: f64,
+        rx: Geo,
+        t_s: f64,
+        corr: Correction,
+    ) -> PathEffect {
         let temporal = self
             .cfg
             .temporal
             .as_ref()
             .map(|t| t.delta_asf_s(t_s, corr.land))
             .unwrap_or(0.0);
-        path_from_correction(&self.sea, self.cfg.k_factor, tx, power_kw, rx, corr, temporal)
+        path_from_correction(
+            &self.sea,
+            self.cfg.k_factor,
+            tx,
+            power_kw,
+            rx,
+            corr,
+            temporal,
+        )
     }
 }
 
@@ -612,7 +643,12 @@ mod tests {
         })
         .unwrap()
     }
-    fn model(dem: Dem, map: ConductivityMap, step: f64, method: TerrainMethod) -> TerrainGroundwave {
+    fn model(
+        dem: Dem,
+        map: ConductivityMap,
+        step: f64,
+        method: TerrainMethod,
+    ) -> TerrainGroundwave {
         TerrainGroundwave::new(
             TerrainConfig {
                 step_m: step,
@@ -645,13 +681,23 @@ mod tests {
             let k = N_ATM * 2.0 * PI * F0_HZ / C;
             let step = 1000.0;
             let n = 300;
-            let w = solve_ie(&vec![0.0; n + 1], step, &vec![g.delta(F0_HZ); n + 1], k, se.a_e, 0.3);
+            let w = solve_ie(
+                &vec![0.0; n + 1],
+                step,
+                &vec![g.delta(F0_HZ); n + 1],
+                k,
+                se.a_e,
+                0.3,
+            );
             for km in [20.0, 60.0, 100.0, 200.0, 300.0] {
                 let d = km * 1000.0;
                 let r = w[(d / step) as usize] * chord_correction(k, d, se.a_e) / se.w(d);
                 let dt = -r.arg() / (2.0 * PI * F0_HZ) * 1e9;
                 let db = 20.0 * r.abs().log10();
-                assert!(dt.abs() < 1.0 && db.abs() < 0.01, "{g:?} {km} km: {dt} ns {db} dB");
+                assert!(
+                    dt.abs() < 1.0 && db.abs() < 0.01,
+                    "{g:?} {km} km: {dt} ns {db} dB"
+                );
             }
         }
     }
@@ -660,16 +706,31 @@ mod tests {
     fn flat_terrain_model_matches_smooth_earth_model() {
         // through the full model (delay, field, ECD) vs the smooth_earth ground model
         let map = uniform(0.003, 15.0);
-        let t = model(Dem::new(Box::new(Flat(0.0)), 0.0), map.clone(), 1000.0, TerrainMethod::Direct);
+        let t = model(
+            Dem::new(Box::new(Flat(0.0)), 0.0),
+            map.clone(),
+            1000.0,
+            TerrainMethod::Direct,
+        );
         let se = Groundwave::new(map, K_LORAN, 2.0, 0.005, None, "se").unwrap();
         for km in [30.0, 120.0, 250.0] {
             let c = t.correction_exact(tx(), at_km(km));
             let a = t.evaluate_with(tx(), 400.0, at_km(km), 0.0, c);
             let b = se.evaluate(tx(), 400.0, at_km(km), 0.0);
-            assert!((a.asf_ns - b.asf_ns).abs() < 1.5, "{km}: {} vs {}", a.asf_ns, b.asf_ns);
+            assert!(
+                (a.asf_ns - b.asf_ns).abs() < 1.5,
+                "{km}: {} vs {}",
+                a.asf_ns,
+                b.asf_ns
+            );
             assert!((a.sf_ns - b.sf_ns).abs() < 1e-9);
             assert!((20.0 * (a.field_uv_m / b.field_uv_m).log10()).abs() < 0.02);
-            assert!((a.ecd_s - b.ecd_s).abs() < 2e-9, "{km}: ECD {} vs {}", a.ecd_s, b.ecd_s);
+            assert!(
+                (a.ecd_s - b.ecd_s).abs() < 2e-9,
+                "{km}: ECD {} vs {}",
+                a.ecd_s,
+                b.ecd_s
+            );
             assert!((c.land - 1.0).abs() < 1e-12);
         }
         // ratio method with a flat profile = Millington exactly
@@ -705,10 +766,12 @@ mod tests {
         // behind it, monotonically with its height; before the hill nothing changes much
         let map = uniform(0.003, 15.0);
         let rx = at_km(110.0);
-        let flat = model(hill_dem(0.0), map.clone(), 500.0, TerrainMethod::Direct).correction_exact(tx(), rx);
+        let flat = model(hill_dem(0.0), map.clone(), 500.0, TerrainMethod::Direct)
+            .correction_exact(tx(), rx);
         let mut last = (0.0, 0.0);
         for h in [150.0, 300.0, 600.0] {
-            let c = model(hill_dem(h), map.clone(), 500.0, TerrainMethod::Direct).correction_exact(tx(), rx);
+            let c = model(hill_dem(h), map.clone(), 500.0, TerrainMethod::Direct)
+                .correction_exact(tx(), rx);
             let dt = (c.phase_s - flat.phase_s) * 1e9;
             let ddb = 20.0 / std::f64::consts::LN_10 * (c.ln_amp - flat.ln_amp);
             println!("hill {h} m: ΔASF {dt:.1} ns, Δfield {ddb:.2} dB");
@@ -717,8 +780,10 @@ mod tests {
         }
         assert!(last.0 > 5.0 && last.0 < 2000.0, "600 m hill: {} ns", last.0);
         // before the hill: little effect
-        let before_flat = model(hill_dem(0.0), map.clone(), 500.0, TerrainMethod::Direct).correction_exact(tx(), at_km(35.0));
-        let before = model(hill_dem(600.0), map, 500.0, TerrainMethod::Direct).correction_exact(tx(), at_km(35.0));
+        let before_flat = model(hill_dem(0.0), map.clone(), 500.0, TerrainMethod::Direct)
+            .correction_exact(tx(), at_km(35.0));
+        let before = model(hill_dem(600.0), map, 500.0, TerrainMethod::Direct)
+            .correction_exact(tx(), at_km(35.0));
         assert!(((before.phase_s - before_flat.phase_s) * 1e9).abs() < 0.2 * last.0);
     }
 
@@ -737,13 +802,21 @@ mod tests {
             }],
         })
         .unwrap();
-        let t = model(Dem::new(Box::new(Flat(0.0)), 0.0), map, 1000.0, TerrainMethod::Direct);
+        let t = model(
+            Dem::new(Box::new(Flat(0.0)), 0.0),
+            map,
+            1000.0,
+            TerrainMethod::Direct,
+        );
         for km in [80.0, 150.0] {
             let ie = t.correction_exact(tx(), at_km(km));
             let m = t.mill.correction_exact(tx(), at_km(km));
             let dt = (ie.phase_s - m.phase_s) * 1e9;
             let ddb = 20.0 / std::f64::consts::LN_10 * (ie.ln_amp - m.ln_amp);
-            println!("mixed {km} km: IE−Millington {dt:.1} ns {ddb:.2} dB (ASF {:.0} ns)", ie.phase_s * 1e9);
+            println!(
+                "mixed {km} km: IE−Millington {dt:.1} ns {ddb:.2} dB (ASF {:.0} ns)",
+                ie.phase_s * 1e9
+            );
             assert!(dt.abs() < 50.0 && ddb.abs() < 1.0, "{km}: {dt} ns {ddb} dB");
             assert!(ie.land > 0.3 && ie.land < 0.8);
         }
@@ -765,7 +838,11 @@ sigma_s_m = 0.005
 "#,
         )
         .unwrap();
-        let ctx = BuildContext::new(crate::time::AbsTime::from_utc_iso("2026-11-18T00:00:00Z").unwrap(), 1.0, 0);
+        let ctx = BuildContext::new(
+            crate::time::AbsTime::from_utc_iso("2026-11-18T00:00:00Z").unwrap(),
+            1.0,
+            0,
+        );
         let m = super::super::ground::build(&cfg, &ctx).unwrap();
         assert!(m.name().contains("terrain"));
         let st = Station {
@@ -797,7 +874,10 @@ sigma_s_m = 0.005
             prev = Some(p);
         }
         assert!(TerrainGroundwave::new(
-            TerrainConfig { step_m: 1.0, ..Default::default() },
+            TerrainConfig {
+                step_m: 1.0,
+                ..Default::default()
+            },
             Dem::new(Box::new(Flat(0.0)), 0.0),
             uniform(5.0, 80.0)
         )

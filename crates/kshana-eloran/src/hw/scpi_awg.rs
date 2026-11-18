@@ -368,7 +368,9 @@ impl ScpiAwg {
         let mut errs = vec![];
         for _ in 0..16 {
             let r = self.conn.query(&q)?;
-            if r.trim_start_matches('+').starts_with(&self.profile.no_error) {
+            if r.trim_start_matches('+')
+                .starts_with(&self.profile.no_error)
+            {
                 break;
             }
             errs.push(r);
@@ -384,12 +386,14 @@ impl ScpiAwg {
         let l = ((1i32 << (self.profile.dac_bits - 1)) - 1) as f64;
         let code = |v: f64| (v.clamp(-1.0, 1.0) * l).round() as i16;
         match self.profile.data_format {
-            DataFormat::Int16LeBlock => {
-                (Some(x.iter().flat_map(|&v| code(v).to_le_bytes()).collect()), None)
-            }
-            DataFormat::Int16BeBlock => {
-                (Some(x.iter().flat_map(|&v| code(v).to_be_bytes()).collect()), None)
-            }
+            DataFormat::Int16LeBlock => (
+                Some(x.iter().flat_map(|&v| code(v).to_le_bytes()).collect()),
+                None,
+            ),
+            DataFormat::Int16BeBlock => (
+                Some(x.iter().flat_map(|&v| code(v).to_be_bytes()).collect()),
+                None,
+            ),
             DataFormat::FloatCsv => (
                 None,
                 Some(
@@ -421,7 +425,7 @@ impl ScpiAwg {
     ) -> Result<(), String> {
         let p = self.profile.clone();
         let n = x.first().map(|c| c.len()).unwrap_or(0);
-        if n < p.min_points || n > p.max_points || n % p.granularity != 0 {
+        if n < p.min_points || n > p.max_points || !n.is_multiple_of(p.granularity) {
             return Err(format!(
                 "{n} points outside the instrument's limits ({}..={}, multiple of {})",
                 p.min_points, p.max_points, p.granularity
@@ -432,7 +436,14 @@ impl ScpiAwg {
             .as_ref()
             .map(|c| c.clock_source == RefSource::External)
             .unwrap_or(false);
-        self.run(if ext { &p.ref_external } else { &p.ref_internal }, &[])?;
+        self.run(
+            if ext {
+                &p.ref_external
+            } else {
+                &p.ref_internal
+            },
+            &[],
+        )?;
         for (c, data) in x.iter().enumerate() {
             let ch = self
                 .settings
@@ -475,7 +486,14 @@ impl ScpiAwg {
             self.run(&p.sample_rate, &kv)?;
             self.run(&p.amplitude, &kv)?;
             self.run(&p.offset, &kv)?;
-            self.run(if looped { &p.loop_continuous } else { &p.loop_once }, &kv)?;
+            self.run(
+                if looped {
+                    &p.loop_continuous
+                } else {
+                    &p.loop_once
+                },
+                &kv,
+            )?;
             let trig = match at {
                 StartTime::NextPps | StartTime::AtDeviceTimeNs(_) => &p.trigger_external,
                 StartTime::Now => &p.trigger_immediate,
@@ -492,7 +510,10 @@ impl ScpiAwg {
         self.check_errors()?;
         self.status.tx_streaming = true;
         self.status.pps_aligned = at == StartTime::NextPps;
-        self.status.message = format!("playing {n} points ({})", if looped { "loop" } else { "once" });
+        self.status.message = format!(
+            "playing {n} points ({})",
+            if looped { "loop" } else { "once" }
+        );
         Ok(())
     }
 }
@@ -771,8 +792,13 @@ mod tests {
         .unwrap();
         a.configure(&DeviceConfig::tx(2e6, 1)).unwrap();
         assert!(a.play(&[vec![0.0; 4]], 2e6, true, StartTime::Now).is_err());
-        a.play(&[vec![0.5, -0.25, 1.5, 0.0, 0.1, 0.2, 0.3, 0.4]], 2e6, false, StartTime::Now)
-            .unwrap();
+        a.play(
+            &[vec![0.5, -0.25, 1.5, 0.0, 0.1, 0.2, 0.3, 0.4]],
+            2e6,
+            false,
+            StartTime::Now,
+        )
+        .unwrap();
         drop(a);
         std::thread::sleep(Duration::from_millis(50));
         let l = lines(&m.log.lock().unwrap());

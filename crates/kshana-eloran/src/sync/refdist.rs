@@ -283,9 +283,9 @@ impl RefDistReport {
             .take_while(|(x, y)| x.element == y.element)
             .count();
         let rest = |r: &DeviceReference| -> (f64, f64) {
-            r.path[common..]
-                .iter()
-                .fold((0.0, 0.0), |(d, u), e| (d + e.delay_ns, u + e.u_ns * e.u_ns))
+            r.path[common..].iter().fold((0.0, 0.0), |(d, u), e| {
+                (d + e.delay_ns, u + e.u_ns * e.u_ns)
+            })
         };
         let (da, ua) = rest(ra);
         let (db, ub) = rest(rb);
@@ -306,6 +306,8 @@ impl RefDistReport {
 enum NodeRef<'a> {
     Source(&'a Source),
     Amp(&'a Amplifier),
+    // kept for a complete node map (devices are leaves; their data is not read)
+    #[allow(dead_code)]
     Device(&'a Device),
 }
 
@@ -351,7 +353,10 @@ impl RefDistConfig {
             }
             for n in [&c.from, &c.to] {
                 if !ids.contains(n.as_str()) {
-                    return Err(format!("refdist: cable {} refers to unknown node {n:?}", c.id));
+                    return Err(format!(
+                        "refdist: cable {} refers to unknown node {n:?}",
+                        c.id
+                    ));
                 }
             }
             if self.devices.iter().any(|d| d.id == c.from) {
@@ -577,7 +582,8 @@ impl RefDistConfig {
 
     /// The cable-delay table as CSV.
     pub fn cable_table_csv(&self) -> String {
-        let mut s = String::from("id,from,to,signal,length_m,velocity_factor,delay_ns,u_ns,measured\n");
+        let mut s =
+            String::from("id,from,to,signal,length_m,velocity_factor,delay_ns,u_ns,measured\n");
         for r in self.cable_table() {
             s.push_str(&format!(
                 "{},{},{},{},{:.3},{:.4},{:.4},{:.4},{}\n",
@@ -716,7 +722,13 @@ velocity_factor = 0.7
         let names: Vec<&str> = e.path.iter().map(|p| p.element.as_str()).collect();
         assert_eq!(
             names,
-            ["source:gpsdo", "cable:c0", "amplifier:da1", "cable:c1", "device:eloran_sim"]
+            [
+                "source:gpsdo",
+                "cable:c0",
+                "amplifier:da1",
+                "cable:c1",
+                "device:eloran_sim"
+            ]
         );
         assert!((e.delay_ns - (3.0 * c0 + 2.5 + 1.0)).abs() < 1e-9);
         let g = r.get("gnss_sim", RefSignal::Pps).unwrap();
@@ -725,7 +737,10 @@ velocity_factor = 0.7
         let sk = r.skew("gnss_sim", "eloran_sim", RefSignal::Pps).unwrap();
         assert!((sk.delay_ns - (15.0 - 2.0 * c0 - 1.0)).abs() < 1e-9);
         assert!((sk.u_ns - (0.05f64.powi(2) + 0.1f64.powi(2)).sqrt()).abs() < 1e-12);
-        assert!(r.skews.iter().any(|s| s.a == "gnss_sim" && s.signal == RefSignal::Pps));
+        assert!(r
+            .skews
+            .iter()
+            .any(|s| s.a == "gnss_sim" && s.signal == RefSignal::Pps));
         let w = r.warnings.join("\n");
         assert!(w.contains("gnss_sim 10mhz is referenced to rb"), "{w}");
         assert!(w.contains("10 MHz from rb but 1PPS from gpsdo"), "{w}");
@@ -733,19 +748,33 @@ velocity_factor = 0.7
         assert!(w.contains("rx has no pps reference input"), "{w}");
         assert!(!w.contains("share one pps"), "{w}");
         // no skew between different roots
-        assert!(r.skew("gnss_sim", "eloran_sim", RefSignal::TenMhz).is_none());
+        assert!(r
+            .skew("gnss_sim", "eloran_sim", RefSignal::TenMhz)
+            .is_none());
         let csv = cfg.cable_table_csv();
         assert_eq!(csv.lines().count(), 6);
-        assert!(csv.contains("c2,da1,gnss_sim,pps,0.000,0.6600,15.0000,0.0500,true"), "{csv}");
+        assert!(
+            csv.contains("c2,da1,gnss_sim,pps,0.000,0.6600,15.0000,0.0500,true"),
+            "{csv}"
+        );
         assert!(serde_json::from_str::<serde_json::Value>(&r.to_json()).is_ok());
     }
 
     #[test]
     fn rejects_invalid_graphs() {
-        assert!(RefDistConfig::from_toml(&CFG.replace("master = \"gpsdo\"", "master = \"da1\"")).is_err());
-        assert!(RefDistConfig::from_toml(&CFG.replace("to = \"tic\"", "to = \"nowhere\"")).is_err());
+        assert!(
+            RefDistConfig::from_toml(&CFG.replace("master = \"gpsdo\"", "master = \"da1\""))
+                .is_err()
+        );
+        assert!(
+            RefDistConfig::from_toml(&CFG.replace("to = \"tic\"", "to = \"nowhere\"")).is_err()
+        );
         // two PPS inputs into gnss_sim
-        assert!(RefDistConfig::from_toml(&CFG.replace("signal = \"10mhz\"\nlength_m = 1.0", "signal = \"pps\"\nlength_m = 1.0")).is_err());
+        assert!(RefDistConfig::from_toml(&CFG.replace(
+            "signal = \"10mhz\"\nlength_m = 1.0",
+            "signal = \"pps\"\nlength_m = 1.0"
+        ))
+        .is_err());
         // loop between two amplifiers
         let lp = r#"
 master = "m"

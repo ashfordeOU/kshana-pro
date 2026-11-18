@@ -337,7 +337,12 @@ garbage line here
         assert!((r[0] - 49.5).abs() < 1e-9 && (r[1] - 49.501).abs() < 1e-9);
         // the stream ends before 10 more intervals
         assert!(ticc.read_n(10).is_err());
-        assert!(log.lock().unwrap().entries().iter().any(|e| e.kind == "note"));
+        assert!(log
+            .lock()
+            .unwrap()
+            .entries()
+            .iter()
+            .any(|e| e.kind == "note"));
         std::fs::remove_dir_all(&d).ok();
     }
 }

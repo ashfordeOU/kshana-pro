@@ -226,7 +226,11 @@ pub fn clock_offsets(
         }
         let mean = swx / sw;
         let n = used.len() as f64;
-        let var = used.iter().map(|s| (s.refsys_s - mean).powi(2)).sum::<f64>() / (n - 1.0);
+        let var = used
+            .iter()
+            .map(|s| (s.refsys_s - mean).powi(2))
+            .sum::<f64>()
+            / (n - 1.0);
         let n_used = used.len();
         out.push(ClockEpoch {
             t_gps_s: ep.time.seconds_from_gps_epoch() - mean,
@@ -315,6 +319,7 @@ fn line_fit(pts: &[(f64, f64)], t0: f64) -> (f64, f64, f64) {
 
 /// Track averages of per-epoch satellite clocks on the BIPM schedule. `interval_s` is the
 /// observation interval (a track needs at least half of `780/interval` points).
+#[allow(clippy::type_complexity)]
 pub fn tracks(epochs: &[ClockEpoch], cfg: &TimexferConfig, interval_s: f64) -> Vec<CggttsTrack> {
     use std::collections::BTreeMap;
     // (mjd, start, sat) -> points (t_utc_of_day, sat clock)
@@ -342,13 +347,26 @@ pub fn tracks(epochs: &[ClockEpoch], cfg: &TimexferConfig, interval_s: f64) -> V
             continue;
         }
         let mid = start as f64 + TRACK_S as f64 / 2.0;
-        let (refsys, srsys, dsg) =
-            line_fit(&pts.iter().map(|p| (p.0, p.1.refsys_s)).collect::<Vec<_>>(), mid);
-        let (refsv, srsv, _) =
-            line_fit(&pts.iter().map(|p| (p.0, p.1.refsv_s)).collect::<Vec<_>>(), mid);
-        let (elv, _, _) = line_fit(&pts.iter().map(|p| (p.0, p.1.el_deg)).collect::<Vec<_>>(), mid);
-        let (mdtr, _, _) = line_fit(&pts.iter().map(|p| (p.0, p.1.tropo_m)).collect::<Vec<_>>(), mid);
-        let (mdio, _, _) = line_fit(&pts.iter().map(|p| (p.0, p.1.iono_m)).collect::<Vec<_>>(), mid);
+        let (refsys, srsys, dsg) = line_fit(
+            &pts.iter().map(|p| (p.0, p.1.refsys_s)).collect::<Vec<_>>(),
+            mid,
+        );
+        let (refsv, srsv, _) = line_fit(
+            &pts.iter().map(|p| (p.0, p.1.refsv_s)).collect::<Vec<_>>(),
+            mid,
+        );
+        let (elv, _, _) = line_fit(
+            &pts.iter().map(|p| (p.0, p.1.el_deg)).collect::<Vec<_>>(),
+            mid,
+        );
+        let (mdtr, _, _) = line_fit(
+            &pts.iter().map(|p| (p.0, p.1.tropo_m)).collect::<Vec<_>>(),
+            mid,
+        );
+        let (mdio, _, _) = line_fit(
+            &pts.iter().map(|p| (p.0, p.1.iono_m)).collect::<Vec<_>>(),
+            mid,
+        );
         // azimuth: circular mean
         let (sx, cx) = pts.iter().fold((0.0, 0.0), |a, p| {
             let r = p.1.az_deg.to_radians();
@@ -370,7 +388,11 @@ pub fn tracks(epochs: &[ClockEpoch], cfg: &TimexferConfig, interval_s: f64) -> V
             mdtr_s: mdtr / C_M_PER_S,
             mdio_s: mdio / C_M_PER_S,
             n: pts.len(),
-            frc: if iono_free { "L3P".into() } else { "L1C".into() },
+            frc: if iono_free {
+                "L3P".into()
+            } else {
+                "L1C".into()
+            },
         });
     }
     out.sort_by(|a, b| (a.mjd, a.start_s, &a.sat).cmp(&(b.mjd, b.start_s, &b.sat)));
@@ -385,9 +407,7 @@ pub fn to_engine_tracks(t: &[CggttsTrack]) -> Vec<Track> {
             mjd: x.mjd,
             start_s: x.start_s,
             trkl_s: x.trkl_s,
-            t: (x.mjd - MJD_GPS_EPOCH) as f64 * 86_400.0
-                + x.start_s as f64
-                + x.trkl_s as f64 / 2.0,
+            t: (x.mjd - MJD_GPS_EPOCH) as f64 * 86_400.0 + x.start_s as f64 + x.trkl_s as f64 / 2.0,
             elv_deg: (x.elv_deg * 10.0).round() / 10.0,
             refsv_s: Some(x.refsv_s),
             refsys_s: Some(x.refsys_s),
@@ -727,12 +747,18 @@ pub fn synthesize_obs(
     };
     hl(
         &mut out,
-        format!("{:>9}{:11}{:<20}{:<20}", "3.04", "", "OBSERVATION DATA", "G"),
+        format!(
+            "{:>9}{:11}{:<20}{:<20}",
+            "3.04", "", "OBSERVATION DATA", "G"
+        ),
         "RINEX VERSION / TYPE",
     );
     hl(
         &mut out,
-        format!("{:<20}{:<20}{:<20}", "kshana-pro", "synthetic", "20261118 000000 UTC"),
+        format!(
+            "{:<20}{:<20}{:<20}",
+            "kshana-pro", "synthetic", "20261118 000000 UTC"
+        ),
         "PGM / RUN BY / DATE",
     );
     hl(&mut out, "SYNT".into(), "MARKER NAME");
@@ -760,10 +786,7 @@ pub fn synthesize_obs(
     hl(&mut out, format!("{:10.3}", cfg.interval_s), "INTERVAL");
     hl(
         &mut out,
-        format!(
-            "{:6}{:6}{:6}{:6}{:6}{:13.7}     GPS",
-            y, mo, d, h, mi, s
-        ),
+        format!("{:6}{:6}{:6}{:6}{:6}{:13.7}     GPS", y, mo, d, h, mi, s),
         "TIME OF FIRST OBS",
     );
     hl(&mut out, String::new(), "END OF HEADER");

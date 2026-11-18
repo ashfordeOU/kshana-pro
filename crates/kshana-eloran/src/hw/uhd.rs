@@ -110,10 +110,8 @@ struct Api {
     set_rx_rate: unsafe extern "C" fn(Usrp, f64, usize) -> UhdError,
     set_tx_gain: unsafe extern "C" fn(Usrp, f64, usize, *const c_char) -> UhdError,
     set_rx_gain: unsafe extern "C" fn(Usrp, f64, usize, *const c_char) -> UhdError,
-    set_tx_freq:
-        unsafe extern "C" fn(Usrp, *mut TuneRequest, usize, *mut TuneResult) -> UhdError,
-    set_rx_freq:
-        unsafe extern "C" fn(Usrp, *mut TuneRequest, usize, *mut TuneResult) -> UhdError,
+    set_tx_freq: unsafe extern "C" fn(Usrp, *mut TuneRequest, usize, *mut TuneResult) -> UhdError,
+    set_rx_freq: unsafe extern "C" fn(Usrp, *mut TuneRequest, usize, *mut TuneResult) -> UhdError,
     set_clock_source: unsafe extern "C" fn(Usrp, *const c_char, usize) -> UhdError,
     set_time_source: unsafe extern "C" fn(Usrp, *const c_char, usize) -> UhdError,
     set_time_unknown_pps: unsafe extern "C" fn(Usrp, i64, f64) -> UhdError,
@@ -133,8 +131,7 @@ struct Api {
         f64,
         *mut usize,
     ) -> UhdError,
-    tx_recv_async:
-        unsafe extern "C" fn(TxStreamer, *mut AsyncMd, f64, *mut bool) -> UhdError,
+    tx_recv_async: unsafe extern "C" fn(TxStreamer, *mut AsyncMd, f64, *mut bool) -> UhdError,
     tx_md_make: unsafe extern "C" fn(*mut TxMd, bool, i64, f64, bool, bool) -> UhdError,
     tx_md_free: unsafe extern "C" fn(*mut TxMd) -> UhdError,
     async_md_make: unsafe extern "C" fn(*mut AsyncMd) -> UhdError,
@@ -215,8 +212,8 @@ impl UhdDevice {
     /// Prints the output policy.
     pub fn open(args: &str) -> Result<UhdDevice, String> {
         announce_output_policy(&format!("uhd:{args}"));
-        let lib = DynLib::open(UHD_LIBS, Some("KSHANA_UHD_LIB"))
-            .map_err(|e| format!("UHD: {e}"))?;
+        let lib =
+            DynLib::open(UHD_LIBS, Some("KSHANA_UHD_LIB")).map_err(|e| format!("UHD: {e}"))?;
         let api = Api {
             usrp_free: sym!(lib, "uhd_usrp_free"),
             last_error: sym!(lib, "uhd_usrp_last_error"),
@@ -281,10 +278,14 @@ impl UhdDevice {
         };
         // SAFETY: valid out-pointers for the handle constructors.
         unsafe {
-            d.check((d.api.tx_streamer_make)(&mut d.tx), "tx_streamer_make")?;
-            d.check((d.api.rx_streamer_make)(&mut d.rx), "rx_streamer_make")?;
-            d.check((d.api.rx_md_make)(&mut d.rx_md), "rx_metadata_make")?;
-            d.check((d.api.async_md_make)(&mut d.async_md), "async_metadata_make")?;
+            let r = (d.api.tx_streamer_make)(&mut d.tx);
+            d.check(r, "tx_streamer_make")?;
+            let r = (d.api.rx_streamer_make)(&mut d.rx);
+            d.check(r, "rx_streamer_make")?;
+            let r = (d.api.rx_md_make)(&mut d.rx_md);
+            d.check(r, "rx_metadata_make")?;
+            let r = (d.api.async_md_make)(&mut d.async_md);
+            d.check(r, "async_metadata_make")?;
         }
         Ok(d)
     }
@@ -366,7 +367,8 @@ impl UhdDevice {
         loop {
             let mut valid = false;
             // SAFETY: handles valid; zero timeout.
-            let r = unsafe { (self.api.tx_recv_async)(self.tx, &mut self.async_md, 0.0, &mut valid) };
+            let r =
+                unsafe { (self.api.tx_recv_async)(self.tx, &mut self.async_md, 0.0, &mut valid) };
             if r != 0 || !valid {
                 break;
             }
@@ -410,7 +412,14 @@ impl UhdDevice {
             let mut sent = 0usize;
             // SAFETY: one buffer per channel holding at least `n − done` complex samples.
             let r = unsafe {
-                (self.api.tx_send)(self.tx, ptrs.as_ptr(), n - done, &mut self.tx_md, 1.0, &mut sent)
+                (self.api.tx_send)(
+                    self.tx,
+                    ptrs.as_ptr(),
+                    n - done,
+                    &mut self.tx_md,
+                    1.0,
+                    &mut sent,
+                )
             };
             self.check(r, "tx_streamer_send")?;
             done += sent;
@@ -537,7 +546,11 @@ impl Device for UhdDevice {
         self.cfg.as_ref().map(|c| c.sample_rate_hz)
     }
     fn start_tx(&mut self, at: StartTime) -> Result<Option<i64>, String> {
-        let n = self.cfg.as_ref().ok_or("device not configured")?.tx_channels;
+        let n = self
+            .cfg
+            .as_ref()
+            .ok_or("device not configured")?
+            .tx_channels;
         if n == 0 {
             return Err("no tx channels configured".into());
         }
@@ -586,7 +599,11 @@ impl Device for UhdDevice {
         Ok(())
     }
     fn start_rx(&mut self, at: StartTime) -> Result<Option<i64>, String> {
-        let n = self.cfg.as_ref().ok_or("device not configured")?.rx_channels;
+        let n = self
+            .cfg
+            .as_ref()
+            .ok_or("device not configured")?
+            .rx_channels;
         if n == 0 {
             return Err("no rx channels configured".into());
         }
@@ -626,7 +643,15 @@ impl Device for UhdDevice {
         let mut got = 0usize;
         // SAFETY: one buffer per channel with room for `n` complex samples.
         let r = unsafe {
-            (self.api.rx_recv)(self.rx, ptrs.as_mut_ptr(), n, &mut self.rx_md, 3.0, false, &mut got)
+            (self.api.rx_recv)(
+                self.rx,
+                ptrs.as_mut_ptr(),
+                n,
+                &mut self.rx_md,
+                3.0,
+                false,
+                &mut got,
+            )
         };
         self.check(r, "rx_streamer_recv")?;
         let mut code: c_int = RX_ERR_NONE;

@@ -118,10 +118,8 @@ impl StationGrid {
         let mut fj = ((p.lon_deg - self.lon0 + 540.0).rem_euclid(360.0) - 180.0) / self.dlon;
         let (imax, jmax) = ((self.nlat - 1) as f64, (self.nlon - 1) as f64);
         let e = 1e-9;
-        if fi < -e || fj < -e || fi > imax + e || fj > jmax + e {
-            if !clamp {
-                return None;
-            }
+        if (fi < -e || fj < -e || fi > imax + e || fj > jmax + e) && !clamp {
+            return None;
         }
         fi = fi.clamp(0.0, imax);
         fj = fj.clamp(0.0, jmax);
@@ -152,7 +150,13 @@ impl StationGrid {
         if wsum[0] <= 1e-12 {
             return None;
         }
-        let f = |k: usize, dflt: f64| if wsum[k] > 1e-12 { acc[k] / wsum[k] } else { dflt };
+        let f = |k: usize, dflt: f64| {
+            if wsum[k] > 1e-12 {
+                acc[k] / wsum[k]
+            } else {
+                dflt
+            }
+        };
         Some(AsfValues {
             asf_ns: f(0, 0.0),
             ecd_us: f(1, f64::NAN),
@@ -211,7 +215,9 @@ pub fn generate(
                     .paths(st, &rx)
                     .into_iter()
                     .find(|q| q.kind == PathKind::Ground)
-                    .ok_or_else(|| format!("ASF grid: model {} gives no groundwave", model.name()))?;
+                    .ok_or_else(|| {
+                        format!("ASF grid: model {} gives no groundwave", model.name())
+                    })?;
                 let s = sea.evaluate(st.position, st.power_kw, p, 0.0);
                 values.push(AsfValues {
                     asf_ns: g.asf_ns,
@@ -249,8 +255,7 @@ impl AsfGrid {
     pub fn station(&self, id: &str, pos: Geo) -> Option<&StationGrid> {
         self.stations.iter().find(|s| {
             s.station == id
-                && s
-                    .position
+                && s.position
                     .is_none_or(|p| inverse(p, pos).distance_m < 1000.0)
         })
     }
@@ -303,7 +308,13 @@ impl AsfGrid {
             for i in 0..g.nlat {
                 for j in 0..g.nlon {
                     let v = g.at(i, j);
-                    let num = |x: f64| if x.is_finite() { format!("{x:.4}") } else { "null".into() };
+                    let num = |x: f64| {
+                        if x.is_finite() {
+                            format!("{x:.4}")
+                        } else {
+                            "null".into()
+                        }
+                    };
                     f.push(format!(
                         "{{\"type\":\"Feature\",\"geometry\":{{\"type\":\"Point\",\"coordinates\":[{:.9},{:.9}]}},\
                          \"properties\":{{\"station\":{},\"asf_ns\":{},\"ecd_us\":{},\"field_dbuv_m\":{},\"dfield_db\":{}}}}}",
@@ -318,7 +329,10 @@ impl AsfGrid {
                 }
             }
         }
-        format!("{{\"type\":\"FeatureCollection\",\"features\":[{}]}}", f.join(","))
+        format!(
+            "{{\"type\":\"FeatureCollection\",\"features\":[{}]}}",
+            f.join(",")
+        )
     }
 
     /// GeoJSON contours of ASF (marching squares; one `MultiLineString` of segments per
@@ -343,7 +357,10 @@ impl AsfGrid {
                 ));
             }
         }
-        format!("{{\"type\":\"FeatureCollection\",\"features\":[{}]}}", f.join(","))
+        format!(
+            "{{\"type\":\"FeatureCollection\",\"features\":[{}]}}",
+            f.join(",")
+        )
     }
 
     /// Import a CSV grid (see the module documentation).
@@ -420,15 +437,21 @@ impl AsfGrid {
                 u.sort_by(f64::total_cmp);
                 u.dedup_by(|a, b| (*a - *b).abs() < 1e-9);
                 if u.len() < 2 {
-                    return Err(format!("ASF CSV: station {id}: grid needs ≥ 2 nodes per axis"));
+                    return Err(format!(
+                        "ASF CSV: station {id}: grid needs ≥ 2 nodes per axis"
+                    ));
                 }
-                let step = (1..u.len()).map(|i| u[i] - u[i - 1]).fold(f64::INFINITY, f64::min);
+                let step = (1..u.len())
+                    .map(|i| u[i] - u[i - 1])
+                    .fold(f64::INFINITY, f64::min);
                 let n = ((u[u.len() - 1] - u[0]) / step).round() as usize + 1;
                 if u.iter().any(|x| {
                     let k = (x - u[0]) / step;
                     (k - k.round()).abs() > 1e-6
                 }) {
-                    return Err(format!("ASF CSV: station {id}: nodes are not on a regular grid"));
+                    return Err(format!(
+                        "ASF CSV: station {id}: nodes are not on a regular grid"
+                    ));
                 }
                 Ok((u[0], step, n))
             };
@@ -534,7 +557,9 @@ pub struct AsfGridModel {
 impl AsfGridModel {
     pub fn new(grid: AsfGrid, outside: Outside, k_factor: f64) -> Result<AsfGridModel, String> {
         if !(k_factor > 0.5 && k_factor < 10.0) {
-            return Err(format!("asf_grid: k_factor {k_factor} out of range (0.5, 10)"));
+            return Err(format!(
+                "asf_grid: k_factor {k_factor} out of range (0.5, 10)"
+            ));
         }
         Ok(AsfGridModel {
             grid,
@@ -582,7 +607,8 @@ impl PropagationModel for AsfGridModel {
 
 /// Build the `asf_grid` model (reads the file).
 pub fn build(cfg: &AsfGridConfig) -> Result<AsfGridModel, String> {
-    let text = std::fs::read_to_string(&cfg.file).map_err(|e| format!("asf_grid {}: {e}", cfg.file))?;
+    let text =
+        std::fs::read_to_string(&cfg.file).map_err(|e| format!("asf_grid {}: {e}", cfg.file))?;
     let grid = AsfGrid::from_csv(&text).map_err(|e| format!("asf_grid {}: {e}", cfg.file))?;
     AsfGridModel::new(grid, cfg.outside, cfg.k_factor)
 }
@@ -646,7 +672,12 @@ mod tests {
         let model = AsfGridModel::new(back.clone(), Outside::Zero, K_LORAN).unwrap();
         for st in &sts {
             for (lat, lon) in [(50.0, 0.0), (51.5, 0.75), (52.0, 1.0)] {
-                let rx = RxState { t_s: 0.0, pos: Geo::new(lat, lon), heading_rad: 0.0, speed_mps: 0.0 };
+                let rx = RxState {
+                    t_s: 0.0,
+                    pos: Geo::new(lat, lon),
+                    heading_rad: 0.0,
+                    speed_mps: 0.0,
+                };
                 let a = m.paths(st, &rx)[0];
                 let b = model.paths(st, &rx)[0];
                 assert!((a.asf_ns - b.asf_ns).abs() < 1e-3, "{} {lat} {lon}", st.id);
@@ -659,13 +690,31 @@ mod tests {
         let st = &sts[0];
         let p = Geo::new(51.6, 0.4);
         let c = back.asf_correction_ns(st, p).unwrap();
-        let e = m.paths(st, &RxState { t_s: 0.0, pos: p, heading_rad: 0.0, speed_mps: 0.0 })[0].asf_ns;
+        let e = m.paths(
+            st,
+            &RxState {
+                t_s: 0.0,
+                pos: p,
+                heading_rad: 0.0,
+                speed_mps: 0.0,
+            },
+        )[0]
+        .asf_ns;
         assert!((c - e).abs() < 0.05 * e.abs() + 5.0, "{c} vs {e}");
         // outside / unknown station / moved station
         assert!(back.asf_correction_ns(st, Geo::new(53.0, 0.5)).is_none());
-        assert!(back.asf_correction_ns(&station("Y", 54.0, 0.0), p).is_none());
-        assert!(back.asf_correction_ns(&station("M", 56.0, 0.0), p).is_none());
-        let rx_out = RxState { t_s: 0.0, pos: Geo::new(53.0, 0.5), heading_rad: 0.0, speed_mps: 0.0 };
+        assert!(back
+            .asf_correction_ns(&station("Y", 54.0, 0.0), p)
+            .is_none());
+        assert!(back
+            .asf_correction_ns(&station("M", 56.0, 0.0), p)
+            .is_none());
+        let rx_out = RxState {
+            t_s: 0.0,
+            pos: Geo::new(53.0, 0.5),
+            heading_rad: 0.0,
+            speed_mps: 0.0,
+        };
         assert_eq!(model.paths(st, &rx_out)[0].asf_ns, 0.0);
         let clamp = AsfGridModel::new(back, Outside::Clamp, K_LORAN).unwrap();
         assert!(clamp.paths(st, &rx_out)[0].asf_ns > 0.0);
@@ -683,7 +732,8 @@ mod tests {
         let (lo, hi) = (v[0].asf_ns, v[v.len() - 1].asf_ns);
         assert!(hi > lo);
         let lv = 0.5 * (lo + hi);
-        let c: serde_json::Value = serde_json::from_str(&g.to_geojson_contours(&[lv, 1e9])).unwrap();
+        let c: serde_json::Value =
+            serde_json::from_str(&g.to_geojson_contours(&[lv, 1e9])).unwrap();
         let f = c["features"].as_array().unwrap();
         assert_eq!(f.len(), 1, "the out-of-range level has no contour");
         let segs = f[0]["geometry"]["coordinates"].as_array().unwrap();
@@ -707,7 +757,10 @@ mod tests {
         let v = s.interp(Geo::new(0.5, 0.5), false).unwrap();
         assert!((v.asf_ns - 20.0).abs() < 1e-9);
         assert!((s.interp(Geo::new(0.0, 0.5), false).unwrap().asf_ns - 15.0).abs() < 1e-9);
-        assert!(AsfGrid::from_csv("station,lat_deg,lon_deg,asf_ns\nA,0,0,1\nA,0,0.3,1\nA,0,1,1\nA,1,0,1\n").is_err());
+        assert!(AsfGrid::from_csv(
+            "station,lat_deg,lon_deg,asf_ns\nA,0,0,1\nA,0,0.3,1\nA,0,1,1\nA,1,0,1\n"
+        )
+        .is_err());
         assert!(AsfGrid::from_csv("station,lat_deg,lon_deg\nA,0,0\n").is_err());
         // through the configuration
         let dir = std::env::temp_dir().join(format!("kshana-asfgrid-{}", std::process::id()));
@@ -719,9 +772,18 @@ mod tests {
             f.to_string_lossy()
         ))
         .unwrap();
-        let ctx = super::super::BuildContext::new(crate::time::AbsTime::from_utc_iso("2026-01-01T00:00:00Z").unwrap(), 1.0, 0);
+        let ctx = super::super::BuildContext::new(
+            crate::time::AbsTime::from_utc_iso("2026-01-01T00:00:00Z").unwrap(),
+            1.0,
+            0,
+        );
         let m = super::super::ground::build(&cfg, &ctx).unwrap();
-        let rx = RxState { t_s: 0.0, pos: Geo::new(0.0, 0.5), heading_rad: 0.0, speed_mps: 0.0 };
+        let rx = RxState {
+            t_s: 0.0,
+            pos: Geo::new(0.0, 0.5),
+            heading_rad: 0.0,
+            speed_mps: 0.0,
+        };
         assert!((m.paths(&station("A", 5.0, 5.0), &rx)[0].asf_ns - 15.0).abs() < 1e-6);
         let _ = std::fs::remove_dir_all(&dir);
     }

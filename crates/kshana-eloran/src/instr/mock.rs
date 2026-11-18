@@ -55,11 +55,7 @@ impl MockTcpInstrument {
             .iter()
             .map(|(a, b)| (a.to_string(), b.to_string()))
             .collect();
-        MockTcpInstrument::spawn(move |c| {
-            t.iter()
-                .find(|(k, _)| k == c)
-                .map(|(_, v)| v.clone())
-        })
+        MockTcpInstrument::spawn(move |c| t.iter().find(|(k, _)| k == c).map(|(_, v)| v.clone()))
     }
 
     pub fn port(&self) -> u16 {

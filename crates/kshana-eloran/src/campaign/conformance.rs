@@ -70,8 +70,8 @@
 //! [`ObsRecord`]s against the same truth: `acquired_fraction`, `toa_rms_ns`,
 //! `toa_bias_ns`, `td_rms_ns`, `ecd_rms_us`, `snr_error_db`, `cycle_errors` (|ToA/TD error|
 //! > 5 µs), `position_error_m` (95th percentile of fix errors), `time_error_ns` (95th
-//! percentile of |timing_ns|, the 1PPS − reference reading), blink rates from the
-//! records' `blink` flags.
+//! > percentile of |timing_ns|, the 1PPS − reference reading), blink rates from the
+//! > records' `blink` flags.
 
 use crate::chain::{Chain, StationFault, StationStatus};
 use crate::field::importers::{compare_records, flags, obs_from_truth, percentile, ObsRecord};
@@ -300,7 +300,11 @@ impl ConformanceFile {
             }
             for v in &k.variations {
                 if !labels.contains(v.as_str()) {
-                    return Err(format!("{}: criterion {} names unknown variation {v:?}", c.id, k.key()));
+                    return Err(format!(
+                        "{}: criterion {} names unknown variation {v:?}",
+                        c.id,
+                        k.key()
+                    ));
                 }
             }
         }
@@ -393,7 +397,9 @@ pub fn set_path(root: &mut toml::Value, path: &str, value: toml::Value) -> Resul
         while let Some(s) = r.strip_prefix('[') {
             let e = s.find(']').ok_or_else(|| format!("bad path {path:?}"))?;
             segs.push(Seg::Idx(
-                s[..e].parse().map_err(|_| format!("bad index in {path:?}"))?,
+                s[..e]
+                    .parse()
+                    .map_err(|_| format!("bad index in {path:?}"))?,
             ));
             r = &s[e + 1..];
         }
@@ -451,7 +457,11 @@ pub struct SimRun {
 
 impl SimRun {
     pub fn chains(&self) -> Vec<Chain> {
-        self.scenario.chains.iter().map(|c| c.chain.clone()).collect()
+        self.scenario
+            .chains
+            .iter()
+            .map(|c| c.chain.clone())
+            .collect()
     }
 }
 
@@ -469,7 +479,10 @@ pub fn simulate(text: &str) -> Result<SimRun, String> {
 }
 
 /// The case's targets resolved to (chain index, station index, "chain/station").
-pub fn targets(case: &ConformanceCase, chains: &[Chain]) -> Result<Vec<(usize, usize, String)>, String> {
+pub fn targets(
+    case: &ConformanceCase,
+    chains: &[Chain],
+) -> Result<Vec<(usize, usize, String)>, String> {
     let mut out = Vec::new();
     if case.targets.is_empty() {
         for (ci, ch) in chains.iter().enumerate() {
@@ -557,7 +570,8 @@ fn wants(case: &ConformanceCase, criteria: &[Criterion], m: &str) -> bool {
 }
 
 fn worst(v: impl Iterator<Item = f64>) -> f64 {
-    v.filter(|x| x.is_finite()).fold(f64::NAN, |a, b| if a.is_nan() { b } else { a.max(b) })
+    v.filter(|x| x.is_finite())
+        .fold(f64::NAN, |a, b| if a.is_nan() { b } else { a.max(b) })
 }
 
 /// Blink decision per (target, group) from the pulse amplitudes of a group.
@@ -584,7 +598,10 @@ pub fn evaluate_software(
     };
     m.insert(
         "acquired_fraction".into(),
-        tg.iter().filter(|t| acquired(&out.acquisitions, t.0, t.1)).count() as f64 / n,
+        tg.iter()
+            .filter(|t| acquired(&out.acquisitions, t.0, t.1))
+            .count() as f64
+            / n,
     );
     m.insert(
         "tracked_fraction".into(),
@@ -602,14 +619,20 @@ pub fn evaluate_software(
     let mut slips = 0.0;
     for (ci, si, key) in &tg {
         let (cn, sn) = (&chains[*ci].name, &chains[*ci].stations[*si].id);
-        let es: Vec<&rx::StationErrors> = errs.iter().filter(|e| &e.chain == cn && &e.station == sn).collect();
+        let es: Vec<&rx::StationErrors> = errs
+            .iter()
+            .filter(|e| &e.chain == cn && &e.station == sn)
+            .collect();
         if let Some(e) = es.first() {
             m.insert(format!("toa_rms_ns@{key}"), e.toa_rms_ns);
             m.insert(format!("toa_bias_ns@{key}"), e.toa_mean_ns.abs());
             m.insert(format!("toa_std_ns@{key}"), e.toa_std_ns);
             m.insert(format!("ecd_rms_us@{key}"), e.ecd_rms_err_us);
             m.insert(format!("cycle_errors@{key}"), e.cycle_errors as f64);
-            m.insert(format!("snr_error_db@{key}"), (e.snr_meas_db - e.snr_truth_db).abs());
+            m.insert(
+                format!("snr_error_db@{key}"),
+                (e.snr_meas_db - e.snr_truth_db).abs(),
+            );
             m.insert(format!("snr_truth_db@{key}"), e.snr_truth_db);
             cyc += es.iter().map(|e| e.cycle_errors as f64).sum::<f64>();
         }
@@ -621,27 +644,40 @@ pub fn evaluate_software(
         m.insert(format!("cycle_slips@{key}"), s);
         slips += s;
     }
-    for name in ["toa_rms_ns", "toa_bias_ns", "toa_std_ns", "ecd_rms_us", "snr_error_db"] {
-        let w = worst(tg.iter().filter_map(|t| m.get(&format!("{name}@{}", t.2)).copied()));
+    for name in [
+        "toa_rms_ns",
+        "toa_bias_ns",
+        "toa_std_ns",
+        "ecd_rms_us",
+        "snr_error_db",
+    ] {
+        let w = worst(
+            tg.iter()
+                .filter_map(|t| m.get(&format!("{name}@{}", t.2)).copied()),
+        );
         m.insert(name.into(), w);
     }
     m.insert("cycle_errors".into(), cyc);
     m.insert("cycle_slips".into(), slips);
     if let Some(v) = m.get(&format!("snr_truth_db@{}", tg[0].2)).copied() {
         m.insert("snr_truth_db".into(), v);
-    } else if let Some(r) = run
-        .truth
-        .iter()
-        .find(|r| r.chain == chains[tg[0].0].name && r.station == chains[tg[0].0].stations[tg[0].1].id)
-    {
+    } else if let Some(r) = run.truth.iter().find(|r| {
+        r.chain == chains[tg[0].0].name && r.station == chains[tg[0].0].stations[tg[0].1].id
+    }) {
         m.insert("snr_truth_db".into(), r.snr_db);
     }
     let corr = rx::Corrections::default();
     if wants(case, criteria, "position_error_m") {
-        let v = rx::position_solution(&out.measurements, &chains, run.start, &corr, &rx::PositionConfig {
-            initial: cfg.approx_position,
-            ..Default::default()
-        })
+        let v = rx::position_solution(
+            &out.measurements,
+            &chains,
+            run.start,
+            &corr,
+            &rx::PositionConfig {
+                initial: cfg.approx_position,
+                ..Default::default()
+            },
+        )
         .ok()
         .filter(|s| s.converged)
         .and_then(|s| rx::position_error_m(s.position, &run.truth))
@@ -649,11 +685,17 @@ pub fn evaluate_software(
         m.insert("position_error_m".into(), v);
     }
     if wants(case, criteria, "tdoa_position_error_m") {
-        let v = rx::tdoa_fix(&out.measurements, &chains, run.start, &corr, cfg.approx_position)
-            .ok()
-            .filter(|s| s.converged)
-            .and_then(|s| rx::position_error_m(s.position, &run.truth))
-            .unwrap_or(f64::NAN);
+        let v = rx::tdoa_fix(
+            &out.measurements,
+            &chains,
+            run.start,
+            &corr,
+            cfg.approx_position,
+        )
+        .ok()
+        .filter(|s| s.converged)
+        .and_then(|s| rx::position_error_m(s.position, &run.truth))
+        .unwrap_or(f64::NAN);
         m.insert("tdoa_position_error_m".into(), v);
     }
     if wants(case, criteria, "time_error_ns") {
@@ -662,15 +704,24 @@ pub fn evaluate_software(
         let ce = rx::clock_errors(&ts, &run.truth);
         let w = worst(
             ce.iter()
-                .filter(|c| tg.iter().any(|t| chains[t.0].name == c.chain && chains[t.0].stations[t.1].id == c.station))
+                .filter(|c| {
+                    tg.iter().any(|t| {
+                        chains[t.0].name == c.chain && chains[t.0].stations[t.1].id == c.station
+                    })
+                })
                 .map(|c| c.error_ns.abs()),
         );
         m.insert("time_error_ns".into(), w);
     }
     if wants(case, criteria, "acq_time_s") {
-        m.insert("acq_time_s".into(), acquisition_time(&run.channels, fs, run.start, &chains, &cfg, &tg)?);
+        m.insert(
+            "acq_time_s".into(),
+            acquisition_time(&run.channels, fs, run.start, &chains, &cfg, &tg)?,
+        );
     }
-    if wants(case, criteria, "blink_detection_rate") || wants(case, criteria, "blink_false_alarm_rate") {
+    if wants(case, criteria, "blink_detection_rate")
+        || wants(case, criteria, "blink_false_alarm_rate")
+    {
         let (det, fa) = blink_rates(&receiver, &out, &chains, run, &tg);
         m.insert("blink_detection_rate".into(), det);
         m.insert("blink_false_alarm_rate".into(), fa);
@@ -680,7 +731,10 @@ pub fn evaluate_software(
         let mut failed = 0.0;
         let mut auth_bad = 0.0;
         for l in &out.ldc {
-            if !tg.iter().any(|t| t.0 == l.chain_index && t.1 == l.station_index) {
+            if !tg
+                .iter()
+                .any(|t| t.0 == l.chain_index && t.1 == l.station_index)
+            {
                 continue;
             }
             msgs += l.report.messages.len() as f64;
@@ -716,7 +770,11 @@ fn acquisition_time(
             return Ok(f64::NAN);
         }
         let n = (len_s * fs) as usize;
-        let input = RxInput::new(channels.iter().map(|c| c[..n].to_vec()).collect(), fs, start);
+        let input = RxInput::new(
+            channels.iter().map(|c| c[..n].to_vec()).collect(),
+            fs,
+            start,
+        );
         let r = rx::Receiver::new(&input, chains, cfg.clone())?;
         let acq = r.acquire();
         if tg.iter().all(|t| {
@@ -790,8 +848,16 @@ fn blink_rates(
         }
     }
     (
-        if pos > 0 { hit as f64 / pos as f64 } else { f64::NAN },
-        if neg > 0 { fa as f64 / neg as f64 } else { f64::NAN },
+        if pos > 0 {
+            hit as f64 / pos as f64
+        } else {
+            f64::NAN
+        },
+        if neg > 0 {
+            fa as f64 / neg as f64
+        } else {
+            f64::NAN
+        },
     )
 }
 
@@ -818,7 +884,10 @@ pub fn evaluate_external(
         })
         .count();
     m.insert("acquired_fraction".into(), seen as f64 / tg.len() as f64);
-    let per = |q: &str, f: &dyn Fn(&crate::field::importers::QuantityStats) -> f64, m: &mut Metrics, name: &str| {
+    let per = |q: &str,
+               f: &dyn Fn(&crate::field::importers::QuantityStats) -> f64,
+               m: &mut Metrics,
+               name: &str| {
         let mut vals = Vec::new();
         for t in &tg {
             if let Some(s) = cmp.get(&t.2, q) {
@@ -839,7 +908,11 @@ pub fn evaluate_external(
     if let Some(p) = cmp.get("fix", "position_m") {
         m.insert("position_error_m".into(), p.abs95);
     }
-    let tim: Vec<f64> = obs.iter().filter_map(|r| r.timing_ns).map(f64::abs).collect();
+    let tim: Vec<f64> = obs
+        .iter()
+        .filter_map(|r| r.timing_ns)
+        .map(f64::abs)
+        .collect();
     if !tim.is_empty() {
         m.insert("time_error_ns".into(), percentile(tim, 0.95));
     }
@@ -847,12 +920,16 @@ pub fn evaluate_external(
     let t0 = unix_s_from_abs(run.start);
     let (mut hit, mut pos, mut fa, mut neg) = (0usize, 0usize, 0usize, 0usize);
     for r in obs {
-        let (Some(k), Some(t)) = (key_of(r), r.t_unix_s) else { continue };
+        let (Some(k), Some(t)) = (key_of(r), r.t_unix_s) else {
+            continue;
+        };
         if !tg.iter().any(|x| (x.0, x.1) == k) {
             continue;
         }
         let ts = t - t0;
-        let inside = blink_windows(&chains[k.0], k.1).iter().any(|(a, b)| ts >= *a && ts < *b);
+        let inside = blink_windows(&chains[k.0], k.1)
+            .iter()
+            .any(|(a, b)| ts >= *a && ts < *b);
         let flagged = r.flags.contains(flags::BLINK);
         if inside {
             pos += 1;
@@ -940,9 +1017,24 @@ mod tests {
         )
         .unwrap();
         set_path(&mut v, "scene.duration_s", toml::Value::Float(0.5)).unwrap();
-        set_path(&mut v, "interference[0].rms_uv_m_20khz", toml::Value::Float(9.0)).unwrap();
-        set_path(&mut v, "propagation.sky.model", toml::Value::String("fixed".into())).unwrap();
-        set_path(&mut v, "interference[1]", toml::Value::Table(toml::Table::new())).unwrap();
+        set_path(
+            &mut v,
+            "interference[0].rms_uv_m_20khz",
+            toml::Value::Float(9.0),
+        )
+        .unwrap();
+        set_path(
+            &mut v,
+            "propagation.sky.model",
+            toml::Value::String("fixed".into()),
+        )
+        .unwrap();
+        set_path(
+            &mut v,
+            "interference[1]",
+            toml::Value::Table(toml::Table::new()),
+        )
+        .unwrap();
         assert!(set_path(&mut v, "interference[5].x", toml::Value::Integer(1)).is_err());
         assert_eq!(v["scene"]["duration_s"].as_float(), Some(0.5));
         assert_eq!(v["interference"][0]["rms_uv_m_20khz"].as_float(), Some(9.0));
@@ -996,7 +1088,14 @@ mod tests {
         }
         for f in &lib {
             assert!(f.case.criteria.iter().all(|c| c.illustrative));
-            assert!(f.case.modelled_on.iter().all(|m| m.contains("not consulted")), "{}", f.case.id);
+            assert!(
+                f.case
+                    .modelled_on
+                    .iter()
+                    .all(|m| m.contains("not consulted")),
+                "{}",
+                f.case.id
+            );
             assert!(!f.case.criteria.is_empty(), "{}", f.case.id);
         }
     }
@@ -1005,6 +1104,8 @@ mod tests {
     fn non_illustrative_limit_is_refused() {
         let src = std::fs::read_to_string(library_dir().join("acq-sensitivity.toml")).unwrap();
         let bad = src.replacen("illustrative = true", "illustrative = false", 1);
-        assert!(ConformanceFile::from_toml(&bad).unwrap_err().contains("non-illustrative"));
+        assert!(ConformanceFile::from_toml(&bad)
+            .unwrap_err()
+            .contains("non-illustrative"));
     }
 }

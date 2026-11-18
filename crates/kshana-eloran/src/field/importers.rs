@@ -58,7 +58,7 @@ use crate::TruthRecord;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
-use super::{unix_s_from_abs, unix_s_from_civil, unix_ns_from_iso};
+use super::{unix_ns_from_iso, unix_s_from_abs, unix_s_from_civil};
 
 /// Normalised flag names.
 pub mod flags {
@@ -223,8 +223,17 @@ pub struct FieldMapping {
 }
 
 const TARGETS: &[&str] = &[
-    "time", "chain", "station", "toa_us", "td_us", "ecd_us", "snr_db", "lat_deg", "lon_deg",
-    "alt_m", "timing_ns",
+    "time",
+    "chain",
+    "station",
+    "toa_us",
+    "td_us",
+    "ecd_us",
+    "snr_db",
+    "lat_deg",
+    "lon_deg",
+    "alt_m",
+    "timing_ns",
 ];
 
 impl FieldMapping {
@@ -259,12 +268,7 @@ impl FieldMapping {
     }
 
     /// Apply to split fields (with an optional header for names).
-    fn apply(
-        &self,
-        f: &[&str],
-        header: &[String],
-        rec: &mut ObsRecord,
-    ) -> Result<(), String> {
+    fn apply(&self, f: &[&str], header: &[String], rec: &mut ObsRecord) -> Result<(), String> {
         let get = |col: &ColRef| -> Result<Option<&str>, String> {
             let i = Self::resolve(col, header)?;
             Ok(f.get(i).map(|s| s.trim()).filter(|s| !s.is_empty()))
@@ -279,7 +283,9 @@ impl FieldMapping {
         for (k, spec) in &self.fields {
             let Some(s) = get(spec.col())? else { continue };
             match k.as_str() {
-                "time" => rec.t_unix_s = Some(parse_time(s, self.time_format, self.date.as_deref())?),
+                "time" => {
+                    rec.t_unix_s = Some(parse_time(s, self.time_format, self.date.as_deref())?)
+                }
                 "chain" => rec.chain = Some(s.to_string()),
                 "station" => rec.station = Some(s.to_string()),
                 _ => {
@@ -293,7 +299,8 @@ impl FieldMapping {
             if let Some(col) = &fm.column {
                 if let Some(s) = get(col)? {
                     if let Some(fl) = fm.map.get(s) {
-                        rec.flags.extend(fl.split(',').map(|x| x.trim().to_string()));
+                        rec.flags
+                            .extend(fl.split(',').map(|x| x.trim().to_string()));
                     }
                     for c in s.chars() {
                         if let Some(fl) = fm.per_char.get(&c.to_string()) {
@@ -469,7 +476,11 @@ impl CsvProfile {
     }
 
     /// Import a CSV text.
-    pub fn import(&self, text: &str, source: &str) -> Result<(Vec<ObsRecord>, ImportReport), String> {
+    pub fn import(
+        &self,
+        text: &str,
+        source: &str,
+    ) -> Result<(Vec<ObsRecord>, ImportReport), String> {
         self.mapping.validate()?;
         let d = delim_char(&self.delimiter)?;
         let mut rep = ImportReport::default();
@@ -479,7 +490,9 @@ impl CsvProfile {
         for (i, raw) in text.lines().enumerate().skip(self.skip_lines) {
             rep.lines += 1;
             let line = raw.trim_end_matches('\r');
-            if line.trim().is_empty() || (!self.comment.is_empty() && line.trim_start().starts_with(&self.comment)) {
+            if line.trim().is_empty()
+                || (!self.comment.is_empty() && line.trim_start().starts_with(&self.comment))
+            {
                 rep.skipped += 1;
                 continue;
             }
@@ -522,7 +535,8 @@ pub fn nmea_body(line: &str) -> Result<(&str, bool), String> {
         .ok_or("not an NMEA sentence")?;
     match l.rsplit_once('*') {
         Some((body, cs)) => {
-            let want = u8::from_str_radix(cs.trim(), 16).map_err(|_| format!("bad checksum field {cs:?}"))?;
+            let want = u8::from_str_radix(cs.trim(), 16)
+                .map_err(|_| format!("bad checksum field {cs:?}"))?;
             let got = body.bytes().fold(0u8, |a, b| a ^ b);
             if got != want {
                 return Err(format!("checksum {got:02X} != {want:02X}"));
@@ -689,9 +703,11 @@ impl NmeaImporter {
                 self.set_tod(g(1));
                 let d = g(9);
                 if d.len() == 6 {
-                    if let (Ok(dd), Ok(mm), Ok(yy)) =
-                        (d[0..2].parse::<i64>(), d[2..4].parse::<i64>(), d[4..6].parse::<i64>())
-                    {
+                    if let (Ok(dd), Ok(mm), Ok(yy)) = (
+                        d[0..2].parse::<i64>(),
+                        d[2..4].parse::<i64>(),
+                        d[4..6].parse::<i64>(),
+                    ) {
                         // two-digit year: 1980–2079
                         let y = if yy >= 80 { 1900 + yy } else { 2000 + yy };
                         self.date = Some((y, mm, dd));
@@ -715,9 +731,11 @@ impl NmeaImporter {
             }
             "ZDA" => {
                 self.set_tod(g(1));
-                if let (Ok(d), Ok(m), Ok(y)) =
-                    (g(2).parse::<i64>(), g(3).parse::<i64>(), g(4).parse::<i64>())
-                {
+                if let (Ok(d), Ok(m), Ok(y)) = (
+                    g(2).parse::<i64>(),
+                    g(3).parse::<i64>(),
+                    g(4).parse::<i64>(),
+                ) {
                     self.date = Some((y, m, d));
                 }
                 vec![]
@@ -770,7 +788,11 @@ impl NmeaImporter {
                     }
                     let mut r = self.rec();
                     r.chain = Some(chain.clone());
-                    r.station = Some(if k == 0 { "M".into() } else { self.secondary(k - 1) });
+                    r.station = Some(if k == 0 {
+                        "M".into()
+                    } else {
+                        self.secondary(k - 1)
+                    });
                     r.snr_db = snr;
                     r.ecd_us = ecd;
                     r.extra.insert("sentence".into(), "LCD".into());
@@ -935,10 +957,11 @@ impl SplitProfile {
             }
             let f = split_by(&line, d);
             let fr: Vec<&str> = f.iter().map(|s| s.as_str()).collect();
-            let rt = self
-                .records
-                .iter()
-                .find(|r| r.matches.iter().all(|(k, v)| fr.get(*k).map(|x| x.trim()) == Some(v.as_str())));
+            let rt = self.records.iter().find(|r| {
+                r.matches
+                    .iter()
+                    .all(|(k, v)| fr.get(*k).map(|x| x.trim()) == Some(v.as_str()))
+            });
             let Some(rt) = rt else {
                 if self.standard_nmea && raw.trim_start().starts_with('$') {
                     let recs = nmea.line(raw);
@@ -1063,7 +1086,11 @@ impl TicProfile {
             u => return Err(format!("tic unit {u:?} (s, ms, us, ns)")),
         })
     }
-    pub fn import(&self, text: &str, source: &str) -> Result<(Vec<ObsRecord>, ImportReport), String> {
+    pub fn import(
+        &self,
+        text: &str,
+        source: &str,
+    ) -> Result<(Vec<ObsRecord>, ImportReport), String> {
         let k = self.unit_ns()?;
         let s = match self.sign {
             TicSign::RxMinusRef => 1.0,
@@ -1123,7 +1150,13 @@ pub fn timing_stats(recs: &[ObsRecord]) -> Option<TimingStats> {
         let ts: Vec<f64> = v.iter().map(|p| p.0.unwrap_or(0.0) - t0).collect();
         let tm = ts.iter().sum::<f64>() / n;
         let sxx: f64 = ts.iter().map(|t| (t - tm).powi(2)).sum();
-        (sxx > 0.0).then(|| ts.iter().zip(&xs).map(|(t, x)| (t - tm) * (x - mean)).sum::<f64>() / sxx)
+        (sxx > 0.0).then(|| {
+            ts.iter()
+                .zip(&xs)
+                .map(|(t, x)| (t - tm) * (x - mean))
+                .sum::<f64>()
+                / sxx
+        })
     } else {
         None
     };
@@ -1155,7 +1188,11 @@ pub fn percentile(mut v: Vec<f64>, p: f64) -> f64 {
 /// Canonical (chain name, station id) of a record's labels against the simulated chains:
 /// the chain label may be the chain name, its GRI in µs or its GRI/10 (e.g. "8970"); the
 /// station label an id, or `TDk` / `TDA`, `TDB` for the k-th secondary in emission order.
-pub fn canonical_key(chain: Option<&str>, station: Option<&str>, chains: &[Chain]) -> Option<(usize, usize)> {
+pub fn canonical_key(
+    chain: Option<&str>,
+    station: Option<&str>,
+    chains: &[Chain],
+) -> Option<(usize, usize)> {
     let ci = match chain {
         Some(c) => chains.iter().position(|ch| {
             ch.name == c
@@ -1178,7 +1215,11 @@ pub fn canonical_key(chain: Option<&str>, station: Option<&str>, chains: &[Chain
     let mut secs: Vec<usize> = (0..ch.stations.len())
         .filter(|&i| ch.stations[i].role == Role::Secondary)
         .collect();
-    secs.sort_by(|a, b| ch.stations[*a].emission_delay_us.total_cmp(&ch.stations[*b].emission_delay_us));
+    secs.sort_by(|a, b| {
+        ch.stations[*a]
+            .emission_delay_us
+            .total_cmp(&ch.stations[*b].emission_delay_us)
+    });
     secs.get(k.checked_sub(1)?).map(|&si| (ci, si))
 }
 
@@ -1229,7 +1270,11 @@ pub fn obs_from_truth(truth: &[TruthRecord], chains: &[Chain], start: AbsTime) -
 }
 
 /// Software receiver measurements → observation records (one per tracking window).
-pub fn obs_from_measurements(meas: &[Measurement], chains: &[Chain], start: AbsTime) -> Vec<ObsRecord> {
+pub fn obs_from_measurements(
+    meas: &[Measurement],
+    chains: &[Chain],
+    start: AbsTime,
+) -> Vec<ObsRecord> {
     let t0 = unix_s_from_abs(start);
     let mut master_toa: BTreeMap<(usize, i64, Option<usize>), f64> = BTreeMap::new();
     for m in meas {
@@ -1298,7 +1343,9 @@ pub struct Comparison {
 
 impl Comparison {
     pub fn get(&self, key: &str, quantity: &str) -> Option<&QuantityStats> {
-        self.stats.iter().find(|s| s.key == key && s.quantity == quantity)
+        self.stats
+            .iter()
+            .find(|s| s.key == key && s.quantity == quantity)
     }
     /// Worst value of `field(stats)` over all keys of a quantity.
     pub fn worst(&self, quantity: &str, field: impl Fn(&QuantityStats) -> f64) -> Option<f64> {
@@ -1377,7 +1424,10 @@ pub fn compare_records(
                     Geo::new(p.lat_deg.unwrap_or(0.0), p.lon_deg.unwrap_or(0.0)),
                 )
                 .distance_m;
-                diffs.entry(("fix".into(), "position_m")).or_default().push(d);
+                diffs
+                    .entry(("fix".into(), "position_m"))
+                    .or_default()
+                    .push(d);
                 matched = true;
             }
         }
@@ -1510,7 +1560,10 @@ map = { BAD = "invalid" }
         assert_eq!(gga.t_unix_s, Some(1_794_960_002.0));
         assert!((gga.lat_deg.unwrap() - 55.0).abs() < 1e-12);
         assert_eq!(gga.alt_m, Some(10.0));
-        let glc: Vec<&ObsRecord> = recs.iter().filter(|r| r.extra.get("sentence").map(|s| s.as_str()) == Some("GLC")).collect();
+        let glc: Vec<&ObsRecord> = recs
+            .iter()
+            .filter(|r| r.extra.get("sentence").map(|s| s.as_str()) == Some("GLC"))
+            .collect();
         assert_eq!(glc.len(), 3);
         assert_eq!(glc[0].station.as_deref(), Some("M"));
         assert_eq!(glc[0].toa_us, Some(26123.45));
@@ -1518,15 +1571,24 @@ map = { BAD = "invalid" }
         assert!(glc[1].flags.contains("blink"));
         assert!(glc[2].flags.contains("cycle_warning"));
         assert_eq!(glc[2].t_unix_s, Some(1_794_960_002.0));
-        let lcd: Vec<&ObsRecord> = recs.iter().filter(|r| r.extra.get("sentence").map(|s| s.as_str()) == Some("LCD")).collect();
+        let lcd: Vec<&ObsRecord> = recs
+            .iter()
+            .filter(|r| r.extra.get("sentence").map(|s| s.as_str()) == Some("LCD"))
+            .collect();
         assert_eq!(lcd.len(), 2);
         assert_eq!(lcd[1].snr_db, Some(45.0));
         // RMC sets the date (19 Nov 2026), status V → no fix
-        let rmc = recs.iter().find(|r| r.extra.get("sentence").map(|s| s.as_str()) == Some("RMC")).unwrap();
+        let rmc = recs
+            .iter()
+            .find(|r| r.extra.get("sentence").map(|s| s.as_str()) == Some("RMC"))
+            .unwrap();
         assert!(rmc.flags.contains("no_fix"));
         assert_eq!(rmc.t_unix_s, Some(1_794_960_000.0 + 86_400.0 + 3.0));
         assert!((rmc.lon_deg.unwrap() + 3.0).abs() < 1e-12);
-        let rma: Vec<&ObsRecord> = recs.iter().filter(|r| r.extra.get("sentence").map(|s| s.as_str()) == Some("RMA")).collect();
+        let rma: Vec<&ObsRecord> = recs
+            .iter()
+            .filter(|r| r.extra.get("sentence").map(|s| s.as_str()) == Some("RMA"))
+            .collect();
         assert_eq!(rma.len(), 3);
         assert_eq!(rma[2].station.as_deref(), Some("TDB"));
         // TD labels resolve to secondaries in emission order (X then Y)
@@ -1565,7 +1627,10 @@ repeat = { start = 4, stride = 3, count_field = 3, fields = { station = 0, toa_u
         let (r, rep) = prof.import(&text, "vendor", Some("2026-11-18")).unwrap();
         assert_eq!(rep.skipped, 1);
         assert_eq!(r.len(), 1 + 3 + 2);
-        let toa: Vec<&ObsRecord> = r.iter().filter(|x| x.toa_us.is_some() && x.extra.is_empty()).collect();
+        let toa: Vec<&ObsRecord> = r
+            .iter()
+            .filter(|x| x.toa_us.is_some() && x.extra.is_empty())
+            .collect();
         assert_eq!(toa.len(), 3);
         assert_eq!(toa[1].station.as_deref(), Some("X"));
         assert_eq!(toa[1].toa_us, Some(39000.25));
@@ -1603,12 +1668,24 @@ fields = { time = 0, timing_ns = 1 }
 
     #[test]
     fn time_formats() {
-        assert_eq!(parse_time("10:00:01.5", TimeFormat::Hms, Some("1970-01-02")).unwrap(), 86_400.0 + 36_001.5);
-        assert_eq!(parse_time("100001", TimeFormat::Hms, Some("1970-01-01")).unwrap(), 36_001.0);
+        assert_eq!(
+            parse_time("10:00:01.5", TimeFormat::Hms, Some("1970-01-02")).unwrap(),
+            86_400.0 + 36_001.5
+        );
+        assert_eq!(
+            parse_time("100001", TimeFormat::Hms, Some("1970-01-01")).unwrap(),
+            36_001.0
+        );
         // GPS 0 = 1980-01-06 (GPS − UTC = 0 then); in 2026 GPS − UTC = 18 s
-        assert_eq!(parse_time("0", TimeFormat::GpsS, None).unwrap(), 315_964_800.0);
+        assert_eq!(
+            parse_time("0", TimeFormat::GpsS, None).unwrap(),
+            315_964_800.0
+        );
         let gps_2026 = 1_794_960_000.0 - 315_964_800.0 + 18.0;
-        assert_eq!(parse_time(&gps_2026.to_string(), TimeFormat::GpsS, None).unwrap(), 1_794_960_000.0);
+        assert_eq!(
+            parse_time(&gps_2026.to_string(), TimeFormat::GpsS, None).unwrap(),
+            1_794_960_000.0
+        );
         assert!(parse_time("25:00:00", TimeFormat::Hms, Some("2026-01-01")).is_err());
     }
 

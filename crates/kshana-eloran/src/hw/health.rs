@@ -441,7 +441,10 @@ impl HealthMonitor {
             raise(
                 "underrun",
                 Severity::Alarm,
-                format!("{du} new transmit underrun(s) (device {}, FIFO {fifo} total)", st.underruns),
+                format!(
+                    "{du} new transmit underrun(s) (device {}, FIFO {fifo} total)",
+                    st.underruns
+                ),
             );
         }
         if dov > th.max_overflows {
@@ -611,9 +614,7 @@ mod tests {
         let (m, probe) = device(vc);
         let s = TxSession::start(Box::new(m), StartTime::NextPps, 4, |sink| {
             for _ in 0..10 {
-                let x: Vec<f64> = (0..1000)
-                    .map(|i| 0.5 * (i as f64 * 0.6283).sin())
-                    .collect();
+                let x: Vec<f64> = (0..1000).map(|i| 0.5 * (i as f64 * 0.6283).sin()).collect();
                 sink.write_block(&[x.clone(), x])?;
             }
             sink.finish()
@@ -627,7 +628,10 @@ mod tests {
         assert_eq!(snap.ref_locked, Some(true));
         assert_eq!(snap.temperature_c, Some(41.0));
         let rms = snap.output[0].rms_dbfs.unwrap();
-        assert!((rms - 20.0 * (0.5f64 / 2f64.sqrt()).log10()).abs() < 0.05, "{rms}");
+        assert!(
+            (rms - 20.0 * (0.5f64 / 2f64.sqrt()).log10()).abs() < 0.05,
+            "{rms}"
+        );
         assert!((snap.output[1].peak_dbfs.unwrap() - 20.0 * 0.5f64.log10()).abs() < 0.5);
         let back = HealthSnapshot::from_json(&snap.to_json()).unwrap();
         assert_eq!(back, snap);

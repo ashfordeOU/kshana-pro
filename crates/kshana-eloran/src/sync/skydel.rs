@@ -178,7 +178,9 @@ position = { lat_deg = 56.0, lon_deg = 0.0 }
                     state = "Stopped";
                     "{\"CmdName\":\"SuccessResult\"}".into()
                 }
-                "EnableSV" if v["SvId"] == 99 => "{\"CmdName\":\"Failure\",\"Msg\":\"bad SV\"}".into(),
+                "EnableSV" if v["SvId"] == 99 => {
+                    "{\"CmdName\":\"Failure\",\"Msg\":\"bad SV\"}".into()
+                }
                 _ => "{\"CmdName\":\"SuccessResult\"}".into(),
             })
         }
@@ -231,8 +233,14 @@ position = { lat_deg = 56.0, lon_deg = 0.0 }
         h.join().unwrap();
         let l = log.lock().unwrap().clone();
         // epoch in GPST calendar (profile epoch_scale) although the plan was UTC
-        assert!(l.iter().any(|c| c.contains("\"Start\":\"2026-11-18T12:00:18.000000000Z\"")), "{l:?}");
-        assert!(l.iter().any(|c| c.contains("\"System\":\"Galileo\",\"Signal\":\"E1\",\"Offset\":-4.50")));
+        assert!(
+            l.iter()
+                .any(|c| c.contains("\"Start\":\"2026-11-18T12:00:18.000000000Z\"")),
+            "{l:?}"
+        );
+        assert!(l
+            .iter()
+            .any(|c| c.contains("\"System\":\"Galileo\",\"Signal\":\"E1\",\"Offset\":-4.50")));
         let pushes: Vec<serde_json::Value> = l
             .iter()
             .filter(|c| c.contains("PushEcefNed"))
@@ -242,7 +250,10 @@ position = { lat_deg = 56.0, lon_deg = 0.0 }
         assert_eq!(pushes[10]["ElapsedTime"].as_f64().unwrap(), 1.0);
         // climbing 1 m/s while moving ≈ 11.1 m/s north: VZ positive, pitch ≈ 5.1°
         let pitch = pushes[5]["Pitch"].as_f64().unwrap().to_degrees();
-        assert!((pitch - (1.0f64).atan2(11.13).to_degrees()).abs() < 0.1, "{pitch}");
+        assert!(
+            (pitch - (1.0f64).atan2(11.13).to_degrees()).abs() < 0.1,
+            "{pitch}"
+        );
         assert!(pushes[0]["X"].as_f64().unwrap() > 3.0e6);
     }
 

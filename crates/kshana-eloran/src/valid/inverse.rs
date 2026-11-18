@@ -125,7 +125,12 @@ fn rss(r: &[f64]) -> f64 {
     r.iter().map(|x| x * x).sum()
 }
 
-fn jacobian<F: FnMut(&[f64]) -> Vec<f64>>(f: &mut F, x: &[f64], steps: &[f64], m: usize) -> Vec<Vec<f64>> {
+fn jacobian<F: FnMut(&[f64]) -> Vec<f64>>(
+    f: &mut F,
+    x: &[f64],
+    steps: &[f64],
+    m: usize,
+) -> Vec<Vec<f64>> {
     let n = x.len();
     let mut j = vec![vec![0.0; n]; m];
     for k in 0..n {
@@ -453,7 +458,11 @@ pub fn estimate_asf(obs: &[ToaObservation], cfg: &AsfConfig) -> Result<Vec<AsfEs
     let mut groups: BTreeMap<(String, String), Vec<&ToaObservation>> = BTreeMap::new();
     for o in obs {
         if !(o.sigma_ns > 0.0) {
-            return Err(format!("observation {}/{}: sigma_ns must be positive", o.site, o.key()));
+            return Err(format!(
+                "observation {}/{}: sigma_ns must be positive",
+                o.site,
+                o.key()
+            ));
         }
         groups.entry((o.site.clone(), o.key())).or_default().push(o);
     }
@@ -468,7 +477,12 @@ pub fn estimate_asf(obs: &[ToaObservation], cfg: &AsfConfig) -> Result<Vec<AsfEs
         let tx = cfg.tx_offset_ns.get(&key).copied().unwrap_or(0.0);
         let vals: Vec<(f64, f64)> = v
             .iter()
-            .map(|o| (o.pseudo_delay_ns - o.pf_ns() - tx - clk, 1.0 / (o.sigma_ns * o.sigma_ns)))
+            .map(|o| {
+                (
+                    o.pseudo_delay_ns - o.pf_ns() - tx - clk,
+                    1.0 / (o.sigma_ns * o.sigma_ns),
+                )
+            })
             .collect();
         let sw: f64 = vals.iter().map(|x| x.1).sum();
         let mean = vals.iter().map(|x| x.0 * x.1).sum::<f64>() / sw;
@@ -483,7 +497,9 @@ pub fn estimate_asf(obs: &[ToaObservation], cfg: &AsfConfig) -> Result<Vec<AsfEs
         let se = (1.0 / sw).sqrt().max(scatter / (n as f64).sqrt());
         let o0 = v[0];
         let sf = if cfg.subtract_seawater_sf {
-            Some(seawater_sf_ns(inverse(o0.station_pos, o0.site_pos).distance_m))
+            Some(seawater_sf_ns(
+                inverse(o0.station_pos, o0.site_pos).distance_m,
+            ))
         } else {
             None
         };
@@ -572,7 +588,10 @@ pub struct TimingEstimate {
 }
 
 /// Transmitter timing offsets (and site clocks) from multi-site data (see the module docs).
-pub fn estimate_tx_timing(obs: &[ToaObservation], cfg: &TimingConfig) -> Result<TimingEstimate, String> {
+pub fn estimate_tx_timing(
+    obs: &[ToaObservation],
+    cfg: &TimingConfig,
+) -> Result<TimingEstimate, String> {
     let mut stations: Vec<String> = obs.iter().map(|o| o.key()).collect();
     stations.sort();
     stations.dedup();
@@ -612,7 +631,12 @@ pub fn estimate_tx_timing(obs: &[ToaObservation], cfg: &TimingConfig) -> Result<
         };
         let tx_i = tx_free.iter().position(|s| **s == o.key());
         let site_i = sites.iter().position(|s| *s == o.site).unwrap();
-        rows.push((o.pseudo_delay_ns - o.pf_ns() - c - clk, o.sigma_ns, tx_i, site_i));
+        rows.push((
+            o.pseudo_delay_ns - o.pf_ns() - c - clk,
+            o.sigma_ns,
+            tx_i,
+            site_i,
+        ));
     }
     let n_tx = tx_free.len();
     let n_par = n_tx + if est_clocks { sites.len() } else { 0 };
@@ -797,8 +821,7 @@ impl ProfileModel {
         if p.sections.is_empty() {
             return Err("profile: no sections".into());
         }
-        if p
-            .sections
+        if p.sections
             .iter()
             .filter(|s| matches!(s.ground, SegmentGround::Unknown { .. }))
             .count()
@@ -806,7 +829,8 @@ impl ProfileModel {
         {
             return Err("profile: exactly one section must be Unknown".into());
         }
-        if p.sections.windows(2).any(|w| w[1].end_km <= w[0].end_km) || p.sections[0].end_km <= 0.0 {
+        if p.sections.windows(2).any(|w| w[1].end_km <= w[0].end_km) || p.sections[0].end_km <= 0.0
+        {
             return Err("profile: section ends must be positive and increasing".into());
         }
         let d_max = (d_max_km.max(p.sections.last().unwrap().end_km) * 1.02 + 1.0) * 1000.0;
@@ -847,7 +871,10 @@ impl ProfileModel {
                 for (i, (_, end)) in self.secs.iter().enumerate() {
                     let last = i + 1 == self.secs.len();
                     let e = if last { d } else { end.min(d) };
-                    secs.push(Section { ground: i, end_m: e });
+                    secs.push(Section {
+                        ground: i,
+                        end_m: e,
+                    });
                     if *end >= d {
                         break;
                     }
@@ -863,7 +890,12 @@ impl ProfileModel {
 }
 
 /// Model ASF (ns, Millington − seawater) along `profile` for an unknown-section σ.
-pub fn profile_asf_ns(profile: &PathProfile, sigma_s_m: f64, d_km: &[f64], curve_n: usize) -> Result<Vec<f64>, String> {
+pub fn profile_asf_ns(
+    profile: &PathProfile,
+    sigma_s_m: f64,
+    d_km: &[f64],
+    curve_n: usize,
+) -> Result<Vec<f64>, String> {
     let dmax = d_km.iter().fold(0.0f64, |a, b| a.max(*b));
     let m = ProfileModel::new(profile, dmax, curve_n)?;
     Ok(m.asf_ns(unknown_ground(profile, sigma_s_m), d_km))
@@ -893,7 +925,10 @@ pub fn fit_segment_conductivity(
     if points.len() < 2 {
         return Err("conductivity fit: need at least 2 ASF points".into());
     }
-    if points.iter().any(|p| !(p.sigma_ns > 0.0) || !(p.distance_km > 0.0)) {
+    if points
+        .iter()
+        .any(|p| !(p.sigma_ns > 0.0) || !(p.distance_km > 0.0))
+    {
         return Err("conductivity fit: distances and sigma_ns must be positive".into());
     }
     if !(opts.sigma_min_s_m > 0.0 && opts.sigma_max_s_m > opts.sigma_min_s_m) {
@@ -915,11 +950,16 @@ pub fn fit_segment_conductivity(
     let (lo, hi) = (opts.sigma_min_s_m.log10(), opts.sigma_max_s_m.log10());
     let r = grid_golden(&mut chi2, lo, hi, opts.n_grid, opts.tol_log10);
     let n = points.len();
-    let red = if n > 1 { r.fx / (n - 1) as f64 } else { f64::NAN };
+    let red = if n > 1 {
+        r.fx / (n - 1) as f64
+    } else {
+        f64::NAN
+    };
     let h = 0.02;
     let s = curvature_sigma(&mut chi2, r.x, h) * red.max(1.0).sqrt();
     let a = model.asf_ns(unknown_ground(profile, 10f64.powf(r.x)), &d);
-    let at_bound = (r.x - lo).abs() < 2.0 * opts.tol_log10 || (hi - r.x).abs() < 2.0 * opts.tol_log10;
+    let at_bound =
+        (r.x - lo).abs() < 2.0 * opts.tol_log10 || (hi - r.x).abs() < 2.0 * opts.tol_log10;
     Ok(ConductivityFit {
         sigma_s_m: 10f64.powf(r.x),
         log10_sigma: r.x,
@@ -939,7 +979,11 @@ pub fn fit_segment_conductivity(
 /// conductivity; for `millington` over polygons the polygon named `polygon` (its ε_r reset
 /// to the default from σ unless it had one); a uniform map's σ. Rasters are refused (fit
 /// per cell is not what a 1-D profile gives).
-pub fn ground_with_fitted_sigma(cfg: &GroundConfig, polygon: Option<&str>, sigma_s_m: f64) -> Result<GroundConfig, String> {
+pub fn ground_with_fitted_sigma(
+    cfg: &GroundConfig,
+    polygon: Option<&str>,
+    sigma_s_m: f64,
+) -> Result<GroundConfig, String> {
     if !(sigma_s_m > 0.0 && sigma_s_m.is_finite()) {
         return Err("fitted sigma must be positive".into());
     }
@@ -1052,7 +1096,11 @@ fn wrap_deg(x: f64) -> f64 {
 
 /// Two-path (groundwave + one skywave) fit of an averaged pulse (see the module docs).
 /// `tpl` is the receiver template of the station's chain (`Receiver::templates`).
-pub fn fit_skywave(pulse: &AveragedPulse, tpl: &Template, opts: &SkywaveFitOptions) -> Result<SkywaveFit, String> {
+pub fn fit_skywave(
+    pulse: &AveragedPulse,
+    tpl: &Template,
+    opts: &SkywaveFitOptions,
+) -> Result<SkywaveFit, String> {
     let m = pulse.samples.len();
     if m < 16 {
         return Err("skywave fit: averaged pulse too short".into());
@@ -1095,8 +1143,10 @@ pub fn fit_skywave(pulse: &AveragedPulse, tpl: &Template, opts: &SkywaveFitOptio
         Some((yy - expl, c))
     };
     let mut best: Option<(f64, f64, f64, Vec<f64>)> = None;
-    let nt = ((opts.t_env_range_us.1 - opts.t_env_range_us.0) / opts.t_env_step_us).round() as usize;
-    let nd = ((opts.delay_range_us.1 - opts.delay_range_us.0) / opts.delay_step_us).round() as usize;
+    let nt =
+        ((opts.t_env_range_us.1 - opts.t_env_range_us.0) / opts.t_env_step_us).round() as usize;
+    let nd =
+        ((opts.delay_range_us.1 - opts.delay_range_us.0) / opts.delay_step_us).round() as usize;
     for it in 0..=nt {
         let te = (opts.t_env_range_us.0 + it as f64 * opts.t_env_step_us) * 1e-6;
         for id in 0..=nd {
@@ -1136,7 +1186,14 @@ pub fn fit_skywave(pulse: &AveragedPulse, tpl: &Template, opts: &SkywaveFitOptio
     let ws = C64::new(x[4], x[5]);
     let (ag, as_) = (wg.norm_sqr(), ws.norm_sqr());
     let k = 20.0 / std::f64::consts::LN_10;
-    let grad = [0.0, 0.0, -k * x[2] / ag, -k * x[3] / ag, k * x[4] / as_, k * x[5] / as_];
+    let grad = [
+        0.0,
+        0.0,
+        -k * x[2] / ag,
+        -k * x[3] / ag,
+        k * x[4] / as_,
+        k * x[5] / as_,
+    ];
     let infl = match opts.noise_gain {
         Some(g) if g > 0.0 && g <= 1.0 => 1.0 / g.sqrt(),
         _ => 1.0,
@@ -1148,10 +1205,7 @@ pub fn fit_skywave(pulse: &AveragedPulse, tpl: &Template, opts: &SkywaveFitOptio
         }
     }
     let rel = ws * wg.conj();
-    let q_peak = tpl
-        .q
-        .iter()
-        .fold(0.0f64, |a, q| a.max(q.abs()));
+    let q_peak = tpl.q.iter().fold(0.0f64, |a, q| a.max(q.abs()));
     Ok(SkywaveFit {
         chain: pulse.chain.clone(),
         station: pulse.station.clone(),
@@ -1204,12 +1258,23 @@ mod tests {
         let mut rng = ChaCha8Rng::seed_from_u64(1);
         let t: Vec<f64> = (0..60).map(|i| i as f64 * 0.1).collect();
         let s = 0.01;
-        let y: Vec<f64> = t.iter().map(|t| a * (-k * t).exp() + s * gauss(&mut rng)).collect();
+        let y: Vec<f64> = t
+            .iter()
+            .map(|t| a * (-k * t).exp() + s * gauss(&mut rng))
+            .collect();
         for gn in [false, true] {
             let r = levenberg_marquardt(
-                |x| t.iter().zip(&y).map(|(t, y)| (y - x[0] * (-x[1] * t).exp()) / s).collect(),
+                |x| {
+                    t.iter()
+                        .zip(&y)
+                        .map(|(t, y)| (y - x[0] * (-x[1] * t).exp()) / s)
+                        .collect()
+                },
                 &[2.0, 0.5],
-                &LmOptions { gauss_newton: gn, ..Default::default() },
+                &LmOptions {
+                    gauss_newton: gn,
+                    ..Default::default()
+                },
             )
             .unwrap();
             assert!(r.converged);
@@ -1225,7 +1290,11 @@ mod tests {
     }
 
     fn sites() -> Vec<(&'static str, Geo)> {
-        vec![("S1", Geo::new(55.0, 3.0)), ("S2", Geo::new(54.2, 4.5)), ("S3", Geo::new(56.0, 4.0))]
+        vec![
+            ("S1", Geo::new(55.0, 3.0)),
+            ("S2", Geo::new(54.2, 4.5)),
+            ("S3", Geo::new(56.0, 4.0)),
+        ]
     }
     fn stations() -> Vec<(&'static str, Geo)> {
         vec![
@@ -1273,8 +1342,16 @@ mod tests {
         let clk = [40.0, -12.0, 3.0];
         let obs = synth(&corr, &tx, &clk, 5.0, 20);
         let cfg = AsfConfig {
-            site_clock_ns: sites().iter().zip(clk).map(|((s, _), c)| (s.to_string(), c)).collect(),
-            tx_offset_ns: stations().iter().zip(tx).map(|((s, _), t)| (format!("c/{s}"), t)).collect(),
+            site_clock_ns: sites()
+                .iter()
+                .zip(clk)
+                .map(|((s, _), c)| (s.to_string(), c))
+                .collect(),
+            tx_offset_ns: stations()
+                .iter()
+                .zip(tx)
+                .map(|((s, _), t)| (format!("c/{s}"), t))
+                .collect(),
             subtract_seawater_sf: false,
         };
         let est = estimate_asf(&obs, &cfg).unwrap();
@@ -1283,8 +1360,15 @@ mod tests {
             let i = sites().iter().position(|s| s.0 == e.site).unwrap();
             let j = stations().iter().position(|s| s.0 == e.station).unwrap();
             let want = corr(i, j);
-            assert!((e.std_err_ns - 5.0 / 20f64.sqrt()).abs() < 0.6, "{}", e.std_err_ns);
-            assert!((e.beyond_pf_ns - want).abs() < 3.5 * e.std_err_ns, "{e:?} want {want}");
+            assert!(
+                (e.std_err_ns - 5.0 / 20f64.sqrt()).abs() < 0.6,
+                "{}",
+                e.std_err_ns
+            );
+            assert!(
+                (e.beyond_pf_ns - want).abs() < 3.5 * e.std_err_ns,
+                "{e:?} want {want}"
+            );
         }
         let c = corrections_for_site(&est, "S2");
         assert_eq!(c.asf_ns.len(), 4);
@@ -1308,11 +1392,19 @@ mod tests {
         // unknown clocks: relative to the reference station c/M (true offset 0)
         let est = estimate_tx_timing(
             &obs,
-            &TimingConfig { correction_ns: cmap.clone(), site_clock_ns: None, reference_station: Some("c/M".into()) },
+            &TimingConfig {
+                correction_ns: cmap.clone(),
+                site_clock_ns: None,
+                reference_station: Some("c/M".into()),
+            },
         )
         .unwrap();
         for (j, (st, _)) in stations().iter().enumerate() {
-            let p = est.tx_offset_ns.iter().find(|p| p.name == format!("c/{st}")).unwrap();
+            let p = est
+                .tx_offset_ns
+                .iter()
+                .find(|p| p.name == format!("c/{st}"))
+                .unwrap();
             if j > 0 {
                 assert!(p.std_err > 0.3 && p.std_err < 2.0, "{p:?}");
             }
@@ -1328,14 +1420,24 @@ mod tests {
             &obs,
             &TimingConfig {
                 correction_ns: cmap,
-                site_clock_ns: Some(sites().iter().zip(clk).map(|((s, _), c)| (s.to_string(), c)).collect()),
+                site_clock_ns: Some(
+                    sites()
+                        .iter()
+                        .zip(clk)
+                        .map(|((s, _), c)| (s.to_string(), c))
+                        .collect(),
+                ),
                 reference_station: None,
             },
         )
         .unwrap();
         assert!(est.reference_station.is_none() && est.site_clock_ns.is_empty());
         for (j, (st, _)) in stations().iter().enumerate() {
-            let p = est.tx_offset_ns.iter().find(|p| p.name == format!("c/{st}")).unwrap();
+            let p = est
+                .tx_offset_ns
+                .iter()
+                .find(|p| p.name == format!("c/{st}"))
+                .unwrap();
             assert!((p.value - tx[j]).abs() < 3.5 * p.std_err, "{p:?}");
         }
     }
@@ -1344,9 +1446,24 @@ mod tests {
     fn segment_conductivity_is_recovered() {
         let profile = PathProfile {
             sections: vec![
-                ProfileSection { ground: SegmentGround::Known { sigma_s_m: 5.0, eps_r: Some(80.0) }, end_km: 40.0 },
-                ProfileSection { ground: SegmentGround::Unknown { eps_r: None }, end_km: 240.0 },
-                ProfileSection { ground: SegmentGround::Known { sigma_s_m: 5.0, eps_r: Some(80.0) }, end_km: 400.0 },
+                ProfileSection {
+                    ground: SegmentGround::Known {
+                        sigma_s_m: 5.0,
+                        eps_r: Some(80.0),
+                    },
+                    end_km: 40.0,
+                },
+                ProfileSection {
+                    ground: SegmentGround::Unknown { eps_r: None },
+                    end_km: 240.0,
+                },
+                ProfileSection {
+                    ground: SegmentGround::Known {
+                        sigma_s_m: 5.0,
+                        eps_r: Some(80.0),
+                    },
+                    end_km: 400.0,
+                },
             ],
             k_factor: crate::prop::ground::K_LORAN,
         };
@@ -1358,13 +1475,24 @@ mod tests {
         let pts: Vec<AsfPoint> = d
             .iter()
             .zip(&clean)
-            .map(|(d, a)| AsfPoint { distance_km: *d, asf_ns: a + sigma * gauss(&mut rng), sigma_ns: sigma })
+            .map(|(d, a)| AsfPoint {
+                distance_km: *d,
+                asf_ns: a + sigma * gauss(&mut rng),
+                sigma_ns: sigma,
+            })
             .collect();
         let fit = fit_segment_conductivity(&profile, &pts, &Default::default()).unwrap();
         eprintln!("conductivity fit {fit:?} clean asf {clean:?}");
         assert!(!fit.at_bound);
-        assert!(fit.log10_std > 0.0 && fit.log10_std < 0.1, "{}", fit.log10_std);
-        assert!(((fit.log10_sigma - truth.log10()) / fit.log10_std).abs() < 3.5, "{fit:?}");
+        assert!(
+            fit.log10_std > 0.0 && fit.log10_std < 0.1,
+            "{}",
+            fit.log10_std
+        );
+        assert!(
+            ((fit.log10_sigma - truth.log10()) / fit.log10_std).abs() < 3.5,
+            "{fit:?}"
+        );
         assert!((fit.sigma_s_m / truth - 1.0).abs() < 0.2);
         // updated configuration
         let g: GroundConfig = toml::from_str("model = \"smooth_earth\"\nsigma_s_m = 0.01").unwrap();
@@ -1435,15 +1563,31 @@ emission_delay_us = 13000.0
                 .map(|m| (m.group, m.toa_s))
                 .collect();
             let p = super::super::fidelity::averaged_pulse(
-                &rx.filtered[0], 1e6, rx.n_valid, &chains[0], si, &refs, (-30.0, 330.0), 2,
+                &rx.filtered[0],
+                1e6,
+                rx.n_valid,
+                &chains[0],
+                si,
+                &refs,
+                (-30.0, 330.0),
+                2,
             )
             .unwrap();
-            let opts = SkywaveFitOptions { noise_gain: Some(rx.fir.noise_gain), ..Default::default() };
+            let opts = SkywaveFitOptions {
+                noise_gain: Some(rx.fir.noise_gain),
+                ..Default::default()
+            };
             let fit = fit_skywave(&p, &rx.templates[0], &opts).unwrap();
             eprintln!("skywave fit {fit:?}");
             assert!(fit.converged);
-            assert!((fit.delay_us - 47.0).abs() < 0.3 && fit.delay_std_us < 0.2, "{fit:?}");
-            assert!((fit.ratio_db + 3.0).abs() < 0.3 && fit.ratio_std_db < 0.2, "{fit:?}");
+            assert!(
+                (fit.delay_us - 47.0).abs() < 0.3 && fit.delay_std_us < 0.2,
+                "{fit:?}"
+            );
+            assert!(
+                (fit.ratio_db + 3.0).abs() < 0.3 && fit.ratio_std_db < 0.2,
+                "{fit:?}"
+            );
             assert!(wrap_deg(fit.sky_phase_deg - 40.0).abs() < 5.0, "{fit:?}");
             assert!((fit.delay_us - 47.0).abs() < 4.0 * fit.delay_std_us.max(0.02));
             match fit.to_sky_config() {
@@ -1495,13 +1639,29 @@ time_ref = "UTC(A)"
         let (sink, truth, _) = crate::run_to_memory(src).unwrap();
         let start = sc.start().unwrap();
         let chains: Vec<Chain> = sc.chains.iter().map(|c| c.chain.clone()).collect();
-        let (_rx, out) =
-            rx::process(&RxInput::new(sink.channels, 1e6, start), &chains, RxConfig::default()).unwrap();
+        let (_rx, out) = rx::process(
+            &RxInput::new(sink.channels, 1e6, start),
+            &chains,
+            RxConfig::default(),
+        )
+        .unwrap();
         let site = Geo::new(55.0, 3.0);
-        let obs = observations_from_measurements("site", site, &out.measurements, &chains, start, 0.0, 3.0);
-        let mut cfg = AsfConfig { site_clock_ns: [("site".to_string(), 0.0)].into(), ..Default::default() };
+        let obs = observations_from_measurements(
+            "site",
+            site,
+            &out.measurements,
+            &chains,
+            start,
+            0.0,
+            3.0,
+        );
+        let mut cfg = AsfConfig {
+            site_clock_ns: [("site".to_string(), 0.0)].into(),
+            ..Default::default()
+        };
         for t in &truth {
-            cfg.tx_offset_ns.insert(format!("{}/{}", t.chain, t.station), t.emission_error_ns);
+            cfg.tx_offset_ns
+                .insert(format!("{}/{}", t.chain, t.station), t.emission_error_ns);
         }
         let est = estimate_asf(&obs, &cfg).unwrap();
         assert_eq!(est.len(), 2);

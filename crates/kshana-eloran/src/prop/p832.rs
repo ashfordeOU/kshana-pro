@@ -203,7 +203,11 @@ pub fn merged_classes(cats: &BTreeMap<String, CategoryDef>) -> Result<Vec<Ground
         match pos {
             Some(i) => {
                 let name = v[i].name.clone();
-                v[i] = GroundClass { name, code: v[i].code, ..cls };
+                v[i] = GroundClass {
+                    name,
+                    code: v[i].code,
+                    ..cls
+                };
             }
             None => v.push(cls),
         }
@@ -353,7 +357,9 @@ pub fn raster_from_csv(
         if u.len() == 1 {
             return Ok((u[0], 1.0, 1));
         }
-        let step = (1..u.len()).map(|i| u[i] - u[i - 1]).fold(f64::INFINITY, f64::min);
+        let step = (1..u.len())
+            .map(|i| u[i] - u[i - 1])
+            .fold(f64::INFINITY, f64::min);
         let n = ((u[u.len() - 1] - u[0]) / step).round() as usize + 1;
         for v in &u {
             let k = (v - u[0]) / step;
@@ -433,9 +439,10 @@ fn ring(v: &Value, idx: usize) -> Result<Vec<[f64; 2]>, String> {
         .ok_or_else(|| format!("GeoJSON feature {idx}: ring is not an array"))?;
     let mut out: Vec<[f64; 2]> = Vec::with_capacity(pts.len());
     for p in pts {
-        let a = p.as_array().filter(|a| a.len() >= 2).ok_or_else(|| {
-            format!("GeoJSON feature {idx}: a position must be [lon, lat]")
-        })?;
+        let a = p
+            .as_array()
+            .filter(|a| a.len() >= 2)
+            .ok_or_else(|| format!("GeoJSON feature {idx}: a position must be [lon, lat]"))?;
         let lon = a[0].as_f64().ok_or("GeoJSON: non-numeric longitude")?;
         let lat = a[1].as_f64().ok_or("GeoJSON: non-numeric latitude")?;
         out.push([lat, lon]);
@@ -444,7 +451,9 @@ fn ring(v: &Value, idx: usize) -> Result<Vec<[f64; 2]>, String> {
         out.pop();
     }
     if out.len() < 3 {
-        return Err(format!("GeoJSON feature {idx}: a ring needs at least 3 positions"));
+        return Err(format!(
+            "GeoJSON feature {idx}: a ring needs at least 3 positions"
+        ));
     }
     Ok(out)
 }
@@ -610,7 +619,10 @@ mod tests {
     fn classes_and_nearest() {
         let c = builtin_classes();
         assert_eq!(c.len(), 11);
-        assert_eq!(nearest_class(&c, GroundConst::new(0.0028, 20.0)).name, "land");
+        assert_eq!(
+            nearest_class(&c, GroundConst::new(0.0028, 20.0)).name,
+            "land"
+        );
         assert_eq!(nearest_class(&c, GroundConst::seawater()).name, "sea");
         assert_eq!(
             nearest_class(&c, GroundConst::new(0.003, 80.0)).name,
@@ -637,7 +649,10 @@ mod tests {
         );
         let m = merged_classes(&cats).unwrap();
         let land = m.iter().find(|x| x.name == "land").unwrap();
-        assert_eq!((land.code, land.sigma_s_m, land.sigma_log10_sd), (6, 0.004, 0.2));
+        assert_eq!(
+            (land.code, land.sigma_s_m, land.sigma_log10_sd),
+            (6, 0.004, 0.2)
+        );
         assert_eq!(class_by_key(&m, "42").unwrap().sigma_s_m, 0.05);
         assert_eq!(class_by_key(&m, "7").unwrap().name, "medium_dry_ground");
     }
@@ -663,11 +678,18 @@ mod tests {
         let m = ConductivityMap::build(&cfg).unwrap();
         assert_eq!(m.at(Geo::new(51.5, 0.5)).sigma_s_m, 0.003);
         assert_eq!(m.at(Geo::new(51.5, 0.5)).eps(), 15.0);
-        assert_eq!(m.at(Geo::new(50.7, 1.5)).sigma_s_m, 5.0, "hole = background");
+        assert_eq!(
+            m.at(Geo::new(50.7, 1.5)).sigma_s_m,
+            5.0,
+            "hole = background"
+        );
         assert_eq!(m.at(Geo::new(49.0, 1.5)).sigma_s_m, 5.0);
         assert_eq!(m.at(Geo::new(10.5, 10.5)).sigma_s_m, 3e-4);
         assert_eq!(m.at(Geo::new(10.5, 20.5)).eps(), 7.0);
-        assert!((m.at(Geo::new(51.2, 3.2)).sigma_s_m - 0.01).abs() < 1e-12, "later wins");
+        assert!(
+            (m.at(Geo::new(51.2, 3.2)).sigma_s_m - 0.01).abs() < 1e-12,
+            "later wins"
+        );
         // errors
         let bad = r#"{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1]]]}}"#;
         assert!(polygons_from_geojson(bad, GroundConst::seawater(), &builtin_classes()).is_err());
@@ -684,17 +706,35 @@ mod tests {
         let m = ConductivityMap::build(&cfg).unwrap();
         assert!((m.at(Geo::new(50.3, 0.3)).sigma_s_m - 0.003).abs() < 2e-4);
         assert!((m.at(Geo::new(50.3, 0.9)).sigma_s_m - 0.001).abs() < 1e-4);
-        assert!((m.at(Geo::new(50.6, 0.6)).sigma_s_m - 5.0).abs() < 0.03, "missing cell = background (σ quantised to 1/50 decade)");
+        assert!(
+            (m.at(Geo::new(50.6, 0.6)).sigma_s_m - 5.0).abs() < 0.03,
+            "missing cell = background (σ quantised to 1/50 decade)"
+        );
         assert_eq!(m.at(Geo::new(50.3, 0.3)).eps(), 22.0);
         let csv2 = "lat,lon,sigma_ms,eps_r\n10,20,3,12\n10,20.5,30,\n";
-        let m2 = ConductivityMap::build(&raster_from_csv(csv2, GroundConst::seawater(), &classes).unwrap()).unwrap();
+        let m2 = ConductivityMap::build(
+            &raster_from_csv(csv2, GroundConst::seawater(), &classes).unwrap(),
+        )
+        .unwrap();
         assert!((m2.at(Geo::new(10.1, 20.1)).sigma_s_m - 0.003).abs() < 2e-4);
         assert_eq!(m2.at(Geo::new(10.1, 20.1)).eps(), 12.0);
         assert!((m2.at(Geo::new(10.1, 20.6)).sigma_s_m - 0.03).abs() < 2e-3);
-        assert!(raster_from_csv("lat,lon,sigma\n0,0,1\n0,0.3,1\n0,1,1\n", GroundConst::seawater(), &classes).is_err());
-        let asc = "ncols 2\nnrows 2\nxllcorner 0\nyllcorner 50\ncellsize 1\nNODATA_value -1\n6 9\n-1 3\n";
+        assert!(raster_from_csv(
+            "lat,lon,sigma\n0,0,1\n0,0.3,1\n0,1,1\n",
+            GroundConst::seawater(),
+            &classes
+        )
+        .is_err());
+        let asc =
+            "ncols 2\nnrows 2\nxllcorner 0\nyllcorner 50\ncellsize 1\nNODATA_value -1\n6 9\n-1 3\n";
         let m3 = ConductivityMap::build(
-            &raster_from_asc(asc, RasterValues::Category, GroundConst::seawater(), &classes).unwrap(),
+            &raster_from_asc(
+                asc,
+                RasterValues::Category,
+                GroundConst::seawater(),
+                &classes,
+            )
+            .unwrap(),
         )
         .unwrap();
         assert!((m3.at(Geo::new(51.5, 0.5)).sigma_s_m - 0.003).abs() < 2e-4); // north row: land
@@ -719,7 +759,11 @@ mod tests {
             f.to_string_lossy()
         );
         let cfg: GroundConfig = toml::from_str(&toml_src).unwrap();
-        let ctx = BuildContext::new(crate::time::AbsTime::from_utc_iso("2026-01-01T00:00:00Z").unwrap(), 1.0, 0);
+        let ctx = BuildContext::new(
+            crate::time::AbsTime::from_utc_iso("2026-01-01T00:00:00Z").unwrap(),
+            1.0,
+            0,
+        );
         let m = super::super::ground::build(&cfg, &ctx).unwrap();
         let st = crate::chain::Station {
             id: "M".into(),
@@ -734,7 +778,12 @@ mod tests {
             status: crate::chain::StationStatus::On,
             faults: vec![],
         };
-        let rx = crate::traj::RxState { t_s: 0.0, pos: Geo::new(53.0, 0.0), heading_rad: 0.0, speed_mps: 0.0 };
+        let rx = crate::traj::RxState {
+            t_s: 0.0,
+            pos: Geo::new(53.0, 0.0),
+            heading_rad: 0.0,
+            speed_mps: 0.0,
+        };
         let p = m.paths(&st, &rx)[0];
         assert!(p.asf_ns > 50.0, "mixed path ASF {}", p.asf_ns);
         let a = load_atlas(&AtlasConfig::Geojson {
@@ -743,7 +792,10 @@ mod tests {
             categories: BTreeMap::new(),
         })
         .unwrap();
-        assert_eq!(a.class_of(a.map.at(Geo::new(55.0, 0.0))).sigma_log10_sd, 0.3);
+        assert_eq!(
+            a.class_of(a.map.at(Geo::new(55.0, 0.0))).sigma_log10_sd,
+            0.3
+        );
         assert!(load_atlas(&AtlasConfig::Geojson {
             file: "/nonexistent.geojson".into(),
             background: GroundConst::seawater(),

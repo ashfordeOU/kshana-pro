@@ -1,6 +1,6 @@
 // PROPRIETARY — Kshana Pro.
 use super::*;
-use crate::ldc::msg::{MsgContext, Message};
+use crate::ldc::msg::{Message, MsgContext};
 use crate::rx::{self, position_error_m, position_solution, PositionConfig};
 use crate::scenario::Scenario;
 use crate::signal::Role;
@@ -112,7 +112,10 @@ fn reference_corrections_reduce_user_position_error() {
     assert!(
         corrs.iter().any(|c| c.filtered_residual_ns.abs() > 30.0),
         "ASF too small to be a meaningful test: {:?}",
-        corrs.iter().map(|c| c.filtered_residual_ns).collect::<Vec<_>>()
+        corrs
+            .iter()
+            .map(|c| c.filtered_residual_ns)
+            .collect::<Vec<_>>()
     );
 
     // Broadcast as LDC Dloran messages and ingest on the user side.
@@ -157,8 +160,7 @@ fn reference_corrections_reduce_user_position_error() {
 
     // The direct Corrections path and the message round-trip agree.
     let direct = station.corrections();
-    let sol2 =
-        position_solution(&user.meas, &user.chains, user.start, &direct, &pc).unwrap();
+    let sol2 = position_solution(&user.meas, &user.chains, user.start, &direct, &pc).unwrap();
     let e2 = position_error_m(sol2.position, &user.truth).unwrap();
     assert!((e2 - e1).abs() < 2.0, "direct {e2} vs message {e1}");
 
@@ -199,7 +201,12 @@ fn smoothing_filters_noise_and_flags_unusable() {
     let gri = 0.08;
     let mk = |si: usize, group: i64, extra_s: f64| -> Measurement {
         let st = &chains[0].stations[si];
-        let pred = rx::predicted_delay_s(st, crate::geo::Geo::new(54.0, 4.0), "dl-A", &Corrections::default());
+        let pred = rx::predicted_delay_s(
+            st,
+            crate::geo::Geo::new(54.0, 4.0),
+            "dl-A",
+            &Corrections::default(),
+        );
         let nom = rx::nominal_emission_s(&chains[0], si, group, start);
         Measurement {
             chain_index: 0,
@@ -224,15 +231,19 @@ fn smoothing_filters_noise_and_flags_unusable() {
     for g in 0..40i64 {
         let noise = if g % 2 == 0 { 8e-9 } else { -8e-9 };
         let meas = vec![
-            mk(0, g, 50e-9 + noise),   // M: 50 ns, within limit
-            mk(1, g, 500e-9),          // X: 500 ns, over the 100 ns limit → unusable
+            mk(0, g, 50e-9 + noise), // M: 50 ns, within limit
+            mk(1, g, 500e-9),        // X: 500 ns, over the 100 ns limit → unusable
         ];
         last = station.update(&meas, start);
         let _ = gri;
     }
     let m = last.iter().find(|c| c.station == "M").unwrap();
     let x = last.iter().find(|c| c.station == "X").unwrap();
-    assert!((m.filtered_residual_ns - 50.0).abs() < 5.0, "M filtered {}", m.filtered_residual_ns);
+    assert!(
+        (m.filtered_residual_ns - 50.0).abs() < 5.0,
+        "M filtered {}",
+        m.filtered_residual_ns
+    );
     assert!(m.usable);
     assert!(!x.usable && x.flag.contains("over limit"), "{x:?}");
     // the broadcast omits the unusable station
@@ -240,7 +251,9 @@ fn smoothing_filters_noise_and_flags_unusable() {
     let codes: Vec<u8> = specs
         .iter()
         .flat_map(|s| match s {
-            MessageSpec::Dloran { corrections, .. } => corrections.iter().map(|c| c.station_code).collect(),
+            MessageSpec::Dloran { corrections, .. } => {
+                corrections.iter().map(|c| c.station_code).collect()
+            }
             _ => vec![],
         })
         .collect();
