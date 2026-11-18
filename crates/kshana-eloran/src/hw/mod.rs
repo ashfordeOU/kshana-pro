@@ -31,6 +31,18 @@ pub mod file;
 pub mod fir;
 #[cfg(all(feature = "soapy", unix))]
 pub mod soapy;
+pub mod awg;
+#[cfg(all(feature = "digilent", unix))]
+pub mod digilent;
+pub mod health;
+#[cfg(feature = "redpitaya")]
+pub mod redpitaya;
+pub mod scpi_awg;
+#[cfg(all(feature = "uhd", unix))]
+pub mod uhd;
+/// The virtual bench device (`src/hw/virtual.rs`; `virtual` is a reserved word in Rust).
+#[path = "virtual.rs"]
+pub mod virtual_bench;
 
 use crate::scene::SampleSink;
 use serde::{Deserialize, Serialize};

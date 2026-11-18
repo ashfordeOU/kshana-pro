@@ -1,0 +1,38 @@
+# Kshana Pro AWG profile: generic IEEE 488.2-style instrument, ASCII upload.
+#
+# ILLUSTRATIVE ONLY. The command names below are neutral placeholders in the general style
+# of SCPI; they are NOT the command set of any particular vendor or model. Copy this file,
+# replace every command with the one from your instrument's programming manual, and load it
+# with `ScpiProfile::load(path)`. ASCII upload is slow; prefer a binary block where offered.
+#
+# Placeholders: {ch} instrument channel (1-based), {name} waveform name, {len} points,
+# {block} IEEE 488.2 definite-length binary block, {data} comma-separated values,
+# {rate} sample rate (Sa/s), {vpp} full-scale amplitude (Vpp), {offset} offset (V).
+name = "generic-ascii"
+description = "Generic IEEE 488.2-like AWG, comma-separated normalised float upload (placeholder commands)"
+port = 5025
+terminator = "\n"
+max_points = 65536
+min_points = 8
+granularity = 1
+dac_bits = 14
+data_format = "float_csv"
+idn = "*IDN?"
+error_query = "SYST:ERR?"
+no_error = "0"
+opc = "*OPC?"
+init = ["*CLS"]
+upload = ["WAVE{ch}:DATA:ASC {name},{data}"]
+select = ["WAVE{ch}:SEL {name}"]
+sample_rate = ["WAVE{ch}:SRAT {rate}"]
+amplitude = ["OUTP{ch}:AMPL {vpp}"]
+offset = ["OUTP{ch}:OFFS {offset}"]
+loop_continuous = ["WAVE{ch}:MODE CONT"]
+loop_once = ["WAVE{ch}:MODE ONCE"]
+ref_external = ["REF:SOUR EXT"]
+ref_internal = ["REF:SOUR INT"]
+trigger_external = ["TRIG{ch}:SOUR EXT"]
+trigger_immediate = ["TRIG{ch}:SOUR IMM"]
+software_trigger = ["*TRG"]
+output_on = ["OUTP{ch} ON"]
+output_off = ["OUTP{ch} OFF"]
