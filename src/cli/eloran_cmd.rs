@@ -36,6 +36,10 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         The preloaded worldwide GRI/chain database with sources and confidence (no licence needed)\n\
     calibrate receiver --tic <readings.csv> --inputs <inputs.json> [--column <n>] [--unit s|ns] --out <report.json>\n\
         Receiver internal delay from time-interval-counter readings with a GUM uncertainty budget (Enterprise)\n\
+    stream <scenario.toml> --device <file:<base> | soapy:<args>> [--pps-start] [--external-ref] [--external-pps] [--gain-db <dB>] [--cal <calibration.json>] [--license <token>] [--dev]\n\
+        Stream the scenario in real time to an LF output device: a paced SigMF file device, or SoapySDR\n\
+        hardware (build with feature eloran-soapy). Conducted use only: cables or antenna simulators,\n\
+        never over the air (Enterprise, feature pro-eloran-hw)\n\
     validate <scenario.toml>\n\
         Check a scenario and print its SHA-256 (no licence needed)\n\
     example\n\
@@ -54,6 +58,7 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("validate") => validate_cmd(args),
         Some("gnss") => gnss_cmd(args),
         Some("rx") => rx_cmd(args),
+        Some("stream") => stream_cmd(args),
         Some("gri") => gri_cmd(args),
         Some("calibrate") => calibrate_cmd(args),
         Some("example") => {
@@ -495,6 +500,96 @@ fn calibrate_cmd(args: &[String]) -> ExitCode {
                 "receiver delay {:.2} ns (n = {}, Type A {:.2} ns) -> {}",
                 r.receiver_delay_ns, r.n_readings, r.u_a_ns, out
             );
+            ExitCode::SUCCESS
+        }
+        Err(e) => fail(e),
+    }
+}
+
+/// Licence feature for driving LF hardware.
+pub const HW_FEATURE: &str = "pro-eloran-hw";
+
+fn stream_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::hw::{self, Device, DeviceConfig, PpsSource, RefSource, StartTime};
+    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")) else {
+        return fail(USAGE);
+    };
+    let Some(dev_spec) = flag(args, "--device") else {
+        return fail(USAGE);
+    };
+    let now = now_unix();
+    let ent = match entitlement(args, now) {
+        Ok(e) => e,
+        Err(e) => return fail(e),
+    };
+    for f in [FEATURE, HW_FEATURE] {
+        if let Err(e) = crate::license::check(&ent, f, now) {
+            return fail(e);
+        }
+    }
+    let sc = match load(path) {
+        Ok(s) => s,
+        Err(e) => return fail(e),
+    };
+    let scene = match sc.build() {
+        Ok(s) => s,
+        Err(e) => return fail(format!("{path}: {e}")),
+    };
+    let mut cfg = DeviceConfig::tx(sc.scene.params.fs_hz, sc.outputs.len());
+    if args.iter().any(|a| a == "--external-ref") {
+        cfg.clock_source = RefSource::External;
+    }
+    if args.iter().any(|a| a == "--external-pps") {
+        cfg.time_source = PpsSource::External;
+    }
+    if let Some(g) = flag(args, "--gain-db") {
+        match g.parse::<f64>() {
+            Ok(v) => cfg.tx_gain_db = vec![v; sc.outputs.len()],
+            Err(_) => return fail("--gain-db needs a number"),
+        }
+    }
+    if flag(args, "--cal").is_some() {
+        return fail("--cal: apply the calibration file with `kshana_eloran::hw::calib::CalibratedSink` in an integration; the command line does not apply it yet");
+    }
+    let mut device: Box<dyn Device> = if let Some(base) = dev_spec.strip_prefix("file:") {
+        Box::new(hw::file::FileDevice::tx(Path::new(base), kshana_eloran::io::Format::Ri16))
+    } else if let Some(_a) = dev_spec.strip_prefix("soapy:") {
+        #[cfg(feature = "eloran-soapy")]
+        {
+            match hw::soapy::SoapyDevice::open(_a, hw::soapy::SoapyFormat::Cf32) {
+                Ok(d) => Box::new(d),
+                Err(e) => return fail(e),
+            }
+        }
+        #[cfg(not(feature = "eloran-soapy"))]
+        {
+            return fail("this build has no SoapySDR support (rebuild with --features eloran-soapy)");
+        }
+    } else {
+        return fail("--device must be file:<base> or soapy:<args>");
+    };
+    eprintln!("{}", hw::OUTPUT_POLICY);
+    if let Err(e) = device.configure(&cfg) {
+        return fail(e);
+    }
+    let at = if args.iter().any(|a| a == "--pps-start") { StartTime::NextPps } else { StartTime::Now };
+    let session = match hw::stream_scene(device, scene, at, 16) {
+        Ok(s) => s,
+        Err(e) => return fail(e),
+    };
+    match session.wait() {
+        Ok(r) => {
+            let (stats, truth) = r.produced;
+            println!(
+                "stream: {} on {} — {} samples/channel, {} truth rows, FIFO underruns {}, device underruns {}",
+                path,
+                r.device.name(),
+                r.session.samples_written,
+                truth.len(),
+                r.session.fifo_underruns,
+                r.device_status.underruns
+            );
+            let _ = stats;
             ExitCode::SUCCESS
         }
         Err(e) => fail(e),

@@ -56,3 +56,4 @@ __pycache__/
 
 # Agent worktrees (local only)
 /.claude/worktrees/
+/target-check/

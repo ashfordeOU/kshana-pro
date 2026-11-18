@@ -22,6 +22,8 @@ path = "src/main.rs"
 # `kshana_pro::extension`. This crate never depends on it (scripts/protect/source-guard.sh).
 
 [features]
+# eLoran simulator hardware output through SoapySDR (opened at run time; conducted use only).
+eloran-soapy = ["kshana-eloran/soapy"]
 # Licence and pack signing through AWS KMS (key custody S7-a, src/license/kms.rs). Adds no
 # crate: SigV4 uses ring and sha2, the transport rustls, all already dependencies.
 kms = []
