@@ -20,4 +20,13 @@ hex = "0.4"
 rand = "0.8"
 rand_chacha = "0.3"
 
+# dlopen for the optional SoapySDR hardware driver (feature `soapy`, unix only).
+[target.'cfg(unix)'.dependencies]
+libc = { version = "0.2", optional = true }
+
+[features]
+default = []
+# SoapySDR 0.8 hardware output/capture, opened at run time with dlopen (no link dependency).
+soapy = ["dep:libc"]
+
 [dev-dependencies]
