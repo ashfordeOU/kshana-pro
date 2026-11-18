@@ -355,3 +355,67 @@ pub fn truth_csv(records: &[TruthRecord]) -> String {
     }
     s
 }
+
+/// Read truth records written by [`truth_csv`].
+pub fn truth_from_csv(text: &str) -> Result<Vec<TruthRecord>, String> {
+    let mut out = Vec::new();
+    for (i, line) in text.lines().enumerate().skip(1) {
+        if line.trim().is_empty() {
+            continue;
+        }
+        let f: Vec<&str> = line.split(',').collect();
+        if f.len() != 22 {
+            return Err(format!("truth line {}: expected 22 fields, got {}", i + 1, f.len()));
+        }
+        let num = |k: usize| -> Result<f64, String> {
+            f[k].parse::<f64>().map_err(|e| format!("truth line {} field {}: {e}", i + 1, k + 1))
+        };
+        let opt = |k: usize| -> Result<Option<f64>, String> {
+            if f[k].is_empty() {
+                Ok(None)
+            } else {
+                num(k).map(Some)
+            }
+        };
+        out.push(TruthRecord {
+            t_emit_s: num(0)?,
+            chain: f[1].to_string(),
+            station: f[2].to_string(),
+            group: f[3].parse().map_err(|e| format!("truth line {}: {e}", i + 1))?,
+            toa_s: num(4)?,
+            delay_ns: num(5)?,
+            geom_ns: num(6)?,
+            pf_ns: num(7)?,
+            sf_ns: num(8)?,
+            asf_ns: num(9)?,
+            ecd_us: num(10)?,
+            field_uv_m: num(11)?,
+            snr_db: if f[12] == "inf" { f64::INFINITY } else { num(12)? },
+            sky_delay_us: opt(13)?,
+            sky_ratio_db: opt(14)?,
+            time_ref_offset_ns: num(15)?,
+            emission_error_ns: num(16)?,
+            rx_lat_deg: num(17)?,
+            rx_lon_deg: num(18)?,
+            rx_heading_deg: num(19)?,
+            bearing_deg: num(20)?,
+            distance_km: num(21)?,
+        });
+    }
+    Ok(out)
+}
+
+#[cfg(test)]
+mod truth_io_tests {
+    use super::*;
+
+    #[test]
+    fn truth_csv_round_trips() {
+        let src = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/scenarios/synthetic-two-chain.toml")).unwrap();
+        let (_s, truth, _st) = crate::run_to_memory(&src).unwrap();
+        let back = truth_from_csv(&truth_csv(&truth)).unwrap();
+        assert_eq!(back.len(), truth.len());
+        assert_eq!(back[0].station, truth[0].station);
+        assert!((back[0].toa_s - truth[0].toa_s).abs() < 1e-11);
+    }
+}

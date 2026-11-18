@@ -28,6 +28,14 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         Generate the GNSS half of a hybrid scene in software: GPS L1 C/A and Galileo E1-B complex baseband\n\
         (<base>.gnss.sigmf-data/-meta, ci16_le at 1575.42 MHz) and per-satellite truth, on the scenario's\n\
         trajectory and start instant (Enterprise)\n\
+    rx <scenario.toml> --recording <base> --out <dir> [--truth <truth.csv>] [--per-loop] [--no-cri-blanking] [--license <token>] [--dev]\n\
+        Software eLoran receiver on a recording (the scenario gives chains, start and antennas): per-station\n\
+        ToA, ECD, SNR; time solution at the scenario's receiver position; position solution; with --truth,\n\
+        error statistics against the simulator truth (Enterprise)\n\
+    gri <list|show|snippet> [<gri|id>] [--region <r>] [--active-on <YYYY-MM-DD>] [--search <text>]\n\
+        The preloaded worldwide GRI/chain database with sources and confidence (no licence needed)\n\
+    calibrate receiver --tic <readings.csv> --inputs <inputs.json> [--column <n>] [--unit s|ns] --out <report.json>\n\
+        Receiver internal delay from time-interval-counter readings with a GUM uncertainty budget (Enterprise)\n\
     validate <scenario.toml>\n\
         Check a scenario and print its SHA-256 (no licence needed)\n\
     example\n\
@@ -45,6 +53,9 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("run") => run_cmd(args),
         Some("validate") => validate_cmd(args),
         Some("gnss") => gnss_cmd(args),
+        Some("rx") => rx_cmd(args),
+        Some("gri") => gri_cmd(args),
+        Some("calibrate") => calibrate_cmd(args),
         Some("example") => {
             print!("{EXAMPLE}");
             ExitCode::SUCCESS
@@ -228,6 +239,261 @@ fn gnss_cmd(args: &[String]) -> ExitCode {
                 r.samples,
                 r.truth_records,
                 r.data.display()
+            );
+            ExitCode::SUCCESS
+        }
+        Err(e) => fail(e),
+    }
+}
+
+fn licensed(args: &[String]) -> Result<String, ExitCode> {
+    let now = now_unix();
+    let ent = entitlement(args, now).map_err(fail)?;
+    crate::license::check(&ent, FEATURE, now).map_err(fail)?;
+    Ok(ent.licensee)
+}
+
+fn rx_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::rx::{self, solve, truth as rxt, Antenna, LoopMode, RxConfig, RxInput};
+    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")) else {
+        return fail(USAGE);
+    };
+    let (Some(rec), Some(out)) = (flag(args, "--recording"), flag(args, "--out")) else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    let sc = match load(path).and_then(|s| s.build().map(|_| s)) {
+        Ok(s) => s,
+        Err(e) => return fail(e),
+    };
+    let start = match kshana_eloran::time::AbsTime::from_utc_iso(&sc.scene.start_utc) {
+        Ok(t) => t,
+        Err(e) => return fail(e),
+    };
+    let recording = match kshana_eloran::io::read_sigmf(Path::new(&rec), None) {
+        Ok(r) => r,
+        Err(e) => return fail(e),
+    };
+    let chains: Vec<_> = sc.chains.iter().map(|c| c.chain.clone()).collect();
+    let mut cfg = RxConfig::default();
+    cfg.output_scale_uv_m = sc.scene.params.output_scale_uv_m;
+    let loops: Vec<usize> = sc
+        .outputs
+        .iter()
+        .enumerate()
+        .filter(|(_, o)| matches!(o, kshana_eloran::antenna::OutputChannel::HLoop { .. }))
+        .map(|(i, _)| i)
+        .collect();
+    cfg.antenna = if loops.len() >= 2 {
+        let mode = if args.iter().any(|a| a == "--per-loop") { LoopMode::PerLoop } else { LoopMode::BeamSteer };
+        Antenna::CrossedLoop { a: loops[0], b: loops[1], mode }
+    } else {
+        Antenna::EField { channel: 0 }
+    };
+    if args.iter().any(|a| a == "--no-cri-blanking") {
+        cfg.cri.blank = false;
+    }
+    let input = RxInput::from_recording(&recording, start);
+    let (_rx, output) = match rx::process(&input, &chains, cfg.clone()) {
+        Ok(r) => r,
+        Err(e) => return fail(e),
+    };
+    let dir = PathBuf::from(&out);
+    if let Err(e) = std::fs::create_dir_all(&dir) {
+        return fail(format!("{}: {e}", dir.display()));
+    }
+    let mut csv = String::from("chain,station,channel,group,toa_s,envelope_toa_s,ecd_us,snr_db,field_uv_m,cycle_slip,bearing_deg,pulses\n");
+    for m in &output.measurements {
+        csv.push_str(&format!(
+            "{},{},{},{},{:.12},{:.12},{:.4},{:.2},{:.4},{},{},{}\n",
+            m.chain,
+            m.station,
+            m.channel.map(|c| c.to_string()).unwrap_or_default(),
+            m.group,
+            m.toa_s,
+            m.envelope_toa_s,
+            m.ecd_us,
+            m.snr_db,
+            m.field_uv_m,
+            m.cycle_slip,
+            m.bearing_deg.map(|b| format!("{b:.3}")).unwrap_or_default(),
+            m.pulses
+        ));
+    }
+    if let Err(e) = std::fs::write(dir.join("measurements.csv"), csv) {
+        return fail(e);
+    }
+    let corr = cfg.corrections.clone();
+    let rx_pos = sc.receiver.state(0.0).pos;
+    let ts = solve::time_solution(&output.measurements, &chains, start, rx_pos, &corr);
+    let pos = solve::position_solution(&output.measurements, &chains, start, &corr, &solve::PositionConfig::default());
+    let mut report = serde_json::json!({
+        "format": "kshana-eloran-rx",
+        "version": 1,
+        "scenario_sha256": sc.hash(),
+        "recording": rec,
+        "stations_tracked": output.tracks.len(),
+        "measurements": output.measurements.len(),
+        "time_solution": ts.stations.iter().map(|s| serde_json::json!({
+            "chain": s.chain, "station": s.station, "time_ref": s.time_ref,
+            "ref_minus_rx_ns": s.ref_minus_rx_ns, "std_ns": s.std_ns, "n": s.n })).collect::<Vec<_>>(),
+        "time_by_reference": ts.by_time_ref.iter().map(|(r, v, n)| serde_json::json!({"time_ref": r, "ref_minus_rx_ns": v, "stations": n})).collect::<Vec<_>>(),
+        "position_solution": match &pos {
+            Ok(p) => serde_json::json!({
+                "lat_deg": p.position.lat_deg, "lon_deg": p.position.lon_deg, "hdop": p.hdop,
+                "clock_bias_ns": p.clock_bias_ns, "residuals_ns": p.residuals_ns, "converged": p.converged }),
+            Err(e) => serde_json::json!({ "error": e }),
+        },
+        "evidence_label": "MODELLED",
+    });
+    if let Some(tp) = flag(args, "--truth") {
+        let truth = match std::fs::read_to_string(&tp).map_err(|e| format!("{tp}: {e}")).and_then(|t| kshana_eloran::scene::truth_from_csv(&t)) {
+            Ok(t) => t,
+            Err(e) => return fail(e),
+        };
+        let errs = rxt::toa_errors(&output.measurements, &truth);
+        report["truth_comparison"] = serde_json::json!({
+            "stations": errs.iter().map(|e| serde_json::json!({
+                "chain": e.chain, "station": e.station, "channel": e.channel, "n": e.n,
+                "toa_mean_ns": e.toa_mean_ns, "toa_std_ns": e.toa_std_ns, "toa_rms_ns": e.toa_rms_ns,
+                "toa_max_abs_ns": e.toa_max_abs_ns, "ecd_rms_err_us": e.ecd_rms_err_us,
+                "cycle_errors": e.cycle_errors })).collect::<Vec<_>>(),
+            "position_error_m": pos.as_ref().ok().and_then(|p| rxt::position_error_m(p.position, &truth)),
+        });
+    }
+    if let Err(e) = std::fs::write(dir.join("rx-report.json"), serde_json::to_string_pretty(&report).unwrap()) {
+        return fail(e);
+    }
+    println!(
+        "rx: {} station track(s), {} measurement(s){} -> {}",
+        output.tracks.len(),
+        output.measurements.len(),
+        match &pos {
+            Ok(p) => format!(", fix {:.6} {:.6} HDOP {:.2}", p.position.lat_deg, p.position.lon_deg, p.hdop),
+            Err(_) => String::new(),
+        },
+        dir.display()
+    );
+    ExitCode::SUCCESS
+}
+
+fn gri_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::gridb::{self, GriDb};
+    let db = match GriDb::embedded() {
+        Ok(d) => d,
+        Err(e) => return fail(e),
+    };
+    let target = args.get(2).filter(|a| !a.starts_with("--")).cloned();
+    let find = |t: &str| -> Vec<&gridb::DbChain> {
+        if let Some(c) = db.get(t) {
+            return vec![c];
+        }
+        match t.parse::<u32>() {
+            Ok(g) => db.by_gri(g),
+            Err(_) => db.search(t),
+        }
+    };
+    match args.get(1).map(String::as_str) {
+        Some("list") => {
+            let mut v: Vec<&gridb::DbChain> = db.chains.iter().collect();
+            if let Some(r) = flag(args, "--region") {
+                let keep: Vec<String> = db.by_region(&r).iter().map(|c| c.id.clone()).collect();
+                v.retain(|c| keep.contains(&c.id));
+            }
+            if let Some(d) = flag(args, "--active-on") {
+                v.retain(|c| c.active_on(&d));
+            }
+            if let Some(q) = flag(args, "--search") {
+                let keep: Vec<String> = db.search(&q).iter().map(|c| c.id.clone()).collect();
+                v.retain(|c| keep.contains(&c.id));
+            }
+            for c in v {
+                println!(
+                    "{:<22} GRI {:>5}  {:<28} {:<10} {}",
+                    c.id,
+                    c.gri_us / 10,
+                    c.name,
+                    if c.is_complete() { "complete" } else { "incomplete" },
+                    c.region
+                );
+            }
+            ExitCode::SUCCESS
+        }
+        Some("show") => {
+            let Some(t) = target else { return fail(USAGE) };
+            let found = find(&t);
+            if found.is_empty() {
+                return fail(format!("no chain matches {t}"));
+            }
+            for c in found {
+                println!("{}", serde_json::to_string_pretty(c).unwrap());
+            }
+            ExitCode::SUCCESS
+        }
+        Some("snippet") => {
+            let Some(t) = target else { return fail(USAGE) };
+            let found = find(&t);
+            let Some(c) = found.first() else {
+                return fail(format!("no chain matches {t}"));
+            };
+            match gridb::scenario_snippet_for(c, &Default::default()) {
+                Ok(s) => {
+                    print!("{s}");
+                    ExitCode::SUCCESS
+                }
+                Err(e) => fail(e),
+            }
+        }
+        _ => fail(USAGE),
+    }
+}
+
+fn calibrate_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::hw::calib::{parse_tic_csv, receiver_delay, ReceiverDelayInputs, TicUnit};
+    if args.get(1).map(String::as_str) != Some("receiver") {
+        return fail(USAGE);
+    }
+    let (Some(tic), Some(inputs), Some(out)) = (flag(args, "--tic"), flag(args, "--inputs"), flag(args, "--out")) else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    let unit = match flag(args, "--unit").as_deref() {
+        None | Some("s") => TicUnit::Seconds,
+        Some("ns") => TicUnit::Nanoseconds,
+        Some(u) => return fail(format!("--unit {u}: s or ns")),
+    };
+    let column = match flag(args, "--column").map(|c| c.parse::<usize>()) {
+        None => None,
+        Some(Ok(c)) => Some(c),
+        Some(Err(_)) => return fail("--column needs a whole number"),
+    };
+    let text = match std::fs::read_to_string(&tic) {
+        Ok(t) => t,
+        Err(e) => return fail(format!("{tic}: {e}")),
+    };
+    let readings = match parse_tic_csv(&text, column, unit) {
+        Ok(r) => r,
+        Err(e) => return fail(e),
+    };
+    let inp: ReceiverDelayInputs = match std::fs::read_to_string(&inputs)
+        .map_err(|e| format!("{inputs}: {e}"))
+        .and_then(|t| serde_json::from_str(&t).map_err(|e| format!("{inputs}: {e}")))
+    {
+        Ok(i) => i,
+        Err(e) => return fail(e),
+    };
+    match receiver_delay(&readings, &inp) {
+        Ok(r) => {
+            if let Err(e) = std::fs::write(&out, serde_json::to_string_pretty(&r).unwrap()) {
+                return fail(format!("{out}: {e}"));
+            }
+            println!(
+                "receiver delay {:.2} ns (n = {}, Type A {:.2} ns) -> {}",
+                r.receiver_delay_ns, r.n_readings, r.u_a_ns, out
             );
             ExitCode::SUCCESS
         }
