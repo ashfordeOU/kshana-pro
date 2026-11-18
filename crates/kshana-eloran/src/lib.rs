@@ -22,15 +22,20 @@
 
 pub mod antenna;
 pub mod chain;
+pub mod dloran;
 pub mod geo;
 pub mod gridb;
 pub mod hw;
 pub mod interf;
 pub mod io;
 pub mod ldc;
+pub mod plan;
 pub mod prop;
 pub mod replay;
+pub mod rt;
 pub mod rx;
+pub mod threat;
+pub mod twin;
 pub mod scenario;
 pub mod scene;
 pub mod signal;
