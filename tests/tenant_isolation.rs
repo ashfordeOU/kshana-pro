@@ -276,6 +276,8 @@ fn no_route_lets_one_tenant_see_or_change_another() {
             (_, "name") if route.starts_with("/library") => "a-study-secret".into(),
             (_, "name") => "a-artefact-secret.txt".into(),
             (_, "token") => token.clone(),
+            // The GRI database is shared reference data, not a tenant's: no entry has this name.
+            (_, "chain") => "a-chain-secret".into(),
             (r, n) => panic!("no site-a identifier for {{{n}}} in {r}: extend this test"),
         }
     };

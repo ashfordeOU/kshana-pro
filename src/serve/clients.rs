@@ -16,7 +16,7 @@ use super::openapi::{operation_id, path_params};
 fn returns_text(r: &Route) -> bool {
     matches!(
         r.id,
-        RouteId::Health | RouteId::Board | RouteId::JobArtefact
+        RouteId::Health | RouteId::Board | RouteId::JobArtefact | RouteId::EloranExample
     )
 }
 

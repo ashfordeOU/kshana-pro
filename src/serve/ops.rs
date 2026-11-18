@@ -16,6 +16,7 @@
 //! |---|---|---|---|
 //! | `run` | `{"scenario": "<TOML>"}` (any open or Pro kind) | the run's result document, byte for byte | `chart.svg`, `table.csv` when the run gives them |
 //! | `dossier` | `{"scenario": "<TOML>", "issued_utc"?: "<stamp>"}` | the study dossier JSON | `dossier.json`, `dossier.html` |
+//! | `eloran-run` | `{"scenario": "<eLoran TOML>", "format"?: "ri16"|"rf32"|"none"}` (feature `pro-eloran`) | the run record with a truth preview | `run.json`, `truth.csv`, `recording.sigmf-meta` (the binary recording stays in the job's `inputs/`) |
 //! | `ci` | `{"manifest": "<pack TOML>", "scenarios": {"<file>": "<TOML>"}, "baseline"?: <ci.json>, "threshold"?: <relative>, "generated_utc"?: "<stamp>"}` | the Pack C report JSON | `ci.json`, `report.html` |
 //!
 //! ## Adding an operation
@@ -108,6 +109,13 @@ pub static OPERATIONS: &[Operation] = &[
         feature: Some("pro-scenario-ci"),
         prepare: prepare_ci,
         run: run_ci,
+    },
+    Operation {
+        name: super::eloran::OP,
+        summary: "Run an eLoran/GNSS simulator scenario (request.scenario: TOML; request.format: ri16, rf32 or none) to a SigMF recording, truth table and run record",
+        feature: Some(crate::eloran_service::FEATURE),
+        prepare: super::eloran::prepare_op,
+        run: super::eloran::run_op,
     },
 ];
 
