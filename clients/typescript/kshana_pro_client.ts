@@ -328,4 +328,34 @@ export class KshanaProClient {
   deleteScimV2GroupsId(id: string): Promise<any> {
     return this.call("DELETE", `/scim/v2/Groups/${encodeURIComponent(id)}`, undefined, undefined, undefined, false);
   }
+
+  /** GET /eloran/example: eLoran simulator: the example scenario (TOML: two chains, two UTC(k), crossed loops, moving receiver); no licence needed. Role: reader. */
+  getEloranExample(): Promise<string> {
+    return this.call("GET", `/eloran/example`, undefined, undefined, undefined, true);
+  }
+
+  /** POST /eloran/validate: eLoran simulator: check a scenario and return its SHA-256 (body: scenario TOML); no licence needed. Role: submitter. */
+  postEloranValidate(text: string): Promise<any> {
+    return this.call("POST", `/eloran/validate`, undefined, text, "text/plain", false);
+  }
+
+  /** POST /eloran/run: eLoran simulator: run a scenario (body: scenario TOML) to a SigMF recording, a truth table and a run record. With a data directory it is an eloran-run job (202; the job's result is the run record); without one, a synchronous run of at most 8 million samples (200). Needs the Enterprise feature pro-eloran. Hardware output is never served over HTTP. Role: submitter. */
+  postEloranRun(text: string, query: { format?: string | number } = {}): Promise<any> {
+    return this.call("POST", `/eloran/run`, query, text, "text/plain", false);
+  }
+
+  /** POST /eloran/rx: eLoran simulator: the software receiver on a stored run's recording, with the truth comparison (per-station ToA error, cycle errors, position fix and error, time offsets per reference). Needs the Enterprise feature pro-eloran. Role: submitter. */
+  postEloranRx(body: unknown): Promise<any> {
+    return this.call("POST", `/eloran/rx`, undefined, JSON.stringify(body), "application/json", false);
+  }
+
+  /** GET /eloran/gri: eLoran simulator: the preloaded worldwide GRI/chain database with region, status, confidence and station positions; no licence needed. Role: reader. */
+  getEloranGri(query: { region?: string | number; active_on?: string | number; search?: string | number } = {}): Promise<any> {
+    return this.call("GET", `/eloran/gri`, query, undefined, undefined, false);
+  }
+
+  /** GET /eloran/gri/{chain}: eLoran simulator: the GRI database entries matching an id, a GRI or text, each with its sources and its [[chains]] scenario snippet; no licence needed. Role: reader. */
+  getEloranGriChain(chain: string): Promise<any> {
+    return this.call("GET", `/eloran/gri/${encodeURIComponent(chain)}`, undefined, undefined, undefined, false);
+  }
 }

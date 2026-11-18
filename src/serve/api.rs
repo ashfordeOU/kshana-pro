@@ -68,6 +68,12 @@ pub enum RouteId {
     WallPage,
     WallState,
     Scim,
+    EloranExample,
+    EloranValidate,
+    EloranRun,
+    EloranRx,
+    EloranGri,
+    EloranGriChain,
 }
 
 /// One route: the method, the path template (OpenAPI form, `{param}` for a segment)
@@ -164,6 +170,12 @@ pub static ROUTES: &[Route] = &[
     Route { method: "GET", path: "/scim/v2/Groups/{id}", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: one group; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(200, SCIM, "The group"), (404, SCIM, "No such group"), SCIM_403, AUTH_401] },
     Route { method: "PATCH", path: "/scim/v2/Groups/{id}", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: add or remove members, rename; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: Some((SCIM, "SCIM PatchOp")), query: &[], responses: &[(200, SCIM, "Changed"), (400, SCIM, "Unsupported operation"), (404, SCIM, "No such group"), SCIM_403, AUTH_401] },
     Route { method: "DELETE", path: "/scim/v2/Groups/{id}", id: RouteId::Scim, role: Some(Role::Admin), summary: "SCIM 2.0: delete a group; needs the Enterprise feature pro-scim", needs_data_dir: true, greedy_tail: false, request: None, query: &[], responses: &[(204, SCIM, "Deleted"), (404, SCIM, "No such group"), SCIM_403, AUTH_401] },
+    Route { method: "GET", path: "/eloran/example", id: RouteId::EloranExample, role: Some(Role::Reader), summary: "eLoran simulator: the example scenario (TOML: two chains, two UTC(k), crossed loops, moving receiver); no licence needed", needs_data_dir: false, greedy_tail: false, request: None, query: &[], responses: &[(200, TEXT, "Scenario TOML"), AUTH_401] },
+    Route { method: "POST", path: "/eloran/validate", id: RouteId::EloranValidate, role: Some(Role::Submitter), summary: "eLoran simulator: check a scenario and return its SHA-256 (body: scenario TOML); no licence needed", needs_data_dir: false, greedy_tail: false, request: Some(("text/plain", "An eLoran scenario in TOML")), query: &[], responses: &[(200, JSON, "{ok, scenario_sha256, duration_s, fs_hz, channels, chains, samples_total}"), (413, JSON, "Body above the cap"), (422, JSON, "Invalid scenario: {ok: false, error}"), AUTH_401] },
+    Route { method: "POST", path: "/eloran/run", id: RouteId::EloranRun, role: Some(Role::Submitter), summary: "eLoran simulator: run a scenario (body: scenario TOML) to a SigMF recording, a truth table and a run record. With a data directory it is an eloran-run job (202; the job's result is the run record); without one, a synchronous run of at most 8 million samples (200). Needs the Enterprise feature pro-eloran. Hardware output is never served over HTTP", needs_data_dir: false, greedy_tail: false, request: Some(("text/plain", "An eLoran scenario in TOML")), query: &[("format", "Sample format, overriding the scenario's [file] format: ri16, rf32 or none (truth only)")], responses: &[(200, JSON, "Synchronous run: the run record (run_id, scenario_sha256, stats, files, artefacts, truth_preview), or the existing job"), (202, JSON, "Queued as a job (run_id = job_id)"), (400, JSON, "Bad query parameter"), (403, JSON, "The entitlement does not include pro-eloran"), (413, JSON, "Body above the cap"), (422, JSON, "Invalid scenario, or too large for a synchronous run"), AUTH_401] },
+    Route { method: "POST", path: "/eloran/rx", id: RouteId::EloranRx, role: Some(Role::Submitter), summary: "eLoran simulator: the software receiver on a stored run's recording, with the truth comparison (per-station ToA error, cycle errors, position fix and error, time offsets per reference). Needs the Enterprise feature pro-eloran", needs_data_dir: false, greedy_tail: false, request: Some((JSON, "{\"run\": <run_id>, \"scenario\"?: <TOML, default the run's>, \"per_loop\"?: bool, \"cri_blanking\"?: bool, \"truth\"?: bool}")), query: &[], responses: &[(200, JSON, "Receiver report (kshana-eloran-rx)"), (400, JSON, "Malformed JSON or run identifier"), (403, JSON, "The entitlement does not include pro-eloran"), (404, JSON, "No such run"), (409, JSON, "The run has not succeeded, or has no recording"), (422, JSON, "Invalid request or scenario, or the receiver failed"), AUTH_401] },
+    Route { method: "GET", path: "/eloran/gri", id: RouteId::EloranGri, role: Some(Role::Reader), summary: "eLoran simulator: the preloaded worldwide GRI/chain database with region, status, confidence and station positions; no licence needed", needs_data_dir: false, greedy_tail: false, request: None, query: &[("region", "Only chains of this region"), ("active_on", "Only chains operating on this day, YYYY-MM-DD"), ("search", "Free text: id, name, region, system, country or station name")], responses: &[(200, JSON, "{format, updated, count, chains}"), (400, JSON, "Unknown query parameter"), AUTH_401] },
+    Route { method: "GET", path: "/eloran/gri/{chain}", id: RouteId::EloranGriChain, role: Some(Role::Reader), summary: "eLoran simulator: the GRI database entries matching an id, a GRI or text, each with its sources and its [[chains]] scenario snippet; no licence needed", needs_data_dir: false, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "{query, count, chains: [{summary, entry, snippet}]}"), (404, JSON, "No chain matches"), AUTH_401] },
 ];
 
 /// The routes served with or without a data directory.
@@ -794,6 +806,12 @@ fn route_request(
             let rest = path.strip_prefix("/scim/v2").unwrap_or("");
             super::scim::handle(&j.data_dir, &who, &req.method, rest, query, &req.body, now)
         }
+        (RouteId::EloranExample, _) => super::eloran::example(),
+        (RouteId::EloranValidate, _) => super::eloran::validate(&req.body),
+        (RouteId::EloranRun, _) => super::eloran::run(svc, &who, &req.body, query, now),
+        (RouteId::EloranRx, _) => super::eloran::rx(svc, &who, &req.body, now),
+        (RouteId::EloranGri, _) => super::eloran::gri_list(query),
+        (RouteId::EloranGriChain, _) => super::eloran::gri_show(&params[0]),
         (_, None) => super::handle(req, &svc.entitlement, now),
     }
 }
@@ -1208,7 +1226,7 @@ fn op_error(e: OpError) -> HttpResponse {
 
 /// The tenant a principal's jobs are stored under: its own, or the default tenant for an
 /// operator key of every tenant.
-fn submit_tenant(who: &Principal) -> String {
+pub(super) fn submit_tenant(who: &Principal) -> String {
     if who.tenant == super::auth::ALL_TENANTS {
         super::auth::DEFAULT_TENANT.to_string()
     } else {
@@ -1235,7 +1253,13 @@ fn enqueue(
     Ok((status, created))
 }
 
-fn submit(svc: &Service, j: &JobService, who: &Principal, body: &str, now: i64) -> HttpResponse {
+pub(super) fn submit(
+    svc: &Service,
+    j: &JobService,
+    who: &Principal,
+    body: &str,
+    now: i64,
+) -> HttpResponse {
     if body.trim().is_empty() {
         return HttpResponse::error(
             422,

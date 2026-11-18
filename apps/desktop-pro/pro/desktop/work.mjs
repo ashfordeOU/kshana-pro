@@ -11,6 +11,7 @@ import { scorecardModel, areaModel, timingModel, trustRunsModel } from "./produc
 import { accountModel, libraryModel, auditModel, auditCsv, wallModel } from "./enterprise.mjs";
 import { auditPath } from "./service.mjs";
 import { utcText } from "./geo.mjs";
+import { createEloran, eloranActions, eloranPage } from "./eloran.mjs";
 
 /** The work views: id, sidebar label, icon, edition, and whether the service must be connected. */
 export const WORK = [
@@ -26,11 +27,12 @@ export const WORK = [
   { id: "pro-library", label: "Team library", icon: "file", edition: "enterprise", service: true },
   { id: "pro-audit", label: "Audit log", icon: "evidence", edition: "enterprise", service: true },
   { id: "pro-wall", label: "Watch wall", icon: "home", edition: "enterprise", service: true },
+  { id: "pro-eloran", label: "eLoran", icon: "timing", edition: "enterprise", service: true },
 ];
 
 /** A fresh work state. */
 export function createWork() {
-  return { conn: null, me: null, fleet: null, fleetSel: null, replay: null, packDir: "", cursor: 0, playing: false, review: null, reviewer: "", scorecard: null, area: null, timing: null, trust: null, library: null, audit: null, auditDays: 7, wall: null, wallFull: false, report: { sections: [], title: "", author: "", out: "" }, msg: {}, loaded: {} };
+  return { conn: null, me: null, fleet: null, fleetSel: null, replay: null, packDir: "", cursor: 0, playing: false, review: null, reviewer: "", scorecard: null, area: null, timing: null, trust: null, library: null, audit: null, auditDays: 7, wall: null, wallFull: false, eloran: createEloran(), report: { sections: [], title: "", author: "", out: "" }, msg: {}, loaded: {} };
 }
 
 /** The nav item's badge: an edition the licence or the service does not have. */
@@ -210,7 +212,7 @@ export function registerWork(shell, { h, ic, S, papi, W = createWork(), now = ()
         await loaders.connect();
         say("connect", W.me ? "ok" : "bad", W.me ? `Signed in as ${W.me.id} (${W.me.role}, tenant ${W.me.tenant}).` : "The service did not accept the credential.");
       };
-      const out = async () => { await papi.disconnect(); W.conn = null; W.me = null; W.fleet = W.area = W.timing = W.library = W.audit = W.wall = null; W.loaded = { connect: true }; say("connect", "ok", "Signed out; the credential was removed from this machine."); };
+      const out = async () => { await papi.disconnect(); W.conn = null; W.me = null; W.fleet = W.area = W.timing = W.library = W.audit = W.wall = null; W.eloran = createEloran(); W.loaded = { connect: true }; say("connect", "ok", "Signed out; the credential was removed from this machine."); };
       return page("pro-connect", "Kshana Desktop Pro", "Sign in to your Kshana Pro service", "Use the token your organisation's single sign-on gives you, or an API key from your administrator. The app keeps it on this machine, readable by you only; this page never sees it again. The service decides your tenant and role, and refuses a person the identity provider has deactivated.",
         acc.signedIn ? h("div", { class: "card" }, h("h2", { text: acc.id }), h("dl", { class: "lic-rows" }, h("dt", { text: "Tenant" }), h("dd", { text: acc.tenant }), h("dt", { text: "Role" }), h("dd", { text: `${acc.role}: ${acc.roleText}` }), h("dt", { text: "Signed in with" }), h("dd", { text: acc.source }), h("dt", { text: "Service" }), h("dd", { class: "mono", text: acc.base }), h("dt", { text: "Service edition" }), h("dd", { text: acc.edition }), h("dt", { text: "Enterprise operations" }), h("dd", { text: acc.enterprise.join(", ") || "none" })), btn("Sign out", out)) : h("p", { class: "mut", text: acc.text }),
         h("div", { class: "card" }, h("label", { for: "pro-svc-base", text: "Service address" }), base, h("label", { for: "pro-svc-cred", text: "Token or key" }), cred, h("div", { class: "row" }, btn("Sign in", go, true))),
@@ -240,6 +242,12 @@ export function registerWork(shell, { h, ic, S, papi, W = createWork(), now = ()
             h("tbody", {}, ...A.rows.slice(0, 500).map((r) => h("tr", { class: r.refused ? "refused" : null }, h("td", { class: "mono", text: utcText(r.t) }), h("td", { text: r.who }), h("td", { text: r.role }), h("td", { text: r.source }), h("td", { class: "mono", text: `${r.method} ${r.route}` }), h("td", { class: "mono", text: String(r.status) })))))),
           h("div", { class: "row" }, h("input", { class: "pro-input mono", placeholder: "Folder for a signed CSV export", oninput: (e) => { W.msg.auditDir = e.target.value; } }), btn("Export and sign", save))] : h("p", { class: "mut", text: "Reading the audit log…" }),
         h("div", { class: "row" }, ...[1, 7, 30].map((d) => btn(`Last ${d} day${d > 1 ? "s" : ""}`, () => { W.auditDays = d; loaders.audit(); }))), note("audit"));
+    },
+    "pro-eloran": () => {
+      const E = W.eloran || (W.eloran = createEloran());
+      const A = eloranActions(papi, E, { say: (tone, text) => say("eloran", tone, text), redraw });
+      once("eloran", async () => { await A.example(); await A.gri(); });
+      return eloranPage({ h, page, btn, chip, note: note("eloran"), E, A });
     },
     "pro-wall": () => {
       once("wall", loaders.wall);
