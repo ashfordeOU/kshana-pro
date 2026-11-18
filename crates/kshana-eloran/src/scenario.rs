@@ -42,7 +42,7 @@ use crate::antenna::OutputChannel;
 use crate::chain::Chain;
 use crate::interf::{self, InterfConfig};
 use crate::ldc::{self, LdcConfig};
-use crate::prop::{self, PropConfig};
+use crate::prop::{self, BuildContext, PropConfig};
 use crate::scene::{Scene, SceneParams};
 use crate::time::AbsTime;
 use crate::timebase::{GnssTime, TimeRefModel, Timebase};
@@ -113,7 +113,31 @@ impl Scenario {
         let j = serde_json::to_vec(self).expect("serialisable");
         hex::encode(Sha256::digest(&j))
     }
-    /// Build the runnable scene.
+    /// Absolute start of the scene (`[scene] start_utc`).
+    pub fn start(&self) -> Result<AbsTime, String> {
+        AbsTime::from_utc_iso(&self.scene.start_utc)
+    }
+
+    /// The scene context given to the propagation models (scene start, duration, seed).
+    pub fn build_context(&self) -> Result<BuildContext, String> {
+        Ok(BuildContext::new(self.start()?, self.scene.params.duration_s, self.scene.params.seed))
+    }
+
+    /// Each chain's LDC configuration completed from its chain (GRI, station checks; see
+    /// [`LdcConfig::for_chain`]), `None` for chains without a data channel: what the
+    /// modulators are built from, and what a receiver needs to decode the data channel
+    /// (`crate::rx::RxConfig::ldc`).
+    pub fn ldc_configs(&self) -> Result<Vec<Option<LdcConfig>>, String> {
+        self.chains
+            .iter()
+            .map(|c| c.ldc.as_ref().map(|l| l.for_chain(&c.chain)).transpose())
+            .collect()
+    }
+
+    /// Build the runnable scene. The propagation models get the scene context
+    /// ([`BuildContext`]: absolute start for solar/diurnal/seasonal terms) and each LDC
+    /// modulator gets its chain (GRI for time messages), so neither needs to be repeated
+    /// in the `propagation` or `ldc` tables.
     pub fn build(&self) -> Result<Scene, String> {
         let start = AbsTime::from_utc_iso(&self.scene.start_utc)?;
         let p = &self.scene.params;
@@ -140,7 +164,7 @@ impl Scenario {
             .chains
             .iter()
             .map(|c| match &c.ldc {
-                Some(l) => ldc::build(l),
+                Some(l) => ldc::build(l, Some(&c.chain)),
                 None => Ok(None),
             })
             .collect::<Result<Vec<_>, _>>()?;
@@ -150,7 +174,7 @@ impl Scenario {
             chains: self.chains.iter().map(|c| c.chain.clone()).collect(),
             modulators,
             timebase,
-            prop: prop::build(&self.propagation)?,
+            prop: prop::build(&self.propagation, &BuildContext::new(start, p.duration_s, p.seed))?,
             trajectory: self.receiver.clone(),
             outputs: self.outputs.clone(),
             interferers,

@@ -24,11 +24,21 @@
 //! the angle of incidence at the layer `i` with `sin i = R cos ψ / (R+h)`. The skywave
 //! **envelope (group) delay after the groundwave** is `(L_n − d)/c` with `d` the geodesic
 //! ground distance. The ground path's Secondary/Additional Secondary Factors are ignored
-//! in this difference (they are a few µs at most against 30–200 µs), and the skywave is
-//! referenced to a simple groundwave estimate (PF only, [`super::ground::Simple`]),
-//! because the propagation trait gives the sky model no access to the scene's actual
+//! in this difference (they are a few µs at most against 30–200 µs): the computed skywave
+//! delay is absolute, `d·n/c` (the PF-only ground delay) plus `(L_n − d)/c`, whatever the
 //! ground model. Over 250–2,000 km and `h` = 60–100 km the excess delay spans about
-//! 36–240 µs (see the tests); `delay_us` overrides the one-hop delay with any value.
+//! 36–240 µs (see the tests).
+//!
+//! # Stated values are relative to the actual groundwave
+//!
+//! `delay_us` (one-hop envelope delay after the groundwave) and `ratio_db` (one-hop
+//! sky/ground ratio), and both values of the `fixed` model, are relative to the
+//! groundwave **actually computed by the scene's ground model**: the composite model
+//! hands the ground paths to [`PropagationModel::paths_with_ground`], so a stated +6 dB at
+//! 40 µs is +6 dB at 40 µs in the truth record over `smooth_earth` or `millington` ground
+//! as over `simple`. Only when the model is called on its own ([`PropagationModel::paths`],
+//! no ground paths) is a simple groundwave estimate ([`super::ground::Simple`], with
+//! `ground_ref_atten_db_per_1000km`) the reference.
 //!
 //! Group vs phase height: the carrier is reflected slightly below the virtual (group)
 //! height (`phase_height_offset_km`, MODELLED default 1 km). The path's `delay` is the
@@ -66,8 +76,9 @@
 //!
 //! # Day, night and the sunrise/sunset transition (MODELLED)
 //!
-//! The solar zenith angle `χ` at the path midpoint is computed at scene time from
-//! `start_utc` (low-precision solar ephemeris of the Astronomical Almanac, ≈ 0.01°;
+//! The solar zenith angle `χ` at the path midpoint is computed at scene time from the
+//! scene start (the [`super::BuildContext`] given to [`build`], i.e. `[scene] start_utc`;
+//! an explicit `start_utc` in the sky table overrides it) (low-precision solar ephemeris of the Astronomical Almanac, ≈ 0.01°;
 //! TAI−UTC is ignored, < 0.2°). The day weight `w` rises smoothly (smoothstep) from 0 at
 //! `χ ≥ 99°` (sun 9° below the horizon: D region gone) to 1 at `χ ≤ 85°`. `ln ‖R‖`, the
 //! virtual height and the reflection phase are interpolated between their night and day
@@ -78,7 +89,7 @@
 //! J.R. Wait, *Electromagnetic Waves in Stratified Media* (focusing).
 
 use super::sky_fading::{FadingConfig, FadingProcess};
-use super::{PathEffect, PathKind, PropagationModel, C};
+use super::{BuildContext, PathEffect, PathKind, PropagationModel, C};
 use crate::chain::Station;
 use crate::geo::{direct, inverse, Geo};
 use crate::time::{AbsTime, Ps, PS_PER_S};
@@ -99,7 +110,8 @@ pub const E0_UV_M: f64 = 300_000.0;
 #[serde(tag = "model", rename_all = "snake_case")]
 pub enum SkyConfig {
     /// One skywave arriving `delay_us` after the groundwave with amplitude ratio
-    /// `ratio_db` (sky/ground) relative to a simple groundwave estimate.
+    /// `ratio_db` (sky/ground), both relative to the scene's actual groundwave (a simple
+    /// groundwave estimate when the model is used without ground paths).
     Fixed {
         delay_us: f64,
         ratio_db: f64,
@@ -115,7 +127,8 @@ pub enum SkyConfig {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Daylight {
-    /// From the solar zenith angle at the path midpoint (needs `start_utc`).
+    /// From the solar zenith angle at the path midpoint (needs the scene start, or
+    /// `start_utc`).
     #[default]
     Auto,
     Day,
@@ -146,7 +159,9 @@ pub struct IonoConfig {
     /// Number of hops modelled: 1, or 2 (adds a second path).
     #[serde(default = "d_hops")]
     pub hops: u8,
-    /// Scene start in UTC (copy `[scene] start_utc`); needed when `daylight = "auto"`.
+    /// Optional override of the UTC instant of scene time 0 for the sun's position. By
+    /// default the scene start is used ([`super::BuildContext`]); set it only to evaluate
+    /// the ionosphere at a different epoch than the scene's.
     #[serde(default)]
     pub start_utc: Option<String>,
     #[serde(default)]
@@ -154,11 +169,12 @@ pub struct IonoConfig {
     /// Override of the one-hop envelope delay after the groundwave (µs).
     #[serde(default)]
     pub delay_us: Option<f64>,
-    /// Override of the one-hop mean sky/ground ratio (dB) against the simple groundwave
-    /// estimate (replaces the P.684 field and the day/night change of field).
+    /// Override of the one-hop mean sky/ground ratio (dB) against the scene's actual
+    /// groundwave (replaces the P.684 field and the day/night change of field).
     #[serde(default)]
     pub ratio_db: Option<f64>,
-    /// Attenuation of the reference groundwave estimate (dB/1000 km).
+    /// Attenuation of the simple groundwave estimate used as the reference when the model
+    /// is evaluated without the scene's ground paths (dB/1000 km).
     #[serde(default = "d_att")]
     pub ground_ref_atten_db_per_1000km: f64,
     #[serde(default = "d_r_day")]
@@ -249,8 +265,10 @@ impl PropagationModel for Fixed {
         "skywave-fixed".into()
     }
     fn paths(&self, st: &Station, rx: &RxState) -> Vec<PathEffect> {
-        let g = super::ground::Simple { atten_db_per_1000km: 3.0 }.paths(st, rx);
-        let g = g[0];
+        self.paths_with_ground(st, rx, &[])
+    }
+    fn paths_with_ground(&self, st: &Station, rx: &RxState, ground: &[PathEffect]) -> Vec<PathEffect> {
+        let g = reference_ground(st, rx, ground, 3.0);
         vec![PathEffect {
             kind: PathKind::Sky { hop: 1 },
             delay: g.delay + Ps::from_us(self.delay_us),
@@ -263,6 +281,16 @@ impl PropagationModel for Fixed {
             asf_ns: 0.0,
         }]
     }
+}
+
+/// The groundwave a stated skywave delay/ratio refers to: the first ground path of
+/// `ground` (the scene's ground model), else a simple estimate with the given attenuation.
+pub fn reference_ground(st: &Station, rx: &RxState, ground: &[PathEffect], atten_db_per_1000km: f64) -> PathEffect {
+    ground
+        .iter()
+        .find(|p| p.kind == PathKind::Ground)
+        .copied()
+        .unwrap_or_else(|| super::ground::Simple { atten_db_per_1000km }.paths(st, rx)[0])
 }
 
 /// Geometry of an `n`-hop skywave over ground distance `d_m` at virtual height `h_m`.
@@ -362,7 +390,14 @@ pub struct Ionospheric {
 }
 
 impl Ionospheric {
+    /// Model without a scene context: `daylight = "auto"` needs `start_utc` in `cfg`.
     pub fn new(cfg: IonoConfig) -> Result<Ionospheric, String> {
+        Ionospheric::with_start(cfg, None)
+    }
+
+    /// Model in a scene starting at `scene_start` (used for the sun's position unless
+    /// `cfg.start_utc` overrides it).
+    pub fn with_start(cfg: IonoConfig, scene_start: Option<AbsTime>) -> Result<Ionospheric, String> {
         if !(cfg.hops == 1 || cfg.hops == 2) {
             return Err("skywave: hops must be 1 or 2".into());
         }
@@ -389,11 +424,11 @@ impl Ionospheric {
         }
         let start = match &cfg.start_utc {
             Some(s) => Some(AbsTime::from_utc_iso(s)?),
-            None => None,
+            None => scene_start,
         };
         if cfg.daylight == Daylight::Auto && start.is_none() {
-            return Err("skywave: daylight = \"auto\" needs start_utc (copy [scene] start_utc), \
-                        or set daylight = \"day\" / \"night\""
+            return Err("skywave: daylight = \"auto\" needs the scene start (build the model with a \
+                        BuildContext) or start_utc, or set daylight = \"day\" / \"night\""
                 .into());
         }
         let fading = match &cfg.fading {
@@ -452,8 +487,14 @@ impl PropagationModel for Ionospheric {
         format!("skywave-ionospheric ({} hop)", self.cfg.hops)
     }
     fn paths(&self, st: &Station, rx: &RxState) -> Vec<PathEffect> {
-        let g = super::ground::Simple { atten_db_per_1000km: self.cfg.ground_ref_atten_db_per_1000km }
+        self.paths_with_ground(st, rx, &[])
+    }
+    /// Computed delays and P.684 fields are absolute (referenced to the PF-only ground
+    /// delay); a stated `delay_us` / `ratio_db` refers to the first path of `ground`.
+    fn paths_with_ground(&self, st: &Station, rx: &RxState, ground: &[PathEffect]) -> Vec<PathEffect> {
+        let simple = super::ground::Simple { atten_db_per_1000km: self.cfg.ground_ref_atten_db_per_1000km }
             .paths(st, rx)[0];
+        let g = reference_ground(st, rx, ground, self.cfg.ground_ref_atten_db_per_1000km);
         let d = inverse(st.position, rx.pos).distance_m.max(1.0);
         let w = self.day_weight_at(st.position, rx.pos, rx.t_s);
         let h = 1000.0 * (self.cfg.h_night_km + w * (self.cfg.h_day_km - self.cfg.h_night_km));
@@ -465,9 +506,11 @@ impl PropagationModel for Ionospheric {
         for hop in 1..=self.cfg.hops {
             let group = sky_excess_delay_s(d, h, hop);
             let ecd = (group - sky_excess_delay_s(d, (h - dh).max(1000.0), hop)).max(0.0);
-            let group = match (hop, self.cfg.delay_us) {
-                (1, Some(us)) => us * 1e-6,
-                _ => group,
+            // a stated delay is after the actual groundwave, a computed one after the
+            // PF-only ground delay (absolute)
+            let (base, group) = match (hop, self.cfg.delay_us) {
+                (1, Some(us)) => (g, us * 1e-6),
+                _ => (simple, group),
             };
             let mut field = match (hop, self.cfg.ratio_db) {
                 (1, Some(r)) => g.field_uv_m * 10f64.powf(r / 20.0),
@@ -483,11 +526,11 @@ impl PropagationModel for Ionospheric {
             let excess = group - ecd;
             out.push(PathEffect {
                 kind: PathKind::Sky { hop },
-                delay: g.delay + Ps::from_s(excess),
+                delay: base.delay + Ps::from_s(excess),
                 field_uv_m: field,
                 ecd_s: ecd,
                 phase_rad: phase.rem_euclid(2.0 * PI),
-                geom_ns: g.geom_ns + excess * 1e9,
+                geom_ns: base.geom_ns + excess * 1e9,
                 pf_ns: 0.0,
                 sf_ns: 0.0,
                 asf_ns: 0.0,
@@ -497,14 +540,16 @@ impl PropagationModel for Ionospheric {
     }
 }
 
-pub fn build(cfg: &SkyConfig) -> Result<Box<dyn PropagationModel>, String> {
+/// Build a skywave model in the scene context `ctx` (its start drives the day/night state
+/// unless `start_utc` overrides it).
+pub fn build(cfg: &SkyConfig, ctx: &BuildContext) -> Result<Box<dyn PropagationModel>, String> {
     match cfg {
         SkyConfig::Fixed { delay_us, ratio_db, phase_deg } => Ok(Box::new(Fixed {
             delay_us: *delay_us,
             ratio_db: *ratio_db,
             phase_deg: *phase_deg,
         })),
-        SkyConfig::Ionospheric(c) => Ok(Box::new(Ionospheric::new(c.clone())?)),
+        SkyConfig::Ionospheric(c) => Ok(Box::new(Ionospheric::with_start(c.clone(), Some(ctx.start))?)),
     }
 }
 
@@ -653,6 +698,25 @@ mod tests {
         let c = IonoConfig { daylight: Daylight::Auto, start_utc: None, ..Default::default() };
         assert!(Ionospheric::new(c).is_err());
         assert!(Ionospheric::new(IonoConfig { hops: 3, ..Default::default() }).is_err());
+    }
+
+    #[test]
+    fn auto_uses_the_scene_start_and_start_utc_overrides_it() {
+        let st = station(55.0, 0.0);
+        let r = rx(55.0, 15.0, 0.0);
+        let ctx = |utc: &str| BuildContext::new(AbsTime::from_utc_iso(utc).unwrap(), 1.0, 0);
+        let auto = IonoConfig { daylight: Daylight::Auto, ..Default::default() };
+        let night = build(&SkyConfig::Ionospheric(auto.clone()), &ctx("2026-12-21T00:00:00Z")).unwrap().paths(&st, &r)[0];
+        let day = build(&SkyConfig::Ionospheric(auto.clone()), &ctx("2026-06-21T11:00:00Z")).unwrap().paths(&st, &r)[0];
+        let explicit = Ionospheric::new(IonoConfig { start_utc: Some("2026-12-21T00:00:00Z".into()), ..auto.clone() })
+            .unwrap()
+            .paths(&st, &r)[0];
+        assert_eq!(night, explicit);
+        assert!(night.field_uv_m > 3.0 * day.field_uv_m);
+        // explicit start_utc wins over the scene start
+        let o = IonoConfig { start_utc: Some("2026-12-21T00:00:00Z".into()), ..auto };
+        let p = build(&SkyConfig::Ionospheric(o), &ctx("2026-06-21T11:00:00Z")).unwrap().paths(&st, &r)[0];
+        assert_eq!(p, night);
     }
 
     #[test]
