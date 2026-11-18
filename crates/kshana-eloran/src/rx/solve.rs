@@ -56,7 +56,10 @@ impl Corrections {
         format!("{chain}/{station}")
     }
     pub fn get(&self, chain: &str, station: &str) -> f64 {
-        self.asf_ns.get(&Self::key(chain, station)).copied().unwrap_or(0.0)
+        self.asf_ns
+            .get(&Self::key(chain, station))
+            .copied()
+            .unwrap_or(0.0)
     }
 }
 
@@ -91,14 +94,21 @@ pub struct Observation {
 pub fn observations(meas: &[Measurement], chains: &[Chain], start: AbsTime) -> Vec<Observation> {
     let mut map: BTreeMap<(usize, usize), Vec<f64>> = BTreeMap::new();
     for m in meas {
-        let pd = m.toa_s - nominal_emission_s(&chains[m.chain_index], m.station_index, m.group, start);
-        map.entry((m.chain_index, m.station_index)).or_default().push(pd);
+        let pd =
+            m.toa_s - nominal_emission_s(&chains[m.chain_index], m.station_index, m.group, start);
+        map.entry((m.chain_index, m.station_index))
+            .or_default()
+            .push(pd);
     }
     map.into_iter()
         .map(|((ci, si), v)| {
             let n = v.len();
             let mean = v.iter().sum::<f64>() / n as f64;
-            let var = if n > 1 { v.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / (n - 1) as f64 } else { 0.0 };
+            let var = if n > 1 {
+                v.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / (n - 1) as f64
+            } else {
+                0.0
+            };
             Observation {
                 chain_index: ci,
                 station_index: si,
@@ -158,7 +168,9 @@ pub fn time_solution(
         .collect();
     let mut by: BTreeMap<String, Vec<f64>> = BTreeMap::new();
     for s in &stations {
-        by.entry(s.time_ref.clone()).or_default().push(s.ref_minus_rx_ns);
+        by.entry(s.time_ref.clone())
+            .or_default()
+            .push(s.ref_minus_rx_ns);
     }
     let by_time_ref = by
         .into_iter()
@@ -167,7 +179,10 @@ pub fn time_solution(
             (k, v.iter().sum::<f64>() / n as f64, n)
         })
         .collect();
-    TimeSolution { stations, by_time_ref }
+    TimeSolution {
+        stations,
+        by_time_ref,
+    }
 }
 
 /// Options of the position solution.
@@ -182,7 +197,11 @@ pub struct PositionConfig {
 
 impl Default for PositionConfig {
     fn default() -> Self {
-        PositionConfig { initial: None, bias_per_chain: false, max_iter: 30 }
+        PositionConfig {
+            initial: None,
+            bias_per_chain: false,
+            max_iter: 30,
+        }
     }
 }
 
@@ -244,9 +263,18 @@ pub fn position_solution(
     };
     let nu = 2 + groups.len();
     if obs.len() < nu {
-        return Err(format!("position solution needs at least {nu} stations, have {}", obs.len()));
+        return Err(format!(
+            "position solution needs at least {nu} stations, have {}",
+            obs.len()
+        ));
     }
-    let bias_ix = |o: &Observation| if cfg.bias_per_chain { 2 + groups.iter().position(|g| *g == o.chain).unwrap() } else { 2 };
+    let bias_ix = |o: &Observation| {
+        if cfg.bias_per_chain {
+            2 + groups.iter().position(|g| *g == o.chain).unwrap()
+        } else {
+            2
+        }
+    };
     let mut pos = cfg.initial.unwrap_or_else(|| centroid(chains, &obs));
     let mut bias = vec![0.0; groups.len()]; // metres
     let mut converged = false;
@@ -261,7 +289,8 @@ pub fn position_solution(
             let st = &chains[o.chain_index].stations[o.station_index];
             let inv = inverse(pos, st.position);
             let bi = bias_ix(o);
-            let pred = N_ATM * inv.distance_m + corr.get(&o.chain, &o.station) * 1e-9 * C + bias[bi - 2];
+            let pred =
+                N_ATM * inv.distance_m + corr.get(&o.chain, &o.station) * 1e-9 * C + bias[bi - 2];
             let r = o.pseudo_delay_s * C - pred;
             res[k] = r;
             let mut h = vec![0.0; nu];
@@ -290,11 +319,16 @@ pub fn position_solution(
     for (k, o) in obs.iter().enumerate() {
         let st = &chains[o.chain_index].stations[o.station_index];
         let d = inverse(pos, st.position).distance_m;
-        res[k] = o.pseudo_delay_s * C - (N_ATM * d + corr.get(&o.chain, &o.station) * 1e-9 * C + bias[bias_ix(o) - 2]);
+        res[k] = o.pseudo_delay_s * C
+            - (N_ATM * d + corr.get(&o.chain, &o.station) * 1e-9 * C + bias[bias_ix(o) - 2]);
     }
     Ok(PositionSolution {
         position: pos,
-        clock_bias_ns: groups.iter().cloned().zip(bias.iter().map(|b| b / C * 1e9)).collect(),
+        clock_bias_ns: groups
+            .iter()
+            .cloned()
+            .zip(bias.iter().map(|b| b / C * 1e9))
+            .collect(),
         hdop: (q[0][0] + q[1][1]).sqrt(),
         residuals_ns: obs
             .iter()
@@ -346,13 +380,17 @@ pub fn tdoa_fix(
             continue;
         }
         if let Some(m) = obs.iter().find(|m| {
-            m.chain_index == o.chain_index && ch.stations[m.station_index].role == crate::signal::Role::Master
+            m.chain_index == o.chain_index
+                && ch.stations[m.station_index].role == crate::signal::Role::Master
         }) {
             pairs.push((o, m));
         }
     }
     if pairs.len() < 2 {
-        return Err(format!("TDoA fix needs at least 2 time differences, have {}", pairs.len()));
+        return Err(format!(
+            "TDoA fix needs at least 2 time differences, have {}",
+            pairs.len()
+        ));
     }
     let mut pos = initial.unwrap_or_else(|| centroid(chains, &obs));
     let mut converged = false;
@@ -406,5 +444,11 @@ pub fn tdoa_fix(
             }
         })
         .collect();
-    Ok(TdFix { position: pos, tds, hdop: (q[0][0] + q[1][1]).sqrt(), iterations: it, converged })
+    Ok(TdFix {
+        position: pos,
+        tds,
+        hdop: (q[0][0] + q[1][1]).sqrt(),
+        iterations: it,
+        converged,
+    })
 }

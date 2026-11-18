@@ -123,7 +123,10 @@ pub struct CalibrationFile {
 impl CalibrationFile {
     pub fn validate(&self) -> Result<(), String> {
         if self.version != CALIBRATION_VERSION {
-            return Err(format!("calibration file version {} not supported (expected {CALIBRATION_VERSION})", self.version));
+            return Err(format!(
+                "calibration file version {} not supported (expected {CALIBRATION_VERSION})",
+                self.version
+            ));
         }
         if (self.reference_point.zero_crossing_us - 30.0).abs() > 1e-9 {
             return Err("reference point must be the standard zero crossing at 30 µs".into());
@@ -132,14 +135,19 @@ impl CalibrationFile {
             if c.channel != i {
                 return Err("channels must be listed in order 0, 1, 2, …".into());
             }
-            if !c.delay_ns.is_finite() || c.delay_u_ns.is_nan() || c.delay_u_ns < 0.0 || !c.full_scale_dbm.is_finite() {
+            if !c.delay_ns.is_finite()
+                || c.delay_u_ns.is_nan()
+                || c.delay_u_ns < 0.0
+                || !c.full_scale_dbm.is_finite()
+            {
                 return Err(format!("channel {i}: invalid values"));
             }
         }
         Ok(())
     }
     pub fn from_json(s: &str) -> Result<CalibrationFile, String> {
-        let c: CalibrationFile = serde_json::from_str(s).map_err(|e| format!("calibration: {e}"))?;
+        let c: CalibrationFile =
+            serde_json::from_str(s).map_err(|e| format!("calibration: {e}"))?;
         c.validate()?;
         Ok(c)
     }
@@ -147,7 +155,9 @@ impl CalibrationFile {
         serde_json::to_string_pretty(self).expect("serialisable")
     }
     pub fn load(path: &Path) -> Result<CalibrationFile, String> {
-        CalibrationFile::from_json(&std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?)
+        CalibrationFile::from_json(
+            &std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?,
+        )
     }
     pub fn save(&self, path: &Path) -> Result<(), String> {
         self.validate()?;
@@ -157,7 +167,11 @@ impl CalibrationFile {
     pub fn gains_db(&self, target_full_scale_dbm: Option<f64>) -> Vec<f64> {
         self.channels
             .iter()
-            .map(|c| target_full_scale_dbm.map(|t| t - c.full_scale_dbm).unwrap_or(0.0))
+            .map(|c| {
+                target_full_scale_dbm
+                    .map(|t| t - c.full_scale_dbm)
+                    .unwrap_or(0.0)
+            })
             .collect()
     }
 }
@@ -188,7 +202,12 @@ pub struct CalibratedSink<S: SampleSink> {
 
 impl<S: SampleSink> CalibratedSink<S> {
     /// `delays_ns[c]` and `gains_db[c]` per channel (missing gains = 0 dB).
-    pub fn new(inner: S, fs_hz: f64, delays_ns: &[f64], gains_db: &[f64]) -> Result<CalibratedSink<S>, String> {
+    pub fn new(
+        inner: S,
+        fs_hz: f64,
+        delays_ns: &[f64],
+        gains_db: &[f64],
+    ) -> Result<CalibratedSink<S>, String> {
         if delays_ns.is_empty() {
             return Err("at least one channel".into());
         }
@@ -204,13 +223,23 @@ impl<S: SampleSink> CalibratedSink<S> {
                 let d = lead as f64 - sc; // ≥ half
                 let i = d.floor();
                 let frac = d - i;
-                FirState::new(fractional_delay_taps(frac, DELAY_FIR_HALF, DELAY_FIR_BETA), i as usize - DELAY_FIR_HALF)
+                FirState::new(
+                    fractional_delay_taps(frac, DELAY_FIR_HALF, DELAY_FIR_BETA),
+                    i as usize - DELAY_FIR_HALF,
+                )
             })
             .collect();
         let gains = (0..delays_ns.len())
             .map(|c| 10f64.powf(gains_db.get(c).copied().unwrap_or(0.0) / 20.0))
             .collect();
-        Ok(CalibratedSink { inner, firs, gains, lead, to_drop: lead, clipped: 0 })
+        Ok(CalibratedSink {
+            inner,
+            firs,
+            gains,
+            lead,
+            to_drop: lead,
+            clipped: 0,
+        })
     }
 
     /// From a calibration file; `target_full_scale_dbm` sets the gains (None = unity).
@@ -223,7 +252,11 @@ impl<S: SampleSink> CalibratedSink<S> {
         extra_delay_ns: f64,
     ) -> Result<CalibratedSink<S>, String> {
         cal.validate()?;
-        let d: Vec<f64> = cal.channels.iter().map(|c| c.delay_ns + extra_delay_ns).collect();
+        let d: Vec<f64> = cal
+            .channels
+            .iter()
+            .map(|c| c.delay_ns + extra_delay_ns)
+            .collect();
         CalibratedSink::new(inner, fs_hz, &d, &cal.gains_db(target_full_scale_dbm))
     }
 
@@ -240,7 +273,11 @@ impl<S: SampleSink> CalibratedSink<S> {
 
     fn push(&mut self, channels: &[Vec<f64>]) -> Result<(), String> {
         if channels.len() != self.firs.len() {
-            return Err(format!("calibration has {} channels, scene has {}", self.firs.len(), channels.len()));
+            return Err(format!(
+                "calibration has {} channels, scene has {}",
+                self.firs.len(),
+                channels.len()
+            ));
         }
         let mut out: Vec<Vec<f64>> = Vec::with_capacity(channels.len());
         for (c, x) in channels.iter().enumerate() {
@@ -287,7 +324,13 @@ impl<S: SampleSink> SampleSink for CalibratedSink<S> {
 /// Calibration pulse train: one standard LORAN-C pulse (phase 0, ECD 0) whose time origin is
 /// at each PPS instant `pps_times_s` (plus `delay_ns`), evaluated analytically at `fs_hz`
 /// for `n` samples, amplitude `amp`. The standard zero crossing is therefore at PPS + 30 µs.
-pub fn calibration_pulse_train(fs_hz: f64, n: usize, pps_times_s: &[f64], delay_ns: f64, amp: f64) -> Vec<f64> {
+pub fn calibration_pulse_train(
+    fs_hz: f64,
+    n: usize,
+    pps_times_s: &[f64],
+    delay_ns: f64,
+    amp: f64,
+) -> Vec<f64> {
     let sig = PulseSignal::loran_c();
     let ext = sig.envelope.extent_s();
     let mut x = vec![0.0; n];
@@ -342,7 +385,10 @@ pub struct CharacteriseOptions {
 
 impl Default for CharacteriseOptions {
     fn default() -> Self {
-        CharacteriseOptions { expected_delay_ns: 0.0, search_ns: 20_000.0 }
+        CharacteriseOptions {
+            expected_delay_ns: 0.0,
+            search_ns: 20_000.0,
+        }
     }
 }
 
@@ -370,7 +416,12 @@ pub struct DelayEstimate {
 /// the trial delay), found with Newton's method — this uses the whole pulse's energy, so the
 /// estimate is far less noisy than a single crossing. The template's standard zero crossing
 /// is at 30 µs, so the result is the delay of the standard zero crossing after PPS + 30 µs.
-pub fn characterise_from_capture(capture: &[f64], fs_hz: f64, pps_times_s: &[f64], opt: &CharacteriseOptions) -> Result<DelayEstimate, String> {
+pub fn characterise_from_capture(
+    capture: &[f64],
+    fs_hz: f64,
+    pps_times_s: &[f64],
+    opt: &CharacteriseOptions,
+) -> Result<DelayEstimate, String> {
     let sig = PulseSignal::loran_c();
     let ext = sig.envelope.extent_s();
     let n_t = (ext * fs_hz).ceil() as usize;
@@ -383,24 +434,34 @@ pub fn characterise_from_capture(capture: &[f64], fs_hz: f64, pps_times_s: &[f64
             continue; // pulse not fully inside the capture
         }
         // template at sample-aligned origin
-        let tmpl: Vec<f64> = (0..n_t).map(|i| sig.pulse(i as f64 / fs_hz, 0.0, 0.0)).collect();
+        let tmpl: Vec<f64> = (0..n_t)
+            .map(|i| sig.pulse(i as f64 / fs_hz, 0.0, 0.0))
+            .collect();
         let mut best = (f64::MIN, lag_lo);
         for lag in lag_lo..=lag_hi {
             let o = lag as usize;
-            let c: f64 = tmpl.iter().enumerate().map(|(i, t)| t * capture[o + i]).sum();
+            let c: f64 = tmpl
+                .iter()
+                .enumerate()
+                .map(|(i, t)| t * capture[o + i])
+                .sum();
             if c > best.0 {
                 best = (c, lag);
             }
         }
         let t_guess = best.1 as f64 / fs_hz + 30e-6;
-        let Some(tz) = zero_crossing(capture, fs_hz, t_guess) else { continue };
+        let Some(tz) = zero_crossing(capture, fs_hz, t_guess) else {
+            continue;
+        };
         // fine: maximise the continuous-delay matched-filter output c(τ) by Newton's method
         // from the zero-crossing estimate (which fixes the carrier cycle).
         let c = |tau: f64| -> f64 {
             let t0 = p + tau;
             let a = (t0 * fs_hz).floor().max(0.0) as usize;
             let b = (((t0 + ext) * fs_hz).ceil() as usize + 1).min(capture.len());
-            (a..b).map(|i| capture[i] * sig.pulse(i as f64 / fs_hz - t0, 0.0, 0.0)).sum()
+            (a..b)
+                .map(|i| capture[i] * sig.pulse(i as f64 / fs_hz - t0, 0.0, 0.0))
+                .sum()
         };
         let mut tau = tz - (p + 30e-6);
         let h = 2e-9;
@@ -424,8 +485,18 @@ pub fn characterise_from_capture(capture: &[f64], fs_hz: f64, pps_times_s: &[f64
     }
     let n = per.len();
     let mean = per.iter().sum::<f64>() / n as f64;
-    let std = if n > 1 { (per.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / (n - 1) as f64).sqrt() } else { 0.0 };
-    Ok(DelayEstimate { delay_ns: mean, std_ns: std, u_ns: std / (n as f64).sqrt(), n, per_pps_ns: per })
+    let std = if n > 1 {
+        (per.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / (n - 1) as f64).sqrt()
+    } else {
+        0.0
+    };
+    Ok(DelayEstimate {
+        delay_ns: mean,
+        std_ns: std,
+        u_ns: std / (n as f64).sqrt(),
+        n,
+        per_pps_ns: per,
+    })
 }
 
 /// Positive-going zero crossing nearest `t_guess` (within ±0.4 carrier cycle), refined with a
@@ -436,7 +507,11 @@ pub fn zero_crossing(x: &[f64], fs: f64, t_guess: f64) -> Option<f64> {
     let mut cand: Option<usize> = None;
     for d in 0..=reach {
         for i in [c + d, c - d] {
-            if i >= 1 && (i as usize) + 2 < x.len() && x[i as usize] <= 0.0 && x[i as usize + 1] > 0.0 {
+            if i >= 1
+                && (i as usize) + 2 < x.len()
+                && x[i as usize] <= 0.0
+                && x[i as usize + 1] > 0.0
+            {
                 cand = Some(i as usize);
                 break;
             }
@@ -518,7 +593,12 @@ fn one() -> f64 {
 
 impl UncertaintyComponent {
     pub fn normal(name: &str, u_ns: f64) -> UncertaintyComponent {
-        UncertaintyComponent { name: name.into(), value_ns: u_ns, distribution: Distribution::Normal, sensitivity: 1.0 }
+        UncertaintyComponent {
+            name: name.into(),
+            value_ns: u_ns,
+            distribution: Distribution::Normal,
+            sensitivity: 1.0,
+        }
     }
     /// Standard uncertainty (ns), before the sensitivity coefficient.
     pub fn standard_u_ns(&self) -> f64 {
@@ -564,12 +644,20 @@ impl BudgetLine {
 
 /// Combined standard uncertainty (RSS of contributions) and Welch–Satterthwaite dof.
 pub fn combine(lines: &[BudgetLine]) -> (f64, Option<f64>) {
-    let uc = lines.iter().map(|l| l.contribution_ns.powi(2)).sum::<f64>().sqrt();
+    let uc = lines
+        .iter()
+        .map(|l| l.contribution_ns.powi(2))
+        .sum::<f64>()
+        .sqrt();
     let den: f64 = lines
         .iter()
         .filter_map(|l| l.dof.map(|v| l.contribution_ns.powi(4) / v))
         .sum();
-    let dof = if den > 0.0 { Some(uc.powi(4) / den) } else { None };
+    let dof = if den > 0.0 {
+        Some(uc.powi(4) / den)
+    } else {
+        None
+    };
     (uc, dof)
 }
 
@@ -674,7 +762,10 @@ pub struct ReceiverDelayReport {
 }
 
 /// Compute the receiver internal delay and its GUM uncertainty budget.
-pub fn receiver_delay(readings_ns: &[f64], inp: &ReceiverDelayInputs) -> Result<ReceiverDelayReport, String> {
+pub fn receiver_delay(
+    readings_ns: &[f64],
+    inp: &ReceiverDelayInputs,
+) -> Result<ReceiverDelayReport, String> {
     let n = readings_ns.len();
     if n < 2 {
         return Err("need at least two readings".into());
@@ -684,13 +775,21 @@ pub fn receiver_delay(readings_ns: &[f64], inp: &ReceiverDelayInputs) -> Result<
     let std = var.sqrt();
     let sdom = std / (n as f64).sqrt();
     let r1 = if var > 0.0 {
-        let c1: f64 = readings_ns.windows(2).map(|w| (w[0] - mean) * (w[1] - mean)).sum::<f64>() / n as f64;
+        let c1: f64 = readings_ns
+            .windows(2)
+            .map(|w| (w[0] - mean) * (w[1] - mean))
+            .sum::<f64>()
+            / n as f64;
         let c0 = var * (n - 1) as f64 / n as f64;
         c1 / c0
     } else {
         0.0
     };
-    let n_eff = if r1 > 0.0 { (n as f64 * (1.0 - r1) / (1.0 + r1)).max(1.0) } else { n as f64 };
+    let n_eff = if r1 > 0.0 {
+        (n as f64 * (1.0 - r1) / (1.0 + r1)).max(1.0)
+    } else {
+        n as f64
+    };
     let u_a = std / n_eff.sqrt();
     let note = if r1 > 0.2 {
         format!(
@@ -710,9 +809,18 @@ pub fn receiver_delay(readings_ns: &[f64], inp: &ReceiverDelayInputs) -> Result<
         contribution_ns: u_a,
         dof: Some((n_eff - 1.0).max(1.0)),
     }];
-    budget.push(BudgetLine::type_b(&UncertaintyComponent { sensitivity: -1.0, ..UncertaintyComponent::normal("simulator channel delay", inp.channel_delay_u_ns) }));
+    budget.push(BudgetLine::type_b(&UncertaintyComponent {
+        sensitivity: -1.0,
+        ..UncertaintyComponent::normal("simulator channel delay", inp.channel_delay_u_ns)
+    }));
     if inp.propagation_delay_u_ns > 0.0 {
-        budget.push(BudgetLine::type_b(&UncertaintyComponent { sensitivity: -1.0, ..UncertaintyComponent::normal("simulated propagation delay", inp.propagation_delay_u_ns) }));
+        budget.push(BudgetLine::type_b(&UncertaintyComponent {
+            sensitivity: -1.0,
+            ..UncertaintyComponent::normal(
+                "simulated propagation delay",
+                inp.propagation_delay_u_ns,
+            )
+        }));
     }
     budget.extend(inp.type_b.iter().map(BudgetLine::type_b));
     let (uc, dof) = combine(&budget);
@@ -726,7 +834,10 @@ pub fn receiver_delay(readings_ns: &[f64], inp: &ReceiverDelayInputs) -> Result<
         n_effective: n_eff,
         u_a_ns: u_a,
         autocorrelation_note: note,
-        receiver_delay_ns: mean - inp.channel_delay_ns - inp.propagation_delay_ns - inp.tic_offset_ns,
+        receiver_delay_ns: mean
+            - inp.channel_delay_ns
+            - inp.propagation_delay_ns
+            - inp.tic_offset_ns,
         budget,
         combined_u_ns: uc,
         effective_dof: dof,
@@ -757,12 +868,39 @@ mod tests {
             device: "driver=test".into(),
             sample_rate_hz: FS,
             reference_point: ReferencePoint::default(),
-            instruments: vec![Instrument { role: "time interval counter".into(), model: "TIC-1".into(), serial: "42".into(), cal_due: None }],
+            instruments: vec![Instrument {
+                role: "time interval counter".into(),
+                model: "TIC-1".into(),
+                serial: "42".into(),
+                cal_due: None,
+            }],
             channels: vec![
-                ChannelCal { channel: 0, delay_ns: 412.3, delay_u_ns: 0.4, full_scale_dbm: 10.0, full_scale_u_db: 0.1, load_ohm: Some(50.0), notes: String::new() },
-                ChannelCal { channel: 1, delay_ns: -37.9, delay_u_ns: 0.4, full_scale_dbm: 4.0, full_scale_u_db: 0.1, load_ohm: Some(50.0), notes: String::new() },
+                ChannelCal {
+                    channel: 0,
+                    delay_ns: 412.3,
+                    delay_u_ns: 0.4,
+                    full_scale_dbm: 10.0,
+                    full_scale_u_db: 0.1,
+                    load_ohm: Some(50.0),
+                    notes: String::new(),
+                },
+                ChannelCal {
+                    channel: 1,
+                    delay_ns: -37.9,
+                    delay_u_ns: 0.4,
+                    full_scale_dbm: 4.0,
+                    full_scale_u_db: 0.1,
+                    load_ohm: Some(50.0),
+                    notes: String::new(),
+                },
             ],
-            gnss_offset: Some(GnssOffsetCal { eloran_minus_gnss_ns: 3.5, u_ns: 1.0, gnss_simulator: "sim".into(), gnss_sim_delay_ns: None, gnss_sim_delay_u_ns: None }),
+            gnss_offset: Some(GnssOffsetCal {
+                eloran_minus_gnss_ns: 3.5,
+                u_ns: 1.0,
+                gnss_simulator: "sim".into(),
+                gnss_sim_delay_ns: None,
+                gnss_sim_delay_u_ns: None,
+            }),
             notes: String::new(),
         }
     }
@@ -789,7 +927,11 @@ mod tests {
             }
             let e = characterise_from_capture(&x, FS, &p, &CharacteriseOptions::default()).unwrap();
             assert_eq!(e.n, 20);
-            assert!((e.delay_ns - d).abs() < 0.1, "delay {d}: got {}", e.delay_ns);
+            assert!(
+                (e.delay_ns - d).abs() < 0.1,
+                "delay {d}: got {}",
+                e.delay_ns
+            );
         }
     }
 
@@ -800,9 +942,22 @@ mod tests {
         let x = calibration_pulse_train(FS, n, &p, 0.0, 0.5);
         let d_samples = 61.2748;
         let y = delay_signal(&x, d_samples, DELAY_FIR_HALF, DELAY_FIR_BETA);
-        let e = characterise_from_capture(&y, FS, &p, &CharacteriseOptions { expected_delay_ns: 30_000.0, search_ns: 8_000.0 }).unwrap();
+        let e = characterise_from_capture(
+            &y,
+            FS,
+            &p,
+            &CharacteriseOptions {
+                expected_delay_ns: 30_000.0,
+                search_ns: 8_000.0,
+            },
+        )
+        .unwrap();
         let want = d_samples / FS * 1e9;
-        assert!((e.delay_ns - want).abs() < 0.1, "want {want}, got {}", e.delay_ns);
+        assert!(
+            (e.delay_ns - want).abs() < 0.1,
+            "want {want}, got {}",
+            e.delay_ns
+        );
     }
 
     #[test]
@@ -814,13 +969,16 @@ mod tests {
         let mut s = CalibratedSink::new(MemSink::default(), FS, &delays, &[0.0, 6.0]).unwrap();
         for k in (0..n).step_by(7000) {
             let e = (k + 7000).min(n);
-            s.write_block(&[x[k..e].to_vec(), x[k..e].to_vec()]).unwrap();
+            s.write_block(&[x[k..e].to_vec(), x[k..e].to_vec()])
+                .unwrap();
         }
         s.finish().unwrap();
         let out = s.into_inner().channels;
         assert_eq!(out[0].len(), n);
         for (c, d) in delays.iter().enumerate() {
-            let e = characterise_from_capture(&out[c], FS, &p[1..], &CharacteriseOptions::default()).unwrap();
+            let e =
+                characterise_from_capture(&out[c], FS, &p[1..], &CharacteriseOptions::default())
+                    .unwrap();
             assert!((e.delay_ns + d).abs() < 0.1, "channel {c}: {}", e.delay_ns);
         }
         let energy = |v: &[f64]| v.iter().map(|x| x * x).sum::<f64>();
@@ -840,7 +998,8 @@ mod tests {
         s.finish().unwrap();
         let pre = s.into_inner().channels.remove(0);
         let dev = delay_signal(&pre, d_ns * 1e-9 * FS, DELAY_FIR_HALF, DELAY_FIR_BETA);
-        let e = characterise_from_capture(&dev, FS, &p[1..], &CharacteriseOptions::default()).unwrap();
+        let e =
+            characterise_from_capture(&dev, FS, &p[1..], &CharacteriseOptions::default()).unwrap();
         assert!(e.delay_ns.abs() < 0.1, "{}", e.delay_ns);
     }
 
@@ -850,7 +1009,11 @@ mod tests {
         write_calibration_train(&mut m, FS, 0.05, 0.004, 1, 0.5).unwrap();
         let p: Vec<f64> = (0..13).map(|k| k as f64 * 0.004).collect();
         let direct = calibration_pulse_train(FS, (0.05 * FS) as usize, &p, 0.0, 0.5);
-        let err = m.channels[0].iter().zip(&direct).map(|(a, b)| (a - b).abs()).fold(0.0, f64::max);
+        let err = m.channels[0]
+            .iter()
+            .zip(&direct)
+            .map(|(a, b)| (a - b).abs())
+            .fold(0.0, f64::max);
         assert!(err < 1e-9, "{err}");
     }
 
@@ -866,7 +1029,12 @@ mod tests {
             propagation_delay_ns: 1000.0,
             propagation_delay_u_ns: 0.0,
             tic_offset_ns: 0.0,
-            type_b: vec![UncertaintyComponent { name: "TIC resolution".into(), value_ns: 0.05, distribution: Distribution::Rectangular, sensitivity: 1.0 }],
+            type_b: vec![UncertaintyComponent {
+                name: "TIC resolution".into(),
+                value_ns: 0.05,
+                distribution: Distribution::Rectangular,
+                sensitivity: 1.0,
+            }],
             k: 2.0,
         };
         let rep = receiver_delay(&r, &inp).unwrap();
@@ -884,8 +1052,21 @@ mod tests {
         // random walk readings: strongly autocorrelated
         let mut rng = ChaCha8Rng::seed_from_u64(9);
         let mut x = 0.0;
-        let r: Vec<f64> = (0..500).map(|_| { x += gauss(&mut rng); 100.0 + x }).collect();
-        let inp = ReceiverDelayInputs { channel_delay_ns: 0.0, channel_delay_u_ns: 0.0, propagation_delay_ns: 0.0, propagation_delay_u_ns: 0.0, tic_offset_ns: 0.0, type_b: vec![], k: 2.0 };
+        let r: Vec<f64> = (0..500)
+            .map(|_| {
+                x += gauss(&mut rng);
+                100.0 + x
+            })
+            .collect();
+        let inp = ReceiverDelayInputs {
+            channel_delay_ns: 0.0,
+            channel_delay_u_ns: 0.0,
+            propagation_delay_ns: 0.0,
+            propagation_delay_u_ns: 0.0,
+            tic_offset_ns: 0.0,
+            type_b: vec![],
+            k: 2.0,
+        };
         let rep = receiver_delay(&r, &inp).unwrap();
         assert!(rep.lag1_autocorrelation > 0.8);
         assert!(rep.u_a_ns > 3.0 * rep.sdom_ns);

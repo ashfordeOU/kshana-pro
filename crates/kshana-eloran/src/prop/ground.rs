@@ -75,7 +75,7 @@
 
 use super::conductivity::{ConductivityConfig, ConductivityMap, GroundConst};
 use super::millington::{millington, sections_from_samples};
-use super::smooth_earth::{near_field, Ground, GroundCurve, SEAWATER, GROUP_HALF_BAND_HZ};
+use super::smooth_earth::{near_field, Ground, GroundCurve, GROUP_HALF_BAND_HZ, SEAWATER};
 use super::{BuildContext, PathEffect, PathKind, PropagationModel, C};
 use crate::chain::Station;
 use crate::geo::{direct, inverse, path_points, Geo};
@@ -169,7 +169,9 @@ fn d_true() -> bool {
 
 impl Default for GroundConfig {
     fn default() -> Self {
-        GroundConfig::Simple { atten_db_per_1000km: d_att() }
+        GroundConfig::Simple {
+            atten_db_per_1000km: d_att(),
+        }
     }
 }
 
@@ -210,7 +212,10 @@ impl TemporalConfig {
     /// Epoch (day of year, UTC hour) at scene time 0 used by the formulas: the explicit
     /// override, else day 1.0 / hour 0.0 (see [`TemporalConfig::resolved`]).
     pub fn epoch(&self) -> (f64, f64) {
-        (self.epoch_day_of_year.unwrap_or(1.0), self.epoch_hour_utc.unwrap_or(0.0))
+        (
+            self.epoch_day_of_year.unwrap_or(1.0),
+            self.epoch_hour_utc.unwrap_or(0.0),
+        )
     }
 
     /// A copy whose epoch is fixed: kept if either epoch field is set, otherwise taken
@@ -237,13 +242,18 @@ impl TemporalConfig {
         let h = hours.rem_euclid(24.0);
         let v = self.diurnal_amp_ns * (2.0 * PI * (h - self.diurnal_peak_hour_utc) / 24.0).cos()
             + self.seasonal_amp_ns * (2.0 * PI * (day - self.seasonal_peak_day) / YEAR_D).cos();
-        let l = if self.scale_by_land_fraction { land } else { 1.0 };
+        let l = if self.scale_by_land_fraction {
+            land
+        } else {
+            1.0
+        };
         l * v * 1e-9
     }
     /// Land-conductivity scale at the epoch.
     pub fn sigma_scale(&self) -> f64 {
         let (d0, h0) = self.epoch();
-        1.0 + self.sigma_seasonal_frac * (2.0 * PI * (d0 + h0 / 24.0 - self.sigma_peak_day) / YEAR_D).cos()
+        1.0 + self.sigma_seasonal_frac
+            * (2.0 * PI * (d0 + h0 / 24.0 - self.sigma_peak_day) / YEAR_D).cos()
     }
 }
 
@@ -287,12 +297,28 @@ fn curve_cache() -> &'static CurveCache {
 /// The tabulated 100 kHz curve of a homogeneous ground (cached).
 pub fn ground_curve(g: Ground, k_factor: f64) -> Arc<GroundCurve> {
     let key = (g.sigma.to_bits(), g.eps_r.to_bits(), k_factor.to_bits());
-    if let Some(c) = curve_cache().lock().unwrap_or_else(|e| e.into_inner()).get(&key) {
+    if let Some(c) = curve_cache()
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .get(&key)
+    {
         return c.clone();
     }
     // computed outside the lock (deterministic; a concurrent duplicate is harmless)
-    let c = Arc::new(GroundCurve::new(g, F0_HZ, k_factor, N_ATM, CURVE_D_MAX_M, CURVE_N));
-    curve_cache().lock().unwrap_or_else(|e| e.into_inner()).entry(key).or_insert(c).clone()
+    let c = Arc::new(GroundCurve::new(
+        g,
+        F0_HZ,
+        k_factor,
+        N_ATM,
+        CURVE_D_MAX_M,
+        CURVE_N,
+    ));
+    curve_cache()
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .entry(key)
+        .or_insert(c)
+        .clone()
 }
 
 /// Groundwave corrections relative to all-seawater at one receiver node.
@@ -324,7 +350,14 @@ pub struct Groundwave {
 }
 
 impl Groundwave {
-    pub fn new(map: ConductivityMap, k_factor: f64, sample_km: f64, grid_deg: f64, temporal: Option<TemporalConfig>, label: &str) -> Result<Groundwave, String> {
+    pub fn new(
+        map: ConductivityMap,
+        k_factor: f64,
+        sample_km: f64,
+        grid_deg: f64,
+        temporal: Option<TemporalConfig>,
+        label: &str,
+    ) -> Result<Groundwave, String> {
         if !(k_factor > 0.5 && k_factor < 10.0) {
             return Err(format!("k_factor {k_factor} out of range (0.5, 10)"));
         }
@@ -357,8 +390,15 @@ impl Groundwave {
 
     /// Electrical constants used for a map ground (with the seasonal land scaling).
     fn ground(&self, g: GroundConst) -> Ground {
-        let s = if g.sigma_s_m < 1.0 { g.sigma_s_m * self.sigma_scale } else { g.sigma_s_m };
-        Ground { sigma: s, eps_r: g.eps() }
+        let s = if g.sigma_s_m < 1.0 {
+            g.sigma_s_m * self.sigma_scale
+        } else {
+            g.sigma_s_m
+        };
+        Ground {
+            sigma: s,
+            eps_r: g.eps(),
+        }
     }
 
     /// Correction (mixed − seawater) for a path from `tx` to `rx` by Millington.
@@ -390,7 +430,10 @@ impl Groundwave {
                 }
             })
             .collect();
-        let curves: Vec<Arc<GroundCurve>> = kinds.iter().map(|g| ground_curve(self.ground(*g), self.k_factor)).collect();
+        let curves: Vec<Arc<GroundCurve>> = kinds
+            .iter()
+            .map(|g| ground_curve(self.ground(*g), self.k_factor))
+            .collect();
         // boundaries: refine by bisection along the geodesic (to ~sample/4096) so the
         // result varies continuously with the receiver position
         let mut secs = sections_from_samples(&idx, d);
@@ -441,11 +484,19 @@ impl Groundwave {
         let (u, v) = (fi - i0 as f64, fj - j0 as f64);
         let node = |i: i64, j: i64| -> Correction {
             let key = (tx.lat_deg.to_bits(), tx.lon_deg.to_bits(), i, j);
-            if let Some(c) = self.cache.lock().unwrap_or_else(|e| e.into_inner()).get(&key) {
+            if let Some(c) = self
+                .cache
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .get(&key)
+            {
                 return *c;
             }
             let c = self.correction_exact(tx, Geo::new(i as f64 * q, j as f64 * q));
-            self.cache.lock().unwrap_or_else(|e| e.into_inner()).insert(key, c);
+            self.cache
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .insert(key, c);
             c
         };
         let c00 = node(i0, j0);
@@ -453,7 +504,10 @@ impl Groundwave {
         let c01 = node(i0, j0 + 1);
         let c11 = node(i0 + 1, j0 + 1);
         let bl = |f: fn(&Correction) -> f64| -> f64 {
-            (1.0 - u) * (1.0 - v) * f(&c00) + u * (1.0 - v) * f(&c10) + (1.0 - u) * v * f(&c01) + u * v * f(&c11)
+            (1.0 - u) * (1.0 - v) * f(&c00)
+                + u * (1.0 - v) * f(&c10)
+                + (1.0 - u) * v * f(&c01)
+                + u * v * f(&c11)
         };
         Correction {
             phase_s: bl(|c| c.phase_s),
@@ -479,7 +533,11 @@ impl Groundwave {
         let tp_n = -n0.arg() / (2.0 * PI * F0_HZ);
         let tg_n = -(np.arg() - nm.arg()) / (2.0 * PI * 2.0 * GROUP_HALF_BAND_HZ);
         let sf = sea.phase_delay_s + tp_n;
-        let temporal = self.temporal.as_ref().map(|t| t.delta_asf_s(t_s, corr.land)).unwrap_or(0.0);
+        let temporal = self
+            .temporal
+            .as_ref()
+            .map(|t| t.delta_asf_s(t_s, corr.land))
+            .unwrap_or(0.0);
         let asf = corr.phase_s + temporal;
         let tau_p = sf + corr.phase_s;
         let tau_g = sea.group_delay_s + corr.group_s + tg_n;
@@ -523,18 +581,48 @@ impl PropagationModel for Groundwave {
 pub fn build(cfg: &GroundConfig, ctx: &BuildContext) -> Result<Box<dyn PropagationModel>, String> {
     let resolve = |t: &Option<TemporalConfig>| t.as_ref().map(|t| t.resolved(ctx.start));
     match cfg {
-        GroundConfig::Simple { atten_db_per_1000km } => {
-            Ok(Box::new(Simple { atten_db_per_1000km: *atten_db_per_1000km }))
-        }
-        GroundConfig::SmoothEarth { sigma_s_m, eps_r, k_factor, temporal } => {
-            let map = ConductivityMap::build(&ConductivityConfig::Uniform { sigma_s_m: *sigma_s_m, eps_r: *eps_r })?;
+        GroundConfig::Simple {
+            atten_db_per_1000km,
+        } => Ok(Box::new(Simple {
+            atten_db_per_1000km: *atten_db_per_1000km,
+        })),
+        GroundConfig::SmoothEarth {
+            sigma_s_m,
+            eps_r,
+            k_factor,
+            temporal,
+        } => {
+            let map = ConductivityMap::build(&ConductivityConfig::Uniform {
+                sigma_s_m: *sigma_s_m,
+                eps_r: *eps_r,
+            })?;
             let label = format!("groundwave-smooth-earth(σ={sigma_s_m} S/m, k={k_factor})");
-            Ok(Box::new(Groundwave::new(map, *k_factor, d_sample(), d_grid(), resolve(temporal), &label)?))
+            Ok(Box::new(Groundwave::new(
+                map,
+                *k_factor,
+                d_sample(),
+                d_grid(),
+                resolve(temporal),
+                &label,
+            )?))
         }
-        GroundConfig::Millington { conductivity, k_factor, sample_km, asf_grid_deg, temporal } => {
+        GroundConfig::Millington {
+            conductivity,
+            k_factor,
+            sample_km,
+            asf_grid_deg,
+            temporal,
+        } => {
             let map = ConductivityMap::build(conductivity)?;
             let label = format!("groundwave-millington(k={k_factor})");
-            Ok(Box::new(Groundwave::new(map, *k_factor, *sample_km, *asf_grid_deg, resolve(temporal), &label)?))
+            Ok(Box::new(Groundwave::new(
+                map,
+                *k_factor,
+                *sample_km,
+                *asf_grid_deg,
+                resolve(temporal),
+                &label,
+            )?))
         }
     }
 }
@@ -557,7 +645,11 @@ mod tests {
     }
 
     fn uniform(sigma: f64, eps: f64, k: f64) -> Groundwave {
-        let m = ConductivityMap::build(&ConductivityConfig::Uniform { sigma_s_m: sigma, eps_r: Some(eps) }).unwrap();
+        let m = ConductivityMap::build(&ConductivityConfig::Uniform {
+            sigma_s_m: sigma,
+            eps_r: Some(eps),
+        })
+        .unwrap();
         Groundwave::new(m, k, 2.0, 0.005, None, "t").unwrap()
     }
 
@@ -580,7 +672,11 @@ mod tests {
             let p = g.evaluate(tx(), 1.0, at_km(km), 0.0);
             let h = harris_ns(km * 1000.0);
             worst = worst.max((p.sf_ns - h).abs());
-            assert!((p.sf_ns - h).abs() <= 20.0, "{km} km: SF {} vs Harris {h}", p.sf_ns);
+            assert!(
+                (p.sf_ns - h).abs() <= 20.0,
+                "{km} km: SF {} vs Harris {h}",
+                p.sf_ns
+            );
             assert!(p.asf_ns.abs() < 1e-9, "ASF over all-sea must be 0");
         }
         assert!(worst > 0.0);
@@ -592,7 +688,11 @@ mod tests {
         for km in [300.0, 1000.0, 1500.0] {
             let p = g43.evaluate(tx(), 1.0, at_km(km), 0.0);
             let h = harris_ns(km * 1000.0);
-            assert!(((p.sf_ns - h) / h).abs() < 0.07, "k=4/3 {km} km: {} vs {h}", p.sf_ns);
+            assert!(
+                ((p.sf_ns - h) / h).abs() < 0.07,
+                "k=4/3 {km} km: {} vs {h}",
+                p.sf_ns
+            );
         }
     }
 
@@ -607,7 +707,9 @@ mod tests {
             assert!(ratio_db.abs() < 0.5, "{km} km: {ratio_db} dB");
         }
         // MODELLED: attenuation below inverse distance becomes significant beyond ~500 km
-        let att = |km: f64| 20.0 * (g.evaluate(tx(), 1.0, at_km(km), 0.0).field_uv_m / (300_000.0 / km)).log10();
+        let att = |km: f64| {
+            20.0 * (g.evaluate(tx(), 1.0, at_km(km), 0.0).field_uv_m / (300_000.0 / km)).log10()
+        };
         assert!(att(300.0) > -3.0);
         assert!(att(500.0) < -2.0 && att(500.0) > -6.0, "{}", att(500.0));
         assert!(att(1000.0) < -6.0 && att(1000.0) > -15.0, "{}", att(1000.0));
@@ -636,10 +738,15 @@ mod tests {
             let m = medium.evaluate(tx(), 1.0, at_km(km), 0.0);
             let g = good.evaluate(tx(), 1.0, at_km(km), 0.0);
             let s = sea.evaluate(tx(), 1.0, at_km(km), 0.0);
-            assert!(p.asf_ns > m.asf_ns && m.asf_ns > g.asf_ns && g.asf_ns > 0.0, "{km}");
+            assert!(
+                p.asf_ns > m.asf_ns && m.asf_ns > g.asf_ns && g.asf_ns > 0.0,
+                "{km}"
+            );
             // (good ground with an inductive impedance may slightly exceed sea far out)
             assert!(
-                p.field_uv_m < m.field_uv_m && m.field_uv_m < g.field_uv_m && g.field_uv_m < s.field_uv_m * 1.05,
+                p.field_uv_m < m.field_uv_m
+                    && m.field_uv_m < g.field_uv_m
+                    && g.field_uv_m < s.field_uv_m * 1.05,
                 "{km}: {} {} {} {}",
                 p.field_uv_m,
                 m.field_uv_m,
@@ -650,11 +757,19 @@ mod tests {
             assert!((p.sf_ns - s.sf_ns).abs() < 1e-9);
         }
         let p1000 = poor.evaluate(tx(), 1.0, at_km(1000.0), 0.0);
-        assert!(p1000.asf_ns > 3000.0 && p1000.asf_ns < 15_000.0, "{}", p1000.asf_ns);
+        assert!(
+            p1000.asf_ns > 3000.0 && p1000.asf_ns < 15_000.0,
+            "{}",
+            p1000.asf_ns
+        );
         // the Loran-C SF chart quoted for "terrain type 1" (200–310 statute miles): 3.2–4.3 µs
         // total; σ = 0.001 S/m gives the same order (MODELLED, terrain types not mapped to σ)
         let t = poor.evaluate(tx(), 1.0, at_km(400.0), 0.0);
-        assert!(t.sf_ns + t.asf_ns > 2500.0 && t.sf_ns + t.asf_ns < 8000.0, "{}", t.sf_ns + t.asf_ns);
+        assert!(
+            t.sf_ns + t.asf_ns > 2500.0 && t.sf_ns + t.asf_ns < 8000.0,
+            "{}",
+            t.sf_ns + t.asf_ns
+        );
         // ASF grows monotonically with distance over homogeneous land
         let mut last = 0.0;
         for km in (1..=40).map(|i| i as f64 * 50.0) {
@@ -672,7 +787,10 @@ mod tests {
         let e_land = land.evaluate(tx(), 1.0, at_km(1000.0), 0.0).ecd_s * 1e6;
         for km in [10.0, 100.0, 300.0, 1000.0, 2000.0] {
             for (n, g) in [("sea", &sea), ("land", &land)] {
-                println!("ECD {n} {km} km: {:.3} µs", g.evaluate(tx(), 1.0, at_km(km), 0.0).ecd_s * 1e6);
+                println!(
+                    "ECD {n} {km} km: {:.3} µs",
+                    g.evaluate(tx(), 1.0, at_km(km), 0.0).ecd_s * 1e6
+                );
             }
         }
         // dispersion makes the envelope lead the carrier more and more with distance
@@ -690,7 +808,13 @@ mod tests {
 
     #[test]
     fn table_matches_direct_evaluation() {
-        for g in [SEAWATER, Ground { sigma: 0.002, eps_r: 15.0 }] {
+        for g in [
+            SEAWATER,
+            Ground {
+                sigma: 0.002,
+                eps_r: 15.0,
+            },
+        ] {
             let c = ground_curve(g, K_LORAN);
             let e = SmoothEarth::new(g, F0_HZ, K_LORAN, N_ATM);
             for km in [3.3, 47.0, 81.0, 333.3, 1234.5, 2500.0] {
@@ -704,7 +828,12 @@ mod tests {
                 while ph - t.phase_delay_s < -period / 2.0 {
                     ph += period;
                 }
-                assert!((ph - t.phase_delay_s).abs() < 0.05e-9, "{g:?} {km}: {} vs {}", ph, t.phase_delay_s);
+                assert!(
+                    (ph - t.phase_delay_s).abs() < 0.05e-9,
+                    "{g:?} {km}: {} vs {}",
+                    ph,
+                    t.phase_delay_s
+                );
                 assert!((w.abs().ln() - t.ln_amp).abs() < 1e-4);
             }
         }
@@ -750,7 +879,12 @@ mod tests {
         let b = Geo::new(53.0, 0.0); // land
         let ab = gw.correction_exact(a, b);
         let ba = gw.correction_exact(b, a);
-        assert!((ab.phase_s - ba.phase_s).abs() < 1e-12, "{} {}", ab.phase_s, ba.phase_s);
+        assert!(
+            (ab.phase_s - ba.phase_s).abs() < 1e-12,
+            "{} {}",
+            ab.phase_s,
+            ba.phase_s
+        );
         assert!((ab.ln_amp - ba.ln_amp).abs() < 1e-9);
         assert!(ab.phase_s > 0.0 && ab.land > 0.4 && ab.land < 0.6);
         // all-sea path: ASF = 0
@@ -764,7 +898,12 @@ mod tests {
         let t = Geo::new(55.0, 0.0);
         let c1 = gw.correction_exact(t, Geo::new(50.5, 0.0));
         let c2 = gw.correction_exact(t, Geo::new(48.0, 0.0));
-        assert!(c2.ln_amp > c1.ln_amp - 1e-9, "no field recovery: {} {}", c1.ln_amp, c2.ln_amp);
+        assert!(
+            c2.ln_amp > c1.ln_amp - 1e-9,
+            "no field recovery: {} {}",
+            c1.ln_amp,
+            c2.ln_amp
+        );
     }
 
     #[test]
@@ -776,7 +915,11 @@ mod tests {
             let rx = Geo::new(49.3 + i as f64 * 0.0003, 0.4);
             let c = gw.correction(t, rx);
             let e = gw.correction_exact(t, rx);
-            assert!((c.phase_s - e.phase_s).abs() < 2e-9, "interp error {} ns", (c.phase_s - e.phase_s) * 1e9);
+            assert!(
+                (c.phase_s - e.phase_s).abs() < 2e-9,
+                "interp error {} ns",
+                (c.phase_s - e.phase_s) * 1e9
+            );
             if let Some(p) = prev {
                 let p: Correction = p;
                 assert!((c.phase_s - p.phase_s).abs() < 0.5e-9);
@@ -798,15 +941,28 @@ mod tests {
             sigma_seasonal_frac: 0.2,
             sigma_peak_day: 1.0,
         };
-        assert!((t.delta_asf_s(6.0 * 3600.0, 1.0) * 1e9 - (10.0 + 30.0 * (2.0 * PI * 0.25 / YEAR_D).cos())).abs() < 1e-9);
+        assert!(
+            (t.delta_asf_s(6.0 * 3600.0, 1.0) * 1e9
+                - (10.0 + 30.0 * (2.0 * PI * 0.25 / YEAR_D).cos()))
+            .abs()
+                < 1e-9
+        );
         assert_eq!(t.delta_asf_s(1234.0, 0.0), 0.0);
         assert!((t.sigma_scale() - 1.2).abs() < 1e-12);
         // deterministic and applied through the model
-        let m = ConductivityMap::build(&ConductivityConfig::Uniform { sigma_s_m: 0.003, eps_r: Some(15.0) }).unwrap();
+        let m = ConductivityMap::build(&ConductivityConfig::Uniform {
+            sigma_s_m: 0.003,
+            eps_r: Some(15.0),
+        })
+        .unwrap();
         let gw = Groundwave::new(m, K_LORAN, 2.0, 0.005, Some(t.clone()), "t").unwrap();
         let a = gw.evaluate(tx(), 1.0, at_km(300.0), 0.0);
         let b = gw.evaluate(tx(), 1.0, at_km(300.0), 6.0 * 3600.0);
-        assert!(((b.asf_ns - a.asf_ns) - 10.0).abs() < 0.1, "{}", b.asf_ns - a.asf_ns);
+        assert!(
+            ((b.asf_ns - a.asf_ns) - 10.0).abs() < 0.1,
+            "{}",
+            b.asf_ns - a.asf_ns
+        );
         // higher σ (season) → smaller ASF than the unscaled ground
         let base = uniform(0.003, 15.0, K_LORAN).evaluate(tx(), 1.0, at_km(300.0), 0.0);
         assert!(a.asf_ns - t.delta_asf_s(0.0, 1.0) * 1e9 < base.asf_ns);
@@ -830,7 +986,15 @@ diurnal_amp_ns = 5.0
         assert!(matches!(c, GroundConfig::Millington { .. }));
         build(&c, &ctx("2026-11-18T00:00:00Z")).unwrap();
         let s: GroundConfig = toml::from_str("model = \"smooth_earth\"").unwrap();
-        assert_eq!(s, GroundConfig::SmoothEarth { sigma_s_m: 5.0, eps_r: None, k_factor: K_LORAN, temporal: None });
+        assert_eq!(
+            s,
+            GroundConfig::SmoothEarth {
+                sigma_s_m: 5.0,
+                eps_r: None,
+                k_factor: K_LORAN,
+                temporal: None
+            }
+        );
     }
 
     fn ctx(utc: &str) -> BuildContext {
@@ -839,15 +1003,22 @@ diurnal_amp_ns = 5.0
 
     #[test]
     fn temporal_epoch_comes_from_the_scene_start_unless_overridden() {
-        let t: TemporalConfig = toml::from_str("diurnal_amp_ns = 10.0\ndiurnal_peak_hour_utc = 6.0").unwrap();
+        let t: TemporalConfig =
+            toml::from_str("diurnal_amp_ns = 10.0\ndiurnal_peak_hour_utc = 6.0").unwrap();
         assert_eq!(t.epoch_day_of_year, None);
         let r = t.resolved(AbsTime::from_utc_iso("2026-11-18T06:00:00Z").unwrap());
-        assert_eq!((r.epoch_day_of_year, r.epoch_hour_utc), (Some(322.0), Some(6.0)));
+        assert_eq!(
+            (r.epoch_day_of_year, r.epoch_hour_utc),
+            (Some(322.0), Some(6.0))
+        );
         // at the diurnal peak hour: ΔASF = +A on an all-land path
         assert!((r.delta_asf_s(0.0, 1.0) * 1e9 - 10.0).abs() < 1e-9);
         // through the model: a scene starting at 06:00 sees the peak, one at 18:00 the trough
         let cfg = |toml_t: &str| -> GroundConfig {
-            toml::from_str(&format!("model = \"smooth_earth\"\nsigma_s_m = 0.003\n[temporal]\n{toml_t}")).unwrap()
+            toml::from_str(&format!(
+                "model = \"smooth_earth\"\nsigma_s_m = 0.003\n[temporal]\n{toml_t}"
+            ))
+            .unwrap()
         };
         let c = cfg("diurnal_amp_ns = 10.0\ndiurnal_peak_hour_utc = 6.0");
         let st = Station {
@@ -863,13 +1034,28 @@ diurnal_amp_ns = 5.0
             status: crate::chain::StationStatus::On,
             faults: vec![],
         };
-        let rx = RxState { t_s: 0.0, pos: at_km(300.0), heading_rad: 0.0, speed_mps: 0.0 };
-        let a = build(&c, &ctx("2026-11-18T06:00:00Z")).unwrap().paths(&st, &rx)[0];
-        let b = build(&c, &ctx("2026-11-18T18:00:00Z")).unwrap().paths(&st, &rx)[0];
-        assert!(((a.asf_ns - b.asf_ns) - 20.0).abs() < 1e-6, "{}", a.asf_ns - b.asf_ns);
+        let rx = RxState {
+            t_s: 0.0,
+            pos: at_km(300.0),
+            heading_rad: 0.0,
+            speed_mps: 0.0,
+        };
+        let a = build(&c, &ctx("2026-11-18T06:00:00Z"))
+            .unwrap()
+            .paths(&st, &rx)[0];
+        let b = build(&c, &ctx("2026-11-18T18:00:00Z"))
+            .unwrap()
+            .paths(&st, &rx)[0];
+        assert!(
+            ((a.asf_ns - b.asf_ns) - 20.0).abs() < 1e-6,
+            "{}",
+            a.asf_ns - b.asf_ns
+        );
         // an explicit epoch overrides the scene start (backward-compatible files)
         let o = cfg("diurnal_amp_ns = 10.0\ndiurnal_peak_hour_utc = 6.0\nepoch_day_of_year = 322.0\nepoch_hour_utc = 6.0");
-        let c2 = build(&o, &ctx("2026-11-18T18:00:00Z")).unwrap().paths(&st, &rx)[0];
+        let c2 = build(&o, &ctx("2026-11-18T18:00:00Z"))
+            .unwrap()
+            .paths(&st, &rx)[0];
         assert_eq!(c2.asf_ns, a.asf_ns);
     }
 }

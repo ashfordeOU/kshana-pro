@@ -41,7 +41,10 @@ fn ldc_eurofix_scenario_runs() {
     let syms = m.symbols(1, Role::Secondary, f0 * g, (f0 + cycle) * g);
     let rep = dec.decode_symbols(&syms);
     assert_eq!(rep.messages.len(), 8);
-    assert_eq!(dec.verify_auth(1, &rep, f0).last().unwrap().verified, Some(true));
+    assert_eq!(
+        dec.verify_auth(1, &rep, f0).last().unwrap().verified,
+        Some(true)
+    );
 }
 
 #[test]
@@ -55,13 +58,27 @@ fn ldc_gri_comes_from_the_chain() {
     let chain = &sc.chains[0].chain;
     let m = build_modulator(&ldc, Some(chain)).unwrap().unwrap();
     assert_eq!(m.c.gri_us, Some(chain.gri_us));
-    assert_eq!(sc.ldc_configs().unwrap()[0].as_ref().unwrap().common().unwrap().gri_us, Some(67_310));
+    assert_eq!(
+        sc.ldc_configs().unwrap()[0]
+            .as_ref()
+            .unwrap()
+            .common()
+            .unwrap()
+            .gri_us,
+        Some(67_310)
+    );
     sc.build().unwrap();
     // an explicit gri_us is an override: accepted when it agrees, an error otherwise
     for (gri, ok) in [(67_310, true), (79_800, false)] {
-        let with = src.replace("ldc = { scheme = \"eurofix\",", &format!("ldc = {{ scheme = \"eurofix\", gri_us = {gri},"));
+        let with = src.replace(
+            "ldc = { scheme = \"eurofix\",",
+            &format!("ldc = {{ scheme = \"eurofix\", gri_us = {gri},"),
+        );
         let s2 = Scenario::from_toml(&with).unwrap();
-        assert_eq!(s2.chains[0].ldc.as_ref().unwrap().common().unwrap().gri_us, Some(gri));
+        assert_eq!(
+            s2.chains[0].ldc.as_ref().unwrap().common().unwrap().gri_us,
+            Some(gri)
+        );
         assert_eq!(s2.build().is_ok(), ok, "gri {gri}");
     }
 }

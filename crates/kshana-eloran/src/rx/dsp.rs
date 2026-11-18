@@ -45,7 +45,10 @@ impl C64 {
     }
     #[inline]
     pub fn conj(self) -> C64 {
-        C64 { re: self.re, im: -self.im }
+        C64 {
+            re: self.re,
+            im: -self.im,
+        }
     }
     #[inline]
     pub fn norm_sqr(self) -> f64 {
@@ -61,7 +64,10 @@ impl C64 {
     }
     #[inline]
     pub fn scale(self, k: f64) -> C64 {
-        C64 { re: self.re * k, im: self.im * k }
+        C64 {
+            re: self.re * k,
+            im: self.im * k,
+        }
     }
 }
 
@@ -69,21 +75,30 @@ impl Add for C64 {
     type Output = C64;
     #[inline]
     fn add(self, o: C64) -> C64 {
-        C64 { re: self.re + o.re, im: self.im + o.im }
+        C64 {
+            re: self.re + o.re,
+            im: self.im + o.im,
+        }
     }
 }
 impl Sub for C64 {
     type Output = C64;
     #[inline]
     fn sub(self, o: C64) -> C64 {
-        C64 { re: self.re - o.re, im: self.im - o.im }
+        C64 {
+            re: self.re - o.re,
+            im: self.im - o.im,
+        }
     }
 }
 impl Mul for C64 {
     type Output = C64;
     #[inline]
     fn mul(self, o: C64) -> C64 {
-        C64 { re: self.re * o.re - self.im * o.im, im: self.re * o.im + self.im * o.re }
+        C64 {
+            re: self.re * o.re - self.im * o.im,
+            im: self.re * o.im + self.im * o.re,
+        }
     }
 }
 impl std::ops::AddAssign for C64 {
@@ -120,7 +135,9 @@ pub fn fft(x: &mut [C64], inverse: bool) {
     while len <= n {
         let half = len / 2;
         // twiddles for this stage, computed directly (no recurrence error build-up)
-        let tw: Vec<C64> = (0..half).map(|k| C64::cis(sign * 2.0 * PI * k as f64 / len as f64)).collect();
+        let tw: Vec<C64> = (0..half)
+            .map(|k| C64::cis(sign * 2.0 * PI * k as f64 / len as f64))
+            .collect();
         for start in (0..n).step_by(len) {
             for k in 0..half {
                 let a = x[start + k];
@@ -145,7 +162,11 @@ pub struct BandPassSpec {
 
 impl Default for BandPassSpec {
     fn default() -> Self {
-        BandPassSpec { lo_hz: 90_000.0, hi_hz: 110_000.0, transition_hz: 20_000.0 }
+        BandPassSpec {
+            lo_hz: 90_000.0,
+            hi_hz: 110_000.0,
+            transition_hz: 20_000.0,
+        }
     }
 }
 
@@ -173,7 +194,10 @@ impl Fir {
         let f0 = 0.5 * (spec.lo_hz + spec.hi_hz);
         let fc = 0.5 * (spec.hi_hz - spec.lo_hz) + 0.5 * spec.transition_hz;
         if f0 + fc >= fs_hz / 2.0 {
-            return Err(format!("band-pass: upper edge {} Hz is above Nyquist for fs = {fs_hz} Hz", f0 + fc));
+            return Err(format!(
+                "band-pass: upper edge {} Hz is above Nyquist for fs = {fs_hz} Hz",
+                f0 + fc
+            ));
         }
         let n = ((5.5 * fs_hz / spec.transition_hz).ceil() as usize) | 1;
         let m = n / 2;
@@ -181,8 +205,13 @@ impl Fir {
             .map(|i| {
                 let k = i as f64 - m as f64;
                 let x = 2.0 * fc * k / fs_hz;
-                let sinc = if k == 0.0 { 1.0 } else { (PI * x).sin() / (PI * x) };
-                let w = 0.42 + 0.5 * (2.0 * PI * i as f64 / (n - 1) as f64 - PI).cos()
+                let sinc = if k == 0.0 {
+                    1.0
+                } else {
+                    (PI * x).sin() / (PI * x)
+                };
+                let w = 0.42
+                    + 0.5 * (2.0 * PI * i as f64 / (n - 1) as f64 - PI).cos()
                     + 0.08 * (4.0 * PI * i as f64 / (n - 1) as f64 - 2.0 * PI).cos();
                 sinc * w
             })
@@ -197,7 +226,13 @@ impl Fir {
             .map(|(i, l)| 2.0 * l * (2.0 * PI * f0 * (i as f64 - m as f64) / fs_hz).cos())
             .collect();
         let noise_gain = taps.iter().map(|h| h * h).sum();
-        Ok(Fir { taps, half: m, f0_hz: f0, fs_hz, noise_gain })
+        Ok(Fir {
+            taps,
+            half: m,
+            f0_hz: f0,
+            fs_hz,
+            noise_gain,
+        })
     }
 
     /// Filter real signals, zero phase (output aligned with input), by FFT overlap-save.
@@ -283,11 +318,15 @@ impl Fir {
 /// Returns `None` if singular.
 pub fn solve(a: &[Vec<f64>], b: &[f64]) -> Option<Vec<f64>> {
     let n = b.len();
-    let mut m: Vec<Vec<f64>> = a.iter().zip(b).map(|(r, bi)| {
-        let mut r = r.clone();
-        r.push(*bi);
-        r
-    }).collect();
+    let mut m: Vec<Vec<f64>> = a
+        .iter()
+        .zip(b)
+        .map(|(r, bi)| {
+            let mut r = r.clone();
+            r.push(*bi);
+            r
+        })
+        .collect();
     for c in 0..n {
         let p = (c..n).max_by(|&i, &j| m[i][c].abs().partial_cmp(&m[j][c].abs()).unwrap())?;
         if m[p][c].abs() < 1e-300 {
@@ -322,7 +361,11 @@ pub fn invert(a: &[Vec<f64>]) -> Option<Vec<Vec<f64>>> {
         e[c] = 1.0;
         cols.push(solve(a, &e)?);
     }
-    Some((0..n).map(|r| (0..n).map(|c| cols[c][r]).collect()).collect())
+    Some(
+        (0..n)
+            .map(|r| (0..n).map(|c| cols[c][r]).collect())
+            .collect(),
+    )
 }
 
 #[cfg(test)]
@@ -332,7 +375,9 @@ mod tests {
     #[test]
     fn fft_round_trip_and_known_bin() {
         let n = 64;
-        let mut x: Vec<C64> = (0..n).map(|i| C64::cis(2.0 * PI * 5.0 * i as f64 / n as f64)).collect();
+        let mut x: Vec<C64> = (0..n)
+            .map(|i| C64::cis(2.0 * PI * 5.0 * i as f64 / n as f64))
+            .collect();
         let orig = x.clone();
         fft(&mut x, false);
         assert!((x[5].re - n as f64).abs() < 1e-9);
@@ -346,7 +391,9 @@ mod tests {
     #[test]
     fn fft_filter_equals_direct_centred_convolution() {
         let fir = Fir::design(BandPassSpec::default(), 1_000_000.0).unwrap();
-        let x: Vec<f64> = (0..20_000).map(|i| ((i * 7919) % 1000) as f64 / 500.0 - 1.0).collect();
+        let x: Vec<f64> = (0..20_000)
+            .map(|i| ((i * 7919) % 1000) as f64 / 500.0 - 1.0)
+            .collect();
         let y = fir.filter(&x);
         let m = fir.half as isize;
         for n in [0usize, 5, 137, 9_999, 19_999] {

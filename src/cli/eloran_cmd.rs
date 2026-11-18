@@ -132,7 +132,13 @@ fn run_cmd(args: &[String]) -> ExitCode {
             Ok(f) => f,
             Err(e) => return fail(e),
         };
-        match SigmfWriter::create(&base, fmt, sc.outputs.len(), sc.scene.params.fs_hz, extra.clone()) {
+        match SigmfWriter::create(
+            &base,
+            fmt,
+            sc.outputs.len(),
+            sc.scene.params.fs_hz,
+            extra.clone(),
+        ) {
             Ok(w) => Box::new(w),
             Err(e) => return fail(e),
         }
@@ -292,8 +298,16 @@ fn rx_cmd(args: &[String]) -> ExitCode {
         .map(|(i, _)| i)
         .collect();
     cfg.antenna = if loops.len() >= 2 {
-        let mode = if args.iter().any(|a| a == "--per-loop") { LoopMode::PerLoop } else { LoopMode::BeamSteer };
-        Antenna::CrossedLoop { a: loops[0], b: loops[1], mode }
+        let mode = if args.iter().any(|a| a == "--per-loop") {
+            LoopMode::PerLoop
+        } else {
+            LoopMode::BeamSteer
+        };
+        Antenna::CrossedLoop {
+            a: loops[0],
+            b: loops[1],
+            mode,
+        }
     } else {
         Antenna::EField { channel: 0 }
     };
@@ -337,7 +351,13 @@ fn rx_cmd(args: &[String]) -> ExitCode {
     let corr = cfg.corrections.clone();
     let rx_pos = sc.receiver.state(0.0).pos;
     let ts = solve::time_solution(&output.measurements, &chains, start, rx_pos, &corr);
-    let pos = solve::position_solution(&output.measurements, &chains, start, &corr, &solve::PositionConfig::default());
+    let pos = solve::position_solution(
+        &output.measurements,
+        &chains,
+        start,
+        &corr,
+        &solve::PositionConfig::default(),
+    );
     let mut report = serde_json::json!({
         "format": "kshana-eloran-rx",
         "version": 1,
@@ -378,7 +398,10 @@ fn rx_cmd(args: &[String]) -> ExitCode {
             .collect::<Vec<_>>());
     }
     if let Some(tp) = flag(args, "--truth") {
-        let truth = match std::fs::read_to_string(&tp).map_err(|e| format!("{tp}: {e}")).and_then(|t| kshana_eloran::scene::truth_from_csv(&t)) {
+        let truth = match std::fs::read_to_string(&tp)
+            .map_err(|e| format!("{tp}: {e}"))
+            .and_then(|t| kshana_eloran::scene::truth_from_csv(&t))
+        {
             Ok(t) => t,
             Err(e) => return fail(e),
         };
@@ -392,7 +415,10 @@ fn rx_cmd(args: &[String]) -> ExitCode {
             "position_error_m": pos.as_ref().ok().and_then(|p| rxt::position_error_m(p.position, &truth)),
         });
     }
-    if let Err(e) = std::fs::write(dir.join("rx-report.json"), serde_json::to_string_pretty(&report).unwrap()) {
+    if let Err(e) = std::fs::write(
+        dir.join("rx-report.json"),
+        serde_json::to_string_pretty(&report).unwrap(),
+    ) {
         return fail(e);
     }
     println!(
@@ -400,7 +426,10 @@ fn rx_cmd(args: &[String]) -> ExitCode {
         output.tracks.len(),
         output.measurements.len(),
         match &pos {
-            Ok(p) => format!(", fix {:.6} {:.6} HDOP {:.2}", p.position.lat_deg, p.position.lon_deg, p.hdop),
+            Ok(p) => format!(
+                ", fix {:.6} {:.6} HDOP {:.2}",
+                p.position.lat_deg, p.position.lon_deg, p.hdop
+            ),
             Err(_) => String::new(),
         },
         dir.display()
@@ -444,7 +473,11 @@ fn gri_cmd(args: &[String]) -> ExitCode {
                     c.id,
                     c.gri_us / 10,
                     c.name,
-                    if c.is_complete() { "complete" } else { "incomplete" },
+                    if c.is_complete() {
+                        "complete"
+                    } else {
+                        "incomplete"
+                    },
                     c.region
                 );
             }
@@ -484,7 +517,11 @@ fn calibrate_cmd(args: &[String]) -> ExitCode {
     if args.get(1).map(String::as_str) != Some("receiver") {
         return fail(USAGE);
     }
-    let (Some(tic), Some(inputs), Some(out)) = (flag(args, "--tic"), flag(args, "--inputs"), flag(args, "--out")) else {
+    let (Some(tic), Some(inputs), Some(out)) = (
+        flag(args, "--tic"),
+        flag(args, "--inputs"),
+        flag(args, "--out"),
+    ) else {
         return fail(USAGE);
     };
     if let Err(c) = licensed(args) {
@@ -576,7 +613,10 @@ fn stream_cmd(args: &[String]) -> ExitCode {
         return fail("--cal: apply the calibration file with `kshana_eloran::hw::calib::CalibratedSink` in an integration; the command line does not apply it yet");
     }
     let mut device: Box<dyn Device> = if let Some(base) = dev_spec.strip_prefix("file:") {
-        Box::new(hw::file::FileDevice::tx(Path::new(base), kshana_eloran::io::Format::Ri16))
+        Box::new(hw::file::FileDevice::tx(
+            Path::new(base),
+            kshana_eloran::io::Format::Ri16,
+        ))
     } else if let Some(_a) = dev_spec.strip_prefix("soapy:") {
         #[cfg(feature = "eloran-soapy")]
         {
@@ -587,7 +627,9 @@ fn stream_cmd(args: &[String]) -> ExitCode {
         }
         #[cfg(not(feature = "eloran-soapy"))]
         {
-            return fail("this build has no SoapySDR support (rebuild with --features eloran-soapy)");
+            return fail(
+                "this build has no SoapySDR support (rebuild with --features eloran-soapy)",
+            );
         }
     } else {
         return fail("--device must be file:<base> or soapy:<args>");
@@ -596,7 +638,11 @@ fn stream_cmd(args: &[String]) -> ExitCode {
     if let Err(e) = device.configure(&cfg) {
         return fail(e);
     }
-    let at = if args.iter().any(|a| a == "--pps-start") { StartTime::NextPps } else { StartTime::Now };
+    let at = if args.iter().any(|a| a == "--pps-start") {
+        StartTime::NextPps
+    } else {
+        StartTime::Now
+    };
     let session = match hw::stream_scene(device, scene, at, 16) {
         Ok(s) => s,
         Err(e) => return fail(e),

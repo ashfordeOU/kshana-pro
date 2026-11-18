@@ -80,7 +80,11 @@ impl<'a> BitReader<'a> {
 /// Pack bits into bytes, MSB first, zero-padding the last byte.
 pub fn pack_bytes(bits: &[bool]) -> Vec<u8> {
     bits.chunks(8)
-        .map(|c| c.iter().enumerate().fold(0u8, |a, (i, b)| a | ((*b as u8) << (7 - i))))
+        .map(|c| {
+            c.iter()
+                .enumerate()
+                .fold(0u8, |a, (i, b)| a | ((*b as u8) << (7 - i)))
+        })
         .collect()
 }
 

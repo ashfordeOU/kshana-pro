@@ -120,7 +120,11 @@ impl Scenario {
 
     /// The scene context given to the propagation models (scene start, duration, seed).
     pub fn build_context(&self) -> Result<BuildContext, String> {
-        Ok(BuildContext::new(self.start()?, self.scene.params.duration_s, self.scene.params.seed))
+        Ok(BuildContext::new(
+            self.start()?,
+            self.scene.params.duration_s,
+            self.scene.params.seed,
+        ))
     }
 
     /// Each chain's LDC configuration completed from its chain (GRI, station checks; see
@@ -174,7 +178,10 @@ impl Scenario {
             chains: self.chains.iter().map(|c| c.chain.clone()).collect(),
             modulators,
             timebase,
-            prop: prop::build(&self.propagation, &BuildContext::new(start, p.duration_s, p.seed))?,
+            prop: prop::build(
+                &self.propagation,
+                &BuildContext::new(start, p.duration_s, p.seed),
+            )?,
             trajectory: self.receiver.clone(),
             outputs: self.outputs.clone(),
             interferers,

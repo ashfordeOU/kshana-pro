@@ -160,7 +160,13 @@ pub struct DataPulseSpec {
 
 impl Default for DataPulseSpec {
     fn default() -> Self {
-        DataPulseSpec { after_us: 1000.0, master_after_us: 1000.0, code_a: 1, code_b: -1, amp: 1.0 }
+        DataPulseSpec {
+            after_us: 1000.0,
+            master_after_us: 1000.0,
+            code_a: 1,
+            code_b: -1,
+            amp: 1.0,
+        }
     }
 }
 
@@ -356,7 +362,10 @@ impl LdcConfig {
                 .chain(common.station_schedules.iter().map(|s| &s.station))
                 .find(|s| **s >= n);
             if let Some(s) = bad {
-                return Err(format!("chain {}: ldc station index {s} out of range (chain has {n} stations)", chain.name));
+                return Err(format!(
+                    "chain {}: ldc station index {s} out of range (chain has {n} stations)",
+                    chain.name
+                ));
             }
         }
         Ok(c)
@@ -384,19 +393,28 @@ impl LdcConfig {
                 if e.pulses.contains(&DATA_PULSE) {
                     return Err("eurofix modulates group pulses only".into());
                 }
-                let fec = FecSpec { m: mapper.bits_per_symbol(), n: e.rs_n, k: e.rs_k };
+                let fec = FecSpec {
+                    m: mapper.bits_per_symbol(),
+                    n: e.rs_n,
+                    k: e.rs_k,
+                };
                 ("eurofix", mapper, fec, e.frame_crc, None, &e.common)
             }
             LdcConfig::NinthPulse(p) => {
                 let mapper = match p.phase_states {
-                    Some(s) => Mapper::from_spec(&MapperSpec::Phase { pulses: vec![DATA_PULSE], states: s })?,
+                    Some(s) => Mapper::from_spec(&MapperSpec::Phase {
+                        pulses: vec![DATA_PULSE],
+                        states: s,
+                    })?,
                     None => Mapper::from_spec(&MapperSpec::Ppm {
                         pulses: vec![DATA_PULSE],
                         states: p.states,
                         step_us: p.step_us,
                     })?,
                 };
-                let m = p.rs_m.unwrap_or_else(|| mapper.bits_per_symbol().clamp(3, 8));
+                let m = p
+                    .rs_m
+                    .unwrap_or_else(|| mapper.bits_per_symbol().clamp(3, 8));
                 let dp = DataPulseSpec {
                     after_us: p.offset_us,
                     master_after_us: p.master_offset_us,
@@ -404,7 +422,18 @@ impl LdcConfig {
                     code_b: p.code_b,
                     amp: 1.0,
                 };
-                ("ninth_pulse", mapper, FecSpec { m, n: p.rs_n, k: p.rs_k }, p.frame_crc, Some(dp), &p.common)
+                (
+                    "ninth_pulse",
+                    mapper,
+                    FecSpec {
+                        m,
+                        n: p.rs_n,
+                        k: p.rs_k,
+                    },
+                    p.frame_crc,
+                    Some(dp),
+                    &p.common,
+                )
             }
         };
         let rs = ReedSolomon::new(fec.m, fec.n, fec.k)?;
@@ -427,11 +456,29 @@ impl LdcConfig {
             }
             None => None,
         };
-        let to_pairs = |s: &[ScheduleEntry]| s.iter().map(|e| (e.message.clone(), e.repeat)).collect::<Vec<_>>();
+        let to_pairs = |s: &[ScheduleEntry]| {
+            s.iter()
+                .map(|e| (e.message.clone(), e.repeat))
+                .collect::<Vec<_>>()
+        };
         let default_schedule: Vec<(MessageSpec, u32)> = if common.schedule.is_empty() {
-            let mut v = vec![(MessageSpec::StationId { chain_id: 0, station_code: None, signal_version: 0 }, 1)];
+            let mut v = vec![(
+                MessageSpec::StationId {
+                    chain_id: 0,
+                    station_code: None,
+                    signal_version: 0,
+                },
+                1,
+            )];
             if common.gri_us.is_some() {
-                v.push((MessageSpec::UtcTime { tai_minus_utc_s: 37, leap_pending: 0, days_to_leap: 0 }, 1));
+                v.push((
+                    MessageSpec::UtcTime {
+                        tai_minus_utc_s: 37,
+                        leap_pending: 0,
+                        days_to_leap: 0,
+                    },
+                    1,
+                ));
             }
             v.push((MessageSpec::Null, 1));
             v
@@ -447,7 +494,10 @@ impl LdcConfig {
             }
         }
         let needs_time = plans.iter().flat_map(|p| &p.entries).any(|e| {
-            matches!(e.spec, MessageSpec::UtcTime { .. } | MessageSpec::Dgnss { z_count: None, .. })
+            matches!(
+                e.spec,
+                MessageSpec::UtcTime { .. } | MessageSpec::Dgnss { z_count: None, .. }
+            )
         });
         if needs_time && common.gri_us.is_none() {
             return Err("LDC: utc_time / dgnss (without z_count) messages need the chain's GRI: build with the \
@@ -481,7 +531,10 @@ impl LdcConfig {
 /// Build the concrete modulator (keeps access to the symbol log and truth methods) for
 /// `chain` (see [`LdcConfig::for_chain`]); `None` uses the configuration as it stands
 /// (time-dependent messages then need an explicit `gri_us`).
-pub fn build_modulator(cfg: &LdcConfig, chain: Option<&Chain>) -> Result<Option<LdcModulator>, String> {
+pub fn build_modulator(
+    cfg: &LdcConfig,
+    chain: Option<&Chain>,
+) -> Result<Option<LdcModulator>, String> {
     let cfg = match chain {
         Some(c) => cfg.for_chain(c)?,
         None => cfg.clone(),
@@ -491,6 +544,9 @@ pub fn build_modulator(cfg: &LdcConfig, chain: Option<&Chain>) -> Result<Option<
 
 /// Build the modulator as a trait object (used by the scenario builder, which passes the
 /// chain).
-pub fn build(cfg: &LdcConfig, chain: Option<&Chain>) -> Result<Option<Box<dyn GroupModulator>>, String> {
+pub fn build(
+    cfg: &LdcConfig,
+    chain: Option<&Chain>,
+) -> Result<Option<Box<dyn GroupModulator>>, String> {
     Ok(build_modulator(cfg, chain)?.map(|m| Box::new(m) as Box<dyn GroupModulator>))
 }

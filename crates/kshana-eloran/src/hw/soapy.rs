@@ -20,7 +20,9 @@
 //!
 //! Compile-tested only in this crate's CI; it needs real hardware to be verified.
 
-use super::{announce_output_policy, Device, DeviceConfig, DeviceStatus, PpsSource, RefSource, StartTime};
+use super::{
+    announce_output_policy, Device, DeviceConfig, DeviceStatus, PpsSource, RefSource, StartTime,
+};
 use std::ffi::{c_char, c_int, c_long, c_void, CStr, CString};
 
 type Dev = *mut c_void;
@@ -107,8 +109,17 @@ struct Api {
     close: extern "C" fn(Dev, Stream) -> c_int,
     activate: extern "C" fn(Dev, Stream, c_int, i64, usize) -> c_int,
     deactivate: extern "C" fn(Dev, Stream, c_int, i64) -> c_int,
-    write: extern "C" fn(Dev, Stream, *const *const c_void, usize, *mut c_int, i64, c_long) -> c_int,
-    read: extern "C" fn(Dev, Stream, *const *mut c_void, usize, *mut c_int, *mut i64, c_long) -> c_int,
+    write:
+        extern "C" fn(Dev, Stream, *const *const c_void, usize, *mut c_int, i64, c_long) -> c_int,
+    read: extern "C" fn(
+        Dev,
+        Stream,
+        *const *mut c_void,
+        usize,
+        *mut c_int,
+        *mut i64,
+        c_long,
+    ) -> c_int,
     read_status: extern "C" fn(Dev, Stream, *mut usize, *mut c_int, *mut i64, c_long) -> c_int,
 }
 
@@ -145,7 +156,9 @@ impl SoapyDevice {
         let lib = Lib::open()?;
         let abi: extern "C" fn() -> *const c_char = lib.sym("SoapySDR_getABIVersion")?;
         // SAFETY: returns a static NUL-terminated string.
-        let v = unsafe { CStr::from_ptr(abi()) }.to_string_lossy().into_owned();
+        let v = unsafe { CStr::from_ptr(abi()) }
+            .to_string_lossy()
+            .into_owned();
         if !v.starts_with("0.8") {
             return Err(format!("SoapySDR ABI {v} not supported (0.8 required)"));
         }
@@ -190,7 +203,9 @@ impl SoapyDevice {
 
     fn err(&self, what: &str) -> String {
         // SAFETY: lastError returns a thread-local NUL-terminated string.
-        let e = unsafe { CStr::from_ptr((self.api.last_error)()) }.to_string_lossy().into_owned();
+        let e = unsafe { CStr::from_ptr((self.api.last_error)()) }
+            .to_string_lossy()
+            .into_owned();
         format!("soapy:{} {what}: {e}", self.args)
     }
 
@@ -209,11 +224,15 @@ impl SoapyDevice {
             StartTime::AtDeviceTimeNs(t) => Ok(Some(t)),
             StartTime::NextPps => {
                 let pps = cstr("PPS")?;
-                self.check((self.api.set_hw_time)(self.dev, 0, pps.as_ptr()), "setHardwareTime(PPS)")?;
+                self.check(
+                    (self.api.set_hw_time)(self.dev, 0, pps.as_ptr()),
+                    "setHardwareTime(PPS)",
+                )?;
                 // wait for the PPS edge that applies it
                 std::thread::sleep(std::time::Duration::from_millis(1200));
                 let now = (self.api.get_hw_time)(self.dev, std::ptr::null());
-                let next = (now + 100_000_000).div_euclid(1_000_000_000) * 1_000_000_000 + 1_000_000_000;
+                let next =
+                    (now + 100_000_000).div_euclid(1_000_000_000) * 1_000_000_000 + 1_000_000_000;
                 self.status.pps_aligned = true;
                 Ok(Some(next))
             }
@@ -223,7 +242,14 @@ impl SoapyDevice {
     fn setup(&self, dir: c_int, n: usize) -> Result<Stream, String> {
         let fmt = cstr(self.format.name())?;
         let ch: Vec<usize> = (0..n).collect();
-        let s = (self.api.setup)(self.dev, dir, fmt.as_ptr(), ch.as_ptr(), n, std::ptr::null());
+        let s = (self.api.setup)(
+            self.dev,
+            dir,
+            fmt.as_ptr(),
+            ch.as_ptr(),
+            n,
+            std::ptr::null(),
+        );
         if s.is_null() {
             return Err(self.err("setupStream"));
         }
@@ -257,16 +283,31 @@ impl Device for SoapyDevice {
             RefSource::Internal => "internal",
             RefSource::External => "external",
         })?;
-        self.check((self.api.set_clock_source)(self.dev, clock.as_ptr()), "setClockSource")?;
+        self.check(
+            (self.api.set_clock_source)(self.dev, clock.as_ptr()),
+            "setClockSource",
+        )?;
         let time = cstr(match cfg.time_source {
             PpsSource::Internal => "internal",
             PpsSource::External => "external",
         })?;
-        self.check((self.api.set_time_source)(self.dev, time.as_ptr()), "setTimeSource")?;
-        for (dir, n, gains) in [(TX, cfg.tx_channels, &cfg.tx_gain_db), (RX, cfg.rx_channels, &cfg.rx_gain_db)] {
+        self.check(
+            (self.api.set_time_source)(self.dev, time.as_ptr()),
+            "setTimeSource",
+        )?;
+        for (dir, n, gains) in [
+            (TX, cfg.tx_channels, &cfg.tx_gain_db),
+            (RX, cfg.rx_channels, &cfg.rx_gain_db),
+        ] {
             for c in 0..n {
-                self.check((self.api.set_rate)(self.dev, dir, c, cfg.sample_rate_hz), "setSampleRate")?;
-                self.check((self.api.set_freq)(self.dev, dir, c, cfg.center_freq_hz, std::ptr::null()), "setFrequency")?;
+                self.check(
+                    (self.api.set_rate)(self.dev, dir, c, cfg.sample_rate_hz),
+                    "setSampleRate",
+                )?;
+                self.check(
+                    (self.api.set_freq)(self.dev, dir, c, cfg.center_freq_hz, std::ptr::null()),
+                    "setFrequency",
+                )?;
                 if let Some(g) = gains.get(c) {
                     self.check((self.api.set_gain)(self.dev, dir, c, *g), "setGain")?;
                 }
@@ -280,14 +321,21 @@ impl Device for SoapyDevice {
         self.cfg.as_ref().map(|c| c.sample_rate_hz)
     }
     fn start_tx(&mut self, at: StartTime) -> Result<Option<i64>, String> {
-        let n = self.cfg.as_ref().ok_or("device not configured")?.tx_channels;
+        let n = self
+            .cfg
+            .as_ref()
+            .ok_or("device not configured")?
+            .tx_channels;
         if n == 0 {
             return Err("no tx channels configured".into());
         }
         self.tx = self.setup(TX, n)?;
         let t = self.start_ns(at)?;
         let (flags, tn) = t.map(|t| (FLAG_HAS_TIME, t)).unwrap_or((0, 0));
-        self.check((self.api.activate)(self.dev, self.tx, flags, tn, 0), "activateStream(TX)")?;
+        self.check(
+            (self.api.activate)(self.dev, self.tx, flags, tn, 0),
+            "activateStream(TX)",
+        )?;
         self.tx_time = t;
         self.status.tx_streaming = true;
         self.status.start_time_ns = t;
@@ -322,12 +370,23 @@ impl Device for SoapyDevice {
         let mut done = 0usize;
         let mut timeouts = 0;
         while done < n {
-            let ptrs: Vec<*const c_void> = bufs.iter().map(|b| b[done * self.format.bytes()..].as_ptr() as *const c_void).collect();
+            let ptrs: Vec<*const c_void> = bufs
+                .iter()
+                .map(|b| b[done * self.format.bytes()..].as_ptr() as *const c_void)
+                .collect();
             let (mut flags, tn) = match self.tx_time.take() {
                 Some(t) => (FLAG_HAS_TIME, t),
                 None => (0, 0),
             };
-            let r = (self.api.write)(self.dev, self.tx, ptrs.as_ptr(), n - done, &mut flags, tn, 1_000_000);
+            let r = (self.api.write)(
+                self.dev,
+                self.tx,
+                ptrs.as_ptr(),
+                n - done,
+                &mut flags,
+                tn,
+                1_000_000,
+            );
             if r > 0 {
                 done += r as usize;
             } else if r == ERR_TIMEOUT && timeouts < 5 {
@@ -348,7 +407,9 @@ impl Device for SoapyDevice {
         }
         // end of burst: zero-length write with END_BURST
         let zero = [0u8; 8];
-        let ptrs: Vec<*const c_void> = (0..self.cfg.as_ref().map(|c| c.tx_channels).unwrap_or(1)).map(|_| zero.as_ptr() as *const c_void).collect();
+        let ptrs: Vec<*const c_void> = (0..self.cfg.as_ref().map(|c| c.tx_channels).unwrap_or(1))
+            .map(|_| zero.as_ptr() as *const c_void)
+            .collect();
         let mut flags = FLAG_END_BURST;
         (self.api.write)(self.dev, self.tx, ptrs.as_ptr(), 0, &mut flags, 0, 100_000);
         self.poll_tx_status();
@@ -359,14 +420,21 @@ impl Device for SoapyDevice {
         Ok(())
     }
     fn start_rx(&mut self, at: StartTime) -> Result<Option<i64>, String> {
-        let n = self.cfg.as_ref().ok_or("device not configured")?.rx_channels;
+        let n = self
+            .cfg
+            .as_ref()
+            .ok_or("device not configured")?
+            .rx_channels;
         if n == 0 {
             return Err("no rx channels configured".into());
         }
         self.rx = self.setup(RX, n)?;
         let t = self.start_ns(at)?;
         let (flags, tn) = t.map(|t| (FLAG_HAS_TIME, t)).unwrap_or((0, 0));
-        self.check((self.api.activate)(self.dev, self.rx, flags, tn, 0), "activateStream(RX)")?;
+        self.check(
+            (self.api.activate)(self.dev, self.rx, flags, tn, 0),
+            "activateStream(RX)",
+        )?;
         self.status.rx_streaming = true;
         self.status.start_time_ns = t;
         Ok(t)
@@ -379,9 +447,20 @@ impl Device for SoapyDevice {
         let mut bufs: Vec<Vec<u8>> = vec![vec![0u8; n * self.format.bytes()]; nch];
         let mut timeouts = 0;
         loop {
-            let ptrs: Vec<*mut c_void> = bufs.iter_mut().map(|b| b.as_mut_ptr() as *mut c_void).collect();
+            let ptrs: Vec<*mut c_void> = bufs
+                .iter_mut()
+                .map(|b| b.as_mut_ptr() as *mut c_void)
+                .collect();
             let (mut flags, mut t) = (0 as c_int, 0i64);
-            let r = (self.api.read)(self.dev, self.rx, ptrs.as_ptr(), n, &mut flags, &mut t, 1_000_000);
+            let r = (self.api.read)(
+                self.dev,
+                self.rx,
+                ptrs.as_ptr(),
+                n,
+                &mut flags,
+                &mut t,
+                1_000_000,
+            );
             if r > 0 {
                 let k = r as usize;
                 self.status.samples_rx += k as u64;
@@ -391,8 +470,15 @@ impl Device for SoapyDevice {
                     .map(|b| {
                         (0..k)
                             .map(|i| match self.format {
-                                SoapyFormat::Cf32 => f32::from_ne_bytes([b[8 * i], b[8 * i + 1], b[8 * i + 2], b[8 * i + 3]]) as f64,
-                                SoapyFormat::Cs16 => i16::from_ne_bytes([b[4 * i], b[4 * i + 1]]) as f64 / 32767.0,
+                                SoapyFormat::Cf32 => f32::from_ne_bytes([
+                                    b[8 * i],
+                                    b[8 * i + 1],
+                                    b[8 * i + 2],
+                                    b[8 * i + 3],
+                                ]) as f64,
+                                SoapyFormat::Cs16 => {
+                                    i16::from_ne_bytes([b[4 * i], b[4 * i + 1]]) as f64 / 32767.0
+                                }
                             })
                             .collect()
                     })

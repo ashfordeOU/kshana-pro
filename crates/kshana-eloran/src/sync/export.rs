@@ -67,7 +67,12 @@ pub trait TrajectoryExport {
     fn write(&self, sc: &Scenario, path: &Path) -> Result<TrajectoryFile, String> {
         let s = sample_trajectory(sc, self.rate_hz())?;
         std::fs::write(path, self.render(&s)).map_err(|e| format!("{}: {e}", path.display()))?;
-        Ok(TrajectoryFile { path: path.to_path_buf(), format: self.format(), rate_hz: self.rate_hz(), samples: s.len() })
+        Ok(TrajectoryFile {
+            path: path.to_path_buf(),
+            format: self.format(),
+            rate_hz: self.rate_hz(),
+            samples: s.len(),
+        })
     }
 }
 
@@ -82,7 +87,10 @@ pub struct NmeaTrajectoryExport {
 
 impl Default for NmeaTrajectoryExport {
     fn default() -> Self {
-        NmeaTrajectoryExport { rate_hz: 10.0, talker: "GP".into() }
+        NmeaTrajectoryExport {
+            rate_hz: 10.0,
+            talker: "GP".into(),
+        }
     }
 }
 
@@ -100,7 +108,13 @@ fn nmea_angle(v: f64, deg_digits: usize, pos: char, neg: char) -> String {
     let m5 = (v.abs() * 60.0 * 1e5).round() as u64;
     let d = m5 / 6_000_000;
     let rem = m5 % 6_000_000;
-    format!("{d:0w$}{:02}.{:05},{}", rem / 100_000, rem % 100_000, if v < 0.0 { neg } else { pos }, w = deg_digits)
+    format!(
+        "{d:0w$}{:02}.{:05},{}",
+        rem / 100_000,
+        rem % 100_000,
+        if v < 0.0 { neg } else { pos },
+        w = deg_digits
+    )
 }
 
 fn nmea_time(u: UtcStamp) -> String {
@@ -121,7 +135,10 @@ impl TrajectoryExport for NmeaTrajectoryExport {
             let t = nmea_time(s.utc);
             let lat = nmea_angle(s.lat_deg, 2, 'N', 'S');
             let lon = nmea_angle(s.lon_deg, 3, 'E', 'W');
-            let gga = format!("{}GGA,{t},{lat},{lon},1,12,0.8,{:.2},M,0.00,M,,", self.talker, s.h_m);
+            let gga = format!(
+                "{}GGA,{t},{lat},{lon},1,12,0.8,{:.2},M,0.00,M,,",
+                self.talker, s.h_m
+            );
             out.push_str(&sentence(&gga));
             let (y, mo, d) = s.utc.ymd();
             let rmc = format!(
@@ -209,8 +226,16 @@ position = { lat_deg = 56.0, lon_deg = 0.0 }
             let (body, cs) = l.trim_start_matches('$').split_once('*').unwrap();
             assert_eq!(u8::from_str_radix(cs, 16).unwrap(), nmea_checksum(body));
         }
-        assert!(lines[0].starts_with("$GPGGA,120000.00,5530.00000,N,00315.00000,W,1,12,0.8,10.00,M"), "{}", lines[0]);
-        assert!(lines[1].starts_with("$GPRMC,120000.00,A,5530.00000,N,00315.00000,W,"), "{}", lines[1]);
+        assert!(
+            lines[0].starts_with("$GPGGA,120000.00,5530.00000,N,00315.00000,W,1,12,0.8,10.00,M"),
+            "{}",
+            lines[0]
+        );
+        assert!(
+            lines[1].starts_with("$GPRMC,120000.00,A,5530.00000,N,00315.00000,W,"),
+            "{}",
+            lines[1]
+        );
         assert!(lines[1].contains(",181126,"), "{}", lines[1]);
         assert!(lines[3].starts_with("$GPRMC,120000.10,"));
         // speed ≈ 11.13 m/s ≈ 21.6 kn, heading north
@@ -228,7 +253,8 @@ position = { lat_deg = 56.0, lon_deg = 0.0 }
         let txt = std::fs::read_to_string(&p).unwrap();
         let rows: Vec<&str> = txt.lines().collect();
         assert_eq!(rows[0], "time_s,utc,lat_deg,lon_deg,height_m,heading_deg");
-        assert!(rows[21].starts_with("2.000,2026-11-18T12:00:02.000000000Z,55.500200000,-3.250000000,10.000,"));
+        assert!(rows[21]
+            .starts_with("2.000,2026-11-18T12:00:02.000000000Z,55.500200000,-3.250000000,10.000,"));
     }
 
     #[test]

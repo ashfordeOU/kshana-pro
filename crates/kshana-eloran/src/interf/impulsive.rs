@@ -189,14 +189,18 @@ impl Resolved {
                 let from = c.passage_from_s.or(b.from_s);
                 let to = c.passage_to_s.or(b.to_s);
                 if c.preset == ImpulsePreset::RailwayTraction && (from.is_none() || to.is_none()) {
-                    return Err("impulsive: railway_traction needs passage_from_s and passage_to_s".into());
+                    return Err(
+                        "impulsive: railway_traction needs passage_from_s and passage_to_s".into(),
+                    );
                 }
                 let (from, to) = (from.unwrap_or(0.0).max(0.0), to.unwrap_or(f64::INFINITY));
                 if to.is_nan() || to <= from {
                     return Err("impulsive: burst/passage window must have to > from".into());
                 }
                 if !(b.rate_hz > 0.0 && b.mean_duration_ms > 0.0 && b.impulse_rate_hz > 0.0) {
-                    return Err("impulsive: burst rate, duration and impulse rate must be positive".into());
+                    return Err(
+                        "impulsive: burst rate, duration and impulse rate must be positive".into(),
+                    );
                 }
                 Some(ResolvedBurst {
                     rate_hz: b.rate_hz,
@@ -241,7 +245,10 @@ impl Resolved {
     /// background while active plus the burst process averaged over its window (with the
     /// sin² amplitude taper, power ∝ sin⁴, mean 3/8).
     pub fn mean_power_rx_band(&self) -> f64 {
-        let frac = self.band_fraction(RX_CENTRE_HZ - NOISE_BW_HZ / 2.0, RX_CENTRE_HZ + NOISE_BW_HZ / 2.0);
+        let frac = self.band_fraction(
+            RX_CENTRE_HZ - NOISE_BW_HZ / 2.0,
+            RX_CENTRE_HZ + NOISE_BW_HZ / 2.0,
+        );
         let e = self.impulse_energy() * frac;
         let mut p = self.rate_hz * e;
         if let Some(b) = &self.bursts {
@@ -284,19 +291,35 @@ pub struct Impulsive {
 impl Impulsive {
     pub fn new(c: &ImpulsiveConfig, scene_seed: u64) -> Result<Impulsive, String> {
         let p = Resolved::from_config(c)?;
-        Ok(Impulsive { seed: p.seed ^ scene_seed, p, states: PerChannel::new() })
+        Ok(Impulsive {
+            seed: p.seed ^ scene_seed,
+            p,
+            states: PerChannel::new(),
+        })
     }
 
     fn make_state(&self, ch: usize) -> State {
         let s = chan_seed(self.seed, ch, self.p.coherent);
         let mut bg = ChaCha8Rng::seed_from_u64(s ^ 0xB6);
         let mut br = ChaCha8Rng::seed_from_u64(s ^ 0xB0057);
-        let next_bg = if self.p.rate_hz > 0.0 { self.p.from + expo(&mut bg, self.p.rate_hz) } else { f64::INFINITY };
+        let next_bg = if self.p.rate_hz > 0.0 {
+            self.p.from + expo(&mut bg, self.p.rate_hz)
+        } else {
+            f64::INFINITY
+        };
         let next_start = match &self.p.bursts {
             Some(b) => b.from + expo(&mut br, b.rate_hz),
             None => f64::INFINITY,
         };
-        State { bg, br, next_bg, next_start, burst_end: f64::NEG_INFINITY, next_imp: f64::INFINITY, active: vec![] }
+        State {
+            bg,
+            br,
+            next_bg,
+            next_start,
+            burst_end: f64::NEG_INFINITY,
+            next_imp: f64::INFINITY,
+            active: vec![],
+        }
     }
 
     fn amplitude(&self, rng: &mut ChaCha8Rng) -> (f64, f64) {
@@ -323,9 +346,17 @@ impl Interferer for Impulsive {
                 let t = s.next_bg;
                 let (a, ph) = self.amplitude(&mut s.bg);
                 if t < self.p.to {
-                    fresh.push(Imp { t, amp: a, phase: ph });
+                    fresh.push(Imp {
+                        t,
+                        amp: a,
+                        phase: ph,
+                    });
                 }
-                s.next_bg = if t < self.p.to { t + expo(&mut s.bg, self.p.rate_hz) } else { f64::INFINITY };
+                s.next_bg = if t < self.p.to {
+                    t + expo(&mut s.bg, self.p.rate_hz)
+                } else {
+                    f64::INFINITY
+                };
             }
             // burst process
             if let Some(b) = self.p.bursts.clone() {
@@ -342,7 +373,11 @@ impl Interferer for Impulsive {
                         } else {
                             1.0
                         };
-                        fresh.push(Imp { t, amp: a * b.gain * taper, phase: ph });
+                        fresh.push(Imp {
+                            t,
+                            amp: a * b.gain * taper,
+                            phase: ph,
+                        });
                         s.next_imp = t + expo(&mut s.br, b.impulse_rate_hz);
                         continue;
                     }
@@ -358,7 +393,8 @@ impl Interferer for Impulsive {
                 }
             }
             s.active.extend(fresh);
-            s.active.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap_or(std::cmp::Ordering::Equal));
+            s.active
+                .sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap_or(std::cmp::Ordering::Equal));
             // render
             let tau = self.p.tau_s;
             let w = TAU * self.p.ring_hz;
@@ -411,7 +447,10 @@ mod tests {
         let meas = band_power(&x, fs, 90e3, 110e3, 400);
         let pred = s.p.mean_power_rx_band();
         let err_db = 10.0 * (meas / pred).log10();
-        assert!(err_db.abs() < 1.0, "measured {meas:.2} predicted {pred:.2} ({err_db:.2} dB)");
+        assert!(
+            err_db.abs() < 1.0,
+            "measured {meas:.2} predicted {pred:.2} ({err_db:.2} dB)"
+        );
         // the spectrum peaks at the ring frequency
         let off = band_power(&x, fs, 40e3, 60e3, 400);
         assert!(meas > 20.0 * off);

@@ -50,7 +50,10 @@ pub struct GroundConst {
 
 impl GroundConst {
     pub fn new(sigma_s_m: f64, eps_r: f64) -> GroundConst {
-        GroundConst { sigma_s_m, eps_r: Some(eps_r) }
+        GroundConst {
+            sigma_s_m,
+            eps_r: Some(eps_r),
+        }
     }
     pub fn eps(&self) -> f64 {
         self.eps_r.unwrap_or_else(|| eps_for_sigma(self.sigma_s_m))
@@ -60,7 +63,10 @@ impl GroundConst {
     }
     fn validate(&self) -> Result<(), String> {
         if !(self.sigma_s_m > 0.0 && self.sigma_s_m.is_finite()) {
-            return Err(format!("conductivity {} S/m must be positive", self.sigma_s_m));
+            return Err(format!(
+                "conductivity {} S/m must be positive",
+                self.sigma_s_m
+            ));
         }
         if !(self.eps() >= 1.0 && self.eps().is_finite()) {
             return Err(format!("relative permittivity {} must be ≥ 1", self.eps()));
@@ -134,7 +140,10 @@ pub enum ConductivityConfig {
 
 impl Default for ConductivityConfig {
     fn default() -> Self {
-        ConductivityConfig::Uniform { sigma_s_m: 5.0, eps_r: Some(80.0) }
+        ConductivityConfig::Uniform {
+            sigma_s_m: 5.0,
+            eps_r: Some(80.0),
+        }
     }
 }
 
@@ -152,7 +161,8 @@ impl Poly {
             return false;
         }
         let n = self.lat.len();
-        let unwrap = |lon: f64| -> f64 { p.lon_deg + (lon - p.lon_deg + 540.0).rem_euclid(360.0) - 180.0 };
+        let unwrap =
+            |lon: f64| -> f64 { p.lon_deg + (lon - p.lon_deg + 540.0).rem_euclid(360.0) - 180.0 };
         let mut inside = false;
         let mut j = n - 1;
         for i in 0..n {
@@ -174,8 +184,20 @@ impl Poly {
 #[derive(Clone, Debug)]
 pub enum ConductivityMap {
     Uniform(GroundConst),
-    Polygons { background: GroundConst, polys: Vec<Poly> },
-    Raster { lat0: f64, lon0: f64, dlat: f64, dlon: f64, nlat: usize, nlon: usize, cells: Vec<GroundConst>, background: GroundConst },
+    Polygons {
+        background: GroundConst,
+        polys: Vec<Poly>,
+    },
+    Raster {
+        lat0: f64,
+        lon0: f64,
+        dlat: f64,
+        dlon: f64,
+        nlat: usize,
+        nlon: usize,
+        cells: Vec<GroundConst>,
+        background: GroundConst,
+    },
 }
 
 /// Quantise σ to 1/50 decade (≈ 4.7 %) so a raster yields a bounded set of ground types.
@@ -191,7 +213,10 @@ fn parse_csv(text: &str) -> Result<Vec<f64>, String> {
             continue;
         }
         for f in line.split([',', ';', ' ', '\t']).filter(|f| !f.is_empty()) {
-            v.push(f.parse::<f64>().map_err(|e| format!("conductivity CSV line {}: {e}", ln + 1))?);
+            v.push(
+                f.parse::<f64>()
+                    .map_err(|e| format!("conductivity CSV line {}: {e}", ln + 1))?,
+            );
         }
     }
     Ok(v)
@@ -208,39 +233,82 @@ impl ConductivityMap {
     pub fn build(cfg: &ConductivityConfig) -> Result<ConductivityMap, String> {
         match cfg {
             ConductivityConfig::Uniform { sigma_s_m, eps_r } => {
-                let g = GroundConst { sigma_s_m: *sigma_s_m, eps_r: *eps_r };
+                let g = GroundConst {
+                    sigma_s_m: *sigma_s_m,
+                    eps_r: *eps_r,
+                };
                 g.validate()?;
                 Ok(ConductivityMap::Uniform(g))
             }
-            ConductivityConfig::Polygons { background, polygons } => {
+            ConductivityConfig::Polygons {
+                background,
+                polygons,
+            } => {
                 background.validate()?;
                 let mut polys = Vec::new();
                 for p in polygons {
                     if p.vertices.len() < 3 {
-                        return Err(format!("conductivity polygon {:?}: at least 3 vertices", p.name));
+                        return Err(format!(
+                            "conductivity polygon {:?}: at least 3 vertices",
+                            p.name
+                        ));
                     }
-                    let ground = GroundConst { sigma_s_m: p.sigma_s_m, eps_r: p.eps_r };
-                    ground.validate().map_err(|e| format!("polygon {:?}: {e}", p.name))?;
+                    let ground = GroundConst {
+                        sigma_s_m: p.sigma_s_m,
+                        eps_r: p.eps_r,
+                    };
+                    ground
+                        .validate()
+                        .map_err(|e| format!("polygon {:?}: {e}", p.name))?;
                     let lat: Vec<f64> = p.vertices.iter().map(|v| v[0]).collect();
                     let lon: Vec<f64> = p.vertices.iter().map(|v| v[1]).collect();
                     if lat.iter().any(|l| l.abs() > 90.0) {
-                        return Err(format!("polygon {:?}: latitude out of range (vertices are [lat, lon])", p.name));
+                        return Err(format!(
+                            "polygon {:?}: latitude out of range (vertices are [lat, lon])",
+                            p.name
+                        ));
                     }
-                    let bbox = (lat.iter().cloned().fold(f64::INFINITY, f64::min), lat.iter().cloned().fold(f64::NEG_INFINITY, f64::max));
-                    polys.push(Poly { ground, lat, lon, bbox });
+                    let bbox = (
+                        lat.iter().cloned().fold(f64::INFINITY, f64::min),
+                        lat.iter().cloned().fold(f64::NEG_INFINITY, f64::max),
+                    );
+                    polys.push(Poly {
+                        ground,
+                        lat,
+                        lon,
+                        bbox,
+                    });
                 }
-                Ok(ConductivityMap::Polygons { background: *background, polys })
+                Ok(ConductivityMap::Polygons {
+                    background: *background,
+                    polys,
+                })
             }
-            ConductivityConfig::Raster { lat0_deg, lon0_deg, dlat_deg, dlon_deg, nlat, nlon, sigma_s_m, eps_r, file, background } => {
+            ConductivityConfig::Raster {
+                lat0_deg,
+                lon0_deg,
+                dlat_deg,
+                dlon_deg,
+                nlat,
+                nlon,
+                sigma_s_m,
+                eps_r,
+                file,
+                background,
+            } => {
                 background.validate()?;
                 if !(*dlat_deg > 0.0 && *dlon_deg > 0.0) || *nlat == 0 || *nlon == 0 {
-                    return Err("conductivity raster: dlat/dlon must be positive, nlat/nlon ≥ 1".into());
+                    return Err(
+                        "conductivity raster: dlat/dlon must be positive, nlat/nlon ≥ 1".into(),
+                    );
                 }
                 let (sig, eps) = match file {
                     Some(f) => {
-                        let text = std::fs::read_to_string(f).map_err(|e| format!("conductivity raster {f}: {e}"))?;
+                        let text = std::fs::read_to_string(f)
+                            .map_err(|e| format!("conductivity raster {f}: {e}"))?;
                         if f.to_ascii_lowercase().ends_with(".json") {
-                            let g: JsonGrid = serde_json::from_str(&text).map_err(|e| format!("conductivity raster {f}: {e}"))?;
+                            let g: JsonGrid = serde_json::from_str(&text)
+                                .map_err(|e| format!("conductivity raster {f}: {e}"))?;
                             (g.sigma_s_m, g.eps_r)
                         } else {
                             (parse_csv(&text)?, Vec::new())
@@ -250,17 +318,29 @@ impl ConductivityMap {
                 };
                 let n = nlat * nlon;
                 if sig.len() != n {
-                    return Err(format!("conductivity raster: {} σ values for {nlat}×{nlon} cells", sig.len()));
+                    return Err(format!(
+                        "conductivity raster: {} σ values for {nlat}×{nlon} cells",
+                        sig.len()
+                    ));
                 }
                 if !eps.is_empty() && eps.len() != n {
-                    return Err(format!("conductivity raster: {} ε_r values for {n} cells", eps.len()));
+                    return Err(format!(
+                        "conductivity raster: {} ε_r values for {n} cells",
+                        eps.len()
+                    ));
                 }
                 let mut cells = Vec::with_capacity(n);
                 for (i, &sv) in sig.iter().enumerate() {
-                    let g = GroundConst { sigma_s_m: sv, eps_r: eps.get(i).copied() };
+                    let g = GroundConst {
+                        sigma_s_m: sv,
+                        eps_r: eps.get(i).copied(),
+                    };
                     g.validate().map_err(|e| format!("raster cell {i}: {e}"))?;
                     let e = g.eps();
-                    cells.push(GroundConst { sigma_s_m: quantise_sigma(g.sigma_s_m), eps_r: Some((e * 2.0).round() / 2.0) });
+                    cells.push(GroundConst {
+                        sigma_s_m: quantise_sigma(g.sigma_s_m),
+                        eps_r: Some((e * 2.0).round() / 2.0),
+                    });
                 }
                 Ok(ConductivityMap::Raster {
                     lat0: *lat0_deg,
@@ -280,10 +360,22 @@ impl ConductivityMap {
     pub fn at(&self, p: Geo) -> GroundConst {
         match self {
             ConductivityMap::Uniform(g) => *g,
-            ConductivityMap::Polygons { background, polys } => {
-                polys.iter().rev().find(|q| q.contains(p)).map(|q| q.ground).unwrap_or(*background)
-            }
-            ConductivityMap::Raster { lat0, lon0, dlat, dlon, nlat, nlon, cells, background } => {
+            ConductivityMap::Polygons { background, polys } => polys
+                .iter()
+                .rev()
+                .find(|q| q.contains(p))
+                .map(|q| q.ground)
+                .unwrap_or(*background),
+            ConductivityMap::Raster {
+                lat0,
+                lon0,
+                dlat,
+                dlon,
+                nlat,
+                nlon,
+                cells,
+                background,
+            } => {
                 let i = ((p.lat_deg - lat0) / dlat).floor();
                 let dl = (p.lon_deg - lon0 + 540.0).rem_euclid(360.0) - 180.0;
                 let j = (dl / dlon).floor();
@@ -366,10 +458,17 @@ vertices = [[10.0, 179.0], [12.0, 179.0], [12.0, -179.0], [10.0, -179.0]]
         let csv = dir.join("g.csv");
         std::fs::write(&csv, "# south row first\n0.001,0.002,0.003\n0.01,0.02,5\n").unwrap();
         let json = dir.join("g.json");
-        std::fs::write(&json, r#"{"sigma_s_m":[0.001,0.002,0.003,0.01,0.02,5],"eps_r":[10,10,10,20,20,80]}"#).unwrap();
+        std::fs::write(
+            &json,
+            r#"{"sigma_s_m":[0.001,0.002,0.003,0.01,0.02,5],"eps_r":[10,10,10,20,20,80]}"#,
+        )
+        .unwrap();
         for f in [&csv, &json] {
             let mut c = cfg.clone();
-            if let ConductivityConfig::Raster { sigma_s_m, file, .. } = &mut c {
+            if let ConductivityConfig::Raster {
+                sigma_s_m, file, ..
+            } = &mut c
+            {
                 sigma_s_m.clear();
                 *file = Some(f.to_string_lossy().into_owned());
             }
@@ -378,7 +477,10 @@ vertices = [[10.0, 179.0], [12.0, 179.0], [12.0, -179.0], [10.0, -179.0]]
         }
         let mj = {
             let mut c = cfg.clone();
-            if let ConductivityConfig::Raster { sigma_s_m, file, .. } = &mut c {
+            if let ConductivityConfig::Raster {
+                sigma_s_m, file, ..
+            } = &mut c
+            {
                 sigma_s_m.clear();
                 *file = Some(json.to_string_lossy().into_owned());
             }

@@ -213,8 +213,14 @@ mod tests {
                 let z = Cx::polar(r, th);
                 let (a, ap) = airy_series(z);
                 let (b, bp) = airy_asymptotic(z);
-                assert!((a - b).abs() < 2e-8 * a.abs().max(1e-3), "Ai r={r} th={th}: {a:?} {b:?}");
-                assert!((ap - bp).abs() < 2e-8 * ap.abs().max(1e-3), "Ai' r={r} th={th}");
+                assert!(
+                    (a - b).abs() < 2e-8 * a.abs().max(1e-3),
+                    "Ai r={r} th={th}: {a:?} {b:?}"
+                );
+                assert!(
+                    (ap - bp).abs() < 2e-8 * ap.abs().max(1e-3),
+                    "Ai' r={r} th={th}"
+                );
             }
         }
     }
@@ -246,10 +252,16 @@ mod tests {
             let th = PI * k as f64 / 12.0;
             let a = faddeeva(Cx::polar(4.0 - 1e-10, th));
             let b = faddeeva(Cx::polar(4.0 + 1e-10, th));
-            assert!((a - b).abs() < 1e-6 * a.abs().max(1e-3), "th={th} {a:?} {b:?}");
+            assert!(
+                (a - b).abs() < 1e-6 * a.abs().max(1e-3),
+                "th={th} {a:?} {b:?}"
+            );
             let a = faddeeva(Cx::polar(2.0 - 1e-10, th));
             let b = faddeeva(Cx::polar(2.0 + 1e-10, th));
-            assert!((a - b).abs() < 1e-6 * a.abs().max(1e-3), "r=2 th={th} {a:?} {b:?}");
+            assert!(
+                (a - b).abs() < 1e-6 * a.abs().max(1e-3),
+                "r=2 th={th} {a:?} {b:?}"
+            );
         }
     }
 }

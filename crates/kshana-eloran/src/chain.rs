@@ -30,9 +30,17 @@ pub enum StationFault {
     /// Station silent.
     Off { from_s: f64, to_s: f64 },
     /// Timing error (ns) added to the emission time.
-    TimingStep { from_s: f64, to_s: f64, error_ns: f64 },
+    TimingStep {
+        from_s: f64,
+        to_s: f64,
+        error_ns: f64,
+    },
     /// Power change (dB).
-    PowerStep { from_s: f64, to_s: f64, delta_db: f64 },
+    PowerStep {
+        from_s: f64,
+        to_s: f64,
+        delta_db: f64,
+    },
     /// "Blink": the station's first two pulses are omitted (the classic LORAN-C unusable
     /// warning) over the window.
     Blink { from_s: f64, to_s: f64 },
@@ -113,7 +121,13 @@ impl Chain {
         if self.stations.is_empty() {
             return Err(format!("chain {}: no stations", self.name));
         }
-        if self.stations.iter().filter(|s| s.role == Role::Master).count() > 1 {
+        if self
+            .stations
+            .iter()
+            .filter(|s| s.role == Role::Master)
+            .count()
+            > 1
+        {
             return Err(format!("chain {}: more than one master", self.name));
         }
         let gri_s = self.gri_us as f64 * 1e-6;
@@ -213,8 +227,9 @@ pub fn emissions(
             if let Some(m) = modulator {
                 m.modulate(si, st.role, k, &mut pulses);
             }
-            let start_true = timebase.true_emission(nominal_start, &st.time_ref, st.tx_clock.as_deref())
-                + timing;
+            let start_true =
+                timebase.true_emission(nominal_start, &st.time_ref, st.tx_clock.as_deref())
+                    + timing;
             for p in pulses {
                 let t_nom = nominal_start + p.offset;
                 let t_emit = start_true + p.offset;
@@ -286,7 +301,10 @@ mod tests {
         let start = AbsTime(0);
         let e = emissions(&c, 0, start, Ps::ZERO, Ps::from_s(0.5), &tb, None);
         // groups in 0.5 s at 99.3 ms: 6 (0,..,5); master 9 + 8 + 8 pulses each
-        let masters: Vec<_> = e.iter().filter(|x| x.station == 0 && x.pulse.k == 0).collect();
+        let masters: Vec<_> = e
+            .iter()
+            .filter(|x| x.station == 0 && x.pulse.k == 0)
+            .collect();
         assert_eq!(masters.len(), 6);
         assert_eq!(masters[1].t_emit - masters[0].t_emit, c.gri());
         let w0 = e.iter().find(|x| x.station == 1 && x.pulse.k == 0).unwrap();
@@ -298,11 +316,21 @@ mod tests {
     #[test]
     fn faults_apply() {
         let mut c = test_chain();
-        c.stations[1].faults.push(StationFault::Off { from_s: 0.0, to_s: 0.2 });
-        c.stations[2].faults.push(StationFault::TimingStep { from_s: 0.0, to_s: 10.0, error_ns: 50.0 });
+        c.stations[1].faults.push(StationFault::Off {
+            from_s: 0.0,
+            to_s: 0.2,
+        });
+        c.stations[2].faults.push(StationFault::TimingStep {
+            from_s: 0.0,
+            to_s: 10.0,
+            error_ns: 50.0,
+        });
         let tb = Timebase::new(vec![], 1.0);
         let e = emissions(&c, 0, AbsTime(0), Ps::ZERO, Ps::from_s(0.3), &tb, None);
-        let w: Vec<_> = e.iter().filter(|x| x.station == 1 && x.pulse.k == 0).collect();
+        let w: Vec<_> = e
+            .iter()
+            .filter(|x| x.station == 1 && x.pulse.k == 0)
+            .collect();
         assert!(w.iter().all(|x| x.t_emit.as_s() >= 0.2));
         let x0 = e.iter().find(|x| x.station == 2 && x.pulse.k == 0).unwrap();
         assert_eq!(x0.t_emit, Ps::from_us(40_000.0) + Ps::from_ns(50.0));

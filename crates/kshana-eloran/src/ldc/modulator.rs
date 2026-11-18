@@ -58,8 +58,16 @@ pub struct FrameReport {
 }
 
 impl FrameCodec {
-    pub fn new(rs: ReedSolomon, frame_crc: FrameCrc, bits_per_symbol: u32) -> Result<FrameCodec, String> {
-        let c = FrameCodec { rs, frame_crc, bits_per_symbol };
+    pub fn new(
+        rs: ReedSolomon,
+        frame_crc: FrameCrc,
+        bits_per_symbol: u32,
+    ) -> Result<FrameCodec, String> {
+        let c = FrameCodec {
+            rs,
+            frame_crc,
+            bits_per_symbol,
+        };
         if c.rs.k * c.m() <= frame_crc.width() + 8 {
             return Err(format!(
                 "RS({}, {}) over GF(2^{}) leaves no room for data after a {}-bit frame CRC",
@@ -97,9 +105,15 @@ impl FrameCodec {
         let mut w = BitWriter::new();
         w.put_bits(&d);
         w.put(crc as u64, self.frame_crc.width() as u32);
-        let info: Vec<u16> = to_symbols(&w.bits, self.m() as u32).into_iter().map(|s| s as u16).collect();
+        let info: Vec<u16> = to_symbols(&w.bits, self.m() as u32)
+            .into_iter()
+            .map(|s| s as u16)
+            .collect();
         let cw = self.rs.encode(&info);
-        let bits = from_symbols(&cw.iter().map(|s| *s as u32).collect::<Vec<_>>(), self.m() as u32);
+        let bits = from_symbols(
+            &cw.iter().map(|s| *s as u32).collect::<Vec<_>>(),
+            self.m() as u32,
+        );
         let mut syms = to_symbols(&bits, self.bits_per_symbol);
         syms.resize(self.groups_per_frame(), 0);
         syms
@@ -108,7 +122,11 @@ impl FrameCodec {
     pub fn encode_block(&self, block: &[bool]) -> Vec<Vec<u32>> {
         let db = self.data_bits();
         (0..self.frames_for(block.len()))
-            .map(|i| self.encode_frame(&block[(i * db).min(block.len())..((i + 1) * db).min(block.len())]))
+            .map(|i| {
+                self.encode_frame(
+                    &block[(i * db).min(block.len())..((i + 1) * db).min(block.len())],
+                )
+            })
             .collect()
     }
     /// Decode one frame from its channel symbols (`groups_per_frame` of them).
@@ -117,13 +135,32 @@ impl FrameCodec {
         let m = self.m();
         let need = self.rs.n * m;
         if bits.len() < need {
-            return FrameReport { data: None, corrected: 0, rs_ok: false, crc_ok: false };
+            return FrameReport {
+                data: None,
+                corrected: 0,
+                rs_ok: false,
+                crc_ok: false,
+            };
         }
-        let mut cw: Vec<u16> = to_symbols(&bits[..need], m as u32).into_iter().map(|s| s as u16).collect();
+        let mut cw: Vec<u16> = to_symbols(&bits[..need], m as u32)
+            .into_iter()
+            .map(|s| s as u16)
+            .collect();
         match self.rs.decode(&mut cw) {
-            Err(_) => FrameReport { data: None, corrected: 0, rs_ok: false, crc_ok: false },
+            Err(_) => FrameReport {
+                data: None,
+                corrected: 0,
+                rs_ok: false,
+                crc_ok: false,
+            },
             Ok(corrected) => {
-                let info = from_symbols(&cw[..self.rs.k].iter().map(|s| *s as u32).collect::<Vec<_>>(), m as u32);
+                let info = from_symbols(
+                    &cw[..self.rs.k]
+                        .iter()
+                        .map(|s| *s as u32)
+                        .collect::<Vec<_>>(),
+                    m as u32,
+                );
                 let db = self.data_bits();
                 let data = info[..db].to_vec();
                 let mut rx = 0u32;
@@ -131,7 +168,12 @@ impl FrameCodec {
                     rx = (rx << 1) | *b as u32;
                 }
                 let crc_ok = rx == self.frame_crc.compute(&data);
-                FrameReport { data: crc_ok.then_some(data), corrected, rs_ok: true, crc_ok }
+                FrameReport {
+                    data: crc_ok.then_some(data),
+                    corrected,
+                    rs_ok: true,
+                    crc_ok,
+                }
             }
         }
     }
@@ -166,8 +208,16 @@ impl DataPulse {
             Parity::A => self.code_a,
             Parity::B => self.code_b,
         };
-        let spec = PulseSpec { offset, phase_rad: if code < 0 { PI } else { 0.0 }, amp: self.amp, k };
-        let pos = pulses.iter().position(|p| p.offset > offset).unwrap_or(pulses.len());
+        let spec = PulseSpec {
+            offset,
+            phase_rad: if code < 0 { PI } else { 0.0 },
+            amp: self.amp,
+            k,
+        };
+        let pos = pulses
+            .iter()
+            .position(|p| p.offset > offset)
+            .unwrap_or(pulses.len());
         pulses.insert(pos, spec);
         Some(pos)
     }
@@ -231,7 +281,12 @@ pub struct Compiled {
 
 /// Build a plan from (spec, repeat) entries.
 pub fn make_plan(codec: &FrameCodec, entries: &[(MessageSpec, u32)]) -> Result<Plan, String> {
-    let dummy = MsgContext { station: 0, role: Role::Secondary, first_group: 0, gri_us: Some(99_300) };
+    let dummy = MsgContext {
+        station: 0,
+        role: Role::Secondary,
+        first_group: 0,
+        gri_us: Some(99_300),
+    };
     let mut out: Vec<PlanEntry> = Vec::new();
     let mut start = 0i64;
     let mut last_auth_end = 0usize;
@@ -250,14 +305,22 @@ pub fn make_plan(codec: &FrameCodec, entries: &[(MessageSpec, u32)]) -> Result<P
             } else {
                 0
             };
-            out.push(PlanEntry { spec: spec.clone(), start, frames, cover_from });
+            out.push(PlanEntry {
+                spec: spec.clone(),
+                start,
+                frames,
+                cover_from,
+            });
             start += frames;
         }
     }
     if out.is_empty() {
         return Err("LDC schedule is empty".into());
     }
-    Ok(Plan { entries: out, cycle_frames: start })
+    Ok(Plan {
+        entries: out,
+        cycle_frames: start,
+    })
 }
 
 /// The LDC [`GroupModulator`] of every scheme.
@@ -269,7 +332,11 @@ pub struct LdcModulator {
 
 impl LdcModulator {
     pub fn new(c: Compiled) -> LdcModulator {
-        LdcModulator { c, cache: Mutex::new(HashMap::new()), log: SymbolLog::default() }
+        LdcModulator {
+            c,
+            cache: Mutex::new(HashMap::new()),
+            log: SymbolLog::default(),
+        }
     }
 
     pub fn codec(&self) -> &FrameCodec {
@@ -283,7 +350,10 @@ impl LdcModulator {
     }
     /// Whether station `station` carries data.
     pub fn modulates(&self, station: usize) -> bool {
-        self.c.stations.as_ref().is_none_or(|s| s.contains(&station))
+        self.c
+            .stations
+            .as_ref()
+            .is_none_or(|s| s.contains(&station))
     }
     fn plan(&self, station: usize) -> &Plan {
         &self.c.plans[self.c.station_plan.get(&station).copied().unwrap_or(0)]
@@ -333,11 +403,22 @@ impl LdcModulator {
         let (i, ff) = self.locate(station, frame);
         let m = self.render(station, role, i, ff);
         let block = m.to_block();
-        ScheduledMessage { message: m, first_frame: ff, frames: self.plan(station).entries[i].frames, block }
+        ScheduledMessage {
+            message: m,
+            first_frame: ff,
+            frames: self.plan(station).entries[i].frames,
+            block,
+        }
     }
 
     /// Messages that start in frames `[f0, f1)` (truth).
-    pub fn messages_starting(&self, station: usize, role: Role, f0: i64, f1: i64) -> Vec<ScheduledMessage> {
+    pub fn messages_starting(
+        &self,
+        station: usize,
+        role: Role,
+        f0: i64,
+        f1: i64,
+    ) -> Vec<ScheduledMessage> {
         let mut out = Vec::new();
         let mut f = f0;
         while f < f1 {
@@ -379,7 +460,9 @@ impl LdcModulator {
 
     /// Symbols for groups `[g0, g1)` (truth).
     pub fn symbols(&self, station: usize, role: Role, g0: i64, g1: i64) -> Vec<u32> {
-        (g0..g1).filter_map(|g| self.symbol(station, role, g)).collect()
+        (g0..g1)
+            .filter_map(|g| self.symbol(station, role, g))
+            .collect()
     }
 
     /// Handle on the shared log of symbols actually passed to the pulse modulation.
@@ -389,7 +472,12 @@ impl LdcModulator {
 
     /// Logged (group, symbol) pairs of `station`, in group order.
     pub fn transmitted(&self, station: usize) -> Vec<(i64, u32)> {
-        self.log.lock().unwrap().range((station, i64::MIN)..=(station, i64::MAX)).map(|((_, g), s)| (*g, *s)).collect()
+        self.log
+            .lock()
+            .unwrap()
+            .range((station, i64::MIN)..=(station, i64::MAX))
+            .map(|((_, g), s)| (*g, *s))
+            .collect()
     }
 }
 
@@ -402,8 +490,13 @@ impl GroupModulator for LdcModulator {
         if !self.modulates(station) {
             return;
         }
-        let dp = self.c.data_pulse.and_then(|d| d.insert(role, group, pulses));
-        let Some(sym) = self.symbol(station, role, group) else { return };
+        let dp = self
+            .c
+            .data_pulse
+            .and_then(|d| d.insert(role, group, pulses));
+        let Some(sym) = self.symbol(station, role, group) else {
+            return;
+        };
         self.c.mapper.apply(sym, pulses, dp);
         let mut log = self.log.lock().unwrap();
         if log.len() < self.c.log_limit {

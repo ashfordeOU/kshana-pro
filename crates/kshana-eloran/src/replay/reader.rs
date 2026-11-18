@@ -32,8 +32,11 @@ pub fn patch_meta(base: &Path, f: impl FnOnce(&mut serde_json::Value)) -> Result
     let mut m = read_meta(base)?;
     f(&mut m);
     let p = base.with_extension("sigmf-meta");
-    std::fs::write(&p, serde_json::to_string_pretty(&m).map_err(|e| e.to_string())?)
-        .map_err(|e| format!("{}: {e}", p.display()))
+    std::fs::write(
+        &p,
+        serde_json::to_string_pretty(&m).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| format!("{}: {e}", p.display()))
 }
 
 impl SigmfReader {
@@ -41,13 +44,24 @@ impl SigmfReader {
         let meta = read_meta(base)?;
         let g = &meta["global"];
         let format = Format::parse(g["core:datatype"].as_str().unwrap_or(""))?;
-        let fs_hz = g["core:sample_rate"].as_f64().ok_or("missing core:sample_rate")?;
+        let fs_hz = g["core:sample_rate"]
+            .as_f64()
+            .ok_or("missing core:sample_rate")?;
         let channels = g["core:num_channels"].as_u64().unwrap_or(1).max(1) as usize;
         let dp = base.with_extension("sigmf-data");
         let f = File::open(&dp).map_err(|e| format!("{}: {e}", dp.display()))?;
         let len = f.metadata().map_err(|e| e.to_string())?.len();
         let total = len / (channels * format.bytes()) as u64;
-        Ok(SigmfReader { data: BufReader::new(f), base: base.to_path_buf(), format, fs_hz, channels, total, pos: 0, meta })
+        Ok(SigmfReader {
+            data: BufReader::new(f),
+            base: base.to_path_buf(),
+            format,
+            fs_hz,
+            channels,
+            total,
+            pos: 0,
+            meta,
+        })
     }
 
     pub fn duration_s(&self) -> f64 {
@@ -58,7 +72,9 @@ impl SigmfReader {
     pub fn seek(&mut self, n: u64) -> Result<(), String> {
         let n = n.min(self.total);
         let frame = (self.channels * self.format.bytes()) as u64;
-        self.data.seek(SeekFrom::Start(n * frame)).map_err(|e| e.to_string())?;
+        self.data
+            .seek(SeekFrom::Start(n * frame))
+            .map_err(|e| e.to_string())?;
         self.pos = n;
         Ok(())
     }
@@ -76,7 +92,9 @@ impl SigmfReader {
                 let o = i * frame + c * b;
                 ch.push(match self.format {
                     Format::Ri16 => i16::from_le_bytes([raw[o], raw[o + 1]]) as f64 / 32767.0,
-                    Format::Rf32 => f32::from_le_bytes([raw[o], raw[o + 1], raw[o + 2], raw[o + 3]]) as f64,
+                    Format::Rf32 => {
+                        f32::from_le_bytes([raw[o], raw[o + 1], raw[o + 2], raw[o + 3]]) as f64
+                    }
                 });
             }
         }

@@ -40,9 +40,14 @@ fn gnss_half_shares_trajectory_and_time_base() {
     let dir = std::env::temp_dir().join(format!("kshana-eloran-gnss-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let base = dir.join("hybrid");
-    let opts = GnssOptions { fs_hz: 2_000_000.0, galileo: false, ..Default::default() };
+    let opts = GnssOptions {
+        fs_hz: 2_000_000.0,
+        galileo: false,
+        ..Default::default()
+    };
     let run = generate(&sc, &nav, &opts, &base).unwrap();
-    let (w, tow) = gps_week_tow(kshana_eloran::time::AbsTime::from_utc_iso("2024-09-10T01:00:00Z").unwrap());
+    let (w, tow) =
+        gps_week_tow(kshana_eloran::time::AbsTime::from_utc_iso("2024-09-10T01:00:00Z").unwrap());
     assert_eq!((run.gps_week, run.start_tow_s), (w, tow));
     assert_eq!(w, 2331);
     assert!((tow - (172_800.0 + 3600.0 + 18.0)).abs() < 1e-9);

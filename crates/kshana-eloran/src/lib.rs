@@ -43,7 +43,9 @@ pub use scenario::Scenario;
 pub use scene::{MemSink, Scene, TruthRecord};
 
 /// Run a scenario held in memory; returns samples, truth and statistics.
-pub fn run_to_memory(src: &str) -> Result<(scene::MemSink, Vec<TruthRecord>, scene::RunStats), String> {
+pub fn run_to_memory(
+    src: &str,
+) -> Result<(scene::MemSink, Vec<TruthRecord>, scene::RunStats), String> {
     let sc = Scenario::from_toml(src)?;
     let mut scene = sc.build()?;
     let mut sink = MemSink::default();

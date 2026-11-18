@@ -56,7 +56,14 @@ pub struct CaptureSummary {
 
 /// Capture `n_samples` per channel from `device` (configured, with rx channels) into
 /// `<base>.sigmf-*`, starting at `at` (use [`StartTime::NextPps`] for a PPS-aligned start).
-pub fn capture(device: &mut dyn Device, at: StartTime, n_samples: u64, base: &Path, format: Format, info: &CaptureInfo) -> Result<CaptureSummary, String> {
+pub fn capture(
+    device: &mut dyn Device,
+    at: StartTime,
+    n_samples: u64,
+    base: &Path,
+    format: Format,
+    info: &CaptureInfo,
+) -> Result<CaptureSummary, String> {
     let t = device.start_rx(at)?;
     let mut writer: Option<SigmfWriter> = None;
     let mut got = 0u64;
@@ -70,7 +77,13 @@ pub fn capture(device: &mut dyn Device, at: StartTime, n_samples: u64, base: &Pa
             }
             if writer.is_none() {
                 fs = device_rate(device)?;
-                writer = Some(SigmfWriter::create(base, format, b.len(), fs, json!({ "capture_device": device.name() }))?);
+                writer = Some(SigmfWriter::create(
+                    base,
+                    format,
+                    b.len(),
+                    fs,
+                    json!({ "capture_device": device.name() }),
+                )?);
             }
             writer.as_mut().unwrap().write_block(&b)?;
             got += k as u64;
@@ -84,7 +97,8 @@ pub fn capture(device: &mut dyn Device, at: StartTime, n_samples: u64, base: &Pa
     let st = device.status();
     let channels = w_channels(base)?;
     patch_meta(base, |m| {
-        m["global"]["core:description"] = json!("Kshana Pro eLoran capture (real samples, LF band)");
+        m["global"]["core:description"] =
+            json!("Kshana Pro eLoran capture (real samples, LF band)");
         let c = &mut m["captures"][0];
         c["core:frequency"] = json!(100000.0);
         if let Some(d) = &info.datetime_utc {
@@ -100,17 +114,28 @@ pub fn capture(device: &mut dyn Device, at: StartTime, n_samples: u64, base: &Pa
             c["kshana:notes"] = json!(info.notes);
         }
     })?;
-    Ok(CaptureSummary { samples: got, channels, start_time_ns: t, pps_aligned: st.pps_aligned, overflows: st.overflows })
+    Ok(CaptureSummary {
+        samples: got,
+        channels,
+        start_time_ns: t,
+        pps_aligned: st.pps_aligned,
+        overflows: st.overflows,
+    })
 }
 
 fn w_channels(base: &Path) -> Result<usize, String> {
-    Ok(reader::read_meta(base)?["global"]["core:num_channels"].as_u64().unwrap_or(1) as usize)
+    Ok(reader::read_meta(base)?["global"]["core:num_channels"]
+        .as_u64()
+        .unwrap_or(1) as usize)
 }
 
 fn device_rate(device: &dyn Device) -> Result<f64, String> {
-    device
-        .sample_rate_hz()
-        .ok_or_else(|| format!("{}: sample rate unknown (configure the device before capture)", device.name()))
+    device.sample_rate_hz().ok_or_else(|| {
+        format!(
+            "{}: sample rate unknown (configure the device before capture)",
+            device.name()
+        )
+    })
 }
 
 /// One SigMF recording in an inventory.
@@ -139,14 +164,20 @@ pub fn inventory(dir: &Path) -> Result<Vec<DatasetEntry>, String> {
         }
         let base = p.with_extension("");
         let data = base.with_extension("sigmf-data");
-        let Ok(meta) = reader::read_meta(&base) else { continue };
+        let Ok(meta) = reader::read_meta(&base) else {
+            continue;
+        };
         let g = &meta["global"];
         let datatype = g["core:datatype"].as_str().unwrap_or("").to_string();
         let fs = g["core:sample_rate"].as_f64().unwrap_or(0.0);
         let nch = g["core:num_channels"].as_u64().unwrap_or(1).max(1) as usize;
         let bytes_per = sigmf_sample_bytes(&datatype);
         let len = std::fs::metadata(&data).map(|m| m.len()).unwrap_or(0);
-        let samples = if bytes_per > 0 { len / (bytes_per * nch) as u64 } else { 0 };
+        let samples = if bytes_per > 0 {
+            len / (bytes_per * nch) as u64
+        } else {
+            0
+        };
         out.push(DatasetEntry {
             base,
             datatype,
@@ -154,7 +185,9 @@ pub fn inventory(dir: &Path) -> Result<Vec<DatasetEntry>, String> {
             channels: nch,
             samples,
             duration_s: if fs > 0.0 { samples as f64 / fs } else { 0.0 },
-            datetime_utc: meta["captures"][0]["core:datetime"].as_str().map(String::from),
+            datetime_utc: meta["captures"][0]["core:datetime"]
+                .as_str()
+                .map(String::from),
             description: g["core:description"].as_str().unwrap_or("").to_string(),
         });
     }
@@ -169,18 +202,30 @@ fn sigmf_sample_bytes(dt: &str) -> usize {
         Some('r') => (1, &dt[1..]),
         _ => return 0,
     };
-    let bits: String = rest.chars().skip(1).take_while(|c| c.is_ascii_digit()).collect();
+    let bits: String = rest
+        .chars()
+        .skip(1)
+        .take_while(|c| c.is_ascii_digit())
+        .collect();
     bits.parse::<usize>().map(|b| cplx * b / 8).unwrap_or(0)
 }
 
 /// Copy `[start_s, start_s + duration_s)` of `src` into `dst` (same format). The new
 /// capture's datetime is shifted by `start_s` when the source has one (only the
 /// fractional-second arithmetic of ISO stamps with a `Z` suffix is supported).
-pub fn extract_segment(src: &Path, dst: &Path, start_s: f64, duration_s: f64) -> Result<u64, String> {
+pub fn extract_segment(
+    src: &Path,
+    dst: &Path,
+    start_s: f64,
+    duration_s: f64,
+) -> Result<u64, String> {
     let mut r = SigmfReader::open(src)?;
     let n0 = (start_s * r.fs_hz).round().max(0.0) as u64;
     if n0 >= r.total {
-        return Err(format!("segment start {start_s} s is beyond the end ({:.3} s)", r.duration_s()));
+        return Err(format!(
+            "segment start {start_s} s is beyond the end ({:.3} s)",
+            r.duration_s()
+        ));
     }
     let n = ((duration_s * r.fs_hz).round() as u64).min(r.total - n0);
     r.seek(n0)?;
@@ -201,7 +246,11 @@ pub fn extract_segment(src: &Path, dst: &Path, start_s: f64, duration_s: f64) ->
     Ok(n - left)
 }
 
-fn copy_capture_fields(src_meta: &serde_json::Value, dst: &Path, offset_s: f64) -> Result<(), String> {
+fn copy_capture_fields(
+    src_meta: &serde_json::Value,
+    dst: &Path,
+    offset_s: f64,
+) -> Result<(), String> {
     let c = src_meta["captures"][0].clone();
     patch_meta(dst, |m| {
         if let Some(obj) = c.as_object() {
@@ -234,7 +283,13 @@ pub fn shift_iso(s: &str, dt: f64) -> Option<String> {
 /// the output Nyquist frequency (`0.45/factor` cycles per input sample), `taps` long
 /// (odd; 0 = automatic: 32·factor + 1), β = 8 (≈ 80 dB stop band). The filter delay is
 /// compensated, so the output is time-aligned with the input (sample k ↔ input k·factor).
-pub fn decimate(src: &Path, dst: &Path, factor: usize, taps: usize, format: Format) -> Result<u64, String> {
+pub fn decimate(
+    src: &Path,
+    dst: &Path,
+    factor: usize,
+    taps: usize,
+    format: Format,
+) -> Result<u64, String> {
     if factor < 1 {
         return Err("decimation factor must be ≥ 1".into());
     }
@@ -242,7 +297,9 @@ pub fn decimate(src: &Path, dst: &Path, factor: usize, taps: usize, format: Form
     let n_taps = if taps == 0 { 32 * factor + 1 } else { taps | 1 };
     let h = lowpass_taps(0.45 / factor as f64, n_taps, 8.0);
     let gd = n_taps / 2; // group delay (input samples)
-    let mut firs: Vec<FirState> = (0..r.channels).map(|_| FirState::new(h.clone(), 0)).collect();
+    let mut firs: Vec<FirState> = (0..r.channels)
+        .map(|_| FirState::new(h.clone(), 0))
+        .collect();
     let fs_out = r.fs_hz / factor as f64;
     let extra = json!({ "decimated_from": src.display().to_string(), "decimation_factor": factor, "anti_alias_taps": n_taps });
     let mut w = SigmfWriter::create(dst, format, r.channels, fs_out, extra)?;
@@ -262,7 +319,11 @@ pub fn decimate(src: &Path, dst: &Path, factor: usize, taps: usize, format: Form
             b = vec![vec![0.0; pad]; r.channels];
         }
         let k = b[0].len();
-        let ys: Vec<Vec<f64>> = b.iter().enumerate().map(|(c, x)| firs[c].process(x)).collect();
+        let ys: Vec<Vec<f64>> = b
+            .iter()
+            .enumerate()
+            .map(|(c, x)| firs[c].process(x))
+            .collect();
         let mut out: Vec<Vec<f64>> = vec![Vec::new(); r.channels];
         for (i, _) in ys[0].iter().enumerate() {
             let g = n_in + i as u64; // filter output index g ↔ input sample g − gd
@@ -303,13 +364,23 @@ pub struct ReplayOptions {
 
 impl Default for ReplayOptions {
     fn default() -> Self {
-        ReplayOptions { loops: 1, gain_db: 0.0, target_full_scale_dbm: None, block: 20_000 }
+        ReplayOptions {
+            loops: 1,
+            gain_db: 0.0,
+            target_full_scale_dbm: None,
+            block: 20_000,
+        }
     }
 }
 
 /// Play the recording `src` into `sink` (calling `finish` at the end); returns samples
 /// written per channel.
-pub fn replay(src: &Path, sink: &mut dyn SampleSink, opt: &ReplayOptions, cal: Option<&CalibrationFile>) -> Result<u64, String> {
+pub fn replay(
+    src: &Path,
+    sink: &mut dyn SampleSink,
+    opt: &ReplayOptions,
+    cal: Option<&CalibrationFile>,
+) -> Result<u64, String> {
     let mut r = SigmfReader::open(src)?;
     let gains: Vec<f64> = (0..r.channels)
         .map(|c| {
@@ -353,7 +424,9 @@ pub fn replay_to_device(
     fifo_blocks: usize,
 ) -> Result<TxSession<u64>, String> {
     let src = src.to_path_buf();
-    TxSession::start(device, at, fifo_blocks, move |sink| replay(&src, sink, &opt, cal.as_ref()))
+    TxSession::start(device, at, fifo_blocks, move |sink| {
+        replay(&src, sink, &opt, cal.as_ref())
+    })
 }
 
 #[cfg(test)]
@@ -365,14 +438,24 @@ mod tests {
     use std::f64::consts::PI;
 
     fn tmpdir(name: &str) -> PathBuf {
-        let d = std::env::temp_dir().join(format!("kshana-eloran-replay-{}-{name}", std::process::id()));
+        let d = std::env::temp_dir().join(format!(
+            "kshana-eloran-replay-{}-{name}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&d);
         std::fs::create_dir_all(&d).unwrap();
         d
     }
 
     fn write_tone(base: &Path, fs: f64, n: usize, f: &[f64], fmt: Format, datetime: Option<&str>) {
-        let chans: Vec<Vec<f64>> = f.iter().map(|fr| (0..n).map(|i| 0.5 * (2.0 * PI * fr * i as f64 / fs).sin()).collect()).collect();
+        let chans: Vec<Vec<f64>> = f
+            .iter()
+            .map(|fr| {
+                (0..n)
+                    .map(|i| 0.5 * (2.0 * PI * fr * i as f64 / fs).sin())
+                    .collect()
+            })
+            .collect();
         let mut w = SigmfWriter::create(base, fmt, f.len(), fs, json!({})).unwrap();
         w.write_block(&chans).unwrap();
         w.finish().unwrap();
@@ -384,7 +467,14 @@ mod tests {
     #[test]
     fn inventory_lists_recordings() {
         let d = tmpdir("inv");
-        write_tone(&d.join("a"), 1e6, 2000, &[1e5], Format::Ri16, Some("2026-11-18T00:00:00Z"));
+        write_tone(
+            &d.join("a"),
+            1e6,
+            2000,
+            &[1e5],
+            Format::Ri16,
+            Some("2026-11-18T00:00:00Z"),
+        );
         write_tone(&d.join("b"), 2e6, 1000, &[1e5, 1e5], Format::Rf32, None);
         std::fs::write(d.join("notes.txt"), "x").unwrap();
         let inv = inventory(&d).unwrap();
@@ -402,13 +492,23 @@ mod tests {
     #[test]
     fn segment_extraction_keeps_samples_and_shifts_datetime() {
         let d = tmpdir("seg");
-        write_tone(&d.join("src"), 1e6, 100_000, &[1.0e5, 0.9e5], Format::Rf32, Some("2026-11-18T23:59:59.95Z"));
+        write_tone(
+            &d.join("src"),
+            1e6,
+            100_000,
+            &[1.0e5, 0.9e5],
+            Format::Rf32,
+            Some("2026-11-18T23:59:59.95Z"),
+        );
         let n = extract_segment(&d.join("src"), &d.join("seg"), 0.06, 0.01).unwrap();
         assert_eq!(n, 10_000);
         let a = read_sigmf(&d.join("src"), None).unwrap();
         let b = read_sigmf(&d.join("seg"), None).unwrap();
         assert_eq!(&b.channels[1][..], &a.channels[1][60_000..70_000]);
-        assert_eq!(b.meta["captures"][0]["core:datetime"], json!("2026-11-19T00:00:00.010000000Z"));
+        assert_eq!(
+            b.meta["captures"][0]["core:datetime"],
+            json!("2026-11-19T00:00:00.010000000Z")
+        );
     }
 
     #[test]
@@ -416,7 +516,14 @@ mod tests {
         let d = tmpdir("dec");
         let fs = 2e6;
         // ch0: 100 kHz (in band), ch1: 900 kHz (would alias to 100 kHz at 1 MS/s... after /4 = 500 kS/s)
-        write_tone(&d.join("src"), fs, 200_000, &[1.0e5, 0.9e6], Format::Rf32, None);
+        write_tone(
+            &d.join("src"),
+            fs,
+            200_000,
+            &[1.0e5, 0.9e6],
+            Format::Rf32,
+            None,
+        );
         let n = decimate(&d.join("src"), &d.join("dec"), 4, 0, Format::Rf32).unwrap();
         assert_eq!(n, 50_000);
         let r = read_sigmf(&d.join("dec"), None).unwrap();
@@ -428,7 +535,9 @@ mod tests {
             err = err.max((r.channels[0][k] - want).abs());
         }
         assert!(err < 2e-3, "in-band error {err}");
-        let leak = r.channels[1][1000..49_000].iter().fold(0.0f64, |m, v| m.max(v.abs()));
+        let leak = r.channels[1][1000..49_000]
+            .iter()
+            .fold(0.0f64, |m, v| m.max(v.abs()));
         assert!(leak < 0.5 * 1e-3, "alias leak {leak}");
     }
 
@@ -447,7 +556,15 @@ mod tests {
             gain_db: vec![10.0],
             notes: String::new(),
         };
-        let s = capture(&mut dev, StartTime::NextPps, 25_000, &d.join("cap"), Format::Rf32, &info).unwrap();
+        let s = capture(
+            &mut dev,
+            StartTime::NextPps,
+            25_000,
+            &d.join("cap"),
+            Format::Rf32,
+            &info,
+        )
+        .unwrap();
         assert_eq!(s.samples, 25_000);
         assert!(s.pps_aligned);
         let r = read_sigmf(&d.join("cap"), None).unwrap();
@@ -476,9 +593,30 @@ mod tests {
             gnss_offset: None,
             notes: String::new(),
         };
-        cal.channels.push(crate::hw::calib::ChannelCal { channel: 0, delay_ns: 0.0, delay_u_ns: 0.0, full_scale_dbm: 6.0, full_scale_u_db: 0.0, load_ohm: None, notes: String::new() });
-        let opt = ReplayOptions { loops: 3, gain_db: 0.0, target_full_scale_dbm: Some(0.0), block: 4096 };
-        let s = replay_to_device(Box::new(dev), &d.join("rec"), StartTime::Now, opt, Some(cal), 4).unwrap();
+        cal.channels.push(crate::hw::calib::ChannelCal {
+            channel: 0,
+            delay_ns: 0.0,
+            delay_u_ns: 0.0,
+            full_scale_dbm: 6.0,
+            full_scale_u_db: 0.0,
+            load_ohm: None,
+            notes: String::new(),
+        });
+        let opt = ReplayOptions {
+            loops: 3,
+            gain_db: 0.0,
+            target_full_scale_dbm: Some(0.0),
+            block: 4096,
+        };
+        let s = replay_to_device(
+            Box::new(dev),
+            &d.join("rec"),
+            StartTime::Now,
+            opt,
+            Some(cal),
+            4,
+        )
+        .unwrap();
         let rep = s.wait().unwrap();
         assert_eq!(rep.produced, 3 * 12_345);
         let a = read_sigmf(&d.join("rec"), None).unwrap();

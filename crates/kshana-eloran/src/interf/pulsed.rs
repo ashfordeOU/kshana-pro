@@ -70,7 +70,19 @@ impl Pulsed {
             Some(_) => rms_uv_m * SQRT_2,
             None => rms_uv_m * ((fs_hz / 2.0) / NOISE_BW_HZ).sqrt(),
         };
-        Ok(Pulsed { period, width, offset, freq_hz, amp, phase, from, to, seed, coherent, rngs: PerChannel::new() })
+        Ok(Pulsed {
+            period,
+            width,
+            offset,
+            freq_hz,
+            amp,
+            phase,
+            from,
+            to,
+            seed,
+            coherent,
+            rngs: PerChannel::new(),
+        })
     }
 
     /// True while the gate is on at time `t` (s).
@@ -97,7 +109,9 @@ impl Interferer for Pulsed {
             *v += match self.freq_hz {
                 Some(f) => self.amp * (TAU * f * t + self.phase).sin(),
                 None => {
-                    let rng = self.rngs.get(ch, |k| ChaCha8Rng::seed_from_u64(chan_seed(seed, k, coherent)));
+                    let rng = self.rngs.get(ch, |k| {
+                        ChaCha8Rng::seed_from_u64(chan_seed(seed, k, coherent))
+                    });
                     self.amp * gauss(rng)
                 }
             };
@@ -114,22 +128,61 @@ mod tests {
     fn gate_and_levels() {
         let fs = 400_000.0;
         // 1 ms period, 25 % duty, carrier 100 kHz at 10 µV/m RMS while on
-        let mut p = Pulsed::new(1e-3, 0.25e-3, 0.0, Some(100e3), 10.0, 0.0, 0.0, f64::INFINITY, fs, 1, true).unwrap();
+        let mut p = Pulsed::new(
+            1e-3,
+            0.25e-3,
+            0.0,
+            Some(100e3),
+            10.0,
+            0.0,
+            0.0,
+            f64::INFINITY,
+            fs,
+            1,
+            true,
+        )
+        .unwrap();
         let mut x = vec![0.0; 40_000];
         p.add(Ps::ZERO, fs, 0, &mut x);
         let on = x.iter().filter(|v| **v != 0.0).count() as f64 / x.len() as f64;
         assert!((on - 0.25).abs() < 0.01, "{on}");
         let ms: f64 = x.iter().map(|v| v * v).sum::<f64>() / x.len() as f64;
         assert!((ms - 25.0).abs() < 0.5, "{ms}"); // 100 · 0.25
-        // wideband: in-band RMS while on equals the configured 20 kHz RMS
-        let mut w = Pulsed::new(1e-3, 0.5e-3, 0.0, None, 5.0, 0.0, 0.0, f64::INFINITY, fs, 1, true).unwrap();
+                                                  // wideband: in-band RMS while on equals the configured 20 kHz RMS
+        let mut w = Pulsed::new(
+            1e-3,
+            0.5e-3,
+            0.0,
+            None,
+            5.0,
+            0.0,
+            0.0,
+            f64::INFINITY,
+            fs,
+            1,
+            true,
+        )
+        .unwrap();
         let mut y = vec![0.0; 400_000];
         w.add(Ps::ZERO, fs, 0, &mut y);
         let r = band_rms(&y, fs, 90e3, 110e3, 400);
         let expect = 5.0 * 0.5f64.sqrt();
         assert!((r / expect - 1.0).abs() < 0.05, "{r} vs {expect}");
         // window
-        let mut q = Pulsed::new(1e-3, 0.5e-3, 0.0, Some(50e3), 1.0, 0.0, 0.01, 0.02, fs, 1, true).unwrap();
+        let mut q = Pulsed::new(
+            1e-3,
+            0.5e-3,
+            0.0,
+            Some(50e3),
+            1.0,
+            0.0,
+            0.01,
+            0.02,
+            fs,
+            1,
+            true,
+        )
+        .unwrap();
         let mut z = vec![0.0; 12_000];
         q.add(Ps::ZERO, fs, 0, &mut z);
         assert!(z[..4000].iter().all(|v| *v == 0.0) && z[8000..].iter().all(|v| *v == 0.0));

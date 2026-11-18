@@ -41,7 +41,9 @@ impl BandNoise {
     ) -> Result<BandNoise, String> {
         let (f1, f2) = (centre_hz - bw_hz / 2.0, centre_hz + bw_hz / 2.0);
         if !(bw_hz > 0.0 && f1 > 0.0 && f2 < fs_hz / 2.0) {
-            return Err(format!("band_noise: band {f1}..{f2} Hz must lie inside (0, fs/2)"));
+            return Err(format!(
+                "band_noise: band {f1}..{f2} Hz must lie inside (0, fs/2)"
+            ));
         }
         if taps.is_multiple_of(2) || !(15..=4095).contains(&taps) {
             return Err("band_noise: taps must be odd, 15..4095".into());
@@ -65,7 +67,11 @@ impl BandNoise {
 
 impl Interferer for BandNoise {
     fn name(&self) -> String {
-        format!("band noise {:.0} Hz ± {:.0} Hz", self.centre_hz, self.bw_hz / 2.0)
+        format!(
+            "band noise {:.0} Hz ± {:.0} Hz",
+            self.centre_hz,
+            self.bw_hz / 2.0
+        )
     }
     fn add(&mut self, _t0: Ps, _fs: f64, ch: usize, out: &mut [f64]) {
         let (seed, coherent, sig, nt) = (self.seed, self.coherent, self.sigma_in, self.h.len());

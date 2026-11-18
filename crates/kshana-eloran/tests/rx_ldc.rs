@@ -20,7 +20,12 @@ fn utc_iso(t: AbsTime) -> String {
     let utc = tai - tai_minus_utc_s(y, m, d) as i128;
     let (y, m, d) = civil_from_days((utc.div_euclid(86_400) + epoch) as i64);
     let s = utc.rem_euclid(86_400);
-    format!("{y:04}-{m:02}-{d:02}T{:02}:{:02}:{:02}Z", s / 3600, s / 60 % 60, s % 60)
+    format!(
+        "{y:04}-{m:02}-{d:02}T{:02}:{:02}:{:02}Z",
+        s / 3600,
+        s / 60 % 60,
+        s % 60
+    )
 }
 
 struct Decoded {
@@ -48,10 +53,18 @@ fn run(src: &str, frame_mod: i64, frames: i64, wgn_uv_m: Option<f64>) -> Decoded
     let mut text: String = src
         .replace(&sc.scene.start_utc, &begin)
         .lines()
-        .map(|l| if l.starts_with("duration_s =") { format!("duration_s = {duration_s}\n") } else { format!("{l}\n") })
+        .map(|l| {
+            if l.starts_with("duration_s =") {
+                format!("duration_s = {duration_s}\n")
+            } else {
+                format!("{l}\n")
+            }
+        })
         .collect();
     if let Some(n) = wgn_uv_m {
-        text.push_str(&format!("\n[[interference]]\ntype = \"wgn\"\nrms_uv_m_20khz = {n}\n"));
+        text.push_str(&format!(
+            "\n[[interference]]\ntype = \"wgn\"\nrms_uv_m_20khz = {n}\n"
+        ));
     }
     let sc2 = Scenario::from_toml(&text).unwrap();
     assert_eq!(sc2.scene.params.duration_s, duration_s);
@@ -64,8 +77,16 @@ fn run(src: &str, frame_mod: i64, frames: i64, wgn_uv_m: Option<f64>) -> Decoded
         ..Default::default()
     };
     let (_rx, out) = rx::process(&input, &chains, cfg).unwrap();
-    assert!(out.acquisitions.iter().all(|a| a.found), "{:?}", out.acquisitions);
-    Decoded { modulator, ldc: out.ldc, roles: chain.stations.iter().map(|s| s.role).collect() }
+    assert!(
+        out.acquisitions.iter().all(|a| a.found),
+        "{:?}",
+        out.acquisitions
+    );
+    Decoded {
+        modulator,
+        ldc: out.ldc,
+        roles: chain.stations.iter().map(|s| s.role).collect(),
+    }
 }
 
 /// Compare one station's decoded stream with the modulator's truth; returns the channel
@@ -73,13 +94,20 @@ fn run(src: &str, frame_mod: i64, frames: i64, wgn_uv_m: Option<f64>) -> Decoded
 fn check(d: &Decoded, s: &StationLdc, tag: &str) -> usize {
     let role = d.roles[s.station_index];
     let g0 = s.first_group;
-    let tx = d.modulator.symbols(s.station_index, role, g0, g0 + s.symbols.len() as i64);
+    let tx = d
+        .modulator
+        .symbols(s.station_index, role, g0, g0 + s.symbols.len() as i64);
     assert_eq!(tx.len(), s.symbols.len());
     let sym_err = tx.iter().zip(&s.symbols).filter(|(a, b)| a != b).count();
     let frames = s.report.frames.len() as i64;
-    let truth = d.modulator.messages_starting(s.station_index, role, s.first_frame, s.first_frame + frames);
+    let truth =
+        d.modulator
+            .messages_starting(s.station_index, role, s.first_frame, s.first_frame + frames);
     // complete messages only (the last may run past the recording)
-    let complete: Vec<_> = truth.iter().filter(|m| m.first_frame + m.frames <= s.first_frame + frames).collect();
+    let complete: Vec<_> = truth
+        .iter()
+        .filter(|m| m.first_frame + m.frames <= s.first_frame + frames)
+        .collect();
     eprintln!(
         "[{tag}] {}/{} groups {} frames {} (ok {}, failed {}) symbol errors {} corrected {} msgs {}/{} crc fails {} auth {:?}",
         s.chain,
@@ -95,22 +123,38 @@ fn check(d: &Decoded, s: &StationLdc, tag: &str) -> usize {
         s.report.crc_failures,
         s.auth.iter().map(|a| a.verified).collect::<Vec<_>>()
     );
-    assert!(!complete.is_empty(), "{tag}: recording holds no complete message");
-    assert_eq!(s.report.messages.len(), complete.len(), "{tag}: {}", s.station);
+    assert!(
+        !complete.is_empty(),
+        "{tag}: recording holds no complete message"
+    );
+    assert_eq!(
+        s.report.messages.len(),
+        complete.len(),
+        "{tag}: {}",
+        s.station
+    );
     for (dm, tm) in s.report.messages.iter().zip(&complete) {
         assert_eq!(dm.message, tm.message, "{tag}");
         assert_eq!(s.message_frame(dm), tm.first_frame, "{tag}");
         assert_eq!(dm.frames as i64, tm.frames);
     }
     assert_eq!(s.report.frames_failed, 0, "{tag}");
-    assert_eq!(s.report.symbols_corrected, sym_err, "{tag}: every symbol error corrected and counted");
+    assert_eq!(
+        s.report.symbols_corrected, sym_err,
+        "{tag}: every symbol error corrected and counted"
+    );
     sym_err
 }
 
 /// Frames per message cycle of the scenario's chain 0 (default schedule).
 fn cycle_frames(src: &str) -> i64 {
     let sc = Scenario::from_toml(src).unwrap();
-    let m = build_modulator(&sc.ldc_configs().unwrap()[0].clone().unwrap(), Some(&sc.chains[0].chain)).unwrap().unwrap();
+    let m = build_modulator(
+        &sc.ldc_configs().unwrap()[0].clone().unwrap(),
+        Some(&sc.chains[0].chain),
+    )
+    .unwrap()
+    .unwrap();
     m.c.plans[0].cycle_frames
 }
 

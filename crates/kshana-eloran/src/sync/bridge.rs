@@ -29,7 +29,12 @@ pub struct SoftwareGnssBridge;
 
 impl SoftwareGnssBridge {
     /// Same as [`bridge_data`].
-    pub fn data(&self, sc: &Scenario, rate_hz: f64, cal: Option<&CalibrationFile>) -> Result<GnssBridgeData, String> {
+    pub fn data(
+        &self,
+        sc: &Scenario,
+        rate_hz: f64,
+        cal: Option<&CalibrationFile>,
+    ) -> Result<GnssBridgeData, String> {
         bridge_data(sc, rate_hz, cal)
     }
 }
@@ -56,7 +61,11 @@ pub struct GnssBridgeData {
 }
 
 /// Produce the bridge data of a scenario (trajectory sampled at `rate_hz`).
-pub fn bridge_data(sc: &Scenario, rate_hz: f64, cal: Option<&CalibrationFile>) -> Result<GnssBridgeData, String> {
+pub fn bridge_data(
+    sc: &Scenario,
+    rate_hz: f64,
+    cal: Option<&CalibrationFile>,
+) -> Result<GnssBridgeData, String> {
     let start = UtcStamp::parse(&sc.scene.start_utc)?;
     let (w, tow) = start.gps_week_tow();
     Ok(GnssBridgeData {
@@ -66,10 +75,17 @@ pub fn bridge_data(sc: &Scenario, rate_hz: f64, cal: Option<&CalibrationFile>) -
         gps_tow_s: tow,
         gps_minus_utc_s: start.leap_s() - 19.0,
         duration_s: sc.scene.params.duration_s,
-        gpst_residual_ns: sc.gnss_time_residual_ns.get(&GnssTime::Gpst).copied().unwrap_or(0.0),
+        gpst_residual_ns: sc
+            .gnss_time_residual_ns
+            .get(&GnssTime::Gpst)
+            .copied()
+            .unwrap_or(0.0),
         trajectory_rate_hz: rate_hz,
         trajectory: sample_trajectory(sc, rate_hz)?,
-        eloran_minus_gnss_ns: cal.and_then(|c| c.gnss_offset.as_ref()).map(|g| g.eloran_minus_gnss_ns).unwrap_or(0.0),
+        eloran_minus_gnss_ns: cal
+            .and_then(|c| c.gnss_offset.as_ref())
+            .map(|g| g.eloran_minus_gnss_ns)
+            .unwrap_or(0.0),
     })
 }
 

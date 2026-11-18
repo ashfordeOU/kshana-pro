@@ -154,7 +154,10 @@ impl Timebase {
             .into_iter()
             .map(|m| (m.id.clone(), TimeRef::new(m, duration_s)))
             .collect();
-        Timebase { refs, gnss_residual_s: BTreeMap::new() }
+        Timebase {
+            refs,
+            gnss_residual_s: BTreeMap::new(),
+        }
     }
     /// `x(t)` of reference `id` (0 for an unknown or empty id: the ideal UTC).
     pub fn offset_s(&self, id: &str, t_s: f64) -> f64 {
@@ -187,7 +190,10 @@ mod tests {
         let mut m = TimeRefModel::ideal("UTC(X)");
         m.offset_ns = 10.0;
         m.drift_ns_per_day = 86.4; // 1 ns per 1000 s
-        m.steps.push(TimeStep { at_s: 500.0, step_ns: 25.0 });
+        m.steps.push(TimeStep {
+            at_s: 500.0,
+            step_ns: 25.0,
+        });
         let r = TimeRef::new(m, 2000.0);
         assert!((r.offset_s(0.0) - 10e-9).abs() < 1e-15);
         assert!((r.offset_s(1000.0) - (10e-9 + 1e-9 + 25e-9)).abs() < 1e-15);

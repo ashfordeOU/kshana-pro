@@ -152,9 +152,14 @@ impl AtmosConfig {
             (None, None) => None,
             _ => return Err("atmospheric: give both season and time_block".into()),
         };
-        let n = self.fam_db.is_some() as u8 + self.rms_uv_m_20khz.is_some() as u8 + table.is_some() as u8;
+        let n = self.fam_db.is_some() as u8
+            + self.rms_uv_m_20khz.is_some() as u8
+            + table.is_some() as u8;
         if n != 1 {
-            return Err("atmospheric: give exactly one of fam_db, rms_uv_m_20khz or season+time_block".into());
+            return Err(
+                "atmospheric: give exactly one of fam_db, rms_uv_m_20khz or season+time_block"
+                    .into(),
+            );
         }
         if self.freq_mhz.is_nan() || self.freq_mhz <= 0.0 {
             return Err("atmospheric: freq_mhz must be positive".into());
@@ -257,16 +262,29 @@ mod tests {
         // at 100 kHz in 20 kHz: En = Fam − 72.49 dB(µV/m)
         let e = 20.0 * fa_to_uv_m(100.0, 0.1, 20_000.0).log10();
         assert!((e - 27.51).abs() < 0.01, "{e}");
-        let c = AtmosConfig { season: Some(Season::Summer), time_block: Some("20-24".into()), fam_db: None, ..AtmosConfig::with_fam(0.0) };
+        let c = AtmosConfig {
+            season: Some(Season::Summer),
+            time_block: Some("20-24".into()),
+            fam_db: None,
+            ..AtmosConfig::with_fam(0.0)
+        };
         assert!((c.rms_uv_m_20khz().unwrap() - fa_to_uv_m(102.0, 0.1, 20e3)).abs() < 1e-9);
-        assert!(AtmosConfig { rms_uv_m_20khz: Some(1.0), ..AtmosConfig::with_fam(80.0) }.rms_uv_m_20khz().is_err());
+        assert!(AtmosConfig {
+            rms_uv_m_20khz: Some(1.0),
+            ..AtmosConfig::with_fam(80.0)
+        }
+        .rms_uv_m_20khz()
+        .is_err());
         assert!(fam_table(Season::Winter, "03-07").is_err());
     }
 
     #[test]
     fn level_and_impulsiveness() {
         let fs = 400_000.0;
-        let c = AtmosConfig { seed: 5, ..AtmosConfig::with_fam(95.0) };
+        let c = AtmosConfig {
+            seed: 5,
+            ..AtmosConfig::with_fam(95.0)
+        };
         let mut s = Atmospheric::new(&c, fs, 0).unwrap();
         let mut x = vec![0.0; 1_200_000];
         for (i, blk) in x.chunks_mut(4000).enumerate() {
@@ -280,7 +298,11 @@ mod tests {
         let m2 = x.iter().map(|v| v * v).sum::<f64>() / x.len() as f64;
         let m4 = x.iter().map(|v| v.powi(4)).sum::<f64>() / x.len() as f64;
         let k = m4 / (m2 * m2);
-        assert!(k > 8.0 && (k / s.kurtosis() - 1.0).abs() < 0.35, "kurtosis {k} theory {}", s.kurtosis());
+        assert!(
+            k > 8.0 && (k / s.kurtosis() - 1.0).abs() < 0.35,
+            "kurtosis {k} theory {}",
+            s.kurtosis()
+        );
     }
 
     #[test]

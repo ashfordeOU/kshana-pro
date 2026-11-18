@@ -28,22 +28,41 @@ pub const LDC_PULSES: usize = 9;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MapperSpec {
-    Ppm { pulses: Vec<usize>, states: u32, step_us: f64 },
+    Ppm {
+        pulses: Vec<usize>,
+        states: u32,
+        step_us: f64,
+    },
     TriState {
         pulses: Vec<usize>,
         step_us: f64,
         #[serde(default)]
         balanced: bool,
     },
-    Phase { pulses: Vec<usize>, states: u32 },
+    Phase {
+        pulses: Vec<usize>,
+        states: u32,
+    },
 }
 
 /// A ready mapper.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Mapper {
-    Ppm { pulses: Vec<usize>, states: u32, step_us: f64 },
-    TriState { pulses: Vec<usize>, step_us: f64, balanced: bool, patterns: Vec<Vec<i8>> },
-    Phase { pulses: Vec<usize>, states: u32 },
+    Ppm {
+        pulses: Vec<usize>,
+        states: u32,
+        step_us: f64,
+    },
+    TriState {
+        pulses: Vec<usize>,
+        step_us: f64,
+        balanced: bool,
+        patterns: Vec<Vec<i8>>,
+    },
+    Phase {
+        pulses: Vec<usize>,
+        states: u32,
+    },
 }
 
 /// Gray code of `p`.
@@ -88,7 +107,9 @@ impl Mapper {
                 return Err("mapper: select at least one pulse".into());
             }
             if pulses.iter().any(|p| *p >= LDC_PULSES) {
-                return Err(format!("mapper: pulse indices are 0..=7 (group pulses) or {DATA_PULSE} (data pulse)"));
+                return Err(format!(
+                    "mapper: pulse indices are 0..=7 (group pulses) or {DATA_PULSE} (data pulse)"
+                ));
             }
             let mut u = pulses.clone();
             u.sort_unstable();
@@ -99,7 +120,11 @@ impl Mapper {
             Ok(())
         };
         Ok(match s {
-            MapperSpec::Ppm { pulses, states, step_us } => {
+            MapperSpec::Ppm {
+                pulses,
+                states,
+                step_us,
+            } => {
                 chk(pulses)?;
                 let b = log2_exact(*states).ok_or("ppm: states must be a power of two ≥ 2")?;
                 if b * pulses.len() as u32 > 16 {
@@ -108,9 +133,17 @@ impl Mapper {
                 if step_us.is_nan() || *step_us <= 0.0 {
                     return Err("ppm: step_us must be positive".into());
                 }
-                Mapper::Ppm { pulses: pulses.clone(), states: *states, step_us: *step_us }
+                Mapper::Ppm {
+                    pulses: pulses.clone(),
+                    states: *states,
+                    step_us: *step_us,
+                }
             }
-            MapperSpec::TriState { pulses, step_us, balanced } => {
+            MapperSpec::TriState {
+                pulses,
+                step_us,
+                balanced,
+            } => {
                 chk(pulses)?;
                 if pulses.len() > 10 {
                     return Err("tri_state: at most 10 pulses".into());
@@ -125,7 +158,12 @@ impl Mapper {
                 }
                 let b = usize::BITS - 1 - pats.len().leading_zeros();
                 pats.truncate(1 << b);
-                Mapper::TriState { pulses: pulses.clone(), step_us: *step_us, balanced: *balanced, patterns: pats }
+                Mapper::TriState {
+                    pulses: pulses.clone(),
+                    step_us: *step_us,
+                    balanced: *balanced,
+                    patterns: pats,
+                }
             }
             MapperSpec::Phase { pulses, states } => {
                 chk(pulses)?;
@@ -133,7 +171,10 @@ impl Mapper {
                 if b * pulses.len() as u32 > 16 {
                     return Err("phase: at most 16 bits per group".into());
                 }
-                Mapper::Phase { pulses: pulses.clone(), states: *states }
+                Mapper::Phase {
+                    pulses: pulses.clone(),
+                    states: *states,
+                }
             }
         })
     }
@@ -156,7 +197,9 @@ impl Mapper {
     /// The LDC pulse indices the mapper modulates.
     pub fn pulses(&self) -> &[usize] {
         match self {
-            Mapper::Ppm { pulses, .. } | Mapper::TriState { pulses, .. } | Mapper::Phase { pulses, .. } => pulses,
+            Mapper::Ppm { pulses, .. }
+            | Mapper::TriState { pulses, .. }
+            | Mapper::Phase { pulses, .. } => pulses,
         }
     }
 
@@ -171,14 +214,20 @@ impl Mapper {
 
     fn digits(&self, sym: u32, states: u32, n: usize) -> Vec<u32> {
         let b = states.trailing_zeros();
-        (0..n).map(|j| (sym >> (b * (n - 1 - j) as u32)) & (states - 1)).collect()
+        (0..n)
+            .map(|j| (sym >> (b * (n - 1 - j) as u32)) & (states - 1))
+            .collect()
     }
 
     /// Per-pulse modifications of symbol `sym`: (LDC index, time shift µs, phase rad).
     pub fn shifts(&self, sym: u32) -> Vec<(usize, f64, f64)> {
         let sym = sym & (self.alphabet() - 1);
         match self {
-            Mapper::Ppm { pulses, states, step_us } => {
+            Mapper::Ppm {
+                pulses,
+                states,
+                step_us,
+            } => {
                 let c = (*states as f64 - 1.0) / 2.0;
                 self.digits(sym, *states, pulses.len())
                     .into_iter()
@@ -186,7 +235,12 @@ impl Mapper {
                     .map(|(d, i)| (*i, (gray_inv(d) as f64 - c) * step_us, 0.0))
                     .collect()
             }
-            Mapper::TriState { pulses, step_us, patterns, .. } => patterns[sym as usize]
+            Mapper::TriState {
+                pulses,
+                step_us,
+                patterns,
+                ..
+            } => patterns[sym as usize]
                 .iter()
                 .zip(pulses)
                 .map(|(s, i)| (*i, *s as f64 * step_us, 0.0))
@@ -215,7 +269,11 @@ impl Mapper {
     /// pulse in `pulses`, if any. Group pulses are found by [`PulseSpec::k`].
     pub fn apply(&self, sym: u32, pulses: &mut [PulseSpec], data_pulse: Option<usize>) {
         for (i, dt, dp) in self.shifts(sym) {
-            let pos = if i == DATA_PULSE { data_pulse } else { pulses.iter().position(|p| p.k == i) };
+            let pos = if i == DATA_PULSE {
+                data_pulse
+            } else {
+                pulses.iter().position(|p| p.k == i)
+            };
             if let Some(j) = pos {
                 pulses[j].offset += crate::time::Ps::from_us(dt);
                 pulses[j].phase_rad += dp;
@@ -228,23 +286,38 @@ impl Mapper {
     pub fn decide(&self, offsets_ns: &[f64], phases_rad: Option<&[f64]>) -> u32 {
         let at = |v: &[f64], i: usize| v.get(i).copied().unwrap_or(f64::NAN);
         match self {
-            Mapper::Ppm { pulses, states, step_us } => {
+            Mapper::Ppm {
+                pulses,
+                states,
+                step_us,
+            } => {
                 let c = (*states as f64 - 1.0) / 2.0;
                 let b = states.trailing_zeros();
                 pulses.iter().fold(0u32, |acc, i| {
                     let x = at(offsets_ns, *i);
                     let p = if x.is_finite() {
-                        (x / (step_us * 1e3) + c).round().clamp(0.0, *states as f64 - 1.0) as u32
+                        (x / (step_us * 1e3) + c)
+                            .round()
+                            .clamp(0.0, *states as f64 - 1.0) as u32
                     } else {
                         c.round() as u32
                     };
                     (acc << b) | gray(p)
                 })
             }
-            Mapper::TriState { pulses, step_us, balanced, patterns } => {
+            Mapper::TriState {
+                pulses,
+                step_us,
+                balanced,
+                patterns,
+            } => {
                 let x: Vec<f64> = pulses.iter().map(|i| at(offsets_ns, *i)).collect();
                 let fin: Vec<f64> = x.iter().copied().filter(|v| v.is_finite()).collect();
-                let mean = if *balanced && !fin.is_empty() { fin.iter().sum::<f64>() / fin.len() as f64 } else { 0.0 };
+                let mean = if *balanced && !fin.is_empty() {
+                    fin.iter().sum::<f64>() / fin.len() as f64
+                } else {
+                    0.0
+                };
                 let step = step_us * 1e3;
                 let mut best = (f64::INFINITY, 0u32);
                 for (s, p) in patterns.iter().enumerate() {
@@ -269,7 +342,8 @@ impl Mapper {
                 pulses.iter().fold(0u32, |acc, i| {
                     let x = at(ph, *i);
                     let p = if x.is_finite() {
-                        ((x / (TAU / *states as f64)).round() as i64).rem_euclid(*states as i64) as u32
+                        ((x / (TAU / *states as f64)).round() as i64).rem_euclid(*states as i64)
+                            as u32
                     } else {
                         0
                     };
@@ -290,15 +364,21 @@ mod tests {
         let all = tri_state_patterns(6, true);
         assert_eq!(all.len(), 141);
         assert_eq!(tri_state_patterns(6, false).len(), 729);
-        let m = Mapper::from_spec(&MapperSpec::TriState { pulses: vec![2, 3, 4, 5, 6, 7], step_us: 1.0, balanced: true })
-            .unwrap();
+        let m = Mapper::from_spec(&MapperSpec::TriState {
+            pulses: vec![2, 3, 4, 5, 6, 7],
+            step_us: 1.0,
+            balanced: true,
+        })
+        .unwrap();
         // 140 non-idle patterns → 7 bits per GRI, 128 patterns used, all distinct and balanced
         assert_eq!(m.bits_per_symbol(), 7);
         if let Mapper::TriState { patterns, .. } = &m {
             assert_eq!(patterns.len(), 128);
             let set: std::collections::BTreeSet<_> = patterns.iter().collect();
             assert_eq!(set.len(), 128);
-            assert!(patterns.iter().all(|p| p.iter().map(|x| *x as i32).sum::<i32>() == 0));
+            assert!(patterns
+                .iter()
+                .all(|p| p.iter().map(|x| *x as i32).sum::<i32>() == 0));
             assert!(patterns.iter().all(|p| p.iter().any(|x| *x != 0)));
             // first and last symbols of the lexicographic mapping
             assert_eq!(patterns[0], vec![-1, -1, -1, 1, 1, 1]);
@@ -315,7 +395,12 @@ mod tests {
 
     #[test]
     fn ppm_and_phase_roundtrip_with_gray() {
-        let m = Mapper::from_spec(&MapperSpec::Ppm { pulses: vec![DATA_PULSE], states: 32, step_us: 1.0 }).unwrap();
+        let m = Mapper::from_spec(&MapperSpec::Ppm {
+            pulses: vec![DATA_PULSE],
+            states: 32,
+            step_us: 1.0,
+        })
+        .unwrap();
         assert_eq!(m.bits_per_symbol(), 5);
         for s in 0..32 {
             let (t, _) = m.ideal(s);
@@ -327,19 +412,43 @@ mod tests {
             assert_eq!((gray(p) ^ gray(p + 1)).count_ones(), 1);
             assert_eq!(gray_inv(gray(p)), p);
         }
-        let m2 = Mapper::from_spec(&MapperSpec::Ppm { pulses: vec![3, 5], states: 4, step_us: 0.5 }).unwrap();
+        let m2 = Mapper::from_spec(&MapperSpec::Ppm {
+            pulses: vec![3, 5],
+            states: 4,
+            step_us: 0.5,
+        })
+        .unwrap();
         assert_eq!(m2.alphabet(), 16);
         for s in 0..16 {
             assert_eq!(m2.decide(&m2.ideal(s).0, None), s);
         }
-        let ph = Mapper::from_spec(&MapperSpec::Phase { pulses: vec![6, 7], states: 4 }).unwrap();
+        let ph = Mapper::from_spec(&MapperSpec::Phase {
+            pulses: vec![6, 7],
+            states: 4,
+        })
+        .unwrap();
         for s in 0..16 {
             let (_, p) = ph.ideal(s);
             assert_eq!(ph.decide(&[0.0; 9], Some(&p)), s);
         }
-        let un = Mapper::from_spec(&MapperSpec::TriState { pulses: vec![4, 5, 6], step_us: 1.0, balanced: false }).unwrap();
+        let un = Mapper::from_spec(&MapperSpec::TriState {
+            pulses: vec![4, 5, 6],
+            step_us: 1.0,
+            balanced: false,
+        })
+        .unwrap();
         assert_eq!(un.bits_per_symbol(), 4); // 26 non-idle patterns → 16 used
-        assert!(Mapper::from_spec(&MapperSpec::Ppm { pulses: vec![9], states: 4, step_us: 1.0 }).is_err());
-        assert!(Mapper::from_spec(&MapperSpec::Ppm { pulses: vec![1], states: 3, step_us: 1.0 }).is_err());
+        assert!(Mapper::from_spec(&MapperSpec::Ppm {
+            pulses: vec![9],
+            states: 4,
+            step_us: 1.0
+        })
+        .is_err());
+        assert!(Mapper::from_spec(&MapperSpec::Ppm {
+            pulses: vec![1],
+            states: 3,
+            step_us: 1.0
+        })
+        .is_err());
     }
 }

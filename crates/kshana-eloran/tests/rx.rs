@@ -53,38 +53,80 @@ fn station_count(run: &Run) -> usize {
 fn high_snr_toa_ecd_cycle_position_and_time() {
     let run = simulate(&scenario("rx-high-snr.toml"));
     let (_rx, out) = receive(&run, RxConfig::default());
-    assert!(out.acquisitions.iter().all(|a| a.found), "{:?}", out.acquisitions);
+    assert!(
+        out.acquisitions.iter().all(|a| a.found),
+        "{:?}",
+        out.acquisitions
+    );
     let errs = rx::toa_errors(&out.measurements, &run.truth);
     report("high-snr", &errs);
     assert_eq!(errs.len(), station_count(&run));
     for e in &errs {
         assert!(e.n >= 2);
         assert_eq!(e.cycle_errors, 0);
-        assert!(e.toa_rms_ns < 5.0, "{}/{} rms {}", e.chain, e.station, e.toa_rms_ns);
-        assert!(e.ecd_rms_err_us < 0.01, "{}/{} ecd {}", e.chain, e.station, e.ecd_rms_err_us);
+        assert!(
+            e.toa_rms_ns < 5.0,
+            "{}/{} rms {}",
+            e.chain,
+            e.station,
+            e.toa_rms_ns
+        );
+        assert!(
+            e.ecd_rms_err_us < 0.01,
+            "{}/{} ecd {}",
+            e.chain,
+            e.station,
+            e.ecd_rms_err_us
+        );
     }
     assert!(out.measurements.iter().all(|m| !m.cycle_slip));
 
     // position + clock, range domain, no corrections (simple model = PF only)
     let corr = rx::Corrections::default();
-    let sol = rx::position_solution(&out.measurements, &run.chains, run.input.start, &corr, &Default::default()).unwrap();
+    let sol = rx::position_solution(
+        &out.measurements,
+        &run.chains,
+        run.input.start,
+        &corr,
+        &Default::default(),
+    )
+    .unwrap();
     let perr = rx::position_error_m(sol.position, &run.truth).unwrap();
-    eprintln!("[high-snr] position error {perr:.3} m, hdop {:.2}, bias {:?}, residuals {:?}", sol.hdop, sol.clock_bias_ns, sol.residuals_ns);
+    eprintln!(
+        "[high-snr] position error {perr:.3} m, hdop {:.2}, bias {:?}, residuals {:?}",
+        sol.hdop, sol.clock_bias_ns, sol.residuals_ns
+    );
     assert!(sol.converged);
     assert!(perr < 3.0, "position error {perr} m");
     // the common bias is receiver − UTC(A) = −50 ns
-    assert!((sol.clock_bias_ns[0].1 + 50.0).abs() < 5.0, "{:?}", sol.clock_bias_ns);
+    assert!(
+        (sol.clock_bias_ns[0].1 + 50.0).abs() < 5.0,
+        "{:?}",
+        sol.clock_bias_ns
+    );
 
     // TDoA fix for comparison
     let td = rx::tdoa_fix(&out.measurements, &run.chains, run.input.start, &corr, None).unwrap();
     let tderr = rx::position_error_m(td.position, &run.truth).unwrap();
-    eprintln!("[high-snr] TDoA error {tderr:.3} m, hdop {:.2}, tds {:?}", td.hdop, td.tds);
+    eprintln!(
+        "[high-snr] TDoA error {tderr:.3} m, hdop {:.2}, tds {:?}",
+        td.hdop, td.tds
+    );
     assert!(tderr < 5.0);
 
     // time solution at the known position recovers UTC(A) − receiver = +50 ns
-    let ts = rx::time_solution(&out.measurements, &run.chains, run.input.start, run.rx_pos, &corr);
+    let ts = rx::time_solution(
+        &out.measurements,
+        &run.chains,
+        run.input.start,
+        run.rx_pos,
+        &corr,
+    );
     for s in &ts.stations {
-        eprintln!("[high-snr] clock vs {}/{}: {:.3} ns", s.chain, s.station, s.ref_minus_rx_ns);
+        eprintln!(
+            "[high-snr] clock vs {}/{}: {:.3} ns",
+            s.chain, s.station, s.ref_minus_rx_ns
+        );
         assert!((s.ref_minus_rx_ns - 50.0).abs() < 3.0, "{s:?}");
     }
     assert!((ts.by_time_ref[0].1 - 50.0).abs() < 2.0);
@@ -97,7 +139,11 @@ fn high_snr_toa_ecd_cycle_position_and_time() {
 fn noise_20db_cycle_identification_and_statistics() {
     let run = simulate(&scenario("rx-noise.toml"));
     let (_rx, out) = receive(&run, RxConfig::default());
-    assert!(out.acquisitions.iter().all(|a| a.found), "{:?}", out.acquisitions);
+    assert!(
+        out.acquisitions.iter().all(|a| a.found),
+        "{:?}",
+        out.acquisitions
+    );
     let errs = rx::toa_errors(&out.measurements, &run.truth);
     report("noise-20dB", &errs);
     assert_eq!(errs.len(), station_count(&run));
@@ -113,10 +159,26 @@ fn noise_20db_cycle_identification_and_statistics() {
         assert!(e.ecd_rms_err_us < 1.5, "{e:?}");
     }
     let corr = rx::Corrections::default();
-    let sol = rx::position_solution(&out.measurements, &run.chains, run.input.start, &corr, &Default::default()).unwrap();
+    let sol = rx::position_solution(
+        &out.measurements,
+        &run.chains,
+        run.input.start,
+        &corr,
+        &Default::default(),
+    )
+    .unwrap();
     let perr = rx::position_error_m(sol.position, &run.truth).unwrap();
-    let ts = rx::time_solution(&out.measurements, &run.chains, run.input.start, run.rx_pos, &corr);
-    eprintln!("[noise-20dB] position error {perr:.2} m (hdop {:.2}); UTC(A)-rx {:.2} ns", sol.hdop, ts.by_time_ref[0].1);
+    let ts = rx::time_solution(
+        &out.measurements,
+        &run.chains,
+        run.input.start,
+        run.rx_pos,
+        &corr,
+    );
+    eprintln!(
+        "[noise-20dB] position error {perr:.2} m (hdop {:.2}); UTC(A)-rx {:.2} ns",
+        sol.hdop, ts.by_time_ref[0].1
+    );
     assert!(perr < 20.0);
     assert!((ts.by_time_ref[0].1 - 50.0).abs() < 15.0);
 }
@@ -128,7 +190,11 @@ fn two_chain_cri_tracks_all_stations() {
         let mut cfg = RxConfig::default();
         cfg.cri.blank = blank;
         let (_rx, out) = receive(&run, cfg);
-        assert!(out.acquisitions.iter().all(|a| a.found), "{:?}", out.acquisitions);
+        assert!(
+            out.acquisitions.iter().all(|a| a.found),
+            "{:?}",
+            out.acquisitions
+        );
         let errs = rx::toa_errors(&out.measurements, &run.truth);
         report(if blank { "cri-blank" } else { "cri-noblank" }, &errs);
         assert_eq!(errs.len(), station_count(&run));
@@ -144,12 +210,26 @@ fn two_chain_cri_tracks_all_stations() {
         if blank {
             // multi-chain position with one bias per chain (UTC(A) differs from UTC(B))
             let corr = rx::Corrections::default();
-            let pc = rx::PositionConfig { bias_per_chain: true, ..Default::default() };
-            let sol = rx::position_solution(&out.measurements, &run.chains, run.input.start, &corr, &pc).unwrap();
+            let pc = rx::PositionConfig {
+                bias_per_chain: true,
+                ..Default::default()
+            };
+            let sol =
+                rx::position_solution(&out.measurements, &run.chains, run.input.start, &corr, &pc)
+                    .unwrap();
             let perr = rx::position_error_m(sol.position, &run.truth).unwrap();
-            eprintln!("[cri-blank] position error {perr:.2} m, biases {:?}", sol.clock_bias_ns);
+            eprintln!(
+                "[cri-blank] position error {perr:.2} m, biases {:?}",
+                sol.clock_bias_ns
+            );
             assert!(perr < 10.0);
-            let ts = rx::time_solution(&out.measurements, &run.chains, run.input.start, run.rx_pos, &corr);
+            let ts = rx::time_solution(
+                &out.measurements,
+                &run.chains,
+                run.input.start,
+                run.rx_pos,
+                &corr,
+            );
             for (id, v, _) in &ts.by_time_ref {
                 let want = if id == "UTC(A)" { 20.0 } else { -30.0 };
                 assert!((v - want).abs() < 5.0, "{id}: {v}");
@@ -162,7 +242,14 @@ fn two_chain_cri_tracks_all_stations() {
 fn crossed_loops_beam_steered_and_per_loop() {
     let run = simulate(&scenario("rx-loops.toml"));
     assert_eq!(run.input.channels.len(), 2);
-    let cfg = RxConfig { antenna: Antenna::CrossedLoop { a: 0, b: 1, mode: LoopMode::BeamSteer }, ..Default::default() };
+    let cfg = RxConfig {
+        antenna: Antenna::CrossedLoop {
+            a: 0,
+            b: 1,
+            mode: LoopMode::BeamSteer,
+        },
+        ..Default::default()
+    };
     let (_rx, out) = receive(&run, cfg);
     let errs = rx::toa_errors(&out.measurements, &run.truth);
     report("loops-steer", &errs);
@@ -173,10 +260,24 @@ fn crossed_loops_beam_steered_and_per_loop() {
         assert!(e.bearing_err_deg.unwrap() < 0.5, "{e:?}");
     }
     let corr = rx::Corrections::default();
-    let sol = rx::position_solution(&out.measurements, &run.chains, run.input.start, &corr, &Default::default()).unwrap();
+    let sol = rx::position_solution(
+        &out.measurements,
+        &run.chains,
+        run.input.start,
+        &corr,
+        &Default::default(),
+    )
+    .unwrap();
     assert!(rx::position_error_m(sol.position, &run.truth).unwrap() < 3.0);
 
-    let cfg = RxConfig { antenna: Antenna::CrossedLoop { a: 0, b: 1, mode: LoopMode::PerLoop }, ..Default::default() };
+    let cfg = RxConfig {
+        antenna: Antenna::CrossedLoop {
+            a: 0,
+            b: 1,
+            mode: LoopMode::PerLoop,
+        },
+        ..Default::default()
+    };
     let (_rx, out) = receive(&run, cfg);
     let errs = rx::toa_errors(&out.measurements, &run.truth);
     report("loops-per-loop", &errs);
@@ -195,7 +296,11 @@ fn ldc_hook_reports_nominal_pulses_at_zero_offset() {
         let g = t.windows[0].group;
         let pt = rx.pulse_timing(t, g + 1, &[8000.0]).unwrap();
         let st = &run.chains[t.chain_index].stations[t.station_index];
-        let nominal = if st.role == kshana_eloran::signal::Role::Master { 9 } else { 8 };
+        let nominal = if st.role == kshana_eloran::signal::Role::Master {
+            9
+        } else {
+            8
+        };
         assert_eq!(pt.pulses.len(), nominal + 1);
         for p in &pt.pulses[..nominal] {
             assert!(p.offset_ns.abs() < 0.5, "{p:?}");
@@ -204,6 +309,10 @@ fn ldc_hook_reports_nominal_pulses_at_zero_offset() {
         }
         // the extra slot at 8000 µs carries no pulse (free in a secondary group; between
         // the eighth and ninth pulses for the master)
-        assert!(pt.pulses[nominal].amplitude_rel < 0.05, "{:?}", pt.pulses[nominal]);
+        assert!(
+            pt.pulses[nominal].amplitude_rel < 0.05,
+            "{:?}",
+            pt.pulses[nominal]
+        );
     }
 }

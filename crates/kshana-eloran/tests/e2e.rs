@@ -55,7 +55,9 @@ fn zero_crossing(x: &[f64], fs: f64, t_guess: f64) -> f64 {
                         let mut l = 1.0;
                         let mut dl = 0.0;
                         for m in 0..4 {
-                            if m == j { continue; }
+                            if m == j {
+                                continue;
+                            }
                             let den = nodes[j] - nodes[m];
                             dl = dl * (u - nodes[m]) / den + l / den;
                             l *= (u - nodes[m]) / den;
@@ -103,7 +105,11 @@ fn ten_ns_reference_offset_moves_the_signal_by_ten_ns() {
 
 #[test]
 fn runs_are_bit_for_bit_deterministic() {
-    let src = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/scenarios/synthetic-two-chain.toml")).unwrap();
+    let src = std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/scenarios/synthetic-two-chain.toml"
+    ))
+    .unwrap();
     let h = |_: ()| {
         let (sink, truth, stats) = kshana_eloran::run_to_memory(&src).unwrap();
         assert_eq!(stats.channels, 2);
@@ -121,7 +127,11 @@ fn runs_are_bit_for_bit_deterministic() {
 
 #[test]
 fn two_chains_two_time_refs_appear_in_truth() {
-    let src = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/scenarios/synthetic-two-chain.toml")).unwrap();
+    let src = std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/scenarios/synthetic-two-chain.toml"
+    ))
+    .unwrap();
     let (_s, truth, stats) = kshana_eloran::run_to_memory(&src).unwrap();
     let chains: std::collections::BTreeSet<_> = truth.iter().map(|r| r.chain.clone()).collect();
     assert_eq!(chains.len(), 2);

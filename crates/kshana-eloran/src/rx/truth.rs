@@ -36,12 +36,17 @@ pub struct StationErrors {
 }
 
 fn truth_index(truth: &[TruthRecord]) -> HashMap<(&str, &str, i64), &TruthRecord> {
-    truth.iter().map(|r| ((r.chain.as_str(), r.station.as_str(), r.group), r)).collect()
+    truth
+        .iter()
+        .map(|r| ((r.chain.as_str(), r.station.as_str(), r.group), r))
+        .collect()
 }
 
 /// The truth record matching a measurement.
 pub fn matching_truth<'a>(m: &Measurement, truth: &'a [TruthRecord]) -> Option<&'a TruthRecord> {
-    truth.iter().find(|r| r.chain == m.chain && r.station == m.station && r.group == m.group)
+    truth
+        .iter()
+        .find(|r| r.chain == m.chain && r.station == m.station && r.group == m.group)
 }
 
 /// Per-station ToA, ECD, SNR and bearing errors.
@@ -59,20 +64,34 @@ pub fn toa_errors(meas: &[Measurement], truth: &[TruthRecord]) -> Vec<StationErr
             let pairs: Vec<(&Measurement, &TruthRecord)> = meas
                 .iter()
                 .filter(|m| m.chain == c && m.station == s && m.channel == ch)
-                .filter_map(|m| idx.get(&(m.chain.as_str(), m.station.as_str(), m.group)).map(|r| (m, *r)))
+                .filter_map(|m| {
+                    idx.get(&(m.chain.as_str(), m.station.as_str(), m.group))
+                        .map(|r| (m, *r))
+                })
                 .collect();
             let n = pairs.len();
-            let e: Vec<f64> = pairs.iter().map(|(m, r)| (m.toa_s - r.toa_s) * 1e9).collect();
+            let e: Vec<f64> = pairs
+                .iter()
+                .map(|(m, r)| (m.toa_s - r.toa_s) * 1e9)
+                .collect();
             let ecd: Vec<f64> = pairs.iter().map(|(m, r)| m.ecd_us - r.ecd_us).collect();
             let nf = n.max(1) as f64;
             let mean = e.iter().sum::<f64>() / nf;
-            let std = if n > 1 { (e.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / (n - 1) as f64).sqrt() } else { 0.0 };
+            let std = if n > 1 {
+                (e.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / (n - 1) as f64).sqrt()
+            } else {
+                0.0
+            };
             let bearing: Vec<f64> = pairs
                 .iter()
                 .filter_map(|(m, r)| {
                     m.bearing_deg.map(|b| {
                         let d = (b - (r.bearing_deg - r.rx_heading_deg)).rem_euclid(360.0);
-                        if d > 180.0 { 360.0 - d } else { d }
+                        if d > 180.0 {
+                            360.0 - d
+                        } else {
+                            d
+                        }
                     })
                 })
                 .collect();
@@ -130,7 +149,10 @@ pub fn clock_errors(ts: &TimeSolution, truth: &[TruthRecord]) -> Vec<ClockError>
     ts.stations
         .iter()
         .filter_map(|s| {
-            let rs: Vec<&TruthRecord> = truth.iter().filter(|r| r.chain == s.chain && r.station == s.station).collect();
+            let rs: Vec<&TruthRecord> = truth
+                .iter()
+                .filter(|r| r.chain == s.chain && r.station == s.station)
+                .collect();
             if rs.is_empty() {
                 return None;
             }

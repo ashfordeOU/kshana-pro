@@ -114,7 +114,12 @@ fn ecef(lat_deg: f64, lon_deg: f64, h_m: f64) -> [f64; 3] {
 /// The eLoran trajectory as an open-engine GNSS trajectory.
 pub fn to_gnss_trajectory(t: &Trajectory) -> GTraj {
     match t {
-        Trajectory::Static { lat_deg, lon_deg, h_m, .. } => GTraj::Static(ecef(*lat_deg, *lon_deg, *h_m)),
+        Trajectory::Static {
+            lat_deg,
+            lon_deg,
+            h_m,
+            ..
+        } => GTraj::Static(ecef(*lat_deg, *lon_deg, *h_m)),
         Trajectory::Waypoints { points } => GTraj::Waypoints(
             points
                 .iter()
@@ -126,9 +131,17 @@ pub fn to_gnss_trajectory(t: &Trajectory) -> GTraj {
 
 /// Pick, per satellite of `system`, the healthy ephemeris whose `toe` is nearest the scene
 /// start (same week, ±2 h).
-pub fn select_ephemerides(ephs: &[RinexEphemeris], system: char, week: i64, tow: f64) -> Vec<RinexEphemeris> {
+pub fn select_ephemerides(
+    ephs: &[RinexEphemeris],
+    system: char,
+    week: i64,
+    tow: f64,
+) -> Vec<RinexEphemeris> {
     let mut best: std::collections::BTreeMap<u8, (f64, RinexEphemeris)> = Default::default();
-    for e in ephs.iter().filter(|e| e.system == system && e.sv_health == 0.0) {
+    for e in ephs
+        .iter()
+        .filter(|e| e.system == system && e.sv_health == 0.0)
+    {
         // Galileo RINEX weeks are GST weeks aligned with GPS weeks (+1024 in some files):
         // compare by time of week only when the week fields disagree by a whole cycle.
         let dweek = (e.gps_week as i64 - week).rem_euclid(1024);
@@ -150,17 +163,34 @@ pub fn select_ephemerides(ephs: &[RinexEphemeris], system: char, week: i64, tow:
 }
 
 /// Generate the GNSS recording of `sc` from the navigation file `nav_text` into `<base>.gnss.*`.
-pub fn generate(sc: &Scenario, nav_text: &str, opts: &GnssOptions, base: &Path) -> Result<GnssRun, String> {
+pub fn generate(
+    sc: &Scenario,
+    nav_text: &str,
+    opts: &GnssOptions,
+    base: &Path,
+) -> Result<GnssRun, String> {
     let start = AbsTime::from_utc_iso(&sc.scene.start_utc)?;
     let (week, tow) = gps_week_tow(start);
     let duration = opts.duration_s.unwrap_or(sc.scene.params.duration_s);
     let ephs = parse_nav(nav_text)?;
-    let residual_s = sc.gnss_time_residual_ns.get(&GnssTime::Gpst).copied().unwrap_or(0.0) * 1e-9;
-    let spec = SampleSpec { fs_hz: opts.fs_hz, center_hz: L1_HZ, if_hz: 0.0 };
+    let residual_s = sc
+        .gnss_time_residual_ns
+        .get(&GnssTime::Gpst)
+        .copied()
+        .unwrap_or(0.0)
+        * 1e-9;
+    let spec = SampleSpec {
+        fs_hz: opts.fs_hz,
+        center_hz: L1_HZ,
+        if_hz: 0.0,
+    };
     let mut cfg = SceneConfig::new(spec, duration);
     cfg.start_tow_s = tow;
     cfg.receiver = to_gnss_trajectory(&sc.receiver);
-    cfg.clock = ReceiverClock { bias_s: -residual_s, drift_s_per_s: 0.0 };
+    cfg.clock = ReceiverClock {
+        bias_s: -residual_s,
+        drift_s_per_s: 0.0,
+    };
     cfg.seed = sc.scene.params.seed;
     cfg.elevation_mask_deg = opts.elevation_mask_deg;
     cfg.truth_interval_s = 0.1;
@@ -169,22 +199,26 @@ pub fn generate(sc: &Scenario, nav_text: &str, opts: &GnssOptions, base: &Path) 
     let mut names = Vec::new();
     if opts.gps {
         for e in select_ephemerides(&ephs, 'G', week, tow) {
-            let s = SceneSatellite::gps_l1ca_broadcast(&e, opts.cn0_dbhz, LnavConventions::default())
-                .map_err(|x| x.to_string())?;
+            let s =
+                SceneSatellite::gps_l1ca_broadcast(&e, opts.cn0_dbhz, LnavConventions::default())
+                    .map_err(|x| x.to_string())?;
             names.push(format!("G{:02} L1C/A", e.prn));
             scene.add_satellite(s);
         }
     }
     if opts.galileo {
         for e in select_ephemerides(&ephs, 'E', week, tow) {
-            let code = kshana::iq::signals::galileo::e1b(e.prn as u16).map_err(|x| x.to_string())?;
+            let code =
+                kshana::iq::signals::galileo::e1b(e.prn as u16).map_err(|x| x.to_string())?;
             names.push(format!("E{:02} E1-B", e.prn));
             scene.add_satellite(SceneSatellite {
                 id: 1000 + e.prn as u32,
                 code: Box::new(code),
                 geometry: SatGeometry::Broadcast(Box::new(e)),
                 cn0_dbhz: opts.cn0_dbhz,
-                nav: NavData::Seeded { seed: sc.scene.params.seed ^ e.prn as u64 },
+                nav: NavData::Seeded {
+                    seed: sc.scene.params.seed ^ e.prn as u64,
+                },
             });
         }
     }
@@ -199,7 +233,9 @@ pub fn generate(sc: &Scenario, nav_text: &str, opts: &GnssOptions, base: &Path) 
     let mut sink = IqWriter::new(BufWriter::new(f), SampleFormat::CI16_LE).with_scale(2000.0);
     let tf = std::fs::File::create(&truth).map_err(|e| format!("{}: {e}", truth.display()))?;
     let mut tsink = CsvTruthWriter::new(BufWriter::new(tf));
-    let summary = scene.generate(&mut sink, &mut tsink).map_err(|e| e.to_string())?;
+    let summary = scene
+        .generate(&mut sink, &mut tsink)
+        .map_err(|e| e.to_string())?;
     let meta = serde_json::json!({
         "global": {
             "core:datatype": "ci16_le",

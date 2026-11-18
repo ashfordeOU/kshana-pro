@@ -52,7 +52,13 @@ pub struct SigmfWriter {
 }
 
 impl SigmfWriter {
-    pub fn create(base: &Path, format: Format, channels: usize, fs_hz: f64, extra: serde_json::Value) -> Result<SigmfWriter, String> {
+    pub fn create(
+        base: &Path,
+        format: Format,
+        channels: usize,
+        fs_hz: f64,
+        extra: serde_json::Value,
+    ) -> Result<SigmfWriter, String> {
         let data_path = base.with_extension("sigmf-data");
         let meta_path = base.with_extension("sigmf-meta");
         let f = File::create(&data_path).map_err(|e| format!("{}: {e}", data_path.display()))?;
@@ -110,8 +116,11 @@ impl SampleSink for SigmfWriter {
             "captures": [{ "core:sample_start": 0, "core:frequency": 100000.0 }],
             "annotations": []
         });
-        std::fs::write(&self.meta_path, serde_json::to_string_pretty(&meta).unwrap())
-            .map_err(|e| format!("{}: {e}", self.meta_path.display()))
+        std::fs::write(
+            &self.meta_path,
+            serde_json::to_string_pretty(&meta).unwrap(),
+        )
+        .map_err(|e| format!("{}: {e}", self.meta_path.display()))
     }
 }
 
@@ -129,14 +138,19 @@ pub fn read_sigmf(base: &Path, max_samples: Option<u64>) -> Result<Recording, St
     let meta_path = base.with_extension("sigmf-meta");
     let data_path = base.with_extension("sigmf-data");
     let meta: serde_json::Value = serde_json::from_str(
-        &std::fs::read_to_string(&meta_path).map_err(|e| format!("{}: {e}", meta_path.display()))?,
+        &std::fs::read_to_string(&meta_path)
+            .map_err(|e| format!("{}: {e}", meta_path.display()))?,
     )
     .map_err(|e| format!("{}: {e}", meta_path.display()))?;
     let g = &meta["global"];
     let fmt = Format::parse(g["core:datatype"].as_str().unwrap_or(""))?;
-    let fs_hz = g["core:sample_rate"].as_f64().ok_or("missing core:sample_rate")?;
+    let fs_hz = g["core:sample_rate"]
+        .as_f64()
+        .ok_or("missing core:sample_rate")?;
     let nch = g["core:num_channels"].as_u64().unwrap_or(1) as usize;
-    let mut r = BufReader::new(File::open(&data_path).map_err(|e| format!("{}: {e}", data_path.display()))?);
+    let mut r = BufReader::new(
+        File::open(&data_path).map_err(|e| format!("{}: {e}", data_path.display()))?,
+    );
     let mut raw = Vec::new();
     r.read_to_end(&mut raw).map_err(|e| e.to_string())?;
     let frame = nch * fmt.bytes();
@@ -150,10 +164,16 @@ pub fn read_sigmf(base: &Path, max_samples: Option<u64>) -> Result<Recording, St
             let o = i * frame + c * fmt.bytes();
             let v = match fmt {
                 Format::Ri16 => i16::from_le_bytes([raw[o], raw[o + 1]]) as f64 / 32767.0,
-                Format::Rf32 => f32::from_le_bytes([raw[o], raw[o + 1], raw[o + 2], raw[o + 3]]) as f64,
+                Format::Rf32 => {
+                    f32::from_le_bytes([raw[o], raw[o + 1], raw[o + 2], raw[o + 3]]) as f64
+                }
             };
             ch.push(v);
         }
     }
-    Ok(Recording { fs_hz, channels, meta })
+    Ok(Recording {
+        fs_hz,
+        channels,
+        meta,
+    })
 }

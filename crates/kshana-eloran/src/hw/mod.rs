@@ -234,13 +234,17 @@ impl SampleSink for RealtimeSink {
         let msg = match self.tx.try_send(msg) {
             Ok(()) => None,
             Err(TrySendError::Full(m)) => {
-                self.counters.backpressure_waits.fetch_add(1, Ordering::Relaxed);
+                self.counters
+                    .backpressure_waits
+                    .fetch_add(1, Ordering::Relaxed);
                 Some(m)
             }
             Err(TrySendError::Disconnected(_)) => return Err("device stream closed".into()),
         };
         if let Some(m) = msg {
-            self.tx.send(m).map_err(|_| "device stream closed".to_string())?;
+            self.tx
+                .send(m)
+                .map_err(|_| "device stream closed".to_string())?;
         }
         self.counters.blocks_queued.fetch_add(1, Ordering::Relaxed);
         Ok(())
@@ -272,7 +276,12 @@ impl<T: Send + 'static> TxSession<T> {
     /// Start streaming: `producer` writes all its samples into the sink it is given
     /// (calling `finish` at the end, as `Scene::run` does). The device starts at `at`
     /// once the FIFO (`fifo_blocks` deep) is half full or the producer has finished.
-    pub fn start<F>(mut device: Box<dyn Device>, at: StartTime, fifo_blocks: usize, producer: F) -> Result<TxSession<T>, String>
+    pub fn start<F>(
+        mut device: Box<dyn Device>,
+        at: StartTime,
+        fifo_blocks: usize,
+        producer: F,
+    ) -> Result<TxSession<T>, String>
     where
         F: FnOnce(&mut dyn SampleSink) -> Result<T, String> + Send + 'static,
     {
@@ -283,7 +292,10 @@ impl<T: Send + 'static> TxSession<T> {
         let producer = std::thread::Builder::new()
             .name("eloran-producer".into())
             .spawn(move || {
-                let mut sink = RealtimeSink { tx, counters: c_prod.clone() };
+                let mut sink = RealtimeSink {
+                    tx,
+                    counters: c_prod.clone(),
+                };
                 let r = producer(&mut sink);
                 // make sure the pump ends even if the producer failed before finish()
                 let _ = sink.tx.send(Msg::End);
@@ -300,7 +312,11 @@ impl<T: Send + 'static> TxSession<T> {
                 Ok(device)
             })
             .map_err(|e| e.to_string())?;
-        Ok(TxSession { counters, producer, pump })
+        Ok(TxSession {
+            counters,
+            producer,
+            pump,
+        })
     }
 
     /// Current counters.
@@ -319,16 +335,33 @@ impl<T: Send + 'static> TxSession<T> {
 
     /// Wait for both threads; returns the producer's output and the device.
     pub fn wait(self) -> Result<TxReport<T>, String> {
-        let p = self.producer.join().map_err(|_| "producer thread panicked".to_string())?;
-        let d = self.pump.join().map_err(|_| "pump thread panicked".to_string())?;
+        let p = self
+            .producer
+            .join()
+            .map_err(|_| "producer thread panicked".to_string())?;
+        let d = self
+            .pump
+            .join()
+            .map_err(|_| "pump thread panicked".to_string())?;
         let device = d?;
         let produced = p?;
         let device_status = device.status();
-        Ok(TxReport { produced, device, session: self.counters.snapshot(), device_status })
+        Ok(TxReport {
+            produced,
+            device,
+            session: self.counters.snapshot(),
+            device_status,
+        })
     }
 }
 
-fn pump(device: &mut dyn Device, rx: &Receiver<Msg>, at: StartTime, prime: usize, c: &StreamCounters) -> Result<(), String> {
+fn pump(
+    device: &mut dyn Device,
+    rx: &Receiver<Msg>,
+    at: StartTime,
+    prime: usize,
+    c: &StreamCounters,
+) -> Result<(), String> {
     // Prime the FIFO before starting so a real-time device does not underrun at once.
     let mut pending: Vec<Vec<Vec<f64>>> = Vec::new();
     let mut ended = false;
@@ -346,8 +379,10 @@ fn pump(device: &mut dyn Device, rx: &Receiver<Msg>, at: StartTime, prime: usize
     let write = |device: &mut dyn Device, b: Vec<Vec<f64>>| -> Result<(), String> {
         device.write_tx(&b)?;
         c.blocks_written.fetch_add(1, Ordering::Relaxed);
-        c.samples_written
-            .fetch_add(b.first().map(|x| x.len()).unwrap_or(0) as u64, Ordering::Relaxed);
+        c.samples_written.fetch_add(
+            b.first().map(|x| x.len()).unwrap_or(0) as u64,
+            Ordering::Relaxed,
+        );
         Ok(())
     };
     for b in pending {
@@ -405,7 +440,8 @@ mod tests {
     use crate::io::{read_sigmf, Format};
 
     fn tmpdir(name: &str) -> std::path::PathBuf {
-        let d = std::env::temp_dir().join(format!("kshana-eloran-hw-{}-{name}", std::process::id()));
+        let d =
+            std::env::temp_dir().join(format!("kshana-eloran-hw-{}-{name}", std::process::id()));
         std::fs::create_dir_all(&d).unwrap();
         d
     }
@@ -443,10 +479,15 @@ mod tests {
         let d = tmpdir("err");
         let mut dev = FileDevice::tx(&d.join("e"), Format::Ri16);
         dev.configure(&DeviceConfig::tx(1e6, 1)).unwrap();
-        let s = TxSession::start(Box::new(dev), StartTime::Now, 4, |sink| -> Result<(), String> {
-            sink.write_block(&[vec![0.0; 10]])?;
-            Err("boom".into())
-        })
+        let s = TxSession::start(
+            Box::new(dev),
+            StartTime::Now,
+            4,
+            |sink| -> Result<(), String> {
+                sink.write_block(&[vec![0.0; 10]])?;
+                Err("boom".into())
+            },
+        )
         .unwrap();
         assert_eq!(s.wait().err().unwrap(), "boom");
     }
@@ -478,7 +519,10 @@ position = { lat_deg = 55.5, lon_deg = 0.0 }
         let base = d.join("scene");
         let mut dev = FileDevice::tx(&base, Format::Rf32);
         dev.configure(&DeviceConfig::tx(1e6, 1)).unwrap();
-        let r = stream_scene(Box::new(dev), scene, StartTime::NextPps, 8).unwrap().wait().unwrap();
+        let r = stream_scene(Box::new(dev), scene, StartTime::NextPps, 8)
+            .unwrap()
+            .wait()
+            .unwrap();
         assert_eq!(r.produced.0.samples_per_channel, 50_000);
         assert!(!r.produced.1.is_empty());
         let rec = read_sigmf(&base, None).unwrap();
