@@ -172,7 +172,12 @@ fn date_bound(d: &str, end: bool) -> String {
     let parts: Vec<&str> = d.split('-').collect();
     match parts.len() {
         1 => format!("{}-{}", parts[0], if end { "12-31" } else { "01-01" }),
-        2 => format!("{}-{}-{}", parts[0], parts[1], if end { "31" } else { "01" }),
+        2 => format!(
+            "{}-{}-{}",
+            parts[0],
+            parts[1],
+            if end { "31" } else { "01" }
+        ),
         _ => d.to_string(),
     }
 }
@@ -182,7 +187,10 @@ fn valid_partial_date(d: &str) -> bool {
     let lens = [4, 2, 2];
     !parts.is_empty()
         && parts.len() <= 3
-        && parts.iter().zip(lens).all(|(p, n)| p.len() == n && p.bytes().all(|b| b.is_ascii_digit()))
+        && parts
+            .iter()
+            .zip(lens)
+            .all(|(p, n)| p.len() == n && p.bytes().all(|b| b.is_ascii_digit()))
 }
 
 /// GRI range and step check (40 000 to 99 990 µs, steps of 10 µs).
@@ -219,7 +227,11 @@ impl DbChain {
     fn missing_with(&self, ov: &Overrides) -> Vec<String> {
         self.stations
             .iter()
-            .flat_map(|s| s.missing(ov.stations.get(&s.id)).into_iter().map(move |f| format!("{}: {f}", s.id)))
+            .flat_map(|s| {
+                s.missing(ov.stations.get(&s.id))
+                    .into_iter()
+                    .map(move |f| format!("{}: {f}", s.id))
+            })
             .collect()
     }
 
@@ -231,8 +243,14 @@ impl DbChain {
     /// Whether the chain was operating on `date` ("YYYY[-MM[-DD]]"). Unknown bounds are open.
     pub fn active_on(&self, date: &str) -> bool {
         let d = date_bound(date, false);
-        let after_start = self.operational_from.as_deref().is_none_or(|f| date_bound(f, false) <= d);
-        let before_end = self.operational_to.as_deref().is_none_or(|t| d <= date_bound(t, true));
+        let after_start = self
+            .operational_from
+            .as_deref()
+            .is_none_or(|f| date_bound(f, false) <= d);
+        let before_end = self
+            .operational_to
+            .as_deref()
+            .is_none_or(|t| d <= date_bound(t, true));
         after_start && before_end
     }
 
@@ -247,7 +265,10 @@ impl DbChain {
     pub fn to_chain(&self, ov: &Overrides) -> Result<Chain, String> {
         for k in ov.stations.keys() {
             if !self.stations.iter().any(|s| &s.id == k) {
-                return Err(format!("chain {}: override for unknown station {k:?}", self.id));
+                return Err(format!(
+                    "chain {}: override for unknown station {k:?}",
+                    self.id
+                ));
             }
         }
         let missing = self.missing_with(ov);
@@ -282,12 +303,18 @@ impl DbChain {
                 emission_delay_us: if s.role == Role::Master {
                     0.0
                 } else {
-                    o.and_then(|o| o.emission_delay_us).or(s.emission_delay_us).expect("checked")
+                    o.and_then(|o| o.emission_delay_us)
+                        .or(s.emission_delay_us)
+                        .expect("checked")
                 },
                 time_ref,
                 tx_clock: None,
                 ecd_us: 0.0,
-                status: if station_off { StationStatus::Off } else { StationStatus::On },
+                status: if station_off {
+                    StationStatus::Off
+                } else {
+                    StationStatus::On
+                },
                 faults: vec![],
             });
         }
@@ -315,22 +342,36 @@ impl DbChain {
             return Err("chain with empty id".into());
         }
         if !valid_gri(self.gri_us) {
-            return Err(format!("chain {id}: GRI {} µs must be 40 000 to 99 990 µs in steps of 10 µs", self.gri_us));
+            return Err(format!(
+                "chain {id}: GRI {} µs must be 40 000 to 99 990 µs in steps of 10 µs",
+                self.gri_us
+            ));
         }
-        for d in [&self.operational_from, &self.operational_to].into_iter().flatten() {
+        for d in [&self.operational_from, &self.operational_to]
+            .into_iter()
+            .flatten()
+        {
             if !valid_partial_date(d) {
                 return Err(format!("chain {id}: date {d:?} is not YYYY[-MM[-DD]]"));
             }
         }
         if let (Some(f), Some(t)) = (&self.operational_from, &self.operational_to) {
             if date_bound(f, false) > date_bound(t, true) {
-                return Err(format!("chain {id}: operational_from {f} is after operational_to {t}"));
+                return Err(format!(
+                    "chain {id}: operational_from {f} is after operational_to {t}"
+                ));
             }
         }
         if self.stations.is_empty() {
             return Err(format!("chain {id}: no stations"));
         }
-        if self.stations.iter().filter(|s| s.role == Role::Master).count() != 1 {
+        if self
+            .stations
+            .iter()
+            .filter(|s| s.role == Role::Master)
+            .count()
+            != 1
+        {
             return Err(format!("chain {id}: needs exactly one master"));
         }
         let mut seen = BTreeSet::new();
@@ -340,12 +381,18 @@ impl DbChain {
             }
             if let Some(p) = s.position {
                 if !(-90.0..=90.0).contains(&p.lat_deg) || !(-180.0..=180.0).contains(&p.lon_deg) {
-                    return Err(format!("chain {id} station {}: position out of range", s.id));
+                    return Err(format!(
+                        "chain {id} station {}: position out of range",
+                        s.id
+                    ));
                 }
             }
             if let Some(p) = s.power_kw {
                 if p.is_nan() || p <= 0.0 {
-                    return Err(format!("chain {id} station {}: power must be positive", s.id));
+                    return Err(format!(
+                        "chain {id} station {}: power must be positive",
+                        s.id
+                    ));
                 }
             }
             match (s.role, s.emission_delay_us) {
@@ -353,7 +400,10 @@ impl DbChain {
                     return Err(format!("chain {id}: master emission delay must be 0"))
                 }
                 (Role::Secondary, Some(d)) if d.is_nan() || d <= 0.0 || d >= self.gri_us as f64 => {
-                    return Err(format!("chain {id} station {}: emission delay {d} outside (0, GRI)", s.id))
+                    return Err(format!(
+                        "chain {id} station {}: emission delay {d} outside (0, GRI)",
+                        s.id
+                    ))
                 }
                 _ => {}
             }
@@ -384,10 +434,16 @@ impl GriDb {
     /// and every complete chain converts and passes [`Chain::validate`].
     pub fn validate(&self) -> Result<(), String> {
         if self.format != GRI_DB_FORMAT {
-            return Err(format!("GRI database: format {:?}, expected {GRI_DB_FORMAT:?}", self.format));
+            return Err(format!(
+                "GRI database: format {:?}, expected {GRI_DB_FORMAT:?}",
+                self.format
+            ));
         }
         if self.version == 0 || self.version > GRI_DB_VERSION {
-            return Err(format!("GRI database: unsupported version {}", self.version));
+            return Err(format!(
+                "GRI database: unsupported version {}",
+                self.version
+            ));
         }
         let mut ids = BTreeSet::new();
         for c in &self.chains {
@@ -396,7 +452,8 @@ impl GriDb {
                 return Err(format!("GRI database: duplicate chain id {:?}", c.id));
             }
             if c.is_complete() {
-                c.to_chain_strict().map_err(|e| format!("GRI database: complete chain {}: {e}", c.id))?;
+                c.to_chain_strict()
+                    .map_err(|e| format!("GRI database: complete chain {}: {e}", c.id))?;
             }
         }
         for (i, a) in self.chains.iter().enumerate() {
@@ -426,7 +483,10 @@ impl GriDb {
     /// Entries whose region contains `region` (case-insensitive).
     pub fn by_region(&self, region: &str) -> Vec<&DbChain> {
         let q = region.to_lowercase();
-        self.chains.iter().filter(|c| c.region.to_lowercase().contains(&q)).collect()
+        self.chains
+            .iter()
+            .filter(|c| c.region.to_lowercase().contains(&q))
+            .collect()
     }
 
     /// Entries operating on `date` (unknown bounds count as open).
@@ -449,7 +509,9 @@ impl GriDb {
                     || c.region.to_lowercase().contains(&q)
                     || c.system.to_lowercase() == q
                     || c.countries.iter().any(|k| k.to_lowercase() == q)
-                    || c.stations.iter().any(|s| s.name.to_lowercase().contains(&q))
+                    || c.stations
+                        .iter()
+                        .any(|s| s.name.to_lowercase().contains(&q))
             })
             .collect()
     }
@@ -459,10 +521,16 @@ impl GriDb {
     /// entries). The merged database is validated; on error `self` is unchanged.
     pub fn merge(&mut self, user: &UserDb) -> Result<MergeReport, String> {
         if user.format != GRI_DB_FORMAT {
-            return Err(format!("user GRI database: format {:?}, expected {GRI_DB_FORMAT:?}", user.format));
+            return Err(format!(
+                "user GRI database: format {:?}, expected {GRI_DB_FORMAT:?}",
+                user.format
+            ));
         }
         if user.version == 0 || user.version > GRI_DB_VERSION {
-            return Err(format!("user GRI database: unsupported version {}", user.version));
+            return Err(format!(
+                "user GRI database: unsupported version {}",
+                user.version
+            ));
         }
         let mut next = self.clone();
         let mut report = MergeReport::default();
@@ -485,7 +553,8 @@ impl GriDb {
 
     /// Parse a user file and merge it ([`GriDb::merge`]).
     pub fn merge_json(&mut self, src: &str) -> Result<MergeReport, String> {
-        let user: UserDb = serde_json::from_str(src).map_err(|e| format!("user GRI database: {e}"))?;
+        let user: UserDb =
+            serde_json::from_str(src).map_err(|e| format!("user GRI database: {e}"))?;
         self.merge(&user)
     }
 }
@@ -614,16 +683,23 @@ impl StationPatch {
     }
 
     fn to_new(&self, chain_id: &str) -> Result<DbStation, String> {
-        let role = self
-            .role
-            .ok_or_else(|| format!("user GRI database: new station {chain_id}/{} needs a role", self.id))?;
+        let role = self.role.ok_or_else(|| {
+            format!(
+                "user GRI database: new station {chain_id}/{} needs a role",
+                self.id
+            )
+        })?;
         let mut s = DbStation {
             id: self.id.clone(),
             name: String::new(),
             role,
             position: None,
             power_kw: None,
-            emission_delay_us: if role == Role::Master { Some(0.0) } else { None },
+            emission_delay_us: if role == Role::Master {
+                Some(0.0)
+            } else {
+                None
+            },
             coding_delay_us: None,
             time_ref: None,
             status: None,
@@ -705,11 +781,17 @@ pub fn scenario_snippet(gri: u32) -> Result<String, String> {
         [] if all.is_empty() => Err(format!("no chain with GRI {gri} in the database")),
         [] => Err(format!(
             "no complete chain with GRI {gri}: {}",
-            all.iter().map(|c| format!("{} (missing {})", c.id, c.missing().join(", "))).collect::<Vec<_>>().join("; ")
+            all.iter()
+                .map(|c| format!("{} (missing {})", c.id, c.missing().join(", ")))
+                .collect::<Vec<_>>()
+                .join("; ")
         )),
         many => Err(format!(
             "several complete chains with GRI {gri}: {}; use scenario_snippet_for",
-            many.iter().map(|c| c.id.as_str()).collect::<Vec<_>>().join(", ")
+            many.iter()
+                .map(|c| c.id.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
         )),
     }
 }
@@ -730,13 +812,25 @@ pub fn scenario_snippet_for(chain: &DbChain, ov: &Overrides) -> Result<String, S
     out.push_str("[[chains]]\n");
     out.push_str(&format!("name = {}\n", toml_str(&c.name)));
     out.push_str(&format!("gri_us = {}\n", c.gri_us));
-    for (s, db) in c.stations.iter().zip(chain.stations.iter().filter(|d| c.stations.iter().any(|s| s.id == d.id))) {
-        out.push_str(&format!("[[chains.stations]]\n# confidence {:?}\n", db.confidence));
+    for (s, db) in c.stations.iter().zip(
+        chain
+            .stations
+            .iter()
+            .filter(|d| c.stations.iter().any(|s| s.id == d.id)),
+    ) {
+        out.push_str(&format!(
+            "[[chains.stations]]\n# confidence {:?}\n",
+            db.confidence
+        ));
         out.push_str(&format!("id = {}\n", toml_str(&s.id)));
         out.push_str(&format!("name = {}\n", toml_str(&s.name)));
         out.push_str(&format!(
             "role = \"{}\"\n",
-            if s.role == Role::Master { "master" } else { "secondary" }
+            if s.role == Role::Master {
+                "master"
+            } else {
+                "secondary"
+            }
         ));
         out.push_str(&format!(
             "position = {{ lat_deg = {:?}, lon_deg = {:?} }}\n",
@@ -757,12 +851,20 @@ pub fn scenario_snippet_for(chain: &DbChain, ov: &Overrides) -> Result<String, S
 /// `[[time_refs]]` blocks (ideal models, [`default_time_ref`]) for every time reference the
 /// converted chain uses.
 pub fn time_refs_snippet(chain: &Chain) -> Result<String, String> {
-    let refs: BTreeSet<&str> =
-        chain.stations.iter().map(|s| s.time_ref.as_str()).filter(|r| !r.is_empty()).collect();
+    let refs: BTreeSet<&str> = chain
+        .stations
+        .iter()
+        .map(|s| s.time_ref.as_str())
+        .filter(|r| !r.is_empty())
+        .collect();
     let mut out = String::new();
     for r in refs {
         let m = default_time_ref(r)?;
-        out.push_str(&format!("[[time_refs]]\nid = {}\noffset_ns = {:?}\n", toml_str(&m.id), m.offset_ns));
+        out.push_str(&format!(
+            "[[time_refs]]\nid = {}\noffset_ns = {:?}\n",
+            toml_str(&m.id),
+            m.offset_ns
+        ));
     }
     Ok(out)
 }
@@ -813,13 +915,17 @@ pub struct UtcKList {
 fn lab_code(id: &str) -> String {
     let t = id.trim();
     let u = t.to_uppercase();
-    let inner = u.strip_prefix("UTC(").and_then(|r| r.strip_suffix(')')).unwrap_or(&u);
+    let inner = u
+        .strip_prefix("UTC(")
+        .and_then(|r| r.strip_suffix(')'))
+        .unwrap_or(&u);
     inner.trim().to_string()
 }
 
 impl UtcKList {
     pub fn embedded() -> Result<UtcKList, String> {
-        let l: UtcKList = serde_json::from_str(UTC_K_JSON).map_err(|e| format!("UTC(k) list: {e}"))?;
+        let l: UtcKList =
+            serde_json::from_str(UTC_K_JSON).map_err(|e| format!("UTC(k) list: {e}"))?;
         if l.format != UTC_K_FORMAT {
             return Err(format!("UTC(k) list: format {:?}", l.format));
         }
@@ -838,9 +944,9 @@ impl UtcKList {
 /// [`TimeRefModel::ideal`] directly for references outside it (e.g. "tx:Anthorn").
 pub fn default_time_ref(id: &str) -> Result<TimeRefModel, String> {
     let list = UtcKList::embedded()?;
-    let lab = list
-        .get(id)
-        .ok_or_else(|| format!("{id:?} is not a laboratory of the UTC(k) list (BIPM Circular T)"))?;
+    let lab = list.get(id).ok_or_else(|| {
+        format!("{id:?} is not a laboratory of the UTC(k) list (BIPM Circular T)")
+    })?;
     Ok(TimeRefModel::ideal(&lab.utc_k))
 }
 
@@ -850,9 +956,9 @@ pub fn default_time_ref(id: &str) -> Result<TimeRefModel, String> {
 /// the ideal model.
 pub fn illustrative_time_ref(id: &str) -> Result<TimeRefModel, String> {
     let list = UtcKList::embedded()?;
-    let lab = list
-        .get(id)
-        .ok_or_else(|| format!("{id:?} is not a laboratory of the UTC(k) list (BIPM Circular T)"))?;
+    let lab = list.get(id).ok_or_else(|| {
+        format!("{id:?} is not a laboratory of the UTC(k) list (BIPM Circular T)")
+    })?;
     let mut m = TimeRefModel::ideal(&lab.utc_k);
     if let Some(v) = lab.ct466_last_utc_minus_utck_ns {
         m.offset_ns = -v;
@@ -886,9 +992,15 @@ mod tests {
     fn every_complete_chain_converts_and_validates() {
         let d = db();
         let complete: Vec<_> = d.chains.iter().filter(|c| c.is_complete()).collect();
-        assert!(complete.len() >= 15, "only {} complete chains", complete.len());
+        assert!(
+            complete.len() >= 15,
+            "only {} complete chains",
+            complete.len()
+        );
         for c in complete {
-            let ch = c.to_chain_strict().unwrap_or_else(|e| panic!("{}: {e}", c.id));
+            let ch = c
+                .to_chain_strict()
+                .unwrap_or_else(|e| panic!("{}: {e}", c.id));
             ch.validate().unwrap();
             assert_eq!(ch.gri_us, c.gri_us);
             assert_eq!(ch.stations.len(), c.stations.len());
@@ -903,7 +1015,13 @@ mod tests {
         let e = c.to_chain_strict().unwrap_err();
         assert!(e.contains("incomplete") && e.contains("Y: power_kw"), "{e}");
         let mut ov = Overrides::default();
-        ov.stations.insert("Y".into(), StationOverride { power_kw: Some(250.0), ..Default::default() });
+        ov.stations.insert(
+            "Y".into(),
+            StationOverride {
+                power_kw: Some(250.0),
+                ..Default::default()
+            },
+        );
         ov.time_ref = Some("UTC(NPL)".into());
         let ch = c.to_chain(&ov).unwrap();
         assert_eq!(ch.stations[2].emission_delay_us, 27300.0);
@@ -911,10 +1029,19 @@ mod tests {
         assert_eq!(ch.stations[2].time_ref, "UTC(NPL)");
         // skipping incomplete secondaries
         let k = d.get("9930-korea").unwrap();
-        let mut ov = Overrides { skip_incomplete_stations: true, ..Default::default() };
+        let mut ov = Overrides {
+            skip_incomplete_stations: true,
+            ..Default::default()
+        };
         assert!(k.to_chain(&ov).is_err(), "master power unknown");
         for id in ["M", "W"] {
-            ov.stations.insert(id.into(), StationOverride { power_kw: Some(50.0), ..Default::default() });
+            ov.stations.insert(
+                id.into(),
+                StationOverride {
+                    power_kw: Some(50.0),
+                    ..Default::default()
+                },
+            );
         }
         let ch = k.to_chain(&ov).unwrap();
         assert_eq!(ch.stations.len(), 2);
@@ -941,9 +1068,28 @@ mod tests {
         // the shared GRIs are distinct eras
         assert_eq!(d.by_gri(9930).len(), 2);
         assert_eq!(d.by_gri(6731).len(), 2);
-        assert_eq!(d.active_on("2010-01-01").iter().filter(|c| c.gri_us == 99300).count(), 1);
-        assert_eq!(d.active_on("2020-01-01").iter().filter(|c| c.gri_us == 99300).count(), 1);
-        assert_eq!(d.active_on("2020-01-01").iter().find(|c| c.gri_us == 99300).unwrap().id, "9930-korea");
+        assert_eq!(
+            d.active_on("2010-01-01")
+                .iter()
+                .filter(|c| c.gri_us == 99300)
+                .count(),
+            1
+        );
+        assert_eq!(
+            d.active_on("2020-01-01")
+                .iter()
+                .filter(|c| c.gri_us == 99300)
+                .count(),
+            1
+        );
+        assert_eq!(
+            d.active_on("2020-01-01")
+                .iter()
+                .find(|c| c.gri_us == 99300)
+                .unwrap()
+                .id,
+            "9930-korea"
+        );
         // validation rejects a GRI clash in the same era and a bad GRI
         let mut bad = d.clone();
         let mut dup = bad.get("9960-northeast-us").unwrap().clone();
@@ -973,7 +1119,14 @@ mod tests {
         assert_eq!(c.operational_to.as_deref(), Some("2010-02-08"));
         // Handbook 1992 (p. B-3): 9940 Y Searchlight ED 41967.30; 9610 Z Grangeville 69304.00.
         let ed = |id: &str, st: &str| {
-            d.get(id).unwrap().stations.iter().find(|s| s.id == st).unwrap().emission_delay_us.unwrap()
+            d.get(id)
+                .unwrap()
+                .stations
+                .iter()
+                .find(|s| s.id == st)
+                .unwrap()
+                .emission_delay_us
+                .unwrap()
         };
         assert_eq!(ed("9940-us-west-coast", "Y"), 41967.30);
         assert_eq!(ed("9610-south-central-us", "Z"), 69304.00);
@@ -1037,8 +1190,15 @@ mod tests {
         assert_eq!(d.updated, "2027-01-01");
         let l = d.get("6731-lessay").unwrap();
         assert!(l.is_complete());
-        assert!(l.stations[2].sources.iter().any(|s| s == "user: test value"));
-        assert_eq!(l.stations[2].emission_delay_us, Some(27300.0), "untouched field kept");
+        assert!(l.stations[2]
+            .sources
+            .iter()
+            .any(|s| s == "user: test value"));
+        assert_eq!(
+            l.stations[2].emission_delay_us,
+            Some(27300.0),
+            "untouched field kept"
+        );
         let k = d.get("9930-korea").unwrap();
         assert!(k.is_complete());
         k.to_chain_strict().unwrap();
@@ -1058,14 +1218,22 @@ mod tests {
         assert!(d.merge_json(wrong).is_err());
         let new_without_gri = r#"{ "format": "kshana-eloran-gri-db", "version": 1,
           "chains": [ { "id": "y", "name": "n", "status": "planned", "stations": [] } ] }"#;
-        assert!(d.merge_json(new_without_gri).unwrap_err().contains("gri_us"));
+        assert!(d
+            .merge_json(new_without_gri)
+            .unwrap_err()
+            .contains("gri_us"));
     }
 
     #[test]
     fn snippet_parses_and_runs_in_a_scenario() {
         let snip = scenario_snippet(9960).unwrap();
         assert!(snip.contains("[[chains]]") && snip.contains("gri_us = 99600"));
-        let chain = GriDb::embedded().unwrap().get("9960-northeast-us").unwrap().to_chain_strict().unwrap();
+        let chain = GriDb::embedded()
+            .unwrap()
+            .get("9960-northeast-us")
+            .unwrap()
+            .to_chain_strict()
+            .unwrap();
         let refs = time_refs_snippet(&chain).unwrap();
         assert!(refs.contains("UTC(USNO)"));
         let src = format!(
@@ -1091,20 +1259,28 @@ type = "e_field"
         assert!(!truth.is_empty());
         assert_eq!(sink.channels.len(), 1);
         // incomplete / ambiguous / unknown GRIs are refused clearly
-        assert!(scenario_snippet(9930).unwrap_err().contains("no complete chain"));
+        assert!(scenario_snippet(9930)
+            .unwrap_err()
+            .contains("no complete chain"));
         assert!(scenario_snippet(4000).unwrap_err().contains("no chain"));
         // non-ASCII names survive TOML quoting
         let bo = GriDb::embedded().unwrap();
-        let s = scenario_snippet_for(bo.get("7970-norwegian-sea").unwrap(), &Overrides::default()).unwrap();
+        let s = scenario_snippet_for(bo.get("7970-norwegian-sea").unwrap(), &Overrides::default())
+            .unwrap();
         let parsed: toml::Value = toml::from_str(&s).unwrap();
-        assert_eq!(parsed["chains"][0]["stations"][1]["name"].as_str(), Some("Bø, Norway"));
+        assert_eq!(
+            parsed["chains"][0]["stations"][1]["name"].as_str(),
+            Some("Bø, Norway")
+        );
     }
 
     #[test]
     fn utc_k_list_and_time_refs() {
         let l = UtcKList::embedded().unwrap();
         assert!(l.labs.len() >= 80);
-        for code in ["NPL", "PTB", "OP", "USNO", "KRIS", "NTSC", "NICT", "SU", "VSL", "NIST"] {
+        for code in [
+            "NPL", "PTB", "OP", "USNO", "KRIS", "NTSC", "NICT", "SU", "VSL", "NIST",
+        ] {
             let lab = l.get(code).unwrap_or_else(|| panic!("{code}"));
             assert_eq!(lab.confidence, Confidence::Verified);
             assert!(lab.source.contains("Circular T"));

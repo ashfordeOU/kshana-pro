@@ -73,7 +73,11 @@ pub fn millington<F: Fn(usize, f64) -> CurvePoint>(sections: &[Section], curve: 
         fwd.push((s.ground, start, s.end_m));
         start = s.end_m;
     }
-    let rev: Vec<(usize, f64, f64)> = fwd.iter().rev().map(|&(g, a, b)| (g, total - b, total - a)).collect();
+    let rev: Vec<(usize, f64, f64)> = fwd
+        .iter()
+        .rev()
+        .map(|&(g, a, b)| (g, total - b, total - a))
+        .collect();
     let f = one_way(&fwd, &curve);
     let r = one_way(&rev, &curve);
     CurvePoint {
@@ -91,16 +95,25 @@ pub fn sections_from_samples(grounds: &[usize], total_m: f64) -> Vec<Section> {
         return Vec::new();
     }
     if n == 1 {
-        return vec![Section { ground: grounds[0], end_m: total_m }];
+        return vec![Section {
+            ground: grounds[0],
+            end_m: total_m,
+        }];
     }
     let step = total_m / (n - 1) as f64;
     let mut out = Vec::new();
     for i in 1..n {
         if grounds[i] != grounds[i - 1] {
-            out.push(Section { ground: grounds[i - 1], end_m: (i as f64 - 0.5) * step });
+            out.push(Section {
+                ground: grounds[i - 1],
+                end_m: (i as f64 - 0.5) * step,
+            });
         }
     }
-    out.push(Section { ground: grounds[n - 1], end_m: total_m });
+    out.push(Section {
+        ground: grounds[n - 1],
+        end_m: total_m,
+    });
     out
 }
 
@@ -111,17 +124,33 @@ mod tests {
     fn lin(g: usize, d: f64) -> CurvePoint {
         // toy curves: different, nonlinear in d
         let k = [1.0, 3.0, 0.5][g];
-        CurvePoint { ln_amp: -k * d * d * 1e-12, phase_delay_s: k * d.sqrt() * 1e-9, group_delay_s: k * d * 1e-15 }
+        CurvePoint {
+            ln_amp: -k * d * d * 1e-12,
+            phase_delay_s: k * d.sqrt() * 1e-9,
+            group_delay_s: k * d * 1e-15,
+        }
     }
 
     #[test]
     fn homogeneous_path_is_exact() {
-        let s = [Section { ground: 1, end_m: 4e5 }];
+        let s = [Section {
+            ground: 1,
+            end_m: 4e5,
+        }];
         let m = millington(&s, lin);
         let e = lin(1, 4e5);
         assert!((m.phase_delay_s - e.phase_delay_s).abs() < 1e-18);
         // split into two sections of the same ground: still exact
-        let s2 = [Section { ground: 1, end_m: 1e5 }, Section { ground: 1, end_m: 4e5 }];
+        let s2 = [
+            Section {
+                ground: 1,
+                end_m: 1e5,
+            },
+            Section {
+                ground: 1,
+                end_m: 4e5,
+            },
+        ];
         let m2 = millington(&s2, lin);
         assert!((m2.phase_delay_s - e.phase_delay_s).abs() < 1e-18);
         assert!((m2.ln_amp - e.ln_amp).abs() < 1e-15);
@@ -129,8 +158,26 @@ mod tests {
 
     #[test]
     fn reciprocity_two_sections() {
-        let ab = [Section { ground: 0, end_m: 1.5e5 }, Section { ground: 1, end_m: 6e5 }];
-        let ba = [Section { ground: 1, end_m: 4.5e5 }, Section { ground: 0, end_m: 6e5 }];
+        let ab = [
+            Section {
+                ground: 0,
+                end_m: 1.5e5,
+            },
+            Section {
+                ground: 1,
+                end_m: 6e5,
+            },
+        ];
+        let ba = [
+            Section {
+                ground: 1,
+                end_m: 4.5e5,
+            },
+            Section {
+                ground: 0,
+                end_m: 6e5,
+            },
+        ];
         let x = millington(&ab, lin);
         let y = millington(&ba, lin);
         assert!((x.phase_delay_s - y.phase_delay_s).abs() < 1e-18);
@@ -141,10 +188,22 @@ mod tests {
     #[test]
     fn sections_merge() {
         let s = sections_from_samples(&[0, 0, 1, 1, 1, 0], 5.0);
-        assert_eq!(s, vec![
-            Section { ground: 0, end_m: 1.5 },
-            Section { ground: 1, end_m: 4.5 },
-            Section { ground: 0, end_m: 5.0 }
-        ]);
+        assert_eq!(
+            s,
+            vec![
+                Section {
+                    ground: 0,
+                    end_m: 1.5
+                },
+                Section {
+                    ground: 1,
+                    end_m: 4.5
+                },
+                Section {
+                    ground: 0,
+                    end_m: 5.0
+                }
+            ]
+        );
     }
 }

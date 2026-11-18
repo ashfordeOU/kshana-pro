@@ -6,7 +6,11 @@
 use kshana_eloran::scenario::Scenario;
 
 fn src() -> String {
-    std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/scenarios/groundwave-mixed-path.toml")).unwrap()
+    std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/scenarios/groundwave-mixed-path.toml"
+    ))
+    .unwrap()
 }
 
 #[test]
@@ -17,11 +21,17 @@ fn groundwave_mixed_path_scenario_runs() {
     assert!(sink.channels[0].iter().any(|v| *v != 0.0));
     for r in &truth {
         // delay decomposition adds up (ps rounding)
-        assert!((r.delay_ns - (r.geom_ns + r.pf_ns + r.sf_ns + r.asf_ns)).abs() < 0.01, "{r:?}");
+        assert!(
+            (r.delay_ns - (r.geom_ns + r.pf_ns + r.sf_ns + r.asf_ns)).abs() < 0.01,
+            "{r:?}"
+        );
         assert!(r.sf_ns > 0.0 && r.field_uv_m > 0.0);
     }
     // the master of chain-A is inland (σ = 3 mS/m): ASF of hundreds of ns at least
-    let m = truth.iter().find(|r| r.chain == "chain-A" && r.station == "M").unwrap();
+    let m = truth
+        .iter()
+        .find(|r| r.chain == "chain-A" && r.station == "M")
+        .unwrap();
     assert!(m.asf_ns > 200.0, "{}", m.asf_ns);
     assert!(m.ecd_us < 0.0);
     // deterministic
@@ -58,6 +68,9 @@ fn ten_station_propagation_faster_than_real_time() {
     let wall = t0.elapsed().as_secs_f64();
     if !cfg!(debug_assertions) {
         // propagation must take < 10 % of real time
-        assert!(wall < 60.0 * 0.1, "propagation for 60 s of scene took {wall} s");
+        assert!(
+            wall < 60.0 * 0.1,
+            "propagation for 60 s of scene took {wall} s"
+        );
     }
 }

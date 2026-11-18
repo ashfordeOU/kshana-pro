@@ -57,7 +57,9 @@ fn run_short(name: &str, mut sc: Scenario) -> (Vec<TruthRecord>, RunStats) {
     let mut scene = sc.build().unwrap_or_else(|e| panic!("{name}: build: {e}"));
     let mut sink = NullSink::default();
     let mut truth = vec![];
-    let stats = scene.run(&mut sink, &mut truth).unwrap_or_else(|e| panic!("{name}: run: {e}"));
+    let stats = scene
+        .run(&mut sink, &mut truth)
+        .unwrap_or_else(|e| panic!("{name}: run: {e}"));
     (truth, stats)
 }
 
@@ -66,7 +68,10 @@ fn every_pack_parses_builds_runs_and_is_documented() {
     let files = pack_files();
     let domains = ["timing", "maritime", "rail", "aviation"];
     for d in domains {
-        assert!(files.iter().any(|f| rel(f).starts_with(d)), "no pack in {d}/");
+        assert!(
+            files.iter().any(|f| rel(f).starts_with(d)),
+            "no pack in {d}/"
+        );
     }
     assert!(files.len() >= 11, "{} pack files", files.len());
     for f in &files {
@@ -74,23 +79,48 @@ fn every_pack_parses_builds_runs_and_is_documented() {
         let src = std::fs::read_to_string(f).unwrap();
         // header: purpose, coverage, metrics, provenance and duration notes
         for key in ["PURPOSE", "EXERCISES", "METRICS", "PROVENANCE", "DURATION"] {
-            assert!(src.contains(&format!("# {key}")), "{name}: header lacks {key}");
+            assert!(
+                src.contains(&format!("# {key}")),
+                "{name}: header lacks {key}"
+            );
         }
         let sc = Scenario::from_toml(&src).unwrap_or_else(|e| panic!("{name}: {e}"));
         let t0 = std::time::Instant::now();
         let (truth, stats) = run_short(&name, sc.clone());
         let fs = sc.scene.params.fs_hz;
-        assert_eq!(stats.samples_per_channel, (TEST_DURATION_S * fs).round() as u64, "{name}");
+        assert_eq!(
+            stats.samples_per_channel,
+            (TEST_DURATION_S * fs).round() as u64,
+            "{name}"
+        );
         assert_eq!(stats.channels, sc.outputs.len(), "{name}");
-        assert!(!truth.is_empty() && stats.truth_records as usize == truth.len(), "{name}: no truth");
-        assert_eq!(stats.clipped_samples, 0, "{name}: clipping (peak {})", stats.peak_abs);
-        assert!(stats.peak_abs > 0.0 && stats.peak_abs < 1.0, "{name}: peak {}", stats.peak_abs);
+        assert!(
+            !truth.is_empty() && stats.truth_records as usize == truth.len(),
+            "{name}: no truth"
+        );
+        assert_eq!(
+            stats.clipped_samples, 0,
+            "{name}: clipping (peak {})",
+            stats.peak_abs
+        );
+        assert!(
+            stats.peak_abs > 0.0 && stats.peak_abs < 1.0,
+            "{name}: peak {}",
+            stats.peak_abs
+        );
         for c in &sc.chains {
-            assert!(truth.iter().any(|r| r.chain == c.chain.name), "{name}: no truth for chain {}", c.chain.name);
+            assert!(
+                truth.iter().any(|r| r.chain == c.chain.name),
+                "{name}: no truth for chain {}",
+                c.chain.name
+            );
         }
         for r in &truth {
             let parts = r.geom_ns + r.pf_ns + r.sf_ns + r.asf_ns;
-            assert!((r.delay_ns - parts).abs() < 0.01, "{name}: delay parts {r:?}");
+            assert!(
+                (r.delay_ns - parts).abs() < 0.01,
+                "{name}: delay parts {r:?}"
+            );
             assert!(r.field_uv_m > 0.0 && r.distance_km > 0.0, "{name}: {r:?}");
             assert!(r.snr_db.is_finite(), "{name}: SNR {r:?}");
         }
@@ -111,8 +141,14 @@ fn real_chain_geometry_is_copied_from_the_gri_db_unchanged() {
         let name = rel(&f);
         let (src, sc) = load(&name);
         for c in &sc.chains {
-            let Some((_, id)) = DB_CHAINS.iter().find(|(n, _)| *n == c.chain.name) else { continue };
-            assert!(src.contains(id), "{name}: chain {} does not cite GRI DB entry {id}", c.chain.name);
+            let Some((_, id)) = DB_CHAINS.iter().find(|(n, _)| *n == c.chain.name) else {
+                continue;
+            };
+            assert!(
+                src.contains(id),
+                "{name}: chain {} does not cite GRI DB entry {id}",
+                c.chain.name
+            );
             let dbc = db.get(id).unwrap_or_else(|| panic!("GRI DB has no {id}"));
             assert_eq!(dbc.gri_us, c.chain.gri_us, "{name}: GRI of {id}");
             for s in &c.chain.stations {
@@ -124,9 +160,24 @@ fn real_chain_geometry_is_copied_from_the_gri_db_unchanged() {
                 assert_eq!(d.id, s.id, "{name}: {id} {}", s.name);
                 assert_eq!(d.role, s.role, "{name}: {id} {}", s.name);
                 let p = d.position.unwrap();
-                assert_eq!((p.lat_deg, p.lon_deg), (s.position.lat_deg, s.position.lon_deg), "{name}: {id} {}", s.name);
-                assert_eq!(d.power_kw, Some(s.power_kw), "{name}: {id} {} power", s.name);
-                assert_eq!(d.emission_delay_us.unwrap_or(0.0), s.emission_delay_us, "{name}: {id} {} ED", s.name);
+                assert_eq!(
+                    (p.lat_deg, p.lon_deg),
+                    (s.position.lat_deg, s.position.lon_deg),
+                    "{name}: {id} {}",
+                    s.name
+                );
+                assert_eq!(
+                    d.power_kw,
+                    Some(s.power_kw),
+                    "{name}: {id} {} power",
+                    s.name
+                );
+                assert_eq!(
+                    d.emission_delay_us.unwrap_or(0.0),
+                    s.emission_delay_us,
+                    "{name}: {id} {} ED",
+                    s.name
+                );
                 checked += 1;
             }
         }
@@ -148,7 +199,9 @@ fn multi_time_reference_step_shows_in_one_chain_only() {
         // drift and white-FM noise move the offset by well under 0.5 ns within 0.3 s
         assert!((r.time_ref_offset_ns - want).abs() < 0.5, "{r:?}");
     }
-    assert!(truth.iter().any(|r| r.chain == "8970" && r.t_emit_s >= 0.15));
+    assert!(truth
+        .iter()
+        .any(|r| r.chain == "8970" && r.t_emit_s >= 0.15));
 }
 
 #[test]
@@ -174,7 +227,10 @@ fn transmitter_faults_appear_in_truth() {
     // M: transmitted ECD +1 µs from 0.2 s
     assert!(of("M").any(|r| r.t_emit_s >= 0.2));
     for r in of("M") {
-        let m = truth.iter().find(|q| q.station == "M" && q.t_emit_s < 0.2).unwrap();
+        let m = truth
+            .iter()
+            .find(|q| q.station == "M" && q.t_emit_s < 0.2)
+            .unwrap();
         if r.t_emit_s >= 0.2 {
             assert!((r.ecd_us - m.ecd_us - 1.0).abs() < 1e-6, "{r:?}");
         }

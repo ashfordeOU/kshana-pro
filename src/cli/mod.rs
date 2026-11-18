@@ -9,6 +9,7 @@ mod alerts_cmd;
 mod area_cmd;
 mod attack_iq_cmd;
 mod dossier_cmd;
+mod eloran_cmd;
 mod evidence_cmd;
 mod forensics_cmd;
 mod license_cmd;
@@ -18,7 +19,6 @@ mod scorecard_cmd;
 mod threats_cmd;
 mod timing_cmd;
 mod trust_cmd;
-mod eloran_cmd;
 
 use std::process::ExitCode;
 use std::time::{SystemTime, UNIX_EPOCH};

@@ -276,10 +276,18 @@ mod tests {
         let u = t.utc_day_hour();
         assert_eq!(u.year, 2026);
         assert!((u.hour_utc - 6.5).abs() < 1e-9);
-        assert!((u.day_of_year - (322.0 + 6.5 / 24.0)).abs() < 1e-9, "{}", u.day_of_year);
-        let j = AbsTime::from_utc_iso("2017-01-01T00:00:00Z").unwrap().utc_day_hour();
+        assert!(
+            (u.day_of_year - (322.0 + 6.5 / 24.0)).abs() < 1e-9,
+            "{}",
+            u.day_of_year
+        );
+        let j = AbsTime::from_utc_iso("2017-01-01T00:00:00Z")
+            .unwrap()
+            .utc_day_hour();
         assert_eq!((j.year, j.day_of_year, j.hour_utc), (2017, 1.0, 0.0));
-        let l = AbsTime::from_utc_iso("2016-12-31T23:59:59Z").unwrap().utc_day_hour();
+        let l = AbsTime::from_utc_iso("2016-12-31T23:59:59Z")
+            .unwrap()
+            .utc_day_hour();
         assert_eq!(l.year, 2016);
         assert!((l.hour_utc - (24.0 - 1.0 / 3600.0)).abs() < 1e-9);
         for z in [-800_000, -1, 0, 59, 365, 20_000, 1_000_000] {

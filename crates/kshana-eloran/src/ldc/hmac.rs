@@ -42,17 +42,29 @@ mod tests {
     fn rfc4231_test_case_1() {
         let key = [0x0bu8; 20];
         let mac = hmac_sha256(&key, b"Hi There");
-        assert_eq!(hex::encode(mac), "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7");
+        assert_eq!(
+            hex::encode(mac),
+            "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"
+        );
     }
 
     #[test]
     fn rfc4231_test_case_2_and_6() {
         let mac = hmac_sha256(b"Jefe", b"what do ya want for nothing?");
-        assert_eq!(hex::encode(mac), "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843");
+        assert_eq!(
+            hex::encode(mac),
+            "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"
+        );
         // key longer than the block size is hashed first
         let key = [0xaau8; 131];
-        let mac = hmac_sha256(&key, b"Test Using Larger Than Block-Size Key - Hash Key First");
-        assert_eq!(hex::encode(mac), "60e431591ee0b67f0d8a26aacbf5b77f8e0bc6213728c5140546040f0ee37f54");
+        let mac = hmac_sha256(
+            &key,
+            b"Test Using Larger Than Block-Size Key - Hash Key First",
+        );
+        assert_eq!(
+            hex::encode(mac),
+            "60e431591ee0b67f0d8a26aacbf5b77f8e0bc6213728c5140546040f0ee37f54"
+        );
         assert!(tags_equal(&mac[..8], &mac[..8]) && !tags_equal(&mac[..8], &mac[1..9]));
     }
 }

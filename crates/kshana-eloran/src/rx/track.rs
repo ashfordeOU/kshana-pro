@@ -101,7 +101,13 @@ impl Template {
                 acc
             })
             .collect();
-        Template { t0_s: t0, step_s: step, q, omega, extent_s: extent }
+        Template {
+            t0_s: t0,
+            step_s: step,
+            q,
+            omega,
+            extent_s: extent,
+        }
     }
 
     /// `Q(τ)` by Catmull-Rom interpolation (0 outside the table).
@@ -168,7 +174,10 @@ pub struct Src<'a> {
 impl Src<'_> {
     #[inline]
     pub fn at(&self, n: usize) -> f64 {
-        self.weights.iter().map(|(c, w)| self.chans[*c][n] * w).sum()
+        self.weights
+            .iter()
+            .map(|(c, w)| self.chans[*c][n] * w)
+            .sum()
     }
 }
 
@@ -210,7 +219,10 @@ pub fn collect(
     blank: &Blanking,
 ) -> WinData {
     let fs = src.fs;
-    let mut d = WinData { anchor, ..Default::default() };
+    let mut d = WinData {
+        anchor,
+        ..Default::default()
+    };
     for p in pulses {
         let a = anchor + p.d_s + w.0;
         let b = anchor + p.d_s + w.1;
@@ -401,13 +413,24 @@ mod tests {
         let tpl = Template::new(&s, &fir);
         let t_c = 1.234_567e-3;
         let ecd = 1.3e-6;
-        let x: Vec<f64> = (0..5000).map(|n| 0.7 * s.pulse(n as f64 / fs - t_c, ecd, 0.0)).collect();
+        let x: Vec<f64> = (0..5000)
+            .map(|n| 0.7 * s.pulse(n as f64 / fs - t_c, ecd, 0.0))
+            .collect();
         let y = vec![fir.filter(&x)];
-        let src = Src { chans: &y, weights: vec![(0, 1.0)], fs, n_lo: 0, n_hi: 5000 };
+        let src = Src {
+            chans: &y,
+            weights: vec![(0, 1.0)],
+            fs,
+            n_lo: 0,
+            n_hi: 5000,
+        };
         let f = fit_window(
             &src,
             &tpl,
-            &[PulseRef { d_s: 0.0, phase_rad: 0.0 }],
+            &[PulseRef {
+                d_s: 0.0,
+                phase_rad: 0.0,
+            }],
             t_c + 6e-6,
             20e-6,
             (-20e-6, 120e-6),
@@ -417,15 +440,28 @@ mod tests {
         )
         .unwrap();
         assert!((f.t_car - t_c).abs() < 1e-11, "{}", (f.t_car - t_c) * 1e9);
-        assert!((f.t_env - t_c - ecd).abs() < 1e-10, "{}", (f.t_env - t_c - ecd) * 1e9);
+        assert!(
+            (f.t_env - t_c - ecd).abs() < 1e-10,
+            "{}",
+            (f.t_env - t_c - ecd) * 1e9
+        );
         assert!((f.w.abs() - 0.7).abs() < 1e-4);
         // unknown polarity, inverted signal: half-cycle candidates, flip detected
         let yn = vec![y[0].iter().map(|v| -v).collect::<Vec<_>>()];
-        let src = Src { chans: &yn, weights: vec![(0, 1.0)], fs, n_lo: 0, n_hi: 5000 };
+        let src = Src {
+            chans: &yn,
+            weights: vec![(0, 1.0)],
+            fs,
+            n_lo: 0,
+            n_hi: 5000,
+        };
         let f = fit_window(
             &src,
             &tpl,
-            &[PulseRef { d_s: 0.0, phase_rad: 0.0 }],
+            &[PulseRef {
+                d_s: 0.0,
+                phase_rad: 0.0,
+            }],
             t_c,
             20e-6,
             (-20e-6, 120e-6),

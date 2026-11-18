@@ -64,7 +64,10 @@ impl FileDevice {
     }
 
     fn fs(&self) -> Result<f64, String> {
-        self.cfg.as_ref().map(|c| c.sample_rate_hz).ok_or_else(|| "device not configured".to_string())
+        self.cfg
+            .as_ref()
+            .map(|c| c.sample_rate_hz)
+            .ok_or_else(|| "device not configured".to_string())
     }
 
     /// Wait for the start instant; returns (start time ns, pps aligned).
@@ -74,8 +77,11 @@ impl FileDevice {
             StartTime::AtDeviceTimeNs(t) => (Some(t), false),
             StartTime::NextPps => {
                 if self.pacing {
-                    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default();
-                    let wait = Duration::from_secs(1) - Duration::from_nanos(now.subsec_nanos() as u64);
+                    let now = SystemTime::now()
+                        .duration_since(UNIX_EPOCH)
+                        .unwrap_or_default();
+                    let wait =
+                        Duration::from_secs(1) - Duration::from_nanos(now.subsec_nanos() as u64);
                     std::thread::sleep(wait);
                     (Some((now.as_secs() as i64 + 1) * 1_000_000_000), true)
                 } else {
@@ -124,7 +130,10 @@ impl Device for FileDevice {
     }
     fn start_tx(&mut self, at: StartTime) -> Result<Option<i64>, String> {
         let cfg = self.cfg.clone().ok_or("device not configured")?;
-        let base = self.tx_base.clone().ok_or("this file device has no transmit file")?;
+        let base = self
+            .tx_base
+            .clone()
+            .ok_or("this file device has no transmit file")?;
         if cfg.tx_channels == 0 {
             return Err("no tx channels configured".into());
         }
@@ -132,7 +141,13 @@ impl Device for FileDevice {
         extra["device"] = json!(self.name());
         extra["output_policy"] = json!(super::OUTPUT_POLICY);
         extra["device_config"] = serde_json::to_value(&cfg).map_err(|e| e.to_string())?;
-        self.writer = Some(SigmfWriter::create(&base, self.format, cfg.tx_channels, cfg.sample_rate_hz, extra)?);
+        self.writer = Some(SigmfWriter::create(
+            &base,
+            self.format,
+            cfg.tx_channels,
+            cfg.sample_rate_hz,
+            extra,
+        )?);
         let (t, pps) = self.wait_start(at);
         self.t0 = Some(Instant::now());
         self.status.tx_streaming = true;
@@ -165,11 +180,17 @@ impl Device for FileDevice {
         Ok(())
     }
     fn start_rx(&mut self, at: StartTime) -> Result<Option<i64>, String> {
-        let base = self.rx_base.clone().ok_or("this file device has no receive source")?;
+        let base = self
+            .rx_base
+            .clone()
+            .ok_or("this file device has no receive source")?;
         let r = SigmfReader::open(&base)?;
         if let Some(c) = &self.cfg {
             if (c.sample_rate_hz - r.fs_hz).abs() > 1e-6 {
-                return Err(format!("receive source is {} Hz, device configured for {} Hz", r.fs_hz, c.sample_rate_hz));
+                return Err(format!(
+                    "receive source is {} Hz, device configured for {} Hz",
+                    r.fs_hz, c.sample_rate_hz
+                ));
             }
         } else {
             let mut c = DeviceConfig::tx(r.fs_hz, 0);

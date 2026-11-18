@@ -192,7 +192,11 @@ impl Wgn {
     /// `rms_20k` is the RMS within 20 kHz; the full-band σ at sample rate `fs` is
     /// `rms_20k · √((fs/2) / 20 kHz)`.
     pub fn new(rms_20k: f64, fs_hz: f64, seed: u64) -> Wgn {
-        Wgn { sigma: rms_20k * ((fs_hz / 2.0) / NOISE_BW_HZ).sqrt(), seed, rngs: vec![] }
+        Wgn {
+            sigma: rms_20k * ((fs_hz / 2.0) / NOISE_BW_HZ).sqrt(),
+            seed,
+            rngs: vec![],
+        }
     }
 }
 
@@ -203,7 +207,9 @@ impl Interferer for Wgn {
     fn add(&mut self, _t0: Ps, _fs_hz: f64, ch: usize, out: &mut [f64]) {
         while self.rngs.len() <= ch {
             let k = self.rngs.len() as u64;
-            self.rngs.push(ChaCha8Rng::seed_from_u64(self.seed.wrapping_mul(0x9E37_79B9).wrapping_add(k)));
+            self.rngs.push(ChaCha8Rng::seed_from_u64(
+                self.seed.wrapping_mul(0x9E37_79B9).wrapping_add(k),
+            ));
         }
         let rng = &mut self.rngs[ch];
         for v in out.iter_mut() {
@@ -213,18 +219,29 @@ impl Interferer for Wgn {
 }
 
 /// Build a source. `scene_seed` is mixed into stochastic sources so scenes are reproducible.
-pub fn build(cfg: &InterfConfig, fs_hz: f64, scene_seed: u64) -> Result<Box<dyn Interferer>, String> {
+pub fn build(
+    cfg: &InterfConfig,
+    fs_hz: f64,
+    scene_seed: u64,
+) -> Result<Box<dyn Interferer>, String> {
     Ok(match cfg {
-        InterfConfig::Cw { freq_hz, rms_uv_m, phase_deg, from_s, to_s } => Box::new(Cw {
+        InterfConfig::Cw {
+            freq_hz,
+            rms_uv_m,
+            phase_deg,
+            from_s,
+            to_s,
+        } => Box::new(Cw {
             freq_hz: *freq_hz,
             amp: rms_uv_m * std::f64::consts::SQRT_2,
             phase: phase_deg.to_radians(),
             from_s: from_s.unwrap_or(f64::NEG_INFINITY),
             to_s: to_s.unwrap_or(f64::INFINITY),
         }),
-        InterfConfig::Wgn { rms_uv_m_20khz, seed } => {
-            Box::new(Wgn::new(*rms_uv_m_20khz, fs_hz, seed ^ scene_seed))
-        }
+        InterfConfig::Wgn {
+            rms_uv_m_20khz,
+            seed,
+        } => Box::new(Wgn::new(*rms_uv_m_20khz, fs_hz, seed ^ scene_seed)),
         InterfConfig::Pulsed {
             period_s,
             width_s,
@@ -252,9 +269,22 @@ pub fn build(cfg: &InterfConfig, fs_hz: f64, scene_seed: u64) -> Result<Box<dyn 
         )?),
         InterfConfig::Impulsive(c) => Box::new(impulsive::Impulsive::new(c, scene_seed)?),
         InterfConfig::Atmospheric(c) => Box::new(atmos::Atmospheric::new(c, fs_hz, scene_seed)?),
-        InterfConfig::BandNoise { centre_hz, bw_hz, rms_uv_m, taps, seed, coherent } => Box::new(
-            band::BandNoise::new(*centre_hz, *bw_hz, *rms_uv_m, *taps, fs_hz, seed ^ scene_seed, *coherent)?,
-        ),
+        InterfConfig::BandNoise {
+            centre_hz,
+            bw_hz,
+            rms_uv_m,
+            taps,
+            seed,
+            coherent,
+        } => Box::new(band::BandNoise::new(
+            *centre_hz,
+            *bw_hz,
+            *rms_uv_m,
+            *taps,
+            fs_hz,
+            seed ^ scene_seed,
+            *coherent,
+        )?),
     })
 }
 
@@ -273,15 +303,27 @@ pub fn rx_band_overlap(f1: f64, f2: f64) -> f64 {
 pub fn noise_power_20k(c: &InterfConfig) -> Result<Option<f64>, String> {
     Ok(match c {
         InterfConfig::Wgn { rms_uv_m_20khz, .. } => Some(rms_uv_m_20khz.powi(2)),
-        InterfConfig::Pulsed { freq_hz: None, period_s, width_s, duty, rms_uv_m, .. } => {
-            Some(rms_uv_m.powi(2) * pulsed::width(*period_s, *width_s, *duty)? / period_s)
-        }
+        InterfConfig::Pulsed {
+            freq_hz: None,
+            period_s,
+            width_s,
+            duty,
+            rms_uv_m,
+            ..
+        } => Some(rms_uv_m.powi(2) * pulsed::width(*period_s, *width_s, *duty)? / period_s),
         InterfConfig::Pulsed { .. } | InterfConfig::Cw { .. } => None,
-        InterfConfig::Impulsive(c) => Some(impulsive::Resolved::from_config(c)?.mean_power_rx_band()),
-        InterfConfig::Atmospheric(c) => Some(c.rms_uv_m_20khz()?.powi(2)),
-        InterfConfig::BandNoise { centre_hz, bw_hz, rms_uv_m, .. } => {
-            Some(rms_uv_m.powi(2) * rx_band_overlap(centre_hz - bw_hz / 2.0, centre_hz + bw_hz / 2.0))
+        InterfConfig::Impulsive(c) => {
+            Some(impulsive::Resolved::from_config(c)?.mean_power_rx_band())
         }
+        InterfConfig::Atmospheric(c) => Some(c.rms_uv_m_20khz()?.powi(2)),
+        InterfConfig::BandNoise {
+            centre_hz,
+            bw_hz,
+            rms_uv_m,
+            ..
+        } => Some(
+            rms_uv_m.powi(2) * rx_band_overlap(centre_hz - bw_hz / 2.0, centre_hz + bw_hz / 2.0),
+        ),
     })
 }
 

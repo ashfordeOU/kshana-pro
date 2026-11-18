@@ -96,8 +96,14 @@ impl LdcDecoder {
     pub fn max_shift_us(&self) -> [f64; LDC_PULSES] {
         let mut out = [0.0; LDC_PULSES];
         let (pulses, s) = match &self.mapper {
-            Mapper::Ppm { pulses, states, step_us } => (pulses, (*states as f64 - 1.0) / 2.0 * step_us.abs()),
-            Mapper::TriState { pulses, step_us, .. } => (pulses, step_us.abs()),
+            Mapper::Ppm {
+                pulses,
+                states,
+                step_us,
+            } => (pulses, (*states as f64 - 1.0) / 2.0 * step_us.abs()),
+            Mapper::TriState {
+                pulses, step_us, ..
+            } => (pulses, step_us.abs()),
             Mapper::Phase { pulses, .. } => (pulses, 0.0),
         };
         for i in pulses.iter().filter(|i| **i < LDC_PULSES) {
@@ -107,7 +113,10 @@ impl LdcDecoder {
     }
 
     /// Decoder for `cfg` completed from the chain it modulates ([`LdcConfig::for_chain`]).
-    pub fn for_chain(cfg: &LdcConfig, chain: &crate::chain::Chain) -> Result<Option<LdcDecoder>, String> {
+    pub fn for_chain(
+        cfg: &LdcConfig,
+        chain: &crate::chain::Chain,
+    ) -> Result<Option<LdcDecoder>, String> {
         LdcDecoder::new(&cfg.for_chain(chain)?)
     }
 
@@ -125,8 +134,16 @@ impl LdcDecoder {
     /// Decide the channel symbol of one group (see the module docs for the inputs).
     pub fn decide(&self, offsets_ns: &[f64], phases_rad: Option<&[f64]>) -> u32 {
         let at = |v: &[f64], i: usize| v.get(i).copied().unwrap_or(f64::NAN);
-        let refs: Vec<f64> = self.unmodulated_group_pulses().map(|i| at(offsets_ns, i)).filter(|x| x.is_finite()).collect();
-        let r = if refs.is_empty() { 0.0 } else { refs.iter().sum::<f64>() / refs.len() as f64 };
+        let refs: Vec<f64> = self
+            .unmodulated_group_pulses()
+            .map(|i| at(offsets_ns, i))
+            .filter(|x| x.is_finite())
+            .collect();
+        let r = if refs.is_empty() {
+            0.0
+        } else {
+            refs.iter().sum::<f64>() / refs.len() as f64
+        };
         let x: Vec<f64> = (0..LDC_PULSES).map(|i| at(offsets_ns, i) - r).collect();
         let ph = phases_rad.map(|p| {
             let (s, c) = self
@@ -134,7 +151,11 @@ impl LdcDecoder {
                 .map(|i| at(p, i))
                 .filter(|x| x.is_finite())
                 .fold((0.0, 0.0), |(s, c), a| (s + a.sin(), c + a.cos()));
-            let pr = if s == 0.0 && c == 0.0 { 0.0 } else { s.atan2(c) };
+            let pr = if s == 0.0 && c == 0.0 {
+                0.0
+            } else {
+                s.atan2(c)
+            };
             (0..LDC_PULSES).map(|i| at(p, i) - pr).collect::<Vec<f64>>()
         });
         self.mapper.decide(&x, ph.as_deref())
@@ -153,7 +174,9 @@ impl LdcDecoder {
     ) -> ([f64; LDC_PULSES], [f64; LDC_PULSES]) {
         let mut t = [f64::NAN; LDC_PULSES];
         let mut p = [f64::NAN; LDC_PULSES];
-        let Some(first) = group.first() else { return (t, p) };
+        let Some(first) = group.first() else {
+            return (t, p);
+        };
         let parity = Parity::of_group(first.group);
         let nominal = signal.group(role, parity);
         let n_nom = nominal.len();
@@ -164,7 +187,9 @@ impl LdcDecoder {
                 (k, nominal[k].offset, nominal[k].phase_rad)
             } else if k >= n_nom {
                 let Some(dp) = self.data_pulse else { continue };
-                let Some(p8) = nominal.iter().find(|q| q.k == 7) else { continue };
+                let Some(p8) = nominal.iter().find(|q| q.k == 7) else {
+                    continue;
+                };
                 let code = match parity {
                     Parity::A => dp.code_a,
                     Parity::B => dp.code_b,
@@ -184,8 +209,16 @@ impl LdcDecoder {
             p[idx] = d.sin().atan2(d.cos());
         }
         // reference: the true group start as a receiver would track it on unmodulated pulses
-        let refs: Vec<f64> = self.unmodulated_group_pulses().map(|i| raw[i]).filter(|x| x.is_finite()).collect();
-        let r = if refs.is_empty() { 0.0 } else { refs.iter().sum::<f64>() / refs.len() as f64 };
+        let refs: Vec<f64> = self
+            .unmodulated_group_pulses()
+            .map(|i| raw[i])
+            .filter(|x| x.is_finite())
+            .collect();
+        let r = if refs.is_empty() {
+            0.0
+        } else {
+            refs.iter().sum::<f64>() / refs.len() as f64
+        };
         for i in 0..LDC_PULSES {
             t[i] = raw[i] - r;
         }
@@ -200,7 +233,10 @@ impl LdcDecoder {
     /// Decode a frame-aligned symbol stream into messages.
     pub fn decode_symbols(&self, symbols: &[u32]) -> DecodeReport {
         let g = self.groups_per_frame();
-        let frames: Vec<FrameReport> = symbols.chunks_exact(g).map(|c| self.codec.decode_frame(c)).collect();
+        let frames: Vec<FrameReport> = symbols
+            .chunks_exact(g)
+            .map(|c| self.codec.decode_frame(c))
+            .collect();
         let mut rep = DecodeReport {
             frames_ok: frames.iter().filter(|f| f.data.is_some()).count(),
             frames_failed: frames.iter().filter(|f| f.data.is_none()).count(),
@@ -256,7 +292,12 @@ impl LdcDecoder {
         let g = self.groups_per_frame();
         (0..g)
             .map(|o| {
-                let ok = symbols.get(o..).unwrap_or(&[]).chunks_exact(g).filter(|c| self.codec.decode_frame(c).data.is_some()).count();
+                let ok = symbols
+                    .get(o..)
+                    .unwrap_or(&[])
+                    .chunks_exact(g)
+                    .filter(|c| self.codec.decode_frame(c).data.is_some())
+                    .count();
                 (ok, o)
             })
             .filter(|(ok, _)| *ok > 0)
@@ -266,10 +307,17 @@ impl LdcDecoder {
 
     /// Verify every auth message of `rep` for `station`, the stream's first frame being
     /// absolute frame `first_frame` (group number / groups per frame).
-    pub fn verify_auth(&self, station: usize, rep: &DecodeReport, first_frame: i64) -> Vec<AuthCheck> {
+    pub fn verify_auth(
+        &self,
+        station: usize,
+        rep: &DecodeReport,
+        first_frame: i64,
+    ) -> Vec<AuthCheck> {
         let mut out = Vec::new();
         for (a, dm) in rep.messages.iter().enumerate() {
-            let Message::Auth { covered, tag, .. } = &dm.message else { continue };
+            let Message::Auth { covered, tag, .. } = &dm.message else {
+                continue;
+            };
             let c = *covered as usize;
             let mut verified = None;
             if a >= c {
@@ -282,11 +330,17 @@ impl LdcDecoder {
                     .all(|w| w[0].first_frame + w[0].frames == w[1].first_frame);
                 if contiguous {
                     let blocks: Vec<Vec<bool>> = cov.iter().map(|m| m.body_bits.clone()).collect();
-                    let mac = hmac_sha256(&self.auth_key, &auth_input(station, first_frame + dm.first_frame as i64, &blocks));
+                    let mac = hmac_sha256(
+                        &self.auth_key,
+                        &auth_input(station, first_frame + dm.first_frame as i64, &blocks),
+                    );
                     verified = Some(tags_equal(&mac[..tag.len()], tag));
                 }
             }
-            out.push(AuthCheck { message: a, verified });
+            out.push(AuthCheck {
+                message: a,
+                verified,
+            });
         }
         out
     }

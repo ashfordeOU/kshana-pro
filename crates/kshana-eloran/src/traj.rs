@@ -39,7 +39,9 @@ pub enum Trajectory {
         #[serde(default)]
         heading_deg: f64,
     },
-    Waypoints { points: Vec<Waypoint> },
+    Waypoints {
+        points: Vec<Waypoint>,
+    },
 }
 
 impl Trajectory {
@@ -57,9 +59,18 @@ impl Trajectory {
 
     pub fn state(&self, t_s: f64) -> RxState {
         match self {
-            Trajectory::Static { lat_deg, lon_deg, h_m, heading_deg } => RxState {
+            Trajectory::Static {
+                lat_deg,
+                lon_deg,
+                h_m,
+                heading_deg,
+            } => RxState {
                 t_s,
-                pos: Geo { lat_deg: *lat_deg, lon_deg: *lon_deg, h_m: *h_m },
+                pos: Geo {
+                    lat_deg: *lat_deg,
+                    lon_deg: *lon_deg,
+                    h_m: *h_m,
+                },
                 heading_rad: heading_deg.to_radians(),
                 speed_mps: 0.0,
             },
@@ -76,13 +87,21 @@ impl Trajectory {
                     lon_deg: a.lon_deg + f * (b.lon_deg - a.lon_deg),
                     h_m: a.h_m + f * (b.h_m - a.h_m),
                 };
-                let inv = inverse(Geo::new(a.lat_deg, a.lon_deg), Geo::new(b.lat_deg, b.lon_deg));
+                let inv = inverse(
+                    Geo::new(a.lat_deg, a.lon_deg),
+                    Geo::new(b.lat_deg, b.lon_deg),
+                );
                 let heading_rad = match (a.heading_deg, b.heading_deg) {
                     (Some(x), Some(y)) => (x + f * (y - x)).to_radians(),
                     (Some(x), None) => x.to_radians(),
                     _ => inv.az1_rad,
                 };
-                RxState { t_s, pos, heading_rad, speed_mps: inv.distance_m / (b.t_s - a.t_s) }
+                RxState {
+                    t_s,
+                    pos,
+                    heading_rad,
+                    speed_mps: inv.distance_m / (b.t_s - a.t_s),
+                }
             }
         }
     }
@@ -96,8 +115,20 @@ mod tests {
     fn waypoints_interpolate_and_head_along_course() {
         let t = Trajectory::Waypoints {
             points: vec![
-                Waypoint { t_s: 0.0, lat_deg: 50.0, lon_deg: 0.0, h_m: 0.0, heading_deg: None },
-                Waypoint { t_s: 100.0, lat_deg: 50.01, lon_deg: 0.0, h_m: 0.0, heading_deg: None },
+                Waypoint {
+                    t_s: 0.0,
+                    lat_deg: 50.0,
+                    lon_deg: 0.0,
+                    h_m: 0.0,
+                    heading_deg: None,
+                },
+                Waypoint {
+                    t_s: 100.0,
+                    lat_deg: 50.01,
+                    lon_deg: 0.0,
+                    h_m: 0.0,
+                    heading_deg: None,
+                },
             ],
         };
         t.validate().unwrap();

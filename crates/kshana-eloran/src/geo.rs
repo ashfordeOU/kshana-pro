@@ -20,7 +20,11 @@ pub struct Geo {
 
 impl Geo {
     pub fn new(lat_deg: f64, lon_deg: f64) -> Geo {
-        Geo { lat_deg, lon_deg, h_m: 0.0 }
+        Geo {
+            lat_deg,
+            lon_deg,
+            h_m: 0.0,
+        }
     }
 }
 
@@ -51,13 +55,21 @@ pub fn inverse(p1: Geo, p2: Geo) -> Inverse {
         let (sl, cl) = lambda.sin_cos();
         s_sig = ((cu2 * sl).powi(2) + (cu1 * su2 - su1 * cu2 * cl).powi(2)).sqrt();
         if s_sig == 0.0 {
-            return Inverse { distance_m: 0.0, az1_rad: 0.0, az2_rad: 0.0 };
+            return Inverse {
+                distance_m: 0.0,
+                az1_rad: 0.0,
+                az2_rad: 0.0,
+            };
         }
         c_sig = su1 * su2 + cu1 * cu2 * cl;
         sig = s_sig.atan2(c_sig);
         let sa = cu1 * cu2 * sl / s_sig;
         c2a = 1.0 - sa * sa;
-        c2sm = if c2a != 0.0 { c_sig - 2.0 * su1 * su2 / c2a } else { 0.0 };
+        c2sm = if c2a != 0.0 {
+            c_sig - 2.0 * su1 * su2 / c2a
+        } else {
+            0.0
+        };
         let c = f / 16.0 * c2a * (4.0 + f * (4.0 - 3.0 * c2a));
         let prev = lambda;
         lambda = l
@@ -74,7 +86,11 @@ pub fn inverse(p1: Geo, p2: Geo) -> Inverse {
         // spherical fallback
         let r = (a + b) / 2.0;
         let d = sig * r;
-        return Inverse { distance_m: d, az1_rad: 0.0, az2_rad: 0.0 };
+        return Inverse {
+            distance_m: d,
+            az1_rad: 0.0,
+            az2_rad: 0.0,
+        };
     }
     let u2s = c2a * (a * a - b * b) / (b * b);
     let ka = 1.0 + u2s / 16384.0 * (4096.0 + u2s * (-768.0 + u2s * (320.0 - 175.0 * u2s)));
@@ -154,7 +170,14 @@ pub fn path_points(p1: Geo, p2: Geo, n: usize) -> Vec<(f64, Geo)> {
     (0..=n)
         .map(|i| {
             let d = inv.distance_m * i as f64 / n as f64;
-            (d, if i == 0 { p1 } else { direct(p1, inv.az1_rad, d) })
+            (
+                d,
+                if i == 0 {
+                    p1
+                } else {
+                    direct(p1, inv.az1_rad, d)
+                },
+            )
         })
         .collect()
 }
@@ -166,10 +189,20 @@ mod tests {
     #[test]
     fn vincenty_reference_flinders_buninyong() {
         // Vincenty's published test: Flinders Peak to Buninyong, 54 972.271 m.
-        let p1 = Geo::new(-(37.0 + 57.0 / 60.0 + 3.72030 / 3600.0), 144.0 + 25.0 / 60.0 + 29.52440 / 3600.0);
-        let p2 = Geo::new(-(37.0 + 39.0 / 60.0 + 10.15610 / 3600.0), 143.0 + 55.0 / 60.0 + 35.38390 / 3600.0);
+        let p1 = Geo::new(
+            -(37.0 + 57.0 / 60.0 + 3.72030 / 3600.0),
+            144.0 + 25.0 / 60.0 + 29.52440 / 3600.0,
+        );
+        let p2 = Geo::new(
+            -(37.0 + 39.0 / 60.0 + 10.15610 / 3600.0),
+            143.0 + 55.0 / 60.0 + 35.38390 / 3600.0,
+        );
         let inv = inverse(p1, p2);
-        assert!((inv.distance_m - 54_972.271).abs() < 0.01, "{}", inv.distance_m);
+        assert!(
+            (inv.distance_m - 54_972.271).abs() < 0.01,
+            "{}",
+            inv.distance_m
+        );
         let az_deg = inv.az1_rad.to_degrees();
         let expect = 306.0 + 52.0 / 60.0 + 5.37 / 3600.0;
         assert!((az_deg - expect).abs() < 1e-4, "{az_deg}");

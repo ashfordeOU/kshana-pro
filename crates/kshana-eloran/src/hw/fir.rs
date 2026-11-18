@@ -90,7 +90,11 @@ pub struct FirState {
 impl FirState {
     pub fn new(taps: Vec<f64>, pre: usize) -> FirState {
         let h = pre + taps.len().saturating_sub(1);
-        FirState { taps, pre, hist: vec![0.0; h] }
+        FirState {
+            taps,
+            pre,
+            hist: vec![0.0; h],
+        }
     }
     pub fn taps(&self) -> &[f64] {
         &self.taps
@@ -119,7 +123,10 @@ impl FirState {
 /// Apply a delay of `delay_samples` (≥ `half`, may be fractional) to a whole signal,
 /// keeping its length (the start is zero-filled). Convenience for tests and offline use.
 pub fn delay_signal(x: &[f64], delay_samples: f64, half: usize, beta: f64) -> Vec<f64> {
-    assert!(delay_samples >= half as f64, "delay must be at least the FIR half length");
+    assert!(
+        delay_samples >= half as f64,
+        "delay must be at least the FIR half length"
+    );
     let i = delay_samples.floor();
     let frac = delay_samples - i;
     let pre = i as usize - half;
@@ -134,7 +141,9 @@ mod tests {
     fn fractional_delay_of_lf_tone_is_accurate() {
         let fs = 2e6;
         let f = 100e3;
-        let x: Vec<f64> = (0..4000).map(|n| (2.0 * PI * f * n as f64 / fs).sin()).collect();
+        let x: Vec<f64> = (0..4000)
+            .map(|n| (2.0 * PI * f * n as f64 / fs).sin())
+            .collect();
         let d = 40.3721; // samples
         let y = delay_signal(&x, d, 32, 12.0);
         // project onto the expected sine and cosine: phase error → timing error
@@ -148,7 +157,10 @@ mod tests {
         }
         let (a, b) = (a / ss, b / cc);
         let timing_err_ns = b.atan2(a) / (2.0 * PI * f) * 1e9;
-        assert!(timing_err_ns.abs() < 0.005, "timing error {timing_err_ns} ns");
+        assert!(
+            timing_err_ns.abs() < 0.005,
+            "timing error {timing_err_ns} ns"
+        );
         assert!(((a * a + b * b).sqrt() - 1.0).abs() < 1e-4, "gain {a} {b}");
     }
 
@@ -169,7 +181,9 @@ mod tests {
 
     #[test]
     fn streaming_matches_one_shot() {
-        let x: Vec<f64> = (0..1000).map(|n| ((n * 7919) % 101) as f64 - 50.0).collect();
+        let x: Vec<f64> = (0..1000)
+            .map(|n| ((n * 7919) % 101) as f64 - 50.0)
+            .collect();
         let taps = fractional_delay_taps(0.25, 8, 8.0);
         let whole = FirState::new(taps.clone(), 3).process(&x);
         let mut st = FirState::new(taps, 3);

@@ -66,12 +66,12 @@ pub mod track;
 pub mod truth;
 
 pub use acquire::Acquisition;
-pub use ldc::StationLdc;
 pub use dsp::{BandPassSpec, Fir, C64};
+pub use ldc::StationLdc;
 pub use solve::{
-    nominal_emission_s, observations, position_solution, predicted_delay_s, tdoa_fix, time_solution,
-    Corrections, Observation, PositionConfig, PositionSolution, StationClock, TdFix, TimeDifference,
-    TimeSolution,
+    nominal_emission_s, observations, position_solution, predicted_delay_s, tdoa_fix,
+    time_solution, Corrections, Observation, PositionConfig, PositionSolution, StationClock, TdFix,
+    TimeDifference, TimeSolution,
 };
 pub use truth::{clock_errors, position_error_m, toa_errors, ClockError, StationErrors};
 
@@ -116,7 +116,11 @@ pub struct CriMitigation {
 
 impl Default for CriMitigation {
     fn default() -> Self {
-        CriMitigation { blank: true, guard_us: 50.0, min_rel_db: -20.0 }
+        CriMitigation {
+            blank: true,
+            guard_us: 50.0,
+            min_rel_db: -20.0,
+        }
     }
 }
 
@@ -187,11 +191,19 @@ pub struct RxInput {
 
 impl RxInput {
     pub fn new(channels: Vec<Vec<f64>>, fs_hz: f64, start: AbsTime) -> RxInput {
-        RxInput { channels, fs_hz, start }
+        RxInput {
+            channels,
+            fs_hz,
+            start,
+        }
     }
     /// From a SigMF recording (the scene start is not in the file; pass it).
     pub fn from_recording(rec: &crate::io::Recording, start: AbsTime) -> RxInput {
-        RxInput { channels: rec.channels.clone(), fs_hz: rec.fs_hz, start }
+        RxInput {
+            channels: rec.channels.clone(),
+            fs_hz: rec.fs_hz,
+            start,
+        }
     }
 }
 
@@ -319,7 +331,10 @@ impl Receiver {
             Antenna::CrossedLoop { a, b, .. } => (*a).max(*b),
         };
         if need >= input.channels.len() {
-            return Err(format!("receiver: antenna uses channel {need}, input has {}", input.channels.len()));
+            return Err(format!(
+                "receiver: antenna uses channel {need}, input has {}",
+                input.channels.len()
+            ));
         }
         if cfg.track_gris == 0 {
             return Err("receiver: track_gris must be ≥ 1".into());
@@ -332,15 +347,23 @@ impl Receiver {
         let filtered = fir.filter_many(&refs);
         let len = input.channels.iter().map(|c| c.len()).min().unwrap_or(0);
         let n_valid = (fir.half.min(len), len.saturating_sub(fir.half));
-        let templates = chains.iter().map(|c| Template::new(&c.signal, &fir)).collect();
+        let templates = chains
+            .iter()
+            .map(|c| Template::new(&c.signal, &fir))
+            .collect();
         if cfg.ldc.len() > chains.len() {
-            return Err(format!("receiver: {} LDC configurations for {} chains", cfg.ldc.len(), chains.len()));
+            return Err(format!(
+                "receiver: {} LDC configurations for {} chains",
+                cfg.ldc.len(),
+                chains.len()
+            ));
         }
         let ldc_decoders = chains
             .iter()
             .enumerate()
             .map(|(i, c)| match cfg.ldc.get(i).and_then(|l| l.as_ref()) {
-                Some(l) => LdcDecoder::for_chain(l, c).map_err(|e| format!("receiver: chain {}: {e}", c.name)),
+                Some(l) => LdcDecoder::for_chain(l, c)
+                    .map_err(|e| format!("receiver: chain {}: {e}", c.name)),
                 None => Ok(None),
             })
             .collect::<Result<Vec<_>, _>>()?;
@@ -371,7 +394,16 @@ impl Receiver {
             .iter()
             .enumerate()
             .flat_map(|(ci, c)| {
-                acquire::acquire_chain(&self.filtered, &ch, self.fs, self.n_valid, self.start, c, ci, &self.cfg)
+                acquire::acquire_chain(
+                    &self.filtered,
+                    &ch,
+                    self.fs,
+                    self.n_valid,
+                    self.start,
+                    c,
+                    ci,
+                    &self.cfg,
+                )
             })
             .collect()
     }
@@ -385,12 +417,20 @@ impl Receiver {
         let thr = me.amplitude * 10f64.powf(self.cfg.cri.min_rel_db / 20.0);
         let t_end = self.n_valid.1 as f64 / self.fs;
         let mut iv = Vec::new();
-        for a in acq.iter().filter(|a| a.found && a.chain_index != me.chain_index && a.amplitude >= thr) {
+        for a in acq
+            .iter()
+            .filter(|a| a.found && a.chain_index != me.chain_index && a.amplitude >= thr)
+        {
             let ch = &self.chains[a.chain_index];
             let st = &ch.stations[a.station_index];
             let gri = ch.gri_us as f64 * 1e-6;
             let ext = ch.signal.envelope.extent_s();
-            let offs: Vec<f64> = ch.signal.group(st.role, Parity::A).iter().map(|p| p.offset.as_s()).collect();
+            let offs: Vec<f64> = ch
+                .signal
+                .group(st.role, Parity::A)
+                .iter()
+                .map(|p| p.offset.as_s())
+                .collect();
             let j0 = ((-a.toa0_s - 0.02) / gri).floor() as i64;
             let j1 = ((t_end - a.toa0_s) / gri).ceil() as i64;
             for j in j0..=j1 {
@@ -415,11 +455,19 @@ impl Receiver {
             let blank = self.blanking_for(acq, a);
             let units: Vec<Unit> = match &self.cfg.antenna {
                 Antenna::EField { channel } => vec![(None, vec![(*channel, 1.0)], true, false)],
-                Antenna::CrossedLoop { a: la, b: lb, mode: LoopMode::BeamSteer } => {
+                Antenna::CrossedLoop {
+                    a: la,
+                    b: lb,
+                    mode: LoopMode::BeamSteer,
+                } => {
                     let th = a.bearing_rad.unwrap_or(0.0);
                     vec![(None, vec![(*la, th.cos()), (*lb, th.sin())], false, true)]
                 }
-                Antenna::CrossedLoop { a: la, b: lb, mode: LoopMode::PerLoop } => vec![
+                Antenna::CrossedLoop {
+                    a: la,
+                    b: lb,
+                    mode: LoopMode::PerLoop,
+                } => vec![
                     (Some(*la), vec![(*la, 1.0)], false, false),
                     (Some(*lb), vec![(*lb, 1.0)], false, false),
                 ],
@@ -433,24 +481,46 @@ impl Receiver {
         (tracks, meas)
     }
 
-    fn pulses_for(&self, ci: usize, si: usize, groups: std::ops::Range<i64>, g_ref: i64) -> Vec<PulseRef> {
+    fn pulses_for(
+        &self,
+        ci: usize,
+        si: usize,
+        groups: std::ops::Range<i64>,
+        g_ref: i64,
+    ) -> Vec<PulseRef> {
         let ch = &self.chains[ci];
         let st = &ch.stations[si];
         let gri = ch.gri_us as f64 * 1e-6;
         let mut v = Vec::new();
         for g in groups {
             for p in ch.signal.group(st.role, Parity::of_group(g)) {
-                v.push(PulseRef { d_s: (g - g_ref) as f64 * gri + p.offset.as_s(), phase_rad: p.phase_rad });
+                v.push(PulseRef {
+                    d_s: (g - g_ref) as f64 * gri + p.offset.as_s(),
+                    phase_rad: p.phase_rad,
+                });
             }
         }
         v
     }
 
     /// Steering angle from the per-loop least-squares amplitudes at envelope time `t_env`.
-    fn steer_angle(&self, tpl: &Template, loops: (usize, usize), pulses: &[PulseRef], t_env: f64, blank: &Blanking) -> Option<f64> {
+    fn steer_angle(
+        &self,
+        tpl: &Template,
+        loops: (usize, usize),
+        pulses: &[PulseRef],
+        t_env: f64,
+        blank: &Blanking,
+    ) -> Option<f64> {
         let w = self.window_s();
         let fit = |c: usize| {
-            let src = Src { chans: &self.filtered, weights: vec![(c, 1.0)], fs: self.fs, n_lo: self.n_valid.0, n_hi: self.n_valid.1 };
+            let src = Src {
+                chans: &self.filtered,
+                weights: vec![(c, 1.0)],
+                fs: self.fs,
+                n_lo: self.n_valid.0,
+                n_hi: self.n_valid.1,
+            };
             let d = track::collect(&src, tpl, pulses, t_env, w, blank);
             track::fit_w(&d, tpl, 0.0).1
         };
@@ -462,7 +532,10 @@ impl Receiver {
     }
 
     fn window_s(&self) -> (f64, f64) {
-        (self.cfg.fit_window_us.0 * 1e-6, self.cfg.fit_window_us.1 * 1e-6)
+        (
+            self.cfg.fit_window_us.0 * 1e-6,
+            self.cfg.fit_window_us.1 * 1e-6,
+        )
     }
 
     fn track_unit(
@@ -481,11 +554,19 @@ impl Receiver {
         let gri = ch.gri_us as f64 * 1e-6;
         let span = ch.signal.group_span_s(st.role);
         let ecd_exp = (st.ecd_us + self.cfg.propagation_ecd_us) * 1e-6;
-        let (t_lo, t_hi) = (self.n_valid.0 as f64 / self.fs, self.n_valid.1 as f64 / self.fs);
+        let (t_lo, t_hi) = (
+            self.n_valid.0 as f64 / self.fs,
+            self.n_valid.1 as f64 / self.fs,
+        );
         let j_lo = ((t_lo - a.toa0_s + 30e-6) / gri).ceil() as i64;
         let j_hi = ((t_hi - a.toa0_s - span) / gri).floor() as i64;
         let n = self.cfg.track_gris as i64;
-        let mut track = StationTrack { chain_index: ci, station_index: si, channel, windows: vec![] };
+        let mut track = StationTrack {
+            chain_index: ci,
+            station_index: si,
+            channel,
+            windows: vec![],
+        };
         let mut meas = Vec::new();
         let mut prev: Option<(i64, WindowFit)> = None;
         let w = self.window_s();
@@ -499,12 +580,34 @@ impl Receiver {
             let g_ref = g0 + len / 2;
             let pulses = self.pulses_for(ci, si, g0..g0 + len, g_ref);
             let (anchor, search) = match &prev {
-                Some((pg, pf)) => (pf.t_env + (g_ref - pg) as f64 * gri, self.cfg.track_search_us * 1e-6),
-                None => (a.toa0_s + (g_ref - a.group0) as f64 * gri + ecd_exp, self.cfg.envelope_search_us * 1e-6),
+                Some((pg, pf)) => (
+                    pf.t_env + (g_ref - pg) as f64 * gri,
+                    self.cfg.track_search_us * 1e-6,
+                ),
+                None => (
+                    a.toa0_s + (g_ref - a.group0) as f64 * gri + ecd_exp,
+                    self.cfg.envelope_search_us * 1e-6,
+                ),
             };
             let fit_once = |weights: &Vec<(usize, f64)>, anchor: f64, search: f64| {
-                let src = Src { chans: &self.filtered, weights: weights.clone(), fs: self.fs, n_lo: self.n_valid.0, n_hi: self.n_valid.1 };
-                track::fit_window(&src, tpl, &pulses, anchor, search, w, blank, ecd_exp, polarity_known)
+                let src = Src {
+                    chans: &self.filtered,
+                    weights: weights.clone(),
+                    fs: self.fs,
+                    n_lo: self.n_valid.0,
+                    n_hi: self.n_valid.1,
+                };
+                track::fit_window(
+                    &src,
+                    tpl,
+                    &pulses,
+                    anchor,
+                    search,
+                    w,
+                    blank,
+                    ecd_exp,
+                    polarity_known,
+                )
             };
             let mut fit = None;
             if steer {
@@ -545,7 +648,13 @@ impl Receiver {
             let sigma20 = (fit.res_var * 40_000.0 / (self.fs * self.fir.noise_gain * wsum2)).sqrt();
             let srms = r / std::f64::consts::SQRT_2;
             let bearing_deg = if steer {
-                Some(weights[1].1.atan2(weights[0].1).to_degrees().rem_euclid(360.0))
+                Some(
+                    weights[1]
+                        .1
+                        .atan2(weights[0].1)
+                        .to_degrees()
+                        .rem_euclid(360.0),
+                )
             } else {
                 None
             };
@@ -559,7 +668,11 @@ impl Receiver {
                 toa_s: fit.t_car,
                 envelope_toa_s: fit.t_env,
                 ecd_us: (fit.t_env - fit.t_car) * 1e6,
-                snr_db: if sigma20 > 0.0 { 20.0 * (srms / sigma20).log10() } else { f64::INFINITY },
+                snr_db: if sigma20 > 0.0 {
+                    20.0 * (srms / sigma20).log10()
+                } else {
+                    f64::INFINITY
+                },
                 signal_rms: srms,
                 field_uv_m: srms * self.cfg.output_scale_uv_m,
                 cycle_slip,
@@ -567,7 +680,11 @@ impl Receiver {
                 pulses: fit.pulses,
                 samples: fit.samples,
             });
-            track.windows.push(TrackWindow { group: g_ref, fit, weights: weights.clone() });
+            track.windows.push(TrackWindow {
+                group: g_ref,
+                fit,
+                weights: weights.clone(),
+            });
             prev = Some((g_ref, fit));
             j += len;
         }
@@ -579,7 +696,12 @@ impl Receiver {
         let acquisitions = self.acquire();
         let (tracks, measurements) = self.track(&acquisitions);
         let ldc = self.decode_ldc(&tracks);
-        RxOutput { acquisitions, tracks, measurements, ldc }
+        RxOutput {
+            acquisitions,
+            tracks,
+            measurements,
+            ldc,
+        }
     }
 
     /// **LDC hook**: timing of every pulse of `group` of a tracked station, relative to its
@@ -595,7 +717,13 @@ impl Receiver {
         group: i64,
         extra_offsets_us: &[f64],
     ) -> Option<GroupPulseTiming> {
-        let extra: Vec<ExtraPulse> = extra_offsets_us.iter().map(|o| ExtraPulse { offset_us: *o, phase_rad: 0.0 }).collect();
+        let extra: Vec<ExtraPulse> = extra_offsets_us
+            .iter()
+            .map(|o| ExtraPulse {
+                offset_us: *o,
+                phase_rad: 0.0,
+            })
+            .collect();
         self.pulse_timing_with(track, group, &extra, &[])
     }
 
@@ -615,7 +743,10 @@ impl Receiver {
         extra: &[ExtraPulse],
         envelope_search_us: &[f64],
     ) -> Option<GroupPulseTiming> {
-        let win = track.windows.iter().min_by_key(|w| (w.group - group).abs())?;
+        let win = track
+            .windows
+            .iter()
+            .min_by_key(|w| (w.group - group).abs())?;
         let ch = &self.chains[track.chain_index];
         let st = &ch.stations[track.station_index];
         let tpl = &self.templates[track.chain_index];
@@ -631,8 +762,12 @@ impl Receiver {
             n_hi: self.n_valid.1,
         };
         let blank = Blanking::default();
-        let mut specs: Vec<(f64, f64)> =
-            ch.signal.group(st.role, Parity::of_group(group)).iter().map(|p| (p.offset.as_s(), p.phase_rad)).collect();
+        let mut specs: Vec<(f64, f64)> = ch
+            .signal
+            .group(st.role, Parity::of_group(group))
+            .iter()
+            .map(|p| (p.offset.as_s(), p.phase_rad))
+            .collect();
         specs.extend(extra.iter().map(|e| (e.offset_us * 1e-6, e.phase_rad)));
         let r = win.fit.w.abs();
         let period = tpl.period();
@@ -641,11 +776,21 @@ impl Receiver {
             .iter()
             .enumerate()
             .map(|(k, (off, ph))| {
-                let pr = [PulseRef { d_s: *off, phase_rad: *ph }];
+                let pr = [PulseRef {
+                    d_s: *off,
+                    phase_rad: *ph,
+                }];
                 let search = envelope_search_us.get(k).copied().unwrap_or(0.0).max(0.0) * 1e-6;
                 // envelope of this pulse alone (wide timing), else the station's envelope
                 let delta = if search > 0.0 {
-                    let d0 = track::collect(&src, tpl, &pr, t_env, (ws.0 - search, ws.1 + search), &blank);
+                    let d0 = track::collect(
+                        &src,
+                        tpl,
+                        &pr,
+                        t_env,
+                        (ws.0 - search, ws.1 + search),
+                        &blank,
+                    );
                     track::search_envelope(&d0, tpl, -search, search)
                 } else {
                     0.0
@@ -665,12 +810,22 @@ impl Receiver {
                 }
             })
             .collect();
-        Some(GroupPulseTiming { chain: ch.name.clone(), station: st.id.clone(), group, toa_s: t_car, pulses })
+        Some(GroupPulseTiming {
+            chain: ch.name.clone(),
+            station: st.id.clone(),
+            group,
+            toa_s: t_car,
+            pulses,
+        })
     }
 }
 
 /// Convenience: build the receiver and run it.
-pub fn process(input: &RxInput, chains: &[Chain], cfg: RxConfig) -> Result<(Receiver, RxOutput), String> {
+pub fn process(
+    input: &RxInput,
+    chains: &[Chain],
+    cfg: RxConfig,
+) -> Result<(Receiver, RxOutput), String> {
     let rx = Receiver::new(input, chains, cfg)?;
     let out = rx.run();
     Ok((rx, out))

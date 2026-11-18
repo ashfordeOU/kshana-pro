@@ -38,7 +38,10 @@ impl ReedSolomon {
     pub fn with_fcr(m: u32, n: usize, k: usize, fcr: i64) -> Result<ReedSolomon, String> {
         let gf = Gf::new(m)?;
         if n > gf.order() || n < 2 {
-            return Err(format!("RS over GF(2^{m}): n = {n} must be 2..={}", gf.order()));
+            return Err(format!(
+                "RS over GF(2^{m}): n = {n} must be 2..={}",
+                gf.order()
+            ));
         }
         if k == 0 || k >= n {
             return Err(format!("RS({n}, {k}): k must be 1..n"));
@@ -162,7 +165,9 @@ impl ReedSolomon {
                 }
             }
         }
-        let dlambda: Vec<u16> = (1..lambda.len()).map(|i| if i % 2 == 1 { lambda[i] } else { 0 }).collect();
+        let dlambda: Vec<u16> = (1..lambda.len())
+            .map(|i| if i % 2 == 1 { lambda[i] } else { 0 })
+            .collect();
         for &i in &pos {
             let p = (self.n - 1 - i) as i64;
             let x = gf.alpha_pow(p);
@@ -195,7 +200,10 @@ mod tests {
             let msg: Vec<u16> = (0..k).map(|_| rng.gen_range(0..q)).collect();
             let cw = rs.encode(&msg);
             assert_eq!(&cw[..k], &msg[..], "systematic");
-            assert!(rs.syndromes(&cw).iter().all(|s| *s == 0), "codeword has zero syndromes");
+            assert!(
+                rs.syndromes(&cw).iter().all(|s| *s == 0),
+                "codeword has zero syndromes"
+            );
             let ne = rng.gen_range(0..=rs.t());
             let mut bad = cw.clone();
             let mut positions: Vec<usize> = (0..n).collect();

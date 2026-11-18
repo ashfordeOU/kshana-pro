@@ -121,7 +121,10 @@ pub struct Ground {
 }
 
 /// Seawater as used for the LORAN SF reference (σ = 5 S/m, ε_r = 80).
-pub const SEAWATER: Ground = Ground { sigma: 5.0, eps_r: 80.0 };
+pub const SEAWATER: Ground = Ground {
+    sigma: 5.0,
+    eps_r: 80.0,
+};
 
 impl Ground {
     /// Normalised surface impedance Δ (4), vertical polarisation, at `f_hz`.
@@ -258,7 +261,17 @@ impl SmoothEarth {
         let scale = 1.0 / q.abs().max(1.0).sqrt();
         let (x_lo, x_hi) = (X_BLEND_LO * scale, X_BLEND_HI * scale);
         let modes = solve_modes(q, modes_needed(x_lo));
-        SmoothEarth { ground, f_hz, k, a_e, alpha, q, modes, x_lo, x_hi }
+        SmoothEarth {
+            ground,
+            f_hz,
+            k,
+            a_e,
+            alpha,
+            q,
+            modes,
+            x_lo,
+            x_hi,
+        }
     }
 
     /// Fock distance `x` of a ground distance `d_m`.
@@ -359,7 +372,14 @@ pub struct CurvePoint {
 
 impl GroundCurve {
     /// Tabulate to `d_max_m` with `n` intervals in `√d`.
-    pub fn new(ground: Ground, f0_hz: f64, k_factor: f64, n_atm: f64, d_max_m: f64, n: usize) -> GroundCurve {
+    pub fn new(
+        ground: Ground,
+        f0_hz: f64,
+        k_factor: f64,
+        n_atm: f64,
+        d_max_m: f64,
+        n: usize,
+    ) -> GroundCurve {
         let e0 = SmoothEarth::new(ground, f0_hz, k_factor, n_atm);
         let em = SmoothEarth::new(ground, f0_hz - GROUP_HALF_BAND_HZ, k_factor, n_atm);
         let ep = SmoothEarth::new(ground, f0_hz + GROUP_HALF_BAND_HZ, k_factor, n_atm);
@@ -391,7 +411,15 @@ impl GroundCurve {
             ph0.push(-u0 / (2.0 * PI * f0_hz));
             gd.push(-(up - um) / (2.0 * PI * 2.0 * GROUP_HALF_BAND_HZ));
         }
-        GroundCurve { ground, f0_hz, ds, ln_amp, phase_delay_s: ph0, group_delay_s: gd, d_max_m }
+        GroundCurve {
+            ground,
+            f0_hz,
+            ds,
+            ln_amp,
+            phase_delay_s: ph0,
+            group_delay_s: gd,
+            d_max_m,
+        }
     }
 
     fn interp(v: &[f64], ds: f64, d_m: f64) -> f64 {
@@ -454,7 +482,11 @@ mod tests {
                 if i > 0 {
                     // neighbouring roots are ≈ π/√|t| apart
                     let gap = PI / t.abs().sqrt();
-                    assert!((t - m[i - 1]).abs() > 0.5 * gap, "duplicate mode q={q:?} s={}", i + 1);
+                    assert!(
+                        (t - m[i - 1]).abs() > 0.5 * gap,
+                        "duplicate mode q={q:?} s={}",
+                        i + 1
+                    );
                 }
             }
         }
@@ -466,10 +498,22 @@ mod tests {
         // series (9) must agree: |ΔSF| < 1 ns, |Δ amplitude| < 0.03 dB.
         for g in [
             SEAWATER,
-            Ground { sigma: 0.03, eps_r: 15.0 },
-            Ground { sigma: 0.005, eps_r: 15.0 },
-            Ground { sigma: 0.001, eps_r: 10.0 },
-            Ground { sigma: 0.0003, eps_r: 5.0 },
+            Ground {
+                sigma: 0.03,
+                eps_r: 15.0,
+            },
+            Ground {
+                sigma: 0.005,
+                eps_r: 15.0,
+            },
+            Ground {
+                sigma: 0.001,
+                eps_r: 10.0,
+            },
+            Ground {
+                sigma: 0.0003,
+                eps_r: 5.0,
+            },
         ] {
             let e = SmoothEarth::new(g, F0, 4.0 / 3.0, N_ATM);
             for x in [e.x_lo, 0.5 * (e.x_lo + e.x_hi), e.x_hi] {
@@ -477,8 +521,14 @@ mod tests {
                 let b = e.residue(x);
                 let dphi_ns = (b / a).arg() / (2.0 * PI * F0) * 1e9;
                 let ddb = 20.0 * (b.abs() / a.abs()).log10();
-                println!("{g:?} |q|={:.2} x={x}: {dphi_ns:.3} ns {ddb:.4} dB", e.q.abs());
-                assert!(dphi_ns.abs() < 1.0 && ddb.abs() < 0.03, "{g:?} x={x}: {dphi_ns} ns {ddb} dB");
+                println!(
+                    "{g:?} |q|={:.2} x={x}: {dphi_ns:.3} ns {ddb:.4} dB",
+                    e.q.abs()
+                );
+                assert!(
+                    dphi_ns.abs() < 1.0 && ddb.abs() < 0.03,
+                    "{g:?} x={x}: {dphi_ns} ns {ddb} dB"
+                );
             }
         }
     }

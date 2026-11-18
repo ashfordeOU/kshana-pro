@@ -93,7 +93,9 @@ pub fn acquire_chain(
     // envelope template on bins
     let ext = chain.signal.envelope.extent_s();
     let np = (ext / BIN_S).ceil() as usize;
-    let p: Vec<f64> = (0..np).map(|m| chain.signal.envelope.value((m as f64 + 0.5) * BIN_S)).collect();
+    let p: Vec<f64> = (0..np)
+        .map(|m| chain.signal.envelope.value((m as f64 + 0.5) * BIN_S))
+        .collect();
     let p2sum: f64 = p.iter().map(|v| v * v).sum();
 
     // fold + envelope correlation per channel
@@ -159,7 +161,9 @@ pub fn acquire_chain(
                     .collect()
             })
             .collect();
-        let metric: Vec<f64> = (0..p2).map(|t| cs.iter().map(|c| c[t].norm_sqr()).sum()).collect();
+        let metric: Vec<f64> = (0..p2)
+            .map(|t| cs.iter().map(|c| c[t].norm_sqr()).sum())
+            .collect();
         let mut s = metric.clone();
         s.sort_by(|a, b| a.partial_cmp(b).unwrap());
         let median = s[s.len() / 2].max(1e-300);
@@ -169,8 +173,7 @@ pub fn acquire_chain(
         .into_iter()
         .filter(|r| chain.stations.iter().any(|s| s.role == *r))
         .collect();
-    let tables: Vec<(Role, RoleTable)> =
-        roles_present.iter().map(|r| (*r, corr(*r))).collect();
+    let tables: Vec<(Role, RoleTable)> = roles_present.iter().map(|r| (*r, corr(*r))).collect();
 
     let corrections: &Corrections = &cfg.corrections;
     let pick = |role: Role, ranges: &[(f64, f64)]| -> (f64, f64, f64, Option<f64>) {
@@ -191,7 +194,11 @@ pub fn acquire_chain(
         let m = |k: i64| metric[(t as i64 + k).rem_euclid(p2 as i64) as usize].sqrt();
         let (a, b0, c) = (m(-1), m(0), m(1));
         let den = a - 2.0 * b0 + c;
-        let frac = if den < 0.0 { (0.5 * (a - c) / den).clamp(-0.5, 0.5) } else { 0.0 };
+        let frac = if den < 0.0 {
+            (0.5 * (a - c) / den).clamp(-0.5, 0.5)
+        } else {
+            0.0
+        };
         let metric_db = 10.0 * (best.0 / median).log10();
         let amp = 2.0 * best.0.sqrt() / (periods * (*nterms as f64) * p2sum);
         let bearing = if cs.len() == 2 {
@@ -217,7 +224,8 @@ pub fn acquire_chain(
         let st = &chain.stations[si];
         let ranges: Vec<(f64, f64)> = match cfg.approx_position {
             Some(pos) => {
-                let d = st.emission_delay_us * 1e-6 + predicted_delay_s(st, pos, &chain.name, corrections);
+                let d = st.emission_delay_us * 1e-6
+                    + predicted_delay_s(st, pos, &chain.name, corrections);
                 let c = d / BIN_S;
                 vec![(c - hw, c + hw)]
             }

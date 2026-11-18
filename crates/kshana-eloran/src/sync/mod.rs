@@ -70,7 +70,9 @@ impl UtcStamp {
     /// Parse `YYYY-MM-DDTHH:MM:SS[.f]Z`.
     pub fn parse(s: &str) -> Result<UtcStamp, String> {
         let t = s.trim().trim_end_matches('Z');
-        let (date, time) = t.split_once('T').ok_or_else(|| format!("expected YYYY-MM-DDTHH:MM:SSZ, got {s}"))?;
+        let (date, time) = t
+            .split_once('T')
+            .ok_or_else(|| format!("expected YYYY-MM-DDTHH:MM:SSZ, got {s}"))?;
         let d: Vec<&str> = date.split('-').collect();
         let tm: Vec<&str> = time.split(':').collect();
         if d.len() != 3 || tm.len() != 3 {
@@ -88,13 +90,19 @@ impl UtcStamp {
         if !(1..=12).contains(&mo) || !(1..=31).contains(&da) || h > 23 || mi > 59 || sec > 59 {
             return Err(format!("date or time out of range: {s}"));
         }
-        Ok(UtcStamp { days: days_from_civil(y, mo, da), ns_of_day: ((h * 60 + mi) * 60 + sec) * 1_000_000_000 + frac_ns })
+        Ok(UtcStamp {
+            days: days_from_civil(y, mo, da),
+            ns_of_day: ((h * 60 + mi) * 60 + sec) * 1_000_000_000 + frac_ns,
+        })
     }
     /// Add `dt` seconds (rounded to the nanosecond).
     pub fn plus(self, dt: f64) -> UtcStamp {
         let total = self.ns_of_day as i128 + (dt * 1e9).round() as i128;
         let d = total.div_euclid(NS_PER_DAY as i128);
-        UtcStamp { days: self.days + d as i64, ns_of_day: total.rem_euclid(NS_PER_DAY as i128) as i64 }
+        UtcStamp {
+            days: self.days + d as i64,
+            ns_of_day: total.rem_euclid(NS_PER_DAY as i128) as i64,
+        }
     }
     pub fn ymd(self) -> (i64, i64, i64) {
         civil_from_days(self.days)
@@ -102,7 +110,12 @@ impl UtcStamp {
     /// (hour, minute, second, nanosecond).
     pub fn hms(self) -> (i64, i64, i64, i64) {
         let s = self.ns_of_day / 1_000_000_000;
-        (s / 3600, (s / 60) % 60, s % 60, self.ns_of_day % 1_000_000_000)
+        (
+            s / 3600,
+            (s / 60) % 60,
+            s % 60,
+            self.ns_of_day % 1_000_000_000,
+        )
     }
     /// `YYYY-MM-DDTHH:MM:SS.fffffffffZ`.
     pub fn iso(self) -> String {
@@ -148,7 +161,10 @@ pub struct StartEpoch {
 
 impl StartEpoch {
     pub fn from_utc_iso(s: &str, scale: EpochScale) -> Result<StartEpoch, String> {
-        Ok(StartEpoch { utc: UtcStamp::parse(s)?, scale })
+        Ok(StartEpoch {
+            utc: UtcStamp::parse(s)?,
+            scale,
+        })
     }
     /// GPST calendar stamp of the same instant.
     pub fn gpst_calendar(&self) -> UtcStamp {
@@ -268,8 +284,16 @@ pub struct SyncTimingModel {
 
 impl SyncTimingModel {
     /// Model from a calibration file (offset 0 if the file has none).
-    pub fn from_calibration(cal: &CalibrationFile, common_10mhz: bool, common_pps: bool) -> SyncTimingModel {
-        let (o, u) = cal.gnss_offset.as_ref().map(|g| (g.eloran_minus_gnss_ns, g.u_ns)).unwrap_or((0.0, 0.0));
+    pub fn from_calibration(
+        cal: &CalibrationFile,
+        common_10mhz: bool,
+        common_pps: bool,
+    ) -> SyncTimingModel {
+        let (o, u) = cal
+            .gnss_offset
+            .as_ref()
+            .map(|g| (g.eloran_minus_gnss_ns, g.u_ns))
+            .unwrap_or((0.0, 0.0));
         SyncTimingModel {
             common_10mhz,
             common_pps,
@@ -285,7 +309,8 @@ impl SyncTimingModel {
         let epoch = StartEpoch::from_utc_iso(start_utc, self.epoch_scale)?;
         let mut warnings = Vec::new();
         if epoch.utc.ns_of_day % 1_000_000_000 != 0 {
-            warnings.push("start_utc is not a whole second: it cannot coincide with a PPS edge".into());
+            warnings
+                .push("start_utc is not a whole second: it cannot coincide with a PPS edge".into());
         }
         if !self.common_10mhz {
             warnings.push("no common 10 MHz: the eLoran and GNSS outputs will drift apart".into());
@@ -330,7 +355,11 @@ pub struct HandshakeLog {
 /// Connect, set the epoch, load the trajectory and arm the GNSS simulator per `plan`;
 /// fails unless the simulator then reports Armed (or Running for an immediate start).
 /// Start the eLoran device with `plan.eloran_start` afterwards, before the PPS edge.
-pub fn arm_gnss(adapter: &mut dyn GnssSimAdapter, plan: &SyncPlan, traj: Option<&TrajectoryFile>) -> Result<HandshakeLog, String> {
+pub fn arm_gnss(
+    adapter: &mut dyn GnssSimAdapter,
+    plan: &SyncPlan,
+    traj: Option<&TrajectoryFile>,
+) -> Result<HandshakeLog, String> {
     let mut steps = Vec::new();
     let identity = adapter.connect()?;
     steps.push(format!("connected: {identity}"));
@@ -348,9 +377,16 @@ pub fn arm_gnss(adapter: &mut dyn GnssSimAdapter, plan: &SyncPlan, traj: Option<
         _ => status.state == GnssSimState::Armed,
     };
     if !ok {
-        return Err(format!("GNSS simulator not armed after handshake: {:?} ({})", status.state, status.raw));
+        return Err(format!(
+            "GNSS simulator not armed after handshake: {:?} ({})",
+            status.state, status.raw
+        ));
     }
-    Ok(HandshakeLog { identity, status, steps })
+    Ok(HandshakeLog {
+        identity,
+        status,
+        steps,
+    })
 }
 
 // ---------------------------------------------------------------------------------------
@@ -409,19 +445,33 @@ pub struct SyncBudgetReport {
 /// Combine the sync uncertainty budget (RSS) and check `k·u_c ≤ target`.
 pub fn sync_budget(inp: &SyncBudgetInputs) -> SyncBudgetReport {
     let mut comps = vec![
-        UncertaintyComponent::normal("reference distribution (10 MHz/1PPS)", inp.reference_distribution_ns),
+        UncertaintyComponent::normal(
+            "reference distribution (10 MHz/1PPS)",
+            inp.reference_distribution_ns,
+        ),
         UncertaintyComponent::normal("trigger/start latency", inp.trigger_latency_ns),
         UncertaintyComponent::normal("eLoran channel delay calibration", inp.channel_delay_cal_ns),
-        UncertaintyComponent::normal("GNSS simulator delay calibration", inp.gnss_sim_delay_cal_ns),
+        UncertaintyComponent::normal(
+            "GNSS simulator delay calibration",
+            inp.gnss_sim_delay_cal_ns,
+        ),
     ];
     comps.extend(inp.extra.iter().cloned());
     let lines: Vec<BudgetLine> = comps.iter().map(BudgetLine::type_b).collect();
     let (uc, _) = combine(&lines);
     let k = if inp.k > 0.0 { inp.k } else { 2.0 };
-    let target = if inp.target_ns > 0.0 { inp.target_ns } else { 10.0 };
+    let target = if inp.target_ns > 0.0 {
+        inp.target_ns
+    } else {
+        10.0
+    };
     let dominant = lines
         .iter()
-        .max_by(|a, b| a.contribution_ns.partial_cmp(&b.contribution_ns).unwrap_or(std::cmp::Ordering::Equal))
+        .max_by(|a, b| {
+            a.contribution_ns
+                .partial_cmp(&b.contribution_ns)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
         .map(|l| l.name.clone())
         .unwrap_or_default();
     SyncBudgetReport {
@@ -497,8 +547,16 @@ mod tests {
         assert!((r.expanded_u_ns - 10.0).abs() < 1e-12);
         assert!(r.pass);
         assert_eq!(r.dominant, "GNSS simulator delay calibration");
-        let mut i = SyncBudgetInputs { gnss_sim_delay_cal_ns: 4.0, ..Default::default() };
-        i.extra.push(UncertaintyComponent { name: "cable temp".into(), value_ns: 6.0, distribution: Distribution::Rectangular, sensitivity: 1.0 });
+        let mut i = SyncBudgetInputs {
+            gnss_sim_delay_cal_ns: 4.0,
+            ..Default::default()
+        };
+        i.extra.push(UncertaintyComponent {
+            name: "cable temp".into(),
+            value_ns: 6.0,
+            distribution: Distribution::Rectangular,
+            sensitivity: 1.0,
+        });
         let r = sync_budget(&i);
         assert!((r.combined_u_ns - (16.0f64 + 12.0).sqrt()).abs() < 1e-12);
         assert!(!r.pass);

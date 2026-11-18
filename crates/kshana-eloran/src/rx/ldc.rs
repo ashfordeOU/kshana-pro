@@ -95,7 +95,13 @@ impl Receiver {
             });
         }
         let shift = dec.max_shift_us();
-        let ldc_index = |k: usize| if k < n_nom { (nominal[k].k < 8).then_some(nominal[k].k) } else { Some(DATA_PULSE) };
+        let ldc_index = |k: usize| {
+            if k < n_nom {
+                (nominal[k].k < 8).then_some(nominal[k].k)
+            } else {
+                Some(DATA_PULSE)
+            }
+        };
         let search: Vec<f64> = (0..n_nom + extra.len())
             .map(|k| match ldc_index(k).map(|i| shift[i]) {
                 Some(s) if s > CARRIER_ONLY_MAX_SHIFT_US => s + ENVELOPE_MARGIN_US,
@@ -131,21 +137,37 @@ impl Receiver {
         // extent of a group around its carrier origin, data pulse and searches included
         let max_shift = dec.max_shift_us().iter().cloned().fold(0.0, f64::max) + ENVELOPE_MARGIN_US;
         let nominal = ch.signal.group(st.role, Parity::A);
-        let p8_us = nominal.iter().find(|p| p.k == 7).map(|p| p.offset.as_us()).unwrap_or(0.0);
+        let p8_us = nominal
+            .iter()
+            .find(|p| p.k == 7)
+            .map(|p| p.offset.as_us())
+            .unwrap_or(0.0);
         let last_offset_us = nominal
             .iter()
             .map(|p| p.offset.as_us())
             .fold(0.0, f64::max)
-            .max(dec.data_pulse.map(|d| p8_us + d.after(st.role)).unwrap_or(0.0));
+            .max(
+                dec.data_pulse
+                    .map(|d| p8_us + d.after(st.role))
+                    .unwrap_or(0.0),
+            );
         let lo = self.n_valid.0 as f64 / self.fs - (self.cfg.fit_window_us.0 - max_shift) * 1e-6;
-        let hi = self.n_valid.1 as f64 / self.fs - (last_offset_us + self.cfg.fit_window_us.1 + max_shift) * 1e-6;
+        let hi = self.n_valid.1 as f64 / self.fs
+            - (last_offset_us + self.cfg.fit_window_us.1 + max_shift) * 1e-6;
         let valid = |g: i64| {
-            let w = track.windows.iter().min_by_key(|w| (w.group - g).abs()).expect("non-empty");
+            let w = track
+                .windows
+                .iter()
+                .min_by_key(|w| (w.group - g).abs())
+                .expect("non-empty");
             let t = w.fit.t_car + (g - w.group) as f64 * gri;
             t >= lo && t <= hi
         };
         let span = self.cfg.track_gris as i64 + 1;
-        let (first, last) = (track.windows[0].group, track.windows[track.windows.len() - 1].group);
+        let (first, last) = (
+            track.windows[0].group,
+            track.windows[track.windows.len() - 1].group,
+        );
         let mut ga = first - span;
         while ga <= last + span && !valid(ga) {
             ga += 1;
@@ -156,7 +178,11 @@ impl Receiver {
         }
         let first_frame = -((-ga).div_euclid(g_per_f)); // ⌈ga / G⌉
         let first_group = first_frame * g_per_f;
-        let frames = if gb >= first_group { (gb + 1 - first_group) / g_per_f } else { 0 };
+        let frames = if gb >= first_group {
+            (gb + 1 - first_group) / g_per_f
+        } else {
+            0
+        };
         let mut groups_missing = 0;
         let symbols: Vec<u32> = (first_group..first_group + frames * g_per_f)
             .map(|g| {

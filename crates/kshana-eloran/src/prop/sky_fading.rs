@@ -49,7 +49,12 @@ fn d_n() -> usize {
 
 impl Default for FadingConfig {
     fn default() -> Self {
-        FadingConfig { corr_time_s: d_tc(), k_factor_db: None, seed: 0, n_sinusoids: d_n() }
+        FadingConfig {
+            corr_time_s: d_tc(),
+            k_factor_db: None,
+            seed: 0,
+            n_sinusoids: d_n(),
+        }
     }
 }
 
@@ -90,7 +95,8 @@ impl FadingProcess {
 
     /// Complex gain `(I, Q)` of stream `key` at time `t_s` (diffuse part, E[I²+Q²] = 1).
     pub fn iq(&self, key: u64, t_s: f64) -> (f64, f64) {
-        let mut rng = ChaCha8Rng::seed_from_u64(self.seed ^ key.rotate_left(17) ^ 0x5EED_FAD1_0000_0001);
+        let mut rng =
+            ChaCha8Rng::seed_from_u64(self.seed ^ key.rotate_left(17) ^ 0x5EED_FAD1_0000_0001);
         let norm = (1.0 / self.n as f64).sqrt();
         let mut acc = [0.0f64; 2];
         for a in acc.iter_mut() {
@@ -119,7 +125,12 @@ mod tests {
 
     #[test]
     fn rayleigh_statistics_and_correlation() {
-        let p = FadingProcess::new(&FadingConfig { corr_time_s: 20.0, seed: 3, ..Default::default() }).unwrap();
+        let p = FadingProcess::new(&FadingConfig {
+            corr_time_s: 20.0,
+            seed: 3,
+            ..Default::default()
+        })
+        .unwrap();
         // average over several independent streams and a long window
         let mut pw = 0.0;
         let mut below = 0usize;
@@ -154,8 +165,16 @@ mod tests {
 
     #[test]
     fn deterministic_and_seeded() {
-        let a = FadingProcess::new(&FadingConfig { seed: 1, ..Default::default() }).unwrap();
-        let b = FadingProcess::new(&FadingConfig { seed: 2, ..Default::default() }).unwrap();
+        let a = FadingProcess::new(&FadingConfig {
+            seed: 1,
+            ..Default::default()
+        })
+        .unwrap();
+        let b = FadingProcess::new(&FadingConfig {
+            seed: 2,
+            ..Default::default()
+        })
+        .unwrap();
         assert_eq!(a.gain(7, 12.5), a.gain(7, 12.5));
         assert_ne!(a.gain(7, 12.5), b.gain(7, 12.5));
         assert_ne!(a.gain(7, 12.5), a.gain(8, 12.5));
@@ -163,7 +182,11 @@ mod tests {
 
     #[test]
     fn rice_has_less_spread() {
-        let p = FadingProcess::new(&FadingConfig { k_factor_db: Some(10.0), ..Default::default() }).unwrap();
+        let p = FadingProcess::new(&FadingConfig {
+            k_factor_db: Some(10.0),
+            ..Default::default()
+        })
+        .unwrap();
         let mut deep = 0usize;
         let mut pw = 0.0;
         for k in 0..2000 {

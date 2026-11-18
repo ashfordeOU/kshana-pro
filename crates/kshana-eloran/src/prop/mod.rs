@@ -18,10 +18,10 @@ pub mod complex;
 pub mod conductivity;
 pub mod ground;
 pub mod millington;
-pub mod smooth_earth;
-pub mod special;
 pub mod sky;
 pub mod sky_fading;
+pub mod smooth_earth;
+pub mod special;
 
 use crate::chain::Station;
 use crate::time::{AbsTime, Ps};
@@ -72,7 +72,12 @@ pub trait PropagationModel: Send + Sync {
     /// quantities stated *relative to the groundwave* (a sky/ground ratio, a delay after
     /// the groundwave) refer to the actual groundwave of whichever ground model is
     /// configured; [`Composite`] calls it. The default ignores `ground`.
-    fn paths_with_ground(&self, station: &Station, rx: &RxState, ground: &[PathEffect]) -> Vec<PathEffect> {
+    fn paths_with_ground(
+        &self,
+        station: &Station,
+        rx: &RxState,
+        ground: &[PathEffect],
+    ) -> Vec<PathEffect> {
         let _ = ground;
         self.paths(station, rx)
     }
@@ -93,7 +98,11 @@ pub struct BuildContext {
 impl BuildContext {
     /// Context of a scene starting at `start`.
     pub fn new(start: AbsTime, duration_s: f64, seed: u64) -> BuildContext {
-        BuildContext { start, duration_s, seed }
+        BuildContext {
+            start,
+            duration_s,
+            seed,
+        }
     }
 }
 
@@ -165,14 +174,24 @@ mod tests {
     }
 
     fn ctx() -> BuildContext {
-        BuildContext::new(AbsTime::from_utc_iso("2026-12-21T22:00:00Z").unwrap(), 1.0, 0)
+        BuildContext::new(
+            AbsTime::from_utc_iso("2026-12-21T22:00:00Z").unwrap(),
+            1.0,
+            0,
+        )
     }
 
     #[test]
     fn stated_sky_ratio_and_delay_hold_against_the_actual_groundwave() {
         let st = station();
-        let rx = RxState { t_s: 0.0, pos: Geo::new(55.0, 10.0), heading_rad: 0.0, speed_mps: 0.0 };
-        let ground: ground::GroundConfig = toml::from_str("model = \"smooth_earth\"\nsigma_s_m = 0.003").unwrap();
+        let rx = RxState {
+            t_s: 0.0,
+            pos: Geo::new(55.0, 10.0),
+            heading_rad: 0.0,
+            speed_mps: 0.0,
+        };
+        let ground: ground::GroundConfig =
+            toml::from_str("model = \"smooth_earth\"\nsigma_s_m = 0.003").unwrap();
         for sky_toml in [
             "model = \"fixed\"\ndelay_us = 40.0\nratio_db = 6.0",
             "model = \"ionospheric\"\ndaylight = \"night\"\ndelay_us = 40.0\nratio_db = 6.0\nphase_height_offset_km = 0.0",
@@ -195,11 +214,34 @@ mod tests {
     fn computed_skywave_field_is_absolute() {
         // P.684-computed field: independent of the configured ground model
         let st = station();
-        let rx = RxState { t_s: 0.0, pos: Geo::new(55.0, 10.0), heading_rad: 0.0, speed_mps: 0.0 };
-        let sky: sky::SkyConfig = toml::from_str("model = \"ionospheric\"\ndaylight = \"night\"").unwrap();
-        let a = build(&PropConfig { ground: Default::default(), sky: Some(sky.clone()) }, &ctx()).unwrap().paths(&st, &rx);
-        let se: ground::GroundConfig = toml::from_str("model = \"smooth_earth\"\nsigma_s_m = 0.003").unwrap();
-        let b = build(&PropConfig { ground: se, sky: Some(sky) }, &ctx()).unwrap().paths(&st, &rx);
+        let rx = RxState {
+            t_s: 0.0,
+            pos: Geo::new(55.0, 10.0),
+            heading_rad: 0.0,
+            speed_mps: 0.0,
+        };
+        let sky: sky::SkyConfig =
+            toml::from_str("model = \"ionospheric\"\ndaylight = \"night\"").unwrap();
+        let a = build(
+            &PropConfig {
+                ground: Default::default(),
+                sky: Some(sky.clone()),
+            },
+            &ctx(),
+        )
+        .unwrap()
+        .paths(&st, &rx);
+        let se: ground::GroundConfig =
+            toml::from_str("model = \"smooth_earth\"\nsigma_s_m = 0.003").unwrap();
+        let b = build(
+            &PropConfig {
+                ground: se,
+                sky: Some(sky),
+            },
+            &ctx(),
+        )
+        .unwrap()
+        .paths(&st, &rx);
         assert_eq!(a[1].field_uv_m, b[1].field_uv_m);
         assert_eq!(a[1].delay, b[1].delay);
     }

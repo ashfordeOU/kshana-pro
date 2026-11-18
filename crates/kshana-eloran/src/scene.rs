@@ -123,7 +123,10 @@ fn d_scale() -> f64 {
 impl SceneParams {
     pub fn validate(&self) -> Result<(), String> {
         if self.fs_hz.fract() != 0.0 || self.fs_hz < 400_000.0 || self.fs_hz > 100e6 {
-            return Err(format!("fs_hz {} must be a whole number of Hz in 400 kHz..100 MHz", self.fs_hz));
+            return Err(format!(
+                "fs_hz {} must be a whole number of Hz in 400 kHz..100 MHz",
+                self.fs_hz
+            ));
         }
         if !(self.duration_s > 0.0) || !(self.block_s > 0.0) {
             return Err("duration_s and block_s must be positive".into());
@@ -181,7 +184,11 @@ impl Scene {
     }
 
     /// Run the scene into `sink`, appending truth to `truth`.
-    pub fn run(&mut self, sink: &mut dyn SampleSink, truth: &mut Vec<TruthRecord>) -> Result<RunStats, String> {
+    pub fn run(
+        &mut self,
+        sink: &mut dyn SampleSink,
+        truth: &mut Vec<TruthRecord>,
+    ) -> Result<RunStats, String> {
         self.validate()?;
         let wall0 = std::time::Instant::now();
         let fs = self.params.fs_hz;
@@ -190,7 +197,10 @@ impl Scene {
         let block_n = ((self.params.block_s * fs).round() as u64).max(1);
         let n_ch = self.outputs.len();
         let scale = 1.0 / self.params.output_scale_uv_m;
-        let mut stats = RunStats { channels: n_ch, ..Default::default() };
+        let mut stats = RunStats {
+            channels: n_ch,
+            ..Default::default()
+        };
         let mut bufs: Vec<Vec<f64>> = vec![Vec::new(); n_ch];
         let mut n0: u64 = 0;
         while n0 < n_total {
@@ -205,7 +215,11 @@ impl Scene {
             for (ci, chain) in self.chains.iter().enumerate() {
                 let extent = chain.signal.envelope.extent_s();
                 // paths per station for this block
-                let paths: Vec<_> = chain.stations.iter().map(|s| self.prop.paths(s, &rx)).collect();
+                let paths: Vec<_> = chain
+                    .stations
+                    .iter()
+                    .map(|s| self.prop.paths(s, &rx))
+                    .collect();
                 let bearings: Vec<_> = chain
                     .stations
                     .iter()
@@ -230,7 +244,11 @@ impl Scene {
                 for e in &em {
                     let st_paths = &paths[e.station];
                     let br = bearings[e.station].az1_rad;
-                    let gains: Vec<f64> = self.outputs.iter().map(|o| o.gain(br, rx.heading_rad)).collect();
+                    let gains: Vec<f64> = self
+                        .outputs
+                        .iter()
+                        .map(|o| o.gain(br, rx.heading_rad))
+                        .collect();
                     let mut counted = false;
                     for p in st_paths {
                         let arr = e.t_emit + p.delay;
@@ -240,12 +258,18 @@ impl Scene {
                         }
                         counted = true;
                         // first and last sample indices (global) within the pulse and block
-                        let first = ceil_div(arr.0 as i128 * fs_i, PS_PER_S as i128).max(n0 as i128) as u64;
-                        let last = floor_div(arr_end.0 as i128 * fs_i, PS_PER_S as i128).min((n0 + n - 1) as i128);
+                        let first =
+                            ceil_div(arr.0 as i128 * fs_i, PS_PER_S as i128).max(n0 as i128) as u64;
+                        let last = floor_div(arr_end.0 as i128 * fs_i, PS_PER_S as i128)
+                            .min((n0 + n - 1) as i128);
                         if (first as i128) > last {
                             continue;
                         }
-                        let amp = p.field_uv_m * std::f64::consts::SQRT_2 * e.amp_scale * e.pulse.amp * scale;
+                        let amp = p.field_uv_m
+                            * std::f64::consts::SQRT_2
+                            * e.amp_scale
+                            * e.pulse.amp
+                            * scale;
                         let ecd = e.ecd_s + p.ecd_s;
                         let phase = e.pulse.phase_rad + p.phase_rad;
                         let denom = fs * PS_PER_S as f64;
@@ -263,7 +287,9 @@ impl Scene {
                         // truth: pulse 0, ground path, once
                         if e.pulse.k == 0 && p.kind == PathKind::Ground && arr >= t_a && arr < t_b {
                             let st = &chain.stations[e.station];
-                            let sky = st_paths.iter().find(|q| matches!(q.kind, PathKind::Sky { .. }));
+                            let sky = st_paths
+                                .iter()
+                                .find(|q| matches!(q.kind, PathKind::Sky { .. }));
                             truth.push(TruthRecord {
                                 t_emit_s: e.t_emit.as_s(),
                                 chain: chain.name.clone(),
@@ -283,8 +309,12 @@ impl Scene {
                                     f64::INFINITY
                                 },
                                 sky_delay_us: sky.map(|q| (q.delay - p.delay).as_us()),
-                                sky_ratio_db: sky.map(|q| 20.0 * (q.field_uv_m / p.field_uv_m).log10()),
-                                time_ref_offset_ns: self.timebase.offset_s(&st.time_ref, e.t_nominal.as_s()) * 1e9,
+                                sky_ratio_db: sky
+                                    .map(|q| 20.0 * (q.field_uv_m / p.field_uv_m).log10()),
+                                time_ref_offset_ns: self
+                                    .timebase
+                                    .offset_s(&st.time_ref, e.t_nominal.as_s())
+                                    * 1e9,
                                 emission_error_ns: (e.t_emit - e.t_nominal).as_ns(),
                                 rx_lat_deg: rx.pos.lat_deg,
                                 rx_lon_deg: rx.pos.lon_deg,
@@ -326,8 +356,16 @@ impl Scene {
         sink.finish()?;
         stats.samples_per_channel = n_total;
         stats.wall_s = wall0.elapsed().as_secs_f64();
-        stats.realtime_factor = if stats.wall_s > 0.0 { self.params.duration_s / stats.wall_s } else { f64::INFINITY };
-        truth.sort_by(|a, b| a.toa_s.partial_cmp(&b.toa_s).unwrap_or(std::cmp::Ordering::Equal));
+        stats.realtime_factor = if stats.wall_s > 0.0 {
+            self.params.duration_s / stats.wall_s
+        } else {
+            f64::INFINITY
+        };
+        truth.sort_by(|a, b| {
+            a.toa_s
+                .partial_cmp(&b.toa_s)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         Ok(stats)
     }
 }
@@ -365,10 +403,15 @@ pub fn truth_from_csv(text: &str) -> Result<Vec<TruthRecord>, String> {
         }
         let f: Vec<&str> = line.split(',').collect();
         if f.len() != 22 {
-            return Err(format!("truth line {}: expected 22 fields, got {}", i + 1, f.len()));
+            return Err(format!(
+                "truth line {}: expected 22 fields, got {}",
+                i + 1,
+                f.len()
+            ));
         }
         let num = |k: usize| -> Result<f64, String> {
-            f[k].parse::<f64>().map_err(|e| format!("truth line {} field {}: {e}", i + 1, k + 1))
+            f[k].parse::<f64>()
+                .map_err(|e| format!("truth line {} field {}: {e}", i + 1, k + 1))
         };
         let opt = |k: usize| -> Result<Option<f64>, String> {
             if f[k].is_empty() {
@@ -381,7 +424,9 @@ pub fn truth_from_csv(text: &str) -> Result<Vec<TruthRecord>, String> {
             t_emit_s: num(0)?,
             chain: f[1].to_string(),
             station: f[2].to_string(),
-            group: f[3].parse().map_err(|e| format!("truth line {}: {e}", i + 1))?,
+            group: f[3]
+                .parse()
+                .map_err(|e| format!("truth line {}: {e}", i + 1))?,
             toa_s: num(4)?,
             delay_ns: num(5)?,
             geom_ns: num(6)?,
@@ -390,7 +435,11 @@ pub fn truth_from_csv(text: &str) -> Result<Vec<TruthRecord>, String> {
             asf_ns: num(9)?,
             ecd_us: num(10)?,
             field_uv_m: num(11)?,
-            snr_db: if f[12] == "inf" { f64::INFINITY } else { num(12)? },
+            snr_db: if f[12] == "inf" {
+                f64::INFINITY
+            } else {
+                num(12)?
+            },
             sky_delay_us: opt(13)?,
             sky_ratio_db: opt(14)?,
             time_ref_offset_ns: num(15)?,
@@ -411,7 +460,11 @@ mod truth_io_tests {
 
     #[test]
     fn truth_csv_round_trips() {
-        let src = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/scenarios/synthetic-two-chain.toml")).unwrap();
+        let src = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/scenarios/synthetic-two-chain.toml"
+        ))
+        .unwrap();
         let (_s, truth, _st) = crate::run_to_memory(&src).unwrap();
         let back = truth_from_csv(&truth_csv(&truth)).unwrap();
         assert_eq!(back.len(), truth.len());

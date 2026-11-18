@@ -49,8 +49,14 @@ impl OutputChannel {
     /// A crossed-loop pair (loop A on the bow axis, loop B athwartships).
     pub fn crossed_loops() -> Vec<OutputChannel> {
         vec![
-            OutputChannel::HLoop { axis_deg: 0.0, gain: 1.0 },
-            OutputChannel::HLoop { axis_deg: 90.0, gain: 1.0 },
+            OutputChannel::HLoop {
+                axis_deg: 0.0,
+                gain: 1.0,
+            },
+            OutputChannel::HLoop {
+                axis_deg: 90.0,
+                gain: 1.0,
+            },
         ]
     }
 }

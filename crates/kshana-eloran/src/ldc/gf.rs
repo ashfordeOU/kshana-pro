@@ -68,7 +68,13 @@ impl Gf {
         for i in size - 1..2 * size {
             exp[i] = exp[i - (size - 1)];
         }
-        Ok(Gf { m, poly, size, exp, log })
+        Ok(Gf {
+            m,
+            poly,
+            size,
+            exp,
+            log,
+        })
     }
 
     /// Order of the multiplicative group, 2^m − 1.

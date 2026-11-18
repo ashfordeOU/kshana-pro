@@ -10,7 +10,9 @@
 //! `{gps_tow}`, …) and, for trajectories, `{path}`, `{format}` (`nmea`/`csv`) and
 //! `{rate_hz}`. The defaults are neutral placeholders, not any vendor's command set.
 
-use super::{ArmMode, GnssSimAdapter, GnssSimState, GnssSimStatus, StartEpoch, TrajFormat, TrajectoryFile};
+use super::{
+    ArmMode, GnssSimAdapter, GnssSimState, GnssSimStatus, StartEpoch, TrajFormat, TrajectoryFile,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::io::{BufRead, BufReader, Write};
@@ -74,9 +76,16 @@ pub fn fill(template: &str, fields: &BTreeMap<String, String>) -> Result<String,
     let mut rest = template;
     while let Some(a) = rest.find('{') {
         out.push_str(&rest[..a]);
-        let b = rest[a..].find('}').ok_or_else(|| format!("unclosed placeholder in {template:?}"))? + a;
+        let b = rest[a..]
+            .find('}')
+            .ok_or_else(|| format!("unclosed placeholder in {template:?}"))?
+            + a;
         let key = &rest[a + 1..b];
-        out.push_str(fields.get(key).ok_or_else(|| format!("unknown placeholder {{{key}}} in {template:?}"))?);
+        out.push_str(
+            fields
+                .get(key)
+                .ok_or_else(|| format!("unknown placeholder {{{key}}} in {template:?}"))?,
+        );
         rest = &rest[b + 1..];
     }
     out.push_str(rest);
@@ -84,7 +93,9 @@ pub fn fill(template: &str, fields: &BTreeMap<String, String>) -> Result<String,
 }
 
 fn is_query(cmd: &str) -> bool {
-    cmd.split_whitespace().next().is_some_and(|w| w.ends_with('?'))
+    cmd.split_whitespace()
+        .next()
+        .is_some_and(|w| w.ends_with('?'))
 }
 
 /// The TCP adapter.
@@ -99,19 +110,28 @@ pub struct ScpiTcpAdapter {
 
 impl ScpiTcpAdapter {
     pub fn new(addr: &str, templates: CommandTemplates) -> ScpiTcpAdapter {
-        ScpiTcpAdapter { addr: addr.into(), templates, timeout: Duration::from_secs(5), stream: None, log: vec![] }
+        ScpiTcpAdapter {
+            addr: addr.into(),
+            templates,
+            timeout: Duration::from_secs(5),
+            stream: None,
+            log: vec![],
+        }
     }
 
     /// Send one command; returns the response line for a query.
     pub fn send(&mut self, cmd: &str) -> Result<Option<String>, String> {
         let (w, r) = self.stream.as_mut().ok_or("not connected")?;
-        w.write_all(format!("{cmd}\n").as_bytes()).map_err(|e| format!("{}: {e}", self.addr))?;
+        w.write_all(format!("{cmd}\n").as_bytes())
+            .map_err(|e| format!("{}: {e}", self.addr))?;
         self.log.push(format!("> {cmd}"));
         if !is_query(cmd) {
             return Ok(None);
         }
         let mut line = String::new();
-        let k = r.read_line(&mut line).map_err(|e| format!("{}: {e}", self.addr))?;
+        let k = r
+            .read_line(&mut line)
+            .map_err(|e| format!("{}: {e}", self.addr))?;
         if k == 0 {
             return Err(format!("{}: connection closed", self.addr));
         }
@@ -134,7 +154,11 @@ impl ScpiTcpAdapter {
         Ok(r)
     }
 
-    fn run(&mut self, templates: &[String], fields: &BTreeMap<String, String>) -> Result<Vec<String>, String> {
+    fn run(
+        &mut self,
+        templates: &[String],
+        fields: &BTreeMap<String, String>,
+    ) -> Result<Vec<String>, String> {
         let mut resp = Vec::new();
         for t in templates {
             let c = fill(t, fields)?;
@@ -155,8 +179,10 @@ impl GnssSimAdapter for ScpiTcpAdapter {
             .map_err(|e| format!("{}: {e}", self.addr))?
             .next()
             .ok_or_else(|| format!("{}: no address", self.addr))?;
-        let s = TcpStream::connect_timeout(&sa, self.timeout).map_err(|e| format!("{}: {e}", self.addr))?;
-        s.set_read_timeout(Some(self.timeout)).map_err(|e| e.to_string())?;
+        let s = TcpStream::connect_timeout(&sa, self.timeout)
+            .map_err(|e| format!("{}: {e}", self.addr))?;
+        s.set_read_timeout(Some(self.timeout))
+            .map_err(|e| e.to_string())?;
         s.set_nodelay(true).ok();
         let r = BufReader::new(s.try_clone().map_err(|e| e.to_string())?);
         self.stream = Some((s, r));
@@ -193,7 +219,9 @@ impl GnssSimAdapter for ScpiTcpAdapter {
     }
     fn status(&mut self) -> Result<GnssSimStatus, String> {
         let q = self.templates.status.clone();
-        let raw = self.send(&q)?.ok_or("status template must be a query ending in '?'")?;
+        let raw = self
+            .send(&q)?
+            .ok_or("status template must be a query ending in '?'")?;
         let t = &self.templates;
         let has = |p: &str| !p.is_empty() && raw.contains(p);
         let state = if has(&t.status_error) {
@@ -278,7 +306,12 @@ mod tests {
             epoch_scale: EpochScale::Gpst,
         };
         let plan = model.plan("2026-11-18T00:00:00Z").unwrap();
-        let traj = TrajectoryFile { path: "/data/rx.nmea".into(), format: TrajFormat::Nmea, rate_hz: 10.0, samples: 3 };
+        let traj = TrajectoryFile {
+            path: "/data/rx.nmea".into(),
+            format: TrajFormat::Nmea,
+            rate_hz: 10.0,
+            samples: 3,
+        };
         let hs = arm_gnss(&mut a, &plan, Some(&traj)).unwrap();
         assert_eq!(hs.identity, "MOCK,GNSS-SIM,0001,1.0");
         assert_eq!(hs.status.state, GnssSimState::Armed);
@@ -291,7 +324,10 @@ mod tests {
         drop(a);
         h.join().unwrap();
         let cmds = log.lock().unwrap().clone();
-        assert!(cmds.contains(&"SCEN:EPOCH 2026-11-18,00:00:18".to_string()), "{cmds:?}");
+        assert!(
+            cmds.contains(&"SCEN:EPOCH 2026-11-18,00:00:18".to_string()),
+            "{cmds:?}"
+        );
         assert!(cmds.contains(&"SCEN:TRAJ:LOAD \"/data/rx.nmea\",nmea".to_string()));
         assert!(cmds.contains(&"SCEN:ARM PPS".to_string()));
     }

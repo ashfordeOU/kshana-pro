@@ -267,7 +267,12 @@ impl PropagationModel for Fixed {
     fn paths(&self, st: &Station, rx: &RxState) -> Vec<PathEffect> {
         self.paths_with_ground(st, rx, &[])
     }
-    fn paths_with_ground(&self, st: &Station, rx: &RxState, ground: &[PathEffect]) -> Vec<PathEffect> {
+    fn paths_with_ground(
+        &self,
+        st: &Station,
+        rx: &RxState,
+        ground: &[PathEffect],
+    ) -> Vec<PathEffect> {
         let g = reference_ground(st, rx, ground, 3.0);
         vec![PathEffect {
             kind: PathKind::Sky { hop: 1 },
@@ -285,12 +290,22 @@ impl PropagationModel for Fixed {
 
 /// The groundwave a stated skywave delay/ratio refers to: the first ground path of
 /// `ground` (the scene's ground model), else a simple estimate with the given attenuation.
-pub fn reference_ground(st: &Station, rx: &RxState, ground: &[PathEffect], atten_db_per_1000km: f64) -> PathEffect {
+pub fn reference_ground(
+    st: &Station,
+    rx: &RxState,
+    ground: &[PathEffect],
+    atten_db_per_1000km: f64,
+) -> PathEffect {
     ground
         .iter()
         .find(|p| p.kind == PathKind::Ground)
         .copied()
-        .unwrap_or_else(|| super::ground::Simple { atten_db_per_1000km }.paths(st, rx)[0])
+        .unwrap_or_else(|| {
+            super::ground::Simple {
+                atten_db_per_1000km,
+            }
+            .paths(st, rx)[0]
+        })
 }
 
 /// Geometry of an `n`-hop skywave over ground distance `d_m` at virtual height `h_m`.
@@ -313,7 +328,9 @@ pub fn hop_geometry(d_m: f64, h_m: f64, hops: u8) -> HopGeometry {
     let rh = r + h_m;
     let theta_hop = d_m / (n * r);
     let beta = theta_hop / 2.0;
-    let s = (r * r + rh * rh - 2.0 * r * rh * beta.cos()).max(0.0).sqrt();
+    let s = (r * r + rh * rh - 2.0 * r * rh * beta.cos())
+        .max(0.0)
+        .sqrt();
     let length_m = 2.0 * n * s;
     let psi = (rh * beta.cos() - r).atan2(rh * beta.sin());
     let psi_c = psi.max(PSI_MIN_DEG.to_radians());
@@ -324,8 +341,17 @@ pub fn hop_geometry(d_m: f64, h_m: f64, hops: u8) -> HopGeometry {
     let theta_tot = d_m / r;
     let denom = r * r * theta_tot.sin().max(1e-12) * n * dtheta_dpsi * psi_c.sin();
     let d2 = length_m * length_m * psi_c.cos() / denom.max(1e-30);
-    let focusing = if d2.is_finite() { d2.sqrt().clamp(0.1, D_MAX) } else { D_MAX };
-    HopGeometry { length_m, psi_rad: psi, cos_i, focusing }
+    let focusing = if d2.is_finite() {
+        d2.sqrt().clamp(0.1, D_MAX)
+    } else {
+        D_MAX
+    };
+    HopGeometry {
+        length_m,
+        psi_rad: psi,
+        cos_i,
+        focusing,
+    }
 }
 
 /// Envelope (group) delay of the `n`-hop skywave after the groundwave (s): `(L − d)/c`.
@@ -397,7 +423,10 @@ impl Ionospheric {
 
     /// Model in a scene starting at `scene_start` (used for the sun's position unless
     /// `cfg.start_utc` overrides it).
-    pub fn with_start(cfg: IonoConfig, scene_start: Option<AbsTime>) -> Result<Ionospheric, String> {
+    pub fn with_start(
+        cfg: IonoConfig,
+        scene_start: Option<AbsTime>,
+    ) -> Result<Ionospheric, String> {
         if !(cfg.hops == 1 || cfg.hops == 2) {
             return Err("skywave: hops must be 1 or 2".into());
         }
@@ -427,9 +456,11 @@ impl Ionospheric {
             None => scene_start,
         };
         if cfg.daylight == Daylight::Auto && start.is_none() {
-            return Err("skywave: daylight = \"auto\" needs the scene start (build the model with a \
+            return Err(
+                "skywave: daylight = \"auto\" needs the scene start (build the model with a \
                         BuildContext) or start_utc, or set daylight = \"day\" / \"night\""
-                .into());
+                    .into(),
+            );
         }
         let fading = match &cfg.fading {
             Some(f) => Some(FadingProcess::new(f)?),
@@ -461,7 +492,12 @@ impl Ionospheric {
         let n = hops as i32;
         let psi = g.psi_rad.max(PSI_MIN_DEG.to_radians());
         let ft = 10f64.powf(-self.cfg.terminal_loss_db / 20.0);
-        2.0 * E0_UV_M * power_kw.sqrt() * refl.powi(n) * self.cfg.ground_reflection.powi(n - 1) * g.focusing * ft
+        2.0 * E0_UV_M
+            * power_kw.sqrt()
+            * refl.powi(n)
+            * self.cfg.ground_reflection.powi(n - 1)
+            * g.focusing
+            * ft
             * psi.cos()
             / (g.length_m / 1000.0)
     }
@@ -491,16 +527,24 @@ impl PropagationModel for Ionospheric {
     }
     /// Computed delays and P.684 fields are absolute (referenced to the PF-only ground
     /// delay); a stated `delay_us` / `ratio_db` refers to the first path of `ground`.
-    fn paths_with_ground(&self, st: &Station, rx: &RxState, ground: &[PathEffect]) -> Vec<PathEffect> {
-        let simple = super::ground::Simple { atten_db_per_1000km: self.cfg.ground_ref_atten_db_per_1000km }
-            .paths(st, rx)[0];
+    fn paths_with_ground(
+        &self,
+        st: &Station,
+        rx: &RxState,
+        ground: &[PathEffect],
+    ) -> Vec<PathEffect> {
+        let simple = super::ground::Simple {
+            atten_db_per_1000km: self.cfg.ground_ref_atten_db_per_1000km,
+        }
+        .paths(st, rx)[0];
         let g = reference_ground(st, rx, ground, self.cfg.ground_ref_atten_db_per_1000km);
         let d = inverse(st.position, rx.pos).distance_m.max(1.0);
         let w = self.day_weight_at(st.position, rx.pos, rx.t_s);
         let h = 1000.0 * (self.cfg.h_night_km + w * (self.cfg.h_day_km - self.cfg.h_night_km));
         let dh = 1000.0 * self.cfg.phase_height_offset_km;
-        let phase_per_hop =
-            (self.cfg.refl_phase_night_deg + w * (self.cfg.refl_phase_day_deg - self.cfg.refl_phase_night_deg)).to_radians();
+        let phase_per_hop = (self.cfg.refl_phase_night_deg
+            + w * (self.cfg.refl_phase_day_deg - self.cfg.refl_phase_night_deg))
+            .to_radians();
         let key = station_key(st);
         let mut out = Vec::with_capacity(self.cfg.hops as usize);
         for hop in 1..=self.cfg.hops {
@@ -518,7 +562,10 @@ impl PropagationModel for Ionospheric {
             };
             let mut phase = phase_per_hop * hop as f64;
             if let Some(f) = &self.fading {
-                let (a, p) = f.gain(key.wrapping_add((hop as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15)), rx.t_s);
+                let (a, p) = f.gain(
+                    key.wrapping_add((hop as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15)),
+                    rx.t_s,
+                );
                 field *= a;
                 phase += p;
             }
@@ -544,12 +591,19 @@ impl PropagationModel for Ionospheric {
 /// unless `start_utc` overrides it).
 pub fn build(cfg: &SkyConfig, ctx: &BuildContext) -> Result<Box<dyn PropagationModel>, String> {
     match cfg {
-        SkyConfig::Fixed { delay_us, ratio_db, phase_deg } => Ok(Box::new(Fixed {
+        SkyConfig::Fixed {
+            delay_us,
+            ratio_db,
+            phase_deg,
+        } => Ok(Box::new(Fixed {
             delay_us: *delay_us,
             ratio_db: *ratio_db,
             phase_deg: *phase_deg,
         })),
-        SkyConfig::Ionospheric(c) => Ok(Box::new(Ionospheric::with_start(c.clone(), Some(ctx.start))?)),
+        SkyConfig::Ionospheric(c) => Ok(Box::new(Ionospheric::with_start(
+            c.clone(),
+            Some(ctx.start),
+        )?)),
     }
 }
 
@@ -575,7 +629,12 @@ mod tests {
         }
     }
     fn rx(lat: f64, lon: f64, t: f64) -> RxState {
-        RxState { t_s: t, pos: Geo::new(lat, lon), heading_rad: 0.0, speed_mps: 0.0 }
+        RxState {
+            t_s: t,
+            pos: Geo::new(lat, lon),
+            heading_rad: 0.0,
+            speed_mps: 0.0,
+        }
     }
 
     #[test]
@@ -583,7 +642,12 @@ mod tests {
         // short path: L ≈ 2√((d/2)² + h²)
         let g = hop_geometry(100_000.0, 70_000.0, 1);
         let flat = 2.0 * (50_000f64.powi(2) + 70_000f64.powi(2)).sqrt();
-        assert!((g.length_m - flat).abs() / flat < 2e-3, "{} {}", g.length_m, flat);
+        assert!(
+            (g.length_m - flat).abs() / flat < 2e-3,
+            "{} {}",
+            g.length_m,
+            flat
+        );
         assert!((g.focusing - 1.0).abs() < 0.05, "D {}", g.focusing);
         assert!(g.psi_rad > 0.9);
     }
@@ -606,7 +670,10 @@ mod tests {
         // typical: 1000 km night ≈ 70–80 µs, day ≈ 50 µs
         let n = sky_excess_delay_s(1.0e6, 90e3, 1) * 1e6;
         let dd = sky_excess_delay_s(1.0e6, 70e3, 1) * 1e6;
-        assert!((60.0..95.0).contains(&n) && (40.0..60.0).contains(&dd), "{n} {dd}");
+        assert!(
+            (60.0..95.0).contains(&n) && (40.0..60.0).contains(&dd),
+            "{n} {dd}"
+        );
         // every value 30..200 µs is reachable at 500 km by choosing the height, or by override
         for target in [30.0, 50.0, 100.0, 150.0, 200.0] {
             let h = height_for_delay(500e3, target * 1e-6).unwrap();
@@ -621,12 +688,23 @@ mod tests {
         let st = station(55.0, 0.0);
         let r = rx(55.0, 12.0, 0.0); // ≈ 765 km
         for target in [30.0, 75.0, 200.0] {
-            let m = Ionospheric::new(IonoConfig { delay_us: Some(target), ..Default::default() }).unwrap();
+            let m = Ionospheric::new(IonoConfig {
+                delay_us: Some(target),
+                ..Default::default()
+            })
+            .unwrap();
             let p = m.paths(&st, &r);
-            let g = crate::prop::ground::Simple { atten_db_per_1000km: 3.0 }.paths(&st, &r)[0];
+            let g = crate::prop::ground::Simple {
+                atten_db_per_1000km: 3.0,
+            }
+            .paths(&st, &r)[0];
             let env = (p[0].delay - g.delay).as_us() + p[0].ecd_s * 1e6;
             assert!((env - target).abs() < 1e-5, "{env}");
-            assert!(p[0].ecd_s > 0.2e-6 && p[0].ecd_s < 5e-6, "ecd {}", p[0].ecd_s);
+            assert!(
+                p[0].ecd_s > 0.2e-6 && p[0].ecd_s < 5e-6,
+                "ecd {}",
+                p[0].ecd_s
+            );
         }
     }
 
@@ -648,7 +726,10 @@ mod tests {
     fn day_night_ratio_sensible() {
         let st = station(55.0, 0.0);
         let r = rx(55.0, 15.0, 0.0); // ≈ 955 km
-        let g = crate::prop::ground::Simple { atten_db_per_1000km: 3.0 }.paths(&st, &r)[0];
+        let g = crate::prop::ground::Simple {
+            atten_db_per_1000km: 3.0,
+        }
+        .paths(&st, &r)[0];
         let mk = |utc: &str| {
             Ionospheric::new(IonoConfig {
                 start_utc: Some(utc.into()),
@@ -664,7 +745,10 @@ mod tests {
         let rd = 20.0 * (day.field_uv_m / g.field_uv_m).log10();
         // night skywave comparable to the groundwave; day 10–25 dB weaker than night
         assert!((-8.0..8.0).contains(&rn), "night ratio {rn:.1} dB");
-        assert!(rn - rd > 10.0 && rn - rd < 25.0, "night {rn:.1} day {rd:.1}");
+        assert!(
+            rn - rd > 10.0 && rn - rd < 25.0,
+            "night {rn:.1} day {rd:.1}"
+        );
         // night delay longer (higher layer)
         assert!(night.delay > day.delay);
     }
@@ -695,9 +779,17 @@ mod tests {
 
     #[test]
     fn auto_without_start_is_an_error() {
-        let c = IonoConfig { daylight: Daylight::Auto, start_utc: None, ..Default::default() };
+        let c = IonoConfig {
+            daylight: Daylight::Auto,
+            start_utc: None,
+            ..Default::default()
+        };
         assert!(Ionospheric::new(c).is_err());
-        assert!(Ionospheric::new(IonoConfig { hops: 3, ..Default::default() }).is_err());
+        assert!(Ionospheric::new(IonoConfig {
+            hops: 3,
+            ..Default::default()
+        })
+        .is_err());
     }
 
     #[test]
@@ -705,17 +797,38 @@ mod tests {
         let st = station(55.0, 0.0);
         let r = rx(55.0, 15.0, 0.0);
         let ctx = |utc: &str| BuildContext::new(AbsTime::from_utc_iso(utc).unwrap(), 1.0, 0);
-        let auto = IonoConfig { daylight: Daylight::Auto, ..Default::default() };
-        let night = build(&SkyConfig::Ionospheric(auto.clone()), &ctx("2026-12-21T00:00:00Z")).unwrap().paths(&st, &r)[0];
-        let day = build(&SkyConfig::Ionospheric(auto.clone()), &ctx("2026-06-21T11:00:00Z")).unwrap().paths(&st, &r)[0];
-        let explicit = Ionospheric::new(IonoConfig { start_utc: Some("2026-12-21T00:00:00Z".into()), ..auto.clone() })
-            .unwrap()
-            .paths(&st, &r)[0];
+        let auto = IonoConfig {
+            daylight: Daylight::Auto,
+            ..Default::default()
+        };
+        let night = build(
+            &SkyConfig::Ionospheric(auto.clone()),
+            &ctx("2026-12-21T00:00:00Z"),
+        )
+        .unwrap()
+        .paths(&st, &r)[0];
+        let day = build(
+            &SkyConfig::Ionospheric(auto.clone()),
+            &ctx("2026-06-21T11:00:00Z"),
+        )
+        .unwrap()
+        .paths(&st, &r)[0];
+        let explicit = Ionospheric::new(IonoConfig {
+            start_utc: Some("2026-12-21T00:00:00Z".into()),
+            ..auto.clone()
+        })
+        .unwrap()
+        .paths(&st, &r)[0];
         assert_eq!(night, explicit);
         assert!(night.field_uv_m > 3.0 * day.field_uv_m);
         // explicit start_utc wins over the scene start
-        let o = IonoConfig { start_utc: Some("2026-12-21T00:00:00Z".into()), ..auto };
-        let p = build(&SkyConfig::Ionospheric(o), &ctx("2026-06-21T11:00:00Z")).unwrap().paths(&st, &r)[0];
+        let o = IonoConfig {
+            start_utc: Some("2026-12-21T00:00:00Z".into()),
+            ..auto
+        };
+        let p = build(&SkyConfig::Ionospheric(o), &ctx("2026-06-21T11:00:00Z"))
+            .unwrap()
+            .paths(&st, &r)[0];
         assert_eq!(p, night);
     }
 
@@ -723,11 +836,18 @@ mod tests {
     fn ratio_override_and_two_hops() {
         let st = station(55.0, 0.0);
         let r = rx(55.0, 25.0, 0.0); // ≈ 1590 km
-        let g = crate::prop::ground::Simple { atten_db_per_1000km: 3.0 }.paths(&st, &r)[0];
+        let g = crate::prop::ground::Simple {
+            atten_db_per_1000km: 3.0,
+        }
+        .paths(&st, &r)[0];
         for db in [-30.0, 0.0, 20.0] {
-            let p = Ionospheric::new(IonoConfig { ratio_db: Some(db), hops: 2, ..Default::default() })
-                .unwrap()
-                .paths(&st, &r);
+            let p = Ionospheric::new(IonoConfig {
+                ratio_db: Some(db),
+                hops: 2,
+                ..Default::default()
+            })
+            .unwrap()
+            .paths(&st, &r);
             assert_eq!(p.len(), 2);
             assert!((20.0 * (p[0].field_uv_m / g.field_uv_m).log10() - db).abs() < 1e-9);
             assert_eq!(p[1].kind, PathKind::Sky { hop: 2 });

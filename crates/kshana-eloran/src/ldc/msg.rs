@@ -189,7 +189,14 @@ impl Message {
         w.put(self.type_code() as u64, TYPE_BITS);
         match self {
             Message::Null => {}
-            Message::StationId { chain_id, gri_10us, station_code, secondary, signal_version, station_index } => {
+            Message::StationId {
+                chain_id,
+                gri_10us,
+                station_code,
+                secondary,
+                signal_version,
+                station_index,
+            } => {
                 w.put(*chain_id as u64, 8);
                 w.put(*gri_10us as u64, 14);
                 w.put(*station_code as u64, 8);
@@ -197,7 +204,13 @@ impl Message {
                 w.put(*signal_version as u64, 4);
                 w.put(*station_index as u64, 3);
             }
-            Message::UtcTime { loran_seconds, sub_second_10us, tai_minus_utc_s, leap_pending, days_to_leap } => {
+            Message::UtcTime {
+                loran_seconds,
+                sub_second_10us,
+                tai_minus_utc_s,
+                leap_pending,
+                days_to_leap,
+            } => {
                 w.put(*loran_seconds, 40);
                 w.put(*sub_second_10us as u64, 17);
                 w.put_signed(*tai_minus_utc_s as i64, 8);
@@ -223,28 +236,50 @@ impl Message {
                 w.put((*power_kw).min(4095) as u64, 12);
                 w.put(*healthy as u64, 1);
             }
-            Message::Warning { station_code, kind, magnitude_ns, valid_s } => {
+            Message::Warning {
+                station_code,
+                kind,
+                magnitude_ns,
+                valid_s,
+            } => {
                 w.put(*station_code as u64, 8);
                 w.put(kind.code(), 4);
                 w.put_signed(*magnitude_ns as i64, 16);
                 w.put(*valid_s as u64, 16);
             }
-            Message::Dloran { reference_site, age_s, entries } => {
+            Message::Dloran {
+                reference_site,
+                age_s,
+                entries,
+            } => {
                 w.put(*reference_site as u64, 12);
                 w.put(*age_s as u64, 8);
                 w.put(entries.len().min(3) as u64, 2);
                 for i in 0..3 {
-                    let e = entries.get(i).copied().unwrap_or(DloranEntry { station_code: 0, correction_ns: 0 });
+                    let e = entries.get(i).copied().unwrap_or(DloranEntry {
+                        station_code: 0,
+                        correction_ns: 0,
+                    });
                     w.put(e.station_code as u64, 8);
                     w.put_signed(e.correction_ns as i64, 16);
                 }
             }
-            Message::Dgnss { constellation, z_count, sats } => {
+            Message::Dgnss {
+                constellation,
+                z_count,
+                sats,
+            } => {
                 w.put(*constellation as u64, 2);
                 w.put(*z_count as u64, 13);
                 w.put(sats.len().min(3) as u64, 2);
                 for i in 0..3 {
-                    let s = sats.get(i).copied().unwrap_or(DgnssSat { prn: 0, iode: 0, prc_002m: 0, rrc_0002ms: 0, udre: 0 });
+                    let s = sats.get(i).copied().unwrap_or(DgnssSat {
+                        prn: 0,
+                        iode: 0,
+                        prc_002m: 0,
+                        rrc_0002ms: 0,
+                        udre: 0,
+                    });
                     w.put(s.prn as u64, 6);
                     w.put(s.iode as u64, 8);
                     w.put_signed(s.prc_002m as i64, 16);
@@ -252,7 +287,11 @@ impl Message {
                     w.put(s.udre as u64, 2);
                 }
             }
-            Message::Auth { key_id, covered, tag } => {
+            Message::Auth {
+                key_id,
+                covered,
+                tag,
+            } => {
                 w.put(*key_id as u64, 4);
                 w.put((*covered).min(63) as u64, 6);
                 let l = tag.len().clamp(1, 32);
@@ -310,7 +349,10 @@ impl Message {
                     leap_pending: g(r, 2)? as u8,
                     days_to_leap: g(r, 10)? as u16,
                 };
-                if let Message::UtcTime { sub_second_10us, .. } = m {
+                if let Message::UtcTime {
+                    sub_second_10us, ..
+                } = m
+                {
                     if sub_second_10us >= 100_000 {
                         return Err(Invalid);
                     }
@@ -332,7 +374,12 @@ impl Message {
                 let kind = WarningKind::from_code(g(r, 4)?);
                 let magnitude_ns = gs(r, 16)? as i16;
                 let valid_s = g(r, 16)? as u16;
-                Message::Warning { station_code, kind: kind.ok_or(Invalid)?, magnitude_ns, valid_s }
+                Message::Warning {
+                    station_code,
+                    kind: kind.ok_or(Invalid)?,
+                    magnitude_ns,
+                    valid_s,
+                }
             }
             5 => {
                 let reference_site = g(r, 12)? as u16;
@@ -340,12 +387,19 @@ impl Message {
                 let count = g(r, 2)? as usize;
                 let mut entries = Vec::new();
                 for i in 0..3 {
-                    let e = DloranEntry { station_code: g(r, 8)? as u8, correction_ns: gs(r, 16)? as i16 };
+                    let e = DloranEntry {
+                        station_code: g(r, 8)? as u8,
+                        correction_ns: gs(r, 16)? as i16,
+                    };
                     if i < count {
                         entries.push(e);
                     }
                 }
-                Message::Dloran { reference_site, age_s, entries }
+                Message::Dloran {
+                    reference_site,
+                    age_s,
+                    entries,
+                }
             }
             6 => {
                 let constellation = g(r, 2)? as u8;
@@ -364,17 +418,27 @@ impl Message {
                         sats.push(s);
                     }
                 }
-                Message::Dgnss { constellation, z_count, sats }
+                Message::Dgnss {
+                    constellation,
+                    z_count,
+                    sats,
+                }
             }
             7 => {
                 let key_id = g(r, 4)? as u8;
                 let covered = g(r, 6)? as u8;
                 let l = g(r, 5)? as usize + 1;
-                Message::Auth { key_id, covered, tag: r.get_bytes(l).ok_or(NeedMore)? }
+                Message::Auth {
+                    key_id,
+                    covered,
+                    tag: r.get_bytes(l).ok_or(NeedMore)?,
+                }
             }
             8 => {
                 let l = g(r, 8)? as usize;
-                Message::Raw { data: r.get_bytes(l).ok_or(NeedMore)? }
+                Message::Raw {
+                    data: r.get_bytes(l).ok_or(NeedMore)?,
+                }
             }
             _ => return Err(Invalid),
         })
@@ -407,7 +471,8 @@ pub struct MsgContext {
 impl MsgContext {
     /// Loran-time-scale instant of the first group in units of 10 µs (needs the GRI).
     pub fn start_10us(&self) -> Option<i128> {
-        self.gri_us.map(|g| self.first_group as i128 * (g as i128 / 10))
+        self.gri_us
+            .map(|g| self.first_group as i128 * (g as i128 / 10))
     }
 }
 
@@ -515,7 +580,9 @@ pub enum MessageSpec {
         tag_bytes: u8,
     },
     /// Arbitrary payload (hex).
-    Raw { hex: String },
+    Raw {
+        hex: String,
+    },
 }
 
 impl MessageSpec {
@@ -545,7 +612,11 @@ impl MessageSpec {
     pub fn render(&self, ctx: &MsgContext) -> Message {
         match self {
             MessageSpec::Null => Message::Null,
-            MessageSpec::StationId { chain_id, station_code, signal_version } => Message::StationId {
+            MessageSpec::StationId {
+                chain_id,
+                station_code,
+                signal_version,
+            } => Message::StationId {
                 chain_id: *chain_id,
                 gri_10us: ctx.gri_us.map(|g| (g / 10) as u16).unwrap_or(0),
                 station_code: station_code.unwrap_or(b'A'.wrapping_add(ctx.station as u8)),
@@ -553,7 +624,11 @@ impl MessageSpec {
                 signal_version: *signal_version,
                 station_index: (ctx.station & 7) as u8,
             },
-            MessageSpec::UtcTime { tai_minus_utc_s, leap_pending, days_to_leap } => {
+            MessageSpec::UtcTime {
+                tai_minus_utc_s,
+                leap_pending,
+                days_to_leap,
+            } => {
                 let t = ctx.start_10us().unwrap_or(0);
                 Message::UtcTime {
                     loran_seconds: (t.div_euclid(100_000) as u64) & ((1 << 40) - 1),
@@ -582,13 +657,22 @@ impl MessageSpec {
                 power_kw: *power_kw,
                 healthy: *healthy,
             },
-            MessageSpec::Warning { station_code, kind, magnitude_ns, valid_s } => Message::Warning {
+            MessageSpec::Warning {
+                station_code,
+                kind,
+                magnitude_ns,
+                valid_s,
+            } => Message::Warning {
                 station_code: *station_code,
                 kind: *kind,
                 magnitude_ns: magnitude_ns.round().clamp(-32768.0, 32767.0) as i16,
                 valid_s: *valid_s,
             },
-            MessageSpec::Dloran { reference_site, age_s, corrections } => Message::Dloran {
+            MessageSpec::Dloran {
+                reference_site,
+                age_s,
+                corrections,
+            } => Message::Dloran {
                 reference_site: reference_site & 0xFFF,
                 age_s: *age_s,
                 entries: corrections
@@ -600,7 +684,11 @@ impl MessageSpec {
                     })
                     .collect(),
             },
-            MessageSpec::Dgnss { constellation, z_count, sats } => Message::Dgnss {
+            MessageSpec::Dgnss {
+                constellation,
+                z_count,
+                sats,
+            } => Message::Dgnss {
                 constellation: constellation & 3,
                 // modified Z-count: 0.6 s units within the hour
                 z_count: z_count.unwrap_or_else(|| {
@@ -624,7 +712,9 @@ impl MessageSpec {
                 covered: 0,
                 tag: vec![0; (*tag_bytes).clamp(1, 32) as usize],
             },
-            MessageSpec::Raw { hex: h } => Message::Raw { data: hex::decode(h).unwrap_or_default() },
+            MessageSpec::Raw { hex: h } => Message::Raw {
+                data: hex::decode(h).unwrap_or_default(),
+            },
         }
     }
 }
@@ -661,22 +751,45 @@ mod tests {
                 power_kw: 250,
                 healthy: true,
             },
-            Message::Warning { station_code: b'X', kind: WarningKind::PropagationAnomaly, magnitude_ns: -120, valid_s: 600 },
+            Message::Warning {
+                station_code: b'X',
+                kind: WarningKind::PropagationAnomaly,
+                magnitude_ns: -120,
+                valid_s: 600,
+            },
             Message::Dloran {
                 reference_site: 42,
                 age_s: 10,
                 entries: vec![
-                    DloranEntry { station_code: b'M', correction_ns: -35 },
-                    DloranEntry { station_code: b'X', correction_ns: 412 },
+                    DloranEntry {
+                        station_code: b'M',
+                        correction_ns: -35,
+                    },
+                    DloranEntry {
+                        station_code: b'X',
+                        correction_ns: 412,
+                    },
                 ],
             },
             Message::Dgnss {
                 constellation: 0,
                 z_count: 5999,
-                sats: vec![DgnssSat { prn: 17, iode: 33, prc_002m: -1234, rrc_0002ms: 5, udre: 1 }],
+                sats: vec![DgnssSat {
+                    prn: 17,
+                    iode: 33,
+                    prc_002m: -1234,
+                    rrc_0002ms: 5,
+                    udre: 1,
+                }],
             },
-            Message::Auth { key_id: 3, covered: 4, tag: vec![1, 2, 3, 4, 5, 6, 7, 8] },
-            Message::Raw { data: b"hello".to_vec() },
+            Message::Auth {
+                key_id: 3,
+                covered: 4,
+                tag: vec![1, 2, 3, 4, 5, 6, 7, 8],
+            },
+            Message::Raw {
+                data: b"hello".to_vec(),
+            },
         ]
     }
 
@@ -689,7 +802,10 @@ mod tests {
             assert_eq!(used, b.len());
             assert!(ok);
             // truncated → need more; corrupted → CRC fails
-            assert_eq!(parse_block(&b[..b.len() - 1]).unwrap_err(), ParseError::NeedMore);
+            assert_eq!(
+                parse_block(&b[..b.len() - 1]).unwrap_err(),
+                ParseError::NeedMore
+            );
             let mut c = b.clone();
             let last = c.len() - 1;
             c[last] = !c[last];
@@ -705,14 +821,43 @@ mod tests {
 
     #[test]
     fn spec_render_units() {
-        let ctx = MsgContext { station: 2, role: Role::Secondary, first_group: 1_000_000, gri_us: Some(99_300) };
-        let m = MessageSpec::UtcTime { tai_minus_utc_s: 37, leap_pending: 0, days_to_leap: 0 }.render(&ctx);
+        let ctx = MsgContext {
+            station: 2,
+            role: Role::Secondary,
+            first_group: 1_000_000,
+            gri_us: Some(99_300),
+        };
+        let m = MessageSpec::UtcTime {
+            tai_minus_utc_s: 37,
+            leap_pending: 0,
+            days_to_leap: 0,
+        }
+        .render(&ctx);
         // 1e6 groups × 99.3 ms = 99 300 s exactly
         assert_eq!(
             m,
-            Message::UtcTime { loran_seconds: 99_300, sub_second_10us: 0, tai_minus_utc_s: 37, leap_pending: 0, days_to_leap: 0 }
+            Message::UtcTime {
+                loran_seconds: 99_300,
+                sub_second_10us: 0,
+                tai_minus_utc_s: 37,
+                leap_pending: 0,
+                days_to_leap: 0
+            }
         );
-        let s = MessageSpec::StationId { chain_id: 1, station_code: None, signal_version: 0 }.render(&ctx);
-        assert!(matches!(s, Message::StationId { station_code: b'C', secondary: true, gri_10us: 9930, .. }));
+        let s = MessageSpec::StationId {
+            chain_id: 1,
+            station_code: None,
+            signal_version: 0,
+        }
+        .render(&ctx);
+        assert!(matches!(
+            s,
+            Message::StationId {
+                station_code: b'C',
+                secondary: true,
+                gri_10us: 9930,
+                ..
+            }
+        ));
     }
 }

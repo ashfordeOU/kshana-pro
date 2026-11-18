@@ -31,7 +31,10 @@ impl Cx {
     #[inline]
     pub fn polar(r: f64, theta: f64) -> Cx {
         let (s, c) = theta.sin_cos();
-        Cx { re: r * c, im: r * s }
+        Cx {
+            re: r * c,
+            im: r * s,
+        }
     }
     /// `e^{iθ}`.
     #[inline]
@@ -53,11 +56,17 @@ impl Cx {
     }
     #[inline]
     pub fn conj(self) -> Cx {
-        Cx { re: self.re, im: -self.im }
+        Cx {
+            re: self.re,
+            im: -self.im,
+        }
     }
     #[inline]
     pub fn scale(self, k: f64) -> Cx {
-        Cx { re: self.re * k, im: self.im * k }
+        Cx {
+            re: self.re * k,
+            im: self.im * k,
+        }
     }
     #[inline]
     pub fn exp(self) -> Cx {
@@ -66,7 +75,10 @@ impl Cx {
     /// Principal logarithm.
     #[inline]
     pub fn ln(self) -> Cx {
-        Cx { re: self.abs().ln(), im: self.arg() }
+        Cx {
+            re: self.abs().ln(),
+            im: self.arg(),
+        }
     }
     /// Principal square root (branch cut on the negative real axis, `Re ≥ 0`).
     pub fn sqrt(self) -> Cx {
@@ -76,7 +88,10 @@ impl Cx {
         }
         let re = ((r + self.re) / 2.0).sqrt();
         let im = ((r - self.re) / 2.0).sqrt();
-        Cx { re, im: if self.im < 0.0 { -im } else { im } }
+        Cx {
+            re,
+            im: if self.im < 0.0 { -im } else { im },
+        }
     }
     /// Principal real power `z^a = e^{a·ln z}`.
     pub fn powf(self, a: f64) -> Cx {
@@ -101,7 +116,10 @@ impl Cx {
     }
     pub fn recip(self) -> Cx {
         let d = self.norm_sqr();
-        Cx { re: self.re / d, im: -self.im / d }
+        Cx {
+            re: self.re / d,
+            im: -self.im / d,
+        }
     }
     pub fn is_finite(self) -> bool {
         self.re.is_finite() && self.im.is_finite()
@@ -112,21 +130,30 @@ impl Add for Cx {
     type Output = Cx;
     #[inline]
     fn add(self, o: Cx) -> Cx {
-        Cx { re: self.re + o.re, im: self.im + o.im }
+        Cx {
+            re: self.re + o.re,
+            im: self.im + o.im,
+        }
     }
 }
 impl Sub for Cx {
     type Output = Cx;
     #[inline]
     fn sub(self, o: Cx) -> Cx {
-        Cx { re: self.re - o.re, im: self.im - o.im }
+        Cx {
+            re: self.re - o.re,
+            im: self.im - o.im,
+        }
     }
 }
 impl Mul for Cx {
     type Output = Cx;
     #[inline]
     fn mul(self, o: Cx) -> Cx {
-        Cx { re: self.re * o.re - self.im * o.im, im: self.re * o.im + self.im * o.re }
+        Cx {
+            re: self.re * o.re - self.im * o.im,
+            im: self.re * o.im + self.im * o.re,
+        }
     }
 }
 impl Div for Cx {
@@ -137,11 +164,17 @@ impl Div for Cx {
         if o.re.abs() >= o.im.abs() {
             let r = o.im / o.re;
             let d = o.re + o.im * r;
-            Cx { re: (self.re + self.im * r) / d, im: (self.im - self.re * r) / d }
+            Cx {
+                re: (self.re + self.im * r) / d,
+                im: (self.im - self.re * r) / d,
+            }
         } else {
             let r = o.re / o.im;
             let d = o.re * r + o.im;
-            Cx { re: (self.re * r + self.im) / d, im: (self.im * r - self.re) / d }
+            Cx {
+                re: (self.re * r + self.im) / d,
+                im: (self.im * r - self.re) / d,
+            }
         }
     }
 }
@@ -149,21 +182,30 @@ impl Neg for Cx {
     type Output = Cx;
     #[inline]
     fn neg(self) -> Cx {
-        Cx { re: -self.re, im: -self.im }
+        Cx {
+            re: -self.re,
+            im: -self.im,
+        }
     }
 }
 impl Add<f64> for Cx {
     type Output = Cx;
     #[inline]
     fn add(self, o: f64) -> Cx {
-        Cx { re: self.re + o, im: self.im }
+        Cx {
+            re: self.re + o,
+            im: self.im,
+        }
     }
 }
 impl Sub<f64> for Cx {
     type Output = Cx;
     #[inline]
     fn sub(self, o: f64) -> Cx {
-        Cx { re: self.re - o, im: self.im }
+        Cx {
+            re: self.re - o,
+            im: self.im,
+        }
     }
 }
 impl Mul<f64> for Cx {
@@ -177,7 +219,10 @@ impl Div<f64> for Cx {
     type Output = Cx;
     #[inline]
     fn div(self, o: f64) -> Cx {
-        Cx { re: self.re / o, im: self.im / o }
+        Cx {
+            re: self.re / o,
+            im: self.im / o,
+        }
     }
 }
 impl Mul<Cx> for f64 {
@@ -191,14 +236,20 @@ impl Add<Cx> for f64 {
     type Output = Cx;
     #[inline]
     fn add(self, o: Cx) -> Cx {
-        Cx { re: self + o.re, im: o.im }
+        Cx {
+            re: self + o.re,
+            im: o.im,
+        }
     }
 }
 impl Sub<Cx> for f64 {
     type Output = Cx;
     #[inline]
     fn sub(self, o: Cx) -> Cx {
-        Cx { re: self - o.re, im: -o.im }
+        Cx {
+            re: self - o.re,
+            im: -o.im,
+        }
     }
 }
 impl AddAssign for Cx {

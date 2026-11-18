@@ -42,7 +42,10 @@ impl CriChain {
             v.extend(offs.iter().map(|o| o + s.emission_delay_us));
         }
         v.sort_by(|a, b| a.partial_cmp(b).unwrap());
-        CriChain { gri_us: c.gri_us, pulse_offsets_us: v }
+        CriChain {
+            gri_us: c.gri_us,
+            pulse_offsets_us: v,
+        }
     }
 }
 
@@ -60,7 +63,11 @@ fn pulse_overlap_lattice(o: f64, gv: u32, it: &CriChain, w: f64) -> f64 {
     let gi = it.gri_us as f64;
     let g = gcd(gv as u64, it.gri_us as u64) as f64;
     let k = (it.gri_us as f64 / g).round() as usize;
-    let mut p: Vec<f64> = it.pulse_offsets_us.iter().map(|x| x.rem_euclid(gi)).collect();
+    let mut p: Vec<f64> = it
+        .pulse_offsets_us
+        .iter()
+        .map(|x| x.rem_euclid(gi))
+        .collect();
     p.sort_by(|a, b| a.partial_cmp(b).unwrap());
     let mut hit = 0usize;
     for r in 0..k {
@@ -84,14 +91,21 @@ fn pulse_overlap_lattice(o: f64, gv: u32, it: &CriChain, w: f64) -> f64 {
 
 /// Lattice (GRI-ratio) expectation of the fraction of victim pulses overlapped by at
 /// least one interferer pulse.
-pub fn overlap_fraction_lattice(victim: &CriChain, interferers: &[CriChain], window_us: f64) -> f64 {
+pub fn overlap_fraction_lattice(
+    victim: &CriChain,
+    interferers: &[CriChain],
+    window_us: f64,
+) -> f64 {
     if victim.pulse_offsets_us.is_empty() {
         return 0.0;
     }
     let mut acc = 0.0;
     for o in &victim.pulse_offsets_us {
         let mut clear = 1.0;
-        for it in interferers.iter().filter(|c| !c.pulse_offsets_us.is_empty()) {
+        for it in interferers
+            .iter()
+            .filter(|c| !c.pulse_offsets_us.is_empty())
+        {
             clear *= 1.0 - pulse_overlap_lattice(*o, victim.gri_us, it, window_us);
         }
         acc += 1.0 - clear;
@@ -103,7 +117,9 @@ pub fn overlap_fraction_lattice(victim: &CriChain, interferers: &[CriChain], win
 pub fn overlap_fraction_uniform(interferers: &[CriChain], window_us: f64) -> f64 {
     1.0 - interferers
         .iter()
-        .map(|c| 1.0 - (c.pulse_offsets_us.len() as f64 * 2.0 * window_us / c.gri_us as f64).min(1.0))
+        .map(|c| {
+            1.0 - (c.pulse_offsets_us.len() as f64 * 2.0 * window_us / c.gri_us as f64).min(1.0)
+        })
         .product::<f64>()
 }
 
@@ -165,8 +181,10 @@ mod tests {
 
     fn times(c: &Chain, ci: usize, start: AbsTime, dur_s: f64) -> Vec<Ps> {
         let tb = Timebase::new(vec![], dur_s);
-        let mut v: Vec<Ps> =
-            emissions(c, ci, start, Ps::ZERO, Ps::from_s(dur_s), &tb, None).iter().map(|e| e.t_emit).collect();
+        let mut v: Vec<Ps> = emissions(c, ci, start, Ps::ZERO, Ps::from_s(dur_s), &tb, None)
+            .iter()
+            .map(|e| e.t_emit)
+            .collect();
         v.sort();
         v
     }
@@ -174,9 +192,17 @@ mod tests {
     #[test]
     fn analytic_matches_counted_for_several_chains() {
         use Role::*;
-        let a = chain("A", 67_310, &[(Master, 0.0), (Secondary, 13_000.0), (Secondary, 29_000.0)]);
+        let a = chain(
+            "A",
+            67_310,
+            &[(Master, 0.0), (Secondary, 13_000.0), (Secondary, 29_000.0)],
+        );
         let b = chain("B", 74_990, &[(Master, 0.0), (Secondary, 15_000.0)]);
-        let c = chain("C", 99_300, &[(Master, 0.0), (Secondary, 11_000.0), (Secondary, 40_000.0)]);
+        let c = chain(
+            "C",
+            99_300,
+            &[(Master, 0.0), (Secondary, 11_000.0), (Secondary, 40_000.0)],
+        );
         let start = AbsTime::from_utc_iso("2026-11-18T00:00:00Z").unwrap();
         let dur = 300.0;
         let ta = times(&a, 0, start, dur);
@@ -189,8 +215,14 @@ mod tests {
         let others = [CriChain::from_chain(&b), CriChain::from_chain(&c)];
         let lattice = overlap_fraction_lattice(&ca, &others, w);
         let uniform = overlap_fraction_uniform(&others, w);
-        assert!((counted - lattice).abs() < 0.02, "counted {counted:.4} lattice {lattice:.4}");
-        assert!((lattice - uniform).abs() < 0.01, "lattice {lattice:.4} uniform {uniform:.4}");
+        assert!(
+            (counted - lattice).abs() < 0.02,
+            "counted {counted:.4} lattice {lattice:.4}"
+        );
+        assert!(
+            (lattice - uniform).abs() < 0.01,
+            "lattice {lattice:.4} uniform {uniform:.4}"
+        );
         // sanity: 17 pulses/74.99 ms and 25 pulses/99.3 ms, 600 µs window
         let p = 1.0 - (1.0 - 17.0 * 600.0 / 74_990.0) * (1.0 - 25.0 * 600.0 / 99_300.0);
         assert!((uniform - p).abs() < 1e-12 && (0.25..0.30).contains(&p));
@@ -203,17 +235,32 @@ mod tests {
         let v = chain("V", 99_300, &[(Secondary, 20_000.0)]);
         let i = chain("I", 49_650, &[(Master, 0.0)]);
         let start = AbsTime::from_utc_iso("2026-11-18T00:00:00Z").unwrap();
-        let counted = overlap_fraction_counted(&times(&v, 0, start, 30.0), &times(&i, 1, start, 30.0), Ps::from_us(300.0));
-        let lattice = overlap_fraction_lattice(&CriChain::from_chain(&v), &[CriChain::from_chain(&i)], 300.0);
+        let counted = overlap_fraction_counted(
+            &times(&v, 0, start, 30.0),
+            &times(&i, 1, start, 30.0),
+            Ps::from_us(300.0),
+        );
+        let lattice = overlap_fraction_lattice(
+            &CriChain::from_chain(&v),
+            &[CriChain::from_chain(&i)],
+            300.0,
+        );
         assert_eq!(counted, 0.0);
         assert_eq!(lattice, 0.0);
         // the uniform approximation would wrongly predict ≈ 11 %
         assert!(overlap_fraction_uniform(&[CriChain::from_chain(&i)], 300.0) > 0.1);
         // shift the victim onto the interferer: every pulse overlaps
         let v2 = chain("V", 99_300, &[(Secondary, 49_650.0)]);
-        let counted2 =
-            overlap_fraction_counted(&times(&v2, 0, start, 30.0), &times(&i, 1, start, 30.0), Ps::from_us(300.0));
-        let lattice2 = overlap_fraction_lattice(&CriChain::from_chain(&v2), &[CriChain::from_chain(&i)], 300.0);
+        let counted2 = overlap_fraction_counted(
+            &times(&v2, 0, start, 30.0),
+            &times(&i, 1, start, 30.0),
+            Ps::from_us(300.0),
+        );
+        let lattice2 = overlap_fraction_lattice(
+            &CriChain::from_chain(&v2),
+            &[CriChain::from_chain(&i)],
+            300.0,
+        );
         assert_eq!(lattice2, 1.0);
         assert!(counted2 > 0.99, "{counted2}"); // all but possibly the first group at the window edge
     }

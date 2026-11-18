@@ -83,7 +83,11 @@ fn d300() -> f64 {
 
 impl Envelope {
     pub fn loran_c() -> Envelope {
-        Envelope::TSquaredExp { peak_us: 65.0, taper_start_us: 200.0, end_us: 300.0 }
+        Envelope::TSquaredExp {
+            peak_us: 65.0,
+            taper_start_us: 200.0,
+            end_us: 300.0,
+        }
     }
     /// Envelope value at `t_s` seconds after the envelope origin.
     #[inline]
@@ -93,7 +97,11 @@ impl Envelope {
         }
         let t_us = t_s * 1e6;
         match self {
-            Envelope::TSquaredExp { peak_us, taper_start_us, end_us } => {
+            Envelope::TSquaredExp {
+                peak_us,
+                taper_start_us,
+                end_us,
+            } => {
                 if t_us >= *end_us {
                     return 0.0;
                 }
@@ -188,7 +196,10 @@ impl PulseSignal {
     pub fn validate(&self) -> Result<(), String> {
         let chk = |o: &Vec<f64>, a: &Vec<i8>, b: &Vec<i8>, who: &str| {
             if a.len() != o.len() || b.len() != o.len() {
-                return Err(format!("{}: {who} phase codes must have one entry per pulse", self.name));
+                return Err(format!(
+                    "{}: {who} phase codes must have one entry per pulse",
+                    self.name
+                ));
             }
             if a.iter().chain(b).any(|c| *c != 1 && *c != -1) {
                 return Err(format!("{}: phase codes are +1 or -1", self.name));
@@ -198,8 +209,18 @@ impl PulseSignal {
             }
             Ok(())
         };
-        chk(&self.master_offsets_us, &self.master_codes_a, &self.master_codes_b, "master")?;
-        chk(&self.secondary_offsets_us, &self.secondary_codes_a, &self.secondary_codes_b, "secondary")?;
+        chk(
+            &self.master_offsets_us,
+            &self.master_codes_a,
+            &self.master_codes_b,
+            "master",
+        )?;
+        chk(
+            &self.secondary_offsets_us,
+            &self.secondary_codes_a,
+            &self.secondary_codes_b,
+            "secondary",
+        )?;
         if !(self.carrier_hz > 0.0) {
             return Err("carrier must be positive".into());
         }
