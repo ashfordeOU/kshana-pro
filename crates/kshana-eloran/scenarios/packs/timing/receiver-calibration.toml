@@ -1,0 +1,61 @@
+# Timing pack (c): receiver delay calibration with a known-distance reference signal.
+#
+# PURPOSE   Measure the internal delay of an eLoran timing receiver. One test transmitter at
+#           an exactly known distance (10 km due south of the receiver), ideal time reference,
+#           high SNR and the PF-only `simple` groundwave, so the true arrival of every pulse
+#           is known to picoseconds: `toa_s − t_emit_s` in the truth equals `delay_ns`
+#           (geodesic distance × 1.000338 / c, no SF/ASF, no ECD). The receiver's 1PPS comes
+#           from the same reference as the simulator's (hardware: common 10 MHz/1PPS, output
+#           calibrated with `hw::calib` so the standard zero crossing is 30 µs after the PPS
+#           at the connector).
+# ZERO-DISTANCE  A true zero-distance reference (pulse time origin on the PPS edge) is not a
+#           propagation scenario: use the hardware calibration train of `hw::calib`
+#           (`write_calibration_train`) through the calibrated sink. This scenario is the
+#           known-distance variant, which also exercises the receiver's PF correction.
+# EXERCISES Single-station (master only) synthesis, E-field antenna, exact continuous-time
+#           delay (integer-picosecond timeline), near-noise-free conditions.
+# METRICS   Truth: `toa_s`, `delay_ns`, `distance_km`, `snr_db` (≈ 89 dB). Receiver: ToA of
+#           each group against the PPS; internal delay = measured ToA − truth `toa_s`. For
+#           the bench measurement feed time-interval-counter readings (receiver 1PPS vs
+#           reference 1PPS) to `kshana-pro eloran calibrate receiver --tic ... --inputs ...`,
+#           which subtracts the known path and cable delays and gives a GUM budget.
+# DURATION  2 s in the file (≈ 30 groups); average longer runs for a lower type-A
+#           uncertainty. The test suite overrides it to 0.3 s.
+# PROVENANCE Entirely ILLUSTRATIVE: the "CAL" transmitter and both positions are made up for
+#           the bench geometry; they are not real stations. 1 kW gives ≈ 30 mV/m at 10 km.
+[scene]
+start_utc = "2026-11-18T12:00:00Z"
+duration_s = 2.0
+fs_hz = 2000000
+seed = 103
+output_scale_uv_m = 200000.0
+
+[receiver]
+type = "static"
+lat_deg = 52.0898      # ≈ 10.0 km due north of the transmitter (truth reports the exact distance)
+lon_deg = 5.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(LAB)"        # the laboratory reference both the simulator and receiver use
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 1.0   # SNR ≈ 89 dB: the noise floor of the measurement, not a test condition
+seed = 1
+
+[[chains]]
+name = "CAL"
+gri_us = 99990
+[[chains.stations]]
+id = "M"
+name = "bench reference transmitter (illustrative)"
+role = "master"
+position = { lat_deg = 52.0, lon_deg = 5.0 }
+power_kw = 1.0
+time_ref = "UTC(LAB)"

@@ -1,0 +1,134 @@
+# Rail pack (a): train on an electrified main line, with traction interference.
+#
+# PURPOSE   An eLoran receiver with a crossed-loop H-field antenna on the roof of a train
+#           running north-east on an electrified main line in New Jersey (route following
+#           the Northeast Corridor between Trenton and Metuchen). The traction supply and
+#           pantograph arcing put impulsive noise on the antenna all the time, much more
+#           while another train passes. Tests impulse blanking/clipping in the receiver and
+#           the H-field antenna's tolerance to heading changes on curves.
+# EXERCISES `impulsive` noise with the `railway_traction` preset (600 Hz converter impulses,
+#           log-normal amplitudes, 90 kHz ringing, plus Neyman–Scott pantograph-arcing bursts
+#           tapered over a passage window 0.05–0.25 s), a `motor` impulsive source on board,
+#           `millington` groundwave over land with a coarse Atlantic sea polygon (Nantucket
+#           and Carolina Beach paths are partly over sea), waypoint track with heading
+#           changes, crossed loops, WGN.
+# METRICS   Truth: `snr_db` (against the Gaussian-equivalent noise level), `rx_heading_deg`,
+#           `bearing_deg` (loop gains follow `cos(bearing − heading − axis)`), `asf_ns`.
+#           Samples: in-band noise power inside vs outside the passage window. Receiver: ToA
+#           RMS and cycle errors inside vs outside the passage, bearing error from the loops.
+# DURATION  2 s in the file; the route lasts 1090 s at ~45 m/s (160 km/h). Put the passage
+#           window where wanted along a longer run. The test suite overrides `duration_s` to
+#           0.3 s (the passage window lies inside it).
+# PROVENANCE Chain geometry: GRI DB entry `9960-northeast-us` (USCG Loran-C User Handbook 1992,
+#           Table B-1; "verified"; terminated 2010). The waypoints only approximate the line;
+#           they are ILLUSTRATIVE, not surveyed track geometry. The impulsive presets are
+#           representative values, not measurements (src/interf/impulsive.rs). Coastline
+#           polygon COARSE ILLUSTRATIVE; conductivities representative.
+[scene]
+start_utc = "2026-11-18T17:00:00Z"
+duration_s = 2.0
+fs_hz = 1000000
+seed = 301
+output_scale_uv_m = 150000.0
+
+[receiver]
+type = "waypoints"
+points = [
+  { t_s = 0.0,   lat_deg = 40.218, lon_deg = -74.755 },   # Trenton
+  { t_s = 340.0, lat_deg = 40.316, lon_deg = -74.623 },   # Princeton Junction
+  { t_s = 650.0, lat_deg = 40.420, lon_deg = -74.530 },   # curve
+  { t_s = 900.0, lat_deg = 40.497, lon_deg = -74.445 },   # New Brunswick
+  { t_s = 1090.0, lat_deg = 40.540, lon_deg = -74.360 },   # Metuchen
+]
+
+[[outputs]]
+type = "h_loop"
+axis_deg = 0.0
+[[outputs]]
+type = "h_loop"
+axis_deg = 90.0
+
+[[time_refs]]
+id = "UTC(USNO)"
+offset_ns = 0.2
+
+[propagation.ground]
+model = "millington"
+sample_km = 4.0
+asf_grid_deg = 0.01
+
+[propagation.ground.conductivity]
+type = "polygons"
+background = { sigma_s_m = 0.005, eps_r = 15.0 }       # land (representative)
+[[propagation.ground.conductivity.polygons]]
+name = "western North Atlantic (coarse, illustrative)"
+sigma_s_m = 5.0
+eps_r = 80.0
+vertices = [
+  [40.45, -74.00], [40.60, -73.90], [40.75, -73.00], [41.00, -72.00], [41.30, -71.00],
+  [41.50, -70.60], [41.25, -69.90], [42.00, -70.00], [42.50, -70.80], [43.50, -70.20],
+  [44.50, -67.00], [44.00, -60.00], [30.00, -60.00], [30.00, -81.30], [31.00, -81.40],
+  [32.00, -80.80], [33.80, -78.00], [34.60, -76.50], [35.20, -75.50], [36.90, -75.90],
+  [38.00, -75.20], [38.90, -74.90], [39.40, -74.40], [40.00, -74.05],
+]
+
+[[interference]]
+type = "impulsive"
+preset = "railway_traction"
+passage_from_s = 0.05
+passage_to_s = 0.25
+seed = 11
+
+[[interference]]
+type = "impulsive"
+preset = "motor"
+gain_db = -10.0           # on-board auxiliaries, attenuated by the roof installation
+seed = 12
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 20.0
+seed = 13
+
+[[chains]]
+name = "9960"             # GRI DB 9960-northeast-us
+gri_us = 99600
+[[chains.stations]]
+id = "M"
+name = "Seneca, NY"
+role = "master"
+position = { lat_deg = 42.7140878, lon_deg = -76.8259189 }
+power_kw = 800.0
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "W"
+name = "Caribou, ME"
+role = "secondary"
+position = { lat_deg = 46.8075847, lon_deg = -67.9269886 }
+power_kw = 800.0
+emission_delay_us = 13797.2
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "X"
+name = "Nantucket, MA"
+role = "secondary"
+position = { lat_deg = 41.2533461, lon_deg = -69.9773711 }
+power_kw = 350.0
+emission_delay_us = 26969.93
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Y"
+name = "Carolina Beach, NC"
+role = "secondary"
+position = { lat_deg = 34.0628356, lon_deg = -77.9128056 }
+power_kw = 600.0
+emission_delay_us = 42221.64
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Z"
+name = "Dana, IN"
+role = "secondary"
+position = { lat_deg = 39.8521272, lon_deg = -87.4865517 }
+power_kw = 400.0
+emission_delay_us = 57162.06
+time_ref = "UTC(USNO)"

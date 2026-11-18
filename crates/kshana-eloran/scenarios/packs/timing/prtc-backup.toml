@@ -1,0 +1,143 @@
+# Timing pack (a): eLoran as a PRTC backup during a GNSS outage.
+#
+# PURPOSE   A static timing receiver (for example a telecom PRTC with an eLoran input) at a
+#           known, surveyed position keeps time from one eLoran chain while GNSS is out. The
+#           GNSS outage itself is NOT simulated here: it is configured outside this file, in
+#           the GNSS bridge (`kshana-pro eloran gnss`, by not generating or attenuating the
+#           GNSS half) or in the COTS GNSS simulator driven through `sync` (SCPI templates,
+#           NMEA/CSV trajectory export). This scenario supplies the eLoran half on the same
+#           start instant and time base.
+# EXERCISES One chain steered to UTC(k) with an offset and drift, seeded white-FM and
+#           random-walk-FM clock noise on UTC(k) and on each transmitter's own caesium
+#           (`tx_clock`), the GPST steering residual (`gnss_time_residual_ns`), groundwave over
+#           a homogeneous land path (`smooth_earth`, PF + SF + land ASF + ECD), E-field
+#           antenna, light atmospheric noise.
+# METRICS   Truth: `time_ref_offset_ns` and `emission_error_ns` per station per group (the
+#           UTC(k) and transmitter clock wander the receiver must follow), `delay_ns` and its
+#           `pf_ns`/`sf_ns`/`asf_ns` parts (the propagation correction a timing receiver must
+#           apply), `snr_db`. Receiver (`kshana-pro eloran rx`): the time solution at the
+#           scenario's position, `ref_minus_rx_ns` per station and the mean per time reference;
+#           compare against `time_ref_offset_ns + emission_error_ns` of the truth to obtain the
+#           holdover time error; TIE/MTIE/TDEV are computed from that series outside the crate.
+# DURATION  Holdover studies need long runs: `duration_s = 86400` (one day) is set here, with
+#           `[file] format = "none"` (truth only; a day of samples at 400 kS/s is ~69 GB in
+#           ri16). Clock noise is realised on a 1 s grid for the whole duration, so the same
+#           seed gives the same wander. Run shorter segments with `--format ri16` when samples
+#           are needed. The test suite overrides `duration_s` to 0.3 s.
+# PROVENANCE Chain geometry: GRI DB entry `9960-northeast-us` (USCG Loran-C User Handbook
+#           COMDTPUB P16562.6, 1992, Table B-1; confidence "verified"; chain terminated
+#           2010-02-08). Values copied unchanged (positions, emission delays, nominal power).
+#           The receiver site is ILLUSTRATIVE (not a real facility). UTC(USNO) offset: the
+#           BIPM Circular T 466 snapshot in data/utc_k.json (UTC − UTC(USNO) = −0.2 ns, so
+#           x = +0.2 ns); drift and noise levels are ILLUSTRATIVE, typical orders of magnitude
+#           for a steered national time scale and for commercial caesium standards, not
+#           measurements of any laboratory or transmitter.
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 86400.0
+fs_hz = 400000
+seed = 101
+output_scale_uv_m = 100000.0
+
+[file]
+format = "none"
+
+[receiver]
+type = "static"
+lat_deg = 39.950          # illustrative timing site
+lon_deg = -75.170
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(USNO)"
+offset_ns = 0.2           # CT 466 snapshot (illustrative use)
+drift_ns_per_day = 0.5    # illustrative steering residual
+wfm_adev_1s = 2.0e-13
+rwfm_adev_1s = 1.0e-15
+seed = 11
+
+# Transmitter caesium clocks (ILLUSTRATIVE levels, ~5e-12 at 1 s, high-performance caesium).
+[[time_refs]]
+id = "tx:Seneca"
+wfm_adev_1s = 5.0e-12
+seed = 21
+[[time_refs]]
+id = "tx:Caribou"
+wfm_adev_1s = 5.0e-12
+seed = 22
+[[time_refs]]
+id = "tx:Nantucket"
+wfm_adev_1s = 5.0e-12
+seed = 23
+[[time_refs]]
+id = "tx:CarolinaBeach"
+wfm_adev_1s = 5.0e-12
+seed = 24
+[[time_refs]]
+id = "tx:Dana"
+wfm_adev_1s = 5.0e-12
+seed = 25
+
+[gnss_time_residual_ns]
+Gpst = 2.0                # GPST steering residual (illustrative), for the GNSS half
+
+[propagation.ground]
+model = "smooth_earth"
+sigma_s_m = 0.005         # representative inland ground (ITU-R P.832 order), illustrative
+eps_r = 15.0
+
+[[interference]]
+type = "atmospheric"
+season = "autumn"
+time_block = "16-20"      # local time block of the approximate P.372 table (MODELLED)
+seed = 5
+
+[[chains]]
+name = "9960"             # GRI DB 9960-northeast-us
+gri_us = 99600
+[[chains.stations]]
+id = "M"
+name = "Seneca, NY"
+role = "master"
+position = { lat_deg = 42.7140878, lon_deg = -76.8259189 }
+power_kw = 800.0
+time_ref = "UTC(USNO)"
+tx_clock = "tx:Seneca"
+[[chains.stations]]
+id = "W"
+name = "Caribou, ME"
+role = "secondary"
+position = { lat_deg = 46.8075847, lon_deg = -67.9269886 }
+power_kw = 800.0
+emission_delay_us = 13797.2
+time_ref = "UTC(USNO)"
+tx_clock = "tx:Caribou"
+[[chains.stations]]
+id = "X"
+name = "Nantucket, MA"
+role = "secondary"
+position = { lat_deg = 41.2533461, lon_deg = -69.9773711 }
+power_kw = 350.0
+emission_delay_us = 26969.93
+time_ref = "UTC(USNO)"
+tx_clock = "tx:Nantucket"
+[[chains.stations]]
+id = "Y"
+name = "Carolina Beach, NC"
+role = "secondary"
+position = { lat_deg = 34.0628356, lon_deg = -77.9128056 }
+power_kw = 600.0
+emission_delay_us = 42221.64
+time_ref = "UTC(USNO)"
+tx_clock = "tx:CarolinaBeach"
+[[chains.stations]]
+id = "Z"
+name = "Dana, IN"
+role = "secondary"
+position = { lat_deg = 39.8521272, lon_deg = -87.4865517 }
+power_kw = 400.0
+emission_delay_us = 57162.06
+time_ref = "UTC(USNO)"
+tx_clock = "tx:Dana"
