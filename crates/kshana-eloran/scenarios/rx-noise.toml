@@ -1,0 +1,56 @@
+# Receiver test (S10): the geometry of rx-high-snr.toml plus white Gaussian noise of
+# 2600 µV/m in 20 kHz: SNR ≈ 20 dB at the weakest station (Y), ≈ 21 dB at the others.
+# Synthetic geometry (not real stations).
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 1000000
+seed = 7
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 55.0
+lon_deg = 3.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 50.0
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 2600.0
+
+[[chains]]
+name = "rx-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+ecd_us = 1.5
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 53.8, lon_deg = 5.5 }
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"

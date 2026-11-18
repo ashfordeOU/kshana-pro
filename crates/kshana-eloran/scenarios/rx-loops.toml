@@ -1,0 +1,55 @@
+# Receiver test (S10): crossed-loop H-field antenna (loop A on the bow, loop B
+# athwartships) on a vessel heading 30°, four stations all round, no noise.
+# Synthetic geometry (not real stations).
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 1000000
+seed = 3
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 55.0
+lon_deg = 3.0
+heading_deg = 30.0
+
+[[outputs]]
+type = "h_loop"
+axis_deg = 0.0
+[[outputs]]
+type = "h_loop"
+axis_deg = 90.0
+
+[[time_refs]]
+id = "UTC(A)"
+
+[propagation.ground]
+model = "simple"
+
+[[chains]]
+name = "rx-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 53.8, lon_deg = 5.5 }
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"
