@@ -38,6 +38,7 @@ pub mod sync;
 pub mod time;
 pub mod timebase;
 pub mod traj;
+pub mod valid;
 
 pub use scenario::Scenario;
 pub use scene::{MemSink, Scene, TruthRecord};
