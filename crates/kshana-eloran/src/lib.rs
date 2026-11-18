@@ -15,16 +15,22 @@
 //!   the truth record;
 //! * [`io`]: SigMF real-sample files for record and replay;
 //! * [`rx`]: the software receiver;
-//! * [`scenario`]: TOML scenarios.
+//! * [`scenario`]: TOML scenarios;
+//! * [`instr`]: bench instrument automation (TCP/serial, role drivers, TAPR TICC, evidence log);
+//! * [`accept`]: calibration wizards and the hardware acceptance suite with RVM output;
+//! * [`calreg`]: the hash-chained calibration register.
 //!
 //! Evidence labels follow the Kshana convention: a model is VALIDATED only where an
 //! independent external reference backs it (see `docs/VALIDATION.md` of this crate).
 
+pub mod accept;
 pub mod antenna;
+pub mod calreg;
 pub mod chain;
 pub mod geo;
 pub mod gridb;
 pub mod hw;
+pub mod instr;
 pub mod interf;
 pub mod io;
 pub mod ldc;
