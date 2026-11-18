@@ -139,6 +139,59 @@ impl AbsTime {
     }
 }
 
+/// UTC calendar position of an absolute instant (see [`AbsTime::utc_day_hour`]).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct UtcDayHour {
+    pub year: i64,
+    /// Day of year with fraction: 1.0 = 1 January 00:00 UTC.
+    pub day_of_year: f64,
+    /// UTC hour of day, `0 ≤ h < 24`.
+    pub hour_utc: f64,
+}
+
+impl AbsTime {
+    /// The UTC year, fractional day of year (1.0 = 1 January 00:00) and hour of this
+    /// instant, removing TAI − UTC with [`tai_minus_utc_s`] (an instant inside a leap
+    /// second reads as the following second). Used by the propagation models to derive
+    /// solar and seasonal terms from the scene start.
+    pub fn utc_day_hour(self) -> UtcDayHour {
+        let ps = PS_PER_S as i128;
+        let tai_s = self.0.div_euclid(ps);
+        let frac = self.0.rem_euclid(ps) as f64 / PS_PER_S as f64;
+        let epoch = days_from_civil(1958, 1, 1) as i128;
+        // date from TAI, remove that date's TAI − UTC, then once more with the UTC date
+        let leap_of = |s: i128| {
+            let (y, m, d) = civil_from_days((s.div_euclid(86_400) + epoch) as i64);
+            tai_minus_utc_s(y, m, d) as i128
+        };
+        let utc_s = tai_s - leap_of(tai_s - leap_of(tai_s));
+        let days = (utc_s.div_euclid(86_400) + epoch) as i64;
+        let sod = utc_s.rem_euclid(86_400) as f64 + frac;
+        let (y, _, _) = civil_from_days(days);
+        let hour_utc = sod / 3600.0;
+        UtcDayHour {
+            year: y,
+            day_of_year: (days - days_from_civil(y, 1, 1) + 1) as f64 + hour_utc / 24.0,
+            hour_utc,
+        }
+    }
+}
+
+/// Proleptic Gregorian date `(y, m, d)` of a day number from 1970-01-01 (inverse of
+/// [`days_from_civil`], H. Hinnant's algorithm).
+pub fn civil_from_days(z: i64) -> (i64, i64, i64) {
+    let z = z + 719_468;
+    let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let y = yoe + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let m = if mp < 10 { mp + 3 } else { mp - 9 };
+    (if m <= 2 { y + 1 } else { y }, m, d)
+}
+
 /// Days from 1970-01-01 of a proleptic Gregorian date (H. Hinnant's algorithm).
 pub fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
     let y = if m <= 2 { y - 1 } else { y };
@@ -215,5 +268,23 @@ mod tests {
         let b = AbsTime::from_utc_iso("2017-01-02T00:00:00Z").unwrap();
         // two days plus the 2017-01-01 leap second
         assert_eq!(b.0 - a.0, (2 * 86400 + 1) as i128 * PS_PER_S as i128);
+    }
+
+    #[test]
+    fn utc_day_hour_inverts_parsing() {
+        let t = AbsTime::from_utc_iso("2026-11-18T06:30:00Z").unwrap();
+        let u = t.utc_day_hour();
+        assert_eq!(u.year, 2026);
+        assert!((u.hour_utc - 6.5).abs() < 1e-9);
+        assert!((u.day_of_year - (322.0 + 6.5 / 24.0)).abs() < 1e-9, "{}", u.day_of_year);
+        let j = AbsTime::from_utc_iso("2017-01-01T00:00:00Z").unwrap().utc_day_hour();
+        assert_eq!((j.year, j.day_of_year, j.hour_utc), (2017, 1.0, 0.0));
+        let l = AbsTime::from_utc_iso("2016-12-31T23:59:59Z").unwrap().utc_day_hour();
+        assert_eq!(l.year, 2016);
+        assert!((l.hour_utc - (24.0 - 1.0 / 3600.0)).abs() < 1e-9);
+        for z in [-800_000, -1, 0, 59, 365, 20_000, 1_000_000] {
+            let (y, m, d) = civil_from_days(z);
+            assert_eq!(days_from_civil(y, m, d), z);
+        }
     }
 }

@@ -2,6 +2,7 @@
 # stations) whose stations carry Eurofix data (tri-state ±1 µs PPM on pulses 3–8,
 # balanced patterns, RS(30,10) over GF(2^7), CRC-14 frame check). The on-air format is
 # MODELLED from the Eurofix literature until confirmed against the governing standard.
+# The UTC-time message takes the chain's GRI from the chain (no gri_us in the ldc table).
 [scene]
 start_utc = "2026-11-18T00:00:00Z"
 duration_s = 1.0
@@ -27,7 +28,7 @@ model = "simple"
 [[chains]]
 name = "chain-E"
 gri_us = 67310
-ldc = { scheme = "eurofix", gri_us = 67310, auth_key_hex = "4b5348414e412d4c44432d544553542d4b4559", schedule = [
+ldc = { scheme = "eurofix", auth_key_hex = "4b5348414e412d4c44432d544553542d4b4559", schedule = [
   { type = "station_id", chain_id = 1 },
   { type = "utc_time", tai_minus_utc_s = 37 },
   { type = "almanac", station_code = 77, gri_us = 67310, lat_deg = 54.9, lon_deg = -3.3, power_kw = 250 },

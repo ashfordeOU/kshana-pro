@@ -1,0 +1,49 @@
+# 9th-pulse LDC scenario: one synthetic chain (positions illustrative, not real stations)
+# whose master and secondary carry a data pulse 1000 µs after the 8th pulse, 32-state PPM
+# (1 µs steps, ±15.5 µs), RS(24,9) over GF(2^5), phase code +/− in A/B. The on-air format is
+# MODELLED from the 9th-pulse LDC literature until confirmed against the governing standard.
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.0
+fs_hz = 400000
+seed = 9
+output_scale_uv_m = 200000.0
+
+[receiver]
+type = "static"
+lat_deg = 53.5
+lon_deg = 2.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 4.0
+
+[propagation.ground]
+model = "simple"
+
+[[chains]]
+name = "chain-N"
+gri_us = 59900
+# gri_us inside the ldc table is optional (the chain's GRI is used); it is stated here only
+# to show the override, which must equal the chain's gri_us.
+ldc = { scheme = "ninth_pulse", gri_us = 59900, auth_key_hex = "4b5348414e412d4c44432d544553542d4b4559", schedule = [
+  { type = "station_id", chain_id = 2 },
+  { type = "utc_time", tai_minus_utc_s = 37 },
+  { type = "auth", key_id = 1, tag_bytes = 4 },
+] }
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 54.9, lon_deg = -3.3 }
+power_kw = 250.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 57.0, lon_deg = 9.5 }
+power_kw = 250.0
+emission_delay_us = 14000.0
+time_ref = "UTC(A)"

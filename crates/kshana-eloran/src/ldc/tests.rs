@@ -88,7 +88,7 @@ fn group_emissions(c: &Chain, m: &dyn crate::signal::GroupModulator, k0: i64, n:
 #[test]
 fn eurofix_end_to_end_through_emissions() {
     let cfg = LdcConfig::eurofix(common());
-    let m = build_modulator(&cfg).unwrap().unwrap();
+    let m = build_modulator(&cfg, None).unwrap().unwrap();
     let dec = LdcDecoder::new(&cfg).unwrap().unwrap();
     assert_eq!(dec.groups_per_frame(), 30);
     assert_eq!(dec.codec.data_bits(), 56);
@@ -148,7 +148,7 @@ fn eurofix_end_to_end_through_emissions() {
 #[test]
 fn ninth_pulse_end_to_end_through_emissions() {
     let cfg = LdcConfig::ninth_pulse(common());
-    let m = build_modulator(&cfg).unwrap().unwrap();
+    let m = build_modulator(&cfg, None).unwrap().unwrap();
     let dec = LdcDecoder::new(&cfg).unwrap().unwrap();
     assert_eq!(dec.bits_per_symbol(), 5);
     assert_eq!(dec.groups_per_frame(), 24);
@@ -194,7 +194,7 @@ fn ninth_pulse_end_to_end_through_emissions() {
 #[test]
 fn authentication_verifies_and_rejects() {
     let cfg = LdcConfig::eurofix(common());
-    let m = build_modulator(&cfg).unwrap().unwrap();
+    let m = build_modulator(&cfg, None).unwrap().unwrap();
     let dec = LdcDecoder::new(&cfg).unwrap().unwrap();
     let plan_frames = m.c.plans[0].cycle_frames;
     let f0 = plan_frames * 1000; // cycle start
@@ -238,7 +238,7 @@ fn scheduler_round_robin_repeat_and_per_station() {
         stations: Some(vec![0, 2]),
         ..Default::default()
     };
-    let m = build_modulator(&LdcConfig::eurofix(cm.clone())).unwrap().unwrap();
+    let m = build_modulator(&LdcConfig::eurofix(cm.clone()), None).unwrap().unwrap();
     // station id: 4+38+24 = 66 bits → 2 frames of 56; null 28 bits → 1 frame; cycle 5 frames
     assert_eq!(m.c.plans[0].cycle_frames, 5);
     let msgs = m.messages_starting(0, Role::Master, 0, 10);
@@ -255,7 +255,7 @@ fn scheduler_round_robin_repeat_and_per_station() {
     assert_eq!(p, p0);
     // time messages without a GRI are rejected
     cm.schedule.push(entry(MessageSpec::UtcTime { tai_minus_utc_s: 37, leap_pending: 0, days_to_leap: 0 }));
-    assert!(build_modulator(&LdcConfig::eurofix(cm)).is_err());
+    assert!(build_modulator(&LdcConfig::eurofix(cm), None).is_err());
 }
 
 #[test]
@@ -278,7 +278,7 @@ fn generic_phase_and_ppm_schemes_roundtrip() {
     assert!(mk(MapperSpec::Ppm { pulses: vec![DATA_PULSE], states: 16, step_us: 2.0 }, None).compile().is_err());
     let c = chain();
     for cfg in &cfgs {
-        let m = build_modulator(cfg).unwrap().unwrap();
+        let m = build_modulator(cfg, None).unwrap().unwrap();
         let dec = LdcDecoder::new(cfg).unwrap().unwrap();
         let g = dec.groups_per_frame() as i64;
         let k0 = g * 1_000_000;
@@ -299,7 +299,7 @@ fn generic_phase_and_ppm_schemes_roundtrip() {
 #[test]
 fn align_finds_frame_boundary() {
     let cfg = LdcConfig::eurofix(common());
-    let m = build_modulator(&cfg).unwrap().unwrap();
+    let m = build_modulator(&cfg, None).unwrap().unwrap();
     let dec = LdcDecoder::new(&cfg).unwrap().unwrap();
     let k0 = 30 * 5000 + 17; // 17 groups into a frame
     let syms = m.symbols(0, Role::Master, k0, k0 + 30 * 8);
@@ -330,7 +330,7 @@ ldc = { scheme = "eurofix", gri_us = 67310, auth_key_hex = "0b0b", schedule = [
     assert_eq!(e.rs_n, 30);
     assert_eq!(e.common.schedule[1].repeat, 2);
     assert_eq!(e.common.gri_us, Some(67310));
-    build(&w.ldc).unwrap().unwrap();
+    build(&w.ldc, None).unwrap().unwrap();
     let w2: W = toml::from_str(r#"ldc = { scheme = "ninth_pulse", states = 16, step_us = 2.0, rs_n = 15, rs_k = 7 }"#).unwrap();
     let d = LdcDecoder::new(&w2.ldc).unwrap().unwrap();
     assert_eq!(d.bits_per_symbol(), 4);
@@ -338,9 +338,9 @@ ldc = { scheme = "eurofix", gri_us = 67310, auth_key_hex = "0b0b", schedule = [
         r#"ldc = { scheme = "generic", mapper = { type = "tri_state", pulses = [2,3,4,5,6,7], step_us = 1.0, balanced = true }, fec = { m = 7, n = 30, k = 10 } }"#,
     )
     .unwrap();
-    assert!(build(&w3.ldc).unwrap().is_some());
+    assert!(build(&w3.ldc, None).unwrap().is_some());
     let none: W = toml::from_str(r#"ldc = { scheme = "none" }"#).unwrap();
-    assert!(build(&none.ldc).unwrap().is_none());
+    assert!(build(&none.ldc, None).unwrap().is_none());
     // serialisation (scenario hashing) works
     serde_json::to_string(&w.ldc).unwrap();
 }
@@ -362,7 +362,7 @@ struct BerRow {
 /// Generate symbols, turn them into ideal pulse offsets plus N(0, σ²) timing noise on every
 /// pulse (and a random common offset), decide, decode; compare with truth.
 fn ber_row(cfg: &LdcConfig, sigma_ns: f64, frames: i64, seed: u64) -> BerRow {
-    let m: LdcModulator = build_modulator(cfg).unwrap().unwrap();
+    let m: LdcModulator = build_modulator(cfg, None).unwrap().unwrap();
     let dec = LdcDecoder::new(cfg).unwrap().unwrap();
     let g = dec.groups_per_frame() as i64;
     let f0 = 123_456;
