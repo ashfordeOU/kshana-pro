@@ -31,6 +31,10 @@
 //!    position + clock (all-in-view, multi-chain), TDoA fixes.
 //! 7. **Truth comparison** ([`truth`]) and the **LDC hook** ([`Receiver::pulse_timing`]):
 //!    per-pulse timing offsets and phases of a group for a data-channel decoder.
+//! 8. **Data-channel decoding** ([`ldc`]): with [`RxConfig::ldc`] set (the chains' LDC
+//!    configurations), every tracked station's channel symbols are decided from
+//!    [`Receiver::pulse_timing_with`] and decoded (RS/CRC/messages/authentication) into
+//!    [`RxOutput::ldc`].
 //!
 //! # References
 //!
@@ -56,11 +60,13 @@
 
 pub mod acquire;
 pub mod dsp;
+pub mod ldc;
 pub mod solve;
 pub mod track;
 pub mod truth;
 
 pub use acquire::Acquisition;
+pub use ldc::StationLdc;
 pub use dsp::{BandPassSpec, Fir, C64};
 pub use solve::{
     nominal_emission_s, observations, position_solution, predicted_delay_s, tdoa_fix, time_solution,
@@ -71,6 +77,7 @@ pub use truth::{clock_errors, position_error_m, toa_errors, ClockError, StationE
 
 use crate::chain::{Chain, StationStatus};
 use crate::geo::Geo;
+use crate::ldc::{LdcConfig, LdcDecoder};
 use crate::signal::Parity;
 use crate::time::AbsTime;
 use track::{Blanking, PulseRef, Src, Template, WindowFit};
@@ -142,6 +149,11 @@ pub struct RxConfig {
     /// Field (µV/m) of input value 1.0 (the simulator's `output_scale_uv_m`) for the
     /// reported field strength.
     pub output_scale_uv_m: f64,
+    /// Data-channel decoding: the LDC configuration of each chain, by chain index (`None`,
+    /// or a missing entry, for no decoding; empty by default). Normally
+    /// `Scenario::ldc_configs()`; each entry is completed from its chain
+    /// ([`LdcConfig::for_chain`]). Decoded messages appear in [`RxOutput::ldc`].
+    pub ldc: Vec<Option<LdcConfig>>,
 }
 
 impl Default for RxConfig {
@@ -160,6 +172,7 @@ impl Default for RxConfig {
             corrections: Corrections::default(),
             propagation_ecd_us: 0.0,
             output_scale_uv_m: 1.0,
+            ldc: Vec::new(),
         }
     }
 }
@@ -237,6 +250,9 @@ pub struct RxOutput {
     pub acquisitions: Vec<Acquisition>,
     pub tracks: Vec<StationTrack>,
     pub measurements: Vec<Measurement>,
+    /// Decoded data channel per tracked station (and loop channel) of every chain with an
+    /// LDC configuration in [`RxConfig::ldc`] (empty otherwise).
+    pub ldc: Vec<StationLdc>,
 }
 
 /// Per-pulse timing of one group (LDC decoder input).
@@ -254,6 +270,15 @@ pub struct PulseTiming {
     pub phase_rad: f64,
     /// Amplitude relative to the station's tracked amplitude.
     pub amplitude_rel: f64,
+}
+
+/// A pulse a data channel inserts into a group (input of [`Receiver::pulse_timing_with`]).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ExtraPulse {
+    /// Nominal offset from the group's time origin (µs).
+    pub offset_us: f64,
+    /// Expected carrier phase (rad): the pulse's phase code (0 or π).
+    pub phase_rad: f64,
 }
 
 /// Per-pulse timing of a station's group.
@@ -279,6 +304,8 @@ pub struct Receiver {
     pub templates: Vec<Template>,
     /// Valid sample range (filter edge transients excluded).
     pub n_valid: (usize, usize),
+    /// LDC decoder per chain (from [`RxConfig::ldc`]).
+    pub ldc_decoders: Vec<Option<LdcDecoder>>,
 }
 
 impl Receiver {
@@ -306,7 +333,19 @@ impl Receiver {
         let len = input.channels.iter().map(|c| c.len()).min().unwrap_or(0);
         let n_valid = (fir.half.min(len), len.saturating_sub(fir.half));
         let templates = chains.iter().map(|c| Template::new(&c.signal, &fir)).collect();
+        if cfg.ldc.len() > chains.len() {
+            return Err(format!("receiver: {} LDC configurations for {} chains", cfg.ldc.len(), chains.len()));
+        }
+        let ldc_decoders = chains
+            .iter()
+            .enumerate()
+            .map(|(i, c)| match cfg.ldc.get(i).and_then(|l| l.as_ref()) {
+                Some(l) => LdcDecoder::for_chain(l, c).map_err(|e| format!("receiver: chain {}: {e}", c.name)),
+                None => Ok(None),
+            })
+            .collect::<Result<Vec<_>, _>>()?;
         Ok(Receiver {
+            ldc_decoders,
             cfg,
             chains: chains.to_vec(),
             fs: input.fs_hz,
@@ -539,19 +578,42 @@ impl Receiver {
     pub fn run(&self) -> RxOutput {
         let acquisitions = self.acquire();
         let (tracks, measurements) = self.track(&acquisitions);
-        RxOutput { acquisitions, tracks, measurements }
+        let ldc = self.decode_ldc(&tracks);
+        RxOutput { acquisitions, tracks, measurements, ldc }
     }
 
     /// **LDC hook**: timing of every pulse of `group` of a tracked station, relative to its
     /// nominal place in the group. The station's tracked envelope and carrier (of the
     /// window nearest `group`) are the reference; each pulse's carrier phase is fitted on
     /// its own with the envelope fixed. `extra_offsets_us` adds pulses a data channel
-    /// inserts (e.g. a ninth secondary pulse) with phase 0.
+    /// inserts (e.g. a ninth secondary pulse) with phase 0. See
+    /// [`Receiver::pulse_timing_with`] for inserted pulses with a phase code and for
+    /// shifts beyond ± half a carrier cycle.
     pub fn pulse_timing(
         &self,
         track: &StationTrack,
         group: i64,
         extra_offsets_us: &[f64],
+    ) -> Option<GroupPulseTiming> {
+        let extra: Vec<ExtraPulse> = extra_offsets_us.iter().map(|o| ExtraPulse { offset_us: *o, phase_rad: 0.0 }).collect();
+        self.pulse_timing_with(track, group, &extra, &[])
+    }
+
+    /// [`Receiver::pulse_timing`] with inserted pulses given with their carrier phase (a
+    /// data pulse's phase code; without it a −1-coded pulse would read half a cycle off),
+    /// and per-pulse **envelope-resolved** timing: for pulse `k` (index into the returned
+    /// list: the group's nominal pulses, then `extra`) with `envelope_search_us[k] > 0`,
+    /// the pulse's own envelope is searched over ± that range around its nominal place
+    /// and the carrier cycle nearest the envelope is taken, so the offset is no longer
+    /// limited to ± half a carrier period (5 µs). Needed by PPM schemes whose shifts
+    /// exceed ±5 µs (e.g. the 9th-pulse LDC: 32 states 1 µs apart, ±15.5 µs). The single
+    /// pulse envelope must be good to ±5 µs for the cycle to be right.
+    pub fn pulse_timing_with(
+        &self,
+        track: &StationTrack,
+        group: i64,
+        extra: &[ExtraPulse],
+        envelope_search_us: &[f64],
     ) -> Option<GroupPulseTiming> {
         let win = track.windows.iter().min_by_key(|w| (w.group - group).abs())?;
         let ch = &self.chains[track.chain_index];
@@ -571,18 +633,27 @@ impl Receiver {
         let blank = Blanking::default();
         let mut specs: Vec<(f64, f64)> =
             ch.signal.group(st.role, Parity::of_group(group)).iter().map(|p| (p.offset.as_s(), p.phase_rad)).collect();
-        specs.extend(extra_offsets_us.iter().map(|o| (o * 1e-6, 0.0)));
+        specs.extend(extra.iter().map(|e| (e.offset_us * 1e-6, e.phase_rad)));
         let r = win.fit.w.abs();
         let period = tpl.period();
+        let ws = self.window_s();
         let pulses = specs
             .iter()
             .enumerate()
             .map(|(k, (off, ph))| {
                 let pr = [PulseRef { d_s: *off, phase_rad: *ph }];
-                let d = track::collect(&src, tpl, &pr, t_env, self.window_s(), &blank);
+                let search = envelope_search_us.get(k).copied().unwrap_or(0.0).max(0.0) * 1e-6;
+                // envelope of this pulse alone (wide timing), else the station's envelope
+                let delta = if search > 0.0 {
+                    let d0 = track::collect(&src, tpl, &pr, t_env, (ws.0 - search, ws.1 + search), &blank);
+                    track::search_envelope(&d0, tpl, -search, search)
+                } else {
+                    0.0
+                };
+                let d = track::collect(&src, tpl, &pr, t_env + delta, ws, &blank);
                 let (_, wi) = track::fit_w(&d, tpl, 0.0);
                 let ti = -wi.arg() / tpl.omega;
-                let kk = ((t_car - ti) / period).round();
+                let kk = ((t_car + delta - ti) / period).round();
                 let off_s = ti + kk * period - t_car;
                 let rel = wi * C64::cis(tpl.omega * t_car);
                 PulseTiming {

@@ -93,6 +93,41 @@ fn skywave_night_scenario_runs() {
 }
 
 #[test]
+fn skywave_day_night_follows_the_scene_start_without_sky_start_utc() {
+    // the sky table has no start_utc: the scene start drives the sun's position
+    let sky = "[propagation.sky]\nmodel = \"ionospheric\"\ndaylight = \"auto\"\n";
+    let night = BASE.replace("SKY", sky).replace("2026-11-18T00:00:00Z", "2026-12-21T00:00:00Z");
+    let day = BASE.replace("SKY", sky).replace("2026-11-18T00:00:00Z", "2026-06-21T12:00:00Z");
+    let tn = kshana_eloran::run_to_memory(&night).unwrap().1;
+    let td = kshana_eloran::run_to_memory(&day).unwrap().1;
+    let (rn, rd) = (tn[0].sky_ratio_db.unwrap(), td[0].sky_ratio_db.unwrap());
+    assert!(rn - rd > 10.0, "night {rn:.1} dB, day {rd:.1} dB");
+    assert!(tn[0].sky_delay_us.unwrap() > td[0].sky_delay_us.unwrap());
+    // an explicit start_utc in the sky table overrides the scene start
+    let over = format!("{sky}start_utc = \"2026-12-21T00:00:00Z\"\n");
+    let to = kshana_eloran::run_to_memory(&BASE.replace("SKY", &over).replace("2026-11-18T00:00:00Z", "2026-06-21T12:00:00Z"))
+        .unwrap()
+        .1;
+    assert_eq!(to[0].sky_ratio_db, tn[0].sky_ratio_db);
+}
+
+#[test]
+fn stated_sky_ratio_holds_over_smooth_earth_ground() {
+    let sky = "[propagation.sky]\nmodel = \"ionospheric\"\ndaylight = \"night\"\ndelay_us = 40.0\nratio_db = -6.0\nphase_height_offset_km = 0.0\n";
+    let src = BASE
+        .replace("SKY", sky)
+        .replace("[propagation.ground]\nmodel = \"simple\"", "[propagation.ground]\nmodel = \"smooth_earth\"\nsigma_s_m = 0.003");
+    let sc = Scenario::from_toml(&src).unwrap();
+    assert!(matches!(sc.propagation.ground, kshana_eloran::prop::ground::GroundConfig::SmoothEarth { .. }));
+    let t = kshana_eloran::run_to_memory(&src).unwrap().1;
+    assert!(!t.is_empty());
+    for r in &t {
+        assert!((r.sky_ratio_db.unwrap() + 6.0).abs() < 1e-6, "{:?}", r.sky_ratio_db);
+        assert!((r.sky_delay_us.unwrap() - 40.0).abs() < 1e-3, "{:?}", r.sky_delay_us);
+    }
+}
+
+#[test]
 fn rfi_railway_scenario_runs() {
     let src = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/scenarios/rfi-railway.toml")).unwrap();
     let sc = Scenario::from_toml(&src).unwrap();

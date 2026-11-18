@@ -68,6 +68,8 @@ pub struct LdcDecoder {
     pub codec: FrameCodec,
     pub mapper: Mapper,
     pub data_pulse: Option<DataPulse>,
+    /// Stations (indices) that carry data; all when `None`.
+    pub stations: Option<Vec<usize>>,
     auth_key: Vec<u8>,
 }
 
@@ -79,8 +81,34 @@ impl LdcDecoder {
             codec: c.codec,
             mapper: c.mapper,
             data_pulse: c.data_pulse,
+            stations: c.stations,
             auth_key: c.auth_key,
         }))
+    }
+
+    /// Whether station `station` carries data.
+    pub fn modulates(&self, station: usize) -> bool {
+        self.stations.as_ref().is_none_or(|s| s.contains(&station))
+    }
+
+    /// Largest time shift (µs) the mapper applies to each LDC pulse index (0 for pulses it
+    /// does not shift): what a receiver must resolve beyond the carrier cycle.
+    pub fn max_shift_us(&self) -> [f64; LDC_PULSES] {
+        let mut out = [0.0; LDC_PULSES];
+        let (pulses, s) = match &self.mapper {
+            Mapper::Ppm { pulses, states, step_us } => (pulses, (*states as f64 - 1.0) / 2.0 * step_us.abs()),
+            Mapper::TriState { pulses, step_us, .. } => (pulses, step_us.abs()),
+            Mapper::Phase { pulses, .. } => (pulses, 0.0),
+        };
+        for i in pulses.iter().filter(|i| **i < LDC_PULSES) {
+            out[*i] = s;
+        }
+        out
+    }
+
+    /// Decoder for `cfg` completed from the chain it modulates ([`LdcConfig::for_chain`]).
+    pub fn for_chain(cfg: &LdcConfig, chain: &crate::chain::Chain) -> Result<Option<LdcDecoder>, String> {
+        LdcDecoder::new(&cfg.for_chain(chain)?)
     }
 
     pub fn bits_per_symbol(&self) -> u32 {

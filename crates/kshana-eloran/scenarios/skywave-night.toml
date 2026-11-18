@@ -26,8 +26,8 @@ model = "simple"
 
 [propagation.sky]
 model = "ionospheric"
-# copy of [scene] start_utc: the sky model needs absolute time for the sun's position
-start_utc = "2026-12-21T22:00:00Z"
+# the sun's position is computed from [scene] start_utc; an explicit start_utc here would
+# override it
 daylight = "auto"
 hops = 2
 h_day_km = 70.0
