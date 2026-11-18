@@ -1,0 +1,169 @@
+# Maritime pack (d): Eurofix LDC carrying differential-Loran corrections and warnings.
+#
+# PURPOSE   A vessel in the central English Channel receives the NELS 6731 chain with a
+#           Eurofix data channel. The data carry station identity, UTC time, almanac,
+#           differential-Loran (DLoran) ToA corrections from a reference site near the
+#           harbour, integrity warnings (timing degraded, propagation anomaly, then a clear),
+#           a DGNSS correction set and an authentication tag. Sylt carries its own schedule
+#           with an "unusable" warning about itself.
+# EXERCISES Eurofix modulation on every station (tri-state ±1 µs PPM on pulses 3–8, balanced
+#           patterns, RS(30,10) over GF(2^7), CRC-14 frame check, CRC-24Q message blocks,
+#           truncated HMAC-SHA256 authentication), per-station schedules
+#           (`station_schedules`), message repeat counts, `smooth_earth` seawater
+#           groundwave, E-field, WGN.
+# METRICS   Receiver side: `ldc::LdcDecoder` over the per-pulse timing offsets
+#           (`rx::Receiver::pulse_timing` from samples, or `LdcDecoder::offsets_from_emissions`
+#           from the emissions): decoded messages, RS symbol corrections, frame/CRC failures,
+#           `verify_auth` result; check that the decoded DLoran corrections (−42/+17/−5 ns)
+#           and warnings equal the scheduled ones. Truth: `toa_s` shows the PPM only through
+#           the samples (truth records pulse 0, which Eurofix does not modulate).
+# DURATION  A Eurofix frame takes 30 GRIs (≈ 2.0 s at GRI 67310) and carries 56 data bits;
+#           each message block (message + CRC-24Q) spans 2–3 frames, so one pass of the
+#           common schedule is of the order of 30 frames (≈ 1 min): run ≥ 120 s to decode
+#           it at least once per station. The file runs 4 s; the test suite overrides
+#           `duration_s` to 0.3 s.
+# PROVENANCE Chain geometry: GRI DB entry `6731-lessay` (NELS 6731, terminated; chain
+#           "single-source"; the three station entries used are "verified"). Anthorn (Y) is
+#           omitted because the DB has no power for it. The Eurofix on-air parameters are
+#           MODELLED from the Eurofix literature (see src/ldc/mod.rs: RS field polynomial,
+#           CRC-14 polynomial and pattern mapping NEED CONFIRMATION). Message layouts are
+#           Kshana's own (src/ldc/msg.rs), not a standard's. Station codes, reference site,
+#           corrections, warnings, DGNSS values, key and the receiver site are ILLUSTRATIVE.
+[scene]
+start_utc = "2026-11-18T10:00:00Z"
+duration_s = 4.0
+fs_hz = 1000000
+seed = 204
+output_scale_uv_m = 200000.0
+
+[receiver]
+type = "static"
+lat_deg = 50.000          # central English Channel (illustrative)
+lon_deg = -1.000
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(OP)"
+offset_ns = 0.3
+
+[propagation.ground]
+model = "smooth_earth"    # seawater (σ = 5 S/m) by default
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 50.0
+seed = 3
+
+[[chains]]
+name = "6731"             # GRI DB 6731-lessay (station Y Anthorn omitted: power unknown)
+gri_us = 67310
+
+[chains.ldc]
+scheme = "eurofix"
+gri_us = 67310
+auth_key_hex = "6b7368616e612d7061636b2d6575726f6669782d6b6579"   # illustrative test key
+
+[[chains.ldc.schedule]]
+type = "station_id"
+chain_id = 2
+[[chains.ldc.schedule]]
+type = "utc_time"
+tai_minus_utc_s = 37
+[[chains.ldc.schedule]]
+type = "almanac"
+station_code = 10
+gri_us = 67310
+lat_deg = 49.1486733
+lon_deg = -1.5047303
+power_kw = 250
+[[chains.ldc.schedule]]
+type = "almanac"
+station_code = 11
+gri_us = 67310
+secondary = true
+lat_deg = 43.7397497
+lon_deg = -1.38044
+emission_delay_us = 13000.0
+power_kw = 250
+[[chains.ldc.schedule]]
+type = "almanac"
+station_code = 13
+gri_us = 67310
+secondary = true
+lat_deg = 54.8083264
+lon_deg = 8.2935711
+emission_delay_us = 42100.0
+power_kw = 250
+[[chains.ldc.schedule]]
+type = "dloran"
+reference_site = 401      # illustrative reference station near the harbour
+age_s = 4
+corrections = [
+  { station_code = 10, correction_ns = -42.0 },
+  { station_code = 11, correction_ns = 17.0 },
+  { station_code = 13, correction_ns = -5.0 },
+]
+repeat = 2
+[[chains.ldc.schedule]]
+type = "warning"
+station_code = 11
+kind = "timing_degraded"
+magnitude_ns = 80.0
+valid_s = 600
+[[chains.ldc.schedule]]
+type = "warning"
+station_code = 13
+kind = "propagation_anomaly"
+magnitude_ns = 45.0
+valid_s = 900
+[[chains.ldc.schedule]]
+type = "dgnss"
+constellation = 0
+sats = [
+  { prn = 5, iode = 44, prc_m = -3.21, rrc_m_s = 0.006, udre = 0 },
+  { prn = 12, iode = 7, prc_m = 1.87, rrc_m_s = -0.002, udre = 1 },
+  { prn = 25, iode = 91, prc_m = 0.44 },
+]
+[[chains.ldc.schedule]]
+type = "warning"
+station_code = 11
+kind = "clear"
+[[chains.ldc.schedule]]
+type = "auth"
+key_id = 1
+tag_bytes = 8
+
+# Sylt (station index 2) announces itself unusable instead of the common schedule.
+[[chains.ldc.station_schedules]]
+station = 2
+schedule = [
+  { type = "station_id", chain_id = 2, station_code = 13 },
+  { type = "warning", station_code = 13, kind = "unusable", valid_s = 300, repeat = 3 },
+  { type = "auth", key_id = 1, tag_bytes = 8 },
+]
+
+[[chains.stations]]
+id = "M"
+name = "Lessay, France"
+role = "master"
+position = { lat_deg = 49.1486733, lon_deg = -1.5047303 }
+power_kw = 250.0
+time_ref = "UTC(OP)"
+[[chains.stations]]
+id = "X"
+name = "Soustons, France"
+role = "secondary"
+position = { lat_deg = 43.7397497, lon_deg = -1.38044 }
+power_kw = 250.0
+emission_delay_us = 13000.0
+time_ref = "UTC(OP)"
+[[chains.stations]]
+id = "Z"
+name = "Sylt, Germany"
+role = "secondary"
+position = { lat_deg = 54.8083264, lon_deg = 8.2935711 }
+power_kw = 250.0
+emission_delay_us = 42100.0
+time_ref = "UTC(OP)"

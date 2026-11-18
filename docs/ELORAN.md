@@ -78,3 +78,37 @@ recorded live signals); otherwise it is MODELLED. A run record carries the label
 
 * Hardware output goes into cables or antenna simulators only. Never over the air.
 * Proprietary: the crate is `publish = false`, and nothing of it goes to the open repository.
+
+## Scenario packs
+
+Ready-made application scenarios live in `crates/kshana-eloran/scenarios/packs/<domain>/`.
+Each file starts with a header stating its purpose, what it exercises, the truth and receiver
+metrics to read, its duration settings and the provenance of every value. Real (historic)
+chain geometry is copied unchanged from the GRI database (`data/gri_db.json`, the entry id is
+cited next to each chain and a test checks the values); everything else (receiver sites,
+tracks, coastline polygons, faults, noise levels, time-reference offsets beyond the Circular T
+snapshot) is marked ILLUSTRATIVE.
+
+| Domain | Scenario | What it is for |
+|---|---|---|
+| timing | `prtc-backup.toml` | eLoran-only holdover of a static timing receiver; UTC(k) and caesium clock noise; documented one-day truth-only run |
+| timing | `multi-time-reference.toml` | two chains on two UTC(k) with different offsets and drifts, and a UTC(k) step fault |
+| timing | `receiver-calibration.toml` | single station at a known distance, high SNR, E-field, for receiver delay calibration |
+| timing | `transmitter-faults.toml` | timing step, transmitter clock step, off, blink, power step and ECD step |
+| maritime | `harbour-approach.toml` | ship track with course changes, crossed loops, Millington ASF over a coastline, temporal ΔASF (differential-eLoran setting) |
+| maritime | `coastal-passage-night.toml` | night skywave (ionospheric, fading) and atmospheric noise on a coastal track |
+| maritime | `cri-and-cw.toml` | cross-rate interference from an adjacent chain plus CW interferers |
+| maritime | `ldc-eurofix-dloran.toml` | Eurofix data channel carrying DLoran corrections, warnings, DGNSS and authentication |
+| rail | `electrified-line.toml` | `railway_traction` impulsive noise during a train passage, H-field loops, heading changes, land paths |
+| rail | `gnss-denied-segment.toml` | eLoran-only, two-chain all-in-view segment of a hybrid test (GNSS degradation set in the GNSS bridge or simulator) |
+| aviation | `fast-receiver.toml` | ≈ 70 m/s receiver with altitude, E-field |
+
+The files carry the long durations a study needs (some truth-only, `[file] format = "none"`);
+`crates/kshana-eloran/tests/packs.rs` runs each for 0.3 s and checks truth, clipping and the
+GRI-database provenance.
+
+## Validation ledger
+
+The evidence label, reference, test, tolerance and known limitations of every model and
+capability, and a requirements-coverage summary, are in
+[`crates/kshana-eloran/docs/VALIDATION.md`](../crates/kshana-eloran/docs/VALIDATION.md).

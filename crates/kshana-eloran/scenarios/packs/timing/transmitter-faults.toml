@@ -1,0 +1,116 @@
+# Timing pack (d): transmitter timing fault, station off, blink and related faults.
+#
+# PURPOSE   Integrity behaviour of a timing (or navigation) receiver when transmitters
+#           misbehave: it should detect and exclude a station whose timing jumps, cope with a
+#           station going silent and coming back, honour the blink (first two pulses omitted)
+#           as "unusable", and survive a power drop and a transmitted-ECD change.
+# EXERCISES Every `StationFault` type on one chain, all inside the first 0.3 s so short runs
+#           see them, plus long-run windows:
+#             M  `ecd_step`     transmitted ECD 0 → +1.0 µs, 0.20–3600 s
+#             W  `timing_step`  +150 ns emission error, 0.05–0.25 s, and +40 ns 600–900 s
+#             X  `off`          silent 0.10–0.20 s
+#             Y  `blink`        pulses 1–2 omitted, 0.00–0.30 s (and 1200–1260 s)
+#             Z  `power_step`   −10 dB, 0.00–0.30 s
+#           and a transmitter clock (`tx_clock`) with a +60 ns phase step at 0.12 s on W.
+#           `smooth_earth` land groundwave, E-field, WGN.
+# METRICS   Truth: `emission_error_ns` = timing fault − x(UTC(k)) − x(tx clock): W reads
+#           +149.8 ns in its window before 0.12 s and +89.8 ns after the transmitter clock's
+#           +60 ns step (a clock reading ahead transmits early); missing truth records of X
+#           inside its off window; `ecd_us` of M after 0.2 s; `field_uv_m` of Z (10 dB down).
+#           NOTE: the truth record is written for pulse 1 (index 0) of each group, which a
+#           blink omits, so station Y has NO truth records while it blinks; the blink is
+#           visible in the samples (and to a receiver) only. Receiver: per-station ToA
+#           residuals, cycle errors, exclusion/flags; time-solution error with and without
+#           the faulty station.
+# DURATION  1 s in the file; extend to cover the long windows (e.g. 3600 s). The test suite
+#           overrides it to 0.3 s.
+# PROVENANCE Chain geometry: GRI DB entry `9960-northeast-us` (USCG Loran-C User Handbook 1992,
+#           Table B-1; "verified"; terminated 2010). The faults, their timing and the receiver
+#           site are ILLUSTRATIVE (no historical event is reproduced).
+[scene]
+start_utc = "2026-11-18T03:00:00Z"
+duration_s = 1.0
+fs_hz = 400000
+seed = 104
+output_scale_uv_m = 100000.0
+
+[receiver]
+type = "static"
+lat_deg = 41.000          # illustrative site
+lon_deg = -74.500
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(USNO)"
+offset_ns = 0.2
+
+[[time_refs]]
+id = "tx:Caribou"
+steps = [ { at_s = 0.12, step_ns = 60.0 } ]
+
+[propagation.ground]
+model = "smooth_earth"
+sigma_s_m = 0.005
+eps_r = 15.0
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 30.0
+seed = 4
+
+[[chains]]
+name = "9960"             # GRI DB 9960-northeast-us
+gri_us = 99600
+[[chains.stations]]
+id = "M"
+name = "Seneca, NY"
+role = "master"
+position = { lat_deg = 42.7140878, lon_deg = -76.8259189 }
+power_kw = 800.0
+time_ref = "UTC(USNO)"
+faults = [ { type = "ecd_step", from_s = 0.20, to_s = 3600.0, ecd_us = 1.0 } ]
+[[chains.stations]]
+id = "W"
+name = "Caribou, ME"
+role = "secondary"
+position = { lat_deg = 46.8075847, lon_deg = -67.9269886 }
+power_kw = 800.0
+emission_delay_us = 13797.2
+time_ref = "UTC(USNO)"
+tx_clock = "tx:Caribou"
+faults = [
+  { type = "timing_step", from_s = 0.05, to_s = 0.25, error_ns = 150.0 },
+  { type = "timing_step", from_s = 600.0, to_s = 900.0, error_ns = 40.0 },
+]
+[[chains.stations]]
+id = "X"
+name = "Nantucket, MA"
+role = "secondary"
+position = { lat_deg = 41.2533461, lon_deg = -69.9773711 }
+power_kw = 350.0
+emission_delay_us = 26969.93
+time_ref = "UTC(USNO)"
+faults = [ { type = "off", from_s = 0.10, to_s = 0.20 } ]
+[[chains.stations]]
+id = "Y"
+name = "Carolina Beach, NC"
+role = "secondary"
+position = { lat_deg = 34.0628356, lon_deg = -77.9128056 }
+power_kw = 600.0
+emission_delay_us = 42221.64
+time_ref = "UTC(USNO)"
+faults = [
+  { type = "blink", from_s = 0.0, to_s = 0.30 },
+  { type = "blink", from_s = 1200.0, to_s = 1260.0 },
+]
+[[chains.stations]]
+id = "Z"
+name = "Dana, IN"
+role = "secondary"
+position = { lat_deg = 39.8521272, lon_deg = -87.4865517 }
+power_kw = 400.0
+emission_delay_us = 57162.06
+time_ref = "UTC(USNO)"
+faults = [ { type = "power_step", from_s = 0.0, to_s = 0.30, delta_db = -10.0 } ]

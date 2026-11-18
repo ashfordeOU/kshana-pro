@@ -1,0 +1,105 @@
+# Aviation pack: fast-moving receiver with altitude (≈ 70 m/s), E-field antenna.
+#
+# PURPOSE   A general-aviation or rotorcraft eLoran receiver flying east over the Florida
+#           panhandle at about 70–77 m/s (≈ 140 kn), descending from 1500 m to 600 m, with an
+#           E-field (whip/blade) antenna. At this speed the range to each station changes by
+#           up to ~70 m (≈ 230 ns) per second, so receivers that assume a constant arrival
+#           over their averaging window show a speed-dependent bias. Two turns test tracking
+#           through heading changes (an E-field antenna is omnidirectional, so the signal
+#           should not depend on heading).
+# EXERCISES Waypoint trajectory at aviation speed with height, continuous-time delay
+#           evaluation per 10 ms block (the receiver state is taken at the block mid-point),
+#           `smooth_earth` land groundwave, E-field output, atmospheric noise (summer
+#           afternoon block: high lightning activity), WGN.
+# METRICS   Truth: `toa_s` and `distance_km` per group (their rate gives the range rate),
+#           `rx_lat_deg`/`rx_lon_deg`. Receiver: ToA error vs truth as a function of range
+#           rate and of the tracking window (`track_gris`), position error along the flight.
+# LIMITS    Height enters the trajectory, the truth and the GNSS exports, but NOT the
+#           propagation: the groundwave is evaluated at ground level (no height-gain
+#           function) and geodesic distances are on the ellipsoid. At 1500 m and 100 kHz the
+#           neglected height gain is small but not zero; see docs/VALIDATION.md.
+# DURATION  2 s in the file; the flight lasts 1200 s. The test suite overrides `duration_s`
+#           to 0.3 s.
+# PROVENANCE Chain geometry: GRI DB entry `7980-southeast-us` (USCG Loran-C User Handbook 1992,
+#           Table B-1; "verified"; terminated 2010). Flight path and noise are ILLUSTRATIVE.
+[scene]
+start_utc = "2026-07-15T19:00:00Z"     # 15:00 EDT
+duration_s = 2.0
+fs_hz = 1000000
+seed = 401
+output_scale_uv_m = 500000.0
+
+[receiver]
+type = "waypoints"
+points = [
+  { t_s = 0.0,    lat_deg = 30.400, lon_deg = -84.800, h_m = 1500.0 },
+  { t_s = 400.0,  lat_deg = 30.400, lon_deg = -84.510, h_m = 1500.0 },   # turn left
+  { t_s = 800.0,  lat_deg = 30.640, lon_deg = -84.350, h_m = 1000.0 },   # turn right
+  { t_s = 1200.0, lat_deg = 30.640, lon_deg = -84.060, h_m = 600.0 },
+]
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(USNO)"
+offset_ns = 0.2
+
+[propagation.ground]
+model = "smooth_earth"
+sigma_s_m = 0.005
+eps_r = 15.0
+
+[[interference]]
+type = "atmospheric"
+season = "summer"
+time_block = "12-16"
+seed = 31
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 10.0
+seed = 32
+
+[[chains]]
+name = "7980"             # GRI DB 7980-southeast-us
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+name = "Malone, FL"
+role = "master"
+position = { lat_deg = 30.9941306, lon_deg = -85.1690975 }
+power_kw = 800.0
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "W"
+name = "Grangeville, LA"
+role = "secondary"
+position = { lat_deg = 30.7258747, lon_deg = -90.8286239 }
+power_kw = 800.0
+emission_delay_us = 12809.54
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "X"
+name = "Raymondville, TX"
+role = "secondary"
+position = { lat_deg = 26.5319836, lon_deg = -97.8332053 }
+power_kw = 540.0
+emission_delay_us = 27443.38
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Y"
+name = "Jupiter, FL"
+role = "secondary"
+position = { lat_deg = 27.0329244, lon_deg = -80.1146875 }
+power_kw = 350.0
+emission_delay_us = 45201.88
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Z"
+name = "Carolina Beach, NC"
+role = "secondary"
+position = { lat_deg = 34.0628356, lon_deg = -77.9128056 }
+power_kw = 600.0
+emission_delay_us = 61542.72
+time_ref = "UTC(USNO)"
