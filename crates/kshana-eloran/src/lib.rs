@@ -23,6 +23,7 @@
 pub mod antenna;
 pub mod chain;
 pub mod geo;
+pub mod gridb;
 pub mod hw;
 pub mod interf;
 pub mod io;
