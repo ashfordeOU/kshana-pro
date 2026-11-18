@@ -35,6 +35,7 @@ pub mod area;
 pub mod attack_iq;
 pub mod batch;
 pub mod benefits;
+pub mod eloran_gnss;
 pub mod brand_pdf;
 pub mod cli;
 pub mod connectors;

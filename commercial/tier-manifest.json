@@ -33,6 +33,16 @@
       "tier": "pro"
     },
     {
+      "kind": "pro-eloran",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
+      "kind": "pro-eloran-hw",
+      "type": "feature",
+      "tier": "pro"
+    },
+    {
       "kind": "pro-framework-pack",
       "type": "feature",
       "tier": "pro"

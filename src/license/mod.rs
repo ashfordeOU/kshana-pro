@@ -147,6 +147,10 @@ pub fn explicit_tier(kind: &str) -> Option<Tier> {
         // by tier below Enterprise: the vendor names the feature on a vetted buyer's licence
         // (with `vetted_buyer`), and crate::attack_iq checks both.
         "pro-attack-iq" => Tier::Enterprise,
+        // eLoran/GNSS signal simulator (crate kshana-eloran): scenario generation and, with
+        // pro-eloran-hw, driving LF hardware into cables or antenna simulators (never over the air).
+        "pro-eloran" => Tier::Enterprise,
+        "pro-eloran-hw" => Tier::Enterprise,
         // Multi-source trust (roadmap 0.42 F3): the selector kind and `kshana-pro trust run`.
         "pro-multi-source-trust" => Tier::Pro,
         // Area console (roadmap 0.42 F1, F2): the picture kind and the console command and
@@ -207,6 +211,8 @@ pub const PRO_COMMAND_FEATURES: &[&str] = &[
     "pro-audit-export",
     "pro-retention",
     "pro-watch-wall",
+    "pro-eloran",
+    "pro-eloran-hw",
 ];
 
 /// Every command feature of this build: [`PRO_COMMAND_FEATURES`] and those of a registered

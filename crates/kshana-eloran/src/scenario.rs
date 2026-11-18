@@ -68,7 +68,7 @@ pub struct ChainSpec {
 }
 
 /// Output file settings.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct OutputFile {
     /// "ri16", "rf32" or "none".
     #[serde(default = "d_fmt")]
@@ -77,6 +77,12 @@ pub struct OutputFile {
 
 fn d_fmt() -> String {
     "ri16".into()
+}
+
+impl Default for OutputFile {
+    fn default() -> Self {
+        OutputFile { format: d_fmt() }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

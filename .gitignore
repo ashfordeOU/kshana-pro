@@ -53,3 +53,6 @@ __pycache__/
 
 # The timing demo fleet keeps real-format clock logs as test inputs (tests/timing_assurance.rs).
 !examples/timing-fleet/logs/*.log
+
+# Agent worktrees (local only)
+/.claude/worktrees/

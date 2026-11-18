@@ -36,7 +36,8 @@ const SCHEMAS: &[&str] = &[
 ];
 
 /// Directories never scanned: build output and VCS metadata.
-const SKIP_DIRS: &[&str] = &["target", ".git", "node_modules"];
+// `.claude` holds local agent worktrees (full repository copies, gitignored), not repository content.
+const SKIP_DIRS: &[&str] = &["target", ".git", "node_modules", ".claude"];
 
 /// Bytes read from the start of every candidate document to find its `schema`, however large
 /// the file is.

@@ -62,6 +62,10 @@ kms = []
 # recorded on this release.
 kshana = "=0.41.0"
 
+# The eLoran/GNSS signal simulation engine: a proprietary crate in this repository
+# (crates/kshana-eloran), kept separate so it builds and tests in seconds.
+kshana-eloran = { path = "crates/kshana-eloran" }
+
 # Versions kept in lock-step with the open core (kshana/Cargo.toml) so the two
 # graphs share one resolved copy of each crate.
 serde = { version = "1", features = ["derive"] }
