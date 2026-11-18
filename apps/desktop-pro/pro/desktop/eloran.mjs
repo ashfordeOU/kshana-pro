@@ -183,6 +183,13 @@ serial = "/dev/ttyACM0"
 
 const BENCH_TONE = { pass: "ok", warn: "warn", unknown: "none", fail: "bad" };
 
+/** The cable rows of the wiring plan's Markdown table. */
+export function wiringRows(md) {
+  return String(md || "").split("\n")
+    .filter((l) => /^\|\s*\d+\s*\|/.test(l))
+    .map((l) => l.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim()));
+}
+
 /** View model of POST /eloran/bench/check. */
 export function benchModel(v) {
   if (!v || typeof v !== "object" || !v.assessment) return null;
@@ -203,6 +210,7 @@ export function benchModel(v) {
     notRunnable: (a.not_runnable || []).map((x) => (Array.isArray(x) ? [String(x[0]), String(x[1])] : [String(x), ""])),
     twins,
     wiring: String(v.wiring_md || ""),
+    cables: wiringRows(v.wiring_md),
     procedure: String(v.procedure_md || ""),
   };
 }
@@ -431,9 +439,9 @@ export function eloranPage({ h, page, btn, chip, note, E, A }) {
       h("h3", { text: "Acceptance tests this bench can run" }),
       h("p", { class: "mono", text: B.runnable.join(", ") || "none" }),
       B.notRunnable.length ? textTable(h, ["Not runnable", "Why"], B.notRunnable) : null,
-      ...B.twins.map((t) => [h("h3", { text: `Spec twin: ${t.id} (MODELLED from the datasheet)` }), t.error ? h("p", { class: "lic-result bad", text: t.error }) : textTable(h, ["Level", "Vpk (50 Ω)", "Zero-crossing bias", "ECD", "SNR"], t.rows)]),
-      h("h3", { text: "Wiring plan" }),
-      h("pre", { class: "pro-pre", text: B.wiring })] : h("p", { class: "empty", text: "No bench checked yet." }));
+      ...B.twins.flatMap((t) => [h("h3", { text: `Spec twin: ${t.id} (MODELLED from the datasheet)` }), t.error ? h("p", { class: "lic-result bad", text: t.error }) : textTable(h, ["Level", "Vpk (50 Ω)", "Zero-crossing bias", "ECD", "SNR"], t.rows)]),
+      h("h3", { text: "Wiring plan (conducted use only: never a radiating antenna)" }),
+      B.cables.length ? textTable(h, ["#", "From", "To", "Cable", "Note"], B.cables, { mono: false }) : h("pre", { class: "pro-pre", text: B.wiring })] : h("p", { class: "empty", text: "No bench checked yet." }));
 
   return page("pro-eloran", "Kshana Enterprise · eLoran/GNSS simulator", "eLoran simulator",
     "Write a scenario, add real chains from the GRI database, run it on your Kshana Pro service and read the recording back with the software receiver against the simulator's truth. Every result is MODELLED.",

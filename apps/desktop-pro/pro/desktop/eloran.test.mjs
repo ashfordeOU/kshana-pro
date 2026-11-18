@@ -287,7 +287,7 @@ test("actions: the bench readiness check posts the inventory and builds the view
       ],
       runnable: ["toa_resolution", "pps_jitter"], not_runnable: [["dynamic_range", "needs a spectrum analyser"]],
     },
-    wiring_md: "# Wiring plan", procedure_md: "# First-plug procedure",
+    wiring_md: "# Wiring plan\n\n| # | From | To | Cable | Note |\n|---|---|---|---|---|\n| 1 | ref 10 MHz | rp ref in | 50 Ω coax | short |\n", procedure_md: "# First-plug procedure",
     twins: { rp: { levels: [{ level_dbfs: 0, vpeak_50ohm: 1, delay_bias_ns: -0.003, ecd_us: 0, snr_db: 81.2 }] }, bad: { error: "cannot output 90–110 kHz" } },
   };
   const { papi, sent } = fakeApp((m, p) => {
@@ -308,5 +308,6 @@ test("actions: the bench readiness check posts the inventory and builds the view
   assert.equal(B.twins.find((t) => t.id === "rp").rows[0][4], "81.2 dB");
   assert.equal(B.twins.find((t) => t.id === "bad").error, "cannot output 90–110 kHz");
   assert.equal(said.at(-1)[0], "warn");
+  assert.deepEqual(B.cables, [["1", "ref 10 MHz", "rp ref in", "50 Ω coax", "short"]]);
   assert.equal(benchModel(null), null);
 });
