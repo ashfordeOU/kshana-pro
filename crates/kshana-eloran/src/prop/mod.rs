@@ -10,6 +10,7 @@
 
 pub mod ground;
 pub mod sky;
+pub mod sky_fading;
 
 use crate::chain::Station;
 use crate::time::Ps;
