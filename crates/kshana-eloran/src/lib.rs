@@ -15,13 +15,17 @@
 //!   the truth record;
 //! * [`io`]: SigMF real-sample files for record and replay;
 //! * [`rx`]: the software receiver;
-//! * [`scenario`]: TOML scenarios.
+//! * [`scenario`]: TOML scenarios;
+//! * [`field`]: unattended LF recording stations and receiver log importers;
+//! * [`campaign`]: conformance test library and validation campaign runner.
 //!
 //! Evidence labels follow the Kshana convention: a model is VALIDATED only where an
 //! independent external reference backs it (see `docs/VALIDATION.md` of this crate).
 
 pub mod antenna;
+pub mod campaign;
 pub mod chain;
+pub mod field;
 pub mod geo;
 pub mod gridb;
 pub mod hw;
