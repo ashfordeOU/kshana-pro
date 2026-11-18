@@ -35,6 +35,32 @@ kshana-pro eloran run scene.toml --out out/scene --license <token>
 | `out/scene.truth.csv` | per station per group: emission time, time of arrival, delay and its geometric/PF/SF/ASF parts, ECD, field strength, SNR, skywave delay and ratio, time-reference offset, emission error, receiver position and heading, bearing, distance |
 | `out/scene.run.json` | scenario path and SHA-256, licensee, run statistics (pulses, peak, clipping, real-time factor), evidence label |
 
+## Service and desktop
+
+The Kshana Pro service (`kshana-pro serve`, docs/SERVICE.md) serves the simulator through
+`src/eloran_service.rs`, the same calls the command line makes:
+
+| Route | What | Licence |
+|---|---|---|
+| `GET /eloran/example` | the example scenario | free |
+| `POST /eloran/validate` | body: scenario TOML → `{ok, scenario_sha256, ...}`, or 422 `{ok: false, error}` | free |
+| `POST /eloran/run` | body: scenario TOML (query `format=ri16\|rf32\|none`). With `--data-dir`: an `eloran-run` job (202; the job's result is the run record, its artefacts `run.json`, `truth.csv`, `recording.sigmf-meta`; the recording stays in the job's `inputs/`). Without: a synchronous run of at most 8 million samples (200), kept under the system temporary directory (`kshana-pro-eloran-runs/<run_id>/`). The run record carries `run_id`, the scenario SHA-256, the statistics, the file paths, the recording's SHA-256 and the first 20 truth rows | `pro-eloran` |
+| `POST /eloran/rx` | `{"run": <run_id>, "scenario"?: <TOML, default the run's>, "per_loop"?, "cri_blanking"?, "truth"?}` → the receiver report (as `eloran rx --truth`): per-station ToA error statistics and cycle errors, position fix and error, time offsets per reference. Reads at most 256 MiB of recording | `pro-eloran` |
+| `GET /eloran/gri`, `GET /eloran/gri/{chain}` | the GRI database (`region`, `active_on`, `search`); entries with their `[[chains]]` snippet | free |
+
+A run's identifier is its job identifier (tenant, operation and request), so the same
+scenario is the same run, and another tenant's run answers as one that does not exist.
+Hardware output (`eloran stream`, `pro-eloran-hw`) is never served over HTTP: it stays on
+the command line, conducted use only.
+
+Kshana Desktop Pro has an **eLoran** page (Enterprise, signed in to the service;
+`apps/desktop-pro/pro/desktop/eloran.mjs`): a scenario editor with the example preloaded and
+a Validate button (hash or error), the chain map and table of the GRI database (region,
+status, confidence; Insert adds a chain's `[[chains]]` entry, and a zero-offset
+`[[time_refs]]` entry for a reference the scenario lacks), run controls with the run
+statistics and a truth preview (a job is followed until it finishes), and the receiver
+results.
+
 ## Architecture
 
 ```

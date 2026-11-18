@@ -55,5 +55,14 @@ cargo build --manifest-path apps/desktop-pro/src-tauri/Cargo.toml
   crate (`src/desktop/`, tested in `tests/desktop_pro.rs`); the bridge forwards them. Models
   and a render smoke test: `node --test apps/desktop-pro/pro/desktop/*.test.mjs`.
 
+- **eLoran simulator** (Enterprise, `pro/desktop/eloran.mjs`, a "PRO WORK" entry): the
+  scenario editor (example preloaded, validated by the service with its SHA-256 or the error),
+  the chain map and table from the service's GRI database (region, status, confidence; Insert
+  adds the chain's `[[chains]]` snippet), run controls (`POST /eloran/run`; a job on a service
+  with a data directory is followed until it finishes) with the run statistics and the first
+  truth rows, and the receiver results (`POST /eloran/rx`: ToA error RMS and cycle errors per
+  station, the position fix and its error, time offsets per reference). Hardware output is not
+  offered: it stays on the command line. Tests: `eloran.test.mjs`.
+
 Not done: signing and notarisation (the publisher's Apple and Windows accounts); the
 Devices panel (L2b) comes with the free Desktop.

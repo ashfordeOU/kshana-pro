@@ -281,3 +281,27 @@ class KshanaProClient:
     def delete_scim_v2_Groups_id(self, id):
         """DELETE /scim/v2/Groups/{id}: SCIM 2.0: delete a group; needs the Enterprise feature pro-scim. Role: admin."""
         return self._call("DELETE", f"/scim/v2/Groups/{_q(id)}", None, None, None, text=False)
+
+    def get_eloran_example(self):
+        """GET /eloran/example: eLoran simulator: the example scenario (TOML: two chains, two UTC(k), crossed loops, moving receiver); no licence needed. Role: reader."""
+        return self._call("GET", "/eloran/example", None, None, None, text=True)
+
+    def post_eloran_validate(self, text):
+        """POST /eloran/validate: eLoran simulator: check a scenario and return its SHA-256 (body: scenario TOML); no licence needed. Role: submitter."""
+        return self._call("POST", "/eloran/validate", None, text, "text/plain", text=False)
+
+    def post_eloran_run(self, text, format=None):
+        """POST /eloran/run: eLoran simulator: run a scenario (body: scenario TOML) to a SigMF recording, a truth table and a run record. With a data directory it is an eloran-run job (202; the job's result is the run record); without one, a synchronous run of at most 8 million samples (200). Needs the Enterprise feature pro-eloran. Hardware output is never served over HTTP. Role: submitter."""
+        return self._call("POST", "/eloran/run", {"format": format}, text, "text/plain", text=False)
+
+    def post_eloran_rx(self, body):
+        """POST /eloran/rx: eLoran simulator: the software receiver on a stored run's recording, with the truth comparison (per-station ToA error, cycle errors, position fix and error, time offsets per reference). Needs the Enterprise feature pro-eloran. Role: submitter."""
+        return self._call("POST", "/eloran/rx", None, json.dumps(body), "application/json", text=False)
+
+    def get_eloran_gri(self, region=None, active_on=None, search=None):
+        """GET /eloran/gri: eLoran simulator: the preloaded worldwide GRI/chain database with region, status, confidence and station positions; no licence needed. Role: reader."""
+        return self._call("GET", "/eloran/gri", {"region": region, "active_on": active_on, "search": search}, None, None, text=False)
+
+    def get_eloran_gri_chain(self, chain):
+        """GET /eloran/gri/{chain}: eLoran simulator: the GRI database entries matching an id, a GRI or text, each with its sources and its [[chains]] scenario snippet; no licence needed. Role: reader."""
+        return self._call("GET", f"/eloran/gri/{_q(chain)}", None, None, None, text=False)
