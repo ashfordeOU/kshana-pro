@@ -565,3 +565,371 @@ fn e7_sample_summary_is_signed_and_counts_come_from_the_evidence() {
     assert_eq!(y.totals.incidents, 0);
     assert!(y.totals.sources_rejected > 0);
 }
+
+// ---------------------------------------------------------------------------------------
+// E4b (docs/evidence/e4-pnt-verification/2026-11-16_E4b_PREREGISTRATION.md)
+// ---------------------------------------------------------------------------------------
+
+use kshana_pro::pnt_study::osnma_v2::{self, Policies};
+
+fn e4b_policy_sets() -> Vec<(&'static str, Policies)> {
+    vec![
+        ("open verifier (E4)", Policies::NONE),
+        (
+            "1 session-long memory",
+            Policies {
+                session_memory: true,
+                hold_until_chain: false,
+                bits_as_received: false,
+            },
+        ),
+        (
+            "1 + 2 hold until the chain verifies",
+            Policies {
+                session_memory: true,
+                hold_until_chain: true,
+                bits_as_received: false,
+            },
+        ),
+        ("1 + 2 + 3 (method v2)", Policies::V2),
+    ]
+}
+
+/// E4b development (allowed; committed before the test vectors were opened): the three
+/// policies on the E4 sample stream with E4's seed 4242, cumulatively, to check the code and
+/// to settle H1 against H2. Write with KSHANA_PRO_E4B_DEV_WRITE=1.
+#[test]
+fn e4b_dev_policies_on_the_e4_sample_stream_are_as_published() {
+    let pages = kshana::osnma::input::parse_pages(
+        &std::fs::read_to_string(root().join("examples/pnt-verification/pages-good.txt")).unwrap(),
+    )
+    .unwrap();
+    let key = kshana::osnma::cli::parse_public_key(
+        std::fs::read_to_string(root().join("examples/pnt-verification/public-key.txt"))
+            .unwrap()
+            .trim(),
+    )
+    .unwrap();
+    let mut rows = Vec::new();
+    for (name, pol) in e4b_policy_sets() {
+        let c =
+            osnma_v2::campaign(&pages, std::slice::from_ref(&key), None, 200, 4242, pol).unwrap();
+        let early = c.undetected.iter().filter(|u| u.4 >= 18).count();
+        let iodnav = c
+            .undetected
+            .iter()
+            .filter(|u| (1..=4).contains(&u.2) && (6..16).contains(&u.3))
+            .count();
+        rows.push(serde_json::json!({
+            "policies": name,
+            "flags": pol,
+            "detected": c.detected, "flips": c.flips, "detection_share": c.detection_share,
+            "undetected_in_first_six_subframes": early,
+            "undetected_iodnav_bits": iodnav,
+            "clean_failed": c.clean_failed,
+            "clean_chain_verified_gst": c.clean_chain_verified_gst,
+            "undetected": c.undetected,
+        }));
+    }
+    // The open-verifier row must reproduce E4's published 136 of 200.
+    assert_eq!(rows[0]["detected"], 136);
+    let doc = serde_json::json!({
+        "what": "E4b development: the E4 sample stream (examples/pnt-verification/pages-good.txt, published) with E4's seed 4242, 200 flips, under the policies of method kshana-pro/pnt-verification/v2 added one at a time. Development data, not the scored result.",
+        "rows": rows,
+    });
+    let text = serde_json::to_string_pretty(&doc).unwrap() + "\n";
+    let p = root().join("docs/evidence/e4-pnt-verification/E4b_dev.json");
+    if std::env::var_os("KSHANA_PRO_E4B_DEV_WRITE").is_some() {
+        std::fs::write(&p, &text).unwrap();
+    }
+    for r in &rows {
+        eprintln!(
+            "{} {} early {} iodnav {} clean {}",
+            r["policies"],
+            r["detected"],
+            r["undetected_in_first_six_subframes"],
+            r["undetected_iodnav_bits"],
+            r["clean_failed"]
+        );
+    }
+    assert_eq!(
+        std::fs::read_to_string(&p).unwrap(),
+        text,
+        "E4b_dev.json is stale"
+    );
+}
+
+const E4B_SEED: u64 = 20261123;
+const E4B_FLIPS: usize = 200;
+const E4B_STREAMS: &[&str] = &["configuration_1", "configuration_2"];
+
+fn between<'a>(s: &'a str, open: &str, close: &str) -> Option<&'a str> {
+    let a = s.find(open)? + open.len();
+    let b = s[a..].find(close)? + a;
+    Some(&s[a..b])
+}
+
+fn files_with(dir: &Path, ext: &str) -> Vec<PathBuf> {
+    let mut v: Vec<PathBuf> = std::fs::read_dir(dir)
+        .into_iter()
+        .flatten()
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| p.extension().is_some_and(|e| e == ext))
+        .collect();
+    v.sort();
+    v
+}
+
+/// The archive's Merkle trees: (directory name, root, public keys), read as the open engine's
+/// opt-in vector test reads them (level-4 node of a tree file; PKID, point and type of each key).
+fn e4b_trees(tv: &Path) -> Vec<(String, [u8; 32], Vec<kshana::osnma::signature::PublicKey>)> {
+    let mut out = Vec::new();
+    for d in std::fs::read_dir(tv.join("cryptographic_material"))
+        .unwrap()
+        .flatten()
+    {
+        let name = d.file_name().to_string_lossy().into_owned();
+        let mut keys = Vec::new();
+        for f in files_with(&d.path().join("PublicKey"), "xml") {
+            let x = std::fs::read_to_string(&f).unwrap();
+            let (Some(id), Some(pt), Some(ty)) = (
+                between(&x, "<PKID>", "</PKID>"),
+                between(&x, "<point>", "</point>"),
+                between(&x, "<PKType>", "</PKType>"),
+            ) else {
+                continue;
+            };
+            keys.push(kshana::osnma::signature::PublicKey {
+                pkid: id.trim().parse().unwrap(),
+                key_type: if ty.contains("P-256") {
+                    kshana::osnma::tables::KeyType::P256
+                } else {
+                    kshana::osnma::tables::KeyType::P521
+                },
+                bytes: hex::decode(pt.trim()).unwrap(),
+            });
+        }
+        let mut root = None;
+        for f in files_with(&d.path().join("MerkleTree"), "xml") {
+            let x = std::fs::read_to_string(&f).unwrap();
+            if let Some(n) = x.find("<TreeNode><j>4</j><i>0</i>") {
+                if let Some(h) = between(&x[n..], "<x_ji>", "</x_ji>") {
+                    root = Some(hex::decode(h.trim()).unwrap());
+                    break;
+                }
+            }
+        }
+        if let Some(r) = root {
+            out.push((name, r.as_slice().try_into().unwrap(), keys));
+        }
+    }
+    out.sort_by(|a, b| a.0.cmp(&b.0));
+    out
+}
+
+fn e4b_stream(tv: &Path, name: &str) -> (String, u32, Vec<kshana::osnma::InavPage>, String) {
+    let f = files_with(&tv.join("osnma_test_vectors").join(name), "csv")
+        .into_iter()
+        .next()
+        .unwrap();
+    let file = f.file_name().unwrap().to_string_lossy().into_owned();
+    let start = kshana::osnma::input::start_from_filename(&file).unwrap();
+    let text = std::fs::read_to_string(&f).unwrap();
+    let pages = kshana::osnma::input::parse_vector_csv(&text, start).unwrap();
+    (
+        file,
+        start,
+        pages,
+        hex::encode(<sha2::Sha256 as sha2::Digest>::digest(text.as_bytes())),
+    )
+}
+
+/// Authenticated tags of the open verifier on an untampered stream with a tree's material.
+fn e4b_auth_tags(
+    pages: &[kshana::osnma::InavPage],
+    root: [u8; 32],
+    keys: &[kshana::osnma::signature::PublicKey],
+) -> usize {
+    use kshana::osnma::verifier::{Config, Event, TagStatus, Verifier};
+    let mut v = Verifier::new(Config {
+        merkle_root: Some(root),
+        public_keys: keys.to_vec(),
+        ..Config::default()
+    });
+    let mut n = 0;
+    for p in pages {
+        for e in v.push_page(p) {
+            if let Event::Tag(t) = e {
+                n += usize::from(t.status == TagStatus::Authenticated);
+            }
+        }
+    }
+    n
+}
+
+/// E4b section 3: the streams selected and the tree each uses, committed before any flip.
+/// Needs the locally held archive (KSHANA_PRO_OSNMA_TV, the directory holding
+/// `osnma_test_vectors/` and `cryptographic_material/`). Write with KSHANA_PRO_E4B_STREAMS_WRITE=1.
+#[test]
+#[ignore]
+fn e4b_streams_selected_from_the_archive() {
+    let tv = PathBuf::from(std::env::var("KSHANA_PRO_OSNMA_TV").expect("KSHANA_PRO_OSNMA_TV"));
+    let trees = e4b_trees(&tv);
+    let mut sel = Vec::new();
+    for name in E4B_STREAMS {
+        let (file, start, pages, sha) = e4b_stream(&tv, name);
+        let counts: Vec<(String, usize)> = trees
+            .iter()
+            .map(|(n, r, k)| (n.clone(), e4b_auth_tags(&pages, *r, k)))
+            .collect();
+        let best = counts.iter().max_by_key(|c| c.1).unwrap().0.clone();
+        sel.push(serde_json::json!({
+            "stream": name, "file": file, "start_gst": start, "pages": pages.len(),
+            "csv_sha256": sha, "tree": best, "authenticated_tags_by_tree": counts,
+        }));
+    }
+    let all: Vec<String> = std::fs::read_dir(tv.join("osnma_test_vectors"))
+        .unwrap()
+        .flatten()
+        .map(|d| d.file_name().to_string_lossy().into_owned())
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    let readme = std::fs::read_to_string(tv.join("../readme.txt")).unwrap_or_default();
+    let doc = serde_json::json!({
+        "what": "E4b section 3: the OSNMA test-vector streams selected as nominal, and the Merkle tree each uses, committed before any flip was run.",
+        "archive": "Test_vectors.zip (European GNSS Service Centre), 10 319 251 bytes, SHA-256 ef9b9afc6ef9e1c57393415cf2a1dc80c4035e7c06123907ea0bb97dd3ccf370; held locally, never committed",
+        "archive_documentation": readme.trim(),
+        "selection_rule": "The archive's own documentation (readme.txt, quoted above) lists no stream as nominal: it refers to the Galileo OSNMA Receiver Guidelines v1.3, which is not in the archive and was not an approved download. The streams selected are the two the archive names as service configurations (configuration_1, configuration_2); the other sixteen are named after events (crev chain revocation, eoc end of chain, nmt new Merkle tree, npk new public key, oam OSNMA alert message, pkrev public key revocation) and are not selected. Each stream uses the Merkle tree of the archive whose root and keys authenticate the most tags of the untampered stream (the open engine's opt-in vector test's rule).",
+        "all_streams": all,
+        "selected": sel,
+    });
+    let text = serde_json::to_string_pretty(&doc).unwrap() + "\n";
+    let p = root().join("docs/evidence/e4-pnt-verification/E4b_streams.json");
+    if std::env::var_os("KSHANA_PRO_E4B_STREAMS_WRITE").is_some() {
+        std::fs::write(&p, &text).unwrap();
+    }
+    assert_eq!(std::fs::read_to_string(&p).unwrap(), text);
+}
+
+/// E4b, scored once (pre-registration section 5): the geometry on every admissible
+/// configuration and S5 on each selected stream (200 flips, ChaCha8 seed 20261123, method v2's
+/// receiver). Needs KSHANA_PRO_OSNMA_TV. Write with KSHANA_PRO_E4B_WRITE=1; afterwards the run
+/// must reproduce `E4b_results.json`.
+#[test]
+#[ignore]
+fn e4b_scored() {
+    let tv = PathBuf::from(std::env::var("KSHANA_PRO_OSNMA_TV").expect("KSHANA_PRO_OSNMA_TV"));
+    let (spec, _) =
+        StudySpec::from_file(&root().join("examples/pnt-verification-v2/study.toml")).unwrap();
+    let configs = pnt_study::run_configurations(&spec).unwrap();
+    let streams: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(root().join("docs/evidence/e4-pnt-verification/E4b_streams.json"))
+            .unwrap(),
+    )
+    .unwrap();
+    let trees = e4b_trees(&tv);
+    let mut integ = Vec::new();
+    for s in streams["selected"].as_array().unwrap() {
+        let name = s["stream"].as_str().unwrap();
+        let (file, _, pages, sha) = e4b_stream(&tv, name);
+        assert_eq!(
+            sha,
+            s["csv_sha256"].as_str().unwrap(),
+            "{name}: the stream changed"
+        );
+        let (_, root_, keys) = trees
+            .iter()
+            .find(|t| t.0 == s["tree"].as_str().unwrap())
+            .unwrap();
+        let c = osnma_v2::campaign(
+            &pages,
+            keys,
+            Some(*root_),
+            E4B_FLIPS,
+            E4B_SEED,
+            Policies::V2,
+        )
+        .unwrap();
+        eprintln!(
+            "{name}: {} / {} detected, clean failed {:?}",
+            c.detected, c.flips, c.clean_failed
+        );
+        integ.push(serde_json::json!({
+            "stream": name, "file": file, "tree": s["tree"],
+            "detected": c.detected, "flips": c.flips, "detection_share": c.detection_share,
+            "s5_tamper_met": c.detection_share >= 0.99,
+            "clean_failed": c.clean_failed, "clean_authenticated": c.clean_authenticated.len(),
+            "s5_clean_met": c.clean_failed.is_empty(),
+            "eligible_pages": c.eligible_pages, "pages": c.pages,
+            "undetected": c.undetected,
+        }));
+    }
+    let mut geo_bars = serde_json::Map::new();
+    for b in ["E4-S1", "E4-S2", "E4-S3", "E4-S4"] {
+        let per: Vec<serde_json::Value> = configs
+            .iter()
+            .map(|c| {
+                let o = c.bars.iter().find(|x| x.id == b).unwrap();
+                serde_json::json!({"configuration": c.id, "met": o.met, "worst": o.worst, "worst_lat_deg": o.worst_lat_deg})
+            })
+            .collect();
+        let met = per.iter().all(|x| x["met"] == true);
+        geo_bars.insert(
+            b.into(),
+            serde_json::json!({"met_in_all_configurations": met, "per_configuration": per}),
+        );
+    }
+    let s5 = integ
+        .iter()
+        .all(|x| x["s5_tamper_met"] == true && x["s5_clean_met"] == true);
+    let doc = serde_json::json!({
+        "what": "E4b result, scored once: geometry of the published Xona Pulsar design on every admissible configuration (MODELLED), and OSNMA tamper detection on the GSC test vectors held locally (only counts and flip outcomes published).",
+        "pre_registration": "2026-11-16_E4b_PREREGISTRATION.md",
+        "method": "kshana-pro/pnt-verification/v2",
+        "flip_seed": E4B_SEED,
+        "test_vectors_zip_sha256": "ef9b9afc6ef9e1c57393415cf2a1dc80c4035e7c06123907ea0bb97dd3ccf370",
+        "gate_note": "E4-S1 and E4-S2 are not 0.42 gates (owner, 16 Nov 2026); their outcome is published either way.",
+        "geometry_bars": geo_bars,
+        "s5": {"met": s5, "streams": integ},
+        "configurations": configs,
+    });
+    let text = serde_json::to_string_pretty(&doc).unwrap() + "\n";
+    let p = root().join("docs/evidence/e4-pnt-verification/E4b_results.json");
+    if std::env::var_os("KSHANA_PRO_E4B_WRITE").is_some() {
+        std::fs::write(&p, &text).unwrap();
+    }
+    assert_eq!(
+        std::fs::read_to_string(&p).unwrap(),
+        text,
+        "E4b_results.json is not reproduced"
+    );
+}
+
+/// The recorded E4b result (scored once): S4 met in all four configurations; S1, S2 and S3
+/// missed in at least one; S5 missed on both streams (5 and 4 of 200) with no false failure.
+#[test]
+fn e4b_recorded_verdicts() {
+    let d: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(root().join("docs/evidence/e4-pnt-verification/E4b_results.json"))
+            .unwrap(),
+    )
+    .unwrap();
+    let g = &d["geometry_bars"];
+    assert_eq!(g["E4-S1"]["met_in_all_configurations"], false);
+    assert_eq!(g["E4-S2"]["met_in_all_configurations"], false);
+    assert_eq!(g["E4-S3"]["met_in_all_configurations"], false);
+    assert_eq!(g["E4-S4"]["met_in_all_configurations"], true);
+    assert_eq!(d["s5"]["met"], false);
+    let det: Vec<u64> = d["s5"]["streams"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| s["detected"].as_u64().unwrap())
+        .collect();
+    assert_eq!(det, [5, 4]);
+    for s in d["s5"]["streams"].as_array().unwrap() {
+        assert_eq!(s["s5_clean_met"], true);
+    }
+}

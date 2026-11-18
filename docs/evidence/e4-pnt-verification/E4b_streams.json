@@ -1,0 +1,72 @@
+{
+  "all_streams": [
+    "configuration_1",
+    "configuration_2",
+    "crev_step1",
+    "crev_step2",
+    "crev_step3",
+    "eoc_step1",
+    "eoc_step2",
+    "nmt_step1",
+    "nmt_step2",
+    "nmt_step3",
+    "npk_step1",
+    "npk_step2",
+    "npk_step3",
+    "oam_step1",
+    "oam_step2",
+    "pkrev_step1",
+    "pkrev_step2",
+    "pkrev_step3"
+  ],
+  "archive": "Test_vectors.zip (European GNSS Service Centre), 10 319 251 bytes, SHA-256 ef9b9afc6ef9e1c57393415cf2a1dc80c4035e7c06123907ea0bb97dd3ccf370; held locally, never committed",
+  "archive_documentation": "The data provided in the Test-vectors folder is an annex to the Galileo OSNMA Receiver Guidelines v1.3 and thus covered by the Terms of Use and Disclaimers specified therein.",
+  "selected": [
+    {
+      "authenticated_tags_by_tree": [
+        [
+          "Merkle_tree_1",
+          12508
+        ],
+        [
+          "Merkle_tree_2",
+          0
+        ],
+        [
+          "Merkle_tree_3",
+          0
+        ]
+      ],
+      "csv_sha256": "a6c41e0ab88d79fe4bbb6118d47fd7680f35d03aa4b4b527cace618683a8a914",
+      "file": "16_AUG_2023_GST_05_00_01.csv",
+      "pages": 46800,
+      "start_gst": 756882001,
+      "stream": "configuration_1",
+      "tree": "Merkle_tree_1"
+    },
+    {
+      "authenticated_tags_by_tree": [
+        [
+          "Merkle_tree_1",
+          0
+        ],
+        [
+          "Merkle_tree_2",
+          10227
+        ],
+        [
+          "Merkle_tree_3",
+          0
+        ]
+      ],
+      "csv_sha256": "1ae3bfece3f2b7d233663e9a6f5efe9bf96d1d87f9e4e77fe3af3a2ae007e6f6",
+      "file": "27_JUL_2023_GST_00_00_01.csv",
+      "pages": 46800,
+      "start_gst": 755136001,
+      "stream": "configuration_2",
+      "tree": "Merkle_tree_2"
+    }
+  ],
+  "selection_rule": "The archive's own documentation (readme.txt, quoted above) lists no stream as nominal: it refers to the Galileo OSNMA Receiver Guidelines v1.3, which is not in the archive and was not an approved download. The streams selected are the two the archive names as service configurations (configuration_1, configuration_2); the other sixteen are named after events (crev chain revocation, eoc end of chain, nmt new Merkle tree, npk new public key, oam OSNMA alert message, pkrev public key revocation) and are not selected. Each stream uses the Merkle tree of the archive whose root and keys authenticate the most tags of the untampered stream (the open engine's opt-in vector test's rule).",
+  "what": "E4b section 3: the OSNMA test-vector streams selected as nominal, and the Merkle tree each uses, committed before any flip was run."
+}

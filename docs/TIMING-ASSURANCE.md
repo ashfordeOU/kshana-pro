@@ -14,6 +14,13 @@ synthetic clocks; on real rubidium clocks the coverage was 0.894 against 0.90 an
 false-alarm bar missed). The time to breach is therefore **not a validated claim**, and every
 result says so in its label.
 
+**V5c (16 November 2026).** A third predictor, `kshana-pro/holdover/v3` (V5b's handover with the
+GPS orbit-period harmonics removed and carried into the prediction, and a flicker-frequency
+floor), was pre-registered and **passed every bar** on new IGS clocks (D-R3, 2025-10-05 to 18) and
+a new synthetic fleet (`V5c_RESULTS.md`). The product's fleet assessment still runs the V5b
+predictor, and its results keep the "not validated" label until it is switched to the V5c
+predictor in a release; only then may its time to breach be presented as validated (T1).
+
 ## T1: a fleet file
 
 ```toml
@@ -156,8 +163,7 @@ pre-registered (`docs/evidence/t4-timing-scorecard/`), all three claim bars met;
 * PTP management (`pmc`), SNMP and NTP mode-6 status snapshots: the open engine reads them in its
   `connect` commands on its main branch, which the engine release this crate pins (0.41.0) does
   not carry; they will add status context, not phase records, when the pin moves.
-* The holdover prediction is not validated (V5 and V5b missed). Do not present the time to
-  breach as a validated figure until a pre-registered row passes. Candidate next step, to be
-  pre-registered on new data first: orbit-period and flicker-frequency terms for real rubidium
-  clocks, and a restated false-alarm bar with its reason.
+* The product's holdover prediction (the V5b predictor) is not validated (V5 and V5b missed).
+  The V5c predictor passed its pre-registered bars (`V5c_RESULTS.md`) but is not yet the one the
+  fleet assessment runs; until it is, do not present the time to breach as a validated figure.
 * A PDF rendering of the audit report; the HTML is the deliverable.

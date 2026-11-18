@@ -5,6 +5,35 @@ own bullet so parallel work merges cleanly.
 
 ## [Unreleased]
 
+- **0.42 bars, phase 2 (owner approval 16 Nov 2026; docs/evidence/BARS-TO-GREEN-0.42.md).**
+  E3b **met**: receiver scorecard v2 (`kshana-pro/receiver-scorecard/v2`: WGS-84 geodesic error,
+  truth at each epoch's arrival time, per-case `analogue_seed`) on the held-out synthetic campaign
+  (seeds 31001-31016, 20 events): E3-B2 (a) 20/20 within 1.0 m (worst 0.2 m), E3-B2 (b) 20/20,
+  E3-B3 2,447/7,538, E3-B1 met (docs/evidence/e3-receiver-scorecard/E3b_RESULTS.md). The E3 v1
+  miss stays published.
+  V2b **met** on every synthetic bar: incident forensics v2 (`kshana-pro/incident-forensics/v2`:
+  R1 power-consistent signal-shape evidence, R2 no position-domain evidence in jammed epochs) on
+  the new labelled set (seed 20261121, synthesiser seeds 3000-3047): B3 cross-attribution 0/24
+  (V2: 4/24), B1 24/24, B2 1/24, B4 23/24, B5-B7 met
+  (docs/evidence/v2-forensics-detection/V2b_RESULTS.md). E1 stays unclaimed until V2P is scored
+  and passes; V2's miss stays published.
+  V3c **missed** V3-B4 (published): m4-offset v5 (relative-motion test, persistence,
+  exclusivity) on seeds 7000-7009: offset recall 0.650/0.775/0.796/0.761 at 5/10/20/50 km (bars
+  0.85/0.98/0.98/0.98); false alarms 0.0059 (guard <= 0.01 met; V3b 0.072), DARK, GAP and
+  IDENTITY-DUPLICATE guards met. The development recall ceiling, published first, is below 0.98 at
+  50 km for every pair (0.975 at m = 3), so B4 is not reachable on this generator with a method of
+  this kind (docs/evidence/v3-m4-offset-successor/V3c_RESULTS.md). Stage-2 hits stay offset
+  candidates only.
+  E4b **missed** (published): pnt-verification v2 on the GSC OSNMA test vectors (configuration_1,
+  configuration_2; seed 20261123): S5 tamper detection 5/200 and 4/200 (bar 0.99; no untampered
+  failure); on the sample stream the same receiver detected 200/200. Geometry on the four
+  admissible Pulsar configurations: S1 and S2 missed (not 0.42 gates, owner 16 Nov), S3 missed on
+  the star-pattern E4 split, S4 met (docs/evidence/e4-pnt-verification/E4b_RESULTS.md).
+  V5c **passed** every bar: holdover v3 (`HoldoverModel::fit_harmonic`: orbit-period harmonics
+  P = 43 082 s, k = 1, 2, and a flicker floor) on new IGS final clocks 2025-10-05..18 (D-R3:
+  B1 0.9013, B2 0.9294, B3 0.7131, B4 0.9343, B5 0.1285) and synthetic seed 20261120 (D-S3: all
+  pass) (docs/evidence/v5-holdover-time-to-breach/V5c_RESULTS.md). The fleet assessment still
+  runs the V5b predictor and keeps its "not validated" label until it is switched.
 - **macOS signing status corrected (roadmap 0.42 Q7).** docs/MACOS-NOTARISATION.md said no Apple account existed; the account, both Developer ID certificates and the secrets exist, the signing check and the signed, notarised and stapled Desktop Pro release workflow ran green on 13 November 2026.
 - **Evidence products (roadmap 0.42 E4, E5, E6, E7; V3, V6; docs/EVIDENCE-PRODUCTS.md).**
   E5 AIS and position integrity scoring: kind `pro-ais-integrity`, `kshana-pro integrity

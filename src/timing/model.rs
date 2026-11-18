@@ -193,6 +193,121 @@ pub struct HoldoverModel {
     pub method: &'static str,
     /// The full state covariance at the handover (phase, frequency, drift), for `kalman`.
     pub cov: Option<[[f64; 3]; 3]>,
+    /// The orbit-period harmonics and the flicker term of `harmonic` (V5c); absent otherwise.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub harmonic: Option<Harmonic>,
+}
+
+/// GPS orbital period used by the V5c harmonics, s (half a sidereal day; a constant, never fitted).
+pub const GPS_ORBIT_PERIOD_S: f64 = 43_082.0;
+
+/// The periodic part and the flicker term of a V5c model (`kshana-pro/holdover/v3`).
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct Harmonic {
+    /// Period `P`, s.
+    pub period_s: f64,
+    /// Time of the window's first sample relative to the handover, s (negative): the phase origin.
+    pub v0_s: f64,
+    /// `(alpha_1, beta_1, alpha_2, beta_2)`, s.
+    pub coef: [f64; 4],
+    /// Their covariance, the least-squares covariance scaled by `kappa`.
+    pub cov: [[f64; 4]; 4],
+    /// `N / N_eff`.
+    pub kappa: f64,
+    /// First lag at which the least-squares residuals' autocorrelation falls below `1/e`, s.
+    pub tau_c_s: f64,
+    /// The flicker floor `F` of the Allan model (dimensionless, `sigma_y^2`).
+    pub flicker: f64,
+}
+
+impl Harmonic {
+    fn basis(&self, v: f64) -> [f64; 4] {
+        let w = 2.0 * std::f64::consts::PI / self.period_s;
+        let ph = v - self.v0_s;
+        [
+            (w * ph).cos(),
+            (w * ph).sin(),
+            (2.0 * w * ph).cos(),
+            (2.0 * w * ph).sin(),
+        ]
+    }
+
+    /// `h` at `v` (s from the handover).
+    pub fn h(&self, v: f64) -> f64 {
+        let b = self.basis(v);
+        (0..4).map(|i| self.coef[i] * b[i]).sum()
+    }
+
+    /// The gradient of `h(u) - h(0)` with respect to the coefficients.
+    fn grad(&self, u: f64) -> [f64; 4] {
+        let a = self.basis(u);
+        let b = self.basis(0.0);
+        [a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]]
+    }
+}
+
+/// [`fit_noise_with`] with the flicker floor `F` as a fourth term:
+/// `sigma_y^2(tau) = 3 R / tau^2 + q_wf / tau + F + q_rw tau / 3` (+ the fixed offset), relative
+/// least squares, every term non-negative, exhaustive over the subsets of the four terms.
+pub fn fit_noise_flicker(points: &[(f64, f64)], offset: impl Fn(f64) -> f64) -> (Noise, f64) {
+    let pts: Vec<(f64, f64)> = points
+        .iter()
+        .copied()
+        .filter(|(t, v)| *t > 0.0 && v.is_finite() && *v > 0.0)
+        .collect();
+    if pts.is_empty() {
+        return (Noise::default(), 0.0);
+    }
+    let basis = |tau: f64| [3.0 / (tau * tau), 1.0 / tau, 1.0, tau / 3.0];
+    let cost = |p: &[f64; 4]| -> f64 {
+        pts.iter()
+            .map(|(t, v)| {
+                let b = basis(*t);
+                let model: f64 = (0..4).map(|i| b[i] * p[i]).sum();
+                ((model + offset(*t) - v) / v).powi(2)
+            })
+            .sum()
+    };
+    let mut best = ([0.0; 4], cost(&[0.0; 4]));
+    for mask in 1u8..16 {
+        let idx: Vec<usize> = (0..4).filter(|i| mask & (1 << i) != 0).collect();
+        if idx.len() > pts.len() {
+            continue;
+        }
+        let k = idx.len();
+        let mut ata = vec![vec![0.0; k]; k];
+        let mut aty = vec![0.0; k];
+        for (t, v) in &pts {
+            let b = basis(*t);
+            for (r, &i) in idx.iter().enumerate() {
+                let ai = b[i] / v;
+                aty[r] += ai * ((v - offset(*t)) / v);
+                for (c, &j) in idx.iter().enumerate() {
+                    ata[r][c] += ai * b[j] / v;
+                }
+            }
+        }
+        let Some(sol) = solve(ata, aty) else { continue };
+        if sol.iter().any(|x| !x.is_finite() || *x < 0.0) {
+            continue;
+        }
+        let mut p = [0.0; 4];
+        for (r, &i) in idx.iter().enumerate() {
+            p[i] = sol[r];
+        }
+        let c = cost(&p);
+        if c < best.1 {
+            best = (p, c);
+        }
+    }
+    (
+        Noise {
+            r_s2: best.0[0],
+            q_wf: best.0[1],
+            q_rw: best.0[3],
+        },
+        best.0[2],
+    )
 }
 
 /// The phase-measurement variance floor of the successor predictor: the rounding of a phase
@@ -343,6 +458,7 @@ impl HoldoverModel {
             adev_points,
             method: "quadratic",
             cov: None,
+            harmonic: None,
         })
     }
 
@@ -420,6 +536,177 @@ impl HoldoverModel {
             adev_points: pts,
             method: "kalman",
             cov: Some(p),
+            harmonic: None,
+        })
+    }
+
+    /// The V5c predictor (`kshana-pro/holdover/v3`, pre-registration
+    /// `2026-11-16_V5c_PREREGISTRATION.md`, section 2): V5b's Kalman handover run on the phase
+    /// with its orbit-period harmonics removed, a flicker floor in the Allan model, and the
+    /// harmonics carried into the prediction. The `F u^2` term is the `x_rms(u) ~ u sigma_y(u)`
+    /// approximation for flicker FM (an approximation).
+    pub fn fit_harmonic(x: &[f64], tau0: f64, window_s: f64) -> Result<HoldoverModel, String> {
+        if tau0.is_nan() || tau0 <= 0.0 {
+            return Err("the sample interval must be positive".into());
+        }
+        let want = (window_s / tau0).round() as usize + 1;
+        let n = want.min(x.len());
+        if n < 16 {
+            return Err(format!(
+                "a holdover model needs at least 16 samples in its window; the record has {n}"
+            ));
+        }
+        let w = &x[x.len() - n..];
+        if w.iter().any(|v| !v.is_finite()) {
+            return Err("the window has a missing or non-finite sample".into());
+        }
+        let span = (n - 1) as f64 * tau0;
+        let v0 = -span;
+        let p_s = GPS_ORBIT_PERIOD_S;
+        let om = 2.0 * std::f64::consts::PI / p_s;
+        let ref_x = w[n - 1];
+        // Step 1: least squares of [1, s, s^2/2, cos, sin, cos2, sin2], s = v / span.
+        let row = |i: usize| -> [f64; 7] {
+            let v = (i as f64 - (n - 1) as f64) * tau0;
+            let s = v / span;
+            let ph = v - v0;
+            [
+                1.0,
+                s,
+                s * s / 2.0,
+                (om * ph).cos(),
+                (om * ph).sin(),
+                (2.0 * om * ph).cos(),
+                (2.0 * om * ph).sin(),
+            ]
+        };
+        let mut ata = vec![vec![0.0; 7]; 7];
+        let mut aty = vec![0.0; 7];
+        for (i, xi) in w.iter().enumerate() {
+            let r = row(i);
+            for a in 0..7 {
+                aty[a] += r[a] * (xi - ref_x);
+                for b in 0..7 {
+                    ata[a][b] += r[a] * r[b];
+                }
+            }
+        }
+        let p = solve(ata.clone(), aty).ok_or("the window's harmonic fit is singular")?;
+        let inv = invert(&ata).ok_or("the window's harmonic fit is singular")?;
+        let resid: Vec<f64> = w
+            .iter()
+            .enumerate()
+            .map(|(i, xi)| {
+                let r = row(i);
+                (xi - ref_x) - (0..7).map(|a| r[a] * p[a]).sum::<f64>()
+            })
+            .collect();
+        let sr2 = resid.iter().map(|r| r * r).sum::<f64>() / (n as f64 - 7.0);
+        // tau_c: the first lag at which the residuals' autocorrelation falls below 1/e.
+        let mean_r = resid.iter().sum::<f64>() / n as f64;
+        let c0: f64 = resid.iter().map(|r| (r - mean_r).powi(2)).sum();
+        let mut lag = 1usize;
+        while lag < n {
+            let c: f64 = (0..n - lag)
+                .map(|i| (resid[i] - mean_r) * (resid[i + lag] - mean_r))
+                .sum();
+            if c0 <= 0.0 || c / c0 < (-1.0f64).exp() {
+                break;
+            }
+            lag += 1;
+        }
+        let tau_c = (lag as f64 * tau0).max(tau0);
+        let n_eff = (span / tau_c).max(1.0);
+        let kappa = n as f64 / n_eff;
+        let mut cov = [[0.0; 4]; 4];
+        for (a, row_c) in cov.iter_mut().enumerate() {
+            for (b, c) in row_c.iter_mut().enumerate() {
+                *c = kappa * sr2 * inv[3 + a][3 + b];
+            }
+        }
+        let harm = Harmonic {
+            period_s: p_s,
+            v0_s: v0,
+            coef: [p[3], p[4], p[5], p[6]],
+            cov,
+            kappa,
+            tau_c_s: tau_c,
+            flicker: 0.0,
+        };
+        // Steps 2 and 3 of V5b on x - h.
+        let xd: Vec<f64> = w
+            .iter()
+            .enumerate()
+            .map(|(i, xi)| xi - harm.h((i as f64 - (n - 1) as f64) * tau0))
+            .collect();
+        let quad = HoldoverModel::fit(&xd, tau0, window_s)?;
+        let x0 = xd[0];
+        let rel: Vec<f64> = xd.iter().map(|v| v - x0).collect();
+        let d = quad.drift_per_s;
+        let mut pts = Vec::new();
+        let mut m = 1usize;
+        while m <= n / 8 && n > 2 * m {
+            let dev = kshana::allan::overlapping_adev(&rel, tau0, m);
+            pts.push((m as f64 * tau0, dev));
+            m *= 2;
+        }
+        let avar: Vec<(f64, f64)> = pts.iter().map(|(t, a)| (*t, a * a)).collect();
+        let (fitted, flicker) = fit_noise_flicker(&avar, |tau| d * d * tau * tau / 2.0);
+        let r_eff = fitted.r_s2.max(R_FLOOR_S2);
+        let q = (n / 4).max(2);
+        let (mut st, mut stt, mut sx, mut stx) = (0.0, 0.0, 0.0, 0.0);
+        for (i, v) in rel[..q].iter().enumerate() {
+            let t = i as f64 * tau0;
+            st += t;
+            stt += t * t;
+            sx += v;
+            stx += t * v;
+        }
+        let qf = q as f64;
+        let den = qf * stt - st * st;
+        let y0 = if den != 0.0 {
+            (qf * stx - st * sx) / den
+        } else {
+            0.0
+        };
+        let b0 = (sx - y0 * st) / qf;
+        let sdq = (rel[..q]
+            .iter()
+            .enumerate()
+            .map(|(i, v)| (v - b0 - y0 * i as f64 * tau0).powi(2))
+            .sum::<f64>()
+            / (qf - 2.0).max(1.0))
+        .sqrt();
+        let s_x = 10.0 * sdq + r_eff.sqrt();
+        let mut kf = kshana::clock_state::ClockState3::new(fitted.q_wf, fitted.q_rw, 0.0)
+            .with_initial_cov(s_x * s_x, 1e-16, 1e-24);
+        kf.x = [0.0, y0, 0.0];
+        kf.update_phase(rel[0], r_eff);
+        for z in &rel[1..] {
+            kf.predict(tau0);
+            kf.update_phase(*z, r_eff);
+        }
+        let pc = kf.covariance();
+        Ok(HoldoverModel {
+            // The frozen state: the detrended phase estimate plus h at the handover.
+            phase_s: x0 + kf.x[0] + harm.h(0.0),
+            freq: kf.x[1],
+            drift_per_s: kf.x[2],
+            var_phase: pc[0][0],
+            var_freq: pc[1][1],
+            var_drift: pc[2][2],
+            window_s: quad.window_s,
+            n_window: n,
+            residual_rms_s: quad.residual_rms_s,
+            noise: Noise {
+                r_s2: r_eff,
+                ..fitted
+            },
+            noise_source: NoiseSource::Measured,
+            adev_points: pts,
+            method: "harmonic",
+            cov: Some(pc),
+            harmonic: Some(Harmonic { flicker, ..harm }),
         })
     }
 
@@ -457,11 +744,15 @@ impl HoldoverModel {
             adev_points: Vec::new(),
             method: "prior",
             cov: None,
+            harmonic: None,
         })
     }
 
     /// The predicted mean holdover time error after `u` s (relative to the frozen state).
     pub fn mean(&self, u: f64) -> f64 {
+        if let Some(h) = &self.harmonic {
+            return self.drift_per_s * u * u / 2.0 + h.h(u) - h.h(0.0);
+        }
         match self.noise_source {
             NoiseSource::Measured => self.drift_per_s * u * u / 2.0,
             // A servo record: the present offset carries on.
@@ -480,8 +771,17 @@ impl HoldoverModel {
                 }
             }
             let nz = &self.noise;
-            let v =
+            let mut v =
                 gpg + kshana::holdover::coast_phase_variance(nz.q_wf, nz.q_rw, 0.0, u) + nz.r_s2;
+            if let Some(h) = &self.harmonic {
+                let g = h.grad(u);
+                for i in 0..4 {
+                    for j in 0..4 {
+                        v += g[i] * h.cov[i][j] * g[j];
+                    }
+                }
+                v += h.flicker * u * u;
+            }
             return v.max(0.0).sqrt();
         }
         let w = self.window_s.max(f64::MIN_POSITIVE);

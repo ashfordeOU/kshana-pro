@@ -1,0 +1,168 @@
+# E4b study (pre-registered 15 November 2026, approved by the owner 16 November 2026).
+# Geometry part: the published Xona Pulsar design on every admissible configuration
+# (satellite split x polar-shell Walker pattern); a geometry bar is met only if met in all four.
+# The integrity part (S5) runs on the Galileo OSNMA test vectors held locally
+# (KSHANA_PRO_OSNMA_TV; never committed) through method v2's receiver (src/pnt_study/osnma_v2.rs).
+kind = "pro-pnt-verification"
+title = "E4b: Xona Pulsar published design on every admissible configuration; Galileo OSNMA test vectors under seeded tampering"
+service = "Xona Pulsar, published design: 258 satellites, 18 planes, about 1080 km, 53 and 97 degrees (most not launched); Galileo OSNMA (test vectors of the European GNSS Service Centre)"
+service_source = "Leclere, Marathe and Reid, ION GNSS+ 2025, arXiv 2509.19551; GSC OSNMA test vectors (Test_vectors.zip)"
+pre_registration = "../../docs/evidence/e4-pnt-verification/2026-11-16_E4b_PREREGISTRATION.md"
+pre_registration_sha256 = "907a8fbada319cb8397262c26115010315fedb411a7164d8f0c17d79e9a98e5e"
+
+[geometry]
+duration_s = 86400.0
+step_s = 120.0
+lat_step_deg = 10.0
+lon_step_deg = 15.0
+mask_deg = 10.0
+pdop_threshold = 6.0
+assumed_uere_m = [0.5, 1.0]
+
+[[geometry.gnss]]
+name = "GPS"
+preset = "gps-baseline"
+
+[[geometry.gnss]]
+name = "Galileo"
+preset = "galileo"
+
+# geometry.leo is configuration e4-split-delta (E4's); every configuration below is run.
+[[geometry.leo]]
+name = "Pulsar"
+
+[[geometry.leo.shell]]
+pattern = "delta"
+total = 192
+planes = 12
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 53.0
+
+[[geometry.leo.shell]]
+pattern = "delta"
+total = 66
+planes = 6
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 97.0
+
+[[configuration]]
+id = "e4-split-delta"
+
+[[configuration.leo]]
+name = "Pulsar"
+
+[[configuration.leo.shell]]
+pattern = "delta"
+total = 192
+planes = 12
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 53.0
+
+[[configuration.leo.shell]]
+pattern = "delta"
+total = 66
+planes = 6
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 97.0
+
+[[configuration]]
+id = "e4-split-star"
+
+[[configuration.leo]]
+name = "Pulsar"
+
+[[configuration.leo.shell]]
+pattern = "delta"
+total = 192
+planes = 12
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 53.0
+
+[[configuration.leo.shell]]
+pattern = "star"
+total = 66
+planes = 6
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 97.0
+
+[[configuration]]
+id = "preset-split-delta"
+
+[[configuration.leo]]
+name = "Pulsar"
+
+[[configuration.leo.shell]]
+pattern = "delta"
+total = 168
+planes = 12
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 53.0
+
+[[configuration.leo.shell]]
+pattern = "delta"
+total = 90
+planes = 6
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 97.0
+
+[[configuration]]
+id = "preset-split-star"
+
+[[configuration.leo]]
+name = "Pulsar"
+
+[[configuration.leo.shell]]
+pattern = "delta"
+total = 168
+planes = 12
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 53.0
+
+[[configuration.leo.shell]]
+pattern = "star"
+total = 90
+planes = 6
+phasing = 1
+altitude_km = 1080.0
+inclination_deg = 97.0
+
+[[bar]]
+id = "E4-S1"
+quantity = "leo-availability"
+lat_min = 0.0
+lat_max = 60.0
+op = "ge"
+value = 0.99
+
+[[bar]]
+id = "E4-S2"
+quantity = "leo-availability"
+lat_min = 70.0
+lat_max = 90.0
+op = "ge"
+value = 0.99
+
+[[bar]]
+id = "E4-S3"
+quantity = "leo-median-hdop"
+lat_min = 0.0
+lat_max = 90.0
+op = "le"
+value = 2.0
+
+[[bar]]
+id = "E4-S4"
+quantity = "fused-availability"
+lat_min = 0.0
+lat_max = 90.0
+op = "ge"
+value = 0.999

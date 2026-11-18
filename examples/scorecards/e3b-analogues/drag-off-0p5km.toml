@@ -1,0 +1,77 @@
+# E3b held-out analogue (docs/evidence/e3-receiver-scorecard/2026-11-16_E3b_PREREGISTRATION.md,
+# section 3): library scenario 'hormuz-position-displacement' with a drag-off to 0.5 km; every other parameter is the library's.
+# Written to the pre-registered parameters before any case was generated. MODELLED, not a measurement.
+# Kshana Pro threat library: scenario file (format kshana-pro-threat-scenario/1).
+# A description and a parameter set, not a measurement. No source data is included.
+format = "kshana-pro-threat-scenario/1"
+id = "e3b-drag-off-0p5km"
+version = 1
+title = "E3b held-out: drag-off to 0.5 km (variant of the Hormuz displacement analogue)"
+family = "hormuz"
+threat = ["spoofing"]
+domain = "maritime"
+period = "June 2025 (as reported); earlier advisories since 2019"
+summary = """
+Maritime security advisories for the Persian Gulf, the Strait of Hormuz and the Gulf of Oman \
+have warned of GNSS interference for years; in June 2025 advisories reported widespread \
+interference with vessel positions displaced, some shown far from their true location. The \
+analogue is a valid-looking fix that drifts away from the true track while the gyro and the \
+log stay true."""
+
+[provenance]
+class = "official-notice"
+parameter_basis = """
+Representative values, not read off any recording: a drag-off of 8 km over 10 minutes at a \
+right angle to the course, with a raised uniform C/N0 while it lasts. The advisories describe \
+displaced positions but give no displacement rates."""
+verify_before_use = "Read the advisory for the dates of interest; reported effects range from jamming to displaced positions, and the advisories do not attribute them in technical detail."
+
+[[provenance.source]]
+title = "MSCI advisories: Persian Gulf, Strait of Hormuz, Gulf of Oman"
+publisher = "U.S. Maritime Administration (MARAD), Maritime Security Communications with Industry"
+date = "2019 onwards"
+url = "https://www.maritime.dot.gov/msci-advisories"
+says = "The advisories for the region warn of GPS interference, bridge-to-bridge impersonation and AIS spoofing affecting commercial vessels."
+
+[[provenance.source]]
+title = "JMIC advisory notes on electronic interference in the Strait of Hormuz and the Arabian Gulf"
+publisher = "Joint Maritime Information Center (JMIC), published through UKMTO"
+date = "2025-06"
+url = "https://www.ukmto.org/"
+says = "The advisory notes reported electronic interference affecting vessel navigation and AIS positions in the Strait of Hormuz area."
+
+[licence]
+source_terms = "Public advisories; cited, not copied. No measurement or AIS data is used."
+redistributed = false
+library_terms = "Kshana Pro content under the Kshana Pro licence. The analogue is generated with the open engine (AGPL-3.0)."
+
+[analogue.scenario]
+name = "e3b-drag-off-0p5km"
+description = "Outbound transit of the Strait of Hormuz with a position drag-off (analogue)."
+trainer_note = "The fix stays valid while it walks away from the gyro heading and the log; C/N0 becomes uniform."
+seed = 31012
+start_utc = "2025-06-18T03:00:00Z"
+duration_s = 1800
+rate_hz = 1
+
+[analogue.vessel]
+lat_deg = 26.55
+lon_deg = 56.25
+speed_kn = 12
+
+[[analogue.waypoint]]
+lat_deg = 26.35
+lon_deg = 56.60
+speed_kn = 12
+
+[[analogue.event]]
+kind = "drag-off"
+label = "Position displaced"
+start_s = 420
+duration_s = 900
+ramp_s = 600
+recovery_s = 0
+final_offset_m = 500
+relative_bearing_deg = 90
+max_accel_mps2 = 0.2
+counterfeit_cn0_dbhz = 46

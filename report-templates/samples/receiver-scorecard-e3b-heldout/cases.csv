@@ -1,0 +1,21 @@
+case,event,kind,onset_s,end_s,monitor_outcome,monitor_latency_s,receiver_flag_latency_s,fix_epochs,window_epochs,max_error_m,max_time_error_s,misleading_unwarned,misleading_unmonitored,recovered,recovery_s
+baltic-gof,Wide-area jamming,jamming,420,1500,late,61,,293,1081,30.8,0,0,0,true,0
+baltic-tartu,Interference episode 1,jamming,360,780,late,15,,89,421,18.7,0,0,0,true,0
+baltic-tartu,Interference episode 2,jamming,1080,1620,late,11,,58,541,15.7,0,0,0,true,0
+hormuz-displacement,Position displaced,spoofing,420,1320,detected,1,,901,901,8004.9,0,871,0,true,0
+hormuz-meaconing,Re-broadcast delay,spoofing,400,880,late,25.2,,481,481,137.6,20,468,367,true,0
+red-sea-jamming,Partial jamming,jamming,360,1560,late,46,,259,1201,17.1,0,0,0,true,0
+red-sea-jam-then-drag,Jamming before capture,jamming,360,660,detected,6,,18,301,7,0,0,0,true,7
+red-sea-jam-then-drag,Counterfeit fix after re-acquisition,spoofing,700,1300,detected,1,,601,601,3002.1,0,563,0,true,0
+jammertest-steps,Step 1 (low),jamming,300,545,detected,3,,246,246,5.5,0,0,0,true,0
+jammertest-steps,Step 2 (medium),jamming,660,905,detected,2,,4,246,1.4,0,0,0,true,4
+jammertest-steps,Step 3 (high),jamming,1020,1265,detected,1,,3,246,2.8,0,0,0,true,5
+jammertest-position,Position spoofing,spoofing,360,960,late,19,,601,601,2004.3,0,566,248,true,0
+jammertest-time,Time spoofing,spoofing,420,1020,missed,,,601,601,5.6,2,569,569,true,0
+texbat-ds3-analogue,Matched-power time push,spoofing,420,1020,missed,,,601,601,6.4,1,509,509,true,0
+texbat-ds4-analogue,Matched-power position push,spoofing,420,1020,late,54,,601,601,604.1,0,545,0,true,0
+drag-off-0p5km,Position displaced,spoofing,420,1320,detected,1,,901,901,505.7,0,788,0,true,0
+drag-off-3km,Position displaced,spoofing,420,1320,detected,1,,901,901,3004.2,0,852,0,true,0
+drag-off-12km,Position displaced,spoofing,420,1320,detected,1,,901,901,12005.6,0,876,0,true,0
+meaconing-8s,Re-broadcast delay,spoofing,400,880,late,40.6,,481,481,56.2,8,461,395,true,0
+meaconing-30s,Re-broadcast delay,spoofing,400,880,late,17.8,,481,481,204.6,30,470,359,true,0

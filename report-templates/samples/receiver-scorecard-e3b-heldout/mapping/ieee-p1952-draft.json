@@ -1,0 +1,37 @@
+{
+  "standard": "IEEE P1952, Standard for Resilient Positioning, Navigation, and Timing (PNT) User Equipment (draft)",
+  "status": "A draft standard under development. Topics are mapped by subject only, with no clause numbers, until the standard is published; the mapping will be revised then.",
+  "wording": "Each topic lists the evidence this scorecard carries for it. The evidence is test evidence for the cases run; it is not a statement that the equipment meets the draft or any published standard.",
+  "topics": [
+    {
+      "topic": "Threat detection",
+      "summary": "Whether and how fast the equipment, or a monitor on its output, recognises that a threat is present.",
+      "evidence": ["cases[].events[].receiver_flag_latency_s", "cases[].events[].monitor_outcome", "cases[].events[].monitor_latency_s", "cases[].clean.receiver_flag_epochs", "cases[].clean.monitor_false_alarm_epochs"]
+    },
+    {
+      "topic": "Output integrity under threat",
+      "summary": "Whether the equipment gives wrong position or time without warning while a threat is present.",
+      "evidence": ["cases[].misleading.unwarned_epochs", "cases[].misleading.unmonitored_epochs", "cases[].events[].max_error_m", "cases[].events[].max_time_error_s"]
+    },
+    {
+      "topic": "Continuity under threat",
+      "summary": "How much of the threat period the equipment keeps giving a solution, and how far it degrades.",
+      "evidence": ["cases[].fix_availability", "cases[].events[].p95_error_m"]
+    },
+    {
+      "topic": "Recovery",
+      "summary": "Whether and how fast the equipment returns to correct output after the threat ends.",
+      "evidence": ["cases[].events[].recovered", "cases[].events[].recovery_s"]
+    },
+    {
+      "topic": "Resilience levels",
+      "summary": "The level the campaign's evidence supports under the stated bars, case by case.",
+      "evidence": ["cases[].levels", "levels"]
+    },
+    {
+      "topic": "Test conditions and repeatability",
+      "summary": "What was run, on which inputs, under which bars, by which method version.",
+      "evidence": ["campaign_sha256", "bars_sha256", "cases[].log_sha256", "cases[].source", "engine", "method"]
+    }
+  ]
+}

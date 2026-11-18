@@ -48,6 +48,29 @@ pub const KIND: &str = "pro-receiver-scorecard";
 pub const FORMAT: &str = "kshana-pro-receiver-scorecard/1";
 /// The scoring method; every rule below is a constant of this version.
 pub const METHOD_ID: &str = "kshana-pro/receiver-scorecard/v1";
+/// Method v2 (E3b pre-registration, `docs/evidence/e3-receiver-scorecard/2026-11-16_E3b_PREREGISTRATION.md`):
+/// v1 except that the position error is the WGS-84 geodesic distance (Karney 2013, the open
+/// engine's `kshana::geodesic`), and each epoch is stamped with its arrival time on a clock
+/// independent of the unit under test, the truth taken at that time. For an analogue the arrival
+/// time is the generator's epoch time; a log case carries no host arrival timestamps in this
+/// campaign format, so v2 does not score its errors (and says so).
+pub const METHOD_ID_V2: &str = "kshana-pro/receiver-scorecard/v2";
+
+/// Which scoring method a campaign asks for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Method {
+    V1,
+    V2,
+}
+
+impl Method {
+    pub fn id(self) -> &'static str {
+        match self {
+            Method::V1 => METHOD_ID,
+            Method::V2 => METHOD_ID_V2,
+        }
+    }
+}
 
 /// The honesty label of every scorecard.
 pub const LABEL: &str = "MODELLED verdicts of the open receiver-trust engine and of this \
@@ -242,6 +265,10 @@ pub struct CaseSpec {
     /// Calibration of the open monitors, s (default 120).
     #[serde(default)]
     pub calibration_s: Option<f64>,
+    /// The analogue generator's seed for this case, overriding the library file's
+    /// (`analogue` cases only).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub analogue_seed: Option<u64>,
 }
 
 /// A campaign (`kind = "pro-receiver-scorecard"`).
@@ -254,6 +281,9 @@ pub struct Campaign {
     pub campaign: CampaignInfo,
     #[serde(default)]
     pub bars: Bars,
+    /// The scoring method (`kshana-pro/receiver-scorecard/v1`, the default, or `.../v2`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub method: Option<String>,
     #[serde(rename = "case")]
     pub cases: Vec<CaseSpec>,
     /// Where relative paths are read from (set from the file's folder; not serialised).
@@ -288,6 +318,7 @@ impl Campaign {
             return Err("campaign: id is needed".into());
         }
         self.bars.validate()?;
+        self.method_kind()?;
         if self.cases.is_empty() {
             return Err("a campaign has at least one [[case]]".into());
         }
@@ -317,6 +348,17 @@ impl Campaign {
             }
         }
         Ok(())
+    }
+
+    /// The scoring method this campaign asks for.
+    pub fn method_kind(&self) -> Result<Method, String> {
+        match self.method.as_deref() {
+            None | Some(METHOD_ID) => Ok(Method::V1),
+            Some(METHOD_ID_V2) => Ok(Method::V2),
+            Some(m) => Err(format!(
+                "method '{m}' is not known (use '{METHOD_ID}' or '{METHOD_ID_V2}')"
+            )),
+        }
     }
 
     fn resolve(&self, p: &str) -> PathBuf {
@@ -363,6 +405,9 @@ struct Loaded {
     /// Truth by epoch time (s since the first log epoch), sorted.
     truth: Option<Vec<(f64, TruthAt)>>,
     truth_kind: String,
+    /// Every emitted epoch with its arrival time on a clock independent of the unit under
+    /// test (v2 analogue cases: the generator's epoch time) and its text, in stream order.
+    arrival: Option<Vec<(f64, String)>>,
 }
 
 /// How the receiver and the monitor did on one event.
@@ -528,12 +573,40 @@ fn monitor_name(m: &kshana::receiver_trust::monitors::Monitor) -> String {
         .unwrap_or_default()
 }
 
-fn load_case(c: &Campaign, cs: &CaseSpec) -> Result<Loaded, KshanaError> {
+/// The threat scenario of a case, as scored: its `library` (a library id, or a path to a
+/// file in the threat library's format, relative to the campaign) with the case's
+/// `analogue_seed` applied. `None` for a log case without a library.
+pub fn case_scenario(
+    c: &Campaign,
+    cs: &CaseSpec,
+) -> Result<Option<crate::threat_library::ThreatScenario>, KshanaError> {
     let bad = |m: String| KshanaError::InvalidInput(format!("case '{}': {m}", cs.id));
     let lib = match &cs.library {
+        Some(id) if id.ends_with(".toml") => {
+            let p = c.resolve(id);
+            let src =
+                std::fs::read_to_string(&p).map_err(|e| bad(format!("{}: {e}", p.display())))?;
+            Some(crate::threat_library::ThreatScenario::parse(&src)?)
+        }
         Some(id) => Some(crate::threat_library::get(id)?),
         None => None,
     };
+    match (lib, cs.analogue_seed) {
+        (Some(mut s), Some(seed)) => {
+            match s.analogue.as_mut() {
+                Some(a) => a.scenario.seed = seed,
+                None => return Err(bad("analogue_seed needs a scenario with an analogue".into())),
+            }
+            Ok(Some(s))
+        }
+        (_, Some(_)) => Err(bad("analogue_seed needs a library case".into())),
+        (l, None) => Ok(l),
+    }
+}
+
+fn load_case(c: &Campaign, cs: &CaseSpec) -> Result<Loaded, KshanaError> {
+    let bad = |m: String| KshanaError::InvalidInput(format!("case '{}': {m}", cs.id));
+    let lib = case_scenario(c, cs)?;
     let threat_of = |s: &crate::threat_library::ThreatScenario| {
         s.threat
             .iter()
@@ -576,6 +649,20 @@ fn load_case(c: &Campaign, cs: &CaseSpec) -> Result<Loaded, KshanaError> {
             calibration_s: an.trust.monitors.calibration_s,
             truth: Some(truth),
             truth_kind: "analogue".into(),
+            arrival: Some(
+                an.generated
+                    .epochs
+                    .iter()
+                    .map(|e| {
+                        let mut t = String::new();
+                        for line in &e.lines {
+                            t.push_str(line);
+                            t.push_str("\r\n");
+                        }
+                        (e.t_s, t)
+                    })
+                    .collect(),
+            ),
         });
     }
     let log = cs.log.as_ref().expect("validated: a log case has a log");
@@ -670,6 +757,7 @@ fn load_case(c: &Campaign, cs: &CaseSpec) -> Result<Loaded, KshanaError> {
             "none"
         }
         .into(),
+        arrival: None,
         truth,
     })
 }
@@ -732,7 +820,12 @@ struct Ep {
     calibrating: bool,
 }
 
-fn epochs_of(l: &Loaded, tl: &Timeline, res: &ReceiverTrustResult) -> Vec<Ep> {
+fn epochs_of(
+    l: &Loaded,
+    tl: &Timeline,
+    res: &ReceiverTrustResult,
+    method: Method,
+) -> Result<Vec<Ep>, String> {
     let alarm_at: std::collections::BTreeMap<i64, (bool, bool, bool)> = res
         .epochs
         .iter()
@@ -747,20 +840,89 @@ fn epochs_of(l: &Loaded, tl: &Timeline, res: &ReceiverTrustResult) -> Vec<Ep> {
             )
         })
         .collect();
-    tl.epochs
+    // v2 on an analogue: one scored epoch per emitted epoch, stamped with its arrival time
+    // (the generator's epoch time), its fix and flags read from that epoch's own sentences,
+    // the truth taken at the arrival time and the error on the WGS-84 ellipsoid. The open
+    // monitor's alarm is the one of the stream epoch that carries the same stated time.
+    if let (Method::V2, Some(arr)) = (method, &l.arrival) {
+        let by_label: std::collections::BTreeMap<&str, f64> = tl
+            .epochs
+            .iter()
+            .filter_map(|e| e.time_label.as_deref().map(|lb| (lb, e.t_s)))
+            .collect();
+        let mut out = Vec::with_capacity(arr.len());
+        for (t, text) in arr {
+            let one = kshana::receiver_trust::ingest::read_log(l.format, text.as_bytes())?;
+            let e = match one.epochs.as_slice() {
+                [e] => e,
+                [] => {
+                    out.push(Ep {
+                        t: *t,
+                        fix: false,
+                        err_m: None,
+                        time_err_s: None,
+                        flag: false,
+                        alarm: false,
+                        calibrating: false,
+                    });
+                    continue;
+                }
+                _ => {
+                    return Err(format!(
+                        "v2: the epoch emitted at {t:.1} s reads as {} epochs",
+                        one.epochs.len()
+                    ))
+                }
+            };
+            let stream_t = e
+                .time_label
+                .as_deref()
+                .and_then(|lb| by_label.get(lb))
+                .copied();
+            let (alarm, calibrating, mflag) = stream_t
+                .and_then(|st| alarm_at.get(&((st * 1000.0).round() as i64)).copied())
+                .unwrap_or((false, false, false));
+            let flag = mflag || e.self_report.as_ref().is_some_and(|s| s.flagged());
+            let tr = l.truth.as_deref().and_then(|tt| truth_at(tt, *t));
+            let err_m = match (e.fix, tr) {
+                (Some(f), Some(tr)) => Some(kshana::geodesic::distance_m(
+                    f.lat_deg, f.lon_deg, tr.lat, tr.lon,
+                )),
+                _ => None,
+            };
+            out.push(Ep {
+                t: *t,
+                fix: e.fix.is_some(),
+                err_m,
+                time_err_s: tr.and_then(|t| t.time_offset_s).filter(|_| e.fix.is_some()),
+                flag,
+                alarm,
+                calibrating,
+            });
+        }
+        return Ok(out);
+    }
+    Ok(tl
+        .epochs
         .iter()
         .map(|e| {
             let key = (e.t_s * 1000.0).round() as i64;
             let (alarm, calibrating, mflag) =
                 alarm_at.get(&key).copied().unwrap_or((false, false, false));
             let flag = mflag || e.self_report.as_ref().is_some_and(|s| s.flagged());
-            let tr = l.truth.as_deref().and_then(|t| truth_at(t, e.t_s));
+            let t = e.t_s;
+            let tr = l.truth.as_deref().and_then(|tt| truth_at(tt, t));
             let err_m = match (e.fix, tr) {
-                (Some(f), Some(t)) => Some(haversine_m(f.lat_deg, f.lon_deg, t.lat, t.lon)),
+                (Some(f), Some(tr)) => Some(match method {
+                    Method::V1 => haversine_m(f.lat_deg, f.lon_deg, tr.lat, tr.lon),
+                    Method::V2 => {
+                        kshana::geodesic::distance_m(f.lat_deg, f.lon_deg, tr.lat, tr.lon)
+                    }
+                }),
                 _ => None,
             };
             Ep {
-                t: e.t_s,
+                t,
                 fix: e.fix.is_some(),
                 err_m,
                 time_err_s: tr.and_then(|t| t.time_offset_s).filter(|_| e.fix.is_some()),
@@ -769,7 +931,7 @@ fn epochs_of(l: &Loaded, tl: &Timeline, res: &ReceiverTrustResult) -> Vec<Ep> {
                 calibrating,
             }
         })
-        .collect()
+        .collect())
 }
 
 /// Wrong output at one epoch (a fix too far or a time too far from the truth); `None`
@@ -790,12 +952,19 @@ fn wrong(e: &Ep, b: &Bars, has_truth: bool) -> Option<bool> {
 
 fn score_case(c: &Campaign, cs: &CaseSpec) -> Result<CaseResult, KshanaError> {
     let b = &c.bars;
-    let l = load_case(c, cs)?;
+    let method = c.method_kind().map_err(KshanaError::InvalidInput)?;
+    let mut l = load_case(c, cs)?;
+    if method == Method::V2 && l.arrival.is_none() && l.truth.is_some() {
+        // v2 takes truth at the arrival time; this campaign format carries no host arrival
+        // timestamps for a log, so its errors are not scored.
+        l.truth = None;
+        l.truth_kind = "none".into();
+    }
     let bad = |m: String| KshanaError::InvalidInput(format!("case '{}': {m}", cs.id));
     let scn = trust_scenario(&l)?;
     let res = run_receiver_trust_bytes(&scn, &l.bytes, l.nav.as_deref()).map_err(&bad)?;
     let tl = kshana::receiver_trust::ingest::read_log(l.format, &l.bytes).map_err(&bad)?;
-    let eps = epochs_of(&l, &tl, &res);
+    let eps = epochs_of(&l, &tl, &res, method).map_err(&bad)?;
     let has_truth = l.truth.is_some();
     let end_log = eps.last().map(|e| e.t).unwrap_or(0.0);
     let mut events = Vec::new();
@@ -1049,6 +1218,7 @@ pub fn score(c: &Campaign, src: &str) -> Result<Scorecard, KshanaError> {
         misleading_unwarned_epochs: sum_opt(&|c| c.misleading.unwarned_epochs),
         misleading_unmonitored_epochs: sum_opt(&|c| c.misleading.unmonitored_epochs),
     };
+    let method = c.method_kind().map_err(KshanaError::InvalidInput)?;
     let mut limits = vec![
         "Only the cases listed were run; nothing is said about other threats, powers, signals or receivers.".to_string(),
         "Event windows are the stated times (scheduled or scripted), not measured on-air times.".to_string(),
@@ -1060,13 +1230,16 @@ pub fn score(c: &Campaign, src: &str) -> Result<Scorecard, KshanaError> {
     if cases.iter().any(|c| c.truth == "none") {
         limits.push("Cases without a truth track cannot show error, misleading output or levels 2 to 4; those are 'not assessed'.".into());
     }
+    if method == Method::V2 {
+        limits.push("Method v2: errors are WGS-84 geodesic distances to the truth at each epoch's arrival time (for an analogue, the time the generator emitted the epoch); log cases carry no host arrival timestamps in this format, so their errors are not scored.".into());
+    }
     if c.bars.fixed_utc.is_none() {
         limits.push("The campaign does not state when its bars were fixed.".into());
     }
     Ok(Scorecard {
         format: FORMAT,
         kind: KIND,
-        method: METHOD_ID,
+        method: method.id(),
         label: LABEL,
         campaign: c.campaign.clone(),
         receiver: c.receiver.clone(),

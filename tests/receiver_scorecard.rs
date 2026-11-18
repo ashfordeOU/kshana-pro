@@ -420,3 +420,233 @@ fn e3_b3_what_the_open_monitor_adds_is_as_published() {
     );
     assert_eq!(2 * unmonitored <= unwarned, E3_B3_MET);
 }
+
+// ---------------------------------------------------------------------------------------
+// E3b (docs/evidence/e3-receiver-scorecard/2026-11-16_E3b_PREREGISTRATION.md): method v2,
+// WGS-84 geodesic error and truth at the arrival time.
+// ---------------------------------------------------------------------------------------
+
+/// One event compared with the independent oracle (the generator's instructor log).
+#[derive(serde::Serialize, Clone, Debug)]
+struct OracleRow {
+    case: String,
+    event: String,
+    scorecard_max_error_m: Option<f64>,
+    generator_max_error_m: Option<f64>,
+    abs_difference_m: Option<f64>,
+    b2a_within_1m: bool,
+    scorecard_misleading_unwarned: Option<usize>,
+    generator_misleading: i64,
+    b2b_within_2: bool,
+    misleading_unmonitored: Option<usize>,
+    spoofing: bool,
+}
+
+fn oracle_rows(c: &Campaign, s: &scorecards::Scorecard) -> Vec<OracleRow> {
+    let mut out = Vec::new();
+    for (cs, cr) in c.cases.iter().zip(&s.cases) {
+        assert_eq!(cs.id, cr.id);
+        let sc = scorecards::case_scenario(c, cs).unwrap().unwrap();
+        let an = kshana_pro::threat_library::export::analogue(&sc)
+            .unwrap()
+            .unwrap();
+        let rows = &an.log().track;
+        let end_log = rows.last().unwrap().t_s;
+        for (k, e) in cr.events.iter().enumerate() {
+            let max = rows
+                .iter()
+                .filter(|r| r.t_s >= e.onset_s && r.t_s <= e.end_s && r.fix_valid)
+                .filter_map(|r| r.position_error_m)
+                .fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v))));
+            let (diff, a_ok) = match (max, e.max_error_m) {
+                (Some(o), Some(g)) => (
+                    Some(((o - g).abs() * 1000.0).round() / 1000.0),
+                    (o - g).abs() <= 1.0,
+                ),
+                (None, None) => (None, true),
+                _ => (None, false),
+            };
+            let next = cr
+                .events
+                .get(k + 1)
+                .map(|n| n.onset_s)
+                .unwrap_or(f64::INFINITY);
+            let stop = match (e.recovered, e.recovery_s) {
+                (Some(true), Some(r)) => e.end_s + r,
+                _ => next.min(end_log + 1.0),
+            };
+            let n = rows
+                .iter()
+                .filter(|r| r.t_s >= e.onset_s && r.t_s < stop && r.fix_valid)
+                .filter(|r| {
+                    r.position_error_m
+                        .is_some_and(|d| d > c.bars.misleading_error_m)
+                        || r.time_offset_s.abs() > c.bars.misleading_time_error_s
+                })
+                .count() as i64;
+            let g = e.misleading_unwarned.map(|v| v as i64);
+            out.push(OracleRow {
+                case: cr.id.clone(),
+                event: e.label.clone(),
+                scorecard_max_error_m: e.max_error_m,
+                generator_max_error_m: max,
+                abs_difference_m: diff,
+                b2a_within_1m: a_ok,
+                scorecard_misleading_unwarned: e.misleading_unwarned,
+                generator_misleading: n,
+                b2b_within_2: g.is_some_and(|g| (n - g).abs() <= 2),
+                misleading_unmonitored: e.misleading_unmonitored,
+                spoofing: e.kind == "spoofing",
+            });
+        }
+    }
+    out
+}
+
+/// E3b development (allowed by the pre-registration, published before the held-out campaign
+/// was generated): the E3 public campaign re-scored with method v2. Write the table with
+/// KSHANA_PRO_E3B_DEV_WRITE=1; afterwards the test keeps it equal to the code.
+#[test]
+fn e3b_dev_the_public_campaign_rescored_with_v2_is_as_published() {
+    let (mut c, _) =
+        Campaign::from_file(&root().join("examples/scorecards/public-analogue-campaign.toml"))
+            .unwrap();
+    c.method = Some(scorecards::METHOD_ID_V2.into());
+    let src =
+        std::fs::read_to_string(root().join("examples/scorecards/public-analogue-campaign.toml"))
+            .unwrap();
+    let s = scorecards::score(&c, &src).unwrap();
+    assert_eq!(s.method, scorecards::METHOD_ID_V2);
+    let rows = oracle_rows(&c, &s);
+    let out = serde_json::json!({
+        "what": "E3b development table: the E3 public campaign (development data) re-scored with kshana-pro/receiver-scorecard/v2, against the generator's instructor log. Not the held-out result.",
+        "method": scorecards::METHOD_ID_V2,
+        "events": rows,
+        "b2a_events_within_1m": rows.iter().filter(|r| r.b2a_within_1m).count(),
+        "b2b_events_within_2": rows.iter().filter(|r| r.b2b_within_2).count(),
+        "n_events": rows.len(),
+    });
+    let text = serde_json::to_string_pretty(&out).unwrap() + "\n";
+    let p = root().join("docs/evidence/e3-receiver-scorecard/E3b_dev.json");
+    if std::env::var_os("KSHANA_PRO_E3B_DEV_WRITE").is_some() {
+        std::fs::write(&p, &text).unwrap();
+    }
+    for r in &rows {
+        eprintln!("{r:?}");
+    }
+    assert_eq!(
+        std::fs::read_to_string(&p).unwrap(),
+        text,
+        "E3b_dev.json is stale"
+    );
+}
+
+const E3B_CAMPAIGN: &str = "examples/scorecards/e3b-heldout-campaign.toml";
+const E3B_SIGNER: &str = "Kshana Pro E3b held-out (demo key)";
+const E3B_UTC: &str = "2026-11-16T12:00:00Z";
+
+fn e3b_dir() -> PathBuf {
+    root().join("report-templates/samples/receiver-scorecard-e3b-heldout")
+}
+
+/// The held-out campaign is well formed (parsing only: nothing is generated here).
+#[test]
+fn e3b_the_heldout_campaign_parses_with_its_sixteen_seeds() {
+    let (c, _) = Campaign::from_file(&root().join(E3B_CAMPAIGN)).unwrap();
+    assert_eq!(c.method.as_deref(), Some(scorecards::METHOD_ID_V2));
+    let seeds: Vec<u64> = c.cases.iter().map(|k| k.analogue_seed.unwrap()).collect();
+    assert_eq!(seeds, (31001..=31016).collect::<Vec<_>>());
+    for cs in &c.cases {
+        let s = scorecards::case_scenario(&c, cs).unwrap().unwrap();
+        assert_eq!(
+            s.analogue.as_ref().unwrap().scenario.seed,
+            cs.analogue_seed.unwrap()
+        );
+    }
+}
+
+/// E3b, scored once (pre-registration section 5). Write with KSHANA_PRO_E3B_WRITE=<key file>
+/// (the signed held-out scorecard and `E3b_results.json`); afterwards the test keeps both equal
+/// to the code and pins every bar's outcome.
+#[test]
+fn e3b_scored_the_heldout_campaign_is_as_published() {
+    let path = root().join(E3B_CAMPAIGN);
+    let (c, src) = Campaign::from_file(&path).unwrap();
+    let a = scorecards::score(&c, &src).unwrap();
+    let b = scorecards::score(&c, &src).unwrap();
+    let ja = serde_json::to_string_pretty(&a).unwrap() + "\n";
+    let b1_identical = ja == serde_json::to_string_pretty(&b).unwrap() + "\n";
+    let dir = e3b_dir();
+    let res_path = root().join("docs/evidence/e3-receiver-scorecard/E3b_results.json");
+    let rows = oracle_rows(&c, &a);
+    let (mut unwarned, mut unmonitored) = (0usize, 0usize);
+    for r in rows.iter().filter(|r| r.spoofing) {
+        unwarned += r.scorecard_misleading_unwarned.unwrap();
+        unmonitored += r.misleading_unmonitored.unwrap();
+    }
+    let b2a = rows.iter().all(|r| r.b2a_within_1m);
+    let b2b = rows.iter().all(|r| r.b2b_within_2);
+    let b3 = 2 * unmonitored <= unwarned;
+    if let Some(kf) = std::env::var_os("KSHANA_PRO_E3B_WRITE") {
+        let hex = std::fs::read_to_string(kf).unwrap();
+        let seed = kshana_pro::license::parse_key_hex(hex.trim()).unwrap();
+        let _ = std::fs::remove_dir_all(&dir);
+        scorecards::report::write_dir(&dir, &a, &src).unwrap();
+        kshana_pro::signed_dossier::sign(&dir, &seed, E3B_SIGNER, E3B_UTC).unwrap();
+        std::fs::write(
+            root().join(
+                "report-templates/samples/receiver-scorecard-e3b-heldout.demo-public-key.txt",
+            ),
+            hex::encode(kshana_pro::license::public_key_for(&seed)) + "\n",
+        )
+        .unwrap();
+    }
+    assert_eq!(
+        std::fs::read_to_string(dir.join("receiver-scorecard.json")).unwrap(),
+        ja,
+        "the held-out scorecard is stale"
+    );
+    let key = std::fs::read_to_string(
+        root().join("report-templates/samples/receiver-scorecard-e3b-heldout.demo-public-key.txt"),
+    )
+    .unwrap();
+    let pk = kshana_pro::license::parse_key_hex(key.trim()).unwrap();
+    let verifies = kshana_pro::signed_dossier::verify(&dir, &[pk])
+        .unwrap()
+        .passed();
+    let tmpd = tmp("e3b-tamper").join("s");
+    copy_dir(&dir, &tmpd);
+    let p = tmpd.join("report.html");
+    let mut t = std::fs::read(&p).unwrap();
+    t[100] ^= 1;
+    std::fs::write(&p, t).unwrap();
+    let tamper_fails = !kshana_pro::signed_dossier::verify(&tmpd, &[pk])
+        .unwrap()
+        .passed();
+    let b1 = b1_identical && verifies && tamper_fails;
+    let out = serde_json::json!({
+        "what": "E3b held-out result (SYNTHETIC campaign, seeds 31001-31016), method kshana-pro/receiver-scorecard/v2, scored once.",
+        "campaign": E3B_CAMPAIGN,
+        "campaign_sha256": a.campaign_sha256,
+        "method": a.method,
+        "b1": {"byte_identical": b1_identical, "signed_dir_verifies": verifies, "one_byte_change_fails": tamper_fails, "met": b1},
+        "b2a": {"events_within_1m": rows.iter().filter(|r| r.b2a_within_1m).count(), "events": rows.len(), "met": b2a},
+        "b2b": {"events_within_2": rows.iter().filter(|r| r.b2b_within_2).count(), "events": rows.len(), "met": b2b},
+        "b3": {"unwarned": unwarned, "unmonitored": unmonitored, "met": b3},
+        "e3b_met": b1 && b2a && b2b && b3,
+        "rows": rows,
+    });
+    let text = serde_json::to_string_pretty(&out).unwrap() + "\n";
+    if std::env::var_os("KSHANA_PRO_E3B_WRITE").is_some() {
+        std::fs::write(&res_path, &text).unwrap();
+    }
+    for r in &rows {
+        eprintln!("{r:?}");
+    }
+    eprintln!("E3b: B1 {b1} B2a {b2a} B2b {b2b} B3 {b3} ({unmonitored}/{unwarned})");
+    assert_eq!(
+        std::fs::read_to_string(&res_path).unwrap(),
+        text,
+        "E3b_results.json is stale; the outcome changed"
+    );
+}

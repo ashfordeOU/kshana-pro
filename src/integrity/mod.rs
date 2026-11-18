@@ -33,6 +33,7 @@
 //! scenes; [`VALIDATION_STATUS`] states the outcome.
 
 pub mod offset_v4;
+pub mod offset_v5;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
