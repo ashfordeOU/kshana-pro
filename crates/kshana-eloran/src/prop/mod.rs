@@ -14,14 +14,21 @@
 //! model sees the computed groundwave paths ([`PropagationModel::paths_with_ground`]), so a
 //! stated sky/ground ratio or skywave delay refers to the actual groundwave.
 
+pub mod asfgrid;
 pub mod complex;
 pub mod conductivity;
+pub mod dem;
 pub mod ground;
+pub mod iono_data;
 pub mod millington;
+pub mod p832;
 pub mod sky;
 pub mod sky_fading;
 pub mod smooth_earth;
 pub mod special;
+pub mod terrain;
+pub mod uncertainty;
+pub mod urban;
 
 use crate::chain::Station;
 use crate::time::{AbsTime, Ps};

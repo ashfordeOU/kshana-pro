@@ -198,6 +198,10 @@ pub struct IonoConfig {
     /// Slow amplitude/phase fading; none if absent.
     #[serde(default)]
     pub fading: Option<FadingConfig>,
+    /// Ionosonde and space-weather data modifying height, ‖R‖ and fading
+    /// ([`super::iono_data`], MODELLED heuristic); none if absent.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub data: Option<super::iono_data::IonoDataConfig>,
 }
 
 fn d_h_day() -> f64 {
@@ -250,6 +254,7 @@ impl Default for IonoConfig {
             refl_phase_night_deg: d_ph_night(),
             phase_height_offset_km: d_dh(),
             fading: None,
+            data: None,
         }
     }
 }
@@ -413,6 +418,7 @@ pub struct Ionospheric {
     pub cfg: IonoConfig,
     start: Option<AbsTime>,
     fading: Option<FadingProcess>,
+    data: Option<super::iono_data::IonoData>,
 }
 
 impl Ionospheric {
@@ -466,7 +472,21 @@ impl Ionospheric {
             Some(f) => Some(FadingProcess::new(f)?),
             None => None,
         };
-        Ok(Ionospheric { cfg, start, fading })
+        let data = match &cfg.data {
+            Some(d) => {
+                if start.is_none() {
+                    return Err("skywave: data needs the scene start (BuildContext) or start_utc".into());
+                }
+                Some(super::iono_data::IonoData::build(d)?)
+            }
+            None => None,
+        };
+        Ok(Ionospheric {
+            cfg,
+            start,
+            fading,
+            data,
+        })
     }
 
     /// Day weight (0 night, 1 day) at the midpoint between `a` and `b` at scene time `t_s`.
@@ -540,7 +560,19 @@ impl PropagationModel for Ionospheric {
         let g = reference_ground(st, rx, ground, self.cfg.ground_ref_atten_db_per_1000km);
         let d = inverse(st.position, rx.pos).distance_m.max(1.0);
         let w = self.day_weight_at(st.position, rx.pos, rx.t_s);
-        let h = 1000.0 * (self.cfg.h_night_km + w * (self.cfg.h_day_km - self.cfg.h_night_km));
+        let mut h = 1000.0 * (self.cfg.h_night_km + w * (self.cfg.h_day_km - self.cfg.h_night_km));
+        // ionosonde / space-weather data (none: unchanged)
+        let mods = match (&self.data, self.start) {
+            (Some(data), Some(start)) => {
+                let inv = inverse(st.position, rx.pos);
+                let mid = direct(st.position, inv.az1_rad, inv.distance_m / 2.0);
+                let t = super::iono_data::abs_seconds(start) + rx.t_s;
+                let m = data.modifiers(t, w, mid);
+                h = m.height(h);
+                Some(m)
+            }
+            _ => None,
+        };
         let dh = 1000.0 * self.cfg.phase_height_offset_km;
         let phase_per_hop = (self.cfg.refl_phase_night_deg
             + w * (self.cfg.refl_phase_day_deg - self.cfg.refl_phase_night_deg))
@@ -558,7 +590,10 @@ impl PropagationModel for Ionospheric {
             };
             let mut field = match (hop, self.cfg.ratio_db) {
                 (1, Some(r)) => g.field_uv_m * 10f64.powf(r / 20.0),
-                _ => self.p684_field(st.power_kw, d, h, hop, w),
+                _ => {
+                    self.p684_field(st.power_kw, d, h, hop, w)
+                        * mods.map(|m| m.refl_scale.powi(hop as i32)).unwrap_or(1.0)
+                }
             };
             let mut phase = phase_per_hop * hop as f64;
             if let Some(f) = &self.fading {
@@ -566,8 +601,14 @@ impl PropagationModel for Ionospheric {
                     key.wrapping_add((hop as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15)),
                     rx.t_s,
                 );
-                field *= a;
-                phase += p;
+                let depth = mods.map(|m| m.fading_depth).unwrap_or(1.0);
+                if depth == 1.0 {
+                    field *= a;
+                    phase += p;
+                } else {
+                    field *= a.max(1e-300).powf(depth);
+                    phase += p * depth;
+                }
             }
             // carrier delay = group delay − ECD
             let excess = group - ecd;
