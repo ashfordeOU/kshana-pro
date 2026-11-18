@@ -155,9 +155,61 @@ export function rxModel(rep) {
   };
 }
 
+/** A starting bench inventory for the readiness card (catalogue ids from GET /eloran/bench/catalog). */
+export const BENCH_EXAMPLE = `name = "LF bench"
+[requirements]
+need_gnss = true
+dut_input_vpp = 0.05
+[[device]]
+catalog = "redpitaya-stemlab-125-14"
+role = "eloran_source"
+host = "192.168.1.50"
+[[device]]
+catalog = "redpitaya-stemlab-125-14"
+role = "digitiser"
+name = "redpitaya-in"
+[[device]]
+catalog = "ettus-usrp-b210"
+role = "gnss_source"
+args = "type=b200"
+[[device]]
+catalog = "leo-bodnar-lbe-1420"
+role = "reference"
+[[device]]
+catalog = "tapr-ticc"
+role = "tic"
+serial = "/dev/ttyACM0"
+`;
+
+const BENCH_TONE = { pass: "ok", warn: "warn", unknown: "none", fail: "bad" };
+
+/** View model of POST /eloran/bench/check. */
+export function benchModel(v) {
+  if (!v || typeof v !== "object" || !v.assessment) return null;
+  const a = v.assessment;
+  const c = a.counts || {};
+  const twins = Object.entries(v.twins || {}).map(([id, t]) => ({
+    id,
+    error: t && t.error ? String(t.error) : "",
+    rows: ((t && t.levels) || []).map((l) => [`${fx(l.level_dbfs, 0)} dBFS`, l.vpeak_50ohm == null ? "?" : `${fx(l.vpeak_50ohm, 4)} V`, `${fx(l.delay_bias_ns, 3)} ns`, `${fx(l.ecd_us, 3)} µs`, `${fx(l.snr_db, 1)} dB`]),
+  }));
+  return {
+    ready: !!a.ready,
+    tone: a.ready ? (c.warn || c.unknown ? "warn" : "ok") : "bad",
+    label: a.ready ? "READY" : "NOT READY",
+    counts: `pass ${c.pass || 0} · warn ${c.warn || 0} · unknown ${c.unknown || 0} · fail ${c.fail || 0}`,
+    findings: (a.findings || []).map((f) => ({ role: String(f.role || "").replace(/_/g, " "), device: f.device || "—", check: String(f.check || ""), status: String(f.status || ""), tone: BENCH_TONE[f.status] || "none", detail: String(f.detail || ""), source: f.source || "" })),
+    runnable: (a.runnable || []).map(String),
+    notRunnable: (a.not_runnable || []).map((x) => (Array.isArray(x) ? [String(x[0]), String(x[1])] : [String(x), ""])),
+    twins,
+    wiring: String(v.wiring_md || ""),
+    procedure: String(v.procedure_md || ""),
+  };
+}
+
 /** The state of the eLoran page. */
 export function createEloran() {
-  return { text: "", validation: null, gri: null, filter: { region: "", status: "", search: "" }, sel: "", run: null, rx: null, monitor: "", rxOpts: { per_loop: false, cri_blanking: true }, busy: "" };
+  return { text: "", validation: null, gri: null, filter: { region: "", status: "", search: "" }, sel: "", run: null, rx: null, monitor: "", rxOpts: { per_loop: false, cri_blanking: true }, bench: { text: BENCH_EXAMPLE, result: null }, busy: "" };
 }
 
 // ------------------------------------------------------------------ the view (DOM)
@@ -270,6 +322,14 @@ export function eloranActions(papi, E, { say, redraw, wait = sleep, pollLimit = 
       E.monitor = typeof r.value === "string" ? r.value : "";
       say(E.monitor ? "ok" : "bad", E.monitor ? "Monitor ready: scrub the timeline or press play." : "The service returned no monitor page.");
     }),
+    benchCheck: () => act("bench", async () => {
+      if (!E.bench) E.bench = { text: BENCH_EXAMPLE, result: null };
+      const r = await papi.post("/eloran/bench/check", E.bench.text);
+      if (!r.ok) return say("bad", r.error);
+      E.bench.result = benchModel(r.value);
+      if (!E.bench.result) return say("bad", "The service returned no assessment.");
+      say(E.bench.result.ready ? "ok" : "warn", `Bench ${E.bench.result.ready ? "ready" : "not ready"}: ${E.bench.result.counts}.`);
+    }),
     rx: () => act("rx", async () => {
       const id = E.run && (E.run.run_id || E.run.job_id);
       if (!id) return say("bad", "Run the scenario first.");
@@ -357,7 +417,25 @@ export function eloranPage({ h, page, btn, chip, note, E, A }) {
     h("p", { class: "mut", text: "Runs the scenario through the real-time receiver on the service: spectrum, pulse view, per-station status, fix, health and the truth comparison, with a timeline player. Longer runs: kshana-pro eloran monitor on the command line (live follow)." }),
     E.monitor ? h("iframe", { class: "pro-monitor", title: "eLoran live monitor", sandbox: "allow-scripts", srcdoc: E.monitor }) : h("p", { class: "empty", text: "No monitor run yet." }));
 
+  // (f) bench readiness (datasheet catalogue, spec twins, wiring plan; touches no hardware)
+  const B = (E.bench && E.bench.result) || null;
+  const bench = h("div", { class: "card" },
+    h("div", { class: "lic-head" }, h("h2", { text: "Bench readiness" }), B ? chip(B.label, B.tone) : chip("NOT CHECKED", "none")),
+    h("label", { for: "pro-eloran-bench", class: "mut", text: "Bench inventory (TOML): catalogue ids and roles" }),
+    h("textarea", { id: "pro-eloran-bench", class: "pro-editor", rows: "12", spellcheck: "false", oninput: (e) => { E.bench.text = e.target.value; } }, (E.bench && E.bench.text) || ""),
+    h("div", { class: "row" }, btn(busy("bench") ? "Checking…" : "Check the bench", A.benchCheck, true)),
+    h("p", { class: "mut", text: "Checks a bench against the datasheet catalogue before you buy or wire anything: band, sample rate, DAC, driver, 10 MHz and PPS, counters. Predicts each source's output with its spec twin and writes the wiring plan. Probing and acceptance on real hardware stay on the command line (kshana-pro eloran bench probe / accept)." }),
+    B ? [
+      h("p", { class: `lic-result ${B.tone}`, text: B.counts }),
+      textTable(h, ["Role", "Device", "Check", "Status", "Detail"], B.findings.map((f) => [f.role, f.device, f.check, f.status.toUpperCase(), f.detail])),
+      h("h3", { text: "Acceptance tests this bench can run" }),
+      h("p", { class: "mono", text: B.runnable.join(", ") || "none" }),
+      B.notRunnable.length ? textTable(h, ["Not runnable", "Why"], B.notRunnable) : null,
+      ...B.twins.map((t) => [h("h3", { text: `Spec twin: ${t.id} (MODELLED from the datasheet)` }), t.error ? h("p", { class: "lic-result bad", text: t.error }) : textTable(h, ["Level", "Vpk (50 Ω)", "Zero-crossing bias", "ECD", "SNR"], t.rows)]),
+      h("h3", { text: "Wiring plan" }),
+      h("pre", { class: "pro-pre", text: B.wiring })] : h("p", { class: "empty", text: "No bench checked yet." }));
+
   return page("pro-eloran", "Kshana Enterprise · eLoran/GNSS simulator", "eLoran simulator",
     "Write a scenario, add real chains from the GRI database, run it on your Kshana Pro service and read the recording back with the software receiver against the simulator's truth. Every result is MODELLED.",
-    note, h("div", { class: "pro-split pro-eloran" }, h("div", { class: "pro-col" }, editor, run, rx), h("div", { class: "pro-col" }, chains, mon)));
+    note, h("div", { class: "pro-split pro-eloran" }, h("div", { class: "pro-col" }, editor, run, rx), h("div", { class: "pro-col" }, chains, mon, bench)));
 }

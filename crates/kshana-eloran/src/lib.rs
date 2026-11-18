@@ -43,6 +43,7 @@
 
 pub mod accept;
 pub mod antenna;
+pub mod bench;
 pub mod calreg;
 pub mod campaign;
 pub mod chain;

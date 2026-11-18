@@ -4,7 +4,7 @@
 // snippet insertion, and its actions over a fake service (synchronous run, job run, receiver).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { validateModel, griRows, griFacets, insertSnippet, definedTimeRefs, definedChains, runModel, rxModel, createEloran, eloranActions } from "./eloran.mjs";
+import { validateModel, griRows, griFacets, insertSnippet, definedTimeRefs, definedChains, runModel, rxModel, createEloran, eloranActions, benchModel } from "./eloran.mjs";
 import { proApi } from "./service.mjs";
 
 const GRI = {
@@ -275,4 +275,38 @@ test("actions: the live monitor page comes back as HTML and is kept for the sand
   await eloranActions(refused.papi, E2, { say: (t, x) => said2.push([t, x]), redraw: () => {} }).monitor();
   assert.equal(E2.monitor, "");
   assert.equal(said2.at(-1)[0], "bad");
+});
+
+test("actions: the bench readiness check posts the inventory and builds the view model", async () => {
+  const RESULT = {
+    assessment: {
+      bench: "LF bench", ready: false, counts: { pass: 3, warn: 1, unknown: 0, fail: 1 },
+      findings: [
+        { role: "eloran_source", device: "rp", check: "90–110 kHz band", status: "pass", detail: "covers 90–110 kHz directly", source: "https://example.org/rp" },
+        { role: "gnss_source", device: "", check: "present", status: "fail", detail: "no GNSS source", source: null },
+      ],
+      runnable: ["toa_resolution", "pps_jitter"], not_runnable: [["dynamic_range", "needs a spectrum analyser"]],
+    },
+    wiring_md: "# Wiring plan", procedure_md: "# First-plug procedure",
+    twins: { rp: { levels: [{ level_dbfs: 0, vpeak_50ohm: 1, delay_bias_ns: -0.003, ecd_us: 0, snr_db: 81.2 }] }, bad: { error: "cannot output 90–110 kHz" } },
+  };
+  const { papi, sent } = fakeApp((m, p) => {
+    if (m === "POST" && p === "/eloran/bench/check") return { status: 200, json: RESULT };
+    return { status: 404, json: { error: "not found" } };
+  });
+  const E = createEloran();
+  assert.match(E.bench.text, /eloran_source/, "the card starts with an example inventory");
+  const said = [];
+  await eloranActions(papi, E, { say: (tone, text) => said.push([tone, text]), redraw: () => {} }).benchCheck();
+  assert.equal(sent.at(-1)[2], E.bench.text, "the inventory text is the request body");
+  const B = E.bench.result;
+  assert.equal(B.label, "NOT READY");
+  assert.equal(B.tone, "bad");
+  assert.equal(B.findings[1].tone, "bad");
+  assert.equal(B.findings[1].device, "—");
+  assert.deepEqual(B.notRunnable[0], ["dynamic_range", "needs a spectrum analyser"]);
+  assert.equal(B.twins.find((t) => t.id === "rp").rows[0][4], "81.2 dB");
+  assert.equal(B.twins.find((t) => t.id === "bad").error, "cannot output 90–110 kHz");
+  assert.equal(said.at(-1)[0], "warn");
+  assert.equal(benchModel(null), null);
 });

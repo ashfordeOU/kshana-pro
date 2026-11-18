@@ -156,3 +156,4 @@ body.pro-standalone{margin:0;background:var(--bg);color:var(--ink);font:13px/1.4
 
 /* eLoran live monitor frame */
 .pro-monitor { width: 100%; height: 900px; border: 1px solid var(--line, #ddd); border-radius: 8px; background: transparent; }
+.pro-pre { white-space: pre-wrap; overflow-x: auto; max-height: 420px; font-family: var(--mono, ui-monospace, monospace); font-size: 12px; padding: 10px; border: 1px solid var(--line, #ddd); border-radius: 8px; }

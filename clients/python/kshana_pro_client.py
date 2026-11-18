@@ -306,6 +306,14 @@ class KshanaProClient:
         """POST /eloran/monitor: eLoran simulator: live-monitor snapshots of a scenario processed by the real-time receiver (spectrum, pulse view, per-station status, fix, health, truth comparison); format=json (default) or html (self-contained dashboard). Synchronous, at most the synchronous sample limit. Needs the Enterprise feature pro-eloran. Role: submitter."""
         return self._call("POST", "/eloran/monitor", {"format": format}, text, "text/plain", text=False)
 
+    def get_eloran_bench_catalog(self, category=None, lf=None):
+        """GET /eloran/bench/catalog: eLoran simulator: the hardware catalogue (LF sources, SDRs, AWGs, GNSS simulators, references, counters, scopes, receivers), each value cited to the vendor's documentation, with lf_direct (puts 90-110 kHz on its output directly); no licence needed. Role: reader."""
+        return self._call("GET", "/eloran/bench/catalog", {"category": category, "lf": lf}, None, None, text=False)
+
+    def post_eloran_bench_check(self, text):
+        """POST /eloran/bench/check: eLoran simulator: bench readiness before buying or wiring (body: inventory TOML): findings per role with datasheet sources, runnable acceptance tests, wiring plan, first-plug procedure and the spec-twin prediction of each eLoran source. Touches no hardware. Needs the Enterprise feature pro-eloran. Role: submitter."""
+        return self._call("POST", "/eloran/bench/check", None, text, "text/plain", text=False)
+
     def get_eloran_gri_chain(self, chain):
         """GET /eloran/gri/{chain}: eLoran simulator: the GRI database entries matching an id, a GRI or text, each with its sources and its [[chains]] scenario snippet; no licence needed. Role: reader."""
         return self._call("GET", f"/eloran/gri/{_q(chain)}", None, None, None, text=False)

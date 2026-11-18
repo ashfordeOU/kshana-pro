@@ -249,3 +249,70 @@ class Eloran:
     def twin(self, config: PathLike, out: PathLike) -> Dict[str, Any]:
         self.call("twin", _p(config), "--out", _p(out))
         return self._json(out)
+
+    # ------------------------------------------------------------------ bench readiness
+    def bench_catalog(self, category: Optional[str] = None, lf_only: bool = False,
+                      catalog: Optional[PathLike] = None) -> List[Dict[str, Any]]:
+        """Hardware catalogue entries (datasheet values with sources). Free."""
+        args = ["bench", "catalog", "--json"]
+        if category:
+            args += ["--category", category]
+        if lf_only:
+            args.append("--lf")
+        if catalog:
+            args += ["--catalog", _p(catalog)]
+        return json.loads(self.call(*args, licensed=False))
+
+    def bench_show(self, device_id: str) -> Dict[str, Any]:
+        return json.loads(self.call("bench", "show", device_id, licensed=False))
+
+    def bench_check(self, inventory: PathLike, catalog: Optional[PathLike] = None) -> Dict[str, Any]:
+        """Readiness of a bench: findings per role, runnable acceptance tests."""
+        args = ["bench", "check", "--inventory", _p(inventory), "--json"]
+        if catalog:
+            args += ["--catalog", _p(catalog)]
+        return json.loads(self.call(*args))
+
+    def bench_twin(self, device_id: str, out: PathLike, fs_hz: float = 2e6,
+                   levels_dbfs: Sequence[float] = (0.0, -20.0, -40.0, -60.0)) -> Dict[str, Any]:
+        """Predicted eLoran output of a catalogue device (spec twin, MODELLED)."""
+        self.call("bench", "twin", device_id, "--fs", str(fs_hz),
+                  "--levels", ",".join(str(x) for x in levels_dbfs), "--out", _p(out))
+        return self._json(out)
+
+    def bench_kit(self, inventory: PathLike, out_dir: PathLike, catalog: Optional[PathLike] = None) -> Dict[str, Any]:
+        """Write the bench kit (assessment, wiring, procedure, profiles, twin predictions)."""
+        args = ["bench", "kit", "--inventory", _p(inventory), "--out", _p(out_dir)]
+        if catalog:
+            args += ["--catalog", _p(catalog)]
+        self.call(*args)
+        return self._json(Path(out_dir) / "assessment.json")
+
+    def bench_rehearse(self, inventory: PathLike, out: PathLike, catalog: Optional[PathLike] = None) -> Dict[str, Any]:
+        """Acceptance suite with every device replaced by its spec twin."""
+        args = ["bench", "rehearse", "--inventory", _p(inventory), "--out", _p(out)]
+        if catalog:
+            args += ["--catalog", _p(catalog)]
+        self.call(*args)
+        return self._json(out)
+
+    def bench_probe(self, inventory: Optional[PathLike] = None, hosts: Sequence[str] = (),
+                    out: Optional[PathLike] = None) -> str:
+        """Find and identify connected instruments (read-only). Needs pro-eloran-hw."""
+        args = ["bench", "probe"]
+        if inventory:
+            args += ["--inventory", _p(inventory)]
+        for h in hosts:
+            args += ["--host", h]
+        if out:
+            args += ["--out", _p(out)]
+        return self.call(*args)
+
+    def bench_accept(self, inventory: PathLike, profiles: PathLike, out: PathLike,
+                     select: Optional[Sequence[str]] = None) -> Dict[str, Any]:
+        """Acceptance suite on the real bench. Needs pro-eloran-hw."""
+        args = ["bench", "accept", "--inventory", _p(inventory), "--profiles", _p(profiles), "--out", _p(out)]
+        if select:
+            args += ["--select", ",".join(select)]
+        self.call(*args)
+        return self._json(out)

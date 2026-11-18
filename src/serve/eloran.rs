@@ -574,6 +574,84 @@ pub fn monitor(svc: &Service, body: &str, query: &str, now: i64) -> HttpResponse
     }
 }
 
+/// `GET /eloran/bench/catalog`: the hardware catalogue (datasheet values with sources); no
+/// licence needed. Query: `category=<c>`, `lf=1` (only sources with a direct 90–110 kHz output).
+pub fn bench_catalog(query: &str) -> HttpResponse {
+    let cat = kshana_eloran::bench::catalog::Catalog::builtin();
+    let (mut category, mut lf) = (None::<String>, false);
+    for kv in query.split('&').filter(|s| !s.is_empty()) {
+        match kv.split_once('=') {
+            Some(("category", c)) => category = Some(percent_decode(c)),
+            Some(("lf", v)) => lf = v == "1" || v == "true",
+            _ => {
+                return HttpResponse::error(
+                    400,
+                    &format!("unknown query parameter {kv:?} (category=<c>, lf=1)"),
+                )
+            }
+        }
+    }
+    let rows: Vec<Value> = cat
+        .iter()
+        .filter(|s| {
+            category.as_deref().is_none_or(|c| {
+                serde_json::to_value(s.category)
+                    .ok()
+                    .and_then(|v| v.as_str().map(|x| x == c))
+                    .unwrap_or(false)
+            })
+        })
+        .filter(|s| !lf || s.lf_direct() == Some(true))
+        .map(|s| {
+            let mut v = serde_json::to_value(s).unwrap_or_default();
+            v["lf_direct"] = serde_json::to_value(s.lf_direct()).unwrap_or_default();
+            v
+        })
+        .collect();
+    json_ok(
+        200,
+        &serde_json::json!({"count": rows.len(), "entries": rows}),
+    )
+}
+
+/// `POST /eloran/bench/check`: readiness of a bench (body: inventory TOML) with the wiring
+/// plan, the first-plug procedure and the spec-twin prediction of each eLoran source.
+/// Needs pro-eloran. Nothing here touches hardware.
+pub fn bench_check(svc: &Service, body: &str, now: i64) -> HttpResponse {
+    use kshana_eloran::bench::{catalog::Catalog, check, kit, spectwin};
+    if let Err(r) = licensed(&svc.entitlement, now) {
+        return r;
+    }
+    if body.trim().is_empty() {
+        return HttpResponse::error(422, "empty request body (expected an inventory TOML)");
+    }
+    let inv = match check::Inventory::from_toml(body) {
+        Ok(i) => i,
+        Err(e) => return HttpResponse::error(422, &e),
+    };
+    let cat = Catalog::builtin();
+    let a = check::assess(&inv, &cat);
+    let mut twins = serde_json::Map::new();
+    for d in inv.in_role(check::BenchRole::EloranSource) {
+        if let Some(s) = cat.get(&d.catalog) {
+            let v = match spectwin::expected_performance(s, 2e6, &[0.0, -20.0, -40.0, -60.0], 10) {
+                Ok(r) => serde_json::to_value(r).unwrap_or_default(),
+                Err(e) => serde_json::json!({"error": e}),
+            };
+            twins.insert(s.id.clone(), v);
+        }
+    }
+    json_ok(
+        200,
+        &serde_json::json!({
+            "assessment": a,
+            "wiring_md": kit::wiring_md(&inv, &cat),
+            "procedure_md": kit::procedure_md(&inv, &cat, &a),
+            "twins": twins,
+        }),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

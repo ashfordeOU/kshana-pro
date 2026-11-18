@@ -359,6 +359,16 @@ export class KshanaProClient {
     return this.call("POST", `/eloran/monitor`, query, text, "text/plain", false);
   }
 
+  /** GET /eloran/bench/catalog: eLoran simulator: the hardware catalogue (LF sources, SDRs, AWGs, GNSS simulators, references, counters, scopes, receivers), each value cited to the vendor's documentation, with lf_direct (puts 90-110 kHz on its output directly); no licence needed. Role: reader. */
+  getEloranBenchCatalog(query: { category?: string | number; lf?: string | number } = {}): Promise<any> {
+    return this.call("GET", `/eloran/bench/catalog`, query, undefined, undefined, false);
+  }
+
+  /** POST /eloran/bench/check: eLoran simulator: bench readiness before buying or wiring (body: inventory TOML): findings per role with datasheet sources, runnable acceptance tests, wiring plan, first-plug procedure and the spec-twin prediction of each eLoran source. Touches no hardware. Needs the Enterprise feature pro-eloran. Role: submitter. */
+  postEloranBenchCheck(text: string): Promise<any> {
+    return this.call("POST", `/eloran/bench/check`, undefined, text, "text/plain", false);
+  }
+
   /** GET /eloran/gri/{chain}: eLoran simulator: the GRI database entries matching an id, a GRI or text, each with its sources and its [[chains]] scenario snippet; no licence needed. Role: reader. */
   getEloranGriChain(chain: string): Promise<any> {
     return this.call("GET", `/eloran/gri/${encodeURIComponent(chain)}`, undefined, undefined, undefined, false);

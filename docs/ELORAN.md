@@ -157,7 +157,7 @@ capability, and a requirements-coverage summary, are in
 
 Library-only (wire them into lab tooling or a later command):
 
-* **Hardware drivers** behind one `Device` trait: SoapySDR, Ettus UHD (C API), Red Pitaya, Digilent Analog Discovery, generic SCPI/LXI arbitrary waveform generators (editable command profiles), a file device, and a **virtual bench** (latency, clock offset, jitter, quantisation, crosstalk, lock loss, underruns, loopback) for CI. Hardware health aggregation with alarms. Drivers for real devices compile but have not run on hardware.
+* **Hardware drivers** behind one `Device` trait (opened from the command line with `stream --device` and `bench`, above): SoapySDR, Ettus UHD (C API), Red Pitaya, Digilent Analog Discovery, generic SCPI/LXI arbitrary waveform generators (editable command profiles), a file device, and a **virtual bench** (latency, clock offset, jitter, quantisation, crosstalk, lock loss, underruns, loopback) for CI. Hardware health aggregation with alarms. Drivers for real devices compile but have not run on hardware.
 * **Instruments** (`instr`): counters, scopes, spectrum analysers, power meters, frequency counters over TCP/serial with editable profiles; TAPR TICC parser; JSON-lines evidence log. **Calibration wizards** (`accept::calibrate`) for simulator delay/gain/linearity and receiver timing with a GUM report; **acceptance suite** (`accept::suite`) with RVM output; **calibration register** (`calreg`) with a hash chain.
 * **GNSS simulator adapters** (`sync`): Skydel, Spirent, R&S SMBV/SMW, LabSat, gps-sdr-sim, each with a configurable command profile to confirm against the vendor manual; GNSS degradation timelines translated per simulator; timing-reference distribution model with cable delays; Circular T importer (`timeref`).
 * **Validation** (`valid`): fidelity comparator, inverse modelling (ASF, conductivity, skywave, transmitter offsets), GRWAVE / P.368 / ASF-survey cross-check harnesses that can promote a model to VALIDATED.
@@ -171,6 +171,50 @@ Signed V&V evidence: a campaign directory (or any run output) can be signed with
 CI: `.github/workflows/eloran.yml` runs format, strict clippy (with and without the hardware driver features) and the full engine test suite on every push, and a nightly virtual-bench, acceptance and campaign run.
 
 Planner note: with the default station availability (0.999) and service-availability target (0.999), three stations cannot meet the target at any point (all three must be up: 0.997). Use more stations, or set the targets to the service you are planning.
+
+## Bench readiness: hardware ready before it arrives
+
+The aim: when the hardware arrives, it only needs plugging in and testing. Everything that can
+be done from datasheets is done in software first.
+
+| Command | What it does | Licence |
+|---|---|---|
+| `eloran bench catalog [--category <c>] [--lf]` / `bench show <id>` | Hardware catalogue: published specifications of LF sources, SDRs, AWGs, GNSS simulators, references, counters, scopes, eLoran receivers and antennas, each value cited to the vendor's datasheet, product page or manual. `--lf` lists the sources that put 90–110 kHz on their output directly | free |
+| `eloran bench check --inventory <bench.toml>` | Readiness of a bench before buying or wiring: band, sample rate, DAC resolution, driver, 10 MHz and PPS, reference fan-out, TIC resolution, digitiser; Pass / Warn / Unknown / Fail with the source of each value; which acceptance tests the bench can run | Enterprise |
+| `eloran bench twin <id>` | Predicted eLoran output of one device from its datasheet (spec twin): zero-crossing bias and spread, ECD and waveform SNR per output level | Enterprise |
+| `eloran bench kit --inventory <bench.toml> --out <dir>` | The bench kit: assessment, cable-by-cable wiring plan with the attenuator pads, first-plug procedure with the exact commands, instrument profiles, device addresses, twin predictions | Enterprise |
+| `eloran bench rehearse --inventory <bench.toml> --out <report.json>` | The acceptance suite with every device replaced by its spec twin; the TIC and counter tests predict from the published jitter, resolution and Allan deviation whether they would pass | Enterprise |
+| `eloran bench probe (--inventory <bench.toml> \| --host <ip[:port]>)` | Find and identify connected instruments, read-only (`*IDN?`, serial ports, `uhd_find_devices`, `SoapySDRUtil --find`); never configures an output | Enterprise + hardware |
+| `eloran bench accept --inventory <bench.toml> --profiles <dir> --out <report.json>` | The acceptance suite on the real bench: the eLoran source by its driver, instruments by their profiles | Enterprise + hardware |
+
+`eloran stream --device` now opens every driver from one address: `twin:<catalog-id>`,
+`file:<base>`, `redpitaya:<host>`, `uhd:<args>`, `soapy:<args>`, `digilent:<index>` and
+`scpi-awg:<host>[@profile]`. Build features: `eloran-redpitaya`, `eloran-uhd`, `eloran-soapy`,
+`eloran-digilent` (the SCPI AWG and file drivers are always in).
+
+Inventory (TOML; examples in `crates/kshana-eloran/scenarios/bench/`):
+
+```toml
+name = "LF bench"
+[requirements]
+need_gnss = true
+dut_input_vpp = 0.05      # receiver's maximum antenna-input level: sets the attenuator pads
+[[device]]
+catalog = "redpitaya-stemlab-125-14"
+role = "eloran_source"    # eloran_source | gnss_source | reference | tic | counter |
+host = "192.168.1.50"     # spectrum | power | digitiser | eloran_rx | antenna | distribution
+```
+
+What it settles before purchase: many RF SDRs cannot output 100 kHz at all, because their
+lowest tuning frequency is in the tens of MHz and their outputs are AC-coupled. The check marks
+them FAIL as eLoran sources, with the datasheet value; they remain usable as GNSS sources.
+
+Evidence: catalogue values are **datasheet values** (`confidence` per entry; `null` where no
+reliable public source was found, reported as Unknown, never as a pass). Twin results are
+**MODELLED** (converter only: quantisation, published bandwidth, coupling, jitter); analogue
+effects the datasheet does not state are not in them. Instrument command profiles written by
+the kit are **generic placeholders** to confirm against each programming manual. Nothing in
+this section has been measured on hardware.
 
 ## Live monitor (GUI)
 

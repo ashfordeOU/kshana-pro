@@ -75,6 +75,8 @@ pub enum RouteId {
     EloranGri,
     EloranGriChain,
     EloranMonitor,
+    EloranBenchCatalog,
+    EloranBenchCheck,
 }
 
 /// One route: the method, the path template (OpenAPI form, `{param}` for a segment)
@@ -177,6 +179,8 @@ pub static ROUTES: &[Route] = &[
     Route { method: "POST", path: "/eloran/rx", id: RouteId::EloranRx, role: Some(Role::Submitter), summary: "eLoran simulator: the software receiver on a stored run's recording, with the truth comparison (per-station ToA error, cycle errors, position fix and error, time offsets per reference). Needs the Enterprise feature pro-eloran", needs_data_dir: false, greedy_tail: false, request: Some((JSON, "{\"run\": <run_id>, \"scenario\"?: <TOML, default the run's>, \"per_loop\"?: bool, \"cri_blanking\"?: bool, \"truth\"?: bool}")), query: &[], responses: &[(200, JSON, "Receiver report (kshana-eloran-rx)"), (400, JSON, "Malformed JSON or run identifier"), (403, JSON, "The entitlement does not include pro-eloran"), (404, JSON, "No such run"), (409, JSON, "The run has not succeeded, or has no recording"), (422, JSON, "Invalid request or scenario, or the receiver failed"), AUTH_401] },
     Route { method: "GET", path: "/eloran/gri", id: RouteId::EloranGri, role: Some(Role::Reader), summary: "eLoran simulator: the preloaded worldwide GRI/chain database with region, status, confidence and station positions; no licence needed", needs_data_dir: false, greedy_tail: false, request: None, query: &[("region", "Only chains of this region"), ("active_on", "Only chains operating on this day, YYYY-MM-DD"), ("search", "Free text: id, name, region, system, country or station name")], responses: &[(200, JSON, "{format, updated, count, chains}"), (400, JSON, "Unknown query parameter"), AUTH_401] },
     Route { method: "POST", path: "/eloran/monitor", id: RouteId::EloranMonitor, role: Some(Role::Submitter), summary: "eLoran simulator: live-monitor snapshots of a scenario processed by the real-time receiver (spectrum, pulse view, per-station status, fix, health, truth comparison); format=json (default) or html (self-contained dashboard). Synchronous, at most the synchronous sample limit. Needs the Enterprise feature pro-eloran", needs_data_dir: false, greedy_tail: false, request: Some(("text/plain", "An eLoran scenario in TOML")), query: &[("format", "json (the monitor result) or html (the dashboard page)")], responses: &[(200, JSON, "Monitor result {header, snapshots, summary}, or the HTML dashboard with format=html"), (400, JSON, "Bad query parameter"), (403, JSON, "The entitlement does not include pro-eloran"), (413, JSON, "Body above the cap"), (422, JSON, "Invalid scenario, too large for a synchronous run, or the monitor failed"), AUTH_401] },
+    Route { method: "GET", path: "/eloran/bench/catalog", id: RouteId::EloranBenchCatalog, role: Some(Role::Reader), summary: "eLoran simulator: the hardware catalogue (LF sources, SDRs, AWGs, GNSS simulators, references, counters, scopes, receivers), each value cited to the vendor's documentation, with lf_direct (puts 90-110 kHz on its output directly); no licence needed", needs_data_dir: false, greedy_tail: false, request: None, query: &[("category", "Only this category (sdr, awg, daq, gnss_sim, tic, counter, scope, reference, gnss_timing_rx, eloran_rx, antenna, ...)"), ("lf", "1: only sources with a direct 90-110 kHz output")], responses: &[(200, JSON, "{count, entries}"), (400, JSON, "Unknown query parameter"), AUTH_401] },
+    Route { method: "POST", path: "/eloran/bench/check", id: RouteId::EloranBenchCheck, role: Some(Role::Submitter), summary: "eLoran simulator: bench readiness before buying or wiring (body: inventory TOML): findings per role with datasheet sources, runnable acceptance tests, wiring plan, first-plug procedure and the spec-twin prediction of each eLoran source. Touches no hardware. Needs the Enterprise feature pro-eloran", needs_data_dir: false, greedy_tail: false, request: Some(("text/plain", "A bench inventory in TOML")), query: &[], responses: &[(200, JSON, "{assessment, wiring_md, procedure_md, twins}"), (403, JSON, "The entitlement does not include pro-eloran"), (413, JSON, "Body above the cap"), (422, JSON, "Invalid inventory"), AUTH_401] },
     Route { method: "GET", path: "/eloran/gri/{chain}", id: RouteId::EloranGriChain, role: Some(Role::Reader), summary: "eLoran simulator: the GRI database entries matching an id, a GRI or text, each with its sources and its [[chains]] scenario snippet; no licence needed", needs_data_dir: false, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "{query, count, chains: [{summary, entry, snippet}]}"), (404, JSON, "No chain matches"), AUTH_401] },
 ];
 
@@ -815,6 +819,8 @@ fn route_request(
         (RouteId::EloranGri, _) => super::eloran::gri_list(query),
         (RouteId::EloranGriChain, _) => super::eloran::gri_show(&params[0]),
         (RouteId::EloranMonitor, _) => super::eloran::monitor(svc, &req.body, query, now),
+        (RouteId::EloranBenchCatalog, _) => super::eloran::bench_catalog(query),
+        (RouteId::EloranBenchCheck, _) => super::eloran::bench_check(svc, &req.body, now),
         (_, None) => super::handle(req, &svc.entitlement, now),
     }
 }

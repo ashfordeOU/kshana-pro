@@ -36,7 +36,7 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         The preloaded worldwide GRI/chain database with sources and confidence (no licence needed)\n\
     calibrate receiver --tic <readings.csv> --inputs <inputs.json> [--column <n>] [--unit s|ns] --out <report.json>\n\
         Receiver internal delay from time-interval-counter readings with a GUM uncertainty budget (Enterprise)\n\
-    stream <scenario.toml> --device <file:<base> | soapy:<args>> [--pps-start] [--external-ref] [--external-pps] [--gain-db <dB>] [--cal <calibration.json>] [--license <token>] [--dev]\n\
+    stream <scenario.toml> --device <file:<base> | twin:<catalog-id> | redpitaya:<host> | uhd:<args> | soapy:<args> | digilent:<index> | scpi-awg:<host>[@profile]> [--pps-start] [--external-ref] [--external-pps] [--gain-db <dB>] [--cal <calibration.json>] [--license <token>] [--dev]\n\
         Stream the scenario in real time to an LF output device: a paced SigMF file device, or SoapySDR\n\
         hardware (build with feature eloran-soapy). Conducted use only: cables or antenna simulators,\n\
         never over the air (Enterprise, feature pro-eloran-hw)\n\
@@ -66,6 +66,26 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         Live monitor: run the scenario (or replay a recording) through the real-time receiver; stream\n\
         <dir>/monitor.jsonl and write the dashboard <dir>/monitor.html (open it, or serve the directory\n\
         and open monitor.html?live=monitor.jsonl to follow a run live) (Enterprise)\n\
+    bench catalog [--category <c>] [--lf] [--json] | bench show <id>\n\
+        Hardware catalogue: published specifications with sources; --lf lists sources that put\n\
+        90-110 kHz on their output directly (free)\n\
+    bench check --inventory <bench.toml> [--catalog <lab.json>] [--json] [--out <file>] [--license <token>] [--dev]\n\
+        Readiness of a bench before buying or wiring: every role and check, Pass/Warn/Unknown/Fail\n\
+        with the datasheet source, and which acceptance tests it can run (Enterprise)\n\
+    bench twin <id> [--fs <hz>] [--levels 0,-20,-40] [--out <file>] [--license <token>] [--dev]\n\
+        Predicted eLoran output of a device from its datasheet (spec twin): timing bias and spread,\n\
+        ECD and SNR per level (Enterprise)\n\
+    bench kit --inventory <bench.toml> --out <dir> [--fs <hz>] [--license <token>] [--dev]\n\
+        Write the bench kit: assessment, wiring plan, first-plug procedure, instrument profiles,\n\
+        device addresses and twin predictions (Enterprise)\n\
+    bench rehearse --inventory <bench.toml> --out <report.json> [--license <token>] [--dev]\n\
+        Run the acceptance suite with every device replaced by its spec twin (Enterprise)\n\
+    bench probe (--inventory <bench.toml> | --host <ip[:port]> ...) [--out <file>] [--license <token>] [--dev]\n\
+        Find and identify connected instruments, read-only (*IDN?, serial ports, UHD/SoapySDR\n\
+        discovery) (Enterprise, hardware)\n\
+    bench accept --inventory <bench.toml> --profiles <dir> --out <report.json> [--select <ids>] [--stimulus-s <s>] [--evidence <dir>] [--license <token>] [--dev]\n\
+        Acceptance suite on the real bench: the eLoran source by its driver, instruments by their\n\
+        profiles (Enterprise, hardware)\n\
     validate <scenario.toml>\n\
         Check a scenario and print its SHA-256 (no licence needed)\n\
     example\n\
@@ -99,6 +119,7 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("monitor") => monitor_cmd(args),
         Some("gri") => gri_cmd(args),
         Some("calibrate") => calibrate_cmd(args),
+        Some("bench") => bench_cmd(args),
         Some("example") => {
             print!("{EXAMPLE}");
             ExitCode::SUCCESS
@@ -652,27 +673,13 @@ fn stream_cmd(args: &[String]) -> ExitCode {
     if flag(args, "--cal").is_some() {
         return fail("--cal: apply the calibration file with `kshana_eloran::hw::calib::CalibratedSink` in an integration; the command line does not apply it yet");
     }
-    let mut device: Box<dyn Device> = if let Some(base) = dev_spec.strip_prefix("file:") {
-        Box::new(hw::file::FileDevice::tx(
-            Path::new(base),
-            kshana_eloran::io::Format::Ri16,
-        ))
-    } else if let Some(_a) = dev_spec.strip_prefix("soapy:") {
-        #[cfg(feature = "eloran-soapy")]
-        {
-            match hw::soapy::SoapyDevice::open(_a, hw::soapy::SoapyFormat::Cf32) {
-                Ok(d) => Box::new(d),
-                Err(e) => return fail(e),
-            }
-        }
-        #[cfg(not(feature = "eloran-soapy"))]
-        {
-            return fail(
-                "this build has no SoapySDR support (rebuild with --features eloran-soapy)",
-            );
-        }
-    } else {
-        return fail("--device must be file:<base> or soapy:<args>");
+    let mut device: Box<dyn Device> = match kshana_eloran::bench::open::open_address(
+        &dev_spec,
+        &kshana_eloran::bench::catalog::Catalog::builtin(),
+        sc.scene.params.fs_hz,
+    ) {
+        Ok(d) => d,
+        Err(e) => return fail(e),
     };
     eprintln!("{}", hw::OUTPUT_POLICY);
     if let Err(e) = device.configure(&cfg) {
@@ -1198,4 +1205,257 @@ fn monitor_cmd(args: &[String]) -> ExitCode {
             dir.join("monitor.html").display()
         ))
     })())
+}
+
+/// Hardware licence check (pro-eloran + pro-eloran-hw).
+fn licensed_hw(args: &[String]) -> Result<(), ExitCode> {
+    let now = now_unix();
+    let ent = entitlement(args, now).map_err(fail)?;
+    for f in [FEATURE, HW_FEATURE] {
+        crate::license::check(&ent, f, now).map_err(fail)?;
+    }
+    Ok(())
+}
+
+fn bench_catalog(args: &[String]) -> Result<kshana_eloran::bench::catalog::Catalog, String> {
+    let mut c = kshana_eloran::bench::catalog::Catalog::builtin();
+    if let Some(p) = flag(args, "--catalog") {
+        c.merge_file(Path::new(&p))?;
+    }
+    Ok(c)
+}
+
+fn bench_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::bench::{catalog::Category, check, kit, probe, run, spectwin};
+    let sub = args.get(1).map(String::as_str);
+    // Free: browse the datasheet catalogue.
+    match sub {
+        Some("catalog") => {
+            return done((|| {
+                let c = bench_catalog(args)?;
+                let cat_filter = flag(args, "--category");
+                let lf_only = args.iter().any(|a| a == "--lf");
+                let rows: Vec<_> = c
+                    .iter()
+                    .filter(|s| {
+                        cat_filter.as_deref().is_none_or(|f| {
+                            serde_json::to_value(s.category)
+                                .ok()
+                                .and_then(|v| v.as_str().map(|x| x == f))
+                                .unwrap_or(false)
+                        })
+                    })
+                    .filter(|s| !lf_only || s.lf_direct() == Some(true))
+                    .collect();
+                if args.iter().any(|a| a == "--json") {
+                    return serde_json::to_string_pretty(&rows).map_err(|e| e.to_string());
+                }
+                let mut out = format!(
+                    "{} catalogue entries (datasheet values; `bench show <id>` for sources)\n",
+                    rows.len()
+                );
+                for s in rows {
+                    let lf = match (s.category, s.lf_direct()) {
+                        (Category::Sdr | Category::Awg | Category::Daq, Some(true)) => {
+                            "  [90–110 kHz: direct]"
+                        }
+                        (Category::Sdr | Category::Awg | Category::Daq, Some(false)) => {
+                            "  [90–110 kHz: NO]"
+                        }
+                        (Category::Sdr | Category::Awg | Category::Daq, None) => {
+                            "  [90–110 kHz: unknown]"
+                        }
+                        _ => "",
+                    };
+                    out += &format!("{:38} {}{lf}\n", s.id, s.summary());
+                }
+                Ok(out.trim_end().to_string())
+            })());
+        }
+        Some("show") => {
+            return done((|| {
+                let id = args.get(2).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+                let c = bench_catalog(args)?;
+                let s = c.get(id).ok_or_else(|| {
+                    format!(
+                        "{id}: not in the catalogue (did you mean: {})",
+                        c.suggest(id).join(", ")
+                    )
+                })?;
+                serde_json::to_string_pretty(s).map_err(|e| e.to_string())
+            })());
+        }
+        _ => {}
+    }
+    // Everything that touches hardware needs pro-eloran-hw; the rest pro-eloran.
+    let hw = matches!(sub, Some("probe") | Some("accept"));
+    if hw {
+        if let Err(c) = licensed_hw(args) {
+            return c;
+        }
+    } else if let Err(c) = licensed(args) {
+        return c;
+    }
+    let fs: f64 = match num_flag(args, "--fs") {
+        Ok(v) => v.unwrap_or(2e6),
+        Err(e) => return fail(e),
+    };
+    let inventory = || -> Result<(check::Inventory, String, kshana_eloran::bench::catalog::Catalog), String> {
+        let p = flag(args, "--inventory").ok_or("--inventory <bench.toml> is required")?;
+        let text = read(&p)?;
+        let inv = check::Inventory::from_toml(&text).map_err(|e| format!("{p}: {e}"))?;
+        Ok((inv, text, bench_catalog(args)?))
+    };
+    match sub {
+        Some("check") => done((|| {
+            let (inv, _, cat) = inventory()?;
+            let a = check::assess(&inv, &cat);
+            if let Some(out) = flag(args, "--out") {
+                write_json(&out, &a)?;
+            }
+            Ok(if args.iter().any(|x| x == "--json") {
+                a.to_json()
+            } else {
+                a.to_text()
+            })
+        })()),
+        Some("twin") => done((|| {
+            let id = args.get(2).filter(|a| !a.starts_with("--")).ok_or(USAGE)?;
+            let cat = bench_catalog(args)?;
+            let s = cat.get(id).ok_or_else(|| {
+                format!(
+                    "{id}: not in the catalogue (did you mean: {})",
+                    cat.suggest(id).join(", ")
+                )
+            })?;
+            let levels: Vec<f64> = match flag(args, "--levels") {
+                Some(l) => l
+                    .split(',')
+                    .map(|x| {
+                        x.trim()
+                            .parse::<f64>()
+                            .map_err(|_| format!("--levels: bad number {x:?}"))
+                    })
+                    .collect::<Result<_, _>>()?,
+                None => vec![0.0, -20.0, -40.0, -60.0],
+            };
+            let r = spectwin::expected_performance(s, fs, &levels, 10)?;
+            if let Some(out) = flag(args, "--out") {
+                write_json(&out, &r)?;
+            }
+            let mut t = format!("{} at {} S/s, {}-bit DAC (MODELLED from datasheet values)\n  level   Vpk(50Ω)  delay bias  delay std   ECD      SNR\n", s.summary(), fs, r.dac_bits);
+            for l in &r.levels {
+                t += &format!(
+                    "  {:>5.0} dBFS {:>8}  {:>8.3} ns  {:>7.3} ns  {:>6.3} µs  {:>6.1} dB\n",
+                    l.level_dbfs,
+                    l.vpeak_50ohm
+                        .map(|v| format!("{v:.4} V"))
+                        .unwrap_or_else(|| "?".into()),
+                    l.delay_bias_ns,
+                    l.delay_std_ns,
+                    l.ecd_us,
+                    l.snr_db
+                );
+            }
+            for a in &r.assumptions {
+                t += &format!("  assumption: {a}\n");
+            }
+            Ok(t.trim_end().to_string())
+        })()),
+        Some("kit") => done((|| {
+            let (inv, text, cat) = inventory()?;
+            let out = flag(args, "--out").ok_or("--out <dir> is required")?;
+            let files = kit::write_kit(&inv, &text, &cat, Path::new(&out), fs)?;
+            let a = check::assess(&inv, &cat);
+            Ok(format!(
+                "bench kit: {} files in {out} (ready: {}; pass {}, warn {}, unknown {}, fail {}). Start with {out}/PROCEDURE.md",
+                files.len(),
+                if a.ready { "yes" } else { "NO" },
+                a.counts.pass,
+                a.counts.warn,
+                a.counts.unknown,
+                a.counts.fail
+            ))
+        })()),
+        Some("rehearse") | Some("accept") => done((|| {
+            let (inv, _, cat) = inventory()?;
+            let out = flag(args, "--out").ok_or("--out <report.json> is required")?;
+            let rehearse = sub == Some("rehearse");
+            let opt = run::RunOptions {
+                fs_hz: fs,
+                stimulus_s: num_flag(args, "--stimulus-s")?.unwrap_or(if rehearse {
+                    0.05
+                } else {
+                    5.0
+                }),
+                rehearse,
+                profiles_dir: flag(args, "--profiles").map(PathBuf::from),
+                select: flag(args, "--select")
+                    .map(|s| s.split(',').map(|x| x.trim().to_string()).collect()),
+                evidence_dir: flag(args, "--evidence").map(PathBuf::from),
+            };
+            let (rep, opened) = run::run_bench(&inv, &cat, None, &opt)?;
+            write_json(
+                &out,
+                &serde_json::json!({"report": rep, "opened": opened, "rehearsal": rehearse}),
+            )?;
+            let count = |v: &str| {
+                rep.results
+                    .iter()
+                    .filter(|r| format!("{:?}", r.verdict) == v)
+                    .count()
+            };
+            let mut msg = format!(
+                "bench {}: pass {}, fail {}, not run {}, error {} -> {out}",
+                if rehearse {
+                    "rehearsal (spec twins, no hardware)"
+                } else {
+                    "acceptance"
+                },
+                count("Pass"),
+                count("Fail"),
+                count("NotRun"),
+                count("Error")
+            );
+            for (l, e) in &opened.skipped {
+                msg += &format!("\n  skipped {l}: {e}");
+            }
+            Ok(msg)
+        })()),
+        Some("probe") => done((|| {
+            let cat = bench_catalog(args)?;
+            let timeout =
+                std::time::Duration::from_millis(num_flag(args, "--timeout-ms")?.unwrap_or(1500));
+            let hosts: Vec<String> = args
+                .windows(2)
+                .filter(|w| w[0] == "--host")
+                .map(|w| w[1].clone())
+                .collect();
+            let rows = if !hosts.is_empty() {
+                probe::probe_hosts(&hosts, &cat, timeout)
+            } else {
+                let (inv, _, cat) = inventory()?;
+                probe::probe_inventory(&inv, &cat, timeout)
+            };
+            if let Some(out) = flag(args, "--out") {
+                write_json(&out, &rows)?;
+            }
+            let mut t = String::new();
+            for r in &rows {
+                t += &format!(
+                    "[{:11}] {} @ {}: {}{}\n",
+                    r.state,
+                    r.label,
+                    r.target,
+                    r.detail,
+                    r.idn
+                        .as_deref()
+                        .map(|i| format!(" | IDN: {i}"))
+                        .unwrap_or_default()
+                );
+            }
+            Ok(t.trim_end().to_string())
+        })()),
+        _ => fail(USAGE),
+    }
 }

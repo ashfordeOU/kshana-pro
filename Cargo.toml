@@ -24,6 +24,9 @@ path = "src/main.rs"
 [features]
 # eLoran simulator hardware output through SoapySDR (opened at run time; conducted use only).
 eloran-soapy = ["kshana-eloran/soapy"]
+eloran-uhd = ["kshana-eloran/uhd"]
+eloran-redpitaya = ["kshana-eloran/redpitaya"]
+eloran-digilent = ["kshana-eloran/digilent"]
 # Licence and pack signing through AWS KMS (key custody S7-a, src/license/kms.rs). Adds no
 # crate: SigV4 uses ring and sha2, the transport rustls, all already dependencies.
 kms = []
