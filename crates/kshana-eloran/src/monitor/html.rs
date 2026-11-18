@@ -21,7 +21,7 @@ header{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;flex-w
 header h1{font-size:16px;margin:0}header .meta{color:var(--muted);font-size:12px}
 main{display:grid;gap:12px;padding:12px 16px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-width:0}
-.panel h2{font-size:13px;margin:0 0 8px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.panel h2{font-size:13px;margin:0 0 8px;color:var(--muted);font-weight:600}
 .wide{grid-column:1/-1}.tiles{display:flex;flex-wrap:wrap;gap:8px}.tile{flex:1 1 120px;border:1px solid var(--line);border-radius:6px;padding:6px 8px}
 .tile b{display:block;font-size:18px}.tile span{color:var(--muted);font-size:12px}
 table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}
