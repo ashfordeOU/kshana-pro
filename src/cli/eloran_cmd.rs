@@ -300,6 +300,10 @@ fn rx_cmd(args: &[String]) -> ExitCode {
     if args.iter().any(|a| a == "--no-cri-blanking") {
         cfg.cri.blank = false;
     }
+    cfg.ldc = match sc.ldc_configs() {
+        Ok(l) => l,
+        Err(e) => return fail(e),
+    };
     let input = RxInput::from_recording(&recording, start);
     let (_rx, output) = match rx::process(&input, &chains, cfg.clone()) {
         Ok(r) => r,
@@ -353,6 +357,26 @@ fn rx_cmd(args: &[String]) -> ExitCode {
         },
         "evidence_label": "MODELLED",
     });
+    if !output.ldc.is_empty() {
+        report["ldc"] = serde_json::json!(output
+            .ldc
+            .iter()
+            .map(|l| serde_json::json!({
+                "chain": l.chain,
+                "station": l.station,
+                "scheme": l.scheme,
+                "first_frame": l.first_frame,
+                "symbols": l.symbols.len(),
+                "groups_missing": l.groups_missing,
+                "frames_ok": l.report.frames_ok,
+                "frames_failed": l.report.frames_failed,
+                "symbols_corrected": l.report.symbols_corrected,
+                "crc_failures": l.report.crc_failures,
+                "messages": l.messages().map(|m| serde_json::to_value(m).unwrap_or_default()).collect::<Vec<_>>(),
+                "auth": l.auth.iter().map(|a| serde_json::json!({"message": a.message, "verified": a.verified})).collect::<Vec<_>>(),
+            }))
+            .collect::<Vec<_>>());
+    }
     if let Some(tp) = flag(args, "--truth") {
         let truth = match std::fs::read_to_string(&tp).map_err(|e| format!("{tp}: {e}")).and_then(|t| kshana_eloran::scene::truth_from_csv(&t)) {
             Ok(t) => t,
