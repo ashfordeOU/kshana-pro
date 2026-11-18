@@ -67,7 +67,11 @@ fn check_epochs(eps: &[ClockEpoch], clock: &dyn Fn(f64) -> f64, tol_ns: f64) {
         assert!(e.n_used >= 6);
         sum += err;
     }
-    assert!((sum / eps.len() as f64).abs() < 0.5, "mean error {}", sum / eps.len() as f64);
+    assert!(
+        (sum / eps.len() as f64).abs() < 0.5,
+        "mean error {}",
+        sum / eps.len() as f64
+    );
 }
 
 #[test]
@@ -99,10 +103,10 @@ fn receiver_clock_against_gps_time_dual_and_single_frequency() {
 #[test]
 fn tracks_common_view_and_utck() {
     let cfg = TimexferConfig::default();
-    let ea = clock_offsets_from_files(&synth(site_a(), true, 3, &clock_a), NAV, site_a(), &cfg)
-        .unwrap();
-    let eb = clock_offsets_from_files(&synth(site_b(), true, 4, &clock_b), NAV, site_b(), &cfg)
-        .unwrap();
+    let ea =
+        clock_offsets_from_files(&synth(site_a(), true, 3, &clock_a), NAV, site_a(), &cfg).unwrap();
+    let eb =
+        clock_offsets_from_files(&synth(site_b(), true, 4, &clock_b), NAV, site_b(), &cfg).unwrap();
     let ta = tracks(&ea, &cfg, 30.0);
     let tb = tracks(&eb, &cfg, 30.0);
     assert!(ta.len() >= 30, "{} tracks", ta.len());
@@ -147,7 +151,12 @@ fn tracks_common_view_and_utck() {
     for e in &cv {
         let tt = e.t + cfg.leap_seconds - T0;
         let want = clock_a(tt) - clock_b(tt);
-        assert!((e.value_s - want).abs() < 1.2e-9, "{}: {} vs {want}", e.t, e.value_s);
+        assert!(
+            (e.value_s - want).abs() < 1.2e-9,
+            "{}: {} vs {want}",
+            e.t,
+            e.value_s
+        );
         assert!(e.n_sats >= 2);
     }
     // the in-memory path gives the same answer within the file's 0.1 ns resolution
@@ -169,8 +178,7 @@ fn tracks_common_view_and_utck() {
     assert!(!r.is_empty());
     for v in &r {
         let tt = (v.mjd - 44_244.0) * 86_400.0 + cfg.leap_seconds - T0;
-        let (off, _) =
-            kshana_pro::eloran_timexfer::interpolate_offset(&offs, v.mjd).unwrap();
+        let (off, _) = kshana_pro::eloran_timexfer::interpolate_offset(&offs, v.mjd).unwrap();
         let want = clock_a(tt) * 1e9 - off;
         assert!((v.ref_minus_utck_ns - want).abs() < 1.5, "{v:?} vs {want}");
         assert!(v.u_ns >= budget.calibration_ns && v.u_ns < 8.0, "{v:?}");

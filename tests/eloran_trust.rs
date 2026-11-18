@@ -63,7 +63,10 @@ fn receiver_time_solutions_become_eloran_readings() {
 struct Rng(u64);
 impl Rng {
     fn u(&mut self) -> f64 {
-        self.0 = self.0.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        self.0 = self
+            .0
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
         ((self.0 >> 11) as f64 + 0.5) / (1u64 << 53) as f64
     }
     fn n(&mut self) -> f64 {
@@ -85,7 +88,11 @@ fn gnss_fails_and_the_selector_chooses_eloran() {
         if t >= outage.0 && t < outage.1 {
             gnss.push_str(&format!("{t},unavailable,\n"));
         } else {
-            let bias = if t >= spoof.0 && t < spoof.1 { 800.0 } else { 0.0 };
+            let bias = if t >= spoof.0 && t < spoof.1 {
+                800.0
+            } else {
+                0.0
+            };
             gnss.push_str(&format!("{t},ok,{:.3}\n", truth(t) + bias + 5.0 * rng.n()));
         }
         // eLoran: three stations on UTC(A), each UTC(A) − rx with 15 ns noise
@@ -135,7 +142,11 @@ fn gnss_fails_and_the_selector_chooses_eloran() {
         let in_out = *t >= outage.0 + 10.0 && *t < outage.1;
         let in_spoof = *t >= spoof.0 && *t < spoof.1;
         if *t > 700.0 && *t < outage.0 {
-            assert_eq!(d.choice, Choice::Source(0), "GNSS chosen while healthy at {t}");
+            assert_eq!(
+                d.choice,
+                Choice::Source(0),
+                "GNSS chosen while healthy at {t}"
+            );
         }
         if in_out || in_spoof {
             assert_eq!(d.choice, Choice::Source(1), "eLoran chosen at {t}: {d:?}");

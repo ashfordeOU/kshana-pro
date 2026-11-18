@@ -8,8 +8,8 @@ use kshana_eloran::hw::StartTime;
 use kshana_eloran::Scenario;
 use kshana_pro::eloran_gnss::{gps_week_tow, GnssOptions};
 use kshana_pro::eloran_gnss_sdr::{
-    build_scene, satellites_in_view, stream, DegradationEvent, DegradationTimeline, Effect, SdrOptions,
-    SigmfComplexSink, StartPlan, GNSS_OUTPUT_POLICY,
+    build_scene, satellites_in_view, stream, DegradationEvent, DegradationTimeline, Effect,
+    SdrOptions, SigmfComplexSink, StartPlan, GNSS_OUTPUT_POLICY,
 };
 
 const NAV: &str = include_str!("fixtures/eloran/brdc_gps_20240910.rnx");
@@ -121,9 +121,8 @@ fn file_sink_with_degradation_timeline() {
     assert_eq!(rep.policy, GNSS_OUTPUT_POLICY);
     assert!(rep.satellites.len() >= 8);
     // same start epoch as the eLoran scene
-    let (w, tow) = gps_week_tow(
-        kshana_eloran::time::AbsTime::from_utc_iso(&sc.scene.start_utc).unwrap(),
-    );
+    let (w, tow) =
+        gps_week_tow(kshana_eloran::time::AbsTime::from_utc_iso(&sc.scene.start_utc).unwrap());
     assert_eq!((rep.plan.gps_week, rep.plan.start_tow_s), (w, tow));
     assert_eq!(rep.plan, plan);
     assert_eq!(rep.truth_records as usize, truth.len());
@@ -206,7 +205,10 @@ fn degradation_changes_the_generated_signal() {
         power(305_000, 395_000),
     );
     // amplitude √(C/N0 / fs) = 0.178 units = 356 counts: power ≈ 1.26e5
-    assert!((p0 / (2000.0f64.powi(2) * 10f64.powf(4.5) / 1e6) - 1.0).abs() < 0.02, "{p0}");
+    assert!(
+        (p0 / (2000.0f64.powi(2) * 10f64.powf(4.5) / 1e6) - 1.0).abs() < 0.02,
+        "{p0}"
+    );
     assert!((p1 / p0 - 0.1).abs() < 0.005, "{}", p1 / p0);
     assert_eq!(p2, 0.0);
     assert!((p3 / p0 - 1.0).abs() < 0.01);

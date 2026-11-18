@@ -21,7 +21,10 @@ const TOW: f64 = 172_800.0 + 3600.0;
 struct Rng(u64);
 impl Rng {
     fn u(&mut self) -> f64 {
-        self.0 = self.0.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        self.0 = self
+            .0
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
         ((self.0 >> 11) as f64 + 0.5) / (1u64 << 53) as f64
     }
     fn n(&mut self) -> f64 {
@@ -89,7 +92,10 @@ fn jamming_and_spoofing_scenario() {
             checked[0] += 1;
             assert_eq!(fix.mode, Mode::EloranOnly, "{t}");
             assert!(herr < 30.0, "jammed {t}: {herr} m");
-            assert!(clk_err_ns.abs() < 60.0, "jammed {t}: GNSS clock {clk_err_ns} ns");
+            assert!(
+                clk_err_ns.abs() < 60.0,
+                "jammed {t}: GNSS clock {clk_err_ns} ns"
+            );
             assert!(!fix.integrity.flagged, "{t}: {:?}", fix.integrity.reasons);
         } else if inside(pos_spoof) {
             checked[1] += 1;
@@ -119,7 +125,11 @@ fn jamming_and_spoofing_scenario() {
             assert!(herr < 10.0, "{t}: {herr} m");
             if t > 50.0 {
                 assert!(clk_err_ns.abs() < 20.0, "{t}: {clk_err_ns}");
-                assert!((fix.offset_ns - 50.0).abs() < 15.0, "{t}: {}", fix.offset_ns);
+                assert!(
+                    (fix.offset_ns - 50.0).abs() < 15.0,
+                    "{t}: {}",
+                    fix.offset_ns
+                );
                 assert!((fix.eloran_clock_ns - fix.gnss_clock_ns - fix.offset_ns).abs() < 1e-6);
             }
         }
@@ -164,5 +174,9 @@ fn receiver_observations_fuse_with_gnss() {
     let fix2 = f2.step(0.0, &[], &lor).unwrap();
     assert_eq!(fix2.mode, Mode::EloranOnly);
     assert!(horiz_err(fix2.lat_deg, fix2.lon_deg, truth) < 5.0);
-    assert!((fix2.eloran_clock_ns + 50.0).abs() < 5.0, "{}", fix2.eloran_clock_ns);
+    assert!(
+        (fix2.eloran_clock_ns + 50.0).abs() < 5.0,
+        "{}",
+        fix2.eloran_clock_ns
+    );
 }
