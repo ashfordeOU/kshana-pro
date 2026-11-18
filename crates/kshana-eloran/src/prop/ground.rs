@@ -67,11 +67,15 @@
 //! and Millington runs only when the receiver enters a new cell. Distance, PF, SF and the
 //! near-field terms are evaluated exactly at every call.
 //!
-//! # TODO
+//! # Further models
 //!
-//! Integral-equation groundwave over an elevation profile (Hufford 1952; Ott's WAGNER
-//! program) is not implemented: it needs a terrain source and an external reference to
-//! test against. Until then terrain enters only through the effective conductivity map.
+//! * `terrain`: integral-equation groundwave over a DEM profile (Hufford 1952; the method
+//!   of Ott's WAGNER program), [`super::terrain`]. MODELLED: no external terrain reference
+//!   is reproduced.
+//! * `millington_atlas`: Millington over an imported conductivity atlas, [`super::p832`].
+//! * `asf_grid`: an imported ASF table as the groundwave ASF, [`super::asfgrid`].
+//! * `urban`: any of these plus site offsets and structure re-radiation (heuristic),
+//!   [`super::urban`].
 
 use super::conductivity::{ConductivityConfig, ConductivityMap, GroundConst};
 use super::millington::{millington, sections_from_samples};
@@ -146,6 +150,15 @@ pub enum GroundConfig {
         #[serde(default)]
         temporal: Option<TemporalConfig>,
     },
+    /// Integral-equation groundwave over a terrain profile from a DEM, with a conductivity
+    /// map or atlas ([`super::terrain`]).
+    Terrain(Box<super::terrain::TerrainConfig>),
+    /// Millington over an imported conductivity atlas ([`super::p832`]).
+    MillingtonAtlas(super::p832::AtlasGroundConfig),
+    /// Groundwave from an imported ASF table ([`super::asfgrid`]).
+    AsfGrid(super::asfgrid::AsfGridConfig),
+    /// Any ground model plus local/urban effects ([`super::urban`], heuristic).
+    Urban(super::urban::UrbanGroundConfig),
 }
 
 fn d_att() -> f64 {
@@ -624,6 +637,10 @@ pub fn build(cfg: &GroundConfig, ctx: &BuildContext) -> Result<Box<dyn Propagati
                 &label,
             )?))
         }
+        GroundConfig::Terrain(c) => Ok(Box::new(super::terrain::build(c, ctx)?)),
+        GroundConfig::MillingtonAtlas(c) => super::p832::build(c, ctx),
+        GroundConfig::AsfGrid(c) => Ok(Box::new(super::asfgrid::build(c)?)),
+        GroundConfig::Urban(c) => Ok(Box::new(super::urban::build(c, ctx)?)),
     }
 }
 
