@@ -1,0 +1,114 @@
+# CONFORMANCE CASE CONF-SKY-01: Skywave rejection
+#
+# MODELLED ON the kind of test described in eLoran / Loran-C receiver performance standards
+# (RTCM SC-127 Minimum Performance Standards for eLoran receivers; IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing)). The standards' texts were NOT consulted: stimulus levels and limits are
+# ILLUSTRATIVE and must be confirmed (see `to_confirm`). Synthetic geometry (not real
+# stations) unless stated.
+#
+# PURPOSE  One fixed skywave per station (delay after the groundwave, sky/ground ratio). The receiver's
+#          default fit window ends 70 us after the envelope origin, so skywave delayed by less than
+#          that biases it (documented limitation): short-delay variations are expected to fail.
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 400000
+seed = 7
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 55.0
+lon_deg = 3.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 0.0
+
+[propagation.ground]
+model = "simple"
+
+[propagation.sky]
+model = "fixed"
+delay_us = 37.5
+ratio_db = 6.0
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 260.0
+seed = 7
+
+[[chains]]
+name = "conf-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+power_kw = 400.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+power_kw = 400.0
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 53.8, lon_deg = 5.5 }
+power_kw = 400.0
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"
+
+[conformance]
+id = "CONF-SKY-01"
+title = "Skywave rejection"
+category = "skywave_rejection"
+intent = """ToA and cycle identification within limits for skywave delays and ratios."""
+modelled_on = ["RTCM SC-127 Minimum Performance Standards for eLoran receivers — skywave interference (text not consulted)", "IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing) — skywave delay / ratio tests (text not consulted)"]
+to_confirm = ["test procedure and stimulus definitions of the governing standard", "noise definition (bandwidth, field vs voltage reference, atmospheric vs Gaussian)", "pass limits (all limits here are ILLUSTRATIVE)", "skywave delays and sky/ground ratios", "fading, if required", "whether the sampling point may be configured"]
+requirements = ["REQ-RX-SKY"]
+
+[[conformance.variations]]
+label = "sky-37us-6dB"
+stimulus = { sky_delay_us = 37.5, sky_ratio_db = 6 }
+set = { "propagation.sky.delay_us" = 37.5, "propagation.sky.ratio_db" = 6.0 }
+
+[[conformance.variations]]
+label = "sky-75us-12dB"
+stimulus = { sky_delay_us = 75, sky_ratio_db = 12 }
+set = { "propagation.sky.delay_us" = 75.0, "propagation.sky.ratio_db" = 12.0 }
+
+[[conformance.variations]]
+label = "sky-100us-18dB"
+stimulus = { sky_delay_us = 100, sky_ratio_db = 18 }
+set = { "propagation.sky.delay_us" = 100.0, "propagation.sky.ratio_db" = 18.0 }
+
+[[conformance.criteria]]
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "toa_rms_ns"
+op = "le"
+limit = 100.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "cycle_errors"
+op = "eq"
+limit = 0.0
+illustrative = true

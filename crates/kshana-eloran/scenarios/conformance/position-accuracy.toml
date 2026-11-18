@@ -1,0 +1,97 @@
+# CONFORMANCE CASE CONF-POS-01: Position accuracy (all-in-view and TDoA)
+#
+# MODELLED ON the kind of test described in eLoran / Loran-C receiver performance standards
+# (RTCM SC-127 Minimum Performance Standards for eLoran receivers; IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing)). The standards' texts were NOT consulted: stimulus levels and limits are
+# ILLUSTRATIVE and must be confirmed (see `to_confirm`). Synthetic geometry (not real
+# stations) unless stated.
+#
+# PURPOSE  Position fix of a static receiver with PF-only propagation (the receiver's prediction is
+#          exact, so this measures receiver noise and geometry, not ASF).
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 400000
+seed = 14
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 55.0
+lon_deg = 3.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 0.0
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 2600.0
+seed = 14
+
+[[chains]]
+name = "conf-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+power_kw = 400.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+power_kw = 400.0
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 53.8, lon_deg = 5.5 }
+power_kw = 400.0
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"
+
+[conformance]
+id = "CONF-POS-01"
+title = "Position accuracy (all-in-view and TDoA)"
+category = "position_accuracy"
+intent = """Fix within a bound of the true position."""
+modelled_on = ["RTCM SC-127 Minimum Performance Standards for eLoran receivers — position accuracy (text not consulted)", "IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing) — accuracy (text not consulted)"]
+to_confirm = ["test procedure and stimulus definitions of the governing standard", "noise definition (bandwidth, field vs voltage reference, atmospheric vs Gaussian)", "pass limits (all limits here are ILLUSTRATIVE)", "accuracy requirement (e.g. 95 %), averaging and geometry", "ASF treatment"]
+requirements = ["REQ-RX-POS"]
+
+[[conformance.variations]]
+label = "snr20"
+stimulus = { snr_nominal_db = 20 }
+set = { "interference[0].rms_uv_m_20khz" = 2600.0 }
+
+[[conformance.variations]]
+label = "snr10"
+stimulus = { snr_nominal_db = 10 }
+set = { "interference[0].rms_uv_m_20khz" = 8221.9 }
+
+[[conformance.criteria]]
+metric = "position_error_m"
+op = "le"
+limit = 20.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "tdoa_position_error_m"
+op = "le"
+limit = 30.0
+illustrative = true

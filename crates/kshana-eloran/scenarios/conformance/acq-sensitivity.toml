@@ -1,0 +1,125 @@
+# CONFORMANCE CASE CONF-ACQ-01: Acquisition sensitivity vs SNR
+#
+# MODELLED ON the kind of test described in eLoran / Loran-C receiver performance standards
+# (RTCM SC-127 Minimum Performance Standards for eLoran receivers; IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing)). The standards' texts were NOT consulted: stimulus levels and limits are
+# ILLUSTRATIVE and must be confirmed (see `to_confirm`). Synthetic geometry (not real
+# stations) unless stated.
+#
+# PURPOSE  Acquire all four stations of a chain in white Gaussian noise at decreasing SNR
+#          (nominal SNR in 20 kHz at the weakest station; the achieved truth SNR is reported).
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 400000
+seed = 1
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 55.0
+lon_deg = 3.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 0.0
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 2600.0
+seed = 1
+
+[[chains]]
+name = "conf-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+power_kw = 400.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+power_kw = 400.0
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 53.8, lon_deg = 5.5 }
+power_kw = 400.0
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"
+
+[conformance]
+id = "CONF-ACQ-01"
+title = "Acquisition sensitivity vs SNR"
+category = "acquisition_sensitivity"
+intent = """All stations acquired and tracked at each SNR level; ToA bounded where SNR is moderate."""
+modelled_on = ["RTCM SC-127 Minimum Performance Standards for eLoran receivers — acquisition sensitivity (text not consulted)", "IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing) — sensitivity (text not consulted)"]
+to_confirm = ["test procedure and stimulus definitions of the governing standard", "noise definition (bandwidth, field vs voltage reference, atmospheric vs Gaussian)", "pass limits (all limits here are ILLUSTRATIVE)", "SNR definition and level steps", "whether atmospheric (impulsive) noise is required instead of Gaussian", "observation time allowed"]
+requirements = ["REQ-RX-ACQ-SENS"]
+report = ["snr_truth_db"]
+
+[[conformance.variations]]
+label = "snrp20dB"
+stimulus = { snr_nominal_db = 20 }
+set = { "interference[0].rms_uv_m_20khz" = 2600.0 }
+
+[[conformance.variations]]
+label = "snrp10dB"
+stimulus = { snr_nominal_db = 10 }
+set = { "interference[0].rms_uv_m_20khz" = 8221.9 }
+
+[[conformance.variations]]
+label = "snrp0dB"
+stimulus = { snr_nominal_db = 0 }
+set = { "interference[0].rms_uv_m_20khz" = 26000.0 }
+
+[[conformance.variations]]
+label = "snrm6dB"
+stimulus = { snr_nominal_db = -6 }
+set = { "interference[0].rms_uv_m_20khz" = 51876.8 }
+
+[[conformance.criteria]]
+metric = "acquired_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+variations = ["snrp20dB", "snrp10dB", "snrp0dB"]
+
+[[conformance.criteria]]
+metric = "tracked_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
+variations = ["snrp20dB", "snrp10dB", "snrp0dB"]
+
+[[conformance.criteria]]
+metric = "toa_rms_ns"
+op = "le"
+limit = 100.0
+illustrative = true
+variations = ["snrp20dB", "snrp10dB"]
+
+[[conformance.criteria]]
+metric = "acquired_fraction"
+op = "ge"
+limit = 0.5
+illustrative = true
+variations = ["snrm6dB"]
+note = "informative low-SNR point"

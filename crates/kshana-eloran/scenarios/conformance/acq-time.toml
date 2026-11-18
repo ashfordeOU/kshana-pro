@@ -1,0 +1,98 @@
+# CONFORMANCE CASE CONF-ACQ-02: Acquisition time
+#
+# MODELLED ON the kind of test described in eLoran / Loran-C receiver performance standards
+# (RTCM SC-127 Minimum Performance Standards for eLoran receivers; IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing)). The standards' texts were NOT consulted: stimulus levels and limits are
+# ILLUSTRATIVE and must be confirmed (see `to_confirm`). Synthetic geometry (not real
+# stations) unless stated.
+#
+# PURPOSE  Shortest record from which the batch receiver acquires every station (multiples of
+#          two GRIs). The software receiver is a batch processor: this is a record length, not
+#          a cold-start time of a real-time receiver.
+[scene]
+start_utc = "2026-11-18T00:00:00Z"
+duration_s = 1.2
+fs_hz = 400000
+seed = 2
+output_scale_uv_m = 1000000.0
+
+[receiver]
+type = "static"
+lat_deg = 55.0
+lon_deg = 3.0
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(A)"
+offset_ns = 0.0
+
+[propagation.ground]
+model = "simple"
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 8222.0
+seed = 2
+
+[[chains]]
+name = "conf-A"
+gri_us = 79800
+[[chains.stations]]
+id = "M"
+role = "master"
+position = { lat_deg = 56.5, lon_deg = 1.0 }
+power_kw = 400.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "X"
+role = "secondary"
+position = { lat_deg = 53.5, lon_deg = 1.5 }
+power_kw = 400.0
+emission_delay_us = 13000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Y"
+role = "secondary"
+position = { lat_deg = 55.5, lon_deg = 6.5 }
+power_kw = 400.0
+emission_delay_us = 29000.0
+time_ref = "UTC(A)"
+[[chains.stations]]
+id = "Z"
+role = "secondary"
+position = { lat_deg = 53.8, lon_deg = 5.5 }
+power_kw = 400.0
+emission_delay_us = 46000.0
+time_ref = "UTC(A)"
+
+[conformance]
+id = "CONF-ACQ-02"
+title = "Acquisition time"
+category = "acquisition_time"
+intent = """Every station acquired from a short record."""
+modelled_on = ["RTCM SC-127 Minimum Performance Standards for eLoran receivers — time to acquire / warm and cold start (text not consulted)", "IEC 61075 Loran-C receivers for ships (performance requirements, methods of testing) — acquisition time (text not consulted)"]
+to_confirm = ["test procedure and stimulus definitions of the governing standard", "noise definition (bandwidth, field vs voltage reference, atmospheric vs Gaussian)", "pass limits (all limits here are ILLUSTRATIVE)", "definition of acquisition time (cold/warm start, first fix vs first measurement)", "comparability of a batch record length with a real-time receiver's start-up time"]
+requirements = ["REQ-RX-ACQ-TIME"]
+
+[[conformance.variations]]
+label = "snr10"
+stimulus = { snr_nominal_db = 10 }
+set = { "interference[0].rms_uv_m_20khz" = 8221.9 }
+
+[[conformance.variations]]
+label = "snr0"
+stimulus = { snr_nominal_db = 0 }
+set = { "interference[0].rms_uv_m_20khz" = 26000.0 }
+
+[[conformance.criteria]]
+metric = "acq_time_s"
+op = "le"
+limit = 1.0
+illustrative = true
+
+[[conformance.criteria]]
+metric = "acquired_fraction"
+op = "ge"
+limit = 1.0
+illustrative = true
