@@ -1,0 +1,139 @@
+# Maritime pack (b): coastal passage at night: skywave and atmospheric noise.
+#
+# PURPOSE   A ship running south along the New Jersey coast on a winter night. Night-time
+#           E-region skywave arrives 65–155 µs after the groundwave (later for the near
+#           stations), comparable to or stronger than it for the distant ones (Dana ≈ 1170
+#           km, Caribou ≈ 860 km, Carolina Beach ≈ 780 km) and fading slowly; lightning noise
+#           is at its evening high.
+#           Tests a receiver's skywave rejection (sampling point, early-edge tracking) and its
+#           behaviour in impulsive noise.
+# EXERCISES `ionospheric` skywave (one- and two-hop geometry, P.684-style field, day/night
+#           weight from the solar zenith angle at each path midpoint at scene time, reflection
+#           phase, skywave ECD, slow Rayleigh fading with 60 s correlation), `atmospheric`
+#           noise (approximate P.372 level for a winter 20–24 h block, Middleton Class A
+#           statistics), `millington` groundwave over a coarse coastline (land background,
+#           Atlantic sea polygon), waypoints with course changes, crossed loops.
+# METRICS   Truth: `sky_delay_us` and `sky_ratio_db` per station (at the start of the track:
+#           65–155 µs and −9 to +17 dB, Dana's skywave strongest relative to its groundwave),
+#           `snr_db` (groundwave SNR against the configured noise), `asf_ns` (mixed
+#           land/sea paths). Receiver: ToA bias against truth per station (skywave
+#           contamination), cycle errors, SNR estimate vs truth in Class A noise, position
+#           error.
+# DURATION  2 s in the file; the track lasts 28 400 s (≈ 12 kn). Fading needs minutes to show
+#           its statistics (60 s correlation): run ≥ 600 s, preferably truth-only
+#           (`--format none`). The test suite overrides `duration_s` to 0.3 s.
+# PROVENANCE Chain geometry: GRI DB entry `9960-northeast-us` (USCG Loran-C User Handbook 1992,
+#           Table B-1; "verified"; terminated 2010). The coastline polygon is a COARSE
+#           ILLUSTRATIVE outline (tens of km), not a survey; conductivities representative.
+#           The track is ILLUSTRATIVE. The ionospheric reflection fits and the atmospheric
+#           table are MODELLED (see docs/VALIDATION.md).
+[scene]
+start_utc = "2026-01-20T04:00:00Z"     # 23:00 EST
+duration_s = 2.0
+fs_hz = 1000000
+seed = 202
+output_scale_uv_m = 100000.0
+
+[receiver]
+type = "waypoints"
+points = [
+  { t_s = 0.0,     lat_deg = 40.300, lon_deg = -73.800 },
+  { t_s = 11000.0, lat_deg = 39.700, lon_deg = -73.950 },
+  { t_s = 19000.0, lat_deg = 39.300, lon_deg = -74.200 },   # alter course along the coast
+  { t_s = 28400.0, lat_deg = 38.850, lon_deg = -74.550 },
+]
+
+[[outputs]]
+type = "h_loop"
+axis_deg = 0.0
+[[outputs]]
+type = "h_loop"
+axis_deg = 90.0
+
+[[time_refs]]
+id = "UTC(USNO)"
+offset_ns = 0.2
+
+[propagation.ground]
+model = "millington"
+sample_km = 4.0
+asf_grid_deg = 0.01
+
+[propagation.ground.conductivity]
+type = "polygons"
+background = { sigma_s_m = 0.005, eps_r = 15.0 }       # land (representative)
+[[propagation.ground.conductivity.polygons]]
+name = "western North Atlantic (coarse, illustrative)"
+sigma_s_m = 5.0
+eps_r = 80.0
+vertices = [
+  [40.45, -74.00], [40.60, -73.90], [40.75, -73.00], [41.00, -72.00], [41.30, -71.00],
+  [41.50, -70.60], [41.25, -69.90], [42.00, -70.00], [42.50, -70.80], [43.50, -70.20],
+  [44.50, -67.00], [44.00, -60.00], [30.00, -60.00], [30.00, -81.30], [31.00, -81.40],
+  [32.00, -80.80], [33.80, -78.00], [34.60, -76.50], [35.20, -75.50], [36.90, -75.90],
+  [38.00, -75.20], [38.90, -74.90], [39.40, -74.40], [40.00, -74.05],
+]
+
+[propagation.sky]
+model = "ionospheric"
+start_utc = "2026-01-20T04:00:00Z"     # copy of [scene] start_utc (sun position)
+daylight = "auto"
+hops = 2
+
+[propagation.sky.fading]
+corr_time_s = 60.0
+seed = 9
+
+[[interference]]
+type = "atmospheric"
+season = "winter"
+time_block = "20-24"
+seed = 7
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 5.0                   # receiver front-end noise
+seed = 8
+
+[[chains]]
+name = "9960"             # GRI DB 9960-northeast-us
+gri_us = 99600
+[[chains.stations]]
+id = "M"
+name = "Seneca, NY"
+role = "master"
+position = { lat_deg = 42.7140878, lon_deg = -76.8259189 }
+power_kw = 800.0
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "W"
+name = "Caribou, ME"
+role = "secondary"
+position = { lat_deg = 46.8075847, lon_deg = -67.9269886 }
+power_kw = 800.0
+emission_delay_us = 13797.2
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "X"
+name = "Nantucket, MA"
+role = "secondary"
+position = { lat_deg = 41.2533461, lon_deg = -69.9773711 }
+power_kw = 350.0
+emission_delay_us = 26969.93
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Y"
+name = "Carolina Beach, NC"
+role = "secondary"
+position = { lat_deg = 34.0628356, lon_deg = -77.9128056 }
+power_kw = 600.0
+emission_delay_us = 42221.64
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Z"
+name = "Dana, IN"
+role = "secondary"
+position = { lat_deg = 39.8521272, lon_deg = -87.4865517 }
+power_kw = 400.0
+emission_delay_us = 57162.06
+time_ref = "UTC(USNO)"

@@ -1,0 +1,158 @@
+# Timing pack (b): two chains on two UTC(k) realisations, with a UTC(k) step fault.
+#
+# PURPOSE   A timing receiver that tracks two chains steered to different national time
+#           scales must report the two offsets separately and must not average a faulty
+#           scale into its output. Here UTC(NIST)-steered chain 8970 takes a +25 ns phase
+#           step 0.15 s into the run (and, for long runs, a −10 ns correction one hour later),
+#           while chain 9960 stays on UTC(USNO).
+# EXERCISES Multi-chain synthesis on the Loran epoch (GRI 99600 and 89700, true
+#           superposition, cross-rate interference included), multi-time-reference timebase
+#           (offset, drift, steps, white-FM noise per reference), one transmitter with its own
+#           clock model, `smooth_earth` land groundwave, E-field antenna, WGN.
+# METRICS   Truth: `time_ref_offset_ns` per chain (≈ +3 ns for 9960; ≈ −8 ns for 8970 before
+#           the step and ≈ +17 ns after it), `emission_error_ns`. Receiver: the time solution's
+#           mean per time reference (`by_time_ref`) and per-station `ref_minus_rx_ns`; check
+#           that the step appears only in the 8970 stations, of 25 ns, at 0.15 s.
+# DURATION  1 s in the file (the step is inside the first second); extend `duration_s` for
+#           drift studies (drift is per day). The test suite overrides it to 0.3 s.
+# PROVENANCE Chain geometry: GRI DB entries `9960-northeast-us` and `8970-great-lakes` (USCG
+#           Loran-C User Handbook 1992, Table B-1; "verified"; both terminated 2010). Seneca
+#           and Dana are dual-rated (in both chains), as in the DB. The simulator emits each
+#           rate independently: the blanking a real dual-rated transmitter applies where its
+#           two rates overlap is not modelled. Historically both chains were steered to
+#           UTC(USNO); assigning 8970 to UTC(NIST), and all offsets, drifts, steps and noise
+#           levels, are ILLUSTRATIVE. The receiver site is ILLUSTRATIVE.
+[scene]
+start_utc = "2026-11-18T06:00:00Z"
+duration_s = 1.0
+fs_hz = 400000
+seed = 102
+output_scale_uv_m = 100000.0
+
+[receiver]
+type = "static"
+lat_deg = 40.440          # illustrative site
+lon_deg = -79.990
+
+[[outputs]]
+type = "e_field"
+
+[[time_refs]]
+id = "UTC(USNO)"
+offset_ns = 3.0
+drift_ns_per_day = 0.5
+wfm_adev_1s = 1.0e-13
+seed = 31
+
+[[time_refs]]
+id = "UTC(NIST)"
+offset_ns = -8.0
+drift_ns_per_day = -1.5
+wfm_adev_1s = 1.0e-13
+seed = 32
+steps = [
+  { at_s = 0.15, step_ns = 25.0 },     # the step fault
+  { at_s = 3600.0, step_ns = -10.0 },  # a later partial correction (long runs only)
+]
+
+[[time_refs]]
+id = "tx:Baudette"
+wfm_adev_1s = 5.0e-12
+seed = 33
+
+[propagation.ground]
+model = "smooth_earth"
+sigma_s_m = 0.005
+eps_r = 15.0
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 30.0
+seed = 3
+
+[[chains]]
+name = "9960"             # GRI DB 9960-northeast-us
+gri_us = 99600
+[[chains.stations]]
+id = "M"
+name = "Seneca, NY"
+role = "master"
+position = { lat_deg = 42.7140878, lon_deg = -76.8259189 }
+power_kw = 800.0
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "W"
+name = "Caribou, ME"
+role = "secondary"
+position = { lat_deg = 46.8075847, lon_deg = -67.9269886 }
+power_kw = 800.0
+emission_delay_us = 13797.2
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "X"
+name = "Nantucket, MA"
+role = "secondary"
+position = { lat_deg = 41.2533461, lon_deg = -69.9773711 }
+power_kw = 350.0
+emission_delay_us = 26969.93
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Y"
+name = "Carolina Beach, NC"
+role = "secondary"
+position = { lat_deg = 34.0628356, lon_deg = -77.9128056 }
+power_kw = 600.0
+emission_delay_us = 42221.64
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Z"
+name = "Dana, IN"
+role = "secondary"
+position = { lat_deg = 39.8521272, lon_deg = -87.4865517 }
+power_kw = 400.0
+emission_delay_us = 57162.06
+time_ref = "UTC(USNO)"
+
+[[chains]]
+name = "8970"             # GRI DB 8970-great-lakes
+gri_us = 89700
+[[chains.stations]]
+id = "M"
+name = "Dana, IN"
+role = "master"
+position = { lat_deg = 39.8521272, lon_deg = -87.4865517 }
+power_kw = 400.0
+time_ref = "UTC(NIST)"
+[[chains.stations]]
+id = "W"
+name = "Malone, FL"
+role = "secondary"
+position = { lat_deg = 30.9941306, lon_deg = -85.1690975 }
+power_kw = 800.0
+emission_delay_us = 14355.11
+time_ref = "UTC(NIST)"
+[[chains.stations]]
+id = "X"
+name = "Seneca, NY"
+role = "secondary"
+position = { lat_deg = 42.7140878, lon_deg = -76.8259189 }
+power_kw = 800.0
+emission_delay_us = 31162.06
+time_ref = "UTC(NIST)"
+[[chains.stations]]
+id = "Y"
+name = "Baudette, MN"
+role = "secondary"
+position = { lat_deg = 48.6138742, lon_deg = -94.5549764 }
+power_kw = 800.0
+emission_delay_us = 47753.74
+time_ref = "UTC(NIST)"
+tx_clock = "tx:Baudette"
+[[chains.stations]]
+id = "Z"
+name = "Boise City, OK"
+role = "secondary"
+position = { lat_deg = 36.5057731, lon_deg = -102.8998575 }
+power_kw = 900.0
+emission_delay_us = 63669.46
+time_ref = "UTC(NIST)"

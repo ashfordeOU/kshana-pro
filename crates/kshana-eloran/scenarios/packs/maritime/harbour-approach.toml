@@ -1,0 +1,134 @@
+# Maritime pack (a): harbour approach with crossed loops over mixed sea/land paths.
+#
+# PURPOSE   A ship approaching Le Havre from the Bay of the Seine: course changes at the
+#           waypoints, slowing for the approach channel, crossed-loop H-field antenna on the
+#           mast. The three paths are very different: Lessay (≈ 75–115 km, mostly over the
+#           Cotentin and the bay), Soustons (≈ 650 km, almost all over land) and Sylt
+#           (≈ 850 km, mostly sea along the continental coast). This is the setting of
+#           differential eLoran (harbour-entrance accuracy): ASF varies along the track and
+#           with time, and a reference station near the harbour would observe the temporal
+#           part.
+# EXERCISES `millington` groundwave over a polygon conductivity map (sea background, coarse
+#           land polygon of the French/Low-Countries/German coast), spatial ASF variation
+#           along a waypoint track (memoised on a 0.005° grid, bilinearly interpolated),
+#           deterministic diurnal/seasonal ΔASF scaled by the land fraction plus a seasonal
+#           land-conductivity change (`temporal`), propagation ECD, crossed loops (loop A on
+#           the bow, loop B athwartships) following the heading from the course between
+#           waypoints, WGN.
+# METRICS   Truth: `asf_ns` per station along the track (spatial ASF), its change with time
+#           at a fixed point (temporal ΔASF; set the receiver static to isolate it),
+#           `ecd_us`, `bearing_deg`, `rx_heading_deg`, `field_uv_m`. A differential-eLoran
+#           correction for a reference site R is `asf(R, t) − asf_nominal(R)`; the residual
+#           at the ship is the spatial decorrelation of ASF between R and the ship.
+#           Receiver: beam-steered loop ToAs, bearing error, position error with and without
+#           an ASF table (`Corrections`).
+# DURATION  The track lasts 9600 s (about 12–14 kn, slowing to ~5 kn off the entrance); the file
+#           runs 2 s at its start. Set `duration_s` up to 9600 to sail the whole approach
+#           (≈ 77 GB of ri16 at 2 MS/s × 2 channels: use `--format none` for truth only).
+#           The test suite overrides it to 0.3 s.
+# PROVENANCE Chain geometry: GRI DB entry `6731-lessay` (NELS chain 6731, terminated; chain
+#           confidence "single-source"; Lessay, Soustons and Sylt station values "verified";
+#           sources in data/gri_db.json). Anthorn (station Y) is omitted because the DB has no
+#           power for it (null), and nothing is invented. The coastline polygon is a COARSE
+#           ILLUSTRATIVE outline (tens of km accuracy), not a survey; the conductivities are
+#           representative values (ITU-R P.832 order of magnitude), not read from the atlas.
+#           Temporal amplitudes are ILLUSTRATIVE. The track is ILLUSTRATIVE (not a charted
+#           route).
+[scene]
+start_utc = "2026-11-18T08:00:00Z"
+duration_s = 2.0
+fs_hz = 2000000
+seed = 201
+output_scale_uv_m = 250000.0
+
+[receiver]
+type = "waypoints"
+points = [
+  { t_s = 0.0,    lat_deg = 49.600, lon_deg = -0.750 },
+  { t_s = 5200.0, lat_deg = 49.560, lon_deg = -0.300 },   # alter course to port
+  { t_s = 7600.0, lat_deg = 49.505, lon_deg = -0.080 },   # enter the approach channel
+  { t_s = 9000.0, lat_deg = 49.487, lon_deg =  0.040 },
+  { t_s = 9600.0, lat_deg = 49.484, lon_deg =  0.060 },   # off the harbour entrance
+]
+
+[[outputs]]
+type = "h_loop"
+axis_deg = 0.0
+[[outputs]]
+type = "h_loop"
+axis_deg = 90.0
+
+[[time_refs]]
+id = "UTC(OP)"
+offset_ns = 0.3           # CT 466 snapshot in data/utc_k.json (illustrative use)
+
+[propagation.ground]
+model = "millington"
+k_factor = 1.24
+sample_km = 2.0
+asf_grid_deg = 0.005
+
+[propagation.ground.conductivity]
+type = "polygons"
+background = { sigma_s_m = 5.0, eps_r = 80.0 }   # sea
+[[propagation.ground.conductivity.polygons]]
+name = "continental coast, France to Denmark (coarse, illustrative)"
+sigma_s_m = 0.005
+eps_r = 15.0
+vertices = [
+  [49.72, -1.94], [49.69, -1.26], [49.35, -1.15], [49.34, -0.40], [49.29, -0.25],
+  [49.42, 0.23], [49.47, 0.15], [49.51, 0.06], [49.76, 0.37], [49.93, 1.08],
+  [50.06, 1.37], [50.73, 1.60], [50.95, 1.85], [51.05, 2.37], [51.37, 3.37],
+  [52.00, 4.15], [52.95, 4.75], [53.40, 6.00], [53.60, 7.20], [53.55, 8.50],
+  [54.40, 8.60], [54.95, 8.10], [55.00, 9.50], [55.00, 15.0], [43.00, 15.0],
+  [43.30, 3.00], [42.40, 3.10], [43.35, -1.80], [44.60, -1.25], [46.20, -1.20],
+  [47.30, -2.55], [47.80, -4.30], [48.40, -4.80], [48.85, -3.10], [48.65, -2.00],
+  [48.65, -1.55], [49.40, -1.85],
+]
+[[propagation.ground.conductivity.polygons]]
+name = "Massif Armoricain / Cotentin (poorer ground, illustrative)"
+sigma_s_m = 0.002
+eps_r = 10.0
+vertices = [[48.30, -2.20], [49.70, -1.95], [49.66, -1.30], [49.30, -1.20], [48.30, -0.80]]
+
+[propagation.ground.temporal]
+epoch_day_of_year = 322.333  # 2026-11-18 08:00 UTC
+epoch_hour_utc = 8.0
+diurnal_amp_ns = 20.0
+diurnal_peak_hour_utc = 14.0
+seasonal_amp_ns = 60.0
+seasonal_peak_day = 200.0
+sigma_seasonal_frac = 0.15
+sigma_peak_day = 30.0
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 25.0
+seed = 1
+
+[[chains]]
+name = "6731"             # GRI DB 6731-lessay (station Y Anthorn omitted: power unknown)
+gri_us = 67310
+[[chains.stations]]
+id = "M"
+name = "Lessay, France"
+role = "master"
+position = { lat_deg = 49.1486733, lon_deg = -1.5047303 }
+power_kw = 250.0
+time_ref = "UTC(OP)"
+[[chains.stations]]
+id = "X"
+name = "Soustons, France"
+role = "secondary"
+position = { lat_deg = 43.7397497, lon_deg = -1.38044 }
+power_kw = 250.0
+emission_delay_us = 13000.0
+time_ref = "UTC(OP)"
+[[chains.stations]]
+id = "Z"
+name = "Sylt, Germany"
+role = "secondary"
+position = { lat_deg = 54.8083264, lon_deg = 8.2935711 }
+power_kw = 250.0
+emission_delay_us = 42100.0
+time_ref = "UTC(OP)"
