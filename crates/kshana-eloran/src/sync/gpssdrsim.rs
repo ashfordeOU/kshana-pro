@@ -636,8 +636,9 @@ position = { lat_deg = 36.0, lon_deg = 129.3 }
                 path: "x.nmea".into()
             }
         );
-        // connect fails without a navigation file
-        g.config.binary = "/bin/true".into();
+        // connect fails without a navigation file (any existing executable stands in for
+        // gps-sdr-sim: /bin/true is not on macOS)
+        g.config.binary = std::env::current_exe().unwrap();
         assert!(g.connect().unwrap_err().contains("navigation"));
         std::fs::remove_dir_all(&dir).ok();
     }
