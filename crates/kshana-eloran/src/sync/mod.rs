@@ -31,8 +31,18 @@
 //! [`bridge::SoftwareGnssBridge`] description of the data the open engine's IQ scene needs.
 
 pub mod bridge;
+pub mod degrade;
 pub mod export;
+pub mod gpssdrsim;
+pub mod labsat;
+pub mod measure;
+pub mod motion;
+pub mod profile;
+pub mod refdist;
+pub mod rs_smbv;
 pub mod scpi;
+pub mod skydel;
+pub mod spirent;
 
 use crate::hw::calib::{combine, BudgetLine, CalibrationFile, UncertaintyComponent};
 use crate::hw::StartTime;
