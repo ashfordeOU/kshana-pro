@@ -8,7 +8,12 @@
 //! parts for the groundwave), the field strength at the receiver, the propagation-induced
 //! ECD change and any extra carrier phase.
 
+pub mod complex;
+pub mod conductivity;
 pub mod ground;
+pub mod millington;
+pub mod smooth_earth;
+pub mod special;
 pub mod sky;
 
 use crate::chain::Station;
