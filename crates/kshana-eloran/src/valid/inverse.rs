@@ -961,6 +961,16 @@ pub fn ground_with_fitted_sigma(cfg: &GroundConfig, polygon: Option<&str>, sigma
             }
             _ => return Err("raster maps are not updated from a profile fit".into()),
         },
+        GroundConfig::Terrain(_)
+        | GroundConfig::MillingtonAtlas(_)
+        | GroundConfig::AsfGrid(_)
+        | GroundConfig::Urban(_) => {
+            return Err(
+                "a fitted σ is written into smooth_earth or millington (uniform/polygon) models; \
+                 for terrain, atlas, ASF-grid and urban models update their source data instead"
+                    .into(),
+            )
+        }
     }
     Ok(out)
 }
