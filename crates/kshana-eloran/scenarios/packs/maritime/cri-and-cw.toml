@@ -1,0 +1,155 @@
+# Maritime pack (c): cross-rate interference from an adjacent chain plus CW interferers.
+#
+# PURPOSE   A laker on Lake Erie navigating on chain 8970 (Great Lakes). Chain 9960
+#           (Northeast US) shares two transmitter sites with it (Seneca and Dana, dual-rated)
+#           and its strong pulses overlap 8970's every few groups (cross-rate interference).
+#           Two continuous-wave interferers sit in and near the band (one in-band at 98.75
+#           kHz, one strong just outside at 112.5 kHz), as from nearby LF equipment.
+#           Tests CRI blanking/averaging and CW notching in the receiver.
+# EXERCISES Two chains with different GRIs (89700 and 99600) synthesised by true superposition
+#           on the Loran epoch (CRI is never injected separately), two `cw` sources (one with
+#           a start/stop window), `smooth_earth` land groundwave, waypoint track with a course
+#           change, crossed loops, WGN.
+# METRICS   Truth: per-station `toa_s`, `snr_db`, `field_uv_m` of both chains. CRI overlap
+#           statistics: `interf::cri::overlap_fraction_lattice` for 8970 against 9960 (and
+#           the counted fraction from `chain::emissions`). Receiver: 8970 ToA RMS and cycle
+#           errors with and without CRI blanking (`kshana-pro eloran rx --no-cri-blanking`),
+#           SNR estimate bias caused by the CW tones.
+# DURATION  2 s in the file; CRI statistics need many groups: run ≥ 60 s (several CRI
+#           cycles). The test suite overrides `duration_s` to 0.3 s.
+# PROVENANCE Chain geometry: GRI DB entries `8970-great-lakes` and `9960-northeast-us` (USCG
+#           Loran-C User Handbook 1992, Table B-1; "verified"; terminated 2010). The dual-rated
+#           blanking of the real Seneca and Dana transmitters is NOT modelled: both rates are
+#           emitted in full. CW frequencies and levels, and the track, are ILLUSTRATIVE.
+[scene]
+start_utc = "2026-11-18T15:00:00Z"
+duration_s = 2.0
+fs_hz = 1000000
+seed = 203
+output_scale_uv_m = 100000.0
+
+[receiver]
+type = "waypoints"
+points = [
+  { t_s = 0.0,    lat_deg = 41.950, lon_deg = -81.600 },
+  { t_s = 7400.0, lat_deg = 42.100, lon_deg = -81.000 },
+  { t_s = 15000.0, lat_deg = 42.400, lon_deg = -80.500 },   # course change
+]
+
+[[outputs]]
+type = "h_loop"
+axis_deg = 0.0
+[[outputs]]
+type = "h_loop"
+axis_deg = 90.0
+
+[[time_refs]]
+id = "UTC(USNO)"
+offset_ns = 0.2
+
+[propagation.ground]
+model = "smooth_earth"
+sigma_s_m = 0.008
+eps_r = 15.0
+
+[[interference]]
+type = "cw"
+freq_hz = 98750.0
+rms_uv_m = 200.0
+
+[[interference]]
+type = "cw"
+freq_hz = 112500.0
+rms_uv_m = 2000.0
+from_s = 0.05            # switched on 50 ms into the run
+
+[[interference]]
+type = "wgn"
+rms_uv_m_20khz = 40.0
+seed = 2
+
+[[chains]]
+name = "8970"             # GRI DB 8970-great-lakes (victim)
+gri_us = 89700
+[[chains.stations]]
+id = "M"
+name = "Dana, IN"
+role = "master"
+position = { lat_deg = 39.8521272, lon_deg = -87.4865517 }
+power_kw = 400.0
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "W"
+name = "Malone, FL"
+role = "secondary"
+position = { lat_deg = 30.9941306, lon_deg = -85.1690975 }
+power_kw = 800.0
+emission_delay_us = 14355.11
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "X"
+name = "Seneca, NY"
+role = "secondary"
+position = { lat_deg = 42.7140878, lon_deg = -76.8259189 }
+power_kw = 800.0
+emission_delay_us = 31162.06
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Y"
+name = "Baudette, MN"
+role = "secondary"
+position = { lat_deg = 48.6138742, lon_deg = -94.5549764 }
+power_kw = 800.0
+emission_delay_us = 47753.74
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Z"
+name = "Boise City, OK"
+role = "secondary"
+position = { lat_deg = 36.5057731, lon_deg = -102.8998575 }
+power_kw = 900.0
+emission_delay_us = 63669.46
+time_ref = "UTC(USNO)"
+
+[[chains]]
+name = "9960"             # GRI DB 9960-northeast-us (interferer)
+gri_us = 99600
+[[chains.stations]]
+id = "M"
+name = "Seneca, NY"
+role = "master"
+position = { lat_deg = 42.7140878, lon_deg = -76.8259189 }
+power_kw = 800.0
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "W"
+name = "Caribou, ME"
+role = "secondary"
+position = { lat_deg = 46.8075847, lon_deg = -67.9269886 }
+power_kw = 800.0
+emission_delay_us = 13797.2
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "X"
+name = "Nantucket, MA"
+role = "secondary"
+position = { lat_deg = 41.2533461, lon_deg = -69.9773711 }
+power_kw = 350.0
+emission_delay_us = 26969.93
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Y"
+name = "Carolina Beach, NC"
+role = "secondary"
+position = { lat_deg = 34.0628356, lon_deg = -77.9128056 }
+power_kw = 600.0
+emission_delay_us = 42221.64
+time_ref = "UTC(USNO)"
+[[chains.stations]]
+id = "Z"
+name = "Dana, IN"
+role = "secondary"
+position = { lat_deg = 39.8521272, lon_deg = -87.4865517 }
+power_kw = 400.0
+emission_delay_us = 57162.06
+time_ref = "UTC(USNO)"
