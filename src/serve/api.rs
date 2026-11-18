@@ -74,6 +74,7 @@ pub enum RouteId {
     EloranRx,
     EloranGri,
     EloranGriChain,
+    EloranMonitor,
 }
 
 /// One route: the method, the path template (OpenAPI form, `{param}` for a segment)
@@ -175,6 +176,7 @@ pub static ROUTES: &[Route] = &[
     Route { method: "POST", path: "/eloran/run", id: RouteId::EloranRun, role: Some(Role::Submitter), summary: "eLoran simulator: run a scenario (body: scenario TOML) to a SigMF recording, a truth table and a run record. With a data directory it is an eloran-run job (202; the job's result is the run record); without one, a synchronous run of at most 8 million samples (200). Needs the Enterprise feature pro-eloran. Hardware output is never served over HTTP", needs_data_dir: false, greedy_tail: false, request: Some(("text/plain", "An eLoran scenario in TOML")), query: &[("format", "Sample format, overriding the scenario's [file] format: ri16, rf32 or none (truth only)")], responses: &[(200, JSON, "Synchronous run: the run record (run_id, scenario_sha256, stats, files, artefacts, truth_preview), or the existing job"), (202, JSON, "Queued as a job (run_id = job_id)"), (400, JSON, "Bad query parameter"), (403, JSON, "The entitlement does not include pro-eloran"), (413, JSON, "Body above the cap"), (422, JSON, "Invalid scenario, or too large for a synchronous run"), AUTH_401] },
     Route { method: "POST", path: "/eloran/rx", id: RouteId::EloranRx, role: Some(Role::Submitter), summary: "eLoran simulator: the software receiver on a stored run's recording, with the truth comparison (per-station ToA error, cycle errors, position fix and error, time offsets per reference). Needs the Enterprise feature pro-eloran", needs_data_dir: false, greedy_tail: false, request: Some((JSON, "{\"run\": <run_id>, \"scenario\"?: <TOML, default the run's>, \"per_loop\"?: bool, \"cri_blanking\"?: bool, \"truth\"?: bool}")), query: &[], responses: &[(200, JSON, "Receiver report (kshana-eloran-rx)"), (400, JSON, "Malformed JSON or run identifier"), (403, JSON, "The entitlement does not include pro-eloran"), (404, JSON, "No such run"), (409, JSON, "The run has not succeeded, or has no recording"), (422, JSON, "Invalid request or scenario, or the receiver failed"), AUTH_401] },
     Route { method: "GET", path: "/eloran/gri", id: RouteId::EloranGri, role: Some(Role::Reader), summary: "eLoran simulator: the preloaded worldwide GRI/chain database with region, status, confidence and station positions; no licence needed", needs_data_dir: false, greedy_tail: false, request: None, query: &[("region", "Only chains of this region"), ("active_on", "Only chains operating on this day, YYYY-MM-DD"), ("search", "Free text: id, name, region, system, country or station name")], responses: &[(200, JSON, "{format, updated, count, chains}"), (400, JSON, "Unknown query parameter"), AUTH_401] },
+    Route { method: "POST", path: "/eloran/monitor", id: RouteId::EloranMonitor, role: Some(Role::Submitter), summary: "eLoran simulator: live-monitor snapshots of a scenario processed by the real-time receiver (spectrum, pulse view, per-station status, fix, health, truth comparison); format=json (default) or html (self-contained dashboard). Synchronous, at most the synchronous sample limit. Needs the Enterprise feature pro-eloran", needs_data_dir: false, greedy_tail: false, request: Some(("text/plain", "An eLoran scenario in TOML")), query: &[("format", "json (the monitor result) or html (the dashboard page)")], responses: &[(200, JSON, "Monitor result {header, snapshots, summary}, or the HTML dashboard with format=html"), (400, JSON, "Bad query parameter"), (403, JSON, "The entitlement does not include pro-eloran"), (413, JSON, "Body above the cap"), (422, JSON, "Invalid scenario, too large for a synchronous run, or the monitor failed"), AUTH_401] },
     Route { method: "GET", path: "/eloran/gri/{chain}", id: RouteId::EloranGriChain, role: Some(Role::Reader), summary: "eLoran simulator: the GRI database entries matching an id, a GRI or text, each with its sources and its [[chains]] scenario snippet; no licence needed", needs_data_dir: false, greedy_tail: false, request: None, query: &[], responses: &[(200, JSON, "{query, count, chains: [{summary, entry, snippet}]}"), (404, JSON, "No chain matches"), AUTH_401] },
 ];
 
@@ -812,6 +814,7 @@ fn route_request(
         (RouteId::EloranRx, _) => super::eloran::rx(svc, &who, &req.body, now),
         (RouteId::EloranGri, _) => super::eloran::gri_list(query),
         (RouteId::EloranGriChain, _) => super::eloran::gri_show(&params[0]),
+        (RouteId::EloranMonitor, _) => super::eloran::monitor(svc, &req.body, query, now),
         (_, None) => super::handle(req, &svc.entitlement, now),
     }
 }

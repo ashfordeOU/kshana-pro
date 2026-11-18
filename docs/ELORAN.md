@@ -171,3 +171,27 @@ Signed V&V evidence: a campaign directory (or any run output) can be signed with
 CI: `.github/workflows/eloran.yml` runs format, strict clippy (with and without the hardware driver features) and the full engine test suite on every push, and a nightly virtual-bench, acceptance and campaign run.
 
 Planner note: with the default station availability (0.999) and service-availability target (0.999), three stations cannot meet the target at any point (all three must be up: 0.997). Use more stations, or set the targets to the service you are planning.
+
+## Live monitor (GUI)
+
+`kshana-pro eloran monitor <scenario> --out <dir> [--recording <base>] [--interval <s>]` runs the
+scenario (or replays a recording) through the real-time receiver and writes:
+
+* `<dir>/monitor.jsonl`: a header line, one snapshot line per interval (spectrum, pulse view per
+  station, per-station SNR/ECD/field/bearing/lock/cycle slips, the latest position or time fix,
+  health: real-time factor, latency, peak level, clipping), and a summary line with the truth
+  comparison (ToA error per station, cycle errors, final fix error);
+* `<dir>/monitor.html`: a self-contained dashboard (map, station table, spectrum, pulse view,
+  health tiles, fix, truth table, timeline player, light/dark). To follow a long run live, serve
+  the directory (`python3 -m http.server`) and open `monitor.html?live=monitor.jsonl`.
+
+The service offers the same as `POST /eloran/monitor` (JSON, or `?format=html` for the page;
+synchronous, Enterprise), and Desktop Pro's eLoran page has a **Live monitor** card that shows
+the dashboard in a sandboxed frame.
+
+## Python SDK
+
+`sdk/python` (package `kshana_eloran`, no third-party dependencies): `Eloran` wraps every
+`kshana-pro eloran` command, `ServiceClient` the `/eloran/*` service routes, plus readers
+(`read_sigmf`, `read_truth`, `read_monitor`) and a `ScenarioBuilder`. See `sdk/python/README.md`.
+The generated service clients in `clients/` include the monitor route.

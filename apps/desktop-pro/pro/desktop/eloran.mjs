@@ -157,7 +157,7 @@ export function rxModel(rep) {
 
 /** The state of the eLoran page. */
 export function createEloran() {
-  return { text: "", validation: null, gri: null, filter: { region: "", status: "", search: "" }, sel: "", run: null, rx: null, rxOpts: { per_loop: false, cri_blanking: true }, busy: "" };
+  return { text: "", validation: null, gri: null, filter: { region: "", status: "", search: "" }, sel: "", run: null, rx: null, monitor: "", rxOpts: { per_loop: false, cri_blanking: true }, busy: "" };
 }
 
 // ------------------------------------------------------------------ the view (DOM)
@@ -264,6 +264,12 @@ export function eloranActions(papi, E, { say, redraw, wait = sleep, pollLimit = 
       }
       say("warn", "The job is still running; look at the service's job board, or run again later (the same scenario is the same job).");
     }),
+    monitor: () => act("monitor", async () => {
+      const r = await papi.post("/eloran/monitor?format=html", E.text);
+      if (!r.ok) return say("bad", r.error);
+      E.monitor = typeof r.value === "string" ? r.value : "";
+      say(E.monitor ? "ok" : "bad", E.monitor ? "Monitor ready: scrub the timeline or press play." : "The service returned no monitor page.");
+    }),
     rx: () => act("rx", async () => {
       const id = E.run && (E.run.run_id || E.run.job_id);
       if (!id) return say("bad", "Run the scenario first.");
@@ -344,7 +350,14 @@ export function eloranPage({ h, page, btn, chip, note, E, A }) {
       textTable(h, ["Reference", "Offset (ns)", "Stations"], R.byRef.map((r) => [r.ref, r.offset, String(r.stations)])),
       R.perStation.length ? textTable(h, ["Station", "Reference", "Offset (ns)", "Std (ns)", "n"], R.perStation.map((s) => [s.key, s.ref, s.offset, s.std, String(s.n)])) : null] : h("p", { class: "empty", text: "No receiver results yet." }));
 
+  // (e) live monitor (real-time receiver snapshots, rendered in a sandboxed frame)
+  const mon = h("div", { class: "card" },
+    h("div", { class: "lic-head" }, h("h2", { text: "Live monitor" }), E.monitor ? chip("READY", "ok") : null),
+    h("div", { class: "row" }, btn(busy("monitor") ? "Monitoring…" : "Monitor the scenario", A.monitor, true)),
+    h("p", { class: "mut", text: "Runs the scenario through the real-time receiver on the service: spectrum, pulse view, per-station status, fix, health and the truth comparison, with a timeline player. Longer runs: kshana-pro eloran monitor on the command line (live follow)." }),
+    E.monitor ? h("iframe", { class: "pro-monitor", title: "eLoran live monitor", sandbox: "allow-scripts", srcdoc: E.monitor }) : h("p", { class: "empty", text: "No monitor run yet." }));
+
   return page("pro-eloran", "Kshana Enterprise · eLoran/GNSS simulator", "eLoran simulator",
     "Write a scenario, add real chains from the GRI database, run it on your Kshana Pro service and read the recording back with the software receiver against the simulator's truth. Every result is MODELLED.",
-    note, h("div", { class: "pro-split pro-eloran" }, h("div", { class: "pro-col" }, editor, run, rx), h("div", { class: "pro-col" }, chains)));
+    note, h("div", { class: "pro-split pro-eloran" }, h("div", { class: "pro-col" }, editor, run, rx), h("div", { class: "pro-col" }, chains, mon)));
 }

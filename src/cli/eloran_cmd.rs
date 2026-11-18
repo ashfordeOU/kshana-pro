@@ -62,6 +62,10 @@ pub const USAGE: &str = "usage: kshana-pro eloran <command>\n\
         Network planner: coverage, accuracy, availability, site selection, CRI risk (Enterprise)\n\
     twin <twin.toml> --out <result.json> [--license <token>] [--dev]\n\
         National-network digital twin: clocks, monitors, alarms, steering, KPIs (Enterprise)\n\
+    monitor <scenario.toml> --out <dir> [--recording <base>] [--interval <s>] [--per-loop] [--license <token>] [--dev]\n\
+        Live monitor: run the scenario (or replay a recording) through the real-time receiver; stream\n\
+        <dir>/monitor.jsonl and write the dashboard <dir>/monitor.html (open it, or serve the directory\n\
+        and open monitor.html?live=monitor.jsonl to follow a run live) (Enterprise)\n\
     validate <scenario.toml>\n\
         Check a scenario and print its SHA-256 (no licence needed)\n\
     example\n\
@@ -92,6 +96,7 @@ pub fn run(args: &[String]) -> ExitCode {
         Some("campaign") => campaign_cmd(args),
         Some("plan") => plan_cmd(args),
         Some("twin") => twin_cmd(args),
+        Some("monitor") => monitor_cmd(args),
         Some("gri") => gri_cmd(args),
         Some("calibrate") => calibrate_cmd(args),
         Some("example") => {
@@ -1136,5 +1141,61 @@ fn twin_cmd(args: &[String]) -> ExitCode {
             })
             .collect();
         Ok(format!("twin: {} -> {out}", k.join("; ")))
+    })())
+}
+
+fn monitor_cmd(args: &[String]) -> ExitCode {
+    use kshana_eloran::monitor::{html, monitor_recording, monitor_scenario, MonitorConfig};
+    let Some(path) = args.get(1).filter(|a| !a.starts_with("--")).cloned() else {
+        return fail(USAGE);
+    };
+    let Some(out) = flag(args, "--out") else {
+        return fail(USAGE);
+    };
+    if let Err(c) = licensed(args) {
+        return c;
+    }
+    done((|| {
+        let sc = load(&path)?;
+        let dir = PathBuf::from(&out);
+        std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+        let mut cfg = MonitorConfig::default();
+        if let Some(i) = num_flag::<f64>(args, "--interval")? {
+            cfg.interval_s = i;
+        }
+        cfg.per_loop = args.iter().any(|a| a == "--per-loop");
+        let jsonl = dir.join("monitor.jsonl");
+        // a placeholder dashboard first, so a live view can open while the run streams
+        let placeholder = r#"<!doctype html><meta charset="utf-8"><title>eLoran Monitor</title><p>Run in progress: open <a href="monitor.html?live=monitor.jsonl">monitor.html?live=monitor.jsonl</a> from a local web server.</p>"#;
+        let _ = std::fs::write(dir.join("monitor.html"), placeholder);
+        let f = std::fs::File::create(&jsonl).map_err(|e| format!("{}: {e}", jsonl.display()))?;
+        let w: Box<dyn std::io::Write + Send> = Box::new(std::io::BufWriter::new(f));
+        let r = match flag(args, "--recording") {
+            Some(rec) => monitor_recording(&sc, Path::new(&rec), cfg, Some(w))?,
+            None => monitor_scenario(&sc, cfg, Some(w))?,
+        };
+        std::fs::write(dir.join("monitor.html"), html(&r)).map_err(|e| e.to_string())?;
+        let worst = r
+            .summary
+            .truth
+            .iter()
+            .map(|t| t.toa_rms_ns)
+            .fold(0.0, f64::max);
+        Ok(format!(
+            "monitor: {} snapshot(s), {} station(s) tracked, {} measurement(s){}{} -> {}",
+            r.summary.snapshots,
+            r.summary.stations_tracked,
+            r.summary.measurements,
+            if r.summary.truth.is_empty() {
+                String::new()
+            } else {
+                format!(", worst ToA RMS {worst:.1} ns")
+            },
+            r.summary
+                .final_fix_error_m
+                .map(|e| format!(", fix error {e:.1} m"))
+                .unwrap_or_default(),
+            dir.join("monitor.html").display()
+        ))
     })())
 }

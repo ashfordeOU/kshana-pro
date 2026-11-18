@@ -354,6 +354,11 @@ export class KshanaProClient {
     return this.call("GET", `/eloran/gri`, query, undefined, undefined, false);
   }
 
+  /** POST /eloran/monitor: eLoran simulator: live-monitor snapshots of a scenario processed by the real-time receiver (spectrum, pulse view, per-station status, fix, health, truth comparison); format=json (default) or html (self-contained dashboard). Synchronous, at most the synchronous sample limit. Needs the Enterprise feature pro-eloran. Role: submitter. */
+  postEloranMonitor(text: string, query: { format?: string | number } = {}): Promise<any> {
+    return this.call("POST", `/eloran/monitor`, query, text, "text/plain", false);
+  }
+
   /** GET /eloran/gri/{chain}: eLoran simulator: the GRI database entries matching an id, a GRI or text, each with its sources and its [[chains]] scenario snippet; no licence needed. Role: reader. */
   getEloranGriChain(chain: string): Promise<any> {
     return this.call("GET", `/eloran/gri/${encodeURIComponent(chain)}`, undefined, undefined, undefined, false);

@@ -10,6 +10,7 @@
 //! | `POST /eloran/rx` | body: `{"run": <run id>, "scenario"?: <TOML>, "per_loop"?: bool, "cri_blanking"?: bool}` → the receiver report with the truth comparison | `pro-eloran` |
 //! | `GET /eloran/gri` | the GRI/chain database (`region`, `active_on`, `search`) | free |
 //! | `GET /eloran/gri/{chain}` | entries matching an id, a GRI or text, with their `[[chains]]` snippet | free |
+//! | `POST /eloran/monitor` | body: scenario TOML → live-monitor result (`format=json`) or dashboard page (`format=html`), synchronous | `pro-eloran` |
 //!
 //! A run's identifier is the job identifier ([`super::jobs::tenant_job_id`] of the tenant,
 //! `eloran-run` and the request), with or without a data directory. With one, the recording
@@ -523,6 +524,54 @@ pub fn run_op(req: &Value, ctx: &RunContext<'_>) -> Result<OpOutput, String> {
         result: serde_json::to_string_pretty(&result).unwrap_or_default(),
         artefacts,
     })
+}
+
+/// `POST /eloran/monitor`: the scenario through the real-time receiver, synchronously (at
+/// most [`SYNC_MAX_SAMPLES`] samples); the monitor result as JSON, or with `format=html` the
+/// self-contained dashboard.
+pub fn monitor(svc: &Service, body: &str, query: &str, now: i64) -> HttpResponse {
+    if let Err(r) = licensed(&svc.entitlement, now) {
+        return r;
+    }
+    let mut html = false;
+    for kv in query.split('&').filter(|s| !s.is_empty()) {
+        match kv.split_once('=') {
+            Some(("format", "json")) => html = false,
+            Some(("format", "html")) => html = true,
+            _ => {
+                return HttpResponse::error(
+                    400,
+                    &format!("unknown query parameter {kv:?} (format=json|html)"),
+                )
+            }
+        }
+    }
+    if body.trim().is_empty() {
+        return HttpResponse::error(422, "empty request body (expected a scenario TOML)");
+    }
+    let sc = match es::validate(body) {
+        Ok((sc, _)) => sc,
+        Err(e) => return HttpResponse::error(422, &e),
+    };
+    if es::samples_total(&sc) > SYNC_MAX_SAMPLES {
+        return HttpResponse::error(422, &format!(
+            "the scenario is too large for a synchronous monitor run ({} samples > {SYNC_MAX_SAMPLES}); use `kshana-pro eloran monitor` on the command line",
+            es::samples_total(&sc)
+        ));
+    }
+    match kshana_eloran::monitor::monitor_scenario(
+        &sc,
+        kshana_eloran::monitor::MonitorConfig::default(),
+        None,
+    ) {
+        Ok(r) if html => {
+            let mut resp = HttpResponse::text(200, &kshana_eloran::monitor::html(&r));
+            resp.content_type = "text/html; charset=utf-8";
+            resp
+        }
+        Ok(r) => json_ok(200, &serde_json::to_value(&r).unwrap_or_default()),
+        Err(e) => HttpResponse::error(422, &e),
+    }
 }
 
 #[cfg(test)]

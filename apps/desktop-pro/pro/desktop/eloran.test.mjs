@@ -254,3 +254,25 @@ test("actions: a job run is polled until it succeeds, a failed job and a refusal
   await A3.rx();
   assert.match(said3.at(-1)[1], /Run the scenario first/);
 });
+
+test("actions: the live monitor page comes back as HTML and is kept for the sandboxed frame", async () => {
+  const PAGE = "<!doctype html><title>eLoran Monitor</title>";
+  const { papi, sent } = fakeApp((m, p) => {
+    if (m === "POST" && p === "/eloran/monitor?format=html") return { status: 200, text: PAGE };
+    return { status: 404, json: { error: "not found" } };
+  });
+  const E = createEloran();
+  E.text = SCENARIO;
+  const said = [];
+  const A = eloranActions(papi, E, { say: (tone, text) => said.push([tone, text]), redraw: () => {} });
+  await A.monitor();
+  assert.equal(E.monitor, PAGE);
+  assert.equal(said.at(-1)[0], "ok");
+  assert.equal(sent.at(-1)[2], SCENARIO, "the scenario text is the request body");
+  const refused = fakeApp(() => ({ status: 403, json: { error: "this capability is not available under this licence" } }));
+  const E2 = createEloran();
+  const said2 = [];
+  await eloranActions(refused.papi, E2, { say: (t, x) => said2.push([t, x]), redraw: () => {} }).monitor();
+  assert.equal(E2.monitor, "");
+  assert.equal(said2.at(-1)[0], "bad");
+});

@@ -11,9 +11,9 @@ name: eLoran engine
 on:
   push:
     branches: [main, "eloran/**"]
-    paths: ["crates/kshana-eloran/**", ".github/workflows/eloran.yml"]
+    paths: ["crates/kshana-eloran/**", "sdk/python/**", ".github/workflows/eloran.yml"]
   pull_request:
-    paths: ["crates/kshana-eloran/**", ".github/workflows/eloran.yml"]
+    paths: ["crates/kshana-eloran/**", "sdk/python/**", ".github/workflows/eloran.yml"]
   schedule:
     - cron: "17 2 * * *"
   workflow_dispatch:
@@ -59,3 +59,8 @@ jobs:
         run: cargo test --release --locked -- hw::virtual accept:: calreg sync::measure
       - name: Conformance and campaign runner (release)
         run: cargo test --release --locked -- campaign::
+      - name: Python SDK (unit and integration against a fresh kshana-pro build)
+        working-directory: .
+        run: |
+          cargo build --locked --bin kshana-pro
+          KSHANA_PRO_BIN="$PWD/target/debug/kshana-pro" python3 -m unittest discover -s sdk/python/tests -v

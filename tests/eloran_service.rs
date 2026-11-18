@@ -424,3 +424,35 @@ fn hardware_output_is_never_served_and_routes_are_documented() {
         .iter()
         .any(|o| o["name"] == "eloran-run" && o["feature"] == "pro-eloran"));
 }
+
+#[test]
+fn live_monitor_route_is_licensed_and_returns_json_or_the_dashboard() {
+    for tier in [Tier::Evaluation, Tier::Pro] {
+        let srv = start(None, ent(tier));
+        let r = http(srv.local_addr(), "POST", "/eloran/monitor", RX_SCENARIO);
+        assert_eq!(r.status, 403, "{tier:?}: {}", r.body);
+    }
+    let srv = start(None, ent(Tier::Enterprise));
+    let addr = srv.local_addr();
+    let r = http(addr, "POST", "/eloran/monitor", RX_SCENARIO);
+    assert_eq!(r.status, 200, "{}", r.body);
+    let v: Value = serde_json::from_str(&r.body).expect("monitor JSON");
+    assert_eq!(v["header"]["format"], "kshana-eloran-monitor");
+    assert!(v["snapshots"].as_array().unwrap().len() >= 2);
+    assert!(
+        v["summary"]["stations_tracked"].as_u64().unwrap() >= 4,
+        "{}",
+        v["summary"]
+    );
+    for t in v["summary"]["truth"].as_array().unwrap() {
+        assert_eq!(t["cycle_errors"], 0, "{t}");
+    }
+    let h = http(addr, "POST", "/eloran/monitor?format=html", RX_SCENARIO);
+    assert_eq!(h.status, 200);
+    assert!(h.body.contains("<!doctype html>") && h.body.contains("eLoran Monitor"));
+    assert_eq!(
+        http(addr, "POST", "/eloran/monitor?format=pdf", RX_SCENARIO).status,
+        400
+    );
+    assert_eq!(http(addr, "POST", "/eloran/monitor", "").status, 422);
+}

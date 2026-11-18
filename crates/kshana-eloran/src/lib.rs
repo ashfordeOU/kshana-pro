@@ -55,6 +55,7 @@ pub mod instr;
 pub mod interf;
 pub mod io;
 pub mod ldc;
+pub mod monitor;
 pub mod plan;
 pub mod prop;
 pub mod replay;
